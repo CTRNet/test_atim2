@@ -8,7 +8,7 @@ class ParticipantsController extends ClinicalannotationAppController {
 	// temp beforefilter to allow permissions, ACL tables not updated yet
 	function beforeFilter() {
 		parent::beforeFilter(); 
-		$this->Auth->allowedActions = array('index','search');
+		$this->Auth->allowedActions = array('index','search','profile','edit');
 	}
 	
 	function index() {
