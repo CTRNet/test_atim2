@@ -5,12 +5,6 @@ class ParticipantsController extends ClinicalannotationAppController {
 	var $uses = array('Participant');
 	var $paginate = array('Participant'=>array('limit'=>10,'order'=>'Participant.last_name ASC, Participant.first_name ASC')); 
 	
-	// temp beforefilter to allow permissions, ACL tables not updated yet
-	function beforeFilter() {
-		parent::beforeFilter(); 
-		$this->Auth->allowedActions = array('index','search','profile','edit');
-	}
-	
 	function index() {
 		$_SESSION['ctrapp_core']['search'] = NULL; // clear SEARCH criteria
 	}
@@ -25,7 +19,7 @@ class ParticipantsController extends ClinicalannotationAppController {
 		
 		// if SEARCH form data, save number of RESULTS and URL
 		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['Participant']['count'];
-		$_SESSION['ctrapp_core']['search']['url'] = '/clinicalannotation/participants/i';
+		$_SESSION['ctrapp_core']['search']['url'] = '/clinicalannotation/participants/search';
 	}
 
 	function profile( $participant_id ) {
@@ -33,11 +27,19 @@ class ParticipantsController extends ClinicalannotationAppController {
 		$this->data = $this->Participant->find('first',array('conditions'=>array('Participant.id'=>$participant_id)));
 	}
 	
+	function add() {
+		$this->set( 'atim_menu', $this->Menus->get('/clinicalannotation/participants/index') );
+		
+		if ( !empty($this->data) ) {
+			if ( $this->Participant->save($this->data) ) $this->flash( 'Your data has been updated.','/clinicalannotation/participants/profile/'.$this->Participant->id );
+		}
+	}
+	
 	function edit( $participant_id ) {
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id) );
 		
 		if ( !empty($this->data) ) {
-			$this->Participant->id = $bank_id;
+			$this->Participant->id = $participant_id;
 			if ( $this->Participant->save($this->data) ) $this->flash( 'Your data has been updated.','/clinicalannotation/participants/profile/'.$participant_id );
 		} else {
 			$this->data = $this->Participant->find('first',array('conditions'=>array('Participant.id'=>$participant_id)));
