@@ -1,0 +1,557 @@
+body {
+	margin: 10px 0;
+	padding: 0;
+	background-color: #eef;
+	font: 12px/1.3em Helvetica, Arial, sans-serif;
+}
+
+div {
+	clear: both;
+	margin: 0 10px 10px 10px;
+	padding: 0.25em 1em;
+	background-color: #fff;
+	border: 1px solid #ccf;
+}
+	
+	div#header {
+		-moz-border-radius: 5px;
+		-webkit-border-radius: 5px;
+		
+		color: #006;
+	}
+	
+	div#footer {
+		-moz-border-radius: 5px;
+		-webkit-border-radius: 5px;
+	}
+	
+		div#footer span {
+			float: right;
+		}
+	
+	div#wrapper {
+		background: none;
+		border: 0;
+		padding: 0;
+	}
+
+p {
+	margin: 1em 0;
+}
+
+form,
+fieldset {
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+.not_allowed {
+	cursor: not-allowed;
+}
+
+.required {
+	background-color: #ffc;
+}
+
+/* actions, links */
+
+div#wrapper div.actions {
+	position: relative;
+	z-index:15;
+	
+	list-style-type: none;
+	background: #dde;
+	min-height: 25px;
+	padding: 12px 0 0 20px;
+	margin: 0;
+	
+	border: 3px solid #339;
+	border-color: #339;
+	border-top: none;
+	
+	-moz-border-radius-bottomleft: 12px; -webkit-border-bottom-left-radius: 12px;
+	-moz-border-radius-bottomright: 12px; -webkit-border-bottom-right-radius: 12px;
+	
+	font-size: 11px;
+	line-height: 1.2em;
+	color: #bbf;
+}
+
+	div#wrapper div.actions ul {
+		float: right;
+		margin: 0 0 0 10px;
+		padding: 0;
+		list-style-type: none;
+	}
+	
+		div#wrapper div.actions li {
+			position: relative;
+			float: left;
+			padding: 0 20px 0 10px;
+		}
+		
+		div#wrapper div.actions a {
+			font-weight: bold;
+			font-size: 12px;
+			text-transform: uppercase;
+		}
+		
+		div#wrapper div.actions a.not_allowed {
+			color: #aad;
+		}
+			
+			div#wrapper div.actions a.search_results {
+				display: inline;
+				background: #000 url(http://tbn3.google.com/images?q=tbn:UX3LYnFQ_fAXvM:http://www.jimhardygolf.com/Portals/0/Skins/JHG%20Skin/images/SearchIcon2.png) 6px 4px no-repeat;
+				
+				color: #fff;
+				
+				padding: 5px 10px 4px 26px;
+				-moz-border-radius: 10px; -webkit-border-radius: 10px;
+				-moz-border-radius-topright: 0; -webkit-border-top-right-radius: 0;
+				
+			}
+
+/* menu and summary */
+
+div.menu.level_0 {
+	position: relative;
+	z-index:20;
+	
+	list-style-type: none;
+	background: #33c;
+	padding: 0;
+	min-height: 35px;
+	margin: 10px 10px 0 10px;
+	
+	-moz-border-radius-topleft: 12px; -webkit-border-top-left-radius: 12px;
+	-moz-border-radius-topright: 12px; -webkit-border-top-right-radius: 12px;
+	
+	border-color: #339;
+	border-bottom: none;
+	
+	font-size: 11px;
+	line-height: 1.2em;
+	color: #bbf;
+}
+
+	div.menu.level_0 span {
+		color: #ff0;
+		font-weight: bold;
+		font-size: 12px;
+		text-decoration: none;
+		text-transform: uppercase;
+	}
+	
+	div.menu.level_0 span.without_summary {
+		display: block;
+		/* margin-top: 6px;
+		margin-bottom: 6px; */
+		margin-bottom: 14px;
+	}
+
+	div.menu ul {
+		float: left;
+		margin: 0 0 0 10px;
+		padding: 0;
+		list-style-type: none;
+	}
+	
+		div.menu li {
+			position: relative;
+			float: right;
+			padding: 4px 20px 4px 10px;
+			
+			background: transparent url(http://images.apple.com/global/nav/images/breadcrumb_separator.png) right center no-repeat;
+		}
+		
+			div.menu li.count_0 { background: none; }
+			
+		div.menu.level_1 {
+			display: none;
+			
+			top: 34px; left: -10px;
+			position: absolute;
+			
+			background: #33c;
+			
+			margin: 0;
+			padding: 0;
+			border: 0;
+	
+			-moz-border-radius-bottomleft: 10px; -webkit-border-bottom-left-radius: 10px;
+			-moz-border-radius-bottomright: 10px; -webkit-border-bottom-right-radius: 10px;
+		}
+		
+			div.menu.level_0 li:hover div.menu.level_1 {
+				display: block;
+			}
+			
+			div.menu.level_1 ul {
+				margin: 10px 0;
+				padding: 0;
+				border: 0;
+			}
+			
+				div.menu.level_1 li {
+					min-width: 200px;
+					margin: 0;
+					padding: 5px 10px 5px 20px;
+					border: 0;
+					border-top: 1px solid #55c;
+					background: none;
+					color: #fff;
+				}
+				
+					div.menu.level_1 li.not_allowed {
+						background-color: #339;
+						color: #55c;
+					}
+				
+					div.menu.level_1 li a {
+						float: none;
+						font-weight: normal;
+						text-transform: none;
+	
+						font-size: 11px;
+						line-height: 1.1em;
+						color: #fff;
+					}
+					
+						div.menu.level_1 li:hover {
+							background-color: #009;
+						}
+					
+						div.menu.level_1 li.not_allowed:hover {
+							background-color: #339;
+						}
+	
+	div.menu ul#summary {
+		float: right;
+		width: 100px;
+		margin: 5px 15px 0 0;
+		
+		cursor: help;
+	}
+		
+		div.menu ul#summary li {
+			background: none;
+			padding: 0;
+			margin: 0;
+		}
+		
+		div.menu ul#summary span {
+			display: block;
+			background: none;
+			background-color: #227;
+			font-weight: bold;
+			font-size: 10px;
+			text-transform: uppercase;
+			color: #669;
+			
+			padding: 5px 10px 4px 20px;
+			-moz-border-radius: 14px; -webkit-border-radius: 14px;
+			-moz-border-radius-topleft: 18px; -webkit-border-top-left-radius: 18px;
+			-moz-border-radius-topright: 8px; -webkit-border-top-right-radius: 8px;
+			-moz-border-radius-bottomleft: 0; -webkit-border-bottom-left-radius: 0;
+		}
+		
+		div.menu ul#summary li ul {
+			display: none;
+			
+			top: 20px; right: 20px;
+			position: absolute;
+			
+			background: #000;
+			
+			margin: 0;
+			padding: 0 0 10px 0;
+			border: 0;
+			
+			-moz-border-radius: 10px;
+			-webkit-border-radius: 10px;
+			-moz-border-radius-topright: 0; -webkit-border-top-right-radius: 0;
+			
+			z-index: 20;
+		}
+		
+			div.menu ul#summary li:hover ul {
+				display: block;
+			}
+			
+			div.menu ul#summary li:hover span {
+				color: #fff;
+				background-color: #000;
+			}
+			
+				div.menu ul#summary ul li {
+					width: 300px;
+					margin: 0;
+					padding: 5px 10px 15px 10px;
+					border: 0;
+					border-top: 1px dotted #999;
+					background: none;
+					color: #999;
+				}
+				
+					div.menu ul#summary ul li.count_0 {
+						border: 0;
+					}
+				
+					div.menu ul#summary ul li a {
+						float: none;
+						font-weight: normal;
+						text-transform: none;
+						color: #fff;
+					}
+					
+		div.menu ul#summary lh {
+			display: block;
+			margin: 0.25em 0 0.5em 0;
+			font-size: 1.5em;
+			color: #fff;
+		}
+		
+			div.menu ul#summary li dt {
+				margin: 0; padding: 0.25em 0;
+				display: inline;
+				clear: both;
+				float: left;
+				width: 50%;
+				color: #999;
+				border-top: 1px solid #222;
+			}
+			
+			div.menu ul#summary li dd {
+				margin: 0; padding: 0.25em 0;
+				display: inline;
+				float: right;
+				text-align: right;
+				width: 50%;
+				color: #ccc;
+				border-top: 1px solid #222;
+			}
+		
+/* tables and forms */
+
+	span.tag {
+		color: #ddf;
+	}
+	
+	span.help {
+		position: relative;
+		
+		background-color: #f2f2ff;
+		color: #99c;
+		font-weight: bold;
+		padding: 0 0.5em;
+			
+		-moz-border-radius: 6px; -webkit-border-radius: 6px;
+		-moz-border-radius-bottomleft: 0; -webkit-border-bottom-left-radius: 0;
+		
+		cursor: help;
+	}
+	
+	span.help:hover {
+		background-color: #000;
+		color: #fff;
+	}
+	
+		span.help.error,
+		span.help.error:hover {
+			background: none;
+			color: #eee;
+			font-weight: normal;
+			
+			cursor: default;
+		}
+		
+		span.help div {
+			display: none;
+			
+			top: 10px; right: 5px;
+			position: absolute;
+			
+			background: #000;
+			color: #ccc;
+			font-size: 11px;
+			font-weight: normal;
+			text-align: left;
+			
+			width: 300px;
+			min-height: 40px;
+			
+			-moz-border-radius: 10px;
+			-webkit-border-radius: 10px;
+			-moz-border-radius-topright: 0; -webkit-border-top-right-radius: 0;
+		
+			z-index: 6;
+		}
+		
+			th.column_1 span.help div {
+				top: 10px; left: -5px;
+			}
+		
+			span.help:hover div {
+				display: block;
+			}
+			
+			span.help div p {
+				margin: 1em;
+			}
+
+	div#wrapper div {
+		margin: 0;
+		padding: 0;
+		border: 0;
+	}
+	
+	div#wrapper table.structure {
+		width: 100%;
+		margin: 0;
+		background-color: #fff;
+		
+		border-right: 3px solid #339;
+		border-left: 3px solid #339;
+		
+		padding: 20px 0;
+	}
+	
+		div#wrapper div.message {
+			padding: 1em;
+			border-right: 3px solid #339;
+			border-left: 3px solid #339;	
+			background-color: #f00;
+			color: #fff;
+		}
+	
+		div#wrapper table.structure.detail table { width: 100%; margin: 0 1em 0 0; }
+	
+		div#wrapper table.structure th {
+			text-align: left;
+			vertical-align: bottom;
+			padding: 0.25em 1em;
+			/* background-color: #ccf; */
+			border-bottom: 2px solid #ccf;
+		}
+		
+			div#wrapper table.structure th span.help {
+				margin-left: 0.5em;
+			}
+			
+			div#wrapper table.structure tr.pagination th {
+				border-top: 3px solid #ccf;
+				border-bottom: none;
+			}
+		
+			div#wrapper table.structure tr.pagination div {
+				background: none;
+				display: inline;
+			}
+	
+		div#wrapper table.structure td {
+			text-align: left;
+			vertical-align: top;
+			padding: 0.25em 1em;
+			border-top: 1px solid #ccf;
+		}
+		
+			div#wrapper table.structure.tree td {
+				padding: 0.25em 0 0 0;
+				border-top: 3px solid #ccf;
+				border-bottom: 2px solid #ccf;
+			}
+		
+				div#wrapper table.structure.tree ul {
+					list-style-type: none;
+					margin: 0;
+					padding: 0;
+				}
+				
+					div#wrapper table.structure.tree ul ul {
+						margin-top: 1em;
+						margin-left: 1em;
+						margin-bottom: 2em;
+						border-top: 3px solid #ccf;
+						border-bottom: 3px solid #ccf;
+						border-left: 1px dotted #ddf;
+						border-left: 1px dotted #ddf;
+					}
+		
+				div#wrapper table.structure.tree li {
+					text-align: left;
+					vertical-align: top;
+					padding: 0.25em 0 0.25em 1em;
+					border-bottom: 1px solid #ccf;
+				}
+		
+					div#wrapper table.structure.tree span.divider {
+						padding: 0 1em;
+						color: #eee;
+					}
+		
+			div#wrapper table.structure td.no_data_available {
+				text-align: center;
+				padding-top: 1em;
+				padding-bottom: 1em;
+				font-style: italic;
+				color: #ccf;
+			}
+			
+				div#wrapper table.structure td a.not_allowed {
+					color: #dde;
+				}
+		
+			div#wrapper table.structure.detail td { padding:0; border:0; }
+			div#wrapper table.structure.detail table td { padding: 0.25em 1em; border-top: 1px solid #ccf; }
+		
+			div#wrapper table.structure.detail td.submit { padding: 0.25em 1em; border-top: 1px solid #ccf; }
+		
+			
+			div#wrapper table.structure td.label {
+				width: 20%;
+				font-weight: bold;
+			}
+		
+			div#wrapper table.structure td.help {
+				text-align: right;
+				width: 20px;
+			}
+			
+		div#wrapper table.structure tr.pagination th {
+			text-align: center;
+		}
+
+/* sql table */
+
+table.cake-sql-log {
+	margin: 3em 1em;
+	color: #dde;
+}
+
+table.cake-sql-log td, 
+table.cake-sql-log th {
+	text-align: left;
+	vertical-align: top;
+	padding: 0.25em 0.5em;
+	border-top: 1px solid #eef;
+}
+
+table.cake-sql-log th {
+	vertical-align: bottom;
+	font-weight: bold;
+}
+	
+	table.cake-sql-log:hover caption {
+		color: #66c;
+	}
+	
+	table.cake-sql-log:hover th {
+		color: #000;
+	}
+	
+	table.cake-sql-log:hover td {
+		border-top: 1px solid #dde;
+		color: #339;
+	}
