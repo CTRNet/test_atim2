@@ -1,4 +1,4 @@
--- phpMyAdmin SQL Dump
+﻿-- phpMyAdmin SQL Dump
 -- version 2.10.1
 -- http://www.phpmyadmin.net
 -- 
@@ -9,6 +9,8 @@
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
+CREATE DATABASE `atim_2` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+USE `atim_2`;
 -- 
 -- Database: `atim_2`
 -- 
@@ -29508,4 +29510,3 @@ CREATE TABLE `widgets` (
 -- 
 -- Dumping data for table `widgets`
 -- 
-
