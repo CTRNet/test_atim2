@@ -26,7 +26,7 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController {
 		
 		if ( !empty($this->data) ) {
 			$this->ParticipantMessage->id = $participant_message_id;
-			if ( $this->ParticipantMessage->save($this->data) ) $this->flash( 'Your data has been updated.','/clinicalannotation/participant_messages/detail/'.$participant_id.$participant_contact_id );
+			if ( $this->ParticipantMessage->save($this->data) ) $this->flash( 'Your data has been updated.','/clinicalannotation/participant_messages/detail/'.$participant_id.$participant_message_id );
 		} else {
 			$this->data = $this->ParticipantMessage->find('first',array('conditions'=>array('ParticipantMessage.id'=>$participant_message_id)));
 		}
