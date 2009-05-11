@@ -1,9 +1,9 @@
 <?
 	$structure_links = array(
-		'top'=>'/clinicalannotation/participant_messages/edit/%%Participant.id%%/%%ParticipantContact.id%%/',
+		'top'=>'/clinicalannotation/participant_messages/edit/%%Participant.id%%/%%ParticipantMessage.id%%/',
 		'bottom'=>array(
-			'delete'=>'/clinicalannotation/participant_messages/delete/%%Participant.id%%/%%ParticipantContact.id%%/',
-			'cancel'=>'/clinicalannotation/participant_messages/detail/%%Participant.id%%/%%ParticipantContact.id%%'/
+			'delete'=>'/clinicalannotation/participant_messages/delete/%%Participant.id%%/%%ParticipantMessage.id%%/',
+			'cancel'=>'/clinicalannotation/participant_messages/detail/%%Participant.id%%/%%ParticipantMessage.id%%'/
 		)
 	);
 	
