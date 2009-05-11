@@ -1,14 +1,16 @@
-<?php 
+<?php
 	$structure_links = array(
-		'top'=>'/clinicalannotation/consents/edit/%%Participant.id%%/',
+		'top'=>'/clinicalannotation/diagnoses/detail/%%Participant.id%%,
 		'bottom'=>array(
-			'cancel'=>'/clinicalannotation/consents/detail/%%Participant.id%%/'
+			'add'=>'/clinicalannotation/diagnoses/add/%%Participant.id%%/'
 		)
 	);
 	
-	$structures->build( $atim_structure, array('links'=>$structure_links) );
-?>	
+	$structures->build( $atim_structure, array('type'=>'index','links'=>$structure_links) );
+?>
 /*
+
+<?php 
 	$sidebars->header( $lang );
 	$sidebars->cols( $ctrapp_sidebar, $lang );
 	$summaries->build( $ctrapp_summary, $lang ); 
@@ -16,12 +18,12 @@
 ?>
 	
 	<?php 
-		$form_type = 'edit';
-		$form_model = isset( $this->params['data'] ) ? array( $this->params['data'] ) : array( $data );
+		$form_type = 'index';
+		$form_model = $diagnoses;
 		$form_field = $ctrapp_form;
-		$form_link = array( 'edit'=>'/clinicalannotation/consents/edit/'.$participant_id.'/', 'cancel'=>'/clinicalannotation/consents/detail/'.$participant_id.'/' );
+		$form_link = array( 'add'=>'/clinicalannotation/diagnoses/add/'.$participant_id.'/', 'detail'=>'/clinicalannotation/diagnoses/detail/'.$participant_id.'/' );
 		$form_lang = $lang;
-		$form_pagination = NULL;
+		$form_pagination = $paging;
 		$form_override = NULL;
 		$form_extras = NULL;
 		
@@ -41,6 +43,6 @@
 			$form_override, 
 			$form_extras );  
 	?>
-		
+
 <?php echo $sidebars->footer($lang); ?>
 */

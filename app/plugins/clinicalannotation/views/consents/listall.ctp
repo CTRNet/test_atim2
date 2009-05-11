@@ -1,4 +1,14 @@
-<?php 
+<?php
+	$structure_links = array(
+		'top'=>'/clinicalannotation/consents/detail/%%Participant.id%%,
+		'bottom'=>array(
+			'add'=>'/clinicalannotation/consents/add/%%Participant.id%%/'
+		)
+	);
+	
+	$structures->build( $atim_structure, array('type'=>'index','links'=>$structure_links) );
+?>
+/*
 	$sidebars->header( $lang );
 	$sidebars->cols( $ctrapp_sidebar, $lang );
 	$summaries->build( $ctrapp_summary, $lang ); 
@@ -33,3 +43,4 @@
 	?>
 
 <?php echo $sidebars->footer($lang); ?>
+*/
