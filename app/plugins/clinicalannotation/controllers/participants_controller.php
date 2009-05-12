@@ -257,9 +257,9 @@ class ParticipantsController extends ClinicalannotationAppController {
 			}			
 		}
 	}
-
-	function delete( $participant_id=null ) {
-		
+*/
+	function delete( $participant_id=null ) {}
+/*		
 		// missing VARS, send to ERROR page
 		if ( !$participant_id  ) { $this->redirect( '/pages/err_clin-ann_no_part_id' ); exit; }
 
@@ -285,9 +285,9 @@ class ParticipantsController extends ClinicalannotationAppController {
 			exit;
 		}
 	}
-	
-	function allowParticipantDeletion($participant_id){
-		
+*/	
+	function allowParticipantDeletion($participant_id){}
+	/*	
 		// Verify record is not attached to a consnet	
 		$criteria = 'Consent.participant_id ="' .$participant_id.'"';			 
 		$record_nbr = $this->Consent->findCount($criteria);

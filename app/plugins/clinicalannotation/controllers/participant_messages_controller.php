@@ -244,8 +244,9 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController {
 			}			
 		}
 	}
-
-	function delete( $participant_id=null, $participant_message_id=null ) {
+*/
+	function delete( $participant_id=null, $participant_message_id=null ) {}
+	/*
 		// missing VARS, send to ERROR page
 		if ( !$participant_id  ) { $this->redirect( '/pages/err_clin-ann_no_part_id' ); exit; }
 		if ( !$participant_message_id ) { $this->redirect( '/pages/err_clin-ann_no_message_id' ); exit; }
