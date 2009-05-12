@@ -1,44 +1,47 @@
 <?php
 
-class ParticipantContactsController extends ClinicalAnnotationAppController {
-	var $uses = array('ParticipantContacts');
-	var $paginate = array('ParticipantContacts'=>array('limit'=>10,'order'=>'ParticipantConacts.name ASC');	
+class ReproductiveHistoriesController extends ClinicalAnnotationAppController {
+	
+	$uses = array('ReproductiveHistory');
+	$paginate = array('ReproductiveHistory'=>array('limit'=>10,'order'=>'ReproductiveHistory.participant_id ASC'));
 	
 	function listall( $participant_id ) {
-		$this->data = $this->paginate($this->ParticipantContact);
+		$this->data = $this->paginate($this->ReproductiveHistory);
 	}
 	
-	function detail( $participant_id, $participant_contact_id ) {
-		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'ParticipantContact.id'=>$participant_contact_id) );
-		$this->data = $this->ParticipantContact->find('first',array('conditions'=>array('ParticipantContact.id'=>$participant_contact_id)));
+	function detail( $participant_id, $reproductive_history_id ) {
+		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'ReproductiveHistory.id'=>$reproductive_history_id) );
+		$this->data = $this->FamilyHistory->find('first',array('conditions'=>array('ReproductiveHistory.id'=>$reproductive_history_id)));
 	}
 	
 	function add( $participant_id ) {
-		$this->set( 'atim_menu', $this->Menus->get('/clinicalannotation/participant_contacts/listall/'.$particiant_id) );
+		$this->set( 'atim_menu', $this->Menus->get('/clinicalannotation/reproductive_histories/listall/'.$particiant_id) );
 		
 		if ( !empty($this->data) ) {
-			if ( $this->ParticipantContact->save($this->data) ) $this->flash( 'Your data has been updated.','/clinicalannotation/participant_contacts/detail/'.$participant_id.$this->ParticipantContact->id );
+			if ( $this->ReproductiveHistory->save($this->data) ) $this->flash( 'Your data has been updated.','/clinicalannotation/reproductive_histories/detail/'.$participant_id.$this->ReproductiveHistory->id );
 		}
 	}
 	
-	function edit( $participant_id, $participant_contact_id) {
-		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'ParticipantContact.id'=>$participant_contact_id) );
+	function edit( $participant_id, $reproductive_history_id) {
+		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'ReproductiveHistory.id'=>$reproductive_history_id) );
 		
 		if ( !empty($this->data) ) {
-			$this->ParticipantContact->id = $participant_contact_id;
-			if ( $this->ParticipantContact->save($this->data) ) $this->flash( 'Your data has been updated.','/clinicalannotation/participant_contacts/detail/'.$participant_id.$participant_contact_id );
+			$this->ReproductiveHistory->id = $reproductive_history_id;
+			if ( $this->rReproductiveHistory->save($this->data) ) $this->flash( 'Your data has been updated.','/clinicalannotation/reproductive_histories/detail/'.$participant_id.$reproductive_history_id );
 		} else {
-			$this->data = $this->ParticipantContact->find('first',array('conditions'=>array('ParticipantContact.id'=>$participant_contact_id)));
+			$this->data = $this->ReproductiveHistory->find('first',array('conditions'=>array('ReproductiveHistory.id'=>$reproductive_history_id)));
 		}
 	}
+
 /*
-	var $name = 'ParticipantContacts';
-	var $uses = array('ParticipantContact');
+	var $name = 'ReproductiveHistories';
+	var $uses = array('ReproductiveHistory');
 
 	var $components = array('Summaries');
 	var $helpers = array('Summaries');
 
 	function beforeFilter() {
+
 		// $auth_conf array hardcoded in oth_auth component, due to plugins compatibility
 		$this->othAuth->controller = &$this;
 		$this->othAuth->init();
@@ -46,6 +49,7 @@ class ParticipantContactsController extends ClinicalAnnotationAppController {
 
 		// CakePHP function to re-combine dat/time select fields
 		$this->cleanUpFields();
+
 	}
 
 	function index() {
@@ -57,11 +61,11 @@ class ParticipantContactsController extends ClinicalAnnotationAppController {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id' ); exit; }
 		
 		// set MENU varible for echo on VIEW
-		$ctrapp_menu[] = $this->Menus->tabs( 'clin_CAN_1', 'clin_CAN_26', $participant_id );
+		$ctrapp_menu[] = $this->Menus->tabs( 'clin_CAN_1', 'clin_CAN_68', $participant_id );
 		$this->set( 'ctrapp_menu', $ctrapp_menu );
 
 		// set FORM variable, for HELPER call on VIEW
-		$this->set( 'ctrapp_form', $this->Forms->getFormArray('participant_contacts') );
+		$this->set( 'ctrapp_form', $this->Forms->getFormArray('reproductive_histories') );
 
 		// set SUMMARY varible from plugin's COMPONENTS
 		$this->set( 'ctrapp_summary', $this->Summaries->build( $participant_id ) );
@@ -72,32 +76,33 @@ class ParticipantContactsController extends ClinicalAnnotationAppController {
 
 		// set FORM variable, for HELPER call on VIEW
 		$this->set( 'participant_id', $participant_id );
-
+		
 		$criteria = array();
 		$criteria['participant_id'] = $participant_id;
 		$criteria = array_filter($criteria);
 
 		list( $order, $limit, $page ) = $this->Pagination->init( $criteria );
-		$contacts_data = $this->ParticipantContact->findAll( $criteria, NULL, $order, $limit, $page );
+		$reproductive_data = $this->ReproductiveHistory->findAll( $criteria, NULL, $order, $limit, $page );
 		
 		// look for CUSTOM HOOKS, "format"
 		$custom_controller_hook = APP . 'plugins' . DS . $this->params['plugin'] . DS . 'controllers' . DS . 'hooks' . DS . $this->params['controller'].'_'.$this->params['action'].'_format.php';
 		if ( file_exists($custom_controller_hook) ) { require($custom_controller_hook); }
 		
-		$this->set( 'participant_contacts',  $contacts_data);
+		$this->set( 'reproductive_histories',  $reproductive_data);
 	}
 
-	function detail( $participant_id=null, $participant_contact_id=null ) {
+	function detail( $participant_id=null, $reproductive_history_id=null ) {
+
 		// missing VARS, send to ERROR page
 		if ( !$participant_id  ) { $this->redirect( '/pages/err_clin-ann_no_part_id' ); exit; }
-		if ( !$participant_contact_id ) { $this->redirect( '/pages/err_clin-ann_no_contact_id' ); exit; }
+		if ( !$reproductive_history_id ) { $this->redirect( '/pages/err_clin-ann_no_reproductive_id' ); exit; }
 		
 		// set MENU varible for echo on VIEW
-		$ctrapp_menu[] = $this->Menus->tabs( 'clin_CAN_1', 'clin_CAN_26', $participant_id );
+		$ctrapp_menu[] = $this->Menus->tabs( 'clin_CAN_1', 'clin_CAN_68', $participant_id );
 		$this->set( 'ctrapp_menu', $ctrapp_menu );
 
 		// set FORM variable, for HELPER call on VIEW
-		$this->set( 'ctrapp_form', $this->Forms->getFormArray('participant_contacts') );
+		$this->set( 'ctrapp_form', $this->Forms->getFormArray('reproductive_histories') );
 
 		// set SUMMARY varible from plugin's COMPONENTS
 		$this->set( 'ctrapp_summary', $this->Summaries->build( $participant_id ) );
@@ -108,30 +113,30 @@ class ParticipantContactsController extends ClinicalAnnotationAppController {
 
 		// set FORM variable, for HELPER call on VIEW
 		$this->set( 'participant_id', $participant_id );
-		$this->set( 'participant_contact_id', $participant_contact_id );
+		$this->set( 'reproductive_history_id', $reproductive_history_id );
 
-		$this->ParticipantContact->id = $participant_contact_id;
-		$contact_data = $this->ParticipantContact->read();
+		$this->ReproductiveHistory->id = $reproductive_history_id;
+		$reproductive_data = $this->ReproductiveHistory->read();
 		
-		if ( empty( $contact_data ) ) { $this->redirect( '/pages/err_clin-ann_no_contact_data' ); exit; }		
+		if ( empty( $reproductive_data ) ) { $this->redirect( '/pages/err_clin-ann_no_reproductive_data' ); exit; }		
 
 		// look for CUSTOM HOOKS, "format"
 		$custom_controller_hook = APP . 'plugins' . DS . $this->params['plugin'] . DS . 'controllers' . DS . 'hooks' . DS . $this->params['controller'].'_'.$this->params['action'].'_format.php';
 		if ( file_exists($custom_controller_hook) ) { require($custom_controller_hook); }
 		
-		$this->set( 'data',  $contact_data);
+		$this->set( 'data',  $reproductive_data);		
 	}
 
 	function add( $participant_id=null ) {
 		// missing VARS, send to ERROR page
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id' ); exit; }
-		
+				
 		// set MENU varible for echo on VIEW
-		$ctrapp_menu[] = $this->Menus->tabs( 'clin_CAN_1', 'clin_CAN_26', $participant_id );
+		$ctrapp_menu[] = $this->Menus->tabs( 'clin_CAN_1', 'clin_CAN_68', $participant_id );
 		$this->set( 'ctrapp_menu', $ctrapp_menu );
 
 		// set FORM variable, for HELPER call on VIEW
-		$this->set( 'ctrapp_form', $this->Forms->getFormArray('participant_contacts') );
+		$this->set( 'ctrapp_form', $this->Forms->getFormArray('reproductive_histories') );
 
 		// set SUMMARY varible from plugin's COMPONENTS
 		$this->set( 'ctrapp_summary', $this->Summaries->build( $participant_id ) );
@@ -149,7 +154,7 @@ class ParticipantContactsController extends ClinicalAnnotationAppController {
 		
 		if ( !empty($this->data) ) {
 			// setup MODEL(s) validation array(s) for displayed FORM 
-			foreach ( $this->Forms->getValidateArray('participant_contacts') as $validate_model=>$validate_rules ) {
+			foreach ( $this->Forms->getValidateArray('reproductive_histories') as $validate_model=>$validate_rules ) {
 				$this->{ $validate_model }->validate = $validate_rules;
 			}
 							
@@ -157,7 +162,7 @@ class ParticipantContactsController extends ClinicalAnnotationAppController {
 			$submitted_data_validates = true;
 			
 			// VALIDATE submitted data
-			if ( !$this->ParticipantContact->validates( $this->data ) ) {
+			if ( !$this->ReproductiveHistory->validates( $this->data ) ) {
 				$submitted_data_validates = false;
 			}
 			
@@ -168,27 +173,27 @@ class ParticipantContactsController extends ClinicalAnnotationAppController {
 			// if data VALIDATE, then save data
 			if ( $submitted_data_validates ) {
 				
-				if ( $this->ParticipantContact->save( $this->data ) ) {
-					$this->flash( 'Your data has been saved.', '/participant_contacts/listall/'.$participant_id );
+				if ( $this->ReproductiveHistory->save( $this->data ) ) {
+					$this->flash( 'Your data has been saved.', '/reproductive_histories/listall/'.$participant_id );
 				} else {
-					$this->redirect( '/pages/err_clin-ann_contact_record' ); 
+					$this->redirect( '/pages/err_clin-ann_reproductive_record' ); 
 					exit; 
 				}
 			}
 		}
 	}
 
-	function edit( $participant_id=null, $participant_contact_id=null ) {
+	function edit( $participant_id=null, $reproductive_history_id=null ) {
 		// missing VARS, send to ERROR page
-		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id' ); exit; }
-		if ( !$participant_contact_id ) { $this->redirect( '/pages/err_clin-ann_no_contact_id' ); exit; }		
-
+		if ( !$participant_id  ) { $this->redirect( '/pages/err_clin-ann_no_part_id' ); exit; }
+		if ( !$reproductive_history_id ) { $this->redirect( '/pages/err_clin-ann_no_reproductive_id' ); exit; }
+		
 		// set MENU varible for echo on VIEW
-		$ctrapp_menu[] = $this->Menus->tabs( 'clin_CAN_1', 'clin_CAN_26', $participant_id );
+		$ctrapp_menu[] = $this->Menus->tabs( 'clin_CAN_1', 'clin_CAN_68', $participant_id );
 		$this->set( 'ctrapp_menu', $ctrapp_menu );
 
 		// set FORM variable, for HELPER call on VIEW
-		$this->set( 'ctrapp_form', $this->Forms->getFormArray('participant_contacts') );
+		$this->set( 'ctrapp_form', $this->Forms->getFormArray('reproductive_histories') );
 
 		// set SUMMARY varible from plugin's COMPONENTS
 		$this->set( 'ctrapp_summary', $this->Summaries->build( $participant_id ) );
@@ -199,24 +204,23 @@ class ParticipantContactsController extends ClinicalAnnotationAppController {
 
 		// set FORM variable, for HELPER call on VIEW
 		$this->set( 'participant_id', $participant_id );
-		$this->set( 'participant_contact_id', $participant_contact_id );
+		$this->set( 'reproductive_history_id', $reproductive_history_id );
 
-		$this->ParticipantContact->id = $participant_contact_id;
-		$contact_data = $this->ParticipantContact->read();
+		$this->ReproductiveHistory->id = $reproductive_history_id;
+		$reproductive_data = $this->ReproductiveHistory->read();
 		
-		if ( empty( $contact_data ) ) { $this->redirect( '/pages/err_clin-ann_no_contact_data' ); exit; }				
+		if ( empty( $reproductive_data ) ) { $this->redirect( '/pages/err_clin-ann_no_reproductive_data' ); exit; }				
 
 		// look for CUSTOM HOOKS, "format"
 		$custom_controller_hook = APP . 'plugins' . DS . $this->params['plugin'] . DS . 'controllers' . DS . 'hooks' . DS . $this->params['controller'].'_'.$this->params['action'].'_format.php';
 		if ( file_exists($custom_controller_hook) ) { require($custom_controller_hook); }
 	
 		if ( empty($this->data) ) {
-			$this->data = $contact_data;
+			$this->data = $reproductive_data;
 			$this->set( 'data', $this->data );
-
 		} else {
 			// setup MODEL(s) validation array(s) for displayed FORM 
-			foreach ( $this->Forms->getValidateArray('participant_contacts') as $validate_model=>$validate_rules ) {
+			foreach ( $this->Forms->getValidateArray('reproductive_histories') as $validate_model=>$validate_rules ) {
 				$this->{ $validate_model }->validate = $validate_rules;
 			}
 						
@@ -224,7 +228,7 @@ class ParticipantContactsController extends ClinicalAnnotationAppController {
 			$submitted_data_validates = true;
 			
 			// VALIDATE submitted data
-			if ( !$this->ParticipantContact->validates( $this->data ) ) {
+			if ( !$this->ReproductiveHistory->validates( $this->data ) ) {
 				$submitted_data_validates = false;
 			}
 			
@@ -234,40 +238,40 @@ class ParticipantContactsController extends ClinicalAnnotationAppController {
 			
 			// if data VALIDATE, then save data
 			if ( $submitted_data_validates ) {
-				
-				if ( $this->ParticipantContact->save( $this->data['ParticipantContact'] ) ) {
-					$this->flash( 'Your data has been updated.','/participant_contacts/detail/'.$participant_id.'/'.$participant_contact_id );
+				if ( $this->ReproductiveHistory->save( $this->data['ReproductiveHistory'] ) ) {
+					$this->flash( 'Your data has been updated.','/reproductive_histories/detail/'.$participant_id.'/'.$reproductive_history_id );
 				} else {
-					$this->redirect( '/pages/err_clin-ann_contact_record' ); 
+					$this->redirect( '/pages/err_clin-ann_reproductive_record' ); 
 					exit; 
 				}
 			}			
 		}
 	}
 */
-	function delete( $participant_id=null, $participant_contact_id=null ) {}
-	/*
+	function delete( $participant_id=null, $reproductive_history_id=null ) {
+/*
 		// missing VARS, send to ERROR page
 		if ( !$participant_id  ) { $this->redirect( '/pages/err_clin-ann_no_part_id' ); exit; }
-		if ( !$participant_contact_id ) { $this->redirect( '/pages/err_clin-ann_no_contact_id' ); exit; }
+		if ( !$reproductive_history_id ) { $this->redirect( '/pages/err_clin-ann_no_reproductive_id' ); exit; }
 
 		// Verify consent exists
-		$this->ParticipantContact->id = $participant_contact_id;
-		$contact_data = $this->ParticipantContact->read();
+		$this->ReproductiveHistory->id = $reproductive_history_id;
+		$reproductive_data = $this->ReproductiveHistory->read();
 		
-		if ( empty( $contact_data ) ) { $this->redirect( '/pages/err_clin-ann_no_contact_data' ); exit; }				
+		if ( empty( $reproductive_data ) ) { $this->redirect( '/pages/err_clin-ann_no_reproductive_data' ); exit; }				
 		
 		// look for CUSTOM HOOKS, "validation"
 		$custom_controller_hook = APP . 'plugins' . DS . $this->params['plugin'] . DS . 'controllers' . DS . 'hooks' . DS . $this->params['controller'].'_'.$this->params['action'].'_validation.php';
 		if ( file_exists($custom_controller_hook) ) { require($custom_controller_hook); }
 		
-		if( $this->ParticipantContact->del( $participant_contact_id ) ) {
-			$this->flash( 'Your data has been deleted.', '/participant_contacts/listall/'.$participant_id );
+		if( $this->ReproductiveHistory->del( $reproductive_history_id ) ) {
+			$this->flash( 'Your data has been deleted.', '/reproductive_histories/listall/'.$participant_id );
 		} else {
-			$this->redirect( '/pages/err_clin-ann_contact_deletion' ); 
+			$this->redirect( '/pages/err_clin-ann_reproductive_deletion' ); 
 			exit;
 		}
 	}
+
 }
-*/
+
 ?>
