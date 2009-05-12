@@ -11,7 +11,7 @@ class FamilyHistory extends ClinicalAnnotationAppModel
 			
 			$return = array(
 				'Summary' => array(
-					'participant_id' => array( NULL, $result['FamilyHistory']['participant_id'],
+					'participant_id' => array( NULL, $result['FamilyHistory']['participant_id']),
 					'description'	=>	array(
 						'relation'	=>	$result['FamilyHistory']['relation'],
 						'domain'	=>	$result['FamilyHistory']['domain'],
