@@ -40,6 +40,7 @@ class ReproductiveHistory extends ClinicalAnnotationAppModel
 						'years_on_oralcontraceptives'	=>	$result['ReproductiveHistory']['years_on_oralcontraceptives']
 						'lnmp_date'	=>	$result['ReproductiveHistory']['lnmp_date'],
 						'lnmp_certainty'	=>	$result['ReproductiveHistory']['lnmp_certainty']
+					)
 				)
 			);
 		}
