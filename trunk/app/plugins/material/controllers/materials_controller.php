@@ -3,6 +3,8 @@
 class MaterialsController extends AppController {
 	$uses = array('Materials');
 	$paginate = array('Materials'=>array('limit'=>10,'order'=>'Materials.id ASC'));
+	$components = array('Summaries');
+	$helper = array('Summaries');
 	
 	function listall() {
 		$this->data = $this->paginate($this->Materials);
@@ -13,19 +15,19 @@ class MaterialsController extends AppController {
 	}
 	
 	function add( ) {
-		$this->set( 'atim_menu', $this->Menus->get('/clinicalannotation/material/listall/') );
+		$this->set( 'atim_menu', $this->Menus->get('n/material/listall/') );
 		
 		if ( !empty($this->data) ) {
-			if ( $this->Materials->save($this->data) ) $this->flash( 'Your data has been updated.','/clinicalannotation/material/detail/'.$this->Materials->id );
+			if ( $this->Materials->save($this->data) ) $this->flash( 'Your data has been updated.','material/detail/'.$this->Materials->id );
 		}
 	}
 	
 	function edit( $material_id) {
-		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'Materials.id'=>$material_id) );
+		$this->set( 'atim_menu_variables', array('Materials.id'=>$material_id) );
 		
 		if ( !empty($this->data) ) {
 			$this->Materials->id = $material_id;
-			if ( $this->Materials->save($this->data) ) $this->flash( 'Your data has been updated.','/clinicalannotation/material/detail/'.$material_id );
+			if ( $this->Materials->save($this->data) ) $this->flash( 'Your data has been updated.','material/detail/'.$material_id );
 		} else {
 			$this->data = $this->Materials->find('first',array('conditions'=>array('Materials.id'=>$material_id)));
 		}
@@ -73,7 +75,7 @@ class MaterialsController extends AppController {
 
 	}
 */	
-	function index() {
+	function index() {}
 	/*
 		// clear SEARCH criteria, for pagination bug
 		$_SESSION['ctrapp_core']['material']['search_criteria'] = NULL;
@@ -92,7 +94,7 @@ class MaterialsController extends AppController {
 		$this->set( 'ctrapp_sidebar', $this->Sidebars->getColsArray( $this->params['plugin'].'_'.$this->params['controller'].'_'.$this->params['action'] ) );
 	}
 */
-	function search( ) {
+	function search( ) {}
 	/*
 		// set MENU varible for echo on VIEW
 		$this->set( 'ctrapp_menu', array() );
@@ -192,7 +194,7 @@ class MaterialsController extends AppController {
     	}
   	}
 */
-	function detail( $material_id=null ) {
+	function detail( $material_id=null ) {}
 /*
 		// set MENU varible for echo on VIEW
 		$ctrapp_menu[] = $this->Menus->tabs( 'mat_CAN_01', 'mat_CAN_02', $material_id );
@@ -215,7 +217,7 @@ class MaterialsController extends AppController {
 		$this->set( 'data', $this->Material->read() );
 	}
 */
-	function delete( $material_id=null ) {
+	function delete( $material_id=null ) {}
 /*
     	$this->Material->del( $material_id );
     	$this->flash( 'Your data has been deleted.', '/materials/index/' );
