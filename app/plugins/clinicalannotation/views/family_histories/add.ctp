@@ -1,8 +1,8 @@
 <?
 	$structure_links = array(
-		'top'=>'/clinicalannotation/participant_messages/add/%%Participant.id%%',
+		'top'=>'/clinicalannotation/family_histories/add/%%Participant.id%%',
 		'bottom'=>array(
-			'cancel'=>'/clinicalannotation/participant_messages/listall/%%Participant.id%%'
+			'cancel'=>'/clinicalannotation/family_histories/listall/%%Participant.id%%'
 		)
 	);
 	
