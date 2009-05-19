@@ -1,9 +1,9 @@
 <?php 
 	$structure_links = array(
 		'bottom'=>array(
-			'list'=>'/clinicalannotation/consents/listall/%%Participant.id%%/',
-			'edit'=>'/clinicalannotation/consents/edit/%%Participant.id%%/%%Consent.id%%/',
-			'delete'=>'/clinicalannotation/consents/delete/%%Participant.id%%/%%Consent.id%%/'
+			'list'=>'/clinicalannotation/consents/listall/'.$atim_menu_variables['Participant.id'].'/',
+			'edit'=>'/clinicalannotation/consents/edit/'.$atim_menu_variables['Participant.id'].'/%%Consent.id%%/',
+			'delete'=>'/clinicalannotation/consents/delete/'.$atim_menu_variables['Participant.id'].'/%%Consent.id%%/'
 		)
 	);
 	
