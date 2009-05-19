@@ -1,6 +1,6 @@
 <?php
 	$structure_links = array(
-		'top'=>'/clinicalannotation/consents/detail/'.$atim_menu_variables['Participant.id'].'/%%Consent.id%%',
+		'index'=>'/clinicalannotation/consents/detail/'.$atim_menu_variables['Participant.id'].'/%%Consent.id%%',
 		'bottom'=>array(
 			'add'=>'/clinicalannotation/consents/add/'.$atim_menu_variables['Participant.id'].'/'
 		)
