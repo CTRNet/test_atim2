@@ -6,7 +6,8 @@ class ConsentsController extends ClinicalannotationAppController {
 	var $paginate = array('Consent'=>array('limit'=>10,'order'=>'Consent.date DSC')); 
 
 	function listall( $participant_id=null ) {
-		// TODO
+		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id) );
+		$this->data = $this->paginate($this->Consent);
 	}	
 
 	function detail( $participant_id=null, $consent_id=null ) {
@@ -23,7 +24,7 @@ class ConsentsController extends ClinicalannotationAppController {
 	}
 
 	function edit( $participant_id=null, $consent_id=null ) {
-		$this->set( 'atim_menu_variables', array('Consent.id'=>$consent_id) );
+		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'Consent.id'=>$consent_id) );
 		
 		if ( !empty($this->data) ) {
 			$this->Consent->id = $consent_id;
