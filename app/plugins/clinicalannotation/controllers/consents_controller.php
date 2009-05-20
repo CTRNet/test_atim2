@@ -6,18 +6,27 @@ class ConsentsController extends ClinicalannotationAppController {
 	var $paginate = array('Consent'=>array('limit'=>10,'order'=>'Consent.date ASC')); 
 
 	function listall( $participant_id=null ) {
+		// Missing or empty function variable, send to ERROR page
+		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id) );
 		$this->data = $this->paginate($this->Consent, array('Consent.participant_id'=>$participant_id));
 	}	
 
 	function detail( $participant_id=null, $consent_id=null ) {
+		// Missing or empty function variable, send to ERROR page
+		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$consent_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'Consent.id'=>$consent_id) );
 		$this->data = $this->Consent->find('first',array('conditions'=>array('Consent.id'=>$consent_id)));
 	}
 	
 	function add( $participant_id=null ) {
-		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id) );
+		// Missing or empty function variable, send to ERROR page
+		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		
+		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id) );	
 		if ( !empty($this->data) ) {
 			$this->data['Consent']['participant_id'] = $participant_id;
 			if ( $this->Consent->save($this->data) ) {
@@ -27,8 +36,11 @@ class ConsentsController extends ClinicalannotationAppController {
 	}
 
 	function edit( $participant_id=null, $consent_id=null ) {
-		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'Consent.id'=>$consent_id) );
+		// Missing or empty function variable, send to ERROR page
+		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$consent_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		
+		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'Consent.id'=>$consent_id) );
 		if ( !empty($this->data) ) {
 			$this->Consent->id = $consent_id;
 			if ( $this->Consent->save($this->data) ) {
@@ -40,6 +52,10 @@ class ConsentsController extends ClinicalannotationAppController {
 	}
 
 	function delete( $participant_id=null, $consent_id=null ) {
+		// Missing or empty function variable, send to ERROR page
+		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$consent_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		
 		if( $this->Consent->del( $consent_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/clinicalannotation/consents/listall/'.$participant_id );
 		}
