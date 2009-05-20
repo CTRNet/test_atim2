@@ -19,7 +19,7 @@ class ConsentsController extends ClinicalannotationAppController {
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id) );
 		
 		if ( !empty($this->data) ) {
-		//	$this->Consent->participant_id = $participant_id;
+			$this->data['Consent']['participant_id'] = $participant_id;
 			if ( $this->Consent->save($this->data) ) {
 				$this->flash( 'Your data has been updated.','/clinicalannotation/consents/detail/'.$participant_id.'/'.$this->Consent->id );
 			}
@@ -40,7 +40,12 @@ class ConsentsController extends ClinicalannotationAppController {
 	}
 
 	function delete( $participant_id=null, $consent_id=null ) {
-		// TODO
+		if( $this->Consent->del( $consent_id ) ) {
+			$this->flash( 'Your data has been deleted.', '/clinicalannotation/consents/listall/'.$participant_id );
+		}
+		else {
+			$this->flash( 'Your data has been deleted.', '/clinicalannotation/consents/listall/'.$participant_id );
+		}
 	}
 }
 
