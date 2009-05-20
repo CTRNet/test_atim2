@@ -1,9 +1,8 @@
-<?
+<?php 
 	$structure_links = array(
-		'top'=>'/clinicalannotation/misc_identifier/edit/%%Participant.id%%/%%MiscIdentifier.id%%/',
+		'top'=>'/clinicalannotation/misc_identifiers/edit/'.$atim_menu_variables['Participant.id'].'/%%MiscIdentifier.id%%/',
 		'bottom'=>array(
-			'delete'=>'/clinicalannotation/misc_identifier/delete/%%Participant.id%%/%%MiscIdentifier.id%%/',
-			'cancel'=>'/clinicalannotation/misc_identifier/detail/%%Participant.id%%/%%MiscIdentifier.id%%'/
+			'cancel'=>'/clinicalannotation/misc_identifiers/detail/'.$atim_menu_variables['Participant.id'].'/%%MiscIdentifier.id%%/'
 		)
 	);
 	
