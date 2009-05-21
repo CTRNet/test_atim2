@@ -3,16 +3,16 @@
 class MiscIdentifiersController extends ClinicalAnnotationAppController {
 
 	var $uses = array('MiscIdentifier','Participant');
-	var $paginate = array('MiscIdentifier'=>array('limit'=>10,'order'=>'MiscIdentifier.participant_id ASC'));
+	var $paginate = array('MiscIdentifier'=>array('limit'=>10,'order'=>'MiscIdentifier.name ASC'));
 	
-	function listall( $participant_id ) {
+	function listall( $participant_id=null ) {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
 		$this->data = $this->paginate($this->MiscIdentifier, array('MiscIdentifier.participant_id'=>$participant_id));
 	}
 	
-	function detail( $participant_id, $misc_identifier_id ) {
+	function detail( $participant_id=null, $misc_identifier_id=null ) {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		if ( !$misc_identifier_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		
@@ -20,7 +20,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 		$this->data = $this->MiscIdentifier->find('first',array('conditions'=>array('MiscIdentifier.id'=>$misc_identifier_id)));
 	}
 	
-	function add( $participant_id ) {
+	function add( $participant_id=null ) {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 	
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
@@ -33,7 +33,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 		}
 	}
 	
-	function edit( $participant_id, $misc_identifier_id) {
+	function edit( $participant_id=null, $misc_identifier_id=null) {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		if ( !$misc_identifier_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		
