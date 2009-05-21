@@ -1,9 +1,7 @@
 <?php
 
-class InventoryManagementAppModel extends AppModel
+class InventorymanagementAppModel extends AppModel
 {
-	var $name = 'InventoryManagement';
-    //...
 }
 
 ?>
