@@ -11,3 +11,5 @@
 				$this->Auth->actionPath = 'controllers/<pluginName>/';
 			  }
 				note: <pluginName> should be replaced with the plugins actual name
+
+2. /study/views/study_ethics_boards/ folder name is changed to /study/views/study_ethicsboards/
