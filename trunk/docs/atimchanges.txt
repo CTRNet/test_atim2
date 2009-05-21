@@ -1,0 +1,13 @@
+1. beforeFilter() function migration
+	ATiM 1.6
+		- each controller (ex. /clinicalannotation/controllers/participants_controller.php) 
+			in each plugin contained the beforeFilter() function
+	ATiM 2.0
+		- the beforeFilter() function has been removed from each of the controller and moved 
+			to the plugin app controller (ex. /clinicalannotation/clinnicalannotation_app_controler.php)
+		- the contents of the function should follow the following format:
+			- function beforeFilter() {
+				parent::beforeFilter();
+				$this->Auth->actionPath = 'controllers/<pluginName>/';
+			  }
+				note: <pluginName> should be replaced with the plugins actual name
