@@ -1,0 +1,94 @@
+<?php 
+	$sidebars->header($lang);
+	$sidebars->cols($ctrapp_sidebar, $lang);
+	$summaries->build($ctrapp_summary, $lang); 
+	$menus->tabs($ctrapp_menu, $lang); 
+?>
+	
+<?php 
+
+	// -----------------------------
+	// 1- Display header information
+	// -----------------------------
+
+	$form_extras = array();
+//	$form_extras = array('language_title'=> 
+//		$translations->t('sample code', $lang, false).' : <i>'.$sample_code.'</i>');
+	
+	// -----------------------------
+	// 2- Display the form
+	// -----------------------------
+
+	$form_type = 'add';
+
+	$form_model = isset($this->params['data']) ? 
+		array($this->params['data']) : 
+		array(array('AliquotMaster'=>array(
+			'aliquot_type' => $aliquot_type,
+			'aliquot_volume_unit' => $aliquot_volume_unit))); 	
+	
+	$form_field = $ctrapp_form;
+	
+	$main_parameters = 
+		$specimen_group_menu_id.'/'.$group_specimen_type.'/'.$sample_category.'/'.
+		$collection_id.'/'.$sample_master_id;
+	$form_link = array( 
+		'add' => '/inventorymanagement/aliquot_masters/addAliquot/'.
+			$specimen_group_menu_id.'/'.$group_specimen_type.'/'.$sample_category.'/'.
+			$collection_id.'/'.$sample_master_id.'/', 
+		'cancel' => '/inventorymanagement/aliquot_masters/listAllSampleAliquots/'.
+			$specimen_group_menu_id.'/'.$group_specimen_type.'/'.$sample_category.'/'.
+			$collection_id.'/'.$sample_master_id.'/');
+		
+	$form_lang = $lang;
+	$form_pagination = NULL;
+
+	$form_override = array();
+	
+	$modified_arr_storage_list = array();
+	foreach($arr_storage_list as $storage_id => $storage_data) {
+		$modified_arr_storage_list[$storage_id]
+			= $storage_data['code'].' (['.
+			$storage_data['selection_label'].'] '.
+			$translations->t($storage_data['storage_type'], $lang, false).')';
+	}
+	$form_override['AliquotMaster/storage_master_id'] = $modified_arr_storage_list;
+	
+	$form_override['AliquotMaster/sop_master_id'] = $arr_sop_title_from_id;
+	if(isset($arr_study_from_id)){
+		$form_override['AliquotMaster/study_summary_id'] = $arr_study_from_id;
+	}
+    if(isset($available_block_code)){
+    	$form_override['AliquotDetail/ad_block_id'] = $available_block_code;
+    }
+	if(isset($available_gel_matrix_code)){
+    	$form_override['AliquotDetail/ad_gel_matrix_id'] = $available_gel_matrix_code;
+    }
+	if(isset($default_storage_datetime)){
+		$form_override['AliquotMaster/storage_datetime'] = $default_storage_datetime;	
+	}
+	
+	$form_extras['end'] = 
+		$html->hiddenTag('AliquotMaster/aliquot_control_id', $aliquot_control_id).
+		$html->hiddenTag('AliquotMaster/sample_master_id', $sample_master_id).
+		$html->hiddenTag('AliquotMaster/collection_id', $collection_id);
+		
+	// look for CUSTOM HOOKS, "format"
+	if (file_exists($custom_ctrapp_view_hook)) { 
+		require($custom_ctrapp_view_hook); 
+	}
+				
+	$forms->build( 
+		$form_type, 
+		$form_model, 
+		$form_field, 
+		$form_link, 
+		$form_lang, 
+		$form_pagination, 
+		$form_override, 
+		$form_extras);
+		 
+		 
+?>
+	
+<?php echo $sidebars->footer($lang); ?>
