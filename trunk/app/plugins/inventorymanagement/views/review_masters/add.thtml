@@ -1,0 +1,58 @@
+<?php 
+	$sidebars->header( $lang );
+	$sidebars->cols( $ctrapp_sidebar, $lang );
+	$summaries->build( $ctrapp_summary, $lang ); 
+	$menus->tabs( $ctrapp_menu, $lang ); 
+?>
+	
+<?php 
+	
+	$form_type = 'add';
+	
+	$form_model = isset( $this->params['data'] ) ? 
+		array( $this->params['data'] ) : 
+		array( array( 'ReviewMaster'=>array() ) );
+	
+	$form_field = $ctrapp_form;
+	$form_link = array( 
+		'add'=>'/inventorymanagement/review_masters/add/'.$menu_id.'/'.$review_sample_group.'/'.$collection_id.'/'.$review_control_id.'/', 
+		'cancel'=>'/inventorymanagement/review_masters/listall/'.$menu_id.'/'.$review_sample_group.'/'.$collection_id.'/' );
+
+	$form_lang = $lang;
+	$form_pagination = NULL;
+	
+	$formated_collection_group_sample_list = array('0' => 'n/a');
+	if(!empty($collection_group_sample_list)) {
+		foreach($collection_group_sample_list as $id => $sample_data) {
+			$formated_collection_group_sample_list[$id] 
+				= $sample_data['SampleMaster']['sample_code']." (".
+				$translations->t( $sample_data['SampleMaster']['sample_type'] , $lang, FALSE ).")";
+	
+		}
+	}
+	$form_override = array('ReviewMaster/sample_master_id'=> $formated_collection_group_sample_list);	
+		
+	$form_extras = '';
+	$form_extras .= $html->hiddenTag( 'ReviewMaster/review_control_id', $review_control_id );
+	$form_extras .= $html->hiddenTag( 'ReviewMaster/review_type', $review_type );
+	$form_extras .= $html->hiddenTag( 'ReviewMaster/review_sample_group', $review_sample_group );
+	$form_extras .= $html->hiddenTag( 'ReviewMaster/collection_id', $collection_id );
+	
+	// look for CUSTOM HOOKS, "format"
+	if (file_exists($custom_ctrapp_view_hook)) { 
+		require($custom_ctrapp_view_hook); 
+	}
+	
+	$forms->build( 
+		$form_type, 
+		$form_model, 
+		$form_field, 
+		$form_link, 
+		$form_lang, 
+		$form_pagination , 
+		$form_override, 
+		$form_extras); 
+		
+?>
+		
+<?php echo $sidebars->footer($lang); ?>
