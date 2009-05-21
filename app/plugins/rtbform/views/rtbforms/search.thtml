@@ -1,0 +1,100 @@
+<?php 
+	$sidebars->header($lang);
+	$sidebars->cols($ctrapp_sidebar, $lang);
+	$summaries->build($ctrapp_summary, $lang); 
+	$menus->tabs($ctrapp_menu, $lang); 
+?>
+
+<?php 
+	if ( strpos('://', 'toto')===false ) {
+	}
+	
+	
+	$form_type = 'index';
+	$form_model = $rtbforms;
+	
+	// change FIELDS to actual LINKs for download...
+	foreach ( $form_model as $key=>$val ) {
+		
+		if ( $form_model[$key]['Rtbform']['frmFileLocation'] ) {
+			
+			$use_link = $form_model[$key]['Rtbform']['frmFileLocation'];
+			if ( strpos($use_link, '://') === false ) {
+				$use_link = 'file://'.$use_link;
+			}
+			
+			$form_model[$key]['Rtbform']['frmTitle'] = '<a href="'.$use_link.'">'.$form_model[$key]['Rtbform']['frmTitle'].'</a>';
+			$form_model[$key]['Rtbform']['frmFileLocation'] = '<a href="'.$use_link.'">'.$form_model[$key]['Rtbform']['frmFileLocation'].'</a>';
+		}
+		
+		$use_link = $form_model[$key]['Rtbform']['frmFileViewer'];
+		if ( strpos($use_link, '://') === false ) {
+			$use_link = 'file://'.$use_link;
+		}
+			
+		$form_model[$key]['Rtbform']['frmFileViewer'] = '<a href="'.$use_link.'">'.$form_model[$key]['Rtbform']['frmFileViewer'].'</a>';
+		
+	}
+		
+	$form_field = $ctrapp_form;
+	$form_link = array( 'detail'=>'/rtbform/rtbforms/profile/' );
+	$form_lang = $lang;
+	$form_pagination = $paging;
+	$form_overrides = NULL;		
+
+	$forms->build( 
+		$form_type, 
+		$form_model, 
+		$form_field, 
+		$form_link, 
+		$form_lang, 
+		$form_pagination, 
+		$form_overrides ); 
+	
+?>
+
+<?php echo $sidebars->footer($lang); ?>
+/*
+<?php
+	$form_type = 'index';
+	$form_model = $rtbforms;
+		
+		// change FIELDS to actual LINKs for download...
+		
+		foreach ( $form_model as $key=>$val ) {
+			
+			if ( $form_model[$key]['Rtbform']['frmFileLocation'] ) {
+				
+				$use_link = $form_model[$key]['Rtbform']['frmFileLocation'];
+				if ( strpos('://',$use_link)===false ) {
+					$use_link = 'file://'.$use_link;
+				}
+				
+				$form_model[$key]['Rtbform']['frmTitle'] = '<a href="'.$use_link.'">'.$form_model[$key]['Rtbform']['frmTitle'].'</a>';
+				$form_model[$key]['Rtbform']['frmFileLocation'] = '<a href="'.$use_link.'">'.$form_model[$key]['Rtbform']['frmFileLocation'].'</a>';
+			}
+			
+				$use_link = $form_model[$key]['Rtbform']['frmFileViewer'];
+				if ( strpos('://',$use_link)===false ) {
+					$use_link = 'file://'.$use_link;
+				}
+				
+			$form_model[$key]['Rtbform']['frmFileViewer'] = '<a href="'.$use_link.'">'.$form_model[$key]['Rtbform']['frmFileViewer'].'</a>';
+			
+		}
+		
+	$form_field = $ctrapp_form;
+	$form_link = array( 'detail'=>'/rtbform/rtbforms/profile/' );
+	$form_lang = $lang;
+	$form_pagination = $paging;
+	
+	
+	if( !is_array($form_model) ){  
+	  //  print "W:".$form_model;
+	  $form_model = array(); //bug in FormsHelper
+	}
+	
+	$forms->build( $form_type, $form_model, $form_field, $form_link, $form_lang, $form_pagination ); 
+?>
+
+<?php echo $sidebars->footer($lang); ?>*/

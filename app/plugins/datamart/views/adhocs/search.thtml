@@ -1,0 +1,49 @@
+<?php 
+	$sidebars->header( $lang );
+	$sidebars->cols( $ctrapp_sidebar, $lang );
+	$summaries->build( $ctrapp_summary, $lang ); 
+	$menus->tabs( $ctrapp_menu, $lang ); 
+?>
+
+	<?php 
+			
+		// display DETAIL FORM, of adhoc query
+			
+			$form_type = 'detail';
+			$form_model = isset( $this->params['adhoc'] ) ? array( $this->params['adhoc'] ) : array( $adhoc );
+			$form_field = $ctrapp_form_for_query;
+			$form_link = array();
+			$form_lang = $lang;
+			
+			$forms->build( $form_type, $form_model, $form_field, $form_link, $form_lang );
+				
+		// display EDIT FORM, or adhoc query RESULTS
+			
+		$form_type = array( 'search' );
+		$form_model = array( array( 'Adhoc'=>array() ) );
+		$form_field = $ctrapp_form;
+		if ( $type_of_list=='favourites' ) {
+			$form_link = array( 'remove as favourite'=>'/datamart/adhocs/unfavourite/'.$adhoc['Adhoc']['id'], 'search'=>'/datamart/adhocs/results/'.$type_of_list.'/', 'cancel'=>'/datamart/adhocs/index/'.$type_of_list.'/' );
+		} else {
+			$form_link = array( 'add as favourite'=>'/datamart/adhocs/favourite/'.$adhoc['Adhoc']['id'], 'search'=>'/datamart/adhocs/results/'.$type_of_list.'/', 'cancel'=>'/datamart/adhocs/index/'.$type_of_list.'/' );
+		}
+		$form_lang = $lang;
+		$form_override = array();
+
+			// if a SAVED Adhoc query...
+			if ( $type_of_list=='saved' && count($adhoc['AdhocSaved']) ) {
+			
+				
+				// Parse Saved info, and set as Form Override variable...
+				$adhoc['AdhocSaved'][0]['search_params'] = explode('|', $adhoc['AdhocSaved'][0]['search_params']);
+				foreach ( $adhoc['AdhocSaved'][0]['search_params'] as $override_set ) {
+					$override_set = explode('=',$override_set);
+					$form_override[$override_set[0]] = $override_set[1];
+				}
+			}	
+			
+		$forms->build( $form_type, $form_model, $form_field, $form_link, $form_lang, NULL, $form_override );
+		
+	?>
+		
+<?php echo $sidebars->footer($lang); ?>

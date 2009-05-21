@@ -1,0 +1,72 @@
+<?php 
+	$sidebars->header( $lang );
+	$sidebars_extras['title'] = $summaries->build( $ctrapp_summary, $lang, 1 ); // PLUGIN's summary set to return value, rather than echo it...
+	$sidebars->cols( $ctrapp_sidebar, $lang, $sidebars_extras ); // passing EXTRAS, to attach to displayed SUMMARY; similar to FORMS extras
+	$menus->tabs( $ctrapp_menu, $lang ); 
+?>
+	
+	<?php 
+		
+		$form_type = 'index';
+		$form_model = $protocol_masters;
+		$form_field = $ctrapp_form;
+		$form_link = array( 'detail'=>'/protocol/protocol_masters/detail/' );
+		$form_lang = $lang;
+		$form_pagination = $paging;
+		$form_extras = NULL; 
+		$form_override = NULL;	
+				
+		// ************ START CUSTOM CODE CHECK **************
+		if (file_exists($custom_ctrapp_view_hook)) { 
+			require($custom_ctrapp_view_hook);
+		}
+		// ************* END CUSTOM CODE CHECK ***************
+		
+		$forms->build( 
+			$form_type, 
+			$form_model, 
+			$form_field, 
+			$form_link, 
+			$form_lang, 
+			$form_pagination, 
+			$form_override, 
+			$form_extras ); 
+		
+		/* EXPANDED add action, based on CONTROL->MASTER->DETAIL datatable setup */
+		
+			$expanded_add = array();
+			
+			// loop through related CONTROL table rows 
+			foreach ( $protocol_controls as $option ) {
+				if ( $option['ProtocolControl']['detail_form_alias'] && $option['ProtocolControl']['detail_tablename'] ) {
+					$expanded_add [ $option['ProtocolControl']['id'] ] = $translations->t( $option['ProtocolControl']['tumour_group'], $lang ).' - '.$translations->t( $option['ProtocolControl']['type'], $lang );
+				}
+			}
+			
+			if ( !empty( $expanded_add ) ) {
+			
+				echo( 
+					$html->formTag( '/protocol/protocol_masters/add/', 'post', array( 'id'=>'expanded_add' ) ).'
+						<fieldset>
+							<select name="protocol_control_id">
+				');
+				
+					foreach ( $expanded_add as $key=>$value ) {
+						echo('
+							<option value="'.$key.'">'.$value.'</option>
+						');
+					}
+					
+				echo('
+							</select>
+						<input type="submit" class="submit add" value="'.$translations->t( 'add', $lang, 0 ).'" />
+						</fieldset>
+					</form>
+				');
+			} // end IF !empty
+			
+		/* END expanded add */
+		
+	?>
+
+<?php echo $sidebars->footer($lang); ?>

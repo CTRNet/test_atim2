@@ -1,0 +1,49 @@
+<?php 
+	$sidebars->header( $lang );
+	$sidebars->cols( $ctrapp_sidebar, $lang );
+	$summaries->build( $ctrapp_summary, $lang ); 
+	$menus->tabs( $ctrapp_menu, $lang ); 
+?>
+	
+<?php 
+
+	//-----------------------------------
+	// 1- Main form
+	//-----------------------------------
+
+	$form_type = 'editgrid';
+	// $form_model = $orderitems;
+	$form_model = isset( $this->params['data'] ) ? array( $this->params['data'] ) : array( $data );
+	$form_field = $ctrapp_form;
+	$form_link = array( 'editgrid'=>'/order/order_items/manageShipments/'.$order_id.'/'.$orderline_id.'/' );
+	$form_lang = $lang;
+	$form_pagination = NULL;
+	$form_overrides = array('OrderItem/shipment_id'=>$shipment_id_findall);
+	
+	$form_extras = NULL;
+	
+	// look for CUSTOM HOOKS, "format"
+	if (file_exists($custom_ctrapp_view_hook)) { 
+		require($custom_ctrapp_view_hook); 
+	}
+	
+    $forms->build( 
+    	$form_type, 
+    	$form_model, 
+    	$form_field, 
+    	$form_link, 
+    	$form_lang, 
+    	$form_pagination, 
+    	$form_overrides, 
+    	$form_extras); 
+    			
+	//-----------------------------------
+	// 2- Display additional buttons
+	//-----------------------------------
+		
+	$action_links = array ( 'cancel' => '/order/order_items/listall/'.$order_id.'/'.$orderline_id.'/' );
+	echo $forms->generate_links_list( NULL, $action_links, $lang );
+	
+?>
+
+<?php echo $sidebars->footer($lang); ?>
