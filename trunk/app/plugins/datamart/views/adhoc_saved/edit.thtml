@@ -1,0 +1,18 @@
+<?php 
+	$sidebars->header( $lang );
+	$sidebars->cols( $ctrapp_sidebar, $lang );
+	// $summaries->build( $ctrapp_summary, $lang ); 
+	$menus->tabs( $ctrapp_menu, $lang ); 
+?>
+	
+	<?php 
+		$form_type = 'edit';
+		$form_model = isset( $this->params['data'] ) ? array( $this->params['data'] ) : array( $data );
+		$form_field = $ctrapp_form;
+		$form_link = array( 'edit'=>'/datamart/adhoc_saved/edit/'.$adhoc_id.'/', 'cancel'=>'/datamart/adhoc_saved/listall/'.$adhoc_id.'/' );
+		$form_lang = $lang;
+		
+		$forms->build( $form_type, $form_model, $form_field, $form_link, $form_lang ); 
+	?>
+		
+<?php echo $sidebars->footer($lang); ?>

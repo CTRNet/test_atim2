@@ -1,0 +1,142 @@
+<?php 
+	$sidebars->header( $lang );
+	$sidebars->cols( $ctrapp_sidebar, $lang );
+	$summaries->build( $ctrapp_summary, $lang ); 
+	$menus->tabs( $ctrapp_menu, $lang ); 
+?>
+	
+	<?php 
+		$form_type = 'detail';
+		$form_model = isset( $this->params['data'] ) ? array( $this->params['data'] ) : array( $data );
+		$form_field = $ctrapp_form;
+		$form_link = array( 'edit'=>'/protocol/protocol_masters/edit/', 'delete'=>'/protocol/protocol_masters/delete/', 'list'=>'/protocol/protocol_masters/listall/' );
+		$form_lang = $lang;
+		$form_pagination = NULL; 
+		$form_override = NULL;		
+			$form_extras = array();
+			/*
+			if ( count( $dx_listall['Diagnosis'] ) ) {
+				
+				$form_extras['start'] = '
+					<tr>
+						<td class="label">
+							'.$translations->t( 'case_number', $lang ).'
+						</td>
+						<td class="content">
+							'.$dx_listall['Diagnosis']['case_number'].'
+						</td>
+						<td class="help">
+							<span class="error help">?</span>
+						</td>
+					</tr>
+					
+					<tr>
+						<td class="label">
+							'.$translations->t( 'dx_date', $lang ).'
+						</td>
+						<td class="content">
+							'.$dx_listall['Diagnosis']['dx_date'].'
+						</td>
+						<td class="help">
+							<span class="error help">?</span>
+						</td>
+					</tr>
+					
+					<tr>
+						<td class="label">
+							'.$translations->t( 'dx_method', $lang ).'
+						</td>
+						<td class="content">
+							'.$translations->t( $dx_listall['Diagnosis']['dx_method'], $lang ).'
+						</td>
+						<td class="help">
+							<span class="error help">?</span>
+						</td>
+					</tr>
+					
+					<tr>
+						<td class="label">
+							'.$translations->t( 'dx_nature', $lang ).'
+						</td>
+						<td class="content">
+							'.$translations->t( $dx_listall['Diagnosis']['dx_nature'], $lang ).'
+						</td>
+						<td class="help">
+							<span class="error help">?</span>
+						</td>
+					</tr>
+				';
+			
+			} else {
+				
+				$form_extras['start'] = '
+					<tr>
+						<td class="label">
+							'.$translations->t( 'case_number', $lang ).'
+						</td>
+						<td class="content">
+							0, '.$translations->t( 'no primary', $lang ).'
+						</td>
+						<td class="help">
+							<span class="error help">?</span>
+						</td>
+					</tr>
+					
+					<tr>
+						<td class="label">
+							'.$translations->t( 'dx_date', $lang ).'
+						</td>
+						<td class="content">
+							<span class="error empty">-</span> 
+						</td>
+						<td class="help">
+							<span class="error help">?</span>
+						</td>
+					</tr>
+					
+					<tr>
+						<td class="label">
+							'.$translations->t( 'dx_method', $lang ).'
+						</td>
+						<td class="content">
+							<span class="error empty">-</span> 
+						</td>
+						<td class="help">
+							<span class="error help">?</span>
+						</td>
+					</tr>
+					
+					<tr>
+						<td class="label">
+							'.$translations->t( 'dx_nature', $lang ).'
+						</td>
+						<td class="content">
+							<span class="error empty">-</span> 
+						</td>
+						<td class="help">
+							<span class="error help">?</span>
+						</td>
+					</tr>
+				';
+			
+			}
+			*/
+			
+		// ************ START CUSTOM CODE CHECK **************
+		if (file_exists($custom_ctrapp_view_hook)) { 
+			require($custom_ctrapp_view_hook);
+		}
+		// ************* END CUSTOM CODE CHECK ***************
+		
+		$forms->build( 
+			$form_type, 
+			$form_model, 
+			$form_field, 
+			$form_link, 
+			$form_lang, 
+			$form_pagination, 
+			$form_override, 
+			$form_extras ); 
+	?>
+		
+<?php echo $sidebars->footer($lang); ?>

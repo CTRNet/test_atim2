@@ -1,0 +1,39 @@
+<?php 
+	$sidebars->header( $lang );
+	$sidebars->cols( $ctrapp_sidebar, $lang );
+	$summaries->build( $ctrapp_summary, $lang ); 
+	$menus->tabs( $ctrapp_menu, $lang );
+?>
+
+<?php 
+	$form_type = 'detail';
+	$form_model = isset( $this->params['data'] ) ? array( $this->params['data'] ) : array( $data );
+	$form_field = $ctrapp_form;
+	$form_link = array( 
+		'edit'=>'/order/order_items/edit/'.$order_id.'/'.$orderline_id.'/');
+//		'list'=>'/order/order_items/listall/'.$order_id.'/'.$orderline_id.'/' );
+	if($allow_deletion) {
+		$form_link['delete'] = '/order/order_items/delete/'.$order_id.'/'.$orderline_id.'/';
+	}
+	$form_lang = $lang;
+	$form_pagination = NULL;
+	$form_overrides = array('OrderItem/shipment_id'=>$shipment_id_findall);
+	$form_extras = NULL;
+	
+	// look for CUSTOM HOOKS, "format"
+	if (file_exists($custom_ctrapp_view_hook)) { 
+		require($custom_ctrapp_view_hook); 
+	}
+				
+	$forms->build( 
+		$form_type, 
+		$form_model, 
+		$form_field, 
+		$form_link, 
+		$form_lang, 
+		$form_pagination, 
+		$form_overrides, 
+		$form_extras);
+?>
+		
+<?php echo $sidebars->footer($lang); ?>

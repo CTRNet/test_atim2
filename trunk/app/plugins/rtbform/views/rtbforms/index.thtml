@@ -1,0 +1,28 @@
+<?php 
+	$sidebars->header( $lang );
+	$sidebars_extras['title'] = $summaries->build( $ctrapp_summary, $lang, 1 ); // PLUGIN's summary set to return value, rather than echo it...
+	$sidebars->cols( $ctrapp_sidebar, $lang, $sidebars_extras ); // passing EXTRAS, to attach to displayed SUMMARY; similar to FORMS extras
+	$menus->tabs( $ctrapp_menu, $lang ); 
+?>
+	
+<?php 
+	$form_type = 'search';
+	$form_model = isset( $this->params['data'] ) ? array( $this->params['data'] ) : array( array( 'Rtbforms'=>array() ) );
+	$form_field = $ctrapp_form;
+	$form_link = array( 'search'=>'/rtbform/rtbforms/search/', 'add'=>'/rtbform/rtbforms/add/' );
+	$form_lang = $lang;
+	
+	$form_pagination = NULL;
+	$form_overrides = NULL;
+	
+	$forms->build( 
+		$form_type, 
+		$form_model, 
+		$form_field, 
+		$form_link, 
+		$form_lang, 
+		$form_pagination, 
+		$form_overrides );  
+?>
+		
+<?php echo $sidebars->footer($lang); ?>
