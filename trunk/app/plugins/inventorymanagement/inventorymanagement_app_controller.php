@@ -1,10 +1,13 @@
 <?php
 
-class InventoryManagementAppController extends AppController
+class InventorymanagementAppController extends AppController
 {	
-	var $name = 'InventoryManagement';
-	//...
 	
+	function beforeFilter() {
+		parent::beforeFilter();
+		$this->Auth->actionPath = 'controllers/Inventorymanagement/';
+	}
+		
 	/**
 	 * Return the spent time between 2 dates. 
 	 * Notes: The supported date format is YYYY-MM-DD HH:MM:SS
