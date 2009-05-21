@@ -2,8 +2,10 @@
 
 class StudyAppController extends AppController
 {	
-	var $name = 'Study';
-	
+	function beforeFilter() {
+		parent::beforeFilter();
+		$this->Auth->actionPath = 'controllers/Study/';
+	}
 }
 
 ?>
