@@ -2,9 +2,7 @@
 	$structure_links = array(
 		'top'=>NULL,
 		'index'=>'/clinicalannotation/event_masters/detail/'.$atim_menu_variables['Participant.id'].'/%%EventMasters.id%%',
-		'bottom'=>array(
-			'add'=>'/clinicalannotation/event_masters/add/'.$atim_menu_variables['Participant.id'].'/'
-		)
+		'bottom'=>NULL
 	); 
 	
 	/* EXPANDED add action, based on CONTROL->MASTER->DETAIL datatable setup */
@@ -16,11 +14,11 @@
 			$expanded_add [ $option['EventControl']['id'] ] = ($option['EventControl']['disease_site'].' - '.$option['EventControl']['event_type']);
 		}
 	}
-			
+	
+	$structures->build( $atim_structure, array('type'=>'index','links'=>$structure_links) );
+	
 	if ( !empty( $expanded_add ) ) {
-			
-		echo( 
-			$html->formTag( '/clinicalannotation/event_masters/add/'.$menu_id.'/'.$event_group.'/'.$atim_menu_variables['Participant.id'].'/', 'post', array( 'id'=>'expanded_add' ) ).'
+		echo('
 				<fieldset>
 					<select name="event_control_id">
 		');
@@ -30,14 +28,10 @@
 				');
 			}
 		echo('
-					</select>
-				<input type="submit" class="submit add" value="'.$translations->t( 'add', $lang, 0 ).'" />
+				</select>
+				<input type="submit" class="submit add" value="'.add.'" />
 				</fieldset>
 			</form>
 		');
-	} // end IF !empty
-			
-	/* END expanded add */	
-	
-	$structures->build( $atim_structure, array('type'=>'index','links'=>$structure_links) );
+	} // end IF
 ?>
