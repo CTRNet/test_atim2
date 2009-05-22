@@ -1,153 +1,63 @@
 <?php
 
 class StudyReviewsController extends StudyAppController {
-	
-	var $name = 'StudyReviews';
-	var $uses = array('StudyReview');
-
-	var $useDbConfig = 'default';
-
-	var $components = array('Summaries');
-	
-	var $helpers = array('Summaries');
-  
-	function beforeFilter() {
-    
-    	// $auth_conf array hardcoded in oth_auth component, due to plugins compatibility 
-	    $this->othAuth->controller = &$this;
-    	$this->othAuth->init();
-    	$this->othAuth->check();
-
-    	// CakePHP function to re-combine dat/time select fields 
-    	$this->cleanUpFields();
-  	}
+	var $uses = array('StudyReview','StudySummary');
+	var $paginate = array('StudyReview'=>array('limit'=>10,'order'=>'StudyReview.last_name'));
 	
 	function listall( $study_summary_id=null ) {
+		if ( !$study_summary_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+
+		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id));
+		$this->data = $this->paginate($this->StudyReview, array('StudyReview.study_summary_id'=>$study_summary_id));
 		
-		// set MENU varible for echo on VIEW 
-		// $ctrapp_menu[] = $this->Menus->tabs( 'tool_CAN_100', 'tool_CAN_103', '' );
-		$ctrapp_menu[] = $this->Menus->tabs( 'tool_CAN_103', 'tool_CAN_107', $study_summary_id );
-		$this->set( 'ctrapp_menu', $ctrapp_menu );
-		
-		// set FORM variable, for HELPER call on VIEW 
-		$this->set( 'ctrapp_form', $this->Forms->getFormArray('study_reviews') );
-		
-		// set SUMMARY varible from plugin's COMPONENTS
-		$this->set( 'ctrapp_summary', $this->Summaries->build($study_summary_id) );
-		
-		// set SIDEBAR variable, for HELPER call on VIEW 
-		// use PLUGIN_CONTROLLER_ACTION by default, but any ALIAS string that matches in the SIDEBARS datatable will do...
-		$this->set( 'ctrapp_sidebar', $this->Sidebars->getColsArray( $this->params['plugin'].'_'.$this->params['controller'].'_'.$this->params['action'] ) );
-		
-		// set FORM variable, for HELPER call on VIEW 
-		$this->set( 'study_summary_id', $study_summary_id );
-		$criteria = array();
-		$criteria['study_summary_id'] = $study_summary_id;
-		$criteria = array_filter($criteria);
-			
-		list( $order, $limit, $page ) = $this->Pagination->init( $criteria );
-		$this->set( 'study_reviews', $this->StudyReview->findAll( $criteria, NULL, $order, $limit, $page ) );
 	}
 
-	function add( $study_summary_id=null, $study_review_id=null ) {
-    
-    		// setup MODEL(s) validation array(s) for displayed FORM 
-    		foreach ( $this->Forms->getValidateArray('study_reviews') as $validate_model=>$validate_rules ) {
-     	 		$this->{ $validate_model }->validate = $validate_rules;
-    		}
-    
-    	// set MENU varible for echo on VIEW
-    	// $ctrapp_menu[] = $this->Menus->tabs( 'tool_CAN_100', 'tool_CAN_103', '' );
-    	$ctrapp_menu[] = $this->Menus->tabs( 'tool_CAN_103', 'tool_CAN_107', $study_summary_id );
-	$this->set( 'ctrapp_menu', $ctrapp_menu );
-    
-    	// set FORM variable, for HELPER call on VIEW 
-    	$this->set( 'ctrapp_form', $this->Forms->getFormArray('study_reviews') );
+	function add( $study_summary_id=null) {
+		if ( !$study_summary_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+	
+		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id));
 		
-		// set SUMMARY varible from plugin's COMPONENTS
-		$this->set( 'ctrapp_summary', $this->Summaries->build($study_summary_id) );
-    
-    	// set SIDEBAR variable, for HELPER call on VIEW 
-   		// use PLUGIN_CONTROLLER_ACTION by default, but any ALIAS string that matches in the SIDEBARS datatable will do...
-    	$this->set( 'ctrapp_sidebar', $this->Sidebars->getColsArray( $this->params['plugin'].'_'.
-								 $this->params['controller'].'_'.
-								 $this->params['action'] ) );
-
-	$this->set( 'study_summary_id', $study_summary_id );
-
-    	if ( !empty($this->data) ) {
-			if ( $this->StudyReview->save( $this->data ) ) {
-				$this->flash( 'Your data has been saved.','/study_reviews/detail/'.$study_summary_id.'/'.$this->StudyReview->getLastInsertId() );
-      		} else {
-				print_r($this->params['data']);
-      		}      
-    	}
+		if ( !empty($this->data) ) {
+			$this->data['StudyReview']['study_summary_id'] = $study_summary_id;
+			if ( $this->StudyReview->save($this->data) ) {
+				$this->flash( 'Your data has been updated.','/study/study_reviews/detail/'.$study_summary_id.'/'.$this->StudyReview->id );
+			}
+		}
   	}
   
 	function edit( $study_summary_id=null, $study_review_id=null ) {
-    	// setup MODEL(s) validation array(s) for displayed FORM 
-		foreach ( $this->Forms->getValidateArray('study_reviews') as $validate_model=>$validate_rules ) {
-    		$this->{ $validate_model }->validate = $validate_rules;
-    	}
-    
-    	// set MENU varible for echo on VIEW 
-		// $ctrapp_menu[] = $this->Menus->tabs( 'tool_CAN_100', 'tool_CAN_103', '' );
-		$ctrapp_menu[] = $this->Menus->tabs( 'tool_CAN_103', 'tool_CAN_107', $study_summary_id );
-    	$this->set( 'ctrapp_menu', $ctrapp_menu );
-    
-    	// set FORM variable, for HELPER call on VIEW 
-    	$this->set( 'ctrapp_form', $this->Forms->getFormArray('study_reviews') );
+    	if ( !$study_summary_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$study_review_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		
-		// set SUMMARY varible from plugin's COMPONENTS
-		$this->set( 'ctrapp_summary', $this->Summaries->build($study_summary_id) );
-    
-    	// set SIDEBAR variable, for HELPER call on VIEW 
-    	// use PLUGIN_CONTROLLER_ACTION by default, but any ALIAS string that matches in the SIDEBARS datatable will do...
-    	$this->set( 'ctrapp_sidebar', $this->Sidebars->getColsArray( $this->params['plugin'].'_'.
-								 $this->params['controller'].'_'.
-								 $this->params['action'] ) );
-    		$this->set( 'study_summary_id', $study_summary_id );
-		$this->StudyReview->id = $study_review_id;
-		if ( empty($this->data) ) {
-			$this->data = $this->StudyReview->read();
-      		$this->set( 'data', $this->data );
-		} else {    
-      		if ( $this->StudyReview->save( $this->data['StudyReview'] ) ) {
-				$this->flash( 'Your data has been updated.','/study_reviews/detail/'.$study_summary_id.'/'.$study_review_id );
-      		} else {
-				print_r($this->params['data']);
-      		}      
-	    }
+		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id, 'StudyReview.id'=>$study_review_id) );
+		
+		if ( !empty($this->data) ) {
+			$this->StudyReview->id = $study_review_id;
+			if ( $this->StudyReview->save($this->data) ) {
+				$this->flash( 'Your data has been updated.','/study/study_reviews/detail/'.$study_summary_id.'/'.$study_review_id );
+			}
+		} else {
+			$this->data = $this->StudyReview->find('first',array('conditions'=>array('StudyReview.id'=>$study_review_id)));
+		}
   	}
 	
 	function detail( $study_summary_id=null, $study_review_id=null ) {
+		if ( !$study_summary_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$study_review_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		
-		// set MENU varible for echo on VIEW 
-		// $ctrapp_menu[] = $this->Menus->tabs( 'tool_CAN_100', 'tool_CAN_103', '' );
-		$ctrapp_menu[] = $this->Menus->tabs( 'tool_CAN_103', 'tool_CAN_107', $study_summary_id );
-		$this->set( 'ctrapp_menu', $ctrapp_menu );
-		
-		// set FORM variable, for HELPER call on VIEW 
-		$this->set( 'ctrapp_form', $this->Forms->getFormArray('study_reviews') );
-		
-		// set SUMMARY varible from plugin's COMPONENTS
-		$this->set( 'ctrapp_summary', $this->Summaries->build($study_summary_id) );
-		
-		// set SIDEBAR variable, for HELPER call on VIEW 
-		// use PLUGIN_CONTROLLER_ACTION by default, but any ALIAS string that matches in the SIDEBARS datatable will do...
-		$this->set( 'ctrapp_sidebar', $this->Sidebars->getColsArray( $this->params['plugin'].'_'.$this->params['controller'].'_'.$this->params['action'] ) );
-		
-		// set FORM variable, for HELPER call on VIEW 
-		$this->set( 'study_summary_id', $study_summary_id );
-		
-		$this->StudyReview->id = $study_review_id;
-		$this->set( 'data', $this->StudyReview->read() );
+		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id, 'StudyReview.id'=>$study_review_id) );
+		$this->data = $this->StudyReview->find('first',array('conditions'=>array('StudyReview.id'=>$study_review_id)));
 	}
   
 	function delete( $study_summary_id=null, $study_review_id=null ) {
-    
-    		$this->StudyReview->del( $study_review_id );
-    		$this->flash( 'Your data has been deleted.', '/study_reviews/listall/'.$study_summary_id.'/' );
+		if ( !$study_summary_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$study_review_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		
+		if( $this->StudyReview->del( $study_review_id ) ) {
+			$this->flash( 'Your data has been deleted.', '/study/study_reviews/listall/'.$study_summary_id );
+		} else {
+			$this->flash( 'Your data has been deleted.', '/study/study_reviews/listall/'.$study_summary_id );
+		}
   	}
 }
 
