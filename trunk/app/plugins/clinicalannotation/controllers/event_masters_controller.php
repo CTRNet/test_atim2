@@ -3,7 +3,7 @@
 class EventMastersController extends ClinicalannotationAppController {
 
 	var $uses = array('EventControl', 'EventMaster', 'Diagnosis');
-	var $paginate = array('EventMaster'=>array('limit'=>10,'order'=>'EventMaster.date ASC')); 	
+	var $paginate = array('EventMaster'=>array('limit'=>10,'order'=>'EventMaster.event_date ASC')); 	
 
 	function listall( $menu_id=NULL, $event_group=NULL, $participant_id=null ) {
 		// Missing or empty function variable, send to ERROR page
@@ -11,8 +11,6 @@ class EventMastersController extends ClinicalannotationAppController {
 		
 		// get all DX rows, for EVENT FILTER pulldown && DX input
 		$this->set('dx_listall', $this->Diagnosis->find('all',array('conditions'=>array('Diagnosis.participant_id'=>$participant_id))));
-		$this->set('menu_id', $menu_id);
-		$this->set('event_group', $event_group);
 		
 		// set SESSION var of EVENT PRIMARY to blank or form value
 		if ( isset($this->params['form']['event_filter']) ) {
@@ -45,7 +43,12 @@ class EventMastersController extends ClinicalannotationAppController {
 		if ( $_SESSION['ctrapp_core']['clinical_annotation']['event_filter']!=='' ) {
 			$criteria .= ' AND ( EventMaster.diagnosis_id="'.implode( '" OR EventMaster.diagnosis_id="', $event_filter_array ).'" )';
 		}
-
+		
+		// Set view variables
+		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id) );
+		$this->set('menu_id', $menu_id);
+		$this->set('event_group', $event_group);
+		
 		$this->data = $this->paginate($this->EventMaster, array('EventMaster.participant_id'=>$participant_id));
 
 		// find all EVENTCONTROLS, for ADD form

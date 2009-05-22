@@ -5,7 +5,7 @@
 		'bottom'=>array(
 			'add'=>'/clinicalannotation/event_masters/add/'.$atim_menu_variables['Participant.id'].'/'
 		)
-	);
+	); 
 	
 	/* EXPANDED add action, based on CONTROL->MASTER->DETAIL datatable setup */
 	$expanded_add = array();
@@ -20,7 +20,7 @@
 	if ( !empty( $expanded_add ) ) {
 			
 		echo( 
-			$html->formTag( '/clinicalannotation/event_masters/add/'.$menu_id.'/'.$event_group.'/'.$participant_id.'/', 'post', array( 'id'=>'expanded_add' ) ).'
+			$html->formTag( '/clinicalannotation/event_masters/add/'.$menu_id.'/'.$event_group.'/'.$atim_menu_variables['Participant.id'].'/', 'post', array( 'id'=>'expanded_add' ) ).'
 				<fieldset>
 					<select name="event_control_id">
 		');
