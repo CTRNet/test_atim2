@@ -1,9 +1,9 @@
 <?php 
 	$structure_links = array(
 		'bottom'=>array(
-			'edit'=>'/drug/drugs/edit/',
-			'delete'=>'/drug/drugs/delete/',
-			'list'=>'/drug/drugs/listall/'
+			'list'=>'/drug/drugs/listall/',
+			'edit'=>'/drug/drugs/edit/%%Drug.id%%/',
+			'delete'=>'/drug/drugs/delete/%%Drug.id%%/'
 		)
 	);
 	
