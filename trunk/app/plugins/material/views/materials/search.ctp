@@ -1,11 +1,13 @@
-<?php
+<?php 
+
 	$structure_links = array(
-		'index'=>array('detail'=>'/material/detail/%%Material.id%%/),
+		'index'=>array('detail'=>'/material/materials/detail/%%Materials.id%%'),
 		'bottom'=>array(
-			'add'=>'/material/add/%%Material.id%%',
-			'list'=>'/material/listall/%%Material.id%%'
+			'add'=>'/material/materials/add',
+			'search'=>'/material/materials/index'
 		)
 	);
 	
 	$structures->build( $atim_structure, array('type'=>'index','links'=>$structure_links) );
+
 ?>
