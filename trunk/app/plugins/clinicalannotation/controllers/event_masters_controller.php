@@ -38,6 +38,14 @@ class EventMastersController extends ClinicalannotationAppController {
 			}
 		}
 
+/*		// set MENU varible for echo on VIEW
+		$ctrapp_menu[] = $this->Menus->tabs( 
+			array( 
+				array( 'clin_CAN_1',	'clin_CAN_4',	$participant_id ), 
+				array( 'clin_CAN_4',	NULL,				$participant_id ) 
+			) 
+		);		
+*/		
 		// build criteria, append EVENT_FILTER if any...
 		$criteria = 'EventMaster.participant_id="'.$participant_id.'" AND EventMaster.event_group="'.$event_group.'"';
 		if ( $_SESSION['ctrapp_core']['clinical_annotation']['event_filter']!=='' ) {
