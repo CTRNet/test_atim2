@@ -13,3 +13,5 @@
 				note: <pluginName> should be replaced with the plugins actual name
 
 2. /study/views/study_ethics_boards/ folder name is changed to /study/views/study_ethicsboards/
+
+3. study_related database table must be changed to study_relateds due to naming conventions in cake 1.2
