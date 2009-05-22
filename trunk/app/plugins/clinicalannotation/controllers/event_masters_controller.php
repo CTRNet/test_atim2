@@ -10,8 +10,10 @@ class EventMastersController extends ClinicalannotationAppController {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		
 		// get all DX rows, for EVENT FILTER pulldown && DX input
-		$this->set( 'dx_listall', $this->Diagnosis->find('all',array('conditions'=>array('Diagnosis.participant_id'=>$participant_id))));
-
+		$this->set('dx_listall', $this->Diagnosis->find('all',array('conditions'=>array('Diagnosis.participant_id'=>$participant_id))));
+		$this->set('menu_id', $menu_id);
+		$this->set('event_group', $event_group);
+		
 		// set SESSION var of EVENT PRIMARY to blank or form value
 		if ( isset($this->params['form']['event_filter']) ) {
 			$_SESSION['ctrapp_core']['clinical_annotation']['event_filter'] = $this->params['form']['event_filter'];
@@ -47,7 +49,7 @@ class EventMastersController extends ClinicalannotationAppController {
 		$this->data = $this->paginate($this->EventMaster, array('EventMaster.participant_id'=>$participant_id));
 
 		// find all EVENTCONTROLS, for ADD form
-		$this->set('event_controls', $this->EventControl->find('all', array('conditions'=>array('event_group'=>$event_group'))));
+		$this->set('event_controls', $this->EventControl->find('all', array('conditions'=>array('event_group'=>$event_group))));
 	}
 }
 
