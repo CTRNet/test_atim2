@@ -1,7 +1,7 @@
 <?php
 	$structure_links = array(
 		'top'=>NULL,
-		'index'=>'/clinicalannotation/event_masters/detail/'.$atim_menu_variables['Participant.id'].'/%%EventMasters.id%%',
+		'index'=>'/clinicalannotation/event_masters/detail/'.$atim_menu_variables['Participant.id'].'/',
 		'bottom'=>NULL
 	); 
 	
