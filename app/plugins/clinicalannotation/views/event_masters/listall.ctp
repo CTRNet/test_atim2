@@ -13,7 +13,7 @@
 	// loop through related CONTROL table rows 
 	foreach ( $event_controls as $option ) {
 		if ( $option['EventControl']['form_alias'] && $option['EventControl']['detail_tablename'] ) {
-			$expanded_add [ $option['EventControl']['id'] ] = $translations->t( $option['EventControl']['disease_site'], $lang ).' - '.$translations->t( $option['EventControl']['event_type'], $lang );
+			$expanded_add [ $option['EventControl']['id'] ] = ($option['EventControl']['disease_site'].' - '.$option['EventControl']['event_type']);
 		}
 	}
 			
