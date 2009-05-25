@@ -584,6 +584,51 @@ CREATE TABLE `ad_cell_cores_revs` (
 -- --------------------------------------------------------
 
 -- 
+-- Table structure for table `ad_cell_tubes`
+--
+
+
+CREATE TABLE `ad_cell_tubes` (
+  `id` int(11) NOT NULL auto_increment,
+  `aliquot_master_id` int(11) NOT NULL default '0',
+  `lot_number` varchar(30) default NULL,
+  `concentration` decimal(10,2) default NULL,
+  `concentration_unit` varchar(20) default NULL,
+  `cell_count` decimal(10,2) default NULL,
+  `cell_count_unit` varchar(20) default NULL,
+  `created` datetime NOT NULL default '0000-00-00 00:00:00',
+  `created_by` varchar(50) NOT NULL default '',
+  `modified` datetime default NULL,
+  `modified_by` varchar(50) default NULL,
+  `deleted` int(11) default 0,
+  `deleted_date` datetime default NULL,
+  PRIMARY KEY  (`id`),
+  KEY `aliquot_master_id` (`aliquot_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+CREATE TABLE `ad_cell_tubes_revs` (
+  `id` int(11) NOT NULL auto_increment,
+  `aliquot_master_id` int(11) NOT NULL default '0',
+  `lot_number` varchar(30) default NULL,
+  `concentration` decimal(10,2) default NULL,
+  `concentration_unit` varchar(20) default NULL,
+  `cell_count` decimal(10,2) default NULL,
+  `cell_count_unit` varchar(20) default NULL,
+  `created` datetime NOT NULL default '0000-00-00 00:00:00',
+  `created_by` varchar(50) NOT NULL default '',
+  `modified` datetime default NULL,
+  `modified_by` varchar(50) default NULL,
+  `version_id` int(11) NOT NULL,
+  `version_created` datetime NOT NULL,
+  `deleted` int(11) default 0,
+  `deleted_date` datetime NOT NULL,
+  PRIMARY KEY  (`version_id`),
+  KEY `aliquot_master_id` (`aliquot_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+-- 
 -- Table structure for table `ad_cell_slides`
 -- 
 
