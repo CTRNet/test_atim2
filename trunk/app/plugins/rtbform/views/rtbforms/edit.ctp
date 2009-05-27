@@ -1,8 +1,8 @@
 <?php 
 	$structure_links = array(
-		'top'=>'/material/materials/edit/%%Material.id%%/',
+		'top'=>'/rtbform/rtbforms/edit/%%Rtbform.id%%/',
 		'bottom'=>array(
-			'cancel'=>'/material/materials/detail/%%Material.id%%/'
+			'cancel'=>'/rtbform/rtbforms/profile/%%Rtbform.id%%/'
 		)
 	);
 	

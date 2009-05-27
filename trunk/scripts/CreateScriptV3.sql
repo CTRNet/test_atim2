@@ -4203,6 +4203,27 @@ CREATE TABLE `posts` (
 -- Dumping data for table `posts`
 -- 
 
+-- 
+-- Table structure for table `protocol_controls`
+-- 
+
+CREATE TABLE `protocol_controls` (
+  `id` int(11) NOT NULL auto_increment,
+  `tumour_group` varchar(50) default NULL,
+  `type` varchar(50) default NULL,
+  `detail_tablename` varchar(255) NOT NULL default '',
+  `detail_form_alias` varchar(255) NOT NULL default '',
+  `extend_tablename` varchar(255) NOT NULL default '',
+  `extend_form_alias` varchar(255) NOT NULL default '',
+  `created` date default NULL,
+  `created_by` varchar(50) default NULL,
+  `modified` date default NULL,
+  `modified_by` varchar(50) default NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1 AUTO_INCREMENT=4 ;
+
+INSERT INTO `protocol_controls` (`id`, `tumour_group`, `type`, `detail_tablename`, `detail_form_alias`, `extend_tablename`, `extend_form_alias`, `created`, `created_by`, `modified`, `modified_by`) VALUES 
+(3, 'breast', 'chemotherapy', 'pd_chemos', 'pd_chemos', 'pe_chemos', 'pe_chemos', NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 

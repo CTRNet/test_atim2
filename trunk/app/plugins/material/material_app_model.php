@@ -2,7 +2,7 @@
 
 class MaterialAppModel extends AppModel
 {
-	var $name = 'Material';
+	var $name = 'Materials';
 }
 
 ?>

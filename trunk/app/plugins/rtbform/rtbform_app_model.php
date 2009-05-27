@@ -2,7 +2,7 @@
 
 class RtbformAppModel extends AppModel
 {
-	var $name = 'Rtbform';
+	var $name = 'Rtbforms';
     //...
 }
 
