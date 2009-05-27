@@ -2,8 +2,8 @@
 	$structure_links = array(
 		'bottom'=>array(
 			'list'=>'/material/materials/listall/',
-			'edit'=>'/material/materials/edit/%%Materials.id%%/',
-			'delete'=>'/material/materials/delete/%%Materials.id%%/'
+			'edit'=>'/material/materials/edit/%%Material.id%%/',
+			'delete'=>'/material/materials/delete/%%Material.id%%/'
 		)
 	);
 	

@@ -1,10 +1,10 @@
 <?php 
 
 	$structure_links = array(
-		'index'=>array('detail'=>'/material/materials/detail/%%Material.id%%'),
+		'index'=>array('profile'=>'/rtbform/rtbforms/profile/%%Rtbform.id%%'),
 		'bottom'=>array(
-			'add'=>'/material/materials/add',
-			'search'=>'/material/materials/index'
+			'add'=>'/rtbform/rtbforms/add/',
+			'search'=>'/rtbform/rtbforms/index/'
 		)
 	);
 	
