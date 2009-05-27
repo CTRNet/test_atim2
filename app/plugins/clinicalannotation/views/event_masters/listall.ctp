@@ -1,11 +1,14 @@
 <?php
 	$structure_links = array(
-		'top'=>NULL,
-		'index'=>'/clinicalannotation/event_masters/detail/'.$atim_menu_variables['Participant.id'].'/',
-		'bottom'=>NULL
+		'index'=>array( 
+			'detail'=>'/clinicalannotation/event_masters/detail/'.$atim_menu_variables['Menu.id'].'/'.$atim_menu_variables['EventMaster.event_group'].'/'.$atim_menu_variables['Participant.id'].'/%%EventMaster.id%%'
+		)
 	); 
 	
-	/* EXPANDED add action, based on CONTROL->MASTER->DETAIL datatable setup */
+	$structures->build( $atim_structure, array('links'=>$structure_links));
+	
+	/*
+	// EXPANDED add action, based on CONTROL->MASTER->DETAIL datatable setup
 	$expanded_add = array();
 			
 	// loop through related CONTROL table rows 
@@ -14,8 +17,6 @@
 			$expanded_add [ $option['EventControl']['id'] ] = ($option['EventControl']['disease_site'].' - '.$option['EventControl']['event_type']);
 		}
 	}
-	
-	$structures->build( $atim_structure, array('type'=>'index','links'=>$structure_links) );
 	
 	if ( !empty( $expanded_add ) ) {
 		echo('
@@ -34,4 +35,5 @@
 			</form>
 		');
 	} // end IF
+	*/
 ?>
