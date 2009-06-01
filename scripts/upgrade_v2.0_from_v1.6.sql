@@ -4,391 +4,396 @@
 
 ALTER TABLE `ad_blocks`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `ad_cell_cores`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `ad_cell_slides`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `ad_cell_tubes`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `ad_gel_matrices`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `ad_tissue_cores`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `ad_tissue_slides`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `ad_tubes`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `ad_whatman_papers`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `aliquot_masters`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `aliquot_uses`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `banks`
+ADD COLUMN `created_by` int(11) default NULL AFTER `description`,
+ADD COLUMN `modified_by` int(11) default NULL AFTER `created`,
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `clinical_collection_links`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `coding_adverse_events`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `coding_icd10`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `collections`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `consents`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `derivative_details`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `diagnoses`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `drugs`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `ed_all_adverse_events_adverse_event`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `ed_all_clinical_followup`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `ed_all_clinical_presentation`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `ed_all_lifestyle_base`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `ed_all_protocol_followup`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `ed_all_study_research`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `ed_allsolid_lab_pathology`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `ed_breast_lab_pathology`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `ed_breast_screening_mammogram`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `event_masters`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `family_histories`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `groups`
-ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+DROP COLUMN `level`,
+DROP COLUMN `redirect`,
+DROP COLUMN `perm_type`,
+DROP COLUMN `created_by`,
+DROP COLUMN `modified_by`;
 
 ALTER TABLE `i18n`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `materials`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `misc_identifiers`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `order_items`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `order_lines`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `orders`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `participant_contacts`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `participant_messages`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `participants`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `path_collection_reviews`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `pd_chemos`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `pe_chemos`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `permissions`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `protocol_masters`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `qc_tested_aliquots`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `rd_blood_cells`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `rd_bloodcellcounts`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `rd_breast_cancers`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `rd_breastcancertypes`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `rd_coloncancertypes`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `rd_genericcancertypes`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `rd_ovarianuteruscancertypes`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `realiquotings`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `reproductive_histories`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `review_masters`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `rtbforms`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `sample_masters`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `sd_der_cell_cultures`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `sd_der_plasmas`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `sd_spe_ascites`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `sd_spe_bloods`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `sd_spe_cystic_fluids`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `sd_spe_other_fluids`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `sd_spe_peritoneal_washes`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `sd_spe_tissues`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `sd_spe_urines`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `shelves`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `shipments`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `sop_masters`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `sopd_general_all`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `sope_general_all`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `source_aliquots`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `specimen_details`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `std_incubators`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `std_rooms`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `std_tma_blocks`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `storage_controls`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `storage_coordinates`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `storage_masters`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `study_contacts`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `study_ethicsboards`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `study_fundings`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `study_investigators`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `study_related`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `study_results`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `study_reviews`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `study_summaries`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `tma_slides`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `towers`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `tx_controls`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `tx_masters`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `txd_chemos`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `txd_combos`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `txd_radiations`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `txd_surgeries`
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_by` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL;
 
 -- Create New Tables
 
@@ -928,6 +933,13 @@ ALTER TABLE `structure_fields`
 	ADD `structure_value_domain_id` int(11) default NULL AFTER `default`,
 	ADD `id` INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
 
+UPDATE `structure_fields` SET model = 'Structure' WHERE model = 'Form';
+UPDATE `structure_fields` SET model = 'StructureField' WHERE model = 'FormField';
+
+INSERT INTO `structure_fields` (`old_id`, `model`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain_id`, `language_help`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+('CAN-024-001-000-999-0108', 'MiscIdentifier', 'name', 'collection bank', '', 'select', '', '', NULL, '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CAN-024-001-000-999-0109', 'MiscIdentifier', 'created', 'creation date', '', 'date', '', '', NULL, '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
 RENAME TABLE `form_formats` TO `structure_formats`;
 
 ALTER TABLE `structure_formats`
@@ -938,8 +950,38 @@ ALTER TABLE `structure_formats`
 	ADD `id` INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST,
 	ADD `structure_id` INT(11) AFTER `old_id`,
 	ADD `structure_field_id` INT(11) AFTER `structure_old_id`;
-  
-  
+
+INSERT INTO `structure_formats` (`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+('CAN-024-001-000-999-0022_CAN-024-001-000-999-0108', 19, 'CAN-024-001-000-999-0022', 101, 'CAN-024-001-000-999-0108', 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CAN-024-001-000-999-0022_CAN-024-001-000-999-0109', 19, 'CAN-024-001-000-999-0022', 102, 'CAN-024-001-000-999-0109', 1, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CAN-024-001-000-999-0023_CAN-024-001-000-999-0109 ', 20, 'CAN-024-001-000-999-0023', 102, 'CAN-024-001-000-999-0109 ', 1, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CAN-024-001-000-999-0023_CAN-999-999-000-999-1', 20, 'CAN-024-001-000-999-0023', 149, 'CAN-999-999-000-999-1', 1, 2, '', '1', 'participant', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CAN-024-001-000-999-0023_CAN-999-999-000-999-2', 20, 'CAN-024-001-000-999-0023', 460, 'CAN-999-999-000-999-2', 1, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CAN-024-001-000-999-0023_CAN-999-999-000-999-34', 20, 'CAN-024-001-000-999-0023', 587, 'CAN-999-999-000-999-34', 1, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CAN-024-001-000-999-0023_CAN-999-999-000-999-38 ', 20, 'CAN-024-001-000-999-0023', 618, 'CAN-999-999-000-999-38 ', 1, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CAN-024-001-000-999-0029_CAN-999-999-000-999-1018', 21, 'CAN-024-001-000-999-0029', 170, 'CAN-999-999-000-999-1018', 0, 7, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CAN-024-001-000-999-0029_CAN-999-999-000-999-1101', 21, 'CAN-024-001-000-999-0029', 217, 'CAN-999-999-000-999-1101', 0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CAN-024-001-000-999-0029_CAN-999-999-000-999-1102', 21, 'CAN-024-001-000-999-0029', 218, 'CAN-999-999-000-999-1102', 0, 9, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CAN-024-001-000-999-0029_CAN-999-999-000-999-1103', 21, 'CAN-024-001-000-999-0029', 219, 'CAN-999-999-000-999-1103', 0, 10, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CAN-024-001-000-999-0029_CAN-999-999-000-999-1107', 21, 'CAN-024-001-000-999-0029', 223, 'CAN-999-999-000-999-1107', 0, 15, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CAN-024-001-000-999-0029_CAN-999-999-000-999-1108', 21, 'CAN-024-001-000-999-0029', 224, 'CAN-999-999-000-999-1108', 0, 17, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CAN-024-001-000-999-0029_CAN-999-999-000-999-1117', 21, 'CAN-024-001-000-999-0029', 233, 'CAN-999-999-000-999-1117', 0, 13, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CAN-024-001-000-999-0029_CAN-999-999-000-999-1133', 21, 'CAN-024-001-000-999-0029', 250, 'CAN-999-999-000-999-1133', 0, 21, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CAN-024-001-000-999-0029_CAN-999-999-000-999-1154', 21, 'CAN-024-001-000-999-0029', 267, 'CAN-999-999-000-999-1154', 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CAN-024-001-000-999-0029_CAN-999-999-000-999-1217', 21, 'CAN-024-001-000-999-0029', 328, 'CAN-999-999-000-999-1217', 0, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CAN-024-001-000-999-0029_CAN-999-999-000-999-35', 21, 'CAN-024-001-000-999-0029', 588, 'CAN-999-999-000-999-35', 0, 0, '', '0', '', '0', '', '0', '', '0', '', '1', 'tool=multiple', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CAN-024-001-000-999-tmp.6_CAN-999-999-000-999-1018', 23, 'CAN-024-001-000-999-tmp.6', 170, 'CAN-999-999-000-999-1018', 0, 7, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CAN-024-001-000-999-tmp.6_CAN-999-999-000-999-1101', 23, 'CAN-024-001-000-999-tmp.6', 217, 'CAN-999-999-000-999-1101', 0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CAN-024-001-000-999-tmp.6_CAN-999-999-000-999-1102', 23, 'CAN-024-001-000-999-tmp.6', 218, 'CAN-999-999-000-999-1102', 0, 9, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CAN-024-001-000-999-tmp.6_CAN-999-999-000-999-35', 23, 'CAN-024-001-000-999-tmp.6', 588, 'CAN-999-999-000-999-35', 0, 0, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CAN-024-001-000-999-tmp_6_CAN-999-999-000-999-1018', 24, 'CAN-024-001-000-999-tmp_6', 170, 'CAN-999-999-000-999-1018', 0, 7, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CAN-024-001-000-999-tmp_6_CAN-999-999-000-999-1101', 24, 'CAN-024-001-000-999-tmp_6', 217, 'CAN-999-999-000-999-1101', 0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CAN-024-001-000-999-tmp_6_CAN-999-999-000-999-1102', 24, 'CAN-024-001-000-999-tmp_6', 218, 'CAN-999-999-000-999-1102', 0, 9, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CAN-024-001-000-999-tmp_6_CAN-999-999-000-999-35', 24, 'CAN-024-001-000-999-tmp_6', 588, 'CAN-999-999-000-999-35', 0, 0, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CAN-024-001-000-999-tmp_CAN-999-999-000-999-1018', 22, 'CAN-024-001-000-999-tmp', 170, 'CAN-999-999-000-999-1018', 0, 7, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CAN-024-001-000-999-tmp_CAN-999-999-000-999-1101', 22, 'CAN-024-001-000-999-tmp', 217, 'CAN-999-999-000-999-1101', 0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CAN-024-001-000-999-tmp_CAN-999-999-000-999-1102', 22, 'CAN-024-001-000-999-tmp', 218, 'CAN-999-999-000-999-1102', 0, 9, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
 RENAME TABLE `form_validations` TO `structure_validations`;
 
 ALTER TABLE `structure_validations`
@@ -957,6 +999,14 @@ ALTER TABLE `structures`
   CHANGE `id` `old_id` VARCHAR(255) NOT NULL,
   ADD `id` INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
 
+INSERT INTO `structures` (`old_id`, `alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+('CAN-024-001-000-999-0022', 'new_bank_participant_search', '', '', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CAN-024-001-000-999-0023', 'new_bank_participant_result', '', '', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CAN-024-001-000-999-0029', 'available_bank_participants_aliquots', '', '', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CAN-024-001-000-999-tmp', 'available_aliquots_tmp', '', '', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CAN-024-001-000-999-tmp.6', 'available_aliquots_tmp.6', '', '', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CAN-024-001-000-999-tmp_6', 'available_aliquots_tmp_6', '', '', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
 CREATE TABLE `structure_options` (
   `id` int(11) NOT NULL auto_increment,
   `alias` varchar(50) character set latin1 default NULL,
@@ -973,6 +1023,909 @@ CREATE TABLE `structure_options` (
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=11867 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=11867 ;
 
+INSERT INTO `structure_options` (`id`, `alias`, `section`, `subsection`, `value`, `language_choice`, `display_order`, `active`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(2, 'sex', NULL, NULL, 'm', 'male', 3, 'yes', NULL, NULL, NULL, NULL),
+(3, 'sex', NULL, NULL, 'f', 'female', 2, 'yes', NULL, NULL, NULL, NULL),
+(4, 'sex', NULL, NULL, 'u', 'unknown', 1, 'yes', NULL, NULL, NULL, NULL),
+(5, 'vital_status_code', NULL, NULL, 'unknown', 'unknown', 2, 'yes', NULL, NULL, NULL, NULL),
+(6, 'vital_status_code', NULL, NULL, 'alive', 'alive', 10, 'yes', NULL, NULL, NULL, NULL),
+(7, 'vital_status_code', NULL, NULL, 'alive and well with disease', 'alive and well with disease', 9, 'yes', NULL, NULL, NULL, NULL),
+(8, 'vital_status_code', NULL, NULL, 'died of disease', 'died of disease', 8, 'yes', NULL, NULL, NULL, NULL),
+(9, 'vital_status_code', NULL, NULL, 'died of other cause', 'died of other cause', 7, 'yes', NULL, NULL, NULL, NULL),
+(10, 'vital_status_code', NULL, NULL, 'died of unknown cause', 'died of unknown cause', 6, 'yes', NULL, NULL, NULL, NULL),
+(11, 'vital_status_code', NULL, NULL, 'alive with other cancer', 'alive with other cancer', 5, 'yes', NULL, NULL, NULL, NULL),
+(12, 'vital_status_code', NULL, NULL, 'lost contact', 'lost contact', 4, 'yes', NULL, NULL, NULL, NULL),
+(13, 'vital_status_code', NULL, NULL, 'alive and well after re-current disease', 'alive and well after re-current disease', 3, 'yes', NULL, NULL, NULL, NULL),
+(14, 'phone_type', NULL, NULL, 'business', 'business', 3, 'yes', NULL, NULL, NULL, NULL),
+(15, 'phone_type', NULL, NULL, 'residential', 'residential', 2, 'yes', NULL, NULL, NULL, NULL),
+(16, 'phone_type', NULL, NULL, 'cell', 'cellular', 4, 'yes', NULL, NULL, NULL, NULL),
+(17, 'phone_type', NULL, NULL, 'fax', 'fax', 5, 'yes', NULL, NULL, NULL, NULL),
+(22, 'date_status', NULL, NULL, 'c', 'Complete date known and verified', 3, 'yes', NULL, NULL, NULL, NULL),
+(23, 'date_status', NULL, NULL, 'Y', 'year uncertain', 2, 'yes', NULL, NULL, NULL, NULL),
+(24, 'date_status', NULL, NULL, 'M', 'month and day of date uncertain', 4, 'yes', NULL, NULL, NULL, NULL),
+(25, 'date_status', NULL, NULL, 'D', 'day of date is uncertain', 3, 'yes', NULL, NULL, NULL, NULL),
+(26, 'salutation', NULL, NULL, 'Mr.', 'mr.', NULL, 'yes', NULL, NULL, NULL, NULL),
+(27, 'salutation', NULL, NULL, 'Mrs.', 'mrs.', NULL, 'yes', NULL, NULL, NULL, NULL),
+(28, 'salutation', NULL, NULL, 'Ms.', 'ms.', NULL, 'yes', NULL, NULL, NULL, NULL),
+(29, 'salutation', NULL, NULL, 'Dr.', 'dr.', NULL, 'yes', NULL, NULL, NULL, NULL),
+(32, 'race', NULL, NULL, 'chinese', 'chinese', 5, 'yes', NULL, NULL, NULL, NULL),
+(33, 'race', NULL, NULL, 'caucasian', 'caucasian', 4, 'yes', NULL, NULL, NULL, NULL),
+(34, 'race', NULL, NULL, 'japanese', 'japanese', 7, 'yes', NULL, NULL, NULL, NULL),
+(35, 'race', NULL, NULL, 'korean', 'korean', 8, 'yes', NULL, NULL, NULL, NULL),
+(36, 'race', NULL, NULL, 'latin american', 'latin american', 9, 'yes', NULL, NULL, NULL, NULL),
+(37, 'race', NULL, NULL, 'south asian', 'south asian', 10, 'yes', NULL, NULL, NULL, NULL),
+(38, 'race', NULL, NULL, 'south east asian', 'south east asian', 11, 'yes', NULL, NULL, NULL, NULL),
+(39, 'ethnicity', NULL, NULL, 'caucasian', 'caucasian', 0, 'yes', NULL, NULL, NULL, NULL),
+(40, 'ethnicity', NULL, NULL, 'Black', 'black', 1, 'yes', NULL, NULL, NULL, NULL),
+(41, 'ethnicity', NULL, NULL, 'Hispanic', 'hispanic', 2, 'yes', NULL, NULL, NULL, NULL),
+(42, 'ethnicity', NULL, NULL, 'Asian/Pacific Islander', 'asian_islander', 3, 'yes', NULL, NULL, NULL, NULL),
+(43, 'ethnicity', NULL, NULL, 'Aboriginal', 'aboriginal', 4, 'yes', NULL, NULL, NULL, NULL),
+(44, 'ethnicity', NULL, NULL, 'unknown', 'unknown', 4, 'yes', NULL, NULL, NULL, NULL),
+(45, 'ethnicity', NULL, NULL, 'Multiple', 'multiple', 5, 'yes', NULL, NULL, NULL, NULL),
+(46, 'relation', NULL, NULL, 'aunt', 'aunt', 0, 'yes', NULL, NULL, NULL, NULL),
+(47, 'relation', NULL, NULL, 'uncle', 'uncle', 1, 'yes', NULL, NULL, NULL, NULL),
+(48, 'relation', NULL, NULL, 'mother', 'mother', 3, 'yes', NULL, NULL, NULL, NULL),
+(49, 'relation', NULL, NULL, 'father', 'father', 4, 'yes', NULL, NULL, NULL, NULL),
+(50, 'relation', NULL, NULL, 'brother', 'brother', 5, 'yes', NULL, NULL, NULL, NULL),
+(51, 'relation', NULL, NULL, 'sister', 'sister', 6, 'yes', NULL, NULL, NULL, NULL),
+(52, 'domain', NULL, NULL, 'maternal', 'maternal', 0, 'yes', NULL, NULL, NULL, NULL),
+(53, 'domain', NULL, NULL, 'paternal', 'paternal', 1, 'yes', NULL, NULL, NULL, NULL),
+(54, 'coding_systems', NULL, NULL, 'ICD-9CM', 'ICD-9CM', 0, 'yes', NULL, NULL, NULL, NULL),
+(55, 'coding_systems', NULL, NULL, 'ICD-10CA', 'ICD-10CA', 2, 'yes', NULL, NULL, NULL, NULL),
+(56, 'coding_systems', NULL, NULL, 'CCI - Tx Codes', 'CCI - Tx Codes', 4, 'yes', NULL, NULL, NULL, NULL),
+(57, 'coding_systems', NULL, NULL, 'SNOP', 'SNOP', 5, 'yes', NULL, NULL, NULL, NULL),
+(58, 'coding_systems', NULL, NULL, 'ICD-O-2', 'ICD-O-2', 6, 'yes', NULL, NULL, NULL, NULL),
+(59, 'coding_systems', NULL, NULL, 'ICD-O-3', 'ICD-O-3', 7, 'yes', NULL, NULL, NULL, NULL),
+(60, 'coding_systems', NULL, NULL, 'AJCC 5th Edition', 'AJCC 5th Edition', 7, 'yes', NULL, NULL, NULL, NULL),
+(61, 'coding_systems', NULL, NULL, 'AJCC 6th Edition', 'AJCC 6th Edition', 8, 'yes', NULL, NULL, NULL, NULL),
+(62, 'coding_systems', NULL, NULL, 'Collaborative Stage', 'Collaborative Stage', 9, 'yes', NULL, NULL, NULL, NULL),
+(63, 'dx_method', NULL, NULL, 'unknown', 'unknown', 10, 'yes', NULL, NULL, NULL, NULL),
+(64, 'dx_method', NULL, NULL, 'biopsy', 'biopsy', 0, 'yes', NULL, NULL, NULL, NULL),
+(65, 'dx_method', NULL, NULL, 'endoscopy', 'endoscopy', 2, 'yes', NULL, NULL, NULL, NULL),
+(66, 'dx_method', NULL, NULL, 'imaging', 'imaging', 4, 'yes', NULL, NULL, NULL, NULL),
+(67, 'dx_method', NULL, NULL, 'physical examination', 'physical examination', 5, 'yes', NULL, NULL, NULL, NULL),
+(68, 'dx_method', NULL, NULL, 'other', 'other', 7, 'yes', NULL, NULL, NULL, NULL),
+(69, 'dx_method', NULL, NULL, 'surgical exploration', 'surgical exploration', 8, 'yes', NULL, NULL, NULL, NULL),
+(70, 'dx_nature', NULL, NULL, 'normal', 'normal', 5, 'yes', NULL, NULL, NULL, NULL),
+(71, 'dx_nature', NULL, NULL, 'benign', 'benign', 2, 'yes', NULL, NULL, NULL, NULL),
+(72, 'dx_nature', NULL, NULL, 'malignant', 'malignant', 3, 'yes', NULL, NULL, NULL, NULL),
+(73, 'disease site', NULL, NULL, 'bone', 'bone', 1, 'yes', NULL, NULL, NULL, NULL),
+(74, 'disease site', NULL, NULL, 'brain', 'brain', 2, 'yes', NULL, NULL, NULL, NULL),
+(75, 'disease site', NULL, NULL, 'breast', 'breast', 3, 'yes', NULL, NULL, NULL, NULL),
+(76, 'disease site', NULL, NULL, 'digestive/gastrointestinal', 'digestive/gastrointestinal', 4, 'yes', NULL, NULL, NULL, NULL),
+(77, 'disease site', NULL, NULL, 'endocrine', 'endocrine', 5, 'yes', NULL, NULL, NULL, NULL),
+(78, 'disease site', NULL, NULL, 'eye', 'eye', 7, 'yes', NULL, NULL, NULL, NULL),
+(79, 'disease site', NULL, NULL, 'genitourinary', 'genitourinary', 8, 'yes', NULL, NULL, NULL, NULL),
+(80, 'disease site', NULL, NULL, 'germ cell', 'germ cell', 9, 'yes', NULL, NULL, NULL, NULL),
+(81, 'disease site', NULL, NULL, 'gynaecologic', 'gynaecologic', 9, 'yes', NULL, NULL, NULL, NULL),
+(82, 'disease site', NULL, NULL, 'head and neck', 'head and neck', 10, 'yes', NULL, NULL, NULL, NULL),
+(83, 'disease site', NULL, NULL, 'hematologic/blood', 'hematologic/blood', 11, 'yes', NULL, NULL, NULL, NULL),
+(84, 'disease site', NULL, NULL, 'leukemia', 'leukemia', 12, 'yes', NULL, NULL, NULL, NULL),
+(85, 'disease site', NULL, NULL, 'lung', 'lung', 13, 'yes', NULL, NULL, NULL, NULL),
+(86, 'disease site', NULL, NULL, 'lymphoma', 'lymphoma', 14, 'yes', NULL, NULL, NULL, NULL),
+(87, 'disease site', NULL, NULL, 'musculoskeletal', 'musculoskeletal', 15, 'yes', NULL, NULL, NULL, NULL),
+(88, 'disease site', NULL, NULL, 'neurologic', 'neurologic', 16, 'yes', NULL, NULL, NULL, NULL),
+(89, 'disease site', NULL, NULL, 'other', 'other', 17, 'yes', NULL, NULL, NULL, NULL),
+(90, 'disease site', NULL, NULL, 'respiratory/thoracic', 'respiratory/thoracic', 18, 'yes', NULL, NULL, NULL, NULL),
+(91, 'disease site', NULL, NULL, 'skin', 'skin', 19, 'yes', NULL, NULL, NULL, NULL),
+(92, 'certainty_of_age', NULL, NULL, 'known', 'known', 0, 'yes', NULL, NULL, NULL, NULL),
+(93, 'certainty_of_age', NULL, NULL, 'uncertain within 5 years', 'uncertain within 5 years', 1, 'yes', NULL, NULL, NULL, NULL),
+(94, 'certainty_of_age', NULL, NULL, 'uncertain by 5-10 years', 'uncertain by 5-10 years', 3, 'yes', NULL, NULL, NULL, NULL),
+(95, 'certainty_of_age', NULL, NULL, 'uncertain by more than 10 years', 'uncertain by more than 10 years', 4, 'yes', NULL, NULL, NULL, NULL),
+(96, 'contact_type', NULL, NULL, 'home', 'home', 0, 'yes', NULL, NULL, NULL, NULL),
+(97, 'contact_type', NULL, NULL, 'business', 'business', 1, 'yes', NULL, NULL, NULL, NULL),
+(98, 'contact_type', NULL, NULL, 'family doctor', 'family doctor', 2, 'yes', NULL, NULL, NULL, NULL),
+(99, 'contact_type', NULL, NULL, 'treatment centre', 'treatment centre', 3, 'yes', NULL, NULL, NULL, NULL),
+(100, 'contact_type', NULL, NULL, 'other', 'other', 4, 'yes', NULL, NULL, NULL, NULL),
+(101, 'yesno', NULL, NULL, 'yes', 'yes', 1, 'yes', NULL, NULL, NULL, NULL),
+(102, 'yesno', NULL, NULL, 'no', 'no', 0, 'yes', NULL, NULL, NULL, NULL),
+(103, 'domain', NULL, NULL, 'immediate', 'immediate', 4, 'yes', NULL, NULL, NULL, NULL),
+(104, 'domain', NULL, NULL, 'other', 'other', 5, 'yes', NULL, NULL, NULL, NULL),
+(105, 'relation', NULL, NULL, 'grandfather', 'grandfather', 7, 'yes', NULL, NULL, NULL, NULL),
+(106, 'relation', NULL, NULL, 'grandmother', 'grandmother', 8, 'yes', NULL, NULL, NULL, NULL),
+(107, 'relation', NULL, NULL, 'son', 'son', 9, 'yes', NULL, NULL, NULL, NULL),
+(108, 'relation', NULL, NULL, 'daughter', 'daughter', 10, 'yes', NULL, NULL, NULL, NULL),
+(109, 'relation', NULL, NULL, 'cousin', 'cousin', 11, 'yes', NULL, NULL, NULL, NULL),
+(110, 'relation', NULL, NULL, 'other', 'other', 12, 'yes', NULL, NULL, NULL, NULL),
+(111, 'relation', NULL, NULL, 'nephew', 'nephew', 13, 'yes', NULL, NULL, NULL, NULL),
+(112, 'relation', NULL, NULL, 'niece', 'niece', 14, 'yes', NULL, NULL, NULL, NULL),
+(113, 'menopause_status', NULL, NULL, 'pre', 'pre', 1, 'yes', NULL, NULL, NULL, NULL),
+(114, 'menopause_status', NULL, NULL, 'peri', 'peri', 2, 'yes', NULL, NULL, NULL, NULL),
+(115, 'menopause_status', NULL, NULL, 'post', 'post', 3, 'yes', NULL, NULL, NULL, NULL),
+(116, 'dx_nature', NULL, NULL, 'in situ', 'in situ', 6, 'yes', NULL, NULL, NULL, NULL),
+(117, 'dx_nature', NULL, NULL, 'uncertain', 'uncertain', 7, 'yes', NULL, NULL, NULL, NULL),
+(118, 'salutation', NULL, NULL, 'Miss', 'miss', 5, 'yes', NULL, NULL, NULL, NULL),
+(119, 'salutation', NULL, NULL, 'Br.', 'br.', 6, 'yes', NULL, NULL, NULL, NULL),
+(120, 'salutation', NULL, NULL, 'Fr.', 'fr.', 7, 'yes', NULL, NULL, NULL, NULL),
+(121, 'salutation', NULL, NULL, 'Sr.', 'sr.', 9, 'yes', NULL, NULL, NULL, NULL),
+(122, 'salutation', NULL, NULL, 'Rev.', 'rev.', 10, 'yes', NULL, NULL, NULL, NULL),
+(123, 'phone_type', NULL, NULL, 'other', 'other', 7, 'yes', NULL, NULL, NULL, NULL),
+(124, 'information_source', NULL, NULL, 'chart', 'chart', 1, 'yes', NULL, NULL, NULL, NULL),
+(125, 'information_source', NULL, NULL, 'path report', 'path report', 2, 'yes', NULL, NULL, NULL, NULL),
+(126, 'information_source', NULL, NULL, 'other', 'other', 10, 'yes', NULL, NULL, NULL, NULL),
+(127, 'origin', NULL, NULL, 'primary', 'primary', 1, 'yes', NULL, NULL, NULL, NULL),
+(128, 'origin', NULL, NULL, 'secondary', 'secondary', 2, 'yes', NULL, NULL, NULL, NULL),
+(129, 'origin', NULL, NULL, 'metastatic', 'metastatic', 3, 'yes', NULL, NULL, NULL, NULL),
+(130, 'recruit_route', NULL, NULL, 'doctor', 'doctor', 1, 'yes', NULL, NULL, NULL, NULL),
+(131, 'recruit_route', NULL, NULL, 'clinic', 'clinic', 2, 'yes', NULL, NULL, NULL, NULL),
+(132, 'recruit_route', NULL, NULL, 'other', 'other', 3, 'yes', NULL, NULL, NULL, NULL),
+(1001, 'collection_type', NULL, NULL, 'tissue', 'tissue', 1, 'yes', NULL, NULL, NULL, NULL),
+(1002, 'collection_type', NULL, NULL, 'blood', 'blood', 2, 'yes', NULL, NULL, NULL, NULL),
+(1003, 'collection_type', NULL, NULL, 'urine', 'urine', 3, 'yes', NULL, NULL, NULL, NULL),
+(1004, 'collection_type', NULL, NULL, 'combo-tbu', 'combo-tbu', 4, 'yes', NULL, NULL, NULL, NULL),
+(1011, 'collection_site', NULL, NULL, 'university hospital', 'university hospital', 1, 'yes', NULL, NULL, NULL, NULL),
+(1012, 'collection_site', NULL, NULL, 'general hospital', 'general hospital', 2, 'yes', NULL, NULL, NULL, NULL),
+(1021, 'collected_by', NULL, NULL, 'Rebecca Barnes', 'Rebecca Barnes', 2, 'yes', NULL, NULL, NULL, NULL),
+(1022, 'collected_by', NULL, NULL, 'Sindy Babinski', 'Sindy Babinski', 1, 'yes', NULL, NULL, NULL, NULL),
+(1031, 'tb_received_by', NULL, NULL, 'Rebecca Barnes', 'Rebecca Barnes', 2, 'yes', NULL, NULL, NULL, NULL),
+(1032, 'tb_received_by', NULL, NULL, 'Sindy Babinski', 'Sindy Babinski', 1, 'yes', NULL, NULL, NULL, NULL),
+(1050, 'pathologist_id', NULL, NULL, 'Dr. Pete Stevens', 'Dr. Pete Stevens', 1, 'yes', NULL, NULL, NULL, NULL),
+(1051, 'pathologist_id', NULL, NULL, 'Dr. Francois Dionne', 'Dr. Francois Dionne', 2, 'yes', NULL, NULL, NULL, NULL),
+(1052, 'pathologist_id', NULL, NULL, 'Dr. Carl Spencer', 'Dr. Carl Spencer', 3, 'yes', NULL, NULL, NULL, NULL),
+(1053, 'pathologist_id', NULL, NULL, 'Dr. James Kelly', 'Dr. James Kelly', 4, 'yes', NULL, NULL, NULL, NULL),
+(1054, 'rtbform_status', NULL, NULL, 'current', 'Current', 1, 'yes', NULL, NULL, NULL, NULL),
+(1055, 'rtbform_status', NULL, NULL, 'proposed', 'Proposed', 2, 'yes', NULL, NULL, NULL, NULL),
+(1056, 'rtbform_status', NULL, NULL, 'inactive', 'Inactive', 3, 'yes', NULL, NULL, NULL, NULL),
+(1057, 'rtbform_file_type', NULL, NULL, 'doc', 'MS WORD Doc', 1, 'yes', NULL, NULL, NULL, NULL),
+(1058, 'rtbform_file_type', NULL, NULL, 'xls', 'MS Excel xls', 2, 'yes', NULL, NULL, NULL, NULL),
+(1059, 'rtbform_file_type', NULL, NULL, 'pdf', 'Adobe pdf', 3, 'yes', NULL, NULL, NULL, NULL),
+(1060, 'rtbform_category', NULL, NULL, 'consent', 'Consent Form', 1, 'yes', NULL, NULL, NULL, NULL),
+(1061, 'intent', NULL, NULL, 'adjuvant', 'adjuvant', 1, 'yes', NULL, NULL, NULL, NULL),
+(1062, 'intent', NULL, NULL, 'curative', 'curative', 2, 'yes', NULL, NULL, NULL, NULL),
+(1063, 'intent', NULL, NULL, 'neoadjuvant', 'neoadjuvant', 3, 'yes', NULL, NULL, NULL, NULL),
+(1064, 'intent', NULL, NULL, 'palliative', 'palliative', 4, 'yes', NULL, NULL, NULL, NULL),
+(1065, 'adverse_effects', NULL, NULL, '0', 'O', 1, 'yes', NULL, NULL, NULL, NULL),
+(1066, 'adverse_effects', NULL, NULL, '1', '1', 2, 'yes', NULL, NULL, NULL, NULL),
+(1067, 'adverse_effects', NULL, NULL, '2', '2', 3, 'yes', NULL, NULL, NULL, NULL),
+(1068, 'adverse_effects', NULL, NULL, '3', '3', 4, 'yes', NULL, NULL, NULL, NULL),
+(1069, 'response', NULL, NULL, 'partial', 'partial', 1, 'yes', NULL, NULL, NULL, NULL),
+(1070, 'response', NULL, NULL, 'complete', 'complete', 2, 'yes', NULL, NULL, NULL, NULL),
+(1071, 'response', NULL, NULL, 'progressive disease', 'progressive disease', 3, 'yes', NULL, NULL, NULL, NULL),
+(1072, 'response', NULL, NULL, 'stable disease', 'stable disease', 4, 'yes', NULL, NULL, NULL, NULL),
+(1073, 'response', NULL, NULL, 'unknown', 'unknown', 5, 'yes', NULL, NULL, NULL, NULL),
+(1074, 'adverse_effects', NULL, NULL, '4', '4', 5, 'yes', NULL, NULL, NULL, NULL),
+(1075, 'adverse_effects', NULL, NULL, '5', '5', 6, 'yes', NULL, NULL, NULL, NULL),
+(1076, 'transaction_status', NULL, NULL, 'requested', 'requested', NULL, 'yes', NULL, NULL, NULL, NULL),
+(1077, 'transaction_status', NULL, NULL, 'erb approved', 'erb approved', NULL, 'yes', NULL, NULL, NULL, NULL),
+(1078, 'tx_intent', NULL, NULL, 'adjuvant', 'adjuvant', NULL, 'yes', NULL, NULL, NULL, NULL),
+(1079, 'tx_intent', NULL, NULL, 'curative', 'curative', NULL, 'yes', NULL, NULL, NULL, NULL),
+(1080, 'tx_intent', NULL, NULL, 'neoadjuvant', 'neoadjuvant', NULL, 'yes', NULL, NULL, NULL, NULL),
+(1081, 'tx_intent', NULL, NULL, 'palliative', 'palliative', NULL, 'yes', NULL, NULL, NULL, NULL),
+(1086, 'group', NULL, NULL, 'chemotherapy', 'chemotherapy', NULL, 'yes', NULL, NULL, NULL, NULL),
+(1087, 'group', NULL, NULL, 'radiation', 'radiation', NULL, 'yes', NULL, NULL, NULL, NULL),
+(1088, 'group', NULL, NULL, 'surgery', 'surgery', NULL, 'yes', NULL, NULL, NULL, NULL),
+(1089, 'group', NULL, NULL, 'brachytherapy', 'brachytherapy', NULL, 'yes', NULL, NULL, NULL, NULL),
+(1090, 'facility', NULL, NULL, 'Building A', 'building a', 1, 'yes', NULL, NULL, NULL, NULL),
+(1091, 'facility', NULL, NULL, 'Building B', 'building b', 2, 'yes', NULL, NULL, NULL, NULL),
+(1095, 'smoking_history', NULL, NULL, 'yes', 'yes', 1, 'yes', NULL, NULL, NULL, NULL),
+(1096, 'smoking_history', NULL, NULL, 'no', 'no', 2, 'yes', NULL, NULL, NULL, NULL),
+(1097, 'smoking_history', NULL, NULL, 'unknown', 'unknown', 3, 'yes', NULL, NULL, NULL, NULL),
+(1098, 'smoking_status', NULL, NULL, 'non-smoker', 'non-smoker', 1, 'yes', NULL, NULL, NULL, NULL),
+(1099, 'smoking_status', NULL, NULL, 'smoker at dx', 'smoker at dx', 2, 'yes', NULL, NULL, NULL, NULL),
+(1100, 'smoking_status', NULL, NULL, 'smoker', 'smoker', 3, 'yes', NULL, NULL, NULL, NULL),
+(1101, 'smoking_status', NULL, NULL, 'ex-smoker', 'ex-smoker', 4, 'yes', NULL, NULL, NULL, NULL),
+(1102, 'smoking_status', NULL, NULL, 'unknown', 'unknown', 5, 'yes', NULL, NULL, NULL, NULL),
+(1103, 'smoking_status', NULL, NULL, 'declined', 'declined', 6, 'yes', NULL, NULL, NULL, NULL),
+(1104, 'product_used', NULL, NULL, 'cigar', 'cigar', 1, 'yes', NULL, NULL, NULL, NULL),
+(1105, 'product_used', NULL, NULL, 'cigarettes', 'cigarettes', 2, 'yes', NULL, NULL, NULL, NULL),
+(1106, 'product_used', NULL, NULL, 'pipe', 'pipe', 3, 'yes', NULL, NULL, NULL, NULL),
+(1107, 'product_used', NULL, NULL, 'chewing', 'chewing', 4, 'yes', NULL, NULL, NULL, NULL),
+(1108, 'product_used', NULL, NULL, 'unknown', 'unknown', 5, 'yes', NULL, NULL, NULL, NULL),
+(1109, 'product_used', NULL, NULL, 'declined', 'declined', 6, 'yes', NULL, NULL, NULL, NULL),
+(1110, 'lang', NULL, NULL, 'en', 'English', 1, 'yes', NULL, NULL, NULL, NULL),
+(1111, 'lang', NULL, NULL, 'fr', 'French', 2, 'yes', NULL, NULL, NULL, NULL),
+(1112, 'user_active', NULL, NULL, '1', 'active', 1, 'yes', NULL, NULL, NULL, NULL),
+(1113, 'user_active', NULL, NULL, '0', 'locked', 2, 'yes', NULL, NULL, NULL, NULL),
+(1128, 'race', NULL, NULL, 'black', 'black', 3, 'yes', NULL, NULL, NULL, NULL),
+(1129, 'race', NULL, NULL, 'aboriginal', 'aboriginal', 1, 'yes', NULL, NULL, NULL, NULL),
+(1130, 'race', NULL, NULL, 'arab/west asian', 'arab/west asian', 2, 'yes', NULL, NULL, NULL, NULL),
+(1131, 'race', NULL, NULL, 'filipino', 'filipino', 6, 'yes', NULL, NULL, NULL, NULL),
+(1132, 'race', NULL, NULL, 'other', 'other', 13, 'yes', NULL, NULL, NULL, NULL),
+(1133, 'type', NULL, NULL, 'chemotherapy', 'chemotherapy', 1, 'yes', NULL, NULL, NULL, NULL),
+(1134, 'type', NULL, NULL, 'hormonal', 'hormonal', 2, 'yes', NULL, NULL, NULL, NULL),
+(1135, 'type', NULL, NULL, 'steroid', 'steroid', 3, 'yes', NULL, NULL, NULL, NULL),
+(1136, 'type', NULL, NULL, 'anti-emetic', 'anti-emetic', 4, 'yes', NULL, NULL, NULL, NULL),
+(1137, 'type', NULL, NULL, 'other', 'other', 5, 'yes', NULL, NULL, NULL, NULL),
+(1138, 'grade', NULL, NULL, '1', '1', 1, 'yes', NULL, NULL, NULL, NULL),
+(1139, 'grade', NULL, NULL, '2', '2', 2, 'yes', NULL, NULL, NULL, NULL),
+(1140, 'grade', NULL, '', '3', '3', 3, 'yes', NULL, NULL, NULL, NULL),
+(1141, 'grade', NULL, NULL, '4', '4', 4, 'yes', NULL, NULL, NULL, NULL),
+(1142, 'grade', NULL, NULL, '5', '5', 5, 'yes', NULL, NULL, NULL, NULL),
+(1143, 'health_status', NULL, NULL, 'alive', 'alive', 1, 'yes', NULL, NULL, NULL, NULL),
+(1144, 'health_status', NULL, NULL, 'dead', 'dead', 2, 'yes', NULL, NULL, NULL, NULL),
+(1145, 'health_status', NULL, NULL, 'unknown', 'unknown', 3, 'yes', NULL, NULL, NULL, NULL),
+(1146, 'order_process_status', NULL, NULL, 'completed', 'completed', 1, 'yes', NULL, NULL, NULL, NULL),
+(1147, 'order_process_status', NULL, NULL, 'in_progress', 'in_progress', 2, 'yes', NULL, NULL, NULL, NULL),
+(1148, 'order_process_status', NULL, NULL, 'started', 'started', 3, 'yes', NULL, NULL, NULL, NULL),
+(1149, 'disease_site', NULL, NULL, 'bone', 'bone', 1, 'yes', NULL, NULL, NULL, NULL),
+(1150, 'disease_site', NULL, NULL, 'brain', 'brain', 2, 'yes', NULL, NULL, NULL, NULL),
+(1151, 'disease_site', NULL, NULL, 'breast', 'breast', 3, 'yes', NULL, NULL, NULL, NULL),
+(1152, 'disease_site', NULL, NULL, 'digestive', 'digestive', 4, 'yes', NULL, NULL, NULL, NULL),
+(1153, 'disease_site', NULL, NULL, 'endocrine', 'endocrine', 5, 'yes', NULL, NULL, NULL, NULL),
+(1154, 'disease_site', NULL, NULL, 'eye', 'eye', 6, 'yes', NULL, NULL, NULL, NULL),
+(1155, 'disease_site', NULL, NULL, 'genitourinary', 'genitourinary', 7, 'yes', NULL, NULL, NULL, NULL),
+(1156, 'disease_site', NULL, NULL, 'headneck', 'headneck', 10, 'yes', NULL, NULL, NULL, NULL),
+(1157, 'disease_site', NULL, NULL, 'hematologic', 'hematologic', 11, 'yes', NULL, NULL, NULL, NULL),
+(1158, 'disease_site', NULL, NULL, 'germ', 'germ', 8, 'yes', NULL, NULL, NULL, NULL),
+(1159, 'disease_site', NULL, NULL, 'gynaecologic', 'gynaecologic', 9, 'yes', NULL, NULL, NULL, NULL),
+(1160, 'disease_site', NULL, NULL, 'leukemia', 'leukemia', 12, 'yes', NULL, NULL, NULL, NULL),
+(1161, 'disease_site', NULL, NULL, 'lung', 'lung', 13, 'yes', NULL, NULL, NULL, NULL),
+(1162, 'disease_site', NULL, NULL, 'lymphoma', 'lymphoma', 14, 'yes', NULL, NULL, NULL, NULL),
+(1163, 'disease_site', NULL, NULL, 'musculoskeletal', 'musculoskeletal', 15, 'yes', NULL, NULL, NULL, NULL),
+(1164, 'disease_site', NULL, NULL, 'neurologic', 'neurologic', 16, 'yes', NULL, NULL, NULL, NULL),
+(1165, 'disease_site', NULL, NULL, 'other', 'other', 17, 'yes', NULL, NULL, NULL, NULL),
+(1166, 'disease_site', NULL, NULL, 'respiratory', 'respiratory', 18, 'yes', NULL, NULL, NULL, NULL),
+(1167, 'disease_site', NULL, NULL, 'skin', 'skin', 19, 'yes', NULL, NULL, NULL, NULL),
+(1168, 'disease_site', NULL, NULL, 'unknown', 'unknown', 20, 'yes', NULL, NULL, NULL, NULL),
+(1169, 'study_type', NULL, NULL, 'retrospective', 'retrospective', 1, 'yes', NULL, NULL, NULL, NULL),
+(1170, 'study_type', NULL, NULL, 'prospective', 'prospective', 2, 'yes', NULL, NULL, NULL, NULL),
+(1171, 'study_science', NULL, NULL, 'basic', 'basic', 1, 'yes', NULL, NULL, NULL, NULL),
+(1172, 'study_science', NULL, NULL, 'epidimiological', 'epidimiological', 2, 'yes', NULL, NULL, NULL, NULL),
+(1173, 'study_science', NULL, NULL, 'translational', 'translational', 3, 'yes', NULL, NULL, NULL, NULL),
+(1174, 'study_use', NULL, NULL, 'academic', 'academic', 1, 'yes', NULL, NULL, NULL, NULL),
+(1175, 'study_use', NULL, NULL, 'commercial', 'commercial', 2, 'yes', NULL, NULL, NULL, NULL),
+(1176, 'study_use', NULL, NULL, 'contract', 'contract', 3, 'yes', NULL, NULL, NULL, NULL),
+(1177, 'role', NULL, NULL, 'co_investigator', 'co_investigator', 1, 'yes', NULL, NULL, NULL, NULL),
+(1178, 'role', NULL, NULL, 'principle_investigator', 'principle_investigator', 2, 'yes', NULL, NULL, NULL, NULL),
+(1179, 'status', NULL, NULL, 'completed', 'completed', 1, 'yes', NULL, NULL, NULL, NULL),
+(1180, 'status', NULL, NULL, 'pending', 'pending', 2, 'yes', NULL, NULL, NULL, NULL),
+(1181, 'status', NULL, NULL, 'planned', 'planned', 3, 'yes', NULL, NULL, NULL, NULL),
+(1229, 'labo_sample_status', NULL, NULL, 'unknown', 'unknown', 16, 'yes', NULL, NULL, NULL, NULL),
+(1298, 'tissue_storage_soultion', NULL, NULL, 'isopentane', 'isopentane', 2, 'yes', NULL, NULL, NULL, NULL),
+(1299, 'tissue_storage_soultion', NULL, NULL, 'isopentane + OCT', 'isopentane + OCT', 3, 'yes', NULL, NULL, NULL, NULL),
+(1300, 'tissue_storage_soultion', NULL, NULL, 'none', 'none', 4, 'yes', NULL, NULL, NULL, NULL),
+(1348, 'labo_sample_status', NULL, NULL, 'unknown', 'unknown', 16, 'yes', NULL, NULL, NULL, NULL),
+(1417, 'tissue_storage_soultion', NULL, NULL, 'isopentane', 'isopentane', 2, 'yes', NULL, NULL, NULL, NULL),
+(1418, 'tissue_storage_soultion', NULL, NULL, 'isopentane + OCT', 'isopentane + OCT', 3, 'yes', NULL, NULL, NULL, NULL),
+(1419, 'tissue_storage_soultion', NULL, NULL, 'none', 'none', 4, 'yes', NULL, NULL, NULL, NULL),
+(1467, 'labo_sample_status', NULL, NULL, 'unknown', 'unknown', 16, 'yes', NULL, NULL, NULL, NULL),
+(1536, 'tissue_storage_soultion', NULL, NULL, 'isopentane', 'isopentane', 2, 'yes', NULL, NULL, NULL, NULL),
+(1537, 'tissue_storage_soultion', NULL, NULL, 'isopentane + OCT', 'isopentane + OCT', 3, 'yes', NULL, NULL, NULL, NULL),
+(1538, 'tissue_storage_soultion', NULL, NULL, 'none', 'none', 4, 'yes', NULL, NULL, NULL, NULL),
+(1586, 'labo_sample_status', NULL, NULL, 'unknown', 'unknown', 16, 'yes', NULL, NULL, NULL, NULL),
+(1655, 'tissue_storage_soultion', NULL, NULL, 'isopentane', 'isopentane', 2, 'yes', NULL, NULL, NULL, NULL),
+(1656, 'tissue_storage_soultion', NULL, NULL, 'isopentane + OCT', 'isopentane + OCT', 3, 'yes', NULL, NULL, NULL, NULL),
+(1657, 'tissue_storage_soultion', NULL, NULL, 'none', 'none', 4, 'yes', NULL, NULL, NULL, NULL),
+(1705, 'labo_sample_status', NULL, NULL, 'unknown', 'unknown', 16, 'yes', NULL, NULL, NULL, NULL),
+(1774, 'tissue_storage_soultion', NULL, NULL, 'isopentane', 'isopentane', 2, 'yes', NULL, NULL, NULL, NULL),
+(1775, 'tissue_storage_soultion', NULL, NULL, 'isopentane + OCT', 'isopentane + OCT', 3, 'yes', NULL, NULL, NULL, NULL),
+(1776, 'tissue_storage_soultion', NULL, NULL, 'none', 'none', 4, 'yes', NULL, NULL, NULL, NULL),
+(1819, 'labo_sample_status', NULL, NULL, 'unknown', 'unknown', 16, 'yes', NULL, NULL, NULL, NULL),
+(1888, 'tissue_storage_soultion', NULL, NULL, 'isopentane', 'isopentane', 2, 'yes', NULL, NULL, NULL, NULL),
+(1889, 'tissue_storage_soultion', NULL, NULL, 'isopentane + OCT', 'isopentane + OCT', 3, 'yes', NULL, NULL, NULL, NULL),
+(1890, 'tissue_storage_soultion', NULL, NULL, 'none', 'none', 4, 'yes', NULL, NULL, NULL, NULL),
+(1938, 'labo_sample_status', NULL, NULL, 'unknown', 'unknown', 16, 'yes', NULL, NULL, NULL, NULL),
+(2007, 'tissue_storage_soultion', NULL, NULL, 'isopentane', 'isopentane', 2, 'yes', NULL, NULL, NULL, NULL),
+(2008, 'tissue_storage_soultion', NULL, NULL, 'isopentane + OCT', 'isopentane + OCT', 3, 'yes', NULL, NULL, NULL, NULL),
+(2009, 'tissue_storage_soultion', NULL, NULL, 'none', 'none', 4, 'yes', NULL, NULL, NULL, NULL),
+(2072, 'labo_sample_status', NULL, NULL, 'unknown', 'unknown', 16, 'yes', NULL, NULL, NULL, NULL),
+(2141, 'tissue_storage_soultion', NULL, NULL, 'isopentane', 'isopentane', 2, 'yes', NULL, NULL, NULL, NULL),
+(2142, 'tissue_storage_soultion', NULL, NULL, 'isopentane + OCT', 'isopentane + OCT', 3, 'yes', NULL, NULL, NULL, NULL),
+(2143, 'tissue_storage_soultion', NULL, NULL, 'none', 'none', 4, 'yes', NULL, NULL, NULL, NULL),
+(2191, 'labo_sample_status', NULL, NULL, 'unknown', 'unknown', 16, 'yes', NULL, NULL, NULL, NULL),
+(2260, 'tissue_storage_soultion', NULL, NULL, 'isopentane', 'isopentane', 2, 'yes', NULL, NULL, NULL, NULL),
+(2261, 'tissue_storage_soultion', NULL, NULL, 'isopentane + OCT', 'isopentane + OCT', 3, 'yes', NULL, NULL, NULL, NULL),
+(2262, 'tissue_storage_soultion', NULL, NULL, 'none', 'none', 4, 'yes', NULL, NULL, NULL, NULL),
+(2310, 'labo_sample_status', NULL, NULL, 'unknown', 'unknown', 16, 'yes', NULL, NULL, NULL, NULL),
+(2379, 'tissue_storage_soultion', NULL, NULL, 'isopentane', 'isopentane', 2, 'yes', NULL, NULL, NULL, NULL),
+(2380, 'tissue_storage_soultion', NULL, NULL, 'isopentane + OCT', 'isopentane + OCT', 3, 'yes', NULL, NULL, NULL, NULL),
+(2381, 'tissue_storage_soultion', NULL, NULL, 'none', 'none', 4, 'yes', NULL, NULL, NULL, NULL),
+(2445, 'labo_sample_status', NULL, NULL, 'unknown', 'unknown', 16, 'yes', NULL, NULL, NULL, NULL),
+(2526, 'tissue_storage_soultion', NULL, NULL, 'isopentane', 'isopentane', 2, 'yes', NULL, NULL, NULL, NULL),
+(2527, 'tissue_storage_soultion', NULL, NULL, 'isopentane + OCT', 'isopentane + OCT', 3, 'yes', NULL, NULL, NULL, NULL),
+(2528, 'tissue_storage_soultion', NULL, NULL, 'none', 'none', 4, 'yes', NULL, NULL, NULL, NULL),
+(2592, 'labo_sample_status', NULL, NULL, 'unknown', 'unknown', 16, 'yes', NULL, NULL, NULL, NULL),
+(2647, 'container_status', NULL, NULL, 'available', 'available', 1, 'yes', NULL, NULL, NULL, NULL),
+(2648, 'container_status', NULL, NULL, 'not available', 'not available', 2, 'yes', NULL, NULL, NULL, NULL),
+(2649, 'container_status', NULL, NULL, 'unknown', 'unknown', 3, 'yes', NULL, NULL, NULL, NULL),
+(2652, 'container_type', NULL, NULL, 'block', 'block', 1, 'yes', NULL, NULL, NULL, NULL),
+(2653, 'container_type', NULL, NULL, 'blood derivative tube', 'blood derivative tube', 2, 'yes', NULL, NULL, NULL, NULL),
+(2654, 'container_type', NULL, NULL, 'cell slides', 'cell slides', 3, 'yes', NULL, NULL, NULL, NULL),
+(2655, 'container_type', NULL, NULL, 'cell tubes', 'cell tubes', 4, 'yes', NULL, NULL, NULL, NULL),
+(2656, 'container_type', NULL, NULL, 'derivative tube', 'derivative tube', 5, 'yes', NULL, NULL, NULL, NULL),
+(2657, 'container_type', NULL, NULL, 'dna rna tubes', 'dna rna tubes', 6, 'yes', NULL, NULL, NULL, NULL),
+(2658, 'container_type', NULL, NULL, 'specimen tube', 'specimen tube', 7, 'yes', NULL, NULL, NULL, NULL),
+(2659, 'container_type', NULL, NULL, 'tissue bag', 'tissue bag', 8, 'yes', NULL, NULL, NULL, NULL),
+(2660, 'container_type', NULL, NULL, 'tissue cryomold', 'tissue cryomold', 9, 'yes', NULL, NULL, NULL, NULL),
+(2661, 'container_type', NULL, NULL, 'tissue slide', 'tissue slide', 10, 'yes', NULL, NULL, NULL, NULL),
+(2662, 'container_type', NULL, NULL, 'tissue tube', 'tissue tube', 11, 'yes', NULL, NULL, NULL, NULL),
+(2663, 'container_type', NULL, NULL, 'whatman paper', 'whatman paper', 12, 'yes', NULL, NULL, NULL, NULL),
+(2664, 'container_status_reason', NULL, NULL, 'contamined', 'contamined', 1, 'yes', NULL, NULL, NULL, NULL),
+(2665, 'container_status_reason', NULL, NULL, 'empty', 'empty', 2, 'yes', NULL, NULL, NULL, NULL),
+(2666, 'container_status_reason', NULL, NULL, 'lost', 'lost', 3, 'yes', NULL, NULL, NULL, NULL),
+(2667, 'container_status_reason', NULL, NULL, 'reserved', 'reserved', 5, 'yes', NULL, NULL, NULL, NULL),
+(2668, 'container_status_reason', NULL, NULL, 'sent', 'sent', 6, 'yes', NULL, NULL, NULL, NULL),
+(2669, 'container_status_reason', NULL, NULL, 'untraceable', 'untraceable', 7, 'yes', NULL, NULL, NULL, NULL),
+(2670, 'container_status_reason', NULL, NULL, 'unusable', 'unusable', 8, 'yes', NULL, NULL, NULL, NULL),
+(2671, 'container_status_reason', NULL, NULL, 'n/a', 'n/a', 9, 'yes', NULL, NULL, NULL, NULL),
+(2673, 'tissue_storage_soultion', NULL, NULL, 'isopentane', 'isopentane', 2, 'yes', NULL, NULL, NULL, NULL),
+(2674, 'tissue_storage_soultion', NULL, NULL, 'isopentane + OCT', 'isopentane + OCT', 3, 'yes', NULL, NULL, NULL, NULL),
+(2675, 'tissue_storage_soultion', NULL, NULL, 'none', 'none', 4, 'yes', NULL, NULL, NULL, NULL),
+(2676, 'container_status_reason', NULL, NULL, 'flash freeze', 'flash freeze', 1, 'yes', NULL, NULL, NULL, NULL),
+(2677, 'container_status_reason', NULL, NULL, 'RNA later', 'RNA later', 2, 'yes', NULL, NULL, NULL, NULL),
+(2691, 'container_use_definition', NULL, NULL, 'sample derivative creation', 'sample derivative creation', 1, 'yes', NULL, NULL, NULL, NULL),
+(2739, 'labo_sample_status', NULL, NULL, 'unknown', 'unknown', 16, 'yes', NULL, NULL, NULL, NULL),
+(2820, 'tissue_storage_soultion', NULL, NULL, 'isopentane', 'isopentane', 2, 'yes', NULL, NULL, NULL, NULL),
+(2821, 'tissue_storage_soultion', NULL, NULL, 'isopentane + OCT', 'isopentane + OCT', 3, 'yes', NULL, NULL, NULL, NULL),
+(2822, 'tissue_storage_soultion', NULL, NULL, 'none', 'none', 4, 'yes', NULL, NULL, NULL, NULL),
+(2888, 'labo_sample_status', NULL, NULL, 'unknown', 'unknown', 16, 'yes', NULL, NULL, NULL, NULL),
+(2971, 'tissue_storage_soultion', NULL, NULL, 'isopentane', 'isopentane', 2, 'yes', NULL, NULL, NULL, NULL),
+(2972, 'tissue_storage_soultion', NULL, NULL, 'isopentane + OCT', 'isopentane + OCT', 3, 'yes', NULL, NULL, NULL, NULL),
+(2973, 'tissue_storage_soultion', NULL, NULL, 'none', 'none', 4, 'yes', NULL, NULL, NULL, NULL),
+(3040, 'labo_sample_status', NULL, NULL, 'unknown', 'unknown', 16, 'yes', NULL, NULL, NULL, NULL),
+(3123, 'tissue_storage_soultion', NULL, NULL, 'isopentane', 'isopentane', 2, 'yes', NULL, NULL, NULL, NULL),
+(3124, 'tissue_storage_soultion', NULL, NULL, 'isopentane + OCT', 'isopentane + OCT', 3, 'yes', NULL, NULL, NULL, NULL),
+(3125, 'tissue_storage_soultion', NULL, NULL, 'none', 'none', 4, 'yes', NULL, NULL, NULL, NULL),
+(3192, 'labo_sample_status', NULL, NULL, 'unknown', 'unknown', 16, 'yes', NULL, NULL, NULL, NULL),
+(3275, 'tissue_storage_soultion', NULL, NULL, 'isopentane', 'isopentane', 2, 'yes', NULL, NULL, NULL, NULL),
+(3276, 'tissue_storage_soultion', NULL, NULL, 'isopentane + OCT', 'isopentane + OCT', 3, 'yes', NULL, NULL, NULL, NULL),
+(3277, 'tissue_storage_soultion', NULL, NULL, 'none', 'none', 4, 'yes', NULL, NULL, NULL, NULL),
+(3317, 'sample_status', NULL, NULL, 'available', 'available', 1, 'yes', NULL, NULL, NULL, NULL),
+(3318, 'sample_status', NULL, NULL, 'not available', 'not available', 2, 'yes', NULL, NULL, NULL, NULL),
+(3319, 'sample_status', NULL, NULL, 'unknown', 'unknown', 3, 'yes', NULL, NULL, NULL, NULL),
+(3320, 'sample_status_reason', NULL, NULL, 'contamined', 'contamined', 1, 'yes', NULL, NULL, NULL, NULL),
+(3321, 'sample_status_reason', NULL, NULL, 'lost', 'lost', 3, 'yes', NULL, NULL, NULL, NULL),
+(3322, 'sample_status_reason', NULL, NULL, 'no consent', 'no consent', 4, 'yes', NULL, NULL, NULL, NULL),
+(3323, 'sample_status_reason', NULL, NULL, 'reserved', 'reserved', 5, 'yes', NULL, NULL, NULL, NULL),
+(3324, 'sample_status_reason', NULL, NULL, 'sent', 'sent', 6, 'yes', NULL, NULL, NULL, NULL),
+(3325, 'sample_status_reason', NULL, NULL, 'untraceable', 'untraceable', 7, 'yes', NULL, NULL, NULL, NULL),
+(3326, 'sample_status_reason', NULL, NULL, 'unusable', 'unusable', 8, 'yes', NULL, NULL, NULL, NULL),
+(3327, 'sample_status_reason', NULL, NULL, 'automatic update', 'automatic update', 9, 'yes', NULL, NULL, NULL, NULL),
+(3328, 'sample_status_reason', NULL, NULL, 'n/a', 'n/a', 10, 'yes', NULL, NULL, NULL, NULL),
+(3344, 'labo_sample_status', NULL, NULL, 'unknown', 'unknown', 16, 'yes', NULL, NULL, NULL, NULL),
+(3427, 'tissue_storage_soultion', NULL, NULL, 'isopentane', 'isopentane', 2, 'yes', NULL, NULL, NULL, NULL),
+(3428, 'tissue_storage_soultion', NULL, NULL, 'isopentane + OCT', 'isopentane + OCT', 3, 'yes', NULL, NULL, NULL, NULL),
+(3429, 'tissue_storage_soultion', NULL, NULL, 'none', 'none', 4, 'yes', NULL, NULL, NULL, NULL),
+(3654, 'tissue_storage_soultion', NULL, NULL, 'isopentane', 'isopentane', 2, 'yes', NULL, NULL, NULL, NULL),
+(3655, 'tissue_storage_soultion', NULL, NULL, 'isopentane + OCT', 'isopentane + OCT', 3, 'yes', NULL, NULL, NULL, NULL),
+(3656, 'tissue_storage_soultion', NULL, NULL, 'none', 'none', 4, 'yes', NULL, NULL, NULL, NULL),
+(3825, 'tissue_storage_soultion', NULL, NULL, 'isopentane', 'isopentane', 2, 'yes', NULL, NULL, NULL, NULL),
+(3826, 'tissue_storage_soultion', NULL, NULL, 'isopentane + OCT', 'isopentane + OCT', 3, 'yes', NULL, NULL, NULL, NULL),
+(3827, 'tissue_storage_soultion', NULL, NULL, 'none', 'none', 4, 'yes', NULL, NULL, NULL, NULL),
+(3951, 'tissue_storage_soultion', NULL, NULL, 'isopentane', 'isopentane', 2, 'yes', NULL, NULL, NULL, NULL),
+(3952, 'tissue_storage_soultion', NULL, NULL, 'isopentane + OCT', 'isopentane + OCT', 3, 'yes', NULL, NULL, NULL, NULL),
+(3953, 'tissue_storage_soultion', NULL, NULL, 'none', 'none', 4, 'yes', NULL, NULL, NULL, NULL),
+(4122, 'tissue_storage_soultion', NULL, NULL, 'isopentane', 'isopentane', 2, 'yes', NULL, NULL, NULL, NULL),
+(4123, 'tissue_storage_soultion', NULL, NULL, 'isopentane + OCT', 'isopentane + OCT', 3, 'yes', NULL, NULL, NULL, NULL),
+(4124, 'tissue_storage_soultion', NULL, NULL, 'none', 'none', 4, 'yes', NULL, NULL, NULL, NULL),
+(4312, 'tissue_storage_soultion', NULL, NULL, 'isopentane', 'isopentane', 2, 'yes', NULL, NULL, NULL, NULL),
+(4313, 'tissue_storage_soultion', NULL, NULL, 'isopentane + OCT', 'isopentane + OCT', 3, 'yes', NULL, NULL, NULL, NULL),
+(4314, 'tissue_storage_soultion', NULL, NULL, 'none', 'none', 4, 'yes', NULL, NULL, NULL, NULL),
+(4485, 'tissue_storage_soultion', NULL, NULL, 'isopentane', 'isopentane', 2, 'yes', NULL, NULL, NULL, NULL),
+(4486, 'tissue_storage_soultion', NULL, NULL, 'isopentane + OCT', 'isopentane + OCT', 3, 'yes', NULL, NULL, NULL, NULL),
+(4487, 'tissue_storage_soultion', NULL, NULL, 'none', 'none', 4, 'yes', NULL, NULL, NULL, NULL),
+(4505, 'num_cycles', NULL, NULL, '1', '1', 1, 'yes', NULL, NULL, NULL, NULL),
+(4506, 'num_cycles', NULL, NULL, '2', '2', 2, 'yes', NULL, NULL, NULL, NULL),
+(4507, 'num_cycles', NULL, NULL, '3', '3', 3, 'yes', NULL, NULL, NULL, NULL),
+(4508, 'num_cycles', NULL, NULL, '4', '4', 4, 'yes', NULL, NULL, NULL, NULL),
+(4509, 'num_cycles', NULL, NULL, '5', '5', 5, 'yes', NULL, NULL, NULL, NULL),
+(4510, 'num_cycles', NULL, NULL, '6', '6', 6, 'yes', NULL, NULL, NULL, NULL),
+(4511, 'num_cycles', NULL, NULL, '7', '7', 7, 'yes', NULL, NULL, NULL, NULL),
+(4512, 'num_cycles', NULL, NULL, '8', '8', 8, 'yes', NULL, NULL, NULL, NULL),
+(4513, 'num_cycles', NULL, NULL, '9', '9', 9, 'yes', NULL, NULL, NULL, NULL),
+(4514, 'num_cycles', NULL, NULL, '10', '10', 10, 'yes', NULL, NULL, NULL, NULL),
+(4657, 'tissue_storage_soultion', NULL, NULL, 'isopentane', 'isopentane', 2, 'yes', NULL, NULL, NULL, NULL),
+(4658, 'tissue_storage_soultion', NULL, NULL, 'isopentane + OCT', 'isopentane + OCT', 3, 'yes', NULL, NULL, NULL, NULL),
+(4659, 'tissue_storage_soultion', NULL, NULL, 'none', 'none', 4, 'yes', NULL, NULL, NULL, NULL),
+(4830, 'tissue_storage_soultion', NULL, NULL, 'isopentane', 'isopentane', 2, 'yes', NULL, NULL, NULL, NULL),
+(4831, 'tissue_storage_soultion', NULL, NULL, 'isopentane + OCT', 'isopentane + OCT', 3, 'yes', NULL, NULL, NULL, NULL),
+(4832, 'tissue_storage_soultion', NULL, NULL, 'none', 'none', 4, 'yes', NULL, NULL, NULL, NULL),
+(4850, 'result', NULL, NULL, 'abnormal', 'abnormal', 1, 'yes', NULL, NULL, NULL, NULL),
+(4851, 'result', NULL, NULL, 'atypical', 'atypical', 2, 'yes', NULL, NULL, NULL, NULL),
+(4852, 'result', NULL, NULL, 'benign', 'benign', 3, 'yes', NULL, NULL, NULL, NULL),
+(4853, 'result', NULL, NULL, 'negative', 'negative', 4, 'yes', NULL, NULL, NULL, NULL),
+(4854, 'result', NULL, NULL, 'normal', 'normal', 5, 'yes', NULL, NULL, NULL, NULL),
+(4855, 'result', NULL, NULL, 'positive', 'positive', 6, 'yes', NULL, NULL, NULL, NULL),
+(4856, 'result', NULL, NULL, 'suspicious', 'suspicious', 7, 'yes', NULL, NULL, NULL, NULL),
+(4857, 'result', NULL, NULL, 'unknown', 'unknown', 8, 'yes', NULL, NULL, NULL, NULL),
+(5000, 'tissue_storage_soultion', NULL, NULL, 'isopentane', 'isopentane', 2, 'yes', NULL, NULL, NULL, NULL),
+(5001, 'tissue_storage_soultion', NULL, NULL, 'isopentane + OCT', 'isopentane + OCT', 3, 'yes', NULL, NULL, NULL, NULL),
+(5002, 'tissue_storage_soultion', NULL, NULL, 'none', 'none', 4, 'yes', NULL, NULL, NULL, NULL),
+(5048, 'rtbform_category', NULL, NULL, 'standard operating procedure', 'standard operating procedure', 4, 'yes', NULL, NULL, NULL, NULL),
+(5049, 'rtbform_category', NULL, NULL, 'information package', 'information package', 2, 'yes', NULL, NULL, NULL, NULL),
+(5050, 'rtbform_category', NULL, NULL, 'material transfer agreement', 'material transfer agreement', 3, 'yes', NULL, NULL, NULL, NULL),
+(5051, 'method', NULL, NULL, 'po', 'po', 1, 'yes', NULL, NULL, NULL, NULL),
+(5052, 'method', NULL, NULL, 'iv push', 'iv push', 2, 'yes', NULL, NULL, NULL, NULL),
+(5053, 'status', NULL, NULL, 'shipped', 'shipped', 1, 'yes', NULL, NULL, NULL, NULL),
+(5054, 'status', NULL, NULL, 'pending', 'pending', 2, 'yes', NULL, NULL, NULL, NULL),
+(5055, 'status', NULL, NULL, 'in process', 'in process', 3, 'yes', NULL, NULL, NULL, NULL),
+(5181, 'tissue_storage_soultion', NULL, NULL, 'isopentane', 'isopentane', 2, 'yes', NULL, NULL, NULL, NULL),
+(5182, 'tissue_storage_soultion', NULL, NULL, 'isopentane + OCT', 'isopentane + OCT', 3, 'yes', NULL, NULL, NULL, NULL),
+(5183, 'tissue_storage_soultion', NULL, NULL, 'none', 'none', 4, 'yes', NULL, NULL, NULL, NULL),
+(5196, 'cell_storage_method', NULL, NULL, 'DMSO', 'DMSO', 1, 'yes', NULL, NULL, NULL, NULL),
+(5197, 'cell_storage_method', NULL, NULL, 'serum', 'serum', 2, 'yes', NULL, NULL, NULL, NULL),
+(5198, 'cell_storage_method', NULL, NULL, 'DMSO + serum', 'DMSO + serum', 3, 'yes', NULL, NULL, NULL, NULL),
+(5199, 'cell_storage_method', NULL, NULL, 'unknown', 'unknown', 4, 'yes', NULL, NULL, NULL, NULL),
+(5201, 'product_type', NULL, NULL, 'blood', 'blood', 1, 'yes', NULL, NULL, NULL, NULL),
+(5202, 'product_type', NULL, NULL, 'urine', 'urine', 3, 'yes', NULL, NULL, NULL, NULL),
+(5203, 'product_type', NULL, NULL, 'frozen tissue', 'frozen tissue', 2, 'yes', NULL, NULL, NULL, NULL),
+(5204, 'product_type', NULL, NULL, 'paraffin block', 'paraffin block', 3, 'yes', NULL, NULL, NULL, NULL),
+(5205, 'product_type', NULL, NULL, 'slides', 'slides', 4, 'yes', NULL, NULL, NULL, NULL),
+(5206, 'discount', NULL, NULL, 'institutional', 'institutional', 1, 'yes', NULL, NULL, NULL, NULL),
+(5207, 'discount', NULL, NULL, 'regional academic', 'regional academic', 2, 'yes', NULL, NULL, NULL, NULL),
+(5208, 'discount', NULL, NULL, 'national academic', 'national academic', 3, 'yes', NULL, NULL, NULL, NULL),
+(5209, 'discount', NULL, NULL, 'commercial national', 'commercial national', 4, 'yes', NULL, NULL, NULL, NULL),
+(5210, 'marital_status', NULL, NULL, 'single', 'single', 1, 'yes', NULL, NULL, NULL, NULL),
+(5211, 'marital_status', NULL, NULL, 'married', 'married', 2, 'yes', NULL, NULL, NULL, NULL),
+(5212, 'marital_status', NULL, NULL, 'divorced', 'divorced', 4, 'yes', NULL, NULL, NULL, NULL),
+(5213, 'marital_status', NULL, NULL, 'separated', 'separated', 3, 'yes', NULL, NULL, NULL, NULL),
+(5214, 'marital_status', NULL, NULL, 'common law', 'common law', 5, 'yes', NULL, NULL, NULL, NULL),
+(5789, 'laterality', NULL, NULL, 'right', 'right', 1, 'yes', NULL, NULL, NULL, NULL),
+(5790, 'laterality', NULL, NULL, 'left', 'left', 2, 'yes', NULL, NULL, NULL, NULL),
+(5791, 'laterality', NULL, NULL, 'unknown', 'unknown', 3, 'yes', NULL, NULL, NULL, NULL),
+(6876, 'pathologist', '', '', 'Dr. A', 'Dr. A', 1, 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(6877, 'pathologist', '', '', 'Dr. B', 'Dr. B', 2, 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(6878, 'tumour_type', '', '', 'ductal', 'ductal', 1, 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(6879, 'tumour_type', '', '', 'lobular', 'lobular', 2, 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(6880, 'tumour_type', '', '', 'd-l mix', 'd l mix', 3, 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(6881, 'tumour_type', '', '', 'tubular', 'tubular', 4, 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(6882, 'tumour_type', '', '', 'mucinous', 'mucinous', 5, 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(6883, 'tumour_type', '', '', 'dcis', 'dcis', 6, 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(6884, 'tumour_type', '', '', 'other', 'other', 7, 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(6885, 'tumour_type', '', '', 'serous', 'serous', 21, 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(6886, 'tumour_type', '', '', 'endometrioid', 'endometrioid', 23, 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(6887, 'tumour_type', '', '', 'adenocarcinoma', 'adenocarcinoma', 11, 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(6888, 'tumour_type', '', '', 'adenocarcinoma(mucinous)', 'adenocarcinoma(mucinous)', 12, 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(6889, 'tumour_type', '', '', 'adenocarcinoma(signet ring)', 'adenocarcinoma(signet ring)', 13, 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(6890, 'tumour_type', '', '', 'adenoma', 'adenoma', 14, 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(6891, 'tumour_type', '', '', 'squamous carcinoma', 'squamous carcinoma', 31, 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(6892, 'tumour_type', '', '', 'transitional carcinoma', 'squamous carcinoma', 32, 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(6893, 'tumour_type', '', '', 'carcinoma, nos', 'carcinoma, nos', 33, 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(6894, 'tumour_grade_category', '', '', 'well diff', 'well diff', 1, 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(6895, 'tumour_grade_category', '', '', 'mod diff', 'mod diff', 2, 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(6896, 'tumour_grade_category', '', '', 'poor diff', 'poor diff', 3, 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(6899, 'cancer_type_for_review', '', '', 'generic_cancer_type', 'generic_cancer_type', 1, 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(6900, 'cancer_type_for_review', '', '', 'breast_cancer_type', 'breast_cancer_type', 2, 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(6901, 'cancer_type_for_review', '', '', 'colon_cancer_type', 'colon_cancer_type', 3, 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(6902, 'cancer_type_for_review', '', '', 'ovarian_uterus_cancer_type', 'ovarian_uterus_cancer_type', 4, 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(6903, 'cancer_type_for_review', '', '', 'blood_cell_count', 'blood_cell_count', 5, 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(7115, 'labo_sample_type_code', NULL, NULL, 'unknown', 'unknown', 15, 'yes', NULL, NULL, NULL, NULL),
+(7116, 'labo_sample_type_code', NULL, NULL, 'TOV', 'TOV type code', 1, 'yes', NULL, NULL, NULL, NULL),
+(7117, 'labo_sample_type_code', NULL, NULL, 'BOV', 'BOV type code', 2, 'yes', NULL, NULL, NULL, NULL),
+(7118, 'labo_sample_type_code', NULL, NULL, 'NOV', 'NOV type code', 3, 'yes', NULL, NULL, NULL, NULL),
+(7119, 'labo_sample_type_code', NULL, NULL, 'OV', 'OV type code', 4, 'yes', NULL, NULL, NULL, NULL),
+(7120, 'labo_sample_type_code', NULL, NULL, 'S', 'S type code', 5, 'yes', NULL, NULL, NULL, NULL),
+(7121, 'labo_sample_type_code', NULL, NULL, 'TR', 'TR type code', 6, 'yes', NULL, NULL, NULL, NULL),
+(7122, 'labo_sample_type_code', NULL, NULL, 'UT', 'UT type code', 7, 'yes', NULL, NULL, NULL, NULL),
+(7123, 'labo_sample_type_code', NULL, NULL, 'MOV', 'MOV type code', 8, 'yes', NULL, NULL, NULL, NULL),
+(7124, 'labo_sample_type_code', NULL, NULL, 'BR', 'BR type code', 9, 'yes', NULL, NULL, NULL, NULL),
+(7125, 'labo_sample_type_code', NULL, NULL, 'L', 'L type code', 10, 'yes', NULL, NULL, NULL, NULL),
+(7126, 'labo_sample_type_code', NULL, NULL, 'U', 'U type code', 11, 'yes', NULL, NULL, NULL, NULL),
+(7127, 'labo_sample_type_code', NULL, NULL, 'PR', 'PR type code', 12, 'yes', NULL, NULL, NULL, NULL),
+(7128, 'labo_sample_type_code', NULL, NULL, 'T', 'T type code', 13, 'yes', NULL, NULL, NULL, NULL),
+(7129, 'labo_sample_type_code', NULL, NULL, 'N', 'N type code', 14, 'yes', NULL, NULL, NULL, NULL),
+(7130, 'labo_sample_type_code', NULL, NULL, 'other', 'other', 16, 'yes', NULL, NULL, NULL, NULL),
+(7131, 'specimen_supplier_site', NULL, NULL, 'clinic', 'clinic', 1, 'yes', NULL, NULL, NULL, NULL),
+(7132, 'specimen_supplier_site', NULL, NULL, 'pathology dept', 'pathology dept', 2, 'yes', NULL, NULL, NULL, NULL),
+(7133, 'specimen_supplier_site', NULL, NULL, 'operating room', 'operating room', 3, 'yes', NULL, NULL, NULL, NULL),
+(7134, 'specimen_supplier_site', NULL, NULL, 'other', 'other', 4, 'yes', NULL, NULL, NULL, NULL),
+(7135, 'volume_unit', NULL, NULL, 'ml', 'ml', 1, 'yes', NULL, NULL, NULL, NULL),
+(7136, 'volume_unit', NULL, NULL, 'ul', 'ul', 2, 'yes', NULL, NULL, NULL, NULL),
+(7137, 'yes_no_unknown', NULL, NULL, 'unknown', 'unknown', 1, 'yes', NULL, NULL, NULL, NULL),
+(7138, 'yes_no_unknown', NULL, NULL, 'yes', 'yes', 2, 'yes', NULL, NULL, NULL, NULL),
+(7139, 'yes_no_unknown', NULL, NULL, 'no', 'no', 3, 'yes', NULL, NULL, NULL, NULL),
+(7157, 'cell_collection_method', NULL, NULL, 'unknown', 'unknown', 1, 'yes', NULL, NULL, NULL, NULL),
+(7158, 'cell_collection_method', NULL, NULL, 'centrifugation', 'centrifugation', 2, 'yes', NULL, NULL, NULL, NULL),
+(7159, 'cell_collection_method', NULL, NULL, 'collagenase', 'collagenase', 3, 'yes', NULL, NULL, NULL, NULL),
+(7160, 'cell_collection_method', NULL, NULL, 'mechanic', 'mechanic', 5, 'yes', NULL, NULL, NULL, NULL),
+(7161, 'cell_collection_method', NULL, NULL, 'tissue section', 'tissue section', 6, 'yes', NULL, NULL, NULL, NULL),
+(7162, 'cell_collection_method', NULL, NULL, 'scratching', 'scratching', 7, 'yes', NULL, NULL, NULL, NULL),
+(7163, 'cell_collection_method', NULL, NULL, 'trypsin', 'trypsin', 8, 'yes', NULL, NULL, NULL, NULL),
+(7164, 'cell_collection_method', NULL, NULL, 'scissors', 'scissors', 9, 'yes', NULL, NULL, NULL, NULL),
+(7165, 'cell_collection_method', NULL, NULL, 'clone', 'clone', 10, 'yes', NULL, NULL, NULL, NULL),
+(7166, 'cell_collection_method', NULL, NULL, 'spheroides', 'spheroides', 11, 'yes', NULL, NULL, NULL, NULL),
+(7167, 'culture_solution', NULL, NULL, 'unknown', 'unknown', 1, 'yes', NULL, NULL, NULL, NULL),
+(7168, 'culture_solution', NULL, NULL, 'OSE', 'OSE', 2, 'yes', NULL, NULL, NULL, NULL),
+(7169, 'culture_solution', NULL, NULL, 'DMEM', 'DMEM', 3, 'yes', NULL, NULL, NULL, NULL),
+(7170, 'culture_solution', NULL, NULL, 'CSF-C100(CHO)', 'CSF-C100(CHO)', 4, 'yes', NULL, NULL, NULL, NULL),
+(7171, 'culture_hormone', NULL, NULL, 'unknown', 'unknown', 1, 'yes', NULL, NULL, NULL, NULL),
+(7172, 'culture_hormone', NULL, NULL, 'egf+bpe+insulin+hydrocortisone', 'egf+bpe+insulin+hydrocortisone', 2, 'yes', NULL, NULL, NULL, NULL),
+(7173, 'culture_hormone', NULL, NULL, 'b-estradiol', 'b-estradiol', 3, 'yes', NULL, NULL, NULL, NULL),
+(7174, 'culture_hormone', NULL, NULL, 'progesterone', 'progesterone', 4, 'yes', NULL, NULL, NULL, NULL),
+(7175, 'culture_hormone', NULL, NULL, 'b-estradiol+progesterone', 'b-estradiol+progesterone', 5, 'yes', NULL, NULL, NULL, NULL),
+(7176, 'culture_status', NULL, NULL, 'unknown', 'unknown', 1, 'yes', NULL, NULL, NULL, NULL),
+(7177, 'culture_status', NULL, NULL, 'in culture', 'in culture', 2, 'yes', NULL, NULL, NULL, NULL),
+(7178, 'culture_status', NULL, NULL, 'frozen', 'frozen', 3, 'yes', NULL, NULL, NULL, NULL),
+(7179, 'culture_status', NULL, NULL, 'stopped', 'stopped', 4, 'yes', NULL, NULL, NULL, NULL),
+(7180, 'culture_status', NULL, NULL, 'contaminated', 'contaminated', 5, 'yes', NULL, NULL, NULL, NULL),
+(7181, 'culture_status', NULL, NULL, 'cell dead', 'cell dead', 6, 'yes', NULL, NULL, NULL, NULL),
+(7182, 'culture_status', NULL, NULL, 'thrown', 'thrown', 7, 'yes', NULL, NULL, NULL, NULL),
+(7183, 'culture_status', NULL, NULL, 'injection into mouse', 'injection into mouse', 7, 'yes', NULL, NULL, NULL, NULL),
+(7188, 'quality_control_ratio', NULL, NULL, 'ratio 260/230nm', 'ratio 260/230nm', 1, 'yes', NULL, NULL, NULL, NULL),
+(7189, 'quality_control_ratio', NULL, NULL, 'ratio 260/268nm', 'ratio 260/268nm', 2, 'yes', NULL, NULL, NULL, NULL);
+INSERT INTO `structure_options` (`id`, `alias`, `section`, `subsection`, `value`, `language_choice`, `display_order`, `active`, `created`, `created_by`, `modified`, `modified_by`) VALUES 
+(7190, 'quality_control_ratio', NULL, NULL, 'ratio 260/280nm', 'ratio 260/280nm', 3, 'yes', NULL, NULL, NULL, NULL),
+(7191, 'quality_control_ratio', NULL, NULL, 'ratio 28s/18s', 'ratio 28s/18s', 4, 'yes', NULL, NULL, NULL, NULL),
+(7192, 'quality_control_ratio', NULL, NULL, 'RIN', 'RIN', 5, 'yes', NULL, NULL, NULL, NULL),
+(7193, 'quality_control_ratio', NULL, NULL, 'n/a', 'n/a', 6, 'yes', NULL, NULL, NULL, NULL),
+(7200, 'quality_control_scale_conclusion', NULL, NULL, 'degraded', 'degraded', 1, 'yes', NULL, NULL, NULL, NULL),
+(7201, 'quality_control_scale_conclusion', NULL, NULL, 'partially degraded', 'partially degraded', 2, 'yes', NULL, NULL, NULL, NULL),
+(7202, 'quality_control_scale_conclusion', NULL, NULL, 'poor', 'poor', 3, 'yes', NULL, NULL, NULL, NULL),
+(7203, 'quality_control_scale_conclusion', NULL, NULL, 'acceptable', 'acceptable', 4, 'yes', NULL, NULL, NULL, NULL),
+(7204, 'quality_control_scale_conclusion', NULL, NULL, 'very good', 'very good', 5, 'yes', NULL, NULL, NULL, NULL),
+(7205, 'quality_control_scale_conclusion', NULL, NULL, 'out of range', 'out of range', 6, 'yes', NULL, NULL, NULL, NULL),
+(7206, 'dna_extraction_method', NULL, NULL, 'phenol Chloroform', 'phenol Chloroform', 1, 'yes', NULL, NULL, NULL, NULL),
+(7207, 'dna_extraction_method', NULL, NULL, 'flexigene DNA kit', 'flexigene DNA kit', 2, 'yes', NULL, NULL, NULL, NULL),
+(7208, 'rna_extraction_method', NULL, NULL, 'paxgene blood RNA kit', 'paxgene blood RNA kit', 1, 'yes', NULL, NULL, NULL, NULL),
+(7209, 'rna_extraction_method', NULL, NULL, 'trizol', 'trizol', 3, 'yes', NULL, NULL, NULL, NULL),
+(7210, 'rna_extraction_method', NULL, NULL, 'quiagen rneasy kit', 'quiagen rneasy kit', 2, 'yes', NULL, NULL, NULL, NULL),
+(7211, 'dna_amplification_method', NULL, NULL, 'dna_amplification_method?', 'dna_amplification_method?', 1, 'yes', NULL, NULL, NULL, NULL),
+(7212, 'rna_amplification_method', NULL, NULL, 'alethia-arcturus', 'alethia-arcturus', 1, 'yes', NULL, NULL, NULL, NULL),
+(7213, 'rna_amplification_method', NULL, NULL, 'alethia-ramp', 'alethia-ramp', 2, 'yes', NULL, NULL, NULL, NULL),
+(7214, 'rna_amplification_method', NULL, NULL, 'unknown', 'unknown', 3, 'yes', NULL, NULL, NULL, NULL),
+(7238, 'tissue_storage_solution', NULL, NULL, 'OCT', 'oct solution', 5, 'yes', NULL, NULL, NULL, NULL),
+(7239, 'tissue_storage_solution', NULL, NULL, 'isopentane', 'isopentane', 6, 'yes', NULL, NULL, NULL, NULL),
+(7240, 'tissue_storage_solution', NULL, NULL, 'isopentane + OCT', 'isopentane + oct', 7, 'yes', NULL, NULL, NULL, NULL),
+(7241, 'tissue_storage_solution', NULL, NULL, 'none', 'none', 0, 'yes', NULL, NULL, NULL, NULL),
+(7242, 'tissue_storage_solution', NULL, NULL, 'RNA later', 'RNA later', 8, 'yes', NULL, NULL, NULL, NULL),
+(7243, 'tissue_storage_solution', NULL, NULL, 'paraffin', 'paraffin', 9, 'yes', NULL, NULL, NULL, NULL),
+(7244, 'tissue_storage_method', NULL, NULL, 'flash freeze', 'flash freeze', 1, 'yes', NULL, NULL, NULL, NULL),
+(7245, 'tissue_storage_method', NULL, NULL, 'none', 'none', 0, 'yes', NULL, NULL, NULL, NULL),
+(7248, 'yesnounknown', NULL, NULL, 'yes', 'yes', 1, 'yes', NULL, NULL, NULL, NULL),
+(7249, 'yesnounknown', NULL, NULL, 'no', 'no', 2, 'yes', NULL, NULL, NULL, NULL),
+(7250, 'yesnounknown', NULL, NULL, 'unknown', 'unknown', 3, 'yes', NULL, NULL, NULL, NULL),
+(7251, 'gleasonscore', NULL, NULL, '1', '1', 1, 'yes', NULL, NULL, NULL, NULL),
+(7252, 'gleasonscore', NULL, NULL, '2', '2', 2, 'yes', NULL, NULL, NULL, NULL),
+(7253, 'gleasonscore', NULL, NULL, '3', '3', 3, 'yes', NULL, NULL, NULL, NULL),
+(7254, 'gleasonscore', NULL, NULL, '4', '4', 4, 'yes', NULL, NULL, NULL, NULL),
+(7255, 'gleasonscore', NULL, NULL, '5', '5', 5, 'yes', NULL, NULL, NULL, NULL),
+(7256, 'block_tissue_description', NULL, NULL, 'normal', 'normal', 1, 'yes', NULL, NULL, NULL, NULL),
+(7257, 'block_tissue_description', NULL, NULL, 'tumor', 'tumor', 2, 'yes', NULL, NULL, NULL, NULL),
+(7258, 'block_tissue_description', NULL, NULL, 'hyperplasia', 'hyperplasia', 3, 'yes', NULL, NULL, NULL, NULL),
+(7259, 'block_tissue_description', NULL, NULL, 'stroma', 'stroma', 4, 'yes', NULL, NULL, NULL, NULL),
+(7263, 'storage_medium', NULL, NULL, 'TE', 'TE', 1, 'yes', NULL, NULL, NULL, NULL),
+(7264, 'storage_medium', NULL, NULL, 'unknown', 'unknown', 3, 'yes', NULL, NULL, NULL, NULL),
+(7265, 'storage_medium', NULL, NULL, 'h2o', 'h2o', 2, 'yes', NULL, NULL, NULL, NULL),
+(7266, 'cell_storage_solution', NULL, NULL, 'DMSO', 'DMSO', 1, 'yes', NULL, NULL, NULL, NULL),
+(7267, 'cell_storage_solution', NULL, NULL, 'serum', 'serum', 2, 'yes', NULL, NULL, NULL, NULL),
+(7268, 'cell_storage_solution', NULL, NULL, 'DMSO + serum', 'DMSO + serum', 3, 'yes', NULL, NULL, NULL, NULL),
+(7269, 'cell_storage_solution', NULL, NULL, 'trizol', 'trizol', 4, 'yes', NULL, NULL, NULL, NULL),
+(7270, 'cell_storage_solution', NULL, NULL, 'unknown', 'unknown', 0, 'yes', NULL, NULL, NULL, NULL),
+(7314, 'storage_type_code', NULL, NULL, 'room', 'room', 1, 'yes', NULL, NULL, NULL, NULL),
+(7315, 'storage_type_code', NULL, NULL, 'nitrogen container', 'nitrogen container', 2, 'yes', NULL, NULL, NULL, NULL),
+(7316, 'storage_type_code', NULL, NULL, 'incubator', 'incubator', 3, 'yes', NULL, NULL, NULL, NULL),
+(7317, 'storage_type_code', NULL, NULL, 'fridge', 'fridge', 4, 'yes', NULL, NULL, NULL, NULL),
+(7318, 'storage_type_code', NULL, NULL, 'freezer', 'freezer', 5, 'yes', NULL, NULL, NULL, NULL),
+(7319, 'storage_type_code', NULL, NULL, 'shelf', 'shelf', 6, 'yes', NULL, NULL, NULL, NULL),
+(7320, 'storage_type_code', NULL, NULL, 'rack16', 'rack16', 7, 'yes', NULL, NULL, NULL, NULL),
+(7321, 'storage_type_code', NULL, NULL, 'rack10', 'rack10', 8, 'yes', NULL, NULL, NULL, NULL),
+(7322, 'storage_type_code', NULL, NULL, 'rack24', 'rack24', 9, 'yes', NULL, NULL, NULL, NULL),
+(7323, 'storage_type_code', NULL, NULL, 'box', 'box', 8, 'yes', NULL, NULL, NULL, NULL),
+(7324, 'storage_type_code', NULL, NULL, 'box81 A1-I9', 'box81 A1-I9', 10, 'yes', NULL, NULL, NULL, NULL),
+(7325, 'storage_type_code', NULL, NULL, 'box81', 'box81', 11, 'yes', NULL, NULL, NULL, NULL),
+(7328, 'volume_unit_code', NULL, NULL, 'L', 'L', 1, 'yes', NULL, NULL, NULL, NULL),
+(7329, 'volume_unit_code', NULL, NULL, 'dm3', 'dm3', 2, 'yes', NULL, NULL, NULL, NULL),
+(7330, 'volume_unit_code', NULL, NULL, 'mL', 'mL', 3, 'yes', NULL, NULL, NULL, NULL),
+(7598, 'bank_list', NULL, NULL, 'bank 1', 'bank 1', 1, 'yes', NULL, NULL, NULL, NULL),
+(7599, 'bank_list', NULL, NULL, 'bank 2', 'bank 2', 2, 'yes', NULL, NULL, NULL, NULL),
+(7600, 'bank_list', NULL, NULL, 'bank 3', 'bank 3', 3, 'yes', NULL, NULL, NULL, NULL),
+(7601, 'site_list', NULL, NULL, 'hospital 1', 'hospital 1', 1, 'yes', NULL, NULL, NULL, NULL),
+(7602, 'site_list', NULL, NULL, 'hospital 2', 'hospital 2', 2, 'yes', NULL, NULL, NULL, NULL),
+(7603, 'site_list', NULL, NULL, 'hospital 3', 'hospital 3', 3, 'yes', NULL, NULL, NULL, NULL),
+(7661, 'tissue_origin', NULL, NULL, 'primary', 'primary', 1, 'yes', NULL, NULL, NULL, NULL),
+(7662, 'tissue_origin', NULL, NULL, 'metastatic', 'metastatic', 2, 'yes', NULL, NULL, NULL, NULL),
+(7663, 'tissue_origin', NULL, NULL, 'unknown', 'unknown', 3, 'yes', NULL, NULL, NULL, NULL),
+(7704, 'quality_control_tool', NULL, NULL, 'bioanalyzer 1', 'bioanalyzer 1', 1, 'yes', NULL, NULL, NULL, NULL),
+(7705, 'quality_control_tool', NULL, NULL, 'bioanalyzer 2', 'bioanalyzer 2', 2, 'yes', NULL, NULL, NULL, NULL),
+(7706, 'quality_control_tool', NULL, NULL, 'spectrophotometer 1', 'spectrophotometer 1', 4, 'yes', NULL, NULL, NULL, NULL),
+(7707, 'quality_control_tool', NULL, NULL, 'spectrophotometer 2', 'spectrophotometer 2', 3, 'yes', NULL, NULL, NULL, NULL),
+(8165, 'disease site', NULL, NULL, 'all', 'all', 0, 'yes', NULL, NULL, NULL, NULL),
+(8166, 'protocol type', NULL, NULL, 'chemotherapy', 'chemotherapy', 1, 'yes', NULL, NULL, NULL, NULL),
+(8632, 'tma_slide_score', NULL, NULL, '1', '1', 1, 'yes', NULL, NULL, NULL, NULL),
+(8633, 'tma_slide_score', NULL, NULL, '2', '2', 2, 'yes', NULL, NULL, NULL, NULL),
+(8634, 'tma_slide_score', NULL, NULL, '3', '3', 3, 'yes', NULL, NULL, NULL, NULL),
+(8814, 'message_type', NULL, NULL, 'note', 'note', 2, 'yes', NULL, NULL, NULL, NULL),
+(8815, 'message_type', NULL, NULL, 'memo', 'memo', 1, 'yes', NULL, NULL, NULL, NULL),
+(8816, 'message_type', NULL, NULL, 'task', 'task', 3, 'yes', NULL, NULL, NULL, NULL),
+(9397, 'demo_bank_list', NULL, NULL, 'bank 1', 'bank 1', 1, 'yes', NULL, NULL, NULL, NULL),
+(9398, 'demo_bank_list', NULL, NULL, 'bank 2', 'bank 2', 2, 'yes', NULL, NULL, NULL, NULL),
+(9399, 'demo_bank_list', NULL, NULL, 'bank 3', 'bank 3', 3, 'yes', NULL, NULL, NULL, NULL),
+(9400, 'demo_site_list', NULL, NULL, 'hospital 1', 'hospital 1', 1, 'yes', NULL, NULL, NULL, NULL),
+(9401, 'demo_site_list', NULL, NULL, 'hospital 2', 'hospital 2', 2, 'yes', NULL, NULL, NULL, NULL),
+(9402, 'demo_site_list', NULL, NULL, 'hospital 3', 'hospital 3', 3, 'yes', NULL, NULL, NULL, NULL),
+(9403, 'hrt_use', NULL, NULL, 'unknown', 'unknown', 3, 'yes', NULL, NULL, NULL, NULL),
+(9404, 'hrt_use', NULL, NULL, 'no', 'no', 1, 'yes', NULL, NULL, NULL, NULL),
+(9405, 'hrt_use', NULL, NULL, 'yes', 'yes', 2, 'yes', NULL, NULL, NULL, NULL),
+(9406, 'oralcontraceptive_use', NULL, NULL, 'no', 'no', 1, 'yes', NULL, NULL, NULL, NULL),
+(9407, 'oralcontraceptive_use', NULL, NULL, 'yes', 'yes', 2, 'yes', NULL, NULL, NULL, NULL),
+(9408, 'oralcontraceptive_use', NULL, NULL, 'unknown', 'unknown', 3, 'yes', NULL, NULL, NULL, NULL),
+(9409, 'lkmp_certainty', NULL, NULL, 'c', 'complete', 1, 'yes', NULL, NULL, NULL, NULL),
+(9410, 'lkmp_date_certainty', NULL, NULL, 'y', 'year uncertain', 2, 'yes', NULL, NULL, NULL, NULL),
+(9411, 'lkmp_date_certainty', NULL, NULL, 'm', 'month uncertain', 3, 'yes', NULL, NULL, NULL, NULL),
+(9412, 'lkmp_date_certainty', NULL, NULL, 'd', 'day uncertain', 4, 'yes', NULL, NULL, NULL, NULL),
+(9413, 'first_ovary_certainty', NULL, NULL, 'known', 'known', 0, 'yes', NULL, NULL, NULL, NULL),
+(9414, 'first_ovary_certainty', NULL, NULL, 'uncertain within 5 years', 'uncertain within 5 years', 1, 'yes', NULL, NULL, NULL, NULL),
+(9415, 'first_ovary_certainty', NULL, NULL, 'uncertain by 5-10 years', 'uncertain by 5-10 years', 3, 'yes', NULL, NULL, NULL, NULL),
+(9416, 'first_ovary_certainty', NULL, NULL, 'uncertain by more than 10 years', 'uncertain by more than 10 years', 4, 'yes', NULL, NULL, NULL, NULL),
+(9417, 'second_ovary_certainty', NULL, NULL, 'known', 'known', 0, 'yes', NULL, NULL, NULL, NULL),
+(9418, 'second_ovary_certainty', NULL, NULL, 'uncertain within 5 years', 'uncertain within 5 years', 1, 'yes', NULL, NULL, NULL, NULL),
+(9419, 'second_ovary_certainty', NULL, NULL, 'uncertain by 5-10 years', 'uncertain by 5-10 years', 3, 'yes', NULL, NULL, NULL, NULL),
+(9420, 'second_ovary_certainty', NULL, NULL, 'uncertain by more than 10 years', 'uncertain by more than 10 years', 4, 'yes', NULL, NULL, NULL, NULL),
+(9421, 'menopause_age_certainty', NULL, NULL, 'known', 'known', 0, 'yes', NULL, NULL, NULL, NULL),
+(9422, 'menopause_age_certainty', NULL, NULL, 'uncertain within 5 years', 'uncertain within 5 years', 1, 'yes', NULL, NULL, NULL, NULL),
+(9423, 'menopause_age_certainty', NULL, NULL, 'uncertain by 5-10 years', 'uncertain by 5-10 years', 3, 'yes', NULL, NULL, NULL, NULL),
+(9424, 'menopause_age_certainty', NULL, NULL, 'uncertain by more than 10 years', 'uncertain by more than 10 years', 4, 'yes', NULL, NULL, NULL, NULL),
+(9425, 'hysterectomy_age_certainty', NULL, NULL, 'known', 'known', 0, 'yes', NULL, NULL, NULL, NULL),
+(9426, 'hysterectomy_age_certainty', NULL, NULL, 'uncertain within 5 years', 'uncertain within 5 years', 1, 'yes', NULL, NULL, NULL, NULL),
+(9427, 'hysterectomy_age_certainty', NULL, NULL, 'uncertain by 5-10 years', 'uncertain by 5-10 years', 3, 'yes', NULL, NULL, NULL, NULL),
+(9428, 'hysterectomy_age_certainty', NULL, NULL, 'uncertain by more than 10 years', 'uncertain by more than 10 years', 4, 'yes', NULL, NULL, NULL, NULL),
+(9429, 'age_at_menarche_certainty', NULL, NULL, 'known', 'known', 0, 'yes', NULL, NULL, NULL, NULL),
+(9430, 'age_at_menarche_certainty', NULL, NULL, 'uncertain within 5 years', 'uncertain within 5 years', 1, 'yes', NULL, NULL, NULL, NULL),
+(9431, 'age_at_menarche_certainty', NULL, NULL, 'uncertain by 5-10 years', 'uncertain by 5-10 years', 3, 'yes', NULL, NULL, NULL, NULL),
+(9432, 'age_at_menarche_certainty', NULL, NULL, 'uncertain by more than 10 years', 'uncertain by more than 10 years', 4, 'yes', NULL, NULL, NULL, NULL),
+(9433, 'first_parturition_certainty', NULL, NULL, 'known', 'known', 0, 'yes', NULL, NULL, NULL, NULL),
+(9434, 'first_parturition_certainty', NULL, NULL, 'uncertain within 5 years', 'uncertain within 5 years', 1, 'yes', NULL, NULL, NULL, NULL),
+(9435, 'first_parturition_certainty', NULL, NULL, 'uncertain by 5-10 years', 'uncertain by 5-10 years', 3, 'yes', NULL, NULL, NULL, NULL),
+(9436, 'first_parturition_certainty', NULL, NULL, 'uncertain by more than 10 years', 'uncertain by more than 10 years', 4, 'yes', NULL, NULL, NULL, NULL),
+(9437, 'last_parturition_certainty', NULL, NULL, 'known', 'known', 0, 'yes', NULL, NULL, NULL, NULL),
+(9438, 'last_parturition_certainty', NULL, NULL, 'uncertain within 5 years', 'uncertain within 5 years', 1, 'yes', NULL, NULL, NULL, NULL),
+(9439, 'last_parturition_certainty', NULL, NULL, 'uncertain by 5-10 years', 'uncertain by 5-10 years', 3, 'yes', NULL, NULL, NULL, NULL),
+(9440, 'last_parturition_certainty', NULL, NULL, 'uncertain by more than 10 years', 'uncertain by more than 10 years', 4, 'yes', NULL, NULL, NULL, NULL),
+(9441, 'ev_mast_disease_site_list', NULL, NULL, 'breast', 'breast', 3, 'yes', NULL, NULL, NULL, NULL),
+(9442, 'ev_mast_disease_site_list', NULL, NULL, 'all solid tumours', 'all solid tumours', 3, 'yes', NULL, NULL, NULL, NULL),
+(9443, 'ev_mast_disease_site_list', NULL, NULL, 'all', 'all', 3, 'yes', NULL, NULL, NULL, NULL),
+(9444, 'ev_mast_event_type_list', NULL, NULL, 'pathology', 'pathology', 3, 'yes', NULL, NULL, NULL, NULL),
+(9445, 'ev_mast_event_type_list', NULL, NULL, 'follow up', 'follow up', 3, 'yes', NULL, NULL, NULL, NULL),
+(9446, 'ev_mast_event_type_list', NULL, NULL, 'followup', 'follow up', 3, 'yes', NULL, NULL, NULL, NULL),
+(9447, 'ev_mast_event_type_list', NULL, NULL, 'presentation', 'presentation', 3, 'yes', NULL, NULL, NULL, NULL),
+(9448, 'ev_mast_event_type_list', NULL, NULL, 'base', 'base', 3, 'yes', NULL, NULL, NULL, NULL),
+(9449, 'ev_mast_event_type_list', NULL, NULL, 'adverse_event', 'adverse_event', 3, 'yes', NULL, NULL, NULL, NULL),
+(9450, 'ev_mast_event_type_list', NULL, NULL, 'mammogram', 'mammogram', 3, 'yes', NULL, NULL, NULL, NULL),
+(9451, 'ev_mast_event_type_list', NULL, NULL, 'research', 'research', 3, 'yes', NULL, NULL, NULL, NULL),
+(9587, 'language_preferred', NULL, NULL, 'english', 'clin_english', 1, 'yes', NULL, NULL, NULL, NULL),
+(9588, 'language_preferred', NULL, NULL, 'french', 'clin_french', 2, 'yes', NULL, NULL, NULL, NULL),
+(9589, 'language_preferred', NULL, NULL, 'other', 'other', 4, 'yes', NULL, NULL, NULL, NULL),
+(9590, 'use_of_tissue', NULL, NULL, 'yes', 'yes', 2, 'yes', NULL, NULL, NULL, NULL),
+(9591, 'use_of_tissue', NULL, NULL, 'no', 'no', 1, 'yes', NULL, NULL, NULL, NULL),
+(9592, 'access_medical_information', NULL, NULL, 'yes', 'yes', 2, 'yes', NULL, NULL, NULL, NULL),
+(9593, 'access_medical_information', NULL, NULL, 'no', 'no', 1, 'yes', NULL, NULL, NULL, NULL),
+(9594, 'contact_future_research', NULL, NULL, 'yes', 'yes', 2, 'yes', NULL, NULL, NULL, NULL),
+(9595, 'contact_future_research', NULL, NULL, 'no', 'no', 1, 'yes', NULL, NULL, NULL, NULL),
+(9596, 'consent_status', NULL, NULL, 'sent', 'sent', 1, 'yes', NULL, NULL, NULL, NULL),
+(9597, 'consent_status', NULL, NULL, 'denied', 'denied', 4, 'yes', NULL, NULL, NULL, NULL),
+(9598, 'consent_status', NULL, NULL, 'obtained', 'obtained', 2, 'yes', NULL, NULL, NULL, NULL),
+(9599, 'consent_status', NULL, NULL, 'withdrawn', 'withdrawn', 5, 'yes', NULL, NULL, NULL, NULL),
+(9600, 'report_type', NULL, NULL, 'fna', 'fna', 1, 'yes', NULL, NULL, NULL, NULL),
+(9601, 'report_type', NULL, NULL, 'tru-cut/core biopsy', 'tru-cut/core biopsy', 2, 'yes', NULL, NULL, NULL, NULL),
+(9602, 'report_type', NULL, NULL, 'open biopsy', 'open biopsy', 3, 'yes', NULL, NULL, NULL, NULL),
+(9603, 'report_type', NULL, NULL, 'excisional', 'excisional', 4, 'yes', NULL, NULL, NULL, NULL),
+(9604, 'resect_margins', NULL, NULL, 'negative', 'negative', 1, 'yes', NULL, NULL, NULL, NULL),
+(9605, 'resect_margins', NULL, NULL, 'positive', 'positive', 2, 'yes', NULL, NULL, NULL, NULL),
+(9606, 'resect_margins', NULL, NULL, 'unknown', 'unknown', 3, 'yes', NULL, NULL, NULL, NULL),
+(9607, 'resect_margins', NULL, NULL, 'not applicable', 'not applicable', 4, 'yes', NULL, NULL, NULL, NULL),
+(9608, 'frozen_section', NULL, NULL, 'suspicious nd', 'suspicious nd', 3, 'yes', NULL, NULL, NULL, NULL),
+(9609, 'frozen_section', NULL, NULL, 'atypical nd', 'atypical nd', 3, 'yes', NULL, NULL, NULL, NULL),
+(9610, 'frozen_section', NULL, NULL, 'benign lesion', 'benign lesion', 5, 'yes', NULL, NULL, NULL, NULL),
+(9611, 'frozen_section', NULL, NULL, 'not done', 'not done', 6, 'yes', NULL, NULL, NULL, NULL),
+(9612, 'frozen_section', NULL, NULL, 'negative', 'negative', 1, 'yes', NULL, NULL, NULL, NULL),
+(9613, 'frozen_section', NULL, NULL, 'positive', 'positive', 2, 'yes', NULL, NULL, NULL, NULL),
+(9614, 'tumour_type', NULL, NULL, 'ductal', 'ductal', 5, 'yes', NULL, NULL, NULL, NULL),
+(9615, 'tumour_type', NULL, NULL, 'lobular', 'lobular', 9, 'yes', NULL, NULL, NULL, NULL),
+(9616, 'tumour_type', NULL, NULL, 'duct-lob mixed', 'duct-lob mixed', 6, 'yes', NULL, NULL, NULL, NULL),
+(9617, 'tumour_type', NULL, NULL, 'tubular', 'tubular', 15, 'yes', NULL, NULL, NULL, NULL),
+(9618, 'tumour_type', NULL, NULL, 'mucinous', 'mucinous', 12, 'yes', NULL, NULL, NULL, NULL),
+(9619, 'tumour_type', NULL, NULL, 'medullary', 'medullary', 11, 'yes', NULL, NULL, NULL, NULL),
+(9620, 'tumour_type', NULL, NULL, 'atypical medullary', 'atypical medullary', 2, 'yes', NULL, NULL, NULL, NULL),
+(9621, 'tumour_type', NULL, NULL, 'papillary', 'papillary', 14, 'yes', NULL, NULL, NULL, NULL),
+(9622, 'tumour_type', NULL, NULL, 'ductal-special mixed', 'ductal-special mixed', 7, 'yes', NULL, NULL, NULL, NULL),
+(9623, 'tumour_type', NULL, NULL, 'lobular special mixed', 'lobular special mixed', 10, 'yes', NULL, NULL, NULL, NULL),
+(9624, 'tumour_type', NULL, NULL, 'other invasive', 'other invasive', 13, 'yes', NULL, NULL, NULL, NULL),
+(9625, 'tumour_type', NULL, NULL, 'dcis', 'dcis', 4, 'yes', NULL, NULL, NULL, NULL),
+(9626, 'tumour_type', NULL, NULL, 'lcis', 'lcis', 8, 'yes', NULL, NULL, NULL, NULL),
+(9627, 'tumour_type', NULL, NULL, 'adh', 'adh', 1, 'yes', NULL, NULL, NULL, NULL),
+(9628, 'tumour_type', NULL, NULL, 'no tumour', 'no tumour', 13, 'yes', NULL, NULL, NULL, NULL),
+(9629, 'tumour_type', NULL, NULL, 'benign', 'benign', 3, 'yes', NULL, NULL, NULL, NULL),
+(9630, 'grade', NULL, '', '1', '1', 1, 'yes', NULL, NULL, NULL, NULL),
+(9631, 'grade', NULL, NULL, '2', '2', 2, 'yes', NULL, NULL, NULL, NULL),
+(9632, 'grade', NULL, NULL, '3', '3', 3, 'yes', NULL, NULL, NULL, NULL),
+(9633, 'grade', NULL, NULL, '9', '9', 9, 'yes', NULL, NULL, NULL, NULL),
+(9634, 'grade', NULL, NULL, '4', '4', 4, 'yes', NULL, NULL, NULL, NULL),
+(9635, 'her2_method', NULL, NULL, 'ihc', 'ihc', 1, 'yes', NULL, NULL, NULL, NULL),
+(9636, 'her2_method', NULL, NULL, 'fish', 'fish', 2, 'yes', NULL, NULL, NULL, NULL),
+(9637, 'her2_method', NULL, NULL, 'cish', 'cish', 3, 'yes', NULL, NULL, NULL, NULL),
+(9638, 'her2_grade', NULL, NULL, '0', '0', 1, 'yes', NULL, NULL, NULL, NULL),
+(9639, 'her2_grade', NULL, NULL, '+1', '+1', 2, 'yes', NULL, NULL, NULL, NULL),
+(9640, 'her2_grade', NULL, NULL, '+2', '+2', 3, 'yes', NULL, NULL, NULL, NULL),
+(9641, 'her2_grade', NULL, NULL, '+3', '+3', 4, 'yes', NULL, NULL, NULL, NULL),
+(9642, 'vascular_lymph_invasion', NULL, NULL, 'negative', 'negative', 1, 'yes', NULL, NULL, NULL, NULL),
+(9643, 'vascular_lymph_invasion', NULL, NULL, 'positive', 'positive', 2, 'yes', NULL, NULL, NULL, NULL),
+(9644, 'vascular_lymph_invasion', NULL, NULL, 'not applicable', 'not applicable', 3, 'yes', NULL, NULL, NULL, NULL),
+(9645, 'nipple_skin', NULL, NULL, 'no', 'no', 1, 'yes', NULL, NULL, NULL, NULL),
+(9646, 'nipple_skin', NULL, NULL, 'skin involved', 'skin involved', 2, 'yes', NULL, NULL, NULL, NULL),
+(9647, 'nipple_skin', NULL, NULL, 'nipple involved', 'nipple involved', 3, 'yes', NULL, NULL, NULL, NULL),
+(9648, 'nipple_skin', NULL, NULL, 'pagets nipple', 'pagets nipple', 2, 'yes', NULL, NULL, NULL, NULL),
+(9649, 'nipple_skin', NULL, NULL, 'nipple insitu', 'nipple insitu', 5, 'yes', NULL, NULL, NULL, NULL),
+(9650, 'nipple_skin', NULL, NULL, 'not applicable', 'not applicable', 6, 'yes', NULL, NULL, NULL, NULL),
+(9651, 'level_nodal_involvement', NULL, NULL, '0', '0', 1, 'yes', NULL, NULL, NULL, NULL),
+(9652, 'level_nodal_involvement', NULL, NULL, '1', '1', 2, 'yes', NULL, NULL, NULL, NULL),
+(9653, 'level_nodal_involvement', NULL, NULL, '2', '2', 3, 'yes', NULL, NULL, NULL, NULL),
+(9654, 'level_nodal_involvement', NULL, NULL, '3', '3', 4, 'yes', NULL, NULL, NULL, NULL),
+(9655, 'extra_nodal_invasion', NULL, NULL, 'positive', 'positive', 2, 'yes', NULL, NULL, NULL, NULL),
+(9656, 'extra_nodal_invasion', NULL, NULL, 'negative', 'negative', 1, 'yes', NULL, NULL, NULL, NULL),
+(9657, 'extra_nodal_invasion', NULL, NULL, 'not applicable', 'not applicable', 3, 'yes', NULL, NULL, NULL, NULL),
+(11093, 'review_status', NULL, NULL, 'in progress', 'in progress', 1, 'yes', NULL, NULL, NULL, NULL),
+(11094, 'review_status', NULL, NULL, 'completed', 'completed', 2, 'yes', NULL, NULL, NULL, NULL),
+(11095, 'review_status', NULL, NULL, 'stopped', 'stopped', 3, 'yes', NULL, NULL, NULL, NULL),
+(11096, 'nq01_values', NULL, NULL, '+/+', '+/+', 1, 'yes', NULL, NULL, NULL, NULL),
+(11097, 'nq01_values', NULL, NULL, '+/-', '+/-', 2, 'yes', NULL, NULL, NULL, NULL),
+(11098, 'nq01_values', NULL, NULL, '-/-', '-/-', 3, 'yes', NULL, NULL, NULL, NULL),
+(11099, 'master_review_type ', NULL, NULL, 'breast cancer review', 'breast cancer review', 1, 'yes', NULL, NULL, NULL, NULL),
+(11100, 'master_review_type', NULL, NULL, 'blood cell review', 'blood cell review', 2, 'yes', NULL, NULL, NULL, NULL),
+(11562, 'storage_type', NULL, NULL, 'room', 'room', 10, 'yes', NULL, NULL, NULL, NULL),
+(11563, 'storage_type', NULL, NULL, 'cupboard', 'cupboard', 50, 'yes', NULL, NULL, NULL, NULL),
+(11564, 'storage_type', NULL, NULL, 'nitrogen locator', 'nitrogen locator', 51, 'yes', NULL, NULL, NULL, NULL),
+(11565, 'storage_type', NULL, NULL, 'incubator', 'incubator', 52, 'yes', NULL, NULL, NULL, NULL),
+(11566, 'storage_type', NULL, NULL, 'fridge', 'fridge', 53, 'yes', NULL, NULL, NULL, NULL),
+(11567, 'storage_type', NULL, NULL, 'freezer', 'freezer', 54, 'yes', NULL, NULL, NULL, NULL),
+(11568, 'storage_type', NULL, NULL, 'shelf', 'shelf', 100, 'yes', NULL, NULL, NULL, NULL),
+(11569, 'storage_type', NULL, NULL, 'box', 'box', 150, 'yes', NULL, NULL, NULL, NULL),
+(11570, 'storage_type', NULL, NULL, 'box81 1A-9I', 'box81 1A-9I', 151, 'yes', NULL, NULL, NULL, NULL),
+(11571, 'storage_type', NULL, NULL, 'box81', 'box81', 152, 'yes', NULL, NULL, NULL, NULL),
+(11572, 'storage_type', NULL, NULL, 'rack10', 'rack10', 207, 'yes', NULL, NULL, NULL, NULL),
+(11573, 'storage_type', NULL, NULL, 'rack16', 'rack16', 208, 'yes', NULL, NULL, NULL, NULL),
+(11574, 'storage_type', NULL, NULL, 'rack24', 'rack24', 209, 'yes', NULL, NULL, NULL, NULL),
+(11575, 'storage_type', NULL, NULL, 'rack11', 'rack11', 210, 'yes', NULL, NULL, NULL, NULL),
+(11576, 'storage_type', NULL, NULL, 'rack9', 'rack9', 211, 'yes', NULL, NULL, NULL, NULL),
+(11577, 'storage_type', NULL, NULL, 'box25', 'box25', 153, 'yes', NULL, NULL, NULL, NULL),
+(11578, 'storage_type', NULL, NULL, 'box100 1A-20E', 'box100 1A-20E', 154, 'yes', NULL, NULL, NULL, NULL),
+(11579, 'storage_type', NULL, NULL, 'TMA-blc 23X15', 'TMA-blc 23X15', 300, 'yes', NULL, NULL, NULL, NULL),
+(11580, 'storage_type', NULL, NULL, 'TMA-blc 29X21', 'TMA-blc 29X21', 301, 'yes', NULL, NULL, NULL, NULL),
+(11581, 'storage_coordinate_type', NULL, NULL, 'list', 'list', 1, 'yes', NULL, NULL, NULL, NULL),
+(11582, 'storage_coordinate_type', NULL, NULL, 'alphabetical', 'alphabetical', 2, 'yes', NULL, NULL, NULL, NULL),
+(11583, 'storage_coordinate_type', NULL, NULL, 'integer', 'integer', 3, 'yes', NULL, NULL, NULL, NULL),
+(11584, 'storage_coordinate_type', NULL, NULL, 'n/a', 'n/a', 4, 'yes', NULL, NULL, NULL, NULL),
+(11585, 'storage_coordinate_title', NULL, NULL, 'shelf', 'shelf', 1, 'yes', NULL, NULL, NULL, NULL),
+(11586, 'storage_coordinate_title', NULL, NULL, 'row', 'row', 2, 'yes', NULL, NULL, NULL, NULL),
+(11587, 'storage_coordinate_title', NULL, NULL, 'column', 'column', 3, 'yes', NULL, NULL, NULL, NULL),
+(11588, 'storage_coordinate_title', NULL, NULL, 'position', 'position', 4, 'yes', NULL, NULL, NULL, NULL),
+(11589, 'storage_coordinate_title', NULL, NULL, 'n/a', 'n/a', 5, 'yes', NULL, NULL, NULL, NULL),
+(11590, 'qc_misc_identifier_for_bk_part_search', NULL, NULL, 'breast bank no lab', 'breast', 1, 'yes', NULL, NULL, NULL, NULL),
+(11591, 'qc_misc_identifier_for_bk_part_search', NULL, NULL, 'ovary bank no lab', 'ovary', 2, 'yes', NULL, NULL, NULL, NULL),
+(11592, 'qc_misc_identifier_for_bk_part_search', NULL, NULL, 'prostate bank no lab', 'prostate', 3, 'yes', NULL, NULL, NULL, NULL),
+(11728, 'collection_property', NULL, NULL, 'participant collection', 'participant collection', 1, 'yes', NULL, NULL, NULL, NULL),
+(11729, 'collection_property', NULL, NULL, 'independent collection', 'independent collection', 2, 'yes', NULL, NULL, NULL, NULL),
+(11730, 'specimen_supplier_dept', NULL, NULL, 'clinic', 'clinic', 1, 'yes', NULL, NULL, NULL, NULL),
+(11731, 'specimen_supplier_dept', NULL, NULL, 'pathology dept', 'pathology dept', 2, 'yes', NULL, NULL, NULL, NULL),
+(11732, 'specimen_supplier_dept', NULL, NULL, 'operating room', 'operating room', 3, 'yes', NULL, NULL, NULL, NULL),
+(11733, 'specimen_supplier_dept', NULL, NULL, 'other', 'other', 40, 'yes', NULL, NULL, NULL, NULL),
+(11734, 'sample_volume_unit', NULL, NULL, 'ml', 'ml', 1, 'yes', NULL, NULL, NULL, NULL),
+(11735, 'sample_volume_unit', NULL, NULL, 'ul', 'ul', 2, 'yes', NULL, NULL, NULL, NULL),
+(11736, 'blood_type', NULL, NULL, 'unknown', 'unknown', 1, 'yes', NULL, NULL, NULL, NULL),
+(11737, 'blood_type', NULL, NULL, 'EDTA', 'EDTA', 2, 'yes', NULL, NULL, NULL, NULL),
+(11738, 'blood_type', NULL, NULL, 'gel CSA', 'gel CSA', 3, 'yes', NULL, NULL, NULL, NULL),
+(11739, 'blood_type', NULL, NULL, 'heparine', 'heparine', 2, 'yes', NULL, NULL, NULL, NULL),
+(11740, 'blood_type', NULL, NULL, 'paxgene', 'paxgene', 2, 'yes', NULL, NULL, NULL, NULL),
+(11741, 'blood_type', NULL, NULL, 'ZCSA', 'ZCSA', 4, 'yes', NULL, NULL, NULL, NULL),
+(11742, 'tissue_source', NULL, NULL, 'brain', 'brain', 0, 'yes', NULL, NULL, NULL, NULL),
+(11743, 'tissue_source', NULL, NULL, 'breast', 'breast', 1, 'yes', NULL, NULL, NULL, NULL),
+(11744, 'tissue_source', NULL, NULL, 'lung', 'lung', 2, 'yes', NULL, NULL, NULL, NULL),
+(11745, 'tissue_source', NULL, NULL, 'intestine', 'intestine', 3, 'yes', NULL, NULL, NULL, NULL),
+(11746, 'tissue_source', NULL, NULL, 'ovary', 'ovary', 4, 'yes', NULL, NULL, NULL, NULL),
+(11747, 'tissue_source', NULL, NULL, 'prostate', 'prostate', 5, 'yes', NULL, NULL, NULL, NULL),
+(11748, 'tissue_source', NULL, NULL, 'skin', 'skin', 6, 'yes', NULL, NULL, NULL, NULL),
+(11749, 'tissue_source', NULL, NULL, 'unknown', 'unknown', 7, 'yes', NULL, NULL, NULL, NULL),
+(11750, 'tissue_nature', NULL, NULL, 'benign', 'benign', 1, 'yes', NULL, NULL, NULL, NULL),
+(11751, 'tissue_nature', NULL, NULL, 'malignant', 'malignant', 2, 'yes', NULL, NULL, NULL, NULL),
+(11752, 'tissue_nature', NULL, NULL, 'metastatic', 'metastatic', 3, 'yes', NULL, NULL, NULL, NULL),
+(11753, 'tissue_nature', NULL, NULL, 'normal', 'normal', 4, 'yes', NULL, NULL, NULL, NULL),
+(11754, 'tissue_nature', NULL, NULL, 'unknown', 'unknown', 5, 'yes', NULL, NULL, NULL, NULL),
+(11755, 'tissue_laterality', NULL, NULL, 'left', 'left', 1, 'yes', NULL, NULL, NULL, NULL),
+(11756, 'tissue_laterality', NULL, NULL, 'right', 'right', 2, 'yes', NULL, NULL, NULL, NULL),
+(11757, 'tissue_laterality', NULL, NULL, 'unknown', 'unknown', 3, 'yes', NULL, NULL, NULL, NULL),
+(11758, 'urine_aspect', NULL, NULL, 'other', 'other', 3, 'yes', NULL, NULL, NULL, NULL),
+(11759, 'urine_aspect', NULL, NULL, 'clear', 'clear', 2, 'yes', NULL, NULL, NULL, NULL),
+(11760, 'urine_aspect', NULL, NULL, 'turbidity', 'turbidity', 2, 'yes', NULL, NULL, NULL, NULL),
+(11761, 'cell_culture_status', NULL, NULL, 'unknown', 'unknown', 1, 'yes', NULL, NULL, NULL, NULL),
+(11762, 'cell_culture_status', NULL, NULL, 'in culture', 'in culture', 2, 'yes', NULL, NULL, NULL, NULL),
+(11763, 'cell_culture_status', NULL, NULL, 'stopped', 'stopped', 3, 'yes', NULL, NULL, NULL, NULL),
+(11764, 'cell_culture_status_reason', NULL, NULL, 'unknown', 'unknown', 1, 'yes', NULL, NULL, NULL, NULL),
+(11765, 'cell_culture_status_reason', NULL, NULL, 'contaminated', 'contaminated', 2, 'yes', NULL, NULL, NULL, NULL),
+(11766, 'cell_culture_status_reason', NULL, NULL, 'cell dead', 'cell dead', 3, 'yes', NULL, NULL, NULL, NULL),
+(11767, 'cell_culture_status_reason', NULL, NULL, 'used and/or stored', 'used and/or stored', 4, 'yes', NULL, NULL, NULL, NULL),
+(11768, 'cell_culture_status_reason', NULL, NULL, 'other', 'other', 5, 'yes', NULL, NULL, NULL, NULL),
+(11769, 'aliquot_status', NULL, NULL, 'available', 'available', 1, 'yes', NULL, NULL, NULL, NULL),
+(11770, 'aliquot_status', NULL, NULL, 'not available', 'not available', 2, 'yes', NULL, NULL, NULL, NULL),
+(11771, 'aliquot_status', NULL, NULL, 'unknown', 'unknown', 3, 'yes', NULL, NULL, NULL, NULL),
+(11772, 'aliquot_status_reason', NULL, NULL, 'contamined', 'contamined', 1, 'yes', NULL, NULL, NULL, NULL),
+(11773, 'aliquot_status_reason', NULL, NULL, 'empty', 'empty', 2, 'yes', NULL, NULL, NULL, NULL),
+(11774, 'aliquot_status_reason', NULL, NULL, 'lost', 'lost', 3, 'yes', NULL, NULL, NULL, NULL),
+(11775, 'aliquot_status_reason', NULL, NULL, 'on loan', 'on loan', 4, 'yes', NULL, NULL, NULL, NULL),
+(11776, 'aliquot_status_reason', NULL, NULL, 'reserved for study', 'reserved for study', 5, 'yes', NULL, NULL, NULL, NULL),
+(11777, 'aliquot_status_reason', NULL, NULL, 'reserved for order', 'reserved for order', 6, 'yes', NULL, NULL, NULL, NULL),
+(11778, 'aliquot_status_reason', NULL, NULL, 'shipped', 'shipped', 7, 'yes', NULL, NULL, NULL, NULL),
+(11779, 'aliquot_status_reason', NULL, NULL, 'used', 'used', 8, 'yes', NULL, NULL, NULL, NULL),
+(11780, 'aliquot_status_reason', NULL, NULL, 'other', 'other', 9, 'yes', NULL, NULL, NULL, NULL),
+(11781, 'temperature_unit_code', NULL, NULL, 'celsius', 'celsius', 1, 'yes', NULL, NULL, NULL, NULL),
+(11782, 'temperature_unit_code', NULL, NULL, 'fahrenheit', 'fahrenheit', 2, 'yes', NULL, NULL, NULL, NULL),
+(11783, 'aliquot_volume_unit', NULL, NULL, 'ml', 'ml', 1, 'yes', NULL, NULL, NULL, NULL),
+(11784, 'aliquot_volume_unit', NULL, NULL, '', '', 2, 'yes', NULL, NULL, NULL, NULL),
+(11785, 'aliquot_volume_unit', NULL, NULL, 'ul', 'ul', 3, 'yes', NULL, NULL, NULL, NULL),
+(11786, 'aliquot_use_definition', NULL, NULL, 'sample derivative creation', 'sample derivative creation', -1, 'yes', NULL, NULL, NULL, NULL),
+(11787, 'aliquot_use_definition', NULL, NULL, 'realiquoted to', 'realiquoted to', -1, 'yes', NULL, NULL, NULL, NULL),
+(11788, 'aliquot_use_definition', NULL, NULL, 'aliquot shipment', 'aliquot shipment', -1, 'yes', NULL, NULL, NULL, NULL),
+(11789, 'aliquot_use_definition', NULL, NULL, 'quality control', 'quality control', -1, 'yes', NULL, NULL, NULL, NULL),
+(11790, 'aliquot_use_definition', NULL, NULL, 'internal use', 'internal use', 1, 'yes', NULL, NULL, NULL, NULL),
+(11791, 'block_type', NULL, NULL, 'OCT', 'oct solution', 2, 'yes', NULL, NULL, NULL, NULL),
+(11792, 'block_type', NULL, NULL, 'paraffin', 'paraffin', 3, 'yes', NULL, NULL, NULL, NULL),
+(11793, 'block_type', NULL, NULL, 'frozen', 'frozen', 1, 'yes', NULL, NULL, NULL, NULL),
+(11794, 'concentration_unit', NULL, NULL, 'ug/ul', 'ug/ul', 1, 'yes', NULL, NULL, NULL, NULL),
+(11795, 'concentration_unit', NULL, NULL, 'ng/ul', 'ng/ul', 2, 'yes', NULL, NULL, NULL, NULL),
+(11796, 'concentration_unit', NULL, NULL, 'pg/ul', 'pg/ul', 3, 'yes', NULL, NULL, NULL, NULL),
+(11797, 'cell_count_unit', NULL, NULL, '10e6', '10e6', 1, 'yes', NULL, NULL, NULL, NULL),
+(11798, 'cell_count_unit', NULL, NULL, '10e7', '10e7', 2, 'yes', NULL, NULL, NULL, NULL),
+(11799, 'cell_count_unit', NULL, NULL, '10e8', '10e8', 2, 'yes', NULL, NULL, NULL, NULL),
+(11800, 'cell_concentration_unit', NULL, NULL, 'million(s)/ml', 'million(s)/ml', 4, 'yes', NULL, NULL, NULL, NULL),
+(11801, 'quality_control_type', NULL, NULL, 'agarose gel', 'agarose gel', 1, 'yes', NULL, NULL, NULL, NULL),
+(11802, 'quality_control_type', NULL, NULL, 'bioanalyzer', 'bioanalyzer', 2, 'yes', NULL, NULL, NULL, NULL),
+(11803, 'quality_control_type', NULL, NULL, 'spectrophotometer', 'spectrophotometer', 4, 'yes', NULL, NULL, NULL, NULL),
+(11804, 'quality_control_type', NULL, NULL, 'pcr', 'pcr', 3, 'yes', NULL, NULL, NULL, NULL),
+(11805, 'quality_control_unit', NULL, NULL, '260/230', '260/230', 1, 'yes', NULL, NULL, NULL, NULL),
+(11806, 'quality_control_unit', NULL, NULL, '260/268', '260/268', 2, 'yes', NULL, NULL, NULL, NULL),
+(11807, 'quality_control_unit', NULL, NULL, '260/280', '260/280', 3, 'yes', NULL, NULL, NULL, NULL),
+(11808, 'quality_control_unit', NULL, NULL, '28/18', '28/18', 4, 'yes', NULL, NULL, NULL, NULL),
+(11809, 'quality_control_unit', NULL, NULL, 'RIN', 'RIN', 5, 'yes', NULL, NULL, NULL, NULL),
+(11810, 'quality_control_unit', NULL, NULL, 'n/a', 'n/a', 6, 'yes', NULL, NULL, NULL, NULL),
+(11811, 'quality_control_conclusion', NULL, NULL, 'poor', 'poor', 2, 'yes', NULL, NULL, NULL, NULL),
+(11812, 'quality_control_conclusion', NULL, NULL, 'acceptable', 'acceptable', 4, 'yes', NULL, NULL, NULL, NULL),
+(11813, 'quality_control_conclusion', NULL, NULL, 'good', 'good', 6, 'yes', NULL, NULL, NULL, NULL),
+(11814, 'quality_control_conclusion', NULL, NULL, 'out of range', 'out of range', 8, 'yes', NULL, NULL, NULL, NULL),
+(11815, 'quality_control_conclusion', NULL, NULL, 'degraded', 'degraded', 0, 'yes', NULL, NULL, NULL, NULL),
+(11816, 'quality_control_conclusion', NULL, NULL, 'partially degraded', 'partially degraded', 1, 'yes', NULL, NULL, NULL, NULL),
+(11817, 'quality_control_conclusion', NULL, NULL, 'very good', 'very good', 7, 'yes', NULL, NULL, NULL, NULL),
+(11818, 'sample_type', NULL, NULL, 'ascite', 'ascite', 1, 'yes', NULL, NULL, NULL, NULL),
+(11819, 'sample_type', NULL, NULL, 'blood', 'blood', 2, 'yes', NULL, NULL, NULL, NULL),
+(11820, 'sample_type', NULL, NULL, 'tissue', 'tissue', 3, 'yes', NULL, NULL, NULL, NULL),
+(11821, 'sample_type', NULL, NULL, 'urine', 'urine', 4, 'yes', NULL, NULL, NULL, NULL),
+(11822, 'sample_type', NULL, NULL, 'ascite cell', 'ascite cell', 5, 'yes', NULL, NULL, NULL, NULL),
+(11823, 'sample_type', NULL, NULL, 'ascite supernatant', 'ascite supernatant', 6, 'yes', NULL, NULL, NULL, NULL),
+(11824, 'sample_type', NULL, NULL, 'blood cell', 'blood cell', 7, 'yes', NULL, NULL, NULL, NULL),
+(11825, 'sample_type', NULL, NULL, 'b cell', 'b cell', 7, 'yes', NULL, NULL, NULL, NULL),
+(11826, 'sample_type', NULL, NULL, 'pbmc', 'pbmc', 8, 'yes', NULL, NULL, NULL, NULL),
+(11827, 'sample_type', NULL, NULL, 'plasma', 'plasma', 9, 'yes', NULL, NULL, NULL, NULL),
+(11828, 'sample_type', NULL, NULL, 'serum', 'serum', 10, 'yes', NULL, NULL, NULL, NULL),
+(11829, 'sample_type', NULL, NULL, 'cell culture', 'cell culture', 11, 'yes', NULL, NULL, NULL, NULL),
+(11830, 'sample_type', NULL, NULL, 'dna', 'dna', 12, 'yes', NULL, NULL, NULL, NULL),
+(11831, 'sample_type', NULL, NULL, 'rna', 'rna', 13, 'yes', NULL, NULL, NULL, NULL),
+(11832, 'sample_type', NULL, NULL, 'concentrated urine', 'concentrated urine', 14, 'yes', NULL, NULL, NULL, NULL),
+(11833, 'sample_type', NULL, NULL, 'centrifuged urine', 'centrifuged urine', 15, 'yes', NULL, NULL, NULL, NULL),
+(11834, 'sample_type', NULL, NULL, 'amplified dna', 'amplified dna', 16, 'yes', NULL, NULL, NULL, NULL),
+(11835, 'sample_type', NULL, NULL, 'amplified rna', 'amplified rna', 17, 'yes', NULL, NULL, NULL, NULL),
+(11836, 'sample_type', NULL, NULL, 'peritoneal wash', 'peritoneal wash', 18, 'yes', NULL, NULL, NULL, NULL),
+(11837, 'sample_type', NULL, NULL, 'cystic fluid', 'cystic fluid', 19, 'yes', NULL, NULL, NULL, NULL),
+(11838, 'sample_type', NULL, NULL, 'other fluid', 'other fluid', 20, 'yes', NULL, NULL, NULL, NULL),
+(11839, 'sample_type', NULL, NULL, 'tissue lysate', 'tissue lysate', 21, 'yes', NULL, NULL, NULL, NULL),
+(11840, 'sample_type', NULL, NULL, 'tissue suspension', 'tissue suspension', 22, 'yes', NULL, NULL, NULL, NULL),
+(11841, 'sample_type', NULL, NULL, 'peritoneal wash cell', 'peritoneal wash cell', 23, 'yes', NULL, NULL, NULL, NULL),
+(11842, 'sample_type', NULL, NULL, 'peritoneal wash supernatant', 'peritoneal wash supernatant', 24, 'yes', NULL, NULL, NULL, NULL),
+(11843, 'sample_type', NULL, NULL, 'cystic fluid cell', 'cystic fluid cell', 25, 'yes', NULL, NULL, NULL, NULL),
+(11844, 'sample_type', NULL, NULL, 'cystic fluid supernatant', 'cystic fluid supernatant', 26, 'yes', NULL, NULL, NULL, NULL),
+(11845, 'sample_type', NULL, NULL, 'other fluid cell', 'other fluid cell', 27, 'yes', NULL, NULL, NULL, NULL),
+(11846, 'sample_type', NULL, NULL, 'other fluid supernatant', 'other fluid supernatant', 28, 'yes', NULL, NULL, NULL, NULL),
+(11847, 'sample_category', NULL, NULL, 'specimen', 'specimen', 1, 'yes', NULL, NULL, NULL, NULL),
+(11848, 'sample_category', NULL, NULL, 'derivative', 'derivative', 2, 'yes', NULL, NULL, NULL, NULL),
+(11849, 'aliquot_type', NULL, NULL, 'block', 'block', 1, 'yes', NULL, NULL, NULL, NULL),
+(11850, 'aliquot_type', NULL, NULL, 'tube', 'tube', 2, 'yes', NULL, NULL, NULL, NULL),
+(11852, 'aliquot_type', NULL, NULL, 'cell gel matrix', 'cell gel matrix', 3, 'yes', NULL, NULL, NULL, NULL),
+(11855, 'aliquot_type', NULL, NULL, 'bag', 'bag', 4, 'yes', NULL, NULL, NULL, NULL),
+(11856, 'aliquot_type', NULL, NULL, 'whatman paper', 'whatman paper', 5, 'yes', NULL, NULL, NULL, NULL),
+(11859, 'realiquoting_data', NULL, NULL, 'parent', 'parent', 1, 'yes', NULL, NULL, NULL, NULL),
+(11860, 'realiquoting_data', NULL, NULL, 'n/a', 'n/a', 2, 'yes', NULL, NULL, NULL, NULL),
+(11861, 'realiquoting_data', NULL, NULL, 'child', 'child', 2, 'yes', NULL, NULL, NULL, NULL),
+(11862, 'realiquoting_data', NULL, NULL, 'parent/child', 'parent/child', 2, 'yes', NULL, NULL, NULL, NULL),
+(11863, 'language_preferred', NULL, NULL, 'italian', 'clin_italian', 3, 'yes', NULL, NULL, NULL, NULL),
+(11864, 'phone_type', NULL, NULL, 'pager', 'pager', 6, 'yes', NULL, NULL, NULL, NULL),
+(11865, 'aliquot_type', NULL, NULL, 'slide', 'slide', 3, 'yes', NULL, NULL, NULL, NULL),
+(11866, 'aliquot_type', NULL, NULL, 'core', 'core', 4, 'yes', NULL, NULL, NULL, NULL);
+
+ALTER TABLE `menus` ADD COLUMN `use_summary` VARCHAR(255) collate utf8_unicode_ci default NULL AFTER `use_param`;
+UPDATE `menus` SET use_summary = 'Clinicalannotation.Participant::summary' WHERE id = 'clin_CAN_6';
+UPDATE `menus` SET use_summary = 'Bank::summary' WHERE id = 'clin_CAN_74' OR id = 'clin_CAN_86' OR id = 'clin_CAN_96';
+UPDATE `menus` SET use_summary = 'Structure::summary' WHERE id = 'clin_CAN_75' OR id = 'clin_CAN_76';
+UPDATE `menus` SET use_summary = 'Group::summary' WHERE id = 'clin_CAN_87' OR id = 'clin_CAN_88' OR id = 'clin_CAN_89'
+  OR id = 'clin_CAN_98';
+UPDATE `menus` SET use_summary = 'User::summary' WHERE id = 'clin_CAN_90' OR id = 'clin_CAN_91' OR id = 'clin_CAN_94'
+  OR id = 'clin_CAN_95' OR id = 'clin_CAN_99';
+
 CREATE TABLE `structure_permissible_values` (
   `id` int(11) NOT NULL auto_increment,
   `value` varchar(255) collate utf8_unicode_ci NOT NULL,
@@ -982,7 +1935,7 @@ CREATE TABLE `structure_permissible_values` (
 
 CREATE TABLE `structure_value_domains` (
   `id` int(11) NOT NULL auto_increment,
-  `domain_name` varchar(255) collate utf8_unicode_ci NOT NULL,
+  `domain_name` varchar(255) collate utf8_unicode_ci default NULL,
   `override` set('extend','locked','open') collate utf8_unicode_ci NOT NULL default 'open',
   `category` varchar(255) collate utf8_unicode_ci NOT NULL,
   PRIMARY KEY  (`id`)
@@ -999,7 +1952,9 @@ CREATE TABLE `structure_value_domains_permissible_values` (
 
 UPDATE `structures` s, `structure_formats` m SET m.`structure_id` = s.`id` WHERE m.`structure_old_id` = s.`old_id`;
 UPDATE `structure_fields` f, `structure_formats` m SET m.`structure_field_id` = f.`id` WHERE m.`structure_field_old_id` = f.`old_id`;
-  
+
+ALTER TABLE `users` CHANGE COLUMN `passwd` `password` CHAR(40);
+
 -- Create Revisions tables
 
 CREATE TABLE `ad_blocks_revs` (
