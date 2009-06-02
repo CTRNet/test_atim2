@@ -183,10 +183,6 @@ ALTER TABLE `pe_chemos`
 ADD COLUMN `deleted` int(11) default 0,
 ADD COLUMN `deleted_date` datetime default NULL;
 
-ALTER TABLE `permissions`
-ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_date` datetime default NULL;
-
 ALTER TABLE `protocol_masters`
 ADD COLUMN `deleted` int(11) default 0,
 ADD COLUMN `deleted_date` datetime default NULL;
@@ -2845,20 +2841,6 @@ CREATE TABLE `pd_chemos_revs` (
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
-CREATE TABLE `permissions_revs` (
-  `id` int(11) NOT NULL,
-  `name` varchar(255) NOT NULL default '',
-  `created` datetime NOT NULL default '0000-00-00 00:00:00',
-  `created_by` varchar(50) NOT NULL default '',
-  `modified_by` varchar(50) NOT NULL default '',
-  `modified` datetime NOT NULL default '0000-00-00 00:00:00',
-  `version_id` int(11) NOT NULL,
-  `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
-  `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=52 ;
 
 CREATE TABLE `pe_chemos_revs` (
   `id` int(11) NOT NULL,
