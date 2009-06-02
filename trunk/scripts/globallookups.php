@@ -25,13 +25,13 @@
 	}
 	
 	//Clears the structure_permissible_values table
-	mysql_query("DELETE FROM `structure_permissible_values");
+	@mysql_query("DELETE FROM `structure_permissible_values");
 	
 	//Update the structure_permissible_values table with the values from global_lookup table
 	for($i = 0; $i < count($value); $i++){
 		//Populates the value and language alias fields in the permissible values table
 		$query = "INSERT INTO `structure_permissible_values` SET `value` = '$value[$i]', `language_alias` = '$language[$i]';";
-		mysql_query($query);
+		@mysql_query($query);
 	}
 	
 	//Gets all the unique alias' from the global lookups table
@@ -51,12 +51,12 @@
 	//Populates the value domain table's domain_name field with the alias values
 	for($p = 0; $p < @mysql_numrows($result); $p++){
 		$query = "INSERT INTO `structure_value_domains` SET domain_name = '$alias[$p]'";
-		mysql_query($query);
+		@mysql_query($query);
 	}
-	
+
 	//Gets the ids from the value domain table's id and the permissible value table's id that correspond to the same entry in the global lookups table
-	$query = "SELECT d.id, p.id FROM `global_lookups` g, `structure_permissible_values` p, `structure_value_domains` d 
-				WHERE d.domain_name = g.alias AND p.`value` = g.`value`;";
+	$query = "SELECT DISTINCT d.id, p.id FROM `global_lookups` g, `structure_permissible_values` p, `structure_value_domains` d
+				WHERE g.alias LIKE BINARY d.domain_name AND g.`value` LIKE BINARY p.`value` ORDER BY d.id;";
 	$result = @mysql_query($query);
 	
 	//Populates the structure_value_domain_permissible_values with the appropriate ids so it can be looked up by atim2 program
@@ -66,13 +66,20 @@
 		$query = "INSERT INTO `structure_value_domains_permissible_values` SET `structure_value_domain_id` = '$did', `structure_permissible_value_id` = '$pid';";
 		@mysql_query($query);
 	}
-	
-	//Populates the structure fields table's structure_value_domain_id with the appropriate id
-	$query = "UPDATE `global_lookups` g, `form_fields_global_lookups` l, `structure_fields` s, `structure_value_domains` d SET s.`structure_value_domain` = d.`id` 
+
+	$query = "SELECT DISTINCT s.id AS 'sid', d.id AS 'did' FROM structure_fields s, structure_value_domains d, form_fields_global_lookups l, global_lookups g
 		WHERE s.`old_id` = l.`field_id` AND g.`id` = l.`lookup_id` AND g.`alias` = d.`domain_name`;";
-	@mysql_query($query);
+	$result = @mysql_query($query);
+	
+	for($f = 0; $f < @mysql_numrows($result); $f++){
+		$fieldid = @mysql_result($result, $f, "sid");
+		$domainid = @mysql_result($result, $f, "did");
+		$query = "UPDATE `structure_fields` SET `structure_value_domain_id` = ".$domainid." WHERE  `id` = ".$fieldid.";";
+		@mysql_query($query);
+	}
 	
 	//Clean up tables
 	@mysql_query("DROP TABLE `form_fields_global_lookups`;");
 	@mysql_query("DROP TABLE `global_lookups`;");
+
 ?>
