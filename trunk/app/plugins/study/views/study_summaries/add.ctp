@@ -2,7 +2,7 @@
 	$structure_links = array(
 		'top'=>'/study/study_summaries/add/',
 		'bottom'=>array(
-			'add'=>'/study/study_summaries/listall/'
+			'cancel'=>'/study/study_summaries/listall/'
 		)
 	);
 	
