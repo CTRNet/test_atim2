@@ -2,7 +2,7 @@
 	$structure_links = array(
 		'top'=>'/clinicalannotation/diagnoses/add/'.$atim_menu_variables['Participant.id'].'/',
 		'bottom'=>array(
-			'add'=>'/clinicalannotation/diagnoses/listall/'.$atim_menu_variables['Participant.id'].'/'
+			'cancel'=>'/clinicalannotation/diagnoses/listall/'.$atim_menu_variables['Participant.id'].'/'
 		)
 	);
 	
