@@ -24,6 +24,7 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 	
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
+		$this->set( 'atim_menu', $this->Menus->get('/clinicalannotation/family_histories/index') );
 		
 		if ( !empty($this->data) ) {
 			$this->data['FamilyHistory']['participant_id'] = $participant_id;
