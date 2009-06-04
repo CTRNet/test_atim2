@@ -4,8 +4,11 @@ class StructureField extends AppModel {
 
 	var $name = 'StructureField';
 
-	var $belongsTo = array(
-		'StructureValidation',
+	var $hasMany = array(
+		'StructureValidation'
+	);
+	
+	var $hasOne = array(
 		'StructureValueDomain'	=> array(
 			'className'		=> 'StructureValueDomain',
 			'foreignKey'	=>	false,

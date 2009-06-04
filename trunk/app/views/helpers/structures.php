@@ -202,12 +202,12 @@ class StructuresHelper extends Helper {
 		
 		$this->Paginator->options(array('url' => $this->params['pass']));
 		
-		foreach ( $this->data as $key=>$val ) {
-			// $table_index[$key] = $this->build_stack( $atim_structure, $options, $key );
-			$options['stack']['key'] = $key;
-			$table_index[$key] = $this->build_stack( $atim_structure, $options );
-			unset($options['stack']);
-		}
+			$table_index = array();
+			foreach ( $this->data as $key=>$val ) {
+				$options['stack']['key'] = $key;
+				$table_index[$key] = $this->build_stack( $atim_structure, $options );
+				unset($options['stack']);
+			}
 		
 			// start table...
 			$return_string .= '
@@ -218,6 +218,7 @@ class StructuresHelper extends Helper {
 			// header row
 			$return_string .= $this->display_header( $table_index, $options );
 			
+			$column_count = 0;
 			if ( count($this->data) ) {
 			
 				// each column in table 
@@ -259,14 +260,14 @@ class StructuresHelper extends Helper {
 			else {
 				$return_string .= '
 						<tr>
-								<td class="no_data_available" colspan="'.$column_count.'">'.__( 'core_no_data_available', true ).'</td>
+								<td class="no_data_available"'.( $column_count ? ' colspan="'.$column_count.'"' : '' ).'>'.__( 'core_no_data_available', true ).'</td>
 						</tr>
 				';
 			}
 			
 			$return_string .= '
 					<tr class="pagination">
-						<th colspan="'.$column_count.'">
+						<th'.( $column_count ? ' colspan="'.$column_count.'"' : '' ).'>
 							'.$this->Paginator->prev( __( 'Prev',true ), NULL, __( 'Prev',true ) ).'
 							'.$this->Paginator->counter( array('format' => '%start%-%end% of %count%') ).'
 							'.$this->Paginator->next( __( 'Next',true ), NULL, __( 'Next',true ) ).'
@@ -425,48 +426,52 @@ class StructuresHelper extends Helper {
 		}
 		
 		// each column/row in table 
-		$column_count = 1;
-		foreach ( $table_index[0] as $table_column ) {
-			foreach ( $table_column as $table_row ) {
+		if ( count($table_index) ) {
 			
-				if (  $table_row['type']!='hidden' ) {
-					
-					$return_string .= '
-						<th class="column_'.$column_count.' '.$table_row['field'].'">
-					';
-					
-					// label and help/info marker, if available...
-					if ( $table_row['label'] ) {
-						
-						$sorting_link = $_SERVER['REQUEST_URI'];
-						$sorting_link = explode('?', $sorting_link);
-						$sorting_link = $sorting_link[0];
-						
-							$default_sorting_direction = isset($_REQUEST['direction']) ? $_REQUEST['direction'] : 'asc';
-							$default_sorting_direction = strtolower($default_sorting_direction);
-						
-						$sorting_link .= '?sortBy='.$table_row['field'];
-						$sorting_link .= '&amp;direction='.( $default_sorting_direction=='asc' ? 'desc' : 'asc' );
-						$sorting_link .= isset($_REQUEST['page']) ? '&amp;page='.$_REQUEST['page'] : '';
-						
-						$return_string .= $this->Paginator->sort($table_row['label'], $table_row['model'].'.'.$table_row['field']);
-						
-						// if ( $this->othAuth->user('help_visible')=='yes' ) {
-							$return_string .= $table_row['help'];
-						// }
-						
-						$column_count++;
-					}
-					
-					
-					$return_string .= '
-						</th>
-					';
-					
-				} // end NOT HIDDEN
+			$column_count = 1;
+			foreach ( $table_index[0] as $table_column ) {
+				foreach ( $table_column as $table_row ) {
 				
+					if (  $table_row['type']!='hidden' ) {
+						
+						$return_string .= '
+							<th class="column_'.$column_count.' '.$table_row['field'].'">
+						';
+						
+						// label and help/info marker, if available...
+						if ( $table_row['label'] ) {
+							
+							$sorting_link = $_SERVER['REQUEST_URI'];
+							$sorting_link = explode('?', $sorting_link);
+							$sorting_link = $sorting_link[0];
+							
+								$default_sorting_direction = isset($_REQUEST['direction']) ? $_REQUEST['direction'] : 'asc';
+								$default_sorting_direction = strtolower($default_sorting_direction);
+							
+							$sorting_link .= '?sortBy='.$table_row['field'];
+							$sorting_link .= '&amp;direction='.( $default_sorting_direction=='asc' ? 'desc' : 'asc' );
+							$sorting_link .= isset($_REQUEST['page']) ? '&amp;page='.$_REQUEST['page'] : '';
+							
+							$return_string .= $this->Paginator->sort($table_row['label'], $table_row['model'].'.'.$table_row['field']);
+							
+							// if ( $this->othAuth->user('help_visible')=='yes' ) {
+								$return_string .= $table_row['help'];
+							// }
+							
+							$column_count++;
+						}
+						
+						
+						$return_string .= '
+							</th>
+						';
+						
+					} // end NOT HIDDEN
+					
+				} // end FOREACH
 			} // end FOREACH
-		} // end FOREACH
+			
+		}
 		
 		// end header row...
 		$return_string .= '
@@ -670,7 +675,7 @@ class StructuresHelper extends Helper {
 								
 							// swap out VALUE for LANG LOOKUP choice for SELECTS 
 							// } else if ( $field['type']=='select' ) {
-							} else if ( count($field['StructureField']['StructureValueDomain']) && count($field['StructureField']['StructureValueDomain']['StructurePermissibleValue']) ) {
+							} else if ( count($field['StructureField']['StructureValueDomain']) && isset($field['StructureField']['StructureValueDomain']['StructurePermissibleValue']) ) {
 								
 								foreach ( $field['StructureField']['StructureValueDomain']['StructurePermissibleValue'] as $lookup ) {
 									if ( $lookup['value'] == $display_value && $lookup['language_alias'] ) {
@@ -862,7 +867,7 @@ class StructuresHelper extends Helper {
 								$html_element_array['empty'] = true;
 							}
 							
-							if ( count($field['StructureField']['StructureValueDomain']) && count($field['StructureField']['StructureValueDomain']['StructurePermissibleValue']) ) {
+							if ( count($field['StructureField']['StructureValueDomain']) && isset($field['StructureField']['StructureValueDomain']['StructurePermissibleValue']) ) {
 								foreach ( $field['StructureField']['StructureValueDomain']['StructurePermissibleValue'] as $lookup ) {
 									$html_element_array['options'][ $lookup['value'] ] = __( $lookup['language_alias'], true );
 								}
@@ -1402,16 +1407,14 @@ class StructuresHelper extends Helper {
 			
 			$Acl = new AclComponent();
 			
+			// if ACO/ARO permissions check succeeds, create link
 			if ( strpos($aco_alias,'controllers/Users')!==false || strpos($aco_alias,'controllers/Pages')!==false || $Acl->check($aro_alias, $aco_alias) ) {
-			// if ( 1==1 ) {
 			
-				// replace %%MODEL.FIELDNAME%% 
-				$link_location = $this->str_replace_link( $link_location, $data );
-				
 				// determine TYPE of link, for styling and icon
 					$display_class_name = '';
 					$display_class_array = array();
 					
+					/*
 					$display_class_array = str_replace('_', ' ', $link_name);
 					$display_class_array = str_replace('-', ' ', $display_class_array);
 					$display_class_array = str_replace('  ', ' ', $display_class_array);
@@ -1420,6 +1423,7 @@ class StructuresHelper extends Helper {
 					
 						if ( isset($display_class_array[1]) ) { $display_class_array[1] = strtolower($display_class_array[1]); }
 						else { $display_class_array[1] = 'core'; }
+					*/
 						
 					/* 
 						ICONS allowed by FORMS helper, including PLUGINS
@@ -1456,7 +1460,7 @@ class StructuresHelper extends Helper {
 						customize
 					*/
 					
-					
+					/*
 					$display_class_name = ( $display_class_array[0]=='list' || $display_class_array[0]=='listall' || $display_class_array[0]=='table' || $display_class_array[0]=='editgrid' || $display_class_array[0]=='grid' || $display_class_array[0]=='index' ? 'list' : $display_class_name );
 					$display_class_name = ( $display_class_array[0]=='search' || $display_class_array[0]=='look' ? 'search' : $display_class_name );
 					$display_class_name = ( $display_class_array[0]=='add' || $display_class_array[0]=='new' || $display_class_array[0]=='create' ? 'add' : $display_class_name );
@@ -1489,6 +1493,7 @@ class StructuresHelper extends Helper {
 						
 						$display_class_name = ( !$display_class_array[1] ? 'detail' : $display_class_name );
 					}
+					*/
 					
 					// default, if none
 					$display_class_name = $display_class_name ? $display_class_name : 'detail';				
@@ -1505,10 +1510,16 @@ class StructuresHelper extends Helper {
 					$confirmation_msg = NULL;
 				}
 				
+				// replace %%MODEL.FIELDNAME%% 
+				$link_location = $this->str_replace_link( $link_location, $data );
+				
 				$return_urls[]		= $this->Html->url( $link_location );
 				$return_links[]	= $this->Html->link( __($link_name, true), $link_location, $htmlAttributes, $confirmation_msg, false );
-				
-			} else {
+			
+			} 
+			
+			// if ACO/ARO permission check fails, display NOt ALLOWED type link
+			else {
 				$return_urls[]		= $this->Html->url( '/menus' );
 				$return_links[]	= '<a class="not_allowed">'.__($link_name, true).'</a>';
 			} // end CHECKMENUPERMISSIONS 

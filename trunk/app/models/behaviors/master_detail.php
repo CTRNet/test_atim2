@@ -6,8 +6,9 @@ class MasterDetailBehavior extends ModelBehavior {
 	
 	function setup(&$model, $settings = array()) { 
 		
-		$default_class = str_replace('Master','',$model->alias);
-		$default_class = str_replace('Control','',$model->alias);
+		$default_class = $model->alias;
+		$default_class = str_replace('Master','',$default_class);
+		$default_class = str_replace('Control','',$default_class);
 		$default_class .= 'Detail';
 		
 		$default = array(
@@ -53,6 +54,31 @@ class MasterDetailBehavior extends ModelBehavior {
 		return $results;
 		
 	}
+	
+	function beforeValidate (&$model) {
+		// placeholder for automagic validation...
+	}
+	
+	function afterSave (&$model, $created) {
+		
+		// make all SETTINGS into individual VARIABLES, with the KEYS as names
+		extract($this->__settings[$model->alias]);
+		
+		// get DETAIL table name and create DETAIL model object
+		$associated = $model->find(array('id' => $model->id), null, null, -1);
+		$detail_model = new Model( false, $associated[$model->alias][$detail_field] );
+		
+		// set ID (for edit, blank for add) and model object NAME/ALIAS for save
+		if ( isset($model->id) ) $detail_model->id = $model->id;
+		$detail_model->name = $detail_class;
+		$detail_model->alias = $detail_class;
+		
+		// save detail DATA
+		$result = $detail_model->save($model->data);
+		
+		return $result;
+	}
+	
 }
 
 ?>
