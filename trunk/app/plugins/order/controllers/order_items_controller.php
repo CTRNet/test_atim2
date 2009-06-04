@@ -2,158 +2,74 @@
 
 class OrderItemsController extends OrderAppController {
 	
-	var $name = 'OrderItems';
-	var $uses = array('OrderItem', 'OrderLine', 'Order', 'Shipment', 'AliquotMaster', 'AliquotUse');
-
-	var $components = array('Summaries');
-	var $helpers = array('Summaries');
-  
-	function beforeFilter() {
-    
-    	// $auth_conf array hardcoded in oth_auth component, due to plugins compatibility 
-	    $this->othAuth->controller = &$this;
-    	$this->othAuth->init();
-    	$this->othAuth->check();
-
-    	// CakePHP function to re-combine dat/time select fields 
-    	$this->cleanUpFields();
- 	}
+	var $uses = array('OrderItem', 'Order', 'OrderLine');
+	var $paginate = array('OrderItem'=>array('limit'=>'10','order'=>'OrderItem.barcode'));
 	
-	function listall( $order_id=null, $orderline_id=null ) {
+	function listall( $order_id=null, $order_line_id=null ) {
 		
-		// set MENU varible for echo on VIEW
+		if ( !$order_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$order_line_id ) { $this->redirect( 'pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 
-		// $ctrapp_menu[] = $this->Menus->tabs( 'ord_CAN_101', 'ord_CAN_102', $order_id );
-		$ctrapp_menu[] = $this->Menus->tabs( 'ord_CAN_101', 'ord_CAN_114', $order_id );
-		$ctrapp_menu[] = $this->Menus->tabs( 'ord_CAN_114', 'ord_CAN_117', $order_id.'/'.$orderline_id );
-		$this->set( 'ctrapp_menu', $ctrapp_menu );
-	
-		// set FORM variable, for HELPER call on VIEW 
-		$this->set( 'ctrapp_form', $this->Forms->getFormArray('orderitems') );
-		
-		// set SUMMARY varible from plugin's COMPONENTS
-		$this->set( 'ctrapp_summary', $this->Summaries->build( $order_id ) );
-	
-		// set SIDEBAR variable, for HELPER call on VIEW 
-		// use PLUGIN_CONTROLLER_ACTION by default, but any ALIAS string that matches in the SIDEBARS datatable will do...
-		$this->set( 'ctrapp_sidebar', $this->Sidebars->getColsArray( $this->params['plugin'].'_'.$this->params['controller'].'_'.$this->params['action'] ) );
-		
-		// set FORM variable, for HELPER call on VIEW
-		$this->set( 'order_id', $order_id ); 
-		$this->set( 'orderline_id', $orderline_id );
-
-		$criteria = array();
-		$criteria['orderline_id'] = $orderline_id;
-		$criteria = array_filter($criteria);
-
-		list( $order, $limit, $page ) = $this->Pagination->init( $criteria );
-		$this->set( 'orderitems', $this->OrderItem->findAll( $criteria, NULL, $order, $limit, $page ) );
-		
-		// Populate Shipment dropdown from shipments table
-		$option_criteria = 'Shipment.order_id="'.$order_id.'"';
-		$fields = NULL;
-		$order = 'Shipment.shipment_code ASC';
-		$shipment_id_findall_result = $this->Shipment->findAll( $option_criteria, $fields, $order );
-		$shipment_id_findall = array();
-		foreach ( $shipment_id_findall_result as $record ) {
-			$shipment_id_findall[ $record['Shipment']['id'] ] = $record['Shipment']['shipment_code'].
-				( $record['Shipment']['delivery_street_address'] ? ', '.$record['Shipment']['delivery_street_address'] : '' ).
-				( $record['Shipment']['delivery_city'] ? ', '.$record['Shipment']['delivery_city'] : '' ).
-				( $record['Shipment']['delivery_province'] ? ', '.$record['Shipment']['delivery_province'] : '' ).
-				( $record['Shipment']['delivery_country'] ? ', '.$record['Shipment']['delivery_country'] : '' );
-		}
-		
-		$this->set( 'shipment_id_findall', $shipment_id_findall );
-		
-		// look for CUSTOM HOOKS, "format"
-		$custom_ctrapp_controller_hook 
-			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
-			'controllers' . DS . 'hooks' . DS . 
-			$this->params['controller'].'_'.$this->params['action'].'_format.php';
-		
-		if (file_exists($custom_ctrapp_controller_hook)) {
-			require($custom_ctrapp_controller_hook);
-		}
+		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'OrderLine.id'=>$order_line_id));
+		$this->data = $this->paginate($this->OrderItem, array('OrderItem.order_id'=>$order_id, 'OrderItem.orderline_id'=>$order_line_id));
 			
 	}
+
+	function add( $order_id=null, $order_line_id=null ) {
+		if ( !$order_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$order_line_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 	
+		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id));
+		
+		if ( !empty($this->data) ) {
+			$this->data['OrderItem']['orderline_id'] = $order_line_id;
+			if ( $this->OrderItem->save($this->data) ) {
+				$this->flash( 'Your data has been updated.','/order/order_items/detail/'.$order_id.'/'.$order_line_id.'/'.$this->OrderItem->id );
+			}
+		}
+	}
+	
+	function edit( $order_id=null, $order_line_id=null, $order_item_id=null ) {
+		if ( !$order_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$order_line_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$order_item_id ) { $this->redirect( '/page/err_clin-ann_no_part_id', NULL, TRUE ); }
+		
+		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'OrderLine.id'=>$order_line_id, 'OrderItem.id'=>$order_item_id) );
+		
+		if ( !empty($this->data) ) {
+			$this->OrderItem->id = $order_item_id;
+			if ( $this->OrderItem->save($this->data) ) {
+				$this->flash( 'Your data has been updated.','/order/order_items/detail/'.$order_id.'/'.$order_line_id.'/'.$order_item_id );
+			}
+		} else {
+			$this->data = $this->OrderItem->find('first',array('conditions'=>array('OrderItem.id'=>$order_item_id)));
+		}
+	}
+	
+	function detail( $order_id=null, $order_line_id=null, $order_item_id=null ) {
+		if ( !$order_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$order_line_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$order_item_id ) { $this->redirect( '/page/err_clin-ann_no_part_id', NULL, TRUE ); }
+		
+		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'OrderLine.id'=>$order_line_id, 'OrderItem.id'=>$order_item_id) );
+		$this->data = $this->OrderItem->find('first',array('conditions'=>array('OrderItem.id'=>$order_item_id)));
+	}
+	
+	function delete( $order_id=null, $order_line_id=null, $order_item_id=null ) {
+		if ( !$order_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$order_line_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$order_item_id ) { $this->redirect( '/page/err_clin-ann_no_part_id', NULL, TRUE ); }
+		
+		if( $this->OrderItem->del( $order_item_id ) ) {
+			$this->flash( 'Your data has been deleted.', '/order/order_items/listall/'.$order_id.'/'.$order_line_id );
+		} else {
+			$this->flash( 'Your data has been deleted.', '/order/order_items/listall/'.$order_id.'/'.$order_line_id );
+		}
+	}
+/*	
 	function obsolete_datagrid( $order_id=null, $orderline_id=null ) {
 		
-		// set MENU varible for echo on VIEW
-		// $ctrapp_menu[] = $this->Menus->tabs( 'ord_CAN_101', 'ord_CAN_102', $order_id );
-		$ctrapp_menu[] = $this->Menus->tabs( 'ord_CAN_101', 'ord_CAN_114', $order_id );
-		$ctrapp_menu[] = $this->Menus->tabs( 'ord_CAN_114', 'ord_CAN_117', $order_id.'/'.$orderline_id );
-		$this->set( 'ctrapp_menu', $ctrapp_menu );
-		
-		// set FORM variable, for HELPER call on VIEW 
-		$this->set( 'ctrapp_form', $this->Forms->getFormArray('orderitems') );
-		
-		// set SUMMARY varible from plugin's COMPONENTS
-		$this->set( 'ctrapp_summary', $this->Summaries->build( $order_id ) );
-		
-		// set SIDEBAR variable, for HELPER call on VIEW 
-		// use PLUGIN_CONTROLLER_ACTION by default, but any ALIAS string that matches in the SIDEBARS datatable will do...
-		$this->set( 'ctrapp_sidebar', $this->Sidebars->getColsArray( $this->params['plugin'].'_'.$this->params['controller'].'_'.$this->params['action'] ) );
-		
-		// set FORM variable, for HELPER call on VIEW
-		$this->set( 'order_id', $order_id ); 
-		$this->set( 'orderline_id', $orderline_id );
-		
-		$criteria = array();
-		$criteria['orderline_id'] = $orderline_id;
-		$criteria = array_filter($criteria);
-		
-		list( $order, $limit, $page ) = $this->Pagination->init( $criteria );
-		$this->set( 'data', $this->OrderItem->findAll($criteria, NULL, $order) );
-		
-		// Populate Shipment dropdown from shipments table
-			$option_criteria = 'Shipment.order_id="'.$order_id.'"';
-			$fields = NULL;
-			$order = 'Shipment.shipment_code ASC';
-			$shipment_id_findall_result = $this->Shipment->findAll( $option_criteria, $fields, $order );
-			$shipment_id_findall = array();
-			foreach ( $shipment_id_findall_result as $record ) {
-				$shipment_id_findall[ $record['Shipment']['id'] ] = $record['Shipment']['shipment_code'].
-					( $record['Shipment']['delivery_street_address'] ? ', '.$record['Shipment']['delivery_street_address'] : '' ).
-					( $record['Shipment']['delivery_city'] ? ', '.$record['Shipment']['delivery_city'] : '' ).
-					( $record['Shipment']['delivery_province'] ? ', '.$record['Shipment']['delivery_province'] : '' ).
-					( $record['Shipment']['delivery_country'] ? ', '.$record['Shipment']['delivery_country'] : '' );
-			}
-			
-			$this->set( 'shipment_id_findall', $shipment_id_findall );
-			
-		// if DATA submitted...
-		if ( !empty($this->data) ) {
-			
-			// set a FLAG
-			$submitted_data_validates = true;
-			
-			// VALIDATE each row separately, setting the FLAG to FALSE if ANY row has a problem
-			foreach ( $this->data as $key=>$val ) {
-				if ( !$this->OrderItem->validates( $val ) ) {
-					$submitted_data_validates = false;
-				}
-			}
-			
-			// if ALL the rows VALIDATE, then save each row separately, otherwise display errors
-			if ( $submitted_data_validates ) {
-				
-				// save each ROW
-				foreach ( $this->data as $key=>$val ) {
-					$this->OrderItem->save( $val );
-				}
-				
-				$this->flash( 'Your data has been saved.', '/order_items/listall/'.$order_id.'/'.$orderline_id.'/' );
-				exit;
-			
-			} else {
-				
-				// extra ERROR message, which FORMS HELPER will translate normally
-				// $this->OrderItem->validationErrors[] = 'untranslated custom error message here';
-				
-			}
-			
-		}
+		//TODO
 		
 	}
 	
@@ -732,10 +648,10 @@ class OrderItemsController extends OrderAppController {
 			
 	}
 	
-	/*
+	
 		DATAMART PROCESS, addes BATCH SET aliquot IDs to ORDER ITEMs
 		Multi-part process, linking Orders, OrderLines, and OrderItems (all ACTIONs the same name in each CONTROLLER)
-	*/
+	
 	
 	function process_add_aliquots( $order_id=null, $orderline_id=null ) {
 		
@@ -949,6 +865,6 @@ class OrderItemsController extends OrderAppController {
 		
 		return TRUE;
 	}
-	
+*/	
 }
 ?>
