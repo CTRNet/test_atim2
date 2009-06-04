@@ -1,6 +1,7 @@
 <?php
 	$structure_links = array(
-		'top'=>'/order/orders/detail/%%Order.id%%/',
+		'top'=>NULL,
+		'index'=>'/order/orders/detail/%%Order.id%%/',
 		'bottom'=>array(
 			'add'=>'/order/orders/add/'
 		)
