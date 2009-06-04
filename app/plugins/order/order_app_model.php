@@ -2,7 +2,7 @@
 
 class OrderAppModel extends AppModel
 {
-	var $name = 'Order';
+	var $name = 'Orders';
 }
 
 ?>
