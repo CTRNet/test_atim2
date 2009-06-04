@@ -14,12 +14,28 @@ class EventMastersController extends ClinicalannotationAppController {
 	
 	function detail( $menu_id=NULL, $event_group=NULL, $participant_id=null, $event_master_id=null ) {
 		
-		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id,'EventMaster.id'=>$event_master_id) );
+		$this->set( 'atim_menu_variables', array('Menu.id'=>$menu_id,'EventMaster.event_group'=>$event_group,'Participant.id'=>$participant_id,'EventMaster.id'=>$event_master_id) );
 		$this->data = $this->EventMaster->find('first',array('conditions'=>array('EventMaster.id'=>$event_master_id)));
 		
 		// set FORM ALIAS based off VALUE from MASTER table
 		$this->set( 'atim_structure', $this->Structures->get('form',$this->data['EventMaster']['form_alias']) );
 		
+	}
+	
+	function edit( $menu_id=NULL, $event_group=NULL, $participant_id=null, $event_master_id=null ) {
+		
+		$this->set( 'atim_menu_variables', array('Menu.id'=>$menu_id,'EventMaster.event_group'=>$event_group,'Participant.id'=>$participant_id,'EventMaster.id'=>$event_master_id) );
+		$this_data = $this->EventMaster->find('first',array('conditions'=>array('EventMaster.id'=>$event_master_id)));
+		
+		// set FORM ALIAS based off VALUE from MASTER table
+		$this->set( 'atim_structure', $this->Structures->get('form',$this_data['EventMaster']['form_alias']) );
+		
+		if ( !empty($this->data) ) {
+			$this->EventMaster->id = $event_master_id;
+			if ( $this->EventMaster->save($this->data) ) $this->flash( 'Your data has been updated.','/clinicalannotation/event_masters/detail/'.$menu_id.'/'.$event_group.'/'.$participant_id.'/'.$event_master_id);
+		} else {
+			$this->data = $this_data;
+		}
 		
 	}
 	

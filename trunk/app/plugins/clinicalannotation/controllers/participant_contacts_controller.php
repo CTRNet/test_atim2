@@ -9,7 +9,7 @@ class ParticipantContactsController extends ClinicalannotationAppController {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id) );
-		$this->data = $this->paginate($this->ParticipantContact);
+		$this->data = $this->paginate($this->ParticipantContact, array('ParticipantContact.participant_id'=>$participant_id));
 	}
 	
 	function detail( $participant_id, $participant_contact_id ) {
