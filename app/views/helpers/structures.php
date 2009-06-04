@@ -5,7 +5,7 @@ App::import('component','Acl');
 class StructuresHelper extends Helper {
 		
 	var $helpers = array( 'Html', 'Form', 'Javascript', 'Ajax', 'Paginator','Session' );
-	
+
 	function build( $atim_structure=array(), $options=array() ) {
 	
 		$return_string = ''; 
@@ -29,7 +29,7 @@ class StructuresHelper extends Helper {
 			'extras'		=> array()
 		);
 		
-		$options = array_merge($defaults,$options);
+		$options = $this->array_merge_recursive_distinct($defaults,$options);
 				
 			// Sort the data with ORDER descending, FIELD ascending 
 				foreach ( $atim_structure['StructureFormat'] as $key=>$row ) {
@@ -177,7 +177,7 @@ class StructuresHelper extends Helper {
 					</tr>
 					<tr>
 						<td class="submit">
-							<input colspan="'.$table_row_count.'" class="submit" type="submit" value="Save" />
+							<input colspan="'.$table_row_count.'" class="submit" type="submit" value="Submit" />
 						</td>
 				';
 			}
@@ -552,8 +552,8 @@ class StructuresHelper extends Helper {
 		foreach ( $atim_structure['StructureFormat'] as $field ) {
 			
 			// if STRUCTURE does not allows multi-columns, display STRUCTURE in one column only
-			if ( !isset($form['Form']['flag_'.$type.'_columns']) ) $form['Form']['flag_'.$type.'_columns'] = 0;
-			if ( !$form['Form']['flag_'.$type.'_columns'] ) $field['display_column'] = 0;
+			if ( !isset($atim_structure['Structure']['flag_'.$options['type'].'_columns']) ) $atim_structure['Structure']['flag_'.$options['type'].'_columns'] = 0;
+			if ( !$atim_structure['Structure']['flag_'.$options['type'].'_columns'] ) $field['display_column'] = 0;
 			
 			// if table column doesn't already exist, create it 
 			if ( !isset( $table_index[ $field['display_column'] ] ) ) $table_index[ $field['display_column'] ] = array();
@@ -1523,7 +1523,7 @@ class StructuresHelper extends Helper {
 			';
 			
 			// display SEARCH RESULTS, if any
-			if ( is_array($_SESSION['ctrapp_core']['search']) ) {
+			if ( isset($_SESSION['ctrapp_core']['search']) && is_array($_SESSION['ctrapp_core']['search']) ) {
 				$return_string .= '
 						<a class="search_results" href="'.$this->Html->url($_SESSION['ctrapp_core']['search']['url']).'">
 							'.$_SESSION['ctrapp_core']['search']['results'].'
@@ -1567,25 +1567,53 @@ class StructuresHelper extends Helper {
 	// FUNCTION to replace %%MODEL.FIELDNAME%% in link with MODEL.FIELDNAME value 
 	function str_replace_link( $link='', $data=array() ) {
 		
-		foreach ( $data as $model=>$fields ) {
-			foreach ( $fields as $field=>$value ) {
-				
-				// avoid ONETOMANY or HASANDBELONGSOTMANY relationahips 
-				if ( !is_array($value) ) {
+		if ( is_array($data) ) {
+			foreach ( $data as $model=>$fields ) {
+				foreach ( $fields as $field=>$value ) {
 					
-					// find text in LINK href in format of %%MODEL.FIELD%% and replace with that MODEL.FIELD value...
-					$link = str_replace( '%%'.$model.'.'.$field.'%%', $value, $link );
-					$link = str_replace( '@@'.$model.'.'.$field.'@@', $value, $link );
-
-				} // end !IS_ARRAY 
-				
-			}
-		} // end FOREACH
+					// avoid ONETOMANY or HASANDBELONGSOTMANY relationahips 
+					if ( !is_array($value) ) {
+						
+						// find text in LINK href in format of %%MODEL.FIELD%% and replace with that MODEL.FIELD value...
+						$link = str_replace( '%%'.$model.'.'.$field.'%%', $value, $link );
+						$link = str_replace( '@@'.$model.'.'.$field.'@@', $value, $link );
+	
+					} // end !IS_ARRAY 
+					
+				}
+			} // end FOREACH
+		}
 		
 		// return
 		return $link;
 		
 	} // end FUNCTION str_replace_link()
+	
+	
+/********************************************************************************************************************************************************************************/
+	
+	
+	function &array_merge_recursive_distinct( &$array1, &$array2 = null) {
+	
+		$merged = $array1;
+		
+		if (is_array($array2)) {
+		
+			foreach ($array2 as $key => $val) {
+			
+			if (is_array($array2[$key])) {
+				$merged[$key] = is_array($merged[$key]) ? $this->array_merge_recursive_distinct($merged[$key], $array2[$key]) : $array2[$key];
+			} else {
+				$merged[$key] = $val;
+			} // end IF/ELSE
+			
+			} // end FOREACH
+		
+		} // end IF array
+		
+		return $merged;
+	
+	}
 
 
 }

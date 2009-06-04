@@ -505,12 +505,16 @@ div.menu.level_0 {
 		
 			div#wrapper table.structure.detail td { padding:0; border:0; }
 			div#wrapper table.structure.detail table td { padding: 0.25em 1em; border-top: 1px solid #ccf; }
+			
+			div#wrapper table.structure.detail td.this_column_2,
+			div#wrapper table.structure.detail td.this_column_3,
+			div#wrapper table.structure.detail td.this_column_4 { border-left: 10px solid #fff; }
 		
 			div#wrapper table.structure.detail td.submit { padding: 0.25em 1em; border-top: 1px solid #ccf; }
 		
 			
 			div#wrapper table.structure td.label {
-				width: 20%;
+				width: 30%;
 				font-weight: bold;
 			}
 		
