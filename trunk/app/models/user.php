@@ -2,7 +2,6 @@
 class User extends AppModel {
 
 	var $belongsTo = array('Group');
-	var $hasMany = array('Post');
 	
 	var $actsAs = array('Acl' => array('requester')); 
 	
