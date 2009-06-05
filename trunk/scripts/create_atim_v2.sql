@@ -976,7 +976,7 @@ CREATE TABLE `aliquot_controls` (
   `detail_tablename` varchar(50) default NULL,
   `volume_unit` varchar(20) default NULL,
   `comment` varchar(255) default NULL,
-  `display_order` int(11) NOT NULL default 0;
+  `display_order` int(11) NOT NULL default 0,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=16 ;
 
