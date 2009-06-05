@@ -1,5 +1,24 @@
 Current Date - 
 Release Number - v2.0.0
 
-Description - 
+Description - Major release built on CakePHP v1.2 framework.
+
+============================================================================================================
+Module - Core
+* CHANGE (Eventum #510) - Improved Summary tab, now displays multiple levels of summary data
+* CHANGE (Eventum #509) - Altered primary keys of all structure tables to proper auto-incrementing integers
+* CHANGE (Eventum #467) - Core now supports logical record deletion where implemented for user data tables
+* ENHANCEMENT (Eventum #230) - Global lookups replaced with value domains to enable re-use of lookup values
+* ENHANCEMENT (Eventum #151) - Audit trail now possible for all edit/added records
+* BUG (Eventum #127) - Allow sorting of any field on the index view
+
+
+============================================================================================================
+Module - Clinical Annotation
+* CHANGE (Eventum #497) - Replaced any occurance of `group` field to something more appropriate to prevent conflicts
+with Query Tool
+
+
+
+
 
