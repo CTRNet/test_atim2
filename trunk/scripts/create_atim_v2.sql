@@ -13974,3 +13974,5 @@ CREATE TABLE `user_logs` (
 -- 
 -- Dumping data for table `user_logs`
 -- 
+
+UPDATE `structure_validations` v, `structure_fields` f SET v.structure_field_id = f.id WHERE v.old_id LIKE f.old_id;
