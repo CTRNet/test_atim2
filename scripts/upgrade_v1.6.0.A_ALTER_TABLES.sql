@@ -36,6 +36,9 @@ ALTER TABLE `ad_whatman_papers`
 ADD COLUMN `deleted` int(11) default 0,
 ADD COLUMN `deleted_date` datetime default NULL;
 
+ALTER TABLE `aliquot_controls`
+ADD COLUMN `display_order` int(11) NOT NULL default 0;
+
 ALTER TABLE `aliquot_masters`
 ADD COLUMN `deleted` int(11) default 0,
 ADD COLUMN `deleted_date` datetime default NULL;
@@ -118,6 +121,9 @@ ALTER TABLE `ed_breast_screening_mammogram`
 ADD COLUMN `deleted` int(11) default 0,
 ADD COLUMN `deleted_date` datetime default NULL;
 
+ALTER TABLE `event_controls`
+ADD COLUMN `display_order` int(11) NOT NULL default 0;
+
 ALTER TABLE `event_masters`
 ADD COLUMN `deleted` int(11) default 0,
 ADD COLUMN `deleted_date` datetime default NULL;
@@ -181,6 +187,9 @@ ALTER TABLE `pe_chemos`
 ADD COLUMN `deleted` int(11) default 0,
 ADD COLUMN `deleted_date` datetime default NULL;
 
+ALTER TABLE `protocol_controls`
+ADD `display_order` int(11) NOT NULL default 0;
+
 ALTER TABLE `protocol_masters`
 ADD COLUMN `deleted` int(11) default 0,
 ADD COLUMN `deleted_date` datetime default NULL;
@@ -225,6 +234,9 @@ ALTER TABLE `reproductive_histories`
 ADD COLUMN `deleted` int(11) default 0,
 ADD COLUMN `deleted_date` datetime default NULL;
 
+ALTER TABLE `review_controls`
+ADD COLUMN `display_order` int(11) NOT NULL default 0;
+
 ALTER TABLE `review_masters`
 ADD COLUMN `deleted` int(11) default 0,
 ADD COLUMN `deleted_date` datetime default NULL;
@@ -232,6 +244,9 @@ ADD COLUMN `deleted_date` datetime default NULL;
 ALTER TABLE `rtbforms`
 ADD COLUMN `deleted` int(11) default 0,
 ADD COLUMN `deleted_date` datetime default NULL;
+
+ALTER TABLE `sample_controls`
+ADD COLUMN `display_order` int(11) NOT NULL default 0;
 
 ALTER TABLE `sample_masters`
 ADD COLUMN `deleted` int(11) default 0,
@@ -281,6 +296,9 @@ ALTER TABLE `shipments`
 ADD COLUMN `deleted` int(11) default 0,
 ADD COLUMN `deleted_date` datetime default NULL;
 
+ALTER TABLE `sop_controls`
+ADD COLUMN `display_order` int(11) NOT NULL default 0;
+
 ALTER TABLE `sop_masters`
 ADD COLUMN `deleted` int(11) default 0,
 ADD COLUMN `deleted_date` datetime default NULL;
@@ -314,8 +332,7 @@ ADD COLUMN `deleted` int(11) default 0,
 ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `storage_controls`
-ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_date` datetime default NULL;
+ADD COLUMN `display_order` int(11) NOT NULL default 0;
 
 ALTER TABLE `storage_coordinates`
 ADD COLUMN `deleted` int(11) default 0,
@@ -366,8 +383,7 @@ ADD COLUMN `deleted` int(11) default 0,
 ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `tx_controls`
-ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_date` datetime default NULL;
+ADD COLUMN `display_order` int(11) NOT NULL default 0;
 
 ALTER TABLE `tx_masters`
 ADD COLUMN `deleted` int(11) default 0,
