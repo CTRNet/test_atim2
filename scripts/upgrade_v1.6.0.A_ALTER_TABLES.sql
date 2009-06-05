@@ -1,11 +1,14 @@
--- Rename all occurances of `group` field
+﻿-- Rename all occurances of `group` field
 
 ALTER TABLE `coding_icd10` CHANGE `group` `icd_group` VARCHAR( 50 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
 ALTER TABLE `tx_masters` CHANGE `group` `tx_group` VARCHAR( 50 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
 
 UPDATE `structure_fields` SET `field` = 'tx_group',
-`structure_value_domain` = '0' WHERE `old_id` = 'CAN-999-999-000-999-276' LIMIT 1 ; 
+`structure_value_domain` = '0' WHERE `old_id` = 'CAN-999-999-000-999-276' LIMIT 1 ;
 
+-- Update structure validations structure_field_id
+
+UPDATE `structure_validations` v, `structure_fields` f SET v.structure_field_id = f.id WHERE v.old_id LIKE f.old_id;
 
 -- Add deleted and deleted_by columns to the correct tables
 

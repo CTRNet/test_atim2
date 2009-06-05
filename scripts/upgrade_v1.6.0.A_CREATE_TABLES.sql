@@ -1,4 +1,4 @@
--- Create New Tables
+﻿-- Create New Tables
 
 CREATE TABLE `acos` (
   `id` int(10) NOT NULL auto_increment,
@@ -1448,9 +1448,10 @@ INSERT INTO `structure_formats` (`old_id`, `structure_id`, `structure_old_id`, `
 RENAME TABLE `form_validations` TO `structure_validations`;
 
 ALTER TABLE `structure_validations`
-	CHANGE `form_field_id` `structure_field_id` VARCHAR(255) NOT NULL,
+	CHANGE `form_field_id` `old_id` VARCHAR(255) NOT NULL,
 	CHANGE `expression` `rule` TEXT default NULL,
 	CHANGE `message` `language_message` TEXT default NULL,
+	ADD COLUMN `structure_field_id` INT(11) NOT NULL AFTER `old_id`,
 	ADD `flag_empty` SET('0','1') default '0' AFTER `rule`,
 	ADD `flag_required` SET('0','1') default '0' AFTER `flag_empty`,
 	ADD `on_action` VARCHAR(255) default NULL AFTER `flag_required`;
