@@ -9,8 +9,8 @@
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
-CREATE DATABASE `atim` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
-USE `atim`;
+CREATE DATABASE `atim2` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
+USE `atim2`;
 --
 -- Database: `atim_2`
 -- 
@@ -976,6 +976,7 @@ CREATE TABLE `aliquot_controls` (
   `detail_tablename` varchar(50) default NULL,
   `volume_unit` varchar(20) default NULL,
   `comment` varchar(255) default NULL,
+  `display_order` int(11) NOT NULL default 0;
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=16 ;
 
@@ -3031,8 +3032,7 @@ CREATE TABLE `event_controls` (
   `status` varchar(50) NOT NULL default '',
   `form_alias` varchar(255) NOT NULL default '',
   `detail_tablename` varchar(255) NOT NULL default '',
-  `deleted` int(11) default 0,
-  `deleted_date` datetime default NULL,
+  `display_order` int(11) NOT NULL default 0,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=35 ;
 
@@ -5266,6 +5266,7 @@ CREATE TABLE `review_controls` (
   `status` varchar(20) NOT NULL default '',
   `form_alias` varchar(50) default NULL,
   `detail_tablename` varchar(50) default NULL,
+  `display_order` int(11) NOT NULL default 0,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=3 ;
 
@@ -5441,6 +5442,7 @@ CREATE TABLE `sample_controls` (
   `status` varchar(20) default NULL,
   `form_alias` varchar(50) default NULL,
   `detail_tablename` varchar(50) default NULL,
+  `display_order` int(11) NOT NULL default 0,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=112 ;
 
@@ -6385,6 +6387,7 @@ CREATE TABLE `sop_controls` (
   `detail_form_alias` varchar(255) NOT NULL,
   `extend_tablename` varchar(255) NOT NULL,
   `extend_form_alias` varchar(255) NOT NULL,
+  `display_order` int(11) NOT NULL default 0,
   `created` datetime default NULL,
   `created_by` varchar(50) default NULL,
   `modified` datetime default NULL,
@@ -6776,6 +6779,7 @@ CREATE TABLE `storage_controls` (
   `form_alias` varchar(50) default NULL,
   `form_alias_for_children_pos` varchar(50) default NULL,
   `detail_tablename` varchar(50) default NULL,
+  `display_order` int(11) NOT NULL default 0,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=21 ;
 
@@ -13803,8 +13807,7 @@ CREATE TABLE `tx_controls` (
   `detail_form_alias` varchar(255) default NULL,
   `extend_tablename` varchar(255) NOT NULL default '',
   `extend_form_alias` varchar(255) NOT NULL default '',
-  `deleted` int(11) default 0,
-  `deleted_date` datetime default NULL,
+  `display_order` int(11) NOT NULL default 0,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=4 ;
 
