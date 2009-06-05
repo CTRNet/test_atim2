@@ -1,3 +1,12 @@
+-- Rename all occurances of `group` field
+
+ALTER TABLE `coding_icd10` CHANGE `group` `icd_group` VARCHAR( 50 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
+ALTER TABLE `tx_masters` CHANGE `group` `tx_group` VARCHAR( 50 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
+
+UPDATE `structure_fields` SET `field` = 'tx_group',
+`structure_value_domain` = '0' WHERE `old_id` = 'CAN-999-999-000-999-276' LIMIT 1 ; 
+
+
 -- Add deleted and deleted_by columns to the correct tables
 
 ALTER TABLE `ad_blocks`
