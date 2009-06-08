@@ -2416,7 +2416,7 @@ CREATE TABLE `structure_value_domains_permissible_values` (
 
 CREATE TABLE `versions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `version_id` VARCHAR(255) NOT NULL,
+  `version_number` VARCHAR(255) NOT NULL,
   `date_installed` DATETIME NOT NULL default '0000-00-00 00:00:00',
   `status` VARCHAR(45) NOT NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
