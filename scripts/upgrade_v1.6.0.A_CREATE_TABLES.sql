@@ -530,14 +530,6 @@ CREATE TABLE `posts` (
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
-CREATE TABLE `widgets` (
-  `id` int(11) NOT NULL auto_increment,
-  `name` varchar(100) character set latin1 NOT NULL,
-  `part_no` varchar(12) character set latin1 default NULL,
-  `quantity` int(11) default NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
-
 -- Creates and populates the structures tables (must run globallookups.php to populate fields)
 
 CREATE TABLE `structure_fields` (
