@@ -13971,9 +13971,21 @@ CREATE TABLE `user_logs` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 ;
 
--- 
+CREATE TABLE `versions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_number` VARCHAR(255) NOT NULL,
+  `date_installed` DATETIME NOT NULL default '0000-00-00 00:00:00',
+  `status` VARCHAR(45) NOT NULL,
+  `created` datetime NOT NULL default '0000-00-00 00:00:00',
+  `created_by` varchar(50) default NULL,
+  `modified` datetime NOT NULL default '0000-00-00 00:00:00',
+  `modified_by` varchar(50) default NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=INNODB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
+
+--
 -- Dumping data for table `user_logs`
--- 
+--
 
 ALTER TABLE `structure_validations`
 	CHANGE `structure_field_id` `old_id` VARCHAR(255) NOT NULL,
