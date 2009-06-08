@@ -2435,6 +2435,7 @@ CREATE TABLE `versions` (
 
 UPDATE `structures` s, `structure_formats` m SET m.`structure_id` = s.`id` WHERE m.`structure_old_id` = s.`old_id`;
 UPDATE `structure_fields` f, `structure_formats` m SET m.`structure_field_id` = f.`id` WHERE m.`structure_field_old_id` = f.`old_id`;
+UPDATE `structure_validations` SET flag_required = '1', rule = '' WHERE rule = '/.+/';
 
 ALTER TABLE `users` CHANGE COLUMN `passwd` `password` CHAR(40);
 
