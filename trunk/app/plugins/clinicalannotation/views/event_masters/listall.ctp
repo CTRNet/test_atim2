@@ -1,7 +1,16 @@
 <?php
 	$structure_links = array(
-		'index'=>array( 
-			'detail'=>'/clinicalannotation/event_masters/detail/'.$atim_menu_variables['Menu.id'].'/'.$atim_menu_variables['EventMaster.event_group'].'/'.$atim_menu_variables['Participant.id'].'/%%EventMaster.id%%'
+		'index' => array( 
+			'detail' => '/clinicalannotation/event_masters/detail/'.$atim_menu_variables['Menu.id'].'/'.$atim_menu_variables['EventMaster.event_group'].'/'.$atim_menu_variables['Participant.id'].'/%%EventMaster.id%%'
+		),
+		'bottom' => array(
+			'filter' => array(
+				'option 1' => '/clinicalannotation/participant_messages/listall/1',
+				'constents test link' => '/clinicalannotation/consents/listall/1',
+				'broken link' => '/clinicalannotation/participants/broken/link',
+			),
+			'search' => '/clinicalannotation/participants/index',
+			'results' => '/clinicalannotation/participants/search'
 		)
 	); 
 	
