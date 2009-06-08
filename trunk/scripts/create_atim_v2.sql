@@ -13997,3 +13997,19 @@ ALTER TABLE `structure_validations`
 UPDATE `structure_validations` v, `structure_fields` f SET v.structure_field_id = f.id WHERE v.old_id LIKE f.old_id;
 
 INSERT INTO `versions` ( `version_number`, `status` ) VALUES ( 'ATiM version 2.0', 'Installed' );
+INSERT INTO `structures` (`alias`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES
+('versions', 0, 0, 0, 1);
+INSERT INTO `structure_fields` ( `model`, `field`, `language_label`, `type`, `setting` ) VALUES
+('Version', 'version_number', 'xVersionNumber', 'input', 'size=25'),
+('Version', 'date_installed', 'xDateInstalled', 'date', ''),
+('Version', 'status', 'xStatus', 'input', 'size=25');
+INSERT INTO `structure_formats` ( `structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_help`, `flag_index`, `flag_detail` ) VALUES
+( 0, 0, 1, 1, 'version', 1, 1),
+( 0, 0, 1, 2, 'date', 1, 1),
+( 0, 0, 1, 3, 'status', 1, 1);
+UPDATE `structure_formats` f, `structure_fields` d, `structures` s SET f.structure_id = s.id, f.structure_field_id = d.id
+WHERE f.language_help = 'version' AND s.alias = 'versions' AND d.`field` = 'version_number';
+UPDATE `structure_formats` f, `structure_fields` d, `structures` s SET f.structure_id = s.id, f.structure_field_id = d.id
+WHERE f.language_help = 'date' AND s.alias = 'versions' AND d.`field` = 'date_installed';
+UPDATE `structure_formats` f, `structure_fields` d, `structures` s SET f.structure_id = s.id, f.structure_field_id = d.id
+WHERE f.language_help = 'status' AND s.alias = 'versions' AND d.`field` = 'status';

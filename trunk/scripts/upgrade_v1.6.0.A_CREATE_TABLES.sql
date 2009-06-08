@@ -2424,7 +2424,7 @@ CREATE TABLE `structure_value_domains_permissible_values` (
 CREATE TABLE `versions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `version_number` VARCHAR(255) NOT NULL,
-  `date_installed` DATETIME NOT NULL default '0000-00-00 00:00:00',
+  `date_installed` TIMESTAMP NOT NULL default CURRENT_TIMESTAMP,
   `status` VARCHAR(45) NOT NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` varchar(50) default NULL,
@@ -2437,3 +2437,25 @@ UPDATE `structures` s, `structure_formats` m SET m.`structure_id` = s.`id` WHERE
 UPDATE `structure_fields` f, `structure_formats` m SET m.`structure_field_id` = f.`id` WHERE m.`structure_field_old_id` = f.`old_id`;
 
 ALTER TABLE `users` CHANGE COLUMN `passwd` `password` CHAR(40);
+
+-- Updates the structures, structure_fields, and structure_formats tables for the versions plugin
+
+
+INSERT INTO `versions` ( `version_number`, `status` ) VALUES ( 'ATiM version 2.0', 'Installed' );
+
+INSERT INTO `structures` (`alias`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES
+('versions', 0, 0, 0, 1);
+INSERT INTO `structure_fields` ( `model`, `field`, `language_label`, `type`, `setting` ) VALUES
+('Version', 'version_number', 'xVersionNumber', 'input', 'size=25'),
+('Version', 'date_installed', 'xDateInstalled', 'date', ''),
+('Version', 'status', 'xStatus', 'input', 'size=25');
+INSERT INTO `structure_formats` ( `structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_help`, `flag_index`, `flag_detail` ) VALUES
+( 0, 0, 1, 1, 'version', 1, 1),
+( 0, 0, 1, 2, 'date', 1, 1),
+( 0, 0, 1, 3, 'status', 1, 1);
+UPDATE `structure_formats` f, `structure_fields` d, `structures` s SET f.structure_id = s.id, f.structure_field_id = d.id
+WHERE f.language_help = 'version' AND s.alias = 'versions' AND d.`field` = 'version_number';
+UPDATE `structure_formats` f, `structure_fields` d, `structures` s SET f.structure_id = s.id, f.structure_field_id = d.id
+WHERE f.language_help = 'date' AND s.alias = 'versions' AND d.`field` = 'date_installed';
+UPDATE `structure_formats` f, `structure_fields` d, `structures` s SET f.structure_id = s.id, f.structure_field_id = d.id
+WHERE f.language_help = 'status' AND s.alias = 'versions' AND d.`field` = 'status';
