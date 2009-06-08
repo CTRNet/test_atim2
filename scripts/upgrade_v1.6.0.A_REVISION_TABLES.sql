@@ -2170,3 +2170,22 @@ CREATE TABLE `tx_masters_revs` (
 DROP TABLE `install_disease_sites`;
 DROP TABLE `install_locations`;
 DROP TABLE `install_studies`;
+
+-- Add ATiM infromation table
+
+CREATE TABLE `atim_information` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `tablename` VARCHAR(255),
+  `field` VARCHAR(255),
+  `data_element_identifier` VARCHAR(225),
+  `structure_field_id` INT(11) NOT NULL,
+  `datatype` VARCHAR(255),
+  `created` datetime NOT NULL default '0000-00-00 00:00:00',
+  `created_by` varchar(50) default NULL,
+  `modified` datetime NOT NULL default '0000-00-00 00:00:00',
+  `modified_by` varchar(50) default NULL,
+  PRIMARY KEY( `id` )
+) ENGINE=INNODB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
+
+INSERT INTO `atim_information` (`tablename`, `field`, `datatype` )
+SELECT c.`TABLE_NAME`, c.`COLUMN_NAME`, c.`DATA_TYPE` FROM `INFORMATION_SCHEMA`.`COLUMNS` c;
