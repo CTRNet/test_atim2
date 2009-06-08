@@ -565,14 +565,14 @@ CREATE TABLE `ad_cell_cores` (
 
 -- 
 -- Dumping data for table `ad_cell_cores`
--- 
+--
 
 
 -- --------------------------------------------------------
 
--- 
+--
 -- Table structure for table `ad_cell_cores_revs`
--- 
+--
 
 CREATE TABLE `ad_cell_cores_revs` (
   `id` int(11) NOT NULL,
@@ -1101,7 +1101,7 @@ CREATE TABLE `aliquot_masters_revs` (
 
 -- --------------------------------------------------------
 
--- 
+--
 -- Table structure for table `aliquot_uses`
 -- 
 
@@ -1165,7 +1165,7 @@ CREATE TABLE `aliquot_uses_revs` (
 
 -- --------------------------------------------------------
 
--- 
+--
 -- Table structure for table `announcements`
 -- 
 
@@ -13977,7 +13977,7 @@ CREATE TABLE `user_logs` (
 CREATE TABLE `versions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `version_number` VARCHAR(255) NOT NULL,
-  `date_installed` DATETIME NOT NULL default '0000-00-00 00:00:00',
+  `date_installed` TIMESTAMP NOT NULL default CURRENT_TIMESTAMP,
   `status` VARCHAR(45) NOT NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` varchar(50) default NULL,
@@ -13995,3 +13995,5 @@ ALTER TABLE `structure_validations`
 	ADD COLUMN `structure_field_id` INT(11) NOT NULL AFTER `old_id`;
 
 UPDATE `structure_validations` v, `structure_fields` f SET v.structure_field_id = f.id WHERE v.old_id LIKE f.old_id;
+
+INSERT INTO `versions` ( `version_number`, `status` ) VALUES ( 'ATiM version 2.0', 'Installed' );
