@@ -1252,7 +1252,20 @@ INSERT INTO `aros_acos` (`id`, `aro_id`, `aco_id`, `_create`, `_read`, `_update`
 
 -- --------------------------------------------------------
 
--- 
+CREATE TABLE `atim_information` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `tablename` VARCHAR(255),
+  `field` VARCHAR(255),
+  `data_element_identifier` VARCHAR(225),
+  `datatype` VARCHAR(255),
+  `created` datetime NOT NULL default '0000-00-00 00:00:00',
+  `created_by` varchar(50) default NULL,
+  `modified` datetime NOT NULL default '0000-00-00 00:00:00',
+  `modified_by` varchar(50) default NULL,
+  PRIMARY KEY( `id` )
+) ENGINE=INNODB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
+
+--
 -- Table structure for table `banks`
 -- 
 
@@ -14015,3 +14028,8 @@ UPDATE `structure_formats` f, `structure_fields` d, `structures` s SET f.structu
 WHERE f.language_help = 'status' AND s.alias = 'versions' AND d.`field` = 'status' AND d.model = 'Version';
 
 UPDATE `structure_validations` SET flag_required = '1', rule = '' WHERE rule = '/.+/';
+
+-- Get the table and column names from the entire database and populate the atim_information table
+
+INSERT INTO `atim_information` (`tablename`, `field`, `datatype` )
+SELECT c.`TABLE_NAME`, c.`COLUMN_NAME`, c.`DATA_TYPE` FROM `INFORMATION_SCHEMA`.`COLUMNS` c;
