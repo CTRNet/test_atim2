@@ -10,6 +10,8 @@ class EventMastersController extends ClinicalannotationAppController {
 		$this->set( 'atim_menu_variables', array('Menu.id'=>$menu_id,'EventMaster.event_group'=>$event_group,'Participant.id'=>$participant_id) );
 		$this->data = $this->paginate($this->EventMaster, array('EventMaster.participant_id'=>$participant_id, 'EventMaster.event_group'=>$event_group));
 		
+		$this->set( 'atim_structure', $this->Structures->get('form','event_masters') );
+		
 	}
 	
 	function detail( $menu_id=NULL, $event_group=NULL, $participant_id=null, $event_master_id=null ) {
