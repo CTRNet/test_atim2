@@ -2414,6 +2414,18 @@ CREATE TABLE `structure_value_domains_permissible_values` (
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=925 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=925 ;
 
+CREATE TABLE `versions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_id` VARCHAR(255) NOT NULL,
+  `date_installed` DATETIME NOT NULL default '0000-00-00 00:00:00',
+  `status` VARCHAR(45) NOT NULL,
+  `created` datetime NOT NULL default '0000-00-00 00:00:00',
+  `created_by` varchar(50) default NULL,
+  `modified` datetime NOT NULL default '0000-00-00 00:00:00',
+  `modified_by` varchar(50) default NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=INNODB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
+
 UPDATE `structures` s, `structure_formats` m SET m.`structure_id` = s.`id` WHERE m.`structure_old_id` = s.`old_id`;
 UPDATE `structure_fields` f, `structure_formats` m SET m.`structure_field_id` = f.`id` WHERE m.`structure_field_old_id` = f.`old_id`;
 
