@@ -2458,4 +2458,4 @@ WHERE f.language_help = 'version' AND s.alias = 'versions' AND d.`field` = 'vers
 UPDATE `structure_formats` f, `structure_fields` d, `structures` s SET f.structure_id = s.id, f.structure_field_id = d.id
 WHERE f.language_help = 'date' AND s.alias = 'versions' AND d.`field` = 'date_installed';
 UPDATE `structure_formats` f, `structure_fields` d, `structures` s SET f.structure_id = s.id, f.structure_field_id = d.id
-WHERE f.language_help = 'status' AND s.alias = 'versions' AND d.`field` = 'status';
+WHERE f.language_help = 'status' AND s.alias = 'versions' AND d.`field` = 'status' AND d.model = 'Version';
