@@ -2,7 +2,7 @@
 
 class ProtocolAppModel extends AppModel
 {
-	var $name = 'Protocol';
+	var $name = 'Protocols';
     //...
 }
 

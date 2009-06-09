@@ -2,13 +2,67 @@
 
 class ProtocolMastersController extends ProtocolAppController {
 
-	var $name = 'ProtocolMasters';
-	var $uses = array('ProtocolControl', 'ProtocolMaster', 'ProtocolExtend', 'TreatmentMaster' /*, 'Diagnosis'*/);
+	var $uses = array('ProtocolControl', 'ProtocolMaster', 'PdChemos', 'PeChemos', 'TxMaster');
+	var $paginate = array('ProtocolMaster'=>array('limit'=>10,'order'=>'ProtocolMaster.name DESC'));
+	
+	function listall() {
+		$this->data = $this->paginate($this->ProtocolMaster, array());
+	}
+	
+	function add() {
+		
+		$this->data['ProtocolMaster']['detail_form_alias'] = 'pd_chemos';
+	
+		if ( !empty($this->data) ) {
+			if ( $this->ProtocolMaster->save($this->data) ) {
+				$this->flash( 'Your data has been updated.','/protocol/protocol_masters/detail/'.$this->ProtocolMaster->id );
+			}
+		}
+	}
+	
+	function detail($protocol_master_id) {
+		if ( !$protocol_master_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+	
+		$this->set( 'atim_menu_variables', array('ProtocolMaster.id'=>$protocol_master_id) );
+		$this->data = $this->ProtocolMaster->find('first',array('conditions'=>array('ProtocolMaster.id'=>$protocol_master_id)));
+		
+		// set FORM ALIAS based off VALUE from MASTER table
+		$this->set( 'atim_structure', $this->Structures->get('form',$this->data['ProtocolMaster']['detail_form_alias']) );
+	}
 
+	function edit( $protocol_master_id  ) {
+		if ( !$protocol_master_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		
+		$this->set( 'atim_menu_variables', array('ProtocolMaster.id'=>$protocol_master_id) );
+		$this_data = $this->ProtocolMaster->find('first',array('conditions'=>array('ProtocolMaster.id'=>$protocol_master_id)));
+		
+		// set FORM ALIAS based off VALUE from MASTER table
+		$this->set( 'atim_structure', $this->Structures->get('form',$this_data['ProtocolMaster']['detail_form_alias']) );
+		
+		if ( !empty($this->data) ) {
+			$this->ProtocolMaster->id = $protocol_master_id;
+			if ( $this->ProtocolMaster->save($this->data) ) $this->flash( 'Your data has been updated.','/protocol/protocol_masters/detail/'.$protocol_master_id.'/');
+		} else {
+			$this->data = $this_data;
+		}
+		
+	}
+	
+	function delete( $protocol_master_id ) {
+		if ( !$protocol_master_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		
+		if( $this->ProtocolMaster->del( $protocol_master_id ) ) {
+			$this->flash( 'Your data has been deleted.', '/protocol/protocol_masters/listall/');
+		} else {
+			$this->flash( 'Your data has been deleted.', '/protocol/protocol_masters/listall/');
+		}
+	}
+	
 //	var $components = array('Summaries');
 //	
 //	var $helpers = array('Summaries', 'MoreForm');
-  
+
+/*  
   var $components = array('Summaries');
   var $helpers = array('Summaries');
 
@@ -62,7 +116,7 @@ class ProtocolMastersController extends ProtocolAppController {
 		print_r($protocol_masters);
 		echo('</pre>');
 		die();
-		*/
+		
 
 	}
 
@@ -356,7 +410,7 @@ class ProtocolMastersController extends ProtocolAppController {
 		
 		return TRUE;
 	}
-
+*/
 }
 
 ?>
