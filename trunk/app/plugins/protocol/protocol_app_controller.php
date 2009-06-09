@@ -2,8 +2,9 @@
 
 class ProtocolAppController extends AppController
 {	
-	var $name = 'Protocol';
-	
+/*
+	var $name = 'Protocols';
+*/
 }
 
 ?>
