@@ -4027,9 +4027,6 @@ CREATE TABLE `participants` (
 -- Dumping data for table `participants`
 -- 
 
-INSERT INTO `participants` (`id`, `title`, `first_name`, `last_name`, `middle_name`, `date_of_birth`, `date_status`, `marital_status`, `language_preferred`, `sex`, `race`, `ethnicity`, `vital_status`, `memo`, `status`, `date_of_death`, `death_certificate_ident`, `icd10_id`, `confirmation_source`, `tb_number`, `last_chart_checked_date`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`)
-VALUES (1, '', 'Joe', 'Test', '', '2029-01-01', NULL, '', '', '', '', NULL, '', '', NULL, '2029-01-01', '', '', '', '', '2029-01-01', '2009-05-14 16:07:13', '1', '2009-05-14 16:07:13', '1', 0, '0000-00-00 00:00:00');
-
 -- --------------------------------------------------------
 
 -- 
