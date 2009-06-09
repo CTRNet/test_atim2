@@ -16,11 +16,11 @@ INSERT INTO `tx_masters` ( `id`, `tx_group`, `detail_tablename`, `detail_form_al
 (102, 'radiation', 'txd_radiations', 'txd_radiations', 'txe_radiations', 'txe_radiations', 1),
 (103, 'surgery', 'txd_surgeries', 'txd_surgeries', 'txe_surgeries', 'txe_surgeries', 1);
 
-INSERT INTO `txd_chemos` ( `completed`, `response`, `tx_masters_id` ) VALUES
+INSERT INTO `txd_chemos` ( `completed`, `response`, `tx_master_id` ) VALUES
 ('yes', 'completed', 101);
 
-INSERT INTO `txd_radiations` ( `source`, `mould`, `tx_masters_id` ) VALUES
+INSERT INTO `txd_radiations` ( `source`, `mould`, `tx_master_id` ) VALUES
 ( 'plutonium', 'asdf', 102 );
 
-INSERT INTO `txd_surgeries` ( `path_num`, `primary`, `surgeon`, `tx_masters_id` ) VALUES
+INSERT INTO `txd_surgeries` ( `path_num`, `primary`, `surgeon`, `tx_master_id` ) VALUES
 ( 2456, 'block', 'dr. death', 103 );
