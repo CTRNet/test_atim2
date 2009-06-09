@@ -2440,6 +2440,7 @@ UPDATE `structure_validations` SET flag_required = '1', rule = '' WHERE rule = '
 ALTER TABLE `users` CHANGE COLUMN `passwd` `password` CHAR(40);
 
 UPDATE `structures` SET alias = 'treatmentmasters' WHERE alias = 'tx_masters';
+UPDATE `structures` SET `alias` = 'protocolmasters' WHERE `alias` = 'protocol_masters';
 
 -- Updates the structures, structure_fields, and structure_formats tables for the versions plugin
 
