@@ -1397,8 +1397,96 @@ class StructuresHelper extends Helper {
 		$links = !is_array($links) ? array('detail'=>$links) : $links;
 		
 		// parse through $LINKS array passed to function, make link for each 
-		foreach ( $links as $link_name => $link_location ) {
+		foreach ( $links as $link_name => $link_array ) {
 				
+			if ( !is_array($link_array) ) {
+				$link_array = array( $link_name => $link_array );
+			}
+			
+			$link_results = array();
+			
+			foreach ( $link_array as $link_label=>$link_location ) {
+				
+				// check on EDIT only 
+				$parts = Router::parse($link_location);
+				$aco_alias = 'controllers/'.($parts['plugin'] ? Inflector::camelize($parts['plugin']).'/' : '');
+				$aco_alias .= ($parts['controller'] ? Inflector::camelize($parts['controller']).'/' : '');
+				$aco_alias .= ($parts['action'] ? $parts['action'] : '');
+				
+				$Acl = new AclComponent();
+				
+				// if ACO/ARO permissions check succeeds, create link
+				if ( strpos($aco_alias,'controllers/Users')!==false || strpos($aco_alias,'controllers/Pages')!==false || $Acl->check($aro_alias, $aco_alias) ) {
+					
+					$display_class_name = '';
+					
+					// CODE TO SET CLASS(ES) BASED ON URL GOES HERE!
+					
+					$htmlAttributes = array(
+						'class'	=>	'form '.$display_class_name,
+						'title'	=>	strip_tags( __($link_name, true) )
+					);
+					
+					// set Javascript confirmation msg...
+					if ( $display_class_name=='delete' ) {
+						$confirmation_msg = __( 'core_are you sure you want to delete this data?', true );
+					} else {
+						$confirmation_msg = NULL;
+					}
+					
+					// replace %%MODEL.FIELDNAME%% 
+					$link_location = $this->str_replace_link( $link_location, $data );
+					
+					$return_urls[]		= $this->Html->url( $link_location );
+					$link_results[$link_label]	= $this->Html->link( __($link_label, true), $link_location, $htmlAttributes, $confirmation_msg, false );
+					
+				}
+				
+				// if ACO/ARO permission check fails, display NOt ALLOWED type link
+				else {
+					$return_urls[]		= $this->Html->url( '/menus' );
+					$link_results[$link_label]	= '<a class="not_allowed">'.__($link_label, true).'</a>';
+				} // end CHECKMENUPERMISSIONS
+				
+			}
+			
+			if ( count($link_results)==1 ) {
+				$return_links[$link_name] = $link_results[$link_name];
+			}
+			
+			else {
+				
+				$links_append = '
+					<ul>
+						<li>
+							<span>'.$link_name.'</span>
+							
+							<ul>
+				';
+				
+				$count = 0;
+				foreach ( $link_results as $link_label=>$link_location ) {
+					$links_append .= '
+								<li class="count_'.$count.'">
+									'.$link_location.'
+								</li>
+					';
+					
+					$count++;
+				}
+				
+				$links_append .= '
+							</ul>
+							
+						</li>
+					</ul>
+				';
+				
+				$return_links[$link_name] = $links_append;
+				
+			}
+			
+			/*
 			// check on EDIT only 
 			$parts = Router::parse($link_location);
 			$aco_alias = 'controllers/'.($parts['plugin'] ? Inflector::camelize($parts['plugin']).'/' : '');
@@ -1414,7 +1502,6 @@ class StructuresHelper extends Helper {
 					$display_class_name = '';
 					$display_class_array = array();
 					
-					/*
 					$display_class_array = str_replace('_', ' ', $link_name);
 					$display_class_array = str_replace('-', ' ', $display_class_array);
 					$display_class_array = str_replace('  ', ' ', $display_class_array);
@@ -1493,7 +1580,6 @@ class StructuresHelper extends Helper {
 						
 						$display_class_name = ( !$display_class_array[1] ? 'detail' : $display_class_name );
 					}
-					*/
 					
 					// default, if none
 					$display_class_name = $display_class_name ? $display_class_name : 'detail';				
@@ -1522,7 +1608,8 @@ class StructuresHelper extends Helper {
 			else {
 				$return_urls[]		= $this->Html->url( '/menus' );
 				$return_links[]	= '<a class="not_allowed">'.__($link_name, true).'</a>';
-			} // end CHECKMENUPERMISSIONS 
+			} // end CHECKMENUPERMISSIONS
+			*/
 			
 		} // end FOREACH 
 		
