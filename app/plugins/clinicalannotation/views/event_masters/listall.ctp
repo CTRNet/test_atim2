@@ -1,16 +1,21 @@
 <?php
+	$filter_links = array( 'no filter'=>'/clinicalannotation/event_masters/listall/'.$atim_menu_variables['Menu.id'].'/'.$atim_menu_variables['EventMaster.event_group'].'/'.$atim_menu_variables['Participant.id'] );
+	foreach ( $event_controls as $event_control ) {
+		$filter_links[ $event_control['EventControl']['disease_site'].' - '.$event_control['EventControl']['event_type'] ] = '/clinicalannotation/event_masters/listall/'.$atim_menu_variables['Menu.id'].'/'.$atim_menu_variables['EventMaster.event_group'].'/'.$atim_menu_variables['Participant.id'].'/'.$event_control['EventControl']['id'];
+	}
+	
+	$add_links = array();
+	foreach ( $event_controls as $event_control ) {
+		$add_links[ $event_control['EventControl']['disease_site'].' - '.$event_control['EventControl']['event_type'] ] = '/clinicalannotation/event_masters/add/'.$atim_menu_variables['Menu.id'].'/'.$atim_menu_variables['EventMaster.event_group'].'/'.$atim_menu_variables['Participant.id'].'/'.$event_control['EventControl']['id'];
+	}
+	
 	$structure_links = array(
 		'index' => array( 
 			'detail' => '/clinicalannotation/event_masters/detail/'.$atim_menu_variables['Menu.id'].'/'.$atim_menu_variables['EventMaster.event_group'].'/'.$atim_menu_variables['Participant.id'].'/%%EventMaster.id%%'
 		),
 		'bottom' => array(
-			'filter' => array(
-				'option 1' => '/clinicalannotation/participant_messages/listall/1',
-				'constents test link' => '/clinicalannotation/consents/listall/1',
-				'broken link' => '/clinicalannotation/participants/broken/link',
-			),
-			'search' => '/clinicalannotation/participants/index',
-			'results' => '/clinicalannotation/participants/search'
+			'filter' => $filter_links,
+			'add' => $add_links
 		)
 	); 
 	
