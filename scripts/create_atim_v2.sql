@@ -14003,6 +14003,8 @@ CREATE TABLE `versions` (
 -- Dumping data for table `user_logs`
 --
 
+UPDATE `structures` SET alias = 'treatmentmasters' WHERE alias = 'tx_masters';
+
 ALTER TABLE `structure_validations`
 	CHANGE `structure_field_id` `old_id` VARCHAR(255) NOT NULL,
 	ADD COLUMN `structure_field_id` INT(11) NOT NULL AFTER `old_id`;
