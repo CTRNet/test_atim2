@@ -2,7 +2,7 @@
 
 class EventMastersController extends ClinicalannotationAppController {
 
-	var $uses = array('EventControl', 'Clinicalannotation.EventMaster', 'Diagnosis');
+	var $uses = array('Clinicalannotation.EventMaster', 'Clinicalannotation.EventControl', 'Clinicalannotation.Diagnosis');
 	var $paginate = array('EventMaster'=>array('limit'=>10,'order'=>'EventMaster.event_date DESC'));
 	
 	function listall( $menu_id=NULL, $event_group=NULL, $participant_id=null, $event_control_id=null ) {
