@@ -10,7 +10,8 @@ class EventMastersController extends ClinicalannotationAppController {
 		// set FILTER, used as this->data CONDITIONS
 		
 			if ( !isset($_SESSION['MasterDetail_filter']) || !$event_control_id ) {
-				$_SESSION['MasterDetail_filter'] = array( 'EventMaster.participant_id'=>$participant_id, 'EventMaster.event_group'=>$event_group );
+				$_SESSION['MasterDetail_filter']['EventMaster.participant_id'] = $participant_id;
+				$_SESSION['MasterDetail_filter']['EventMaster.event_group'] = $event_group;
 				
 				$this->set( 'atim_structure', $this->Structures->get('form','event_masters') );
 			}
@@ -25,7 +26,7 @@ class EventMastersController extends ClinicalannotationAppController {
 			}
 			
 		
-		$this->set( 'atim_menu_variables', array('Menu.id'=>$menu_id,'EventMaster.event_group'=>$event_group,'Participant.id'=>$participant_id) );
+		$this->set( 'atim_menu_variables', array('Menu.id'=>$menu_id,'EventMaster.event_group'=>$event_group,'Participant.id'=>$participant_id, 'EventControl.id'=>$event_control_id) );
 		$this->data = $this->paginate($this->EventMaster, $_SESSION['MasterDetail_filter']);
 
 		// find all EVENTCONTROLS, for ADD form
