@@ -11,18 +11,23 @@ class GroupsController extends AdministrateAppController {
 	}
 	
 	function detail( $bank_id, $group_id ) {
-		// $this->set( 'atim_menu_variables', array('Bank.id'=>$bank_id,'Group.id'=>$group_id) );
-		// $this->data = $this->Group->find('first',array('conditions'=>array('Group.id'=>$group_id)));
+		$this->set( 'atim_menu_variables', array('Bank.id'=>$bank_id,'Group.id'=>$group_id) );
+		$this->data = $this->Group->find('first',array('conditions'=>array('Group.id'=>$group_id)));
 		
+		/*
 		if (!$id) {
 			$this->Session->setFlash(__('Invalid Group.', true));
 			$this->redirect(array('action'=>'index'));
 		}
+		
 		$this->set('group', $this->Group->read(null, $id));
+		*/
 	}
 	
 
 	function add() {
+		$this->set( 'atim_menu_variables', array('Bank.id'=>$bank_id) );
+		
 		if (!empty($this->data)) {
 			$this->Group->create();
 			if ($this->Group->save($this->data)) {
@@ -43,6 +48,8 @@ class GroupsController extends AdministrateAppController {
 	}
 
 	function edit($id = null) {
+		$this->set( 'atim_menu_variables', array('Bank.id'=>$bank_id,'Group.id'=>$group_id) );
+		
 		if (!$id && empty($this->data)) {
 			$this->Session->setFlash(__('Invalid Group', true));
 			$this->redirect(array('action'=>'index'));

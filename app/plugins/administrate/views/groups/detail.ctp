@@ -1,12 +1,11 @@
 <?php 
-/*
 	$structure_links = array(
 		'bottom'=>array('edit'=>'/administrate/groups/edit/'.$atim_menu_variables['Bank.id'].'/%%Group.id%%', 'list'=>'/administrate/groups/index/'.$atim_menu_variables['Bank.id'])
 	);
 	
 	$structures->build( $atim_structure, array('links'=>$structure_links) );
-*/
-?>
+
+/*
 <div class="groups view">
 <h2><?php  __('Group');?></h2>
 	<dl><?php $i = 0; $class = ' class="altrow"';?>
@@ -40,3 +39,6 @@
 		<li><?php echo $html->link(__('New Group', true), array('action'=>'add')); ?> </li>
 	</ul>
 </div>
+*/
+
+?>
