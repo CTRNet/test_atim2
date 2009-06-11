@@ -1,12 +1,7 @@
 <?php
 
-class TreatmentControl extends ClinicalAnnotationAppModel
-{
-    var $name = 'TreatmentControl';
+class TreatmentControl extends ClinicalannotationAppModel {
 	var $useTable = 'tx_controls';
-	
-	var $validate = array();
-	
 }
 
 ?>

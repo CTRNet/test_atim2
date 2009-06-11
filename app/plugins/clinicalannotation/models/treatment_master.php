@@ -1,7 +1,6 @@
 <?php
 
-class TreatmentMaster extends ClinicalAnnotationAppModel
-{
+class TreatmentMaster extends ClinicalannotationAppModel {
 	var $useTable = 'tx_masters';
     var $actAs = array('MasterDetail');
 }

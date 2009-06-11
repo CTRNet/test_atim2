@@ -1,17 +1,18 @@
 <?php
 
-class TreatmentMastersController extends ClinicalAnnotationAppController {
+class TreatmentMastersController extends ClinicalannotationAppController {
 
-
-	var $uses = array('TxMaster', 'TxControl', 'Diagnosis');
-	var $paginate = array('TxMaster'=>array('limit'=>10,'order'=>'TxMaster.start_date DESC'));
+	var $uses = array('TreatmentMaster', 'TreatmentControl', 'Diagnosis');
+	var $paginate = array('TreatmentMaster'=>array('limit'=>10,'order'=>'TreatmentMaster.start_date DESC'));
 
 	function listall($participant_id=null ) {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id' ); }
 		
-		$this->set( 'atim_menu_variables', array('TxMaster.group'=>$group,'Participant.id'=>$participant_id) );
-		$this->data = $this->paginate($this->TxMaster, array('TxMaster.participant_id'=>$participant_id));
+		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id));
+		$this->data = $this->paginate($this->TreatmentMaster, array('TreatmentMaster.participant_id'=>$participant_id));
 		
+		// find all TXCONTROLS, for ADD form
+		$this->set('treatment_controls', $this->TreatmentControl->find('all'));		
 	}
 	
 	function detail( $participant_id=null, $tx_master_id=null ) {
