@@ -1450,16 +1450,16 @@ class StructuresHelper extends Helper {
 				
 			}
 			
-			if ( count($link_results)==1 ) {
+			if ( count($link_results)==1 && isset($link_results[$link_name]) ) {
 				$return_links[$link_name] = $link_results[$link_name];
 			}
 			
 			else {
 				
 				$links_append = '
-					<ul>
+					<ul class="filter">
 						<li>
-							<span>'.$link_name.'</span>
+							<span><a href="javascript:return false;">'.$link_name.'</a></span>
 							
 							<ul>
 				';
