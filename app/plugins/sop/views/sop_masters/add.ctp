@@ -1,8 +1,8 @@
 <?php 
 	$structure_links = array(
-		'top'=>'/protocol/protocol_masters/add/',
+		'top'=>'/sop/sop_masters/add/',
 		'bottom'=>array(
-			'cancel'=>'/protocol/protocol_masters/listall/'
+			'cancel'=>'/sop/sop_masters/listall/'
 		)
 	);
 	
