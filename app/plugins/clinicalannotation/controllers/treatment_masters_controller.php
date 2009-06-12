@@ -2,10 +2,10 @@
 
 class TreatmentMastersController extends ClinicalannotationAppController {
 
-	var $uses = array('TreatmentMaster', 'TreatmentControl', 'Diagnosis');
+	var $uses = array('Clinicalannotation.TreatmentMaster', 'Clinicalannotation.TreatmentControl', 'Clinicalannotation.Diagnosis');
 	var $paginate = array('TreatmentMaster'=>array('limit'=>10,'order'=>'TreatmentMaster.start_date DESC'));
 
-	function listall($participant_id=null ) {
+	function listall($participant_id=null) {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id' ); }
 		
 		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id));
@@ -15,31 +15,30 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		$this->set('treatment_controls', $this->TreatmentControl->find('all'));		
 	}
 	
-	function detail( $participant_id=null, $tx_master_id=null ) {
+	function detail($participant_id=null, $tx_master_id=null) {
 		
-		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id,'TxMaster.id'=>$tx_master_id) );
-		$this->data = $this->TxMaster->find('first',array('conditions'=>array('TxMaster.id'=>$tx_master_id)));
+		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id,'TreatmentMaster.id'=>$tx_master_id) );
+		$this->data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id)));
 		
 		// set FORM ALIAS based off VALUE from MASTER table
-		$this->set( 'atim_structure', $this->Structures->get('detail_form',$this->data['TxMaster']['detail_form_alias']) );
-		
+		$this->set( 'atim_structure', $this->Structures->get('form',$this->data['TreatmentMaster']['detail_form_alias']) );
 	}
 	
 	function edit( $participant_id=null, $tx_master_id=null ) {
 		
-		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id,'TxMaster.id'=>$tx_master_id) );
-		$this_data = $this->TxMaster->find('first',array('conditions'=>array('TxMaster.id'=>$tx_master_id)));
+		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id,'TreatmentMaster.id'=>$tx_master_id) );
+		$this_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id)));
 		
 		// set FORM ALIAS based off VALUE from MASTER table
-		$this->set( 'atim_structure', $this->Structures->get('detail_form',$this_data['TxMaster']['detail_form_alias']) );
+		$this->set( 'atim_structure', $this->Structures->get('form',$this_data['TreatmentMaster']['detail_form_alias']) );
 		
 		if ( !empty($this->data) ) {
-			$this->TxMaster->id = $tx_master_id;
-			if ( $this->TxMaster->save($this->data) ) $this->flash( 'Your data has been updated.','/clinicalannotation/treatment_masters/detail/'.$participant_id.'/'.$treatment_master_id);
+			$this->TreatmentMaster->id = $tx_master_id;
+			if ( $this->TreatmentMaster->save($this->data) ) $this->flash( 'Your data has been updated.','/clinicalannotation/treatment_masters/detail/'.$participant_id.'/'.$tx_master_id);
 		} else {
 			$this->data = $this_data;
 		}
-		
+
 	}
 	
 	function add( $participant_id=null) {
