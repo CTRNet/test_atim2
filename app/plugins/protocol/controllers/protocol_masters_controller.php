@@ -9,7 +9,7 @@ class ProtocolMastersController extends ProtocolAppController {
 		
 		$this->data = $this->paginate($this->ProtocolMaster, array());
 		
-		// find all TXCONTROLS, for ADD form
+		// find all PROTOCOLCONTROLS, for ADD form
 		$this->set('protocol_controls', $this->ProtocolControl->find('all'));	
 	}
 	
@@ -32,7 +32,7 @@ class ProtocolMastersController extends ProtocolAppController {
 		$this->data = $this->ProtocolMaster->find('first',array('conditions'=>array('ProtocolMaster.id'=>$protocol_master_id)));
 		
 		// set FORM ALIAS based off VALUE from MASTER table
-		$this->set( 'atim_structure', $this->Structures->get('form',$this->data['TreatmentMaster']['detail_form_alias']) );
+		$this->set( 'atim_structure', $this->Structures->get('form',$this->data['ProtocolMaster']['detail_form_alias']) );
 	}
 
 	function edit( $protocol_master_id  ) {
@@ -45,7 +45,7 @@ class ProtocolMastersController extends ProtocolAppController {
 		$this->set( 'atim_structure', $this->Structures->get('form',$this_data['ProtocolMaster']['detail_form_alias']) );
 		
 		if ( !empty($this->data) ) {
-			$this->ProtocolMaster->id = $tx_master_id;
+			$this->ProtocolMaster->id = $protocol_master_id;
 			if ( $this->ProtocolMaster->save($this->data) ) $this->flash( 'Your data has been updated.','/protocol/protocol_masters/detail/'.$protocol_master_id.'/');
 		} else {
 			$this->data = $this_data;
