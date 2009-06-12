@@ -1,8 +1,9 @@
-<?
+<?php 
 	$structure_links = array(
 		'bottom'=>array(
-			'edit'=>'/sop_master/edit/%%SopMaster.id%%, 
-			'list'=>'/sop_master/listall/%%SopMaster.id%%'
+			'list'=>'/protocol/protocol_masters/listall/',
+			'edit'=>'/protocol/protocol_masters/edit/%%ProtocolMaster.id%%/',
+			'delete'=>'/protocol/protocol_masters/delete/%%ProtocolMaster.id%%/'
 		)
 	);
 	
