@@ -2,7 +2,7 @@
 
 class ProtocolExtend extends ProtocolAppModel
 {
-    var $useTable = false;
+    var $useTable = 'PeChemos';
 }
 
 ?>

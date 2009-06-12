@@ -2,16 +2,21 @@
 
 class ProtocolMastersController extends ProtocolAppController {
 
-	var $uses = array('ProtocolControl', 'ProtocolMaster', 'PdChemos', 'PeChemos', 'TxMaster');
+	var $uses = array('Protocol.ProtocolControl', 'Protocol.ProtocolMaster');
 	var $paginate = array('ProtocolMaster'=>array('limit'=>10,'order'=>'ProtocolMaster.name DESC'));
 	
 	function listall() {
+		
 		$this->data = $this->paginate($this->ProtocolMaster, array());
+		
+		// find all TXCONTROLS, for ADD form
+		$this->set('protocol_controls', $this->ProtocolControl->find('all'));	
 	}
 	
 	function add() {
-		
-		$this->data['ProtocolMaster']['detail_form_alias'] = 'pd_chemos';
+		$this->set( 'atim_structure', $this->Structures->get('pd_chemos',$this->data['ProtocolMaster']['detail_form_alias']) );
+		//$this->data['ProtocolMaster']['detail_form_alias'] = 'pd_chemos';
+		//$this->data['ProtocolMaster']['detail_tablename'] = 'pd_chemos';
 	
 		if ( !empty($this->data) ) {
 			if ( $this->ProtocolMaster->save($this->data) ) {
@@ -23,11 +28,11 @@ class ProtocolMastersController extends ProtocolAppController {
 	function detail($protocol_master_id) {
 		if ( !$protocol_master_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 	
-		$this->set( 'atim_menu_variables', array('ProtocolMaster.id'=>$protocol_master_id) );
+		$this->set( 'atim_menu_variables', array('ProtocolMaster.id'=>$protocol_master_id));
 		$this->data = $this->ProtocolMaster->find('first',array('conditions'=>array('ProtocolMaster.id'=>$protocol_master_id)));
 		
 		// set FORM ALIAS based off VALUE from MASTER table
-		$this->set( 'atim_structure', $this->Structures->get('form',$this->data['ProtocolMaster']['detail_form_alias']) );
+		$this->set( 'atim_structure', $this->Structures->get('form',$this->data['TreatmentMaster']['detail_form_alias']) );
 	}
 
 	function edit( $protocol_master_id  ) {
@@ -40,7 +45,7 @@ class ProtocolMastersController extends ProtocolAppController {
 		$this->set( 'atim_structure', $this->Structures->get('form',$this_data['ProtocolMaster']['detail_form_alias']) );
 		
 		if ( !empty($this->data) ) {
-			$this->ProtocolMaster->id = $protocol_master_id;
+			$this->ProtocolMaster->id = $tx_master_id;
 			if ( $this->ProtocolMaster->save($this->data) ) $this->flash( 'Your data has been updated.','/protocol/protocol_masters/detail/'.$protocol_master_id.'/');
 		} else {
 			$this->data = $this_data;
