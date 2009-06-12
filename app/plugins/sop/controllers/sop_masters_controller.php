@@ -1,6 +1,69 @@
 <?php
 
 class SopMastersController extends SopAppController {
+
+	var $uses = array('Sop.SopControl', 'Sop.SopMaster');
+	var $paginate = array('SopMaster'=>array('limit'=>10,'order'=>'SopMaster.title DESC'));
+	
+	function listall() {
+		
+		$this->data = $this->paginate($this->SopMaster, array());
+		
+		// find all SOPCONTROLS, for ADD form
+		$this->set('sop_controls', $this->SopControl->find('all'));	
+	}
+
+	
+	function add() {
+		$this->set( 'atim_structure', $this->Structures->get('pd_chemos',$this->data['SopMaster']['detail_form_alias']) );
+		//$this->data['SopMaster']['detail_form_alias'] = 'pd_chemos';
+		//$this->data['SopMaster']['detail_tablename'] = 'pd_chemos';
+	
+		if ( !empty($this->data) ) {
+			if ( $this->SopMaster->save($this->data) ) {
+				$this->flash( 'Your data has been updated.','/sop/sop_masters/detail/'.$this->SopMaster->id );
+			}
+		}
+	}
+	
+	function detail($sop_master_id) {
+		if ( !$sop_master_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+	
+		$this->set( 'atim_menu_variables', array('SopMaster.id'=>$sop_master_id));
+		$this->data = $this->SopMaster->find('first',array('conditions'=>array('SopMaster.id'=>$sop_master_id)));
+		
+		// set FORM ALIAS based off VALUE from MASTER table
+		$this->set( 'atim_structure', $this->Structures->get('form',$this->data['SopMaster']['detail_form_alias']) );
+	}
+
+	function edit( $Sop_master_id  ) {
+		if ( !$sop_master_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		
+		$this->set( 'atim_menu_variables', array('SopMaster.id'=>$sop_master_id) );
+		$this_data = $this->SopMaster->find('first',array('conditions'=>array('SopMaster.id'=>$sop_master_id)));
+		
+		// set FORM ALIAS based off VALUE from MASTER table
+		$this->set( 'atim_structure', $this->Structures->get('form',$this_data['SopMaster']['detail_form_alias']) );
+		
+		if ( !empty($this->data) ) {
+			$this->SopMaster->id = $sop_master_id;
+			if ( $this->SopMaster->save($this->data) ) $this->flash( 'Your data has been updated.','/sop/sop_masters/detail/'.$sop_master_id.'/');
+		} else {
+			$this->data = $this_data;
+		}
+		
+	}
+	
+	function delete( $sop_master_id ) {
+		if ( !$sop_master_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		
+		if( $this->SopMaster->del( $sop_master_id ) ) {
+			$this->flash( 'Your data has been deleted.', '/sop/sop_masters/listall/');
+		} else {
+			$this->flash( 'Your data has been deleted.', '/sop/sop_masters/listall/');
+		}
+	}
+/*
 	$uses = array('SopControl', 'SopMaster');
 	$paginate = array('SopMaster'=>array('limit'=10,'order'=>'SopMaster.title ASC'));
 	$component = array('Summaries');
@@ -32,7 +95,6 @@ class SopMastersController extends SopAppController {
 			$this->data = $this->SopMaster->find('first',array('conditions'=>array('SopMaster.id'=>$sop_master_id)));
 		}
 	}
-/*
 	var $name = 'SopMasters';
 	var $uses = array('SopControl', 'SopMaster');
 	
@@ -53,7 +115,7 @@ class SopMastersController extends SopAppController {
 		$this->cleanUpFields();
 
 	}
-*/
+
 	function index() {}
 	/*
 		// nothing...
@@ -273,7 +335,7 @@ class SopMastersController extends SopAppController {
 
 
 	}
-*/
+
 	function delete( $sop_master_id=null ) {}
 /*
 		// read SopMaster info, which contains FORM alias and DETAIL tablename
@@ -290,7 +352,7 @@ class SopMastersController extends SopAppController {
 		$this->flash( 'Your data has been deleted.', '/sop_masters/listall/' );
 
 	}
-*/	
+	
 	function getSOPList( $sop_group=null, $sop_type=null, $sop_product=null ) {}
 	/*	
 		// Check arguments for data
@@ -329,7 +391,7 @@ class SopMastersController extends SopAppController {
 		
 		return $sop_list;
 	}
-
+*/
 }
 
 ?>
