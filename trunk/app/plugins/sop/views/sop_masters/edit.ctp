@@ -1,8 +1,8 @@
 <?php 
 	$structure_links = array(
-		'top'=>'/protocol/protocol_masters/edit/'.$atim_menu_variables['ProtocolMaster.id'].'/',
+		'top'=>'/sop/sop_masters/edit/'.$atim_menu_variables['SopMaster.id'].'/',
 		'bottom'=>array(
-			'cancel'=>'/protocol/protocol_masters/detail/%%ProtocolMaster.id%%/'
+			'cancel'=>'/sop/sop_masters/detail/%%SopMaster.id%%/'
 		)
 	);
 	
