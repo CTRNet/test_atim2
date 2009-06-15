@@ -1,19 +1,19 @@
 <?php
 
-class ParticipantMessage extends ClinicalAnnotationAppModel
-{
-    function summary( $variables=array() ) {
+class ParticipantMessage extends ClinicalAnnotationAppModel {
+    
+	function summary($variables=array()) {
 		$return = false;
 		
-		if ( isset($variables['ParticipantContact.id']) ) {
+		if (isset($variables['ParticipantContact.id'])) {
 			
 			$result = $this->find('first', array('conditions'=>array('ParticipantMessage.id'=>$variables['ParticipantMessage.id'])));
 			
 			$return = array(
 				'Summary' => array(
-					'title'			=>	array(NULL, $result['ParticipantMessage']['title'],
-					'type'			=>	array(NULL, $result['ParticipantMessage']['type'],
-					'participant_id' => array(NULL, $result['ParticipantMessage']['participant_id'],
+					'title'			=>	array(NULL, $result['ParticipantMessage']['title']),
+					'type'			=>	array(NULL, $result['ParticipantMessage']['type']),
+					'participant_id' => array(NULL, $result['ParticipantMessage']['participant_id']),
 					'description'	=>	array(
 						'date_requested'	=>	$result['ParticipantMessage']['date_requested'],
 						'author'			=>	$result['ParticipantMessage']['author'],
@@ -23,7 +23,6 @@ class ParticipantMessage extends ClinicalAnnotationAppModel
 				)
 			);
 		}
-		
 		return $return;
 	}
 }
