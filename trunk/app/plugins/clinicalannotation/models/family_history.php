@@ -19,7 +19,7 @@ class FamilyHistory extends ClinicalAnnotationAppModel
 						'dx_date' => $result['FamilyHistory']['dx_date'],
 						'dx_status'	=> $result['FamilyHistory']['dx_date_status'],
 						'age_at_dx'	=> $result['FamilyHistory']['age_at_dx'],
-						'age_at_dx_status'	=>	['FamilyHistory']['age_at_dx_status']
+						'age_at_dx_status'	=>	$result['FamilyHistory']['age_at_dx_status']
 					)
 				)
 			);
