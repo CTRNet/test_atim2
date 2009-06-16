@@ -1,10 +1,10 @@
 <?php
 
-class ProtocolAppController extends AppController
-{	
-/*
-	var $name = 'Protocols';
-*/
+class ProtocolAppController extends AppController {	
+	function beforeFilter() {
+		parent::beforeFilter();
+		$this->Auth->actionPath = 'controllers/Protocol/';
+	}
 }
 
 ?>
