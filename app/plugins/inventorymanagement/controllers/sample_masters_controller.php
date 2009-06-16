@@ -1,48 +1,30 @@
 <?php
 
-class SampleMastersController extends InventoryManagementAppController {
-	
-	var $name = 'SampleMasters';
-	
-	var $uses 
-		= array('AliquotMaster', 
-			'AliquotUse',
-			'Collection',
-			'DerivativeDetail',
-			'DerivedSampleLink',
-			'Menu',
-			'PathCollectionReview', 
-			'QualityControl',
-			'ReviewMaster', 
-			'SampleControl', 
-			'SampleDetail', 
-			'SampleMaster',
-			'SopMaster', 
-			'SourceAliquot', 
-			'SpecimenDetail');
-	
-	var $useDbConfig = 'default';
+class SampleMastersController extends InventorymanagementAppController {
 
-	var $components = array('Summaries');
-	
-	var $helpers = array('Summaries');
+	var $uses = array(
+		'Inventorymanagement.AliquotMaster', 
+		'Inventorymanagement.AliquotUse',
+		'Inventorymanagement.Collection',
+		'Inventorymanagement.DerivativeDetail',
+		'Inventorymanagement.DerivedSampleLink',
+		'Inventorymanagement.Menu',
+		'Inventorymanagement.PathCollectionReview', 
+		'Inventorymanagement.QualityControl',
+		'Inventorymanagement.ReviewMaster', 
+		'Inventorymanagement.SampleControl', 
+		'Inventorymanagement.SampleDetail', 
+		'Inventorymanagement.SampleMaster',
+		'Inventorymanagement.SopMaster', 
+		'Inventorymanagement.SourceAliquot', 
+		'Inventorymanagement.SpecimenDetail'
+	);
+	var $paginate = array('SampleMaster'=>array('limit'=>10,'order'=>'SampleMaster.sample_category ASC')); 
 	
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS
 	 * -------------------------------------------------------------------------- */	
-	
-	function beforeFilter() {
-			
-		// $auth_conf array hardcoded in oth_auth component, due to plugins compatibility 
-		$this->othAuth->controller = &$this;
-		$this->othAuth->init();
-		$this->othAuth->check();
 		
-		// CakePHP function to re-combine dat/time select fields 
-		$this->cleanUpFields();
-		
-	}
-	
 	function index() {
 		// nothing...
 	}
@@ -54,7 +36,7 @@ class SampleMastersController extends InventoryManagementAppController {
 	 * @date 2007-08-22
 	 */
 	function search() {
-		
+/*		
 		// set MENU varible for echo on VIEW 
 		$this->set('ctrapp_menu', array());
 		
@@ -115,11 +97,11 @@ class SampleMastersController extends InventoryManagementAppController {
 		}
 		
 		$this->set('samples', $sample_data);
-		
+	*/	
 	}
 	
 	function tree($collection_id=null) {
-		
+/*		
 		// ** Parameters check **
 		// Verify parameters have been set
 		if(empty($collection_id)) {
@@ -180,7 +162,7 @@ class SampleMastersController extends InventoryManagementAppController {
 		}
 		
 		$this->set('data', $sample_data);
-		
+*/		
 	}
 	
 	/**
@@ -202,7 +184,7 @@ class SampleMastersController extends InventoryManagementAppController {
 	 */
 	function changeSampleListFormat($specimen_group_menu_id=NULL, $group_specimen_type=NULL, $sample_category = null, 
 	$collection_id=null, $sample_list_type = NULL, $specimen_sample_master_id = null){
-		
+/*		
 		// ** Parameters check **
 		// Verify parameters have been set
 		if(empty($specimen_group_menu_id) || empty($group_specimen_type) || empty($sample_category)  
@@ -231,7 +213,7 @@ class SampleMastersController extends InventoryManagementAppController {
 			'/'.$collection_id.'/'.$specimen_sample_master_id.'/');
 		
 		exit;
-		
+*/		
 	}
 	
 	/**
@@ -256,50 +238,7 @@ class SampleMastersController extends InventoryManagementAppController {
 	 */
 	function listall($specimen_group_menu_id=NULL, $group_specimen_type=NULL, $sample_category = null, 
 	$collection_id=null, $specimen_sample_master_id=null) {
-		
-		// ** Parameters check **
-		// Verify parameters have been set
-		if(empty($specimen_group_menu_id) || empty($group_specimen_type) || empty($sample_category) || 
-		empty($collection_id)) {
-			$this->redirect('/pages/err_inv_funct_param_missing'); 
-			exit;
-		}
-		if((strcmp("derivative", $sample_category) == 0) && (is_null($specimen_sample_master_id))) {
-			$this->redirect('/pages/err_inv_funct_param_missing'); 
-			exit;
-		}
-		
-		// Verify collection data exists
-		$criteria = 'Collection.id = "'.$collection_id.'" ';		
-		$collection_data = $this->Collection->find($criteria);
-		
-		if(empty($collection_data)) {
-			$this->redirect('/pages/err_inv_coll_no_data'); 
-			exit;
-		}
-		
-		// ** Type of list definition **
-		// Define which type of list should be displayed when user clicks on a collection group tab:
-		//    - only sample list
-		//    - list including sample and aliquot data
-		$bool_include_aliquot = FALSE;
-		if(!isset($_SESSION['ctrapp_core']['inventory_management']['sample_list_type'])){
-			$_SESSION['ctrapp_core']['inventory_management']['sample_list_type'] = 'sample only';
-			$bool_include_aliquot = FALSE;
-		} else {
-			if(strcmp($_SESSION['ctrapp_core']['inventory_management']['sample_list_type'], 'sample only') == 0){
-				$bool_include_aliquot = FALSE;	
-			} else {
-				$bool_include_aliquot = TRUE;					
-			}						
-		}	
-		$this->set('bool_include_aliquot', $bool_include_aliquot);
-		
-		// ** Set MENU variable for echo on VIEW **
-		
-		$ctrapp_menu[] = $this->Menus->tabs('inv_CAN_00', 'inv_CAN_10', $collection_id);
-		$ctrapp_menu[] = $this->Menus->tabs('inv_CAN_10', $specimen_group_menu_id, $collection_id);
-		
+			
 		switch($sample_category) {
 			case "specimen":
 				break;
@@ -317,123 +256,62 @@ class SampleMastersController extends InventoryManagementAppController {
 				exit;
 		}
 		
-		$this->set('ctrapp_menu', $ctrapp_menu);		
-		
-		// ** Set SUMMARY variable from plugin's COMPONENTS **
-		$this->set('ctrapp_summary', $this->Summaries->build($collection_id));
-		
-		// ** Set SIDEBAR variable **
-		// Use PLUGIN_CONTROLLER_ACTION by default, 
-		// but any ALIAS string that matches in the SIDEBARS datatable will do...
-		$this->set('ctrapp_sidebar', 
-			$this->Sidebars->getColsArray( 
-				$this->params['plugin'].'_'.
-				$this->params['controller'].'_'.
-				$this->params['action']));
-		
 		// ** Build array that allows to know sample code from the sample id **
 		// Use for parent sample code display.
-		$criteria = 'SampleMaster.collection_id ="' .$collection_id.'"' .
-				'AND SampleMaster.initial_specimen_sample_type ="'.$group_specimen_type.'"';	
-		 
-		$arr_sample_code_from_id = 
-			$this->SampleMaster->generateList(
-				$criteria, 
-				null, 
-				null, 
-				'{n}.SampleMaster.id', 
-				'{n}.SampleMaster.sample_code');
-		 
+
+		$arr_sample_code_from_id =
+			$this->SampleMaster->find('list', array('conditions'=>array('SampleMaster.id'=>$consent_id), 'fields'=>array(SampleMaster.sample_code)));
 		$this->set('arr_sample_code_from_id', $arr_sample_code_from_id);		
 	
 		// ** set DATA for echo on VIEW or for link build **
-		$this->set('specimen_group_menu_id', $specimen_group_menu_id);
-		$this->set('group_specimen_type', $group_specimen_type);
-		$this->set('sample_category', $sample_category);
-		
-		$this->set('collection_id', $collection_id );
+		$this->set( 'atim_menu_variables',
+				    array(
+						'specimen_group_menu_id'=>$specimen_group_menu_id,
+				    	'group_specimen_type'=>$group_specimen_type,
+				    	'sample_category'=>$sample_category,
+				    	'Collection.id'=>$collection_id
+				     ));
+
 		$this->set('specimen_sample_master_id', $specimen_sample_master_id );
 		
-		if(!$bool_include_aliquot) {
-			// Display only sample data
-		
-			// ** set FORM variable, for HELPER call on VIEW ** 
-			$this->set('ctrapp_form', $this->Forms->getFormArray('sample_masters'));
-			
-			// ** Search samples (specimens + derivatives) to display in the list **
-			$criteria = array();
-			$criteria['SampleMaster.collection_id'] = $collection_id;
-			$criteria['SampleMaster.initial_specimen_sample_type'] = $group_specimen_type;
-			$criteria['SampleMaster.sample_category'] = $sample_category;
-			if((!is_null($specimen_sample_master_id)) && (strcmp("derivative", $sample_category) == 0)) {
-				$criteria['SampleMaster.initial_specimen_sample_id'] = $specimen_sample_master_id;
-			}
-			$criteria = array_filter($criteria);				
-				
-			list($order, $limit, $page) = $this->Pagination->init($criteria);
-			$sample_masters = $this->SampleMaster->findAll($criteria, null, $order, $limit, $page, 1);
-			
-			// Calculate the number of available aliquots
-			foreach($sample_masters as $id => $new_sample_master){
-				$aliquot_nbr = sizeof($new_sample_master['AliquotMaster']);
-				if($aliquot_nbr == 0){
-					$sample_masters[$id]['Generated']['generated_field_aliquot_number'] = '0 / 0';
-				} else {
-					$available_aliquot_nbr = 0;
-					foreach($new_sample_master['AliquotMaster'] as $id_cont => $new_aliquot){
-						if(strcmp($new_aliquot['status'], 'available') == 0){
-							$available_aliquot_nbr++;
-						}
-					}
-					$sample_masters[$id]['Generated']['generated_field_aliquot_number']  
-						= $available_aliquot_nbr.' / '.$aliquot_nbr;
-				}
-			}
-			
-			$this->set('sample_masters', $sample_masters);
-		
-		} else {
-			// Merge aliquot data into sample list
-			
-			//  ** set FORM variable, for HELPER call on VIEW ** 
-			$this->set('ctrapp_form', $this->Forms->getFormArray('aliquot_merged_into_sample_list'));
-			
-			// ** Search samples (specimens + derivatives) to display in the list plus aliquot data **
-			$sample_master_condition = 'SampleMaster.collection_id="'.$collection_id.'" '.
-				'AND SampleMaster.initial_specimen_sample_type="'.$group_specimen_type.'" '.
-				'AND SampleMaster.sample_category="'.$sample_category.'" ';
-			if((!is_null($specimen_sample_master_id)) && (strcmp("derivative", $sample_category) == 0)) {
-				$sample_master_condition .= 'AND SampleMaster.initial_specimen_sample_id="'.$specimen_sample_master_id.'" ';
-			}
-			
-			$belongs_array = 
-	       		array('belongsTo' => 
-	       			array('SampleMaster' => array(
-						'className' => 'SampleMaster',
-						'conditions' => $sample_master_condition,
-						'order'      => '',
-						'foreignKey' => 'sample_master_id')));
-			
-			$this->AliquotMaster->bindModel($belongs_array);
-	         
-			$criteria = array();	
-			
-			list($order, $limit, $page) = $this->Pagination->init( $criteria, null, array('modelClass'=>'AliquotMaster') );
-			
-			$this->AliquotMaster->bindModel($belongs_array);
-		                
-			$aliquot_masters = $this->AliquotMaster->findAll($criteria, NULL, $order, $limit, $page, 1);
-			
-			$this->set('sample_masters', $aliquot_masters);
-				
+		// Display only sample data
+/*				
+		// ** Search samples (specimens + derivatives) to display in the list **
+		$criteria = array();
+		$criteria['SampleMaster.collection_id'] = $collection_id;
+		$criteria['SampleMaster.initial_specimen_sample_type'] = $group_specimen_type;
+		$criteria['SampleMaster.sample_category'] = $sample_category;
+		if((!is_null($specimen_sample_master_id)) && (strcmp("derivative", $sample_category) == 0)) {
+			$criteria['SampleMaster.initial_specimen_sample_id'] = $specimen_sample_master_id;
 		}
-		
-
+		$criteria = array_filter($criteria);				
+				
+		list($order, $limit, $page) = $this->Pagination->init($criteria);
+		$sample_masters = $this->SampleMaster->findAll($criteria, null, $order, $limit, $page, 1);
+			
+		// Calculate the number of available aliquots
+		foreach($sample_masters as $id => $new_sample_master){
+			$aliquot_nbr = sizeof($new_sample_master['AliquotMaster']);
+			if($aliquot_nbr == 0){
+				$sample_masters[$id]['Generated']['generated_field_aliquot_number'] = '0 / 0';
+			} else {
+				$available_aliquot_nbr = 0;
+				foreach($new_sample_master['AliquotMaster'] as $id_cont => $new_aliquot){
+					if(strcmp($new_aliquot['status'], 'available') == 0){
+						$available_aliquot_nbr++;
+					}
+				}
+				$sample_masters[$id]['Generated']['generated_field_aliquot_number']  
+					= $available_aliquot_nbr.' / '.$aliquot_nbr;
+			}
+		}
+		$this->set('sample_masters', $sample_masters);
+*/
 		// ** Build list of derivative sample types that could be built from existing collection group samples **
 		
 		// Search all distinct sample_control_ids (defining sample type) attached 
 		// to at least one sample of the group.
-		
+/*		
 		if(strcmp("derivative", $sample_category) == 0) {
 			
 			$allowed_derived_types = array();
@@ -444,7 +322,7 @@ class SampleMastersController extends InventoryManagementAppController {
 			$criteria['initial_specimen_sample_id'] = $specimen_sample_master_id;
 			$criteria = array_filter($criteria);
 			 
-			$arr_group_control_ids = 
+			$arr_group_control_ids =  
 				$this->SampleMaster->generateList(
 					$criteria, 
 					null, 
@@ -492,17 +370,7 @@ class SampleMastersController extends InventoryManagementAppController {
 			
 			$this->set('allowed_derived_types', $allowed_derived_types);
 
-		}
-		
-		// ** look for CUSTOM HOOKS, "format" **
-		$custom_ctrapp_controller_hook 
-			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
-			'controllers' . DS . 'hooks' . DS . 
-			$this->params['controller'].'_'.$this->params['action'].'_format.php';
-			
-		if (file_exists($custom_ctrapp_controller_hook)) {
-			require($custom_ctrapp_controller_hook);
-		}	
+		} */
 		
 	} // End ListAll()
 	
