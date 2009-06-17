@@ -2,7 +2,7 @@
 
 class AppModel extends Model {
 	
-	var $actsAs = array('Revision','SoftDeletable'); 
+	var $actsAs = array('MasterDetail','Revision','SoftDeletable'); 
 	
 	/**
 	 * Ensures that the "created_by" and "modified_by" user id columns are set automatically for all models. This requires
