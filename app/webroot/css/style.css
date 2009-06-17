@@ -113,39 +113,45 @@ div#wrapper div.actions {
 				
 			}
 			
-		div#wrapper div.actions ul ul li {
+		div#wrapper div.actions ul.filter,
+		div#wrapper div.actions ul.filter li {
 			background: none;
 			padding: 0;
 			margin: 0;
 		}
 		
-		div#wrapper div.actions ul ul span {
+		div#wrapper div.actions ul.filter span {
 			display: block;
 			background: none;
 			background-color: #dde;
-			font-weight: bold;
-			font-size: 12px;
-			text-transform: uppercase;
-			color: #00e;
 			
-			margin: -5px 0 0 0;
+			margin: -5px -10px 0 -10px;
 			padding: 5px 10px;
 			-moz-border-radius: 10px; -webkit-border-radius: 10px;
 			-moz-border-radius-topleft: 0; -webkit-border-top-left-radius: 0;
 			
 			cursor: default;
 		}
+			
+			div#wrapper div.actions ul.filter span a {
+				margin: 0; 
+				padding: 0;
+				
+				text-decoration: none;
+				border-bottom: 1px dotted #00d;
+				cursor: default;
+			}
 		
-		div#wrapper div.actions ul ul li ul {
+		div#wrapper div.actions ul.filter li ul {
 			display: none;
 			
-			bottom: 20px; right: 20px;
+			bottom: 20px; right: 10px;
 			position: absolute;
 			
 			background: #000;
 			
 			margin: 0;
-			padding: 0 0 10px 0;
+			padding: 10px 0;
 			border: 0;
 			
 			-moz-border-radius: 10px;
@@ -155,35 +161,48 @@ div#wrapper div.actions {
 			z-index: 20;
 		}
 		
-			div#wrapper div.actions ul ul li:hover ul {
+			div#wrapper div.actions ul.filter li:hover ul {
 				display: block;
 			}
 			
-			div#wrapper div.actions ul ul li:hover span {
+			div#wrapper div.actions ul.filter li:hover span,
+			div#wrapper div.actions ul.filter li:hover span a {
 				color: #fff;
 				background-color: #000;
 			}
 			
-				div#wrapper div.actions ul ul ul li {
-					width: 200px;
+				div#wrapper div.actions ul.filter ul li {
+					width: 160px;
 					margin: 0;
-					padding: 5px 10px 15px 10px;
+					padding: 5px 10px;
 					border: 0;
 					border-top: 1px dotted #999;
 					background: none;
 					color: #999;
 				}
 				
-					div#wrapper div.actions ul ul ul li.count_0 {
+					div#wrapper div.actions ul.filter ul li:hover {
+						background-color: #333;
+					}
+				
+					div#wrapper div.actions ul.filter ul li.count_0 {
 						border: 0;
 					}
 					
-					div#wrapper div.actions ul ul ul li a {
+					div#wrapper div.actions ul.filter ul li a {
 						float: none;
 						text-transform: none;
+						font-weight: normal;
+						font-size: 11px;
 						color: #fff;
 						
 						cursor: pointer;
+					}
+					
+					div#wrapper div.actions ul.filter ul li a.not_allowed {
+						color: #999;
+						
+						cursor: not-allowed;
 					}
 
 /* menu and summary */
@@ -440,11 +459,13 @@ div.menu.level_0 {
 			cursor: default;
 		}
 		
-		span.help div {
+		div#wrapper span.help div {
 			display: none;
 			
 			top: 10px; right: 5px;
 			position: absolute;
+			
+			padding: 10px;
 			
 			background: #000;
 			color: #ccc;
@@ -462,16 +483,16 @@ div.menu.level_0 {
 			z-index: 6;
 		}
 		
-			th.column_1 span.help div {
+			div#wrapper th.column_1 span.help div {
 				top: 10px; left: -5px;
 			}
 		
-			span.help:hover div {
+			div#wrapper span.help:hover div {
 				display: block;
 			}
 			
-			span.help div p {
-				margin: 1em;
+			div#wrapper span.help div p {
+				margin: 0 0 1em 0;
 			}
 
 	div#wrapper div {

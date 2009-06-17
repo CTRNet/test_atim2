@@ -8,9 +8,9 @@ class AppController extends Controller {
 	
 	function beforeFilter() {
 		// Uncomment the following to create an Aco entry for every plugin/controller/method combination in the app.
-			// $this->buildAcl();
+			 // $this->buildAcl();
 		// Uncomment the following to set up default permissions.
-			// $this->initDB();
+			 // $this->initDB();
 		
 		// Configure AuthComponent
 			$this->Auth->authorize = 'actions';
