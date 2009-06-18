@@ -15,9 +15,8 @@ class SopMastersController extends SopAppController {
 
 	
 	function add() {
-		$this->set( 'atim_structure', $this->Structures->get('pd_chemos',$this->data['SopMaster']['detail_form_alias']) );
-		//$this->data['SopMaster']['detail_form_alias'] = 'pd_chemos';
-		//$this->data['SopMaster']['detail_tablename'] = 'pd_chemos';
+		$this->set( 'atim_structure', $this->Structures->get('form',$this->data['SopMaster']['detail_form_alias']) );
+
 	
 		if ( !empty($this->data) ) {
 			if ( $this->SopMaster->save($this->data) ) {
@@ -36,7 +35,7 @@ class SopMastersController extends SopAppController {
 		$this->set( 'atim_structure', $this->Structures->get('form',$this->data['SopMaster']['detail_form_alias']) );
 	}
 
-	function edit( $Sop_master_id  ) {
+	function edit( $sop_master_id  ) {
 		if ( !$sop_master_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('SopMaster.id'=>$sop_master_id) );
