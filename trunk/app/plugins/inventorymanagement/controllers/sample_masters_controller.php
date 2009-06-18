@@ -2,6 +2,36 @@
 
 class SampleMastersController extends InventorymanagementAppController {
 
+
+	var $uses = array('Inventorymanagement.SampleMaster');
+	var $paginate = array('SampleMaster'=>array('limit'=>10,'order'=>'SampleMaster.sample_code DESC'));
+	
+	function index() {
+		$_SESSION['ctrapp_core']['search'] = NULL; // clear SEARCH criteria
+		
+	}
+	
+	function search() {
+		if ( $this->data ) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions();
+		
+		$this->data = $this->paginate($this->SampleMaster, $_SESSION['ctrapp_core']['search']['criteria']);
+		
+		// if SEARCH form data, save number of RESULTS and URL
+		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['SampleMaster']['count'];
+		$_SESSION['ctrapp_core']['search']['url'] = '/inventorymanagement/sample_masters/search';
+	}
+
+	function listall() {
+		$this->data = $this->SampleMaster->find('all');
+	}
+	
+	function tree($collection_id){
+		if ( !$collection_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		
+		$this->data = $this->SampleMaster->find('all',array('conditions'=>array('SampleMaster.collection_id'=>$collection_id)));
+		
+	}
+/*
 	var $uses = array(
 		'Inventorymanagement.AliquotMaster', 
 		'Inventorymanagement.AliquotUse',
@@ -23,7 +53,7 @@ class SampleMastersController extends InventorymanagementAppController {
 	
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS
-	 * -------------------------------------------------------------------------- */	
+	 * -------------------------------------------------------------------------- 
 		
 	function index() {
 		// nothing...
@@ -34,7 +64,7 @@ class SampleMastersController extends InventorymanagementAppController {
 	 * 
 	 * @author N. Luc
 	 * @date 2007-08-22
-	 */
+	 
 	function search() {
 /*		
 		// set MENU varible for echo on VIEW 
@@ -97,7 +127,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		}
 		
 		$this->set('samples', $sample_data);
-	*/	
+	
 	}
 	
 	function tree($collection_id=null) {
@@ -162,7 +192,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		}
 		
 		$this->set('data', $sample_data);
-*/		
+		
 	}
 	
 	/**
@@ -181,7 +211,7 @@ class SampleMastersController extends InventorymanagementAppController {
 	 * 
 	 * @author N. Luc
 	 * @date 2007-06-20
-	 */
+	 
 	function changeSampleListFormat($specimen_group_menu_id=NULL, $group_specimen_type=NULL, $sample_category = null, 
 	$collection_id=null, $sample_list_type = NULL, $specimen_sample_master_id = null){
 /*		
@@ -213,7 +243,7 @@ class SampleMastersController extends InventorymanagementAppController {
 			'/'.$collection_id.'/'.$specimen_sample_master_id.'/');
 		
 		exit;
-*/		
+		
 	}
 	
 	/**
@@ -235,7 +265,7 @@ class SampleMastersController extends InventorymanagementAppController {
 	 * 
 	 * @author N. Luc
 	 * @date 2007-06-20
-	 */
+	 
 	function listall($specimen_group_menu_id=NULL, $group_specimen_type=NULL, $sample_category = null, 
 	$collection_id=null, $specimen_sample_master_id=null) {
 			
@@ -386,7 +416,7 @@ class SampleMastersController extends InventorymanagementAppController {
 	 * 
 	 * @author N. Luc
 	 * @date 2007-06-20
-	 */
+	 
 	function add($specimen_group_menu_id=NULL, $group_specimen_type=NULL,
 	$collection_id=null, $specimen_sample_master_id = null) {
 
@@ -826,7 +856,7 @@ class SampleMastersController extends InventorymanagementAppController {
 	 * 
 	 * @author N. Luc
 	 * @date 2007-08-15
-	 */
+	 
 	function detailSampleFromId($sample_master_id=null){
 		
 		//** Verify sample_master_id has been defined. **
@@ -882,7 +912,7 @@ class SampleMastersController extends InventorymanagementAppController {
 	 * 
 	 * @author N. Luc
 	 * @date 2007-06-20
-	 */
+	 
 	function detail($specimen_group_menu_id=NULL, $group_specimen_type=NULL, $sample_category=null, 
 	$collection_id=null, $sample_master_id=null ) {
 		
@@ -1186,7 +1216,7 @@ class SampleMastersController extends InventorymanagementAppController {
 	 * 
 	 * @author N. Luc
 	 * @date 2007-06-20
-	 */
+	 
 	function edit($specimen_group_menu_id=NULL,  $group_specimen_type=NULL, $sample_category=null, 
 	$collection_id=null, $sample_master_id=null) {
 
@@ -1514,7 +1544,7 @@ class SampleMastersController extends InventorymanagementAppController {
 	 * 
 	 * @author N. Luc
 	 * @date 2007-06-20
-	 */
+	 
 	function delete($specimen_group_menu_id=NULL, $group_specimen_type=NULL, 
 	$sample_category=null, $collection_id=null, $sample_master_id=null) {
 			
@@ -1636,7 +1666,7 @@ class SampleMastersController extends InventorymanagementAppController {
 	 * 
 	 * @author N. Luc
 	 * @since 2007-06-20
-	 */
+	 
 	function createSampleCode($sample_master_data, $sample_control_data){
 		
 		// ** Parameters check **
@@ -1665,7 +1695,7 @@ class SampleMastersController extends InventorymanagementAppController {
 	 * 
 	 * @author N. Luc
 	 * @since 2007-06-20
-	 */
+	 
 	function allowSampleDeletion($sample_master_id){
 		
 		// Verify that this sample has no chidlren	
@@ -1751,5 +1781,5 @@ class SampleMastersController extends InventorymanagementAppController {
 	}
 	
 }
-
+*/
 ?>
