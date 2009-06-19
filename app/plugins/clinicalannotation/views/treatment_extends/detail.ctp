@@ -1,11 +1,14 @@
-<?php 
-	$sidebars->header( $lang );
-	$sidebars->cols( $ctrapp_sidebar, $lang );
-	$summaries->build( $ctrapp_summary, $lang ); 
-	$menus->tabs( $ctrapp_menu, $lang ); 
-?>
+<?php
+	$structure_links = array(
+		'bottom'=>array(
+			'list'=>'/clinicalannotation/treatment_extends/listall/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id'],
+			'edit'=>'/clinicalannotation/treatment_extends/edit/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id'].'/'.$atim_menu_variables['TreatmentExtend.id'].'/',
+			'delete'=>'/clinicalannotation/treatment_extends/delete/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id'].'/'.$atim_menu_variables['TreatmentExtend.id'].'/'
+		)
+	);
 	
-	<?php 
+	$structures->build( $atim_structure, array('links'=>$structure_links) );
+/*
 		$form_type = 'detail';
 		$form_model = isset( $this->params['data'] ) ? array( $this->params['data'] ) : array( $data );
 		$form_field = $ctrapp_form;
@@ -29,7 +32,5 @@
 			$form_lang, 
 			$form_pagination, 
 			$form_override, 
-			$form_extras ); 
-	?>
-		
-<?php echo $sidebars->footer($lang); ?>
+			$form_extras ); */
+?>

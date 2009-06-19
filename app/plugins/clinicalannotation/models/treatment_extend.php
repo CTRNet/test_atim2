@@ -1,12 +1,8 @@
 <?php
 
-class TreatmentExtend extends ClinicalAnnotationAppModel
-{
+class TreatmentExtend extends ClinicalannotationAppModel {
     var $name = 'TreatmentExtend';
-	var $useTable = 'txe_chemos';
-	
-	var $validate = array();
-	
+	var $useTable = false;
 }
 
 ?>
