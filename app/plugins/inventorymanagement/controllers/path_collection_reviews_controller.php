@@ -2,6 +2,66 @@
 
 class PathCollectionReviewsController extends InventoryManagementAppController {
 	
+	var $uses = array('PathCollectionReview', 'Collection');
+	var $paginate = array('PathCollectionReview'=>array('limit'=>10, 'order'=>'PathCollectionReview.path_coll_rev_code'));
+	
+	function listall ( $collection_id ) {
+		if ( !$collection_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		
+		$this->set( 'atim_menu_variables', array('Collection.id'=>$collection_id));
+		$this->data = $this->paginate($this->PathCollectionReview, array('PathCollectionReview.collection_id'=>$collection_id));
+	}
+	
+	function add ( $collection_id ) {
+		if ( !$collection_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		
+		$this->set( 'atim_menu_variables', array('Collection.id'=>$collection_id));
+		
+		if ( !empty($this->data) ) {
+			$this->data['PathCollectionReview']['collection_id'] = $collection_id;
+			if ( $this->PathCollectionReview->save($this->data) ) {
+				$this->flash( 'Your data has been updated.','/inventorymanagement/path_collection_reviews/detail/'.$collection_id.'/'.$this->PathCollectionReview->id );
+			}
+		}
+	}
+	
+	function detail( $collection_id, $path_collection_review_id ) {
+		if ( !$collection_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$path_collection_review_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		
+		$this->set( 'atim_menu_variables', array('Collection.id'=>$collection_id, 'PathCollectionReview.id'=>$path_collection_review_id) );
+		$this->data = $this->PathCollectionReview->find('first',array('conditions'=>array('PathCollectionReview.id'=>$path_collection_review_id)));
+	}
+	
+	
+	function edit( $collection_id, $path_collection_review_id ) {
+		if ( !$collection_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$path_collection_review_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		
+		$this->set( 'atim_menu_variables', array('Collection.id'=>$collection_id, 'PathCollectionReview.id'=>$path_collection_review_id) );
+		
+		if ( !empty($this->data) ) {
+			$this->PathCollectionReview->id = $path_collection_review_id;
+			if ( $this->PathCollectionReview->save($this->data) ) {
+				$this->flash( 'Your data has been updated.','/inventorymanagement/path_collection_reviews/detail/'.$collection_id.'/'.$path_collection_review_id );
+			}
+		} else {
+			$this->data = $this->PathCollectionReview->find('first',array('conditions'=>array('PathCollectionReview.id'=>$path_collection_review_id)));
+		}
+	}
+	
+	function delete( $collection_id=null, $path_collection_review_id=null ) {
+		if ( !$collection_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$path_collection_review_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		
+		if( $this->PathCollectionReview->del( $path_collection_review_id ) ) {
+			$this->flash( 'Your data has been deleted.', '/inventorymanagement/path_collection_reviews/listall/'.$collection_id );
+		} else {
+			$this->flash( 'Your data has been deleted.', '/inventorymanagement/path_collection_reviews/listall/'.$collection_id );
+		}
+  	}
+	
+	/*
 	var $name = 'PathCollectionReviews';
 	var $uses = array('PathCollectionReview', 'ReviewMaster', 'AliquotMaster');
 	
@@ -281,7 +341,7 @@ class PathCollectionReviewsController extends InventoryManagementAppController {
 	 * 
 	 * @author N. Luc
 	 * @since 2007-11-29
-	 */
+	 
 	function allowSampleDeletion($collection_id, $path_collection_review_id){
 		
 		// Verify that this sample has no chidlren	
@@ -295,7 +355,7 @@ class PathCollectionReviewsController extends InventoryManagementAppController {
 	
 		return TRUE;
 	}
-
+*/
 }
 
 ?>
