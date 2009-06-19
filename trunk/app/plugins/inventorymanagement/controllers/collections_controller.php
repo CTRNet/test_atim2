@@ -3,7 +3,7 @@
 class CollectionsController extends InventorymanagementAppController {
 
 	var $uses = array('Collection');
-	var $paginate = array('Collection'=>array('limit'=>10,'order'=>'Collection.collection_datetime ASC, Collection.acquisition_label ASC')); 
+	var $paginate = array('Collection'=>array('limit'=>10,'order'=>'Collection.acquisition_label ASC')); 
 	
 	function index() {
 		$_SESSION['ctrapp_core']['search'] = NULL; // clear SEARCH criteria
