@@ -2,11 +2,9 @@
 
 class StorageMastersController extends StoragelayoutAppController {
 	
-	var $name = 'StorageMasters';
-	
+//	var $name = 'StorageMasters';
 	var $uses = array('Storagelayout.StorageMaster', 'Storagelayout.StorageControl');
 	var $paginate = array('StorageMaster'=>array('limit'=>10,'order'=>'StorageMaster.code DESC'));
-	
 	
 	function index(){
 		$_SESSION['ctrapp_core']['search'] = NULL; // clear SEARCH criteria
