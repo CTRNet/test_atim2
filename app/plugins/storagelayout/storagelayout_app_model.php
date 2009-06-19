@@ -1,9 +1,7 @@
 <?php
 
-class StoragelayoutAppModel extends AppModel
-{
-	var $name = 'Storagelayout';
-    //...
+class StoragelayoutAppModel extends AppModel {
+
 }
 
 ?>

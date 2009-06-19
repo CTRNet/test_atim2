@@ -18,8 +18,14 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		$this->TreatmentExtend = new TreatmentExtend( false, $tx_master_data['TreatmentMaster']['extend_tablename'] );
 		
 		$this->data = $this->paginate($this->TreatmentExtend, array('TreatmentExtend.tx_master_id'=>$tx_master_id));
+/*
+		$this->set( 'ctrapp_form', $this->Forms->getFormArray( $use_form_alias ) );
+		$detail_model = new Model( false, $result[$model->alias][$detail_field] );
+					
+		$associated = $detail_model->find(array('id' => $result[$model->alias]['id']), null, null, -1);
+		$results[$key][$detail_class] = $associated['Model'];
 				
-/*		// Get all drug names for dropdown list
+		// Get all drug names for dropdown list
 		$criteria = NULL;
 		$fields = 'Drug.id, Drug.generic_name';
 		$order = 'Drug.id ASC';

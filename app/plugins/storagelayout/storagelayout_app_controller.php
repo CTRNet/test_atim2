@@ -1,10 +1,10 @@
 <?php
 
-class StoragelayoutAppController extends AppController
-{	
-	var $name = 'Storagelayout';
-	//...
-	
+class StoragelayoutAppController extends AppController {	
+	function beforeFilter() {
+		parent::beforeFilter();
+		$this->Auth->actionPath = 'controllers/Storagelayout/';
+	}
 }
 
 ?>
