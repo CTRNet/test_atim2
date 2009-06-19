@@ -2,12 +2,8 @@
 
 class StorageMaster extends StoragelayoutAppModel
 {
-    var $name = 'StorageMaster';
-	
-	var $useTable = 'storage_masters';
-	
-	var $validate = array();
-	
+    var $useTable = 'storage_masters';
+	var $actAs = array('MasterDetail');
 }
 
 ?>
