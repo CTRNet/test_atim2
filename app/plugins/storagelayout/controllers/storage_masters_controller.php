@@ -4,6 +4,83 @@ class StorageMastersController extends StoragelayoutAppController {
 	
 	var $name = 'StorageMasters';
 	
+	var $uses = array('Storagelayout.StorageMaster', 'Storagelayout.StorageControl');
+	var $paginate = array('StorageMaster'=>array('limit'=>10,'order'=>'StorageMaster.code DESC'));
+	
+	
+	function index(){
+		$_SESSION['ctrapp_core']['search'] = NULL; // clear SEARCH criteria
+		
+		//find all storage control types
+		$this->set('storage_controls', $this->StorageControl->find('all'));
+	}
+	
+	function search(){
+		if ( $this->data ) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions();
+		
+		$this->data = $this->paginate($this->StorageMaster, $_SESSION['ctrapp_core']['search']['criteria']);
+		
+		//find all storage control types
+		$this->set('storage_controls', $this->StorageControl->find('all'));
+		
+		// if SEARCH form data, save number of RESULTS and URL
+		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['StorageMaster']['count'];
+		$_SESSION['ctrapp_core']['search']['url'] = '/storagelayout/storage_masters/search';
+	}
+	
+	function detail($storage_master_id){
+		if ( !$storage_master_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		
+		$this->data = array();
+		
+		$this->set( 'atim_menu_variables', array('StorageMaster.id'=>$storage_master_id));
+		$this->data = $this->StorageMaster->find('first',array('conditions'=>array('StorageMaster.id'=>$storage_master_id)));
+		
+		
+		$storage_control_id = $this->data['StorageMaster']['storage_control_id'];
+		$storage_control_data = $this->StorageControl->find('first', array('conditions'=>array('StorageControl.id'=>$storage_control_id)));
+		
+		$this->data['StorageControl'] = $storage_control_data['StorageControl'];
+		
+		$this->set( 'atim_structure', $this->Structures->get('form', $storage_control_data['StorageControl']['form_alias']) );
+	}
+	/*
+	function edit($storage_master_id) {
+		if ( !$storage_master_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		
+		$this->set( 'atim_menu_variables', array('ProtocolMaster.id'=>$protocol_master_id) );
+		$this->data = $this->StorageMaster->find('first',array('conditions'=>array('StorageMaster.id'=>$storage_master_id)));
+		
+		//Get Storage Control information
+		$storage_control_id = $this->data['StorageMaster']['storage_control_id'];
+		$this->data = $this->StorageControl->find('first', array('conditions'=>array('StorageControl.id'=>$storage_control_id)));
+		$this->set( 'atim_structure', $this->Structures->get('form',$this->data['StorageControl']['form_alias']) );
+		
+		
+		if ( !empty($this->data) ) {
+			$this->StorageMaster->id = $storage_master_id;
+			if ( $this->ProtocolMaster->save($this->data) ) {
+				$this->flash( 'Your data has been updated.','/protocol/protocol_masters/detail/'.$protocol_master_id.'/');
+			}
+		}
+		
+	}
+	
+
+	/*
+	var $name = 'StorageMasters';
+	
+	var $uses = array('Storagelayout.StorageMaster', 'Storagelayout.StorageControl');
+	var $paginate = array('StorageMaster'=>array('limit'=>10,'order'=>'StorageMaster.code DESC'));
+	
+	function index(){
+		$_SESSION['ctrapp_core']['search'] = NULL; // clear SEARCH criteria
+		
+		//find all storage control types
+		$this->set('storage_controls', $this->StorageControl->find('all'));
+	}
+	
+	/*
 	var $uses 
 		= array('AliquotMaster',
 			'StorageControl', 
@@ -22,14 +99,14 @@ class StorageMastersController extends StoragelayoutAppController {
 	
 	/* --------------------------------------------------------------------------
 	 * CONSTANTS
-	 * -------------------------------------------------------------------------- */	
+	 * -------------------------------------------------------------------------- 
 	
 	// List of coordinates that a storage can have.
 	var $a_storage_coordinates = array('x', 'y');
 	
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS
-	 * -------------------------------------------------------------------------- */	
+	 * -------------------------------------------------------------------------- 	
 	
 	function beforeFilter() {
 			
@@ -48,7 +125,7 @@ class StorageMastersController extends StoragelayoutAppController {
 	 * 
 	 * @author N. Luc
 	 * @since 2007-05-22
-	 */
+	 
 	function index() {
 		
 		// 1 - Create Search FORM
@@ -112,7 +189,7 @@ class StorageMastersController extends StoragelayoutAppController {
 	 * 
 	 * @author N. Luc
 	 * @since 2008-03-18
-	 */
+	 
 	function listChildrenStorages($parent_storage_master_id) {
 				
 		// Look for parent storage control id	
@@ -182,7 +259,7 @@ class StorageMastersController extends StoragelayoutAppController {
 	 * 
 	 * @author N. Luc
 	 * @since 2007-05-22
-	 */
+	 
 	function search($parent_storage_master_id=null) {
 
 		// set MENU variable for echo on VIEW 
@@ -239,7 +316,7 @@ class StorageMastersController extends StoragelayoutAppController {
 	 * 
 	 * @author N. Luc
 	 * @since 2007-05-22
-	 */
+	 
 	function add() {
 		
 		// ** Get the storage control id **
@@ -494,7 +571,7 @@ class StorageMastersController extends StoragelayoutAppController {
 	 * 
 	 * @author N. Luc
 	 * @since 2007-05-22
-	 */
+	 
 	function edit($storage_master_id=null) {
 				
 		// ** Get the storage master id **
@@ -759,7 +836,7 @@ class StorageMastersController extends StoragelayoutAppController {
 	 * 
 	 * @author N. Luc
 	 * @since 2007-05-22
-	 */
+	 
 	function editStoragePosition($storage_master_id=null) {
 		
 		// ** Get the storage master id **
@@ -1020,7 +1097,7 @@ class StorageMastersController extends StoragelayoutAppController {
 	 * 
 	 * @author N. Luc
 	 * @since 2007-05-22
-	 */
+	 
 	function detail($storage_master_id=null) {
 		
 		// ** Parameters check **
@@ -1245,7 +1322,7 @@ class StorageMastersController extends StoragelayoutAppController {
 	 * 
 	 * @author N. Luc
 	 * @since 2007-05-22
-	 */
+	 
 	function seeStorageLayout($storage_master_id=null) {
 
 		// ** Parameters check **
@@ -1434,7 +1511,7 @@ class StorageMastersController extends StoragelayoutAppController {
 	 * 
 	 * @author N. Luc
 	 * @since 2007-05-22
-	 */
+	 
 	function delete($storage_master_id=null){
 				
 		// ** Parameters check **
@@ -1531,7 +1608,7 @@ class StorageMastersController extends StoragelayoutAppController {
 	 * 
 	 * @author N. Luc
 	 * @since 2007-08-20
-	 */
+	 
 	function searchStorageAliquots($storage_master_id=null) {
 		
 		// ** Parameters check **
@@ -1633,7 +1710,7 @@ class StorageMastersController extends StoragelayoutAppController {
 	 * 
 	 * @author N. Luc
 	 * @since 2007-08-20
-	 */
+	 
 	function editAliquotPosition($source_page='StorageAliquotsList', $aliquot_master_id=null) {
 			
 		// ** Get the storage master id **
@@ -1852,7 +1929,7 @@ class StorageMastersController extends StoragelayoutAppController {
 	 * 
 	 * @author N. Luc
 	 * @since 2007-08-20
-	 */
+	 
 	function editAliquotPositionInBatch($storage_master_id=null){
 
 		// ** Parameters check **
@@ -2051,7 +2128,7 @@ class StorageMastersController extends StoragelayoutAppController {
 	 * 
 	 * @author N. Luc
 	 * @since 2007-05-22
-	 */
+	 
 	function setStorageCoordinateValues($storage_control_data){
 
 		$string_null_value = 'n/a';
@@ -2100,7 +2177,7 @@ class StorageMastersController extends StoragelayoutAppController {
 	 * 
 	 * @author N. Luc
 	 * @since 2008-01-31
-	 */
+	 
 	function createStorageCode($storage_master_data, $storage_control_data){
 		
 		// ** Parameters check **
@@ -2130,7 +2207,7 @@ class StorageMastersController extends StoragelayoutAppController {
 	 * 
 	 * @author N. Luc
 	 * @since 2008-01-31
-	 */
+	 
 	function IsDuplicatedStorageBarCode($arr_storage_master){
 		
 		// Look for all storages
@@ -2163,7 +2240,7 @@ class StorageMastersController extends StoragelayoutAppController {
 	 * 
 	 * @author N. Luc
 	 * @since 2008-01-31
-	 */
+	 
 	function manageStoragePathcode($arr_storage_master_data){
 		
 		// Check parameter
@@ -2224,8 +2301,8 @@ class StorageMastersController extends StoragelayoutAppController {
 	 * 
 	 * @author N. Luc
 	 * @since 2008-01-31
-	 */
-	function updateChildrenStoragePathcode($parent_storage_id, $parent_storage_selection_label){
+	 
+	funtion updateChildrenStoragePathcode($parent_storage_id, $parent_storage_selection_label){
 		
 		// Look for childrens of the storage
 		$criteria = 'StorageMaster.parent_id = "'.$parent_storage_id.'"';
@@ -2269,7 +2346,7 @@ class StorageMastersController extends StoragelayoutAppController {
 	 * 
 	 * @author N. Luc
 	 * @since 2007-05-22
-	 */
+	 
 	function getStoragesList($excluded_storage_master_id=null){
 		
 		// Look for all storage_control_id of TMA
@@ -2327,7 +2404,7 @@ class StorageMastersController extends StoragelayoutAppController {
 	 * 
 	 * @author N. Luc
 	 * @since 2008-01-31
-	 */
+	 
 	function deleteChildrenFromTheList($parent_storage_id, &$arr_storages_list){
 		
 		// Look for childrens of the storage
@@ -2360,7 +2437,7 @@ class StorageMastersController extends StoragelayoutAppController {
 	 * 
 	 * @author N. Luc
 	 * @since 2007-08-16
-	 */
+	 
 	function allowStorageDeletion($storage_master_id){
 		
 		// verify storage contains no chlidren storage
@@ -2423,7 +2500,7 @@ class StorageMastersController extends StoragelayoutAppController {
 	 * 
 	 * @author N. Luc
 	 * @since 2007-05-22
-	 */
+	 
 	function buildAllowedStoragePosition($storage_master_id, $storage_control_data, $coord){
 		
 		// Verify the coordinate is allowed
@@ -2523,7 +2600,7 @@ class StorageMastersController extends StoragelayoutAppController {
 	 * 
 	 * @author N. Luc
 	 * @since 2007-05-22
-	 */
+	 
 	function getStoragePath($studied_storage_id = null){
 		
 		if(empty($studied_storage_id)){
@@ -2586,7 +2663,7 @@ class StorageMastersController extends StoragelayoutAppController {
 	 *
 	 * @author N. Luc
 	 * @since 2007-05-22
-	 */
+	 
 	function updateChildrenSurroundingTemperature($parent_storage_master_id, $new_temperature, $new_temp_unit){
 	
 		// Look for children of the storage
@@ -2629,7 +2706,7 @@ class StorageMastersController extends StoragelayoutAppController {
 	 * 
 	 * @author N. Luc
 	 * @since 2007-05-22
-	 */
+	 
 	function isPositionSelectionAvailable($storage_master_id) {
 		
 		// Verify parameters have been set
@@ -2691,7 +2768,7 @@ class StorageMastersController extends StoragelayoutAppController {
 	 * 
 	 * @author N. Luc
 	 * @since 2007-08-16
-	 */
+	 
 	function validateStoragePosition($storage_master_id, $coord_x, $coord_y){
 
 		// Check variable 'a_storage_coordinates' to see if function is supported
@@ -2874,7 +2951,7 @@ class StorageMastersController extends StoragelayoutAppController {
 	 * 
 	 * @author N. Luc
 	 * @since 2008-02-08
-	 */
+	 
 	function getStorageMatchingSelectLabel($studied_selection_label = '') {
 
 		$conditions = "StorageMaster.selection_label = '".$studied_selection_label."'";
@@ -2903,7 +2980,7 @@ class StorageMastersController extends StoragelayoutAppController {
 	 * 
 	 * @author N. Luc
 	 * @since 2008-02-08
-	 */
+	 
 	function getStorageCode($storage_master_id) {
 		
 		// ** Verify parameters have been set **
@@ -2939,7 +3016,7 @@ class StorageMastersController extends StoragelayoutAppController {
 	 * 
 	 * @author N. Luc
 	 * @since 2008-02-08
-	 */
+	 
 	function getStorageData($storage_master_id) {
 		
 		// ** Verify parameters have been set **
@@ -2969,6 +3046,6 @@ class StorageMastersController extends StoragelayoutAppController {
 		return array('0' => 'n/a');
 		
 	}
-	
+	*/
 }
 ?>
