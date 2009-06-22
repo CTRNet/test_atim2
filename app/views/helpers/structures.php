@@ -1380,6 +1380,48 @@ class StructuresHelper extends Helper {
 
 /********************************************************************************************************************************************************************************/
 
+
+	// FUNCTION 
+	function generate_content_wrapper( $atim_content=array(), $options=array() ) {
+		
+		$return_string = '';
+			
+			// display table...
+			$return_string .= '
+				<table class="structure content" cellspacing="0">
+				<tbody>
+					<tr>
+			';
+				
+				// each column in table 
+				$count_columns = 0;
+				foreach ( $atim_content as $content ) {
+					
+					$count_columns++;
+					
+					$return_string .= '
+						<td class="this_column_'.$count_columns.' total_columns_'.count($atim_content).'"> 
+							'.$content.'
+						</td>
+					';
+					
+				} // end COLUMN 
+				
+			$return_string .= '
+					</tr>
+				</tbody>
+				</table>
+			';
+			
+			$return_string .= $this->generate_links_list( NULL, $options, 'bottom' );
+			
+		return $return_string;
+		
+	}
+
+
+/********************************************************************************************************************************************************************************/
+
 	
 	// FUNCTION to build one OR more links...
 	// MODEL data, LINKS array, LANG array, ADD array list to INCLUDE, SKIP list to NOT include, and ID value to attach, if any 
