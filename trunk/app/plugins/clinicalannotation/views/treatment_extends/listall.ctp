@@ -8,6 +8,6 @@
 		)
 	);
 	
-	$structure_override = array('TreatmentExtend/drug_id'=>$drug_id_findall);
+	$structure_override = array('TreatmentExtend.drug_id'=>$drug_id_findall);
 	$structures->build($atim_structure, array('type'=>'index', 'links'=>$structure_links, 'override'=>$structure_override));
 ?>
