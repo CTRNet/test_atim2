@@ -1,4 +1,4 @@
-﻿USE `atim2_dev`;
+USE `atim2_dev`;
 
 DELETE FROM `participants`;
 INSERT INTO `participants` (`id`, `title`, `first_name`, `last_name`, `middle_name`, `date_of_birth`, `date_status`, `marital_status`, `language_preferred`, `sex`, `race`, `ethnicity`, `vital_status`, `memo`, `status`, `date_of_death`, `death_certificate_ident`, `icd10_id`, `confirmation_source`, `tb_number`, `last_chart_checked_date`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
@@ -61,3 +61,13 @@ INSERT INTO `protocol_masters` ( `id`, `name`, `notes`, `code`, `detail_tablenam
 DELETE FROM `pd_chemos`;
 INSERT INTO `pd_chemos` ( `id`, `num_cycles`, `length_cycles`, `protocol_master_id` ) VALUES
 (101, 45, 45, 101);
+
+DELETE FROM `drugs`;
+INSERT INTO `drugs` (`id`, `generic_name`, `trade_name`, `type`, `description`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
+(1, 'aspirin', '', NULL, NULL, '0000-00-00', '', '0000-00-00', '', 0, NULL),
+(2, 'tylenol', '', NULL, NULL, '0000-00-00', '', '0000-00-00', '', 0, NULL),
+(3, 'advil', '', NULL, NULL, '0000-00-00', '', '0000-00-00', '', 0, NULL);
+
+DELETE FROM `txe_chemos`;
+INSERT INTO `txe_chemos` (`id`, `source`, `frequency`, `dose`, `method`, `reduction`, `cycle_number`, `completed_cycles`, `start_date`, `end_date`, `created`, `created_by`, `modified`, `modified_by`, `tx_master_id`, `drug_id`, `deleted`, `deleted_date`) VALUES
+(101, '', '21', '151', '', '', 41, 4, '2029-01-01', '2029-01-01', '0000-00-00 00:00:00', NULL, '2009-06-22 11:13:21', '1', 101, '1', 0, NULL);
