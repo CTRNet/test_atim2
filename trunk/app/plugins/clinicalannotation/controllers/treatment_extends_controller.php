@@ -2,30 +2,31 @@
 
 class TreatmentExtendsController extends ClinicalannotationAppController {
 
-	var $uses = array('Clinicalannotation.TreatmentExtend', 'Clinicalannotation.TreatmentMaster', 'Clinicalannotation.TreatmentControl');
+	var $uses = array(
+		'Clinicalannotation.TreatmentExtend',
+		'Clinicalannotation.TreatmentMaster',
+		'Clinicalannotation.TreatmentControl',
+		'Drug.Drug');
 	var $paginate = array('TreatmentMaster'=>array('limit'=>10,'order'=>'TreatmentMaster.start_date DESC'));
 	
 	function listall($participant_id=null, $tx_master_id=null) {
 		
 		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id, 'TreatmentMaster.id'=>$tx_master_id));
 		
-		// Get extend tablename and form_alias from master row
-		$this->TreatmentMaster->id = $tx_master_id;
-		$tx_master_data = $this->TreatmentMaster->find('first');
+		// Get treatment master row for extended data
+		$tx_master_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id)));
 		
-		// Set form alias to use
-		$use_form_alias = $tx_master_data['TreatmentMaster']['extend_form_alias'];
+		// Set form alias/tablename to use
 		$this->TreatmentExtend = new TreatmentExtend( false, $tx_master_data['TreatmentMaster']['extend_tablename'] );
+		$use_form_alias = $tx_master_data['TreatmentMaster']['extend_form_alias'];
+	    $this->set( 'atim_structure', $this->Structures->get( 'form', $use_form_alias ) );
 		
 		$this->data = $this->paginate($this->TreatmentExtend, array('TreatmentExtend.tx_master_id'=>$tx_master_id));
-/*
-		$this->set( 'ctrapp_form', $this->Forms->getFormArray( $use_form_alias ) );
-		$detail_model = new Model( false, $result[$model->alias][$detail_field] );
-					
-		$associated = $detail_model->find(array('id' => $result[$model->alias]['id']), null, null, -1);
-		$results[$key][$detail_class] = $associated['Model'];
-				
-		// Get all drug names for dropdown list
+
+		$drug_list = $this->Drug->find('all');
+		$this->set('drug_list', $drug_list);
+		
+	/*	// Get all drug names for dropdown list
 		$criteria = NULL;
 		$fields = 'Drug.id, Drug.generic_name';
 		$order = 'Drug.id ASC';
@@ -34,43 +35,25 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		foreach ( $drug_id_findall_result as $record ) {
 			$drug_id_findall[ $record['Drug']['id'] ] = $record['Drug']['generic_name'];
 		}
-		$this->set( 'drug_id_findall', $drug_id_findall );
-*/		
+		$this->set( 'drug_id_findall', $drug_id_findall ); */
+		
 	}
 
-	function detail( $participant_id=0, $tx_master_id=0, $tx_extend_id=0 ) {
+	function detail($participant_id=null, $tx_master_id=null, $tx_extend_id=null) {
+		
 		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id, 'TreatmentMaster.id'=>$tx_master_id));
-		$this->data = $this->paginate($this->TreatmentMaster, array('TreatmentMaster.participant_id'=>$participant_id));
 		
-		// get Extend tablename and form_alias from Master row
+		// Get treatment master row for extended data
+		$tx_master_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id)));
+		
+		// Set form alias/tablename to use
+		$this->TreatmentExtend = new TreatmentExtend( false, $tx_master_data['TreatmentMaster']['extend_tablename'] );
+		$use_form_alias = $tx_master_data['TreatmentMaster']['extend_form_alias'];
+	    $this->set( 'atim_structure', $this->Structures->get( 'form', $use_form_alias ) );
 
-			$this->TreatmentMaster->id = $tx_master_id;
-			$tx_master_data = $this->TreatmentMaster->read();
+//	    $drug_list = $this->Drug->find('list', array('conditions'=> array('fields'=>'generic_name', 'id'=>Drug.id), 'order'=>'generic_name ASC'));
 
-			$use_form_alias = $tx_master_data['TreatmentMaster']['extend_form_alias'];
-			$this->TreatmentExtend = new TreatmentExtend( false, $tx_master_data['TreatmentMaster']['extend_tablename'] );
-
-		// set MENU varible for echo on VIEW
-		$ctrapp_menu[] = $this->Menus->tabs( 'clin_CAN_1', 'clin_CAN_75', $participant_id );
-		$ctrapp_menu[] = $this->Menus->tabs( 'clin_CAN_75', 'clin_CAN_80', $participant_id.'/'.$tx_master_id ); // based on TxMaster values
-		$this->set( 'ctrapp_menu', $ctrapp_menu );
-
-		// set FORM variable, for HELPER call on VIEW
-		$this->set( 'ctrapp_form', $this->Forms->getFormArray( $use_form_alias ) );
-
-		// set SUMMARY varible from plugin's COMPONENTS
-		$this->set( 'ctrapp_summary', $this->Summaries->build( $participant_id ) );
-
-		// set SIDEBAR variable, for HELPER call on VIEW
-		// use PLUGIN_CONTROLLER_ACTION by default, but any ALIAS string that matches in the SIDEBARS datatable will do...
-		$this->set( 'ctrapp_sidebar', $this->Sidebars->getColsArray( $this->params['plugin'].'_'.$this->params['controller'].'_'.$this->params['action'] ) );
-
-		// set FORM variable, for HELPER call on VIEW
-		$this->set( 'participant_id', $participant_id );
-		$this->set( 'tx_master_id', $tx_master_id );
-		$this->set( 'tx_extend_id', $tx_extend_id );
-
-		// Get all drug names for dropdown list
+/*		// Get all drug names for dropdown list
 		$criteria = NULL;
 		$fields = 'Drug.id, Drug.generic_name';
 		$order = 'Drug.id ASC';
@@ -80,12 +63,11 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 			$drug_id_findall[ $record['Drug']['id'] ] = $record['Drug']['generic_name'];
 		}
 		$this->set( 'drug_id_findall', $drug_id_findall );
-		
-		$this->TreatmentExtend->id = $tx_extend_id;
-		$this->set( 'data', $this->TreatmentExtend->read() );
+	*/	
+		$this->data = $this->TreatmentExtend->find('first',array('conditions'=>array('TreatmentExtend.id'=>$tx_master_id)));
 	}
 
-	function add( $participant_id=0, $tx_master_id=0 ) {
+	function add($participant_id=null, $tx_master_id=null) {
 		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id, 'TreatmentMaster.id'=>$tx_master_id));
 		$this->data = $this->paginate($this->TreatmentMaster, array('TreatmentMaster.participant_id'=>$participant_id));
 		
@@ -145,43 +127,22 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 
 	}
 
-	function edit( $participant_id=0, $tx_master_id=0, $tx_extend_id=0 ) {
-		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id, 'TreatmentMaster.id'=>$tx_master_id));
-		$this->data = $this->paginate($this->TreatmentMaster, array('TreatmentMaster.participant_id'=>$participant_id));
+	function edit($participant_id=null, $tx_master_id=null, $tx_extend_id=null) {
 		
-		// get Extend tablename and form_alias from Master row
-
-			$this->TreatmentMaster->id = $tx_master_id;
-			$tx_master_data = $this->TreatmentMaster->read();
-
-			$use_form_alias = $tx_master_data['TreatmentMaster']['extend_form_alias'];
-			$this->TreatmentExtend = new TreatmentExtend( false, $tx_master_data['TreatmentMaster']['extend_tablename'] );
-
-		// setup MODEL(s) validation array(s) for displayed FORM
-		foreach ( $this->Forms->getValidateArray( $use_form_alias ) as $validate_model=>$validate_rules ) {
-			$this->{ $validate_model }->validate = $validate_rules;
-		}
-
-		// set MENU varible for echo on VIEW
-		$ctrapp_menu[] = $this->Menus->tabs( 'clin_CAN_1', 'clin_CAN_75', $participant_id );
-		$ctrapp_menu[] = $this->Menus->tabs( 'clin_CAN_75', 'clin_CAN_80', $participant_id.'/'.$tx_master_id ); // based on TxMaster values
-		$this->set( 'ctrapp_menu', $ctrapp_menu );
-
-		// set FORM variable, for HELPER call on VIEW
-		$this->set( 'ctrapp_form', $this->Forms->getFormArray( $use_form_alias ) );
-
-		// set SUMMARY varible from plugin's COMPONENTS
-		$this->set( 'ctrapp_summary', $this->Summaries->build( $participant_id ) );
-
-		// set SIDEBAR variable, for HELPER call on VIEW
-		// use PLUGIN_CONTROLLER_ACTION by default, but any ALIAS string that matches in the SIDEBARS datatable will do...
-		$this->set( 'ctrapp_sidebar', $this->Sidebars->getColsArray( $this->params['plugin'].'_'.$this->params['controller'].'_'.$this->params['action'] ) );
-
-		// set FORM variable, for HELPER call on VIEW
-		$this->set( 'participant_id', $participant_id );
-		$this->set( 'tx_master_id', $tx_master_id );
-		$this->set( 'tx_extend_id', $tx_extend_id );
+		$this->set('atim_menu_variables', array(
+			'Participant.id'=>$participant_id,
+			'TreatmentMaster.id'=>$tx_master_id,
+			'TreatmentExtend.id'=>$tx_extend_id
+		));
 		
+		// Get treatment master row for extended data
+		$tx_master_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id)));
+				
+		// Set form alias/tablename to use
+		$this->TreatmentExtend = new TreatmentExtend( false, $tx_master_data['TreatmentMaster']['extend_tablename'] );
+		$use_form_alias = $tx_master_data['TreatmentMaster']['extend_form_alias'];
+	    $this->set('atim_structure', $this->Structures->get('form', $use_form_alias));
+/*		
 		// Get all drug names for dropdown list
 		$criteria = NULL;
 		$fields = 'Drug.id, Drug.generic_name';
@@ -192,41 +153,33 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 			$drug_id_findall[ $record['Drug']['id'] ] = $record['Drug']['generic_name'];
 		}
 		$this->set( 'drug_id_findall', $drug_id_findall );
-		
-		if ( empty($this->data) ) {
+*/
+	    $this_data = $this->TreatmentExtend->find('first',array('conditions'=>array('TreatmentExtend.id'=>$tx_extend_id)));
 
+	    if (!empty($this->data)) {
 			$this->TreatmentExtend->id = $tx_extend_id;
-			$this->data = $this->TreatmentExtend->read();
-			$this->set( 'data', $this->data );
-
-		} else {
-
-			// after DETAIL model is set and declared
-			$this->cleanUpFields('TreatmentExtend');
-
-			if ( $this->TreatmentExtend->save( $this->data['TreatmentExtend'] ) ) {
-				$this->flash( 'Your data has been updated.','/treatment_extends/detail/'.$participant_id.'/'.$tx_master_id.'/'.$tx_extend_id );
+			if ($this->TreatmentExtend->save($this->data)) {
+				$this->flash( 'Your data has been updated.','/clinicalannotation/treatment_extends/detail/'.$participant_id.'/'.$tx_master_id.'/'.$tx_extend_id);
 			}
-
+		} else {
+			$this->data = $this_data;
 		}
-
 	}
 
-	function delete( $participant_id=0, $tx_master_id=0, $tx_extend_id=0 ) {
-
+	function delete($participant_id=null, $tx_master_id=null, $tx_extend_id=null) {
+/*
 		// get Extend tablename and form_alias from Master row
 
-			$this->TreatmentMaster->id = $tx_master_id;
-			$tx_master_data = $this->TreatmentMaster->read();
+		$this->TreatmentMaster->id = $tx_master_id;
+		$tx_master_data = $this->TreatmentMaster->read();
 
-			$use_form_alias = $tx_master_data['TreatmentMaster']['extend_form_alias'];
-			$this->TreatmentExtend = new TreatmentExtend( false, $tx_master_data['TreatmentMaster']['extend_tablename'] );
+		$use_form_alias = $tx_master_data['TreatmentMaster']['extend_form_alias'];
+		$this->TreatmentExtend = new TreatmentExtend( false, $tx_master_data['TreatmentMaster']['extend_tablename'] );
 
 		$this->TreatmentExtend->del( $tx_extend_id );
 		$this->flash( 'Your data has been deleted.', '/treatment_extends/listall/'.$participant_id.'/'.$tx_master_id );
-
+*/
 	}
-
 }
 
 ?>
