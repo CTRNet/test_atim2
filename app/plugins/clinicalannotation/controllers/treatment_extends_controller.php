@@ -22,21 +22,10 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 	    $this->set( 'atim_structure', $this->Structures->get( 'form', $use_form_alias ) );
 		
 		$this->data = $this->paginate($this->TreatmentExtend, array('TreatmentExtend.tx_master_id'=>$tx_master_id));
-
-		$drug_list = $this->Drug->find('all');
+	
+		$drug_list = $this->Drug->find('all', array('fields' => array('Drug.id', 'Drug.generic_name'), 'order' => array('Drug.generic_name')));
 		$this->set('drug_list', $drug_list);
-		
-	/*	// Get all drug names for dropdown list
-		$criteria = NULL;
-		$fields = 'Drug.id, Drug.generic_name';
-		$order = 'Drug.id ASC';
-		$drug_id_findall_result = $this->Drug->findAll( $criteria, $fields, $order );
-		$drug_id_findall = array();
-		foreach ( $drug_id_findall_result as $record ) {
-			$drug_id_findall[ $record['Drug']['id'] ] = $record['Drug']['generic_name'];
-		}
-		$this->set( 'drug_id_findall', $drug_id_findall ); */
-		
+	
 	}
 
 	function detail($participant_id=null, $tx_master_id=null, $tx_extend_id=null) {
