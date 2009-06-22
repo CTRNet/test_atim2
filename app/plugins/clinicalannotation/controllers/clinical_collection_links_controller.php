@@ -5,6 +5,8 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 	var $paginate = array('ClinicalCollectionLinks'=>array('limit'=>10,'order'=>'ClinicalCollectionLinks.id ASC'));	
 	
 	function listall( $participant_id ) {
+		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
+	
 		$this->data = $this->paginate($this->ClinicalCollectionLinks);
 	}
 	
@@ -15,6 +17,8 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 	
 	function add( $participant_id ) {
 		$this->set( 'atim_menu', $this->Menus->get('/clinicalannotation/clinical_collection_links/listall/'.$particiant_id) );
+		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
+		
 		
 		if ( !empty($this->data) ) {
 			if ( $this->ClinicalCollectionLinks->save($this->data) ) $this->flash( 'Your data has been updated.','/clinicalannotation/clinical_collection_links/detail/'.$participant_id.$this->ClinicalCollectionLinks->id );

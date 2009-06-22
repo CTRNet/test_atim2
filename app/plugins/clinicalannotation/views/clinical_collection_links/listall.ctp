@@ -1,9 +1,8 @@
 <?php
 	$structure_links = array(
-		'index'=>array('detail'=>'/clinicalannotation/clinical_collection_links/detail/%%Participant.id%%/%%ClinicalCollectionLinks.id%%'),
+		'index'=>array('detail'=>'/clinicalannotation/clinical_collection_links/detail/'.$atim_menu_variables['Participant.id'].'/%%ClinicalCollectionLinks.id%%/'),
 		'bottom'=>array(
-			'add'=>'/clinicalannotation/clinical_collection_links/add/%%Participant.id%%',
-			'list'=>'clinicalannotation/clinical_collection_links/listall/%%Participant.id%%'
+			'add'=>'/clinicalannotation/clinical_collection_links/add/'.$atim_menu_variables['Participant.id'].'/'
 		)
 	);
 	
