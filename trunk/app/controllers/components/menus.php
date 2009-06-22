@@ -41,11 +41,22 @@ class MenusComponent extends Object {
 			$result = $this->Component_Menu->find(
 							'first', 
 							array(
-								'conditions'	=>	'Menu.use_link LIKE "'.$alias.'%"', 
+								'conditions'	=>	'Menu.use_link = "'.$alias.'"', 
 								'recursive'		=>	3,
 								'order'			=> 'Menu.parent_id DESC, Menu.display_order ASC'
 							)
 			);
+			
+			if (!$result) {
+				$result = $this->Component_Menu->find(
+								'first', 
+								array(
+									'conditions'	=>	'Menu.use_link LIKE "'.$alias.'%"', 
+									'recursive'		=>	3,
+									'order'			=> 'Menu.parent_id DESC, Menu.display_order ASC'
+								)
+				);
+			}
 			
 			if (!$result) {
 				

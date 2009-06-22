@@ -597,6 +597,9 @@ div.menu.level_0 {
 					color: #dde;
 				}
 		
+			div#wrapper table.structure.content { padding: 0 0 1em 0; }
+			div#wrapper table.structure.content td { border-top: none; padding: 1em; }
+			
 			div#wrapper table.structure.detail td { padding:0; border:0; }
 			div#wrapper table.structure.detail table td { padding: 0.25em 1em; border-top: 1px solid #ccf; }
 			
