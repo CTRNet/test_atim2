@@ -2,7 +2,8 @@
 
 class ProtocolExtend extends ProtocolAppModel
 {
-    var $useTable = 'PeChemos';
+	var $name = 'ProtocolExtend';
+    var $useTable = false;
 }
 
 ?>
