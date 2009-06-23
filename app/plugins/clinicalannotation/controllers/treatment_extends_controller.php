@@ -44,7 +44,7 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		$use_form_alias = $tx_master_data['TreatmentMaster']['extend_form_alias'];
 	    $this->set( 'atim_structure', $this->Structures->get( 'form', $use_form_alias ) );
 
-	    $this->data = $this->TreatmentExtend->find('first',array('conditions'=>array('TreatmentExtend.id'=>$tx_master_id)));
+	    $this->data = $this->TreatmentExtend->find('first',array('conditions'=>array('TreatmentExtend.id'=>$tx_extend_id)));
 	    
 		// Get all drugs to override drug_id with generic drug name
 		$drug_list = $this->Drug->find('all', array('fields' => array('Drug.id', 'Drug.generic_name'), 'order' => array('Drug.generic_name')));
@@ -117,18 +117,10 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 	}
 
 	function delete($participant_id=null, $tx_master_id=null, $tx_extend_id=null) {
-/*
-		// get Extend tablename and form_alias from Master row
-
-		$this->TreatmentMaster->id = $tx_master_id;
-		$tx_master_data = $this->TreatmentMaster->read();
-
-		$use_form_alias = $tx_master_data['TreatmentMaster']['extend_form_alias'];
-		$this->TreatmentExtend = new TreatmentExtend( false, $tx_master_data['TreatmentMaster']['extend_tablename'] );
 
 		$this->TreatmentExtend->del( $tx_extend_id );
-		$this->flash( 'Your data has been deleted.', '/treatment_extends/listall/'.$participant_id.'/'.$tx_master_id );
-*/
+		$this->flash( 'Your data has been deleted.', '/clinicalannotation/treatment_extends/listall/'.$participant_id.'/'.$tx_master_id );
+
 	}
 }
 
