@@ -74,11 +74,11 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		$this->set('drug_id_findall', $drug_id_findall);
 		
 		if ( !empty($this->data) ) {
+			$this->data['TreatmentExtend']['tx_master_id'] = $tx_master_data['TreatmentMaster']['id'];
 			if ( $this->TreatmentExtend->save( $this->data ) ) {
-				$this->flash( 'Your data has been saved.', '/treatment_extends/listall/'.$participant_id.'/'.$tx_master_id );
+				$this->flash( 'Your data has been saved.', '/clinicalannotation/treatment_extends/listall/'.$participant_id.'/'.$tx_master_id );
 			}
-		}
-    
+		} 
 	}
 
 	function edit($participant_id=null, $tx_master_id=null, $tx_extend_id=null) {
