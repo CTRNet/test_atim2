@@ -1,7 +1,6 @@
 <?php
 
-class Collection extends InventorymanagementAppModel
-{
+class Collection extends InventorymanagementAppModel {
 	
 	function summary( $variables=array() ) {
 		$return = false;
@@ -16,9 +15,9 @@ class Collection extends InventorymanagementAppModel
 					'title' => array( NULL, $result['Collection']['acquisition_label'] ),
 					
 					'description' => array(
-						'collection bank' => $result['Collection']['bank'],
-						'collection datetime' => $result['Collection']['collection_datetime'],
-						'reception date' => $result['Collection']['reception_datetime'])));
+						'Bank' => $result['Collection']['bank'],
+						'Collection Date/Time' => $result['Collection']['collection_datetime'],
+						'Reception Date' => $result['Collection']['reception_datetime'])));
 						
 		}
 		
