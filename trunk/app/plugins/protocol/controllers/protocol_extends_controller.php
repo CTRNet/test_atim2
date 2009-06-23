@@ -18,6 +18,8 @@ class ProtocolExtendsController extends ProtocolAppController {
 		$use_form_alias = $protocol_master_data['ProtocolMaster']['extend_form_alias'];
 		$this->set('atim_structure', $this->Structures->get('form', $use_form_alias));
 		
+		
+		
 		$this->data = $this->paginate($this->ProtocolExtend, array('ProtocolExtend.protocol_master_id'=>$protocol_master_id));
 		
 		$drug_list = $this->Drug->find('all', array('fields'=>array('Drug.id', 'Drug.generic_name'), 'order'  => array('Drug.generic_name')));
@@ -29,13 +31,13 @@ class ProtocolExtendsController extends ProtocolAppController {
 	
 	function detail($protocol_master_id=null, $protocol_extend_id=null) {
 		
-		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id, 'ProtocolMaster.id'=>$protocol_master_id));
+		$this->set('atim_menu_variables', array('ProtocolMaster.id'=>$protocol_master_id, 'ProtocolExtend.id'=>$protocol_extend_id));
 		
 		// Get treatment master row for extended data
 		$protocol_master_data = $this->ProtocolMaster->find('first',array('conditions'=>array('ProtocolMaster.id'=>$protocol_master_id)));
 		
 		// Set form alias/tablename to use
-		$this->ProtocolExtend = new ProtocolExtend( false, $tx_master_data['ProtocolMaster']['extend_tablename'] );
+		$this->ProtocolExtend = new ProtocolExtend( false, $protocol_master_data['ProtocolMaster']['extend_tablename'] );
 		$use_form_alias = $protocol_master_data['ProtocolMaster']['extend_form_alias'];
 	    $this->set( 'atim_structure', $this->Structures->get( 'form', $use_form_alias ) );
 
@@ -80,14 +82,14 @@ class ProtocolExtendsController extends ProtocolAppController {
 		
 		$this->set('atim_menu_variables', array(
 			'ProtocolMaster.id'=>$protocol_master_id,
-			'ProtocolExtend.id'=>$protcol_extend_id
+			'ProtocolExtend.id'=>$protocol_extend_id
 		));
 		
 		// Get treatment master row for extended data
 		$protocol_master_data = $this->ProtocolMaster->find('first',array('conditions'=>array('ProtocolMaster.id'=>$protocol_master_id)));
 				
 		// Set form alias/tablename to use
-		$this->ProtocolExtend = new ProtocolExtend( false, $tx_master_data['ProtocolMaster']['extend_tablename'] );
+		$this->ProtocolExtend = new ProtocolExtend( false, $protocol_master_data['ProtocolMaster']['extend_tablename'] );
 		$use_form_alias = $protocol_master_data['ProtocolMaster']['extend_form_alias'];
 	    $this->set('atim_structure', $this->Structures->get('form', $use_form_alias));
 
