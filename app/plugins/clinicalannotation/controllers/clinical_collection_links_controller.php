@@ -1,6 +1,7 @@
 <?php
 
-class ClinicalCollectionLinksController extends ClinicalAnnotationAppController {
+class ClinicalCollectionLinksController extends ClinicalannotationAppController {
+	
 	var $uses = array('ClinicalCollectionLinks');
 	var $paginate = array('ClinicalCollectionLinks'=>array('limit'=>10,'order'=>'ClinicalCollectionLinks.id ASC'));	
 	

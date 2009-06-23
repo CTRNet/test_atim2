@@ -30,7 +30,7 @@ class StructuresHelper extends Helper {
 		);
 		
 		$options = $this->array_merge_recursive_distinct($defaults,$options);
-				
+		
 			// Sort the data with ORDER descending, FIELD ascending 
 				foreach ( $atim_structure['StructureFormat'] as $key=>$row ) {
 					$sort_order_0[$key] = $row['display_column'];
@@ -655,11 +655,11 @@ class StructuresHelper extends Helper {
 						$display_value = $data[ $field['StructureField']['model'] ][ $field['StructureField']['field'] ];
 								
 							// swap out VALUE for OVERRIDE choice for SELECTS, NO TRANSLATION 
-							if ( isset( $override[ $field['StructureField']['model'].'.'.$field['StructureField']['field'] ] ) ) {
+							if ( isset( $options['override'][ $field['StructureField']['model'].'.'.$field['StructureField']['field'] ] ) ) {
 								
 								// from ARRAY item...
-								if ( is_array($override[ $field['StructureField']['model'].'.'.$field['StructureField']['field'] ]) ) {
-									foreach ( $override[ $field['StructureField']['model'].'.'.$field['StructureField']['field'] ] as $key=>$value ) {
+								if ( is_array($options['override'][ $field['StructureField']['model'].'.'.$field['StructureField']['field'] ]) ) {
+									foreach ( $options['override'][ $field['StructureField']['model'].'.'.$field['StructureField']['field'] ] as $key=>$value ) {
 										
 										if ( $key == $display_value ) {
 											$display_value = $value;
@@ -670,7 +670,7 @@ class StructuresHelper extends Helper {
 								
 								// for STRING items...
 								else {
-									$display_value = $override[ $field['StructureField']['model'].'.'.$field['StructureField']['field'] ];
+									$display_value = $options['override'][ $field['StructureField']['model'].'.'.$field['StructureField']['field'] ];
 								}
 								
 							// swap out VALUE for LANG LOOKUP choice for SELECTS 
@@ -837,8 +837,12 @@ class StructuresHelper extends Helper {
 						$html_element_array['value'] = $this->data[$field['StructureField']['model']][$field['StructureField']['field']]; 
 					}
 					
-					if ( isset( $override[$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) ) { 
-						$html_element_array['value'] = $override[$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]; 
+					if ( !isset( $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) && isset( $options['override'][$field['StructureField']['model'].'.'.$field['StructureField']['field']] ) ) {
+						$options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] = $options['override'][$field['StructureField']['model'].'.'.$field['StructureField']['field']];
+					}
+					
+					if ( isset( $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) ) { 
+						$html_element_array['value'] = $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]; 
 					}
 					
 					$use_cakephp_form_helper = true;
@@ -865,6 +869,10 @@ class StructuresHelper extends Helper {
 							
 							if ( $options['type']=='search' || !count($field['StructureField']['StructureValidation']) ) {
 								$html_element_array['empty'] = true;
+							}
+							
+							if ( isset( $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) ) { 
+								$html_element_array['options'] = $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']];
 							}
 							
 							if ( count($field['StructureField']['StructureValueDomain']) && isset($field['StructureField']['StructureValueDomain']['StructurePermissibleValue']) ) {
@@ -916,7 +924,7 @@ class StructuresHelper extends Helper {
 						
 						if ( $options['type']=='add' && $field['StructureField']['default'] ) { $html_element_array['value'] = $field['StructureField']['default']; } // add default value, if any 
 						if ( $options['type']=='editgrid' ) { $html_element_array['value'] = $this->data[$field['StructureField']['model']][$field['StructureField']['field']]; }
-						if ( isset( $override[$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) ) { $html_element_array['value'] = $override[$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]; }
+						if ( isset( $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) ) { $html_element_array['value'] = $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]; }
 						
 						$display_value .=  $this->Form->hidden( $field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], $html_element_array);
 					}
@@ -933,7 +941,7 @@ class StructuresHelper extends Helper {
 						
 						if ( $options['type']=='add' && $field['StructureField']['default'] ) { $html_element_array['value'] = $field['StructureField']['default']; } // add default value, if any 
 						if ( $options['type']=='editgrid' ) { $html_element_array['value'] = $this->data[$field['StructureField']['model']][$field['StructureField']['field']]; }
-						if ( isset( $override[$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) ) { $html_element_array['value'] = $override[$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]; }
+						if ( isset( $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) ) { $html_element_array['value'] = $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]; }
 						
 						if ( $options['type']=='search' ) {
 							$html_element_array['value'] = '-9999';
@@ -961,7 +969,7 @@ class StructuresHelper extends Helper {
 						
 						if ( $options['type']=='add' && $field['StructureField']['default'] ) { $html_element_array['value'] = $field['StructureField']['default']; } // add default value, if any 
 						if ( $options['type']=='editgrid' ) { $html_element_array['value'] = $this->data[$field['StructureField']['model']][$field['StructureField']['field']]; }
-						if ( isset( $override[$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) ) { $html_element_array['value'] = $override[$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]; }
+						if ( isset( $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) ) { $html_element_array['value'] = $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]; }
 						
 						$display_value .=  $this->Form->input( $field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], $html_element_array );
 					}
@@ -978,7 +986,7 @@ class StructuresHelper extends Helper {
 						
 						if ( $options['type']=='add' && $field['StructureField']['default'] ) { $html_element_array['value'] = $field['StructureField']['default']; } // add default value, if any 
 						if ( $options['type']=='editgrid' ) { $html_element_array['value'] = $this->data[$field['StructureField']['model']][$field['StructureField']['field']]; }
-						if ( isset( $override[$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) ) { $html_element_array['value'] = $override[$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]; }
+						if ( isset( $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) ) { $html_element_array['value'] = $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]; }
 						
 						$display_value .=  $this->Form->password( $field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], $html_element_array );
 					}
@@ -995,7 +1003,7 @@ class StructuresHelper extends Helper {
 						
 						if ( $options['type']=='add' && $field['StructureField']['default'] ) { $html_element_array['value'] = $field['StructureField']['default']; } // add default value, if any 
 						if ( $options['type']=='editgrid' ) { $html_element_array['value'] = $this->data[$field['StructureField']['model']][$field['StructureField']['field']]; }
-						if ( isset( $override[$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) ) { $html_element_array['value'] = $override[$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]; }
+						if ( isset( $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) ) { $html_element_array['value'] = $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]; }
 						
 						$display_value .=  $this->Form->textarea( $field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], $html_element_array );
 					}
@@ -1016,8 +1024,8 @@ class StructuresHelper extends Helper {
 						$field['StructureField']['options_list'] = array(); // start blank option list array 
 						
 						// use OVERRIDE passed function variable, which should be proper array
-						if ( isset( $override[$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) ) {
-							$field['StructureField']['options_list'] = $override[$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']];
+						if ( isset( $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) ) {
+							$field['StructureField']['options_list'] = $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']];
 							
 						// else use standard StructureOption array 
 						} else {
@@ -1089,15 +1097,15 @@ class StructuresHelper extends Helper {
 						$field['StructureField']['options_list'] = array(); // start blank option list array 
 						
 						// use OVERRIDE passed function variable, which should be proper array
-						if ( isset( $override[$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) ) {
+						if ( isset( $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) ) {
 							
 							// if OVERRIDE is array, assume it is list of KEY=>VALUES to parse through
-							if ( is_array($override[$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]) ) {
-								$field['StructureField']['options_list'] = $override[$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']];
+							if ( is_array($options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]) ) {
+								$field['StructureField']['options_list'] = $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']];
 							
 							// if is STRING, assume it's a TABLE/ELEMENT that completely overrides FORM HELPER build (like a provided CHECKLIST FORM )...
-							} else if ( trim($override[$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]) ) {
-								$display_value .=  $override[$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']];
+							} else if ( trim($options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]) ) {
+								$display_value .=  $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']];
 								$provided_element = true; // set flag to skip render below...
 							}
 							
@@ -1143,15 +1151,15 @@ class StructuresHelper extends Helper {
 						$field['StructureField']['options_list'] = array(); // start blank option list array 
 						
 						// use OVERRIDE passed function variable, which should be proper array
-						if ( isset( $override[$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) ) {
+						if ( isset( $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) ) {
 							
 							// if OVERRIDE is array, assume it is list of KEY=>VALUES to parse through
-							if ( is_array($override[$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]) ) {
-								$field['StructureField']['options_list'] = $override[$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']];
+							if ( is_array($options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]) ) {
+								$field['StructureField']['options_list'] = $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']];
 							
 							// if is STRING, assume it's a TABLE/ELEMENT that completely overrides FORM HELPER build (like a provided CHECKLIST FORM )...
-							} else if ( trim($override[$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]) ) {
-								$display_value .=  $override[$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']];
+							} else if ( trim($options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]) ) {
+								$display_value .=  $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']];
 								$provided_element = true; // set flag to skip render below...
 							}
 						
@@ -1207,7 +1215,7 @@ class StructuresHelper extends Helper {
 						}
 						
 						if ( $options['type']=='editgrid' ) { $selected = $this->data[$field['StructureField']['model']][$field['StructureField']['field']]; }
-						if ( isset( $override[$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) ) { $selected = $override[$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]; }
+						if ( isset( $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) ) { $selected = $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]; }
 						
 						if ( $options['type']=='search' ) {
 							$display_value .=  $this->Form->dateTimeOptionTag( $field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', $dateFormat, $timeFormat, NULL, $html_element_array );
@@ -1238,7 +1246,7 @@ class StructuresHelper extends Helper {
 						}
 						
 						if ( $options['type']=='editgrid' ) { $selected = $this->data[$field['StructureField']['model']][$field['StructureField']['field']]; }
-						if ( isset( $override[$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) ) { $selected = $override[$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]; }
+						if ( isset( $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) ) { $selected = $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]; }
 						
 						if ( $options['type']=='search' ) {
 							$display_value .=  $this->Form->dateTimeOptionTag( $field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', $dateFormat, $timeFormat, NULL, $html_element_array );
@@ -1269,7 +1277,7 @@ class StructuresHelper extends Helper {
 						}
 						
 						if ( $options['type']=='editgrid' ) { $selected = $this->data[$field['StructureField']['model']][$field['StructureField']['field']]; }
-						if ( isset( $override[$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) ) { $selected = $override[$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]; }
+						if ( isset( $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) ) { $selected = $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]; }
 						
 						if ( $options['type']=='search' ) {
 							$display_value .=  $this->Form->dateTimeOptionTag( $field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', $dateFormat, $timeFormat, NULL, $html_element_array );
