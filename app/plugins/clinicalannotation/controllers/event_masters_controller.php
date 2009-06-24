@@ -36,6 +36,8 @@ class EventMastersController extends ClinicalannotationAppController {
 	
 	function detail( $event_group=NULL, $participant_id=null, $event_master_id=null ) {
 		
+		$this->set( 'atim_menu', $this->Menus->get('/'.$this->params['plugin'].'/'.$this->params['controller'].'/listall/'.$event_group) );
+		
 		$this->set( 'atim_menu_variables', array('EventMaster.event_group'=>$event_group,'Participant.id'=>$participant_id,'EventMaster.id'=>$event_master_id) );
 		$this->data = $this->EventMaster->find('first',array('conditions'=>array('EventMaster.id'=>$event_master_id)));
 		
@@ -45,6 +47,8 @@ class EventMastersController extends ClinicalannotationAppController {
 	}
 	
 	function add( $event_group=NULL, $participant_id=null, $event_control_id=null) {
+		
+		$this->set( 'atim_menu', $this->Menus->get('/'.$this->params['plugin'].'/'.$this->params['controller'].'/listall/'.$event_group) );
 		
 		$this->set( 'atim_menu_variables', array('EventControl.event_group'=>$event_group,'Participant.id'=>$participant_id,'EventControl.id'=>$event_control_id) );
 		$this_data = $this->EventControl->find('first',array('conditions'=>array('EventControl.id'=>$event_control_id)));
@@ -65,6 +69,8 @@ class EventMastersController extends ClinicalannotationAppController {
 	}
 	
 	function edit( $event_group=NULL, $participant_id=null, $event_master_id=null ) {
+		
+		$this->set( 'atim_menu', $this->Menus->get('/'.$this->params['plugin'].'/'.$this->params['controller'].'/listall/'.$event_group) );
 		
 		$this->set( 'atim_menu_variables', array('EventMaster.event_group'=>$event_group,'Participant.id'=>$participant_id,'EventMaster.id'=>$event_master_id) );
 		$this_data = $this->EventMaster->find('first',array('conditions'=>array('EventMaster.id'=>$event_master_id)));
