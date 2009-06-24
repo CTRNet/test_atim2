@@ -1,4 +1,4 @@
-USE `atim2_dev`;
+﻿USE `atim2`;
 
 DELETE FROM `participants`;
 INSERT INTO `participants` (`id`, `title`, `first_name`, `last_name`, `middle_name`, `date_of_birth`, `date_status`, `marital_status`, `language_preferred`, `sex`, `race`, `ethnicity`, `vital_status`, `memo`, `status`, `date_of_death`, `death_certificate_ident`, `icd10_id`, `confirmation_source`, `tb_number`, `last_chart_checked_date`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
@@ -55,19 +55,51 @@ INSERT INTO `txd_surgeries` ( `id`, `path_num`, `primary`, `surgeon`, `tx_master
 (103, 2456, 'block', 'dr. death', 103);
 
 DELETE FROM `protocol_masters`;
-INSERT INTO `protocol_masters` ( `id`, `name`, `notes`, `code`, `detail_tablename`, `detail_form_alias` ) VALUES
-(101, 'test', 'test', '34.5C', 'pd_chemos', 'pd_chemos');
+INSERT INTO `protocol_masters` ( `id`, `name`, `notes`, `code`, `detail_tablename`, `detail_form_alias`, `extend_tablename`, `extend_form_alias` ) VALUES
+(101, 'test', 'test', '34.5C', 'pd_chemos', 'pd_chemos', 'pe_chemos', 'pe_chemos');
 
 DELETE FROM `pd_chemos`;
 INSERT INTO `pd_chemos` ( `id`, `num_cycles`, `length_cycles`, `protocol_master_id` ) VALUES
 (101, 45, 45, 101);
 
-DELETE FROM `drugs`;
-INSERT INTO `drugs` (`id`, `generic_name`, `trade_name`, `type`, `description`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
-(1, 'aspirin', '', NULL, NULL, '0000-00-00', '', '0000-00-00', '', 0, NULL),
-(2, 'tylenol', '', NULL, NULL, '0000-00-00', '', '0000-00-00', '', 0, NULL),
-(3, 'advil', '', NULL, NULL, '0000-00-00', '', '0000-00-00', '', 0, NULL);
+DELETE FROM `collections`;
+INSERT INTO `collections` ( `id`, `acquisition_label`, `bank`, `collection_notes` ) VALUES
+(1, 'test', 'the bank', 'This is a test fool');
 
-DELETE FROM `txe_chemos`;
-INSERT INTO `txe_chemos` (`id`, `source`, `frequency`, `dose`, `method`, `reduction`, `cycle_number`, `completed_cycles`, `start_date`, `end_date`, `created`, `created_by`, `modified`, `modified_by`, `tx_master_id`, `drug_id`, `deleted`, `deleted_date`) VALUES
-(101, '', '21', '151', '', '', 41, 4, '2029-01-01', '2029-01-01', '0000-00-00 00:00:00', NULL, '2009-06-22 11:13:21', '1', 101, '1', 0, NULL);
+DELETE FROM `sample_masters`;
+INSERT INTO `sample_masters` ( `id`, `sample_code`, `sample_category`, `sample_control_id`, `sample_type`, `collection_id`, `notes` ) VALUES
+(1, 'PW-1', 'specimen', 103, 'peritoneal wash', 1, 'This is a test fool'),
+(2, 'A-7', 'specimen', 1, 'ascite', 1, 'This is... a test! Dun-Duh.');
+
+DELETE FROM `sd_spe_ascites`;
+INSERT INTO `sd_spe_ascites` ( `id`, `sample_master_id`, `collected_volume` ) VALUES
+(1, 1, 144);
+
+DELETE FROM `sd_spe_peritoneal_washes`;
+INSERT INTO `sd_spe_peritoneal_washes` ( `id`, `sample_master_id`, `collected_volume` ) VALUES
+(1, 1, 25.5);
+
+DELETE FROM `storage_masters`;
+INSERT INTO `storage_masters` ( `id`, `code`, `storage_control_id`, `parent_id`, `barcode`, `notes` ) VALUES
+(1, 'B - 1', 1, NULL, '12332', 'Test');
+
+DELETE FROM `std_rooms`;
+INSERT INTO `std_rooms` ( `id`, `storage_master_id`, `laboratory`, `floor` ) VALUES
+(1, 1, 'test', 'test');
+
+DELETE FROM `aliquot_masters`;
+INSERT INTO `aliquot_masters` ( `id`, `barcode`, `aliquot_type`, `aliquot_control_id`, `collection_id`, `sample_master_id`, `status` ) VALUES
+(1, 'D345430D212', 'slide', 10, 1, 1, 'active' ),
+(2, 'E30002123C8', 'gel matrices', 13, 1, 1, 'active');
+
+DELETE FROM `ad_cell_slides`;
+INSERT INTO `ad_cell_slides` ( `id`, `aliquot_master_id`, `immunochemistry` ) VALUES
+( 1, 1, 'test');
+
+DELETE FROM `ad_gel_matrices`;
+INSERT INTO `ad_gel_matrices` ( `id`, `aliquot_master_id`, `cell_count` ) VALUES
+( 1, 2, 45 );
+
+DELETE FROM `sop_masters`;
+INSERT INTO `sop_masters` ( `id`, `title`, `detail_tablename`, `detail_form_alias`, `extend_tablename`, `extend_form_alias`) VALUES
+(1, 'test', 'sopd_general_all', 'sopd_general_all', 'sope_general_all', 'sope_general_all');
