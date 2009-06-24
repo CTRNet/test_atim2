@@ -2,7 +2,7 @@
 
 class OrderItemsController extends OrderAppController {
 	
-	var $uses = array('OrderItem', 'Order', 'OrderLine');
+	var $uses = array('Order.OrderItem', 'Order.Order', 'Order.OrderLine');
 	var $paginate = array('OrderItem'=>array('limit'=>'10','order'=>'OrderItem.barcode'));
 	
 	function listall( $order_id=null, $order_line_id=null ) {

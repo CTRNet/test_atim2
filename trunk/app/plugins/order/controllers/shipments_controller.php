@@ -2,7 +2,7 @@
 
 class ShipmentsController extends OrderAppController {
 	
-	var $uses = array('Shipment', 'Order');
+	var $uses = array('Order.Shipment', 'Order.Order');
 	var $paginate = array('Shipment'=>array('limit'=>10,'order'=>'Shipment.shipment_code'));
 	
 	function listall( $order_id=null ) {
