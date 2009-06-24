@@ -1,9 +1,9 @@
-<?
+<?php
 	$structure_links = array(
-		'top'=>'/sop_extends/edit/%%SopExtends.id%%/',
+		'top'=>'/sop/sop_extends/edit/'.$atim_menu_variables['SopMaster.id'].'/%%SopExtend.id%%/',
 		'bottom'=>array(
-			'delete'=>'/sop_extends/delete/%%SopExtends.id%%/,
-			'cancel'=>'/sop_extends/detail/%%SopExtends.id%%/
+			'delete'=>'/sop/sop_extends/delete/'.$atim_menu_variables['SopMaster.id'].'/%%SopExtend.id%%/',
+			'cancel'=>'/sop/sop_extends/detail/'.$atim_menu_variables['SopMaster.id'].'/%%SopExtend.id%%/'
 		)
 	);
 	
