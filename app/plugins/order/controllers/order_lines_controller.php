@@ -2,7 +2,9 @@
 
 class OrderLinesController extends OrderAppController {
 	
-	var $uses = array('OrderLine', 'Order');
+	//var $name = 'OrderLines';
+	
+	var $uses = array('Order.OrderLine', 'Order.Order');
 	var $paginate = array('OrderLine'=>array('limit'=>'10','order'=>'OrderLine.date_required'));
 	
 	function listall( $order_id=null ) {
