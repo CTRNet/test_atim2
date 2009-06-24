@@ -2,7 +2,7 @@
 
 class FamilyHistoriesController extends ClinicalAnnotationAppController {
 	
-	var $uses = array('FamilyHistory','Participant');
+	var $uses = array('ClinicalAnnotation.FamilyHistory','ClinicalAnnotation.Participant');
 	var $paginate = array('FamilyHistory'=>array('limit'=>10,'order'=>'FamilyHistory.relation'));
 	
 	function listall( $participant_id=null ) {
