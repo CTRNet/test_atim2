@@ -1,4 +1,4 @@
-﻿-- phpMyAdmin SQL Dump
+-- phpMyAdmin SQL Dump
 -- version 2.10.1
 -- http://www.phpmyadmin.net
 -- 
@@ -15839,7 +15839,17 @@ CREATE TABLE `versions` (
 -- Dumping data for table `versions`
 --
 
-INSERT INTO `versions` ( `version_number`, `status` ) VALUES ( 'ATiM version 2.0', '' );
+INSERT INTO `versions` ( `version_number`, `status` ) VALUES ( 'ATiM v2.0.0 (1000)', 'installed' );
+
+-- Create INDEX for access control object (acos) table.
+
+CREATE INDEX acos_idx1 ON acos (lft, rght);
+CREATE INDEX acos_idx2 ON acos (alias);
+CREATE INDEX acos_idx3 ON acos (model, foreign_key);
+
+CREATE INDEX aros_idx1 ON aros (lft, rght);
+CREATE INDEX aros_idx2 ON aros (alias);
+CREATE INDEX aros_idx3 ON aros (model, foreign_key);
 
 -- To integrate into script
 
