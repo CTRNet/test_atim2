@@ -2,7 +2,7 @@
 
 class StudyFundingsController extends StudyAppController {
 		
-	var $uses = array('StudyFunding','StudySummary');
+	var $uses = array('Study.StudyFunding','Study.StudySummary');
 	var $paginate = array('StudyFunding'=>array('limit'=>10,'order'=>'StudyFunding.study_sponsor'));
 	
 	function listall( $study_summary_id=null ) {

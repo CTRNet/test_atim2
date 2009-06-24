@@ -2,7 +2,7 @@
 
 class StudySummariesController extends StudyAppController {
 
-	var $uses = array('StudySummary');
+	var $uses = array('Study.StudySummary');
 	var $paginate = array('StudySummary'=>array('limit'=>10,'order'=>'StudySummary.title'));
   
 	function listall( ) {

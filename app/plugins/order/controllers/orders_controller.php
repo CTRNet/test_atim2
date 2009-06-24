@@ -2,7 +2,7 @@
 
 class OrdersController extends OrderAppController {
 	
-	var $uses = array('Order', 'StudySummary');
+	var $uses = array('Order.Order', 'Study.StudySummary');
 	var $paginate = array('Order'=>array('limit'=>10,'order'=>'Order.order_number'));
 	
 	function listall( ) {
@@ -59,7 +59,7 @@ class OrdersController extends OrderAppController {
 		foreach ( $study_summary_id_findall_result as $record ) {
 			$study_summary_id_findall[ $record['StudySummary']['id'] ] = $record['StudySummary']['title'];
 		}
-		$this->set( 'atim_menu_vaiables', array('StudySummary'=>$study_summary_id_findall ));
+		$this->set( 'study_summary_id_finall', array('StudySummary'=>$study_summary_id_findall ));
 		
 	}
   

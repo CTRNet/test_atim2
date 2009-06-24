@@ -1,7 +1,7 @@
 <?php
 
 class StudyReviewsController extends StudyAppController {
-	var $uses = array('StudyReview','StudySummary');
+	var $uses = array('Study.StudyReview','Study.StudySummary');
 	var $paginate = array('StudyReview'=>array('limit'=>10,'order'=>'StudyReview.last_name'));
 	
 	function listall( $study_summary_id=null ) {

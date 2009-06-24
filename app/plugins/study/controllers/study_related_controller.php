@@ -2,7 +2,7 @@
 
 class StudyRelatedController extends StudyAppController {
 			
-	var $uses = array('StudyRelated','StudySummary');
+	var $uses = array('Study.StudyRelated','Study.StudySummary');
 	var $paginate = array('StudyRelated'=>array('limit'=>10,'order'=>'StudyRelated.title'));
 	
 	function listall( $study_summary_id=null ) {

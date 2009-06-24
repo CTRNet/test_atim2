@@ -2,7 +2,7 @@
 
 class StudyEthicsBoardsController extends StudyAppController {
 		
-	var $uses = array('StudyEthicsBoard','StudySummary');
+	var $uses = array('Study.StudyEthicsBoard','Study.StudySummary');
 	var $paginate = array('StudyEthicsBoard'=>array('limit'=>10,'order'=>'StudyEthicsBoard.ethics_board'));
 	
 	function listall( $study_summary_id=null ) {

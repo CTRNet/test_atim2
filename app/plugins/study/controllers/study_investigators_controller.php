@@ -2,7 +2,7 @@
 
 class StudyInvestigatorsController extends StudyAppController {
 	
-	var $uses = array('StudyInvestigator','StudySummary');
+	var $uses = array('Study.StudyInvestigator','Study.StudySummary');
 	var $paginate = array('StudyInvestigator'=>array('limit'=>10,'order'=>'StudyInvestigator.last_name'));
 	
 	function listall( $study_summary_id=null ) {

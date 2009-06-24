@@ -4,72 +4,29 @@ class StudySummary extends StudyAppModel
 {
 	var $name = 'StudySummary';
 	var $useTable = 'study_summaries';
-	var $hasMany = array(
-						'StudyContact' =>
-						 array('className'   => 'StudyContact',
-                               'conditions'  => '',
-                               'order'       => '',
-                               'limit'       => '',
-                               'foreignKey'  => 'study_summary_id',
-                               'dependent'   => true,
-                               'exclusive'   => false,
-                               'finderSql'   => ''),
-                         'StudyEthicsBoard' =>
-						 array('className'   => 'StudyEthicsBoard',
-                               'conditions'  => '',
-                               'order'       => '',
-                               'limit'       => '',
-                               'foreignKey'  => 'study_summary_id',
-                               'dependent'   => true,
-                               'exclusive'   => false,
-                               'finderSql'   => ''),
- 						'StudyFunding' =>
-						 array('className'   => 'StudyFunding',
-                               'conditions'  => '',
-                               'order'       => '',
-                               'limit'       => '',
-                               'foreignKey'  => 'study_summary_id',
-                               'dependent'   => true,
-                               'exclusive'   => false,
-                               'finderSql'   => ''),
-                         'StudyInvestigator' =>
-						 array('className'   => 'StudyInvestigator',
-                               'conditions'  => '',
-                               'order'       => '',
-                               'limit'       => '',
-                               'foreignKey'  => 'study_summary_id',
-                               'dependent'   => true,
-                               'exclusive'   => false,
-                               'finderSql'   => ''),
-  						'StudyRelated' =>
-						 array('className'   => 'StudyRelated',
-                               'conditions'  => '',
-                               'order'       => '',
-                               'limit'       => '',
-                               'foreignKey'  => 'study_summary_id',
-                               'dependent'   => true,
-                               'exclusive'   => false,
-                               'finderSql'   => ''),
-                         'StudyResult' =>
-						 array('className'   => 'StudyResult',
-                               'conditions'  => '',
-                               'order'       => '',
-                               'limit'       => '',
-                               'foreignKey'  => 'study_summary_id',
-                               'dependent'   => true,
-                               'exclusive'   => false,
-                               'finderSql'   => ''),
-  						'StudyReview' =>
-						 array('className'   => 'StudyReview',
-                               'conditions'  => '',
-                               'order'       => '',
-                               'limit'       => '',
-                               'foreignKey'  => 'study_summary_id',
-                               'dependent'   => true,
-                               'exclusive'   => false,
-                               'finderSql'   => '')
-						);
-						
-	var $validate = array();
+
+	function summary( $variables=array() ) {
+		$return = false;
+		
+		if ( isset($variables['StudySummary.id']) ) {
+			
+			$result = $this->find('first', array('conditions'=>array('StudySummary.id'=>$variables['StudySummary.id'])));
+			
+			$return = array(
+				'Summary' => array(
+					'menu'			=>	array( NULL, $result['StudySummary']['title']),
+					'title'			=>	array( NULL, $result['StudySummary']['title']),
+					
+					'description'	=>	array(
+						'disease site'	=>	$result['StudySummary']['disease_site'],
+						'type'		=>	$result['StudySummary']['study_type'],
+						'summary'   =>  $result['StudySummary']['summary']
+					)
+				)
+			);
+		}
+		
+		return $return;
+	}
 }
 ?>
