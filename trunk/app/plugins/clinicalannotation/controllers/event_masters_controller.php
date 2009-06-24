@@ -13,7 +13,7 @@ class EventMastersController extends ClinicalannotationAppController {
 				$_SESSION['MasterDetail_filter']['EventMaster.participant_id'] = $participant_id;
 				$_SESSION['MasterDetail_filter']['EventMaster.event_group'] = $event_group;
 				
-				$this->set( 'atim_structure', $this->Structures->get('form','event_masters') );
+				$this->set( 'atim_structure', $this->Structures->get('form','eventmasters') );
 			}
 			
 			else {
@@ -47,11 +47,21 @@ class EventMastersController extends ClinicalannotationAppController {
 	function add( $menu_id=NULL, $event_group=NULL, $participant_id=null, $event_control_id=null) {
 		
 		$this->set( 'atim_menu_variables', array('Menu.id'=>$menu_id,'EventControl.event_group'=>$event_group,'Participant.id'=>$participant_id,'EventControl.id'=>$event_control_id) );
-		$this->data = $this->EventControl->find('first',array('conditions'=>array('EventControl.id'=>$event_control_id)));
+		$this_data = $this->EventControl->find('first',array('conditions'=>array('EventControl.id'=>$event_control_id)));
 		
 		// set FORM ALIAS based off VALUE from CONTROL table
-		$this->set( 'atim_structure', $this->Structures->get('form',$this->data['EventControl']['form_alias']) );
+		$this->set( 'atim_structure', $this->Structures->get('form',$this_data['EventControl']['form_alias']) );
 		
+		if ( !empty($this->data) ) {
+			$this->data['EventMaster']['participant_id'] = $participant_id;
+			$this->data['EventMaster']['detail_tablename'] = $this_data['EventControl']['detail_tablename'];
+			$this->data['EventMaster']['form_alias'] = $this_data['EventControl']['form_alias'];
+			if ( $this->EventMaster->save($this->data) ) {
+				$this->flash( 'Your data has been updated.','/clinicalannotation/event_masters/detail/'.$menu_id.'/'.$event_group.'/'.$participant_id.'/'.$this->EventMaster->getLastInsertId());
+			} else {
+				$this->data = $this_data;
+			}
+		} 		
 	}
 	
 	function edit( $menu_id=NULL, $event_group=NULL, $participant_id=null, $event_master_id=null ) {
