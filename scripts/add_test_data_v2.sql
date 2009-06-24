@@ -261,3 +261,5 @@ INSERT INTO `shipments` (`id`, `shipment_code`, `recipient`, `facility`, `delive
 (1, 'testc', 'sdfsfg', 'adsfgdag', 'sdfaw', 'dafgdg', 'ebhrfnsf', '234', 'sdgs', NULL, 'xcv', '2009-05-19 11:11:00', '2009-05-19 11:11:00', NULL, '2009-05-19 11:11:40', '1', '2009-05-19 11:11:40', '1', 1);
 
 DELETE FROM `order_items`;
+INSERT INTO `order_items` ( `id`, `barcode`, `status`, `orderline_id`, `shipment_id` ) VALUES
+(1, '34532', 'Test', 1, 1);

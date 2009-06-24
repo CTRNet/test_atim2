@@ -6,12 +6,10 @@ class OrderItemsController extends OrderAppController {
 	var $paginate = array('OrderItem'=>array('limit'=>'10','order'=>'OrderItem.barcode'));
 	
 	function listall( $order_id=null, $order_line_id=null ) {
-		
-		if ( !$order_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		if ( !$order_line_id ) { $this->redirect( 'pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'OrderLine.id'=>$order_line_id));
-		$this->data = $this->paginate($this->OrderItem, array('OrderItem.order_id'=>$order_id, 'OrderItem.orderline_id'=>$order_line_id));
+		$this->data = $this->paginate($this->OrderItem, array('OrderItem.orderline_id'=>$order_line_id));
 			
 	}
 
@@ -19,7 +17,7 @@ class OrderItemsController extends OrderAppController {
 		if ( !$order_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		if ( !$order_line_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 	
-		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id));
+		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'OrderLine.id'=>$order_line_id));
 		
 		if ( !empty($this->data) ) {
 			$this->data['OrderItem']['orderline_id'] = $order_line_id;
@@ -30,7 +28,6 @@ class OrderItemsController extends OrderAppController {
 	}
 	
 	function edit( $order_id=null, $order_line_id=null, $order_item_id=null ) {
-		if ( !$order_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		if ( !$order_line_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		if ( !$order_item_id ) { $this->redirect( '/page/err_clin-ann_no_part_id', NULL, TRUE ); }
 		
@@ -47,7 +44,6 @@ class OrderItemsController extends OrderAppController {
 	}
 	
 	function detail( $order_id=null, $order_line_id=null, $order_item_id=null ) {
-		if ( !$order_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		if ( !$order_line_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		if ( !$order_item_id ) { $this->redirect( '/page/err_clin-ann_no_part_id', NULL, TRUE ); }
 		
@@ -56,7 +52,6 @@ class OrderItemsController extends OrderAppController {
 	}
 	
 	function delete( $order_id=null, $order_line_id=null, $order_item_id=null ) {
-		if ( !$order_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		if ( !$order_line_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		if ( !$order_item_id ) { $this->redirect( '/page/err_clin-ann_no_part_id', NULL, TRUE ); }
 		
