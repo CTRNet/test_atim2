@@ -2,18 +2,24 @@
 
 class Material extends AppModel
 {
+	var $name = 'Material';
+	var $useTable = 'materials';
+
     function summary( $variables=array() ) {
 		$return = false;
 		
-		if ( isset($variables['Materials.id']) ) {
+		if ( isset($variables['Material.id']) ) {
 			
-			$result = $this->find('first', array('conditions'=>array('Materials.id'=>$variables['Materials.id'])));
+			$result = $this->find('first', array('conditions'=>array('Material.id'=>$variables['Material.id'])));
 			
 			$return = array(
 				'Summary' => array(
-					'item_name' => $result['Materials']['item_name'],
-					'item_type'	=>	$result['Materials']['item_type'],
-					'description'	=>	$result['Materials']['description']
+					'menu' => array(NULL, $result['Material']['item_name']),
+					'title' => array(NULL, $result['Material']['item_name']),
+					'description' => array(
+						'item type'	=>	$result['Material']['item_type'],
+						'description'	=>	$result['Material']['description']
+					)
 				)
 			);
 		}
