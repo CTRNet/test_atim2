@@ -1,8 +1,7 @@
 <?php
 
-class SampleMaster extends InventoryManagementAppModel
-{
-	var $name = 'SampleMaster';
+class SampleMaster extends InventorymanagementAppModel {
+	var $belongsTo = 'SampleControl';
     var $useTable = 'sample_masters';
 	var $actAs = array('MasterDetail');
 	

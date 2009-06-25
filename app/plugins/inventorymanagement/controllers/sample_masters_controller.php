@@ -4,7 +4,8 @@ class SampleMastersController extends InventorymanagementAppController {
 
 	var $uses = array(
 		'Inventorymanagement.SampleMaster',
-		'Inventorymanagement.Collection'
+		'Inventorymanagement.Collection',
+		'Inventorymanagement.SampleControl'
 	);
 	var $paginate = array('SampleMaster'=>array('limit'=>10,'order'=>'SampleMaster.sample_code DESC'));
 	
@@ -27,15 +28,37 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->data = $this->SampleMaster->find('all');
 	}
 	
-	function tree($collection_id){
+	function tree($collection_id=null, $sample_control_id=null) {
 		
 		if ( !$collection_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-
+		
+		// set FILTER, used as this->data CONDITIONS
+		$_SESSION['MasterDetail_filter'] = array();
+		
+		if ( !isset($_SESSION['MasterDetail_filter']) || !$sample_control_id ) {
+			$_SESSION['MasterDetail_filter']['SampleMaster.collection_id'] = $collection_id;
+		} else {
+			$_SESSION['MasterDetail_filter']['SampleMaster.collection_id'] = $collection_id;
+			$_SESSION['MasterDetail_filter']['SampleMaster.sample_control_id'] = $sample_control_id;
+		}
+		
 		$this->set( 'atim_menu_variables', array('Collection.id'=>$collection_id) );		
 		$this->set( 'atim_structure', $this->Structures->get('form','sample_masters_for_tree_view') );
 		
-		$this->data = $this->SampleMaster->find('all',array('conditions'=>array('SampleMaster.collection_id'=>$collection_id)));
-		  
+//		$this->data = $this->paginate($this->EventMaster, $_SESSION['MasterDetail_filter']);
+//		$this->data = $this->SampleMaster->find('threaded',array('conditions'=>array('SampleMaster.collection_id'=>$collection_id)));
+  		$this->data = $this->SampleMaster->find('threaded',array('conditions'=>$_SESSION['MasterDetail_filter']));
+  		
+		// find Sample control data for filter list
+//		$this->set( 'sample_controls', $this->SampleControl->find('all', array('conditions'=>array('status'=>'active'))) );
+	
+	}
+	
+	function detail($collection_id=null, $sample_master_id=null) {
+		
+		$this->set( 'atim_menu_variables', array('Collection.id'=>$collection_id, 'SampleMaster.id'=>$sample_master_id) );
+		$this->data = $this->SampleMaster->find('first',array('conditions'=>array('SampleMaster.id'=>$sample_master_id)));
+	
 	}
 /*
 	var $uses = array(

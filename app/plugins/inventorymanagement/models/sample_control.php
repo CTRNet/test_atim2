@@ -1,11 +1,9 @@
 <?php
 
-class SampleControl extends InventoryManagementAppModel
-{
-    var $name = 'SampleControl';
+class SampleControl extends InventorymanagementAppModel {
 	
 	var $useTable = 'sample_controls';
-	
+/*	
 	var $hasMany = array('DerivedSampleLink' =>
 		array('className'   => 'DerivedSampleLink',
 			'conditions'  => '',
@@ -17,7 +15,7 @@ class SampleControl extends InventoryManagementAppModel
 			'finderSql'   => ''));
 							
 	var $validate = array();
-	
+	*/
 }
 
 ?>
