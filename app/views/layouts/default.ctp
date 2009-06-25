@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	
-	<title><?php echo $title_for_layout; ?></title>
+	<title><?php echo $title_for_layout.' &laquo; '.__('core_appname', true); ?></title>
 	
 	<?php 
 		echo $html->css('style'); 

@@ -28,12 +28,12 @@ class SampleMastersController extends InventorymanagementAppController {
 	}
 	
 	function tree($collection_id){
+		
 		if ( !$collection_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 
-		// set FORM variable, for HELPER call on VIEW 
-	//	$ctrapp_form = $this->Forms->getFormArray('sample_masters_for_tree_view');
-	//	$this->set('ctrapp_form', $ctrapp_form);
-				
+		$this->set( 'atim_menu_variables', array('Collection.id'=>$collection_id) );		
+		$this->set( 'atim_structure', $this->Structures->get('form','sample_masters_for_tree_view') );
+		
 		$this->data = $this->SampleMaster->find('all',array('conditions'=>array('SampleMaster.collection_id'=>$collection_id)));
 		  
 	}

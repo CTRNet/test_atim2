@@ -1,8 +1,8 @@
 body {
-	margin: 10px 0;
+	margin: 0;
 	padding: 0;
-	background-color: #eef;
-	font: 12px/1.3em Helvetica, Arial, sans-serif;
+	background-color: #f2f2ff;
+	font: 12px/1.3em "Lucida Grande", Futura, Helvetica, Arial, Verdana, sans-serif;
 }
 
 div {
@@ -14,19 +14,48 @@ div {
 }
 	
 	div#header {
-		-moz-border-radius: 5px;
-		-webkit-border-radius: 5px;
+		margin: 0 0 20px 0;
+		padding: 0 30px;
+		border: 0;
 		
-		color: #006;
+		border-bottom: 1px solid #000;
+		background: #2c3f4e url(http://www.ctrnet-dev.ca/atim-dev/css/images/body_bk_02.png) top left repeat-x;
+		color: #fff;
 	}
 	
+		div#header h1 {
+			width: 725px; 
+			height: 64px;
+			
+			padding: 16px 0 0 225px;
+			margin: 0;
+			
+			font-size: 26px;
+			
+			background: url(http://www.ctrnet-dev.ca/atim-dev/css/images/header_bk_new_01.png) top left no-repeat;
+		}
+	
 	div#footer {
+		margin: 20px 0 0 0;
+		padding: 1px 30px 100px 30px;
+		border: 0;
+		
+		background: #fff url(http://www.ctrnet-dev.ca/atim-dev/css/images/footer_bk01.png) top left repeat-x;
+		
+		font-size: 11px;
+		color: #666;
+		
 		-moz-border-radius: 5px;
 		-webkit-border-radius: 5px;
 	}
 	
 		div#footer span {
 			float: right;
+		}
+	
+		div#footer a {
+			color: #666;
+			margin-left: 1em;
 		}
 	
 	div#wrapper {
@@ -46,7 +75,10 @@ fieldset {
 	border: 0;
 }
 
+a { color: #5081a5; }
+
 .not_allowed {
+	text-decoration: line-through;
 	cursor: not-allowed;
 }
 
@@ -61,13 +93,13 @@ div#wrapper div.actions {
 	z-index:15;
 	
 	list-style-type: none;
-	background: #dde;
+	background: #dde8f2;
 	min-height: 25px;
 	padding: 12px 0 0 20px;
 	margin: 0;
 	
-	border: 3px solid #339;
-	border-color: #339;
+	border: 3px solid #374D61;
+	border-color: #374D61;
 	border-top: none;
 	
 	-moz-border-radius-bottomleft: 12px; -webkit-border-bottom-left-radius: 12px;
@@ -123,7 +155,7 @@ div#wrapper div.actions {
 		div#wrapper div.actions ul.filter span {
 			display: block;
 			background: none;
-			background-color: #dde;
+			background-color: #dde8f2;
 			
 			margin: -5px -10px 0 -10px;
 			padding: 5px 10px;
@@ -201,9 +233,50 @@ div#wrapper div.actions {
 					
 					div#wrapper div.actions ul.filter ul li a.not_allowed {
 						color: #999;
-						
 						cursor: not-allowed;
 					}
+					
+/* header menu/user */
+
+	ul#menu_for_header {
+		position: relative;
+		float: right;
+		top: -27px;
+		padding: 0; 
+		margin: 0;
+		list-style-type: none;
+	}
+	
+		ul#menu_for_header li {
+			float: left;
+			margin: 0 0 0 2em;
+		}
+		
+			ul#menu_for_header li.not_allowed {
+				color: #aaa;
+			}
+			
+			ul#menu_for_header li a {
+				color: #fff;
+			}
+			
+	p#user_for_header {
+		position: relative;
+		float: right;
+		top: -81px;
+		padding: 0; 
+		margin: 0 30px 0 0;
+		
+		font-size: 14px;
+		font-weight: bold;
+		color: #fff;
+	}
+	
+		p#user_for_header span {
+			font-size: 11px;
+			font-weight: normal;
+			color: #ccc;
+		}
 
 /* menu and summary */
 
@@ -212,28 +285,28 @@ div.menu.level_0 {
 	z-index:20;
 	
 	list-style-type: none;
-	background: #33c;
+	background: #374D61 url(http://www.ctrnet-dev.ca/atim-dev/css/images/body_bk_02.png) top right repeat-x;
 	padding: 0;
-	min-height: 35px;
+	min-height: 40px;
 	margin: 10px 10px 0 10px;
 	
 	-moz-border-radius-topleft: 12px; -webkit-border-top-left-radius: 12px;
 	-moz-border-radius-topright: 12px; -webkit-border-top-right-radius: 12px;
 	
-	border-color: #339;
+	border-color: #374D61;
 	border-bottom: none;
 	
 	font-size: 11px;
 	line-height: 1.2em;
-	color: #bbf;
+	color: #ccf;
 }
 
 	div.menu.level_0 span {
-		color: #ff0;
-		font-weight: bold;
-		font-size: 12px;
+		color: #fff;
+		/* font-weight: bold; */
+		font-size: 14px;
 		text-decoration: none;
-		text-transform: uppercase;
+		/* text-transform: uppercase; */
 	}
 	
 	div.menu.level_0 span.without_summary {
@@ -253,7 +326,7 @@ div.menu.level_0 {
 		div.menu li {
 			position: relative;
 			float: right;
-			padding: 4px 20px 4px 10px;
+			padding: 8px 20px 5px 10px;
 			
 			background: transparent url(http://images.apple.com/global/nav/images/breadcrumb_separator.png) right center no-repeat;
 		}
@@ -263,10 +336,10 @@ div.menu.level_0 {
 		div.menu.level_1 {
 			display: none;
 			
-			top: 34px; left: -10px;
+			top: 40px; left: -10px;
 			position: absolute;
 			
-			background: #33c;
+			background: #374D61;
 			
 			margin: 0;
 			padding: 0;
@@ -289,40 +362,39 @@ div.menu.level_0 {
 				div.menu.level_1 li {
 					min-width: 200px;
 					margin: 0;
-					padding: 5px 10px 5px 20px;
+					padding: 6px 10px 6px 20px;
 					border: 0;
-					border-top: 1px solid #55c;
+					border-top: 1px solid #ccc;
 					background: none;
-					color: #fff;
+					color: #ccf;
 				}
 				
 					div.menu.level_1 li.not_allowed {
-						background-color: #339;
-						color: #55c;
+						background-color: #41515f;
+						color: #99a;
 					}
 				
 					div.menu.level_1 li a {
 						float: none;
 						font-weight: normal;
 						text-transform: none;
+						text-decoration: none;
+						color: #ccf;
 	
 						font-size: 11px;
 						line-height: 1.1em;
-						color: #fff;
 					}
 					
-						div.menu.level_1 li:hover {
-							background-color: #009;
-						}
+						div.menu.level_1 li:hover { background-color: #000; border-top: 1px solid #fff; }
+						div.menu.level_1 li:hover a { text-decoration: underline; }
 					
-						div.menu.level_1 li.not_allowed:hover {
-							background-color: #339;
-						}
+						div.menu.level_1 li.not_allowed:hover { background-color: #41515f; border-top: 1px solid #ccc; }
 	
+
 	div.menu ul#summary {
 		float: right;
 		width: 100px;
-		margin: 5px 15px 0 0;
+		margin: 8px 15px 0 0;
 		
 		cursor: help;
 	}
@@ -336,11 +408,11 @@ div.menu.level_0 {
 		div.menu ul#summary span {
 			display: block;
 			background: none;
-			background-color: #227;
+			background-color: #000;
 			font-weight: bold;
 			font-size: 10px;
 			text-transform: uppercase;
-			color: #669;
+			color: #fff;
 			
 			padding: 5px 10px 4px 20px;
 			-moz-border-radius: 14px; -webkit-border-radius: 14px;
@@ -434,7 +506,7 @@ div.menu.level_0 {
 	span.help {
 		position: relative;
 		
-		background-color: #f2f2ff;
+		background-color: #eaedf2;
 		color: #99c;
 		font-weight: bold;
 		padding: 0 0.5em;
@@ -453,7 +525,7 @@ div.menu.level_0 {
 		span.help.error,
 		span.help.error:hover {
 			background: none;
-			color: #eee;
+			color: #ccd;
 			font-weight: normal;
 			
 			cursor: default;
@@ -506,16 +578,16 @@ div.menu.level_0 {
 		margin: 0;
 		background-color: #fff;
 		
-		border-right: 3px solid #339;
-		border-left: 3px solid #339;
+		border-right: 3px solid #374D61;
+		border-left: 3px solid #374D61;
 		
 		padding: 20px 0;
 	}
 	
 		div#wrapper div.message {
 			padding: 1em;
-			border-right: 3px solid #339;
-			border-left: 3px solid #339;	
+			border-right: 3px solid #374D61;
+			border-left: 3px solid #374D61;	
 			background-color: #f00;
 			color: #fff;
 		}
@@ -526,16 +598,25 @@ div.menu.level_0 {
 			text-align: left;
 			vertical-align: bottom;
 			padding: 0.25em 1em;
-			/* background-color: #ccf; */
-			border-bottom: 2px solid #ccf;
+			/* background-color: #eaedf2; */
+			border-bottom: 2px solid #eaedf2;
+			
+			font-size: 14px;
 		}
+				
+				div#wrapper table.structure th a { text-decoration: none; }
+				div#wrapper table.structure th a:hover { text-decoration: underline; }
 		
 			div#wrapper table.structure th span.help {
 				margin-left: 0.5em;
 			}
 			
 			div#wrapper table.structure tr.pagination th {
-				border-top: 3px solid #ccf;
+				font-weight: normal;
+				font-size: 11px;
+				color: #5081a5;
+				
+				border-top: 3px solid #eaedf2;
 				border-bottom: none;
 			}
 		
@@ -548,13 +629,13 @@ div.menu.level_0 {
 			text-align: left;
 			vertical-align: top;
 			padding: 0.25em 1em;
-			border-top: 1px solid #ccf;
+			border-top: 1px solid #eaedf2;
 		}
 		
 			div#wrapper table.structure.tree td {
 				padding: 0.25em 0 0 0;
 				border-top: 3px solid #ccf;
-				border-bottom: 2px solid #ccf;
+				border-bottom: 2px solid #eaedf2;
 			}
 		
 				div#wrapper table.structure.tree ul {
@@ -567,9 +648,8 @@ div.menu.level_0 {
 						margin-top: 1em;
 						margin-left: 1em;
 						margin-bottom: 2em;
-						border-top: 3px solid #ccf;
-						border-bottom: 3px solid #ccf;
-						border-left: 1px dotted #ddf;
+						border-top: 3px solid #eaedf2;
+						border-bottom: 3px solid #eaedf2;
 						border-left: 1px dotted #ddf;
 					}
 		
@@ -577,7 +657,7 @@ div.menu.level_0 {
 					text-align: left;
 					vertical-align: top;
 					padding: 0.25em 0 0.25em 1em;
-					border-bottom: 1px solid #ccf;
+					border-bottom: 1px solid #eaedf2;
 				}
 		
 					div#wrapper table.structure.tree span.divider {
@@ -590,29 +670,33 @@ div.menu.level_0 {
 				padding-top: 1em;
 				padding-bottom: 1em;
 				font-style: italic;
-				color: #ccf;
+				color: #eaedf2;
 			}
 			
 				div#wrapper table.structure td a.not_allowed {
-					color: #dde;
+					color: #dde8f2;
 				}
 		
 			div#wrapper table.structure.content { padding: 0 0 1em 0; }
 			div#wrapper table.structure.content td { border-top: none; padding: 1em; }
 			
 			div#wrapper table.structure.detail td { padding:0; border:0; }
-			div#wrapper table.structure.detail table td { padding: 0.25em 1em; border-top: 1px solid #ccf; }
+			div#wrapper table.structure.detail table td { padding: 0.25em 1em; border-top: 1px solid #eaedf2; }
+			
+			div#wrapper table.structure.detail table td.heading { padding-bottom: 0.5em; border-top: 0; }
+			div#wrapper table.structure.detail table td.heading h4 { font-weight: normal; font-size: 14px; color: #374d61; margin: 0; }
 			
 			div#wrapper table.structure.detail td.this_column_2,
 			div#wrapper table.structure.detail td.this_column_3,
 			div#wrapper table.structure.detail td.this_column_4 { border-left: 10px solid #fff; }
 		
-			div#wrapper table.structure.detail td.submit { padding: 0.25em 1em; border-top: 1px solid #ccf; }
+			div#wrapper table.structure.detail td.submit { padding: 0.25em 1em; border-top: 1px solid #eaedf2; }
 		
 			
 			div#wrapper table.structure td.label {
 				width: 30%;
 				font-weight: bold;
+				color: #333;
 			}
 		
 			div#wrapper table.structure td.help {
@@ -628,7 +712,7 @@ div.menu.level_0 {
 
 table.cake-sql-log {
 	margin: 3em 1em;
-	color: #dde;
+	color: #dde8f2;
 }
 
 table.cake-sql-log td, 
@@ -653,6 +737,6 @@ table.cake-sql-log th {
 	}
 	
 	table.cake-sql-log:hover td {
-		border-top: 1px solid #dde;
-		color: #339;
+		border-top: 1px solid #dde8f2;
+		color: #374D61;
 	}

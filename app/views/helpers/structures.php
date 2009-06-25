@@ -131,6 +131,17 @@ class StructuresHelper extends Helper {
 						}
 						*/
 						
+						// display heading row, if any...
+						if ( $table_row['heading'] ) {
+							$return_string .= '
+								<tr>
+									<td class="heading" colspan="3">
+										<h4>'.$table_row['heading'].'</h4>
+									</td>
+								</tr>
+							';
+						}
+						
 						$return_string .= '
 								<tr>
 									<td class="label'.( !$table_row_count && !$table_row['heading'] ? ' no_border' : '' ).'">

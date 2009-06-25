@@ -14,7 +14,7 @@ class MenusController extends AppController {
 		
 		$aro_alias = 'Group::'.$this->Session->read('Auth.User.group_id');
 		
-		$menu_data = $this->Menu->find('all',array('conditions'=>'Menu.parent_id="MAIN_MENU_1" AND (active="yes" OR active="y" OR active="1")', 'order'=>'Menu.display_order ASC'));
+		$menu_data = $this->Menu->find('all',array('conditions'=>'Menu.parent_id="0" AND (active="yes" OR active="y" OR active="1")', 'order'=>'Menu.display_order ASC'));
 		
 		foreach ( $menu_data as &$current_item ) {
 			$current_item['Menu']['at'] = false;
