@@ -2,23 +2,33 @@
 
 class SampleMaster extends InventoryManagementAppModel
 {
-    var $name = 'SampleMaster';
-    
-	var $useTable = 'sample_masters';
-
-	var $hasMany 
-		= array('AliquotMaster' =>
-			array('className'   => 'AliquotMaster',
-			 	'conditions'  => '',
-			 	'order'       => '',
-			 	'limit'       => '',
-			 	'foreignKey'  => 'sample_master_id',
-			 	'dependent'   => true,
-			 	'exclusive'   => false,
-			 	'finderSql'   => ''));
+	var $name = 'SampleMaster';
+    var $useTable = 'sample_masters';
+	var $actAs = array('MasterDetail');
 	
-	var $validate = array();
+	function summary( $variables=array() ) {
+		$return = false;
+		
+		if ( isset($variables['SampleMaster.id']) ) {
+			
+			$result = $this->find('first', array('conditions'=>array('SampleMaster.id'=>$variables['SampleMaster.id'])));
+			
+			$return = array(
+				'Summary' => array(
+					'menu'        => array( NULL, $result['SampleMaster']['sample_code'] ),
+					'title'		  => array( NULL, $result['SampleMaster']['sample_code'] ),
 
+					'description' => array(
+						'product code'      =>  $result['SampleMaster']['product code'],
+						'category'	=>	$result['SampleMaster']['sample_category'],
+						'type'	=>	$result['SampleMaster']['sample_type']
+					)
+				)
+			);
+		}
+		
+		return $return;
+	}
 }
 
 ?>
