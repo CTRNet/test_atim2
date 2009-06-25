@@ -59,8 +59,8 @@ class EventMastersController extends ClinicalannotationAppController {
 		if ( !empty($this->data) ) {
 			
 			$this->data['EventMaster']['participant_id'] = $participant_id;
-			$this->data['EventMaster']['event_control_id'] = $this_data['EventControl']['id'];
-			$this->data['EventMaster']['event_group'] = $this_data['EventControl']['event_group'];
+			$this->data['EventMaster']['event_control_id'] = $event_control_id;
+			$this->data['EventMaster']['event_group'] = $event_group;
 			$this->data['EventMaster']['event_type'] = $this_data['EventControl']['event_type'];
 			$this->data['EventMaster']['disease_site'] = $this_data['EventControl']['disease_site'];
 			
