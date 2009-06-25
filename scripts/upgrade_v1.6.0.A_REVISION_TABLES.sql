@@ -158,6 +158,7 @@ CREATE TABLE `ad_whatman_papers_revs` (
 
 CREATE TABLE `aliquot_masters_revs` (
   `id` int(11) NOT NULL,
+  `aliquot_master_id` int(11) NOT NULL,
   `barcode` varchar(60) NOT NULL default '',
   `aliquot_type` varchar(30) NOT NULL default '',
   `aliquot_control_id` int(11) NOT NULL default '0',
@@ -600,6 +601,7 @@ CREATE TABLE `ed_breast_screening_mammogram_revs` (
 
 CREATE TABLE `event_masters_revs` (
   `id` int(11) NOT NULL,
+  `event_control_id` int(11) NOT NULL,
   `disease_site` varchar(255) NOT NULL default '',
   `event_group` varchar(50) NOT NULL default '',
   `event_type` varchar(50) NOT NULL default '',
@@ -910,6 +912,7 @@ CREATE TABLE `pe_chemos_revs` (
 
 CREATE TABLE `protocol_masters_revs` (
   `id` int(11) NOT NULL,
+  `protocol_control_id` int(11) NOT NULL,
   `name` varchar(255) default NULL,
   `notes` text,
   `code` varchar(50) default NULL,
@@ -1526,6 +1529,7 @@ CREATE TABLE `sope_general_all_revs` (
 
 CREATE TABLE `sop_masters_revs` (
   `id` int(11) NOT NULL,
+  `sop_control_id` int(11) NOT NULL,
   `title` varchar(255) default NULL,
   `notes` text,
   `code` varchar(50) default NULL,
@@ -1660,7 +1664,7 @@ CREATE TABLE `storage_coordinates_revs` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `storage_masters_revs` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL,     
   `code` varchar(30) NOT NULL default '',
   `storage_type` varchar(30) NOT NULL default '',
   `storage_control_id` int(11) NOT NULL default '0',
@@ -1731,7 +1735,7 @@ CREATE TABLE `study_contacts_revs` (
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE `study_ethicsboards_revs` (
+CREATE TABLE `study_ethics_boards_revs` (
   `id` int(11) NOT NULL,
   `ethics_board` varchar(255) default NULL,
   `restrictions` text,
@@ -2119,24 +2123,9 @@ CREATE TABLE `txe_surgeries_revs` (
   KEY `tx_master_id` (`tx_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE `tx_controls_revs` (
-  `id` int(11) NOT NULL,
-  `tx_group` varchar(50) default NULL,
-  `disease_site` varchar(50) default NULL,
-  `status` varchar(50) NOT NULL default '',
-  `detail_tablename` varchar(255) default NULL,
-  `detail_form_alias` varchar(255) default NULL,
-  `extend_tablename` varchar(255) NOT NULL default '',
-  `extend_form_alias` varchar(255) NOT NULL default '',
-  `version_id` int(11) NOT NULL AUTO_INCREMENT,
-  `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
-  `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=4 ;
-
 CREATE TABLE `tx_masters_revs` (
   `id` int(11) NOT NULL,
+  `tx_control_id` int(11) NOT NULL,
   `group` varchar(50) default NULL,
   `disease_site` varchar(50) default NULL,
   `tx_intent` varchar(50) default NULL,

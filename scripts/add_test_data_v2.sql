@@ -40,22 +40,22 @@ INSERT INTO `reproductive_histories` (`id`, `date_captured`, `menopause_status`,
 -- Event Masters and Event Details Test Data
 
 DELETE FROM `event_masters`;
-INSERT INTO `event_masters` (`id`, `disease_site`, `event_group`, `event_type`, `event_status`, `event_summary`, `event_date`, `information_source`, `urgency`, `date_required`, `date_requested`, `reference_number`, `created`, `created_by`, `modified`, `modified_by`, `form_alias`, `detail_tablename`, `participant_id`, `diagnosis_id`) VALUES
-(1, 'breast', 'screening', 'mammogram', 'active', NULL, '2008-05-05', NULL, NULL, NULL, NULL, NULL, '0000-00-00 00:00:00', '', '2009-06-01 16:59:27', '', 'ed_breast_screening_mammogram', 'ed_breast_screening_mammogram', 1, NULL),
-(3, 'breast', 'lab', 'pathology', 'active', '', '1990-10-10', NULL, NULL, NULL, NULL, NULL, '0000-00-00 00:00:00', '', '2009-06-03 14:15:28', '1', 'ed_breast_lab_pathology', 'ed_breast_lab_pathology', 1, NULL),
-(4, 'all', 'clinical', 'presentation', 'active', NULL, '2002-01-02', NULL, NULL, NULL, NULL, NULL, '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '', 'ed_all_clinical_presentation', 'ed_all_clinical_presentation', 1, NULL),
-(5, 'breast', 'screening', 'mammogram', 'active', NULL, '2005-02-02', NULL, NULL, NULL, NULL, NULL, '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '', 'ed_breast_screening_mammogram', 'ed_breast_screening_mammogram', 1, NULL),
-(6, 'breast', 'lab', 'pathology', 'active', NULL, '1962-01-01', NULL, NULL, NULL, NULL, NULL, '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '', 'ed_breast_lab_pathology', 'ed_breast_lab_pathology', 1, NULL),
-(7, 'breast', 'lab', 'pathology', 'active', NULL, '1998-04-02', NULL, NULL, NULL, NULL, NULL, '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '', 'ed_breast_lab_pathology', 'ed_breast_lab_pathology', 1, NULL),
-(8, 'allsolid', 'lab', 'pathology', 'active', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '', 'ed_allsolid_lab_pathology', 'ed_allsolid_lab_pathology', 1, NULL),
-(9, 'allsolid', 'lab', 'pathology', 'active', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '', 'ed_allsolid_lab_pathology', 'ed_allsolid_lab_pathology', 1, NULL),
-(10, 'breast', 'screening', 'mammogram', NULL, 'test', '2009-06-23', NULL, NULL, NULL, NULL, NULL, '2009-06-23 09:14:30', '1', '2009-06-23 09:14:30', '1', 'ed_breast_screening_mammogram', 'ed_breast_screening_mammogram', 1, 1),
-(11, 'breast', 'lab', 'pathology', NULL, NULL, '2009-06-23', NULL, NULL, NULL, NULL, NULL, '2009-06-23 09:37:08', '1', '2009-06-23 09:37:08', '1', 'ed_breast_lab_pathology', 'ed_breast_lab_pathology', 1, 1),
-(12, 'all', 'clinical', 'follow up', NULL, 'Test follow-up', '2009-06-24', NULL, NULL, NULL, NULL, NULL, '2009-06-24 11:17:18', '1', '2009-06-24 11:17:18', '1', 'ed_all_clinical_followup', 'ed_all_clinical_followup', 1, 1),
-(13, 'all', 'lifestyle', 'base', NULL, 'Heavy Smoker', '2009-06-24', NULL, NULL, NULL, NULL, NULL, '2009-06-24 11:20:00', '1', '2009-06-24 11:20:00', '1', 'ed_all_lifestyle_base', 'ed_all_lifestyle_base', 1, 1),
-(14, 'all', 'adverse_events', 'adverse_event', NULL, 'Test', '2009-06-24', NULL, NULL, NULL, NULL, NULL, '2009-06-24 11:22:28', '1', '2009-06-24 11:22:28', '1', 'ed_all_adverse_events_adverse_event', 'ed_all_adverse_events_adverse_event', 1, 1),
-(15, 'all', 'protocol', 'followup', NULL, 'Not Test', '2009-06-24', NULL, NULL, NULL, NULL, NULL, '2009-06-24 11:23:23', '1', '2009-06-24 11:23:23', '1', 'ed_all_protocol_followup', 'ed_all_protocol_followup', 1, 1),
-(16, 'all', 'study', 'research', NULL, 'The is the 1, 2, 3 test', '2009-06-24', NULL, NULL, NULL, NULL, NULL, '2009-06-24 11:24:10', '1', '2009-06-24 11:24:10', '1', 'ed_all_study_research', 'ed_all_study_research', 1, 1);
+INSERT INTO `event_masters` (`id`, `event_control_id`, `disease_site`, `event_group`, `event_type`, `event_status`, `event_summary`, `event_date`, `information_source`, `urgency`, `date_required`, `date_requested`, `reference_number`, `created`, `created_by`, `modified`, `modified_by`, `form_alias`, `detail_tablename`, `participant_id`, `diagnosis_id`) VALUES
+(1, 32,'breast', 'screening', 'mammogram', 'active', NULL, '2008-05-05', NULL, NULL, NULL, NULL, NULL, '0000-00-00 00:00:00', '', '2009-06-01 16:59:27', '', 'ed_breast_screening_mammogram', 'ed_breast_screening_mammogram', 1, NULL),
+(3, 18,'breast', 'lab', 'pathology', 'active', '', '1990-10-10', NULL, NULL, NULL, NULL, NULL, '0000-00-00 00:00:00', '', '2009-06-03 14:15:28', '1', 'ed_breast_lab_pathology', 'ed_breast_lab_pathology', 1, NULL),
+(4, 22,'all', 'clinical', 'presentation', 'active', NULL, '2002-01-02', NULL, NULL, NULL, NULL, NULL, '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '', 'ed_all_clinical_presentation', 'ed_all_clinical_presentation', 1, NULL),
+(5, 32,'breast', 'screening', 'mammogram', 'active', NULL, '2005-02-02', NULL, NULL, NULL, NULL, NULL, '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '', 'ed_breast_screening_mammogram', 'ed_breast_screening_mammogram', 1, NULL),
+(6, 18,'breast', 'lab', 'pathology', 'active', NULL, '1962-01-01', NULL, NULL, NULL, NULL, NULL, '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '', 'ed_breast_lab_pathology', 'ed_breast_lab_pathology', 1, NULL),
+(7, 18,'breast', 'lab', 'pathology', 'active', NULL, '1998-04-02', NULL, NULL, NULL, NULL, NULL, '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '', 'ed_breast_lab_pathology', 'ed_breast_lab_pathology', 1, NULL),
+(8, 19,'allsolid', 'lab', 'pathology', 'active', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '', 'ed_allsolid_lab_pathology', 'ed_allsolid_lab_pathology', 1, NULL),
+(9, 19,'allsolid', 'lab', 'pathology', 'active', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '', 'ed_allsolid_lab_pathology', 'ed_allsolid_lab_pathology', 1, NULL),
+(10, 32,'breast', 'screening', 'mammogram', NULL, 'test', '2009-06-23', NULL, NULL, NULL, NULL, NULL, '2009-06-23 09:14:30', '1', '2009-06-23 09:14:30', '1', 'ed_breast_screening_mammogram', 'ed_breast_screening_mammogram', 1, 1),
+(11, 18,'breast', 'lab', 'pathology', NULL, NULL, '2009-06-23', NULL, NULL, NULL, NULL, NULL, '2009-06-23 09:37:08', '1', '2009-06-23 09:37:08', '1', 'ed_breast_lab_pathology', 'ed_breast_lab_pathology', 1, 1),
+(12, 20,'all', 'clinical', 'follow up', NULL, 'Test follow-up', '2009-06-24', NULL, NULL, NULL, NULL, NULL, '2009-06-24 11:17:18', '1', '2009-06-24 11:17:18', '1', 'ed_all_clinical_followup', 'ed_all_clinical_followup', 1, 1),
+(13, 30,'all', 'lifestyle', 'base', NULL, 'Heavy Smoker', '2009-06-24', NULL, NULL, NULL, NULL, NULL, '2009-06-24 11:20:00', '1', '2009-06-24 11:20:00', '1', 'ed_all_lifestyle_base', 'ed_all_lifestyle_base', 1, 1),
+(14, 31,'all', 'adverse_events', 'adverse_event', NULL, 'Test', '2009-06-24', NULL, NULL, NULL, NULL, NULL, '2009-06-24 11:22:28', '1', '2009-06-24 11:22:28', '1', 'ed_all_adverse_events_adverse_event', 'ed_all_adverse_events_adverse_event', 1, 1),
+(15, 33,'all', 'protocol', 'followup', NULL, 'Not Test', '2009-06-24', NULL, NULL, NULL, NULL, NULL, '2009-06-24 11:23:23', '1', '2009-06-24 11:23:23', '1', 'ed_all_protocol_followup', 'ed_all_protocol_followup', 1, 1),
+(16, 34,'all', 'study', 'research', NULL, 'The is the 1, 2, 3 test', '2009-06-24', NULL, NULL, NULL, NULL, NULL, '2009-06-24 11:24:10', '1', '2009-06-24 11:24:10', '1', 'ed_all_study_research', 'ed_all_study_research', 1, 1);
 
 DELETE FROM `ed_breast_lab_pathology`;
 INSERT INTO `ed_breast_lab_pathology` (`id`, `path_number`, `report_type`, `facility`, `vascular_lymph_invasion`, `extra_nodal_invasion`, `blood_lymph`, `tumour_type`, `grade`, `multifocal`, `preneoplastic_changes`, `spread_skin_nipple`, `level_nodal_involvement`, `frozen_section`, `er_assay_ligand`, `pr_assay_ligand`, `progesterone`, `estrogen`, `number_resected`, `number_positive`, `nodal_status`, `resection_margins`, `tumour_size`, `tumour_total_size`, `sentinel_only`, `in_situ_type`, `her2_grade`, `her2_method`, `mb_collectionid`, `created`, `created_by`, `modified`, `modified_by`, `event_master_id`, `deleted`, `deleted_date`) VALUES
@@ -100,10 +100,10 @@ INSERT INTO `ed_all_study_research` (`id`, `field_one`, `field_two`, `field_thre
 -- Treatment Masters, Treatment Details, and Treatment Extends Test Data
 
 DELETE FROM `tx_masters`;
-INSERT INTO `tx_masters` ( `id`, `tx_group`, `detail_tablename`, `detail_form_alias`, `extend_tablename`, `extend_form_alias`, `participant_id` ) VALUES
-(101, 'chemotherapy', 'txd_chemos', 'txd_chemos', 'txe_chemos', 'txe_chemos', 1),
-(102, 'radiation', 'txd_radiations', 'txd_radiations', 'txe_radiations', 'txe_radiations', 1),
-(103, 'surgery', 'txd_surgeries', 'txd_surgeries', 'txe_surgeries', 'txe_surgeries', 1);
+INSERT INTO `tx_masters` ( `id`, `tx_control_id`, `tx_group`, `detail_tablename`, `detail_form_alias`, `extend_tablename`, `extend_form_alias`, `participant_id` ) VALUES
+(101, 1, 'chemotherapy', 'txd_chemos', 'txd_chemos', 'txe_chemos', 'txe_chemos', 1),
+(102, 2, 'radiation', 'txd_radiations', 'txd_radiations', 'txe_radiations', 'txe_radiations', 1),
+(103, 3, 'surgery', 'txd_surgeries', 'txd_surgeries', 'txe_surgeries', 'txe_surgeries', 1);
 
 DELETE FROM `txd_chemos`;
 INSERT INTO `txd_chemos` ( `id`, `completed`, `response`, `tx_master_id` ) VALUES
@@ -125,8 +125,8 @@ INSERT INTO `txe_chemos` (`id`, `source`, `frequency`, `dose`, `method`, `reduct
 -- Protocol Masters, Protocol Details, and Protocol Extends Test Data
 
 DELETE FROM `protocol_masters`;
-INSERT INTO `protocol_masters` ( `id`, `name`, `notes`, `code`, `detail_tablename`, `detail_form_alias`, `extend_tablename`, `extend_form_alias` ) VALUES
-(101, 'test', 'test', '34.5C', 'pd_chemos', 'pd_chemos', 'pe_chemos', 'pe_chemos');
+INSERT INTO `protocol_masters` ( `id`, `protocol_control_id`, `name`, `notes`, `code`, `detail_tablename`, `detail_form_alias`, `extend_tablename`, `extend_form_alias` ) VALUES
+(101, 1,'test', 'test', '34.5C', 'pd_chemos', 'pd_chemos', 'pe_chemos', 'pe_chemos');
 
 DELETE FROM `pd_chemos`;
 INSERT INTO `pd_chemos` ( `id`, `num_cycles`, `length_cycles`, `protocol_master_id` ) VALUES
