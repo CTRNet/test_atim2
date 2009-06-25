@@ -2,7 +2,7 @@
 
 class RtbformsController extends RtbformAppController {
 	
-  var $uses = array('Rtbform');
+  var $uses = array('Rtbform.Rtbform');
   var $paginate = array('Rtbform'=>array('limit'=>10,'order'=>'Rtbform.frmTitle'));
   
   function index() {

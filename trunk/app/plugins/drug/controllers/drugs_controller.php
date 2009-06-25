@@ -2,7 +2,7 @@
 
 class DrugsController extends DrugAppController {
 
-	var $uses = array('Drug');
+	var $uses = array('Drug.Drug');
 	var $paginate = array('Drug'=>array('limit'=>10,'order'=>'Drug.generic_name ASC')); 
 
 	function listall( ) {

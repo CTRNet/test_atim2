@@ -1,7 +1,7 @@
 <?php
 
 class MaterialsController extends AppController {
-	var $uses = array('Material');
+	var $uses = array('Material.Material');
 	var $paginate = array('Material'=>array('limit'=>10,'order'=>'Material.item_name'));
 	
 	function index(){
