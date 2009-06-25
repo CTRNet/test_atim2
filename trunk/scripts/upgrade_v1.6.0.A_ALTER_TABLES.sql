@@ -416,3 +416,59 @@ ADD COLUMN `deleted_date` datetime default NULL;
 ALTER TABLE `txd_surgeries`
 ADD COLUMN `deleted` int(11) default 0,
 ADD COLUMN `deleted_date` datetime default NULL;
+
+-- Menu updates
+
+UPDATE menus SET parent_id="0" WHERE parent_id="MAIN_MENU_1";
+UPDATE menus SET parent_id="core_CAN_33" WHERE id="core_CAN_41";
+
+UPDATE menus SET display_order="1" WHERE id="MAIN_MENU_1";
+UPDATE menus SET display_order="2" WHERE id="clin_CAN_1";
+UPDATE menus SET display_order="3" WHERE id="inv_CAN_00";
+UPDATE menus SET display_order="4" WHERE id="qry-CAN-1";
+UPDATE menus SET display_order="5" WHERE id="core_CAN_42";
+UPDATE menus SET display_order="6" WHERE id="core_CAN_33";
+UPDATE menus SET display_order="7" WHERE id="MAIN_MENU_2";
+
+
+use_summary="Clinicalannotation.EventControl: ummary"
+WHERE id="clin_CAN_27"
+OR id="clin_CAN_28"
+OR id="clin_CAN_30"
+OR id="clin_CAN_31"
+OR id="clin_CAN_32"
+OR id="clin_CAN_33"
+OR id="clin_CAN_69";
+
+SET  `parent_id` =  'clin_CAN_4',
+`language_description` =  'screening',
+`use_link` =  '/clinicalannotation/event_masters/listall/screening/%%Participant.id%%' WHERE CONVERT(  `id` USING utf8 ) =  'clin_CAN_27' LIMIT 1 ;
+
+UPDATE  `menus` SET  `parent_id` =  'clin_CAN_4',
+`language_description` =  'lab',
+`use_link` =  '/clinicalannotation/event_masters/listall/lab/%%Participant.id%%' WHERE CONVERT(  `id` USING utf8 ) =  'clin_CAN_28' LIMIT 1 ;
+
+UPDATE  `menus` SET  `parent_id` =  'clin_CAN_4',
+`language_description` =  'lifestyle',
+`use_link` =  '/clinicalannotation/event_masters/listall/lifestyle/%%Participant.id%%' WHERE CONVERT(  `id` USING utf8 ) =  'clin_CAN_30' LIMIT 1 ;
+
+UPDATE  `menus` SET  `parent_id` =  'clin_CAN_4',
+`language_description` =  'clinical',
+`use_link` =  '/clinicalannotation/event_masters/listall/clinical/%%Participant.id%%' WHERE CONVERT(  `id` USING utf8 ) =  'clin_CAN_31' LIMIT 1 ;
+
+
+SET  `parent_id` =  'clin_CAN_4',
+`language_description` =  'adverse events',
+`use_link` =  '/clinicalannotation/event_masters/listall/adverse_events/%%Participant.id%%' WHERE CONVERT(  `id` USING utf8 ) =  'clin_CAN_32' LIMIT 1 ;
+
+UPDATE  `menus` SET  `parent_id` =  'clin_CAN_4',
+`language_description` =  'clin_study',
+`use_link` =  '/clinicalannotation/event_masters/listall/study/%%Participant.id%%' WHERE CONVERT(  `id` USING utf8 ) =  'clin_CAN_33' LIMIT 1 ;
+
+UPDATE  `menus` SET  `parent_id` =  'clin_CAN_1',
+`language_description` =  'annotation',
+`use_link` =  '/clinicalannotation/event_masters/listall/adverse_events/%%Participant.id%%' WHERE CONVERT(  `id` USING utf8 ) =  'clin_CAN_4' LIMIT 1 ;
+
+UPDATE  `menus` SET  `parent_id` =  'clin_CAN_4',
+`language_description` =  'protocol',
+`use_link` =  '/clinicalannotation/event_masters/listall/protocol/%%Participant.id%%' WHERE CONVERT(  `id` USING utf8 ) =  'clin_CAN_69' LIMIT 1 ;

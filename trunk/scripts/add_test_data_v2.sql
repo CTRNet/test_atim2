@@ -1,4 +1,4 @@
-﻿USE `atim2`;
+USE `atim2`;
 
 -- Clinical Annotation Test Data
 
@@ -263,3 +263,37 @@ INSERT INTO `shipments` (`id`, `shipment_code`, `recipient`, `facility`, `delive
 DELETE FROM `order_items`;
 INSERT INTO `order_items` ( `id`, `barcode`, `status`, `orderline_id`, `shipment_id` ) VALUES
 (1, '34532', 'Test', 1, 1);
+
+DELETE FROM `collections`;
+INSERT INTO `collections` (`id`, `acquisition_label`, `bank`, `collection_site`, `collection_datetime`, `reception_by`, `reception_datetime`, `sop_master_id`, `collection_property`, `collection_notes`, `created`, `created_by`, `modified`, `modified_by`) VALUES (1, 'test', NULL, NULL, '2008-12-08 09:53:00', NULL, '2008-12-08 09:53:00', NULL, 'participant collection', NULL, '2008-12-08 09:53:48', '1', '2008-12-08 09:53:48', '1'),
+(2, '123', NULL, NULL, NULL, 'Joe', NULL, NULL, 'participant collection', NULL, '2009-01-15 12:08:27', '1', '2009-01-15 12:08:27', '1'),
+(3, 'MB0309-01', NULL, NULL, '2009-03-12 15:42:00', 'Brenda', '2009-03-12 15:42:00', NULL, 'participant collection', NULL, '2009-03-12 15:42:48', '1', '2009-03-12 15:42:48', '1'),
+(4, 'as', NULL, NULL, '0000-00-00 00:00:00', NULL, '2009-05-20 10:28:00', NULL, 'participant collection', NULL, '2009-05-20 10:28:43', '1', '2009-05-20 10:28:43', '1'),
+(5, 'H03-4647', NULL, NULL, '2009-05-26 09:56:00', 'Mai', '2003-06-06 09:56:00', NULL, 'participant collection', NULL, '2009-05-26 09:56:07', '1', '2009-05-26 09:56:07', '1'),
+(6, '476457', NULL, NULL, '2009-05-28 09:39:00', 'Dr. John Doe', '2009-05-28 09:39:00', NULL, 'participant collection', NULL, '2009-05-28 09:39:17', '1', '2009-05-28 09:39:17', '1');
+
+DELETE FROM `sample_masters`;
+INSERT INTO `sample_masters` (`id`, `sample_code`, `sample_category`, `sample_control_id`, `sample_type`, `initial_specimen_sample_id`, `initial_specimen_sample_type`, `collection_id`, `parent_id`, `sop_master_id`, `product_code`, `is_problematic`, `notes`, `created`, `created_by`, `modified`, `modified_by`) VALUES (1, 'T - 1', 'specimen', 3, 'tissue', 1, 'tissue', 1, NULL, NULL, '', 'no', '', '2008-12-08 09:54:19', '1', '2008-12-08 09:54:19', '1'),
+(2, 'DNA - 2', 'derivative', 12, 'dna', 1, 'tissue', 1, 1, NULL, '', 'no', '', '2008-12-15 11:40:06', '1', '2008-12-15 11:40:06', '1'),
+(3, 'B - 3', 'specimen', 2, 'blood', 3, 'blood', 2, NULL, NULL, '123', 'no', '', '2009-01-15 12:09:56', '1', '2009-01-15 12:09:56', '1'),
+(4, 'RNA - 4', 'derivative', 13, 'rna', 1, 'tissue', 1, 1, NULL, '', 'no', '', '2009-01-15 13:04:26', '1', '2009-01-15 13:04:26', '1'),
+(5, 'AMP-RNA - 5', 'derivative', 17, 'amplified rna', 1, 'tissue', 1, 4, NULL, '', 'no', '', '2009-01-15 13:05:35', '1', '2009-01-15 13:05:35', '1'),
+(6, 'T - 6', 'specimen', 3, 'tissue', 6, 'tissue', 1, NULL, NULL, '', 'no', '', '2009-01-19 13:19:56', '1', '2009-01-19 13:19:56', '1'),
+(7, 'B - 7', 'specimen', 2, 'blood', 7, 'blood', 1, NULL, NULL, 'B-DETA_1234', 'no', '', '2009-01-29 08:16:56', '1', '2009-05-06 09:53:52', '1'),
+(8, 'BLD-C - 8', 'derivative', 7, 'blood cell', 7, 'blood', 1, 7, NULL, '12', 'no', '', '2009-01-29 08:20:17', '1', '2009-01-29 08:20:17', '1'),
+(9, 'T - 9', 'specimen', 3, 'tissue', 9, 'tissue', 1, NULL, NULL, '', 'no', '', '2009-02-25 13:36:59', '1', '2009-02-25 13:36:59', '1'),
+(10, 'DNA - 10', 'derivative', 12, 'dna', 7, 'blood', 1, 7, NULL, 'B9009', 'no', '', '2009-03-11 16:06:18', '1', '2009-03-11 16:06:18', '1'),
+(11, 'B - 11', 'specimen', 2, 'blood', 11, 'blood', 3, NULL, NULL, 'BL-01', 'no', '', '2009-03-12 15:43:17', '1', '2009-03-12 15:43:17', '1'),
+(12, 'PLS - 12', 'derivative', 9, 'plasma', 11, 'blood', 3, 11, NULL, '', 'no', '', '2009-03-12 15:44:33', '1', '2009-03-12 15:44:33', '1'),
+(13, 'DNA - 13', 'derivative', 12, 'dna', 1, 'tissue', 1, 1, NULL, 'DNA-!/4689', 'no', '', '2009-05-06 09:52:53', '1', '2009-05-06 09:52:53', '1'),
+(14, 'T - 14', 'specimen', 3, 'tissue', 14, 'tissue', 5, NULL, NULL, '6889', 'no', '', '2009-05-26 09:57:26', '1', '2009-05-26 09:57:26', '1'),
+(15, 'B - 15', 'specimen', 2, 'blood', 15, 'blood', 5, NULL, NULL, 'H03-4647', 'no', '', '2009-05-26 09:58:25', '1', '2009-05-26 09:58:25', '1'),
+(16, 'B - 16', 'specimen', 2, 'blood', 16, 'blood', 5, NULL, NULL, '', 'no', '', '2009-05-26 10:24:55', '1', '2009-05-26 10:24:55', '1'),
+(17, 'DNA - 17', 'derivative', 12, 'dna', 7, 'blood', 1, 8, NULL, '8843755', 'yes', 'Jack Daniels DNA is made of rye', '2009-06-09 15:35:32', '1', '2009-06-09 15:35:32', '1'),
+(18, 'BLD-C - 18', 'derivative', 7, 'blood cell', 3, 'blood', 2, 3, NULL, '', 'no', '', '2009-06-16 15:49:24', '1', '2009-06-16 15:49:24', '1'),
+(19, 'B - 19', 'specimen', 2, 'blood', 19, 'blood', 6, NULL, NULL, '123', 'no', '', '2009-06-17 11:19:52', '1', '2009-06-17 11:19:52', '1'),
+(20, 'B - 20', 'specimen', 2, 'blood', 20, 'blood', 4, NULL, NULL, '123', 'no', '', '2009-06-17 12:09:41', '1', '2009-06-17 12:09:41', '1'),
+(21, 'DNA - 21', 'derivative', 12, 'dna', 19, 'blood', 6, 19, NULL, '123', 'no', '', '2009-06-17 13:50:22', '1', '2009-06-17 13:50:22', '1'),
+(22, 'U - 22', 'specimen', 4, 'urine', 22, 'urine', 6, NULL, NULL, '', 'no', '', '2009-06-17 13:55:24', '1', '2009-06-17 13:55:24', '1'),
+(23, 'CENT-U - 23', 'derivative', 15, 'centrifuged urine', 22, 'urine', 6, 22, NULL, '321', 'no', '', '2009-06-17 13:55:37', '1', '2009-06-17 13:55:37', '1'),
+(24, 'PLS - 24', 'derivative', 9, 'plasma', 19, 'blood', 6, 19, NULL, '5453', 'no', '', '2009-06-25 10:23:10', '1', '2009-06-25 10:23:10', '1');
