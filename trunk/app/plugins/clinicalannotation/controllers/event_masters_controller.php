@@ -60,6 +60,9 @@ class EventMastersController extends ClinicalannotationAppController {
 			
 			$this->data['EventMaster']['participant_id'] = $participant_id;
 			$this->data['EventMaster']['event_control_id'] = $this_data['EventControl']['id'];
+			$this->data['EventMaster']['event_group'] = $this_data['EventControl']['event_group'];
+			$this->data['EventMaster']['event_type'] = $this_data['EventControl']['event_type'];
+			$this->data['EventMaster']['disease_site'] = $this_data['EventControl']['disease_site'];
 			
 			if ( $this->EventMaster->save($this->data) ) {
 				$this->flash( 'Your data has been updated.','/clinicalannotation/event_masters/detail/'.$event_group.'/'.$participant_id.'/'.$this->EventMaster->getLastInsertId());
