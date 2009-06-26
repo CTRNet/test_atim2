@@ -4,7 +4,14 @@ class ProtocolMaster extends ProtocolAppModel
 {
 	var $name = 'ProtocolMaster';
 	var $useTable = 'protocol_masters';
-    var $actAs = array('MasterDetail');
+
+	var $belongsTo = array(        
+	   'ProtocolControl' => array(            
+	       'className'    => 'Protocol.ProtocolControl',            
+	       'foreignKey'    => 'protocol_control_id'        
+	   )    
+	);
+	
 	
 	function summary( $variables=array() ) {
 		$return = false;
