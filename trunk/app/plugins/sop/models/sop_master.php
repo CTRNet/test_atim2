@@ -4,7 +4,13 @@ class SopMaster extends SopAppModel
 {
 	var $name = 'SopMaster';
     var $useTable = 'sop_masters';
-	var $actAs = array('MasterDetail');	
+
+	var $belongsTo = array(        
+	   'SopControl' => array(            
+	       'className'    => 'Sop.SopControl',            
+	       'foreignKey'    => 'sop_control_id'        
+	   )    
+	);
 	
 	function summary( $variables=array() ) {
 		$return = false;

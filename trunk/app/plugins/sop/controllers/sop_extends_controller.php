@@ -24,7 +24,7 @@ class SopExtendsController extends SopAppController {
 		
 		$material_list = $this->Material->find('all', array('fields'=>array('Material.id', 'Material.item_name'), 'order'  => array('Material.item_name')));
 		foreach( $material_list as $record){
-			$material_id_findall[ $record['Material']['id'] ] = $record['Material']['gitem_name'];
+			$material_id_findall[ $record['Material']['id'] ] = $record['Material']['item_name'];
 		}
 		$this->set('material_id_findall', $material_id_findall);
 	}

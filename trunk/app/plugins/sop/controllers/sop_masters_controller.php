@@ -7,22 +7,47 @@ class SopMastersController extends SopAppController {
 	
 	function listall() {
 		
-		$this->data = $this->paginate($this->SopMaster, array());
+		if ( !isset($_SESSION['MasterDetail_filter']) || !$sop_control_id ) {
+				$_SESSION['MasterDetail_filter'] = array();
+				
+				
+				$this->set( 'atim_structure', $this->Structures->get('form','sopmasters') );
+			}
+			
+			else {
+				$_SESSION['MasterDetail_filter']['SopMaster.sop_control_id'] = $event_control_id;
+				
+				$filter_data = $this->SopControl->find('first',array('conditions'=>array('SopControl.id'=>$sop_control_id)));
+				$this->set( 'atim_structure', $this->Structures->get('form',$filter_data['SopControl']['form_alias']) );
+			}
+			
 		
-		// find all SOPCONTROLS, for ADD form
-		$this->set('sop_controls', $this->SopControl->find('all'));	
+		$this->data = $this->paginate($this->SopMaster, $_SESSION['MasterDetail_filter']);
+		
+		// find all EVENTCONTROLS, for ADD form
+		$this->set( 'sop_controls', $this->SopControl->find('all', array()) );
 	}
 
 	
-	function add() {
-		$this->set( 'atim_structure', $this->Structures->get('form',$this->data['SopMaster']['detail_form_alias']) );
-
-	
+	function add($sop_control_id=null) {
+		$this->set( 'atim_menu_variables', array('SopControl.id'=>$sop_control_id)); 
+		$this_data = $this->SopControl->find('first',array('conditions'=>array('SopControl.id'=>$sop_control_id)));
+		
+		// set FORM ALIAS based off VALUE from CONTROL table
+		$this->set( 'atim_structure', $this->Structures->get('form',$this_data['SopControl']['detail_form_alias']) );
+		
 		if ( !empty($this->data) ) {
+			
+			$this->data['SopMaster']['sop_control_id'] = $sop_control_id;
+			$this->data['SopMaster']['type'] = $this_data['SopControl']['type'];
+			$this->data['SopMaster']['sop_group'] = $this_data['SopControl']['sop_group'];
+			
 			if ( $this->SopMaster->save($this->data) ) {
-				$this->flash( 'Your data has been updated.','/sop/sop_masters/detail/'.$this->SopMaster->id );
+				$this->flash( 'Your data has been updated.','/sop/sop_masters/detail/'.$this->SopMaster->getLastInsertId());
+			} else {
+				$this->data = $this_data;
 			}
-		}
+		} 
 	}
 	
 	function detail($sop_master_id) {
@@ -32,7 +57,7 @@ class SopMastersController extends SopAppController {
 		$this->data = $this->SopMaster->find('first',array('conditions'=>array('SopMaster.id'=>$sop_master_id)));
 		
 		// set FORM ALIAS based off VALUE from MASTER table
-		$this->set( 'atim_structure', $this->Structures->get('form',$this->data['SopMaster']['detail_form_alias']) );
+		$this->set( 'atim_structure', $this->Structures->get('form',$this->data['SopControl']['detail_form_alias']) );
 	}
 
 	function edit( $sop_master_id  ) {
@@ -42,7 +67,7 @@ class SopMastersController extends SopAppController {
 		$this_data = $this->SopMaster->find('first',array('conditions'=>array('SopMaster.id'=>$sop_master_id)));
 		
 		// set FORM ALIAS based off VALUE from MASTER table
-		$this->set( 'atim_structure', $this->Structures->get('form',$this_data['SopMaster']['detail_form_alias']) );
+		$this->set( 'atim_structure', $this->Structures->get('form',$this_data['SopControl']['detail_form_alias']) );
 		
 		if ( !empty($this->data) ) {
 			$this->SopMaster->id = $sop_master_id;
