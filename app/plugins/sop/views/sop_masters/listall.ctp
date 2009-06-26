@@ -1,7 +1,7 @@
 <?php 
 	$add_links = array();
 	foreach ( $sop_controls as $sop_control ) {
-		$add_links[$sop_control['SopControl']['sop_group'].' - '.$sop_control['SopControl']['type']] = '/sop/sop_masters/add/';
+		$add_links[$sop_control['SopControl']['sop_group'].' - '.$sop_control['SopControl']['type']] = '/sop/sop_masters/add/'.$sop_control['SopControl']['id'].'/';
 	}
 	
 	$structure_links = array(
