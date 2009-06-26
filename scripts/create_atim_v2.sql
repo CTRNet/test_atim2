@@ -1,4 +1,4 @@
-﻿-- phpMyAdmin SQL Dump
+-- phpMyAdmin SQL Dump
 -- version 2.10.1
 -- http://www.phpmyadmin.net
 -- 
@@ -5244,8 +5244,8 @@ INSERT INTO `menus` (`id`, `parent_id`, `display_order`, `language_title`, `lang
 ('clin_CAN_68', 'clin_CAN_1', 10, 'reproductive history', 'reproductive history', '/clinicalannotation/reproductive_histories/listall/%%Participant.id%%', '', 'Clinicalannotation.Participant::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('clin_CAN_69', 'clin_CAN_4', 5, 'protocol', 'protocol', '/clinicalannotation/event_masters/listall/protocol/%%Participant.id%%', '', 'Clinicalannotation.EventControl::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('clin_CAN_75', 'clin_CAN_1', 12, 'treatment', 'treatment', '/clinicalannotation/treatment_masters/listall/%%Participant.id%%', '', 'Clinicalannotation.Participant::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('clin_CAN_79', 'clin_CAN_75', 1, 'treatment detail', 'treatment detail', '/clinicalannotation/treatment_masters/detail/%%Participant.id%%/%%TreatmentMaster.id%%', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('clin_CAN_80', 'clin_CAN_75', 2, 'treatment extend', 'treatment extend', '/clinicalannotation/treatment_extends/listall/%%Participant.id%%/%%TreatmentMaster.id%%', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('clin_CAN_79', 'clin_CAN_75', 1, 'treatment detail', 'treatment detail', '/clinicalannotation/treatment_masters/detail/%%Participant.id%%/%%TreatmentMaster.id%%', '', 'Clinicalannotation.TreatmentMaster::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('clin_CAN_80', 'clin_CAN_75', 2, 'administration', 'treatment administration', '/clinicalannotation/treatment_extends/listall/%%Participant.id%%/%%TreatmentMaster.id%%', '', 'Clinicalannotation.TreatmentMaster::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('clin_CAN_9', 'clin_CAN_1', 2, 'consent', 'consent', '/clinicalannotation/consents/listall/%%Participant.id%%', '', 'Clinicalannotation.Participant::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('core_CAN_33', '0', 6, 'core_tools', 'core_tools', '/menus/tools/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('core_CAN_41', 'core_CAN_33', 1, 'core_administrate', 'core_administrate', '/administrate/banks', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -15707,6 +15707,7 @@ CREATE TABLE `tx_masters` (
   `protocol_id` int(11) default NULL,
   `participant_id` int(11) default NULL,
   `diagnosis_id` int(11) default NULL,
+  `treatment_control_id` int(11) NOT NULL default 0,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
@@ -15717,7 +15718,7 @@ CREATE TABLE `tx_masters` (
 -- 
 -- Dumping data for table `tx_masters`
 -- 
-
+ALTER TABLE `atim2_dev`.`tx_masters` ADD COLUMN `treatment_control_id` INTEGER UNSIGNED NOT NULL AFTER `deleted_date`;
 
 -- --------------------------------------------------------
 
@@ -15747,6 +15748,7 @@ CREATE TABLE `tx_masters_revs` (
   `protocol_id` int(11) default NULL,
   `participant_id` int(11) default NULL,
   `diagnosis_id` int(11) default NULL,
+  `treatment_control_id` int(11) NOT NULL default 0,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
