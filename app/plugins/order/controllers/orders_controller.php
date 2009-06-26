@@ -23,7 +23,6 @@ class OrdersController extends OrderAppController {
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id) );
 		
 		if ( !empty($this->data) ) {
-			$this->Order->id = $order_id;
 			if ( $this->Order->save($this->data) ) {
 				$this->flash( 'Your data has been updated.','/order/orders/detail/'.$order_id );
 			}
