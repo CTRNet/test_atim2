@@ -103,7 +103,7 @@ class MasterDetailBehavior extends ModelBehavior {
 		if ( $is_master_model || $is_control_model ) {
 			
 			// get DETAIL table name and create DETAIL model object
-			$associated = $model->find(array('EventMaster.id' => $model->id), null, null, 1);
+			$associated = $model->find(array($master_class.'.id' => $model->id), null, null, 1);
 			$detail_model = new Model( false, $associated[$control_class][$detail_field] );
 			
 			// set ID (for edit, blank for add) and model object NAME/ALIAS for save
@@ -114,14 +114,7 @@ class MasterDetailBehavior extends ModelBehavior {
 			$detail_model->name = $detail_class;
 			$detail_model->alias = $detail_class;
 			
-			
 			$model->data[$detail_class][$master_foreign] = $model->id;
-			
-			/*
-			echo '<h2>'.$detail_class.':'.$master_foreign.'</h2>';
-			pr($model->data);
-			exit;
-			*/
 			
 			// save detail DATA
 			$result = $detail_model->save($model->data);
