@@ -45,13 +45,20 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 	
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
 		$this->data = $this->TreatmentControl->find('first',array('conditions'=>array('TreatmentControl.id'=>$treatment_control_id)));
-/*		
+		
 		if ( !empty($this->data) ) {
+			
 			$this->data['TreatmentMaster']['participant_id'] = $participant_id;
-			if ( $this->TreatmentMaster->save($this->data) ) {
-				$this->flash( 'Your data has been updated.','/clinicalannotation/treatment_masters/detail/'.$participant_id.'/'.$this->TreatmentMaster->id );
+			$this->data['TreatmentMaster']['treatment_control_id'] = $treatment_control_id;
+			$this->data['TreatmentMaster']['tx_group'] = $this_data['TreatmentControl']['tx_group'];
+			$this->data['TreatmentMaster']['disease_site'] = $this_data['TreatmentControl']['disease_site'];
+			
+			if ( $this->EventMaster->save($this->data) ) {
+				$this->flash( 'Your data has been updated.','/clinicalannotation/event_masters/detail/'.$event_group.'/'.$participant_id.'/'.$this->EventMaster->getLastInsertId());
+			} else {
+				$this->data = $this_data;
 			}
-		} */
+		} 	
 	}
 	
 	function delete( $participant_id=null, $tx_master_id=null ) {
