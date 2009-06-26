@@ -3,7 +3,12 @@
 class TreatmentMaster extends ClinicalannotationAppModel {
 	
 	var $useTable = 'tx_masters';
-    var $belongsTo = 'TreatmentControl';
+    var $belongsTo = array(        
+		'TreatmentControl' => array(            
+		'className'    => 'Clinicalannotation.TreatmentControl',            
+		'foreignKey'    => 'treatment_control_id'     
+		)    
+	); 
 	
 	function summary( $variables=array() ) {
 		$return = false;
@@ -18,10 +23,8 @@ class TreatmentMaster extends ClinicalannotationAppModel {
 					'title'		  => array( NULL, $result['TreatmentMaster']['tx_group'] ),
 
 					'description' => array(
-						'disease site'	=>	$result['TreatmentMaster']['disease_site'],
-						'start date'	=>	$result['TreatmentMaster']['start_date'],
-						'end date'      =>  $result['TreatmentMaster']['finish_date'],
-						'summary'       =>  $result['TreatmentMaster']['summary']
+						'Intent'	=>	$result['TreatmentMaster']['tx_intent'],
+						'Start Date'      =>  $result['TreatmentMaster']['start_date']
 					)
 				)
 			);
