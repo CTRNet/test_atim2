@@ -5443,13 +5443,9 @@ INSERT INTO `menus` (`id`, `parent_id`, `display_order`, `language_title`, `lang
 ('proto_CAN_82', 'proto_CAN_37', 1, 'protocol detail', 'protocol detail', '/protocol/protocol_masters/detail/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('proto_CAN_83', 'proto_CAN_37', 2, 'protocol extend', 'protocol extend', '/protocol/protocol_extends/listall/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('qry-CAN-1', '0', 4, 'query tool', 'query tool', '/datamart/adhocs/index/', '', '', '1', '0000-00-00 00:00:00', '', '2007-12-20 05:32:27', '1'),
-('qry-CAN-2', 'qry-CAN-1', 0, 'adhoc', 'adhoc', '/datamart/adhocs/index/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('qry-CAN-3', 'qry-CAN-1', 0, 'batch sets', 'batch sets', '/datamart/batch_sets/index/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('qry-CAN-4', 'qry-CAN-3', 0, 'my batch sets', 'my batch sets', '/datamart/batch_sets/index/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('qry-CAN-5', 'qry-CAN-3', 0, 'group batch sets', 'group batch sets', '/datamart/batch_sets/index/group', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('qry-CAN-6', 'qry-CAN-2', 0, 'all queries', 'all queries', '/datamart/adhocs/index/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('qry-CAN-7', 'qry-CAN-2', 0, 'my favourites', 'my favourites', '/datamart/adhocs/index/favourites', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
-INSERT INTO `menus` (`id`, `parent_id`, `display_order`, `language_title`, `language_description`, `use_link`, `use_params`, `use_summary`, `active`, `created`, `created_by`, `modified`, `modified_by`) VALUES ('qry-CAN-8', 'qry-CAN-2', 0, 'saved searches', 'saved searches', '/datamart/adhoc_saved/index', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('qry-CAN-2', 'qry-CAN-1', 0, 'adhoc', 'adhoc', '/datamart/adhocs/index/', '', 'Datamart.BatchSet:Summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('qry-CAN-3', 'qry-CAN-1', 0, 'batch sets', 'batch sets', '/datamart/batch_sets/index/', '', 'Datamart.BatchSet:Summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+INSERT INTO `menus` (`id`, `parent_id`, `display_order`, `language_title`, `language_description`, `use_link`, `use_params`, `use_summary`, `active`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 ('rtbf_CAN_01', 'core_CAN_33', 3, 'forms_menu', 'forms', '/rtbform/rtbforms/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('rtbf_CAN_02', 'rtbf_CAN_01', 1, 'rtbform_detail', '', '/rtbform/rtbforms/profile/', '', '', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('sop_CAN_01', 'core_CAN_33', 7, 'sop_standard operating procedures', '', '/sop/sop_masters/listall/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
