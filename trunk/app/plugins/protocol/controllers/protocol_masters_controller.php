@@ -13,36 +13,45 @@ class ProtocolMastersController extends ProtocolAppController {
 		$this->set('protocol_controls', $this->ProtocolControl->find('all'));	
 	}
 	
-	function add() {
-		$this->set( 'atim_structure', $this->Structures->get('pd_chemos',$this->data['ProtocolMaster']['detail_form_alias']) );
-		//$this->data['ProtocolMaster']['detail_form_alias'] = 'pd_chemos';
-		//$this->data['ProtocolMaster']['detail_tablename'] = 'pd_chemos';
-	
+	function add($protocol_control_id=null) {
+		$this->set( 'atim_menu_variables', array('ProtocolControl.id'=>$protocol_control_id)); 
+		$this_data = $this->ProtocolControl->find('first',array('conditions'=>array('ProtocolControl.id'=>$protocol_control_id)));
+		
+		// set FORM ALIAS based off VALUE from CONTROL table
+		$this->set( 'atim_structure', $this->Structures->get('form',$this_data['ProtocolControl']['detail_form_alias']) );
+		
 		if ( !empty($this->data) ) {
+			
+			$this->data['ProtocolMaster']['protocol_control_id'] = $protocol_control_id;
+			$this->data['ProtocolMaster']['type'] = $this_data['ProtocolControl']['type'];
+			$this->data['ProtocolMaster']['tumour_group'] = $this_data['ProtocolControl']['tumour_group'];
+			
 			if ( $this->ProtocolMaster->save($this->data) ) {
-				$this->flash( 'Your data has been updated.','/protocol/protocol_masters/detail/'.$this->ProtocolMaster->id );
+				$this->flash( 'Your data has been updated.','/protocol/protocol_masters/detail/'.$this->ProtocolMaster->getLastInsertId());
+			} else {
+				$this->data = $this_data;
 			}
-		}
+		} 
 	}
 	
-	function detail($protocol_master_id) {
+	function detail($protocol_master_id=null) {
 		if ( !$protocol_master_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 	
 		$this->set( 'atim_menu_variables', array('ProtocolMaster.id'=>$protocol_master_id));
 		$this->data = $this->ProtocolMaster->find('first',array('conditions'=>array('ProtocolMaster.id'=>$protocol_master_id)));
 		
 		// set FORM ALIAS based off VALUE from MASTER table
-		$this->set( 'atim_structure', $this->Structures->get('form',$this->data['ProtocolMaster']['detail_form_alias']) );
+		$this->set( 'atim_structure', $this->Structures->get('form',$this->data['ProtocolControl']['detail_form_alias']) );
 	}
 
-	function edit( $protocol_master_id  ) {
+	function edit( $protocol_master_id=null ) {
 		if ( !$protocol_master_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('ProtocolMaster.id'=>$protocol_master_id) );
 		$this_data = $this->ProtocolMaster->find('first',array('conditions'=>array('ProtocolMaster.id'=>$protocol_master_id)));
 		
 		// set FORM ALIAS based off VALUE from MASTER table
-		$this->set( 'atim_structure', $this->Structures->get('form',$this_data['ProtocolMaster']['detail_form_alias']) );
+		$this->set( 'atim_structure', $this->Structures->get('form',$this_data['ProtocolControl']['detail_form_alias']) );
 		
 		if ( !empty($this->data) ) {
 			$this->ProtocolMaster->id = $protocol_master_id;
