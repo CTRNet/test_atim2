@@ -2,9 +2,8 @@
 
 class TreatmentMaster extends ClinicalannotationAppModel {
 	
-	var $name = 'TreatmentMaster';
 	var $useTable = 'tx_masters';
-    var $actAs = array('MasterDetail');
+    var $belongsTo = 'TreatmentControl';
 	
 	function summary( $variables=array() ) {
 		$return = false;
