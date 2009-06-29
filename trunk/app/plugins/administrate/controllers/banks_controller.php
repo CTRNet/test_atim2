@@ -30,19 +30,6 @@ class BanksController extends AdministrateAppController {
 		$this->flash( 'Your data has been deleted.', '/administrate/banks/index' );
 	}
 	
-	function add() {
-		//Do Nothing
-		$this->set();
-		
-		if ( !empty($this->data) ) {
-			
-			if ( $this->Bank->save( $this->data ) ) {
-				$this->flash( 'Your data has been saved.', '/banks/index/' );
-			}
-			
-		}
-	}
-	
 	/*
 	function index() {
 		

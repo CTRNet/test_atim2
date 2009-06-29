@@ -1,11 +1,8 @@
 <?php
 
-class BatchId extends DataMartAppModel
-{
-    var $name = 'BatchId';
+class BatchId extends DatamartAppModel {
+
 	var $useTable = 'datamart_batch_ids';
-	
-	var $validate = array();
 	
 }
 

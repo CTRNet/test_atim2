@@ -1,9 +1,12 @@
 <?php
 
-class DataMartAppController extends AppController
-{	
-	var $name = 'DataMart';
-	
+class DatamartAppController extends AppController {
+
+	function beforeFilter() {
+		parent::beforeFilter();
+		$this->Auth->actionPath = 'controllers/Datamart/';
+	}
+
 }
 
 ?>
