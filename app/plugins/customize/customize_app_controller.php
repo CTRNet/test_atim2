@@ -1,9 +1,12 @@
 <?php
 
-class CustomizeAppController extends AppController
-{	
-	var $name = 'Customize';
-	
+class CustomizeAppController extends AppController {	
+
+	function beforeFilter() {
+		parent::beforeFilter();
+		$this->Auth->actionPath = 'controllers/Customize/';
+	}
+
 }
 
 ?>

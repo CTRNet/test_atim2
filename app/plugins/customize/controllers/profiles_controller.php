@@ -1,71 +1,24 @@
 <?php
 
-class ProfilesController extends AppController {
+class ProfilesController extends CustomizeAppController {
 	
 	var $name = 'Profiles';
 	var $uses = array('User');
 	
-	var $components = array('Summaries');
-	var $helpers = array('Summaries');
-	
 	function index() {
+		$this->set( 'atim_structure', $this->Structures->get( 'form', 'users' ) );
 		
-		// set MENU varible for echo on VIEW 
-		$ctrapp_menu[] = $this->Menus->tabs( 'core_CAN_42', 'core_CAN_84', '' );
-		// $ctrapp_menu[] = $this->Menus->tabs( '2', '6', $participant_id );
-		$this->set( 'ctrapp_menu', $ctrapp_menu );
-		
-		// set FORM variable, for HELPER call on VIEW 
-		// $this->set( 'ctrapp_form', $this->Forms->getFormArray('participants') );
-		$this->set( 'ctrapp_form', $this->Forms->getFormArray('users') );
-		
-		// set SUMMARY varible from plugin's COMPONENTS 
-		$this->set( 'ctrapp_summary', $this->Summaries->build( $this->othAuth->user('id') ) );
-		
-		// set SIDEBAR variable, for HELPER call on VIEW 
-		// use PLUGIN_CONTROLLER_ACTION by default, but any ALIAS string that matches in the SIDEBARS datatable will do...
-		$this->set( 'ctrapp_sidebar', $this->Sidebars->getColsArray( $this->params['plugin'].'_'.$this->params['controller'].'_'.$this->params['action'] ) );
-		
-		$this->User->id = $this->othAuth->user('id');
-		$this->set( 'data', $this->User->read() );
+		$this->data = $this->User->find('first',array('conditions'=>array('User.id'=>$_SESSION['Auth']['User']['id'])));
 	}
 	
 	function edit() {
+		$this->set( 'atim_structure', $this->Structures->get( 'form', 'users' ) );
 		
-		// setup MODEL(s) validation array(s) for displayed FORM 
-		foreach ( $this->Forms->getValidateArray('users') as $validate_model=>$validate_rules ) {
-			$this->{ $validate_model }->validate = $validate_rules;
-		}
-		
-		// set MENU varible for echo on VIEW 
-		$ctrapp_menu[] = $this->Menus->tabs( 'core_CAN_42', 'core_CAN_84', '' );
-		// $ctrapp_menu[] = $this->Menus->tabs( '2', '6', $participant_id );
-		$this->set( 'ctrapp_menu', $ctrapp_menu );
-		
-		// set FORM variable, for HELPER call on VIEW 
-		$ctrapp_form = $this->Forms->getFormArray('users');
-		unset( $ctrapp_form['FormField'][0] ); // manually adjust form, remove elements USER should not have access to...
-		$this->set( 'ctrapp_form', $ctrapp_form );
-		
-		// set SUMMARY varible from plugin's COMPONENTS 
-		$this->set( 'ctrapp_summary', $this->Summaries->build( $this->othAuth->user('id') ) );
-		
-		// set SIDEBAR variable, for HELPER call on VIEW 
-		// use PLUGIN_CONTROLLER_ACTION by default, but any ALIAS string that matches in the SIDEBARS datatable will do...
-		$this->set( 'ctrapp_sidebar', $this->Sidebars->getColsArray( $this->params['plugin'].'_'.$this->params['controller'].'_'.$this->params['action'] ) );
-		
-		if ( empty($this->data) ) {
-			
-			$this->User->id = $this->othAuth->user('id');
-			$this->data = $this->User->read();
-			$this->set( 'data', $this->data );
-			
+		if ( !empty($this->data) ) {
+			$this->User->id = $_SESSION['Auth']['User']['id'];
+			if ( $this->User->save($this->data) ) $this->flash( 'Your data has been updated.','/customize/profiles/index' );
 		} else {
-			
-			if ( $this->User->save( $this->data['User'] ) ) {
-				$this->flash( 'Your data has been updated.','/profiles/index/' );
-			}
-			
+			$this->data = $this->User->find('first',array('conditions'=>array('User.id'=>$_SESSION['Auth']['User']['id'])));
 		}
 	}
 

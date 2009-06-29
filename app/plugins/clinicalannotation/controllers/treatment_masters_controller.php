@@ -53,8 +53,8 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 			$this->data['TreatmentMaster']['tx_group'] = $this_data['TreatmentControl']['tx_group'];
 			$this->data['TreatmentMaster']['disease_site'] = $this_data['TreatmentControl']['disease_site'];
 			
-			if ( $this->EventMaster->save($this->data) ) {
-				$this->flash( 'Your data has been updated.','/clinicalannotation/event_masters/detail/'.$event_group.'/'.$participant_id.'/'.$this->EventMaster->getLastInsertId());
+			if ( $this->TreatmentMaster->save($this->data) ) {
+				$this->flash( 'Your data has been updated.','/clinicalannotation/treatment_masters/detail/'.$participant_id.'/'.$this->TreatmentMaster->getLastInsertId());
 			} else {
 				$this->data = $this_data;
 			}

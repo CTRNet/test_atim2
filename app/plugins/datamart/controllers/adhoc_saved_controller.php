@@ -1,25 +1,22 @@
 <?php
 
-class AdhocSavedController extends DataMartAppController {
+class AdhocSavedController extends DatamartAppController {
 	
-	var $name = 'AdhocSaved';
-	var $uses = array('Adhoc', 'AdhocSaved');
+	var $uses = array('Datamart.Adhoc', 'Datamart.AdhocSaved');
+	var $paginate = array('AdhocSaved'=>array('limit'=>10,'order'=>'AdhocSaved.description ASC')); 
 	
-	var $components = array('Summaries');
-	var $helpers = array('Summaries');
-	
-	function beforeFilter() {
+	function index( $type_of_list = 'all' ) {
 		
-		// $auth_conf array hardcoded in oth_auth component, due to plugins compatibility 
-		$this->othAuth->controller = &$this;
-		$this->othAuth->init();
-		$this->othAuth->check();
+		$this->set( 'atim_menu_variables', array( 'Param.Type_Of_List'=>$type_of_list ) );
+		$this->set( 'atim_structure', $this->Structures->get( 'form', 'querytool_adhoc' ) );
+		// $this->set( 'atim_menu', $this->Menus->get('') );
 		
-		// CakePHP function to re-combine date/time select fields 
-		// $this->cleanUpFields();
+		$this->data = $this->paginate($this->Adhoc);
+		// $this->data = $this->paginate($this->BatchSet, array('BatchSet.user_id'=>$_SESSION['Auth']['User']['id']));
 		
 	}
 	
+	/*
 	function index( $type_of_list = 'all' ) {
 		
 		if ( !isset($_SESSION['ctrapp_core']['datamart']['search_criteria']) ) { $_SESSION['ctrapp_core']['datamart']['search_criteria'] = NULL; }
@@ -231,7 +228,7 @@ class AdhocSavedController extends DataMartAppController {
 		if ( !is_array($ctrapp_form) || !count($ctrapp_form) ) { $this->redirect('/pages/error'); exit; }
 		
 		
-		/* Build Datamart result FORM from DATAMART queries table and FormFields, instead of Form table */
+		// Build Datamart result FORM from DATAMART queries table and FormFields, instead of Form table
 		
 			// findall FORM info, recursive
 			
@@ -250,6 +247,7 @@ class AdhocSavedController extends DataMartAppController {
 	   $this->set( 'type_of_list', 'saved' );
 		
 	}
+	*/
 
 }
 

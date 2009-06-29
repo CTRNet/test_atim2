@@ -1468,16 +1468,18 @@ class StructuresHelper extends Helper {
 			
 			foreach ( $link_array as $link_label=>$link_location ) {
 				
-				// check on EDIT only 
-				$parts = Router::parse($link_location);
-				$aco_alias = 'controllers/'.($parts['plugin'] ? Inflector::camelize($parts['plugin']).'/' : '');
-				$aco_alias .= ($parts['controller'] ? Inflector::camelize($parts['controller']).'/' : '');
-				$aco_alias .= ($parts['action'] ? $parts['action'] : '');
-				
-				$Acl = new AclComponent();
+				if ( !Configure::read("debug") ) {
+					// check on EDIT only 
+					$parts = Router::parse($link_location);
+					$aco_alias = 'controllers/'.($parts['plugin'] ? Inflector::camelize($parts['plugin']).'/' : '');
+					$aco_alias .= ($parts['controller'] ? Inflector::camelize($parts['controller']).'/' : '');
+					$aco_alias .= ($parts['action'] ? $parts['action'] : '');
+					
+					$Acl = new AclComponent();
+				}	
 				
 				// if ACO/ARO permissions check succeeds, create link
-				if ( strpos($aco_alias,'controllers/Users')!==false || strpos($aco_alias,'controllers/Pages')!==false || $Acl->check($aro_alias, $aco_alias) ) {
+				if ( Configure::read("debug") || strpos($aco_alias,'controllers/Users')!==false || strpos($aco_alias,'controllers/Pages')!==false || $Acl->check($aro_alias, $aco_alias) ) {
 					
 					$display_class_name = '';
 					
@@ -1761,6 +1763,7 @@ class StructuresHelper extends Helper {
 			foreach ($array2 as $key => $val) {
 			
 			if (is_array($array2[$key])) {
+				if ( !isset($merged[$key]) ) $merged[$key] = array();
 				$merged[$key] = is_array($merged[$key]) ? $this->array_merge_recursive_distinct($merged[$key], $array2[$key]) : $array2[$key];
 			} else {
 				$merged[$key] = $val;

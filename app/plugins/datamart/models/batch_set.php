@@ -1,40 +1,58 @@
 <?php
 
-class BatchSet extends DataMartAppModel
-{
-    var $name = 'BatchSet';
+class BatchSet extends DatamartAppModel {
+
 	var $useTable = 'datamart_batch_sets';
 	
-    var $hasMany = array(
-						'BatchId' =>
-						 array('className'   => 'BatchId',
-                               'conditions'  => '',
-                               'order'       => '',
-                               'limit'       => '',
-                               'foreignKey'  => 'set_id',
-                               'dependent'   => true,
-                               'exclusive'   => false
-                         )
+	var $hasMany = array(
+		'BatchId' =>
+		 array('className'   => 'Datamart.BatchId',
+                   'conditions'  => '',
+                   'order'       => '',
+                   'limit'       => '',
+                   'foreignKey'  => 'set_id',
+                   'dependent'   => true,
+                   'exclusive'   => false
+             )
 	);
-				  
-    /*
-    var $hasAndBelongsToMany = array(
-		'BatchResult' => array(
-				'className'  => 'FormField',
-				'joinTable'  => 'datamart_batch_result_fields',
-				'foreignKey' => 'set_id',
-				'associationForeignKey'=> 'field_id',
-				'conditions' => '',
-				'order'      => 'model ASC, display_column ASC, display_order ASC, id DESC',
-				'limit'      => '',
-				'unique'       => FALSE,
-				'finderQuery'  => '',
-				'deleteQuery'=> ''
-			)
-		);
-		*/
+	
+	function summary( $variables=array() ) {
+		$return = false;
 		
-	var $validate = array();
+		// information about GROUP batch sets
+		if ( isset($variables['Param.Group']) ) {
+			
+			$return = array(
+				'Summary' => array(
+					'menu'			=>	array( NULL, 'Group' ),
+					'title'			=>	array( NULL, 'Batch Sets' ),
+					
+					'description'	=>	array(
+						'filter'			=>	'Group'
+					)
+				)
+			);
+			
+		} 
+		
+		// information about USER's batch sets
+		else {
+			
+			$return = array(
+				'Summary' => array(
+					'menu'			=>	array( NULL, $_SESSION['Auth']['User']['name'] ),
+					'title'			=>	array( NULL, 'Batch Sets' ),
+					
+					'description'	=>	array(
+						'filter'			=>	$_SESSION['Auth']['User']['name']
+					)
+				)
+			);
+			
+		}
+		
+		return $return;
+	}
 	
 }
 

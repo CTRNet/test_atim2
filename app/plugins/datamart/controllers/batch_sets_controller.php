@@ -1,25 +1,29 @@
 <?php
 
-class BatchSetsController extends DataMartAppController {
+class BatchSetsController extends DatamartAppController {
 	
-	var $name = 'BatchSets';
-	var $uses = array('BatchSet', 'BatchId', 'BatchSetProcess');
+	var $uses = array('Datamart.BatchSet', 'Datamart.BatchId', 'Datamart.BatchSetProcess');
+	var $paginate = array('BatchSet'=>array('limit'=>10,'order'=>'BatchSet.description ASC')); 
 	
-	var $components = array('Summaries');
-	var $helpers = array('Summaries');
-	
-	function beforeFilter() {
+	function index( $group=NULL ) {
 		
-		// $auth_conf array hardcoded in oth_auth component, due to plugins compatibility 
-		$this->othAuth->controller = &$this;
-		$this->othAuth->init();
-		$this->othAuth->check();
+		if ( !isset($_SESSION['BatchSet_filter']) || !$group ) {
+			$_SESSION['BatchSet_filter'] = array();
+			$_SESSION['BatchSet_filter']['BatchSet.user_id'] = $_SESSION['Auth']['User']['id'];
+		} else {
+			$_SESSION['BatchSet_filter'] = array();
+			$_SESSION['BatchSet_filter']['BatchSet.group_id'] = $_SESSION['Auth']['User']['group_id'];
+		}
 		
-		// CakePHP function to re-combine date/time select fields 
-		$this->cleanUpFields();
+		$this->set( 'atim_menu_variables', array( 'Param.Group'=>$group ) );
+		$this->set( 'atim_structure', $this->Structures->get( 'form', 'querytool_batch_set' ) );
+		
+		$this->data = $this->paginate($this->BatchSet, $_SESSION['BatchSet_filter']);
 		
 	}
 	
+	
+	/*
 	function index( $group=NULL ) {
 		
 		// clear SESSION info
@@ -125,7 +129,7 @@ class BatchSetsController extends DataMartAppController {
 		// set FORM variable, for HELPER call on VIEW 
 		$this->set( 'batch_set_id', $batch_set_id );
 		
-			/* make list of SEARCH RESULTS */
+			// make list of SEARCH RESULTS
 	    	
 	    	// add FAKE false to criteria if NO criteria/ids
 			if ( !$criteria ) {
@@ -153,7 +157,7 @@ class BatchSetsController extends DataMartAppController {
 				$results = $this->ModelToSearch->findall( $criteria, NULL, NULL, NULL, NULL, 3 );
 			}
 			
-		/* parse LINKS field in ADHOCS list for links in CHECKLIST */
+		// parse LINKS field in ADHOCS list for links in CHECKLIST
 		
 			$ctrapp_form_links = array();
 			
@@ -418,7 +422,7 @@ class BatchSetsController extends DataMartAppController {
 			
 			$criteria = implode( ' OR ', $criteria );
 		
-		/* make list of SEARCH RESULTS */
+		// make list of SEARCH RESULTS
 	    	
 	    	// add FAKE false to criteria if NO criteria/ids
 			if ( !$criteria ) {
@@ -453,6 +457,8 @@ class BatchSetsController extends DataMartAppController {
 		$this->pageTitle = 'ctrapp_batch_set';
 			
 	}
+	
+	*/
 
 }
 

@@ -1,11 +1,15 @@
 <?php
 
-class AdhocFavourite extends DataMartAppModel {
+class AdhocFavourite extends DatamartAppModel {
 	
-	var $name = 'AdhocFavourite';
 	var $useTable = 'datamart_adhoc_favourites';
 	
-	var $validate = array();
+	var $belongsTo = array(        
+	   'Adhoc' => array(            
+	       'className'    => 'Datamart.Adhoc',            
+	       'foreignKey'    => 'adhoc_id'        
+	   )    
+	);
 	
 }
 

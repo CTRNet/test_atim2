@@ -3,33 +3,54 @@
 class MenusController extends AppController {
 	
 	var $components = array('Acl', 'Session');
+	var $uses = array('Menu','Announcement');
 	
 	function beforeFilter() {
 		parent::beforeFilter();
 	}
 	
-	function index() {
+	function index( $set_of_menus=NULL ) {
 		
-		$this->set( 'atim_menu', $this->Menus->get('/menus') );
+		// TOOLS menu
+		if ( $set_of_menus=='tools' ) {
+			$this->set( 'atim_menu', $this->Menus->get('/menus/tools') );
+			$menu_data = $this->Menu->find('all',array('conditions'=>'Menu.parent_id="core_CAN_33" AND (active="yes" OR active="y" OR active="1")', 'order'=>'Menu.display_order ASC'));
+		} 
 		
-		$aro_alias = 'Group::'.$this->Session->read('Auth.User.group_id');
+		// MAIN menu
+		else {
+			$menu_data = $this->Menu->find('all',array('conditions'=>'Menu.parent_id="0" AND (active="yes" OR active="y" OR active="1")', 'order'=>'Menu.display_order ASC'));
+			
+			// get ANNOUNCEMENTS for main menu
+			
+			$findAll_conditions[] = 'date_start<=NOW()';
+			$findAll_conditions[] = 'date_end>=NOW()';
+			$findAll_conditions[] = '(group_id="0" OR group_id="'.$_SESSION['Auth']['User']['group_id'].'")';
 		
-		$menu_data = $this->Menu->find('all',array('conditions'=>'Menu.parent_id="0" AND (active="yes" OR active="y" OR active="1")', 'order'=>'Menu.display_order ASC'));
+			$this->set( 'announcements_data', $this->Announcement->find( 'all', array( 'conditions'=>$findAll_conditions, 'order'=>'date DESC') ) );
+		}
 		
 		foreach ( $menu_data as &$current_item ) {
 			$current_item['Menu']['at'] = false;
 			
-			$parts = Router::parse($current_item['Menu']['use_link']);
-			$aco_alias = 'controllers/'.($parts['plugin'] ? Inflector::camelize($parts['plugin']) : 'App').'/';
-			$aco_alias .= ($parts['controller'] ? Inflector::camelize($parts['controller']).'/' : '');
-			$aco_alias .= ($parts['action'] ? $parts['action'] : '');
-			
-			$current_item['Menu']['allowed'] = $this->Acl->check($aro_alias, $aco_alias);
+			if ( Configure::read("debug") ) {
+				$current_item['Menu']['allowed'] = true;
+			} else {
+				$aro_alias = 'Group::'.$this->Session->read('Auth.User.group_id');
+				
+				$parts = Router::parse($current_item['Menu']['use_link']);
+				$aco_alias = 'controllers/'.($parts['plugin'] ? Inflector::camelize($parts['plugin']) : 'App').'/';
+				$aco_alias .= ($parts['controller'] ? Inflector::camelize($parts['controller']).'/' : '');
+				$aco_alias .= ($parts['action'] ? $parts['action'] : '');
+				
+				$current_item['Menu']['allowed'] = $this->Acl->check($aro_alias, $aco_alias);
+			}
 			
 		}
 		
 		$this->set( 'menu_data', $menu_data );
 		
+		if ( $set_of_menus ) $this->render($set_of_menus);
 	}
 	
 	/*
