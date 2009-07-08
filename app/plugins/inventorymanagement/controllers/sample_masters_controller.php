@@ -50,7 +50,8 @@ class SampleMastersController extends InventorymanagementAppController {
   		$this->data = $this->SampleMaster->find('threaded',array('conditions'=>$_SESSION['MasterDetail_filter']));
   		
 		// find Sample control data for filter list
-//		$this->set( 'sample_controls', $this->SampleControl->find('all', array('conditions'=>array('status'=>'active'))) );
+		// $this->set( 'sample_controls', $this->SampleControl->find('all', array('conditions'=>array('status'=>'active'))) );
+		$this->set( 'sample_controls', array() );
 	
 	}
 	

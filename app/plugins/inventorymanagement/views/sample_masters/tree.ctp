@@ -1,6 +1,9 @@
 <?php
 
-	$filter_links = array( 'no filter'=>'/inventorymanagement/sample_masters/tree/'.$atim_menu_variables['Collection.id'].'/' );
+	$filter_links = array( 
+		'no filter'=>'/inventorymanagement/sample_masters/tree/'.$atim_menu_variables['Collection.id'].'/' 
+	);
+	
 	foreach ( $sample_controls as $sample_control ) {
 		$filter_links[ $sample_control['SampleControl']['sample_category'].' - '.$sample_control['SampleControl']['sample_type'] ] = '/inventorymanagement/sample_masters/tree/'.$atim_menu_variables['Collection.id'].'/';
 	}
