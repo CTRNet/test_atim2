@@ -3013,25 +3013,7 @@ INSERT INTO `atim_information` (`id`, `tablename`, `field`, `data_element_identi
 (1742, 'txd_chemos', 'modified_by', NULL, 'varchar', '0000-00-00 00:00:00', NULL, '0000-00-00 00:00:00', NULL),
 (1743, 'txd_chemos', 'tx_master_id', NULL, 'int', '0000-00-00 00:00:00', NULL, '0000-00-00 00:00:00', NULL),
 (1744, 'txd_chemos', 'deleted', NULL, 'int', '0000-00-00 00:00:00', NULL, '0000-00-00 00:00:00', NULL),
-(1745, 'txd_chemos', 'deleted_date', NULL, 'datetime', '0000-00-00 00:00:00', NULL, '0000-00-00 00:00:00', NULL),
-(1746, 'txd_combos', 'id', NULL, 'int', '0000-00-00 00:00:00', NULL, '0000-00-00 00:00:00', NULL),
-(1747, 'txd_combos', 'txd_combo_path_num', NULL, 'varchar', '0000-00-00 00:00:00', NULL, '0000-00-00 00:00:00', NULL),
-(1748, 'txd_combos', 'txd_combo_primary', NULL, 'varchar', '0000-00-00 00:00:00', NULL, '0000-00-00 00:00:00', NULL),
-(1749, 'txd_combos', 'txd_combo_provider', NULL, 'varchar', '0000-00-00 00:00:00', NULL, '0000-00-00 00:00:00', NULL),
-(1750, 'txd_combos', 'txd_combo_chemocompleted', NULL, 'varchar', '0000-00-00 00:00:00', NULL, '0000-00-00 00:00:00', NULL),
-(1751, 'txd_combos', 'txd_combo_response', NULL, 'varchar', '0000-00-00 00:00:00', NULL, '0000-00-00 00:00:00', NULL),
-(1752, 'txd_combos', 'txd_combo_num_cycles', NULL, 'int', '0000-00-00 00:00:00', NULL, '0000-00-00 00:00:00', NULL),
-(1753, 'txd_combos', 'txd_combo_length_cycles', NULL, 'int', '0000-00-00 00:00:00', NULL, '0000-00-00 00:00:00', NULL),
-(1754, 'txd_combos', 'txd_combo_completed_cycles', NULL, 'int', '0000-00-00 00:00:00', NULL, '0000-00-00 00:00:00', NULL),
-(1755, 'txd_combos', 'txd_combo_total_dose', NULL, 'varchar', '0000-00-00 00:00:00', NULL, '0000-00-00 00:00:00', NULL),
-(1756, 'txd_combos', 'txd_combo_total_fractions', NULL, 'varchar', '0000-00-00 00:00:00', NULL, '0000-00-00 00:00:00', NULL),
-(1757, 'txd_combos', 'txd_combo_radcompleted', NULL, 'varchar', '0000-00-00 00:00:00', NULL, '0000-00-00 00:00:00', NULL),
-(1758, 'txd_combos', 'created', NULL, 'datetime', '0000-00-00 00:00:00', NULL, '0000-00-00 00:00:00', NULL),
-(1759, 'txd_combos', 'created_by', NULL, 'varchar', '0000-00-00 00:00:00', NULL, '0000-00-00 00:00:00', NULL),
-(1760, 'txd_combos', 'modified', NULL, 'datetime', '0000-00-00 00:00:00', NULL, '0000-00-00 00:00:00', NULL),
-(1761, 'txd_combos', 'modified_by', NULL, 'varchar', '0000-00-00 00:00:00', NULL, '0000-00-00 00:00:00', NULL),
-(1762, 'txd_combos', 'deleted', NULL, 'int', '0000-00-00 00:00:00', NULL, '0000-00-00 00:00:00', NULL),
-(1763, 'txd_combos', 'deleted_date', NULL, 'datetime', '0000-00-00 00:00:00', NULL, '0000-00-00 00:00:00', NULL);
+(1745, 'txd_chemos', 'deleted_date', NULL, 'datetime', '0000-00-00 00:00:00', NULL, '0000-00-00 00:00:00', NULL);
 INSERT INTO `atim_information` (`id`, `tablename`, `field`, `data_element_identifier`, `datatype`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 (1764, 'txd_radiations', 'id', NULL, 'int', '0000-00-00 00:00:00', NULL, '0000-00-00 00:00:00', NULL),
 (1765, 'txd_radiations', 'source', NULL, 'varchar', '0000-00-00 00:00:00', NULL, '0000-00-00 00:00:00', NULL),
@@ -5225,7 +5207,7 @@ INSERT INTO `menus` (`id`, `parent_id`, `display_order`, `language_title`, `lang
 ('72', '55', 0, 'tower', 'tower', '/inventorymanagement/towers/listall/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('73', '55', 0, 'box', 'box', '/inventorymanagement/boxes/listall/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('74', '70', 0, 'storage detail', 'storage detail', '/underdev/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('clin_CAN_1', '0', 2, 'clinical annotation', 'clinical annotation', '/clinicalannotation/participants/index/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('clin_CAN_1', 'MAIN_MENU_1', 2, 'clinical annotation', 'clinical annotation', '/clinicalannotation/participants/index/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('clin_CAN_10', 'clin_CAN_1', 5, 'family history', 'family history', '/clinicalannotation/family_histories/listall/%%Participant.id%%', '', 'Clinicalannotation.Participant::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('clin_CAN_24', 'clin_CAN_1', 6, 'identification', 'identification', '/clinicalannotation/misc_identifiers/listall/%%Participant.id%%', '', 'Clinicalannotation.Participant::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('clin_CAN_25', 'clin_CAN_1', 8, 'message', 'message', '/clinicalannotation/participant_messages/listall/%%Participant.id%%', '', 'Clinicalannotation.Participant::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -5244,10 +5226,10 @@ INSERT INTO `menus` (`id`, `parent_id`, `display_order`, `language_title`, `lang
 ('clin_CAN_68', 'clin_CAN_1', 10, 'reproductive history', 'reproductive history', '/clinicalannotation/reproductive_histories/listall/%%Participant.id%%', '', 'Clinicalannotation.Participant::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('clin_CAN_69', 'clin_CAN_4', 5, 'protocol', 'protocol', '/clinicalannotation/event_masters/listall/protocol/%%Participant.id%%', '', 'Clinicalannotation.EventControl::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('clin_CAN_75', 'clin_CAN_1', 12, 'treatment', 'treatment', '/clinicalannotation/treatment_masters/listall/%%Participant.id%%', '', 'Clinicalannotation.Participant::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('clin_CAN_79', 'clin_CAN_75', 1, 'treatment detail', 'treatment detail', '/clinicalannotation/treatment_masters/detail/%%Participant.id%%/%%TreatmentMaster.id%%', '', 'Clinicalannotation.TreatmentMaster::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('clin_CAN_80', 'clin_CAN_75', 2, 'administration', 'treatment administration', '/clinicalannotation/treatment_extends/listall/%%Participant.id%%/%%TreatmentMaster.id%%', '', 'Clinicalannotation.TreatmentMaster::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('clin_CAN_79', 'clin_CAN_75', 1, 'treatment detail', 'treatment detail', '/clinicalannotation/treatment_masters/detail/%%Participant.id%%/%%TreatmentMaster.id%%', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('clin_CAN_80', 'clin_CAN_75', 2, 'treatment extend', 'treatment extend', '/clinicalannotation/treatment_extends/listall/%%Participant.id%%/%%TreatmentMaster.id%%', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('clin_CAN_9', 'clin_CAN_1', 2, 'consent', 'consent', '/clinicalannotation/consents/listall/%%Participant.id%%', '', 'Clinicalannotation.Participant::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('core_CAN_33', '0', 6, 'core_tools', 'core_tools', '/menus/tools/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('core_CAN_33', 'MAIN_MENU_1', 6, 'core_tools', 'core_tools', '/menus/tools/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('core_CAN_41', 'core_CAN_33', 1, 'core_administrate', 'core_administrate', '/administrate/banks', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('core_CAN_42', '0', 5, 'core_customize', 'core_customize', '/customize/profiles/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('core_CAN_70', 'core_CAN_41', 1, 'xApplication', 'xApplication', '/under/development/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -5274,8 +5256,8 @@ INSERT INTO `menus` (`id`, `parent_id`, `display_order`, `language_title`, `lang
 ('core_CAN_99', 'core_CAN_89', 5, 'core_messages', 'core_messages', '/administrate/announcements/index/', '', 'User::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('drug_CAN_96', 'core_CAN_33', 2, 'drug administration', 'drug administration', '/drug/drugs/listall/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('drug_CAN_97', 'drug_CAN_96', 1, 'details', 'details', '/drug/drugs/detail/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('inv_CAN_00', '0', 3, 'inventory management', 'inventory management', '/inventorymanagement/collections/index/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('inv_CAN_10', 'inv_CAN_00', 2, 'collection samples', 'collection samples', '/inventorymanagement/sample_masters/tree/%%Collection.id%%', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('inv_CAN_00', 'MAIN_MENU_1', 3, 'inventory management', 'inventory management', '/inventorymanagement/collections/index/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('inv_CAN_10', 'inv_CAN_00', 2, 'collection samples', 'collection samples', '/inventorymanagement/sample_masters/tree/%%Collection.id%%', '', 'Inventorymanagement.Collection::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('inv_CAN_11', 'inv_CAN_00', 1, 'collection', 'collection', '/inventorymanagement/collections/detail/%%Collection.id%%', '', 'Inventorymanagement.Collection::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('inv_CAN_15', 'inv_CAN_00', 3, 'path collection review', 'path collection review', '/inventorymanagement/path_collection_reviews/listall/%%Collection.id%%', '', 'Inventorymanagement.PathCollectionReview::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('inv_CAN_21', 'inv_CAN_10', 1, 'collection sample tree view', NULL, '/inventorymanagement/sample_masters/tree/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -5442,15 +5424,14 @@ INSERT INTO `menus` (`id`, `parent_id`, `display_order`, `language_title`, `lang
 ('proto_CAN_37', 'core_CAN_33', 5, 'protocols', 'protocols', '/protocol/protocol_masters/listall/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('proto_CAN_82', 'proto_CAN_37', 1, 'protocol detail', 'protocol detail', '/protocol/protocol_masters/detail/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('proto_CAN_83', 'proto_CAN_37', 2, 'protocol extend', 'protocol extend', '/protocol/protocol_extends/listall/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('qry-CAN-1', '0', 4, 'query tool', 'query tool', '/datamart/adhocs/index/', '', '', '1', '0000-00-00 00:00:00', '', '2007-12-20 05:32:27', '1'),
-('qry-CAN-2', 'qry-CAN-1', 0, 'adhoc', 'adhoc', '/datamart/adhocs/index/', '', 'Datamart.BatchSet:Summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('qry-CAN-3', 'qry-CAN-1', 0, 'batch sets', 'batch sets', '/datamart/batch_sets/index/', '', 'Datamart.BatchSet:Summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
-INSERT INTO `menus` (`id`, `parent_id`, `display_order`, `language_title`, `language_description`, `use_link`, `use_params`, `use_summary`, `active`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+('qry-CAN-1', 'MAIN_MENU_1', 4, 'query tool', 'query tool', '/datamart/adhocs/index/', '', '', '1', '0000-00-00 00:00:00', '', '2007-12-20 05:32:27', '1'),
+('qry-CAN-2', 'qry-CAN-1', 0, 'adhoc', 'adhoc', '/datamart/adhocs/index/', '', 'Datamart.Adhoc::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('qry-CAN-3', 'qry-CAN-1', 0, 'batch sets', 'batch sets', '/datamart/batch_sets/index/', '', 'Datamart.BatchSet::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('rtbf_CAN_01', 'core_CAN_33', 3, 'forms_menu', 'forms', '/rtbform/rtbforms/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('rtbf_CAN_02', 'rtbf_CAN_01', 1, 'rtbform_detail', '', '/rtbform/rtbforms/profile/', '', '', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('sop_CAN_01', 'core_CAN_33', 7, 'sop_standard operating procedures', '', '/sop/sop_masters/listall/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('sop_CAN_03', 'sop_CAN_01', 1, 'sop_detail', '', '/sop/sop_masters/detail/', '', '', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('sop_CAN_04', 'sop_CAN_01', 2, 'sop_extend', '', '/sop/sop_extends/listall/', '', '', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('sop_CAN_03', 'sop_CAN_01', 1, 'sop_detail', '', '/sop/sop_masters/detail/', '', '', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+INSERT INTO `menus` (`id`, `parent_id`, `display_order`, `language_title`, `language_description`, `use_link`, `use_params`, `use_summary`, `active`, `created`, `created_by`, `modified`, `modified_by`) VALUES ('sop_CAN_04', 'sop_CAN_01', 2, 'sop_extend', '', '/sop/sop_extends/listall/', '', '', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('sto_CAN_01', 'core_CAN_33', 8, 'storage layout management', 'storage layout management', '/storagelayout/storage_masters/index/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('sto_CAN_02', 'sto_CAN_01', 1, 'storage detail', NULL, '/storagelayout/storage_masters/detail/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('sto_CAN_03', 'sto_CAN_01', 3, 'children storages', NULL, '/storagelayout/storage_masters/listChildrenStorages/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -8960,7 +8941,6 @@ INSERT INTO `structures` (`id`,`old_id`,`alias`,`language_title`,`language_help`
  (117,'CAN-999-999-000-999-34','txd_chemos','','','1','1','0','1','0000-00-00 00:00:00','','0000-00-00 00:00:00',''),
  (118,'CAN-999-999-000-999-35','txd_radiations','','','0','0','0','1','0000-00-00 00:00:00','','0000-00-00 00:00:00',''),
  (119,'CAN-999-999-000-999-36','txd_surgeries','','','0','0','0','1','0000-00-00 00:00:00','','0000-00-00 00:00:00',''),
- (120,'CAN-999-999-000-999-37','txd_combos','','','0','0','0','1','0000-00-00 00:00:00','','0000-00-00 00:00:00',''),
  (121,'CAN-999-999-000-999-38','txe_chemos','','','1','1','0','1','0000-00-00 00:00:00','','0000-00-00 00:00:00',''),
  (122,'CAN-999-999-000-999-39','protocolmasters','','','0','0','0','1','0000-00-00 00:00:00','','0000-00-00 00:00:00',''),
  (123,'CAN-999-999-000-999-4','samples','','','0','0','0','1','0000-00-00 00:00:00','','0000-00-00 00:00:00',''),
@@ -15281,75 +15261,6 @@ CREATE TABLE `txd_chemos_revs` (
 -- 
 -- Dumping data for table `txd_chemos_revs`
 -- 
-
-
--- --------------------------------------------------------
-
--- 
--- Table structure for table `txd_combos`
--- 
-
-CREATE TABLE `txd_combos` (
-  `id` int(11) NOT NULL auto_increment,
-  `txd_combo_path_num` varchar(50) default NULL,
-  `txd_combo_primary` varchar(50) default NULL,
-  `txd_combo_provider` varchar(50) default NULL,
-  `txd_combo_chemocompleted` varchar(50) default NULL,
-  `txd_combo_response` varchar(50) default NULL,
-  `txd_combo_num_cycles` int(11) default NULL,
-  `txd_combo_length_cycles` int(11) default NULL,
-  `txd_combo_completed_cycles` int(11) default NULL,
-  `txd_combo_total_dose` varchar(50) default NULL,
-  `txd_combo_total_fractions` varchar(50) default NULL,
-  `txd_combo_radcompleted` varchar(50) default NULL,
-  `created` datetime NOT NULL default '0000-00-00 00:00:00',
-  `created_by` varchar(50) NOT NULL default '',
-  `modified` datetime NOT NULL default '0000-00-00 00:00:00',
-  `modified_by` varchar(50) NOT NULL default '',
-  `deleted` int(11) default 0,
-  `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
--- 
--- Dumping data for table `txd_combos`
--- 
-
-
--- --------------------------------------------------------
-
--- 
--- Table structure for table `txd_combos_revs`
--- 
-
-CREATE TABLE `txd_combos_revs` (
-  `id` int(11) NOT NULL,
-  `txd_combo_path_num` varchar(50) default NULL,
-  `txd_combo_primary` varchar(50) default NULL,
-  `txd_combo_provider` varchar(50) default NULL,
-  `txd_combo_chemocompleted` varchar(50) default NULL,
-  `txd_combo_response` varchar(50) default NULL,
-  `txd_combo_num_cycles` int(11) default NULL,
-  `txd_combo_length_cycles` int(11) default NULL,
-  `txd_combo_completed_cycles` int(11) default NULL,
-  `txd_combo_total_dose` varchar(50) default NULL,
-  `txd_combo_total_fractions` varchar(50) default NULL,
-  `txd_combo_radcompleted` varchar(50) default NULL,
-  `created` datetime NOT NULL default '0000-00-00 00:00:00',
-  `created_by` varchar(50) NOT NULL default '',
-  `modified` datetime NOT NULL default '0000-00-00 00:00:00',
-  `modified_by` varchar(50) NOT NULL default '',
-  `version_id` int(11) NOT NULL AUTO_INCREMENT,
-  `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
-  `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
--- 
--- Dumping data for table `txd_combos_revs`
--- 
-
 
 -- --------------------------------------------------------
 
