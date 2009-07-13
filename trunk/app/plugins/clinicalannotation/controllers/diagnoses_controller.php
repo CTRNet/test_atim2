@@ -2,7 +2,7 @@
 
 class DiagnosesController extends ClinicalannotationAppController {
 
-	var $uses = array('Diagnosis', 'Participant');
+	var $uses = array('ClinicalAnnotation.Diagnosis', 'ClinicalAnnotation.Participant');
 	var $paginate = array('Diagnosis'=>array('limit'=>10,'order'=>'Diagnosis.dx_date')); 
 	
 	function listall( $participant_id=null ) {

@@ -2,7 +2,7 @@
 
 class ConsentsController extends ClinicalannotationAppController {
 
-	var $uses = array('Consent','Participant');
+	var $uses = array('ClinicalAnnotation.Consent','ClinicalAnnotation.Participant');
 	var $paginate = array('Consent'=>array('limit'=>10,'order'=>'Consent.date ASC')); 
 
 	function listall( $participant_id=null ) {

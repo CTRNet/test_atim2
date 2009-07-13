@@ -1,8 +1,8 @@
 <?php
 
-class MiscIdentifiersController extends ClinicalAnnotationAppController {
+class MiscIdentifiersController extends ClinicalannotationAppController {
 
-	var $uses = array('MiscIdentifier','Participant');
+	var $uses = array('ClinicalAnnotation.MiscIdentifier','ClinicalAnnotation.Participant');
 	var $paginate = array('MiscIdentifier'=>array('limit'=>10,'order'=>'MiscIdentifier.name ASC'));
 	
 	function listall( $participant_id=null ) {
