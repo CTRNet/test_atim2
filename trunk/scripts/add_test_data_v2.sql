@@ -1,4 +1,4 @@
-﻿USE `atim2_dev`;
+﻿USE `atim2`;
 
 -- Clinical Annotation Test Data
 
@@ -253,7 +253,7 @@ INSERT INTO `orders` (`id`, `order_number`, `short_title`, `description`, `date_
 (1, '545', 'Test Order', 'Test Order 545', '2009-05-06', '2009-08-19', 'completed', 'This is a test', '2009-05-06 16:14:00', '1', '2009-05-06 16:14:00', '1', 1);
 
 DELETE FROM `order_lines`;
-INSERT INTO `order_lines` (`id`, `cancer_type`, `quantity_ordered`, `quantity_UM`, `min_qty_ordered`, `min_qty_UM`, `base_price`, `date_required`, `quantity_shipped`, `status`, `created`, `created_by`, `modified`, `modified_by`, `discount_id`, `product_id`, `sample_control_id`, `order_id`) VALUES 
+INSERT INTO `order_lines` (`id`, `cancer_type`, `quantity_ordered`, `quantity_UM`, `min_qty_ordered`, `min_qty_UM`, `base_price`, `date_required`, `quantity_shipped`, `status`, `created`, `created_by`, `modified`, `modified_by`, `discount_id`, `product_id`, `sample_control_id`, `order_id`) VALUES
 (1, 'bone', 45, '65', 34, '23', '$1,500,650', '2009-06-24', 40, 'shipped', '2009-06-24 14:02:42', '1', '2009-06-24 14:02:42', '1', 0, 0, 1, 1);
 
 DELETE FROM `shipments`;
@@ -297,3 +297,11 @@ INSERT INTO `sample_masters` (`id`, `sample_code`, `sample_category`, `sample_co
 (22, 'U - 22', 'specimen', 4, 'urine', 22, 'urine', 6, NULL, NULL, '', 'no', '', '2009-06-17 13:55:24', '1', '2009-06-17 13:55:24', '1'),
 (23, 'CENT-U - 23', 'derivative', 15, 'centrifuged urine', 22, 'urine', 6, 22, NULL, '321', 'no', '', '2009-06-17 13:55:37', '1', '2009-06-17 13:55:37', '1'),
 (24, 'PLS - 24', 'derivative', 9, 'plasma', 19, 'blood', 6, 19, NULL, '5453', 'no', '', '2009-06-25 10:23:10', '1', '2009-06-25 10:23:10', '1');
+
+DELETE FROM `storage_masters`;
+INSERT INTO `storage_masters` ( `id` , `code`, `storage_type`, `storage_control_id`, `parent_id`, `barcode`, `short_label`, `selection_label` ) VALUES
+( 1, 'INC-43', 'Incubator', 4, NULL, '456FD-34', 'abc', 'abc5');
+
+DELETE FROM `std_incubators`;
+INSERT INTO `std_incubators` ( `id`, `storage_master_id`, `oxygen_perc`, `carbonic_gaz_perc` ) VALUES
+(1, 1, '55.4', '12.3');
