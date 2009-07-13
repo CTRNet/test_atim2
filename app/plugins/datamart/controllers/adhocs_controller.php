@@ -9,12 +9,12 @@ class AdhocsController extends DatamartAppController {
 		'AdhocSaved'=>array('limit'=>10,'order'=>'Adhoc.description ASC')
 	); 
 	
-	function index( $type_of_list = NULL ) {
+	function index( $type_of_list='all' ) {
 		
 		$this->set( 'atim_menu_variables', array( 'Param.Type_Of_List'=>$type_of_list ) );
 		$this->set( 'atim_structure', $this->Structures->get( 'form', 'querytool_adhoc' ) );
 		
-		if ( !isset($_SESSION['Adhocs_filter']) || !$type_of_list ) {
+		if ( !isset($_SESSION['Adhocs_filter']) || !$type_of_list || !$type_of_list=='all' ) {
 			$this->data = $this->paginate($this->Adhoc);
 		} else if ( $type_of_list=='favourites' ) {
 			$this->data = $this->paginate($this->AdhocFavourite, array('AdhocFavourite.user_id'=>$_SESSION['Auth']['User']['id']));
@@ -36,7 +36,7 @@ class AdhocsController extends DatamartAppController {
 		$this->flash( 'Query is no longer one of your favourites.', '/datamart/adhocs/index/favourites' );
 	}
 	
-	function search( $type_of_list = 'all', $adhoc_id=0  ) {
+	function search( $type_of_list='all', $adhoc_id=0  ) {
 		
 		$_SESSION['ctrapp_core']['datamart']['search_criteria'] = NULL;
 		
@@ -62,13 +62,14 @@ class AdhocsController extends DatamartAppController {
 			  )
 		 );
 		
-		$this->data = $this->Adhoc->find('first', array('conditions'=>array('Adhoc.id'=>$adhoc_id), 'limit'=>4));
+		$data_for_detail = $this->Adhoc->find('first', array('conditions'=>array('Adhoc.id'=>$adhoc_id), 'limit'=>4));
+		$this->set( 'data_for_detail', $data_for_detail );
 		
-		$this->set( 'atim_structure_for_form', $this->Structures->get( 'form', $this->data['Adhoc']['form_alias_for_search'] ) );
+		$this->set( 'atim_structure_for_form', $this->Structures->get( 'form', $data_for_detail['Adhoc']['form_alias_for_search'] ) );
 		
 	}
 	
-	function results( $type_of_list = 'all', $adhoc_id=0 ) {
+	function results( $type_of_list='all', $adhoc_id=0 ) {
 		
 		$this->set( 'atim_menu_variables', array( 'Param.Type_Of_List'=>$type_of_list, 'Adhoc.id'=>$adhoc_id ) );
 		$this->set( 'atim_structure_for_detail', $this->Structures->get( 'form', 'querytool_adhoc' ) );
@@ -80,13 +81,13 @@ class AdhocsController extends DatamartAppController {
 				  array('hasMany' => array(
 							 'AdhocFavourite'	=> array(
 									'className'  	=> 'AdhocFavourite',
-									'conditions'	=> 'AdhocFavourite.user_id="'.$this->othAuth->user('id').'"',
+									'conditions'	=> 'AdhocFavourite.user_id="'.$_SESSION['Auth']['User']['id'].'"',
 									'foreignKey'	=> 'adhoc_id',
 									'dependent'		=> true
 							 ),
 							 'AdhocSaved'	=> array(
 									'className'  	=> 'AdhocSaved',
-									'conditions'	=> 'AdhocSaved.user_id="'.$this->othAuth->user('id').'"',
+									'conditions'	=> 'AdhocSaved.user_id="'.$_SESSION['Auth']['User']['id'].'"',
 									'foreignKey'	=> 'adhoc_id',
 									'dependent'		=> true
 							 )
@@ -94,10 +95,11 @@ class AdhocsController extends DatamartAppController {
 				  )
 			 );
 			
-			$adhoc= $this->Adhoc->find( 'first', array( 'conditions'=>array('Adhoc.id'=>$adhoc_id) ) );
-	   	$this->set( 'adhoc', $adhoc ); // set for display purposes...
+			$adhoc = $this->Adhoc->find( 'first', array( 'conditions'=>array('Adhoc.id'=>$adhoc_id) ) );
+	   	$this->set( 'data_for_detail', $adhoc );
+			// $this->set( 'adhoc', $adhoc ); // set for display purposes...
 		
-		$this->set( 'atim_structure_for_form', $this->Structures->get( 'form', $adhoc['Adhoc']['form_alias_for_search'] ) );
+		$this->set( 'atim_structure_for_results', $this->Structures->get( 'form', $adhoc['Adhoc']['form_alias_for_results'] ) );
 		
 		
 		
@@ -108,6 +110,10 @@ class AdhocsController extends DatamartAppController {
 		// do search for RESULTS, using THIS->DATA if any
 		
 			// start new instance of QUERY's model, and search it using QUERY's parsed SQL 
+			
+			$model_to_import = ( $adhoc['Adhoc']['plugin']? $adhoc['Adhoc']['plugin'].'.' : '' ).$adhoc['Adhoc']['model'];
+			App::import('Model',$model_to_import);
+			
 			$this->ModelToSearch = new $adhoc['Adhoc']['model'];
 				
 			// parse resulting IDs from the SQL to build FINDALL criteria for QUERY's true MODEL 
@@ -122,7 +128,7 @@ class AdhocsController extends DatamartAppController {
 			
 			if ( $adhoc['Adhoc']['sql_query_for_results'] ) {
 				
-				list( $sql_query_with_search_terms, $sql_query_without_search_terms ) = $this->Forms->getSearchConditions( $this->data, NULL, $adhoc['Adhoc']['sql_query_for_results'] );
+				list( $sql_query_with_search_terms, $sql_query_without_search_terms ) = $this->Structures->parse_sql_conditions( $adhoc['Adhoc']['sql_query_for_results'] );
 				
 				$ids = $this->ModelToSearch->query( $sql_query_with_search_terms );
 				
@@ -190,7 +196,7 @@ class AdhocsController extends DatamartAppController {
 				$criteria[] = 'model = "'.$adhoc['Adhoc']['model'].'"';
 			}
 			
-			$criteria[] = 'BatchSet.user_id="'.$this->othAuth->user('id').'"';
+			$criteria[] = 'BatchSet.user_id="'.$_SESSION['Auth']['User']['id'].'"';
 			$batch_sets = $this->BatchSet->find( 'all', array('conditions'=>$criteria, 'recursive'=>2) );
 			// $batch_sets = $this->BatchSet->findAll( $criteria, NULL, NULL, NULL, NULL, 1, 2 );
 			
@@ -209,7 +215,7 @@ class AdhocsController extends DatamartAppController {
 			
 			foreach ( $this->data as $model=>$subarray ) {
 				foreach ( $subarray as $field_name=>$field_value ) {
-					if ( trim($field_value) ) {
+					if ( !is_array($field_value) && trim($field_value) ) {
 						$save_this_search_data[] = $model.'.'.$field_name.'='.$field_value;
 					}
 				}
@@ -260,7 +266,7 @@ class AdhocsController extends DatamartAppController {
 		// if Saved, then use lookup datatable to restrict set of Adhocs
 			if ( $type_of_list=='saved' ) {
 				$favourite_criteria = array('0');
-				$favourite_result = $this->Adhoc->query('SELECT adhoc_id FROM datamart_adhoc_saved WHERE user_id="'.$this->othAuth->user('id').'"');
+				$favourite_result = $this->Adhoc->query('SELECT adhoc_id FROM datamart_adhoc_saved WHERE user_id="'.$_SESSION['Auth']['User']['id'].'"');
 				
 				foreach ( $favourite_result as $adhoc_id ) {
 					$favourite_criteria[] = $adhoc_id['datamart_adhoc_saved']['adhoc_id'];
@@ -272,7 +278,7 @@ class AdhocsController extends DatamartAppController {
 		// if Favourites, then use lookup datatable to restrict set of Adhocs
 			else if ( $type_of_list=='favourites' ) {
 				$favourite_criteria = array('0');
-				$favourite_result = $this->Adhoc->query('SELECT adhoc_id FROM datamart_adhoc_favourites WHERE user_id="'.$this->othAuth->user('id').'"');
+				$favourite_result = $this->Adhoc->query('SELECT adhoc_id FROM datamart_adhoc_favourites WHERE user_id="'.$_SESSION['Auth']['User']['id'].'"');
 				
 				foreach ( $favourite_result as $adhoc_id ) {
 					$favourite_criteria[] = $adhoc_id['datamart_adhoc_favourites']['adhoc_id'];
@@ -303,8 +309,8 @@ class AdhocsController extends DatamartAppController {
 		$custom_ctrapp_controller_hook = APP . 'plugins' . DS . $this->params['plugin'] . DS . 'controllers' . DS . 'hooks' . DS . $this->params['controller'].'_'.$this->params['action'].'_format.php';
 		if ( file_exists($custom_ctrapp_controller_hook) ) { require($custom_ctrapp_controller_hook); }
 		
-		$favourite_result = $this->Adhoc->query('DELETE FROM datamart_adhoc_favourites WHERE adhoc_id="'.$adhoc_id.'" AND user_id="'.$this->othAuth->user('id').'"');
-		$favourite_result = $this->Adhoc->query('INSERT INTO datamart_adhoc_favourites SET adhoc_id="'.$adhoc_id.'", user_id="'.$this->othAuth->user('id').'"');
+		$favourite_result = $this->Adhoc->query('DELETE FROM datamart_adhoc_favourites WHERE adhoc_id="'.$adhoc_id.'" AND user_id="'.$_SESSION['Auth']['User']['id'].'"');
+		$favourite_result = $this->Adhoc->query('INSERT INTO datamart_adhoc_favourites SET adhoc_id="'.$adhoc_id.'", user_id="'.$_SESSION['Auth']['User']['id'].'"');
 		$this->flash( 'Query has been marked as one of your favourites.', '/adhocs/index/favourites' );
 	}
 	
@@ -314,7 +320,7 @@ class AdhocsController extends DatamartAppController {
 		$custom_ctrapp_controller_hook = APP . 'plugins' . DS . $this->params['plugin'] . DS . 'controllers' . DS . 'hooks' . DS . $this->params['controller'].'_'.$this->params['action'].'_format.php';
 		if ( file_exists($custom_ctrapp_controller_hook) ) { require($custom_ctrapp_controller_hook); }
 		
-		$favourite_result = $this->Adhoc->query('DELETE FROM datamart_adhoc_favourites WHERE adhoc_id="'.$adhoc_id.'" AND user_id="'.$this->othAuth->user('id').'"');
+		$favourite_result = $this->Adhoc->query('DELETE FROM datamart_adhoc_favourites WHERE adhoc_id="'.$adhoc_id.'" AND user_id="'.$_SESSION['Auth']['User']['id'].'"');
 		$this->flash( 'Query is no longer one of your favourites.', '/adhocs/index/favourites' );
 	}
 	
@@ -353,13 +359,13 @@ class AdhocsController extends DatamartAppController {
 				  array('hasMany' => array(
 							 'AdhocFavourite'	=> array(
 									'className'  	=> 'AdhocFavourite',
-									'conditions'	=> 'AdhocFavourite.user_id="'.$this->othAuth->user('id').'"',
+									'conditions'	=> 'AdhocFavourite.user_id="'.$_SESSION['Auth']['User']['id'].'"',
 									'foreignKey'	=> 'adhoc_id',
 									'dependent'		=> true
 							 ),
 							 'AdhocSaved'	=> array(
 									'className'  	=> 'AdhocSaved',
-									'conditions'	=> 'AdhocSaved.user_id="'.$this->othAuth->user('id').'"',
+									'conditions'	=> 'AdhocSaved.user_id="'.$_SESSION['Auth']['User']['id'].'"',
 									'foreignKey'	=> 'adhoc_id',
 									'dependent'		=> true
 							 )
@@ -407,13 +413,13 @@ class AdhocsController extends DatamartAppController {
 				  array('hasMany' => array(
 							 'AdhocFavourite'	=> array(
 									'className'  	=> 'AdhocFavourite',
-									'conditions'	=> 'AdhocFavourite.user_id="'.$this->othAuth->user('id').'"',
+									'conditions'	=> 'AdhocFavourite.user_id="'.$_SESSION['Auth']['User']['id'].'"',
 									'foreignKey'	=> 'adhoc_id',
 									'dependent'		=> true
 							 ),
 							 'AdhocSaved'	=> array(
 									'className'  	=> 'AdhocSaved',
-									'conditions'	=> 'AdhocSaved.user_id="'.$this->othAuth->user('id').'"',
+									'conditions'	=> 'AdhocSaved.user_id="'.$_SESSION['Auth']['User']['id'].'"',
 									'foreignKey'	=> 'adhoc_id',
 									'dependent'		=> true
 							 )
@@ -554,7 +560,7 @@ class AdhocsController extends DatamartAppController {
 				$criteria[] = 'model = "'.$adhoc['Adhoc']['model'].'"';
 			}
 			
-			$criteria[] = 'BatchSet.user_id="'.$this->othAuth->user('id').'"';
+			$criteria[] = 'BatchSet.user_id="'.$_SESSION['Auth']['User']['id'].'"';
 			$batch_sets = $this->BatchSet->findAll( $criteria, NULL, NULL, NULL, NULL, 1, 2 );
 			
 			// add COUNT of IDS to array results, for form list 

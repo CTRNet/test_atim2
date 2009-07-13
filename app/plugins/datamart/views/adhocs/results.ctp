@@ -2,9 +2,17 @@
 		
 	// display adhoc DETAIL
 	
-		$structures->build( $atim_structure_for_detail, array('type'=>'detail') );
+		$structures->build( $atim_structure_for_detail, array('type'=>'detail', 'data'=>$data_for_detail) );
 	
-	// display adhoc SEARCH form
+	// display adhoc RESULTS form
+		
+		$structure_links = array(
+			'bottom'=>array(
+				'search'=>'/datamart/adhocs/search/'.$atim_menu_variables['Param.Type_Of_List'].'/'.$atim_menu_variables['Adhoc.id']
+			)
+		);
+		
+		$structures->build( $atim_structure_for_results, array('type'=>'table', 'data'=>$results, 'settings'=>array('pagination'=>false), 'links'=>$structure_links) );
 	
 	/*
 		// display DETAIL FORM, of adhoc query
@@ -20,6 +28,7 @@
 		// display EDIT FORM, or adhoc query RESULTS
 	*/
 		
+	/*
 		echo '
 			<form action="'.$html->url( '/datamart/batch_sets/add/' ).'" method="post">
 				
@@ -125,5 +134,5 @@
 		';
 		
 		// pr($results);
-	
+	*/
 ?>
