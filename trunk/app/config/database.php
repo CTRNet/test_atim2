@@ -82,9 +82,9 @@ class DATABASE_CONFIG {
 		'driver' => 'mysql',
 		'persistent' => false,
 		'host' => 'localhost',
-		'login' => 'atim',
-		'password' => '1qaz1qaz',
-		'database' => 'atim_2',
+		'login' => 'root',
+		'password' => '',
+		'database' => 'atim2_dev',
 		'prefix' => '',
 	);
 }

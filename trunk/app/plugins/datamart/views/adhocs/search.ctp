@@ -2,26 +2,26 @@
 		
 	// display adhoc DETAIL
 	
-		$structures->build( $atim_structure_for_detail, array('type'=>'detail') );
+		$structures->build( $atim_structure_for_detail, array('type'=>'detail', 'data'=>$data_for_detail) );
 	
 	// display adhoc SEARCH form
 	
 		// set bottom LINK based on FAVOURITE status
 		
-			if ( $atim_menu_variables['Param.Type_Of_List']=='favourites' ) {
+			if ( count($this->data['AdhocFavourite']) ) {
 				$structure_links = array(
-					'top' => '/datamart/adhocs/results/favourites/',
+					'top' => '/datamart/adhocs/results/'.$atim_menu_variables['Param.Type_Of_List'].'/'.$atim_menu_variables['Adhoc.id'],
 					'bottom'=>array(
 						'remove as favourite'=>'/datamart/adhocs/unfavourite/'.$atim_menu_variables['Adhoc.id'], 
-						'cancel'=>'/datamart/adhocs/index/favourites/'
+						'cancel'=>'/datamart/adhocs/index/'.$atim_menu_variables['Param.Type_Of_List']
 					)
 				);
 			} else {
 				$structure_links = array(
-					'top' => '/datamart/adhocs/results/favourites/',
+					'top' => '/datamart/adhocs/results/'.$atim_menu_variables['Param.Type_Of_List'].'/'.$atim_menu_variables['Adhoc.id'],
 					'bottom'=>array(
-						'remove as favourite'=>'/datamart/adhocs/favourite/'.$atim_menu_variables['Adhoc.id'], 
-						'cancel'=>'/datamart/adhocs/index/favourites/'
+						'add as favourite'=>'/datamart/adhocs/favourite/'.$atim_menu_variables['Adhoc.id'], 
+						'cancel'=>'/datamart/adhocs/index/'.$atim_menu_variables['Param.Type_Of_List']
 					)
 				);
 			}

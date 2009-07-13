@@ -2,17 +2,15 @@
 
 class AppController extends Controller {
 	
-	var $uses = array('Config','Aco','Aro','Permission');
-	var $components	= array('Acl', 'Auth', 'Menus', 'Structures');
-	var $helpers		= array('Shell', 'Structures', 'Time');
+	var $uses = array('Config', 'Aco', 'Aro', 'Permission');
+	var $components	= array('Acl', 'Auth', 'Menus', 'RequestHandler', 'Structures');
+	var $helpers		= array('Ajax', 'Html', 'Javascript', 'Shell', 'Structures', 'Time');
 	
 	function beforeFilter() {
 		// Uncomment the following to create an Aco entry for every plugin/controller/method combination in the app.
 			// $this->buildAcl();
 		// Uncomment the following to set up default permissions.
 			// $this->initDB();
-			
-			// Configure::read("debug")
 			
 		// Configure AuthComponent
 			$this->Auth->authorize = 'actions';

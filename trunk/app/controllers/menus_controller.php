@@ -19,7 +19,8 @@ class MenusController extends AppController {
 		
 		// MAIN menu
 		else {
-			$menu_data = $this->Menu->find('all',array('conditions'=>'Menu.parent_id="0" AND (active="yes" OR active="y" OR active="1")', 'order'=>'Menu.display_order ASC'));
+			$this->set( 'atim_menu', $this->Menus->get('/menus') );
+			$menu_data = $this->Menu->find('all',array('conditions'=>'Menu.parent_id="MAIN_MENU_1" AND (active="yes" OR active="y" OR active="1")', 'order'=>'Menu.display_order ASC'));
 			
 			// get ANNOUNCEMENTS for main menu
 			

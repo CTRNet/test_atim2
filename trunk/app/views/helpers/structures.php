@@ -14,14 +14,24 @@ class StructuresHelper extends Helper {
 		$defaults = array(
 			'type'		=>	$this->params['action'],
 			
+			'data'	=> array(),
+			
 			'settings'	=> array(
-				'return'	=> false
+				'return'			=> false,
+				'allfields'		=> false,
+				'pagination'	=> true
 			),
 			
 			'links'		=> array(
 				'top'		=> false,
 				'index'	=> array(),
-				'bottom'	=> array()
+				'bottom'	=> array(),
+				
+				'ajax'	=> array(
+					'top'		=> false,
+					'index'	=> array(),
+					'bottom'	=> array()
+				)
 			),
 			
 			'override'	=> array(),
@@ -214,12 +224,16 @@ class StructuresHelper extends Helper {
 		$this->Paginator->options(array('url' => $this->params['pass']));
 		
 			$table_index = array();
-			foreach ( $this->data as $key=>$val ) {
+			
+			if ( count($options['data']) ) { $data=$options['data']; }
+			else { $data=$this->data; }
+			
+			foreach ( $data as $key=>$val ) {
 				$options['stack']['key'] = $key;
 				$table_index[$key] = $this->build_stack( $atim_structure, $options );
 				unset($options['stack']);
 			}
-		
+			
 			// start table...
 			$return_string .= '
 				<table class="structure index" cellspacing="0">
@@ -230,10 +244,10 @@ class StructuresHelper extends Helper {
 			$return_string .= $this->display_header( $table_index, $options );
 			
 			$column_count = 0;
-			if ( count($this->data) ) {
+			if ( count($data) ) {
 			
 				// each column in table 
-				foreach ( $this->data as $key=>$val ) {
+				foreach ( $data as $key=>$val ) {
 					
 					$return_string .= '
 						<tr>
@@ -242,7 +256,7 @@ class StructuresHelper extends Helper {
 					$column_count = 0;
 					if ( count($options['links']['index']) ) {
 						$return_string .= '
-							<td class="id">'.$this->generate_links_list(  $this->data[$key], $options, 'index' ).'</td>
+							<td class="id">'.$this->generate_links_list(  $data[$key], $options, 'index' ).'</td>
 						';
 						
 						$column_count = 1;
@@ -276,14 +290,19 @@ class StructuresHelper extends Helper {
 				';
 			}
 			
+			if ( $options['settings']['pagination'] ) {
+				$return_string .= '
+						<tr class="pagination">
+							<th'.( $column_count ? ' colspan="'.$column_count.'"' : '' ).'>
+								'.$this->Paginator->prev( __( 'Prev',true ), NULL, __( 'Prev',true ) ).'
+								'.$this->Paginator->counter( array('format' => '%start%-%end% of %count%') ).'
+								'.$this->Paginator->next( __( 'Next',true ), NULL, __( 'Next',true ) ).'
+							</th>
+						</tr>
+				';
+			}
+			
 			$return_string .= '
-					<tr class="pagination">
-						<th'.( $column_count ? ' colspan="'.$column_count.'"' : '' ).'>
-							'.$this->Paginator->prev( __( 'Prev',true ), NULL, __( 'Prev',true ) ).'
-							'.$this->Paginator->counter( array('format' => '%start%-%end% of %count%') ).'
-							'.$this->Paginator->next( __( 'Next',true ), NULL, __( 'Next',true ) ).'
-						</th>
-					</tr>
 				</tbody>
 				</table>
 			';  
@@ -327,7 +346,7 @@ class StructuresHelper extends Helper {
 			else {
 				$return_string .= '
 						<tr>
-								<td class="no_data_available" colspan="'.$column_count.'">'.__( 'core_no_data_available', true ).'</td>
+								<td class="no_data_available" colspan="1">'.__( 'core_no_data_available', true ).'</td>
 						</tr>
 				';
 			}
@@ -342,6 +361,8 @@ class StructuresHelper extends Helper {
 	}
 	
 	function build_tree_node( $atim_structure, $options, $data=array()) {
+		
+		$return_string = '';
 		
 		foreach ( $data as $data_key=>$data_val ) { 
 			
@@ -366,7 +387,7 @@ class StructuresHelper extends Helper {
 					$return_string_id = !$return_string_id ? $model_val['id'] : $return_string_id;
 					
 					$options['type'] = 'index';
-					$options['stack']['data'] = array($model_key=>$model_val);
+					$options['data'] = array($model_key=>$model_val);
 					$table_index = $this->build_stack( $atim_structure, $options );
 					unset($options['stack']);
 					
@@ -463,7 +484,11 @@ class StructuresHelper extends Helper {
 							$sorting_link .= '&amp;direction='.( $default_sorting_direction=='asc' ? 'desc' : 'asc' );
 							$sorting_link .= isset($_REQUEST['page']) ? '&amp;page='.$_REQUEST['page'] : '';
 							
-							$return_string .= $this->Paginator->sort($table_row['label'], $table_row['model'].'.'.$table_row['field']);
+							if ( $options['settings']['pagination'] ) {
+								$return_string .= $this->Paginator->sort($table_row['label'], $table_row['model'].'.'.$table_row['field']);
+							} else {
+								$return_string .= $table_row['label'];
+							}
 							
 							// if ( $this->othAuth->user('help_visible')=='yes' ) {
 								$return_string .= $table_row['help'];
@@ -547,23 +572,35 @@ class StructuresHelper extends Helper {
 		$row_count = 0;
 		$field_count = 1;
 		
-		if ( isset($options['stack']['key']) ) {
-			$tab_key = $options['stack']['key'];
-			
-			$model_suffix = '.'.$options['stack']['key'];
+		// by default use THIS->DATA, but if data provided through OPTIONS, use that instead
+		// data provided through OPTIONS only really useful for display (not for FORMS)
 		
-			$data = &$this->data[$options['stack']['key']];
-		}
+			$data = &$this->data;
 		
-		else {
-			$model_suffix = '.';
-			
-			if ( isset($options['stack']['data']) ) {
-				$data = $options['stack']['data'];
-			} else {
-				$data = &$this->data;
+			if ( isset($options['stack']['key']) ) {
+				$tab_key = $options['stack']['key'];
+				
+				$model_suffix = '.'.$options['stack']['key'];
+				
+				// use DATA passed in through OPTIONS from VIEW
+				// OR use DATA juggled in STACKS in this class' BUILD TREE functions
+				if ( count($options['data']) ) {
+					$data = &$options['data'][$options['stack']['key']];
+				} 
+				
+				// use THIS->DATA by default
+				else {
+					$data = &$this->data[$options['stack']['key']];
+				}
 			}
-		}
+			
+			else {
+				$model_suffix = '.';
+				
+				if ( count($options['data']) ) {
+					$data = $options['data'];
+				}
+			}
 		
 		foreach ( $atim_structure['StructureFormat'] as $field ) {
 			
@@ -575,7 +612,7 @@ class StructuresHelper extends Helper {
 			if ( !isset( $table_index[ $field['display_column'] ] ) ) $table_index[ $field['display_column'] ] = array();
 			
 			// display only if flagged for this type of form in the FORMS datatable...
-			if ( in_array( 'allfields', $options['settings'] ) || $field[ 'flag_'.$options['type'] ] ) {
+			if ( $options['settings']['allfields']==true || $field[ 'flag_'.$options['type'] ] ) {
 			
 				// label and help/info marker, if available...
 				if ( ( ($field['flag_override_label'] && $field['language_label']) || ($field['StructureField']['language_label']) ) || ( $field['flag_override_type']=='hidden' || $field['StructureField']['type']=='hidden' ) ) {
@@ -896,20 +933,24 @@ class StructuresHelper extends Helper {
 							
 						case 'date':
 						
+							if ( $options['type']=='search' || !count($field['StructureField']['StructureValidation']) ) {
+								$html_element_array['empty'] = true;
+							}
+							
 							if ( $options['type']=='search' ) {
-								$display_value .= $this->Form->day($field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_start-dd'), false);
-								$display_value .= $this->Form->month($field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_start-mm'), false);
-								$display_value .= $this->Form->year($field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', '1900', NULL, NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_start', 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'), false);
+								$display_value .= $this->Form->day($field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_start-dd'), $html_element_array['empty']);
+								$display_value .= $this->Form->month($field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_start-mm'), $html_element_array['empty']);
+								$display_value .= $this->Form->year($field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', '1900', NULL, NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_start', 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'), $html_element_array['empty']);
 								$display_value .= ' <span class="tag">'.__('to',true).'</span> ';
-								$display_value .= $this->Form->day($field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end', NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_end-dd'), false);
-								$display_value .= $this->Form->month($field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end', NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_end-mm'), false);
-								$display_value .= $this->Form->year($field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end', '1900', NULL, NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_end', 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'), false);
+								$display_value .= $this->Form->day($field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end', NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_end-dd'), $html_element_array['empty']);
+								$display_value .= $this->Form->month($field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end', NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_end-mm'), $html_element_array['empty']);
+								$display_value .= $this->Form->year($field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end', '1900', NULL, NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_end', 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'), $html_element_array['empty']);
 							}
 							
 							else {
-								$display_value .= $this->Form->day($field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'-dd'), false);
-								$display_value .= $this->Form->month($field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'-mm'), false);
-								$display_value .= $this->Form->year($field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], '1900', NULL, NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'], 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'), false);
+								$display_value .= $this->Form->day($field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'-dd'), $html_element_array['empty']);
+								$display_value .= $this->Form->month($field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'-mm'), $html_element_array['empty']);
+								$display_value .= $this->Form->year($field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], '1900', NULL, NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'], 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'), $html_element_array['empty']);
 							}
 							
 							$use_cakephp_form_helper = false;
@@ -1501,7 +1542,28 @@ class StructuresHelper extends Helper {
 					$link_location = $this->str_replace_link( $link_location, $data );
 					
 					$return_urls[]		= $this->Html->url( $link_location );
-					$link_results[$link_label]	= $this->Html->link( __($link_label, true), $link_location, $htmlAttributes, $confirmation_msg, false );
+					
+					// check AJAX variable, and set link to be AJAX link if exists
+					if ( isset($options['links']['ajax'][$state][$link_name]) && $options['links']['ajax'][$state][$link_name] ) {
+						$link_results[$link_label]	= $this->Ajax->link(
+							 __($link_label, true), 
+							 $link_location, 
+							 array( 
+							 	'update'=>$options['links']['ajax'][$state][$link_name] 
+							 ) 
+						);
+					}
+					
+					//otherwise, make a normal link
+					else {
+						$link_results[$link_label]	= $this->Html->link( 
+							__($link_label, true), 
+							$link_location, 
+							$htmlAttributes, 
+							$confirmation_msg, 
+							false 
+						);
+					}
 					
 				}
 				
