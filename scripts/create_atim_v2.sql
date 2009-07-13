@@ -15716,10 +15716,6 @@ CREATE TABLE `tx_masters` (
   KEY `diagnosis_id` (`diagnosis_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=2 ;
 
--- 
--- Dumping data for table `tx_masters`
--- 
-ALTER TABLE `atim2_dev`.`tx_masters` ADD COLUMN `treatment_control_id` INTEGER UNSIGNED NOT NULL AFTER `deleted_date`;
 
 -- --------------------------------------------------------
 
