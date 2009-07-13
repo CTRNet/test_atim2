@@ -1,4 +1,4 @@
-﻿USE `atim2`;
+﻿USE `atim2_dev`;
 
 -- Clinical Annotation Test Data
 
@@ -273,30 +273,69 @@ INSERT INTO `collections` (`id`, `acquisition_label`, `bank`, `collection_site`,
 (6, '476457', NULL, NULL, '2009-05-28 09:39:00', 'Dr. John Doe', '2009-05-28 09:39:00', NULL, 'participant collection', NULL, '2009-05-28 09:39:17', '1', '2009-05-28 09:39:17', '1');
 
 DELETE FROM `sample_masters`;
-INSERT INTO `sample_masters` (`id`, `sample_code`, `sample_category`, `sample_control_id`, `sample_type`, `initial_specimen_sample_id`, `initial_specimen_sample_type`, `collection_id`, `parent_id`, `sop_master_id`, `product_code`, `is_problematic`, `notes`, `created`, `created_by`, `modified`, `modified_by`) VALUES (1, 'T - 1', 'specimen', 3, 'tissue', 1, 'tissue', 1, NULL, NULL, '', 'no', '', '2008-12-08 09:54:19', '1', '2008-12-08 09:54:19', '1'),
-(2, 'DNA - 2', 'derivative', 12, 'dna', 1, 'tissue', 1, 1, NULL, '', 'no', '', '2008-12-15 11:40:06', '1', '2008-12-15 11:40:06', '1'),
-(3, 'B - 3', 'specimen', 2, 'blood', 3, 'blood', 2, NULL, NULL, '123', 'no', '', '2009-01-15 12:09:56', '1', '2009-01-15 12:09:56', '1'),
-(4, 'RNA - 4', 'derivative', 13, 'rna', 1, 'tissue', 1, 1, NULL, '', 'no', '', '2009-01-15 13:04:26', '1', '2009-01-15 13:04:26', '1'),
-(5, 'AMP-RNA - 5', 'derivative', 17, 'amplified rna', 1, 'tissue', 1, 4, NULL, '', 'no', '', '2009-01-15 13:05:35', '1', '2009-01-15 13:05:35', '1'),
-(6, 'T - 6', 'specimen', 3, 'tissue', 6, 'tissue', 1, NULL, NULL, '', 'no', '', '2009-01-19 13:19:56', '1', '2009-01-19 13:19:56', '1'),
-(7, 'B - 7', 'specimen', 2, 'blood', 7, 'blood', 1, NULL, NULL, 'B-DETA_1234', 'no', '', '2009-01-29 08:16:56', '1', '2009-05-06 09:53:52', '1'),
-(8, 'BLD-C - 8', 'derivative', 7, 'blood cell', 7, 'blood', 1, 7, NULL, '12', 'no', '', '2009-01-29 08:20:17', '1', '2009-01-29 08:20:17', '1'),
-(9, 'T - 9', 'specimen', 3, 'tissue', 9, 'tissue', 1, NULL, NULL, '', 'no', '', '2009-02-25 13:36:59', '1', '2009-02-25 13:36:59', '1'),
-(10, 'DNA - 10', 'derivative', 12, 'dna', 7, 'blood', 1, 7, NULL, 'B9009', 'no', '', '2009-03-11 16:06:18', '1', '2009-03-11 16:06:18', '1'),
-(11, 'B - 11', 'specimen', 2, 'blood', 11, 'blood', 3, NULL, NULL, 'BL-01', 'no', '', '2009-03-12 15:43:17', '1', '2009-03-12 15:43:17', '1'),
-(12, 'PLS - 12', 'derivative', 9, 'plasma', 11, 'blood', 3, 11, NULL, '', 'no', '', '2009-03-12 15:44:33', '1', '2009-03-12 15:44:33', '1'),
-(13, 'DNA - 13', 'derivative', 12, 'dna', 1, 'tissue', 1, 1, NULL, 'DNA-!/4689', 'no', '', '2009-05-06 09:52:53', '1', '2009-05-06 09:52:53', '1'),
-(14, 'T - 14', 'specimen', 3, 'tissue', 14, 'tissue', 5, NULL, NULL, '6889', 'no', '', '2009-05-26 09:57:26', '1', '2009-05-26 09:57:26', '1'),
-(15, 'B - 15', 'specimen', 2, 'blood', 15, 'blood', 5, NULL, NULL, 'H03-4647', 'no', '', '2009-05-26 09:58:25', '1', '2009-05-26 09:58:25', '1'),
-(16, 'B - 16', 'specimen', 2, 'blood', 16, 'blood', 5, NULL, NULL, '', 'no', '', '2009-05-26 10:24:55', '1', '2009-05-26 10:24:55', '1'),
-(17, 'DNA - 17', 'derivative', 12, 'dna', 7, 'blood', 1, 8, NULL, '8843755', 'yes', 'Jack Daniels DNA is made of rye', '2009-06-09 15:35:32', '1', '2009-06-09 15:35:32', '1'),
-(18, 'BLD-C - 18', 'derivative', 7, 'blood cell', 3, 'blood', 2, 3, NULL, '', 'no', '', '2009-06-16 15:49:24', '1', '2009-06-16 15:49:24', '1'),
-(19, 'B - 19', 'specimen', 2, 'blood', 19, 'blood', 6, NULL, NULL, '123', 'no', '', '2009-06-17 11:19:52', '1', '2009-06-17 11:19:52', '1'),
-(20, 'B - 20', 'specimen', 2, 'blood', 20, 'blood', 4, NULL, NULL, '123', 'no', '', '2009-06-17 12:09:41', '1', '2009-06-17 12:09:41', '1'),
-(21, 'DNA - 21', 'derivative', 12, 'dna', 19, 'blood', 6, 19, NULL, '123', 'no', '', '2009-06-17 13:50:22', '1', '2009-06-17 13:50:22', '1'),
-(22, 'U - 22', 'specimen', 4, 'urine', 22, 'urine', 6, NULL, NULL, '', 'no', '', '2009-06-17 13:55:24', '1', '2009-06-17 13:55:24', '1'),
-(23, 'CENT-U - 23', 'derivative', 15, 'centrifuged urine', 22, 'urine', 6, 22, NULL, '321', 'no', '', '2009-06-17 13:55:37', '1', '2009-06-17 13:55:37', '1'),
-(24, 'PLS - 24', 'derivative', 9, 'plasma', 19, 'blood', 6, 19, NULL, '5453', 'no', '', '2009-06-25 10:23:10', '1', '2009-06-25 10:23:10', '1');
+INSERT INTO `sample_masters` (`id`, `sample_code`, `sample_category`, `sample_control_id`, `sample_type`, `initial_specimen_sample_id`, `initial_specimen_sample_type`, `collection_id`, `parent_id`, `sop_master_id`, `product_code`, `is_problematic`, `notes`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(1,'PW - 1','specimen',103,'peritoneal wash',1,'peritoneal wash',1,NULL,NULL,'12456','yes','','2009-05-06 16:04:16','1','2009-05-06 16:04:16','1'),
+ (2,'PW-C - 2','derivative',106,'peritoneal wash cell',1,'peritoneal wash',1,1,NULL,'5674','no','','2008-05-06 16:28:15','1','2009-05-06 16:28:15','1'),
+ (3,'B - 3','specimen',2,'blood',3,'blood',1,NULL,NULL,'546','no','','2007-05-06 16:37:06','1','2009-05-06 16:37:06','1'),
+ (4,'U - 4','specimen',4,'urine',4,'urine',1,NULL,NULL,'6657445765','no','','2006-05-07 04:20:05','1','2009-05-07 04:20:05','1'),
+ (5,'U - 5','specimen',4,'urine',5,'urine',1,NULL,NULL,'6657445765','no','','2005-05-07 04:20:05','1','2009-05-07 04:20:05','1'),
+ (6,'B - 6','specimen',2,'blood',6,'blood',2,NULL,NULL,'blutprobe','no','','2009-05-07 09:49:29','1','2009-05-07 09:49:29','1'),
+ (7,'A - 7','specimen',1,'ascite',7,'ascite',3,NULL,NULL,'55467','yes','This test sample is very problematic','2008-05-13 09:48:09','1','2009-05-13 09:48:09','1'),
+ (8,'T - 8','specimen',3,'tissue',8,'tissue',3,NULL,NULL,'45623','no','Not a problematic test','2007-05-13 10:00:01','1','2009-05-13 10:00:01','1'),
+ (9,'U - 9','specimen',4,'urine',9,'urine',3,NULL,NULL,'456','no','Test another sample','2006-05-13 10:01:55','1','2009-05-13 10:01:55','1'),
+ (10,'U - 10','specimen',4,'urine',10,'urine',3,NULL,NULL,'456','no','Test another sample','2005-05-13 10:01:55','1','2009-05-13 10:01:55','1'),
+ (11,'DNA - 11','derivative',12,'dna',8,'tissue',3,8,NULL,'435','yes','The test DNA is bad','2009-05-13 10:03:34','1','2009-05-13 10:03:34','1'),
+ (12,'ASC-S - 12','derivative',6,'ascite supernatant',7,'ascite',3,7,NULL,'55555','yes','This test data is very bad','2008-05-13 10:04:50','1','2009-05-13 10:04:50','1'),
+ (13,'C-CULT - 13','derivative',11,'cell culture',8,'tissue',3,8,NULL,'777','yes','Test more data','2007-05-13 10:05:47','1','2009-05-13 10:05:47','1'),
+ (14,'BC - 14','derivative',18,'b cell',6,'blood',2,6,NULL,'','no','','2006-05-18 11:28:28','1','2009-05-18 11:28:28','1'),
+ (15,'T - 15','specimen',3,'tissue',15,'tissue',1,NULL,NULL,'2342','no','sdxcv','2005-05-19 11:28:30','1','2009-05-19 11:28:30','1'),
+ (16,'C-CULT - 16','derivative',11,'cell culture',15,'tissue',1,15,NULL,'455345','yes','fdgbgb','2009-05-19 11:29:20','1','2009-05-19 11:29:20','1'),
+ (17,'A - 17','specimen',1,'ascite',17,'ascite',1,NULL,NULL,'647','no','5r6','2008-05-19 11:30:44','1','2009-05-19 11:30:44','1'),
+ (18,'B - 18','specimen',2,'blood',18,'blood',4,NULL,NULL,'neu','no','','2007-05-19 12:48:19','1','2009-05-19 12:48:19','1'),
+ (19,'B - 19','specimen',2,'blood',19,'blood',5,NULL,NULL,'','no','','2006-05-28 01:09:14','1','2009-05-28 01:09:14','1'),
+ (20,'ASC-C - 20','derivative',5,'ascite cell',17,'ascite',1,17,NULL,'44632C','yes','This sample is deadly','2005-07-08 10:10:09','1','2009-07-08 10:10:09','1'),
+ (21,'A - 21','specimen',1,'ascite',21,'ascite',1,NULL,NULL,'1121E-D3','no','Nothing in here','2009-07-08 10:11:30','1','2009-07-08 10:11:30','1'),
+ (22,'ASC-S - 22','derivative',6,'ascite supernatant',21,'ascite',1,21,NULL,'8C76-R54','no','','2008-07-08 10:11:49','1','2009-07-08 10:11:49','1'),
+ (23,'B - 23','specimen',2,'blood',23,'blood',1,NULL,NULL,'34445-B52','no','K','2007-07-08 10:12:37','1','2009-07-08 10:12:37','1'),
+ (24,'DNA - 24','derivative',12,'dna',23,'blood',1,23,NULL,'','no','','2006-07-08 10:14:49','1','2009-07-08 10:14:49','1'),
+ (25,'SER - 25','derivative',10,'serum',23,'blood',1,23,NULL,'54','no','','2005-07-08 10:15:31','1','2009-07-08 10:15:31','1'),
+ (26,'BLD-C - 26','derivative',7,'blood cell',3,'blood',1,3,NULL,'123432','no','','2009-07-08 10:18:37','1','2009-07-08 10:18:37','1'),
+ (27,'PW - 27','specimen',103,'peritoneal wash',27,'peritoneal wash',1,NULL,NULL,'','no','','2008-07-08 10:22:15','1','2009-07-08 10:22:15','1'),
+ (28,'PW-S - 28','derivative',107,'peritoneal wash supernatant',27,'peritoneal wash',1,27,NULL,'','no','','2007-07-08 10:22:34','1','2009-07-08 10:22:34','1'),
+ (29,'PW - 29','specimen',103,'peritoneal wash',29,'peritoneal wash',1,NULL,NULL,'','no','','2006-07-08 10:22:54','1','2009-07-08 10:22:54','1'),
+ (30,'PW-C - 30','derivative',106,'peritoneal wash cell',29,'peritoneal wash',1,29,NULL,'','no','','2005-07-08 10:23:11','1','2009-07-08 10:23:11','1'),
+ (31,'CF - 31','specimen',104,'cystic fluid',31,'cystic fluid',1,NULL,NULL,'','no','','2009-07-08 10:23:34','1','2009-07-08 10:23:34','1'),
+ (32,'CF-C - 32','derivative',108,'cystic fluid cell',31,'cystic fluid',1,31,NULL,'','no','','2008-07-08 10:23:52','1','2009-07-08 10:23:52','1'),
+ (33,'DNA - 33','derivative',12,'dna',31,'cystic fluid',1,32,NULL,'','no','45','2007-07-08 10:24:09','1','2009-07-08 10:24:09','1'),
+ (34,'CF - 34','specimen',104,'cystic fluid',34,'cystic fluid',1,NULL,NULL,'','no','','2006-07-08 10:24:32','1','2009-07-08 10:24:32','1'),
+ (35,'CF-S - 35','derivative',109,'cystic fluid supernatant',34,'cystic fluid',1,34,NULL,'','no','','2005-07-08 10:24:48','1','2009-07-08 10:24:48','1'),
+ (36,'CF - 36','specimen',104,'cystic fluid',36,'cystic fluid',1,NULL,NULL,'','no','','2009-07-08 10:25:16','1','2009-07-08 10:25:16','1'),
+ (37,'CF-C - 37','derivative',108,'cystic fluid cell',36,'cystic fluid',1,36,NULL,'','no','','2008-07-08 10:25:40','1','2009-07-08 10:25:40','1'),
+ (38,'RNA - 38','derivative',13,'rna',36,'cystic fluid',1,37,NULL,'','no','dfgf','2007-07-08 10:25:57','1','2009-07-08 10:25:57','1'),
+ (39,'AMP-RNA - 39','derivative',17,'amplified rna',36,'cystic fluid',1,38,NULL,'','no','','2006-07-08 10:30:34','1','2009-07-08 10:30:34','1'),
+ (40,'T-LYS - 40','derivative',101,'tissue lysate',15,'tissue',1,15,NULL,'','no','','2005-07-08 10:31:03','1','2009-07-08 10:31:03','1'),
+ (41,'T - 41','specimen',3,'tissue',41,'tissue',1,NULL,NULL,'','no','','2009-07-08 10:31:22','1','2009-07-08 10:31:22','1'),
+ (42,'T-SUSP - 42','derivative',102,'tissue suspension',41,'tissue',1,41,NULL,'','no','','2008-07-08 10:31:42','1','2009-07-08 10:31:42','1'),
+ (43,'T - 43','specimen',3,'tissue',43,'tissue',1,NULL,NULL,'','no','','2007-07-08 10:32:03','1','2009-07-08 10:32:03','1'),
+ (44,'RNA - 44','derivative',13,'rna',43,'tissue',1,43,NULL,'','no','','2006-07-08 10:32:17','1','2009-07-08 10:32:17','1'),
+ (45,'AMP-RNA - 45','derivative',17,'amplified rna',43,'tissue',1,44,NULL,'','no','','2005-07-08 10:32:32','1','2009-07-08 10:32:32','1'),
+ (46,'T - 46','specimen',3,'tissue',46,'tissue',1,NULL,NULL,'','no','','2009-07-08 10:32:51','1','2009-07-08 10:32:51','1'),
+ (47,'T-LYS - 47','derivative',101,'tissue lysate',46,'tissue',1,46,NULL,'','no','','2008-07-08 10:33:05','1','2009-07-08 10:33:05','1'),
+ (48,'T - 48','specimen',3,'tissue',48,'tissue',1,NULL,NULL,'','no','','2007-07-08 10:33:23','1','2009-07-08 10:33:23','1'),
+ (49,'RNA - 49','derivative',13,'rna',48,'tissue',1,48,NULL,'','no','','2006-07-08 10:33:36','1','2009-07-08 10:33:36','1'),
+ (50,'AMP-RNA - 50','derivative',17,'amplified rna',48,'tissue',1,49,NULL,'','no','','2005-07-08 10:33:52','1','2009-07-08 10:33:52','1'),
+ (51,'OF - 51','specimen',105,'other fluid',51,'other fluid',1,NULL,NULL,'','no','','2009-07-08 10:34:11','1','2009-07-08 10:34:11','1'),
+ (52,'OF-C - 52','derivative',110,'other fluid cell',51,'other fluid',1,51,NULL,'','no','','2008-07-08 10:34:29','1','2009-07-08 10:34:29','1'),
+ (53,'C-CULT - 53','derivative',11,'cell culture',51,'other fluid',1,52,NULL,'','no','','2007-07-08 10:34:43','1','2009-07-08 10:34:43','1'),
+ (54,'C-CULT - 54','derivative',11,'cell culture',51,'other fluid',1,53,NULL,'','no','','2006-07-08 10:34:56','1','2009-07-08 10:34:56','1'),
+ (55,'C-CULT - 55','derivative',11,'cell culture',51,'other fluid',1,54,NULL,'','no','','2005-07-08 10:35:10','1','2009-07-08 10:35:10','1'),
+ (56,'C-CULT - 56','derivative',11,'cell culture',51,'other fluid',1,55,NULL,'','no','','2009-07-08 10:35:24','1','2009-07-08 10:35:24','1'),
+ (57,'U - 57','specimen',4,'urine',57,'urine',1,NULL,NULL,'','no','','2008-07-08 10:35:47','1','2009-07-08 10:35:47','1'),
+ (58,'CENT-U - 58','derivative',15,'centrifuged urine',57,'urine',1,57,NULL,'','no','','2007-07-08 10:36:11','1','2009-07-08 10:36:11','1'),
+ (59,'U - 59','specimen',4,'urine',59,'urine',1,NULL,NULL,'','no','','2006-07-08 10:36:30','1','2009-07-08 10:36:30','1'),
+ (60,'CONC-U - 60','derivative',14,'concentrated urine',59,'urine',1,59,NULL,'','no','','2005-07-08 10:36:47','1','2009-07-08 10:36:47','1'),
+ (61,'A - 61','specimen',1,'ascite',61,'ascite',1,NULL,NULL,'','no','','2009-07-08 10:37:12','1','2009-07-08 10:37:12','1'),
+ (62,'ASC-S - 62','derivative',6,'ascite supernatant',61,'ascite',1,61,NULL,'','no','','2008-07-08 10:37:27','1','2009-07-08 10:37:27','1');
 
 DELETE FROM `storage_masters`;
 INSERT INTO `storage_masters` ( `id` , `code`, `storage_type`, `storage_control_id`, `parent_id`, `barcode`, `short_label`, `selection_label` ) VALUES
@@ -305,3 +344,65 @@ INSERT INTO `storage_masters` ( `id` , `code`, `storage_type`, `storage_control_
 DELETE FROM `std_incubators`;
 INSERT INTO `std_incubators` ( `id`, `storage_master_id`, `oxygen_perc`, `carbonic_gaz_perc` ) VALUES
 (1, 1, '55.4', '12.3');
+
+DELETE FROM `sd_der_cell_cultures`;
+INSERT INTO `sd_der_cell_cultures` (`id`,`sample_master_id`,`culture_status`,`culture_status_reason`,`cell_passage_number`,`created`,`created_by`,`modified`,`modified_by`) VALUES 
+ (13,13,'stopped','cell dead',2,'2009-05-13 10:05:47','1','2009-05-13 10:05:47','1'),
+ (16,16,'unknown','cell dead',43,'2009-05-19 11:29:20','1','2009-05-19 11:29:20','1'),
+ (53,53,NULL,NULL,NULL,'2009-07-08 10:34:43','1','2009-07-08 10:34:43','1'),
+ (54,54,NULL,NULL,NULL,'2009-07-08 10:34:56','1','2009-07-08 10:34:56','1'),
+ (55,55,NULL,NULL,43,'2009-07-08 10:35:10','1','2009-07-08 10:35:10','1'),
+ (56,56,NULL,NULL,NULL,'2009-07-08 10:35:24','1','2009-07-08 10:35:24','1');
+ 
+ DELETE FROM `sd_der_serums`;
+ INSERT INTO `sd_der_serums` (`id`,`sample_master_id`,`hemolyze_signs`,`created`,`created_by`,`modified`,`modified_by`) VALUES 
+ (25,25,'yes','2009-07-08 10:15:31','1','2009-07-08 10:15:31','1');
+ 
+ DELETE FROM `sd_spe_ascites`;
+ INSERT INTO `sd_spe_ascites` (`id`,`sample_master_id`,`collected_volume`,`collected_volume_unit`,`created`,`created_by`,`modified`,`modified_by`) VALUES 
+ (7,7,'560.00000','ml','2009-05-13 09:48:09','1','2009-05-13 09:48:09','1'),
+ (17,17,'587.00000','ml','2009-05-19 11:30:44','1','2009-05-19 11:30:44','1'),
+ (21,21,'45.00000','ul','2009-07-08 10:11:30','1','2009-07-08 10:11:30','1'),
+ (61,61,'21.00000',NULL,'2009-07-08 10:37:12','1','2009-07-08 10:37:12','1');
+ 
+ DELETE FROM `sd_spe_bloods`;
+ INSERT INTO `sd_spe_bloods` (`id`,`sample_master_id`,`type`,`collected_tube_nbr`,`collected_volume`,`collected_volume_unit`,`created`,`created_by`,`modified`,`modified_by`) VALUES 
+ (3,3,'unknown',2,'33.00000','ul','2009-05-06 16:37:06','1','2009-05-06 16:37:06','1'),
+ (6,6,'paxgene',234,'50.00000','ml','2009-05-07 09:49:29','1','2009-05-07 09:49:29','1'),
+ (18,18,NULL,8798,'33.00000','ml','2009-05-19 12:48:19','1','2009-05-19 12:48:19','1'),
+ (19,19,NULL,43535,'50.00000','ml','2009-05-28 01:09:14','1','2009-05-28 01:09:14','1'),
+ (23,23,'gel CSA',43,'3.00000','ml','2009-07-08 10:12:37','1','2009-07-08 10:12:37','1');
+ 
+ DELETE FROM `sd_spe_cystic_fluids`;
+ INSERT INTO `sd_spe_cystic_fluids` (`id`,`sample_master_id`,`collected_volume`,`collected_volume_unit`,`created`,`created_by`,`modified`,`modified_by`) VALUES 
+ (31,31,'54.00000',NULL,'2009-07-08 10:23:34','1','2009-07-08 10:23:34','1'),
+ (34,34,'54.00000','ul','2009-07-08 10:24:32','1','2009-07-08 10:24:32','1'),
+ (36,36,'34.00000','ul','2009-07-08 10:25:16','1','2009-07-08 10:25:16','1');
+ 
+ DELETE FROM `sd_spe_other_fluids`;
+ INSERT INTO `sd_spe_other_fluids` (`id`,`sample_master_id`,`collected_volume`,`collected_volume_unit`,`created`,`created_by`,`modified`,`modified_by`) VALUES 
+ (51,51,'32.00000','ml','2009-07-08 10:34:11','1','2009-07-08 10:34:11','1');
+ 
+ DELETE FROM `sd_spe_peritoneal_washes`;
+ INSERT INTO `sd_spe_peritoneal_washes` (`id`,`sample_master_id`,`collected_volume`,`collected_volume_unit`,`created`,`created_by`,`modified`,`modified_by`) VALUES 
+ (1,1,'75.00000','ml','2009-05-06 16:04:16','1','2009-05-06 16:04:16','1'),
+ (27,27,'45.00000','ml','2009-07-08 10:22:15','1','2009-07-08 10:22:15','1'),
+ (29,29,'43.00000','ul','2009-07-08 10:22:54','1','2009-07-08 10:22:54','1');
+ 
+ DELETE FROM `sd_spe_tissues`;
+ INSERT INTO `sd_spe_tissues` (`id`,`sample_master_id`,`tissue_source`,`nature`,`laterality`,`pathology_reception_datetime`,`size`,`created`,`created_by`,`modified`,`modified_by`) VALUES 
+ (8,8,'lung','malignant','right','2009-05-13 10:00:00','45','2009-05-13 10:00:01','1','2009-05-13 10:00:01','1'),
+ (15,15,'breast','benign','left','2009-05-19 11:28:00','24','2009-05-19 11:28:30','1','2009-05-19 11:28:30','1'),
+ (41,41,NULL,NULL,NULL,'2009-07-08 10:31:00',NULL,'2009-07-08 10:31:22','1','2009-07-08 10:31:22','1'),
+ (43,43,NULL,NULL,NULL,'2009-07-08 10:32:00',NULL,'2009-07-08 10:32:03','1','2009-07-08 10:32:03','1'),
+ (46,46,NULL,NULL,NULL,'2009-07-08 10:32:00',NULL,'2009-07-08 10:32:51','1','2009-07-08 10:32:51','1'),
+ (48,48,NULL,NULL,NULL,'2009-07-08 10:33:00',NULL,'2009-07-08 10:33:23','1','2009-07-08 10:33:23','1');
+ 
+ DELETE FROM `sd_spe_urines`;
+ INSERT INTO `sd_spe_urines` (`id`,`sample_master_id`,`aspect`,`collected_volume`,`collected_volume_unit`,`received_volume`,`received_volume_unit`,`pellet`,`pellet_volume`,`pellet_volume_unit`,`created`,`created_by`,`modified`,`modified_by`) VALUES 
+ (4,4,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'0000-00-00 00:00:00','',NULL,NULL),
+ (5,5,'turbidity','10.00000','ml','11.00000','ml','no','5.00000','ml','0000-00-00 00:00:00','',NULL,NULL),
+ (9,9,'turbidity','60.40000','ml','2.30000','ul','yes','450.00000','ul','0000-00-00 00:00:00','',NULL,NULL),
+ (10,10,'turbidity','60.40000','ml','2.30000','ul','yes','450.00000','ul','0000-00-00 00:00:00','',NULL,NULL),
+ (57,57,NULL,'34.00000',NULL,'23.00000',NULL,NULL,'2.00000',NULL,'2009-07-08 10:35:47','1','2009-07-08 10:35:47','1'),
+ (59,59,NULL,'21.00000',NULL,'12.00000',NULL,NULL,'1.00000',NULL,'2009-07-08 10:36:30','1','2009-07-08 10:36:30','1');
