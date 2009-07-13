@@ -4257,15 +4257,15 @@ CREATE TABLE `drugs` (
   `generic_name` varchar(50) NOT NULL default '',
   `trade_name` varchar(50) NOT NULL default '',
   `type` varchar(50) default NULL,
-  `description` varchar(255) default NULL,
-  `created` date NOT NULL default '0000-00-00',
-  `created_by` varchar(50) NOT NULL default '',
-  `modified` date NOT NULL default '0000-00-00',
-  `modified_by` varchar(50) NOT NULL default '',
+  `description` text default NULL,
+  `created` datetime NOT NULL default '0000-00-00',
+  `created_by` int(11) NOT NULL default 0,
+  `modified` datetime NOT NULL default '0000-00-00',
+  `modified_by` int(11) NOT NULL default 0,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=17 ;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- 
 -- Dumping data for table `drugs`
@@ -4283,17 +4283,17 @@ CREATE TABLE `drugs_revs` (
   `generic_name` varchar(50) NOT NULL default '',
   `trade_name` varchar(50) NOT NULL default '',
   `type` varchar(50) default NULL,
-  `description` varchar(255) default NULL,
-  `created` date NOT NULL default '0000-00-00',
-  `created_by` varchar(50) NOT NULL default '',
-  `modified` date NOT NULL default '0000-00-00',
-  `modified_by` varchar(50) NOT NULL default '',
+  `description` text default NULL,
+  `created` datetime NOT NULL default '0000-00-00',
+  `created_by` int(11) NOT NULL default 0,
+  `modified` datetime NOT NULL default '0000-00-00',
+  `modified_by` int(11) NOT NULL default 0,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
-  `deleted_date` datetime NOT NULL,
+  `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=17 ;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- 
 -- Dumping data for table `drugs_revs`
@@ -5255,7 +5255,7 @@ INSERT INTO `menus` (`id`, `parent_id`, `display_order`, `language_title`, `lang
 ('core_CAN_98', 'core_CAN_86', 1, 'core_announcements', 'core_announcements', '/administrate/announcements/index/', '', 'Group::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('core_CAN_99', 'core_CAN_89', 5, 'core_messages', 'core_messages', '/administrate/announcements/index/', '', 'User::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('drug_CAN_96', 'core_CAN_33', 2, 'drug administration', 'drug administration', '/drug/drugs/listall/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('drug_CAN_97', 'drug_CAN_96', 1, 'details', 'details', '/drug/drugs/detail/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('drug_CAN_97', 'drug_CAN_96', 1, 'details', 'details', '/drug/drugs/detail/', '', 'Drug.Drug::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('inv_CAN_00', 'MAIN_MENU_1', 3, 'inventory management', 'inventory management', '/inventorymanagement/collections/index/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('inv_CAN_10', 'inv_CAN_00', 2, 'collection samples', 'collection samples', '/inventorymanagement/sample_masters/tree/%%Collection.id%%', '', 'Inventorymanagement.Collection::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('inv_CAN_11', 'inv_CAN_00', 1, 'collection', 'collection', '/inventorymanagement/collections/detail/%%Collection.id%%', '', 'Inventorymanagement.Collection::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -5427,8 +5427,8 @@ INSERT INTO `menus` (`id`, `parent_id`, `display_order`, `language_title`, `lang
 ('qry-CAN-1', 'MAIN_MENU_1', 4, 'query tool', 'query tool', '/datamart/adhocs/index/', '', '', '1', '0000-00-00 00:00:00', '', '2007-12-20 05:32:27', '1'),
 ('qry-CAN-2', 'qry-CAN-1', 0, 'adhoc', 'adhoc', '/datamart/adhocs/index/', '', 'Datamart.Adhoc::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('qry-CAN-3', 'qry-CAN-1', 0, 'batch sets', 'batch sets', '/datamart/batch_sets/index/', '', 'Datamart.BatchSet::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('rtbf_CAN_01', 'core_CAN_33', 3, 'forms_menu', 'forms', '/rtbform/rtbforms/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('rtbf_CAN_02', 'rtbf_CAN_01', 1, 'rtbform_detail', '', '/rtbform/rtbforms/profile/', '', '', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('rtbf_CAN_01', 'core_CAN_33', 3, 'forms_menu', 'forms', '/rtbform/rtbforms/index/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('rtbf_CAN_02', 'rtbf_CAN_01', 1, 'rtbform_detail', '', '/rtbform/rtbforms/profile/%%Rtbform.id%%', '', '', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('sop_CAN_01', 'core_CAN_33', 7, 'sop_standard operating procedures', '', '/sop/sop_masters/listall/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('sop_CAN_03', 'sop_CAN_01', 1, 'sop_detail', '', '/sop/sop_masters/detail/', '', '', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 INSERT INTO `menus` (`id`, `parent_id`, `display_order`, `language_title`, `language_description`, `use_link`, `use_params`, `use_summary`, `active`, `created`, `created_by`, `modified`, `modified_by`) VALUES ('sop_CAN_04', 'sop_CAN_01', 2, 'sop_extend', '', '/sop/sop_extends/listall/', '', '', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -7210,13 +7210,13 @@ CREATE TABLE `rtbforms` (
   `frmCreated` date default NULL,
   `frmGroup` varchar(50) default NULL,
   `created` datetime default NULL,
-  `created_by` varchar(50) default NULL,
+  `created_by` int(11) default NULL,
   `modified` datetime default NULL,
-  `modified_by` varchar(50) default NULL,
+  `modified_by` int(11) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ;
 
 -- 
 -- Dumping data for table `rtbforms`
@@ -7241,15 +7241,15 @@ CREATE TABLE `rtbforms_revs` (
   `frmCreated` date default NULL,
   `frmGroup` varchar(50) default NULL,
   `created` datetime default NULL,
-  `created_by` varchar(50) default NULL,
+  `created_by` int(11) default NULL,
   `modified` datetime default NULL,
-  `modified_by` varchar(50) default NULL,
+  `modified_by` int(11) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime NULL,
   PRIMARY KEY  (`version_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ;
 
 -- 
 -- Dumping data for table `rtbforms_revs`
