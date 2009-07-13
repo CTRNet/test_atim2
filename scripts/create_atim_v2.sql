@@ -9819,7 +9819,7 @@ INSERT INTO `structure_fields` (`id`,`old_id`,`plugin`,`model`,`field`,`language
  (807,'CAN-999-999-000-999-63','ClinicalAnnotation','Consent','research_other_disease','research other disease','','select','','',0,'','0000-00-00 00:00:00','','0000-00-00 00:00:00',''),
  (808,'CAN-999-999-000-999-64','ClinicalAnnotation','Consent','inform_significant_discovery','inform significant discovery','','select','','',0,'','0000-00-00 00:00:00','','0000-00-00 00:00:00',''),
  (809,'CAN-999-999-000-999-65','ClinicalAnnotation','Consent','memo','memo','','textarea','cols=35,rows=6','',0,'','0000-00-00 00:00:00','','0000-00-00 00:00:00',''),
- (810,'CAN-999-999-000-999-66','ClinicalAnnotation','Consent','recruit_route','route of recruitment','','select','','',22,'','0000-00-00 00:00:00','','0000-00-00 00:00:00',''),
+ (810,'CAN-999-999-000-999-66','ClinicalAnnotation','Consent','contact_method','route of recruitment','','select','','',22,'','0000-00-00 00:00:00','','0000-00-00 00:00:00',''),
  (811,'CAN-999-999-000-999-67','ClinicalAnnotation','Consent','acquisition_id','Acquisition ID','','input','','',0,'','0000-00-00 00:00:00','','0000-00-00 00:00:00',''),
  (812,'CAN-999-999-000-999-68','ClinicalAnnotation','Diagnosis','dx_number','dx_number','','input','size=4','',0,'','0000-00-00 00:00:00','','0000-00-00 00:00:00',''),
  (813,'CAN-999-999-000-999-69','ClinicalAnnotation','Diagnosis','dx_method','dx_method','','select','','',13,'help_dx method','0000-00-00 00:00:00','','0000-00-00 00:00:00',''),

@@ -533,6 +533,7 @@ CREATE TABLE `posts` (
 CREATE TABLE `structure_fields` (
   `id` int(11) NOT NULL auto_increment,
   `old_id` varchar(255) collate utf8_unicode_ci NOT NULL,
+  `plugin` varchar(255) character set latin1 NOT NULL default '',
   `model` varchar(255) character set latin1 NOT NULL default '',
   `field` varchar(255) character set latin1 NOT NULL default '',
   `language_label` text character set latin1 NOT NULL,
@@ -540,7 +541,7 @@ CREATE TABLE `structure_fields` (
   `type` varchar(255) character set latin1 NOT NULL default 'input',
   `setting` text character set latin1 NOT NULL,
   `default` varchar(255) character set latin1 NOT NULL default '',
-  `structure_value_domain` varchar(255) collate utf8_unicode_ci NOT NULL,
+  `structure_value_domain` int(11) NOT NULL default 0,
   `language_help` text character set latin1 NOT NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` varchar(255) character set latin1 NOT NULL default '',
@@ -1361,7 +1362,7 @@ INSERT INTO `structure_fields` (`id`, `old_id`, `plugin`, `model`, `field`, `lan
 (807, 'CAN-999-999-000-999-63', 'ClinicalAnnotation', 'Consent', 'research_other_disease', 'research other disease', '', 'select', '', '', '', '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (808, 'CAN-999-999-000-999-64', 'ClinicalAnnotation', 'Consent', 'inform_significant_discovery', 'inform significant discovery', '', 'select', '', '', '', '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (809, 'CAN-999-999-000-999-65', 'ClinicalAnnotation', 'Consent', 'memo', 'memo', '', 'textarea', 'cols=35,rows=6', '', '', '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(810, 'CAN-999-999-000-999-66', 'ClinicalAnnotation', 'Consent', 'recruit_route', 'route of recruitment', '', 'select', '', '', '', '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(810, 'CAN-999-999-000-999-66', 'ClinicalAnnotation', 'Consent', 'contact_method', 'route of recruitment', '', 'select', '', '', '', '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (811, 'CAN-999-999-000-999-67', 'ClinicalAnnotation', 'Consent', 'acquisition_id', 'Acquisition ID', '', 'input', '', '', '', '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (812, 'CAN-999-999-000-999-68', 'ClinicalAnnotation', 'Diagnosis', 'dx_number', 'dx_number', '', 'input', 'size=4', '', '', '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (813, 'CAN-999-999-000-999-69', 'ClinicalAnnotation', 'Diagnosis', 'dx_method', 'dx_method', '', 'select', '', '', '', 'help_dx method', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -2404,7 +2405,7 @@ CREATE TABLE `structure_permissible_values` (
   `value` varchar(255) collate utf8_unicode_ci NOT NULL,
   `language_alias` varchar(255) collate utf8_unicode_ci NOT NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=532 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=532 ;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `structure_value_domains` (
   `id` int(11) NOT NULL auto_increment,
@@ -2412,7 +2413,7 @@ CREATE TABLE `structure_value_domains` (
   `override` set('extend','locked','open') collate utf8_unicode_ci NOT NULL default 'open',
   `category` varchar(255) collate utf8_unicode_ci NOT NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=164 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=164 ;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci ;
 
 CREATE TABLE `structure_value_domains_permissible_values` (
   `id` int(11) NOT NULL auto_increment,
@@ -2421,7 +2422,7 @@ CREATE TABLE `structure_value_domains_permissible_values` (
   `display_order` int(11) NOT NULL default '0',
   `active` set('yes','no') collate utf8_unicode_ci NOT NULL default 'yes',
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=925 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=925 ;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `versions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
