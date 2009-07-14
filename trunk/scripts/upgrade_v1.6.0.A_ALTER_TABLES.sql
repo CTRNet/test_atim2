@@ -462,6 +462,7 @@ ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `study_investigators`
 
+ADD COLUMN `email` varchar(45) default NULL AFTER `sort`,
 ADD COLUMN `deleted` int(11) default 0,
 ADD COLUMN `deleted_date` datetime default NULL;
 
