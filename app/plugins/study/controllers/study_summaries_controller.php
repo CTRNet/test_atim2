@@ -10,6 +10,8 @@ class StudySummariesController extends StudyAppController {
 	}
 
 	function add() {	
+		$this->set('atim_menu', $this->Menus->get('/study/study_summaries/listall'));
+	
 		if ( !empty($this->data) ) {
 			if ( $this->StudySummary->save($this->data) ) {
 				$this->flash( 'Your data has been updated.','/study/study_summaries/detail/'.$this->StudySummary->id );
