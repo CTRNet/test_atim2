@@ -1869,6 +1869,7 @@ CREATE TABLE `study_results_revs` (
   `conclusion` text,
   `comparison` text,
   `future` text,
+  `result_date` datetime default NULL,
   `created` date default NULL,
   `created_by` varchar(50) default NULL,
   `modified` date default NULL,

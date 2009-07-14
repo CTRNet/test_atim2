@@ -473,6 +473,7 @@ ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `study_results`
 
+ADD COLUMN `result_date` datetime default NULL after `future`,
 ADD COLUMN `deleted` int(11) default 0,
 ADD COLUMN `deleted_date` datetime default NULL;
 
