@@ -5445,7 +5445,7 @@ INSERT INTO `menus` (`id`, `parent_id`, `display_order`, `language_title`, `lang
 ('tool_CAN_105', 'tool_CAN_104', 2, 'tool_contact', 'tool_contact', '/study/study_contacts/listall/%%StudySummary.id%%/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('tool_CAN_106', 'tool_CAN_104', 3, 'tool_investigator', 'tool_investigator', '/study/study_investigators/listall/%%StudySummary.id%%/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('tool_CAN_107', 'tool_CAN_104', 4, 'tool_reviews', 'tool_reviews', '/study/study_reviews/listall/%%StudySummary.id%%/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('tool_CAN_108', 'tool_CAN_104', 5, 'tool_ethics', 'tool_ethics', '/study/study_ethicsboards/listall/%%StudySummary.id%%/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('tool_CAN_108', 'tool_CAN_104', 5, 'tool_ethics', 'tool_ethics', '/study/study_ethics_boards/listall/%%StudySummary.id%%/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('tool_CAN_109', 'tool_CAN_104', 6, 'tool_funding', 'tool_funding', '/study/study_fundings/listall/%%StudySummary.id%%/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('tool_CAN_110', 'tool_CAN_104', 7, 'tool_result', 'tool_result', '/study/study_results/listall/%%StudySummary.id%%/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('tool_CAN_112', 'tool_CAN_104', 9, 'tool_related studies', 'tool_related studies', '/study/study_related/listall/%%StudySummary%%/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
