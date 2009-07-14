@@ -5172,7 +5172,7 @@ CREATE TABLE `materials_revs` (
 
 -- --------------------------------------------------------
 
--- 
+--
 -- Table structure for table `menus`
 -- 
 
@@ -14737,6 +14737,7 @@ CREATE TABLE `study_investigators` (
   `address_province` varchar(255) default NULL,
   `address_country` varchar(255) default NULL,
   `sort` int(11) default NULL,
+  `email` varchar(45) default NULL,
   `role` varchar(255) default NULL,
   `brief` text,
   `participation_start_date` date default NULL,
@@ -14777,6 +14778,7 @@ CREATE TABLE `study_investigators_revs` (
   `address_province` varchar(255) default NULL,
   `address_country` varchar(255) default NULL,
   `sort` int(11) default NULL,
+  `email` varchar(45) default NULL,
   `role` varchar(255) default NULL,
   `brief` text,
   `participation_start_date` date default NULL,

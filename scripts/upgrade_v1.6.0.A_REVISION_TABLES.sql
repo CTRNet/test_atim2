@@ -1820,6 +1820,7 @@ CREATE TABLE `study_investigators_revs` (
   `address_city` varchar(255) default NULL,
   `address_province` varchar(255) default NULL,
   `address_country` varchar(255) default NULL,
+  `email` varchar(45) default NULL,
   `sort` int(11) default NULL,
   `role` varchar(255) default NULL,
   `brief` text,
