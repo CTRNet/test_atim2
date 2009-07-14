@@ -1,7 +1,6 @@
 <?php
 
-class ProtocolExtend extends ProtocolAppModel
-{
+class ProtocolExtend extends ProtocolAppModel {
 	var $name = 'ProtocolExtend';
     var $useTable = false;
 }
