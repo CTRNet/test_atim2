@@ -51,6 +51,14 @@ class OrderItemsController extends OrderAppController {
 		$this->data = $this->OrderItem->find('first',array('conditions'=>array('OrderItem.id'=>$order_item_id)));
 	}
 	
+	function shipment_items ( $order_id=null, $shipment_id=null ){
+		if ( !$order_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$shipment_id ) { $this->redirect( 'pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		
+		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'Shipment.id'=>$shipment_id));
+		$this->data = $this->paginate($this->OrderItem, array('OrderItem.shipment_id'=>$shipment_id));
+	}
+	
 	function delete( $order_id=null, $order_line_id=null, $order_item_id=null ) {
 		if ( !$order_line_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		if ( !$order_item_id ) { $this->redirect( '/page/err_clin-ann_no_part_id', NULL, TRUE ); }

@@ -6,5 +6,6 @@
 		)
 	);
 	
-	$structures->build( $atim_structure, array('type'=>'search','links'=>$structure_links, 'override'=>array('Order.study_summary_id'=>$atim_menu_variables['StudySummary'])) );
+	$structure_override = array('Order.study_summary_id'=>$study_summary_id_findall);
+	$structures->build($atim_structure, array('type'=>'search', 'links'=>$structure_links, 'override'=>$structure_override));
 ?>
