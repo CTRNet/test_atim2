@@ -6,23 +6,7 @@ class SopMastersController extends SopAppController {
 	var $paginate = array('SopMaster'=>array('limit'=>10,'order'=>'SopMaster.title DESC'));
 	
 	function listall() {
-		
-		if ( !isset($_SESSION['MasterDetail_filter']) || !$sop_control_id ) {
-				$_SESSION['MasterDetail_filter'] = array();
-				
-				
-				$this->set( 'atim_structure', $this->Structures->get('form','sopmasters') );
-			}
-			
-			else {
-				$_SESSION['MasterDetail_filter']['SopMaster.sop_control_id'] = $event_control_id;
-				
-				$filter_data = $this->SopControl->find('first',array('conditions'=>array('SopControl.id'=>$sop_control_id)));
-				$this->set( 'atim_structure', $this->Structures->get('form',$filter_data['SopControl']['form_alias']) );
-			}
-			
-		
-		$this->data = $this->paginate($this->SopMaster, $_SESSION['MasterDetail_filter']);
+		$this->data = $this->paginate($this->SopMaster, array());
 		
 		// find all EVENTCONTROLS, for ADD form
 		$this->set( 'sop_controls', $this->SopControl->find('all', array()) );
