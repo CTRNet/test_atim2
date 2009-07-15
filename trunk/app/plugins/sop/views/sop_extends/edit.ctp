@@ -7,5 +7,6 @@
 		)
 	);
 	
+	$structure_override = array('SopExtend.material_id'=>$material_id_findall);
 	$structures->build( $atim_structure, array('links'=>$structure_links) );
 ?>
