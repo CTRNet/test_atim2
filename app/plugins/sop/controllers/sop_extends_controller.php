@@ -18,8 +18,6 @@ class SopExtendsController extends SopAppController {
 		$use_form_alias = $sop_master_data['SopMaster']['extend_form_alias'];
 		$this->set('atim_structure', $this->Structures->get('form', $use_form_alias));
 		
-		
-		
 		$this->data = $this->paginate($this->SopExtend, array('SopExtend.sop_master_id'=>$sop_master_id));
 		
 		$material_list = $this->Material->find('all', array('fields'=>array('Material.id', 'Material.item_name'), 'order'  => array('Material.item_name')));
