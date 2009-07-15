@@ -6,5 +6,7 @@
 		)
 	);
 	
+	
+	$structure_override = array('ProtocolExtend.drug_id'=>$drug_id_findall);
 	$structures->build( $atim_structure, array('links'=>$structure_links) );
 ?>
