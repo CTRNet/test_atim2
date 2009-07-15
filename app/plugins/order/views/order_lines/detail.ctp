@@ -7,5 +7,6 @@
 		)
 	);
 	
-	$structures->build( $atim_structure, array('links'=>$structure_links) );
+	$structure_override = array('OrderLine.sample_control_id'=>$sample_control_id_findall);
+	$structures->build( $atim_structure, array('links'=>$structure_links,'override'=>$structure_override) );
 ?>

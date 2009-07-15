@@ -6,6 +6,7 @@ class ShipmentsController extends OrderAppController {
 	var $paginate = array('Shipment'=>array('limit'=>10,'order'=>'Shipment.shipment_code'));
 	
 	function listall( $order_id=null ) {
+		$this->set('atim_menu', $this->Menus->get('/order/shipments/listall'));
 		
 		if ( !$order_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 
@@ -16,6 +17,8 @@ class ShipmentsController extends OrderAppController {
 	function add( $order_id=null ) {
  		if ( !$order_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 	
+		$this->set('atim_menu', $this->Menus->get('/order/shipments/listall'));
+		
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id));
 		
 		if ( !empty($this->data) ) {
