@@ -11678,7 +11678,7 @@ INSERT INTO `structure_fields` (`id`,`old_id`,`plugin`,`model`,`field`,`language
  (754,'CAN-999-999-000-999-508','Order','Shipment','delivery_postal_code','order_delivery_postal_code','','input','size=10','',0,'','0000-00-00 00:00:00','','0000-00-00 00:00:00',''),
  (755,'CAN-999-999-000-999-509','Order','Shipment','delivery_country','order_delivery_country','','input','size=20','',0,'','0000-00-00 00:00:00','','0000-00-00 00:00:00',''),
  (756,'CAN-999-999-000-999-51','ClinicalAnnotation','ParticipantContact','phone_secondary','','number','input','size=15','',0,'','0000-00-00 00:00:00','','0000-00-00 00:00:00',''),
- (757,'CAN-999-999-000-999-510','Order','Shipment','shipping_country','order_shipping_country','','input','size=20','',0,'','0000-00-00 00:00:00','','0000-00-00 00:00:00',''),
+ (757,'CAN-999-999-000-999-510','Order','Shipment','shipping_company','order_shipping_company','','input','size=20','',0,'','0000-00-00 00:00:00','','0000-00-00 00:00:00',''),
  (758,'CAN-999-999-000-999-511','Order','Shipment','shipping_account_nbr','order_shipping_account_nbr','','input','size=10','',0,'','0000-00-00 00:00:00','','0000-00-00 00:00:00',''),
  (759,'CAN-999-999-000-999-512','Order','Shipment','datetime_shipped','order_datetime_shipped','','datetime','','',0,'','0000-00-00 00:00:00','','0000-00-00 00:00:00',''),
  (760,'CAN-999-999-000-999-513','Order','Shipment','datetime_received','order_datetime_received','','datetime','','',0,'','0000-00-00 00:00:00','','0000-00-00 00:00:00',''),
