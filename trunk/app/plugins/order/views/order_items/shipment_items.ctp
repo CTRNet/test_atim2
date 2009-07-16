@@ -1,7 +1,7 @@
 <?php 
 
 	$structure_links = array(
-		'index'=>array('detail'=>'/order/order_items/detail/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['OrderLine.id'].'/%%OrderItem.id%%/'),
+		'index'=>array('Remove'=>'/order/order_items/deleteFromShipment/'.$atim_menu_variables['Order.id'].'/%%OrderItem.id%%/'),
 		'bottom'=>array()
 	);
 	

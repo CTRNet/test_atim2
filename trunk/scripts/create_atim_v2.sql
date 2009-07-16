@@ -18,7 +18,7 @@ USE `atim2_dev`;
 
 -- 
 -- Table structure for table `acos`
--- 
+--
 
 CREATE TABLE `acos` (
   `id` int(10) NOT NULL auto_increment,
@@ -7014,7 +7014,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES ('xDefault', 'global', '
 
 -- 
 -- Table structure for table `langs`
--- 
+--
 
 CREATE TABLE `langs` (
   `id` varchar(100) NOT NULL default '',
@@ -7050,14 +7050,14 @@ CREATE TABLE `materials` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=220 ;
 
--- 
+--
 -- Dumping data for table `materials`
 -- 
 
 
 -- --------------------------------------------------------
 
--- 
+--
 -- Table structure for table `materials_revs`
 -- 
 
@@ -7107,7 +7107,7 @@ CREATE TABLE `menus` (
 
 -- 
 -- Dumping data for table `menus`
--- 
+--
 INSERT INTO `menus` (`id`, `parent_id`, `display_order`, `language_title`, `language_description`, `use_link`, `use_params`, `use_summary`, `active`, `created`, `created_by`, `modified`, `modified_by`) VALUES ('15', '3', 5, 'path_collection_reviews', 'path_collection_reviews', '/unknown/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('20', '11', 99, 'consent', 'consent', '/under_development/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('23', '3', 3, 'review', 'review', '/unknow/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -7326,14 +7326,14 @@ INSERT INTO `menus` (`id`, `parent_id`, `display_order`, `language_title`, `lang
 ('mat_CAN_01', 'core_CAN_33', 6, 'sop_materials and equipment', 'sop_materials and equipment', '/material/materials/index/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('mat_CAN_02', 'mat_CAN_01', 1, 'detail', 'detail', '/material/materials/detail/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('ord_CAN_101', 'core_CAN_33', 4, 'order_order management', 'order_order management', '/order/orders/index/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('ord_CAN_113', 'ord_CAN_101', 1, 'details', 'order', '/order/orders/detail/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('ord_CAN_114', 'ord_CAN_101', 2, 'order_order lines', 'order_order lines', '/order/order_lines/listall/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('ord_CAN_115', 'ord_CAN_114', 1, 'order_order line detail', 'order_order line detail', '/order/order_lines/detail/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('ord_CAN_116', 'ord_CAN_101', 3, 'order_shipments', 'order_shipments', '/order/shipments/listall/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('ord_CAN_117', 'ord_CAN_114', 2, 'order_order items', 'order_order items', '/order/order_items/listall/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('ord_CAN_118', 'ord_CAN_117', 1, 'order_order item detail', 'order_order item detail', '/order/order_items/detail/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('ord_CAN_119', 'ord_CAN_116', 1, 'order_shipment detail', 'order_shipment detail', '/order/shipments/detail/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('ord_CAN_120', 'ord_CAN_116', 2, 'order_shipment items', 'order_shipment items', '/order/order_items/shipment_items/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('ord_CAN_113', 'ord_CAN_101', 1, 'details', 'order', '/order/orders/detail/%%Order.id%%/', '', 'Order.Order::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('ord_CAN_114', 'ord_CAN_101', 2, 'order_order lines', 'order_order lines', '/order/order_lines/listall/%%Order.id%%/', '', 'Order.Order::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('ord_CAN_115', 'ord_CAN_114', 1, 'order_order line detail', 'order_order line detail', '/order/order_lines/detail/%%Order.id%%/%%OrderLine.id%%/', '', 'Order.OrderLines::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('ord_CAN_116', 'ord_CAN_101', 3, 'order_shipments', 'order_shipments', '/order/shipments/listall/%%Order.id%%/', '', 'Order.Order::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('ord_CAN_117', 'ord_CAN_114', 2, 'order_order items', 'order_order items', '/order/order_items/listall/%%Order.id%%/%%OrderLine.id%%/', '', 'Order.OrderLine::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('ord_CAN_118', 'ord_CAN_117', 1, 'order_order item detail', 'order_order item detail', '/order/order_items/detail/%%Order.id%%/%%OrderLine.id%%/%%OrderItem.id%%/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('ord_CAN_119', 'ord_CAN_116', 1, 'order_shipment detail', 'order_shipment detail', '/order/shipments/detail/%%Order.id%%/%%Shipment.id%%/', '', 'Order.Shipment::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('ord_CAN_120', 'ord_CAN_116', 2, 'order_shipment items', 'order_shipment items', '/order/order_items/shipment_items/%%Order.id%%/%%Shipment.id%%/', '', 'Order.Shipment::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('proto_CAN_37', 'core_CAN_33', 5, 'protocols', 'protocols', '/protocol/protocol_masters/listall/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('proto_CAN_82', 'proto_CAN_37', 1, 'protocol detail', 'protocol detail', '/protocol/protocol_masters/detail/%%ProtocolMaster.id%%', '', 'Protocol.ProtocolMaster::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('proto_CAN_83', 'proto_CAN_37', 2, 'protocol extend', 'protocol extend', '/protocol/protocol_extends/listall/%%ProtocolMaster.id%%', '', 'Protocol.ProtocolMaster::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -7343,8 +7343,8 @@ INSERT INTO `menus` (`id`, `parent_id`, `display_order`, `language_title`, `lang
 ('rtbf_CAN_01', 'core_CAN_33', 3, 'forms_menu', 'forms', '/rtbform/rtbforms/index/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('rtbf_CAN_02', 'rtbf_CAN_01', 1, 'rtbform_detail', '', '/rtbform/rtbforms/profile/%%Rtbform.id%%', '', '', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('sop_CAN_01', 'core_CAN_33', 7, 'sop_standard operating procedures', '', '/sop/sop_masters/listall/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('sop_CAN_03', 'sop_CAN_01', 1, 'sop_detail', '', '/sop/sop_masters/detail/', '', '', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
-INSERT INTO `menus` (`id`, `parent_id`, `display_order`, `language_title`, `language_description`, `use_link`, `use_params`, `use_summary`, `active`, `created`, `created_by`, `modified`, `modified_by`) VALUES ('sop_CAN_04', 'sop_CAN_01', 2, 'sop_extend', '', '/sop/sop_extends/listall/', '', '', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('sop_CAN_03', 'sop_CAN_01', 1, 'sop_detail', '', '/sop/sop_masters/detail/%%SopMaster.id%%/', '', '', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+INSERT INTO `menus` (`id`, `parent_id`, `display_order`, `language_title`, `language_description`, `use_link`, `use_params`, `use_summary`, `active`, `created`, `created_by`, `modified`, `modified_by`) VALUES ('sop_CAN_04', 'sop_CAN_01', 2, 'sop_extend', '', '/sop/sop_extends/listall/%%SopMaster.id%%/', '', '', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('sto_CAN_01', 'core_CAN_33', 8, 'storage layout management', 'storage layout management', '/storagelayout/storage_masters/index/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('sto_CAN_02', 'sto_CAN_01', 1, 'storage detail', NULL, '/storagelayout/storage_masters/detail/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('sto_CAN_03', 'sto_CAN_01', 3, 'children storages', NULL, '/storagelayout/storage_masters/listChildrenStorages/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -7519,7 +7519,7 @@ CREATE TABLE `order_items` (
 
 -- 
 -- Dumping data for table `order_items`
--- 
+--
 
 
 -- --------------------------------------------------------
@@ -7551,7 +7551,7 @@ CREATE TABLE `order_items_revs` (
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
--- 
+--
 -- Dumping data for table `order_items_revs`
 -- 
 
