@@ -8,6 +8,7 @@
 		)
 	);
 	
-	$structures->build( $atim_structure, array('type'=>'index','links'=>$structure_links) );
+	$structure_override = array('Collection.bank_id'=>$bank_find_all);
+	$structures->build( $atim_structure, array('type'=>'index','links'=>$structure_links,'override'=>$bank_id_findall) );
 
 ?>
