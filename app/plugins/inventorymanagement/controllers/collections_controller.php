@@ -2,11 +2,18 @@
 
 class CollectionsController extends InventorymanagementAppController {
 
-	var $uses = array('Collection');
+	var $uses = array('InventoryManagement.Collection', 'Administrate.Bank');
 	var $paginate = array('Collection'=>array('limit'=>10,'order'=>'Collection.acquisition_label ASC')); 
 	
 	function index() {
 		$_SESSION['ctrapp_core']['search'] = NULL; // clear SEARCH criteria
+		
+		// Populate Bank dropdown from banks table
+		$bank_list = $this->Bank->find('all', array('fields' => array('Bank.id', 'Bank.name'), 'order' => array('Bank.name')));
+		foreach ( $bank_list as $record ) {
+			$bank_id_findall[ $record['Bank']['id'] ] = $record['Bank']['title'];
+		}
+		$this->set('bank_id_findall', $bank_id_findall);
 	}
 	
 	function search() {
@@ -20,15 +27,36 @@ class CollectionsController extends InventorymanagementAppController {
 		// if SEARCH form data, save number of RESULTS and URL
 		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['Collection']['count'];
 		$_SESSION['ctrapp_core']['search']['url'] = '/inventorymanagement/collections/search';
+		
+		// Populate Bank dropdown from banks table
+		$bank_list = $this->Bank->find('all', array('fields' => array('Bank.id', 'Bank.name'), 'order' => array('Bank.name')));
+		foreach ( $bank_list as $record ) {
+			$bank_id_findall[ $record['Bank']['id'] ] = $record['Bank']['title'];
+		}
+		$this->set('bank_id_findall', $bank_id_findall);
 	}
 
 	function detail( $collection_id ) {
 		$this->set( 'atim_menu_variables', array('Collection.id'=>$collection_id) );
 		$this->data = $this->Collection->find('first',array('conditions'=>array('Collection.id'=>$collection_id)));
+		
+		// Populate Bank dropdown from banks table
+		$bank_list = $this->Bank->find('all', array('fields' => array('Bank.id', 'Bank.name'), 'order' => array('Bank.name')));
+		foreach ( $bank_list as $record ) {
+			$bank_id_findall[ $record['Bank']['id'] ] = $record['Bank']['title'];
+		}
+		$this->set('bank_id_findall', $bank_id_findall);
 	}
 	
 	function add() {
 		$this->set( 'atim_menu', $this->Menus->get('/inventorymanagement/collections/index') );
+		
+		// Populate Bank dropdown from banks table
+		$bank_list = $this->Bank->find('all', array('fields' => array('Bank.id', 'Bank.name'), 'order' => array('Bank.name')));
+		foreach ( $bank_list as $record ) {
+			$bank_id_findall[ $record['Bank']['id'] ] = $record['Bank']['title'];
+		}
+		$this->set('bank_id_findall', $bank_id_findall);
 		
 		if ( !empty($this->data) ) {
 			if ( $this->Collection->save($this->data) ) $this->flash( 'Your data has been updated.','/inventorymanagement/collections/detail/'.$this->Collection->id );
@@ -37,6 +65,13 @@ class CollectionsController extends InventorymanagementAppController {
 	
 	function edit( $collection_id ) {
 		$this->set( 'atim_menu_variables', array('Collection.id'=>$collection_id) );
+		
+		// Populate Bank dropdown from banks table
+		$bank_list = $this->Bank->find('all', array('fields' => array('Bank.id', 'Bank.name'), 'order' => array('Bank.name')));
+		foreach ( $bank_list as $record ) {
+			$bank_id_findall[ $record['Bank']['id'] ] = $record['Bank']['title'];
+		}
+		$this->set('bank_id_findall', $bank_id_findall);
 		
 		if ( !empty($this->data) ) {
 			$this->Collection->id = $collection_id;
