@@ -2,7 +2,7 @@
 
 class AnnouncementsController extends AdministrateAppController {
 	
-	var $uses = array('Announcement');
+	var $uses = array('Administrate.Announcement');
 	var $paginate = array('Announcement'=>array('limit'=>10,'order'=>'Announcement.date_start DESC')); 
 	
 	function beforeFilter( $bank_id=0, $group_id=0, $user_id=0 ) {
@@ -18,23 +18,47 @@ class AnnouncementsController extends AdministrateAppController {
 		
 	}
 	
+	function add( $bank_id=0, $group_id=0, $user_id=0 ) {
+		$this->set( 'atim_menu_variables', array('Bank.id'=>$bank_id, 'Group.id'=>$group_id, 'User.id'=>$user_id));
+		
+		if ( !empty($this->data) ) {
+			$this->data['Announcement']['bank_id'] = $bank_id;
+			$this->data['Announcement']['group_id'] = $group_id;
+			$this->data['Announcement']['user_id'] = $user_id;
+			if ( $this->Announcement->save($this->data) ) {
+				$this->flash( 'Your data has been updated.','/administrate/announcements/detail/'.$bank_id.'/'.$group_id.'/'.$user_id.'/'.$this->Announcement->id );
+			}
+		}
+	}
+	
 	function index( $bank_id=0, $group_id=0, $user_id=0 ) {
 		$this->set( 'atim_menu_variables', array('Bank.id'=>$bank_id, 'Group.id'=>$group_id, 'User.id'=>$user_id) );
 		$this->data = $this->paginate($this->Announcement,array('Announcement.bank_id'=>$bank_id, 'Announcement.group_id'=>$group_id, 'Announcement.user_id'=>$user_id));
 	}
 	
-	function detail( $bank_id=0, $group_id=0, $user_id=0, $announcement_id=0 ) {
+	function detail( $bank_id=0, $group_id=0, $user_id=0, $announcement_id=null ) {
 		$this->set( 'atim_menu_variables', array('Bank.id'=>$bank_id, 'Group.id'=>$group_id, 'User.id'=>$user_id, 'Announcement.id'=>$announcement_id) );
 		$this->data = $this->Announcement->find('first',array('conditions'=>array('Announcement.bank_id'=>$bank_id, 'Announcement.group_id'=>$group_id, 'Announcement.user_id'=>$user_id, 'Announcement.id'=>$announcement_id)));
 	}
 	
-	function edit( $bank_id=0, $group_id=0, $user_id=0, $announcement_id=0 ) {
+	function edit( $bank_id=0, $group_id=0, $user_id=0, $announcement_id=null ) {
 		$this->set( 'atim_menu_variables', array('Bank.id'=>$bank_id, 'Group.id'=>$group_id, 'User.id'=>$user_id, 'Announcement.id'=>$announcement_id) );
 		
 		if ( !empty($this->data) ) {
-			if ( $this->Announcement->save($this->data) ) $this->flash( 'Your data has been updated.','/administrate/banks/detail/'.$bank_id );
+			$this->Announcement->id = $announcement_id;
+			if ( $this->Announcement->save($this->data) ) $this->flash( 'Your data has been updated.','/administrate/announcements/detail/'.$bank_id.'/'.$group_id.'/'.$user_id.'/'.$announcement_id.'/');
 		} else {
 			$this->data = $this->Announcement->find('first',array('conditions'=>array('Announcement.bank_id'=>$bank_id, 'Announcement.group_id'=>$group_id, 'Announcement.user_id'=>$user_id, 'Announcement.id'=>$announcement_id)));
+		}
+	}
+	
+	function delete( $bank_id=0, $group_id=0, $user_id=0, $announcement_id=null ){
+		if ( !$announcement_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		
+		if( $this->Announcement->del( $participant_id ) ) {
+			$this->flash( 'Your data has been deleted.', '/administrate/announcements/index/'.$bank_id.'/'.$group_id.'/'.$user_id.'/');
+		} else {
+			$this->flash( 'Your data has been deleted.', '/administrate/announcements/index/'.$bank_id.'/'.$group_id.'/'.$user_id.'/');
 		}
 	}
 	
