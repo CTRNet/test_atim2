@@ -11831,9 +11831,9 @@ CREATE TABLE `structure_formats` (
 --
 
 INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES 
-(1, 'AAA-000-000-000-000-10_AAA-000-000-000-000-32', 2, 'AAA-000-000-000-000-10', 56, 'AAA-000-000-000-000-32', 1, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(1, 'AAA-000-000-000-000-10_AAA-000-000-000-000-32', 2, 'AAA-000-000-000-000-10', 56, 'AAA-000-000-000-000-32', 1, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2, 'AAA-000-000-000-000-10_AAA-000-000-000-000-33', 2, 'AAA-000-000-000-000-10', 57, 'AAA-000-000-000-000-33', 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(3, 'AAA-000-000-000-000-10_AAA-000-000-000-000-60', 2, 'AAA-000-000-000-000-10', 86, 'AAA-000-000-000-000-60', 1, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(3, 'AAA-000-000-000-000-10_AAA-000-000-000-000-60', 2, 'AAA-000-000-000-000-10', 86, 'AAA-000-000-000-000-60', 1, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (4, 'AAA-000-000-000-000-10_AAA-000-000-000-000-61', 2, 'AAA-000-000-000-000-10', 87, 'AAA-000-000-000-000-61', 1, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', '', '2008-08-26 01:30:46', ''),
 (5, 'AAA-000-000-000-000-11_AAA-000-000-000-000-1', 3, 'AAA-000-000-000-000-11', 1, 'AAA-000-000-000-000-1', 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (6, 'AAA-000-000-000-000-11_AAA-000-000-000-000-2', 3, 'AAA-000-000-000-000-11', 23, 'AAA-000-000-000-000-2', 1, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -13197,7 +13197,7 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (1357, 'CAN-999-999-000-999-26_CAN-999-999-000-999-143', 110, 'CAN-999-999-000-999-26', 403, 'CAN-999-999-000-999-143', 2, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1358, 'CAN-999-999-000-999-26_CAN-999-999-000-999-145', 110, 'CAN-999-999-000-999-26', 405, 'CAN-999-999-000-999-145', 2, 12, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1359, 'CAN-999-999-000-999-26_CAN-999-999-000-999-146', 110, 'CAN-999-999-000-999-26', 406, 'CAN-999-999-000-999-146', 1, 14, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
-INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES 
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 (1360, 'CAN-999-999-000-999-26_CAN-999-999-000-999-147', 110, 'CAN-999-999-000-999-26', 407, 'CAN-999-999-000-999-147', 1, 13, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1361, 'CAN-999-999-000-999-26_CAN-999-999-000-999-148', 110, 'CAN-999-999-000-999-26', 408, 'CAN-999-999-000-999-148', 1, 7, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1362, 'CAN-999-999-000-999-26_CAN-999-999-000-999-149', 110, 'CAN-999-999-000-999-26', 409, 'CAN-999-999-000-999-149', 1, 10, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -13644,6 +13644,12 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (1801, 'QRY-999-999-000-999-3_QRY-999-999-000-999-8', 154, 'QRY-999-999-000-999-3', 854, 'QRY-999-999-000-999-8', 1, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1802, 'QRY-999-999-000-999-3_QRY-999-999-000-999-9', 154, 'QRY-999-999-000-999-3', 855, 'QRY-999-999-000-999-9', 1, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
+
+UPDATE `structure_formats` SET `flag_search` = 1 WHERE `structure_field_old_id` = 'CAN-999-999-000-999-300';
+UPDATE `structure_formats` SET `flag_search` = 1 WHERE `structure_field_old_id` = 'CAN-999-999-000-999-302';
+UPDATE `structure_formats` SET `flag_search` = 1 WHERE `structure_field_old_id` = 'CAN-999-999-000-999-304';
+UPDATE `structure_formats` SET `flag_search` = 1 WHERE `structure_field_old_id` = 'CAN-999-999-000-999-305';
+
 -- --------------------------------------------------------
 
 -- 
@@ -13668,7 +13674,7 @@ CREATE TABLE `structure_options` (
 
 -- 
 -- Dumping data for table `structure_options`
--- 
+--
 
 INSERT INTO `structure_options` (`id`, `alias`, `section`, `subsection`, `value`, `language_choice`, `display_order`, `active`, `created`, `created_by`, `modified`, `modified_by`) VALUES 
 (2, 'sex', NULL, NULL, 'm', 'male', 3, 'yes', NULL, NULL, NULL, NULL),

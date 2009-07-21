@@ -1467,6 +1467,13 @@ INSERT INTO `structure_formats` (`old_id`, `structure_id`, `structure_old_id`, `
 ('CAN-024-001-000-999-tmp_CAN-999-999-000-999-1101', 22, 'CAN-024-001-000-999-tmp', 217, 'CAN-999-999-000-999-1101', 0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('CAN-024-001-000-999-tmp_CAN-999-999-000-999-1102', 22, 'CAN-024-001-000-999-tmp', 218, 'CAN-999-999-000-999-1102', 0, 9, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
+UPDATE `structure_formats` SET `flag_search` = 1 WHERE `structure_field_old_id` = 'CAN-999-999-000-999-300';
+UPDATE `structure_formats` SET `flag_search` = 1 WHERE `structure_field_old_id` = 'CAN-999-999-000-999-302';
+UPDATE `structure_formats` SET `flag_search` = 1 WHERE `structure_field_old_id` = 'CAN-999-999-000-999-304';
+UPDATE `structure_formats` SET `flag_search` = 1 WHERE `structure_field_old_id` = 'CAN-999-999-000-999-305';
+UPDATE `structure_formats` SET `flag_search` = 1 WHERE `structure_field_old_id` = 'AAA-000-000-000-000-32';
+UPDATE `structure_formats` SET `flag_search` = 1 WHERE `structure_field_old_id` = 'AAA-000-000-000-000-60';
+
 RENAME TABLE `form_validations` TO `structure_validations`;
 
 ALTER TABLE `structure_validations`
