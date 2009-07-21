@@ -1,4 +1,16 @@
-﻿-- Create New Tables
+﻿-- Updates to global lookups (must be preformed first)
+UPDATE `global_lookups` SET display_order = 1 WHERE `id` = 26;
+UPDATE `global_lookups` SET display_order = 1 WHERE `id` = 1076;
+UPDATE `global_lookups` SET display_order = 1 WHERE `id` = 1086;
+UPDATE `global_lookups` SET display_order = 2 WHERE `id` = 27;
+UPDATE `global_lookups` SET display_order = 2 WHERE `id` = 1077;
+UPDATE `global_lookups` SET display_order = 2 WHERE `id` = 1087;
+UPDATE `global_lookups` SET display_order = 3 WHERE `id` = 28;
+UPDATE `global_lookups` SET display_order = 3 WHERE `id` = 1088;
+UPDATE `global_lookups` SET display_order = 4 WHERE `id` = 29;
+UPDATE `global_lookups` SET display_order = 4 WHERE `id` = 1089;
+
+-- Create New Tables
 
 CREATE TABLE `acos` (
   `id` int(10) NOT NULL auto_increment,
@@ -2685,23 +2697,23 @@ INSERT INTO `menus` (`id`, `parent_id`, `display_order`, `language_title`, `lang
 ('ord_CAN_101', 'core_CAN_33', 4, 'order_order management', 'order_order management', '/order/orders/index/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('ord_CAN_113', 'ord_CAN_101', 1, 'details', 'order', '/order/orders/detail/%%Order.id%%/', '', 'Order.Order::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('ord_CAN_114', 'ord_CAN_101', 2, 'order_order lines', 'order_order lines', '/order/order_lines/listall/%%Order.id%%/', '', 'Order.Order::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('ord_CAN_115', 'ord_CAN_114', 1, 'order_order line detail', 'order_order line detail', '/order/order_lines/detail/%%Order.id%%/%%OrderLine.id%%/', '', 'Order.OrderLines::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('ord_CAN_115', 'ord_CAN_114', 1, 'order_order line detail', 'order_order line detail', '/order/order_lines/detail/%%Order.id%%/%%OrderLine.id%%/', '', 'Order.OrderLine::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('ord_CAN_116', 'ord_CAN_101', 3, 'order_shipments', 'order_shipments', '/order/shipments/listall/%%Order.id%%/', '', 'Order.Order::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('ord_CAN_117', 'ord_CAN_114', 2, 'order_order items', 'order_order items', '/order/order_items/listall/%%Order.id%%/%%OrderLine.id%%/', '', 'Order.OrderLine::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('ord_CAN_118', 'ord_CAN_117', 1, 'order_order item detail', 'order_order item detail', '/order/order_items/detail/%%Order.id%%/%%OrderLine.id%%/%%OrderItem.id%%/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('ord_CAN_119', 'ord_CAN_116', 1, 'order_shipment detail', 'order_shipment detail', '/order/shipments/detail/%%Order.id%%/%%Shipment.id%%/', '', 'Order.Shipment::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('ord_CAN_120', 'ord_CAN_116', 2, 'order_shipment items', 'order_shipment items', '/order/order_items/shipment_items/%%Order.id%%/%%Shipment.id%%/', '', 'Order.Shipment::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('ord_CAN_120', 'ord_CAN_116', 2, 'order_shipment items', 'order_shipment items', '/order/order_items/shipment_items/', '', 'Order.Shipment::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('proto_CAN_37', 'core_CAN_33', 5, 'protocols', 'protocols', '/protocol/protocol_masters/listall/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('proto_CAN_82', 'proto_CAN_37', 1, 'protocol detail', 'protocol detail', '/protocol/protocol_masters/detail/%%ProtocolMaster.id%%', '', 'Protocol.ProtocolMaster::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('proto_CAN_83', 'proto_CAN_37', 2, 'protocol extend', 'protocol extend', '/protocol/protocol_extends/listall/%%ProtocolMaster.id%%', '', 'Protocol.ProtocolMaster::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('qry-CAN-1', 'MAIN_MENU_1', 4, 'query tool', 'query tool', '/datamart/adhocs/index/', '', '', '1', '0000-00-00 00:00:00', '', '2007-12-20 05:32:27', '1'),
+('qry-CAN-1', 'MAIN_MENU_1', 4, 'query tool', 'query tool', '/datamart/adhocs/index/', '', '', 'yes', '0000-00-00 00:00:00', '', '2007-12-20 05:32:27', '1'),
 ('qry-CAN-2', 'qry-CAN-1', 0, 'adhoc', 'adhoc', '/datamart/adhocs/index/', '', 'Datamart.Adhoc::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('qry-CAN-3', 'qry-CAN-1', 0, 'batch sets', 'batch sets', '/datamart/batch_sets/index/', '', 'Datamart.BatchSet::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('rtbf_CAN_01', 'core_CAN_33', 3, 'forms_menu', 'forms', '/rtbform/rtbforms/index/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('rtbf_CAN_02', 'rtbf_CAN_01', 1, 'rtbform_detail', '', '/rtbform/rtbforms/profile/%%Rtbform.id%%', '', '', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('qry-CAN-3', 'qry-CAN-1', 0, 'batch sets', 'batch sets', '/datamart/batch_sets/index/', '', 'Datamart.BatchSet::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+INSERT INTO `menus` (`id`, `parent_id`, `display_order`, `language_title`, `language_description`, `use_link`, `use_params`, `use_summary`, `active`, `created`, `created_by`, `modified`, `modified_by`) VALUES ('rtbf_CAN_01', 'core_CAN_33', 3, 'forms_menu', 'forms', '/rtbform/rtbforms/index/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('rtbf_CAN_02', 'rtbf_CAN_01', 1, 'rtbform_detail', '', '/rtbform/rtbforms/profile/%%Rtbform.id%%', '', 'Rtbform.Rtbform::summary', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('sop_CAN_01', 'core_CAN_33', 7, 'sop_standard operating procedures', '', '/sop/sop_masters/listall/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('sop_CAN_03', 'sop_CAN_01', 1, 'sop_detail', '', '/sop/sop_masters/detail/%%SopMaster.id%%/', '', '', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
-INSERT INTO `menus` (`id`, `parent_id`, `display_order`, `language_title`, `language_description`, `use_link`, `use_params`, `use_summary`, `active`, `created`, `created_by`, `modified`, `modified_by`) VALUES ('sop_CAN_04', 'sop_CAN_01', 2, 'sop_extend', '', '/sop/sop_extends/listall/%%SopMaster.id%%/', '', '', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('sop_CAN_03', 'sop_CAN_01', 1, 'sop_detail', '', '/sop/sop_masters/detail/', '', '', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('sop_CAN_04', 'sop_CAN_01', 2, 'sop_extend', '', '/sop/sop_extends/listall/', '', '', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('sto_CAN_01', 'core_CAN_33', 8, 'storage layout management', 'storage layout management', '/storagelayout/storage_masters/index/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('sto_CAN_02', 'sto_CAN_01', 1, 'storage detail', NULL, '/storagelayout/storage_masters/detail/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('sto_CAN_03', 'sto_CAN_01', 3, 'children storages', NULL, '/storagelayout/storage_masters/listChildrenStorages/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -2710,15 +2722,15 @@ INSERT INTO `menus` (`id`, `parent_id`, `display_order`, `language_title`, `lang
 ('sto_CAN_06', 'sto_CAN_01', 2, 'storage coordinates', NULL, '/storagelayout/storage_coordinates/listAll/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('sto_CAN_07', 'sto_CAN_02', 1, 'tma data', NULL, '/storagelayout/storage_masters/detail/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('sto_CAN_08', 'sto_CAN_02', 2, 'slides list', NULL, '/storagelayout/tma_slides/listAll/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('tool_CAN_100', 'core_CAN_33', 9, 'tool_study', 'tool_study', '/study/study_summaries/listall/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('tool_CAN_104', 'tool_CAN_100', 1, 'tool_summary', 'tool_summary', '/study/study_summaries/detail/%%StudySummary,id%%/', '', 'Study.StudySummary::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('tool_CAN_105', 'tool_CAN_104', 2, 'tool_contact', 'tool_contact', '/study/study_contacts/listall/%%StudySummary.id%%/', '', 'Study.StudySummary::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('tool_CAN_106', 'tool_CAN_104', 3, 'tool_investigator', 'tool_investigator', '/study/study_investigators/listall/%%StudySummary.id%%/', '', 'Study.StudySummary::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('tool_CAN_107', 'tool_CAN_104', 4, 'tool_reviews', 'tool_reviews', '/study/study_reviews/listall/%%StudySummary.id%%/', '', 'Study.StudySummary::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('tool_CAN_108', 'tool_CAN_104', 5, 'tool_ethics', 'tool_ethics', '/study/study_ethics_boards/listall/%%StudySummary.id%%/', '', 'Study.StudySummary::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('tool_CAN_109', 'tool_CAN_104', 6, 'tool_funding', 'tool_funding', '/study/study_fundings/listall/%%StudySummary.id%%/', '', 'Study.StudySummary::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('tool_CAN_110', 'tool_CAN_104', 7, 'tool_result', 'tool_result', '/study/study_results/listall/%%StudySummary.id%%/', '', 'Study.StudySummary::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('tool_CAN_112', 'tool_CAN_104', 9, 'tool_related studies', 'tool_related studies', '/study/study_related/listall/%%StudySummary%%/', '', 'Study.StudySummary::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('tool_CAN_103', 'core_CAN_33', 1, 'tool_study', 'tool_study', '/study/study_summaries/listall/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('tool_CAN_104', 'tool_CAN_103', 1, 'tool_summary', 'tool_summary', '/study/study_summaries/detail/%%StudySummary.id%%/', '', 'Study.StudySummary::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('tool_CAN_105', 'tool_CAN_103', 2, 'tool_contact', 'tool_contact', '/study/study_contacts/listall/%%StudySummary.id%%/', '', 'Study.StudySummary::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('tool_CAN_106', 'tool_CAN_103', 3, 'tool_investigator', 'tool_investigator', '/study/study_investigators/listall/%%StudySummary.id%%/', '', 'Study.StudySummary::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('tool_CAN_107', 'tool_CAN_103', 4, 'tool_reviews', 'tool_reviews', '/study/study_reviews/listall/%%StudySummary.id%%/', '', 'Study.StudySummary::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('tool_CAN_108', 'tool_CAN_103', 5, 'tool_ethics', 'tool_ethics', '/study/study_ethics_boards/listall/%%StudySummary.id%%/', '', 'Study.StudySummary::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('tool_CAN_109', 'tool_CAN_103', 6, 'tool_funding', 'tool_funding', '/study/study_fundings/listall/%%StudySummary.id%%/', '', 'Study.StudySummary::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('tool_CAN_110', 'tool_CAN_103', 7, 'tool_result', 'tool_result', '/study/study_results/listall/%%StudySummary.id%%/', '', 'Study.StudySummary::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('tool_CAN_112', 'tool_CAN_103', 9, 'tool_related studies', 'tool_related studies', '/study/study_related/listall/%%StudySummary.id%%/', '', 'Study.StudySummary::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('tool_CAN_38', 'core_CAN_33', 101, 'pricing', 'pricing', '/under_development/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('tool_CAN_43', 'core_CAN_33', 102, 'provider', 'provider', '/under_development/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('tool_CAN_48', 'core_CAN_33', 100, 'collection kit', 'collection kit', '/under_development/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
