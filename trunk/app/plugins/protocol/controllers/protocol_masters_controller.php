@@ -7,6 +7,7 @@ class ProtocolMastersController extends ProtocolAppController {
 	
 	function index() {
 		$_SESSION['ctrapp_core']['search'] = NULL; // clear SEARCH criteria
+		$this->set('protocol_controls', $this->ProtocolControl->find('all'));	
 	}
 	
 	function search() {

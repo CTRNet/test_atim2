@@ -3,7 +3,8 @@
 		'top'=>NULL,
 		'index'=>'/drug/drugs/detail/%%Drug.id%%/',
 		'bottom'=>array(
-			'add'=>'/drug/drugs/add/'
+			'add'=>'/drug/drugs/add/',
+			'search'=>'/drug/drugs/index/'
 		)
 	);
 	
