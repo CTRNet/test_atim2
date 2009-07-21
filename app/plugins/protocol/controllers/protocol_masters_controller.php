@@ -5,6 +5,20 @@ class ProtocolMastersController extends ProtocolAppController {
 	var $uses = array('Protocol.ProtocolControl', 'Protocol.ProtocolMaster');
 	var $paginate = array('ProtocolMaster'=>array('limit'=>10,'order'=>'ProtocolMaster.name DESC'));
 	
+	function index() {
+		$_SESSION['ctrapp_core']['search'] = NULL; // clear SEARCH criteria
+	}
+	
+	function search() {
+		if ( $this->data ) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions();
+		
+		$this->data = $this->paginate($this->Protocol, $_SESSION['ctrapp_core']['search']['criteria']);
+		
+		// if SEARCH form data, save number of RESULTS and URL
+		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['Protocol']['count'];
+		$_SESSION['ctrapp_core']['search']['url'] = '/protocol/protocol_masters/search';
+	}
+	
 	function listall() {
 		
 		$this->data = $this->paginate($this->ProtocolMaster, array());

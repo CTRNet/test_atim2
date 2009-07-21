@@ -1474,8 +1474,8 @@ ALTER TABLE `structure_validations`
 	CHANGE `expression` `rule` TEXT default NULL,
 	CHANGE `message` `language_message` TEXT default NULL,
 	ADD COLUMN `structure_field_id` INT(11) NOT NULL AFTER `old_id`,
-	ADD `flag_empty` SET('0','1') default '0' AFTER `rule`,
-	ADD `flag_required` SET('0','1') default '0' AFTER `flag_empty`,
+	ADD `flag_empty` SET('0','1') default '1' AFTER `rule`,
+	ADD `flag_required` SET('0','1') default '1' AFTER `flag_empty`,
 	ADD `on_action` VARCHAR(255) default NULL AFTER `flag_required`;
 
 RENAME TABLE `forms` TO `structures`;
@@ -2403,15 +2403,6 @@ INSERT INTO `structure_options` (`id`, `alias`, `section`, `subsection`, `value`
 (11865, 'aliquot_type', NULL, NULL, 'slide', 'slide', 3, 'yes', NULL, NULL, NULL, NULL),
 (11866, 'aliquot_type', NULL, NULL, 'core', 'core', 4, 'yes', NULL, NULL, NULL, NULL);
 
-ALTER TABLE `menus` ADD COLUMN `use_summary` VARCHAR(255) collate utf8_unicode_ci default NULL AFTER `use_param`;
-UPDATE `menus` SET use_summary = 'Clinicalannotation.Participant::summary' WHERE id = 'clin_CAN_6';
-UPDATE `menus` SET use_summary = 'Bank::summary' WHERE id = 'clin_CAN_74' OR id = 'clin_CAN_86' OR id = 'clin_CAN_96';
-UPDATE `menus` SET use_summary = 'Structure::summary' WHERE id = 'clin_CAN_75' OR id = 'clin_CAN_76';
-UPDATE `menus` SET use_summary = 'Group::summary' WHERE id = 'clin_CAN_87' OR id = 'clin_CAN_88' OR id = 'clin_CAN_89'
-  OR id = 'clin_CAN_98';
-UPDATE `menus` SET use_summary = 'User::summary' WHERE id = 'clin_CAN_90' OR id = 'clin_CAN_91' OR id = 'clin_CAN_94'
-  OR id = 'clin_CAN_95' OR id = 'clin_CAN_99';
-
 CREATE TABLE `structure_permissible_values` (
   `id` int(11) NOT NULL auto_increment,
   `value` varchar(255) collate utf8_unicode_ci NOT NULL,
@@ -2536,7 +2527,7 @@ INSERT INTO `menus` (`id`, `parent_id`, `display_order`, `language_title`, `lang
 ('core_CAN_97', 'core_CAN_42', 1, 'core_announcements', 'core_announcements', '/customize/announcements/index/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('core_CAN_98', 'core_CAN_86', 1, 'core_announcements', 'core_announcements', '/administrate/announcements/index/', '', 'Group::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('core_CAN_99', 'core_CAN_89', 5, 'core_messages', 'core_messages', '/administrate/announcements/index/', '', 'User::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('drug_CAN_96', 'core_CAN_33', 2, 'drug administration', 'drug administration', '/drug/drugs/listall/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('drug_CAN_96', 'core_CAN_33', 2, 'drug administration', 'drug administration', '/drug/drugs/index/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('drug_CAN_97', 'drug_CAN_96', 1, 'details', 'details', '/drug/drugs/detail/', '', 'Drug.Drug::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('inv_CAN_00', 'MAIN_MENU_1', 3, 'inventory management', 'inventory management', '/inventorymanagement/collections/index/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('inv_CAN_10', 'inv_CAN_00', 2, 'collection samples', 'collection samples', '/inventorymanagement/sample_masters/tree/%%Collection.id%%', '', 'Inventorymanagement.Collection::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -2703,7 +2694,7 @@ INSERT INTO `menus` (`id`, `parent_id`, `display_order`, `language_title`, `lang
 ('ord_CAN_118', 'ord_CAN_117', 1, 'order_order item detail', 'order_order item detail', '/order/order_items/detail/%%Order.id%%/%%OrderLine.id%%/%%OrderItem.id%%/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('ord_CAN_119', 'ord_CAN_116', 1, 'order_shipment detail', 'order_shipment detail', '/order/shipments/detail/%%Order.id%%/%%Shipment.id%%/', '', 'Order.Shipment::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('ord_CAN_120', 'ord_CAN_116', 2, 'order_shipment items', 'order_shipment items', '/order/order_items/shipment_items/', '', 'Order.Shipment::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('proto_CAN_37', 'core_CAN_33', 5, 'protocols', 'protocols', '/protocol/protocol_masters/listall/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('proto_CAN_37', 'core_CAN_33', 5, 'protocols', 'protocols', '/protocol/protocol_masters/index/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('proto_CAN_82', 'proto_CAN_37', 1, 'protocol detail', 'protocol detail', '/protocol/protocol_masters/detail/%%ProtocolMaster.id%%', '', 'Protocol.ProtocolMaster::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('proto_CAN_83', 'proto_CAN_37', 2, 'protocol extend', 'protocol extend', '/protocol/protocol_extends/listall/%%ProtocolMaster.id%%', '', 'Protocol.ProtocolMaster::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('qry-CAN-1', 'MAIN_MENU_1', 4, 'query tool', 'query tool', '/datamart/adhocs/index/', '', '', 'yes', '0000-00-00 00:00:00', '', '2007-12-20 05:32:27', '1'),
