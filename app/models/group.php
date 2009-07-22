@@ -31,5 +31,28 @@ class Group extends AppModel {
 		return $return;
 	}
 
+	function bindToPermissions(){
+		$this->bindModel(array('hasOne' => array(
+			'Aro' => array(
+				'className' => 'Aro',
+				'foreignKey' => 'foreign_key',
+				'conditions' => 'Aro.model="Group"'
+			)
+		)));
+		
+		$this->Aro->unbindModel(
+			array('hasAndBelongsToMany' => array('Aco'))
+		);
+		
+		$this->Aro->bindModel(
+			array('hasMany' => array(
+				'Permission' => array(
+					'className' => 'Permission',
+					'foreign_key'	=>'aco_id'
+					)
+				)
+			)
+		);
+	}
 }
 ?>

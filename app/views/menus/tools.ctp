@@ -6,7 +6,7 @@
 	if ( count($menu_data) ) {
 		
 		$atim_content['menu'] .= '
-				<ul>
+				<ul id="big_menu_tools" class="big_menu">
 		';
 		
 			$count = 0;
