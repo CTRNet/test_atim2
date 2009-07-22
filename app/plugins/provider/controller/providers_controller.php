@@ -1,6 +1,6 @@
 <?php
 
-class ProvidersController extend ProviderAppController
+class ProvidersController extends ProviderAppController
 {
 	var $uses = array( 'Provider.Provider' );
 	var $paginate = array('Provider' => array('limit' => 10, 'order'=>'Provider.name DESC'));
