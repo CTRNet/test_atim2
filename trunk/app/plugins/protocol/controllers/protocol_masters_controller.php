@@ -15,6 +15,8 @@ class ProtocolMastersController extends ProtocolAppController {
 		
 		$this->data = $this->paginate($this->Protocol, $_SESSION['ctrapp_core']['search']['criteria']);
 		
+		$this->set('protocol_controls', $this->ProtocolControl->find('all'));	
+		
 		// if SEARCH form data, save number of RESULTS and URL
 		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['Protocol']['count'];
 		$_SESSION['ctrapp_core']['search']['url'] = '/protocol/protocol_masters/search';
