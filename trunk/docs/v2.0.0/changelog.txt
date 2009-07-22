@@ -12,6 +12,10 @@ Module - Core
 * ENHANCEMENT (Eventum #230) - Global lookups replaced with value domains to enable re-use of lookup values
 * ENHANCEMENT (Eventum #151) - Audit trail now possible for all edit/added records
 * BUG (Eventum #127) - Allow sorting of any field on the index view
+* ENHANCEMENT (Eventum #280) - Previous search results are now availabe through the action bar from any view.
+* ENHANCEMENT (Eventum #126) - Added calendar tool for all date fields.
+* ENHANCEMENT (Eventum #127) - Now able to sort index view by any field by clicking on the fieldname heading
+* ENHANCEMENT (Eventum #580) - Filter button for master/detail index view to allow filtering based on the record type
 
 
 ============================================================================================================
@@ -20,6 +24,10 @@ Module - Clinical Annotation
 with Query Tool
 
 
-
-
+============================================================================================================
+Module - Provider, Drug, Protocol
+* ENHANCEMENT (Eventum #120) - New module added to allow management of providers in use by banks. Providers may be 
+be non-human entities such as treatment centres and clinics.
+* ENHANCEMENT (Eventum #110) - Added search form to Protocol module
+* ENHANCEMENT (Eventum #110) - Added search form to Drug module
 
