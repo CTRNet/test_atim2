@@ -103,7 +103,7 @@ class StructuresHelper extends Helper {
 		
 			// display table...
 			$return_string .= '
-				<table class="structure detail" cellspacing="0">
+				<table class="structure" cellspacing="0">
 				<tbody>
 					<tr>
 			';
@@ -117,76 +117,102 @@ class StructuresHelper extends Helper {
 					
 					$count_columns++;
 					
-					$return_string .= '
-						<td class="this_column_'.$count_columns.' total_columns_'.count($table_index).'"> 
-						
-							<table class="detail" cellspacing="0">
-							<tbody>
-					';
-					
-					// each row in column 
-					$table_row_count = 0;
-					foreach ( $table_column as $table_row_key=>$table_row ) {
-						
-						/*
-						// display heading row, if any...
-						if ( $table_row['heading'] ) {
-							$return_string .= '
-								<tr>
-									<td class="heading no_border" colspan="'.( $this->othAuth->user('help_visible')=='yes' ? '3' : '2' ).'">
-										<h4>'.$table_row['heading'].'</h4>
-									</td>
-								</tr>
-							';
-						}
-						*/
-						
-						// display heading row, if any...
-						if ( $table_row['heading'] ) {
-							$return_string .= '
-								<tr>
-									<td class="heading" colspan="3">
-										<h4>'.$table_row['heading'].'</h4>
-									</td>
-								</tr>
-							';
-						}
+					// for each FORM/DETAIL element...
+					if ( is_array($table_column) ) {
 						
 						$return_string .= '
-								<tr>
-									<td class="label'.( !$table_row_count && !$table_row['heading'] ? ' no_border' : '' ).'">
-										'.$table_row['label'].'
-									</td>
-									<td class="content'.( $table_row['empty'] ? ' empty' : '' ).( !$table_row_count && !$table_row['heading'] ? ' no_border' : '' ).'">
-										'.( $options['links']['top'] ? $table_row['input'] : $table_row['content'] ).'
-									</td>
-						';
-						
-						// if 	( $this->othAuth->user('help_visible')=='yes' ) {
-						if ( 1==1 ) {
-							$return_string .= '
-									<td class="help'.( !$table_row_count && !$table_row['heading'] ? ' no_border' : '' ).'">
-										'.$table_row['help'].'
-									</td>
-							';
-						}
-						
-						$return_string .= '
-								</tr>
-						';
-						
-						
-						$table_row_count++;
-						
-					} // end ROW 
-					
-					$return_string .= '
-							</tbody>
-							</table>
+							<td class="this_column_'.$count_columns.' total_columns_'.count($table_index).'"> 
 							
-						</td>
-					';
+								<table class="columns detail" cellspacing="0">
+								<tbody>
+						';
 					
+						// each row in column 
+						$table_row_count = 0;
+						foreach ( $table_column as $table_row_key=>$table_row ) {
+							
+							/*
+							// display heading row, if any...
+							if ( $table_row['heading'] ) {
+								$return_string .= '
+									<tr>
+										<td class="heading no_border" colspan="'.( $this->othAuth->user('help_visible')=='yes' ? '3' : '2' ).'">
+											<h4>'.$table_row['heading'].'</h4>
+										</td>
+									</tr>
+								';
+							}
+							*/
+							
+							// display heading row, if any...
+							if ( $table_row['heading'] ) {
+								$return_string .= '
+									<tr>
+										<td class="heading" colspan="3">
+											<h4>'.$table_row['heading'].'</h4>
+										</td>
+									</tr>
+								';
+							}
+							
+							$return_string .= '
+									<tr>
+										<td class="label'.( !$table_row_count && !$table_row['heading'] ? ' no_border' : '' ).'">
+											'.$table_row['label'].'
+										</td>
+										<td class="content'.( $table_row['empty'] ? ' empty' : '' ).( !$table_row_count && !$table_row['heading'] ? ' no_border' : '' ).'">
+											'.( $options['links']['top'] ? $table_row['input'] : $table_row['content'] ).'
+										</td>
+							';
+							
+							// if 	( $this->othAuth->user('help_visible')=='yes' ) {
+							if ( 1==1 ) {
+								$return_string .= '
+										<td class="help'.( !$table_row_count && !$table_row['heading'] ? ' no_border' : '' ).'">
+											'.$table_row['help'].'
+										</td>
+								';
+							}
+							
+							$return_string .= '
+									</tr>
+							';
+							
+							
+							$table_row_count++;
+							
+						} // end ROW 
+						
+						$return_string .= '
+								</tbody>
+								</table>
+								
+							</td>
+						';
+						
+					}
+					
+					// otherwise display EXTRAs...
+					else {
+						
+						$return_string .= '
+							<td class="this_column_'.$count_columns.' total_columns_'.count($table_index).'"> 
+							
+								<table class="columns extra" cellspacing="0">
+								<tbody>
+									<tr>
+										<td>
+											'.$table_column.'
+										</td>
+									</tr>
+								</tbody>
+								</table>
+								
+							</td>
+						';
+						
+					}
+						
 				} // end COLUMN 
 				
 				// tack on EXTRAS end, if any
@@ -221,92 +247,150 @@ class StructuresHelper extends Helper {
 		
 		$return_string = '';
 		
-		$this->Paginator->options(array('url' => $this->params['pass']));
-		
-			$table_index = array();
+		// display table...
+		$return_string .= '
+			<table class="structure" cellspacing="0">
+			<tbody>
+				<tr>
+		';
 			
-			if ( count($options['data']) ) { $data=$options['data']; }
-			else { $data=$this->data; }
+			$this->Paginator->options(array('url' => $this->params['pass']));
 			
-			foreach ( $data as $key=>$val ) {
-				$options['stack']['key'] = $key;
-				$table_index[$key] = $this->build_stack( $atim_structure, $options );
-				unset($options['stack']);
-			}
-			
-			// start table...
-			$return_string .= '
-				<table class="structure index" cellspacing="0">
-				<tbody>
-			';
-			
-			// header row
-			$return_string .= $this->display_header( $table_index, $options );
-			
-			$column_count = 0;
-			if ( count($data) ) {
-			
-				// each column in table 
+				if ( count($options['data']) ) { $data=$options['data']; }
+				else { $data=$this->data; }
+				
+				$table_index = array();
 				foreach ( $data as $key=>$val ) {
+					$options['stack']['key'] = $key;
+					$table_index[$key] = $this->build_stack( $atim_structure, $options );
+					unset($options['stack']);
+				}
+				
+				$structure_count = 0;
+				$structure_index = array( 1 => $table_index ); 
+				
+				// add EXTRAS, if any
+				$structure_index = $this->display_extras( $structure_index, $options );
+				
+				foreach ( $structure_index as $table_index ) {				
 					
-					$return_string .= '
-						<tr>
-					';
-						
-					$column_count = 0;
-					if ( count($options['links']['index']) ) {
-						$return_string .= '
-							<td class="id">'.$this->generate_links_list(  $data[$key], $options, 'index' ).'</td>
+					$structure_count++;
+					
+					// for each FORM/DETAIL element...
+					if ( is_array($table_index) ) {
+					
+						echo '
+							
 						';
 						
-						$column_count = 1;
-					}
-					
-					// each column/row in table 
-					foreach ( $table_index[$key] as $table_column ) {
-						foreach ( $table_column as $table_row ) {
-							$return_string .= '
-								<td>'.( $options['links']['top'] ? $table_row['input'] : $table_row['content'] ).'</td>
-							';
+						// start table...
+						$return_string .= '
+							<td class="this_column_'.$structure_count.' total_columns_'.count($structure_index).'">
+								
+								<table class="columns index" cellspacing="0">
+								<tbody>
+						';
+						
+						// header row
+						$return_string .= $this->display_header( $table_index, $options );
+						
+						$column_count = 0;
+						if ( count($data) ) {
+						
+							// each column in table 
+							foreach ( $data as $key=>$val ) {
+								
+								$return_string .= '
+									<tr>
+								';
+									
+								$column_count = 0;
+								if ( count($options['links']['index']) ) {
+									$return_string .= '
+										<td class="id">'.$this->generate_links_list(  $data[$key], $options, 'index' ).'</td>
+									';
+									
+									$column_count = 1;
+								}
+								
+								// each column/row in table 
+								foreach ( $table_index[$key] as $table_column ) {
+									foreach ( $table_column as $table_row ) {
+										$return_string .= '
+											<td>'.( $options['links']['top'] ? $table_row['input'] : $table_row['content'] ).'</td>
+										';
+										
+										$column_count++;
+									}
+								}
+								
+								$return_string .= '
+									</tr>
+								';
+								
+							} // end FOREACH
 							
-							$column_count++;
 						}
+						
+						// display something nice for NO ROWS msg...
+						else {
+							$return_string .= '
+									<tr>
+											<td class="no_data_available"'.( $column_count ? ' colspan="'.$column_count.'"' : '' ).'>'.__( 'core_no_data_available', true ).'</td>
+									</tr>
+							';
+						}
+						
+						if ( $options['settings']['pagination'] ) {
+							$return_string .= '
+									<tr class="pagination">
+										<th'.( $column_count ? ' colspan="'.$column_count.'"' : '' ).'>
+											'.$this->Paginator->prev( __( 'Prev',true ), NULL, __( 'Prev',true ) ).'
+											'.$this->Paginator->counter( array('format' => '%start%-%end% of %count%') ).'
+											'.$this->Paginator->next( __( 'Next',true ), NULL, __( 'Next',true ) ).'
+										</th>
+									</tr>
+							';
+						}
+						
+						$return_string .= '
+								</tbody>
+								</table>
+								
+							</td>
+						';
+						
 					}
 					
-					$return_string .= '
-						</tr>
-					';
+					// otherwise display EXTRAs...
+					else {
+						
+						$return_string .= '
+							<td class="this_column_'.$structure_count.' total_columns_'.count($structure_index).'"> 
+							
+								<table class="columns extra" cellspacing="0">
+								<tbody>
+									<tr>
+										<td>
+											'.$table_index.'
+										</td>
+									</tr>
+								</tbody>
+								</table>
+								
+							</td>
+						';
+						
+					}
 					
 				} // end FOREACH
 				
-			}
-			
-			// display something nice for NO ROWS msg...
-			else {
-				$return_string .= '
-						<tr>
-								<td class="no_data_available"'.( $column_count ? ' colspan="'.$column_count.'"' : '' ).'>'.__( 'core_no_data_available', true ).'</td>
-						</tr>
-				';
-			}
-			
-			if ( $options['settings']['pagination'] ) {
-				$return_string .= '
-						<tr class="pagination">
-							<th'.( $column_count ? ' colspan="'.$column_count.'"' : '' ).'>
-								'.$this->Paginator->prev( __( 'Prev',true ), NULL, __( 'Prev',true ) ).'
-								'.$this->Paginator->counter( array('format' => '%start%-%end% of %count%') ).'
-								'.$this->Paginator->next( __( 'Next',true ), NULL, __( 'Next',true ) ).'
-							</th>
-						</tr>
-				';
-			}
-			
-			$return_string .= '
-				</tbody>
-				</table>
-			';  
-			
+		$return_string .= '
+				</tr>
+			</tbody>
+			</table>
+		'; 
+				
 		return $return_string;
 		
 	}
@@ -319,42 +403,101 @@ class StructuresHelper extends Helper {
 		
 		$return_string = '';
 		
-			// start table...
-			$return_string .= '
-				<table class="structure tree" cellspacing="0">
-				<tbody>
-			';
+		// display table...
+		$return_string .= '
+			<table class="structure" cellspacing="0">
+			<tbody>
+				<tr>
+		';
+		
+		$structure_count = 0;
+		$structure_index = array( 1 => array() ); 
+		
+		// add EXTRAS, if any
+		$structure_index = $this->display_extras( $structure_index, $options );
+		
+		foreach ( $structure_index as $table_index ) {
 			
-			if ( count($this->data) ) {
-				
-				// start root level of UL tree, and call NODE function
+			$structure_count++;
+			
+			// for each FORM/DETAIL element...
+			if ( is_array($table_index) ) {
+			
 				$return_string .= '
-					<tr><td>
-						<ul id="tree_root">
+					<td class="this_column_'.$structure_count.' total_columns_'.count($structure_index).'">
 				';
 				
-				$return_string .= $this->build_tree_node( $atim_structure, $options, $this->data );
-				
+					// start table...
+					$return_string .= '
+						<table class="columns tree" cellspacing="0">
+						<tbody>
+					';
+					
+					if ( count($this->data) ) {
+						
+						// start root level of UL tree, and call NODE function
+						$return_string .= '
+							<tr><td>
+								<ul id="tree_root">
+						';
+						
+						$return_string .= $this->build_tree_node( $atim_structure, $options, $this->data );
+						
+						$return_string .= '
+								</ul>
+							</td></tr>
+						';
+						
+					}
+					
+					// display something nice for NO ROWS msg...
+					else {
+						$return_string .= '
+								<tr>
+										<td class="no_data_available" colspan="1">'.__( 'core_no_data_available', true ).'</td>
+								</tr>
+						';
+					}
+					
+					$return_string .= '
+						</tbody>
+						</table>
+					';
+					
 				$return_string .= '
-						</ul>
-					</td></tr>
+					</td>
 				';
-				
+						
 			}
 			
-			// display something nice for NO ROWS msg...
+			// otherwise display EXTRAs...
 			else {
+				
 				$return_string .= '
-						<tr>
-								<td class="no_data_available" colspan="1">'.__( 'core_no_data_available', true ).'</td>
-						</tr>
+					<td class="this_column_'.$structure_count.' total_columns_'.count($structure_index).'"> 
+					
+						<table class="columns extra" cellspacing="0">
+						<tbody>
+							<tr>
+								<td>
+									'.$table_index.'
+								</td>
+							</tr>
+						</tbody>
+						</table>
+						
+					</td>
 				';
+				
 			}
 			
-			$return_string .= '
-				</tbody>
-				</table>
-			';  
+		} // end FOREACH
+				
+		$return_string .= '
+				</tr>
+			</tbody>
+			</table>
+		';   
 			
 		return $return_string;
 		
@@ -524,33 +667,23 @@ class StructuresHelper extends Helper {
 
 	
 	// FUNCTION 
-	function display_extras( $options ) {
-		
-		$return_string = '';
-		
-		/*
-		if ( $extras[ $key ] ) {
-			
-			$return_string .= '
-				<tr>
-						<td'.( $colspan>1 ? ' colspan="'.$colspan.'"' : '' ).'>
-					
-						<table class="'.$options['type'].'" cellspacing="0">
-						<tbody>
-							
-							'.$extras[ $key ].'
-							
-						</tbody>
-						</table>
-						
-					</td>
-				</tr>
-			';
-			
+	function display_extras( $return_array=array(), $options ) {
+	
+		if ( count($options['extras']) ) {
+			foreach ( $options['extras'] as $key=>$val ) {
+				
+				while ( isset($return_array[$key]) ) {
+					$key = $key+1;
+				}
+				
+				$return_array[ $key ] = $val;
+				
+			}
 		}
-		*/
 		
-		return $return_string;
+		ksort($return_array);
+		
+		return $return_array;
 		
 	}
 	
@@ -679,9 +812,9 @@ class StructuresHelper extends Helper {
 						// include jTip link or no-help type indicator
 							if ( $field['flag_override_help'] && $field['language_help'] ) $field['StructureField']['language_help'] = $field['language_help'];
 							if (  $field['StructureField']['language_help'] ) {
-								$table_index[ $field['display_column'] ][ $row_count ]['help'] = '<span class="help">?<div>'.__($field['StructureField']['language_help'],true).'</div></span> ';
+								$table_index[ $field['display_column'] ][ $row_count ]['help'] = '<span class="help">&nbsp;<div>'.__($field['StructureField']['language_help'],true).'</div></span> ';
 							} else {
-								$table_index[ $field['display_column'] ][ $row_count ]['help'] = '<span class="help error">?</span>';
+								$table_index[ $field['display_column'] ][ $row_count ]['help'] = '<span class="help error">&nbsp;</span>';
 							}
 						
 					}
@@ -1155,7 +1288,7 @@ class StructuresHelper extends Helper {
 							if ( is_array($options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]) ) {
 								$field['StructureField']['options_list'] = $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']];
 							
-							// if is STRING, assume it's a TABLE/ELEMENT that completely overrides FORM HELPER build (like a provided CHECKLIST FORM )...
+							// if is STRING, assume it's a table/ELEMENT that completely overrides FORM HELPER build (like a provided CHECKLIST FORM )...
 							} else if ( trim($options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]) ) {
 								$display_value .=  $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']];
 								$provided_element = true; // set flag to skip render below...
@@ -1209,7 +1342,7 @@ class StructuresHelper extends Helper {
 							if ( is_array($options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]) ) {
 								$field['StructureField']['options_list'] = $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']];
 							
-							// if is STRING, assume it's a TABLE/ELEMENT that completely overrides FORM HELPER build (like a provided CHECKLIST FORM )...
+							// if is STRING, assume it's a table/ELEMENT that completely overrides FORM HELPER build (like a provided CHECKLIST FORM )...
 							} else if ( trim($options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]) ) {
 								$display_value .=  $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']];
 								$provided_element = true; // set flag to skip render below...
@@ -1432,7 +1565,12 @@ class StructuresHelper extends Helper {
 			
 		} // end FOREACH 
 		
-		ksort($table_index);
+		// add EXTRAS, if any (except for TREE/INDEX, handled differently)
+			
+			if ( $options['type']!='index' && $options['type']!='tree' ) {
+				$table_index = $this->display_extras( $table_index, $options );
+			}
+			
 		return $table_index;
 		
 	} // end FUNCTION build_form_stack()
@@ -1448,7 +1586,7 @@ class StructuresHelper extends Helper {
 			
 			// display table...
 			$return_string .= '
-				<table class="structure content" cellspacing="0">
+				<table class="structure" cellspacing="0">
 				<tbody>
 					<tr>
 			';
@@ -1461,7 +1599,17 @@ class StructuresHelper extends Helper {
 					
 					$return_string .= '
 						<td class="this_column_'.$count_columns.' total_columns_'.count($atim_content).'"> 
-							'.$content.'
+							
+							<table class="columns content" cellspacing="0">
+							<tbody>
+								<tr>
+									<td>
+										'.$content.'
+									</td>
+								</tr>
+							</tbody>
+							</table>
+								
 						</td>
 					';
 					
@@ -1525,6 +1673,130 @@ class StructuresHelper extends Helper {
 					$display_class_name = '';
 					
 					// CODE TO SET CLASS(ES) BASED ON URL GOES HERE!
+						
+						// determine TYPE of link, for styling and icon
+							$display_class_name = '';
+							$display_class_array = array();
+							
+							$display_class_array = str_replace('_', ' ', $link_name);
+							$display_class_array = str_replace('-', ' ', $display_class_array);
+							$display_class_array = str_replace('  ', ' ', $display_class_array);
+							$display_class_array = explode( ' ', trim($display_class_array) );
+							$display_class_array[0] = strtolower($display_class_array[0]);
+							
+								if ( isset($display_class_array[1]) ) { $display_class_array[1] = strtolower($display_class_array[1]); }
+								else { $display_class_array[1] = 'core'; }
+							
+							// folder (open)
+							if ( $display_class_array[0]=='index' )			$display_class_name = 'list';
+							if ( $display_class_array[0]=='table' )			$display_class_name = 'list';
+							if ( $display_class_array[0]=='list' )				$display_class_name = 'list';
+							if ( $display_class_array[0]=='listall' )			$display_class_name = 'list';
+							if ( $display_class_array[0]=='editgrid' )		$display_class_name = 'list';
+							if ( $display_class_array[0]=='datagrid' )		$display_class_name = 'list';
+							if ( $display_class_array[0]=='grid' )				$display_class_name = 'list';
+							
+							// preview
+							if ( $display_class_array[0]=='search' )			$display_class_name = 'search';
+							if ( $display_class_array[0]=='look' )				$display_class_name = 'search';
+							
+							// add
+							if ( $display_class_array[0]=='add' )				$display_class_name = 'add';
+							if ( $display_class_array[0]=='new' )				$display_class_name = 'add';
+							if ( $display_class_array[0]=='create' )			$display_class_name = 'add';
+							
+							// edit
+							if ( $display_class_array[0]=='edit' )				$display_class_name = 'edit';
+							if ( $display_class_array[0]=='change' )			$display_class_name = 'edit';
+							if ( $display_class_array[0]=='update' )			$display_class_name = 'edit';
+							
+							// document
+							if ( $display_class_array[0]=='detail' )			$display_class_name = 'detail';
+							if ( $display_class_array[0]=='profile' )			$display_class_name = 'detail';
+							if ( $display_class_array[0]=='view' )				$display_class_name = 'detail';
+							if ( $display_class_array[0]=='see' )				$display_class_name = 'detail';
+							
+							// close
+							if ( $display_class_array[0]=='delete' )			$display_class_name = 'delete';
+							if ( $display_class_array[0]=='remove' )			$display_class_name = 'delete';
+							
+							// control (rewind)
+							if ( $display_class_array[0]=='cancel' )			$display_class_name = 'cancel';
+							if ( $display_class_array[0]=='back' )				$display_class_name = 'cancel';
+							if ( $display_class_array[0]=='return' )			$display_class_name = 'cancel';
+							
+							// documents (x3)
+							if ( $display_class_array[0]=='duplicate' )		$display_class_name = 'duplicate';
+							if ( $display_class_array[0]=='copy' )				$display_class_name = 'duplicate';
+							if ( $display_class_array[0]=='return' )			$display_class_name = 'duplicate';
+							
+							// refresh
+							if ( $display_class_array[0]=='undo' )				$display_class_name = 'redo';
+							if ( $display_class_array[0]=='redo' )				$display_class_name = 'redo';
+							if ( $display_class_array[0]=='switch' )			$display_class_name = 'redo';
+							
+							// shopping cart
+							if ( $display_class_array[0]=='order' )			$display_class_name = 'order';
+							if ( $display_class_array[0]=='shop' )				$display_class_name = 'order';
+							if ( $display_class_array[0]=='ship' )				$display_class_name = 'order';
+							if ( $display_class_array[0]=='buy' )				$display_class_name = 'order';
+							if ( $display_class_array[0]=='cart' )				$display_class_name = 'order';
+							
+							// flag (green)
+							if ( $display_class_array[0]=='favourite' )		$display_class_name = 'thumbsup';
+							if ( $display_class_array[0]=='mark' )				$display_class_name = 'thumbsup';
+							if ( $display_class_array[0]=='label' )			$display_class_name = 'thumbsup';
+							if ( $display_class_array[0]=='thumbsup' )		$display_class_name = 'thumbsup';
+							if ( $display_class_array[0]=='thumbup' )			$display_class_name = 'thumbsup';
+							if ( $display_class_array[0]=='approve' )			$display_class_name = 'thumbsup';
+							
+							// flag (black)
+							if ( $display_class_array[0]=='unfavourite' )	$display_class_name = 'thumbsdown';
+							if ( $display_class_array[0]=='unmark' )			$display_class_name = 'thumbsdown';
+							if ( $display_class_array[0]=='unlabel' )			$display_class_name = 'thumbsdown';
+							if ( $display_class_array[0]=='thumbsdown' )		$display_class_name = 'thumbsdown';
+							if ( $display_class_array[0]=='thumbdown' )		$display_class_name = 'thumbsdown';
+							if ( $display_class_array[0]=='unapprove' )		$display_class_name = 'thumbsdown';
+							if ( $display_class_array[0]=='disapprove' )		$display_class_name = 'thumbsdown';
+							
+							/*
+							if ( $display_class_array[0]=='plugin' ) {
+								$display_class_name = ( $display_class_array[1]=='clinicalannotation' ? 'clinicalannotation' : $display_class_name );
+								$display_class_name = ( $display_class_array[1]=='inventorymanagement' ? 'inventorymanagement' : $display_class_name );
+								$display_class_name = ( $display_class_array[1]=='querytools' ? 'querytools' : $display_class_name );
+								$display_class_name = ( $display_class_array[1]=='toolsmenu' ? 'toolsmenu' : $display_class_name );
+								
+								$display_class_name = ( $display_class_array[1]=='drugadministration' ? 'drugadministration' : $display_class_name );
+								$display_class_name = ( $display_class_array[1]=='formsmanagement' ? 'formsmanagement' : $display_class_name );
+								$display_class_name = ( $display_class_array[1]=='storagelayout' ? 'storagelayout' : $display_class_name );
+								$display_class_name = ( $display_class_array[1]=='ordermanagement' ? 'ordermanagement' : $display_class_name );
+								$display_class_name = ( $display_class_array[1]=='protocolmanagement' ? 'protocolmanagement' : $display_class_name );
+								$display_class_name = ( $display_class_array[1]=='studymanagement' ? 'studymanagement' : $display_class_name );
+								
+								$display_class_name = ( $display_class_array[1]=='administration' ? 'administration' : $display_class_name );
+								$display_class_name = ( $display_class_array[1]=='customize' ? 'customize' : $display_class_name );
+								
+								$display_class_name = ( !$display_class_array[1] ? 'detail' : $display_class_name );
+							}
+							*/
+							
+							// paste
+							if ( $display_class_array[0]=='summary' )			$display_class_name = 'summary';
+							if ( $display_class_array[0]=='summarize' )		$display_class_name = 'summary';
+							if ( $display_class_array[0]=='brief' )			$display_class_name = 'summary';
+							if ( $display_class_array[0]=='abbrev' )			$display_class_name = 'summary';
+							
+							// tag
+							if ( $display_class_array[0]=='filter' )			$display_class_name = 'filter';
+							if ( $display_class_array[0]=='restrict' )		$display_class_name = 'filter';
+							
+							// document (blank)
+							$display_class_name = $display_class_name ?		$display_class_name : 'default';
+						
+						$htmlAttributes = array(
+							'class'	=>	'form '.$display_class_name,
+							'title'	=>	strip_tags( __($link_name, true) )
+						);
 					
 					$htmlAttributes = array(
 						'class'	=>	'form '.$display_class_name,
@@ -1544,26 +1816,26 @@ class StructuresHelper extends Helper {
 					$return_urls[]		= $this->Html->url( $link_location );
 					
 					// check AJAX variable, and set link to be AJAX link if exists
-					if ( isset($options['links']['ajax'][$state][$link_name]) && $options['links']['ajax'][$state][$link_name] ) {
-						$link_results[$link_label]	= $this->Ajax->link(
-							 __($link_label, true), 
-							 $link_location, 
-							 array( 
-							 	'update'=>$options['links']['ajax'][$state][$link_name] 
-							 ) 
-						);
-					}
+						if ( isset($options['links']['ajax'][$state][$link_name]) && $options['links']['ajax'][$state][$link_name] ) {
+							$link_results[$link_label]	= $this->Ajax->link(
+								 __($link_label, true), 
+								 $link_location, 
+								 array( 
+								 	'update'=>$options['links']['ajax'][$state][$link_name] 
+								 ) 
+							);
+						}
 					
 					//otherwise, make a normal link
-					else {
-						$link_results[$link_label]	= $this->Html->link( 
-							__($link_label, true), 
-							$link_location, 
-							$htmlAttributes, 
-							$confirmation_msg, 
-							false 
-						);
-					}
+						else {
+							$link_results[$link_label]	= $this->Html->link( 
+								__($link_label, true), 
+								$link_location, 
+								$htmlAttributes, 
+								$confirmation_msg, 
+								false 
+							);
+						}
 					
 				}
 				
@@ -1584,7 +1856,7 @@ class StructuresHelper extends Helper {
 				$links_append = '
 					<ul class="filter">
 						<li>
-							<span><a href="javascript:return false;">'.$link_name.'</a></span>
+							<a class="form popup" href="javascript:return false;">'.$link_name.'</a>
 							
 							<ul>
 				';
@@ -1746,12 +2018,16 @@ class StructuresHelper extends Helper {
 			';
 			
 			// display SEARCH RESULTS, if any
-			if ( isset($_SESSION['ctrapp_core']['search']) && is_array($_SESSION['ctrapp_core']['search']) ) {
-				$return_string .= '
-						<a class="search_results" href="'.$this->Html->url($_SESSION['ctrapp_core']['search']['url']).'">
-							'.$_SESSION['ctrapp_core']['search']['results'].'
-						</a>
-				';
+			if ( isset($_SESSION) && isset($_SESSION['Auth']) && isset($_SESSION['Auth']['User']) && count($_SESSION['Auth']['User']) ) {
+				if ( isset($_SESSION['ctrapp_core']['search']) && is_array($_SESSION['ctrapp_core']['search']) ) {
+					$return_string .= '
+							<a class="search_results" href="'.$this->Html->url($_SESSION['ctrapp_core']['search']['url']).'">
+								'.$_SESSION['ctrapp_core']['search']['results'].'
+							</a>
+					';
+				}
+			} else {
+				unset($_SESSION['ctrapp_core']);
 			}
 			
 			if ( count($return_links) ) {
@@ -1792,17 +2068,19 @@ class StructuresHelper extends Helper {
 		
 		if ( is_array($data) ) {
 			foreach ( $data as $model=>$fields ) {
-				foreach ( $fields as $field=>$value ) {
-					
-					// avoid ONETOMANY or HASANDBELONGSOTMANY relationahips 
-					if ( !is_array($value) ) {
+				if ( is_array($fields) ) {
+					foreach ( $fields as $field=>$value ) {
 						
-						// find text in LINK href in format of %%MODEL.FIELD%% and replace with that MODEL.FIELD value...
-						$link = str_replace( '%%'.$model.'.'.$field.'%%', $value, $link );
-						$link = str_replace( '@@'.$model.'.'.$field.'@@', $value, $link );
-	
-					} // end !IS_ARRAY 
-					
+						// avoid ONETOMANY or HASANDBELONGSOTMANY relationahips 
+						if ( !is_array($value) ) {
+							
+							// find text in LINK href in format of %%MODEL.FIELD%% and replace with that MODEL.FIELD value...
+							$link = str_replace( '%%'.$model.'.'.$field.'%%', $value, $link );
+							$link = str_replace( '@@'.$model.'.'.$field.'@@', $value, $link );
+		
+						} // end !IS_ARRAY 
+						
+					}
 				}
 			} // end FOREACH
 		}

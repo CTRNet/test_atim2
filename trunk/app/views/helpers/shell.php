@@ -6,24 +6,25 @@ class ShellHelper extends Helper {
 	
 	function header( $options=array() ) {
 		
-		$menu_array			= $this->menu( $options['atim_menu'], array('variables'=>$options['atim_menu_variables']) );
+		$menu_array					= $this->menu( $options['atim_menu'], array('variables'=>$options['atim_menu_variables']) );
 		
-		$menu_for_wrapper	= $menu_array[0];
+		$menu_for_wrapper			= $menu_array[0];
 		
-		$user_for_header	= '';
-		$menu_for_header	= '';
+		$user_for_header			= '';
+		$root_menu_for_header	= '';
+		$main_menu_for_header	= '';
 		
 		if ( isset($_SESSION) && isset($_SESSION['Auth']) && isset($_SESSION['Auth']['User']) && count($_SESSION['Auth']['User']) ) {
 			
-			// set HEADER menu links
+			// set HEADER root menu links
 				
-				if ( count($menu_array[1]) ) {
+				if ( isset($menu_array[1]) && count($menu_array[1]) ) {
 					
-					$menu_for_header .= '<ul id="menu_for_header">';
+					$root_menu_for_header .= '<ul id="root_menu_for_header" class="header_menu">';
 					
 					foreach ( $menu_array[1] as $key=>$menu_item ) {
 						
-						$menu_for_header .= '
+						$root_menu_for_header .= '
 									<!-- '.$menu_item['Menu']['id'].' -->
 									<li class="'.( !$menu_item['Menu']['allowed'] ? 'not_allowed ' : '' ).( $menu_item['Menu']['at'] ? 'at ' : '' ).'count_'.$key.'">
 										'.( $menu_item['Menu']['allowed'] ? $this->Html->link( __($menu_item['Menu']['language_title'], true), $menu_item['Menu']['use_link'] ) : __($menu_item['Menu']['language_title'], true) ).'
@@ -32,28 +33,50 @@ class ShellHelper extends Helper {
 						
 					}
 					
-					$menu_for_header .= '</ul>';
+					$root_menu_for_header .= '</ul>';
+					
+				}
+				
+			// set HEADER main menu links
+				
+				if ( isset($menu_array[2]) && count($menu_array[2]) ) {
+					
+					$root_menu_for_header .= '<ul id="main_menu_for_header" class="header_menu">';
+					
+					foreach ( $menu_array[2] as $key=>$menu_item ) {
+						
+						$root_menu_for_header .= '
+									<!-- '.$menu_item['Menu']['id'].' -->
+									<li class="'.( !$menu_item['Menu']['allowed'] ? 'not_allowed ' : '' ).( $menu_item['Menu']['at'] ? 'at ' : '' ).'count_'.$key.'">
+										'.( $menu_item['Menu']['allowed'] ? $this->Html->link( __($menu_item['Menu']['language_title'], true), $menu_item['Menu']['use_link'] ) : __($menu_item['Menu']['language_title'], true) ).'
+									</li>
+						';
+						
+					}
+					
+					$root_menu_for_header .= '</ul>';
 					
 				}
 				
 			// set HEADER logged in user
 				
+				/*
 				$user_for_header .= '
 					<p id="user_for_header">
 						<span>Logged in as:</span>
 						'.$_SESSION['Auth']['User']['name'].'
 					</p>
 				';
+				*/
 			
 		}
-		
-		// pr($_SESSION);
 		
 		echo '
 			<!-- start #header -->
 			<div id="header">
 				<h1>'.__('core_appname', true).'</h1>
-				'.$menu_for_header.'
+				'.$root_menu_for_header.'
+				'.$main_menu_for_header.'
 			</div>
 			<!-- end #header -->
 			
@@ -95,7 +118,8 @@ class ShellHelper extends Helper {
 		$this->pageTitle = 'aaa';
 		
 		$return_html = '';
-		$base_menu_array = array();
+		$root_menu_array = array();
+		$main_menu_array = array();
 		
 		if ( count($atim_menu) ) {
 			
@@ -107,74 +131,78 @@ class ShellHelper extends Helper {
 					<ul>
 			';
 			
-				$count = 0;
-				foreach ( $atim_menu as $menu ) {
-					$return_html .= '
-						<li class="at count_'.$count.'">
-					';
+				if ( isset($_SESSION) && isset($_SESSION['Auth']) && isset($_SESSION['Auth']['User']) && count($_SESSION['Auth']['User']) ) {
 					
-					$active_item = '';
-					$summary_item = '';
-					$append_menu = '';
-					
-					// save BASE array (main menu) for displa in header
-					if ( $count==(count($atim_menu)-1) ) $base_menu_array = $menu;
-					
-					$sub_count = 0;
-					foreach ( $menu as $menu_item ) {
-						
-						if ( $menu_item['Menu']['use_link'] && count($options['variables']) ) {
-							foreach ( $options['variables'] as $k=>$v ) {
-								$menu_item['Menu']['use_link'] = str_replace('%%'.$k.'%%',$v,$menu_item['Menu']['use_link']);
-							}
-						}
-						
-						if ( $menu_item['Menu']['at'] && $menu_item['Menu']['use_summary'] ) {
-							$summaries[] = $this->fetch_summary($menu_item['Menu']['use_summary'],$options,'long');
-							$menu_item['Menu']['use_summary'] = $this->fetch_summary($menu_item['Menu']['use_summary'],$options,'short');
-						}
-						
-						if ( $menu_item['Menu']['at'] ) {
-							
-							$summary_item = $menu_item['Menu']['use_summary'] ? NULL : array('class'=>'without_summary');
-							
-							if ( $menu_item['Menu']['use_summary'] ) {
-								$active_item = '
-									<span>'.$menu_item['Menu']['use_summary'].'</span>
-									<br />&nbsp;&lfloor; '.__($menu_item['Menu']['language_title'], true).'
-								';
-							}
-							
-							else {
-								$active_item = '<span class="without_summary">'.__($menu_item['Menu']['language_title'], true).'</span>';
-							}
-							
-						}
-						
-						$append_menu .= '
-									<!-- '.$menu_item['Menu']['id'].' -->
-									<li class="'.( !$menu_item['Menu']['allowed'] ? 'not_allowed ' : '' ).( $menu_item['Menu']['at'] ? 'at ' : '' ).'count_'.$sub_count.'">
-										&nbsp;&lfloor;
-										 '.( $menu_item['Menu']['allowed'] ? $this->Html->link( __($menu_item['Menu']['language_title'], true), $menu_item['Menu']['use_link'] ) : __($menu_item['Menu']['language_title'], true) ).'
-									</li>
+					$count = 0;
+					foreach ( $atim_menu as $menu ) {
+						$return_html .= '
+							<li class="at count_'.$count.'">
 						';
 						
-						$sub_count++;
+						$active_item = '';
+						$summary_item = '';
+						$append_menu = '';
+						
+						// save BASE array (main menu) for displa in header
+						if ( $count==(count($atim_menu)-1) )	$root_menu_array = $menu;
+						if ( $count==(count($atim_menu)-2) )	$main_menu_array = $menu;
+						
+						$sub_count = 0;
+						foreach ( $menu as $menu_item ) {
+							
+							if ( $menu_item['Menu']['use_link'] && count($options['variables']) ) {
+								foreach ( $options['variables'] as $k=>$v ) {
+									$menu_item['Menu']['use_link'] = str_replace('%%'.$k.'%%',$v,$menu_item['Menu']['use_link']);
+								}
+							}
+							
+							if ( $menu_item['Menu']['at'] && $menu_item['Menu']['use_summary'] ) {
+								$summaries[] = $this->fetch_summary($menu_item['Menu']['use_summary'],$options,'long');
+								$menu_item['Menu']['use_summary'] = $this->fetch_summary($menu_item['Menu']['use_summary'],$options,'short');
+							}
+							
+							if ( $menu_item['Menu']['at'] ) {
+								
+								$summary_item = $menu_item['Menu']['use_summary'] ? NULL : array('class'=>'without_summary');
+								
+								if ( $menu_item['Menu']['use_summary'] ) {
+									$active_item = '
+										<span>'.$menu_item['Menu']['use_summary'].'</span>
+										<br />&nbsp;&lfloor; '.__($menu_item['Menu']['language_title'], true).'
+									';
+								}
+								
+								else {
+									$active_item = '<span class="without_summary">'.__($menu_item['Menu']['language_title'], true).'</span>';
+								}
+								
+							}
+							
+							$append_menu .= '
+										<!-- '.$menu_item['Menu']['id'].' -->
+										<li class="'.( !$menu_item['Menu']['allowed'] ? 'not_allowed ' : '' ).( $menu_item['Menu']['at'] ? 'at ' : '' ).'count_'.$sub_count.'">
+											&nbsp;&lfloor;
+											 '.( $menu_item['Menu']['allowed'] ? $this->Html->link( __($menu_item['Menu']['language_title'], true), $menu_item['Menu']['use_link'] ) : __($menu_item['Menu']['language_title'], true) ).'
+										</li>
+							';
+							
+							$sub_count++;
+						}
+						
+						$return_html .= '
+								'.$active_item.'
+								
+								<div class="menu level_1">
+									<ul>
+										'.$append_menu.'
+									</ul>
+								</div>
+								
+							</li>
+						';
+						
+						$count++;
 					}
-					
-					$return_html .= '
-							'.$active_item.'
-							
-							<div class="menu level_1">
-								<ul>
-									'.$append_menu.'
-								</ul>
-							</div>
-							
-						</li>
-					';
-					
-					$count++;
 				}
 				
 			$return_html .= '
@@ -225,7 +253,7 @@ class ShellHelper extends Helper {
 			';
 		}
 		
-		$return_array = array( $return_html, $base_menu_array );
+		$return_array = array( $return_html, $root_menu_array, $main_menu_array );
 		return $return_array;
 		
 	}

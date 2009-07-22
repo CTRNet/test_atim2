@@ -95,12 +95,12 @@ class StructuresComponent extends Object {
 				
 				// for RANGE values, which should be searched over with a RANGE...
 				if ( $value['StructureField']['type']=='number' || $value['StructureField']['type']=='date' || $value['StructureField']['type']=='datetime' ) {
-					// $form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'].'_start' ]['plugin']	= $value['StructureField']['plugin'];
+					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'].'_start' ]['plugin']	= $value['StructureField']['plugin'];
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'].'_start' ]['model']		= $value['StructureField']['model'];
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'].'_start' ]['field']		= $value['StructureField']['field'];
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'].'_start' ]['key']			= $value['StructureField']['model'].'.'.$value['StructureField']['field'].' >=';
 					
-					// $form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'].'_end' ]['plugin']		= $value['StructureField']['plugin'];
+					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'].'_end' ]['plugin']		= $value['StructureField']['plugin'];
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'].'_end' ]['model']			= $value['StructureField']['model'];
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'].'_end' ]['field']			= $value['StructureField']['field'];
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'].'_end' ]['key']				= $value['StructureField']['model'].'.'.$value['StructureField']['field'].' <=';
@@ -108,7 +108,7 @@ class StructuresComponent extends Object {
 				
 				// for SELECT pulldowns, where an EXACT match is required...
 				else if ( $value['StructureField']['type']=='select' ) {
-					// $form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'] ]['plugin']	= $value['StructureField']['plugin'];
+					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'] ]['plugin']	= $value['StructureField']['plugin'];
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'] ]['model']	= $value['StructureField']['model'];
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'] ]['field']	= $value['StructureField']['field'];
 					
@@ -117,7 +117,7 @@ class StructuresComponent extends Object {
 				
 				// all other types, a generic SQL fragment...
 				else {
-					// $form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'] ]['plugin']	= $value['StructureField']['plugin'];
+					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'] ]['plugin']	= $value['StructureField']['plugin'];
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'] ]['model']	= $value['StructureField']['model'];
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'] ]['field']	= $value['StructureField']['field'];
 					
@@ -140,7 +140,9 @@ class StructuresComponent extends Object {
 						
 						// use Model->deconstruct method to properly build data array's date/time information from arrays
 						if ( is_array($data) ) {
-							App::import('Model', 'Clinicalannotation.'.$model);
+							
+							App::import('Model', $form_fields[$model.'.'.$key]['plugin'].'.'.$model);
+							// App::import('Model', 'Clinicalannotation.'.$model);
 							
 							$format_data_model = new $model;
 							
