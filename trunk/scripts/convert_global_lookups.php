@@ -9,7 +9,7 @@
 	$connection = @mysql_connect("localhost", "root", "1qaz1qaz") or die("MySQL connection could not be established");
 	
 	//Selects database
-	@mysql_select_db("atim") or die("ATiM database could not be found");
+	@mysql_select_db("atim2_dev") or die("ATiM database could not be found");
 	
 	$query = "SELECT f.id, f.model, f.`field`, g.alias, g.`value`, g.display_order, g.language_choice, g.active
 				FROM form_fields f, global_lookups g, form_fields_global_lookups fg
@@ -51,7 +51,7 @@
 		}
 	}
 	
-	print_r($data_array);
+	//print_r($data_array);
 	
 	$count = 0;
 	for( $i = 0; $i < count($data_array); $i++ ){
