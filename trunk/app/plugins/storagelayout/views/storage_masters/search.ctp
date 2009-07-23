@@ -1,38 +1,16 @@
-<?php 
-	$sidebars->header($lang);
-	$sidebars->cols($ctrapp_sidebar, $lang);
-	$summaries->build($ctrapp_summary, $lang); 
-	$menus->tabs($ctrapp_menu, $lang); 
-?>
-
-<?php 
-
-	$form_type = 'index';
-	
-	$form_model = $storage_listes;
-	$form_field = $ctrapp_form;	
-	$form_link = array('detail'=>'/storagelayout/storage_masters/detail/');
-	$form_lang = $lang;
-	$form_pagination = $paging;
-	
-	$form_extras = NULL;
-	$form_override = NULL;
-
-	// look for CUSTOM HOOKS, "format"
-	if (file_exists($custom_ctrapp_view_hook)) { 
-		require($custom_ctrapp_view_hook); 
+<?php
+	$add_links = array();
+	foreach ( $storage_controls as $storage_control ) {
+		$add_links[$storage_control['StorageControl']['storage_type']] = '/storagelayout/storage_masters/add/';
 	}
 	
-	$forms->build(
-		$form_type, 
-		$form_model, 
-		$form_field, 
-		$form_link, 
-		$form_lang, 
-		$form_pagination, 
-		$form_override, 
-		$form_extras); 
-		
+	$structure_links = array(
+		'index'=>array('detail'=>'/storagelayout/storage_masters/detail/%%StorageMaster.id%%'),
+		'bottom'=>array(
+			'add'=> $add_links,
+			'search'=>'/storagelayout/storage_masters/index'
+		)
+	);
+	
+	$structures->build( $atim_structure, array('type'=>'index','links'=>$structure_links) );
 ?>
-
-<?php echo $sidebars->footer($lang); ?>

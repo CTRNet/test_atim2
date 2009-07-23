@@ -2,18 +2,109 @@
 
 class StorageMastersController extends StoragelayoutAppController {
 	
-//	var $name = 'StorageMasters';
-	var $uses = array('Storagelayout.StorageMaster', 'Storagelayout.StorageControl');
+	var $uses = array(
+		'Storagelayout.StorageMaster',
+		'Storagelayout.StorageControl',
+		'Inventorymanagement.AliquotMaster',
+		'Storagelayout.TmaSlides',
+		'Storagelayout.StorageCoordinate'
+	);
 	var $paginate = array('StorageMaster'=>array('limit'=>10,'order'=>'StorageMaster.code DESC'));
 	
-	function index(){
+	function index() {
 		$_SESSION['ctrapp_core']['search'] = NULL; // clear SEARCH criteria
+		
+		// set variables to display on view
+		$this->set('storage_list', $this->getStorageList());	
 		
 		//find all storage control types
 		$this->set('storage_controls', $this->StorageControl->find('all'));
 	}
+
+	/**
+	 * This function builds an array of storage records, except those of type TMA. When
+	 * a storage master id is passed in arguments, that record plus all children records
+	 * will be deleted from the array.
+	 * 
+	 * @param $excluded_storage_master_id ID of the storage record to exclude.
+	 * 
+	 * @return Array of storage records.
+	 * [storage_master_id] => $storage_data (array())
+	 * 
+	 * @author N. Luc
+	 * @since 2007-05-22
+	 * @updated A. Suggitt on 2009-07-22
+	*/
 	
-	function search(){
+	function getStorageList($excluded_storage_master_id=null) {
+		
+		// Find control ID for all storages of type TMA. These will be excluded from the returned array
+		$arr_tma_control_ids = $this->StorageControl->find('list', array('conditions' => array('StorageControl.is_tma_block' => 'TRUE')));
+		
+		// Get all storage records excluding those of type TMA
+		$arr_storages_list_tmp = $this->StorageMaster->find('all', array('conditions' => array('NOT' => array('StorageMaster.storage_control_id' => $arr_tma_control_ids)), 'order' => array('StorageMaster.selection_label')));
+		
+		// Create a new, simplified storage array of just StorageMaster records 
+		$arr_storages_list = array();
+		foreach($arr_storages_list_tmp as $id_tmp => $storage_data) {
+			$id = $storage_data['StorageMaster']['id'];
+			$arr_storages_list[$id] = $storage_data['StorageMaster'];		
+		}
+					
+		if((!empty($arr_storages_list)) && (!empty($excluded_storage_master_id))) {
+			if(isset($arr_storages_list[$excluded_storage_master_id])) {
+				// The defined storage plus all its childrens should be deleted
+				$this->deleteChildrenFromTheList($excluded_storage_master_id, $arr_storages_list);
+				unset($arr_storages_list[$excluded_storage_master_id]);
+			}
+		}
+		
+		if(empty($arr_storages_list)) {
+			// No Storage exists in the system
+			return array();	
+		}					
+		
+		return $arr_storages_list;
+	}
+	
+	/**
+	 * Delete storage id of all direct and undirect children storages
+	 * of a storage (having id passed in argument) from a storages list.
+	 *
+	 * @param $parent_storage_id ID of the parent storage having children that should be 
+	 * deleted from the list.
+	 * @param $arr_storages_list List of storages (passed by reference) having following 
+	 * structure:
+	 *    [storage_master_id] = storage code
+	 * 
+	 * @author N. Luc
+	 * @since 2008-01-31
+	 * @updated A. Suggitt on 2009-07-22
+	 */
+	 
+	function deleteChildrenFromTheList($parent_storage_id, &$arr_storages_list){
+		
+		// Find all children storage records to be removed from the list
+		$children_storage_list = $this->StorageMaster->find('all', array('conditions'=>array('StorageMaster.id'=>$parent_storage_id)));
+		
+		foreach($children_storage_list as $id => $children_storage_master_data){
+	
+			// New children of the studied storage
+			$studied_children_storage_id = $children_storage_master_data['StorageMaster']['id'];
+
+			if((!empty($arr_storages_list)) && isset($arr_storages_list[$studied_children_storage_id])) {
+				// The defined storage plus all its childrens should be deleted
+				$this->deleteChildrenFromTheList($studied_children_storage_id, $arr_storages_list);
+				unset($arr_storages_list[$studied_children_storage_id]);
+			}				
+		}
+			
+		return;
+	} 
+			
+	function search() {
+		$this->set( 'atim_menu', $this->Menus->get('/storagelayout/storage_masters/index/') );
+		
 		if ( $this->data ) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions();
 		
 		$this->data = $this->paginate($this->StorageMaster, $_SESSION['ctrapp_core']['search']['criteria']);
@@ -26,7 +117,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		$_SESSION['ctrapp_core']['search']['url'] = '/storagelayout/storage_masters/search';
 	}
 	
-	function detail($storage_master_id){
+	function detail($storage_master_id) {
 		if ( !$storage_master_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		
 		$this->data = array();
@@ -34,70 +125,56 @@ class StorageMastersController extends StoragelayoutAppController {
 		$this->set( 'atim_menu_variables', array('StorageMaster.id'=>$storage_master_id));
 		$this->data = $this->StorageMaster->find('first',array('conditions'=>array('StorageMaster.id'=>$storage_master_id)));
 		
-		
 		$storage_control_id = $this->data['StorageMaster']['storage_control_id'];
 		$storage_control_data = $this->StorageControl->find('first', array('conditions'=>array('StorageControl.id'=>$storage_control_id)));
 		
 		$this->data['StorageControl'] = $storage_control_data['StorageControl'];
 		
 		$this->set( 'atim_structure', $this->Structures->get('form', $storage_control_data['StorageControl']['form_alias']) );
+
 	}
-	/*
-	function edit($storage_master_id) {
+
+	function edit ($storage_master_id) {
+
 		if ( !$storage_master_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		
-		$this->set( 'atim_menu_variables', array('ProtocolMaster.id'=>$protocol_master_id) );
-		$this->data = $this->StorageMaster->find('first',array('conditions'=>array('StorageMaster.id'=>$storage_master_id)));
+		$this->set( 'atim_menu_variables', array('StorageMaster.id'=>$storage_master_id));
+		$this_data = $this->StorageMaster->find('first',array('conditions'=>array('StorageMaster.id'=>$storage_master_id)));
 		
-		//Get Storage Control information
-		$storage_control_id = $this->data['StorageMaster']['storage_control_id'];
-		$this->data = $this->StorageControl->find('first', array('conditions'=>array('StorageControl.id'=>$storage_control_id)));
 		$this->set( 'atim_structure', $this->Structures->get('form',$this->data['StorageControl']['form_alias']) );
-		
 		
 		if ( !empty($this->data) ) {
 			$this->StorageMaster->id = $storage_master_id;
-			if ( $this->ProtocolMaster->save($this->data) ) {
-				$this->flash( 'Your data has been updated.','/protocol/protocol_masters/detail/'.$protocol_master_id.'/');
+			if ( $this->StorageMaster->save($this->data) ) {
+				$this->flash( 'Your data has been updated.','/storagelayout/storage_masters/detail/'.$storage_master_id.'/');
 			}
+		} else {
+			$this->data = $this_data;
 		}
-		
 	}
 	
-
-	/*
-	var $name = 'StorageMasters';
-	
-	var $uses = array('Storagelayout.StorageMaster', 'Storagelayout.StorageControl');
-	var $paginate = array('StorageMaster'=>array('limit'=>10,'order'=>'StorageMaster.code DESC'));
-	
-	function index(){
-		$_SESSION['ctrapp_core']['search'] = NULL; // clear SEARCH criteria
+	function add( $sample_control_id=null ) {
 		
-		//find all storage control types
-		$this->set('storage_controls', $this->StorageControl->find('all'));
+		$this->set( 'atim_menu_variables', array('SampleControl.id'=>$sample_control_id) );
+		$this_data = $this->SampleControl->find('first',array('conditions'=>array('SampleControl.id'=>$sample_control_id)));
+		
+		// set FORM ALIAS based off VALUE from CONTROL table
+		$this->set( 'atim_structure', $this->Structures->get('form',$this_data['SampleControl']['form_alias']) );
+		
+		if ( !empty($this->data) ) {
+			$this->data['SampleControl']['sample_control_id'] = $sample_control_id;
+			if ( $this->SampleMaster->save($this->data) ) {
+				$this->flash( 'Your data has been updated.','/samplelayout/sample_masters/detail/'.$this->SampleMaster->getLastInsertId());
+			} else {
+				$this->data = $this_data;
+			}
+		} 		
 	}
 	
-	/*
-	var $uses 
-		= array('AliquotMaster',
-			'StorageControl', 
-			'StorageCoordinate', 
-			'StorageDetail', 
-			'StorageMaster',
-			'TmaSlide');
-	
-	var $useDbConfig = 'default';
-
-	var $components = array('Summaries');
-	
-	var $helpers = array('Summaries');
-	
-	var $barcode_size_max = 30;
-	
+/*
 	/* --------------------------------------------------------------------------
 	 * CONSTANTS
-	 * -------------------------------------------------------------------------- 
+	 * --------------------------------------------------------------------------
 	
 	// List of coordinates that a storage can have.
 	var $a_storage_coordinates = array('x', 'y');
@@ -105,7 +182,7 @@ class StorageMastersController extends StoragelayoutAppController {
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS
 	 * -------------------------------------------------------------------------- 	
-	
+/*	
 	function beforeFilter() {
 			
 		// $auth_conf array hardcoded in oth_auth component, due to plugins compatibility 
@@ -2300,7 +2377,7 @@ class StorageMastersController extends StoragelayoutAppController {
 	 * @author N. Luc
 	 * @since 2008-01-31
 	 
-	funtion updateChildrenStoragePathcode($parent_storage_id, $parent_storage_selection_label){
+	function updateChildrenStoragePathcode($parent_storage_id, $parent_storage_selection_label){
 		
 		// Look for childrens of the storage
 		$criteria = 'StorageMaster.parent_id = "'.$parent_storage_id.'"';
@@ -3044,6 +3121,6 @@ class StorageMastersController extends StoragelayoutAppController {
 		return array('0' => 'n/a');
 		
 	}
-	*/
+*/
 }
 ?>

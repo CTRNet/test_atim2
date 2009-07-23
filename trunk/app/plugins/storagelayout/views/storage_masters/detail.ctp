@@ -1,12 +1,14 @@
 <?php 
-	$sidebars->header($lang);
-	$sidebars->cols($ctrapp_sidebar, $lang);
-	$summaries->build($ctrapp_summary, $lang); 
-	$menus->tabs($ctrapp_menu, $lang); 
-?>
+	$structure_links = array(
+		'bottom'=>array(
+			'edit'=>'/storagelayout/storage_masters/edit/'.$atim_menu_variables['StorageMaster.id'], 
+			'delete'=>'/storagelayout/storage_masters/delete/'.$atim_menu_variables['StorageMaster.id'], 
+			'search'=>'/storagelayout/storage_masters/index/'
+		)
+	);
 	
-<?php 
-
+	$structures->build( $atim_structure, array('links'=>$structure_links) );
+/*	
 	//----------------------------------------
 	// 1- Set Model including generated data
 	//----------------------------------------
@@ -157,8 +159,5 @@
 		echo ($html_string);
 
 	}
-	
-	
-?>  
-		
-<?php echo $sidebars->footer($lang); ?>
+*/
+?>

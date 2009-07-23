@@ -1,8 +1,6 @@
 <?php
 
-class StorageControl extends StoragelayoutAppModel
-{
-	//var $useTable = 'storage_controls';
+class StorageControl extends StoragelayoutAppModel {
 	
 }
 
