@@ -1,12 +1,13 @@
 <?php 
-	$sidebars->header($lang);
-	$sidebars->cols($ctrapp_sidebar, $lang);
-	$summaries->build($ctrapp_summary, $lang); 
-	$menus->tabs($ctrapp_menu, $lang); 
-?>
+	$structure_links = array(
+		'top'=>'/storagelayout/storage_masters/edit/'.$atim_menu_variables['StorageMaster.id'],
+		'bottom'=>array(
+			'cancel'=>'/storagelayout/storage_masters/detail/%%StorageMaster.id%%'
+		)
+	);
 	
-<?php 
-
+	$structures->build( $atim_structure, array('links'=>$structure_links) );
+/*
 	$form_type = 'edit';
 	
 	$arr_generated_data 
@@ -53,24 +54,6 @@
 		= (empty($modified_available_parent_code_from_id)?
 			array('0' => ''):
 			$modified_available_parent_code_from_id);
-		
-	$form_pagination = NULL;
-	$form_extras = NULL;
 	
-	// look for CUSTOM HOOKS, "format"
-	if (file_exists($custom_ctrapp_view_hook)) { 
-		require($custom_ctrapp_view_hook); 
-	}
-	
-	$forms->build(
-		$form_type, 
-		$form_model, 
-		$form_field, 
-		$form_link, 
-		$form_lang, 
-		$form_pagination, 
-		$form_override, 
-		$form_extras);  
+*/
 ?>
-
-<?php echo $sidebars->footer($lang); ?>

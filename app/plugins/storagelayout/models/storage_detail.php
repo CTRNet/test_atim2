@@ -1,13 +1,8 @@
 <?php
 
-class StorageDetail extends StoragelayoutAppModel
-{
-    var $name = 'StorageDetail';
-	
-	var $useTable = 'std_rooms';
-	
-	var $validate = array();
-	
+class StorageDetail extends StoragelayoutAppModel {
+
+	var $useTable = false;
 }
 
 ?>

@@ -1,8 +1,7 @@
 <?php
-class TmaSlide extends StoragelayoutAppModel
-{
+class TmaSlide extends StoragelayoutAppModel {
+
     var $name = 'TmaSlide';
-	
 	var $useTable = 'tma_slides';
 	
 	var $belongsTo 
@@ -10,9 +9,9 @@ class TmaSlide extends StoragelayoutAppModel
 			array('className'  => 'StorageMaster',
 				 'conditions' => '',
 				 'order'      => '',
-				 'foreignKey' => 'storage_master_id'));
+				 'foreignKey' => 'storage_master_id'
+				 )
+		);
 		
-	var $validate = array();
-
 }
 ?>

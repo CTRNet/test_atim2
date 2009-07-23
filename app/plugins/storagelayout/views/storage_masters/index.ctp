@@ -8,6 +8,14 @@
 		'top'=>array('search'=>'/storagelayout/storage_masters/search/'),
 		'bottom'=>array('add' => $add_links)
 	);
+
+	$translated_storage_list = array();
+	foreach($storage_list as $storage_id => $storage_data) {
+		$translated_storage_list[$storage_id]
+			= $storage_data['selection_label'].' ('.__($storage_data['storage_type'], TRUE).': '.$storage_data['code'].')';
+	}
 	
-	$structures->build( $atim_structure, array('type'=>'search','links'=>$structure_links) );
+	$structure_override = array('StorageMaster.parent_id'=>$translated_storage_list);  
+	$structures->build( $atim_structure, array('type'=>'search','links'=>$structure_links, 'override'=>$structure_override) );	
+
 ?>
