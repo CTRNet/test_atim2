@@ -20,6 +20,277 @@ class StorageMastersController extends StoragelayoutAppController {
 		//find all storage control types
 		$this->set('storage_controls', $this->StorageControl->find('all'));
 	}
+			
+	function search() {
+		$this->set( 'atim_menu', $this->Menus->get('/storagelayout/storage_masters/index/') );
+		
+		if ( $this->data ) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions();
+		
+		$this->data = $this->paginate($this->StorageMaster, $_SESSION['ctrapp_core']['search']['criteria']);
+		
+		//find all storage control types
+		$this->set('storage_controls', $this->StorageControl->find('all'));
+		
+		// if SEARCH form data, save number of RESULTS and URL
+		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['StorageMaster']['count'];
+		$_SESSION['ctrapp_core']['search']['url'] = '/storagelayout/storage_masters/search';
+	}
+	
+	function detail($storage_master_id) {
+		if ( !$storage_master_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		
+		$this->data = array();
+		$this->set( 'atim_menu_variables', array('StorageMaster.id'=>$storage_master_id));
+		
+		$storage_master_data = $this->StorageMaster->find('first',array('conditions'=>array('StorageMaster.id'=>$storage_master_id)));
+		$storage_control_id = $storage_master_data['StorageMaster']['storage_control_id'];
+		$storage_control_data = $this->StorageControl->find('first', array('conditions'=>array('StorageControl.id'=>$storage_control_id)));
+		
+		// Get the current menu object to disable Coordinates option based on storage type
+		$atim_menu = $this->Menus->get('/storagelayout/storage_masters/detail/%%StorageMaster.id%%');
+		print_r ($atim_menu);
+		
+		// Check storage for coordinates system. If not present, disable access to Coordinates menu option
+//		if(!$this->requestAction('/storagelayout/storage_coordinates/allowCustomCoordinates/'.$storage_control_id)) {
+			$atim_menu['0']['sto_CAN_06']['allowed'] = false;	
+//		}
+/*		if(empty($storage_control_data['StorageControl']['coord_x_type'])) {
+			//grey out 'storage layout' tabe
+			$atim_menu['0']['sto_CAN_05']['allowed'] = false;					
+		}	
+		if(strcmp($storage_control_data['StorageControl']['is_tma_block'], 'TRUE') == 0) {
+			$atim_menu[] = $this->Menus->tabs( 'sto_CAN_02', 'sto_CAN_07', $storage_master_id );
+		}
+	*/	
+		$this->set( 'atim_menu', $atim_menu );
+		
+		$this->data['StorageControl'] = $storage_control_data['StorageControl'];
+		
+		$this->set( 'atim_structure', $this->Structures->get('form', $storage_control_data['StorageControl']['form_alias']) );
+
+	}
+/*	
+	function detail($storage_master_id=null) {
+				
+		// get the storage control data of the storage
+		$storage_control_id = $storage_master_data['StorageMaster']['storage_control_id'];
+		$this->StorageControl->id = $storage_control_id;
+		$storage_control_data = $this->StorageControl->read();
+				
+		// ** set MENU variable for echo on VIEW ** 
+		$ctrapp_menu[] = $this->Menus->tabs( 'sto_CAN_01', 'sto_CAN_02', $storage_master_id );
+		
+		if(!$this->requestAction('/storagelayout/storage_coordinates/allowCustomCoordinates/'.$storage_control_id)) {
+			//grey out 'Coordinates' tab
+			 $ctrapp_menu['0']['sto_CAN_06']['allowed'] = false;	
+		}
+		if(empty($storage_control_data['StorageControl']['coord_x_type'])) {
+			//grey out 'storage layout' tabe
+			 $ctrapp_menu['0']['sto_CAN_05']['allowed'] = false;					
+		}	
+		if(strcmp($storage_control_data['StorageControl']['is_tma_block'], 'TRUE') == 0) {
+			$ctrapp_menu[] = $this->Menus->tabs( 'sto_CAN_02', 'sto_CAN_07', $storage_master_id );
+		}
+		
+		$this->set( 'ctrapp_menu', $ctrapp_menu );
+				
+		// ** Create Storage Detail Form **
+		
+		// 1- get FORM alias, from STORAGE CONTROL ** 					
+		$this->set('ctrapp_form', 
+			$this->Forms->getFormArray( $storage_control_data['StorageControl']['form_alias'] ));
+			
+		// 2- set data to display on view
+		$this->setStorageCoordinateValues($storage_control_data);
+		
+		$parent_storage_id = $storage_master_data['StorageMaster']['parent_id'];
+		$parent_storage_data = NULL;
+		$parent_code_from_id = array($parent_storage_id => '');
+		if(!empty($parent_storage_id)){
+			// Search parent data
+			$conditions = 'StorageMaster.id = '.$parent_storage_id;		
+			$parent_storage_data = $this->StorageMaster->find($conditions);
+			
+			if(empty($parent_storage_data)){
+				$this->redirect('/pages/err_sto_no_stor_data'); 
+				exit;
+			}					
+			
+			$parent_code_from_id 
+				= array($parent_storage_id 
+					=> $parent_storage_data['StorageMaster']['code']);
+
+			$this->set('parent_id', $parent_storage_id);			
+		}
+		$this->set('parent_code_from_id', $parent_code_from_id);
+
+		$a_storage_path = $this->getStoragePath($parent_storage_id);
+		$this->set('storage_path', $a_storage_path[$parent_storage_id]);
+		
+		if(strcmp($storage_control_data['StorageControl']['is_tma_block'], 'TRUE') == 0) {	
+			$this->set('arr_tma_sop_title_from_id', 
+				$this->getTmaSopsArray());
+		}	
+		
+		// 3- Set storage data					
+		if(is_null($storage_control_data['StorageControl']['detail_tablename'])){
+			// No detail required for this storage
+			$this->StorageDetail = NULL;
+			$this->set('data', $storage_master_data); 
+		} else {
+			// Details are required for this storage
+			
+			// start new instance of STORAGE DETAIL model, using TABLENAME from STORAGE CONTROL 
+			$this->StorageDetail = 
+				new StorageDetail(false, $storage_control_data['StorageControl']['detail_tablename']);
+			
+			// read related STORAGE DETAIL row, whose ID should be same as STORAGE MASTER ID 
+			$this->StorageDetail->id = $storage_master_id;
+			$storage_detail_data = $this->StorageDetail->read();
+				
+			if(empty($storage_detail_data)){
+				$this->redirect('/pages/err_sto_missing_stor_data'); 
+				exit;
+			}					
+			
+			// merge both datasets into a SINGLE dataset, set for VIEW 
+			$this->set('data', array_merge( $storage_master_data, $storage_detail_data)); 
+		}
+			
+		// 4- Verify storage can be deleted
+		 $bool_allow_deletion = TRUE;
+		 
+		 if(!$this->allowStorageDeletion($storage_master_id)){
+			 $bool_allow_deletion = FALSE;	 	
+		 }
+		 
+		$this->set('bool_allow_deletion', $bool_allow_deletion);
+		
+		// ** Create From to display Storage position **	
+		
+		$parent_storage_master_data = null;
+		$parent_storage_control_data = null;
+		
+		$bool_define_position = FALSE;
+
+		// Verify the storage can be positionned
+		if(!empty($parent_storage_data)){
+			// A parent storage has been defined
+			
+			// Read control type data of the parent storage
+			$parent_storage_control_id 
+				= $parent_storage_data['StorageMaster']['storage_control_id'];
+			
+			$criteria = "StorageControl.id = ". $parent_storage_control_id;
+			$parent_storage_control_data = $this->StorageControl->find($criteria);
+					
+			if(empty($parent_storage_control_data)) {
+				$this->redirect('/pages/err_sto_no_stor_cont_data'); 
+				exit;
+			}
+		
+			if(!is_null($parent_storage_control_data['StorageControl']['form_alias_for_children_pos'])){
+				// A storage position into the parent storage can be defined for the storage
+				$bool_define_position = TRUE;
+
+				// set FORM alias				
+				$this->set('ctrapp_form_position', 
+					$this->Forms->getFormArray(
+						$parent_storage_control_data['StorageControl']['form_alias_for_children_pos']));
+				
+				// set data to display on view
+				if(!empty($parent_storage_control_data['StorageControl']['coord_x_title'])) {
+					$this->set('parent_coord_x_title', $parent_storage_control_data['StorageControl']['coord_x_title']);
+				}
+				if(!empty($parent_storage_control_data['StorageControl']['coord_y_title'])) {
+					$this->set('parent_coord_y_title', $parent_storage_control_data['StorageControl']['coord_y_title']);
+				}
+		
+				// Build predefined list of positions
+				$a_coord_x_liste = $this->buildAllowedStoragePosition($parent_storage_id, $parent_storage_control_data, 'x');
+				$a_coord_y_liste = $this->buildAllowedStoragePosition($parent_storage_id, $parent_storage_control_data, 'y');
+				if(!empty($a_coord_x_liste)){
+					$this->set('a_coord_x_liste', $a_coord_x_liste);
+				}
+				if(!empty($a_coord_y_liste)){
+					$this->set('a_coord_y_liste', $a_coord_y_liste);
+				}			
+				
+			}
+		}	
+		
+		$this->set('bool_define_position', $bool_define_position);
+		
+		// ** Create Storage Types list to create children storage
+		
+		if(strcmp($storage_control_data['StorageControl']['is_tma_block'], 'TRUE') == 0) {
+			// No children can be created for a TMA
+			$this->set('untranslated_storage_types', array());
+		} else {
+			// Findall storage_type defined as 'active'
+			$conditions = 'StorageControl.status=\'active\'';
+			$order = 'StorageControl.storage_type ASC';
+			
+			$untranslated_storage_types =
+				$this->StorageControl->generateList(
+					$conditions, 
+					$order, 
+					null, 
+					'{n}.StorageControl.id', 
+					'{n}.StorageControl.storage_type');
+													
+			$this->set('untranslated_storage_types', $untranslated_storage_types);
+		}
+		$this->set('storage_master_id', $storage_master_id);
+		
+		// ** look for CUSTOM HOOKS, "format" **
+		$custom_ctrapp_controller_hook 
+			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
+			'controllers' . DS . 'hooks' . DS . 
+			$this->params['controller'].'_'.$this->params['action'].'_format.php';
+			
+		if (file_exists($custom_ctrapp_controller_hook)) {
+			require($custom_ctrapp_controller_hook);
+		}
+		 
+	}	// function detail
+*/	
+	function edit ($storage_master_id) {
+
+		if ( !$storage_master_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		
+		$this->set( 'atim_menu_variables', array('StorageMaster.id'=>$storage_master_id));
+		$this_data = $this->StorageMaster->find('first',array('conditions'=>array('StorageMaster.id'=>$storage_master_id)));
+		
+		$this->set( 'atim_structure', $this->Structures->get('form',$this->data['StorageControl']['form_alias']) );
+		
+		if ( !empty($this->data) ) {
+			$this->StorageMaster->id = $storage_master_id;
+			if ( $this->StorageMaster->save($this->data) ) {
+				$this->flash( 'Your data has been updated.','/storagelayout/storage_masters/detail/'.$storage_master_id.'/');
+			}
+		} else {
+			$this->data = $this_data;
+		}
+	}
+	
+	function add( $sample_control_id=null ) {
+		
+		$this->set( 'atim_menu_variables', array('SampleControl.id'=>$sample_control_id) );
+		$this_data = $this->SampleControl->find('first',array('conditions'=>array('SampleControl.id'=>$sample_control_id)));
+		
+		// set FORM ALIAS based off VALUE from CONTROL table
+		$this->set( 'atim_structure', $this->Structures->get('form',$this_data['SampleControl']['form_alias']) );
+		
+		if ( !empty($this->data) ) {
+			$this->data['SampleControl']['sample_control_id'] = $sample_control_id;
+			if ( $this->SampleMaster->save($this->data) ) {
+				$this->flash( 'Your data has been updated.','/samplelayout/sample_masters/detail/'.$this->SampleMaster->getLastInsertId());
+			} else {
+				$this->data = $this_data;
+			}
+		} 		
+	}
 
 	/**
 	 * This function builds an array of storage records, except those of type TMA. When
@@ -43,7 +314,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		
 		// Get all storage records excluding those of type TMA
 		$arr_storages_list_tmp = $this->StorageMaster->find('all', array('conditions' => array('NOT' => array('StorageMaster.storage_control_id' => $arr_tma_control_ids)), 'order' => array('StorageMaster.selection_label')));
-		
+
 		// Create a new, simplified storage array of just StorageMaster records 
 		$arr_storages_list = array();
 		foreach($arr_storages_list_tmp as $id_tmp => $storage_data) {
@@ -82,13 +353,11 @@ class StorageMastersController extends StoragelayoutAppController {
 	 * @updated A. Suggitt on 2009-07-22
 	 */
 	 
-	function deleteChildrenFromTheList($parent_storage_id, &$arr_storages_list){
-		
+	function deleteChildrenFromTheList($parent_storage_id, &$arr_storages_list) {
 		// Find all children storage records to be removed from the list
-		$children_storage_list = $this->StorageMaster->find('all', array('conditions'=>array('StorageMaster.id'=>$parent_storage_id)));
-		
-		foreach($children_storage_list as $id => $children_storage_master_data){
-	
+		$children_storage_list = $this->StorageMaster->find('all', array('conditions'=>array('StorageMaster.parent_id'=>$parent_storage_id)));
+
+		foreach($children_storage_list as $id => $children_storage_master_data) {
 			// New children of the studied storage
 			$studied_children_storage_id = $children_storage_master_data['StorageMaster']['id'];
 
@@ -98,78 +367,8 @@ class StorageMastersController extends StoragelayoutAppController {
 				unset($arr_storages_list[$studied_children_storage_id]);
 			}				
 		}
-			
 		return;
 	} 
-			
-	function search() {
-		$this->set( 'atim_menu', $this->Menus->get('/storagelayout/storage_masters/index/') );
-		
-		if ( $this->data ) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions();
-		
-		$this->data = $this->paginate($this->StorageMaster, $_SESSION['ctrapp_core']['search']['criteria']);
-		
-		//find all storage control types
-		$this->set('storage_controls', $this->StorageControl->find('all'));
-		
-		// if SEARCH form data, save number of RESULTS and URL
-		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['StorageMaster']['count'];
-		$_SESSION['ctrapp_core']['search']['url'] = '/storagelayout/storage_masters/search';
-	}
-	
-	function detail($storage_master_id) {
-		if ( !$storage_master_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		
-		$this->data = array();
-		
-		$this->set( 'atim_menu_variables', array('StorageMaster.id'=>$storage_master_id));
-		$this->data = $this->StorageMaster->find('first',array('conditions'=>array('StorageMaster.id'=>$storage_master_id)));
-		
-		$storage_control_id = $this->data['StorageMaster']['storage_control_id'];
-		$storage_control_data = $this->StorageControl->find('first', array('conditions'=>array('StorageControl.id'=>$storage_control_id)));
-		
-		$this->data['StorageControl'] = $storage_control_data['StorageControl'];
-		
-		$this->set( 'atim_structure', $this->Structures->get('form', $storage_control_data['StorageControl']['form_alias']) );
-
-	}
-
-	function edit ($storage_master_id) {
-
-		if ( !$storage_master_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		
-		$this->set( 'atim_menu_variables', array('StorageMaster.id'=>$storage_master_id));
-		$this_data = $this->StorageMaster->find('first',array('conditions'=>array('StorageMaster.id'=>$storage_master_id)));
-		
-		$this->set( 'atim_structure', $this->Structures->get('form',$this->data['StorageControl']['form_alias']) );
-		
-		if ( !empty($this->data) ) {
-			$this->StorageMaster->id = $storage_master_id;
-			if ( $this->StorageMaster->save($this->data) ) {
-				$this->flash( 'Your data has been updated.','/storagelayout/storage_masters/detail/'.$storage_master_id.'/');
-			}
-		} else {
-			$this->data = $this_data;
-		}
-	}
-	
-	function add( $sample_control_id=null ) {
-		
-		$this->set( 'atim_menu_variables', array('SampleControl.id'=>$sample_control_id) );
-		$this_data = $this->SampleControl->find('first',array('conditions'=>array('SampleControl.id'=>$sample_control_id)));
-		
-		// set FORM ALIAS based off VALUE from CONTROL table
-		$this->set( 'atim_structure', $this->Structures->get('form',$this_data['SampleControl']['form_alias']) );
-		
-		if ( !empty($this->data) ) {
-			$this->data['SampleControl']['sample_control_id'] = $sample_control_id;
-			if ( $this->SampleMaster->save($this->data) ) {
-				$this->flash( 'Your data has been updated.','/samplelayout/sample_masters/detail/'.$this->SampleMaster->getLastInsertId());
-			} else {
-				$this->data = $this_data;
-			}
-		} 		
-	}
 	
 /*
 	/* --------------------------------------------------------------------------
@@ -1173,222 +1372,7 @@ class StorageMastersController extends StoragelayoutAppController {
 	 * @author N. Luc
 	 * @since 2007-05-22
 	 
-	function detail($storage_master_id=null) {
-		
-		// ** Parameters check **
-		if(empty($storage_master_id)){
-			$this->redirect('/pages/err_sto_no_stor_id'); 
-			exit;
-		}
-		
-		// ** set SUMMARY variable from plugin's COMPONENTS **
-		$this->set( 'ctrapp_summary', $this->Summaries->build($storage_master_id));
-				
-		// ** set SIDEBAR variable ** 
-		// use PLUGIN_CONTROLLER_ACTION by default, but any ALIAS string 
-		// that matches in the SIDEBARS datatable will do...
-		$this->set('ctrapp_sidebar', 
-			$this->Sidebars->getColsArray( 
-				$this->params['plugin'].'_'.
-				$this->params['controller'].'_'.
-				$this->params['action']));
-			
-		// ** Get Storage Data **			
-		$this->StorageMaster->id = $storage_master_id;
-		$storage_master_data = $this->StorageMaster->read();
-		
-		if(empty($storage_master_data)){
-			$this->redirect('/pages/err_sto_no_stor_data'); 
-			exit;
-		}					
-			
-		// get the storage control data of the storage
-		$storage_control_id = $storage_master_data['StorageMaster']['storage_control_id'];
-		$this->StorageControl->id = $storage_control_id;
-		$storage_control_data = $this->StorageControl->read();
-		
-		if(empty($storage_control_data)){
-			$this->redirect('/pages/err_sto_no_stor_cont_data'); 
-			exit;
-		}					
-			
-		// ** set MENU variable for echo on VIEW ** 
-		$ctrapp_menu[] = $this->Menus->tabs( 'sto_CAN_01', 'sto_CAN_02', $storage_master_id );
-		
-		if(!$this->requestAction('/storagelayout/storage_coordinates/allowCustomCoordinates/'.$storage_control_id)) {
-			//grey out 'Coordinates' tab
-			 $ctrapp_menu['0']['sto_CAN_06']['allowed'] = false;	
-		}
-		if(empty($storage_control_data['StorageControl']['coord_x_type'])) {
-			//grey out 'storage layout' tabe
-			 $ctrapp_menu['0']['sto_CAN_05']['allowed'] = false;					
-		}	
-		if(strcmp($storage_control_data['StorageControl']['is_tma_block'], 'TRUE') == 0) {
-			$ctrapp_menu[] = $this->Menus->tabs( 'sto_CAN_02', 'sto_CAN_07', $storage_master_id );
-		}
-		
-		$this->set( 'ctrapp_menu', $ctrapp_menu );
-				
-		// ** Create Storage Detail Form **
-		
-		// 1- get FORM alias, from STORAGE CONTROL ** 					
-		$this->set('ctrapp_form', 
-			$this->Forms->getFormArray( $storage_control_data['StorageControl']['form_alias'] ));
-			
-		// 2- set data to display on view
-		$this->setStorageCoordinateValues($storage_control_data);
-		
-		$parent_storage_id = $storage_master_data['StorageMaster']['parent_id'];
-		$parent_storage_data = NULL;
-		$parent_code_from_id = array($parent_storage_id => '');
-		if(!empty($parent_storage_id)){
-			// Search parent data
-			$conditions = 'StorageMaster.id = '.$parent_storage_id;		
-			$parent_storage_data = $this->StorageMaster->find($conditions);
-			
-			if(empty($parent_storage_data)){
-				$this->redirect('/pages/err_sto_no_stor_data'); 
-				exit;
-			}					
-			
-			$parent_code_from_id 
-				= array($parent_storage_id 
-					=> $parent_storage_data['StorageMaster']['code']);
-
-			$this->set('parent_id', $parent_storage_id);			
-		}
-		$this->set('parent_code_from_id', $parent_code_from_id);
-
-		$a_storage_path = $this->getStoragePath($parent_storage_id);
-		$this->set('storage_path', $a_storage_path[$parent_storage_id]);
-		
-		if(strcmp($storage_control_data['StorageControl']['is_tma_block'], 'TRUE') == 0) {	
-			$this->set('arr_tma_sop_title_from_id', 
-				$this->getTmaSopsArray());
-		}	
-		
-		// 3- Set storage data					
-		if(is_null($storage_control_data['StorageControl']['detail_tablename'])){
-			// No detail required for this storage
-			$this->StorageDetail = NULL;
-			$this->set('data', $storage_master_data); 
-		} else {
-			// Details are required for this storage
-			
-			// start new instance of STORAGE DETAIL model, using TABLENAME from STORAGE CONTROL 
-			$this->StorageDetail = 
-				new StorageDetail(false, $storage_control_data['StorageControl']['detail_tablename']);
-			
-			// read related STORAGE DETAIL row, whose ID should be same as STORAGE MASTER ID 
-			$this->StorageDetail->id = $storage_master_id;
-			$storage_detail_data = $this->StorageDetail->read();
-				
-			if(empty($storage_detail_data)){
-				$this->redirect('/pages/err_sto_missing_stor_data'); 
-				exit;
-			}					
-			
-			// merge both datasets into a SINGLE dataset, set for VIEW 
-			$this->set('data', array_merge( $storage_master_data, $storage_detail_data)); 
-		}
-			
-		// 4- Verify storage can be deleted
-		 $bool_allow_deletion = TRUE;
-		 
-		 if(!$this->allowStorageDeletion($storage_master_id)){
-			 $bool_allow_deletion = FALSE;	 	
-		 }
-		 
-		$this->set('bool_allow_deletion', $bool_allow_deletion);
-		
-		// ** Create From to display Storage position **	
-		
-		$parent_storage_master_data = null;
-		$parent_storage_control_data = null;
-		
-		$bool_define_position = FALSE;
-
-		// Verify the storage can be positionned
-		if(!empty($parent_storage_data)){
-			// A parent storage has been defined
-			
-			// Read control type data of the parent storage
-			$parent_storage_control_id 
-				= $parent_storage_data['StorageMaster']['storage_control_id'];
-			
-			$criteria = "StorageControl.id = ". $parent_storage_control_id;
-			$parent_storage_control_data = $this->StorageControl->find($criteria);
-					
-			if(empty($parent_storage_control_data)) {
-				$this->redirect('/pages/err_sto_no_stor_cont_data'); 
-				exit;
-			}
-		
-			if(!is_null($parent_storage_control_data['StorageControl']['form_alias_for_children_pos'])){
-				// A storage position into the parent storage can be defined for the storage
-				$bool_define_position = TRUE;
-
-				// set FORM alias				
-				$this->set('ctrapp_form_position', 
-					$this->Forms->getFormArray(
-						$parent_storage_control_data['StorageControl']['form_alias_for_children_pos']));
-				
-				// set data to display on view
-				if(!empty($parent_storage_control_data['StorageControl']['coord_x_title'])) {
-					$this->set('parent_coord_x_title', $parent_storage_control_data['StorageControl']['coord_x_title']);
-				}
-				if(!empty($parent_storage_control_data['StorageControl']['coord_y_title'])) {
-					$this->set('parent_coord_y_title', $parent_storage_control_data['StorageControl']['coord_y_title']);
-				}
-		
-				// Build predefined list of positions
-				$a_coord_x_liste = $this->buildAllowedStoragePosition($parent_storage_id, $parent_storage_control_data, 'x');
-				$a_coord_y_liste = $this->buildAllowedStoragePosition($parent_storage_id, $parent_storage_control_data, 'y');
-				if(!empty($a_coord_x_liste)){
-					$this->set('a_coord_x_liste', $a_coord_x_liste);
-				}
-				if(!empty($a_coord_y_liste)){
-					$this->set('a_coord_y_liste', $a_coord_y_liste);
-				}			
-				
-			}
-		}	
-		
-		$this->set('bool_define_position', $bool_define_position);
-		
-		// ** Create Storage Types list to create children storage
-		
-		if(strcmp($storage_control_data['StorageControl']['is_tma_block'], 'TRUE') == 0) {
-			// No children can be created for a TMA
-			$this->set('untranslated_storage_types', array());
-		} else {
-			// Findall storage_type defined as 'active'
-			$conditions = 'StorageControl.status=\'active\'';
-			$order = 'StorageControl.storage_type ASC';
-			
-			$untranslated_storage_types =
-				$this->StorageControl->generateList(
-					$conditions, 
-					$order, 
-					null, 
-					'{n}.StorageControl.id', 
-					'{n}.StorageControl.storage_type');
-													
-			$this->set('untranslated_storage_types', $untranslated_storage_types);
-		}
-		$this->set('storage_master_id', $storage_master_id);
-		
-		// ** look for CUSTOM HOOKS, "format" **
-		$custom_ctrapp_controller_hook 
-			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
-			'controllers' . DS . 'hooks' . DS . 
-			$this->params['controller'].'_'.$this->params['action'].'_format.php';
-			
-		if (file_exists($custom_ctrapp_controller_hook)) {
-			require($custom_ctrapp_controller_hook);
-		}
-		 
-	}	// function detail	
+	
 	
 	/**
 	 * Display the content of a storage into a layout (array).
