@@ -2180,3 +2180,118 @@ CREATE TABLE `atim_information` (
 
 INSERT INTO `atim_information` (`tablename`, `field`, `datatype` )
 SELECT c.`TABLE_NAME`, c.`COLUMN_NAME`, c.`DATA_TYPE` FROM `INFORMATION_SCHEMA`.`COLUMNS` c;
+
+INSERT INTO `versions` ( `version_number`, `status` ) VALUES ( 'ATiM version 2.0', 'Installed' );
+
+INSERT INTO `structures` (`alias`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES
+('versions', 0, 0, 0, 1);
+INSERT INTO `structure_formats` ( `structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_help`, `flag_index`, `flag_detail` ) VALUES
+( 0, 0, 1, 1, 'version', 1, 1),
+( 0, 0, 1, 2, 'date', 1, 1),
+( 0, 0, 1, 3, 'status', 1, 1);
+UPDATE `structure_formats` f, `structure_fields` d, `structures` s SET f.structure_id = s.id, f.structure_field_id = d.id
+WHERE f.language_help = 'version' AND s.alias = 'versions' AND d.`field` = 'version_number';
+UPDATE `structure_formats` f, `structure_fields` d, `structures` s SET f.structure_id = s.id, f.structure_field_id = d.id
+WHERE f.language_help = 'date' AND s.alias = 'versions' AND d.`field` = 'date_installed';
+UPDATE `structure_formats` f, `structure_fields` d, `structures` s SET f.structure_id = s.id, f.structure_field_id = d.id
+WHERE f.language_help = 'status' AND s.alias = 'versions' AND d.`field` = 'status' AND d.model = 'Version';
+
+-- Provider Module SQL
+
+CREATE TABLE `providers` (
+  `id` int(11) NOT NULL auto_increment,
+  `name` varchar(55) character set latin1 NOT NULL,
+  `type` varchar(55) character set latin1 NOT NULL,
+  `date_effective` datetime default NULL,
+  `date_expiry` datetime default NULL,
+  `description` text default NULL,
+  `created` datetime NOT NULL default '0000-00-00 00:00:00',
+  `created_by` varchar(255) NOT NULL default '',
+  `modified` datetime NOT NULL default '0000-00-00 00:00:00',
+  `modified_by` varchar(255) NOT NULL default '',
+  `deleted` int(11) default 0,
+  `deleted_date` datetime default NULL,
+  PRIMARY KEY ( `id` )
+)  ENGINE=InnoDb DEFAULT CHARSET=latin1;
+
+CREATE TABLE `providers_revs` (
+  `id` int(11) NOT NULL,
+  `name` varchar(55) character set latin1 NOT NULL,
+  `type` varchar(55) character set latin1 NOT NULL,
+  `date_effective` datetime default NULL,
+  `date_expiry` datetime default NULL,
+  `description` text default NULL,
+  `created` datetime NOT NULL default '0000-00-00 00:00:00',
+  `created_by` varchar(255) NOT NULL default '',
+  `modified` datetime NOT NULL default '0000-00-00 00:00:00',
+  `modified_by` varchar(255) NOT NULL default '',
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `deleted` int(11) default 0,
+  `deleted_date` datetime default NULL,
+  PRIMARY KEY ( `version_id` )
+)  ENGINE=InnoDb DEFAULT CHARSET=latin1;
+
+
+INSERT INTO `structures` (`alias`, `flag_detail_columns` ) VALUES
+('providers', 1);
+
+SET @structure_id = last_insert_id();
+
+INSERT INTO `structure_fields` (`plugin`, `model`, `field`, `language_label`, `type`, `setting`, `structure_value_domain`) VALUES
+('Provider', 'Provider', 'name', 'name', 'input', 'size=30', 0);
+
+SET @field_1_id = last_insert_id();
+
+INSERT INTO `structure_fields` (`plugin`, `model`, `field`, `language_label`, `type`, `setting`, `structure_value_domain`) VALUES
+('Provider', 'Provider', 'type', 'type', 'select', '', 0);
+
+SET @field_2_id = last_insert_id();
+
+INSERT INTO `structure_fields` (`plugin`, `model`, `field`, `language_label`, `type`, `setting`, `structure_value_domain`) VALUES
+('Provider', 'Provider', 'date_effective', 'date_effective', 'datetime', '', 0);
+
+SET @field_3_id = last_insert_id();
+
+INSERT INTO `structure_fields` (`plugin`, `model`, `field`, `language_label`, `type`, `setting`, `structure_value_domain`) VALUES
+('Provider', 'Provider', 'date_expiry', 'date_expiry', 'datetime', '', 0);
+
+SET @field_4_id = last_insert_id();
+
+INSERT INTO `structure_fields` (`plugin`, `model`, `field`, `language_label`, `type`, `setting`, `structure_value_domain`) VALUES
+('Provider', 'Provider', 'descrition', 'description', 'textarea', 'cols=40,rows=4', 0);
+
+SET @field_5_id = last_insert_id();
+
+INSERT INTO `structure_formats`  (`structure_id`, `structure_field_id`, `display_order`, `flag_add`, `flag_edit`, `flag_search`, `flag_index`, `flag_detail`) VALUES
+( @structure_id, @field_1_id, 1, 1, 1, 1, 1, 1),
+( @structure_id, @field_2_id, 1, 1, 1, 1, 1, 1),
+( @structure_id, @field_3_id, 1, 1, 1, 0, 0, 1),
+( @structure_id, @field_4_id, 1, 1, 1, 0, 0, 1),
+( @structure_id, @field_5_id, 1, 1, 1, 0, 0, 1);
+
+INSERT INTO `structure_value_domains` (`domain_name`) VALUES
+('provider_type');
+
+SET @value_domain = last_insert_id();
+
+INSERT INTO `structure_permissible_values` ( `value`, `language_alias` ) VALUES
+( 'doctor', 'doctor' );
+
+SET @value_1_id = last_insert_id();
+
+INSERT INTO `structure_permissible_values` ( `value`, `language_alias` ) VALUES
+( 'facility', 'facility' );
+
+SET @value_2_id = last_insert_id();
+
+INSERT INTO `structure_value_domains_permissible_values` ( `structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `active` ) VALUES
+( @value_domain, @value_1_id, 1, 'yes' ),
+( @value_domain, @value_2_is, 2, 'yes' );
+
+UPDATE `menus` SET `use_link` = '/provider/providers/index/' WHERE `language_title` = 'provider';
+
+INSERT INTO `menus` ( `id`, `parent_id`, `display_order`, `language_title`, `language_description`, `use_link`, `active`) VALUES
+( 'prov_CAN_10', 'tool_CAN_43', 1, 'provider detail', 'provider detail', '/provider/providers/detail/%%Provider.id%%/', 'yes');
+
+

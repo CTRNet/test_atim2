@@ -582,3 +582,95 @@ UPDATE  `menus` SET  `parent_id` =  'clin_CAN_1',
 UPDATE  `menus` SET  `parent_id` =  'clin_CAN_4',
 `language_description` =  'protocol',
 `use_link` =  '/clinicalannotation/event_masters/listall/protocol/%%Participant.id%%' WHERE CONVERT(  `id` USING utf8 ) =  'clin_CAN_69' LIMIT 1 ;
+
+-- Update the structure_fields plugin field
+
+  -- StorageLayout
+  UPDATE `structure_fields` SET `plugin` = 'StorageLayout' WHERE `model` = 'Shelf';
+  UPDATE `structure_fields` SET `plugin` = 'StorageLayout' WHERE `model` = 'Tower';
+  UPDATE `structure_fields` SET `plugin` = 'StorageLayout' WHERE `model` = 'Box';
+  UPDATE `structure_fields` SET `plugin` = 'StorageLayout' WHERE `model` = 'Storage';
+  UPDATE `structure_fields` SET `plugin` = 'StorageLayout' WHERE `model` = 'StorageMaster';
+  UPDATE `structure_fields` SET `plugin` = 'StorageLayout' WHERE `model` = 'StorageCoordinate';
+
+  -- Administrate
+  UPDATE `structure_fields` SET `plugin` = 'Administrate' WHERE `model` = 'Bank';
+  UPDATE `structure_fields` SET `plugin` = 'Administrate' WHERE `model` = 'Menu';
+  UPDATE `structure_fields` SET `plugin` = 'Administrate' WHERE `model` = 'User';
+  UPDATE `structure_fields` SET `plugin` = 'Administrate' WHERE `model` = 'UserLog';
+  UPDATE `structure_fields` SET `plugin` = 'Administrate' WHERE `model` = 'Announcement';
+  UPDATE `structure_fields` SET `plugin` = 'Administrate' WHERE `model` = 'Group';
+
+  -- Rtbforms
+  UPDATE `structure_fields` SET `plugin` = 'Rtbform' WHERE `model` = 'RtbForm';
+
+  -- Drug
+  UPDATE `structure_fields` SET `plugin` = 'Drug' WHERE `model` = 'Drug';
+
+  -- Material
+  UPDATE `structure_fields` SET `plugin` = 'Material' WHERE `model` = 'Model';
+
+  -- Clinical Annotation
+  UPDATE `structure_fields` SET `plugin` = 'ClinicalAnnotation' WHERE `model` = 'MiscIdentifier';
+  UPDATE `structure_fields` SET `plugin` = 'ClinicalAnnotation' WHERE `model` = 'EventDetail';
+  UPDATE `structure_fields` SET `plugin` = 'ClinicalAnnotation' WHERE `model` = 'ReproductiveHistory';
+  UPDATE `structure_fields` SET `plugin` = 'ClinicalAnnotation' WHERE `model` = 'Consent';
+  UPDATE `structure_fields` SET `plugin` = 'ClinicalAnnotation' WHERE `model` = 'Diagnosis';
+  UPDATE `structure_fields` SET `plugin` = 'ClinicalAnnotation' WHERE `model` = 'Participant';
+  UPDATE `structure_fields` SET `plugin` = 'ClinicalAnnotation' WHERE `model` = 'ParticipantMessage';
+  UPDATE `structure_fields` SET `plugin` = 'ClinicalAnnotation' WHERE `model` = 'ClinicalCollectionLink';
+  UPDATE `structure_fields` SET `plugin` = 'ClinicalAnnotation' WHERE `model` = 'EventMaster';
+  UPDATE `structure_fields` SET `plugin` = 'ClinicalAnnotation' WHERE `model` = 'FamilyHistory';
+  UPDATE `structure_fields` SET `plugin` = 'ClinicalAnnotation' WHERE `model` = 'TreatmentMaster';
+  UPDATE `structure_fields` SET `plugin` = 'ClinicalAnnotation' WHERE `model` = 'TreatmentDetail';
+  UPDATE `structure_fields` SET `plugin` = 'ClinicalAnnotation' WHERE `model` = 'TreatmentExtend';
+  UPDATE `structure_fields` SET `plugin` = 'ClinicalAnnotation' WHERE `model` = 'ParticipantContact';
+
+  -- Inventory Management
+  UPDATE `structure_fields` SET `plugin` = 'InventoryManagement' WHERE `model` = 'Aliquot';
+  UPDATE `structure_fields` SET `plugin` = 'InventoryManagement' WHERE `model` = 'ReviewMaster';
+  UPDATE `structure_fields` SET `plugin` = 'InventoryManagement' WHERE `model` = 'ReviewDetail';
+  UPDATE `structure_fields` SET `plugin` = 'InventoryManagement' WHERE `model` = 'Collection';
+  UPDATE `structure_fields` SET `plugin` = 'InventoryManagement' WHERE `model` = 'SampleMaster';
+  UPDATE `structure_fields` SET `plugin` = 'InventoryManagement' WHERE `model` = 'SpecimenDetail';
+  UPDATE `structure_fields` SET `plugin` = 'InventoryManagement' WHERE `model` = 'SampleDetil';
+  UPDATE `structure_fields` SET `plugin` = 'InventoryManagement' WHERE `model` = 'DerivativeDetail';
+  UPDATE `structure_fields` SET `plugin` = 'InventoryManagement' WHERE `model` = 'AliquotMaster';
+  UPDATE `structure_fields` SET `plugin` = 'InventoryManagement' WHERE `model` = 'SampleMaster';
+  UPDATE `structure_fields` SET `plugin` = 'InventoryManagement' WHERE `model` = 'AliquotDetail';
+  UPDATE `structure_fields` SET `plugin` = 'InventoryManagement' WHERE `model` = 'AliquotUse';
+  UPDATE `structure_fields` SET `plugin` = 'InventoryManagement' WHERE `model` = 'PathCollectionReview';
+  UPDATE `structure_fields` SET `plugin` = 'InventoryManagement' WHERE `model` = 'AliquotDetail';
+  UPDATE `structure_fields` SET `plugin` = 'InventoryManagement' WHERE `model` = 'QualityControl';
+  UPDATE `structure_fields` SET `plugin` = 'InventoryManagement' WHERE `model` = 'AliquotDetail';
+  UPDATE `structure_fields` SET `plugin` = 'InventoryManagement' WHERE `model` = 'TmaSlide';
+  UPDATE `structure_fields` SET `plugin` = 'InventoryManagement' WHERE `model` = 'Realiquoting';
+  UPDATE `structure_fields` SET `plugin` = 'InventoryManagement' WHERE `model` = 'Sample';
+
+  -- Order
+  UPDATE `structure_fields` SET `plugin` = 'Order' WHERE `model` = 'OrderItem';
+  UPDATE `structure_fields` SET `plugin` = 'Order' WHERE `model` = 'OrderLink';
+  UPDATE `structure_fields` SET `plugin` = 'Order' WHERE `model` = 'Order';
+  UPDATE `structure_fields` SET `plugin` = 'Order' WHERE `model` = 'Shipment';
+
+  -- Study
+  UPDATE `structure_fields` SET `plugin` = 'Study' WHERE `model` = 'StudySummary';
+  UPDATE `structure_fields` SET `plugin` = 'Study' WHERE `model` = 'StudyContact';
+  UPDATE `structure_fields` SET `plugin` = 'Study' WHERE `model` = 'StudyInvestigator';
+  UPDATE `structure_fields` SET `plugin` = 'Study' WHERE `model` = 'StudyRelated';
+  UPDATE `structure_fields` SET `plugin` = 'Study' WHERE `model` = 'StudyReview';
+  UPDATE `structure_fields` SET `plugin` = 'Study' WHERE `model` = 'StudyEthicsBoard';
+  UPDATE `structure_fields` SET `plugin` = 'Study' WHERE `model` = 'StudyFunding';
+
+  -- Sop
+  UPDATE `structure_fields` SET `plugin` = 'Sop' WHERE `model` = 'SopMaster';
+  UPDATE `structure_fields` SET `plugin` = 'Sop' WHERE `model` = 'SopExtend';
+
+  -- Protocol
+  UPDATE `structure_fields` SET `plugin` = 'Protocol' WHERE `model` = 'ProtocolMaster';
+  UPDATE `structure_fields` SET `plugin` = 'Protocol' WHERE `model` = 'ProtocolExtend';
+
+  -- Datamart
+  UPDATE `structure_fields` SET `plugin` = 'Datamart' WHERE `model` = 'Adhoc';
+  UPDATE `structure_fields` SET `plugin` = 'Datamart' WHERE `model` = 'BatchSet';
+  UPDATE `structure_fields` SET `plugin` = 'Datamart' WHERE `model` = 'AdhocSaved';
