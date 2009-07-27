@@ -98,13 +98,13 @@ ADD COLUMN `deleted_date` datetime default NULL;
 ALTER TABLE `collections`
 
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_date` datetime default NULL
+ADD COLUMN `deleted_date` datetime default NULL,
 CHANGE COLUMN `bank` `bank_id` INT(11) default NULL;
 
 ALTER TABLE `consents`
 
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_date` datetime default NULL
+ADD COLUMN `deleted_date` datetime default NULL,
 ADD COLUMN `recruit_route` VARCHAR(10) default NULL;
 
 ALTER TABLE `derivative_details`
@@ -672,3 +672,7 @@ UPDATE `structures` SET `alias` = 'studyrelated' WHERE `alias` = 'study_related'
 -- Bank field change
 
 UPDATE `structure_fields` SET `field` = 'bank_id' WHERE `field` = 'bank' AND `model` = 'Collection';
+
+-- Order Plugin changes
+
+UPDATE `structure_fields` SET `field` = 'shipping_company', `language_label` = 'ord_shipping_company' WHERE `old_id` = 'CAN-999-999-000-999-510';
