@@ -98,12 +98,14 @@ ADD COLUMN `deleted_date` datetime default NULL;
 ALTER TABLE `collections`
 
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_date` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL
+CHANGE COLUMN `bank` `bank_id` INT(11) default NULL;
 
 ALTER TABLE `consents`
 
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_date` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL
+ADD COLUMN `recruit_route` VARCHAR(10) default NULL;
 
 ALTER TABLE `derivative_details`
 
@@ -527,61 +529,6 @@ ALTER TABLE `txd_surgeries`
 ADD COLUMN `deleted` int(11) default 0,
 ADD COLUMN `deleted_date` datetime default NULL;
 
--- Menu updates
-
-UPDATE menus SET parent_id="0" WHERE parent_id="MAIN_MENU_1";
-UPDATE menus SET parent_id="core_CAN_33" WHERE id="core_CAN_41";
-
-UPDATE menus SET display_order="1" WHERE id="MAIN_MENU_1";
-UPDATE menus SET display_order="2" WHERE id="clin_CAN_1";
-UPDATE menus SET display_order="3" WHERE id="inv_CAN_00";
-UPDATE menus SET display_order="4" WHERE id="qry-CAN-1";
-UPDATE menus SET display_order="5" WHERE id="core_CAN_42";
-UPDATE menus SET display_order="6" WHERE id="core_CAN_33";
-UPDATE menus SET display_order="7" WHERE id="MAIN_MENU_2";
-
-
-UPDATE  `menus` SET use_summary="Clinicalannotation.EventControl:summary"
-WHERE id="clin_CAN_27"
-OR id="clin_CAN_28"
-OR id="clin_CAN_30"
-OR id="clin_CAN_31"
-OR id="clin_CAN_32"
-OR id="clin_CAN_33"
-OR id="clin_CAN_69";
-
-UPDATE  `menus` SET  `parent_id` =  'clin_CAN_4',
-`language_description` =  'screening',
-`use_link` =  '/clinicalannotation/event_masters/listall/screening/%%Participant.id%%' WHERE CONVERT(  `id` USING utf8 ) =  'clin_CAN_27' LIMIT 1 ;
-
-UPDATE  `menus` SET  `parent_id` =  'clin_CAN_4',
-`language_description` =  'lab',
-`use_link` =  '/clinicalannotation/event_masters/listall/lab/%%Participant.id%%' WHERE CONVERT(  `id` USING utf8 ) =  'clin_CAN_28' LIMIT 1 ;
-
-UPDATE  `menus` SET  `parent_id` =  'clin_CAN_4',
-`language_description` =  'lifestyle',
-`use_link` =  '/clinicalannotation/event_masters/listall/lifestyle/%%Participant.id%%' WHERE CONVERT(  `id` USING utf8 ) =  'clin_CAN_30' LIMIT 1 ;
-
-UPDATE  `menus` SET  `parent_id` =  'clin_CAN_4',
-`language_description` =  'clinical',
-`use_link` =  '/clinicalannotation/event_masters/listall/clinical/%%Participant.id%%' WHERE CONVERT(  `id` USING utf8 ) =  'clin_CAN_31' LIMIT 1 ;
-
-
-UPDATE  `menus` SET  `parent_id` =  'clin_CAN_4',
-`language_description` =  'adverse events',
-`use_link` =  '/clinicalannotation/event_masters/listall/adverse_events/%%Participant.id%%' WHERE CONVERT(  `id` USING utf8 ) =  'clin_CAN_32' LIMIT 1 ;
-
-UPDATE  `menus` SET  `parent_id` =  'clin_CAN_4',
-`language_description` =  'clin_study',
-`use_link` =  '/clinicalannotation/event_masters/listall/study/%%Participant.id%%' WHERE CONVERT(  `id` USING utf8 ) =  'clin_CAN_33' LIMIT 1 ;
-
-UPDATE  `menus` SET  `parent_id` =  'clin_CAN_1',
-`language_description` =  'annotation',
-`use_link` =  '/clinicalannotation/event_masters/listall/adverse_events/%%Participant.id%%' WHERE CONVERT(  `id` USING utf8 ) =  'clin_CAN_4' LIMIT 1 ;
-
-UPDATE  `menus` SET  `parent_id` =  'clin_CAN_4',
-`language_description` =  'protocol',
-`use_link` =  '/clinicalannotation/event_masters/listall/protocol/%%Participant.id%%' WHERE CONVERT(  `id` USING utf8 ) =  'clin_CAN_69' LIMIT 1 ;
 
 -- Update the structure_fields plugin field
 
@@ -674,3 +621,54 @@ UPDATE  `menus` SET  `parent_id` =  'clin_CAN_4',
   UPDATE `structure_fields` SET `plugin` = 'Datamart' WHERE `model` = 'Adhoc';
   UPDATE `structure_fields` SET `plugin` = 'Datamart' WHERE `model` = 'BatchSet';
   UPDATE `structure_fields` SET `plugin` = 'Datamart' WHERE `model` = 'AdhocSaved';
+
+-- User structure changes
+
+UPDATE `structure_fields` SET `field` = 'password' WHERE `old_id` = 'AAA-000-000-000-000-2';
+UPDATE `structure_fields` SET `field` = 'name' WHERE `old_id` = 'AAA-000-000-000-000-34';
+DELETE FROM `structure_fields` WHERE `old_id` = 'AAA-000-000-000-000-35';
+DELETE FROM `structure_fields` WHERE `old_id` = 'AAA-000-000-000-000-37';
+DELETE FROM `structure_fields` WHERE `old_id` = 'AAA-000-000-000-000-38';
+DELETE FROM `structure_fields` WHERE `old_id` = 'AAA-000-000-000-000-39';
+DELETE FROM `structure_fields` WHERE `old_id` = 'AAA-000-000-000-000-40';
+DELETE FROM `structure_fields` WHERE `old_id` = 'AAA-000-000-000-000-43';
+DELETE FROM `structure_fields` WHERE `old_id` = 'AAA-000-000-000-000-44';
+DELETE FROM `structure_fields` WHERE `old_id` = 'AAA-000-000-000-000-45';
+DELETE FROM `structure_fields` WHERE `old_id` = 'AAA-000-000-000-000-46';
+DELETE FROM `structure_fields` WHERE `old_id` = 'AAA-000-000-000-000-47';
+DELETE FROM `structure_fields` WHERE `old_id` = 'AAA-000-000-000-000-48';
+DELETE FROM `structure_fields` WHERE `old_id` = 'AAA-000-000-000-000-49';
+DELETE FROM `structure_formats` WHERE `structure_field_old_id` = 'AAA-000-000-000-000-35';
+DELETE FROM `structure_formats` WHERE `structure_field_old_id` = 'AAA-000-000-000-000-37';
+DELETE FROM `structure_formats` WHERE `structure_field_old_id` = 'AAA-000-000-000-000-38';
+DELETE FROM `structure_formats` WHERE `structure_field_old_id` = 'AAA-000-000-000-000-39';
+DELETE FROM `structure_formats` WHERE `structure_field_old_id` = 'AAA-000-000-000-000-40';
+DELETE FROM `structure_formats` WHERE `structure_field_old_id` = 'AAA-000-000-000-000-43';
+DELETE FROM `structure_formats` WHERE `structure_field_old_id` = 'AAA-000-000-000-000-44';
+DELETE FROM `structure_formats` WHERE `structure_field_old_id` = 'AAA-000-000-000-000-45';
+DELETE FROM `structure_formats` WHERE `structure_field_old_id` = 'AAA-000-000-000-000-46';
+DELETE FROM `structure_formats` WHERE `structure_field_old_id` = 'AAA-000-000-000-000-47';
+DELETE FROM `structure_formats` WHERE `structure_field_old_id` = 'AAA-000-000-000-000-48';
+DELETE FROM `structure_formats` WHERE `structure_field_old_id` = 'AAA-000-000-000-000-49';
+
+-- Structure changes
+
+UPDATE `structures` SET `alias` = 'participantcontacts' WHERE `alias` = 'participant_contacts';
+UPDATE `structures` SET `alias` = 'participantmessages' WHERE `alias` = 'participant_messages';
+UPDATE `structures` SET `alias` = 'reproductivehistories' WHERE `alias` = 'reproductive_histories';
+UPDATE `structures` SET `alias` = 'familyhistories' WHERE `alias` = 'family_histories';
+UPDATE `structures` SET `alias` = 'miscidentifiers' WHERE `alias` = 'misc_identifiers';
+UPDATE `structures` SET `alias` = 'studysummaries' WHERE `alias` = 'study_summaries';
+UPDATE `structures` SET `alias` = 'pathcollectionreviews' WHERE `alias` = 'path_collection_reviews';
+UPDATE `structures` SET `alias` = 'sopmasters' WHERE `alias` = 'sop_masters';
+UPDATE `structures` SET `alias` = 'studycontacts' WHERE `alias` = 'study_contacts';
+UPDATE `structures` SET `alias` = 'studyinvestigators' WHERE `alias` = 'study_investigators';
+UPDATE `structures` SET `alias` = 'studyreviews' WHERE `alias` = 'study_reviews';
+UPDATE `structures` SET `alias` = 'studyethicsboards' WHERE `alias` = 'study_ethicsboards';
+UPDATE `structures` SET `alias` = 'studyfundings' WHERE `alias` = 'study_fundings';
+UPDATE `structures` SET `alias` = 'studyresults' WHERE `alias` = 'study_results';
+UPDATE `structures` SET `alias` = 'studyrelated' WHERE `alias` = 'study_related';
+
+-- Bank field change
+
+UPDATE `structure_fields` SET `field` = 'bank_id' WHERE `field` = 'bank' AND `model` = 'Collection';

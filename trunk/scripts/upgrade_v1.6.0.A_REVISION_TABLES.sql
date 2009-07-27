@@ -287,7 +287,7 @@ CREATE TABLE `coding_icd10_revs` (
 CREATE TABLE `collections_revs` (
   `id` int(11) NOT NULL,
   `acquisition_label` varchar(50) NOT NULL default '',
-  `bank` varchar(50) default NULL,
+  `bank_id` int(11) default NULL,
   `collection_site` varchar(30) default NULL,
   `collection_datetime` datetime default NULL,
   `reception_by` varchar(50) default NULL,
@@ -328,6 +328,7 @@ CREATE TABLE `consents_revs` (
   `research_other_disease` varchar(50) default NULL,
   `inform_significant_discovery` varchar(50) default NULL,
   `facility_other` varchar(50) default NULL,
+  `recruit_route` varchar(10) default NULL,
   `created` datetime default NULL,
   `created_by` varchar(50) default NULL,
   `modified` datetime default NULL,
@@ -2288,10 +2289,3 @@ SET @value_2_id = last_insert_id();
 INSERT INTO `structure_value_domains_permissible_values` ( `structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `active` ) VALUES
 ( @value_domain, @value_1_id, 1, 'yes' ),
 ( @value_domain, @value_2_is, 2, 'yes' );
-
-UPDATE `menus` SET `use_link` = '/provider/providers/index/' WHERE `language_title` = 'provider';
-
-INSERT INTO `menus` ( `id`, `parent_id`, `display_order`, `language_title`, `language_description`, `use_link`, `active`) VALUES
-( 'prov_CAN_10', 'tool_CAN_43', 1, 'provider detail', 'provider detail', '/provider/providers/detail/%%Provider.id%%/', 'yes');
-
-
