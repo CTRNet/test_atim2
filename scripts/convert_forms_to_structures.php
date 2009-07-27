@@ -85,13 +85,11 @@
 		$query = "INSERT INTO `structure_formats` ( `id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`,
 			`flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`,
 			`flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES
-			( $t, '$id', $sid, '$form_id', $fid, '$field_id', $dcolumn, $dorder, '$heading', '$olabel', '$label', '$otag', '$tag', '$ohelp', '$help', '$otype', '$type', '$osetting', '$setting', '$odefault', '$default', $add, $radd, $edit, $redit, $search, $rsearch, $datagrid, $rdatagrid, $index, $detail);";
-		print_r($query);
+			( $t, '$id', $sid, '$form_id', $fid, '$field_id', $dcolumn, $dorder, '$heading', '$olabel', '$label', '$otag', '$tag', '$ohelp', '$help', '$otype', '$type', '$osetting', '$setting', '$odefault', '$default', '$add', '$radd', '$edit', '$redit', '$search', '$rsearch', '$datagrid', '$rdatagrid', '$index', '$detail');";
 		mysql_query($query);
 	}
 	
 	mysql_query("DROP TABLE `forms`;");
-	mysql_query("DROP TABLE `form_fields`;");
 	mysql_query("DROP TABLE `form_formats`;");
 	
 ?>
