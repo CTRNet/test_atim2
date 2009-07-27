@@ -2,11 +2,17 @@
 
 class PathCollectionReviewsController extends InventoryManagementAppController {
 	
-	var $uses = array('PathCollectionReview', 'Collection');
+	var $uses = array('InventoryManagement.PathCollectionReview', 'InventoryManagement.Collection', 'InventoryManagement.AliquotMaster');
 	var $paginate = array('PathCollectionReview'=>array('limit'=>10, 'order'=>'PathCollectionReview.path_coll_rev_code'));
 	
 	function listall ( $collection_id ) {
 		if ( !$collection_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		
+		$aliquot_master_list = $this->AliquotMaster->find('all', array('fields' => array('AliquotMaster.id', 'AliquotMaster.barcode'), 'order' => array('AliquotMaster.barcode')));
+		foreach ( $aliquot_master_list as $record ) {
+			$aliquot_master_id_findall[ $record['AliquotMaster']['id'] ] = $record['AliquotMaster']['barcode'];
+		}
+		$this->set('aliquot_master_id_findall', $aliquot_master_id_findall);
 		
 		$this->set( 'atim_menu_variables', array('Collection.id'=>$collection_id));
 		$this->data = $this->paginate($this->PathCollectionReview, array('PathCollectionReview.collection_id'=>$collection_id));
@@ -14,6 +20,12 @@ class PathCollectionReviewsController extends InventoryManagementAppController {
 	
 	function add ( $collection_id ) {
 		if ( !$collection_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		
+		$aliquot_master_list = $this->AliquotMaster->find('all', array('fields' => array('AliquotMaster.id', 'AliquotMaster.barcode'), 'order' => array('AliquotMaster.barcode')));
+		foreach ( $aliquot_master_list as $record ) {
+			$aliquot_master_id_findall[ $record['AliquotMaster']['id'] ] = $record['AliquotMaster']['barcode'];
+		}
+		$this->set('aliquot_master_id_findall', $aliquot_master_id_findall);
 		
 		$this->set( 'atim_menu_variables', array('Collection.id'=>$collection_id));
 		
@@ -29,6 +41,12 @@ class PathCollectionReviewsController extends InventoryManagementAppController {
 		if ( !$collection_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		if ( !$path_collection_review_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		
+		$aliquot_master_list = $this->AliquotMaster->find('all', array('fields' => array('AliquotMaster.id', 'AliquotMaster.barcode'), 'order' => array('AliquotMaster.barcode')));
+		foreach ( $aliquot_master_list as $record ) {
+			$aliquot_master_id_findall[ $record['AliquotMaster']['id'] ] = $record['AliquotMaster']['barcode'];
+		}
+		$this->set('aliquot_master_id_findall', $aliquot_master_id_findall);
+		
 		$this->set( 'atim_menu_variables', array('Collection.id'=>$collection_id, 'PathCollectionReview.id'=>$path_collection_review_id) );
 		$this->data = $this->PathCollectionReview->find('first',array('conditions'=>array('PathCollectionReview.id'=>$path_collection_review_id)));
 	}
@@ -37,6 +55,12 @@ class PathCollectionReviewsController extends InventoryManagementAppController {
 	function edit( $collection_id, $path_collection_review_id ) {
 		if ( !$collection_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		if ( !$path_collection_review_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		
+		$aliquot_master_list = $this->AliquotMaster->find('all', array('fields' => array('AliquotMaster.id', 'AliquotMaster.barcode'), 'order' => array('AliquotMaster.barcode')));
+		foreach ( $aliquot_master_list as $record ) {
+			$aliquot_master_id_findall[ $record['AliquotMaster']['id'] ] = $record['AliquotMaster']['barcode'];
+		}
+		$this->set('aliquot_master_id_findall', $aliquot_master_id_findall);
 		
 		$this->set( 'atim_menu_variables', array('Collection.id'=>$collection_id, 'PathCollectionReview.id'=>$path_collection_review_id) );
 		
