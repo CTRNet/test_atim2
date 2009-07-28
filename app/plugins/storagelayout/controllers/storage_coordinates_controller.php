@@ -2,35 +2,18 @@
 
 class StorageCoordinatesController extends StoragelayoutAppController {
 	
-	var $name = 'StorageCoordinates';
-	
 	var $uses 
-		= array('StorageControl',
-			'StorageCoordinate',
-			'StorageMaster',
-			'AliquotMaster');
+		= array('Storagelayout.StorageControl',
+				'Storagelayout.StorageCoordinate',
+				'Storagelayout.StorageMaster',
+				'Storagelayout.AliquotMaster'
+	);
 	
 	var $useDbConfig = 'default';
-	
-	var $components = array('Summaries');
-	
-	var $helpers = array('Summaries');
 
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS
 	 * -------------------------------------------------------------------------- */	
-	
-	function beforeFilter() {
-		
-		// $auth_conf array hardcoded in oth_auth component, due to plugins compatibility 
-		$this->othAuth->controller = &$this;
-		$this->othAuth->init();
-		$this->othAuth->check();
-		
-		// CakePHP function to re-combine dat/time select fields 
-		$this->cleanUpFields();
-		
-	}
 	
 	/**
 	 * List all coordinates values attached to a storage.
@@ -455,33 +438,32 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 	 * 
 	 * @author N. Luc
 	 * @since 2008-02-04
+	 * @updated A. Suggitt
 	 * 
 	 */
-	 function allowCustomCoordinates($storage_control_id, $storage_control_data = null) {	
+	function allowCustomCoordinates($storage_control_id, $storage_control_data = null) {	
 		
 		if(empty($storage_control_data)) {
 			// Look for storage_control_data
-			$condition =  "StorageControl.id = ".$storage_control_id;
-			$storage_control_data = $this->StorageControl->find($condition);
-			if(empty($storage_control_data)){
+			$storage_control_data = $this->StorageControl->find('first', array('conditions'=>array('StorageControl.id'=>$storage_control_id)));
+			
+			if(empty($storage_control_data)) {
 				$this->redirect('/pages/err_sto_no_stor_cont_data'); 
 				exit;
 			}			
-			
 		}
 		
 		// Test storage
 		$bool_validated = TRUE;
-		
+
 		if(!((strcmp($storage_control_data['StorageControl']['coord_x_type'], 'list') == 0) 
 		&& empty($storage_control_data['StorageControl']['coord_x_size'])
 		&& empty($storage_control_data['StorageControl']['coord_y_type'])
 		&& empty($storage_control_data['StorageControl']['coord_y_size']))) {
-			$bool_validated = FALSE;			
-		}
-		
+			$bool_validated = FALSE;
+		} 
+
 		return $bool_validated;
-	
 	 }
 	 
 	/**
