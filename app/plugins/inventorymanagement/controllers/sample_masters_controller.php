@@ -3,8 +3,8 @@
 class SampleMastersController extends InventorymanagementAppController {
 
 	var $uses = array(
-		'Inventorymanagement.SampleMaster',
 		'Inventorymanagement.Collection',
+		'Inventorymanagement.SampleMaster',
 		'Inventorymanagement.SampleControl'
 	);
 	var $paginate = array('SampleMaster'=>array('limit'=>10,'order'=>'SampleMaster.sample_code DESC'));
@@ -58,11 +58,30 @@ class SampleMastersController extends InventorymanagementAppController {
 	}
 	
 	function detail($collection_id=null, $sample_master_id=null) {
+		// $this->set( 'atim_menu_variables', array('Menu.alias'=>'/inventorymanagement/sample_masters/detail/inv_CAN_22-1/ascite/specimen','Collection.id'=>$collection_id, 'SampleMaster.id'=>$sample_master_id) );
 		
-		$this->set( 'atim_menu_variables', array('Menu.alias'=>'/inventorymanagement/sample_masters/detail/inv_CAN_22-1/ascite/specimen','Collection.id'=>$collection_id, 'SampleMaster.id'=>$sample_master_id) );
+		$this->set( 'atim_menu_variables', array('Collection.id'=>$collection_id, 'SampleMaster.id'=>$sample_master_id) );
 		$this->data = $this->SampleMaster->find('first',array('conditions'=>array('SampleMaster.id'=>$sample_master_id)));
+	}
+	
+	function edit($collection_id=null, $sample_master_id=null) {
+		$this->set( 'atim_menu_variables', array('Collection.id'=>$collection_id, 'SampleMaster.id'=>$sample_master_id) );
+		
+		$this_sample_master_data = $this->SampleMaster->find('first',array('conditions'=>array('SampleMaster.id'=>$sample_master_id)));
+		$this_sample_control_data = $this->SampleControl->find('first',array('conditions'=>array('SampleControl.id'=>$this_sample_master_data['SampleMaster']['sample_control_id'])));
+		
+		// set FORM ALIAS based off VALUE from MASTER table
+		$this->set( 'atim_structure', $this->Structures->get('form',$this_sample_control_data['SampleControl']['form_alias']) );
+		
+		if ( !empty($this->data) ) {
+			$this->SampleMaster->id = $sample_master_id;
+			if ( $this->SampleMaster->save($this->data) ) $this->flash( 'Your data has been updated.','/inventorymanagement/sample_masters/detail/'.$collection_id.'/'.$sample_master_id);
+		} else {
+			$this->data = $this_sample_master_data;
+		}
 	
 	}
+	
 /*
 	var $uses = array(
 		'Inventorymanagement.AliquotMaster', 

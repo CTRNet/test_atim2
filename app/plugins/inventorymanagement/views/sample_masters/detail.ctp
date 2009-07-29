@@ -1,4 +1,16 @@
-<?php 
+<?php
+	echo '
+		<div class="actions">
+			<ul>
+				<li class="at">'.$ajax->link( 'Detail', '/inventorymanagement/sample_masters/detail/'.$atim_menu_variables['Collection.id'].'/'.$atim_menu_variables['SampleMaster.id'], array('update'=>'frame'), NULL, false ).'</li>
+				<li>'.$ajax->link( 'Aliquots', '/inventorymanagement/aliquot_masters/listAllSampleAliquots/'.$atim_menu_variables['Collection.id'].'/'.$atim_menu_variables['SampleMaster.id'], array('update'=>'frame'), NULL, false ).'</li>
+				<li>'.$ajax->link( 'Quality', '/inventorymanagement/quality_controls/listAllQualityControls/'.$atim_menu_variables['Collection.id'].'/'.$atim_menu_variables['SampleMaster.id'], array('update'=>'frame'), NULL, false ).'</li>
+				<li>'.$ajax->link( 'Reviews', '/unknown/', array('update'=>'frame'), NULL, false ).'</li>
+			</ul>
+		</div>
+	';
+ 	
+	/*
 	echo '
 		<script type="text/javascript">
 			'.$ajax->remoteFunction(     
@@ -10,12 +22,20 @@
 			).'
 		</script>
 	';
+	*/
 	
 	$structure_links = array(
 		'bottom'=>array(
-			'list'=>'/inventorymanagement/sample_masters/tree/'.$atim_menu_variables['Collection.id'].'/',
+			// 'list'=>'/inventorymanagement/sample_masters/tree/'.$atim_menu_variables['Collection.id'].'/',
 			'edit'=>'/inventorymanagement/sample_masters/edit/'.$atim_menu_variables['Collection.id'].'/'.$atim_menu_variables['SampleMaster.id'].'/',
 			'delete'=>'/inventorymanagement/sample_masters/delete/'.$atim_menu_variables['Collection.id'].'/'.$atim_menu_variables['SampleMaster.id'].'/'
+		),
+		
+		'ajax'=>array(
+			'bottom'=>array(
+				'edit'=>'frame',
+				'delete'=>'frame'
+			)
 		)
 	);
 	
