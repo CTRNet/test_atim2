@@ -15,6 +15,7 @@
 		- structure_value_domains_permissible_values
 	- Creates the ATiM versions table
 	- Recreates the ATiM menus table for the new ATiM 2.0 menu structure
+		* Note: Your old menus table will be stored as the table menus_old
 	
 2. 	Copy the convert_forms_to_structures.php to the \www folder. Then in your internet browser
 	go to http://localhost/convert_forms_to_structures.php. This script will update the entries in the
@@ -43,7 +44,12 @@
 	http://localhost/convert_user_table.php. This script will update th entries in the user table
 	to the new user table structure.
 	
+7.	Copy the convert_validations.php script to the \www folder. Then in your internet browser go to
+	http://localhost/convert_validations.php. This script will port the validations from the the old
+	form validations table to the new validations table. 
+	
 7.	Delete or move the following scripts out of the \www folder:
 	- convert_forms_to_structures.php
 	- convert_global_lookups.php
 	- convert_user_table.php
+	- convert_validations.php
