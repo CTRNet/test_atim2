@@ -15,7 +15,7 @@ class Collection extends InventorymanagementAppModel {
 					'title' => array( NULL, $result['Collection']['acquisition_label'] ),
 					
 					'description' => array(
-						'Bank' => $result['Collection']['bank_id'],
+						// 'Bank' => $result['Collection']['bank_id'],
 						'Collection Date/Time' => $result['Collection']['collection_datetime'],
 						'Reception Date' => $result['Collection']['reception_datetime'])));
 						

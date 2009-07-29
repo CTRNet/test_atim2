@@ -11,11 +11,21 @@
 	$structure_links = array(
 		'index'=>array(
 			'detail'=>'/inventorymanagement/sample_masters/detail/'.$atim_menu_variables['Collection.id'].'/%%SampleMaster.id%%'
-			),
+		),
 		'bottom' => array(
 			'filter' => $filter_links
+		),
+		
+		'ajax' => array(
+			'index' => array(
+				'detail' => 'frame'
+			)
 		)
 	);
 	
-	$structures->build( $atim_structure, array('type'=>'tree', 'links'=>$structure_links) );
+	$structure_extras = array(
+		2 => '<div id="frame"></div>'
+	);
+	
+	$structures->build( $atim_structure, array('type'=>'tree', 'links'=>$structure_links, 'extras'=>$structure_extras) );
 ?>

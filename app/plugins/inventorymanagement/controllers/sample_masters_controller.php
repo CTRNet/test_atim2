@@ -47,7 +47,9 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 //		$this->data = $this->paginate($this->EventMaster, $_SESSION['MasterDetail_filter']);
 //		$this->data = $this->SampleMaster->find('threaded',array('conditions'=>array('SampleMaster.collection_id'=>$collection_id)));
-  		$this->data = $this->SampleMaster->find('threaded',array('conditions'=>$_SESSION['MasterDetail_filter']));
+
+//		$this->data = $this->paginate($this->SampleMaster, $_SESSION['MasterDetail_filter']);
+	 	$this->data = $this->SampleMaster->find('threaded',array('conditions'=>$_SESSION['MasterDetail_filter']));
   		
 		// find Sample control data for filter list
 		// $this->set( 'sample_controls', $this->SampleControl->find('all', array('conditions'=>array('status'=>'active'))) );
@@ -57,7 +59,7 @@ class SampleMastersController extends InventorymanagementAppController {
 	
 	function detail($collection_id=null, $sample_master_id=null) {
 		
-		$this->set( 'atim_menu_variables', array('Collection.id'=>$collection_id, 'SampleMaster.id'=>$sample_master_id) );
+		$this->set( 'atim_menu_variables', array('Menu.alias'=>'/inventorymanagement/sample_masters/detail/inv_CAN_22-1/ascite/specimen','Collection.id'=>$collection_id, 'SampleMaster.id'=>$sample_master_id) );
 		$this->data = $this->SampleMaster->find('first',array('conditions'=>array('SampleMaster.id'=>$sample_master_id)));
 	
 	}
