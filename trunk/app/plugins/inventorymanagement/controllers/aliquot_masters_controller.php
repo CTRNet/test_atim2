@@ -2,17 +2,12 @@
 
 class AliquotMastersController extends InventoryManagementAppController {
 	
-	var $name = 'AliquotMasters';
-	
-	var $uses = 
-		array('AliquotControl', 
-			'AliquotDetail',
+	var $uses = array(
+			'AliquotControl', 
 			'AliquotMaster', 
 			'AliquotUse', 
 			'Collection',
 			'DerivativeDetail',
-			'GlobalLookup',
-			'Menu',
 			'OrderItem',
 			'PathCollectionReview',
 			'QualityControl', 
@@ -24,32 +19,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 			'SopMaster', 
 			'SourceAliquot', 
 			'StorageMaster',
-			'StudySummary');
+			'StudySummary'
+	);
 		
-	var $useDbConfig = 'default';
-
-	var $components = array('Summaries');
-	
-	var $helpers = array('Summaries');
-	
 	var $barcode_size_max = 60;
 
-	/* --------------------------------------------------------------------------
-	 * DISPLAY FUNCTIONS
-	 * -------------------------------------------------------------------------- */	
-	
-	function beforeFilter() {
-
-		// $auth_conf array hardcoded in oth_auth component, due to plugins compatibility 
-		$this->othAuth->controller = &$this;
-		$this->othAuth->init();
-		$this->othAuth->check();
-		
-		// CakePHP function to re-combine dat/time select fields 
-		$this->cleanUpFields();
-		
-	}
-	
 	function index() {
 		// nothing...
 	}
@@ -151,9 +125,12 @@ class AliquotMastersController extends InventoryManagementAppController {
 	 * @author N. Luc
 	 * @date 2007-08-13
 	 */
-	function listAllSampleAliquots($specimen_group_menu_id=NULL, $group_specimen_type=NULL, $sample_category = null,
-	$collection_id=null, $sample_master_id = NULL) {
+	// function listAllSampleAliquots($specimen_group_menu_id=NULL, $group_specimen_type=NULL, $sample_category = null, $collection_id=null, $sample_master_id = NULL) {
+	function listAllSampleAliquots( $collection_id=NULL, $sample_master_id=NULL) {
+		$this->set( 'atim_menu_variables', array('Collection.id'=>$collection_id, 'SampleMaster.id'=>$sample_master_id) );
+		$this->data = $this->paginate($this->AliquotMaster,array('AliquotMaster.sample_master_id'=>$sample_master_id));
 		
+		/*
 		// ** Parameters check **
 		// Verify parameters have been set
 		if(empty($specimen_group_menu_id) || empty($sample_category) || 
@@ -357,7 +334,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 			
 		if (file_exists($custom_ctrapp_controller_hook)) {
 			require($custom_ctrapp_controller_hook);
-		}	
+		}
+		*/
 						
 	} // End listAllSampleAliquots()
 	

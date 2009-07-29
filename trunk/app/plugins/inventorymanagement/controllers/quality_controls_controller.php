@@ -2,173 +2,19 @@
 
 class QualityControlsController extends InventoryManagementAppController {
 	
-	var $name = 'QualityControls';
-	
-	var $uses 
-		= array('AliquotMaster',
+	var $uses = array(
+			'AliquotMaster',
 			'AliquotUse',
 			'Collection',
-			'Menu',
 			'QcTestedAliquot',
 			'QualityControl',
-			'SampleMaster');
-	
-	var $useDbConfig = 'default';
-	
-	var $components = array('Summaries');
-	
-	var $helpers = array('Summaries');
-	
-	function beforeFilter() {
-		
-		// $auth_conf array hardcoded in oth_auth component, due to plugins compatibility 
-		$this->othAuth->controller = &$this;
-		$this->othAuth->init();
-		$this->othAuth->check();
-		
-		// CakePHP function to re-combine dat/time select fields 
-		$this->cleanUpFields();
-		
-	}
+			'SampleMaster'
+	);
+	var $paginate = array('QualityControl'=>array('limit'=>10));
 
-	/**
-	 * List all specimens quality controls executed for ths studied sample. 
-	 * 
-	 * @param $specimen_group_menu_id Menu id that corresponds to the tab clicked to 
-	 * display the samples of the collection group (Ascite, Blood, Tissue, etc).
-	 * @param $group_specimen_type Type of the source specimens of the group.
-	 * @param $sample_category Sample Category
-	 * @param $collection_id Id of the studied collection.
-	 * @param $sample_master_id Master ID of the studied sample.
-	 * 
-	 * @author N. Luc
-	 * @date 2008-01-28
-	 */
-	function listAllQualityControls($specimen_group_menu_id=NULL, $group_specimen_type=NULL, $sample_category = null,
-	$collection_id=null, $sample_master_id = NULL) {
-		
-		// ** Parameters check **
-		// Verify parameters have been set
-		if(empty($specimen_group_menu_id) || empty($group_specimen_type) || 
-		empty($sample_category) || empty($collection_id)
-		|| empty($sample_master_id)) {
-			$this->redirect('/pages/err_inv_funct_param_missing'); 
-			exit;
-		}
-		
-		// Verify collection data exists
-		$criteria = 'Collection.id = "'.$collection_id.'" ';		
-		$collection_data = $this->Collection->find($criteria);
-		
-		if(empty($collection_data)) {
-			$this->redirect('/pages/err_inv_coll_no_data'); 
-			exit;
-		}
-		
-		// Verify sample exists
-		$criteria = array();
-		$criteria['SampleMaster.id'] = $sample_master_id;
-		$criteria['SampleMaster.collection_id'] = $collection_id;
-		$criteria = array_filter($criteria);
-	
-		$sample_master_data = $this->SampleMaster->find($criteria, null, null, 0);
-		
-		if(empty($sample_master_data)){
-			$this->redirect('/pages/err_inv_samp_no_data'); 
-			exit;
-		}
-				
-		$specimen_sample_master_id=NULL;
-		$derivative_sample_master_id=NULL;		
-		switch($sample_category) {
-			case "specimen":
-				$specimen_sample_master_id=$sample_master_id;
-				break;
-			case "derivative":
-				$specimen_sample_master_id=$sample_master_data['SampleMaster']['initial_specimen_sample_id'];
-				$derivative_sample_master_id=$sample_master_id;				
-				break;			
-		}
-		
-		// ** Set FORM variable **
-		$this->set('ctrapp_form', $this->Forms->getFormArray('quality_controls'));
-		
-		// ** set DATA for echo on VIEW or for link build **
-		$this->set('specimen_group_menu_id', $specimen_group_menu_id);
-		$this->set('group_specimen_type', $group_specimen_type);
-		
-		$this->set('collection_id', $collection_id );
-		$this->set('sample_category', $sample_category);		
-		$this->set('sample_master_id', $sample_master_id);
-		
-//		$this->set('sample_code', $sample_master_data['SampleMaster']['sample_code']);
-				
-		// ** Set MENU variable for echo on VIEW **
-		$ctrapp_menu[] = $this->Menus->tabs('inv_CAN_00', 'inv_CAN_10', $collection_id);
-		$ctrapp_menu[] = $this->Menus->tabs('inv_CAN_10', $specimen_group_menu_id, $collection_id);
-		
-		$specimen_grp_menu_lists = $this->getSpecimenGroupMenu($specimen_group_menu_id);
-		
-		switch($sample_category) {
-			case "specimen":
-				$specimen_sample_master_id=$sample_master_id;
-				
-				$specimen_menu_id = $specimen_group_menu_id.'-sa_qc';
-				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $specimen_menu_id, $specimen_group_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id.'/'.$specimen_sample_master_id);	
-				break;
-				
-			case "derivative":
-				$specimen_sample_master_id=$sample_master_data['SampleMaster']['initial_specimen_sample_id'];
-				$derivative_sample_master_id=$sample_master_id;		
-				
-				$specimen_menu_id = $specimen_group_menu_id.'-sa_der';
-				$derivative_menu_id = $specimen_group_menu_id.'-der_qc';
-				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $specimen_menu_id, $specimen_group_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id.'/'.$specimen_sample_master_id);	
-				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $derivative_menu_id, $specimen_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $derivative_menu_id, $collection_id.'/'.$derivative_sample_master_id.'/');	
-				break;
-			
-			default:
-				$this->redirect('/pages/err_inv_menu_definition'); 
-				exit;
-		}
-		
-		$this->set('ctrapp_menu', $ctrapp_menu);	
-	
-		// ** Set SUMMARY variable from plugin's COMPONENTS **
-		$this->set('ctrapp_summary', $this->Summaries->build($collection_id));
-		
-		// ** Set SIDEBAR variable **
-		// Use PLUGIN_CONTROLLER_ACTION by default, 
-		// but any ALIAS string that matches in the SIDEBARS datatable will do...
-		$this->set('ctrapp_sidebar', 
-			$this->Sidebars->getColsArray( 
-				$this->params['plugin'].'_'.
-				$this->params['controller'].'_'.
-				$this->params['action']));
-		
-		// ** look for all sample quality controls **
-		$criteria = array();
-		$criteria['QualityControl.sample_master_id'] = $sample_master_id;
-		$criteria = array_filter($criteria);	
-			
-		list($order, $limit, $page) = $this->Pagination->init($criteria);
-		$sample_quality_controls = $this->QualityControl->findAll($criteria, NULL, $order, $limit, $page, 0);
-			
-		$this->set('sample_quality_controls', $sample_quality_controls);		
-		
-		// look for CUSTOM HOOKS, "format"
-		$custom_ctrapp_controller_hook 
-			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
-			'controllers' . DS . 'hooks' . DS . 
-			$this->params['controller'].'_'.$this->params['action'].'_format.php';
-		
-		if (file_exists($custom_ctrapp_controller_hook)) {
-			require($custom_ctrapp_controller_hook);
-		}
-
+	function listAllQualityControls( $collection_id=NULL, $sample_master_id=NULL) {
+		$this->set( 'atim_menu_variables', array('Collection.id'=>$collection_id, 'SampleMaster.id'=>$sample_master_id) );
+		$this->data = $this->paginate($this->QualityControl,array('QualityControl.sample_master_id'=>$sample_master_id));
 	} // End ListAll()
 	
 	/**
