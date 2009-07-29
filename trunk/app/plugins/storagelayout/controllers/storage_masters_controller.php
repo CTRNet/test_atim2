@@ -2,6 +2,8 @@
 
 class StorageMastersController extends StoragelayoutAppController {
 
+	var $components = array('Storages');
+	
 	var $uses = array(
 		'Storagelayout.StorageMaster',
 		'Storagelayout.StorageControl',
@@ -59,7 +61,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		$atim_menu = $this->Menus->get('/storagelayout/storage_masters/detail/%%StorageMaster.id%%');
 		
 		// Check storage for coordinates system. If not present, disable access to Coordinates menu option
-		if(!$this->requestAction('/storagelayout/storage_coordinates/allowCustomCoordinates/'.$storage_control_id)) {
+		if(!$this->Storages->allowCustomCoordinates($storage_control_id)) {
 			foreach ($atim_menu as $menu_group_id => $menu_group) {
 				foreach ($menu_group as $menu_id => $menu_data) {
 					if ($menu_data['Menu']['use_link'] == '/storagelayout/storage_coordinates/listAll/') {
@@ -566,7 +568,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		$atim_menu = $this->Menus->get('/storagelayout/storage_masters/detail/%%StorageMaster.id%%');
 		
 		// Check storage for coordinates system. If not present, disable access to Coordinates menu option
-		if(!$this->requestAction('/storagelayout/storage_coordinates/allowCustomCoordinates/'.$storage_control_id)) {
+		if(!$this->Storages->allowCustomCoordinates($storage_control_id)) {
 			foreach ($atim_menu as $menu_group_id => $menu_group) {
 				foreach ($menu_group as $menu_id => $menu_data) {
 					if ($menu_data['Menu']['use_link'] == '/storagelayout/storage_coordinates/listAll/') {
@@ -631,7 +633,6 @@ class StorageMastersController extends StoragelayoutAppController {
 			$this->set('parent_coord_y_title', $parent_storage_control_data['StorageControl']['coord_y_title']);
 		}
 		
-/*		TODO: Is it nessesary to build this list for the detail view?	
  		// Build predefined list of positions
 		$a_coord_x_list = $this->buildAllowedStoragePosition($parent_storage_id, $parent_storage_control_data, 'x');
 		$a_coord_y_list = $this->buildAllowedStoragePosition($parent_storage_id, $parent_storage_control_data, 'y');
@@ -640,8 +641,8 @@ class StorageMastersController extends StoragelayoutAppController {
 		}
 		if(!empty($a_coord_y_list)){
 			$this->set('a_coord_y_list', $a_coord_y_list);
-		}		
- */
+		}	
+
 		if (empty($this->data)) {
 			// All the storage data (including coord x and y) are recorded into the master table.
 			$this->data = $storage_master_data;
