@@ -20,7 +20,7 @@
 		$detail = mysql_result($result, $i-1, 'flag_detail_columns');
 		
 		$query = "INSERT INTO `structures` (`id`, `old_id`, `alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns` ) VALUES
-					($i, '$id', '$alias', '$title', '$help', $add, $edit, $search, $detail);";
+					($i, '$id', '$alias', '$title', '$help', '$add', '$edit', '$search', '$detail');";
 		mysql_query($query);
 	}
 	

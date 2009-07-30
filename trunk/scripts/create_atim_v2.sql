@@ -31,7 +31,7 @@ CREATE TABLE `acos` (
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci ;
 
--- 
+--
 -- Dumping data for table `acos`
 -- 
 
@@ -10714,7 +10714,7 @@ CREATE TABLE `storage_masters_revs` (
 
 CREATE TABLE `structures` (
   `id` int(11) NOT NULL auto_increment,
-  `old_id` varchar(255) collate utf8_unicode_ci NOT NULL,
+  `old_id` varchar(255) collate utf8_unicode_ci NOT NULL default 0,
   `alias` varchar(255) character set latin1 NOT NULL default '',
   `language_title` text character set latin1 NOT NULL,
   `language_help` text character set latin1 NOT NULL,
