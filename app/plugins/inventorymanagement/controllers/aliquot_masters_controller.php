@@ -2,6 +2,7 @@
 
 class AliquotMastersController extends InventoryManagementAppController {
 	
+	/*
 	var $uses = array(
 			'AliquotControl', 
 			'AliquotMaster', 
@@ -21,7 +22,20 @@ class AliquotMastersController extends InventoryManagementAppController {
 			'StorageMaster',
 			'StudySummary'
 	);
+	*/
 		
+	var $uses = array(
+		'Inventorymanagement.Collection',
+		
+		'Inventorymanagement.SampleMaster',
+		'Inventorymanagement.SampleControl',
+		
+		'Inventorymanagement.AliquotControl', 
+		'Inventorymanagement.AliquotMaster'
+	);
+	
+	var $paginate = array('SampleMaster'=>array('limit'=>10,'order'=>'SampleMaster.sample_code DESC'));
+	
 	var $barcode_size_max = 60;
 
 	function index() {
@@ -1359,6 +1373,14 @@ class AliquotMastersController extends InventoryManagementAppController {
 					
 	}
 	
+	function detailAliquot($collection_id=null, $sample_master_id=null, $aliquot_master_id=null) {
+		$this->set( 'atim_menu_variables', array('Collection.id'=>$collection_id, 'SampleMaster.id'=>$sample_master_id, 'AliquotMaster.id'=>$aliquot_master_id) );
+		$this->data = $this->AliquotMaster->find('first',array('conditions'=>array('AliquotMaster.id'=>$aliquot_master_id)));
+		
+		$this->set( 'atim_structure', $this->Structures->get('form',$this->data['AliquotControl']['form_alias']) );
+		
+	}
+	
 	/**
 	 * Display the detail of a sample aliquot of a 'collection group'.
 	 * 
@@ -1372,7 +1394,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 	 * @author N. Luc
 	 * @date 2007-08-15
 	 */
-	function detailAliquot($specimen_group_menu_id=NULL, $group_specimen_type=NULL, $sample_category=null,	
+	function detailAliquot_OLD($specimen_group_menu_id=NULL, $group_specimen_type=NULL, $sample_category=null,	
 	$collection_id=null, $aliquot_master_id=null) {
 			
 		// ** Parameters check **
@@ -1693,6 +1715,23 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 	} // function detailAliquot
 	
+	function editAliquot($collection_id=null, $sample_master_id=null, $aliquot_master_id=null) {
+		$this->set( 'atim_menu_variables', array('Collection.id'=>$collection_id, 'SampleMaster.id'=>$sample_master_id, 'AliquotMaster.id'=>$aliquot_master_id) );
+		
+		$this_data = $this->AliquotMaster->find('first',array('conditions'=>array('AliquotMaster.id'=>$aliquot_master_id)));
+		
+		// set FORM ALIAS based off VALUE from MASTER table
+		$this->set( 'atim_structure', $this->Structures->get('form',$this_data['AliquotControl']['form_alias']) );
+		
+		if ( !empty($this->data) ) {
+			$this->AliquotMaster->id = $sample_master_id;
+			if ( $this->AliquotMaster->save($this->data) ) $this->flash( 'Your data has been updated.','/inventorymanagement/aliquot_masters/detailAliquot/'.$collection_id.'/'.$sample_master_id.'/'.$aliquot_master_id);
+		} else {
+			$this->data = $this_data;
+		}
+	
+	}
+	
 	/**
 	 * Allow to edit a aliquot. 
 	 * 
@@ -1706,7 +1745,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 	 * @author N. Luc
 	 * @date 2007-08-15
 	 */
-	function editAliquot($specimen_group_menu_id=NULL,  $group_specimen_type=NULL, $sample_category=null, 
+	function editAliquot_OLD($specimen_group_menu_id=NULL,  $group_specimen_type=NULL, $sample_category=null, 
 	$collection_id=null, $aliquot_master_id=null) {
 			
 		// ** Get the sample master id **

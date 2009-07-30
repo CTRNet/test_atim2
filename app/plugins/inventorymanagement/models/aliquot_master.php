@@ -1,10 +1,12 @@
 <?php
 
-class AliquotMaster extends InventoryManagementAppModel
-{
-	var $name = 'AliquotMaster';
+class AliquotMaster extends InventoryManagementAppModel {
+
 	var $useTable = 'aliquot_masters';
-	var $actAs = array('MasterDetail');
+	
+	var $belongsTo = 'AliquotControl';
+   
+   var $actAs = array('MasterDetail');
 	
 	function summary( $variables=array() ) {
 		$return = false;

@@ -1,61 +1,27 @@
-<?php 
-	$sidebars->header($lang);
-	$sidebars->cols($ctrapp_sidebar, $lang);
-	$summaries->build($ctrapp_summary, $lang); 
-	$menus->tabs($ctrapp_menu, $lang); 
-?>
-	
 <?php
-
-	// -----------------------------
-	// 1- Display header information
-	// -----------------------------
-
-	$form_extras = array();
-//	$form_extras['language_title'] 
-//		= $translations->t('sample code', $lang, false).' : <i>'.$sample_code.'</i>';
+	echo '
+		<div class="actions">
+			<ul>
+				<li>'.$ajax->link( 'Detail', '/inventorymanagement/sample_masters/detail/'.$atim_menu_variables['Collection.id'].'/'.$atim_menu_variables['SampleMaster.id'], array('update'=>'frame'), NULL, false ).'</li>
+				<li class="at">'.$ajax->link( 'Quality', '/inventorymanagement/quality_controls/listAllQualityControls/'.$atim_menu_variables['Collection.id'].'/'.$atim_menu_variables['SampleMaster.id'], array('update'=>'frame'), NULL, false ).'</li>
+				<li>'.$ajax->link( 'Reviews', '/unknown/', array('update'=>'frame'), NULL, false ).'</li>
+			</ul>
+		</div>
+	';
+	
+	$structure_links = array(
+		'bottom'=>array(
+			'edit'=>'/inventorymanagement/quality_controls/edit/'.$atim_menu_variables['Collection.id'].'/'.$atim_menu_variables['SampleMaster.id'].'/'.$atim_menu_variables['QualityControl.id'],
+			'delete'=>'/inventorymanagement/quality_controls/delete/'.$atim_menu_variables['Collection.id'].'/'.$atim_menu_variables['SampleMaster.id'].'/'.$atim_menu_variables['QualityControl.id']
+		),
 		
-	//-----------------------------------
-	// 2- Display qc list
-	//-----------------------------------
-
-	$form_type = 'detail';
-	$form_model = isset($this->params['data']) ? array($this->params['data']) : array($data);
-
-	$form_field = $ctrapp_form;
+		'ajax'=>array(
+			'bottom'=>array(
+				'edit'=>'frame',
+				'delete'=>'frame'
+			)
+		)
+	);
 	
-	$form_link = array(
-		'edit'=>'/inventorymanagement/quality_controls/edit/'.
-			$specimen_group_menu_id.'/'.$group_specimen_type.'/'.$sample_category.'/'.
-			$collection_id.'/'.$sample_master_id.'/');
-	if($allow_qc_deletion) {
-		$form_link['delete'] = '/inventorymanagement/quality_controls/delete/'.
-			$specimen_group_menu_id.'/'.$group_specimen_type.'/'.$sample_category.'/'.
-			$collection_id.'/'.$sample_master_id.'/';
-	}
-			
-	$form_lang = $lang;
-
-    $form_override = array();
-    $form_override['QualityControl/aliquot_master_id'] = $arr_aliquot_barcode_from_id;
-    
-    $form_pagination = NULL;
-	
-	// look for CUSTOM HOOKS, "format"
-	if (file_exists($custom_ctrapp_view_hook)) { 
-		require($custom_ctrapp_view_hook); 
-	}
-	
-	$forms->build(
-		$form_type, 
-		$form_model, 
-		$form_field, 
-		$form_link, 
-		$form_lang, 
-		$form_pagination, 
-		$form_override, 
-		$form_extras);  
-
+	$structures->build( $atim_structure, array('links'=>$structure_links) );
 ?>
-		
-<?php echo $sidebars->footer($lang); ?>

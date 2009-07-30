@@ -1,9 +1,12 @@
 <?php
 
 class SampleMaster extends InventorymanagementAppModel {
+	
+	var $useTable = 'sample_masters';
+	
 	var $belongsTo = 'SampleControl';
-    var $useTable = 'sample_masters';
-	var $actAs = array('MasterDetail');
+   
+   var $actAs = array('MasterDetail');
 	
 	function summary( $variables=array() ) {
 		$return = false;

@@ -4,9 +4,14 @@ class SampleMastersController extends InventorymanagementAppController {
 
 	var $uses = array(
 		'Inventorymanagement.Collection',
+		
 		'Inventorymanagement.SampleMaster',
-		'Inventorymanagement.SampleControl'
+		'Inventorymanagement.SampleControl',
+		
+		'Inventorymanagement.AliquotControl', 
+		'Inventorymanagement.AliquotMaster'
 	);
+	
 	var $paginate = array('SampleMaster'=>array('limit'=>10,'order'=>'SampleMaster.sample_code DESC'));
 	
 	function index() {
@@ -43,41 +48,63 @@ class SampleMastersController extends InventorymanagementAppController {
 		}
 		
 		$this->set( 'atim_menu_variables', array('Collection.id'=>$collection_id) );		
-		$this->set( 'atim_structure', $this->Structures->get('form','sample_masters_for_tree_view') );
 		
-//		$this->data = $this->paginate($this->EventMaster, $_SESSION['MasterDetail_filter']);
-//		$this->data = $this->SampleMaster->find('threaded',array('conditions'=>array('SampleMaster.collection_id'=>$collection_id)));
-
+		$atim_structure = array();
+		$atim_structure['SampleMaster']	= $this->Structures->get('form','sample_masters_for_tree_view');
+		$atim_structure['AliquotMaster']	= $this->Structures->get('form','aliquotmasters');
+		$this->set( 'atim_structure', $atim_structure );
+		
 //		$this->data = $this->paginate($this->SampleMaster, $_SESSION['MasterDetail_filter']);
 	 	$this->data = $this->SampleMaster->find('threaded',array('conditions'=>$_SESSION['MasterDetail_filter']));
-  		
-		// find Sample control data for filter list
+	 	
+	 	$this->data = $this->tree_node( $this->data );
+	 	
+	 // find Sample control data for filter list
 		// $this->set( 'sample_controls', $this->SampleControl->find('all', array('conditions'=>array('status'=>'active'))) );
 		$this->set( 'sample_controls', array() );
+	}
 	
+	function tree_node( $data=array() ) {
+	
+		foreach ( $data as $key=>$val ) {
+			
+			// recursive first on existing MODEL CHILDREN
+			if ( isset($val['children']) && count($val['children']) ) {
+				$val['children'] = $this->tree_node( $val['children'] );
+			}
+			
+			// get OUTSIDE MODEL data and append as CHILDREN
+			$aliquot_results = $this->AliquotMaster->find( 'all', array('conditions'=>array('AliquotMaster.sample_master_id'=>$val['SampleMaster']['id'])) );
+			foreach ( $aliquot_results as $aliquot ) { $val['children'][] = $aliquot; }
+			
+			$data[$key] = $val;
+		}
+		
+		return $data;
+		
 	}
 	
 	function detail($collection_id=null, $sample_master_id=null) {
-		// $this->set( 'atim_menu_variables', array('Menu.alias'=>'/inventorymanagement/sample_masters/detail/inv_CAN_22-1/ascite/specimen','Collection.id'=>$collection_id, 'SampleMaster.id'=>$sample_master_id) );
-		
 		$this->set( 'atim_menu_variables', array('Collection.id'=>$collection_id, 'SampleMaster.id'=>$sample_master_id) );
 		$this->data = $this->SampleMaster->find('first',array('conditions'=>array('SampleMaster.id'=>$sample_master_id)));
+		
+		$this->set( 'atim_structure', $this->Structures->get('form',$this->data['SampleControl']['form_alias']) );
+		
 	}
 	
 	function edit($collection_id=null, $sample_master_id=null) {
 		$this->set( 'atim_menu_variables', array('Collection.id'=>$collection_id, 'SampleMaster.id'=>$sample_master_id) );
 		
-		$this_sample_master_data = $this->SampleMaster->find('first',array('conditions'=>array('SampleMaster.id'=>$sample_master_id)));
-		$this_sample_control_data = $this->SampleControl->find('first',array('conditions'=>array('SampleControl.id'=>$this_sample_master_data['SampleMaster']['sample_control_id'])));
+		$this_data = $this->SampleMaster->find('first',array('conditions'=>array('SampleMaster.id'=>$sample_master_id)));
 		
 		// set FORM ALIAS based off VALUE from MASTER table
-		$this->set( 'atim_structure', $this->Structures->get('form',$this_sample_control_data['SampleControl']['form_alias']) );
+		$this->set( 'atim_structure', $this->Structures->get('form',$this_data['SampleControl']['form_alias']) );
 		
 		if ( !empty($this->data) ) {
 			$this->SampleMaster->id = $sample_master_id;
 			if ( $this->SampleMaster->save($this->data) ) $this->flash( 'Your data has been updated.','/inventorymanagement/sample_masters/detail/'.$collection_id.'/'.$sample_master_id);
 		} else {
-			$this->data = $this_sample_master_data;
+			$this->data = $this_data;
 		}
 	
 	}

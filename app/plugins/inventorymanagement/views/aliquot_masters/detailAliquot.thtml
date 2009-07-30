@@ -1,90 +1,27 @@
-<?php 
-	$sidebars->header($lang);
-	$sidebars->cols($ctrapp_sidebar, $lang);
-	$summaries->build($ctrapp_summary, $lang); 
-	$menus->tabs($ctrapp_menu, $lang); 
+<?php
+	echo '
+		<div class="actions">
+			<ul>
+				<li class="at">'.$ajax->link( 'Detail', '/inventorymanagement/sample_masters/detail/'.$atim_menu_variables['Collection.id'].'/'.$atim_menu_variables['SampleMaster.id'], array('update'=>'frame'), NULL, false ).'</li>
+				<li>'.$ajax->link( 'Quality', '/inventorymanagement/quality_controls/listAllQualityControls/'.$atim_menu_variables['Collection.id'].'/'.$atim_menu_variables['SampleMaster.id'], array('update'=>'frame'), NULL, false ).'</li>
+				<li>'.$ajax->link( 'Reviews', '/unknown/', array('update'=>'frame'), NULL, false ).'</li>
+			</ul>
+		</div>
+	';
+	
+	$structure_links = array(
+		'bottom'=>array(
+			'edit'=>'/inventorymanagement/aliquot_masters/edit/'.$atim_menu_variables['Collection.id'].'/'.$atim_menu_variables['SampleMaster.id'].'/'.$atim_menu_variables['AliquotMaster.id'],
+			'delete'=>'/inventorymanagement/aliquot_masters/delete/'.$atim_menu_variables['Collection.id'].'/'.$atim_menu_variables['SampleMaster.id'].'/'.$atim_menu_variables['AliquotMaster.id']
+		),
+		
+		'ajax'=>array(
+			'bottom'=>array(
+				'edit'=>'frame',
+				'delete'=>'frame'
+			)
+		)
+	);
+	
+	$structures->build( $atim_structure, array('links'=>$structure_links) );
 ?>
-	
-<?php 
-
-	// -----------------------------
-	// 1- Display header information
-	// -----------------------------
-
-	$form_extras = array();
-//	$form_extras['language_title'] 
-//		= $translations->t('sample code', $lang, false).' : <i>'.$sample_code.'</i>';
-	
-	// -----------------------------
-	// 2- Display the form
-	// -----------------------------
-
-	$form_type = 'detail';
-	$form_model = isset($this->params['data']) ? array($this->params['data']) : array($data);
-	$form_field = $ctrapp_form_aliquot;
-	
-	$form_link = array();	
-	$form_link['edit'] 
-		= '/inventorymanagement/aliquot_masters/editAliquot/'.
-			$specimen_group_menu_id.'/'.$group_specimen_type.'/'.$sample_category.'/'.
-			$collection_id.'/';
-	if($boolAllowOrder) {
-		$form_link['order process link'] = '/inventorymanagement/aliquot_masters/process_add_aliquots/';
-	}
-	$form_link['delete storage data'] 
-		= '/inventorymanagement/aliquot_masters/deleteAliquotStorageData/'.
-			$specimen_group_menu_id.'/'.$group_specimen_type.'/'.$sample_category.'/'.
-			$collection_id.'/';
-	if($boolDefinePosition){
-		$form_link['plugin storagelayout set position'] 
-			= '/storagelayout/storage_masters/editAliquotPosition/AliquotDetail/';
-	}
-	if($boolAllowDeletion){
-		$form_link['delete'] = '/inventorymanagement/aliquot_masters/deleteAliquot/'.
-			$specimen_group_menu_id.'/'.$group_specimen_type.'/'.$sample_category.'/'.
-			$collection_id.'/';
-	}
-		
-	$form_lang = $lang;
-	
-	$form_override = array();
-	$form_override['AliquotMaster/sop_master_id'] = $arr_sop_title_from_id;
-    if(isset($coll_to_stor_spent_time_msg)){
-    	$form_override['Generated/coll_to_stor_spent_time_msg'] = $translations->t($coll_to_stor_spent_time_msg, $lang, false);
-    }
-    if(isset($rec_to_stor_spent_time_msg)){
-    	$form_override['Generated/rec_to_stor_spent_time_msg'] = $translations->t($rec_to_stor_spent_time_msg, $lang, false);
-    }
-	if(isset($creat_to_stor_spent_time_msg)){
-		$form_override['Generated/creat_to_stor_spent_time_msg'] = $translations->t($creat_to_stor_spent_time_msg, $lang, false);
-	}
-    if(isset($arr_study_from_id)){
-		$form_override['AliquotMaster/study_summary_id'] = $arr_study_from_id;
-	}
-    if(isset($available_block_code)){
-    	$form_override['AliquotDetail/ad_block_id'] = $available_block_code;
-	}
-    if(isset($available_gel_matrix_code)){
-    	$form_override['AliquotDetail/ad_gel_matrix_id'] = $available_gel_matrix_code;
-    }
-    
-    $form_pagination = NULL;
-		
-	// look for CUSTOM HOOKS, "format"
-	if (file_exists($custom_ctrapp_view_hook)) { 
-		require($custom_ctrapp_view_hook); 
-	}
-	
-	$forms->build( 
-		$form_type,
-		$form_model, 
-		$form_field, 
-		$form_link, 
-		$form_lang, 
-		$form_pagination, 
-		$form_override,
-		$form_extras); 
-			
-?>  
-		
-<?php echo $sidebars->footer($lang); ?>
