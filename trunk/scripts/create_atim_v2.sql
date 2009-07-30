@@ -1011,7 +1011,7 @@ CREATE TABLE `aliquot_masters` (
   `id` int(11) NOT NULL auto_increment,
   `barcode` varchar(60) NOT NULL default '',
   `aliquot_type` varchar(30) NOT NULL default '',
-  `aliquot_control_id` int(11) default NULL,
+  `aliquot_control_id` int(11) NOT NULL default 0,
   `collection_id` int(11) default NULL,
   `sample_master_id` int(11) default NULL,
   `sop_master_id` int(11) default NULL,
@@ -1057,7 +1057,7 @@ CREATE TABLE `aliquot_masters_revs` (
   `id` int(11) NOT NULL,
   `barcode` varchar(60) NOT NULL default '',
   `aliquot_type` varchar(30) NOT NULL default '',
-  `aliquot_control_id` int(11) default NULL,
+  `aliquot_control_id` int(11) NOT NULL default 0,
   `collection_id` int(11) default NULL,
   `sample_master_id` int(11) default NULL,
   `sop_master_id` int(11) default NULL,
@@ -1240,7 +1240,7 @@ CREATE TABLE `aros_acos` (
 
 -- 
 -- Dumping data for table `aros_acos`
--- 
+--
 
 
 INSERT INTO `aros_acos` (`id`, `aro_id`, `aco_id`, `_create`, `_read`, `_update`, `_delete`) VALUES (7, 1, 698, '1', '1', '1', '1'),
@@ -4916,7 +4916,7 @@ INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`,
 
 CREATE TABLE `event_masters` (
   `id` int(11) NOT NULL auto_increment,
-  `event_control_id` int(11) NOT NULL,
+  `event_control_id` int(11) NOT NULL default 0,
   `disease_site` varchar(255) NOT NULL default '',
   `event_group` varchar(50) NOT NULL default '',
   `event_type` varchar(50) NOT NULL default '',
@@ -4956,7 +4956,7 @@ CREATE TABLE `event_masters` (
 
 CREATE TABLE `event_masters_revs` (
   `id` int(11) NOT NULL,
-  `event_control_id` int(11) NOT NULL,
+  `event_control_id` int(11) NOT NULL default 0,
   `disease_site` varchar(255) NOT NULL default '',
   `event_group` varchar(50) NOT NULL default '',
   `event_type` varchar(50) NOT NULL default '',
@@ -7779,7 +7779,7 @@ CREATE TABLE `participants` (
 
 -- --------------------------------------------------------
 
--- 
+--
 -- Table structure for table `participants_revs`
 -- 
 
@@ -7907,7 +7907,7 @@ CREATE TABLE `participant_contacts_revs` (
 
 -- 
 -- Table structure for table `participant_messages`
--- 
+--
 
 CREATE TABLE `participant_messages` (
   `id` int(11) NOT NULL auto_increment,
@@ -7971,7 +7971,7 @@ CREATE TABLE `participant_messages_revs` (
 
 -- 
 -- Table structure for table `path_collection_reviews`
--- 
+--
 
 CREATE TABLE `path_collection_reviews` (
   `id` int(11) NOT NULL auto_increment,
@@ -8206,7 +8206,7 @@ INSERT INTO `protocol_controls` (`id`, `tumour_group`, `type`, `detail_tablename
 
 CREATE TABLE `protocol_masters` (
   `id` int(11) NOT NULL auto_increment,
-  `protocol_control_id` int(11) NOT NULL,
+  `protocol_control_id` int(11) NOT NULL default 0,
   `name` varchar(255) default NULL,
   `notes` text,
   `code` varchar(50) default NULL,
@@ -8243,7 +8243,7 @@ CREATE TABLE `protocol_masters` (
 
 CREATE TABLE `protocol_masters_revs` (
   `id` int(11) NOT NULL,
-  `protocol_control_id` int(11) NOT NULL,
+  `protocol_control_id` int(11) NOT NULL default 0,
   `name` varchar(255) default NULL,
   `notes` text,
   `code` varchar(50) default NULL,
@@ -8366,7 +8366,7 @@ CREATE TABLE `quality_controls` (
 
 -- --------------------------------------------------------
 
--- 
+--
 -- Table structure for table `quality_controls_revs`
 -- 
 
@@ -9047,7 +9047,7 @@ INSERT INTO `review_controls` (`id`, `review_type`, `review_sample_group`, `stat
 
 CREATE TABLE `review_masters` (
   `id` int(11) NOT NULL auto_increment,
-  `review_control_id` int(11) default NULL,
+  `review_control_id` int(11) NOT NULL default 0,
   `collection_id` int(11) default NULL,
   `sample_master_id` int(11) default NULL,
   `review_type` varchar(30) NOT NULL default '',
@@ -9078,7 +9078,7 @@ CREATE TABLE `review_masters` (
 
 CREATE TABLE `review_masters_revs` (
   `id` int(11) NOT NULL,
-  `review_control_id` int(11) default NULL,
+  `review_control_id` int(11) NOT NULL default 0,
   `collection_id` int(11) default NULL,
   `sample_master_id` int(11) default NULL,
   `review_type` varchar(30) NOT NULL default '',
@@ -9186,7 +9186,7 @@ CREATE TABLE `sample_aliquot_control_links` (
 
 -- 
 -- Dumping data for table `sample_aliquot_control_links`
--- 
+--
 
 
 -- --------------------------------------------------------
@@ -9253,7 +9253,7 @@ CREATE TABLE `sample_masters` (
   `id` int(11) NOT NULL auto_increment,
   `sample_code` varchar(30) NOT NULL default '',
   `sample_category` varchar(30) NOT NULL default '',
-  `sample_control_id` int(11) default NULL,
+  `sample_control_id` int(11) NOT NULL default 0,
   `sample_type` varchar(30) NOT NULL default '',
   `initial_specimen_sample_id` int(11) default NULL,
   `initial_specimen_sample_type` varchar(30) NOT NULL default '',
@@ -9292,7 +9292,7 @@ CREATE TABLE `sample_masters_revs` (
   `id` int(11) NOT NULL,
   `sample_code` varchar(30) NOT NULL default '',
   `sample_category` varchar(30) NOT NULL default '',
-  `sample_control_id` int(11) default NULL,
+  `sample_control_id` int(11) NOT NULL default 0,
   `sample_type` varchar(30) NOT NULL default '',
   `initial_specimen_sample_id` int(11) default NULL,
   `initial_specimen_sample_type` varchar(30) NOT NULL default '',
@@ -10111,7 +10111,7 @@ CREATE TABLE `sope_general_all` (
 
 -- 
 -- Table structure for table `sope_general_all_revs`
--- 
+--
 
 CREATE TABLE `sope_general_all_revs` (
   `id` int(11) NOT NULL,
@@ -10172,7 +10172,7 @@ INSERT INTO `sop_controls` (`id`, `sop_group`, `type`, `detail_tablename`, `deta
 
 CREATE TABLE `sop_masters` (
   `id` int(11) NOT NULL auto_increment,
-  `sop_control_id` int(11) NOT NULL,
+  `sop_control_id` int(11) NOT NULL default 0,
   `title` varchar(255) default NULL,
   `notes` text,
   `code` varchar(50) default NULL,
@@ -10211,7 +10211,7 @@ CREATE TABLE `sop_masters` (
 
 CREATE TABLE `sop_masters_revs` (
   `id` int(11) NOT NULL,
-  `sop_control_id` int(11) NOT NULL,
+  `sop_control_id` int(11) NOT NULL default 0,
   `title` varchar(255) default NULL,
   `notes` text,
   `code` varchar(50) default NULL,
@@ -10638,7 +10638,7 @@ CREATE TABLE `storage_masters` (
   `id` int(11) NOT NULL auto_increment,
   `code` varchar(30) NOT NULL default '',
   `storage_type` varchar(30) NOT NULL default '',
-  `storage_control_id` int(11) default NULL,
+  `storage_control_id` int(11) NOT NULL default 0,
   `parent_id` int(11) default NULL,
   `barcode` varchar(30) default '',
   `short_label` varchar(10) default NULL,
@@ -10676,7 +10676,7 @@ CREATE TABLE `storage_masters_revs` (
   `id` int(11) NOT NULL,
   `code` varchar(30) NOT NULL default '',
   `storage_type` varchar(30) NOT NULL default '',
-  `storage_control_id` int(11) default NULL,
+  `storage_control_id` int(11) NOT NULL default 0,
   `parent_id` int(11) default NULL,
   `barcode` varchar(30) default '',
   `short_label` varchar(10) default NULL,
@@ -17604,7 +17604,7 @@ INSERT INTO `tx_controls` (`id`, `tx_group`, `disease_site`, `status`, `detail_t
 
 CREATE TABLE `tx_masters` (
   `id` int(11) NOT NULL auto_increment,
-  `tx_control_id` int(11) NOT NULL,
+  `tx_control_id` int(11) NOT NULL default 0,
   `tx_group` varchar(50) default NULL,
   `disease_site` varchar(50) default NULL,
   `tx_intent` varchar(50) default NULL,
@@ -17641,7 +17641,7 @@ CREATE TABLE `tx_masters` (
 
 CREATE TABLE `tx_masters_revs` (
   `id` int(11) NOT NULL,
-  `tx_control_id` int(11) NOT NULL,
+  `tx_control_id` int(11) NOT NULL default 0,
   `tx_group` varchar(50) default NULL,
   `disease_site` varchar(50) default NULL,
   `tx_intent` varchar(50) default NULL,

@@ -194,16 +194,21 @@ CREATE TABLE `structures` (
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
-RENAME TABLE `form_validations` TO `structure_validations`;
-
-ALTER TABLE `structure_validations`
-	CHANGE `form_field_id` `old_id` VARCHAR(255) NOT NULL,
-	CHANGE `expression` `rule` TEXT default NULL,
-	CHANGE `message` `language_message` TEXT default NULL,
-	ADD COLUMN `structure_field_id` INT(11) NOT NULL AFTER `old_id`,
-	ADD `flag_empty` SET('0','1') default '1' AFTER `rule`,
-	ADD `flag_required` SET('0','1') default '1' AFTER `flag_empty`,
-	ADD `on_action` VARCHAR(255) default NULL AFTER `flag_required`;
+CREATE TABLE `structure_validations` (
+  `id` int(11) NOT NULL auto_increment,
+  `old_id` varchar(255) character set latin1 NOT NULL default '0',
+  `structure_field_id` INT(11) NOT NULL default 0,
+  `rule` text character set latin1 NOT NULL,
+  `flag_empty` set('0','1') collate utf8_unicode_ci NOT NULL default '0',
+  `flag_required` set('0','1') collate utf8_unicode_ci NOT NULL default '0',
+  `on_action` varchar(255) collate utf8_unicode_ci NOT NULL,
+  `language_message` text character set latin1 NOT NULL,
+  `created` datetime NOT NULL default '0000-00-00 00:00:00',
+  `created_by` varchar(255) character set latin1 NOT NULL default '',
+  `modified` datetime NOT NULL default '0000-00-00 00:00:00',
+  `modifed_by` varchar(255) character set latin1 NOT NULL default '',
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 INSERT INTO `forms` (`id`, `alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 ('CAN-024-001-000-999-0022', 'new_bank_participant_search', '', '', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -249,8 +254,6 @@ CREATE TABLE `versions` (
   `modified_by` varchar(50) default NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=INNODB DEFAULT CHARSET=latin1;
-
-UPDATE `structure_validations` SET flag_empty = '1', rule = '' WHERE rule = '/.+/';
 
 ALTER TABLE `users` CHANGE COLUMN `passwd` `password` CHAR(40);
 
