@@ -15,7 +15,7 @@
 	$add_links = array();
 	$translated_add_links = array();
 	foreach ( $storage_controls as $storage_control ) {
-		$add_links[$storage_control['StorageControl']['storage_type']] = '/storagelayout/storage_masters/add/'.$storage_control['StorageControl']['id'];
+		$add_links[$storage_control['StorageControl']['storage_type']] = '/storagelayout/storage_masters/add/'.$storage_control['StorageControl']['id'].'/'.$atim_menu_variables['StorageMaster.id'];
 	}
 	foreach($add_links as $key_id => $value_type){
 		$translated_add_links[$key_id]= __($value_type, TRUE);
@@ -23,7 +23,7 @@
 	
 	$structure_links = array(
 		'bottom'=>array(
-			'add' => $add_links,
+			'add to selected' => $add_links,
 			'show parent' => $show_parent_link,
 			'search' => '/storagelayout/storage_masters/index/',
 			'edit' => '/storagelayout/storage_masters/edit/'.$atim_menu_variables['StorageMaster.id'], 
