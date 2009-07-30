@@ -6,10 +6,6 @@ ALTER TABLE `tx_masters` CHANGE `group` `tx_group` VARCHAR( 50 ) CHARACTER SET l
 UPDATE `structure_fields` SET `field` = 'tx_group',
 `structure_value_domain` = '0' WHERE `old_id` = 'CAN-999-999-000-999-276' LIMIT 1 ;
 
--- Update structure validations structure_field_id
-
-UPDATE `structure_validations` v, `structure_fields` f SET v.structure_field_id = f.id WHERE v.old_id LIKE f.old_id;
-
 -- Add deleted and deleted_by columns to the correct tables
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -66,7 +62,8 @@ ADD COLUMN `display_order` int(11) NOT NULL default 0;
 ALTER TABLE `aliquot_masters`
 
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_date` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL
+MODIFY COLUMN `aliquot_control_id` int(11) NOT NULL default 0;
 
 ALTER TABLE `aliquot_uses`
 
@@ -173,7 +170,7 @@ ADD COLUMN `display_order` int(11) NOT NULL default 0;
 
 ALTER TABLE `event_masters`
 
-ADD COLUMN `event_control_id` int(11) NOT NULL AFTER `id`,
+ADD COLUMN `event_control_id` int(11) NOT NULL defualt 0 AFTER `id`,
 ADD COLUMN `deleted` int(11) default 0,
 ADD COLUMN `deleted_date` datetime default NULL;
 
@@ -256,9 +253,10 @@ ADD `display_order` int(11) NOT NULL default 0;
 
 ALTER TABLE `protocol_masters`
 
-ADD COLUMN `protocol_control_id` int(11) NOT NULL AFTER `id`,
+ADD COLUMN `protocol_control_id` int(11) NOT NULL default 0 AFTER `id`,
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_date` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL,
+MODIFY COLUMN `type` VARCHAR(50) NOT NULL default '';
 
 ALTER TABLE `qc_tested_aliquots`
 
@@ -317,7 +315,8 @@ ADD COLUMN `display_order` int(11) NOT NULL default 0;
 ALTER TABLE `review_masters`
 
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_date` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL
+MODIFY COLUMN `review_control_id` int(11) NOT NULL default 0;
 
 ALTER TABLE `rtbforms`
 
@@ -331,7 +330,8 @@ ADD COLUMN `display_order` int(11) NOT NULL default 0;
 ALTER TABLE `sample_masters`
 
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_date` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL
+MODIFY COLUMN `sample_control_id` NOT NULL default 0;
 
 ALTER TABLE `sd_der_cell_cultures`
 
@@ -394,7 +394,7 @@ ADD COLUMN `display_order` int(11) NOT NULL default 0;
 
 ALTER TABLE `sop_masters`
 
-ADD COLUMN `sop_control_id` int(11) NOT NULL AFTER `id`,
+ADD COLUMN `sop_control_id` int(11) NOT NULL default 0 AFTER `id`,
 ADD COLUMN `deleted` int(11) default 0,
 ADD COLUMN `deleted_date` datetime default NULL;
 
@@ -444,7 +444,8 @@ ADD COLUMN `deleted_date` datetime default NULL;
 ALTER TABLE `storage_masters`
 
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_date` datetime default NULL;
+ADD COLUMN `deleted_date` datetime default NULL
+MODIFY COLUMN `storage_control_id` int(11) NOT NULL default 0;
 
 ALTER TABLE `study_contacts`
 
@@ -505,7 +506,7 @@ ADD COLUMN `display_order` int(11) NOT NULL default 0;
 
 ALTER TABLE `tx_masters`
 
-ADD COLUMN `tx_control_id` int(11) NOT NULL AFTER `id`,
+ADD COLUMN `tx_control_id` int(11) NOT NULL default 0 AFTER `id`,
 ADD COLUMN `deleted` int(11) default 0,
 ADD COLUMN `deleted_date` datetime default NULL;
 
@@ -580,7 +581,7 @@ ADD COLUMN `deleted_date` datetime default NULL;
   UPDATE `structure_fields` SET `plugin` = 'InventoryManagement' WHERE `model` = 'Collection';
   UPDATE `structure_fields` SET `plugin` = 'InventoryManagement' WHERE `model` = 'SampleMaster';
   UPDATE `structure_fields` SET `plugin` = 'InventoryManagement' WHERE `model` = 'SpecimenDetail';
-  UPDATE `structure_fields` SET `plugin` = 'InventoryManagement' WHERE `model` = 'SampleDetil';
+  UPDATE `structure_fields` SET `plugin` = 'InventoryManagement' WHERE `model` = 'SampleDetail';
   UPDATE `structure_fields` SET `plugin` = 'InventoryManagement' WHERE `model` = 'DerivativeDetail';
   UPDATE `structure_fields` SET `plugin` = 'InventoryManagement' WHERE `model` = 'AliquotMaster';
   UPDATE `structure_fields` SET `plugin` = 'InventoryManagement' WHERE `model` = 'SampleMaster';
@@ -668,6 +669,7 @@ UPDATE `structures` SET `alias` = 'studyethicsboards' WHERE `alias` = 'study_eth
 UPDATE `structures` SET `alias` = 'studyfundings' WHERE `alias` = 'study_fundings';
 UPDATE `structures` SET `alias` = 'studyresults' WHERE `alias` = 'study_results';
 UPDATE `structures` SET `alias` = 'studyrelated' WHERE `alias` = 'study_related';
+UPDATE `structures` SET `alias` = 'eventmasters' WHERE `alias` = 'event_masters';
 
 -- Bank field change
 

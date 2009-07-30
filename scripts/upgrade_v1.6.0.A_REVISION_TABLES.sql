@@ -602,7 +602,7 @@ CREATE TABLE `ed_breast_screening_mammogram_revs` (
 
 CREATE TABLE `event_masters_revs` (
   `id` int(11) NOT NULL,
-  `event_control_id` int(11) NOT NULL,
+  `event_control_id` int(11) NOT NULL default 0,
   `disease_site` varchar(255) NOT NULL default '',
   `event_group` varchar(50) NOT NULL default '',
   `event_type` varchar(50) NOT NULL default '',
@@ -913,7 +913,7 @@ CREATE TABLE `pe_chemos_revs` (
 
 CREATE TABLE `protocol_masters_revs` (
   `id` int(11) NOT NULL,
-  `protocol_control_id` int(11) NOT NULL,
+  `protocol_control_id` int(11) NOT NULL default 0,
   `name` varchar(255) default NULL,
   `notes` text,
   `code` varchar(50) default NULL,
@@ -1530,7 +1530,7 @@ CREATE TABLE `sope_general_all_revs` (
 
 CREATE TABLE `sop_masters_revs` (
   `id` int(11) NOT NULL,
-  `sop_control_id` int(11) NOT NULL,
+  `sop_control_id` int(11) NOT NULL default 0,
   `title` varchar(255) default NULL,
   `notes` text,
   `code` varchar(50) default NULL,
@@ -2128,7 +2128,7 @@ CREATE TABLE `txe_surgeries_revs` (
 
 CREATE TABLE `tx_masters_revs` (
   `id` int(11) NOT NULL,
-  `tx_control_id` int(11) NOT NULL,
+  `tx_control_id` int(11) NOT NULL default 0,
   `group` varchar(50) default NULL,
   `disease_site` varchar(50) default NULL,
   `tx_intent` varchar(50) default NULL,
