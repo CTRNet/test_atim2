@@ -15,7 +15,26 @@ class QualityControlsController extends InventoryManagementAppController {
 	function listAllQualityControls( $collection_id=NULL, $sample_master_id=NULL) {
 		$this->set( 'atim_menu_variables', array('Collection.id'=>$collection_id, 'SampleMaster.id'=>$sample_master_id) );
 		$this->data = $this->paginate($this->QualityControl,array('QualityControl.sample_master_id'=>$sample_master_id));
-	} // End ListAll()
+	}
+	
+	function detail($collection_id=null, $sample_master_id=null, $quality_control_id=null) {
+		$this->set( 'atim_menu_variables', array('Collection.id'=>$collection_id, 'SampleMaster.id'=>$sample_master_id, 'QualityControl.id'=>$quality_control_id) );
+		$this->data = $this->QualityControl->find('first',array('conditions'=>array('QualityControl.id'=>$quality_control_id)));
+	}
+	
+	function edit($collection_id=null, $sample_master_id=null, $quality_control_id=null) {
+		$this->set( 'atim_menu_variables', array('Collection.id'=>$collection_id, 'SampleMaster.id'=>$sample_master_id, 'QualityControl.id'=>$quality_control_id) );
+		
+		$this_data = $this->QualityControl->find('first',array('conditions'=>array('QualityControl.id'=>$quality_control_id)));
+		
+		if ( !empty($this->data) ) {
+			$this->QualityControl->id = $quality_control_id;
+			if ( $this->QualityControl->save($this->data) ) $this->flash( 'Your data has been updated.','/inventorymanagement/quality_controls/detail/'.$collection_id.'/'.$sample_master_id.'/'.$quality_control_id);
+		} else {
+			$this->data = $this_data;
+		}
+	
+	}
 	
 	/**
 	 * Allow to display data of a sample quality control. 
@@ -31,7 +50,7 @@ class QualityControlsController extends InventoryManagementAppController {
 	 * @author N. Luc
 	 * @date 2008-01-28
 	 */
-	function detail($specimen_group_menu_id=NULL, $group_specimen_type=NULL, $sample_category=NULL, 
+	function detail_OLD($specimen_group_menu_id=NULL, $group_specimen_type=NULL, $sample_category=NULL, 
 	$collection_id=null, $sample_master_id=NULL, $quality_control_id = NULL) {
 	
 		// ** Parameters check **
@@ -391,7 +410,7 @@ class QualityControlsController extends InventoryManagementAppController {
 	 * @author N. Luc
 	 * @date 2008-01-28
 	 */
-	function edit($specimen_group_menu_id=NULL, $group_specimen_type=NULL, $sample_category=NULL, 
+	function edit_OLD($specimen_group_menu_id=NULL, $group_specimen_type=NULL, $sample_category=NULL, 
 	$collection_id=null, $sample_master_id=NULL, $quality_control_id = NULL) {
 	
 		// ** Parameters check **

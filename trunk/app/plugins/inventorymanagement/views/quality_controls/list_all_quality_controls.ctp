@@ -3,7 +3,6 @@
 		<div class="actions">
 			<ul>
 				<li>'.$ajax->link( 'Detail', '/inventorymanagement/sample_masters/detail/'.$atim_menu_variables['Collection.id'].'/'.$atim_menu_variables['SampleMaster.id'], array('update'=>'frame'), NULL, false ).'</li>
-				<li>'.$ajax->link( 'Aliquots', '/inventorymanagement/aliquot_masters/listAllSampleAliquots/'.$atim_menu_variables['Collection.id'].'/'.$atim_menu_variables['SampleMaster.id'], array('update'=>'frame'), NULL, false ).'</li>
 				<li class="at">'.$ajax->link( 'Quality', '/inventorymanagement/quality_controls/listAllQualityControls/'.$atim_menu_variables['Collection.id'].'/'.$atim_menu_variables['SampleMaster.id'], array('update'=>'frame'), NULL, false ).'</li>
 				<li>'.$ajax->link( 'Reviews', '/unknown/', array('update'=>'frame'), NULL, false ).'</li>
 			</ul>
