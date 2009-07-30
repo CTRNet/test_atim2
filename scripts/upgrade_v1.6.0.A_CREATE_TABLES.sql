@@ -102,11 +102,11 @@ CREATE TABLE `structure_fields` (
 
 CREATE TABLE `structure_formats` (
   `id` int(11) NOT NULL auto_increment,
-  `old_id` varchar(255) collate utf8_unicode_ci NOT NULL,
+  `old_id` varchar(255) collate utf8_unicode_ci NOT NULL default 0,
   `structure_id` int(11) default NULL,
-  `structure_old_id` varchar(255) collate utf8_unicode_ci NOT NULL,
+  `structure_old_id` varchar(255) collate utf8_unicode_ci NOT NULL default 0,
   `structure_field_id` int(11) default NULL,
-  `structure_field_old_id` varchar(255) collate utf8_unicode_ci NOT NULL,
+  `structure_field_old_id` varchar(255) collate utf8_unicode_ci NOT NULL default 0,
   `display_column` int(11) NOT NULL default '1',
   `display_order` int(11) NOT NULL default '0',
   `language_heading` varchar(255) character set latin1 NOT NULL default '',
@@ -179,7 +179,7 @@ UPDATE `form_formats` SET `flag_search` = 1 WHERE `field_id` = 'AAA-000-000-000-
 
 CREATE TABLE `structures` (
   `id` int(11) NOT NULL auto_increment,
-  `old_id` varchar(255) collate utf8_unicode_ci NOT NULL,
+  `old_id` varchar(255) collate utf8_unicode_ci NOT NULL default 0,
   `alias` varchar(255) character set latin1 NOT NULL default '',
   `language_title` text character set latin1 NOT NULL,
   `language_help` text character set latin1 NOT NULL,
@@ -539,3 +539,4 @@ INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_ti
 ('tool_CAN_38', 'core_CAN_33', 1, 101, 'pricing', 'pricing', '/under_development/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('tool_CAN_43', 'core_CAN_33', 1, 102, 'provider', 'provider', '/provider/providers/index/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('tool_CAN_48', 'core_CAN_33', 1, 100, 'collection kit', 'collection kit', '/under_development/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+

@@ -62,7 +62,7 @@ ADD COLUMN `display_order` int(11) NOT NULL default 0;
 ALTER TABLE `aliquot_masters`
 
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_date` datetime default NULL
+ADD COLUMN `deleted_date` datetime default NULL,
 MODIFY COLUMN `aliquot_control_id` int(11) NOT NULL default 0;
 
 ALTER TABLE `aliquot_uses`
@@ -170,7 +170,7 @@ ADD COLUMN `display_order` int(11) NOT NULL default 0;
 
 ALTER TABLE `event_masters`
 
-ADD COLUMN `event_control_id` int(11) NOT NULL defualt 0 AFTER `id`,
+ADD COLUMN `event_control_id` int(11) NOT NULL default 0 AFTER `id`,
 ADD COLUMN `deleted` int(11) default 0,
 ADD COLUMN `deleted_date` datetime default NULL;
 
@@ -315,7 +315,7 @@ ADD COLUMN `display_order` int(11) NOT NULL default 0;
 ALTER TABLE `review_masters`
 
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_date` datetime default NULL
+ADD COLUMN `deleted_date` datetime default NULL,
 MODIFY COLUMN `review_control_id` int(11) NOT NULL default 0;
 
 ALTER TABLE `rtbforms`
@@ -330,8 +330,8 @@ ADD COLUMN `display_order` int(11) NOT NULL default 0;
 ALTER TABLE `sample_masters`
 
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_date` datetime default NULL
-MODIFY COLUMN `sample_control_id` NOT NULL default 0;
+ADD COLUMN `deleted_date` datetime default NULL,
+MODIFY COLUMN `sample_control_id` int(11) NOT NULL default 0;
 
 ALTER TABLE `sd_der_cell_cultures`
 
@@ -444,7 +444,7 @@ ADD COLUMN `deleted_date` datetime default NULL;
 ALTER TABLE `storage_masters`
 
 ADD COLUMN `deleted` int(11) default 0,
-ADD COLUMN `deleted_date` datetime default NULL
+ADD COLUMN `deleted_date` datetime default NULL,
 MODIFY COLUMN `storage_control_id` int(11) NOT NULL default 0;
 
 ALTER TABLE `study_contacts`
