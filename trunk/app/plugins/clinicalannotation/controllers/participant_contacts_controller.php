@@ -1,7 +1,7 @@
 <?php
 
 class ParticipantContactsController extends ClinicalannotationAppController {
-	var $uses = array('ParticipantContact');
+	var $uses = array('ClinicalAnnotation.ParticipantContact');
 	var $paginate = array('ParticipantContact'=>array('limit'=>10,'order'=>'ParticipantContact.contact_type ASC'));	
 	
 	function listall( $participant_id ) {
@@ -15,7 +15,7 @@ class ParticipantContactsController extends ClinicalannotationAppController {
 	function detail( $participant_id, $participant_contact_id ) {
 		// Missing or empty function variable, send to ERROR page
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if ( !$participant_contact_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$participant_contact_id ) { $this->redirect( '/pages/err_clin-ann_no_contact_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'ParticipantContact.id'=>$participant_contact_id) );
 		$this->data = $this->ParticipantContact->find('first',array('conditions'=>array('ParticipantContact.id'=>$participant_contact_id)));
@@ -37,7 +37,7 @@ class ParticipantContactsController extends ClinicalannotationAppController {
 	function edit( $participant_id, $participant_contact_id) {
 		// Missing or empty function variable, send to ERROR page
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if ( !$participant_contact_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$participant_contact_id ) { $this->redirect( '/pages/err_clin-ann_no_contact_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'ParticipantContact.id'=>$participant_contact_id) );
 		if ( !empty($this->data) ) {
@@ -53,7 +53,7 @@ class ParticipantContactsController extends ClinicalannotationAppController {
 	function delete( $participant_id=null, $participant_contact_id=null ) {
 		// Missing or empty function variable, send to ERROR page
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if ( !$participant_contact_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$participant_contact_id ) { $this->redirect( '/pages/err_clin-ann_no_contact_id', NULL, TRUE ); }
 		
 		if( $this->ParticipantContact->del( $participant_contact_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/clinicalannotation/participant_contacts/listall/'.$participant_id );

@@ -14,7 +14,7 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 	
 	function detail( $participant_id=null, $misc_identifier_id=null ) {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if ( !$misc_identifier_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$misc_identifier_id ) { $this->redirect( '/pages/err_clin-ann_no_misc_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'MiscIdentifier.id'=>$misc_identifier_id) );
 		$this->data = $this->MiscIdentifier->find('first',array('conditions'=>array('MiscIdentifier.id'=>$misc_identifier_id)));
@@ -35,7 +35,7 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 	
 	function edit( $participant_id=null, $misc_identifier_id=null) {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if ( !$misc_identifier_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$misc_identifier_id ) { $this->redirect( '/pages/err_clin-ann_no_misc_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'MiscIdentifier.id'=>$misc_identifier_id) );
 		
@@ -51,7 +51,7 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 
 	function delete( $participant_id=null, $misc_identifier_id=null ) {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if ( !$misc_identifier_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$misc_identifier_id ) { $this->redirect( '/pages/err_clin-ann_no_misc_id', NULL, TRUE ); }
 		
 		if( $this->MiscIdentifier->del( $misc_identifier_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/clinicalannotation/misc_identifiers/listall/'.$participant_id );
