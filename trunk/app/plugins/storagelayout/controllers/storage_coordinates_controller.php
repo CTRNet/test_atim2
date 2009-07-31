@@ -2,6 +2,8 @@
 
 class StorageCoordinatesController extends StoragelayoutAppController {
 	
+	var $components = array('Storages');
+	
 	var $uses 
 		= array('Storagelayout.StorageControl',
 				'Storagelayout.StorageCoordinate',
@@ -9,7 +11,7 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 				'Storagelayout.AliquotMaster'
 	);
 	
-	var $useDbConfig = 'default';
+	var $paginate = array('StorageCoordinate'=>array('limit'=>10,'order'=>'StorageCoordinate.id ASC'));
 
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS
@@ -25,9 +27,10 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 	 * 
 	 * @author N. Luc
 	 * @since 2008-02-04
+	 * @updated A. Suggitt
 	 * 
 	 */
-	 function listAll($storage_master_id = null) {
+	 function listall($storage_master_id = null) {
 		
 		// ** Parameters check **
 		// Verify parameters have been set
@@ -37,71 +40,31 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 		}
 		
 		// ** get STORAGE info **
-		$this->StorageMaster->id = $storage_master_id;
-		$storage_master_data = $this->StorageMaster->read();
-		
+		$storage_master_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
+		pr ($storage_master_data);
 		if(empty($storage_master_data)) {
 			$this->redirect('/pages/err_sto_no_stor_data'); 
 			exit;
 		}
 
-		//Look for storage control
-		$this->StorageControl->id = $storage_master_data['StorageMaster']['storage_control_id'];
-		$storage_control_data = $this->StorageControl->read();
+		$storage_control_data = $storage_master_data['StorageControl'];
 
 		if(empty($storage_control_data)){
 			$this->redirect('/pages/err_sto_no_stor_cont_data'); 
 			exit;
 		}	
 		
-		// Verify storage supprot custom coordinates
-		if(!$this->allowCustomCoordinates($storage_master_data['StorageMaster']['storage_control_id'], $storage_control_data)) {
+		// Verify storage supports custom coordinates
+		if(!$this->Storages->allowCustomCoordinates($storage_master_data['StorageMaster']['storage_control_id'], $storage_control_data)) {
 			$this->redirect('/pages/err_sto_no_custom_coord_allowed'); 
 			exit;			
 		}
-		
-		// ** set MENU variable for echo on VIEW **
-		$ctrapp_menu[] = $this->Menus->tabs( 'sto_CAN_01', 'sto_CAN_06', $storage_master_id ); 
-		$this->set( 'ctrapp_menu', $ctrapp_menu );
-		
-		// ** set SUMMARY variable from plugin's COMPONENTS ** 
-		$this->set('ctrapp_summary', $this->Summaries->build($storage_master_id));
-		
-		// set SIDEBAR variable, for HELPER call on VIEW 
-		// use PLUGIN_CONTROLLER_ACTION by default, but any ALIAS string 
-		// that matches in the SIDEBARS datatable will do...
-		$this->set('ctrapp_sidebar', 
-			$this->Sidebars->getColsArray(
-				$this->params['plugin'].'_'.
-				$this->params['controller'].'_'.
-				$this->params['action']));
-				
-		// ** set FORM variable, for HELPER call on VIEW  **	
-		$this->set('ctrapp_form', $this->Forms->getFormArray('std_storage_coordinates'));
 
-		// ** set DATA for echo on VIEW or to build link **
-		$this->set('storage_master_id', $storage_master_id);
-					
-		// ** Search storage coordinate values **
-
-		$criteria = array();
-		$criteria['StorageCoordinate.storage_master_id'] = $storage_master_id;
-		$criteria = array_filter($criteria);
-			
-		list($order, $limit, $page) = $this->Pagination->init($criteria);
-		$coordinates_list = $this->StorageCoordinate->findAll($criteria, NULL, $order, $limit, $page, 1);
-
+		$this->set( 'atim_menu_variables', array('StorageMaster.id'=>$storage_master_id) );
+		$this->data = $this->paginate($this->StorageCoordinate, array('StorageCoordinate.storage_master_id'=>$storage_master_id));
+		
 		$this->set('coordinates_list', $coordinates_list);
-		
-		// ** look for CUSTOM HOOKS, "format" **
-		$custom_ctrapp_controller_hook 
-			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
-			'controllers' . DS . 'hooks' . DS . 
-			$this->params['controller'].'_'.$this->params['action'].'_format.php';
-			
-		if (file_exists($custom_ctrapp_controller_hook)) {
-			require($custom_ctrapp_controller_hook);
-		}
+		$this->set('atim_structure', $this->Structures->get('form', $storage_control_data['StorageControl']['form_alias']));
 		
 	} // End ListAll function
 	
@@ -112,6 +75,7 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 	 * 
 	 * @author N. Luc
 	 * @since 2008-02-04
+	 * @updated A. Suggitt
 	 * 
 	 */
 	function add($storage_master_id = null) {
@@ -119,8 +83,7 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 		// ** Parameters check **
 		if(isset($this->data['StorageCoordinate']['storage_master_id'])) {
 			//User clicked on the Submit button to create the new storage coordinate
-			$storage_master_id = $this->data['StorageCoordinate']['storage_master_id'];	
-			
+			$storage_master_id = $this->data['StorageCoordinate']['storage_master_id'];
 		}
 			
 		// Verify parameters have been set
@@ -130,109 +93,46 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 		}
 			
 		// ** get STORAGE info **
-		$this->StorageMaster->id = $storage_master_id;
-		$storage_master_data = $this->StorageMaster->read();
-		
+		$storage_master_data =
+			$this->StorageMaster->find('first', array('conditions'=>array('StorageMaster.id'=>$storage_master_id)));
+		$storage_control_data = $storage_master_data['StorageMaster'];
+			
 		if(empty($storage_master_data)) {
 			$this->redirect('/pages/err_sto_no_stor_data'); 
 			exit;
 		}
-
-		//Look for storage control
-		$this->StorageControl->id = $storage_master_data['StorageMaster']['storage_control_id'];
-		$storage_control_data = $this->StorageControl->read();
 
 		if(empty($storage_control_data)){
 			$this->redirect('/pages/err_sto_no_stor_cont_data'); 
 			exit;
 		}	
 		
-		// Verify storage supprot custom coordinates
-		if(!$this->allowCustomCoordinates($storage_master_data['StorageMaster']['storage_control_id'], $storage_control_data)) {
+		// Verify storage support custom coordinates
+		if(!$this->Storages->allowCustomCoordinates($storage_master_data['StorageMaster']['storage_control_id'], $storage_control_data)) {
 			$this->redirect('/pages/err_sto_no_custom_coord_allowed'); 
 			exit;			
 		}
-		
-		// ** set MENU variable for echo on VIEW **
-		$ctrapp_menu[] = $this->Menus->tabs( 'sto_CAN_01', 'sto_CAN_06', $storage_master_id ); 
-		$this->set( 'ctrapp_menu', $ctrapp_menu );
-		
-		// ** set SUMMARY variable from plugin's COMPONENTS ** 
-		$this->set('ctrapp_summary', $this->Summaries->build($storage_master_id));
-		
-		// set SIDEBAR variable, for HELPER call on VIEW 
-		// use PLUGIN_CONTROLLER_ACTION by default, but any ALIAS string 
-		// that matches in the SIDEBARS datatable will do...
-		$this->set('ctrapp_sidebar', 
-			$this->Sidebars->getColsArray(
-				$this->params['plugin'].'_'.
-				$this->params['controller'].'_'.
-				$this->params['action']));
-				
-		// ** set FORM variable, for HELPER call on VIEW  **	
-		$this->set('ctrapp_form', $this->Forms->getFormArray('std_storage_coordinates'));
 
-		// ** set DATA for echo on VIEW or to build link **
-		$this->set('storage_master_id', $storage_master_id);
+		// ** set DATA for echo on VIEW or to build link **		
+		$this->set( 'atim_menu_variables', array('StorageMaster.id'=>$storage_master_id) );
 		$this->set('dimension', 'x');	// Only coordinate X could actually be attached to custom values
-		
-		// ** look for CUSTOM HOOKS, "format" **
-		$custom_ctrapp_controller_hook 
-			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
-			'controllers' . DS . 'hooks' . DS . 
-			$this->params['controller'].'_'.$this->params['action'].'_format.php';
-		
-		if (file_exists($custom_ctrapp_controller_hook)) {
-			require($custom_ctrapp_controller_hook);
-		}
+		$this->set('atim_structure', $this->Structures->get('form', $storage_control_data['StorageControl']['form_alias']));
 
-		if (!empty($this->data)) {
-			
-			// ** SAVE DATA **
-			
-			// setup MODEL(s) validation array(s) for displayed FORM 
-			foreach ($this->Forms->getValidateArray('std_storage_coordinates') as $validate_model=>$validate_rules) {
-				$this->{ $validate_model }->validate = $validate_rules;
-			}
-			
-			// set a FLAG
-			$submitted_data_validates = true;
-			
+		if (!empty($this->data)) {	
+		
 			if($this->duplicatedValue($storage_master_id, $this->data['StorageCoordinate']['coordinate_value'])) {
 				$this->data['StorageCoordinate']['coordinate_value'] = '';
 			}
-				
-			// VALIDATE submitted data
-			if (!$this->StorageCoordinate->validates($this->data['StorageCoordinate'])) {
-				$submitted_data_validates = false;
-			}
 			
-			// look for CUSTOM HOOKS, "validation"
-			$custom_ctrapp_controller_hook 
-				= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
-				'controllers' . DS . 'hooks' . DS . 
-				$this->params['controller'].'_'.$this->params['action'].'_validation.php';
-			
-			if (file_exists($custom_ctrapp_controller_hook)) {
-				require($custom_ctrapp_controller_hook);
-			}
-			
-			// if data VALIDATE, then save data
-			if ($submitted_data_validates) {
-				
-				if ($this->StorageCoordinate->save($this->data['StorageCoordinate'])) {
-					$new_storage_coord_id = $this->StorageCoordinate->getLastInsertId();
-					$this->flash('Your data has been saved.', 
-						'/storage_coordinates/detail/'.$storage_master_id.'/'.$new_storage_coord_id);				
-				} else {
-					$this->redirect('/pages/err_inv_coll_record_err'); 
-					exit;
-				}
-				
-			}
-			
+			if ($this->StorageCoordinate->save($this->data['StorageCoordinate'])) {
+				$new_storage_coord_id = $this->StorageCoordinate->getLastInsertId();
+				$this->flash('Your data has been saved.', 
+					'/storagelayout/storage_coordinates/detail/'.$storage_master_id.'/'.$new_storage_coord_id);				
+			} else {
+				$this->redirect('/pages/err_inv_coll_record_err'); 
+				exit;
+			}	
 		}
-		
 	} // End Add function
 
 	/**
@@ -243,10 +143,10 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 	 * 
 	 * @author N. Luc
 	 * @since 2008-02-04
+	 * @updated A. Suggitt
 	 * 
 	 */	
-	function detail($storage_master_id=null, $storage_coordinate_id=null) {
-		
+	function detail($storage_master_id=null, $storage_coordinate_id=null) {	
 		// ** Parameters check **
 		// Verify parameters have been set
 		if(empty($storage_master_id) || empty($storage_master_id)) {
@@ -255,18 +155,13 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 		}
 			
 		// ** get STORAGE info **
-		$this->StorageMaster->id = $storage_master_id;
-		$storage_master_data = $this->StorageMaster->read();
+		$storage_master_data = $this->StorageMaster->find('first',array('conditions'=>array('StorageMaster.id'=>$storage_master_id)));
+		$storage_control_data = $storage_master_data['StorageMaster'];
 		
 		if(empty($storage_master_data)) {
 			$this->redirect('/pages/err_sto_no_stor_data'); 
 			exit;
 		}
-
-		//Look for storage control
-		$this->StorageControl->id = $storage_master_data['StorageMaster']['storage_control_id'];
-		$storage_control_data = $this->StorageControl->read();
-
 		if(empty($storage_control_data)){
 			$this->redirect('/pages/err_sto_no_stor_cont_data'); 
 			exit;
@@ -277,33 +172,9 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 			$this->redirect('/pages/err_sto_no_custom_coord_allowed'); 
 			exit;			
 		}
-		
-		// ** set MENU variable for echo on VIEW **
-		$ctrapp_menu[] = $this->Menus->tabs( 'sto_CAN_01', 'sto_CAN_06', $storage_master_id ); 
-		$this->set( 'ctrapp_menu', $ctrapp_menu );
-		
-		// ** set SUMMARY variable from plugin's COMPONENTS ** 
-		$this->set('ctrapp_summary', $this->Summaries->build($storage_master_id));
-		
-		// set SIDEBAR variable, for HELPER call on VIEW 
-		// use PLUGIN_CONTROLLER_ACTION by default, but any ALIAS string 
-		// that matches in the SIDEBARS datatable will do...
-		$this->set('ctrapp_sidebar', 
-			$this->Sidebars->getColsArray(
-				$this->params['plugin'].'_'.
-				$this->params['controller'].'_'.
-				$this->params['action']));
-				
-		// ** set FORM variable, for HELPER call on VIEW  **	
-		$this->set('ctrapp_form', $this->Forms->getFormArray('std_storage_coordinates'));
-
-		// ** set DATA for echo on VIEW or to build link **
-		$this->set('storage_master_id', $storage_master_id);
-		
+	
 		// ** Get Storage Coordinate Data **			
-		$this->StorageCoordinate->id = $storage_coordinate_id;
-		$storage_coordinate_data = $this->StorageCoordinate->read();
-		
+		$storage_coordinate_data = $this->StorageCoordinate->find('first', array('conditions'=>array('StorageCoordinate'=>$storage_coordinate_id)));
 		if(empty($storage_coordinate_data)){
 			$this->redirect('/pages/err_sto_no_stor_coord_data'); 
 			exit;
@@ -314,25 +185,19 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 			exit;			
 		}			
 		
-		$this->set('data', $storage_coordinate_data); 
-	
+		$this->data = $storage_coordinate_data; 
+
 		// ** Define if the storage coordinate can be deleted **
 		$bool_allow_deletion 
 			= $this->allowStorageCoordinateDeletion(
 				$storage_master_id, 
 				$storage_coordinate_data['StorageCoordinate']['coordinate_value']);
 		$this->set('bool_allow_deletion', $bool_allow_deletion);
-		
-		// ** look for CUSTOM HOOKS, "format" **
-		$custom_ctrapp_controller_hook 
-			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
-			'controllers' . DS . 'hooks' . DS . 
-			$this->params['controller'].'_'.$this->params['action'].'_format.php';
-		
-		if (file_exists($custom_ctrapp_controller_hook)) {
-			require($custom_ctrapp_controller_hook);
-		}
-		
+				
+		// ** set DATA for echo on VIEW or to build link **		
+		$this->set( 'atim_menu_variables', array('StorageMaster.id'=>$storage_master_id) );
+		$this->set('dimension', 'x');	// Only coordinate X could actually be attached to custom values
+		$this->set('atim_structure', $this->Structures->get('form', $storage_control_data['StorageControl']['form_alias']));
 	}
 	
 	/**
@@ -343,7 +208,7 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 	 * 
 	 * @author N. Luc
 	 * @since 2008-02-04
-	 * 
+	 * @updated A. Suggitt
 	 */	
 	function delete($storage_master_id=null, $storage_coordinate_id=null) {
 		
@@ -353,19 +218,15 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 			$this->redirect('/pages/err_sto_funct_param_missing'); 
 			exit;
 		}
-			
+
 		// ** get STORAGE info **
-		$this->StorageMaster->id = $storage_master_id;
-		$storage_master_data = $this->StorageMaster->read();
-		
+		$storage_master_data = $this->StorageMaster->find('first',array('conditions'=>array('StorageMaster.id'=>$storage_master_id)));
+		$storage_control_data = $storage_master_data['StorageMaster'];
+				
 		if(empty($storage_master_data)) {
 			$this->redirect('/pages/err_sto_no_stor_data'); 
 			exit;
 		}
-
-		//Look for storage control
-		$this->StorageControl->id = $storage_master_data['StorageMaster']['storage_control_id'];
-		$storage_control_data = $this->StorageControl->read();
 
 		if(empty($storage_control_data)){
 			$this->redirect('/pages/err_sto_no_stor_cont_data'); 
@@ -373,9 +234,7 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 		}
 		
 		// ** Get Storage Coordinate Data **			
-		$this->StorageCoordinate->id = $storage_coordinate_id;
-		$storage_coordinate_data = $this->StorageCoordinate->read();
-		
+		$storage_coordinate_data = $this->StorageCoordinate->find('first', array('conditions'=>array('StorageCoordinate'=>$storage_coordinate_id)));
 		if(empty($storage_coordinate_data)){
 			$this->redirect('/pages/err_sto_no_stor_coord_data'); 
 			exit;
@@ -393,16 +252,6 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 			exit;			
 		} 
 
-		// look for CUSTOM HOOKS, "validation"
-		$custom_ctrapp_controller_hook 
-			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
-			'controllers' . DS . 'hooks' . DS . 
-			$this->params['controller'].'_'.$this->params['action'].'_validation.php';
-		
-		if (file_exists($custom_ctrapp_controller_hook)) {
-			require($custom_ctrapp_controller_hook);
-		}
-		
 		//Delete storage
 		$bool_delete_storage_coord = TRUE;
 		
@@ -415,8 +264,7 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 			exit;
 		}
 		
-		$this->flash('Your data has been deleted.', '/storage_coordinates/listAll/'.$storage_master_id.'/');
-		
+		$this->flash('Your data has been deleted.', '/storagelayout/storage_coordinates/listall/'.$storage_master_id.'/');
 	}
 
 	/**
@@ -429,23 +277,20 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 	 * 
 	 * @author N. Luc
 	 * @since 2008-02-04
+	 * @updated A. Suggitt
 	 */
 	function allowStorageCoordinateDeletion($storage_master_id, $storage_coordinate_value){
-		
-		// verify storage contains no chlidren storage at this position
-		$conditions = " StorageMaster.parent_id = '".$storage_master_id."' " .
-				"AND StorageMaster.parent_storage_coord_x = '".$storage_coordinate_value."'";	
-		$nbr_children_storages = $this->StorageMaster->findCount($conditions);
 
-		if($nbr_children_storages > 0){
+		// Verify storage contains no chlidren storage
+		$nbr_children_storages =
+			$this->StorageMaster->find('count', array('conditions'=>array('StorageMaster.parent_id'=>$storage_master_id, 'StorageMaster.parent_storage_coord_x'=>$storage_coordinate_value)));
+		if($nbr_children_storages > 0) {
 			return FALSE;
 		}
-		
-		// verify storage contains no aliquots
-		$conditions = " AliquotMaster.storage_master_id = '".$storage_master_id."' " .
-				"AND AliquotMaster.storage_coord_x = '".$storage_coordinate_value."'";				
-		$nbr_storage_aliquots = $this->AliquotMaster->findCount($conditions);
 
+		// Verify storage contains no aliquots
+		$nbr_storage_aliquots =
+			$this->AliquotMaster->find('count', array('conditions'=>array('AliquotMaster.storage_master_id'=>$storage_master_id, 'AliquotMaster.storage_coord_x'=>$storage_coordinate_value)));
 		if($nbr_storage_aliquots > 0){
 			return FALSE;
 		}
@@ -463,22 +308,18 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 	 * 
 	 * @author N. Luc
 	 * @since 2008-02-04
+	 * @updated A. Suggitt
 	 */
 	function duplicatedValue($storage_master_id, $new_coordinate_value) {
 		
-		// verify storage contains no aliquots
-		$conditions = " StorageCoordinate.storage_master_id = '".$storage_master_id."' " .
-				"AND StorageCoordinate.coordinate_value = '".$new_coordinate_value."'";				
-		$nbr_coord_values = $this->StorageCoordinate->findCount($conditions);
-
+		// Verify storage contains no aliquots
+		$nbr_coord_values =
+			$this->StorageCoordinate->find('count', array('conditions'=>array('StorageCoordinate.storage_master_id'=>$storage_master_id, 'StorageCoordinate.coordinate_value'=>$new_coordinate_value)));
 		if($nbr_coord_values > 0){
 			return TRUE;
 		}
-					
 		return FALSE;		
-		
 	}
-	
 }
 
 ?>
