@@ -22,7 +22,7 @@ class RtbformsController extends RtbformAppController {
 	}
 	
 	function profile( $rtbform_id=null ) {
-		if ( !$rtbform_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$rtbform_id ) { $this->redirect( '/pages/err_rtb_no_rtbform_id', NULL, TRUE ); }
   
 		$this->set( 'atim_menu_variables', array('Rtbform.id'=>$rtbform_id) );
 		$this->data = $this->Rtbform->find('first',array('conditions'=>array('Rtbform.id'=>$rtbform_id)));
@@ -37,7 +37,7 @@ class RtbformsController extends RtbformAppController {
   
 
 	function edit( $rtbform_id=null ) {
-		if ( !$rtbform_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$rtbform_id ) { $this->redirect( '/pages/err_rtb_no_rtbform_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('Rtbform.id'=>$rtbform_id) );
 		
@@ -52,7 +52,7 @@ class RtbformsController extends RtbformAppController {
 	}
   
 	function delete( $rtbform_id=null ) {
-		if ( !$rtbform_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$rtbform_id ) { $this->redirect( '/pages/err_rtb_no_rtbform_id', NULL, TRUE ); }
 		
 		if( $this->Rtbform->del( $rtbform_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/rtbform/rtbforms/search/');

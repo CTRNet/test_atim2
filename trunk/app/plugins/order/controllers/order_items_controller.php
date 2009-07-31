@@ -6,7 +6,8 @@ class OrderItemsController extends OrderAppController {
 	var $paginate = array('OrderItem'=>array('limit'=>'10','order'=>'OrderItem.barcode'));
 	
 	function listall( $order_id=null, $order_line_id=null ) {
-		if ( !$order_line_id ) { $this->redirect( 'pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', NULL, TRUE ); }
+		if ( !$order_line_id ) { $this->redirect( '/pages/err_ord_no_line_id', NULL, TRUE ); }
 
 		$this->set( 'atim_menu', $this->Menus->get('/order/order_items/listall/%%Order.id%%/%%OrderLine.id%%/'));
 		
@@ -16,8 +17,8 @@ class OrderItemsController extends OrderAppController {
 	}
 
 	function add( $order_id=null, $order_line_id=null ) {
-		if ( !$order_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if ( !$order_line_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', NULL, TRUE ); }
+		if ( !$order_line_id ) { $this->redirect( '/pages/err_ord_no_line_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu', $this->Menus->get('/order/order_items/listall/%%Order.id%%/%%OrderLine.id%%/'));
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'OrderLine.id'=>$order_line_id));
@@ -31,8 +32,9 @@ class OrderItemsController extends OrderAppController {
 	}
 	
 	function edit( $order_id=null, $order_line_id=null, $order_item_id=null ) {
-		if ( !$order_line_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if ( !$order_item_id ) { $this->redirect( '/page/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', NULL, TRUE ); }
+		if ( !$order_line_id ) { $this->redirect( '/pages/err_ord_no_line_id', NULL, TRUE ); }
+		if ( !$order_item_id ) { $this->redirect( '/pages/err_ord_no_item_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu', $this->Menus->get('/order/order_items/listall/%%Order.id%%/%%OrderLine.id%%/'));
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'OrderLine.id'=>$order_line_id, 'OrderItem.id'=>$order_item_id) );
@@ -48,8 +50,9 @@ class OrderItemsController extends OrderAppController {
 	}
 	
 	function detail( $order_id=null, $order_line_id=null, $order_item_id=null ) {
-		if ( !$order_line_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if ( !$order_item_id ) { $this->redirect( '/page/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', NULL, TRUE ); }
+		if ( !$order_line_id ) { $this->redirect( '/pages/err_ord_no_line_id', NULL, TRUE ); }
+		if ( !$order_item_id ) { $this->redirect( '/pages/err_ord_no_item_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu', $this->Menus->get('/order/order_items/listall/%%Order.id%%/%%OrderLine.id%%/'));
 		
@@ -58,8 +61,8 @@ class OrderItemsController extends OrderAppController {
 	}
 	
 	function shipment_items ( $order_id=null, $shipment_id=null ){
-		if ( !$order_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if ( !$shipment_id ) { $this->redirect( 'pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', NULL, TRUE ); }
+		if ( !$shipment_id ) { $this->redirect( 'pages/err_ord_no_ship_id', NULL, TRUE ); }
 		
 		$this->set('atim_menu', $this->Menus->get('/order/order_items/shipment_items/%%Order.id%%/%%Shipment.id%%/'));
 		
@@ -68,8 +71,9 @@ class OrderItemsController extends OrderAppController {
 	}
 	
 	function delete( $order_id=null, $order_line_id=null, $order_item_id=null ) {
-		if ( !$order_line_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if ( !$order_item_id ) { $this->redirect( '/page/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', NULL, TRUE ); }
+		if ( !$order_line_id ) { $this->redirect( '/pages/err_ord_no_line_id', NULL, TRUE ); }
+		if ( !$order_item_id ) { $this->redirect( '/pages/err_ord_no_item_id', NULL, TRUE ); }
 		
 		if( $this->OrderItem->del( $order_item_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/order/order_items/listall/'.$order_id.'/'.$order_line_id );
