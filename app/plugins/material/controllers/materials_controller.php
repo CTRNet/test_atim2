@@ -31,7 +31,7 @@ class MaterialsController extends MaterialAppController {
   	}
   
 	function edit( $material_id=null ) {
-		if ( !$material_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$material_id ) { $this->redirect( '/pages/err_material_no_material_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('Material.id'=>$material_id) );
 		
@@ -46,17 +46,14 @@ class MaterialsController extends MaterialAppController {
   	}
 	
 	function detail( $material_id=null ) {
-		
-		
-		if ( !$material_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$material_id ) { $this->redirect( '/pages/err_material_no_material_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('Material.id'=>$material_id) );
 		$this->data = $this->Material->find('first',array('conditions'=>array('Material.id'=>$material_id)));
 	}
   
 	function delete( $material_id=null ) {
-    
-		if ( !$material_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$material_id ) { $this->redirect( '/pages/err_material_no_material_id', NULL, TRUE ); }
 		
 		if( $this->Material->del( $material_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/material/materials/listall/');

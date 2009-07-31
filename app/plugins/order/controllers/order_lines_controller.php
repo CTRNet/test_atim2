@@ -8,7 +8,7 @@ class OrderLinesController extends OrderAppController {
 	var $paginate = array('OrderLine'=>array('limit'=>'10','order'=>'OrderLine.date_required'));
 	
 	function listall( $order_id=null ) {
-		if ( !$order_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', NULL, TRUE ); }
 		
 		$this->set('atim_menu', $this->Menus->get('/order/order_lines/listall/%%Order.id%%/'));
 		
@@ -25,7 +25,7 @@ class OrderLinesController extends OrderAppController {
 	}
 
  	function add( $order_id=null ) {
- 		if ( !$order_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+ 		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', NULL, TRUE ); }
 		
 		$this->set('atim_menu', $this->Menus->get('/order/order_lines/listall/%%Order.id%%/'));
 		
@@ -54,9 +54,8 @@ class OrderLinesController extends OrderAppController {
  	}
   
 	function edit( $order_id=null, $order_line_id=null ) {
-  
- 		if ( !$order_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if ( !$order_line_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+ 		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', NULL, TRUE ); }
+		if ( !$order_line_id ) { $this->redirect( '/pages/err_ord_no_line_id', NULL, TRUE ); }
 		
 		// Populate Sample Type dropdown from sample_control table
 		$sample_control_list = $this->SampleControl->find('all', array('fields' => array('SampleControl.id', 'SampleControl.sample_type'), 'order' => array('SampleControl.sample_type')));
@@ -78,8 +77,8 @@ class OrderLinesController extends OrderAppController {
 	}
   
  	function detail( $order_id=null, $order_line_id=null ) {
-  		if ( !$order_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if ( !$order_line_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+  		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', NULL, TRUE ); }
+		if ( !$order_line_id ) { $this->redirect( '/pages/err_ord_no_line_id', NULL, TRUE ); }
 		
 		// Populate Sample Type dropdown from sample_control table
 		$sample_control_list = $this->SampleControl->find('all', array('fields' => array('SampleControl.id', 'SampleControl.sample_type'), 'order' => array('SampleControl.sample_type')));
@@ -93,8 +92,8 @@ class OrderLinesController extends OrderAppController {
 	}
   
 	function delete( $order_id=null, $order_line_id=null ) {
-    	if ( !$order_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if ( !$order_line_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+    	if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', NULL, TRUE ); }
+		if ( !$order_line_id ) { $this->redirect( '/pages/err_ord_no_line_id', NULL, TRUE ); }
 		
 		if( $this->OrderLine->del( $order_line_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/order/order_lines/listall/'.$order_id );
@@ -102,8 +101,6 @@ class OrderLinesController extends OrderAppController {
 			$this->flash( 'Your data has been deleted.', '/order/order_lines/listall/'.$order_id );
 		}
 	}
-	
-	
 }
 
 ?>

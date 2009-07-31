@@ -6,7 +6,7 @@ class StudyEthicsBoardsController extends StudyAppController {
 	var $paginate = array('StudyEthicsBoard'=>array('limit'=>10,'order'=>'StudyEthicsBoard.ethics_board'));
 	
 	function listall( $study_summary_id=null ) {
-		if ( !$study_summary_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_no_summary_id', NULL, TRUE ); }
 
 		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id));
 		$this->data = $this->paginate($this->StudyEthicsBoard, array('StudyEthicsBoard.study_summary_id'=>$study_summary_id));
@@ -14,7 +14,7 @@ class StudyEthicsBoardsController extends StudyAppController {
 	}
 
 	function add( $study_summary_id=null) {
-		if ( !$study_summary_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_no_summary_id', NULL, TRUE ); }
 	
 		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id));
 		
@@ -27,8 +27,8 @@ class StudyEthicsBoardsController extends StudyAppController {
   	}
   
 	function edit( $study_summary_id=null, $study_ethics_board_id=null ) {
-    	if ( !$study_summary_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if ( !$study_ethics_board_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+    	if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_no_ethics_id', NULL, TRUE ); }
+		if ( !$study_ethics_board_id ) { $this->redirect( '/pages/err_study_no_ethics_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id, 'StudyEthicsoard.id'=>$study_ethics_board_id) );
 		
@@ -43,16 +43,16 @@ class StudyEthicsBoardsController extends StudyAppController {
   	}
 	
 	function detail( $study_summary_id=null, $study_ethics_board_id=null ) {
-		if ( !$study_summary_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if ( !$study_ethics_board_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_no_summary_id', NULL, TRUE ); }
+		if ( !$study_ethics_board_id ) { $this->redirect( '/pages/err_study_no_ethics_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id, 'StudyEthicsBoard.id'=>$study_ethics_board_id) );
 		$this->data = $this->StudyEthicsBoard->find('first',array('conditions'=>array('StudyEthicsBoard.id'=>$study_ethics_board_id)));
 	}
   
 	function delete( $study_summary_id=null, $study_ethics_board_id=null ) {
-		if ( !$study_summary_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if ( !$study_ethics_board_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_no_summary_id', NULL, TRUE ); }
+		if ( !$study_ethics_board_id ) { $this->redirect( '/pages/err_study_no_ethics_id', NULL, TRUE ); }
 		
 		if( $this->StudyEthicsBoard->del( $study_ethics_board_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/study/study_ethics_boards/listall/'.$study_summary_id );

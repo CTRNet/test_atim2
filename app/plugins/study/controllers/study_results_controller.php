@@ -5,7 +5,7 @@ class StudyResultsController extends StudyAppController {
 	var $paginate = array('StudyResult'=>array('limit'=>10,'order'=>'StudyResult.abstract'));
 	
 	function listall( $study_summary_id=null ) {
-		if ( !$study_summary_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_no_summary_id', NULL, TRUE ); }
 
 		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id));
 		$this->data = $this->paginate($this->StudyResult, array('StudyResult.study_summary_id'=>$study_summary_id));
@@ -13,7 +13,7 @@ class StudyResultsController extends StudyAppController {
 	}
 
 	function add( $study_summary_id=null) {
-		if ( !$study_summary_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_no_summary_id', NULL, TRUE ); }
 	
 		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id));
 		
@@ -26,8 +26,8 @@ class StudyResultsController extends StudyAppController {
   	}
   
 	function edit( $study_summary_id=null, $study_result_id=null ) {
-    	if ( !$study_summary_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if ( !$study_result_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+    	if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_no_summary_id', NULL, TRUE ); }
+		if ( !$study_result_id ) { $this->redirect( '/pages/err_study_no_result_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id, 'StudyResult.id'=>$study_result_id) );
 		
@@ -42,16 +42,16 @@ class StudyResultsController extends StudyAppController {
   	}
 	
 	function detail( $study_summary_id=null, $study_result_id=null ) {
-		if ( !$study_summary_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if ( !$study_result_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_no_summary_id', NULL, TRUE ); }
+		if ( !$study_result_id ) { $this->redirect( '/pages/err_study_no_result_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id, 'StudyResult.id'=>$study_result_id) );
 		$this->data = $this->StudyResult->find('first',array('conditions'=>array('StudyResult.id'=>$study_result_id)));
 	}
   
 	function delete( $study_summary_id=null, $study_result_id=null ) {
-		if ( !$study_summary_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if ( !$study_result_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_no_summary_id', NULL, TRUE ); }
+		if ( !$study_result_id ) { $this->redirect( '/pages/err_study_no_result_id', NULL, TRUE ); }
 		
 		if( $this->StudyResult->del( $study_result_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/study/study_results/listall/'.$study_summary_id );

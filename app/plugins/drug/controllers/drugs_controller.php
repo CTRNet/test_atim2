@@ -32,7 +32,7 @@ class DrugsController extends DrugAppController {
   	}
   
 	function edit( $drug_id=null ) {
-		if ( !$drug_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$drug_id ) { $this->redirect( '/pages/err_drug_no_drug_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('Drug.id'=>$drug_id) );
 		
@@ -47,17 +47,14 @@ class DrugsController extends DrugAppController {
   	}
 	
 	function detail( $drug_id=null ) {
-		
-		
-		if ( !$drug_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$drug_id ) { $this->redirect( '/pages/err_drug_no_drug_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('Drug.id'=>$drug_id) );
 		$this->data = $this->Drug->find('first',array('conditions'=>array('Drug.id'=>$drug_id)));
 	}
   
 	function delete( $drug_id=null ) {
-    
-		if ( !$drug_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$drug_id ) { $this->redirect( '/pages/err_drug_no_drug_id', NULL, TRUE ); }
 		
 		if( $this->Drug->del( $drug_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/drug/drugs/listall/');

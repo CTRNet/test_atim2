@@ -35,7 +35,7 @@ class OrdersController extends OrderAppController {
 	}
   
 	function edit( $order_id=null ) {
-		if ( !$order_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', NULL, TRUE ); }
 		
 		// Populate Study dropdown from study_summaries table
 		$study_summary_list = $this->StudySummary->find('all', array('fields' => array('StudySummary.id', 'StudySummary.title'), 'order' => array('StudySummary.title')));
@@ -57,7 +57,7 @@ class OrdersController extends OrderAppController {
 	}
   
 	function detail( $order_id=null ) {
-  		if ( !$order_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+  		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', NULL, TRUE ); }
 		
 		// Populate Study dropdown from study_summaries table
 		$study_summary_list = $this->StudySummary->find('all', array('fields' => array('StudySummary.id', 'StudySummary.title'), 'order' => array('StudySummary.title')));
@@ -71,8 +71,7 @@ class OrdersController extends OrderAppController {
 	}
   
 	function delete( $order_id=null ) {
-    
-    	if ( !$order_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+    	if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', NULL, TRUE ); }
 		
 		if( $this->Order->del( $order_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/order/orders/listall/');
