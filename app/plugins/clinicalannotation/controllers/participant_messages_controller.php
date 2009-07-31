@@ -1,7 +1,7 @@
 <?php
 
 class ParticipantMessagesController extends ClinicalAnnotationAppController {
-	var $uses = array('ParticipantMessage', 'Participant');
+	var $uses = array('ClinicalAnnotation.ParticipantMessage', 'ClinicalAnnotation.Participant');
 	var $paginate = array('ParticipantMessage'=>array('limit'=>10,'order'=>'ParticipantMessage.date_requested'));
 
 	function listall( $participant_id=null ) {
@@ -13,7 +13,7 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController {
 	
 	function detail( $participant_id=null, $participant_message_id=null ) {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if ( !$participant_message_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$participant_message_id ) { $this->redirect( '/pages/err_clin-ann_no_message_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'ParticipantMessage.id'=>$participant_message_id) );
 		$this->data = $this->ParticipantMessage->find('first',array('conditions'=>array('ParticipantMessage.id'=>$participant_message_id)));
@@ -34,7 +34,7 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController {
 	
 	function edit( $participant_id=null, $participant_message_id=null) {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if ( !$participant_message_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$participant_message_id ) { $this->redirect( '/pages/err_clin-ann_no_message_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'ParticipantMessage.id'=>$participant_message_id) );
 		
@@ -50,7 +50,7 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController {
 
 	function delete( $participant_id=null, $participant_message_id=null ) {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if ( !$participant_message_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$participant_message_id ) { $this->redirect( '/pages/err_clin-ann_no_message_id', NULL, TRUE ); }
 		
 		if( $this->ParticipantMessage->del( $participant_message_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/clinicalannotation/participant_messages/listall/'.$participant_id );

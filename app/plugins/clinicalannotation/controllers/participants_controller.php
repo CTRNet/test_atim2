@@ -2,7 +2,19 @@
 
 class ParticipantsController extends ClinicalannotationAppController {
 
-	var $uses = array('Participant');
+	var $uses = array(
+		'ClinicalAnnotation.Participant',
+		'ClinicalAnnotation.Consent',
+		'ClinicalAnnotation.ParticipantContact',
+		'ClinicalAnnotation.ParticipantMessage',
+		'ClinicalAnnotation.EventMaster',
+		'ClinicalAnnotation.Diagnosis',
+		'ClinicalAnnotation.FamilyHistory',
+		'ClinicalAnnotation.MiscIdentifier',
+		'ClinicalAnnotation.ClinicalCollectionLink',
+		'ClinicalAnnotation.ReproductiveHistory',
+		'ClinicalAnnotation.TxMaster'
+	);
 	var $paginate = array('Participant'=>array('limit'=>10,'order'=>'Participant.last_name ASC, Participant.first_name ASC')); 
 	
 	function index() {
@@ -49,10 +61,60 @@ class ParticipantsController extends ClinicalannotationAppController {
 	function delete( $participant_id=null ) {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		
-		if( $this->Participant->del( $participant_id ) ) {
-			$this->flash( 'Your data has been deleted.', '/clinicalannotation/participants/index/');
-		} else {
-			$this->flash( 'Your data has been deleted.', '/clinicalannotation/participants/index/');
+		$consent_id = $this->Consent->find('first', array('conditions'=>array('Consent.participant_id'=>$participant_id, 'Consent.deleted'=>0),'fields'=>array('Consent.id')));
+		$event_id = $this->EventMaster->find('first', array('conditions'=>array('EventMaster.participant_id'=>$participant_id, 'EventMaster.deleted'=>0),'fields'=>array('EventMaster.id')));
+		$contact_id = $this->ParticipantContact->find('first', array('conditions'=>array('ParticipantContact.participant_id'=>$participant_id, 'ParticipantContact.deleted'=>0),'fields'=>array('ParticipantContact.id')));
+		$diagnosis_id = $this->Diagnosis->find('first', array('conditions'=>array('Diagnosis.participant_id'=>$participant_id, 'Diagnosis.deleted'=>0),'fields'=>array('Diagnosis.id')));
+		$family_id = $this->FamilyHistory->find('first', array('conditions'=>array('FamilyHistory.participant_id'=>$participant_id, 'FamilyHistory.deleted'=>0), 'fields'=>array('FamilyHistory.id')));
+		$identifier_id = $this->MiscIdentifier->find('first', array('conditions'=>array('MiscIdentifier.participant_id'=>$participant_id, 'MiscIdentifier.deleted'=>0), 'fields'=>array('MiscIdentifier.id')));
+		$link_id = $this->ClinicalCollectionLink->find('first', array('conditions'=>array('ClinicalCollectionLink.participant_id'=>$participant_id, 'ClinicalCollectionLink.deleted'=>0), 'fields'=>array('ClinicalCollectionLink.id')));
+		$message_id = $this->ParticipantMessage->find('first', array('conditions'=>array('ParticipantMessage.participant_id'=>$participant_id, 'ParticipantMessage.deleted'=>0), 'fields'=>array('ParticipantMessage.id')));
+		$reproductive_id = $this->ReproductiveHistory->find('first', array('conditions'=>array('ReproductiveHistory.participant_id'=>$participant_id, 'ReproductiveHistory.deleted'=>0), 'fields'=>array('ReproductiveHistory.id')));
+		$treatment_id = $this->TxMaster->find('first', array('conditions'=>array('TxMaster.participant_id'=>$participant_id, 'TxMaster.deleted'=>0),'fields'=>array('TxMaster.id')));
+		
+		if ( $consent_id == NULL && $event_id == NULL && $contact_id == NULL && $diagnosis_id == NULL && $family_id == NULL && $identifier_id == NULL && $link_id == NULL &&
+			$message_id == NULL && $reproductive_id == NULL && $treatment_id == NULL){
+			if( $this->Participant->del( $participant_id ) ) {
+				$this->flash( 'Your data has been deleted.', '/clinicalannotation/participants/index/');
+			} else {
+				$this->flash( 'Your data has been deleted.', '/clinicalannotation/participants/index/');
+			}
+		}else{
+			$message = "Your data cannot be deleted because the following records exist: ";
+			if( $consent_id != NULL ){
+				$message = $message."A consent record exists, ";
+			}
+			if( $event_id != NULL ){
+				$message = $message."A annotation record exists, ";
+			}
+			if( $contact_id != NULL ){
+				$message = $message."A contact record exists, ";
+			}
+			if( $diagnosis_id != NULL ){
+				$message = $message."A diagnosis record exists, ";
+			}
+			if( $family_id != NULL ){
+				$message = $message."A family history record exists, ";
+			}
+			if( $identifier_id != NULL ){
+				$message = $message."A identifier record exists, ";
+			}
+			if( $link_id != NULL ){
+				$message = $message."A link to collections exists, ";
+			}
+			if( $message_id != NULL ){
+				$message = $message."A message record exists, ";
+			}
+			if( $reproductive_id != NULL ){
+				$message = $message."A reproductive history exists, ";
+			}
+			if( $treatment_id != NULL ){
+				$message = $message."A treatment record exists, ";
+			}
+			
+			$message = substr($message, 0, -2);
+			
+			$this->flash( $message, '/clinicalannotation/participants/profile/'.$participant_id.'/');
 		}
 	}
 

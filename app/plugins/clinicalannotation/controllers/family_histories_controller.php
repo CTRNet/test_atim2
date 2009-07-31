@@ -14,7 +14,7 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 	
 	function detail( $participant_id=null, $family_history_id=null ) {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if ( !$family_history_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$family_history_id ) { $this->redirect( '/pages/err_clin-ann_no_fam_hist_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'FamilyHistory.id'=>$family_history_id) );
 		$this->data = $this->FamilyHistory->find('first',array('conditions'=>array('FamilyHistory.id'=>$family_history_id)));
@@ -35,7 +35,7 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 	
 	function edit( $participant_id=null, $family_history_id=null) {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if ( !$family_history_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$family_history_id ) { $this->redirect( '/pages/err_clin-ann_no_fam_hist_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'FamilyHistory.id'=>$family_history_id) );
 		
@@ -51,7 +51,7 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 	
 	function delete( $participant_id=null, $family_history_id=null ) {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if ( !$family_history_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$family_history_id ) { $this->redirect( '/pages/err_clin-ann_no_fam_hist_id', NULL, TRUE ); }
 		
 		if( $this->FamilyHistory->del( $family_history_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/clinicalannotation/family_histories/listall/'.$participant_id );

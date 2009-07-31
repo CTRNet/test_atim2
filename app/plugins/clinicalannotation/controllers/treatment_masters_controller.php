@@ -16,6 +16,8 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 	}
 	
 	function detail($participant_id=null, $tx_master_id=null) {
+		if( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id' ); }
+		if( !$tx_master_id ) { $this->redirect( '/pages/err_clin-ann_no_treament_id' ); }
 		
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id,'TreatmentMaster.id'=>$tx_master_id) );
 		$this->data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id)));
@@ -25,6 +27,8 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 	}
 	
 	function edit( $participant_id=null, $tx_master_id=null ) {
+		if( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id' ); }
+		if( !$tx_master_id ) { $this->redirect( '/pages/err_clin-ann_no_treament_id' ); }
 		
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id,'TreatmentMaster.id'=>$tx_master_id) );
 		$this_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id)));
