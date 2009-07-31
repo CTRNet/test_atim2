@@ -17773,3 +17773,29 @@ UPDATE `datamart_adhoc` SET `description` = 'Advanced Adhoc Query, used for Quer
 `form_alias_for_search` = 'participants',
 `form_alias_for_results` = 'participants',
 `form_links_for_results` = '' WHERE `id` =2 LIMIT 1 ;
+
+INSERT INTO `pages` (`id`, `error_flag`, `language_title`, `language_body`) VALUES
+( 'err_clin-ann_no_treatment_id', 1, 'no treatment master id', 'the treatment master id has not been defined' )
+( 'err_clin-ann_no_diagnosis_id', 1, 'no diagnosis id', 'the diagnodid id has not been defined' )
+( 'err_clin-ann_no_consent_id', 1, 'no consent', 'the consent id has not been defined' )
+( 'err_clin-ann_no_reprod_id', 1, 'no reproductive_id', 'the reproductive id has not been defined' )
+( 'err_clin-ann_no_message_id', 1, 'no message id',  'the participant message id has not been defined' )
+( 'err_clin-ann_no_contact_id', 1, 'no contact id', 'the participant contact id has not been defined' )
+( 'err_clin-ann_no_misc_id', 1, 'no misc identifier id', 'the misc identifier id has not been defined' )
+( 'err_material_no_material_id', 1, 'no material id', 'the material id has not been defined' )
+( 'err_ord_no_order_id', 1, 'no order id', 'the order id has not been defined' )
+( 'err_ord_no_line_id', 1, 'no line id', 'the order line id has not been defined' )
+( 'err_ord_no_item_id', 1, 'no item id', 'the order item id has not been defined' )
+( 'err_ord_no_ship_id', 1, 'no shipment id', 'the shipment id has not been defined' )
+( 'err_pro_no_proto_id', 1, 'no protocol id', 'the protocol master id has not been defined' )
+( 'err_rtb_no_form_id', 1, 'no rtbform id', 'the rtbform id has not been defined' )
+( 'err_sop_no_sop_id', 1, 'no sop id', 'the sop id has not been defined' )
+( 'err_study_no_summary_id', 1, 'no summary id', 'the study summary id has not been defined' )
+( 'err_study_no_contact_id', 1, 'no contact id', 'the study contact id has not been defined' )
+( 'err_study_no_ethics_id', 1, 'no ethics id', 'the study ethicsboard id has not been defined' )
+( 'err_study_no_fund_id', 1, 'no funding id', 'the study funding id has not been defined' )
+( 'err_study_no_invest_id', 1, 'no investigator id', 'the study investigator id has not been defined' )
+( 'err_study_no_related_id', 1, 'no related id', 'the study related id has not been defined' )
+( 'err_study_no_result_id', 1, 'no result id', 'the study result id has not been defined')
+( 'err_study_no_review_id', 1, 'no review id', 'the study review id has not been defined')
+( 'err_drug_no_drug_id', 1, 'no drug id', 'the drug id has not be defined' );
