@@ -2235,7 +2235,7 @@ CREATE TABLE `providers_revs` (
 
 
 INSERT INTO `structures` (`alias`, `flag_detail_columns` ) VALUES
-('providers', 1);
+('providers', '1');
 
 SET @structure_id = last_insert_id();
 
@@ -2265,11 +2265,11 @@ INSERT INTO `structure_fields` (`plugin`, `model`, `field`, `language_label`, `t
 SET @field_5_id = last_insert_id();
 
 INSERT INTO `structure_formats`  (`structure_id`, `structure_field_id`, `display_order`, `flag_add`, `flag_edit`, `flag_search`, `flag_index`, `flag_detail`) VALUES
-( @structure_id, @field_1_id, 1, 1, 1, 1, 1, 1),
-( @structure_id, @field_2_id, 1, 1, 1, 1, 1, 1),
-( @structure_id, @field_3_id, 1, 1, 1, 0, 0, 1),
-( @structure_id, @field_4_id, 1, 1, 1, 0, 0, 1),
-( @structure_id, @field_5_id, 1, 1, 1, 0, 0, 1);
+( @structure_id, @field_1_id, '1', '1', '1', '1', '1', '1'),
+( @structure_id, @field_2_id, '1', '1', '1', '1', '1', '1'),
+( @structure_id, @field_3_id, '1', '1', '1', '0', '0', '1'),
+( @structure_id, @field_4_id, '1', '1', '1', '0', '0', '1'),
+( @structure_id, @field_5_id, '1', '1', '1', '0', '0', '1');
 
 INSERT INTO `structure_value_domains` (`domain_name`) VALUES
 ('provider_type');
