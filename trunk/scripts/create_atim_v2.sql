@@ -17799,14 +17799,6 @@ CREATE INDEX aros_idx3 ON aros (model, foreign_key);
 
 -- To integrate into script
 
-ALTER TABLE `datamart_adhoc` ADD `plugin` VARCHAR( 255 ) NOT NULL AFTER `description` ;
-
-UPDATE `datamart_adhoc` SET `description` = 'Advanced Adhoc Query, used for Query Tool redevelopment.',
-`plugin` = 'Clinicalannotation',
-`form_alias_for_search` = 'participants',
-`form_alias_for_results` = 'participants',
-`form_links_for_results` = '' WHERE `id` =2 LIMIT 1 ;
-
 INSERT INTO `pages` (`id`, `error_flag`, `language_title`, `language_body`) VALUES
 ( 'err_clin-ann_no_treatment_id', 1, 'no treatment master id', 'the treatment master id has not been defined' ),
 ( 'err_clin-ann_no_diagnosis_id', 1, 'no diagnosis id', 'the diagnodid id has not been defined' ),
