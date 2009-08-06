@@ -7,7 +7,7 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 	
 	function listall( $participant_id ) {
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
-	
+		// Find all unlinked, make sure participantID = NULL
 		$this->data = $this->paginate($this->ClinicalCollectionLinks);
 	}
 	
@@ -38,7 +38,15 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 	}
 
 	function delete( $participant_id=null, $clinical_collection_link_id=null ) {
-
+/*  TODO: Code from eventum issue #573
+	$unlink_collection = array(
+		'ClinicalCollectionLink' => array(
+		'participant_id' => null,
+		'diagnosis_id' => null,
+		'consent_id' => null,
+		'id' => $clinical_collection_link_id,
+		'modified_by' => $this->othAuth->user('id')));
+ */
 	}
 	
 	/**

@@ -13,7 +13,7 @@ class ParticipantsController extends ClinicalannotationAppController {
 		'ClinicalAnnotation.MiscIdentifier',
 		'ClinicalAnnotation.ClinicalCollectionLink',
 		'ClinicalAnnotation.ReproductiveHistory',
-		'ClinicalAnnotation.TxMaster'
+		'ClinicalAnnotation.TreatmentMaster'
 	);
 	var $paginate = array('Participant'=>array('limit'=>10,'order'=>'Participant.last_name ASC, Participant.first_name ASC')); 
 	
@@ -70,7 +70,7 @@ class ParticipantsController extends ClinicalannotationAppController {
 		$link_id = $this->ClinicalCollectionLink->find('first', array('conditions'=>array('ClinicalCollectionLink.participant_id'=>$participant_id, 'ClinicalCollectionLink.deleted'=>0), 'fields'=>array('ClinicalCollectionLink.id')));
 		$message_id = $this->ParticipantMessage->find('first', array('conditions'=>array('ParticipantMessage.participant_id'=>$participant_id, 'ParticipantMessage.deleted'=>0), 'fields'=>array('ParticipantMessage.id')));
 		$reproductive_id = $this->ReproductiveHistory->find('first', array('conditions'=>array('ReproductiveHistory.participant_id'=>$participant_id, 'ReproductiveHistory.deleted'=>0), 'fields'=>array('ReproductiveHistory.id')));
-		$treatment_id = $this->TxMaster->find('first', array('conditions'=>array('TxMaster.participant_id'=>$participant_id, 'TxMaster.deleted'=>0),'fields'=>array('TxMaster.id')));
+		$treatment_id = $this->TreatmentMaster->find('first', array('conditions'=>array('TreatmentMaster.participant_id'=>$participant_id, 'TreatmentMaster.deleted'=>0),'fields'=>array('TxMaster.id')));
 		
 		if ( $consent_id == NULL && $event_id == NULL && $contact_id == NULL && $diagnosis_id == NULL && $family_id == NULL && $identifier_id == NULL && $link_id == NULL &&
 			$message_id == NULL && $reproductive_id == NULL && $treatment_id == NULL){
