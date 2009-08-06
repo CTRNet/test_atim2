@@ -4,7 +4,8 @@ class ConsentsController extends ClinicalannotationAppController {
 
 	var $uses = array(
 		'ClinicalAnnotation.Consent',
-		'ClinicalAnnotation.Participant'
+		'ClinicalAnnotation.Participant',
+		'Provider.Provider'
 	);
 	
 	var $paginate = array('Consent'=>array('limit'=>10,'order'=>'Consent.date ASC')); 
@@ -12,6 +13,12 @@ class ConsentsController extends ClinicalannotationAppController {
 	function listall( $participant_id=null ) {
 		// Missing or empty function variable, send to ERROR page
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		
+		$facility_list = $this->Provider->find('all', array('conditions'=>array('Provider.active'=>'yes')), array('fields' => array('Provider.id', 'Provider.name'), 'order' => array('Provider.name')));
+		foreach ( $facility_list as $record ) {
+			$facility_id_findall[ $record['Provider']['id'] ] = $record['Provider']['name'];
+		}
+		$this->set('facility_id_findall', $facility_id_findall);
 		
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id) );
 		$this->data = $this->paginate($this->Consent, array('Consent.participant_id'=>$participant_id));
@@ -22,6 +29,12 @@ class ConsentsController extends ClinicalannotationAppController {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		if ( !$consent_id ) { $this->redirect( '/pages/err_clin-ann_no_consent_id', NULL, TRUE ); }
 		
+		$facility_list = $this->Provider->find('all', array('conditions'=>array('Provider.active'=>'yes')), array('fields' => array('Provider.id', 'Provider.name'), 'order' => array('Provider.name')));
+		foreach ( $facility_list as $record ) {
+			$facility_id_findall[ $record['Provider']['id'] ] = $record['Provider']['name'];
+		}
+		$this->set('facility_id_findall', $facility_id_findall);
+		
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'Consent.id'=>$consent_id) );
 		$this->data = $this->Consent->find('first',array('conditions'=>array('Consent.id'=>$consent_id)));
 	}
@@ -29,6 +42,12 @@ class ConsentsController extends ClinicalannotationAppController {
 	function add( $participant_id=null ) {
 		// Missing or empty function variable, send to ERROR page
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		
+		$facility_list = $this->Provider->find('all', array('conditions'=>array('Provider.active'=>'yes')), array('fields' => array('Provider.id', 'Provider.name'), 'order' => array('Provider.name')));
+		foreach ( $facility_list as $record ) {
+			$facility_id_findall[ $record['Provider']['id'] ] = $record['Provider']['name'];
+		}
+		$this->set('facility_id_findall', $facility_id_findall);
 		
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id) );	
 		if ( !empty($this->data) ) {
@@ -43,6 +62,12 @@ class ConsentsController extends ClinicalannotationAppController {
 		// Missing or empty function variable, send to ERROR page
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		if ( !$consent_id ) { $this->redirect( '/pages/err_clin-ann_no_consent_id', NULL, TRUE ); }
+		
+		$facility_list = $this->Provider->find('all', array('conditions'=>array('Provider.active'=>'yes')), array('fields' => array('Provider.id', 'Provider.name'), 'order' => array('Provider.name')));
+		foreach ( $facility_list as $record ) {
+			$facility_id_findall[ $record['Provider']['id'] ] = $record['Provider']['name'];
+		}
+		$this->set('facility_id_findall', $facility_id_findall);
 		
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'Consent.id'=>$consent_id) );
 		if ( !empty($this->data) ) {

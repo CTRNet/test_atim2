@@ -7,5 +7,5 @@
 		)
 	);
 	
-	$structures->build( $atim_structure, array('type'=>'index','links'=>$structure_links) );
+	$structures->build( $atim_structure, array('type'=>'index','links'=>$structure_links,'override'=>$structure_override) );
 ?>
