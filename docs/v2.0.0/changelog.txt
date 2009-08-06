@@ -22,6 +22,7 @@ Module - Core
 Module - Clinical Annotation
 * CHANGE (Eventum #497) - Replaced any occurance of `group` field to something more appropriate to prevent conflicts
 with Query Tool
+* CHANGE (Eventum #573) - Fixed Windows Server issue with link to collection
 
 
 ============================================================================================================
@@ -31,3 +32,6 @@ be non-human entities such as treatment centres and clinics.
 * ENHANCEMENT (Eventum #110) - Added search form to Protocol module
 * ENHANCEMENT (Eventum #110) - Added search form to Drug module
 
+============================================================================================================
+Module - Inventory Management
+* CHANGE (Eventum #561) - Fixed minor whitespace issue on an aliquot form = ad_spec_tubes_incl_ml_vol
