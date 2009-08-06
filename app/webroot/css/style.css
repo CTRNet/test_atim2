@@ -2,7 +2,7 @@ body {
 	margin: 0;
 	padding: 0;
 	background-color: #f2f2ff;
-	font: 12px/1.3em "Lucida Grande", Futura, Helvetica, Arial, Verdana, sans-serif;
+	font: 11px/1.2em "Lucida Grande", Futura, Helvetica, Arial, Verdana, sans-serif;
 }
 div {
 	clear: both;
@@ -15,11 +15,11 @@ div#header {
 	position: relative;
 	
 	margin: 0;
-	padding: 0 30px;
+	padding: 5px 10px 0 10px;
 	border: 0;
 	
 	border-bottom: 1px solid #000;
-	background: #2c3f4e url(../img/body_bk_02.png) top left repeat-x;
+	background: #243340 url(../img/body_bk_02.png) bottom left repeat-x;
 	color: #fff;
 }
 
@@ -29,7 +29,8 @@ div#header h1 {
 	padding: 16px 0 0 225px;
 	margin: 0;
 	font-size: 26px;
-	background: url(../img/header_bk_new_01.png) top left no-repeat;
+	background: url(../img/header_bk_new_01.png) bottom left no-repeat;
+	
 }
 	
 
@@ -108,10 +109,13 @@ div#wrapper div.actions {
 		-moz-border-radius: 7px; -webkit-border-radius: 7px;
 		
 	}
+	
+	div#wrapper div.actions ul li.at a,
 	div#wrapper div.actions a:hover {
 		background-color: #486680;
 		color: #fff;
 	}
+	
 	div#wrapper div.actions a.not_allowed {
 		color: #aad;
 	}
@@ -255,22 +259,36 @@ p#user_for_header span {
 }
 
 /* menu */
+div#menu {
+	background: none;
+	border: 0;
+	border-bottom: 1px solid #243340;
+	padding: 0;
+	min-height: 50px;
+	margin: 10px 10px 0 10px;
+}
+
 div.menu.level_0 {
 	position: relative;
 	z-index:20;
 	
 	list-style-type: none;
-	/* background: #374D61 url(http://www.ctrnet-dev.ca/atim-dev/css/images/body_bk_02.png) top right repeat-x; */
-	background-color: #374D61;
 	padding: 0;
 	min-height: 40px;
-	margin: 10px 10px 0 10px;
+	margin: 0 10px 0 0;
+	
+	/*
+	background-color: #374D61;
 	
 	-moz-border-radius-topleft: 5px; -webkit-border-top-left-radius: 5px;
 	-moz-border-radius-topright: 5px; -webkit-border-top-right-radius: 5px;
 	
 	border-color: #374D61;
 	border-bottom: none;
+	*/
+	
+	border: 0;
+	background: 0;
 	
 	font-size: 11px;
 	line-height: 1.2em;
@@ -294,7 +312,7 @@ div.menu.level_0 span.without_summary {
 
 div.menu ul {
 	float: left;
-	margin: 0 0 0 10px;
+	margin: 0;
 	padding: 0;
 	list-style-type: none;
 }
@@ -302,20 +320,35 @@ div.menu ul {
 div.menu li {
 	position: relative;
 	float: right;
-	padding: 8px 20px 5px 10px;
+	padding: 8px 5px 5px 25px;
 	
-	background: transparent url(http://images.apple.com/global/nav/images/breadcrumb_separator.png) right center no-repeat;
+	background: #374D61 url(http://images.apple.com/global/nav/images/breadcrumb_separator.png) -12px center no-repeat;
+
+	border-top: 10px solid #f2f2ff;
 }
 
 div.menu li.count_0 { 
-	background: none;
-	color: #dde8f2; 
+	background-color: #486680;
+	
+	padding: 8px 40px 5px 20px;
+}
+
+div.menu li.root,
+div.menu li.count_0.root {
+	background-image: none;
+	background-color: #293B49;
+	
+	padding: 8px 20px 5px 20px;
+	
+	border-top: 10px solid #293B49;
+	
+	-moz-border-radius-topleft: 7px; -webkit-border-top-left-radius: 7px;
 }
 	
 div.menu.level_1 {
 	display: none;
 	
-	top: 40px; left: -10px;
+	top: 40px; left: 10px;
 	position: absolute;
 	
 	background: #374D61;
@@ -327,6 +360,10 @@ div.menu.level_1 {
 	-moz-border-radius-bottomleft: 7px; -webkit-border-bottom-left-radius: 7px;
 	-moz-border-radius-bottomright: 7px; -webkit-border-bottom-right-radius: 7px;
 }
+
+	div.menu li.count_0 div.menu.level_1 {
+		background-color: #486680;
+	}
 
 div.menu.level_0 li:hover div.menu.level_1 {
 	display: block;
@@ -363,9 +400,11 @@ div.menu.level_1 li a {
 
 	font-size: 11px;
 	line-height: 1.1em;
+
+	padding-left: 20px;
 }
 div.menu.level_1 li:hover { 
-	background-color: #486680; 
+	background-color: #293B49; 
 	color: #fff; 
 }
 div.menu.level_1 li:hover a { 
@@ -404,7 +443,7 @@ div.menu ul#summary li span {
 	
 	color: #fff;
 	padding: 6px 10px 5px 27px;
-	background: url("../img/icons/Paste_16x16.gif") no-repeat 7px center;
+	background: url("../img/icons/Paste_16x16.png") no-repeat 7px center;
 	background-color: #293B49;
 	
 	-moz-border-radius: 7px; -webkit-border-radius: 7px;
@@ -495,7 +534,7 @@ div.menu ul#summary lh {
 		cursor: help;
 		width: 20px;
 		line-height: 20px;
-		background: url("../img/icons/Notes_16x16.gif") no-repeat center center;
+		background: url("../img/icons/fam_fam_silk_help.png") no-repeat center center;
 	}
 	
 	span.help:hover {
@@ -504,10 +543,15 @@ div.menu ul#summary lh {
 	
 		span.help.error,
 		span.help.error:hover {
-			background: none;
+			/* background: none; */
 			color: #ccd;
 			font-weight: normal;
 			cursor: default;
+			
+			filter:alpha(opacity=30);
+			-moz-opacity:0.3;
+			-khtml-opacity: 0.3;
+			opacity: 0.3;
 		}
 		
 		div#wrapper span.help div {
@@ -522,14 +566,12 @@ div.menu ul#summary lh {
 				width: 300px;
 				padding: 8px 20px 8px 12px;
 				w\idth: 270px;
-				background: #DEC27E;
-				color: #640;
+				background: #486680;
+				color: #ccc;
 				font-size: 11px;
 				font-weight: normal;
 				text-align: left;
 				line-height: 1.3em;
-				
-				border: 1px solid #CA9A4A;
 				
 				-moz-border-radius: 15px; -webkit-border-radius: 15px;
 				-moz-border-radius-topright: 0; -webkit-border-top-right-radius: 0;
@@ -555,11 +597,12 @@ div.menu ul#summary lh {
 		border-right: 1px solid #243340;
 		border-left: 1px solid #243340;
 		
-		padding: 20px 0 20px 0;
+		padding: 10px 0;
 	}
 		div#wrapper table.structure tr.pagination th {
 			text-align: center;
 		}
+		
 		div#wrapper table.structure td {
 			vertical-align: top;
 			padding: 0;
@@ -605,7 +648,7 @@ div.menu ul#summary lh {
 		}
 			div#wrapper table.structure table td.heading h4 { 
 				font-weight: normal; 
-				font-size: 14px;
+				font-size: 13px;
 				line-height: 16px;
 				color: #5081a5; 
 				margin: 0; 
@@ -630,9 +673,12 @@ div.menu ul#summary lh {
 			margin: 0 1em 0 0; 
 			text-align: left;
 		}
+			
+			/*
 			div#wrapper table.structure table.columns.index {}
 			div#wrapper table.structure table.columns.detail {}
 			div#wrapper table.structure table.columns.extra {}
+			*/
 			
 			div#wrapper table.structure table.columns th {
 				text-align: left;
@@ -640,7 +686,7 @@ div.menu ul#summary lh {
 				padding: 0.25em 1em;
 				font-weight: normal;
 				border-bottom: 2px solid #eaedf2;
-				font-size: 14px;
+				font-size: 13px;
 			}
 			div#wrapper table.structure table.columns th a { 
 				text-decoration: none; 
@@ -654,7 +700,7 @@ div.menu ul#summary lh {
 				text-indent: -9999px;
 				cursor: help;
 				line-height: 20px;
-				background: url("../img/icons/Notes_16x16.gif") no-repeat center center;
+				background: url("../img/icons/fam_fam_silk_help.png") no-repeat center center;
 				margin-left: 0.5em;
 				padding: 2px 7px;
 			}
@@ -726,9 +772,10 @@ div.menu ul#summary lh {
 				div#wrapper table.structure table.columns.tree ul#tree_root {
 				
 				}
-				div#wrapper table.structure table.columns.tree ul#tree_root li {
 				
-				}
+				ul#tree_root li { background-color: #fff; }
+				ul#tree_root li.at { background-color: #ffc; }
+				
 				div#wrapper table.structure table.columns.tree ul#tree_root li a {
 				
 				}
@@ -742,29 +789,46 @@ div.menu ul#summary lh {
 					display: block;
 					float: left;
 					text-indent: -9999px;
+					
+					
+			
+					filter:alpha(opacity=30);
+					-moz-opacity:0.3;
+					-khtml-opacity: 0.3;
+					opacity: 0.3;
 				}
 				a.form { padding-left: 20px; }
 				
 				/* -= ICONS =- */
-				a.add { background: url("../img/icons/Add_16x16.gif") no-repeat left center; }
-				a.cancel { background: url("../img/icons/Control Rewind_16x16.gif") no-repeat left center; }
-				a.delete { background: url("../img/icons/Close_16x16.gif") no-repeat left center; }
-				a.detail { background: url("../img/icons/Document_16x16.gif") no-repeat left center; }
-				a.duplicate { background: url("../img/icons/Documents x3_16x16.gif") no-repeat center center; }
-				a.edit { background: url("../img/icons/Edit_16x16.gif") no-repeat left center; }
-				a.filter { background: url("../img/icons/Tag_16x16.gif") no-repeat left center; }
-				a.list { background: url("../img/icons/Folder Open_16x16.gif") no-repeat left center; }
-				a.order { background: url("../img/icons/Shopping Cart_16x16.gif") no-repeat left center; }
-				a.popup { background: url("../img/icons/Trackback_16x16.gif") no-repeat left center; }
-				a.reveal { background: url("../img/icons/Relationship Data_16x16.gif") no-repeat left center; }
-				a.reveal.not_allowed { background: url("../img/icons/Warning_16x16.gif") no-repeat left center; }
-				a.redo { background: url("../img/icons/Refresh_16x16.gif") no-repeat left center; }
-				a.summary { background: url("../img/icons/Paste_16x16.gif") no-repeat left center; }
-				a.search { background: url("../img/icons/Preview_16x16.gif") no-repeat left center; }
-				a.search_results { background: #5081a5 url("../img/icons/Preview_16x16.gif") no-repeat left center; }
-				a.thumbsdown { background: url("../img/icons/Flag Black_16x16.gif") no-repeat left center; }
-				a.thumbsup { background: url("../img/icons/Flag Green_16x16.gif") no-repeat left center; }
-				a.default { background: url("../img/icons/Document Blank_16x16.gif") no-repeat left center; }
+				a.add { background: url("../img/icons/Add_16x16.png") no-repeat left center; }
+				a.cancel { background: url("../img/icons/Control Rewind_16x16.png") no-repeat left center; }
+				a.delete { background: url("../img/icons/Close_16x16.png") no-repeat left center; }
+				a.detail { background: url("../img/icons/Control Play_16x16.png") no-repeat left center; }
+				a.duplicate { background: url("../img/icons/Documents x3_16x16.png") no-repeat center center; }
+				a.edit { background: url("../img/icons/Edit_16x16.png") no-repeat left center; }
+				a.filter { background: url("../img/icons/Tag_16x16.png") no-repeat left center; }
+				a.list { background: url("../img/icons/Folder Open_16x16.png") no-repeat left center; }
+				a.news { background: url("../img/icons/News_16x16.png") no-repeat left center; }
+				a.order { background: url("../img/icons/Shopping Cart_16x16.png") no-repeat left center; }
+				a.popup { background: url("../img/icons/Trackback_16x16.png") no-repeat left center; }
+				a.reveal { background: url("../img/icons/Relationship Data_16x16.png") no-repeat left center; }
+				a.redo { background: url("../img/icons/Refresh_16x16.png") no-repeat left center; }
+				a.summary { background: url("../img/icons/Paste_16x16.png") no-repeat left center; }
+				a.search { background: url("../img/icons/Preview_16x16.png") no-repeat left center; }
+				a.search_results { background: #5081a5 url("../img/icons/Preview_16x16.png") no-repeat left center; }
+				a.thumbsdown { background: url("../img/icons/Flag Black_16x16.png") no-repeat left center; }
+				a.thumbsup { background: url("../img/icons/Flag Green_16x16.png") no-repeat left center; }
+				a.users { background: url("../img/icons/Group_16x16.png") no-repeat left center; }
+				
+				a.default { background: url("../img/icons/Document Blank_16x16.png") no-repeat left center; }
+				
+				td.id a,
+				td.id a:hover,
+				table.tree ul a,
+				table.tree ul a { 
+					text-decoration: none; 
+					padding-right: 0; margin-right: 0;
+				}
 				
 				div#wrapper table.structure table.columns.tree ul ul {
 					margin-top: 1em;
@@ -775,12 +839,33 @@ div.menu ul#summary lh {
 					border-right: none;
 				}
 				
-			div#wrapper table.structure table.columns.extra td {
+			div#wrapper table.structure table.extra td {
 				border: none;
 				padding: 0;
 			}
-			
-			
+					
+				div#wrapper table.structure table.extra td table td { 
+					padding: 0.5em 1em; 
+					border-top: 1px solid #eaedf2; 
+				}
+				
+				div#wrapper div#frame {
+					padding: 0 0 0 10px;
+				}
+					
+					div#wrapper div#frame table.structure {
+						border: 0;
+						padding: 0;
+					}
+					
+					div#wrapper div#frame div.actions {
+						background: none;
+						padding: 15px 0 0 20px;
+						margin: 0;
+						border: none;
+						border-top: 1px solid #eaedf2;
+					}
+							
 			div#wrapper table.structure table.columns tr.pagination th {
 				font-weight: normal;
 				font-size: 11px;

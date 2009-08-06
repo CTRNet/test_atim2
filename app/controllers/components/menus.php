@@ -18,12 +18,9 @@ class MenusComponent extends Object {
 		$return = array();
 		$alias_calculated = array();
 		
-		if ( $alias ) {
-			$alias = strtolower($alias);
-		} 
 		
 		// if ALIAS not provided, try to guess what menu item CONTROLLER is looking for, defaulting to DETAIL/PROFILE if possible
-		else {
+		if ( !$alias ) {
 			$alias					= '/'.( $this->controller->params['plugin'] ? $this->controller->params['plugin'].'/' : '' ).$this->controller->params['controller'].'/'.$this->controller->params['action'];
 			
 			$alias_with_params = $alias;
@@ -58,6 +55,19 @@ class MenusComponent extends Object {
 			
 			if (!$result) {
 				
+				$result = $this->Component_Menu->find(
+								'all', 
+								array(
+									'conditions'	=>	'Menu.use_link LIKE "'.$alias.'%"', 
+									'recursive'		=>	3,
+									'order'			=> 'Menu.parent_id DESC, Menu.display_order ASC',
+									'limit'			=> 1
+								)
+				);
+			}
+			
+			if (!$result) {
+				
 				$alias_count = 0;
 				while ( !$result && $alias_count<count($alias_calculated) ) {
 					$result = $this->Component_Menu->find(
@@ -73,19 +83,6 @@ class MenusComponent extends Object {
 					$alias_count++;
 				}
 				
-			}
-			
-			if (!$result) {
-				
-				$result = $this->Component_Menu->find(
-								'all', 
-								array(
-									'conditions'	=>	'Menu.use_link LIKE "'.$alias.'%"', 
-									'recursive'		=>	3,
-									'order'			=> 'Menu.parent_id DESC, Menu.display_order ASC',
-									'limit'			=> 1
-								)
-				);
 			}
 			
 			$menu = array();

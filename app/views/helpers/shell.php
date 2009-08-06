@@ -2,7 +2,7 @@
 
 class ShellHelper extends Helper {
 	
-	var $helpers = array('Html','Session');
+	var $helpers = array('Html','Session','Structures');
 	
 	function header( $options=array() ) {
 		
@@ -81,7 +81,12 @@ class ShellHelper extends Helper {
 			<!-- end #header -->
 			
 			'.$user_for_header.'
-			'.$menu_for_wrapper.'
+			
+			<!-- start #menu -->
+			<div id="menu">
+				'.$menu_for_wrapper.'
+			</div>
+			<!-- end #menu -->
 			
 			<!-- start #wrapper -->
 			<div id="wrapper" class="plugin_'.( isset($this->params['plugin']) ? $this->params['plugin'] : 'none' ).' controller_'.$this->params['controller'].' action_'.$this->params['action'].'">
@@ -134,72 +139,87 @@ class ShellHelper extends Helper {
 				if ( isset($_SESSION) && isset($_SESSION['Auth']) && isset($_SESSION['Auth']['User']) && count($_SESSION['Auth']['User']) ) {
 					
 					$count = 0;
+					$is_root = false; // used to remove unneeded ROOT menu items from displaying in bar
+					
 					foreach ( $atim_menu as $menu ) {
-						$return_html .= '
-							<li class="at count_'.$count.'">
-						';
 						
 						$active_item = '';
 						$summary_item = '';
 						$append_menu = '';
 						
-						// save BASE array (main menu) for displa in header
+						// save BASE array (main menu) for display in header
 						if ( $count==(count($atim_menu)-1) )	$root_menu_array = $menu;
 						if ( $count==(count($atim_menu)-2) )	$main_menu_array = $menu;
 						
-						$sub_count = 0;
-						foreach ( $menu as $menu_item ) {
-							
-							if ( $menu_item['Menu']['use_link'] && count($options['variables']) ) {
-								foreach ( $options['variables'] as $k=>$v ) {
-									$menu_item['Menu']['use_link'] = str_replace('%%'.$k.'%%',$v,$menu_item['Menu']['use_link']);
-								}
-							}
-							
-							if ( $menu_item['Menu']['at'] && $menu_item['Menu']['use_summary'] ) {
-								$summaries[] = $this->fetch_summary($menu_item['Menu']['use_summary'],$options,'long');
-								$menu_item['Menu']['use_summary'] = $this->fetch_summary($menu_item['Menu']['use_summary'],$options,'short');
-							}
-							
-							if ( $menu_item['Menu']['at'] ) {
+						if ( !$is_root ) {
 								
-								$summary_item = $menu_item['Menu']['use_summary'] ? NULL : array('class'=>'without_summary');
+							$sub_count = 0;
+							foreach ( $menu as $menu_item ) {
 								
-								if ( $menu_item['Menu']['use_summary'] ) {
-									$active_item = '
-										<span>'.$menu_item['Menu']['use_summary'].'</span>
-										<br />&nbsp;&lfloor; '.__($menu_item['Menu']['language_title'], true).'
-									';
+								if ( $menu_item['Menu']['use_link'] && count($options['variables']) ) {
+									foreach ( $options['variables'] as $k=>$v ) {
+										$menu_item['Menu']['use_link'] = str_replace('%%'.$k.'%%',$v,$menu_item['Menu']['use_link']);
+									}
 								}
 								
-								else {
-									$active_item = '<span class="without_summary">'.__($menu_item['Menu']['language_title'], true).'</span>';
+								if ( $menu_item['Menu']['at'] && $menu_item['Menu']['use_summary'] ) {
+									$summaries[] = $this->fetch_summary($menu_item['Menu']['use_summary'],$options,'long');
+									$menu_item['Menu']['use_summary'] = $this->fetch_summary($menu_item['Menu']['use_summary'],$options,'short');
 								}
+								
+								if ( $menu_item['Menu']['at'] ) {
+									
+									$is_root = $menu_item['Menu']['is_root'];
+									
+									$summary_item = $menu_item['Menu']['use_summary'] ? NULL : array('class'=>'without_summary');
+									
+									if ( $menu_item['Menu']['use_summary'] ) {
+										$active_item = '
+											<span>'.$menu_item['Menu']['use_summary'].'</span>
+											<br />&nbsp;&lfloor; '.__($menu_item['Menu']['language_title'], true).'
+										';
+									}
+									
+									else {
+										$active_item = '<span class="without_summary">'.__($menu_item['Menu']['language_title'], true).'</span>';
+									}
+									
+								}
+								
+								$html_attributes = array();
+								$html_attributes['class'] = 'menu '.$this->Structures->generate_link_class( $menu_item['Menu']['language_title'], $menu_item['Menu']['use_link'] );
+								
+								$append_menu .= '
+											<!-- '.$menu_item['Menu']['id'].' -->
+											<li class="'.( !$menu_item['Menu']['allowed'] ? 'not_allowed ' : '' ).( $menu_item['Menu']['at'] ? 'at ' : '' ).'count_'.$sub_count.'">
+												'.( $menu_item['Menu']['allowed'] ? $this->Html->link( __($menu_item['Menu']['language_title'], true), $menu_item['Menu']['use_link'], $html_attributes ) : __($menu_item['Menu']['language_title'], true) ).'
+											</li>
+								';
+								
+								$sub_count++;
 								
 							}
 							
-							$append_menu .= '
-										<!-- '.$menu_item['Menu']['id'].' -->
-										<li class="'.( !$menu_item['Menu']['allowed'] ? 'not_allowed ' : '' ).( $menu_item['Menu']['at'] ? 'at ' : '' ).'count_'.$sub_count.'">
-											&nbsp;&lfloor;
-											 '.( $menu_item['Menu']['allowed'] ? $this->Html->link( __($menu_item['Menu']['language_title'], true), $menu_item['Menu']['use_link'] ) : __($menu_item['Menu']['language_title'], true) ).'
-										</li>
+							if ( !$is_root ) {
+								$append_menu = '
+										<div class="menu level_1">
+											<ul>
+												'.$append_menu.'
+											</ul>
+										</div>
+								';
+							} else {
+								$append_menu = '';
+							}
+							
+							$return_html .= '
+								<li class="at count_'.$count.( $is_root ? ' root' : '' ).'">
+									'.$active_item.'
+									'.$append_menu.'
+								</li>
 							';
 							
-							$sub_count++;
 						}
-						
-						$return_html .= '
-								'.$active_item.'
-								
-								<div class="menu level_1">
-									<ul>
-										'.$append_menu.'
-									</ul>
-								</div>
-								
-							</li>
-						';
 						
 						$count++;
 					}
@@ -207,6 +227,7 @@ class ShellHelper extends Helper {
 				
 			$return_html .= '
 				</ul>
+				
 			';
 			
 			// if summary info has been provided, provide expandable tab

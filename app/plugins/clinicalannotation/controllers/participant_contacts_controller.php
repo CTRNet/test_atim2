@@ -59,7 +59,7 @@ class ParticipantContactsController extends ClinicalannotationAppController {
 			$this->flash( 'Your data has been deleted.', '/clinicalannotation/participant_contacts/listall/'.$participant_id );
 		}
 		else {
-			$this->flash( 'Your data has been deleted.', '/clinicalannotation/participant_contacts/listall/'.$participant_id );
+			$this->flash( 'Your data has NOT been deleted.', '/clinicalannotation/participant_contacts/listall/'.$participant_id );
 		}
 	}	
 }
