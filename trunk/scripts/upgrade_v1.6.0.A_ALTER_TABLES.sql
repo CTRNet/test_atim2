@@ -78,9 +78,23 @@ ADD COLUMN `deleted` int(11) default 0,
 ADD COLUMN `deleted_date` datetime default NULL;
 
 ALTER TABLE `clinical_collection_links`
-
+CHANGE `participant_id` `participant_id` INT( 11 ) NULL DEFAULT NULL,
+CHANGE `diagnosis_id` `diagnosis_id` INT( 11 ) NULL DEFAULT NULL,
+CHANGE `consent_id` `consent_id` INT( 11 ) NULL DEFAULT NULL,
 ADD COLUMN `deleted` int(11) default 0,
 ADD COLUMN `deleted_date` datetime default NULL;
+
+UPDATE `clinical_collection_links`
+SET `consent_id` = NULL
+WHERE `consent_id` = '0';
+
+UPDATE `clinical_collection_links`
+SET `participant_id` = NULL
+WHERE `participant_id` = '0';
+
+UPDATE `clinical_collection_links`
+SET `diagnosis_id` = NULL
+WHERE `diagnosis_id` = '0';
 
 ALTER TABLE `coding_adverse_events`
 
@@ -670,6 +684,7 @@ UPDATE `structures` SET `alias` = 'studyfundings' WHERE `alias` = 'study_funding
 UPDATE `structures` SET `alias` = 'studyresults' WHERE `alias` = 'study_results';
 UPDATE `structures` SET `alias` = 'studyrelated' WHERE `alias` = 'study_related';
 UPDATE `structures` SET `alias` = 'eventmasters' WHERE `alias` = 'event_masters';
+UPDATE `structures` SET `language_title` = '' WHERE `old_id` = 'CAN-999-999-000-999-1024' AND `alias` = 'ad_spec_tubes_incl_ml_vol';
 
 -- Bank field change
 
