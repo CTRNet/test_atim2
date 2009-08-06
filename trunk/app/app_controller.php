@@ -15,11 +15,28 @@ class AppController extends Controller {
 		// Configure AuthComponent
 			$this->Auth->authorize = 'actions';
 			$this->Auth->loginAction = array('controller' => 'users', 'action' => 'login', 'plugin' => '');
+			$this->Auth->loginRedirect = array('controller' => 'menus', 'action' => 'index', 'plugin' => '');
 			$this->Auth->logoutRedirect = array('controller' => 'users', 'action' => 'login', 'plugin' => '');
-			$this->Auth->loginRedirect = array('controller' => 'menus', 'action' => 'index');
 			
 			$this->Auth->actionPath = 'controllers/';
 			// $this->Auth->allowedActions = array('display');
+			
+		// record URL in logs
+			
+			$log_activity_data['UserLog']['user_id']  = $this->Session->read('Auth.User.id');
+			$log_activity_data['UserLog']['url']  = $this->here;
+			$log_activity_data['UserLog']['visited'] = date('Y-m-d h:i:s');
+			// $log_activity_data['UserLog']['allowed'] = $this->_othCheckPermission($row) ? '1' : '0';
+			$log_activity_data['UserLog']['allowed'] = 1;
+			
+			if ( isset($this->UserLog) ) {
+				$log_activity_model =& $this->UserLog;
+			} else {
+				App::import('model', 'UserLog');
+				$log_activity_model =& new UserLog;
+			}
+			
+			$log_activity_model->save($log_activity_data);
 		
 		// ATiM2 configuration variables from Datatable
 			$config_results	= false;

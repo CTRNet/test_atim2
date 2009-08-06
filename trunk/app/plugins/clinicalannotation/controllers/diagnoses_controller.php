@@ -5,7 +5,7 @@ class DiagnosesController extends ClinicalannotationAppController {
 	var $uses = array(
 		'ClinicalAnnotation.Diagnosis', 
 		'ClinicalAnnotation.Participant',
-		'ClinicalAnnotation.TxMaster',
+		'ClinicalAnnotation.TreatmentMaster',
 		'ClinicalAnnotation.EventMaster'
 	);
 	var $paginate = array('Diagnosis'=>array('limit'=>10,'order'=>'Diagnosis.dx_date')); 
@@ -34,7 +34,6 @@ class DiagnosesController extends ClinicalannotationAppController {
 			if ( $this->Diagnosis->save( $this->data ) ) {
 				$this->flash( 'Your data has been saved.', '/clinicalannotation/diagnoses/detail/'.$participant_id.'/'.$this->Diagnosis->id );
 			}
-			
 		}		
 	}
 
@@ -66,7 +65,7 @@ class DiagnosesController extends ClinicalannotationAppController {
 			} else {
 				$this->flash( 'Your data has been deleted.', '/clinicalannotation/diagnoses/listall/'.$participant_id );
 			}
-		}else{
+		} else {
 			$message = "Your data cannot be deleted because the following records exist: ";
 			if( $treatment_id != NULL ){
 				$message = $message."A treatment record exists, ";

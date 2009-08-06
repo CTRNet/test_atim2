@@ -2,11 +2,19 @@
 
 class AdhocsController extends DatamartAppController {
 	
-	var $uses = array('Datamart.Adhoc', 'Datamart.AdhocFavourite', 'Datamart.AdhocSaved', 'Datamart.BatchSet', 'Datamart.BatchId');
+	var $uses = array(
+		'Datamart.Adhoc', 
+		'Datamart.AdhocFavourite',
+		'Datamart.AdhocSaved', 
+		
+		'Datamart.BatchSet',
+		'Datamart.BatchId'
+	);
+	
 	var $paginate = array(
-		'Adhoc'=>array('limit'=>10,'order'=>'Adhoc.description ASC'),
-		'AdhocFavourite'=>array('limit'=>10,'order'=>'Adhoc.description ASC'),
-		'AdhocSaved'=>array('limit'=>10,'order'=>'Adhoc.description ASC')
+		'Adhoc'				=>array('limit'=>10,'order'=>'Adhoc.description ASC'),
+		'AdhocFavourite'	=>array('limit'=>10,'order'=>'Adhoc.description ASC'),
+		'AdhocSaved'		=>array('limit'=>10,'order'=>'Adhoc.description ASC')
 	); 
 	
 	function index( $type_of_list='all' ) {
@@ -14,7 +22,7 @@ class AdhocsController extends DatamartAppController {
 		$this->set( 'atim_menu_variables', array( 'Param.Type_Of_List'=>$type_of_list ) );
 		$this->set( 'atim_structure', $this->Structures->get( 'form', 'querytool_adhoc' ) );
 		
-		if ( !isset($_SESSION['Adhocs_filter']) || !$type_of_list || !$type_of_list=='all' ) {
+		if ( !isset($_SESSION['Adhocs_filter']) || !$type_of_list || $type_of_list=='all' ) {
 			$this->data = $this->paginate($this->Adhoc);
 		} else if ( $type_of_list=='favourites' ) {
 			$this->data = $this->paginate($this->AdhocFavourite, array('AdhocFavourite.user_id'=>$_SESSION['Auth']['User']['id']));
@@ -101,6 +109,7 @@ class AdhocsController extends DatamartAppController {
 		
 		$this->set( 'atim_structure_for_results', $this->Structures->get( 'form', $adhoc['Adhoc']['form_alias_for_results'] ) );
 		
+		$this->set( 'atim_structure_for_add', $this->Structures->get( 'form', 'querytool_adhoc_to_batchset' ) );
 		
 		
 		
@@ -197,16 +206,14 @@ class AdhocsController extends DatamartAppController {
 			}
 			
 			$criteria[] = 'BatchSet.user_id="'.$_SESSION['Auth']['User']['id'].'"';
-			$batch_sets = $this->BatchSet->find( 'all', array('conditions'=>$criteria, 'recursive'=>2) );
-			// $batch_sets = $this->BatchSet->findAll( $criteria, NULL, NULL, NULL, NULL, 1, 2 );
+			$batch_set_results = $this->BatchSet->find( 'all', array('conditions'=>$criteria, 'recursive'=>2) );
 			
 			// add COUNT of IDS to array results, for form list 
-			if ( is_array($batch_sets) ) {
-				foreach ( $batch_sets as &$value) {
-					$value['BatchSet']['count_of_BatchId'] = count($value['BatchId']);
-				}
-			} else {
-				$batch_sets = array();
+			$batch_sets = array();
+			$batch_sets[0] = 'new batch set';
+			
+			foreach ( $batch_set_results as &$value) {
+				$batch_sets[ $value['BatchSet']['id'] ] = strlen( $value['BatchSet']['description'] )>60 ? substr( $value['BatchSet']['description'], 0, 60 ).'...' : $value['BatchSet']['description'];
 			}
 			
 		// save THIS->DATA (if any) for Saved Search

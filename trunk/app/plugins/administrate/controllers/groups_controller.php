@@ -47,10 +47,10 @@ class GroupsController extends AdministrateAppController {
 		}
 	}
 
-	function edit($id = null) {
+	function edit( $bank_id, $group_id = null ) {
 		$this->set( 'atim_menu_variables', array('Bank.id'=>$bank_id,'Group.id'=>$group_id) );
 		
-		if (!$id && empty($this->data)) {
+		if (!$group_id && empty($this->data)) {
 			$this->Session->setFlash(__('Invalid Group', true));
 			$this->redirect(array('action'=>'index'));
 		}
@@ -76,7 +76,7 @@ class GroupsController extends AdministrateAppController {
 		}
 		if (empty($this->data)) {
 			$this->Group->bindToPermissions();
-			$this->data = $this->Group->find('first', array('conditions' => 'Group.id="'.$id.'"', 'recursive' => 2));
+			$this->data = $this->Group->find('first', array('conditions' => 'Group.id="'.$group_id.'"', 'recursive' => 2));
 		}
 		
 		$aco = $this->Aco->find('all', array('order' => 'Aco.lft ASC'));
@@ -88,10 +88,10 @@ class GroupsController extends AdministrateAppController {
 			if( in_array($ac['Aco']['parent_id'], array_keys($stack)) ){
 				$new_stack = array();
 				$done = false;
-				foreach($stack as $id => $alias){
+				foreach($stack as $group_id => $alias){
 					if($done) break;
-					$new_stack[$id] = $alias;
-					if($id == $ac['Aco']['parent_id']) $done = true;
+					$new_stack[$group_id] = $alias;
+					if($group_id == $ac['Aco']['parent_id']) $done = true;
 				}
 				$stack = $new_stack;
 			}
@@ -101,12 +101,12 @@ class GroupsController extends AdministrateAppController {
 		$this->set('aco_options',$aco_options);
 	}
 
-	function delete($id = null) {
-		if (!$id) {
+	function delete( $bank_id, $group_id = null ) {
+		if (!$group_id) {
 			$this->Session->setFlash(__('Invalid id for Group', true));
 			$this->redirect(array('action'=>'index'));
 		}
-		if ($this->Group->del($id)) {
+		if ($this->Group->del($group_id)) {
 			$this->Session->setFlash(__('Group deleted', true));
 			$this->redirect(array('action'=>'index'));
 		}

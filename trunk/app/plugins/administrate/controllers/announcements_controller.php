@@ -5,14 +5,15 @@ class AnnouncementsController extends AdministrateAppController {
 	var $uses = array('Administrate.Announcement');
 	var $paginate = array('Announcement'=>array('limit'=>10,'order'=>'Announcement.date_start DESC')); 
 	
-	function beforeFilter( $bank_id=0, $group_id=0, $user_id=0 ) {
+	function beforeFilter() {
 		parent::beforeFilter(); 
 		
-		if ( $user_id ) {
+		// change MENU based on passed in IDs
+		if ( isset($this->params['pass'][2]) && $this->params['pass'][2] ) {
 			$this->set( 'atim_menu', $this->Menus->get('/administrate/announcements/index/%%Bank.id%%/%%Group.id%%/%%User.id%%') );
-		} else if ( $group_id ) { 
+		} else if ( isset($this->params['pass'][1]) && $this->params['pass'][1] ) { 
 			$this->set( 'atim_menu', $this->Menus->get('/administrate/announcements/index/%%Bank.id%%/%%Group.id%%') );
-		} else {
+		} else if ( isset($this->params['pass'][0]) && $this->params['pass'][0] ) { 
 			$this->set( 'atim_menu', $this->Menus->get('/administrate/announcements/index/%%Bank.id%%') );
 		}
 		

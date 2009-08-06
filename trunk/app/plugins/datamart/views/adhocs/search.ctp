@@ -2,7 +2,7 @@
 		
 	// display adhoc DETAIL
 	
-		$structures->build( $atim_structure_for_detail, array('type'=>'detail', 'data'=>$data_for_detail) );
+		$structures->build( $atim_structure_for_detail, array('type'=>'detail', 'settings'=>array('actions'=>false), 'data'=>$data_for_detail) );
 	
 	// display adhoc SEARCH form
 	
