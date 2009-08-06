@@ -7095,6 +7095,7 @@ CREATE TABLE `materials_revs` (
 CREATE TABLE `menus` (
   `id` varchar(255) NOT NULL default '',
   `parent_id` varchar(255) default NULL,
+  `is_root` int(11) NOT NULL default '0',
   `display_order` int(11) NOT NULL default '0',
   `language_title` text NOT NULL,
   `language_description` text,
