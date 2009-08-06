@@ -10924,8 +10924,7 @@ INSERT INTO `structures` (`id`, `old_id`, `alias`, `language_title`, `language_h
 (152, 'QRY-999-999-000-999-1', 'querytool_adhoc', '', '', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (153, 'QRY-999-999-000-999-2', 'querytool_batch_set', '', '', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (154, 'QRY-999-999-000-999-3', 'querytool_adhoc_saved', '', '', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(155, '', 'versions', '', '', '', '', '', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(156, '', 'versions', '', '', '', '', '', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(155, '', 'versions', '', '', '', '', '', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),    
 (157, '', 'providers', '', '', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (158, '', 'querytool_adhoc_to_batchset', '', '', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (159, '', 'querytool_batchset_to_processes', '', '', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
@@ -17797,19 +17796,6 @@ CREATE INDEX aros_idx2 ON aros (alias);
 CREATE INDEX aros_idx3 ON aros (model, foreign_key);
 
 -- To integrate into script
-
-INSERT INTO `structures` (`alias`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES
-('versions', 0, 0, 0, 1);
-INSERT INTO `structure_formats` ( `structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_help`, `flag_index`, `flag_detail` ) VALUES
-( 0, 0, 1, 1, 'version', 1, 1),
-( 0, 0, 1, 2, 'date', 1, 1),
-( 0, 0, 1, 3, 'status', 1, 1);
-UPDATE `structure_formats` f, `structure_fields` d, `structures` s SET f.structure_id = s.id, f.structure_field_id = d.id
-WHERE f.language_help = 'version' AND s.alias = 'versions' AND d.`field` = 'version_number';
-UPDATE `structure_formats` f, `structure_fields` d, `structures` s SET f.structure_id = s.id, f.structure_field_id = d.id
-WHERE f.language_help = 'date' AND s.alias = 'versions' AND d.`field` = 'date_installed';
-UPDATE `structure_formats` f, `structure_fields` d, `structures` s SET f.structure_id = s.id, f.structure_field_id = d.id
-WHERE f.language_help = 'status' AND s.alias = 'versions' AND d.`field` = 'status' AND d.model = 'Version';
 
 ALTER TABLE `datamart_adhoc` ADD `plugin` VARCHAR( 255 ) NOT NULL AFTER `description` ;
 
