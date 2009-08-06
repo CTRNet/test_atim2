@@ -3918,7 +3918,7 @@ CREATE TABLE `consents_revs` (
 CREATE TABLE `datamart_adhoc` (
   `id` int(11) NOT NULL auto_increment,
   `description` text,
-  `plugin` varchar(100) NOT NULL default '',
+  `plugin` varchar(255) NOT NULL,
   `model` varchar(255) NOT NULL default '',
   `form_alias_for_search` varchar(255) default NULL,
   `form_alias_for_results` varchar(255) default NULL,
@@ -3936,8 +3936,7 @@ CREATE TABLE `datamart_adhoc` (
 -- Dumping data for table `datamart_adhoc`
 -- 
 
-INSERT INTO `datamart_adhoc` (`id`, `description`, `plugin`, `model`, `form_alias_for_search`, `form_alias_for_results`, `form_links_for_results`, `sql_query_for_results`, `flag_use_query_results`, `created`, `created_by`, `modified`, `modified_by`) VALUES
-(2, 'Advanced Adhoc Query, used for Query Tool redevelopment.', 'Clinicalannotation', 'Participant', 'participants', 'participants', '', 'SELECT \r\n	Participant.id,\r\n	Participant.tb_number,\r\n	Participant.title,\r\n	Participant.first_name,\r\n	Participant.middle_name,\r\n	Participant.last_name,\r\n	Participant.date_of_birth,\r\n	Participant.marital_status\r\nFROM \r\n	participants AS Participant \r\nWHERE\r\n	Participant.tb_number IN (@@Participant.tb_number@@)\r\n	AND Participant.title LIKE "%@@Participant.title@@%" \r\n	AND Participant.first_name LIKE "%@@Participant.first_name@@%" \r\n	AND Participant.last_name LIKE "%@@Participant.last_name@@%"\r\n	AND Participant.race LIKE "%@@Participant.race@@%"\r\n	AND Participant.sex IN (@@Participant.sex@@)\r\n	AND Participant.vital_status LIKE "%@@Participant.vital_status@@%"', 1, '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+INSERT INTO `datamart_adhoc` (`id`, `description`, `plugin`, `model`, `form_alias_for_search`, `form_alias_for_results`, `form_links_for_results`, `sql_query_for_results`, `flag_use_query_results`, `created`, `created_by`, `modified`, `modified_by`) VALUES (2, 'Advanced Adhoc Query, used for Query Tool redevelopment.', 'Clinicalannotation', 'Participant', 'participants', 'participants', '', 'SELECT \r\n	Participant.id,\r\n	Participant.tb_number,\r\n	Participant.title,\r\n	Participant.first_name,\r\n	Participant.middle_name,\r\n	Participant.last_name,\r\n	Participant.date_of_birth,\r\n	Participant.marital_status\r\nFROM \r\n	participants AS Participant \r\nWHERE\r\n	Participant.tb_number IN (@@Participant.tb_number@@)\r\n	AND Participant.title LIKE "%@@Participant.title@@%" \r\n	AND Participant.first_name LIKE "%@@Participant.first_name@@%" \r\n	AND Participant.last_name LIKE "%@@Participant.last_name@@%"\r\n	AND Participant.race LIKE "%@@Participant.race@@%"\r\n	AND Participant.sex IN (@@Participant.sex@@)\r\n	AND Participant.vital_status LIKE "%@@Participant.vital_status@@%"', 1, '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 -- --------------------------------------------------------
 
@@ -3996,7 +3995,7 @@ CREATE TABLE `datamart_batch_ids` (
 -- Dumping data for table `datamart_batch_ids`
 -- 
 
-INSERT INTO `datamart_batch_ids` (`id`, `set_id`, `lookup_id`) VALUES (1, 1, 4),
+INSERT INTO `datamart_batch_ids` (`id`, `set_id`, `lookup_id`) VALUES (1, 1, 3),
 (2, 2, 4),
 (3, 3, 4),
 (4, 3, 5),
@@ -4023,7 +4022,7 @@ INSERT INTO `datamart_batch_ids` (`id`, `set_id`, `lookup_id`) VALUES (1, 1, 4),
 CREATE TABLE `datamart_batch_processes` (
   `id` int(11) NOT NULL auto_increment,
   `name` varchar(255) NOT NULL default '',
-  `plugin` varchar(100) NOT NULL default '',
+  `plugin` varchar(100) NOT NULL,
   `model` varchar(255) NOT NULL default '',
   `url` varchar(255) NOT NULL default '',
   PRIMARY KEY  (`id`)
@@ -4045,7 +4044,7 @@ CREATE TABLE `datamart_batch_sets` (
   `user_id` int(11) default NULL,
   `group_id` int(11) default NULL,
   `description` text NOT NULL,
-  `plugin` varchar(100) NOT NULL default '',
+  `plugin` varchar(100) NOT NULL,
   `model` varchar(255) NOT NULL default '',
   `form_alias_for_results` varchar(255) NOT NULL,
   `sql_query_for_results` text NOT NULL,
@@ -4062,7 +4061,8 @@ CREATE TABLE `datamart_batch_sets` (
 -- Dumping data for table `datamart_batch_sets`
 -- 
 
-INSERT INTO `datamart_batch_sets` (`id`, `user_id`, `group_id`, `description`, `model`, `form_alias_for_results`, `sql_query_for_results`, `form_links_for_results`, `flag_use_query_results`, `created`, `created_by`, `modified`, `modified_by`) VALUES (1, 1, 0, '(unlabelled set generated on Apr 16 2009)', 'Participant', 'participants', 'SELECT \r\n	Participant.id,\r\n	Participant.tb_number,\r\n	Participant.title,\r\n	Participant.first_name,\r\n	Participant.middle_name,\r\n	Participant.last_name,\r\n	Participant.date_of_birth,\r\n	Participant.marital_status\r\nFROM \r\n	participants AS Participant \r\nWHERE\r\n	(Participant.tb_number LIKE |%%| OR Participant.tb_number IS NULL)\r\n	AND (Participant.title LIKE |%%| OR Participant.title IS NULL) \r\n	AND (Participant.first_name LIKE |%%| OR Participant.first_name IS NULL) \r\n	AND (Participant.last_name LIKE |%%| OR Participant.last_name IS NULL)\r\n	AND (Participant.race LIKE |%%| OR Participant.race IS NULL)\r\n	AND (Participant.sex LIKE |%%| OR Participant.sex IS NULL)\r\n	AND (Participant.vital_status LIKE |%%| OR Participant.vital_status IS NULL)', '', 1, '2009-04-16 10:22:40', '', '2009-04-16 10:22:40', ''),
+INSERT INTO `datamart_batch_sets` (`id`, `user_id`, `group_id`, `description`, `plugin`, `model`, `form_alias_for_results`, `sql_query_for_results`, `form_links_for_results`, `flag_use_query_results`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(1, 1, 0, '(unlabelled set generated on Apr 16 2009)', 'Clinicalannotation', 'Participant', 'participants', 'SELECT \r\n	Participant.id,\r\n	Participant.tb_number,\r\n	Participant.title,\r\n	Participant.first_name,\r\n	Participant.middle_name,\r\n	Participant.last_name,\r\n	Participant.date_of_birth,\r\n	Participant.marital_status\r\nFROM \r\n	participants AS Participant \r\nWHERE\r\n	(Participant.tb_number LIKE |%%| OR Participant.tb_number IS NULL)\r\n	AND (Participant.title LIKE |%%| OR Participant.title IS NULL) \r\n	AND (Participant.first_name LIKE |%%| OR Participant.first_name IS NULL) \r\n	AND (Participant.last_name LIKE |%%| OR Participant.last_name IS NULL)\r\n	AND (Participant.race LIKE |%%| OR Participant.race IS NULL)\r\n	AND (Participant.sex LIKE |%%| OR Participant.sex IS NULL)\r\n	AND (Participant.vital_status LIKE |%%| OR Participant.vital_status IS NULL)', '', 1, '2009-04-16 10:22:40', '', '2009-04-16 10:22:40', ''),
 (2, 1, 0, '(unlabelled set generated on Apr 27 2009)', 'Clinicalannotation', 'Participant', 'participants', 'SELECT \r\n	Participant.id,\r\n	Participant.tb_number,\r\n	Participant.title,\r\n	Participant.first_name,\r\n	Participant.middle_name,\r\n	Participant.last_name,\r\n	Participant.date_of_birth,\r\n	Participant.marital_status\r\nFROM \r\n	participants AS Participant \r\nWHERE\r\n	(Participant.tb_number LIKE |%%| OR Participant.tb_number IS NULL)\r\n	AND (Participant.title LIKE |%%| OR Participant.title IS NULL) \r\n	AND (Participant.first_name LIKE |%%| OR Participant.first_name IS NULL) \r\n	AND (Participant.last_name LIKE |%%| OR Participant.last_name IS NULL)\r\n	AND (Participant.race LIKE |%%| OR Participant.race IS NULL)\r\n	AND (Participant.sex LIKE |%%| OR Participant.sex IS NULL)\r\n	AND (Participant.vital_status LIKE |%%| OR Participant.vital_status IS NULL)', '', 1, '2009-04-27 11:19:04', '', '2009-04-27 11:19:04', ''),
 (3, 1, 0, '(unlabelled set generated on May 13 2009)', 'Clinicalannotation', 'Participant', 'participants', 'SELECT \r\n	Participant.id,\r\n	Participant.tb_number,\r\n	Participant.title,\r\n	Participant.first_name,\r\n	Participant.middle_name,\r\n	Participant.last_name,\r\n	Participant.date_of_birth,\r\n	Participant.marital_status\r\nFROM \r\n	participants AS Participant \r\nWHERE\r\n	(Participant.tb_number LIKE |%%| OR Participant.tb_number IS NULL)\r\n	AND (Participant.title LIKE |%%| OR Participant.title IS NULL) \r\n	AND (Participant.first_name LIKE |%%| OR Participant.first_name IS NULL) \r\n	AND (Participant.last_name LIKE |%%| OR Participant.last_name IS NULL)\r\n	AND (Participant.race LIKE |%%| OR Participant.race IS NULL)\r\n	AND (Participant.sex LIKE |%%| OR Participant.sex IS NULL)\r\n	AND (Participant.vital_status LIKE |%%| OR Participant.vital_status IS NULL)', '', 1, '2009-05-13 10:10:01', '', '2009-05-13 10:10:01', ''),
 (4, 1, 0, '(unlabelled set generated on May 13 2009)', 'Clinicalannotation', 'Participant', 'participants', 'SELECT \r\n	Participant.id,\r\n	Participant.tb_number,\r\n	Participant.title,\r\n	Participant.first_name,\r\n	Participant.middle_name,\r\n	Participant.last_name,\r\n	Participant.date_of_birth,\r\n	Participant.marital_status\r\nFROM \r\n	participants AS Participant \r\nWHERE\r\n	(Participant.tb_number LIKE |%%| OR Participant.tb_number IS NULL)\r\n	AND (Participant.title LIKE |%%| OR Participant.title IS NULL) \r\n	AND (Participant.first_name LIKE |%%| OR Participant.first_name IS NULL) \r\n	AND (Participant.last_name LIKE |%%| OR Participant.last_name IS NULL)\r\n	AND (Participant.race LIKE |%%| OR Participant.race IS NULL)\r\n	AND (Participant.sex LIKE |%%| OR Participant.sex IS NULL)\r\n	AND (Participant.vital_status LIKE |%%| OR Participant.vital_status IS NULL)', '', 1, '2009-05-13 10:13:38', '', '2009-05-13 10:13:38', ''),
