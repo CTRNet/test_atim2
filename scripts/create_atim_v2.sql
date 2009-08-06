@@ -7363,7 +7363,7 @@ INSERT INTO `menus` (`id`, `parent_id`, `display_order`, `language_title`, `lang
 ('tool_CAN_110', 'tool_CAN_100', 7, 'tool_result', 'tool_result', '/study/study_results/listall/%%StudySummary.id%%/', '', 'Study.StudySummary::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('tool_CAN_112', 'tool_CAN_100', 9, 'tool_related studies', 'tool_related studies', '/study/study_related/listall/%%StudySummary%%/', '', 'Study.StudySummary::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('tool_CAN_38', 'core_CAN_33', 101, 'pricing', 'pricing', '/under_development/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('tool_CAN_43', 'core_CAN_33', 102, 'provider', 'provider', '/under_development/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('tool_CAN_43', 'core_CAN_33', 102, 'provider', 'provider', '/provider/providers/index/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('tool_CAN_48', 'core_CAN_33', 100, 'collection kit', 'collection kit', '/under_development/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 -- --------------------------------------------------------
@@ -8272,6 +8272,40 @@ CREATE TABLE `protocol_masters_revs` (
 -- 
 -- Dumping data for table `protocol_masters_revs`
 -- 
+
+CREATE TABLE `providers` (
+  `id` int(11) NOT NULL auto_increment,
+  `name` varchar(55) character set latin1 NOT NULL,
+  `type` varchar(55) character set latin1 NOT NULL,
+  `date_effective` datetime default NULL,
+  `date_expiry` datetime default NULL,
+  `description` text default NULL,
+  `created` datetime NOT NULL default '0000-00-00 00:00:00',
+  `created_by` varchar(255) NOT NULL default '',
+  `modified` datetime NOT NULL default '0000-00-00 00:00:00',
+  `modified_by` varchar(255) NOT NULL default '',
+  `deleted` int(11) default 0,
+  `deleted_date` datetime default NULL,
+  PRIMARY KEY ( `id` )
+)  ENGINE=InnoDb DEFAULT CHARSET=latin1;
+
+CREATE TABLE `providers_revs` (
+  `id` int(11) NOT NULL,
+  `name` varchar(55) character set latin1 NOT NULL,
+  `type` varchar(55) character set latin1 NOT NULL,
+  `date_effective` datetime default NULL,
+  `date_expiry` datetime default NULL,
+  `description` text default NULL,
+  `created` datetime NOT NULL default '0000-00-00 00:00:00',
+  `created_by` varchar(255) NOT NULL default '',
+  `modified` datetime NOT NULL default '0000-00-00 00:00:00',
+  `modified_by` varchar(255) NOT NULL default '',
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `deleted` int(11) default 0,
+  `deleted_date` datetime default NULL,
+  PRIMARY KEY ( `version_id` )
+)  ENGINE=InnoDb DEFAULT CHARSET=latin1;
 
 
 -- --------------------------------------------------------
@@ -10109,7 +10143,7 @@ CREATE TABLE `sope_general_all` (
 
 -- --------------------------------------------------------
 
--- 
+--
 -- Table structure for table `sope_general_all_revs`
 --
 
@@ -13643,11 +13677,11 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (1803, '', 155, '', 856, '', 1, 1, '', '0', '', '0', '', '0', 'version', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1804, '', 155, '', 857, '', 1, 2, '', '0', '', '0', '', '0', 'date', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1805, '', 155, '', 858, '', 1, 3, '', '0', '', '0', '', '0', 'status', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(1806, '', 157, '', 859, '', 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(1807, '', 157, '', 860, '', 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(1808, '', 157, '', 861, '', 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '', '0', '0', '0', '', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(1809, '', 157, '', 862, '', 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '', '0', '0', '0', '', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(1810, '', 157, '', 863, '', 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '', '0', '0', '0', '', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(1806, '', 157, '', 859, '', 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(1807, '', 157, '', 860, '', 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(1808, '', 157, '', 861, '', 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(1809, '', 157, '', 862, '', 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(1810, '', 157, '', 863, '', 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1811, '', 158, '', 864, '', 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1812, '', 159, '', 865, '', 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
