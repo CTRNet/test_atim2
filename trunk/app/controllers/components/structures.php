@@ -178,7 +178,10 @@ class StructuresComponent extends Object {
 		
 		foreach ( $this->controller->data as $model=>$model_value ) {
 			foreach ( $model_value as $field=>$field_value ) {
-				if ( is_array($field_value) ) $field_value = implode(',',$field_value);
+				if ( is_array($field_value) ) {
+					foreach ( $field_value as $k=>$v ) { $field_value[$k] = '"'.$v.'"'; }
+					$field_value = implode(',',$field_value);
+				}
 				
 				$sql_with_search_terms = str_replace( '@@'.$model.'.'.$field.'@@', $field_value, $sql_with_search_terms );
 				$sql_without_search_terms = str_replace( '@@'.$model.'.'.$field.'@@', '', $sql_without_search_terms );

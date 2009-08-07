@@ -1,18 +1,10 @@
 <?php 
-	$sidebars->header( $lang );
-	$sidebars->cols( $ctrapp_sidebar, $lang );
-	$summaries->build( $ctrapp_summary, $lang ); 
-	$menus->tabs( $ctrapp_menu, $lang ); 
-?>
+	$structure_links = array(
+		'top'=>'/datamart/batch_sets/edit/'.$atim_menu_variables['Param.Type_Of_List'].'/'.$atim_menu_variables['BatchSet.id'],
+		'bottom'=>array(
+			'cancel'=>'/datamart/batch_sets/listall/'.$atim_menu_variables['Param.Type_Of_List'].'/'.$atim_menu_variables['BatchSet.id']
+		)
+	);
 	
-	<?php 
-		$form_type = 'edit';
-		$form_model = isset( $this->params['data'] ) ? array( $this->params['data'] ) : array( $data );
-		$form_field = $ctrapp_form;
-		$form_link = array( 'edit'=>'/datamart/batch_sets/edit/', 'cancel'=>'/datamart/batch_sets/listall/' );
-		$form_lang = $lang;
-		
-		$forms->build( $form_type, $form_model, $form_field, $form_link, $form_lang ); 
-	?>
-		
-<?php echo $sidebars->footer($lang); ?>
+	$structures->build( $atim_structure, array('links'=>$structure_links) );
+?>

@@ -22,7 +22,7 @@ class AdhocsController extends DatamartAppController {
 		$this->set( 'atim_menu_variables', array( 'Param.Type_Of_List'=>$type_of_list ) );
 		$this->set( 'atim_structure', $this->Structures->get( 'form', 'querytool_adhoc' ) );
 		
-		if ( !isset($_SESSION['Adhocs_filter']) || !$type_of_list || $type_of_list=='all' ) {
+		if ( !$type_of_list || $type_of_list=='all' ) {
 			$this->data = $this->paginate($this->Adhoc);
 		} else if ( $type_of_list=='favourites' ) {
 			$this->data = $this->paginate($this->AdhocFavourite, array('AdhocFavourite.user_id'=>$_SESSION['Auth']['User']['id']));
@@ -32,16 +32,16 @@ class AdhocsController extends DatamartAppController {
 	}
 	
 	// save IDs to Lookup, avoid duplicates
-	function favourite( $adhoc_id=0 ) {
+	function favourite( $type_of_list='all', $adhoc_id=0 ) {
 		$favourite_result = $this->Adhoc->query('DELETE FROM datamart_adhoc_favourites WHERE adhoc_id="'.$adhoc_id.'" AND user_id="'.$_SESSION['Auth']['User']['id'].'"');
 		$favourite_result = $this->Adhoc->query('INSERT INTO datamart_adhoc_favourites SET adhoc_id="'.$adhoc_id.'", user_id="'.$_SESSION['Auth']['User']['id'].'"');
-		$this->flash( 'Query has been marked as one of your favourites.', '/datamart/adhocs/index/favourites' );
+		$this->flash( 'Query has been marked as one of your favourites.', '/datamart/adhocs/search/favourites/'.$adhoc_id );
 	}
 	
 	// remove IDs from Lookup
-	function unfavourite( $adhoc_id=0 ) {
+	function unfavourite( $type_of_list='all', $adhoc_id=0 ) {
 		$favourite_result = $this->Adhoc->query('DELETE FROM datamart_adhoc_favourites WHERE adhoc_id="'.$adhoc_id.'" AND user_id="'.$_SESSION['Auth']['User']['id'].'"');
-		$this->flash( 'Query is no longer one of your favourites.', '/datamart/adhocs/index/favourites' );
+		$this->flash( 'Query is no longer one of your favourites.', '/datamart/adhocs/search/all/'.$adhoc_id );
 	}
 	
 	function search( $type_of_list='all', $adhoc_id=0  ) {

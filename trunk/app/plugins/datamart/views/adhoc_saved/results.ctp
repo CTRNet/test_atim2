@@ -22,25 +22,12 @@
 	
 	// display adhoc-to-batchset ADD form
 	
-		// include SAVE button
-		if ( $atim_menu_variables['Param.Type_Of_List']!='saved' && $save_this_search_data ) {
-			$structure_links = array(
-				'top'=>'#',
-				'bottom'=>array(
-					'add as saved search'=>'/datamart/adhoc_saved/add/'.$atim_menu_variables['Param.Type_Of_List'].'/'.$atim_menu_variables['Adhoc.id'],
-					'search'=>'/datamart/adhocs/search/'.$atim_menu_variables['Param.Type_Of_List'].'/'.$atim_menu_variables['Adhoc.id']
-				)
-			);
-		}
-		
-		else {
-			$structure_links = array(
-				'top'=>'#',
-				'bottom'=>array(
-					'search'=>'/datamart/adhocs/search/'.$atim_menu_variables['Param.Type_Of_List'].'/'.$atim_menu_variables['Adhoc.id']
-				)
-			);
-		}
+		$structure_links = array(
+			'top'=>'#',
+			'bottom'=>array(
+				'search'=>'/datamart/adhoc_saved/search/'.$atim_menu_variables['Adhoc.id'].'/'.$atim_menu_variables['AdhocSaved.id']
+			)
+		);
 		
 		$structure_override = array(
 			'BatchSet.id' => $batch_sets

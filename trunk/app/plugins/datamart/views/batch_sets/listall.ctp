@@ -7,7 +7,7 @@
 	// display adhoc RESULTS form
 		
 		$structure_links = array(
-			'top'=>'#',
+			'top'=>'/datamart/batch_sets/process/'.$atim_menu_variables['Param.Type_Of_List'].'/'.$atim_menu_variables['BatchSet.id'],
 			'checklist'=>array(
 				$data_for_detail['BatchSet']['model'].'.id]['=>'%%'.$data_for_detail['BatchSet']['model'].'.id'.'%%'
 			)
