@@ -14,7 +14,7 @@ class ConsentsController extends ClinicalannotationAppController {
 		// Missing or empty function variable, send to ERROR page
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		
-		$facility_list = $this->Provider->find('all', array('conditions'=>array('Provider.active'=>'yes')), array('fields' => array('Provider.id', 'Provider.name'), 'order' => array('Provider.name')));
+		$facility_list = $this->Provider->find('all', array('conditions'=>array('Provider.active'=>'yes','Provider.deleted'=>'0')), array('fields' => array('Provider.id', 'Provider.name'), 'order' => array('Provider.name')));
 		foreach ( $facility_list as $record ) {
 			$facility_id_findall[ $record['Provider']['id'] ] = $record['Provider']['name'];
 		}
@@ -29,7 +29,7 @@ class ConsentsController extends ClinicalannotationAppController {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		if ( !$consent_id ) { $this->redirect( '/pages/err_clin-ann_no_consent_id', NULL, TRUE ); }
 		
-		$facility_list = $this->Provider->find('all', array('conditions'=>array('Provider.active'=>'yes')), array('fields' => array('Provider.id', 'Provider.name'), 'order' => array('Provider.name')));
+		$facility_list = $this->Provider->find('all', array('conditions'=>array('Provider.active'=>'yes','Provider.deleted'=>'0')), array('fields' => array('Provider.id', 'Provider.name'), 'order' => array('Provider.name')));
 		foreach ( $facility_list as $record ) {
 			$facility_id_findall[ $record['Provider']['id'] ] = $record['Provider']['name'];
 		}
@@ -43,7 +43,7 @@ class ConsentsController extends ClinicalannotationAppController {
 		// Missing or empty function variable, send to ERROR page
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		
-		$facility_list = $this->Provider->find('all', array('conditions'=>array('Provider.active'=>'yes')), array('fields' => array('Provider.id', 'Provider.name'), 'order' => array('Provider.name')));
+		$facility_list = $this->Provider->find('all', array('conditions'=>array('Provider.active'=>'yes','Provider.deleted'=>'0')), array('fields' => array('Provider.id', 'Provider.name'), 'order' => array('Provider.name')));
 		foreach ( $facility_list as $record ) {
 			$facility_id_findall[ $record['Provider']['id'] ] = $record['Provider']['name'];
 		}
@@ -63,7 +63,7 @@ class ConsentsController extends ClinicalannotationAppController {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		if ( !$consent_id ) { $this->redirect( '/pages/err_clin-ann_no_consent_id', NULL, TRUE ); }
 		
-		$facility_list = $this->Provider->find('all', array('conditions'=>array('Provider.active'=>'yes')), array('fields' => array('Provider.id', 'Provider.name'), 'order' => array('Provider.name')));
+		$facility_list = $this->Provider->find('all', array('conditions'=>array('Provider.active'=>'yes','Provider.deleted'=>'0')), array('fields' => array('Provider.id', 'Provider.name'), 'order' => array('Provider.name')));
 		foreach ( $facility_list as $record ) {
 			$facility_id_findall[ $record['Provider']['id'] ] = $record['Provider']['name'];
 		}
