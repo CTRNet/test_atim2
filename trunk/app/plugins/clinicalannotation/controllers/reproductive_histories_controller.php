@@ -2,7 +2,7 @@
 
 class ReproductiveHistoriesController extends ClinicalAnnotationAppController {
 	
-	var $uses = array('ClinicalAnnotation.ReproductiveHistory','ClinicalAnnotation.Participant');
+	var $uses = array('Clinicalannotation.ReproductiveHistory','Clinicalannotation.Participant');
 	var $paginate = array('ReproductiveHistory'=>array('limit'=>10,'order'=>'ReproductiveHistory.date_captured'));
 	
 	function listall( $participant_id ) {

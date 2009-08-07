@@ -3,8 +3,8 @@
 class ConsentsController extends ClinicalannotationAppController {
 
 	var $uses = array(
-		'ClinicalAnnotation.Consent',
-		'ClinicalAnnotation.Participant',
+		'Clinicalannotation.Consent',
+		'Clinicalannotation.Participant',
 		'Provider.Provider'
 	);
 	

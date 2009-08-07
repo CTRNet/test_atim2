@@ -1,7 +1,8 @@
 <?php
 
 class ParticipantMessagesController extends ClinicalAnnotationAppController {
-	var $uses = array('ClinicalAnnotation.ParticipantMessage', 'ClinicalAnnotation.Participant');
+	
+	var $uses = array('Clinicalannotation.ParticipantMessage', 'Clinicalannotation.Participant');
 	var $paginate = array('ParticipantMessage'=>array('limit'=>10,'order'=>'ParticipantMessage.date_requested'));
 
 	function listall( $participant_id=null ) {
