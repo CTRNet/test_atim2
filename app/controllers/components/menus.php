@@ -87,8 +87,8 @@ class MenusComponent extends Object {
 			
 			$menu = array();
 			
-			$parent_id = $result[0]['Menu']['parent_id'];
-			$source_id = $result[0]['Menu']['id'];
+			$parent_id = isset($result[0]['Menu']['parent_id']) ? $result[0]['Menu']['parent_id'] : false;
+			$source_id = isset($result[0]['Menu']['id']) ? $result[0]['Menu']['id'] : false;
 			
 			while ( $parent_id!==false ) {
 				

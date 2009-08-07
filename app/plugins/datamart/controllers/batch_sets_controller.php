@@ -39,9 +39,14 @@ class BatchSetsController extends DatamartAppController {
 		
 		// get BATCHSET for source info 
 		
-			$conditions = array();
-			$conditions[] = 'BatchSet.id="'.$batch_set_id.'"';
-			$conditions[] = 'BatchSet.group_id="'.$_SESSION['Auth']['User']['group_id'].'" OR BatchSet.user_id="'.$_SESSION['Auth']['User']['id'].'"';
+			$conditions = array(
+				'BatchSet.id' => $batch_set_id,
+				
+				'or'	=> array(
+					'BatchSet.group_id'	=> $_SESSION['Auth']['User']['group_id'],
+					'BatchSet.user_id'	=> $_SESSION['Auth']['User']['id']
+				)
+			);
 			 
 			$batch_set = $this->BatchSet->find( 'first', array( 'conditions'=>$conditions ) );
 		   
@@ -140,6 +145,145 @@ class BatchSetsController extends DatamartAppController {
 			}
 			
 			$this->set( 'batch_set_processes', $batch_set_processes );
+		
+	}
+	
+	function add( $batch_set_id=0 ) {
+		
+		// if not an already existing Batch SET...
+		if ( !$this->data['BatchSet']['id'] ) {
+			
+			// generate TEMP description for this SET
+			$this->data['BatchSet']['description'] = '(unlabelled set generated on '.date('M d Y').')';
+			
+			// save hidden MODEL value as new BATCH SET
+			$this->data['BatchSet']['user_id'] = $this->othAuth->user('id');
+			$this->BatchSet->save( $this->data['BatchSet'] );
+			
+			// get new SET id, and save
+			$this->data['BatchSet']['id'] = $this->BatchSet->getLastInsertId();
+			
+		}
+		
+		// get BatchSet for source info 
+		$this->BatchSet->id = $this->data['BatchSet']['id'];
+	   $batch_set = $this->BatchSet->read();
+	    
+		$batch_set_ids = array();
+		
+		// find compatible MODEL in DATA
+	   	if ( isset($this->data[ $batch_set['BatchSet']['model'] ]) ) {
+	    	
+	   		// add existing set IDS to array
+	    	foreach ( $batch_set['BatchId'] as $array ) {
+	    		$batch_set_ids[] = $array['lookup_id'];
+	    	
+	    		// remove from SAVED batch set
+	    		$this->BatchId->del( $array['id'] );
+	    	}
+	    
+	   	 	// add existing set IDS to array
+	    	foreach ( $this->data[ $batch_set['BatchSet']['model'] ]['id'] as $integer ) {
+	    		$batch_set_ids[] = $integer;
+	    	}
+	    
+			// clean up IDS, removing blanks and duplicates...
+			$batch_set_ids = array_unique($batch_set_ids);
+			$batch_set_ids = array_filter($batch_set_ids);
+			
+			foreach ( $batch_set_ids as $integer ) {
+				
+				// setup ARRAY for ADDING/SAVING
+				$save_array = array(
+					'id'=>'',
+					'set_id'=>$this->data['BatchSet']['id'],
+					'lookup_id'=>$integer
+				);
+				
+				// save ID to MODEL
+				$this->BatchId->save( $save_array );
+				
+			}
+	    	
+	    }
+	    
+	    $this->redirect( '/datamart/batch_sets/listall/all/'.$this->data['BatchSet']['id'] );
+	    exit();
+		
+	}
+	
+	function edit( $type_of_list='all', $batch_set_id=0 ) {
+		$this->set( 'atim_menu_variables', array( 'Param.Type_Of_List'=>$type_of_list, 'BatchSet.id'=>$batch_set_id ) );
+		$this->set( 'atim_structure', $this->Structures->get( 'form', 'querytool_batch_set' ) );
+		
+		if ( !empty($this->data) ) {
+			$this->BatchSet->id = $batch_set_id;
+			if ( $this->BatchSet->save($this->data) ) $this->flash( 'Your data has been updated.','/datamart/batch_sets/listall/'.$type_of_list.'/'.$batch_set_id );
+		} else {
+			$this->data = $this->BatchSet->find('first',array('conditions'=>array('BatchSet.id'=>$batch_set_id)));
+		}
+	}
+	
+	function delete( $type_of_list='all', $batch_set_id=0 ) {
+		$this->BatchSet->del( $batch_set_id );
+		$this->flash( 'Your data has been deleted.', '/datamart/batch_sets/index' );
+	}
+	
+	function process( $type_of_list='all', $batch_set_id=0 ) {
+		
+			$conditions = array(
+				'BatchSet.id' => $batch_set_id,
+				
+				'or'	=> array(
+					'BatchSet.group_id'	=> $_SESSION['Auth']['User']['group_id'],
+					'BatchSet.user_id'	=> $_SESSION['Auth']['User']['id']
+				)
+			);
+			 
+			$batch_set = $this->BatchSet->find( 'first', array( 'conditions'=>$conditions ) );
+		
+		$batch_set['BatchSet']['process'] = $this->data['BatchSet']['process'];
+		$this->data['BatchSet'] = $batch_set['BatchSet'];
+		
+		// clear SESSION info
+		$_SESSION['ctrapp_core']['datamart']['process'] = $this->data;
+		
+		$this->redirect( $this->data['BatchSet']['process'] );
+		exit();
+		
+	}
+	
+	function remove() {
+		
+		// set function variables, makes script readable :)
+		$batch_set_id = $_SESSION['ctrapp_core']['datamart']['process']['BatchSet']['id'];
+		$batch_set_model = $_SESSION['ctrapp_core']['datamart']['process']['BatchSet']['model'];
+		
+		if ( isset( $_SESSION['ctrapp_core']['datamart']['process'][ $batch_set_model ] ) ) {
+			$batch_id_array = $_SESSION['ctrapp_core']['datamart']['process'][ $batch_set_model ]['id'];
+		} else {
+			$batch_id_array = array();
+		}
+		
+		if ( count( $batch_id_array ) ) {
+			
+			// START findall criteria
+			$criteria = 'set_id="'.$batch_set_id.'"';
+			
+			// add SESSION id array to criteria
+			$criteria .= 'AND ( lookup_id="'.implode( '" OR lookup_id="', $batch_id_array ).'" )';
+			
+			// get BatchId ROWS and remove from SAVED batch set
+			$results = $this->BatchId->find( 'all', array( 'conditions'=>$criteria ) );
+			foreach ( $results as $id ) {
+				$this->BatchId->del( $id['BatchId']['id'] );
+			}
+			
+		}
+		
+		// redirect back to list Batch SET
+		$this->redirect( '/datamart/batch_sets/listall/all/'.$batch_set_id );
+		exit();
 		
 	}
 	
