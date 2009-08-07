@@ -198,6 +198,7 @@ CREATE TABLE `structure_validations` (
   `id` int(11) NOT NULL auto_increment,
   `old_id` varchar(255) character set latin1 NOT NULL default '0',
   `structure_field_id` INT(11) NOT NULL default 0,
+  `structure_field_old_id` varchar(255) character set latin1 NOT NULL default '0',
   `rule` text character set latin1 NOT NULL,
   `flag_empty` set('0','1') collate utf8_unicode_ci NOT NULL default '0',
   `flag_required` set('0','1') collate utf8_unicode_ci NOT NULL default '0',
@@ -539,4 +540,3 @@ INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_ti
 ('tool_CAN_38', 'core_CAN_33', 1, 101, 'pricing', 'pricing', '/under_development/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('tool_CAN_43', 'core_CAN_33', 1, 102, 'provider', 'provider', '/provider/providers/index/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('tool_CAN_48', 'core_CAN_33', 1, 100, 'collection kit', 'collection kit', '/under_development/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
-

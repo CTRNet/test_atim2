@@ -9,14 +9,14 @@ class CollectionsController extends InventorymanagementAppController {
 		$_SESSION['ctrapp_core']['search'] = NULL; // clear SEARCH criteria
 		
 		// Populate Bank dropdown from banks table
-		$bank_list = $this->Bank->find('all', array('fields' => array('Bank.id', 'Bank.name'), 'order' => array('Bank.name')));
+		$bank_list = $this->Bank->find('all', array('conditions'=>array('Bank.deleted'=>'0')), array('fields' => array('Bank.id', 'Bank.name'), 'order' => array('Bank.name')));
 		foreach ( $bank_list as $record ) {
 			$bank_id_findall[ $record['Bank']['id'] ] = $record['Bank']['name'];
 		}
 		$this->set('bank_id_findall', $bank_id_findall);
 		
 		// Populate SopMaster dropdown from banks table
-		$sop_master_list = $this->SopMaster->find('all', array('fields' => array('SopMaster.id', 'SopMaster.title'), 'order' => array('SopMaster.title')));
+		$sop_master_list = $this->SopMaster->find('all', array('conditions'=>array('SopMaster.deleted'=>'0')), array('fields' => array('SopMaster.id', 'SopMaster.title'), 'order' => array('SopMaster.title')));
 		foreach ( $sop_master_list as $record ) {
 			$sop_master_id_findall[ $record['SopMaster']['id'] ] = $record['SopMaster']['title'];
 		}
@@ -36,13 +36,13 @@ class CollectionsController extends InventorymanagementAppController {
 		$_SESSION['ctrapp_core']['search']['url'] = '/inventorymanagement/collections/search';
 		
 		// Populate Bank dropdown from banks table
-		$bank_list = $this->Bank->find('all', array('fields' => array('Bank.id', 'Bank.name'), 'order' => array('Bank.name')));
+		$bank_list = $this->Bank->find('all', array('conditions'=>array('Bank.deleted'=>'0')), array('fields' => array('Bank.id', 'Bank.name'), 'order' => array('Bank.name')));
 		foreach ( $bank_list as $record ) {
 			$bank_id_findall[ $record['Bank']['id'] ] = $record['Bank']['name'];
 		}
 		$this->set('bank_id_findall', $bank_id_findall);
 		
-		$sop_master_list = $this->SopMaster->find('all', array('fields' => array('SopMaster.id', 'SopMaster.title'), 'order' => array('SopMaster.title')));
+		$sop_master_list = $this->SopMaster->find('all', array('conditions'=>array('SopMaster.deleted'=>'0')), array('fields' => array('SopMaster.id', 'SopMaster.title'), 'order' => array('SopMaster.title')));
 		foreach ( $sop_master_list as $record ) {
 			$sop_master_id_findall[ $record['SopMaster']['id'] ] = $record['SopMaster']['title'];
 		}
@@ -66,13 +66,13 @@ class CollectionsController extends InventorymanagementAppController {
 
 		
 		// Populate Bank dropdown from banks table
-		$bank_list = $this->Bank->find('all', array('fields' => array('Bank.id', 'Bank.name'), 'order' => array('Bank.name')));
+		$bank_list = $this->Bank->find('all', array('conditions'=>array('Bank.deleted'=>'0')), array('fields' => array('Bank.id', 'Bank.name'), 'order' => array('Bank.name')));
 		foreach ( $bank_list as $record ) {
 			$bank_id_findall[ $record['Bank']['id'] ] = $record['Bank']['name'];
 		}
 		$this->set('bank_id_findall', $bank_id_findall);
 		
-		$sop_master_list = $this->SopMaster->find('all', array('fields' => array('SopMaster.id', 'SopMaster.title'), 'order' => array('SopMaster.title')));
+		$sop_master_list = $this->SopMaster->find('all', array('conditions'=>array('SopMaster.deleted'=>'0')), array('fields' => array('SopMaster.id', 'SopMaster.title'), 'order' => array('SopMaster.title')));
 		foreach ( $sop_master_list as $record ) {
 			$sop_master_id_findall[ $record['SopMaster']['id'] ] = $record['SopMaster']['title'];
 		}
@@ -83,13 +83,13 @@ class CollectionsController extends InventorymanagementAppController {
 		$this->set( 'atim_menu', $this->Menus->get('/inventorymanagement/collections/index') );
 		
 		// Populate Bank dropdown from banks table
-		$bank_list = $this->Bank->find('all', array('fields' => array('Bank.id', 'Bank.name'), 'order' => array('Bank.name')));
+		$bank_list = $this->Bank->find('all', array('conditions'=>array('Bank.deleted'=>'0')), array('fields' => array('Bank.id', 'Bank.name'), 'order' => array('Bank.name')));
 		foreach ( $bank_list as $record ) {
 			$bank_id_findall[ $record['Bank']['id'] ] = $record['Bank']['name'];
 		}
 		$this->set('bank_id_findall', $bank_id_findall);
 		
-		$sop_master_list = $this->SopMaster->find('all', array('fields' => array('SopMaster.id', 'SopMaster.title'), 'order' => array('SopMaster.title')));
+		$sop_master_list = $this->SopMaster->find('all', array('conditions'=>array('SopMaster.deleted'=>'0')), array('fields' => array('SopMaster.id', 'SopMaster.title'), 'order' => array('SopMaster.title')));
 		foreach ( $sop_master_list as $record ) {
 			$sop_master_id_findall[ $record['SopMaster']['id'] ] = $record['SopMaster']['title'];
 		}
@@ -104,13 +104,13 @@ class CollectionsController extends InventorymanagementAppController {
 		$this->set( 'atim_menu_variables', array('Collection.id'=>$collection_id) );
 		
 		// Populate Bank dropdown from banks table
-		$bank_list = $this->Bank->find('all', array('fields' => array('Bank.id', 'Bank.name'), 'order' => array('Bank.name')));
+		$bank_list = $this->Bank->find('all', array('conditions'=>array('Bank.deleted'=>'0')), array('fields' => array('Bank.id', 'Bank.name'), 'order' => array('Bank.name')));
 		foreach ( $bank_list as $record ) {
 			$bank_id_findall[ $record['Bank']['id'] ] = $record['Bank']['name'];
 		}
 		$this->set('bank_id_findall', $bank_id_findall);
 		
-		$sop_master_list = $this->SopMaster->find('all', array('fields' => array('SopMaster.id', 'SopMaster.title'), 'order' => array('SopMaster.title')));
+		$sop_master_list = $this->SopMaster->find('all', array('conditions'=>array('SopMaster.deleted'=>'0')), array('fields' => array('SopMaster.id', 'SopMaster.title'), 'order' => array('SopMaster.title')));
 		foreach ( $sop_master_list as $record ) {
 			$sop_master_id_findall[ $record['SopMaster']['id'] ] = $record['SopMaster']['title'];
 		}
