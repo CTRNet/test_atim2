@@ -2,7 +2,7 @@
 
 class ClinicalCollectionLinksController extends ClinicalannotationAppController {
 	
-	var $uses = array('ClinicalCollectionLinks');
+	var $uses = array('Clinicalannotation.ClinicalCollectionLinks');
 	var $paginate = array('ClinicalCollectionLinks'=>array('limit'=>10,'order'=>'ClinicalCollectionLinks.id ASC'));	
 	
 	function listall( $participant_id ) {

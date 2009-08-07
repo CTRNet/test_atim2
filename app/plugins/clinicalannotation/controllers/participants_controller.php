@@ -3,17 +3,17 @@
 class ParticipantsController extends ClinicalannotationAppController {
 
 	var $uses = array(
-		'ClinicalAnnotation.Participant',
-		'ClinicalAnnotation.Consent',
-		'ClinicalAnnotation.ParticipantContact',
-		'ClinicalAnnotation.ParticipantMessage',
-		'ClinicalAnnotation.EventMaster',
-		'ClinicalAnnotation.Diagnosis',
-		'ClinicalAnnotation.FamilyHistory',
-		'ClinicalAnnotation.MiscIdentifier',
-		'ClinicalAnnotation.ClinicalCollectionLink',
-		'ClinicalAnnotation.ReproductiveHistory',
-		'ClinicalAnnotation.TreatmentMaster'
+		'Clinicalannotation.Participant',
+		'Clinicalannotation.Consent',
+		'Clinicalannotation.ParticipantContact',
+		'Clinicalannotation.ParticipantMessage',
+		'Clinicalannotation.EventMaster',
+		'Clinicalannotation.Diagnosis',
+		'Clinicalannotation.FamilyHistory',
+		'Clinicalannotation.MiscIdentifier',
+		'Clinicalannotation.ClinicalCollectionLink',
+		'Clinicalannotation.ReproductiveHistory',
+		'Clinicalannotation.TreatmentMaster'
 	);
 	var $paginate = array('Participant'=>array('limit'=>10,'order'=>'Participant.last_name ASC, Participant.first_name ASC')); 
 	

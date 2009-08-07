@@ -3,10 +3,10 @@
 class DiagnosesController extends ClinicalannotationAppController {
 
 	var $uses = array(
-		'ClinicalAnnotation.Diagnosis', 
-		'ClinicalAnnotation.Participant',
-		'ClinicalAnnotation.TreatmentMaster',
-		'ClinicalAnnotation.EventMaster'
+		'Clinicalannotation.Diagnosis', 
+		'Clinicalannotation.Participant',
+		'Clinicalannotation.TreatmentMaster',
+		'Clinicalannotation.EventMaster'
 	);
 	var $paginate = array('Diagnosis'=>array('limit'=>10,'order'=>'Diagnosis.dx_date')); 
 	
