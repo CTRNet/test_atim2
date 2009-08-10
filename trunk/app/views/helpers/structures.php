@@ -36,9 +36,12 @@ class StructuresHelper extends Helper {
 			'links'		=> array(
 				'top'				=> false, // if present, will turn structure into a FORM and this url is used as the FORM action attribute
 				'index'			=> array(),
-				'checklist'		=> array(), // keys are checkbox NAMES (model.field) and values  are checkbox VALUES
-				'tree'			=> array(),
 				'bottom'			=> array(),
+				
+				'tree'			=> array(),
+				
+				'checklist'		=> array(), // keys are checkbox NAMES (model.field) and values are checkbox VALUES
+				'radiolist'		=> array(), // keys are radio button NAMES (model.field) and values are radio button VALUES
 				
 				'ajax'	=> array( // change any of the above LINKS into AJAX calls instead
 					'top'			=> false,
@@ -90,9 +93,12 @@ class StructuresHelper extends Helper {
 			case 'table':		$options['type'] = 'index';	$return_string .= $this->build_table( $atim_structure, $options );	break;
 			case 'list':	$options['type'] = 'index';	$return_string .= $this->build_table( $atim_structure, $options );	break;
 			case 'listall':	$options['type'] = 'index';	$return_string .= $this->build_table( $atim_structure, $options );	break;
+			
 			case 'datagrid':	$options['type'] = 'index';	$return_string .= $this->build_table( $atim_structure, $options );	break;
 			case 'editgrid':	$options['type'] = 'index';	$return_string .= $this->build_table( $atim_structure, $options );	break;
+			
 			case 'checklist':	$options['type'] = 'index';	$return_string .= $this->build_table( $atim_structure, $options );	break;
+			case 'radiolist':	$options['type'] = 'index';	$return_string .= $this->build_table( $atim_structure, $options );	break;
 			
 			case 'add':			$options['type'] = 'add';		$return_string .= $this->build_detail( $atim_structure, $options );	break;
 			case 'edit':		$options['type'] = 'edit';		$return_string .= $this->build_detail( $atim_structure, $options );	break;
@@ -367,6 +373,23 @@ class StructuresHelper extends Helper {
 									foreach ( $options['links']['checklist'] as $checkbox_name=>$checkbox_value ) {
 										$checkbox_value = $this->str_replace_link( $checkbox_value, $val );
 										$return_string .= $this->Form->checkbox($checkbox_name, array('value'=>$checkbox_value));
+									}
+									
+									$return_string .= '
+										</td>
+									';
+									
+									$column_count++;
+								}
+								
+								if ( count($options['links']['radiolist']) ) {
+									$return_string .= '
+										<td class="radiobutton">
+									';
+									
+									foreach ( $options['links']['radiolist'] as $radiobutton_name=>$radiobutton_value ) {
+										$radiobutton_value = $this->str_replace_link( $radiobutton_value, $val );
+										$return_string .= $this->Form->radio ($radiobutton_name, array($radiobutton_value=>''), array('legend'=>false) );
 									}
 									
 									$return_string .= '
@@ -692,6 +715,12 @@ class StructuresHelper extends Helper {
 		if ( count($options['links']['checklist']) ) {
 			$return_string .= '
 					<th class="column_0 checkbox">&nbsp;</th>
+			';
+		}
+		
+		if ( count($options['links']['radiolist']) ) {
+			$return_string .= '
+					<th class="column_0 radiobutton">&nbsp;</th>
 			';
 		}
 		
