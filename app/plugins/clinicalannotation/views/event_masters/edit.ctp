@@ -26,7 +26,6 @@
 				'cancel'=>'/clinicalannotation/event_masters/detail/'.$atim_menu_variables['EventMaster.event_group'].'/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['EventMaster.id']
 			)
 		);
-			
 		
 	$structures->build( $atim_structure, array( 'settings'=>$structure_settings, 'links'=>$structure_links ) );
 	
