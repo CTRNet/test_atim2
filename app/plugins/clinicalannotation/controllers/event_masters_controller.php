@@ -2,8 +2,15 @@
 
 class EventMastersController extends ClinicalannotationAppController {
 
-	var $uses = array('Clinicalannotation.EventMaster', 'Clinicalannotation.EventControl', 'Clinicalannotation.Diagnosis');
-	var $paginate = array('EventMaster'=>array('limit'=>10,'order'=>'EventMaster.event_date DESC'));
+	var $uses = array(
+		'Clinicalannotation.EventMaster', 
+		'Clinicalannotation.EventControl', 
+		'Clinicalannotation.Diagnosis'
+	);
+	
+	var $paginate = array(
+		'EventMaster'=>array('limit'=>10,'order'=>'EventMaster.event_date DESC')
+	);
 	
 	function listall( $event_group=NULL, $participant_id=null, $event_control_id=null ) {
 		
@@ -75,6 +82,10 @@ class EventMastersController extends ClinicalannotationAppController {
 	function edit( $event_group=NULL, $participant_id=null, $event_master_id=null ) {
 		
 		$this->set( 'atim_menu', $this->Menus->get('/'.$this->params['plugin'].'/'.$this->params['controller'].'/listall/'.$event_group) );
+		
+		// set DIAGANOSES
+			$this->set( 'data_for_checklist', $this->Diagnosis->find('all', array('conditions'=>array('Diagnosis.participant_id'=>$participant_id))) );
+			$this->set( 'atim_structure_for_checklist', $this->Structures->get('form','diagnoses') );
 		
 		$this->set( 'atim_menu_variables', array('EventMaster.event_group'=>$event_group,'Participant.id'=>$participant_id,'EventMaster.id'=>$event_master_id) );
 		$this_data = $this->EventMaster->find('first',array('conditions'=>array('EventMaster.id'=>$event_master_id)));

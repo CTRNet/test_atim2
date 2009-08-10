@@ -76,7 +76,7 @@ class DiagnosesController extends ClinicalannotationAppController {
 			
 			$message = substr($message, 0, -2);
 			
-			$this->flash( $message, '/clinicalannotation/diangnoses/details/'.$participant_id.'/'.$diagnosis_id.'/');
+			$this->flash( $message, '/clinicalannotation/diagnoses/details/'.$participant_id.'/'.$diagnosis_id.'/');
 		}
 	}
 
