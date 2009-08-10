@@ -13,15 +13,15 @@ class Order extends OrderAppModel
 			$result = $this->find('first', array('conditions'=>array('Order.id'=>$variables['Order.id'])));
 			
 			$return = array(
-				'Summary' => array(
-					'menu'			=>	array( NULL, $result['Order']['short_title']),
-					'title'			=>	array( NULL, $result['Order']['short_title']),
+				__('Summary', TRUE) => array(
+					__('menu',TRUE)			=>	array( NULL, __($result['Order']['short_title'], TRUE)),
+					__('title', TRUE)		=>	array( NULL, __($result['Order']['short_title'], TRUE)),
 					
-					'description'	=>	array(
-						'order number'	=>	$result['Order']['order_number'],
-						'date placed'		=>	$result['Order']['date_order_placed'],
-						'processing status'   =>  $result['Order']['processing_status'],
-						'description'      => $result['Order']['description']
+					__('description', TRUE)	=>	array(
+						__('order number', TRUE)		=>	__($result['Order']['order_number'], TRUE),
+						__('date placed', TRUE)			=>	__($result['Order']['date_order_placed'], TRUE),
+						__('processing status', TRUE)	=>  __($result['Order']['processing_status'], TRUE),
+						__('description', TRUE)	    	=> __($result['Order']['description'], TRUE)
 					)
 				)
 			);

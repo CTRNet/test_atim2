@@ -8,12 +8,12 @@ class Bank extends AppModel {
 			$result = $this->find('first', array('conditions'=>array('Bank.id'=>$variables['Bank.id'])));
 			
 			$return = array(
-				'Summary' => array(
-					'menu'			=>	array( NULL, $result['Bank']['name'] ),
-					'title'			=>	array( NULL, $result['Bank']['name'] ),
+				__('Summary', TRUE) => array(
+					__('menu', TRUE)		=>	array( NULL, __($result['Bank']['name'],TRUE) ),
+					__('title', TRUE)		=>	array( NULL, __($result['Bank']['name'], TRUE) ),
 					
-					'description'	=>	array(
-						'created'	=>	$result['Bank']['created']
+					__('description', TRUE)	=>	array(
+						__('created', TRUE)	=>	__($result['Bank']['created'], TRUE)
 					)
 				)
 			);

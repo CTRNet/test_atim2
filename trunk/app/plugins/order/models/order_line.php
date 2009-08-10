@@ -13,14 +13,14 @@ class OrderLine extends OrderAppModel
 			$result = $this->find('first', array('conditions'=>array('OrderLine.id'=>$variables['OrderLine.id'])));
 			
 			$return = array(
-				'Summary' => array(
-					'menu'			=>	array( NULL, 'Order Line'),
-					'title'			=>	array( NULL, NULL),
-					'description'	=>	array(
-						'cancer type'			=>	$result['OrderLine']['cancer_type'],
-						'quantity ordered'		=>	$result['OrderLine']['quantity_ordered'],
-						'base price'  			=>  $result['OrderLine']['base_price'],
-						'status'				=>  $result['OrderLine']['status']
+				__('Summary', TRUE) => array(
+					__('menu', TRUE)		=>	array( NULL, __('Order Line', TRUE)),
+					__('title', TRUE)		=>	array( NULL, NULL),
+					__('description', TRUE)	=>	array(
+						__('cancer type', TRUE)		=>	__($result['OrderLine']['cancer_type'], TRUE),
+						__('quantity ordered', TRUE)=>	__($result['OrderLine']['quantity_ordered'], TRUE),
+						__('base price', TRUE)		=>  __($result['OrderLine']['base_price'], TRUE),
+						__('status', TRUE)			=>  __($result['OrderLine']['status'], TRUE)
 					)
 				)
 			);

@@ -16,15 +16,15 @@ class AliquotMaster extends InventoryManagementAppModel {
 			$result = $this->find('first', array('conditions'=>array('AliquotMaster.id'=>$variables['AliquotMaster.id'])));
 			
 			$return = array(
-				'Summary' => array(
-					'menu'        => array( NULL, $result['AliquotMaster']['barcode'] ),
-					'title'		  => array( NULL, $result['AliquotMaster']['barcode'] ),
+				__('Summary',TRUE)	 => array(
+					__('menu', TRUE)	        => array( NULL, __($result['AliquotMaster']['barcode'], TRUE) ),
+					__('title', TRUE) 		  	=> array( NULL, __($result['AliquotMaster']['barcode'], TRUE) ),
 
-					'description' => array(
-						'product code' => $result['AliquotMaster']['product_code'],
-						'type'      =>  $result['AliquotMaster']['aliquot_type'],
-						'category'	=>	$result['AliquotMaster']['current_volume'].' '.$result['AliquotMaster']['aliquot_volume_unit'],
-						'status'	=>	$result['AliquotMaster']['status']
+					__('description', TRUE)		=> array(
+						__('product code', TRUE)=> __($result['AliquotMaster']['product_code'], TRUE),
+						__('type', TRUE)	    => __($result['AliquotMaster']['aliquot_type'], TRUE),
+						__('category', TRUE)	=> __($result['AliquotMaster']['current_volume'].' '.$result['AliquotMaster']['aliquot_volume_unit'], TRUE),
+						__('status', TRUE)		=> __($result['AliquotMaster']['status'], TRUE)
 					)
 				)
 			);

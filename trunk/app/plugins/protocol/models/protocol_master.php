@@ -21,15 +21,15 @@ class ProtocolMaster extends ProtocolAppModel {
 			$result = $this->find('first', array('conditions'=>array('ProtocolMaster.id'=>$variables['ProtocolMaster.id'])));
 			
 			$return = array(
-				'Summary' => array(
-					'menu'			=>	array( NULL, $result['ProtocolMaster']['name']),
-					'title'			=>	array( NULL, $result['ProtocolMaster']['name']),
+				__('Summary', TRUE)	 => array(
+					__('menu', TRUE)			=>	array( NULL, __($result['ProtocolMaster']['name'], TRUE)),
+					__('title', TRUE)			=>	array( NULL, __($result['ProtocolMaster']['name'], TRUE)),
 					
-					'description'	=>	array(
-						'code'		=>	$result['ProtocolMaster']['code'],
-						'type'   =>  $result['ProtocolMaster']['type'],
-						'staus'  => $result['ProtocolMaster']['status'],
-						'notes'  => $result['ProtocolMaster']['notes']
+					__('description', TRUE)		=>	array(
+						__('code', TRUE)		=>	__($result['ProtocolMaster']['code'], TRUE),
+						__('type', TRUE)	    =>  __($result['ProtocolMaster']['type'], TRUE),
+						__('staus', TRUE) 		=> __($result['ProtocolMaster']['status'], TRUE),
+						__('notes', TRUE) 		=> __($result['ProtocolMaster']['notes'], TRUE)
 					)
 				)
 			);

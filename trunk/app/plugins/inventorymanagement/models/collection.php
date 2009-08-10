@@ -10,15 +10,17 @@ class Collection extends InventorymanagementAppModel {
 			$result = $this->find('first', array('conditions'=>array('Collection.id'=>$variables['Collection.id'])));
 			
 			$return = array(
-				'Summary' => array(
-					'menu' => array( NULL, $result['Collection']['acquisition_label'] ),
-					'title' => array( NULL, $result['Collection']['acquisition_label'] ),
+				__('Summary', TRUE)	 => array(
+					__('menu', TRUE) => array( NULL, __($result['Collection']['acquisition_label'], TRUE) ),
+					__('title', TRUE) => array( NULL, __($result['Collection']['acquisition_label'], TRUE) ),
 					
-					'description' => array(
-						// 'Bank' => $result['Collection']['bank_id'],
-						'Collection Date/Time' => $result['Collection']['collection_datetime'],
-						'Reception Date' => $result['Collection']['reception_datetime'])));
-						
+					__('description', TRUE) => array(
+						// __('Bank', TRUE) => __($result['Collection']['bank_id'], TRUE),
+						__('Collection Date/Time', TRUE) => __($result['Collection']['collection_datetime'], TRUE),
+						__('Reception Date', TRUE) 		 => __($result['Collection']['reception_datetime'], TRUE)
+					)
+				)
+			);			
 		}
 		
 		return $return;
