@@ -7,18 +7,18 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		'Clinicalannotation.TreatmentMaster',
 		'Clinicalannotation.TreatmentControl',
 		'Drug.Drug');
-	var $paginate = array('TreatmentMaster'=>array('limit'=>10,'order'=>'TreatmentMaster.start_date DESC'));
+	var $paginate = array('TreatmentExtend'=>array('limit'=>10,'order'=>'TreatmentExtend.id ASC'));
 	
 	function listall($participant_id=null, $tx_master_id=null) {
 		
 		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id, 'TreatmentMaster.id'=>$tx_master_id));
 		
-		// Get treatment master row for extended data
+		// Get treatment control data from associated master record
 		$tx_master_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id)));
-		
+
 		// Set form alias/tablename to use
-		$this->TreatmentExtend = new TreatmentExtend( false, $tx_master_data['TreatmentMaster']['extend_tablename'] );
-		$use_form_alias = $tx_master_data['TreatmentMaster']['extend_form_alias'];
+		$this->TreatmentExtend = new TreatmentExtend( false, $tx_master_data['TreatmentControl']['extend_tablename'] );
+		$use_form_alias = $tx_master_data['TreatmentControl']['extend_form_alias'];
 	    $this->set( 'atim_structure', $this->Structures->get( 'form', $use_form_alias ) );
 		
 		$this->data = $this->paginate($this->TreatmentExtend, array('TreatmentExtend.tx_master_id'=>$tx_master_id));
