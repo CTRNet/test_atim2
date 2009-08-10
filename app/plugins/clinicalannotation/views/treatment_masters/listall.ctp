@@ -10,7 +10,7 @@
 		),
 		'bottom'=>array('add' => $add_links)
 	);
-	
-	$structure_override = array('TreatmentMaster.protocol_id'=>$protocol_id_findall);
-	$structures->build( $atim_structure, array('type'=>'index','links'=>$structure_links,'override'=>$structure_override) );
+
+	$structure_override = array('TreatmentMaster.protocol_id'=>$protocol_list);
+	$structures->build( $atim_structure, array('type'=>'index', 'links'=>$structure_links, 'override'=>$structure_override) );
 ?>

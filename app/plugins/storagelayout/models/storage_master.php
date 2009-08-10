@@ -9,11 +9,10 @@ class StorageMaster extends StoragelayoutAppModel {
 		)    
 	);
 	
-    function summary( $variables=array() ) {
+	function summary( $variables=array() ) {
 		$return = false;
 		
 		if ( isset($variables['StorageMaster.id']) ) {
-			
 			$result = $this->find('first', array('conditions'=>array('StorageMaster.id'=>$variables['StorageMaster.id'])));
 			
 			$return = array(
