@@ -20,15 +20,15 @@ class SopMaster extends SopAppModel
 			$result = $this->find('first', array('conditions'=>array('SopMaster.id'=>$variables['SopMaster.id'])));
 			
 			$return = array(
-				'Summary' => array(
-					'menu'			=>	array( NULL, $result['SopMaster']['title']),
-					'title'			=>	array( NULL, $result['SopMaster']['title']),
+				__('Summary', TRUE) => array(
+					__('menu', TRUE)		=>	array( NULL, __($result['SopMaster']['title'], TRUE)),
+					__('title', TRUE)		=>	array( NULL, __($result['SopMaster']['title'], TRUE)),
 					
-					'description'	=>	array(
-						'version' => $result['SopMaster']['version'],
-						'status'   => $result['SopMaster']['status'],
-						'expiry date' => $result['SopMaster']['expiry_date'],
-						'notes'   =>  $result['SopMaster']['notes']
+					__('description', TRUE)		=>	array(
+						__('version', TRUE) 	=> __($result['SopMaster']['version'], TRUE),
+						__('status', TRUE)  	=> __($result['SopMaster']['status'], TRUE),
+						__('expiry date', TRUE)	=> __($result['SopMaster']['expiry_date'], TRUE),
+						__('notes', TRUE)	    => __($result['SopMaster']['notes'], TRUE)
 					)
 				)
 			);

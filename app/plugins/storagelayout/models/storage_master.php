@@ -16,14 +16,14 @@ class StorageMaster extends StoragelayoutAppModel {
 			$result = $this->find('first', array('conditions'=>array('StorageMaster.id'=>$variables['StorageMaster.id'])));
 			
 			$return = array(
-				'Summary' => array(
-					'menu'			=>	array( NULL, $result['StorageMaster']['storage_type'] ),
-					'title'			=>	array( NULL, $result['StorageMaster']['storage_type'] ),
+				__('Summary', TRUE)	 => array(
+					__('menu', TRUE) =>	array( NULL, __($result['StorageMaster']['storage_type'], TRUE) ),
+					__('title', TRUE)=>	array( NULL, __($result['StorageMaster']['storage_type'], TRUE) ),
 					
-					'description'	=>	array(
-						'barcode'	=>	$result['StorageMaster']['barcode'],
-						'code'	=>	$result['StorageMaster']['code'],
-						'selection label'	=>	$result['StorageMaster']['selection_label']
+					__('description', TRUE)		=>	array(
+						__('barcode', TRUE)			=>	__($result['StorageMaster']['barcode'], TRUE),
+						__('code', TRUE)			=>	__($result['StorageMaster']['code'], TRUE),
+						__('selection label', TRUE)	=>	__($result['StorageMaster']['selection_label'], TRUE)
 					)
 				)
 			);
