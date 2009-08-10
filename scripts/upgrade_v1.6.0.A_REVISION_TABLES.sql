@@ -2002,30 +2002,6 @@ CREATE TABLE `txd_chemos_revs` (
   KEY `tx_master_id` (`tx_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=2 ;
 
-CREATE TABLE `txd_combos_revs` (
-  `id` int(11) NOT NULL,
-  `txd_combo_path_num` varchar(50) default NULL,
-  `txd_combo_primary` varchar(50) default NULL,
-  `txd_combo_provider` varchar(50) default NULL,
-  `txd_combo_chemocompleted` varchar(50) default NULL,
-  `txd_combo_response` varchar(50) default NULL,
-  `txd_combo_num_cycles` int(11) default NULL,
-  `txd_combo_length_cycles` int(11) default NULL,
-  `txd_combo_completed_cycles` int(11) default NULL,
-  `txd_combo_total_dose` varchar(50) default NULL,
-  `txd_combo_total_fractions` varchar(50) default NULL,
-  `txd_combo_radcompleted` varchar(50) default NULL,
-  `created` datetime NOT NULL default '0000-00-00 00:00:00',
-  `created_by` varchar(50) NOT NULL default '',
-  `modified` datetime NOT NULL default '0000-00-00 00:00:00',
-  `modified_by` varchar(50) NOT NULL default '',
-  `version_id` int(11) NOT NULL AUTO_INCREMENT,
-  `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
-  `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
 CREATE TABLE `txd_radiations_revs` (
   `id` int(11) NOT NULL,
   `source` varchar(50) default NULL,
@@ -2128,8 +2104,8 @@ CREATE TABLE `txe_surgeries_revs` (
 
 CREATE TABLE `tx_masters_revs` (
   `id` int(11) NOT NULL,
-  `tx_control_id` int(11) NOT NULL default 0,
-  `group` varchar(50) default NULL,
+  `treatment_control_id` INT(11) NOT NULL default 0,
+  `tx_group` varchar(50) default NULL,
   `disease_site` varchar(50) default NULL,
   `tx_intent` varchar(50) default NULL,
   `start_date` date default NULL,
@@ -2137,10 +2113,6 @@ CREATE TABLE `tx_masters_revs` (
   `source` varchar(50) default NULL,
   `facility` varchar(50) default NULL,
   `summary` text,
-  `detail_tablename` varchar(255) default NULL,
-  `detail_form_alias` varchar(255) default NULL,
-  `extend_tablename` varchar(255) default NULL,
-  `extend_form_alias` varchar(255) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',

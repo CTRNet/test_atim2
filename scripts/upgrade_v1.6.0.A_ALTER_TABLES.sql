@@ -6,6 +6,14 @@ ALTER TABLE `tx_masters` CHANGE `group` `tx_group` VARCHAR( 50 ) CHARACTER SET l
 UPDATE `structure_fields` SET `field` = 'tx_group',
 `structure_value_domain` = '0' WHERE `old_id` = 'CAN-999-999-000-999-276' LIMIT 1 ;
 
+-- Drop depricated table/field alias columns from tx_masters
+ALTER TABLE `tx_masters` CHANGE `tx_control_id` `treatment_control_id` INT(11) NOT NULL DEFAULT 0;
+ALTER TABLE `tx_masters` DROP COLUMN `detail_tablename`;
+ALTER TABLE `tx_masters` DROP COLUMN `detail_form_alias`;
+ALTER TABLE `tx_masters` DROP COLUMN `extend_tablename`;
+ALTER TABLE `tx_masters` DROP COLUMN `extend_form_alias`;
+ALTER TABLE `tx_controls` CHANGE `detail_form_alias` `form_alias` varchar(255) character set latin1 default NULL;
+
 -- Add deleted and deleted_by columns to the correct tables
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -693,3 +701,12 @@ UPDATE `structure_fields` SET `field` = 'bank_id' WHERE `field` = 'bank' AND `mo
 -- Order Plugin changes
 
 UPDATE `structure_fields` SET `field` = 'shipping_company', `language_label` = 'ord_shipping_company' WHERE `old_id` = 'CAN-999-999-000-999-510';
+
+-- Drop unneeded diagnosis text area's
+DELETE FROM `structure_formats`
+WHERE `old_id` IN ('CAN-999-999-000-999-28_CAN-999-999-000-999-522',
+				   'CAN-999-999-000-999-30_CAN-999-999-000-999-522',
+				   'CAN-999-999-000-999-31_CAN-999-999-000-999-522', 
+				   'CAN-999-999-000-999-42_CAN-999-999-000-999-522', 
+				   'CAN-999-999-000-999-50_CAN-999-999-000-999-522',
+				   'CAN-999-999-000-999-64_CAN-999-999-000-999-522');
