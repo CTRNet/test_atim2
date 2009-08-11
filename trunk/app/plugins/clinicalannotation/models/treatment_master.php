@@ -18,11 +18,11 @@ class TreatmentMaster extends ClinicalannotationAppModel {
 			$result = $this->find('first', array('conditions'=>array('TreatmentMaster.id'=>$variables['TreatmentMaster.id'])));
 			
 			$return = array(
-				__('Summary', TRUE)	 => array(
+				'Summary'	 => array(
 					__('menu', TRUE)      => array( NULL, __($result['TreatmentMaster']['tx_group'], TRUE) ),
 					__('title', TRUE)	  => array( NULL, __($result['TreatmentMaster']['tx_group'], TRUE) ),
 
-					__('description', TRUE)		=> array(
+					'description'		=> array(
 						__('Intent', TRUE)		=>	__($result['TreatmentMaster']['tx_intent'], TRUE),
 						__('Start Date', TRUE)      =>  __($result['TreatmentMaster']['start_date'], TRUE)
 					)
