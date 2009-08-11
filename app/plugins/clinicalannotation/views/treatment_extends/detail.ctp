@@ -7,6 +7,13 @@
 		)
 	);
 	
-	$structure_override = array('TreatmentExtend.drug_id'=>$drug_name);
+	switch($tx_group){
+		case "chemotherapy":
+			$structure_override = array('TreatmentExtend.drug_id'=>$drug_list);
+			break;
+		default:
+			$structure_override = NULL;
+			break;
+	}
 	$structures->build( $atim_structure, array('links'=>$structure_links, 'override'=>$structure_override) );
 ?>
