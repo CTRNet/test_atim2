@@ -19,12 +19,12 @@ class TreatmentMaster extends ClinicalannotationAppModel {
 			
 			$return = array(
 				'Summary'	 => array(
-					__('menu', TRUE)      => array( NULL, __($result['TreatmentMaster']['tx_group'], TRUE) ),
-					__('title', TRUE)	  => array( NULL, __($result['TreatmentMaster']['tx_group'], TRUE) ),
+					'menu'    		=> array( NULL, __($result['TreatmentMaster']['tx_group'], TRUE) ),
+					'title'	 		=> array( NULL, __($result['TreatmentMaster']['tx_group'], TRUE) ),
 
-					'description'		=> array(
+					'description'	=> array(
 						__('Intent', TRUE)		=>	__($result['TreatmentMaster']['tx_intent'], TRUE),
-						__('Start Date', TRUE)      =>  __($result['TreatmentMaster']['start_date'], TRUE)
+						__('Start Date', TRUE)  =>  __($result['TreatmentMaster']['start_date'], TRUE)
 					)
 				)
 			);
