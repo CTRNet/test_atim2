@@ -7,7 +7,7 @@ class ProtocolExtendsController extends ProtocolAppController {
 		'Protocol.ProtocolMaster',
 		'Protocol.ProtocolControl',
 		'Drug.Drug');
-	var $paginate = array('ProtocolExtend'=>array('limit'=>10,'order'=>'ProtocolExtend.name DESC'));
+	var $paginate = array('ProtocolExtend'=>array('limit'=>10,'order'=>'ProtocolExtend.id DESC'));
 	
 	function listall($protocol_master_id){
 		$this->set('atim_menu_variables', array('ProtocolMaster.id'=>$protocol_master_id));
@@ -15,16 +15,13 @@ class ProtocolExtendsController extends ProtocolAppController {
 		$protocol_master_data = $this->ProtocolMaster->find('first', array('conditions'=>array('ProtocolMaster.id'=>$protocol_master_id)));
 		
 		$this->ProtocolExtend = new ProtocolExtend(false, $protocol_master_data['ProtocolControl']['extend_tablename']);
-		$use_form_alias = $protocol_master_data['ProtocolMaster']['extend_form_alias'];
+		$use_form_alias = $protocol_master_data['ProtocolControl']['extend_form_alias'];
 		$this->set('atim_structure', $this->Structures->get('form', $use_form_alias));
 		
 		$this->data = $this->paginate($this->ProtocolExtend, array('ProtocolExtend.protocol_master_id'=>$protocol_master_id));
 		
-		$drug_list = $this->Drug->find('all', array('fields'=>array('Drug.id', 'Drug.generic_name'), 'order'  => array('Drug.generic_name')));
-		foreach( $drug_list as $record){
-			$drug_id_findall[ $record['Drug']['id'] ] = $record['Drug']['generic_name'];
-		}
-		$this->set('drug_id_findall', $drug_id_findall);
+		$drug_list = $this->Drug->find('list', array('fields' => array('Drug.id', 'Drug.generic_name'), 'order' => array('Drug.generic_name')));
+		$this->set('drug_list', $drug_list);
 	}
 	
 	function detail($protocol_master_id=null, $protocol_extend_id=null) {
@@ -36,17 +33,14 @@ class ProtocolExtendsController extends ProtocolAppController {
 		
 		// Set form alias/tablename to use
 		$this->ProtocolExtend = new ProtocolExtend( false, $protocol_master_data['ProtocolControl']['extend_tablename'] );
-		$use_form_alias = $protocol_master_data['ProtocolMaster']['extend_form_alias'];
+		$use_form_alias = $protocol_master_data['ProtocolControl']['extend_form_alias'];
 	    $this->set( 'atim_structure', $this->Structures->get( 'form', $use_form_alias ) );
 
 	    $this->data = $this->ProtocolExtend->find('first',array('conditions'=>array('ProtocolExtend.id'=>$protocol_extend_id)));
 	    
 		// Get all drugs to override drug_id with generic drug name
-		$drug_list = $this->Drug->find('all', array('fields' => array('Drug.id', 'Drug.generic_name'), 'order' => array('Drug.generic_name')));
-		foreach ( $drug_list as $record ) {
-			$drug_id_findall[ $record['Drug']['id'] ] = $record['Drug']['generic_name'];
-		}
-		$this->set('drug_id_findall', $drug_id_findall);
+		$drug_list = $this->Drug->find('list', array('fields' => array('Drug.id', 'Drug.generic_name'), 'order' => array('Drug.generic_name')));
+		$this->set('drug_list', $drug_list);
 		
 	}
 
@@ -58,15 +52,12 @@ class ProtocolExtendsController extends ProtocolAppController {
 
 		// Set form alias/tablename to use
 		$this->ProtocolExtend = new ProtocolExtend( false, $protocol_master_data['ProtocolControl']['extend_tablename'] );
-		$use_form_alias = $protocol_master_data['ProtocolMaster']['extend_form_alias'];
+		$use_form_alias = $protocol_master_data['ProtocolControl']['extend_form_alias'];
 	    $this->set( 'atim_structure', $this->Structures->get( 'form', $use_form_alias ) );
 
 		// Get all drugs to override drug_id with generic drug name
-		$drug_list = $this->Drug->find('all', array('fields' => array('Drug.id', 'Drug.generic_name'), 'order' => array('Drug.generic_name')));
-		foreach ( $drug_list as $record ) {
-			$drug_id_findall[ $record['Drug']['id'] ] = $record['Drug']['generic_name'];
-		}
-		$this->set('drug_id_findall', $drug_id_findall);
+		$drug_list = $this->Drug->find('list', array('fields' => array('Drug.id', 'Drug.generic_name'), 'order' => array('Drug.generic_name')));
+		$this->set('drug_list', $drug_list);
 		
 		if ( !empty($this->data) ) {
 			$this->data['ProtocolExtend']['protocol_master_id'] = $protocol_master_data['ProtocolMaster']['id'];
@@ -88,15 +79,12 @@ class ProtocolExtendsController extends ProtocolAppController {
 				
 		// Set form alias/tablename to use
 		$this->ProtocolExtend = new ProtocolExtend( false, $protocol_master_data['ProtocolControl']['extend_tablename'] );
-		$use_form_alias = $protocol_master_data['ProtocolMaster']['extend_form_alias'];
+		$use_form_alias = $protocol_master_data['ProtocolControl']['extend_form_alias'];
 	    $this->set('atim_structure', $this->Structures->get('form', $use_form_alias));
 
 	    // Get all drugs to override drug_id with generic drug name
-		$drug_list = $this->Drug->find('all', array('fields' => array('Drug.id', 'Drug.generic_name'), 'order' => array('Drug.generic_name')));
-		foreach ( $drug_list as $record ) {
-			$drug_id_findall[ $record['Drug']['id'] ] = $record['Drug']['generic_name'];
-		}
-		$this->set('drug_id_findall', $drug_id_findall);
+		$drug_list = $this->Drug->find('list', array('fields' => array('Drug.id', 'Drug.generic_name'), 'order' => array('Drug.generic_name')));
+		$this->set('drug_list', $drug_list);
 	    
 	    $this_data = $this->ProtocolExtend->find('first',array('conditions'=>array('ProtocolExtend.id'=>$protocol_extend_id)));
 

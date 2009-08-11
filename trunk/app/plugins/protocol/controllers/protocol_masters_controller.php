@@ -32,6 +32,7 @@ class ProtocolMastersController extends ProtocolAppController {
 	
 	function add($protocol_control_id=null) {
 		$this->set( 'atim_menu_variables', array('ProtocolControl.id'=>$protocol_control_id)); 
+		$this->set('atim_menu', $this->Menus->get('/protocol/protocol_masters/index/'));
 		$this_data = $this->ProtocolControl->find('first',array('conditions'=>array('ProtocolControl.id'=>$protocol_control_id)));
 		
 		// set FORM ALIAS based off VALUE from CONTROL table
