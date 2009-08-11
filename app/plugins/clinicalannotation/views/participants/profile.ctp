@@ -1,8 +1,9 @@
 <?php 
 	$structure_links = array(
 		'bottom'=>array(
-			'edit'=>'/clinicalannotation/participants/edit/%%Participant.id%%',
-			'search'=>'/clinicalannotation/participants/index',
+			'search'=>'/clinicalannotation/participants/index/',
+			'list'=>'/clinicalannotation/participants/listall/',
+			'edit'=>'/clinicalannotation/participants/edit/%%Participant.id%%'
 			'delete'=>'/clinicalannotation/participants/delete/%%Participant.id%%'
 		)
 	);

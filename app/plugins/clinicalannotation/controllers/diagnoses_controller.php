@@ -56,8 +56,8 @@ class DiagnosesController extends ClinicalannotationAppController {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		if ( !$diagnosis_id ) { $this->redirect( '/pages/err_clin-ann_no_diagnosis_id', NULL, TRUE ); }
 		
-		$treatment_id = $this->TreatmentMaster->find('first', array('conditions'=>array('Treatment.diagnosis_id'=>$diagnosis_id, 'TreatmentMaster.deleted'=>0),'fields'=>array('TreatmentMaster.id'))); 
-		$event_id = $this->Diagnosis->find('first', array('conditions'=>array('EventMaster.diagnosis_id'=>$diagnosis_id, 'Diagnosis.deleted'=>0),'fields'=>array('Diagnosis.id')));
+		$treatment_id = $this->TreatmentMaster->find('first', array('conditions'=>array('TreatmentMaster.diagnosis_id'=>$diagnosis_id, 'TreatmentMaster.deleted'=>0),'fields'=>array('TreatmentMaster.id'))); 
+		$event_id = $this->EventMaster->find('first', array('conditions'=>array('EventMaster.diagnosis_id'=>$diagnosis_id, 'EventMaster.deleted'=>0),'fields'=>array('EventMaster.id')));
 		
 		if( $treatment_id == NULL && $event_id == NULL ){
 			if( $this->Diagnosis->del( $diagnosis_id ) ) {

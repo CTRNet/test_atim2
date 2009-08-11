@@ -39,6 +39,10 @@ class ParticipantsController extends ClinicalannotationAppController {
 		$this->data = $this->Participant->find('first',array('conditions'=>array('Participant.id'=>$participant_id)));
 	}
 	
+	function listall( ){
+		$this->data = $this->paginate($this->Participant, array());
+	}
+	
 	function add() {
 		$this->set( 'atim_menu', $this->Menus->get('/clinicalannotation/participants/index') );
 		
