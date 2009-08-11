@@ -12,8 +12,9 @@
 			$structure_override = array('TreatmentExtend.drug_id'=>$drug_list);
 			break;
 		default:
-			$structure_override = NULL;
+			$structure_override = array();
 			break;
 	}
+	
 	$structures->build( $atim_structure, array('links'=>$structure_links, 'override'=>$structure_override) );
 ?>
