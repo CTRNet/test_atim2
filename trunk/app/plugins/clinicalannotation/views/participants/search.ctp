@@ -3,8 +3,9 @@
 	$structure_links = array(
 		'index'=>array('detail'=>'/clinicalannotation/participants/profile/%%Participant.id%%'),
 		'bottom'=>array(
-			'add'=>'/clinicalannotation/participants/add',
-			'search'=>'/clinicalannotation/participants/index'
+			'add'=>'/clinicalannotation/participants/add/',
+			'search'=>'/clinicalannotation/participants/index/',
+			'list'=>'/clinicalannotation/participants/listall/'
 		)
 	);
 	
