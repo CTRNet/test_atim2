@@ -16,11 +16,11 @@ class AliquotMaster extends InventoryManagementAppModel {
 			$result = $this->find('first', array('conditions'=>array('AliquotMaster.id'=>$variables['AliquotMaster.id'])));
 			
 			$return = array(
-				__('Summary',TRUE)	 => array(
-					__('menu', TRUE)	        => array( NULL, __($result['AliquotMaster']['barcode'], TRUE) ),
-					__('title', TRUE) 		  	=> array( NULL, __($result['AliquotMaster']['barcode'], TRUE) ),
+				'Summary'	 => array(
+					'menu'	        	=> array( NULL, __($result['AliquotMaster']['barcode'], TRUE) ),
+					'title'		  		=> array( NULL, __($result['AliquotMaster']['barcode'], TRUE) ),
 
-					__('description', TRUE)		=> array(
+					'description'		=> array(
 						__('product code', TRUE)=> __($result['AliquotMaster']['product_code'], TRUE),
 						__('type', TRUE)	    => __($result['AliquotMaster']['aliquot_type'], TRUE),
 						__('category', TRUE)	=> __($result['AliquotMaster']['current_volume'].' '.$result['AliquotMaster']['aliquot_volume_unit'], TRUE),

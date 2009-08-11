@@ -16,11 +16,11 @@ class SampleMaster extends InventorymanagementAppModel {
 			$result = $this->find('first', array('conditions'=>array('SampleMaster.id'=>$variables['SampleMaster.id'])));
 			
 			$return = array(
-				__('Summary', TRUE)	 => array(
-					__('menu', TRUE)      	=> array( NULL, $result['SampleMaster']['sample_code'] ),
-					__('title', TRUE)	  	=> array( NULL, $result['SampleMaster']['sample_code'] ),
+				'Summary'	 => array(
+					'menu'     	=> array( NULL, $result['SampleMaster']['sample_code'] ),
+					'title'	  	=> array( NULL, $result['SampleMaster']['sample_code'] ),
 
-					__('description', TRUE) => array(
+					'description' => array(
 						__('product code', TRUE)		=>  __($result['SampleMaster']['product code'], TRUE),
 						__('category', TRUE)			=>	__($result['SampleMaster']['sample_category'], TRUE),
 						__('type', TRUE)				=>	__($result['SampleMaster']['sample_type'], TRUE)
