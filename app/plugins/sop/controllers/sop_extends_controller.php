@@ -7,7 +7,7 @@ class SopExtendsController extends SopAppController {
 		'Sop.SopMaster',
 		'Sop.SopControl',
 		'Material.Material');
-	var $paginate = array('SopMaster'=>array('limit'=>10,'order'=>'SopMaster.title DESC'));
+	var $paginate = array('SopMaster'=>array('limit'=>10,'order'=>'SopMaster.id DESC'));
 	
 	function listall($sop_master_id){
 		$this->set('atim_menu_variables', array('SopMaster.id'=>$sop_master_id));
@@ -15,16 +15,13 @@ class SopExtendsController extends SopAppController {
 		$sop_master_data = $this->SopMaster->find('first', array('conditions'=>array('SopMaster.id'=>$sop_master_id)));
 		
 		$this->SopExtend = new SopExtend(false, $sop_master_data['SopControl']['extend_tablename']);
-		$use_form_alias = $sop_master_data['SopMaster']['extend_form_alias'];
+		$use_form_alias = $sop_master_data['SopControl']['extend_form_alias'];
 		$this->set('atim_structure', $this->Structures->get('form', $use_form_alias));
 		
 		$this->data = $this->paginate($this->SopExtend, array('SopExtend.sop_master_id'=>$sop_master_id));
 		
 		$material_list = $this->Material->find('all', array('fields'=>array('Material.id', 'Material.item_name'), 'order'  => array('Material.item_name')));
-		foreach( $material_list as $record){
-			$material_id_findall[ $record['Material']['id'] ] = $record['Material']['item_name'];
-		}
-		$this->set('material_id_findall', $material_id_findall);
+		$this->set('material_list', $material_list);
 	}
 	
 	function detail($sop_master_id=null, $sop_extend_id=null) {
@@ -36,17 +33,13 @@ class SopExtendsController extends SopAppController {
 		
 		// Set form alias/tablename to use
 		$this->SopExtend = new SopExtend( false, $sop_master_data['SopControl']['extend_tablename'] );
-		$use_form_alias = $sop_master_data['SopMaster']['extend_form_alias'];
+		$use_form_alias = $sop_master_data['SopControl']['extend_form_alias'];
 	    $this->set( 'atim_structure', $this->Structures->get( 'form', $use_form_alias ) );
 
 	    $this->data = $this->SopExtend->find('first',array('conditions'=>array('SopExtend.id'=>$sop_extend_id)));
 	    
-		// Get all Materials to override Material_id with generic Material name
-		$material_list = $this->Material->find('all', array('fields' => array('Material.id', 'Material.item_name'), 'order' => array('Material.item_name')));
-		foreach ( $material_list as $record ) {
-			$material_id_findall[ $record['Material']['id'] ] = $record['Material']['item_name'];
-		}
-		$this->set('material_id_findall', $material_id_findall);
+		$material_list = $this->Material->find('all', array('fields'=>array('Material.id', 'Material.item_name'), 'order'  => array('Material.item_name')));
+		$this->set('material_list', $material_list);
 		
 	}
 
@@ -58,15 +51,11 @@ class SopExtendsController extends SopAppController {
 
 		// Set form alias/tablename to use
 		$this->SopExtend = new SopExtend( false, $sop_master_data['SopControl']['extend_tablename'] );
-		$use_form_alias = $sop_master_data['SopMaster']['extend_form_alias'];
+		$use_form_alias = $sop_master_data['SopControl']['extend_form_alias'];
 	    $this->set( 'atim_structure', $this->Structures->get( 'form', $use_form_alias ) );
 
-		// Get all Materials to override Material_id with generic Material name
-		$material_list = $this->Material->find('all', array('fields' => array('Material.id', 'Material.item_name'), 'order' => array('Material.item_name')));
-		foreach ( $material_list as $record ) {
-			$material_id_findall[ $record['Material']['id'] ] = $record['Material']['item_name'];
-		}
-		$this->set('material_id_findall', $material_id_findall);
+		$material_list = $this->Material->find('all', array('fields'=>array('Material.id', 'Material.item_name'), 'order'  => array('Material.item_name')));
+		$this->set('material_list', $material_list);
 		
 		if ( !empty($this->data) ) {
 			$this->data['SopExtend']['sop_master_id'] = $sop_master_data['SopMaster']['id'];
@@ -88,15 +77,11 @@ class SopExtendsController extends SopAppController {
 				
 		// Set form alias/tablename to use
 		$this->SopExtend = new SopExtend( false, $sop_master_data['SopControl']['extend_tablename'] );
-		$use_form_alias = $sop_master_data['SopMaster']['extend_form_alias'];
+		$use_form_alias = $sop_master_data['SopControl']['extend_form_alias'];
 	    $this->set('atim_structure', $this->Structures->get('form', $use_form_alias));
 
-	    // Get all Materials to override Material_id with generic Material name
-		$material_list = $this->Material->find('all', array('fields' => array('Material.id', 'Material.item_name'), 'order' => array('Material.item_name')));
-		foreach ( $material_list as $record ) {
-			$material_id_findall[ $record['Material']['id'] ] = $record['Material']['item_name'];
-		}
-		$this->set('material_id_findall', $material_id_findall);
+	    $material_list = $this->Material->find('all', array('fields'=>array('Material.id', 'Material.item_name'), 'order'  => array('Material.item_name')));
+		$this->set('material_list', $material_list);
 	    
 	    $this_data = $this->SopExtend->find('first',array('conditions'=>array('SopExtend.id'=>$sop_extend_id)));
 
