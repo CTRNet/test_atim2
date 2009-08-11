@@ -5,16 +5,17 @@ class BanksController extends AdministrateAppController {
 	var $uses = array('Bank');
 	var $paginate = array('Bank'=>array('limit'=>10,'order'=>'Bank.name ASC')); 
 	
+	function index() {
+		$this->data = $this->paginate($this->Bank);
+	}
+	
 	function add(){
 		$this->set( 'atim_menu', $this->Menus->get('/administrate/banks') );
 		
 		if ( !empty($this->data) ) {
 			if ( $this->Bank->save($this->data) ) $this->flash( 'Your data has been updated.','/administrate/banks/detail/'.$this->Bank->id );
 		}
-	}
-	
-	function index() {
-		$this->data = $this->paginate($this->Bank);
+		
 	}
 	
 	function detail( $bank_id ) {
@@ -34,8 +35,9 @@ class BanksController extends AdministrateAppController {
 	}
 	
 	function delete( $bank_id ) {
-		$this->Bank->del( $bank_id );
-		$this->flash( 'Your data has been deleted.', '/administrate/banks/index' );
+		if ( $this->Bank->atim_delete($bank_id) ) {
+			$this->flash( 'Your data has been deleted.', '/administrate/banks/index' );
+		}
 	}
 	
 	/*
