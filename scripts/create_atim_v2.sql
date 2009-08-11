@@ -4962,8 +4962,6 @@ CREATE TABLE `event_masters` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
   `modified_by` varchar(50) NOT NULL default '',
-  `form_alias` varchar(255) NOT NULL default '',
-  `detail_tablename` varchar(50) NOT NULL default '',
   `participant_id` int(11) default NULL,
   `diagnosis_id` int(11) default NULL,
   `deleted` int(11) default 0,
@@ -8256,7 +8254,7 @@ CREATE TABLE `protocol_controls` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1 AUTO_INCREMENT=4 ;
 
-INSERT INTO `protocol_controls` (`id`, `tumour_group`, `type`, `detail_tablename`, `detail_form_alias`, `extend_tablename`, `extend_form_alias`, `created`, `created_by`, `modified`, `modified_by`) VALUES 
+INSERT INTO `protocol_controls` (`id`, `tumour_group`, `type`, `detail_tablename`, `detail_form_alias`, `extend_tablename`, `extend_form_alias`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 (3, 'breast', 'chemotherapy', 'pd_chemos', 'pd_chemos', 'pe_chemos', 'pe_chemos', NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
@@ -8277,10 +8275,6 @@ CREATE TABLE `protocol_masters` (
   `status` varchar(50) default NULL,
   `expiry` date default NULL,
   `activated` date default NULL,
-  `detail_tablename` varchar(255) NOT NULL default '',
-  `detail_form_alias` varchar(255) NOT NULL default '',
-  `extend_tablename` varchar(255) NOT NULL default '',
-  `extend_form_alias` varchar(255) NOT NULL default '',
   `created` date default NULL,
   `created_by` varchar(50) default NULL,
   `modified` date default NULL,
@@ -10866,10 +10860,6 @@ CREATE TABLE `sop_masters` (
   `activated_date` date default NULL,
   `scope` text,
   `purpose` text,
-  `detail_tablename` varchar(255) NOT NULL,
-  `detail_form_alias` varchar(255) NOT NULL,
-  `extend_tablename` varchar(255) NOT NULL,
-  `extend_form_alias` varchar(255) NOT NULL,
   `created` datetime default NULL,
   `created_by` varchar(50) default NULL,
   `modified` datetime default NULL,
