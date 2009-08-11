@@ -28,8 +28,7 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		switch($tx_master_data['TreatmentMaster']['tx_group']){
 			case "chemotherapy":
 				// Get all drugs to override drug_id with generic drug name
-				$drug_list = $this->Drug->find('list', array('fields' => array('Drug.id', 'Drug.generic_name'), 'order' => array('Drug.generic_name')));
-				$this->set('drug_list', $drug_list);
+				$this->set('drug_list', $this->Drug->find('list', array('fields'=>array('Drug.id','Drug.generic_name'), 'order'=>array('Drug.generic_name'))));
 				break;
 		}
 	}
@@ -53,8 +52,9 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		switch($tx_master_data['TreatmentMaster']['tx_group']){
 			case "chemotherapy":
 				// Get all drugs to override drug_id with generic drug name
-				$drug_list = $this->Drug->find('first', array('conditions'=>array('Drug.id'=>$this->data['TreatmentExtend']['drug_id']), 'fields'=>array('Drug.generic_name')));
-				$this->set('drug_name', $drug_list['Drug']['generic_name']);
+				// $drug_list = $this->Drug->find('first', array('conditions'=>array('Drug.id'=>$this->data['TreatmentExtend']['drug_id']), 'fields'=>array('Drug.generic_name')));
+				// $this->set('drug_name', $drug_list['Drug']['generic_name']);
+				$this->set('drug_list', $this->Drug->find('list', array('fields'=>array('Drug.id','Drug.generic_name'), 'order'=>array('Drug.generic_name'))));
 				break;
 		}
 	}
@@ -75,8 +75,9 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		switch($tx_master_data['TreatmentMaster']['tx_group']){
 			case "chemotherapy":
 				// Get all drugs to override drug_id with generic drug name
-				$drug_list = $this->Drug->find('list', array('conditions' => array('Drug.type'=>'chemotherapy'), 'fields' => array('Drug.id', 'Drug.generic_name'), 'order' => array('Drug.generic_name')));
-				$this->set('drug_list', $drug_list);
+				// $drug_list = $this->Drug->find('list', array('conditions' => array('Drug.type'=>'chemotherapy'), 'fields' => array('Drug.id', 'Drug.generic_name'), 'order' => array('Drug.generic_name')));
+				// $this->set('drug_list', $drug_list);
+				$this->set('drug_list', $this->Drug->find('list', array('fields'=>array('Drug.id','Drug.generic_name'), 'order'=>array('Drug.generic_name'))));
 				break;
 		}
 		
@@ -109,8 +110,9 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		switch($tx_master_data['TreatmentMaster']['tx_group']){
 			case "chemotherapy":
 				// Get all drugs to override drug_id with generic drug name
-				$drug_list = $this->Drug->find('list', array('conditions' => array('Drug.type'=>'chemotherapy'), 'fields' => array('Drug.id', 'Drug.generic_name'), 'order' => array('Drug.generic_name')));
-				$this->set('drug_list', $drug_list);
+				// $drug_list = $this->Drug->find('list', array('conditions' => array('Drug.type'=>'chemotherapy'), 'fields' => array('Drug.id', 'Drug.generic_name'), 'order' => array('Drug.generic_name')));
+				// $this->set('drug_list', $drug_list);
+				$this->set('drug_list', $this->Drug->find('list', array('fields'=>array('Drug.id','Drug.generic_name'), 'order'=>array('Drug.generic_name'))));
 				break;
 		}
 	    
