@@ -50,7 +50,6 @@ class EventMastersController extends ClinicalannotationAppController {
 		
 		// set FORM ALIAS based off VALUE from MASTER table
 		$this->set( 'atim_structure', $this->Structures->get('form',$this->data['EventControl']['form_alias']) );
-		
 	}
 	
 	function add( $event_group=NULL, $participant_id=null, $event_control_id=null) {
