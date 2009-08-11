@@ -7770,6 +7770,33 @@ INSERT INTO `pages` (`id`, `error_flag`, `language_title`, `language_body`, `cre
 ('error', 0, 'error', 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\r\n\r\nLorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\r\n\r\nLorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\r\n\r\n\r\nLorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\r\n\r\n\r\nLorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\r\n\r\n\r\nLorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\r\n\r\n', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('installation', 0, 'installation', 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\r\n\r\nLorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\r\n\r\nLorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\r\n\r\n\r\nLorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\r\n\r\n\r\nLorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\r\n\r\n\r\nLorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\r\n\r\n', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
+
+INSERT INTO `pages` (`id`, `error_flag`, `language_title`, `language_body`) VALUES
+( 'err_clin-ann_no_treatment_id', 1, 'no treatment master id', 'the treatment master id has not been defined' ),
+( 'err_clin-ann_no_diagnosis_id', 1, 'no diagnosis id', 'the diagnodid id has not been defined' ),
+( 'err_clin-ann_no_consent_id', 1, 'no consent', 'the consent id has not been defined' ),
+( 'err_clin-ann_no_reprod_id', 1, 'no reproductive_id', 'the reproductive id has not been defined' ),
+( 'err_clin-ann_no_message_id', 1, 'no message id',  'the participant message id has not been defined' ),
+( 'err_clin-ann_no_contact_id', 1, 'no contact id', 'the participant contact id has not been defined' ),
+( 'err_clin-ann_no_misc_id', 1, 'no misc identifier id', 'the misc identifier id has not been defined' ),
+( 'err_material_no_material_id', 1, 'no material id', 'the material id has not been defined' ),
+( 'err_ord_no_order_id', 1, 'no order id', 'the order id has not been defined' ),
+( 'err_ord_no_line_id', 1, 'no line id', 'the order line id has not been defined' ),
+( 'err_ord_no_item_id', 1, 'no item id', 'the order item id has not been defined' ),
+( 'err_ord_no_ship_id', 1, 'no shipment id', 'the shipment id has not been defined' ),
+( 'err_pro_no_proto_id', 1, 'no protocol id', 'the protocol master id has not been defined' ),
+( 'err_rtb_no_form_id', 1, 'no rtbform id', 'the rtbform id has not been defined' ),
+( 'err_sop_no_sop_id', 1, 'no sop id', 'the sop id has not been defined' ),
+( 'err_study_no_summary_id', 1, 'no summary id', 'the study summary id has not been defined' ),
+( 'err_study_no_contact_id', 1, 'no contact id', 'the study contact id has not been defined' ),
+( 'err_study_no_ethics_id', 1, 'no ethics id', 'the study ethicsboard id has not been defined' ),
+( 'err_study_no_fund_id', 1, 'no funding id', 'the study funding id has not been defined' ),
+( 'err_study_no_invest_id', 1, 'no investigator id', 'the study investigator id has not been defined' ),
+( 'err_study_no_related_id', 1, 'no related id', 'the study related id has not been defined' ),
+( 'err_study_no_result_id', 1, 'no result id', 'the study result id has not been defined'),
+( 'err_study_no_review_id', 1, 'no review id', 'the study review id has not been defined'),
+( 'err_drug_no_drug_id', 1, 'no drug id', 'the drug id has not be defined' );
+
 -- --------------------------------------------------------
 
 -- 
@@ -13870,7 +13897,7 @@ INSERT INTO `structure_formats` (`id`,`old_id`,`structure_id`,`structure_old_id`
  (981,'CAN-999-999-000-999-1059_CAN-999-999-000-999-1236',85,'CAN-999-999-000-999-1059',347,'CAN-999-999-000-999-1236',0,14,'','0','','0','','0','','0','','0','','0','','1','0','1','0','0','0','1','0','0','1','0000-00-00 00:00:00','','0000-00-00 00:00:00',''),
  (982,'CAN-999-999-000-999-1059_CAN-999-999-000-999-1237',85,'CAN-999-999-000-999-1059',348,'CAN-999-999-000-999-1237',0,15,'','0','','0','','0','','0','','0','','0','','1','0','1','0','0','0','1','0','0','1','0000-00-00 00:00:00','','0000-00-00 00:00:00',''),
  (983,'CAN-999-999-000-999-1060_CAN-999-999-000-999-1040',86,'CAN-999-999-000-999-1060',187,'CAN-999-999-000-999-1040',0,8,'','0','','0','','0','','0','','0','','0','','0','0','0','0','0','0','0','0','1','0','0000-00-00 00:00:00','','0000-00-00 00:00:00','');
-INSERT INTO `structure_formats` (`id`,`old_id`,`structure_id`,`structure_old_id`,`structure_field_id`,`structure_field_old_id`,`display_column`,`display_order`,`language_heading`,`flag_override_label`,`language_label`,`flag_override_tag`,`language_tag`,`flag_override_help`,`language_help`,`flag_override_type`,`type`,`flag_override_setting`,`setting`,`flag_override_default`,`default`,`flag_add`,`flag_add_readonly`,`flag_edit`,`flag_edit_readonly`,`flag_search`,`flag_search_readonly`,`flag_datagrid`,`flag_datagrid_readonly`,`flag_index`,`flag_detail`,`created`,`created_by`,`modified`,`modified_by`) VALUES 
+INSERT INTO `structure_formats` (`id`,`old_id`,`structure_id`,`structure_old_id`,`structure_field_id`,`structure_field_old_id`,`display_column`,`display_order`,`language_heading`,`flag_override_label`,`language_label`,`flag_override_tag`,`language_tag`,`flag_override_help`,`language_help`,`flag_override_type`,`type`,`flag_override_setting`,`setting`,`flag_override_default`,`default`,`flag_add`,`flag_add_readonly`,`flag_edit`,`flag_edit_readonly`,`flag_search`,`flag_search_readonly`,`flag_datagrid`,`flag_datagrid_readonly`,`flag_index`,`flag_detail`,`created`,`created_by`,`modified`,`modified_by`) VALUES
  (984,'CAN-999-999-000-999-1060_CAN-999-999-000-999-1041',86,'CAN-999-999-000-999-1060',188,'CAN-999-999-000-999-1041',0,9,'','0','','0','','0','','0','','0','','0','','0','0','0','0','0','0','0','0','1','0','0000-00-00 00:00:00','','0000-00-00 00:00:00',''),
  (985,'CAN-999-999-000-999-1060_CAN-999-999-000-999-1043',86,'CAN-999-999-000-999-1060',189,'CAN-999-999-000-999-1043',0,10,'','0','','0','','0','','0','','0','','0','','0','0','0','0','0','0','0','0','1','0','0000-00-00 00:00:00','','0000-00-00 00:00:00',''),
  (986,'CAN-999-999-000-999-1060_CAN-999-999-000-999-1100',86,'CAN-999-999-000-999-1060',216,'CAN-999-999-000-999-1100',0,4,'','1','tissue core','0','','0','','0','','0','','0','','0','0','0','0','0','0','0','0','1','0','0000-00-00 00:00:00','','0000-00-00 00:00:00',''),
@@ -14698,12 +14725,6 @@ INSERT INTO `structure_formats` (`id`,`old_id`,`structure_id`,`structure_old_id`
  (1811,'',158,'',864,'',1,1,'','0','','0','','0','','0','','0','','0','','1','0','1','0','1','0','1','0','1','1','0000-00-00 00:00:00','','0000-00-00 00:00:00',''),
  (1812,'',159,'',865,'',1,1,'','0','','0','','0','','0','','0','','0','','1','0','1','0','1','0','1','0','1','1','0000-00-00 00:00:00','','0000-00-00 00:00:00',''),
  (1813,'',157,'',866,'',1,5,'','0','','0','','0','','0','','0','','0','','1','0','1','0','0','0','0','0','0','1','0000-00-00 00:00:00','','0000-00-00 00:00:00','');
-
-
-UPDATE `structure_formats` SET `flag_search` = 1 WHERE `structure_field_old_id` = 'CAN-999-999-000-999-300';
-UPDATE `structure_formats` SET `flag_search` = 1 WHERE `structure_field_old_id` = 'CAN-999-999-000-999-302';
-UPDATE `structure_formats` SET `flag_search` = 1 WHERE `structure_field_old_id` = 'CAN-999-999-000-999-304';
-UPDATE `structure_formats` SET `flag_search` = 1 WHERE `structure_field_old_id` = 'CAN-999-999-000-999-305';
 
 -- --------------------------------------------------------
 
@@ -18786,33 +18807,3 @@ CREATE INDEX aros_idx3 ON aros (model, foreign_key);
 
 -- To integrate into script
 
- UPDATE `structure_formats` SET `structure_id` = '153',
-`structure_field_id` = '851',
-`flag_edit` = '0' WHERE `id` =1796 LIMIT 1 ;
-
-
-INSERT INTO `pages` (`id`, `error_flag`, `language_title`, `language_body`) VALUES
-( 'err_clin-ann_no_treatment_id', 1, 'no treatment master id', 'the treatment master id has not been defined' ),
-( 'err_clin-ann_no_diagnosis_id', 1, 'no diagnosis id', 'the diagnodid id has not been defined' ),
-( 'err_clin-ann_no_consent_id', 1, 'no consent', 'the consent id has not been defined' ),
-( 'err_clin-ann_no_reprod_id', 1, 'no reproductive_id', 'the reproductive id has not been defined' ),
-( 'err_clin-ann_no_message_id', 1, 'no message id',  'the participant message id has not been defined' ),
-( 'err_clin-ann_no_contact_id', 1, 'no contact id', 'the participant contact id has not been defined' ),
-( 'err_clin-ann_no_misc_id', 1, 'no misc identifier id', 'the misc identifier id has not been defined' ),
-( 'err_material_no_material_id', 1, 'no material id', 'the material id has not been defined' ),
-( 'err_ord_no_order_id', 1, 'no order id', 'the order id has not been defined' ),
-( 'err_ord_no_line_id', 1, 'no line id', 'the order line id has not been defined' ),
-( 'err_ord_no_item_id', 1, 'no item id', 'the order item id has not been defined' ),
-( 'err_ord_no_ship_id', 1, 'no shipment id', 'the shipment id has not been defined' ),
-( 'err_pro_no_proto_id', 1, 'no protocol id', 'the protocol master id has not been defined' ),
-( 'err_rtb_no_form_id', 1, 'no rtbform id', 'the rtbform id has not been defined' ),
-( 'err_sop_no_sop_id', 1, 'no sop id', 'the sop id has not been defined' ),
-( 'err_study_no_summary_id', 1, 'no summary id', 'the study summary id has not been defined' ),
-( 'err_study_no_contact_id', 1, 'no contact id', 'the study contact id has not been defined' ),
-( 'err_study_no_ethics_id', 1, 'no ethics id', 'the study ethicsboard id has not been defined' ),
-( 'err_study_no_fund_id', 1, 'no funding id', 'the study funding id has not been defined' ),
-( 'err_study_no_invest_id', 1, 'no investigator id', 'the study investigator id has not been defined' ),
-( 'err_study_no_related_id', 1, 'no related id', 'the study related id has not been defined' ),
-( 'err_study_no_result_id', 1, 'no result id', 'the study result id has not been defined'),
-( 'err_study_no_review_id', 1, 'no review id', 'the study review id has not been defined'),
-( 'err_drug_no_drug_id', 1, 'no drug id', 'the drug id has not be defined' );
