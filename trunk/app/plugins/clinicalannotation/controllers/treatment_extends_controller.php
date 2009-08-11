@@ -23,6 +23,8 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		
 		$this->data = $this->paginate($this->TreatmentExtend, array('TreatmentExtend.tx_master_id'=>$tx_master_id));
 		
+		$this->set('tx_group', $tx_master_data['TreatmentMaster']['tx_group']);
+		
 		switch($tx_master_data['TreatmentMaster']['tx_group']){
 			case "chemotherapy":
 				// Get all drugs to override drug_id with generic drug name
@@ -46,6 +48,8 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 
 	    $this->data = $this->TreatmentExtend->find('first',array('conditions'=>array('TreatmentExtend.id'=>$tx_extend_id)));
 	    
+		$this->set('tx_group', $tx_master_data['TreatmentMaster']['tx_group']);
+		
 		switch($tx_master_data['TreatmentMaster']['tx_group']){
 			case "chemotherapy":
 				// Get all drugs to override drug_id with generic drug name
@@ -65,6 +69,8 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		$this->TreatmentExtend = new TreatmentExtend( false, $tx_master_data['TreatmentControl']['extend_tablename'] );
 		$use_form_alias = $tx_master_data['TreatmentControl']['extend_form_alias'];
 	    $this->set( 'atim_structure', $this->Structures->get( 'form', $use_form_alias ) );
+		
+		$this->set('tx_group', $tx_master_data['TreatmentMaster']['tx_group']);
 		
 		switch($tx_master_data['TreatmentMaster']['tx_group']){
 			case "chemotherapy":
@@ -97,6 +103,8 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		$this->TreatmentExtend = new TreatmentExtend( false, $tx_master_data['TreatmentControl']['extend_tablename'] );
 		$use_form_alias = $tx_master_data['TreatmentControl']['extend_form_alias'];
 	    $this->set( 'atim_structure', $this->Structures->get( 'form', $use_form_alias ) );
+		
+		$this->set('tx_group', $tx_master_data['TreatmentMaster']['tx_group']);
 		
 		switch($tx_master_data['TreatmentMaster']['tx_group']){
 			case "chemotherapy":
