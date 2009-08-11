@@ -14,7 +14,7 @@ class SopExtendsController extends SopAppController {
 		
 		$sop_master_data = $this->SopMaster->find('first', array('conditions'=>array('SopMaster.id'=>$sop_master_id)));
 		
-		$this->SopExtend = new SopExtend(false, $sop_master_data['SopMaster']['extend_tablename']);
+		$this->SopExtend = new SopExtend(false, $sop_master_data['SopControl']['extend_tablename']);
 		$use_form_alias = $sop_master_data['SopMaster']['extend_form_alias'];
 		$this->set('atim_structure', $this->Structures->get('form', $use_form_alias));
 		
@@ -35,7 +35,7 @@ class SopExtendsController extends SopAppController {
 		$sop_master_data = $this->SopMaster->find('first',array('conditions'=>array('SopMaster.id'=>$sop_master_id)));
 		
 		// Set form alias/tablename to use
-		$this->SopExtend = new SopExtend( false, $sop_master_data['SopMaster']['extend_tablename'] );
+		$this->SopExtend = new SopExtend( false, $sop_master_data['SopControl']['extend_tablename'] );
 		$use_form_alias = $sop_master_data['SopMaster']['extend_form_alias'];
 	    $this->set( 'atim_structure', $this->Structures->get( 'form', $use_form_alias ) );
 
@@ -57,7 +57,7 @@ class SopExtendsController extends SopAppController {
 		$sop_master_data = $this->SopMaster->find('first',array('conditions'=>array('SopMaster.id'=>$sop_master_id)));
 
 		// Set form alias/tablename to use
-		$this->SopExtend = new SopExtend( false, $sop_master_data['SopMaster']['extend_tablename'] );
+		$this->SopExtend = new SopExtend( false, $sop_master_data['SopControl']['extend_tablename'] );
 		$use_form_alias = $sop_master_data['SopMaster']['extend_form_alias'];
 	    $this->set( 'atim_structure', $this->Structures->get( 'form', $use_form_alias ) );
 
@@ -87,7 +87,7 @@ class SopExtendsController extends SopAppController {
 		$sop_master_data = $this->SopMaster->find('first',array('conditions'=>array('SopMaster.id'=>$sop_master_id)));
 				
 		// Set form alias/tablename to use
-		$this->SopExtend = new SopExtend( false, $sop_master_data['SopMaster']['extend_tablename'] );
+		$this->SopExtend = new SopExtend( false, $sop_master_data['SopControl']['extend_tablename'] );
 		$use_form_alias = $sop_master_data['SopMaster']['extend_form_alias'];
 	    $this->set('atim_structure', $this->Structures->get('form', $use_form_alias));
 
