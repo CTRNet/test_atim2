@@ -22,10 +22,14 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 	    $this->set( 'atim_structure', $this->Structures->get( 'form', $use_form_alias ) );
 		
 		$this->data = $this->paginate($this->TreatmentExtend, array('TreatmentExtend.tx_master_id'=>$tx_master_id));
-	
-		// Get all drugs to override drug_id with generic drug name
-		$drug_list = $this->Drug->find('list', array('fields' => array('Drug.id', 'Drug.generic_name'), 'order' => array('Drug.generic_name')));
-		$this->set('drug_list', $drug_list);
+		
+		switch($tx_master_data['TreatmentMaster']['tx_group']){
+			case "chemotherapy":
+				// Get all drugs to override drug_id with generic drug name
+				$drug_list = $this->Drug->find('list', array('fields' => array('Drug.id', 'Drug.generic_name'), 'order' => array('Drug.generic_name')));
+				$this->set('drug_list', $drug_list);
+				break;
+		}
 	}
 
 	function detail($participant_id=null, $tx_master_id=null, $tx_extend_id=null) {
@@ -42,9 +46,13 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 
 	    $this->data = $this->TreatmentExtend->find('first',array('conditions'=>array('TreatmentExtend.id'=>$tx_extend_id)));
 	    
-		// Get all drugs to override drug_id with generic drug name
-		$drug_list = $this->Drug->find('first', array('conditions'=>array('Drug.id'=>$this->data['TreatmentExtend']['drug_id']), 'fields'=>array('Drug.generic_name')));
-		$this->set('drug_name', $drug_list['Drug']['generic_name']);
+		switch($tx_master_data['TreatmentMaster']['tx_group']){
+			case "chemotherapy":
+				// Get all drugs to override drug_id with generic drug name
+				$drug_list = $this->Drug->find('first', array('conditions'=>array('Drug.id'=>$this->data['TreatmentExtend']['drug_id']), 'fields'=>array('Drug.generic_name')));
+				$this->set('drug_name', $drug_list['Drug']['generic_name']);
+				break;
+		}
 	}
 
 	function add($participant_id=null, $tx_master_id=null) {
@@ -57,10 +65,14 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		$this->TreatmentExtend = new TreatmentExtend( false, $tx_master_data['TreatmentControl']['extend_tablename'] );
 		$use_form_alias = $tx_master_data['TreatmentControl']['extend_form_alias'];
 	    $this->set( 'atim_structure', $this->Structures->get( 'form', $use_form_alias ) );
-
-		// Get all drugs to override drug_id with generic drug name
-		$drug_list = $this->Drug->find('list', array('conditions' => array('Drug.type'=>'chemotherapy'), 'fields' => array('Drug.id', 'Drug.generic_name'), 'order' => array('Drug.generic_name')));
-		$this->set('drug_list', $drug_list);
+		
+		switch($tx_master_data['TreatmentMaster']['tx_group']){
+			case "chemotherapy":
+				// Get all drugs to override drug_id with generic drug name
+				$drug_list = $this->Drug->find('list', array('conditions' => array('Drug.type'=>'chemotherapy'), 'fields' => array('Drug.id', 'Drug.generic_name'), 'order' => array('Drug.generic_name')));
+				$this->set('drug_list', $drug_list);
+				break;
+		}
 		
 		if ( !empty($this->data) ) {
 			$this->data['TreatmentExtend']['tx_master_id'] = $tx_master_data['TreatmentMaster']['id'];
@@ -85,10 +97,14 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		$this->TreatmentExtend = new TreatmentExtend( false, $tx_master_data['TreatmentControl']['extend_tablename'] );
 		$use_form_alias = $tx_master_data['TreatmentControl']['extend_form_alias'];
 	    $this->set( 'atim_structure', $this->Structures->get( 'form', $use_form_alias ) );
-
-		// Get all drugs to override drug_id with generic drug name
-		$drug_list = $this->Drug->find('list', array('conditions' => array('Drug.type'=>'chemotherapy'), 'fields' => array('Drug.id', 'Drug.generic_name'), 'order' => array('Drug.generic_name')));
-		$this->set('drug_list', $drug_list);
+		
+		switch($tx_master_data['TreatmentMaster']['tx_group']){
+			case "chemotherapy":
+				// Get all drugs to override drug_id with generic drug name
+				$drug_list = $this->Drug->find('list', array('conditions' => array('Drug.type'=>'chemotherapy'), 'fields' => array('Drug.id', 'Drug.generic_name'), 'order' => array('Drug.generic_name')));
+				$this->set('drug_list', $drug_list);
+				break;
+		}
 	    
 	    $this_data = $this->TreatmentExtend->find('first',array('conditions'=>array('TreatmentExtend.id'=>$tx_extend_id)));
 
