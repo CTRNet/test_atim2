@@ -55,10 +55,10 @@ class MaterialsController extends MaterialAppController {
 	function delete( $material_id=null ) {
 		if ( !$material_id ) { $this->redirect( '/pages/err_material_no_material_id', NULL, TRUE ); }
 		
-		if( $this->Material->del( $material_id ) ) {
+		if( $this->Material->atim_delete( $material_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/material/materials/listall/');
 		} else {
-			$this->flash( 'Your data has been deleted.', '/material/materials/listall/');
+			$this->flash( 'Error deleting data - Contact administrator.', '/material/materials/listall/');
 		}
   	}
 

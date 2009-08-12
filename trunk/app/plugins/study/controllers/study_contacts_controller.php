@@ -54,10 +54,10 @@ class StudyContactsController extends StudyAppController {
 		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_no_summary_id', NULL, TRUE ); }
 		if ( !$study_contact_id ) { $this->redirect( '/pages/err_study_no_contact_id', NULL, TRUE ); }
 		
-		if( $this->StudyContact->del( $study_contact_id ) ) {
+		if( $this->StudyContact->atim_delete( $study_contact_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/study/study_contacts/listall/'.$study_summary_id );
 		} else {
-			$this->flash( 'Your data has been deleted.', '/study/study_contacts/listall/'.$study_summary_id );
+			$this->flash( 'Error deleting data - Contact administrator.', '/study/study_contacts/listall/'.$study_summary_id );
 		}
   	}
 }

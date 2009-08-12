@@ -54,10 +54,10 @@ class StudyEthicsBoardsController extends StudyAppController {
 		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_no_summary_id', NULL, TRUE ); }
 		if ( !$study_ethics_board_id ) { $this->redirect( '/pages/err_study_no_ethics_id', NULL, TRUE ); }
 		
-		if( $this->StudyEthicsBoard->del( $study_ethics_board_id ) ) {
+		if( $this->StudyEthicsBoard->atim_delete( $study_ethics_board_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/study/study_ethics_boards/listall/'.$study_summary_id );
 		} else {
-			$this->flash( 'Your data has been deleted.', '/study/study_ethics_boards/listall/'.$study_summary_id );
+			$this->flash( 'Error deleting data - Contact administrator.', '/study/study_ethics_boards/listall/'.$study_summary_id );
 		}
   	}
 }

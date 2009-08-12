@@ -45,10 +45,10 @@ class StudySummariesController extends StudyAppController {
     
 		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_no_summary_id', NULL, TRUE ); }
 		
-		if( $this->StudySummary->del( $study_summary_id ) ) {
+		if( $this->StudySummary->atim_delete( $study_summary_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/study/study_summaries/listall/');
 		} else {
-			$this->flash( 'Your data has been deleted.', '/study/study_summaries/listall/');
+			$this->flash( 'Error deleting data - Contact administrator.', '/study/study_summaries/listall/');
 		}
   	}
  

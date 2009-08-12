@@ -54,10 +54,10 @@ class StudyInvestigatorsController extends StudyAppController {
 		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_no_summary_id', NULL, TRUE ); }
 		if ( !$study_investigator_id ) { $this->redirect( '/pages/err_study_no_invest_id', NULL, TRUE ); }
 		
-		if( $this->StudyInvestigator->del( $study_investigator_id ) ) {
+		if( $this->StudyInvestigator->atim_delete( $study_investigator_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/study/study_investigators/listall/'.$study_summary_id );
 		} else {
-			$this->flash( 'Your data has been deleted.', '/study/study_investigators/listall/'.$study_summary_id );
+			$this->flash( 'Error deleting data - Contact administrator.', '/study/study_investigators/listall/'.$study_summary_id );
 		}
   	}
 }

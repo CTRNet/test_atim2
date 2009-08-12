@@ -53,10 +53,10 @@ class StudyReviewsController extends StudyAppController {
 		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_no_summary_id', NULL, TRUE ); }
 		if ( !$study_review_id ) { $this->redirect( '/pages/err_study_no_review_id', NULL, TRUE ); }
 		
-		if( $this->StudyReview->del( $study_review_id ) ) {
+		if( $this->StudyReview->atim_delete( $study_review_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/study/study_reviews/listall/'.$study_summary_id );
 		} else {
-			$this->flash( 'Your data has been deleted.', '/study/study_reviews/listall/'.$study_summary_id );
+			$this->flash( 'Error deleting data - Contact administrator.', '/study/study_reviews/listall/'.$study_summary_id );
 		}
   	}
 }

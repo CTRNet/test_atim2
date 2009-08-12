@@ -130,7 +130,7 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 
 	function delete($participant_id=null, $tx_master_id=null, $tx_extend_id=null) {
 		// TODO: ATiM remove function
-		$this->TreatmentExtend->del( $tx_extend_id );
+		$this->TreatmentExtend->atim_delete( $tx_extend_id );
 		$this->flash( 'Your data has been deleted.', '/clinicalannotation/treatment_extends/listall/'.$participant_id.'/'.$tx_master_id );
 	}
 }

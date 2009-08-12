@@ -64,10 +64,10 @@ class ProvidersController extends ProviderAppController
 	function delete( $provider_id=null ){
 		if ( !$provider_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		
-		if( $this->Provider->del( $provider_id ) ) {
+		if( $this->Provider->atim_delete( $provider_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/provider/providers/listall/');
 		} else {
-			$this->flash( 'Your data has been deleted.', '/provider/providers/listall/');
+			$this->flash( 'Error deleting data - Contact administrator.', '/provider/providers/listall/');
 		}
 	}
 }

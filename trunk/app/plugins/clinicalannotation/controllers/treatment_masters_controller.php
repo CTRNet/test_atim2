@@ -115,11 +115,11 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 			$this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE );
 		}
 		// TODO: Update del function call with ATiM delete
-		if( $this->TreatmentMaster->del( $tx_master_id ) ) {
+		if( $this->TreatmentMaster->atim_delete( $tx_master_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/clinicalannotation/treatment_masters/listall/'.$participant_id );
 		}
 		else {
-			$this->flash( 'Your data has been deleted.', '/clinicalannotation/treatment_masters/listall/'.$participant_id );
+			$this->flash( 'Error deleting data - Contact administrator.', '/clinicalannotation/treatment_masters/listall/'.$participant_id );
 		}
 	}
 }

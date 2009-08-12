@@ -56,10 +56,10 @@ class DrugsController extends DrugAppController {
 	function delete( $drug_id=null ) {
 		if ( !$drug_id ) { $this->redirect( '/pages/err_drug_no_drug_id', NULL, TRUE ); }
 		
-		if( $this->Drug->del( $drug_id ) ) {
+		if( $this->Drug->atim_delete( $drug_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/drug/drugs/listall/');
 		} else {
-			$this->flash( 'Your data has been deleted.', '/drug/drugs/listall/');
+			$this->flash( 'Error deleting data - Contact administrator.', '/drug/drugs/listall/');
 		}
   	}
 

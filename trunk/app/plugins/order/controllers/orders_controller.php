@@ -73,10 +73,10 @@ class OrdersController extends OrderAppController {
 	function delete( $order_id=null ) {
     	if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', NULL, TRUE ); }
 		
-		if( $this->Order->del( $order_id ) ) {
+		if( $this->Order->atim_delete( $order_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/order/orders/listall/');
 		} else {
-			$this->flash( 'Your data has been deleted.', '/order/orders/listall/');
+			$this->flash( 'Error deleting data - Contact administrator.', '/order/orders/listall/');
 		}
   }
  
