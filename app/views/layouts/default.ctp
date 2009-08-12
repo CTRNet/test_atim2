@@ -11,7 +11,9 @@
 		echo $javascript->link('datepicker');
 
 		echo $javascript->link('prototype');
-		echo $javascript->link('scriptaculous');
+		echo $javascript->link('scriptaculous.js?load=effects');
+		
+		echo $javascript->link('lightwindow');
 	?>
 	
 </head>
