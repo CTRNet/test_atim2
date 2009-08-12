@@ -3,7 +3,7 @@
 		'bottom'=>array(
 			'search'=>'/clinicalannotation/participants/index/',
 			'list'=>'/clinicalannotation/participants/listall/',
-			'edit'=>'/clinicalannotation/participants/edit/%%Participant.id%%'
+			'edit'=>'/clinicalannotation/participants/edit/%%Participant.id%%',
 			'delete'=>'/clinicalannotation/participants/delete/%%Participant.id%%'
 		)
 	);
