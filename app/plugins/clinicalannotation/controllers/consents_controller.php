@@ -85,11 +85,11 @@ class ConsentsController extends ClinicalannotationAppController {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		if ( !$consent_id ) { $this->redirect( '/pages/err_clin-ann_no_consent_id', NULL, TRUE ); }
 		
-		if( $this->Consent->del( $consent_id ) ) {
+		if( $this->Consent->atim_delete( $consent_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/clinicalannotation/consents/listall/'.$participant_id );
 		}
 		else {
-			$this->flash( 'Your data has been deleted.', '/clinicalannotation/consents/listall/'.$participant_id );
+			$this->flash( 'Error deleting data - Contact administrator.', '/clinicalannotation/consents/listall/'.$participant_id );
 		}
 	}
 }

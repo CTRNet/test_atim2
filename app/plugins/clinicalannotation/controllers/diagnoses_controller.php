@@ -60,10 +60,10 @@ class DiagnosesController extends ClinicalannotationAppController {
 		$event_id = $this->EventMaster->find('first', array('conditions'=>array('EventMaster.diagnosis_id'=>$diagnosis_id, 'EventMaster.deleted'=>0),'fields'=>array('EventMaster.id')));
 		
 		if( $treatment_id == NULL && $event_id == NULL ){
-			if( $this->Diagnosis->del( $diagnosis_id ) ) {
+			if( $this->Diagnosis->atim_delete( $diagnosis_id ) ) {
 				$this->flash( 'Your data has been deleted.', '/clinicalannotation/diagnoses/listall/'.$participant_id );
 			} else {
-				$this->flash( 'Your data has been deleted.', '/clinicalannotation/diagnoses/listall/'.$participant_id );
+				$this->flash( 'Error deleting data - Contact administrator.', '/clinicalannotation/diagnoses/listall/'.$participant_id );
 			}
 		} else {
 			$message = "Your data cannot be deleted because the following records exist: ";

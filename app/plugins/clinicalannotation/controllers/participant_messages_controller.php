@@ -53,10 +53,10 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		if ( !$participant_message_id ) { $this->redirect( '/pages/err_clin-ann_no_message_id', NULL, TRUE ); }
 		
-		if( $this->ParticipantMessage->del( $participant_message_id ) ) {
+		if( $this->ParticipantMessage->atim_delete( $participant_message_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/clinicalannotation/participant_messages/listall/'.$participant_id );
 		} else {
-			$this->flash( 'Your data has been deleted.', '/clinicalannotation/participant_messages/listall/'.$participant_id );
+			$this->flash( 'Error deleting data - Contact administrator.', '/clinicalannotation/participant_messages/listall/'.$participant_id );
 		}
 	}
 	
