@@ -100,10 +100,10 @@ INSERT INTO `ed_all_study_research` (`id`, `field_one`, `field_two`, `field_thre
 -- Treatment Masters, Treatment Details, and Treatment Extends Test Data
 
 DELETE FROM `tx_masters`;
-INSERT INTO `tx_masters` ( `id`, `tx_control_id`, `tx_group`, `detail_tablename`, `detail_form_alias`, `extend_tablename`, `extend_form_alias`, `participant_id` ) VALUES
-(101, 1, 'chemotherapy', 'txd_chemos', 'txd_chemos', 'txe_chemos', 'txe_chemos', 1),
-(102, 2, 'radiation', 'txd_radiations', 'txd_radiations', 'txe_radiations', 'txe_radiations', 1),
-(103, 3, 'surgery', 'txd_surgeries', 'txd_surgeries', 'txe_surgeries', 'txe_surgeries', 1);
+INSERT INTO `tx_masters` ( `id`, `treatment_control_id`, `tx_group`, `participant_id` ) VALUES
+(101, 1, 'chemotherapy', 1),
+(102, 2, 'radiation', 1),
+(103, 3, 'surgery', 1);
 
 DELETE FROM `txd_chemos`;
 INSERT INTO `txd_chemos` ( `id`, `completed`, `response`, `tx_master_id` ) VALUES
