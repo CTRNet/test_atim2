@@ -9,6 +9,8 @@
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
+CREATE DATABASE `atim2_dev`;
+
 USE `atim2_dev`;
 --
 -- Database: `atim_2`
@@ -18823,4 +18825,3 @@ CREATE INDEX aros_idx2 ON aros (alias);
 CREATE INDEX aros_idx3 ON aros (model, foreign_key);
 
 -- To integrate into script
-
