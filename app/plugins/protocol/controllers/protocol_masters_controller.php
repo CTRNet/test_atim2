@@ -85,10 +85,10 @@ class ProtocolMastersController extends ProtocolAppController {
 	function delete( $protocol_master_id ) {
 		if ( !$protocol_master_id ) { $this->redirect( '/pages/err_pro_no_proto_id', NULL, TRUE ); }
 		
-		if( $this->ProtocolMaster->del( $protocol_master_id ) ) {
+		if( $this->ProtocolMaster->atim_delete( $protocol_master_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/protocol/protocol_masters/listall/');
 		} else {
-			$this->flash( 'Your data has been deleted.', '/protocol/protocol_masters/listall/');
+			$this->flash( 'Error deleting data - Contact administrator.', '/protocol/protocol_masters/listall/');
 		}
 	}
 

@@ -78,10 +78,10 @@ class ParticipantsController extends ClinicalannotationAppController {
 		
 		if ( $consent_id == NULL && $event_id == NULL && $contact_id == NULL && $diagnosis_id == NULL && $family_id == NULL && $identifier_id == NULL && $link_id == NULL &&
 			$message_id == NULL && $reproductive_id == NULL && $treatment_id == NULL){
-			if( $this->Participant->del( $participant_id ) ) {
+			if( $this->Participant->atim_delete( $participant_id ) ) {
 				$this->flash( 'Your data has been deleted.', '/clinicalannotation/participants/index/');
 			} else {
-				$this->flash( 'Your data has been deleted.', '/clinicalannotation/participants/index/');
+				$this->flash( 'Error deleting data - Contact administrator.', '/clinicalannotation/participants/index/');
 			}
 		}else{
 			$message = "Your data cannot be deleted because the following records exist: ";

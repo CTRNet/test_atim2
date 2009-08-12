@@ -66,10 +66,10 @@ class SopMastersController extends SopAppController {
 	function delete( $sop_master_id ) {
 		if ( !$sop_master_id ) { $this->redirect( '/pages/err_sop_no_sop_id', NULL, TRUE ); }
 		
-		if( $this->SopMaster->del( $sop_master_id ) ) {
+		if( $this->SopMaster->atim_delete( $sop_master_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/sop/sop_masters/listall/');
 		} else {
-			$this->flash( 'Your data has been deleted.', '/sop/sop_masters/listall/');
+			$this->flash( 'Error deleting data - Contact administrator.', '/sop/sop_masters/listall/');
 		}
 	}
 }

@@ -95,10 +95,10 @@ class OrderLinesController extends OrderAppController {
     	if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', NULL, TRUE ); }
 		if ( !$order_line_id ) { $this->redirect( '/pages/err_ord_no_line_id', NULL, TRUE ); }
 		
-		if( $this->OrderLine->del( $order_line_id ) ) {
+		if( $this->OrderLine->atim_delete( $order_line_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/order/order_lines/listall/'.$order_id );
 		} else {
-			$this->flash( 'Your data has been deleted.', '/order/order_lines/listall/'.$order_id );
+			$this->flash( 'Error deleting data - Contact administrator.', '/order/order_lines/listall/'.$order_id );
 		}
 	}
 }

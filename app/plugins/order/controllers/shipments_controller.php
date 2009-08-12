@@ -59,10 +59,10 @@ class ShipmentsController extends OrderAppController {
   		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', NULL, TRUE ); }
 		if ( !$shipment_id ) { $this->redirect( '/pages/err_ord_no_ship_id', NULL, TRUE ); }
 		
-		if( $this->Shipment->del( $shipment_id ) ) {
+		if( $this->Shipment->atim_delete( $shipment_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/order/shipments/listall/'.$order_id );
 		} else {
-			$this->flash( 'Your data has been deleted.', '/order/shipments/listall/'.$order_id );
+			$this->flash( 'Error deleting data - Contact administrator.', '/order/shipments/listall/'.$order_id );
 		}
 	}
 }

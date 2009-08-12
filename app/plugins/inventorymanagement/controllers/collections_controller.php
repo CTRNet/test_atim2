@@ -127,10 +127,10 @@ class CollectionsController extends InventorymanagementAppController {
 	function delete( $collection_id ) {
 		if ( !$collection_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		
-		if( $this->Collection->del( $collection_id ) ) {
+		if( $this->Collection->atim_delete( $collection_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/inventorymanagement/path_collection_reviews/listall/'.$collection_id );
 		} else {
-			$this->flash( 'Your data has been deleted.', '/inventorymanagement/path_collection_reviews/listall/'.$collection_id );
+			$this->flash( 'Error deleting data - Contact administrator.', '/inventorymanagement/path_collection_reviews/listall/'.$collection_id );
 		}
 	}
 }

@@ -56,10 +56,10 @@ class AnnouncementsController extends AdministrateAppController {
 	function delete( $bank_id=0, $group_id=0, $user_id=0, $announcement_id=null ){
 		if ( !$announcement_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		
-		if( $this->Announcement->del( $participant_id ) ) {
+		if( $this->Announcement->atim_delete ( $participant_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/administrate/announcements/index/'.$bank_id.'/'.$group_id.'/'.$user_id.'/');
 		} else {
-			$this->flash( 'Your data has been deleted.', '/administrate/announcements/index/'.$bank_id.'/'.$group_id.'/'.$user_id.'/');
+			$this->flash( 'Error deleting data - Contact administrator.', '/administrate/announcements/index/'.$bank_id.'/'.$group_id.'/'.$user_id.'/');
 		}
 	}
 	

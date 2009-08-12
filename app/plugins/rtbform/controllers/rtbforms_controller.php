@@ -54,10 +54,10 @@ class RtbformsController extends RtbformAppController {
 	function delete( $rtbform_id=null ) {
 		if ( !$rtbform_id ) { $this->redirect( '/pages/err_rtb_no_rtbform_id', NULL, TRUE ); }
 		
-		if( $this->Rtbform->del( $rtbform_id ) ) {
+		if( $this->Rtbform->atim_delete( $rtbform_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/rtbform/rtbforms/search/');
 		} else {
-			$this->flash( 'Your data has been deleted.', '/rtbform/rtbforms/search/');
+			$this->flash( 'Error deleting data - Contact administrator.', '/rtbform/rtbforms/search/');
 		}
 	}
   

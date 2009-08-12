@@ -78,10 +78,10 @@ class PathCollectionReviewsController extends InventoryManagementAppController {
 		if ( !$collection_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		if ( !$path_collection_review_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		
-		if( $this->PathCollectionReview->del( $path_collection_review_id ) ) {
+		if( $this->PathCollectionReview->atim_delete( $path_collection_review_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/inventorymanagement/path_collection_reviews/listall/'.$collection_id );
 		} else {
-			$this->flash( 'Your data has been deleted.', '/inventorymanagement/path_collection_reviews/listall/'.$collection_id );
+			$this->flash( 'Error deleting data - Contact administrator.', '/inventorymanagement/path_collection_reviews/listall/'.$collection_id );
 		}
   	}
 	
