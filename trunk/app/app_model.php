@@ -41,6 +41,63 @@ class AppModel extends Model {
 		return true;
 	}
 	
+	/*
+		ATiM 2.0 function
+		used instead of Model->delete, becaise softDelete will always return a FALSE
+	*/
+	
+	function atim_delete( $model_id, $cascade=false ) {
+		
+		$this->id = $model_id;
+		
+		// delete DATA as normal
+		$this->del( $model_id, $cascade );
+		
+		// do a FIND of the same DATA
+		if ( $this->read() ) { 
+			return false; 
+		} else { 
+			return true; 
+		}
+		
+	}
+	
+	/*
+		ATiM 2.0 function
+		acts like find('all') but returns array with ID values as arrays key values
+	*/
+	
+	function atim_list( $options=array() ) {
+		
+		$return = false;
+		
+		$defaults = array(
+			'conditions'	=> NULL,
+			'fields'			=> NULL,
+			'order'			=> NULL,
+			'group'			=> NULL,
+			'limit'			=> NULL,
+			'page'			=> NULL,
+			'recursive'		=> 1,
+			'callbacks'		=> true
+		);
+		
+		$options = array_merge( $defaults, $options );
+		
+		$results = $this->find( 'all', $options );
+		
+		if ( $results ) {
+			$return = array();
+			
+			foreach ( $results as $key=>$result ) {
+				$return[ $result[$this->name]['id'] ] = $result;
+			}
+		}
+		
+		return $return;
+		
+	}
+	
 }
 
 ?>

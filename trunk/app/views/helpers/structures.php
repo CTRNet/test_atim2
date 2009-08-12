@@ -969,7 +969,6 @@ class StructuresHelper extends Helper {
 							if ( isset( $options['override'][ $field['StructureField']['model'].'.'.$field['StructureField']['field'] ] ) ) {
 								
 								// from ARRAY item...
-								/*
 								if ( is_array($options['override'][ $field['StructureField']['model'].'.'.$field['StructureField']['field'] ]) ) {
 									foreach ( $options['override'][ $field['StructureField']['model'].'.'.$field['StructureField']['field'] ] as $key=>$value ) {
 										
@@ -981,9 +980,7 @@ class StructuresHelper extends Helper {
 								} 
 								
 								// for STRING items...
-								else {
-								*/
-								if ( !is_array( $options['override'][ $field['StructureField']['model'].'.'.$field['StructureField']['field'] ] ) ) {
+								else if ( !is_array( $options['override'][ $field['StructureField']['model'].'.'.$field['StructureField']['field'] ] ) ) {
 									$display_value = $options['override'][ $field['StructureField']['model'].'.'.$field['StructureField']['field'] ];
 								}
 								
@@ -1187,6 +1184,49 @@ class StructuresHelper extends Helper {
 							
 							if ( isset( $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) && is_array( $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) ) { 
 								$html_element_array['options'] = $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']];
+								unset($html_element_array['value']);
+							}
+							
+							if ( count($field['StructureField']['StructureValueDomain']) && isset($field['StructureField']['StructureValueDomain']['StructurePermissibleValue']) ) {
+								foreach ( $field['StructureField']['StructureValueDomain']['StructurePermissibleValue'] as $lookup ) {
+									$html_element_array['options'][ $lookup['value'] ] = __( $lookup['language_alias'], true );
+								}
+							}
+							
+							break;
+							
+						case 'radio':
+							
+							$html_element_array['options'] = array();
+							
+							if ( $options['type']=='search' || !count($field['StructureField']['StructureValidation']) ) {
+								$html_element_array['empty'] = true;
+							}
+							
+							if ( isset( $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) && is_array( $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) ) { 
+								$html_element_array['options'] = $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']];
+								unset($html_element_array['value']);
+							}
+							
+							if ( count($field['StructureField']['StructureValueDomain']) && isset($field['StructureField']['StructureValueDomain']['StructurePermissibleValue']) ) {
+								foreach ( $field['StructureField']['StructureValueDomain']['StructurePermissibleValue'] as $lookup ) {
+									$html_element_array['options'][ $lookup['value'] ] = __( $lookup['language_alias'], true );
+								}
+							}
+							
+							break;
+							
+						case 'checkbox':
+							
+							$html_element_array['options'] = array();
+							
+							if ( $options['type']=='search' || !count($field['StructureField']['StructureValidation']) ) {
+								$html_element_array['empty'] = true;
+							}
+							
+							if ( isset( $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) && is_array( $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) ) { 
+								$html_element_array['options'] = $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']];
+								unset($html_element_array['value']);
 							}
 							
 							if ( count($field['StructureField']['StructureValueDomain']) && isset($field['StructureField']['StructureValueDomain']['StructurePermissibleValue']) ) {
