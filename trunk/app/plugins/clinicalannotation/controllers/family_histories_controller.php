@@ -53,10 +53,10 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		if ( !$family_history_id ) { $this->redirect( '/pages/err_clin-ann_no_fam_hist_id', NULL, TRUE ); }
 		
-		if( $this->FamilyHistory->del( $family_history_id ) ) {
+		if ($this->FamilyHistory->atim_delete($family_history_id)) {
 			$this->flash( 'Your data has been deleted.', '/clinicalannotation/family_histories/listall/'.$participant_id );
 		} else {
-			$this->flash( 'Your data has been deleted.', '/clinicalannotation/family_histories/listall/'.$participant_id );
+			$this->flash( 'Error deleting data - Contact administrator.', '/clinicalannotation/family_histories/listall/'.$participant_id );
 		}
 	}
 	
