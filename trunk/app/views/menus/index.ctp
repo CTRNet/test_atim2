@@ -13,10 +13,14 @@
 			$count = 0;
 			foreach ( $menu_data as $menu ) {
 				
+				$html_attributes = array();
+				$html_attributes['class'] = 'menu '.$structures->generate_link_class( 'plugin '.$menu['Menu']['use_link'] );
+				$html_attributes['title'] = __($menu['Menu']['language_title'], true);
+						
 				$atim_content['menu'] .= '
 							<!-- '.$menu['Menu']['id'].' -->
 							<li class="'.( !$menu['Menu']['allowed'] ? 'not_allowed ' : '' ).'count_'.$count.'">
-								'.( $menu['Menu']['allowed'] ? $html->link( __($menu['Menu']['language_title'], true), $menu['Menu']['use_link'] ) : __($menu['Menu']['language_title'], true) ).'
+								'.( $menu['Menu']['allowed'] ? $html->link( __($menu['Menu']['language_title'], true), $menu['Menu']['use_link'], $html_attributes ) : __($menu['Menu']['language_title'], true) ).'
 							</li>
 				';
 				

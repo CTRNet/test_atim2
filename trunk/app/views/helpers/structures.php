@@ -1262,6 +1262,13 @@ class StructuresHelper extends Helper {
 							$use_cakephp_form_helper = false;
 							break;
 							
+						case 'autocomplete':
+							
+							// temporarily changed to plain INPUT field
+							
+							$html_element_array['type'] = 'text';
+							break;
+							
 						default:
 							
 							break;
@@ -2033,7 +2040,10 @@ class StructuresHelper extends Helper {
 					}
 					
 					if ( isset($display_class_array[1]) ) { $display_class_array[1] = strtolower($display_class_array[1]); }
-					else { $display_class_array[1] = 'core'; }
+					else { $display_class_array[1] = ''; }
+					
+					if ( isset($display_class_array[2]) ) { $display_class_array[2] = strtolower($display_class_array[2]); }
+					else { $display_class_array[2] = ''; }
 				
 				// folder (open)
 				if ( $display_class_array[0]=='index' )			$display_class_name = 'list';
@@ -2156,26 +2166,33 @@ class StructuresHelper extends Helper {
 				if ( $display_class_array[0]=='message' )			$display_class_name = 'news';
 				if ( $display_class_array[0]=='messages' )		$display_class_name = 'news';
 				
-				/*
+				// the following criteria are looking for the plugins
+				// they populate the right hand toolbar for the app
+				// specific names are needed if you want specific icons - julian / wil - Aug.12'09
 				if ( $display_class_array[0]=='plugin' ) {
-					$display_class_name = ( $display_class_array[1]=='clinicalannotation' ? 'clinicalannotation' : $display_class_name );
-					$display_class_name = ( $display_class_array[1]=='inventorymanagement' ? 'inventorymanagement' : $display_class_name );
-					$display_class_name = ( $display_class_array[1]=='querytools' ? 'querytools' : $display_class_name );
-					$display_class_name = ( $display_class_array[1]=='toolsmenu' ? 'toolsmenu' : $display_class_name );
+					if ( $display_class_array[1]=='menus' )													$display_class_name = 'plugin home';
+					if ( $display_class_array[1]=='menus' && $display_class_array[2]=='tools' )	$display_class_name = 'plugin tools';
+					if ( $display_class_array[1]=='users' && $display_class_array[2]=='logout' )	$display_class_name = 'plugin logout';
 					
-					$display_class_name = ( $display_class_array[1]=='drugadministration' ? 'drugadministration' : $display_class_name );
-					$display_class_name = ( $display_class_array[1]=='formsmanagement' ? 'formsmanagement' : $display_class_name );
-					$display_class_name = ( $display_class_array[1]=='storagelayout' ? 'storagelayout' : $display_class_name );
-					$display_class_name = ( $display_class_array[1]=='ordermanagement' ? 'ordermanagement' : $display_class_name );
-					$display_class_name = ( $display_class_array[1]=='protocolmanagement' ? 'protocolmanagement' : $display_class_name );
-					$display_class_name = ( $display_class_array[1]=='studymanagement' ? 'studymanagement' : $display_class_name );
+					if ( $display_class_array[1]=='customize' )												$display_class_name = 'plugin customize';
 					
-					$display_class_name = ( $display_class_array[1]=='administration' ? 'administration' : $display_class_name );
-					$display_class_name = ( $display_class_array[1]=='customize' ? 'customize' : $display_class_name );
+					if ( $display_class_array[1]=='clinicalannotation' )									$display_class_name = 'plugin clinicalannotation';
+					if ( $display_class_array[1]=='inventorymanagement' )									$display_class_name = 'plugin inventorymanagement';
+					if ( $display_class_array[1]=='datamart' )												$display_class_name = 'plugin datamart';
+				
+					if ( $display_class_array[1]=='administrate' )											$display_class_name = 'plugin administrate';
+					if ( $display_class_array[1]=='drug' )														$display_class_name = 'plugin drug';
+					if ( $display_class_array[1]=='rtbform' )													$display_class_name = 'plugin rtbform';
+					if ( $display_class_array[1]=='order' )													$display_class_name = 'plugin order';
+					if ( $display_class_array[1]=='protocol' )												$display_class_name = 'plugin protocol';
+					if ( $display_class_array[1]=='material' )												$display_class_name = 'plugin material';
+					if ( $display_class_array[1]=='sop' )														$display_class_name = 'plugin sop';
+					if ( $display_class_array[1]=='storagelayout' )											$display_class_name = 'plugin storagelayout';
+					if ( $display_class_array[1]=='study' )													$display_class_name = 'plugin study';
+					if ( $display_class_array[1]=='pricing' )													$display_class_name = 'plugin pricing';
 					
-					$display_class_name = ( !$display_class_array[1] ? 'detail' : $display_class_name );
+					$display_class_name = $display_class_name ?												$display_class_name : 'plugin default';
 				}
-				*/
 				
 				// document (blank)
 				$display_class_name = $display_class_name ?		$display_class_name : 'default';

@@ -111,7 +111,7 @@ class EventMastersController extends ClinicalannotationAppController {
 		}
 
 		// TODO: Update del function call with ATiM delete
-		if( $this->EventMaster->atim_delete( $event_master_id ) ) {
+		if( $this->EventMaster->Del( $event_master_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/clinicalannotation/event_masters/listall/'.$menu_id.'/'.$event_group.'/'.$participant_id );
 		} else {
 			$this->flash( 'Error deleting data - Contact administrator.', '/clinicalannotation/event_masters/listall/'.$menu_id.'/'.$event_group.'/'.$participant_id );

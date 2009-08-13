@@ -65,6 +65,8 @@ table {
 	border-spacing: 0;
 }
 
+
+
 /* -= body and general styles =- */
 body {
 	margin: 0;
@@ -82,7 +84,7 @@ div {
 div#header {
 	position: relative;
 	
-	margin: 0;
+	margin: 0 0 10px 0;
 	padding: 5px 10px 0 10px;
 	border: 0;
 	
@@ -261,53 +263,39 @@ div#wrapper div.actions {
 	}
 					
 /* header menu/user */
-
-ul#root_menu_for_header {
-	position: absolute;
-	top: 20px;
-	right: 15px;
-	padding: 3px 0; 
-	margin: 0;
-	list-style: none;
-}
-
-ul#root_menu_for_header li {
-	float: left;
-	padding: 0 0 0 2em;
-	margin: 0;
-}
-
-ul#root_menu_for_header li.not_allowed {
-	color: #aaa;
-}
-
-ul#root_menu_for_header li a {
-	color: #fff;
-}
-
+ul#root_menu_for_header,
 ul#main_menu_for_header {
 	position: absolute;
-	top: 50px;
 	right: 15px;
 	padding: 0; 
 	margin: 0;
 	list-style: none;
-}
+	}
 
-ul#main_menu_for_header li {
-	float: left;
-	padding: 0 0 0 2em;
-	margin: 0;
-}
+/* position for toolbox rows */
+ul#root_menu_for_header {top: 0;}
+ul#main_menu_for_header { top: 45px; }
 
-ul#main_menu_for_header li.not_allowed {
-	color: #aaa;
-}
-
+/* paired / shared selectors for toolbox */
+ul#root_menu_for_header li,
+ul#root_menu_for_header li a,
+ul#main_menu_for_header li,
 ul#main_menu_for_header li a {
-	color: #fff;
+	display: block; float: left;
+	width: 40px; height: 40px; margin-right: 5px;
+	overflow: hidden;
+	text-indent: -1000px;
 }
-		
+
+
+ul#root_menu_for_header li:hover { background: url(../img/icons/toolbox_top_bk01.png) no-repeat 0 0; }
+ul#main_menu_for_header li:hover { background: url(../img/icons/toolbox_bot_bk01.png) no-repeat 0 0; }
+
+ul#root_menu_for_header li.not_allowed,
+ul#main_menu_for_header li.not_allowed {color: #aaa;}
+
+
+/* others here */		
 p#user_for_header {
 	position: absolute;
 	
@@ -378,39 +366,54 @@ div.menu.level_0 span.without_summary {
 	margin-bottom: 14px;
 }
 
+/* -=menu */
+/* main menu above the large content area */
 div.menu ul {
 	float: left;
-	margin: 0;
+	margin: 10px 0 0 0;
 	padding: 0;
 	list-style-type: none;
+	background: #486680 url(../img/count_0_bk.png) right top no-repeat;
 }
 
 div.menu li {
 	position: relative;
 	float: right;
+	height: 28px;
 	padding: 8px 5px 5px 25px;
-	
-	background: #374D61 url(http://images.apple.com/global/nav/images/breadcrumb_separator.png) -12px center no-repeat;
-
-	border-top: 10px solid #f2f2ff;
+	background: #374D61 url(../img/breadcrumb_separator.png) left center no-repeat;
 }
 
 div.menu li.count_0 { 
-	background-color: #486680;
-	
+	background-color: transparent;
 	padding: 8px 40px 5px 20px;
 }
 
 div.menu li.root,
 div.menu li.count_0.root {
-	background-image: none;
-	background-color: #293B49;
-	
-	padding: 8px 20px 5px 20px;
-	
-	border-top: 10px solid #293B49;
+	background: #293B49 url(../img/icons/main_menu_root_0_bk_arrow_01.png) no-repeat right center;
+	margin-top: -10px;
+	margin-right: -13px;
+	height: 40px;
+	padding: 5px 30px 5px 10px;
 	
 	-moz-border-radius-topleft: 7px; -webkit-border-top-left-radius: 7px;
+}
+div.menu ul.total_count_0 li.root,
+div.menu ul.total_count_1 li.root {
+	background: #293B49 url(../img/icons/main_menu_root_0_bk_arrow.png) no-repeat right center;
+}
+div.menu ul.total_count_2 li.root {
+	background: #293B49 url(../img/icons/main_menu_root_0_bk_arrow_02.png) no-repeat right center;
+}
+div.menu li.root a {
+	display: block;
+	color: #fff;
+	font-size: 14px;
+	text-decoration: none;
+	padding: 10px 0 10px 35px;
+	padding-left: 35px;
+	background-position: left center;
 }
 	
 div.menu.level_1 {
@@ -430,7 +433,7 @@ div.menu.level_1 {
 }
 
 	div.menu li.count_0 div.menu.level_1 {
-		background-color: #486680;
+		background: #486680;
 	}
 
 div.menu.level_0 li:hover div.menu.level_1 {
@@ -441,6 +444,7 @@ div.menu.level_1 ul {
 	margin: 10px 0;
 	padding: 0;
 	border: 0;
+	background: none;
 }
 	
 div.menu.level_1 li {
@@ -450,7 +454,7 @@ div.menu.level_1 li {
 	border: 0;
 	background: none;
 	color: #dde8f2;
-	
+	height: auto;
 	border-top: 1px dotted #999;
 }
 
@@ -488,9 +492,9 @@ div.menu.level_1 li.not_allowed:hover {
 /* -= summary styles */
 div.menu ul#summary {
 	float: right;
-	width: 100px;
-	margin: 8px 15px 0 0;
-	
+	margin: 0 -10px 0 0;
+	padding: 0;
+	background: none;
 	cursor: help;
 }
 	
@@ -508,13 +512,16 @@ div.menu ul#summary li span {
 	font-size: 12px;
 	/* text-transform: uppercase; */
 	text-decoration: none;
-	
 	color: #fff;
-	padding: 6px 10px 5px 27px;
-	background: url("../img/icons/Paste_16x16.png") no-repeat 7px center;
-	background-color: #293B49;
+	margin-top: 5px;
+	padding: 28px 20px 5px 10px;
+	background: url("../img/icons/summary_icon_bk.png") no-repeat left bottom;
+/* 	background-color: #293B49; */
 	
-	-moz-border-radius: 7px; -webkit-border-radius: 7px;
+/*
+	-moz-border-radius-topleft: 7px; -webkit-border-top-left-radius: 7px;
+	-moz-border-radius-topright: 7px; -webkit-border-top-right-radius: 7px;
+*/
 	
 	z-index: 30;
 }
@@ -522,16 +529,15 @@ div.menu ul#summary li span {
 		display: block;
 	}
 	div.menu ul#summary li:hover span {
-		background-color: #486680;
 		color: #fff;
 	}
 div.menu ul#summary li ul {
 	display: none;
 	
-	top: 15px; right: 20px;
+	top: 40px; right: 20px;
 	position: absolute;
 	
-	background: #486680;
+	background: #293B49;
 	
 	margin: 0;
 	padding: 10px;
@@ -548,6 +554,7 @@ div.menu ul#summary li ul {
 		border-top: 1px dotted #eee;
 		background: none;
 		color: #fff;
+		height: auto;
 	}
 	
 		div.menu ul#summary ul li.count_0 {
@@ -560,16 +567,22 @@ div.menu ul#summary li ul {
 			text-transform: none;
 			color: #fff;
 		}
-			
-div.menu ul#summary lh {
+
+
+div.menu ul#summary ul li dl {
+	display: block;
+	clear: both;
+}
+div.menu ul#summary ul dl lh {
 	display: block;
 	margin: 0.25em 0 0.5em 0;
 	font-size: 1.5em;
 	color: #fff;
 }
 
-	div.menu ul#summary li dt {
-		margin: 0; padding: 0.25em 0;
+	div.menu ul#summary ul dl dt {
+		margin: 0; 
+		padding: 0.25em 0;
 		display: inline;
 		clear: both;
 		float: left;
@@ -578,8 +591,9 @@ div.menu ul#summary lh {
 		border-top: 1px solid #374D61;
 	}
 	
-	div.menu ul#summary li dd {
-		margin: 0; padding: 0.25em 0;
+	div.menu ul#summary ul dl dd {
+		margin: 0; 
+		padding: 0.25em 0;
 		display: inline;
 		float: right;
 		text-align: right;
@@ -673,7 +687,7 @@ div.menu ul#summary lh {
 		
 		div#wrapper table.structure td {
 			vertical-align: top;
-			padding: 0;
+			padding: 10px 0;
 		}
 		
 		
@@ -790,9 +804,18 @@ div.menu ul#summary lh {
 			}
 			ul.big_menu li a {
 				display: block;
-				padding: 5px 5px 5px 25px;
+				padding: 7px 5px 8px 40px;
 				text-decoration: none;
+				
+				font-size: 1.3em;
+				font-weight: bold;
 			}
+			
+				ul#big_menu_main a,
+				ul#big_menu_tools a {
+					background-position: left center;
+				}
+			
 			ul.big_menu li a:hover {
 				text-decoration: underline;
 			}
@@ -868,6 +891,36 @@ div.menu ul#summary lh {
 				a.form { padding-left: 20px; }
 				
 				/* -= ICONS =- */
+				/** toolbox**/
+				
+				a.plugin.login {background: url("../img/icons/Authenticate_32x32.png") no-repeat center center;}
+				
+				a.plugin.home {background: url("../img/icons/Home_32x32.png") no-repeat center center;}
+				a.plugin.customize {background: url("../img/icons/Password_32x32.png") no-repeat center center;}
+				a.plugin.logout {background: url("../img/icons/Sign_Out_32x32.png") no-repeat center center;}
+				
+				a.plugin.clinicalannotation {background: url("../img/icons/Contact_32x32.png") no-repeat center center;}
+				a.plugin.inventorymanagement {background: url("../img/icons/UPC_32x32.png") no-repeat center center;}
+				a.plugin.datamart {background: url("../img/icons/Preview_32x32.png") no-repeat center center;}
+				a.plugin.tools {background: url("../img/icons/Tools_32x32.png") no-repeat center center;}
+				
+				
+				a.plugin.administrate {background: url("../img/icons/Control Panel_32x32.png") no-repeat center center;}
+				a.plugin.drug {background: url("../img/icons/Security_32x32.png") no-repeat center center;}
+				a.plugin.rtbform {background: url("../img/icons/Form Input Textarea_32x32.png") no-repeat center center;}
+				a.plugin.order {background: url("../img/icons/Cart_32x32.png") no-repeat center center;}
+				a.plugin.protocol {background: url("../img/icons/Address Book_32x32.png") no-repeat center center;}
+				a.plugin.material {background: url("../img/icons/Shipping Weight_32x32.png") no-repeat center center;}
+				a.plugin.sop {background: url("../img/icons/List_32x32.png") no-repeat center center;}
+				a.plugin.storagelayout {background: url("../img/icons/Safe_32x32.png") no-repeat center center;}
+				a.plugin.study {background: url("../img/icons/Statistics_32x32.png") no-repeat center center;}
+				a.plugin.pricing {background: url("../img/icons/For Sale Dollars_32x32.png.png") no-repeat center center;}
+				
+				
+				a.plugin.default {background: url("../img/icons/Document Blank_32x32.png") no-repeat center center;}
+				
+				
+				/* site wide*/
 				a.add { background: url("../img/icons/Add_16x16.png") no-repeat left center; }
 				a.cancel { background: url("../img/icons/Control Rewind_16x16.png") no-repeat left center; }
 				a.delete { background: url("../img/icons/Close_16x16.png") no-repeat left center; }
@@ -983,8 +1036,17 @@ div#footer a:hover {
 	color: #333;
 	text-decoration: underline;
 }
-		
 
+/* -=cake-debug */
+.cake-debug { 
+	border: 1px solid #bc000a;
+	background-color: #fff;
+	padding: 0.75em;
+	font-size: 1.1em;
+	color: #333;
+}
+
+		
 /* -=cake-sql-log table */
 
 /* this is the CAKEPHP DEBUG table that appears at the bottom of every view when enabled */

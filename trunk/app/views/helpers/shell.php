@@ -16,6 +16,8 @@ class ShellHelper extends Helper {
 		
 		if ( isset($_SESSION) && isset($_SESSION['Auth']) && isset($_SESSION['Auth']['User']) && count($_SESSION['Auth']['User']) ) {
 			
+			$logged_in = true;
+			
 			// set HEADER root menu links
 				
 				if ( isset($menu_array[1]) && count($menu_array[1]) ) {
@@ -24,10 +26,14 @@ class ShellHelper extends Helper {
 					
 					foreach ( $menu_array[1] as $key=>$menu_item ) {
 						
+						$html_attributes = array();
+						$html_attributes['class'] = 'menu '.$this->Structures->generate_link_class( 'plugin '.$menu_item['Menu']['use_link'] );
+						$html_attributes['title'] = __($menu_item['Menu']['language_title'], true);
+								
 						$root_menu_for_header .= '
 									<!-- '.$menu_item['Menu']['id'].' -->
 									<li class="'.( !$menu_item['Menu']['allowed'] ? 'not_allowed ' : '' ).( $menu_item['Menu']['at'] ? 'at ' : '' ).'count_'.$key.'">
-										'.( $menu_item['Menu']['allowed'] ? $this->Html->link( __($menu_item['Menu']['language_title'], true), $menu_item['Menu']['use_link'] ) : __($menu_item['Menu']['language_title'], true) ).'
+										'.( $menu_item['Menu']['allowed'] ? $this->Html->link( __($menu_item['Menu']['language_title'], true), $menu_item['Menu']['use_link'], $html_attributes ) : __($menu_item['Menu']['language_title'], true) ).'
 									</li>
 						';
 						
@@ -45,10 +51,14 @@ class ShellHelper extends Helper {
 					
 					foreach ( $menu_array[2] as $key=>$menu_item ) {
 						
+						$html_attributes = array();
+						$html_attributes['class'] = 'menu '.$this->Structures->generate_link_class( 'plugin '.$menu_item['Menu']['use_link'] );
+						$html_attributes['title'] = __($menu_item['Menu']['language_title'], true);
+								
 						$root_menu_for_header .= '
 									<!-- '.$menu_item['Menu']['id'].' -->
 									<li class="'.( !$menu_item['Menu']['allowed'] ? 'not_allowed ' : '' ).( $menu_item['Menu']['at'] ? 'at ' : '' ).'count_'.$key.'">
-										'.( $menu_item['Menu']['allowed'] ? $this->Html->link( __($menu_item['Menu']['language_title'], true), $menu_item['Menu']['use_link'] ) : __($menu_item['Menu']['language_title'], true) ).'
+										'.( $menu_item['Menu']['allowed'] ? $this->Html->link( __($menu_item['Menu']['language_title'], true), $menu_item['Menu']['use_link'], $html_attributes ) : __($menu_item['Menu']['language_title'], true) ).'
 									</li>
 						';
 						
@@ -69,6 +79,8 @@ class ShellHelper extends Helper {
 				';
 				*/
 			
+		} else {
+			$logged_in = false;
 		}
 		
 		echo '
@@ -79,15 +91,39 @@ class ShellHelper extends Helper {
 				'.$main_menu_for_header.'
 			</div>
 			<!-- end #header -->
+		';	
 			
-			'.$user_for_header.'
+		// echo $user_for_header;
 			
+		if ( $logged_in ) {	
+			echo '
+				<!-- start #menu -->
+				<div id="menu">
+					'.$menu_for_wrapper.'
+				</div>
+				<!-- end #menu -->
+			';
+		} 
+		
+		else {
+			echo '
 			<!-- start #menu -->
 			<div id="menu">
-				'.$menu_for_wrapper.'
+					
+				<div class="menu level_0">
+					<ul>
+						<li class="at count_0 root">
+							<a href="'.$this->Html->url('/').'" class="without_summary menu plugin login" title="'. __('Login', true).'">'. __('Login', true).'</a>
+						</li>
+					</ul>
+				</div>
+				
 			</div>
 			<!-- end #menu -->
-			
+			';
+		}
+		
+		echo '	
 			<!-- start #wrapper -->
 			<div id="wrapper" class="plugin_'.( isset($this->params['plugin']) ? $this->params['plugin'] : 'none' ).' controller_'.$this->params['controller'].' action_'.$this->params['action'].'">
 		';
@@ -120,8 +156,9 @@ class ShellHelper extends Helper {
 	
 	function menu( $atim_menu=array(), $options=array() ) {
 		
-		$this->pageTitle = 'aaa';
-		
+		$page_title = array();
+		$this->pageTitle = '';
+						
 		$return_html = '';
 		$root_menu_array = array();
 		$main_menu_array = array();
@@ -131,14 +168,10 @@ class ShellHelper extends Helper {
 			$summaries = array();
 			if ( !isset($options['variables']) ) $options['variables'] = array();
 			
-			$return_html .= '
-				<div class="menu level_0">
-					<ul>
-			';
-			
 				if ( isset($_SESSION) && isset($_SESSION['Auth']) && isset($_SESSION['Auth']['User']) && count($_SESSION['Auth']['User']) ) {
 					
 					$count = 0;
+					$total_count = 0;
 					$is_root = false; // used to remove unneeded ROOT menu items from displaying in bar
 					
 					foreach ( $atim_menu as $menu ) {
@@ -178,10 +211,26 @@ class ShellHelper extends Helper {
 											<span>'.$menu_item['Menu']['use_summary'].'</span>
 											<br />&nbsp;&lfloor; '.__($menu_item['Menu']['language_title'], true).'
 										';
+										
+										$page_title[] = $menu_item['Menu']['use_summary'];
 									}
 									
 									else {
-										$active_item = '<span class="without_summary">'.__($menu_item['Menu']['language_title'], true).'</span>';
+										
+										$html_attributes = array('class'=>'without_summary');
+										
+										if ( $is_root ) {
+											$html_attributes['class'] .= ' menu '.$this->Structures->generate_link_class( 'plugin '.$menu_item['Menu']['use_link'] );
+											$html_attributes['title'] = __($menu_item['Menu']['language_title'], true);
+											
+											$active_item = $menu_item['Menu']['allowed'] ? $this->Html->link( __($menu_item['Menu']['language_title'], true), $menu_item['Menu']['use_link'], $html_attributes ) : __($menu_item['Menu']['language_title'], true);
+										} 
+										
+										else {
+											$active_item = '<span class="'.implode( ' ', $html_attributes ).'">'.__($menu_item['Menu']['language_title'], true).'</span>';
+										}
+										
+										$page_title[] = __($menu_item['Menu']['language_title'], true);
 									}
 									
 								}
@@ -200,6 +249,7 @@ class ShellHelper extends Helper {
 								
 							}
 							
+							// append FLYOUT menus to all menu bar TABS except ROOT tab
 							if ( !$is_root ) {
 								$append_menu = '
 										<div class="menu level_1">
@@ -219,60 +269,65 @@ class ShellHelper extends Helper {
 								</li>
 							';
 							
+							// increment number of VISIBLE menu bar tabs
+							$total_count++;
 						}
 						
+						// increment number to TOTAL menu array items
 						$count++;
 					}
 				}
 				
-			$return_html .= '
-				</ul>
-				
-			';
-			
 			// if summary info has been provided, provide expandable tab
-			$summaries = array_filter($summaries);
-			if ( count($summaries) ) {
-				$return_html .= '
-					<ul id="summary">
-						<li>
-							<span>Summary</span>
-							
-							<ul>
-				';
 				
-				$count = 0;
-				foreach ( $summaries as $summary ) {
-					$return_html .= '
-								<li class="count_'.$count.'">
-									'.$summary.'
-								</li>
+				$return_summary = '';
+				$summaries = array_filter($summaries);
+				
+				if ( count($summaries) ) {
+					$return_summary .= '
+						<ul id="summary">
+							<li>
+								<span>Summary</span>
+								
+								<ul>
 					';
 					
-					$count++;
+					$summary_count = 0;
+					foreach ( $summaries as $summary ) {
+						$return_summary .= '
+									<li class="count_'.$summary_count.'">
+										'.$summary.'
+									</li>
+						';
+						
+						$summary_count++;
+					}
+					
+					$return_summary .= '
+								</ul>
+								
+							</li>
+						</ul>
+					';
 				}
-				
-				$return_html .= '
-							</ul>
-							
-						</li>
-					</ul>
-				';
-			}
-			
-			$return_html .= '
-				</div>
-			';
 			
 		}
 		
-		// no menu provided...
-		else {
-			$return_html .= '
+		if ( $return_html ) {
+			$return_html = '
 				<div class="menu level_0">
+					<ul class="total_count_'.$total_count.'">
+						'.$return_html.'
+					</ul>
+					
+					'.$return_summary.'
 				</div>
 			';
 		}
+		
+		// reverse-sort the Page Title array, and set pageTitle
+			
+			$this->pageTitle = implode(' &laquo; ',$page_title);
 		
 		$return_array = array( $return_html, $root_menu_array, $main_menu_array );
 		return $return_array;
