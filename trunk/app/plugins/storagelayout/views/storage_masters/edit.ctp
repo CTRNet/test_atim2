@@ -27,13 +27,13 @@
 		= (strcmp($coord_y_size, 'n/a')==0)? 
 			__($coord_y_size, TRUE):
 			$coord_y_size;
-
+	
 	$modified_available_parent_code_from_id = array();
 	foreach($available_parent_code_from_id as $storage_id => $storage_data) {
 		$modified_available_parent_code_from_id[$storage_id]
-			= $storage_data['selection_label'].
-			' ('.__($storage_data['storage_type'], TRUE).': '.
-			$storage_data['code'].')';
+			= $storage_data['StorageMaster']['selection_label'].
+			' ('.__($storage_data['StorageMaster']['storage_type'], TRUE).': '.
+			$storage_data['StorageMaster']['code'].')';
 	}
 	
 	$structure_override['StorageMaster.parent_id'] 

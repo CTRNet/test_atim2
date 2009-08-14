@@ -1,0 +1,105 @@
+-- DELETE storage position into
+DELETE FROM `structure_formats` WHERE `structure_formats`.`old_id` IN ('CAN-999-999-000-999-1045_CAN-999-999-000-999-1204', 'CAN-999-999-000-999-1046_CAN-999-999-000-999-1204');
+
+-- Coord X
+UPDATE `structure_fields` SET `language_label` = 'position', `language_help` = 'define storage position description' WHERE `structure_fields`.`old_id` = 'CAN-999-999-000-999-1206' ;
+
+-- Delete duplicated form field: StorageMaster.barcode
+
+UPDATE `structure_formats` 
+SET `structure_field_id` = (SELECT `id` FROM `structure_fields` WHERE `old_id` LIKE 'CAN-999-999-000-999-1183'),
+`structure_field_old_id` = 'CAN-999-999-000-999-1183',
+`old_id` = 'CAN-999-999-000-999-1060_CAN-999-999-000-999-1183'
+WHERE `structure_old_id` = 'CAN-999-999-000-999-1060'
+AND `structure_field_old_id` = 'CAN-999-999-000-999-1182';
+
+DELETE FROM `structure_formats` WHERE `structure_field_old_id` = 'CAN-999-999-000-999-1182';
+
+UPDATE `structure_formats`
+SET `flag_add` = '1',
+`flag_add_readonly` = '0',
+`flag_edit` = '1',
+`flag_edit_readonly` = '1',
+`flag_search` = '1',
+`flag_search_readonly` = '0',
+`flag_datagrid` = '1',
+`flag_datagrid_readonly` = '1',
+`flag_index` = '1',
+`flag_detail` = '1'
+WHERE `structure_old_id` IN ('CAN-999-999-000-999-1041', 'CAN-999-999-000-999-1042', 'CAN-999-999-000-999-1043', 
+'CAN-999-999-000-999-1044', 'CAN-999-999-000-999-1058')
+AND `structure_field_old_id` = 'CAN-999-999-000-999-1183';
+
+DELETE FROM `structure_validations` WHERE `structure_field_old_id` IN ('CAN-999-999-000-999-1182');
+
+DELETE FROM `structure_fields` WHERE `old_id` IN ('CAN-999-999-000-999-1182');
+
+DELETE FROM `structure_validations` WHERE `structure_field_old_id` IN ('CAN-999-999-000-999-1183');
+
+INSERT INTO `structure_validations` 
+(`id`, `old_id`, `structure_field_id`, `structure_field_old_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modifed_by`) 
+VALUES
+(null, '0', (SELECT `id` FROM `structure_fields` WHERE `old_id` LIKE 'CAN-999-999-000-999-1183'), 'CAN-999-999-000-999-1183', 'maxLength,30', '1', '0', '', 'storage barcode size is limited', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+-- Delete duplicated form field: StorageMaster.code
+
+UPDATE `structure_formats` 
+SET `structure_field_id` = (SELECT `id` FROM `structure_fields` WHERE `old_id` LIKE 'CAN-999-999-000-999-1180'),
+`structure_field_old_id` = 'CAN-999-999-000-999-1180',
+`flag_override_label` = '1',
+`language_label` = '',
+`flag_override_tag` = '1',
+`language_tag` = 'code'
+WHERE `structure_field_old_id` = 'CAN-999-999-000-999-1117';
+
+DELETE FROM `structure_validations` WHERE `structure_field_old_id` IN ('CAN-999-999-000-999-1117');
+
+DELETE FROM `structure_fields` WHERE `old_id` IN ('CAN-999-999-000-999-1117');
+
+-- Delete duplicated form field: StorageMaster.selection_label 
+
+UPDATE `structure_formats` 
+SET `structure_field_id` = (SELECT `id` FROM `structure_fields` WHERE `old_id` LIKE 'CAN-999-999-000-999-1217'),
+`structure_field_old_id` = 'CAN-999-999-000-999-1217',
+`flag_override_label` = '1',
+`language_label` = 'storage selection label'
+WHERE `structure_field_old_id` = 'CAN-999-999-000-999-1184';
+
+DELETE FROM `structure_validations` WHERE `structure_field_old_id` IN ('CAN-999-999-000-999-1184');
+
+DELETE FROM `structure_fields` WHERE `old_id` IN ('CAN-999-999-000-999-1184');
+
+-- Delete duplicated form field: StorageMaster.temperature 
+
+UPDATE `structure_formats` 
+SET `structure_field_id` = (SELECT `id` FROM `structure_fields` WHERE `old_id` LIKE 'CAN-999-999-000-999-1110'),
+`structure_field_old_id` = 'CAN-999-999-000-999-1110',
+`flag_override_label` = '1',
+`language_label` = 'temperature'
+WHERE `structure_field_old_id` = 'CAN-999-999-000-999-1192';
+
+DELETE FROM `structure_validations` WHERE `structure_field_old_id` IN ('CAN-999-999-000-999-1192');
+
+DELETE FROM `structure_fields` WHERE `old_id` IN ('CAN-999-999-000-999-1192');
+
+UPDATE `structure_formats` 
+SET `structure_field_id` = (SELECT `id` FROM `structure_fields` WHERE `old_id` LIKE 'CAN-999-999-000-999-1110'),
+`structure_field_old_id` = 'CAN-999-999-000-999-1110',
+`flag_override_label` = '1',
+`language_label` = 'temperature'
+WHERE `structure_field_old_id` = 'CAN-999-999-000-999-1193';
+
+DELETE FROM `structure_validations` WHERE `structure_field_old_id` IN ('CAN-999-999-000-999-1193');
+
+DELETE FROM `structure_fields` WHERE `old_id` IN ('CAN-999-999-000-999-1193');
+
+DELETE FROM `structure_validations` WHERE `structure_field_old_id` IN ('CAN-999-999-000-999-1110');
+
+INSERT INTO `structure_validations` 
+(`id`, `old_id`, `structure_field_id`, `structure_field_old_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modifed_by`) VALUES
+(null, '0', (SELECT `id` FROM `structure_fields` WHERE `old_id` LIKE 'CAN-999-999-000-999-1110'), 'CAN-999-999-000-999-1110', 'numeric', '1', '0', '', 'temperature should be a decimal', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+
+	
+	
+	
