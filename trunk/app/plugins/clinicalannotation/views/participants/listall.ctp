@@ -2,7 +2,7 @@
 
 	$structure_links = array(
 		'top'=>NULL,
-		'index'=>'/clinicalannotation/participants/listall/%%Participant.id%%/',
+		'index'=>'/clinicalannotation/participants/profile/%%Participant.id%%/',
 		'bottom'=>array(
 			'add'=>'/clinicalannotation/participants/add/%%Participant.id%%/'
 		)
