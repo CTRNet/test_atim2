@@ -17,8 +17,8 @@ class StorageMaster extends StoragelayoutAppModel {
 			
 			$return = array(
 				'Summary' => array(
-					'menu' => array( NULL, ($result['StorageMaster']['storage_type'] . ' : ' . __($result['StorageMaster']['short_label'], TRUE))),
-					'title' => array( NULL, ($result['StorageMaster']['storage_type'] . ' : ' . __($result['StorageMaster']['short_label'], TRUE))),
+					'menu' => array( NULL, (__($result['StorageMaster']['storage_type'], TRUE) . ' : ' . $result['StorageMaster']['short_label'])),
+					'title' => array( NULL, (__($result['StorageMaster']['storage_type'], TRUE) . ' : ' . $result['StorageMaster']['short_label'])),
 					
 					'description' => array(
 						__('storage type', TRUE) => __($result['StorageMaster']['storage_type'], TRUE),

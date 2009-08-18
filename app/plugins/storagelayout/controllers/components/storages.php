@@ -2,7 +2,7 @@
 
 class StoragesComponent extends Object {
 	
-	function initialize( &$controller, $settings=array() ) {
+	function initialize(&$controller, $settings=array()) {
 		$this->controller =& $controller;
 	}
 	
@@ -70,11 +70,11 @@ class StoragesComponent extends Object {
 	function allowCustomCoordinates($storage_control_id, $storage_control_data = null) {	
 		// Check for storage control data, if none get the control data
 		if(empty($storage_control_data)) {
-			$storage_control_data = $this->controller->StorageControl->find('first', array('conditions'=>array('StorageControl.id'=>$storage_control_id)));
-			if(empty($storage_control_data)) { $this->controller->redirect( '/pages/err_sto_no_stor_cont_data', NULL, TRUE ); }
+			$storage_control_data = $this->controller->StorageControl->find('first', array('conditions'=>array('StorageControl.id' => $storage_control_id)));
+			if(empty($storage_control_data)) { $this->controller->redirect('/pages/err_sto_no_stor_cont_data', NULL, TRUE); }
 		}
 					
-		if($storage_control_data['StorageControl']['id'] !== $storage_control_id) { $this->controller->redirect( '/pages/err_sto_system_error', NULL, TRUE ); }
+		if($storage_control_data['StorageControl']['id'] !== $storage_control_id) { $this->controller->redirect('/pages/err_sto_system_error', NULL, TRUE); }
 		
 		// Check the control data and set boolean for return.
 		if(!((strcmp($storage_control_data['StorageControl']['coord_x_type'], 'list') == 0) 
@@ -99,8 +99,8 @@ class StoragesComponent extends Object {
 	 */
 		 
 	 function inactivateStorageCoordinateMenu($atim_menu) {
- 		foreach ($atim_menu as $menu_group_id => $menu_group) {
-			foreach ($menu_group as $menu_id => $menu_data) {
+ 		foreach($atim_menu as $menu_group_id => $menu_group) {
+			foreach($menu_group as $menu_id => $menu_data) {
 				if(strpos($menu_data['Menu']['use_link'], '/storagelayout/storage_coordinates/listall/') !== FALSE) {
 					$atim_menu[$menu_group_id][$menu_id]['Menu']['allowed'] = 0;
 					return $atim_menu;
@@ -123,8 +123,8 @@ class StoragesComponent extends Object {
 	 */
 		 
 	 function inactivateStorageLayoutMenu($atim_menu) {
- 		foreach ($atim_menu as $menu_group_id => $menu_group) {
-			foreach ($menu_group as $menu_id => $menu_data) {
+ 		foreach($atim_menu as $menu_group_id => $menu_group) {
+			foreach($menu_group as $menu_id => $menu_data) {
 				if(strpos($menu_data['Menu']['use_link'], '/storagelayout/storage_masters/seeStorageLayout/') !== FALSE) {
 					$atim_menu[$menu_group_id][$menu_id]['Menu']['allowed'] = 0;
 					return $atim_menu;
@@ -160,12 +160,7 @@ class StoragesComponent extends Object {
 		
 		return $storage_path_data;
 	}	 
-	 
-	 
-	 
-	 
-	 
-
+	
 }
 
 ?>

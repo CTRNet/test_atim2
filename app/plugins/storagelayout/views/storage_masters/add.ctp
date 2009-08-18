@@ -28,7 +28,7 @@
     	$form_override['StorageDetail/sop_master_id'] = $arr_tma_sop_title_from_id;
     }
 */
-pr($atim_structure);
+	
 	$structures->build($atim_structure, array('links' => $structure_links, 'override' => $structure_override));
 
 ?>
