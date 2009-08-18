@@ -4,136 +4,87 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 	
 	var $components = array('Storages');
 	
-	var $uses 
-		= array('Storagelayout.StorageControl',
-				'Storagelayout.StorageCoordinate',
-				'Storagelayout.StorageMaster',
-				'Storagelayout.AliquotMaster'
+	var $uses = array(
+		'Storagelayout.StorageControl',
+		'Storagelayout.StorageCoordinate',
+		'Storagelayout.StorageMaster',
+		
+		'Inventorymanagement.AliquotMaster'
 	);
 	
-	var $paginate = array('StorageCoordinate'=>array('limit'=>10,'order'=>'StorageCoordinate.id ASC'));
+	var $paginate = array('StorageCoordinate' => array('limit' => 10,'order' => 'StorageCoordinate.id ASC'));
 
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS
 	 * -------------------------------------------------------------------------- */	
 	
-	/**
-	 * List all coordinates values attached to a storage.
-	 * 
-	 * Note: The current version will just allow user to set coordinate values for 
-	 * the dimension 'x'.
-	 * 
-	 * @param $storage_master_id Id of the studied storage.
-	 * 
-	 * @author N. Luc
-	 * @since 2008-02-04
-	 * @updated A. Suggitt
-	 * 
-	 */
-	 function listall($storage_master_id = null) {
+	 function listall($storage_master_id) {
+		if (!$storage_master_id) { $this->redirect('/pages/err_sto_no_stor_id', NULL, TRUE); }
+
+		// MANAGE DATA
 		
-		// ** Parameters check **
-		// Verify parameters have been set
-		if(empty($storage_master_id)) {
-			$this->redirect('/pages/err_sto_no_stor_id'); 
-			exit;
-		}
-		
-		// ** get STORAGE info **
-		$storage_master_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
-		pr ($storage_master_data);
-		if(empty($storage_master_data)) {
-			$this->redirect('/pages/err_sto_no_stor_data'); 
-			exit;
+		// Get the storage data
+		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
+		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_stor_data', NULL, TRUE); }	
+
+		if(!$this->Storages->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
+			// Check storage supports custom coordinates
+			$this->redirect('/pages/err_sto_no_custom_coord_allowed', NULL, TRUE); 
 		}
 
-		$storage_control_data = $storage_master_data['StorageControl'];
-
-		if(empty($storage_control_data)){
-			$this->redirect('/pages/err_sto_no_stor_cont_data'); 
-			exit;
-		}	
+		// Get storage coordinates
+		$this->data = $this->paginate($this->StorageCoordinate, array('StorageCoordinate.storage_master_id' => $storage_master_id));
 		
-		// Verify storage supports custom coordinates
-		if(!$this->Storages->allowCustomCoordinates($storage_master_data['StorageMaster']['storage_control_id'], $storage_control_data)) {
-			$this->redirect('/pages/err_sto_no_custom_coord_allowed'); 
-			exit;			
-		}
-
-		$this->set( 'atim_menu_variables', array('StorageMaster.id'=>$storage_master_id) );
-		$this->data = $this->paginate($this->StorageCoordinate, array('StorageCoordinate.storage_master_id'=>$storage_master_id));
+		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
-		$this->set('coordinates_list', $coordinates_list);
-		$this->set('atim_structure', $this->Structures->get('form', $storage_control_data['StorageControl']['form_alias']));
-		
-	} // End ListAll function
+		$this->set('atim_structure', $this->Structures->get('form', 'std_storage_coordinates'));	
+		$this->set('atim_menu_variables', array('StorageMaster.id' => $storage_master_id));
+	}
 	
-	/**
-	 * Add a coordinate value attached to a storage.
-	 * 
-	 * @param $storage_master_id Id of the studied storage.
-	 * 
-	 * @author N. Luc
-	 * @since 2008-02-04
-	 * @updated A. Suggitt
-	 * 
-	 */
-	function add($storage_master_id = null) {
+	function add($storage_master_id) {
+		if (!$storage_master_id) { $this->redirect('/pages/err_sto_no_stor_id', NULL, TRUE); }
+				
+		// MANAGE DATA
 		
-		// ** Parameters check **
-		if(isset($this->data['StorageCoordinate']['storage_master_id'])) {
-			//User clicked on the Submit button to create the new storage coordinate
-			$storage_master_id = $this->data['StorageCoordinate']['storage_master_id'];
-		}
-			
-		// Verify parameters have been set
-		if(empty($storage_master_id)) {
-			$this->redirect('/pages/err_sto_no_stor_id'); 
-			exit;
-		}
-			
-		// ** get STORAGE info **
-		$storage_master_data =
-			$this->StorageMaster->find('first', array('conditions'=>array('StorageMaster.id'=>$storage_master_id)));
-		$storage_control_data = $storage_master_data['StorageMaster'];
-			
-		if(empty($storage_master_data)) {
-			$this->redirect('/pages/err_sto_no_stor_data'); 
-			exit;
+		// Get the storage data
+		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
+		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_stor_data', NULL, TRUE); }	
+
+		if(!$this->Storages->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
+			// Check storage supports custom coordinates
+			$this->redirect('/pages/err_sto_no_custom_coord_allowed', NULL, TRUE); 
 		}
 
-		if(empty($storage_control_data)){
-			$this->redirect('/pages/err_sto_no_stor_cont_data'); 
-			exit;
-		}	
+		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
-		// Verify storage support custom coordinates
-		if(!$this->Storages->allowCustomCoordinates($storage_master_data['StorageMaster']['storage_control_id'], $storage_control_data)) {
-			$this->redirect('/pages/err_sto_no_custom_coord_allowed'); 
-			exit;			
-		}
+		$this->set('atim_structure', $this->Structures->get('form', 'std_storage_coordinates'));	
+		$this->set('atim_menu_variables', array('StorageMaster.id' => $storage_master_id));
 
-		// ** set DATA for echo on VIEW or to build link **		
-		$this->set( 'atim_menu_variables', array('StorageMaster.id'=>$storage_master_id) );
-		$this->set('dimension', 'x');	// Only coordinate X could actually be attached to custom values
-		$this->set('atim_structure', $this->Structures->get('form', $storage_control_data['StorageControl']['form_alias']));
+		// MANAGE DATA RECORD
 
 		if (!empty($this->data)) {	
 		
-			if($this->duplicatedValue($storage_master_id, $this->data['StorageCoordinate']['coordinate_value'])) {
-				$this->data['StorageCoordinate']['coordinate_value'] = '';
+			// Set dimension
+			$this->data['StorageCoordinate']['dimension'] = 'x';
+
+			// Set storage id
+			$this->data['StorageCoordinate']['storage_master_id'] = $storage_master_id;
+			
+			// Validates data
+			$submitted_data_validates = TRUE;
+			
+			if($this->isDuplicatedValue($storage_master_id, $this->data['StorageCoordinate']['coordinate_value'])) {
+				$submitted_data_validates = FALSE;
 			}
 			
-			if ($this->StorageCoordinate->save($this->data['StorageCoordinate'])) {
-				$new_storage_coord_id = $this->StorageCoordinate->getLastInsertId();
-				$this->flash('Your data has been saved.', 
-					'/storagelayout/storage_coordinates/detail/'.$storage_master_id.'/'.$new_storage_coord_id);				
-			} else {
-				$this->redirect('/pages/err_inv_coll_record_err'); 
-				exit;
-			}	
+			if($submitted_data_validates) {
+				// Save data		
+				if ($this->StorageCoordinate->save($this->data['StorageCoordinate'])) {
+					$this->flash('Your data has been saved.', '/storagelayout/storage_coordinates/listall/' . $storage_master_id);				
+				}
+			}
 		}
-	} // End Add function
+	}
 
 	/**
 	 * Detail a coordinate value attached to a storage.
@@ -146,58 +97,29 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 	 * @updated A. Suggitt
 	 * 
 	 */	
-	function detail($storage_master_id=null, $storage_coordinate_id=null) {	
-		// ** Parameters check **
-		// Verify parameters have been set
-		if(empty($storage_master_id) || empty($storage_master_id)) {
-			$this->redirect('/pages/err_sto_funct_param_missing'); 
-			exit;
-		}
-			
-		// ** get STORAGE info **
-		$storage_master_data = $this->StorageMaster->find('first',array('conditions'=>array('StorageMaster.id'=>$storage_master_id)));
-		$storage_control_data = $storage_master_data['StorageMaster'];
-		
-		if(empty($storage_master_data)) {
-			$this->redirect('/pages/err_sto_no_stor_data'); 
-			exit;
-		}
-		if(empty($storage_control_data)){
-			$this->redirect('/pages/err_sto_no_stor_cont_data'); 
-			exit;
-		}
-		
-		// Verify storage supprot custom coordinates
-		if(!$this->allowCustomCoordinates($storage_master_data['StorageMaster']['storage_control_id'], $storage_control_data)) {
-			$this->redirect('/pages/err_sto_no_custom_coord_allowed'); 
-			exit;			
-		}
-	
-		// ** Get Storage Coordinate Data **			
-		$storage_coordinate_data = $this->StorageCoordinate->find('first', array('conditions'=>array('StorageCoordinate'=>$storage_coordinate_id)));
-		if(empty($storage_coordinate_data)){
-			$this->redirect('/pages/err_sto_no_stor_coord_data'); 
-			exit;
-		}
-		
-		if(strcmp($storage_coordinate_data['StorageCoordinate']['storage_master_id'], $storage_master_id) != 0) {
-			$this->redirect('/pages/err_sto_no_storage_id_map'); 
-			exit;			
-		}			
-		
-		$this->data = $storage_coordinate_data; 
+	function detail($storage_master_id, $storage_coordinate_id) {	
+		if((!$storage_master_id) || (!$storage_coordinate_id)) { $this->redirect('/pages/err_sto_funct_param_missing', NULL, TRUE); }
 
-		// ** Define if the storage coordinate can be deleted **
-		$bool_allow_deletion 
-			= $this->allowStorageCoordinateDeletion(
-				$storage_master_id, 
-				$storage_coordinate_data['StorageCoordinate']['coordinate_value']);
-		$this->set('bool_allow_deletion', $bool_allow_deletion);
+		// MANAGE DATA
+		
+		// Get the storage data
+		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
+		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_stor_data', NULL, TRUE); }	
+
+		if(!$this->Storages->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
+			// Check storage supports custom coordinates
+			$this->redirect('/pages/err_sto_no_custom_coord_allowed', NULL, TRUE); 
+		}
+		
+		// Get the coordinate data
+		$storage_coordinate_data = $this->StorageCoordinate->find('first', array('conditions' => array('StorageCoordinate.id' => $storage_coordinate_id, 'StorageCoordinate.storage_master_id' => $storage_master_id)));
+		if(empty($storage_coordinate_data)) { exit;$this->redirect('/pages/err_sto_no_stor_coord_data', NULL, TRUE); }		
+		$this->data = $storage_coordinate_data; 
 				
-		// ** set DATA for echo on VIEW or to build link **		
-		$this->set( 'atim_menu_variables', array('StorageMaster.id'=>$storage_master_id) );
-		$this->set('dimension', 'x');	// Only coordinate X could actually be attached to custom values
-		$this->set('atim_structure', $this->Structures->get('form', $storage_control_data['StorageControl']['form_alias']));
+		// MANAGE FORM, MENU AND ACTION BUTTONS
+		
+		$this->set('atim_structure', $this->Structures->get('form', 'std_storage_coordinates'));	
+		$this->set('atim_menu_variables', array('StorageMaster.id' => $storage_master_id));		
 	}
 	
 	/**
@@ -210,96 +132,69 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 	 * @since 2008-02-04
 	 * @updated A. Suggitt
 	 */	
-	function delete($storage_master_id=null, $storage_coordinate_id=null) {
-		
-		// ** Parameters check **
-		// Verify parameters have been set
-		if(empty($storage_master_id) || empty($storage_master_id)) {
-			$this->redirect('/pages/err_sto_funct_param_missing'); 
-			exit;
-		}
+	 
+	function delete($storage_master_id, $storage_coordinate_id) {
+		if((!$storage_master_id) || (!$storage_coordinate_id)) { $this->redirect('/pages/err_sto_funct_param_missing', NULL, TRUE); }
 
-		// ** get STORAGE info **
-		$storage_master_data = $this->StorageMaster->find('first',array('conditions'=>array('StorageMaster.id'=>$storage_master_id)));
-		$storage_control_data = $storage_master_data['StorageMaster'];
-				
-		if(empty($storage_master_data)) {
-			$this->redirect('/pages/err_sto_no_stor_data'); 
-			exit;
-		}
+		// MANAGE DATA
+		
+		// Get the storage data
+		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
+		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_stor_data', NULL, TRUE); }	
 
-		if(empty($storage_control_data)){
-			$this->redirect('/pages/err_sto_no_stor_cont_data'); 
-			exit;
+		if(!$this->Storages->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
+			// Check storage supports custom coordinates
+			$this->redirect('/pages/err_sto_no_custom_coord_allowed', NULL, TRUE); 
 		}
 		
-		// ** Get Storage Coordinate Data **			
-		$storage_coordinate_data = $this->StorageCoordinate->find('first', array('conditions'=>array('StorageCoordinate'=>$storage_coordinate_id)));
-		if(empty($storage_coordinate_data)){
-			$this->redirect('/pages/err_sto_no_stor_coord_data'); 
-			exit;
-		}
+		// Get the coordinate data
+		$storage_coordinate_data = $this->StorageCoordinate->find('first', array('conditions' => array('StorageCoordinate.id' => $storage_coordinate_id, 'StorageCoordinate.storage_master_id' => $storage_master_id)));
+		if(empty($storage_coordinate_data)) { exit;$this->redirect('/pages/err_sto_no_stor_coord_data', NULL, TRUE); }		
+
+		// Check deletion is allowed
+		$arr_allow_deletion = $this->allowStorageCoordinateDeletion($storage_master_id, $storage_coordinate_data);
+		if($arr_allow_deletion['allow_deletion']) {
+			// Delete coordinate
+			if($this->StorageCoordinate->atim_delete($storage_coordinate_id)) {
+				$this->flash('Your data has been deleted.', '/storagelayout/storage_coordinates/listall/' . $storage_master_id);
+			} else {
+				$this->flash('Error deleting data - Contact administrator.', '/storagelayout/storage_coordinates/detail/' . $storage_master_id . '/' . $storage_coordinate_id);
+			}		
 		
-		if(strcmp($storage_coordinate_data['StorageCoordinate']['storage_master_id'], $storage_master_id) != 0) {
-			$this->redirect('/pages/err_sto_no_storage_id_map'); 
-			exit;			
+		} else {
+			$this->flash($arr_allow_deletion['msg'], '/storagelayout/storage_coordinates/detail/' . $storage_master_id . '/' . $storage_coordinate_id);
 		}			
-		
-		// ** check if the storage can be deleted **
-		if(!$this->allowStorageCoordinateDeletion($storage_master_id, $storage_coordinate_data['StorageCoordinate']['coordinate_value'])){
-			// Content exists, the storage can not be deleted
-			$this->redirect('/pages/err_sto_stor_Coord_del_forbid'); 
-			exit;			
-		} 
-
-		//Delete storage
-		$bool_delete_storage_coord = TRUE;
-		
-		if(!$this->StorageCoordinate->del( $storage_coordinate_id )){
-			$bool_delete_storage_coord = FALSE;		
-		}	
-		
-		if(!$bool_delete_storage_coord){
-			$this->redirect('/pages/err_sto_stor_coord_del_err'); 
-			exit;
-		}
-		
-		$this->flash('Your data has been deleted.', '/storagelayout/storage_coordinates/listall/'.$storage_master_id.'/');
 	}
 
 	/**
 	 * Define if a storage coordinate can be deleted.
 	 * 
 	 * @param $storage_master_id Id of the studied storage.
-	 * @param $storage_coordinate_id Id of the studied storage coordinate.
+	 * @param $storage_coordinate_data Storage coordinate data.
 	 * 
-	 * @return Return TRUE if the storage coordinate can be deleted.
+	 * @return Return results as array:
+	 * 	['allow_deletion'] = TRUE/FALSE
+	 * 	['msg'] = message to display when previous field equals FALSE
 	 * 
 	 * @author N. Luc
 	 * @since 2008-02-04
 	 * @updated A. Suggitt
 	 */
-	function allowStorageCoordinateDeletion($storage_master_id, $storage_coordinate_value){
-
-		// Verify storage contains no chlidren storage
-		$nbr_children_storages =
-			$this->StorageMaster->find('count', array('conditions'=>array('StorageMaster.parent_id'=>$storage_master_id, 'StorageMaster.parent_storage_coord_x'=>$storage_coordinate_value)));
-		if($nbr_children_storages > 0) {
-			return FALSE;
-		}
-
+	 
+	function allowStorageCoordinateDeletion($storage_master_id, $storage_coordinate_data){
+		// Check storage contains no chlidren storage stored within this position
+		$nbr_children_storages = $this->StorageMaster->find('count', array('conditions' => array('StorageMaster.parent_id' => $storage_master_id, 'StorageMaster.parent_storage_coord_x' => $storage_coordinate_data['StorageCoordinate']['coordinate_value'])));
+		if($nbr_children_storages > 0) { return array('allow_deletion' => FALSE, 'msg' => 'children storage is stored within the storage at this position'); }
+		
 		// Verify storage contains no aliquots
-		$nbr_storage_aliquots =
-			$this->AliquotMaster->find('count', array('conditions'=>array('AliquotMaster.storage_master_id'=>$storage_master_id, 'AliquotMaster.storage_coord_x'=>$storage_coordinate_value)));
-		if($nbr_storage_aliquots > 0){
-			return FALSE;
-		}
+		$nbr_storage_aliquots = $this->AliquotMaster->find('count', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id, 'AliquotMaster.storage_coord_x ' =>  $storage_coordinate_data['StorageCoordinate']['coordinate_value'])));
+		if($nbr_storage_aliquots > 0) { return array('allow_deletion' => FALSE, 'msg' => 'aliquot is stored within the storage at this position'); }
 					
-		return TRUE;
+		return array('allow_deletion' => TRUE, 'msg' => '');
 	}
 	
 	/**
-	 * Verify the coordinate value has not alread been set for a storage.
+	 * Check the coordinate value does not already exists and set error if not.
 	 * 
 	 * @param $storage_master_id Id of the studied storage.
 	 * @param $new_coordinate_value New coordinate value.
@@ -310,16 +205,18 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 	 * @since 2008-02-04
 	 * @updated A. Suggitt
 	 */
-	function duplicatedValue($storage_master_id, $new_coordinate_value) {
-		
-		// Verify storage contains no aliquots
-		$nbr_coord_values =
-			$this->StorageCoordinate->find('count', array('conditions'=>array('StorageCoordinate.storage_master_id'=>$storage_master_id, 'StorageCoordinate.coordinate_value'=>$new_coordinate_value)));
-		if($nbr_coord_values > 0){
-			return TRUE;
-		}
-		return FALSE;		
+	
+	function isDuplicatedValue($storage_master_id, $new_coordinate_value) {	
+		$nbr_coord_values = $this->StorageCoordinate->find('count', array('conditions' => array('StorageCoordinate.storage_master_id' => $storage_master_id, 'StorageCoordinate.coordinate_value' => $new_coordinate_value)));
+		if($nbr_coord_values == 0) { return FALSE; }
+
+		// The value already exists: Set the errors
+//TODO validate
+		$this->StorageCoordinate->validationErrors['dimension']	= 'coordinate value is required and must be unique for the storage';
+
+		return TRUE;		
 	}
+	
 }
 
 ?>
