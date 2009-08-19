@@ -71,7 +71,7 @@ class ParticipantsController extends ClinicalannotationAppController {
 		$diagnosis_id = $this->Diagnosis->find('first', array('conditions'=>array('Diagnosis.participant_id'=>$participant_id, 'Diagnosis.deleted'=>0),'fields'=>array('Diagnosis.id')));
 		$family_id = $this->FamilyHistory->find('first', array('conditions'=>array('FamilyHistory.participant_id'=>$participant_id, 'FamilyHistory.deleted'=>0), 'fields'=>array('FamilyHistory.id')));
 		$identifier_id = $this->MiscIdentifier->find('first', array('conditions'=>array('MiscIdentifier.participant_id'=>$participant_id, 'MiscIdentifier.deleted'=>0), 'fields'=>array('MiscIdentifier.id')));
-		$link_id = $this->ClinicalCollectionLink->find('first', array('conditions'=>array('ClinicalCollectionLink.participant_id'=>$participant_id, 'ClinicalCollectionLink.deleted'=>0), 'fields'=>array('ClinicalCollectionLink.id')));
+		//$link_id = $this->ClinicalCollectionLink->find('first', array('conditions'=>array('ClinicalCollectionLink.participant_id'=>$participant_id, 'ClinicalCollectionLink.deleted'=>0), 'fields'=>array('ClinicalCollectionLink.id')));
 		$message_id = $this->ParticipantMessage->find('first', array('conditions'=>array('ParticipantMessage.participant_id'=>$participant_id, 'ParticipantMessage.deleted'=>0), 'fields'=>array('ParticipantMessage.id')));
 		$reproductive_id = $this->ReproductiveHistory->find('first', array('conditions'=>array('ReproductiveHistory.participant_id'=>$participant_id, 'ReproductiveHistory.deleted'=>0), 'fields'=>array('ReproductiveHistory.id')));
 		$treatment_id = $this->TreatmentMaster->find('first', array('conditions'=>array('TreatmentMaster.participant_id'=>$participant_id, 'TreatmentMaster.deleted'=>0),'fields'=>array('TreatmentMaster.id')));
@@ -103,9 +103,9 @@ class ParticipantsController extends ClinicalannotationAppController {
 			if( $identifier_id != NULL ){
 				$message = $message."A identifier record exists, ";
 			}
-			if( $link_id != NULL ){
-				$message = $message."A link to collections exists, ";
-			}
+			//if( $link_id != NULL ){
+				//$message = $message."A link to collections exists, ";
+			//}
 			if( $message_id != NULL ){
 				$message = $message."A message record exists, ";
 			}
