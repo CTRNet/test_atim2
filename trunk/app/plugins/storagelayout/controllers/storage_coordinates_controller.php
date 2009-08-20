@@ -18,7 +18,7 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 	 * DISPLAY FUNCTIONS
 	 * -------------------------------------------------------------------------- */	
 	
-	 function listall($storage_master_id) {
+	 function listAll($storage_master_id) {
 		if (!$storage_master_id) { $this->redirect('/pages/err_sto_no_stor_id', NULL, TRUE); }
 
 		// MANAGE DATA
@@ -63,7 +63,6 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 		// MANAGE DATA RECORD
 
 		if (!empty($this->data)) {	
-		
 			// Set dimension
 			$this->data['StorageCoordinate']['dimension'] = 'x';
 
@@ -80,7 +79,7 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 			if($submitted_data_validates) {
 				// Save data		
 				if ($this->StorageCoordinate->save($this->data['StorageCoordinate'])) {
-					$this->flash('Your data has been saved.', '/storagelayout/storage_coordinates/listall/' . $storage_master_id);				
+					$this->flash('Your data has been saved.', '/storagelayout/storage_coordinates/listAll/' . $storage_master_id);				
 				}
 			}
 		}
@@ -156,7 +155,7 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 		if($arr_allow_deletion['allow_deletion']) {
 			// Delete coordinate
 			if($this->StorageCoordinate->atim_delete($storage_coordinate_id)) {
-				$this->flash('Your data has been deleted.', '/storagelayout/storage_coordinates/listall/' . $storage_master_id);
+				$this->flash('Your data has been deleted.', '/storagelayout/storage_coordinates/listAll/' . $storage_master_id);
 			} else {
 				$this->flash('Error deleting data - Contact administrator.', '/storagelayout/storage_coordinates/detail/' . $storage_master_id . '/' . $storage_coordinate_id);
 			}		

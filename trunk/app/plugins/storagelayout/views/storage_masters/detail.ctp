@@ -10,8 +10,13 @@
 	
 	// Create array of valid storage types for the ADD button
 	$add_links = array();
-	foreach ( $storage_controls_list as $storage_control ) {
-		$add_links[$storage_control['StorageControl']['storage_type']] = '/storagelayout/storage_masters/add/' . $storage_control['StorageControl']['id'] . '/' . $atim_menu_variables['StorageMaster.id'];
+	if($is_tma) {
+		// No children storage could be added to a TMA block
+		$add_links = '/underdevelopment/';
+	} else {
+		foreach ( $storage_controls_list as $storage_control ) {
+			$add_links[$storage_control['StorageControl']['storage_type']] = '/storagelayout/storage_masters/add/' . $storage_control['StorageControl']['id'] . '/' . $atim_menu_variables['StorageMaster.id'];
+		}		
 	}
 	
 	$structure_links = array(

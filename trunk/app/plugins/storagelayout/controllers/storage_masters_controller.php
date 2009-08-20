@@ -7,7 +7,6 @@ class StorageMastersController extends StoragelayoutAppController {
 	var $uses = array(
 		'Storagelayout.StorageMaster',
 		'Storagelayout.StorageControl',
-//		'Storagelayout.TmaSlides',
 		'Storagelayout.StorageCoordinate',
 		
 		'Inventorymanagement.AliquotMaster'
@@ -46,7 +45,9 @@ class StorageMastersController extends StoragelayoutAppController {
 		$_SESSION['ctrapp_core']['search']['url'] = '/storagelayout/storage_masters/search';
 	}
 	
-	function detail($storage_master_id) {
+	function detail($storage_master_id, $storage_category = null) {
+		// Note: $storage_category not really used. 
+		// Just added to parameters list to be consistent with TMA use link of the menu
 		if(!$storage_master_id) { $this->redirect('/pages/err_sto_no_stor_id', NULL, TRUE); }
 		
 		// MANAGE DATA
@@ -76,7 +77,16 @@ class StorageMastersController extends StoragelayoutAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Get the current menu object. Needed to disable menu options based on storage type
-		$atim_menu = $this->Menus->get('/storagelayout/storage_masters/detail/%%StorageMaster.id%%');
+		$atim_menu = NULL;
+		$is_tma = FALSE;
+		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') == 0) {
+			// TMA menu
+			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/detail/%%StorageMaster.id%%/TMA');
+			$atim_menu = $this->Storages->inactivateChildrenStorageMenu($atim_menu);
+			$is_tma = TRUE;
+		} else {
+			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/detail/%%StorageMaster.id%%');
+		}
 		
 		if(!$this->Storages->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
 			// Check storage supports custom coordinates and disable access to coordinates menu option if required
@@ -87,20 +97,15 @@ class StorageMastersController extends StoragelayoutAppController {
 			// Check storage supports coordinates and disable access to storage layout menu option if required
 			$atim_menu = $this->Storages->inactivateStorageLayoutMenu($atim_menu);
 		}
-			
-/* 		TODO: Part of TMA implementation. Have Nicolas review this section. Not sure
-  		which form/menu should be displayed for TMA storage types.
-  		
- 		// This code sets the menu to a link that is /underdev/ 
-		if(strcmp($storage_control_data['StorageControl']['is_tma_block'], 'TRUE') == 0) {
-			$atim_menu[] = $this->Menus->tabs('sto_CAN_02', 'sto_CAN_07', $storage_master_id);
-		} */		
-
+		
 		$this->set('atim_menu', $atim_menu);
 		$this->set('atim_menu_variables', array('StorageMaster.id' => $storage_master_id));
 
 		// Set structure				
 		$this->set('atim_structure', $this->Structures->get('form', $storage_data['StorageControl']['form_alias']));
+
+		// Set boolean
+		$this->set('is_tma', $is_tma);		
 
 		// Get all storage control types to build the add to selected button
 		$this->set('storage_controls_list', $this->StorageControl->find('all', array('conditions' => array('StorageControl.status' => 'active'))));
@@ -135,7 +140,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		
 		$storage_control_data = $this->StorageControl->find('first', array('conditions' => array('StorageControl.id' => $storage_control_id)));
 		if(empty($storage_control_data)) { $this->redirect('/pages/err_sto_no_stor_cont_data', NULL, TRUE); }	
-		
+	
 		$this->set('storage_type', $storage_control_data['StorageControl']['storage_type']);		
 		$this->setStorageCoordinateValues($storage_control_data);
 		
@@ -149,7 +154,7 @@ class StorageMastersController extends StoragelayoutAppController {
 			$available_parent_storage_list[$predefined_parent_storage_id] = $predefined_parent_storage_data;
 		}
 		$this->set('available_parent_storage_list', $available_parent_storage_list);	
-
+		
 /* 	TODO: TMA Related
 		if(strcmp($storage_control_data['StorageControl']['is_tma_block'], 'TRUE') == 0) {	
 			$this->set('arr_tma_sop_title_from_id', 
@@ -238,7 +243,14 @@ class StorageMastersController extends StoragelayoutAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Get the current menu object. Needed to disable menu options based on storage type
-		$atim_menu = $this->Menus->get('/storagelayout/storage_masters/detail/%%StorageMaster.id%%');
+		$atim_menu = NULL;
+		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') == 0) {
+			// TMA menu
+			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/detail/%%StorageMaster.id%%/TMA');
+			$atim_menu = $this->Storages->inactivateChildrenStorageMenu($atim_menu);
+		} else {
+			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/detail/%%StorageMaster.id%%');
+		}
 		
 		if(!$this->Storages->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
 			// Check storage supports custom coordinates and disable access to coordinates menu option if required
@@ -249,14 +261,6 @@ class StorageMastersController extends StoragelayoutAppController {
 			// Check storage supports coordinates and disable access to storage layout menu option if required
 			$atim_menu = $this->Storages->inactivateStorageLayoutMenu($atim_menu);
 		}
-			
-/* 		TODO: Part of TMA implementation. Have Nicolas review this section. Not sure
-  		which form/menu should be displayed for TMA storage types.
-  		
- 		// This code sets the menu to a link that is /underdev/ 
-		if(strcmp($storage_control_data['StorageControl']['is_tma_block'], 'TRUE') == 0) {
-			$atim_menu[] = $this->Menus->tabs('sto_CAN_02', 'sto_CAN_07', $storage_master_id);
-		} */		
 
 		$this->set('atim_menu', $atim_menu);
 		$this->set('atim_menu_variables', array('StorageMaster.id' => $storage_master_id));
@@ -361,27 +365,25 @@ class StorageMastersController extends StoragelayoutAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS	
 		
 		// Get the current menu object. Needed to disable menu options based on storage type
-		$atim_menu = $this->Menus->get('/storagelayout/storage_masters/detail/%%StorageMaster.id%%');
-	
+		$atim_menu = NULL;
+		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') == 0) {
+			// TMA menu
+			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/detail/%%StorageMaster.id%%/TMA');
+			$atim_menu = $this->Storages->inactivateChildrenStorageMenu($atim_menu);
+		} else {
+			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/detail/%%StorageMaster.id%%');
+		}
+		
 		if(!$this->Storages->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
 			// Check storage supports custom coordinates and disable access to coordinates menu option if required
 			$atim_menu = $this->Storages->inactivateStorageCoordinateMenu($atim_menu);
 		}
-					
+		
 		if(empty($storage_data['StorageControl']['coord_x_type'])) {
 			// Check storage supports coordinates and disable access to storage layout menu option if required
 			$atim_menu = $this->Storages->inactivateStorageLayoutMenu($atim_menu);
 		}
-			
-/* 		TODO: Part of TMA implementation. Have Nicolas review this section. Not sure
-  		which form/menu should be displayed for TMA storage types.
-  		
- 		// This code sets the menu to a link that is /underdev/ 
-		if(strcmp($storage_control_data['StorageControl']['is_tma_block'], 'TRUE') == 0) {
-			$atim_menu[] = $this->Menus->tabs('sto_CAN_02', 'sto_CAN_07', $storage_master_id);
-		}
-*/				
-			
+		
 		$this->set('atim_menu', $atim_menu);		
 		$this->set('atim_menu_variables', array('StorageMaster.id' => $storage_master_id));
 				
@@ -391,8 +393,8 @@ class StorageMastersController extends StoragelayoutAppController {
 		// MANAGE (SECOND)FORM TO DEFINE STORAGE POSITION INTO PARENT 
 
 		// Build predefined list of allowed positions
-		$this->set('a_coord_x_list', $this->buildAllowedStoragePosition($parent_storage_data, 'x'));
-		$this->set('a_coord_y_list', $this->buildAllowedStoragePosition($parent_storage_data, 'y'));
+		$this->set('a_coord_x_list', $this->Storage->buildAllowedStoragePosition($parent_storage_data, 'x'));
+		$this->set('a_coord_y_list', $this->Storage->buildAllowedStoragePosition($parent_storage_data, 'y'));
 		
 		// Set structure 				
 		$this->set('atim_structure_to_set_position', $this->Structures->get('form', $parent_storage_data['StorageControl']['form_alias_for_children_pos']));
@@ -649,73 +651,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		$storage_code = $storage_control_data['StorageControl']['storage_type_code'] . ' - ' . $storage_master_id;
 		
 		return $storage_code;
-	}	
-	
-	/**
-	 * Build list of values that could be selected to define position coordinate (X or Y) of a children
-	 * storage within a studied storage. 
-	 * 
-	 * List creation is based on the coordinate information set into the control data of the storage.
-	 * 
-	 * When:
-	 *   - TYPE = 'alphabetical' and SIZE is not null
-	 *       System will build a list of alphabetical values ('A', 'B', 'C', etc) 
-	 *       having a number of items defined by the coordinate SIZE.   
-	 *  
-	 *   - TYPE = 'integer' and SIZE is not null
-	 *       System will build list of integer values ('1' + '2' + '3' + etc) 
-	 *       having a number of items defined by the coordinate SIZE.   
-	 *  
-	 *   - TYPE = 'liste' and SIZE is null
-	 *       System will search cutom coordinate values set by the user.
-	 *       (This list is uniquely supported for coordinate 'X').
-	 * 
-	 * @param $storage_data Storage data including storage master, storage control, etc.
-	 * @param $coord Coordinate flag that should be studied ('x', 'y').
-	 *
-	 * @return Array of available values.
-	 * 
-	 * @author N. Luc
-	 * @since 2007-05-22
-	 * @updated A. Suggitt
-	 */
-	 
-	function buildAllowedStoragePosition($storage_data, $coord) {
-		if(!array_key_exists('coord_'.$coord.'_type', $storage_data['StorageControl'])) { $this->redirect('/pages/err_sto_system_error', NULL, TRUE); }
-				
-		// Build array
-		$returned_array = array();
-	
-		if(!empty($storage_data['StorageControl']['coord_'.$coord.'_type'])) {
-			if(!empty($storage_data['StorageControl']['coord_'.$coord.'_size'])) {
-				// TYPE and SIZE are both defined for the studied coordinate: The system can build a list.
-				$size = $storage_data['StorageControl']['coord_'.$coord.'_size'];
-				if(!is_numeric($size)) { $this->redirect('/pages/err_sto_system_error', NULL, TRUE); }
-									
-				if(strcmp($storage_data['StorageControl']['coord_'.$coord.'_type'], 'alphabetical') == 0){
-					// Alphabetical drop down list
-					$a_alphab = array_slice(range('A', 'Z'), 0, $size);
-					$returned_array = array_combine($a_alphab, $a_alphab);			
-				} else if(strcmp($storage_data['StorageControl']['coord_'.$coord.'_type'], 'integer') == 0){
-					// Integer drop down list
-					$returned_array = array_combine(range('1', $size), range('1', $size));				
-				} else {
-					$this->redirect('/pages/err_sto_system_error', NULL, TRUE); 		
-				}
-						
-			} else {
-				// Only TYPE is defined for the studied coordinate: The system can only return a custom coordinate list set by user.			
-				if((strcmp($storage_data['StorageControl']['coord_'.$coord.'_type'], 'list') == 0) && (strcmp($coord, 'x') == 0)) {
-					$returned_array = $this->StorageCoordinate->find('list', array('conditions' => array('StorageCoordinate.storage_master_id' => $storage_data['StorageMaster']['id'], 'StorageCoordinate.dimension' => $coord), 'fields' => array('StorageCoordinate.coordinate_value'), 'order' => 'StorageCoordinate.order ASC'));
-					$returned_array = array_combine($returned_array, $returned_array);
-				} else {
-					$this->redirect('/pages/err_sto_system_error', NULL, TRUE); 				
-				}
-			}
-		}
-		
-		return $returned_array;
-	}	
+	}
 	
 	/**
 	 * Update the surrounding temperature and unit of children storages.
