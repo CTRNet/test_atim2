@@ -99,7 +99,51 @@ INSERT INTO `structure_validations`
 (`id`, `old_id`, `structure_field_id`, `structure_field_old_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modifed_by`) VALUES
 (null, '0', (SELECT `id` FROM `structure_fields` WHERE `old_id` LIKE 'CAN-999-999-000-999-1110'), 'CAN-999-999-000-999-1110', 'numeric', '1', '0', '', 'temperature should be a decimal', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
+-- Add storage deletion message
 
+DELETE FROM `i18n` WHERE `id` IN ('children storage exists within the deleted storage', 'aliquot exists within the deleted storage');
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('children storage exists within the deleted storage', 'global', 'Your data cannot be deleted! <br>Children storage exists within the deleted storage.', 'Vos donn&eacute;es ne peuvent &ecirc;tre supprim&eacute;es! Des sous-entreposages existent dans votre entreposage.'),
+('aliquot exists within the deleted storage', 'global', 'Your data cannot be deleted! <br>Aliquot exists within the deleted storage.', 'Vos donn&eacute;es ne peuvent &ecirc;tre supprim&eacute;es! Des aliquots existent dans votre entreposage.');
+
+-- Add surrounding temperature
 	
+UPDATE `structure_formats` 
+SET `flag_override_label` = '1',
+`language_label` = 'surrounding temperature'
+WHERE `structure_old_id` LIKE 'CAN-999-999-000-999-1042'
+AND `structure_field_old_id` LIKE 'CAN-999-999-000-999-1110';
 	
-	
+-- Add storage coordinate deletion message
+
+DELETE FROM `i18n` WHERE `id` IN ('children storage is stored within the storage at this position', 'aliquot is stored within the storage at this position');
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('children storage is stored within the storage at this position', 'global', 'Your data cannot be deleted! <br>Children storage is stored within the storage at this position.', 'Vos donn&eacute;es ne peuvent &ecirc;tre supprim&eacute;es! Des sous-entreposages sont plac&eacute;s &agrave; cette position dans votre entreposage.'),
+('aliquot is stored within the storage at this position', 'global', 'Your data cannot be deleted! <br>Aliquot exists within the deleted storage.', 'Vos donn&eacute;es ne peuvent &ecirc;tre supprim&eacute;es! Des aliquots sont plac&eacute;s &agrave; cette position dans votre entreposage.');
+
+-- Manage TMA Menu
+
+UPDATE `menus` 
+SET `use_link` = '/storagelayout/storage_masters/detail/%%StorageMaster.id%%/TMA', 
+`language_title` = 'tma block' 
+WHERE `menus`.`id` = 'sto_CAN_07';
+
+UPDATE `menus` 
+SET `use_link` = '/storagelayout/tma_slides/listAll/%%StorageMaster.id%%',
+`use_summary` = '' 
+WHERE `menus`.`id` = 'sto_CAN_08';
+
+UPDATE `menus` 
+SET `use_link` = '/storagelayout/storage_coordinates/listAll/%%StorageMaster.id%%' 
+WHERE `menus`.`id` = 'sto_CAN_06' 
+
+-- Add following error
+
+DELETE FROM `i18n` WHERE `id` IN ('the defined storage is a tma');
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) 
+VALUES
+('the defined storage is a tma', 'global', 'The defined storage is a TMA', 'L''entreposage d&eacute;fini est un TMA!');
+

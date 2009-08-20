@@ -1,7 +1,7 @@
 <?php
 
 class StorageMaster extends StoragelayoutAppModel {
-    var $useTable = 'storage_masters';
+	
 	var $belongsTo = array(        
 		'StorageControl' => array(            
 			'className'    => 'Storagelayout.StorageControl',            
