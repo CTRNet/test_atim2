@@ -85,17 +85,6 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 		}
 	}
 
-	/**
-	 * Detail a coordinate value attached to a storage.
-	 * 
-	 * @param $storage_master_id Id of the studied storage.
-	 * @param $storage_coordinate_id Id of the studied storage coordinate.
-	 * 
-	 * @author N. Luc
-	 * @since 2008-02-04
-	 * @updated A. Suggitt
-	 * 
-	 */	
 	function detail($storage_master_id, $storage_coordinate_id) {	
 		if((!$storage_master_id) || (!$storage_coordinate_id)) { $this->redirect('/pages/err_sto_funct_param_missing', NULL, TRUE); }
 
@@ -112,7 +101,7 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 		
 		// Get the coordinate data
 		$storage_coordinate_data = $this->StorageCoordinate->find('first', array('conditions' => array('StorageCoordinate.id' => $storage_coordinate_id, 'StorageCoordinate.storage_master_id' => $storage_master_id)));
-		if(empty($storage_coordinate_data)) { exit;$this->redirect('/pages/err_sto_no_stor_coord_data', NULL, TRUE); }		
+		if(empty($storage_coordinate_data)) { $this->redirect('/pages/err_sto_no_stor_coord_data', NULL, TRUE); }		
 		$this->data = $storage_coordinate_data; 
 				
 		// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -120,17 +109,6 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 		$this->set('atim_structure', $this->Structures->get('form', 'std_storage_coordinates'));	
 		$this->set('atim_menu_variables', array('StorageMaster.id' => $storage_master_id));		
 	}
-	
-	/**
-	 * Delete a coordinate value attached to a storage.
-	 * 
-	 * @param $storage_master_id Id of the studied storage.
-	 * @param $storage_coordinate_id Id of the studied storage coordinate.
-	 * 
-	 * @author N. Luc
-	 * @since 2008-02-04
-	 * @updated A. Suggitt
-	 */	
 	 
 	function delete($storage_master_id, $storage_coordinate_id) {
 		if((!$storage_master_id) || (!$storage_coordinate_id)) { $this->redirect('/pages/err_sto_funct_param_missing', NULL, TRUE); }
@@ -148,7 +126,7 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 		
 		// Get the coordinate data
 		$storage_coordinate_data = $this->StorageCoordinate->find('first', array('conditions' => array('StorageCoordinate.id' => $storage_coordinate_id, 'StorageCoordinate.storage_master_id' => $storage_master_id)));
-		if(empty($storage_coordinate_data)) { exit;$this->redirect('/pages/err_sto_no_stor_coord_data', NULL, TRUE); }		
+		if(empty($storage_coordinate_data)) { $this->redirect('/pages/err_sto_no_stor_coord_data', NULL, TRUE); }		
 
 		// Check deletion is allowed
 		$arr_allow_deletion = $this->allowStorageCoordinateDeletion($storage_master_id, $storage_coordinate_data);
@@ -165,6 +143,10 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 		}			
 	}
 
+	/* --------------------------------------------------------------------------
+	 * ADDITIONAL FUNCTIONS
+	 * -------------------------------------------------------------------------- */		
+	
 	/**
 	 * Define if a storage coordinate can be deleted.
 	 * 
@@ -211,7 +193,7 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 
 		// The value already exists: Set the errors
 //TODO validate
-		$this->StorageCoordinate->validationErrors['dimension']	= 'coordinate value is required and must be unique for the storage';
+		$this->StorageCoordinate->validationErrors['dimension']	= 'coordinate must be unique for the storage';
 
 		return TRUE;		
 	}

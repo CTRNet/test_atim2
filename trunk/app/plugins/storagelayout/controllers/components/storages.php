@@ -285,18 +285,20 @@ class StoragesComponent extends Object {
 		$validated_position_x = $position_x;
 		$validated_position_y = $position_y;
 		$position_definition_error = '';
+		
+		$error_sign = ' #err!#';
 	
 		if(empty($storage_master_id)){
 			// No storage selected: no position should be set
 			if(!empty($position_x)){
-				$validated_position_x .= '_err!';
+				$validated_position_x .= $error_sign;
 				$position_definition_error = 'no postion has to be recorded when no storage is selected';
 			}
 			if(!empty($position_y)){
-				$validated_position_y .= '_err!';
+				$validated_position_y .= $error_sign;
 				$position_definition_error = 'no postion has to be recorded when no storage is selected';
-			}						
-				
+			}
+			
 		} else {
 			// Check for storage data, if none get the storage data
 			if(empty($storage_data)) {
@@ -307,27 +309,27 @@ class StoragesComponent extends Object {
 			// Check position values
 			$position_x_validation = $this->validatePositionValue($storage_data, $position_x, 'x');
 			$position_y_validation = $this->validatePositionValue($storage_data, $position_y, 'y');
-
+				
 			// Manage position x
 			if(!$position_x_validation['validated']) {
-				$validated_position_x .= '_err!';
+				$validated_position_x .= $error_sign;
 				$position_definition_error = 'at least one position value does not match format';
 			} else {
-				$validated_position_x = $position_x_validation['validated'];
+				$validated_position_x = $position_x_validation['validated_position'];
 			}
 			
 			// Manage position y
 			if(!$position_y_validation['validated']) {
-				$validated_position_y .= '_err!';
+				$validated_position_y .= $error_sign;
 				$position_definition_error = 'at least one position value does not match format';
 			} else {
-				$validated_position_y = $position_y_validation['validated'];
+				$validated_position_y = $position_y_validation['validated_position'];
 			}
 		}
 		
 		return array(
-			'validated_position_x' => str_replace('_err!_err!', '_err!', $validated_position_x),
-			'validated_position_y' => str_replace('_err!_err!', '_err!', $validated_position_y),
+			'validated_position_x' => str_replace($error_sign.$error_sign, $error_sign, $validated_position_x),
+			'validated_position_y' => str_replace($error_sign.$error_sign, $error_sign, $validated_position_y),
 			'position_definition_error' => $position_definition_error);
 	}	
 	
@@ -363,7 +365,7 @@ class StoragesComponent extends Object {
 			return $validation_results;
 		} else {
 			$upper_case_position = strtoupper($position);
-			if(array_key_exists($position, $upper_case_position)) {
+			if(array_key_exists($upper_case_position, $arr_allowed_position)) {
 				$validation_results['validated_position'] = $upper_case_position;
 				return $validation_results;
 			}
@@ -441,7 +443,6 @@ class StoragesComponent extends Object {
 		return $returned_array;
 	}	
 	 
-	
 }
 
 ?>

@@ -628,7 +628,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		}
 		
 		// The same barcode exists for at least one storage different than the studied one
-		$this->StorageMaster->validationErrors['barcode']	= 'storage barcode should be unique';
+		$this->StorageMaster->validationErrors['barcode']	= 'barcode must be unique';
 		
 		return TRUE;			
 	}

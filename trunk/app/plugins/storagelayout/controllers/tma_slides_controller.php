@@ -5,9 +5,9 @@ class TmaSlidesController extends StoragelayoutAppController {
 	var $components = array('Storages', 'Sop.Sops');
 	
 	var $uses = array(
+		'Storagelayout.StorageMaster',
 		'Storagelayout.TmaSlide',
 		'Storagelayout.StorageCoordinate',
-		'Storagelayout.StorageMaster',
 		'Storagelayout.StorageControl'		
 	);
 	
@@ -17,18 +17,12 @@ class TmaSlidesController extends StoragelayoutAppController {
 	 * DISPLAY FUNCTIONS
 	 * -------------------------------------------------------------------------- */	
 		
-	function listAll($tma_block_storage_master_id = null) {
+	function listAll($tma_block_storage_master_id) {
 		if (!$tma_block_storage_master_id) { $this->redirect('/pages/err_sto_no_stor_id', NULL, TRUE); }
 
 		// MANAGE DATA
 
 		// Get the storage data
-		//TODO ????
-		$this->StorageMaster->bindModel(array('belongsTo'=> array(        
-		'StorageControl' => array(            
-			'className'    => 'Storagelayout.StorageControl',            
-			'foreignKey'    => 'storage_control_id'        
-		)  )));
 		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $tma_block_storage_master_id)), null, 1);
 		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_stor_data', NULL, TRUE); }	
 		
@@ -45,6 +39,9 @@ class TmaSlidesController extends StoragelayoutAppController {
 		
 		// Inactivate Storage Coordinate Menu (unpossible for TMA type)
 		$atim_menu = $this->Storages->inactivateStorageCoordinateMenu($atim_menu);
+		
+		// Inactivate Children Storage Menu (unpossible for TMA type)
+		$atim_menu = $this->Storages->inactivateChildrenStorageMenu($atim_menu);
 			
 		$this->set('atim_menu', $atim_menu);
 		$this->set('atim_menu_variables', array('StorageMaster.id' => $tma_block_storage_master_id));
@@ -53,14 +50,13 @@ class TmaSlidesController extends StoragelayoutAppController {
 		$this->set('atim_structure', $this->Structures->get('form', 'tma_slides'));
 	}
 	
-	 function add($tma_block_storage_master_id = null) {
+	 function add($tma_block_storage_master_id) {
 		if (!$tma_block_storage_master_id) { $this->redirect('/pages/err_sto_no_stor_id', NULL, TRUE); }
 
 		// MANAGE DATA
 
 		// Get the storage data
 		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $tma_block_storage_master_id)));
-pr($storage_data);exit;
 		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_stor_data', NULL, TRUE); }	
 
 		// Verify storage is tma block
@@ -76,7 +72,10 @@ pr($storage_data);exit;
 		
 		// Inactivate Storage Coordinate Menu (unpossible for TMA type)
 		$atim_menu = $this->Storages->inactivateStorageCoordinateMenu($atim_menu);
-			
+		
+		// Inactivate Children Storage Menu (unpossible for TMA type)
+		$atim_menu = $this->Storages->inactivateChildrenStorageMenu($atim_menu);
+						
 		$this->set('atim_menu', $atim_menu);
 		$this->set('atim_menu_variables', array('StorageMaster.id' => $tma_block_storage_master_id));
 
@@ -108,134 +107,82 @@ pr($storage_data);exit;
 			// Check slide position within storage
 			if($submitted_data_validates) {
 				$storage_data = (empty($this->data['TmaSlide']['storage_master_id'])? null: $arr_storage_selection_results['matching_storage_list'][$this->data['TmaSlide']['storage_master_id']]);
-				pr($storage_data);
-				$this->Storages->validatePositionWithinStorage($this->data['TmaSlide']['storage_master_id'], $this->data['TmaSlide']['storage_coord_x'], $this->data['TmaSlide']['storage_coord_y'], $storage_data);
+				$arr_position_results = $this->Storages->validatePositionWithinStorage($this->data['TmaSlide']['storage_master_id'], $this->data['TmaSlide']['storage_coord_x'], $this->data['TmaSlide']['storage_coord_y'], $storage_data);
+				if(!empty($arr_position_results['position_definition_error'])) {
+					$submitted_data_validates = FALSE;
+					$this->TmaSlide->validationErrors['storage_coord_x'] = $arr_position_results['position_definition_error'];		
+				}				
+				$this->data['TmaSlide']['storage_coord_x'] = $arr_position_results['validated_position_x'];
+				$this->data['TmaSlide']['storage_coord_y'] = $arr_position_results['validated_position_y'];
+			}
+			
+			if($this->isDuplicatedTmaSlideBarcode($this->data['TmaSlide']['barcode'])) {
+				$submitted_data_validates = FALSE;
 			}
 			
 			if($submitted_data_validates) {
 				// Save data	
-				if ($this->TmaSlide->save($this->data['StorageCoordinate'])) {
-					$this->flash('Your data has been saved.', '/storagelayout/storage_coordinates/listAll/' . $tma_block_storage_master_id);				
+				if ($this->TmaSlide->save($this->data)) {
+					$this->flash('Your data has been saved.', '/storagelayout/tma_slides/listAll/' . $tma_block_storage_master_id);				
 				}
 			}
 		}
-
-
-
-
-
-
-			
-
-
-//			if($this->isDuplicatedTmaSlideBarcode($this->data['TmaSlide']['barcode'])) {
-//				$this->data['TmaSlide']['barcode'] = '';
-//			}
-
-
-		
-	} // End Add function
-
-	/**
-	 * Detail a TMA slide.
-	 * 
-	 * @param $std_tma_block_master_id ID of the studied TMA block.
-	 * @param $tma_slide_id ID of the TMA slide.
-	 * 
-	 * @author N. Luc
-	 * @since 2008-06-02
-	 * 
-	 */
-	function detail($std_tma_block_master_id=null, $tma_slide_id=null) {
-		
-		// ** Parameters check **
-		// Verify parameters have been set
-		if(empty($std_tma_block_master_id)) {
-			$this->redirect('/pages/err_sto_no_stor_id'); 
-			exit;
-		}
-		
-		// ** get STORAGE info **
-		$this->StorageMaster->id = $std_tma_block_master_id;
-		$storage_master_data = $this->StorageMaster->read();
-		
-		if(empty($storage_master_data)) {
-			$this->redirect('/pages/err_sto_no_stor_data'); 
-			exit;
-		}
-
-		//Look for storage control
-		$this->StorageControl->id = $storage_master_data['StorageMaster']['storage_control_id'];
-		$storage_control_data = $this->StorageControl->read();
-
-		if(empty($storage_control_data)){
-			$this->redirect('/pages/err_sto_no_stor_cont_data'); 
-			exit;
-		}	
-		
-		// Verify storage is tma block
-		if(strcmp($storage_control_data['StorageControl']['is_tma_block'], 'TRUE') != 0) {
-			$this->redirect('/pages/err_sto_not_a_tma_block'); 
-			exit;			
-		}
-		
-		// ** set MENU variable for echo on VIEW **
-		$ctrapp_menu[] = $this->Menus->tabs( 'sto_CAN_01', 'sto_CAN_02', $std_tma_block_master_id ); 
-		$ctrapp_menu[] = $this->Menus->tabs( 'sto_CAN_02', 'sto_CAN_08', $std_tma_block_master_id );
-		if(!$this->requestAction('/storagelayout/storage_coordinates/allowCustomCoordinates/'.$storage_control_data['StorageControl']['id'])) {
-			//grey out 'Coordinates' tab
-			 $ctrapp_menu['0']['sto_CAN_06']['allowed'] = false;
-		}
-		$this->set( 'ctrapp_menu', $ctrapp_menu );
-		
-		// ** set SUMMARY variable from plugin's COMPONENTS ** 
-		$this->set('ctrapp_summary', $this->Summaries->build($std_tma_block_master_id));
-		
-		// set SIDEBAR variable, for HELPER call on VIEW 
-		// use PLUGIN_CONTROLLER_ACTION by default, but any ALIAS string 
-		// that matches in the SIDEBARS datatable will do...
-		$this->set('ctrapp_sidebar', 
-			$this->Sidebars->getColsArray(
-				$this->params['plugin'].'_'.
-				$this->params['controller'].'_'.
-				$this->params['action']));
-				
-		// ** set FORM variable, for HELPER call on VIEW  **	
-		$this->set('ctrapp_form', $this->Forms->getFormArray('tma_slides'));
-		
-		// ** set DATA for echo on VIEW or to build link **
-		$this->set('std_tma_block_master_id', $std_tma_block_master_id);
-		$this->set('tma_slide_id', $tma_slide_id);
-		
-		$this->set('arr_tma_slide_sop_title_from_id', $this->getTmaSlideSopsArray());	
-				
-		// ** Get Storage Coordinate Data **			
-		$this->TmaSlide->id = $tma_slide_id;
-		$tma_slide_data = $this->TmaSlide->read();
-		
-		if(empty($tma_slide_data)){
-			$this->redirect('/pages/err_sto_no_tma_slide_data'); 
-			exit;
-		}
-		
-		if(strcmp($tma_slide_data['TmaSlide']['std_tma_block_id'], $std_tma_block_master_id) != 0) {
-			$this->redirect('/pages/err_sto_no_tma_slide_data'); 
-			exit;
-		}
-		
-		$this->set('data', $tma_slide_data); 
-		
-		// ** look for CUSTOM HOOKS, "format" **
-		$custom_ctrapp_controller_hook 
-			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
-			'controllers' . DS . 'hooks' . DS . 
-			$this->params['controller'].'_'.$this->params['action'].'_format.php';
-		
-		if (file_exists($custom_ctrapp_controller_hook)) {
-			require($custom_ctrapp_controller_hook);
-		}
-		
 	}
+	
+	function detail($tma_block_storage_master_id, $tma_slide_id) {
+		if((!$tma_block_storage_master_id) || (!$tma_slide_id)) { $this->redirect('/pages/err_sto_funct_param_missing', NULL, TRUE); }
+		
+		// MANAGE DATA
+
+		// Get the storage data
+		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $tma_block_storage_master_id)));
+		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_stor_data', NULL, TRUE); }	
+
+		// Verify storage is tma block
+		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') != 0) { $this->redirect('/pages/err_sto_not_a_tma_block', NULL, TRUE); }
+		
+		// Get the tma slide data
+		$tma_slide_data = $this->TmaSlide->find('first', array('conditions' => array('TmaSlide.id' => $tma_slide_id, 'TmaSlide.std_tma_block_id' => $tma_block_storage_master_id)));
+		if(empty($tma_slide_data)) { $this->redirect('/pages/err_sto_no_tma_slide_data', NULL, TRUE); }		
+		$this->data = $tma_slide_data; 
+		
+		// Set list of available SOPs to build TMA slide
+		$this->set('arr_tma_slide_sops', $this->Sops->getSop());
+		
+		// MANAGE FORM, MENU AND ACTION BUTTONS
+		
+		// Get the current menu object. Needed to disable menu options based on storage type		
+		$atim_menu = $this->Menus->get('/storagelayout/tma_slides/listAll/%%StorageMaster.id%%');
+		
+		// Inactivate Storage Coordinate Menu (unpossible for TMA type)
+		$atim_menu = $this->Storages->inactivateStorageCoordinateMenu($atim_menu);
+		
+		// Inactivate Children Storage Menu (unpossible for TMA type)
+		$atim_menu = $this->Storages->inactivateChildrenStorageMenu($atim_menu);
+						
+		$this->set('atim_menu', $atim_menu);
+		$this->set('atim_menu_variables', array('StorageMaster.id' => $tma_block_storage_master_id));
+		
+		// Set structure					
+		$this->set('atim_structure', $this->Structures->get('form', 'tma_slides'));		
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	/**
 	 * Edit a TMA slide.
@@ -592,15 +539,29 @@ pr($storage_data);exit;
 			'/tma_slides/listAll/'.$std_tma_block_master_id.'/');
 		
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 	/* --------------------------------------------------------------------------
 	 * ADDITIONAL FUNCTIONS
 	 * -------------------------------------------------------------------------- */	
 	
 	/**
-	 * Verify the tma slide barcode does not already exist.
+	 * Check the tma slide barcode does not already exist and set error if not.
 	 * 
-	 * @param $storage_master_id new barcode.
+	 * @param $new_barcode_value New barcode.
 	 * 
 	 * @return Return TRUE if barcode has already been set.
 	 * 
@@ -608,23 +569,14 @@ pr($storage_data);exit;
 	 * @since 2008-02-04
 	 */
 	function isDuplicatedTmaSlideBarcode($new_barcode_value) {
+		$nbr_barcode_values = $this->TmaSlide->find('count', array('conditions' => array('TmaSlide.barcode' => $new_barcode_value)));
+		if($nbr_barcode_values == 0) { return FALSE; }
 		
-		// verify storage contains no aliquots
-		$conditions = " TmaSlide.barcode = '".$new_barcode_value."' ";				
-		$nbr_coord_values = $this->TmaSlide->findCount($conditions);
+		// The value already exists: Set the errors
+//TODO validate
+		$this->TmaSlide->validationErrors['barcode']	= 'barcode must be unique';
 
-		if($nbr_coord_values > 0){
-			return TRUE;
-		}
-					
-		return FALSE;		
-		
-	}
-	
-	function getTmaSlideSopsArray($product_type = NULL, $aliquot_type = NULL){
-		//TODO getTmaSlideSopsArray()
-		return array('0' => 'n/a');
-		
+		return TRUE;		
 	}
 	
 }
