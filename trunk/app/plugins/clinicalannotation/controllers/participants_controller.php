@@ -47,7 +47,7 @@ class ParticipantsController extends ClinicalannotationAppController {
 		$this->set( 'atim_menu', $this->Menus->get('/clinicalannotation/participants/index') );
 		
 		if ( !empty($this->data) ) {
-			if ( $this->Participant->save($this->data) ) $this->flash( 'Your data has been updated.','/clinicalannotation/participants/profile/'.$this->Participant->id );
+			if ( $this->Participant->save($this->data) ) $this->flash( 'Your data has been updated.','/clinicalannotation/participants/profile/'.$this->Participant->getLastInsertID());
 		}
 	}
 	
