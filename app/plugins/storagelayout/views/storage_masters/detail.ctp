@@ -1,34 +1,40 @@
 <?php
 	
 	// DISPLAY STORAGE FORM
+	$structure_links = array();
+	if($is_tree_view_detail_form) {
+		// Detail displayed in children storage tree view: Just display details button to access storage
+		$structure_links = array('bottom'=>array('detail' => '/storagelayout/storage_masters/detail/' . $atim_menu_variables['StorageMaster.id']));		
 
-	// If a parent storage object is defined then set the 'Show Parent' button
-	$show_parent_link = '/underdevelopment/';
-	if(!empty($parent_storage_data)) {
-		$show_parent_link = '/storagelayout/storage_masters/detail/' . $parent_storage_data['StorageMaster']['id'];			
-	}
-	
-	// Create array of valid storage types for the ADD button
-	$add_links = array();
-	if($is_tma) {
-		// No children storage could be added to a TMA block
-		$add_links = '/underdevelopment/';
 	} else {
-		foreach ( $storage_controls_list as $storage_control ) {
-			$add_links[$storage_control['StorageControl']['storage_type']] = '/storagelayout/storage_masters/add/' . $storage_control['StorageControl']['id'] . '/' . $atim_menu_variables['StorageMaster.id'];
-		}		
+		// If a parent storage object is defined then set the 'Show Parent' button
+		$show_parent_link = '/underdevelopment/';
+		if(!empty($parent_storage_data)) {
+			$show_parent_link = '/storagelayout/storage_masters/detail/' . $parent_storage_data['StorageMaster']['id'];			
+		}
+		
+		// Create array of valid storage types for the ADD button
+		$add_links = array();
+		if($is_tma) {
+			// No children storage could be added to a TMA block
+			$add_links = '/underdevelopment/';
+		} else {
+			foreach ( $storage_controls_list as $storage_control ) {
+				$add_links[$storage_control['StorageControl']['storage_type']] = '/storagelayout/storage_masters/add/' . $storage_control['StorageControl']['id'] . '/' . $atim_menu_variables['StorageMaster.id'];
+			}		
+		}
+		
+		$structure_links = array(
+			'bottom'=>array(
+				'edit' => '/storagelayout/storage_masters/edit/' . $atim_menu_variables['StorageMaster.id'], 
+				'edit position'=> '/underdevelopment/',
+				'add to selected' => $add_links,
+				'delete' => '/storagelayout/storage_masters/delete/' . $atim_menu_variables['StorageMaster.id'],
+				'show parent' => $show_parent_link,
+				'search' => '/storagelayout/storage_masters/index/'
+			)
+		);
 	}
-	
-	$structure_links = array(
-		'bottom'=>array(
-			'edit' => '/storagelayout/storage_masters/edit/' . $atim_menu_variables['StorageMaster.id'], 
-			'edit position'=> '/underdevelopment/',
-			'add to selected' => $add_links,
-			'delete' => '/storagelayout/storage_masters/delete/' . $atim_menu_variables['StorageMaster.id'],
-			'show parent' => $show_parent_link,
-			'search' => '/storagelayout/storage_masters/index/'
-		)
-	);
 		
 	$structure_override = array();
 	
@@ -55,8 +61,9 @@
 		$structures->build($atim_structure, array('settings' => array('actions' => FALSE), 'override' => $structure_override) );
 
 		// DISPLAY STORAGE POSITION FORM
-		
-		$structure_links['bottom']['edit position'] = '/storagelayout/storage_masters/editStoragePosition/' . $atim_menu_variables['StorageMaster.id'];
+		if(!$is_tree_view_detail_form) {		
+			$structure_links['bottom']['edit position'] = '/storagelayout/storage_masters/editStoragePosition/' . $atim_menu_variables['StorageMaster.id'];
+		}
 		
 		$position_structure_override = array();
 			
