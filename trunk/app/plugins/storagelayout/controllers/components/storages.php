@@ -42,7 +42,7 @@ class StoragesComponent extends Object {
 		$studied_parent_ids = $ids_to_remove;
 		
 		while(!empty($studied_parent_ids)){
-			$children_ids = $this->controller->StorageMaster->find('list', array('conditions'=>array('StorageMaster.parent_id' => $studied_parent_ids)));
+			$children_ids = $this->controller->StorageMaster->find('list', array('conditions' => array('StorageMaster.parent_id' => $studied_parent_ids)));
 			$ids_to_remove += $children_ids;
 			$studied_parent_ids = $children_ids;
 		}
@@ -70,7 +70,7 @@ class StoragesComponent extends Object {
 	function allowCustomCoordinates($storage_control_id, $storage_control_data = null) {	
 		// Check for storage control data, if none get the control data
 		if(empty($storage_control_data)) {
-			$storage_control_data = $this->controller->StorageControl->find('first', array('conditions'=>array('StorageControl.id' => $storage_control_id)));
+			$storage_control_data = $this->controller->StorageControl->find('first', array('conditions' => array('StorageControl.id' => $storage_control_id)));
 			if(empty($storage_control_data)) { $this->controller->redirect('/pages/err_sto_no_stor_cont_data', NULL, TRUE); }
 		}
 					
@@ -302,7 +302,7 @@ class StoragesComponent extends Object {
 		} else {
 			// Check for storage data, if none get the storage data
 			if(empty($storage_data)) {
-				$storage_data = $this->controller->StorageMaster->find('first', array('conditions'=>array('StorageMaster.id' => $storage_master_id)));
+				$storage_data = $this->controller->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
 				if(empty($storage_data)) { $this->controller->redirect('/pages/err_sto_no_stor_data', NULL, TRUE); }
 			}			
 			
@@ -347,6 +347,7 @@ class StoragesComponent extends Object {
 	 * @author N. Luc
 	 * @since 2009-08-16
 	 */
+	
 	function validatePositionValue($storage_data, $position, $coord) {
 		$validation_results = array(
 			'validated' => TRUE,

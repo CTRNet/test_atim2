@@ -9,16 +9,16 @@ class StorageMaster extends StoragelayoutAppModel {
 		)    
 	);
 	
-	function summary( $variables=array() ) {
+	function summary( $variables = array()) {
 		$return = false;
 		
-		if ( isset($variables['StorageMaster.id']) ) {
-			$result = $this->find('first', array('conditions'=>array('StorageMaster.id'=>$variables['StorageMaster.id'])));
+		if (isset($variables['StorageMaster.id'])) {
+			$result = $this->find('first', array('conditions' => array('StorageMaster.id' => $variables['StorageMaster.id'])));
 			
 			$return = array(
 				'Summary' => array(
-					'menu' => array( NULL, (__($result['StorageMaster']['storage_type'], TRUE) . ' : ' . $result['StorageMaster']['short_label'])),
-					'title' => array( NULL, (__($result['StorageMaster']['storage_type'], TRUE) . ' : ' . $result['StorageMaster']['short_label'])),
+					'menu' => array(NULL, (__($result['StorageMaster']['storage_type'], TRUE) . ' : ' . $result['StorageMaster']['short_label'])),
+					'title' => array(NULL, (__($result['StorageMaster']['storage_type'], TRUE) . ' : ' . $result['StorageMaster']['short_label'])),
 					
 					'description' => array(
 						__('storage type', TRUE) => __($result['StorageMaster']['storage_type'], TRUE),

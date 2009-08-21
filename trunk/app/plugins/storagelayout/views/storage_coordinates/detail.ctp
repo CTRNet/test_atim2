@@ -3,7 +3,7 @@
 	$structure_links = array(
 		'bottom' => array(
 			'list' => '/storagelayout/storage_coordinates/listall/' . $atim_menu_variables['StorageMaster.id'],
-			'delete' => '/storagelayout/storage_coordinates/delete/' . $atim_menu_variables['StorageMaster.id'] . '/%%StorageCoordinate.id%%'
+			'delete' => '/storagelayout/storage_coordinates/delete/' . $atim_menu_variables['StorageMaster.id'] . '/' . $atim_menu_variables['StorageCoordinate.id']
 		)
 	);
 	

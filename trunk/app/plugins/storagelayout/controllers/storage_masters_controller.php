@@ -12,7 +12,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		'Inventorymanagement.AliquotMaster'
 	);
 	
-	var $paginate = array('StorageMaster'=>array('limit' => 10,'order' => 'StorageMaster.storage_type DESC, StorageMaster.short_label DESC'));
+	var $paginate = array('StorageMaster' => array('limit' => 10,'order' => 'StorageMaster.storage_type DESC, StorageMaster.short_label DESC'));
 
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS
@@ -61,7 +61,7 @@ class StorageMastersController extends StoragelayoutAppController {
 
 		// Get parent storage information
 		$parent_storage_id = $storage_data['StorageMaster']['parent_id'];
-		$parent_storage_data = $this->StorageMaster->find('first',array('conditions'=>array('StorageMaster.id' => $parent_storage_id)));
+		$parent_storage_data = $this->StorageMaster->find('first',array('conditions' => array('StorageMaster.id' => $parent_storage_id)));
 		if(!empty($parent_storage_id) && empty($parent_storage_data)) { $this->redirect('/pages/err_sto_no_stor_data', NULL, TRUE); }	
 		$this->set('parent_storage_data', $parent_storage_data);	
 
@@ -343,7 +343,7 @@ class StorageMastersController extends StoragelayoutAppController {
 
 		// Get parent storage information
 		$parent_storage_id = $storage_data['StorageMaster']['parent_id'];
-		$parent_storage_data = $this->StorageMaster->find('first',array('conditions'=>array('StorageMaster.id' => $parent_storage_id)));
+		$parent_storage_data = $this->StorageMaster->find('first',array('conditions' => array('StorageMaster.id' => $parent_storage_id)));
 		if(!empty($parent_storage_id) && empty($parent_storage_data)) { $this->redirect('/pages/err_sto_no_stor_data', NULL, TRUE); }
 		$this->set('parent_storage_data', $parent_storage_data);		
 				
@@ -486,11 +486,11 @@ class StorageMastersController extends StoragelayoutAppController {
 	function allowStorageDeletion($storage_master_id) {	
 // TODO to test
 		// Check storage contains no chlidren storage
-		$nbr_children_storages = $this->StorageMaster->find('count', array('conditions'=>array('StorageMaster.parent_id' => $storage_master_id)));
+		$nbr_children_storages = $this->StorageMaster->find('count', array('conditions' => array('StorageMaster.parent_id' => $storage_master_id)));
 		if($nbr_children_storages > 0) { return array('allow_deletion' => FALSE, 'msg' => 'children storage exists within the deleted storage'); }
 		
 		// Check storage contains no aliquots
-		$nbr_storage_aliquots = $this->AliquotMaster->find('count', array('conditions'=>array('AliquotMaster.storage_master_id' => $storage_master_id)));
+		$nbr_storage_aliquots = $this->AliquotMaster->find('count', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id)));
 		if($nbr_storage_aliquots > 0) { return array('allow_deletion' => FALSE, 'msg' => 'aliquot exists within the deleted storage'); }
 
 /*		
@@ -603,6 +603,7 @@ class StorageMastersController extends StoragelayoutAppController {
 	 * Check the new storage barcode does not already exists and set error if not.
 	 *
 	 * @param $storage_data Storage data including storage master, storage control, etc.
+	 * @param $storage_master_id Id of the storage when this one is known.
 	 *
 	 * @return TRUE if the new barcode already exists.
 	 * 
@@ -611,7 +612,7 @@ class StorageMastersController extends StoragelayoutAppController {
 	 * @updated A. Suggitt
 	 */
 	 
-	function IsDuplicatedStorageBarCode($storage_data) {
+	function IsDuplicatedStorageBarCode($storage_data, $storage_master_id = null) {
 		if(empty($storage_data['StorageMaster']['barcode'])) {
 			return FALSE;
 		}
@@ -622,7 +623,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		if(empty($duplicated_storage_barcodes)) {
 			// The new barcode does not exist into the db
 			return FALSE;
-		} else if(isset($storage_data['StorageMaster']['id']) && isset($duplicated_storage_barcodes[$storage_data['StorageMaster']['id']]) && (size_of($duplicated_storage_barcodes) == 1)) {
+		} else if((!empty($storage_master_id)) && isset($duplicated_storage_barcodes[$storage_master_id]) && (sizeof($duplicated_storage_barcodes) == 1)) {
 			// Storage has been created therefore and the recorded barcode is the barcode of the studied storage
 			return FALSE;			
 		}
@@ -630,7 +631,8 @@ class StorageMastersController extends StoragelayoutAppController {
 		// The same barcode exists for at least one storage different than the studied one
 		$this->StorageMaster->validationErrors['barcode']	= 'barcode must be unique';
 		
-		return TRUE;			
+		return TRUE;
+				
 	}
 	
 	/**
