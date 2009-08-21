@@ -45,7 +45,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		$_SESSION['ctrapp_core']['search']['url'] = '/storagelayout/storage_masters/search';
 	}
 	
-	function detail($storage_master_id, $storage_category = null) {
+	function detail($storage_master_id, $is_tree_view_detail_form = 0, $storage_category = null) {
 		// Note: $storage_category not really used. 
 		// Just added to parameters list to be consistent with TMA use link of the menu
 		if(!$storage_master_id) { $this->redirect('/pages/err_sto_no_stor_id', NULL, TRUE); }
@@ -67,6 +67,9 @@ class StorageMastersController extends StoragelayoutAppController {
 
 		$storage_path_data = $this->Storages->getStoragePathData($parent_storage_id);
 		$this->set('storage_path_data', $storage_path_data);
+		
+		// Define if this detail form is displayed into the children storage tree view
+		$this->set('is_tree_view_detail_form', $is_tree_view_detail_form);
 
 /* 	TODO: TMA related code		
 		if(strcmp($storage_control_data['StorageControl']['is_tma_block'], 'TRUE') == 0) {	
@@ -81,7 +84,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		$is_tma = FALSE;
 		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') == 0) {
 			// TMA menu
-			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/detail/%%StorageMaster.id%%/TMA');
+			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/detail/%%StorageMaster.id%%/0/TMA');
 			$atim_menu = $this->Storages->inactivateChildrenStorageMenu($atim_menu);
 			$is_tma = TRUE;
 		} else {
@@ -246,7 +249,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		$atim_menu = NULL;
 		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') == 0) {
 			// TMA menu
-			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/detail/%%StorageMaster.id%%/TMA');
+			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/detail/%%StorageMaster.id%%/0/TMA');
 			$atim_menu = $this->Storages->inactivateChildrenStorageMenu($atim_menu);
 		} else {
 			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/detail/%%StorageMaster.id%%');
@@ -368,7 +371,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		$atim_menu = NULL;
 		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') == 0) {
 			// TMA menu
-			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/detail/%%StorageMaster.id%%/TMA');
+			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/detail/%%StorageMaster.id%%/0/TMA');
 			$atim_menu = $this->Storages->inactivateChildrenStorageMenu($atim_menu);
 		} else {
 			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/detail/%%StorageMaster.id%%');
@@ -442,6 +445,96 @@ class StorageMastersController extends StoragelayoutAppController {
 			$this->flash($arr_allow_deletion['msg'], '/storagelayout/storage_masters/detail/' . $storage_master_id);
 		}		
 	}
+	
+	
+	
+	
+	
+	/**
+	 * Display children storage of a studied storage into a tree view.
+	 * 
+	 * @param $storage_master_id Storage master id of the storage that must be positionned.
+	 * 
+	 * @author N. Luc
+	 * @since 2007-05-22
+	 * @updated A. Suggitt
+	 */
+	 
+	function listChildrenStorages($storage_master_id) {
+		if(!$storage_master_id) { $this->redirect('/pages/err_sto_no_stor_id', NULL, TRUE); }
+		
+		// MANAGE STORAGE DATA
+		
+		// Get the storage data
+		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
+		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_stor_data', NULL, TRUE); }
+	
+		// Check storage is different than TMA
+		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') == 0) { $this->redirect('/pages/err_sto_system_error', NULL, TRUE); }
+			
+		// Get children storage
+		// TODO
+		$condition = array();
+		$sort = 'StorageMaster.parent_id ASC';		
+		
+		$this->data = $this->addAliquotToStorageTree($this->StorageMaster->find('threaded', array('condition' => $condition, 'order' =>  $sort)));
+						
+		// MANAGE FORM, MENU AND ACTION BUTTONS
+		
+		// Get the current menu object. Needed to disable menu options based on storage type
+		$atim_menu = $this->Menus->get('/storagelayout/storage_masters/detail/%%StorageMaster.id%%');
+		
+		if(!$this->Storages->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
+			// Check storage supports custom coordinates and disable access to coordinates menu option if required
+			$atim_menu = $this->Storages->inactivateStorageCoordinateMenu($atim_menu);
+		}
+					
+		if(empty($storage_data['StorageControl']['coord_x_type'])) {
+			// Check storage supports coordinates and disable access to storage layout menu option if required
+			$atim_menu = $this->Storages->inactivateStorageLayoutMenu($atim_menu);
+		}
+
+		$this->set('atim_menu', $atim_menu);
+		$this->set('atim_menu_variables', array('StorageMaster.id' => $storage_master_id));
+
+		// Set structure				
+		
+		
+				$atim_structure = array();
+		$atim_structure['StorageMaster']	= $this->Structures->get('form','storagemasters');
+		$atim_structure['AliquotMaster']	= $this->Structures->get('form','aliquotmasters');
+		$this->set( 'atim_structure', $atim_structure );
+			
+	}		
+	
+	function addAliquotToStorageTree( $data=array() ) {
+			
+		foreach ( $data as $key=>$val ) {
+			
+			// recursive first on existing MODEL CHILDREN
+			if ( isset($val['children']) && count($val['children']) ) {
+				$val['children'] = $this->addAliquotToStorageTree( $val['children'] );
+			}
+			
+			// get OUTSIDE MODEL data and append as CHILDREN
+			$aliquot_results = $this->AliquotMaster->find( 'all', array('conditions'=>array('AliquotMaster.storage_master_id'=>$val['StorageMaster']['id'])) );
+			foreach ( $aliquot_results as $aliquot ) { $val['children'][] = $aliquot; }
+			
+			$data[$key] = $val;
+		}
+				
+		return $data;
+
+	}	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	/* --------------------------------------------------------------------------
 	 * ADDITIONAL FUNCTIONS
