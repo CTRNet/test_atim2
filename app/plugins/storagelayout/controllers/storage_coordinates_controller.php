@@ -107,7 +107,11 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		$this->set('atim_structure', $this->Structures->get('form', 'std_storage_coordinates'));	
-		$this->set('atim_menu_variables', array('StorageMaster.id' => $storage_master_id));		
+		
+		$atim_menu_variables = array();
+		$atim_menu_variables['StorageMaster.id'] = $storage_master_id;
+		$atim_menu_variables['StorageCoordinate.id'] = $storage_coordinate_id;		
+		$this->set('atim_menu_variables', $atim_menu_variables);		
 	}
 	 
 	function delete($storage_master_id, $storage_coordinate_id) {
