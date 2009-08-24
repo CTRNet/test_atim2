@@ -17,6 +17,10 @@
 	$path_to_display = '';
 	foreach($storage_path_data as $new_parent_storage_data) { $path_to_display .= $new_parent_storage_data['StorageMaster']['code'] . ' / '; }
 	$structure_override['Generated.path'] = $path_to_display;
+	
+	if(isset($arr_tma_sops)){
+		$form_override['StorageDetail/sop_master_id'] = $arr_tma_sops;
+	}
 
 	$structures->build($atim_structure, array('settings' => array('actions' => FALSE), 'override' => $structure_override) );
 
