@@ -6,9 +6,16 @@ class ShellHelper extends Helper {
 	
 	function header( $options=array() ) {
 		
-		$menu_array					= $this->menu( $options['atim_menu'], array('variables'=>$options['atim_menu_variables']) );
+		$return = '';
 		
+		// get/set menu for menu BAR
+		
+		$menu_array					= $this->menu( $options['atim_menu'], array('variables'=>$options['atim_menu_variables']) );
 		$menu_for_wrapper			= $menu_array[0];
+		
+		// get/set menu for header
+		
+		$menu_array					= $this->menu( $options['atim_menu_for_header'], array('variables'=>$options['atim_menu_variables']) );
 		
 		$user_for_header			= '';
 		$root_menu_for_header	= '';
@@ -30,12 +37,34 @@ class ShellHelper extends Helper {
 						$html_attributes['class'] = 'menu '.$this->Structures->generate_link_class( 'plugin '.$menu_item['Menu']['use_link'] );
 						$html_attributes['title'] = __($menu_item['Menu']['language_title'], true);
 								
+						/*
 						$root_menu_for_header .= '
 									<!-- '.$menu_item['Menu']['id'].' -->
 									<li class="'.( !$menu_item['Menu']['allowed'] ? 'not_allowed ' : '' ).( $menu_item['Menu']['at'] ? 'at ' : '' ).'count_'.$key.'">
 										'.( $menu_item['Menu']['allowed'] ? $this->Html->link( __($menu_item['Menu']['language_title'], true), $menu_item['Menu']['use_link'], $html_attributes ) : __($menu_item['Menu']['language_title'], true) ).'
 									</li>
 						';
+						*/
+						
+						if ( !$menu_item['Menu']['allowed'] ) {
+							
+							$root_menu_for_header .= '
+									<!-- '.$menu_item['Menu']['id'].' -->
+									<li class="not_allowed count_'.$key.'">
+										<a class="menu plugin not_allowed" title="'.__($menu_item['Menu']['language_title'], true).'">'.__($menu_item['Menu']['language_title'], true).'</a>
+									</li>
+							';
+							
+						} 
+						
+						else {
+							$root_menu_for_header .= '
+									<!-- '.$menu_item['Menu']['id'].' -->
+									<li class="'.( $menu_item['Menu']['at'] ? 'at ' : '' ).'count_'.$key.'">
+										'.$this->Html->link( __($menu_item['Menu']['language_title'], true), $menu_item['Menu']['use_link'], $html_attributes ).'
+									</li>
+							';
+						}
 						
 					}
 					
@@ -55,12 +84,34 @@ class ShellHelper extends Helper {
 						$html_attributes['class'] = 'menu '.$this->Structures->generate_link_class( 'plugin '.$menu_item['Menu']['use_link'] );
 						$html_attributes['title'] = __($menu_item['Menu']['language_title'], true);
 								
+						/*
 						$root_menu_for_header .= '
 									<!-- '.$menu_item['Menu']['id'].' -->
 									<li class="'.( !$menu_item['Menu']['allowed'] ? 'not_allowed ' : '' ).( $menu_item['Menu']['at'] ? 'at ' : '' ).'count_'.$key.'">
 										'.( $menu_item['Menu']['allowed'] ? $this->Html->link( __($menu_item['Menu']['language_title'], true), $menu_item['Menu']['use_link'], $html_attributes ) : __($menu_item['Menu']['language_title'], true) ).'
 									</li>
 						';
+						*/
+						
+						if ( !$menu_item['Menu']['allowed'] ) {
+							
+							$root_menu_for_header .= '
+									<!-- '.$menu_item['Menu']['id'].' -->
+									<li class="not_allowed count_'.$key.'">
+										<a class="menu plugin not_allowed" title="'.__($menu_item['Menu']['language_title'], true).'">'.__($menu_item['Menu']['language_title'], true).'</a>
+									</li>
+							';
+							
+						} 
+						
+						else {
+							$root_menu_for_header .= '
+									<!-- '.$menu_item['Menu']['id'].' -->
+									<li class="'.( $menu_item['Menu']['at'] ? 'at ' : '' ).'count_'.$key.'">
+										'.$this->Html->link( __($menu_item['Menu']['language_title'], true), $menu_item['Menu']['use_link'], $html_attributes ).'
+									</li>
+							';
+						}
 						
 					}
 					
@@ -83,7 +134,7 @@ class ShellHelper extends Helper {
 			$logged_in = false;
 		}
 		
-		echo '
+		$return .= '
 			<!-- start #header -->
 			<div id="header">
 				<h1>'.__('core_appname', true).'</h1>
@@ -92,47 +143,74 @@ class ShellHelper extends Helper {
 			</div>
 			<!-- end #header -->
 		';	
-			
-		// echo $user_for_header;
-			
+		
+		// display DEFAULT menu
 		if ( $logged_in ) {	
-			echo '
+			$return .= '
 				<!-- start #menu -->
 				<div id="menu">
 					'.$menu_for_wrapper.'
 				</div>
 				<!-- end #menu -->
 			';
-		} 
+		}
 		
+		// display hardcoded LOGIN menu
 		else {
-			echo '
-			<!-- start #menu -->
-			<div id="menu">
+			$return .= '
+				<!-- start #menu -->
+				<div id="menu">
+						
+					<div class="menu level_0">
+						<ul class="total_count_1">
+							<li class="at count_0 root">
+								<a href="'.$this->Html->url('/').'" class="without_summary menu plugin login" title="'. __('Login', true).'">'. __('Login', true).'</a>
+							</li>
+						</ul>
+					</div>
 					
-				<div class="menu level_0">
-					<ul>
-						<li class="at count_0 root">
-							<a href="'.$this->Html->url('/').'" class="without_summary menu plugin login" title="'. __('Login', true).'">'. __('Login', true).'</a>
-						</li>
-					</ul>
 				</div>
-				
-			</div>
-			<!-- end #menu -->
+				<!-- end #menu -->
 			';
 		}
 		
-		echo '	
+		// display any VALIDATION ERRORS
+		if ( isset($this->validationErrors) && count($this->validationErrors) ) {
+			$return .= '
+				<!-- start #validation -->
+				<div id="validation">
+					<ul>
+			';
+			
+			foreach ( $this->validationErrors as $model ) {
+				foreach ( $model as $field ) {
+					$return .= '
+						<li>'.__($field, true).'</li>
+					';
+				}
+			}
+			
+			$return .= '
+					</ul>
+				</div>
+				<!-- end #validation -->
+			';
+		}
+		
+		$return .= '	
 			<!-- start #wrapper -->
 			<div id="wrapper" class="plugin_'.( isset($this->params['plugin']) ? $this->params['plugin'] : 'none' ).' controller_'.$this->params['controller'].' action_'.$this->params['action'].'">
 		';
+		
+		return $return;
 		
 	}
 	
 	function footer( $options=array() ) {
 		
-		echo '
+		$return = '';
+		
+		$return .= '
 		   </div>
 			<!-- end #wrapper -->
 			
@@ -152,6 +230,7 @@ class ShellHelper extends Helper {
 			<!-- end #footer -->
 		';
 		
+		return $return;
 	} 
 	
 	function menu( $atim_menu=array(), $options=array() ) {
@@ -223,7 +302,15 @@ class ShellHelper extends Helper {
 											$html_attributes['class'] .= ' menu '.$this->Structures->generate_link_class( 'plugin '.$menu_item['Menu']['use_link'] );
 											$html_attributes['title'] = __($menu_item['Menu']['language_title'], true);
 											
-											$active_item = $menu_item['Menu']['allowed'] ? $this->Html->link( __($menu_item['Menu']['language_title'], true), $menu_item['Menu']['use_link'], $html_attributes ) : __($menu_item['Menu']['language_title'], true);
+											// $active_item = $menu_item['Menu']['allowed'] ? $this->Html->link( __($menu_item['Menu']['language_title'], true), $menu_item['Menu']['use_link'], $html_attributes ) : __($menu_item['Menu']['language_title'], true);
+											
+											if ( !$menu_item['Menu']['allowed'] ) {
+												$active_item = '<a class="menu plugin not_allowed" title="'.__($menu_item['Menu']['language_title'], true).'">'.__($menu_item['Menu']['language_title'], true).'</a>';
+											}
+											
+											else {
+												$active_item = $this->Html->link( __($menu_item['Menu']['language_title'], true), $menu_item['Menu']['use_link'], $html_attributes );
+											}
 										} 
 										
 										else {
@@ -238,12 +325,34 @@ class ShellHelper extends Helper {
 								$html_attributes = array();
 								$html_attributes['class'] = 'menu '.$this->Structures->generate_link_class( $menu_item['Menu']['language_title'], $menu_item['Menu']['use_link'] );
 								
+								/*
 								$append_menu .= '
 											<!-- '.$menu_item['Menu']['id'].' -->
 											<li class="'.( !$menu_item['Menu']['allowed'] ? 'not_allowed ' : '' ).( $menu_item['Menu']['at'] ? 'at ' : '' ).'count_'.$sub_count.'">
 												'.( $menu_item['Menu']['allowed'] ? $this->Html->link( __($menu_item['Menu']['language_title'], true), $menu_item['Menu']['use_link'], $html_attributes ) : __($menu_item['Menu']['language_title'], true) ).'
 											</li>
 								';
+								*/
+								
+								if ( !$menu_item['Menu']['allowed'] ) {
+									
+									$append_menu .= '
+											<!-- '.$menu_item['Menu']['id'].' -->
+											<li class="not_allowed count_'.$sub_count.'">
+												<a class="menu plugin not_allowed" title="'.__($menu_item['Menu']['language_title'], true).'">'.__($menu_item['Menu']['language_title'], true).'</a>
+											</li>
+									';
+									
+								} 
+								
+								else {
+									$append_menu .= '
+											<!-- '.$menu_item['Menu']['id'].' -->
+											<li class="'.( $menu_item['Menu']['at'] ? 'at ' : '' ).'count_'.$sub_count.'">
+												'.$this->Html->link( __($menu_item['Menu']['language_title'], true), $menu_item['Menu']['use_link'], $html_attributes ).'
+											</li>
+									';
+								}
 								
 								$sub_count++;
 								

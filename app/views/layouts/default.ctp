@@ -3,7 +3,7 @@
 <head>
 
 	<?php
-		$header = $shell->header( array('atim_menu'=>$atim_menu,'atim_menu_variables'=>$atim_menu_variables) );
+		$header = $shell->header( array('atim_menu_for_header'=>$atim_menu_for_header,'atim_menu'=>$atim_menu,'atim_menu_variables'=>$atim_menu_variables) );
 		$title = $this->loaded['shell']->pageTitle;
 	?>
 	
@@ -18,7 +18,7 @@
 		echo $javascript->link('prototype');
 		echo $javascript->link('scriptaculous.js?load=effects');
 		
-		echo $javascript->link('lightwindow');
+		// echo $javascript->link('lightwindow');
 	?>
 	
 </head>

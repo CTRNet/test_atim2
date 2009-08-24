@@ -4,17 +4,17 @@ App::import('component','Acl');
 
 class StructuresHelper extends Helper {
 		
-	var $helpers = array( 'Html', 'Form', 'Javascript', 'Ajax', 'Paginator','Session' );
+	var $helpers = array( 'Csv', 'Html', 'Form', 'Javascript', 'Ajax', 'Paginator','Session' );
 
 	function build( $atim_structure=array(), $options=array() ) {
-	
+		
 		$return_string = ''; 
 		
 		// DEFAULT set of options, overridden by PASSED options
 		$defaults = array(
 			'type'		=>	$this->params['action'], // defaults to ACTION
 			
-			'data'	=> array(), // override $this->data values, will not work properly for EDIT forms
+			'data'	=> false, // override $this->data values, will not work properly for EDIT forms
 			
 			'settings'	=> array(
 				'return'			=> false, // FALSE echos structure, TRUE returns it as string
@@ -91,7 +91,7 @@ class StructuresHelper extends Helper {
 		switch ( $options['type'] ) {
 			case 'index':		$options['type'] = 'index';	$return_string .= $this->build_table( $atim_structure, $options );	break;
 			case 'table':		$options['type'] = 'index';	$return_string .= $this->build_table( $atim_structure, $options );	break;
-			case 'list':	$options['type'] = 'index';	$return_string .= $this->build_table( $atim_structure, $options );	break;
+			case 'list':		$options['type'] = 'index';	$return_string .= $this->build_table( $atim_structure, $options );	break;
 			case 'listall':	$options['type'] = 'index';	$return_string .= $this->build_table( $atim_structure, $options );	break;
 			
 			case 'datagrid':	$options['type'] = 'index';	$return_string .= $this->build_table( $atim_structure, $options );	break;
@@ -99,6 +99,8 @@ class StructuresHelper extends Helper {
 			
 			case 'checklist':	$options['type'] = 'index';	$return_string .= $this->build_table( $atim_structure, $options );	break;
 			case 'radiolist':	$options['type'] = 'index';	$return_string .= $this->build_table( $atim_structure, $options );	break;
+			
+			case 'csv':			$options['type'] = 'index';	$return_string .= $this->build_csv( $atim_structure, $options ); $options['settings']['actions'] = false;		break;
 			
 			case 'add':			$options['type'] = 'add';		$return_string .= $this->build_detail( $atim_structure, $options );	break;
 			case 'edit':		$options['type'] = 'edit';		$return_string .= $this->build_detail( $atim_structure, $options );	break;
@@ -109,6 +111,15 @@ class StructuresHelper extends Helper {
 			default:				$options['type'] = 'detail';	$return_string .= $this->build_detail( $atim_structure, $options );	break;
 		}
 			
+		if ( $options['links']['top'] && $options['settings']['form_bottom'] ) {
+			$return_string .= '
+				</fieldset>
+				
+				<fieldset class="submit"
+					<input class="submit" type="submit" value="Submit" />
+			';
+		}
+		
 		if ( $options['links']['top'] && $options['settings']['form_bottom'] ) {
 			$return_string .= '
 					</fieldset>
@@ -215,7 +226,7 @@ class StructuresHelper extends Helper {
 							}
 							
 							$return_string .= '
-									<tr>
+									<tr class="'.$table_row['type'].'">
 										<td class="label'.( !$table_row_count && !$table_row['heading'] ? ' no_border' : '' ).'">
 											'.$table_row['label'].'
 										</td>
@@ -278,16 +289,6 @@ class StructuresHelper extends Helper {
 				// $return_string .= $this->display_extras( 'edit', $extras, 'end', count($table_index) );
 			
 			
-			if ( $options['type']!='detail' ) {
-				$return_string .= '
-					</tr>
-					<tr>
-						<td class="submit">
-							<input colspan="'.$count_columns.'" class="submit" type="submit" value="Submit" />
-						</td>
-				';
-			}
-				
 			$return_string .= '
 					</tr>
 				</tbody>
@@ -315,18 +316,18 @@ class StructuresHelper extends Helper {
 			
 			$this->Paginator->options(array('url' => $this->params['pass']));
 			
-				if ( count($options['data']) ) { $data=$options['data']; }
+				if ( is_array($options['data']) ) { $data=$options['data']; }
 				else { $data=$this->data; }
 				
-				$table_index = array();
+				$table_structure = array();
 				foreach ( $data as $key=>$val ) {
 					$options['stack']['key'] = $key;
-					$table_index[$key] = $this->build_stack( $atim_structure, $options );
+					$table_structure[$key] = $this->build_stack( $atim_structure, $options );
 					unset($options['stack']);
 				}
 				
 				$structure_count = 0;
-				$structure_index = array( 1 => $table_index ); 
+				$structure_index = array( 1 => $table_structure ); 
 				
 				// add EXTRAS, if any
 				$structure_index = $this->display_extras( $structure_index, $options );
@@ -338,10 +339,6 @@ class StructuresHelper extends Helper {
 					// for each FORM/DETAIL element...
 					if ( is_array($table_index) ) {
 					
-						echo '
-							
-						';
-						
 						// start table...
 						$return_string .= '
 							<td class="this_column_'.$structure_count.' total_columns_'.count($structure_index).'">
@@ -486,6 +483,62 @@ class StructuresHelper extends Helper {
 		'; 
 				
 		return $return_string;
+		
+	}
+
+
+/********************************************************************************************************************************************************************************/
+
+
+	function build_csv( $atim_structure, $options ) {
+		
+				if ( is_array($options['data']) ) { $data=$options['data']; }
+				else { $data=$this->data; }
+				
+				$table_structure = array();
+				foreach ( $data as $key=>$val ) {
+					$options['stack']['key'] = $key;
+					$table_structure[$key] = $this->build_stack( $atim_structure, $options );
+					unset($options['stack']);
+				}
+				
+				$structure_count = 0;
+				$structure_index = array( 1 => $table_structure ); 
+				
+				foreach ( $structure_index as $table_index ) {				
+					
+					$structure_count++;
+					
+					// for each FORM/DETAIL element...
+					if ( is_array($table_index) ) {
+					
+						if ( count($data) ) {
+							
+							// each column in table 
+							foreach ( $data as $key=>$val ) {
+								
+								$line = array();
+								
+								// each column/row in table 
+								foreach ( $table_index[$key] as $table_column ) {
+									foreach ( $table_column as $table_row ) {
+										
+										$line[] = $table_row['plain'];
+										
+									}
+								}
+								
+								$this->Csv->addRow($line);
+								
+							} // end FOREACH
+							
+						}
+						
+					}
+					
+				} // end FOREACH
+				
+		return $this->Csv->render();
 		
 	}
 
@@ -847,7 +900,7 @@ class StructuresHelper extends Helper {
 				
 				// use DATA passed in through OPTIONS from VIEW
 				// OR use DATA juggled in STACKS in this class' BUILD TREE functions
-				if ( count($options['data']) ) {
+				if ( is_array($options['data']) ) {
 					$data = &$options['data'][$options['stack']['key']];
 				} 
 				
@@ -860,7 +913,7 @@ class StructuresHelper extends Helper {
 			else {
 				$model_suffix = '.';
 				
-				if ( count($options['data']) ) {
+				if ( is_array($options['data']) ) {
 					$data = $options['data'];
 				}
 			}
@@ -898,6 +951,7 @@ class StructuresHelper extends Helper {
 					$table_index[ $field['display_column'] ][ $row_count ]['input'] = '';
 					
 					$table_index[ $field['display_column'] ][ $row_count ]['content'] = '';
+					$table_index[ $field['display_column'] ][ $row_count ]['plain'] = '';
 					
 					// place BASIC form info into stack
 					$table_index[ $field['display_column'] ][ $row_count ]['model'] = $field['StructureField']['model'];
@@ -1004,51 +1058,64 @@ class StructuresHelper extends Helper {
 								
 							} else if ( $field['StructureField']['type']=='date' || $field['StructureField']['type']=='datetime' ) {
 								
+								if ( !is_array($display_value) ) {
+								
 									// some older/different versions of PHP do not have cal_info() function, so manually build expected month array
-									$cal_info = array();
-									$cal_info['abbrevmonths'] = array(
-										1 => 'Jan',
-						            2 => 'Feb',
-						            3 => 'Mar',
-						            4 => 'Apr',
-						            5 => 'May',
-						            6 => 'Jun',
-						            7 => 'Jul',
-						            8 => 'Aug',
-						            9 => 'Sep',
-						            10 => 'Oct',
-						            11 => 'Nov',
-						            12 => 'Dec'
-						         );
+										$cal_info = array();
+										$cal_info['abbrevmonths'] = array(
+											1 => 'Jan',
+							            2 => 'Feb',
+							            3 => 'Mar',
+							            4 => 'Apr',
+							            5 => 'May',
+							            6 => 'Jun',
+							            7 => 'Jul',
+							            8 => 'Aug',
+							            9 => 'Sep',
+							            10 => 'Oct',
+							            11 => 'Nov',
+							            12 => 'Dec'
+							         );
+										
+									// format date STRING manually, using PHP's month name array, becuase of UnixTimeStamp's 1970 - 2038 limitation
+									
+										$calc_date_string = explode( ' ', $display_value );
+										
+										if ( $field['StructureField']['type']=='datetime' ) {
+											$calc_time_string = $calc_date_string[1];
+										}
+										
+										$calc_date_string = explode( '-', $calc_date_string[0] );
 								
-								// format date STRING manually, using PHP's month name array, becuase of UnixTimeStamp's 1970 - 2038 limitation
-								
-									$calc_date_string = explode( ' ', $display_value );
+										
+									// format month INTEGER into an abbreviated month name, lowercase, to use for translation alias
+									
+										$calc_date_string_month = intval($calc_date_string[1]);
+										$calc_date_string_month = $cal_info['abbrevmonths'][ $calc_date_string_month ];
+										$calc_date_string_month = strtolower( $calc_date_string_month );
+									
+									$display_value = __( $calc_date_string_month, true ).( $options['type']!='csv' ? '&nbsp;' : ' ' ).$calc_date_string[2].( $options['type']!='csv' ? '&nbsp;' : ' ' ).$calc_date_string[0]; // date array to nice string, with month translated
 									
 									if ( $field['StructureField']['type']=='datetime' ) {
-										$calc_time_string = $calc_date_string[1];
+										
+										// attach TIME to display
+										$display_value .= ' '.$calc_time_string;
+										
 									}
 									
-									$calc_date_string = explode( '-', $calc_date_string[0] );
+								} 
 								
-								// format month INTEGER into an abbreviated month name, lowercase, to use for translation alias
-								
-									$calc_date_string_month = intval($calc_date_string[1]);
-									$calc_date_string_month = $cal_info['abbrevmonths'][ $calc_date_string_month ];
-									$calc_date_string_month = strtolower( $calc_date_string_month );
-								
-								$display_value = __( $calc_date_string_month, true ).( $options['type']!='csv' ? '&nbsp;' : ' ' ).$calc_date_string[2].( $options['type']!='csv' ? '&nbsp;' : ' ' ).$calc_date_string[0]; // date array to nice string, with month translated
-								
-								if ( $field['StructureField']['type']=='datetime' ) {
-									
-									// attach TIME to display
-									$display_value .= ' '.$calc_time_string;
-									
+								// when DATE fields are validated, different array is returned, but since we don't need a DISPLAY value for FORM date, cheat and just zero it out 
+								else {
+									$display_value = '';
 								}
+								
 							}
 							
 					// put display_value into CONTENT array index, ELSE put span tag if value BLANK and INCREMENT empty index 
-					
+						
+						$table_index[ $field['display_column'] ][ $row_count ]['plain'] .= str_replace('&nbsp;',' ',$display_value).' ';
+						
 						if ( trim($display_value)!='' ) {
 							$table_index[ $field['display_column'] ][ $row_count ]['content'] .= $table_index[ $field['display_column'] ][ $row_count ]['tag'].$display_value.' ';
 						} else {
@@ -1132,8 +1199,9 @@ class StructuresHelper extends Helper {
 					if ( isset($this->validationErrors[ $field['StructureField']['model'] ][ $field['StructureField']['field'] ]) ) $html_element_array['class'] .= 'error ';
 					
 					if ( isset($field['flag_'.$options['type'].'_readonly']) && $field['flag_'.$options['type'].'_readonly'] && $options['type']!='search' ) {
+						$html_element_array['disabled'] = 'disabled';
+						$html_element_array['readonly'] = 'readonly';
 						$html_element_array['class'] .= 'readonly ';
-						$html_element_array['readonly'] ='readonly ';
 					}
 					
 					if ( count($field['StructureField']['StructureValidation']) ) {

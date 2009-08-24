@@ -36,7 +36,7 @@
 		);
 		
 		$structures->build( $atim_structure_for_process, array('type'=>'add', 'settings'=>array('form_top'=>false), 'links'=>$structure_links, 'override'=>$structure_override, 'data'=>array()) );
-	
+		
 	/*
 		$form_type = 'detail';
 		$form_model = isset( $this->params['data'] ) ? array( $this->params['data'] ) : array( $batch_set );
