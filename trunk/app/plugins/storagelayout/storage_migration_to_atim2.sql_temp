@@ -108,11 +108,13 @@ INSERT INTO `structure_validations`
 
 -- Add storage deletion message
 
-DELETE FROM `i18n` WHERE `id` IN ('children storage exists within the deleted storage', 'aliquot exists within the deleted storage');
+DELETE FROM `i18n` WHERE `id` IN ('children storage exists within the deleted storage', 'aliquot exists within the deleted storage', 'slide exists for the deleted tma', 'slide exists within the deleted storage');
 
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('children storage exists within the deleted storage', 'global', 'Your data cannot be deleted! <br>Children storage exists within the deleted storage.', 'Vos donn&eacute;es ne peuvent &ecirc;tre supprim&eacute;es! Des sous-entreposages existent dans votre entreposage.'),
-('aliquot exists within the deleted storage', 'global', 'Your data cannot be deleted! <br>Aliquot exists within the deleted storage.', 'Vos donn&eacute;es ne peuvent &ecirc;tre supprim&eacute;es! Des aliquots existent dans votre entreposage.');
+('aliquot exists within the deleted storage', 'global', 'Your data cannot be deleted! <br>Aliquot exists within the deleted storage.', 'Vos donn&eacute;es ne peuvent &ecirc;tre supprim&eacute;es! Des aliquots existent dans votre entreposage.'),
+('slide exists for the deleted tma', 'global', 'Your data cannot be deleted! <br>Slide exists for the deleted TMA.', 'Vos donn&eacute;es ne peuvent &ecirc;tre supprim&eacute;es! Des lames existent pour votre entreposage.'),
+('slide exists within the deleted storage', 'global', 'Your data cannot be deleted! <br>TMA slide exists within the deleted storage.', 'Vos donn&eacute;es ne peuvent &ecirc;tre supprim&eacute;es! Des lames de TMA existent dans votre entreposage.');
 
 -- Add surrounding temperature
 	
@@ -185,3 +187,51 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('barcode must be unique', 'global', 'The barcode must be unique!', 'Le barcode doit &ecirc;tre unique!'),
 ('barcode size is limited', 'global', 'The barcode size is limited!', 'La taille du barcode est limit&eacute;e!');
 
+-- Change Storage Menu
+
+DELETE FROM `menus` WHERE `id` = 'sto_CAN_09';
+
+INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_title`, `language_description`, `use_link`, `use_params`, `use_summary`, `active`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+('sto_CAN_09', 'sto_CAN_01', 0, 3, 'storage content', NULL, '/storagelayout/storage_masters/contentTreeView/%%StorageMaster.id%%', '', 'Storagelayout.StorageMaster::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+-- 'children storages'
+UPDATE `menus` 
+SET `parent_id` = 'sto_CAN_09',
+`use_summary` = ''
+WHERE `id` = 'sto_CAN_03';
+
+-- 'stored aliquots'
+UPDATE `menus` 
+SET `parent_id` = 'sto_CAN_09',
+`display_order` = '4',
+`use_summary` = ''
+WHERE `id` = 'sto_CAN_04';
+
+-- 'storage layout'
+UPDATE `menus` 
+SET `parent_id` = 'sto_CAN_09',
+`display_order` = '2',
+`use_summary` = ''
+WHERE `id` = 'sto_CAN_05';
+
+DELETE FROM `menus` WHERE `id` = 'sto_CAN_10';
+
+INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_title`, `language_description`, `use_link`, `use_params`, `use_summary`, `active`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+('sto_CAN_10', 'sto_CAN_09', 0, 1, 'storage content tree view', NULL, '/storagelayout/storage_masters/contentTreeView/%%StorageMaster.id%%', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+DELETE FROM `i18n` WHERE `id` IN ('storage content tree view', 'storage content', 'stored aliquots');
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('storage content tree view', 'global', 'Tree View', 'Vu hi&eacute;rarchique'),
+('storage content', 'global', 'Storage Content', 'Contenu de l''entreposage'),
+('stored aliquots', 'global', 'Aliquots', 'Aliquots');
+
+-- Storage selection label hidde for edit mode
+
+UPDATE `structure_formats` 
+SET `flag_edit` = '0',
+`flag_edit_readonly` = '0' 
+WHERE `structure_old_id` = 'CAN-999-999-000-999-1044' 
+AND `structure_field_old_id` = 'CAN-999-999-000-999-1217';
+
+`atim2-ctrnet`.

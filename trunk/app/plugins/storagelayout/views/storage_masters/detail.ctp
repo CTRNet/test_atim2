@@ -51,6 +51,10 @@
 	$path_to_display = '';
 	foreach($storage_path_data as $new_parent_storage_data) { $path_to_display .= $new_parent_storage_data['StorageMaster']['code'] . ' / '; }
 	$structure_override['Generated.path'] = $path_to_display;
+	
+	if(isset($arr_tma_sops)){
+    	$form_override['StorageDetail/sop_master_id'] = $arr_tma_sops;
+    }
 
 	if(!$bool_define_position) {
 		// No sorage position within parent exists	

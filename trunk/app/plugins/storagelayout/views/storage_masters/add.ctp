@@ -23,11 +23,9 @@
 	}
 	$structure_override['StorageMaster.parent_id'] = $translated_available_parent_storage_list;
 	
-/*  TODO: TMA Related
-    if(isset($arr_tma_sop_title_from_id)){
-    	$form_override['StorageDetail/sop_master_id'] = $arr_tma_sop_title_from_id;
+    if(isset($arr_tma_sops)){
+    	$form_override['StorageDetail/sop_master_id'] = $arr_tma_sops;
     }
-*/
 	
 	$structures->build($atim_structure, array('links' => $structure_links, 'override' => $structure_override));
 
