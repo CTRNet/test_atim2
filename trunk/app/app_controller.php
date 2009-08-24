@@ -4,7 +4,7 @@ class AppController extends Controller {
 	
 	var $uses = array('Config', 'Aco', 'Aro', 'Permission');
 	var $components	= array('Acl', 'Auth', 'Menus', 'RequestHandler', 'Structures');
-	var $helpers		= array('Ajax', 'Html', 'Javascript', 'Shell', 'Structures', 'Time');
+	var $helpers		= array('Ajax', 'Csv', 'Html', 'Javascript', 'Shell', 'Structures', 'Time');
 	
 	function beforeFilter() {
 		// Uncomment the following to create an Aco entry for every plugin/controller/method combination in the app.
@@ -76,6 +76,9 @@ class AppController extends Controller {
 				}
 			}
 			
+		// menu grabbed for HEADER
+			$this->set( 'atim_menu_for_header', $this->Menus->get('/menus/tools') );
+			
 		// ATiM1 "ctrapp_form" = ATiM2 "atim_structure"
 		// ATiM1 Forms validation = ATiM2 Structure validation
 			$this->set( 'atim_structure', $this->Structures->get() );
@@ -109,7 +112,7 @@ class AppController extends Controller {
 	function getControllerMethods($ctrlName){
 		$plugin = preg_match('/^.+\..*$/',$ctrlName) ? preg_replace('/^(.+)\..*$/','\1',$ctrlName) : false;
 		$ctrlName = preg_replace('/^.+\./','',$ctrlName);
-		if(!$plugin){
+		if(!$plugin || $plugin == 'App'){
 			$file_path = APP.'controllers'.DS.Inflector::underscore($ctrlName.'Controller').'.php';
 		}else{
 			$file_path = APP.'plugins'.DS.Inflector::underscore($plugin).DS
@@ -133,6 +136,9 @@ class AppController extends Controller {
 		$appIndex = array_search('App', $Controllers);
 		if ($appIndex !== false ) {
 		   unset($Controllers[$appIndex]);
+		}
+		foreach($Controllers as $i => $name){
+			if($name !== 'App') $Controllers[$i] = 'App.'.$name;
 		}
 		// call FUNCTION to get APP.PLUGIN.CONTROLLER list, and append to APP.CONTROLLER list
 		$Plugins = $this->_get_plugin_controller_names();

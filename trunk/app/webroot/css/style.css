@@ -133,8 +133,22 @@ a {
 	text-decoration: line-through;
 	cursor: not-allowed;
 }
+
 .required {
 	background-color: #ffc;
+}
+
+.readonly {
+	background-color: #f3f3f6;
+	color: #444;
+}
+
+.error {
+	background-color: #fcc;
+}
+
+.hidden {
+	display: none;
 }
 
 
@@ -636,6 +650,10 @@ div.menu ul#summary ul dl lh {
 			opacity: 0.3;
 		}
 		
+		div.error-message {
+			display: none;
+		}
+		
 		div#wrapper span.help div {
 			display: none;
 		}
@@ -671,6 +689,7 @@ div.menu ul#summary ul dl lh {
 	
 	
 /* -= table.structure =- */
+
 	div#wrapper table.structure {
 		width: 100%;
 		margin: 0;
@@ -791,6 +810,41 @@ div.menu ul#summary ul dl lh {
 				line-height: 14px;
 				color: #666;
 			}
+			
+			ul.big_announcements {
+				list-style: none;
+				border-top: 3px solid #eaedf2;
+				border-bottom: 2px solid #eaedf2;
+				margin: 0;
+				padding: 0;
+			}
+			ul.big_announcements li {
+				line-height: 25px;
+				border-bottom: 1px solid #eaedf2;
+			}
+				
+				ul.big_announcements li:hover {
+					background-color: #ffe;
+				}
+				
+			ul.big_announcements li a {
+				display: block;
+				padding: 7px 5px 8px 5px;
+				text-decoration: none;
+				
+				font-size: 1.3em;
+				font-weight: bold;
+				line-height: 1.1em;
+			}
+			
+			ul.big_announcements li a span {
+				display: block;
+				font-weight: normal;
+				font-size: 11px;
+				line-height: 1.1em;
+			}
+			
+			
 			ul.big_menu {
 				list-style: none;
 				border-top: 3px solid #eaedf2;
@@ -802,6 +856,11 @@ div.menu ul#summary ul dl lh {
 				line-height: 25px;
 				border-bottom: 1px solid #eaedf2;
 			}
+				
+				ul.big_menu li:hover {
+					background-color: #ffe;
+				}
+				
 			ul.big_menu li a {
 				display: block;
 				padding: 7px 5px 8px 40px;
@@ -809,6 +868,14 @@ div.menu ul#summary ul dl lh {
 				
 				font-size: 1.3em;
 				font-weight: bold;
+				line-height: 1.1em;
+			}
+			
+			ul.big_menu li a span {
+				display: block;
+				font-weight: normal;
+				font-size: 11px;
+				line-height: 1.1em;
 			}
 			
 				ul#big_menu_main a,
@@ -891,58 +958,60 @@ div.menu ul#summary ul dl lh {
 				a.form { padding-left: 20px; }
 				
 				/* -= ICONS =- */
-				/** toolbox**/
+					
+					/* site wide*/
+					
+					a.add { background: url("../img/icons/Add_16x16.png") no-repeat left center; }
+					a.cancel { background: url("../img/icons/Control Rewind_16x16.png") no-repeat left center; }
+					a.delete { background: url("../img/icons/Close_16x16.png") no-repeat left center; }
+					a.detail { background: url("../img/icons/Control Play_16x16.png") no-repeat left center; }
+					a.duplicate { background: url("../img/icons/Documents x3_16x16.png") no-repeat center center; }
+					a.edit { background: url("../img/icons/Edit_16x16.png") no-repeat left center; }
+					a.filter { background: url("../img/icons/Tag_16x16.png") no-repeat left center; }
+					a.list { background: url("../img/icons/Folder Open_16x16.png") no-repeat left center; }
+					a.news { background: url("../img/icons/News_16x16.png") no-repeat left center; }
+					a.order { background: url("../img/icons/Shopping Cart_16x16.png") no-repeat left center; }
+					a.popup { background: url("../img/icons/Trackback_16x16.png") no-repeat left center; }
+					a.reveal { background: url("../img/icons/Relationship Data_16x16.png") no-repeat left center; }
+					a.redo { background: url("../img/icons/Refresh_16x16.png") no-repeat left center; }
+					a.summary { background: url("../img/icons/Paste_16x16.png") no-repeat left center; }
+					a.search { background: url("../img/icons/Preview_16x16.png") no-repeat left center; }
+					a.search_results { background: #5081a5 url("../img/icons/Preview_16x16.png") no-repeat left center; }
+					a.thumbsdown { background: url("../img/icons/Flag Black_16x16.png") no-repeat left center; }
+					a.thumbsup { background: url("../img/icons/Flag Green_16x16.png") no-repeat left center; }
+					a.users { background: url("../img/icons/Group_16x16.png") no-repeat left center; }
+					
+					a.not_allowed { background: url("../img/icons/Warning_16x16.png") no-repeat left center; }
+					a.default { background: url("../img/icons/Document Blank_16x16.png") no-repeat left center; }
+					
+					/* toolbox*/
 				
-				a.plugin.login {background: url("../img/icons/Authenticate_32x32.png") no-repeat center center;}
-				
-				a.plugin.home {background: url("../img/icons/Home_32x32.png") no-repeat center center;}
-				a.plugin.customize {background: url("../img/icons/Password_32x32.png") no-repeat center center;}
-				a.plugin.logout {background: url("../img/icons/Sign_Out_32x32.png") no-repeat center center;}
-				
-				a.plugin.clinicalannotation {background: url("../img/icons/Contact_32x32.png") no-repeat center center;}
-				a.plugin.inventorymanagement {background: url("../img/icons/UPC_32x32.png") no-repeat center center;}
-				a.plugin.datamart {background: url("../img/icons/Preview_32x32.png") no-repeat center center;}
-				a.plugin.tools {background: url("../img/icons/Tools_32x32.png") no-repeat center center;}
-				
-				
-				a.plugin.administrate {background: url("../img/icons/Control Panel_32x32.png") no-repeat center center;}
-				a.plugin.drug {background: url("../img/icons/Security_32x32.png") no-repeat center center;}
-				a.plugin.rtbform {background: url("../img/icons/Form Input Textarea_32x32.png") no-repeat center center;}
-				a.plugin.order {background: url("../img/icons/Cart_32x32.png") no-repeat center center;}
-				a.plugin.protocol {background: url("../img/icons/Address Book_32x32.png") no-repeat center center;}
-				a.plugin.material {background: url("../img/icons/Shipping Weight_32x32.png") no-repeat center center;}
-				a.plugin.sop {background: url("../img/icons/List_32x32.png") no-repeat center center;}
-				a.plugin.storagelayout {background: url("../img/icons/Safe_32x32.png") no-repeat center center;}
-				a.plugin.study {background: url("../img/icons/Statistics_32x32.png") no-repeat center center;}
-				a.plugin.pricing {background: url("../img/icons/For Sale Dollars_32x32.png.png") no-repeat center center;}
-				
-				
-				a.plugin.default {background: url("../img/icons/Document Blank_32x32.png") no-repeat center center;}
-				
-				
-				/* site wide*/
-				a.add { background: url("../img/icons/Add_16x16.png") no-repeat left center; }
-				a.cancel { background: url("../img/icons/Control Rewind_16x16.png") no-repeat left center; }
-				a.delete { background: url("../img/icons/Close_16x16.png") no-repeat left center; }
-				a.detail { background: url("../img/icons/Control Play_16x16.png") no-repeat left center; }
-				a.duplicate { background: url("../img/icons/Documents x3_16x16.png") no-repeat center center; }
-				a.edit { background: url("../img/icons/Edit_16x16.png") no-repeat left center; }
-				a.filter { background: url("../img/icons/Tag_16x16.png") no-repeat left center; }
-				a.list { background: url("../img/icons/Folder Open_16x16.png") no-repeat left center; }
-				a.news { background: url("../img/icons/News_16x16.png") no-repeat left center; }
-				a.order { background: url("../img/icons/Shopping Cart_16x16.png") no-repeat left center; }
-				a.popup { background: url("../img/icons/Trackback_16x16.png") no-repeat left center; }
-				a.reveal { background: url("../img/icons/Relationship Data_16x16.png") no-repeat left center; }
-				a.redo { background: url("../img/icons/Refresh_16x16.png") no-repeat left center; }
-				a.summary { background: url("../img/icons/Paste_16x16.png") no-repeat left center; }
-				a.search { background: url("../img/icons/Preview_16x16.png") no-repeat left center; }
-				a.search_results { background: #5081a5 url("../img/icons/Preview_16x16.png") no-repeat left center; }
-				a.thumbsdown { background: url("../img/icons/Flag Black_16x16.png") no-repeat left center; }
-				a.thumbsup { background: url("../img/icons/Flag Green_16x16.png") no-repeat left center; }
-				a.users { background: url("../img/icons/Group_16x16.png") no-repeat left center; }
-				
-				a.default { background: url("../img/icons/Document Blank_16x16.png") no-repeat left center; }
-				
+					a.plugin.login {background: url("../img/icons/Authenticate_32x32.png") no-repeat center center;}
+					
+					a.plugin.home {background: url("../img/icons/Home_32x32.png") no-repeat center center;}
+					a.plugin.customize {background: url("../img/icons/Password_32x32.png") no-repeat center center;}
+					a.plugin.logout {background: url("../img/icons/Sign_Out_32x32.png") no-repeat center center;}
+					
+					a.plugin.clinicalannotation {background: url("../img/icons/Contact_32x32.png") no-repeat center center;}
+					a.plugin.inventorymanagement {background: url("../img/icons/UPC_32x32.png") no-repeat center center;}
+					a.plugin.datamart {background: url("../img/icons/Preview_32x32.png") no-repeat center center;}
+					a.plugin.tools {background: url("../img/icons/Tools_32x32.png") no-repeat center center;}
+					
+					
+					a.plugin.administrate {background: url("../img/icons/Control Panel_32x32.png") no-repeat center center;}
+					a.plugin.drug {background: url("../img/icons/Security_32x32.png") no-repeat center center;}
+					a.plugin.rtbform {background: url("../img/icons/Form Input Textarea_32x32.png") no-repeat center center;}
+					a.plugin.order {background: url("../img/icons/Cart_32x32.png") no-repeat center center;}
+					a.plugin.protocol {background: url("../img/icons/Address Book_32x32.png") no-repeat center center;}
+					a.plugin.material {background: url("../img/icons/Shipping Weight_32x32.png") no-repeat center center;}
+					a.plugin.sop {background: url("../img/icons/List_32x32.png") no-repeat center center;}
+					a.plugin.storagelayout {background: url("../img/icons/Safe_32x32.png") no-repeat center center;}
+					a.plugin.study {background: url("../img/icons/Statistics_32x32.png") no-repeat center center;}
+					a.plugin.pricing {background: url("../img/icons/For Sale Dollars_32x32.png.png") no-repeat center center;}
+					
+					a.plugin.not_allowed {background: url("../img/icons/Warning_32x32.png") no-repeat center center;}
+					a.plugin.default {background: url("../img/icons/Document Blank_32x32.png") no-repeat center center;}
+					
 				td.id a,
 				td.id a:hover,
 				table.tree ul a,
@@ -1011,6 +1080,41 @@ div.menu ul#summary ul dl lh {
 			div#wrapper table.structure table.columns td a.not_allowed {
 				color: #dde8f2;
 			}
+			
+
+	fieldset.submit {
+		margin: 0;
+		background-color: #fff;
+		
+		border-top: 1px solid #eaedf2; 
+		border-right: 1px solid #243340;
+		border-left: 1px solid #243340;
+	}
+	
+	fieldset.submit input {
+		margin: 10px;
+	}
+	
+	div#validation {
+		margin: 0 10px;
+		background-color: #fff;
+		
+		border: none;
+		border-right: 1px solid #243340;
+		border-left: 1px solid #243340;
+		
+		padding-top: 10px;
+	}
+	
+		div#validation li {
+			margin-bottom: 2px;
+			background-color: #933;
+			color: #fff;
+			padding: 0.5em 1em;
+			-moz-border-radius: 5px; -webkit-border-radius: 5px;
+		}
+	
+	
 		
 div#footer {
 	margin: 20px 0 0 0;

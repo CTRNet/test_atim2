@@ -43,11 +43,13 @@
 		}
 		
 		$structure_override = array(
+			'Adhoc.id' => $atim_menu_variables['Adhoc.id'],
+			'Adhoc.sql_query_for_results' => $final_query,
 			'BatchSet.id' => $batch_sets
 		);
 		
 		$structures->build( $atim_structure_for_add, array('type'=>'add', 'settings'=>array('form_top'=>false), 'links'=>$structure_links, 'override'=>$structure_override, 'data'=>array()) );
-	
+		
 	/*
 		// display DETAIL FORM, of adhoc query
 		
