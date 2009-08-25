@@ -9,6 +9,8 @@ class StorageMaster extends StoragelayoutAppModel {
 		)    
 	);
 	
+	var $actsAs = array('Tree');
+	
 	function summary( $variables = array()) {
 		$return = false;
 		

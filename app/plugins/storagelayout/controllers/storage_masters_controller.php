@@ -67,7 +67,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		$this->set('parent_storage_data', $parent_storage_data);	
 
 		$storage_path_data = $this->Storages->getStoragePathData($parent_storage_id);
-		$this->set('storage_path_data', $storage_path_data);
+		$this->set('storage_path_data', (empty($storage_path_data)? array():$storage_path_data));
 		
 		// Define if this detail form is displayed into the children storage tree view
 		$this->set('is_tree_view_detail_form', $is_tree_view_detail_form);
@@ -364,7 +364,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		}
 
 		$storage_path_data = $this->Storages->getStoragePathData($parent_storage_id);
-		$this->set('storage_path_data', $storage_path_data);
+		$this->set('storage_path_data', (empty($storage_path_data)? array():$storage_path_data));
 
 		// Set list of available SOPs to build TMA
 		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') == 0) {	
@@ -439,7 +439,13 @@ class StorageMastersController extends StoragelayoutAppController {
 		if($arr_allow_deletion['allow_deletion']) {
 			// Create has many relation to delete the storage coordinate
 			$this->StorageMaster->bindModel(array('hasMany' => array('StorageCoordinate' => array('className' => 'StorageCoordinate', 'foreignKey' => 'storage_master_id', 'dependent' => true))));	
-
+			
+			// First remove storage from tree
+			//TODO should perhaps be included into a general app function
+			$this->StorageMaster->id = $storage_master_id;	
+			$cleaned_storage_data = array('StorageMaster' => array('parent_id' => null));
+			$this->StorageMaster->save($cleaned_storage_data);
+			
 			// Delete storage
 			if($this->StorageMaster->atim_delete($storage_master_id)) {
 				$this->flash('Your data has been deleted.', '/storagelayout/storage_masters/index/');
@@ -471,9 +477,11 @@ class StorageMastersController extends StoragelayoutAppController {
 		// Get the storage data
 		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
 		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_stor_data', NULL, TRUE); }
-		$this->data = array();
-		$this->data[] = $this->getStorageContentNestedArray($storage_data);
-				
+		$storage_content = $this->StorageMaster->find('threaded', array('conditions' => array('StorageMaster.lft >=' => $storage_data['StorageMaster']['lft'], 'StorageMaster.rght <=' => $storage_data['StorageMaster']['rght'])));
+		$storage_content = $this->completeStorageContent($storage_content);
+		
+		$this->data = $storage_content;
+						
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Get the current menu object. Needed to disable menu options based on storage type
@@ -501,35 +509,40 @@ class StorageMastersController extends StoragelayoutAppController {
 	}		
 	
 	/**
-	 * Return a nested array gathering studied storage and all its children storages (recursive call)
-	 * plus both aliquots and TMA slides stored into those storages starting from a specific parent storage.
+	 * Parsing a nested array gathering storages and all their children storages, the funtion will add
+	 * both aliquots and TMA slides stored into any storages.
 	 * 
-	 * @param $storage_data Parent storage data including storage master, storage control, etc.
+	 * @param $storage_content Nested array gathering storages and all their children storages
 	 * 
-	 * @return The nested array.
+	 * @return The completed nested array.
 	 * 
 	 * @author N. Luc
 	 * @since 2009-09-13
 	 */
 	
-	function getStorageContentNestedArray($parent_data) {
-		$parent_data['children'] = array();
-		
-		// Add children storage data
-		$children_data = $this->StorageMaster->find('all', array('conditions' => array('StorageMaster.parent_id' => $parent_data['StorageMaster']['id'])));
-		foreach ($children_data as $child) {
-			$parent_data['children'][] = $this->getStorageContentNestedArray($child);
+	function completeStorageContent($storage_content) {
+		foreach ($storage_content as $key => $new_storage) {
+			
+			// recursive first on existing MODEL CHILDREN
+			if (isset($new_storage['children']) && count($new_storage['children'])) {
+				$new_storage['children'] = $this->completeStorageContent($new_storage['children']);
+			}
+			
+			// get OUTSIDE MODEL data and append as CHILDREN
+					
+			// 1-Add storage aliquots
+			$storage_aliquots = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.storage_master_id' => $new_storage['StorageMaster']['id'])));
+			foreach ($storage_aliquots as $aliquot) { $new_storage['children'][] = $aliquot; }				
+			
+			// 2-Add storage TMA slides
+			$this->TmaSlide->unbindModel(array('belongsTo' => array('StorageMaster')));
+			$storage_tma_slides = $this->TmaSlide->find('all', array('conditions' => array('TmaSlide.storage_master_id' => $new_storage['StorageMaster']['id'])));
+			foreach ($storage_tma_slides as $slide) { $new_storage['children'][] = $slide; }		
+			
+			$storage_content[$key] = $new_storage;
 		}
 		
-		// Add storage aliquots
-		$storage_aliquots = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.storage_master_id' => $parent_data['StorageMaster']['id'])));
-		foreach ($storage_aliquots as $aliquot) { $parent_data['children'][] = $aliquot; }			
-			
-		// Add storage TMA slides
-		$storage_tma_slides = $this->TmaSlide->find('all', array('conditions' => array('TmaSlide.storage_master_id' => $parent_data['StorageMaster']['id'])));
-		foreach ($storage_tma_slides as $slide) { $parent_data['children'][] = $slide; }			
-
-		return $parent_data;
+		return $storage_content;
 	}
 	
 	/**
@@ -559,6 +572,7 @@ class StorageMastersController extends StoragelayoutAppController {
 
 		// Search data of storage aliquots
 		$a_storage_aliquot_data = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id), 'order' => 'AliquotMaster.storage_coord_y ASC, AliquotMaster.storage_coord_x ASC'));	
+		if(empty($a_storage_aliquot_data)) { $this->flash('no aliquot is stored into this storage', '/storagelayout/storage_masters/contentTreeView/' . $storage_master_id);  }
 				
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -579,13 +593,14 @@ class StorageMastersController extends StoragelayoutAppController {
 		$this->set('atim_menu_variables', array('StorageMaster.id' => $storage_master_id));
 
 		// Set structure 		
-		$atim_structure_to_set_position = (is_null($storage_data['StorageControl']['form_alias_for_children_pos']))? 'manage_storage_aliquots_without_position': $storage_data['StorageControl']['form_alias_for_children_pos'].'_for_aliquot';	
-		$this->set('atim_structure_to_set_position', $atim_structure_to_set_position);
+		$structure_alias = (is_null($storage_data['StorageControl']['form_alias_for_children_pos']))? 'manage_storage_aliquots_without_position': $storage_data['StorageControl']['form_alias_for_children_pos'].'_for_aliquot';	
+		$this->set('atim_structure', $this->Structures->get('form', $structure_alias));
 
 		// MANAGE DATA RECORD
 				
 		if(empty($this->data)) {
 			$this->data = $a_storage_aliquot_data;
+pr($a_storage_aliquot_data);			
 		} else { 
 			// Update position
 			$storage_data_to_update = array();
@@ -674,6 +689,7 @@ class StorageMastersController extends StoragelayoutAppController {
 	 * @author N. Luc
 	 * @since 2007-05-22
 	 */
+	 
 	function storageLayout($storage_master_id) {
 		if(!$storage_master_id) { $this->redirect('/pages/err_sto_no_stor_id', NULL, TRUE); }
 		
@@ -875,7 +891,6 @@ class StorageMastersController extends StoragelayoutAppController {
 	 */
 	 
 	function allowStorageDeletion($storage_master_id) {	
-		
 		// Check storage contains no chlidren storage
 		$nbr_children_storages = $this->StorageMaster->find('count', array('conditions' => array('StorageMaster.parent_id' => $storage_master_id)));
 		if($nbr_children_storages > 0) { return array('allow_deletion' => FALSE, 'msg' => 'children storage exists within the deleted storage'); }

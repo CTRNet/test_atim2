@@ -51,7 +51,7 @@
 	
 	// BUILD
 
-	$structures->build( $atim_structure, array('type'=>'tree', 'settings'=>$structure_settings, 'links'=>$structure_links, 'extras'=>$structure_extras) );
+	$structures->build($atim_structure, array('type'=>'tree', 'settings'=>$structure_settings, 'links'=>$structure_links, 'extras'=>$structure_extras));
 ?>
 								
 <script>

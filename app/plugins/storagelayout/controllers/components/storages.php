@@ -165,7 +165,7 @@ class StoragesComponent extends Object {
 	 * 
 	 * @param $studied_storage_master_id ID of the studied storage.
 	 * 
-	 * @return An array that contains data of a storage plus all its parents storage odered from
+	 * @return An array that contains master data of a storage plus all its parents storage odered from
 	 * root to studied storage.
 	 * 
 	 * @author N. Luc
@@ -173,16 +173,7 @@ class StoragesComponent extends Object {
 	 */ 
 	 
 	function getStoragePathData($studied_storage_master_id) {
-		$storage_path_data = array();
-		
-		while(!empty($studied_storage_master_id)) {
-			$storage_data = $this->controller->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $studied_storage_master_id)));
-			if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_stor_data', NULL, TRUE); }		
-			array_unshift($storage_path_data, $storage_data);
-			$studied_storage_master_id = $storage_data['StorageMaster']['parent_id'];
-		}
-		
-		return $storage_path_data;
+		return $this->controller->StorageMaster->getpath($studied_storage_master_id);
 	}	
 	
 	/**
