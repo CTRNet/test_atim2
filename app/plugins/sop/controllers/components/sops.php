@@ -7,7 +7,7 @@ class SopsComponent extends Object {
 	}
 
 	// TODO: Develop this function to retrun SOP list according to object (AliquotMaster, TmaSlide, etc) and different parameters
-	function getSop() {
+	function getSopList() {
 		return array();
 	}
 	
