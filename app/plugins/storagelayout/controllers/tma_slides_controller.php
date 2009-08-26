@@ -63,7 +63,7 @@ class TmaSlidesController extends StoragelayoutAppController {
 		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') != 0) { $this->redirect('/pages/err_sto_not_a_tma_block', NULL, TRUE); }
 
 		// Set list of available SOPs to build TMA slide
-		$this->set('arr_tma_slide_sops', $this->Sops->getSop());
+		$this->set('arr_tma_slide_sops', $this->Sops->getSopList());
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 
@@ -128,7 +128,7 @@ class TmaSlidesController extends StoragelayoutAppController {
 		}
 	}
 	
-	function detail($tma_block_storage_master_id, $tma_slide_id) {
+	function detail($tma_block_storage_master_id, $tma_slide_id, $is_tree_view_detail_form = 0) {
 		if((!$tma_block_storage_master_id) || (!$tma_slide_id)) { $this->redirect('/pages/err_sto_funct_param_missing', NULL, TRUE); }
 		
 		// MANAGE DATA
@@ -146,8 +146,11 @@ class TmaSlidesController extends StoragelayoutAppController {
 		$this->data = $tma_slide_data; 
 		
 		// Set list of available SOPs to build TMA slide
-		$this->set('arr_tma_slide_sops', $this->Sops->getSop());
-		
+		$this->set('arr_tma_slide_sops', $this->Sops->getSopList());
+
+		// Define if this detail form is displayed into the children storage tree view
+		$this->set('is_tree_view_detail_form', $is_tree_view_detail_form);
+			
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Get the current menu object. Needed to disable menu options based on storage type		
@@ -187,7 +190,7 @@ class TmaSlidesController extends StoragelayoutAppController {
 		if(empty($tma_slide_data)) { $this->redirect('/pages/err_sto_no_tma_slide_data', NULL, TRUE); }		
 
 		// Set list of available SOPs to build TMA slide
-		$this->set('arr_tma_slide_sops', $this->Sops->getSop());
+		$this->set('arr_tma_slide_sops', $this->Sops->getSopList());
 		
 		// Get parent storage data
 		$parent_storage_data = array();
