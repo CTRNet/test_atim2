@@ -903,3 +903,19 @@ SET `flag_edit` = '0',
 WHERE `structure_old_id` = 'CAN-999-999-000-999-1044' 
 AND `structure_field_old_id` = 'CAN-999-999-000-999-1217';
 
+
+-- Add tree keys for storage masters
+
+ALTER TABLE `storage_masters` 
+ADD `lft` INT( 10 ) DEFAULT NULL AFTER `parent_id` ,
+ADD `rght` INT( 10 ) DEFAULT NULL AFTER `lft`;
+
+ALTER TABLE `storage_masters_revs` 
+ADD `lft` INT( 10 ) DEFAULT NULL AFTER `parent_id` ,
+ADD `rght` INT( 10 ) DEFAULT NULL AFTER `lft`;
+
+DELETE FROM `i18n` WHERE `id` IN ('storage content tree view', 'no aliquot is stored into this storage');
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('storage content tree view', 'global', 'Detail', 'D&eacute;tail'),
+('no aliquot is stored into this storage', 'global', 'No aliquot is stored into this storage!', 'Aucun aliquot n''est entrepos&eacute;!');
