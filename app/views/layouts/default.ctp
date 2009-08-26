@@ -12,13 +12,12 @@
 	<?php 
 		echo $html->css('style'); 
 		echo $html->css('datepicker');
+		echo $html->css('lightwindow');
 
 		echo $javascript->link('datepicker');
-
 		echo $javascript->link('prototype');
 		echo $javascript->link('scriptaculous.js?load=effects');
-		
-		// echo $javascript->link('lightwindow');
+		echo $javascript->link('lightwindow');
 	?>
 	
 </head>

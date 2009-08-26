@@ -973,6 +973,7 @@ div.menu ul#summary ul dl lh {
 					a.order { background: url("../img/icons/Shopping Cart_16x16.png") no-repeat left center; }
 					a.popup { background: url("../img/icons/Trackback_16x16.png") no-repeat left center; }
 					a.reveal { background: url("../img/icons/Relationship Data_16x16.png") no-repeat left center; }
+						a.reveal.not_allowed { background: url("../img/icons/Relationship Data_16x16.png") no-repeat left center; }
 					a.redo { background: url("../img/icons/Refresh_16x16.png") no-repeat left center; }
 					a.summary { background: url("../img/icons/Paste_16x16.png") no-repeat left center; }
 					a.search { background: url("../img/icons/Preview_16x16.png") no-repeat left center; }
@@ -1050,10 +1051,25 @@ div.menu ul#summary ul dl lh {
 					
 					div#wrapper div#frame div.actions {
 						background: none;
-						padding: 15px 0 0 20px;
-						margin: 0;
+						padding: 5px 0 0 20px;
+						margin: 2px;
 						border: none;
-						border-top: 1px solid #eaedf2;
+						border-top: 3px solid #486680;
+					}
+					
+					div#wrapper div#frame div.actions a {
+						background-color: #486680;
+						padding: 5px 10px 4px 27px;
+						color: #dde8f2;
+						
+						-moz-border-radius: 7px; -webkit-border-radius: 7px;
+						-moz-border-radius-topleft: 0; -webkit-border-top-left-radius: 0;
+						-moz-border-radius-topright: 0; -webkit-border-top-right-radius: 0;
+					}
+										
+					div#wrapper div#frame div.actions a:hover {
+						background-color: #293B49; 
+						color: #fff;
 					}
 							
 			div#wrapper table.structure table.columns tr.pagination th {

@@ -893,10 +893,14 @@ class StructuresHelper extends Helper {
 		
 			$data = &$this->data;
 		
+			$model_prefix = '';
+			$model_suffix = '.';
+			
 			if ( isset($options['stack']['key']) ) {
 				$tab_key = $options['stack']['key'];
 				
-				$model_suffix = '.'.$options['stack']['key'];
+				$model_prefix = $options['stack']['key'].'.';
+				// $model_suffix = '.'.$options['stack']['key'].'.';
 				
 				// use DATA passed in through OPTIONS from VIEW
 				// OR use DATA juggled in STACKS in this class' BUILD TREE functions
@@ -911,8 +915,6 @@ class StructuresHelper extends Helper {
 			}
 			
 			else {
-				$model_suffix = '.';
-				
 				if ( is_array($options['data']) ) {
 					$data = $options['data'];
 				}
@@ -1216,12 +1218,12 @@ class StructuresHelper extends Helper {
 						$html_element_array['value'] = $this->data[$field['StructureField']['model']][$field['StructureField']['field']]; 
 					}
 					
-					if ( !isset( $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) && isset( $options['override'][$field['StructureField']['model'].'.'.$field['StructureField']['field']] ) ) {
-						$options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] = $options['override'][$field['StructureField']['model'].'.'.$field['StructureField']['field']];
+					if ( !isset( $options['override'][$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) && isset( $options['override'][$field['StructureField']['model'].'.'.$field['StructureField']['field']] ) ) {
+						$options['override'][$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] = $options['override'][$field['StructureField']['model'].'.'.$field['StructureField']['field']];
 					}
 					
-					if ( isset( $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) ) { 
-						$html_element_array['value'] = $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]; 
+					if ( isset( $options['override'][$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) ) { 
+						$html_element_array['value'] = $options['override'][$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]; 
 					}
 					
 					$use_cakephp_form_helper = true;
@@ -1250,8 +1252,8 @@ class StructuresHelper extends Helper {
 								$html_element_array['empty'] = true;
 							}
 							
-							if ( isset( $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) && is_array( $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) ) { 
-								$html_element_array['options'] = $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']];
+							if ( isset( $options['override'][$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) && is_array( $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) ) { 
+								$html_element_array['options'] = $options['override'][$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']];
 								unset($html_element_array['value']);
 							}
 							
@@ -1271,8 +1273,8 @@ class StructuresHelper extends Helper {
 								$html_element_array['empty'] = true;
 							}
 							
-							if ( isset( $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) && is_array( $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) ) { 
-								$html_element_array['options'] = $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']];
+							if ( isset( $options['override'][$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) && is_array( $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) ) { 
+								$html_element_array['options'] = $options['override'][$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']];
 								unset($html_element_array['value']);
 							}
 							
@@ -1292,8 +1294,8 @@ class StructuresHelper extends Helper {
 								$html_element_array['empty'] = true;
 							}
 							
-							if ( isset( $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) && is_array( $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) ) { 
-								$html_element_array['options'] = $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']];
+							if ( isset( $options['override'][$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) && is_array( $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) ) { 
+								$html_element_array['options'] = $options['override'][$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']];
 								unset($html_element_array['value']);
 							}
 							
@@ -1312,19 +1314,19 @@ class StructuresHelper extends Helper {
 							}
 							
 							if ( $options['type']=='search' ) {
-								$display_value .= $this->Form->day($field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_start-dd'), $html_element_array['empty']);
-								$display_value .= $this->Form->month($field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_start-mm'), $html_element_array['empty']);
-								$display_value .= $this->Form->year($field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', '1900', NULL, NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_start', 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'), $html_element_array['empty']);
+								$display_value .= $this->Form->day($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_start-dd'), $html_element_array['empty']);
+								$display_value .= $this->Form->month($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_start-mm'), $html_element_array['empty']);
+								$display_value .= $this->Form->year($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', '1900', NULL, NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_start', 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'), $html_element_array['empty']);
 								$display_value .= ' <span class="tag">'.__('to',true).'</span> ';
-								$display_value .= $this->Form->day($field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end', NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_end-dd'), $html_element_array['empty']);
-								$display_value .= $this->Form->month($field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end', NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_end-mm'), $html_element_array['empty']);
-								$display_value .= $this->Form->year($field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end', '1900', NULL, NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_end', 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'), $html_element_array['empty']);
+								$display_value .= $this->Form->day($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end', NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_end-dd'), $html_element_array['empty']);
+								$display_value .= $this->Form->month($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end', NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_end-mm'), $html_element_array['empty']);
+								$display_value .= $this->Form->year($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end', '1900', NULL, NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_end', 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'), $html_element_array['empty']);
 							}
 							
 							else {
-								$display_value .= $this->Form->day($field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'-dd'), $html_element_array['empty']);
-								$display_value .= $this->Form->month($field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'-mm'), $html_element_array['empty']);
-								$display_value .= $this->Form->year($field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], '1900', NULL, NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'], 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'), $html_element_array['empty']);
+								$display_value .= $this->Form->day($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'-dd'), $html_element_array['empty']);
+								$display_value .= $this->Form->month($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'-mm'), $html_element_array['empty']);
+								$display_value .= $this->Form->year($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], '1900', NULL, NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'], 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'), $html_element_array['empty']);
 							}
 							
 							$use_cakephp_form_helper = false;
@@ -1345,7 +1347,7 @@ class StructuresHelper extends Helper {
 					
 					if ( $use_cakephp_form_helper ) {
 						$display_value .= $this->Form->input(
-							$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'],
+							$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'],
 							$html_element_array
 						);
 					}
