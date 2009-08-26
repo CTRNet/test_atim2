@@ -234,7 +234,7 @@ SET `flag_edit` = '0',
 WHERE `structure_old_id` = 'CAN-999-999-000-999-1044' 
 AND `structure_field_old_id` = 'CAN-999-999-000-999-1217';
 
--- -------------------------------------------------------------------------------------------
+-- -------------------------------- NEW Script -----------------------------------------------------------
 
 DELETE FROM `menus` WHERE `id` = 'sto_CAN_03';
 DELETE FROM `menus` WHERE `id` = 'sto_CAN_04';
@@ -255,15 +255,135 @@ DELETE FROM `i18n` WHERE `id` IN ('storage content tree view', 'no aliquot is st
 
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('storage content tree view', 'global', 'Detail', 'D&eacute;tail'),
-('no aliquot is stored into this storage', 'global', 'No aliquot is stored into this storage!', 'Aucun aliquot n''est entrepos&eacute;!');
+('no aliquot is stored into this storage', 'global', 'No aliquot is stored into this storage!', 'Aucun aliquot n''est entrepos&eacute; dans cette entit&eacute;!');
 
+UPDATE `structure_formats` 
+SET `flag_index` = '1' 
+WHERE `structure_old_id` = 'CAN-999-999-000-999-1040' 
+AND `structure_field_old_id` = 'CAN-999-999-000-999-1183';
 
+UPDATE `structure_formats` 
+SET `flag_index` = '1' 
+WHERE `structure_old_id` = 'CAN-999-999-000-999-1040' 
+AND `structure_field_old_id` = 'CAN-999-999-000-999-1197';
 
+-- add structure for storage master for tree view 
 
+DELETE FROM `structures` 
+WHERE `alias` LIKE 'storage_masters_for_tree_view' 
+OR `old_id` = 'CAN-999-999-000-999-1072';
 
+INSERT INTO `structures` 
+(`id`, `old_id`, `alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`) 
+VALUES 
+(NULL, 'CAN-999-999-000-999-1072', 'storage_masters_for_tree_view', '', '', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
+DELETE FROM `structure_formats` WHERE `structure_old_id` = 'CAN-999-999-000-999-1072';
 
+INSERT INTO `structure_formats` 
+(`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) 
+VALUES
+-- code (NULL, 'CAN-999-999-000-999-1072_CAN-999-999-000-999-1180', 
+-- (SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1072'), 'CAN-999-999-000-999-1072', 
+-- (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1180'), 'CAN-999-999-000-999-1180', 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+-- type
+(NULL, 'CAN-999-999-000-999-1072_CAN-999-999-000-999-1181', 
+(SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1072'), 'CAN-999-999-000-999-1072', 
+(SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1181'), 'CAN-999-999-000-999-1181', 0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+-- selection label
+(NULL, 'CAN-999-999-000-999-1072_CAN-999-999-000-999-1217', 
+(SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1072'), 'CAN-999-999-000-999-1072', 
+(SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1217'), 'CAN-999-999-000-999-1217', 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+-- parent_storage_coord_x
+(NULL, 'CAN-999-999-000-999-1072_CAN-999-999-000-999-1205', 
+(SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1072'), 'CAN-999-999-000-999-1072', 
+(SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1205'), 'CAN-999-999-000-999-1205', 0, 3, '', '1', 'position', '1', 'position', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+-- parent_storage_coord_y
+(NULL, 'CAN-999-999-000-999-1072_CAN-999-999-000-999-1208', 
+(SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1072'), 'CAN-999-999-000-999-1072', 
+(SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1208'), 'CAN-999-999-000-999-1208', 0, 4, '', '0', '-', '1', '-', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
+-- add structure for tma slide for tree view
 
+DELETE FROM `structures` 
+WHERE `alias` LIKE 'tma_slides_for_tree_view' 
+OR `old_id` = 'CAN-999-999-000-999-1073';
+
+INSERT INTO `structures` 
+(`id`, `old_id`, `alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`) 
+VALUES 
+(NULL, 'CAN-999-999-000-999-1073', 'tma_slides_for_tree_view', '', '', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+DELETE FROM `structure_fields` 
+WHERE `old_id` = 'CAN-999-999-000-999-1273';
+
+INSERT INTO `structure_fields` (`id`, `old_id`, `plugin`, `model`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(NULL, 'CAN-999-999-000-999-1273', 'Storagelayout', 'Generated', 'tma_block_identification', 'block', '', '', '', '', 0, '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+DELETE FROM `structure_formats` WHERE `structure_old_id` = 'CAN-999-999-000-999-1073';
+
+INSERT INTO `structure_formats` 
+(`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) 
+VALUES
+-- barcode 
+(NULL, 'CAN-999-999-000-999-1073_CAN-999-999-000-999-1232', 
+(SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1073'), 'CAN-999-999-000-999-1073', 
+(SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1232'), 'CAN-999-999-000-999-1232', 0, 1, '', '1', ' ', '1', 'tma slide', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+-- tma_block_identification
+(NULL, 'CAN-999-999-000-999-1073_CAN-999-999-000-999-1273', 
+(SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1073'), 'CAN-999-999-000-999-1073', 
+(SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1273'), 'CAN-999-999-000-999-1273', 0, 3, '', '1', ' ', '1', 'block', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+-- storage_coord_x
+(NULL, 'CAN-999-999-000-999-1073_CAN-999-999-000-999-1235', 
+(SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1073'), 'CAN-999-999-000-999-1073', 
+(SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1235'), 'CAN-999-999-000-999-1235', 0, 4, '', '1', ' ', '1', 'position', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+-- storage_coord_y
+(NULL, 'CAN-999-999-000-999-1073_CAN-999-999-000-999-1236', 
+(SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1073'), 'CAN-999-999-000-999-1073', 
+(SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1236'), 'CAN-999-999-000-999-1236', 0, 5, '', '0', '-', '1', '-', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+-- add structure for aliquot master for tree view 
+
+DELETE FROM `structures` 
+WHERE `alias` LIKE 'aliquot_masters_for_tree_view' 
+OR `old_id` = 'CAN-999-999-000-999-1074';
+
+INSERT INTO `structures` 
+(`id`, `old_id`, `alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`) 
+VALUES 
+(NULL, 'CAN-999-999-000-999-1074', 'aliquot_masters_for_tree_view', '', '', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+DELETE FROM `structure_formats` WHERE `structure_old_id` = 'CAN-999-999-000-999-1074';
+
+INSERT INTO `structure_formats` 
+(`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) 
+VALUES
+-- sample_type 
+(NULL, 'CAN-999-999-000-999-1074_CAN-999-999-000-999-1018', 
+(SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1074'), 'CAN-999-999-000-999-1074', 
+(SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1018'), 'CAN-999-999-000-999-1018', 0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+-- barcode
+(NULL, 'CAN-999-999-000-999-1074_CAN-999-999-000-999-1101', 
+(SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1074'), 'CAN-999-999-000-999-1074', 
+(SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1101'), 'CAN-999-999-000-999-1101', 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+-- aliquot_type
+(NULL, 'CAN-999-999-000-999-1074_CAN-999-999-000-999-1102', 
+(SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1074'), 'CAN-999-999-000-999-1074', 
+(SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1102'), 'CAN-999-999-000-999-1102', 0, 2, '', '1', '', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+-- storage_coord_x
+(NULL, 'CAN-999-999-000-999-1074_CAN-999-999-000-999-1107', 
+(SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1074'), 'CAN-999-999-000-999-1074', 
+(SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1107'), 'CAN-999-999-000-999-1107', 0, 4, '', '1', ' ', '1', 'position', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+-- storage_coord_y
+(NULL, 'CAN-999-999-000-999-1074_CAN-999-999-000-999-1108', 
+(SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1074'), 'CAN-999-999-000-999-1074', 
+(SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1108'), 'CAN-999-999-000-999-1108', 0, 5, '', '0', '-', '1', '-', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+DELETE FROM `i18n` WHERE `id` IN ('access to storage data', 'access to aliquot data', 'access to slide data');
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('access to storage data', 'global', 'Access to storage data', 'Acc&eacute;der aux données de l''entreposage'),
+('access to aliquot data', 'global', 'Access to aliquot data', 'Acc&eacute;der aux données de l''aliquot'),
+('access to slide data', 'global', 'Access to slide data!', 'Acc&eacute;der aux données de la lame');
 
 

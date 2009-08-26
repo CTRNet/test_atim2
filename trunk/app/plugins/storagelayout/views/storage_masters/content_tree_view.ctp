@@ -25,11 +25,11 @@
 				'detail'=>'/inventorymanagement/aliquot_masters/detailAliquot/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%'
 			),
 			'TmaSlide' => array(
-				'detail'=>'/storagelayout/tma_slides/detail/%%TmaSlide.std_tma_block_id%%/%%TmaSlide.id%%'
+				'detail'=>'/storagelayout/tma_slides/detail/%%TmaSlide.std_tma_block_id%%/%%TmaSlide.id%%/1'
 			)
 		),
 		'bottom' => array(
-			'edit children storage positions' => '/underdevelopment/',
+			'edit children storage positions' => '/storagelayout/storage_masters/editChildrenStoragePosition/' . $atim_menu_variables['StorageMaster.id'],
 			'edit aliquots positions' => '/storagelayout/storage_masters/editAliquotPosition/' . $atim_menu_variables['StorageMaster.id']
 		),		
 		'ajax' => array(
