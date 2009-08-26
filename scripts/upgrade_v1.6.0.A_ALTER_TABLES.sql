@@ -710,3 +710,196 @@ WHERE `old_id` IN ('CAN-999-999-000-999-28_CAN-999-999-000-999-522',
 				   'CAN-999-999-000-999-42_CAN-999-999-000-999-522', 
 				   'CAN-999-999-000-999-50_CAN-999-999-000-999-522',
 				   'CAN-999-999-000-999-64_CAN-999-999-000-999-522');
+				   
+-- Storage Management Plugin changes
+
+-- DELETE storage position into
+DELETE FROM `structure_formats` WHERE `structure_formats`.`old_id` IN ('CAN-999-999-000-999-1045_CAN-999-999-000-999-1204', 'CAN-999-999-000-999-1046_CAN-999-999-000-999-1204');
+
+-- Coord X
+
+UPDATE `structure_fields` SET `language_label` = 'position', `language_help` = 'define storage position description' WHERE `structure_fields`.`old_id` = 'CAN-999-999-000-999-1206' ;
+
+-- Delete duplicated form field: StorageMaster.barcode
+
+UPDATE `structure_formats` 
+SET `structure_field_id` = (SELECT `id` FROM `structure_fields` WHERE `old_id` LIKE 'CAN-999-999-000-999-1183'),
+`structure_field_old_id` = 'CAN-999-999-000-999-1183',
+`old_id` = 'CAN-999-999-000-999-1060_CAN-999-999-000-999-1183'
+WHERE `structure_old_id` = 'CAN-999-999-000-999-1060'
+AND `structure_field_old_id` = 'CAN-999-999-000-999-1182';
+
+DELETE FROM `structure_formats` WHERE `structure_field_old_id` = 'CAN-999-999-000-999-1182';
+
+UPDATE `structure_formats`
+SET `flag_add` = '1',
+`flag_add_readonly` = '0',
+`flag_edit` = '1',
+`flag_edit_readonly` = '1',
+`flag_search` = '1',
+`flag_search_readonly` = '0',
+`flag_datagrid` = '1',
+`flag_datagrid_readonly` = '1',
+`flag_index` = '1',
+`flag_detail` = '1'
+WHERE `structure_old_id` IN ('CAN-999-999-000-999-1041', 'CAN-999-999-000-999-1042', 'CAN-999-999-000-999-1043', 
+'CAN-999-999-000-999-1044', 'CAN-999-999-000-999-1058')
+AND `structure_field_old_id` = 'CAN-999-999-000-999-1183';
+
+DELETE FROM `structure_validations` WHERE `structure_field_old_id` IN ('CAN-999-999-000-999-1182');
+
+DELETE FROM `structure_fields` WHERE `old_id` IN ('CAN-999-999-000-999-1182');
+
+DELETE FROM `structure_validations` WHERE `structure_field_old_id` IN ('CAN-999-999-000-999-1183');
+
+INSERT INTO `structure_validations` 
+(`id`, `old_id`, `structure_field_id`, `structure_field_old_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modifed_by`) 
+VALUES
+(null, '0', (SELECT `id` FROM `structure_fields` WHERE `old_id` LIKE 'CAN-999-999-000-999-1183'), 'CAN-999-999-000-999-1183', 'maxLength,30', '1', '0', '', 'barcode size is limited', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+INSERT INTO `structure_validations` 
+(`id`, `old_id`, `structure_field_id`, `structure_field_old_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modifed_by`) 
+VALUES
+(null, '0', (SELECT `id` FROM `structure_fields` WHERE `old_id` LIKE 'CAN-999-999-000-999-1183'), 'CAN-999-999-000-999-1183', 'notEmpty', '1', '0', '', 'barcode is required', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+
+-- Delete duplicated form field: StorageMaster.code
+
+UPDATE `structure_formats` 
+SET `structure_field_id` = (SELECT `id` FROM `structure_fields` WHERE `old_id` LIKE 'CAN-999-999-000-999-1180'),
+`structure_field_old_id` = 'CAN-999-999-000-999-1180',
+`flag_override_label` = '1',
+`language_label` = '',
+`flag_override_tag` = '1',
+`language_tag` = 'code'
+WHERE `structure_field_old_id` = 'CAN-999-999-000-999-1117';
+
+DELETE FROM `structure_validations` WHERE `structure_field_old_id` IN ('CAN-999-999-000-999-1117');
+
+DELETE FROM `structure_fields` WHERE `old_id` IN ('CAN-999-999-000-999-1117');
+
+-- Delete duplicated form field: StorageMaster.selection_label 
+
+UPDATE `structure_formats` 
+SET `structure_field_id` = (SELECT `id` FROM `structure_fields` WHERE `old_id` LIKE 'CAN-999-999-000-999-1217'),
+`structure_field_old_id` = 'CAN-999-999-000-999-1217',
+`flag_override_label` = '1',
+`language_label` = 'storage selection label'
+WHERE `structure_field_old_id` = 'CAN-999-999-000-999-1184';
+
+DELETE FROM `structure_validations` WHERE `structure_field_old_id` IN ('CAN-999-999-000-999-1184');
+
+DELETE FROM `structure_fields` WHERE `old_id` IN ('CAN-999-999-000-999-1184');
+
+-- Delete duplicated form field: StorageMaster.temperature 
+
+UPDATE `structure_formats` 
+SET `structure_field_id` = (SELECT `id` FROM `structure_fields` WHERE `old_id` LIKE 'CAN-999-999-000-999-1110'),
+`structure_field_old_id` = 'CAN-999-999-000-999-1110',
+`flag_override_label` = '1',
+`language_label` = 'temperature'
+WHERE `structure_field_old_id` = 'CAN-999-999-000-999-1192';
+
+DELETE FROM `structure_validations` WHERE `structure_field_old_id` IN ('CAN-999-999-000-999-1192');
+
+DELETE FROM `structure_fields` WHERE `old_id` IN ('CAN-999-999-000-999-1192');
+
+UPDATE `structure_formats` 
+SET `structure_field_id` = (SELECT `id` FROM `structure_fields` WHERE `old_id` LIKE 'CAN-999-999-000-999-1110'),
+`structure_field_old_id` = 'CAN-999-999-000-999-1110',
+`flag_override_label` = '1',
+`language_label` = 'temperature'
+WHERE `structure_field_old_id` = 'CAN-999-999-000-999-1193';
+
+DELETE FROM `structure_validations` WHERE `structure_field_old_id` IN ('CAN-999-999-000-999-1193');
+
+DELETE FROM `structure_fields` WHERE `old_id` IN ('CAN-999-999-000-999-1193');
+
+DELETE FROM `structure_validations` WHERE `structure_field_old_id` IN ('CAN-999-999-000-999-1110');
+
+INSERT INTO `structure_validations` 
+(`id`, `old_id`, `structure_field_id`, `structure_field_old_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modifed_by`) VALUES
+(null, '0', (SELECT `id` FROM `structure_fields` WHERE `old_id` LIKE 'CAN-999-999-000-999-1110'), 'CAN-999-999-000-999-1110', 'numeric', '1', '0', '', 'temperature should be a decimal', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+-- Add storage deletion message
+
+DELETE FROM `i18n` WHERE `id` IN ('children storage exists within the deleted storage', 'aliquot exists within the deleted storage', 'slide exists for the deleted tma', 'slide exists within the deleted storage');
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('children storage exists within the deleted storage', 'global', 'Your data cannot be deleted! <br>Children storage exists within the deleted storage.', 'Vos donn&eacute;es ne peuvent &ecirc;tre supprim&eacute;es! Des sous-entreposages existent dans votre entreposage.'),
+('aliquot exists within the deleted storage', 'global', 'Your data cannot be deleted! <br>Aliquot exists within the deleted storage.', 'Vos donn&eacute;es ne peuvent &ecirc;tre supprim&eacute;es! Des aliquots existent dans votre entreposage.'),
+('slide exists for the deleted tma', 'global', 'Your data cannot be deleted! <br>Slide exists for the deleted TMA.', 'Vos donn&eacute;es ne peuvent &ecirc;tre supprim&eacute;es! Des lames existent pour votre entreposage.'),
+('slide exists within the deleted storage', 'global', 'Your data cannot be deleted! <br>TMA slide exists within the deleted storage.', 'Vos donn&eacute;es ne peuvent &ecirc;tre supprim&eacute;es! Des lames de TMA existent dans votre entreposage.');
+
+-- Add surrounding temperature
+	
+UPDATE `structure_formats` 
+SET `flag_override_label` = '1',
+`language_label` = 'surrounding temperature'
+WHERE `structure_old_id` LIKE 'CAN-999-999-000-999-1042'
+AND `structure_field_old_id` LIKE 'CAN-999-999-000-999-1110';
+	
+-- Add storage coordinate deletion message
+
+DELETE FROM `i18n` WHERE `id` IN ('children storage is stored within the storage at this position', 'aliquot is stored within the storage at this position');
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('children storage is stored within the storage at this position', 'global', 'Your data cannot be deleted! <br>Children storage is stored within the storage at this position.', 'Vos donn&eacute;es ne peuvent &ecirc;tre supprim&eacute;es! Des sous-entreposages sont plac&eacute;s &agrave; cette position dans votre entreposage.'),
+('aliquot is stored within the storage at this position', 'global', 'Your data cannot be deleted! <br>Aliquot exists within the deleted storage.', 'Vos donn&eacute;es ne peuvent &ecirc;tre supprim&eacute;es! Des aliquots sont plac&eacute;s &agrave; cette position dans votre entreposage.');
+
+-- Coordinate error
+
+UPDATE `structure_validations` SET `language_message` = 'coordinate value is required' 
+WHERE `structure_field_old_id` = 'CAN-999-999-000-999-1210';
+
+DELETE FROM `i18n` WHERE `id` IN ('coordinate value is required', 'coordinate value must be unique');
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('coordinate value is required', 'global', 'The coordinate value is required!', 'La valeur est requise!'),
+('coordinate value must be unique', 'global', 'The coordinate value must be unique!', 'Le valeur doit &ecirc;tre unique!');
+
+-- Add following error
+
+DELETE FROM `i18n` WHERE `id` IN ('the defined storage is a tma');
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) 
+VALUES
+('the defined storage is a tma', 'global', 'The defined storage is a TMA', 'L''entreposage d&eacute;fini est un TMA!');
+
+-- Update tma slide barcode validation
+
+UPDATE `structure_validations` 
+SET `language_message` = 'barcode is required' WHERE `structure_field_old_id` = 'CAN-999-999-000-999-1232' 
+AND `rule` = 'notEmpty';
+
+DELETE FROM `structure_validations` WHERE `structure_field_old_id` IN ('CAN-999-999-000-999-1232')
+AND `rule` = 'maxLength,30';
+
+INSERT INTO `structure_validations` 
+(`id`, `old_id`, `structure_field_id`, `structure_field_old_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modifed_by`) VALUES
+(null, '0', (SELECT `id` FROM `structure_fields` WHERE `old_id` LIKE 'CAN-999-999-000-999-1232'), 'CAN-999-999-000-999-1232', 'maxLength,30', '1', '0', '', 'barcode size is limited', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+DELETE FROM `i18n` WHERE `id` IN ('barcode is required', 'barcode must be unique', 'barcode size is limited');
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('barcode is required', 'global', 'The barcode is required!', 'Le barcode est requis!'),
+('barcode must be unique', 'global', 'The barcode must be unique!', 'Le barcode doit &ecirc;tre unique!'),
+('barcode size is limited', 'global', 'The barcode size is limited!', 'La taille du barcode est limit&eacute;e!');
+
+-- 'storage layout'
+
+DELETE FROM `i18n` WHERE `id` IN ('storage content tree view', 'storage content', 'stored aliquots');
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('storage content tree view', 'global', 'Tree View', 'Vu hi&eacute;rarchique'),
+('storage content', 'global', 'Storage Content', 'Contenu de l''entreposage'),
+('stored aliquots', 'global', 'Aliquots', 'Aliquots');
+
+-- Storage selection label hidde for edit mode
+
+UPDATE `structure_formats` 
+SET `flag_edit` = '0',
+`flag_edit_readonly` = '0' 
+WHERE `structure_old_id` = 'CAN-999-999-000-999-1044' 
+AND `structure_field_old_id` = 'CAN-999-999-000-999-1217';
+
