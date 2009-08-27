@@ -5144,6 +5144,9 @@ INSERT INTO `i18n` (`id`,`page_id`,`en`,`fr`) VALUES
  ('academic','global','Academic',''),
  ('acceptable','global','Acceptable','Acceptable'),
  ('access medical information','global','Access Medical Information?',''),
+ ('access to storage data', 'global', 'Access to storage data', 'Acc&eacute;der aux données de l''entreposage'),
+ ('access to aliquot data', 'global', 'Access to aliquot data', 'Acc&eacute;der aux données de l''aliquot'),
+ ('access to slide data', 'global', 'Access to slide data!', 'Acc&eacute;der aux données de la lame'),
  ('Acquisition ID','global','Acquisition Label',''),
  ('acquisition label','global','Acquisition Label','&Eacute;tiquette D\'Acquisition'),
  ('acquisition label is required','global','The acquisition label is required!','Le num&eacute;ro d\'acquisition est requis!'),
@@ -6102,7 +6105,7 @@ INSERT INTO `i18n` (`id`,`page_id`,`en`,`fr`) VALUES
  ('No aliquot has been defined as sample source aliquot.','global','No aliquot has been defined as sample source aliquot.','Aucun aliquot n\'a &eacute;t&eacute; d&eacute;fini comme aliquot \'source\'.'),
  ('No aliquot has been defined as sample tested aliquot.','global','No aliquot has been defined as sample tested aliquot.','Aucun aliquot n\'a &eacute;t&eacute; d&eacute;fini comme aliquot \'test&eacute;\'.'),
  ('no aliquot id','global','Missing Aliquot ID','ID de l\'aliquot manquant'),
- ('no aliquot is stored into this storage', 'global', 'No aliquot is stored into this storage!', 'Aucun aliquot n''est entrepos&eacute;!'),
+ ('no aliquot is stored into this storage', 'global', 'No aliquot is stored into this storage!', 'Aucun aliquot n''est entrepos&eacute; dans cette entit&eacute;!'),
  ('no aliquot use data','global','Missing Aliquot Use Data','Donn&eacute;es de l\'utilisation de l\'aliquot manquantes'),
  ('no aliquot use data exists for the specified id','global','The aliquot use data has not been found!<br>Please try again or contact your system administrator.','Les donn&eacute;es de l\'utilisation de l\'aliquot n\'ont pas &eacute;t&eacute trouv&eacute;es!<br>Essayez de nouveau ou contactez votre administrateur du syst&egrave;me.'),
  ('no collection data','global','Missing Collection Data','Donn&eacute;es de la collection manquantes'),
@@ -8206,9 +8209,7 @@ INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_ti
 ('sop_CAN_04', 'sop_CAN_01', 0, 2, 'sop_extend', '', '/sop/sop_extends/listall/%%SopMaster.id%%/', '', '', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('sto_CAN_01', 'core_CAN_33', 1, 8, 'storage layout management', 'storage layout management', '/storagelayout/storage_masters/index/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('sto_CAN_02', 'sto_CAN_01', 0, 1, 'storage detail', NULL, '/storagelayout/storage_masters/detail/%%StorageMaster.id%%', '', 'Storagelayout.StorageMaster::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('sto_CAN_03', 'sto_CAN_09', 0, 3, 'children storages', NULL, '/storagelayout/storage_masters/listChildrenStorages/%%StorageMaster.id%%', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('sto_CAN_04', 'sto_CAN_09', 0, 4, 'stored aliquots', NULL, '/storagelayout/storage_masters/searchStorageAliquots/%%StorageMaster.id%%', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('sto_CAN_05', 'sto_CAN_09', 0, 2, 'storage layout', NULL, '/storagelayout/storage_masters/seeStorageLayout/%%StorageMaster.id%%', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('sto_CAN_05', 'sto_CAN_09', 0, 2, 'storage layout', NULL, '/storagelayout/storage_masters/storageLayout/%%StorageMaster.id%%', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('sto_CAN_06', 'sto_CAN_01', 0, 2, 'storage coordinates', NULL, '/storagelayout/storage_coordinates/listAll/%%StorageMaster.id%%', '', 'Storagelayout.StorageMaster::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('sto_CAN_07', 'sto_CAN_02', 0, 1, 'tma block', NULL, '/storagelayout/storage_masters/detail/%%StorageMaster.id%%/0/TMA', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('sto_CAN_08', 'sto_CAN_02', 0, 2, 'slides list', NULL, '/storagelayout/tma_slides/listAll/%%StorageMaster.id%%', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -12803,7 +12804,10 @@ INSERT INTO `structures` (`id`, `old_id`, `alias`, `language_title`, `language_h
 (176, 'QRY-999-999-000-999-20', 'qry_blood_search', '', '', '', '', '', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (177, 'QRY-999-999-000-999-21', 'qry_blood_results', '', '', '', '', '', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (178, 'QRY-999-999-000-999-22', 'qry_tissue_search', '', '', '', '', '', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(179, 'QRY-999-999-000-999-23', 'qry_tissue_results', '', '', '', '', '', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(179, 'QRY-999-999-000-999-23', 'qry_tissue_results', '', '', '', '', '', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(180, 'CAN-999-999-000-999-1072', 'storage_masters_for_tree_view', '', '', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(181, 'CAN-999-999-000-999-1073', 'tma_slides_for_tree_view', '', '', '0', '0', '0', '1', '0000-00-00 181:00:00', '', '0000-00-00 00:00:00', ''),
+(182, 'CAN-999-999-000-999-1074', 'aliquot_masters_for_tree_view', '', '', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 
 
@@ -13704,7 +13708,8 @@ INSERT INTO `structure_fields` (`id`, `old_id`, `plugin`, `model`, `field`, `lan
 (870, '', 'Datamart', 'Adhoc', 'acquisition_label', 'aquisition_label', '', 'input', 'size=10', '', 0, '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (871, '', 'Datamart', 'Adhoc', 'bank', 'collection bank', '', 'select', '', '', 0, '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (872, '', 'Datamart', 'Adhoc', 'collection_site', 'collection site', '', 'select', '', '', 0, '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(873, '', 'Datamart', 'Adhoc', 'collection_datetime', 'collection datetime', '', 'datetime', '', '', 0, '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(873, '', 'Datamart', 'Adhoc', 'collection_datetime', 'collection datetime', '', 'datetime', '', '', 0, '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(874, 'CAN-999-999-000-999-1273', 'Storagelayout', 'Generated', 'tma_block_identification', 'block', '', '', '', '', 0, '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 -- --------------------------------------------------------
 
@@ -15655,6 +15660,23 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (1912, '', 159, '', 865, '', 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1913, '', 158, '', 868, '', 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1914, '', 158, '', 869, '', 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES 
+(1915, 'CAN-999-999-000-999-1072_CAN-999-999-000-999-1181', 180, 'CAN-999-999-000-999-1072', 292, 'CAN-999-999-000-999-1181', 0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(1916, 'CAN-999-999-000-999-1072_CAN-999-999-000-999-1217', 180, 'CAN-999-999-000-999-1072', 328, 'CAN-999-999-000-999-1217', 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(1917, 'CAN-999-999-000-999-1072_CAN-999-999-000-999-1205', 180, 'CAN-999-999-000-999-1072', 316, 'CAN-999-999-000-999-1205', 0, 3, '', '1', 'position', '1', 'position', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(1918, 'CAN-999-999-000-999-1072_CAN-999-999-000-999-1208', 180, 'CAN-999-999-000-999-1072', 319, 'CAN-999-999-000-999-1208', 0, 4, '', '0', '-', '1', '-', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES 
+(1926, 'CAN-999-999-000-999-1073_CAN-999-999-000-999-1232', 181, 'CAN-999-999-000-999-1073', 343, 'CAN-999-999-000-999-1232', 0, 1, '', '1', ' ', '1', 'tma slide', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(1919, 'CAN-999-999-000-999-1073_CAN-999-999-000-999-1273', 181, 'CAN-999-999-000-999-1073', 874, 'CAN-999-999-000-999-1273', 0, 3, '', '1', ' ', '1', 'block', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(1920, 'CAN-999-999-000-999-1073_CAN-999-999-000-999-1235', 181, 'CAN-999-999-000-999-1073', 346, 'CAN-999-999-000-999-1235', 0, 4, '', '1', ' ', '1', 'position', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(1921, 'CAN-999-999-000-999-1073_CAN-999-999-000-999-1236', 181, 'CAN-999-999-000-999-1073', 347, 'CAN-999-999-000-999-1236', 0, 5, '', '0', '-', '1', '-', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES 
+(1922, 'CAN-999-999-000-999-1074_CAN-999-999-000-999-1018', 182, 'CAN-999-999-000-999-1074', 170, 'CAN-999-999-000-999-1018', 0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(1923, 'CAN-999-999-000-999-1074_CAN-999-999-000-999-1101', 182, 'CAN-999-999-000-999-1074', 217, 'CAN-999-999-000-999-1101', 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(1924, 'CAN-999-999-000-999-1074_CAN-999-999-000-999-1102', 182, 'CAN-999-999-000-999-1074', 218, 'CAN-999-999-000-999-1102', 0, 2, '', '1', '', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(1925, 'CAN-999-999-000-999-1074_CAN-999-999-000-999-1107', 182, 'CAN-999-999-000-999-1074', 223, 'CAN-999-999-000-999-1107', 0, 4, '', '1', ' ', '1', 'position', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(1927, 'CAN-999-999-000-999-1074_CAN-999-999-000-999-1108', 182, 'CAN-999-999-000-999-1074', 224, 'CAN-999-999-000-999-1108', 0, 5, '', '0', '-', '1', '-', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
 
 -- --------------------------------------------------------
 
@@ -17452,9 +17474,9 @@ INSERT INTO `structure_validations` (`id`,`old_id`,`structure_field_id`,`structu
  (65,'0',562,'CAN-999-999-000-999-302','notEmpty','1','0','','err_protocol code is required','0000-00-00 00:00:00','','0000-00-00 00:00:00',''),
  (66,'0',294,'CAN-999-999-000-999-1183','maxLength,30', '1', '0', '', 'barcode size is limited', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
  (67,'0',294,'CAN-999-999-000-999-1183','notEmpty', '1', '0', '', 'barcode is required', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
- (68,'0',343,'CAN-999-999-000-999-1232','maxLength,30','1','0','','barcode size is limited','0000-00-00 00:00:00','','0000-00-00 00:00:00',''),
- (69,'0','865','','','1','','Option is required.','0000-00-00 00:00:00','','0000-00-00 00:00:00',''),
- (70,'0','864','','','1','','Option is required.','0000-00-00 00:00:00','','0000-00-00 00:00:00','');
+ (68,'0',343,'CAN-999-999-000-999-1232','maxLength,30','1','0','','barcode size is limited','0000-00-00 00:00:00','','0000-00-00 00:00:00','');
+-- TODO (69,'0','865','','','1','','Option is required.','0000-00-00 00:00:00','','0000-00-00 00:00:00',''),
+-- TODO (70,'0','864','','','1','','Option is required.','0000-00-00 00:00:00','','0000-00-00 00:00:00','');
  
  -- --------------------------------------------------------
 
