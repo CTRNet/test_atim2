@@ -64,8 +64,6 @@ DELETE FROM `structure_fields` WHERE `old_id` IN ('CAN-999-999-000-999-190');
 
 -- DELETE OLD FIELD
 
-
-
 DELETE FROM `structure_formats` 
 WHERE `structure_field_old_id` IN ('CAN-999-999-000-999-195', 'CAN-999-999-000-999-194', 'CAN-999-999-000-999-199', 'CAN-999-999-000-999-197', 'CAN-999-999-000-999-196'
 'CAN-999-999-000-999-192', 'CAN-999-999-000-999-191', 'CAN-999-999-000-999-198',
@@ -81,7 +79,9 @@ WHERE `structure_field_old_id` IN ('CAN-999-999-000-999-195', 'CAN-999-999-000-9
 'CAN-999-999-000-999-196', 'CAN-999-999-000-999-178', 'CAN-999-999-000-999-179', 'CAN-999-999-000-999-185',
 'CAN-999-999-000-999-187', 'CAN-999-999-000-999-188', 'CAN-999-999-000-999-151', 'CAN-999-999-000-999-152',
 'CAN-999-999-000-999-153', 'CAN-999-999-000-999-154', 'CAN-999-999-000-999-155', 'CAN-999-999-000-999-156',
-'CAN-999-999-000-999-157', 'CAN-999-999-000-999-158') 
+'CAN-999-999-000-999-157', 'CAN-999-999-000-999-158',
+'CAN-999-999-000-999-159', 'CAN-999-999-000-999-160', 'CAN-999-999-000-999-161', 'CAN-999-999-000-999-162', 
+'CAN-999-999-000-999-163', 'CAN-999-999-000-999-164', 'CAN-999-999-000-999-165')
 OR 
 `structure_old_id` IN ('AAA-000-000-000-000-2', 'AAA-000-000-000-000-3', 'AAA-000-000-000-000-4',
 'AAA-000-000-000-000-5', 'CAN-024-001-000-999-tmp', 'CAN-024-001-000-999-tmp.6', 'CAN-024-001-000-999-tmp_6',
@@ -103,7 +103,9 @@ WHERE `old_id` IN ('CAN-999-999-000-999-195', 'CAN-999-999-000-999-194', 'CAN-99
 'CAN-999-999-000-999-196', 'CAN-999-999-000-999-178', 'CAN-999-999-000-999-179', 'CAN-999-999-000-999-185',
 'CAN-999-999-000-999-187', 'CAN-999-999-000-999-188', 'CAN-999-999-000-999-151', 'CAN-999-999-000-999-152',
 'CAN-999-999-000-999-153', 'CAN-999-999-000-999-154', 'CAN-999-999-000-999-155', 'CAN-999-999-000-999-156',
-'CAN-999-999-000-999-157', 'CAN-999-999-000-999-158');
+'CAN-999-999-000-999-157', 'CAN-999-999-000-999-158',
+'CAN-999-999-000-999-159', 'CAN-999-999-000-999-160', 'CAN-999-999-000-999-161', 'CAN-999-999-000-999-162', 
+'CAN-999-999-000-999-163', 'CAN-999-999-000-999-164', 'CAN-999-999-000-999-165');
 
 DELETE FROM `structures` 
 WHERE `old_id` IN 
@@ -122,5 +124,32 @@ WHERE `old_id` IN
 'CAN-999-999-000-999-19',
 'CAN-999-999-000-999-4',
 'CAN-999-999-000-999-5');
+
+-- DELETE coll_to_rec_spent_time_days, etc (days hours minutes)
+
+DELETE FROM `structure_formats` 
+WHERE `structure_field_old_id` IN ('CAN-999-999-000-999-1010', 'CAN-999-999-000-999-1011', 'CAN-999-999-000-999-1012');
+
+DELETE FROM `structure_fields` 
+WHERE `old_id` IN ('CAN-999-999-000-999-1010', 'CAN-999-999-000-999-1011', 'CAN-999-999-000-999-1012');
+
+UPDATE `structure_fields` 
+SET `plugin` = 'Inventorymanagement' 
+WHERE `old_id` LIKE 'CAN-999-999-000-999-1009';
+
+-- Add collection deletion message
+
+DELETE FROM `i18n` WHERE `id` IN (
+'sample exists within the deleted collection', 'aliquot exists within the deleted collection',
+'review exists for the deleted collection', 'the deleted collection is linked to participant');
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('sample exists within the deleted collection', 'global', 'Your data cannot be deleted! <br>Samples exist within the deleted collection.', 'Vos donn&eacute;es ne peuvent &ecirc;tre supprim&eacute;es! Des &eacute;chantillons existent dans votre collection.'),
+('aliquot exists within the deleted collection', 'global', 'Your data cannot be deleted! <br>Aliquots exist within the deleted collection.', 'Vos donn&eacute;es ne peuvent &ecirc;tre supprim&eacute;es! Des aliquots existent dans votre collection.'),
+('review exists for the deleted collection', 'global', 'Your data cannot be deleted! <br>Reviews exist for the deleted collection.', 'Vos donn&eacute;es ne peuvent &ecirc;tre supprim&eacute;es! Des rapports existent pour votre collection.'),
+('the deleted collection is linked to participant', 'global', 'Your data cannot be deleted! <br>Collection is linked to participant.', 'Vos donn&eacute;es ne peuvent &ecirc;tre supprim&eacute;es! La collection est attach&eacute;e &agrave; un participant.');
+
+
+
 
 TODO aliquot master...
