@@ -7,7 +7,7 @@ class InventorymanagementAppController extends AppController
 		parent::beforeFilter();
 		$this->Auth->actionPath = 'controllers/Inventorymanagement/';
 	}
-		
+	
 	/**
 	 * Return the spent time between 2 dates. 
 	 * Notes: The supported date format is YYYY-MM-DD HH:MM:SS
@@ -28,8 +28,8 @@ class InventorymanagementAppController extends AppController
 	 * @author N. Luc
 	 * @since 2007-06-20
 	 */
+	 
 	function getSpentTime($start_date, $end_date){
-		
 		$arr_spent_time 
 			= array(
 				'message' => '',
@@ -87,6 +87,7 @@ class InventorymanagementAppController extends AppController
 	 * @author N. Luc
 	 * @since 2007-06-20
 	 */
+	 
 	function getTimeStamp($date_string){
 		list($date, $time) = explode(' ', $date_string);
 		list($year, $month, $day) = explode('-', $date);
@@ -95,70 +96,25 @@ class InventorymanagementAppController extends AppController
 		return mktime($hour, $minute, $second, $month, $day, $year);
 	}
 	
-	/**
-	 * Return list of title of SOPs that could be attached to a collection plus 
-	 * an empty value (n/a) attached to an id equal to 0.
-	 * 
-	 * @param $product_type Type of the product (collection, sample, aliquot).
-	 * 
-	 * @return Return array of SOPs having following structure.
-	 * [sop_master_id] = sop title (version)
-	 * 
-	 * @author N. Luc
-	 * @since 2008-01-03
-	 */
-	function getInventoryProductSopsArray($product_type = NULL, $aliquot_type = NULL){
-		//TODO: to modify this function with SOP module new functionnalities
-
-//		if((strcmp($product_type, 'tissue') == 0)
-//		&& empty($aliquot_type)) {
-//			return array('1' => '8,3,001 - Tissue Collection and Transportation to Pathology');
-//
-//		} else if((strcmp($product_type, 'tissue') == 0)
-//		&& (strcmp($aliquot_type, 'block') == 0)) {
-//			return array(
-//				'2' => '8,3,004 - Storage of Frozen Tissue: OCT Freezing',
-//				'3' => '8,3,005 - Preservation of Tissue: Paraffin Embedding');
-//		} else if((strcmp($product_type, 'dna') == 0)
-//		&& empty($aliquot_type)) {
-//			return array('1' => '8.3.010 - Creating Derivatives: DNA Extraction from solid tissue');	
-//		} else if((strcmp($product_type, 'rna') == 0)
-//		&& empty($aliquot_type)) {
-//			return array('1' => '8.3.011 - Creating Derivatives: RNA Extraction from solid tissue');	
-//		} 
-				
-		return array(NULL => 'n/a');
-
-		
-		
-//		$criteria = '';	
-//		$order = 'SopMaster.title ASC';
-// 
-//		$tmp_arr_sop_title_from_id = 
-//			$this->SopMaster->generateList(
-//				$criteria, 
-//				$order, 
-//				null, 
-//				'{n}.SopMaster.id', 
-//				'{n}.SopMaster.title');
-//		
-//		$arr_sop_title_from_id = array('0' => 'n/a');
-//		
-//		if(is_array($tmp_arr_sop_title_from_id)){
-//			
-//			foreach($tmp_arr_sop_title_from_id as $id => $value) {
-//				$tmp_arr_sop_title_from_id[$id] = $value.' (v?.??) [for '.$product_type.']';
-//			}
-//			
-//			$arr_sop_title_from_id 
-//				= array_merge ($arr_sop_title_from_id, $tmp_arr_sop_title_from_id);
-//					
-//		}	
-//		
-//		return $arr_sop_title_from_id;
-		
-	}
-
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	/**
 	 * Return list of studies to reserve an aliquot for this one.
 	 * 
