@@ -17,8 +17,7 @@ class StorageMastersController extends StoragelayoutAppController {
 
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS
-	 * --------------------------------------------------------------------------
-	 */
+	 * -------------------------------------------------------------------------- */
 	 
 	function index() {
 		// clear SEARCH criteria
