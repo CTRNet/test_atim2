@@ -202,7 +202,8 @@ class StoragesComponent extends Object {
 			
 			// Look for storage matching the storage selection label 
 			$matching_storage_list = $this->controller->StorageMaster->atim_list(array('conditions' => array('StorageMaster.selection_label' => $recorded_selection_label)));			
-			
+			$matching_storage_list = empty($matching_storage_list)? array(): $matching_storage_list;			
+
 			if(empty($selected_storage_master_id)) {	
 				// CASE_1.a: No storage id has been defined: Define storage id using selection label
 				
