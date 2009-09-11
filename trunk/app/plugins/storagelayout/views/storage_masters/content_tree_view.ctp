@@ -1,6 +1,6 @@
 <?php
-//TODO be able to expand tree view	
-	// SETTINSG
+		
+	// SETTINGS
 	
 	$structure_settings = array(
 		'tree' => array(
@@ -9,8 +9,8 @@
 			'TmaSlide' => 'TmaSlide'
 		),
 		'columns' => array(
-			1	=> array( 'width'=>'30%' ),
-			10	=> array( 'width'=>'70%' )
+			1	=> array('width'=>'30%'),
+			10	=> array('width'=>'70%')
 		)
 	);
 	
@@ -45,9 +45,7 @@
 	// EXTRAS
 	
 	$structure_extras = array();
-	$structure_extras = array(
-		1 => '<div id="frame"></div>'
-	);	
+	$structure_extras[10] = '<div id="frame"></div>';	
 	
 	// BUILD
 

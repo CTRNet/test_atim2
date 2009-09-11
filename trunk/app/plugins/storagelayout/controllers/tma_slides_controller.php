@@ -63,7 +63,7 @@ class TmaSlidesController extends StoragelayoutAppController {
 		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') != 0) { $this->redirect('/pages/err_sto_not_a_tma_block', NULL, TRUE); }
 
 		// Set list of available SOPs to build TMA slide
-		$this->set('arr_tma_slide_sops', $this->Sops->getSopList());
+		$this->set('arr_tma_slide_sops', $this->getTmaSlideSopList());
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 
@@ -146,7 +146,7 @@ class TmaSlidesController extends StoragelayoutAppController {
 		$this->data = $tma_slide_data; 
 		
 		// Set list of available SOPs to build TMA slide
-		$this->set('arr_tma_slide_sops', $this->Sops->getSopList());
+		$this->set('arr_tma_slide_sops', $this->getTmaSlideSopList());
 
 		// Define if this detail form is displayed into the children storage tree view
 		$this->set('is_tree_view_detail_form', $is_tree_view_detail_form);
@@ -190,7 +190,7 @@ class TmaSlidesController extends StoragelayoutAppController {
 		if(empty($tma_slide_data)) { $this->redirect('/pages/err_sto_no_tma_slide_data', NULL, TRUE); }		
 
 		// Set list of available SOPs to build TMA slide
-		$this->set('arr_tma_slide_sops', $this->Sops->getSopList());
+		$this->set('arr_tma_slide_sops', $this->getTmaSlideSopList());
 		
 		// Get parent storage data
 		$parent_storage_data = array();
@@ -350,6 +350,21 @@ class TmaSlidesController extends StoragelayoutAppController {
 	 
 	function allowTMASlideDeletion($tma_slide_id){
 		return array('allow_deletion' => TRUE, 'msg' => '');
+	}
+	
+	/**
+	 * Get list of SOPs existing to build TMA Slide.
+	 * 
+	 * Note: Function to allow bank to customize this function when they don't use 
+	 * SOP module.
+	 *
+	 * @author N. Luc
+	 * @since 2009-09-11
+	 * @updated N. Luc
+	 */
+	 
+	function getTmaSlideSopList() {
+		return $this->Sops->getSopList();
 	}
 	
 }
