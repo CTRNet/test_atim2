@@ -75,7 +75,7 @@ class StorageMastersController extends StoragelayoutAppController {
 	
 		// Set list of available SOPs to build TMA
 		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') == 0) {	
-			$this->set('arr_tma_sops', $this->Sops->getSopList());
+			$this->set('arr_tma_sops', $this->getTmaSopList());
 		}
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -161,7 +161,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		
 		// Set list of available SOPs to build TMA
 		if(strcmp($storage_control_data['StorageControl']['is_tma_block'], 'TRUE') == 0) {	
-			$this->set('arr_tma_sops', $this->Sops->getSopList());
+			$this->set('arr_tma_sops', $this->getTmaSopList());
 		}
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -248,7 +248,7 @@ class StorageMastersController extends StoragelayoutAppController {
 
 		// Set list of available SOPs to build TMA
 		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') == 0) {	
-			$this->set('arr_tma_sops', $this->Sops->getSopList());
+			$this->set('arr_tma_sops', $this->getTmaSopList());
 		}	
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -369,7 +369,7 @@ class StorageMastersController extends StoragelayoutAppController {
 
 		// Set list of available SOPs to build TMA
 		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') == 0) {	
-			$this->set('arr_tma_sops', $this->Sops->getSopList());
+			$this->set('arr_tma_sops', $this->getTmaSopList());
 		}		
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS	
@@ -506,7 +506,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		$atim_structure['StorageMaster']	= $this->Structures->get('form','storage_masters_for_tree_view');
 		$atim_structure['AliquotMaster']	= $this->Structures->get('form','aliquot_masters_for_tree_view');
 		$atim_structure['TmaSlide']	= $this->Structures->get('form','tma_slides_for_tree_view');
-		$this->set( 'atim_structure', $atim_structure );			
+		$this->set('atim_structure', $atim_structure);			
 	}		
 	
 	/**
@@ -1136,6 +1136,21 @@ class StorageMastersController extends StoragelayoutAppController {
 		}
 
 		return;
+	}
+	
+	/**
+	 * Get list of SOPs existing to build TMA.
+	 * 
+	 * Note: Function to allow bank to customize this function when they don't use 
+	 * SOP module.
+	 *
+	 * @author N. Luc
+	 * @since 2009-09-11
+	 * @updated N. Luc
+	 */
+	 
+	function getTmaSopList() {
+		return $this->Sops->getSopList();
 	}
 	
 }
