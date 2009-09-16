@@ -149,6 +149,292 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('review exists for the deleted collection', 'global', 'Your data cannot be deleted! <br>Reviews exist for the deleted collection.', 'Vos donn&eacute;es ne peuvent &ecirc;tre supprim&eacute;es! Des rapports existent pour votre collection.'),
 ('the deleted collection is linked to participant', 'global', 'Your data cannot be deleted! <br>Collection is linked to participant.', 'Vos donn&eacute;es ne peuvent &ecirc;tre supprim&eacute;es! La collection est attach&eacute;e &agrave; un participant.');
 
+-- Manage Collection Search Form: Collection
+
+DELETE FROM `structures` WHERE `old_id` IN ('CAN-999-999-000-999-1075');
+
+INSERT INTO `structures` (`id`, `old_id`, `alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(NULL, 'CAN-999-999-000-999-1075', 'collection_search_type', '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+DELETE FROM `structure_fields` WHERE `old_id` IN ('CAN-999-999-000-999-1275');
+
+INSERT INTO `structure_fields` (`id`, `old_id`, `plugin`, `model`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(NULL, 'CAN-999-999-000-999-1275', 'Inventorymanagement', 'Generated', 'collection_search_type', 'search type', '', '', '', '', 0, '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+DELETE FROM `structure_formats` WHERE `structure_old_id` = 'CAN-999-999-000-999-1075';
+
+INSERT INTO `structure_formats` 
+(`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) 
+VALUES
+(NULL, 'CAN-999-999-000-999-1075_CAN-999-999-000-999-1275', 
+(SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1075'), 'CAN-999-999-000-999-1075', 
+(SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1275'), 'CAN-999-999-000-999-1275', 0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+DELETE FROM `i18n` WHERE `id` IN (
+'search type', 'add collection');
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) 
+VALUES
+('search type', 'global', 'Search Type', 'Type de recherche'),
+('add collection', 'global', 'Add Collection', 'Cr&eacute;er collection');
+
+-- Manage Collections form / Clean up
+
+DELETE FROM `structure_formats`
+WHERE `old_id` IN ( 'CAN-999-999-000-999-1000_CAN-999-999-000-999-1015', 'CAN-999-999-000-999-1000_CAN-999-999-000-999-1002');	
+
+UPDATE `structure_formats`
+SET `old_id` = 'CAN-999-999-000-999-1000_CAN-999-999-000-999-1223'
+WHERE `old_id` = 'CAN-999-999-000-999-1000_CAN-999-999-000-999-1001';
+
+UPDATE `structure_formats`
+SET `flag_search` = '1', `flag_detail` = '1', `flag_index` = '1'
+WHERE `old_id` = 'CAN-999-999-000-999-1000_CAN-999-999-000-999-1223';
+
+UPDATE `structure_formats`
+SET `flag_add_readonly` = '0', `flag_edit_readonly` = '0', `flag_search_readonly` = '0', `flag_datagrid_readonly` = '0'
+WHERE `old_id` = 'CAN-999-999-000-999-1000_CAN-999-999-000-999-1009';
+
+UPDATE `structure_formats`
+SET `flag_search` = '1', `flag_index` = '1'
+WHERE `old_id` = 'CAN-999-999-000-999-1000_CAN-999-999-000-999-1013';
+
+UPDATE `structure_fields`
+SET `structure_value_domain` = (SELECT `id` FROM `structure_value_domains` WHERE `domain_name` LIKE 'collection_site')
+WHERE `old_id` = 'CAN-999-999-000-999-1003';
+
+-- Manage Collection Search Form: Sample
+
+DELETE FROM `structure_formats`
+WHERE `structure_old_id` = 'CAN-999-999-000-999-1002';	-- SAMPLEMASTERS
+
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, 
+`flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+/* SampleMaster.sample_type */
+(NULL, 'CAN-999-999-000-999-1002_CAN-999-999-000-999-1018', 
+(SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1002'), 'CAN-999-999-000-999-1002', 
+(SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1018'), 'CAN-999-999-000-999-1018', 0, 10, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '1', '1', '1', '1', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+/* SampleMaster.sample_code */
+(NULL, 'CAN-999-999-000-999-1002_CAN-999-999-000-999-1016', 
+(SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1002'), 'CAN-999-999-000-999-1002', 
+(SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1016'), 'CAN-999-999-000-999-1016', 0, 12, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '1', '1', '1', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+/* SampleMaster.sample_category */
+(NULL, 'CAN-999-999-000-999-1002_CAN-999-999-000-999-1027', 
+(SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1002'), 'CAN-999-999-000-999-1002', 
+(SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1027'), 'CAN-999-999-000-999-1027', 0, 13, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '1', '1', '1', '1', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+/* SampleMaster.parent_id */
+-- (NULL, 'CAN-999-999-000-999-1002_CAN-999-999-000-999-1023', 
+-- (SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1002'), 'CAN-999-999-000-999-1002', 
+-- (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1023'), 'CAN-999-999-000-999-1023', 0, 14, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+-- '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+/* Generated.generated_field_aliquot_number */
+-- (NULL, 'CAN-999-999-000-999-1002_CAN-999-999-000-999-1026', 
+-- (SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1002'), 'CAN-999-999-000-999-1002', 
+-- (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1026'), 'CAN-999-999-000-999-1026', 0, 15, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+-- '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+
+/* Collection.acquisition_label */
+(NULL, 'CAN-999-999-000-999-1002_CAN-999-999-000-999-1000', 
+(SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1002'), 'CAN-999-999-000-999-1002', 
+(SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1000'), 'CAN-999-999-000-999-1000', 0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+/* Collection.bank_id */
+(NULL, 'CAN-999-999-000-999-1002_CAN-999-999-000-999-1223', 
+(SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1002'), 'CAN-999-999-000-999-1002', 
+(SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1223'), 'CAN-999-999-000-999-1223', 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+-- 
+
+UPDATE `structure_fields` 
+SET `plugin` = 'Inventorymanagement', `field` = 'sample_aliquot_count' 
+WHERE `old_id` = 'CAN-999-999-000-999-1026';
+
+UPDATE `structure_fields` SET `language_label` = 'code',
+`language_tag` = '' WHERE `old_id` = 'CAN-999-999-000-999-1016';
+
+-- Specimen i18n
+
+UPDATE `i18n` SET `en` = 'Specimen',
+`fr` = 'Sp&eacute;cimen' WHERE `i18n`.`id` = 'specimen';
+
+-- 
+
+UPDATE structures
+SET flag_add_columns ='1',
+flag_edit_columns ='1',
+flag_search_columns ='0',
+flag_detail_columns ='1'
+WHERE old_id IN ('CAN-999-999-000-999-1000','CAN-999-999-000-999-1001','CAN-999-999-000-999-1002','CAN-999-999-000-999-1003','CAN-999-999-000-999-1004','CAN-999-999-000-999-1005','CAN-999-999-000-999-1006','CAN-999-999-000-999-1007','CAN-999-999-000-999-1008','CAN-999-999-000-999-1009','CAN-999-999-000-999-1010','CAN-999-999-000-999-1011',
+'CAN-999-999-000-999-1012','CAN-999-999-000-999-1013','CAN-999-999-000-999-1014','CAN-999-999-000-999-1015','CAN-999-999-000-999-1016','CAN-999-999-000-999-1017','CAN-999-999-000-999-1018','CAN-999-999-000-999-1020','CAN-999-999-000-999-1021','CAN-999-999-000-999-1022','CAN-999-999-000-999-1024','CAN-999-999-000-999-1026','CAN-999-999-000-999-1028',
+'CAN-999-999-000-999-1029','CAN-999-999-000-999-1030','CAN-999-999-000-999-1031','CAN-999-999-000-999-1032','CAN-999-999-000-999-1033','CAN-999-999-000-999-1034','CAN-999-999-000-999-1035','CAN-999-999-000-999-1036','CAN-999-999-000-999-1037','CAN-999-999-000-999-1038','CAN-999-999-000-999-1040','CAN-999-999-000-999-1041','CAN-999-999-000-999-1042',
+'CAN-999-999-000-999-1043','CAN-999-999-000-999-1044','CAN-999-999-000-999-1045','CAN-999-999-000-999-1046','CAN-999-999-000-999-1047','CAN-999-999-000-999-1048','CAN-999-999-000-999-1049','CAN-999-999-000-999-1050','CAN-999-999-000-999-1051','CAN-999-999-000-999-1052','CAN-999-999-000-999-1053','CAN-999-999-000-999-1054','CAN-999-999-000-999-1055',
+'CAN-999-999-000-999-1056','CAN-999-999-000-999-1057','CAN-999-999-000-999-1058','CAN-999-999-000-999-1059','CAN-999-999-000-999-1060','CAN-999-999-000-999-1061','CAN-999-999-000-999-1063','CAN-999-999-000-999-1064','CAN-999-999-000-999-1065','CAN-999-999-000-999-1069','CAN-999-999-000-999-1070','CAN-999-999-000-999-1071','CAN-999-999-000-999-1075',
+'CAN-999-999-000-999-50','CAN-999-999-000-999-1072','CAN-999-999-000-999-1073','CAN-999-999-000-999-1074');
+
+DELETE FROM structure_fields WHERE old_id = 'AAA-000-000-000-000-18';
+
+UPDATE structure_fields SET plugin = 'Inventorymanagement' WHERE model LIKE 'AliquotDetail';
+
+UPDATE `structure_fields` SET `language_label` = 'storage code',
+`language_tag` = '' WHERE `old_id` = 'CAN-999-999-000-999-1234';
+
+UPDATE structure_fields SET plugin = 'Inventorymanagement',model = 'Generated' WHERE model LIKE 'Calculated';
+
+UPDATE `structure_fields` SET `type` = 'input', `setting` = 'size=30' WHERE `old_id` = 'CAN-999-999-000-999-1275';
+
+DELETE FROM structure_fields WHERE field LIKE '%_spent_time_days' OR field LIKE '%_spent_time_hours' OR field LIKE '%_spent_time_minutes';
+
+DELETE FROM structure_fields WHERE old_id IN ('CAN-999-999-000-999-1073', 'CAN-999-999-000-999-1072', 'CAN-999-999-000-999-1071');
+
+UPDATE `structure_fields` SET `type` = 'input', `setting` = 'size=30' WHERE `old_id` = 'CAN-999-999-000-999-1273';
+
+UPDATE `structure_fields` SET `field` = 'copy_prev_line' WHERE `old_id` = 'CAN-999-999-000-999-1119';	
+UPDATE `structure_fields` SET `field` = 'delete_storage_data' WHERE `old_id` = 'CAN-999-999-000-999-1260';
+UPDATE `structure_fields` SET `field` = 'recorded_storage_selection_label' WHERE `old_id` = 'CAN-999-999-000-999-1216';
+UPDATE `structure_fields` SET `field` = 'remove_from_storage' WHERE `old_id` = 'CAN-999-999-000-999-1215';
+UPDATE `structure_fields` SET `field` = 'ship' WHERE `old_id` = 'CAN-999-999-000-999-1262';
+UPDATE `structure_fields` SET `field` = 'use' WHERE `old_id` = 'CAN-999-999-000-999-1160';
+
+UPDATE `structure_fields` SET `plugin` = '' WHERE `model` = 'Generated';
+
+DELETE FROM `structure_fields` WHERE `old_id` IN ('CAN-999-999-000-999-1212', 'CAN-999-999-000-999-1229', 'CAN-999-999-000-999-1230');
+DELETE FROM `structure_fields` WHERE `model` = 'Aliquot'; 
+
+DELETE FROM structure_formats WHERE old_id IN ('CAN-999-999-000-999-20_CAN-059-002-000-999-304', 
+'CAN-999-999-000-999-20_CAN-999-999-000-999-200', 'CAN-999-999-000-999-20_CAN-999-999-000-999-203');
+
+DELETE FROM `structures` WHERE `old_id` IN ('CAN-999-999-000-999-63', 'CAN-999-999-000-009-24', 'CAN-999-999-000-004-23');
+
+DELETE FROM structure_formats
+WHERE structure_field_old_id IN ('CAN-999-999-000-999-1071',  'CAN-999-999-000-999-1072',  
+'CAN-999-999-000-999-1073',  'CAN-999-999-000-999-1121',  'CAN-999-999-000-999-1122',  
+'CAN-999-999-000-999-1124',  'CAN-999-999-000-999-1125',  'CAN-999-999-000-999-1126',  
+'CAN-999-999-000-999-1127',  'CAN-999-999-000-999-1141',  'CAN-999-999-000-999-1142',  
+'CAN-999-999-000-999-1143');
+
+UPDATE `structure_formats`
+SET `flag_datagrid` = '0', `flag_datagrid_readonly` = '0'
+WHERE structure_old_id = 'CAN-999-999-000-999-1040';
+
+UPDATE `structure_formats`
+SET `flag_search_readonly` = '0'
+WHERE structure_old_id = 'CAN-999-999-000-999-1040';
+
+UPDATE `structure_formats`
+SET `flag_add_readonly` = '0'
+WHERE structure_old_id = 'CAN-999-999-000-999-1040'
+AND structure_field_old_id IN ('CAN-999-999-000-999-1180', 'CAN-999-999-000-999-1183', 'CAN-999-999-000-999-1217');
+
+UPDATE structure_formats
+SET flag_add_readonly = '0'
+WHERE flag_add = '0'  AND flag_add_readonly = '1';
+
+UPDATE structure_formats
+SET flag_search_readonly = '0'
+WHERE flag_search = '0'  AND flag_search_readonly = '1';
+
+UPDATE structure_formats
+SET flag_edit_readonly = '0'
+WHERE flag_edit = '0'  AND flag_edit_readonly = '1';
+
+UPDATE structure_formats
+SET flag_datagrid_readonly = '0'
+WHERE flag_datagrid= '0'  AND flag_datagrid_readonly = '1';
+
+UPDATE `structure_formats`
+SET `flag_add` = '1'
+WHERE old_id = 'CAN-999-999-000-999-1040_CAN-999-999-000-999-1183'
+
+UPDATE `structure_formats`
+SET `flag_search_readonly` = '0',
+`flag_datagrid_readonly` = '0',`flag_datagrid` = '0'
+WHERE structure_old_id = 'CAN-999-999-000-999-1042';
+
+UPDATE `structure_formats`
+SET `flag_search_readonly` = '0',
+`flag_datagrid_readonly` = '0',`flag_datagrid` = '0'
+WHERE structure_old_id = 'CAN-999-999-000-999-1041';
+
+UPDATE `structure_formats`
+SET `flag_search_readonly` = '0',
+`flag_datagrid_readonly` = '0',`flag_datagrid` = '0'
+WHERE structure_old_id = 'CAN-999-999-000-999-1044';
+
+UPDATE `structure_formats`
+SET `flag_edit_readonly` = '1', `flag_edit` = '1'
+WHERE old_id = 'CAN-999-999-000-999-1044_CAN-999-999-000-999-1217';
+
+UPDATE `structure_formats`
+SET `flag_search_readonly` = '0',
+`flag_datagrid_readonly` = '0',`flag_datagrid` = '0'
+WHERE structure_old_id = 'CAN-999-999-000-999-1043';
+
+UPDATE storage_controls set form_alias = 'std_tma_blocks' where form_alias = 'std_tmas';
+UPDATE structures set alias = 'std_tma_blocks' where alias = 'std_tmas';
+
+UPDATE `structure_formats`
+SET `flag_search_readonly` = '0',
+`flag_datagrid_readonly` = '0',`flag_datagrid` = '0'
+WHERE structure_old_id = 'CAN-999-999-000-999-1058';
+
+UPDATE `structure_formats`
+SET `display_column` = '1'
+WHERE structure_old_id = 'CAN-999-999-000-999-1058' 
+AND structure_field_old_id IN ('CAN-999-999-000-999-1226', 'CAN-999-999-000-999-1225', 'CAN-999-999-000-999-1238');
+
+UPDATE `structure_formats`
+SET flag_override_label = '1', language_label = 'surrounding temperature'
+WHERE `old_id` = 'CAN-999-999-000-999-1058_CAN-999-999-000-999-1110';
+
+UPDATE `structure_formats`
+SET `flag_datagrid_readonly` = '0',`flag_datagrid` = '0',`flag_index` = '0'
+WHERE structure_old_id = 'CAN-999-999-000-999-1045';
+
+UPDATE `structure_formats`
+SET `flag_datagrid_readonly` = '0',`flag_datagrid` = '0',`flag_index` = '0'
+WHERE structure_old_id = 'CAN-999-999-000-999-1046';
+
+UPDATE `structure_formats`
+SET `flag_add` = '0',`flag_add_readonly` = '0'
+WHERE structure_old_id = 'CAN-999-999-000-999-1050';
+
+UPDATE `structure_formats`
+SET `flag_add` = '0',`flag_add_readonly` = '0'
+WHERE structure_old_id = 'CAN-999-999-000-999-1049';
+
+DELETE FROM `structure_formats`
+WHERE structure_old_id = 'CAN-999-999-000-999-1048';
+
+DELETE FROM `structures`
+WHERE old_id = 'CAN-999-999-000-999-1048';
+----
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
