@@ -1,4 +1,6 @@
-﻿USE `atim2_dev`;
+﻿-- ------------------------------------------------------------------------------------------------------------
+-- CLINICAL ANNOTATION MODULE
+-- ------------------------------------------------------------------------------------------------------------
 
 -- Clinical Annotation Test Data
 
@@ -34,8 +36,6 @@ INSERT INTO `misc_identifiers` (`id`, `identifier_value`, `name`, `identifier_ab
 DELETE FROM `reproductive_histories`;
 INSERT INTO `reproductive_histories` (`id`, `date_captured`, `menopause_status`, `age_at_menopause`, `menopause_age_certainty`, `hrt_years_on`, `hrt_use`, `hysterectomy_age`, `hysterectomy_age_certainty`, `hysterectomy`, `first_ovary_out_age`, `first_ovary_certainty`, `second_ovary_out_age`, `second_ovary_certainty`, `first_ovary_out`, `second_ovary_out`, `gravida`, `para`, `age_at_first_parturition`, `first_parturition_certainty`, `age_at_last_parturition`, `last_parturition_certainty`, `age_at_menarche`, `age_at_menarche_certainty`, `oralcontraceptive_use`, `years_on_oralcontraceptives`, `lnmp_date`, `lnmp_certainty`, `created`, `created_by`, `modified`, `modified_by`, `participant_id`) VALUES
 (1, NULL, NULL, NULL, 'uncertain by more than 10 years', NULL, NULL, NULL, NULL, NULL, 15, NULL, 12, 'known', 'no', 'yes', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2008-08-28', '1', '2008-08-28', '1', 1);
-
-
 
 -- Event Masters and Event Details Test Data
 
@@ -121,6 +121,9 @@ DELETE FROM `txe_chemos`;
 INSERT INTO `txe_chemos` (`id`, `source`, `frequency`, `dose`, `method`, `reduction`, `cycle_number`, `completed_cycles`, `start_date`, `end_date`, `created`, `created_by`, `modified`, `modified_by`, `tx_master_id`, `drug_id`) VALUES 
 (1, NULL, NULL, '45', 'iv push', NULL, NULL, NULL, NULL, NULL, '2009-06-23 10:05:38', '1', '2009-06-23 10:05:38', '1', 2, '4');
 
+-- ------------------------------------------------------------------------------------------------------------
+-- TOOLS
+-- ------------------------------------------------------------------------------------------------------------
 
 -- Protocol Masters, Protocol Details, and Protocol Extends Test Data
 
@@ -136,12 +139,6 @@ DELETE FROM `pe_chemos`;
 INSERT INTO `pe_chemos` ( `id`, `dose`, `frequency`, `protocol_master_id`, `drug_id` ) VALUES
 (1,  '45ml', '5 hours', 101, 1);
 
--- Collections Test Data
-
-DELETE FROM `collections`;
-INSERT INTO `collections` ( `id`, `acquisition_label`, `bank`, `collection_notes` ) VALUES
-(1, 'test', 'the bank', 'This is a test');
-
 -- Materials Test data
 
 DELETE FROM `materials`;
@@ -153,31 +150,6 @@ INSERT INTO `materials` ( `id`, `item_name`, `item_type`, `description` ) VALUES
 DELETE FROM `drugs`;
 INSERT INTO `drugs` ( `id`, `generic_name`, `trade_name`, `type`, `description`) VALUES
 (1, 'asprin', 'acetylsalicylic acid', 'pain killer', 'Cures headaches');
-
--- Sample Masters, Sample Details, Sample Extends, Aliquot Masters and Aliquot Details  Test Data
-
-DELETE FROM `aliquot_masters`;
-INSERT INTO `aliquot_masters` ( `id`, `barcode`, `aliquot_type`, `aliquot_control_id`, `collection_id`, `sample_master_id`, `status` ) VALUES
-(1, 'D345430D212', 'slide', 10, 1, 1, 'active' ),
-(2, 'E30002123C8', 'gel matrices', 13, 1, 1, 'active');
-
-DELETE FROM `ad_cell_slides`;
-INSERT INTO `ad_cell_slides` ( `id`, `aliquot_master_id`, `immunochemistry` ) VALUES
-( 1, 1, 'test');
-
-DELETE FROM `ad_gel_matrices`;
-INSERT INTO `ad_gel_matrices` ( `id`, `aliquot_master_id`, `cell_count` ) VALUES
-( 1, 2, 45 );
-
--- Storage Masters, and Storage Details Test Data
-
-DELETE FROM `storage_masters`;
-INSERT INTO `storage_masters` ( `id`, `code`, `storage_control_id`, `parent_id`, `barcode`, `notes` ) VALUES
-(1, 'B - 1', 1, NULL, '12332', 'Test');
-
-DELETE FROM `std_rooms`;
-INSERT INTO `std_rooms` ( `id`, `storage_master_id`, `laboratory`, `floor` ) VALUES
-(1, 1, 'test', 'test');
 
 -- SOP Masters, Sop Details, and Sop Extends Test Data
 
@@ -251,9 +223,57 @@ DELETE FROM `order_items`;
 INSERT INTO `order_items` ( `id`, `barcode`, `status`, `orderline_id`, `shipment_id` ) VALUES
 (1, '34532', 'Test', 1, 1);
 
+-- Storage Masters, and Storage Details Test Data
+
 DELETE FROM `storage_masters`;
-INSERT INTO `storage_masters` ( `id` , `code`, `storage_type`, `storage_control_id`, `parent_id`, `barcode`, `short_label`, `selection_label` ) VALUES
-( 1, 'INC-43', 'Incubator', 4, NULL, '456FD-34', 'abc', 'abc5');
+INSERT INTO `storage_masters` (`id`, `code`, `storage_type`, `storage_control_id`, `parent_id`, `lft`, `rght`, `barcode`, `short_label`, `selection_label`, `storage_status`, `parent_storage_coord_x`, `parent_storage_coord_y`, `set_temperature`, `temperature`, `temp_unit`, `notes`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
+(1, 'R - 1', 'room', 1, NULL, 1, 10, 'bc_r_1', 'ro1', 'ro1', '', NULL, NULL, 'TRUE', '23.00', 'celsius', '', '2009-09-16 16:06:04', '1', '2009-09-16 16:06:04', '1', 0, NULL),
+(2, 'FRE - 2', 'freezer', 6, 1, 2, 9, 'bc_fr_01', 'f1', 'ro1-f1', '', NULL, NULL, 'TRUE', '-23.00', 'celsius', '', '2009-09-16 16:07:27', '1', '2009-09-16 16:07:27', '1', 0, NULL),
+(3, 'R9 - 3', 'rack9', 16, 2, 3, 8, 'bc_r_9', 'r1', 'ro1-f1-r1', '', NULL, NULL, 'FALSE', '-23.00', 'celsius', '', '2009-09-16 16:08:03', '1', '2009-09-16 16:08:03', '1', 0, NULL),
+(4, 'B25 - 4', 'box25', 17, 3, 4, 5, 'bc_blood1', 'b1', 'ro1-f1-r1-b1', '', '1', NULL, 'FALSE', '-23.00', 'celsius', '', '2009-09-16 16:08:30', '1', '2009-09-16 16:09:29', '1', 0, NULL),
+(5, 'B2D100 - 5', 'box100 1A-20E', 18, 3, 6, 7, 'bc_dna_1', 'b2', 'ro1-f1-r1-b2', '', '2', NULL, 'FALSE', '-23.00', 'celsius', '', '2009-09-16 16:10:05', '1', '2009-09-16 16:10:21', '1', 0, NULL);
+
+DELETE FROM `storage_masters_revs`;
+INSERT INTO `storage_masters_revs` (`id`, `code`, `storage_type`, `storage_control_id`, `parent_id`, `lft`, `rght`, `barcode`, `short_label`, `selection_label`, `storage_status`, `parent_storage_coord_x`, `parent_storage_coord_y`, `set_temperature`, `temperature`, `temp_unit`, `notes`, `created`, `created_by`, `modified`, `modified_by`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
+(1, '', 'room', 1, NULL, 1, 2, 'bc_r_1', 'ro1', 'ro1', '', NULL, NULL, 'TRUE', '23.00', 'celsius', '', '2009-09-16 16:06:04', '1', '2009-09-16 16:06:04', '1', 1, '2009-09-16 16:06:04', 0, NULL),
+(1, 'R - 1', 'room', 1, NULL, 1, 2, 'bc_r_1', 'ro1', 'ro1', '', NULL, NULL, 'TRUE', '23.00', 'celsius', '', '2009-09-16 16:06:04', '1', '2009-09-16 16:06:04', '1', 2, '2009-09-16 16:06:04', 0, NULL),
+(2, '', 'freezer', 6, 1, 0, 0, 'bc_fr_01', 'f1', 'ro1-f1', '', NULL, NULL, 'TRUE', '-23.00', 'celsius', '', '2009-09-16 16:07:27', '1', '2009-09-16 16:07:27', '1', 3, '2009-09-16 16:07:27', 0, NULL),
+(2, 'FRE - 2', 'freezer', 6, 1, 2, 3, 'bc_fr_01', 'f1', 'ro1-f1', '', NULL, NULL, 'TRUE', '-23.00', 'celsius', '', '2009-09-16 16:07:27', '1', '2009-09-16 16:07:27', '1', 4, '2009-09-16 16:07:27', 0, NULL),
+(3, '', 'rack9', 16, 2, 0, 0, 'bc_r_9', 'r1', 'ro1-f1-r1', '', NULL, NULL, 'FALSE', '-23.00', 'celsius', '', '2009-09-16 16:08:03', '1', '2009-09-16 16:08:03', '1', 5, '2009-09-16 16:08:03', 0, NULL),
+(3, 'R9 - 3', 'rack9', 16, 2, 3, 4, 'bc_r_9', 'r1', 'ro1-f1-r1', '', NULL, NULL, 'FALSE', '-23.00', 'celsius', '', '2009-09-16 16:08:03', '1', '2009-09-16 16:08:03', '1', 6, '2009-09-16 16:08:03', 0, NULL),
+(4, '', 'box25', 17, 3, 0, 0, 'bc_blood1', 'b1', 'ro1-f1-r1-b1', '', NULL, NULL, 'FALSE', '-23.00', 'celsius', '', '2009-09-16 16:08:30', '1', '2009-09-16 16:08:30', '1', 7, '2009-09-16 16:08:31', 0, NULL),
+(4, 'B25 - 4', 'box25', 17, 3, 4, 5, 'bc_blood1', 'b1', 'ro1-f1-r1-b1', '', NULL, NULL, 'FALSE', '-23.00', 'celsius', '', '2009-09-16 16:08:30', '1', '2009-09-16 16:08:31', '1', 8, '2009-09-16 16:08:31', 0, NULL),
+(4, 'B25 - 4', 'box25', 17, 3, 4, 5, 'bc_blood1', 'b1', 'ro1-f1-r1-b1', '', '1', NULL, 'FALSE', '-23.00', 'celsius', '', '2009-09-16 16:08:30', '1', '2009-09-16 16:09:29', '1', 9, '2009-09-16 16:09:29', 0, NULL),
+(5, '', 'box100 1A-20E', 18, 3, 0, 0, 'bc_dna_1', 'b2', 'ro1-f1-r1-b2', '', NULL, NULL, 'FALSE', '-23.00', 'celsius', '', '2009-09-16 16:10:05', '1', '2009-09-16 16:10:05', '1', 10, '2009-09-16 16:10:05', 0, NULL),
+(5, 'B2D100 - 5', 'box100 1A-20E', 18, 3, 6, 7, 'bc_dna_1', 'b2', 'ro1-f1-r1-b2', '', NULL, NULL, 'FALSE', '-23.00', 'celsius', '', '2009-09-16 16:10:05', '1', '2009-09-16 16:10:05', '1', 11, '2009-09-16 16:10:05', 0, NULL),
+(5, 'B2D100 - 5', 'box100 1A-20E', 18, 3, 6, 7, 'bc_dna_1', 'b2', 'ro1-f1-r1-b2', '', '2', NULL, 'FALSE', '-23.00', 'celsius', '', '2009-09-16 16:10:05', '1', '2009-09-16 16:10:21', '1', 12, '2009-09-16 16:10:21', 0, NULL);
+
+DELETE FROM `std_rooms`;
+INSERT INTO `std_rooms` (`id`, `storage_master_id`, `laboratory`, `floor`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
+(1, 1, 'CTRNet', '4', '2009-09-16 16:06:04', '', '2009-09-16 16:06:04', NULL, 0, NULL);
+
+DELETE FROM `std_rack9s`;
+INSERT INTO `std_rack9s` (`id`, `storage_master_id`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
+(1, 3, '2009-09-16 16:08:03', '', '2009-09-16 16:08:03', NULL, 0, NULL);
+
+DELETE FROM `std_freezers;
+INSERT INTO `std_freezers` (`id`, `storage_master_id`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
+(1, 2, '2009-09-16 16:07:27', '', '2009-09-16 16:07:27', NULL, 0, NULL);
+
+DELETE FROM `std_box100s;
+INSERT INTO `std_box100s` (`id`, `storage_master_id`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
+(1, 5, '2009-09-16 16:10:05', '', '2009-09-16 16:10:21', NULL, 0, NULL);
+
+DELETE FROM `std_box25s;
+INSERT INTO `std_box25s` (`id`, `storage_master_id`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
+(1, 1, '2009-09-16 15:53:05', '', '2009-09-16 15:53:05', NULL, 0, NULL),
+(2, 4, '2009-09-16 16:08:31', '', '2009-09-16 16:09:29', NULL, 0, NULL);
+
+-- ------------------------------------------------------------------------------------------------------------
+-- INVENTORY MODULE
+-- ------------------------------------------------------------------------------------------------------------
+
+-- Collections Test Data
 
 DELETE FROM `collections`;
 INSERT INTO `collections` (`id`, `acquisition_label`, `bank`, `collection_site`, `collection_datetime`, `reception_by`, `reception_datetime`, `sop_master_id`, `collection_property`, `collection_notes`, `created`, `created_by`, `modified`, `modified_by`) VALUES (1, 'test', NULL, NULL, '2008-12-08 09:53:00', NULL, '2008-12-08 09:53:00', NULL, 'participant collection', NULL, '2008-12-08 09:53:48', '1', '2008-12-08 09:53:48', '1'),
@@ -263,6 +283,7 @@ INSERT INTO `collections` (`id`, `acquisition_label`, `bank`, `collection_site`,
 (5, 'H03-4647', NULL, NULL, '2009-05-26 09:56:00', 'Mai', '2003-06-06 09:56:00', NULL, 'participant collection', NULL, '2009-05-26 09:56:07', '1', '2009-05-26 09:56:07', '1'),
 (6, '476457', NULL, NULL, '2009-05-28 09:39:00', 'Dr. John Doe', '2009-05-28 09:39:00', NULL, 'participant collection', NULL, '2009-05-28 09:39:17', '1', '2009-05-28 09:39:17', '1');
 
+DELETE FROM `sample_masters`;
 INSERT INTO `sample_masters` (`id`, `sample_code`, `sample_category`, `sample_control_id`, `sample_type`, `initial_specimen_sample_id`, `initial_specimen_sample_type`, `collection_id`, `parent_id`, `sop_master_id`, `product_code`, `is_problematic`, `notes`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES (1, 'PW - 1', 'specimen', 103, 'peritoneal wash', 1, 'peritoneal wash', 1, NULL, NULL, '12456', 'yes', '', '2009-05-06 16:04:16', '1', '2009-05-06 16:04:16', '1', 0, NULL),
 (3, 'B - 3', 'specimen', 2, 'blood', 3, 'blood', 1, NULL, NULL, '546', 'no', '', '2007-05-06 16:37:06', '1', '2009-05-06 16:37:06', '1', 0, NULL),
 (4, 'U - 4', 'specimen', 4, 'urine', 4, 'urine', 1, NULL, NULL, '6657445765', 'no', '', '2006-05-07 04:20:05', '1', '2009-05-07 04:20:05', '1', 0, NULL),
@@ -298,6 +319,7 @@ INSERT INTO `sample_masters` (`id`, `sample_code`, `sample_category`, `sample_co
 (59, 'U - 59', 'specimen', 4, 'urine', 59, 'urine', 1, NULL, NULL, '', 'no', '', '2006-07-08 10:36:30', '1', '2009-07-08 10:36:30', '1', 0, NULL),
 (61, 'A - 61', 'specimen', 1, 'ascite', 61, 'ascite', 1, NULL, NULL, '', 'no', '', '2009-07-08 10:37:12', '1', '2009-07-08 10:37:12', '1', 0, NULL);
 
+DELETE FROM `sd_der_cell_cultures;
 INSERT INTO `sd_der_cell_cultures` (`id`, `sample_master_id`, `culture_status`, `culture_status_reason`, `cell_passage_number`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES (13, 13, 'stopped', 'cell dead', 2, '2009-05-13 10:05:47', '1', '2009-05-13 10:05:47', '1', 0, NULL),
 (16, 16, 'unknown', 'cell dead', 43, '2009-05-19 11:29:20', '1', '2009-05-19 11:29:20', '1', 0, NULL),
 (53, 53, NULL, NULL, NULL, '2009-07-08 10:34:43', '1', '2009-07-08 10:34:43', '1', 0, NULL),
@@ -305,32 +327,56 @@ INSERT INTO `sd_der_cell_cultures` (`id`, `sample_master_id`, `culture_status`, 
 (55, 55, NULL, NULL, 43, '2009-07-08 10:35:10', '1', '2009-07-08 10:35:10', '1', 0, NULL),
 (56, 56, NULL, NULL, NULL, '2009-07-08 10:35:24', '1', '2009-07-08 10:35:24', '1', 0, NULL);
 
+DELETE FROM `sd_der_serums;
 INSERT INTO `sd_der_serums` (`id`, `sample_master_id`, `hemolyze_signs`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES (25, 25, 'yes', '2009-07-08 10:15:31', '1', '2009-07-08 10:15:31', '1', 0, NULL);
 
+DELETE FROM `sd_spe_ascites;
 INSERT INTO `sd_spe_ascites` (`id`, `sample_master_id`, `collected_volume`, `collected_volume_unit`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES (7, 7, 560.00000, 'ml', '2009-05-13 09:48:09', '1', '2009-05-13 09:48:09', '1', 0, NULL),
 (17, 17, 587.00000, 'ml', '2009-05-19 11:30:44', '1', '2009-05-19 11:30:44', '1', 0, NULL),
 (21, 21, 45.00000, 'ul', '2009-07-08 10:11:30', '1', '2009-07-08 10:11:30', '1', 0, NULL),
 (61, 61, 21.00000, NULL, '2009-07-08 10:37:12', '1', '2009-07-08 10:37:12', '1', 0, NULL);
 
+DELETE FROM `sd_spe_bloods`;
 INSERT INTO `sd_spe_bloods` (`id`, `sample_master_id`, `type`, `collected_tube_nbr`, `collected_volume`, `collected_volume_unit`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES (3, 3, 'unknown', 2, 33.00000, 'ul', '2009-05-06 16:37:06', '1', '2009-05-06 16:37:06', '1', 0, NULL),
 (6, 6, 'paxgene', 234, 50.00000, 'ml', '2009-05-07 09:49:29', '1', '2009-05-07 09:49:29', '1', 0, NULL),
 (18, 18, NULL, 8798, 33.00000, 'ml', '2009-05-19 12:48:19', '1', '2009-05-19 12:48:19', '1', 0, NULL),
 (19, 19, NULL, 43535, 50.00000, 'ml', '2009-05-28 01:09:14', '1', '2009-05-28 01:09:14', '1', 0, NULL),
 (23, 23, 'gel CSA', 43, 3.00000, 'ml', '2009-07-08 10:12:37', '1', '2009-07-08 10:12:37', '1', 0, NULL);
 
+DELETE FROM `sd_spe_cystic_fluids`;
 INSERT INTO `sd_spe_cystic_fluids` (`id`, `sample_master_id`, `collected_volume`, `collected_volume_unit`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES (31, 31, 54.00000, NULL, '2009-07-08 10:23:34', '1', '2009-07-08 10:23:34', '1', 0, NULL),
 (34, 34, 54.00000, 'ul', '2009-07-08 10:24:32', '1', '2009-07-08 10:24:32', '1', 0, NULL),
 (36, 36, 34.00000, 'ul', '2009-07-08 10:25:16', '1', '2009-07-08 10:25:16', '1', 0, NULL);
 
+DELETE FROM `sd_spe_other_fluids`;
 INSERT INTO `sd_spe_other_fluids` (`id`, `sample_master_id`, `collected_volume`, `collected_volume_unit`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES (51, 51, 32.00000, 'ml', '2009-07-08 10:34:11', '1', '2009-07-08 10:34:11', '1', 0, NULL);
 
+DELETE FROM `sd_spe_peritoneal_washes`;
 INSERT INTO `sd_spe_peritoneal_washes` (`id`, `sample_master_id`, `collected_volume`, `collected_volume_unit`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES (1, 1, 75.00000, 'ml', '2009-05-06 16:04:16', '1', '2009-05-06 16:04:16', '1', 0, NULL),
 (27, 27, 45.00000, 'ml', '2009-07-08 10:22:15', '1', '2009-07-08 10:22:15', '1', 0, NULL),
 (29, 29, 43.00000, 'ul', '2009-07-08 10:22:54', '1', '2009-07-08 10:22:54', '1', 0, NULL);
 
+DELETE FROM `sd_spe_tissues`;
 INSERT INTO `sd_spe_tissues` (`id`, `sample_master_id`, `tissue_source`, `nature`, `laterality`, `pathology_reception_datetime`, `size`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES (8, 8, 'lung', 'malignant', 'right', '2009-05-13 10:00:00', '45', '2009-05-13 10:00:01', '1', '2009-05-13 10:00:01', '1', 0, NULL),
 (15, 15, 'breast', 'benign', 'left', '2009-05-19 11:28:00', '24', '2009-05-19 11:28:30', '1', '2009-05-19 11:28:30', '1', 0, NULL),
 (41, 41, NULL, NULL, NULL, '2009-07-08 10:31:00', NULL, '2009-07-08 10:31:22', '1', '2009-07-08 10:31:22', '1', 0, NULL),
 (43, 43, NULL, NULL, NULL, '2009-07-08 10:32:00', NULL, '2009-07-08 10:32:03', '1', '2009-07-08 10:32:03', '1', 0, NULL),
 (46, 46, NULL, NULL, NULL, '2009-07-08 10:32:00', NULL, '2009-07-08 10:32:51', '1', '2009-07-08 10:32:51', '1', 0, NULL),
 (48, 48, NULL, NULL, NULL, '2009-07-08 10:33:00', NULL, '2009-07-08 10:33:23', '1', '2009-07-08 10:33:23', '1', 0, NULL);
+
+-- Sample Masters, Sample Details, Sample Extends, Aliquot Masters and Aliquot Details  Test Data
+
+DELETE FROM `aliquot_masters`;
+INSERT INTO `aliquot_masters` ( `id`, `barcode`, `aliquot_type`, `aliquot_control_id`, `collection_id`, `sample_master_id`, `status` ) VALUES
+(1, 'D345430D212', 'slide', 10, 1, 1, 'active' ),
+(2, 'E30002123C8', 'gel matrices', 13, 1, 1, 'active');
+
+DELETE FROM `ad_cell_slides`;
+INSERT INTO `ad_cell_slides` ( `id`, `aliquot_master_id`, `immunochemistry` ) VALUES
+( 1, 1, 'test');
+
+DELETE FROM `ad_gel_matrices`;
+INSERT INTO `ad_gel_matrices` ( `id`, `aliquot_master_id`, `cell_count` ) VALUES
+( 1, 2, 45 );
+
+
