@@ -226,48 +226,99 @@ INSERT INTO `order_items` ( `id`, `barcode`, `status`, `orderline_id`, `shipment
 -- Storage Masters, and Storage Details Test Data
 
 DELETE FROM `storage_masters`;
-INSERT INTO `storage_masters` (`id`, `code`, `storage_type`, `storage_control_id`, `parent_id`, `lft`, `rght`, `barcode`, `short_label`, `selection_label`, `storage_status`, `parent_storage_coord_x`, `parent_storage_coord_y`, `set_temperature`, `temperature`, `temp_unit`, `notes`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
-(1, 'R - 1', 'room', 1, NULL, 1, 10, 'bc_r_1', 'ro1', 'ro1', '', NULL, NULL, 'TRUE', '23.00', 'celsius', '', '2009-09-16 16:06:04', '1', '2009-09-16 16:06:04', '1', 0, NULL),
-(2, 'FRE - 2', 'freezer', 6, 1, 2, 9, 'bc_fr_01', 'f1', 'ro1-f1', '', NULL, NULL, 'TRUE', '-23.00', 'celsius', '', '2009-09-16 16:07:27', '1', '2009-09-16 16:07:27', '1', 0, NULL),
-(3, 'R9 - 3', 'rack9', 16, 2, 3, 8, 'bc_r_9', 'r1', 'ro1-f1-r1', '', NULL, NULL, 'FALSE', '-23.00', 'celsius', '', '2009-09-16 16:08:03', '1', '2009-09-16 16:08:03', '1', 0, NULL),
-(4, 'B25 - 4', 'box25', 17, 3, 4, 5, 'bc_blood1', 'b1', 'ro1-f1-r1-b1', '', '1', NULL, 'FALSE', '-23.00', 'celsius', '', '2009-09-16 16:08:30', '1', '2009-09-16 16:09:29', '1', 0, NULL),
-(5, 'B2D100 - 5', 'box100 1A-20E', 18, 3, 6, 7, 'bc_dna_1', 'b2', 'ro1-f1-r1-b2', '', '2', NULL, 'FALSE', '-23.00', 'celsius', '', '2009-09-16 16:10:05', '1', '2009-09-16 16:10:21', '1', 0, NULL);
+INSERT INTO `storage_masters` (`id`, `code`, `storage_type`, `storage_control_id`, `parent_id`, `lft`, `rght`, `barcode`, `short_label`, `selection_label`, `storage_status`, `parent_storage_coord_x`, `coord_x_order`, `parent_storage_coord_y`, `coord_y_order`, `set_temperature`, `temperature`, `temp_unit`, `notes`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
+(1, 'R - 1', 'room', 1, NULL, 1, 20, 'Y-909', 'y1', 'y1', '', NULL, NULL, NULL, NULL, 'TRUE', '23.00', 'celsius', '', '2009-09-17 15:02:09', '1', '2009-09-17 15:02:10', '1', 0, NULL),
+(2, 'INC - 2', 'incubator', 4, 1, 2, 9, 'bc_inc_y11', 'inc1', 'y1-inc1', '', NULL, NULL, NULL, NULL, 'TRUE', '37.00', 'celsius', '', '2009-09-17 15:02:54', '1', '2009-09-17 15:02:54', '1', 0, NULL),
+(3, 'R2D16 - 3', 'rack16', 11, 2, 3, 4, 'bcr1', 'r1', 'y1-inc1-r1', '', 'shelf_middl', 2, NULL, NULL, 'FALSE', '37.00', 'celsius', '', '2009-09-17 15:05:06', '1', '2009-09-17 15:05:16', '1', 0, NULL),
+(4, 'R9 - 4', 'rack9', 16, 2, 5, 8, 'bcr2', 'r2', 'y1-inc1-r2', '', 'shelf_top', 1, NULL, NULL, 'FALSE', '37.00', 'celsius', '', '2009-09-17 15:05:43', '1', '2009-09-17 15:05:53', '1', 0, NULL),
+(5, 'B25 - 5', 'box25', 17, 4, 6, 7, 'bc_b1', 'b1', 'y1-inc1-r2-b1', '', '7', 6, NULL, NULL, 'FALSE', '37.00', 'celsius', '', '2009-09-17 15:06:16', '1', '2009-09-17 15:06:27', '1', 0, NULL),
+(6, 'FRI - 6', 'fridge', 5, 1, 10, 17, 'bcfr1', 'fr1', 'y1-fr1', '', NULL, NULL, NULL, NULL, 'TRUE', '5.00', 'celsius', '', '2009-09-17 15:08:11', '1', '2009-09-17 15:08:12', '1', 0, NULL),
+(7, 'SH - 7', 'shelf', 14, 6, 11, 12, 'sh1', 'sh1', 'y1-fr1-sh1', '', NULL, NULL, NULL, NULL, 'FALSE', '5.00', 'celsius', '', '2009-09-17 15:08:37', '1', '2009-09-17 15:08:37', '1', 0, NULL),
+(8, 'SH - 8', 'shelf', 14, 6, 13, 16, 'bcsh2', 'sh2', 'y1-fr1-sh2', '', NULL, NULL, NULL, NULL, 'FALSE', '5.00', 'celsius', '', '2009-09-17 15:09:09', '1', '2009-09-17 15:09:09', '1', 0, NULL),
+(9, 'B25 - 9', 'box25', 17, 8, 14, 15, 'bc_b5', 'b6', 'y1-fr1-sh2-b6', '', NULL, NULL, NULL, NULL, 'FALSE', '5.00', 'celsius', '', '2009-09-17 15:09:36', '1', '2009-09-17 15:09:36', '1', 0, NULL),
+(10, 'TMA345 - 10', 'TMA-blc 23X15', 19, 1, 18, 19, 'tma1', 'tma1', 'y1-tma1', '', NULL, NULL, NULL, NULL, 'FALSE', '23.00', 'celsius', '', '2009-09-17 15:10:22', '1', '2009-09-17 15:10:22', '1', 0, NULL);
 
 DELETE FROM `storage_masters_revs`;
-INSERT INTO `storage_masters_revs` (`id`, `code`, `storage_type`, `storage_control_id`, `parent_id`, `lft`, `rght`, `barcode`, `short_label`, `selection_label`, `storage_status`, `parent_storage_coord_x`, `parent_storage_coord_y`, `set_temperature`, `temperature`, `temp_unit`, `notes`, `created`, `created_by`, `modified`, `modified_by`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
-(1, '', 'room', 1, NULL, 1, 2, 'bc_r_1', 'ro1', 'ro1', '', NULL, NULL, 'TRUE', '23.00', 'celsius', '', '2009-09-16 16:06:04', '1', '2009-09-16 16:06:04', '1', 1, '2009-09-16 16:06:04', 0, NULL),
-(1, 'R - 1', 'room', 1, NULL, 1, 2, 'bc_r_1', 'ro1', 'ro1', '', NULL, NULL, 'TRUE', '23.00', 'celsius', '', '2009-09-16 16:06:04', '1', '2009-09-16 16:06:04', '1', 2, '2009-09-16 16:06:04', 0, NULL),
-(2, '', 'freezer', 6, 1, 0, 0, 'bc_fr_01', 'f1', 'ro1-f1', '', NULL, NULL, 'TRUE', '-23.00', 'celsius', '', '2009-09-16 16:07:27', '1', '2009-09-16 16:07:27', '1', 3, '2009-09-16 16:07:27', 0, NULL),
-(2, 'FRE - 2', 'freezer', 6, 1, 2, 3, 'bc_fr_01', 'f1', 'ro1-f1', '', NULL, NULL, 'TRUE', '-23.00', 'celsius', '', '2009-09-16 16:07:27', '1', '2009-09-16 16:07:27', '1', 4, '2009-09-16 16:07:27', 0, NULL),
-(3, '', 'rack9', 16, 2, 0, 0, 'bc_r_9', 'r1', 'ro1-f1-r1', '', NULL, NULL, 'FALSE', '-23.00', 'celsius', '', '2009-09-16 16:08:03', '1', '2009-09-16 16:08:03', '1', 5, '2009-09-16 16:08:03', 0, NULL),
-(3, 'R9 - 3', 'rack9', 16, 2, 3, 4, 'bc_r_9', 'r1', 'ro1-f1-r1', '', NULL, NULL, 'FALSE', '-23.00', 'celsius', '', '2009-09-16 16:08:03', '1', '2009-09-16 16:08:03', '1', 6, '2009-09-16 16:08:03', 0, NULL),
-(4, '', 'box25', 17, 3, 0, 0, 'bc_blood1', 'b1', 'ro1-f1-r1-b1', '', NULL, NULL, 'FALSE', '-23.00', 'celsius', '', '2009-09-16 16:08:30', '1', '2009-09-16 16:08:30', '1', 7, '2009-09-16 16:08:31', 0, NULL),
-(4, 'B25 - 4', 'box25', 17, 3, 4, 5, 'bc_blood1', 'b1', 'ro1-f1-r1-b1', '', NULL, NULL, 'FALSE', '-23.00', 'celsius', '', '2009-09-16 16:08:30', '1', '2009-09-16 16:08:31', '1', 8, '2009-09-16 16:08:31', 0, NULL),
-(4, 'B25 - 4', 'box25', 17, 3, 4, 5, 'bc_blood1', 'b1', 'ro1-f1-r1-b1', '', '1', NULL, 'FALSE', '-23.00', 'celsius', '', '2009-09-16 16:08:30', '1', '2009-09-16 16:09:29', '1', 9, '2009-09-16 16:09:29', 0, NULL),
-(5, '', 'box100 1A-20E', 18, 3, 0, 0, 'bc_dna_1', 'b2', 'ro1-f1-r1-b2', '', NULL, NULL, 'FALSE', '-23.00', 'celsius', '', '2009-09-16 16:10:05', '1', '2009-09-16 16:10:05', '1', 10, '2009-09-16 16:10:05', 0, NULL),
-(5, 'B2D100 - 5', 'box100 1A-20E', 18, 3, 6, 7, 'bc_dna_1', 'b2', 'ro1-f1-r1-b2', '', NULL, NULL, 'FALSE', '-23.00', 'celsius', '', '2009-09-16 16:10:05', '1', '2009-09-16 16:10:05', '1', 11, '2009-09-16 16:10:05', 0, NULL),
-(5, 'B2D100 - 5', 'box100 1A-20E', 18, 3, 6, 7, 'bc_dna_1', 'b2', 'ro1-f1-r1-b2', '', '2', NULL, 'FALSE', '-23.00', 'celsius', '', '2009-09-16 16:10:05', '1', '2009-09-16 16:10:21', '1', 12, '2009-09-16 16:10:21', 0, NULL);
-
-DELETE FROM `std_rooms`;
-INSERT INTO `std_rooms` (`id`, `storage_master_id`, `laboratory`, `floor`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
-(1, 1, 'CTRNet', '4', '2009-09-16 16:06:04', '', '2009-09-16 16:06:04', NULL, 0, NULL);
-
-DELETE FROM `std_rack9s`;
-INSERT INTO `std_rack9s` (`id`, `storage_master_id`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
-(1, 3, '2009-09-16 16:08:03', '', '2009-09-16 16:08:03', NULL, 0, NULL);
-
-DELETE FROM `std_freezers`;
-INSERT INTO `std_freezers` (`id`, `storage_master_id`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
-(1, 2, '2009-09-16 16:07:27', '', '2009-09-16 16:07:27', NULL, 0, NULL);
-
-DELETE FROM `std_box100s`;
-INSERT INTO `std_box100s` (`id`, `storage_master_id`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
-(1, 5, '2009-09-16 16:10:05', '', '2009-09-16 16:10:21', NULL, 0, NULL);
+INSERT INTO `storage_masters_revs` (`id`, `code`, `storage_type`, `storage_control_id`, `parent_id`, `lft`, `rght`, `barcode`, `short_label`, `selection_label`, `storage_status`, `parent_storage_coord_x`, `coord_x_order`, `parent_storage_coord_y`, `coord_y_order`, `set_temperature`, `temperature`, `temp_unit`, `notes`, `created`, `created_by`, `modified`, `modified_by`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
+(1, '', 'room', 1, NULL, 1, 2, 'Y-909', 'y1', 'y1', '', NULL, NULL, NULL, NULL, 'TRUE', '23.00', 'celsius', '', '2009-09-17 15:02:09', '1', '2009-09-17 15:02:09', '1', 1, '2009-09-17 15:02:10', 0, NULL),
+(1, 'R - 1', 'room', 1, NULL, 1, 2, 'Y-909', 'y1', 'y1', '', NULL, NULL, NULL, NULL, 'TRUE', '23.00', 'celsius', '', '2009-09-17 15:02:09', '1', '2009-09-17 15:02:10', '1', 2, '2009-09-17 15:02:10', 0, NULL),
+(2, '', 'incubator', 4, 1, 0, 0, 'bc_inc_y11', 'inc1', 'y1-inc1', '', NULL, NULL, NULL, NULL, 'TRUE', '37.00', 'celsius', '', '2009-09-17 15:02:54', '1', '2009-09-17 15:02:54', '1', 3, '2009-09-17 15:02:54', 0, NULL),
+(2, 'INC - 2', 'incubator', 4, 1, 2, 3, 'bc_inc_y11', 'inc1', 'y1-inc1', '', NULL, NULL, NULL, NULL, 'TRUE', '37.00', 'celsius', '', '2009-09-17 15:02:54', '1', '2009-09-17 15:02:54', '1', 4, '2009-09-17 15:02:54', 0, NULL),
+(3, '', 'rack16', 11, 2, 0, 0, 'bcr1', 'r1', 'y1-inc1-r1', '', NULL, NULL, NULL, NULL, 'FALSE', '37.00', 'celsius', '', '2009-09-17 15:05:06', '1', '2009-09-17 15:05:06', '1', 5, '2009-09-17 15:05:06', 0, NULL),
+(3, 'R2D16 - 3', 'rack16', 11, 2, 3, 4, 'bcr1', 'r1', 'y1-inc1-r1', '', NULL, NULL, NULL, NULL, 'FALSE', '37.00', 'celsius', '', '2009-09-17 15:05:06', '1', '2009-09-17 15:05:06', '1', 6, '2009-09-17 15:05:06', 0, NULL),
+(3, 'R2D16 - 3', 'rack16', 11, 2, 3, 4, 'bcr1', 'r1', 'y1-inc1-r1', '', 'shelf_middl', 2, NULL, NULL, 'FALSE', '37.00', 'celsius', '', '2009-09-17 15:05:06', '1', '2009-09-17 15:05:16', '1', 7, '2009-09-17 15:05:16', 0, NULL),
+(4, '', 'rack9', 16, 2, 0, 0, 'bcr2', 'r2', 'y1-inc1-r2', '', NULL, NULL, NULL, NULL, 'FALSE', '37.00', 'celsius', '', '2009-09-17 15:05:43', '1', '2009-09-17 15:05:43', '1', 8, '2009-09-17 15:05:43', 0, NULL),
+(4, 'R9 - 4', 'rack9', 16, 2, 5, 6, 'bcr2', 'r2', 'y1-inc1-r2', '', NULL, NULL, NULL, NULL, 'FALSE', '37.00', 'celsius', '', '2009-09-17 15:05:43', '1', '2009-09-17 15:05:43', '1', 9, '2009-09-17 15:05:43', 0, NULL),
+(4, 'R9 - 4', 'rack9', 16, 2, 5, 6, 'bcr2', 'r2', 'y1-inc1-r2', '', 'shelf_top', 1, NULL, NULL, 'FALSE', '37.00', 'celsius', '', '2009-09-17 15:05:43', '1', '2009-09-17 15:05:53', '1', 10, '2009-09-17 15:05:53', 0, NULL),
+(5, '', 'box25', 17, 4, 0, 0, 'bc_b1', 'b1', 'y1-inc1-r2-b1', '', NULL, NULL, NULL, NULL, 'FALSE', '37.00', 'celsius', '', '2009-09-17 15:06:16', '1', '2009-09-17 15:06:16', '1', 11, '2009-09-17 15:06:16', 0, NULL),
+(5, 'B25 - 5', 'box25', 17, 4, 6, 7, 'bc_b1', 'b1', 'y1-inc1-r2-b1', '', NULL, NULL, NULL, NULL, 'FALSE', '37.00', 'celsius', '', '2009-09-17 15:06:16', '1', '2009-09-17 15:06:16', '1', 12, '2009-09-17 15:06:16', 0, NULL),
+(5, 'B25 - 5', 'box25', 17, 4, 6, 7, 'bc_b1', 'b1', 'y1-inc1-r2-b1', '', '7', 6, NULL, NULL, 'FALSE', '37.00', 'celsius', '', '2009-09-17 15:06:16', '1', '2009-09-17 15:06:27', '1', 13, '2009-09-17 15:06:27', 0, NULL),
+(6, '', 'fridge', 5, 1, 0, 0, 'bcfr1', 'fr1', 'y1-fr1', '', NULL, NULL, NULL, NULL, 'TRUE', '5.00', 'celsius', '', '2009-09-17 15:08:11', '1', '2009-09-17 15:08:11', '1', 14, '2009-09-17 15:08:12', 0, NULL),
+(6, 'FRI - 6', 'fridge', 5, 1, 10, 11, 'bcfr1', 'fr1', 'y1-fr1', '', NULL, NULL, NULL, NULL, 'TRUE', '5.00', 'celsius', '', '2009-09-17 15:08:11', '1', '2009-09-17 15:08:12', '1', 15, '2009-09-17 15:08:12', 0, NULL),
+(7, '', 'shelf', 14, 6, 0, 0, 'sh1', 'sh1', 'y1-fr1-sh1', '', NULL, NULL, NULL, NULL, 'FALSE', '5.00', 'celsius', '', '2009-09-17 15:08:37', '1', '2009-09-17 15:08:37', '1', 16, '2009-09-17 15:08:37', 0, NULL),
+(7, 'SH - 7', 'shelf', 14, 6, 11, 12, 'sh1', 'sh1', 'y1-fr1-sh1', '', NULL, NULL, NULL, NULL, 'FALSE', '5.00', 'celsius', '', '2009-09-17 15:08:37', '1', '2009-09-17 15:08:37', '1', 17, '2009-09-17 15:08:37', 0, NULL),
+(8, '', 'shelf', 14, 6, 0, 0, 'bcsh2', 'sh2', 'y1-fr1-sh2', '', NULL, NULL, NULL, NULL, 'FALSE', '5.00', 'celsius', '', '2009-09-17 15:09:09', '1', '2009-09-17 15:09:09', '1', 18, '2009-09-17 15:09:09', 0, NULL),
+(8, 'SH - 8', 'shelf', 14, 6, 13, 14, 'bcsh2', 'sh2', 'y1-fr1-sh2', '', NULL, NULL, NULL, NULL, 'FALSE', '5.00', 'celsius', '', '2009-09-17 15:09:09', '1', '2009-09-17 15:09:09', '1', 19, '2009-09-17 15:09:09', 0, NULL),
+(9, '', 'box25', 17, 8, 0, 0, 'bc_b5', 'b6', 'y1-fr1-sh2-b6', '', NULL, NULL, NULL, NULL, 'FALSE', '5.00', 'celsius', '', '2009-09-17 15:09:36', '1', '2009-09-17 15:09:36', '1', 20, '2009-09-17 15:09:36', 0, NULL),
+(9, 'B25 - 9', 'box25', 17, 8, 14, 15, 'bc_b5', 'b6', 'y1-fr1-sh2-b6', '', NULL, NULL, NULL, NULL, 'FALSE', '5.00', 'celsius', '', '2009-09-17 15:09:36', '1', '2009-09-17 15:09:36', '1', 21, '2009-09-17 15:09:36', 0, NULL),
+(10, '', 'TMA-blc 23X15', 19, 1, 0, 0, 'tma1', 'tma1', 'y1-tma1', '', NULL, NULL, NULL, NULL, 'FALSE', '23.00', 'celsius', '', '2009-09-17 15:10:22', '1', '2009-09-17 15:10:22', '1', 22, '2009-09-17 15:10:22', 0, NULL),
+(10, 'TMA345 - 10', 'TMA-blc 23X15', 19, 1, 18, 19, 'tma1', 'tma1', 'y1-tma1', '', NULL, NULL, NULL, NULL, 'FALSE', '23.00', 'celsius', '', '2009-09-17 15:10:22', '1', '2009-09-17 15:10:22', '1', 23, '2009-09-17 15:10:22', 0, NULL);
 
 DELETE FROM `std_box25s`;
 INSERT INTO `std_box25s` (`id`, `storage_master_id`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
-(1, 1, '2009-09-16 15:53:05', '', '2009-09-16 15:53:05', NULL, 0, NULL),
-(2, 4, '2009-09-16 16:08:31', '', '2009-09-16 16:09:29', NULL, 0, NULL);
+(1, 5, '2009-09-17 15:06:16', '', '2009-09-17 15:06:27', NULL, 0, NULL),
+(2, 9, '2009-09-17 15:09:36', '', '2009-09-17 15:09:36', NULL, 0, NULL);
+
+DELETE FROM `std_fridges`;
+INSERT INTO `std_fridges` (`id`, `storage_master_id`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
+(1, 6, '2009-09-17 15:08:11', '', '2009-09-17 15:08:12', NULL, 0, NULL);
+
+DELETE FROM `std_incubators`;
+INSERT INTO `std_incubators` (`id`, `storage_master_id`, `oxygen_perc`, `carbonic_gaz_perc`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
+(1, 2, '', '', '2009-09-17 15:02:54', '', '2009-09-17 15:02:54', NULL, 0, NULL);
+
+DELETE FROM `std_rack9s`;
+INSERT INTO `std_rack9s` (`id`, `storage_master_id`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
+(1, 4, '2009-09-17 15:05:43', '', '2009-09-17 15:05:53', NULL, 0, NULL);
+
+DELETE FROM `std_rack16s`;
+INSERT INTO `std_rack16s` (`id`, `storage_master_id`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
+(1, 3, '2009-09-17 15:05:06', '', '2009-09-17 15:05:16', NULL, 0, NULL);
+
+DELETE FROM `std_rooms`;
+INSERT INTO `std_rooms` (`id`, `storage_master_id`, `laboratory`, `floor`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
+(1, 1, 'CTRNet', '4', '2009-09-17 15:02:10', '', '2009-09-17 15:02:10', NULL, 0, NULL);
+
+DELETE FROM `std_shelfs`;
+INSERT INTO `std_shelfs` (`id`, `storage_master_id`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
+(1, 7, '2009-09-17 15:08:37', '', '2009-09-17 15:08:37', NULL, 0, NULL),
+(2, 8, '2009-09-17 15:09:09', '', '2009-09-17 15:09:09', NULL, 0, NULL);
+
+DELETE FROM `std_tma_blocks`;
+INSERT INTO `std_tma_blocks` (`id`, `storage_master_id`, `sop_master_id`, `product_code`, `creation_datetime`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
+(1, 10, NULL, '', '2009-09-17 15:09:00', '2009-09-17 15:10:22', '', '2009-09-17 15:10:22', NULL, 0, NULL);
+
+DELETE FROM `storage_coordinates`;
+INSERT INTO `storage_coordinates` (`id`, `storage_master_id`, `dimension`, `coordinate_value`, `order`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
+(1, 2, 'x', 'shelf_top', 1, '2009-09-17 15:03:33', '1', '2009-09-17 15:03:33', '1', 0, NULL),
+(2, 2, 'x', 'shelf_middle', 2, '2009-09-17 15:04:00', '1', '2009-09-17 15:04:00', '1', 0, NULL),
+(3, 2, 'x', 'shelf_ground', 3, '2009-09-17 15:04:16', '1', '2009-09-17 15:04:16', '1', 0, NULL);
+
+DELETE FROM `storage_coordinates_revs`;
+INSERT INTO `storage_coordinates_revs` (`id`, `storage_master_id`, `dimension`, `coordinate_value`, `order`, `created`, `created_by`, `modified`, `modified_by`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
+(1, 2, 'x', 'shelf_top', 1, '2009-09-17 15:03:33', '1', '2009-09-17 15:03:33', '1', 1, '2009-09-17 15:03:33', 0, NULL),
+(2, 2, 'x', 'shelf_middle', 2, '2009-09-17 15:04:00', '1', '2009-09-17 15:04:00', '1', 2, '2009-09-17 15:04:00', 0, NULL),
+(3, 2, 'x', 'shelf_ground', 3, '2009-09-17 15:04:16', '1', '2009-09-17 15:04:16', '1', 3, '2009-09-17 15:04:16', 0, NULL);
+
+DELETE FROM `tma_slides`;
+INSERT INTO `tma_slides` (`id`, `std_tma_block_id`, `barcode`, `product_code`, `sop_master_id`, `immunochemistry`, `picture_path`, `storage_datetime`, `storage_master_id`, `storage_coord_x`, `coord_x_order`, `storage_coord_y`, `coord_y_order`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
+(1, 10, 'TMA1', '', NULL, '', '', '2009-09-17 15:10:00', 9, '3', 2, '', NULL, '2009-09-17 15:11:10', '1', '2009-09-17 15:11:10', '1', 0, NULL),
+(2, 10, 'TMA2', '', NULL, '', '', '2009-09-17 15:11:00', 9, '1', 0, '', NULL, '2009-09-17 15:11:32', '1', '2009-09-17 15:11:32', '1', 0, NULL);
+
+DELETE FROM `tma_slides_revs`;
+INSERT INTO `tma_slides_revs` (`id`, `std_tma_block_id`, `barcode`, `product_code`, `sop_master_id`, `immunochemistry`, `picture_path`, `storage_datetime`, `storage_master_id`, `storage_coord_x`, `coord_x_order`, `storage_coord_y`, `coord_y_order`, `created`, `created_by`, `modified`, `modified_by`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
+(1, 10, 'TMA1', '', NULL, '', '', '2009-09-17 15:10:00', 9, '3', 2, '', NULL, '2009-09-17 15:11:10', '1', '2009-09-17 15:11:10', '1', 1, '2009-09-17 15:11:10', 0, NULL),
+(2, 10, 'TMA2', '', NULL, '', '', '2009-09-17 15:11:00', 9, '1', 0, '', NULL, '2009-09-17 15:11:32', '1', '2009-09-17 15:11:32', '1', 2, '2009-09-17 15:11:32', 0, NULL);
 
 -- ------------------------------------------------------------------------------------------------------------
 -- INVENTORY MODULE
