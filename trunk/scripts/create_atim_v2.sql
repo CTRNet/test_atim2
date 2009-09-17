@@ -9,9 +9,6 @@
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
-CREATE DATABASE `atim2_structures`;
-
-USE `atim2_structures`;
 --
 -- Database: `atim_2`
 --
