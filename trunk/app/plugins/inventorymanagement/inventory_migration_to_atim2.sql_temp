@@ -347,7 +347,7 @@ WHERE flag_datagrid= '0'  AND flag_datagrid_readonly = '1';
 
 UPDATE `structure_formats`
 SET `flag_add` = '1'
-WHERE old_id = 'CAN-999-999-000-999-1040_CAN-999-999-000-999-1183'
+WHERE old_id = 'CAN-999-999-000-999-1040_CAN-999-999-000-999-1183';
 
 UPDATE `structure_formats`
 SET `flag_search_readonly` = '0',
@@ -411,7 +411,31 @@ WHERE structure_old_id = 'CAN-999-999-000-999-1048';
 
 DELETE FROM `structures`
 WHERE old_id = 'CAN-999-999-000-999-1048';
-----
+
+-- --
+
+ALTER TABLE `storage_masters` ADD `coord_x_order` INT( 3 ) NULL AFTER `parent_storage_coord_x`; 
+ALTER TABLE `storage_masters_revs` ADD `coord_x_order` INT( 3 ) NULL AFTER `parent_storage_coord_x` ;
+
+ALTER TABLE `storage_masters` ADD `coord_y_order` INT( 3 ) NULL AFTER `parent_storage_coord_y` ;
+ALTER TABLE `storage_masters_revs` ADD `coord_y_order` INT( 3 ) NULL AFTER `parent_storage_coord_y` ;
+
+ALTER TABLE `aliquot_masters` ADD `coord_x_order` INT( 3 ) NULL AFTER `storage_coord_x`; 
+ALTER TABLE `aliquot_masters_revs` ADD `coord_x_order` INT( 3 ) NULL AFTER `storage_coord_x` ;
+
+ALTER TABLE `aliquot_masters` ADD `coord_y_order` INT( 3 ) NULL AFTER `storage_coord_y` ;
+ALTER TABLE `aliquot_masters_revs` ADD `coord_y_order` INT( 3 ) NULL AFTER `storage_coord_y` ;
+
+ALTER TABLE `tma_slides` ADD `coord_x_order` INT( 3 ) NULL AFTER `storage_coord_x`; 
+ALTER TABLE `tma_slides_revs` ADD `coord_x_order` INT( 3 ) NULL AFTER `storage_coord_x` ;
+
+ALTER TABLE `tma_slides` ADD `coord_y_order` INT( 3 ) NULL AFTER `storage_coord_y` ;
+ALTER TABLE `tma_slides_revs` ADD `coord_y_order` INT( 3 ) NULL AFTER `storage_coord_y` ;
+
+
+
+
+-- ------------------------------------------------------------------------------
 
 
 
@@ -420,22 +444,4 @@ WHERE old_id = 'CAN-999-999-000-999-1048';
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-TODO aliquot master...
+-- TODO aliquot master...
