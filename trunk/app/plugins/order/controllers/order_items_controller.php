@@ -277,7 +277,7 @@ class OrderItemsController extends OrderAppController {
 			$submitted_data_validates = true;
 			foreach($this->data as $key => $new_studied_item) {
 				
-				if(strcmp($new_studied_item['FunctionManagement']['generated_field_ship'], 'yes') == 0) {
+				if(strcmp($new_studied_item['FunctionManagement']['ship'], 'yes') == 0) {
 					// Item defined as shipped
 					
 					// Track shipped item data
