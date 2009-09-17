@@ -28,7 +28,7 @@ class StoragesComponent extends Object {
 			
 		// Get all storage records excluding those of type TMA
 		$arr_storages_list = $this->controller->StorageMaster->atim_list(array('conditions' => array('NOT' => array('StorageMaster.storage_control_id' => $arr_tma_control_ids)), 'order' => array('StorageMaster.selection_label')));
-				
+		
 		if(empty($arr_storages_list)) {
 			// No Storage exists in the system
 			return array();	
@@ -275,11 +275,17 @@ class StoragesComponent extends Object {
 	
 	function validatePositionWithinStorage($storage_master_id, $position_x, $position_y, $storage_data = null) {
 		$validated_position_x = $position_x;
+		$position_x_order = null;
+		$error_on_x = 0;
+		
 		$validated_position_y = $position_y;
+		$position_y_order = null;
+		$error_on_y = 0;
+		
 		$position_definition_error = '';
 		
 		$error_sign = ' #err!#';
-	
+		
 		if(empty($storage_master_id)){
 			// No storage selected: no position should be set
 			if(!empty($position_x)){
@@ -305,23 +311,33 @@ class StoragesComponent extends Object {
 			// Manage position x
 			if(!$position_x_validation['validated']) {
 				$validated_position_x .= $error_sign;
+				$error_on_x = 1;
 				$position_definition_error = 'at least one position value does not match format';
 			} else {
 				$validated_position_x = $position_x_validation['validated_position'];
+				$position_x_order = $position_x_validation['position_order'];
 			}
 			
 			// Manage position y
 			if(!$position_y_validation['validated']) {
 				$validated_position_y .= $error_sign;
+				$error_on_y = 1;
 				$position_definition_error = 'at least one position value does not match format';
 			} else {
 				$validated_position_y = $position_y_validation['validated_position'];
+				$position_y_order = $position_y_validation['position_order'];
 			}
 		}
 		
 		return array(
 			'validated_position_x' => str_replace($error_sign.$error_sign, $error_sign, $validated_position_x),
+			'error_on_x' => $error_on_x,
+			'position_x_order' => $position_x_order,
+			
 			'validated_position_y' => str_replace($error_sign.$error_sign, $error_sign, $validated_position_y),
+			'error_on_y' => $error_on_y,
+			'position_y_order' => $position_y_order,
+			
 			'position_definition_error' => $position_definition_error);
 	}	
 	
@@ -335,6 +351,7 @@ class StoragesComponent extends Object {
 	 * @return Array containing results
 	 * 	['validated'] => TRUE if validated
 	 * 	['validated_position'] => Validated position (value changed to correct case when required)
+	 * 	['position_order'] => Position order to display
 	 * 
 	 * @author N. Luc
 	 * @since 2009-08-16
@@ -343,7 +360,8 @@ class StoragesComponent extends Object {
 	function validatePositionValue($storage_data, $position, $coord) {
 		$validation_results = array(
 			'validated' => TRUE,
-			'validated_position' => $position);
+			'validated_position' => $position,
+			'position_order' => null);
 		
 		// Launch validation
 		if(empty($position)) {
@@ -354,12 +372,14 @@ class StoragesComponent extends Object {
 		$arr_allowed_position = $this->buildAllowedStoragePosition($storage_data, $coord);
 		
 		// Check position
-		if(array_key_exists($position, $arr_allowed_position)) {
+		if(array_key_exists($position, $arr_allowed_position['array_to_display'])) {
+			$validation_results['position_order'] = $arr_allowed_position['array_to_order'][$position];
 			return $validation_results;
 		} else {
 			$upper_case_position = strtoupper($position);
-			if(array_key_exists($upper_case_position, $arr_allowed_position)) {
+			if(array_key_exists($upper_case_position, $arr_allowed_position['array_to_display'])) {
 				$validation_results['validated_position'] = $upper_case_position;
+				$validation_results['position_order'] = $arr_allowed_position['array_to_order'][$upper_case_position];
 				return $validation_results;
 			}
 		}
@@ -392,7 +412,9 @@ class StoragesComponent extends Object {
 	 * @param $storage_data Storage data including storage master, storage control, etc.
 	 * @param $coord Coordinate flag that should be studied ('x', 'y').
 	 *
-	 * @return Array of available values.
+	 * @return Array gathering 2 sub arrays:
+	 * 	[array_to_display] = array() -- (key = value = allowed coordinate)
+	 * 	[array_to_order] = array()   -- (key = coordinate order, value = allowed coordinate) / Use for display
 	 * 
 	 * @author N. Luc
 	 * @since 2007-05-22
@@ -403,8 +425,9 @@ class StoragesComponent extends Object {
 		if(!array_key_exists('coord_'.$coord.'_type', $storage_data['StorageControl'])) { $this->redirect('/pages/err_sto_system_error', NULL, TRUE); }
 				
 		// Build array
-		$returned_array = array();
-	
+		$array_to_display = array();
+		$array_to_order = array();
+			
 		if(!empty($storage_data['StorageControl']['coord_'.$coord.'_type'])) {
 			if(!empty($storage_data['StorageControl']['coord_'.$coord.'_size'])) {
 				// TYPE and SIZE are both defined for the studied coordinate: The system can build a list.
@@ -413,27 +436,30 @@ class StoragesComponent extends Object {
 									
 				if(strcmp($storage_data['StorageControl']['coord_'.$coord.'_type'], 'alphabetical') == 0){
 					// Alphabetical drop down list
-					$a_alphab = array_slice(range('A', 'Z'), 0, $size);
-					$returned_array = array_combine($a_alphab, $a_alphab);			
+					$array_to_order = array_slice(range('A', 'Z'), 0, $size);		
 				} else if(strcmp($storage_data['StorageControl']['coord_'.$coord.'_type'], 'integer') == 0){
-					// Integer drop down list
-					$returned_array = array_combine(range('1', $size), range('1', $size));				
+					// Integer drop down list	
+					$array_to_order = range('1', $size);
 				} else {
 					$this->redirect('/pages/err_sto_system_error', NULL, TRUE); 		
-				}
+				}	
 						
 			} else {
 				// Only TYPE is defined for the studied coordinate: The system can only return a custom coordinate list set by user.			
 				if((strcmp($storage_data['StorageControl']['coord_'.$coord.'_type'], 'list') == 0) && (strcmp($coord, 'x') == 0)) {
-					$returned_array = $this->StorageCoordinate->find('list', array('conditions' => array('StorageCoordinate.storage_master_id' => $storage_data['StorageMaster']['id'], 'StorageCoordinate.dimension' => $coord), 'fields' => array('StorageCoordinate.coordinate_value'), 'order' => 'StorageCoordinate.order ASC'));
-					if(!empty($returned_array)) { $returned_array = array_combine($returned_array, $returned_array); }
+					$coordinates = $this->controller->StorageCoordinate->atim_list(array('conditions' => array('StorageCoordinate.storage_master_id' => $storage_data['StorageMaster']['id'], 'StorageCoordinate.dimension' => $coord), 'order' => 'StorageCoordinate.order ASC', 'recursive' => '-1'));
+					foreach($coordinates as $new_coordinate) {
+						$coordinate_value = $new_coordinate['StorageCoordinate']['coordinate_value'];
+						$coordinate_order = $new_coordinate['StorageCoordinate']['order'];
+						$array_to_order[$coordinate_order] = $coordinate_value;						
+					}		
 				} else {
 					$this->redirect('/pages/err_sto_system_error', NULL, TRUE); 				
 				}
 			}
 		}
-		
-		return $returned_array;
+		if(!empty($array_to_order)) { $array_to_display = array_combine($array_to_order, $array_to_order); }
+		return array('array_to_display' => $array_to_display, 'array_to_order' => array_flip($array_to_order));
 	}	
 	 
 }
