@@ -151,16 +151,21 @@ class BatchSetsController extends DatamartAppController {
 		
 	}
 	
-	function add( $batch_set_id=0 ) {
+	function add( $target_batch_set_id=0 ) {
+		
+		// check SESSION for adhoc-rpocess data...
+		if ( isset($_SESSION['ctrapp_core']) && isset($_SESSION['ctrapp_core']['datamart']) && isset($_SESSION['ctrapp_core']['datamart']['process']) && is_array($_SESSION['ctrapp_core']['datamart']['process']) && count($_SESSION['ctrapp_core']['datamart']['process']) ) {
+			$this->data = $_SESSION['ctrapp_core']['datamart']['process'];
+		}
 		
 		// if not an already existing Batch SET...
-		if ( !$this->data['BatchSet']['id'] ) {
-			
+		if ( !$target_batch_set_id ) {
+		
 			// use ADHOC id to get BATCHSET field values
 			$adhoc_source = $this->Adhoc->find('first', array('conditions'=>'Adhoc.id="'.$this->data['Adhoc']['id'].'"'));
 				
-				$this->data['BatchSet']['plugin']		= $adhoc_source['Adhoc']['plugin'];
-				$this->data['BatchSet']['model']			= $adhoc_source['Adhoc']['model'];
+				$this->data['BatchSet']['plugin']						= $adhoc_source['Adhoc']['plugin'];
+				$this->data['BatchSet']['model']							= $adhoc_source['Adhoc']['model'];
 				$this->data['BatchSet']['form_alias_for_results']	= $adhoc_source['Adhoc']['form_alias_for_results'];
 				$this->data['BatchSet']['form_links_for_results']	= $adhoc_source['Adhoc']['form_links_for_results'];
 				$this->data['BatchSet']['flag_use_query_results']	= $adhoc_source['Adhoc']['flag_use_query_results'];
@@ -175,12 +180,14 @@ class BatchSetsController extends DatamartAppController {
 			$this->BatchSet->save( $this->data['BatchSet'] );
 			
 			// get new SET id, and save
-			$this->data['BatchSet']['id'] = $this->BatchSet->getLastInsertId();
+			$target_batch_set_id = $this->BatchSet->getLastInsertId();
 			
 		}
 		
 		// get BatchSet for source info 
-		$this->BatchSet->id = $this->data['BatchSet']['id'];
+		$this->data['BatchSet']['id']	= $target_batch_set_id;
+		$this->BatchSet->id				= $target_batch_set_id;
+	   
 	   $batch_set = $this->BatchSet->read();
 	    
 		$batch_set_ids = array();
@@ -220,9 +227,12 @@ class BatchSetsController extends DatamartAppController {
 			}
 	    	
 	    }
-	    
-	    $this->redirect( '/datamart/batch_sets/listall/all/'.$this->data['BatchSet']['id'] );
-	    exit();
+	   
+	   // clear SESSION after done...
+		$_SESSION['ctrapp_core']['datamart']['process'] = array();
+		
+		$this->redirect( '/datamart/batch_sets/listall/all/'.$this->data['BatchSet']['id'] );
+		exit();
 		
 	}
 	

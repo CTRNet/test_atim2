@@ -210,11 +210,14 @@ class AdhocsController extends DatamartAppController {
 			
 			// add COUNT of IDS to array results, for form list 
 			$batch_sets = array();
-			$batch_sets[0] = 'new batch set';
 			
-			foreach ( $batch_set_results as &$value) {
-				$batch_sets[ $value['BatchSet']['id'] ] = strlen( $value['BatchSet']['description'] )>60 ? substr( $value['BatchSet']['description'], 0, 60 ).'...' : $value['BatchSet']['description'];
-			}
+			$batch_sets['Add to a compatible Datamart batch...'] = array();
+				$batch_sets['Add to a compatible Datamart batch...'][0] = 'new batch set';
+				foreach ( $batch_set_results as &$value) {
+					$batch_sets['Add to a compatible Datamart batch...'][ '/datamart/batch_sets/add/'.$value['BatchSet']['id'] ] = strlen( $value['BatchSet']['description'] )>60 ? substr( $value['BatchSet']['description'], 0, 60 ).'...' : $value['BatchSet']['description'];
+				}
+			$batch_sets['Pass to another process...'] = array();
+				$batch_sets['Pass to another process...']['/datamart/adhocs/csv'] = 'export as comma-separated file';
 			
 		// save THIS->DATA (if any) for Saved Search
 			
@@ -237,6 +240,90 @@ class AdhocsController extends DatamartAppController {
 			
 			$this->set( 'save_this_search_data', $save_this_search_data );
 			$this->set( 'batch_sets', $batch_sets );
+			
+	}
+	
+	function process() {
+		pr($this->data); exit;
+		
+		if ( !isset($this->data['Adhoc']['process']) || !$this->data['Adhoc']['process'] ) {
+			$this->data['Adhoc']['process'] = '/datamart/batch_sets/add';
+		}
+		
+		$_SESSION['ctrapp_core']['datamart']['process'] = $this->data;
+		
+		$this->redirect( $this->data['Adhoc']['process'] );
+		exit();
+		
+	}
+	
+	function csv() {
+		
+		// set function variables, makes script readable :)
+		$adhoc_id = $_SESSION['ctrapp_core']['datamart']['process']['Adhoc']['id'];
+		
+		// get BATCHSET for source info 
+			
+			$conditions = array( 'Adhoc.id' => $adhoc_id );
+			$adhoc_result = $this->Adhoc->find( 'first', array( 'conditions'=>$conditions ) ); 
+			
+		$this->set( 'atim_structure', $this->Structures->get( 'form', $adhoc_result['Adhoc']['form_alias_for_results'] ) );
+		
+		
+		// use adhoc MODEl info to find session IDs
+		$adhoc_model = $adhoc_result['Adhoc']['model'];
+		
+		if ( isset( $_SESSION['ctrapp_core']['datamart']['process'][ $adhoc_model ] ) ) {
+			$adhoc_id_array = $_SESSION['ctrapp_core']['datamart']['process'][ $adhoc_model ]['id'];
+		} else {
+			$adhoc_id_array = array();
+		}
+		
+		
+		
+		
+		// do search for RESULTS, using THIS->DATA if any
+			
+			$model_to_import = ( $adhoc_result['Adhoc']['plugin'] ? $adhoc_result['Adhoc']['plugin'].'.' : '' ).$adhoc_result['Adhoc']['model'];
+			App::import('Model',$model_to_import);
+			
+			$this->ModelToSearch = new $adhoc_model;
+				
+			// parse resulting IDs from the SET to build FINDALL criteria for SET's true MODEL 
+			$criteria = array();
+			foreach ( $adhoc_id_array as $field_id ) {
+				$criteria[] = $adhoc_model.'.id="'.$field_id.'"';
+			}
+			$criteria = implode( ' OR ', $criteria );
+			
+				// make list of SEARCH RESULTS
+		    	
+		    	// add FAKE false to criteria if NO criteria/ids
+				if ( !$criteria ) {
+					$criteria = '1=2';
+				} 
+					
+				if ( $adhoc_result['Adhoc']['flag_use_query_results'] ) {
+		    	
+		    		// update DATATABLE names to MODEL names for CTRAPP FORM framework
+					$query_to_use = str_replace( '|', '"', $_SESSION['ctrapp_core']['datamart']['process']['Adhoc']['sql_query_for_results'] ); // due to QUOTES and HTML not playing well, PIPES saved to datatable rows instead
+					
+					// add restrictions to query, inserting BATCH SET IDs to WHERE statement
+					if ( substr_count( $query_to_use, 'WHERE' )>=2 || substr_count( $query_to_use, 'WHERE TRUE AND' )>=1 ) {
+						$query_to_use = str_replace( 'WHERE TRUE AND ', 'WHERE TRUE  AND ('.$criteria.') AND ', $query_to_use );
+					} else {
+						$query_to_use = str_replace( 'WHERE', 'WHERE ('.$criteria.') AND ', $query_to_use );
+					}
+					
+					$results = $this->ModelToSearch->query( $query_to_use ); 
+		    	
+		    	} else {
+					$results = $this->ModelToSearch->find( 'all', array( 'conditions'=>$criteria, 'recursive'=>3 ) );
+				}
+			
+			$this->data = $results; // set for display purposes...
+			
+			$this->layout = false;
 			
 	}
 	

@@ -369,7 +369,9 @@ class StructuresHelper extends Helper {
 									
 									foreach ( $options['links']['checklist'] as $checkbox_name=>$checkbox_value ) {
 										$checkbox_value = $this->str_replace_link( $checkbox_value, $val );
-										$return_string .= $this->Form->checkbox($checkbox_name, array('value'=>$checkbox_value));
+											$checkbox_form_element = $this->Form->checkbox($checkbox_name, array('value'=>$checkbox_value)); // have to do it TWICE, due to double-model-name error that we couldn't figure out...
+ 											$checkbox_form_element = $this->Form->checkbox($checkbox_name, array('value'=>$checkbox_value));
+										$return_string .= $checkbox_form_element;
 									}
 									
 									$return_string .= '
@@ -708,6 +710,7 @@ class StructuresHelper extends Helper {
 					
 					$options['type'] = 'index';
 					$options['data'] = $data_val;
+						// $options['stack']['key'] = $data_key;
 					$table_index = $this->build_stack( $tree_node_structure, $options );
 					unset($options['stack']);
 					
@@ -1063,8 +1066,7 @@ class StructuresHelper extends Helper {
 								if ( !is_array($display_value) ) {
 								
 									// some older/different versions of PHP do not have cal_info() function, so manually build expected month array
-										$cal_info = array();
-										$cal_info['abbrevmonths'] = array(
+										$cal_info = array(
 											1 => 'Jan',
 							            2 => 'Feb',
 							            3 => 'Mar',
@@ -1093,7 +1095,7 @@ class StructuresHelper extends Helper {
 									// format month INTEGER into an abbreviated month name, lowercase, to use for translation alias
 									
 										$calc_date_string_month = intval($calc_date_string[1]);
-										$calc_date_string_month = $cal_info['abbrevmonths'][ $calc_date_string_month ];
+										$calc_date_string_month = $cal_info[ $calc_date_string_month ];
 										$calc_date_string_month = strtolower( $calc_date_string_month );
 									
 									$display_value = __( $calc_date_string_month, true ).( $options['type']!='csv' ? '&nbsp;' : ' ' ).$calc_date_string[2].( $options['type']!='csv' ? '&nbsp;' : ' ' ).$calc_date_string[0]; // date array to nice string, with month translated
@@ -1316,17 +1318,17 @@ class StructuresHelper extends Helper {
 							if ( $options['type']=='search' ) {
 								$display_value .= $this->Form->day($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_start-dd'), $html_element_array['empty']);
 								$display_value .= $this->Form->month($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_start-mm'), $html_element_array['empty']);
-								$display_value .= $this->Form->year($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', '1900', NULL, NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_start', 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'), $html_element_array['empty']);
+								$display_value .= $this->Form->year($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', 1900, 2100, NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_start', 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'), $html_element_array['empty']);
 								$display_value .= ' <span class="tag">'.__('to',true).'</span> ';
 								$display_value .= $this->Form->day($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end', NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_end-dd'), $html_element_array['empty']);
 								$display_value .= $this->Form->month($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end', NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_end-mm'), $html_element_array['empty']);
-								$display_value .= $this->Form->year($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end', '1900', NULL, NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_end', 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'), $html_element_array['empty']);
+								$display_value .= $this->Form->year($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end', 1900, 2100, NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_end', 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'), $html_element_array['empty']);
 							}
 							
 							else {
 								$display_value .= $this->Form->day($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'-dd'), $html_element_array['empty']);
 								$display_value .= $this->Form->month($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'-mm'), $html_element_array['empty']);
-								$display_value .= $this->Form->year($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], '1900', NULL, NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'], 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'), $html_element_array['empty']);
+								$display_value .= $this->Form->year($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], 1900, 2100, NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'], 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'), $html_element_array['empty']);
 							}
 							
 							$use_cakephp_form_helper = false;

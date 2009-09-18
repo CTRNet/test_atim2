@@ -7,8 +7,8 @@
 	// display adhoc RESULTS form
 		
 		$structure_links = array(
-			'top'=>'/datamart/batch_sets/add',
-			'checklist'=>array(
+			'top'=>'/datamart/adhocs/process',
+			'checklist' => array(
 				$data_for_detail['Adhoc']['model'].'.id]['=>'%%'.$data_for_detail['Adhoc']['model'].'.id'.'%%'
 			)
 		);
@@ -30,7 +30,9 @@
 		);
 		
 		$structure_override = array(
-			'BatchSet.id' => $batch_sets
+			'Adhoc.id' => $atim_menu_variables['Adhoc.id'],
+			'Adhoc.sql_query_for_results' => $final_query,
+			'Adhoc.process' => $batch_sets
 		);
 		
 		$structures->build( $atim_structure_for_add, array('type'=>'add', 'settings'=>array('form_top'=>false), 'links'=>$structure_links, 'override'=>$structure_override, 'data'=>array()) );
