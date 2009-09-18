@@ -388,7 +388,7 @@ INSERT INTO `sd_spe_ascites` (`id`, `sample_master_id`, `collected_volume`, `col
 (61, 61, 21.00000, NULL, '2009-07-08 10:37:12', '1', '2009-07-08 10:37:12', '1', 0, NULL);
 
 DELETE FROM `sd_spe_bloods`;
-INSERT INTO `sd_spe_bloods` (`id`, `sample_master_id`, `type`, `collected_tube_nbr`, `collected_volume`, `collected_volume_unit`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES (3, 3, 'unknown', 2, 33.00000, 'ul', '2009-05-06 16:37:06', '1', '2009-05-06 16:37:06', '1', 0, NULL),
+INSERT INTO `sd_spe_bloods` (`id`, `sample_master_id`, `blood_type`, `collected_tube_nbr`, `collected_volume`, `collected_volume_unit`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES (3, 3, 'unknown', 2, 33.00000, 'ul', '2009-05-06 16:37:06', '1', '2009-05-06 16:37:06', '1', 0, NULL),
 (6, 6, 'paxgene', 234, 50.00000, 'ml', '2009-05-07 09:49:29', '1', '2009-05-07 09:49:29', '1', 0, NULL),
 (18, 18, NULL, 8798, 33.00000, 'ml', '2009-05-19 12:48:19', '1', '2009-05-19 12:48:19', '1', 0, NULL),
 (19, 19, NULL, 43535, 50.00000, 'ml', '2009-05-28 01:09:14', '1', '2009-05-28 01:09:14', '1', 0, NULL),
@@ -408,7 +408,7 @@ INSERT INTO `sd_spe_peritoneal_washes` (`id`, `sample_master_id`, `collected_vol
 (29, 29, 43.00000, 'ul', '2009-07-08 10:22:54', '1', '2009-07-08 10:22:54', '1', 0, NULL);
 
 DELETE FROM `sd_spe_tissues`;
-INSERT INTO `sd_spe_tissues` (`id`, `sample_master_id`, `tissue_source`, `nature`, `laterality`, `pathology_reception_datetime`, `size`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES (8, 8, 'lung', 'malignant', 'right', '2009-05-13 10:00:00', '45', '2009-05-13 10:00:01', '1', '2009-05-13 10:00:01', '1', 0, NULL),
+INSERT INTO `sd_spe_tissues` (`id`, `sample_master_id`, `tissue_source`, `tissue_nature`, `tissue_laterality`, `pathology_reception_datetime`, `tissue_size`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES (8, 8, 'lung', 'malignant', 'right', '2009-05-13 10:00:00', '45', '2009-05-13 10:00:01', '1', '2009-05-13 10:00:01', '1', 0, NULL),
 (15, 15, 'breast', 'benign', 'left', '2009-05-19 11:28:00', '24', '2009-05-19 11:28:30', '1', '2009-05-19 11:28:30', '1', 0, NULL),
 (41, 41, NULL, NULL, NULL, '2009-07-08 10:31:00', NULL, '2009-07-08 10:31:22', '1', '2009-07-08 10:31:22', '1', 0, NULL),
 (43, 43, NULL, NULL, NULL, '2009-07-08 10:32:00', NULL, '2009-07-08 10:32:03', '1', '2009-07-08 10:32:03', '1', 0, NULL),
