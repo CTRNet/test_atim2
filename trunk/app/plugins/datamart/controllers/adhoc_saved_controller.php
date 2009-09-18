@@ -167,7 +167,7 @@ class AdhocSavedController extends DatamartAppController {
 			}
 			
 			$this->set( 'results', $results ); // set for display purposes...
-		
+			
 		// parse LINKS field in ADHOCS list for links in CHECKLIST
 		
 			$ctrapp_form_links = array();
@@ -200,11 +200,14 @@ class AdhocSavedController extends DatamartAppController {
 			
 			// add COUNT of IDS to array results, for form list 
 			$batch_sets = array();
-			$batch_sets[0] = 'new batch set';
 			
-			foreach ( $batch_set_results as &$value) {
-				$batch_sets[ $value['BatchSet']['id'] ] = strlen( $value['BatchSet']['description'] )>60 ? substr( $value['BatchSet']['description'], 0, 60 ).'...' : $value['BatchSet']['description'];
-			}
+			$batch_sets['Add to a compatible Datamart batch...'] = array();
+				$batch_sets['Add to a compatible Datamart batch...'][0] = 'new batch set';
+				foreach ( $batch_set_results as &$value) {
+					$batch_sets['Add to a compatible Datamart batch...'][ '/datamart/batch_sets/add/'.$value['BatchSet']['id'] ] = strlen( $value['BatchSet']['description'] )>60 ? substr( $value['BatchSet']['description'], 0, 60 ).'...' : $value['BatchSet']['description'];
+				}
+			$batch_sets['Pass to another process...'] = array();
+				$batch_sets['Pass to another process...']['/datamart/adhocs/csv'] = 'export as comma-separated file';
 			
 		// save THIS->DATA (if any) for Saved Search
 			
