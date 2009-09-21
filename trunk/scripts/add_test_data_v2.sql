@@ -40,22 +40,22 @@ INSERT INTO `reproductive_histories` (`id`, `date_captured`, `menopause_status`,
 -- Event Masters and Event Details Test Data
 
 DELETE FROM `event_masters`;
-INSERT INTO `event_masters` (`id`, `event_control_id`, `disease_site`, `event_group`, `event_type`, `event_status`, `event_summary`, `event_date`, `information_source`, `urgency`, `date_required`, `date_requested`, `reference_number`, `created`, `created_by`, `modified`, `modified_by`, `form_alias`, `detail_tablename`, `participant_id`, `diagnosis_id`) VALUES
-(1, 32,'breast', 'screening', 'mammogram', 'active', NULL, '2008-05-05', NULL, NULL, NULL, NULL, NULL, '0000-00-00 00:00:00', '', '2009-06-01 16:59:27', '', 'ed_breast_screening_mammogram', 'ed_breast_screening_mammogram', 1, NULL),
-(3, 18,'breast', 'lab', 'pathology', 'active', '', '1990-10-10', NULL, NULL, NULL, NULL, NULL, '0000-00-00 00:00:00', '', '2009-06-03 14:15:28', '1', 'ed_breast_lab_pathology', 'ed_breast_lab_pathology', 1, NULL),
-(4, 22,'all', 'clinical', 'presentation', 'active', NULL, '2002-01-02', NULL, NULL, NULL, NULL, NULL, '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '', 'ed_all_clinical_presentation', 'ed_all_clinical_presentation', 1, NULL),
-(5, 32,'breast', 'screening', 'mammogram', 'active', NULL, '2005-02-02', NULL, NULL, NULL, NULL, NULL, '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '', 'ed_breast_screening_mammogram', 'ed_breast_screening_mammogram', 1, NULL),
-(6, 18,'breast', 'lab', 'pathology', 'active', NULL, '1962-01-01', NULL, NULL, NULL, NULL, NULL, '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '', 'ed_breast_lab_pathology', 'ed_breast_lab_pathology', 1, NULL),
-(7, 18,'breast', 'lab', 'pathology', 'active', NULL, '1998-04-02', NULL, NULL, NULL, NULL, NULL, '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '', 'ed_breast_lab_pathology', 'ed_breast_lab_pathology', 1, NULL),
-(8, 19,'allsolid', 'lab', 'pathology', 'active', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '', 'ed_allsolid_lab_pathology', 'ed_allsolid_lab_pathology', 1, NULL),
-(9, 19,'allsolid', 'lab', 'pathology', 'active', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '', 'ed_allsolid_lab_pathology', 'ed_allsolid_lab_pathology', 1, NULL),
-(10, 32,'breast', 'screening', 'mammogram', NULL, 'test', '2009-06-23', NULL, NULL, NULL, NULL, NULL, '2009-06-23 09:14:30', '1', '2009-06-23 09:14:30', '1', 'ed_breast_screening_mammogram', 'ed_breast_screening_mammogram', 1, 1),
-(11, 18,'breast', 'lab', 'pathology', NULL, NULL, '2009-06-23', NULL, NULL, NULL, NULL, NULL, '2009-06-23 09:37:08', '1', '2009-06-23 09:37:08', '1', 'ed_breast_lab_pathology', 'ed_breast_lab_pathology', 1, 1),
-(12, 20,'all', 'clinical', 'follow up', NULL, 'Test follow-up', '2009-06-24', NULL, NULL, NULL, NULL, NULL, '2009-06-24 11:17:18', '1', '2009-06-24 11:17:18', '1', 'ed_all_clinical_followup', 'ed_all_clinical_followup', 1, 1),
-(13, 30,'all', 'lifestyle', 'base', NULL, 'Heavy Smoker', '2009-06-24', NULL, NULL, NULL, NULL, NULL, '2009-06-24 11:20:00', '1', '2009-06-24 11:20:00', '1', 'ed_all_lifestyle_base', 'ed_all_lifestyle_base', 1, 1),
-(14, 31,'all', 'adverse_events', 'adverse_event', NULL, 'Test', '2009-06-24', NULL, NULL, NULL, NULL, NULL, '2009-06-24 11:22:28', '1', '2009-06-24 11:22:28', '1', 'ed_all_adverse_events_adverse_event', 'ed_all_adverse_events_adverse_event', 1, 1),
-(15, 33,'all', 'protocol', 'followup', NULL, 'Not Test', '2009-06-24', NULL, NULL, NULL, NULL, NULL, '2009-06-24 11:23:23', '1', '2009-06-24 11:23:23', '1', 'ed_all_protocol_followup', 'ed_all_protocol_followup', 1, 1),
-(16, 34,'all', 'study', 'research', NULL, 'The is the 1, 2, 3 test', '2009-06-24', NULL, NULL, NULL, NULL, NULL, '2009-06-24 11:24:10', '1', '2009-06-24 11:24:10', '1', 'ed_all_study_research', 'ed_all_study_research', 1, 1);
+INSERT INTO `event_masters` (`id`, `event_control_id`, `disease_site`, `event_group`, `event_type`, `event_status`, `event_summary`, `event_date`, `information_source`, `urgency`, `date_required`, `date_requested`, `reference_number`, `created`, `created_by`, `modified`, `modified_by`, `participant_id`, `diagnosis_id`) VALUES
+(1, 32,'breast', 'screening', 'mammogram', 'active', NULL, '2008-05-05', NULL, NULL, NULL, NULL, NULL, '0000-00-00 00:00:00', '', '2009-06-01 16:59:27', '', 1, NULL),
+(3, 18,'breast', 'lab', 'pathology', 'active', '', '1990-10-10', NULL, NULL, NULL, NULL, NULL, '0000-00-00 00:00:00', '', '2009-06-03 14:15:28', '1', 1, NULL),
+(4, 22,'all', 'clinical', 'presentation', 'active', NULL, '2002-01-02', NULL, NULL, NULL, NULL, NULL, '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '', 1, NULL),
+(5, 32,'breast', 'screening', 'mammogram', 'active', NULL, '2005-02-02', NULL, NULL, NULL, NULL, NULL, '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '', 1, NULL),
+(6, 18,'breast', 'lab', 'pathology', 'active', NULL, '1962-01-01', NULL, NULL, NULL, NULL, NULL, '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '', 1, NULL),
+(7, 18,'breast', 'lab', 'pathology', 'active', NULL, '1998-04-02', NULL, NULL, NULL, NULL, NULL, '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '', 1, NULL),
+(8, 19,'allsolid', 'lab', 'pathology', 'active', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '', 1, NULL),
+(9, 19,'allsolid', 'lab', 'pathology', 'active', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '', 1, NULL),
+(10, 32,'breast', 'screening', 'mammogram', NULL, 'test', '2009-06-23', NULL, NULL, NULL, NULL, NULL, '2009-06-23 09:14:30', '1', '2009-06-23 09:14:30', '1', 1, 1),
+(11, 18,'breast', 'lab', 'pathology', NULL, NULL, '2009-06-23', NULL, NULL, NULL, NULL, NULL, '2009-06-23 09:37:08', '1', '2009-06-23 09:37:08', '1', 1, 1),
+(12, 20,'all', 'clinical', 'follow up', NULL, 'Test follow-up', '2009-06-24', NULL, NULL, NULL, NULL, NULL, '2009-06-24 11:17:18', '1', '2009-06-24 11:17:18', '1', 1, 1),
+(13, 30,'all', 'lifestyle', 'base', NULL, 'Heavy Smoker', '2009-06-24', NULL, NULL, NULL, NULL, NULL, '2009-06-24 11:20:00', '1', '2009-06-24 11:20:00', '1', 1, 1),
+(14, 31,'all', 'adverse_events', 'adverse_event', NULL, 'Test', '2009-06-24', NULL, NULL, NULL, NULL, NULL, '2009-06-24 11:22:28', '1', '2009-06-24 11:22:28', '1', 1, 1),
+(15, 33,'all', 'protocol', 'followup', NULL, 'Not Test', '2009-06-24', NULL, NULL, NULL, NULL, NULL, '2009-06-24 11:23:23', '1', '2009-06-24 11:23:23', '1', 1, 1),
+(16, 34,'all', 'study', 'research', NULL, 'The is the 1, 2, 3 test', '2009-06-24', NULL, NULL, NULL, NULL, NULL, '2009-06-24 11:24:10', '1', '2009-06-24 11:24:10', '1', 1, 1);
 
 DELETE FROM `ed_breast_lab_pathology`;
 INSERT INTO `ed_breast_lab_pathology` (`id`, `path_number`, `report_type`, `facility`, `vascular_lymph_invasion`, `extra_nodal_invasion`, `blood_lymph`, `tumour_type`, `grade`, `multifocal`, `preneoplastic_changes`, `spread_skin_nipple`, `level_nodal_involvement`, `frozen_section`, `er_assay_ligand`, `pr_assay_ligand`, `progesterone`, `estrogen`, `number_resected`, `number_positive`, `nodal_status`, `resection_margins`, `tumour_size`, `tumour_total_size`, `sentinel_only`, `in_situ_type`, `her2_grade`, `her2_method`, `mb_collectionid`, `created`, `created_by`, `modified`, `modified_by`, `event_master_id`, `deleted`, `deleted_date`) VALUES
@@ -128,8 +128,8 @@ INSERT INTO `txe_chemos` (`id`, `source`, `frequency`, `dose`, `method`, `reduct
 -- Protocol Masters, Protocol Details, and Protocol Extends Test Data
 
 DELETE FROM `protocol_masters`;
-INSERT INTO `protocol_masters` ( `id`, `protocol_control_id`, `name`, `notes`, `code`, `detail_tablename`, `detail_form_alias`, `extend_tablename`, `extend_form_alias` ) VALUES
-(101, 1,'test', 'test', '34.5C', 'pd_chemos', 'pd_chemos', 'pe_chemos', 'pe_chemos');
+INSERT INTO `protocol_masters` ( `id`, `protocol_control_id`, `name`, `notes`, `code`) VALUES
+(101, 1,'test', 'test', '34.5C');
 
 DELETE FROM `pd_chemos`;
 INSERT INTO `pd_chemos` ( `id`, `num_cycles`, `length_cycles`, `protocol_master_id` ) VALUES
@@ -154,8 +154,8 @@ INSERT INTO `drugs` ( `id`, `generic_name`, `trade_name`, `type`, `description`)
 -- SOP Masters, Sop Details, and Sop Extends Test Data
 
 DELETE FROM `sop_masters`;
-INSERT INTO `sop_masters` ( `id`, `title`, `detail_tablename`, `detail_form_alias`, `extend_tablename`, `extend_form_alias`) VALUES
-(1, 'test', 'sopd_general_all', 'sopd_general_all', 'sope_general_all', 'sope_general_all');
+INSERT INTO `sop_masters` ( `id`, `title`) VALUES
+(1, 'test');
 
 DELETE FROM `sopd_general_all`;
 INSERT INTO `sopd_general_all` ( `id`, `value`, `sop_master_id` ) VALUES
@@ -388,7 +388,7 @@ INSERT INTO `sd_spe_ascites` (`id`, `sample_master_id`, `collected_volume`, `col
 (61, 61, 21.00000, NULL, '2009-07-08 10:37:12', '1', '2009-07-08 10:37:12', '1', 0, NULL);
 
 DELETE FROM `sd_spe_bloods`;
-INSERT INTO `sd_spe_bloods` (`id`, `sample_master_id`, `blood_type`, `collected_tube_nbr`, `collected_volume`, `collected_volume_unit`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES (3, 3, 'unknown', 2, 33.00000, 'ul', '2009-05-06 16:37:06', '1', '2009-05-06 16:37:06', '1', 0, NULL),
+INSERT INTO `sd_spe_bloods` (`id`, `sample_master_id`, `type`, `collected_tube_nbr`, `collected_volume`, `collected_volume_unit`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES (3, 3, 'unknown', 2, 33.00000, 'ul', '2009-05-06 16:37:06', '1', '2009-05-06 16:37:06', '1', 0, NULL),
 (6, 6, 'paxgene', 234, 50.00000, 'ml', '2009-05-07 09:49:29', '1', '2009-05-07 09:49:29', '1', 0, NULL),
 (18, 18, NULL, 8798, 33.00000, 'ml', '2009-05-19 12:48:19', '1', '2009-05-19 12:48:19', '1', 0, NULL),
 (19, 19, NULL, 43535, 50.00000, 'ml', '2009-05-28 01:09:14', '1', '2009-05-28 01:09:14', '1', 0, NULL),
@@ -408,7 +408,7 @@ INSERT INTO `sd_spe_peritoneal_washes` (`id`, `sample_master_id`, `collected_vol
 (29, 29, 43.00000, 'ul', '2009-07-08 10:22:54', '1', '2009-07-08 10:22:54', '1', 0, NULL);
 
 DELETE FROM `sd_spe_tissues`;
-INSERT INTO `sd_spe_tissues` (`id`, `sample_master_id`, `tissue_source`, `tissue_nature`, `tissue_laterality`, `pathology_reception_datetime`, `tissue_size`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES (8, 8, 'lung', 'malignant', 'right', '2009-05-13 10:00:00', '45', '2009-05-13 10:00:01', '1', '2009-05-13 10:00:01', '1', 0, NULL),
+INSERT INTO `sd_spe_tissues` (`id`, `sample_master_id`, `tissue_source`, `nature`, `laterality`, `pathology_reception_datetime`, `size`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES (8, 8, 'lung', 'malignant', 'right', '2009-05-13 10:00:00', '45', '2009-05-13 10:00:01', '1', '2009-05-13 10:00:01', '1', 0, NULL),
 (15, 15, 'breast', 'benign', 'left', '2009-05-19 11:28:00', '24', '2009-05-19 11:28:30', '1', '2009-05-19 11:28:30', '1', 0, NULL),
 (41, 41, NULL, NULL, NULL, '2009-07-08 10:31:00', NULL, '2009-07-08 10:31:22', '1', '2009-07-08 10:31:22', '1', 0, NULL),
 (43, 43, NULL, NULL, NULL, '2009-07-08 10:32:00', NULL, '2009-07-08 10:32:03', '1', '2009-07-08 10:32:03', '1', 0, NULL),
@@ -416,7 +416,6 @@ INSERT INTO `sd_spe_tissues` (`id`, `sample_master_id`, `tissue_source`, `tissue
 (48, 48, NULL, NULL, NULL, '2009-07-08 10:33:00', NULL, '2009-07-08 10:33:23', '1', '2009-07-08 10:33:23', '1', 0, NULL);
 
 -- Sample Masters, Sample Details, Sample Extends, Aliquot Masters and Aliquot Details  Test Data
-
 
 
 
