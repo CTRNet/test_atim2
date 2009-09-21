@@ -1,23 +1,29 @@
 <?php
 
 class Collection extends InventorymanagementAppModel {
-	
-	function summary( $variables=array() ) {
+
+	var $hasMany = array(
+		'SampleMaster' => array(
+			'className'   => 'Inventorymanagement.SampleMaster',
+			 	'foreignKey'  => 'collection_id'));  	
+
+	function summary($variables=array()) {
 		$return = false;
 		
-		if ( isset($variables['Collection.id']) ) {
+		if(isset($variables['Collection.id'])) {
 			
+			$this->bindModel(array('belongsTo' => array('Bank' => array('className' => 'Administrates.Bank', 'foreignKey' => 'bank_id'))));	
 			$result = $this->find('first', array('conditions'=>array('Collection.id'=>$variables['Collection.id'])));
 			
 			$return = array(
-				'Summary'	 => array(
-					'menu'		 => array( NULL, __($result['Collection']['acquisition_label'], TRUE) ),
-					'title'		 => array( NULL, __($result['Collection']['acquisition_label'], TRUE) ),
+				'Summary' => array(
+					'menu' => array(NULL, $result['Collection']['acquisition_label']),
+					'title' => array(NULL, $result['Collection']['acquisition_label']),
 					
 					'description'=> array(
-						// __('Bank', TRUE) => __($result['Collection']['bank_id'], TRUE),
-						__('Collection Date/Time', TRUE) => __($result['Collection']['collection_datetime'], TRUE),
-						__('Reception Date', TRUE) 		 => __($result['Collection']['reception_datetime'], TRUE)
+						__('collection bank', TRUE) => $result['Bank']['name'],
+						__('collection datetime', TRUE) => $result['Collection']['collection_datetime'],
+						__('Reception Date', TRUE) 		 => $result['Collection']['reception_datetime']
 					)
 				)
 			);			
@@ -25,17 +31,6 @@ class Collection extends InventorymanagementAppModel {
 		
 		return $return;
 	}
-	
-//	var $hasMany 
-//		= array('SampleMaster' =>
-//	         array('className'   => 'SampleMaster',
-//	               'conditions'  => '',
-//	               'order'       => '',
-//	               'limit'       => '',
-//	               'foreignKey'  => 'collection_id',
-//	               'dependent'   => true,
-//	               'exclusive'   => false,
-//	               'finderSql'   => ''));
 	
 }
 

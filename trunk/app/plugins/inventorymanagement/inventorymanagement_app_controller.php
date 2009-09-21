@@ -2,7 +2,12 @@
 
 class InventorymanagementAppController extends AppController
 {	
-	
+	var $components = array('Administrate.Administrates', 'Sop.Sops');
+
+	var $uses = array(
+		'Administrate.Bank', 
+		'Sop.SopMaster');
+		
 	function beforeFilter() {
 		parent::beforeFilter();
 		$this->Auth->actionPath = 'controllers/Inventorymanagement/';
@@ -96,17 +101,54 @@ class InventorymanagementAppController extends AppController
 		return mktime($hour, $minute, $second, $month, $day, $year);
 	}
 	
+	/**
+	 * Get list of banks.
+	 * 
+	 * Note: Function to allow bank to customize this function when they don't use 
+	 * ADministrate module.
+	 *
+	 * @author N. Luc
+	 * @since 2009-09-11
+	 * @updated N. Luc
+	 */
+	 
+	function getBankList() {
+		return $this->Administrates->getBankList();
+	}
+	
+	/**
+	 * Get list of SOPs existing to build inventory entity like collection, aliquot, etc.
+	 *
+	 * @param $entity_type Type of the studied inventory entity (collection, sample, aliquot)
+	 *
+	 * @author N. Luc
+	 * @since 2009-09-11
+	 * @updated N. Luc
+	 */
+	 
+	function getSopList($entity_type) {
+		switch($entity_type) {
+			case 'collection':
+			case 'sample':
+			case 'aliquot':
+				return $this->Sops->getSopList();
+				break;
+			default:
+				$this->redirect('/pages/err_inv_system_error', NULL, TRUE); 
+		}
+	}
 	
 	
 	
 	
 	
 	
+
 	
 	
 	
 	
-	
+	//TODO validate following function
 	
 	
 	

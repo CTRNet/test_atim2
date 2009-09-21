@@ -1,8 +1,17 @@
 <?php 
+
+	// DISPLAY COLLETCION SEARCH TYPE FORM
+	
+	$structure_override = array();
+	$structure_override['Generated.collection_search_type'] = __('collection', TRUE);
+	
+	$structures->build($atim_structure_for_search_type, array('type' => 'detail', 'settings' => array('actions' => FALSE), 'override' => $structure_override) );
+	
+	// DISPLAY COLLETCION INDEX FORM	
 	
 	$structure_links = array(
 		'index' => array('detail' => '/inventorymanagement/collections/detail/%%Collection.id%%'),
-		'bottom' => array('add' => '/inventorymanagement/collections/add', 'search' => '/inventorymanagement/collections/index')
+		'bottom' => array('add collection' => '/inventorymanagement/collections/add', 'search' => '/inventorymanagement/collections/index')
 	);
 	
 	$structure_override = array();

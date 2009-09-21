@@ -249,7 +249,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		foreach($aliquot_masters as $id => $newAliquot){
 			
 			// Aliquot use number
-			$aliquot_masters[$id]['Generated']['generated_field_use']
+			$aliquot_masters[$id]['Generated']['use']
 				= sizeof($newAliquot['AliquotUse'])? 
 					sizeof($newAliquot['AliquotUse']): 
 					'0';
@@ -692,7 +692,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			
 			// ** Check the user storage defintion (selection label / storage_master_id) **
 			
-			$recorded_selection_label = $this->data['FunctionManagement']['storage_selection_label'];
+			$recorded_selection_label = $this->data['FunctionManagement']['recorded_storage_selection_label'];
 			$returned_storage_id = $this->data['AliquotMaster']['storage_master_id'];
 				
 			$problem_in_the_storage_defintion = false;
@@ -1127,7 +1127,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 
 				$this->cleanUpDatagridFields($id, 'AliquotMaster');	
 				
-				if((strcmp($new_studied_aliquot['FunctionManagement']['generated_field_copy_prev_line'], 'yes') == 0)
+				if((strcmp($new_studied_aliquot['FunctionManagement']['copy_prev_line'], 'yes') == 0)
 				&& ($id > 0)) {
 					// The new record should be a copy of the previous record
 					$this->data[$id] = $this->data[($id-1)];
@@ -1178,7 +1178,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					}
 					
 					// B- Check the user storage defintion (selection label / storage_master_id)
-					$recorded_selection_label = $this->data[$id]['FunctionManagement']['storage_selection_label'];
+					$recorded_selection_label = $this->data[$id]['FunctionManagement']['recorded_storage_selection_label'];
 					$returned_storage_id = $this->data[$id]['AliquotMaster']['storage_master_id'];
 
 					$arr_storage_selection_results = $this->validateStorageIdAndSelectionLabel($recorded_selection_label, $returned_storage_id);
@@ -1543,7 +1543,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				sizeof($aliquot_master_data['AliquotUse']): 
 				'0';
 		
-		$aliquot_master_data['Generated']['generated_field_use'] = $aliquot_use;
+		$aliquot_master_data['Generated']['use'] = $aliquot_use;
 
 		// Set times spent since sample collection/reception or sample creation 
 		// and sample storage			
@@ -1558,16 +1558,16 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$arr_spent_time = $this->getSpentTime($specimen_collection_date, $aliquot_storage_date);
 			
 			$this->set('coll_to_stor_spent_time_msg', $arr_spent_time['message']);
-			$aliquot_master_data['Calculated']['coll_to_stor_spent_time_days'] = $arr_spent_time['days'];
-			$aliquot_master_data['Calculated']['coll_to_stor_spent_time_hours'] = $arr_spent_time['hours'];
-			$aliquot_master_data['Calculated']['coll_to_stor_spent_time_minutes'] = $arr_spent_time['minutes'];
+			$aliquot_master_data['Generated']['coll_to_stor_spent_time_days'] = $arr_spent_time['days'];
+			$aliquot_master_data['Generated']['coll_to_stor_spent_time_hours'] = $arr_spent_time['hours'];
+			$aliquot_master_data['Generated']['coll_to_stor_spent_time_minutes'] = $arr_spent_time['minutes'];
 			
 			$arr_spent_time = $this->getSpentTime($specimen_reception_date, $aliquot_storage_date);
 			
 			$this->set('rec_to_stor_spent_time_msg', $arr_spent_time['message']);
-			$aliquot_master_data['Calculated']['rec_to_stor_spent_time_days'] = $arr_spent_time['days'];
-			$aliquot_master_data['Calculated']['rec_to_stor_spent_time_hours'] = $arr_spent_time['hours'];
-			$aliquot_master_data['Calculated']['rec_to_stor_spent_time_minutes'] = $arr_spent_time['minutes'];
+			$aliquot_master_data['Generated']['rec_to_stor_spent_time_days'] = $arr_spent_time['days'];
+			$aliquot_master_data['Generated']['rec_to_stor_spent_time_hours'] = $arr_spent_time['hours'];
+			$aliquot_master_data['Generated']['rec_to_stor_spent_time_minutes'] = $arr_spent_time['minutes'];
 			
 		} else if(strcmp($sample_master_data['SampleMaster']['sample_category'], 'derivative') == 0){
 			
@@ -1588,9 +1588,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$arr_spent_time = $this->getSpentTime($sample_creation_date, $aliquot_storage_date);
 			
 			$this->set('creat_to_stor_spent_time_msg', $arr_spent_time['message']);
-			$aliquot_master_data['Calculated']['creat_to_stor_spent_time_days'] = $arr_spent_time['days'];
-			$aliquot_master_data['Calculated']['creat_to_stor_spent_time_hours'] = $arr_spent_time['hours'];
-			$aliquot_master_data['Calculated']['creat_to_stor_spent_time_minutes'] = $arr_spent_time['minutes'];
+			$aliquot_master_data['Generated']['creat_to_stor_spent_time_days'] = $arr_spent_time['days'];
+			$aliquot_master_data['Generated']['creat_to_stor_spent_time_hours'] = $arr_spent_time['hours'];
+			$aliquot_master_data['Generated']['creat_to_stor_spent_time_minutes'] = $arr_spent_time['minutes'];
 			
 		} else {
 			$this->redirect('/pages/err_inv_system_error'); 
@@ -2006,7 +2006,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				
 			// ** Check the user storage defintion (selection label / storage_master_id) **
 			
-			$recorded_selection_label = $this->data['FunctionManagement']['storage_selection_label'];
+			$recorded_selection_label = $this->data['FunctionManagement']['recorded_storage_selection_label'];
 			$returned_storage_id = $this->data['AliquotMaster']['storage_master_id'];
 				
 			$problem_in_the_storage_defintion = false;
@@ -2668,7 +2668,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			foreach($this->data as $id => $new_studied_aliquot){
 				// New aliquot that was displayed in the datgarid
 				
-				if(strcmp($new_studied_aliquot['FunctionManagement']['generated_field_use'], 'yes') == 0){
+				if(strcmp($new_studied_aliquot['FunctionManagement']['use'], 'yes') == 0){
 					// This aliquot should be defined as source aliquot.
 					
 					// Validates Fields of Aliquot Master Table
@@ -2730,7 +2730,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					$aliquot_use_id = NULL;					
 					$source_aliquot_master_id = $new_aliquot_to_use['AliquotMaster']['id'];
 
-					if(strcmp($new_aliquot_to_use['FunctionManagement']['generated_field_delete_storage_data'], 'yes') == 0){
+					if(strcmp($new_aliquot_to_use['FunctionManagement']['delete_storage_data'], 'yes') == 0){
 						// Delete aliquot storage data
 						$new_aliquot_to_use['AliquotMaster']['storage_master_id'] = NULL;
 						$new_aliquot_to_use['AliquotMaster']['storage_coord_x'] = NULL;
@@ -3384,7 +3384,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				// 1- Update ALIQUOT MASTER data of the realiquoted parent	
 				$realiquoted_aliquot_master_data['id'] = $parent_aliquot_master_id;			
 				
-				if(strcmp($function_management_data['generated_field_delete_storage_data'], 'yes') == 0){
+				if(strcmp($function_management_data['delete_storage_data'], 'yes') == 0){
 					// Delete aliquot storage data
 					$realiquoted_aliquot_master_data['storage_master_id'] = NULL;
 					$realiquoted_aliquot_master_data['storage_coord_x'] = NULL;
