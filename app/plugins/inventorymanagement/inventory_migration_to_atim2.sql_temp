@@ -1,3 +1,5 @@
+USE `atim_2`;
+
 ALTER TABLE `collections` CHANGE `bank` `bank_id` INT( 11 ) NULL DEFAULT NULL;
 
 -- Delete duplicated form field: Collection.acquisition_label
