@@ -1076,7 +1076,7 @@ class QualityControlsController extends InventoryManagementAppController {
 			foreach($this->data as $id => $new_studied_aliquot){
 				// New aliquot that was displayed in the datgarid
 				
-				if(strcmp($new_studied_aliquot['FunctionManagement']['generated_field_use'], 'yes') == 0){
+				if(strcmp($new_studied_aliquot['FunctionManagement']['use'], 'yes') == 0){
 					// This aliquot should be defined as tested aliquot.
 					
 					// Validates Fields of Aliquot Master Table
@@ -1138,7 +1138,7 @@ class QualityControlsController extends InventoryManagementAppController {
 					$aliquot_use_id = NULL;					
 					$tested_aliquot_master_id = $new_aliquot_to_use['AliquotMaster']['id'];
 
-					if(strcmp($new_aliquot_to_use['FunctionManagement']['generated_field_delete_storage_data'], 'yes') == 0){
+					if(strcmp($new_aliquot_to_use['FunctionManagement']['delete_storage_data'], 'yes') == 0){
 						// Delete aliquot storage data
 						$new_aliquot_to_use['AliquotMaster']['storage_master_id'] = NULL;
 						$new_aliquot_to_use['AliquotMaster']['storage_coord_x'] = NULL;
