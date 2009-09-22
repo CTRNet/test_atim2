@@ -467,30 +467,43 @@ class ShellHelper extends Helper {
 				if ( $summary_result ) { 
 					
 					if ( $format=='short' ) {
-						$summary = trim(__($summary_result['Summary']['menu'][0], true).' '.$summary_result['Summary']['menu'][1]); 
+						if ( isset($summary_result['Summary']['menu']) && is_array($summary_result['Summary']['menu']) ) {
+							$summary = trim(__($summary_result['Summary']['menu'][0], true).' '.$summary_result['Summary']['menu'][1]); 
+						}
 					}
 					
 					else {
-						
-						$formatted_summary = '
-							<dl>
-							'.__($summary_result['Summary']['title'][0], true).'
-							<lh>'.$summary_result['Summary']['title'][1].'</lh>
-						';
-						
-						foreach ( $summary_result['Summary']['description'] as $k=>$v ) {
-							$formatted_summary .= '
-									<dt>'.__($k,true).'</dt>
-									<dd>'.$v.'</dd>
+						if ( (isset($summary_result['Summary']['title']) && is_array($summary_result['Summary']['title'])) || (isset($summary_result['Summary']['description']) && is_array($summary_result['Summary']['description'])) ) {
+							$formatted_summary = '
+								<dl>
 							';
+							
+							if ( isset($summary_result['Summary']['title']) && is_array($summary_result['Summary']['title']) ) {
+								$formatted_summary .= '
+									'.__($summary_result['Summary']['title'][0], true).'
+									<lh>'.$summary_result['Summary']['title'][1].'</lh>
+								';
+							}
+							
+							if ( isset($summary_result['Summary']['description']) && is_array($summary_result['Summary']['description']) ) {
+								foreach ( $summary_result['Summary']['description'] as $k=>$v ) {
+									$formatted_summary .= '
+											<dt>'.__($k,true).'</dt>
+											<dd>'.$v.'</dd>
+									';
+								}
+							}
+							
+							$formatted_summary .= '
+								</dl>
+							';
+							
+							$summary = $formatted_summary;
 						}
 						
-						$formatted_summary .= '
-							</dl>
-						';
-						
-						$summary = $formatted_summary;
-						
+						else {
+							$summary = false;
+						}
 					}
 				} 
 				
