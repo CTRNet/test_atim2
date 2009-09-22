@@ -62,16 +62,13 @@ class StorageMastersController extends StoragelayoutAppController {
 
 		// Get parent storage information
 		$parent_storage_id = $storage_data['StorageMaster']['parent_id'];
-		$parent_storage_data = $this->StorageMaster->find('first',array('conditions' => array('StorageMaster.id' => $parent_storage_id)));
+		$parent_storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $parent_storage_id)));
 		if(!empty($parent_storage_id) && empty($parent_storage_data)) { $this->redirect('/pages/err_sto_no_stor_data', NULL, TRUE); }	
 		$this->set('parent_storage_data', $parent_storage_data);	
 		
 		$storage_path_data = $this->Storages->getStoragePathData($parent_storage_id);
 		$this->set('storage_path_data', (empty($storage_path_data)? array():$storage_path_data));
 		
-		// Define if this detail form is displayed into the children storage tree view
-		$this->set('is_tree_view_detail_form', $is_tree_view_detail_form);
-	
 		// Set list of available SOPs to build TMA
 		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') == 0) {	
 			$this->set('arr_tma_sops', $this->getTmaSopList());
@@ -110,6 +107,9 @@ class StorageMastersController extends StoragelayoutAppController {
 		// Set boolean
 		$this->set('is_tma', $is_tma);		
 
+		// Define if this detail form is displayed into the children storage tree view
+		$this->set('is_tree_view_detail_form', $is_tree_view_detail_form);
+		
 		// Get all storage control types to build the add to selected button
 		$this->set('storage_controls_list', $this->StorageControl->find('all', array('conditions' => array('StorageControl.status' => 'active'))));
 

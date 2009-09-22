@@ -1,7 +1,6 @@
 <?php
 
-class SampleDetail extends InventoryManagementAppModel
-{
+class SampleDetail extends InventoryManagementAppModel {
 	
 	var $useTable = false;
 	
