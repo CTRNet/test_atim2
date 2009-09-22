@@ -4,39 +4,41 @@
 	
 	// Set links
 	$structure_links = array();
+	
+	// If a parent storage object is defined then set the 'Show Parent' button
+	$show_parent_link = '/underdevelopment/';
+	if(!empty($parent_storage_data)) { $show_parent_link = '/storagelayout/storage_masters/detail/' . $parent_storage_data['StorageMaster']['id']; }
+	
+	// Create array of valid storage types for the ADD button
+	$add_links = array();
+	if($is_tma) {
+		// No children storage could be added to a TMA block
+	} else {
+		foreach ($storage_controls_list as $storage_control) {
+			$add_links[$storage_control['StorageControl']['storage_type']] = '/storagelayout/storage_masters/add/' . $storage_control['StorageControl']['id'] . '/' . $atim_menu_variables['StorageMaster.id'];
+		}		
+	}
+	if(empty($add_links)) {
+		$add_links = '/underdevelopment/';
+	}
+	
+	$structure_links = array(
+		'bottom'=>array(
+			'edit' => '/storagelayout/storage_masters/edit/' . $atim_menu_variables['StorageMaster.id'], 
+			'edit position'=> '/underdevelopment/',
+			'delete' => '/storagelayout/storage_masters/delete/' . $atim_menu_variables['StorageMaster.id'],
+			'see parent storage' => $show_parent_link,
+			'add to storage' => $add_links			
+		)
+	);
+		
 	if($is_tree_view_detail_form) {
 		// Detail form displayed in children storage tree view
-		// Just display details button to access storage
-		$structure_links = array('bottom' => array('access to storage data' => '/storagelayout/storage_masters/detail/' . $atim_menu_variables['StorageMaster.id']));		
-
+		// Add button to access all storage data
+		$structure_links['bottom']['all storage data'] = '/storagelayout/storage_masters/detail/' . $atim_menu_variables['StorageMaster.id'];
 	} else {
 		// General detail form display
-		
-		// If a parent storage object is defined then set the 'Show Parent' button
-		$show_parent_link = '/underdevelopment/';
-		if(!empty($parent_storage_data)) { $show_parent_link = '/storagelayout/storage_masters/detail/' . $parent_storage_data['StorageMaster']['id']; }
-		
-		// Create array of valid storage types for the ADD button
-		$add_links = array();
-		if($is_tma) {
-			// No children storage could be added to a TMA block
-			$add_links = '/underdevelopment/';
-		} else {
-			foreach ( $storage_controls_list as $storage_control ) {
-				$add_links[$storage_control['StorageControl']['storage_type']] = '/storagelayout/storage_masters/add/' . $storage_control['StorageControl']['id'] . '/' . $atim_menu_variables['StorageMaster.id'];
-			}		
-		}
-		
-		$structure_links = array(
-			'bottom'=>array(
-				'edit' => '/storagelayout/storage_masters/edit/' . $atim_menu_variables['StorageMaster.id'], 
-				'edit position'=> '/underdevelopment/',
-				'add to selected' => $add_links,
-				'delete' => '/storagelayout/storage_masters/delete/' . $atim_menu_variables['StorageMaster.id'],
-				'show parent' => $show_parent_link,
-				'search' => '/storagelayout/storage_masters/index/'
-			)
-		);
+		$structure_links['bottom']['search'] = '/storagelayout/storage_masters/index/';
 	}
 		
 	$structure_override = array();

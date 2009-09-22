@@ -175,10 +175,12 @@ class SampleMastersController extends InventorymanagementAppController {
 				// Displayed sample is a specimen
 				unset($sample_data['DerivativeDetail']);
 				break;
+				
 			case 'derivative':
-				// Displayed sample is a specimen
+				// Displayed sample is a derivative
 				unset($sample_data['SpecimenDetail']);
 				break;
+				
 			default:
 				$this->redirect('/pages/err_inv_system_error', NULL, TRUE);
 		}
@@ -187,52 +189,28 @@ class SampleMastersController extends InventorymanagementAppController {
 
 		// Get parent sample information
 		$parent_sample_master_id = $sample_data['SampleMaster']['parent_id'];
-		$parent_sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.id' => $parent_sample_master_id), 'recursive' => '-1'));
-		if(!empty($parent_sample_master_id) && empty($parent_sample_data)) { $this->redirect('/pages/err_sto_no_stor_data', NULL, TRUE); }	
+		$parent_sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $parent_sample_master_id), 'recursive' => '-1'));
+		if(!empty($parent_sample_master_id) && empty($parent_sample_data)) { $this->redirect('/pages/err_inv_samp_no_data', NULL, TRUE); }	
 		$this->set('parent_sample_data', $parent_sample_data);	
 
 		// Set list of available SOPs to create sample
 		$this->set('arr_sample_sops', $this->getSampleSopList($sample_data['SampleMaster']['sample_type']));	
 		
-//		// Set additional fields for blood derivatives
-//		$type_requiring_time_since_collection = array ('blood cell', 'pbmc', 'plasma', 'serum');
-//			
-//		if (in_array($sample_type, $type_requiring_time_since_collection)) {
-//			
-//			$criteria = array();
-//			$criteria['Collection.id'] = $sample_master_data['SampleMaster']['collection_id'];
-//			$criteria = array_filter($criteria);
-//				
-//			$collection_data = $this->Collection->find($criteria, null, null, 1);
-//			
-//			if(empty($collection_data)) {
-//				$this->redirect('/pages/err_inv_coll_no_data'); 
-//				exit;
-//			}
-//			
-//			// Calulate the spent time since intial specimen collection and derivative creation
-//			$creation_date = NULL;
-//			if(isset($specimen_or_derivative_data['DerivativeDetail']['creation_datetime'])){
-//				$creation_date = $specimen_or_derivative_data['DerivativeDetail']['creation_datetime'];
-//			}
-//			
-//			$arr_spent_time = 
-//				$this->getSpentTime($collection_data['Collection']['collection_datetime'], $creation_date);
-//									
-//			$this->set('time_spent_since_collection_msg', $arr_spent_time['message']); // To be translate in .thtml
-//			$sample_detail_data['Calculated']['time_spent_since_collection_days'] = $arr_spent_time['days'];
-//			$sample_detail_data['Calculated']['time_spent_since_collection_hours'] = $arr_spent_time['hours'];
-//			$sample_detail_data['Calculated']['time_spent_since_collection_minutes'] = $arr_spent_time['minutes'];
-//							
-//		}
+		// Calulate spent time between specimen collection and derivative creation
+		$arr_spent_time = null;
+		if(isset($sample_data['DerivativeDetail'])) {
+			$arr_spent_time = $this->getSpentTime($sample_data['Collection']['collection_datetime'], $sample_data['DerivativeDetail']['creation_datetime']);
+		}
+		$this->set('col_to_creation_spent_time', $arr_spent_time);
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 
 		// Get the current menu object. Needed to disable menu options based on sample category
-				
-		$this->set('atim_menu', '');
-		$this->set('atim_menu_variables', array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id));
-
+		$atim_menu = $this->Menus->get('/inventorymanagement/sample_masters/detail/%%Collection.id%%/%%SampleMaster.id%%');
+		
+		$this->set('atim_menu', $atim_menu);
+		$this->set('atim_menu_variables', array('Collection.id' => $collection_id, 'SampleMaster.id' => $sample_master_id, 'SampleMaster.initial_specimen_sample_id' => $sample_data['SampleMaster']['initial_specimen_sample_id']));
+		
 		// Set structure	
 		$this->set('atim_structure', $this->Structures->get('form', $sample_data['SampleControl']['form_alias']));
 
@@ -240,54 +218,549 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->set('is_tree_view_detail_form', $is_tree_view_detail_form);
 
 		// Get all sample control types to build the add to selected button
-		$allowed_derivative_type_temp = $this->ParentToDerivativeSampleControl->find('all', array('conditions' => array('ParentSampleControl.id' => $sample_data['SampleControl']['id'])));
+		$criteria = array(
+			'ParentSampleControl.id' => $sample_data['SampleControl']['id'],
+			'ParentToDerivativeSampleControl.status' => 'active',
+			'DerivativeControl.status' => 'active');
+		$allowed_derivative_type_temp = $this->ParentToDerivativeSampleControl->find('all', array('conditions' => $criteria, 'order' => 'DerivativeControl.sample_type ASC'));
+
 		$allowed_derivative_type = array();
 		foreach($allowed_derivative_type_temp as $new_link) {
-			$allowed_derivative_type[$new_link['DerivativeControl']['id']] = $new_link['DerivativeControl'];
+			$allowed_derivative_type[$new_link['DerivativeControl']['id']]['SampleControl'] = $new_link['DerivativeControl'];
 		}
-		$this->set('allowed_derived_types', $allowed_derivative_type);
-
-
-
-//		// -> Create derivative button
-//		
-//		$allowed_derived_types = array();
-//			
-//		// Look for sample_control_ids matching types of samples 
-//		// that could be created from one sample of the group.
-//		$criteria = array();
-//		$criteria['source_sample_control_id'] = $sample_control_id;
-//		$criteria['status'] = 'active';
-//		$criteria = array_filter($criteria);
-//
-//		$allowed_derived_sample_ctrl_id
-//			= $this->DerivedSampleLink->generateList(
-//				$criteria, 
-//				null, 
-//				null, 
-//				'{n}.DerivedSampleLink.derived_sample_control_id', 
-//				'{n}.DerivedSampleLink.derived_sample_control_id');	
-//		
-//		if(!empty($allowed_derived_sample_ctrl_id)){
-//			$final_criteria['id'] = array_values($allowed_derived_sample_ctrl_id);	
-//										
-//			// Look for types matching the allowed sample_control_id
-//			$final_criteria['status'] = 'active';
-//			$final_criteria = array_filter($final_criteria);
-//		
-//			$allowed_derived_types
-//				= $this->SampleControl->generateList(
-//					$final_criteria, 
-//					'SampleControl.sample_category DESC, SampleControl.sample_type ASC', 
-//					null, 
-//					'{n}.SampleControl.id', 
-//					'{n}.SampleControl.sample_type');
-//		}
-//	
-//		$this->set('allowed_derived_types', $allowed_derived_types);
-//		
+		
+		$this->set('allowed_derivative_type', $allowed_derivative_type);
 	}
 
+	function add($collection_id, $sample_control_id, $parent_sample_master_id = null) {
+		if((!$collection_id) || (!$sample_control_id)) { $this->redirect('/pages/err_inv_funct_param_missing', NULL, TRUE); }		
+		
+		// MANAGE DATA
+		
+		$sample_control_data = $this->SampleControl->find('first', array('conditions' => array('SampleControl.id' => $sample_control_id)));
+		if(empty($sample_control_data)) { $this->redirect('/pages/err_inv_no_samp_cont_data', NULL, TRUE); }	
+	
+		$this->set('sample_type', $sample_control_data['SampleControl']['sample_type']);		
+	
+		switch($sample_control_data['SampleControl']['sample_category']) {
+			case 'specimen':
+				// Created sample is a specimen
+				if(!empty($parent_sample_master_id)) { $this->redirect('/pages/err_inv_system_error', NULL, TRUE); }
+				
+				// Check collection
+				$collection_data = $this->Collection->find('first', array('conditions' => array('Collection.id' => $collection_id)));
+				if(empty($collection_data)) { $this->redirect('/pages/err_inv_coll_no_data', NULL, TRUE); }					
+				break;
+				
+			case 'derivative':
+				// Created sample is a derivative: Get parent sample information
+				$parent_sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $parent_sample_master_id), 'recursive' => '-1'));
+				if(empty($parent_sample_data)) { $this->redirect('/pages/err_inv_samp_no_data', NULL, TRUE); }	
+				$this->set('parent_sample_data', $parent_sample_data);
+				break;
+				
+			default:
+				$this->redirect('/pages/err_inv_system_error', NULL, TRUE);
+		}
+
+		// Set list of available SOPs to create sample
+		$this->set('arr_sample_sops', $this->getSampleSopList($sample_control_data['SampleControl']['sample_type']));
+
+		// MANAGE FORM, MENU AND ACTION BUTTONS
+		
+		// Set menu
+		$atim_menu = $this->Menus->get('/inventorymanagement/sample_masters/listAll/...');		
+		$this->set('atim_menu', $atim_menu);
+		$this->set('atim_menu_variables', array('Collection.id' => $collection_id));
+		
+		// set structure alias based on VALUE from CONTROL table
+		$this->set('atim_structure', $this->Structures->get('form', $sample_control_data['SampleControl']['form_alias']));
+	
+		// MANAGE DATA RECORD
+			
+		if(!empty($this->data)) {	
+			
+			//Get Parent Data
+			$parent_storage_data = null;
+			if(!empty($this->data['StorageMaster']['parent_id'])) {
+				$parent_storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $this->data['StorageMaster']['parent_id'])));
+				if(empty($parent_storage_data)) { $this->redirect('/pages/err_sto_no_stor_data', NULL, TRUE); }	
+			}
+			
+			// Set control ID en type
+			$this->data['StorageMaster']['storage_control_id'] = $storage_control_id;
+			// TODO Confirm why we should do that
+			$this->data['StorageMaster']['storage_type'] = $storage_control_data['StorageControl']['storage_type'];			
+			
+			// Set storage temperature information
+			$this->data['StorageMaster']['set_temperature'] = $storage_control_data['StorageControl']['set_temperature'];
+				
+			if((strcmp($storage_control_data['StorageControl']['set_temperature'], 'FALSE') == 0) && (!empty($parent_storage_data))) {
+				// Define storage surrounding temperature based on selected parent temperature
+				$this->data['StorageMaster']['temperature'] = $parent_storage_data['StorageMaster']['temperature'];
+				$this->data['StorageMaster']['temp_unit'] = $parent_storage_data['StorageMaster']['temp_unit'];
+			}				
+			
+			// Set selection label
+			$this->data['StorageMaster']['selection_label'] = $this->getStorageSelectionLabel($this->data);	
+
+			// Validates data
+			$submitted_data_validates = TRUE;
+
+			if($this->IsDuplicatedStorageBarCode($this->data)) { $submitted_data_validates = FALSE; }
+			
+			if($submitted_data_validates) {
+				// Save storage data
+				$bool_save_done = TRUE;
+				
+				$storage_master_id = NULL;
+				if($this->StorageMaster->save($this->data)) {
+					$storage_master_id = $this->StorageMaster->getLastInsertId();
+				} else {
+					$bool_save_done = FALSE;
+				}
+				
+				// Create storage code
+				if($bool_save_done) {
+					$storage_data_to_update = array();
+					$storage_data_to_update['StorageMaster']['code'] = $this->createStorageCode($storage_master_id, $this->data, $storage_control_data);
+
+					$this->StorageMaster->id = $storage_master_id;					
+					if(!$this->StorageMaster->save($storage_data_to_update)) {
+						$bool_save_done = FALSE;
+					}
+				}
+					
+				if($bool_save_done) {
+					$link = '';
+					if(empty($parent_storage_data) || is_null($parent_storage_data['StorageControl']['form_alias_for_children_pos'])){
+						// No position has to be set for this storage
+						$link = '/storagelayout/storage_masters/detail/' . $storage_master_id;
+					} else {
+						$link = '/storagelayout/storage_masters/editStoragePosition/' . $storage_master_id;
+					}
+					$this->flash('Your data has been saved.', $link);				
+				}						
+			}
+		}		
+	}
+
+
+
+
+	function addObsolete($specimen_group_menu_id=NULL, $group_specimen_type=NULL,
+	$collection_id=null, $specimen_sample_master_id = null) {
+
+
+		
+		// Verify collection data exists
+		$criteria = 'Collection.id = "'.$collection_id.'" ';		
+		$collection_data = $this->Collection->find($criteria);
+		
+		if(empty($collection_data)) {
+			$this->redirect('/pages/err_inv_coll_no_data'); 
+			exit;
+		}
+		
+		// ** Get the sample control id **
+		// This id corresponds to the type of the new sample to create.
+		$sample_control_id = null;
+		$sample_control_data = null;
+		$specific_parent_sample_id = null;
+		
+		if(isset($this->params['form']['sample_control_id'])){
+			// User clicked on the Add button of the 'listall' derivative screen
+			// or 'sample detail' screen to create a derivative
+			$sample_control_id = $this->params['form']['sample_control_id'];
+			
+			$_SESSION['ctrapp_core']['inventory_management']['specific_parent_sample_id'] = NULL; 
+			
+			if(isset($this->params['form']['specific_parent_sample_id'])) {
+				// User clicked on the Add button of the 'sample detail' screen 
+				// to create a new sample type: the parent sample is known			
+				$specific_parent_sample_id = $this->params['form']['specific_parent_sample_id'];
+				$_SESSION['ctrapp_core']['inventory_management']['specific_parent_sample_id'] = $specific_parent_sample_id;
+			}
+						
+		} else if(isset($this->data['SampleMaster']['sample_control_id'])) {
+			//User clicked on the Submit button to create the new sample
+			$sample_control_id = $this->data['SampleMaster']['sample_control_id'];	
+			
+			if(isset($_SESSION['ctrapp_core']['inventory_management']['specific_parent_sample_id'])
+			&& (!empty($_SESSION['ctrapp_core']['inventory_management']['specific_parent_sample_id']))){
+				$specific_parent_sample_id = $_SESSION['ctrapp_core']['inventory_management']['specific_parent_sample_id'];
+			}
+		
+		} else {
+			// User clicked on the add button of the specimen list form
+			$criteria = array();
+			$criteria['SampleControl']['sample_type'] = $group_specimen_type;
+			$criteria['SampleControl']['sample_category'] = 'specimen';
+			$sample_control_data = $this->SampleControl->find($criteria);
+			if(empty($sample_control_data)){
+				$this->redirect('/pages/err_inv_no_samp_cont_data'); 
+				exit;
+			}
+			
+			$sample_control_id = $sample_control_data['SampleControl']['id'];
+			$_SESSION['ctrapp_core']['inventory_management']['specific_parent_sample_id'] = NULL; 
+						
+		}
+		
+		if(empty($sample_control_id)){
+			$this->redirect('/pages/err_inv_no_samp_cont_id'); 
+			exit;
+		}
+		
+		// ** Load the sample type data from SAMPLE CONTROLS table **
+		if(is_null($sample_control_data)) {
+			$this->SampleControl->id = $sample_control_id;
+			$sample_control_data = $this->SampleControl->read();
+			if(empty($sample_control_data)){
+				$this->redirect('/pages/err_inv_no_samp_cont_data'); 
+				exit;
+			}
+		}
+		$sample_category = $sample_control_data['SampleControl']['sample_category'];
+		
+		// ** set MENU variable for echo on VIEW ** 
+		$ctrapp_menu[] = $this->Menus->tabs('inv_CAN_00', 'inv_CAN_10', $collection_id);
+		$ctrapp_menu[] = $this->Menus->tabs('inv_CAN_10', $specimen_group_menu_id, $collection_id);
+		
+		switch($sample_category) {
+			case "specimen":
+				// Manage specimen detail menu
+				break;
+
+			case "derivative":				
+				// Manage derivative detail menu			
+				if(is_null($specimen_sample_master_id)) {
+					$this->redirect('/pages/err_inv_funct_param_missing'); 
+					exit;
+				}
+				
+				$sample_menu_id = $specimen_group_menu_id.'-sa_der';
+				$specimen_grp_menu_lists = $this->getSpecimenGroupMenu($specimen_group_menu_id);
+				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $sample_menu_id, $specimen_group_menu_id);
+				
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $sample_menu_id, $collection_id.'/'.$specimen_sample_master_id.'/');
+				break;
+				
+			default:
+				$this->redirect('/pages/err_inv_menu_definition'); 
+				exit;				
+		}		
+		
+		$this->set('ctrapp_menu', $ctrapp_menu );
+
+		// ** set FORM variable, for HELPER call on VIEW  **
+		$this->set('ctrapp_form', $this->Forms->getFormArray($sample_control_data['SampleControl']['form_alias']));
+		
+
+		
+		$this->set('arr_sop_title_from_id', 
+			$this->getInventoryProductSopsArray($sample_control_data['SampleControl']['sample_type']));
+
+		// ** set SUMMARY variable from plugin's COMPONENTS **
+		$this->set('ctrapp_summary', $this->Summaries->build($collection_id));
+
+		// ** set SIDEBAR variable **
+		// use PLUGIN_CONTROLLER_ACTION by default, but any ALIAS string that matches in the SIDEBARS datatable will do...
+		$this->set('ctrapp_sidebar', 
+			$this->Sidebars->getColsArray( 
+				$this->params['plugin'].'_'.
+				$this->params['controller'].'_'.
+				$this->params['action']));
+
+		// ** Define collection group samples that could be used as parent of the created derivative **
+		// Plus set boolean to define if it's a specimen
+		$bool_is_specimen = TRUE;
+		
+		if(strcmp($sample_category, 'derivative') == 0) {
+			// User is trying to create a derivative
+			$bool_is_specimen = FALSE;
+					
+			// Look for sample_control_ids matching types of samples that could be used as parent.
+			$criteria = array();
+			$criteria['derived_sample_control_id'] = $sample_control_id;
+			$criteria['status'] = 'active';
+			$criteria = array_filter($criteria);
+
+			$allowed_source_sample_ctrl_id
+				= $this->DerivedSampleLink->generateList(
+					$criteria, 
+					null, 
+					null, 
+					'{n}.DerivedSampleLink.source_sample_control_id', 
+					'{n}.DerivedSampleLink.source_sample_control_id');	
+											
+			if(!empty($allowed_source_sample_ctrl_id)){
+				// Look for all samples of the collection group having 
+				//   - Types that could be used as parent.
+				$criteria = array();
+				$criteria['collection_id'] = $collection_id;
+				$criteria['sample_control_id'] = array_values ($allowed_source_sample_ctrl_id);
+				$criteria['initial_specimen_sample_type'] = $group_specimen_type;
+				$criteria['initial_specimen_sample_id'] = $specimen_sample_master_id;
+				$criteria = array_filter($criteria);
+				$order = 'SampleMaster.sample_code ASC';
+				 
+				$available_parent_to_create_derivative 
+					= $this->SampleMaster->generateList(
+						$criteria, 
+						$order, 
+						null, 
+						'{n}.SampleMaster.id', 
+						'{n}.SampleMaster');
+														
+				$temp_available_parent_to_create_derivative = array();
+				foreach($available_parent_to_create_derivative as $sample_master_id => $samp_data){
+					$temp_available_parent_to_create_derivative[$sample_master_id] = $samp_data['sample_code'];
+				}										
+				$available_parent_to_create_derivative	= $temp_available_parent_to_create_derivative;							
+				
+				if(empty($available_parent_to_create_derivative)){		
+					$this->redirect('/pages/err_inv_pb_in_src_sple_list_def'); 
+					exit;	
+				}
+				
+				if(!is_null($specific_parent_sample_id)) {
+					// The parent sample is known: just display this one in the list
+					if(!isset($available_parent_to_create_derivative[$specific_parent_sample_id])){
+						$this->redirect('/pages/err_inv_pb_in_src_sple_list_def'); 
+						exit;							
+					}
+					$data_to_display_in_drop_down_list = $available_parent_to_create_derivative[$specific_parent_sample_id];
+					$available_parent_to_create_derivative 
+						= array($specific_parent_sample_id => $data_to_display_in_drop_down_list);
+				}
+													
+				$this->set('available_parent_to_create_derivative', $available_parent_to_create_derivative);
+
+			} else {
+				$this->redirect('/pages/err_inv_pb_in_src_sple_list_def'); 
+				exit;	
+			}								
+			
+		}
+		
+		// ** Initialize SampleDetail **
+		// Plus set boolean to define if details must be recorded in database
+		$bool_needs_details_table = FALSE;
+		
+		if(!is_null($sample_control_data['SampleControl']['detail_tablename'])){
+			// This sample type has a specific details table
+			$bool_needs_details_table = TRUE;
+			
+			// Create new instance of SampleDetail model 
+			$this->SampleDetail = 
+				new SampleDetail(false, $sample_control_data['SampleControl']['detail_tablename']);
+		} else {
+			// This sample type doesn't need a specific details table
+			$this->SampleDetail = NULL;
+		}
+		
+		// ** look for CUSTOM HOOKS, "format" **
+		$custom_ctrapp_controller_hook 
+			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
+			'controllers' . DS . 'hooks' . DS . 
+			$this->params['controller'].'_'.$this->params['action'].'_format.php';
+			
+		if (file_exists($custom_ctrapp_controller_hook)) {
+			require($custom_ctrapp_controller_hook);
+		}	
+				
+		if (!empty($this->data)) {
+			
+			// ** Set value that have not to be defined by the user **
+			
+			// Set initial specimen data for your specimen or your derivative
+			if($bool_is_specimen){
+				// The created sample is a specimen
+				
+				if(isset($this->data['SampleMaster']['parent_id'])
+				&& (!empty($this->data['SampleMaster']['parent_id']))){
+					// Form fields defintion error: a specimen should not have parent
+					$this->redirect('/pages/err_inv_no_parent_allow_for_spec'); 
+					exit;					
+				}				
+				
+				// Create initial specimen data copying sample (specimen) data
+				$this->data['SampleMaster']['initial_specimen_sample_type']
+					= $this->data['SampleMaster']['sample_type'];
+				$this->data['SampleMaster']['initial_specimen_sample_id']
+					= NULL; // ID will be known after sample creation
+			
+			} else {
+				// The created sample is a derivative
+				
+				if(!isset($this->data['SampleMaster']['parent_id'])
+				|| (empty($this->data['SampleMaster']['parent_id']))){
+					// Form fields defintion error or code error: a derivative should have parent
+					$this->redirect('/pages/err_inv_parent_required_for_deriv'); 
+					exit;
+				}
+				
+				// Look for parent sample data
+				$criteria = 'SampleMaster.id ="'.$this->data['SampleMaster']['parent_id'].'"';
+				$parent_sample_master = $this->SampleMaster->find($criteria, null, null, 0);
+		
+				if(empty($parent_sample_master)){
+					$this->redirect('/pages/err_inv_no_parent_data'); 
+					exit;
+				}				
+				
+				// Create initial specimen data copying intial specimen data of the parent
+				$this->data['SampleMaster']['initial_specimen_sample_type']
+					= $parent_sample_master['SampleMaster']['initial_specimen_sample_type'];
+				$this->data['SampleMaster']['initial_specimen_sample_id']
+					= $parent_sample_master['SampleMaster']['initial_specimen_sample_id'];
+			}
+		
+			// ** Execute Validation **
+						
+			// setup MODEL(s) validation array(s) for displayed FORM 
+			foreach ( $this->Forms->getValidateArray( $sample_control_data['SampleControl']['form_alias'] ) as $validate_model=>$validate_rules ) {
+				$this->{ $validate_model }->validate = $validate_rules;
+			}
+			
+			$submitted_data_validates = TRUE;
+			
+			// Validates Fields of Master Table
+			if(!$this->SampleMaster->validates($this->data['SampleMaster'])){
+				$submitted_data_validates = FALSE;
+			}
+			
+			// Validates Fields of Specimen or Derivative Details Table
+			if($bool_is_specimen && isset($this->data['SpecimenDetail'])){
+				$this->cleanUpFields('SpecimenDetail');
+			
+				// Validates Fields of Specimen Details Table
+				if(!$this->SpecimenDetail->validates($this->data['SpecimenDetail'])){
+					$submitted_data_validates = FALSE;
+				}		
+			} else if((!$bool_is_specimen) && isset($this->data['DerivativeDetail'])){
+				$this->cleanUpFields('DerivativeDetail');
+			
+				// Validates Fields of Specimen Details Table
+				if(!$this->DerivativeDetail->validates($this->data['DerivativeDetail'])){
+					$submitted_data_validates = FALSE;
+				}		
+			}
+		
+			// Validates Fields of Details Table
+			if($bool_needs_details_table && isset($this->data['SampleDetail'])){
+				$this->cleanUpFields('SampleDetail');
+				
+				// Validates Fields of Details Table
+				if(!$this->SampleDetail->validates($this->data['SampleDetail'])){
+					$submitted_data_validates = FALSE;
+				}		
+			}
+			
+			// look for CUSTOM HOOKS, "validation"
+			$custom_ctrapp_controller_hook 
+				= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
+				'controllers' . DS . 'hooks' . DS . 
+				$this->params['controller'].'_'.$this->params['action'].'_validation.php';
+			
+			if (file_exists($custom_ctrapp_controller_hook)) {
+				require($custom_ctrapp_controller_hook);
+			}
+			
+			if ($submitted_data_validates) {
+
+				// ** Save Data **
+							
+				$bool_save_done = TRUE;
+		
+				// Save SAMPLEMASTER data
+				$sample_master_id = NULL;
+				
+				if($this->SampleMaster->save($this->data['SampleMaster'])){
+					$sample_master_id = $this->SampleMaster->getLastInsertId();
+				} else {
+					$bool_save_done = FALSE;
+				}
+				
+				if($bool_save_done){
+					// Update SAMPLEMASTER data that did not be known before sample creation
+
+					$this->data['SampleMaster']['id'] = $sample_master_id;					
+					
+					$this->data['SampleMaster']['sample_code'] = 
+						$this->createSampleCode($this->data['SampleMaster'], $sample_control_data['SampleControl']);
+					
+					if($bool_is_specimen) {
+						// System is right now able to record initial_specimen_sample_id for the specimen
+						$this->data['SampleMaster']['initial_specimen_sample_id'] = $sample_master_id;					
+					}
+					
+					if(!$this->SampleMaster->save($this->data['SampleMaster'])) {
+						$bool_save_done = FALSE;
+					}
+					
+				}	
+				
+				//Save Specimen or Derivative Data
+				if($bool_save_done) {
+					if($bool_is_specimen){
+						// Sample Specimen Data should be recorded
+								
+						// set ID fields based on SAMPLEMASTER
+						$this->data['SpecimenDetail']['id'] = $sample_master_id;
+						$this->data['SpecimenDetail']['sample_master_id'] = $sample_master_id;
+					
+						// save SPECIMENDETAIL data 
+						if(!$this->SpecimenDetail->save($this->data['SpecimenDetail'])){
+							$bool_save_done = FALSE;
+						}
+						
+					} else {
+						// Sample Derivative Data should be recorded
+								
+						// set ID fields based on SAMPLEMASTER
+						$this->data['DerivativeDetail']['id'] = $sample_master_id;
+						$this->data['DerivativeDetail']['sample_master_id'] = $sample_master_id;
+					
+						// save DerivativeDetail data 
+						if(!$this->DerivativeDetail->save($this->data['DerivativeDetail'])){
+							$bool_save_done = FALSE;
+						}
+						
+					}
+				}
+				
+				if($bool_save_done && $bool_needs_details_table){
+					// Sample Detail should be recorded
+					
+					// Set ID fields based on SAMPLEMASTER
+					$this->data['SampleDetail']['id'] = $sample_master_id;
+					$this->data['SampleDetail']['sample_master_id'] = $sample_master_id;
+					
+					// Save SAMPLEDETAIL data 
+					if(!$this->SampleDetail->save($this->data['SampleDetail'])){
+						$bool_save_done = FALSE;
+					}
+				}
+				
+				if(!$bool_save_done){
+					$this->redirect('/pages/err_inv_sample_record_err'); 
+					exit;
+				} else {
+					// Data has been recorded
+					$this->flash('Your data has been saved.', 
+						"/sample_masters/detail/$specimen_group_menu_id/" .
+						"$group_specimen_type/$sample_category/$collection_id/$sample_master_id/");				
+				}
+											
+			} // end action done after validation	
+		} // end data save	 		
+	
+	} // function add
+	
+	
+	
 	/* --------------------------------------------------------------------------
 	 * ADDITIONAL FUNCTIONS
 	 * -------------------------------------------------------------------------- */
@@ -711,444 +1184,8 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 	} // End ListAll()
 	
-	/**
-	 * Allow to add a specimen or a derivative to a collection group. 
-	 * 
-	 * @param $specimen_group_menu_id Menu id that corresponds to the tab clicked to 
-	 * display the samples of the collection group (Ascite, Blood, Tissue, etc).
-	 * @param $group_specimen_type Type of the source specimens of the group.
-	 * @param $collcetion_id Id of the studied collection.
-	 * @param  $specimen_sample_master_id Sample Master Id of the specimen (Tissue, Blood, etc)
-	 * (initial biological sample) of a new derivative we gonna create.
-	 * 
-	 * @author N. Luc
-	 * @date 2007-06-20
-	 
-	function add($specimen_group_menu_id=NULL, $group_specimen_type=NULL,
-	$collection_id=null, $specimen_sample_master_id = null) {
 
-		// ** Parameters check **
-		// Verify parameters have been set
-		if(empty($specimen_group_menu_id) || empty($group_specimen_type)
-		|| empty($collection_id)) {
-			$this->redirect('/pages/err_inv_funct_param_missing'); 
-			exit;
-		}
-		
-		// Verify collection data exists
-		$criteria = 'Collection.id = "'.$collection_id.'" ';		
-		$collection_data = $this->Collection->find($criteria);
-		
-		if(empty($collection_data)) {
-			$this->redirect('/pages/err_inv_coll_no_data'); 
-			exit;
-		}
-		
-		// ** Get the sample control id **
-		// This id corresponds to the type of the new sample to create.
-		$sample_control_id = null;
-		$sample_control_data = null;
-		$specific_parent_sample_id = null;
-		
-		if(isset($this->params['form']['sample_control_id'])){
-			// User clicked on the Add button of the 'listall' derivative screen
-			// or 'sample detail' screen to create a derivative
-			$sample_control_id = $this->params['form']['sample_control_id'];
-			
-			$_SESSION['ctrapp_core']['inventory_management']['specific_parent_sample_id'] = NULL; 
-			
-			if(isset($this->params['form']['specific_parent_sample_id'])) {
-				// User clicked on the Add button of the 'sample detail' screen 
-				// to create a new sample type: the parent sample is known			
-				$specific_parent_sample_id = $this->params['form']['specific_parent_sample_id'];
-				$_SESSION['ctrapp_core']['inventory_management']['specific_parent_sample_id'] = $specific_parent_sample_id;
-			}
-						
-		} else if(isset($this->data['SampleMaster']['sample_control_id'])) {
-			//User clicked on the Submit button to create the new sample
-			$sample_control_id = $this->data['SampleMaster']['sample_control_id'];	
-			
-			if(isset($_SESSION['ctrapp_core']['inventory_management']['specific_parent_sample_id'])
-			&& (!empty($_SESSION['ctrapp_core']['inventory_management']['specific_parent_sample_id']))){
-				$specific_parent_sample_id = $_SESSION['ctrapp_core']['inventory_management']['specific_parent_sample_id'];
-			}
-		
-		} else {
-			// User clicked on the add button of the specimen list form
-			$criteria = array();
-			$criteria['SampleControl']['sample_type'] = $group_specimen_type;
-			$criteria['SampleControl']['sample_category'] = 'specimen';
-			$sample_control_data = $this->SampleControl->find($criteria);
-			if(empty($sample_control_data)){
-				$this->redirect('/pages/err_inv_no_samp_cont_data'); 
-				exit;
-			}
-			
-			$sample_control_id = $sample_control_data['SampleControl']['id'];
-			$_SESSION['ctrapp_core']['inventory_management']['specific_parent_sample_id'] = NULL; 
-						
-		}
-		
-		if(empty($sample_control_id)){
-			$this->redirect('/pages/err_inv_no_samp_cont_id'); 
-			exit;
-		}
-		
-		// ** Load the sample type data from SAMPLE CONTROLS table **
-		if(is_null($sample_control_data)) {
-			$this->SampleControl->id = $sample_control_id;
-			$sample_control_data = $this->SampleControl->read();
-			if(empty($sample_control_data)){
-				$this->redirect('/pages/err_inv_no_samp_cont_data'); 
-				exit;
-			}
-		}
-		$sample_category = $sample_control_data['SampleControl']['sample_category'];
-		
-		// ** set MENU variable for echo on VIEW ** 
-		$ctrapp_menu[] = $this->Menus->tabs('inv_CAN_00', 'inv_CAN_10', $collection_id);
-		$ctrapp_menu[] = $this->Menus->tabs('inv_CAN_10', $specimen_group_menu_id, $collection_id);
-		
-		switch($sample_category) {
-			case "specimen":
-				// Manage specimen detail menu
-				break;
 
-			case "derivative":				
-				// Manage derivative detail menu			
-				if(is_null($specimen_sample_master_id)) {
-					$this->redirect('/pages/err_inv_funct_param_missing'); 
-					exit;
-				}
-				
-				$sample_menu_id = $specimen_group_menu_id.'-sa_der';
-				$specimen_grp_menu_lists = $this->getSpecimenGroupMenu($specimen_group_menu_id);
-				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $sample_menu_id, $specimen_group_menu_id);
-				
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $sample_menu_id, $collection_id.'/'.$specimen_sample_master_id.'/');
-				break;
-				
-			default:
-				$this->redirect('/pages/err_inv_menu_definition'); 
-				exit;				
-		}		
-		
-		$this->set('ctrapp_menu', $ctrapp_menu );
-
-		// ** set FORM variable, for HELPER call on VIEW  **
-		$this->set('ctrapp_form', $this->Forms->getFormArray($sample_control_data['SampleControl']['form_alias']));
-		
-		// ** set DATA for echo on VIEW or for link build **
-		$this->set('specimen_group_menu_id', $specimen_group_menu_id);
-		$this->set('group_specimen_type', $group_specimen_type);
-		$this->set('sample_category', $sample_category);
-		$this->set('specimen_sample_master_id', $specimen_sample_master_id);
-		
-		$this->set('collection_id', $collection_id);
-		
-		$this->set('sample_control_id', $sample_control_id);
-		$this->set('sample_type', $sample_control_data['SampleControl']['sample_type']);
-		
-		$this->set('arr_sop_title_from_id', 
-			$this->getInventoryProductSopsArray($sample_control_data['SampleControl']['sample_type']));
-
-		// ** set SUMMARY variable from plugin's COMPONENTS **
-		$this->set('ctrapp_summary', $this->Summaries->build($collection_id));
-
-		// ** set SIDEBAR variable **
-		// use PLUGIN_CONTROLLER_ACTION by default, but any ALIAS string that matches in the SIDEBARS datatable will do...
-		$this->set('ctrapp_sidebar', 
-			$this->Sidebars->getColsArray( 
-				$this->params['plugin'].'_'.
-				$this->params['controller'].'_'.
-				$this->params['action']));
-
-		// ** Define collection group samples that could be used as parent of the created derivative **
-		// Plus set boolean to define if it's a specimen
-		$bool_is_specimen = TRUE;
-		
-		if(strcmp($sample_category, 'derivative') == 0) {
-			// User is trying to create a derivative
-			$bool_is_specimen = FALSE;
-					
-			// Look for sample_control_ids matching types of samples that could be used as parent.
-			$criteria = array();
-			$criteria['derived_sample_control_id'] = $sample_control_id;
-			$criteria['status'] = 'active';
-			$criteria = array_filter($criteria);
-
-			$allowed_source_sample_ctrl_id
-				= $this->DerivedSampleLink->generateList(
-					$criteria, 
-					null, 
-					null, 
-					'{n}.DerivedSampleLink.source_sample_control_id', 
-					'{n}.DerivedSampleLink.source_sample_control_id');	
-											
-			if(!empty($allowed_source_sample_ctrl_id)){
-				// Look for all samples of the collection group having 
-				//   - Types that could be used as parent.
-				$criteria = array();
-				$criteria['collection_id'] = $collection_id;
-				$criteria['sample_control_id'] = array_values ($allowed_source_sample_ctrl_id);
-				$criteria['initial_specimen_sample_type'] = $group_specimen_type;
-				$criteria['initial_specimen_sample_id'] = $specimen_sample_master_id;
-				$criteria = array_filter($criteria);
-				$order = 'SampleMaster.sample_code ASC';
-				 
-				$available_parent_to_create_derivative 
-					= $this->SampleMaster->generateList(
-						$criteria, 
-						$order, 
-						null, 
-						'{n}.SampleMaster.id', 
-						'{n}.SampleMaster');
-														
-				$temp_available_parent_to_create_derivative = array();
-				foreach($available_parent_to_create_derivative as $sample_master_id => $samp_data){
-					$temp_available_parent_to_create_derivative[$sample_master_id] = $samp_data['sample_code'];
-				}										
-				$available_parent_to_create_derivative	= $temp_available_parent_to_create_derivative;							
-				
-				if(empty($available_parent_to_create_derivative)){		
-					$this->redirect('/pages/err_inv_pb_in_src_sple_list_def'); 
-					exit;	
-				}
-				
-				if(!is_null($specific_parent_sample_id)) {
-					// The parent sample is known: just display this one in the list
-					if(!isset($available_parent_to_create_derivative[$specific_parent_sample_id])){
-						$this->redirect('/pages/err_inv_pb_in_src_sple_list_def'); 
-						exit;							
-					}
-					$data_to_display_in_drop_down_list = $available_parent_to_create_derivative[$specific_parent_sample_id];
-					$available_parent_to_create_derivative 
-						= array($specific_parent_sample_id => $data_to_display_in_drop_down_list);
-				}
-													
-				$this->set('available_parent_to_create_derivative', $available_parent_to_create_derivative);
-
-			} else {
-				$this->redirect('/pages/err_inv_pb_in_src_sple_list_def'); 
-				exit;	
-			}								
-			
-		}
-		
-		// ** Initialize SampleDetail **
-		// Plus set boolean to define if details must be recorded in database
-		$bool_needs_details_table = FALSE;
-		
-		if(!is_null($sample_control_data['SampleControl']['detail_tablename'])){
-			// This sample type has a specific details table
-			$bool_needs_details_table = TRUE;
-			
-			// Create new instance of SampleDetail model 
-			$this->SampleDetail = 
-				new SampleDetail(false, $sample_control_data['SampleControl']['detail_tablename']);
-		} else {
-			// This sample type doesn't need a specific details table
-			$this->SampleDetail = NULL;
-		}
-		
-		// ** look for CUSTOM HOOKS, "format" **
-		$custom_ctrapp_controller_hook 
-			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
-			'controllers' . DS . 'hooks' . DS . 
-			$this->params['controller'].'_'.$this->params['action'].'_format.php';
-			
-		if (file_exists($custom_ctrapp_controller_hook)) {
-			require($custom_ctrapp_controller_hook);
-		}	
-				
-		if (!empty($this->data)) {
-			
-			// ** Set value that have not to be defined by the user **
-			
-			// Set initial specimen data for your specimen or your derivative
-			if($bool_is_specimen){
-				// The created sample is a specimen
-				
-				if(isset($this->data['SampleMaster']['parent_id'])
-				&& (!empty($this->data['SampleMaster']['parent_id']))){
-					// Form fields defintion error: a specimen should not have parent
-					$this->redirect('/pages/err_inv_no_parent_allow_for_spec'); 
-					exit;					
-				}				
-				
-				// Create initial specimen data copying sample (specimen) data
-				$this->data['SampleMaster']['initial_specimen_sample_type']
-					= $this->data['SampleMaster']['sample_type'];
-				$this->data['SampleMaster']['initial_specimen_sample_id']
-					= NULL; // ID will be known after sample creation
-			
-			} else {
-				// The created sample is a derivative
-				
-				if(!isset($this->data['SampleMaster']['parent_id'])
-				|| (empty($this->data['SampleMaster']['parent_id']))){
-					// Form fields defintion error or code error: a derivative should have parent
-					$this->redirect('/pages/err_inv_parent_required_for_deriv'); 
-					exit;
-				}
-				
-				// Look for parent sample data
-				$criteria = 'SampleMaster.id ="'.$this->data['SampleMaster']['parent_id'].'"';
-				$parent_sample_master = $this->SampleMaster->find($criteria, null, null, 0);
-		
-				if(empty($parent_sample_master)){
-					$this->redirect('/pages/err_inv_no_parent_data'); 
-					exit;
-				}				
-				
-				// Create initial specimen data copying intial specimen data of the parent
-				$this->data['SampleMaster']['initial_specimen_sample_type']
-					= $parent_sample_master['SampleMaster']['initial_specimen_sample_type'];
-				$this->data['SampleMaster']['initial_specimen_sample_id']
-					= $parent_sample_master['SampleMaster']['initial_specimen_sample_id'];
-			}
-		
-			// ** Execute Validation **
-						
-			// setup MODEL(s) validation array(s) for displayed FORM 
-			foreach ( $this->Forms->getValidateArray( $sample_control_data['SampleControl']['form_alias'] ) as $validate_model=>$validate_rules ) {
-				$this->{ $validate_model }->validate = $validate_rules;
-			}
-			
-			$submitted_data_validates = TRUE;
-			
-			// Validates Fields of Master Table
-			if(!$this->SampleMaster->validates($this->data['SampleMaster'])){
-				$submitted_data_validates = FALSE;
-			}
-			
-			// Validates Fields of Specimen or Derivative Details Table
-			if($bool_is_specimen && isset($this->data['SpecimenDetail'])){
-				$this->cleanUpFields('SpecimenDetail');
-			
-				// Validates Fields of Specimen Details Table
-				if(!$this->SpecimenDetail->validates($this->data['SpecimenDetail'])){
-					$submitted_data_validates = FALSE;
-				}		
-			} else if((!$bool_is_specimen) && isset($this->data['DerivativeDetail'])){
-				$this->cleanUpFields('DerivativeDetail');
-			
-				// Validates Fields of Specimen Details Table
-				if(!$this->DerivativeDetail->validates($this->data['DerivativeDetail'])){
-					$submitted_data_validates = FALSE;
-				}		
-			}
-		
-			// Validates Fields of Details Table
-			if($bool_needs_details_table && isset($this->data['SampleDetail'])){
-				$this->cleanUpFields('SampleDetail');
-				
-				// Validates Fields of Details Table
-				if(!$this->SampleDetail->validates($this->data['SampleDetail'])){
-					$submitted_data_validates = FALSE;
-				}		
-			}
-			
-			// look for CUSTOM HOOKS, "validation"
-			$custom_ctrapp_controller_hook 
-				= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
-				'controllers' . DS . 'hooks' . DS . 
-				$this->params['controller'].'_'.$this->params['action'].'_validation.php';
-			
-			if (file_exists($custom_ctrapp_controller_hook)) {
-				require($custom_ctrapp_controller_hook);
-			}
-			
-			if ($submitted_data_validates) {
-
-				// ** Save Data **
-							
-				$bool_save_done = TRUE;
-		
-				// Save SAMPLEMASTER data
-				$sample_master_id = NULL;
-				
-				if($this->SampleMaster->save($this->data['SampleMaster'])){
-					$sample_master_id = $this->SampleMaster->getLastInsertId();
-				} else {
-					$bool_save_done = FALSE;
-				}
-				
-				if($bool_save_done){
-					// Update SAMPLEMASTER data that did not be known before sample creation
-
-					$this->data['SampleMaster']['id'] = $sample_master_id;					
-					
-					$this->data['SampleMaster']['sample_code'] = 
-						$this->createSampleCode($this->data['SampleMaster'], $sample_control_data['SampleControl']);
-					
-					if($bool_is_specimen) {
-						// System is right now able to record initial_specimen_sample_id for the specimen
-						$this->data['SampleMaster']['initial_specimen_sample_id'] = $sample_master_id;					
-					}
-					
-					if(!$this->SampleMaster->save($this->data['SampleMaster'])) {
-						$bool_save_done = FALSE;
-					}
-					
-				}	
-				
-				//Save Specimen or Derivative Data
-				if($bool_save_done) {
-					if($bool_is_specimen){
-						// Sample Specimen Data should be recorded
-								
-						// set ID fields based on SAMPLEMASTER
-						$this->data['SpecimenDetail']['id'] = $sample_master_id;
-						$this->data['SpecimenDetail']['sample_master_id'] = $sample_master_id;
-					
-						// save SPECIMENDETAIL data 
-						if(!$this->SpecimenDetail->save($this->data['SpecimenDetail'])){
-							$bool_save_done = FALSE;
-						}
-						
-					} else {
-						// Sample Derivative Data should be recorded
-								
-						// set ID fields based on SAMPLEMASTER
-						$this->data['DerivativeDetail']['id'] = $sample_master_id;
-						$this->data['DerivativeDetail']['sample_master_id'] = $sample_master_id;
-					
-						// save DerivativeDetail data 
-						if(!$this->DerivativeDetail->save($this->data['DerivativeDetail'])){
-							$bool_save_done = FALSE;
-						}
-						
-					}
-				}
-				
-				if($bool_save_done && $bool_needs_details_table){
-					// Sample Detail should be recorded
-					
-					// Set ID fields based on SAMPLEMASTER
-					$this->data['SampleDetail']['id'] = $sample_master_id;
-					$this->data['SampleDetail']['sample_master_id'] = $sample_master_id;
-					
-					// Save SAMPLEDETAIL data 
-					if(!$this->SampleDetail->save($this->data['SampleDetail'])){
-						$bool_save_done = FALSE;
-					}
-				}
-				
-				if(!$bool_save_done){
-					$this->redirect('/pages/err_inv_sample_record_err'); 
-					exit;
-				} else {
-					// Data has been recorded
-					$this->flash('Your data has been saved.', 
-						"/sample_masters/detail/$specimen_group_menu_id/" .
-						"$group_specimen_type/$sample_category/$collection_id/$sample_master_id/");				
-				}
-											
-			} // end action done after validation	
-		} // end data save	 		
-	
-	} // function add
 
 	/**
 	 * Allow to display the sample details form when we just have the 
