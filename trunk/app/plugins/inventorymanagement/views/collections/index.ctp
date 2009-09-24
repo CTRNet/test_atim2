@@ -7,7 +7,7 @@
 	
 	$structures->build($atim_structure_for_search_type, array('type' => 'detail', 'settings' => array('actions' => FALSE), 'override' => $structure_override) );
 	
-	// DISPLAY COLLETCION INDEX FORM	
+	// DISPLAY COLLECTION INDEX FORM	
 
 	$search_type_links = array();
 	$search_type_links['collection'] = '/inventorymanagement/collections/index/';
@@ -16,7 +16,7 @@
 		
 	$structure_links = array(
 		'top' => '/inventorymanagement/collections/search',
-		'bottom' => array('add collection' => '/inventorymanagement/collections/add', 'search type' => $search_type_links)
+		'bottom' => array('add collection' => '/inventorymanagement/collections/add', 'search' => $search_type_links)
 	);
 	
 	$structure_override = array();

@@ -824,6 +824,14 @@ UPDATE `structure_formats`
 SET `language_heading` = ''
 WHERE `structure_field_old_id` LIKE 'CAN-999-999-000-999-1018';
 
+UPDATE `structure_fields` SET `type` = 'radio', language_label = 'is problematic' WHERE `old_id` = 'CAN-999-999-000-999-1029';
+
+UPDATE `structure_formats`
+SET `flag_add_readonly` = '1'
+WHERE `structure_field_old_id` LIKE 'CAN-999-999-000-999-1023';
+
+
+
 DELETE FROM menus
 WHERE id LIKE 'inv_CAN%';
 
@@ -834,20 +842,28 @@ VALUES
 
 ('inv_CAN_1', 'inv_CAN', 0, 1, 'collection details', NULL, '/inventorymanagement/collections/detail/%%Collection.id%%', '', 'Inventorymanagement.Collection::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('inv_CAN_2', 'inv_CAN', 0, 2, 'listall collection content', NULL, '/inventorymanagement/sample_masters/contentTreeView/%%Collection.id%%', '', 'Inventorymanagement.Collection::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('inv_CAN_21', 'inv_CAN_2', 0, 1, 'tree view', NULL, '/inventorymanagement/sample_masters/contentTreeView/%%Collection.id%%', '', 'Inventorymanagement.SampleMaster::generalSummary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('inv_CAN_22', 'inv_CAN_2', 0, 2, 'listall collection samples', NULL, '/inventorymanagement/sample_masters/listAll/...', '', 'Inventorymanagement.SampleMaster::generalSummary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('inv_CAN_221', 'inv_CAN_22', 0, 1, 'details', NULL, '/inventorymanagement/sample_masters/detail/%%Collection.id%%/%%SampleMaster.id%%', '', 'Inventorymanagement.SampleMaster::sampleSummary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-	('inv_CAN_222', 'inv_CAN_22', 0, 2, 'listall derivatives', NULL, '/inventorymanagement/sample_masters/listAll/...', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-	('inv_CAN_223', 'inv_CAN_22', 0, 3, 'Parent Aliquots', NULL, '/inventorymanagement/sample_masters/listSourceAliquots/...', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-	('inv_CAN_224', 'inv_CAN_22', 0, 4, 'listall aliquots', NULL, '/inventorymanagement/aliquot_masters/listAll/...', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-	('inv_CAN_2241', 'inv_CAN_223', 0, 1, 'details', NULL, '/inventorymanagement/aliquot_masters/detailAliquot/...', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-	('inv_CAN_2242', 'inv_CAN_223', 0, 2, 'uses', NULL, '/inventorymanagement/aliquot_masters/listAliquotUses/...', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-	('inv_CAN_2243', 'inv_CAN_223', 0, 3, 'realiquoted parent', NULL, '/inventorymanagement/aliquot_masters/listRealiquotedParents/...', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-	('inv_CAN_225', 'inv_CAN_22', 0, 5, 'quality controls', NULL, '/inventorymanagement/quality_controls/listAllQualityControls/...', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-	('inv_CAN_2251', 'inv_CAN_225', 0, 1, 'details', NULL, '/inventorymanagement/quality_controls/detail/...', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-	('inv_CAN_2252', 'inv_CAN_225', 0, 2, 'tested aliquots', NULL, '/inventorymanagement/quality_controls/listTestedAliquots/...', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+	('inv_CAN_21', 'inv_CAN_2', 0, 1, 'tree view', NULL, '/inventorymanagement/sample_masters/contentTreeView/%%Collection.id%%', '', 'Inventorymanagement.Collection::treeViewSummary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+	('inv_CAN_22', 'inv_CAN_2', 0, 2, 'listall collection samples', NULL, '/inventorymanagement/sample_masters/listAll/%%Collection.id%%', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+		('inv_CAN_221', 'inv_CAN_22', 0, 1, 'details', NULL, '/inventorymanagement/sample_masters/detail/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%', '', 'Inventorymanagement.SampleMaster::specimenSummary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+		('inv_CAN_222', 'inv_CAN_22', 0, 2, 'listall derivatives', NULL, '/inventorymanagement/sample_masters/listAll/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%', '', 'Inventorymanagement.SampleMaster::specimensummary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+			('inv_CAN_2221', 'inv_CAN_222', 0, 1, 'details', NULL, '/inventorymanagement/sample_masters/detail/%%Collection.id%%/%%SampleMaster.id%%/', '', 'Inventorymanagement.SampleMaster::derivativeSummary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+			('inv_CAN_2222', 'inv_CAN_222', 0, 2, 'Parent Aliquots', NULL, '/inventorymanagement/sample_masters/listSourceAliquots/%%Collection.id%%/%%SampleMaster.id%%', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+			('inv_CAN_2223', 'inv_CAN_222', 0, 3, 'listall aliquots', NULL, '/inventorymanagement/aliquot_masters/listAll/%%Collection.id%%/%%SampleMaster.id%%', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+				('inv_CAN_22231', 'inv_CAN_2223', 0, 1, 'details', NULL, '/inventorymanagement/aliquot_masters/detailAliquot/...', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+				('inv_CAN_22232', 'inv_CAN_2223', 0, 2, 'uses', NULL, '/inventorymanagement/aliquot_masters/listAliquotUses/...', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+				('inv_CAN_22233', 'inv_CAN_2223', 0, 3, 'realiquoted parent', NULL, '/inventorymanagement/aliquot_masters/listRealiquotedParents/...', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+			('inv_CAN_2224', 'inv_CAN_222', 0, 4, 'quality controls', NULL, '/inventorymanagement/quality_controls/listAllQualityControls/%%Collection.id%%/%%SampleMaster.id%%', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+				('inv_CAN_22241', 'inv_CAN_224', 0, 1, 'details', NULL, '/inventorymanagement/quality_controls/detail/...', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+				('inv_CAN_22242', 'inv_CAN_224', 0, 2, 'tested aliquots', NULL, '/inventorymanagement/quality_controls/listTestedAliquots/...', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+		('inv_CAN_223', 'inv_CAN_22', 0, 3, 'listall aliquots', NULL, '/inventorymanagement/aliquot_masters/listAll/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+			('inv_CAN_2231', 'inv_CAN_223', 0, 1, 'details', NULL, '/inventorymanagement/aliquot_masters/detailAliquot/...', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+			('inv_CAN_2232', 'inv_CAN_223', 0, 2, 'uses', NULL, '/inventorymanagement/aliquot_masters/listAliquotUses/...', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+			('inv_CAN_2233', 'inv_CAN_223', 0, 3, 'realiquoted parent', NULL, '/inventorymanagement/aliquot_masters/listRealiquotedParents/...', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+		('inv_CAN_224', 'inv_CAN_22', 0, 4, 'quality controls', NULL, '/inventorymanagement/quality_controls/listAllQualityControls/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+			('inv_CAN_2241', 'inv_CAN_224', 0, 1, 'details', NULL, '/inventorymanagement/quality_controls/detail/...', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+			('inv_CAN_2242', 'inv_CAN_224', 0, 2, 'tested aliquots', NULL, '/inventorymanagement/quality_controls/listTestedAliquots/...', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),				
 	('inv_CAN_23', 'inv_CAN_2', 0, 3, 'listall collection aliquots', NULL, '/inventorymanagement/aliquot_masters/listAll/...', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-	('inv_CAN_3', 'inv_CAN', 0, 3, 'listall collection path reviews', NULL, '/underdevelopment/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+('inv_CAN_3', 'inv_CAN', 0, 3, 'listall collection path reviews', NULL, '/underdevelopment/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 
 
@@ -862,8 +878,7 @@ DELETE FROM `i18n` WHERE `id` IN (
 'listall derivatives',
 'see sample parent',
 'see parent sample',
-'see parent storage'
-);
+'see parent storage');
 
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('listall collection samples', 'global', 'Samples', '&Eachute;chantillons'),
@@ -875,14 +890,26 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('details', 'global', 'Details', 'D&eacute;tails'),
 ('listall derivatives', 'global', 'Derivatives', 'D&eacute;riv&eacute;s'),
 ('see parent sample', 'global', 'Parent Sample', '&Eacute;chantillon parent'),
-('see parent storage', 'global', 'Parent Storage', 'Contenant')
-;
-  	
+('see parent storage', 'global', 'Parent Storage', 'Contenant');  	
   	
 UPDATE structure_fields SET field = 'coll_to_creation_spent_time_msg', 
 language_label = 'collection to creation spent time'
 WHERE old_id = 'CAN-999-999-000-999-1070';
 
-	
+DELETE FROM `i18n` WHERE `id` IN (
+'derivative exists for the deleted sample',
+'aliquot exists for the deleted sample',
+'an aliquot of the parent sample is defined as source aliquot',
+'quality control exists for the deleted sample',
+'review exists for the deleted sample');
 
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) 
+VALUES
+('review exists for the deleted sample', 'global', 'Your data cannot be deleted! <br>Reviews exist for the deleted sample.', 'Vos donn&eacute;es ne peuvent &ecirc;tre supprim&eacute;es! Des rapports existent pour votre &eacute;chantillon.'),
+('quality control exists for the deleted sample', 'global', 'Your data cannot be deleted! <br>Quality controls exist for the deleted sample.', 'Vos donn&eacute;es ne peuvent &ecirc;tre supprim&eacute;es! Des contr&ocirc;les de qualit&eacute; existent pour votre &eacute;chantillon.'),
+('aliquot exists for the deleted sample', 'global', 'Your data cannot be deleted! <br>Aliquots exist for the deleted sample.', 'Vos donn&eacute;es ne peuvent &ecirc;tre supprim&eacute;es! Des aliquots existent pour votre &eacute;chantillon.'),
+('derivative exists for the deleted sample', 'global', 'Your data cannot be deleted! <br>Derivatives exist for the deleted sample.', 'Vos donn&eacute;es ne peuvent &ecirc;tre supprim&eacute;es! Des d&eacute;riv&eacute;s existent pour votre &eacute;chantillon.'),
+('an aliquot of the parent sample is defined as source aliquot', 'global', 'Your data cannot be deleted! <br>An aliquot of the parent sample is defined as source aliquot!', 'Vos donn&eacute;es ne peuvent &ecirc;tre supprim&eacute;es! Un aliquot de l''&eacute;chantillon parent est d&eacute;fini comme source.');
+
+-- delete storage table like st_box81s
 -- TODO aliquot master...

@@ -16,7 +16,7 @@
 		
 	$structure_links = array(
 		'top' => '/inventorymanagement/sample_masters/search',
-		'bottom' => array('add collection' => '/inventorymanagement/collections/add', 'search type' => $search_type_links)
+		'bottom' => array('add collection' => '/inventorymanagement/collections/add', 'search' => $search_type_links)
 	);
 
 	$structure_override = array();

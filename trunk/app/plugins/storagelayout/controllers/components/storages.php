@@ -24,7 +24,7 @@ class StoragesComponent extends Object {
 	
 	function getStorageList($excluded_storage_master_id = null) {	
 		// Find control ID for all storages of type TMA. These will be excluded from the returned array
-		$arr_tma_control_ids = $this->controller->StorageControl->find('list', array('conditions' => array('StorageControl.is_tma_block' => 'TRUE')));
+		$arr_tma_control_ids = $this->controller->StorageControl->find('list', array('conditions' => array('StorageControl.is_tma_block' => 'true')));
 			
 		// Get all storage records excluding those of type TMA
 		$arr_storages_list = $this->controller->StorageMaster->atim_list(array('conditions' => array('NOT' => array('StorageMaster.storage_control_id' => $arr_tma_control_ids)), 'order' => array('StorageMaster.selection_label')));
@@ -60,7 +60,7 @@ class StoragesComponent extends Object {
 	 * @param $storage_control_id Storage Control ID of the studied storage.
 	 * @param $storage_control_data Storage Control Data of the studied storage (not required).
 	 * 
-	 * @return TRUE when the coordinate 'x' list of a storage can be set by the user.
+	 * @return true when the coordinate 'x' list of a storage can be set by the user.
 	 * 
 	 * @author N. Luc
 	 * @since 2008-02-04
@@ -71,20 +71,20 @@ class StoragesComponent extends Object {
 		// Check for storage control data, if none get the control data
 		if(empty($storage_control_data)) {
 			$storage_control_data = $this->controller->StorageControl->find('first', array('conditions' => array('StorageControl.id' => $storage_control_id)));
-			if(empty($storage_control_data)) { $this->controller->redirect('/pages/err_sto_no_stor_cont_data', NULL, TRUE); }
+			if(empty($storage_control_data)) { $this->controller->redirect('/pages/err_sto_no_stor_cont_data', null, true); }
 		}
 					
-		if($storage_control_data['StorageControl']['id'] !== $storage_control_id) { $this->controller->redirect('/pages/err_sto_system_error', NULL, TRUE); }
+		if($storage_control_data['StorageControl']['id'] !== $storage_control_id) { $this->controller->redirect('/pages/err_sto_system_error', null, true); }
 		
 		// Check the control data and set boolean for return.
 		if(!((strcmp($storage_control_data['StorageControl']['coord_x_type'], 'list') == 0) 
 		&& empty($storage_control_data['StorageControl']['coord_x_size'])
 		&& empty($storage_control_data['StorageControl']['coord_y_type'])
 		&& empty($storage_control_data['StorageControl']['coord_y_size']))) {
-			return FALSE;
+			return false;
 		} 
 
-		return TRUE;
+		return true;
 	 }	
 	 
 	/**
@@ -101,7 +101,7 @@ class StoragesComponent extends Object {
 	 function inactivateStorageCoordinateMenu($atim_menu) {
  		foreach($atim_menu as $menu_group_id => $menu_group) {
 			foreach($menu_group as $menu_id => $menu_data) {
-				if(strpos($menu_data['Menu']['use_link'], '/storagelayout/storage_coordinates/listAll/') !== FALSE) {
+				if(strpos($menu_data['Menu']['use_link'], '/storagelayout/storage_coordinates/listAll/') !== false) {
 					$atim_menu[$menu_group_id][$menu_id]['Menu']['allowed'] = 0;
 					return $atim_menu;
 				}
@@ -125,7 +125,7 @@ class StoragesComponent extends Object {
 	 function inactivateStorageLayoutMenu($atim_menu) {
  		foreach($atim_menu as $menu_group_id => $menu_group) {
 			foreach($menu_group as $menu_id => $menu_data) {
-				if(strpos($menu_data['Menu']['use_link'], '/storagelayout/storage_masters/seeStorageLayout/') !== FALSE) {
+				if(strpos($menu_data['Menu']['use_link'], '/storagelayout/storage_masters/seeStorageLayout/') !== false) {
 					$atim_menu[$menu_group_id][$menu_id]['Menu']['allowed'] = 0;
 					return $atim_menu;
 				}
@@ -149,7 +149,7 @@ class StoragesComponent extends Object {
 	 function inactivateChildrenStorageMenu($atim_menu) {
  		foreach($atim_menu as $menu_group_id => $menu_group) {
 			foreach($menu_group as $menu_id => $menu_data) {
-				if(strpos($menu_data['Menu']['use_link'], '/storagelayout/storage_masters/listChildrenStorages/') !== FALSE) {
+				if(strpos($menu_data['Menu']['use_link'], '/storagelayout/storage_masters/listChildrenStorages/') !== false) {
 					$atim_menu[$menu_group_id][$menu_id]['Menu']['allowed'] = 0;
 					return $atim_menu;
 				}
@@ -195,7 +195,7 @@ class StoragesComponent extends Object {
 	function validateStorageIdVersusSelectionLabel($recorded_selection_label, $selected_storage_master_id) {
 		$matching_storage_list = array();
 		$storage_definition_error = '';
-		$check_tma = FALSE;
+		$check_tma = false;
 
 		if(!empty($recorded_selection_label)) {
 			// CASE_1: A storage selection label has been defined
@@ -217,7 +217,7 @@ class StoragesComponent extends Object {
 				} else {
 					// The selection label match only one storage: Get the storage_master_id
 					$selected_storage_master_id = key($matching_storage_list);
-					$check_tma = TRUE;
+					$check_tma = true;
 				}
 			
 			} else {
@@ -232,7 +232,7 @@ class StoragesComponent extends Object {
 					$matching_storage_list[$selected_storage_master_id] = $this->controller->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $selected_storage_master_id)));			
 				}
 				
-				$check_tma = TRUE;
+				$check_tma = true;
 			}
 		
 		} else if(!empty($selected_storage_master_id)) {
@@ -241,12 +241,12 @@ class StoragesComponent extends Object {
 			// Only storage id has been selected: Add this one in $arr_storage_list if an error is displayed
 			$matching_storage_list[$selected_storage_master_id] = $this->controller->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $selected_storage_master_id)));			 
 
-			$check_tma = TRUE;
+			$check_tma = true;
 				
 		} 	// else if { $selected_storage_master_id and $recorded_selection_label empty: Nothing to do }
 		
 		// Check defined storage is not a TMA
-		if($check_tma && (strcmp($matching_storage_list[$selected_storage_master_id]['StorageControl']['is_tma_block'], 'TRUE') == 0)) {
+		if($check_tma && (strcmp($matching_storage_list[$selected_storage_master_id]['StorageControl']['is_tma_block'], 'true') == 0)) {
 			$storage_definition_error = 'the defined storage is a tma';
 		}
 		
@@ -301,7 +301,7 @@ class StoragesComponent extends Object {
 			// Check for storage data, if none get the storage data
 			if(empty($storage_data)) {
 				$storage_data = $this->controller->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
-				if(empty($storage_data)) { $this->controller->redirect('/pages/err_sto_no_stor_data', NULL, TRUE); }
+				if(empty($storage_data)) { $this->controller->redirect('/pages/err_sto_no_stor_data', null, true); }
 			}			
 			
 			// Check position values
@@ -349,7 +349,7 @@ class StoragesComponent extends Object {
 	 * @param $coord Studied storage coordinate ('x' or 'y').
 	 * 
 	 * @return Array containing results
-	 * 	['validated'] => TRUE if validated
+	 * 	['validated'] => true if validated
 	 * 	['validated_position'] => Validated position (value changed to correct case when required)
 	 * 	['position_order'] => Position order to display
 	 * 
@@ -359,7 +359,7 @@ class StoragesComponent extends Object {
 	
 	function validatePositionValue($storage_data, $position, $coord) {
 		$validation_results = array(
-			'validated' => TRUE,
+			'validated' => true,
 			'validated_position' => $position,
 			'position_order' => null);
 		
@@ -422,7 +422,7 @@ class StoragesComponent extends Object {
 	 */
 	 
 	function buildAllowedStoragePosition($storage_data, $coord) {
-		if(!array_key_exists('coord_'.$coord.'_type', $storage_data['StorageControl'])) { $this->redirect('/pages/err_sto_system_error', NULL, TRUE); }
+		if(!array_key_exists('coord_'.$coord.'_type', $storage_data['StorageControl'])) { $this->redirect('/pages/err_sto_system_error', null, true); }
 				
 		// Build array
 		$array_to_display = array();
@@ -432,7 +432,7 @@ class StoragesComponent extends Object {
 			if(!empty($storage_data['StorageControl']['coord_'.$coord.'_size'])) {
 				// TYPE and SIZE are both defined for the studied coordinate: The system can build a list.
 				$size = $storage_data['StorageControl']['coord_'.$coord.'_size'];
-				if(!is_numeric($size)) { $this->redirect('/pages/err_sto_system_error', NULL, TRUE); }
+				if(!is_numeric($size)) { $this->redirect('/pages/err_sto_system_error', null, true); }
 									
 				if(strcmp($storage_data['StorageControl']['coord_'.$coord.'_type'], 'alphabetical') == 0){
 					// Alphabetical drop down list
@@ -441,7 +441,7 @@ class StoragesComponent extends Object {
 					// Integer drop down list	
 					$array_to_order = range('1', $size);
 				} else {
-					$this->redirect('/pages/err_sto_system_error', NULL, TRUE); 		
+					$this->redirect('/pages/err_sto_system_error', null, true); 		
 				}	
 						
 			} else {
@@ -454,7 +454,7 @@ class StoragesComponent extends Object {
 						$array_to_order[$coordinate_order] = $coordinate_value;						
 					}		
 				} else {
-					$this->redirect('/pages/err_sto_system_error', NULL, TRUE); 				
+					$this->redirect('/pages/err_sto_system_error', null, true); 				
 				}
 			}
 		}

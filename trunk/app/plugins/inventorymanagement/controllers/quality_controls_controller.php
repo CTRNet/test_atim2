@@ -12,7 +12,7 @@ class QualityControlsController extends InventoryManagementAppController {
 	);
 	var $paginate = array('QualityControl'=>array('limit'=>10));
 
-	function listAllQualityControls( $collection_id=NULL, $sample_master_id=NULL) {
+	function listAllQualityControls( $collection_id=null, $sample_master_id=null) {
 		$this->set( 'atim_menu_variables', array('Collection.id'=>$collection_id, 'SampleMaster.id'=>$sample_master_id) );
 		$this->data = $this->paginate($this->QualityControl,array('QualityControl.sample_master_id'=>$sample_master_id));
 	}
@@ -50,8 +50,8 @@ class QualityControlsController extends InventoryManagementAppController {
 	 * @author N. Luc
 	 * @date 2008-01-28
 	 */
-	function detail_OLD($specimen_group_menu_id=NULL, $group_specimen_type=NULL, $sample_category=NULL, 
-	$collection_id=null, $sample_master_id=NULL, $quality_control_id = NULL) {
+	function detail_OLD($specimen_group_menu_id=null, $group_specimen_type=null, $sample_category=null, 
+	$collection_id=null, $sample_master_id=null, $quality_control_id = null) {
 	
 		// ** Parameters check **
 		// Verify parameters have been set
@@ -218,8 +218,8 @@ class QualityControlsController extends InventoryManagementAppController {
 	 * @author N. Luc
 	 * @date 2008-01-28
 	 */
-	function add($specimen_group_menu_id=NULL, $group_specimen_type=NULL, $sample_category=NULL,
-	$collection_id=null, $sample_master_id=NULL) {
+	function add($specimen_group_menu_id=null, $group_specimen_type=null, $sample_category=null,
+	$collection_id=null, $sample_master_id=null) {
 	 	
 		// ** Parameters check **
 		// Verify parameters have been set
@@ -352,11 +352,11 @@ class QualityControlsController extends InventoryManagementAppController {
 				$this->{ $validate_model }->validate = $validate_rules;
 			}
 			
-			$submitted_data_validates = TRUE;
+			$submitted_data_validates = true;
 			
 			// Validates Fields of Master Table
 			if(!$this->QualityControl->validates($this->data['QualityControl'])){
-				$submitted_data_validates = FALSE;
+				$submitted_data_validates = false;
 			}
 			
 			// look for CUSTOM HOOKS, "validation"
@@ -373,12 +373,12 @@ class QualityControlsController extends InventoryManagementAppController {
 
 				// ** Save Data **
 							
-				$bool_save_done = TRUE;
+				$bool_save_done = true;
 				
 				if($this->QualityControl->save($this->data['QualityControl'])){
 					$quality_control_id = $this->QualityControl->getLastInsertId();
 				} else {
-					$bool_save_done = FALSE;
+					$bool_save_done = false;
 				}
 				
 				if(!$bool_save_done){
@@ -410,8 +410,8 @@ class QualityControlsController extends InventoryManagementAppController {
 	 * @author N. Luc
 	 * @date 2008-01-28
 	 */
-	function edit_OLD($specimen_group_menu_id=NULL, $group_specimen_type=NULL, $sample_category=NULL, 
-	$collection_id=null, $sample_master_id=NULL, $quality_control_id = NULL) {
+	function edit_OLD($specimen_group_menu_id=null, $group_specimen_type=null, $sample_category=null, 
+	$collection_id=null, $sample_master_id=null, $quality_control_id = null) {
 	
 		// ** Parameters check **
 		// Verify parameters have been set
@@ -573,11 +573,11 @@ class QualityControlsController extends InventoryManagementAppController {
 				$this->{ $validate_model }->validate = $validate_rules;
 			}
 			
-			$submitted_data_validates = TRUE;
+			$submitted_data_validates = true;
 			
 			// Validates Fields of Master Table
 			if(!$this->QualityControl->validates($this->data['QualityControl'])){
-				$submitted_data_validates = FALSE;
+				$submitted_data_validates = false;
 			}
 			
 			// look for CUSTOM HOOKS, "validation"
@@ -594,10 +594,10 @@ class QualityControlsController extends InventoryManagementAppController {
 
 				// Save Data
 							
-				$bool_save_done = TRUE;
+				$bool_save_done = true;
 				
 				if(!$this->QualityControl->save($this->data['QualityControl'])){
-					$bool_save_done = FALSE;
+					$bool_save_done = false;
 				}
 				
 				if(!$bool_save_done){
@@ -641,8 +641,8 @@ class QualityControlsController extends InventoryManagementAppController {
 	 * @author N. Luc
 	 * @date 2008-01-28
 	 */
-	function delete($specimen_group_menu_id=NULL, $group_specimen_type=NULL, $sample_category=NULL, 
-	$collection_id=null, $sample_master_id=NULL, $quality_control_id = NULL) {
+	function delete($specimen_group_menu_id=null, $group_specimen_type=null, $sample_category=null, 
+	$collection_id=null, $sample_master_id=null, $quality_control_id = null) {
 	
 		// ** Parameters check **
 		// Verify parameters have been set
@@ -717,13 +717,13 @@ class QualityControlsController extends InventoryManagementAppController {
 		$qc_tested_aliquot_nbr = $this->QcTestedAliquot->findCount($criteria);
 		
 		if($qc_tested_aliquot_nbr > 0){
-			return FALSE;
+			return false;
 		}
 		
-		return TRUE;
+		return true;
 	}
 	
-	function listTestedAliquots($specimen_group_menu_id=NULL, $group_specimen_type=NULL, $sample_category=NULL, 
+	function listTestedAliquots($specimen_group_menu_id=null, $group_specimen_type=null, $sample_category=null, 
 	$collection_id=null, $sample_master_id=null, $quality_control_id=null) {
 
 		// ** Parameters check **
@@ -883,10 +883,10 @@ class QualityControlsController extends InventoryManagementAppController {
 		$av_sample_aliquots = 
 			$this->AliquotMaster->findCount($criteria);
 			
-		$bool_av_sample_aliquots = FALSE;
+		$bool_av_sample_aliquots = false;
 		
 		if($av_sample_aliquots > 0){
-			$bool_av_sample_aliquots = TRUE;
+			$bool_av_sample_aliquots = true;
 		}
 										
 		$this->set('bool_av_sample_aliquots', $bool_av_sample_aliquots);
@@ -903,7 +903,7 @@ class QualityControlsController extends InventoryManagementAppController {
 
 	} // listTestedAliquots
 	
-	function addTestedAliquotInBatch($specimen_group_menu_id=NULL, $group_specimen_type=NULL, $sample_category=NULL, 
+	function addTestedAliquotInBatch($specimen_group_menu_id=null, $group_specimen_type=null, $sample_category=null, 
 	$collection_id=null, $sample_master_id=null, $quality_control_id=null) {
 			
 		// ** Parameters check **
@@ -1070,7 +1070,7 @@ class QualityControlsController extends InventoryManagementAppController {
 			}
 			
 			// Run validation
-			$submitted_data_validates = TRUE;	
+			$submitted_data_validates = true;	
 			$aliquots_to_define_as_tested = array();
 					
 			foreach($this->data as $id => $new_studied_aliquot){
@@ -1081,11 +1081,11 @@ class QualityControlsController extends InventoryManagementAppController {
 					
 					// Validates Fields of Aliquot Master Table
 					if(!$this->AliquotMaster->validates($new_studied_aliquot['AliquotMaster'])){
-						$submitted_data_validates = FALSE;
+						$submitted_data_validates = false;
 					}
 					
 					if(!$this->AliquotUse->validates($new_studied_aliquot['AliquotUse'])){
-						$submitted_data_validates = FALSE;
+						$submitted_data_validates = false;
 					}
 					
 					if(empty($new_studied_aliquot['AliquotMaster']['aliquot_volume_unit']) 
@@ -1096,7 +1096,7 @@ class QualityControlsController extends InventoryManagementAppController {
 						$submitted_data_validates = false;
 					}
 					if(empty($new_studied_aliquot['AliquotUse']['used_volume'])){
-						$new_studied_aliquot['AliquotUse']['used_volume']=NULL;
+						$new_studied_aliquot['AliquotUse']['used_volume']=null;
 					}
 			
 					if($submitted_data_validates){
@@ -1129,20 +1129,20 @@ class QualityControlsController extends InventoryManagementAppController {
 				}
 					
 				// Launch Save function
-				$bool_save_done = TRUE;
+				$bool_save_done = true;
 	
 				// Parse records to save
 				foreach($aliquots_to_define_as_tested as $id_sec => $new_aliquot_to_use){
 										
 					// Save data of this aliquot
-					$aliquot_use_id = NULL;					
+					$aliquot_use_id = null;					
 					$tested_aliquot_master_id = $new_aliquot_to_use['AliquotMaster']['id'];
 
 					if(strcmp($new_aliquot_to_use['FunctionManagement']['delete_storage_data'], 'yes') == 0){
 						// Delete aliquot storage data
-						$new_aliquot_to_use['AliquotMaster']['storage_master_id'] = NULL;
-						$new_aliquot_to_use['AliquotMaster']['storage_coord_x'] = NULL;
-						$new_aliquot_to_use['AliquotMaster']['storage_coord_y'] = NULL;
+						$new_aliquot_to_use['AliquotMaster']['storage_master_id'] = null;
+						$new_aliquot_to_use['AliquotMaster']['storage_coord_x'] = null;
+						$new_aliquot_to_use['AliquotMaster']['storage_coord_y'] = null;
 					}
 					
 					// Save ALIQUOT MASTER data
@@ -1154,7 +1154,7 @@ class QualityControlsController extends InventoryManagementAppController {
 					$new_aliquot_to_use['AliquotMaster']['modified_by'] = $this->othAuth->user('id');
 					
 					if(!$this->AliquotMaster->save($new_aliquot_to_use['AliquotMaster'])){
-						$bool_save_done = FALSE;
+						$bool_save_done = false;
 					} else {
 						// Save ALIQUOT USE data
 						
@@ -1172,12 +1172,12 @@ class QualityControlsController extends InventoryManagementAppController {
 						$new_aliquot_to_use['AliquotUse']['modified_by'] = $this->othAuth->user('id');
 						
 						if(is_null($new_aliquot_to_use['AliquotMaster']['aliquot_volume_unit'])){
-							// No volume should be recorded: Set used volume to NULL
-							$new_aliquot_to_use['AliquotUse']['used_volume'] = NULL;
+							// No volume should be recorded: Set used volume to null
+							$new_aliquot_to_use['AliquotUse']['used_volume'] = null;
 						}					
 	
 						if(!$this->AliquotUse->save($new_aliquot_to_use['AliquotUse'])){
-							$bool_save_done = FALSE;
+							$bool_save_done = false;
 							
 						} else {
 							$aliquot_use_id = $this->AliquotUse->getLastInsertId();
@@ -1195,7 +1195,7 @@ class QualityControlsController extends InventoryManagementAppController {
 							$qc_aliquot_data['QcTestedAliquot']['modified_by'] = $this->othAuth->user('id');
 													
 							if(!$this->QcTestedAliquot->save($qc_aliquot_data)){
-								$bool_save_done = FALSE;
+								$bool_save_done = false;
 							} else {
 								// Update current volume of the tested aliquot
 								$this->updateAliquotCurrentVolume($tested_aliquot_master_id);
@@ -1226,7 +1226,7 @@ class QualityControlsController extends InventoryManagementAppController {
 		} // End Save Section (validation + save)
 	} 
 
-	function deleteTestedAliquot($specimen_group_menu_id=NULL, $group_specimen_type=NULL, $sample_category=NULL, 
+	function deleteTestedAliquot($specimen_group_menu_id=null, $group_specimen_type=null, $sample_category=null, 
 	$collection_id=null, $sample_master_id=null, $quality_control_id=null, $tested_aliquot_master_id = null) {
 			
 		// ** Parameters check **
@@ -1277,15 +1277,15 @@ class QualityControlsController extends InventoryManagementAppController {
 		}
 		
 		// ** Delete Record **
-		$bool_delete_tesed_aliquot = TRUE;
+		$bool_delete_tesed_aliquot = true;
 	
 		if(!$this->QcTestedAliquot->del($tested_aliquot_record['QcTestedAliquot']['id'])){
-			$bool_delete_tesed_aliquot = FALSE;		
+			$bool_delete_tesed_aliquot = false;		
 		}	
 		
 		if($bool_delete_tesed_aliquot){
 			if(!$this->AliquotUse->del($aliquot_use_id)){
-				$bool_delete_tesed_aliquot = FALSE;		
+				$bool_delete_tesed_aliquot = false;		
 			}			
 		}
 		

@@ -18,17 +18,17 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 	 * -------------------------------------------------------------------------- */	
 	
 	 function listAll($storage_master_id) {
-		if (!$storage_master_id) { $this->redirect('/pages/err_sto_no_stor_id', NULL, TRUE); }
+		if (!$storage_master_id) { $this->redirect('/pages/err_sto_no_stor_id', null, true); }
 
 		// MANAGE DATA
 		
 		// Get the storage data
 		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
-		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_stor_data', NULL, TRUE); }	
+		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_stor_data', null, true); }	
 		
 		if(!$this->Storages->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
 			// Check storage supports custom coordinates
-			$this->redirect('/pages/err_sto_no_custom_coord_allowed', NULL, TRUE); 
+			$this->redirect('/pages/err_sto_no_custom_coord_allowed', null, true); 
 		}
 
 		// Get storage coordinates
@@ -41,17 +41,17 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 	}
 	
 	function add($storage_master_id) {
-		if (!$storage_master_id) { $this->redirect('/pages/err_sto_no_stor_id', NULL, TRUE); }
+		if (!$storage_master_id) { $this->redirect('/pages/err_sto_no_stor_id', null, true); }
 				
 		// MANAGE DATA
 		
 		// Get the storage data
 		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
-		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_stor_data', NULL, TRUE); }	
+		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_stor_data', null, true); }	
 
 		if(!$this->Storages->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
 			// Check storage supports custom coordinates
-			$this->redirect('/pages/err_sto_no_custom_coord_allowed', NULL, TRUE); 
+			$this->redirect('/pages/err_sto_no_custom_coord_allowed', null, true); 
 		}
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -69,10 +69,10 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 			$this->data['StorageCoordinate']['storage_master_id'] = $storage_master_id;
 			
 			// Validates data
-			$submitted_data_validates = TRUE;
+			$submitted_data_validates = true;
 			
 			if($this->isDuplicatedValue($storage_master_id, $this->data['StorageCoordinate']['coordinate_value'])) {
-				$submitted_data_validates = FALSE;
+				$submitted_data_validates = false;
 			}
 			
 			if($submitted_data_validates) {
@@ -85,27 +85,27 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 	}
 
 	function edit($storage_master_id) {
-		$this->redirect('/pages/err_sto_system_error', NULL, TRUE);
+		$this->redirect('/pages/err_sto_system_error', null, true);
 		// Not supported: will be complex to manage order
 	}
 	
 	function detail($storage_master_id, $storage_coordinate_id) {	
-		if((!$storage_master_id) || (!$storage_coordinate_id)) { $this->redirect('/pages/err_sto_funct_param_missing', NULL, TRUE); }
+		if((!$storage_master_id) || (!$storage_coordinate_id)) { $this->redirect('/pages/err_sto_funct_param_missing', null, true); }
 
 		// MANAGE DATA
 		
 		// Get the storage data
 		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
-		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_stor_data', NULL, TRUE); }	
+		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_stor_data', null, true); }	
 
 		if(!$this->Storages->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
 			// Check storage supports custom coordinates
-			$this->redirect('/pages/err_sto_no_custom_coord_allowed', NULL, TRUE); 
+			$this->redirect('/pages/err_sto_no_custom_coord_allowed', null, true); 
 		}
 		
 		// Get the coordinate data
 		$storage_coordinate_data = $this->StorageCoordinate->find('first', array('conditions' => array('StorageCoordinate.id' => $storage_coordinate_id, 'StorageCoordinate.storage_master_id' => $storage_master_id)));
-		if(empty($storage_coordinate_data)) { $this->redirect('/pages/err_sto_no_stor_coord_data', NULL, TRUE); }		
+		if(empty($storage_coordinate_data)) { $this->redirect('/pages/err_sto_no_stor_coord_data', null, true); }		
 		$this->data = $storage_coordinate_data; 
 				
 		// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -119,22 +119,22 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 	}
 	 
 	function delete($storage_master_id, $storage_coordinate_id) {
-		if((!$storage_master_id) || (!$storage_coordinate_id)) { $this->redirect('/pages/err_sto_funct_param_missing', NULL, TRUE); }
+		if((!$storage_master_id) || (!$storage_coordinate_id)) { $this->redirect('/pages/err_sto_funct_param_missing', null, true); }
 
 		// MANAGE DATA
 		
 		// Get the storage data
 		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
-		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_stor_data', NULL, TRUE); }	
+		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_stor_data', null, true); }	
 
 		if(!$this->Storages->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
 			// Check storage supports custom coordinates
-			$this->redirect('/pages/err_sto_no_custom_coord_allowed', NULL, TRUE); 
+			$this->redirect('/pages/err_sto_no_custom_coord_allowed', null, true); 
 		}
 		
 		// Get the coordinate data
 		$storage_coordinate_data = $this->StorageCoordinate->find('first', array('conditions' => array('StorageCoordinate.id' => $storage_coordinate_id, 'StorageCoordinate.storage_master_id' => $storage_master_id)));
-		if(empty($storage_coordinate_data)) { $this->redirect('/pages/err_sto_no_stor_coord_data', NULL, TRUE); }		
+		if(empty($storage_coordinate_data)) { $this->redirect('/pages/err_sto_no_stor_coord_data', null, true); }		
 
 		// Check deletion is allowed
 		$arr_allow_deletion = $this->allowStorageCoordinateDeletion($storage_master_id, $storage_coordinate_data);
@@ -162,8 +162,8 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 	 * @param $storage_coordinate_data Storage coordinate data.
 	 * 
 	 * @return Return results as array:
-	 * 	['allow_deletion'] = TRUE/FALSE
-	 * 	['msg'] = message to display when previous field equals FALSE
+	 * 	['allow_deletion'] = true/false
+	 * 	['msg'] = message to display when previous field equals false
 	 * 
 	 * @author N. Luc
 	 * @since 2008-02-04
@@ -173,13 +173,13 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 	function allowStorageCoordinateDeletion($storage_master_id, $storage_coordinate_data){
 		// Check storage contains no chlidren storage stored within this position
 		$nbr_children_storages = $this->StorageMaster->find('count', array('conditions' => array('StorageMaster.parent_id' => $storage_master_id, 'StorageMaster.parent_storage_coord_x' => $storage_coordinate_data['StorageCoordinate']['coordinate_value']), 'recursive' => '-1'));
-		if($nbr_children_storages > 0) { return array('allow_deletion' => FALSE, 'msg' => 'children storage is stored within the storage at this position'); }
+		if($nbr_children_storages > 0) { return array('allow_deletion' => false, 'msg' => 'children storage is stored within the storage at this position'); }
 		
 		// Verify storage contains no aliquots
 		$nbr_storage_aliquots = $this->AliquotMaster->find('count', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id, 'AliquotMaster.storage_coord_x ' =>  $storage_coordinate_data['StorageCoordinate']['coordinate_value']), 'recursive' => '-1'));
-		if($nbr_storage_aliquots > 0) { return array('allow_deletion' => FALSE, 'msg' => 'aliquot is stored within the storage at this position'); }
+		if($nbr_storage_aliquots > 0) { return array('allow_deletion' => false, 'msg' => 'aliquot is stored within the storage at this position'); }
 					
-		return array('allow_deletion' => TRUE, 'msg' => '');
+		return array('allow_deletion' => true, 'msg' => '');
 	}
 	
 	/**
@@ -188,7 +188,7 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 	 * @param $storage_master_id Id of the studied storage.
 	 * @param $new_coordinate_value New coordinate value.
 	 * 
-	 * @return Return TRUE if the storage coordinate has already been set.
+	 * @return Return true if the storage coordinate has already been set.
 	 * 
 	 * @author N. Luc
 	 * @since 2008-02-04
@@ -198,13 +198,13 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 	function isDuplicatedValue($storage_master_id, $new_coordinate_value) {	
 		$nbr_coord_values = $this->StorageCoordinate->find('count', array('conditions' => array('StorageCoordinate.storage_master_id' => $storage_master_id, 'StorageCoordinate.coordinate_value' => $new_coordinate_value), 'recursive' => '-1'));
 		
-		if($nbr_coord_values == 0) { return FALSE; }
+		if($nbr_coord_values == 0) { return false; }
 
 		// The value already exists: Set the errors
 //TODO validate
 		$this->StorageCoordinate->validationErrors['dimension']	= 'coordinate must be unique for the storage';
 
-		return TRUE;		
+		return true;		
 	}
 	
 }

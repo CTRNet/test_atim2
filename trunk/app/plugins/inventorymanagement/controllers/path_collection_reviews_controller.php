@@ -6,7 +6,7 @@ class PathCollectionReviewsController extends InventoryManagementAppController {
 	var $paginate = array('PathCollectionReview'=>array('limit'=>10, 'order'=>'PathCollectionReview.path_coll_rev_code'));
 	
 	function listall ( $collection_id ) {
-		if ( !$collection_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$collection_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', null, true ); }
 		
 		$aliquot_master_list = $this->AliquotMaster->find('all', array('fields' => array('AliquotMaster.id', 'AliquotMaster.barcode'), 'order' => array('AliquotMaster.barcode')));
 		foreach ( $aliquot_master_list as $record ) {
@@ -19,7 +19,7 @@ class PathCollectionReviewsController extends InventoryManagementAppController {
 	}
 	
 	function add ( $collection_id ) {
-		if ( !$collection_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$collection_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', null, true ); }
 		
 		$aliquot_master_list = $this->AliquotMaster->find('all', array('fields' => array('AliquotMaster.id', 'AliquotMaster.barcode'), 'order' => array('AliquotMaster.barcode')));
 		foreach ( $aliquot_master_list as $record ) {
@@ -38,8 +38,8 @@ class PathCollectionReviewsController extends InventoryManagementAppController {
 	}
 	
 	function detail( $collection_id, $path_collection_review_id ) {
-		if ( !$collection_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if ( !$path_collection_review_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$collection_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', null, true ); }
+		if ( !$path_collection_review_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', null, true ); }
 		
 		$aliquot_master_list = $this->AliquotMaster->find('all', array('fields' => array('AliquotMaster.id', 'AliquotMaster.barcode'), 'order' => array('AliquotMaster.barcode')));
 		foreach ( $aliquot_master_list as $record ) {
@@ -53,8 +53,8 @@ class PathCollectionReviewsController extends InventoryManagementAppController {
 	
 	
 	function edit( $collection_id, $path_collection_review_id ) {
-		if ( !$collection_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if ( !$path_collection_review_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$collection_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', null, true ); }
+		if ( !$path_collection_review_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', null, true ); }
 		
 		$aliquot_master_list = $this->AliquotMaster->find('all', array('fields' => array('AliquotMaster.id', 'AliquotMaster.barcode'), 'order' => array('AliquotMaster.barcode')));
 		foreach ( $aliquot_master_list as $record ) {
@@ -75,8 +75,8 @@ class PathCollectionReviewsController extends InventoryManagementAppController {
 	}
 	
 	function delete( $collection_id=null, $path_collection_review_id=null ) {
-		if ( !$collection_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if ( !$path_collection_review_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$collection_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', null, true ); }
+		if ( !$path_collection_review_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', null, true ); }
 		
 		if( $this->PathCollectionReview->atim_delete( $path_collection_review_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/inventorymanagement/path_collection_reviews/listall/'.$collection_id );
@@ -135,9 +135,9 @@ class PathCollectionReviewsController extends InventoryManagementAppController {
 			$conditions = array_filter($conditions);
 			
 		//NL 20070921: Modify to add pagination
-		//list( $order, $limit, $page ) = $this->Pagination->init(NULL);
+		//list( $order, $limit, $page ) = $this->Pagination->init(null);
 		list( $order, $limit, $page ) = $this->Pagination->init($conditions);
-		$this->set( 'path_collection_reviews', $this->PathCollectionReview->findAll( $conditions, NULL, $order, $limit, $page, 1 ) );
+		$this->set( 'path_collection_reviews', $this->PathCollectionReview->findAll( $conditions, null, $order, $limit, $page, 1 ) );
 		
 		//NL 20070921: Modify aliquot barcode instead of Sample
 		
@@ -361,7 +361,7 @@ class PathCollectionReviewsController extends InventoryManagementAppController {
 	 * @param $collection_id Id of the collection.
 	 * @param $path_collection_review_id Id of the review.
 	 * 
-	 * @return Return TRUE if the review can be deleted.
+	 * @return Return true if the review can be deleted.
 	 * 
 	 * @author N. Luc
 	 * @since 2007-11-29
@@ -374,10 +374,10 @@ class PathCollectionReviewsController extends InventoryManagementAppController {
 		$aliq_review_attached_to_review = $this->ReviewMaster->findCount($criteria);
 		
 		if($aliq_review_attached_to_review > 0){
-			return FALSE;
+			return false;
 		}
 	
-		return TRUE;
+		return true;
 	}
 */
 }

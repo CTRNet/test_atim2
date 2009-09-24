@@ -55,7 +55,7 @@ class InventorymanagementAppController extends AppController
 			$end = $this->getTimeStamp($end_date);
 			$spent_time = $end - $start;
 			
-			if(($start === FALSE)||($end === FALSE)){
+			if(($start === false)||($end === false)){
 				// Error in the date
 				$arr_spent_time['message'] = 'error: unable to define date';
 			} else if($spent_time < 0){
@@ -134,7 +134,7 @@ class InventorymanagementAppController extends AppController
 				return $this->Sops->getSopList();
 				break;
 			default:
-				$this->redirect('/pages/err_inv_system_error', NULL, TRUE); 
+				$this->redirect('/pages/err_inv_system_error', null, true); 
 		}
 	}
 	
@@ -180,7 +180,7 @@ class InventorymanagementAppController extends AppController
 			$arr_study_summary_id = array();
 		}
 		
-		$arr_study_summary_id = array(NULL => 'N/A') + $arr_study_summary_id;
+		$arr_study_summary_id = array(null => 'N/A') + $arr_study_summary_id;
 				
 		return $arr_study_summary_id;
 	}
@@ -228,8 +228,8 @@ class InventorymanagementAppController extends AppController
 	/**
 	 * Update the current volume of a aliquot.
 	 * 
-	 * When the intial volume is NULL, the current volume will be set to 
-	 * NULL but the status won't be changed.
+	 * When the intial volume is null, the current volume will be set to 
+	 * null but the status won't be changed.
 	 * 
 	 * When the new current volume is equal to 0 and the status is 'available',
 	 * the status will be automatically change to 'not available' 
@@ -266,8 +266,8 @@ class InventorymanagementAppController extends AppController
 		$initial_volume = $tmp_aliquot_data['AliquotMaster']['initial_volume'];
 		$current_volume = $tmp_aliquot_data['AliquotMaster']['current_volume'];
 		
-		$new_current_volume = NULL;
-		$update = FALSE;
+		$new_current_volume = null;
+		$update = false;
 		
 		if(empty($initial_volume)){	
 			// Initial_volume is null
@@ -277,10 +277,10 @@ class InventorymanagementAppController extends AppController
 				return;	
 			} else {
 				// Update current volume but don't change status of the aliquot
-				// We consider that if the user set the intial volume to NULL, he should 
+				// We consider that if the user set the intial volume to null, he should 
 				// have managed the status.
 				$new_current_volume = $initial_volume;
-				$update = TRUE;
+				$update = true;
 			}
 			
 		} else if(is_numeric($initial_volume) && ($initial_volume == 0)) {
@@ -294,7 +294,7 @@ class InventorymanagementAppController extends AppController
 				// We consider that if the user set the intial volume to 0, he should 
 				// have managed the status.
 				$new_current_volume = $initial_volume;
-				$update = TRUE;
+				$update = true;
 			}
 			
 		}else {
@@ -336,15 +336,15 @@ class InventorymanagementAppController extends AppController
 					// Change status and reason only when this one was 'available'
 					$aliquot_status = 'not available';
 					$aliquot_status_reason = 'empty';
-					$update = TRUE;
+					$update = true;
 				}
 				
 			}
 			
 			if(!is_numeric($current_volume)){
-				$update = TRUE;					
+				$update = true;					
 			} else if($current_volume != $new_current_volume){
-				$update = TRUE;	
+				$update = true;	
 			}
 		}
 			

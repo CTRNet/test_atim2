@@ -25,7 +25,7 @@ class CollectionsController extends InventorymanagementAppController {
 		
 		// MANAGE INDEX FORM
 		
-		$_SESSION['ctrapp_core']['search'] = NULL; // clear SEARCH criteria
+		$_SESSION['ctrapp_core']['search'] = null; // clear SEARCH criteria
 		unset($_SESSION['InventoryManagement']['Filter']); // clear Filter
 		
 		// Set list of banks
@@ -58,12 +58,12 @@ class CollectionsController extends InventorymanagementAppController {
 	}
 	
 	function detail($collection_id) {
-		if(!$collection_id) { $this->redirect('/pages/err_inv_coll_no_id', NULL, TRUE); }
+		if(!$collection_id) { $this->redirect('/pages/err_inv_coll_no_id', null, true); }
 		
 		// MANAGE DATA
 
 		$collection_data = $this->Collection->find('first', array('conditions' => array('Collection.id' => $collection_id), 'recursive' => '-1'));
-		if(empty($collection_data)) { $this->redirect('/pages/err_sto_no_stor_data', NULL, TRUE); }
+		if(empty($collection_data)) { $this->redirect('/pages/err_sto_no_stor_data', null, true); }
 		$this->data = $collection_data;
 		
 		// Calulate spent time between collection and reception
@@ -105,12 +105,12 @@ class CollectionsController extends InventorymanagementAppController {
 	}
 	
 	function edit($collection_id) {
-		if(!$collection_id) { $this->redirect('/pages/err_inv_coll_no_id', NULL, TRUE); }
+		if(!$collection_id) { $this->redirect('/pages/err_inv_coll_no_id', null, true); }
 		
 		// MANAGE DATA
 
 		$collection_data = $this->Collection->find('first', array('conditions' => array('Collection.id' => $collection_id), 'recursive' => '-1'));
-		if(empty($collection_data)) { $this->redirect('/pages/err_sto_no_stor_data', NULL, TRUE); }
+		if(empty($collection_data)) { $this->redirect('/pages/err_sto_no_stor_data', null, true); }
 				
 		// Set list of banks
 		$this->set('banks', $this->getBankList());
@@ -136,11 +136,11 @@ class CollectionsController extends InventorymanagementAppController {
 	}
 	
 	function delete($collection_id) {
-		if(!$collection_id) { $this->redirect('/pages/err_inv_coll_no_id', NULL, TRUE); }
+		if(!$collection_id) { $this->redirect('/pages/err_inv_coll_no_id', null, true); }
 		
 		// Get collection data
 		$collection_data = $this->Collection->find('first', array('conditions' => array('Collection.id' => $collection_id), 'recursive' => '-1'));
-		if(empty($collection_data)) { $this->redirect('/pages/err_sto_no_stor_data', NULL, TRUE); }	
+		if(empty($collection_data)) { $this->redirect('/pages/err_sto_no_stor_data', null, true); }	
 
 		// Check deletion is allowed
 		$arr_allow_deletion = $this->allowCollectionDeletion($collection_id);
@@ -168,8 +168,8 @@ class CollectionsController extends InventorymanagementAppController {
 	 * @param $collection_id Id of the studied collection.
 	 * 
 	 * @return Return results as array:
-	 * 	['allow_deletion'] = TRUE/FALSE
-	 * 	['msg'] = message to display when previous field equals FALSE
+	 * 	['allow_deletion'] = true/false
+	 * 	['msg'] = message to display when previous field equals false
 	 * 
 	 * @author N. Luc
 	 * @since 2007-10-16
@@ -178,18 +178,18 @@ class CollectionsController extends InventorymanagementAppController {
 	function allowCollectionDeletion($collection_id){
 		// Check collection has no sample	
 		$returned_nbr = $this->SampleMaster->find('count', array('conditions' => array('SampleMaster.collection_id' => $collection_id), 'recursive' => '-1'));
-		if($returned_nbr > 0) { return array('allow_deletion' => FALSE, 'msg' => 'sample exists within the deleted collection'); }
+		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'sample exists within the deleted collection'); }
 		
 		// Check collection has no aliquot	
 		$returned_nbr = $this->AliquotMaster->find('count', array('conditions' => array('AliquotMaster.collection_id' => $collection_id), 'recursive' => '-1'));
-		if($returned_nbr > 0) { return array('allow_deletion' => FALSE, 'msg' => 'aliquot exists within the deleted collection'); }
+		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'aliquot exists within the deleted collection'); }
 
 		// Check collection has not been linked to review	
 		$returned_nbr = $this->PathCollectionReview->find('count', array('conditions' => array('PathCollectionReview.collection_id' => $collection_id), 'recursive' => '-1'));
-		if($returned_nbr > 0) { return array('allow_deletion' => FALSE, 'msg' => 'review exists for the deleted collection'); }
+		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'review exists for the deleted collection'); }
 
 		$returned_nbr = $this->ReviewMaster->find('count', array('conditions' => array('ReviewMaster.collection_id' => $collection_id), 'recursive' => '-1'));
-		if($returned_nbr > 0) { return array('allow_deletion' => FALSE, 'msg' => 'review exists for the deleted collection'); }
+		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'review exists for the deleted collection'); }
 		
 		// Check Collection has not been linked to a participant, consent or diagnosis
 		$criteria = 'ClinicalCollectionLink.collection_id = "'.$collection_id.'" ';
@@ -197,9 +197,9 @@ class CollectionsController extends InventorymanagementAppController {
 		$criteria .= 'OR ClinicalCollectionLink.diagnosis_id != 0 ';
 		$criteria .= 'OR ClinicalCollectionLink.consent_id != 0)';		
 		$returned_nbr = $this->ClinicalCollectionLink->find('count', array('conditions' => array($criteria), 'recursive' => '-1'));
-		if($returned_nbr > 0) { return array('allow_deletion' => FALSE, 'msg' => 'the deleted collection is linked to participant'); }
+		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'the deleted collection is linked to participant'); }
 
-		return array('allow_deletion' => TRUE, 'msg' => '');
+		return array('allow_deletion' => true, 'msg' => '');
 	}
 	
 	/**
