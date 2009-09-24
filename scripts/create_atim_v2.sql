@@ -11915,7 +11915,7 @@ CREATE TABLE `std_boxs_revs` (
   KEY `storage_master_id` (`storage_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE `std_box81_1As` (
+CREATE TABLE `std_racks` (
   `id` int(11) NOT NULL auto_increment,
   `storage_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -11928,91 +11928,7 @@ CREATE TABLE `std_box81_1As` (
   KEY `storage_master_id` (`storage_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE `std_box81_1As_revs` (
-  `id` int(11) NOT NULL,
-  `storage_master_id` int(11) default NULL,
-  `created` datetime NOT NULL default '0000-00-00 00:00:00',
-  `created_by` varchar(50) NOT NULL default '',
-  `modified` datetime default NULL,
-  `modified_by` varchar(50) default NULL,
-  `version_id` int(11) NOT NULL AUTO_INCREMENT,
-  `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
-  `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `storage_master_id` (`storage_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
-CREATE TABLE `std_box81s` (
-  `id` int(11) NOT NULL auto_increment,
-  `storage_master_id` int(11) default NULL,
-  `created` datetime NOT NULL default '0000-00-00 00:00:00',
-  `created_by` varchar(50) NOT NULL default '',
-  `modified` datetime default NULL,
-  `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
-  `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `storage_master_id` (`storage_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
-CREATE TABLE `std_box81s_revs` (
-  `id` int(11) NOT NULL,
-  `storage_master_id` int(11) default NULL,
-  `created` datetime NOT NULL default '0000-00-00 00:00:00',
-  `created_by` varchar(50) NOT NULL default '',
-  `modified` datetime default NULL,
-  `modified_by` varchar(50) default NULL,
-  `version_id` int(11) NOT NULL AUTO_INCREMENT,
-  `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
-  `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `storage_master_id` (`storage_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
-CREATE TABLE `std_rack16s` (
-  `id` int(11) NOT NULL auto_increment,
-  `storage_master_id` int(11) default NULL,
-  `created` datetime NOT NULL default '0000-00-00 00:00:00',
-  `created_by` varchar(50) NOT NULL default '',
-  `modified` datetime default NULL,
-  `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
-  `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `storage_master_id` (`storage_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
-CREATE TABLE `std_rack16s_revs` (
-  `id` int(11) NOT NULL,
-  `storage_master_id` int(11) default NULL,
-  `created` datetime NOT NULL default '0000-00-00 00:00:00',
-  `created_by` varchar(50) NOT NULL default '',
-  `modified` datetime default NULL,
-  `modified_by` varchar(50) default NULL,
-  `version_id` int(11) NOT NULL AUTO_INCREMENT,
-  `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
-  `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `storage_master_id` (`storage_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
-CREATE TABLE `std_rack24s` (
-  `id` int(11) NOT NULL auto_increment,
-  `storage_master_id` int(11) default NULL,
-  `created` datetime NOT NULL default '0000-00-00 00:00:00',
-  `created_by` varchar(50) NOT NULL default '',
-  `modified` datetime default NULL,
-  `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
-  `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `storage_master_id` (`storage_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
-CREATE TABLE `std_rack24s_revs` (
+CREATE TABLE `std_racks_revs` (
   `id` int(11) NOT NULL,
   `storage_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -12055,117 +11971,6 @@ CREATE TABLE `std_shelfs_revs` (
   KEY `storage_master_id` (`storage_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE `std_rack11s` (
-  `id` int(11) NOT NULL auto_increment,
-  `storage_master_id` int(11) default NULL,
-  `created` datetime NOT NULL default '0000-00-00 00:00:00',
-  `created_by` varchar(50) NOT NULL default '',
-  `modified` datetime default NULL,
-  `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
-  `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `storage_master_id` (`storage_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
-CREATE TABLE `std_rack11s_revs` (
-  `id` int(11) NOT NULL,
-  `storage_master_id` int(11) default NULL,
-  `created` datetime NOT NULL default '0000-00-00 00:00:00',
-  `created_by` varchar(50) NOT NULL default '',
-  `modified` datetime default NULL,
-  `modified_by` varchar(50) default NULL,
-  `version_id` int(11) NOT NULL AUTO_INCREMENT,
-  `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
-  `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `storage_master_id` (`storage_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
-CREATE TABLE `std_rack9s` (
-  `id` int(11) NOT NULL auto_increment,
-  `storage_master_id` int(11) default NULL,
-  `created` datetime NOT NULL default '0000-00-00 00:00:00',
-  `created_by` varchar(50) NOT NULL default '',
-  `modified` datetime default NULL,
-  `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
-  `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `storage_master_id` (`storage_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
-CREATE TABLE `std_rack9s_revs` (
-  `id` int(11) NOT NULL,
-  `storage_master_id` int(11) default NULL,
-  `created` datetime NOT NULL default '0000-00-00 00:00:00',
-  `created_by` varchar(50) NOT NULL default '',
-  `modified` datetime default NULL,
-  `modified_by` varchar(50) default NULL,
-  `version_id` int(11) NOT NULL AUTO_INCREMENT,
-  `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
-  `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `storage_master_id` (`storage_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
-CREATE TABLE `std_box25s` (
-  `id` int(11) NOT NULL auto_increment,
-  `storage_master_id` int(11) default NULL,
-  `created` datetime NOT NULL default '0000-00-00 00:00:00',
-  `created_by` varchar(50) NOT NULL default '',
-  `modified` datetime default NULL,
-  `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
-  `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `storage_master_id` (`storage_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
-CREATE TABLE `std_box25s_revs` (
-  `id` int(11) NOT NULL,
-  `storage_master_id` int(11) default NULL,
-  `created` datetime NOT NULL default '0000-00-00 00:00:00',
-  `created_by` varchar(50) NOT NULL default '',
-  `modified` datetime default NULL,
-  `modified_by` varchar(50) default NULL,
-  `version_id` int(11) NOT NULL AUTO_INCREMENT,
-  `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
-  `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `storage_master_id` (`storage_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
-CREATE TABLE `std_box100s` (
-  `id` int(11) NOT NULL auto_increment,
-  `storage_master_id` int(11) default NULL,
-  `created` datetime NOT NULL default '0000-00-00 00:00:00',
-  `created_by` varchar(50) NOT NULL default '',
-  `modified` datetime default NULL,
-  `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
-  `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `storage_master_id` (`storage_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
-CREATE TABLE `std_box100s_revs` (
-  `id` int(11) NOT NULL,
-  `storage_master_id` int(11) default NULL,
-  `created` datetime NOT NULL default '0000-00-00 00:00:00',
-  `created_by` varchar(50) NOT NULL default '',
-  `modified` datetime default NULL,
-  `modified_by` varchar(50) default NULL,
-  `version_id` int(11) NOT NULL AUTO_INCREMENT,
-  `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
-  `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `storage_master_id` (`storage_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 -- --------------------------------------------------------
 
 -- 
@@ -12370,16 +12175,16 @@ INSERT INTO `storage_controls` (`id`, `storage_type`, `storage_type_code`, `coor
 (5, 'fridge', 'FRI', NULL, NULL, NULL, NULL, NULL, NULL, 'TRUE', 'FALSE', 'active', 'std_undetail_stg_with_tmp', NULL, 'std_fridges', 0),
 (6, 'freezer', 'FRE', NULL, NULL, NULL, NULL, NULL, NULL, 'TRUE', 'FALSE', 'active', 'std_undetail_stg_with_tmp', NULL, 'std_freezers', 0),
 (8, 'box', 'B', NULL, NULL, NULL, NULL, NULL, NULL, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', NULL, 'std_boxs', 0),
-(9, 'box81 1A-9I', 'B2D81', 'column', 'integer', 9, 'row', 'alphabetical', 9, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_2_dim_position_selection', 'std_box81_1As', 0),
-(10, 'box81', 'B81', 'position', 'integer', 81, NULL, NULL, NULL, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_box81s', 0),
-(11, 'rack16', 'R2D16', 'column', 'alphabetical', 4, 'row', 'integer', 4, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_2_dim_position_selection', 'std_rack16s', 0),
-(12, 'rack10', 'R10', 'position', 'integer', 10, NULL, NULL, NULL, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_rack10s', 0),
-(13, 'rack24', 'R24', 'position', 'integer', 24, NULL, NULL, NULL, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_rack24s', 0),
+(9, 'box81 1A-9I', 'B2D81', 'column', 'integer', 9, 'row', 'alphabetical', 9, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_2_dim_position_selection', 'std_boxs', 0),
+(10, 'box81', 'B81', 'position', 'integer', 81, NULL, NULL, NULL, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_boxs', 0),
+(11, 'rack16', 'R2D16', 'column', 'alphabetical', 4, 'row', 'integer', 4, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_2_dim_position_selection', 'std_racks', 0),
+(12, 'rack10', 'R10', 'position', 'integer', 10, NULL, NULL, NULL, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_racks', 0),
+(13, 'rack24', 'R24', 'position', 'integer', 24, NULL, NULL, NULL, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_racks', 0),
 (14, 'shelf', 'SH', NULL, NULL, NULL, NULL, NULL, NULL, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', NULL, 'std_shelfs', 0),
-(15, 'rack11', 'R11', 'position', 'integer', 11, NULL, NULL, NULL, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_rack11s', 0),
-(16, 'rack9', 'R9', 'position', 'integer', 9, NULL, NULL, NULL, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_rack9s', 0),
-(17, 'box25', 'B25', 'position', 'integer', 25, NULL, NULL, NULL, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_box25s', 0),
-(18, 'box100 1A-20E', 'B2D100', 'column', 'integer', 20, 'row', 'alphabetical', 5, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_2_dim_position_selection', 'std_box100s', 0),
+(15, 'rack11', 'R11', 'position', 'integer', 11, NULL, NULL, NULL, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_racks', 0),
+(16, 'rack9', 'R9', 'position', 'integer', 9, NULL, NULL, NULL, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_racks', 0),
+(17, 'box25', 'B25', 'position', 'integer', 25, NULL, NULL, NULL, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_boxs', 0),
+(18, 'box100 1A-20E', 'B2D100', 'column', 'integer', 20, 'row', 'alphabetical', 5, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_2_dim_position_selection', 'std_boxs', 0),
 (19, 'TMA-blc 23X15', 'TMA345', 'column', 'integer', 23, 'row', 'integer', 15, 'FALSE', 'TRUE', 'active', 'std_tma_blocks', 'std_2_dim_position_selection', 'std_tma_blocks', 0),
 (20, 'TMA-blc 29X21', 'TMA609', 'column', 'integer', 29, 'row', 'integer', 21, 'FALSE', 'TRUE', 'active', 'std_tma_blocks', 'std_2_dim_position_selection', 'std_tma_blocks', 0);
 
