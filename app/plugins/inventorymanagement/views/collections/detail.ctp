@@ -1,9 +1,15 @@
 <?php 
-	
+
+	$search_type_links = array();
+	$search_type_links['collection'] = '/inventorymanagement/collections/index/';
+	$search_type_links['sample'] = '/inventorymanagement/sample_masters/index/';
+	$search_type_links['aliquot'] = '/underdevelopment/';
+		
 	$structure_links = array(
 		'bottom'=>array(
 			'edit' => '/inventorymanagement/collections/edit/' . $atim_menu_variables['Collection.id'], 
-			'delete' => '/inventorymanagement/collections/delete/' . $atim_menu_variables['Collection.id']
+			'delete' => '/inventorymanagement/collections/delete/' . $atim_menu_variables['Collection.id'],
+			'search' => $search_type_links
 		)
 	);
 	

@@ -28,7 +28,7 @@ class StoragelayoutAppController extends AppController {
 				return $this->Sops->getSopList();
 				break;
 			default:
-				$this->redirect('/pages/err_sto_system_error', NULL, TRUE); 
+				$this->redirect('/pages/err_sto_system_error', null, true); 
 		}
 	}
 	

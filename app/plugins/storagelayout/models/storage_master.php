@@ -19,15 +19,15 @@ class StorageMaster extends StoragelayoutAppModel {
 			
 			$return = array(
 				'Summary' => array(
-					'menu' => array(NULL, (__($result['StorageMaster']['storage_type'], TRUE) . ' : ' . $result['StorageMaster']['short_label'])),
-					'title' => array(NULL, (__($result['StorageMaster']['storage_type'], TRUE) . ' : ' . $result['StorageMaster']['short_label'])),
+					'menu' => array(null, (__($result['StorageMaster']['storage_type'], true) . ' : ' . $result['StorageMaster']['short_label'])),
+					'title' => array(null, (__($result['StorageMaster']['storage_type'], true) . ' : ' . $result['StorageMaster']['short_label'])),
 					
 					'description' => array(
-						__('storage type', TRUE) => __($result['StorageMaster']['storage_type'], TRUE),
-						__('storage short label', TRUE) => $result['StorageMaster']['short_label'],
-						__('storage selection label', TRUE) => $result['StorageMaster']['selection_label'],
-						__('code', TRUE) =>	$result['StorageMaster']['code'],
-						__('temperature', TRUE) =>	$result['StorageMaster']['temperature'] . ' ' . __($result['StorageMaster']['temp_unit'], TRUE)
+						__('storage type', true) => __($result['StorageMaster']['storage_type'], true),
+						__('storage short label', true) => $result['StorageMaster']['short_label'],
+						__('storage selection label', true) => $result['StorageMaster']['selection_label'],
+						__('code', true) =>	$result['StorageMaster']['code'],
+						__('temperature', true) =>	$result['StorageMaster']['temperature'] . ' ' . __($result['StorageMaster']['temp_unit'], true)
 					)
 				)
 			);

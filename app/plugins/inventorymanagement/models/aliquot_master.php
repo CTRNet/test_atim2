@@ -17,14 +17,14 @@ class AliquotMaster extends InventoryManagementAppModel {
 			
 			$return = array(
 				'Summary'	 => array(
-					'menu'	        	=> array( NULL, __($result['AliquotMaster']['barcode'], TRUE) ),
-					'title'		  		=> array( NULL, __($result['AliquotMaster']['barcode'], TRUE) ),
+					'menu'	        	=> array( null, __($result['AliquotMaster']['barcode'], true) ),
+					'title'		  		=> array( null, __($result['AliquotMaster']['barcode'], true) ),
 
 					'description'		=> array(
-						__('product code', TRUE)=> __($result['AliquotMaster']['product_code'], TRUE),
-						__('type', TRUE)	    => __($result['AliquotMaster']['aliquot_type'], TRUE),
-						__('category', TRUE)	=> __($result['AliquotMaster']['current_volume'].' '.$result['AliquotMaster']['aliquot_volume_unit'], TRUE),
-						__('status', TRUE)		=> __($result['AliquotMaster']['status'], TRUE)
+						__('product code', true)=> __($result['AliquotMaster']['product_code'], true),
+						__('type', true)	    => __($result['AliquotMaster']['aliquot_type'], true),
+						__('category', true)	=> __($result['AliquotMaster']['current_volume'].' '.$result['AliquotMaster']['aliquot_volume_unit'], true),
+						__('status', true)		=> __($result['AliquotMaster']['status'], true)
 					)
 				)
 			);

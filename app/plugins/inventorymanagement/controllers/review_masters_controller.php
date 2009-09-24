@@ -35,7 +35,7 @@ class ReviewMastersController extends InventoryManagementAppController {
 		// nothing...
 	}
 
-	function listall($menu_id = NULL, $review_sample_group = NULL, $collection_id = null) {
+	function listall($menu_id = null, $review_sample_group = null, $collection_id = null) {
 
 		// set MENU varible for echo on VIEW 
 		$ctrapp_menu[] = $this->Menus->tabs( 'inv_CAN_00', 'inv_CAN_23', $collection_id );
@@ -78,7 +78,7 @@ class ReviewMastersController extends InventoryManagementAppController {
 		$criteria = array_filter($criteria);
 
 		list ($order, $limit, $page) = $this->Pagination->init($criteria);
-		$this->set('review_masters', $this->ReviewMaster->findAll($criteria, NULL, $order, $limit, $page));
+		$this->set('review_masters', $this->ReviewMaster->findAll($criteria, null, $order, $limit, $page));
 			
 		// Get existing report that could be created for this type of collection group
 		$conditions = array ();
@@ -99,7 +99,7 @@ class ReviewMastersController extends InventoryManagementAppController {
 		
 	}
 
-	function detail($menu_id = NULL, $review_sample_group = NULL, $collection_id = null, $review_master_id = null) {
+	function detail($menu_id = null, $review_sample_group = null, $collection_id = null, $review_master_id = null) {
 
 		// set MENU varible for echo on VIEW 
 		$ctrapp_menu[] = $this->Menus->tabs('inv_CAN_00', 'inv_CAN_23', $collection_id);
@@ -173,7 +173,7 @@ class ReviewMastersController extends InventoryManagementAppController {
 		
 	}
 
-	function add($menu_id = NULL, $review_sample_group = NULL, $collection_id = null, $review_control_id = null) {
+	function add($menu_id = null, $review_sample_group = null, $collection_id = null, $review_control_id = null) {
 
 		if (isset ($this->params['form']['review_control_id'])) {
 			// get REVIEWCONTROL ID from LISTALL add form submit 
@@ -260,7 +260,7 @@ class ReviewMastersController extends InventoryManagementAppController {
 			
 				// Validates Fields
 				if(!$this->ReviewDetail->validates($this->data['ReviewDetail'])){
-					$submitted_data_validates = FALSE;
+					$submitted_data_validates = false;
 				}		
 			}
 			
@@ -278,15 +278,15 @@ class ReviewMastersController extends InventoryManagementAppController {
 
 				// ** Save Data **
 							
-				$bool_save_done = TRUE;
+				$bool_save_done = true;
 		
 				// Save MASTER data
-				$review_master_id = NULL;
+				$review_master_id = null;
 				
 				if($this->ReviewMaster->save($this->data['ReviewMaster'])){
 					$review_master_id = $this->ReviewMaster->getLastInsertId();
 				} else {
-					$bool_save_done = FALSE;
+					$bool_save_done = false;
 				}
 				
 				//Save Specimen or Derivative Data
@@ -297,7 +297,7 @@ class ReviewMastersController extends InventoryManagementAppController {
 				
 					// save DerivativeDetail data 
 					if(!$this->ReviewDetail->save($this->data['ReviewDetail'])){
-						$bool_save_done = FALSE;
+						$bool_save_done = false;
 					}
 					
 				}
@@ -317,7 +317,7 @@ class ReviewMastersController extends InventoryManagementAppController {
 
 	} // add
 
-	function edit($menu_id = NULL, $review_sample_group = NULL, $collection_id = null, $review_master_id = null) {
+	function edit($menu_id = null, $review_sample_group = null, $collection_id = null, $review_master_id = null) {
 
 		// set MENU varible for echo on VIEW 
 		$ctrapp_menu[] = $this->Menus->tabs('inv_CAN_00', 'inv_CAN_23', $collection_id);
@@ -401,11 +401,11 @@ class ReviewMastersController extends InventoryManagementAppController {
 				$this->{ $validate_model }->validate = $validate_rules;
 			}
 			
-			$submitted_data_validates = TRUE;		
+			$submitted_data_validates = true;		
 
 			// Validates Fields of Master Table
 			if(!$this->ReviewMaster->validates($this->data['ReviewMaster'])){
-				$submitted_data_validates = FALSE;
+				$submitted_data_validates = false;
 			}
 			
 			if(isset($this->data['ReviewDetail'])){
@@ -413,7 +413,7 @@ class ReviewMastersController extends InventoryManagementAppController {
 				
 				// Validates Fields of Details Table
 				if(!$this->ReviewDetail->validates($this->data['ReviewDetail'])){
-					$submitted_data_validates = FALSE;
+					$submitted_data_validates = false;
 				}		
 			}
 			
@@ -431,11 +431,11 @@ class ReviewMastersController extends InventoryManagementAppController {
 				
 				// ** Save Data **
 							
-				$bool_save_done = TRUE;
+				$bool_save_done = true;
 		
 				// Save MASTER data
 				if(!$this->ReviewMaster->save($this->data['ReviewMaster'])){
-					$bool_save_done = FALSE;
+					$bool_save_done = false;
 				}
 				
 				if($bool_save_done && isset($this->data['ReviewDetail'])){			
@@ -443,7 +443,7 @@ class ReviewMastersController extends InventoryManagementAppController {
 					
 					// Save DETAIL data 
 					if(!$this->ReviewDetail->save($this->data['ReviewDetail'])){
-						$bool_save_done = FALSE;
+						$bool_save_done = false;
 					}
 					
 				}
@@ -463,7 +463,7 @@ class ReviewMastersController extends InventoryManagementAppController {
 	} // edit
 
 
-	function delete($menu_id = NULL, $review_sample_group = NULL, $collection_id = null, $review_master_id = null) {
+	function delete($menu_id = null, $review_sample_group = null, $collection_id = null, $review_master_id = null) {
 
 		// read REVIEWMASTER info
 		$this->ReviewMaster->id = $review_master_id;
@@ -500,14 +500,14 @@ class ReviewMastersController extends InventoryManagementAppController {
 		}
 
 		// delete MASTER/DETAIL rows 
-		$bool_del_error = FALSE;
+		$bool_del_error = false;
 		
 		if($this->ReviewMaster->del($review_master_id)) {
 			if(!$this->ReviewDetail->del($review_master_id)) {
-				$bool_del_error = TRUE;
+				$bool_del_error = true;
 			}			
 		} else {
-			$bool_del_error = TRUE;
+			$bool_del_error = true;
 		}
 
 		if($bool_del_error){

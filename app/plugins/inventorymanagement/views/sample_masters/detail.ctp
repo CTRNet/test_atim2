@@ -10,7 +10,7 @@
 	// Create array of derivative type that could be created from studied sample for the ADD button
 	$add_links = array();
 	foreach($allowed_derivative_type as $sample_control) {
-		$add_links[$sample_control['SampleControl']['sample_type']] = '/inventorymanagement/sample_masters/add/' . '.....' . $sample_control['SampleControl']['id'];
+		$add_links[$sample_control['SampleControl']['sample_type']] = '/inventorymanagement/sample_masters/add/' . $atim_menu_variables['Collection.id'] . '/' . $sample_control['SampleControl']['id'] . '/' . $atim_menu_variables['SampleMaster.id'];
 	}		
 	if(empty($add_links)) {
 		$add_links = '/underdevelopment/';
@@ -31,7 +31,12 @@
 		$structure_links['bottom']['all sample data'] = '/inventorymanagement/sample_masters/detail/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'];
 	} else {
 		// General detail form display
-		$structure_links['bottom']['search'] = '/inventorymanagement/sample_masters/index/';
+		$search_type_links = array();
+		$search_type_links['collection'] = '/inventorymanagement/collections/index/';
+		$search_type_links['sample'] = '/inventorymanagement/sample_masters/index/';
+		$search_type_links['aliquot'] = '/underdevelopment/';
+	
+		$structure_links['bottom']['search'] = $search_type_links;
 	}
 
 	$structure_override = array();
