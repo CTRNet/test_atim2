@@ -31,20 +31,15 @@ class Collection extends InventorymanagementAppModel {
 		return $return;
 	}
 	
-	function treeViewSummary($variables=array()) {
+	function contentSummary($variables=array()) {
 		$return = false;
 		
-		if(isset($variables['Collection.id'])) {
-			$filter_value = 'all content';
-			if(isset($variables['filter_value'])) {
-				$filter_value = __($variables['filter_value'], true);
-			}
-			
+		if(isset($variables['Collection.id']) && isset($variables['filter_value'])) {
 			$return = array(
 				'Summary' => array(
-					'menu' => array(null, $filter_value),
+					'menu' => array(null, __($variables['filter_value'], true),
 					'title' => false,
-					'description'=> false));	
+					'description'=> false)));	
 		}
 		
 		return $return;
