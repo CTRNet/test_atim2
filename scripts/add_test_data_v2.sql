@@ -327,95 +327,63 @@ INSERT INTO `tma_slides_revs` (`id`, `std_tma_block_id`, `barcode`, `product_cod
 -- Collections Test Data
 
 DELETE FROM `collections`;
-INSERT INTO `collections` (`id`, `acquisition_label`, `bank_id`, `collection_site`, `collection_datetime`, `reception_by`, `reception_datetime`, `sop_master_id`, `collection_property`, `collection_notes`, `created`, `created_by`, `modified`, `modified_by`) VALUES (1, 'test', NULL, NULL, '2008-12-08 09:53:00', NULL, '2008-12-08 09:53:00', NULL, 'participant collection', NULL, '2008-12-08 09:53:48', '1', '2008-12-08 09:53:48', '1'),
-(2, '123', NULL, NULL, NULL, 'Joe', NULL, NULL, 'participant collection', NULL, '2009-01-15 12:08:27', '1', '2009-01-15 12:08:27', '1'),
-(3, 'MB0309-01', NULL, NULL, '2009-03-12 15:42:00', 'Brenda', '2009-03-12 15:42:00', NULL, 'participant collection', NULL, '2009-03-12 15:42:48', '1', '2009-03-12 15:42:48', '1'),
-(4, 'as', NULL, NULL, '0000-00-00 00:00:00', NULL, '2009-05-20 10:28:00', NULL, 'participant collection', NULL, '2009-05-20 10:28:43', '1', '2009-05-20 10:28:43', '1'),
-(5, 'H03-4647', NULL, NULL, '2009-05-26 09:56:00', 'Mai', '2003-06-06 09:56:00', NULL, 'participant collection', NULL, '2009-05-26 09:56:07', '1', '2009-05-26 09:56:07', '1'),
-(6, '476457', NULL, NULL, '2009-05-28 09:39:00', 'Dr. John Doe', '2009-05-28 09:39:00', NULL, 'participant collection', NULL, '2009-05-28 09:39:17', '1', '2009-05-28 09:39:17', '1');
+DELETE FROM `collections_revs`;
+INSERT INTO `collections` (`id`, `acquisition_label`, `bank_id`, `collection_site`, `collection_datetime`, `reception_by`, `reception_datetime`, `sop_master_id`, `collection_property`, `collection_notes`, `erlab_number`, `mb_tbnumber`, `path_report_num`, `protected`, `case_type`, `case_other`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
+(1, 'Col_demo_1', 1, 'general hospital', '2009-09-25 01:29:00', '', '2009-09-25 03:35:00', NULL, 'participant collection', '', NULL, NULL, NULL, NULL, NULL, NULL, '2009-09-25 14:44:39', '1', '2009-09-25 14:44:39', '1', 0, NULL);
+INSERT INTO `collections_revs` (`id`, `acquisition_label`, `bank`, `collection_site`, `collection_datetime`, `reception_by`, `reception_datetime`, `sop_master_id`, `collection_property`, `collection_notes`, `erlab_number`, `mb_tbnumber`, `path_report_num`, `protected`, `case_type`, `case_other`, `created`, `created_by`, `modified`, `modified_by`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
+(1, 'Col_demo_1', NULL, 'general hospital', '2009-09-25 01:29:00', '', '2009-09-25 03:35:00', NULL, 'participant collection', '', NULL, NULL, NULL, NULL, NULL, NULL, '2009-09-25 14:44:39', '1', '2009-09-25 14:44:39', '1', 1, '2009-09-25 14:44:39', 0, NULL);
+
+-- Samples Test Data
 
 DELETE FROM `sample_masters`;
-INSERT INTO `sample_masters` (`id`, `sample_code`, `sample_category`, `sample_control_id`, `sample_type`, `initial_specimen_sample_id`, `initial_specimen_sample_type`, `collection_id`, `parent_id`, `sop_master_id`, `product_code`, `is_problematic`, `notes`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES (1, 'PW - 1', 'specimen', 103, 'peritoneal wash', 1, 'peritoneal wash', 1, NULL, NULL, '12456', 'yes', '', '2009-05-06 16:04:16', '1', '2009-05-06 16:04:16', '1', 0, NULL),
-(3, 'B - 3', 'specimen', 2, 'blood', 3, 'blood', 1, NULL, NULL, '546', 'no', '', '2007-05-06 16:37:06', '1', '2009-05-06 16:37:06', '1', 0, NULL),
-(4, 'U - 4', 'specimen', 4, 'urine', 4, 'urine', 1, NULL, NULL, '6657445765', 'no', '', '2006-05-07 04:20:05', '1', '2009-05-07 04:20:05', '1', 0, NULL),
-(5, 'U - 5', 'specimen', 4, 'urine', 5, 'urine', 1, NULL, NULL, '6657445765', 'no', '', '2005-05-07 04:20:05', '1', '2009-05-07 04:20:05', '1', 0, NULL),
-(6, 'B - 6', 'specimen', 2, 'blood', 6, 'blood', 2, NULL, NULL, 'blutprobe', 'no', '', '2009-05-07 09:49:29', '1', '2009-05-07 09:49:29', '1', 0, NULL),
-(7, 'A - 7', 'specimen', 1, 'ascite', 7, 'ascite', 3, NULL, NULL, '55467', 'yes', 'This test sample is very problematic', '2008-05-13 09:48:09', '1', '2009-05-13 09:48:09', '1', 0, NULL),
-(8, 'T - 8', 'specimen', 3, 'tissue', 8, 'tissue', 3, NULL, NULL, '45623', 'no', 'Not a problematic test', '2007-05-13 10:00:01', '1', '2009-05-13 10:00:01', '1', 0, NULL),
-(9, 'U - 9', 'specimen', 4, 'urine', 9, 'urine', 3, NULL, NULL, '456', 'no', 'Test another sample', '2006-05-13 10:01:55', '1', '2009-05-13 10:01:55', '1', 0, NULL),
-(10, 'U - 10', 'specimen', 4, 'urine', 10, 'urine', 3, NULL, NULL, '456', 'no', 'Test another sample', '2005-05-13 10:01:55', '1', '2009-05-13 10:01:55', '1', 0, NULL),
-(13, 'C-CULT - 13', 'derivative', 11, 'cell culture', 8, 'tissue', 3, 8, NULL, '777', 'yes', 'Test more data', '2007-05-13 10:05:47', '1', '2009-05-13 10:05:47', '1', 0, NULL),
-(15, 'T - 15', 'specimen', 3, 'tissue', 15, 'tissue', 1, NULL, NULL, '2342', 'no', 'sdxcv', '2005-05-19 11:28:30', '1', '2009-05-19 11:28:30', '1', 0, NULL),
-(16, 'C-CULT - 16', 'derivative', 11, 'cell culture', 15, 'tissue', 1, 15, NULL, '455345', 'yes', 'fdgbgb', '2009-05-19 11:29:20', '1', '2009-05-19 11:29:20', '1', 0, NULL),
-(17, 'A - 17', 'specimen', 1, 'ascite', 17, 'ascite', 1, NULL, NULL, '647', 'no', '5r6', '2008-05-19 11:30:44', '1', '2009-05-19 11:30:44', '1', 0, NULL),
-(18, 'B - 18', 'specimen', 2, 'blood', 18, 'blood', 4, NULL, NULL, 'neu', 'no', '', '2007-05-19 12:48:19', '1', '2009-05-19 12:48:19', '1', 0, NULL),
-(19, 'B - 19', 'specimen', 2, 'blood', 19, 'blood', 5, NULL, NULL, '', 'no', '', '2006-05-28 01:09:14', '1', '2009-05-28 01:09:14', '1', 0, NULL),
-(21, 'A - 21', 'specimen', 1, 'ascite', 21, 'ascite', 1, NULL, NULL, '1121E-D3', 'no', 'Nothing in here', '2009-07-08 10:11:30', '1', '2009-07-08 10:11:30', '1', 0, NULL),
-(23, 'B - 23', 'specimen', 2, 'blood', 23, 'blood', 1, NULL, NULL, '34445-B52', 'no', 'K', '2007-07-08 10:12:37', '1', '2009-07-08 10:12:37', '1', 0, NULL),
-(27, 'PW - 27', 'specimen', 103, 'peritoneal wash', 27, 'peritoneal wash', 1, NULL, NULL, '', 'no', '', '2008-07-08 10:22:15', '1', '2009-07-08 10:22:15', '1', 0, NULL),
-(29, 'PW - 29', 'specimen', 103, 'peritoneal wash', 29, 'peritoneal wash', 1, NULL, NULL, '', 'no', '', '2006-07-08 10:22:54', '1', '2009-07-08 10:22:54', '1', 0, NULL),
-(31, 'CF - 31', 'specimen', 104, 'cystic fluid', 31, 'cystic fluid', 1, NULL, NULL, '', 'no', '', '2009-07-08 10:23:34', '1', '2009-07-08 10:23:34', '1', 0, NULL),
-(34, 'CF - 34', 'specimen', 104, 'cystic fluid', 34, 'cystic fluid', 1, NULL, NULL, '', 'no', '', '2006-07-08 10:24:32', '1', '2009-07-08 10:24:32', '1', 0, NULL),
-(36, 'CF - 36', 'specimen', 104, 'cystic fluid', 36, 'cystic fluid', 1, NULL, NULL, '', 'no', '', '2009-07-08 10:25:16', '1', '2009-07-08 10:25:16', '1', 0, NULL),
-(41, 'T - 41', 'specimen', 3, 'tissue', 41, 'tissue', 1, NULL, NULL, '', 'no', '', '2009-07-08 10:31:22', '1', '2009-07-08 10:31:22', '1', 0, NULL),
-(43, 'T - 43', 'specimen', 3, 'tissue', 43, 'tissue', 1, NULL, NULL, '', 'no', '', '2007-07-08 10:32:03', '1', '2009-07-08 10:32:03', '1', 0, NULL),
-(46, 'T - 46', 'specimen', 3, 'tissue', 46, 'tissue', 1, NULL, NULL, '', 'no', '', '2009-07-08 10:32:51', '1', '2009-07-08 10:32:51', '1', 0, NULL),
-(48, 'T - 48', 'specimen', 3, 'tissue', 48, 'tissue', 1, NULL, NULL, '', 'no', '', '2007-07-08 10:33:23', '1', '2009-07-08 10:33:23', '1', 0, NULL),
-(51, 'OF - 51', 'specimen', 105, 'other fluid', 51, 'other fluid', 1, NULL, NULL, '', 'no', '', '2009-07-08 10:34:11', '1', '2009-07-08 10:34:11', '1', 0, NULL),
-(53, 'C-CULT - 53', 'derivative', 11, 'cell culture', 51, 'other fluid', 1, 52, NULL, '', 'no', '', '2007-07-08 10:34:43', '1', '2009-07-08 10:34:43', '1', 0, NULL),
-(54, 'C-CULT - 54', 'derivative', 11, 'cell culture', 51, 'other fluid', 1, 53, NULL, '', 'no', '', '2006-07-08 10:34:56', '1', '2009-07-08 10:34:56', '1', 0, NULL),
-(55, 'C-CULT - 55', 'derivative', 11, 'cell culture', 51, 'other fluid', 1, 54, NULL, '', 'no', '', '2005-07-08 10:35:10', '1', '2009-07-08 10:35:10', '1', 0, NULL),
-(56, 'C-CULT - 56', 'derivative', 11, 'cell culture', 51, 'other fluid', 1, 55, NULL, '', 'no', '', '2009-07-08 10:35:24', '1', '2009-07-08 10:35:24', '1', 0, NULL),
-(57, 'U - 57', 'specimen', 4, 'urine', 57, 'urine', 1, NULL, NULL, '', 'no', '', '2008-07-08 10:35:47', '1', '2009-07-08 10:35:47', '1', 0, NULL),
-(59, 'U - 59', 'specimen', 4, 'urine', 59, 'urine', 1, NULL, NULL, '', 'no', '', '2006-07-08 10:36:30', '1', '2009-07-08 10:36:30', '1', 0, NULL),
-(61, 'A - 61', 'specimen', 1, 'ascite', 61, 'ascite', 1, NULL, NULL, '', 'no', '', '2009-07-08 10:37:12', '1', '2009-07-08 10:37:12', '1', 0, NULL);
+DELETE FROM `sample_masters_revs`;
+INSERT INTO `sample_masters` (`id`, `sample_code`, `sample_category`, `sample_control_id`, `sample_type`, `initial_specimen_sample_id`, `initial_specimen_sample_type`, `collection_id`, `parent_id`, `sop_master_id`, `product_code`, `is_problematic`, `notes`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
+(1, 'T - 1', 'specimen', 3, 'tissue', 1, 'tissue', 1, NULL, NULL, 'T123', 'no', '', '2009-09-25 14:45:49', '1', '2009-09-25 14:45:49', '1', 0, NULL),
+(2, 'C-CULT - 2', 'derivative', 11, 'cell culture', 1, 'tissue', 1, 1, NULL, 'CC23', 'no', '', '2009-09-25 14:46:26', '1', '2009-09-25 14:46:26', '1', 0, NULL),
+(3, 'DNA - 3', 'derivative', 12, 'dna', 1, 'tissue', 1, 2, NULL, 'D123', 'no', '', '2009-09-25 14:47:05', '1', '2009-09-25 14:47:05', '1', 0, NULL),
+(4, 'T-LYS - 4', 'derivative', 101, 'tissue lysate', 1, 'tissue', 1, 1, NULL, 'TL44', 'no', '', '2009-09-25 14:47:51', '1', '2009-09-25 14:47:51', '1', 0, NULL);
+INSERT INTO `sample_masters_revs` (`id`, `sample_code`, `sample_category`, `sample_control_id`, `sample_type`, `initial_specimen_sample_id`, `initial_specimen_sample_type`, `collection_id`, `parent_id`, `sop_master_id`, `product_code`, `is_problematic`, `notes`, `created`, `created_by`, `modified`, `modified_by`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
+(1, '', 'specimen', 3, 'tissue', NULL, 'tissue', 1, NULL, NULL, 'T123', 'no', '', '2009-09-25 14:45:49', '1', '2009-09-25 14:45:49', '1', 1, '2009-09-25 14:45:49', 0, NULL),
+(1, 'T - 1', 'specimen', 3, 'tissue', 1, 'tissue', 1, NULL, NULL, 'T123', 'no', '', '2009-09-25 14:45:49', '1', '2009-09-25 14:45:49', '1', 2, '2009-09-25 14:45:49', 0, NULL),
+(2, '', 'derivative', 11, 'cell culture', 1, 'tissue', 1, 1, NULL, 'CC23', 'no', '', '2009-09-25 14:46:26', '1', '2009-09-25 14:46:26', '1', 3, '2009-09-25 14:46:26', 0, NULL),
+(2, 'C-CULT - 2', 'derivative', 11, 'cell culture', 1, 'tissue', 1, 1, NULL, 'CC23', 'no', '', '2009-09-25 14:46:26', '1', '2009-09-25 14:46:26', '1', 4, '2009-09-25 14:46:26', 0, NULL),
+(3, '', 'derivative', 12, 'dna', 1, 'tissue', 1, 2, NULL, 'D123', 'no', '', '2009-09-25 14:47:05', '1', '2009-09-25 14:47:05', '1', 5, '2009-09-25 14:47:05', 0, NULL),
+(3, 'DNA - 3', 'derivative', 12, 'dna', 1, 'tissue', 1, 2, NULL, 'D123', 'no', '', '2009-09-25 14:47:05', '1', '2009-09-25 14:47:05', '1', 6, '2009-09-25 14:47:05', 0, NULL),
+(4, '', 'derivative', 101, 'tissue lysate', 1, 'tissue', 1, 1, NULL, 'TL44', 'no', '', '2009-09-25 14:47:51', '1', '2009-09-25 14:47:51', '1', 7, '2009-09-25 14:47:51', 0, NULL),
+(4, 'T-LYS - 4', 'derivative', 101, 'tissue lysate', 1, 'tissue', 1, 1, NULL, 'TL44', 'no', '', '2009-09-25 14:47:51', '1', '2009-09-25 14:47:51', '1', 8, '2009-09-25 14:47:51', 0, NULL);
+
+DELETE FROM `derivative_details`;
+DELETE FROM `derivative_details_revs`;
+INSERT INTO `derivative_details` (`id`, `sample_master_id`, `creation_site`, `creation_by`, `creation_datetime`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
+(1, 2, 'Lab1', '', '2009-09-25 18:57:00', '2009-09-25 14:46:26', '1', '2009-09-25 14:46:26', '1', 0, NULL),
+(2, 3, 'Lab2', '', '2009-09-28 10:46:00', '2009-09-25 14:47:05', '1', '2009-09-25 14:47:05', '1', 0, NULL),
+(3, 4, '', '', '2009-10-24 13:29:00', '2009-09-25 14:47:51', '1', '2009-09-25 14:47:51', '1', 0, NULL);
+INSERT INTO `derivative_details_revs` (`id`, `sample_master_id`, `creation_site`, `creation_by`, `creation_datetime`, `created`, `created_by`, `modified`, `modified_by`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
+(1, 2, 'Lab1', '', '2009-09-25 18:57:00', '2009-09-25 14:46:26', '1', '2009-09-25 14:46:26', '1', 1, '2009-09-25 14:46:26', 0, NULL),
+(2, 3, 'Lab2', '', '2009-09-28 10:46:00', '2009-09-25 14:47:05', '1', '2009-09-25 14:47:05', '1', 2, '2009-09-25 14:47:05', 0, NULL),
+(3, 4, '', '', '2009-10-24 13:29:00', '2009-09-25 14:47:51', '1', '2009-09-25 14:47:51', '1', 3, '2009-09-25 14:47:51', 0, NULL);
+
+DELETE FROM `specimen_details`;
+DELETE FROM `specimen_details_revs`;
+INSERT INTO `specimen_details` (`id`, `sample_master_id`, `supplier_dept`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
+(1, 1, 'clinic', '2009-09-25 14:45:49', '1', '2009-09-25 14:45:49', '1', 0, NULL);
+INSERT INTO `specimen_details_revs` (`id`, `sample_master_id`, `supplier_dept`, `created`, `created_by`, `modified`, `modified_by`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
+(1, 1, 'clinic', '2009-09-25 14:45:49', '1', '2009-09-25 14:45:49', '1', 1, '2009-09-25 14:45:49', 0, NULL);
 
 DELETE FROM `sd_der_cell_cultures`;
-INSERT INTO `sd_der_cell_cultures` (`id`, `sample_master_id`, `culture_status`, `culture_status_reason`, `cell_passage_number`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES (13, 13, 'stopped', 'cell dead', 2, '2009-05-13 10:05:47', '1', '2009-05-13 10:05:47', '1', 0, NULL),
-(16, 16, 'unknown', 'cell dead', 43, '2009-05-19 11:29:20', '1', '2009-05-19 11:29:20', '1', 0, NULL),
-(53, 53, NULL, NULL, NULL, '2009-07-08 10:34:43', '1', '2009-07-08 10:34:43', '1', 0, NULL),
-(54, 54, NULL, NULL, NULL, '2009-07-08 10:34:56', '1', '2009-07-08 10:34:56', '1', 0, NULL),
-(55, 55, NULL, NULL, 43, '2009-07-08 10:35:10', '1', '2009-07-08 10:35:10', '1', 0, NULL),
-(56, 56, NULL, NULL, NULL, '2009-07-08 10:35:24', '1', '2009-07-08 10:35:24', '1', 0, NULL);
+INSERT INTO `sd_der_cell_cultures` (`id`, `sample_master_id`, `culture_status`, `culture_status_reason`, `cell_passage_number`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
+(1, 2, 'in culture', '', 2, '2009-09-25 14:46:26', '', '2009-09-25 14:46:26', NULL, 0, NULL);
 
-DELETE FROM `sd_der_serums`;
-INSERT INTO `sd_der_serums` (`id`, `sample_master_id`, `hemolyze_signs`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES (25, 25, 'yes', '2009-07-08 10:15:31', '1', '2009-07-08 10:15:31', '1', 0, NULL);
+DELETE FROM `sd_der_dnas`;
+INSERT INTO `sd_der_dnas` (`id`, `sample_master_id`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
+(1, 3, '2009-09-25 14:47:05', '', '2009-09-25 14:47:05', NULL, 0, NULL);
 
-DELETE FROM `sd_spe_ascites`;
-INSERT INTO `sd_spe_ascites` (`id`, `sample_master_id`, `collected_volume`, `collected_volume_unit`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES (7, 7, 560.00000, 'ml', '2009-05-13 09:48:09', '1', '2009-05-13 09:48:09', '1', 0, NULL),
-(17, 17, 587.00000, 'ml', '2009-05-19 11:30:44', '1', '2009-05-19 11:30:44', '1', 0, NULL),
-(21, 21, 45.00000, 'ul', '2009-07-08 10:11:30', '1', '2009-07-08 10:11:30', '1', 0, NULL),
-(61, 61, 21.00000, NULL, '2009-07-08 10:37:12', '1', '2009-07-08 10:37:12', '1', 0, NULL);
-
-DELETE FROM `sd_spe_bloods`;
-INSERT INTO `sd_spe_bloods` (`id`, `sample_master_id`, `blood_type`, `collected_tube_nbr`, `collected_volume`, `collected_volume_unit`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES (3, 3, 'unknown', 2, 33.00000, 'ul', '2009-05-06 16:37:06', '1', '2009-05-06 16:37:06', '1', 0, NULL),
-(6, 6, 'paxgene', 234, 50.00000, 'ml', '2009-05-07 09:49:29', '1', '2009-05-07 09:49:29', '1', 0, NULL),
-(18, 18, NULL, 8798, 33.00000, 'ml', '2009-05-19 12:48:19', '1', '2009-05-19 12:48:19', '1', 0, NULL),
-(19, 19, NULL, 43535, 50.00000, 'ml', '2009-05-28 01:09:14', '1', '2009-05-28 01:09:14', '1', 0, NULL),
-(23, 23, 'gel CSA', 43, 3.00000, 'ml', '2009-07-08 10:12:37', '1', '2009-07-08 10:12:37', '1', 0, NULL);
-
-DELETE FROM `sd_spe_cystic_fluids`;
-INSERT INTO `sd_spe_cystic_fluids` (`id`, `sample_master_id`, `collected_volume`, `collected_volume_unit`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES (31, 31, 54.00000, NULL, '2009-07-08 10:23:34', '1', '2009-07-08 10:23:34', '1', 0, NULL),
-(34, 34, 54.00000, 'ul', '2009-07-08 10:24:32', '1', '2009-07-08 10:24:32', '1', 0, NULL),
-(36, 36, 34.00000, 'ul', '2009-07-08 10:25:16', '1', '2009-07-08 10:25:16', '1', 0, NULL);
-
-DELETE FROM `sd_spe_other_fluids`;
-INSERT INTO `sd_spe_other_fluids` (`id`, `sample_master_id`, `collected_volume`, `collected_volume_unit`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES (51, 51, 32.00000, 'ml', '2009-07-08 10:34:11', '1', '2009-07-08 10:34:11', '1', 0, NULL);
-
-DELETE FROM `sd_spe_peritoneal_washes`;
-INSERT INTO `sd_spe_peritoneal_washes` (`id`, `sample_master_id`, `collected_volume`, `collected_volume_unit`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES (1, 1, 75.00000, 'ml', '2009-05-06 16:04:16', '1', '2009-05-06 16:04:16', '1', 0, NULL),
-(27, 27, 45.00000, 'ml', '2009-07-08 10:22:15', '1', '2009-07-08 10:22:15', '1', 0, NULL),
-(29, 29, 43.00000, 'ul', '2009-07-08 10:22:54', '1', '2009-07-08 10:22:54', '1', 0, NULL);
+DELETE FROM `sd_der_tiss_lysates`;
+INSERT INTO `sd_der_tiss_lysates` (`id`, `sample_master_id`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
+(1, 4, '2009-09-25 14:47:51', '', '2009-09-25 14:47:51', NULL, 0, NULL);
 
 DELETE FROM `sd_spe_tissues`;
-INSERT INTO `sd_spe_tissues` (`id`, `sample_master_id`, `tissue_source`, `tissue_nature`, `tissue_laterality`, `pathology_reception_datetime`, `tissue_size`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES (8, 8, 'lung', 'malignant', 'right', '2009-05-13 10:00:00', '45', '2009-05-13 10:00:01', '1', '2009-05-13 10:00:01', '1', 0, NULL),
-(15, 15, 'breast', 'benign', 'left', '2009-05-19 11:28:00', '24', '2009-05-19 11:28:30', '1', '2009-05-19 11:28:30', '1', 0, NULL),
-(41, 41, NULL, NULL, NULL, '2009-07-08 10:31:00', NULL, '2009-07-08 10:31:22', '1', '2009-07-08 10:31:22', '1', 0, NULL),
-(43, 43, NULL, NULL, NULL, '2009-07-08 10:32:00', NULL, '2009-07-08 10:32:03', '1', '2009-07-08 10:32:03', '1', 0, NULL),
-(46, 46, NULL, NULL, NULL, '2009-07-08 10:32:00', NULL, '2009-07-08 10:32:51', '1', '2009-07-08 10:32:51', '1', 0, NULL),
-(48, 48, NULL, NULL, NULL, '2009-07-08 10:33:00', NULL, '2009-07-08 10:33:23', '1', '2009-07-08 10:33:23', '1', 0, NULL);
-
--- Sample Masters, Sample Details, Sample Extends, Aliquot Masters and Aliquot Details  Test Data
-
+INSERT INTO `sd_spe_tissues` (`id`, `sample_master_id`, `tissue_source`, `tissue_nature`, `tissue_laterality`, `pathology_reception_datetime`, `tissue_size`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
+(1, 1, 'breast', 'benign', 'left', '2009-09-25 14:45:00', '2x3x4', '2009-09-25 14:45:49', '', '2009-09-25 14:45:49', NULL, 0, NULL);
 
 
