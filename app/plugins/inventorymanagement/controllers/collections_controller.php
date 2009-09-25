@@ -26,8 +26,9 @@ class CollectionsController extends InventorymanagementAppController {
 		// MANAGE INDEX FORM
 		
 		$_SESSION['ctrapp_core']['search'] = null; // clear SEARCH criteria
-		unset($_SESSION['InventoryManagement']['Filter']); // clear Filter
-		
+		unset($_SESSION['InventoryManagement']['treeView']['Filter']); // clear Filter
+		unset($_SESSION['InventoryManagement']['Sample']['Filter']);
+				
 		// Set list of banks
 		$this->set('banks', $this->getBankList());		
 	}

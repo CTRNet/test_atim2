@@ -15,12 +15,11 @@
 	
 	// LINKS
 	
-	$specimen_filter_links = array();
+	$specimen_type_filter_links = array();
 	foreach ($specimen_type_list as $type => $sample_control_id) {
-		$specimen_filter_links[$type] = '/inventorymanagement/sample_masters/contentTreeView/' . $atim_menu_variables['Collection.id'] . '/' . $sample_control_id;
+		$specimen_type_filter_links[$type] = '/inventorymanagement/sample_masters/contentTreeView/' . $atim_menu_variables['Collection.id'] . '/' . $sample_control_id;
 	}
-	asort($specimen_filter_links);
-	$specimen_filter_links['no filter'] = '/inventorymanagement/sample_masters/contentTreeView/' . $atim_menu_variables['Collection.id'] . '/-1';	
+	$specimen_type_filter_links['no filter'] = '/inventorymanagement/sample_masters/contentTreeView/' . $atim_menu_variables['Collection.id'] . '/-1';	
 		
 	$add_links = array();
 	foreach ($specimen_sample_controls_list as $sample_control) {
@@ -43,7 +42,7 @@
 		),
 		'bottom' => array(
 			'add' => $add_links,
-			'filter' => $specimen_filter_links,
+			'filter' => $specimen_type_filter_links,
 			'search' => $search_type_links
 		),
 		'ajax' => array(
