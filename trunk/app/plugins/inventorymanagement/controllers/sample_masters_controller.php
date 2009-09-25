@@ -246,7 +246,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		$form_alias = 'samplemasters';
 		if($override_form_alias) {
 			$form_alias = $override_form_alias;
-		}	 	
+		} 	
 		$this->set('atim_structure', $this->Structures->get('form', $form_alias));
 		
 		// Get all sample control types to build the add to selected button

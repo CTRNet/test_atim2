@@ -874,7 +874,93 @@ VALUES
 ('derivative exists for the deleted sample', 'global', 'Your data cannot be deleted! <br>Derivatives exist for the deleted sample.', 'Vos donn&eacute;es ne peuvent &ecirc;tre supprim&eacute;es! Des d&eacute;riv&eacute;s existent pour votre &eacute;chantillon.'),
 ('an aliquot of the parent sample is defined as source aliquot', 'global', 'Your data cannot be deleted! <br>An aliquot of the parent sample is defined as source aliquot!', 'Vos donn&eacute;es ne peuvent &ecirc;tre supprim&eacute;es! Un aliquot de l''&eacute;chantillon parent est d&eacute;fini comme source.');
 
+UPDATE `structure_formats`
+SET `flag_index` = '0'
+WHERE `structure_field_old_id` LIKE 'CAN-999-999-000-999-1027'
+AND `structure_old_id` IN (SELECT old_id FROM `structures`
+WHERE `alias` LIKE 'sd_%');
 
+UPDATE `structure_formats`
+SET `flag_index` = '0'
+WHERE `structure_field_old_id` LIKE 'CAN-999-999-000-999-1023'
+AND `structure_old_id` IN (SELECT old_id FROM `structures`
+WHERE `alias` LIKE 'sd_%');
+
+UPDATE `structure_formats`
+SET `flag_index` = '1'
+WHERE `old_id` IN (
+'CAN-999-999-000-999-1011_CAN-999-999-000-999-1065', /* SampleDetail.culture_status */
+'CAN-999-999-000-999-1011_CAN-999-999-000-999-1067', /* SampleDetail.cell_passage_number */
+'CAN-999-999-000-999-1014_CAN-999-999-000-999-1075', /* SampleDetail.hemolyze_signs */
+'CAN-999-999-000-999-1015_CAN-999-999-000-999-1075', /* SampleDetail.hemolyze_signs */
+'CAN-999-999-000-999-1006_CAN-999-999-000-999-1035', /* SampleDetail.blood_type */
+'CAN-999-999-000-999-1008_CAN-999-999-000-999-1040', /* SampleDetail.tissue_source */
+'CAN-999-999-000-999-1008_CAN-999-999-000-999-1041', /* SampleDetail.tissue_nature */
+'CAN-999-999-000-999-1008_CAN-999-999-000-999-1043', /* SampleDetail.tissue_laterality */
+'CAN-999-999-000-999-1009_CAN-999-999-000-999-1050', /* SampleDetail.urine_aspect */
+'CAN-999-999-000-999-1009_CAN-999-999-000-999-1051'); /* SampleDetail.pellet_signs */
+
+UPDATE `structure_formats`
+SET `flag_index` = '1'
+WHERE `structure_field_old_id` LIKE 'CAN-999-999-000-999-1062'
+AND `structure_old_id` IN (SELECT old_id FROM `structures`
+WHERE `alias` LIKE 'sd_%');
+
+UPDATE `structure_formats`
+SET `display_order` = '30'
+WHERE `structure_field_old_id` LIKE 'CAN-999-999-000-999-1062'
+AND `structure_old_id` IN (SELECT old_id FROM `structures`
+WHERE `alias` LIKE 'sd_%');
+
+UPDATE `structure_formats`
+SET `display_order` = '32'
+WHERE `structure_field_old_id` LIKE 'CAN-999-999-000-999-1060'
+AND `structure_old_id` IN (SELECT old_id FROM `structures`
+WHERE `alias` LIKE 'sd_%');
+
+DELETE FROM`structure_formats` WHERE `structure_field_old_id` = 'CAN-999-999-000-999-1222'
+AND `structure_old_id` IN (SELECT old_id FROM `structures`
+WHERE `alias` LIKE 'sd_%der%');
+
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, 'CAN-999-999-000-999-1010_CAN-999-999-000-999-1222', 
+(SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1010'), 'CAN-999-999-000-999-1010', 
+(SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1222'), 'CAN-999-999-000-999-1222', 1, 29, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, 'CAN-999-999-000-999-1011_CAN-999-999-000-999-1222', 
+(SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1011'), 'CAN-999-999-000-999-1011', 
+(SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1222'), 'CAN-999-999-000-999-1222', 1, 29, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, 'CAN-999-999-000-999-1012_CAN-999-999-000-999-1222', 
+(SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1012'), 'CAN-999-999-000-999-1012', 
+(SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1222'), 'CAN-999-999-000-999-1222', 1, 29, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, 'CAN-999-999-000-999-1013_CAN-999-999-000-999-1222', 
+(SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1013'), 'CAN-999-999-000-999-1013', 
+(SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1222'), 'CAN-999-999-000-999-1222', 1, 29, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, 'CAN-999-999-000-999-1061_CAN-999-999-000-999-1222', 
+(SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1061'), 'CAN-999-999-000-999-1061', 
+(SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1222'), 'CAN-999-999-000-999-1222', 1, 29, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+ 
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, 'CAN-999-999-000-999-1015_CAN-999-999-000-999-1222', 
+(SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1015'), 'CAN-999-999-000-999-1015', 
+(SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1222'), 'CAN-999-999-000-999-1222', 1, 29, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+ 
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, 'CAN-999-999-000-999-1014_CAN-999-999-000-999-1222', 
+(SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1014'), 'CAN-999-999-000-999-1014', 
+(SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1222'), 'CAN-999-999-000-999-1222', 1, 29, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+SELECT old_id from structure_fields where model like 'AliquotMaster' and type = 'hidden'
+
+DELETE FROM `structure_formats` WHERE `structure_field_old_id` IN (SELECT old_id from structure_fields where model like 'AliquotMaster' and type = 'hidden');
+DELETE FROM structure_fields where model like 'AliquotMaster' and type = 'hidden';
 
 
 
@@ -916,5 +1002,5 @@ VALUES
 
 
 
--- delete storage table like st_box81s
+
 -- TODO aliquot master...
