@@ -105,16 +105,16 @@ class EventMastersController extends ClinicalannotationAppController {
 		
 	}
 
-	function delete($menu_id=NULL, $event_group=NULL, $participant_id=null, $event_master_id=null) {
+	function delete($event_group=NULL, $participant_id=null, $event_master_id=null) {
 		if (!$participant_id) {
 			$this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE );
 		}
 
 		// TODO: Update del function call with ATiM delete
-		if( $this->EventMaster->Del( $event_master_id ) ) {
-			$this->flash( 'Your data has been deleted.', '/clinicalannotation/event_masters/listall/'.$menu_id.'/'.$event_group.'/'.$participant_id );
+		if( $this->EventMaster->atim_delete( $event_master_id ) ) {
+			$this->flash( 'Your data has been deleted.', '/clinicalannotation/event_masters/listall/'.$event_group.'/'.$participant_id );
 		} else {
-			$this->flash( 'Error deleting data - Contact administrator.', '/clinicalannotation/event_masters/listall/'.$menu_id.'/'.$event_group.'/'.$participant_id );
+			$this->flash( 'Error deleting data - Contact administrator.', '/clinicalannotation/event_masters/listall/'.$event_group.'/'.$participant_id );
 		}
 	}
 }
