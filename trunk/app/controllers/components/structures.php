@@ -95,12 +95,12 @@ class StructuresComponent extends Object {
 				
 				// for RANGE values, which should be searched over with a RANGE...
 				if ( $value['StructureField']['type']=='number' || $value['StructureField']['type']=='date' || $value['StructureField']['type']=='datetime' ) {
-					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'].'_start' ]['plugin']	= $value['StructureField']['plugin'];
+					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'].'_start' ]['plugin']		= $value['StructureField']['plugin'];
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'].'_start' ]['model']		= $value['StructureField']['model'];
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'].'_start' ]['field']		= $value['StructureField']['field'];
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'].'_start' ]['key']			= $value['StructureField']['model'].'.'.$value['StructureField']['field'].' >=';
 					
-					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'].'_end' ]['plugin']		= $value['StructureField']['plugin'];
+					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'].'_end' ]['plugin']			= $value['StructureField']['plugin'];
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'].'_end' ]['model']			= $value['StructureField']['model'];
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'].'_end' ]['field']			= $value['StructureField']['field'];
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'].'_end' ]['key']				= $value['StructureField']['model'].'.'.$value['StructureField']['field'].' <=';
@@ -112,7 +112,7 @@ class StructuresComponent extends Object {
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'] ]['model']	= $value['StructureField']['model'];
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'] ]['field']	= $value['StructureField']['field'];
 					
-					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'] ]['key']	= $value['StructureField']['model'].'.'.$value['StructureField']['field'];
+					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'] ]['key']		= $value['StructureField']['model'].'.'.$value['StructureField']['field'];
 				}
 				
 				// all other types, a generic SQL fragment...
@@ -121,7 +121,7 @@ class StructuresComponent extends Object {
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'] ]['model']	= $value['StructureField']['model'];
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'] ]['field']	= $value['StructureField']['field'];
 					
-					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'] ]['key']				= $value['StructureField']['model'].'.'.$value['StructureField']['field'].' LIKE';
+					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'] ]['key']		= $value['StructureField']['model'].'.'.$value['StructureField']['field'].' LIKE';
 				}
 				
 			}
@@ -147,9 +147,16 @@ class StructuresComponent extends Object {
 							$format_data_model = new $model;
 							
 							$data = $format_data_model->deconstruct($form_fields[$model.'.'.$key]['field'],$data);
+							
+							if ( is_array($data) ) {
+								$data = array_unique($data);
+								$data = array_filter($data);
+							}
+							
+							if ( !count($data) ) $data = '';
 						}
 						
-						// if supplied form DATA is not blank/null, add to search conditions, otehrwise skip
+						// if supplied form DATA is not blank/null, add to search conditions, otherwise skip
 						if ( $data ) {
 							if ( !is_array($data) && strpos($form_fields[$model.'.'.$key]['key'], ' LIKE')!==false ) {
 								$data = '%'.$data.'%';
