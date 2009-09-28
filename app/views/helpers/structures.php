@@ -1770,46 +1770,49 @@ class StructuresHelper extends Helper {
 					}
 					*/
 					
-					/*
 					// if there is a TOOL for this field, APPEND! 
-					if ( $append_field_tool && $options['type']!='editgrid' ) {
+					if ( $append_field_tool ) {
 						
 						// multiple INPUT entries, using uploaded CSV file
 						if ( $append_field_tool=='csv' ) {
+							if ( $options['type']=='search' ) {
 							
-							// replace NAME of input with ARRAY format name
-							// $display_value = preg_replace('/name\=\"data\[([A-Za-z0-9]+)\]\[([A-Za-z0-9]+)\]\"/i','name="data[$1][$2][]"',$display_value);
-							$display_value = str_replace(']"','][]"',$display_value);
-							
-							// wrap FIELD in DIV/P and add JS links to clone/remove P tags
-							$display_value = '
-								<div id="'.strtolower($field['StructureField']['model'].'_'.$field['StructureField']['field']).'_with_file_upload">
-									'.$display_value.'
-									<input class="file" type="file" name="data['.$field['StructureField']['model'].']['.$field['StructureField']['field'].'_with_file_upload]" />
-								</div>
-							';
-							
+								// replace NAME of input with ARRAY format name
+								// $display_value = preg_replace('/name\=\"data\[([A-Za-z0-9]+)\]\[([A-Za-z0-9]+)\]\"/i','name="data[$1][$2][]"',$display_value);
+								$display_value = str_replace(']"','][]"',$display_value);
+								
+								// wrap FIELD in DIV/P and add JS links to clone/remove P tags
+								$display_value = '
+									<div id="'.strtolower($field['StructureField']['model'].'_'.$field['StructureField']['field']).'_with_file_upload">
+										'.$display_value.'
+										<input class="file" type="file" name="data['.$field['StructureField']['model'].']['.$field['StructureField']['field'].'_with_file_upload]" />
+									</div>
+								';
+								
+							}
 						}
 						
 						// multiple INPUT entries, with JS add/remove links
 						else if ( $append_field_tool=='multiple' ) {
+							if ( $options['type']=='search' ) {
 							
-							// replace NAME of input with ARRAY format name
-							// $display_value = preg_replace('/name\=\"data\[([A-Za-z0-9]+)\]\[([A-Za-z0-9]+)\]\"/i','name="data[$1][$2][]"',$display_value);
-							$display_value = str_replace(']"','][]"',$display_value);
-							
-							// wrap FIELD in DIV/P and add JS links to clone/remove P tags
-							$display_value = '
-								<div id="'.strtolower($field['StructureField']['model'].'_'.$field['StructureField']['field']).'_with_clone_fields_js">
-									<p class="clone">
-										'.$display_value.'
-										<a href="#" class="ajax_tool clone_remove" onclick="remove_fields(this); return false;">Remove</a>
-									</p>
-								</div>
+								// replace NAME of input with ARRAY format name
+								// $display_value = preg_replace('/name\=\"data\[([A-Za-z0-9]+)\]\[([A-Za-z0-9]+)\]\"/i','name="data[$1][$2][]"',$display_value);
+								$display_value = str_replace(']"','][]"',$display_value);
 								
-								<a href="#" class="ajax_tool clone_add" onclick="clone_fields(\''.strtolower($field['StructureField']['model'].'_'.$field['StructureField']['field']).'_with_clone_fields_js\'); return false;">Add Another</a>
-							';
-							
+								// wrap FIELD in DIV/P and add JS links to clone/remove P tags
+								$display_value = '
+									<div id="'.strtolower($field['StructureField']['model'].'_'.$field['StructureField']['field']).'_with_clone_fields_js">
+										<p class="clone">
+											'.$display_value.'
+											<a href="#" class="ajax_tool clone_remove" onclick="remove_fields(this); return false;">Remove</a>
+										</p>
+									</div>
+									
+									<a href="#" class="ajax_tool clone_add" onclick="clone_fields(\''.strtolower($field['StructureField']['model'].'_'.$field['StructureField']['field']).'_with_clone_fields_js\'); return false;">Add Another</a>
+								';
+								
+							}
 						}
 						
 						// any other TOOL
@@ -1822,19 +1825,27 @@ class StructuresHelper extends Helper {
 							$javascript_inline = '';
 							$javascript_inline .= "new Ajax.Updater( '".$append_field_tool_id."', '".$this->Html->Url( $append_field_tool )."', {asynchronous:false, evalScripts:true} );";
 							$javascript_inline .= "Effect.toggle('".$append_field_tool_id."','appear',{duration:0.25});";
+							$javascript_inline .= "return false;";
+							
+							
 							
 							$display_value .= '
-								<a class="tools" onclick="'.$javascript_inline.'">'.__( 'core_tools', true).'</a>
+								<a href="'.$this->Html->Url( $append_field_tool ).'" class="lightwindow" params="lightwindow_width=800,lightwindow_height=400">'.__( 'core_tools', true).'</a>
+							';
+							
+							/*
+							$display_value .= '
+								<a href="#" class="tools" onclick="'.$javascript_inline.'">'.__( 'core_tools', true).'</a>
 								
 								<div class="ajax_tool" id="'.$append_field_tool_id.'" style="display: none;">
 								</div>
 								
 							';
+							*/
 							
 						}
 						
 					}
-					*/
 					
 					/*
 					// add EXTRA, if key exists for this form MODEL/FIELD

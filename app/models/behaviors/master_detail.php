@@ -63,10 +63,10 @@ class MasterDetailBehavior extends ModelBehavior {
 					
 					$associated = array();
 					
-					$detail_model = new Model( false, $result[$control_class][$detail_field] );
+					$detail_model = new AppModel( array('table'=>$result[$control_class][$detail_field], 'name'=>$detail_class, 'alias'=>$detail_class) );
 					
 					$associated = $detail_model->find(array($master_foreign => $result[$model->alias]['id']), null, null, -1);
-					$results[$key][$detail_class] = $associated['Model'];
+					$results[$key][$detail_class] = $associated[$detail_class];
 				}
 			} 
 			
@@ -75,10 +75,10 @@ class MasterDetailBehavior extends ModelBehavior {
 				
 				$associated = array();
 				
-				$detail_model = new Model( false, $results[$control_class][$detail_field] );
+				$detail_model = new AppModel( array('table'=>$results[$control_class][$detail_field], 'name'=>$detail_class, 'alias'=>$detail_class) );
 				
 				$associated = $detail_model->find(array($master_foreign => $results[0][$model->alias]['id']), null, null, -1);
-				$results[$detail_class] = $associated['Model'];
+				$results[$detail_class] = $associated[$detail_class];
 				
 			}
 			
@@ -87,6 +87,7 @@ class MasterDetailBehavior extends ModelBehavior {
 		return $results;
 	}
 	
+	/*
 	function beforeValidate (&$model) {
 		// make all SETTINGS into individual VARIABLES, with the KEYS as names
 		extract($this->__settings[$model->alias]);
@@ -94,7 +95,10 @@ class MasterDetailBehavior extends ModelBehavior {
 		if ( $is_master_model ) {
 			// placeholder for automagic validation...
 		}
+		
+		return true;
 	}
+	*/
 	
 	function afterSave (&$model, $created) {
 		// make all SETTINGS into individual VARIABLES, with the KEYS as names
@@ -104,20 +108,21 @@ class MasterDetailBehavior extends ModelBehavior {
 			
 			// get DETAIL table name and create DETAIL model object
 			$associated = $model->find(array($master_class.'.id' => $model->id), null, null, 1);
-			$detail_model = new Model( false, $associated[$control_class][$detail_field] );
+			$detail_model = new AppModel( array('table'=>$associated[$control_class][$detail_field], 'name'=>$detail_class, 'alias'=>$detail_class) );
 			
 			// set ID (for edit, blank for add) and model object NAME/ALIAS for save
 			if ( isset($associated[$detail_class]) && count($associated[$detail_class]) ) {
 				$detail_model->id = $associated[$detail_class]['id'];
 			}
 			
-			$detail_model->name = $detail_class;
-			$detail_model->alias = $detail_class;
-			
 			$model->data[$detail_class][$master_foreign] = $model->id;
 			
 			// save detail DATA
-			$result = $detail_model->save($model->data);
+			if ( (isset($detail_model->id) && $detail_model->id && !$created) || $created ) {
+				$result = $detail_model->save($model->data);
+			} else {
+				$result = true;
+			}
 			
 			return $result;
 			
@@ -129,7 +134,21 @@ class MasterDetailBehavior extends ModelBehavior {
 		extract($this->__settings[$model->alias]);
 		
 		if ( $is_master_model ) {
-			// placeholder for automagic deletion...
+			
+			// get DETAIL table name and create DETAIL model object
+			$associated = $model->find(array($master_class.'.id' => $model->id), null, null, 1);
+			$detail_model = new AppModel( array('table'=>$associated[$control_class][$detail_field], 'name'=>$detail_class, 'alias'=>$detail_class) );
+			
+			// set ID (for edit, blank for add) and model object NAME/ALIAS for save
+			if ( isset($associated[$detail_class]) && count($associated[$detail_class]) ) {
+				$detail_model->id = $associated[$detail_class]['id'];
+			}
+			
+			// delete detail DATA
+			$result = $detail_model->atim_delete($detail_model->id);
+			
+			return $result;
+			
 		}
 	}
 	
