@@ -17,9 +17,10 @@ class SampleMastersController extends InventorymanagementAppController {
 		'Inventorymanagement.PathCollectionReview',
 		'Inventorymanagement.ReviewMaster',
 		
-		
 		'Inventorymanagement.AliquotControl', 
-		'Inventorymanagement.AliquotMaster');
+		'Inventorymanagement.AliquotMaster',
+		
+		'Inventorymanagement.SampleToAliquotControl');
 	
 	var $paginate = array('SampleMaster' => array('limit' => 10, 'order' => 'SampleMaster.sample_code DESC'));
 
@@ -354,6 +355,20 @@ class SampleMastersController extends InventorymanagementAppController {
 		}
 		
 		$this->set('allowed_derivative_type', $allowed_derivative_type);
+
+		// Get all aliquot control types to build the add to selected button
+		$criteria = array(
+			'SampleControl.id' => $sample_data['SampleControl']['id'],
+			'SampleToAliquotControl.status' => 'active',
+			'AliquotControl.status' => 'active');
+		$allowed_aliquot_type_temp = $this->SampleToAliquotControl->find('all', array('conditions' => $criteria, 'order' => 'AliquotControl.aliquot_type ASC'));
+		
+		$allowed_aliquot_type = array();
+		foreach($allowed_aliquot_type_temp as $new_link) {
+			$allowed_aliquot_type[$new_link['AliquotControl']['id']]['AliquotControl'] = $new_link['AliquotControl'];
+		}
+		
+		$this->set('allowed_aliquot_type', $allowed_aliquot_type);
 	}
 
 	function add($collection_id, $sample_control_id, $parent_sample_master_id = null) {
@@ -361,45 +376,50 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 		// MANAGE DATA
 		
-		$sample_control_data = $this->SampleControl->find('first', array('conditions' => array('SampleControl.id' => $sample_control_id)));
-		if(empty($sample_control_data)) { $this->redirect('/pages/err_inv_no_samp_cont_data', null, true); }	
-		
-		$bool_is_specimen = true;
+		$bool_is_specimen = null;
+		$sample_control_data = array();
 		$parent_sample_data = array();
-		switch($sample_control_data['SampleControl']['sample_category']) {
-			case 'specimen':
-				// Created sample is a specimen
-				$bool_is_specimen = true;
-				if(!empty($parent_sample_master_id)) { $this->redirect('/pages/err_inv_system_error', null, true); }
-				
-				// Check collection id
-				$collection_data = $this->Collection->find('first', array('conditions' => array('Collection.id' => $collection_id)));
-				if(empty($collection_data)) { $this->redirect('/pages/err_inv_coll_no_data', null, true); }					
-				break;
-				
-			case 'derivative':
-				// Created sample is a derivative: Get parent sample information
-				$bool_is_specimen = false;
-				if(empty($parent_sample_master_id)) { $this->redirect('/pages/err_inv_system_error', null, true); }
-				
-				// Get parent data
-				$parent_sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $parent_sample_master_id), 'recursive' => '-1'));
-				if(empty($parent_sample_data)) { $this->redirect('/pages/err_inv_samp_no_data', null, true); }	
-				break;
-				
-			default:
-				$this->redirect('/pages/err_inv_system_error', null, true);
+		
+		if(empty($parent_sample_master_id)) {
+			// Created sample is a specimen
+			$bool_is_specimen = true;
+			
+			// Get Control Data
+			$sample_control_data = $this->SampleControl->find('first', array('conditions' => array('SampleControl.id' => $sample_control_id)));
+			if(empty($sample_control_data)) { $this->redirect('/pages/err_inv_no_samp_cont_data', null, true); }	
+			
+			// Check collection id
+			$collection_data = $this->Collection->find('first', array('conditions' => array('Collection.id' => $collection_id)));
+			if(empty($collection_data)) { $this->redirect('/pages/err_inv_coll_no_data', null, true); }			
+			
+		} else {
+			// Created sample is a derivative: Get parent sample information
+			$bool_is_specimen = false;
+			
+			// Get parent data
+			$parent_sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $parent_sample_master_id), 'recursive' => '-1'));
+			if(empty($parent_sample_data)) { $this->redirect('/pages/err_inv_samp_no_data', null, true); }
+			
+			// Get Control Data
+			$criteria = array(
+				'ParentSampleControl.id' => $parent_sample_data['SampleMaster']['sample_control_id'],
+				'ParentToDerivativeSampleControl.status' => 'active',
+				'DerivativeControl.status' => 'active',
+				'DerivativeControl.id' => $sample_control_id);
+			$parent_to_derivative_sample_control = $this->ParentToDerivativeSampleControl->find('first', array('conditions' => $criteria));	
+			if(empty($parent_to_derivative_sample_control)) { $this->redirect('/pages/err_inv_no_samp_cont_data', null, true); }
+			$sample_control_data['SampleControl'] = $parent_to_derivative_sample_control['DerivativeControl'];
 		}
-
+		
 		// Set parent data
 		$this->set('parent_sample_data', $parent_sample_data);
 		
 		// Set new sample control information
 		$this->set('sample_control_data', $sample_control_data);	
-	
+		
 		// Set list of available SOPs to create sample
 		$this->set('arr_sample_sops', $this->getSampleSopList($sample_control_data['SampleControl']['sample_type']));
-
+		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Set menu
@@ -721,7 +741,6 @@ class SampleMastersController extends InventorymanagementAppController {
 		$returned_nbr = $this->ReviewMaster->find('count', array('conditions' => array('ReviewMaster.sample_master_id' => $sample_master_id), 'recursive' => '-1'));
 		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'review exists for the deleted sample'); }
 		
-
 		return array('allow_deletion' => true, 'msg' => '');
 	}
 	

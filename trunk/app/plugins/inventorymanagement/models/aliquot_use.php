@@ -1,13 +1,7 @@
 <?php
 
-class AliquotUse extends InventoryManagementAppModel
-{
-    var $name = 'AliquotUse';
+class AliquotUse extends InventoryManagementAppModel {
 	
-	var $useTable = 'aliquot_uses';
-	
-	var $validate = array();
-
 }
 
 ?>

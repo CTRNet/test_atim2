@@ -24,8 +24,6 @@ class SampleMaster extends InventorymanagementAppModel {
 		'AliquotMaster' => array(
 			'className'   => 'Inventorymanagement.AliquotMaster',
 			 	'foreignKey'  => 'sample_master_id'));  
-
-
 	
 	function specimenSummary($variables=array()) {
 		$return = false;

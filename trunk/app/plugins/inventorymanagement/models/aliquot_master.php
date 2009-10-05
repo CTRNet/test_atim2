@@ -2,11 +2,24 @@
 
 class AliquotMaster extends InventoryManagementAppModel {
 
-	var $useTable = 'aliquot_masters';
-	
-	var $belongsTo = 'AliquotControl';
-   
-   var $actAs = array('MasterDetail');
+	var $belongsTo = array(        
+		'AliquotControl' => array(            
+			'className'    => 'Inventorymanagement.AliquotControl',            
+			'foreignKey'    => 'aliquot_control_id'), 
+		'Collection' => array(            
+			'className'    => 'Inventorymanagement.Collection',            
+			'foreignKey'    => 'collection_id'),          
+		'SampleMaster' => array(            
+			'className'    => 'Inventorymanagement.SampleMaster',            
+			'foreignKey'    => 'sample_master_id'),        
+		'StorageMaster' => array(            
+			'className'    => 'Storagelayout.StorageMaster',            
+			'foreignKey'    => 'storage_master_id'));
+                                 
+	var $hasMany 
+		= array('AliquotUse' =>
+			array('className'   => 'Inventorymanagement.AliquotUse',
+			 	'foreignKey'  => 'aliquot_master_id'));
 	
 	function summary( $variables=array() ) {
 		$return = false;
@@ -32,31 +45,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 		
 		return $return;
 	}
-/*
-    var $name = 'AliquotMaster';
-    
-	var $useTable = 'aliquot_masters';
-
-	var $belongsTo 
-		= array('StorageMaster' =>
-			array('className'  => 'StorageMaster',
-                 'conditions' => '',
-                 'order'      => '',
-                 'foreignKey' => 'storage_master_id'));
-                                 
-	var $hasMany 
-		= array('AliquotUse' =>
-			array('className'   => 'AliquotUse',
-			 	'conditions'  => '',
-			 	'order'       => '',
-			 	'limit'       => '',
-			 	'foreignKey'  => 'aliquot_master_id',
-			 	'dependent'   => true,
-			 	'exclusive'   => false,
-			 	'finderSql'   => ''));
-		
-	var $validate = array();
-*/
+	
 }
 
 ?>
