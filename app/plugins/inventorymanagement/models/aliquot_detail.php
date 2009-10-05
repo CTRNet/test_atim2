@@ -1,12 +1,8 @@
 <?php
 
-class AliquotDetail extends InventoryManagementAppModel
-{
-    var $name = 'AliquotDetail';
+class AliquotDetail extends InventoryManagementAppModel {
 	
-	var $useTable = 'ad_tubes';
-	
-	var $validate = array();
+	var $useTable = false;
 	
 }
 

@@ -12,13 +12,11 @@
 	$search_type_links = array();
 	$search_type_links['collection'] = '/inventorymanagement/collections/index/';
 	$search_type_links['sample'] = '/inventorymanagement/sample_masters/index/';
-	$search_type_links['aliquot'] = '/underdevelopment/';
+	$search_type_links['aliquot'] = '/inventorymanagement/aliquot_masters/index/';
 	
 	$structure_links = array(
 		'index' => array('detail' => '/inventorymanagement/collections/detail/%%Collection.id%%'),
-		'bottom' => array(
-			'add collection' => '/inventorymanagement/collections/add', 
-			'search' => $search_type_links)
+		'bottom' => array('add collection' => '/inventorymanagement/collections/add', 'search' => $search_type_links)
 	);
 	
 	$structure_override = array();

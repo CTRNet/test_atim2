@@ -8,20 +8,30 @@
 	if(!empty($parent_sample_data)) { $show_parent_link = '/inventorymanagement/sample_masters/detail/' . $atim_menu_variables['Collection.id'] . '/' . $parent_sample_data['SampleMaster']['id']; }
 	
 	// Create array of derivative type that could be created from studied sample for the ADD button
-	$add_links = array();
+	$add_derivatives = array();
 	foreach($allowed_derivative_type as $sample_control) {
-		$add_links[$sample_control['SampleControl']['sample_type']] = '/inventorymanagement/sample_masters/add/' . $atim_menu_variables['Collection.id'] . '/' . $sample_control['SampleControl']['id'] . '/' . $atim_menu_variables['SampleMaster.id'];
+		$add_derivatives[$sample_control['SampleControl']['sample_type']] = '/inventorymanagement/sample_masters/add/' . $atim_menu_variables['Collection.id'] . '/' . $sample_control['SampleControl']['id'] . '/' . $atim_menu_variables['SampleMaster.id'];
 	}		
-	if(empty($add_links)) {
-		$add_links = '/underdevelopment/';
+	if(empty($add_derivatives)) {
+		$add_derivatives = '/underdevelopment/';
 	}
+	
+	// Create array of aliquot type that could be created for the studied sample for the ADD button 
+	$add_aliquots = array();	
+	foreach($allowed_aliquot_type as $aliquot_control) {
+		$add_aliquots[$aliquot_control['AliquotControl']['aliquot_type']] = '/inventorymanagement/aliquot_masters/add/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $aliquot_control['AliquotControl']['id'];
+	}		
+	if(empty($add_aliquots)) {
+		$add_aliquots = '/underdevelopment/';
+	}	
 	
 	$structure_links = array(
 		'bottom'=>array(
 			'edit' => '/inventorymanagement/sample_masters/edit/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'], 
 			'delete' => '/inventorymanagement/sample_masters/delete/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'], 
 			'see parent sample' => $show_parent_link,
-			'create derivative' => $add_links
+			'add derivative' => $add_derivatives,
+			'add aliquot' => $add_aliquots
 		)
 	);
 		
