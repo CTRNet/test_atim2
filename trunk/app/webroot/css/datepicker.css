@@ -8,6 +8,9 @@ div.datePicker
         width:24em;
         z-index:9999;
         text-align:center;
+        
+        border: 0;
+        padding: 0;
 
         /* Change the font-size to suit your design's CSS. The following line is for the demo that has a 12px font-size defined on the body tag */
         font:900 0.8em/0.8em Verdana, Sans-Serif;

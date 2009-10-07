@@ -43,7 +43,7 @@ class AppModel extends Model {
 	
 	/*
 		ATiM 2.0 function
-		used instead of Model->delete, becaise softDelete will always return a FALSE
+		used instead of Model->delete, because SoftDelete Behaviour will always return a FALSE
 	*/
 	
 	function atim_delete( $model_id, $cascade=false ) {
@@ -53,7 +53,7 @@ class AppModel extends Model {
 		// delete DATA as normal
 		$this->del( $model_id, $cascade );
 		
-		// do a FIND of the same DATA
+		// do a FIND of the same DATA, return FALSE if found or TRUE if not found
 		if ( $this->read() ) { 
 			return false; 
 		} else { 

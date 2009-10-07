@@ -106,8 +106,8 @@ class StructuresComponent extends Object {
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'].'_end' ]['key']				= $value['StructureField']['model'].'.'.$value['StructureField']['field'].' <=';
 				}
 				
-				// for SELECT pulldowns, where an EXACT match is required...
-				else if ( $value['StructureField']['type']=='select' ) {
+				// for SELECT pulldowns, where an EXACT match is required, OR passed in DATA is an array to use the IN SQL keyword
+				else if ( $value['StructureField']['type']=='select' || ( isset($this->controller->data[ $value['StructureField']['model'] ][ $value['StructureField']['field'] ]) && is_array($this->controller->data[ $value['StructureField']['model'] ][ $value['StructureField']['field'] ]) ) ) {
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'] ]['plugin']	= $value['StructureField']['plugin'];
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'] ]['model']	= $value['StructureField']['model'];
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'] ]['field']	= $value['StructureField']['field'];
@@ -137,6 +137,23 @@ class StructuresComponent extends Object {
 					
 					// add search element to CONDITIONS array if not blank & MODEL data included Model/Field info...
 					if ( $data && isset( $form_fields[$model.'.'.$key] ) ) {
+						
+						// if CSV file uploaded...
+						if ( is_array($data) && isset($this->controller->data[$model][$key.'_with_file_upload']) && $this->controller->data[$model][$key.'_with_file_upload']['tmp_name'] ) {
+							
+							// set $DATA array based on contents of uploaded FILE
+							$handle = fopen($this->controller->data[$model][$key.'_with_file_upload']['tmp_name'], "r");
+							
+							// in each LINE, get FIRST csv value, and attach to DATA array
+							while (($csv_data = fgetcsv($handle, 1000, csv_separator, '"')) !== FALSE) {
+							    $data[] = $csv_data[0];
+							}
+							
+							fclose($handle);
+							
+							unset($this->controller->data[$model][$key.'_with_file_upload']);
+							
+						}
 						
 						// use Model->deconstruct method to properly build data array's date/time information from arrays
 						if ( is_array($data) ) {
