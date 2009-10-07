@@ -81,7 +81,7 @@ class StructuresHelper extends Helper {
 			
 			else {
 				$return_string .= '
-					<form action="'.$this->generate_links_list( $this->data, $options, 'top' ).'" method="post">
+					<form action="'.$this->generate_links_list( $this->data, $options, 'top' ).'" method="post" enctype="multipart/form-data">
 						<fieldset>
 				';
 			}
@@ -314,6 +314,11 @@ class StructuresHelper extends Helper {
 				<tr>
 		';
 			
+			// attach PER PAGE pagination param to PASSED params array...
+			if ( isset($this->params['named']) && isset($this->params['named']['per']) ) {
+				$this->params['pass']['per'] = $this->params['named']['per'];
+			}
+			
 			$this->Paginator->options(array('url' => $this->params['pass']));
 			
 				if ( is_array($options['data']) ) { $data=$options['data']; }
@@ -438,9 +443,22 @@ class StructuresHelper extends Helper {
 							$return_string .= '
 									<tr class="pagination">
 										<th'.( $column_count ? ' colspan="'.$column_count.'"' : '' ).'>
-											'.$this->Paginator->prev( __( 'Prev',true ), NULL, __( 'Prev',true ) ).'
-											'.$this->Paginator->counter( array('format' => '%start%-%end% of %count%') ).'
-											'.$this->Paginator->next( __( 'Next',true ), NULL, __( 'Next',true ) ).'
+											
+											<span class="results">
+												'.$this->Paginator->counter( array('format' => '%start%-%end% of %count%') ).'
+											</span>
+											
+											<span class="links">
+												'.$this->Paginator->prev( __( 'Prev',true ), NULL, __( 'Prev',true ) ).'
+												'.$this->Paginator->numbers().'
+												'.$this->Paginator->next( __( 'Next',true ), NULL, __( 'Next',true ) ).'
+											</span>
+											
+											'.$this->Paginator->link( '5', array('page'=>1, 'per'=>5)).' |
+											'.$this->Paginator->link( '10', array('page'=>1, 'per'=>10)).' |
+											'.$this->Paginator->link( '20', array('page'=>1, 'per'=>20)).' |
+											'.$this->Paginator->link( '50', array('page'=>1, 'per'=>50)).'
+											
 										</th>
 									</tr>
 							';
@@ -1217,7 +1235,7 @@ class StructuresHelper extends Helper {
 					if ( isset($this->validationErrors[ $field['StructureField']['model'] ][ $field['StructureField']['field'] ]) ) $html_element_array['class'] .= 'error ';
 					
 					if ( isset($field['flag_'.$options['type'].'_readonly']) && $field['flag_'.$options['type'].'_readonly'] && $options['type']!='search' ) {
-						$html_element_array['disabled'] = 'disabled';
+						// $html_element_array['disabled'] = 'disabled';
 						$html_element_array['readonly'] = 'readonly';
 						$html_element_array['class'] .= 'readonly ';
 					}

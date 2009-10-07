@@ -1084,7 +1084,10 @@ div.menu ul#summary ul dl lh {
 			div#wrapper table.structure table.columns tr.pagination div {
 				background: none;
 				display: inline;
-			}				
+			}
+			
+				div#wrapper table.structure table.columns tr.pagination span.results { float: left; padding-left: 1em; }		
+				div#wrapper table.structure table.columns tr.pagination span.links { float: right; padding-right: 1em; }		
 		
 			div#wrapper table.structure table.columns td.no_data_available {
 				text-align: center;

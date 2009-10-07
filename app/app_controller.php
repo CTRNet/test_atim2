@@ -1,8 +1,79 @@
 <?php
 
+// ATiM2 configuration variables from Datatable
+	
+	// parse URI manually to get passed PARAMS
+	
+		$request_uri_params = array();
+		
+		$request_uri = $_SERVER['REQUEST_URI'];
+		$request_uri = explode('/',$request_uri);
+		$request_uri = array_filter($request_uri);
+		
+		foreach ( $request_uri as $uri ) {
+			$exploded_uri = explode(':',$uri);
+			if ( count($exploded_uri)>1 ) {
+				$request_uri_params[ $exploded_uri[0] ] = $exploded_uri[1];
+			}
+		}
+	
+	// import APP code required...
+	
+		App::import('model', 'Config');
+		$config_data_model =& new Config;
+		
+		App::import('component', 'Session');
+		$config_session_component =& new SessionComponent;
+	
+	// get CONFIG data from table and SET
+		
+		$config_results	= false;
+		
+		$logged_in_user	= $config_session_component->read('Auth.User.id');
+		$logged_in_group	= $config_session_component->read('Auth.User.group_id');
+		
+		// get CONFIG for logged in user
+		if ( $logged_in_user ) {
+			$config_results = $config_data_model->find('first', array('conditions'=>array('Config.bank_id'=>'0','Config.group_id'=>'0','Config.user_id'=>$logged_in_user)));
+		}
+		// if not logged in user, or user has no CONFIG, get CONFIG for APP level
+		if ( $logged_in_group && !$config_results ) {
+			$config_results = $config_data_model->find('first', array('conditions'=>array('Config.bank_id'=>'0','Config.group_id'=>$logged_in_group,'Config.user_id'=>'0')));
+		}
+		// if not logged in user, or user has no CONFIG, get CONFIG for APP level
+		if ( !$config_results ) {
+			$config_results = $config_data_model->find('first', array('conditions'=>array('Config.bank_id'=>'0','Config.group_id'=>'0','Config.user_id'=>'0')));
+		}
+		
+		// parse result, set configs/defines
+		if ( $config_results ) {
+			foreach ( $config_results['Config'] as $config_key=>$config_data ) {
+				if ( strpos($config_key,'_')!==false ) {
+					
+					// break apart CONFIG key
+					$config_key = explode('_',$config_key);
+					$config_format = array_shift($config_key);
+					$config_key = implode('_',$config_key);
+					
+					// if a DEFINE or CONFIG, set new setting for APP
+					if ( $config_format=='define' ) {
+						
+						// override DATATABLE value with URI PARAM value
+						if ( $config_key=='pagination_amount' && isset($request_uri_params['per']) ) {
+							$config_data = $request_uri_params['per'];
+						}
+						
+						define($config_key, $config_data);
+					} else if ( $config_format=='config' ) {
+						Configure::write($config_key, $config_data);
+					}
+				}
+			}
+		}
+
 class AppController extends Controller {
 	
-	var $uses = array('Config', 'Aco', 'Aro', 'Permission');
+	var $uses			= array('Config', 'Aco', 'Aro', 'Permission');
 	var $components	= array('Acl', 'Auth', 'Menus', 'RequestHandler', 'Structures');
 	var $helpers		= array('Ajax', 'Csv', 'Html', 'Javascript', 'Shell', 'Structures', 'Time');
 	
@@ -38,6 +109,7 @@ class AppController extends Controller {
 			
 			$log_activity_model->save($log_activity_data);
 		
+		/*
 		// ATiM2 configuration variables from Datatable
 			$config_results	= false;
 			$logged_in_user	= $this->Session->read('Auth.User.id');
@@ -75,6 +147,7 @@ class AppController extends Controller {
 					}
 				}
 			}
+			*/
 			
 		// menu grabbed for HEADER
 			$this->set( 'atim_menu_for_header', $this->Menus->get('/menus/tools') );

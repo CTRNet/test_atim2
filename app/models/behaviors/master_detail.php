@@ -123,7 +123,7 @@ class MasterDetailBehavior extends ModelBehavior {
 			} else {
 				$result = true;
 			}
-			
+			 
 			return $result;
 			
 		}
