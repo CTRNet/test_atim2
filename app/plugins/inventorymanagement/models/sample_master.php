@@ -27,7 +27,7 @@ class SampleMaster extends InventorymanagementAppModel {
 	
 	function specimenSummary($variables=array()) {
 		$return = false;
-		
+				
 		if (isset($variables['SampleMaster.initial_specimen_sample_id']) && isset($variables['Collection.id'])) {
 			$criteria = array(
 				'SampleMaster.collection_id' => $variables['Collection.id'],
