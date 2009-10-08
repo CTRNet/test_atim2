@@ -23,7 +23,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 			'StudySummary'
 	);
 	*/
-		
+
+	var $components = array('Study.StudySummaries', 'StorageLayout.Storages');
+	
 	var $uses = array(
 	
 	
@@ -34,12 +36,16 @@ class AliquotMastersController extends InventoryManagementAppController {
 		'Inventorymanagement.Collection',
 //		
 		'Inventorymanagement.SampleMaster',
+		'Inventorymanagement.DerivativeDetail',
+		
 //		'Inventorymanagement.SampleControl',
 //		
 		'Inventorymanagement.AliquotControl', 
 		'Inventorymanagement.AliquotMaster',
 		
-		'Inventorymanagement.SampleToAliquotControl'
+		'Inventorymanagement.SampleToAliquotControl',
+		
+		'Study.StudySummary'
 //		
 //		
 //		'Storagelayout.StorageMaster'
@@ -415,230 +421,107 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if(empty($sample_to_aliquot_control)) { $this->redirect('/pages/err_inv_no_aliqu_cont_data', null, true); }			
 		$aliquot_control_data = array('AliquotControl' => $sample_to_aliquot_control['AliquotControl']);
 		
-		// Set sample data
-//		$this->set('sample_data', $sample_data);
-		
 		// Set new aliquot control information
 		$this->set('aliquot_control_data', $aliquot_control_data);	
 		
 		// Set list of available SOPs to create aliquot
 		$this->set('arr_aliquot_sops', $this->getAliquotSopList($sample_data['SampleMaster']['sample_type'], $aliquot_control_data['AliquotControl']['aliquot_type']));
+
+		// Set list of studies
+		$this->set('arr_studies', $this->getStudiesList());
 		
+		// Set list of sample blocks (will only works for sample type being linked to block type)
+		$this->set('arr_sample_blocks', $this->getSampleBlocksList($sample_data));
+
+		// Set list of sample gel matrices (will only works for sample type being linked to gel matrix type)
+		$this->set('arr_sample_gel_matrices', $this->getSampleGelMatricesList($sample_data));
+				
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Set menu
-		$atim_menu = $bool_is_specimen? $this->Menus->get('/inventorymanagement/aliquot_masters/listall/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%'): $this->Menus->get('/inventorymanagement/aliquot_masters/listall/%%Collection.id%%/%%SampleMaster.id%%');
+		$atim_menu_link = '/inventorymanagement/aliquot_masters/listall/%%Collection.id%%/';
+		$atim_menu = $bool_is_specimen? $this->Menus->get($atim_menu_link . '%%SampleMaster.initial_specimen_sample_id%%'): $this->Menus->get($atim_menu_link . '%%SampleMaster.id%%');
 		$this->set('atim_menu', $atim_menu);
 		
-		$atim_menu_variables = (empty($parent_sample_data)? array('Collection.id' => $collection_id) : array('Collection.id' => $collection_id, 'SampleMaster.initial_specimen_sample_id' => $parent_sample_data['SampleMaster']['initial_specimen_sample_id']));
-		$this->set('atim_menu_variables', $atim_menu_variables);
+		$this->set('atim_menu_variables', array('Collection.id' => $collection_id, 'SampleMaster.id' => $sample_master_id, 'SampleMaster.initial_specimen_sample_id' => $sample_data['SampleMaster']['initial_specimen_sample_id']));
 		
 		// set structure alias based on VALUE from CONTROL table
 		$this->set('atim_structure', $this->Structures->get('form', $aliquot_control_data['AliquotControl']['form_alias']));	
 	
-	
-	
-	
-	
-	
-	
-// Ajouter bouton add 5 copy... to copy last row...	
-
-			
-//		$this->set('arr_study_from_id', $this->getStudiesArray());
-		
-		
-		
-		
-				
-//		// Set additional data for tissue slide
-//		$form_requiring_blocks_list = array ('ad_spec_tiss_slides' ,'ad_spec_tiss_cores');
-//
-//		if (in_array($aliquot_control_data['AliquotControl']['form_alias'], $form_requiring_blocks_list)) {
-//	
-//			// Get aliquot control ID of tissue block 
-//			$criteria = array();
-//			$criteria['AliquotControl.form_alias'] = 'ad_spec_tiss_blocks';
-//			$criteria['AliquotControl.status'] = 'active';
-//			$tmp_aliquot_data = $this->AliquotControl->findAll($criteria);
-//			if(sizeof($tmp_aliquot_data) != 1) {
-//				$this->redirect('/pages/err_inv_source_block_definition'); 
-//				exit;
-//			}
-//			$source_aliquot_control_id = $tmp_aliquot_data['0']['AliquotControl']['id'];
-//			
-//			// Create array to display available tissue block lists
-//			$criteria = array();
-//			$criteria['AliquotMaster.aliquot_control_id'] = $source_aliquot_control_id;
-//			$criteria['AliquotMaster.status'] = 'available';
-//			$criteria['AliquotMaster.sample_master_id'] = $sample_master_id;
-//			$criteria['AliquotMaster.collection_id'] = $collection_id;
-//			$criteria = array_filter($criteria);
-//			
-//			$available_block_code 
-//				= $this->AliquotMaster->generateList(
-//					$criteria, 
-//					null, 
-//					null, 
-//					'{n}.AliquotMaster.id', 
-//					'{n}.AliquotMaster.barcode');
-//
-//			$this->set('available_block_code', $available_block_code);
-//		}
-//		
-//		// Set additional data for cell core
-//		$form_requiring_gel_matrix_list = array ('ad_der_cell_cores');
-//
-//		if (in_array($aliquot_control_data['AliquotControl']['form_alias'], $form_requiring_gel_matrix_list)) {
-//	
-//			// Get aliquot control ID of gel matrix 
-//			$criteria = array();
-//			$criteria['AliquotControl.form_alias'] = 'ad_der_cel_gel_matrices';
-//			$criteria['AliquotControl.status'] = 'active';
-//			$tmp_aliquot_data = $this->AliquotControl->findAll($criteria);
-//			if(sizeof($tmp_aliquot_data) != 1) {
-//				$this->redirect('/pages/err_inv_source_gel_matrix_definition'); 
-//				exit;
-//			}
-//			$source_aliquot_control_id = $tmp_aliquot_data['0']['AliquotControl']['id'];
-//			
-//			// Create array to display available gel matrix lists
-//			$criteria = array();
-//			$criteria['AliquotMaster.aliquot_control_id'] = $source_aliquot_control_id;
-//			$criteria['AliquotMaster.status'] = 'available';
-//			$criteria['AliquotMaster.sample_master_id'] = $sample_master_id;
-//			$criteria['AliquotMaster.collection_id'] = $collection_id;
-//			$criteria = array_filter($criteria);
-//			
-//			$available_gel_matrix_code 
-//				= $this->AliquotMaster->generateList(
-//					$criteria, 
-//					null, 
-//					null, 
-//					'{n}.AliquotMaster.id', 
-//					'{n}.AliquotMaster.barcode');
-//
-//			$this->set('available_gel_matrix_code', $available_gel_matrix_code);
-//		}
-		
-
-
-
-
-
 		if (empty($this->data)) {
-			// ** Prepare Form Display **
-			
-//			// Default creation date will be the derivative creation date or Specimen reception date
-//			$default_storage_date = null;
-//			
-//			if(strcmp($sample_master['SampleMaster']['sample_category'], 'specimen') == 0) {
-//				$default_storage_date = $collection_data['Collection']['reception_datetime'];
-//			} else if(strcmp($sample_master['SampleMaster']['sample_category'], 'derivative') == 0) {
-//				$criteria = array();
-//				$criteria['DerivativeDetail.sample_master_id'] = $sample_master_id;
-//				$derivative_detail_data = $this->DerivativeDetail->find($criteria);
-//				
-//				if(empty($derivative_detail_data)){
-//					$this->redirect('/pages/err_inv_missing_samp_data'); 
-//					exit;
-//				}
-//				
-//				$default_storage_date = $derivative_detail_data['DerivativeDetail']['creation_datetime'];
-//			} else {
-//				$this->redirect('/pages/err_inv_system_error'); 
-//				exit;				
-//			}
-//			
-//			$this->set('default_storage_date', $default_storage_date);
-//		
-//			// Build an empty array of 5 records 	
-//			$aliquot_masters = array();
-//			
-//			for($ind=0; $ind < $aliquot_nbr ; $ind++){
-//				
-//				$aliquot_masters[$ind] = 
-//					array('AliquotMaster' => 
-//						array(
-//							'id' => null,
-//							'aliquot_type' => $aliquot_control_data['AliquotControl']['aliquot_type']));
-//				
-//				// Add volume unit if required
-//				if(!is_null($aliquot_control_data['AliquotControl']['volume_unit'])) {
-//					$aliquot_masters[$ind]['AliquotMaster']['aliquot_volume_unit'] 
-//						= $aliquot_control_data['AliquotControl']['volume_unit'];
-//				}
-//			} 
-//			
-//			$this->data = $aliquot_masters;
-//			
-//			$this->set('data', $aliquot_masters);
-//			
-//			// The storage list will be empty to force user to enter first a storage selection label
-//			$this->set('arr_storage_list', array());		
-//			$_SESSION['ctrapp_core']['inventory_management']['arr_storage_list'] = array(); 
+			// Initial Display
+			$this->set('default_storage_datetime', $this->getDefaultAliquotStorageDate($sample_data));
+			$_SESSION['InventoryManagement']['Aliquot']['DefinedStoragesList'] = array();
+			$this->set('arr_storage_list', $_SESSION['InventoryManagement']['Aliquot']['DefinedStoragesList']);
+						
+//TODO should be a datagrid with add/remove record buttons
+//$this->data = array(array());
 			
 		} else {
+			// Manage submitted data
 
-			// New aliquots have to be created
-	
-			// ** Manage the save of the data	**
-		
-			// 1- Manage copy and track barcode
-			$bool_copy_done = false;
-			$arr_new_barcode = array();			
-			foreach($this->data as $id => $new_studied_aliquot){
+//TODO temporary modification before use of datagrid
+$this->data = array('0' => $this->data);	
+			
+			// Run validation
+									
+//2- Run Validation and set value that have not to be defined by the user
 
-				$this->cleanUpDatagridFields($id, 'AliquotMaster');	
-				
-				if((strcmp($new_studied_aliquot['FunctionManagement']['copy_prev_line'], 'yes') == 0)
-				&& ($id > 0)) {
-					// The new record should be a copy of the previous record
-					$this->data[$id] = $this->data[($id-1)];
-					$bool_copy_done = true;						
-				}
-				
-				if(!empty($new_studied_aliquot['AliquotMaster']['barcode'])){
-					// Track barcode for futur check
-					$arr_new_barcode[] = $new_studied_aliquot['AliquotMaster']['barcode'];
-				}
-				
-			}		
-			
-			if($bool_copy_done){
-				// Redisplay the screen with the copied data
-				// Nothing to do
-				$this->set('arr_storage_list', 
-					$_SESSION['ctrapp_core']['inventory_management']['arr_storage_list']);
-								
-			} else {
-							
-				//2- Run Validation and set value that have not to be defined by the user
-				
-				// setup MODEL(s) validation array(s) for displayed FORM 
-				foreach ($this->Forms->getValidateArray($aliquot_control_data['AliquotControl']['form_alias']) as $validate_model=>$validate_rules) {
-					$this->{$validate_model}->validate = $validate_rules;
-				}
-			
-				// Get duplicated barcodes or barcode too long
-				$arr_barcodes_in_error = $this->validateAliquotBarcode($arr_new_barcode);
-				
-				// Set Flag
-				$submitted_data_validates = true;
-				
-				$storage_control_errors = array();
-				$arr_storage_list = array();	
+
+
+// Get duplicated barcodes or barcode too long
+$arr_barcodes_in_error = $this->validateAliquotBarcode($arr_new_barcode);
+
+// Set Flag
+$submitted_data_validates = true;
+
+$storage_control_errors = array();
+$matching_storage_list = array();	
+$storage_master_id_errors = array();
+
+				$duplicated_barcodes = array();
+				$created_barcodes = array();
 				
 				foreach($this->data as $id => $new_studied_aliquot){
-					// New aliquot that has to be created
+					// New aliquot to create
+				
+					// A- Check Barcode part 1
+					$new_barcode = $new_studied_aliquot['AliquotMaster']['barcode'];
+					if(isset($created_barcodes[$new_barcode])) {
+						$duplicated_barcodes[$new_barcode] = $new_barcode;
+					} else {
+						$created_barcodes[$new_barcode] = $new_barcode;
+					}
 					
-					// A- Check Barcode
+					// B- Check the aliquot storage definition (selection label versus selected storage_master_id)
+					$arr_storage_selection_results = $this->Storages->validateStorageIdVersusSelectionLabel($new_studied_aliquot['FunctionManagement']['recorded_storage_selection_label'], $new_studied_aliquot['AliquotMaster']['storage_master_id']);
+							
+					$this->data[$id]['AliquotMaster']['storage_master_id'] = $arr_storage_selection_results['selected_storage_master_id'];
+					$matching_storage_list = array_merge($matching_storage_list, $arr_storage_selection_results['matching_storage_list']);	
+											
+					if(!empty($arr_storage_selection_results['storage_definition_error'])) {
+						$submitted_data_validates = false;
+						$this->TmaSlide->validationErrors['storage_master_id'] = $arr_storage_selection_results['storage_definition_error'];		
 					
-					// Erase barcode data if this one is duplicated (for form field validation)
-					if(in_array($this->data[$id]['AliquotMaster']['barcode'], $arr_barcodes_in_error)){
-						// This barcode already exists, flush the barcode
-						//$new_studied_aliquot['AliquotMaster']['barcode'] = '';
-						$this->data[$id]['AliquotMaster']['barcode'] = '';
+					} else {
+						// Check slide position within storage
+						$storage_data = (empty($this->data['TmaSlide']['storage_master_id'])? null: $arr_storage_selection_results['matching_storage_list'][$this->data['TmaSlide']['storage_master_id']]);
+						$arr_position_results = $this->Storages->validatePositionWithinStorage($this->data['TmaSlide']['storage_master_id'], $this->data['TmaSlide']['storage_coord_x'], $this->data['TmaSlide']['storage_coord_y'], $storage_data);
+						if(!empty($arr_position_results['position_definition_error'])) {
+							$submitted_data_validates = false;
+							$error = $arr_position_results['position_definition_error'];
+							if($arr_position_results['error_on_x']) {
+								$this->TmaSlide->validationErrors['storage_coord_x'] = $error;
+								$error = '';	
+							} 
+							if($arr_position_results['error_on_y']) {
+								$this->TmaSlide->validationErrors['storage_coord_y'] = $error;	
+							}	
+						}				
+						$this->data['TmaSlide']['storage_coord_x'] = $arr_position_results['validated_position_x'];
+						$this->data['TmaSlide']['coord_x_order'] = $arr_position_results['position_x_order'];
+						$this->data['TmaSlide']['storage_coord_y'] = $arr_position_results['validated_position_y'];
+						$this->data['TmaSlide']['coord_y_order'] = $arr_position_results['position_y_order'];
 					}
 					
 					// B- Check the user storage defintion (selection label / storage_master_id)
@@ -666,6 +549,17 @@ class AliquotMastersController extends InventoryManagementAppController {
 						$submitted_data_validates = false;
 					}
 					$storage_control_errors = $storage_control_errors + $arr_storage_coord_results['storage_control_errors'];		
+
+
+
+
+
+
+
+
+
+
+
 					
 					// D- Set Initial Volume
 				
@@ -767,7 +661,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 					}	
 
 				} // End save action done after validation
-			} // End section done when no copy has to be done (validation + save)
+
+			
+
 		} // End data save management (manage copy + validation + save)	 		
 	} // function addAliquotInBatch
 
@@ -786,6 +682,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 	 *	@param $sample_type Sample Type
 	 *	@param $aliquot_type Aliquot Type
 	 *
+	 * @return Array gathering all sops
+	 *
 	 * @author N. Luc
 	 * @since 2009-09-11
 	 * @updated N. Luc
@@ -794,6 +692,137 @@ class AliquotMastersController extends InventoryManagementAppController {
 	function getAliquotSopList($sample_type, $aliquot_type) {
 		return $this->getSopList('aliquot');
 	}
+	
+	/**
+	 * Get list of Studies existing into the system.
+	 * 
+	 * Note: Function to allow bank to customize this function when they don't use 
+	 * Study module.
+	 *
+	 * @return Array gathering all studies
+	 *
+	 * @author N. Luc
+	 * @since 2009-09-11
+	 * @updated N. Luc
+	 */
+	 
+	function getStudiesList() {
+		return $this->StudySummaries->getStudiesList();
+	}
+	
+	/**
+	 * Get list of blocks created for the studied sample.
+	 * 
+	 * @param $sample_master_data Master data of the studied sample.
+	 * 
+	 * @return Array gathering all sample blocks data.
+	 *
+	 * @author N. Luc
+	 * @since 2009-09-11
+	 * @updated N. Luc
+	 */
+	 
+	function getSampleBlocksList($sample_master_data) {
+		// Check block can be created for the studied sample
+		$criteria = array(
+			'SampleControl.id' => $sample_master_data['SampleMaster']['sample_control_id'],
+			'SampleToAliquotControl.status' => 'active',
+			'AliquotControl.status' => 'active',
+			'AliquotControl.form_alias' => 'ad_spec_tiss_blocks');
+		$sample_to_block_control = $this->SampleToAliquotControl->find('first', array('conditions' => $criteria));	
+		
+		if(empty($sample_to_block_control)) { return array(); }
+		
+		// Get block type control id
+		$block_control_id = $sample_to_block_control['AliquotControl']['id'];
+		
+		// Get existing sample block
+		$criteria = array();
+		$criteria['AliquotMaster.aliquot_control_id'] = $block_control_id;
+		$criteria['AliquotMaster.status'] = 'available';
+		$criteria['AliquotMaster.sample_master_id'] = $sample_master_data['SampleMaster']['id'];
+		$criteria['AliquotMaster.collection_id'] = $sample_master_data['SampleMaster']['collection_id'];
+		$criteria['AliquotMaster.deleted'] = '0';
+				
+		$blocks_list = $this->AliquotMaster->atim_list(array('conditions' => $criteria, 'order' => array('AliquotMaster.barcode ASC')));
+		
+		return (empty($blocks_list)? array() : $blocks_list);
+	}
+	
+	/**
+	 * Get list of gel matrices created for the studied sample.
+	 * 
+	 * @param $sample_master_data Master data of the studied sample.
+	 * 
+	 * @return Array gathering all sample gel matrices data.
+	 *
+	 * @author N. Luc
+	 * @since 2009-09-11
+	 * @updated N. Luc
+	 */
+	 
+	function getSampleGelMatricesList($sample_master_data) {
+		// Check gel matrix can be created for the studied sample
+		$criteria = array(
+			'SampleControl.id' => $sample_master_data['SampleMaster']['sample_control_id'],
+			'SampleToAliquotControl.status' => 'active',
+			'AliquotControl.status' => 'active',
+			'AliquotControl.form_alias' => 'ad_der_cel_gel_matrices');
+		$sample_to_gel_matrix_control = $this->SampleToAliquotControl->find('first', array('conditions' => $criteria));	
+		
+		if(empty($sample_to_gel_matrix_control)) { return array(); }
+		
+		// Get block type control id
+		$gel_matrix_control_id = $sample_to_gel_matrix_control['AliquotControl']['id'];
+		
+		// Get existing sample block
+		$criteria = array();
+		$criteria['AliquotMaster.aliquot_control_id'] = $gel_matrix_control_id;
+		$criteria['AliquotMaster.status'] = 'available';
+		$criteria['AliquotMaster.sample_master_id'] = $sample_master_data['SampleMaster']['id'];
+		$criteria['AliquotMaster.collection_id'] = $sample_master_data['SampleMaster']['collection_id'];
+		$criteria['AliquotMaster.deleted'] = '0';
+				
+		$gel_matrices_list = $this->AliquotMaster->atim_list(array('conditions' => $criteria, 'order' => array('AliquotMaster.barcode ASC')));
+		
+		return (empty($gel_matrices_list)? array() : $gel_matrices_list);
+	}	
+		
+	/**
+	 * Get default storage date for a new created aliquot.
+	 * 
+	 * @param $sample_master_data Master data of the studied sample.
+	 * 
+	 * @return Default storage date.
+	 *
+	 * @author N. Luc
+	 * @since 2009-09-11
+	 * @updated N. Luc
+	 */
+	 
+	function getDefaultAliquotStorageDate($sample_master_data) {
+		switch($sample_master_data['SampleMaster']['sample_category']) {
+			case 'specimen':
+				// Default creation date will be the specimen reception date
+				$collection_data = $this->Collection->find('first', array('conditions' => array('Collection.id' => $sample_master_data['SampleMaster']['collection_id']), 'recursive' => '-1'));
+				if(empty($collection_data)) { $this->redirect('/pages/err_inv_coll_no_data', null, true); }
+				
+				return $collection_data['Collection']['reception_datetime'];
+				
+			case 'derivative':
+				// Default creation date will be the derivative creation date or Specimen reception date
+				$derivative_detail_data = $this->DerivativeDetail->find('first', array('conditions' => array('DerivativeDetail.sample_master_id' => $sample_master_data['SampleMaster']['id']), 'recursive' => '-1'));
+				if(empty($derivative_detail_data)) { $this->redirect('/pages/err_inv_missing_samp_data', null, true); }
+				
+				return $derivative_detail_data['DerivativeDetail']['creation_datetime'];
+				
+			default:
+				$this->redirect('/pages/err_inv_system_error', null, true);			
+		}
+		
+		return null;
+	}
+	
 	
 	/* --------------------------------------------------------------------------------------------- */
 
@@ -808,7 +837,27 @@ class AliquotMastersController extends InventoryManagementAppController {
 
 
 
+	function isDuplicatedTmaSlideBarcode($tma_slide_data, $tma_slide_id = null) {
+		if(empty($tma_slide_data['TmaSlide']['barcode'])) {
+			return false;
+		}
 
+		// Build list of TMA slide having the same barcode
+		$duplicated_tma_barcodes = $this->TmaSlide->find('list', array('conditions' => array('TmaSlide.barcode' => $tma_slide_data['TmaSlide']['barcode']), 'recursive' => '-1'));
+
+		if(empty($duplicated_tma_barcodes)) {
+			// The new barcode does not exist into the db
+			return false;
+		} else if((!empty($tma_slide_id)) && isset($duplicated_tma_barcodes[$tma_slide_id]) && (sizeof($duplicated_tma_barcodes) == 1)) {
+			// TMA slide has been created therefore and the recorded barcode is the barcode of the studied TMA slide
+			return false;			
+		}
+		
+		// The same barcode exists for at least one TMA slide different than the studied one
+		$this->TmaSlide->validationErrors['barcode']	= 'barcode must be unique';
+		
+		return true;	
+	}
 
 
 

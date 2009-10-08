@@ -64,7 +64,7 @@ class CollectionsController extends InventorymanagementAppController {
 		// MANAGE DATA
 
 		$collection_data = $this->Collection->find('first', array('conditions' => array('Collection.id' => $collection_id), 'recursive' => '-1'));
-		if(empty($collection_data)) { $this->redirect('/pages/err_sto_no_stor_data', null, true); }
+		if(empty($collection_data)) { $this->redirect('/pages/err_inv_coll_no_data', null, true); }
 		$this->data = $collection_data;
 		
 		// Calulate spent time between collection and reception
@@ -111,7 +111,7 @@ class CollectionsController extends InventorymanagementAppController {
 		// MANAGE DATA
 
 		$collection_data = $this->Collection->find('first', array('conditions' => array('Collection.id' => $collection_id), 'recursive' => '-1'));
-		if(empty($collection_data)) { $this->redirect('/pages/err_sto_no_stor_data', null, true); }
+		if(empty($collection_data)) { $this->redirect('/pages/err_inv_coll_no_data', null, true); }
 				
 		// Set list of banks
 		$this->set('banks', $this->getBankList());
@@ -141,7 +141,7 @@ class CollectionsController extends InventorymanagementAppController {
 		
 		// Get collection data
 		$collection_data = $this->Collection->find('first', array('conditions' => array('Collection.id' => $collection_id), 'recursive' => '-1'));
-		if(empty($collection_data)) { $this->redirect('/pages/err_sto_no_stor_data', null, true); }	
+		if(empty($collection_data)) { $this->redirect('/pages/err_inv_coll_no_data', null, true); }	
 
 		// Check deletion is allowed
 		$arr_allow_deletion = $this->allowCollectionDeletion($collection_id);
