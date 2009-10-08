@@ -13,9 +13,6 @@ SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 -- Database: `atim_2`
 --
 
-CREATE DATABASE `atim_2`;
-USE `atim_2`;
-
 -- --------------------------------------------------------
 
 -- 

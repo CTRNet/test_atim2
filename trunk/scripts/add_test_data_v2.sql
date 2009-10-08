@@ -264,8 +264,8 @@ INSERT INTO `storage_masters_revs` (`id`, `code`, `storage_type`, `storage_contr
 (10, '', 'TMA-blc 23X15', 19, 1, 0, 0, 'tma1', 'tma1', 'y1-tma1', '', NULL, NULL, NULL, NULL, 'FALSE', '23.00', 'celsius', '', '2009-09-17 15:10:22', '1', '2009-09-17 15:10:22', '1', 22, '2009-09-17 15:10:22', 0, NULL),
 (10, 'TMA345 - 10', 'TMA-blc 23X15', 19, 1, 18, 19, 'tma1', 'tma1', 'y1-tma1', '', NULL, NULL, NULL, NULL, 'FALSE', '23.00', 'celsius', '', '2009-09-17 15:10:22', '1', '2009-09-17 15:10:22', '1', 23, '2009-09-17 15:10:22', 0, NULL);
 
-DELETE FROM `std_box25s`;
-INSERT INTO `std_box25s` (`id`, `storage_master_id`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
+DELETE FROM `std_boxs`;
+INSERT INTO `std_boxs` (`id`, `storage_master_id`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
 (1, 5, '2009-09-17 15:06:16', '', '2009-09-17 15:06:27', NULL, 0, NULL),
 (2, 9, '2009-09-17 15:09:36', '', '2009-09-17 15:09:36', NULL, 0, NULL);
 
@@ -277,12 +277,9 @@ DELETE FROM `std_incubators`;
 INSERT INTO `std_incubators` (`id`, `storage_master_id`, `oxygen_perc`, `carbonic_gaz_perc`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
 (1, 2, '', '', '2009-09-17 15:02:54', '', '2009-09-17 15:02:54', NULL, 0, NULL);
 
-DELETE FROM `std_rack9s`;
-INSERT INTO `std_rack9s` (`id`, `storage_master_id`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
-(1, 4, '2009-09-17 15:05:43', '', '2009-09-17 15:05:53', NULL, 0, NULL);
-
-DELETE FROM `std_rack16s`;
-INSERT INTO `std_rack16s` (`id`, `storage_master_id`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
+DELETE FROM `std_racks`;
+INSERT INTO `std_racks` (`id`, `storage_master_id`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
+(1, 4, '2009-09-17 15:05:43', '', '2009-09-17 15:05:53', NULL, 0, NULL),
 (1, 3, '2009-09-17 15:05:06', '', '2009-09-17 15:05:16', NULL, 0, NULL);
 
 DELETE FROM `std_rooms`;
@@ -385,5 +382,4 @@ INSERT INTO `sd_der_tiss_lysates` (`id`, `sample_master_id`, `created`, `created
 DELETE FROM `sd_spe_tissues`;
 INSERT INTO `sd_spe_tissues` (`id`, `sample_master_id`, `tissue_source`, `tissue_nature`, `tissue_laterality`, `pathology_reception_datetime`, `tissue_size`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
 (1, 1, 'breast', 'benign', 'left', '2009-09-25 14:45:00', '2x3x4', '2009-09-25 14:45:49', '', '2009-09-25 14:45:49', NULL, 0, NULL);
-
 
