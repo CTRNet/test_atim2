@@ -9,11 +9,11 @@ class Bank extends AppModel {
 			
 			$return = array(
 				'Summary' => array(
-					'menu'			=>	array( NULL, __($result['Bank']['name'],TRUE) ),
-					'title'			=>	array( NULL, __($result['Bank']['name'], TRUE) ),
+					'menu'			=>	array( NULL, $result['Bank']['name'] ),
+					'title'			=>	array( NULL, $result['Bank']['name'] ),
 					
 					'description'	=>	array(
-						__('created', TRUE)	=>	__($result['Bank']['created'], TRUE)
+						'created'	=>	$result['Bank']['created']
 					)
 				)
 			);

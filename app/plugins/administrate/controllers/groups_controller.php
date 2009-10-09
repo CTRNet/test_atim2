@@ -106,11 +106,10 @@ class GroupsController extends AdministrateAppController {
 			$this->Session->setFlash(__('Invalid id for Group', true));
 			$this->redirect(array('action'=>'index'));
 		}
-		if ($this->Group->atim_delete($group_id)) {
+		if ($this->Group->del($group_id)) {
 			$this->Session->setFlash(__('Group deleted', true));
 			$this->redirect(array('action'=>'index'));
 		}
-			
 	}
 
 	/*
