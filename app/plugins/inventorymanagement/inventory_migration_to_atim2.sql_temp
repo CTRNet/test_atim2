@@ -113,6 +113,10 @@ INSERT INTO `structure_validations` (`id`, `old_id`, `structure_field_id`, `stru
 (null, '0', (SELECT id FROM `structure_fields` WHERE `old_id` LIKE 'CAN-999-999-000-999-1100'), 'CAN-999-999-000-999-1100', 'maxLength,60', '1', '0', '', 'barcode size is limited', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (null, '0', (SELECT id FROM `structure_fields` WHERE `old_id` LIKE 'CAN-999-999-000-999-1100'), 'CAN-999-999-000-999-1100', 'notEmpty', '1', '0', '', 'barcode is required', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
+UPDATE `structure_formats` SET `old_id` = 'CAN-999-999-000-999-1033_CAN-999-999-000-999-1131.2'
+WHERE `structure_old_id` LIKE 'CAN-999-999-000-999-1033' 
+AND `structure_field_old_id` LIKE 'CAN-999-999-000-999-1131' 
+AND `old_id` LIKE 'CAN-999-999-000-999-1032_CAN-999-999-000-999-1131.2';
 
 
 
@@ -138,6 +142,3 @@ INSERT INTO `structure_validations` (`id`, `old_id`, `structure_field_id`, `stru
 
 
 
-
-
--- tester les .2
