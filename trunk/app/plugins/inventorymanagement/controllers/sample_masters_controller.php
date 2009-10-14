@@ -39,8 +39,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/collections/index'));
 						
 		$_SESSION['ctrapp_core']['search'] = null; // clear SEARCH criteria
-		unset($_SESSION['InventoryManagement']['treeView']['Filter']); // clear Filter
-		unset($_SESSION['InventoryManagement']['Sample']['Filter']);
+		$this->unsetInventorySessionData();
 		
 		// Set list of banks
 		$this->set('banks', $this->getBankList());	
