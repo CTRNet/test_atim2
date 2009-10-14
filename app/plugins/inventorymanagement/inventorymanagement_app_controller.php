@@ -138,7 +138,18 @@ class InventorymanagementAppController extends AppController
 		}
 	}
 	
-	
+	/**
+	 * Unset session data linked to the inventroy management system.
+	 *
+	 * @author N. Luc
+	 * @since 2009-09-11
+	 * @updated N. Luc
+	 */
+	 
+	function unsetInventorySessionData() {
+		unset($_SESSION['InventoryManagement']['treeView']['Filter']);
+		unset($_SESSION['InventoryManagement']['Sample']['Filter']);
+	}
 	
 	
 	
@@ -157,73 +168,7 @@ class InventorymanagementAppController extends AppController
 	
 	
 	
-	/**
-	 * Return list of studies to reserve an aliquot for this one.
-	 * 
-	 * @return Return array of studies having following structure.
-	 * [study_summary_id] = study title
-	 * 
-	 * @author N. Luc
-	 * @since 2008-08-15
-	 */
-	function getStudiesArray() {
 
-		$arr_study_summary_id = 
-				$this->StudySummary->generateList(
-					null, 
-					null, 
-					null, 
-					'{n}.StudySummary.id', 
-					'{n}.StudySummary.title');
-		
-		if(empty($arr_study_summary_id)) {
-			$arr_study_summary_id = array();
-		}
-		
-		$arr_study_summary_id = array(null => 'N/A') + $arr_study_summary_id;
-				
-		return $arr_study_summary_id;
-	}
-	
-	function getSpecimenGroupMenu($specimen_group_menu_id) {
-		
-		$criteria = array();
-		$criteria[] = "Menu.id LIKE '$specimen_group_menu_id%'";		
-		
-		$specimen_grp_menu_lists = 
-			$this->Menu->generateList(
-				$criteria, 
-				null, 
-				null, 
-				'{n}.Menu.id', 
-				'{n}.Menu.parent_id');
-				
-		if(empty($specimen_grp_menu_lists)) {
-			return array();	
-		}
-		
-		return $specimen_grp_menu_lists;
-				
-	}
-	
-	function validateSpecimenGroupMenu($specimen_grp_menu_lists, $menu_id, $parent_id) {
-		
-			if(empty($specimen_grp_menu_lists)) {
-				$this->redirect('/pages/err_inv_menu_definition'); 
-				exit;
-			}
-			
-			if(!isset($specimen_grp_menu_lists[$menu_id])) {
-				$this->redirect('/pages/err_inv_menu_definition'); 
-				exit;
-			}
-			
-			if(strcmp($parent_id, $specimen_grp_menu_lists[$menu_id]) != 0) {
-				$this->redirect('/pages/err_inv_menu_definition'); 
-				exit;			
-			}
-		
-	}
 	
 	/**
 	 * Update the current volume of a aliquot.

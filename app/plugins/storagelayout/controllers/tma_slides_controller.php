@@ -106,17 +106,21 @@ class TmaSlidesController extends StoragelayoutAppController {
 				// Check slide position within storage
 				$storage_data = (empty($this->data['TmaSlide']['storage_master_id'])? null: $arr_storage_selection_results['matching_storage_list'][$this->data['TmaSlide']['storage_master_id']]);
 				$arr_position_results = $this->Storages->validatePositionWithinStorage($this->data['TmaSlide']['storage_master_id'], $this->data['TmaSlide']['storage_coord_x'], $this->data['TmaSlide']['storage_coord_y'], $storage_data);
+				
+				// Manage errors
 				if(!empty($arr_position_results['position_definition_error'])) {
 					$submitted_data_validates = false;
 					$error = $arr_position_results['position_definition_error'];
 					if($arr_position_results['error_on_x']) {
 						$this->TmaSlide->validationErrors['storage_coord_x'] = $error;
-						$error = '';	
+						$error = null;	// To be sure message is not duplicated when error is applied on the 2 coordinates
 					} 
 					if($arr_position_results['error_on_y']) {
 						$this->TmaSlide->validationErrors['storage_coord_y'] = $error;	
 					}	
-				}				
+				}
+								
+				// Reset slide storage data
 				$this->data['TmaSlide']['storage_coord_x'] = $arr_position_results['validated_position_x'];
 				$this->data['TmaSlide']['coord_x_order'] = $arr_position_results['position_x_order'];
 				$this->data['TmaSlide']['storage_coord_y'] = $arr_position_results['validated_position_y'];
@@ -319,7 +323,7 @@ class TmaSlidesController extends StoragelayoutAppController {
 	 * -------------------------------------------------------------------------- */	
 	
 	/**
-	 * Check the tma slide barcode does not already exist and set error if not.
+	 * Check the tma slide barcode does not already exist and set error if this one already exists.
 	 * 
 	 * @param $tma_slide_data TMA slide data.
 	 * @param $tma_slide_id Id of the tma slide when this one is known.

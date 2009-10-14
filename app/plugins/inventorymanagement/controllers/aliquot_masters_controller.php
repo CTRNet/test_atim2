@@ -24,31 +24,24 @@ class AliquotMastersController extends InventoryManagementAppController {
 	);
 	*/
 
-	var $components = array('Study.StudySummaries', 'StorageLayout.Storages');
+	var $components = array('Study.StudySummaries', 'Storagelayout.Storages');
 	
 	var $uses = array(
-	
-	
-	
-	
-	
-	
 		'Inventorymanagement.Collection',
-//		
+		
 		'Inventorymanagement.SampleMaster',
 		'Inventorymanagement.DerivativeDetail',
 		
 //		'Inventorymanagement.SampleControl',
-//		
+		
 		'Inventorymanagement.AliquotControl', 
 		'Inventorymanagement.AliquotMaster',
+		'Inventorymanagement.AliquotDetail',
 		
 		'Inventorymanagement.SampleToAliquotControl',
 		
+		'Storagelayout.StorageMaster',
 		'Study.StudySummary'
-//		
-//		
-//		'Storagelayout.StorageMaster'
 	);
 	
 	var $paginate = array('AliquotMaster'=>array('limit'=>10,'order'=>'AliquotMaster.barcode DESC'));
@@ -68,8 +61,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/collections/index'));
 						
 		$_SESSION['ctrapp_core']['search'] = null; // clear SEARCH criteria
-		unset($_SESSION['InventoryManagement']['treeView']['Filter']); // clear Filter
-		unset($_SESSION['InventoryManagement']['Sample']['Filter']);
+		$this->unsetInventorySessionData();
 		
 		// Set list of banks
 		$this->set('banks', $this->getBankList());	
@@ -392,7 +384,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 	
 	function add($collection_id, $sample_master_id, $aliquot_control_id) {
 		if((!$collection_id) || (!$sample_master_id) || (!$aliquot_control_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }		
-
+		
 		// MANAGE DATA
 
 		// Get Sample Data
@@ -448,221 +440,173 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// set structure alias based on VALUE from CONTROL table
 		$this->set('atim_structure', $this->Structures->get('form', $aliquot_control_data['AliquotControl']['form_alias']));	
 	
+		// MANAGE DATA RECORD
+
 		if (empty($this->data)) {
 			// Initial Display
 			$this->set('default_storage_datetime', $this->getDefaultAliquotStorageDate($sample_data));
-			$_SESSION['InventoryManagement']['Aliquot']['DefinedStoragesList'] = array();
-			$this->set('arr_storage_list', $_SESSION['InventoryManagement']['Aliquot']['DefinedStoragesList']);
+			$this->set('arr_preselected_storages', array());
 						
-//TODO should be a datagrid with add/remove record buttons
-//$this->data = array(array());
+			//TODO: form should be a datagrid with 'add record'/'remove record' buttons
+			$this->data = array(array('AliquotMaster' => array()), array('AliquotMaster' => array()), array('AliquotMaster' => array()));
 			
 		} else {
-			// Manage submitted data
+// TODO used to correct a bug
+unset($this->data['AliquotMaster']);	
+foreach($this->data as $id => $data) {
+	$this->data[$id]['FunctionManagement']['recorded_storage_selection_label'] = '';
+	$this->data[$id]['AliquotMaster']['storage_master_id'] = '';	
+}
+
+
+			// Launch validations
+			$submitted_data_validates = true;
+			
+			// Barcode validation
+			if($this->isDuplicatedAliquotBarcode($this->data)) {
+				$submitted_data_validates = false;
+			}
+			
+			// Storage definition validation
+			if(!$this->validateAliquotStorageData($this->data)) {
+				$submitted_data_validates = false;
+			}			
+		
+			// Launch Fields Validation
+			
+			
+			
+			foreach($this->data as $id => $new_aliquot) {
+				$this->AliquotMaster->set( $new_aliquot );
+				if(!$this->AliquotMaster->validates()) {
+					pr('validate Master error');
+				}	
+				
+				$this->AliquotDetail->set( $new_aliquot );	
+				if(!$this->AliquotDetail->validates()) {
+					pr('validate Detail error');
+				}					
+			}
+//				
+//				
+//				
+////				$this->AliquotMaster->set( $new_aliquot );
+//pr('save => ');pr($new_aliquot);
+////if(!$this->AliquotMaster->save($new_aliquot)) {
+////	pr('save error');
+////}
+
+
+//				if(!$this->AliquotMaster->validates($new_aliquot)){
+//					pr('la');
+//					$this->AliquotMaster->save($new_aliquot);
+//					$submitted_data_validates = false;
+//					pr('not validated');
+//				}
+//				pr($errors = $this->AliquotMaster->invalidFields());
+
+//			}
+
+
+//
+//
+//					
+//					// D- Set Initial Volume
+//				
+//					// Set current volume
+//					if(isset($this->data[$id]['AliquotMaster']['initial_volume'])){	
+//						
+//						if(is_null($aliquot_control_data['AliquotControl']['volume_unit'])){
+//							$this->redirect('/pages/err_inv_system_error'); 
+//							exit;
+//						}
+//		
+//						// Set the current volume with the initial volume
+//						$this->data[$id]['AliquotMaster']['current_volume'] =
+//							$this->data[$id]['AliquotMaster']['initial_volume'];				
+//		
+//					}
+//					
+//					// E- Launch Validation
+//				
+//					// Validates Fields of Aliquot Master Table
+
+//					if($bool_needs_details_table && isset($this->data[$id]['AliquotDetail'])){
+//						// Validates Fields of Aliquot Detail Table
+//						if(!$this->AliquotDetail->validates($this->data[$id]['AliquotDetail'])){
+//							$submitted_data_validates = false;
+//						}	
+//					}
+//
+//				} // End foreach to validate all new aliquot record
+//				
+
+//				
+//				// look for CUSTOM HOOKS, "validation"
+//				$custom_ctrapp_controller_hook 
+//					= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
+//					'controllers' . DS . 'hooks' . DS . 
+//					$this->params['controller'].'_'.$this->params['action'].'_validation.php';
+//				
+//				if (file_exists($custom_ctrapp_controller_hook)) {
+//					require($custom_ctrapp_controller_hook);
+//				}
+//				
+//				if ($submitted_data_validates) {
+//					
+//					//3- Save data
+//					foreach($this->data as $id => $new_studied_aliquot){
+//
+//						$bool_save_done = true;
+//				
+//						// Save ALIQUOTMASTER data
+//						$this->data[$id]['AliquotMaster']['id'] = null;
+//
+//						if($this->AliquotMaster->save($this->data[$id]['AliquotMaster'])){
+//							$aliquot_master_id = $this->AliquotMaster->getLastInsertId();
+//						} else {
+//							$bool_save_done = false;
+//						}
+//						
+//						if($bool_save_done && $bool_needs_details_table){
+//							// Aliquot Detail should be recorded
+//							
+//							// Set ID fields based on ALIQUOTMASTER
+//							$this->data[$id]['AliquotDetail']['id'] = $aliquot_master_id;
+//							$this->data[$id]['AliquotDetail']['aliquot_master_id'] = $aliquot_master_id;
+//							
+//							// Save ALIQUOTDETAIL data 
+//							if(!$this->AliquotDetail->save($this->data[$id]['AliquotDetail'])){
+//								$bool_save_done = false;
+//							}
+//						}
+//							
+//						if(!$bool_save_done){
+//							break;
+//						}
+//					} // End foreach to save each new record
+//
+//					if(!$bool_save_done){
+//						$this->redirect('/pages/err_inv_aliquot_record_err'); 
+//						exit;
+//					} else {
+//						// Data have been created
+//				
+//						// Data has been updated
+//						$this->flash(
+//							'Your data has been saved.',
+//							'/aliquot_masters/listAllSampleAliquots/'
+//								.$specimen_group_menu_id.'/'.$group_specimen_type.'/'.$sample_category.'/'.
+//								$collection_id.'/'.$sample_master_id.'/');
+//					}	
+//
+//				} // End save action done after validation
+//
+//			
+
 
 //TODO temporary modification before use of datagrid
-$this->data = array('0' => $this->data);	
-			
-			// Run validation
-									
-//2- Run Validation and set value that have not to be defined by the user
-
-
-
-// Get duplicated barcodes or barcode too long
-$arr_barcodes_in_error = $this->validateAliquotBarcode($arr_new_barcode);
-
-// Set Flag
-$submitted_data_validates = true;
-
-$storage_control_errors = array();
-$matching_storage_list = array();	
-$storage_master_id_errors = array();
-
-				$duplicated_barcodes = array();
-				$created_barcodes = array();
-				
-				foreach($this->data as $id => $new_studied_aliquot){
-					// New aliquot to create
-				
-					// A- Check Barcode part 1
-					$new_barcode = $new_studied_aliquot['AliquotMaster']['barcode'];
-					if(isset($created_barcodes[$new_barcode])) {
-						$duplicated_barcodes[$new_barcode] = $new_barcode;
-					} else {
-						$created_barcodes[$new_barcode] = $new_barcode;
-					}
-					
-					// B- Check the aliquot storage definition (selection label versus selected storage_master_id)
-					$arr_storage_selection_results = $this->Storages->validateStorageIdVersusSelectionLabel($new_studied_aliquot['FunctionManagement']['recorded_storage_selection_label'], $new_studied_aliquot['AliquotMaster']['storage_master_id']);
-							
-					$this->data[$id]['AliquotMaster']['storage_master_id'] = $arr_storage_selection_results['selected_storage_master_id'];
-					$matching_storage_list = array_merge($matching_storage_list, $arr_storage_selection_results['matching_storage_list']);	
-											
-					if(!empty($arr_storage_selection_results['storage_definition_error'])) {
-						$submitted_data_validates = false;
-						$this->TmaSlide->validationErrors['storage_master_id'] = $arr_storage_selection_results['storage_definition_error'];		
-					
-					} else {
-						// Check slide position within storage
-						$storage_data = (empty($this->data['TmaSlide']['storage_master_id'])? null: $arr_storage_selection_results['matching_storage_list'][$this->data['TmaSlide']['storage_master_id']]);
-						$arr_position_results = $this->Storages->validatePositionWithinStorage($this->data['TmaSlide']['storage_master_id'], $this->data['TmaSlide']['storage_coord_x'], $this->data['TmaSlide']['storage_coord_y'], $storage_data);
-						if(!empty($arr_position_results['position_definition_error'])) {
-							$submitted_data_validates = false;
-							$error = $arr_position_results['position_definition_error'];
-							if($arr_position_results['error_on_x']) {
-								$this->TmaSlide->validationErrors['storage_coord_x'] = $error;
-								$error = '';	
-							} 
-							if($arr_position_results['error_on_y']) {
-								$this->TmaSlide->validationErrors['storage_coord_y'] = $error;	
-							}	
-						}				
-						$this->data['TmaSlide']['storage_coord_x'] = $arr_position_results['validated_position_x'];
-						$this->data['TmaSlide']['coord_x_order'] = $arr_position_results['position_x_order'];
-						$this->data['TmaSlide']['storage_coord_y'] = $arr_position_results['validated_position_y'];
-						$this->data['TmaSlide']['coord_y_order'] = $arr_position_results['position_y_order'];
-					}
-					
-					// B- Check the user storage defintion (selection label / storage_master_id)
-					$recorded_selection_label = $this->data[$id]['FunctionManagement']['recorded_storage_selection_label'];
-					$returned_storage_id = $this->data[$id]['AliquotMaster']['storage_master_id'];
-
-					$arr_storage_selection_results = $this->validateStorageIdAndSelectionLabel($recorded_selection_label, $returned_storage_id);
-
-					$this->data[$id]['AliquotMaster']['storage_master_id'] = $arr_storage_selection_results['defined_storage_id'];
-					$arr_storage_list = $arr_storage_list + $arr_storage_selection_results['aliquot_arr_storage_list'];
-					if(!$arr_storage_selection_results['submitted_data_validates']){
-						$submitted_data_validates = false;
-					}
-					$storage_control_errors = $storage_control_errors + $arr_storage_selection_results['storage_control_errors'];			
-					
-					// C- Check Aliquot Storage Coordinates
-					$arr_storage_coord_results = $this->validateStorageCoordinates(
-							$this->data[$id]['AliquotMaster']['storage_master_id'], 
-							$this->data[$id]['AliquotMaster']['storage_coord_x'], 
-							$this->data[$id]['AliquotMaster']['storage_coord_y']);
-						
-					$this->data[$id]['AliquotMaster']['storage_coord_x'] = $arr_storage_coord_results['validated_storage_coord_x'];
-					$this->data[$id]['AliquotMaster']['storage_coord_y'] = $arr_storage_coord_results['validated_storage_coord_y'];
-					if(!$arr_storage_coord_results['submitted_data_validates']){
-						$submitted_data_validates = false;
-					}
-					$storage_control_errors = $storage_control_errors + $arr_storage_coord_results['storage_control_errors'];		
-
-
-
-
-
-
-
-
-
-
-
-					
-					// D- Set Initial Volume
-				
-					// Set current volume
-					if(isset($this->data[$id]['AliquotMaster']['initial_volume'])){	
-						
-						if(is_null($aliquot_control_data['AliquotControl']['volume_unit'])){
-							$this->redirect('/pages/err_inv_system_error'); 
-							exit;
-						}
-		
-						// Set the current volume with the initial volume
-						$this->data[$id]['AliquotMaster']['current_volume'] =
-							$this->data[$id]['AliquotMaster']['initial_volume'];				
-		
-					}
-					
-					// E- Launch Validation
-				
-					// Validates Fields of Aliquot Master Table
-					if(!$this->AliquotMaster->validates($this->data[$id]['AliquotMaster'])){
-						$submitted_data_validates = false;
-					}
-					if($bool_needs_details_table && isset($this->data[$id]['AliquotDetail'])){
-						// Validates Fields of Aliquot Detail Table
-						if(!$this->AliquotDetail->validates($this->data[$id]['AliquotDetail'])){
-							$submitted_data_validates = false;
-						}	
-					}
-
-				} // End foreach to validate all new aliquot record
-				
-				// Set array of selectable storage
-				$this->set('arr_storage_list', $arr_storage_list);	
-				$_SESSION['ctrapp_core']['inventory_management']['arr_storage_list'] = $arr_storage_list; 
-								
-				// Set storage errors
-				foreach($storage_control_errors as $id => $msg) {
-					$this->AliquotMaster->validationErrors[] 
-						= $msg;
-				}
-				
-				// look for CUSTOM HOOKS, "validation"
-				$custom_ctrapp_controller_hook 
-					= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
-					'controllers' . DS . 'hooks' . DS . 
-					$this->params['controller'].'_'.$this->params['action'].'_validation.php';
-				
-				if (file_exists($custom_ctrapp_controller_hook)) {
-					require($custom_ctrapp_controller_hook);
-				}
-				
-				if ($submitted_data_validates) {
-					
-					//3- Save data
-					foreach($this->data as $id => $new_studied_aliquot){
-
-						$bool_save_done = true;
-				
-						// Save ALIQUOTMASTER data
-						$this->data[$id]['AliquotMaster']['id'] = null;
-
-						if($this->AliquotMaster->save($this->data[$id]['AliquotMaster'])){
-							$aliquot_master_id = $this->AliquotMaster->getLastInsertId();
-						} else {
-							$bool_save_done = false;
-						}
-						
-						if($bool_save_done && $bool_needs_details_table){
-							// Aliquot Detail should be recorded
-							
-							// Set ID fields based on ALIQUOTMASTER
-							$this->data[$id]['AliquotDetail']['id'] = $aliquot_master_id;
-							$this->data[$id]['AliquotDetail']['aliquot_master_id'] = $aliquot_master_id;
-							
-							// Save ALIQUOTDETAIL data 
-							if(!$this->AliquotDetail->save($this->data[$id]['AliquotDetail'])){
-								$bool_save_done = false;
-							}
-						}
-							
-						if(!$bool_save_done){
-							break;
-						}
-					} // End foreach to save each new record
-
-					if(!$bool_save_done){
-						$this->redirect('/pages/err_inv_aliquot_record_err'); 
-						exit;
-					} else {
-						// Data have been created
-				
-						// Data has been updated
-						$this->flash(
-							'Your data has been saved.',
-							'/aliquot_masters/listAllSampleAliquots/'
-								.$specimen_group_menu_id.'/'.$group_specimen_type.'/'.$sample_category.'/'.
-								$collection_id.'/'.$sample_master_id.'/');
-					}	
-
-				} // End save action done after validation
-
-			
+//$this->data = $this->data['0'];		
 
 		} // End data save management (manage copy + validation + save)	 		
 	} // function addAliquotInBatch
@@ -823,6 +767,207 @@ $storage_master_id_errors = array();
 		return null;
 	}
 	
+	/**
+	 * Check created barcodes are not duplicated and set error if they are.
+	 * 
+	 * Note: 
+	 *  - This function supports form data structure built by either 'add' form or 'datagrid' form.
+	 *  - Has been created to allow customisation.
+	 * 
+	 * @param $aliquots_data Aliquots data stored into an array having structure like either:
+	 * 	- $aliquots_data = array('AliquotMaster' => array(...))
+	 * 	or
+	 * 	- $aliquots_data = array(array('AliquotMaster' => array(...)))
+	 *
+	 * @return Return true if barcodes are duplicated.
+	 * 
+	 * @author N. Luc
+	 * @date 2007-08-15
+	 */
+	function isDuplicatedAliquotBarcode($aliquots_data) {
+		$is_duplicated_barcode = false;
+		
+		$new_barcodes = array();
+		$duplicated_barcodes = array();
+		
+		// check data structure
+		$is_multi_records_data = true;
+		if(isset($aliquots_data[0]['AliquotMaster'])) {
+			// Multi records: Nothing to do
+		} else if(isset($aliquots_data['AliquotMaster'])) {
+			// Single record to manage as multi records
+			$aliquots_data = array('0' => $aliquots_data);
+			$is_multi_records_data = false;
+		} else {
+			$this->redirect('/pages/err_inv_system_error', null, true);
+		}
+		
+		// Check duplicated barcode into submited record
+		foreach($aliquots_data as $new_aliquot) {
+			$barcode = $new_aliquot['AliquotMaster']['barcode'];
+			if(isset($new_barcodes[$barcode])) {
+				$duplicated_barcodes[$barcode] = $barcode;
+			} else {
+				$new_barcodes[$barcode] = $barcode;
+			}
+		}
+		
+		// Check duplicated barcode into db
+		$criteria = ' AliquotMaster.barcode in  (\'' . implode('\',\'', array_values($new_barcodes)) . '\')';
+		$aliquots_having_duplicated_barcode = $this->AliquotMaster->atim_list(array('conditions' => $criteria));
+		if(!empty($aliquots_having_duplicated_barcode)) {
+			foreach($aliquots_having_duplicated_barcode as $new_aliquot) {
+				$barcode = $new_aliquot['AliquotMaster']['barcode'];
+				$duplicated_barcodes[$barcode] = $barcode;
+			}			
+		}
+		
+		// Set errors
+		if(!empty($duplicated_barcodes)) {
+			// Set boolean
+			$is_duplicated_barcode = true;
+			
+			// Set error message
+			$this->AliquotMaster->validationErrors['barcode']	= null;	// TODO: Used to color field in red but not override field controls
+			$this->AliquotMaster->validationErrors[]	= 'barcode must be unique';
+			$str_barcodes_in_error = ' => ';
+			foreach($duplicated_barcodes as $barcode) {
+				$str_barcodes_in_error .= '[' . $barcode . '] ';
+			}
+			$this->AliquotMaster->validationErrors[]	= $str_barcodes_in_error; 
+		}
+		
+		return $is_duplicated_barcode;
+	}
+
+	/**
+	 * Check both aliquot storage definition and aliquot positions and set error if required.
+	 * 
+	 * Note: 
+	 *  - This function supports form data structure built by either 'add' form or 'datagrid' form.
+	 *  - Has been created to allow customisation.
+	 * 
+	 * @param $aliquots_data Aliquots data stored into an array having structure like either:
+	 * 	- $aliquots_data = array('AliquotMaster' => array(...))
+	 * 	or
+	 * 	- $aliquots_data = array(array('AliquotMaster' => array(...)))
+	 *
+	 * @return Return true if storage data are validated.
+	 * 
+	 * @author N. Luc
+	 * @date 2007-08-15
+	 */
+	function validateAliquotStorageData(&$aliquots_data) {
+		$submitted_data_validates = true;
+				
+		$arr_preselected_storages = array();
+		$storage_validation_errors = array('id' => array(), 'x' => array(), 'y' => array());
+
+		// check data structure
+		$is_multi_records_data = true;
+		if(isset($aliquots_data[0]['AliquotMaster'])) {
+			// Multi records: Nothing to do
+		} else if(isset($aliquots_data['AliquotMaster'])) {
+			// Single record to manage as multi records
+			$aliquots_data = array('0' => $aliquots_data);
+			$is_multi_records_data = false;
+		} else {
+			$this->redirect('/pages/err_inv_system_error', null, true);
+		}
+		
+		// Launch validation		
+		foreach ($aliquots_data as $id => $new_aliquot) {		
+			// Check the aliquot storage definition (selection label versus selected storage_master_id)
+			$arr_storage_selection_results = $this->Storages->validateStorageIdVersusSelectionLabel($new_aliquot['FunctionManagement']['recorded_storage_selection_label'], $new_aliquot['AliquotMaster']['storage_master_id']);
+					
+			$new_aliquot['AliquotMaster']['storage_master_id'] = $arr_storage_selection_results['selected_storage_master_id'];
+			$arr_preselected_storages += $arr_storage_selection_results['matching_storage_list'];
+	
+			if(!empty($arr_storage_selection_results['storage_definition_error'])) {
+				$submitted_data_validates = false;
+				$error_msg = $arr_storage_selection_results['storage_definition_error'];
+				$storage_validation_errors['id'][$error_msg] = $error_msg;		
+			
+			} else {
+				// Check aliquot position within storage
+				$storage_data = (empty($new_aliquot['AliquotMaster']['storage_master_id'])? null: $arr_storage_selection_results['matching_storage_list'][$new_aliquot['AliquotMaster']['storage_master_id']]);
+				$arr_position_results = $this->Storages->validatePositionWithinStorage($new_aliquot['AliquotMaster']['storage_master_id'], $new_aliquot['AliquotMaster']['storage_coord_x'], $new_aliquot['AliquotMaster']['storage_coord_y'], $storage_data);
+				
+				// Manage errors
+				if(!empty($arr_position_results['position_definition_error'])) {
+					$submitted_data_validates = false;
+					$error = $arr_position_results['position_definition_error'];
+					if($arr_position_results['error_on_x']) {
+						$storage_validation_errors['x'][$error] = $error;	
+						$error = null;	// To be sure message is not duplicated when error is applied on the 2 coordinates
+					} 
+					if($arr_position_results['error_on_y']) {
+						$storage_validation_errors['y'][$error] = $error;
+					}	
+				}
+								
+				// Reset aliquot storage data
+				$new_aliquot['AliquotMaster']['storage_coord_x'] = $arr_position_results['validated_position_x'];
+				$new_aliquot['AliquotMaster']['coord_x_order'] = $arr_position_results['position_x_order'];
+				$new_aliquot['AliquotMaster']['storage_coord_y'] = $arr_position_results['validated_position_y'];
+				$new_aliquot['AliquotMaster']['coord_y_order'] = $arr_position_results['position_y_order'];
+			}
+			
+			// Update $aliquots_data for the studied record
+			$aliquots_data[$id] = $new_aliquot;
+		}
+		
+		// Set preselected storage list		
+		$this->set('arr_preselected_storages', $arr_preselected_storages);
+		
+		// Manage error message
+		$first_one = true;
+		foreach($storage_validation_errors['id'] as $error) {
+			if($first_one) {
+				$this->AliquotMaster->validationErrors['storage_master_id'] = $error;
+			} else {
+				$this->AliquotMaster->validationErrors[] = $error;
+			}
+		}
+		
+		$first_one = true;
+		foreach($storage_validation_errors['x'] as $error) {
+			// Used to color field in red
+			$this->AliquotMaster->validationErrors['storage_coord_x'] = null;		// TODO: Used to color field in red but not override field controls
+			$this->AliquotMaster->validationErrors[] = $error;
+		}
+		
+		$first_one = true;
+		foreach($storage_validation_errors['y'] as $error) {
+			if($first_one) {
+				// Used to color field in red
+				$this->AliquotMaster->validationErrors['storage_coord_y'] = $error;
+				$first_one = false;
+			} else {
+				$this->AliquotMaster->validationErrors[] = $error;
+			}
+		}
+		
+		if(!$is_multi_records_data) {
+			// Reset correctly single record data
+			$aliquots_data = $aliquots_data['0'];
+		}
+		
+		return $submitted_data_validates;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	/* --------------------------------------------------------------------------------------------- */
 
@@ -834,30 +979,6 @@ $storage_master_id_errors = array();
 
 
 
-
-
-
-	function isDuplicatedTmaSlideBarcode($tma_slide_data, $tma_slide_id = null) {
-		if(empty($tma_slide_data['TmaSlide']['barcode'])) {
-			return false;
-		}
-
-		// Build list of TMA slide having the same barcode
-		$duplicated_tma_barcodes = $this->TmaSlide->find('list', array('conditions' => array('TmaSlide.barcode' => $tma_slide_data['TmaSlide']['barcode']), 'recursive' => '-1'));
-
-		if(empty($duplicated_tma_barcodes)) {
-			// The new barcode does not exist into the db
-			return false;
-		} else if((!empty($tma_slide_id)) && isset($duplicated_tma_barcodes[$tma_slide_id]) && (sizeof($duplicated_tma_barcodes) == 1)) {
-			// TMA slide has been created therefore and the recorded barcode is the barcode of the studied TMA slide
-			return false;			
-		}
-		
-		// The same barcode exists for at least one TMA slide different than the studied one
-		$this->TmaSlide->validationErrors['barcode']	= 'barcode must be unique';
-		
-		return true;	
-	}
 
 
 
@@ -3889,59 +4010,7 @@ $storage_master_id_errors = array();
 	 * ADDITIONAL FUNCTIONS
 	 * -------------------------------------------------------------------------- */	
 	
-	/**
-	 * Verify that all Aliquot Barcodes sent to the function do not already 
-	 * exist in the DB or are not duplicated and check the size of the barcode.
-	 *
-	 * @param $arr_aliquot_barcodes Array that contains the list of new aliquot bacrode.
-	 *
-	 * @return Array that contains all barcodes that are duplicated in the list or
-	 * already exist in the DB or too long.
-	 * 
-	 * The returned array has the following format:
-	 * [duplicated barcode] = duplicated barcode or barcode too long
-	 * 
-	 * Note: When no duplication exists, the returned array will be empty.
-	 * 
-	 * @author N. Luc
-	 * @date 2007-08-15
-	 */
-	function validateAliquotBarcode($arr_aliquot_barcodes){
-		
-		$arr_barcode_in_error_list = array();
 
-		// Check duplication into list
-		$arr_already_studied = array();
-		foreach($arr_aliquot_barcodes as $id => $barcode){
-			if(isset($arr_already_studied[$barcode])){
-				// Barcode already enterred into the form
-				$arr_barcode_in_error_list[$barcode] = $barcode;
-			}
-			if(strlen($barcode) > $this->barcode_size_max) {
-				// Barcode too long
-				$arr_barcode_in_error_list[$barcode] = $barcode;
-			}
-			
-			$arr_already_studied[$barcode] = $barcode;
-		}
-		
-		// Check duplication with DB data
-		$a_fields = array('id');
-		$conditions = ' AliquotMaster.barcode in  (\''.implode('\',\'', array_values($arr_aliquot_barcodes)).'\')';
-		$a_duplicated_in_db = 
-			$this->AliquotMaster->generateList($conditions, 
-												null, 
-												null, 
-												'{n}.AliquotMaster.barcode', 
-												'{n}.AliquotMaster.barcode');
-		if(empty($a_duplicated_in_db)){
-			$a_duplicated_in_db = array();
-		}	
-
-		// Return duplicated barcode list
-		return array_merge($a_duplicated_in_db, $arr_barcode_in_error_list);
-
-	}
 		
 	/**
 	 * Update the current volume of a aliquot.

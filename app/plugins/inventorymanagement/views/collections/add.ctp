@@ -15,6 +15,6 @@
 	
 	$structure_override['Collection.sop_master_id'] = $arr_collection_sops;	
 	
-	$structures->build($atim_structure, array('links'=>$structure_links,'override'=>$structure_override));
+	$structures->build($atim_structure, array('links' => $structure_links, 'override' => $structure_override));
 	
 ?>

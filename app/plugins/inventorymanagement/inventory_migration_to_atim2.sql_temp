@@ -1,4 +1,24 @@
 
+ALTER TABLE `storage_masters` CHANGE `barcode` `barcode` VARCHAR( 60 ) 
+CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
+
+ALTER TABLE `tma_slides` CHANGE `barcode` `barcode` VARCHAR( 60 ) 
+CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL ;
+
+ALTER TABLE `storage_masters_revs` CHANGE `barcode` `barcode` VARCHAR( 60 ) 
+CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
+
+ALTER TABLE `tma_slides_revs` CHANGE `barcode` `barcode` VARCHAR( 60 ) 
+CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL ;
+
+UPDATE `structure_validations` SET `rule` = 'maxLength,60' WHERE `structure_field_old_id` = 'CAN-999-999-000-999-1183'
+AND `rule` LIKE 'maxLength,%';
+
+UPDATE `structure_validations` SET `rule` = 'maxLength,60' WHERE `structure_field_old_id` = 'CAN-999-999-000-999-1232'
+AND `rule` LIKE 'maxLength,%';
+
+ LIMIT 1 ;
+
 DELETE FROM menus
 WHERE id LIKE 'inv_CAN%';
 
@@ -137,6 +157,10 @@ AND `old_id` LIKE 'CAN-999-999-000-999-1032_CAN-999-999-000-999-1131.2';
 
 
 
+
+
+
+-- 
 
 
 
