@@ -70,7 +70,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		$this->set('storage_path_data', (empty($storage_path_data)? array():$storage_path_data));
 		
 		// Set list of available SOPs to build TMA
-		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'true') == 0) {	
+		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') == 0) {	
 			$this->set('arr_tma_sops', $this->getTmaSopList());
 		}
 		
@@ -79,7 +79,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		// Get the current menu object. Needed to disable menu options based on storage type
 		$atim_menu = null;
 		$is_tma = false;
-		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'true') == 0) {
+		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') == 0) {
 			// TMA menu
 			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/detail/%%StorageMaster.id%%/0/TMA');
 			$atim_menu = $this->Storages->inactivateChildrenStorageMenu($atim_menu);
@@ -152,14 +152,14 @@ class StorageMastersController extends StoragelayoutAppController {
 		if(is_null($predefined_parent_storage_id)) { 
 			$available_parent_storage_list = $this->Storages->getStorageList();
 		} else {
-			$predefined_parent_storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $predefined_parent_storage_id, 'StorageControl.is_tma_block' => 'false')));
+			$predefined_parent_storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $predefined_parent_storage_id, 'StorageControl.is_tma_block' => 'FALSE')));
 			if(empty($predefined_parent_storage_data)) { $this->redirect('/pages/err_sto_no_stor_data', null, true); }		
 			$available_parent_storage_list[$predefined_parent_storage_id] = $predefined_parent_storage_data;
 		}
 		$this->set('available_parent_storage_list', $available_parent_storage_list);	
 		
 		// Set list of available SOPs to build TMA
-		if(strcmp($storage_control_data['StorageControl']['is_tma_block'], 'true') == 0) {	
+		if(strcmp($storage_control_data['StorageControl']['is_tma_block'], 'TRUE') == 0) {	
 			$this->set('arr_tma_sops', $this->getTmaSopList());
 		}
 
@@ -191,7 +191,7 @@ class StorageMastersController extends StoragelayoutAppController {
 			// Set storage temperature information
 			$this->data['StorageMaster']['set_temperature'] = $storage_control_data['StorageControl']['set_temperature'];
 				
-			if((strcmp($storage_control_data['StorageControl']['set_temperature'], 'false') == 0) && (!empty($parent_storage_data))) {
+			if((strcmp($storage_control_data['StorageControl']['set_temperature'], 'FALSE') == 0) && (!empty($parent_storage_data))) {
 				// Define storage surrounding temperature based on selected parent temperature
 				$this->data['StorageMaster']['temperature'] = $parent_storage_data['StorageMaster']['temperature'];
 				$this->data['StorageMaster']['temp_unit'] = $parent_storage_data['StorageMaster']['temp_unit'];
@@ -256,7 +256,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		$this->set('available_parent_storage_list', $this->Storages->getStorageList($storage_master_id));
 
 		// Set list of available SOPs to build TMA
-		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'true') == 0) {	
+		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') == 0) {	
 			$this->set('arr_tma_sops', $this->getTmaSopList());
 		}	
 		
@@ -264,7 +264,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		
 		// Get the current menu object. Needed to disable menu options based on storage type
 		$atim_menu = null;
-		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'true') == 0) {
+		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') == 0) {
 			// TMA menu
 			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/detail/%%StorageMaster.id%%/0/TMA');
 			$atim_menu = $this->Storages->inactivateChildrenStorageMenu($atim_menu);
@@ -309,7 +309,7 @@ class StorageMastersController extends StoragelayoutAppController {
 			$this->data['StorageMaster']['selection_label'] = $this->getStorageSelectionLabel($this->data);
 
 			// Update storage surrounding temperature
-			if(((strcmp($storage_data['StorageControl']['set_temperature'], 'false')) == 0) && $is_new_parent_storage) {
+			if(((strcmp($storage_data['StorageControl']['set_temperature'], 'FALSE')) == 0) && $is_new_parent_storage) {
 				// Parent storage has changed: Manage surrounding temperature
 				if(empty($parent_storage_data)) {
 					$this->data['StorageMaster']['temperature'] = null;
@@ -395,7 +395,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		$this->set('storage_path_data', (empty($storage_path_data)? array():$storage_path_data));
 
 		// Set list of available SOPs to build TMA
-		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'true') == 0) {	
+		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') == 0) {	
 			$this->set('arr_tma_sops', $this->getTmaSopList());
 		}		
 		
@@ -403,7 +403,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		
 		// Get the current menu object. Needed to disable menu options based on storage type
 		$atim_menu = null;
-		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'true') == 0) {
+		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') == 0) {
 			// TMA menu
 			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/detail/%%StorageMaster.id%%/0/TMA');
 			$atim_menu = $this->Storages->inactivateChildrenStorageMenu($atim_menu);
@@ -542,9 +542,9 @@ class StorageMastersController extends StoragelayoutAppController {
 
 		// Set structure				
 		$atim_structure = array();
-		$atim_structure['StorageMaster']	= $this->Structures->get('form','storage_masters_for_tree_view');
-		$atim_structure['AliquotMaster']	= $this->Structures->get('form','aliquot_masters_for_tree_view');
-		$atim_structure['TmaSlide']	= $this->Structures->get('form','tma_slides_for_tree_view');
+		$atim_structure['StorageMaster']	= $this->Structures->get('form','storage_masters_for_storage_tree_view');
+		$atim_structure['AliquotMaster']	= $this->Structures->get('form','aliquot_masters_for_storage_tree_view');
+		$atim_structure['TmaSlide']	= $this->Structures->get('form','tma_slides_for_storage_tree_view');
 		$this->set('atim_structure', $atim_structure);			
 	}		
 	
@@ -565,25 +565,23 @@ class StorageMastersController extends StoragelayoutAppController {
 			
 			// recursive first on existing MODEL CHILDREN
 			if (isset($new_storage['children']) && count($new_storage['children'])) {
-				$new_storage['children'] = $this->completeStorageContent($new_storage['children']);
+				$storage_content[$key]['children'] = $this->completeStorageContent($new_storage['children']);
 			}
 			
 			// get OUTSIDE MODEL data and append as CHILDREN
 					
 			// 1-Add storage aliquots
-			$this->AliquotMaster->bindModel(array('belongsTo' => array('SampleMaster' => array('className' => 'SampleMaster', 'foreignKey' => 'sample_master_id'))));		
+			$this->AliquotMaster->unbindModel(array('belongsTo' => array('Collection', 'StorageMaster', 'AliquotControl')));			
 			$storage_aliquots = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.storage_master_id' => $new_storage['StorageMaster']['id']), 'order' => 'AliquotMaster.coord_x_order ASC, AliquotMaster.coord_y_order ASC', 'recursive' => '0'));
-			foreach ($storage_aliquots as $aliquot) { $new_storage['children'][] = $aliquot; }				
+			foreach ($storage_aliquots as $aliquot) { $storage_content[$key]['children'][] = $aliquot; }				
 			
 			// 2-Add storage TMA slides
 			$this->TmaSlide->unbindModel(array('belongsTo' => array('StorageMaster')));		
 			$storage_tma_slides = $this->TmaSlide->find('all', array('conditions' => array('TmaSlide.storage_master_id' => $new_storage['StorageMaster']['id']), 'order' => 'TmaSlide.coord_x_order ASC, TmaSlide.coord_y_order ASC'));
 			foreach ($storage_tma_slides as $slide) {
 				$slide['Generated']['tma_block_identification'] = $slide['Block']['barcode'];
-				$new_storage['children'][] = $slide; 
-			}		
-			
-			$storage_content[$key] = $new_storage;
+				$storage_content[$key]['children'][] = $slide; 
+			}
 		}
 		
 		return $storage_content;
@@ -1025,6 +1023,7 @@ class StorageMastersController extends StoragelayoutAppController {
 	 */
 	 
 	function updateChildrenStorageSelectionLabel($parent_storage_id, $parent_storage_data){
+		// TODO Perhaps could code lines be moved to model? (just pb of customisation)
 		$arr_studied_parents_data = array($parent_storage_id => $parent_storage_data);
 		
 		while(!empty($arr_studied_parents_data)) {
@@ -1146,18 +1145,35 @@ class StorageMastersController extends StoragelayoutAppController {
 	 */
 	 
 	function updateChildrenSurroundingTemperature($parent_storage_master_id, $parent_temperature, $parent_temp_unit) {	
+		// TODO Perhaps could code lines be moved to model?
 		$studied_parent_storage_ids = array($parent_storage_master_id => $parent_storage_master_id);
 		
 		while(!empty($studied_parent_storage_ids)) {
 			// Search 'direct' children to update
 			$conditions = array();
 			$conditions['StorageMaster.parent_id'] = $studied_parent_storage_ids;
-			$conditions['StorageMaster.set_temperature'] = 'false';
-			$conditions['OR'] = array("StorageMaster.temperature != '$parent_temperature'", "StorageMaster.temp_unit != '$parent_temp_unit'");
-	
+			$conditions['StorageMaster.set_temperature'] = 'FALSE';
+			$conditions['OR'] = array();
+			
+			if(empty($parent_temperature) && (!is_numeric($parent_temperature))) {
+				$conditions['OR'][] = "StorageMaster.temperature IS NOT NULL";
+			} else {
+				$conditions['OR'][] = "StorageMaster.temperature IS NULL";				
+				$conditions['OR'][] = "StorageMaster.temperature != '$parent_temperature'";				
+			}
+			
+			if(empty($parent_temp_unit)) {
+				$conditions['OR'][] = "StorageMaster.temp_unit IS NOT NULL";
+				$conditions['OR'][] = "StorageMaster.temp_unit != ''";
+			} else {
+				$conditions['OR'][] = "StorageMaster.temp_unit IS NULL";				
+				$conditions['OR'][] = "StorageMaster.temp_unit != '$parent_temp_unit'";				
+			}
+
 			$studied_parent_storage_ids = array();
 			
 			$children_storage_to_update = $this->StorageMaster->find('all', array('conditions' => $conditions, 'recursive' => '-1'));	
+			
 			foreach($children_storage_to_update as $new_children_to_update) {
 				// New children to update
 				$studied_children_id = $new_children_to_update['StorageMaster']['id'];

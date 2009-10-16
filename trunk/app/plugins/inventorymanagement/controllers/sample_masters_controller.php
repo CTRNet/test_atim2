@@ -97,15 +97,14 @@ class SampleMastersController extends InventorymanagementAppController {
 			$criteria['SampleMaster.initial_specimen_sample_id'] = array_keys($studied_collection_specimens);	
 		}
 		$criteria['SampleMaster.collection_id'] = $collection_id;
-		$collection_content = $this->SampleMaster->find('threaded', array('conditions' => $criteria, 'order' => 'SampleMaster.sample_type DESC, SampleMaster.sample_code DESC', 'recursive' => '-1'));
-	 	$collection_content = $this->completeCollectionContent($collection_content);
-	 	$this->data = $this->completeCollectionContent($collection_content);
+		$collection_samples = $this->SampleMaster->find('threaded', array('conditions' => $criteria, 'order' => 'SampleMaster.sample_type DESC, SampleMaster.sample_code DESC', 'recursive' => '-1'));
+	 	$this->data = $this->completeCollectionContent($collection_samples);
 				
 		// MANAGE FORM, MENU AND ACTION BUTTONS	
 			 	
 		$atim_structure = array();
-		$atim_structure['SampleMaster']	= $this->Structures->get('form','sample_masters_for_tree_view');
-		$atim_structure['AliquotMaster']	= $this->Structures->get('form','aliquot_masters_for_tree_view');
+		$atim_structure['SampleMaster']	= $this->Structures->get('form','sample_masters_for_collection_tree_view');
+		$atim_structure['AliquotMaster']	= $this->Structures->get('form','aliquot_masters_for_collection_tree_view');
 		$this->set('atim_structure', $atim_structure);
 
 		// Get all sample control types to build the add to selected button
@@ -142,9 +141,9 @@ class SampleMastersController extends InventorymanagementAppController {
 	
 	/**
 	 * Parsing a nested array gathering collection samples, the funtion will add
-	 * aliquots data to each sample.
+	 * aliquots records for each sample.
 	 * 
-	 * @param $collection_content Nested array gathering collection samples.
+	 * @param $children_list Nested array gathering collection samples.
 	 * 
 	 * @return The completed nested array
 	 * 
@@ -152,21 +151,21 @@ class SampleMastersController extends InventorymanagementAppController {
 	 * @since 2009-09-13
 	 */
 	
-	function completeCollectionContent($collection_content) {
-		foreach ($collection_content as $key => $new_sample) {
+	function completeCollectionContent($children_list) {
+		foreach ($children_list as $key => $studied_sample) {
+			
 			// recursive first on existing MODEL CHILDREN
-			if (isset($new_sample['children']) && count($new_sample['children'])) {
-				$new_sample['children'] = $this->completeCollectionContent($new_sample['children']);
+			if (isset($studied_sample['children']) && count($studied_sample['children'])) {
+				$children_list[$key]['children'] = $this->completeCollectionContent($studied_sample['children']);
 			}
 			
 			// get OUTSIDE MODEL data and append as CHILDREN: Add sample aliquots
-			$sample_aliquots = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.sample_master_id' => $new_sample['SampleMaster']['id']), 'order' => 'AliquotMaster.storage_coord_x ASC, AliquotMaster.storage_coord_y ASC', 'recursive' => '-1'));
-			foreach ($sample_aliquots as $aliquot) { $new_sample['children'][] = $aliquot; }
-						
-			$collection_content[$key] = $new_sample;
+			$this->AliquotMaster->unbindModel(array('belongsTo' => array('Collection', 'SampleMaster', 'AliquotControl')));	
+			$studied_sample_aliquots = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.sample_master_id' => $studied_sample['SampleMaster']['id']), 'order' => 'AliquotMaster.storage_coord_x ASC, AliquotMaster.storage_coord_y ASC', 'recursive' => '0'));
+			foreach ($studied_sample_aliquots as $new_aliquot) { $children_list[$key]['children'][] = $new_aliquot; }
 		}
 		
-		return $collection_content;
+		return $children_list;
 	}
 	
 	function listAll($collection_id, $filter_option = null) {
@@ -437,7 +436,7 @@ class SampleMastersController extends InventorymanagementAppController {
 			
 		if(!empty($this->data)) {	
 
-			// Set control additional data
+			// Set additional data
 			$this->data['SampleMaster']['collection_id'] = $collection_id;
 			$this->data['SampleMaster']['sample_control_id'] = $sample_control_data['SampleControl']['id'];
 			$this->data['SampleMaster']['sample_type'] = $sample_control_data['SampleControl']['sample_type'];			
@@ -479,6 +478,7 @@ class SampleMastersController extends InventorymanagementAppController {
 					
 					if($bool_is_specimen) {
 						// System is right now able to record initial_specimen_sample_id for the specimen
+						// TODO Perhaps could code lines be moved to model?	
 						$sample_data_to_update['SampleMaster']['initial_specimen_sample_id'] = $sample_master_id;					
 					}
 
@@ -696,6 +696,7 @@ class SampleMastersController extends InventorymanagementAppController {
 	 */
 	 
 	function createSampleCode($sample_master_id, $sample_master_data, $sample_control_data){	
+		// TODO Perhaps could code lines be moved to model? (just pb of customisation)
 		$sample_code = $sample_control_data['SampleControl']['sample_type_code'] . ' - '. $sample_master_id;		
 		return $sample_code;		
 	}
