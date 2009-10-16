@@ -3,7 +3,8 @@
 	$structure_links = array(
 		'index'=>array('detail'=>'/clinicalannotation/family_histories/detail/'.$atim_menu_variables['Participant.id'].'/%%FamilyHistory.id%%/'),
 		'bottom'=>array(
-			'add'=>'/clinicalannotation/family_histories/add/'.$atim_menu_variables['Participant.id'].'/'
+			'grid'	=> '/clinicalannotation/family_histories/grid/'.$atim_menu_variables['Participant.id'],
+			'add'		=> '/clinicalannotation/family_histories/add/'.$atim_menu_variables['Participant.id']
 		)
 	);
 	

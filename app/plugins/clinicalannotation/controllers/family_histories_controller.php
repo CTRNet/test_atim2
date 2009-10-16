@@ -12,6 +12,20 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 		$this->data = $this->paginate($this->FamilyHistory, array('FamilyHistory.participant_id'=>$participant_id));
 	}
 	
+	function grid( $participant_id=null ) {
+		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+
+		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
+		
+		if ( empty($this->data) ) {
+			// $this->data = $this->FamilyHistory->find('all', array('conditions'=>'FamilyHistory.participant_id="'.$participant_id.'"'));
+			$this->data = array(array());
+		} else {
+			pr($this->data);
+			exit;
+		}
+	}
+	
 	function detail( $participant_id=null, $family_history_id=null ) {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		if ( !$family_history_id ) { $this->redirect( '/pages/err_clin-ann_no_fam_hist_id', NULL, TRUE ); }
