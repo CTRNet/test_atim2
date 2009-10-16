@@ -26,7 +26,7 @@ class TmaSlidesController extends StoragelayoutAppController {
 		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_stor_data', null, true); }	
 		
 		// Verify storage is tma block
-		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'true') != 0) { $this->redirect('/pages/err_sto_not_a_tma_block', null, true); }
+		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') != 0) { $this->redirect('/pages/err_sto_not_a_tma_block', null, true); }
 
 		// Get TMA slide liste
 		$this->data = $this->paginate($this->TmaSlide, array('TmaSlide.std_tma_block_id' => $tma_block_storage_master_id));
@@ -59,7 +59,7 @@ class TmaSlidesController extends StoragelayoutAppController {
 		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_stor_data', null, true); }	
 
 		// Verify storage is tma block
-		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'true') != 0) { $this->redirect('/pages/err_sto_not_a_tma_block', null, true); }
+		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') != 0) { $this->redirect('/pages/err_sto_not_a_tma_block', null, true); }
 
 		// Set list of available SOPs to build TMA slide
 		$this->set('arr_tma_slide_sops', $this->getTmaSlideSopList());
@@ -110,14 +110,15 @@ class TmaSlidesController extends StoragelayoutAppController {
 				// Manage errors
 				if(!empty($arr_position_results['position_definition_error'])) {
 					$submitted_data_validates = false;
-					$error = $arr_position_results['position_definition_error'];
-					if($arr_position_results['error_on_x']) {
-						$this->TmaSlide->validationErrors['storage_coord_x'] = $error;
-						$error = null;	// To be sure message is not duplicated when error is applied on the 2 coordinates
-					} 
-					if($arr_position_results['error_on_y']) {
-						$this->TmaSlide->validationErrors['storage_coord_y'] = $error;	
-					}	
+					$error = $arr_position_results['position_definition_error'];	
+					if($arr_position_results['error_on_x'] && $arr_position_results['error_on_y']) {	
+						$this->TmaSlide->validationErrors['storage_coord_x'] = $error; 
+						$this->TmaSlide->validationErrors['storage_coord_y'] = ' ';	// TODO: Used to color field in red and not duplicate message
+					} else if($arr_position_results['error_on_x']) {
+						$this->TmaSlide->validationErrors['storage_coord_x'] = $error;					
+					} else if($arr_position_results['error_on_y']) {	
+						$this->TmaSlide->validationErrors['storage_coord_y'] = $error;					
+					}				
 				}
 								
 				// Reset slide storage data
@@ -150,7 +151,7 @@ class TmaSlidesController extends StoragelayoutAppController {
 		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_stor_data', null, true); }	
 
 		// Verify storage is tma block
-		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'true') != 0) { $this->redirect('/pages/err_sto_not_a_tma_block', null, true); }
+		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') != 0) { $this->redirect('/pages/err_sto_not_a_tma_block', null, true); }
 		
 		// Get the tma slide data
 		$tma_slide_data = $this->TmaSlide->find('first', array('conditions' => array('TmaSlide.id' => $tma_slide_id, 'TmaSlide.std_tma_block_id' => $tma_block_storage_master_id)));
@@ -195,7 +196,7 @@ class TmaSlidesController extends StoragelayoutAppController {
 		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_stor_data', null, true); }	
 
 		// Verify storage is tma block
-		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'true') != 0) { $this->redirect('/pages/err_sto_not_a_tma_block', null, true); }
+		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') != 0) { $this->redirect('/pages/err_sto_not_a_tma_block', null, true); }
 		
 		// Get the tma slide data
 		$tma_slide_data = $this->TmaSlide->find('first', array('conditions' => array('TmaSlide.id' => $tma_slide_id, 'TmaSlide.std_tma_block_id' => $tma_block_storage_master_id)));
@@ -260,13 +261,14 @@ class TmaSlidesController extends StoragelayoutAppController {
 				if(!empty($arr_position_results['position_definition_error'])) {
 					$submitted_data_validates = false;
 					$error = $arr_position_results['position_definition_error'];
-					if($arr_position_results['error_on_x']) {
-						$this->TmaSlide->validationErrors['storage_coord_x'] = $error;
-						$error = '';	
-					} 
-					if($arr_position_results['error_on_y']) {
-						$this->TmaSlide->validationErrors['storage_coord_y'] = $error;	
-					}	
+					if($arr_position_results['error_on_x'] && $arr_position_results['error_on_y']) {	
+						$this->TmaSlide->validationErrors['storage_coord_x'] = $error; 
+						$this->TmaSlide->validationErrors['storage_coord_y'] = ' ';	// TODO: Used to color field in red and not duplicate message
+					} else if($arr_position_results['error_on_x']) {
+						$this->TmaSlide->validationErrors['storage_coord_x'] = $error;					
+					} else if($arr_position_results['error_on_y']) {	
+						$this->TmaSlide->validationErrors['storage_coord_y'] = $error;					
+					}
 				}				
 				$this->data['TmaSlide']['storage_coord_x'] = $arr_position_results['validated_position_x'];
 				$this->data['TmaSlide']['coord_x_order'] = $arr_position_results['position_x_order'];
@@ -298,7 +300,7 @@ class TmaSlidesController extends StoragelayoutAppController {
 		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_stor_data', null, true); }	
 
 		// Verify storage is tma block
-		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'true') != 0) { $this->redirect('/pages/err_sto_not_a_tma_block', null, true); }
+		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') != 0) { $this->redirect('/pages/err_sto_not_a_tma_block', null, true); }
 		
 		// Get the tma slide data
 		$tma_slide_data = $this->TmaSlide->find('first', array('conditions' => array('TmaSlide.id' => $tma_slide_id, 'TmaSlide.std_tma_block_id' => $tma_block_storage_master_id)));

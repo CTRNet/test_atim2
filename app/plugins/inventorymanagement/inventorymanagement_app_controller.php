@@ -149,6 +149,7 @@ class InventorymanagementAppController extends AppController
 	function unsetInventorySessionData() {
 		unset($_SESSION['InventoryManagement']['treeView']['Filter']);
 		unset($_SESSION['InventoryManagement']['Sample']['Filter']);
+		unset($_SESSION['InventoryManagement']['Aliquot']['Filter']);
 	}
 	
 	

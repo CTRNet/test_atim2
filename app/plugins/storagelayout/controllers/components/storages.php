@@ -24,7 +24,7 @@ class StoragesComponent extends Object {
 	
 	function getStorageList($excluded_storage_master_id = null) {	
 		// Find control ID for all storages of type TMA. These will be excluded from the returned array
-		$arr_tma_control_ids = $this->controller->StorageControl->find('list', array('conditions' => array('StorageControl.is_tma_block' => 'true')));
+		$arr_tma_control_ids = $this->controller->StorageControl->find('list', array('conditions' => array('StorageControl.is_tma_block' => 'TRUE')));
 			
 		// Get all storage records excluding those of type TMA
 		$arr_storages_list = $this->controller->StorageMaster->atim_list(array('conditions' => array('NOT' => array('StorageMaster.storage_control_id' => $arr_tma_control_ids)), 'order' => array('StorageMaster.selection_label')));
@@ -246,7 +246,7 @@ class StoragesComponent extends Object {
 		} 	// else if { $selected_storage_master_id and $recorded_selection_label empty: Nothing to do }
 		
 		// Check defined storage is not a TMA
-		if($check_tma && (strcmp($matching_storage_list[$selected_storage_master_id]['StorageControl']['is_tma_block'], 'true') == 0)) {
+		if($check_tma && (strcmp($matching_storage_list[$selected_storage_master_id]['StorageControl']['is_tma_block'], 'TRUE') == 0)) {
 			$storage_definition_error = 'the defined storage is a tma';
 		}
 		
@@ -276,11 +276,11 @@ class StoragesComponent extends Object {
 	function validatePositionWithinStorage($storage_master_id, $position_x, $position_y, $storage_data = null) {
 		$validated_position_x = $position_x;
 		$position_x_order = null;
-		$error_on_x = 0;
+		$error_on_x = false;
 		
 		$validated_position_y = $position_y;
 		$position_y_order = null;
-		$error_on_y = 0;
+		$error_on_y = false;
 		
 		$position_definition_error = '';
 		
@@ -311,7 +311,7 @@ class StoragesComponent extends Object {
 			// Manage position x
 			if(!$position_x_validation['validated']) {
 				$validated_position_x .= $error_sign;
-				$error_on_x = 1;
+				$error_on_x = true;
 				$position_definition_error = 'at least one position value does not match format';
 			} else {
 				$validated_position_x = $position_x_validation['validated_position'];
@@ -321,7 +321,7 @@ class StoragesComponent extends Object {
 			// Manage position y
 			if(!$position_y_validation['validated']) {
 				$validated_position_y .= $error_sign;
-				$error_on_y = 1;
+				$error_on_y = true;
 				$position_definition_error = 'at least one position value does not match format';
 			} else {
 				$validated_position_y = $position_y_validation['validated_position'];

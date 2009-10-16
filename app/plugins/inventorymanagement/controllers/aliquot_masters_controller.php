@@ -36,7 +36,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		'Inventorymanagement.AliquotControl', 
 		'Inventorymanagement.AliquotMaster',
-		'Inventorymanagement.AliquotDetail',
 		
 		'Inventorymanagement.SampleToAliquotControl',
 		
@@ -87,9 +86,121 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		// Set list of banks
 		$this->set('banks', $this->getBankList());
-	}	
+	}
 	
-// listall
+	function listAll($collection_id, $sample_master_id = null, $filter_option = null) {
+		if(!$collection_id) { $this->redirect('/pages/err_inv_coll_no_id', null, true); }
+pr('la');exit;
+		// MANAGE DATA
+
+		// Manage Session data
+		if(!$filter_option) {
+			// User click on collection samples menu: get existing filter
+			if(isset($_SESSION['InventoryManagement']['Aliquot']['Filter'])) {
+				$filter_option = $_SESSION['InventoryManagement']['Aliquot']['Filter'];
+			}
+		} else if($filter_option == '-1') {
+			// User unactived filter
+			$filter_option = null;
+			unset($_SESSION['InventoryManagement']['Aliquot']['Filter']);
+		}
+		
+		// Search data to display		
+		$additional_criteria = array();
+		$menu_link = '/inventorymanagement/sample_masters/listAll/%%Collection.id%%';
+		$additional_menu_variables = array();
+		$override_form_alias = null;
+		$filter_value = 'all content';
+		$is_derivatives_list = false;
+		
+		if(!is_null($filter_option)) {
+			// Get filter options
+			$option_for_list_all = explode("|", $filter_option);			
+			if(sizeof($option_for_list_all) != 2)  { $this->redirect('/pages/err_inv_system_error', null, true); }
+
+			switch($option_for_list_all[0]) {
+				case 'SPEC_DERIV':
+					// List all specimen derivatives
+					$additional_criteria['SampleMaster.initial_specimen_sample_id'] = $option_for_list_all[1]; 
+					$additional_criteria['SampleMaster.sample_category'] = 'derivative'; 
+					
+					$additional_menu_variables = array('SampleMaster.initial_specimen_sample_id' => $option_for_list_all[1]);
+					$menu_link = '/inventorymanagement/sample_masters/listAll/%%Collection.id%%/SPEC_DERIV|%%SampleMaster.initial_specimen_sample_id%%';
+					
+					$is_derivatives_list = true;	
+					$filter_value = null;			
+					break;
+					
+				case 'CATEGORY':
+					// list all collection samples according to sample category in collection listall form
+					$additional_criteria['SampleMaster.sample_category'] = $option_for_list_all[1];
+					$filter_value = $option_for_list_all[1];
+					
+					$_SESSION['InventoryManagement']['Sample']['Filter'] = $filter_option;
+					break;
+					
+				case 'SAMP_TYPE':
+					// list all collection samples according to sample type in collection listall form
+					$additional_criteria['SampleMaster.sample_control_id'] = $option_for_list_all[1]; 
+					
+					$sample_control_data = $this->SampleControl->find('first', array('conditions' => array('SampleControl.id' => $option_for_list_all[1])));
+					if(empty($sample_control_data)) { $this->redirect('/pages/err_inv_no_samp_cont_data', null, true); }	
+									
+					$override_form_alias = $sample_control_data['SampleControl']['form_alias'];
+					$filter_value = $sample_control_data['SampleControl']['sample_type'];
+					
+					$_SESSION['InventoryManagement']['Sample']['Filter'] = $filter_option;
+					break;
+					
+				default:
+					$this->redirect('/pages/err_inv_funct_param_missing', null, true);								
+			}
+		}
+		
+		$criteria = $additional_criteria;
+		$criteria['SampleMaster.collection_id'] = $collection_id;
+		$this->data = $this->paginate($this->SampleMaster, $criteria);
+		
+		// MANAGE FORM, MENU AND ACTION BUTTONS	
+		$form_alias = 'samplemasters';
+		if($override_form_alias) {
+			$form_alias = $override_form_alias;
+		} 	
+		$this->set('atim_structure', $this->Structures->get('form', $form_alias));
+		
+		// Get all sample control types to build the add to selected button
+		$specimen_sample_controls_list = $this->SampleControl->atim_list(array('conditions' => array('SampleControl.status' => 'active', 'SampleControl.sample_category' => 'specimen'), 'order' => 'SampleControl.sample_type ASC'));
+		$this->set('specimen_sample_controls_list', $specimen_sample_controls_list);
+		
+		// Get all collection sample type list to build the filter button
+		$sample_type_list = array();
+		$collection_sample_type_list = $this->SampleMaster->find('all', array('fields' => 'DISTINCT SampleMaster.sample_type, SampleMaster.sample_control_id', 'conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.sample_category' => 'specimen'), 'order' => 'SampleMaster.sample_type ASC', 'recursive' => '-1'));
+		foreach($collection_sample_type_list as $new_sample_type) {
+			$sample_control_id = $new_sample_type['SampleMaster']['sample_control_id'];
+			$sample_type = $new_sample_type['SampleMaster']['sample_type'];
+			$sample_type_list[$sample_type] = $sample_control_id;
+		}
+		$this->set('specimen_sample_type_list', $sample_type_list);
+
+		$sample_type_list = array();
+		$collection_sample_type_list = $this->SampleMaster->find('all', array('fields' => 'DISTINCT SampleMaster.sample_type, SampleMaster.sample_control_id', 'conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.sample_category' => 'derivative'), 'order' => 'SampleMaster.sample_type ASC', 'recursive' => '-1'));
+		foreach($collection_sample_type_list as $new_sample_type) {
+			$sample_control_id = $new_sample_type['SampleMaster']['sample_control_id'];
+			$sample_type = $new_sample_type['SampleMaster']['sample_type'];
+			$sample_type_list[$sample_type] = $sample_control_id;
+		}
+		$this->set('derivative_sample_type_list', $sample_type_list);
+		
+		// Get the current menu object. 
+		$atim_menu = $this->Menus->get($menu_link);
+		$this->set('atim_menu', $atim_menu);
+				
+		// Set menu variables
+		$this->set('atim_menu_variables', array_merge($additional_menu_variables, array('Collection.id' => $collection_id, 'filter_value' => $filter_value)));
+				
+		// Set menu variables
+		$this->set('is_derivatives_list', $is_derivatives_list);
+	}
 
 // detail	
 	
@@ -458,158 +569,54 @@ foreach($this->data as $id => $data) {
 	$this->data[$id]['AliquotMaster']['storage_master_id'] = '';	
 }
 
-
+			// Set current volume
+			if(isset($this->data[$id]['AliquotMaster']['initial_volume'])){
+				// TODO Perhaps could code lines be moved to model?
+				if(empty($aliquot_control_data['AliquotControl']['volume_unit'])) { $this->redirect('/pages/err_inv_system_error', null, true); }
+				$this->data[$id]['AliquotMaster']['current_volume'] = $this->data[$id]['AliquotMaster']['initial_volume'];				
+			}
+			
 			// Launch validations
 			$submitted_data_validates = true;
 			
-			// Barcode validation
+			// -> Barcode validation
 			if($this->isDuplicatedAliquotBarcode($this->data)) {
 				$submitted_data_validates = false;
 			}
 			
-			// Storage definition validation
+			// -> Storage definition validation
 			if(!$this->validateAliquotStorageData($this->data)) {
 				$submitted_data_validates = false;
 			}			
 		
-			// Launch Fields Validation
-			
-			
-			
+			// -> Fields validation
 			foreach($this->data as $id => $new_aliquot) {
-				$this->AliquotMaster->set( $new_aliquot );
-				if(!$this->AliquotMaster->validates()) {
-					pr('validate Master error');
-				}	
-				
-				$this->AliquotDetail->set( $new_aliquot );	
-				if(!$this->AliquotDetail->validates()) {
-					pr('validate Detail error');
-				}					
+				// TODO validates AliquotMaster
+				// TODO validates AliquotDetail			
 			}
-//				
-//				
-//				
-////				$this->AliquotMaster->set( $new_aliquot );
-//pr('save => ');pr($new_aliquot);
-////if(!$this->AliquotMaster->save($new_aliquot)) {
-////	pr('save error');
-////}
+			
+			// Save data
+			if($submitted_data_validates) {
+				$bool_save_done = true;
 
-
-//				if(!$this->AliquotMaster->validates($new_aliquot)){
-//					pr('la');
-//					$this->AliquotMaster->save($new_aliquot);
-//					$submitted_data_validates = false;
-//					pr('not validated');
-//				}
-//				pr($errors = $this->AliquotMaster->invalidFields());
-
-//			}
-
-
-//
-//
-//					
-//					// D- Set Initial Volume
-//				
-//					// Set current volume
-//					if(isset($this->data[$id]['AliquotMaster']['initial_volume'])){	
-//						
-//						if(is_null($aliquot_control_data['AliquotControl']['volume_unit'])){
-//							$this->redirect('/pages/err_inv_system_error'); 
-//							exit;
-//						}
-//		
-//						// Set the current volume with the initial volume
-//						$this->data[$id]['AliquotMaster']['current_volume'] =
-//							$this->data[$id]['AliquotMaster']['initial_volume'];				
-//		
-//					}
-//					
-//					// E- Launch Validation
-//				
-//					// Validates Fields of Aliquot Master Table
-
-//					if($bool_needs_details_table && isset($this->data[$id]['AliquotDetail'])){
-//						// Validates Fields of Aliquot Detail Table
-//						if(!$this->AliquotDetail->validates($this->data[$id]['AliquotDetail'])){
-//							$submitted_data_validates = false;
-//						}	
-//					}
-//
-//				} // End foreach to validate all new aliquot record
-//				
-
-//				
-//				// look for CUSTOM HOOKS, "validation"
-//				$custom_ctrapp_controller_hook 
-//					= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
-//					'controllers' . DS . 'hooks' . DS . 
-//					$this->params['controller'].'_'.$this->params['action'].'_validation.php';
-//				
-//				if (file_exists($custom_ctrapp_controller_hook)) {
-//					require($custom_ctrapp_controller_hook);
-//				}
-//				
-//				if ($submitted_data_validates) {
-//					
-//					//3- Save data
-//					foreach($this->data as $id => $new_studied_aliquot){
-//
-//						$bool_save_done = true;
-//				
-//						// Save ALIQUOTMASTER data
-//						$this->data[$id]['AliquotMaster']['id'] = null;
-//
-//						if($this->AliquotMaster->save($this->data[$id]['AliquotMaster'])){
-//							$aliquot_master_id = $this->AliquotMaster->getLastInsertId();
-//						} else {
-//							$bool_save_done = false;
-//						}
-//						
-//						if($bool_save_done && $bool_needs_details_table){
-//							// Aliquot Detail should be recorded
-//							
-//							// Set ID fields based on ALIQUOTMASTER
-//							$this->data[$id]['AliquotDetail']['id'] = $aliquot_master_id;
-//							$this->data[$id]['AliquotDetail']['aliquot_master_id'] = $aliquot_master_id;
-//							
-//							// Save ALIQUOTDETAIL data 
-//							if(!$this->AliquotDetail->save($this->data[$id]['AliquotDetail'])){
-//								$bool_save_done = false;
-//							}
-//						}
-//							
-//						if(!$bool_save_done){
-//							break;
-//						}
-//					} // End foreach to save each new record
-//
-//					if(!$bool_save_done){
-//						$this->redirect('/pages/err_inv_aliquot_record_err'); 
-//						exit;
-//					} else {
-//						// Data have been created
-//				
-//						// Data has been updated
-//						$this->flash(
-//							'Your data has been saved.',
-//							'/aliquot_masters/listAllSampleAliquots/'
-//								.$specimen_group_menu_id.'/'.$group_specimen_type.'/'.$sample_category.'/'.
-//								$collection_id.'/'.$sample_master_id.'/');
-//					}	
-//
-//				} // End save action done after validation
-//
-//			
-
-
-//TODO temporary modification before use of datagrid
-//$this->data = $this->data['0'];		
-
-		} // End data save management (manage copy + validation + save)	 		
-	} // function addAliquotInBatch
+				// TODO save correctly AliquotMaster				
+				foreach($this->data as $id => $new_aliquot) { 
+					// Set additional data
+					$new_aliquot['AliquotMaster']['id'] = null;
+					$new_aliquot['AliquotMaster']['collection_id'] = $collection_id;
+					$new_aliquot['AliquotMaster']['sample_master_id'] = $sample_master_id;
+					$new_aliquot['AliquotMaster']['aliquot_control_id'] = $aliquot_control_id;
+					$new_aliquot['AliquotMaster']['aliquot_type'] = $aliquot_control_data['AliquotControl']['aliquot_type'];
+	
+					if(!$this->AliquotMaster->save($new_aliquot)) { $bool_save_done = false; } 
+				}
+				
+				if($bool_save_done) {
+					$this->flash('Your data has been saved.', '/inventorymanagement/aliquot_masters/listAllSampleAliquots/' . $collection_id . '/' . $sample_master_id);				
+				}						
+			}	
+		}
+	}
 
 
 	
@@ -828,8 +835,8 @@ foreach($this->data as $id => $data) {
 			$is_duplicated_barcode = true;
 			
 			// Set error message
-			$this->AliquotMaster->validationErrors['barcode']	= null;	// TODO: Used to color field in red but not override field controls
-			$this->AliquotMaster->validationErrors[]	= 'barcode must be unique';
+			$this->AliquotMaster->validationErrors['barcode']	= ' ';					// TODO: Used to color field in red 
+			$this->AliquotMaster->validationErrors[]	= 'barcode must be unique';	// TODO: To be sure data won't be overriden by field control 
 			$str_barcodes_in_error = ' => ';
 			foreach($duplicated_barcodes as $barcode) {
 				$str_barcodes_in_error .= '[' . $barcode . '] ';
@@ -897,13 +904,8 @@ foreach($this->data as $id => $data) {
 				if(!empty($arr_position_results['position_definition_error'])) {
 					$submitted_data_validates = false;
 					$error = $arr_position_results['position_definition_error'];
-					if($arr_position_results['error_on_x']) {
-						$storage_validation_errors['x'][$error] = $error;	
-						$error = null;	// To be sure message is not duplicated when error is applied on the 2 coordinates
-					} 
-					if($arr_position_results['error_on_y']) {
-						$storage_validation_errors['y'][$error] = $error;
-					}	
+					if($arr_position_results['error_on_x']) { $storage_validation_errors['x'][$error] = $error; } 
+					if($arr_position_results['error_on_y']) { $storage_validation_errors['y'][$error] = $error; }	
 				}
 								
 				// Reset aliquot storage data
@@ -919,33 +921,22 @@ foreach($this->data as $id => $data) {
 		
 		// Set preselected storage list		
 		$this->set('arr_preselected_storages', $arr_preselected_storages);
-		
+			
 		// Manage error message
-		$first_one = true;
 		foreach($storage_validation_errors['id'] as $error) {
-			if($first_one) {
-				$this->AliquotMaster->validationErrors['storage_master_id'] = $error;
-			} else {
-				$this->AliquotMaster->validationErrors[] = $error;
-			}
+			$this->AliquotMaster->validationErrors['storage_master_id'] = ' ';	// TODO: Used to color field in red
+			$this->AliquotMaster->validationErrors[] = $error;							// TODO: Used to be sure all message will be displayed
 		}
 		
-		$first_one = true;
 		foreach($storage_validation_errors['x'] as $error) {
-			// Used to color field in red
-			$this->AliquotMaster->validationErrors['storage_coord_x'] = null;		// TODO: Used to color field in red but not override field controls
+			$this->AliquotMaster->validationErrors['storage_coord_x'] = ' ';		// TODO: Same notice
 			$this->AliquotMaster->validationErrors[] = $error;
 		}
 		
-		$first_one = true;
+
 		foreach($storage_validation_errors['y'] as $error) {
-			if($first_one) {
-				// Used to color field in red
-				$this->AliquotMaster->validationErrors['storage_coord_y'] = $error;
-				$first_one = false;
-			} else {
-				$this->AliquotMaster->validationErrors[] = $error;
-			}
+			$this->AliquotMaster->validationErrors['storage_coord_y'] = ' ';		// TODO: Same notice
+			if(!isset($storage_validation_errors['x'][$error])) { $this->AliquotMaster->validationErrors[] = $error; }
 		}
 		
 		if(!$is_multi_records_data) {
