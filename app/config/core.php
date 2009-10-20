@@ -170,7 +170,8 @@
  * The classname and database used in CakePHP's
  * access control lists.
  */
-	Configure::write('Acl.classname', 'DbAcl');
+ 	App::import('model','AtimAcl');
+	Configure::write('Acl.classname', 'AtimAcl');
 	Configure::write('Acl.database', 'default');
 /**
  *

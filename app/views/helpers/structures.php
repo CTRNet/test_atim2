@@ -27,6 +27,8 @@ class StructuresHelper extends Helper {
 				'pagination'	=> true,
 				
 				'all_fields'	=> false, // FALSE acts on structures datatable settings, TRUE ignores them and displays ALL FIELDS in a form regardless
+				'add_fields'	=> false, // if TRUE, adds an "add another" link after form to allow another row to be appended
+				'del_fields'	=> false, // if TRUE, add a "remove" link after each row, to allow it to be removed from the form
 				
 				'columns'		=> array(), // pass inline CSS to any structure COLUMNS
 				
@@ -94,11 +96,13 @@ class StructuresHelper extends Helper {
 			case 'list':		$options['type'] = 'index';	$return_string .= $this->build_table( $atim_structure, $options );	break;
 			case 'listall':	$options['type'] = 'index';	$return_string .= $this->build_table( $atim_structure, $options );	break;
 			
-			case 'datagrid':	$options['type'] = 'index';	$return_string .= $this->build_table( $atim_structure, $options );	break;
-			case 'editgrid':	$options['type'] = 'index';	$return_string .= $this->build_table( $atim_structure, $options );	break;
-			
 			case 'checklist':	$options['type'] = 'index';	$return_string .= $this->build_table( $atim_structure, $options );	break;
 			case 'radiolist':	$options['type'] = 'index';	$return_string .= $this->build_table( $atim_structure, $options );	break;
+			
+			case 'grid':		$options['type'] = 'datagrid';	$return_string .= $this->build_table( $atim_structure, $options );	break;
+			case 'addgrid':	$options['type'] = 'datagrid';	$return_string .= $this->build_table( $atim_structure, $options );	break;
+			case 'editgrid':	$options['type'] = 'datagrid';	$return_string .= $this->build_table( $atim_structure, $options );	break;
+			case 'datagrid':	$options['type'] = 'datagrid';	$return_string .= $this->build_table( $atim_structure, $options );	break;
 			
 			case 'csv':			$options['type'] = 'index';	$return_string .= $this->build_csv( $atim_structure, $options ); $options['settings']['actions'] = false;		break;
 			
@@ -337,7 +341,7 @@ class StructuresHelper extends Helper {
 				// add EXTRAS, if any
 				$structure_index = $this->display_extras( $structure_index, $options );
 				
-				foreach ( $structure_index as $table_index ) {				
+				foreach ( $structure_index as $table_key=>$table_index ) {				
 					
 					$structure_count++;
 					
@@ -362,7 +366,7 @@ class StructuresHelper extends Helper {
 							foreach ( $data as $key=>$val ) {
 								
 								$return_string .= '
-									<tr>
+									<tr id="table'.$table_key.'row'.$key.'">
 								';
 									
 								$column_count = 0;
@@ -422,11 +426,105 @@ class StructuresHelper extends Helper {
 									}
 								}
 								
+								// if OPTIONS set to allow rows to be removed from a GRID, provide link
+								if ( $options['type']=='datagrid' && $options['settings']['del_fields'] ) {
+									$return_string .= '
+											<td class="right">
+												<a style="color:red;" href="#" onclick="getElementById(\'table'.$table_key.'row'.$key.'\').parentNode.removeChild(getElementById(\'table'.$table_key.'row'.$key.'\')); return false;" title="'.__( 'click to remove these elements', true ).'">x</a>
+											</td>
+									';
+									
+									$column_count++;
+								}
+								
 								$return_string .= '
 									</tr>
 								';
 								
 							} // end FOREACH
+							
+							// if OPTIONS set to allow rows to be added to a GRID, provide link
+							if ( $options['type']=='datagrid' && $options['settings']['add_fields'] ) {
+								
+								$add_another_row_template = '';
+								
+								$add_another_row_template .= '
+									<tr id="table'.$table_key.'row#{id}">
+								';
+									
+								$column_count = 0;
+								
+								if ( count($options['links']['checklist']) ) {
+									$add_another_row_template .= '
+										<td class="checkbox">
+									';
+									
+									foreach ( $options['links']['checklist'] as $checkbox_name=>$checkbox_value ) {
+										$checkbox_value = $this->str_replace_link( $checkbox_value, '0' );
+											$checkbox_form_element = $this->Form->checkbox($checkbox_name, array('value'=>$checkbox_value)); // have to do it TWICE, due to double-model-name error that we couldn't figure out...
+ 											$checkbox_form_element = $this->Form->checkbox($checkbox_name, array('value'=>$checkbox_value));
+										$add_another_row_template .= $checkbox_form_element;
+									}
+									
+									$add_another_row_template .= '
+										</td>
+									';
+									
+									$column_count++;
+								}
+								
+								if ( count($options['links']['radiolist']) ) {
+									$add_another_row_template .= '
+										<td class="radiobutton">
+									';
+									
+									foreach ( $options['links']['radiolist'] as $radiobutton_name=>$radiobutton_value ) {
+										$radiobutton_value = $this->str_replace_link( $radiobutton_value, '0' );
+										$add_another_row_template .= $this->Form->radio ($radiobutton_name, array($radiobutton_value=>''), array('legend'=>false) );
+									}
+									
+									$add_another_row_template .= '
+										</td>
+									';
+									
+									$column_count++;
+								}
+								
+								if ( count($options['links']['index']) ) {
+									$add_another_row_template .= '
+										<td class="id">'.$this->generate_links_list(  $data['#{id}'], $options, 'index' ).'</td>
+									';
+									
+									$column_count++;
+								}
+								
+								// each column/row in table 
+								foreach ( $table_index[ (count($table_index)-1) ] as $table_column ) {
+									foreach ( $table_column as $table_row ) {
+										$add_another_row_template .= '
+											<td>'.( $options['links']['top'] && $options['settings']['form_inputs'] ? str_replace('data['.(count($table_index)-1).']','data[#{id}]',$table_row['input']) : $table_row['content'] ).'</td>
+										';
+										
+										$column_count++;
+									}
+								}
+								
+								// if OPTIONS set to allow rows to be removed from a GRID, provide link
+								if ( $options['type']=='datagrid' && $options['settings']['del_fields'] ) {
+									$add_another_row_template .= '
+											<td class="right">
+												<a style="color:red;" href="#" onclick="getElementById(\'table'.$table_key.'row#{id}\').parentNode.removeChild(getElementById(\'table'.$table_key.'row#{id}\')); return false;" title="'.__( 'click to remove these elements', true ).'">x</a>
+											</td>
+									';
+									
+									$column_count++;
+								}
+								
+								$add_another_row_template .= '
+									</tr>
+								';
+								
+							}
 							
 						}
 						
@@ -437,6 +535,46 @@ class StructuresHelper extends Helper {
 											<td class="no_data_available"'.( $column_count ? ' colspan="'.$column_count.'"' : '' ).'>'.__( 'core_no_data_available', true ).'</td>
 									</tr>
 							';
+						}
+		
+						// if OPTIONS set to allow rows to be added to a GRID, provide link
+						if ( $options['type']=='datagrid' && $options['settings']['add_fields'] ) {
+							
+							$add_another_row_template = preg_replace('/\n/',' ',preg_replace('/"/',"'", preg_replace('/\'/','&quot;',$add_another_row_template)));
+							$add_another_row_template = preg_replace('/script>/', 's" + "cript>',$add_another_row_template);
+							
+							$add_another_unique = md5(microtime());
+							$add_another_unique_function_name = 'repeat_function_'.$add_another_unique;
+							$add_another_unique_next_variable = 'next_'.$add_another_unique;
+							$add_another_unique_link_id = 'add_'.$add_another_unique;
+							
+							$return_string .= '
+								<tr id="'.$add_another_unique_link_id.'">
+									<td class="right" colspan="'.$column_count.'">
+										<a style="color:#090; font-weight:bold;" href="#" onclick="'.$add_another_unique_function_name.'();" title="'.__( 'click to remove these elements', true ).'">+</a>
+									</td>
+								</tr>
+								
+								<script type="text/javascript">
+									if( typeof('.$add_another_unique_next_variable.') == "undefined" ){
+										var '.$add_another_unique_next_variable.' = "'.count($data).'";
+									}else{
+										'.$add_another_unique_next_variable.' = "'.count($data).'";
+									}
+									
+									function '.$add_another_unique_function_name.'(){
+										$("'.$add_another_unique_link_id.'").insert({
+											before: "'.$add_another_row_template.'".interpolate({
+												id: '.$add_another_unique_next_variable.'
+											})
+										});
+										'.$add_another_unique_next_variable.'++;
+										
+										return false;
+									}
+								</script>
+							';
+							
 						}
 						
 						if ( $options['settings']['pagination'] ) {
@@ -500,7 +638,7 @@ class StructuresHelper extends Helper {
 				</tr>
 			</tbody>
 			</table>
-		'; 
+		';
 				
 		return $return_string;
 		
@@ -854,6 +992,12 @@ class StructuresHelper extends Helper {
 				} // end FOREACH
 			} // end FOREACH
 			
+		}
+		
+		if ( $options['type']=='datagrid' && $options['settings']['add_fields'] ) {
+			$return_string .= '
+				<th>&nbsp;</th>
+			';
 		}
 		
 		// end header row...
@@ -1235,7 +1379,7 @@ class StructuresHelper extends Helper {
 					if ( isset($this->validationErrors[ $field['StructureField']['model'] ][ $field['StructureField']['field'] ]) ) $html_element_array['class'] .= 'error ';
 					
 					if ( isset($field['flag_'.$options['type'].'_readonly']) && $field['flag_'.$options['type'].'_readonly'] && $options['type']!='search' ) {
-						// $html_element_array['disabled'] = 'disabled';
+						$html_element_array['disabled'] = 'disabled';
 						$html_element_array['readonly'] = 'readonly';
 						$html_element_array['class'] .= 'readonly ';
 					}
@@ -1347,47 +1491,55 @@ class StructuresHelper extends Helper {
 								$html_element_array['empty'] = true;
 							}
 							
+							$model_prefix_css = 'row'.str_replace('.','',$model_prefix);
+							$model_suffix_css = str_replace('.','',$model_suffix);
+							
 							if ( $options['type']=='search' ) {
 								if ( date_format=='MDY' ) {
-									$display_value .= $this->Form->month($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_start-mm'), $html_element_array['empty']);
-									$display_value .= $this->Form->day($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_start-dd'), $html_element_array['empty']);
-									$display_value .= $this->Form->year($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', 1900, 2100, NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_start', 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'), $html_element_array['empty']);
+									$display_value .= $this->Form->month($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', NULL, array('id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'_start-mm'), $html_element_array['empty']);
+									$display_value .= $this->Form->day($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', NULL, array('id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'_start-dd'), $html_element_array['empty']);
+									$display_value .= $this->Form->year($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', 1900, 2100, NULL, array('id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'_start', 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'), $html_element_array['empty']);
 									$display_value .= ' <span class="tag">'.__('to',true).'</span> ';
-									$display_value .= $this->Form->month($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end', NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_end-mm'), $html_element_array['empty']);
-									$display_value .= $this->Form->day($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end', NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_end-dd'), $html_element_array['empty']);
-									$display_value .= $this->Form->year($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end', 1900, 2100, NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_end', 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'), $html_element_array['empty']);
+									$display_value .= $this->Form->month($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end', NULL, array('id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'_end-mm'), $html_element_array['empty']);
+									$display_value .= $this->Form->day($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end', NULL, array('id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'_end-dd'), $html_element_array['empty']);
+									$display_value .= $this->Form->year($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end', 1900, 2100, NULL, array('id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'_end', 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'), $html_element_array['empty']);
 								} else if ( date_format=='YMD' ) {
-									$display_value .= $this->Form->year($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', 1900, 2100, NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_start', 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'), $html_element_array['empty']);
-									$display_value .= $this->Form->month($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_start-mm'), $html_element_array['empty']);
-									$display_value .= $this->Form->day($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_start-dd'), $html_element_array['empty']);
+									$display_value .= $this->Form->year($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', 1900, 2100, NULL, array('id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'_start', 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'), $html_element_array['empty']);
+									$display_value .= $this->Form->month($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', NULL, array('id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'_start-mm'), $html_element_array['empty']);
+									$display_value .= $this->Form->day($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', NULL, array('id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'_start-dd'), $html_element_array['empty']);
 									$display_value .= ' <span class="tag">'.__('to',true).'</span> ';
-									$display_value .= $this->Form->year($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end', 1900, 2100, NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_end', 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'), $html_element_array['empty']);
-									$display_value .= $this->Form->month($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end', NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_end-mm'), $html_element_array['empty']);
-									$display_value .= $this->Form->day($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end', NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_end-dd'), $html_element_array['empty']);
+									$display_value .= $this->Form->year($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end', 1900, 2100, NULL, array('id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'_end', 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'), $html_element_array['empty']);
+									$display_value .= $this->Form->month($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end', NULL, array('id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'_end-mm'), $html_element_array['empty']);
+									$display_value .= $this->Form->day($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end', NULL, array('id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'_end-dd'), $html_element_array['empty']);
 								} else { // default of DATE_FORMAT=='DMY'
-									$display_value .= $this->Form->day($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_start-dd'), $html_element_array['empty']);
-									$display_value .= $this->Form->month($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_start-mm'), $html_element_array['empty']);
-									$display_value .= $this->Form->year($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', 1900, 2100, NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_start', 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'), $html_element_array['empty']);
+									$display_value .= $this->Form->day($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', NULL, array('id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'_start-dd'), $html_element_array['empty']);
+									$display_value .= $this->Form->month($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', NULL, array('id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'_start-mm'), $html_element_array['empty']);
+									$display_value .= $this->Form->year($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', 1900, 2100, NULL, array('id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'_start', 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'), $html_element_array['empty']);
 									$display_value .= ' <span class="tag">'.__('to',true).'</span> ';
-									$display_value .= $this->Form->day($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end', NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_end-dd'), $html_element_array['empty']);
-									$display_value .= $this->Form->month($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end', NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_end-mm'), $html_element_array['empty']);
-									$display_value .= $this->Form->year($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end', 1900, 2100, NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'_end', 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'), $html_element_array['empty']);
+									$display_value .= $this->Form->day($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end', NULL, array('id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'_end-dd'), $html_element_array['empty']);
+									$display_value .= $this->Form->month($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end', NULL, array('id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'_end-mm'), $html_element_array['empty']);
+									$display_value .= $this->Form->year($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end', 1900, 2100, NULL, array('id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'_end', 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'), $html_element_array['empty']);
 								}
 							}
 							
 							else {
+								// due to a bug with CAKEPHP FORM HELPER, need to force the individual date pulldown SELECT name attributes...
+								$day_name	= 'data['.str_replace('.','][',$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']).'][day]';
+								$month_name	= 'data['.str_replace('.','][',$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']).'][month]';
+								$year_name	= 'data['.str_replace('.','][',$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']).'][year]';
+								
 								if ( date_format=='MDY' ) {
-									$display_value .= $this->Form->month($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'-mm'), $html_element_array['empty']);
-									$display_value .= $this->Form->day($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'-dd'), $html_element_array['empty']);
-									$display_value .= $this->Form->year($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], 1900, 2100, NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'], 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'), $html_element_array['empty']);
+									$display_value .= $this->Form->month($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], NULL, array('name'=>$month_name, 'id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'-mm'), $html_element_array['empty']);
+									$display_value .= $this->Form->day($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], NULL, array('name'=>$day_name, 'id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'-dd'), $html_element_array['empty']);
+									$display_value .= $this->Form->year($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], 1900, 2100, NULL, array('name'=>$year_name, 'id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'], 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'), $html_element_array['empty']);
 								} else if ( date_format=='YMD' ) {
-									$display_value .= $this->Form->year($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], 1900, 2100, NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'], 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'), $html_element_array['empty']);
-									$display_value .= $this->Form->month($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'-mm'), $html_element_array['empty']);
-									$display_value .= $this->Form->day($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'-dd'), $html_element_array['empty']);
+									$display_value .= $this->Form->year($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], 1900, 2100, NULL, array('name'=>$year_name, 'id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'], 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'), $html_element_array['empty']);
+									$display_value .= $this->Form->month($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], NULL, array('name'=>$month_name, 'id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'-mm'), $html_element_array['empty']);
+									$display_value .= $this->Form->day($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], NULL, array('name'=>$day_name, 'id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'-dd'), $html_element_array['empty']);
 								} else { // default of DATE_FORMAT=='DMY'
-									$display_value .= $this->Form->day($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'-dd'), $html_element_array['empty']);
-									$display_value .= $this->Form->month($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'].'-mm'), $html_element_array['empty']);
-									$display_value .= $this->Form->year($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], 1900, 2100, NULL, array('id' => $field['StructureField']['model'].$field['StructureField']['field'], 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'), $html_element_array['empty']);
+									$display_value .= $this->Form->day($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], NULL, array('name'=>$day_name, 'id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'-dd'), $html_element_array['empty']);
+									$display_value .= $this->Form->month($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], NULL, array('name'=>$month_name, 'id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'-mm'), $html_element_array['empty']);
+									$display_value .= $this->Form->year($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], 1900, 2100, NULL, array('name'=>$year_name, 'id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'], 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'), $html_element_array['empty']);
 								}
 								
 							}
@@ -1413,6 +1565,18 @@ class StructuresHelper extends Helper {
 							$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'],
 							$html_element_array
 						);
+						
+						// when a field is DISABLED, pass a HIDDEN field with value to be submitted...
+						if ( isset($field['flag_'.$options['type'].'_readonly']) && $field['flag_'.$options['type'].'_readonly'] && $options['type']!='search' ) {
+							$html_element_array['type'] = 'hidden';
+							$html_element_array['class'] = 'hidden';
+							unset($html_element_array['disabled']);
+							
+							$display_value .= $this->Form->input(
+								$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'],
+								$html_element_array
+							);
+						}
 					}
 					
 					/*
@@ -2226,6 +2390,12 @@ class StructuresHelper extends Helper {
 				if ( $display_class_array[0]=='view' )				$display_class_name = 'detail';
 				if ( $display_class_array[0]=='views' )			$display_class_name = 'detail';
 				if ( $display_class_array[0]=='see' )				$display_class_name = 'detail';
+				
+				// table
+				if ( $display_class_array[0]=='grid' )				$display_class_name = 'grid';
+				if ( $display_class_array[0]=='datagrid' )		$display_class_name = 'grid';
+				if ( $display_class_array[0]=='editgrid' )		$display_class_name = 'grid';
+				if ( $display_class_array[0]=='addgrid' )			$display_class_name = 'grid';
 				
 				// close
 				if ( $display_class_array[0]=='delete' )			$display_class_name = 'delete';

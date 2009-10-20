@@ -51,6 +51,9 @@ q:before, q:after {
 	outline: 0;
 }
 
+.right { text-align: right; }
+.left { text-align: left; }
+
 /* remember to highlight inserts somehow! */
 ins {
 	text-decoration: none;
@@ -140,8 +143,8 @@ a {
 }
 
 .readonly {
-	background-color: #f3f3f6;
-	color: #444;
+	background-color: #f3f3f9;
+	color: #889;
 }
 
 .error {
@@ -969,6 +972,7 @@ div.menu ul#summary ul dl lh {
 					a.duplicate { background: url("../img/icons/Documents x3_16x16.png") no-repeat center center; }
 					a.edit { background: url("../img/icons/Edit_16x16.png") no-repeat left center; }
 					a.filter { background: url("../img/icons/Tag_16x16.png") no-repeat left center; }
+					a.grid { background: url("../img/icons/Table_16x16.png") no-repeat left center; }
 					a.list { background: url("../img/icons/Folder Open_16x16.png") no-repeat left center; }
 					a.news { background: url("../img/icons/News_16x16.png") no-repeat left center; }
 					a.order { background: url("../img/icons/Shopping Cart_16x16.png") no-repeat left center; }
