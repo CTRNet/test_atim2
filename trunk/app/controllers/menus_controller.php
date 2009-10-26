@@ -22,13 +22,13 @@ class MenusController extends AppController {
 		
 			$this->set( 'announcements_data', $this->Announcement->find( 'all', array( 'conditions'=>$findAll_conditions, 'order'=>'date DESC') ) );
 		
-			$menu_data = $this->Menu->find('all',array('conditions'=>'Menu.parent_id="MAIN_MENU_1" AND (active="yes" OR active="y" OR active="1")', 'order'=>'Menu.display_order ASC'));
+			$menu_data = $this->Menu->find('all',array('conditions'=>'Menu.parent_id="MAIN_MENU_1" AND (Menu.active="yes" OR Menu.active="y" OR Menu.active="1")', 'order'=>'Menu.display_order ASC'));
 			
 			$this->set( 'atim_menu', $this->Menus->get('/menus') );
 		}
 		
 		else {
-			$menu_data = $this->Menu->find('all',array('conditions'=>'Menu.parent_id="core_CAN_33" AND (active="yes" OR active="y" OR active="1")', 'order'=>'Menu.display_order ASC'));
+			$menu_data = $this->Menu->find('all',array('conditions'=>'Menu.parent_id="core_CAN_33" AND (Menu.active="yes" OR Menu.active="y" OR Menu.active="1")', 'order'=>'Menu.display_order ASC'));
 			
 			$this->set( 'atim_menu', $this->Menus->get('/menus/tools') );
 		}
