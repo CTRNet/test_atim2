@@ -18,7 +18,6 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		$this->set('diagnosis_controls_list', $this->DiagnosisControl->find('all', array('conditions' => array('DiagnosisControl.status' => 'active'))));
 		$this->data = $this->paginate($this->DiagnosisMaster,	array('DiagnosisMaster.participant_id'=>$participant_id));
 		
-		//TODO: Must define join or something
 		//$storage_data = $this->DiagnosisControl->find('first', array('conditions' => array('DiagnosisControl.id' => 1)));
 		//$this->set('atim_structure', $this->Structures->get('form', $storage_data['DiagnosisControl']['form_alias']));		
 	}
