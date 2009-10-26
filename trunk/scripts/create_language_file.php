@@ -5,12 +5,15 @@
 //Notes:
 
 	//Creates export file
-	$filee = fopen("C:\\wamp\\www\\atim2\\app\\locale\\eng\\LC_MESSAGES\\default.po", "w+t");
-	$filef = fopen("C:\\wamp\\www\\atim2\\app\\locale\\fre\\LC_MESSAGES\\default.po", "w+t");
-	$filex = fopen("C:\\wamp\\www\\atim2\\app\\locale\\error\\ERROR_MESSAGES\\error.po", "w+t");
+	//$filee = fopen("C:\\wamp\\www\\atim2\\app\\locale\\eng\\LC_MESSAGES\\default.po", "w+t");
+	//$filef = fopen("C:\\wamp\\www\\atim2\\app\\locale\\fre\\LC_MESSAGES\\default.po", "w+t");
+	//$filex = fopen("C:\\wamp\\www\\atim2\\app\\locale\\error\\ERROR_MESSAGES\\error.po", "w+t");
+	$filee = fopen("../app/locale/eng/LC_MESSAGES/default.po", "w+t");
+	$filef = fopen("../app/locale/fre/LC_MESSAGES/default.po", "w+t");
+	//$filex = fopen("../app/locale/error/ERROR_MESSAGES/error.po", "w+t");
 	
 	//Establishes a connection to the MySQL server
-	$connection = @mysql_connect("localhost", "root", "1qaz1qaz")
+	$connection = @mysql_connect("127.0.0.1:8889", "root", "root")
 					or die("Could not connect to MySQL");
 					
 	//Selects the languages database
@@ -53,7 +56,7 @@
 	///Close file
 	fclose($filee);
 	fclose($filef);
-	fclose($filex);
+	//fclose($filex);
 	
 	//Close connection
 	mysql_close();
