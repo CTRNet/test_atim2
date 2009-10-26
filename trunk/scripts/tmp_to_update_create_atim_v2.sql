@@ -106,6 +106,8 @@ INSERT INTO `structures` (`old_id`, `alias`, `language_title`, `language_help`, 
 SET @dx_tissues_id = LAST_INSERT_ID();
 
 UPDATE `structure_fields` SET model='DiagnosisMaster' WHERE model='Diagnosis';
+UPDATE `structure_fields` SET field='diagnosis_master_id' WHERE field='diagnosis_id';
+
 
 INSERT INTO `structure_fields` (`public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 ('', 'CANM-00001', 'Clinicalannotation', 'DiagnosisDetail', '', 'text_field', 'text_field', '', 'input', 'size=10', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -143,10 +145,16 @@ INSERT INTO `structure_formats` (`old_id`, `structure_id`, `structure_old_id`, `
 ('CAN-999-999-000-999-6_CAN-999-999-000-999-91', @dx_tissues_id, 'CAN-999-999-000-999-6', 838, 'CAN-999-999-000-999-91', 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 INSERT INTO `pages` (`id` ,`error_flag` ,`language_title` ,`language_body` ,`created` ,`created_by` ,`modified` ,`modified_by`)
-VALUES ('err_missing_param', '1', 'missing_parameter', 'Missing parameter', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+VALUES ('err_missing_param', '1', 'missing_parameter', 'parameter missing', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
-INSERT INTO `atim_3`.`i18n` (`id` ,`page_id` ,`en` ,`fr`)
-VALUES ('', 'err_missing_param', 'Missing parameter:', 'Paramètre manquant:');
-
+UPDATE `i18n` SET en='Missing parameter' WHERE id='parameter missing';
+ALTER TABLE `tx_masters` CHANGE `diagnosis_id` `diagnosis_master_id` INT( 11 ) NULL DEFAULT NULL;
+ALTER TABLE `tx_masters_revs` CHANGE `diagnosis_id` `diagnosis_master_id` INT( 11 ) NULL DEFAULT NULL;
+ALTER TABLE `consents` CHANGE `diagnosis_id` `diagnosis_master_id` INT( 11 ) NULL DEFAULT NULL;
+ALTER TABLE `consents_revs` CHANGE `diagnosis_id` `diagnosis_master_id` INT( 11 ) NULL DEFAULT NULL;
+ALTER TABLE `clinical_collection_links` CHANGE `diagnosis_id` `diagnosis_master_id` INT( 11 ) NULL DEFAULT NULL;
+ALTER TABLE `clinical_collection_links_revs` CHANGE `diagnosis_id` `diagnosis_master_id` INT( 11 ) NULL DEFAULT NULL;
+ALTER TABLE `event_masters` CHANGE `diagnosis_id` `diagnosis_master_id` INT( 11 ) NULL DEFAULT NULL;
+ALTER TABLE `event_masters_revs` CHANGE `diagnosis_id` `diagnosis_master_id` INT( 11 ) NULL DEFAULT NULL;
 
 COMMIT;
