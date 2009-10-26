@@ -41,7 +41,8 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		if(!$table_id){ $this->redirect( '/pages/err_missing_param', NULL, TRUE ); }
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, "tableId"=>$table_id));
-
+		$this->set( 'atim_menu', $this->Menus->get('/clinicalannotation/diagnosis_masters/listall/') );
+		
 		$storage_data = $this->DiagnosisControl->find('first', array('conditions' => array('DiagnosisControl.id' => $table_id)));
 		$this->set('atim_structure', $this->Structures->get('form', $storage_data['DiagnosisControl']['form_alias']));
 
