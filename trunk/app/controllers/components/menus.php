@@ -46,7 +46,7 @@ class MenusComponent extends Object {
 			$result = $this->Component_Menu->find(
 							'all', 
 							array(
-								'conditions'	=>	'Menu.use_link = "'.$alias.'" OR Menu.use_link = "'.$alias.'/"', 
+								'conditions'	=>	'(Menu.use_link="'.$alias.'" OR Menu.use_link="'.$alias.'/") AND (Menu.active="yes" OR Menu.active="y" OR Menu.active="1")', 
 								'recursive'		=>	3,
 								'order'			=> 'Menu.parent_id DESC, Menu.display_order ASC',
 									'limit'			=> 1
@@ -58,7 +58,7 @@ class MenusComponent extends Object {
 				$result = $this->Component_Menu->find(
 								'all', 
 								array(
-									'conditions'	=>	'Menu.use_link LIKE "'.$alias.'%"', 
+									'conditions'	=>	'(Menu.use_link LIKE "'.$alias.'%") AND (Menu.active="yes" OR Menu.active="y" OR Menu.active="1")', 
 									'recursive'		=>	3,
 									'order'			=> 'Menu.parent_id DESC, Menu.display_order ASC',
 									'limit'			=> 1
@@ -73,7 +73,7 @@ class MenusComponent extends Object {
 					$result = $this->Component_Menu->find(
 								'all', 
 								array(
-									'conditions'	=>	$alias_calculated[$alias_count], 
+									'conditions'	=>	'('.$alias_calculated[$alias_count].') AND (Menu.active="yes" OR Menu.active="y" OR Menu.active="1")', 
 									'recursive'		=>	3,
 									'order'			=> 'Menu.parent_id DESC, Menu.display_order ASC',
 									'limit'			=> 1
@@ -92,7 +92,7 @@ class MenusComponent extends Object {
 			
 			while ( $parent_id!==false ) {
 				
-				$current_level = $this->Component_Menu->find('all', array('conditions' => 'Menu.parent_id = "'.$parent_id.'"', 'order'=>'Menu.parent_id DESC, Menu.display_order ASC'));
+				$current_level = $this->Component_Menu->find('all', array('conditions' => '(Menu.parent_id = "'.$parent_id.'") AND (Menu.active="yes" OR Menu.active="y" OR Menu.active="1")', 'order'=>'Menu.parent_id DESC, Menu.display_order ASC'));
 				
 				if ( $current_level && count($current_level) ) {
 					
