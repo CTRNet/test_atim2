@@ -8,7 +8,7 @@ class ParticipantsController extends ClinicalannotationAppController {
 		'Clinicalannotation.ParticipantContact',
 		'Clinicalannotation.ParticipantMessage',
 		'Clinicalannotation.EventMaster',
-		'Clinicalannotation.Diagnosis',
+		'Clinicalannotation.DiagnosisMaster',
 		'Clinicalannotation.FamilyHistory',
 		'Clinicalannotation.MiscIdentifier',
 		'Clinicalannotation.ClinicalCollectionLink',
@@ -68,7 +68,8 @@ class ParticipantsController extends ClinicalannotationAppController {
 		$consent_id = $this->Consent->find('first', array('conditions'=>array('Consent.participant_id'=>$participant_id, 'Consent.deleted'=>0),'fields'=>array('Consent.id')));
 		$event_id = $this->EventMaster->find('first', array('conditions'=>array('EventMaster.participant_id'=>$participant_id, 'EventMaster.deleted'=>0),'fields'=>array('EventMaster.id')));
 		$contact_id = $this->ParticipantContact->find('first', array('conditions'=>array('ParticipantContact.participant_id'=>$participant_id, 'ParticipantContact.deleted'=>0),'fields'=>array('ParticipantContact.id')));
-		$diagnosis_id = $this->Diagnosis->find('first', array('conditions'=>array('Diagnosis.participant_id'=>$participant_id, 'Diagnosis.deleted'=>0),'fields'=>array('Diagnosis.id')));
+
+		$diagnosis_id = $this->DiagnosisMaster->find('first', array('conditions'=>array('DiagnosisMaster.participant_id'=>$participant_id, 'DiagnosisMaster.deleted'=>0),'fields'=>array('DiagnosisMaster.id')));
 		$family_id = $this->FamilyHistory->find('first', array('conditions'=>array('FamilyHistory.participant_id'=>$participant_id, 'FamilyHistory.deleted'=>0), 'fields'=>array('FamilyHistory.id')));
 		$identifier_id = $this->MiscIdentifier->find('first', array('conditions'=>array('MiscIdentifier.participant_id'=>$participant_id, 'MiscIdentifier.deleted'=>0), 'fields'=>array('MiscIdentifier.id')));
 		//$link_id = $this->ClinicalCollectionLink->find('first', array('conditions'=>array('ClinicalCollectionLink.participant_id'=>$participant_id, 'ClinicalCollectionLink.deleted'=>0), 'fields'=>array('ClinicalCollectionLink.id')));

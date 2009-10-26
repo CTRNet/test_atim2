@@ -5,7 +5,7 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 	var $uses = array(
 		'Clinicalannotation.TreatmentMaster', 
 		'Clinicalannotation.TreatmentControl', 
-		'Clinicalannotation.Diagnosis',
+		'Clinicalannotation.DiagnosisMaster',
 		'Protocol.ProtocolMaster'
 	);
 	var $paginate = array('TreatmentMaster'=>array('limit'=>10,'order'=>'TreatmentMaster.start_date DESC'));
@@ -57,8 +57,8 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		$tx_control_data = $this->TreatmentControl->find('first',array('conditions'=>array('TreatmentControl.id'=>$this_data['TreatmentMaster']['treatment_control_id'])));
 
 		// set DIAGANOSES
-		$this->set( 'data_for_checklist', $this->Diagnosis->find('all', array('conditions'=>array('Diagnosis.participant_id'=>$participant_id))) );
-		$this->set( 'atim_structure_for_checklist', $this->Structures->get('form','diagnoses') );
+		$this->set( 'data_for_checklist', $this->DiagnosisMaster->find('all', array('conditions'=>array('DiagnosisMaster.participant_id'=>$participant_id))) );
+		$this->set( 'atim_structure_for_checklist', $this->Structures->get('form','diagnosis_masters') );
 				
 		$protocol_list = $this->ProtocolMaster->find('list', array('conditions'=>array('ProtocolMaster.deleted'=>'0')), array('fields' => array('ProtocolMaster.id', 'ProtocolMaster.name'), 'order' => array('ProtocolMaster.name')));
 		$this->set('protocol_list', $protocol_list);
@@ -87,8 +87,8 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		$tx_control_data = $this->TreatmentControl->find('first',array('conditions'=>array('TreatmentControl.id'=>$treatment_control_id)));
 
 		// set DIAGANOSES radio list form
-		$this->set( 'data_for_checklist', $this->Diagnosis->find('all', array('conditions'=>array('Diagnosis.participant_id'=>$participant_id))) );
-		$this->set( 'atim_structure_for_checklist', $this->Structures->get('form','diagnoses') );
+		$this->set( 'data_for_checklist', $this->DiagnosisMaster->find('all', array('conditions'=>array('DiagnosisMaster.participant_id'=>$participant_id))) );
+		$this->set( 'atim_structure_for_checklist', $this->Structures->get('form','diagnosis_masters') );
 		
 		$this->set('atim_structure', $this->Structures->get('form', $tx_control_data['TreatmentControl']['form_alias']));
 		
