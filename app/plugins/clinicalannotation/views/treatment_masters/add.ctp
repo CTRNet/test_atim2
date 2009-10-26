@@ -9,7 +9,7 @@
 	
 	$structure_links = array(
 		'radiolist'=>array(
-			'EventMaster.diagnosis_id'=>'%%Diagnosis.id'.'%%'
+			'EventMaster.diagnosis_id'=>'%%DiagnosisMaster.id'.'%%'
 		)
 	);
 			

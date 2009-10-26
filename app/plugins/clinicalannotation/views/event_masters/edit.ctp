@@ -10,7 +10,7 @@
 		$structure_links = array(
 				'top'=>'/clinicalannotation/event_masters/edit/'.$atim_menu_variables['EventMaster.event_group'].'/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['EventMaster.id'],
 				'radiolist'=>array(
-					'EventMaster.diagnosis_id'=>'%%Diagnosis.id'.'%%'
+					'EventMaster.diagnosis_id'=>'%%DiagnosisMaster.id'.'%%'
 				)
 			);
 			
