@@ -38,10 +38,10 @@ class ReviewMastersController extends InventoryManagementAppController {
 	function listall($menu_id = null, $review_sample_group = null, $collection_id = null) {
 
 		// set MENU varible for echo on VIEW 
-		$ctrapp_menu[] = $this->Menus->tabs( 'inv_CAN_00', 'inv_CAN_23', $collection_id );
-		$ctrapp_menu[] = $this->Menus->tabs( 'inv_CAN_23', $menu_id, $collection_id );
+		$ctrapp_menu[] = $this->Menus->tabs('inv_CAN_00', 'inv_CAN_23', $collection_id);
+		$ctrapp_menu[] = $this->Menus->tabs('inv_CAN_23', $menu_id, $collection_id);
 
-		$this->set( 'ctrapp_menu', $ctrapp_menu );
+		$this->set('ctrapp_menu', $ctrapp_menu);
 		
 		// set FORM variable, for HELPER call on VIEW 
 		$this->set('ctrapp_form', $this->Forms->getFormArray('review_masters'));
@@ -91,7 +91,7 @@ class ReviewMastersController extends InventoryManagementAppController {
 		$custom_ctrapp_controller_hook 
 			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
 			'controllers' . DS . 'hooks' . DS . 
-			$this->params['controller'].'_'.$this->params['action'].'_format.php';
+			$this->params['controller'] . '_' . $this->params['action'] . '_format.php';
 			
 		if (file_exists($custom_ctrapp_controller_hook)) {
 			require($custom_ctrapp_controller_hook);
@@ -165,7 +165,7 @@ class ReviewMastersController extends InventoryManagementAppController {
 		$custom_ctrapp_controller_hook 
 			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
 			'controllers' . DS . 'hooks' . DS . 
-			$this->params['controller'].'_'.$this->params['action'].'_format.php';
+			$this->params['controller'] . '_' . $this->params['action'] . '_format.php';
 			
 		if (file_exists($custom_ctrapp_controller_hook)) {
 			require($custom_ctrapp_controller_hook);
@@ -234,7 +234,7 @@ class ReviewMastersController extends InventoryManagementAppController {
 		$custom_ctrapp_controller_hook 
 			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
 			'controllers' . DS . 'hooks' . DS . 
-			$this->params['controller'].'_'.$this->params['action'].'_format.php';
+			$this->params['controller'] . '_' . $this->params['action'] . '_format.php';
 			
 		if (file_exists($custom_ctrapp_controller_hook)) {
 			require($custom_ctrapp_controller_hook);
@@ -268,7 +268,7 @@ class ReviewMastersController extends InventoryManagementAppController {
 			$custom_ctrapp_controller_hook 
 				= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
 				'controllers' . DS . 'hooks' . DS . 
-				$this->params['controller'].'_'.$this->params['action'].'_validation.php';
+				$this->params['controller'] . '_' . $this->params['action'] . '_validation.php';
 			
 			if (file_exists($custom_ctrapp_controller_hook)) {
 				require($custom_ctrapp_controller_hook);
@@ -307,7 +307,7 @@ class ReviewMastersController extends InventoryManagementAppController {
 					exit;
 				} else {
 					// Data has been recorded
-					$this->flash('Your data has been saved.', 
+					$this->flash('Your data has been saved . ', 
 						"/review_masters/listall/$menu_id/$review_sample_group/$collection_id");				
 				}
 				
@@ -380,7 +380,7 @@ class ReviewMastersController extends InventoryManagementAppController {
 		$custom_ctrapp_controller_hook 
 			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
 			'controllers' . DS . 'hooks' . DS . 
-			$this->params['controller'].'_'.$this->params['action'].'_format.php';
+			$this->params['controller'] . '_' . $this->params['action'] . '_format.php';
 			
 		if (file_exists($custom_ctrapp_controller_hook)) {
 			require($custom_ctrapp_controller_hook);
@@ -397,7 +397,7 @@ class ReviewMastersController extends InventoryManagementAppController {
 			// ** Execute Validation **
 						
 			// setup MODEL(s) validation array(s) for displayed FORM 
-			foreach ( $this->Forms->getValidateArray( $review_control_data['ReviewControl']['form_alias'] ) as $validate_model=>$validate_rules ) {
+			foreach ($this->Forms->getValidateArray($review_control_data['ReviewControl']['form_alias']) as $validate_model=>$validate_rules) {
 				$this->{ $validate_model }->validate = $validate_rules;
 			}
 			
@@ -421,7 +421,7 @@ class ReviewMastersController extends InventoryManagementAppController {
 			$custom_ctrapp_controller_hook 
 				= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
 				'controllers' . DS . 'hooks' . DS . 
-				$this->params['controller'].'_'.$this->params['action'].'_validation.php';
+				$this->params['controller'] . '_' . $this->params['action'] . '_validation.php';
 			
 			if (file_exists($custom_ctrapp_controller_hook)) {
 				require($custom_ctrapp_controller_hook);
@@ -453,7 +453,7 @@ class ReviewMastersController extends InventoryManagementAppController {
 					exit;
 				} else {
 					// Data has been recorded
-					$this->flash('Your data has been updated.', 
+					$this->flash('Your data has been updated . ', 
 						"/review_masters/listall/$menu_id/$review_sample_group/$collection_id");				
 				}
 											
@@ -493,7 +493,7 @@ class ReviewMastersController extends InventoryManagementAppController {
 		$custom_ctrapp_controller_hook 
 			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
 			'controllers' . DS . 'hooks' . DS . 
-			$this->params['controller'].'_'.$this->params['action'].'_validation.php';
+			$this->params['controller'] . '_' . $this->params['action'] . '_validation.php';
 		
 		if (file_exists($custom_ctrapp_controller_hook)) {
 			require($custom_ctrapp_controller_hook);
@@ -515,7 +515,7 @@ class ReviewMastersController extends InventoryManagementAppController {
 			exit;
 		}
 
-		$this->flash('Your data has been deleted.',
+		$this->flash('Your data has been deleted . ',
 				"/review_masters/listall/$menu_id/$review_sample_group/$collection_id");
 
 	}

@@ -2,26 +2,13 @@
 
 	$initial_specimen_sample_id = array_key_exists('SampleMaster.initial_specimen_sample_id', $atim_menu_variables)? $atim_menu_variables['SampleMaster.initial_specimen_sample_id']: '-1';
 		
-	// Manage add button
-	$add_links = array();
-	foreach ($specimen_sample_controls_list as $sample_control) {
-		$add_links[$sample_control['SampleControl']['sample_type']] = '/inventorymanagement/sample_masters/add/' . $atim_menu_variables['Collection.id'] . '/' . $sample_control['SampleControl']['id'];
-	}
-	$add_links = empty($add_links)? '/underdevelopment/': $add_links;
-	
 	// Manage filter button
-	$main_link = '/inventorymanagement/sample_masters/listAll/' . $atim_menu_variables['Collection.id'] . '/' . $initial_specimen_sample_id;
+	$main_link = '/inventorymanagement/aliquot_masters/listAll/' . $atim_menu_variables['Collection.id'] . '/' . $initial_specimen_sample_id;
 		
-	$filter_links = array();	
-	if(!empty($existing_specimen_sample_types)) {
-		$filter_links['specimen'] = $main_link . '/CATEGORY|specimen';
-		foreach ($existing_specimen_sample_types as $type => $sample_control_id) {
-			$filter_links[$type] = $main_link . '/SAMP_CONT_ID|' . $sample_control_id;
-		}
-		$filter_links['derivative'] = $main_link . '/CATEGORY|derivative';		
-	}
-	foreach ($existing_derivative_sample_types as $type => $sample_control_id) {
-		$filter_links[$type] = $main_link . '/SAMP_CONT_ID|' . $sample_control_id;
+	$filter_links = array();
+	foreach ($existing_sample_aliquot_types as $sample_aliquot_type_data) {
+		$key = __($sample_aliquot_type_data['sample_type'], TRUE) . ' ' . __($sample_aliquot_type_data['aliquot_type'], TRUE);
+		$filter_links[$key] = $main_link . '/' . $sample_aliquot_type_data['sample_control_id']. '|' .$sample_aliquot_type_data['aliquot_control_id'];
 	}	
 	$filter_links['no filter'] = $main_link . '/-1';
 	$filter_links = (sizeof($filter_links) == 1)? '/underdevelopment/': $filter_links;
@@ -37,7 +24,6 @@
 			'detail' => '/inventorymanagement/sample_masters/detail/' . $atim_menu_variables['Collection.id'] . '/%%SampleMaster.id%%'
 		),
 		'bottom' => array(
-			'add' => $add_links,
 			'filter' => $filter_links,
 			'search' => $search_type_links
 		)

@@ -5,7 +5,7 @@
 	$structure_override = array();
 	$structure_override['Generated.collection_search_type'] = __('sample', TRUE);
 	
-	$structures->build($atim_structure_for_search_type, array('type' => 'detail', 'settings' => array('actions' => FALSE), 'override' => $structure_override) );
+	$structures->build($atim_structure_for_search_type, array('type' => 'detail', 'settings' => array('actions' => FALSE), 'override' => $structure_override));
 	
 	// DISPLAY COLLETCION INDEX FORM	
 

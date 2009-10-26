@@ -11,12 +11,12 @@ class SummariesComponent extends Object {
 	}
 	
 	// Build Tab Levels
-	function build( $collection_id=null, $sample_master_id=null, $aliquot_master_id=null ) {
+	function build($collection_id=null, $sample_master_id=null, $aliquot_master_id=null) {
 		
 		// set display vars 
 		$display_summary = array();
 		
-		if ( $collection_id ) {
+		if ($collection_id) {
 			
 			// 1- Text
 			
@@ -26,13 +26,13 @@ class SummariesComponent extends Object {
 			// get Participant MODEL, and read RECORD text
 			$this->Collection_for_Summary =& new Collection;
 			$this->Collection_for_Summary->id = $collection_id;
-			$text_data = $this->Collection_for_Summary->read( 'Collection.acquisition_label');
+			$text_data = $this->Collection_for_Summary->read('Collection.acquisition_label');
 			
 			$display_summary = array();
 			$display_summary['text'] 
 				= array('id'=>$collection_id,
 					'form'=>$form_text,
-					'data'=>array( $text_data ));
+					'data'=>array($text_data));
 					
 			// 2- Desc			
 			$display_summary['desc'] = array();			
@@ -45,12 +45,12 @@ class SummariesComponent extends Object {
 					// get Participant MODEL, and read RECORD 
 					$this->Sample_for_Summary =& new SampleMaster;
 					$this->Sample_for_Summary->id = $sample_master_id;
-					$desc_data = $this->Sample_for_Summary->read( 'SampleMaster.sample_code');
+					$desc_data = $this->Sample_for_Summary->read('SampleMaster.sample_code');
 
 					$display_summary['desc'] 
 						= array('id'=>$sample_master_id,
 							'form'=>$form_desc,
-							'data'=>array( $desc_data ));
+							'data'=>array($desc_data));
 										
 				 } else {
 				 	// set FORM arrays 
@@ -71,12 +71,12 @@ class SummariesComponent extends Object {
 					$this->Aliquot_for_Summary->bindModel($belongs_array);	
 						
 					$this->Aliquot_for_Summary->id = $aliquot_master_id;
-					$desc_data = $this->Aliquot_for_Summary->read( 'SampleMaster.sample_code, AliquotMaster.barcode');
+					$desc_data = $this->Aliquot_for_Summary->read('SampleMaster.sample_code, AliquotMaster.barcode');
 
 					$display_summary['desc'] 
 						= array('id'=>$sample_master_id,
 							'form'=>$form_desc,
-							'data'=>array( $desc_data ));
+							'data'=>array($desc_data));
 							
 				 } 
 			}

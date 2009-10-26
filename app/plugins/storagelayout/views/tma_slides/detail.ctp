@@ -13,7 +13,7 @@
 	if($is_tree_view_detail_form) {
 		// Detail form displayed in children storage tree view
 		// Add button to access all TMA slide data
-		$structure_links['bottom']['all slide data'] = '/storagelayout/tma_slides/detail/' . $atim_menu_variables['StorageMaster.id'] . '/' . $atim_menu_variables['TmaSlide.id'];		
+		$structure_links['bottom']['access to all data'] = '/storagelayout/tma_slides/detail/' . $atim_menu_variables['StorageMaster.id'] . '/' . $atim_menu_variables['TmaSlide.id'];		
 	} else {
 		// General detail form display
 		$structure_links['bottom']['list'] = '/storagelayout/tma_slides/listAll/' . $atim_menu_variables['StorageMaster.id'];
@@ -23,6 +23,6 @@
 	
 	$structure_override['TmaSlide.sop_master_id'] = $arr_tma_slide_sops;
 			
-	$structures->build($atim_structure, array('links' => $structure_links, 'override' => $structure_override) );
+	$structures->build($atim_structure, array('links' => $structure_links, 'override' => $structure_override));
 	
 ?>

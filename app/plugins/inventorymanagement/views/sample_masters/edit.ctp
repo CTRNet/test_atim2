@@ -1,9 +1,9 @@
 <?php 
 	
 	$structure_links = array(
-		'top'=>'/inventorymanagement/sample_masters/edit/'.$atim_menu_variables['Collection.id'].'/'.$atim_menu_variables['SampleMaster.id'],
+		'top' => '/inventorymanagement/sample_masters/edit/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'],
 		'bottom'=>array(
-			'cancel'=>'/inventorymanagement/sample_masters/detail/' . $atim_menu_variables['Collection.id'] . '/'.$atim_menu_variables['SampleMaster.id']
+			'cancel' => '/inventorymanagement/sample_masters/detail/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id']
 		)
 	);
 	

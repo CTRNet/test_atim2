@@ -2,8 +2,8 @@
 
 class StorageMaster extends StoragelayoutAppModel {
 	
-	var $belongsTo = array(        
-		'StorageControl' => array(            
+	var $belongsTo = array(       
+		'StorageControl' => array(           
 			'className'    => 'Storagelayout.StorageControl',            
 			'foreignKey'    => 'storage_control_id'        
 		)    
@@ -11,7 +11,7 @@ class StorageMaster extends StoragelayoutAppModel {
 	
 	var $actsAs = array('Tree');
 	
-	function summary( $variables = array()) {
+	function summary($variables = array()) {
 		$return = false;
 		
 		if (isset($variables['StorageMaster.id'])) {

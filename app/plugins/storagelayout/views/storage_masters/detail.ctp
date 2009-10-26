@@ -35,7 +35,7 @@
 	if($is_tree_view_detail_form) {
 		// Detail form displayed in children storage tree view
 		// Add button to access all storage data
-		$structure_links['bottom']['all storage data'] = '/storagelayout/storage_masters/detail/' . $atim_menu_variables['StorageMaster.id'];
+		$structure_links['bottom']['access to all data'] = '/storagelayout/storage_masters/detail/' . $atim_menu_variables['StorageMaster.id'];
 	} else {
 		// General detail form display
 		$structure_links['bottom']['search'] = '/storagelayout/storage_masters/index/';
@@ -61,11 +61,11 @@
 
 	if(!$bool_define_position) {
 		// No sorage position within parent can be set	
-		$structures->build($atim_structure, array('links' => $structure_links, 'override' => $structure_override) );
+		$structures->build($atim_structure, array('links' => $structure_links, 'override' => $structure_override));
 	
 	} else {
 		// A sorage position within parent can be set	
-		$structures->build($atim_structure, array('settings' => array('actions' => FALSE), 'override' => $structure_override) );
+		$structures->build($atim_structure, array('settings' => array('actions' => FALSE), 'override' => $structure_override));
 
 		// DISPLAY STORAGE POSITION FORM
 		if(!$is_tree_view_detail_form) {	$structure_links['bottom']['edit position'] = '/storagelayout/storage_masters/editStoragePosition/' . $atim_menu_variables['StorageMaster.id']; }

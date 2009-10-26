@@ -35,8 +35,8 @@
 //		//headers
 //		$html_string .= '
 //			<tr>
-//				<td class="label_1d_1">'.$translations->t($arr_content['x'], $lang, false).'</td>
-//				<td class="label_std">'.$translations->t('content', $lang, false).'</td>
+//				<td class="label_1d_1">' . $translations->t($arr_content['x'], $lang, false) . '</td>
+//				<td class="label_std">' . $translations->t('content', $lang, false) . '</td>
 //			</tr>
 //		';
 //					
@@ -45,7 +45,7 @@
 //			
 //			$html_string .= '
 //				<tr>
-//					<td class="label_1d_1">'.$x_id.'</td>
+//					<td class="label_1d_1">' . $x_id.'</td>
 //					<td class="content">
 //			';
 //			
@@ -78,20 +78,20 @@
 //		$html_string .= '
 //			<tr>
 //				<td class="label_2d_1"></td>
-//				<td class="label_std" colspan='.(sizeof($arr_content['x_labels'])+1).'>'.$translations->t($arr_content['x'], $lang, false).'</td>
+//				<td class="label_std" colspan='.(sizeof($arr_content['x_labels'])+1) . '>' . $translations->t($arr_content['x'], $lang, false) . '</td>
 //			</tr>
 //		';
 //		
 //		//headers line2
 //		$html_string .= '
 //			<tr>
-//				<td class="label_2d_1" rowspan='.(sizeof($arr_content['y_labels'])+1).'>'.$translations->t($arr_content['y'], $lang, false).'</td>
+//				<td class="label_2d_1" rowspan='.(sizeof($arr_content['y_labels'])+1) . '>' . $translations->t($arr_content['y'], $lang, false) . '</td>
 //				<td class="label_2d_2">&nbsp;</td>
 //		';
 //		
 //		foreach($arr_content['x_labels'] as $key => $x_id){
 //			$html_string .= '
-//				<td class="label_std">'.$x_id.'</td>
+//				<td class="label_std">' . $x_id.'</td>
 //			';
 //		}
 //		
@@ -105,7 +105,7 @@
 //			//New line
 //			$html_string .= '
 //				<tr>
-//					<td class="label_2d_2">'.$y_id.'</td>
+//					<td class="label_2d_2">' . $y_id.'</td>
 //			';
 //			
 //			foreach($arr_content['x_labels'] as $key => $x_id){
@@ -151,7 +151,7 @@
 //	
 //	echo '
 //		<br>
-//		<h4>'.$translations->t('positioned entities', $lang, false).'</h4>
+//		<h4>' . $translations->t('positioned entities', $lang, false) . '</h4>
 //		<br>
 //	';
 //	
@@ -169,7 +169,7 @@
 //	
 //	echo '
 //		<br>
-//		<h4>'.$translations->t('entities with no position', $lang, false).'</h4>
+//		<h4>' . $translations->t('entities with no position', $lang, false) . '</h4>
 //		<br>
 //	';
 //	
@@ -179,10 +179,10 @@
 //	// 3- Display legends
 //	// -----------------------------
 //	
-//	$html_string = '<br><h4>'.$translations->t('legend', $lang, false).'</h4>';
-//	$html_string .= '<font color="#900">'.$translations->t('storage', $lang, false).'</font> / ';
-//	$html_string .= '<font color="#090">'.$translations->t('aliquot', $lang, false).'</font> / ';
-//	$html_string .= '<font color="#009">'.$translations->t('tma slide', $lang, false).'</font><br>';
+//	$html_string = '<br><h4>' . $translations->t('legend', $lang, false) . '</h4>';
+//	$html_string .= '<font color="#900">' . $translations->t('storage', $lang, false) . '</font> / ';
+//	$html_string .= '<font color="#090">' . $translations->t('aliquot', $lang, false) . '</font> / ';
+//	$html_string .= '<font color="#009">' . $translations->t('tma slide', $lang, false) . '</font><br>';
 //	
 //	echo($html_string);
 //	
@@ -203,29 +203,29 @@
 //			$html_code .= 
 //				$html_obj->link(
 //					$code, 
-//					'/inventorymanagement/aliquot_masters/detailAliquotFromId/'.$id.'/',
-//					array('style'=>'color: #090;')
-//				).' ['.$translations->t($type_code, $lang, false).']<br>';
+//					'/inventorymanagement/aliquot_masters/detailAliquotFromId/' . $id.'/',
+//					array('style' => 'color: #090;')
+//				) . ' [' . $translations->t($type_code, $lang, false) . ']<br>';
 //		
 //		} else if(strcmp($entity_type, 'storage') == 0) {
 //			// Storage
 //			$html_code .= 
 //				$html_obj->link(
 //					$code, 
-//					'/storagelayout/storage_masters/detail/'.$id.'/',
-//					array('style'=>'color: #900;')
-//				).' (['.$arr_additional_data['selection_label'].'] '.
-//				$translations->t($type_code, $lang, false).')<br>';			
+//					'/storagelayout/storage_masters/detail/' . $id.'/',
+//					array('style' => 'color: #900;')
+//				) . ' ([' . $arr_additional_data['selection_label'] . '] '.
+//				$translations->t($type_code, $lang, false) . ')<br>';			
 //		
 //		} else {
 //			// Tma Slide
 //			$html_code .= 
 //				$html_obj->link(
 //					$code, 
-//					'/storagelayout/tma_slides/detail/'.$arr_additional_data['tma_block_id'].'/'.$id.'/',
-//					array('style'=>'color: #009;')
-//				).' ('.
-//				$translations->t($type_code, $lang, false).')<br>';			
+//					'/storagelayout/tma_slides/detail/' . $arr_additional_data['tma_block_id'] . '/' . $id.'/',
+//					array('style' => 'color: #009;')
+//				) . ' ('.
+//				$translations->t($type_code, $lang, false) . ')<br>';			
 //		} 
 //		
 //
