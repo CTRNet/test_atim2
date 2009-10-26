@@ -1,11 +1,11 @@
 <?php 
 	$structure_links = array(
-		'top'=>'/inventorymanagement/path_collection_reviews/edit/'.$atim_menu_variables['Collection.id'].'/%%PathCollectionReview.id%%/',
+		'top' => '/inventorymanagement/path_collection_reviews/edit/' . $atim_menu_variables['Collection.id'] . '/%%PathCollectionReview.id%%/',
 		'bottom'=>array(
-			'cancel'=>'/inventorymanagement/path_collection_reviews/detail/'.$atim_menu_variables['Collection.id'].'/%%PathCollectionReview.id%%/'
+			'cancel' => '/inventorymanagement/path_collection_reviews/detail/' . $atim_menu_variables['Collection.id'] . '/%%PathCollectionReview.id%%/'
 		)
 	);
 	
 	$structure_override = array('PathCollectionReview.aliquot_master_id'=>$aliquot_master_id_findall);
-	$structures->build( $atim_structure, array('links'=>$structure_links,'override'=>$structure_override) );
+	$structures->build($atim_structure, array('links'=>$structure_links,'override'=>$structure_override));
 ?>

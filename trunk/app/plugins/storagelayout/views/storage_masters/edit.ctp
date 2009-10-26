@@ -2,7 +2,7 @@
 
 	$structure_links = array(
 		'top' => '/storagelayout/storage_masters/edit/' . $atim_menu_variables['StorageMaster.id'],
-		'bottom' => array('cancel'=>'/storagelayout/storage_masters/detail/' . $atim_menu_variables['StorageMaster.id'])
+		'bottom' => array('cancel' => '/storagelayout/storage_masters/detail/' . $atim_menu_variables['StorageMaster.id'])
 	);
 
 	$structure_override = array();

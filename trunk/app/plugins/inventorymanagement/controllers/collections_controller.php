@@ -99,7 +99,7 @@ class CollectionsController extends InventorymanagementAppController {
 		if (!empty($this->data)) {
 			if ($this->Collection->save($this->data)) {
 				$collection_id = $this->Collection->getLastInsertId();
-				$this->flash('Your data has been saved.', '/inventorymanagement/collections/detail/' . $collection_id);
+				$this->flash('Your data has been saved . ', '/inventorymanagement/collections/detail/' . $collection_id);
 			}
 		}
 	}
@@ -130,7 +130,7 @@ class CollectionsController extends InventorymanagementAppController {
 			//Update data
 			$this->Collection->id = $collection_id;
 			if ($this->Collection->save($this->data)) {
-				$this->flash('Your data has been updated.', '/inventorymanagement/collections/detail/' . $collection_id);
+				$this->flash('Your data has been updated . ', '/inventorymanagement/collections/detail/' . $collection_id);
 			}
 		}
 	}
@@ -148,9 +148,9 @@ class CollectionsController extends InventorymanagementAppController {
 		if($arr_allow_deletion['allow_deletion']) {
 			// Delete collection
 			if($this->Collection->atim_delete($collection_id)) {
-				$this->flash('Your data has been deleted.', '/inventorymanagement/collections/index/');
+				$this->flash('Your data has been deleted . ', '/inventorymanagement/collections/index/');
 			} else {
-				$this->flash('Error deleting data - Contact administrator.', '/inventorymanagement/collections/index/');
+				$this->flash('Error deleting data - Contact administrator . ', '/inventorymanagement/collections/index/');
 			}		
 		
 		} else {
@@ -192,7 +192,7 @@ class CollectionsController extends InventorymanagementAppController {
 		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'review exists for the deleted collection'); }
 		
 		// Check Collection has not been linked to a participant, consent or diagnosis
-		$criteria = 'ClinicalCollectionLink.collection_id = "'.$collection_id.'" ';
+		$criteria = 'ClinicalCollectionLink.collection_id = "' . $collection_id . '" ';
 		$criteria .= 'AND (ClinicalCollectionLink.participant_id != 0 ';
 		$criteria .= 'OR ClinicalCollectionLink.diagnosis_id != 0 ';
 		$criteria .= 'OR ClinicalCollectionLink.consent_id != 0)';		

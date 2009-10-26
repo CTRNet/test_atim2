@@ -12,24 +12,24 @@ class QualityControlsController extends InventoryManagementAppController {
 	);
 	var $paginate = array('QualityControl'=>array('limit'=>10));
 
-	function listAllQualityControls( $collection_id=null, $sample_master_id=null) {
-		$this->set( 'atim_menu_variables', array('Collection.id'=>$collection_id, 'SampleMaster.id'=>$sample_master_id) );
+	function listAllQualityControls($collection_id=null, $sample_master_id=null) {
+		$this->set('atim_menu_variables', array('Collection.id'=>$collection_id, 'SampleMaster.id'=>$sample_master_id));
 		$this->data = $this->paginate($this->QualityControl,array('QualityControl.sample_master_id'=>$sample_master_id));
 	}
 	
 	function detail($collection_id=null, $sample_master_id=null, $quality_control_id=null) {
-		$this->set( 'atim_menu_variables', array('Collection.id'=>$collection_id, 'SampleMaster.id'=>$sample_master_id, 'QualityControl.id'=>$quality_control_id) );
+		$this->set('atim_menu_variables', array('Collection.id'=>$collection_id, 'SampleMaster.id'=>$sample_master_id, 'QualityControl.id'=>$quality_control_id));
 		$this->data = $this->QualityControl->find('first',array('conditions'=>array('QualityControl.id'=>$quality_control_id)));
 	}
 	
 	function edit($collection_id=null, $sample_master_id=null, $quality_control_id=null) {
-		$this->set( 'atim_menu_variables', array('Collection.id'=>$collection_id, 'SampleMaster.id'=>$sample_master_id, 'QualityControl.id'=>$quality_control_id) );
+		$this->set('atim_menu_variables', array('Collection.id'=>$collection_id, 'SampleMaster.id'=>$sample_master_id, 'QualityControl.id'=>$quality_control_id));
 		
 		$this_data = $this->QualityControl->find('first',array('conditions'=>array('QualityControl.id'=>$quality_control_id)));
 		
-		if ( !empty($this->data) ) {
+		if (!empty($this->data)) {
 			$this->QualityControl->id = $quality_control_id;
-			if ( $this->QualityControl->save($this->data) ) $this->flash( 'Your data has been updated.','/inventorymanagement/quality_controls/detail/'.$collection_id.'/'.$sample_master_id.'/'.$quality_control_id);
+			if ($this->QualityControl->save($this->data)) $this->flash('Your data has been updated . ','/inventorymanagement/quality_controls/detail/' . $collection_id . '/' . $sample_master_id . '/' . $quality_control_id);
 		} else {
 			$this->data = $this_data;
 		}
@@ -63,7 +63,7 @@ class QualityControlsController extends InventoryManagementAppController {
 		}
 		
 		// Verify collection data exists
-		$criteria = 'Collection.id = "'.$collection_id.'" ';		
+		$criteria = 'Collection.id = "' . $collection_id . '" ';		
 		$collection_data = $this->Collection->find($criteria);
 		
 		if(empty($collection_data)) {
@@ -111,7 +111,7 @@ class QualityControlsController extends InventoryManagementAppController {
 		$this->set('specimen_group_menu_id', $specimen_group_menu_id);
 		$this->set('group_specimen_type', $group_specimen_type);
 		
-		$this->set('collection_id', $collection_id );
+		$this->set('collection_id', $collection_id);
 		$this->set('sample_category', $sample_category);
 		$this->set('sample_master_id', $sample_master_id);
 		
@@ -129,27 +129,27 @@ class QualityControlsController extends InventoryManagementAppController {
 			case "specimen":
 				$specimen_sample_master_id=$sample_master_id;
 				
-				$specimen_menu_id = $specimen_group_menu_id.'-sa_qc';
-				$qc_menu_id = $specimen_group_menu_id.'-sa_qc_de';
+				$specimen_menu_id = $specimen_group_menu_id . '-sa_qc';
+				$qc_menu_id = $specimen_group_menu_id . '-sa_qc_de';
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $specimen_menu_id, $specimen_group_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id.'/'.$specimen_sample_master_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id . '/' . $specimen_sample_master_id);	
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $qc_menu_id, $specimen_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $qc_menu_id, $collection_id.'/'.$specimen_sample_master_id.'/'.$quality_control_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $qc_menu_id, $collection_id . '/' . $specimen_sample_master_id . '/' . $quality_control_id);	
 				break;
 				
 			case "derivative":
 				$specimen_sample_master_id=$sample_master_data['SampleMaster']['initial_specimen_sample_id'];
 				$derivative_sample_master_id=$sample_master_id;		
 				
-				$specimen_menu_id = $specimen_group_menu_id.'-sa_der';
-				$derivative_menu_id = $specimen_group_menu_id.'-der_qc';
-				$qc_menu_id = $specimen_group_menu_id.'-der_qc_de';
+				$specimen_menu_id = $specimen_group_menu_id . '-sa_der';
+				$derivative_menu_id = $specimen_group_menu_id . '-der_qc';
+				$qc_menu_id = $specimen_group_menu_id . '-der_qc_de';
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $specimen_menu_id, $specimen_group_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id.'/'.$specimen_sample_master_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id . '/' . $specimen_sample_master_id);	
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $derivative_menu_id, $specimen_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $derivative_menu_id, $collection_id.'/'.$derivative_sample_master_id.'/');	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $derivative_menu_id, $collection_id . '/' . $derivative_sample_master_id . '/');	
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $qc_menu_id, $derivative_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($derivative_menu_id, $qc_menu_id, $collection_id.'/'.$derivative_sample_master_id.'/'.$quality_control_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($derivative_menu_id, $qc_menu_id, $collection_id . '/' . $derivative_sample_master_id . '/' . $quality_control_id);	
 				break;
 			
 			default:
@@ -166,9 +166,9 @@ class QualityControlsController extends InventoryManagementAppController {
 		// Use PLUGIN_CONTROLLER_ACTION by default, 
 		// but any ALIAS string that matches in the SIDEBARS datatable will do...
 		$this->set('ctrapp_sidebar', 
-			$this->Sidebars->getColsArray( 
-				$this->params['plugin'].'_'.
-				$this->params['controller'].'_'.
+			$this->Sidebars->getColsArray(
+				$this->params['plugin'] . '_'.
+				$this->params['controller'] . '_'.
 				$this->params['action']));
 				
 		// ** Build array that allows to know tested aliquot code from the aliquot id **
@@ -197,7 +197,7 @@ class QualityControlsController extends InventoryManagementAppController {
 		$custom_ctrapp_controller_hook 
 			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
 			'controllers' . DS . 'hooks' . DS . 
-			$this->params['controller'].'_'.$this->params['action'].'_format.php';
+			$this->params['controller'] . '_' . $this->params['action'] . '_format.php';
 		
 		if (file_exists($custom_ctrapp_controller_hook)) {
 			require($custom_ctrapp_controller_hook);
@@ -231,7 +231,7 @@ class QualityControlsController extends InventoryManagementAppController {
 		}
 		
 		// Verify collection data exists
-		$criteria = 'Collection.id = "'.$collection_id.'" ';		
+		$criteria = 'Collection.id = "' . $collection_id . '" ';		
 		$collection_data = $this->Collection->find($criteria);
 		
 		if(empty($collection_data)) {
@@ -259,7 +259,7 @@ class QualityControlsController extends InventoryManagementAppController {
 		$this->set('specimen_group_menu_id', $specimen_group_menu_id);
 		$this->set('group_specimen_type', $group_specimen_type);
 		
-		$this->set('collection_id', $collection_id );
+		$this->set('collection_id', $collection_id);
 		$this->set('sample_category', $sample_category);
 		$this->set('sample_master_id', $sample_master_id);
 		
@@ -276,21 +276,21 @@ class QualityControlsController extends InventoryManagementAppController {
 			case "specimen":
 				$specimen_sample_master_id=$sample_master_id;
 				
-				$specimen_menu_id = $specimen_group_menu_id.'-sa_qc';
+				$specimen_menu_id = $specimen_group_menu_id . '-sa_qc';
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $specimen_menu_id, $specimen_group_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id.'/'.$specimen_sample_master_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id . '/' . $specimen_sample_master_id);	
 				break;
 				
 			case "derivative":
 				$specimen_sample_master_id=$sample_master_data['SampleMaster']['initial_specimen_sample_id'];
 				$derivative_sample_master_id=$sample_master_id;		
 				
-				$specimen_menu_id = $specimen_group_menu_id.'-sa_der';
-				$derivative_menu_id = $specimen_group_menu_id.'-der_qc';
+				$specimen_menu_id = $specimen_group_menu_id . '-sa_der';
+				$derivative_menu_id = $specimen_group_menu_id . '-der_qc';
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $specimen_menu_id, $specimen_group_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id.'/'.$specimen_sample_master_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id . '/' . $specimen_sample_master_id);	
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $derivative_menu_id, $specimen_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $derivative_menu_id, $collection_id.'/'.$derivative_sample_master_id.'/');	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $derivative_menu_id, $collection_id . '/' . $derivative_sample_master_id . '/');	
 				break;
 			
 			default:
@@ -307,9 +307,9 @@ class QualityControlsController extends InventoryManagementAppController {
 		// Use PLUGIN_CONTROLLER_ACTION by default, 
 		// but any ALIAS string that matches in the SIDEBARS datatable will do...
 		$this->set('ctrapp_sidebar', 
-			$this->Sidebars->getColsArray( 
-				$this->params['plugin'].'_'.
-				$this->params['controller'].'_'.
+			$this->Sidebars->getColsArray(
+				$this->params['plugin'] . '_'.
+				$this->params['controller'] . '_'.
 				$this->params['action']));
 
 		// ** Build array that allows to list code of available sample aliquot from the aliquot id **
@@ -337,7 +337,7 @@ class QualityControlsController extends InventoryManagementAppController {
 		$custom_ctrapp_controller_hook 
 			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
 			'controllers' . DS . 'hooks' . DS . 
-			$this->params['controller'].'_'.$this->params['action'].'_format.php';
+			$this->params['controller'] . '_' . $this->params['action'] . '_format.php';
 			
 		if (file_exists($custom_ctrapp_controller_hook)) {
 			require($custom_ctrapp_controller_hook);
@@ -348,7 +348,7 @@ class QualityControlsController extends InventoryManagementAppController {
 			// ** Execute Validation **
 						
 			// setup MODEL(s) validation array(s) for displayed FORM 
-			foreach ( $this->Forms->getValidateArray('quality_controls') as $validate_model=>$validate_rules ) {
+			foreach ($this->Forms->getValidateArray('quality_controls') as $validate_model=>$validate_rules) {
 				$this->{ $validate_model }->validate = $validate_rules;
 			}
 			
@@ -363,7 +363,7 @@ class QualityControlsController extends InventoryManagementAppController {
 			$custom_ctrapp_controller_hook 
 				= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
 				'controllers' . DS . 'hooks' . DS . 
-				$this->params['controller'].'_'.$this->params['action'].'_validation.php';
+				$this->params['controller'] . '_' . $this->params['action'] . '_validation.php';
 			
 			if (file_exists($custom_ctrapp_controller_hook)) {
 				require($custom_ctrapp_controller_hook);
@@ -386,7 +386,7 @@ class QualityControlsController extends InventoryManagementAppController {
 					exit;
 				} else {
 					// Data has been recorded
-					$this->flash('Your data has been saved.', 
+					$this->flash('Your data has been saved . ', 
 						"/quality_controls/detail/$specimen_group_menu_id/$group_specimen_type/$sample_category/" .
 						"$collection_id/$sample_master_id/$quality_control_id/");				
 				}
@@ -423,7 +423,7 @@ class QualityControlsController extends InventoryManagementAppController {
 		}
 		
 		// Verify collection data exists
-		$criteria = 'Collection.id = "'.$collection_id.'" ';		
+		$criteria = 'Collection.id = "' . $collection_id . '" ';		
 		$collection_data = $this->Collection->find($criteria);
 		
 		if(empty($collection_data)) {
@@ -469,7 +469,7 @@ class QualityControlsController extends InventoryManagementAppController {
 		$this->set('specimen_group_menu_id', $specimen_group_menu_id);
 		$this->set('group_specimen_type', $group_specimen_type);
 		
-		$this->set('collection_id', $collection_id );
+		$this->set('collection_id', $collection_id);
 		$this->set('sample_category', $sample_category);
 		$this->set('sample_master_id', $sample_master_id);
 		
@@ -485,27 +485,27 @@ class QualityControlsController extends InventoryManagementAppController {
 			case "specimen":
 				$specimen_sample_master_id=$sample_master_id;
 				
-				$specimen_menu_id = $specimen_group_menu_id.'-sa_qc';
-				$qc_menu_id = $specimen_group_menu_id.'-sa_qc_de';
+				$specimen_menu_id = $specimen_group_menu_id . '-sa_qc';
+				$qc_menu_id = $specimen_group_menu_id . '-sa_qc_de';
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $specimen_menu_id, $specimen_group_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id.'/'.$specimen_sample_master_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id . '/' . $specimen_sample_master_id);	
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $qc_menu_id, $specimen_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $qc_menu_id, $collection_id.'/'.$specimen_sample_master_id.'/'.$quality_control_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $qc_menu_id, $collection_id . '/' . $specimen_sample_master_id . '/' . $quality_control_id);	
 				break;
 				
 			case "derivative":
 				$specimen_sample_master_id=$sample_master_data['SampleMaster']['initial_specimen_sample_id'];
 				$derivative_sample_master_id=$sample_master_id;		
 				
-				$specimen_menu_id = $specimen_group_menu_id.'-sa_der';
-				$derivative_menu_id = $specimen_group_menu_id.'-der_qc';
-				$qc_menu_id = $specimen_group_menu_id.'-der_qc_de';
+				$specimen_menu_id = $specimen_group_menu_id . '-sa_der';
+				$derivative_menu_id = $specimen_group_menu_id . '-der_qc';
+				$qc_menu_id = $specimen_group_menu_id . '-der_qc_de';
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $specimen_menu_id, $specimen_group_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id.'/'.$specimen_sample_master_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id . '/' . $specimen_sample_master_id);	
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $derivative_menu_id, $specimen_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $derivative_menu_id, $collection_id.'/'.$derivative_sample_master_id.'/');	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $derivative_menu_id, $collection_id . '/' . $derivative_sample_master_id . '/');	
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $qc_menu_id, $derivative_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($derivative_menu_id, $qc_menu_id, $collection_id.'/'.$derivative_sample_master_id.'/'.$quality_control_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($derivative_menu_id, $qc_menu_id, $collection_id . '/' . $derivative_sample_master_id . '/' . $quality_control_id);	
 				break;
 			
 			default:
@@ -522,9 +522,9 @@ class QualityControlsController extends InventoryManagementAppController {
 		// Use PLUGIN_CONTROLLER_ACTION by default, 
 		// but any ALIAS string that matches in the SIDEBARS datatable will do...
 		$this->set('ctrapp_sidebar', 
-			$this->Sidebars->getColsArray( 
-				$this->params['plugin'].'_'.
-				$this->params['controller'].'_'.
+			$this->Sidebars->getColsArray(
+				$this->params['plugin'] . '_'.
+				$this->params['controller'] . '_'.
 				$this->params['action']));
 				
 		// ** Build array that allows to list code of available sample aliquot from the aliquot id **
@@ -552,7 +552,7 @@ class QualityControlsController extends InventoryManagementAppController {
 		$custom_ctrapp_controller_hook 
 			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
 			'controllers' . DS . 'hooks' . DS . 
-			$this->params['controller'].'_'.$this->params['action'].'_format.php';
+			$this->params['controller'] . '_' . $this->params['action'] . '_format.php';
 			
 		if (file_exists($custom_ctrapp_controller_hook)) {
 			require($custom_ctrapp_controller_hook);
@@ -569,7 +569,7 @@ class QualityControlsController extends InventoryManagementAppController {
 			// ** SAVE DATA **
 						
 			// setup MODEL(s) validation array(s) for displayed FORM 
-			foreach ( $this->Forms->getValidateArray('quality_controls') as $validate_model=>$validate_rules ) {
+			foreach ($this->Forms->getValidateArray('quality_controls') as $validate_model=>$validate_rules) {
 				$this->{ $validate_model }->validate = $validate_rules;
 			}
 			
@@ -584,7 +584,7 @@ class QualityControlsController extends InventoryManagementAppController {
 			$custom_ctrapp_controller_hook 
 				= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
 				'controllers' . DS . 'hooks' . DS . 
-				$this->params['controller'].'_'.$this->params['action'].'_validation.php';
+				$this->params['controller'] . '_' . $this->params['action'] . '_validation.php';
 			
 			if (file_exists($custom_ctrapp_controller_hook)) {
 				require($custom_ctrapp_controller_hook);
@@ -616,7 +616,7 @@ class QualityControlsController extends InventoryManagementAppController {
 						$this->updateTestedAliquotUses($quality_control_id, $new_run_id, $new_run_date);
 					}
 					
-					$this->flash('Your data has been updated.', 
+					$this->flash('Your data has been updated . ', 
 						"/quality_controls/detail/$specimen_group_menu_id/$group_specimen_type/$sample_category/" .
 						"$collection_id/$sample_master_id/$quality_control_id/");				
 				}
@@ -654,7 +654,7 @@ class QualityControlsController extends InventoryManagementAppController {
 		}
 		
 		// Verify collection data exists
-		$criteria = 'Collection.id = "'.$collection_id.'" ';		
+		$criteria = 'Collection.id = "' . $collection_id . '" ';		
 		$collection_data = $this->Collection->find($criteria);
 		
 		if(empty($collection_data)) {
@@ -689,7 +689,7 @@ class QualityControlsController extends InventoryManagementAppController {
 		$custom_ctrapp_controller_hook 
 			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
 			'controllers' . DS . 'hooks' . DS . 
-			$this->params['controller'].'_'.$this->params['action'].'_validation.php';
+			$this->params['controller'] . '_' . $this->params['action'] . '_validation.php';
 		
 		if (file_exists($custom_ctrapp_controller_hook)) {
 			require($custom_ctrapp_controller_hook);
@@ -700,7 +700,7 @@ class QualityControlsController extends InventoryManagementAppController {
 		//Delete sample Master Data
 		if($this->QualityControl->del($quality_control_id)){
 			// Data has been deleted
-			$this->flash('Your data has been deleted.', 
+			$this->flash('Your data has been deleted . ', 
 				"/quality_controls/listAllQualityControls/$specimen_group_menu_id/" .
 				"$group_specimen_type/$sample_category/$collection_id/$sample_master_id/");					
 		} else {
@@ -713,7 +713,7 @@ class QualityControlsController extends InventoryManagementAppController {
 	function allowQcDeletion($quality_control_id){
 		
 		// Verify this qc is not linked to tested aliquot
-		$criteria = 'QcTestedAliquot.quality_control_id ="' .$quality_control_id.'"';			 
+		$criteria = 'QcTestedAliquot.quality_control_id ="' .$quality_control_id . '"';			 
 		$qc_tested_aliquot_nbr = $this->QcTestedAliquot->findCount($criteria);
 		
 		if($qc_tested_aliquot_nbr > 0){
@@ -736,7 +736,7 @@ class QualityControlsController extends InventoryManagementAppController {
 		}
 		
 		// read SAMPLE MASTER info
-		$criteria = 'SampleMaster.id ="'.$sample_master_id.'"';
+		$criteria = 'SampleMaster.id ="' . $sample_master_id . '"';
 		$sample_master_data = $this->SampleMaster->find($criteria, null, null, 0);
 				
 		if(empty($sample_master_data)){
@@ -757,7 +757,7 @@ class QualityControlsController extends InventoryManagementAppController {
 		$this->set('group_specimen_type', $group_specimen_type);
 		$this->set('sample_category', $sample_category);
 		
-		$this->set('collection_id', $collection_id );
+		$this->set('collection_id', $collection_id);
 		$this->set('sample_master_id', $sample_master_id);
 		$this->set('quality_control_id', $quality_control_id);
 		
@@ -771,27 +771,27 @@ class QualityControlsController extends InventoryManagementAppController {
 			case "specimen":
 				$specimen_sample_master_id=$sample_master_id;
 				
-				$specimen_menu_id = $specimen_group_menu_id.'-sa_qc';
-				$qc_menu_id = $specimen_group_menu_id.'-sa_qc_al';
+				$specimen_menu_id = $specimen_group_menu_id . '-sa_qc';
+				$qc_menu_id = $specimen_group_menu_id . '-sa_qc_al';
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $specimen_menu_id, $specimen_group_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id.'/'.$specimen_sample_master_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id . '/' . $specimen_sample_master_id);	
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $qc_menu_id, $specimen_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $qc_menu_id, $collection_id.'/'.$specimen_sample_master_id.'/'.$quality_control_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $qc_menu_id, $collection_id . '/' . $specimen_sample_master_id . '/' . $quality_control_id);	
 				break;
 				
 			case "derivative":
 				$specimen_sample_master_id=$sample_master_data['SampleMaster']['initial_specimen_sample_id'];
 				$derivative_sample_master_id=$sample_master_id;		
 				
-				$specimen_menu_id = $specimen_group_menu_id.'-sa_der';
-				$derivative_menu_id = $specimen_group_menu_id.'-der_qc';
-				$qc_menu_id = $specimen_group_menu_id.'-der_qc_al';
+				$specimen_menu_id = $specimen_group_menu_id . '-sa_der';
+				$derivative_menu_id = $specimen_group_menu_id . '-der_qc';
+				$qc_menu_id = $specimen_group_menu_id . '-der_qc_al';
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $specimen_menu_id, $specimen_group_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id.'/'.$specimen_sample_master_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id . '/' . $specimen_sample_master_id);	
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $derivative_menu_id, $specimen_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $derivative_menu_id, $collection_id.'/'.$derivative_sample_master_id.'/');	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $derivative_menu_id, $collection_id . '/' . $derivative_sample_master_id . '/');	
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $qc_menu_id, $derivative_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($derivative_menu_id, $qc_menu_id, $collection_id.'/'.$derivative_sample_master_id.'/'.$quality_control_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($derivative_menu_id, $qc_menu_id, $collection_id . '/' . $derivative_sample_master_id . '/' . $quality_control_id);	
 				break;
 			
 			default:
@@ -808,9 +808,9 @@ class QualityControlsController extends InventoryManagementAppController {
 		// Use PLUGIN_CONTROLLER_ACTION by default, 
 		// but any ALIAS string that matches in the SIDEBARS datatable will do...
 		$this->set('ctrapp_sidebar', 
-			$this->Sidebars->getColsArray( 
-				$this->params['plugin'].'_'.
-				$this->params['controller'].'_'.
+			$this->Sidebars->getColsArray(
+				$this->params['plugin'] . '_'.
+				$this->params['controller'] . '_'.
 				$this->params['action']));
 
 		// ** Search aliquot data to display in the list **
@@ -846,7 +846,7 @@ class QualityControlsController extends InventoryManagementAppController {
 					'{n}.AliquotUse.used_volume');
 			
 			if(empty($use_vol_from_tested_aliquot_id) 
-			|| (sizeof($use_vol_from_tested_aliquot_id) != sizeof($use_id_from_tested_aliquot_id) )){
+			|| (sizeof($use_vol_from_tested_aliquot_id) != sizeof($use_id_from_tested_aliquot_id))){
 				// It looks like at least one record defined in TestedAliquot has not
 				// its attached data into AliquotUse	
 				$this->redirect('/pages/err_inv_system_error'); 
@@ -873,11 +873,11 @@ class QualityControlsController extends InventoryManagementAppController {
 		$this->set('tested_aliquots', $tested_aliquots);
 	
 		// ** Verify if additional parent sample aliquots could be added to the list of tested aliquots **
-		$criteria= 'AliquotMaster.sample_master_id = '.$sample_master_id;
+		$criteria= 'AliquotMaster.sample_master_id = ' . $sample_master_id;
 		$criteria.= ' AND AliquotMaster.status = \'available\'';
 		if(!empty($use_id_from_tested_aliquot_id)) {
 			// Aliquot have already be defined as tested
-			$criteria.= ' AND AliquotMaster.id NOT IN (\''.implode('\',\'', array_keys($use_id_from_tested_aliquot_id)).'\')';
+			$criteria.= ' AND AliquotMaster.id NOT IN (\''.implode('\',\'', array_keys($use_id_from_tested_aliquot_id)) . '\')';
 		}
 		
 		$av_sample_aliquots = 
@@ -895,7 +895,7 @@ class QualityControlsController extends InventoryManagementAppController {
 		$custom_ctrapp_controller_hook 
 			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
 			'controllers' . DS . 'hooks' . DS . 
-			$this->params['controller'].'_'.$this->params['action'].'_format.php';
+			$this->params['controller'] . '_' . $this->params['action'] . '_format.php';
 		
 		if (file_exists($custom_ctrapp_controller_hook)) {
 			require($custom_ctrapp_controller_hook);
@@ -916,7 +916,7 @@ class QualityControlsController extends InventoryManagementAppController {
 		}
 		
 		// ** read SAMPLE MASTER info **
-		$criteria = 'SampleMaster.id ="'.$sample_master_id.'"';
+		$criteria = 'SampleMaster.id ="' . $sample_master_id . '"';
 		$sample_master_data = $this->SampleMaster->find($criteria, null, null, 0);
 				
 		if(empty($sample_master_data)){
@@ -957,27 +957,27 @@ class QualityControlsController extends InventoryManagementAppController {
 			case "specimen":
 				$specimen_sample_master_id=$sample_master_id;
 				
-				$specimen_menu_id = $specimen_group_menu_id.'-sa_qc';
-				$qc_menu_id = $specimen_group_menu_id.'-sa_qc_al';
+				$specimen_menu_id = $specimen_group_menu_id . '-sa_qc';
+				$qc_menu_id = $specimen_group_menu_id . '-sa_qc_al';
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $specimen_menu_id, $specimen_group_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id.'/'.$specimen_sample_master_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id . '/' . $specimen_sample_master_id);	
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $qc_menu_id, $specimen_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $qc_menu_id, $collection_id.'/'.$specimen_sample_master_id.'/'.$quality_control_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $qc_menu_id, $collection_id . '/' . $specimen_sample_master_id . '/' . $quality_control_id);	
 				break;
 				
 			case "derivative":
 				$specimen_sample_master_id=$sample_master_data['SampleMaster']['initial_specimen_sample_id'];
 				$derivative_sample_master_id=$sample_master_id;		
 				
-				$specimen_menu_id = $specimen_group_menu_id.'-sa_der';
-				$derivative_menu_id = $specimen_group_menu_id.'-der_qc';
-				$qc_menu_id = $specimen_group_menu_id.'-der_qc_al';
+				$specimen_menu_id = $specimen_group_menu_id . '-sa_der';
+				$derivative_menu_id = $specimen_group_menu_id . '-der_qc';
+				$qc_menu_id = $specimen_group_menu_id . '-der_qc_al';
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $specimen_menu_id, $specimen_group_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id.'/'.$specimen_sample_master_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id . '/' . $specimen_sample_master_id);	
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $derivative_menu_id, $specimen_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $derivative_menu_id, $collection_id.'/'.$derivative_sample_master_id.'/');	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $derivative_menu_id, $collection_id . '/' . $derivative_sample_master_id . '/');	
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $qc_menu_id, $derivative_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($derivative_menu_id, $qc_menu_id, $collection_id.'/'.$derivative_sample_master_id.'/'.$quality_control_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($derivative_menu_id, $qc_menu_id, $collection_id . '/' . $derivative_sample_master_id . '/' . $quality_control_id);	
 				break;
 			
 			default:
@@ -994,9 +994,9 @@ class QualityControlsController extends InventoryManagementAppController {
 		// Use PLUGIN_CONTROLLER_ACTION by default, 
 		// but any ALIAS string that matches in the SIDEBARS datatable will do...
 		$this->set('ctrapp_sidebar', 
-			$this->Sidebars->getColsArray( 
-				$this->params['plugin'].'_'.
-				$this->params['controller'].'_'.
+			$this->Sidebars->getColsArray(
+				$this->params['plugin'] . '_'.
+				$this->params['controller'] . '_'.
 				$this->params['action']));
 		
 		// ** Set FORM variable, for HELPER call on VIEW **
@@ -1007,7 +1007,7 @@ class QualityControlsController extends InventoryManagementAppController {
 		$this->set('group_specimen_type', $group_specimen_type);
 		$this->set('sample_category', $sample_category);
 
-		$this->set('collection_id', $collection_id );
+		$this->set('collection_id', $collection_id);
 		$this->set('sample_master_id', $sample_master_id);	
 		$this->set('quality_control_id', $quality_control_id);
 		
@@ -1031,12 +1031,12 @@ class QualityControlsController extends InventoryManagementAppController {
 
 		// Search ids of the aliquots that could be used to realize the qc
 
-		$criteria= 'AliquotMaster.sample_master_id = '.$sample_master_id;
+		$criteria= 'AliquotMaster.sample_master_id = ' . $sample_master_id;
 		$criteria.= ' AND AliquotMaster.status = \'available\'';
 		
 		if(!empty($already_used_aliquot_id)) {
 			// Aliquot have already be defined as used
-			$criteria.= ' AND AliquotMaster.id NOT IN (\''.implode('\',\'', array_keys($already_used_aliquot_id)).'\')';
+			$criteria.= ' AND AliquotMaster.id NOT IN (\''.implode('\',\'', array_keys($already_used_aliquot_id)) . '\')';
 		}
 				
 		$available_aliquots = $this->AliquotMaster->findAll($criteria, null, null, null, 0);
@@ -1050,7 +1050,7 @@ class QualityControlsController extends InventoryManagementAppController {
 		$custom_ctrapp_controller_hook 
 			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
 			'controllers' . DS . 'hooks' . DS . 
-			$this->params['controller'].'_'.$this->params['action'].'_format.php';
+			$this->params['controller'] . '_' . $this->params['action'] . '_format.php';
 		
 		if (file_exists($custom_ctrapp_controller_hook)) {
 			require($custom_ctrapp_controller_hook);
@@ -1065,7 +1065,7 @@ class QualityControlsController extends InventoryManagementAppController {
 			// ** Save data	**
 
 			// setup MODEL(s) validation array(s) for displayed FORM 
-			foreach ($this->Forms->getValidateArray('qc_tested_aliquots_list') as $validate_model=>$validate_rules ) {
+			foreach ($this->Forms->getValidateArray('qc_tested_aliquots_list') as $validate_model=>$validate_rules) {
 				$this->{$validate_model}->validate = $validate_rules;
 			}
 			
@@ -1111,7 +1111,7 @@ class QualityControlsController extends InventoryManagementAppController {
 			$custom_ctrapp_controller_hook 
 				= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
 				'controllers' . DS . 'hooks' . DS . 
-				$this->params['controller'].'_'.$this->params['action'].'_validation.php';
+				$this->params['controller'] . '_' . $this->params['action'] . '_validation.php';
 			
 			if (file_exists($custom_ctrapp_controller_hook)) {
 				require($custom_ctrapp_controller_hook);
@@ -1121,10 +1121,10 @@ class QualityControlsController extends InventoryManagementAppController {
 				
 				if(empty($aliquots_to_define_as_tested)){
 					// Data have been updated
-					$this->Flash('No aliquot has been defined as sample tested aliquot.', 
+					$this->Flash('No aliquot has been defined as sample tested aliquot . ', 
 						'/quality_controls/listTestedAliquots/'.
-							$specimen_group_menu_id.'/'.$group_specimen_type.'/'.$sample_category.'/'.
-							$collection_id.'/'.$sample_master_id.'/'.$quality_control_id.'/');	
+							$specimen_group_menu_id . '/' . $group_specimen_type . '/' . $sample_category . '/'.
+							$collection_id . '/' . $sample_master_id . '/' . $quality_control_id . '/');	
 					exit;					
 				}
 					
@@ -1215,10 +1215,10 @@ class QualityControlsController extends InventoryManagementAppController {
 					exit;
 				} else {
 					// Data have been updated
-					$this->Flash('Your aliquots have been defined as tested aliquot.', 
+					$this->Flash('Your aliquots have been defined as tested aliquot . ', 
 						'/quality_controls/listTestedAliquots/'.
-							$specimen_group_menu_id.'/'.$group_specimen_type.'/'.$sample_category.'/'.
-							$collection_id.'/'.$sample_master_id.'/'.$quality_control_id.'/');
+							$specimen_group_menu_id . '/' . $group_specimen_type . '/' . $sample_category . '/'.
+							$collection_id . '/' . $sample_master_id . '/' . $quality_control_id . '/');
 					
 				} 
 			} // End Save Functions execution	
@@ -1270,7 +1270,7 @@ class QualityControlsController extends InventoryManagementAppController {
 		$custom_ctrapp_controller_hook 
 			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
 			'controllers' . DS . 'hooks' . DS . 
-			$this->params['controller'].'_'.$this->params['action'].'_validation.php';
+			$this->params['controller'] . '_' . $this->params['action'] . '_validation.php';
 		
 		if (file_exists($custom_ctrapp_controller_hook)) {
 			require($custom_ctrapp_controller_hook);
@@ -1294,10 +1294,10 @@ class QualityControlsController extends InventoryManagementAppController {
 			exit;
 		}
 		
-		$this->flash('Your aliquot has been deleted from the list of Tested Aliquot.', 
+		$this->flash('Your aliquot has been deleted from the list of Tested Aliquot . ', 
 			'/quality_controls/listTestedAliquots/'.
-			$specimen_group_menu_id.'/'.$group_specimen_type.'/'.$sample_category.'/'.
-			$collection_id.'/'.$sample_master_id.'/'.$quality_control_id.'/');
+			$specimen_group_menu_id . '/' . $group_specimen_type . '/' . $sample_category . '/'.
+			$collection_id . '/' . $sample_master_id . '/' . $quality_control_id . '/');
 					
 	} // End function deleteTestedAliquot
 	

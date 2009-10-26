@@ -422,22 +422,22 @@ class StoragesComponent extends Object {
 	 */
 	 
 	function buildAllowedStoragePosition($storage_data, $coord) {
-		if(!array_key_exists('coord_'.$coord.'_type', $storage_data['StorageControl'])) { $this->redirect('/pages/err_sto_system_error', null, true); }
+		if(!array_key_exists('coord_' . $coord . '_type', $storage_data['StorageControl'])) { $this->redirect('/pages/err_sto_system_error', null, true); }
 				
 		// Build array
 		$array_to_display = array();
 		$array_to_order = array();
 			
-		if(!empty($storage_data['StorageControl']['coord_'.$coord.'_type'])) {
-			if(!empty($storage_data['StorageControl']['coord_'.$coord.'_size'])) {
+		if(!empty($storage_data['StorageControl']['coord_' . $coord . '_type'])) {
+			if(!empty($storage_data['StorageControl']['coord_' . $coord . '_size'])) {
 				// TYPE and SIZE are both defined for the studied coordinate: The system can build a list.
-				$size = $storage_data['StorageControl']['coord_'.$coord.'_size'];
+				$size = $storage_data['StorageControl']['coord_' . $coord . '_size'];
 				if(!is_numeric($size)) { $this->redirect('/pages/err_sto_system_error', null, true); }
 									
-				if(strcmp($storage_data['StorageControl']['coord_'.$coord.'_type'], 'alphabetical') == 0){
+				if(strcmp($storage_data['StorageControl']['coord_' . $coord . '_type'], 'alphabetical') == 0){
 					// Alphabetical drop down list
 					$array_to_order = array_slice(range('A', 'Z'), 0, $size);		
-				} else if(strcmp($storage_data['StorageControl']['coord_'.$coord.'_type'], 'integer') == 0){
+				} else if(strcmp($storage_data['StorageControl']['coord_' . $coord . '_type'], 'integer') == 0){
 					// Integer drop down list	
 					$array_to_order = range('1', $size);
 				} else {
@@ -446,7 +446,7 @@ class StoragesComponent extends Object {
 						
 			} else {
 				// Only TYPE is defined for the studied coordinate: The system can only return a custom coordinate list set by user.			
-				if((strcmp($storage_data['StorageControl']['coord_'.$coord.'_type'], 'list') == 0) && (strcmp($coord, 'x') == 0)) {
+				if((strcmp($storage_data['StorageControl']['coord_' . $coord . '_type'], 'list') == 0) && (strcmp($coord, 'x') == 0)) {
 					$coordinates = $this->controller->StorageCoordinate->atim_list(array('conditions' => array('StorageCoordinate.storage_master_id' => $storage_data['StorageMaster']['id'], 'StorageCoordinate.dimension' => $coord), 'order' => 'StorageCoordinate.order ASC', 'recursive' => '-1'));
 					foreach($coordinates as $new_coordinate) {
 						$coordinate_value = $new_coordinate['StorageCoordinate']['coordinate_value'];

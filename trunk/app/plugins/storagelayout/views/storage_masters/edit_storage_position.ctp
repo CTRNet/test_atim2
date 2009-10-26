@@ -22,7 +22,7 @@
 		$form_override['StorageDetail/sop_master_id'] = $arr_tma_sops;
 	}
 
-	$structures->build($atim_structure, array('settings' => array('actions' => FALSE), 'override' => $structure_override) );
+	$structures->build($atim_structure, array('settings' => array('actions' => FALSE), 'override' => $structure_override));
 
 	// DISPLAY STORAGE POSITION FORM
 	

@@ -5,7 +5,7 @@ class Collection extends InventorymanagementAppModel {
 	var $hasMany = array(
 		'SampleMaster' => array(
 			'className'   => 'Inventorymanagement.SampleMaster',
-			 	'foreignKey'  => 'collection_id'));  	
+			 'foreignKey'  => 'collection_id'));  	
 
 	function summary($variables=array()) {
 		$return = false;
@@ -31,13 +31,15 @@ class Collection extends InventorymanagementAppModel {
 		return $return;
 	}
 	
-	function contentSummary($variables=array()) {
+	function contentFilterSummary($variables=array()) {
 		$return = false;
-		
-		if(isset($variables['Collection.id']) && isset($variables['filter_value'])) {
+			
+		if(array_key_exists('filter_value', $variables) && (!array_key_exists('SampleMaster.initial_specimen_sample_id', $variables))) {
+			$filter_value = (empty($variables['filter_value']))? 'all content': $variables['filter_value'];
+					
 			$return = array(
 				'Summary' => array(
-					'menu' => array(null, __($variables['filter_value'], true),
+					'menu' => array(null, __($filter_value, true),
 					'title' => false,
 					'description'=> false)));	
 		}

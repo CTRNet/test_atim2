@@ -71,7 +71,7 @@ class InventorymanagementAppController extends AppController
 				$diff_spent_time = $diff_spent_time % 3600;
 				$arr_spent_time['minutes'] = floor($diff_spent_time / 60);
 				if($arr_spent_time['minutes']<10) {
-					$arr_spent_time['minutes'] = '0'.$arr_spent_time['minutes'];
+					$arr_spent_time['minutes'] = '0' . $arr_spent_time['minutes'];
 				}
 			}
 			
@@ -148,7 +148,8 @@ class InventorymanagementAppController extends AppController
 	 
 	function unsetInventorySessionData() {
 		unset($_SESSION['InventoryManagement']['treeView']['Filter']);
-		unset($_SESSION['InventoryManagement']['Sample']['Filter']);
+		unset($_SESSION['InventoryManagement']['CollectionSamples']['Filter']);
+		unset($_SESSION['InventoryManagement']['SpecimenDerivatives']['Filter']);
 		unset($_SESSION['InventoryManagement']['Aliquot']['Filter']);
 	}
 	
@@ -198,7 +199,7 @@ class InventorymanagementAppController extends AppController
 			exit;
 		} 
 		
-		$criteria = 'AliquotMaster.id ="'.$aliquot_master_id.'"';
+		$criteria = 'AliquotMaster.id ="' . $aliquot_master_id . '"';
 		$tmp_aliquot_data = $this->AliquotMaster->find($criteria, null, null, 1);
 
 		if (empty($tmp_aliquot_data)) {
@@ -260,7 +261,7 @@ class InventorymanagementAppController extends AppController
 			
 			//TODO: Additional line to fixe bug defined at the begining
 			// Can not use directly $tmp_aliquot_data['AliquotUse'].
-			$criteria = 'AliquotUse.aliquot_master_id ="'.$aliquot_master_id.'"';			
+			$criteria = 'AliquotUse.aliquot_master_id ="' . $aliquot_master_id . '"';			
 			$tmp_aliquot_use_data = $this->AliquotUse->findAll($criteria, null, null, null, 1);		
 			
 			foreach($tmp_aliquot_use_data as $id => $aliquot_use){

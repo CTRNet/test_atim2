@@ -235,7 +235,7 @@ class StorageMastersController extends StoragelayoutAppController {
 					} else {
 						$link = '/storagelayout/storage_masters/editStoragePosition/' . $storage_master_id;
 					}
-					$this->flash('Your data has been saved.', $link);				
+					$this->flash('Your data has been saved . ', $link);				
 				}						
 			}
 		}		
@@ -353,7 +353,7 @@ class StorageMastersController extends StoragelayoutAppController {
 						$link = '/storagelayout/storage_masters/editStoragePosition/' . $storage_master_id;
 					}					
 				}			
-				$this->flash('Your data has been updated.', $link); 
+				$this->flash('Your data has been updated . ', $link); 
 			}	
 		}
 	}
@@ -459,7 +459,7 @@ class StorageMastersController extends StoragelayoutAppController {
 			
 			$this->StorageMaster->id = $storage_master_id;		
 			if($this->StorageMaster->save($storage_data_to_update)) { 
-				$this->flash('Your data has been updated.', '/storagelayout/storage_masters/detail/' . $storage_master_id); 
+				$this->flash('Your data has been updated . ', '/storagelayout/storage_masters/detail/' . $storage_master_id); 
 			}	
 		}
 	}
@@ -473,7 +473,7 @@ class StorageMastersController extends StoragelayoutAppController {
 
 		// Check deletion is allowed
 		$arr_allow_deletion = $this->allowStorageDeletion($storage_master_id);
-		
+	
 		if($arr_allow_deletion['allow_deletion']) {
 			// First remove storage from tree
 			//TODO should perhaps be included into a general app function
@@ -486,11 +486,11 @@ class StorageMastersController extends StoragelayoutAppController {
 			
 			// Delete storage
 			if($this->StorageMaster->atim_delete($storage_master_id, true)) {
-				//TODO
-				pr('test deletion of master and detail level + coordinates!');
-				$this->flash('Your data has been deleted.', '/storagelayout/storage_masters/index/');
+				//TODO;
+				pr('to test');exit;
+				$this->flash('Your data has been deleted . ', '/storagelayout/storage_masters/index/');
 			} else {
-				$this->flash('Error deleting data - Contact administrator.', '/storagelayout/storage_masters/index/');
+				$this->flash('Error deleting data - Contact administrator . ', '/storagelayout/storage_masters/index/');
 			}		
 		
 		} else {
@@ -638,7 +638,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		$this->set('atim_menu_variables', array('StorageMaster.id' => $storage_master_id));
 
 		// Set structure 		
-		$structure_alias = (is_null($storage_data['StorageControl']['form_alias_for_children_pos']))? 'manage_storage_aliquots_without_position': $storage_data['StorageControl']['form_alias_for_children_pos'].'_for_aliquot';	
+		$structure_alias = (is_null($storage_data['StorageControl']['form_alias_for_children_pos']))? 'manage_storage_aliquots_without_position': $storage_data['StorageControl']['form_alias_for_children_pos'] . '_for_aliquot';	
 		$this->set('atim_structure', $this->Structures->get('form', $structure_alias));
 
 		//TODO editAliquotPosition: underdevelopment
@@ -659,7 +659,7 @@ class StorageMastersController extends StoragelayoutAppController {
 						
 			$this->StorageMaster->id = $storage_master_id;		
 			if($this->StorageMaster->save($storage_data_to_update)) { 
-				$this->flash('Your data has been updated.', '/storagelayout/storage_masters/detail/' . $storage_master_id); 
+				$this->flash('Your data has been updated . ', '/storagelayout/storage_masters/detail/' . $storage_master_id); 
 			}
 			
 			
@@ -685,7 +685,7 @@ class StorageMastersController extends StoragelayoutAppController {
 			$custom_ctrapp_controller_hook 
 				= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
 				'controllers' . DS . 'hooks' . DS . 
-				$this->params['controller'].'_'.$this->params['action'].'_validation.php';
+				$this->params['controller'] . '_' . $this->params['action'] . '_validation.php';
 			
 			if (file_exists($custom_ctrapp_controller_hook)) {
 				require($custom_ctrapp_controller_hook);
@@ -724,8 +724,8 @@ class StorageMastersController extends StoragelayoutAppController {
 					$this->redirect('/pages/err_sto_aliquot_record_err'); 
 					exit;
 				} else {
-					$this->flash('Your data has been updated.',
-						'/storage_masters/searchStorageAliquots/'.$storage_master_id );
+					$this->flash('Your data has been updated . ',
+						'/storage_masters/searchStorageAliquots/' . $storage_master_id);
 				}			
 			}
 		}
@@ -796,7 +796,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		$this->set('atim_menu_variables', array('StorageMaster.id' => $storage_master_id));
 
 		// Set structure				
-		$this->set( 'atim_structure', $this->Structures->get('form', 'storagemasters'));	
+		$this->set('atim_structure', $this->Structures->get('form', 'storagemasters'));	
 
 //		// ** Build the storage content array **
 //	
@@ -818,7 +818,7 @@ class StorageMastersController extends StoragelayoutAppController {
 //		}
 //		
 //		// Look for all storages contained into the storage master
-//		$conditions = ' StorageMaster.parent_id = \''.$storage_master_id.'\'';	
+//		$conditions = ' StorageMaster.parent_id = \'' . $storage_master_id . '\'';	
 //		$a_children_storages = $this->StorageMaster->findAll($conditions);
 //	
 //		foreach($a_children_storages as $key => $children_master_data){
@@ -851,7 +851,7 @@ class StorageMastersController extends StoragelayoutAppController {
 //		}
 //		
 //		// Look for all aliquots contained into the storage master
-//		$conditions = 'AliquotMaster.storage_master_id = \''.$storage_master_id.'\'';	
+//		$conditions = 'AliquotMaster.storage_master_id = \'' . $storage_master_id . '\'';	
 //		$a_storage_aliquots = $this->AliquotMaster->findAll($conditions);
 //	
 //		foreach($a_storage_aliquots as $key => $aliquot_master_data){
@@ -882,7 +882,7 @@ class StorageMastersController extends StoragelayoutAppController {
 //		}
 //		
 //		// Look for all tma slide contained into the storage master
-//		$conditions = 'TmaSlide.storage_master_id = \''.$storage_master_id.'\'';	
+//		$conditions = 'TmaSlide.storage_master_id = \'' . $storage_master_id . '\'';	
 //		$a_storage_tma_slides = $this->TmaSlide->findAll($conditions);
 //		
 //		foreach($a_storage_tma_slides as $key => $tma_slide_data){

@@ -33,6 +33,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		'Inventorymanagement.DerivativeDetail',
 		
 //		'Inventorymanagement.SampleControl',
+		'Inventorymanagement.SampleToAliquotControl',
 		
 		'Inventorymanagement.AliquotControl', 
 		'Inventorymanagement.AliquotMaster',
@@ -43,7 +44,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		'Study.StudySummary'
 	);
 	
-	var $paginate = array('AliquotMaster'=>array('limit'=>10,'order'=>'AliquotMaster.barcode DESC'));
+	var $paginate = array('AliquotMaster'=>array('limit'=>10,'order' => 'AliquotMaster.barcode DESC'));
 
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS
@@ -88,118 +89,155 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->set('banks', $this->getBankList());
 	}
 	
-	function listAll($collection_id, $sample_master_id = null, $filter_option = null) {
-		if(!$collection_id) { $this->redirect('/pages/err_inv_coll_no_id', null, true); }
-pr('la');exit;
+	function listAll($collection_id, $sample_master_id, $filter_option = null) {
+		if((!$collection_id) || (!$sample_master_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }		
+		
+		// MANAGE FILTER OPTION
+		
+		$is_collection_aliquot_list = ($sample_master_id == '-1')? true: false;
+		
+   	$filter_value = null;
+		$specific_form_alias = null;
+		$specific_aliquot_search_criteria = array();
+		
+		if($is_collection_aliquot_list) {
+			// User is working on collection aliquots list
+			
+			// Manage filter option
+			if(is_null($filter_option)) {
+				if(isset($_SESSION['InventoryManagement']['CollectionAliquots']['Filter'])) { 
+					// Get existing filter
+					$filter_option = $_SESSION['InventoryManagement']['CollectionAliquots']['Filter']; 
+				}
+			} else if($filter_option == '-1') {
+				// User inactived filter
+				$filter_option = null;
+				unset($_SESSION['InventoryManagement']['CollectionAliquots']['Filter']);
+			}
+			
+			// Search data to display		
+			if(!is_null($filter_option)) {
+				// Get filter options
+				$option_for_list_all = explode("|", $filter_option);			
+				if(sizeof($option_for_list_all) != 2)  { $this->redirect('/pages/err_inv_system_error', null, true); }
+				$specific_aliquot_search_criteria['SampleMaster.sample_control_id'] = $option_for_list_all[0]; 
+				$specific_aliquot_search_criteria['AliquotMaster.aliquot_control_id'] = $option_for_list_all[1]; 
+				
+				// Set filter option in session
+				$_SESSION['InventoryManagement']['CollectionAliquots']['Filter'] = $filter_option;
+			}			
+			
+		} else {
+			// User is working on sample aliquots list	
+			$sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id), 'recursive' => '-1'));
+			if(empty($sample_data)) { $this->redirect('/pages/err_inv_samp_no_data', null, true); }		
+		
+//$bool_is_specimen = true;
+//switch($sample_data['SampleControl']['sample_category']) {
+//	case 'specimen':
+//		// Displayed sample is a specimen
+//		$bool_is_specimen = true;
+//		unset($sample_data['DerivativeDetail']);
+//		break;
+//		
+//	case 'derivative':
+//		// Displayed sample is a derivative
+//		$bool_is_specimen = false;
+//		unset($sample_data['SpecimenDetail']);
+//		break;
+//		
+//	default:
+//		$this->redirect('/pages/err_inv_system_error', null, true);
+//}
+
+			// Set sample master id into criteria
+			$specific_aliquot_search_criteria['AliquotMaster.sample_master_id'] = $sample_master_id; 
+					
+			// Manage filter option
+			if(is_null($filter_option)) {
+				// Get existing filter
+				if(isset($_SESSION['InventoryManagement']['SampleAliquots']['Filter'])) { 
+					if($_SESSION['InventoryManagement']['SampleAliquots']['Filter']['SampleMasterId'] != $sample_master_id) {
+						// New studied sample: clear filter option
+						$filter_option = null;
+						unset($_SESSION['InventoryManagement']['SampleAliquots']['Filter']);						
+						
+					} else {
+						// Get existing filter
+						$filter_option = $_SESSION['InventoryManagement']['SampleAliquots']['Filter']['Option']; 
+					}
+				}
+			} else if($filter_option == '-1') {
+				// User inactived filter
+				$filter_option = null;
+				unset($_SESSION['InventoryManagement']['SampleAliquots']['Filter']);
+			}
+			
+			// Search data to display		
+			if(!is_null($filter_option)) {
+				// Get filter options (being sample_control_id and aliquot_control_id)
+				$option_for_list_all = explode("|", $filter_option);			
+				if(sizeof($option_for_list_all) != 2)  { $this->redirect('/pages/err_inv_system_error', null, true); }
+				$specific_aliquot_search_criteria['SampleMaster.sample_control_id'] = $option_for_list_all[0]; 
+				$specific_aliquot_search_criteria['AliquotMaster.aliquot_control_id'] = $option_for_list_all[1]; 
+				
+				// Set filter option in session
+				$_SESSION['InventoryManagement']['SpecimenDerivatives']['Filter'] = array(
+					'SampleMasterId' => $sample_master_id,
+					'Option' => $filter_option);
+			}			
+		}
+
 		// MANAGE DATA
-
-		// Manage Session data
-		if(!$filter_option) {
-			// User click on collection samples menu: get existing filter
-			if(isset($_SESSION['InventoryManagement']['Aliquot']['Filter'])) {
-				$filter_option = $_SESSION['InventoryManagement']['Aliquot']['Filter'];
-			}
-		} else if($filter_option == '-1') {
-			// User unactived filter
-			$filter_option = null;
-			unset($_SESSION['InventoryManagement']['Aliquot']['Filter']);
-		}
+				
+		// Search data to display
 		
-		// Search data to display		
-		$additional_criteria = array();
-		$menu_link = '/inventorymanagement/sample_masters/listAll/%%Collection.id%%';
-		$additional_menu_variables = array();
-		$override_form_alias = null;
-		$filter_value = 'all content';
-		$is_derivatives_list = false;
-		
-		if(!is_null($filter_option)) {
-			// Get filter options
-			$option_for_list_all = explode("|", $filter_option);			
-			if(sizeof($option_for_list_all) != 2)  { $this->redirect('/pages/err_inv_system_error', null, true); }
-
-			switch($option_for_list_all[0]) {
-				case 'SPEC_DERIV':
-					// List all specimen derivatives
-					$additional_criteria['SampleMaster.initial_specimen_sample_id'] = $option_for_list_all[1]; 
-					$additional_criteria['SampleMaster.sample_category'] = 'derivative'; 
-					
-					$additional_menu_variables = array('SampleMaster.initial_specimen_sample_id' => $option_for_list_all[1]);
-					$menu_link = '/inventorymanagement/sample_masters/listAll/%%Collection.id%%/SPEC_DERIV|%%SampleMaster.initial_specimen_sample_id%%';
-					
-					$is_derivatives_list = true;	
-					$filter_value = null;			
-					break;
-					
-				case 'CATEGORY':
-					// list all collection samples according to sample category in collection listall form
-					$additional_criteria['SampleMaster.sample_category'] = $option_for_list_all[1];
-					$filter_value = $option_for_list_all[1];
-					
-					$_SESSION['InventoryManagement']['Sample']['Filter'] = $filter_option;
-					break;
-					
-				case 'SAMP_TYPE':
-					// list all collection samples according to sample type in collection listall form
-					$additional_criteria['SampleMaster.sample_control_id'] = $option_for_list_all[1]; 
-					
-					$sample_control_data = $this->SampleControl->find('first', array('conditions' => array('SampleControl.id' => $option_for_list_all[1])));
-					if(empty($sample_control_data)) { $this->redirect('/pages/err_inv_no_samp_cont_data', null, true); }	
-									
-					$override_form_alias = $sample_control_data['SampleControl']['form_alias'];
-					$filter_value = $sample_control_data['SampleControl']['sample_type'];
-					
-					$_SESSION['InventoryManagement']['Sample']['Filter'] = $filter_option;
-					break;
-					
-				default:
-					$this->redirect('/pages/err_inv_funct_param_missing', null, true);								
-			}
-		}
-		
-		$criteria = $additional_criteria;
-		$criteria['SampleMaster.collection_id'] = $collection_id;
-		$this->data = $this->paginate($this->SampleMaster, $criteria);
+		$criteria = array_merge(array('AliquotMaster.collection_id' => $collection_id), $specific_aliquot_search_criteria);
+		if(!$is_collection_aliquot_list) { $criteria['AliquotMaster.sample_master_id'] = $sample_master_id; }
+//		$belongs_to_details = array(
+//			'belongsTo' => array('GeneratedParentSample' => array(
+//				'className' => 'Inventorymanagement.SampleMaster',
+//				'foreignKey' => 'parent_id')));
+//		$this->SampleMaster->bindModel($belongs_to_details, false);	
+		$this->data = $this->paginate($this->AliquotMaster, $criteria);
+//		$this->SampleMaster->unbindModel(array('belongsTo' => array('GeneratedParentSample')), false);
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS	
-		$form_alias = 'samplemasters';
-		if($override_form_alias) {
-			$form_alias = $override_form_alias;
-		} 	
+		$form_alias = (is_null($specific_form_alias))? 'aliquotmasters': $specific_form_alias;
 		$this->set('atim_structure', $this->Structures->get('form', $form_alias));
 		
-		// Get all sample control types to build the add to selected button
-		$specimen_sample_controls_list = $this->SampleControl->atim_list(array('conditions' => array('SampleControl.status' => 'active', 'SampleControl.sample_category' => 'specimen'), 'order' => 'SampleControl.sample_type ASC'));
-		$this->set('specimen_sample_controls_list', $specimen_sample_controls_list);
-		
-		// Get all collection sample type list to build the filter button
-		$sample_type_list = array();
-		$collection_sample_type_list = $this->SampleMaster->find('all', array('fields' => 'DISTINCT SampleMaster.sample_type, SampleMaster.sample_control_id', 'conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.sample_category' => 'specimen'), 'order' => 'SampleMaster.sample_type ASC', 'recursive' => '-1'));
-		foreach($collection_sample_type_list as $new_sample_type) {
-			$sample_control_id = $new_sample_type['SampleMaster']['sample_control_id'];
-			$sample_type = $new_sample_type['SampleMaster']['sample_type'];
-			$sample_type_list[$sample_type] = $sample_control_id;
+		// Get all collection/sample 'sample aliquot type list' to build the filter button
+		$sample_aliquot_types = array();
+		$criteria = array('AliquotMaster.collection_id' => $collection_id);
+		if(!$is_collection_aliquot_list) { $criteria['AliquotMaster.sample_master_id'] = $sample_master_id; }
+		$tmp_sample_aliquot_type_list = $this->AliquotMaster->find('all', array('fields' => 'DISTINCT SampleMaster.sample_type, SampleMaster.sample_control_id, AliquotMaster.aliquot_type, AliquotMaster.aliquot_control_id', 'conditions' => $criteria, 'order' => 'SampleMaster.sample_type ASC, AliquotMaster.aliquot_type ASC', 'recursive' => '0'));
+		foreach($tmp_sample_aliquot_type_list as $new_sample_aliquot_type) {
+			// TODO: Should create key because looks like it's not a real distinct: Perhaps exists a better solution 
+			$key = $new_sample_aliquot_type['SampleMaster']['sample_control_id']. '-' . $new_sample_aliquot_type['AliquotMaster']['aliquot_control_id'];
+			$sample_aliquot_types[$key] = array(
+				'sample_type' => $new_sample_aliquot_type['SampleMaster']['sample_type'],
+				'sample_control_id' => $new_sample_aliquot_type['SampleMaster']['sample_control_id'],
+				'aliquot_type' => $new_sample_aliquot_type['AliquotMaster']['aliquot_type'],
+				'aliquot_control_id' => $new_sample_aliquot_type['AliquotMaster']['aliquot_control_id']);
 		}
-		$this->set('specimen_sample_type_list', $sample_type_list);
-
-		$sample_type_list = array();
-		$collection_sample_type_list = $this->SampleMaster->find('all', array('fields' => 'DISTINCT SampleMaster.sample_type, SampleMaster.sample_control_id', 'conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.sample_category' => 'derivative'), 'order' => 'SampleMaster.sample_type ASC', 'recursive' => '-1'));
-		foreach($collection_sample_type_list as $new_sample_type) {
-			$sample_control_id = $new_sample_type['SampleMaster']['sample_control_id'];
-			$sample_type = $new_sample_type['SampleMaster']['sample_type'];
-			$sample_type_list[$sample_type] = $sample_control_id;
-		}
-		$this->set('derivative_sample_type_list', $sample_type_list);
+		$this->set('existing_sample_aliquot_types', $sample_aliquot_types);
 		
 		// Get the current menu object. 
+		$menu_link = null;
+		if($is_collection_aliquot_list) {
+			$menu_link = '/inventorymanagement/aliquot_masters/listAll/%%Collection.id%%/-1';
+		} else {
+			$menu_link = '/inventorymanagement/aliquot_masters/listAll/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%';
+		}
 		$atim_menu = $this->Menus->get($menu_link);
 		$this->set('atim_menu', $atim_menu);
 				
 		// Set menu variables
-		$this->set('atim_menu_variables', array_merge($additional_menu_variables, array('Collection.id' => $collection_id, 'filter_value' => $filter_value)));
-				
-		// Set menu variables
-		$this->set('is_derivatives_list', $is_derivatives_list);
+		$atim_menu_variables = array('Collection.id' => $collection_id, 'SampleMaster.id' => $sample_master_id,'filter_value' => $filter_value);
+//		if(!$is_collection_sample_list) { 
+//			$atim_menu_variables['SampleMaster.initial_specimen_sample_id'] = $initial_specimen_sample_id; 
+//		}
+		$this->set('atim_menu_variables', $atim_menu_variables);
 	}
 
 // detail	
@@ -219,8 +257,8 @@ pr('la');exit;
 	
 
 	// function listAllSampleAliquots($specimen_group_menu_id=null, $group_specimen_type=null, $sample_category = null, $collection_id=null, $sample_master_id = null) {
-	function listAllSampleAliquots( $collection_id=null, $sample_master_id=null) {
-		$this->set( 'atim_menu_variables', array('Collection.id'=>$collection_id, 'SampleMaster.id'=>$sample_master_id) );
+	function listAllSampleAliquots($collection_id=null, $sample_master_id=null) {
+		$this->set('atim_menu_variables', array('Collection.id'=>$collection_id, 'SampleMaster.id'=>$sample_master_id));
 		$this->data = $this->paginate($this->AliquotMaster,array('AliquotMaster.sample_master_id'=>$sample_master_id));
 		
 		/*
@@ -234,7 +272,7 @@ pr('la');exit;
 		}
 		
 		// Verify collection data exists
-		$criteria = 'Collection.id = "'.$collection_id.'" ';		
+		$criteria = 'Collection.id = "' . $collection_id . '" ';		
 		$collection_data = $this->Collection->find($criteria);
 		
 		if(empty($collection_data)) {
@@ -243,8 +281,8 @@ pr('la');exit;
 		}
 		
 		// ** get SAMPLE data **
-		$criteria = 'SampleMaster.id ="'.$sample_master_id.'" AND ' .
-				'SampleMaster.collection_id ="'.$collection_id.'"';
+		$criteria = 'SampleMaster.id ="' . $sample_master_id . '" AND ' .
+				'SampleMaster.collection_id ="' . $collection_id . '"';
 		$sample_master = $this->SampleMaster->find($criteria, null, null, 0);
 			
 		if(empty($sample_master)){
@@ -260,7 +298,7 @@ pr('la');exit;
 		$this->set('group_specimen_type', $group_specimen_type);
 		$this->set('sample_category', $sample_category);
 		
-		$this->set('collection_id', $collection_id );
+		$this->set('collection_id', $collection_id);
 		$this->set('sample_master_id', $sample_master_id);
 		
 		$this->set('max_nbr_of_aliq_per_batch', 20);
@@ -277,21 +315,21 @@ pr('la');exit;
 			case "specimen":
 				$specimen_sample_master_id=$sample_master_id;
 				
-				$specimen_menu_id = $specimen_group_menu_id.'-sa_al';
+				$specimen_menu_id = $specimen_group_menu_id . '-sa_al';
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $specimen_menu_id, $specimen_group_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id.'/'.$specimen_sample_master_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id . '/' . $specimen_sample_master_id);	
 				break;
 				
 			case "derivative":
 				$specimen_sample_master_id=$sample_master['SampleMaster']['initial_specimen_sample_id'];
 				$derivative_sample_master_id=$sample_master_id;		
 				
-				$specimen_menu_id = $specimen_group_menu_id.'-sa_der';
-				$derivative_menu_id = $specimen_group_menu_id.'-der_al';
+				$specimen_menu_id = $specimen_group_menu_id . '-sa_der';
+				$derivative_menu_id = $specimen_group_menu_id . '-der_al';
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $specimen_menu_id, $specimen_group_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id.'/'.$specimen_sample_master_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id . '/' . $specimen_sample_master_id);	
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $derivative_menu_id, $specimen_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $derivative_menu_id, $collection_id.'/'.$derivative_sample_master_id.'/');	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $derivative_menu_id, $collection_id . '/' . $derivative_sample_master_id . '/');	
 				break;
 			
 			default:
@@ -308,9 +346,9 @@ pr('la');exit;
 		// Use PLUGIN_CONTROLLER_ACTION by default, 
 		// but any ALIAS string that matches in the SIDEBARS datatable will do...
 		$this->set('ctrapp_sidebar', 
-			$this->Sidebars->getColsArray( 
-				$this->params['plugin'].'_'.
-				$this->params['controller'].'_'.
+			$this->Sidebars->getColsArray(
+				$this->params['plugin'] . '_'.
+				$this->params['controller'] . '_'.
 				$this->params['action']));
 		
 		// ** Search sample aliquot data to display in the list **
@@ -423,7 +461,7 @@ pr('la');exit;
 		$custom_ctrapp_controller_hook 
 			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
 			'controllers' . DS . 'hooks' . DS . 
-			$this->params['controller'].'_'.$this->params['action'].'_format.php';
+			$this->params['controller'] . '_' . $this->params['action'] . '_format.php';
 			
 		if (file_exists($custom_ctrapp_controller_hook)) {
 			require($custom_ctrapp_controller_hook);
@@ -431,67 +469,6 @@ pr('la');exit;
 		*/
 						
 	} // End listAllSampleAliquots()
-	
-//	/**
-//	 * This function defines if the screen displayed to create aliquot(s) 
-//	 * should allow to create either one aliquot or many aliquots in a batch
-//	 * process.
-//	 * 
-//	 * This function is only a dispatcher that will call either function addAliquot()
-//	 * or addAliquotInBatch() according to the number of aliquot to create.
-//	 * 
-//	 * @param $specimen_group_menu_id Menu id that corresponds to the tab clicked to 
-//	 * display the samples of the collection group (Ascite, Blood, Tissue, etc).
-//	 * @param $group_specimen_type Type of the source specimens of the group.
-//	 * @param $sample_category SampleCategory.
-//	 * @param $collection_id Id of the studied collection.
-//	 * @param $sample_master_id Id of the sample.
-//	 * 
-//	 * @author N. Luc
-//	 * @date 2007-08-13
-//	 */
-//	function addAliquotDispatcher($specimen_group_menu_id=null, $group_specimen_type=null, $sample_category = null,
-//	$collection_id=null, $sample_master_id = null) {
-//		
-//		// ** Parameters check **
-//		// Verify parameters have been set
-//		if(empty($specimen_group_menu_id) || empty($group_specimen_type) || 
-//		empty($sample_category) || empty($collection_id) || empty($sample_master_id)) {
-//			$this->redirect('/pages/err_inv_funct_param_missing'); 
-//			exit;
-//		}
-//		
-//		// ** Get the aliquot control id **
-//		$aliquot_control_id = null;
-//		// This id corresponds to the type of the new sample to create.
-//		if (!isset($this->params['form']['aliquot_control_id'])) {
-//			$this->redirect('/pages/err_inv_no_aliqu_cont_id'); 
-//			exit;
-//		} else {
-//			$aliquot_control_id = $this->params['form']['aliquot_control_id'];
-//		}
-//		
-//		// ** Get the number of aliquots **
-//		$aliquot_nbr = 0;
-//		// This id corresponds to the type of the new sample to create.
-//		if ((!isset($this->params['form']['aliquot_number'])) ||
-//		(!is_numeric($this->params['form']['aliquot_number']))) {
-//			$this->redirect('/pages/err_inv_aliqu_nbr_to_create'); 
-//			exit;
-//		} else {
-//			$aliquot_nbr = $this->params['form']['aliquot_number'];
-//		}
-//
-//		if($aliquot_nbr == 1){
-//			$this->redirect('/inventorymanagement/aliquot_masters/addAliquot/'.
-//					$specimen_group_menu_id.'/'.$group_specimen_type.'/'.$sample_category.
-//					'/'.$collection_id.'/'.$sample_master_id.'/'.$aliquot_control_id);	
-//		} else {
-//			$this->redirect('/inventorymanagement/aliquot_masters/addAliquotInBatch/'.
-//					$specimen_group_menu_id.'/'.$group_specimen_type.'/'.$sample_category.
-//					'/'.$collection_id.'/'.$sample_master_id.'/'.$aliquot_control_id.'/'.$aliquot_nbr.'/');	
-//		}		
-//	}
 	
 	function add($collection_id, $sample_master_id, $aliquot_control_id) {
 		if((!$collection_id) || (!$sample_master_id) || (!$aliquot_control_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }		
@@ -612,11 +589,81 @@ foreach($this->data as $id => $data) {
 				}
 				
 				if($bool_save_done) {
-					$this->flash('Your data has been saved.', '/inventorymanagement/aliquot_masters/listAllSampleAliquots/' . $collection_id . '/' . $sample_master_id);				
+					pr('update flash');
+					$this->flash('Your data has been saved . ', '/inventorymanagement/aliquot_masters/listAll/' . $collection_id . '/' . '-1');				
 				}						
 			}	
 		}
 	}
+	
+	function detail($collection_id, $sample_master_id, $aliquot_master_id, $is_tree_view_detail_form = 0, $is_collection_tree_view = 0) {
+		if((!$collection_id) || (!$sample_master_id) || (!$aliquot_master_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }		
+		
+		// MANAGE DATA
+
+		// Get the aliquot data
+		$aliquot_data = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id, 'AliquotMaster.id' => $aliquot_master_id)));
+		if(empty($aliquot_data)) { $this->redirect('/pages/err_inv_aliquot_no_data', null, true); }		
+
+		// Set aliquot use
+		$aliquot_data['Generated']['use'] = sizeof($aliquot_data['AliquotUse']);
+
+// TODO: Is it necessary to call this function updateAliquotCurrentVolume()
+				
+		$this->data = $aliquot_data;
+		
+		// Set new aliquot control information
+//		$this->set('aliquot_control_data', $aliquot_data['AliquotControl']);	
+		
+		// Set list of available SOPs to create aliquot
+		$this->set('arr_aliquot_sops', $this->getAliquotSopList($aliquot_data['SampleMaster']['sample_type'], $aliquot_data['AliquotMaster']['aliquot_type']));
+
+		// Set list of studies
+		$this->set('arr_studies', $this->getStudiesList());
+		
+		// Set list of sample blocks (will only works for sample type being linked to block type)
+		$this->set('arr_sample_blocks', $this->getSampleBlocksList(array('SampleMaster' => $aliquot_data['SampleMaster'])));
+
+		// Set list of sample gel matrices (will only works for sample type being linked to gel matrix type)
+		$this->set('arr_sample_gel_matrices', $this->getSampleGelMatricesList(array('SampleMaster' => $aliquot_data['SampleMaster'])));
+
+		// Set times spent since either sample collection/reception or sample creation and sample storage					
+		switch($aliquot_data['SampleMaster']['sample_category']) {
+			case 'specimen':
+				$this->set('coll_to_stor_spent_time_msg', $this->getSpentTime($aliquot_data['Collection']['collection_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
+				$this->set('rec_to_stor_spent_time_msg', $this->getSpentTime($aliquot_data['Collection']['reception_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
+				break;
+				
+			case 'derivative':
+				$derivative_detail_data = $this->DerivativeDetail->find('first', array('conditions' => array('DerivativeDetail.sample_master_id' => $sample_master_id)));
+				if(empty($derivative_detail_data)) { $this->redirect('/pages/err_inv_missing_samp_data', null, true); }	
+				$this->set('creat_to_stor_spent_time_msg', $this->getSpentTime($derivative_detail_data['DerivativeDetail']['creation_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
+				break;
+				
+			default:
+				$this->redirect('/pages/err_inv_system_error', null, true);
+		}
+		
+		// Set storage data
+		$this->set('aliquot_storage_data', empty($this->data['StorageMaster']['id'])? array(): array('StorageMaster' => $this->data['StorageMaster']));
+		
+		// MANAGE FORM, MENU AND ACTION BUTTONS
+
+		// Get the current menu object.
+		$atim_menu_link = ($aliquot_data['SampleMaster']['sample_category'] == 'specimen')? '/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%/%%AliquotMaster.id%%': '/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%';
+		$atim_menu = $this->Menus->get($atim_menu_link);
+		$this->set('atim_menu', $atim_menu);
+		$this->set('atim_menu_variables', array('Collection.id' => $collection_id, 'SampleMaster.id' => $sample_master_id, 'SampleMaster.initial_specimen_sample_id' => $aliquot_data['SampleMaster']['initial_specimen_sample_id'], 'AliquotMaster.id' => $aliquot_master_id));
+		
+		// Set structure
+		$this->set('atim_structure', $this->Structures->get('form', $aliquot_data['AliquotControl']['form_alias']));
+
+		// Define if this detail form is displayed into the collection content tree view
+		$this->set('is_tree_view_detail_form', $is_tree_view_detail_form);
+		$this->set('is_collection_tree_view', $is_collection_tree_view);
+	}
+
+
 
 
 	
@@ -987,432 +1034,6 @@ foreach($this->data as $id => $data) {
 
 
 
-
-		
-	/**
-	 * Allow to display the aliquot details form when we just have the 
-	 * aliquot_master_id.
-	 * 
-	 * This function will look for the different menu items to display.
-	 * 
-	 * Note: This function is a temporary function and should be replaced by a 
-	 * core function.
-	 * 
-	 * @param $aliquot_master_id Master Id of the aliquot. 
-	 * 
-	 * @author N. Luc
-	 * @date 2007-08-15
-	 */
-	function detailAliquotFromId($aliquot_master_id=null){
-		
-		//** Verify aliquot_master_id has been defined. **
-		if (empty($aliquot_master_id)) {
-			$this->redirect('/pages/err_inv_aliquot_no_id'); 
-			exit;
-		} 
-		
-		// Get aliquot data
-		$this->AliquotMaster->id = $aliquot_master_id;
-		$aliquot_master_data = $this->AliquotMaster->read();
-		
-		if(empty($aliquot_master_data)){
-			$this->redirect('/pages/err_inv_aliquot_no_data'); 
-			exit;
-		}
-		
-		// Look for sample data
-		$this->SampleMaster->id = $aliquot_master_data['AliquotMaster']['sample_master_id'];
-		$sample_master_data = $this->SampleMaster->read();
-		
-		if(empty($sample_master_data)){
-			$this->redirect('/pages/err_inv_samp_no_data'); 
-			exit;
-		}		
-		
-		//** Set URL parameters ** 
-		$specimen_group_menu_id=null;
-		$group_specimen_type=$sample_master_data['SampleMaster']['initial_specimen_sample_type'];
-		$sample_category=$sample_master_data['SampleMaster']['sample_category'];
-		$collection_id=$sample_master_data['SampleMaster']['collection_id'];
-		
-		// Set $specimen_group_menu_id
-		$a_fields = array('id');
-		$conditions = ' Menu.parent_id = \'inv_CAN_10\'' .
-				' AND Menu.use_link LIKE \'%/sample_masters/listall/%/'.$group_specimen_type.'/specimen/\'';
-		$a_menus = $this->Menu->find($conditions, $a_fields);
-				
-		if(empty($a_menus)){
-			$this->redirect('/pages/err_inv_menu_definition'); 
-			exit;
-		}
-		
-		$specimen_group_menu_id = $a_menus['Menu']['id'];
-				
-		//** Redirect to **
-		$this->redirect('/inventorymanagement/aliquot_masters/detailAliquot/'.
-			$specimen_group_menu_id.'/'.$group_specimen_type.'/'.$sample_category.'/'.
-			$collection_id.'/'.$aliquot_master_id.'/');
-					
-	}
-	
-	function detailAliquot($collection_id=null, $sample_master_id=null, $aliquot_master_id=null) {
-		$this->set( 'atim_menu_variables', array('Collection.id'=>$collection_id, 'SampleMaster.id'=>$sample_master_id, 'AliquotMaster.id'=>$aliquot_master_id) );
-		$this->data = $this->AliquotMaster->find('first',array('conditions'=>array('AliquotMaster.id'=>$aliquot_master_id)));
-		
-		$this->set( 'atim_structure', $this->Structures->get('form',$this->data['AliquotControl']['form_alias']) );
-		
-	}
-	
-	/**
-	 * Display the detail of a sample aliquot of a 'collection group'.
-	 * 
-	 * @param $specimen_group_menu_id Menu id that corresponds to the tab clicked to 
-	 * display the samples of the collection group (Ascite, Blood, Tissue, etc).
-	 * @param $group_specimen_type Type of the source specimens of the group.
-	 * @param $sample_category Sample Category.
-	 * @param $collection_id Id of the studied collection.
-	 * @param $aliquot_master_id Master Id of the aliquot. 
-	 * 
-	 * @author N. Luc
-	 * @date 2007-08-15
-	 */
-	function detailAliquot_OLD($specimen_group_menu_id=null, $group_specimen_type=null, $sample_category=null,	
-	$collection_id=null, $aliquot_master_id=null) {
-			
-		// ** Parameters check **
-		// Verify parameters have been set
-		if(empty($specimen_group_menu_id) || empty($group_specimen_type) || 
-		empty($sample_category) || empty($collection_id) || empty($aliquot_master_id)) {
-			$this->redirect('/pages/err_inv_funct_param_missing'); 
-			exit;
-		}
-
-		//** Get the aliquot master data **
-		
-		// First update current volume of the aliquot
-		
-		// TODO: Not necessary if all functions that manage an aliquot use volume 
-		// (changing the aliquot current volume) called this function
-		// updateAliquotCurrentVolume()
-		
-		$this->updateAliquotCurrentVolume($aliquot_master_id);
-		
-		// Get data
-		$this->AliquotMaster->id = $aliquot_master_id;
-		$aliquot_master_data = $this->AliquotMaster->read();
-		
-		if(empty($aliquot_master_data)){
-			$this->redirect('/pages/err_inv_aliquot_no_data'); 
-			exit;
-		}
-		
-		if(strcmp($aliquot_master_data['AliquotMaster']['collection_id'], $collection_id) != 0) {
-			$this->redirect('/pages/err_inv_no_coll_id_map'); 
-			exit;			
-		}
-		
-		//** Get the aliquot sample master data **
-		
-		$sample_master_id = $aliquot_master_data['AliquotMaster']['sample_master_id'];
-		
-		$criteria = array();
-		$criteria['SampleMaster.id'] = $sample_master_id;
-		$criteria['SampleMaster.collection_id'] = $collection_id;
-		$criteria = array_filter($criteria);
-	
-		$sample_master_data = $this->SampleMaster->find($criteria, null, null, 0);
-		
-		if(empty($sample_master_data)){
-			$this->redirect('/pages/err_inv_samp_no_data'); 
-			exit;
-		}	
-		
-		//** Get the aliquot collection data **
-		$criteria = array();
-		$criteria['Collection.id'] = $collection_id;
-		$collection_data = $this->Collection->find($criteria, null, null, 0);
-			
-		if(empty($collection_data)) {
-			$this->redirect('/pages/err_inv_coll_no_data'); 
-			exit;
-		}
-		
-		// ** Set SUMMARY variable from plugin's COMPONENTS **
-		$this->set('ctrapp_summary', $this->Summaries->build($collection_id, $sample_master_id, $aliquot_master_id));
-	
-		//** set SIDEBAR variable **
-		// use PLUGIN_CONTROLLER_ACTION by default, but any ALIAS string 
-		// that matches in the SIDEBARS datatable will do...
-		$this->set('ctrapp_sidebar', 
-			$this->Sidebars->getColsArray( 
-				$this->params['plugin'].'_'.
-				$this->params['controller'].'_'.
-				$this->params['action']));
-				
-		//** Get the aliquot control data **
-		$aliquot_control_id = $aliquot_master_data['AliquotMaster']['aliquot_control_id'];
-		$this->AliquotControl->id = $aliquot_control_id;
-		$aliquot_control_data = $this->AliquotControl->read();
-		
-		if(empty($aliquot_control_data)){
-			$this->redirect('/pages/err_inv_no_aliqu_cont_data'); 
-			exit;	
-		}				
-			
-		// ** set FORM variable *
-		$this->set('ctrapp_form_aliquot', 
-			$this->Forms->getFormArray($aliquot_control_data['AliquotControl']['form_alias']));
-				
-		//** set MENU variable for echo on VIEW **
-		$ctrapp_menu[] = $this->Menus->tabs('inv_CAN_00', 'inv_CAN_10', $collection_id);
-		$ctrapp_menu[] = $this->Menus->tabs('inv_CAN_10', $specimen_group_menu_id, $collection_id);
-		
-		$specimen_grp_menu_lists = $this->getSpecimenGroupMenu($specimen_group_menu_id);
-		
-		switch($sample_category) {
-			case "specimen":
-				$specimen_sample_master_id=$sample_master_id;
-				
-				$specimen_menu_id = $specimen_group_menu_id.'-sa_al';
-				$aliquot_menu_id = $specimen_group_menu_id.'-sa_al_de';
-				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $specimen_menu_id, $specimen_group_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id.'/'.$specimen_sample_master_id);	
-				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $aliquot_menu_id, $specimen_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $aliquot_menu_id, $collection_id.'/'.$aliquot_master_id);	
-				break;
-				
-			case "derivative":
-				$specimen_sample_master_id=$sample_master_data['SampleMaster']['initial_specimen_sample_id'];
-				$derivative_sample_master_id=$sample_master_id;		
-				
-				$specimen_menu_id = $specimen_group_menu_id.'-sa_der';
-				$derivative_menu_id = $specimen_group_menu_id.'-der_al';
-				$aliquot_menu_id = $specimen_group_menu_id.'-der_al_de';
-				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $specimen_menu_id, $specimen_group_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id.'/'.$specimen_sample_master_id);	
-				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $derivative_menu_id, $specimen_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $derivative_menu_id, $collection_id.'/'.$derivative_sample_master_id.'/');	
-				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $aliquot_menu_id, $derivative_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($derivative_menu_id, $aliquot_menu_id, $collection_id.'/'.$aliquot_master_id);	
-				break;
-			
-			default:
-				$this->redirect('/pages/err_inv_menu_definition'); 
-				exit;
-		}
-		
-		$this->set('ctrapp_menu', $ctrapp_menu);
-	
-		// ** set DATA to display on view or to build link **
-		$this->set('specimen_group_menu_id', $specimen_group_menu_id);
-		$this->set('group_specimen_type', $group_specimen_type);
-		$this->set('sample_category', $sample_category);
-		
-		$this->set('collection_id', $collection_id);
-
-//		$this->set('sample_code', $sample_master_data['SampleMaster']['sample_code']);
-			
-		$this->set('arr_sop_title_from_id', 
-			$this->getInventoryProductSopsArray(
-				$sample_master_data['SampleMaster']['sample_type'],
-				$aliquot_control_data['AliquotControl']['aliquot_type']));
-			
-		$this->set('arr_study_from_id', $this->getStudiesArray());
-
-		// Set the number of aliquot use
-		$aliquot_use 
-			= sizeof($aliquot_master_data['AliquotUse'])? 
-				sizeof($aliquot_master_data['AliquotUse']): 
-				'0';
-		
-		$aliquot_master_data['Generated']['use'] = $aliquot_use;
-
-		// Set times spent since sample collection/reception or sample creation 
-		// and sample storage			
-		$aliquot_storage_date = $aliquot_master_data['AliquotMaster']['storage_datetime'];
-		
-		if(strcmp($sample_master_data['SampleMaster']['sample_category'], 'specimen') == 0) {
-			//SPECIMEN: calculate coll_to_stor_spent_time
-			
-			$specimen_collection_date = $collection_data['Collection']['collection_datetime'];
-			$specimen_reception_date = $collection_data['Collection']['reception_datetime'];
-		
-			$arr_spent_time = $this->getSpentTime($specimen_collection_date, $aliquot_storage_date);
-			
-			$this->set('coll_to_stor_spent_time_msg', $arr_spent_time['message']);
-			$aliquot_master_data['Generated']['coll_to_stor_spent_time_days'] = $arr_spent_time['days'];
-			$aliquot_master_data['Generated']['coll_to_stor_spent_time_hours'] = $arr_spent_time['hours'];
-			$aliquot_master_data['Generated']['coll_to_stor_spent_time_minutes'] = $arr_spent_time['minutes'];
-			
-			$arr_spent_time = $this->getSpentTime($specimen_reception_date, $aliquot_storage_date);
-			
-			$this->set('rec_to_stor_spent_time_msg', $arr_spent_time['message']);
-			$aliquot_master_data['Generated']['rec_to_stor_spent_time_days'] = $arr_spent_time['days'];
-			$aliquot_master_data['Generated']['rec_to_stor_spent_time_hours'] = $arr_spent_time['hours'];
-			$aliquot_master_data['Generated']['rec_to_stor_spent_time_minutes'] = $arr_spent_time['minutes'];
-			
-		} else if(strcmp($sample_master_data['SampleMaster']['sample_category'], 'derivative') == 0){
-			
-			//DERIVATIVE: calculate creat_to_stor_spent_time
-			
-			$criteria = array();
-			$criteria['DerivativeDetail.sample_master_id'] = $sample_master_id;
-			
-			$derivative_detail_data = $this->DerivativeDetail->find($criteria);
-			
-			if(empty($derivative_detail_data)){
-				$this->redirect('/pages/err_inv_missing_samp_data'); 
-				exit;
-			}
-			
-			$sample_creation_date = $derivative_detail_data['DerivativeDetail']['creation_datetime'];
-			
-			$arr_spent_time = $this->getSpentTime($sample_creation_date, $aliquot_storage_date);
-			
-			$this->set('creat_to_stor_spent_time_msg', $arr_spent_time['message']);
-			$aliquot_master_data['Generated']['creat_to_stor_spent_time_days'] = $arr_spent_time['days'];
-			$aliquot_master_data['Generated']['creat_to_stor_spent_time_hours'] = $arr_spent_time['hours'];
-			$aliquot_master_data['Generated']['creat_to_stor_spent_time_minutes'] = $arr_spent_time['minutes'];
-			
-		} else {
-			$this->redirect('/pages/err_inv_system_error'); 
-			exit;			
-		}
-		
-		// ** Set Aliquot Data **
-		
-		if(is_null($aliquot_control_data['AliquotControl']['detail_tablename'])){
-			// No detail required for this aliquot
-			$this->set('data', $aliquot_master_data); 
-
-		} else {
-			// Details are required for this aliquot
-			
-			// start new instance of ALIQUOT DETAIL model, using TABLENAME from ALIQUOT CONTROL 
-			$this->AliquotDetail = 
-				new AliquotDetail(false, $aliquot_control_data['AliquotControl']['detail_tablename']);
-			
-			// read related ALIQUOT DETAIL row, whose ID should be same as ALIQUOT MASTER ID 
-			$this->AliquotDetail->id = $aliquot_master_id;
-			$aliquot_detail_data = $this->AliquotDetail->read();
-			
-			if(empty($aliquot_detail_data)){
-				$this->redirect('/pages/err_inv_missing_aliq_data'); 
-				exit;
-			}
-			
-			// merge both datasets into a SINGLE dataset, set for VIEW 
-			$this->set('data', array_merge($aliquot_master_data, $aliquot_detail_data));
-			
-			// Set additional variable for tissue slide
-			$form_requiring_blocks_list = array ('ad_spec_tiss_slides' ,'ad_spec_tiss_cores');
-	
-			if (in_array($aliquot_control_data['AliquotControl']['form_alias'], $form_requiring_blocks_list)) {
-				
-				// Create array to display available tissue block lists
-				$criteria = array();
-				$criteria['AliquotMaster.sample_master_id'] = $sample_master_id;
-				$criteria['AliquotMaster.collection_id'] = $collection_id;				
-				$criteria['AliquotMaster.id'] 
-					= $aliquot_detail_data['AliquotDetail']['ad_block_id']; // Aliquot Master ID should be equal to Details ID
-				$criteria = array_filter($criteria);
-				
-				$available_block_code 
-					= $this->AliquotMaster->generateList(
-						$criteria, 
-						null, 
-						null, 
-						'{n}.AliquotMaster.id', 
-						'{n}.AliquotMaster.barcode');
-				
-				$this->set('available_block_code', $available_block_code);
-				
-			} 
-			
-			// Set additional data for cell core
-			$form_requiring_gel_matrix_list = array ('ad_der_cell_cores');
-	
-			if (in_array($aliquot_control_data['AliquotControl']['form_alias'], $form_requiring_gel_matrix_list)) {
-				
-				// Create array to display available gel matrix lists
-				$criteria = array();
-				$criteria['AliquotMaster.sample_master_id'] = $sample_master_id;
-				$criteria['AliquotMaster.collection_id'] = $collection_id;	
-				$criteria['AliquotMaster.id'] 
-					= $aliquot_detail_data['AliquotDetail']['ad_gel_matrix_id']; // Aliquot Master ID should be equal to Details ID
-				$criteria = array_filter($criteria);
-				
-				$available_gel_matrix_code 
-					= $this->AliquotMaster->generateList(
-						$criteria, 
-						null, 
-						null, 
-						'{n}.AliquotMaster.id', 
-						'{n}.AliquotMaster.barcode');
-
-				$this->set('available_gel_matrix_code', $available_gel_matrix_code);
-				
-			} 
-		}
-		
-		// ** Manage available actions (delete, define position, etc) **
-		
-		// Define if user can define aliquot position into the storage: use to display the set position button
-		$boolDefinePosition = false;
-		
-		if(!empty($aliquot_master_data['AliquotMaster']['storage_master_id'])){ 
-			$boolDefinePosition = $this->requestAction('/storagelayout/storage_masters/isPositionSelectionAvailable/'.
-				$aliquot_master_data['AliquotMaster']['storage_master_id']);
-		}
-		
-		$this->set('boolDefinePosition', $boolDefinePosition);
-		
-		// Define if user can delete aliquot: use to display the set delete button
-		$this->set('boolAllowDeletion', $this->allowAliquotDeletion($aliquot_master_id));
-		
-		// Define if user can link the aliquot to an order
-		$boolAllowOrder = false;
-		
-		$criteria = 'OrderItem.aliquot_master_id ="' .$aliquot_master_id.'"';			 
-		$aliquot_order_nbr = $this->OrderItem->findCount($criteria);
-		
-		if($aliquot_order_nbr == 0) {
-			$boolAllowOrder = true;			
-		}
-		
-		$this->set('boolAllowOrder', $boolAllowOrder);
-		
-		// Define if user can delete aliquot: use to display the set delete button
-		$this->set('boolAllowDeletion', $this->allowAliquotDeletion($aliquot_master_id));
-		
-		// ** look for CUSTOM HOOKS, "format" **
-		$custom_ctrapp_controller_hook 
-			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
-			'controllers' . DS . 'hooks' . DS . 
-			$this->params['controller'].'_'.$this->params['action'].'_format.php';
-		
-		if (file_exists($custom_ctrapp_controller_hook)) {
-			require($custom_ctrapp_controller_hook);
-		}
-		
-	} // function detailAliquot
-	
-	function editAliquot($collection_id=null, $sample_master_id=null, $aliquot_master_id=null) {
-		$this->set( 'atim_menu_variables', array('Collection.id'=>$collection_id, 'SampleMaster.id'=>$sample_master_id, 'AliquotMaster.id'=>$aliquot_master_id) );
-		
-		$this_data = $this->AliquotMaster->find('first',array('conditions'=>array('AliquotMaster.id'=>$aliquot_master_id)));
-		
-		// set FORM ALIAS based off VALUE from MASTER table
-		$this->set( 'atim_structure', $this->Structures->get('form',$this_data['AliquotControl']['form_alias']) );
-		
-		if ( !empty($this->data) ) {
-			$this->AliquotMaster->id = $sample_master_id;
-			if ( $this->AliquotMaster->save($this->data) ) $this->flash( 'Your data has been updated.','/inventorymanagement/aliquot_masters/detailAliquot/'.$collection_id.'/'.$sample_master_id.'/'.$aliquot_master_id);
-		} else {
-			$this->data = $this_data;
-		}
-	
-	}
 	
 	/**
 	 * Allow to edit a aliquot. 
@@ -1488,9 +1109,9 @@ foreach($this->data as $id => $data) {
 		// use PLUGIN_CONTROLLER_ACTION by default, but any ALIAS string 
 		// that matches in the SIDEBARS datatable will do...
 		$this->set('ctrapp_sidebar', 
-			$this->Sidebars->getColsArray( 
-				$this->params['plugin'].'_'.
-				$this->params['controller'].'_'.
+			$this->Sidebars->getColsArray(
+				$this->params['plugin'] . '_'.
+				$this->params['controller'] . '_'.
 				$this->params['action']));
 
 		// ** set FORM variable **
@@ -1589,27 +1210,27 @@ foreach($this->data as $id => $data) {
 			case "specimen":
 				$specimen_sample_master_id=$sample_master_id;
 				
-				$specimen_menu_id = $specimen_group_menu_id.'-sa_al';
-				$aliquot_menu_id = $specimen_group_menu_id.'-sa_al_de';
+				$specimen_menu_id = $specimen_group_menu_id . '-sa_al';
+				$aliquot_menu_id = $specimen_group_menu_id . '-sa_al_de';
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $specimen_menu_id, $specimen_group_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id.'/'.$specimen_sample_master_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id . '/' . $specimen_sample_master_id);	
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $aliquot_menu_id, $specimen_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $aliquot_menu_id, $collection_id.'/'.$aliquot_master_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $aliquot_menu_id, $collection_id . '/' . $aliquot_master_id);	
 				break;
 				
 			case "derivative":
 				$specimen_sample_master_id=$sample_master_data['SampleMaster']['initial_specimen_sample_id'];
 				$derivative_sample_master_id=$sample_master_id;		
 				
-				$specimen_menu_id = $specimen_group_menu_id.'-sa_der';
-				$derivative_menu_id = $specimen_group_menu_id.'-der_al';
-				$aliquot_menu_id = $specimen_group_menu_id.'-der_al_de';
+				$specimen_menu_id = $specimen_group_menu_id . '-sa_der';
+				$derivative_menu_id = $specimen_group_menu_id . '-der_al';
+				$aliquot_menu_id = $specimen_group_menu_id . '-der_al_de';
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $specimen_menu_id, $specimen_group_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id.'/'.$specimen_sample_master_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id . '/' . $specimen_sample_master_id);	
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $derivative_menu_id, $specimen_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $derivative_menu_id, $collection_id.'/'.$derivative_sample_master_id.'/');	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $derivative_menu_id, $collection_id . '/' . $derivative_sample_master_id . '/');	
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $aliquot_menu_id, $derivative_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($derivative_menu_id, $aliquot_menu_id, $collection_id.'/'.$aliquot_master_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($derivative_menu_id, $aliquot_menu_id, $collection_id . '/' . $aliquot_master_id);	
 				break;
 			
 			default:
@@ -1650,7 +1271,7 @@ foreach($this->data as $id => $data) {
 		$custom_ctrapp_controller_hook 
 			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
 			'controllers' . DS . 'hooks' . DS . 
-			$this->params['controller'].'_'.$this->params['action'].'_format.php';
+			$this->params['controller'] . '_' . $this->params['action'] . '_format.php';
 			
 		if (file_exists($custom_ctrapp_controller_hook)) {
 			require($custom_ctrapp_controller_hook);
@@ -1666,7 +1287,7 @@ foreach($this->data as $id => $data) {
 			if(!empty($aliquot_storage_id)){
 				$arr_storage_list 
 					= array($aliquot_storage_id 
-						=> $this->requestAction('/storagelayout/storage_masters/getStorageData/'.$aliquot_storage_id));	
+						=> $this->requestAction('/storagelayout/storage_masters/getStorageData/' . $aliquot_storage_id));	
 			}
 				
 			$this->set('arr_storage_list', $arr_storage_list);	
@@ -1749,7 +1370,7 @@ foreach($this->data as $id => $data) {
 			// ** Execute Validation **
 						
 			// setup MODEL(s) validation array(s) for displayed FORM 
-			foreach ( $this->Forms->getValidateArray( $aliquot_control_data['AliquotControl']['form_alias'] ) as $validate_model=>$validate_rules ) {
+			foreach ($this->Forms->getValidateArray($aliquot_control_data['AliquotControl']['form_alias']) as $validate_model=>$validate_rules) {
 				$this->{ $validate_model }->validate = $validate_rules;
 			}
 			
@@ -1780,7 +1401,7 @@ foreach($this->data as $id => $data) {
 			$custom_ctrapp_controller_hook 
 				= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
 				'controllers' . DS . 'hooks' . DS . 
-				$this->params['controller'].'_'.$this->params['action'].'_validation.php';
+				$this->params['controller'] . '_' . $this->params['action'] . '_validation.php';
 			
 			if (file_exists($custom_ctrapp_controller_hook)) {
 				require($custom_ctrapp_controller_hook);
@@ -1817,10 +1438,10 @@ foreach($this->data as $id => $data) {
 					exit;
 				} else {
 					// Data has been updated
-					$this->Flash('Your data has been updated.',
+					$this->Flash('Your data has been updated . ',
 						'/aliquot_masters/detailAliquot/'.
-							$specimen_group_menu_id.'/'.$group_specimen_type.'/'.$sample_category.'/'.
-							$collection_id.'/'.$aliquot_master_id.'/');				
+							$specimen_group_menu_id . '/' . $group_specimen_type . '/' . $sample_category . '/'.
+							$collection_id . '/' . $aliquot_master_id . '/');				
 				}
 											
 			} // end action done after validation
@@ -1877,7 +1498,7 @@ foreach($this->data as $id => $data) {
 		$custom_ctrapp_controller_hook 
 			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
 			'controllers' . DS . 'hooks' . DS . 
-			$this->params['controller'].'_'.$this->params['action'].'_validation.php';
+			$this->params['controller'] . '_' . $this->params['action'] . '_validation.php';
 		
 		if (file_exists($custom_ctrapp_controller_hook)) {
 			require($custom_ctrapp_controller_hook);
@@ -1886,10 +1507,10 @@ foreach($this->data as $id => $data) {
 		if(!$this->AliquotMaster->save($aliquot_master_data)){
 			$this->redirect('/pages/err_inv_aliquot_record_err'); 
 		} else {
-			$this->Flash('Your data has been deleted.',
+			$this->Flash('Your data has been deleted . ',
 				'/aliquot_masters/detailAliquot/'.
-					$specimen_group_menu_id.'/'.$group_specimen_type.'/'.$sample_category.'/'.
-					$collection_id.'/'.$aliquot_master_id.'/');
+					$specimen_group_menu_id . '/' . $group_specimen_type . '/' . $sample_category . '/'.
+					$collection_id . '/' . $aliquot_master_id . '/');
 		}
 		
 	} // function deleteAliquotStorageData
@@ -1954,7 +1575,7 @@ foreach($this->data as $id => $data) {
 		$custom_ctrapp_controller_hook 
 			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
 			'controllers' . DS . 'hooks' . DS . 
-			$this->params['controller'].'_'.$this->params['action'].'_validation.php';
+			$this->params['controller'] . '_' . $this->params['action'] . '_validation.php';
 		
 		if (file_exists($custom_ctrapp_controller_hook)) {
 			require($custom_ctrapp_controller_hook);
@@ -1983,10 +1604,10 @@ foreach($this->data as $id => $data) {
 			exit;
 		}
 		
-		$this->Flash('Your data has been deleted.',
+		$this->Flash('Your data has been deleted . ',
 			'/aliquot_masters/listAllSampleAliquots/'.
-			$specimen_group_menu_id.'/'.$group_specimen_type.'/'.$sample_category.'/'.
-			$collection_id.'/'.$sample_master_id.'/');
+			$specimen_group_menu_id . '/' . $group_specimen_type . '/' . $sample_category . '/'.
+			$collection_id . '/' . $sample_master_id . '/');
 	
 	} //end deleteAliquot
 
@@ -2021,7 +1642,7 @@ foreach($this->data as $id => $data) {
 		}
 		
 		// read SAMPLE MASTER info
-		$criteria = 'SampleMaster.id ="'.$sample_master_id.'"';
+		$criteria = 'SampleMaster.id ="' . $sample_master_id . '"';
 		$sample_master_data = $this->SampleMaster->find($criteria, null, null, 0);
 				
 		if(empty($sample_master_data)){
@@ -2047,7 +1668,7 @@ foreach($this->data as $id => $data) {
 		$this->set('group_specimen_type', $group_specimen_type);
 		$this->set('sample_category', $sample_category);
 		
-		$this->set('collection_id', $collection_id );
+		$this->set('collection_id', $collection_id);
 		$this->set('sample_master_id', $sample_master_id);
 
 //		$this->set('sample_code', $sample_master_data['SampleMaster']['sample_code']);
@@ -2063,12 +1684,12 @@ foreach($this->data as $id => $data) {
 				$specimen_sample_master_id=$sample_master_data['SampleMaster']['initial_specimen_sample_id'];
 				$derivative_sample_master_id=$sample_master_id;		
 				
-				$specimen_menu_id = $specimen_group_menu_id.'-sa_der';
-				$derivative_menu_id = $specimen_group_menu_id.'-der_so_al';
+				$specimen_menu_id = $specimen_group_menu_id . '-sa_der';
+				$derivative_menu_id = $specimen_group_menu_id . '-der_so_al';
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $specimen_menu_id, $specimen_group_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id.'/'.$specimen_sample_master_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id . '/' . $specimen_sample_master_id);	
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $derivative_menu_id, $specimen_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $derivative_menu_id, $collection_id.'/'.$derivative_sample_master_id.'/');	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $derivative_menu_id, $collection_id . '/' . $derivative_sample_master_id . '/');	
 				break;
 			
 			default:
@@ -2085,9 +1706,9 @@ foreach($this->data as $id => $data) {
 		// Use PLUGIN_CONTROLLER_ACTION by default, 
 		// but any ALIAS string that matches in the SIDEBARS datatable will do...
 		$this->set('ctrapp_sidebar', 
-			$this->Sidebars->getColsArray( 
-				$this->params['plugin'].'_'.
-				$this->params['controller'].'_'.
+			$this->Sidebars->getColsArray(
+				$this->params['plugin'] . '_'.
+				$this->params['controller'] . '_'.
 				$this->params['action']));
 		
 
@@ -2126,7 +1747,7 @@ foreach($this->data as $id => $data) {
 					'{n}.AliquotUse.used_volume');
 			
 			if(empty($use_vol_from_source_aliquot_id) 
-			|| (sizeof($use_vol_from_source_aliquot_id) != sizeof($use_id_from_source_aliquot_id) )){
+			|| (sizeof($use_vol_from_source_aliquot_id) != sizeof($use_id_from_source_aliquot_id))){
 				// It looks like at least one record defined in SourceAliquot has not
 				// its attached data into AliquotUse	
 				$this->redirect('/pages/err_inv_system_error'); 
@@ -2153,11 +1774,11 @@ foreach($this->data as $id => $data) {
 		$this->set('source_aliquots', $source_aliquots);
 	
 		// ** Verify if additional parent sample aliquots could be added to the list of source aliquots **
-		$criteria= 'AliquotMaster.sample_master_id = '.$sample_master_data['SampleMaster']['parent_id'];
+		$criteria= 'AliquotMaster.sample_master_id = ' . $sample_master_data['SampleMaster']['parent_id'];
 		$criteria.= ' AND AliquotMaster.status = \'available\'';
 		if(!empty($use_id_from_source_aliquot_id)) {
 			// Aliquot have already be defined as source
-			$criteria.= ' AND AliquotMaster.id NOT IN (\''.implode('\',\'', array_keys($use_id_from_source_aliquot_id)).'\')';
+			$criteria.= ' AND AliquotMaster.id NOT IN (\''.implode('\',\'', array_keys($use_id_from_source_aliquot_id)) . '\')';
 		}
 		
 		$av_parent_sample_aliquots = 
@@ -2175,7 +1796,7 @@ foreach($this->data as $id => $data) {
 		$custom_ctrapp_controller_hook 
 			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
 			'controllers' . DS . 'hooks' . DS . 
-			$this->params['controller'].'_'.$this->params['action'].'_format.php';
+			$this->params['controller'] . '_' . $this->params['action'] . '_format.php';
 		
 		if (file_exists($custom_ctrapp_controller_hook)) {
 			require($custom_ctrapp_controller_hook);
@@ -2208,7 +1829,7 @@ foreach($this->data as $id => $data) {
 		}
 		
 		// read SAMPLE MASTER info
-		$criteria = 'SampleMaster.id ="'.$sample_master_id.'"';
+		$criteria = 'SampleMaster.id ="' . $sample_master_id . '"';
 		$sample_master_data = $this->SampleMaster->find($criteria, null, null, 0);
 				
 		if(empty($sample_master_data)){
@@ -2237,12 +1858,12 @@ foreach($this->data as $id => $data) {
 				$specimen_sample_master_id=$sample_master_data['SampleMaster']['initial_specimen_sample_id'];
 				$derivative_sample_master_id=$sample_master_id;		
 				
-				$specimen_menu_id = $specimen_group_menu_id.'-sa_der';
-				$derivative_menu_id = $specimen_group_menu_id.'-der_so_al';
+				$specimen_menu_id = $specimen_group_menu_id . '-sa_der';
+				$derivative_menu_id = $specimen_group_menu_id . '-der_so_al';
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $specimen_menu_id, $specimen_group_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id.'/'.$specimen_sample_master_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id . '/' . $specimen_sample_master_id);	
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $derivative_menu_id, $specimen_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $derivative_menu_id, $collection_id.'/'.$derivative_sample_master_id.'/');	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $derivative_menu_id, $collection_id . '/' . $derivative_sample_master_id . '/');	
 				break;
 			
 			default:
@@ -2259,9 +1880,9 @@ foreach($this->data as $id => $data) {
 		// Use PLUGIN_CONTROLLER_ACTION by default, 
 		// but any ALIAS string that matches in the SIDEBARS datatable will do...
 		$this->set('ctrapp_sidebar', 
-			$this->Sidebars->getColsArray( 
-				$this->params['plugin'].'_'.
-				$this->params['controller'].'_'.
+			$this->Sidebars->getColsArray(
+				$this->params['plugin'] . '_'.
+				$this->params['controller'] . '_'.
 				$this->params['action']));
 		
 		// ** Set FORM variable, for HELPER call on VIEW **
@@ -2272,13 +1893,13 @@ foreach($this->data as $id => $data) {
 		$this->set('group_specimen_type', $group_specimen_type);
 		$this->set('sample_category', $sample_category);
 
-		$this->set('collection_id', $collection_id );
+		$this->set('collection_id', $collection_id);
 		$this->set('sample_master_id', $sample_master_id);	
 		
 		$this->set('sample_code', $sample_master_data['SampleMaster']['sample_code']);
 		
 		// Set aliquot use date with the sample creation date
-		$criteria = 'DerivativeDetail.id ="'.$sample_master_id.'"';
+		$criteria = 'DerivativeDetail.id ="' . $sample_master_id . '"';
 		$derivative_detail_data = $this->DerivativeDetail->find($criteria, null, null, 0);
 
 		if(empty($derivative_detail_data)){
@@ -2305,12 +1926,12 @@ foreach($this->data as $id => $data) {
 
 		// Search ids of the aliquots that could be used to create the derivative
 
-		$criteria= 'AliquotMaster.sample_master_id = '.$sample_master_data['SampleMaster']['parent_id'];
+		$criteria= 'AliquotMaster.sample_master_id = ' . $sample_master_data['SampleMaster']['parent_id'];
 		$criteria.= ' AND AliquotMaster.status = \'available\'';
 		
 		if(!empty($already_used_aliquot_id)) {
 			// Aliquot have already be defined as source
-			$criteria.= ' AND AliquotMaster.id NOT IN (\''.implode('\',\'', array_keys($already_used_aliquot_id)).'\')';
+			$criteria.= ' AND AliquotMaster.id NOT IN (\''.implode('\',\'', array_keys($already_used_aliquot_id)) . '\')';
 		}
 				
 		$available_source_aliquots = $this->AliquotMaster->findAll($criteria, null, null, null, 0);
@@ -2324,7 +1945,7 @@ foreach($this->data as $id => $data) {
 		$custom_ctrapp_controller_hook 
 			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
 			'controllers' . DS . 'hooks' . DS . 
-			$this->params['controller'].'_'.$this->params['action'].'_format.php';
+			$this->params['controller'] . '_' . $this->params['action'] . '_format.php';
 		
 		if (file_exists($custom_ctrapp_controller_hook)) {
 			require($custom_ctrapp_controller_hook);
@@ -2339,7 +1960,7 @@ foreach($this->data as $id => $data) {
 			// ** Save data	**
 
 			// setup MODEL(s) validation array(s) for displayed FORM 
-			foreach ($this->Forms->getValidateArray('source_aliquots_list') as $validate_model=>$validate_rules ) {
+			foreach ($this->Forms->getValidateArray('source_aliquots_list') as $validate_model=>$validate_rules) {
 				$this->{$validate_model}->validate = $validate_rules;
 			}
 			
@@ -2385,7 +2006,7 @@ foreach($this->data as $id => $data) {
 			$custom_ctrapp_controller_hook 
 				= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
 				'controllers' . DS . 'hooks' . DS . 
-				$this->params['controller'].'_'.$this->params['action'].'_validation.php';
+				$this->params['controller'] . '_' . $this->params['action'] . '_validation.php';
 			
 			if (file_exists($custom_ctrapp_controller_hook)) {
 				require($custom_ctrapp_controller_hook);
@@ -2395,10 +2016,10 @@ foreach($this->data as $id => $data) {
 				
 				if(empty($aliquots_to_define_as_source)){
 					// Data have been updated
-					$this->Flash('No aliquot has been defined as sample source aliquot.', 
+					$this->Flash('No aliquot has been defined as sample source aliquot . ', 
 						'/aliquot_masters/listSourceAliquots/'.
-							$specimen_group_menu_id.'/'.$group_specimen_type.'/'.$sample_category.'/'.
-							$collection_id.'/'.$sample_master_id.'/');	
+							$specimen_group_menu_id . '/' . $group_specimen_type . '/' . $sample_category . '/'.
+							$collection_id . '/' . $sample_master_id . '/');	
 					exit;					
 				}
 					
@@ -2489,10 +2110,10 @@ foreach($this->data as $id => $data) {
 					exit;
 				} else {
 					// Data have been updated
-					$this->Flash('Your aliquots have been defined as sample source aliquot.', 
+					$this->Flash('Your aliquots have been defined as sample source aliquot . ', 
 						'/aliquot_masters/listSourceAliquots/'.
-							$specimen_group_menu_id.'/'.$group_specimen_type.'/'.$sample_category.'/'.
-							$collection_id.'/'.$sample_master_id.'/');				
+							$specimen_group_menu_id . '/' . $group_specimen_type . '/' . $sample_category . '/'.
+							$collection_id . '/' . $sample_master_id . '/');				
 				} 
 			} // End Save Functions execution	
 			
@@ -2559,7 +2180,7 @@ foreach($this->data as $id => $data) {
 		$custom_ctrapp_controller_hook 
 			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
 			'controllers' . DS . 'hooks' . DS . 
-			$this->params['controller'].'_'.$this->params['action'].'_validation.php';
+			$this->params['controller'] . '_' . $this->params['action'] . '_validation.php';
 		
 		if (file_exists($custom_ctrapp_controller_hook)) {
 			require($custom_ctrapp_controller_hook);
@@ -2583,10 +2204,10 @@ foreach($this->data as $id => $data) {
 			exit;
 		}
 		
-		$this->flash('Your aliquot has been deleted from the list of Source Aliquot.', 
+		$this->flash('Your aliquot has been deleted from the list of Source Aliquot . ', 
 					'/aliquot_masters/listSourceAliquots/'.
-					$specimen_group_menu_id.'/'.$group_specimen_type.'/'.$sample_category.'/'.
-					$collection_id.'/'.$sample_master_id.'/');
+					$specimen_group_menu_id . '/' . $group_specimen_type . '/' . $sample_category . '/'.
+					$collection_id . '/' . $sample_master_id . '/');
 		
 	} // End function deleteSourceAliquot
 
@@ -2634,9 +2255,9 @@ foreach($this->data as $id => $data) {
 		// Use PLUGIN_CONTROLLER_ACTION by default, 
 		// but any ALIAS string that matches in the SIDEBARS datatable will do...
 		$this->set('ctrapp_sidebar', 
-			$this->Sidebars->getColsArray( 
-				$this->params['plugin'].'_'.
-				$this->params['controller'].'_'.
+			$this->Sidebars->getColsArray(
+				$this->params['plugin'] . '_'.
+				$this->params['controller'] . '_'.
 				$this->params['action']));
 														
 		// ** Set SUMMARY variable from plugin's COMPONENTS **
@@ -2666,27 +2287,27 @@ foreach($this->data as $id => $data) {
 			case "specimen":
 				$specimen_sample_master_id=$sample_master_id;
 				
-				$specimen_menu_id = $specimen_group_menu_id.'-sa_al';
-				$aliquot_menu_id = $specimen_group_menu_id.'-sa_al_re';
+				$specimen_menu_id = $specimen_group_menu_id . '-sa_al';
+				$aliquot_menu_id = $specimen_group_menu_id . '-sa_al_re';
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $specimen_menu_id, $specimen_group_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id.'/'.$specimen_sample_master_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id . '/' . $specimen_sample_master_id);	
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $aliquot_menu_id, $specimen_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $aliquot_menu_id, $collection_id.'/'.$aliquot_master_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $aliquot_menu_id, $collection_id . '/' . $aliquot_master_id);	
 				break;
 				
 			case "derivative":
 				$specimen_sample_master_id=$sample_master_data['SampleMaster']['initial_specimen_sample_id'];
 				$derivative_sample_master_id=$sample_master_id;		
 				
-				$specimen_menu_id = $specimen_group_menu_id.'-sa_der';
-				$derivative_menu_id = $specimen_group_menu_id.'-der_al';
-				$aliquot_menu_id = $specimen_group_menu_id.'-der_al_re';
+				$specimen_menu_id = $specimen_group_menu_id . '-sa_der';
+				$derivative_menu_id = $specimen_group_menu_id . '-der_al';
+				$aliquot_menu_id = $specimen_group_menu_id . '-der_al_re';
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $specimen_menu_id, $specimen_group_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id.'/'.$specimen_sample_master_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id . '/' . $specimen_sample_master_id);	
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $derivative_menu_id, $specimen_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $derivative_menu_id, $collection_id.'/'.$derivative_sample_master_id.'/');	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $derivative_menu_id, $collection_id . '/' . $derivative_sample_master_id . '/');	
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $aliquot_menu_id, $derivative_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($derivative_menu_id, $aliquot_menu_id, $collection_id.'/'.$aliquot_master_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($derivative_menu_id, $aliquot_menu_id, $collection_id . '/' . $aliquot_master_id);	
 				break;
 			
 			default:
@@ -2736,7 +2357,7 @@ foreach($this->data as $id => $data) {
 					'{n}.AliquotUse.used_volume');
 			
 			if(empty($use_vol_from_realiquoted_parent_id) 
-			|| (sizeof($use_vol_from_realiquoted_parent_id) != sizeof($use_id_from_realiquoted_parent_id) )){
+			|| (sizeof($use_vol_from_realiquoted_parent_id) != sizeof($use_id_from_realiquoted_parent_id))){
 				// It looks like at least one record defined in ParentAliquot has not
 				// its attached data into AliquotUse	
 				$this->redirect('/pages/err_inv_system_error'); 
@@ -2781,12 +2402,12 @@ foreach($this->data as $id => $data) {
 		if(sizeof($realiquoted_parents) == 0) {
 			// Note: We consider that only one realiquoted parent can be defined
 			
-			$criteria= 'AliquotMaster.sample_master_id = '.$sample_master_id;
+			$criteria= 'AliquotMaster.sample_master_id = ' . $sample_master_id;
 			$criteria.= ' AND AliquotMaster.status = \'available\'';
-			$criteria.= ' AND AliquotMaster.id NOT IN (\''.$aliquot_master_id.'\'';
+			$criteria.= ' AND AliquotMaster.id NOT IN (\'' . $aliquot_master_id . '\'';
 			if(!empty($use_id_from_realiquoted_parent_id)) {
 				// Aliquot have already be defined as parent
-				$criteria.= ', \''.implode('\',\'', array_keys($use_id_from_realiquoted_parent_id)).'\'';
+				$criteria.= ', \''.implode('\',\'', array_keys($use_id_from_realiquoted_parent_id)) . '\'';
 			}
 			$criteria.= ')';
 			
@@ -2804,7 +2425,7 @@ foreach($this->data as $id => $data) {
 		$custom_ctrapp_controller_hook 
 			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
 			'controllers' . DS . 'hooks' . DS . 
-			$this->params['controller'].'_'.$this->params['action'].'_format.php';
+			$this->params['controller'] . '_' . $this->params['action'] . '_format.php';
 		
 		if (file_exists($custom_ctrapp_controller_hook)) {
 			require($custom_ctrapp_controller_hook);
@@ -2858,9 +2479,9 @@ foreach($this->data as $id => $data) {
 		// Use PLUGIN_CONTROLLER_ACTION by default, 
 		// but any ALIAS string that matches in the SIDEBARS datatable will do...
 		$this->set('ctrapp_sidebar', 
-			$this->Sidebars->getColsArray( 
-				$this->params['plugin'].'_'.
-				$this->params['controller'].'_'.
+			$this->Sidebars->getColsArray(
+				$this->params['plugin'] . '_'.
+				$this->params['controller'] . '_'.
 				$this->params['action']));
 														
 		// ** Set SUMMARY variable from plugin's COMPONENTS **
@@ -2893,27 +2514,27 @@ foreach($this->data as $id => $data) {
 			case "specimen":
 				$specimen_sample_master_id=$sample_master_id;
 				
-				$specimen_menu_id = $specimen_group_menu_id.'-sa_al';
-				$aliquot_menu_id = $specimen_group_menu_id.'-sa_al_re';
+				$specimen_menu_id = $specimen_group_menu_id . '-sa_al';
+				$aliquot_menu_id = $specimen_group_menu_id . '-sa_al_re';
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $specimen_menu_id, $specimen_group_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id.'/'.$specimen_sample_master_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id . '/' . $specimen_sample_master_id);	
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $aliquot_menu_id, $specimen_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $aliquot_menu_id, $collection_id.'/'.$aliquot_master_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $aliquot_menu_id, $collection_id . '/' . $aliquot_master_id);	
 				break;
 				
 			case "derivative":
 				$specimen_sample_master_id=$sample_master_data['SampleMaster']['initial_specimen_sample_id'];
 				$derivative_sample_master_id=$sample_master_id;		
 				
-				$specimen_menu_id = $specimen_group_menu_id.'-sa_der';
-				$derivative_menu_id = $specimen_group_menu_id.'-der_al';
-				$aliquot_menu_id = $specimen_group_menu_id.'-der_al_re';
+				$specimen_menu_id = $specimen_group_menu_id . '-sa_der';
+				$derivative_menu_id = $specimen_group_menu_id . '-der_al';
+				$aliquot_menu_id = $specimen_group_menu_id . '-der_al_re';
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $specimen_menu_id, $specimen_group_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id.'/'.$specimen_sample_master_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id . '/' . $specimen_sample_master_id);	
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $derivative_menu_id, $specimen_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $derivative_menu_id, $collection_id.'/'.$derivative_sample_master_id.'/');	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $derivative_menu_id, $collection_id . '/' . $derivative_sample_master_id . '/');	
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $aliquot_menu_id, $derivative_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($derivative_menu_id, $aliquot_menu_id, $collection_id.'/'.$aliquot_master_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($derivative_menu_id, $aliquot_menu_id, $collection_id . '/' . $aliquot_master_id);	
 				break;
 			
 			default:
@@ -2946,12 +2567,12 @@ foreach($this->data as $id => $data) {
 
 		// Search ids of the aliquots that could be defined as realiquoted parent
 
-		$criteria= 'AliquotMaster.sample_master_id = '.$sample_master_data['SampleMaster']['id'];
+		$criteria= 'AliquotMaster.sample_master_id = ' . $sample_master_data['SampleMaster']['id'];
 		$criteria.= ' AND AliquotMaster.status = \'available\'';
-		$criteria.= ' AND AliquotMaster.id NOT IN (\''.$aliquot_master_id.'\'';
+		$criteria.= ' AND AliquotMaster.id NOT IN (\'' . $aliquot_master_id . '\'';
 		if(!empty($already_realiquoted_parent_id)) {
 			// Aliquot have already be defined as parent
-			$criteria.= ', \''.implode('\',\'', array_keys($already_realiquoted_parent_id)).'\'';
+			$criteria.= ', \''.implode('\',\'', array_keys($already_realiquoted_parent_id)) . '\'';
 		}
 		$criteria.= ')';
 				
@@ -2968,7 +2589,7 @@ foreach($this->data as $id => $data) {
 		$custom_ctrapp_controller_hook 
 			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
 			'controllers' . DS . 'hooks' . DS . 
-			$this->params['controller'].'_'.$this->params['action'].'_format.php';
+			$this->params['controller'] . '_' . $this->params['action'] . '_format.php';
 		
 		if (file_exists($custom_ctrapp_controller_hook)) {
 			require($custom_ctrapp_controller_hook);
@@ -2983,7 +2604,7 @@ foreach($this->data as $id => $data) {
 			// ** Save data	**
 						
 			// setup MODEL(s) validation array(s) for displayed FORM 
-			foreach ($this->Forms->getValidateArray('realiquoted_parent_list') as $validate_model=>$validate_rules ) {
+			foreach ($this->Forms->getValidateArray('realiquoted_parent_list') as $validate_model=>$validate_rules) {
 				$this->{$validate_model}->validate = $validate_rules;
 			}
 			
@@ -3044,7 +2665,7 @@ foreach($this->data as $id => $data) {
 			$custom_ctrapp_controller_hook 
 				= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
 				'controllers' . DS . 'hooks' . DS . 
-				$this->params['controller'].'_'.$this->params['action'].'_validation.php';
+				$this->params['controller'] . '_' . $this->params['action'] . '_validation.php';
 			
 			if (file_exists($custom_ctrapp_controller_hook)) {
 				require($custom_ctrapp_controller_hook);
@@ -3133,10 +2754,10 @@ foreach($this->data as $id => $data) {
 					$this->updateAliquotCurrentVolume($parent_aliquot_master_id);
 												
 					// Data have been updated
-					$this->Flash('Your aliquot has been defined as realiquoted parent aliquot.', 
+					$this->Flash('Your aliquot has been defined as realiquoted parent aliquot . ', 
 						'/aliquot_masters/listRealiquotedParents/'.
-							$specimen_group_menu_id.'/'.$group_specimen_type.'/'.$sample_category.'/'.$collection_id.
-							'/'.$aliquot_master_id.'/');			
+							$specimen_group_menu_id . '/' . $group_specimen_type . '/' . $sample_category . '/' . $collection_id.
+							'/' . $aliquot_master_id . '/');			
 				} 
 			} // End Save Functions execution	
 			
@@ -3188,7 +2809,7 @@ foreach($this->data as $id => $data) {
 		$custom_ctrapp_controller_hook 
 			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
 			'controllers' . DS . 'hooks' . DS . 
-			$this->params['controller'].'_'.$this->params['action'].'_validation.php';
+			$this->params['controller'] . '_' . $this->params['action'] . '_validation.php';
 		
 		if (file_exists($custom_ctrapp_controller_hook)) {
 			require($custom_ctrapp_controller_hook);
@@ -3212,11 +2833,11 @@ foreach($this->data as $id => $data) {
 			exit;
 		}
 		
-		$this->flash('Your aliquot has been deleted from the list of realiquoted parent.', 
+		$this->flash('Your aliquot has been deleted from the list of realiquoted parent . ', 
 					'/aliquot_masters/listRealiquotedParents/'.
-							$specimen_group_menu_id.'/'.$group_specimen_type.'/'.
-							$sample_category.'/'.$collection_id.
-							'/'.$aliquot_master_id.'/');
+							$specimen_group_menu_id . '/' . $group_specimen_type . '/'.
+							$sample_category . '/' . $collection_id.
+							'/' . $aliquot_master_id . '/');
 		
 	} // End function deleteSourceAliquot
 	
@@ -3277,9 +2898,9 @@ foreach($this->data as $id => $data) {
 		// Use PLUGIN_CONTROLLER_ACTION by default, 
 		// but any ALIAS string that matches in the SIDEBARS datatable will do...
 		$this->set('ctrapp_sidebar', 
-			$this->Sidebars->getColsArray( 
-				$this->params['plugin'].'_'.
-				$this->params['controller'].'_'.
+			$this->Sidebars->getColsArray(
+				$this->params['plugin'] . '_'.
+				$this->params['controller'] . '_'.
 				$this->params['action']));
 														
 		// ** Set SUMMARY variable from plugin's COMPONENTS **
@@ -3293,7 +2914,7 @@ foreach($this->data as $id => $data) {
 		$this->set('group_specimen_type', $group_specimen_type);
 		$this->set('sample_category', $sample_category);
 		
-		$this->set('collection_id', $collection_id );
+		$this->set('collection_id', $collection_id);
 		$this->set('aliquot_master_id', $aliquot_master_id);
 		
 		$this->set('studies_list', $this->getStudiesArray());
@@ -3308,27 +2929,27 @@ foreach($this->data as $id => $data) {
 			case "specimen":
 				$specimen_sample_master_id=$sample_master_id;
 				
-				$specimen_menu_id = $specimen_group_menu_id.'-sa_al';
-				$aliquot_menu_id = $specimen_group_menu_id.'-sa_al_us';
+				$specimen_menu_id = $specimen_group_menu_id . '-sa_al';
+				$aliquot_menu_id = $specimen_group_menu_id . '-sa_al_us';
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $specimen_menu_id, $specimen_group_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id.'/'.$specimen_sample_master_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id . '/' . $specimen_sample_master_id);	
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $aliquot_menu_id, $specimen_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $aliquot_menu_id, $collection_id.'/'.$aliquot_master_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $aliquot_menu_id, $collection_id . '/' . $aliquot_master_id);	
 				break;
 				
 			case "derivative":
 				$specimen_sample_master_id=$sample_master_data['SampleMaster']['initial_specimen_sample_id'];
 				$derivative_sample_master_id=$sample_master_id;		
 				
-				$specimen_menu_id = $specimen_group_menu_id.'-sa_der';
-				$derivative_menu_id = $specimen_group_menu_id.'-der_al';
-				$aliquot_menu_id = $specimen_group_menu_id.'-der_al_us';
+				$specimen_menu_id = $specimen_group_menu_id . '-sa_der';
+				$derivative_menu_id = $specimen_group_menu_id . '-der_al';
+				$aliquot_menu_id = $specimen_group_menu_id . '-der_al_us';
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $specimen_menu_id, $specimen_group_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id.'/'.$specimen_sample_master_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id . '/' . $specimen_sample_master_id);	
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $derivative_menu_id, $specimen_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $derivative_menu_id, $collection_id.'/'.$derivative_sample_master_id.'/');	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $derivative_menu_id, $collection_id . '/' . $derivative_sample_master_id . '/');	
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $aliquot_menu_id, $derivative_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($derivative_menu_id, $aliquot_menu_id, $collection_id.'/'.$aliquot_master_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($derivative_menu_id, $aliquot_menu_id, $collection_id . '/' . $aliquot_master_id);	
 				break;
 			
 			default:
@@ -3365,7 +2986,7 @@ foreach($this->data as $id => $data) {
 		$custom_ctrapp_controller_hook 
 			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
 			'controllers' . DS . 'hooks' . DS . 
-			$this->params['controller'].'_'.$this->params['action'].'_format.php';
+			$this->params['controller'] . '_' . $this->params['action'] . '_format.php';
 		
 		if (file_exists($custom_ctrapp_controller_hook)) {
 			require($custom_ctrapp_controller_hook);
@@ -3418,9 +3039,9 @@ foreach($this->data as $id => $data) {
 		// Use PLUGIN_CONTROLLER_ACTION by default, 
 		// but any ALIAS string that matches in the SIDEBARS datatable will do...
 		$this->set('ctrapp_sidebar', 
-			$this->Sidebars->getColsArray( 
-				$this->params['plugin'].'_'.
-				$this->params['controller'].'_'.
+			$this->Sidebars->getColsArray(
+				$this->params['plugin'] . '_'.
+				$this->params['controller'] . '_'.
 				$this->params['action']));
 														
 		// ** Set SUMMARY variable from plugin's COMPONENTS **
@@ -3434,7 +3055,7 @@ foreach($this->data as $id => $data) {
 		$this->set('group_specimen_type', $group_specimen_type);
 		$this->set('sample_category', $sample_category);
 		
-		$this->set('collection_id', $collection_id );
+		$this->set('collection_id', $collection_id);
 		$this->set('aliquot_master_id', $aliquot_master_id);
 		
 		$this->set('studies_list', $this->getStudiesArray());
@@ -3449,27 +3070,27 @@ foreach($this->data as $id => $data) {
 			case "specimen":
 				$specimen_sample_master_id=$sample_master_id;
 				
-				$specimen_menu_id = $specimen_group_menu_id.'-sa_al';
-				$aliquot_menu_id = $specimen_group_menu_id.'-sa_al_us';
+				$specimen_menu_id = $specimen_group_menu_id . '-sa_al';
+				$aliquot_menu_id = $specimen_group_menu_id . '-sa_al_us';
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $specimen_menu_id, $specimen_group_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id.'/'.$specimen_sample_master_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id . '/' . $specimen_sample_master_id);	
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $aliquot_menu_id, $specimen_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $aliquot_menu_id, $collection_id.'/'.$aliquot_master_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $aliquot_menu_id, $collection_id . '/' . $aliquot_master_id);	
 				break;
 				
 			case "derivative":
 				$specimen_sample_master_id=$sample_master_data['SampleMaster']['initial_specimen_sample_id'];
 				$derivative_sample_master_id=$sample_master_id;		
 				
-				$specimen_menu_id = $specimen_group_menu_id.'-sa_der';
-				$derivative_menu_id = $specimen_group_menu_id.'-der_al';
-				$aliquot_menu_id = $specimen_group_menu_id.'-der_al_us';
+				$specimen_menu_id = $specimen_group_menu_id . '-sa_der';
+				$derivative_menu_id = $specimen_group_menu_id . '-der_al';
+				$aliquot_menu_id = $specimen_group_menu_id . '-der_al_us';
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $specimen_menu_id, $specimen_group_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id.'/'.$specimen_sample_master_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id . '/' . $specimen_sample_master_id);	
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $derivative_menu_id, $specimen_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $derivative_menu_id, $collection_id.'/'.$derivative_sample_master_id.'/');	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $derivative_menu_id, $collection_id . '/' . $derivative_sample_master_id . '/');	
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $aliquot_menu_id, $derivative_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($derivative_menu_id, $aliquot_menu_id, $collection_id.'/'.$aliquot_master_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($derivative_menu_id, $aliquot_menu_id, $collection_id . '/' . $aliquot_master_id);	
 				break;
 			
 			default:
@@ -3514,7 +3135,7 @@ foreach($this->data as $id => $data) {
 		$custom_ctrapp_controller_hook 
 			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
 			'controllers' . DS . 'hooks' . DS . 
-			$this->params['controller'].'_'.$this->params['action'].'_format.php';
+			$this->params['controller'] . '_' . $this->params['action'] . '_format.php';
 		
 		if (file_exists($custom_ctrapp_controller_hook)) {
 			require($custom_ctrapp_controller_hook);
@@ -3572,9 +3193,9 @@ foreach($this->data as $id => $data) {
 		// Use PLUGIN_CONTROLLER_ACTION by default, 
 		// but any ALIAS string that matches in the SIDEBARS datatable will do...
 		$this->set('ctrapp_sidebar', 
-			$this->Sidebars->getColsArray( 
-				$this->params['plugin'].'_'.
-				$this->params['controller'].'_'.
+			$this->Sidebars->getColsArray(
+				$this->params['plugin'] . '_'.
+				$this->params['controller'] . '_'.
 				$this->params['action']));
 														
 		// ** Set SUMMARY variable from plugin's COMPONENTS **
@@ -3588,7 +3209,7 @@ foreach($this->data as $id => $data) {
 		$this->set('group_specimen_type', $group_specimen_type);
 		$this->set('sample_category', $sample_category);
 		
-		$this->set('collection_id', $collection_id );
+		$this->set('collection_id', $collection_id);
 		$this->set('aliquot_master_id', $aliquot_master_id);
 		
 		$this->set('aliquot_use_defintion', $aliquot_use_defintion);
@@ -3606,27 +3227,27 @@ foreach($this->data as $id => $data) {
 			case "specimen":
 				$specimen_sample_master_id=$sample_master_id;
 				
-				$specimen_menu_id = $specimen_group_menu_id.'-sa_al';
-				$aliquot_menu_id = $specimen_group_menu_id.'-sa_al_us';
+				$specimen_menu_id = $specimen_group_menu_id . '-sa_al';
+				$aliquot_menu_id = $specimen_group_menu_id . '-sa_al_us';
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $specimen_menu_id, $specimen_group_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id.'/'.$specimen_sample_master_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id . '/' . $specimen_sample_master_id);	
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $aliquot_menu_id, $specimen_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $aliquot_menu_id, $collection_id.'/'.$aliquot_master_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $aliquot_menu_id, $collection_id . '/' . $aliquot_master_id);	
 				break;
 				
 			case "derivative":
 				$specimen_sample_master_id=$sample_master_data['SampleMaster']['initial_specimen_sample_id'];
 				$derivative_sample_master_id=$sample_master_id;		
 				
-				$specimen_menu_id = $specimen_group_menu_id.'-sa_der';
-				$derivative_menu_id = $specimen_group_menu_id.'-der_al';
-				$aliquot_menu_id = $specimen_group_menu_id.'-der_al_us';
+				$specimen_menu_id = $specimen_group_menu_id . '-sa_der';
+				$derivative_menu_id = $specimen_group_menu_id . '-der_al';
+				$aliquot_menu_id = $specimen_group_menu_id . '-der_al_us';
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $specimen_menu_id, $specimen_group_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id.'/'.$specimen_sample_master_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id . '/' . $specimen_sample_master_id);	
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $derivative_menu_id, $specimen_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $derivative_menu_id, $collection_id.'/'.$derivative_sample_master_id.'/');	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $derivative_menu_id, $collection_id . '/' . $derivative_sample_master_id . '/');	
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $aliquot_menu_id, $derivative_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($derivative_menu_id, $aliquot_menu_id, $collection_id.'/'.$aliquot_master_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($derivative_menu_id, $aliquot_menu_id, $collection_id . '/' . $aliquot_master_id);	
 				break;
 			
 			default:
@@ -3640,7 +3261,7 @@ foreach($this->data as $id => $data) {
 		$custom_ctrapp_controller_hook 
 			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
 			'controllers' . DS . 'hooks' . DS . 
-			$this->params['controller'].'_'.$this->params['action'].'_format.php';
+			$this->params['controller'] . '_' . $this->params['action'] . '_format.php';
 		
 		if (file_exists($custom_ctrapp_controller_hook)) {
 			require($custom_ctrapp_controller_hook);
@@ -3678,7 +3299,7 @@ foreach($this->data as $id => $data) {
 			$custom_ctrapp_controller_hook 
 				= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
 				'controllers' . DS . 'hooks' . DS . 
-				$this->params['controller'].'_'.$this->params['action'].'_validation.php';
+				$this->params['controller'] . '_' . $this->params['action'] . '_validation.php';
 			
 			if (file_exists($custom_ctrapp_controller_hook)) {
 				require($custom_ctrapp_controller_hook);
@@ -3691,10 +3312,10 @@ foreach($this->data as $id => $data) {
 					
 					$this->updateAliquotCurrentVolume($aliquot_master_id);
 					
-					$this->flash('Your data has been saved.', 
+					$this->flash('Your data has been saved . ', 
 						'/aliquot_masters/listAliquotUses/'.
-						$specimen_group_menu_id.'/'.$group_specimen_type.'/'.$sample_category.'/'.
-						$collection_id.'/'.$aliquot_master_id.'/');
+						$specimen_group_menu_id . '/' . $group_specimen_type . '/' . $sample_category . '/'.
+						$collection_id . '/' . $aliquot_master_id . '/');
 				} else {
 					$this->redirect('/pages/err_inv_aliquot_use_record_err'); 
 					exit;
@@ -3751,9 +3372,9 @@ foreach($this->data as $id => $data) {
 		// Use PLUGIN_CONTROLLER_ACTION by default, 
 		// but any ALIAS string that matches in the SIDEBARS datatable will do...
 		$this->set('ctrapp_sidebar', 
-			$this->Sidebars->getColsArray( 
-				$this->params['plugin'].'_'.
-				$this->params['controller'].'_'.
+			$this->Sidebars->getColsArray(
+				$this->params['plugin'] . '_'.
+				$this->params['controller'] . '_'.
 				$this->params['action']));
 														
 		// ** Set SUMMARY variable from plugin's COMPONENTS **
@@ -3767,7 +3388,7 @@ foreach($this->data as $id => $data) {
 		$this->set('group_specimen_type', $group_specimen_type);
 		$this->set('sample_category', $sample_category);
 		
-		$this->set('collection_id', $collection_id );
+		$this->set('collection_id', $collection_id);
 		$this->set('aliquot_master_id', $aliquot_master_id);
 		
 		$this->set('aliquot_volume_unit', $aliquot_master_data['AliquotMaster']['aliquot_volume_unit']);
@@ -3783,27 +3404,27 @@ foreach($this->data as $id => $data) {
 			case "specimen":
 				$specimen_sample_master_id=$sample_master_id;
 				
-				$specimen_menu_id = $specimen_group_menu_id.'-sa_al';
-				$aliquot_menu_id = $specimen_group_menu_id.'-sa_al_us';
+				$specimen_menu_id = $specimen_group_menu_id . '-sa_al';
+				$aliquot_menu_id = $specimen_group_menu_id . '-sa_al_us';
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $specimen_menu_id, $specimen_group_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id.'/'.$specimen_sample_master_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id . '/' . $specimen_sample_master_id);	
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $aliquot_menu_id, $specimen_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $aliquot_menu_id, $collection_id.'/'.$aliquot_master_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $aliquot_menu_id, $collection_id . '/' . $aliquot_master_id);	
 				break;
 				
 			case "derivative":
 				$specimen_sample_master_id=$sample_master_data['SampleMaster']['initial_specimen_sample_id'];
 				$derivative_sample_master_id=$sample_master_id;		
 				
-				$specimen_menu_id = $specimen_group_menu_id.'-sa_der';
-				$derivative_menu_id = $specimen_group_menu_id.'-der_al';
-				$aliquot_menu_id = $specimen_group_menu_id.'-der_al_us';
+				$specimen_menu_id = $specimen_group_menu_id . '-sa_der';
+				$derivative_menu_id = $specimen_group_menu_id . '-der_al';
+				$aliquot_menu_id = $specimen_group_menu_id . '-der_al_us';
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $specimen_menu_id, $specimen_group_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id.'/'.$specimen_sample_master_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id . '/' . $specimen_sample_master_id);	
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $derivative_menu_id, $specimen_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $derivative_menu_id, $collection_id.'/'.$derivative_sample_master_id.'/');	
+				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $derivative_menu_id, $collection_id . '/' . $derivative_sample_master_id . '/');	
 				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $aliquot_menu_id, $derivative_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($derivative_menu_id, $aliquot_menu_id, $collection_id.'/'.$aliquot_master_id);	
+				$ctrapp_menu[] = $this->Menus->tabs($derivative_menu_id, $aliquot_menu_id, $collection_id . '/' . $aliquot_master_id);	
 				break;
 			
 			default:
@@ -3847,7 +3468,7 @@ foreach($this->data as $id => $data) {
 		$custom_ctrapp_controller_hook 
 			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
 			'controllers' . DS . 'hooks' . DS . 
-			$this->params['controller'].'_'.$this->params['action'].'_format.php';
+			$this->params['controller'] . '_' . $this->params['action'] . '_format.php';
 		
 		if (file_exists($custom_ctrapp_controller_hook)) {
 			require($custom_ctrapp_controller_hook);
@@ -3891,7 +3512,7 @@ foreach($this->data as $id => $data) {
 			$custom_ctrapp_controller_hook 
 				= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
 				'controllers' . DS . 'hooks' . DS . 
-				$this->params['controller'].'_'.$this->params['action'].'_validation.php';
+				$this->params['controller'] . '_' . $this->params['action'] . '_validation.php';
 			
 			if (file_exists($custom_ctrapp_controller_hook)) {
 				require($custom_ctrapp_controller_hook);
@@ -3907,10 +3528,10 @@ foreach($this->data as $id => $data) {
 					
 					$this->updateAliquotCurrentVolume($aliquot_master_id);
 					
-					$this->flash('Your data has been saved.', 
+					$this->flash('Your data has been saved . ', 
 						'/aliquot_masters/detailAliquotUse/'.
-						$specimen_group_menu_id.'/'.$group_specimen_type.'/'.$sample_category.'/'.
-						$collection_id.'/'.$aliquot_master_id.'/'.$aliquot_use_id.'/');
+						$specimen_group_menu_id . '/' . $group_specimen_type . '/' . $sample_category . '/'.
+						$collection_id . '/' . $aliquot_master_id . '/' . $aliquot_use_id . '/');
 				} else {
 					$this->redirect('/pages/err_inv_aliquot_use_record_err'); 
 					exit;
@@ -3953,7 +3574,7 @@ foreach($this->data as $id => $data) {
 		$custom_ctrapp_controller_hook 
 			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
 			'controllers' . DS . 'hooks' . DS . 
-			$this->params['controller'].'_'.$this->params['action'].'_validation.php';
+			$this->params['controller'] . '_' . $this->params['action'] . '_validation.php';
 		
 		if (file_exists($custom_ctrapp_controller_hook)) {
 			require($custom_ctrapp_controller_hook);
@@ -3969,10 +3590,10 @@ foreach($this->data as $id => $data) {
 		
 		$this->updateAliquotCurrentVolume($aliquot_master_id);
 		
-		$this->Flash('Your data has been deleted.',
+		$this->Flash('Your data has been deleted . ',
 			'/aliquot_masters/listAliquotUses/'.
-			$specimen_group_menu_id.'/'.$group_specimen_type.'/'.$sample_category.'/'.
-			$collection_id.'/'.$aliquot_master_id.'/');
+			$specimen_group_menu_id . '/' . $group_specimen_type . '/' . $sample_category . '/'.
+			$collection_id . '/' . $aliquot_master_id . '/');
 	
 	} //end deleteAliquotUse
 	
@@ -4038,7 +3659,7 @@ foreach($this->data as $id => $data) {
 		// - add for qc, 
 		// - use to create derivative, 
 		// - realiquoted to...	
-		$criteria = 'AliquotUse.aliquot_master_id ="' .$aliquot_master_id.'"';			 
+		$criteria = 'AliquotUse.aliquot_master_id ="' .$aliquot_master_id . '"';			 
 		$aliquot_use_nbr = $this->AliquotUse->findCount($criteria);
 				
 		if($aliquot_use_nbr > 0){
@@ -4046,7 +3667,7 @@ foreach($this->data as $id => $data) {
 		}
 		
 		// Verify that this aliquot is not linked to a realiquoted aliquot	
-		$criteria = 'Realiquoting.child_aliquot_master_id ="' .$aliquot_master_id.'"';			 
+		$criteria = 'Realiquoting.child_aliquot_master_id ="' .$aliquot_master_id . '"';			 
 		$realiquoted_aliquot_nbr = $this->Realiquoting->find($criteria);
 			
 		if($realiquoted_aliquot_nbr > 0){
@@ -4054,14 +3675,14 @@ foreach($this->data as $id => $data) {
 		}
 		
 		// Verify this aliquot has not been used for review
-		$criteria = 'PathCollectionReview.aliquot_master_id ="' .$aliquot_master_id.'"';			 
+		$criteria = 'PathCollectionReview.aliquot_master_id ="' .$aliquot_master_id . '"';			 
 		$aliquot_path_review_nbr = $this->PathCollectionReview->findCount($criteria);
 
 		if($aliquot_path_review_nbr > 0){
 			return false;
 		}
 		
-		$criteria = 'ReviewMaster.aliquot_master_id ="' .$aliquot_master_id.'"';			 
+		$criteria = 'ReviewMaster.aliquot_master_id ="' .$aliquot_master_id . '"';			 
 		$aliquot_review_nbr = $this->ReviewMaster->findCount($criteria);
 
 		if($aliquot_review_nbr > 0){
@@ -4069,7 +3690,7 @@ foreach($this->data as $id => $data) {
 		}
 		
 		// Attache to an order line
-		$criteria = 'OrderItem.aliquot_master_id ="' .$aliquot_master_id.'"';			 
+		$criteria = 'OrderItem.aliquot_master_id ="' .$aliquot_master_id . '"';			 
 		$aliquot_order_nbr = $this->OrderItem->findCount($criteria);
 		
 		if($aliquot_order_nbr > 0){
@@ -4078,7 +3699,7 @@ foreach($this->data as $id => $data) {
 		
 		// Verify block attched to tissue slide
 		$special_aliquot_detail = new AliquotDetail(false, 'ad_tissue_slides');
-		$criteria = 'AliquotDetail.ad_block_id ="' .$aliquot_master_id.'"';			 
+		$criteria = 'AliquotDetail.ad_block_id ="' .$aliquot_master_id . '"';			 
 		$aliquot_tiss_slide_nbr = $special_aliquot_detail->findCount($criteria);
 		
 		if($aliquot_tiss_slide_nbr > 0){
@@ -4087,7 +3708,7 @@ foreach($this->data as $id => $data) {
 		
 		// Verify block atched to tissue core
 		$special_aliquot_detail = new AliquotDetail(false, 'ad_tissue_cores');
-		$criteria = 'AliquotDetail.ad_block_id ="' .$aliquot_master_id.'"';			 
+		$criteria = 'AliquotDetail.ad_block_id ="' .$aliquot_master_id . '"';			 
 		$aliquot_tiss_slide_nbr = $special_aliquot_detail->findCount($criteria);
 		
 		if($aliquot_tiss_slide_nbr > 0){
@@ -4096,7 +3717,7 @@ foreach($this->data as $id => $data) {
 		
 		// Verify gel matrix atched to cell core
 		$special_aliquot_detail = new AliquotDetail(false, 'ad_cell_cores');
-		$criteria = 'AliquotDetail.ad_gel_matrix_id ="' .$aliquot_master_id.'"';			 
+		$criteria = 'AliquotDetail.ad_gel_matrix_id ="' .$aliquot_master_id . '"';			 
 		$aliquot_tiss_slide_nbr = $special_aliquot_detail->findCount($criteria);
 		
 		if($aliquot_tiss_slide_nbr > 0){
@@ -4130,7 +3751,7 @@ foreach($this->data as $id => $data) {
 			)
 		);
 		
-		$this->redirect( 'order/orders/process_add_aliquots/' );
+		$this->redirect('order/orders/process_add_aliquots/');
 		exit();
 		
 	}
@@ -4149,7 +3770,7 @@ foreach($this->data as $id => $data) {
 			// Look for storage matching the storage selection label 
 			$aliquot_arr_storage_list 
 				= $this->requestAction(
-					'/storagelayout/storage_masters/getStorageMatchingSelectLabel/'.$storage_selection_label);
+					'/storagelayout/storage_masters/getStorageMatchingSelectLabel/' . $storage_selection_label);
 			
 			if(empty($storage_master_id)) {	
 				
@@ -4184,7 +3805,7 @@ foreach($this->data as $id => $data) {
 					
 					// Add the storage to the storage list
 					$aliquot_arr_storage_list[$storage_master_id] 
-						= $this->requestAction('/storagelayout/storage_masters/getStorageData/'.$storage_master_id);								
+						= $this->requestAction('/storagelayout/storage_masters/getStorageData/' . $storage_master_id);								
 
 				}	
 			}
@@ -4197,7 +3818,7 @@ foreach($this->data as $id => $data) {
 			// Add this one in $arr_storage_list if an error is displayed
 			$aliquot_arr_storage_list 
 				= array($storage_master_id  
-					=> $this->requestAction('/storagelayout/storage_masters/getStorageData/'.$storage_master_id));
+					=> $this->requestAction('/storagelayout/storage_masters/getStorageData/' . $storage_master_id));
 				
 		} // else if $returned_storage_id and $recorded_selection_label empty: Nothing to do	
 		
@@ -4233,9 +3854,9 @@ foreach($this->data as $id => $data) {
 			// Verify coordinate values
 			$a_coord_valid = 
 				$this->requestAction('/storagelayout/storage_masters/validateStoragePosition/'.
-					$storage_master_id.'/'.
-					'x_'.$storage_coord_x.'/'.		// Add 'x_' before coord to support empty value
-					'y_'.$storage_coord_y.'/');		// Add 'y_' before coord to support empty value
+					$storage_master_id . '/'.
+					'x_' . $storage_coord_x . '/'.		// Add 'x_' before coord to support empty value
+					'y_' . $storage_coord_y . '/');		// Add 'y_' before coord to support empty value
 					
 			// Manage coordinate x
 			if(!$a_coord_valid['coord_x']['validated']) {

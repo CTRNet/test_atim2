@@ -2,17 +2,17 @@
 
 class AliquotMaster extends InventoryManagementAppModel {
 
-	var $belongsTo = array(        
-		'AliquotControl' => array(            
+	var $belongsTo = array(       
+		'AliquotControl' => array(           
 			'className'    => 'Inventorymanagement.AliquotControl',            
 			'foreignKey'    => 'aliquot_control_id'), 
-		'Collection' => array(            
+		'Collection' => array(           
 			'className'    => 'Inventorymanagement.Collection',            
 			'foreignKey'    => 'collection_id'),          
-		'SampleMaster' => array(            
+		'SampleMaster' => array(           
 			'className'    => 'Inventorymanagement.SampleMaster',            
 			'foreignKey'    => 'sample_master_id'),        
-		'StorageMaster' => array(            
+		'StorageMaster' => array(           
 			'className'    => 'Storagelayout.StorageMaster',            
 			'foreignKey'    => 'storage_master_id'));
                                  
@@ -21,22 +21,22 @@ class AliquotMaster extends InventoryManagementAppModel {
 			array('className'   => 'Inventorymanagement.AliquotUse',
 			 	'foreignKey'  => 'aliquot_master_id'));
 	
-	function summary( $variables=array() ) {
+	function summary($variables=array()) {
 		$return = false;
 		
-		if ( isset($variables['AliquotMaster.id']) ) {
+		if (isset($variables['Collection.id']) && isset($variables['SampleMaster.id']) && isset($variables['AliquotMaster.id'])) {
 			
-			$result = $this->find('first', array('conditions'=>array('AliquotMaster.id'=>$variables['AliquotMaster.id'])));
-			
+			$result = $this->find('first', array('conditions'=>array('AliquotMaster.collection_id'=>$variables['Collection.id'], 'AliquotMaster.sample_master_id'=>$variables['SampleMaster.id'], 'AliquotMaster.id'=>$variables['AliquotMaster.id'])));
+					
 			$return = array(
 				'Summary'	 => array(
-					'menu'	        	=> array( null, __($result['AliquotMaster']['barcode'], true) ),
-					'title'		  		=> array( null, __($result['AliquotMaster']['barcode'], true) ),
+					'menu'	        	=> array(null, __($result['AliquotMaster']['aliquot_type'], true) . ' : '. $result['AliquotMaster']['barcode']),
+					'title'		  		=> array(null, __($result['AliquotMaster']['aliquot_type'], true) . ' : '. $result['AliquotMaster']['barcode']),
 
 					'description'		=> array(
-						__('product code', true)=> __($result['AliquotMaster']['product_code'], true),
+						__('barcode', true)=> $result['AliquotMaster']['barcode'],
+						__('product code', true)=> $result['AliquotMaster']['product_code'],
 						__('type', true)	    => __($result['AliquotMaster']['aliquot_type'], true),
-						__('category', true)	=> __($result['AliquotMaster']['current_volume'].' '.$result['AliquotMaster']['aliquot_volume_unit'], true),
 						__('status', true)		=> __($result['AliquotMaster']['status'], true)
 					)
 				)

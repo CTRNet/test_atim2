@@ -2,11 +2,11 @@
 
 class SampleMaster extends InventorymanagementAppModel {
 	
-	var $belongsTo = array(        
-		'SampleControl' => array(            
+	var $belongsTo = array(       
+		'SampleControl' => array(           
 			'className'    => 'Inventorymanagement.SampleControl',            
 			'foreignKey'    => 'sample_control_id'),        
-		'Collection' => array(            
+		'Collection' => array(           
 			'className'    => 'Inventorymanagement.Collection',            
 			'foreignKey'    => 'collection_id'));   
 
@@ -27,16 +27,21 @@ class SampleMaster extends InventorymanagementAppModel {
 	
 	function specimenSummary($variables=array()) {
 		$return = false;
-				
+		
 		if (isset($variables['SampleMaster.initial_specimen_sample_id']) && isset($variables['Collection.id'])) {
 			$criteria = array(
 				'SampleMaster.collection_id' => $variables['Collection.id'],
 				'SampleMaster.id' => $variables['SampleMaster.initial_specimen_sample_id']);
 			$result = $this->find('first', array('conditions' => $criteria));
+			
+			$filter_value = '';
+			if(array_key_exists('filter_value', $variables) && (!empty($variables['filter_value']))) {
+				$filter_value =  ' > ' . __($variables['filter_value'], true) . '';
+			}
 	 	
 	 		$return = array(
 				'Summary' => array(
-					'menu' => array(null, __($result['SampleMaster']['sample_type'], true) . ' : ' . $result['SampleMaster']['sample_code']),
+					'menu' => array('sample', __($result['SampleMaster']['sample_type'], true) . ' : ' . $result['SampleMaster']['sample_code'] . $filter_value),
 					'title' => array(null, __($result['SampleMaster']['sample_type'], true) . ' : ' . $result['SampleMaster']['sample_code']),
 
 					'description' => array(
@@ -80,7 +85,7 @@ class SampleMaster extends InventorymanagementAppModel {
 			 	 
 //   var $actAs = array('MasterDetail');
 	
-//	function summary( $variables=array() ) {
+//	function summary($variables=array()) {
 //		$return = false;
 //		
 
