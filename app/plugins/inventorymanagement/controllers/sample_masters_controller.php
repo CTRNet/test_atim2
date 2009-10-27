@@ -79,7 +79,7 @@ class SampleMastersController extends InventorymanagementAppController {
 
 		// MANAGE DATA
 
-		// set FILTER
+		// Set filter
 		if(!$studied_specimen_sample_control_id) {
 			if(isset($_SESSION['InventoryManagement']['treeView']['Filter'])) {
 				$studied_specimen_sample_control_id = $_SESSION['InventoryManagement']['treeView']['Filter'];
@@ -131,11 +131,12 @@ class SampleMastersController extends InventorymanagementAppController {
 		// Set filter value
 		$filter_value = null;
 		if($studied_specimen_sample_control_id) {
-			if(!isset($specimen_sample_controls_list[$studied_specimen_sample_control_id])) { 
+			$sample_control_data = $this->SampleControl->find('first', array('conditions' => array('id' => $studied_specimen_sample_control_id)));
+			if(empty($sample_control_data)) { 
 				unset($_SESSION['InventoryManagement']['treeView']['Filter']);
 				$this->redirect('/pages/err_inv_system_error', null, true); 
 			}
-			$filter_value = $specimen_sample_controls_list[$studied_specimen_sample_control_id]['SampleControl']['sample_type'];
+			$filter_value = $sample_control_data['SampleControl']['sample_type'];
 		}
 		
 		// Get the current menu object. 
@@ -143,7 +144,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->set('atim_menu', $atim_menu);
 				
 		// Set menu variables
-		$this->set('atim_menu_variables', array('Collection.id' => $collection_id, 'filter_value' => $filter_value));		
+		$this->set('atim_menu_variables', array('Collection.id' => $collection_id, 'sample_type_for_filter' => $filter_value));		
 	}
 	
 	/**
@@ -182,10 +183,10 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 		$is_collection_sample_list = ($initial_specimen_sample_id == '-1')? true: false;
 		
-		$filter_value = null;
-		$specific_form_alias = null;
 		$specific_sample_search_criteria = array();
-					
+		$specific_form_alias = null;
+		$specific_menu_variables = array();
+		
 		if($is_collection_sample_list) {
 			// User is working on collection samples list
 			
@@ -212,7 +213,7 @@ class SampleMastersController extends InventorymanagementAppController {
 						// list all collection samples according to sample category: Either specimen or derivative
 						$sample_category = $option_for_list_all[1];
 						$specific_sample_search_criteria['SampleMaster.sample_category'] = $sample_category;
-						$filter_value = $sample_category;
+						$specific_menu_variables['sample_type_for_filter'] = $sample_category;
 						break;
 						
 					case 'SAMP_CONT_ID':
@@ -223,8 +224,8 @@ class SampleMastersController extends InventorymanagementAppController {
 						$sample_control_data = $this->SampleControl->find('first', array('conditions' => array('SampleControl.id' => $sample_control_id)));
 						if(empty($sample_control_data)) { $this->redirect('/pages/err_inv_no_samp_cont_data', null, true); }	
 										
-						$filter_value = $sample_control_data['SampleControl']['sample_type'];
 						$specific_form_alias = $sample_control_data['SampleControl']['form_alias'];
+						$specific_menu_variables['sample_type_for_filter'] = $sample_control_data['SampleControl']['sample_type'];
 						break;
 						
 					default:
@@ -242,11 +243,15 @@ class SampleMastersController extends InventorymanagementAppController {
 			
 			$specific_sample_search_criteria['SampleMaster.initial_specimen_sample_id'] = $initial_specimen_sample_id; 
 			$specific_sample_search_criteria['SampleMaster.sample_category'] = 'derivative'; 
+			
+			$specific_menu_variables['SampleMaster.id'] = $initial_specimen_sample_id;
+			$specific_menu_variables['SampleMaster.initial_specimen_sample_id'] = $initial_specimen_sample_id;
 					
 			// Manage filter option
 			if(is_null($filter_option)) {
 				// Get existing filter
 				if(isset($_SESSION['InventoryManagement']['SpecimenDerivatives']['Filter'])) { 
+					pr($_SESSION['InventoryManagement']);
 					if($_SESSION['InventoryManagement']['SpecimenDerivatives']['Filter']['InitialSpecimenSampleId'] != $initial_specimen_sample_id) {
 						// New studied specimen: clear filter option
 						$filter_option = null;
@@ -278,8 +283,8 @@ class SampleMastersController extends InventorymanagementAppController {
 						$sample_control_data = $this->SampleControl->find('first', array('conditions' => array('SampleControl.id' => $sample_control_id)));
 						if(empty($sample_control_data)) { $this->redirect('/pages/err_inv_no_samp_cont_data', null, true); }	
 										
-						$filter_value = $sample_control_data['SampleControl']['sample_type'];
 						$specific_form_alias = $sample_control_data['SampleControl']['form_alias'];
+						$specific_menu_variables['sample_type_for_filter'] = $sample_control_data['SampleControl']['sample_type'];
 						break;
 						
 					default:
@@ -339,13 +344,11 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->set('existing_derivative_sample_types', $sample_type_list);
 		
 		// Get the current menu object. 
-		$menu_link = ($is_collection_sample_list)? '/inventorymanagement/sample_masters/listAll/%%Collection.id%%/-1': '/inventorymanagement/sample_masters/listAll/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%';
-		$atim_menu = $this->Menus->get($menu_link);
-		$this->set('atim_menu', $atim_menu);
-				
+		$menu_link = '/inventorymanagement/sample_masters/listAll/%%Collection.id%%/' . (($is_collection_sample_list)? '-1': '%%SampleMaster.initial_specimen_sample_id%%');
+		$this->set('atim_menu', $this->Menus->get($menu_link));
+		
 		// Set menu variables
-		$atim_menu_variables = array('Collection.id' => $collection_id, 'filter_value' => $filter_value);
-		if(!$is_collection_sample_list) { $atim_menu_variables['SampleMaster.initial_specimen_sample_id'] = $initial_specimen_sample_id; }
+		$atim_menu_variables = array_merge(array('Collection.id' => $collection_id), $specific_menu_variables);
 		$this->set('atim_menu_variables', $atim_menu_variables);
 	}
 	
@@ -658,14 +661,12 @@ class SampleMastersController extends InventorymanagementAppController {
 						// SpecimenDetail
 						$this->SpecimenDetail->id = $sample_data['SpecimenDetail']['id'];
 						if(!$this->SpecimenDetail->save($this->data['SpecimenDetail'])){
-							pr('2');
 							$bool_save_done = false;
 						}
 					} else {
 						// DerivativeDetail
 						$this->DerivativeDetail->id = $sample_data['DerivativeDetail']['id'];
 						if(!$this->DerivativeDetail->save($this->data['DerivativeDetail'])){
-							pr('3');
 							$bool_save_done = false;
 						}
 					}
