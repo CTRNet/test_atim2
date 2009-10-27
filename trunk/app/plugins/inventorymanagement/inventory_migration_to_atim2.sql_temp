@@ -492,6 +492,14 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1005'), 'CAN-999-999-000-999-1005', 
 (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1223'), 'CAN-999-999-000-999-1223', 0, -1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
+UPDATE `menus` SET use_link='/inventorymanagement/quality_ctrls/listall/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%' WHERE id='inv_CAN_224';
+
+UPDATE `structures` SET `alias` = 'qualityctrls' WHERE `structures`.`id` =65 LIMIT 1 ;
+
+UPDATE `structure_fields` SET model='QualityCtrl' WHERE model='QualityControl';
+
+RENAME TABLE `quality_controls`  TO `quality_ctrls` ;
+RENAME TABLE `quality_controls_revs`  TO `quality_ctrls_revs` ;
 
 
 
