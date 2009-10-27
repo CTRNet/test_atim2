@@ -34,7 +34,7 @@
 	
 	$structure_links = array(
 		'index' => array(
-			'detail' => '/inventorymanagement/sample_masters/detail/' . $atim_menu_variables['Collection.id'] . '/%%SampleMaster.id%%'
+			'detail' => '/inventorymanagement/sample_masters/detail/%%Collection.id%%/%%SampleMaster.id%%'
 		),
 		'bottom' => array(
 			'add' => $add_links,
