@@ -11,7 +11,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			'DerivativeDetail',
 			'OrderItem',
 			'PathCollectionReview',
-			'QualityControl', 
+			'QualityCtrl', 
 			'Realiquoting',
 			'ReviewMaster',
 			'SampleAliquotControlLink', 

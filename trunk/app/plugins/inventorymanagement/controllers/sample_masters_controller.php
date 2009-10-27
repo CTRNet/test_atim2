@@ -13,7 +13,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		'Inventorymanagement.ParentToDerivativeSampleControl',
 		
 		'Inventorymanagement.SourceAliquot',
-		'Inventorymanagement.QualityControl',
+		'Inventorymanagement.QualityCtrl',
 		'Inventorymanagement.PathCollectionReview',
 		'Inventorymanagement.ReviewMaster',
 		
@@ -802,7 +802,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'an aliquot of the parent sample is defined as source aliquot'); }
 
 		// Check sample is not linked to qc	
-		$returned_nbr = $this->QualityControl->find('count', array('conditions' => array('QualityControl.sample_master_id' => $sample_master_id), 'recursive' => '-1'));
+		$returned_nbr = $this->QualityCtrl->find('count', array('conditions' => array('QualityCtrl.sample_master_id' => $sample_master_id), 'recursive' => '-1'));
 		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'quality control exists for the deleted sample'); }
 
 		// Check sample has not been linked to review	
