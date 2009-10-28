@@ -22,18 +22,18 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		//$this->set('atim_structure', $this->Structures->get('form', $storage_data['DiagnosisControl']['form_alias']));		
 	}
 
-	function detail( $participant_id=null, $diagnosis_id=null) {
+	function detail( $participant_id=null, $diagnosis_master_id=null) {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if ( !$diagnosis_id ) { $this->redirect( '/pages/err_clin-ann_no_diagnosis_id', NULL, TRUE ); }
+		if ( !$diagnosis_master_id ) { $this->redirect( '/pages/err_clin-ann_no_diagnosis_master_id', NULL, TRUE ); }
 	
 		
-		$storage_data = $this->DiagnosisMaster->find('first',array('conditions'=>array('DiagnosisMaster.id'=>$diagnosis_id)));
-		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'DiagnosisMaster.id'=>$diagnosis_id, 'DiagnosisMaster.diagnosis_control_id' => $storage_data['DiagnosisMaster']['diagnosis_control_id']) );
+		$storage_data = $this->DiagnosisMaster->find('first',array('conditions'=>array('DiagnosisMaster.id'=>$diagnosis_master_id)));
+		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'DiagnosisMaster.id'=>$diagnosis_master_id, 'DiagnosisMaster.diagnosis_control_id' => $storage_data['DiagnosisMaster']['diagnosis_control_id']) );
 
 		$storage_data = $this->DiagnosisControl->find('first', array('conditions' => array('DiagnosisControl.id' => $storage_data['DiagnosisMaster']['diagnosis_control_id'])));
 		$this->set('atim_structure', $this->Structures->get('form', $storage_data['DiagnosisControl']['form_alias']));
 		
-		$this->data = $this->DiagnosisMaster->find('first',array('conditions'=>array('DiagnosisMaster.id'=>$diagnosis_id)));
+		$this->data = $this->DiagnosisMaster->find('first',array('conditions'=>array('DiagnosisMaster.id'=>$diagnosis_master_id)));
 		
 	}
 
@@ -56,36 +56,36 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		}
 	}
 
-	function edit( $participant_id=null, $diagnosis_id=null) {
+	function edit( $participant_id=null, $diagnosis_master_id=null) {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if ( !$diagnosis_id ) { $this->redirect( '/pages/err_clin-ann_no_diagnosis_id', NULL, TRUE ); }
+		if ( !$diagnosis_master_id ) { $this->redirect( '/pages/err_clin-ann_no_diagnosis_master_id', NULL, TRUE ); }
 
-		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'DiagnosisMaster.id'=>$diagnosis_id));
+		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'DiagnosisMaster.id'=>$diagnosis_master_id));
 		
-		$storage_data = $this->DiagnosisMaster->find('first',array('conditions'=>array('DiagnosisMaster.id'=>$diagnosis_id)));
+		$storage_data = $this->DiagnosisMaster->find('first',array('conditions'=>array('DiagnosisMaster.id'=>$diagnosis_master_id)));
 		$storage_data = $this->DiagnosisControl->find('first', array('conditions' => array('DiagnosisControl.id' => $storage_data['DiagnosisMaster']['diagnosis_control_id'])));
 		$this->set('atim_structure', $this->Structures->get('form', $storage_data['DiagnosisControl']['form_alias']));
 		
 		if ( !empty($this->data) ) {
-			$this->DiagnosisMaster->id = $diagnosis_id;
+			$this->DiagnosisMaster->id = $diagnosis_master_id;
 			if ( $this->DiagnosisMaster->save($this->data) ) {
-				$this->flash( 'Your data has been updated.','/clinicalannotation/diagnosis_masters/detail/'.$participant_id.'/'.$diagnosis_id );
+				$this->flash( 'Your data has been updated.','/clinicalannotation/diagnosis_masters/detail/'.$participant_id.'/'.$diagnosis_master_id );
 			}
 		} else {
-			$this->data = $this->DiagnosisMaster->find('first',array('conditions'=>array('DiagnosisMaster.id'=>$diagnosis_id)));
+			$this->data = $this->DiagnosisMaster->find('first',array('conditions'=>array('DiagnosisMaster.id'=>$diagnosis_master_id)));
 		}
 	}
 
-	function delete( $participant_id=null, $diagnosis_id=null ) {
+	function delete( $participant_id=null, $diagnosis_master_id=null ) {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if ( !$diagnosis_id ) { $this->redirect( '/pages/err_clin-ann_no_diagnosis_id', NULL, TRUE ); }
+		if ( !$diagnosis_master_id ) { $this->redirect( '/pages/err_clin-ann_no_diagnosis_master_id', NULL, TRUE ); }
 		
-		$treatment_id = $this->TreatmentMaster->find('first', array('conditions'=>array('TreatmentMaster.diagnosis_id'=>$diagnosis_id, 'TreatmentMaster.deleted'=>0),'fields'=>array('TreatmentMaster.id'))); 
-		$event_id = $this->EventMaster->find('first', array('conditions'=>array('EventMaster.diagnosis_id'=>$diagnosis_id, 'EventMaster.deleted'=>0),'fields'=>array('EventMaster.id')));
-		//$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'DiagnosisMaster.id'=>$diagnosis_id));
+		$treatment_id = $this->TreatmentMaster->find('first', array('conditions'=>array('TreatmentMaster.diagnosis_master_id'=>$diagnosis_master_id, 'TreatmentMaster.deleted'=>0),'fields'=>array('TreatmentMaster.id'))); 
+		$event_id = $this->EventMaster->find('first', array('conditions'=>array('EventMaster.diagnosis_master_id'=>$diagnosis_master_id, 'EventMaster.deleted'=>0),'fields'=>array('EventMaster.id')));
+		//$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'DiagnosisMaster.id'=>$diagnosis_master_id));
 
 		if( $treatment_id == NULL && $event_id == NULL ){
-			if( $this->DiagnosisMaster->atim_delete( $diagnosis_id ) ) {
+			if( $this->DiagnosisMaster->atim_delete( $diagnosis_master_id ) ) {
 				$this->flash( 'Your data has been deleted.', '/clinicalannotation/diagnosis_masters/listall/'.$participant_id );
 			} else {
 				$this->flash( 'Error deleting data - Contact administrator.', '/clinicalannotation/diagnosis_masters/listall/'.$participant_id );
@@ -101,7 +101,7 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 			
 			$message = substr($message, 0, -2);
 			
-			$this->flash( $message, '/clinicalannotation/diagnosis_masters/details/'.$participant_id.'/'.$diagnosis_id.'/');
+			$this->flash( $message, '/clinicalannotation/diagnosis_masters/details/'.$participant_id.'/'.$diagnosis_master_id.'/');
 		}
 	}
 }
