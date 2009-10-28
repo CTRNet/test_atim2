@@ -4,7 +4,7 @@ class ParticipantsController extends ClinicalannotationAppController {
 
 	var $uses = array(
 		'Clinicalannotation.Participant',
-		'Clinicalannotation.Consent',
+		'Clinicalannotation.ConsentMaster',
 		'Clinicalannotation.ParticipantContact',
 		'Clinicalannotation.ParticipantMessage',
 		'Clinicalannotation.EventMaster',
@@ -65,11 +65,11 @@ class ParticipantsController extends ClinicalannotationAppController {
 	function delete( $participant_id=null ) {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		
-		$consent_id = $this->Consent->find('first', array('conditions'=>array('Consent.participant_id'=>$participant_id, 'Consent.deleted'=>0),'fields'=>array('Consent.id')));
+		$consent_master_id = $this->ConsentMaster->find('first', array('conditions'=>array('ConsentMaster.participant_id'=>$participant_id, 'ConsentMaster.deleted'=>0),'fields'=>array('ConsentMaster.id')));
 		$event_id = $this->EventMaster->find('first', array('conditions'=>array('EventMaster.participant_id'=>$participant_id, 'EventMaster.deleted'=>0),'fields'=>array('EventMaster.id')));
 		$contact_id = $this->ParticipantContact->find('first', array('conditions'=>array('ParticipantContact.participant_id'=>$participant_id, 'ParticipantContact.deleted'=>0),'fields'=>array('ParticipantContact.id')));
 
-		$diagnosis_id = $this->DiagnosisMaster->find('first', array('conditions'=>array('DiagnosisMaster.participant_id'=>$participant_id, 'DiagnosisMaster.deleted'=>0),'fields'=>array('DiagnosisMaster.id')));
+		$diagnosis_master_id = $this->DiagnosisMaster->find('first', array('conditions'=>array('DiagnosisMaster.participant_id'=>$participant_id, 'DiagnosisMaster.deleted'=>0),'fields'=>array('DiagnosisMaster.id')));
 		$family_id = $this->FamilyHistory->find('first', array('conditions'=>array('FamilyHistory.participant_id'=>$participant_id, 'FamilyHistory.deleted'=>0), 'fields'=>array('FamilyHistory.id')));
 		$identifier_id = $this->MiscIdentifier->find('first', array('conditions'=>array('MiscIdentifier.participant_id'=>$participant_id, 'MiscIdentifier.deleted'=>0), 'fields'=>array('MiscIdentifier.id')));
 		//$link_id = $this->ClinicalCollectionLink->find('first', array('conditions'=>array('ClinicalCollectionLink.participant_id'=>$participant_id, 'ClinicalCollectionLink.deleted'=>0), 'fields'=>array('ClinicalCollectionLink.id')));
@@ -78,7 +78,7 @@ class ParticipantsController extends ClinicalannotationAppController {
 		$reproductive_id = $this->ReproductiveHistory->find('first', array('conditions'=>array('ReproductiveHistory.participant_id'=>$participant_id, 'ReproductiveHistory.deleted'=>0), 'fields'=>array('ReproductiveHistory.id')));
 		$treatment_id = $this->TreatmentMaster->find('first', array('conditions'=>array('TreatmentMaster.participant_id'=>$participant_id, 'TreatmentMaster.deleted'=>0),'fields'=>array('TreatmentMaster.id')));
 		
-		if ( $consent_id == NULL && $event_id == NULL && $contact_id == NULL && $diagnosis_id == NULL && $family_id == NULL && $identifier_id == NULL && $link_id == NULL &&
+		if ( $consent_master_id == NULL && $event_id == NULL && $contact_id == NULL && $diagnosis_master_id == NULL && $family_id == NULL && $identifier_id == NULL && $link_id == NULL &&
 			$message_id == NULL && $reproductive_id == NULL && $treatment_id == NULL){
 			if( $this->Participant->atim_delete( $participant_id ) ) {
 				$this->flash( 'Your data has been deleted.', '/clinicalannotation/participants/index/');
@@ -87,7 +87,7 @@ class ParticipantsController extends ClinicalannotationAppController {
 			}
 		}else{
 			$message = "Your data cannot be deleted because the following records exist: ";
-			if( $consent_id != NULL ){
+			if( $consent_master_id != NULL ){
 				$message = $message."A consent record exists, ";
 			}
 			if( $event_id != NULL ){
@@ -96,7 +96,7 @@ class ParticipantsController extends ClinicalannotationAppController {
 			if( $contact_id != NULL ){
 				$message = $message."A contact record exists, ";
 			}
-			if( $diagnosis_id != NULL ){
+			if( $diagnosis_master_id != NULL ){
 				$message = $message."A diagnosis record exists, ";
 			}
 			if( $family_id != NULL ){

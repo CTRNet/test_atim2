@@ -42,8 +42,8 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 	$unlink_collection = array(
 		'ClinicalCollectionLink' => array(
 		'participant_id' => null,
-		'diagnosis_id' => null,
-		'consent_id' => null,
+		'diagnosis_master_id' => null,
+		'consent_master_id' => null,
 		'id' => $clinical_collection_link_id,
 		'modified_by' => $this->othAuth->user('id')));
  */
