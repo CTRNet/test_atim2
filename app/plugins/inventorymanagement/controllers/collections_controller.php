@@ -194,8 +194,8 @@ class CollectionsController extends InventorymanagementAppController {
 		// Check Collection has not been linked to a participant, consent or diagnosis
 		$criteria = 'ClinicalCollectionLink.collection_id = "' . $collection_id . '" ';
 		$criteria .= 'AND (ClinicalCollectionLink.participant_id != 0 ';
-		$criteria .= 'OR ClinicalCollectionLink.diagnosis_id != 0 ';
-		$criteria .= 'OR ClinicalCollectionLink.consent_id != 0)';		
+		$criteria .= 'OR ClinicalCollectionLink.diagnosis_master_id != 0 ';
+		$criteria .= 'OR ClinicalCollectionLink.consent_master_id != 0)';		
 		$returned_nbr = $this->ClinicalCollectionLink->find('count', array('conditions' => array($criteria), 'recursive' => '-1'));
 		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'the deleted collection is linked to participant'); }
 
