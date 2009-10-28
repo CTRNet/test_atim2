@@ -311,6 +311,9 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->data = $this->paginate($this->SampleMaster, $criteria);
 		$this->SampleMaster->unbindModel(array('belongsTo' => array('GeneratedParentSample')), false);
 		
+		// Set list of banks
+		$this->set('banks', $this->getBankList());	
+		
 		// MANAGE FORM, MENU AND ACTION BUTTONS	
 		$form_alias = (is_null($specific_form_alias))? 'samplemasters': $specific_form_alias;
 		$this->set('atim_structure', $this->Structures->get('form', $form_alias));
