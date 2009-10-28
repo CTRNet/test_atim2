@@ -82,7 +82,7 @@
 			Used for LINK views 
 		*/
 		
-		function associated_consent_form( $lang=array(), $list_of_consents=array(), $form_field_name=array( 'ClinicalCollectionLink', 'consent_id' ), $form_select_value=0 ) {
+		function associated_consent_form( $lang=array(), $list_of_consents=array(), $form_field_name=array( 'ClinicalCollectionLink', 'consent_master_id' ), $form_select_value=0 ) {
 			
 			// setup variables for build 
 			$radio = array();
@@ -93,14 +93,14 @@
 				// go through all DX, make array of DX divided by PRIMARY NUMBER for building radio buttons 
 				foreach ( $list_of_consents as $dx ) {
 				
-					$radio[ $dx['Consent']['id'] ] = 
-						$dx['Consent']['date']
+					$radio[ $dx['ConsentMaster']['id'] ] = 
+						$dx['ConsentMaster']['date']
 						.'</td><td>'.
-						$dx['Consent']['form_version']
+						$dx['ConsentMaster']['form_version']
 						.'</td><td>'.
-						$this->Translations->t( $dx['Consent']['obtained'], $lang )
+						$this->Translations->t( $dx['ConsentMaster']['obtained'], $lang )
 						.'</td><td>'.
-						$dx['Consent']['date_denied']
+						$dx['ConsentMaster']['date_denied']
 					;
 					
 				}
