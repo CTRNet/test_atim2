@@ -87,6 +87,13 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		// Set list of banks
 		$this->set('banks', $this->getBankList());
+
+//TODO		
+//Gerer les listes (dans index et search) pour
+//Collection.bank_id
+//GeneratedParentSample.sample_type
+//Generated.generated_field_use
+//Generated.realiquoting_data
 	}
 	
 	function listAll($collection_id, $sample_master_id, $filter_option = null) {
@@ -193,173 +200,19 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->data = $this->paginate($this->AliquotMaster, $criteria);
 //		$this->SampleMaster->unbindModel(array('belongsTo' => array('GeneratedParentSample')), false);
 		
-		// MANAGE FORM, MENU AND ACTION BUTTONS	
-		$form_alias = (is_null($specific_form_alias))? 'aliquotmasters': $specific_form_alias;
-		$this->set('atim_structure', $this->Structures->get('form', $form_alias));
-		
-		// Get all collection/sample 'sample aliquot type list' to build the filter button
-		$sample_aliquot_types = array();
-		$criteria = array('AliquotMaster.collection_id' => $collection_id);
-		if(!$is_collection_aliquot_list) { $criteria['AliquotMaster.sample_master_id'] = $sample_master_id; }
-		$tmp_sample_aliquot_type_list = $this->AliquotMaster->find('all', array('fields' => 'DISTINCT SampleMaster.sample_type, SampleMaster.sample_control_id, AliquotMaster.aliquot_type, AliquotMaster.aliquot_control_id', 'conditions' => $criteria, 'order' => 'SampleMaster.sample_type ASC, AliquotMaster.aliquot_type ASC', 'recursive' => '0'));
-		foreach($tmp_sample_aliquot_type_list as $new_sample_aliquot_type) {
-			// TODO: Should create key because looks like it's not a real distinct: Perhaps exists a better solution 
-			$sample_control_id = $new_sample_aliquot_type['SampleMaster']['sample_control_id'];
-			$aliquot_control_id = $new_sample_aliquot_type['AliquotMaster']['aliquot_control_id'];
-			$sample_aliquot_types[$sample_control_id . '|' . $aliquot_control_id] = array(
-				'sample_type' => $new_sample_aliquot_type['SampleMaster']['sample_type'],
-				'sample_control_id' => $new_sample_aliquot_type['SampleMaster']['sample_control_id'],
-				'aliquot_type' => $new_sample_aliquot_type['AliquotMaster']['aliquot_type'],
-				'aliquot_control_id' => $new_sample_aliquot_type['AliquotMaster']['aliquot_control_id']);
-		}
-		$this->set('existing_sample_aliquot_types', $sample_aliquot_types);
-
-		// Set filter option for menu
-		if(!is_null($filter_option)) {
-			if(!array_key_exists($filter_option, $sample_aliquot_types))  { $this->redirect('/pages/err_inv_system_error', null, true); }
-			if($is_collection_aliquot_list) { $specific_menu_variables['sample_type_for_filter'] = $sample_aliquot_types[$filter_option]['sample_type']; }			
-			$specific_menu_variables['aliquot_type_for_filter'] = $sample_aliquot_types[$filter_option]['aliquot_type'];						
-		}
-		
-		// Get the current menu object
-		$last_menu_parameter = '-1';
-		if(!$is_collection_aliquot_list) {	
-			// User is working on sample aliquots
-			if($specific_menu_variables['SampleMaster.initial_specimen_sample_id'] == $specific_menu_variables['SampleMaster.id']) {
-				// Studied sample is a specimen
-				$last_menu_parameter = '%%SampleMaster.initial_specimen_sample_id%%';
-			} else {
-				// Studied sample is a derivative
-				$last_menu_parameter = '%%SampleMaster.id%%';	
-			}
-		}	
-		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/aliquot_masters/listAll/%%Collection.id%%/' . $last_menu_parameter));
-				
-		// Set menu variables
-		$atim_menu_variables = array_merge(array('Collection.id' => $collection_id), $specific_menu_variables);
-		$this->set('atim_menu_variables', $atim_menu_variables);
-	}
-
-// detail	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+		// Set list of banks
+		$this->set('banks', $this->getBankList());	
 	
 	
 
-	
 
-	// function listAllSampleAliquots($specimen_group_menu_id=null, $group_specimen_type=null, $sample_category = null, $collection_id=null, $sample_master_id = null) {
-	function listAllSampleAliquots($collection_id=null, $sample_master_id=null) {
-		$this->set('atim_menu_variables', array('Collection.id'=>$collection_id, 'SampleMaster.id'=>$sample_master_id));
-		$this->data = $this->paginate($this->AliquotMaster,array('AliquotMaster.sample_master_id'=>$sample_master_id));
-		
-		/*
-		// ** Parameters check **
-		// Verify parameters have been set
-		if(empty($specimen_group_menu_id) || empty($sample_category) || 
-		empty($collection_id) || empty($group_specimen_type) || 
-		empty($sample_master_id)) {
-			$this->redirect('/pages/err_inv_funct_param_missing'); 
-			exit;
-		}
-		
-		// Verify collection data exists
-		$criteria = 'Collection.id = "' . $collection_id . '" ';		
-		$collection_data = $this->Collection->find($criteria);
-		
-		if(empty($collection_data)) {
-			$this->redirect('/pages/err_inv_coll_no_data'); 
-			exit;
-		}
-		
-		// ** get SAMPLE data **
-		$criteria = 'SampleMaster.id ="' . $sample_master_id . '" AND ' .
-				'SampleMaster.collection_id ="' . $collection_id . '"';
-		$sample_master = $this->SampleMaster->find($criteria, null, null, 0);
-			
-		if(empty($sample_master)){
-			$this->redirect('/pages/err_inv_samp_no_data'); 
-			exit;
-		}
-		
-		// ** Set FORM variable **
-		$this->set('ctrapp_form', $this->Forms->getFormArray('aliquot_masters'));
-		
-		// ** set DATA for echo on VIEW or for link build **
-		$this->set('specimen_group_menu_id', $specimen_group_menu_id);
-		$this->set('group_specimen_type', $group_specimen_type);
-		$this->set('sample_category', $sample_category);
-		
-		$this->set('collection_id', $collection_id);
-		$this->set('sample_master_id', $sample_master_id);
-		
-		$this->set('max_nbr_of_aliq_per_batch', 20);
-		
-//		$this->set('sample_code', $sample_master['SampleMaster']['sample_code']);
-				
-		// ** Set MENU variable for echo on VIEW **
-		$ctrapp_menu[] = $this->Menus->tabs('inv_CAN_00', 'inv_CAN_10', $collection_id);
-		$ctrapp_menu[] = $this->Menus->tabs('inv_CAN_10', $specimen_group_menu_id, $collection_id);
-		
-		$specimen_grp_menu_lists = $this->getSpecimenGroupMenu($specimen_group_menu_id);
-		
-		switch($sample_category) {
-			case "specimen":
-				$specimen_sample_master_id=$sample_master_id;
-				
-				$specimen_menu_id = $specimen_group_menu_id . '-sa_al';
-				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $specimen_menu_id, $specimen_group_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id . '/' . $specimen_sample_master_id);	
-				break;
-				
-			case "derivative":
-				$specimen_sample_master_id=$sample_master['SampleMaster']['initial_specimen_sample_id'];
-				$derivative_sample_master_id=$sample_master_id;		
-				
-				$specimen_menu_id = $specimen_group_menu_id . '-sa_der';
-				$derivative_menu_id = $specimen_group_menu_id . '-der_al';
-				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $specimen_menu_id, $specimen_group_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id . '/' . $specimen_sample_master_id);	
-				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $derivative_menu_id, $specimen_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $derivative_menu_id, $collection_id . '/' . $derivative_sample_master_id . '/');	
-				break;
-			
-			default:
-				$this->redirect('/pages/err_inv_menu_definition'); 
-				exit;
-		}
-		
-		$this->set('ctrapp_menu', $ctrapp_menu);
-	
-		// ** Set SUMMARY variable from plugin's COMPONENTS **
-		$this->set('ctrapp_summary', $this->Summaries->build($collection_id, $sample_master_id));
-		
-		// ** Set SIDEBAR variable **
-		// Use PLUGIN_CONTROLLER_ACTION by default, 
-		// but any ALIAS string that matches in the SIDEBARS datatable will do...
-		$this->set('ctrapp_sidebar', 
-			$this->Sidebars->getColsArray(
-				$this->params['plugin'] . '_'.
-				$this->params['controller'] . '_'.
-				$this->params['action']));
-		
-		// ** Search sample aliquot data to display in the list **
+//TODO		
+//Gerer les listes (dans index et search) pour
+//Collection.bank_id
+//GeneratedParentSample.sample_type
+//Generated.generated_field_use
+//Generated.realiquoting_data
 
-		// Search data from aliquot master table	
-		$criteria = array();
-		$criteria['AliquotMaster.sample_master_id'] = $sample_master_id;
-		$criteria = array_filter($criteria);
-			
-		list($order, $limit, $page) = $this->Pagination->init($criteria);
-		$aliquot_masters = $this->AliquotMaster->findAll($criteria, null, $order, $limit, $page, 1);
 
 		// Record the number of use for each aliquot
 		$arr_aliquot_ids = array();				
@@ -417,59 +270,58 @@ class AliquotMastersController extends InventoryManagementAppController {
 				}
 				
 			}
-		}
-
-		$this->set('aliquot_masters', $aliquot_masters);
-			
-		// ** Build list of aliquot types that could be used to contain the sample. **
-
-		// Search types of aliquot that could be used to contain the sample
-		$criteria = array();
-		$criteria['sample_control_id'] = $sample_master['SampleMaster']['sample_control_id'];
-		$criteria['status'] = 'active';
-		$allowed_aliquot_type_ids = 
-			$this->SampleAliquotControlLink->generateList(
-				$criteria,
-				null, 
-				null, 
-				'{n}.SampleAliquotControlLink.aliquot_control_id', 
-				'{n}.SampleAliquotControlLink.aliquot_control_id');					
-		
-		$allowed_aliquot_types = array();
-		
-		if(!empty($allowed_aliquot_type_ids)){
-			// At least one aliquot type can be used.
-			
-			// Search active aliquot
-			$criteria = array();
-			$criteria['id'] = array_values ($allowed_aliquot_type_ids);
-			$criteria['status'] = 'active';
-			$criteria = array_filter($criteria);
-
-			$allowed_aliquot_types
-				= $this->AliquotControl->generateList(
-					$criteria, 
-					null, 
-					null, 
-					'{n}.AliquotControl.id', 
-					'{n}.AliquotControl.aliquot_type');	
-		}
-		
-		$this->set('allowed_aliquot_types', $allowed_aliquot_types);
-		
-		// ** look for CUSTOM HOOKS, "format" **
-		$custom_ctrapp_controller_hook 
-			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
-			'controllers' . DS . 'hooks' . DS . 
-			$this->params['controller'] . '_' . $this->params['action'] . '_format.php';
-			
-		if (file_exists($custom_ctrapp_controller_hook)) {
-			require($custom_ctrapp_controller_hook);
-		}
-		*/
-						
-	} // End listAllSampleAliquots()
+		}	
 	
+	
+	
+		
+		// MANAGE FORM, MENU AND ACTION BUTTONS	
+		$form_alias = (is_null($specific_form_alias))? 'aliquotmasters': $specific_form_alias;
+		$this->set('atim_structure', $this->Structures->get('form', $form_alias));
+		
+		// Get all collection/sample 'sample aliquot type list' to build the filter button
+		$sample_aliquot_types = array();
+		$criteria = array('AliquotMaster.collection_id' => $collection_id);
+		if(!$is_collection_aliquot_list) { $criteria['AliquotMaster.sample_master_id'] = $sample_master_id; }
+		$tmp_sample_aliquot_type_list = $this->AliquotMaster->find('all', array('fields' => 'DISTINCT SampleMaster.sample_type, SampleMaster.sample_control_id, AliquotMaster.aliquot_type, AliquotMaster.aliquot_control_id', 'conditions' => $criteria, 'order' => 'SampleMaster.sample_type ASC, AliquotMaster.aliquot_type ASC', 'recursive' => '0'));
+		foreach($tmp_sample_aliquot_type_list as $new_sample_aliquot_type) {
+			// TODO: Should create key because looks like it's not a real distinct: Perhaps exists a better solution 
+			$sample_control_id = $new_sample_aliquot_type['SampleMaster']['sample_control_id'];
+			$aliquot_control_id = $new_sample_aliquot_type['AliquotMaster']['aliquot_control_id'];
+			$sample_aliquot_types[$sample_control_id . '|' . $aliquot_control_id] = array(
+				'sample_type' => $new_sample_aliquot_type['SampleMaster']['sample_type'],
+				'sample_control_id' => $new_sample_aliquot_type['SampleMaster']['sample_control_id'],
+				'aliquot_type' => $new_sample_aliquot_type['AliquotMaster']['aliquot_type'],
+				'aliquot_control_id' => $new_sample_aliquot_type['AliquotMaster']['aliquot_control_id']);
+		}
+		$this->set('existing_sample_aliquot_types', $sample_aliquot_types);
+
+		// Set filter option for menu
+		if(!is_null($filter_option)) {
+			if(!array_key_exists($filter_option, $sample_aliquot_types))  { $this->redirect('/pages/err_inv_system_error', null, true); }
+			if($is_collection_aliquot_list) { $specific_menu_variables['sample_type_for_filter'] = $sample_aliquot_types[$filter_option]['sample_type']; }			
+			$specific_menu_variables['aliquot_type_for_filter'] = $sample_aliquot_types[$filter_option]['aliquot_type'];						
+		}
+		
+		// Get the current menu object
+		$last_menu_parameter = '-1';
+		if(!$is_collection_aliquot_list) {	
+			// User is working on sample aliquots
+			if($specific_menu_variables['SampleMaster.initial_specimen_sample_id'] == $specific_menu_variables['SampleMaster.id']) {
+				// Studied sample is a specimen
+				$last_menu_parameter = '%%SampleMaster.initial_specimen_sample_id%%';
+			} else {
+				// Studied sample is a derivative
+				$last_menu_parameter = '%%SampleMaster.id%%';	
+			}
+		}	
+		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/aliquot_masters/listAll/%%Collection.id%%/' . $last_menu_parameter));
+				
+		// Set menu variables
+		$atim_menu_variables = array_merge(array('Collection.id' => $collection_id), $specific_menu_variables);
+		$this->set('atim_menu_variables', $atim_menu_variables);
+	}
+
 	function add($collection_id, $sample_master_id, $aliquot_control_id) {
 		if((!$collection_id) || (!$sample_master_id) || (!$aliquot_control_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }		
 		
