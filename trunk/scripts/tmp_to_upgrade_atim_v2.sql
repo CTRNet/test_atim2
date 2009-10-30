@@ -307,6 +307,7 @@ UPDATE `menus` SET `use_link` = '/clinicalannotation/consent_masters/listall/%%P
 -- --------------------------------------------------------------------------------
 
 UPDATE `menus` SET use_link='/inventorymanagement/quality_ctrls/listall/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%' WHERE id='inv_CAN_224';
+UPDATE `menus` SET use_link='/inventorymanagement/quality_ctrls/listall/%%Collection.id%%/%%SampleMaster.id%%' WHERE id='inv_CAN_2224';
 
 UPDATE `structures` SET `alias` = 'qualityctrls' WHERE `structures`.`id` =65 LIMIT 1 ;
 
