@@ -2248,22 +2248,26 @@ class StructuresHelper extends Helper {
 						<li>
 							<a class="form popup" href="javascript:return false;">'.$link_name.'</a>
 							
-							<ul>
+							<!-- container DIV for JS functionality -->
+							<div>
+								<ul>
 				';
 				
 				$count = 0;
 				foreach ( $link_results as $link_label=>$link_location ) {
 					$links_append .= '
-								<li class="count_'.$count.'">
-									'.$link_location.'
-								</li>
+									<li class="count_'.$count.'">
+										'.$link_location.'
+									</li>
 					';
 					
 					$count++;
 				}
 				
 				$links_append .= '
-							</ul>
+								</ul>
+							</div>
+							<!-- /end container DIV -->
 							
 						</li>
 					</ul>
