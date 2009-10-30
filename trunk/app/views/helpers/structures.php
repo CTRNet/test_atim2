@@ -2249,7 +2249,7 @@ class StructuresHelper extends Helper {
 							<a class="form popup" href="javascript:return false;">'.$link_name.'</a>
 							
 							<!-- container DIV for JS functionality -->
-							<div>
+							<div class="filter_menu">
 								<ul>
 				';
 				
