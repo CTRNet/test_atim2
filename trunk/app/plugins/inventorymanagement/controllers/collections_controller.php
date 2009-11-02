@@ -62,7 +62,7 @@ class CollectionsController extends InventorymanagementAppController {
 		
 		// MANAGE DATA
 
-		$collection_data = $this->Collection->find('first', array('conditions' => array('Collection.id' => $collection_id), 'recursive' => '-1'));
+		$collection_data = $this->Collection->find('first', array('conditions' => array('Collection.id' => $collection_id)));
 		if(empty($collection_data)) { $this->redirect('/pages/err_inv_coll_no_data', null, true); }
 		$this->data = $collection_data;
 		
@@ -97,8 +97,25 @@ class CollectionsController extends InventorymanagementAppController {
 		// MANAGE DATA RECORD
 				
 		if (!empty($this->data)) {
+			//Save data		
+			$bool_save_done = true;
+			
+			// Save collection
+			$collection_id = null;
 			if ($this->Collection->save($this->data)) {
 				$collection_id = $this->Collection->getLastInsertId();
+			} else {
+				$bool_save_done = false;
+			}
+				
+			if($bool_save_done) {
+				// Create clinical collection link
+				if(!$this->ClinicalCollectionLink->save(array('ClinicalCollectionLink' => array('collection_id' => $collection_id)))) {
+					$bool_save_done = false;
+				}	
+			}
+			
+			if($bool_save_done) {
 				$this->flash('Your data has been saved . ', '/inventorymanagement/collections/detail/' . $collection_id);
 			}
 		}
@@ -108,8 +125,9 @@ class CollectionsController extends InventorymanagementAppController {
 		if(!$collection_id) { $this->redirect('/pages/err_inv_coll_no_id', null, true); }
 		
 		// MANAGE DATA
-
-		$collection_data = $this->Collection->find('first', array('conditions' => array('Collection.id' => $collection_id), 'recursive' => '-1'));
+		
+		$this->Collection->unbindModel(array('hasMany' => array('SampleMaster')));		
+		$collection_data = $this->Collection->find('first', array('conditions' => array('Collection.id' => $collection_id)));
 		if(empty($collection_data)) { $this->redirect('/pages/err_inv_coll_no_data', null, true); }
 				
 		// Set list of banks
@@ -121,6 +139,11 @@ class CollectionsController extends InventorymanagementAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		$this->set('atim_menu_variables', array('Collection.id' => $collection_id));		
+		
+		if(!empty($collection_data['ClinicalCollectionLink']['participant_id'])) {
+			// Linked collection: Set specific structure
+			$this->set('atim_structure', $this->Structures->get('form', 'linked_collections'));
+		}
 
 		// MANAGE DATA RECORD
 
@@ -148,6 +171,7 @@ class CollectionsController extends InventorymanagementAppController {
 		if($arr_allow_deletion['allow_deletion']) {
 			// Delete collection
 			if($this->Collection->atim_delete($collection_id)) {
+				//TODO delete clinical collection link
 				$this->flash('Your data has been deleted . ', '/inventorymanagement/collections/index/');
 			} else {
 				$this->flash('Error deleting data - Contact administrator . ', '/inventorymanagement/collections/index/');
@@ -193,9 +217,9 @@ class CollectionsController extends InventorymanagementAppController {
 		
 		// Check Collection has not been linked to a participant, consent or diagnosis
 		$criteria = 'ClinicalCollectionLink.collection_id = "' . $collection_id . '" ';
-		$criteria .= 'AND (ClinicalCollectionLink.participant_id != 0 ';
-		$criteria .= 'OR ClinicalCollectionLink.diagnosis_master_id != 0 ';
-		$criteria .= 'OR ClinicalCollectionLink.consent_master_id != 0)';		
+		$criteria .= 'AND (ClinicalCollectionLink.participant_id != NULL ';
+		$criteria .= 'OR ClinicalCollectionLink.diagnosis_master_id != NULL ';
+		$criteria .= 'OR ClinicalCollectionLink.consent_master_id != NULL)';		
 		$returned_nbr = $this->ClinicalCollectionLink->find('count', array('conditions' => array($criteria), 'recursive' => '-1'));
 		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'the deleted collection is linked to participant'); }
 

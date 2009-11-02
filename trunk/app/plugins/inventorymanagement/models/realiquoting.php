@@ -1,13 +1,7 @@
 <?php
 
-class Realiquoting extends InventoryManagementAppModel
-{
-    var $name = 'Realiquoting';
+class Realiquoting extends InventoryManagementAppModel {
 	
-	var $useTable = 'realiquotings';
-	
-	var $validate = array();
-
 }
 
 ?>

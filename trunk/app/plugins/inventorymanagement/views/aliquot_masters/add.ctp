@@ -23,14 +23,14 @@
 	foreach($arr_sample_blocks as $new_block) {
 		// TODO test
 	}	
-	$structure_override['AliquotDetail.ad_block_id'] = $blocks_list;	
+	$structure_override['AliquotDetail.block_aliquot_master_id'] = $blocks_list;	
 
 	$gel_matrices_list = array();
 	pr('to test matrix');
 	foreach($arr_sample_gel_matrices as $new_matrix) {
 		// TODO test
 	}	
-	$structure_override['AliquotDetail.ad_gel_matrix_id'] = $gel_matrices_list;		
+	$structure_override['AliquotDetail.gel_matrix_aliquot_master_id'] = $gel_matrices_list;		
 	
 	pr('to test date default value');
 	if(isset($default_storage_datetime)) { $form_override['AliquotMaster.storage_datetime'] = $default_storage_datetime; }

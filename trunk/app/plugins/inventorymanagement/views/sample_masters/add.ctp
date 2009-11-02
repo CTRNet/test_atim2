@@ -13,7 +13,7 @@
 	$structure_override['SampleMaster.sample_category'] = $sample_control_data['SampleControl']['sample_category'];		
 	$structure_override['SampleMaster.sop_master_id'] = $arr_sample_sops;	
 	$structure_override['SampleMaster.parent_id'] = (empty($parent_sample_data)? null : array($parent_sample_data['SampleMaster']['id'] => ($parent_sample_data['SampleMaster']['sample_code'] . ' (' . __($parent_sample_data['SampleMaster']['sample_type'], TRUE) . ')')));
-pr('problem in SampleMaster.parent_id display');		
+			
 	$structures->build($atim_structure, array('links' => $structure_links, 'override' => $structure_override));
 	
 ?>

@@ -56,24 +56,28 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/collections/index'));
 		
 		if($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions();
-
+		$this->setSampleSearchData($_SESSION['ctrapp_core']['search']['criteria']);
+		
+		// if SEARCH form data, save number of RESULTS and URL
+		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['SampleMaster']['count'];
+		$_SESSION['ctrapp_core']['search']['url'] = '/inventorymanagement/sample_masters/search';
+		
+	}
+	
+	function setSampleSearchData($criteria) {
 		// Search Data
 		$belongs_to_details = array(
 			'belongsTo' => array('GeneratedParentSample' => array(
 				'className' => 'Inventorymanagement.SampleMaster',
 				'foreignKey' => 'parent_id')));
 		$this->SampleMaster->bindModel($belongs_to_details, false);	
-		$this->data = $this->paginate($this->SampleMaster, $_SESSION['ctrapp_core']['search']['criteria']);
+		$this->data = $this->paginate($this->SampleMaster, $criteria);
 		$this->SampleMaster->unbindModel(array('belongsTo' => array('GeneratedParentSample')), false);
-				
-		// if SEARCH form data, save number of RESULTS and URL
-		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['SampleMaster']['count'];
-		$_SESSION['ctrapp_core']['search']['url'] = '/inventorymanagement/sample_masters/search';
 		
 		// Set list of banks
 		$this->set('banks', $this->getBankList());
 	}
-
+	
 	function contentTreeView($collection_id, $studied_specimen_sample_control_id = null) {
 		if(!$collection_id) { $this->redirect('/pages/err_inv_coll_no_id', null, true); }
 
@@ -144,7 +148,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->set('atim_menu', $atim_menu);
 				
 		// Set menu variables
-		$this->set('atim_menu_variables', array('Collection.id' => $collection_id, 'sample_type_for_filter' => $filter_value));		
+		$this->set('atim_menu_variables', array('Collection.id' => $collection_id, 'FilterLevel' => 'collection', 'SampleTypeForFilter' => $filter_value));		
 	}
 	
 	/**
@@ -202,7 +206,9 @@ class SampleMastersController extends InventorymanagementAppController {
 				unset($_SESSION['InventoryManagement']['CollectionSamples']['Filter']);
 			}
 			
-			// Search data to display		
+			// Search data to display
+			$specific_menu_variables['FilterLevel'] = 'collection';
+			
 			if(!is_null($filter_option)) {
 				// Get filter options
 				$option_for_list_all = explode("|", $filter_option);			
@@ -213,7 +219,7 @@ class SampleMastersController extends InventorymanagementAppController {
 						// list all collection samples according to sample category: Either specimen or derivative
 						$sample_category = $option_for_list_all[1];
 						$specific_sample_search_criteria['SampleMaster.sample_category'] = $sample_category;
-						$specific_menu_variables['sample_type_for_filter'] = $sample_category;
+						$specific_menu_variables['SampleTypeForFilter'] = $sample_category;
 						break;
 						
 					case 'SAMP_CONT_ID':
@@ -225,7 +231,7 @@ class SampleMastersController extends InventorymanagementAppController {
 						if(empty($sample_control_data)) { $this->redirect('/pages/err_inv_no_samp_cont_data', null, true); }	
 										
 						$specific_form_alias = $sample_control_data['SampleControl']['form_alias'];
-						$specific_menu_variables['sample_type_for_filter'] = $sample_control_data['SampleControl']['sample_type'];
+						$specific_menu_variables['SampleTypeForFilter'] = $sample_control_data['SampleControl']['sample_type'];
 						break;
 						
 					default:
@@ -268,7 +274,9 @@ class SampleMastersController extends InventorymanagementAppController {
 				unset($_SESSION['InventoryManagement']['SpecimenDerivatives']['Filter']);
 			}
 			
-			// Search data to display		
+			// Search data to display	
+			$specific_menu_variables['FilterLevel'] = 'sample';
+				
 			if(!is_null($filter_option)) {
 				// Get filter options
 				$option_for_list_all = explode("|", $filter_option);			
@@ -284,7 +292,7 @@ class SampleMastersController extends InventorymanagementAppController {
 						if(empty($sample_control_data)) { $this->redirect('/pages/err_inv_no_samp_cont_data', null, true); }	
 										
 						$specific_form_alias = $sample_control_data['SampleControl']['form_alias'];
-						$specific_menu_variables['sample_type_for_filter'] = $sample_control_data['SampleControl']['sample_type'];
+						$specific_menu_variables['SampleTypeForFilter'] = $sample_control_data['SampleControl']['sample_type'];
 						break;
 						
 					default:
@@ -301,18 +309,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		// MANAGE DATA
 				
 		// Search data to display
-		
-		$criteria = array_merge(array('SampleMaster.collection_id' => $collection_id), $specific_sample_search_criteria);
-		$belongs_to_details = array(
-			'belongsTo' => array('GeneratedParentSample' => array(
-				'className' => 'Inventorymanagement.SampleMaster',
-				'foreignKey' => 'parent_id')));
-		$this->SampleMaster->bindModel($belongs_to_details, false);	
-		$this->data = $this->paginate($this->SampleMaster, $criteria);
-		$this->SampleMaster->unbindModel(array('belongsTo' => array('GeneratedParentSample')), false);
-		
-		// Set list of banks
-		$this->set('banks', $this->getBankList());	
+		$this->setSampleSearchData(array_merge(array('SampleMaster.collection_id' => $collection_id), $specific_sample_search_criteria));
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS	
 		$form_alias = (is_null($specific_form_alias))? 'samplemasters': $specific_form_alias;
@@ -461,7 +458,7 @@ class SampleMastersController extends InventorymanagementAppController {
 			if(empty($sample_control_data)) { $this->redirect('/pages/err_inv_no_samp_cont_data', null, true); }	
 			
 			// Check collection id
-			$collection_data = $this->Collection->find('first', array('conditions' => array('Collection.id' => $collection_id)));
+			$collection_data = $this->Collection->find('first', array('conditions' => array('Collection.id' => $collection_id), 'recursive' => '-1'));
 			if(empty($collection_data)) { $this->redirect('/pages/err_inv_coll_no_data', null, true); }			
 			
 		} else {
@@ -496,10 +493,11 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 		// Set menu
 		$atim_menu_link = '/inventorymanagement/sample_masters/listAll/%%Collection.id%%';
-		$atim_menu = $bool_is_specimen? $this->Menus->get($atim_menu_link): $this->Menus->get($atim_menu_link . '/%%SampleMaster.initial_specimen_sample_id%%');
-		$this->set('atim_menu', $atim_menu);
+		$atim_menu_link .= ($bool_is_specimen? '/-1': '/%%SampleMaster.initial_specimen_sample_id%%');
+		$this->set('atim_menu', $this->Menus->get($atim_menu_link));
 		
 		$atim_menu_variables = (empty($parent_sample_data)? array('Collection.id' => $collection_id) : array('Collection.id' => $collection_id, 'SampleMaster.initial_specimen_sample_id' => $parent_sample_data['SampleMaster']['initial_specimen_sample_id']));
+		
 		$this->set('atim_menu_variables', $atim_menu_variables);
 		
 		// set structure alias based on VALUE from CONTROL table
