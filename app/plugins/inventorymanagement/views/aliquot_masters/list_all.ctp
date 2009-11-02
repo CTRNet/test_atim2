@@ -21,7 +21,7 @@
 	
 	$structure_links = array(
 		'index' => array(
-			'detail' => '/inventorymanagement/sample_masters/detail/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%'
+			'detail' => '/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%'
 		),
 		'bottom' => array(
 			'filter' => $filter_links,

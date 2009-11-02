@@ -14,7 +14,7 @@
 			'edit' => '/inventorymanagement/aliquot_masters/edit/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'], 
 			'delete' => '/inventorymanagement/aliquot_masters/delete/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'], 
 			'add to order' => '/underdevelopment/',
-			'remove from storage' => '/underdevelopment/',
+			'remove from storage' => '/inventorymanagement/aliquot_masters/removeAliquotFromStorage/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'],
 			'plugin storagelayout access to storage' => $acces_to_storage_link
 		)
 	);
@@ -49,14 +49,14 @@
 	foreach($arr_sample_blocks as $new_block) {
 		// TODO test
 	}	
-	$structure_override['AliquotDetail.ad_block_id'] = $blocks_list;	
+	$structure_override['AliquotDetail.block_aliquot_master_id'] = $blocks_list;	
 
 	$gel_matrices_list = array();
 	pr('to test matrix');
 	foreach($arr_sample_gel_matrices as $new_matrix) {
 		// TODO test
 	}	
-	$structure_override['AliquotDetail.ad_gel_matrix_id'] = $gel_matrices_list;	
+	$structure_override['AliquotDetail.gel_matrix_aliquot_master_id'] = $gel_matrices_list;	
 
 	if(isset($coll_to_stor_spent_time_msg)) { $structure_override['Generated.coll_to_stor_spent_time_msg'] = manageSpentTimeDataDisplay($coll_to_stor_spent_time_msg); }
 	if(isset($rec_to_stor_spent_time_msg)) { $structure_override['Generated.rec_to_stor_spent_time_msg'] = manageSpentTimeDataDisplay($rec_to_stor_spent_time_msg); }
