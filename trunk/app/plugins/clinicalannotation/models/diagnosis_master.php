@@ -11,7 +11,7 @@ class DiagnosisMaster extends ClinicalannotationAppModel {
 	var $hasOne = array(
 		'ClinicalCollectionLink' => array(
 			'className' => 'Clinicalannotation.ClinicalCollectionLink',
-			'foreignKey' => 'collection_id'));
+			'foreignKey' => 'diagnosis_master_id'));
 	
 	
 function summary( $variables=array() ) {
