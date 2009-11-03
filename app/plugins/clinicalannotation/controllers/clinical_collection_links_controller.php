@@ -11,7 +11,6 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 	
 	function listall( $participant_id ) {
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
-		// Find all unlinked, make sure participantID = NULL
 		$this->data = $this->paginate($this->ClinicalCollectionLink, array('ClinicalCollectionLink.participant_id'=>$participant_id));
 	}
 	
@@ -35,17 +34,15 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 		$collection_data = $this->Collection->find('all', array('conditions' => array('Collection.deleted' => '0', 'ClinicalCollectionLink.participant_id IS NULL')));
 		$this->set( 'collection_data', $collection_data );
 
-		//TODO: CHANGE THE IS NULL WHEN THE CODE IS FIXED and no longer null
 		$consent_data = $this->ConsentMaster->find('all', array('conditions' => array('ConsentMaster.deleted' => '0', 'ClinicalCollectionLink.participant_id IS NULL', 'ConsentMaster.participant_id' => $participant_id)));
 		$this->set( 'consent_data', $consent_data );
 	
-		//TODO: CHANGE THE IS NULL WHEN THE CODE IS FIXED and no longer null
-		$diagnosis_data = $this->DiagnosisMaster->find('all', array('conditions' => array('DiagnosisMaster.deleted' => '0', 'ClinicalCollectionLink.participant_id IS NULL', 'DiagnosisMaster.participant_id' => $participant_id)));
+		$diagnosis_data = $this->DiagnosisMaster->find('all', array('conditions' => //array('DiagnosisMaster.deleted' => '0', 'ClinicalCollectionLink.participant_id IS NULL', 'DiagnosisMaster.participant_id' => $participant_id)));
+			'DiagnosisMaster.deleted = 0 AND ClinicalCollectionLink.participant_id IS NULL AND DiagnosisMaster.participant_id='.$participant_id));
 		$this->set( 'diagnosis_data', $diagnosis_data );
 	}
 	
 	function edit( $participant_id, $clinical_collection_links_id) {
-		pr($this->data);
 		if ( !empty($this->data) ) {
 			$this->ClinicalCollectionLink->id = $clinical_collection_links_id;
 			if ( $this->ClinicalCollectionLink->save($this->data) ) $this->flash( 'Your data has been updated.','/clinicalannotation/clinical_collection_links/detail/'.$participant_id.'/'.$clinical_collection_links_id );
@@ -62,7 +59,6 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 		$collection_data = $this->Collection->find('all', array('conditions' => array('ClinicalCollectionLink.id' => $clinical_collection_links_id)));
 		$this->set( 'collection_data', $collection_data );
 		
-	//TODO: CHANGE THE IS NULL WHEN THE CODE IS FIXED and no longer null
 		$consent_data = $this->ConsentMaster->find('all', array('conditions' => 
 			'ConsentMaster.deleted = 0 '
 			.'AND (ClinicalCollectionLink.participant_id IS NULL '
@@ -94,17 +90,6 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 				$this->flash( 'Deletion failed.','/clinicalannotation/clinical_collection_links/edit/'.$participant_id.'/'.$clinical_collection_link_id.'/');
 			}
 		}
-		
-		
-/*  TODO: Code from eventum issue #573
-	$unlink_collection = array(
-		'ClinicalCollectionLink' => array(
-		'participant_id' => null,
-		'diagnosis_master_id' => null,
-		'consent_master_id' => null,
-		'id' => $clinical_collection_link_id,
-		'modified_by' => $this->othAuth->user('id')));
- */
 	}
 	
 	/**
