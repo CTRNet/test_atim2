@@ -7,6 +7,12 @@ class ConsentMaster extends ClinicalannotationAppModel {
 		'foreignKey'    => 'consent_control_id'
 		)    
 	);
+	
+	var $hasOne = array(
+		'ClinicalCollectionLink' => array(
+			'className' => 'Clinicalannotation.ClinicalCollectionLink',
+			'foreignKey' => 'consent_master_id'));
+	
 }
 
 ?>
