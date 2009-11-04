@@ -1,0 +1,72 @@
+<?php
+class ProductMastersController extends ClinicalannotationAppController {
+
+	var $uses = array(
+		'Clinicalannotation.ClinicalCollectionLink',
+		'Clinicalannotation.Collection',
+		'Inventorymanagement.SampleMaster',
+		'Inventorymanagement.AliquotMaster'
+	
+		
+	);
+	
+	var $paginate = array('DiagnosisMaster'=>array('limit'=>10,'order'=>'DiagnosisMaster.dx_date')); 
+	
+	function contentTreeView( $participant_id) {
+		
+		$atim_structure = array();
+		$atim_structure['ClinicalCollectionLink']	= $this->Structures->get('form','clinicalcollectionlinks');
+		$atim_structure['Collection']	= $this->Structures->get('form','collections');
+		$atim_structure['SampleMaster']	= $this->Structures->get('form','sample_masters_for_collection_tree_view');
+		$atim_structure['AliquotMaster']	= $this->Structures->get('form','aliquot_masters_for_collection_tree_view');
+		$this->set('atim_structure', $atim_structure);
+		
+		$this->set('atim_menu_variables', array('Participant.id' => $participant_id));
+		$collection_data = $this->Collection->find('all', array('conditions' => 'ClinicalCollectionLink.participant_id='.$participant_id, 'recursive' => 2));
+		//pr($collection_data);
+		$this->data = array();
+		$collection_n = 0;
+		foreach($collection_data as $key => $value){//iterate over collections
+			if(isset($collection_data[$key]['SampleMaster'][0])){
+				$this->data[$collection_n]['Collection'] = $collection_data[$key]['Collection'];
+				$sample_data = $this->SampleMaster->find('threaded', array('conditions' => 'Collection.id='.$collection_data[$key]['Collection']['id']));
+				$this->build_sample_recur(&$sample_data);
+				$this->data[$collection_n]['children'] = $sample_data;
+				++ $collection_n;
+			}
+		}
+//		pr($this->data);
+	}
+	
+	function build_sample_recur($sample_data){
+//		echo("---------------------------------------");
+//		pr($sample_data);
+		foreach($sample_data as $key => $value){//iterate over samples
+			$aliquot_n = 0;
+			$tmp_aliquot_array = array();
+			if(isset($sample_data[$key]['AliquotMaster'])){
+				foreach($sample_data[$key]['AliquotMaster'] as $key2 => $value2){//iterate over aliquots
+	//					$sample_data[$key]['children'][$aliquot_n ++]['AliquotMaster'] = $sample_data[$key]['AliquotMaster'][$key2];
+						$tmp_aliquot_array[$aliquot_n ++]['AliquotMaster'] = $sample_data[$key]['AliquotMaster'][$key2];
+				}
+			}
+			//foreach($sample_data[$key]['children'] as $key2 => $value2){//iterate over children samples
+			//$sample_data[$key]['children'] = array_merge($sample_data[$key]['children'], $sample_data[$key]['AliquotMaster'])
+			$this->clean(&$sample_data[$key], 'SampleMaster');
+			if(isset($sample_data[$key]['children'])){
+				$this->build_sample_recur(&$sample_data[$key]['children']);
+				$sample_data[$key]['children'] = array_merge($sample_data[$key]['children'], $tmp_aliquot_array);
+			}else{
+				$sample_data[$key]['children'] = $tmp_aliquot_array;
+			}
+		}
+	}
+	
+	function clean($arr, $keep){
+		foreach($arr as $key => $value){
+			if($key != $keep && $key != 'children'){
+				unset($arr[$key]);
+			}
+		}
+	}
+}

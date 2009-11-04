@@ -22,6 +22,8 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 	function add( $participant_id ) {
 		if ( !empty($this->data) ) {
 			$this->data['ClinicalCollectionLink']['participant_id'] = $participant_id;
+			$tmp_data = $this->ClinicalCollectionLink->find('first',array('conditions'=>array('ClinicalCollectionLink.collection_id' => $this->data['ClinicalCollectionLink']['collection_id'])));
+			$this->ClinicalCollectionLink->id = $tmp_data['ClinicalCollectionLink']['id']; 
 			if ( $this->ClinicalCollectionLink->save($this->data) ) $this->flash( 'Your data has been updated.','/clinicalannotation/clinical_collection_links/detail/'.$participant_id.'/'.$this->ClinicalCollectionLink->id );
 		}
 		$this->set( 'atim_menu', $this->Menus->get('/clinicalannotation/clinical_collection_links/listall/') );
