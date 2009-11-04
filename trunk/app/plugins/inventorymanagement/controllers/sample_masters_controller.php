@@ -146,7 +146,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		// Get the current menu object. 
 		$atim_menu = $this->Menus->get('/inventorymanagement/sample_masters/contentTreeView/%%Collection.id%%');
 		$this->set('atim_menu', $atim_menu);
-				
+
 		// Set menu variables
 		$this->set('atim_menu_variables', array('Collection.id' => $collection_id, 'FilterLevel' => 'collection', 'SampleTypeForFilter' => $filter_value));		
 	}
@@ -352,9 +352,10 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->set('atim_menu_variables', $atim_menu_variables);
 	}
 	
-	function detail($collection_id, $sample_master_id, $is_tree_view_detail_form = 0) {
+	function detail($collection_id, $sample_master_id, $is_tree_view_detail_form = 0, $is_product_tree_view = false) {
 		if((!$collection_id) || (!$sample_master_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }		
 		
+		$this->set('is_product_tree_view', $is_product_tree_view );
 		// MANAGE DATA
 
 		// Get the sample data

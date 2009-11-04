@@ -5,13 +5,17 @@
 	$search_type_links['sample'] = '/inventorymanagement/sample_masters/index/';
 	$search_type_links['aliquot'] = '/inventorymanagement/aliquot_masters/index/';
 		
-	$structure_links = array(
-		'bottom'=>array(
+	$structure_links = array();
+		
+	if($is_tree_view){
+		$structure_links['bottom']['access to all data'] = '/inventorymanagement/collections/detail/' . $atim_menu_variables['Collection.id'] . '/';
+	}else{
+		$structure_links['bottom'] = array(
 			'edit' => '/inventorymanagement/collections/edit/' . $atim_menu_variables['Collection.id'], 
 			'delete' => '/inventorymanagement/collections/delete/' . $atim_menu_variables['Collection.id'],
 			'search' => $search_type_links
-		)
-	);
+		);
+	}
 	
 	$structure_override = array();
 	

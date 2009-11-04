@@ -425,9 +425,9 @@ unset($this->data['AliquotMaster']);
 		}
 	}
 	
-	function detail($collection_id, $sample_master_id, $aliquot_master_id, $is_tree_view_detail_form = 0, $is_collection_tree_view = 0) {
+	function detail($collection_id, $sample_master_id, $aliquot_master_id, $is_tree_view_detail_form = 0, $is_collection_tree_view = 0, $is_product_tree_view = false) {
 		if((!$collection_id) || (!$sample_master_id) || (!$aliquot_master_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }		
-			
+		$this->set('is_product_tree_view', $is_product_tree_view);
 		// MANAGE DATA
 
 		// Get the aliquot data

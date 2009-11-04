@@ -25,15 +25,16 @@
 		$add_aliquots = '/underdevelopment/';
 	}	
 	
-	$structure_links = array(
-		'bottom'=>array(
+	$structure_links = array();
+	if(!$is_product_tree_view ){
+		$structure_links['bottom'] = array(
 			'edit' => '/inventorymanagement/sample_masters/edit/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'], 
 			'delete' => '/inventorymanagement/sample_masters/delete/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'], 
 			'see parent sample' => $show_parent_link,
 			'add derivative' => $add_derivatives,
 			'add aliquot' => $add_aliquots
-		)
-	);
+		);
+	}
 		
 	if($is_tree_view_detail_form) {
 		// Detail form displayed in collection content tree view
