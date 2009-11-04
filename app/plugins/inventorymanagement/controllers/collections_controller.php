@@ -57,7 +57,8 @@ class CollectionsController extends InventorymanagementAppController {
 		$this->set('arr_collection_sops', $this->getCollectionSopList());
 	}
 	
-	function detail($collection_id) {
+	function detail($collection_id, $is_tree_view = false) {		
+		$this->set('is_tree_view', $is_tree_view);
 		if(!$collection_id) { $this->redirect('/pages/err_inv_coll_no_id', null, true); }
 		
 		// MANAGE DATA
