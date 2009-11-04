@@ -11,7 +11,7 @@ class CollectionsController extends InventorymanagementAppController {
 		
 		'Clinicalannotation.ClinicalCollectionLink');
 	
-	var $paginate = array('Collection' => array('limit' => 10,'order' => 'Collection.acquisition_label ASC')); 
+	var $paginate = array('Collection' => array('limit' => 10, 'order' => 'Collection.acquisition_label ASC')); 
 	
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS
@@ -102,7 +102,7 @@ class CollectionsController extends InventorymanagementAppController {
 			
 			// Save collection
 			$collection_id = null;
-			if ($this->Collection->save($this->data)) {
+			if($this->Collection->save($this->data)) {
 				$collection_id = $this->Collection->getLastInsertId();
 			} else {
 				$bool_save_done = false;
@@ -162,16 +162,17 @@ class CollectionsController extends InventorymanagementAppController {
 		if(!$collection_id) { $this->redirect('/pages/err_inv_coll_no_id', null, true); }
 		
 		// Get collection data
-		$collection_data = $this->Collection->find('first', array('conditions' => array('Collection.id' => $collection_id), 'recursive' => '-1'));
+		$collection_data = $this->Collection->find('first', array('conditions' => array('Collection.id' => $collection_id)));
 		if(empty($collection_data)) { $this->redirect('/pages/err_inv_coll_no_data', null, true); }	
-
+		
 		// Check deletion is allowed
 		$arr_allow_deletion = $this->allowCollectionDeletion($collection_id);
 		
 		if($arr_allow_deletion['allow_deletion']) {
-			// Delete collection
-			if($this->Collection->atim_delete($collection_id)) {
-				//TODO delete clinical collection link
+
+
+			// Delete collection			
+			if($this->ClinicalCollectionLink->atim_delete($collection_data['ClinicalCollectionLink']['id']) && $this->Collection->atim_delete($collection_id)) {
 				$this->flash('Your data has been deleted . ', '/inventorymanagement/collections/index/');
 			} else {
 				$this->flash('Error deleting data - Contact administrator . ', '/inventorymanagement/collections/index/');
