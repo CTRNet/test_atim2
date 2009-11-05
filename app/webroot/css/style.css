@@ -159,11 +159,12 @@ a {
 /* actions, links */
 div#wrapper div.actions {
 	position: relative;
-	z-index: 15;
+	z-index: 30;
 	list-style: none;
 	background: #dde8f2;
-	min-height: 25px;
-	padding: 15px 0 3px 20px;
+	display: block;
+	height: 25px;
+	padding: 10px 0 10px 20px;
 	margin: 0;
 	border: 1px solid #243340;
 	border-color: #243340;
@@ -174,7 +175,7 @@ div#wrapper div.actions {
 	line-height: 1.3em;
 	color: #bbf;
 }
-	div#wrapper div.actions ul {
+	div#wrapper div.actions ul.actions {
 		float: right;
 		margin: 0 5px 0 10px;
 		padding: 0;
@@ -185,7 +186,7 @@ div#wrapper div.actions {
 		float: left;
 		padding: 0 10px 0 0;
 	}
-	div#wrapper div.actions a {
+	div#wrapper div.actions ul.actions li a {
 		/* font-weight: bold; */
 		font-size: 12px;
 		/* text-transform: uppercase; */
@@ -199,7 +200,7 @@ div#wrapper div.actions {
 	}
 	
 	div#wrapper div.actions ul li.at a,
-	div#wrapper div.actions a:hover {
+	div#wrapper div.actions ul li a:hover {
 		background-color: #486680;
 		color: #fff;
 	}
@@ -215,57 +216,76 @@ div#wrapper div.actions {
 		background-color: #486680;
 		color: #fff;
 	}
-		
-	div#wrapper div.actions ul.filter,
-	div#wrapper div.actions ul.filter li {
+	
+	div#wrapper div.actions ul.actions ul.filter {
+		margin: 0;
+		float: right;
+		line-height: 25px;
+		position: relative;
+		top: 0;
+		right: 0;
+		text-align: right;
+	}
+	div#wrapper div.actions ul.actions ul.filter li {
 		background: none;
 		padding: 0;
 		margin: 0;
+		z-index: 10;
+		position: relative;
 	}
-	
-	div#wrapper div.actions ul.filter li ul {
+	div#wrapper div.actions ul.actions ul.filter li a.form.popup {
+		margin: 0;
+		line-height: 16px;
+		z-index: 5000;
+	}
+	div#wrapper div.actions ul.actions ul.filter li ul {
 		display: none;
 	}
 	
-	div#wrapper div.actions ul.filter:hover a {
+	div#wrapper div.actions ul.actions ul.filter:hover a {
 		background-color: #486680;
 		color: #fff;
 	}
-	
-	div#wrapper div.actions ul.filter li:hover ul {
+
+	div#wrapper div.actions ul.actions ul.filter li:hover div {
 		display: block;
-		bottom: 15px; right: 20px;
+		width: 200px;
+		top: 0;
+		right: 55px;
+		line-height: 20px;
 		position: absolute;
 		background: #486680;
 		margin: 0;
 		padding: 10px 0;
-		
+		text-align: left;
 		-moz-border-radius: 15px; -webkit-border-radius: 15px;
 		-moz-border-radius-bottomright: 0; -webkit-border-bottom-right-radius: 0;
-		
-		z-index: 20;
+		border: 1px solid green;
+		z-index: 1000;
 	}
-	div#wrapper div.actions ul.filter li:hover span,
-	div#wrapper div.actions ul.filter li:hover span a {
+	div#wrapper div.actions ul.actions ul.filter li:hover span,
+	div#wrapper div.actions ul.actions ul.filter li:hover span a {
 		color: #fff;
 	}
-	div#wrapper div.actions ul.filter ul li {
-		width: 160px;
+	div#wrapper div.actions ul.actions ul.filter ul li {
+		width: 180px;
 		margin: 0;
 		padding: 3px 10px;
 		border: 0;
 		border-top: 1px dotted #ccc;
 		background: none;
 		color: #999;
+		z-index: 5;
 	}
-	div#wrapper div.actions ul.filter ul li:hover,
-	div#wrapper div.actions ul.filter ul li:hover a {
+	div#wrapper div.actions ul.actions ul.filter ul li:hover,
+	div#wrapper div.actions ul.actions ul.filter ul li:hover a {
 		background-color: #4D6E89;
 	}
-	div#wrapper div.actions ul.filter ul li.count_0 {
+	div#wrapper div.actions ul.actions ul.filter ul li.count_0 {
 		border: 0;
+		margin: 0;
 	}
-	div#wrapper div.actions ul.filter ul li a {
+	div#wrapper div.actions ul.actions ul.filter ul li a {
 		float: none;
 		display: block;
 		text-transform: none;
@@ -275,10 +295,11 @@ div#wrapper div.actions {
 		cursor: pointer;
 	}
 	
-	div#wrapper div.actions ul.filter ul li a.not_allowed {
+	div#wrapper div.actions ul.actions ul.filter ul li a.not_allowed {
 		color: #999;
 		cursor: not-allowed;
 	}
+
 					
 /* header menu/user */
 ul#root_menu_for_header,
@@ -623,7 +644,7 @@ div.menu ul#summary ul dl lh {
 /* tables and forms */
 
 	span.tag {
-		color: #ddf;
+		color: #aac;
 	}
 	
 	span.help {
@@ -959,7 +980,9 @@ div.menu ul#summary ul dl lh {
 					-khtml-opacity: 0.3;
 					opacity: 0.3;
 				}
-				a.form { padding-left: 20px; }
+				a.form { 
+					padding-left: 20px;
+				}
 				
 				/* -= ICONS =- */
 					
@@ -1117,6 +1140,15 @@ div.menu ul#summary ul dl lh {
 	
 	fieldset.submit input {
 		margin: 10px;
+	}
+	fieldset.submit input.submit {
+		background-color: #eaedf2;
+		padding: 5px 10px 4px 27px;
+		color: #5081a5;
+		font-size: 12px;
+		border: none;
+		
+		-moz-border-radius: 7px; -webkit-border-radius: 7px;
 	}
 	
 	div#validation {
