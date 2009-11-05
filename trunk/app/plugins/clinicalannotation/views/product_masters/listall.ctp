@@ -18,27 +18,14 @@
 	);
 	
 	// LINKS
-	
-//	$specimen_type_filter_links = array();
-//	foreach ($specimen_type_list as $type => $sample_control_id) {
-//		$specimen_type_filter_links[$type] = '/inventorymanagement/sample_masters/contentTreeView/' . $atim_menu_variables['Collection.id'] . '/' . $sample_control_id;
-//	}
-//	$specimen_type_filter_links['no filter'] = '/inventorymanagement/sample_masters/contentTreeView/' . $atim_menu_variables['Collection.id'] . '/-1';	
-//		
-//	$add_links = array();
-//	foreach ($specimen_sample_controls_list as $sample_control) {
-//		$add_links[$sample_control['SampleControl']['sample_type']] = '/inventorymanagement/sample_masters/add/' . $atim_menu_variables['Collection.id'] . '/' . $sample_control['SampleControl']['id'];
-//	}
-//	
-//	$search_type_links = array();
-//	$search_type_links['collection'] = '/inventorymanagement/collections/index/';
-//	$search_type_links['sample'] = '/inventorymanagement/sample_masters/index/';
-//	$search_type_links['aliquot'] = '/inventorymanagement/aliquot_masters/index/';
-	
 	$filter_links = array();
-	$filter_links['filter1'] = '/clinicalannotation/diagnosis_masters/add/'.$atim_menu_variables['Participant.id'].'/'.$diagnosis_control['DiagnosisControl']['id'].'/';
-	$filter_links['filter2'] = '/clinicalannotation/diagnosis_masters/add/'.$atim_menu_variables['Participant.id'].'/'.$diagnosis_control['DiagnosisControl']['id'].'/';
-	
+	foreach($filters as $key => $value){
+		$filter_links[__($key, true)] = '/clinicalannotation/product_masters/listall/'.$atim_menu_variables['Participant.id'].'/'.$key.'/';
+	}
+	ksort($filter_links);
+	if(isset($none_filter)){
+		$filter_links["--".__('no filter', true)."--"] = '/clinicalannotation/product_masters/listall/'.$atim_menu_variables['Participant.id'].'/';
+	}
 	
 	$structure_links = array(
 		'tree'=>array(
@@ -79,19 +66,6 @@
 	// BUILD
 	
 	$structures->build($atim_structure, array('type' => 'tree', 'settings'=>$structure_settings, 'links'=>$structure_links, 'extras'=>$structure_extras));
-	
-	
-//	$add_links = array();
-//	foreach ($diagnosis_controls_list as $diagnosis_control) {
-//		$add_links[$diagnosis_control['DiagnosisControl']['controls_type']] = '/clinicalannotation/diagnosis_masters/add/'.$atim_menu_variables['Participant.id'].'/'.$diagnosis_control['DiagnosisControl']['id'].'/';
-//	}
-//
-//	$structure_links = array(
-//		'index'=>array('detail'=>'/clinicalannotation/diagnosis_masters/detail/%%DiagnosisMaster.participant_id%%/%%DiagnosisMaster.id%%'),
-//		'bottom'=>array(
-//			'add' => $add_links
-//		)
-//	);
 	
 ?>
 								
