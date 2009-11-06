@@ -13,6 +13,13 @@
 	$filter_links['no filter'] = $main_link . '/-1';
 	$filter_links = (sizeof($filter_links) == 1)? '/underdevelopment/': $filter_links;
 
+	// Create array of aliquot type that could be created for the studied sample for the ADD button 
+	$add_aliquots = array();	
+	foreach($allowed_aliquot_type as $aliquot_control) {
+		$add_aliquots[$aliquot_control['AliquotControl']['aliquot_type']] = '/inventorymanagement/aliquot_masters/add/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $aliquot_control['AliquotControl']['id'];
+	}		
+	$add_aliquots = empty($add_aliquots)? '/underdevelopment/': $add_aliquots;
+
 	// Manage search button	
 	$search_type_links = array();
 	$search_type_links['collection'] = '/inventorymanagement/collections/index/';
@@ -25,7 +32,8 @@
 		),
 		'bottom' => array(
 			'filter' => $filter_links,
-			'search' => $search_type_links
+			'search' => $search_type_links,
+			'add aliquot' => $add_aliquots
 		)
 	);
 

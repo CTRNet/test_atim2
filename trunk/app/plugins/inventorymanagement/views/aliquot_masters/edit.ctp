@@ -1,15 +1,13 @@
 <?php 
 	
 	$structure_links = array(
-		'top' => '/inventorymanagement/aliquot_masters/add/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $aliquot_control_data['AliquotControl']['id'],
+		'top' => '/inventorymanagement/aliquot_masters/edit/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'],
 		'bottom' => array('cancel' => '/inventorymanagement/sample_masters/detail/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id']
 		)
 	);
 	
 	$structure_override = array();
 	
-	$structure_override['AliquotMaster.aliquot_type'] = $aliquot_control_data['AliquotControl']['aliquot_type'];	
-	$structure_override['AliquotMaster.aliquot_volume_unit'] = $aliquot_control_data['AliquotControl']['volume_unit'];	
 	$structure_override['AliquotMaster.sop_master_id'] = $arr_aliquot_sops;		
 	
 	$studies_list = array();
@@ -19,7 +17,7 @@
 	$structure_override['AliquotMaster.study_summary_id'] = $studies_list;	
 
 	$blocks_list = array();
-	pr('to test block');
+	pr('to test block');pr($blocks_list);
 	foreach($arr_sample_blocks as $new_block) {
 		// TODO test
 	}	
@@ -30,17 +28,14 @@
 	foreach($arr_sample_gel_matrices as $new_matrix) {
 		// TODO test
 	}	
-	$structure_override['AliquotDetail.gel_matrix_aliquot_master_id'] = $gel_matrices_list;		
-	
-	pr('to test date default value');
-	if(isset($default_storage_datetime)) { $structure_override['AliquotMaster.storage_datetime'] = $default_storage_datetime; }
+	$structure_override['AliquotDetail.gel_matrix_aliquot_master_id'] = $gel_matrices_list;
 
 	$translated_matching_storage_list = array();
 	foreach ($arr_preselected_storages as $storage_id => $storage_data) {
 		$translated_matching_storage_list[$storage_id] = $storage_data['StorageMaster']['selection_label'] . ' (' . __($storage_data['StorageMaster']['storage_type'], TRUE) . ': ' . $storage_data['StorageMaster']['code'] . ')';
 	}
-	$structure_override['AliquotMaster.storage_master_id'] = $translated_matching_storage_list;
-
-	$structures->build($atim_structure, array('links' => $structure_links, 'override' => $structure_override, 'type' => 'datagrid', 	'settings'=> array('pagination' => false, 'add_fields' => true, 'del_fields' => true)));
+	$structure_override['AliquotMaster.storage_master_id'] = $translated_matching_storage_list;	
+			
+	$structures->build($atim_structure, array('links'=>$structure_links, 'override' => $structure_override));
 	
 ?>

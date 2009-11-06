@@ -155,50 +155,77 @@ class InventorymanagementAppController extends AppController
 		unset($_SESSION['InventoryManagement']['SampleAliquots']['Filter']);
 	}
 	
+	/**
+	 * Get list of 'derivative' sample types that could be created from 
+	 * a 'parent' sample type.
+	 *
+	 * @param $parent_sample_control_id ID of the sample control linked the studied parent sample.
+	 * 
+	 * @return List of allowed derivative types stored into the following array:
+	 * 	array('sample_control_id' => 'sample_type')
+	 * 
+	 * @author N. Luc
+	 * @since 2009-11-01
+	 */	
 	
-	
-	
+	function getAllowedDerivativeTypes($parent_sample_control_id) {
+		$criteria = array(
+			'ParentSampleControl.id' => $parent_sample_control_id,
+			'ParentToDerivativeSampleControl.status' => 'active',
+			'DerivativeControl.status' => 'active');
+		$allowed_derivative_type_temp = $this->ParentToDerivativeSampleControl->find('all', array('conditions' => $criteria, 'order' => 'DerivativeControl.sample_type ASC'));
 
-	
-	
-	
-	
-	//TODO validate following function
-	
-	
-	
-	
-	
-	
-	
-	
-
-	
-
-	
-	function updateAliquotUseDetailAndDate($aliquot_use_id, $aliquot_master_id, $details, $date) {
-		
-		$criteria = array();
-		$criteria['AliquotUse.id'] = $aliquot_use_id;
-		$criteria['AliquotUse.aliquot_master_id'] = $aliquot_master_id;
-		$criteria = array_filter($criteria);
-	
-		$aliquot_use_data = $this->AliquotUse->find($criteria, null, null, 0);
-		
-		if(empty($aliquot_use_data)){
-			$this->redirect('/pages/err_inv_aliq_use_no_data'); 
-			exit;
+		$allowed_derivative_type = array();
+		foreach($allowed_derivative_type_temp as $new_link) {
+			$allowed_derivative_type[$new_link['DerivativeControl']['id']]['SampleControl'] = $new_link['DerivativeControl'];
 		}
 		
-		$aliquot_use_data['AliquotUse']['use_details'] = $details;
-		$aliquot_use_data['AliquotUse']['use_datetime'] = $date;
-		
-		if(!$this->AliquotUse->save($aliquot_use_data['AliquotUse'])){
-			$this->redirect('/pages/err_inv_aliquot_use_record_err'); 
-			exit;
-		}
-		
+		return $allowed_derivative_type;
 	}
+	
+	/**
+	 * Get list of aliquot types that could be created from 
+	 * a sample type.
+	 *
+	 * @param $sample_control_id ID of the sample control linked to the studied sample.
+	 * 
+	 * @return List of allowed aliquot types stored into the following array:
+	 * 	array('aliquot_control_id' => 'aliquot_type')
+	 * 
+	 * @author N. Luc
+	 * @since 2009-11-01
+	 */	
+	
+	function getAllowedAliquotTypes($sample_control_id) {
+		$criteria = array(
+			'SampleControl.id' => $sample_control_id,
+			'SampleToAliquotControl.status' => 'active',
+			'AliquotControl.status' => 'active');
+		$allowed_aliquot_type_temp = $this->SampleToAliquotControl->find('all', array('conditions' => $criteria, 'order' => 'AliquotControl.aliquot_type ASC'));
+		
+		$allowed_aliquot_type = array();
+		foreach($allowed_aliquot_type_temp as $new_link) {
+			$allowed_aliquot_type[$new_link['AliquotControl']['id']]['AliquotControl'] = $new_link['AliquotControl'];
+		}
+		
+		return $allowed_aliquot_type;		
+	}	
+	
+	
+
+		
+		
+		
+
+
+	
+	
+
+	
+	
+	
+	
+
 	
 
 }

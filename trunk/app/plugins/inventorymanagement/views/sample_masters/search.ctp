@@ -5,7 +5,7 @@
 	$structure_override = array();
 	$structure_override['Generated.collection_search_type'] = __('sample', TRUE);
 	
-	$structures->build($atim_structure_for_search_type, array('type' => 'detail', 'settings' => array('actions' => FALSE), 'override' => $structure_override));
+	$structures->build($atim_structure_for_search_type, array('type' => 'detail', 'data' => array(array('Generated' => array('collection_search_type' => null))), 'settings' => array('actions' => FALSE), 'override' => $structure_override));
 	
 	// DISPLAY COLLETCION INDEX FORM	
 	
@@ -27,6 +27,6 @@
 	}
 	$structure_override['Collection.bank_id'] = $bank_list;
 		
-	$structures->build($atim_structure, array('type' => 'index', 'links' => $structure_links, 'override' => $structure_override));
+	$structures->build($atim_structure, array('type' => 'index', 'data' => $this->data, 'links' => $structure_links, 'override' => $structure_override));
 	
 ?>
