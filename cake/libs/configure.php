@@ -885,6 +885,7 @@ class App extends Object {
 				$_this->__overload($type, $name . $ext['class']);
 
 				if ($_this->return) {
+					// if ( file_exists( $directory . 'custom' . DS . $file ) ) include $directory . 'custom' . DS . $file;
 					$value = include $directory . $file;
 					return $value;
 				}
