@@ -12,18 +12,14 @@
 	foreach($allowed_derivative_type as $sample_control) {
 		$add_derivatives[$sample_control['SampleControl']['sample_type']] = '/inventorymanagement/sample_masters/add/' . $atim_menu_variables['Collection.id'] . '/' . $sample_control['SampleControl']['id'] . '/' . $atim_menu_variables['SampleMaster.id'];
 	}		
-	if(empty($add_derivatives)) {
-		$add_derivatives = '/underdevelopment/';
-	}
+	$add_derivatives = empty($add_derivatives)? '/underdevelopment/': $add_derivatives;
 	
 	// Create array of aliquot type that could be created for the studied sample for the ADD button 
 	$add_aliquots = array();	
 	foreach($allowed_aliquot_type as $aliquot_control) {
 		$add_aliquots[$aliquot_control['AliquotControl']['aliquot_type']] = '/inventorymanagement/aliquot_masters/add/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $aliquot_control['AliquotControl']['id'];
 	}		
-	if(empty($add_aliquots)) {
-		$add_aliquots = '/underdevelopment/';
-	}	
+	$add_aliquots = empty($add_aliquots)? '/underdevelopment/': $add_aliquots;
 	
 	$structure_links = array();
 	if(!$is_product_tree_view ){

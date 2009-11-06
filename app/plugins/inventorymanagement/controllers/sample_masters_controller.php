@@ -413,32 +413,10 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->set('is_tree_view_detail_form', $is_tree_view_detail_form);
 
 		// Get all sample control types to build the add to selected button
-		$criteria = array(
-			'ParentSampleControl.id' => $sample_data['SampleControl']['id'],
-			'ParentToDerivativeSampleControl.status' => 'active',
-			'DerivativeControl.status' => 'active');
-		$allowed_derivative_type_temp = $this->ParentToDerivativeSampleControl->find('all', array('conditions' => $criteria, 'order' => 'DerivativeControl.sample_type ASC'));
-
-		$allowed_derivative_type = array();
-		foreach($allowed_derivative_type_temp as $new_link) {
-			$allowed_derivative_type[$new_link['DerivativeControl']['id']]['SampleControl'] = $new_link['DerivativeControl'];
-		}
-		
-		$this->set('allowed_derivative_type', $allowed_derivative_type);
+		$this->set('allowed_derivative_type', $this->getAllowedDerivativeTypes($sample_data['SampleControl']['id']));
 
 		// Get all aliquot control types to build the add to selected button
-		$criteria = array(
-			'SampleControl.id' => $sample_data['SampleControl']['id'],
-			'SampleToAliquotControl.status' => 'active',
-			'AliquotControl.status' => 'active');
-		$allowed_aliquot_type_temp = $this->SampleToAliquotControl->find('all', array('conditions' => $criteria, 'order' => 'AliquotControl.aliquot_type ASC'));
-		
-		$allowed_aliquot_type = array();
-		foreach($allowed_aliquot_type_temp as $new_link) {
-			$allowed_aliquot_type[$new_link['AliquotControl']['id']]['AliquotControl'] = $new_link['AliquotControl'];
-		}
-		
-		$this->set('allowed_aliquot_type', $allowed_aliquot_type);
+		$this->set('allowed_aliquot_type', $this->getAllowedAliquotTypes($sample_data['SampleControl']['id']));
 	}
 
 	function add($collection_id, $sample_control_id, $parent_sample_master_id = null) {

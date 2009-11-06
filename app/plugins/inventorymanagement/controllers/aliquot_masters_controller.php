@@ -52,11 +52,13 @@ class AliquotMastersController extends InventoryManagementAppController {
 		'Study.StudySummary'
 	);
 	
-	var $paginate = array('AliquotMaster'=>array('limit'=>10,'order' => 'AliquotMaster.barcode DESC'));
+	var $paginate = array('AliquotMaster' => array('limit' =>10 , 'order' => 'AliquotMaster.barcode DESC'), 'AliquotUse' => array('limit' => 10, 'order' => 'AliquotUse.use_datetime DESC'));
 
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS
 	 * -------------------------------------------------------------------------- */
+	 
+	/* ----------------------------- ALIQUOT MASTER ----------------------------- */
 	
 	function index() {
 		// MANAGE (FIRST) FORM TO DEFINE SEARCH TYPE 
@@ -282,6 +284,13 @@ class AliquotMastersController extends InventoryManagementAppController {
 				'aliquot_control_id' => $new_sample_aliquot_type['AliquotMaster']['aliquot_control_id']);
 		}
 		$this->set('existing_sample_aliquot_types', $sample_aliquot_types);
+		
+		// Get all aliquot control types to build the add to selected button
+		$allowed_aliquot_type = array();
+		if(!$is_collection_aliquot_list) {
+			$allowed_aliquot_type = $this->getAllowedAliquotTypes($sample_data['SampleMaster']['sample_control_id']);
+		}
+		$this->set('allowed_aliquot_type', $allowed_aliquot_type);
 
 		// Get the current menu object
 		$last_menu_parameter = '-1';
@@ -351,9 +360,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Set menu
-		$atim_menu_link = '/inventorymanagement/aliquot_masters/listall/%%Collection.id%%/';
-		$atim_menu = $bool_is_specimen? $this->Menus->get($atim_menu_link . '%%SampleMaster.initial_specimen_sample_id%%'): $this->Menus->get($atim_menu_link . '%%SampleMaster.id%%');
-		$this->set('atim_menu', $atim_menu);
+		$atim_menu_link = '/inventorymanagement/aliquot_masters/listall/%%Collection.id%%/' . ($bool_is_specimen? '%%SampleMaster.initial_specimen_sample_id%%': '%%SampleMaster.id%%');
+		$this->set('atim_menu', $this->Menus->get($atim_menu_link));
 		
 		$this->set('atim_menu_variables', array('Collection.id' => $collection_id, 'SampleMaster.id' => $sample_master_id, 'SampleMaster.initial_specimen_sample_id' => $sample_data['SampleMaster']['initial_specimen_sample_id']));
 		
@@ -367,16 +375,15 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$this->set('default_storage_datetime', $this->getDefaultAliquotStorageDate($sample_data));
 			$this->set('arr_preselected_storages', array());
 						
-			//TODO: form should be a datagrid with 'add record'/'remove record' buttons
-			$this->data = array(array('AliquotMaster' => array()), array('AliquotMaster' => array()), array('AliquotMaster' => array()));
+			$this->data = array(array());
 			
 		} else {
 // TODO used to correct a bug
 unset($this->data['AliquotMaster']);	
-			
+				
 			// Set current volume
 			foreach($this->data as $id => $data) {
-				if(array_key_exists('initial_volume', $this->data['AliquotMaster'])){
+				if(array_key_exists('initial_volume', $this->data[$id]['AliquotMaster'])){
 					// TODO Perhaps could code lines be moved to model?
 					if(empty($aliquot_control_data['AliquotControl']['volume_unit'])) { $this->redirect('/pages/err_inv_system_error', null, true); }
 					$this->data[$id]['AliquotMaster']['current_volume'] = $this->data[$id]['AliquotMaster']['initial_volume'];				
@@ -436,8 +443,6 @@ unset($this->data['AliquotMaster']);
 
 		// Set aliquot use
 		$aliquot_data['Generated']['use'] = sizeof($aliquot_data['AliquotUse']);
-
-// TODO: Is it necessary to call this function updateAliquotCurrentVolume()
 				
 		$this->data = $aliquot_data;
 		
@@ -477,8 +482,7 @@ unset($this->data['AliquotMaster']);
 
 		// Get the current menu object.
 		$atim_menu_link = ($aliquot_data['SampleMaster']['sample_category'] == 'specimen')? '/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%/%%AliquotMaster.id%%': '/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%';
-		$atim_menu = $this->Menus->get($atim_menu_link);
-		$this->set('atim_menu', $atim_menu);
+		$this->set('atim_menu', $this->Menus->get($atim_menu_link));
 		$this->set('atim_menu_variables', array('Collection.id' => $collection_id, 'SampleMaster.id' => $sample_master_id, 'SampleMaster.initial_specimen_sample_id' => $aliquot_data['SampleMaster']['initial_specimen_sample_id'], 'AliquotMaster.id' => $aliquot_master_id));
 		
 		// Set structure
@@ -495,7 +499,7 @@ unset($this->data['AliquotMaster']);
 		// MANAGE DATA
 
 		// Get the aliquot data
-			
+				
 		$aliquot_data = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id, 'AliquotMaster.id' => $aliquot_master_id)));
 		if(empty($aliquot_data)) { $this->redirect('/pages/err_inv_aliquot_no_data', null, true); }		
 
@@ -515,13 +519,12 @@ unset($this->data['AliquotMaster']);
 		
 		// Get the current menu object.
 		$atim_menu_link = ($aliquot_data['SampleMaster']['sample_category'] == 'specimen')? '/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%/%%AliquotMaster.id%%': '/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%';
-		$atim_menu = $this->Menus->get($atim_menu_link);
-		$this->set('atim_menu', $atim_menu);
+		$this->set('atim_menu', $this->Menus->get($atim_menu_link));
 		$this->set('atim_menu_variables', array('Collection.id' => $collection_id, 'SampleMaster.id' => $sample_master_id, 'SampleMaster.initial_specimen_sample_id' => $aliquot_data['SampleMaster']['initial_specimen_sample_id'], 'AliquotMaster.id' => $aliquot_master_id));
 		
 		// Set structure
 		$this->set('atim_structure', $this->Structures->get('form', $aliquot_data['AliquotControl']['form_alias']));
-		
+	
 		// MANAGE DATA RECORD
 		
 		if(empty($this->data)) {
@@ -530,11 +533,11 @@ unset($this->data['AliquotMaster']);
 			
 		} else {
 			//Update data
-			if(array_key_exists('initial_volume', $this->data['AliquotMaster']) && empty($aliquot_control_data['AliquotControl']['volume_unit'])) { $this->redirect('/pages/err_inv_system_error', null, true); }
+			if(array_key_exists('initial_volume', $this->data['AliquotMaster']) && empty($aliquot_data['AliquotControl']['volume_unit'])) { $this->redirect('/pages/err_inv_system_error', null, true); }
 									
 			// Launch validations
 			$submitted_data_validates = true;
-			
+		
 			// -> Storage definition validation
 			if(!$this->validateAliquotStorageData($this->data)) {
 				$submitted_data_validates = false;
@@ -545,14 +548,16 @@ unset($this->data['AliquotMaster']);
 			// Save data
 			if($submitted_data_validates) {
 				$bool_save_done = true;
-				
+			
 				$this->AliquotMaster->id = $aliquot_master_id;
 				if(!$this->AliquotMaster->save($this->data)) {
 					$bool_save_done = false;
 				}
 				
-				if(!$this->Aliquots->updateAliquotCurrentVolume($aliquot_master_id)) {
-					$this->redirect('/pages/err_inv_aliquot_record_err', null, true);
+				if($bool_save_done) {
+					if(!$this->Aliquots->updateAliquotCurrentVolume($aliquot_master_id)) {
+						$this->redirect('/pages/err_inv_aliquot_record_err', null, true);
+					}
 				}
 				
 				if($bool_save_done) {			
@@ -604,6 +609,115 @@ unset($this->data['AliquotMaster']);
 			$this->flash($arr_allow_deletion['msg'], '/inventorymanagement/aliquot_masters/detail/' . $collection_id . '/' . $sample_master_id . '/' . $aliquot_master_id);
 		}		
 	}
+	
+	/* ------------------------------ ALIQUOT USES ------------------------------ */
+	
+	function listAllAliquotUses($collection_id, $sample_master_id, $aliquot_master_id) {
+		if((!$collection_id) || (!$sample_master_id) || (!$aliquot_master_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }
+		
+		// MANAGE DATA
+		
+		// Get the aliquot data
+		$aliquot_data = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id, 'AliquotMaster.id' => $aliquot_master_id)));
+		if(empty($aliquot_data)) { $this->redirect('/pages/err_inv_aliquot_no_data', null, true); }		
+						
+		$this->data = $this->paginate($this->AliquotUse, array('AliquotUse.aliquot_master_id' => $aliquot_master_id));		
+				
+		// Set list of studies
+		$this->set('arr_studies', $this->getStudiesList());		
+				
+		// MANAGE FORM, MENU AND ACTION BUTTONS
+
+		// Get the current menu object.
+		$atim_menu_link = ($aliquot_data['SampleMaster']['sample_category'] == 'specimen')? '/inventorymanagement/aliquot_masters/listAllAliquotUses/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%/%%AliquotMaster.id%%': '/inventorymanagement/aliquot_masters/listAllAliquotUses/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%';
+		$this->set('atim_menu', $this->Menus->get($atim_menu_link));
+		$this->set('atim_menu_variables', array('Collection.id' => $collection_id, 'SampleMaster.id' => $sample_master_id, 'SampleMaster.initial_specimen_sample_id' => $aliquot_data['SampleMaster']['initial_specimen_sample_id'], 'AliquotMaster.id' => $aliquot_master_id));
+		
+		// Set structure
+		$this->set('atim_structure', $this->Structures->get('form', 'aliquotuses'));
+	}	
+	
+	function addAliquotUse($collection_id, $sample_master_id, $aliquot_master_id, $aliquot_use_defintion = null) {
+		if((!$collection_id) || (!$sample_master_id) || (!$aliquot_master_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }
+		
+		// MANAGE DATA
+		
+		// Get the aliquot data
+		$aliquot_data = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id, 'AliquotMaster.id' => $aliquot_master_id)));
+		if(empty($aliquot_data)) { $this->redirect('/pages/err_inv_aliquot_no_data', null, true); }		
+
+		// Set list of studies
+		$this->set('arr_studies', $this->getStudiesList());		
+			
+		// Set aliquot volume unit
+		//TODO: add n/a to aliquot volume unit
+		$aliquot_volume_unit = empty($aliquot_data['AliquotMaster']['aliquot_volume_unit'])? 'n/a': $aliquot_data['AliquotMaster']['aliquot_volume_unit'];
+		$this->set('aliquot_volume_unit', $aliquot_volume_unit);	
+		
+		// Set use defintion
+		$use_defintion = null;
+		if(!empty($aliquot_use_defintion)) {
+			switch($aliquot_use_defintion) {
+				case 'internal_use':
+					$use_defintion = 'internal use';
+					break;
+				default:
+					$this->redirect('/pages/err_inv_system_error', null, true);
+			}
+		}
+		$this->set('use_defintion', $use_defintion);	
+				
+		// MANAGE FORM, MENU AND ACTION BUTTONS
+
+		// Get the current menu object.
+		$atim_menu_link = ($aliquot_data['SampleMaster']['sample_category'] == 'specimen')? '/inventorymanagement/aliquot_masters/listAllAliquotUses/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%/%%AliquotMaster.id%%': '/inventorymanagement/aliquot_masters/listAllAliquotUses/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%';
+		$this->set('atim_menu', $this->Menus->get($atim_menu_link));
+		$this->set('atim_menu_variables', array('Collection.id' => $collection_id, 'SampleMaster.id' => $sample_master_id, 'SampleMaster.initial_specimen_sample_id' => $aliquot_data['SampleMaster']['initial_specimen_sample_id'], 'AliquotMaster.id' => $aliquot_master_id));
+		
+		// Set structure
+		$this->set('atim_structure', $this->Structures->get('form', 'aliquotuses'));
+
+		// MANAGE DATA RECORD
+
+		if(empty($this->data)) {
+			$default_use_volume = empty($aliquot_data['AliquotMaster']['aliquot_volume_unit'])? 'n/a': '';
+			$this->set('default_use_volume', $default_use_volume);				
+			
+		} else {
+			// Launch validations		
+			$submitted_data_validates = true;
+			
+			if((!empty($this->data['AliquotUse']['used_volume'])) && ($this->data['AliquotUse']['used_volume'] !== 'n/a') && empty($aliquot_data['AliquotMaster']['aliquot_volume_unit'])) {
+				// No volume has to be recored for this aliquot type				
+				$this->AliquotUse->validationErrors['used_volume'] = 'no volume has to be recorded for this aliquot type';
+				$this->data['AliquotUse']['used_volume'] = 'n/a';		
+				$submitted_data_validates = false;			
+			} else if(($this->data['AliquotUse']['used_volume'] === 'n/a') || empty($this->data['AliquotUse']['used_volume'])) {
+				$this->data['AliquotUse']['used_volume'] = null;
+			}
+			
+			// if data VALIDATE, then save data
+			if ($submitted_data_validates) {
+				$bool_save_done = true;
+				$this->data['AliquotUse']['aliquot_master_id'] = $aliquot_master_id;
+							
+				if (!$this->AliquotUse->save($this->data)) { $bool_save_done = false; }
+				//TODO test volume validation
+				
+				if($bool_save_done) {
+					if(!$this->Aliquots->updateAliquotCurrentVolume($aliquot_master_id)) { $this->redirect('/pages/err_inv_aliquot_use_record_err', null, true); }
+				}
+					
+				if($bool_save_done) {
+					$this->flash('Your data has been saved . ', '/inventorymanagement/aliquot_masters/listAllAliquotUses/' . $collection_id . '/' . $sample_master_id . '/' . $aliquot_master_id);
+				} 
+			}
+		}
+	}	
+	
+	
+	
+	
 	
 	
 	/* --------------------------------------------------------------------------
@@ -782,7 +896,7 @@ unset($this->data['AliquotMaster']);
 		
 		$new_barcodes = array();
 		$duplicated_barcodes = array();
-		
+				
 		// check data structure
 		$is_multi_records_data = true;
 		if(isset($aliquots_data[0]['AliquotMaster'])) {
@@ -855,7 +969,7 @@ unset($this->data['AliquotMaster']);
 				
 		$arr_preselected_storages = array();
 		$storage_validation_errors = array('id' => array(), 'x' => array(), 'y' => array());
-
+		
 		// check data structure
 		$is_multi_records_data = true;
 		if(isset($aliquots_data[0]['AliquotMaster'])) {
@@ -984,112 +1098,6 @@ unset($this->data['AliquotMaster']);
 	
 	
 	
-	/**
-	 * Define if a aliquot can be deleted.
-	 * 
-	 * @param $aliquot_master_id Id of the studied sample.
-	 * 
-	 * @return Return true if the aliquot can be deleted.
-	 * 
-	 * @author N. Luc
-	 * @since 2007-08-16
-	 */
-//	function allowAliquotDeletion($aliquot_master_id){
-//	
-//	
-//	
-//	
-//	
-//	
-//	
-//	
-//	
-//	
-//		
-//		// Verify that this aliquot has not been used 
-//		$criteria = 'AliquotUse.aliquot_master_id ="' .$aliquot_master_id . '"';			 
-//		$aliquot_use_nbr = $this->AliquotUse->findCount($criteria);
-//				
-//		if($aliquot_use_nbr > 0){
-//			return false;
-//		}
-//		
-//		// Verify that this aliquot is not linked to a realiquoted aliquot	
-//		$criteria = ' ="' .$aliquot_master_id . '"';			 
-//		$realiquoted_aliquot_nbr = $this->Realiquoting->find($criteria);
-//			
-//		if($realiquoted_aliquot_nbr > 0){
-//			return false;
-//		}
-//		
-//		// Verify this aliquot has not been used for review
-//		$criteria = ' ="' .$aliquot_master_id . '"';			 
-//		$aliquot_path_review_nbr = $this->PathCollectionReview->findCount($criteria);
-//
-//		if($aliquot_path_review_nbr > 0){
-//			return false;
-//		}
-//
-//		
-//
-//		
-//		$criteria = ' ="' .$aliquot_master_id . '"';			 
-//		$aliquot_review_nbr = $this->ReviewMaster->findCount($criteria);
-//
-//		if($aliquot_review_nbr > 0){
-//			return false;
-//		}
-//		
-//		// Attache to an order line
-//		$criteria = ' ="' .$aliquot_master_id . '"';			 
-//		$aliquot_order_nbr = $this->OrderItem->findCount($criteria);
-//		
-//		if($aliquot_order_nbr > 0){
-//			return false;
-//		}
-//		
-//		// Verify block attched to tissue slide
-//		$special_aliquot_detail = new AliquotDetail(false, 'ad_tissue_slides');
-//		$criteria = ' ="' .$aliquot_master_id . '"';			 
-//		$aliquot_tiss_slide_nbr = $special_aliquot_detail->findCount($criteria);
-//		
-//		if($aliquot_tiss_slide_nbr > 0){
-//			return false;
-//		}
-//		
-//		// Verify block atched to tissue core
-//		$special_aliquot_detail = new AliquotDetail(false, 'ad_tissue_cores');
-//		$criteria = ' ="' .$aliquot_master_id . '"';			 
-//		$aliquot_tiss_slide_nbr = $special_aliquot_detail->findCount($criteria);
-//		
-//		if($aliquot_tiss_slide_nbr > 0){
-//			return false;
-//		}
-//		
-//		// Verify gel matrix atched to cell core
-//		$special_aliquot_detail = new AliquotDetail(false, '');
-//		$criteria = 'd ="' .$aliquot_master_id . '"';			 
-//		$aliquot_tiss_slide_nbr = $special_aliquot_detail->findCount($criteria);
-//		
-//		if($aliquot_tiss_slide_nbr > 0){
-//			return false;
-//		}
-//			
-//						
-//		// Etc...
-//		
-//		return true;
-//	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	/* --------------------------------------------------------------------------------------------- */
 
 
@@ -1120,104 +1128,6 @@ unset($this->data['AliquotMaster']);
 	
 
 	
-
-	
-	/**
-	 * Allow to delete a aliquot of a collection group sample.
-	 * 
-	 * @param $specimen_group_menu_id Menu id that corresponds to the tab clicked to 
-	 * display the samples of the collection group (Ascite, Blood, Tissue, etc).
-	 * @param $group_specimen_type Type of the source specimens of the group.
-	 * @param $sample_categroy Sample Category.
-	 * @param $collection_id Id of the studied collection.
-	 * @param $aliquot_master_id Master Id of the aliquot. 
-	 * 
-	 * @author N. Luc
-	 * @date 2007-08-15
-	 */
-	function deleteAliquot($specimen_group_menu_id=null,  $group_specimen_type=null, $sample_category=null, 
-	$collection_id=null, $aliquot_master_id=null) {
-			
-		// ** Parameters check **
-		// Verify parameters have been set
-		if(empty($specimen_group_menu_id) || empty($group_specimen_type) || 
-		empty($sample_category) || empty($collection_id) || empty($aliquot_master_id)) {
-			$this->redirect('/pages/err_inv_funct_param_missing'); 
-			exit;
-		}
-		
-		// ** Load  ALIQUOT MASTER info **
-		$this->AliquotMaster->id = $aliquot_master_id;
-		$aliquot_master_data = $this->AliquotMaster->read();
-
-		if(empty($aliquot_master_data)){
-			$this->redirect('/pages/err_inv_aliquot_no_data'); 
-			exit;
-		}
-
-		if(strcmp($aliquot_master_data['AliquotMaster']['collection_id'], $collection_id) != 0) {
-			$this->redirect('/pages/err_inv_no_coll_id_map'); 
-			exit;			
-		}
-		
-		// Verify aliquot can be deleted
-		if(!$this->allowAliquotDeletion($aliquot_master_id)){
-			$this->redirect('/pages/err_inv_aliqu_del_forbid'); 
-			exit;
-		}
-
-		// Look for sample master id
-		$sample_master_id = $aliquot_master_data['AliquotMaster']['sample_master_id'];
-
-		//Look for aliquot control table
-		$this->AliquotControl->id = $aliquot_master_data['AliquotMaster']['aliquot_control_id'];
-		$aliquot_control_data = $this->AliquotControl->read();
-	
-		if(empty($aliquot_control_data)){
-			$this->redirect('/pages/err_inv_no_aliqu_cont_data'); 
-			exit;	
-		}	
-
-		// look for CUSTOM HOOKS, "validation"
-		$custom_ctrapp_controller_hook 
-			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
-			'controllers' . DS . 'hooks' . DS . 
-			$this->params['controller'] . '_' . $this->params['action'] . '_validation.php';
-		
-		if (file_exists($custom_ctrapp_controller_hook)) {
-			require($custom_ctrapp_controller_hook);
-		}
-		
-		//Delete aliquot
-		$bool_delete_aliquot = true;
-		
-		if(!is_null($aliquot_control_data['AliquotControl']['form_alias'])){
-			// This aliquot has specific data
-			$this->AliquotDetail = new AliquotDetail(false, $aliquot_control_data['AliquotControl']['detail_tablename']);
-			
-			if(!$this->AliquotDetail->del($aliquot_master_id)){
-				$bool_delete_aliquot = false;		
-			}			
-		}
-			
-		if($bool_delete_aliquot){
-			if(!$this->AliquotMaster->del($aliquot_master_id)){
-				$bool_delete_aliquot = false;		
-			}	
-		}
-		
-		if(!$bool_delete_aliquot){exit;
-			$this->redirect('/pages/err_inv_aliqu_del_err'); 
-			exit;
-		}
-		
-		$this->Flash('Your data has been deleted . ',
-			'/aliquot_masters/listAllSampleAliquots/'.
-			$specimen_group_menu_id . '/' . $group_specimen_type . '/' . $sample_category . '/'.
-			$collection_id . '/' . $sample_master_id . '/');
-	
-	} //end deleteAliquot
-
 	/* --------------------------------------------------------------------------
 	 * SOURCE ALIQUOTS FUNCTIONS
 	 * -------------------------------------------------------------------------- */	
@@ -2461,145 +2371,6 @@ unset($this->data['AliquotMaster']);
 	 * @author N. Luc
 	 * @date 2007-08-15
 	 */
-	function listAliquotUses($specimen_group_menu_id=null, $group_specimen_type=null, $sample_category=null,	
-	$collection_id=null, $aliquot_master_id=null) {
-		
-		// ** Parameters check **
-		// Verify parameters have been set
-		if(empty($specimen_group_menu_id) || empty($group_specimen_type) || 
-		empty($sample_category) || empty($collection_id) || empty($aliquot_master_id)) {
-			$this->redirect('/pages/err_inv_funct_param_missing'); 
-			exit;
-		}
-		
-		// ** Look for Aliquot Data **
-		$criteria = array();
-		$criteria['AliquotMaster.id'] = $aliquot_master_id;
-		$criteria['AliquotMaster.collection_id'] = $collection_id;
-		$criteria = array_filter($criteria);
-		
-		$aliquot_master_data = $this->AliquotMaster->find($criteria, null, null, 0);
-		
-		if(empty($aliquot_master_data)){
-			$this->redirect('/pages/err_inv_aliquot_no_data'); 
-			exit;
-		}
-				
-		//** Get the aliquot sample master data **
-		
-		$sample_master_id = $aliquot_master_data['AliquotMaster']['sample_master_id'];
-		
-		$criteria = array();
-		$criteria['SampleMaster.id'] = $sample_master_id;
-		$criteria['SampleMaster.collection_id'] = $collection_id;
-		$criteria = array_filter($criteria);
-	
-		$sample_master_data = $this->SampleMaster->find($criteria, null, null, 0);
-		
-		if(empty($sample_master_data)){
-			$this->redirect('/pages/err_inv_samp_no_data'); 
-			exit;
-		}
-		
-		// ** Set SIDEBAR variable **
-		// Use PLUGIN_CONTROLLER_ACTION by default, 
-		// but any ALIAS string that matches in the SIDEBARS datatable will do...
-		$this->set('ctrapp_sidebar', 
-			$this->Sidebars->getColsArray(
-				$this->params['plugin'] . '_'.
-				$this->params['controller'] . '_'.
-				$this->params['action']));
-														
-		// ** Set SUMMARY variable from plugin's COMPONENTS **
-		$this->set('ctrapp_summary', $this->Summaries->build($collection_id, $sample_master_id, $aliquot_master_id));
-															
-		// ** Set FORM variable **
-		$this->set('ctrapp_form', $this->Forms->getFormArray('aliquot_use_list'));
-		
-		// ** Set FORM data for echo on view **
-		$this->set('specimen_group_menu_id', $specimen_group_menu_id);
-		$this->set('group_specimen_type', $group_specimen_type);
-		$this->set('sample_category', $sample_category);
-		
-		$this->set('collection_id', $collection_id);
-		$this->set('aliquot_master_id', $aliquot_master_id);
-		
-		$this->set('studies_list', $this->getStudiesArray());
-					
-		// ** Set MENU variable for echo on VIEW **
-		$ctrapp_menu[] = $this->Menus->tabs('inv_CAN_00', 'inv_CAN_10', $collection_id);
-		$ctrapp_menu[] = $this->Menus->tabs('inv_CAN_10', $specimen_group_menu_id, $collection_id);
-		
-		$specimen_grp_menu_lists = $this->getSpecimenGroupMenu($specimen_group_menu_id);
-		
-		switch($sample_category) {
-			case "specimen":
-				$specimen_sample_master_id=$sample_master_id;
-				
-				$specimen_menu_id = $specimen_group_menu_id . '-sa_al';
-				$aliquot_menu_id = $specimen_group_menu_id . '-sa_al_us';
-				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $specimen_menu_id, $specimen_group_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id . '/' . $specimen_sample_master_id);	
-				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $aliquot_menu_id, $specimen_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $aliquot_menu_id, $collection_id . '/' . $aliquot_master_id);	
-				break;
-				
-			case "derivative":
-				$specimen_sample_master_id=$sample_master_data['SampleMaster']['initial_specimen_sample_id'];
-				$derivative_sample_master_id=$sample_master_id;		
-				
-				$specimen_menu_id = $specimen_group_menu_id . '-sa_der';
-				$derivative_menu_id = $specimen_group_menu_id . '-der_al';
-				$aliquot_menu_id = $specimen_group_menu_id . '-der_al_us';
-				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $specimen_menu_id, $specimen_group_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id . '/' . $specimen_sample_master_id);	
-				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $derivative_menu_id, $specimen_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $derivative_menu_id, $collection_id . '/' . $derivative_sample_master_id . '/');	
-				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $aliquot_menu_id, $derivative_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($derivative_menu_id, $aliquot_menu_id, $collection_id . '/' . $aliquot_master_id);	
-				break;
-			
-			default:
-				$this->redirect('/pages/err_inv_menu_definition'); 
-				exit;
-		}
-		
-		$this->set('ctrapp_menu', $ctrapp_menu);
-
-		// ** Search aliquot uses data **
-		
-		$this->AliquotMaster->unbindModel(array('hasMany' => array('AliquotUse')));
-		$this->AliquotMaster->unbindModel(array('belongsTo' => array('StorageMaster')));
-		
-		$this->AliquotUse->bindModel(array('belongsTo' => 
-			array('AliquotMaster' => array(
-					'className' => 'AliquotMaster',
-					'conditions' => '',
-					'order'      => '',
-					'foreignKey' => 'aliquot_master_id'))));
-		
-		$criteria = array();
-		$criteria['AliquotUse.aliquot_master_id'] = $aliquot_master_id;
-		$criteria = array_filter($criteria);
-		
-		$aliquot_uses = $this->AliquotUse->findAll($criteria, null, null, null, 1);
-
-		$this->set('aliquot_uses', $aliquot_uses);	
-		
-		// ** Build list of additional uses a user can add **
-		$this->set('allowed_additional_uses', $this->getAllowedAdditionalAliqUses());
-		
-		// look for CUSTOM HOOKS, "format"
-		$custom_ctrapp_controller_hook 
-			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
-			'controllers' . DS . 'hooks' . DS . 
-			$this->params['controller'] . '_' . $this->params['action'] . '_format.php';
-		
-		if (file_exists($custom_ctrapp_controller_hook)) {
-			require($custom_ctrapp_controller_hook);
-		}
-		
-	}
 
 	function detailAliquotUse($specimen_group_menu_id=null, $group_specimen_type=null, $sample_category=null,	
 	$collection_id=null, $aliquot_master_id=null, $aliquot_use_id=null) {
@@ -2655,7 +2426,7 @@ unset($this->data['AliquotMaster']);
 		$this->set('ctrapp_summary', $this->Summaries->build($collection_id, $sample_master_id, $aliquot_master_id));
 															
 		// ** Set FORM variable **
-		$this->set('ctrapp_form', $this->Forms->getFormArray('aliquot_use_list'));
+		$this->set('ctrapp_form', $this->Forms->getFormArray('aliquot_uses'));
 		
 		// ** Set FORM data for echo on view **
 		$this->set('specimen_group_menu_id', $specimen_group_menu_id);
@@ -2750,189 +2521,7 @@ unset($this->data['AliquotMaster']);
 		
 	}
 	
-	function addAliquotUse($specimen_group_menu_id=null, $group_specimen_type=null, $sample_category=null,	
-	$collection_id=null, $aliquot_master_id=null, $aliquot_use_defintion= null) {
-		
-		// ** Get the aliquot_use_defintion **
-		if (isset($this->params['form']['aliquot_use_defintion'])) {
-			$aliquot_use_defintion = $this->params['form']['aliquot_use_defintion'];
-		}
-		
-		// ** Parameters check **
-		// Verify parameters have been set
-		if(empty($specimen_group_menu_id) || empty($group_specimen_type) || 
-		empty($sample_category) || empty($collection_id) || empty($aliquot_master_id) ||
-		empty($aliquot_use_defintion)) {
-			$this->redirect('/pages/err_inv_funct_param_missing'); 
-			exit;
-		}
-		
-		// ** Look for Aliquot Data **
-		$criteria = array();
-		$criteria['AliquotMaster.id'] = $aliquot_master_id;
-		$criteria['AliquotMaster.collection_id'] = $collection_id;
-		$criteria = array_filter($criteria);
-		
-		$aliquot_master_data = $this->AliquotMaster->find($criteria, null, null, 0);
-		
-		if(empty($aliquot_master_data)){
-			$this->redirect('/pages/err_inv_aliquot_no_data'); 
-			exit;
-		}
-				
-		//** Get the aliquot sample master data **
-		
-		$sample_master_id = $aliquot_master_data['AliquotMaster']['sample_master_id'];
-		
-		$criteria = array();
-		$criteria['SampleMaster.id'] = $sample_master_id;
-		$criteria['SampleMaster.collection_id'] = $collection_id;
-		$criteria = array_filter($criteria);
-	
-		$sample_master_data = $this->SampleMaster->find($criteria, null, null, 0);
-		
-		if(empty($sample_master_data)){
-			$this->redirect('/pages/err_inv_samp_no_data'); 
-			exit;
-		}
-		
-		// ** Set SIDEBAR variable **
-		// Use PLUGIN_CONTROLLER_ACTION by default, 
-		// but any ALIAS string that matches in the SIDEBARS datatable will do...
-		$this->set('ctrapp_sidebar', 
-			$this->Sidebars->getColsArray(
-				$this->params['plugin'] . '_'.
-				$this->params['controller'] . '_'.
-				$this->params['action']));
-														
-		// ** Set SUMMARY variable from plugin's COMPONENTS **
-		$this->set('ctrapp_summary', $this->Summaries->build($collection_id, $sample_master_id, $aliquot_master_id));
-															
-		// ** Set FORM variable **
-		$this->set('ctrapp_form', $this->Forms->getFormArray('aliquot_use_list'));
-		
-		// ** Set FORM data for echo on view **
-		$this->set('specimen_group_menu_id', $specimen_group_menu_id);
-		$this->set('group_specimen_type', $group_specimen_type);
-		$this->set('sample_category', $sample_category);
-		
-		$this->set('collection_id', $collection_id);
-		$this->set('aliquot_master_id', $aliquot_master_id);
-		
-		$this->set('aliquot_use_defintion', $aliquot_use_defintion);
-		$this->set('aliquot_volume_unit', $aliquot_master_data['AliquotMaster']['aliquot_volume_unit']);
-		
-		$this->set('studies_list', $this->getStudiesArray());
-					
-		// ** Set MENU variable for echo on VIEW **
-		$ctrapp_menu[] = $this->Menus->tabs('inv_CAN_00', 'inv_CAN_10', $collection_id);
-		$ctrapp_menu[] = $this->Menus->tabs('inv_CAN_10', $specimen_group_menu_id, $collection_id);
-		
-		$specimen_grp_menu_lists = $this->getSpecimenGroupMenu($specimen_group_menu_id);
-		
-		switch($sample_category) {
-			case "specimen":
-				$specimen_sample_master_id=$sample_master_id;
-				
-				$specimen_menu_id = $specimen_group_menu_id . '-sa_al';
-				$aliquot_menu_id = $specimen_group_menu_id . '-sa_al_us';
-				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $specimen_menu_id, $specimen_group_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id . '/' . $specimen_sample_master_id);	
-				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $aliquot_menu_id, $specimen_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $aliquot_menu_id, $collection_id . '/' . $aliquot_master_id);	
-				break;
-				
-			case "derivative":
-				$specimen_sample_master_id=$sample_master_data['SampleMaster']['initial_specimen_sample_id'];
-				$derivative_sample_master_id=$sample_master_id;		
-				
-				$specimen_menu_id = $specimen_group_menu_id . '-sa_der';
-				$derivative_menu_id = $specimen_group_menu_id . '-der_al';
-				$aliquot_menu_id = $specimen_group_menu_id . '-der_al_us';
-				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $specimen_menu_id, $specimen_group_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id . '/' . $specimen_sample_master_id);	
-				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $derivative_menu_id, $specimen_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $derivative_menu_id, $collection_id . '/' . $derivative_sample_master_id . '/');	
-				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $aliquot_menu_id, $derivative_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($derivative_menu_id, $aliquot_menu_id, $collection_id . '/' . $aliquot_master_id);	
-				break;
-			
-			default:
-				$this->redirect('/pages/err_inv_menu_definition'); 
-				exit;
-		}
-		
-		$this->set('ctrapp_menu', $ctrapp_menu);
-		
-		// look for CUSTOM HOOKS, "format"
-		$custom_ctrapp_controller_hook 
-			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
-			'controllers' . DS . 'hooks' . DS . 
-			$this->params['controller'] . '_' . $this->params['action'] . '_format.php';
-		
-		if (file_exists($custom_ctrapp_controller_hook)) {
-			require($custom_ctrapp_controller_hook);
-		}
 
-		if (!empty($this->data)) {
-			
-			// setup MODEL(s) validation array(s) for displayed FORM 
-			foreach ($this->Forms->getValidateArray('aliquot_use_list') as $validate_model=>$validate_rules) {
-				$this->{ $validate_model }->validate = $validate_rules;
-			}
-
-			$this->cleanUpFields('AliquotUse');
-						
-			// set a FLAG
-			$submitted_data_validates = true;
-			
-			// VALIDATE submitted data
-			if (!$this->AliquotUse->validates($this->data)) {
-				$submitted_data_validates = false;
-			}
-			
-			if(empty($this->data['AliquotMaster']['aliquot_volume_unit']) 
-			&& (!empty($this->data['AliquotUse']['used_volume']))) {
-				// No volume is tracked for this aliquot type
-				$this->AliquotMaster->validationErrors[] 
-					= 'no volume has to be recorded for this aliquot type';	
-				$submitted_data_validates = false;
-			}
-			if(empty($this->data['AliquotUse']['used_volume'])){
-				$this->data['AliquotUse']['used_volume']=null;
-			}
-			
-			// look for CUSTOM HOOKS, "validation"
-			$custom_ctrapp_controller_hook 
-				= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
-				'controllers' . DS . 'hooks' . DS . 
-				$this->params['controller'] . '_' . $this->params['action'] . '_validation.php';
-			
-			if (file_exists($custom_ctrapp_controller_hook)) {
-				require($custom_ctrapp_controller_hook);
-			}
-			
-			// if data VALIDATE, then save data
-			if ($submitted_data_validates) {
-				
-				if ($this->AliquotUse->save($this->data['AliquotUse'])) {
-					
-					$this->updateAliquotCurrentVolume($aliquot_master_id);
-					
-					$this->flash('Your data has been saved . ', 
-						'/aliquot_masters/listAliquotUses/'.
-						$specimen_group_menu_id . '/' . $group_specimen_type . '/' . $sample_category . '/'.
-						$collection_id . '/' . $aliquot_master_id . '/');
-				} else {
-					$this->redirect('/pages/err_inv_aliquot_use_record_err'); 
-					exit;
-				}
-				
-			}
-			
-		}
-		
-	}
 	
 	function editAliquotUse($specimen_group_menu_id=null, $group_specimen_type=null, $sample_category=null,	
 	$collection_id=null, $aliquot_master_id=null, $aliquot_use_id= null) {
@@ -2988,7 +2577,7 @@ unset($this->data['AliquotMaster']);
 		$this->set('ctrapp_summary', $this->Summaries->build($collection_id, $sample_master_id, $aliquot_master_id));
 															
 		// ** Set FORM variable **
-		$this->set('ctrapp_form', $this->Forms->getFormArray('aliquot_use_list'));
+		$this->set('ctrapp_form', $this->Forms->getFormArray('aliquot_uses'));
 		
 		// ** Set FORM data for echo on view **
 		$this->set('specimen_group_menu_id', $specimen_group_menu_id);
@@ -3090,7 +2679,7 @@ unset($this->data['AliquotMaster']);
 		} else {
 			
 			// setup MODEL(s) validation array(s) for displayed FORM 
-			foreach ($this->Forms->getValidateArray('aliquot_use_list') as $validate_model=>$validate_rules) {
+			foreach ($this->Forms->getValidateArray('aliquot_uses') as $validate_model=>$validate_rules) {
 				$this->{ $validate_model }->validate = $validate_rules;
 			}
 
@@ -3230,24 +2819,6 @@ unset($this->data['AliquotMaster']);
 	 * -------------------------------------------------------------------------- */	
 	
 
-		
-	/**
-	 * Update the current volume of a aliquot.
-	 * 
-	 * When the intial volume is null, the current volume will be set to 
-	 * null but the status won't be changed.
-	 * 
-	 * When the new current volume is equal to 0 and the status is 'available',
-	 * the status will be automatically change to 'not available' 
-	 * and the reason to 'empty'
-	 *
-	 * @param $aliquot_master_id Master Id of the aliquot.
-	 * 
-	 * @author N. Luc
-	 * @date 2007-08-15
-	 */
-	function obslolete_updateAliquotCurrentVolume($aliquot_master_id){}
-
 
 	
 	/*
@@ -3273,136 +2844,6 @@ unset($this->data['AliquotMaster']);
 		
 		$this->redirect('order/orders/process_add_aliquots/');
 		exit();
-		
-	}
-
-	function validateStorageIdAndSelectionLabel($storage_selection_label, $storage_master_id) {
-	
-		$submitted_data_validates = true;
-		$defined_storage_id = $storage_master_id;
-		$aliquot_arr_storage_list = array();
-		$storage_control_errors = array();
-
-		if(!empty($storage_selection_label)) {
-			
-			// Case 1: A storage selection label exists
-			
-			// Look for storage matching the storage selection label 
-			$aliquot_arr_storage_list 
-				= $this->requestAction(
-					'/storagelayout/storage_masters/getStorageMatchingSelectLabel/' . $storage_selection_label);
-			
-			if(empty($storage_master_id)) {	
-				
-				// Case 1.a: No storage id has been defined: Define storage id using selection label
-				
-				if(empty($aliquot_arr_storage_list)) {
-					// No storage matches	
-					$submitted_data_validates = false;
-					$storage_control_errors['B1'] 
-						= 'no storage matches (at least one of) the selection label(s)';
-				} else if(sizeof($aliquot_arr_storage_list) > 1) {
-					// More than one storage matche this storage selection label
-					$submitted_data_validates = false;
-					$storage_control_errors['B2'] 
-						= 'more than one storages matche (at least one of) the selection label(s)';
-				} else {
-					// The selection label match only one storage: Get the storage_master_id
-					$defined_storage_id = key($aliquot_arr_storage_list);
-				}
-			
-			} else {
-				
-				// Case 1.b: A storage id has been selected
-				
-				// Verify this one matches one record of the $arr_storage_list;
-				if(!array_key_exists($storage_master_id, $aliquot_arr_storage_list)) {
-		
-					// Set error
-					$submitted_data_validates = false;
-					$storage_control_errors['B3'] 
-						= '(at least one of) the selected id does not match a selection label';						
-					
-					// Add the storage to the storage list
-					$aliquot_arr_storage_list[$storage_master_id] 
-						= $this->requestAction('/storagelayout/storage_masters/getStorageData/' . $storage_master_id);								
-
-				}	
-			}
-		
-		} else if(!empty($storage_master_id)) {
-			
-			// Case 2: Only storage_master_id has been defined
-						
-			// Only  storage id has been selected:
-			// Add this one in $arr_storage_list if an error is displayed
-			$aliquot_arr_storage_list 
-				= array($storage_master_id  
-					=> $this->requestAction('/storagelayout/storage_masters/getStorageData/' . $storage_master_id));
-				
-		} // else if $returned_storage_id and $recorded_selection_label empty: Nothing to do	
-		
-		return array(
-			'submitted_data_validates' => $submitted_data_validates,
-			'defined_storage_id' => $defined_storage_id,
-			'aliquot_arr_storage_list' => $aliquot_arr_storage_list,
-			'storage_control_errors' => $storage_control_errors);
-			
-	}
-	
-	function validateStorageCoordinates($storage_master_id, $storage_coord_x, $storage_coord_y) {
-		
-		$submitted_data_validates = true;
-		$validated_storage_coord_x = $storage_coord_x;
-		$validated_storage_coord_y = $storage_coord_y;
-		$storage_control_errors = array();
-	
-		if(empty($storage_master_id)){
-			// No storage selected: no coordinate should be set
-			if(!empty($storage_coord_x)){
-				$submitted_data_validates = false;
-				$validated_storage_coord_x = 'err!';
-				$storage_control_errors['C1'] = 'no postion has to be recorded when no storage is selected';
-			}
-			if(!empty($storage_coord_y)){
-				$submitted_data_validates = false;
-				$validated_storage_coord_y = 'err!';
-				$storage_control_errors['C1'] = 'no postion has to be recorded when no storage is selected';
-			}						
-				
-		} else {
-			// Verify coordinate values
-			$a_coord_valid = 
-				$this->requestAction('/storagelayout/storage_masters/validateStoragePosition/'.
-					$storage_master_id . '/'.
-					'x_' . $storage_coord_x . '/'.		// Add 'x_' before coord to support empty value
-					'y_' . $storage_coord_y . '/');		// Add 'y_' before coord to support empty value
-					
-			// Manage coordinate x
-			if(!$a_coord_valid['coord_x']['validated']) {
-				$submitted_data_validates = false;
-				$validated_storage_coord_x = 'err!';
-				$storage_control_errors['C2'] = 'at least one position value does not match format';
-			} else if($a_coord_valid['coord_x']['to_uppercase']) {
-				$validated_storage_coord_x = strtoupper($storage_coord_x);
-			}
-			
-			// Manage coordinate y
-			if(!$a_coord_valid['coord_y']['validated']) {
-				$submitted_data_validates = false;
-				$validated_storage_coord_y = 'err!';
-				$storage_control_errors['C2'] = 'at least one position value does not match format';
-			} else if($a_coord_valid['coord_y']['to_uppercase']) {
-				$validated_storage_coord_y = strtoupper($storage_coord_y);
-			}
-		
-		}
-		
-		return array(
-			'submitted_data_validates' => $submitted_data_validates,
-			'validated_storage_coord_x' => $validated_storage_coord_x,
-			'validated_storage_coord_y' => $validated_storage_coord_y,
-			'storage_control_errors' => $storage_control_errors);
 		
 	}
 
