@@ -2523,6 +2523,7 @@ class StructuresHelper extends Helper {
 					if ( $display_class_array[1]=='storagelayout' )											$display_class_name = 'plugin storagelayout';
 					if ( $display_class_array[1]=='study' )													$display_class_name = 'plugin study';
 					if ( $display_class_array[1]=='pricing' )													$display_class_name = 'plugin pricing';
+					if ( $display_class_array[1]=='provider' )													$display_class_name = 'plugin provider';
 					
 					$display_class_name = $display_class_name ?												$display_class_name : 'plugin default';
 				}
