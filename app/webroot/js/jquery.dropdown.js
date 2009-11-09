@@ -2,10 +2,10 @@ var maxHeight = 200;
 
 $(function(){
 
-    $(".filtermenu > li").hover(function() {
+    $(".filter_menu > ul > li").hover(function() {
     
          var $container = $(this),
-             $list = $container.find("ul"),
+             $list = $container.find("div"),
              $anchor = $container.find("li"),
              height = $list.height(),       // make sure there is enough room at the bottom
              multiplier = height / maxHeight;     // needs to move faster if list is taller
@@ -51,7 +51,7 @@ $(function(){
         // put things back to normal
         $el
             .height($(this).data("origHeight"))
-            .find("ul")
+            .find("div")
             .css({ top: 0 })
             .hide()
             .end()
@@ -61,7 +61,7 @@ $(function(){
     });
     
     // Add down arrow only to menu items with submenus
-    $(".filter > li:has('ul')").each(function() {
+    $(".filter_menu > ul > li:has('ul')").each(function() {
 /*         $(this).find("a:first").append("<img src='images/down-arrow.png' />"); */
     });
     
