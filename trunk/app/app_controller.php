@@ -77,6 +77,12 @@ class AppController extends Controller {
 	var $components	= array('Acl', 'Auth', 'Menus', 'RequestHandler', 'Structures');
 	var $helpers		= array('Ajax', 'Csv', 'Html', 'Javascript', 'Shell', 'Structures', 'Time');
 	
+	function hook( $hook_file_name=NULL ) {
+		$hook_file = APP . 'plugins' . DS . $this->params['plugin'] . DS . 'controllers' . DS . 'hooks' . DS . $this->params['controller'].'_'.$this->params['action'].'.php';
+		if ( $hook_file_name ) $hook_file = $hook_file_name;
+		if ( file_exists($hook_file) ) require( $hook_file );
+	}
+	
 	function beforeFilter() {
 		// Uncomment the following to create an Aco entry for every plugin/controller/method combination in the app.
 			// $this->buildAcl();
