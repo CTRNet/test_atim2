@@ -207,27 +207,18 @@ class StorageMastersController extends StoragelayoutAppController {
 			
 			if($submitted_data_validates) {
 				// Save storage data
-				$bool_save_done = true;
-				
 				$storage_master_id = null;
 				if($this->StorageMaster->save($this->data)) {
 					$storage_master_id = $this->StorageMaster->getLastInsertId();
-				} else {
-					$bool_save_done = false;
-				}
 				
-				// Create storage code
-				if($bool_save_done) {
+					// Create storage code
 					$storage_data_to_update = array();
 					$storage_data_to_update['StorageMaster']['code'] = $this->createStorageCode($storage_master_id, $this->data, $storage_control_data);
 
 					$this->StorageMaster->id = $storage_master_id;					
-					if(!$this->StorageMaster->save($storage_data_to_update)) {
-						$bool_save_done = false;
-					}
-				}
+					if(!$this->StorageMaster->save($storage_data_to_update)) { $this->redirect('/pages/err_sto_system_error', null, true); }				
 					
-				if($bool_save_done) {
+					// Redirect user
 					$link = '';
 					if(empty($parent_storage_data) || is_null($parent_storage_data['StorageControl']['form_alias_for_children_pos'])){
 						// No position has to be set for this storage
@@ -236,7 +227,7 @@ class StorageMastersController extends StoragelayoutAppController {
 						$link = '/storagelayout/storage_masters/editStoragePosition/' . $storage_master_id;
 					}
 					$this->flash('Your data has been saved . ', $link);				
-				}						
+				}					
 			}
 		}		
 	}
@@ -479,7 +470,7 @@ class StorageMastersController extends StoragelayoutAppController {
 			//TODO should perhaps be included into a general app function
 			$this->StorageMaster->id = $storage_master_id;	
 			$cleaned_storage_data = array('StorageMaster' => array('parent_id' => null));
-			$this->StorageMaster->save($cleaned_storage_data);
+			if(!$this->StorageMaster->save($cleaned_storage_data)) { $this->redirect('/pages/err_sto_system_error', null, true); }
 			
 			// Create has many relation to delete the storage coordinate
 			$this->StorageMaster->bindModel(array('hasMany' => array('StorageCoordinate' => array('className' => 'StorageCoordinate', 'foreignKey' => 'storage_master_id', 'dependent' => true))));	
@@ -585,174 +576,6 @@ class StorageMastersController extends StoragelayoutAppController {
 		}
 		
 		return $storage_content;
-	}
-	
-	/**
-	 * Create a FORM to allow user to either manage aliquot position or remove aliquot 
-	 * from storage.
-	 * 
-	 * @param $storage_master_id ID of the studied storage. 
-	 * 
-	 * @author N. Luc
-	 * @since 2007-08-20
-	 */
-
-	function editAliquotPosition($storage_master_id=null){
-		if(!$storage_master_id) { $this->redirect('/pages/err_sto_no_stor_id', null, true); }
-		
-		// MANAGE STORAGE DATA
-		
-		// Get the storage data
-		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
-		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_stor_data', null, true); }
-		
-		// Build predefined list of allowed positions
-		$this->set('parent_coord_x_title', $storage_data['StorageControl']['coord_x_title']);
-		$this->set('a_coord_x_list', $this->Storages->buildAllowedStoragePosition($storage_data, 'x'));
-		$this->set('parent_coord_y_title', $storage_data['StorageControl']['coord_y_title']);
-		$this->set('a_coord_y_list', $this->Storages->buildAllowedStoragePosition($storage_data, 'y'));
-
-		// Search data of storage aliquots
-		$a_storage_aliquot_data = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id), 'order' => 'AliquotMaster.storage_coord_y ASC, AliquotMaster.storage_coord_x ASC', 'recursive' => '-1'));	
-		if(empty($a_storage_aliquot_data)) { 
-			$this->flash('no aliquot is stored into this storage', '/storagelayout/storage_masters/contentTreeView/' . $storage_master_id);  
-			return;
-		}
-				
-		// MANAGE FORM, MENU AND ACTION BUTTONS
-		
-		// Get the current menu object. Needed to disable menu options based on storage type
-		$atim_menu = $this->Menus->get('/storagelayout/storage_masters/contentTreeView/%%StorageMaster.id%%');
-	
-		if(!$this->Storages->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
-			// Check storage supports custom coordinates and disable access to coordinates menu option if required
-			$atim_menu = $this->Storages->inactivateStorageCoordinateMenu($atim_menu);
-		}
-					
-		if(empty($storage_data['StorageControl']['coord_x_type'])) {
-			// Check storage supports coordinates and disable access to storage layout menu option if required
-			$atim_menu = $this->Storages->inactivateStorageLayoutMenu($atim_menu);
-		}
-
-		$this->set('atim_menu', $atim_menu);
-		$this->set('atim_menu_variables', array('StorageMaster.id' => $storage_master_id));
-
-		// Set structure 		
-		$structure_alias = (is_null($storage_data['StorageControl']['form_alias_for_children_pos']))? 'manage_storage_aliquots_without_position': $storage_data['StorageControl']['form_alias_for_children_pos'] . '_for_aliquot';	
-		$this->set('atim_structure', $this->Structures->get('form', $structure_alias));
-
-		//TODO editAliquotPosition: underdevelopment
-		//Becarful about position order (with integer): use order field
-		$this->flash('under development', '/storagelayout/storage_masters/contentTreeView/' . $storage_master_id);
-		return;
-		
-		// MANAGE DATA RECORD
-				
-		if(empty($this->data)) {
-			$this->data = $a_storage_aliquot_data;
-				
-		} else { 
-			// Update position
-			$storage_data_to_update = array();
-			if(isset($this->data['StorageMaster']['parent_storage_coord_x'])) { $storage_data_to_update['StorageMaster']['parent_storage_coord_x'] = $this->data['StorageMaster']['parent_storage_coord_x']; }	
-			if(isset($this->data['StorageMaster']['parent_storage_coord_y'])) { $storage_data_to_update['StorageMaster']['parent_storage_coord_y'] = $this->data['StorageMaster']['parent_storage_coord_y']; }	
-						
-			$this->StorageMaster->id = $storage_master_id;		
-			if($this->StorageMaster->save($storage_data_to_update)) { 
-				$this->flash('Your data has been updated . ', '/storagelayout/storage_masters/detail/' . $storage_master_id); 
-			}
-			
-			
-						// ** Save Data **
-			
-			// setup MODEL(s) validation array(s) for displayed FORM 
-			foreach ($this->Forms->getValidateArray($form_title) as $validate_model=>$validate_rules) {
-				$this->{$validate_model}->validate = $validate_rules;
-			}
-			
-			// set a FLAG
-			$submitted_data_validates = true;
-			
-			// Execute Validation 
-			
-			foreach ($this->data as $key=>$val) {
-				if (!$this->AliquotMaster->validates($val)) {
-					$submitted_data_validates = false;
-				}	
-			}
-
-			// look for CUSTOM HOOKS, "validation"
-			$custom_ctrapp_controller_hook 
-				= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
-				'controllers' . DS . 'hooks' . DS . 
-				$this->params['controller'] . '_' . $this->params['action'] . '_validation.php';
-			
-			if (file_exists($custom_ctrapp_controller_hook)) {
-				require($custom_ctrapp_controller_hook);
-			}
-			
-			if ($submitted_data_validates) {
-				
-				// Launch Save
-				
-				$bool_save_done = true;
-				
-				// save each ROW
-				foreach ($this->data as $key=>$val) {
-					
-					if(strcmp($val['FunctionManagement']['remove_from_storage'], 'yes') == 0){
-						// User would like to delete postion data
-						$val['AliquotMaster']['storage_master_id'] = null;
-						$val['AliquotMaster']['storage_coord_x'] = null;
-						$val['AliquotMaster']['storage_coord_y'] = null;
-					}
-						
-					//TODO: Update only modified records
-					$val['AliquotMaster']['modified'] = date('Y-m-d G:i');
-					$val['AliquotMaster']['modified_by'] = $this->othAuth->user('id');	
-				
-					if(!$this->AliquotMaster->save($val)){
-						$bool_save_done = false;
-					}
-					
-					if(!$bool_save_done){
-						break;
-					}
-				}
-		
-				if(!$bool_save_done){
-					$this->redirect('/pages/err_sto_aliquot_record_err'); 
-					exit;
-				} else {
-					$this->flash('Your data has been updated . ',
-						'/storage_masters/searchStorageAliquots/' . $storage_master_id);
-				}			
-			}
-		}
-	}	
-	
-	/**
-	 * Create a FORM to allow user to either manage children storage position or remove children storage 
-	 * from storage.
-	 * 
-	 * @param $storage_master_id ID of the studied storage. 
-	 * 
-	 * @author N. Luc
-	 * @since 2007-08-20
-	 */
-
-	function editChildrenStoragePosition($storage_master_id=null){
-		if(!$storage_master_id) { $this->redirect('/pages/err_sto_no_stor_id', null, true); }
-		
-		// MANAGE STORAGE DATA
-		
-		// Get the storage data
-		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
-		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_stor_data', null, true); }
-
-		//TODO editChildrenStoragePosition: underdevelopment
-		$this->flash('under development', '/storagelayout/storage_masters/contentTreeView/' . $storage_master_id);
-		return;	
 	}
 	
 	/**

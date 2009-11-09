@@ -22,15 +22,13 @@
 				'detail' => '/storagelayout/storage_masters/detail/%%StorageMaster.id%%/1'
 			),
 			'AliquotMaster' => array(
-				'detail' => '/inventorymanagement/aliquot_masters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/1'
+				'detail' => '/inventorymanagement/aliquot_masters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/' . true . '/' . false
 			),
 			'TmaSlide' => array(
 				'detail' => '/storagelayout/tma_slides/detail/%%TmaSlide.std_tma_block_id%%/%%TmaSlide.id%%/1'
 			)
 		),
 		'bottom' => array(
-			'edit children storage positions' => '/storagelayout/storage_masters/editChildrenStoragePosition/' . $atim_menu_variables['StorageMaster.id'],
-			'edit aliquots positions' => '/storagelayout/storage_masters/editAliquotPosition/' . $atim_menu_variables['StorageMaster.id']
 		),		
 		'ajax' => array(
 			'index' => array(

@@ -290,10 +290,12 @@ class StoragesComponent extends Object {
 			// No storage selected: no position should be set
 			if(!empty($position_x)){
 				$validated_position_x .= $error_sign;
+				$error_on_x = true;
 				$position_definition_error = 'no postion has to be recorded when no storage is selected';
 			}
 			if(!empty($position_y)){
 				$validated_position_y .= $error_sign;
+				$error_on_y = true;
 				$position_definition_error = 'no postion has to be recorded when no storage is selected';
 			}
 			
@@ -448,11 +450,13 @@ class StoragesComponent extends Object {
 				// Only TYPE is defined for the studied coordinate: The system can only return a custom coordinate list set by user.			
 				if((strcmp($storage_data['StorageControl']['coord_' . $coord . '_type'], 'list') == 0) && (strcmp($coord, 'x') == 0)) {
 					$coordinates = $this->controller->StorageCoordinate->atim_list(array('conditions' => array('StorageCoordinate.storage_master_id' => $storage_data['StorageMaster']['id'], 'StorageCoordinate.dimension' => $coord), 'order' => 'StorageCoordinate.order ASC', 'recursive' => '-1'));
-					foreach($coordinates as $new_coordinate) {
-						$coordinate_value = $new_coordinate['StorageCoordinate']['coordinate_value'];
-						$coordinate_order = $new_coordinate['StorageCoordinate']['order'];
-						$array_to_order[$coordinate_order] = $coordinate_value;						
-					}		
+					if(!empty($coordinates)) {
+						foreach($coordinates as $new_coordinate) {
+							$coordinate_value = $new_coordinate['StorageCoordinate']['coordinate_value'];
+							$coordinate_order = $new_coordinate['StorageCoordinate']['order'];
+							$array_to_order[$coordinate_order] = $coordinate_value;						
+						}		
+					}
 				} else {
 					$this->redirect('/pages/err_sto_system_error', null, true); 				
 				}
