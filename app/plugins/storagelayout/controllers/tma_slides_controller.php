@@ -263,7 +263,7 @@ class TmaSlidesController extends StoragelayoutAppController {
 					$error = $arr_position_results['position_definition_error'];
 					if($arr_position_results['error_on_x'] && $arr_position_results['error_on_y']) {	
 						$this->TmaSlide->validationErrors['storage_coord_x'] = $error; 
-						$this->TmaSlide->validationErrors['storage_coord_y'] = ' ';	// TODO: Used to color field in red and not duplicate message
+						$this->TmaSlide->validationErrors['storage_coord_y'] = $error;
 					} else if($arr_position_results['error_on_x']) {
 						$this->TmaSlide->validationErrors['storage_coord_x'] = $error;					
 					} else if($arr_position_results['error_on_y']) {	
