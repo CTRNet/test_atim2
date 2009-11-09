@@ -135,9 +135,14 @@ class ClassRegistry {
 					$_this->map($alias, $class);
 					return $model;
 				}
-
+				
 				if (class_exists($class) || App::import($type, $pluginPath . $class)) {
 					${$class} =& new $class($settings);
+					
+					// ATiM2: load custom controller
+					$modelCustom = $class.'Custom';
+					if (class_exists($modelCustom)) ${$class} =& new $modelCustom($settings);
+					
 				} elseif ($type === 'Model') {
 					if ($plugin && class_exists($plugin . 'AppModel')) {
 						$appModel = $plugin . 'AppModel';
@@ -147,7 +152,7 @@ class ClassRegistry {
 					$settings['name'] = $class;
 					${$class} =& new $appModel($settings);
 				}
-
+				
 				if (!isset(${$class})) {
 					trigger_error(sprintf(__('(ClassRegistry::init() could not create instance of %1$s class %2$s ', true), $class, $type), E_USER_WARNING);
 					return $false;
@@ -158,6 +163,7 @@ class ClassRegistry {
 				} else {
 					$_this->map($alias, $class);
 				}
+				
 			} elseif (is_numeric($settings)) {
 				trigger_error(__('(ClassRegistry::init() Attempted to create instance of a class with a numeric name', true), E_USER_WARNING);
 				return $false;

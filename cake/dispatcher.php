@@ -450,6 +450,10 @@ class Dispatcher extends Object {
 			}
 			$this->params = $params;
 			$controller =& new $ctrlClass();
+			
+			// ATiM2: load custom controller
+			$ctrlCustom = $ctrlClass.'Custom';
+			if (class_exists($ctrlCustom)) $controller =& new $ctrlCustom();
 		}
 		return $controller;
 	}
@@ -473,6 +477,7 @@ class Dispatcher extends Object {
 			$this->params['controller'] = $params['controller'];
 			$controller = Inflector::camelize($params['controller']);
 		}
+		
 		if ($pluginPath . $controller) {
 			if (App::import('Controller', $pluginPath . $controller)) {
 				return $controller;

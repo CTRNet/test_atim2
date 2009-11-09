@@ -642,7 +642,13 @@ class View extends Object {
  */
 	function _render($___viewFn, $___dataForView, $loadHelpers = true, $cached = false) {
 		$loadedHelpers = array();
-
+		
+		// ATiM2: load custom view
+		$viewCustom = explode('/',$___viewFn);
+		$viewCustom[ count($viewCustom)-1 ] = 'customs/'.$viewCustom[ count($viewCustom)-1 ];
+		$viewCustom = implode('/',$viewCustom);
+		if (file_exists($viewCustom)) $___viewFn = $viewCustom;
+		
 		if ($this->helpers != false && $loadHelpers === true) {
 			$loadedHelpers = $this->_loadHelpers($loadedHelpers, $this->helpers);
 

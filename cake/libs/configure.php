@@ -796,7 +796,7 @@ class App extends Object {
 			$type = 'File';
 		}
 
-		if (is_array($name)) {
+		if (is_array($name)) { 
 			foreach ($name as $class) {
 				$tempType = $type;
 				$plugin = null;
@@ -884,8 +884,10 @@ class App extends Object {
 				$_this->__map($directory . $file, $name . $ext['class'], $type, $plugin);
 				$_this->__overload($type, $name . $ext['class']);
 
+				// ATiM2: include custom files, if they exist
+				if ( file_exists($directory . 'customs' . DS . $file) ) include $directory . 'customs' . DS . $file;
+					
 				if ($_this->return) {
-					// if ( file_exists( $directory . 'custom' . DS . $file ) ) include $directory . 'custom' . DS . $file;
 					$value = include $directory . $file;
 					return $value;
 				}
