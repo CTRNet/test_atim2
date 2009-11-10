@@ -177,7 +177,7 @@ class StoragesComponent extends Object {
 	}	
 	
 	/**
-	 * Check a storage selection label matches a storage master id + check defined storage is not a TMA. 
+	 * Check both a storage selection label matches a storage master id and the defined storage is not a TMA. 
 	 * 
 	 * This function should be used to validate data entry when user is trying to set position of 
 	 * either an aliquot or a children storage within a storage selecting a storage from a list
@@ -188,7 +188,7 @@ class StoragesComponent extends Object {
 	 * 
 	 * @return Array containing results
 	 * 	['selected_storage_master_id'] => Supposed master id of the searched storage
-	 * 	['matching_storage_list'] => Data of storages matching selection label and/or storage master id
+	 * 	['matching_storage_list'] => Data of storages matching selection label and/or storage master id (a same label could be defined for many storages)
 	 * 	['storage_definition_error'] => storage defintion error (empty when no error)
 	 */
 	
@@ -258,7 +258,8 @@ class StoragesComponent extends Object {
 	
 	/**
 	 * Validate values set to define position (coordinate 'x', coordinate 'y') of either a children storage 
-	 * or an aliquot within a storage. 
+	 * or an aliquot within a storage. Return validated or corrected value (value changed to correct case when required)
+	 * plus its display order.
 	 * 
 	 * @param $storage_master_id Master ID of the storage that will contain the studied entity.
 	 * @param $position_x Position 'x' of the enity within the storage.
@@ -268,9 +269,13 @@ class StoragesComponent extends Object {
 	 * @return Array containing results
 	 * 	['validated_position_x'] => Validated/Corrected storage coordinate X
 	 * 		(changed to correct case if required, or including error sign '_err!')
+	 * 	['position_x_order'] => Position order of the validated position (used for display)
+	 * 	['error_on_x'] => True when error is on coordinate x
 	 * 	['validated_position_y'] => Validated/Corrected storage coordinate Y
 	 * 		(changed to correct case if required, or including error sign '_err!')
-	 * 	['position_definition_error'] => Position error (empty when no error)
+	 * 	['position_y_order'] => Position order of the validated position (used for display)
+	 * 	['error_on_y'] => True when error is on coordinate y
+	 * 	['position_definition_error'] => Message defining the position error (empty when no error)
 	 */	
 	
 	function validatePositionWithinStorage($storage_master_id, $position_x, $position_y, $storage_data = null) {
@@ -351,7 +356,7 @@ class StoragesComponent extends Object {
 	 * @param $coord Studied storage coordinate ('x' or 'y').
 	 * 
 	 * @return Array containing results
-	 * 	['validated'] => true if validated
+	 * 	['validated'] => TRUE if validated
 	 * 	['validated_position'] => Validated position (value changed to correct case when required)
 	 * 	['position_order'] => Position order to display
 	 * 
@@ -415,8 +420,12 @@ class StoragesComponent extends Object {
 	 * @param $coord Coordinate flag that should be studied ('x', 'y').
 	 *
 	 * @return Array gathering 2 sub arrays:
-	 * 	[array_to_display] = array() -- (key = value = allowed coordinate)
-	 * 	[array_to_order] = array()   -- (key = coordinate order, value = allowed coordinate) / Use for display
+	 * 	[array_to_display] = array($allowed_coordinate => $allowed_coordinate) 
+	 * 		// key = value = 'allowed coordinate'
+	 * 		// array_to_display should be used to get list of allowed coordinates and set drop down list for position selection
+	 * 	[array_to_order] = array($coordinate_order => $allowed_coordinate) 
+	 * 		// key = 'coordinate order', value = 'allowed coordinate') 
+	 * 		// array_to_order should be used to build an ordered display
 	 * 
 	 * @author N. Luc
 	 * @since 2007-05-22
