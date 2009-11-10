@@ -9,7 +9,6 @@ class StorageMastersController extends StoragelayoutAppController {
 		'Storagelayout.StorageControl',
 		'Storagelayout.StorageCoordinate',
 		'Storagelayout.TmaSlide',
-		
 		'Inventorymanagement.AliquotMaster');
 	
 	var $paginate = array('StorageMaster' => array('limit' => 10, 'order' => 'StorageMaster.selection_label ASC'));
@@ -207,18 +206,27 @@ class StorageMastersController extends StoragelayoutAppController {
 			
 			if($submitted_data_validates) {
 				// Save storage data
+				$bool_save_done = true;
+				
 				$storage_master_id = null;
 				if($this->StorageMaster->save($this->data)) {
 					$storage_master_id = $this->StorageMaster->getLastInsertId();
+				} else {
+					$bool_save_done = false;
+				}
 				
-					// Create storage code
+				// Create storage code
+				if($bool_save_done) {
 					$storage_data_to_update = array();
 					$storage_data_to_update['StorageMaster']['code'] = $this->createStorageCode($storage_master_id, $this->data, $storage_control_data);
 
 					$this->StorageMaster->id = $storage_master_id;					
-					if(!$this->StorageMaster->save($storage_data_to_update)) { $this->redirect('/pages/err_sto_system_error', null, true); }				
+					if(!$this->StorageMaster->save($storage_data_to_update)) {
+						$bool_save_done = false;
+					}
+				}
 					
-					// Redirect user
+				if($bool_save_done) {
 					$link = '';
 					if(empty($parent_storage_data) || is_null($parent_storage_data['StorageControl']['form_alias_for_children_pos'])){
 						// No position has to be set for this storage
@@ -227,7 +235,7 @@ class StorageMastersController extends StoragelayoutAppController {
 						$link = '/storagelayout/storage_masters/editStoragePosition/' . $storage_master_id;
 					}
 					$this->flash('Your data has been saved . ', $link);				
-				}					
+				}						
 			}
 		}		
 	}
@@ -470,7 +478,7 @@ class StorageMastersController extends StoragelayoutAppController {
 			//TODO should perhaps be included into a general app function
 			$this->StorageMaster->id = $storage_master_id;	
 			$cleaned_storage_data = array('StorageMaster' => array('parent_id' => null));
-			if(!$this->StorageMaster->save($cleaned_storage_data)) { $this->redirect('/pages/err_sto_system_error', null, true); }
+			$this->StorageMaster->save($cleaned_storage_data);
 			
 			// Create has many relation to delete the storage coordinate
 			$this->StorageMaster->bindModel(array('hasMany' => array('StorageCoordinate' => array('className' => 'StorageCoordinate', 'foreignKey' => 'storage_master_id', 'dependent' => true))));	
@@ -579,6 +587,174 @@ class StorageMastersController extends StoragelayoutAppController {
 	}
 	
 	/**
+	 * Create a FORM to allow user to either manage aliquot position or remove aliquot 
+	 * from storage.
+	 * 
+	 * @param $storage_master_id ID of the studied storage. 
+	 * 
+	 * @author N. Luc
+	 * @since 2007-08-20
+	 */
+
+	function editAliquotPosition($storage_master_id=null){
+		if(!$storage_master_id) { $this->redirect('/pages/err_sto_no_stor_id', null, true); }
+		
+		// MANAGE STORAGE DATA
+		
+		// Get the storage data
+		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
+		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_stor_data', null, true); }
+		
+		// Build predefined list of allowed positions
+		$this->set('parent_coord_x_title', $storage_data['StorageControl']['coord_x_title']);
+		$this->set('a_coord_x_list', $this->Storages->buildAllowedStoragePosition($storage_data, 'x'));
+		$this->set('parent_coord_y_title', $storage_data['StorageControl']['coord_y_title']);
+		$this->set('a_coord_y_list', $this->Storages->buildAllowedStoragePosition($storage_data, 'y'));
+
+		// Search data of storage aliquots
+		$a_storage_aliquot_data = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id), 'order' => 'AliquotMaster.storage_coord_y ASC, AliquotMaster.storage_coord_x ASC', 'recursive' => '-1'));	
+		if(empty($a_storage_aliquot_data)) { 
+			$this->flash('no aliquot is stored into this storage', '/storagelayout/storage_masters/contentTreeView/' . $storage_master_id);  
+			return;
+		}
+				
+		// MANAGE FORM, MENU AND ACTION BUTTONS
+		
+		// Get the current menu object. Needed to disable menu options based on storage type
+		$atim_menu = $this->Menus->get('/storagelayout/storage_masters/contentTreeView/%%StorageMaster.id%%');
+	
+		if(!$this->Storages->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
+			// Check storage supports custom coordinates and disable access to coordinates menu option if required
+			$atim_menu = $this->Storages->inactivateStorageCoordinateMenu($atim_menu);
+		}
+					
+		if(empty($storage_data['StorageControl']['coord_x_type'])) {
+			// Check storage supports coordinates and disable access to storage layout menu option if required
+			$atim_menu = $this->Storages->inactivateStorageLayoutMenu($atim_menu);
+		}
+
+		$this->set('atim_menu', $atim_menu);
+		$this->set('atim_menu_variables', array('StorageMaster.id' => $storage_master_id));
+
+		// Set structure 		
+		$structure_alias = (is_null($storage_data['StorageControl']['form_alias_for_children_pos']))? 'manage_storage_aliquots_without_position': $storage_data['StorageControl']['form_alias_for_children_pos'] . '_for_aliquot';	
+		$this->set('atim_structure', $this->Structures->get('form', $structure_alias));
+
+		//TODO editAliquotPosition: underdevelopment
+		//Becarful about position order (with integer): use order field
+		$this->flash('under development', '/storagelayout/storage_masters/contentTreeView/' . $storage_master_id);
+		return;
+		
+		// MANAGE DATA RECORD
+				
+		if(empty($this->data)) {
+			$this->data = $a_storage_aliquot_data;
+				
+		} else { 
+			// Update position
+			$storage_data_to_update = array();
+			if(isset($this->data['StorageMaster']['parent_storage_coord_x'])) { $storage_data_to_update['StorageMaster']['parent_storage_coord_x'] = $this->data['StorageMaster']['parent_storage_coord_x']; }	
+			if(isset($this->data['StorageMaster']['parent_storage_coord_y'])) { $storage_data_to_update['StorageMaster']['parent_storage_coord_y'] = $this->data['StorageMaster']['parent_storage_coord_y']; }	
+						
+			$this->StorageMaster->id = $storage_master_id;		
+			if($this->StorageMaster->save($storage_data_to_update)) { 
+				$this->flash('Your data has been updated . ', '/storagelayout/storage_masters/detail/' . $storage_master_id); 
+			}
+			
+			
+						// ** Save Data **
+			
+			// setup MODEL(s) validation array(s) for displayed FORM 
+			foreach ($this->Forms->getValidateArray($form_title) as $validate_model=>$validate_rules) {
+				$this->{$validate_model}->validate = $validate_rules;
+			}
+			
+			// set a FLAG
+			$submitted_data_validates = true;
+			
+			// Execute Validation 
+			
+			foreach ($this->data as $key=>$val) {
+				if (!$this->AliquotMaster->validates($val)) {
+					$submitted_data_validates = false;
+				}	
+			}
+
+			// look for CUSTOM HOOKS, "validation"
+			$custom_ctrapp_controller_hook 
+				= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
+				'controllers' . DS . 'hooks' . DS . 
+				$this->params['controller'] . '_' . $this->params['action'] . '_validation.php';
+			
+			if (file_exists($custom_ctrapp_controller_hook)) {
+				require($custom_ctrapp_controller_hook);
+			}
+			
+			if ($submitted_data_validates) {
+				
+				// Launch Save
+				
+				$bool_save_done = true;
+				
+				// save each ROW
+				foreach ($this->data as $key=>$val) {
+					
+					if(strcmp($val['FunctionManagement']['remove_from_storage'], 'yes') == 0){
+						// User would like to delete postion data
+						$val['AliquotMaster']['storage_master_id'] = null;
+						$val['AliquotMaster']['storage_coord_x'] = null;
+						$val['AliquotMaster']['storage_coord_y'] = null;
+					}
+						
+					//TODO: Update only modified records
+					$val['AliquotMaster']['modified'] = date('Y-m-d G:i');
+					$val['AliquotMaster']['modified_by'] = $this->othAuth->user('id');	
+				
+					if(!$this->AliquotMaster->save($val)){
+						$bool_save_done = false;
+					}
+					
+					if(!$bool_save_done){
+						break;
+					}
+				}
+		
+				if(!$bool_save_done){
+					$this->redirect('/pages/err_sto_aliquot_record_err'); 
+					exit;
+				} else {
+					$this->flash('Your data has been updated . ',
+						'/storage_masters/searchStorageAliquots/' . $storage_master_id);
+				}			
+			}
+		}
+	}	
+	
+	/**
+	 * Create a FORM to allow user to either manage children storage position or remove children storage 
+	 * from storage.
+	 * 
+	 * @param $storage_master_id ID of the studied storage. 
+	 * 
+	 * @author N. Luc
+	 * @since 2007-08-20
+	 */
+
+	function editChildrenStoragePosition($storage_master_id=null){
+		if(!$storage_master_id) { $this->redirect('/pages/err_sto_no_stor_id', null, true); }
+		
+		// MANAGE STORAGE DATA
+		
+		// Get the storage data
+		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
+		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_stor_data', null, true); }
+
+		//TODO editChildrenStoragePosition: underdevelopment
+		$this->flash('under development', '/storagelayout/storage_masters/contentTreeView/' . $storage_master_id);
+		return;	
+	}
+	
+	/**
 	 * Display the content of a storage into a layout.
 	 * 
 	 * @param $storage_master_id Id of the studied storage.
@@ -599,12 +775,30 @@ class StorageMastersController extends StoragelayoutAppController {
 		// Storage layout not allowed for this type of storage
 		if(empty($storage_data['StorageControl']['coord_x_type'])) { $this->redirect('/pages/err_sto_no_stor_layout', null, true); }
 		
-		//TODO storageLayout: underdevelopment
-		$this->flash('under development', '/storagelayout/storage_masters/contentTreeView/' . $storage_master_id);
-		return;
+		$storage_master_c = $this->StorageMaster->find('all', array('conditions' => array('StorageMaster.parent_id' => $storage_master_id)));
+		$aliquot_master_c = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id)));
+		$tma_slide_c = $this->TmaSlide->find('all', array('conditions' => array('TmaSlide.storage_master_id' => $storage_master_id)));
 		
-		$this->data = array();
-				
+		if(!empty($this->data)){		
+			$data = array();
+			$unclassified = array();
+			$json = (json_decode($this->data));
+			//have cells with id as key
+			for($i = sizeof($json) - 1; $i >= 0; -- $i){
+				//builds a $cell[type][id] array
+				$data[$json[$i]->{'type'}][$json[$i]->{'id'}] = (array)$json[$i]; 
+			}
+
+			//update StorageMaster
+			$this->updateAndSaveDataArray($storage_master_c, "StorageMaster", "parent_storage_coord_x", "parent_storage_coord_y", "parent_id", $data, $this->StorageMaster);
+			
+			//Update AliquotMaster
+			$this->updateAndSaveDataArray($aliquot_master_c, "StorageMaster", "storage_coord_x", "storage_coord_y", "storage_master_id", $data, $this->AliquotMaster);
+			
+			//Update TmaSlide
+			$this->updateAndSaveDataArray($tma_slide_c, "StorageMaster", "storage_coord_x", "storage_coord_y", "storage_master_id", $data, $this->TmaSlide);
+		}
+					
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Get the current menu object. Needed to disable menu options based on storage type
@@ -620,131 +814,33 @@ class StorageMastersController extends StoragelayoutAppController {
 
 		// Set structure				
 		$this->set('atim_structure', $this->Structures->get('form', 'storagemasters'));	
-
-//		// ** Build the storage content array **
-//	
-//		// Sort information	into an array
-//		$arr_content = array(
-//			'type' => $storage_master_data['StorageMaster']['storage_type'],
-//			'code' => $storage_master_data['StorageMaster']['code'],
-//			'id' => $storage_master_data['StorageMaster']['id'],
-//			'x' => $storage_control_data['StorageControl']['coord_x_title'],
-//			'x_labels' => array(),
-//			'y' => $storage_control_data['StorageControl']['coord_y_title'],
-//			'y_labels' => array(),
-//			'data' => array(),
-//			'data_no_position' => array());
-//	
-//		$bool_y_coord = false;
-//		if(!empty($storage_control_data['StorageControl']['coord_y_type'])){
-//			$bool_y_coord = true;	
-//		}
-//		
-//		// Look for all storages contained into the storage master
-//		$conditions = ' StorageMaster.parent_id = \'' . $storage_master_id . '\'';	
-//		$a_children_storages = $this->StorageMaster->findAll($conditions);
-//	
-//		foreach($a_children_storages as $key => $children_master_data){
-//			// New chidlren storage
-//			$coord_x = $children_master_data['StorageMaster']['parent_storage_coord_x'];
-//			$coord_y = $children_master_data['StorageMaster']['parent_storage_coord_y'];
-//			$id = $children_master_data['StorageMaster']['id'];
-//			$code = $children_master_data['StorageMaster']['code'];
-//			$storage_type = $children_master_data['StorageMaster']['storage_type'];
-//			$selection_label = $children_master_data['StorageMaster']['selection_label'];
-//			
-//			if((is_null($coord_x) || (strlen($coord_x)==0))
-//			|| ($bool_y_coord && (is_null($coord_y) || (strlen($coord_y)==0)))){
-//				// Coordinate X missing 
-//				// or system wait for corrdinate Y but this one is missing
-//				$arr_content['data_no_position'][] = 
-//					array('id' => $id, 
-//						'code' => $code, 
-//						'type' => 'storage', 
-//						'type_code' => $storage_type, 
-//						'additional_data' => array('selection_label' => $selection_label));					
-//			} else {			
-//				$arr_content['data'][$coord_x][$coord_y][] = 
-//					array('id' => $id, 
-//						'code' => $code, 
-//						'type' => 'storage', 
-//						'type_code' => $storage_type, 
-//						'additional_data' => array('selection_label' => $selection_label));	
-//			}	
-//		}
-//		
-//		// Look for all aliquots contained into the storage master
-//		$conditions = 'AliquotMaster.storage_master_id = \'' . $storage_master_id . '\'';	
-//		$a_storage_aliquots = $this->AliquotMaster->findAll($conditions);
-//	
-//		foreach($a_storage_aliquots as $key => $aliquot_master_data){
-//			$coord_x = $aliquot_master_data['AliquotMaster']['storage_coord_x'];
-//			$coord_y = $aliquot_master_data['AliquotMaster']['storage_coord_y'];
-//			$id = $aliquot_master_data['AliquotMaster']['id'];
-//			$code = $aliquot_master_data['AliquotMaster']['barcode'];
-//			$aliquot_type = $aliquot_master_data['AliquotMaster']['aliquot_type'];
-//			
-//			if((is_null($coord_x) || (strlen($coord_x)==0))
-//			|| ($bool_y_coord && (is_null($coord_y) || (strlen($coord_y)==0)))){
-//				// Coordinate X missing 
-//				// or system wait for corrdinate Y but this one is missing
-//				$arr_content['data_no_position'][] = 
-//					array('id' => $id, 
-//						'code' => $code, 
-//						'type' => 'aliquot', 
-//						'type_code' => $aliquot_type,
-//						'additional_data' => array());					
-//			} else {			
-//				$arr_content['data'][$coord_x][$coord_y][] = 
-//					array('id' => $id, 
-//						'code' => $code, 
-//						'type' => 'aliquot', 
-//						'type_code' => $aliquot_type,
-//						'additional_data' => array());	
-//			}	
-//		}
-//		
-//		// Look for all tma slide contained into the storage master
-//		$conditions = 'TmaSlide.storage_master_id = \'' . $storage_master_id . '\'';	
-//		$a_storage_tma_slides = $this->TmaSlide->findAll($conditions);
-//		
-//		foreach($a_storage_tma_slides as $key => $tma_slide_data){
-//			$coord_x = $tma_slide_data['TmaSlide']['storage_coord_x'];
-//			$coord_y = $tma_slide_data['TmaSlide']['storage_coord_y'];
-//			$id = $tma_slide_data['TmaSlide']['id'];
-//			$code = $tma_slide_data['TmaSlide']['barcode'];
-//			$tma_block_id = $tma_slide_data['TmaSlide']['std_tma_block_id'];
-//			
-//			if((is_null($coord_x) || (strlen($coord_x)==0))
-//			|| ($bool_y_coord && (is_null($coord_y) || (strlen($coord_y)==0)))){
-//				// Coordinate X missing 
-//				// or system wait for corrdinate Y but this one is missing
-//				$arr_content['data_no_position'][] = 
-//					array('id' => $id, 
-//						'code' => $code, 
-//						'type' => 'tma slide', 
-//						'type_code' => 'tma slide',
-//						'additional_data' => array('tma_block_id' => $tma_block_id));					
-//			} else {			
-//				$arr_content['data'][$coord_x][$coord_y][] = 
-//					array('id' => $id, 
-//						'code' => $code, 
-//						'type' => 'tma slide', 
-//						'type_code' => 'tma slide',
-//						'additional_data' => array('tma_block_id' => $tma_block_id));	
-//			}	
-//		}
-//		
-//		// Get coordinates values list
-//		$arr_content['x_labels'] 
-//			= $this->buildAllowedStoragePosition($storage_master_id, $storage_control_data, 'x');
-//		$arr_content['y_labels'] 
-//			= $this->buildAllowedStoragePosition($storage_master_id, $storage_control_data, 'y');
-//		
-//		$this->set('arr_content', $arr_content);
-//
-//		// ** look for CUSTOM HOOKS, "format" **
-//		// No hook allowed
+		$data['parent'] = $storage_data;
+		$data['children'] = $storage_master_c;
+		$data['children'] = array_merge($data['children'], $aliquot_master_c);
+		$data['children'] = array_merge($data['children'], $tma_slide_c);
+		
+		foreach($data['children'] as &$children_array){
+			if(isset($children_array['StorageMaster'])){
+				$children_array['DisplayData']['id'] = $children_array['StorageMaster']['id'];
+				$children_array['DisplayData']['x'] = $children_array['StorageMaster']['parent_storage_coord_x'];
+				$children_array['DisplayData']['y'] = $children_array['StorageMaster']['parent_storage_coord_y'];
+				$children_array['DisplayData']['label'] = $children_array['StorageMaster']['selection_label'];
+				$children_array['DisplayData']['type'] = 'StorageMaster';
+			}else if(isset($children_array['AliquotMaster'])){
+				$children_array['DisplayData']['id'] = $children_array['AliquotMaster']['id'];
+				$children_array['DisplayData']['x'] = $children_array['AliquotMaster']['storage_coord_x'];
+				$children_array['DisplayData']['y'] = $children_array['AliquotMaster']['storage_coord_y'];
+				$children_array['DisplayData']['label'] = $children_array['AliquotMaster']['barcode'];
+				$children_array['DisplayData']['type'] = 'AliquotMaster';
+			}else if(isset($children_array['TmaSlide'])){
+				$children_array['DisplayData']['id'] = $children_array['TmaSlide']['id'];
+				$children_array['DisplayData']['x'] = $children_array['TmaSlide']['storage_coord_x'];
+				$children_array['DisplayData']['y'] = $children_array['storage_coord_y'];
+				$children_array['DisplayData']['label'] = $children_array['TmaSlide']['barcode'];
+				$children_array['DisplayData']['type'] = 'TmaSlide';
+			}
+		}
+		$this->set('data', $data);
 	}
 	
 	/* --------------------------------------------------------------------------
@@ -1029,6 +1125,51 @@ class StorageMastersController extends StoragelayoutAppController {
 	 
 	function getTmaSopList() {
 		return $this->getSopList('tma');
+	}
+	
+	/**
+	 * Parses the data_array and updates it with the rcv_data array. Saves the modifications into the database and
+	 * cleans it of the no longer related data. 
+	 * @param data_array The data read from the database
+	 * @param type The current type we are seeking
+	 * @param x_key The name of the key for the x coordinate
+	 * @param y_key The name of the key for the y coordinate
+	 * @param $storage_parent_key The name of the key of the parent storage id
+	 * @param rcv_data The data received from the user
+	 * @param UpdaterObject The object to use to update the data
+	 */
+	function updateAndSaveDataArray(&$data_array, $type, $x_key, $y_key, $storage_parent_key, $rcv_data, $UpdaterObject){
+		for($i = sizeof($data_array) - 1; $i >= 0; -- $i){
+			if(isset($rcv_data[$type]) && isset($rcv_data[$type][$data_array[$i][$type]['id']])){
+				$trash = false;
+				//this is is a cell
+				if($rcv_data[$type][$data_array[$i][$type]['id']]['x'] == 't'){
+					//trash
+					$data_array[$i][$type][$x_key] = null;
+					$data_array[$i][$type][$y_key] = null;
+					$data_array[$i][$type][$storage_parent_key] = null;
+					$trash = true;
+				}else if($rcv_data[$type][$data_array[$i][$type]['id']]['x'] == 'u'){
+					//unclassified
+					$data_array[$i][$type][$x_key] = null;
+					$data_array[$i][$type][$y_key] = null;
+				}else{
+					//positioned
+					$data_array[$i][$type][$x_key] = $rcv_data[$type][$data_array[$i][$type]['id']]['x'];
+					$data_array[$i][$type][$y_key] = $rcv_data[$type][$data_array[$i][$type]['id']]['y'];
+				}
+				//clean the array asap to gain efficiency
+				unset($rcv_data[$type][$data_array[$i][$type]['id']]);
+				$UpdaterObject->save($data_array[$i]);
+				pr($data_array[$i]);
+				if($trash){
+					unset($data_array[$i]);
+				}
+			}
+		}
+		// Re-index
+		$data_array = array_values($data_array);
+		
 	}
 	
 }
