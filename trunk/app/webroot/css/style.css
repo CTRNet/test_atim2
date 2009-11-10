@@ -186,7 +186,7 @@ div#wrapper div.actions {
 		float: left;
 		padding: 0 10px 0 0;
 	}
-	div#wrapper div.actions ul li a {
+	div#wrapper div.actions a {
 		/* font-weight: bold; */
 		font-size: 12px;
 		/* text-transform: uppercase; */
@@ -1145,14 +1145,20 @@ div.menu ul#summary ul dl lh {
 		margin: 10px;
 	}
 	fieldset.submit input.submit {
-		background-color: #eaedf2;
-		padding: 5px 10px 4px 27px;
+		background: #c1d7e9 url("../img/icons/Save_16x16.png") no-repeat 10px center;
+		padding: 8px 12px 7px 30px;
 		color: #5081a5;
 		font-size: 12px;
 		border: none;
+		cursor: pointer;
 		
-		-moz-border-radius: 7px; -webkit-border-radius: 7px;
+		-moz-border-radius: 9px; -webkit-border-radius: 9px;
 	}
+	
+		fieldset.submit input.submit:hover {
+			background-color: #486680; 
+			color: #fff;
+		}
 	
 	div#validation {
 		margin: 0 10px;
