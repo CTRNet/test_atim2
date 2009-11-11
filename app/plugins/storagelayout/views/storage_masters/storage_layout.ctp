@@ -9,17 +9,60 @@
 //		
 //	$structure_override = array('StorageMaster.code' => 'In Dev');
 //
-//	$structures->build($atim_structure, array('type' => 'detail', 'links' => $structure_links, 'override' => $structure_override));	
-	$x_size = $data['parent']['StorageControl']['coord_x_size'];
-	$y_size = (is_numeric($data['parent']['StorageControl']['coord_y_size']) ? $data['parent']['StorageControl']['coord_y_size'] : 1);
+//	$structures->build($atim_structure, array('type' => 'detail', 'links' => $structure_links, 'override' => $structure_override));
+
 	echo("<table id='table'>");
-	for($j = 0; $j < $y_size; $j ++){
-		echo("<tr>");
-		for($i = 0; $i < $x_size; $i ++){
-			echo("<td style='border-style:solid; border-width:1px; min-width: 30px;' class='droppable'>".$i."-".$j."<ul id='cell_".$i."_".$j."' /></td>");
+	if($data['parent']['StorageControl']['coord_x_type'] == 'list'){
+		foreach($data['parent']['list'] as $list_item){
+			echo("<tr><td style='border-style:solid; border-width:1px; min-width: 30px;' class='droppable'>"
+			.$list_item['StorageCoordinate']['coordinate_value']
+			.'<ul id="cell_'.$list_item['StorageCoordinate']['id'].'_1"/>'
+			.'</td></tr>');
 		}
-		echo("</tr>");
+	}else{
+		$x_size = $data['parent']['StorageControl']['coord_x_size'];
+		$y_size = $data['parent']['StorageControl']['coord_y_size'];
+		if((strlen($x_size) == 0 || strlen($y_size) == 0) && $data['parent']['StorageControl']['square_box']){
+			$x_size = $y_size = (strlen($x_size) > 0 ? sqrt($x_size) : sqrt($y_zise));
+			$square_box = true;
+		}else{
+			$square_box = false;
+			if(strlen($x_size) == 0 || $x_size < 1){
+				$x_size = 1;
+			}
+			if(strlen($y_size) == 0  || $y_size < 1){
+				$y_size = 1;
+			}
+		}
+		$x_alpha = $data['parent']['StorageControl']['coord_x_type'] == "alphabetical";
+		$y_alpha = $data['parent']['StorageControl']['coord_y_type'] == "alphabetical";
+		for($j = 1; $j <= $y_size; $j ++){
+			echo("<tr>");
+			if(!$square_box){
+				$y_val = $y_alpha ? chr($j + 64) : $j;
+			}
+			for($i = 1; $i <= $x_size; $i ++){
+				if($square_box){
+					$display_value = ($j - 1) * $y_size + $i;
+					$use_value = $display_value."_1"; 
+				}else{
+					$x_val = $x_alpha ? chr($i + 64) : $i;
+					$use_value = $x_val."_".$y_val;
+					if($y_size == 1){
+						$display_value = $x_val;
+					}else if($x_size == 1){
+						$display_value == $y_val;
+					}else{
+						$display_value = $x_val."-".$y_val;
+					}
+				}
+				echo("<td style='border-style:solid; border-width:1px; min-width: 30px;' class='droppable'>"
+				.$display_value."<ul id='cell_".$use_value."' /></td>");
+			}
+			echo("</tr>");
+		}
 	}
+	
 	echo("</table><br/><br/>");
 	echo('<div class="ui-widget-content ui-state-default droppable" style="border-style:solid; border-width:1px; min-height: 50px;">'
 		.'<h4 class="ui-widget-header"><span class="ui-icon ui-icon-trash"></span>Unclassified</h4>'
@@ -46,11 +89,6 @@
 </style>
 
 <?php 
-//echo $javascript->link('jQuery/jquery-1.3.2.min')."\n";
-//echo $javascript->link('jQuery/ui/ui.core')."\n";
-//echo $javascript->link('jQuery/ui/ui.draggable')."\n";
-//echo $javascript->link('jQuery/ui/ui.droppable')."\n";
-//echo $javascript->link('jQuery/ui/ui.sortable')."\n";
 
 //the following script is a json transfer from php to javascript
 ?>
@@ -73,6 +111,7 @@ var orgItems = '([<?php
 	}
 ?>])';
 </script>
-<?php 
+<?php
+echo $javascript->link('builder')."\n"; 
 echo $javascript->link('storage_layout')."\n";
 ?>

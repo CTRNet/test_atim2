@@ -210,3 +210,9 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('listall aliquot uses', 'global', 'Uses', 'Utilisations'),
 ('no aliquot has been defined as sample tested aliquot.', 'global', 'No aliquot has been defined as sample tested aliquot.', 'Aucun aliquot n''a &eacute;t&eacute; d&eacute;fini comme aliquot ''test&eacute;''.');
 
+ALTER TABLE `storage_controls` ADD `square_box` TINYINT( 1 ) UNSIGNED NOT NULL COMMENT 'This filed is used if the storage only has one dimension size specified';
+UPDATE `storage_controls` SET `square_box` = '1' WHERE `storage_controls`.`id` = 10 OR `storage_controls`.`id` = 17 ;
+
+ALTER TABLE `storage_masters` 
+CHANGE `parent_storage_coord_x` `parent_storage_coord_x` VARCHAR( 50 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,
+CHANGE `parent_storage_coord_y` `parent_storage_coord_y` VARCHAR( 50 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL; 
