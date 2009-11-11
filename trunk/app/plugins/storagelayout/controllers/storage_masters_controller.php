@@ -9,6 +9,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		'Storagelayout.StorageControl',
 		'Storagelayout.StorageCoordinate',
 		'Storagelayout.TmaSlide',
+		'Storagelayout.StorageCoordinate',
 		'Inventorymanagement.AliquotMaster');
 	
 	var $paginate = array('StorageMaster' => array('limit' => 10, 'order' => 'StorageMaster.selection_label ASC'));
@@ -764,21 +765,33 @@ class StorageMastersController extends StoragelayoutAppController {
 	 */
 	 
 	function storageLayout($storage_master_id) {
-		if(!$storage_master_id) { $this->redirect('/pages/err_sto_no_stor_id', null, true); }
+		if(!$storage_master_id) { 
+			$this->redirect('/pages/err_sto_no_stor_id', null, true); 
+		}
 		
 		// MANAGE STORAGE DATA
 		
 		// Get the storage data
 		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
-		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_stor_data', null, true); }
+		if(empty($storage_data)) { 
+			$this->redirect('/pages/err_sto_no_stor_data', null, true); 
+		}
 		
+		if($storage_data['StorageControl']['coord_x_type'] == "list"){
+			$coordinate_tmp = $this->StorageCoordinate->find('all', array('conditions' => array('StorageCoordinate.storage_master_id' => $storage_master_id), 'recursive' => '-1', 'order' => 'StorageCoordinate.order ASC'));
+			foreach($coordinate_tmp as $key => $value){
+				$coordinate_list[$value['StorageCoordinate']['id']]['StorageCoordinate'] = $value['StorageCoordinate'];
+			} 
+		}
 		// Storage layout not allowed for this type of storage
-		if(empty($storage_data['StorageControl']['coord_x_type'])) { $this->redirect('/pages/err_sto_no_stor_layout', null, true); }
+		if(empty($storage_data['StorageControl']['coord_x_type'])) { 
+			$this->redirect('/pages/err_sto_no_stor_layout', null, true); 
+		}
 		
 		$storage_master_c = $this->StorageMaster->find('all', array('conditions' => array('StorageMaster.parent_id' => $storage_master_id)));
 		$aliquot_master_c = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id)));
 		$tma_slide_c = $this->TmaSlide->find('all', array('conditions' => array('TmaSlide.storage_master_id' => $storage_master_id)));
-		
+
 		if(!empty($this->data)){		
 			$data = array();
 			$unclassified = array();
@@ -788,7 +801,14 @@ class StorageMastersController extends StoragelayoutAppController {
 				//builds a $cell[type][id] array
 				$data[$json[$i]->{'type'}][$json[$i]->{'id'}] = (array)$json[$i]; 
 			}
-
+			
+			if($storage_data['StorageControl']['coord_x_type'] == "list"){
+				foreach($data['StorageMaster'] as &$value){
+					if(is_numeric($value['x'])){
+						$value['x'] = $coordinate_list[$value['x']]['StorageCoordinate']['coordinate_value'];
+					}
+				}
+			}
 			//update StorageMaster
 			$this->updateAndSaveDataArray($storage_master_c, "StorageMaster", "parent_storage_coord_x", "parent_storage_coord_y", "parent_id", $data, $this->StorageMaster);
 			
@@ -813,33 +833,31 @@ class StorageMastersController extends StoragelayoutAppController {
 		$this->set('atim_menu_variables', array('StorageMaster.id' => $storage_master_id));
 
 		// Set structure				
-		$this->set('atim_structure', $this->Structures->get('form', 'storagemasters'));	
+		$this->set('atim_structure', $this->Structures->get('form', 'storagemasters'));
 		$data['parent'] = $storage_data;
+		if(isset($coordinate_list)){
+			$data['parent']['list'] = $coordinate_list;
+			$rkey_coordinate_list = array();
+			foreach($coordinate_list as $values){
+				$rkey_coordinate_list[$values['StorageCoordinate']['coordinate_value']] = $values;
+			}
+		}else{
+			$coordinate_list = null;
+		}
 		$data['children'] = $storage_master_c;
 		$data['children'] = array_merge($data['children'], $aliquot_master_c);
 		$data['children'] = array_merge($data['children'], $tma_slide_c);
-		
+
 		foreach($data['children'] as &$children_array){
 			if(isset($children_array['StorageMaster'])){
-				$children_array['DisplayData']['id'] = $children_array['StorageMaster']['id'];
-				$children_array['DisplayData']['x'] = $children_array['StorageMaster']['parent_storage_coord_x'];
-				$children_array['DisplayData']['y'] = $children_array['StorageMaster']['parent_storage_coord_y'];
-				$children_array['DisplayData']['label'] = $children_array['StorageMaster']['selection_label'];
-				$children_array['DisplayData']['type'] = 'StorageMaster';
+				buildChildrenArray(&$children_array, "StorageMaster", "parent_storage_coord_x", "parent_storage_coord_y", "selection_label", $rkey_coordinate_list);
 			}else if(isset($children_array['AliquotMaster'])){
-				$children_array['DisplayData']['id'] = $children_array['AliquotMaster']['id'];
-				$children_array['DisplayData']['x'] = $children_array['AliquotMaster']['storage_coord_x'];
-				$children_array['DisplayData']['y'] = $children_array['AliquotMaster']['storage_coord_y'];
-				$children_array['DisplayData']['label'] = $children_array['AliquotMaster']['barcode'];
-				$children_array['DisplayData']['type'] = 'AliquotMaster';
+				buildChildrenArray(&$children_array, "AliquotMaster", "storage_coord_x", "storage_coord_y", "barcode", $rkey_coordinate_list);
 			}else if(isset($children_array['TmaSlide'])){
-				$children_array['DisplayData']['id'] = $children_array['TmaSlide']['id'];
-				$children_array['DisplayData']['x'] = $children_array['TmaSlide']['storage_coord_x'];
-				$children_array['DisplayData']['y'] = $children_array['storage_coord_y'];
-				$children_array['DisplayData']['label'] = $children_array['TmaSlide']['barcode'];
-				$children_array['DisplayData']['type'] = 'TmaSlide';
+				buildChildrenArray(&$children_array, "TmaSlide", "storage_coord_x", "storage_coord_y", "barcode", $rkey_coordinate_list);
 			}
 		}
+//		pr($data);
 		$this->set('data', $data);
 	}
 	
@@ -1161,7 +1179,6 @@ class StorageMastersController extends StoragelayoutAppController {
 				//clean the array asap to gain efficiency
 				unset($rcv_data[$type][$data_array[$i][$type]['id']]);
 				$UpdaterObject->save($data_array[$i]);
-				pr($data_array[$i]);
 				if($trash){
 					unset($data_array[$i]);
 				}
@@ -1171,7 +1188,21 @@ class StorageMastersController extends StoragelayoutAppController {
 		$data_array = array_values($data_array);
 		
 	}
-	
 }
 
+function buildChildrenArray(&$children_array, $type_key, $x_key, $y_key, $label_key, $coordinate_list){
+	
+	$children_array['DisplayData']['id'] = $children_array[$type_key]['id'];
+	if($coordinate_list == null){
+		$children_array['DisplayData']['x'] = $children_array[$type_key][$x_key];
+	}else if(isset($coordinate_list[$children_array[$type_key][$x_key]])){
+		$children_array['DisplayData']['x'] = $coordinate_list[$children_array[$type_key][$x_key]]['StorageCoordinate']['id'];
+	}else{
+		$children_array['DisplayData']['x'] = "";
+	}
+	$children_array['DisplayData']['y'] = $children_array[$type_key][$y_key];
+	$children_array['DisplayData']['label'] = $children_array[$type_key][$label_key];
+	$children_array['DisplayData']['type'] = $type_key;
+	
+}
 ?>
