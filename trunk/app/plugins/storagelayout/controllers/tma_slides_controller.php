@@ -2,7 +2,7 @@
 
 class TmaSlidesController extends StoragelayoutAppController {
 	
-	var $components = array('Storages');
+	var $components = array('Storagelayout.Storages');
 	
 	var $uses = array(
 		'Storagelayout.StorageMaster',
