@@ -2,7 +2,7 @@
 
 class StorageCoordinatesController extends StoragelayoutAppController {
 	
-	var $components = array('Storages');
+	var $components = array('Storagelayout.Storages');
 	
 	var $uses = array(
 		'Storagelayout.StorageControl',
