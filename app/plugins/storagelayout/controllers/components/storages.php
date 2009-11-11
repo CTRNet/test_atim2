@@ -433,7 +433,7 @@ class StoragesComponent extends Object {
 	 */
 	 
 	function buildAllowedStoragePosition($storage_data, $coord) {
-		if(!array_key_exists('coord_' . $coord . '_type', $storage_data['StorageControl'])) { $this->redirect('/pages/err_sto_system_error', null, true); }
+		if(!array_key_exists('coord_' . $coord . '_type', $storage_data['StorageControl'])) { $this->controller->redirect('/pages/err_sto_system_error', null, true); }
 				
 		// Build array
 		$array_to_display = array();
@@ -443,7 +443,7 @@ class StoragesComponent extends Object {
 			if(!empty($storage_data['StorageControl']['coord_' . $coord . '_size'])) {
 				// TYPE and SIZE are both defined for the studied coordinate: The system can build a list.
 				$size = $storage_data['StorageControl']['coord_' . $coord . '_size'];
-				if(!is_numeric($size)) { $this->redirect('/pages/err_sto_system_error', null, true); }
+				if(!is_numeric($size)) { $this->controller->redirect('/pages/err_sto_system_error', null, true); }
 									
 				if(strcmp($storage_data['StorageControl']['coord_' . $coord . '_type'], 'alphabetical') == 0){
 					// Alphabetical drop down list
@@ -452,7 +452,7 @@ class StoragesComponent extends Object {
 					// Integer drop down list	
 					$array_to_order = range('1', $size);
 				} else {
-					$this->redirect('/pages/err_sto_system_error', null, true); 		
+					$this->controller->redirect('/pages/err_sto_system_error', null, true); 		
 				}	
 						
 			} else {
@@ -467,7 +467,7 @@ class StoragesComponent extends Object {
 						}		
 					}
 				} else {
-					$this->redirect('/pages/err_sto_system_error', null, true); 				
+					$this->controller->redirect('/pages/err_sto_system_error', null, true); 				
 				}
 			}
 		}
