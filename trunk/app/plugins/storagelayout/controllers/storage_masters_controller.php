@@ -789,8 +789,8 @@ class StorageMastersController extends StoragelayoutAppController {
 		}
 		
 		$storage_master_c = $this->StorageMaster->find('all', array('conditions' => array('StorageMaster.parent_id' => $storage_master_id)));
-		$aliquot_master_c = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id)));
-		$tma_slide_c = $this->TmaSlide->find('all', array('conditions' => array('TmaSlide.storage_master_id' => $storage_master_id)));
+		$aliquot_master_c = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id), 'recursive' => '-1'));
+		$tma_slide_c = $this->TmaSlide->find('all', array('conditions' => array('TmaSlide.storage_master_id' => $storage_master_id), 'recursive' => '-1'));
 
 		if(!empty($this->data)){		
 			$data = array();
@@ -809,14 +809,15 @@ class StorageMastersController extends StoragelayoutAppController {
 					}
 				}
 			}
+			
 			//update StorageMaster
 			$this->updateAndSaveDataArray($storage_master_c, "StorageMaster", "parent_storage_coord_x", "parent_storage_coord_y", "parent_id", $data, $this->StorageMaster);
 			
 			//Update AliquotMaster
-			$this->updateAndSaveDataArray($aliquot_master_c, "StorageMaster", "storage_coord_x", "storage_coord_y", "storage_master_id", $data, $this->AliquotMaster);
+			$this->updateAndSaveDataArray($aliquot_master_c, "AliquotMaster", "storage_coord_x", "storage_coord_y", "storage_master_id", $data, $this->AliquotMaster);
 			
 			//Update TmaSlide
-			$this->updateAndSaveDataArray($tma_slide_c, "StorageMaster", "storage_coord_x", "storage_coord_y", "storage_master_id", $data, $this->TmaSlide);
+			$this->updateAndSaveDataArray($tma_slide_c, "TmaSlide", "storage_coord_x", "storage_coord_y", "storage_master_id", $data, $this->TmaSlide);
 		}
 					
 		// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -842,7 +843,7 @@ class StorageMastersController extends StoragelayoutAppController {
 				$rkey_coordinate_list[$values['StorageCoordinate']['coordinate_value']] = $values;
 			}
 		}else{
-			$coordinate_list = null;
+			$rkey_coordinate_list = null;
 		}
 		$data['children'] = $storage_master_c;
 		$data['children'] = array_merge($data['children'], $aliquot_master_c);
@@ -1173,12 +1174,13 @@ class StorageMastersController extends StoragelayoutAppController {
 					$data_array[$i][$type][$y_key] = null;
 				}else{
 					//positioned
-					$data_array[$i][$type][$x_key] = $rcv_data[$type][$data_array[$i][$type]['id']]['x'];
-					$data_array[$i][$type][$y_key] = $rcv_data[$type][$data_array[$i][$type]['id']]['y'];
+					$data_array[$i][$type][$x_key] = ($rcv_data[$type][$data_array[$i][$type]['id']]['x'] == 1 ? null : $rcv_data[$type][$data_array[$i][$type]['id']]['x']); 
+					$data_array[$i][$type][$y_key] = ($rcv_data[$type][$data_array[$i][$type]['id']]['y'] == 1 ? null : $rcv_data[$type][$data_array[$i][$type]['id']]['y']);
 				}
 				//clean the array asap to gain efficiency
 				unset($rcv_data[$type][$data_array[$i][$type]['id']]);
 				$UpdaterObject->save($data_array[$i]);
+
 				if($trash){
 					unset($data_array[$i]);
 				}
@@ -1193,14 +1195,16 @@ class StorageMastersController extends StoragelayoutAppController {
 function buildChildrenArray(&$children_array, $type_key, $x_key, $y_key, $label_key, $coordinate_list){
 	
 	$children_array['DisplayData']['id'] = $children_array[$type_key]['id'];
+	$children_array['DisplayData']['y'] = strlen($children_array[$type_key][$y_key]) > 0 ? $children_array[$type_key][$y_key] : 1; 
 	if($coordinate_list == null){
 		$children_array['DisplayData']['x'] = $children_array[$type_key][$x_key];
 	}else if(isset($coordinate_list[$children_array[$type_key][$x_key]])){
 		$children_array['DisplayData']['x'] = $coordinate_list[$children_array[$type_key][$x_key]]['StorageCoordinate']['id'];
+		$children_array['DisplayData']['y'] = 1;
 	}else{
 		$children_array['DisplayData']['x'] = "";
 	}
-	$children_array['DisplayData']['y'] = $children_array[$type_key][$y_key];
+	
 	$children_array['DisplayData']['label'] = $children_array[$type_key][$label_key];
 	$children_array['DisplayData']['type'] = $type_key;
 	

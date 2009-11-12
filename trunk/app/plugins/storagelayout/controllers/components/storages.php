@@ -432,7 +432,7 @@ class StoragesComponent extends Object {
 	 * @updated A. Suggitt
 	 */
 	 
-	function buildAllowedStoragePosition($storage_data, $coord) {
+ 	function buildAllowedStoragePosition($storage_data, $coord) {
 		if(!array_key_exists('coord_' . $coord . '_type', $storage_data['StorageControl'])) { $this->controller->redirect('/pages/err_sto_system_error', null, true); }
 				
 		// Build array
@@ -453,8 +453,7 @@ class StoragesComponent extends Object {
 					$array_to_order = range('1', $size);
 				} else {
 					$this->controller->redirect('/pages/err_sto_system_error', null, true); 		
-				}	
-						
+				}		
 			} else {
 				// Only TYPE is defined for the studied coordinate: The system can only return a custom coordinate list set by user.			
 				if((strcmp($storage_data['StorageControl']['coord_' . $coord . '_type'], 'list') == 0) && (strcmp($coord, 'x') == 0)) {
