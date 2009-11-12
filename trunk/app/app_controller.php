@@ -77,12 +77,6 @@ class AppController extends Controller {
 	var $components	= array('Acl', 'Auth', 'Menus', 'RequestHandler', 'Structures');
 	var $helpers		= array('Ajax', 'Csv', 'Html', 'Javascript', 'Shell', 'Structures', 'Time');
 	
-	function hook( $hook_file_name=NULL ) {
-		$hook_file = APP . 'plugins' . DS . $this->params['plugin'] . DS . 'controllers' . DS . 'hooks' . DS . $this->params['controller'].'_'.$this->params['action'].'.php';
-		if ( $hook_file_name ) $hook_file = $hook_file_name;
-		if ( file_exists($hook_file) ) require( $hook_file );
-	}
-	
 	function beforeFilter() {
 		// Uncomment the following to create an Aco entry for every plugin/controller/method combination in the app.
 			// $this->buildAcl();
@@ -114,46 +108,6 @@ class AppController extends Controller {
 			}
 			
 			$log_activity_model->save($log_activity_data);
-		
-		/*
-		// ATiM2 configuration variables from Datatable
-			$config_results	= false;
-			$logged_in_user	= $this->Session->read('Auth.User.id');
-			$logged_in_group	= $this->Session->read('Auth.User.group_id');
-			
-			// get CONFIG for logged in user
-			if ( $logged_in_user ) {
-				$config_results = $this->Config->find('first', array('conditions'=>array('Config.bank_id'=>'0','Config.group_id'=>'0','Config.user_id'=>$logged_in_user)));
-			}
-			// if not logged in user, or user has no CONFIG, get CONFIG for APP level
-			if ( $logged_in_group && !$config_results ) {
-				$config_results = $this->Config->find('first', array('conditions'=>array('Config.bank_id'=>'0','Config.group_id'=>$logged_in_group,'Config.user_id'=>'0')));
-			}
-			// if not logged in user, or user has no CONFIG, get CONFIG for APP level
-			if ( !$config_results ) {
-				$config_results = $this->Config->find('first', array('conditions'=>array('Config.bank_id'=>'0','Config.group_id'=>'0','Config.user_id'=>'0')));
-			}
-			
-			// parse result, set configs/defines
-			if ( $config_results ) {
-				foreach ( $config_results['Config'] as $config_key=>$config_data ) {
-					if ( strpos($config_key,'_')!==false ) {
-						
-						// break apart CONFIG key
-						$config_key = explode('_',$config_key);
-						$config_format = array_shift($config_key);
-						$config_key = implode('_',$config_key);
-						
-						// if a DEFINE or CONFIG, set new setting for APP
-						if ( $config_format=='define' ) {
-							define($config_key, $config_data);
-						} else if ( $config_format=='config' ) {
-							Configure::write($config_key, $config_data);
-						}
-					}
-				}
-			}
-			*/
 			
 		// menu grabbed for HEADER
 			$this->set( 'atim_menu_for_header', $this->Menus->get('/menus/tools') );
@@ -167,6 +121,12 @@ class AppController extends Controller {
 			$this->set( 'atim_menu_variables', array() );
 			$this->set( 'atim_menu', $this->Menus->get() );
 			
+	}
+	
+	function hook( $hook_file_name=NULL ) {
+		$hook_file = APP . 'plugins' . DS . $this->params['plugin'] . DS . 'controllers' . DS . 'hooks' . DS . $this->params['controller'].'_'.$this->params['action'].'.php';
+		if ( $hook_file_name ) $hook_file = $hook_file_name;
+		if ( file_exists($hook_file) ) require( $hook_file );
 	}
 	
 	/**

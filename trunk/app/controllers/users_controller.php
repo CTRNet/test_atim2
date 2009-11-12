@@ -14,7 +14,7 @@ class UsersController extends AppController {
 	
 	function login() {
 		if ( isset($_SESSION) && isset($_SESSION['Auth']) && isset($_SESSION['Auth']['User']) && count($_SESSION['Auth']['User']) ) {
-			$this->redirect($this->Auth->loginRedirect);
+			// $this->redirect($this->Auth->loginRedirect);
 		}
 	}
 	
