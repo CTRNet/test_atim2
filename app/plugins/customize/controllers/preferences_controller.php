@@ -47,11 +47,11 @@ class PreferencesController extends CustomizeAppController {
 				$config_id = $config_results['Config']['id']; // set ID for saves (add or edit)
 			}
 			// if not logged in user, or user has no CONFIG, get CONFIG for GROUP level
-			if ( $_SESSION['Auth']['User']['group_id'] && !count($config_results) ) {
+			if ( $_SESSION['Auth']['User']['group_id'] && (!$config_results || !count($config_results)) ) {
 				$config_results = $this->Config->find('first', array('conditions'=>'(bank_id="0" OR bank_id IS NULL) AND Config.group_id="'.$_SESSION['Auth']['User']['group_id'].'" AND (user_id="0" OR user_id IS NULL)'));
 			}
 			// if not logged in user, or user has no CONFIG, get CONFIG for APP level
-			if ( !count($config_results) ) {
+			if ( (!$config_results || !count($config_results)) ) {
 				$config_results = $this->Config->find('first', array('conditions'=>'(bank_id="0" OR bank_id IS NULL) AND (group_id="0" OR group_id IS NULL) AND (user_id="0" OR user_id IS NULL)'));
 			}
 		

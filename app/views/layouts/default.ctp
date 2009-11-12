@@ -19,11 +19,13 @@
 		echo $javascript->link('scriptaculous.js?load=effects');
 		echo $javascript->link('lightwindow');
 		echo $javascript->link('default');
+		
+		/*
 		echo '
 			<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js?ver=1.3.2"></script>
 		';
 		echo $javascript->link('jquery.dropdown');
-		
+		*/
 	?>
 	
 </head>
