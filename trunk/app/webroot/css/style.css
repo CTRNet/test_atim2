@@ -159,7 +159,7 @@ a {
 /* actions, links */
 div#wrapper div.actions {
 	position: relative;
-	z-index: 30;
+	z-index: 0;
 	list-style: none;
 	background: #dde8f2;
 	display: block;
@@ -238,6 +238,9 @@ div#wrapper div.actions {
 		line-height: 16px;
 		z-index: 5000;
 	}
+	
+	
+/* 	-= popup filter menu */
 	div#wrapper div.actions ul ul.filter li div.filter_menu {
 		display: none;
 	}
@@ -250,9 +253,9 @@ div#wrapper div.actions {
 	div#wrapper div.actions ul ul.filter li:hover div.filter_menu {
 		display: block;
 		width: 200px;
-		top: -200px;
+		top: -250px;
 		right: 55px;
-		height: 200px;
+		height: 250px;
 		line-height: 20px;
 		position: absolute;
 		background: #486680;
@@ -262,7 +265,7 @@ div#wrapper div.actions {
 		-moz-border-radius: 15px; -webkit-border-radius: 15px;
 		-moz-border-radius-bottomright: 0; -webkit-border-bottom-right-radius: 0;
 		z-index: 1000;
-		border: 1px solid red;
+/* 		overflow: hidden; */
 	}
 	div#wrapper div.actions ul ul.filter li:hover span,
 	div#wrapper div.actions ul ul.filter li:hover span a {
@@ -279,9 +282,12 @@ div#wrapper div.actions {
 		color: #999;
 		z-index: 5;
 	}
-	div#wrapper div.actions ul ul.filter div.filter_menu ul li:hover,
+	div#wrapper div.actions ul ul.filter div.filter_menu ul li a {
+		-moz-border-radius: 0; -webkit-border-radius: 0;
+	}
 	div#wrapper div.actions ul ul.filter div.filter_menu ul li:hover a {
 		background-color: #4D6E89;
+/* 		-moz-border-radius: 7px; -webkit-border-radius: 7px; */
 	}
 	div#wrapper div.actions ul ul.filter div.filter_menu ul li.count_0 {
 		border: 0;
@@ -367,7 +373,7 @@ div#menu {
 
 div.menu.level_0 {
 	position: relative;
-	z-index:20;
+	z-index: 20;
 	
 	list-style-type: none;
 	padding: 0;
@@ -574,17 +580,13 @@ div.menu ul#summary li span {
 	}
 div.menu ul#summary li ul {
 	display: none;
-	
-	top: 40px; right: 20px;
+	top: 40px;
+	right: 20px;
 	position: absolute;
-	
 	background: #293B49;
-	
 	margin: 0;
 	padding: 10px;
-	
 	-moz-border-radius: 7px; -webkit-border-radius: 7px;
-	
 	z-index: 20;
 }	
 	div.menu ul#summary ul li {
