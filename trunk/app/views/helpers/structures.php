@@ -2292,7 +2292,7 @@ class StructuresHelper extends Helper {
 				$links_append = '
 					<ul class="filter">
 						<li>
-							<a class="form popup" href="javascript:return false;">'.$link_name.'</a>
+							<a class="form popup" href="javascript:return false;">'.__($link_name, TRUE).'</a>
 							
 							<!-- container DIV for JS functionality -->
 							<div class="filter_menu">
