@@ -256,21 +256,24 @@ div#wrapper div.actions {
 		top: -250px;
 		right: 55px;
 		height: 250px;
+		overflow: hidden;
 		line-height: 20px;
 		position: absolute;
 		background: #486680;
-		border: 3px solid red;
 		margin: 0;
 		padding: 10px 0;
 		text-align: left;
 		-moz-border-radius: 15px; -webkit-border-radius: 15px;
 		-moz-border-radius-bottomright: 0; -webkit-border-bottom-right-radius: 0;
 		z-index: 1000;
-/* 		overflow: hidden; */
 	}
 	div#wrapper div.actions ul ul.filter li:hover span,
 	div#wrapper div.actions ul ul.filter li:hover span a {
 		color: #fff;
+	}
+	div#wrapper div.actions ul ul.filter div.filter_menu ul {
+			padding-top: 10px !important;
+			padding-bottom: 10px !important;
 	}
 	div#wrapper div.actions ul ul.filter div.filter_menu ul li {
 		width: 200px;
