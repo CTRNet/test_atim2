@@ -10,15 +10,15 @@
 	<title><?php echo $title.' &laquo; '.__('core_appname', true); ?></title>
 	
 	<?php 
-		echo $html->css('style'); 
-		echo $html->css('datepicker');
-		echo $html->css('lightwindow');
+		echo $html->css('style')."\n"; 
+		echo $html->css('datepicker')."\n";
+		echo $html->css('lightwindow')."\n";
 
-		echo $javascript->link('datepicker');
-		echo $javascript->link('prototype');
-		echo $javascript->link('scriptaculous.js?load=effects');
-		echo $javascript->link('lightwindow');
-		echo $javascript->link('default');
+		echo $javascript->link('datepicker')."\n";
+		echo $javascript->link('prototype')."\n";
+		echo $javascript->link('scriptaculous.js?load=effects,dragdrop')."\n";
+		echo $javascript->link('lightwindow')."\n";
+		echo $javascript->link('default')."\n";
 		
 		/*
 		echo '
