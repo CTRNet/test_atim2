@@ -29,6 +29,57 @@ class Structure extends AppModel {
 		
 		return $return;
 	}
+	
+	function find($conditions = null, $fields = array(), $order = null, $recursive = null) {
+		
+		$result = parent::find(( ($conditions=='rule' || $conditions=='rules') ? 'first' : $conditions ),$fields,$order,$recursive);
+		
+		if ( $result ) {
+			
+			if ( $conditions=='rule' || $conditions=='rules' ) {
+				
+				$return = array();
+				
+				foreach ( $result['StructureFormat'] as $structure_format  ) {
+					
+					if ( !isset($return[ $structure_format['StructureField']['model'] ]) ) {
+						$return[ $structure_format['StructureField']['model'] ] = array();
+					}
+					
+					foreach ( $structure_format['StructureField']['StructureValidation'] as $validation ) {
+						
+						$rule = split(',',$validation['rule']);
+							if(count($rule) == 1) $rule = $rule[0];
+						
+						$allow_empty =  $validation['flag_empty'] ? true : false;
+						$required = $validation['flag_required'] ? true : false;
+						$on_action = $validation['on_action'];
+						$language_message =  $validation['language_message'];
+						
+						$rule_array = array(
+							'rule' => $rule,
+							'allow_empty' => $allow_empty,
+							'required' => $required,
+						);
+						
+						if($on_action) $rule_array['on'] = $on_action;
+						if($language_message) $rule_array['message'] = $language_message;
+						
+						if ( !isset($return[ $structure_format['StructureField']['model'] ][ $structure_format['StructureField']['field'] ]) ) {
+							$return[ $structure_format['StructureField']['model'] ][ $structure_format['StructureField']['field'] ] = array();
+						}
+						
+						$return[ $structure_format['StructureField']['model'] ][ $structure_format['StructureField']['field'] ][] = $rule_array;
+						
+					}
+				}
+				
+				return $return;
+			}
+		}
+		
+		return $result;
+	}
 
 }
 
