@@ -211,7 +211,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('no aliquot has been defined as sample tested aliquot.', 'global', 'No aliquot has been defined as sample tested aliquot.', 'Aucun aliquot n''a &eacute;t&eacute; d&eacute;fini comme aliquot ''test&eacute;''.');
 
 ALTER TABLE `storage_controls` 
-ADD `square_box` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'This field is used if the storage only has one dimension size specified';
+ADD `square_box` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'This field is used if the storage only has one dimension size specified',
 ADD `horizontal_display` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'used on 1 dimension controls when y = 1';
 
 UPDATE `storage_controls` SET `square_box` = '1' WHERE `storage_controls`.`id` = 10 OR `storage_controls`.`id` = 17 ;
@@ -229,5 +229,5 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('unclassify all removed', 'global', 'Unclassify all removed', 'Déclasser tous les retirés'),
 ('the data has been modified', 'global', 'The data has been modified', 'Les données ont été modifiées'),
 ('do not forget to save', 'global', 'Do not forget to save', "N'oubliez pas d'enregistrer"),
-('warning', 'global', 'Warning', 'Avertissement');
+('warning', 'global', 'Warning', 'Avertissement'),
 ('unclassify', 'global', 'Unclassify', 'Déclasser');
