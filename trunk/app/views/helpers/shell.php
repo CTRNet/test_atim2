@@ -323,7 +323,7 @@ class ShellHelper extends Helper {
 								}
 								
 								$html_attributes = array();
-								$html_attributes['class'] = 'menu '.$this->Structures->generate_link_class( $menu_item['Menu']['language_title'], $menu_item['Menu']['use_link'] );
+								$html_attributes['class'] = 'menu list'; // $html_attributes['class'] = 'menu '.$this->Structures->generate_link_class( $menu_item['Menu']['language_title'], $menu_item['Menu']['use_link'] );
 								
 								/*
 								$append_menu .= '
