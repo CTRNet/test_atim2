@@ -68,3 +68,36 @@ function uncheckAll( $div ) {
 		}
 		
 	}
+	
+	
+	/*
+		Start observing filter menus to auto-scroll them if they are too long to show in the available 250px window.
+	*/
+	Event.observe(window, 'load', function() {
+		var menus = $$('.filter_menu');
+		for(var i=0; i< menus.length; i++){
+			var el = menus[i];
+			Event.observe(el, 'mousemove',function(ev){
+				var ul = el.getElementsByTagName('ul');
+				var H = el.getHeight();
+				
+				if(ul.length > 0){
+						var h = ul[0].getHeight();
+					
+					if(h > H){
+						Position.absolutize(ul[0]);
+						
+						var el_pos = Position.cumulativeOffset(el);
+						var ul_pos = Position.cumulativeOffset(ul[0]);
+						
+						var y = ( ev.pointerY() - el_pos[1] ) / H;
+						var yh = Math.floor(y * h);
+						var yH = Math.floor(y * H)
+						var y_offset = yH - yh;
+						
+						new Effect.Move( ul[0], { x:0, y: y_offset, mode:'absolute' } );
+					}
+				}
+			});
+		}
+	});
