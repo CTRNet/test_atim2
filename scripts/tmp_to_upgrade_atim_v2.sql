@@ -229,4 +229,5 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('unclassify all removed', 'global', 'Unclassify all removed', 'Déclasser tous les retirés'),
 ('the data has been modified', 'global', 'The data has been modified', 'Les données ont été modifiées'),
 ('do not forget to save', 'global', 'Do not forget to save', "N'oubliez pas d'enregistrer"),
+('warning', 'global', 'Warning', 'Avertissement');
 ('unclassify', 'global', 'Unclassify', 'Déclasser');
