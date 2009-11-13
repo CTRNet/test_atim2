@@ -231,3 +231,91 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('do not forget to save', 'global', 'Do not forget to save', "N'oubliez pas d'enregistrer"),
 ('warning', 'global', 'Warning', 'Avertissement'),
 ('unclassify', 'global', 'Unclassify', 'DŽclasser');
+
+CREATE TABLE `dxd_bloods` (
+  `id` int(11) NOT NULL auto_increment,
+  `diagnosis_master_id` int(11) default NULL,
+  `text_field` varchar(10) NOT NULL default '',
+  `created` datetime NOT NULL default '0000-00-00 00:00:00',
+  `created_by` varchar(50) NOT NULL default '',
+  `modified` datetime default NULL,
+  `modified_by` varchar(50) default NULL,
+  `deleted` int(11) default 0,
+  `deleted_date` datetime default NULL,
+  PRIMARY KEY  (`id`),
+  KEY `diagnosis_master_id` (`diagnosis_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+CREATE TABLE `dxd_bloods_revs` (
+  `id` int(11) NOT NULL auto_increment,
+  `diagnosis_master_id` int(11) default NULL,
+  `text_field` varchar(10) NOT NULL default '',
+  `created` datetime NOT NULL default '0000-00-00 00:00:00',
+  `created_by` varchar(50) NOT NULL default '',
+  `modified` datetime default NULL,
+  `modified_by` varchar(50) default NULL,
+  `deleted` int(11) default 0,
+  `deleted_date` datetime default NULL,
+  PRIMARY KEY  (`id`),
+  KEY `diagnosis_master_id` (`diagnosis_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+CREATE TABLE `dxd_tissues` (
+  `id` int(11) NOT NULL auto_increment,
+  `diagnosis_master_id` int(11) default NULL,
+  `text_field` varchar(10) NOT NULL default '',
+  `created` datetime NOT NULL default '0000-00-00 00:00:00',
+  `created_by` varchar(50) NOT NULL default '',
+  `modified` datetime default NULL,
+  `modified_by` varchar(50) default NULL,
+  `deleted` int(11) default 0,
+  `deleted_date` datetime default NULL,
+  PRIMARY KEY  (`id`),
+  KEY `diagnosis_master_id` (`diagnosis_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+CREATE TABLE `dxd_tissues_revs` (
+  `id` int(11) NOT NULL auto_increment,
+  `diagnosis_master_id` int(11) default NULL,
+  `text_field` varchar(10) NOT NULL default '',
+  `created` datetime NOT NULL default '0000-00-00 00:00:00',
+  `created_by` varchar(50) NOT NULL default '',
+  `modified` datetime default NULL,
+  `modified_by` varchar(50) default NULL,
+  `deleted` int(11) default 0,
+  `deleted_date` datetime default NULL,
+  PRIMARY KEY  (`id`),
+  KEY `diagnosis_master_id` (`diagnosis_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+INSERT INTO `structures` (`old_id`, `alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+('CANM-00010', 'diagnosismasters', '', '', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+SET @last_structure_id = LAST_INSERT_ID();
+
+INSERT INTO `structure_formats` (`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+('CANM-00010_CAN-999-999-000-002-11', @last_structure_id, 'CANM-00010', 139, 'CAN-999-999-000-002-11', 1, 9, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CANM-00010_CAN-999-999-000-999-324', @last_structure_id, 'CANM-00010', 585, 'CAN-999-999-000-999-324', 1, 7, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CANM-00010_CAN-999-999-000-999-68', @last_structure_id, 'CANM-00010', 812, 'CAN-999-999-000-999-68', 1, 0, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CANM-00010_CAN-999-999-000-999-69', @last_structure_id, 'CANM-00010', 813, 'CAN-999-999-000-999-69', 1, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CANM-00010_CAN-999-999-000-999-70', @last_structure_id, 'CANM-00010', 815, 'CAN-999-999-000-999-70', 1, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CANM-00010_CAN-999-999-000-999-71', @last_structure_id, 'CANM-00010', 816, 'CAN-999-999-000-999-71', 1, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CANM-00010_CAN-999-999-000-999-72', @last_structure_id, 'CANM-00010', 817, 'CAN-999-999-000-999-72', 1, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '2008-10-01 11:16:32', ''),
+('CANM-00010_CAN-999-999-000-999-73', @last_structure_id, 'CANM-00010', 818, 'CAN-999-999-000-999-73', 1, 10, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CANM-00010_CAN-999-999-000-999-74', @last_structure_id, 'CANM-00010', 819, 'CAN-999-999-000-999-74', 1, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CANM-00010_CAN-999-999-000-999-76', @last_structure_id, 'CANM-00010', 821, 'CAN-999-999-000-999-76', 1, -1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CANM-00010_CAN-999-999-000-999-77', @last_structure_id, 'CANM-00010', 823, 'CAN-999-999-000-999-77', 2, 13, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CANM-00010_CAN-999-999-000-999-78', @last_structure_id, 'CANM-00010', 824, 'CAN-999-999-000-999-78', 2, 14, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CANM-00010_CAN-999-999-000-999-79', @last_structure_id, 'CANM-00010', 825, 'CAN-999-999-000-999-79', 2, 15, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CANM-00010_CAN-999-999-000-999-80', @last_structure_id, 'CANM-00010', 827, 'CAN-999-999-000-999-80', 2, 16, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CANM-00010_CAN-999-999-000-999-81', @last_structure_id, 'CANM-00010', 828, 'CAN-999-999-000-999-81', 2, 17, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CANM-00010_CAN-999-999-000-999-82', @last_structure_id, 'CANM-00010', 829, 'CAN-999-999-000-999-82', 2, 18, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CANM-00010_CAN-999-999-000-999-83', @last_structure_id, 'CANM-00010', 830, 'CAN-999-999-000-999-83', 2, 19, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CANM-00010_CAN-999-999-000-999-84', @last_structure_id, 'CANM-00010', 831, 'CAN-999-999-000-999-84', 2, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CANM-00010_CAN-999-999-000-999-85', @last_structure_id, 'CANM-00010', 832, 'CAN-999-999-000-999-85', 2, 21, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CANM-00010_CAN-999-999-000-999-86', @last_structure_id, 'CANM-00010', 833, 'CAN-999-999-000-999-86', 2, 22, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CANM-00010_CAN-999-999-000-999-87', @last_structure_id, 'CANM-00010', 834, 'CAN-999-999-000-999-87', 2, 23, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CANM-00010_CAN-999-999-000-999-88', @last_structure_id, 'CANM-00010', 835, 'CAN-999-999-000-999-88', 2, 24, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CANM-00010_CAN-999-999-000-999-89', @last_structure_id, 'CANM-00010', 836, 'CAN-999-999-000-999-89', 2, 24, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CANM-00010_CAN-999-999-000-999-90', @last_structure_id, 'CANM-00010', 837, 'CAN-999-999-000-999-90', 2, 25, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CANM-00010_CAN-999-999-000-999-91', @last_structure_id, 'CANM-00010', 838, 'CAN-999-999-000-999-91', 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
