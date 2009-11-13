@@ -676,9 +676,8 @@ div.menu ul#summary ul dl lh {
 			color: #ccd;
 			font-weight: normal;
 			cursor: default;
-			
-			filter:alpha(opacity=30);
-			-moz-opacity:0.3;
+			filter: alpha(opacity=30);
+			-moz-opacity: 0.3;
 			-khtml-opacity: 0.3;
 			opacity: 0.3;
 		}
