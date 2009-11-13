@@ -135,7 +135,7 @@
 		<div style="display: inline-block;">
 			<div style="display: none; background-color: transparent;" id="saveWarning">
 				<span class="ui-icon ui-icon-alert" style="float: left;"></span>
-				<span style="color: #ff0000;"><?php echo(__("warning", true).": ".__("the data has been modified.", true)); echo(" ".__("do not forget to save it.")); //yes, 2 echo, but there is a bug with only one"?></span>
+				<span style="color: #ff0000;"><?php echo(__("warning", true).": ".__("the data has been modified", true).". "); echo(" ".__("do not forget to save")."."); //yes, 2 echo, but there is a bug with only one"?></span>
 			</div>
 		</div>
 	</form>
