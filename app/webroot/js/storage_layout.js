@@ -29,7 +29,7 @@ window.onload = function(){
 	var elements = $$(".dragme");
 	for(var i = elements.length - 1; i >= 0; --i){
 		debug(elements[i].childNodes[2]);
-		new Draggable(elements[i], { revert: true, handle: elements[i].childNodes[2] });
+		new Draggable(elements[i], { revert: true, handle: elements[i].childNodes[2], scroll: window });
 	}
 	
 	//create the drop zones
@@ -92,7 +92,7 @@ function moveItem( draggable,droparea){
 			li.setAttribute('id', draggable.getAttribute('id'));
 			li.setAttribute('style', 'display: none;');
 			li.innerHTML = draggable.innerHTML;
-			new Draggable(li, { revert: true});
+			new Draggable(li, { revert: true, scroll: window});
 			droparea.childNodes[1].appendChild(li);
 			li.appear();
 			$('saveWarning').appear();
