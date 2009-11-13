@@ -397,7 +397,7 @@ class StructuresHelper extends Helper {
 									
 									foreach ( $options['links']['radiolist'] as $radiobutton_name=>$radiobutton_value ) {
 										$radiobutton_value = $this->str_replace_link( $radiobutton_value, $val );
-										$return_string .= $this->Form->radio ($radiobutton_name, array($radiobutton_value=>''), array('legend'=>false) );
+										$return_string .= $this->Form->radio($radiobutton_name, array($radiobutton_value=>''), array('legend'=>false, 'value'=>false) );
 									}
 									
 									$return_string .= '
