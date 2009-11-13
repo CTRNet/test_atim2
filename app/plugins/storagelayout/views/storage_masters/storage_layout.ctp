@@ -5,9 +5,9 @@
 			<td class="this_column_1 total_columns_1">
 				<ul style="margin-left: 10px;>
 					<li style="display: inline; list-style-type: none;"><b>Legend</b></li>
-					<li class="StorageMaster" style="display: inline; list-style-type: none; margin-left: 10px;"><?php echo(__("Storage", true)); ?></li>
-					<li class="AliquotMaster" style="display: inline; list-style-type: none; margin-left: 10px;"><?php echo(__("Aliquot", true)); ?></li>
-					<li class="TmaSlide" style="display: inline; list-style-type: none; margin-left: 10px;"><?php echo(__("Tma Slide", true)); ?></li>
+					<li class="StorageMaster" style="display: inline; list-style-type: none; margin-left: 10px;"><?php echo(__("storage", true)); ?></li>
+					<li class="AliquotMaster" style="display: inline; list-style-type: none; margin-left: 10px;"><?php echo(__("aliquot", true)); ?></li>
+					<li class="TmaSlide" style="display: inline; list-style-type: none; margin-left: 10px;"><?php echo(__("tma slide", true)); ?></li>
 				</ul>
 
 <?php
@@ -24,7 +24,7 @@
 ?>
 	<div style="border-style:solid; border-width:1px; min-height: 50px; margin: 10px;">
 		<h4 class="ui-widget-header" style="height: 15px;  padding-right: 5px;">
-			<span class="ui-icon ui-icon-calculator" style="float: left;"></span><?php echo(__("Storage", true)); ?></h4>
+			<span class="ui-icon ui-icon-calculator" style="float: left;"></span><?php echo(__("storage", true)); ?></h4>
 	<table id="table" style="margin: 10px; width: 98%;">
 <?php
 	if($data['parent']['StorageControl']['coord_x_type'] == 'list'){
@@ -106,9 +106,9 @@
 ?>
 	</table>
 	<div style="text-align: right;">
-		<button style="margin: 5px;" id="Reset"><span class="ui-icon ui-icon-gear" style="float: left;"></span><?php echo(__("Reset", true)); ?></button>
-		<button style="margin: 5px;" id="RecycleStorage"><span class="ui-icon ui-icon-refresh" style="float: left;"></span><?php echo(__("Recycle all storage's items", true)); ?></button>
-		<button style="margin: 5px;" id="TrashStorage"><span class="ui-icon ui-icon-close" style="float: left;"></span><?php echo(__("Remove all storage's items", true)); ?></button>
+		<button style="margin: 5px;" id="Reset"><span class="ui-icon ui-icon-gear" style="float: left;"></span><?php echo(__("reset", true)); ?></button>
+		<button style="margin: 5px;" id="RecycleStorage"><span class="ui-icon ui-icon-refresh" style="float: left;"></span><?php echo(__("unclassify all storage's items", true)); ?></button>
+		<button style="margin: 5px;" id="TrashStorage"><span class="ui-icon ui-icon-close" style="float: left;"></span><?php echo(__("remove all storage's items", true)); ?></button>
 	</div>
 	</div>
 	<div class="droppable" style="border-style:solid; border-width:1px; display: inline-block; vertical-align: top; margin-left: 10px;">
@@ -116,14 +116,14 @@
 			<span class="ui-icon ui-icon-refresh" style="float: left;"></span><?php echo(__("Unclassified", true)); ?>
 		</h4>
 		<ul id="unclassified" style="margin-right: 5px;"></ul>
-		<button style="margin: 10px;" id="TrashUnclassified"><span class="ui-icon ui-icon-close" style="float: left;"></span><?php echo(__("Remove all unclassified", true)); ?></button>
+		<button style="margin: 10px;" id="TrashUnclassified"><span class="ui-icon ui-icon-close" style="float: left;"></span><?php echo(__("remove all unclassified", true)); ?></button>
 	</div>
 	<div class="droppable" style="border-style:solid; border-width:1px; display: inline-block; vertical-align: top; margin-left: 10px;">
 		<h4 class="ui-widget-header" style="height: 15px; padding-right: 5px;">
-			<span class="ui-icon ui-icon-close" style="float: left;"></span><?php echo(__("Remove", true)); ?>
+			<span class="ui-icon ui-icon-close" style="float: left;"></span><?php echo(__("remove", true)); ?>
 		</h4>
 		<ul id="trash" style="margin-right: 5px;"></ul>
-		<button style="margin: 10px;" id="RecycleTrash"><span class="ui-icon ui-icon-refresh" style="float: left;"></span><?php echo(__("Recycle all removed", true)); ?></button>
+		<button style="margin: 10px;" id="RecycleTrash"><span class="ui-icon ui-icon-refresh" style="float: left;"></span><?php echo(__("unclassify all removed", true)); ?></button>
 	</div>
 		
 <div id="debug"></div>
@@ -135,7 +135,7 @@
 		<div style="display: inline-block;">
 			<div style="display: none; background-color: transparent;" id="saveWarning">
 				<span class="ui-icon ui-icon-alert" style="float: left;"></span>
-				<span style="color: #ff0000;"><?php echo(__("Warning", true).": ".__("The data has been modified.", true)); echo(" ".__("Do not forget to save it.")); //yes, 2 echo, but there is a bug with only one"?></span>
+				<span style="color: #ff0000;"><?php echo(__("warning", true).": ".__("the data has been modified.", true)); echo(" ".__("do not forget to save it.")); //yes, 2 echo, but there is a bug with only one"?></span>
 			</div>
 		</div>
 	</form>
@@ -187,8 +187,8 @@ var orgItems = '([<?php
 	}
 ?>])';
 
-var removeString = "<?php echo(__("Remove")); ?>";
-var unclassifyString = "<?php echo(__("Unclassify")); ?>";
+var removeString = "<?php echo(__("remove")); ?>";
+var unclassifyString = "<?php echo(__("unclassify")); ?>";
 </script>
 <?php
 echo $javascript->link('builder')."\n"; 

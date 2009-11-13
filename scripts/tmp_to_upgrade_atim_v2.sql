@@ -219,3 +219,14 @@ UPDATE `storage_controls` SET `square_box` = '1' WHERE `storage_controls`.`id` =
 ALTER TABLE `storage_masters` 
 CHANGE `parent_storage_coord_x` `parent_storage_coord_x` VARCHAR( 50 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,
 CHANGE `parent_storage_coord_y` `parent_storage_coord_y` VARCHAR( 50 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL; 
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('reset', 'global', 'Reset', 'Réinitialiser'),
+("unclassify all storage's items", 'global', "Unclassify all storage's items", 'Déclasser tous les items du contenant'),
+("remove all storage's items", 'global', "Remove all storage's items", 'Retirer tous les items du contenant'),
+('unclassified', 'global', 'Unclassified', 'Non classé'),
+('remove all unclassified', 'global', 'Remove all unclassified', 'Retirer tous les non classés'),
+('unclassify all removed', 'global', 'Unclassify all removed', 'Déclasser tous les retirés'),
+('the data has been modified', 'global', 'The data has been modified', 'Les données ont été modifiées'),
+('do not forget to save', 'global', 'Do not forget to save', "N'oubliez pas d'enregistrer"),
+('unclassify', 'global', 'Unclassify', 'Déclasser');
