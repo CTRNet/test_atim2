@@ -253,9 +253,9 @@ div#wrapper div.actions {
 	div#wrapper div.actions ul ul.filter li:hover div.filter_menu {
 		display: block;
 		width: 200px;
-		top: -250px;
+		top: -70px;
 		right: 55px;
-		height: 250px;
+		height: 70px;
 		overflow: hidden;
 		line-height: 20px;
 		position: absolute;
