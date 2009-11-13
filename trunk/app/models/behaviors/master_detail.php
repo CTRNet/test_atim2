@@ -19,6 +19,7 @@ class MasterDetailBehavior extends ModelBehavior {
 			
 			$detail_class		= $default_class.'Detail';
 			$detail_tablename	= 'detail_tablename';
+			$form_alias	= 'form_alias';
 			
 			$is_master_model	= $master_class==$model->alias ? true : false;
 			$is_control_model	= $control_class==$model->alias ? true : false;
@@ -31,6 +32,7 @@ class MasterDetailBehavior extends ModelBehavior {
 				
 				'detail_class' 		=>	$detail_class, 
 				'detail_field' 		=>	$detail_tablename,
+				'form_alias'	=> $form_alias,
 				
 				'is_master_model'		=> $is_master_model,
 				'is_control_model'	=> $is_control_model
@@ -87,18 +89,44 @@ class MasterDetailBehavior extends ModelBehavior {
 		return $results;
 	}
 	
-	/*
-	function beforeValidate (&$model) {
+	function beforeSave (&$model) {
 		// make all SETTINGS into individual VARIABLES, with the KEYS as names
 		extract($this->__settings[$model->alias]);
 		
+		$valid = true;
+		
 		if ( $is_master_model ) {
 			// placeholder for automagic validation...
+			App::import('model', 'Structure');
+			$this->Component_Structure =& new Structure;
+			
+			$associated = $model->find(array($master_class.'.id' => $model->id), null, null, 1);
+			
+			if( isset($form_alias) && isset($associated[$control_class][$form_alias]) ){
+				
+				$result = $this->Component_Structure->find('rules',
+						array(
+							'conditions'	=>	array( 'Structure.alias' => $associated[$control_class][$form_alias] ), 
+							'recursive'		=>	5
+						)
+				);
+				foreach ( $result as $m=>$rules ){
+					$detail_class_instance = new AppModel( array('table'=>$associated[$control_class][$detail_field], 'name'=>$detail_class, 'alias'=>$detail_class) );
+					$detail_class_instance->validate = $rules;
+					$detail_class_instance->set($model->data);
+					$valid_detail_class = $detail_class_instance->validates();
+					
+					$valid = $valid_detail_class && $valid;
+					
+					if ( !$valid_detail_class ){
+						$model->validationErrors = array_merge($model->validationErrors,$detail_class_instance->validationErrors);
+					}
+				}
+			}
 		}
 		
-		return true;
+		return $valid;
 	}
-	*/
 	
 	function afterSave (&$model, $created) {
 		// make all SETTINGS into individual VARIABLES, with the KEYS as names
@@ -109,6 +137,17 @@ class MasterDetailBehavior extends ModelBehavior {
 			// get DETAIL table name and create DETAIL model object
 			$associated = $model->find(array($master_class.'.id' => $model->id), null, null, 1);
 			$detail_model = new AppModel( array('table'=>$associated[$control_class][$detail_field], 'name'=>$detail_class, 'alias'=>$detail_class) );
+			foreach($detail_model->actsAs as $key => $data){
+				if ( is_array($data) ) {
+					$behavior = $key;
+					$config = $data;
+				} else {
+					$behavior = $data;
+					$config = null;
+				}
+				$detail_model->Behaviors->attach($behavior, $config);
+				$detail_model->Behaviors->$behavior->setup($detail_model,$config);
+			}
 			
 				foreach($detail_model->actsAs as $key => $data){
 					if ( is_array($data) ) {
