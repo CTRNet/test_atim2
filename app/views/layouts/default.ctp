@@ -20,12 +20,6 @@
 		echo $javascript->link('lightwindow')."\n";
 		echo $javascript->link('default')."\n";
 		
-		/*
-		echo '
-			<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js?ver=1.3.2"></script>
-		';
-		echo $javascript->link('jquery.dropdown');
-		*/
 	?>
 	
 </head>
