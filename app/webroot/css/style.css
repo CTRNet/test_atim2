@@ -259,6 +259,7 @@ div#wrapper div.actions {
 		line-height: 20px;
 		position: absolute;
 		background: #486680;
+		border: 3px solid red;
 		margin: 0;
 		padding: 10px 0;
 		text-align: left;
