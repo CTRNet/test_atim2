@@ -110,6 +110,18 @@ class MasterDetailBehavior extends ModelBehavior {
 			$associated = $model->find(array($master_class.'.id' => $model->id), null, null, 1);
 			$detail_model = new AppModel( array('table'=>$associated[$control_class][$detail_field], 'name'=>$detail_class, 'alias'=>$detail_class) );
 			
+				foreach($detail_model->actsAs as $key => $data){
+					if ( is_array($data) ) {
+						$behavior = $key;
+						$config = $data;
+					} else {
+						$behavior = $data;
+						$config = null;
+					}
+					$detail_model->Behaviors->attach($behavior, $config);
+					$detail_model->Behaviors->$behavior->setup($detail_model,$config);
+				}
+			
 			// set ID (for edit, blank for add) and model object NAME/ALIAS for save
 			if ( isset($associated[$detail_class]) && count($associated[$detail_class]) ) {
 				$detail_model->id = $associated[$detail_class]['id'];
