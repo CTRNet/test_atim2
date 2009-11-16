@@ -777,6 +777,7 @@ class StorageMastersController extends StoragelayoutAppController {
 			$this->redirect('/pages/err_sto_no_stor_data', null, true); 
 		}
 		
+		$coordinate_list = array();
 		if($storage_data['StorageControl']['coord_x_type'] == "list"){
 			$coordinate_tmp = $this->StorageCoordinate->find('all', array('conditions' => array('StorageCoordinate.storage_master_id' => $storage_master_id), 'recursive' => '-1', 'order' => 'StorageCoordinate.order ASC'));
 			foreach($coordinate_tmp as $key => $value){
