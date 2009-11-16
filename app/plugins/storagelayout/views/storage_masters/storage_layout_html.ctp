@@ -140,7 +140,7 @@
 	</form>
 </div>
 
-<?php echo $html->css('jQuery/themes/ui-lightness/jquery-ui-1.7.2.custom')."\n"; ?>
+<?php echo $html->css('css/jQuery/themes/ui-lightness/jquery-ui-1.7.2.custom')."\n"; ?>
 <style type="text/css">
 .dragme{
 	list-style-type:none;
