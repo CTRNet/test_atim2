@@ -41,7 +41,7 @@
 				echo("<tr><td style='border-style:solid; border-width:1px; min-width: 30px;' class='droppable mycell'>"
 				.'<b>'.$list_item['StorageCoordinate']['coordinate_value'].'</b>'
 				.'<ul id="cell_'.$list_item['StorageCoordinate']['id'].'_1"/>'
-				.'</td></tr>\n');
+				."</td></tr>\n");
 			}
 		}
 	}else{
