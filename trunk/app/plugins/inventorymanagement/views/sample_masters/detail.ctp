@@ -22,7 +22,7 @@
 	$add_aliquots = empty($add_aliquots)? '/underdevelopment/': $add_aliquots;
 	
 	$structure_links = array();
-	if(!$is_product_tree_view ){
+	if($is_inventory_plugin_form){
 		$structure_links['bottom'] = array(
 			'edit' => '/inventorymanagement/sample_masters/edit/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'], 
 			'delete' => '/inventorymanagement/sample_masters/delete/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'], 
@@ -33,8 +33,7 @@
 	}
 		
 	if($is_tree_view_detail_form) {
-		// Detail form displayed in collection content tree view
-		// Add button to access all  sample
+		// Detail form displayed in tree view: Add button to access all sample data
 		$structure_links['bottom']['access to all data'] = '/inventorymanagement/sample_masters/detail/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'];
 	} else {
 		// General detail form display

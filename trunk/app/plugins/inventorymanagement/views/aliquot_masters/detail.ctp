@@ -10,7 +10,7 @@
 	}
 	
 	$structure_links = array();
-	if(!$is_product_tree_view){
+	if($is_inventory_plugin_form){
 		$structure_links['bottom'] =array(
 			'edit' => '/inventorymanagement/aliquot_masters/edit/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'], 
 			'delete' => '/inventorymanagement/aliquot_masters/delete/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'], 
@@ -21,9 +21,7 @@
 	}
 	
 	if($is_tree_view_detail_form) {
-		// Detail form displayed in collection content tree view and storage content tree view
-		if(!$is_collection_tree_view) { $structure_links = array(); }
-		// Add button to access all aliquot data
+		// Detail form displayed in tree view: Add button to access all aliquot data
 		$structure_links['bottom']['access to all data'] = '/inventorymanagement/aliquot_masters/detail/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'];
 	} else {
 		// General detail form display

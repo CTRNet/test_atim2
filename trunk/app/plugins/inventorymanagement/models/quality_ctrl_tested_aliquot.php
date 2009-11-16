@@ -2,10 +2,6 @@
 
 class QualityCtrlTestedAliquot extends InventoryManagementAppModel {
 	
-    var $name = 'QualityCtrlTestedAliquot';
-    
-	var $useTable = 'quality_ctrl_tested_aliquots';
-                              
 	var $belongsTo = array(        
 		'QualityCtrl' => array(           
 			'className'    => 'Inventorymanagement.QualityCtrl',            

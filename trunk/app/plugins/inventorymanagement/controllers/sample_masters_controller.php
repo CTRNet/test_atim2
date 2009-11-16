@@ -5,20 +5,22 @@ class SampleMastersController extends InventorymanagementAppController {
 	var $uses = array(
 		'Inventorymanagement.Collection',
 		
-		'Inventorymanagement.SampleMaster',
 		'Inventorymanagement.SampleControl',
+
+		'Inventorymanagement.SampleMaster',
+		'Inventorymanagement.SampleDetail',
 	 	'Inventorymanagement.SpecimenDetail',		
 		'Inventorymanagement.DerivativeDetail',		
 		
 		'Inventorymanagement.ParentToDerivativeSampleControl',
 		
+		'Inventorymanagement.AliquotControl',
+		'Inventorymanagement.AliquotMaster',
+		
 		'Inventorymanagement.SourceAliquot',
 		'Inventorymanagement.QualityCtrl',
 		'Inventorymanagement.PathCollectionReview',
 		'Inventorymanagement.ReviewMaster',
-		
-		'Inventorymanagement.AliquotControl',
-		'Inventorymanagement.AliquotMaster',
 		
 		'Inventorymanagement.SampleToAliquotControl');
 	
@@ -352,10 +354,9 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->set('atim_menu_variables', $atim_menu_variables);
 	}
 	
-	function detail($collection_id, $sample_master_id, $is_tree_view_detail_form = 0, $is_product_tree_view = false) {
+	function detail($collection_id, $sample_master_id, $is_tree_view_detail_form = false, $is_inventory_plugin_form = true) {
 		if((!$collection_id) || (!$sample_master_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }		
 		
-		$this->set('is_product_tree_view', $is_product_tree_view );
 		// MANAGE DATA
 
 		// Get the sample data
@@ -417,6 +418,10 @@ class SampleMastersController extends InventorymanagementAppController {
 
 		// Get all aliquot control types to build the add to selected button
 		$this->set('allowed_aliquot_type', $this->getAllowedAliquotTypes($sample_data['SampleControl']['id']));
+
+		// Define if this detail form is displayed into the collection content tree view
+		$this->set('is_tree_view_detail_form', $is_tree_view_detail_form);
+		$this->set('is_inventory_plugin_form', $is_inventory_plugin_form);
 	}
 
 	function add($collection_id, $sample_control_id, $parent_sample_master_id = null) {
@@ -508,56 +513,47 @@ class SampleMastersController extends InventorymanagementAppController {
 			// Validates data
 			$submitted_data_validates = true;
 
-			// ... Currently no additional validation
-						
+			//TODO test validation
+			$this->SampleMaster->set($this->data);
+			$submitted_data_validates = ($this->SampleMaster->validates())? $submitted_data_validates: false;
+			$this->SampleDetail = new SampleDetail(false, $sample_control_data['SampleControl']['detail_tablename']);
+			$this->SampleDetail->set($this->data);
+			$submitted_data_validates = ($this->SampleDetail->validates())? $submitted_data_validates: false;
+			if($bool_is_specimen) { 
+				$this->SpecimenDetail->set($this->data);
+				$submitted_data_validates = ($this->SpecimenDetail->validates())? $submitted_data_validates: false; 
+			} else { 
+				$this->DerivativeDetail->set($this->data);
+				$submitted_data_validates = ($this->DerivativeDetail->validates())? $submitted_data_validates: false; 
+			}
+			
 			if($submitted_data_validates) {
 				// Save sample data
-				$bool_save_done = true;
-				
 				$sample_master_id = null;
-				if($this->SampleMaster->save($this->data)) {
+				if($this->SampleMaster->save($this->data, false)) {
 					$sample_master_id = $this->SampleMaster->getLastInsertId();
-				} else {
-					$bool_save_done = false;
-				}
 				
-				// Record additional sample data
-				if($bool_save_done) {
+					// Record additional sample data
 					$sample_data_to_update = array();
 					$sample_data_to_update['SampleMaster']['sample_code'] = $this->createSampleCode($sample_master_id, $this->data, $sample_control_data);
+					if($bool_is_specimen) { $sample_data_to_update['SampleMaster']['initial_specimen_sample_id'] = $sample_master_id; }
 					
-					if($bool_is_specimen) {
-						// System is right now able to record initial_specimen_sample_id for the specimen
-						// TODO Perhaps could code lines be moved to model?	
-						$sample_data_to_update['SampleMaster']['initial_specimen_sample_id'] = $sample_master_id;					
-					}
-
 					$this->SampleMaster->id = $sample_master_id;					
-					if(!$this->SampleMaster->save($sample_data_to_update)) {
-						$bool_save_done = false;
-					}
-				}
-
-				//Save either Specimen or Derivative Details
-				if($bool_save_done) {
+					if(!$this->SampleMaster->save($sample_data_to_update, false)) { $this->redirect('/pages/err_inv_system_error', null, true); }
+					
+					// Save either specimen or derivative detail
 					if($bool_is_specimen){
 						// SpecimenDetail
 						$this->data['SpecimenDetail']['sample_master_id'] = $sample_master_id;
-						if(!$this->SpecimenDetail->save($this->data['SpecimenDetail'])){
-							$bool_save_done = false;
-						}
+						if(!$this->SpecimenDetail->save($this->data['SpecimenDetail'], false)) { $this->redirect('/pages/err_inv_system_error', null, true); }
 					} else {
 						// DerivativeDetail
 						$this->data['DerivativeDetail']['sample_master_id'] = $sample_master_id;
-						if(!$this->DerivativeDetail->save($this->data['DerivativeDetail'])){
-							$bool_save_done = false;
-						}
-					}
-				}				
+						if(!$this->DerivativeDetail->save($this->data['DerivativeDetail'], false)) { $this->redirect('/pages/err_inv_system_error', null, true); }
+					}						
 					
-				if($bool_save_done) {
-					$this->flash('Your data has been saved . ', '/inventorymanagement/sample_masters/detail/' . $collection_id . '/' . $sample_master_id);				
-				}						
+					$this->flash('Your data has been saved . ', '/inventorymanagement/sample_masters/detail/' . $collection_id . '/' . $sample_master_id);	
+				}					
 			}			
 		}		
 	}
@@ -617,43 +613,37 @@ class SampleMastersController extends InventorymanagementAppController {
 				$this->data = $sample_data;
 
 		} else {
-			//Update data
-			
-			if(isset($this->data['SampleMaster']['parent_id'])) { $this->redirect('/pages/err_inv_system_error', null, true); }
+			//Update data	
+			if(isset($this->data['SampleMaster']['parent_id']) && ($sample_data['SampleMaster']['parent_id'] !== $this->data['SampleMaster']['parent_id'])) { $this->redirect('/pages/err_inv_system_error', null, true); }
 			
 			// Validates data
 			$submitted_data_validates = true;
 			
-			// ... Currently no additional validation
-			
+			//TODO test validation
+			$submitted_data_validates = ($this->SampleMaster->validates())? $submitted_data_validates: false;
+			$this->SampleDetail = new SampleDetail(false, $sample_data['SampleControl']['detail_tablename']);		
+			$submitted_data_validates = ($this->SampleDetail->validates())? $submitted_data_validates: false;
+			if($bool_is_specimen) { 
+				$submitted_data_validates = ($this->SpecimenDetail->validates())? $submitted_data_validates: false; 
+			} else { 
+				$submitted_data_validates = ($this->DerivativeDetail->validates())? $submitted_data_validates: false; 
+			}
+								
 			if($submitted_data_validates) {
 				// Save sample data
-				$bool_save_done = true;
-				
 				$this->SampleMaster->id = $sample_master_id;
-				if(!$this->SampleMaster->save($this->data)) {
-					$bool_save_done = false;
-				}
-				
-				//Save either Specimen or Derivative Details
-				if($bool_save_done) {
+				if($this->SampleMaster->save($this->data, false)) {				
+					//Save either Specimen or Derivative Details
 					if($bool_is_specimen){
 						// SpecimenDetail
 						$this->SpecimenDetail->id = $sample_data['SpecimenDetail']['id'];
-						if(!$this->SpecimenDetail->save($this->data['SpecimenDetail'])){
-							$bool_save_done = false;
-						}
+						if(!$this->SpecimenDetail->save($this->data['SpecimenDetail'], false)) { $this->redirect('/pages/err_inv_system_error', null, true); }
 					} else {
 						// DerivativeDetail
 						$this->DerivativeDetail->id = $sample_data['DerivativeDetail']['id'];
-						if(!$this->DerivativeDetail->save($this->data['DerivativeDetail'])){
-							$bool_save_done = false;
-						}
+						if(!$this->DerivativeDetail->save($this->data['DerivativeDetail'], false)) { $this->redirect('/pages/err_inv_system_error', null, true); }
 					}
-				}				
-				
-				if($bool_save_done) {
-					
+
 //					//TODO update source aliquots use data
 //					if((!$bool_is_specimen) && isset($this->data['DerivativeDetail'])){
 //						$old_derivative_creation_date = $specimen_or_derivative_data['DerivativeDetail']['creation_datetime'];
@@ -663,8 +653,8 @@ class SampleMastersController extends InventorymanagementAppController {
 //						}
 //					}
 					
-					$this->flash('Your data has been updated . ', '/inventorymanagement/sample_masters/detail/' . $collection_id . '/' . $sample_master_id);				
-				}						
+					$this->flash('Your data has been updated . ', '/inventorymanagement/sample_masters/detail/' . $collection_id . '/' . $sample_master_id);		
+				}				
 			}
 		}
 	}
@@ -673,9 +663,9 @@ class SampleMastersController extends InventorymanagementAppController {
 		if((!$collection_id) || (!$sample_master_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }		
 		
 		// Get the sample data
-		$sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id), 'recursive' => '-1'));
+		$sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id), 'recursive' => '0'));
 		if(empty($sample_data)) { $this->redirect('/pages/err_inv_samp_no_data', null, true); }		
-
+		
 		$bool_is_specimen = true;
 		switch($sample_data['SampleMaster']['sample_category']) {
 			case 'specimen':
@@ -696,9 +686,18 @@ class SampleMastersController extends InventorymanagementAppController {
 		$arr_allow_deletion = $this->allowSampleDeletion($sample_master_id);
 		
 		if($arr_allow_deletion['allow_deletion']) {
-			if($this->SampleMaster->atim_delete($sample_master_id)) {
-				//TODO
-				pr('test deletion of master and detail level + SpecimenDetail or DerivativeDetail!');
+			$deletion_done = true;
+			if(!$this->SampleMaster->atim_delete($sample_master_id)) { $deletion_done = false; }
+			if($deletion_done) {
+				if($bool_is_specimen) {
+					if(!$this->SpecimenDetail->atim_delete($sample_data['SpecimenDetail']['id'])) { $deletion_done = false; }
+				} else {
+					if(!$this->DerivativeDetail->atim_delete($sample_data['DerivativeDetail']['id'])) { $deletion_done = false; }
+				}	
+			}
+			
+			if($deletion_done) {
+				//TODO Error in the redirection
 				$this->flash('Your data has been deleted . ', '/inventorymanagement/sample_masters/contentTreeView/' . $collection_id);
 			} else {
 				$this->flash('Error deleting data - Contact administrator . ', '/inventorymanagement/sample_masters/contentTreeView/' . $collection_id);
@@ -744,7 +743,6 @@ class SampleMastersController extends InventorymanagementAppController {
 	 */
 	 
 	function createSampleCode($sample_master_id, $sample_master_data, $sample_control_data){	
-		// TODO Perhaps could code lines be moved to model? (just pb of customisation)
 		$sample_code = $sample_control_data['SampleControl']['sample_type_code'] . ' - '. $sample_master_id;		
 		return $sample_code;		
 	}
@@ -794,6 +792,32 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 		return array('allow_deletion' => true, 'msg' => '');
 	}
+	
+//	function updateSourceAliquotUses($sample_master_id, $use_details, $use_date) {
+//		
+//		$this->SourceAliquot->bindModel(array('belongsTo' => 
+//			array('AliquotUse' => array(
+//					'className' => 'AliquotUse',
+//					'conditions' => '',
+//					'order'      => '',
+//					'foreignKey' => 'aliquot_use_id'))));
+//		
+//		$criteria = array();
+//		$criteria['SourceAliquot.sample_master_id'] = $sample_master_id;
+//		$criteria = array_filter($criteria);
+//		
+//		$aliquot_uses = $this->SourceAliquot->findAll($criteria, null, null, null, 1);
+//		
+//		if(!empty($aliquot_uses)) {
+//			foreach($aliquot_uses as $tmp => $tested_aliquot_use_data) {
+//				$this->updateAliquotUseDetailAndDate($tested_aliquot_use_data['AliquotUse']['id'], 
+//					$tested_aliquot_use_data['AliquotUse']['aliquot_master_id'], 
+//					$use_details, 
+//					$use_date);
+//			}
+//		}	
+//	
+//	}
 	
 }
 	
