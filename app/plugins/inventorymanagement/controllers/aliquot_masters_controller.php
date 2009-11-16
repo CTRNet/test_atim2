@@ -1076,29 +1076,46 @@ unset($this->data['AliquotMaster']);
 	
 	function defineRealiquotedChildren($collection_id, $sample_master_id, $aliquot_master_id) {
 		if((!$collection_id) || (!$sample_master_id) || (!$aliquot_master_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }
-		
 		// MANAGE DATA
 		
 		// Get the aliquot data
 		$aliquot_data = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id, 'AliquotMaster.id' => $aliquot_master_id)));
 		if(empty($aliquot_data)) { $this->redirect('/pages/err_inv_aliquot_no_data', null, true); }		
 
+		$this->set('atim_menu_variables', array('Collection.id' => $collection_id,
+												'SampleMaster.id' => $sample_master_id,
+												'AliquotMaster.id' => $aliquot_master_id));
 
-
-
-
-
-
-
-
-
+		$aliquot_data = $this->AliquotMaster->find('all', array('conditions' => "AliquotMaster.id != '".$aliquot_master_id."'"));// AND Realiquoting.id IS NULL"));
 		
-		pr($aliquot_data);
-		exit;
+		//filter data
+		foreach($aliquot_data as $key => $aliquot){
+			$found = false;
+			foreach($aliquot['RealiquotingParent'] as $aliquot_parent){
+				if($aliquot_parent['parent_aliquot_master_id'] == $aliquot_master_id){
+					$found = true;
+					break;
+				}
+			}
+			if(!$found){
+				foreach($aliquot['RealiquotingChildren'] as $aliquot_children){
+					if($aliquot_children['child_aliquot_master_id'] == $aliquot_master_id){
+						$found = true;
+						break;
+					}
+				}
+			}
+			if($found){
+				unset($aliquot_data[$key]);		
+			}
+		}
+		$this->set( 'atim_structure_aliquot', $this->Structures->get( 'form', 'aliquot_children_linking' ) );
+		$this->set('aliquot_data', $aliquot_data);
 		
-		
-		
-		
+		if(!empty($this->data)){
+			pr($this->data);
+			//TODO: Volume control (ie: numeric) is not working
+		}
 	}
 	
 	
