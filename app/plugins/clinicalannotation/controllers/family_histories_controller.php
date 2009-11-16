@@ -9,6 +9,9 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
+		
+		// Check for custom bank code
+		$this->hook();
 		$this->data = $this->paginate($this->FamilyHistory, array('FamilyHistory.participant_id'=>$participant_id));
 	}
 	
@@ -31,6 +34,9 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 		if ( !$family_history_id ) { $this->redirect( '/pages/err_clin-ann_no_fam_hist_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'FamilyHistory.id'=>$family_history_id) );
+		
+		// Check for custom bank code
+		$this->hook();
 		$this->data = $this->FamilyHistory->find('first',array('conditions'=>array('FamilyHistory.id'=>$family_history_id)));
 	}
 	
@@ -39,6 +45,8 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 	
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
 		
+		// Check for custom bank code
+		$this->hook();
 		if ( !empty($this->data) ) {
 			$this->data['FamilyHistory']['participant_id'] = $participant_id;
 			if ( $this->FamilyHistory->save($this->data) ) {
@@ -53,6 +61,8 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 		
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'FamilyHistory.id'=>$family_history_id) );
 		
+		// Check for custom bank code
+		$this->hook();
 		if ( !empty($this->data) ) {
 			$this->FamilyHistory->id = $family_history_id;
 			if ( $this->FamilyHistory->save($this->data) ) {
@@ -67,6 +77,8 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		if ( !$family_history_id ) { $this->redirect( '/pages/err_clin-ann_no_fam_hist_id', NULL, TRUE ); }
 		
+		// Check for custom bank code
+		$this->hook();
 		if ($this->FamilyHistory->atim_delete($family_history_id)) {
 			$this->flash( 'Your data has been deleted.', '/clinicalannotation/family_histories/listall/'.$participant_id );
 		} else {
