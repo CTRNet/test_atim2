@@ -319,3 +319,178 @@ INSERT INTO `structure_formats` (`old_id`, `structure_id`, `structure_old_id`, `
 ('CANM-00010_CAN-999-999-000-999-89', @last_structure_id, 'CANM-00010', 836, 'CAN-999-999-000-999-89', 2, 24, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('CANM-00010_CAN-999-999-000-999-90', @last_structure_id, 'CANM-00010', 837, 'CAN-999-999-000-999-90', 2, 25, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('CANM-00010_CAN-999-999-000-999-91', @last_structure_id, 'CANM-00010', 838, 'CAN-999-999-000-999-91', 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+ALTER TABLE `aliquot_uses` 
+ADD `use_code` VARCHAR( 50 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL AFTER `use_definition`;
+ALTER TABLE `aliquot_uses_revs` 
+ADD `use_code` VARCHAR( 50 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL AFTER `use_definition`;
+
+ALTER TABLE `aliquot_uses` 
+ADD `used_by` VARCHAR( 50 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL AFTER `use_datetime`;
+ALTER TABLE `aliquot_uses_revs` 
+ADD `used_by` VARCHAR( 50 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL AFTER `use_datetime`;
+
+ALTER TABLE `quality_ctrls` 
+ADD `run_by` VARCHAR( 50 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL AFTER `run_id`;
+ALTER TABLE `quality_ctrls_revs` 
+ADD `run_by` VARCHAR( 50 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL AFTER `run_id`;
+
+ALTER TABLE `quality_ctrls` 
+ADD `qc_code` VARCHAR( 20 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL AFTER `id`;
+ALTER TABLE `quality_ctrls_revs` 
+ADD `qc_code` VARCHAR( 20 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL AFTER `id`;
+
+DELETE FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1277';
+INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, '', 'CAN-999-999-000-999-1277', 'Inventorymanagement', 'AliquotUse', '', 'use_code', '', 'code', 'input', 'size=30', '', '', '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+DELETE FROM `structure_formats` WHERE `old_id` = 'CAN-999-999-000-999-1035_CAN-999-999-000-999-1277';
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, 'CAN-999-999-000-999-1035_CAN-999-999-000-999-1277', 
+(SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1035'), 'CAN-999-999-000-999-1035', 
+(SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1277'), 'CAN-999-999-000-999-1277', 0, 1, '', '0', '', '1', '-', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+UPDATE `structure_formats`
+SET `display_order` = '0'
+WHERE `old_id` = 'CAN-999-999-000-999-1035_CAN-999-999-000-999-1161';
+
+DELETE FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1278';
+INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, '', 'CAN-999-999-000-999-1278', 'Inventorymanagement', 'QualityCtrl', '', 'qc_code', 'code', '', 'input', 'size=10', '', '', '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+DELETE FROM `structure_formats` WHERE `old_id` = 'CAN-999-999-000-999-1038_CAN-999-999-000-999-1278';
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, 'CAN-999-999-000-999-1038_CAN-999-999-000-999-1278', 
+(SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1038'), 'CAN-999-999-000-999-1038', 
+(SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1278'), 'CAN-999-999-000-999-1278', 0, 0, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+UPDATE `structure_fields` SET field = 'aliquot_use_counter' WHERE old_id = 'CAN-999-999-000-999-1105';
+
+DELETE FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1279';
+INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, '', 'CAN-999-999-000-999-1279', 'Inventorymanagement', 'QualityCtrl', '', 'run_by', 'run by', '', 'input', 'size=20', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+DELETE FROM `structure_formats` WHERE `old_id` = 'CAN-999-999-000-999-1038_CAN-999-999-000-999-1279';
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, 'CAN-999-999-000-999-1038_CAN-999-999-000-999-1279', 
+(SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1038'), 'CAN-999-999-000-999-1038', 
+(SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1279'), 'CAN-999-999-000-999-1279', 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+	
+UPDATE `structure_formats` SET `display_order` = '3' WHERE `old_id` = 'CAN-999-999-000-999-1038_CAN-999-999-000-999-1272';
+	
+UPDATE `structure_formats` SET `display_order` = '10' WHERE `old_id` = 'CAN-999-999-000-999-1038_CAN-999-999-000-999-1167'; 	
+UPDATE `structure_formats` SET `display_order` = '11' WHERE `old_id` = 'CAN-999-999-000-999-1038_CAN-999-999-000-999-1168'; 	
+	
+UPDATE `structure_formats` SET `display_order` = '21' WHERE `old_id` = 'CAN-999-999-000-999-1038_CAN-999-999-000-999-1170';	
+UPDATE `structure_formats` SET `display_order` = '22' WHERE `old_id` = 'CAN-999-999-000-999-1038_CAN-999-999-000-999-1171';	
+UPDATE `structure_formats` SET `display_order` = '23' WHERE `old_id` = 'CAN-999-999-000-999-1038_CAN-999-999-000-999-1172'; 	
+UPDATE `structure_formats` SET `display_order` = '24' WHERE `old_id` = 'CAN-999-999-000-999-1038_CAN-999-999-000-999-1173';	
+
+DELETE FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1280';
+INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, '', 'CAN-999-999-000-999-1280', 'Inventorymanagement', 'AliquotUse', '', 'used_by', 'used by', '', 'input', 'size=10', '', '', '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+DELETE FROM `structure_formats` WHERE `old_id` = 'CAN-999-999-000-999-1035_CAN-999-999-000-999-1280';
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, 'CAN-999-999-000-999-1035_CAN-999-999-000-999-1280', 
+(SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1035'), 'CAN-999-999-000-999-1035', 
+(SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1280'), 'CAN-999-999-000-999-1280', 0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+UPDATE `structure_formats` SET `display_order` = '7' WHERE `old_id` = 'CAN-999-999-000-999-1035_CAN-999-999-000-999-1271';	
+
+DELETE FROM  `i18n` WHERE `id` IN ('No aliquot has been defined as sample tested aliquot.',
+'run by');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('run by', 'global', 'Run By', 'Ex&eacute;cut&eacute; par');
+
+DELETE FROM `structure_formats` WHERE `structure_old_id` IN (SELECT `id` FROM `structures` WHERE `alias` = 'aliquot_masters_for_search_result');
+DELETE FROM `structures` WHERE `alias` = 'aliquot_masters_for_search_results';
+
+DELETE FROM `structure_formats` WHERE `structure_old_id` IN (SELECT `id` FROM `structures` WHERE `alias` = 'aliquot_merged_into_sample_list');
+DELETE FROM `structures` WHERE `alias` = 'aliquot_merged_into_sample_list';
+
+DELETE FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1077';
+INSERT INTO `structures` (`id`, `old_id`, `alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, 'CAN-999-999-000-999-1077', 'linkedaliquotuses', '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+DELETE FROM `structure_formats` WHERE `structure_old_id` = 'CAN-999-999-000-999-1077';
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, 'CAN-999-999-000-999-1077_CAN-999-999-000-999-1153', 
+(SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1077'), 'CAN-999-999-000-999-1077', 
+(SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1153'), 'CAN-999-999-000-999-1153', 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'CAN-999-999-000-999-1077_CAN-999-999-000-999-1155', 
+(SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1077'), 'CAN-999-999-000-999-1077', 
+(SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1131'), 'CAN-999-999-000-999-1131', 0, 4, '', '1', 'volume unit', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'CAN-999-999-000-999-1077_CAN-999-999-000-999-1161', 
+(SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1077'), 'CAN-999-999-000-999-1077', 
+(SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1161'), 'CAN-999-999-000-999-1161', 0, 0, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'CAN-999-999-000-999-1077_CAN-999-999-000-999-1162', 
+(SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1077'), 'CAN-999-999-000-999-1077', 
+(SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1162'), 'CAN-999-999-000-999-1162', 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'CAN-999-999-000-999-1077_CAN-999-999-000-999-1163', 
+(SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1077'), 'CAN-999-999-000-999-1077', 
+(SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1163'), 'CAN-999-999-000-999-1163', 0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'CAN-999-999-000-999-1077_CAN-999-999-000-999-1271', 
+(SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1077'), 'CAN-999-999-000-999-1077', 
+(SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1271'), 'CAN-999-999-000-999-1271', 0, 7, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'CAN-999-999-000-999-1077_CAN-999-999-000-999-1277', 
+(SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1077'), 'CAN-999-999-000-999-1077', 
+(SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1277'), 'CAN-999-999-000-999-1277', 0, 1, '', '0', '', '1', '-', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'CAN-999-999-000-999-1077_CAN-999-999-000-999-1280', 
+(SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1077'), 'CAN-999-999-000-999-1077', 
+(SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1280'), 'CAN-999-999-000-999-1280', 0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+UPDATE `structure_formats` SET 
+`flag_add` = '1', `flag_add_readonly` = '0', `flag_edit` = '1', `flag_edit_readonly` = '0'
+WHERE `old_id` = 'CAN-999-999-000-999-1035_CAN-999-999-000-999-1277';
+
+DELETE FROM menus
+WHERE id LIKE 'inv_CAN%';
+
+INSERT INTO `menus` 
+(`id`, `parent_id`, `is_root`, `display_order`, `language_title`, `language_description`, `use_link`, `use_params`, `use_summary`, `active`, `created`, `created_by`, `modified`, `modified_by`) 
+VALUES
+('inv_CAN', 'MAIN_MENU_1', 1, 3, 'inventory management', 'inventory management', '/inventorymanagement/collections/index', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('inv_CAN_1', 'inv_CAN', 0, 1, 'collection details', NULL, '/inventorymanagement/collections/detail/%%Collection.id%%', '', 'Inventorymanagement.Collection::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('inv_CAN_2', 'inv_CAN', 0, 2, 'listall collection content', NULL, '/inventorymanagement/sample_masters/contentTreeView/%%Collection.id%%', '', 'Inventorymanagement.Collection::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+	('inv_CAN_21', 'inv_CAN_2', 0, 1, 'tree view', NULL, '/inventorymanagement/sample_masters/contentTreeView/%%Collection.id%%', '', 'Inventorymanagement.Collection::contentFilterSummary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+	('inv_CAN_22', 'inv_CAN_2', 0, 2, 'listall collection samples', NULL, '/inventorymanagement/sample_masters/listAll/%%Collection.id%%/-1', '', 'Inventorymanagement.Collection::contentFilterSummary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+		('inv_CAN_221', 'inv_CAN_22', 0, 1, 'details', NULL, '/inventorymanagement/sample_masters/detail/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%', '', 'Inventorymanagement.SampleMaster::specimenSummary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+		('inv_CAN_222', 'inv_CAN_22', 0, 2, 'listall derivatives', NULL, '/inventorymanagement/sample_masters/listAll/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%', '', 'Inventorymanagement.SampleMaster::specimenSummary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+			('inv_CAN_2221', 'inv_CAN_222', 0, 1, 'details', NULL, '/inventorymanagement/sample_masters/detail/%%Collection.id%%/%%SampleMaster.id%%', '', 'Inventorymanagement.SampleMaster::derivativeSummary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+			('inv_CAN_2222', 'inv_CAN_222', 0, 2, 'listall source aliquots', NULL, '/inventorymanagement/aliquot_masters/listAllSourceAliquots/%%Collection.id%%/%%SampleMaster.id%%', '', 'Inventorymanagement.SampleMaster::derivativeSummary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+			('inv_CAN_2223', 'inv_CAN_222', 0, 3, 'listall aliquots', NULL, '/inventorymanagement/aliquot_masters/listAll/%%Collection.id%%/%%SampleMaster.id%%', '', 'Inventorymanagement.SampleMaster::derivativeSummary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+				('inv_CAN_22231', 'inv_CAN_2223', 0, 1, 'details', NULL, '/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%', '', 'Inventorymanagement.AliquotMaster::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+				('inv_CAN_22232', 'inv_CAN_2223', 0, 2, 'listall aliquot uses', NULL, '/inventorymanagement/aliquot_masters/listAllAliquotUses/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%', '', 'Inventorymanagement.AliquotMaster::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+				('inv_CAN_22233', 'inv_CAN_2223', 0, 3, 'realiquoted parent', NULL, '/underdevelopment/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+			('inv_CAN_2224', 'inv_CAN_222', 0, 4, 'quality controls', NULL, '/inventorymanagement/quality_ctrls/listall/%%Collection.id%%/%%SampleMaster.id%%', '', 'Inventorymanagement.SampleMaster::derivativeSummary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+				('inv_CAN_22241', 'inv_CAN_2224', 0, 1, 'details', NULL, '/inventorymanagement/quality_ctrls/detail/%%Collection.id%%/%%SampleMaster.id%%/%%QualityCtrl.id%%', '', 'Inventorymanagement.QualityCtrl::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+				('inv_CAN_22242', 'inv_CAN_2224', 0, 2, 'listall tested aliquots', NULL, '/inventorymanagement/quality_ctrls/listallTestedAliquots/%%Collection.id%%/%%SampleMaster.id%%/%%QualityCtrl.id%%', '', 'Inventorymanagement.QualityCtrl::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+		('inv_CAN_223', 'inv_CAN_22', 0, 3, 'listall aliquots', NULL, '/inventorymanagement/aliquot_masters/listAll/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%', '', 'Inventorymanagement.SampleMaster::specimenSummary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+			('inv_CAN_2231', 'inv_CAN_223', 0, 1, 'details', NULL, '/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%/%%AliquotMaster.id%%', '', 'Inventorymanagement.AliquotMaster::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+			('inv_CAN_2232', 'inv_CAN_223', 0, 2, 'listall aliquot uses', NULL, '/inventorymanagement/aliquot_masters/listAllAliquotUses/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%/%%AliquotMaster.id%%', '', 'Inventorymanagement.AliquotMaster::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+			('inv_CAN_2233', 'inv_CAN_223', 0, 3, 'realiquoted parent', NULL, '/underdevelopment/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+		('inv_CAN_224', 'inv_CAN_22', 0, 4, 'quality controls', NULL, '/inventorymanagement/quality_ctrls/listall/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%', '', 'Inventorymanagement.SampleMaster::specimenSummary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+			('inv_CAN_2241', 'inv_CAN_224', 0, 1, 'details', NULL, '/inventorymanagement/quality_ctrls/detail/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%/%%QualityCtrl.id%%', '', 'Inventorymanagement.QualityCtrl::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+			('inv_CAN_2242', 'inv_CAN_224', 0, 2, 'listall tested aliquots', NULL, '/inventorymanagement/quality_ctrls/listallTestedAliquots/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%/%%QualityCtrl.id%%', '', 'Inventorymanagement.QualityCtrl::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+	('inv_CAN_23', 'inv_CAN_2', 0, 3, 'listall collection aliquots', NULL, '/inventorymanagement/aliquot_masters/listAll/%%Collection.id%%/-1', '', 'Inventorymanagement.Collection::contentFilterSummary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('inv_CAN_3', 'inv_CAN', 0, 3, 'listall collection path reviews', NULL, '/underdevelopment/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+UPDATE structures set alias = 'sourcealiquots' WHERE old_id = 'CAN-999-999-000-999-1036';
+
+DELETE FROM `structure_formats` WHERE `structure_old_id` = 'CAN-999-999-000-999-1036';
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, 'CAN-999-999-000-999-1036_CAN-999-999-000-999-1100', (SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1036'), 'CAN-999-999-000-999-1036', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1100'), 'CAN-999-999-000-999-1100', 0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'CAN-999-999-000-999-1036_CAN-999-999-000-999-1102', (SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1036'), 'CAN-999-999-000-999-1036', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1102'), 'CAN-999-999-000-999-1102', 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'CAN-999-999-000-999-1036_CAN-999-999-000-999-1160', (SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1036'), 'CAN-999-999-000-999-1036', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1160'), 'CAN-999-999-000-999-1160', 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'CAN-999-999-000-999-1036_CAN-999-999-000-999-1103', (SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1036'), 'CAN-999-999-000-999-1036', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1103'), 'CAN-999-999-000-999-1103', 0, 4, '', '1', 'new aliquot status', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'CAN-999-999-000-999-1036_CAN-999-999-000-999-1104', (SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1036'), 'CAN-999-999-000-999-1036', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1104'), 'CAN-999-999-000-999-1104', 0, 5, '', '1', 'new aliquot status reason', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'CAN-999-999-000-999-1036_CAN-999-999-000-999-1215', (SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1036'), 'CAN-999-999-000-999-1036', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1215'), 'CAN-999-999-000-999-1215', 0, 7, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'CAN-999-999-000-999-1036_CAN-999-999-000-999-1153', (SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1036'), 'CAN-999-999-000-999-1036', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1153'), 'CAN-999-999-000-999-1153', 0, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'CAN-999-999-000-999-1036_CAN-999-999-000-999-1130', (SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1036'), 'CAN-999-999-000-999-1036', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1130'), 'CAN-999-999-000-999-1130', 0, 9, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'CAN-999-999-000-999-1036_CAN-999-999-000-999-1131', (SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-1036'), 'CAN-999-999-000-999-1036', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1131'), 'CAN-999-999-000-999-1131', 0, 10, '', '1', 'volume unit', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+DELETE FROM  `i18n` WHERE `id` IN ('listall source aliquots');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('listall source aliquots', 'global', 'Source Aliquots', 'Aliquots sources');
+
