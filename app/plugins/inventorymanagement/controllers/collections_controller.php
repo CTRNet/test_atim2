@@ -57,8 +57,7 @@ class CollectionsController extends InventorymanagementAppController {
 		$this->set('arr_collection_sops', $this->getCollectionSopList());
 	}
 	
-	function detail($collection_id, $is_tree_view = false) {		
-		$this->set('is_tree_view', $is_tree_view);
+	function detail($collection_id, $is_tree_view_detail_form = false, $is_inventory_plugin_form = true) {
 		if(!$collection_id) { $this->redirect('/pages/err_inv_coll_no_id', null, true); }
 		
 		// MANAGE DATA
@@ -80,6 +79,10 @@ class CollectionsController extends InventorymanagementAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		$this->set('atim_menu_variables', array('Collection.id' => $collection_id));
+
+		// Define if this detail form is displayed into the collection content tree view
+		$this->set('is_tree_view_detail_form', $is_tree_view_detail_form);
+		$this->set('is_inventory_plugin_form', $is_inventory_plugin_form);
 	}
 	
 	function add() {
@@ -98,25 +101,14 @@ class CollectionsController extends InventorymanagementAppController {
 		// MANAGE DATA RECORD
 				
 		if (!empty($this->data)) {
-			//Save data		
-			$bool_save_done = true;
-			
 			// Save collection
 			$collection_id = null;
 			if($this->Collection->save($this->data)) {
 				$collection_id = $this->Collection->getLastInsertId();
-			} else {
-				$bool_save_done = false;
-			}
 				
-			if($bool_save_done) {
 				// Create clinical collection link
-				if(!$this->ClinicalCollectionLink->save(array('ClinicalCollectionLink' => array('collection_id' => $collection_id)))) {
-					$bool_save_done = false;
-				}	
-			}
-			
-			if($bool_save_done) {
+				if(!$this->ClinicalCollectionLink->save(array('ClinicalCollectionLink' => array('collection_id' => $collection_id)))) { $this->redirect('/pages/err_inv_coll_record_err', null, true); }
+				
 				$this->flash('Your data has been saved . ', '/inventorymanagement/collections/detail/' . $collection_id);
 			}
 		}
@@ -170,8 +162,7 @@ class CollectionsController extends InventorymanagementAppController {
 		$arr_allow_deletion = $this->allowCollectionDeletion($collection_id);
 		
 		if($arr_allow_deletion['allow_deletion']) {
-
-
+			
 			// Delete collection			
 			if($this->ClinicalCollectionLink->atim_delete($collection_data['ClinicalCollectionLink']['id']) && $this->Collection->atim_delete($collection_id)) {
 				$this->flash('Your data has been deleted . ', '/inventorymanagement/collections/index/');
