@@ -2,7 +2,7 @@
 	<tbody>
 		<tr>
 			<td class="this_column_1 total_columns_1">
-				<ul style="margin-left: 10px;>
+				<ul style="margin-left: 10px;">
 					<li style="display: inline; list-style-type: none;"><b>Legend</b></li>
 					<li class="StorageMaster" style="display: inline; list-style-type: none; margin-left: 10px;"><?php echo(__("storage", true)); ?></li>
 					<li class="AliquotMaster" style="display: inline; list-style-type: none; margin-left: 10px;"><?php echo(__("aliquot", true)); ?></li>
