@@ -1921,7 +1921,8 @@ CREATE TABLE `orders` (
   `study_summary_id` int(11) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY  (`id`),
+  INDEX `order_number` (`order_number`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `orders_revs` (
@@ -1967,7 +1968,8 @@ CREATE TABLE `order_items` (
   `aliquot_use_id` int(11) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY  (`id`),
+  INDEX `barcode` (`barcode`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `order_items_revs` (
@@ -2012,8 +2014,8 @@ CREATE TABLE `order_lines` (
   `created_by` varchar(50) default NULL,
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `discount_id` int(11) default NULL,
-  `product_id` int(11) default NULL,
+  `discount_code` varchar(50) default NULL,
+  `product_code` varchar(50) default NULL,
   `sample_control_id` int(11) default NULL,
   `order_id` int(11) NOT NULL,
   `deleted` int(11) default 0,
@@ -2036,8 +2038,8 @@ CREATE TABLE `order_lines_revs` (
   `created_by` varchar(50) default NULL,
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `discount_id` int(11) default NULL,
-  `product_id` int(11) default NULL,
+  `discount_code` varchar(50) default NULL,
+  `product_code` varchar(50) default NULL,
   `sample_control_id` int(11) default NULL,
   `order_id` int(11) NOT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
@@ -4282,7 +4284,10 @@ CREATE TABLE `shipments` (
   `order_id` int(11) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY  (`id`),
+  INDEX `shipment_code` (`shipment_code`),
+  INDEX `recipient` (`recipient`),
+  INDEX `facility` (`facility`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `shipments_revs` (
@@ -6380,10 +6385,34 @@ ALTER TABLE `order_lines`
   FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`)
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
-
+  
+ ALTER TABLE `order_lines`
+  ADD CONSTRAINT `FK_order_lines_sample_controls`
+  FOREIGN KEY (`sample_control_id`) REFERENCES `sample_controls` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT; 
+  
 ALTER TABLE `order_items`
   ADD CONSTRAINT `FK_order_items_orders`
   FOREIGN KEY (`orderline_id`) REFERENCES `order_lines` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+ALTER TABLE `order_items`
+  ADD CONSTRAINT `FK_order_items_shipments`
+  FOREIGN KEY (`shipment_id`) REFERENCES `shipments` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+ALTER TABLE `order_items`
+  ADD CONSTRAINT `FK_order_items_aliquot_masters`
+  FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+ALTER TABLE `order_items`
+  ADD CONSTRAINT `FK_order_items_aliquot_uses`
+  FOREIGN KEY (`aliquot_use_id`) REFERENCES `aliquot_uses` (`id`)
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
 
