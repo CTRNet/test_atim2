@@ -1,7 +1,8 @@
--- ATiM v2.0.0 Database Creation Script
+﻿-- ATiM v2.0.0 Database Creation Script
 
--- CREATE DATABASE `atim_2`;
--- USE `atim_2`;
+-- DROP DATABASE IF EXISTS `atim`;
+-- CREATE DATABASE `atim`;
+-- USE `atim`;
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
@@ -58,7 +59,7 @@ CREATE TABLE IF NOT EXISTS `ad_blocks_revs` (
 
 -- 
 -- Table structure for table `ad_bags`
--- 
+--
 
 CREATE TABLE `ad_bags` (
   `id` int(11) NOT NULL auto_increment,
@@ -663,7 +664,11 @@ CREATE TABLE IF NOT EXISTS `clinical_collection_links` (
   `modified_by` varchar(50) NOT NULL DEFAULT '',
   `deleted` int(11) DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  INDEX `participant_id` (`participant_id`),
+  INDEX `collection_id` (`collection_id`),
+  INDEX `diagnosis_master_id` (`diagnosis_master_id`),
+  INDEX `consent_master_id` (`consent_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `clinical_collection_links_revs` (
@@ -680,7 +685,11 @@ CREATE TABLE IF NOT EXISTS `clinical_collection_links_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
-  PRIMARY KEY (`version_id`)
+  PRIMARY KEY (`version_id`),
+  INDEX `participant_id` (`participant_id`),
+  INDEX `collection_id` (`collection_id`),
+  INDEX `diagnosis_master_id` (`diagnosis_master_id`),
+  INDEX `consent_master_id` (`consent_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -829,7 +838,7 @@ CREATE TABLE `configs` (
 --
 
 CREATE TABLE IF NOT EXISTS `consent_controls` (
-  `id` tinyint(4) NOT NULL AUTO_INCREMENT,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `controls_type` varchar(6) NOT NULL,
   `status` varchar(50) NOT NULL DEFAULT 'active',
   `form_alias` varchar(255) NOT NULL,
@@ -876,8 +885,9 @@ CREATE TABLE IF NOT EXISTS `consent_masters` (
   `consent_control_id` int(11) unsigned NOT NULL,
   `type` varchar(10) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
-  KEY `diagnosis_id` (`diagnosis_master_id`),
-  KEY `participant_id` (`participant_id`)
+  INDEX `diagnosis_id` (`diagnosis_master_id`),
+  INDEX `participant_id` (`participant_id`),
+  INDEX `consent_control_id` (`consent_control_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `consent_masters_revs` (
@@ -913,11 +923,12 @@ CREATE TABLE IF NOT EXISTS `consent_masters_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
-  `consents_control_id` int(11) unsigned NOT NULL,
+  `consent_control_id` int(11) unsigned NOT NULL,
   `type` varchar(10) NOT NULL DEFAULT '',
   PRIMARY KEY (`version_id`),
-  KEY `diagnosis_id` (`diagnosis_master_id`),
-  KEY `participant_id` (`participant_id`)
+  INDEX `diagnosis_id` (`diagnosis_master_id`),
+  INDEX `participant_id` (`participant_id`),
+  INDEX `consent_control_id` (`consent_control_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -1070,7 +1081,7 @@ CREATE TABLE `parent_to_derivative_sample_controls` (
 --
 
 CREATE TABLE IF NOT EXISTS `diagnosis_controls` (
-  `id` tinyint(4) NOT NULL AUTO_INCREMENT,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `controls_type` varchar(6) NOT NULL,
   `status` varchar(50) NOT NULL DEFAULT 'active',
   `form_alias` varchar(255) NOT NULL,
@@ -1080,7 +1091,7 @@ CREATE TABLE IF NOT EXISTS `diagnosis_controls` (
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `diagnosis_controls_revs` (
-  `id` tinyint(4) NOT NULL AUTO_INCREMENT,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `controls_type` varchar(6) NOT NULL,
   `status` varchar(50) NOT NULL DEFAULT 'active',
   `form_alias` varchar(255) NOT NULL,
@@ -1128,10 +1139,11 @@ CREATE TABLE IF NOT EXISTS `diagnosis_masters` (
   `participant_id` int(11) DEFAULT NULL,
   `deleted` int(11) DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
-  `diagnosis_control_id` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `diagnosis_control_id` int(11) unsigned NOT NULL DEFAULT '0',
   `type` varchar(6) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
-  KEY `participant_id` (`participant_id`)
+  INDEX `participant_id` (`participant_id`),
+  INDEX `diagnosis_control_id` (`diagnosis_control_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `diagnosis_masters_revs` (
@@ -1171,13 +1183,14 @@ CREATE TABLE IF NOT EXISTS `diagnosis_masters_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
-  `diagnosis_control_id` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `diagnosis_control_id` int(11) unsigned NOT NULL DEFAULT '0',
   `type` varchar(6) NOT NULL DEFAULT '',
   PRIMARY KEY (`version_id`),
-  KEY `participant_id` (`participant_id`)
+  INDEX `participant_id` (`participant_id`),
+  INDEX `diagnosis_control_id` (`diagnosis_control_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
--- 
+--
 -- Table structure for table `drugs`
 -- 
 
@@ -1666,8 +1679,9 @@ CREATE TABLE IF NOT EXISTS `event_masters` (
   `deleted` int(11) DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `participant_id` (`participant_id`),
-  KEY `diagnosis_id` (`diagnosis_master_id`)
+  INDEX `participant_id` (`participant_id`),
+  INDEX `diagnosis_id` (`diagnosis_master_id`),
+  INDEX `event_control_id` (`event_control_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `event_masters_revs` (
@@ -1697,8 +1711,9 @@ CREATE TABLE IF NOT EXISTS `event_masters_revs` (
   `deleted` int(11) DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`version_id`),
-  KEY `participant_id` (`participant_id`),
-  KEY `diagnosis_id` (`diagnosis_master_id`)
+  INDEX `participant_id` (`participant_id`),
+  INDEX `diagnosis_id` (`diagnosis_master_id`),
+  INDEX `event_control_id` (`event_control_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -1722,7 +1737,7 @@ CREATE TABLE `family_histories` (
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
-  KEY `participant_id` (`participant_id`)
+  INDEX `participant_id` (`participant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `family_histories_revs` (
@@ -1744,7 +1759,7 @@ CREATE TABLE `family_histories_revs` (
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`),
-  KEY `participant_id` (`participant_id`)
+  INDEX `participant_id` (`participant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -1862,7 +1877,7 @@ CREATE TABLE `misc_identifiers` (
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
-  KEY `participant_id` (`participant_id`)
+  INDEX `participant_id` (`participant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `misc_identifiers_revs` (
@@ -1883,7 +1898,7 @@ CREATE TABLE `misc_identifiers_revs` (
   `deleted`  int(11) default NULL,
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`),
-  KEY `participant_id` (`participant_id`)
+  INDEX `participant_id` (`participant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -2146,7 +2161,7 @@ CREATE TABLE `participant_contacts` (
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
-  KEY `participant_id` (`participant_id`)
+  INDEX `participant_id` (`participant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `participant_contacts_revs` (
@@ -2177,7 +2192,7 @@ CREATE TABLE `participant_contacts_revs` (
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`),
-  KEY `participant_id` (`participant_id`)
+  INDEX `participant_id` (`participant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -2201,7 +2216,7 @@ CREATE TABLE `participant_messages` (
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
-  KEY `participant_id` (`participant_id`)
+  INDEX `participant_id` (`participant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `participant_messages_revs` (
@@ -2223,7 +2238,7 @@ CREATE TABLE `participant_messages_revs` (
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`),
-  KEY `participant_id` (`participant_id`)
+  INDEX `participant_id` (`participant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -2973,7 +2988,8 @@ CREATE TABLE `reproductive_histories` (
   `participant_id` int(11) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY  (`id`),
+  INDEX `participant_id` (`participant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `reproductive_histories_revs` (
@@ -3014,7 +3030,8 @@ CREATE TABLE `reproductive_histories_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime NULL,
-  PRIMARY KEY  (`version_id`)
+  PRIMARY KEY  (`version_id`),
+  INDEX `participant_id` (`participant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -6123,8 +6140,9 @@ CREATE TABLE IF NOT EXISTS `tx_masters` (
   `deleted` int(11) DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `participant_id` (`participant_id`),
-  KEY `diagnosis_id` (`diagnosis_master_id`)
+  INDEX `participant_id` (`participant_id`),
+  INDEX `diagnosis_id` (`diagnosis_master_id`),
+  INDEX `treatment_control_id` (`treatment_control_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `tx_masters_revs` (
@@ -6148,8 +6166,9 @@ CREATE TABLE IF NOT EXISTS `tx_masters_revs` (
   `deleted` int(11) DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`version_id`),
-  KEY `participant_id` (`participant_id`),
-  KEY `diagnosis_id` (`diagnosis_master_id`)
+  INDEX `participant_id` (`participant_id`),
+  INDEX `diagnosis_id` (`diagnosis_master_id`),
+  INDEX `treatment_control_id` (`treatment_control_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -6200,7 +6219,7 @@ CREATE TABLE `user_logs` (
 
 -- 
 -- Table structure for table `versions`
--- 
+--
 
 CREATE TABLE `versions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -6214,6 +6233,7 @@ CREATE TABLE `versions` (
   PRIMARY KEY (`id`)
 ) ENGINE=INNODB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
 
+
 -- Create INDEX for access control object (acos) table.
 
 CREATE INDEX acos_idx1 ON acos (lft, rght);
@@ -6223,3 +6243,152 @@ CREATE INDEX acos_idx3 ON acos (model, foreign_key);
 CREATE INDEX aros_idx1 ON aros (lft, rght);
 CREATE INDEX aros_idx2 ON aros (alias);
 CREATE INDEX aros_idx3 ON aros (model, foreign_key);
+
+
+-- Clinical Annotation Foreign Keys --
+
+ALTER TABLE `clinical_collection_links`
+  ADD CONSTRAINT `FK_clinical_collection_links_participant`
+  FOREIGN KEY (`participant_id`) REFERENCES `participants` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+ALTER TABLE `clinical_collection_links`
+  ADD CONSTRAINT `FK_clinical_collection_links_diagnosis_masters`
+  FOREIGN KEY (`diagnosis_master_id`) REFERENCES `diagnosis_masters` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+ALTER TABLE `clinical_collection_links`
+  ADD CONSTRAINT `FK_clinical_collection_links_consent_masters`
+  FOREIGN KEY (`consent_master_id`) REFERENCES `consent_masters` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+ALTER TABLE `clinical_collection_links`
+  ADD CONSTRAINT `FK_clinical_collection_links_collections`
+  FOREIGN KEY (`collection_id`) REFERENCES `collections` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+ALTER TABLE `consent_masters`
+  ADD CONSTRAINT `FK_consent_masters_participant`
+  FOREIGN KEY (`participant_id`) REFERENCES `participants` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+ALTER TABLE `consent_masters`
+  ADD CONSTRAINT `FK_consent_masters_diagnosis_masters`
+  FOREIGN KEY (`diagnosis_master_id`) REFERENCES `diagnosis_masters` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+-- ALTER TABLE `consent_masters`
+--  ADD CONSTRAINT `FK_consent_masters_consent_controls`
+--  FOREIGN KEY (`consent_control_id`) REFERENCES `consent_controls` (`id`)
+--  ON DELETE RESTRICT
+--  ON UPDATE RESTRICT;
+
+ALTER TABLE `diagnosis_masters`
+  ADD CONSTRAINT `FK_diagnosis_masters_participant`
+  FOREIGN KEY (`participant_id`) REFERENCES `participants` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+-- ALTER TABLE `diagnosis_masters`
+--  ADD CONSTRAINT `FK_diagnosis_masters_diagnosis_controls`
+--  FOREIGN KEY (`diagnosis_control_id`) REFERENCES `diagnosis_controls` (`id`)
+--  ON DELETE RESTRICT
+--  ON UPDATE RESTRICT;
+
+ALTER TABLE `event_masters`
+  ADD CONSTRAINT `FK_event_masters_participant`
+  FOREIGN KEY (`participant_id`) REFERENCES `participants` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+ALTER TABLE `event_masters`
+  ADD CONSTRAINT `FK_event_masters_diagnosis_masters`
+  FOREIGN KEY (`diagnosis_master_id`) REFERENCES `diagnosis_masters` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+ALTER TABLE `event_masters`
+  ADD CONSTRAINT `FK_event_masters_event_controls`
+  FOREIGN KEY (`event_control_id`) REFERENCES `event_controls` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+ALTER TABLE `family_histories`
+  ADD CONSTRAINT `FK_family_histories_participant`
+  FOREIGN KEY (`participant_id`) REFERENCES `participants` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+ALTER TABLE `misc_identifiers`
+  ADD CONSTRAINT `FK_misc_identifiers_participant`
+  FOREIGN KEY (`participant_id`) REFERENCES `participants` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+ALTER TABLE `participant_contacts`
+  ADD CONSTRAINT `FK_participant_contacts_participant`
+  FOREIGN KEY (`participant_id`) REFERENCES `participants` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+ALTER TABLE `participant_messages`
+  ADD CONSTRAINT `FK_participant_messages_participant`
+  FOREIGN KEY (`participant_id`) REFERENCES `participants` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+ALTER TABLE `reproductive_histories`
+  ADD CONSTRAINT `FK_reproductive_histories_participant`
+  FOREIGN KEY (`participant_id`) REFERENCES `participants` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+ALTER TABLE `tx_masters`
+  ADD CONSTRAINT `FK_tx_masters_participant`
+  FOREIGN KEY (`participant_id`) REFERENCES `participants` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+ALTER TABLE `tx_masters`
+  ADD CONSTRAINT `FK_tx_masters_diagnosis_masters`
+  FOREIGN KEY (`diagnosis_master_id`) REFERENCES `diagnosis_masters` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+ALTER TABLE `tx_masters`
+  ADD CONSTRAINT `FK_tx_masters_tx_controls`
+  FOREIGN KEY (`treatment_control_id`) REFERENCES `tx_controls` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+-- Order Management Foreign Keys --
+
+ALTER TABLE `orders`
+  ADD CONSTRAINT `FK_orders_study_summaries`
+  FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+ALTER TABLE `order_lines`
+  ADD CONSTRAINT `FK_order_lines_orders`
+  FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+ALTER TABLE `order_items`
+  ADD CONSTRAINT `FK_order_items_orders`
+  FOREIGN KEY (`orderline_id`) REFERENCES `order_lines` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+ALTER TABLE `shipments`
+  ADD CONSTRAINT `FK_shipments_orders`
+  FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
