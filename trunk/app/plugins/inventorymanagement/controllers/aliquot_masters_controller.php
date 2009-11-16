@@ -1064,6 +1064,9 @@ unset($this->data['AliquotMaster']);
 		}	
 	}	
 	
+	/* ------------------------------ REALIQUOTING ------------------------------ */
+	
+	
 	
 	
 	
@@ -1103,434 +1106,6 @@ unset($this->data['AliquotMaster']);
 	
 	
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	/* --------------------------------------------------------------------------
-	 * ADDITIONAL FUNCTIONS
-	 * -------------------------------------------------------------------------- */
-	
-	/**
-	 * Get list of SOPs existing to build aliquot.
-	 * 
-	 * Note: Function to allow bank to customize this function when they don't use 
-	 * SOP module.
-	 *
-	 *	@param $sample_type Sample Type
-	 *	@param $aliquot_type Aliquot Type
-	 *
-	 * @return Array gathering all sops
-	 *
-	 * @author N. Luc
-	 * @since 2009-09-11
-	 * @updated N. Luc
-	 */
-	 
-	function getAliquotSopList($sample_type, $aliquot_type) {
-		return $this->getSopList('aliquot');
-	}
-	
-	/**
-	 * Get list of Studies existing into the system.
-	 * 
-	 * Note: Function to allow bank to customize this function when they don't use 
-	 * Study module.
-	 *
-	 * @return Array gathering all studies
-	 *
-	 * @author N. Luc
-	 * @since 2009-09-11
-	 * @updated N. Luc
-	 */
-	 
-	function getStudiesList() {
-		return $this->StudySummaries->getStudiesList();
-	}
-	
-	/**
-	 * Get list of blocks created for the studied sample.
-	 * 
-	 * @param $sample_master_data Master data of the studied sample.
-	 * 
-	 * @return Array gathering all sample blocks data.
-	 *
-	 * @author N. Luc
-	 * @since 2009-09-11
-	 * @updated N. Luc
-	 */
-	 
-	function getSampleBlocksList($sample_master_data) {
-		// Check block can be created for the studied sample
-		$criteria = array(
-			'SampleControl.id' => $sample_master_data['SampleMaster']['sample_control_id'],
-			'SampleToAliquotControl.status' => 'active',
-			'AliquotControl.status' => 'active',
-			'AliquotControl.form_alias' => 'ad_spec_tiss_blocks');
-		$sample_to_block_control = $this->SampleToAliquotControl->find('first', array('conditions' => $criteria));	
-		
-		if(empty($sample_to_block_control)) { return array(); }
-		
-		// Get block type control id
-		$block_control_id = $sample_to_block_control['AliquotControl']['id'];
-		
-		// Get existing sample block
-		$criteria = array();
-		$criteria['AliquotMaster.aliquot_control_id'] = $block_control_id;
-		$criteria['AliquotMaster.status'] = 'available';
-		$criteria['AliquotMaster.sample_master_id'] = $sample_master_data['SampleMaster']['id'];
-		$criteria['AliquotMaster.collection_id'] = $sample_master_data['SampleMaster']['collection_id'];
-		$criteria['AliquotMaster.deleted'] = '0';
-				
-		$blocks_list = $this->AliquotMaster->atim_list(array('conditions' => $criteria, 'order' => array('AliquotMaster.barcode ASC')));
-		
-		return (empty($blocks_list)? array() : $blocks_list);
-	}
-	
-	/**
-	 * Get list of gel matrices created for the studied sample.
-	 * 
-	 * @param $sample_master_data Master data of the studied sample.
-	 * 
-	 * @return Array gathering all sample gel matrices data.
-	 *
-	 * @author N. Luc
-	 * @since 2009-09-11
-	 * @updated N. Luc
-	 */
-	 
-	function getSampleGelMatricesList($sample_master_data) {
-		// Check gel matrix can be created for the studied sample
-		$criteria = array(
-			'SampleControl.id' => $sample_master_data['SampleMaster']['sample_control_id'],
-			'SampleToAliquotControl.status' => 'active',
-			'AliquotControl.status' => 'active',
-			'AliquotControl.form_alias' => 'ad_der_cel_gel_matrices');
-		$sample_to_gel_matrix_control = $this->SampleToAliquotControl->find('first', array('conditions' => $criteria));	
-		
-		if(empty($sample_to_gel_matrix_control)) { return array(); }
-		
-		// Get block type control id
-		$gel_matrix_control_id = $sample_to_gel_matrix_control['AliquotControl']['id'];
-		
-		// Get existing sample block
-		$criteria = array();
-		$criteria['AliquotMaster.aliquot_control_id'] = $gel_matrix_control_id;
-		$criteria['AliquotMaster.status'] = 'available';
-		$criteria['AliquotMaster.sample_master_id'] = $sample_master_data['SampleMaster']['id'];
-		$criteria['AliquotMaster.collection_id'] = $sample_master_data['SampleMaster']['collection_id'];
-		$criteria['AliquotMaster.deleted'] = '0';
-				
-		$gel_matrices_list = $this->AliquotMaster->atim_list(array('conditions' => $criteria, 'order' => array('AliquotMaster.barcode ASC')));
-		
-		return (empty($gel_matrices_list)? array() : $gel_matrices_list);
-	}	
-		
-	/**
-	 * Get default storage date for a new created aliquot.
-	 * 
-	 * @param $sample_master_data Master data of the studied sample.
-	 * 
-	 * @return Default storage date.
-	 *
-	 * @author N. Luc
-	 * @since 2009-09-11
-	 * @updated N. Luc
-	 */
-	 
-	function getDefaultAliquotStorageDate($sample_master_data) {
-		switch($sample_master_data['SampleMaster']['sample_category']) {
-			case 'specimen':
-				// Default creation date will be the specimen reception date
-				$collection_data = $this->Collection->find('first', array('conditions' => array('Collection.id' => $sample_master_data['SampleMaster']['collection_id']), 'recursive' => '-1'));
-				if(empty($collection_data)) { $this->redirect('/pages/err_inv_coll_no_data', null, true); }
-				
-				return $collection_data['Collection']['reception_datetime'];
-				
-			case 'derivative':
-				// Default creation date will be the derivative creation date or Specimen reception date
-				$derivative_detail_data = $this->DerivativeDetail->find('first', array('conditions' => array('DerivativeDetail.sample_master_id' => $sample_master_data['SampleMaster']['id']), 'recursive' => '-1'));
-				if(empty($derivative_detail_data)) { $this->redirect('/pages/err_inv_missing_samp_data', null, true); }
-				
-				return $derivative_detail_data['DerivativeDetail']['creation_datetime'];
-				
-			default:
-				$this->redirect('/pages/err_inv_system_error', null, true);			
-		}
-		
-		return null;
-	}
-	
-	/**
-	 * Check created barcodes are not duplicated and set error if they are.
-	 * 
-	 * Note: 
-	 *  - This function supports form data structure built by either 'add' form or 'datagrid' form.
-	 *  - Has been created to allow customisation.
-	 * 
-	 * @param $aliquots_data Aliquots data stored into an array having structure like either:
-	 * 	- $aliquots_data = array('AliquotMaster' => array(...))
-	 * 	or
-	 * 	- $aliquots_data = array(array('AliquotMaster' => array(...)))
-	 *
-	 * @return  Following results array:
-	 * 	array(
-	 * 		'is_duplicated_barcode' => TRUE when barcodes are duplicaed,
-	 * 		'messages' => array($message_1, $message_2, ...)
-	 * 	)
-	 * 
-	 * @author N. Luc
-	 * @date 2007-08-15
-	 */
-	 
-	function isDuplicatedAliquotBarcode($aliquots_data) {
-		$is_duplicated_barcode = false;
-		
-		$new_barcodes = array();
-		$duplicated_barcodes = array();
-				
-		// check data structure
-		$is_multi_records_data = true;
-		if(isset($aliquots_data[0]['AliquotMaster'])) {
-			// Multi records: Nothing to do
-		} else if(isset($aliquots_data['AliquotMaster'])) {
-			// Single record to manage as multi records
-			$aliquots_data = array('0' => $aliquots_data);
-			$is_multi_records_data = false;
-		} else {
-			$this->redirect('/pages/err_inv_system_error', null, true);
-		}
-		
-		// Check duplicated barcode into submited record
-		foreach($aliquots_data as $new_aliquot) {
-			$barcode = $new_aliquot['AliquotMaster']['barcode'];
-			if(empty($barcode)) {
-				// Not studied
-			} else if(isset($new_barcodes[$barcode])) {
-				$duplicated_barcodes[$barcode] = $barcode;
-			} else {
-				$new_barcodes[$barcode] = $barcode;
-			}
-		}
-		
-		// Check duplicated barcode into db
-		$criteria = ' AliquotMaster.barcode in  (\'' . implode('\',\'', array_values($new_barcodes)) . '\')';
-		$aliquots_having_duplicated_barcode = $this->AliquotMaster->atim_list(array('conditions' => $criteria));
-		if(!empty($aliquots_having_duplicated_barcode)) {
-			foreach($aliquots_having_duplicated_barcode as $new_aliquot) {
-				$barcode = $new_aliquot['AliquotMaster']['barcode'];
-				$duplicated_barcodes[$barcode] = $barcode;
-			}			
-		}
-		
-		// Set errors
-		$messages = array();
-		if(!empty($duplicated_barcodes)) {
-			// Set boolean
-			$is_duplicated_barcode = true;
-			
-			// Set error message
-			$messages[]	= 'barcode must be unique';
-			$str_barcodes_in_error = ' => ';
-			foreach($duplicated_barcodes as $barcode) {
-				$str_barcodes_in_error .= '[' . $barcode . '] ';
-			}
-			$messages[]	= $str_barcodes_in_error; 
-		}
-		
-		return array('is_duplicated_barcode' => $is_duplicated_barcode, 'messages' => $messages);
-	}
-
-	/**
-	 * Check both aliquot storage definition and aliquot positions and set error if required.
-	 * 
-	 * Note: 
-	 *  - This function supports form data structure built by either 'add' form or 'datagrid' form.
-	 *  - Has been created to allow customisation.
-	 * 
-	 * @param $aliquots_data Aliquots data stored into an array having structure like either:
-	 * 	- $aliquots_data = array('AliquotMaster' => array(...))
-	 * 	or
-	 * 	- $aliquots_data = array(array('AliquotMaster' => array(...)))
-	 *
-	 * @return Following results array:
-	 * 	array(
-	 * 		'submitted_data_validates' => TRUE when data are validated,
-	 * 		'messages_sorted_per_field' => array ($field_name => array($message_1, $message_2, ...))
-	 * 	)
-	 * 
-	 * @author N. Luc
-	 * @date 2007-08-15
-	 */
-	 
-	function validateAliquotStorageData(&$aliquots_data) {
-		$submitted_data_validates = true;
-				
-		$arr_preselected_storages = array();
-		$storage_validation_errors = array('id' => array(), 'x' => array(), 'y' => array());
-		
-		// check data structure
-		$is_multi_records_data = true;
-		if(isset($aliquots_data[0]['AliquotMaster'])) {
-			// Multi records: Nothing to do
-		} else if(isset($aliquots_data['AliquotMaster'])) {
-			// Single record to manage as multi records
-			$aliquots_data = array('0' => $aliquots_data);
-			$is_multi_records_data = false;
-		} else {
-			$this->redirect('/pages/err_inv_system_error', null, true);
-		}
-		
-		// Launch validation		
-		foreach ($aliquots_data as $key => $new_aliquot) {		
-			// Check the aliquot storage definition (selection label versus selected storage_master_id)
-			$arr_storage_selection_results = $this->Storages->validateStorageIdVersusSelectionLabel($new_aliquot['FunctionManagement']['recorded_storage_selection_label'], $new_aliquot['AliquotMaster']['storage_master_id']);
-					
-			$new_aliquot['AliquotMaster']['storage_master_id'] = $arr_storage_selection_results['selected_storage_master_id'];
-			$arr_preselected_storages += $arr_storage_selection_results['matching_storage_list'];
-	
-			if(!empty($arr_storage_selection_results['storage_definition_error'])) {
-				$submitted_data_validates = false;
-				$error_msg = $arr_storage_selection_results['storage_definition_error'];
-				$storage_validation_errors['id'][$error_msg] = $error_msg;		
-			
-			} else {
-				// Check aliquot position within storage
-				$storage_data = (empty($new_aliquot['AliquotMaster']['storage_master_id'])? null: $arr_storage_selection_results['matching_storage_list'][$new_aliquot['AliquotMaster']['storage_master_id']]);
-				$arr_position_results = $this->Storages->validatePositionWithinStorage($new_aliquot['AliquotMaster']['storage_master_id'], $new_aliquot['AliquotMaster']['storage_coord_x'], $new_aliquot['AliquotMaster']['storage_coord_y'], $storage_data);
-							
-				// Manage errors
-				if(!empty($arr_position_results['position_definition_error'])) {
-					$submitted_data_validates = false;
-					$error = $arr_position_results['position_definition_error'];
-					if($arr_position_results['error_on_x']) { $storage_validation_errors['x'][$error] = $error; } 
-					if($arr_position_results['error_on_y']) { $storage_validation_errors['y'][$error] = $error; }	
-				}
-								
-				// Reset aliquot storage data
-				$new_aliquot['AliquotMaster']['storage_coord_x'] = $arr_position_results['validated_position_x'];
-				$new_aliquot['AliquotMaster']['coord_x_order'] = $arr_position_results['position_x_order'];
-				$new_aliquot['AliquotMaster']['storage_coord_y'] = $arr_position_results['validated_position_y'];
-				$new_aliquot['AliquotMaster']['coord_y_order'] = $arr_position_results['position_y_order'];
-			}
-			
-			// Update $aliquots_data for the studied record
-			$aliquots_data[$key] = $new_aliquot;
-		}
-		
-		// Set preselected storage list		
-		$this->set('arr_preselected_storages', $arr_preselected_storages);
-				
-		// Manage error message
-		$messages = array();
-		foreach($storage_validation_errors['id'] as $error) { $messages['storage_master_id'][] = $error; }
-		foreach($storage_validation_errors['x'] as $error) { $messages['storage_coord_x'][] = $error; }
-		foreach($storage_validation_errors['y'] as $error) { $messages['storage_coord_y'][] = $error; }
-		
-		if(!$is_multi_records_data) {
-			// Reset correctly single record data
-			$aliquots_data = $aliquots_data['0'];
-		}
-		
-		return array('submitted_data_validates' => $submitted_data_validates, 'messages_sorted_per_field' => $messages);
-	}
-
-	/**
-	 * Check if an aliquot can be deleted.
-	 * 
-	 * @param $aliquot_master_id Id of the studied sample.
-	 * 
-	 * @return Return results as array:
-	 * 	['allow_deletion'] = true/false
-	 * 	['msg'] = message to display when previous field equals false
-	 * 
-	 * @author N. Luc
-	 * @since 2007-10-16
-	 */
-	 
-	function allowAliquotDeletion($aliquot_master_id){
-		// Check aliquot has no use	
-		$returned_nbr = $this->AliquotUse->find('count', array('conditions' => array('AliquotUse.aliquot_master_id' => $aliquot_master_id), 'recursive' => '-1'));
-		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'use exists for the deleted aliquot'); }
-	
-		// Check aliquot is not linked to realiquoting process	
-		$returned_nbr = $this->Realiquoting->find('count', array('conditions' => array('Realiquoting.child_aliquot_master_id' => $aliquot_master_id), 'recursive' => '-1'));
-		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'realiquoting data exists for the deleted aliquot'); }
-		$returned_nbr = $this->Realiquoting->find('count', array('conditions' => array('Realiquoting.parent_aliquot_master_id' => $aliquot_master_id), 'recursive' => '-1'));
-		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'realiquoting data exists for the deleted aliquot'); }
-		
-		// Check aliquot is not linked to review	
-		$returned_nbr = $this->PathCollectionReview->find('count', array('conditions' => array('PathCollectionReview.aliquot_master_id' => $aliquot_master_id), 'recursive' => '-1'));
-		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'review exists for the deleted aliquot'); }
-		//TODO ReviewMaster?
-	
-		// Check aliquot is not linked to order	
-		$returned_nbr = $this->OrderItem->find('count', array('conditions' => array('OrderItem.aliquot_master_id' => $aliquot_master_id), 'recursive' => '-1'));
-		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'order exists for the deleted aliquot'); }
-	
-		// Check aliquot is not block used to create either slide or core
-		$tmp_aliquot_detail = new AliquotDetail(false, 'ad_tissue_cores');
-		$returned_nbr = $tmp_aliquot_detail->find('count', array('conditions' => array('AliquotDetail.block_aliquot_master_id' => $aliquot_master_id)));
-		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'either core or slide exists for the deleted aliquot'); }	
-		$tmp_aliquot_detail = new AliquotDetail(false, 'ad_tissue_slides');
-		$returned_nbr = $tmp_aliquot_detail->find('count', array('conditions' => array('AliquotDetail.block_aliquot_master_id' => $aliquot_master_id)));
-		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'either core or slide exists for the deleted aliquot'); }	
-	
-		// Check aliquot is not gel matrix used to create either core
-		$tmp_aliquot_detail = new AliquotDetail(false, 'ad_cell_cores');
-		$returned_nbr = $tmp_aliquot_detail->find('count', array('conditions' => array('AliquotDetail.gel_matrix_aliquot_master_id' => $aliquot_master_id)));
-		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'either core or slide exists for the deleted aliquot'); }	
-		
-		return array('allow_deletion' => true, 'msg' => '');
-	}
-	
-	/* --------------------------------------------------------------------------------------------- */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	
-
-	
-	/* --------------------------------------------------------------------------
-	 * SOURCE ALIQUOTS FUNCTIONS
-	 * -------------------------------------------------------------------------- */	
-
-
 	function listRealiquotedParents($specimen_group_menu_id=null, $group_specimen_type=null, $sample_category=null,	
 	$collection_id=null, $aliquot_master_id=null) {
 
@@ -2160,37 +1735,9 @@ unset($this->data['AliquotMaster']);
 							'/' . $aliquot_master_id . '/');
 		
 	} // End function deleteSourceAliquot
-	
 
-	
-	function getAllowedAdditionalAliqUses() {
-		
-		// ** Build list of additional use a user can add **
-		
-		$criteria = array();
-		$criteria['GlobalLookup.alias'] = 'aliquot_use_definition';
-		$criteria[] = "GlobalLookup.display_order != '-1'";
-		$criteria = array_filter($criteria);
-		
-		$additional_uses = 
-			$this->GlobalLookup->generateList(
-				$criteria,
-				"GlobalLookup.display_order ASC", 
-				null, 
-				'{n}.GlobalLookup.value', 
-				'{n}.GlobalLookup.language_choice');
-				
-		return $additional_uses;			
-			
-	}
-		
-	/* --------------------------------------------------------------------------
-	 * ADDITIONAL FUNCTIONS
-	 * -------------------------------------------------------------------------- */	
-	
+	/* -------------------------------- ORDERING -------------------------------- */
 
-
-	
 	/*
 		DATAMART PROCESS, addes BATCH SET aliquot IDs to ORDER ITEMs
 		Multi-part process, linking Orders, OrderLines, and OrderItems (all ACTIONs the same name in each CONTROLLER)
@@ -2217,6 +1764,386 @@ unset($this->data['AliquotMaster']);
 		
 	}
 
+	
+	
+
+	
+	/* --------------------------------------------------------------------------
+	 * ADDITIONAL FUNCTIONS
+	 * -------------------------------------------------------------------------- */
+	
+	/**
+	 * Get list of SOPs existing to build aliquot.
+	 * 
+	 * Note: Function to allow bank to customize this function when they don't use 
+	 * SOP module.
+	 *
+	 *	@param $sample_type Sample Type
+	 *	@param $aliquot_type Aliquot Type
+	 *
+	 * @return Array gathering all sops
+	 *
+	 * @author N. Luc
+	 * @since 2009-09-11
+	 * @updated N. Luc
+	 */
+	 
+	function getAliquotSopList($sample_type, $aliquot_type) {
+		return $this->getSopList('aliquot');
+	}
+	
+	/**
+	 * Get list of Studies existing into the system.
+	 * 
+	 * Note: Function to allow bank to customize this function when they don't use 
+	 * Study module.
+	 *
+	 * @return Array gathering all studies
+	 *
+	 * @author N. Luc
+	 * @since 2009-09-11
+	 * @updated N. Luc
+	 */
+	 
+	function getStudiesList() {
+		return $this->StudySummaries->getStudiesList();
+	}
+	
+	/**
+	 * Get list of blocks created for the studied sample.
+	 * 
+	 * @param $sample_master_data Master data of the studied sample.
+	 * 
+	 * @return Array gathering all sample blocks data.
+	 *
+	 * @author N. Luc
+	 * @since 2009-09-11
+	 * @updated N. Luc
+	 */
+	 
+	function getSampleBlocksList($sample_master_data) {
+		// Check block can be created for the studied sample
+		$criteria = array(
+			'SampleControl.id' => $sample_master_data['SampleMaster']['sample_control_id'],
+			'SampleToAliquotControl.status' => 'active',
+			'AliquotControl.status' => 'active',
+			'AliquotControl.form_alias' => 'ad_spec_tiss_blocks');
+		$sample_to_block_control = $this->SampleToAliquotControl->find('first', array('conditions' => $criteria));	
+		
+		if(empty($sample_to_block_control)) { return array(); }
+		
+		// Get block type control id
+		$block_control_id = $sample_to_block_control['AliquotControl']['id'];
+		
+		// Get existing sample block
+		$criteria = array();
+		$criteria['AliquotMaster.aliquot_control_id'] = $block_control_id;
+		$criteria['AliquotMaster.status'] = 'available';
+		$criteria['AliquotMaster.sample_master_id'] = $sample_master_data['SampleMaster']['id'];
+		$criteria['AliquotMaster.collection_id'] = $sample_master_data['SampleMaster']['collection_id'];
+		$criteria['AliquotMaster.deleted'] = '0';
+				
+		$blocks_list = $this->AliquotMaster->atim_list(array('conditions' => $criteria, 'order' => array('AliquotMaster.barcode ASC')));
+		
+		return (empty($blocks_list)? array() : $blocks_list);
+	}
+	
+	/**
+	 * Get list of gel matrices created for the studied sample.
+	 * 
+	 * @param $sample_master_data Master data of the studied sample.
+	 * 
+	 * @return Array gathering all sample gel matrices data.
+	 *
+	 * @author N. Luc
+	 * @since 2009-09-11
+	 * @updated N. Luc
+	 */
+	 
+	function getSampleGelMatricesList($sample_master_data) {
+		// Check gel matrix can be created for the studied sample
+		$criteria = array(
+			'SampleControl.id' => $sample_master_data['SampleMaster']['sample_control_id'],
+			'SampleToAliquotControl.status' => 'active',
+			'AliquotControl.status' => 'active',
+			'AliquotControl.form_alias' => 'ad_der_cel_gel_matrices');
+		$sample_to_gel_matrix_control = $this->SampleToAliquotControl->find('first', array('conditions' => $criteria));	
+		
+		if(empty($sample_to_gel_matrix_control)) { return array(); }
+		
+		// Get block type control id
+		$gel_matrix_control_id = $sample_to_gel_matrix_control['AliquotControl']['id'];
+		
+		// Get existing sample block
+		$criteria = array();
+		$criteria['AliquotMaster.aliquot_control_id'] = $gel_matrix_control_id;
+		$criteria['AliquotMaster.status'] = 'available';
+		$criteria['AliquotMaster.sample_master_id'] = $sample_master_data['SampleMaster']['id'];
+		$criteria['AliquotMaster.collection_id'] = $sample_master_data['SampleMaster']['collection_id'];
+		$criteria['AliquotMaster.deleted'] = '0';
+				
+		$gel_matrices_list = $this->AliquotMaster->atim_list(array('conditions' => $criteria, 'order' => array('AliquotMaster.barcode ASC')));
+		
+		return (empty($gel_matrices_list)? array() : $gel_matrices_list);
+	}	
+		
+	/**
+	 * Get default storage date for a new created aliquot.
+	 * 
+	 * @param $sample_master_data Master data of the studied sample.
+	 * 
+	 * @return Default storage date.
+	 *
+	 * @author N. Luc
+	 * @since 2009-09-11
+	 * @updated N. Luc
+	 */
+	 
+	function getDefaultAliquotStorageDate($sample_master_data) {
+		switch($sample_master_data['SampleMaster']['sample_category']) {
+			case 'specimen':
+				// Default creation date will be the specimen reception date
+				$collection_data = $this->Collection->find('first', array('conditions' => array('Collection.id' => $sample_master_data['SampleMaster']['collection_id']), 'recursive' => '-1'));
+				if(empty($collection_data)) { $this->redirect('/pages/err_inv_coll_no_data', null, true); }
+				
+				return $collection_data['Collection']['reception_datetime'];
+				
+			case 'derivative':
+				// Default creation date will be the derivative creation date or Specimen reception date
+				$derivative_detail_data = $this->DerivativeDetail->find('first', array('conditions' => array('DerivativeDetail.sample_master_id' => $sample_master_data['SampleMaster']['id']), 'recursive' => '-1'));
+				if(empty($derivative_detail_data)) { $this->redirect('/pages/err_inv_missing_samp_data', null, true); }
+				
+				return $derivative_detail_data['DerivativeDetail']['creation_datetime'];
+				
+			default:
+				$this->redirect('/pages/err_inv_system_error', null, true);			
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Check created barcodes are not duplicated and set error if they are.
+	 * 
+	 * Note: 
+	 *  - This function supports form data structure built by either 'add' form or 'datagrid' form.
+	 *  - Has been created to allow customisation.
+	 * 
+	 * @param $aliquots_data Aliquots data stored into an array having structure like either:
+	 * 	- $aliquots_data = array('AliquotMaster' => array(...))
+	 * 	or
+	 * 	- $aliquots_data = array(array('AliquotMaster' => array(...)))
+	 *
+	 * @return  Following results array:
+	 * 	array(
+	 * 		'is_duplicated_barcode' => TRUE when barcodes are duplicaed,
+	 * 		'messages' => array($message_1, $message_2, ...)
+	 * 	)
+	 * 
+	 * @author N. Luc
+	 * @date 2007-08-15
+	 */
+	 
+	function isDuplicatedAliquotBarcode($aliquots_data) {
+		$is_duplicated_barcode = false;
+		
+		$new_barcodes = array();
+		$duplicated_barcodes = array();
+				
+		// check data structure
+		$is_multi_records_data = true;
+		if(isset($aliquots_data[0]['AliquotMaster'])) {
+			// Multi records: Nothing to do
+		} else if(isset($aliquots_data['AliquotMaster'])) {
+			// Single record to manage as multi records
+			$aliquots_data = array('0' => $aliquots_data);
+			$is_multi_records_data = false;
+		} else {
+			$this->redirect('/pages/err_inv_system_error', null, true);
+		}
+		
+		// Check duplicated barcode into submited record
+		foreach($aliquots_data as $new_aliquot) {
+			$barcode = $new_aliquot['AliquotMaster']['barcode'];
+			if(empty($barcode)) {
+				// Not studied
+			} else if(isset($new_barcodes[$barcode])) {
+				$duplicated_barcodes[$barcode] = $barcode;
+			} else {
+				$new_barcodes[$barcode] = $barcode;
+			}
+		}
+		
+		// Check duplicated barcode into db
+		$criteria = ' AliquotMaster.barcode in  (\'' . implode('\',\'', array_values($new_barcodes)) . '\')';
+		$aliquots_having_duplicated_barcode = $this->AliquotMaster->atim_list(array('conditions' => $criteria));
+		if(!empty($aliquots_having_duplicated_barcode)) {
+			foreach($aliquots_having_duplicated_barcode as $new_aliquot) {
+				$barcode = $new_aliquot['AliquotMaster']['barcode'];
+				$duplicated_barcodes[$barcode] = $barcode;
+			}			
+		}
+		
+		// Set errors
+		$messages = array();
+		if(!empty($duplicated_barcodes)) {
+			// Set boolean
+			$is_duplicated_barcode = true;
+			
+			// Set error message
+			$messages[]	= 'barcode must be unique';
+			$str_barcodes_in_error = ' => ';
+			foreach($duplicated_barcodes as $barcode) {
+				$str_barcodes_in_error .= '[' . $barcode . '] ';
+			}
+			$messages[]	= $str_barcodes_in_error; 
+		}
+		
+		return array('is_duplicated_barcode' => $is_duplicated_barcode, 'messages' => $messages);
+	}
+
+	/**
+	 * Check both aliquot storage definition and aliquot positions and set error if required.
+	 * 
+	 * Note: 
+	 *  - This function supports form data structure built by either 'add' form or 'datagrid' form.
+	 *  - Has been created to allow customisation.
+	 * 
+	 * @param $aliquots_data Aliquots data stored into an array having structure like either:
+	 * 	- $aliquots_data = array('AliquotMaster' => array(...))
+	 * 	or
+	 * 	- $aliquots_data = array(array('AliquotMaster' => array(...)))
+	 *
+	 * @return Following results array:
+	 * 	array(
+	 * 		'submitted_data_validates' => TRUE when data are validated,
+	 * 		'messages_sorted_per_field' => array ($field_name => array($message_1, $message_2, ...))
+	 * 	)
+	 * 
+	 * @author N. Luc
+	 * @date 2007-08-15
+	 */
+	 
+	function validateAliquotStorageData(&$aliquots_data) {
+		$submitted_data_validates = true;
+				
+		$arr_preselected_storages = array();
+		$storage_validation_errors = array('id' => array(), 'x' => array(), 'y' => array());
+		
+		// check data structure
+		$is_multi_records_data = true;
+		if(isset($aliquots_data[0]['AliquotMaster'])) {
+			// Multi records: Nothing to do
+		} else if(isset($aliquots_data['AliquotMaster'])) {
+			// Single record to manage as multi records
+			$aliquots_data = array('0' => $aliquots_data);
+			$is_multi_records_data = false;
+		} else {
+			$this->redirect('/pages/err_inv_system_error', null, true);
+		}
+		
+		// Launch validation		
+		foreach ($aliquots_data as $key => $new_aliquot) {		
+			// Check the aliquot storage definition (selection label versus selected storage_master_id)
+			$arr_storage_selection_results = $this->Storages->validateStorageIdVersusSelectionLabel($new_aliquot['FunctionManagement']['recorded_storage_selection_label'], $new_aliquot['AliquotMaster']['storage_master_id']);
+					
+			$new_aliquot['AliquotMaster']['storage_master_id'] = $arr_storage_selection_results['selected_storage_master_id'];
+			$arr_preselected_storages += $arr_storage_selection_results['matching_storage_list'];
+	
+			if(!empty($arr_storage_selection_results['storage_definition_error'])) {
+				$submitted_data_validates = false;
+				$error_msg = $arr_storage_selection_results['storage_definition_error'];
+				$storage_validation_errors['id'][$error_msg] = $error_msg;		
+			
+			} else {
+				// Check aliquot position within storage
+				$storage_data = (empty($new_aliquot['AliquotMaster']['storage_master_id'])? null: $arr_storage_selection_results['matching_storage_list'][$new_aliquot['AliquotMaster']['storage_master_id']]);
+				$arr_position_results = $this->Storages->validatePositionWithinStorage($new_aliquot['AliquotMaster']['storage_master_id'], $new_aliquot['AliquotMaster']['storage_coord_x'], $new_aliquot['AliquotMaster']['storage_coord_y'], $storage_data);
+							
+				// Manage errors
+				if(!empty($arr_position_results['position_definition_error'])) {
+					$submitted_data_validates = false;
+					$error = $arr_position_results['position_definition_error'];
+					if($arr_position_results['error_on_x']) { $storage_validation_errors['x'][$error] = $error; } 
+					if($arr_position_results['error_on_y']) { $storage_validation_errors['y'][$error] = $error; }	
+				}
+								
+				// Reset aliquot storage data
+				$new_aliquot['AliquotMaster']['storage_coord_x'] = $arr_position_results['validated_position_x'];
+				$new_aliquot['AliquotMaster']['coord_x_order'] = $arr_position_results['position_x_order'];
+				$new_aliquot['AliquotMaster']['storage_coord_y'] = $arr_position_results['validated_position_y'];
+				$new_aliquot['AliquotMaster']['coord_y_order'] = $arr_position_results['position_y_order'];
+			}
+			
+			// Update $aliquots_data for the studied record
+			$aliquots_data[$key] = $new_aliquot;
+		}
+		
+		// Set preselected storage list		
+		$this->set('arr_preselected_storages', $arr_preselected_storages);
+				
+		// Manage error message
+		$messages = array();
+		foreach($storage_validation_errors['id'] as $error) { $messages['storage_master_id'][] = $error; }
+		foreach($storage_validation_errors['x'] as $error) { $messages['storage_coord_x'][] = $error; }
+		foreach($storage_validation_errors['y'] as $error) { $messages['storage_coord_y'][] = $error; }
+		
+		if(!$is_multi_records_data) {
+			// Reset correctly single record data
+			$aliquots_data = $aliquots_data['0'];
+		}
+		
+		return array('submitted_data_validates' => $submitted_data_validates, 'messages_sorted_per_field' => $messages);
+	}
+
+	/**
+	 * Check if an aliquot can be deleted.
+	 * 
+	 * @param $aliquot_master_id Id of the studied sample.
+	 * 
+	 * @return Return results as array:
+	 * 	['allow_deletion'] = true/false
+	 * 	['msg'] = message to display when previous field equals false
+	 * 
+	 * @author N. Luc
+	 * @since 2007-10-16
+	 */
+	 
+	function allowAliquotDeletion($aliquot_master_id){
+		// Check aliquot has no use	
+		$returned_nbr = $this->AliquotUse->find('count', array('conditions' => array('AliquotUse.aliquot_master_id' => $aliquot_master_id), 'recursive' => '-1'));
+		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'use exists for the deleted aliquot'); }
+	
+		// Check aliquot is not linked to realiquoting process	
+		$returned_nbr = $this->Realiquoting->find('count', array('conditions' => array('Realiquoting.child_aliquot_master_id' => $aliquot_master_id), 'recursive' => '-1'));
+		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'realiquoting data exists for the deleted aliquot'); }
+		$returned_nbr = $this->Realiquoting->find('count', array('conditions' => array('Realiquoting.parent_aliquot_master_id' => $aliquot_master_id), 'recursive' => '-1'));
+		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'realiquoting data exists for the deleted aliquot'); }
+		
+		// Check aliquot is not linked to review	
+		$returned_nbr = $this->PathCollectionReview->find('count', array('conditions' => array('PathCollectionReview.aliquot_master_id' => $aliquot_master_id), 'recursive' => '-1'));
+		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'review exists for the deleted aliquot'); }
+		//TODO ReviewMaster?
+	
+		// Check aliquot is not linked to order	
+		$returned_nbr = $this->OrderItem->find('count', array('conditions' => array('OrderItem.aliquot_master_id' => $aliquot_master_id), 'recursive' => '-1'));
+		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'order exists for the deleted aliquot'); }
+	
+		// Check aliquot is not block used to create either slide or core
+		$tmp_aliquot_detail = new AliquotDetail(false, 'ad_tissue_cores');
+		$returned_nbr = $tmp_aliquot_detail->find('count', array('conditions' => array('AliquotDetail.block_aliquot_master_id' => $aliquot_master_id)));
+		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'either core or slide exists for the deleted aliquot'); }	
+		$tmp_aliquot_detail = new AliquotDetail(false, 'ad_tissue_slides');
+		$returned_nbr = $tmp_aliquot_detail->find('count', array('conditions' => array('AliquotDetail.block_aliquot_master_id' => $aliquot_master_id)));
+		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'either core or slide exists for the deleted aliquot'); }	
+	
+		// Check aliquot is not gel matrix used to create either core
+		$tmp_aliquot_detail = new AliquotDetail(false, 'ad_cell_cores');
+		$returned_nbr = $tmp_aliquot_detail->find('count', array('conditions' => array('AliquotDetail.gel_matrix_aliquot_master_id' => $aliquot_master_id)));
+		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'either core or slide exists for the deleted aliquot'); }	
+		
+		return array('allow_deletion' => true, 'msg' => '');
+	}
 }
 
 ?>
