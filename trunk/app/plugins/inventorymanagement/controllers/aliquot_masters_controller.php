@@ -380,7 +380,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$this->set('arr_preselected_storages', array());
 						
 			//TODO correct this line
-			$this->data = array(array(), array(), array());
+			$this->data = array(array());
 			
 		} else {
 // TODO used to correct a bug
@@ -903,8 +903,9 @@ unset($this->data['AliquotMaster']);
 		$existing_source_aliquot_ids = array();
 		if(!empty($existing_source_aliquots)) {
 			foreach($existing_source_aliquots as $source_aliquot) {
-				if($existing_source_aliquot_ids['deleted'] == '1') { continue; }
-				$existing_source_aliquot_ids[$tested_aliq['aliquot_master_id']] = 'source';
+				//TODO to patch bug listed in issue #650
+				if($source_aliquot['SourceAliquot']['deleted'] == '1') { continue; }
+				$existing_source_aliquot_ids[$source_aliquot['SourceAliquot']['aliquot_master_id']] = 'source';
 			}
 		}
 		
