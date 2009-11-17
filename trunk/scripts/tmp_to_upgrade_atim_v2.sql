@@ -500,8 +500,9 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 DELETE FROM structures WHERE id=94 OR id=95;
 DELETE FROM structure_formats WHERE structure_id=94 OR structure_id=95;
 
-INSERT INTO `structure_fields` (`id` ,`public_identifier` ,`old_id` ,`plugin` ,`model` ,`tablename` ,`field` ,`language_label` ,`language_tag` ,`type` ,`setting` ,`default` ,`structure_value_domain` ,`language_help` ,`validation_control` ,`value_domain_control` ,`field_control` ,`created` ,`created_by`, `modified` ,`modified_by`)
-VALUES (NULL , '', 'CANM-00013', '', 'FunctionManagement', '', 'input_number', '', '', 'input', '', '', NULL , '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+INSERT INTO `structure_fields` (`id` ,`public_identifier` ,`old_id` ,`plugin` ,`model` ,`tablename` ,`field` ,`language_label` ,`language_tag` ,`type` ,`setting` ,`default` ,`structure_value_domain` ,`language_help` ,`validation_control` ,`value_domain_control` ,`field_control` ,`created` ,`created_by`, `modified` ,`modified_by`) VALUES 
+(NULL , '', 'CANM-00013', '', 'FunctionManagement', '', 'input_number', '', '', 'input', '', '', NULL , '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(NULL , '', 'CANM-00014', '', 'FunctionManagement', '', 'realiquoting_date', '', '', 'datetime', '', '', NULL , '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 SET @sfields_last_id = LAST_INSERT_ID();
 
@@ -509,16 +510,17 @@ INSERT INTO `structure_validations` (`old_id` ,`structure_field_id` ,`structure_
 VALUES ('CANM-00012', @sfields_last_id, 'CANM-00013', 'decimal', '1', '0', '', 'used volume should be a positif decimal', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 INSERT INTO `structures` (`old_id`, `alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`) VALUES
-('CANM-00011', 'aliquot_children_linking', '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+('CANM-00011', 'aliquot_children_linking', '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CANM-00015', 'datetime_input', '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 SET @structure_last_id = LAST_INSERT_ID();
 
 INSERT INTO `structure_formats` (`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
-('CANM-00011_CAN-999-999-000-999-1100', @structure_last_id, 'CANM-00011', '216', 'CAN-999-999-000-999-1100', '1', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('CANM-00011_CAN-999-999-000-999-1160', @structure_last_id, 'CANM-00011', '274', 'CAN-999-999-000-999-1160', '1', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('CANM-00011_CANM-00013', @structure_last_id, 'CANM-00011', @sfields_last_id, 'CANM-00013', '1', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('CANM-00011_CAN-999-999-000-999-1131', @structure_last_id, 'CANM-00011', '248', 'CAN-999-999-000-999-1131', '1', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
-
+('CANM-00011_CAN-999-999-000-999-1100', @structure_last_id, 'CANM-00011', '216', 'CAN-999-999-000-999-1100', '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CANM-00011_CAN-999-999-000-999-1160', @structure_last_id, 'CANM-00011', '274', 'CAN-999-999-000-999-1160', '2', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CANM-00011_CANM-00013', @structure_last_id, 'CANM-00011', @sfields_last_id, 'CANM-00013', '2', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CANM-00011_CAN-999-999-000-999-1131', @structure_last_id, 'CANM-00011', '248', 'CAN-999-999-000-999-1131', '2', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CANM-00015_CANM-00014', @structure_last_id + 1, 'CANM-00015', @sfields_last_id + 1, 'CANM-00014', '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 -- ------------------------------------------------------------
 
 UPDATE `structure_fields` SET `field` = 'product_code'
