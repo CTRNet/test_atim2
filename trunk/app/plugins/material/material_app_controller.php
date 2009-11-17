@@ -1,8 +1,12 @@
 <?php
 
-class MaterialAppController extends AppController
-{	
-	var $name = 'Materials';
+class MaterialAppController extends AppController {	
+	
+	function beforeFilter() {
+		parent::beforeFilter();
+		$this->Auth->actionPath = 'controllers/Material/';
+	}
+	
 }
 
 ?>
