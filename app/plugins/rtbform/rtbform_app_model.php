@@ -1,9 +1,7 @@
 <?php
 
-class RtbformAppModel extends AppModel
-{
-	var $name = 'Rtbforms';
-    //...
+class RtbformAppModel extends AppModel {
+
 }
 
 ?>

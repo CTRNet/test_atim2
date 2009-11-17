@@ -1,8 +1,12 @@
 <?php
 
-class OrderAppController extends AppController
-{	
-	//var $name = 'Orders';
+class OrderAppController extends AppController {	
+	
+	function beforeFilter() {
+		parent::beforeFilter();
+		$this->Auth->actionPath = 'controllers/Order/';
+	}
+	
 }
 
 ?>

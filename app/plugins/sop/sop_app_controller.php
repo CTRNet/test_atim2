@@ -2,9 +2,11 @@
 
 class SopAppController extends AppController
 {	
-/*
-	var $name = 'Sop';
-*/
+	function beforeFilter() {
+		parent::beforeFilter();
+		$this->Auth->actionPath = 'controllers/Sop/';
+	}
+	
 }
 
 ?>

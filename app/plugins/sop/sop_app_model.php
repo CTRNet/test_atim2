@@ -1,8 +1,7 @@
 <?php
 
-class SopAppModel extends AppModel
-{
-	var $name = 'Sop';
+class SopAppModel extends AppModel {
+	
 }
 
 ?>

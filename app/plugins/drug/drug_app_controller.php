@@ -2,7 +2,11 @@
 
 class DrugAppController extends AppController {	
 	
-	var $name = 'Drugs';
+	function beforeFilter() {
+		parent::beforeFilter();
+		$this->Auth->actionPath = 'controllers/Drug/';
+	}
+	
 }
 
 ?>

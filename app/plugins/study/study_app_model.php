@@ -1,8 +1,7 @@
 <?php
 
-class StudyAppModel extends AppModel
-{
-	var $name = 'Study';
+class StudyAppModel extends AppModel {
+
 }
 
 ?>
