@@ -573,3 +573,9 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 'The system is unable to delete correctly the data!<br>Please try again or contact your system administrator.', 
 'Le syst&egrave;me ne peut pas supprimer les donn&eacute;es correctement!<br>Essayez de nouveau ou contactez votre administrateur du syst&egrave;me.');
 
+DELETE FROM `i18n` WHERE `id` IN ('your data has been deleted', 'your data has been saved', 'your data has been updated');
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('your data has been deleted', 'global', 'Your data has been deleted.', 'Vos donn&eacute;es ont &eacute;t&eacute; supprim&eacute;es.'),
+('your data has been saved', 'global', 'Your data has been saved.', 'Vos donn&eacute;es ont &eacute;t&eacute; sauvegard&eacute;es.'),
+('your data has been updated', 'global', 'Your data has been updated.', 'Vos donn&eacute;es ont &eacute;t&eacute; mises &agrave; jour.');
