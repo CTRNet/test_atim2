@@ -1077,16 +1077,16 @@ unset($this->data['AliquotMaster']);
 	function defineRealiquotedChildren($collection_id, $sample_master_id, $aliquot_master_id) {
 		if((!$collection_id) || (!$sample_master_id) || (!$aliquot_master_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }
 		// MANAGE DATA
-		
 		// Get the aliquot data
-		$aliquot_data = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id, 'AliquotMaster.id' => $aliquot_master_id)));
-		if(empty($aliquot_data)) { $this->redirect('/pages/err_inv_aliquot_no_data', null, true); }		
+		$current_aliquot_data = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id, 'AliquotMaster.id' => $aliquot_master_id)));
+		if(empty($current_aliquot_data)) { $this->redirect('/pages/err_inv_aliquot_no_data', null, true); }		
 
 		$this->set('atim_menu_variables', array('Collection.id' => $collection_id,
 												'SampleMaster.id' => $sample_master_id,
-												'AliquotMaster.id' => $aliquot_master_id));
+												'AliquotMaster.id' => $aliquot_master_id,
+												'SampleMaster.initial_specimen_sample_id' => $current_aliquot_data['SampleMaster']['initial_specimen_sample_id']));
 
-		$aliquot_data = $this->AliquotMaster->find('all', array('conditions' => "AliquotMaster.id != '".$aliquot_master_id."'"));// AND Realiquoting.id IS NULL"));
+		$aliquot_data = $this->AliquotMaster->find('all', array('conditions' => "AliquotMaster.id != '".$aliquot_master_id."'"));
 		
 		//filter data
 		foreach($aliquot_data as $key => $aliquot){
@@ -1109,13 +1109,46 @@ unset($this->data['AliquotMaster']);
 				unset($aliquot_data[$key]);		
 			}
 		}
+		$aliquot_data = array_values($aliquot_data);
 		$this->set( 'atim_structure_aliquot', $this->Structures->get( 'form', 'aliquot_children_linking' ) );
-		$this->set('aliquot_data', $aliquot_data);
+		$this->set('atim_datetime_input',  $this->Structures->get('form', 'datetime_input'));
+//		pr($aliquot_data);
+		$aliquot_id_by_barcode = array();
+		foreach($aliquot_data as $aliquot_unit){
+			$aliquot_id_by_barcode[$aliquot_unit['AliquotMaster']['barcode']] = $aliquot_unit['AliquotMaster']['id']; 
+		}
 		
 		if(!empty($this->data)){
-			pr($this->data);
-			//TODO: Volume control (ie: numeric) is not working
+			$date = $this->data['FunctionManagement']['realiquoting_date'];
+			$date = $date['year']."-".$date['month']."-".$date['day']." ".$date['hour'].":".$date['minute']." ".$date['meridian'];
+			unset($this->data['FunctionManagement']);
+			
+			foreach($this->data as $realiquoted){
+				if($realiquoted['FunctionManagement']['use']){
+					$aliquot_use['AliquotUse']['aliquot_master_id'] = $aliquot_id_by_barcode[$realiquoted['AliquotMaster']['barcode']];
+					$aliquot_use['AliquotUse']['use_definition'] = "realiquoted to";
+					$aliquot_use['AliquotUse']['use_details'] = "";
+					$aliquot_use['AliquotUse']['use_code'] = $realiquoted['AliquotMaster']['barcode'];//child barcode
+					$aliquot_use['AliquotUse']['use_recorded_into_table'] = "";
+					$aliquot_use['AliquotUse']['used_volume'] = is_numeric($realiquoted['FunctionManagement']['input_number']) ? $realiquoted['FunctionManagement']['input_number'] : null; 
+					$aliquot_use['AliquotUse']['use_datetime'] = $date;
+					$aliquot_use['AliquotUse']['used_by'] = "";
+					$aliquot_use['AliquotUse']['study_summary_id'] = "";
+					//TODO: Volume control (ie: numeric) is not working
+					$this->AliquotUse->save($aliquot_use);
+					
+					$realiquoting['Realiquoting']['parent_aliquot_master_id'] = $aliquot_master_id;
+					$realiquoting['Realiquoting']['child_aliquot_master_id'] = $aliquot_id_by_barcode[$realiquoted['AliquotMaster']['barcode']];
+					$realiquoting['Realiquoting']['aliquot_use_id'] = $this->AliquotUse->id;
+					$realiquoting['Realiquoting']['realiquoted_by'] = "";
+					$realiquoting['Realiquoting']['realiquoted_datetime'] = $date;
+					$this->Realiquoting->save($realiquoting);
+					
+					$this->Aliquots->updateAliquotCurrentVolume($current_aliquot_data['AliquotMaster']['id']);
+				}
+			}
 		}
+		$this->data = $aliquot_data;
 	}
 	
 	

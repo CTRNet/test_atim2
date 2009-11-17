@@ -20,10 +20,10 @@ class AliquotMaster extends InventoryManagementAppModel {
 		'AliquotUse' => array(
 			'className'   => 'Inventorymanagement.AliquotUse',
 			'foreignKey'  => 'aliquot_master_id'),
-		'RealiquotingChildren' => array(
+		'RealiquotingParent' => array(
 			'className' => 'Inventorymanagement.Realiquoting',
 			'foreignKey' => 'child_aliquot_master_id'),
-		'RealiquotingParent' => array(
+		'RealiquotingChildren' => array(
 			'className' => 'Inventorymanagement.Realiquoting',
 			'foreignKey' => 'parent_aliquot_master_id'));
 	
