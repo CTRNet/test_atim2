@@ -496,6 +496,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 
 
 #realiquoted children part--------------------
+
 DELETE FROM structures WHERE id=94 OR id=95;
 DELETE FROM structure_formats WHERE structure_id=94 OR structure_id=95;
 
@@ -517,3 +518,58 @@ INSERT INTO `structure_formats` (`old_id`, `structure_id`, `structure_old_id`, `
 ('CANM-00011_CAN-999-999-000-999-1160', @structure_last_id, 'CANM-00011', '274', 'CAN-999-999-000-999-1160', '1', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('CANM-00011_CANM-00013', @structure_last_id, 'CANM-00011', @sfields_last_id, 'CANM-00013', '1', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('CANM-00011_CAN-999-999-000-999-1131', @structure_last_id, 'CANM-00011', '248', 'CAN-999-999-000-999-1131', '1', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+-- ------------------------------------------------------------
+
+UPDATE `structure_fields` SET `field` = 'product_code'
+WHERE `old_id` = 'CAN-999-999-000-999-488';
+
+UPDATE `structure_fields` SET `field` = 'discount_code'
+WHERE `old_id` = 'CAN-999-999-000-999-495';
+
+DELETE FROM  `i18n` WHERE `id` IN ('order number is required');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('order number is required', 'global', 'Order number is required!', 'Le num&eacute;ro de commande est requis!');
+
+DELETE FROM pages where id LIKE 'err_order_%';
+
+INSERT INTO `pages` (`id`, `error_flag`, `language_title`, `language_body`, `created`, `created_by`, `modified`, `modified_by`) 
+VALUES
+('err_order_system_error', 1, 'system error', 'a system error has been detetced', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_order_funct_param_missing', 1, 'parameter missing', 'a paramater used by the executed function has not been set', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_order_no_data', 1, 'data not found', 'no data exists for the specified id', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_order_record_err', 1, 'data creation - update error', 'an error occured during the creation or the update of the data', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_order_deletion_err', 1, 'data deletion error', 'the system is unable to delete correctly the data', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+DELETE FROM  `i18n` WHERE `id` IN ('system error', 'a system error has been detetced', 
+'parameter missing', 'a paramater used by the executed function has not been set', 
+'data not found', 'no data exists for the specified id', 
+'data creation - update error', 'an error occured during the creation or the update of the data', 
+'data deletion error', 'the system is unable to delete correctly the data');
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('system error', 'global', 'System Error', 'Erreur syst&egrave;me'),
+('a system error has been detetced', 'global', 
+'A system error has been detetced!<br>Please try again or contact your system administrator.', 
+'Une erreur du syst&egrave;me a &eacute;t&eacute; detect&eacute;e!<br>Essayez de nouveau ou contactez votre administrateur du syst&egrave;me.'),
+
+('parameter missing', 'global', 'Missing Parameter', 'Param&egrave;tre manquant'),
+('a paramater used by the executed function has not been set', 'global', 
+'All required parameters are not defined!<br>Please try again or contact your system administrator.', 
+'Tous les param&egrave;tres requis ne sont pas d&eacute;finis!<br>Essayez de nouveau ou contactez votre administrateur du syst&egrave;me.'),
+
+('data not found', 'global', 'Data Not Found', 'Donn&eacute;es innexistantes'), 
+('no data exists for the specified id', 'global', 
+'No data matches the specified ID!<br>Please try again or contact your system administrator.', 
+'Aucune donnée ne correspond &agrave; l''ID sp&eacute;cifi&eacute;!<br>Essayez de nouveau ou contactez votre administrateur du syst&egrave;me.'),
+
+('data creation - update error', 'global', 'Data Creation/Update Error', 'Erreur durant la cr&eacute;ation/mise &agrave; jour des donn&eacute;es'),
+('an error occured during the creation or the update of the data', 'global', 
+'An error occured during the data creation/update!<br>Please try again or contact your system administrator.', 
+'Une erreur a &eacute;t&eacute; d&eacute;tect&eacute;e durant la cr&eacute;ation/mise &agrave; jour des donn&eacute;es!<br>Essayez de nouveau ou contactez votre administrateur du syst&egrave;me.'),
+
+('data deletion error', 'global', 'Data Deletion Error', 'Erreur durant la suppression des donn&eacute;es'),
+('the system is unable to delete correctly the data', 'global', 
+'The system is unable to delete correctly the data!<br>Please try again or contact your system administrator.', 
+'Le syst&egrave;me ne peut pas supprimer les donn&eacute;es correctement!<br>Essayez de nouveau ou contactez votre administrateur du syst&egrave;me.');
+
