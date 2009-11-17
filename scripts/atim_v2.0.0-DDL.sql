@@ -1,8 +1,8 @@
 ﻿-- ATiM v2.0.0 Database Creation Script
 
--- DROP DATABASE IF EXISTS `atim`;
--- CREATE DATABASE `atim`;
--- USE `atim`;
+DROP DATABASE IF EXISTS `atim`;
+CREATE DATABASE `atim`;
+USE `atim`;
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
@@ -878,11 +878,11 @@ CREATE TABLE IF NOT EXISTS `consent_masters` (
   `modified_by` varchar(50) DEFAULT NULL,
   `consent_master_id` int(11) DEFAULT NULL,
   `acquisition_id` varchar(10) DEFAULT NULL,
-  `participant_id` int(11) DEFAULT NULL,
-  `diagnosis_master_id` int(11) DEFAULT NULL,
+  `participant_id` int(11) NOT NULL default 0,
+  `diagnosis_master_id` int(11) NOT NULL default 0,
   `deleted` int(11) DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
-  `consent_control_id` int(11) unsigned NOT NULL,
+  `consent_control_id` int(11) NOT NULL,
   `type` varchar(10) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   INDEX `diagnosis_id` (`diagnosis_master_id`),
@@ -917,13 +917,13 @@ CREATE TABLE IF NOT EXISTS `consent_masters_revs` (
   `modified_by` varchar(50) DEFAULT NULL,
   `consent_master_id` int(11) DEFAULT NULL,
   `acquisition_id` varchar(10) DEFAULT NULL,
-  `participant_id` int(11) DEFAULT NULL,
-  `diagnosis_master_id` int(11) DEFAULT NULL,
+  `participant_id` int(11) NOT NULL DEFAULT 0,
+  `diagnosis_master_id` int(11) NOT NULL DEFAULT 0,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
   `deleted` int(11) DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
-  `consent_control_id` int(11) unsigned NOT NULL,
+  `consent_control_id` int(11) NOT NULL,
   `type` varchar(10) NOT NULL DEFAULT '',
   PRIMARY KEY (`version_id`),
   INDEX `diagnosis_id` (`diagnosis_master_id`),
@@ -1062,20 +1062,6 @@ CREATE TABLE `derivative_details_revs` (
   KEY `sample_master_id` (`sample_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
--- 
--- Table structure for table `parent_to_derivative_sample_controls`
--- 
-
-CREATE TABLE `parent_to_derivative_sample_controls` (
-  `id` int(11) NOT NULL auto_increment,
-  `parent_sample_control_id` int(11) default NULL,
-  `derivative_sample_control_id` int(11) default NULL,
-  `status` varchar(20) default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `parent_sample_control_id` (`parent_sample_control_id`),
-  KEY `derivative_sample_control_id` (`derivative_sample_control_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
 --
 -- Table structure for table `diagnosis_controls`
 --
@@ -1090,57 +1076,47 @@ CREATE TABLE IF NOT EXISTS `diagnosis_controls` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS `diagnosis_controls_revs` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `controls_type` varchar(6) NOT NULL,
-  `status` varchar(50) NOT NULL DEFAULT 'active',
-  `form_alias` varchar(255) NOT NULL,
-  `detail_tablename` varchar(255) NOT NULL,
-  `display_order` int(11) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
 --
 -- Table structure for table `diagnosis_masters`
 --
 
 CREATE TABLE IF NOT EXISTS `diagnosis_masters` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `dx_number` varchar(50) DEFAULT NULL,
+  `dx_identifier` varchar(50) DEFAULT NULL,
+  `primary_number` int(11) DEFAULT NULL,
   `dx_method` varchar(20) DEFAULT NULL,
-  `dx_nature` varchar(20) DEFAULT NULL,
+  `dx_nature` varchar(50) DEFAULT NULL,
   `dx_origin` varchar(50) DEFAULT NULL,
   `dx_date` date DEFAULT NULL,
-  `icd10_id` varchar(10) DEFAULT NULL,
+  `dx_date_accuracy` varchar(50) default NULL,
+  `primary_icd10_code` varchar(10) DEFAULT NULL,
+  `previous_primary_code` varchar(10) DEFAULT NULL,
+  `previous_primary_code_system` varchar(50) DEFAULT NULL,
   `morphology` varchar(50) DEFAULT NULL,
-  `laterality` varchar(50) DEFAULT NULL,
-  `information_source` varchar(30) DEFAULT NULL,
+  `topography` varchar(50) DEFAULT NULL,
+  `tumour_grade` varchar(50) DEFAULT NULL,
   `age_at_dx` int(11) DEFAULT NULL,
-  `age_at_dx_status` varchar(100) DEFAULT NULL,
-  `case_number` int(11) DEFAULT NULL,
-  `clinical_stage` varchar(50) DEFAULT NULL,
-  `collaborative_stage` varchar(50) DEFAULT NULL,
-  `tstage` varchar(5) DEFAULT NULL,
-  `nstage` varchar(5) DEFAULT NULL,
-  `mstage` varchar(5) DEFAULT NULL,
-  `stage_grouping` varchar(5) DEFAULT NULL,
+  `age_at_dx_accuracy` varchar(50) DEFAULT NULL,
+  `ajcc_edition` varchar(50) DEFAULT NULL,
+  `collaborative_staged` varchar(50) DEFAULT NULL,
   `clinical_tstage` varchar(5) DEFAULT NULL,
   `clinical_nstage` varchar(5) DEFAULT NULL,
   `clinical_mstage` varchar(5) DEFAULT NULL,
-  `clinical_stage_grouping` varchar(5) DEFAULT NULL,
+  `clinical_stage_summary` varchar(5) DEFAULT NULL,
   `path_tstage` varchar(5) DEFAULT NULL,
   `path_nstage` varchar(5) DEFAULT NULL,
   `path_mstage` varchar(5) DEFAULT NULL,
-  `path_stage_grouping` varchar(5) DEFAULT NULL,
+  `path_stage_summary` varchar(5) DEFAULT NULL,
+  `survival_time_months` int(11) DEFAULT NULL,
+  `information_source` varchar(50) DEFAULT NULL,
+  `diagnosis_control_id` int(11) NOT NULL DEFAULT '0',
+  `participant_id` int(11) NOT NULL DEFAULT '0',
   `created` datetime DEFAULT NULL,
   `created_by` varchar(50) DEFAULT NULL,
   `modified` datetime DEFAULT NULL,
   `modified_by` varchar(50) DEFAULT NULL,
-  `participant_id` int(11) DEFAULT NULL,
   `deleted` int(11) DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
-  `diagnosis_control_id` int(11) unsigned NOT NULL DEFAULT '0',
-  `type` varchar(6) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   INDEX `participant_id` (`participant_id`),
   INDEX `diagnosis_control_id` (`diagnosis_control_id`)
@@ -1150,15 +1126,16 @@ CREATE TABLE IF NOT EXISTS `diagnosis_masters_revs` (
   `id` int(11) NOT NULL,
   `dx_number` varchar(50) DEFAULT NULL,
   `dx_method` varchar(20) DEFAULT NULL,
-  `dx_nature` varchar(20) DEFAULT NULL,
+  `dx_nature` varchar(50) DEFAULT NULL,
   `dx_origin` varchar(50) DEFAULT NULL,
   `dx_date` date DEFAULT NULL,
-  `icd10_id` varchar(10) DEFAULT NULL,
+  `dx_date_accuracy` varchar(50) default NULL,
+  `primary_icd10_code` varchar(10) DEFAULT NULL,
   `morphology` varchar(50) DEFAULT NULL,
   `laterality` varchar(50) DEFAULT NULL,
   `information_source` varchar(30) DEFAULT NULL,
   `age_at_dx` int(11) DEFAULT NULL,
-  `age_at_dx_status` varchar(100) DEFAULT NULL,
+  `age_at_dx_accuracy` varchar(50) DEFAULT NULL,
   `case_number` int(11) DEFAULT NULL,
   `clinical_stage` varchar(50) DEFAULT NULL,
   `collaborative_stage` varchar(50) DEFAULT NULL,
@@ -1174,25 +1151,87 @@ CREATE TABLE IF NOT EXISTS `diagnosis_masters_revs` (
   `path_nstage` varchar(5) DEFAULT NULL,
   `path_mstage` varchar(5) DEFAULT NULL,
   `path_stage_grouping` varchar(5) DEFAULT NULL,
+  `type` varchar(6) NOT NULL DEFAULT '',
+  `diagnosis_control_id` int(11) NOT NULL DEFAULT '0',
   `created` datetime DEFAULT NULL,
   `created_by` varchar(50) DEFAULT NULL,
   `modified` datetime DEFAULT NULL,
   `modified_by` varchar(50) DEFAULT NULL,
   `participant_id` int(11) DEFAULT NULL,
+  `deleted` int(11) NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) DEFAULT '0',
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Table structure for table `dxd_bloods`
+--
+
+CREATE TABLE IF NOT EXISTS `dxd_bloods` (
+  `id` int(11) NOT NULL,
+  `diagnosis_master_id` int(11) NOT NULL DEFAULT '0',
+  `created` datetime NOT NULL default '0000-00-00 00:00:00',
+  `created_by` varchar(255) NOT NULL default '',
+  `modified` datetime NOT NULL default '0000-00-00 00:00:00',
+  `modified_by` varchar(255) NOT NULL default '',
+  `deleted` int(11) NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
-  `diagnosis_control_id` int(11) unsigned NOT NULL DEFAULT '0',
-  `type` varchar(6) NOT NULL DEFAULT '',
-  PRIMARY KEY (`version_id`),
-  INDEX `participant_id` (`participant_id`),
-  INDEX `diagnosis_control_id` (`diagnosis_control_id`)
+  PRIMARY KEY (`id`),
+  INDEX `diagnosis_master_id` (`diagnosis_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `dxd_bloods_rev` (
+  `id` int(11) NOT NULL,
+  `diagnosis_master_id` int(11) NOT NULL DEFAULT '0',
+  `created` datetime NOT NULL default '0000-00-00 00:00:00',
+  `created_by` varchar(255) NOT NULL default '',
+  `modified` datetime NOT NULL default '0000-00-00 00:00:00',
+  `modified_by` varchar(255) NOT NULL default '',
+  `deleted` int(11) NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Table structure for table `dxd_solids`
+--
+
+CREATE TABLE IF NOT EXISTS `dxd_solids` (
+  `id` int(11) NOT NULL,
+  `laterality` varchar(50) DEFAULT NULL,
+  `diagnosis_master_id` int(11) unsigned NOT NULL DEFAULT '0',
+  `created` datetime NOT NULL default '0000-00-00 00:00:00',
+  `created_by` varchar(255) NOT NULL default '',
+  `modified` datetime NOT NULL default '0000-00-00 00:00:00',
+  `modified_by` varchar(255) NOT NULL default '',
+  `deleted` int(11) NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `diagnosis_master_id` (`diagnosis_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `dxd_solids_rev` (
+  `id` int(11) NOT NULL,
+  `laterality` varchar(50) DEFAULT NULL,
+  `diagnosis_master_id` int(11) unsigned NOT NULL DEFAULT '0',
+  `created` datetime NOT NULL default '0000-00-00 00:00:00',
+  `created_by` varchar(255) NOT NULL default '',
+  `modified` datetime NOT NULL default '0000-00-00 00:00:00',
+  `modified_by` varchar(255) NOT NULL default '',
+  `deleted` int(11) NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 --
 -- Table structure for table `drugs`
--- 
+--
 
 CREATE TABLE `drugs` (
   `id` int(11) NOT NULL auto_increment,
@@ -1722,18 +1761,18 @@ CREATE TABLE IF NOT EXISTS `event_masters_revs` (
 
 CREATE TABLE `family_histories` (
   `id` int(11) NOT NULL auto_increment,
-  `relation` varchar(20) default NULL,
-  `domain` varchar(20) default NULL,
-  `icd10_id` varchar(5) default NULL,
-  `dx_date` date default NULL,
-  `dx_date_status` char(1) default NULL,
+  `relation` varchar(50) default NULL,
+  `family_domain` varchar(50) default NULL,
+  `primary_icd10_code` varchar(10) DEFAULT NULL,
+  `previous_primary_code` varchar(10) DEFAULT NULL,
+  `previous_primary_code_system` varchar(50) DEFAULT NULL,
   `age_at_dx` smallint(6) default NULL,
-  `age_at_dx_status` varchar(100) default NULL,
+  `age_at_dx_accuracy` varchar(100) default NULL,
+  `participant_id` int(11) default NULL,
   `created` datetime default NULL,
   `created_by` varchar(50) default NULL,
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `participant_id` int(11) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
@@ -1742,24 +1781,23 @@ CREATE TABLE `family_histories` (
 
 CREATE TABLE `family_histories_revs` (
   `id` int(11) NOT NULL,
-  `relation` varchar(20) default NULL,
-  `domain` varchar(20) default NULL,
-  `icd10_id` varchar(5) default NULL,
-  `dx_date` date default NULL,
-  `dx_date_status` char(1) default NULL,
+  `relation` varchar(50) default NULL,
+  `family_domain` varchar(50) default NULL,
+  `primary_icd10_code` varchar(10) DEFAULT NULL,
+  `previous_primary_code` varchar(10) DEFAULT NULL,
+  `previous_primary_code_system` varchar(50) DEFAULT NULL,
   `age_at_dx` smallint(6) default NULL,
-  `age_at_dx_status` varchar(100) default NULL,
+  `age_at_dx_accuracy` varchar(100) default NULL,
+  `participant_id` int(11) default NULL,
   `created` datetime default NULL,
   `created_by` varchar(50) default NULL,
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `participant_id` int(11) default NULL,
-  `version_id` int(11) NOT NULL AUTO_INCREMENT,
-  `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  INDEX `participant_id` (`participant_id`)
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -1803,7 +1841,7 @@ CREATE TABLE `langs` (
 
 -- 
 -- Table structure for table `materials`
--- 
+--
 
 CREATE TABLE `materials` (
   `id` int(11) NOT NULL auto_increment,
@@ -2065,71 +2103,86 @@ CREATE TABLE `pages` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- 
+
+--
+-- Table structure for table `parent_to_derivative_sample_controls`
+--
+
+CREATE TABLE `parent_to_derivative_sample_controls` (
+  `id` int(11) NOT NULL auto_increment,
+  `parent_sample_control_id` int(11) default NULL,
+  `derivative_sample_control_id` int(11) default NULL,
+  `status` varchar(20) default NULL,
+  PRIMARY KEY  (`id`),
+  KEY `parent_sample_control_id` (`parent_sample_control_id`),
+  KEY `derivative_sample_control_id` (`derivative_sample_control_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
 -- Table structure for table `participants`
--- 
+--
 
 CREATE TABLE `participants` (
   `id` int(11) NOT NULL auto_increment,
-  `title` varchar(10) NOT NULL default '',
+  `title` varchar(10) default NULL,
   `first_name` varchar(20) default NULL,
-  `last_name` varchar(20) default NULL,
   `middle_name` varchar(50) default NULL,
+  `last_name` varchar(20) default NULL,
   `date_of_birth` date default NULL,
-  `date_status` char(1) default NULL,
+  `dob_date_accuracy` varchar(50) default NULL,
   `marital_status` varchar(50) default NULL,
   `language_preferred` varchar(30) default NULL,
-  `sex` char(1) default NULL,
-  `race` varchar(30) default NULL,
-  `ethnicity` varchar(30) default NULL,
+  `sex` varchar(20) default NULL,
+  `race` varchar(50) default NULL,
   `vital_status` varchar(50) default NULL,
-  `memo` varchar(200) default NULL,
-  `status` varchar(10) default NULL,
+  `notes` varchar(200) default NULL,
   `date_of_death` date default NULL,
-  `death_certificate_ident` varchar(20) NOT NULL default '',
-  `icd10_id` varchar(50) default NULL,
-  `confirmation_source` varchar(50) NOT NULL default '',
-  `tb_number` varchar(50) default NULL,
+  `dod_date_accuracy` varchar(50) default NULL,
+  `cod_icd10_code` varchar(50) default NULL,
+  `secondary_cod_icd10_code` varchar(50) default NULL,
+  `cod_confirmation_source` varchar(50) default NULL,
+  `participant_identifier` varchar(50) default NULL,
   `last_chart_checked_date` date default NULL,
-  `created` datetime default NULL,
-  `created_by` varchar(50) default NULL,
-  `modified` datetime default NULL,
-  `modified_by` varchar(50) default NULL,
+  `created` datetime NOT NULL default '0000-00-00 00:00:00',
+  `created_by` varchar(255) NOT NULL default '',
+  `modified` datetime NOT NULL default '0000-00-00 00:00:00',
+  `modified_by` varchar(255) NOT NULL default '',
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY  (`id`),
+  INDEX `participant_identifier` (`participant_identifier`),
+  UNIQUE `unique_participant_identifier` (`participant_identifier`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `participants_revs` (
   `id` int(11) NOT NULL,
-  `title` varchar(10) NOT NULL default '',
+  `title` varchar(10) default NULL,
   `first_name` varchar(20) default NULL,
-  `last_name` varchar(20) default NULL,
   `middle_name` varchar(50) default NULL,
+  `last_name` varchar(20) default NULL,
   `date_of_birth` date default NULL,
-  `date_status` char(1) default NULL,
+  `dob_date_accuracy` varchar(50) default NULL,
   `marital_status` varchar(50) default NULL,
   `language_preferred` varchar(30) default NULL,
-  `sex` char(1) default NULL,
-  `race` varchar(30) default NULL,
-  `ethnicity` varchar(30) default NULL,
+  `sex` varchar(20) default NULL,
+  `race` varchar(50) default NULL,
   `vital_status` varchar(50) default NULL,
-  `memo` varchar(200) default NULL,
-  `status` varchar(10) default NULL,
+  `notes` varchar(200) default NULL,
   `date_of_death` date default NULL,
-  `death_certificate_ident` varchar(20) NOT NULL default '',
-  `icd10_id` varchar(50) default NULL,
-  `confirmation_source` varchar(50) NOT NULL default '',
-  `tb_number` varchar(50) default NULL,
+  `dod_date_accuracy` varchar(50) default NULL,
+  `cod_icd10_code` varchar(50) default NULL,
+  `secondary_cod_icd10_code` varchar(50) default NULL,
+  `cod_confirmation_source` varchar(50) default NULL,
+  `participant_identifier` varchar(50) default NULL,
   `last_chart_checked_date` date default NULL,
-  `created` datetime default NULL,
-  `created_by` varchar(50) default NULL,
-  `modified` datetime default NULL,
-  `modified_by` varchar(50) default NULL,
-  `version_id` int(11) NOT NULL AUTO_INCREMENT,
-  `version_created` datetime NOT NULL,
+  `created` datetime NOT NULL default '0000-00-00 00:00:00',
+  `created_by` varchar(255) NOT NULL default '',
+  `modified` datetime NOT NULL default '0000-00-00 00:00:00',
+  `modified_by` varchar(255) NOT NULL default '',
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
@@ -2452,7 +2505,7 @@ CREATE TABLE `protocol_masters_revs` (
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
--- 
+--
 -- Table structure for table `providers`
 -- 
 
@@ -2957,37 +3010,33 @@ CREATE TABLE `realiquotings_revs` (
 CREATE TABLE `reproductive_histories` (
   `id` int(11) NOT NULL auto_increment,
   `date_captured` date default NULL,
-  `menopause_status` varchar(20) default NULL,
+  `menopause_status` varchar(50) default NULL,
+  `menopause_onset_reason` varchar(50) default NULL,
   `age_at_menopause` int(11) default NULL,
-  `menopause_age_certainty` varchar(50) default NULL,
-  `hrt_years_on` int(11) default NULL,
+  `menopause_age_accuracy` varchar(50) default NULL,
+  `age_at_menarche` int(11) default NULL,
+  `age_at_menarche_accuracy` varchar(50) default NULL,
+  `hrt_years_used` int(11) default NULL,
   `hrt_use` varchar(50) default NULL,
   `hysterectomy_age` int(11) default NULL,
-  `hysterectomy_age_certainty` varchar(50) default NULL,
+  `hysterectomy_age_accuracy` varchar(50) default NULL,
   `hysterectomy` varchar(50) default NULL,
-  `first_ovary_out_age` int(11) default NULL,
-  `first_ovary_certainty` varchar(50) default NULL,
-  `second_ovary_out_age` int(11) default NULL,
-  `second_ovary_certainty` varchar(50) default NULL,
-  `first_ovary_out` varchar(50) default NULL,
-  `second_ovary_out` varchar(50) default NULL,
+  `ovary_removed_type` varchar(50) default NULL,
   `gravida` int(11) default NULL,
   `para` int(11) default NULL,
   `age_at_first_parturition` int(11) default NULL,
-  `first_parturition_certainty` varchar(50) default NULL,
+  `first_parturition_accuracy` varchar(50) default NULL,
   `age_at_last_parturition` int(11) default NULL,
-  `last_parturition_certainty` varchar(50) default NULL,
-  `age_at_menarche` int(11) default NULL,
-  `age_at_menarche_certainty` varchar(50) default NULL,
-  `oralcontraceptive_use` varchar(50) default NULL,
-  `years_on_oralcontraceptives` int(11) default NULL,
+  `last_parturition_accuracy` varchar(50) default NULL,
+  `hormonal_contraceptive_use` varchar(50) default NULL,
+  `years_on_hormonal_contraceptives` int(11) default NULL,
   `lnmp_date` date default NULL,
-  `lnmp_certainty` varchar(50) default NULL,
+  `lnmp_accuracy` varchar(50) default NULL,
+  `participant_id` int(11) default NULL,
   `created` date NOT NULL default '0000-00-00',
   `created_by` varchar(50) NOT NULL default '',
   `modified` date NOT NULL default '0000-00-00',
   `modified_by` varchar(50) NOT NULL default '',
-  `participant_id` int(11) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
@@ -2995,45 +3044,40 @@ CREATE TABLE `reproductive_histories` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `reproductive_histories_revs` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL auto_increment,
   `date_captured` date default NULL,
-  `menopause_status` varchar(20) default NULL,
+  `menopause_status` varchar(50) default NULL,
+  `menopause_onset_reason` varchar(50) default NULL,
   `age_at_menopause` int(11) default NULL,
-  `menopause_age_certainty` varchar(50) default NULL,
-  `hrt_years_on` int(11) default NULL,
+  `menopause_age_accuracy` varchar(50) default NULL,
+  `age_at_menarche` int(11) default NULL,
+  `age_at_menarche_accuracy` varchar(50) default NULL,
+  `hrt_years_used` int(11) default NULL,
   `hrt_use` varchar(50) default NULL,
   `hysterectomy_age` int(11) default NULL,
-  `hysterectomy_age_certainty` varchar(50) default NULL,
+  `hysterectomy_age_accuracy` varchar(50) default NULL,
   `hysterectomy` varchar(50) default NULL,
-  `first_ovary_out_age` int(11) default NULL,
-  `first_ovary_certainty` varchar(50) default NULL,
-  `second_ovary_out_age` int(11) default NULL,
-  `second_ovary_certainty` varchar(50) default NULL,
-  `first_ovary_out` varchar(50) default NULL,
-  `second_ovary_out` varchar(50) default NULL,
+  `ovary_removed_type` varchar(50) default NULL,
   `gravida` int(11) default NULL,
   `para` int(11) default NULL,
   `age_at_first_parturition` int(11) default NULL,
-  `first_parturition_certainty` varchar(50) default NULL,
+  `first_parturition_accuracy` varchar(50) default NULL,
   `age_at_last_parturition` int(11) default NULL,
-  `last_parturition_certainty` varchar(50) default NULL,
-  `age_at_menarche` int(11) default NULL,
-  `age_at_menarche_certainty` varchar(50) default NULL,
-  `oralcontraceptive_use` varchar(50) default NULL,
-  `years_on_oralcontraceptives` int(11) default NULL,
+  `last_parturition_accuracy` varchar(50) default NULL,
+  `hormonal_contraceptive_use` varchar(50) default NULL,
+  `years_on_hormonal_contraceptives` int(11) default NULL,
   `lnmp_date` date default NULL,
-  `lnmp_certainty` varchar(50) default NULL,
+  `lnmp_accuracy` varchar(50) default NULL,
+  `participant_id` int(11) default NULL,
   `created` date NOT NULL default '0000-00-00',
   `created_by` varchar(50) NOT NULL default '',
   `modified` date NOT NULL default '0000-00-00',
   `modified_by` varchar(50) NOT NULL default '',
-  `participant_id` int(11) default NULL,
+  `deleted` int(11) default 0,
+  `deleted_date` datetime default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
-  `deleted_date` datetime NULL,
-  PRIMARY KEY  (`version_id`),
-  INDEX `participant_id` (`participant_id`)
+  PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -3507,7 +3551,7 @@ CREATE TABLE `sd_der_amp_dnas` (
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`id`),
   KEY `sample_master_id` (`sample_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
 
 CREATE TABLE `sd_der_amp_dnas_revs` (
   `id` int(11) NOT NULL,
@@ -4708,7 +4752,7 @@ CREATE TABLE `std_fridges_revs` (
   KEY `storage_master_id` (`storage_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
--- 
+--
 -- Table structure for table `std_freezers`
 --
 
@@ -4872,7 +4916,7 @@ CREATE TABLE `std_incubators_revs` (
   KEY `storage_master_id` (`storage_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
--- 
+--
 -- Table structure for table `std_rooms`
 -- 
 
@@ -5338,7 +5382,7 @@ CREATE TABLE `study_contacts_revs` (
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
--- 
+--
 -- Table structure for table `study_ethicsboards`
 --
 
@@ -5408,7 +5452,7 @@ CREATE TABLE `study_ethics_boards_revs` (
 
 --
 -- Table structure for table `study_fundings`
--- 
+--
 
 CREATE TABLE `study_fundings` (
   `id` int(11) NOT NULL auto_increment,
@@ -6130,11 +6174,14 @@ CREATE TABLE IF NOT EXISTS `tx_masters` (
   `tx_group` varchar(50) DEFAULT NULL,
   `disease_site` varchar(50) DEFAULT NULL,
   `tx_intent` varchar(50) DEFAULT NULL,
+  `target_site_icdo` varchar(50) DEFAULT NULL,
   `start_date` date DEFAULT NULL,
+  `start_date_accuracy` varchar(50) default NULL,
   `finish_date` date DEFAULT NULL,
-  `source` varchar(50) DEFAULT NULL,
+  `finish_date_accuracy` varchar(50) default NULL,
+  `information_source` varchar(50) DEFAULT NULL,
   `facility` varchar(50) DEFAULT NULL,
-  `summary` text,
+  `notes` text,
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `created_by` varchar(50) NOT NULL DEFAULT '',
   `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
@@ -6153,12 +6200,17 @@ CREATE TABLE IF NOT EXISTS `tx_masters` (
 CREATE TABLE IF NOT EXISTS `tx_masters_revs` (
   `id` int(11) NOT NULL,
   `treatment_control_id` int(11) NOT NULL DEFAULT '0',
+  `tx_group` varchar(50) DEFAULT NULL,
+  `disease_site` varchar(50) DEFAULT NULL,
   `tx_intent` varchar(50) DEFAULT NULL,
+  `target_site_icdo` varchar(50) DEFAULT NULL,
   `start_date` date DEFAULT NULL,
+  `start_date_accuracy` varchar(50) default NULL,
   `finish_date` date DEFAULT NULL,
-  `source` varchar(50) DEFAULT NULL,
+  `finish_date_accuracy` varchar(50) default NULL,
+  `information_source` varchar(50) DEFAULT NULL,
   `facility` varchar(50) DEFAULT NULL,
-  `summary` text,
+  `notes` text,
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `created_by` varchar(50) NOT NULL DEFAULT '',
   `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
@@ -6166,14 +6218,11 @@ CREATE TABLE IF NOT EXISTS `tx_masters_revs` (
   `protocol_id` int(11) DEFAULT NULL,
   `participant_id` int(11) DEFAULT NULL,
   `diagnosis_master_id` int(11) DEFAULT NULL,
-  `version_id` int(11) NOT NULL AUTO_INCREMENT,
-  `version_created` datetime NOT NULL,
   `deleted` int(11) DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
-  PRIMARY KEY (`version_id`),
-  INDEX `participant_id` (`participant_id`),
-  INDEX `diagnosis_id` (`diagnosis_master_id`),
-  INDEX `treatment_control_id` (`treatment_control_id`)
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -6288,11 +6337,11 @@ ALTER TABLE `consent_masters`
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
 
--- ALTER TABLE `consent_masters`
---  ADD CONSTRAINT `FK_consent_masters_consent_controls`
---  FOREIGN KEY (`consent_control_id`) REFERENCES `consent_controls` (`id`)
---  ON DELETE RESTRICT
---  ON UPDATE RESTRICT;
+ALTER TABLE `consent_masters`
+  ADD CONSTRAINT `FK_consent_masters_consent_controls`
+  FOREIGN KEY (`consent_control_id`) REFERENCES `consent_controls` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
 
 ALTER TABLE `diagnosis_masters`
   ADD CONSTRAINT `FK_diagnosis_masters_participant`
@@ -6300,11 +6349,11 @@ ALTER TABLE `diagnosis_masters`
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
 
--- ALTER TABLE `diagnosis_masters`
---  ADD CONSTRAINT `FK_diagnosis_masters_diagnosis_controls`
---  FOREIGN KEY (`diagnosis_control_id`) REFERENCES `diagnosis_controls` (`id`)
---  ON DELETE RESTRICT
---  ON UPDATE RESTRICT;
+ALTER TABLE `diagnosis_masters`
+  ADD CONSTRAINT `FK_diagnosis_masters_diagnosis_controls`
+  FOREIGN KEY (`diagnosis_control_id`) REFERENCES `diagnosis_controls` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
 
 ALTER TABLE `event_masters`
   ADD CONSTRAINT `FK_event_masters_participant`
