@@ -1,7 +1,7 @@
 <?php
 
-class InventorymanagementAppModel extends AppModel
-{
+class InventorymanagementAppModel extends AppModel {
+	
 }
 
 ?>
