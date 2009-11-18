@@ -823,7 +823,7 @@ unset($this->data['AliquotMaster']);
 		}
 	}
 	
-	function deleteAliquotUse($collection_id, $sample_master_id, $aliquot_master_id, $aliquot_use_id) {
+	function deleteAliquotUse($collection_id, $sample_master_id, $aliquot_master_id, $aliquot_use_id, $redirect = null) {
 		if((!$collection_id) || (!$sample_master_id) || (!$aliquot_master_id) || (!$aliquot_use_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }
 
 //TODO redirect all delete to this function...				
@@ -835,8 +835,11 @@ unset($this->data['AliquotMaster']);
 		if(empty($use_data)) { $this->redirect('/pages/err_inv_aliq_use_no_data', null, true); }		
 		
 		// Set url to display next page
-		$flash_url = '/inventorymanagement/aliquot_masters/listAllAliquotUses/' . $collection_id . '/' . $sample_master_id . '/' . $aliquot_master_id;
-		
+		if($redirect == 1){
+			$flash_url = '/inventorymanagement/aliquot_masters/listAllRealiquotedParents/' . $collection_id . '/' . $sample_master_id . '/' . $aliquot_master_id;
+		}else{
+			$flash_url = '/inventorymanagement/aliquot_masters/listAllAliquotUses/' . $collection_id . '/' . $sample_master_id . '/' . $aliquot_master_id;
+		}
 		// Set Use Detail table
 		$accepted_use_detail_table = array('quality_ctrl_tested_aliquots', 'source_aliquots');
 		$this->AliquotUseDetail = null;
@@ -1112,7 +1115,6 @@ unset($this->data['AliquotMaster']);
 		$aliquot_data = array_values($aliquot_data);
 		$this->set( 'atim_structure_aliquot', $this->Structures->get( 'form', 'aliquot_children_linking' ) );
 		$this->set('atim_datetime_input',  $this->Structures->get('form', 'datetime_input'));
-//		pr($aliquot_data);
 		$aliquot_id_by_barcode = array();
 		foreach($aliquot_data as $aliquot_unit){
 			$aliquot_id_by_barcode[$aliquot_unit['AliquotMaster']['barcode']] = $aliquot_unit['AliquotMaster']['id']; 
@@ -1120,12 +1122,12 @@ unset($this->data['AliquotMaster']);
 		
 		if(!empty($this->data)){
 			$date = $this->data['FunctionManagement']['realiquoting_date'];
-			$date = $date['year']."-".$date['month']."-".$date['day']." ".$date['hour'].":".$date['minute']." ".$date['meridian'];
+			//$date = $date['year']."-".$date['month']."-".$date['day']." ".$date['hour'].":".$date['minute']." ".$date['meridian'];
 			unset($this->data['FunctionManagement']);
 			
-			foreach($this->data as $realiquoted){
-				if($realiquoted['FunctionManagement']['use']){
-					$aliquot_use['AliquotUse']['aliquot_master_id'] = $aliquot_id_by_barcode[$realiquoted['AliquotMaster']['barcode']];
+			foreach($this->data as $key => $realiquoted){
+				if($realiquoted['FunctionManagement']['use'] && isset($aliquot_id_by_barcode[$realiquoted['AliquotMaster']['barcode']])){
+					$aliquot_use['AliquotUse']['aliquot_master_id'] = $aliquot_master_id;
 					$aliquot_use['AliquotUse']['use_definition'] = "realiquoted to";
 					$aliquot_use['AliquotUse']['use_details'] = "";
 					$aliquot_use['AliquotUse']['use_code'] = $realiquoted['AliquotMaster']['barcode'];//child barcode
@@ -1140,15 +1142,16 @@ unset($this->data['AliquotMaster']);
 					$realiquoting['Realiquoting']['parent_aliquot_master_id'] = $aliquot_master_id;
 					$realiquoting['Realiquoting']['child_aliquot_master_id'] = $aliquot_id_by_barcode[$realiquoted['AliquotMaster']['barcode']];
 					$realiquoting['Realiquoting']['aliquot_use_id'] = $this->AliquotUse->id;
-					$realiquoting['Realiquoting']['realiquoted_by'] = "";
-					$realiquoting['Realiquoting']['realiquoted_datetime'] = $date;
 					$this->Realiquoting->save($realiquoting);
 					
 					$this->Aliquots->updateAliquotCurrentVolume($current_aliquot_data['AliquotMaster']['id']);
+					unset($this->data[$key]);
 				}
 			}
+			$this->data = array_values($this->data);
+		}else{
+			$this->data = $aliquot_data;
 		}
-		$this->data = $aliquot_data;
 	}
 	
 	
@@ -1157,226 +1160,28 @@ unset($this->data['AliquotMaster']);
 	
 	
 	
-	function listRealiquotedParents($specimen_group_menu_id=null, $group_specimen_type=null, $sample_category=null,	
-	$collection_id=null, $aliquot_master_id=null) {
+	function listAllRealiquotedParents($collection_id, $sample_master_id, $aliquot_master_id) {
+		if((!$collection_id) || (!$sample_master_id) || (!$aliquot_master_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }
+		// MANAGE DATA
+		// Get the aliquot data
+		$current_aliquot_data = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id, 'AliquotMaster.id' => $aliquot_master_id)));
+		
+		if(empty($current_aliquot_data)) { $this->redirect('/pages/err_inv_aliquot_no_data', null, true); }		
 
-		// ** Parameters check **
-		// Verify parameters have been set
-		if(empty($specimen_group_menu_id) || empty($group_specimen_type) || 
-		empty($sample_category) || empty($collection_id) || empty($aliquot_master_id)) {
-			$this->redirect('/pages/err_inv_funct_param_missing'); 
-			exit;
+		$this->set('atim_menu_variables', array('Collection.id' => $collection_id,
+												'SampleMaster.id' => $sample_master_id,
+												'AliquotMaster.id' => $aliquot_master_id,
+												'SampleMaster.initial_specimen_sample_id' => $current_aliquot_data['SampleMaster']['initial_specimen_sample_id'],
+												'AliquotMasterParent.id' => 'coco'));
+		
+		$this->set('atim_structure', $this->Structures->get('form', 'realiquotedparent'));
+		
+		$this->data = $this->paginate($this->Realiquoting, "Realiquoting.child_aliquot_master_id = '".$aliquot_master_id."'");
+
+		foreach($this->data as &$val){
+			$val['AliquotMaster'] = $val['AliquotMasterParent'];
 		}
 		
-		// ** Look for Aliquot Data **
-		$criteria = array();
-		$criteria['AliquotMaster.id'] = $aliquot_master_id;
-		$criteria['AliquotMaster.collection_id'] = $collection_id;
-		$criteria = array_filter($criteria);
-		
-		$aliquot_master_data = $this->AliquotMaster->find($criteria, null, null, 0);
-
-		if(empty($aliquot_master_data)){
-			$this->redirect('/pages/err_inv_aliquot_no_data'); 
-			exit;
-		}
-				
-		//** Get the aliquot sample master data **
-		
-		$sample_master_id = $aliquot_master_data['AliquotMaster']['sample_master_id'];
-		
-		$criteria = array();
-		$criteria['SampleMaster.id'] = $sample_master_id;
-		$criteria['SampleMaster.collection_id'] = $collection_id;
-		$criteria = array_filter($criteria);
-	
-		$sample_master_data = $this->SampleMaster->find($criteria, null, null, 0);
-		
-		if(empty($sample_master_data)){
-			$this->redirect('/pages/err_inv_samp_no_data'); 
-			exit;
-		}
-		
-		// ** Set SIDEBAR variable **
-		// Use PLUGIN_CONTROLLER_ACTION by default, 
-		// but any ALIAS string that matches in the SIDEBARS datatable will do...
-		$this->set('ctrapp_sidebar', 
-			$this->Sidebars->getColsArray(
-				$this->params['plugin'] . '_'.
-				$this->params['controller'] . '_'.
-				$this->params['action']));
-														
-		// ** Set SUMMARY variable from plugin's COMPONENTS **
-		$this->set('ctrapp_summary', $this->Summaries->build($collection_id, $sample_master_id, $aliquot_master_id));
-															
-		// ** Set FORM variable **
-		$this->set('ctrapp_form', $this->Forms->getFormArray('realiquoted_parent_list'));
-
-		// ** Set FORM data for echo on view **
-		$this->set('aliquot_barcode', $aliquot_master_data['AliquotMaster']['barcode']);
-//		$this->set('sample_code', $sample_master_data['SampleMaster']['sample_code']);
-
-		$this->set('specimen_group_menu_id', $specimen_group_menu_id);
-		$this->set('group_specimen_type', $group_specimen_type);
-		$this->set('sample_category', $sample_category);
-		
-		$this->set('collection_id', $collection_id);
-		$this->set('aliquot_master_id', $aliquot_master_id);
-				
-		// ** Set MENU variable for echo on VIEW **
-		$ctrapp_menu[] = $this->Menus->tabs('inv_CAN_00', 'inv_CAN_10', $collection_id);
-		$ctrapp_menu[] = $this->Menus->tabs('inv_CAN_10', $specimen_group_menu_id, $collection_id);
-		
-		$specimen_grp_menu_lists = $this->getSpecimenGroupMenu($specimen_group_menu_id);
-		
-		switch($sample_category) {
-			case "specimen":
-				$specimen_sample_master_id=$sample_master_id;
-				
-				$specimen_menu_id = $specimen_group_menu_id . '-sa_al';
-				$aliquot_menu_id = $specimen_group_menu_id . '-sa_al_re';
-				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $specimen_menu_id, $specimen_group_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id . '/' . $specimen_sample_master_id);	
-				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $aliquot_menu_id, $specimen_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $aliquot_menu_id, $collection_id . '/' . $aliquot_master_id);	
-				break;
-				
-			case "derivative":
-				$specimen_sample_master_id=$sample_master_data['SampleMaster']['initial_specimen_sample_id'];
-				$derivative_sample_master_id=$sample_master_id;		
-				
-				$specimen_menu_id = $specimen_group_menu_id . '-sa_der';
-				$derivative_menu_id = $specimen_group_menu_id . '-der_al';
-				$aliquot_menu_id = $specimen_group_menu_id . '-der_al_re';
-				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $specimen_menu_id, $specimen_group_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_group_menu_id, $specimen_menu_id, $collection_id . '/' . $specimen_sample_master_id);	
-				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $derivative_menu_id, $specimen_menu_id);
-				$ctrapp_menu[] = $this->Menus->tabs($specimen_menu_id, $derivative_menu_id, $collection_id . '/' . $derivative_sample_master_id . '/');	
-				$this->validateSpecimenGroupMenu($specimen_grp_menu_lists, $aliquot_menu_id, $derivative_menu_id);							
-				$ctrapp_menu[] = $this->Menus->tabs($derivative_menu_id, $aliquot_menu_id, $collection_id . '/' . $aliquot_master_id);	
-				break;
-			
-			default:
-				$this->redirect('/pages/err_inv_menu_definition'); 
-				exit;
-		}
-		
-		$this->set('ctrapp_menu', $ctrapp_menu);
-
-		// ** Search aliquot data to display in the list **
-			
-		// Search parent aliquots that have been realiquoted to create the new aliquot
-	
-		$criteria = array();
-		$criteria['child_aliquot_master_id'] = $aliquot_master_id;
-
-		$realiquoting_data = 
-			$this->Realiquoting->generateList(
-				$criteria, 
-				null, 
-				null, 
-				'{n}.Realiquoting.parent_aliquot_master_id', 
-				'{n}.Realiquoting');
-		
-		$use_id_from_realiquoted_parent_id = array();		
-		if(!empty($realiquoting_data)){
-			foreach($realiquoting_data as $par_aliqu_master_id => $studied_record) {
-				$use_id_from_realiquoted_parent_id[$par_aliqu_master_id] = $studied_record['aliquot_use_id'];
-			}
-		}
-											
-		// Build array of data to display
-		$realiquoted_parents = array();
-		
-		if(!empty($use_id_from_realiquoted_parent_id)){
-						
-			// Search realiquoted parent used volumes
-			$criteria = array();
-			$criteria['AliquotUse.id'] = array_values($use_id_from_realiquoted_parent_id);
-			
-			$use_vol_from_realiquoted_parent_id 
-				= $this->AliquotUse->generateList(
-					$criteria, 
-					null, 
-					null, 
-					'{n}.AliquotUse.aliquot_master_id', 
-					'{n}.AliquotUse.used_volume');
-			
-			if(empty($use_vol_from_realiquoted_parent_id) 
-			|| (sizeof($use_vol_from_realiquoted_parent_id) != sizeof($use_id_from_realiquoted_parent_id))){
-				// It looks like at least one record defined in ParentAliquot has not
-				// its attached data into AliquotUse	
-				$this->redirect('/pages/err_inv_system_error'); 
-				exit;		
-			}				
-			
-			// Search realiquoted aliquots data
-			$criteria = array();
-			$criteria['AliquotMaster.id'] = array_keys($use_id_from_realiquoted_parent_id);
-			$criteria = array_filter($criteria);
-			
-			list($order, $limit, $page) = $this->Pagination->init($criteria);
-			$realiquoted_parents = $this->AliquotMaster->findAll($criteria, null, $order, $limit, $page, 0);
-
-			// For each source aliquot, set different information
-			foreach($realiquoted_parents as $id_ct => $new_realiquoted_parent){
-				// Set AliquotUse.used_volume
-				if(isset($use_vol_from_realiquoted_parent_id[$new_realiquoted_parent['AliquotMaster']['id']])){
-					$realiquoted_parents[$id_ct]['AliquotUse']['used_volume'] = 
-						$use_vol_from_realiquoted_parent_id[$new_realiquoted_parent['AliquotMaster']['id']];
-				}
-				// Set Realiquoting.realiquoted_by
-				if(isset($realiquoting_data[$new_realiquoted_parent['AliquotMaster']['id']])){
-					$realiquoted_parents[$id_ct]['Realiquoting']['realiquoted_by'] = 
-						$realiquoting_data[$new_realiquoted_parent['AliquotMaster']['id']]['realiquoted_by'];
-				}
-				// Set Realiquoting.realiquoted_datetime
-				if(isset($realiquoting_data[$new_realiquoted_parent['AliquotMaster']['id']])){
-					$realiquoted_parents[$id_ct]['Realiquoting']['realiquoted_datetime'] = 
-						$realiquoting_data[$new_realiquoted_parent['AliquotMaster']['id']]['realiquoted_datetime'];
-				}
-							
-			}
-		}
-		
-		$this->set('realiquoted_parents', $realiquoted_parents);
-		
-		// ** Verify if additional sample aliquots could be added to the list of realiquoted parents **
-		
-		$bool_av_realiquotable_aliquots = false;
-		
-		if(sizeof($realiquoted_parents) == 0) {
-			// Note: We consider that only one realiquoted parent can be defined
-			
-			$criteria= 'AliquotMaster.sample_master_id = ' . $sample_master_id;
-			$criteria.= ' AND AliquotMaster.status = \'available\'';
-			$criteria.= ' AND AliquotMaster.id NOT IN (\'' . $aliquot_master_id . '\'';
-			if(!empty($use_id_from_realiquoted_parent_id)) {
-				// Aliquot have already be defined as parent
-				$criteria.= ', \''.implode('\',\'', array_keys($use_id_from_realiquoted_parent_id)) . '\'';
-			}
-			$criteria.= ')';
-			
-			$av_realiquotable_aliquots = 
-				$this->AliquotMaster->findCount($criteria);
-					
-			if($av_realiquotable_aliquots > 0){
-				$bool_av_realiquotable_aliquots = true;
-			}
-		}
-										
-		$this->set('bool_av_realiquotable_aliquots', $bool_av_realiquotable_aliquots);
-		
-		// look for CUSTOM HOOKS, "format"
-		$custom_ctrapp_controller_hook 
-			= APP . 'plugins' . DS . $this->params['plugin'] . DS . 
-			'controllers' . DS . 'hooks' . DS . 
-			$this->params['controller'] . '_' . $this->params['action'] . '_format.php';
-		
-		if (file_exists($custom_ctrapp_controller_hook)) {
-			require($custom_ctrapp_controller_hook);
-		}
-
 	} // listRealiquotedParent
 	
 	function addRealiquotedParentInBatch($specimen_group_menu_id=null, $group_specimen_type=null, $sample_category=null,	

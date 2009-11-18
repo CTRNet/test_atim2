@@ -521,6 +521,28 @@ INSERT INTO `structure_formats` (`old_id`, `structure_id`, `structure_old_id`, `
 ('CANM-00011_CANM-00013', @structure_last_id, 'CANM-00011', @sfields_last_id, 'CANM-00013', '2', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('CANM-00011_CAN-999-999-000-999-1131', @structure_last_id, 'CANM-00011', '248', 'CAN-999-999-000-999-1131', '2', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('CANM-00015_CANM-00014', @structure_last_id + 1, 'CANM-00015', @sfields_last_id + 1, 'CANM-00014', '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+ALTER TABLE `realiquotings`
+  DROP `realiquoted_by`,
+  DROP `realiquoted_datetime`;
+  
+ALTER TABLE `realiquotings` ADD UNIQUE `parent_child_combo` ( `parent_aliquot_master_id` , `child_aliquot_master_id` );
+
+UPDATE `menus` SET `language_title` = 'listall realiquoted parent', use_link='/inventorymanagement/aliquot_masters/listAllRealiquotedParents/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%/%%AliquotMaster.id%%' WHERE `menus`.`id` = 'inv_CAN_22233' OR `menus`.`id` = 'inv_CAN_2233';
+
+
+INSERT INTO `structures` (`old_id`, `alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+('CANM-00016', 'realiquotedparent', '', '', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+SET @last_structure_id = LAST_INSERT_ID();
+
+INSERT INTO `structure_formats` (`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+('CANM-00016_CAN-999-999-000-999-1153', @last_structure_id, 'CANM-00016', 266, 'CAN-999-999-000-999-1153', 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CANM-00016_CAN-999-999-000-999-1155', @last_structure_id, 'CANM-00016', 248, 'CAN-999-999-000-999-1131', 0, 4, '', '1', 'volume unit', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CANM-00016_CAN-999-999-000-999-1162', @last_structure_id, 'CANM-00016', 276, 'CAN-999-999-000-999-1162', 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CANM-00016_CAN-999-999-000-999-1277', @last_structure_id, 'CANM-00016', 881, 'CAN-999-999-000-999-1277', 0, 1, '', '1', 'barcode', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CANM-00016_CAN-999-999-000-999-1266', @last_structure_id, 'CANM-00016', 380, 'CAN-999-999-000-999-1266', 0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
 -- ------------------------------------------------------------
 
 UPDATE `structure_fields` SET `field` = 'product_code'
