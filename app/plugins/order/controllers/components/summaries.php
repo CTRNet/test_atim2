@@ -11,7 +11,7 @@ class SummariesComponent extends Object {
 	}
 	
 	// Build Tab Levels
-	function build( $order_id=NULL ) {
+	function build( $order_id=null ) {
 		
 		// set display vars 
 		$display_summary = array();
