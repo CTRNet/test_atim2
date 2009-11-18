@@ -324,31 +324,6 @@ class QualityCtrlsController extends InventoryManagementAppController {
 		}
 	}
 	
-	function deleteTestedAliquot($collection_id, $sample_master_id, $quality_ctrl_id, $tested_aliquot_id) {
-		if((!$collection_id) || (!$sample_master_id) || (!$quality_ctrl_id) || (!$tested_aliquot_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }		
-		
-		// Get the tested aliquot data
-		$tested_aliquot_data = $this->QualityCtrlTestedAliquot->find('first', array('conditions' => array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id, 'QualityCtrl.id' => $quality_ctrl_id, 'QualityCtrlTestedAliquot.id' => $tested_aliquot_id)));
-		if(empty($tested_aliquot_data)) { $this->redirect('/pages/err_inv_system_error', null, true); }		
-
-		// Launch deletion
-		$deletion_done = true;
-		if(!$this->QualityCtrlTestedAliquot->atim_delete($tested_aliquot_id)) { $deletion_done = false; }
-		if($deletion_done) {
-			if(!$this->AliquotUse->atim_delete($tested_aliquot_data['AliquotUse']['id'])) { $deletion_done = false; }	
-		}
-		if($deletion_done) {
-			if(!$this->Aliquots->updateAliquotCurrentVolume($tested_aliquot_data['AliquotMaster']['id'])) { $deletion_done = false; }
-		}
-
-		if($deletion_done) {
-			//TODO Error in the redirection
-			$this->flash('xxxx message confirmation oubliez pas de status aliquot ', '/inventorymanagement/quality_ctrls/listallTestedAliquots/' . $collection_id . '/' . $sample_master_id . '/' . $quality_ctrl_id . '/'); 
-		} else {
-			$this->flash('Error deleting data - Contact administrator . ', '/inventorymanagement/quality_ctrls/listallTestedAliquots/' . $collection_id . '/' . $sample_master_id . '/' . $quality_ctrl_id . '/'); 
-		}	
-	}	
-	
 	/* --------------------------------------------------------------------------
 	 * ADDITIONAL FUNCTIONS
 	 * -------------------------------------------------------------------------- */
