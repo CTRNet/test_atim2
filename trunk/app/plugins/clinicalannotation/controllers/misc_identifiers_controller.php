@@ -9,6 +9,9 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
+		
+		$this->hook();
+		
 		$this->data = $this->paginate($this->MiscIdentifier, array('MiscIdentifier.participant_id'=>$participant_id));
 	}
 	
@@ -17,6 +20,9 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 		if ( !$misc_identifier_id ) { $this->redirect( '/pages/err_clin-ann_no_misc_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'MiscIdentifier.id'=>$misc_identifier_id) );
+		
+		$this->hook();
+		
 		$this->data = $this->MiscIdentifier->find('first',array('conditions'=>array('MiscIdentifier.id'=>$misc_identifier_id)));
 	}
 	
@@ -25,8 +31,11 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 	
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
 		
+		$this->hook();
+		
 		if ( !empty($this->data) ) {
 			$this->data['MiscIdentifier']['participant_id'] = $participant_id;
+			
 			if ( $this->MiscIdentifier->save($this->data) ) {
 				$this->flash( 'Your data has been updated.','/clinicalannotation/misc_identifiers/detail/'.$participant_id.'/'.$this->MiscIdentifier->id );
 			}
@@ -39,8 +48,11 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 		
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'MiscIdentifier.id'=>$misc_identifier_id) );
 		
+		$this->hook();
+		
 		if ( !empty($this->data) ) {
 			$this->MiscIdentifier->id = $misc_identifier_id;
+	
 			if ( $this->MiscIdentifier->save($this->data) ) {
 				$this->flash( 'Your data has been updated.','/clinicalannotation/misc_identifiers/detail/'.$participant_id.'/'.$misc_identifier_id );
 			}
@@ -52,6 +64,8 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 	function delete( $participant_id=null, $misc_identifier_id=null ) {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		if ( !$misc_identifier_id ) { $this->redirect( '/pages/err_clin-ann_no_misc_id', NULL, TRUE ); }
+		
+		$this->hook();
 		
 		if( $this->MiscIdentifier->atim_delete( $misc_identifier_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/clinicalannotation/misc_identifiers/listall/'.$participant_id );

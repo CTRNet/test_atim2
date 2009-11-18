@@ -34,6 +34,9 @@ class EventMastersController extends ClinicalannotationAppController {
 			
 		
 		$this->set( 'atim_menu_variables', array('EventMaster.event_group'=>$event_group,'Participant.id'=>$participant_id, 'EventControl.id'=>$event_control_id) );
+		
+		$this->hook();
+		
 		$this->data = $this->paginate($this->EventMaster, $_SESSION['MasterDetail_filter']);
 		
 		// find all EVENTCONTROLS, for ADD form
@@ -46,6 +49,9 @@ class EventMastersController extends ClinicalannotationAppController {
 		$this->set( 'atim_menu', $this->Menus->get('/'.$this->params['plugin'].'/'.$this->params['controller'].'/listall/'.$event_group) );
 		
 		$this->set( 'atim_menu_variables', array('EventMaster.event_group'=>$event_group,'Participant.id'=>$participant_id,'EventMaster.id'=>$event_master_id) );
+		
+		$this->hook();
+		
 		$this->data = $this->EventMaster->find('first',array('conditions'=>array('EventMaster.id'=>$event_master_id)));
 		
 		// set FORM ALIAS based off VALUE from MASTER table
@@ -65,6 +71,8 @@ class EventMastersController extends ClinicalannotationAppController {
 		
 		// set FORM ALIAS based off VALUE from CONTROL table
 		$this->set( 'atim_structure', $this->Structures->get('form',$this_data['EventControl']['form_alias']) );
+		
+		$this->hook();
 		
 		if ( !empty($this->data) ) {
 			
@@ -96,8 +104,11 @@ class EventMastersController extends ClinicalannotationAppController {
 		// set FORM ALIAS based off VALUE from MASTER table
 		$this->set( 'atim_structure', $this->Structures->get('form',$this_data['EventControl']['form_alias']) );
 		
+		$this->hook();
+		
 		if ( !empty($this->data) ) {
 			$this->EventMaster->id = $event_master_id;
+
 			if ( $this->EventMaster->save($this->data) ) $this->flash( 'Your data has been updated.','/clinicalannotation/event_masters/detail/'.$event_group.'/'.$participant_id.'/'.$event_master_id);
 		} else {
 			$this->data = $this_data;
@@ -110,6 +121,8 @@ class EventMastersController extends ClinicalannotationAppController {
 			$this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE );
 		}
 
+		$this->hook();
+		
 		// TODO: Update del function call with ATiM delete
 		if( $this->EventMaster->atim_delete( $event_master_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/clinicalannotation/event_masters/listall/'.$event_group.'/'.$participant_id );

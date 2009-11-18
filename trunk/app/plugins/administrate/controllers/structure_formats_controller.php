@@ -9,6 +9,8 @@ class StructureFormatsController extends AdministrateAppController {
 		$this->set( 'atim_structure', $this->Structures->get(NULL,'fields') );
 		$this->set( 'atim_menu_variables', array('Structure.id'=>$structure_id) );
 		
+		$this->hook();
+		
 		$this->data = $this->paginate($this->StructureFormat, array('StructureFormat.structure_id'=>$structure_id));
 	}
 	
@@ -16,12 +18,16 @@ class StructureFormatsController extends AdministrateAppController {
 		$this->set( 'atim_structure', $this->Structures->get(NULL,'fields') );
 		$this->set( 'atim_menu_variables', array('Structure.id'=>$structure_id, 'StructureFormat.id'=>$structure_format_id) );
 		
+		$this->hook();
+		
 		$this->data = $this->StructureFormat->find('first',array('conditions'=>array('StructureFormat.id'=>$structure_format_id)));
 	}
 	
 	function edit( $structure_id, $structure_format_id ) {
 		$this->set( 'atim_structure', $this->Structures->get(NULL,'fields') );
 		$this->set( 'atim_menu_variables', array('Structure.id'=>$structure_id, 'StructureFormat.id'=>$structure_format_id) );
+		
+		$this->hook();
 		
 		if ( !empty($this->data) ) {
 			if ( $this->StructureFormat->save($this->data) ) $this->flash( 'Your data has been updated.','/administrate/structure_formats/detail/'.$structure_id.'/'.$structure_format_id );

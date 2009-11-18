@@ -12,6 +12,9 @@ class OrderItemsController extends OrderAppController {
 		$this->set( 'atim_menu', $this->Menus->get('/order/order_items/listall/%%Order.id%%/%%OrderLine.id%%/'));
 		
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'OrderLine.id'=>$order_line_id));
+		
+		$this->hook();
+		
 		$this->data = $this->paginate($this->OrderItem, array('OrderItem.orderline_id'=>$order_line_id));
 			
 	}
@@ -22,6 +25,8 @@ class OrderItemsController extends OrderAppController {
 		
 		$this->set( 'atim_menu', $this->Menus->get('/order/order_items/listall/%%Order.id%%/%%OrderLine.id%%/'));
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'OrderLine.id'=>$order_line_id));
+		
+		$this->hook();
 		
 		if ( !empty($this->data) ) {
 			$this->data['OrderItem']['orderline_id'] = $order_line_id;
@@ -38,6 +43,8 @@ class OrderItemsController extends OrderAppController {
 		
 		$this->set( 'atim_menu', $this->Menus->get('/order/order_items/listall/%%Order.id%%/%%OrderLine.id%%/'));
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'OrderLine.id'=>$order_line_id, 'OrderItem.id'=>$order_item_id) );
+		
+		$this->hook();
 		
 		if ( !empty($this->data) ) {
 			$this->OrderItem->id = $order_item_id;
@@ -57,6 +64,9 @@ class OrderItemsController extends OrderAppController {
 		$this->set( 'atim_menu', $this->Menus->get('/order/order_items/listall/%%Order.id%%/%%OrderLine.id%%/'));
 		
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'OrderLine.id'=>$order_line_id, 'OrderItem.id'=>$order_item_id) );
+		
+		$this->hook();
+		
 		$this->data = $this->OrderItem->find('first',array('conditions'=>array('OrderItem.id'=>$order_item_id)));
 	}
 	
@@ -74,6 +84,8 @@ class OrderItemsController extends OrderAppController {
 		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', NULL, TRUE ); }
 		if ( !$order_line_id ) { $this->redirect( '/pages/err_ord_no_line_id', NULL, TRUE ); }
 		if ( !$order_item_id ) { $this->redirect( '/pages/err_ord_no_item_id', NULL, TRUE ); }
+		
+		$this->hook();
 		
 		if( $this->OrderItem->atim_delete( $order_item_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/order/order_items/listall/'.$order_id.'/'.$order_line_id );

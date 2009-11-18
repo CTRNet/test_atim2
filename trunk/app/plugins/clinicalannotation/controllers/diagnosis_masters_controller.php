@@ -16,6 +16,9 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
 		$this->set('diagnosis_controls_list', $this->DiagnosisControl->find('all', array('conditions' => array('DiagnosisControl.status' => 'active'))));
+		
+		$this->hook();
+		
 		$this->data = $this->paginate($this->DiagnosisMaster,	array('DiagnosisMaster.participant_id'=>$participant_id));
 		
 		//$storage_data = $this->DiagnosisControl->find('first', array('conditions' => array('DiagnosisControl.id' => 1)));
@@ -26,6 +29,7 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		if ( !$diagnosis_master_id ) { $this->redirect( '/pages/err_clin-ann_no_diagnosis_master_id', NULL, TRUE ); }
 	
+		$this->hook();
 		
 		$storage_data = $this->DiagnosisMaster->find('first',array('conditions'=>array('DiagnosisMaster.id'=>$diagnosis_master_id)));
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'DiagnosisMaster.id'=>$diagnosis_master_id, 'DiagnosisMaster.diagnosis_control_id' => $storage_data['DiagnosisMaster']['diagnosis_control_id']) );
@@ -46,10 +50,13 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		$storage_data = $this->DiagnosisControl->find('first', array('conditions' => array('DiagnosisControl.id' => $table_id)));
 		$this->set('atim_structure', $this->Structures->get('form', $storage_data['DiagnosisControl']['form_alias']));
 
+		$this->hook();
+		
 		if ( !empty($this->data) ) {
 			$this->data['DiagnosisMaster']['participant_id'] = $participant_id;
 			$this->data['DiagnosisMaster']['diagnosis_control_id'] = $table_id;
 			$this->data['DiagnosisMaster']['type'] = $storage_data['DiagnosisControl']['controls_type']; 
+			
 			if ( $this->DiagnosisMaster->save( $this->data )) {
 				$this->flash( 'Your data has been saved.', '/clinicalannotation/diagnosis_masters/detail/'.$participant_id.'/'.$this->DiagnosisMaster->id.'/' );
 			}
@@ -66,8 +73,11 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		$storage_data = $this->DiagnosisControl->find('first', array('conditions' => array('DiagnosisControl.id' => $storage_data['DiagnosisMaster']['diagnosis_control_id'])));
 		$this->set('atim_structure', $this->Structures->get('form', $storage_data['DiagnosisControl']['form_alias']));
 		
+		$this->hook();
+		
 		if ( !empty($this->data) ) {
 			$this->DiagnosisMaster->id = $diagnosis_master_id;
+
 			if ( $this->DiagnosisMaster->save($this->data) ) {
 				$this->flash( 'Your data has been updated.','/clinicalannotation/diagnosis_masters/detail/'.$participant_id.'/'.$diagnosis_master_id );
 			}
@@ -85,6 +95,8 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		//$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'DiagnosisMaster.id'=>$diagnosis_master_id));
 
 		if( $treatment_id == NULL && $event_id == NULL ){
+			$this->hook();
+			
 			if( $this->DiagnosisMaster->atim_delete( $diagnosis_master_id ) ) {
 				$this->flash( 'Your data has been deleted.', '/clinicalannotation/diagnosis_masters/listall/'.$participant_id );
 			} else {

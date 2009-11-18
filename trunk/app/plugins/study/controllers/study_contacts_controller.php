@@ -9,6 +9,9 @@ class StudyContactsController extends StudyAppController {
 		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_no_summary_id', NULL, TRUE ); }
 
 		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id));
+		
+		$this->hook();
+		
 		$this->data = $this->paginate($this->StudyContact, array('StudyContact.study_summary_id'=>$study_summary_id));
 		
 	}
@@ -17,6 +20,8 @@ class StudyContactsController extends StudyAppController {
 		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_no_summary_id', NULL, TRUE ); }
 	
 		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id));
+		
+		$this->hook();
 		
 		if ( !empty($this->data) ) {
 			$this->data['StudyContact']['study_summary_id'] = $study_summary_id;
@@ -31,6 +36,8 @@ class StudyContactsController extends StudyAppController {
 		if ( !$study_contact_id ) { $this->redirect( '/pages/err_study_no_contact_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id, 'StudyContact.id'=>$study_contact_id) );
+		
+		$this->hook();
 		
 		if ( !empty($this->data) ) {
 			$this->StudyContact->id = $study_contact_id;
@@ -47,12 +54,17 @@ class StudyContactsController extends StudyAppController {
 		if ( !$study_contact_id ) { $this->redirect( '/pages/err_study_no_contact_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id, 'StudyContact.id'=>$study_contact_id) );
+		
+		$this->hook();
+		
 		$this->data = $this->StudyContact->find('first',array('conditions'=>array('StudyContact.id'=>$study_contact_id)));
 	}
   
 	function delete( $study_summary_id=null, $study_contact_id=null ) {
 		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_no_summary_id', NULL, TRUE ); }
 		if ( !$study_contact_id ) { $this->redirect( '/pages/err_study_no_contact_id', NULL, TRUE ); }
+		
+		$this->hook();
 		
 		if( $this->StudyContact->atim_delete( $study_contact_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/study/study_contacts/listall/'.$study_summary_id );

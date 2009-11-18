@@ -20,6 +20,9 @@ class OrderLinesController extends OrderAppController {
 		$this->set('sample_control_id_findall', $sample_control_id_findall);
 		
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id));
+		
+		$this->hook();
+		
 		$this->data = $this->paginate($this->OrderLine, array('OrderLine.order_id'=>$order_id));
 		
 	}
@@ -45,6 +48,8 @@ class OrderLinesController extends OrderAppController {
 	
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id));
 		
+		$this->hook();
+		
 		if ( !empty($this->data) ) {
 			$this->data['OrderLine']['order_id'] = $order_id;
 			if ( $this->OrderLine->save($this->data) ) {
@@ -65,6 +70,8 @@ class OrderLinesController extends OrderAppController {
 		$this->set('sample_control_id_findall', $sample_control_id_findall);
 		
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'OrderLine.id'=>$order_line_id) );
+		
+		$this->hook();
 		
 		if ( !empty($this->data) ) {
 			$this->OrderLine->id = $order_line_id;
@@ -88,12 +95,17 @@ class OrderLinesController extends OrderAppController {
 		$this->set('sample_control_id_findall', $sample_control_id_findall);
 		
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'OrderLine.id'=>$order_line_id) );
+		
+		$this->hook();
+		
 		$this->data = $this->OrderLine->find('first',array('conditions'=>array('OrderLine.id'=>$order_line_id)));
 	}
   
 	function delete( $order_id=null, $order_line_id=null ) {
     	if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', NULL, TRUE ); }
 		if ( !$order_line_id ) { $this->redirect( '/pages/err_ord_no_line_id', NULL, TRUE ); }
+		
+		$this->hook();
 		
 		if( $this->OrderLine->atim_delete( $order_line_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/order/order_lines/listall/'.$order_id );

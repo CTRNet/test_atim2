@@ -15,6 +15,9 @@ class PathCollectionReviewsController extends InventoryManagementAppController {
 		$this->set('aliquot_master_id_findall', $aliquot_master_id_findall);
 		
 		$this->set('atim_menu_variables', array('Collection.id'=>$collection_id));
+		
+		$this->hook();
+		
 		$this->data = $this->paginate($this->PathCollectionReview, array('PathCollectionReview.collection_id'=>$collection_id));
 	}
 	
@@ -28,6 +31,8 @@ class PathCollectionReviewsController extends InventoryManagementAppController {
 		$this->set('aliquot_master_id_findall', $aliquot_master_id_findall);
 		
 		$this->set('atim_menu_variables', array('Collection.id'=>$collection_id));
+		
+		$this->hook();
 		
 		if (!empty($this->data)) {
 			$this->data['PathCollectionReview']['collection_id'] = $collection_id;
@@ -48,6 +53,9 @@ class PathCollectionReviewsController extends InventoryManagementAppController {
 		$this->set('aliquot_master_id_findall', $aliquot_master_id_findall);
 		
 		$this->set('atim_menu_variables', array('Collection.id'=>$collection_id, 'PathCollectionReview.id'=>$path_collection_review_id));
+		
+		$this->hook();
+		
 		$this->data = $this->PathCollectionReview->find('first',array('conditions'=>array('PathCollectionReview.id'=>$path_collection_review_id)));
 	}
 	
@@ -64,6 +72,8 @@ class PathCollectionReviewsController extends InventoryManagementAppController {
 		
 		$this->set('atim_menu_variables', array('Collection.id'=>$collection_id, 'PathCollectionReview.id'=>$path_collection_review_id));
 		
+		$this->hook();
+		
 		if (!empty($this->data)) {
 			$this->PathCollectionReview->id = $path_collection_review_id;
 			if ($this->PathCollectionReview->save($this->data)) {
@@ -77,6 +87,8 @@ class PathCollectionReviewsController extends InventoryManagementAppController {
 	function delete($collection_id=null, $path_collection_review_id=null) {
 		if (!$collection_id) { $this->redirect('/pages/err_clin-ann_no_part_id', null, true); }
 		if (!$path_collection_review_id) { $this->redirect('/pages/err_clin-ann_no_part_id', null, true); }
+		
+		$this->hook();
 		
 		if($this->PathCollectionReview->atim_delete($path_collection_review_id)) {
 			$this->flash('Your data has been deleted . ', '/inventorymanagement/path_collection_reviews/listall/' . $collection_id);

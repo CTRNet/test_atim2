@@ -31,6 +31,8 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 			$this->redirect('/pages/err_sto_no_custom_coord_allowed', null, true); 
 		}
 
+		$this->hook();
+		
 		// Get storage coordinates
 		$this->data = $this->paginate($this->StorageCoordinate, array('StorageCoordinate.storage_master_id' => $storage_master_id));
 			
@@ -61,6 +63,8 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 
 		// MANAGE DATA RECORD
 
+		$this->hook();
+		
 		if (!empty($this->data)) {	
 			// Set dimension
 			$this->data['StorageCoordinate']['dimension'] = 'x';
@@ -93,6 +97,8 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 		if((!$storage_master_id) || (!$storage_coordinate_id)) { $this->redirect('/pages/err_sto_funct_param_missing', null, true); }
 
 		// MANAGE DATA
+		
+		$this->hook();
 		
 		// Get the storage data
 		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
@@ -139,6 +145,9 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 		// Check deletion is allowed
 		$arr_allow_deletion = $this->allowStorageCoordinateDeletion($storage_master_id, $storage_coordinate_data);
 		if($arr_allow_deletion['allow_deletion']) {
+		
+			$this->hook();
+		
 			// Delete coordinate
 			if($this->StorageCoordinate->atim_delete($storage_coordinate_id)) {
 				$this->flash('Your data has been deleted . ', '/storagelayout/storage_coordinates/listAll/' . $storage_master_id);

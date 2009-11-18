@@ -9,6 +9,9 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
+		
+		$this->hook();
+		
 		$this->data = $this->paginate($this->ReproductiveHistory, array('ReproductiveHistory.participant_id'=>$participant_id));
 	}
 	
@@ -17,6 +20,9 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController {
 		if ( !$reproductive_history_id ) { $this->redirect( '/pages/err_clin-ann_no_reprod_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'ReproductiveHistory.id'=>$reproductive_history_id) );
+		
+		$this->hook();
+		
 		$this->data = $this->ReproductiveHistory->find('first',array('conditions'=>array('ReproductiveHistory.id'=>$reproductive_history_id)));
 	}
 	
@@ -24,6 +30,8 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 	
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
+		
+		$this->hook();
 		
 		if ( !empty($this->data) ) {
 			$this->data['ReproductiveHistory']['participant_id'] = $participant_id;
@@ -39,6 +47,8 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController {
 		
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'ReproductiveHistory.id'=>$reproductive_history_id) );
 		
+		$this->hook();
+		
 		if ( !empty($this->data) ) {
 			$this->ReproductiveHistory->id = $reproductive_history_id;
 			if ( $this->ReproductiveHistory->save($this->data) ) {
@@ -52,6 +62,8 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController {
 	function delete( $participant_id=null, $reproductive_history_id=null ) {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		if ( !$reproductive_history_id ) { $this->redirect( '/pages/err_clin-ann_no_reprod_id', NULL, TRUE ); }
+		
+		$this->hook();
 		
 		if( $this->ReproductiveHistory->del( $reproductive_history_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/clinicalannotation/reproductive_histories/listall/'.$participant_id );

@@ -13,6 +13,8 @@ class ProtocolMastersController extends ProtocolAppController {
 	function search() {
 		if ( $this->data ) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions();
 		
+		$this->hook();
+		
 		$this->data = $this->paginate($this->ProtocolMaster, $_SESSION['ctrapp_core']['search']['criteria']);
 		
 		$this->set('protocol_controls', $this->ProtocolControl->find('all'));	
@@ -23,6 +25,8 @@ class ProtocolMastersController extends ProtocolAppController {
 	}
 	
 	function listall() {
+	
+		$this->hook();
 		
 		$this->data = $this->paginate($this->ProtocolMaster, array());
 		
@@ -37,6 +41,8 @@ class ProtocolMastersController extends ProtocolAppController {
 		
 		// set FORM ALIAS based off VALUE from CONTROL table
 		$this->set( 'atim_structure', $this->Structures->get('form',$this_data['ProtocolControl']['detail_form_alias']) );
+		
+		$this->hook();
 		
 		if ( !empty($this->data) ) {
 			
@@ -56,6 +62,9 @@ class ProtocolMastersController extends ProtocolAppController {
 		if ( !$protocol_master_id ) { $this->redirect( '/pages/err_pro_no_proto_id', NULL, TRUE ); }
 	
 		$this->set( 'atim_menu_variables', array('ProtocolMaster.id'=>$protocol_master_id));
+		
+		$this->hook();
+		
 		$this->data = $this->ProtocolMaster->find('first',array('conditions'=>array('ProtocolMaster.id'=>$protocol_master_id)));
 		
 		// set FORM ALIAS based off VALUE from MASTER table
@@ -71,6 +80,8 @@ class ProtocolMastersController extends ProtocolAppController {
 		// set FORM ALIAS based off VALUE from MASTER table
 		$this->set( 'atim_structure', $this->Structures->get('form',$this_data['ProtocolControl']['detail_form_alias']) );
 		
+		$this->hook();
+		
 		if ( !empty($this->data) ) {
 			$this->ProtocolMaster->id = $protocol_master_id;
 			if ( $this->ProtocolMaster->save($this->data) ) {
@@ -84,6 +95,8 @@ class ProtocolMastersController extends ProtocolAppController {
 	
 	function delete( $protocol_master_id ) {
 		if ( !$protocol_master_id ) { $this->redirect( '/pages/err_pro_no_proto_id', NULL, TRUE ); }
+		
+		$this->hook();
 		
 		if( $this->ProtocolMaster->atim_delete( $protocol_master_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/protocol/protocol_masters/listall/');

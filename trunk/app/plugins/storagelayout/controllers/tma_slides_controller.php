@@ -21,6 +21,8 @@ class TmaSlidesController extends StoragelayoutAppController {
 
 		// MANAGE DATA
 
+		$this->hook();
+		
 		// Get the storage data
 		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $tma_block_storage_master_id)), null, 1);
 		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_stor_data', null, true); }	
@@ -82,6 +84,9 @@ class TmaSlidesController extends StoragelayoutAppController {
 		$this->set('atim_structure', $this->Structures->get('form', 'tma_slides'));
 		
 		// MANAGE DATA RECORD
+		
+		$this->hook();
+		
 		if(empty($this->data)) {
 			// Set default value
 			$this->set('matching_storage_list', array());
@@ -146,6 +151,8 @@ class TmaSlidesController extends StoragelayoutAppController {
 		
 		// MANAGE DATA
 
+		$this->hook();
+		
 		// Get the storage data
 		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $tma_block_storage_master_id)));
 		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_stor_data', null, true); }	
@@ -236,6 +243,8 @@ class TmaSlidesController extends StoragelayoutAppController {
 		
 		// MANAGE DATA RECORD
 
+		$this->hook();
+		
 		if(empty($this->data)) {
 			$this->data = $tma_slide_data;	
 
@@ -309,6 +318,9 @@ class TmaSlidesController extends StoragelayoutAppController {
 		// Check deletion is allowed
 		$arr_allow_deletion = $this->allowTMASlideDeletion($tma_slide_id);
 		if($arr_allow_deletion['allow_deletion']) {
+		
+			$this->hook();
+		
 			// Delete tma slide
 			if($this->TmaSlide->atim_delete($tma_slide_id)) {
 				$this->flash('Your data has been deleted . ', '/storagelayout/tma_slides/listAll/' . $tma_block_storage_master_id);

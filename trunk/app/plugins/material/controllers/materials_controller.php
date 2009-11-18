@@ -11,6 +11,8 @@ class MaterialsController extends MaterialAppController {
 	function search(){
 		if ( $this->data ) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions();
 		
+		$this->hook();
+		
 		$this->data = $this->paginate($this->Material, $_SESSION['ctrapp_core']['search']['criteria']);
 		
 		// if SEARCH form data, save number of RESULTS and URL
@@ -19,10 +21,14 @@ class MaterialsController extends MaterialAppController {
 	}
 	
 	function listall( ) {
+		$this->hook();
+	
 		$this->data = $this->paginate($this->Material, array());
 	}
 
-	function add() {	
+	function add() {
+		$this->hook();
+	
 		if ( !empty($this->data) ) {
 			if ( $this->Material->save($this->data) ) {
 				$this->flash( 'Your data has been updated.','/material/materials/detail/'.$this->Material->id );
@@ -34,6 +40,8 @@ class MaterialsController extends MaterialAppController {
 		if ( !$material_id ) { $this->redirect( '/pages/err_material_no_material_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('Material.id'=>$material_id) );
+		
+		$this->hook();
 		
 		if ( !empty($this->data) ) {
 			$this->Material->id = $material_id;
@@ -49,11 +57,16 @@ class MaterialsController extends MaterialAppController {
 		if ( !$material_id ) { $this->redirect( '/pages/err_material_no_material_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('Material.id'=>$material_id) );
+		
+		$this->hook();
+		
 		$this->data = $this->Material->find('first',array('conditions'=>array('Material.id'=>$material_id)));
 	}
   
 	function delete( $material_id=null ) {
 		if ( !$material_id ) { $this->redirect( '/pages/err_material_no_material_id', NULL, TRUE ); }
+		
+		$this->hook();
 		
 		if( $this->Material->atim_delete( $material_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/material/materials/listall/');

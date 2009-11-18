@@ -24,6 +24,9 @@ class ConsentMastersController extends ClinicalannotationAppController {
 		
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id) );
 		$this->set('consent_controls_list', $this->ConsentControl->find('all', array('conditions' => array('ConsentControl.status' => 'active'))));
+		
+		$this->hook();
+		
 		$this->data = $this->paginate($this->ConsentMaster, array('ConsentMaster.participant_id'=>$participant_id));
 	}	
 
@@ -39,6 +42,8 @@ class ConsentMastersController extends ClinicalannotationAppController {
 		$this->set('facility_id_findall', $facility_id_findall);
 		
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'ConsentMaster.id'=>$consent_master_id) );
+		
+		$this->hook();
 		
 		$this->data = $this->ConsentMaster->find('first',array('conditions'=>array('ConsentMaster.id'=>$consent_master_id)));
 		$storage_data = $this->ConsentControl->find('first', array('conditions' => array('ConsentControl.id' => $this->data['ConsentMaster']['consent_control_id'])));
@@ -60,6 +65,8 @@ class ConsentMastersController extends ClinicalannotationAppController {
 		
 		$storage_data = $this->ConsentControl->find('first', array('conditions' => array('ConsentControl.id' => $consent_control_id)));
 		$this->set('atim_structure', $this->Structures->get('form', $storage_data['ConsentControl']['form_alias']));
+		
+		$this->hook();
 		
 		if ( !empty($this->data) ) {
 			$this->data['ConsentMaster']['participant_id'] = $participant_id;
@@ -87,6 +94,8 @@ class ConsentMastersController extends ClinicalannotationAppController {
 		$storage_data = $this->ConsentControl->find('first', array('conditions' => array('ConsentControl.id' => $storage_data['ConsentMaster']['consent_control_id'])));
 		$this->set('atim_structure', $this->Structures->get('form', $storage_data['ConsentControl']['form_alias']));
 		
+		$this->hook();
+		
 		if ( !empty($this->data) ) {
 			$this->ConsentMaster->id = $consent_master_id;
 			if ( $this->ConsentMaster->save($this->data) ) {
@@ -105,6 +114,8 @@ class ConsentMastersController extends ClinicalannotationAppController {
 		$storage_data = $this->ConsentMaster->find('first', array('conditions' => array('ConsentMaster.id' => $consent_master_id)));
 		$storage_data = $this->ConsentControl->find('first', array('conditions' => array('ConsentControl.id' => $storage_data['ConsentMaster']['consent_control_id'])));
 		$this->set('atim_structure', $this->Structures->get('form', $storage_data['ConsentControl']['form_alias']));
+		
+		$this->hook();
 		
 		if( $this->ConsentMaster->atim_delete( $consent_master_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/clinicalannotation/consent_masters/listall/'.$participant_id );

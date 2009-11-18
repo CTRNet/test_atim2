@@ -12,6 +12,8 @@ class DrugsController extends DrugAppController {
 	function search() {
 		if ( $this->data ) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions();
 		
+		$this->hook();
+		
 		$this->data = $this->paginate($this->Drug, $_SESSION['ctrapp_core']['search']['criteria']);
 		
 		// if SEARCH form data, save number of RESULTS and URL
@@ -20,10 +22,14 @@ class DrugsController extends DrugAppController {
 	}
 	
 	function listall( ) {
+		$this->hook();
+	
 		$this->data = $this->paginate($this->Drug, array());
 	}
 
 	function add() {	
+		$this->hook();
+		
 		if ( !empty($this->data) ) {
 			if ( $this->Drug->save($this->data) ) {
 				$this->flash( 'Your data has been updated.','/drug/drugs/detail/'.$this->Drug->id );
@@ -35,6 +41,8 @@ class DrugsController extends DrugAppController {
 		if ( !$drug_id ) { $this->redirect( '/pages/err_drug_no_drug_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('Drug.id'=>$drug_id) );
+		
+		$this->hook();
 		
 		if ( !empty($this->data) ) {
 			$this->Drug->id = $drug_id;
@@ -50,11 +58,16 @@ class DrugsController extends DrugAppController {
 		if ( !$drug_id ) { $this->redirect( '/pages/err_drug_no_drug_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('Drug.id'=>$drug_id) );
+		
+		$this->hook();
+		
 		$this->data = $this->Drug->find('first',array('conditions'=>array('Drug.id'=>$drug_id)));
 	}
   
 	function delete( $drug_id=null ) {
 		if ( !$drug_id ) { $this->redirect( '/pages/err_drug_no_drug_id', NULL, TRUE ); }
+		
+		$this->hook();
 		
 		if( $this->Drug->atim_delete( $drug_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/drug/drugs/listall/');

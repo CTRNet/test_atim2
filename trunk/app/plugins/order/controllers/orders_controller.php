@@ -14,6 +14,7 @@ class OrdersController extends OrderAppController {
 		}
 		$this->set('study_summary_id_findall', $study_summary_id_findall);
 	
+		$this->hook();
 	
 		$this->data = $this->paginate($this->Order, array());
 	}
@@ -26,6 +27,8 @@ class OrdersController extends OrderAppController {
 			$study_summary_id_findall[ $record['StudySummary']['id'] ] = $record['StudySummary']['title'];
 		}
 		$this->set('study_summary_id_findall', $study_summary_id_findall);
+	
+		$this->hook();
 	
 		if ( !empty($this->data) ) {
 			if ( $this->Order->save($this->data) ) {
@@ -45,6 +48,8 @@ class OrdersController extends OrderAppController {
 		$this->set('study_summary_id_findall', $study_summary_id_findall);
 		
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id) );
+		
+		$this->hook();
 		
 		if ( !empty($this->data) ) {
 			$this->Order->id = $order_id;
@@ -67,11 +72,16 @@ class OrdersController extends OrderAppController {
 		$this->set('study_summary_id_findall', $study_summary_id_findall);
 		
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id) );
+		
+		$this->hook();
+		
 		$this->data = $this->Order->find('first',array('conditions'=>array('Order.id'=>$order_id)));
 	}
   
 	function delete( $order_id=null ) {
     	if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', NULL, TRUE ); }
+		
+		$this->hook();
 		
 		if( $this->Order->atim_delete( $order_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/order/orders/listall/');
@@ -104,6 +114,8 @@ class OrdersController extends OrderAppController {
 			$study_summary_id_findall[ $record['StudySummary']['id'] ] = $record['StudySummary']['title'];
 		}
 		$this->set('study_summary_id_findall', $study_summary_id_findall);
+		
+		$this->hook();
 		
 		$this->data = $this->paginate($this->Order, $_SESSION['ctrapp_core']['search']['criteria']);
 		

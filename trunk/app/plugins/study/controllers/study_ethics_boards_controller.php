@@ -9,6 +9,9 @@ class StudyEthicsBoardsController extends StudyAppController {
 		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_no_summary_id', NULL, TRUE ); }
 
 		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id));
+		
+		$this->hook();
+		
 		$this->data = $this->paginate($this->StudyEthicsBoard, array('StudyEthicsBoard.study_summary_id'=>$study_summary_id));
 		
 	}
@@ -17,6 +20,8 @@ class StudyEthicsBoardsController extends StudyAppController {
 		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_no_summary_id', NULL, TRUE ); }
 	
 		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id));
+		
+		$this->hook();
 		
 		if ( !empty($this->data) ) {
 			$this->data['StudyEthicsBoard']['study_summary_id'] = $study_summary_id;
@@ -31,6 +36,8 @@ class StudyEthicsBoardsController extends StudyAppController {
 		if ( !$study_ethics_board_id ) { $this->redirect( '/pages/err_study_no_ethics_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id, 'StudyEthicsoard.id'=>$study_ethics_board_id) );
+		
+		$this->hook();
 		
 		if ( !empty($this->data) ) {
 			$this->StudyEthicsBoard->id = $study_ethics_board_id;
@@ -47,12 +54,17 @@ class StudyEthicsBoardsController extends StudyAppController {
 		if ( !$study_ethics_board_id ) { $this->redirect( '/pages/err_study_no_ethics_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id, 'StudyEthicsBoard.id'=>$study_ethics_board_id) );
+		
+		$this->hook();
+		
 		$this->data = $this->StudyEthicsBoard->find('first',array('conditions'=>array('StudyEthicsBoard.id'=>$study_ethics_board_id)));
 	}
   
 	function delete( $study_summary_id=null, $study_ethics_board_id=null ) {
 		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_no_summary_id', NULL, TRUE ); }
 		if ( !$study_ethics_board_id ) { $this->redirect( '/pages/err_study_no_ethics_id', NULL, TRUE ); }
+		
+		$this->hook();
 		
 		if( $this->StudyEthicsBoard->atim_delete( $study_ethics_board_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/study/study_ethics_boards/listall/'.$study_summary_id );

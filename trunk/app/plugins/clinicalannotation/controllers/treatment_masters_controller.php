@@ -16,6 +16,9 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		}
 		
 		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id));
+		
+		$this->hook();
+		
 		$this->data = $this->paginate($this->TreatmentMaster, array('TreatmentMaster.participant_id'=>$participant_id));
 		
 		$protocol_list = $this->ProtocolMaster->find('list', array('conditions'=>array('ProtocolMaster.deleted'=>'0')), array('fields' => array('ProtocolMaster.id', 'ProtocolMaster.name'), 'order' => array('ProtocolMaster.name')));
@@ -34,6 +37,9 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		}
 		
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id,'TreatmentMaster.id'=>$tx_master_id) );
+		
+		$this->hook();
+		
 		$this->data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id)));
 		$tx_control_data = $this->TreatmentControl->find('first',array('conditions'=>array('TreatmentControl.id'=>$this->data['TreatmentMaster']['treatment_control_id'])));
 		
@@ -66,6 +72,8 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		// set FORM ALIAS based off VALUE from MASTER table
 		$this->set( 'atim_structure', $this->Structures->get('form', $tx_control_data['TreatmentControl']['form_alias']) );
 		
+		$this->hook();
+		
 		if (!empty($this->data)) {
 			$this->TreatmentMaster->id = $tx_master_id;
 			if ($this->TreatmentMaster->save($this->data)) {
@@ -94,6 +102,8 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		
 		$protocol_list = $this->ProtocolMaster->find('list', array('conditions'=>array('ProtocolMaster.deleted'=>'0')), array('fields' => array('ProtocolMaster.id', 'ProtocolMaster.name'), 'order' => array('ProtocolMaster.name')));
 		$this->set('protocol_list', $protocol_list);
+		
+		$this->hook();
 		
 		if ( !empty($this->data) ) {
 			$this->data['TreatmentMaster']['participant_id'] = $participant_id;

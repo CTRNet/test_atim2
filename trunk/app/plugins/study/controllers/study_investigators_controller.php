@@ -9,6 +9,9 @@ class StudyInvestigatorsController extends StudyAppController {
 		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_no_summary_id', NULL, TRUE ); }
 
 		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id));
+		
+		$this->hook();
+		
 		$this->data = $this->paginate($this->StudyInvestigator, array('StudyInvestigator.study_summary_id'=>$study_summary_id));
 		
 	}
@@ -17,6 +20,8 @@ class StudyInvestigatorsController extends StudyAppController {
 		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_no_summary_id', NULL, TRUE ); }
 	
 		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id));
+		
+		$this->hook();
 		
 		if ( !empty($this->data) ) {
 			$this->data['StudyInvestigator']['study_summary_id'] = $study_summary_id;
@@ -31,6 +36,8 @@ class StudyInvestigatorsController extends StudyAppController {
 		if ( !$study_investigator_id ) { $this->redirect( '/pages/err_study_no_invest_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id, 'StudyInvestigator.id'=>$study_investigator_id) );
+		
+		$this->hook();
 		
 		if ( !empty($this->data) ) {
 			$this->StudyInvestigator->id = $study_investigator_id;
@@ -47,12 +54,17 @@ class StudyInvestigatorsController extends StudyAppController {
 		if ( !$study_investigator_id ) { $this->redirect( '/pages/err_study_no_invest_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id, 'StudyInvestigator.id'=>$study_investigator_id) );
+		
+		$this->hook();
+		
 		$this->data = $this->StudyInvestigator->find('first',array('conditions'=>array('StudyInvestigator.id'=>$study_investigator_id)));
 	}
   
 	function delete( $study_summary_id=null, $study_investigator_id=null ) {
 		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_no_summary_id', NULL, TRUE ); }
 		if ( !$study_investigator_id ) { $this->redirect( '/pages/err_study_no_invest_id', NULL, TRUE ); }
+		
+		$this->hook();
 		
 		if( $this->StudyInvestigator->atim_delete( $study_investigator_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/study/study_investigators/listall/'.$study_summary_id );

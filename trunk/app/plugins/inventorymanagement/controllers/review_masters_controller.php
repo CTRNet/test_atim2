@@ -77,6 +77,8 @@ class ReviewMastersController extends InventoryManagementAppController {
 		$criteria['review_sample_group'] = $review_sample_group;
 		$criteria = array_filter($criteria);
 
+		$this->hook();
+		
 		list ($order, $limit, $page) = $this->Pagination->init($criteria);
 		$this->set('review_masters', $this->ReviewMaster->findAll($criteria, null, $order, $limit, $page));
 			
@@ -123,6 +125,8 @@ class ReviewMastersController extends InventoryManagementAppController {
 
 		// REVIEW MASTER info defines REVIEWDETAIL info, including FORM alias 
 
+		$this->hook();
+		
 		// read REVIEWMASTER info, which contains FORM alias and DETAIL tablename 
 		$this->ReviewMaster->id = $review_master_id;
 		$review_master_data = $this->ReviewMaster->read();
@@ -239,7 +243,9 @@ class ReviewMastersController extends InventoryManagementAppController {
 		if (file_exists($custom_ctrapp_controller_hook)) {
 			require($custom_ctrapp_controller_hook);
 		}
-
+		
+		$this->hook();
+		
 		if (!empty ($this->data)) {
 			
 			// setup MODEL(s) validation array(s) for displayed FORM 
@@ -386,6 +392,8 @@ class ReviewMastersController extends InventoryManagementAppController {
 			require($custom_ctrapp_controller_hook);
 		}
 		
+		$this->hook();
+		
 		if (empty ($this->data)) {
 
 			// merge both datasets into a SINGLE dataset, set for VIEW 
@@ -501,6 +509,8 @@ class ReviewMastersController extends InventoryManagementAppController {
 
 		// delete MASTER/DETAIL rows 
 		$bool_del_error = false;
+		
+		$this->hook();
 		
 		if($this->ReviewMaster->del($review_master_id)) {
 			if(!$this->ReviewDetail->del($review_master_id)) {

@@ -11,19 +11,28 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 	
 	function listall( $participant_id ) {
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
+		
+		$this->hook();
+		
 		$this->data = $this->paginate($this->ClinicalCollectionLink, array('ClinicalCollectionLink.participant_id'=>$participant_id));
 	}
 	
 	function detail( $participant_id, $clinical_collection_links_id ) {
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'ClinicalCollectionLink.id'=>$clinical_collection_links_id) );
+		
+		$this->hook();
+		
 		$this->data = $this->ClinicalCollectionLink->find('first',array('conditions'=>array('ClinicalCollectionLink.id'=>$clinical_collection_links_id)));
 	}
 	
 	function add( $participant_id ) {
+		$this->hook();
+	
 		if ( !empty($this->data) ) {
 			$this->data['ClinicalCollectionLink']['participant_id'] = $participant_id;
 			$tmp_data = $this->ClinicalCollectionLink->find('first',array('conditions'=>array('ClinicalCollectionLink.collection_id' => $this->data['ClinicalCollectionLink']['collection_id'])));
 			$this->ClinicalCollectionLink->id = $tmp_data['ClinicalCollectionLink']['id']; 
+			
 			if ( $this->ClinicalCollectionLink->save($this->data) ) $this->flash( 'Your data has been updated.','/clinicalannotation/clinical_collection_links/detail/'.$participant_id.'/'.$this->ClinicalCollectionLink->id );
 		}
 		$this->set( 'atim_menu', $this->Menus->get('/clinicalannotation/clinical_collection_links/listall/') );
@@ -45,8 +54,11 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 	}
 	
 	function edit( $participant_id, $clinical_collection_links_id) {
+		$this->hook();
+	
 		if ( !empty($this->data) ) {
 			$this->ClinicalCollectionLink->id = $clinical_collection_links_id;
+			
 			if ( $this->ClinicalCollectionLink->save($this->data) ) $this->flash( 'Your data has been updated.','/clinicalannotation/clinical_collection_links/detail/'.$participant_id.'/'.$clinical_collection_links_id );
 		} else {
 			$this->data = $this->ClinicalCollectionLink->find('first',array('conditions'=>array('ClinicalCollectionLink.id'=>$clinical_collection_links_id)));
@@ -86,6 +98,9 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 				'participant_id' => null,
 				'diagnosis_master_id' => null,
 				'consent_master_id' => null));
+				
+			$this->hook();
+				
 			if ( $this->ClinicalCollectionLink->save($this->data)){
 				$this->flash( 'Your data has been deleted.','/clinicalannotation/clinical_collection_links/listall/'.$participant_id.'/');
 			}else{

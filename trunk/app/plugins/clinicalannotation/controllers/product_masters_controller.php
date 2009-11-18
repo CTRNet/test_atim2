@@ -19,6 +19,9 @@ class ProductMastersController extends ClinicalannotationAppController {
 		$this->set('atim_structure', $atim_structure);
 		
 		$this->set('atim_menu_variables', array('Participant.id' => $participant_id, 'CurrentFilter' => $current_filter));
+		
+		$this->hook();
+		
 		$collection_data = $this->Collection->find('all', array('conditions' => 'ClinicalCollectionLink.participant_id='.$participant_id, 'recursive' => 2));
 		$this->data = array();
 		$tmp_data = array();

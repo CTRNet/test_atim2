@@ -34,6 +34,8 @@ class StorageMastersController extends StoragelayoutAppController {
 		
 		if($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions();
 		
+		$this->hook();
+		
 		$this->data = $this->paginate($this->StorageMaster, $_SESSION['ctrapp_core']['search']['criteria']);
 		
 		//find all storage control types to build add button
@@ -52,6 +54,8 @@ class StorageMastersController extends StoragelayoutAppController {
 		if(!$storage_master_id) { $this->redirect('/pages/err_sto_no_stor_id', null, true); }
 		
 		// MANAGE DATA
+		
+		$this->hook();
 		
 		// Get the storage data
 		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
@@ -175,6 +179,8 @@ class StorageMastersController extends StoragelayoutAppController {
 	
 		// MANAGE DATA RECORD
 			
+		$this->hook();
+			
 		if(!empty($this->data)) {	
 			
 			//Get Parent Data
@@ -290,6 +296,8 @@ class StorageMastersController extends StoragelayoutAppController {
 
 		// MANAGE DATA RECORD
 
+		$this->hook();
+		
 		if(empty($this->data)) {
 				$this->data = $storage_data;	
 		} else {
@@ -440,6 +448,8 @@ class StorageMastersController extends StoragelayoutAppController {
 		
 		// MANAGE DATA RECORD
 		
+		$this->hook();
+		
 		if(empty($this->data)) {
 			// All the storage data (including storage position within the parent) are recorded into the master table.
 			$this->data = $storage_data;
@@ -484,6 +494,8 @@ class StorageMastersController extends StoragelayoutAppController {
 			// Create has many relation to delete the storage coordinate
 			$this->StorageMaster->bindModel(array('hasMany' => array('StorageCoordinate' => array('className' => 'StorageCoordinate', 'foreignKey' => 'storage_master_id', 'dependent' => true))));	
 			
+			$this->hook();
+			
 			// Delete storage
 			if($this->StorageMaster->atim_delete($storage_master_id, true)) {
 				//TODO;
@@ -513,6 +525,8 @@ class StorageMastersController extends StoragelayoutAppController {
 		if(!$storage_master_id) { $this->redirect('/pages/err_sto_no_stor_id', null, true); }
 			
 		// MANAGE STORAGE DATA
+		
+		$this->hook();
 		
 		// Get the storage data
 		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
@@ -647,7 +661,9 @@ class StorageMastersController extends StoragelayoutAppController {
 		return;
 		
 		// MANAGE DATA RECORD
-				
+		
+		$this->hook();
+		
 		if(empty($this->data)) {
 			$this->data = $a_storage_aliquot_data;
 				
@@ -770,6 +786,8 @@ class StorageMastersController extends StoragelayoutAppController {
 		}
 		
 		// MANAGE STORAGE DATA
+		
+		$this->hook();
 		
 		// Get the storage data
 		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
