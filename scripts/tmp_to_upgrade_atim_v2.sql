@@ -525,6 +525,10 @@ INSERT INTO `structure_formats` (`old_id`, `structure_id`, `structure_old_id`, `
 ALTER TABLE `realiquotings`
   DROP `realiquoted_by`,
   DROP `realiquoted_datetime`;
+ 
+UPDATE `atim_new`.`structure_fields` SET `model` = 'AliquotUse', `field` = 'used_by', `language_label` = 'use by' WHERE `structure_fields`.`id` =380 LIMIT 1;
+UPDATE `atim_new`.`structure_fields` SET `model` = 'AliquotUse', `field` = 'use_datetime', `language_label` = 'use date' WHERE `structure_fields`.`id` = 381 LIMIT 1 ;
+
   
 ALTER TABLE `realiquotings` ADD UNIQUE `parent_child_combo` ( `parent_aliquot_master_id` , `child_aliquot_master_id` );
 
@@ -541,7 +545,8 @@ INSERT INTO `structure_formats` (`old_id`, `structure_id`, `structure_old_id`, `
 ('CANM-00016_CAN-999-999-000-999-1155', @last_structure_id, 'CANM-00016', 248, 'CAN-999-999-000-999-1131', 0, 4, '', '1', 'volume unit', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('CANM-00016_CAN-999-999-000-999-1162', @last_structure_id, 'CANM-00016', 276, 'CAN-999-999-000-999-1162', 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('CANM-00016_CAN-999-999-000-999-1277', @last_structure_id, 'CANM-00016', 881, 'CAN-999-999-000-999-1277', 0, 1, '', '1', 'barcode', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('CANM-00016_CAN-999-999-000-999-1266', @last_structure_id, 'CANM-00016', 380, 'CAN-999-999-000-999-1266', 0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+('CANM-00016_CAN-999-999-000-999-1266', @last_structure_id, 'CANM-00016', 380, 'CAN-999-999-000-999-1266', 0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CANM-00016_CAN-999-999-000-999-1267', @last_structure_id, 'CANM-00016', 381, 'CAN-999-999-000-999-1267', 0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 -- ------------------------------------------------------------
 
