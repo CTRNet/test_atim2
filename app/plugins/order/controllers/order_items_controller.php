@@ -6,50 +6,43 @@ class OrderItemsController extends OrderAppController {
 	var $paginate = array('OrderItem'=>array('limit'=>'10','order'=>'OrderItem.barcode'));
 	
 	function listall( $order_id=null, $order_line_id=null ) {
-		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', NULL, TRUE ); }
-		if ( !$order_line_id ) { $this->redirect( '/pages/err_ord_no_line_id', NULL, TRUE ); }
+		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', null, true ); }
+		if ( !$order_line_id ) { $this->redirect( '/pages/err_ord_no_line_id', null, true ); }
 
 		$this->set( 'atim_menu', $this->Menus->get('/order/order_items/listall/%%Order.id%%/%%OrderLine.id%%/'));
 		
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'OrderLine.id'=>$order_line_id));
-		
-		$this->hook();
-		
-		$this->data = $this->paginate($this->OrderItem, array('OrderItem.orderline_id'=>$order_line_id));
+		$this->data = $this->paginate($this->OrderItem, array('OrderItem.order_line_id'=>$order_line_id));
 			
 	}
 
 	function add( $order_id=null, $order_line_id=null ) {
-		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', NULL, TRUE ); }
-		if ( !$order_line_id ) { $this->redirect( '/pages/err_ord_no_line_id', NULL, TRUE ); }
+		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', null, true ); }
+		if ( !$order_line_id ) { $this->redirect( '/pages/err_ord_no_line_id', null, true ); }
 		
 		$this->set( 'atim_menu', $this->Menus->get('/order/order_items/listall/%%Order.id%%/%%OrderLine.id%%/'));
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'OrderLine.id'=>$order_line_id));
 		
-		$this->hook();
-		
 		if ( !empty($this->data) ) {
-			$this->data['OrderItem']['orderline_id'] = $order_line_id;
+			$this->data['OrderItem']['order_line_id'] = $order_line_id;
 			if ( $this->OrderItem->save($this->data) ) {
-				$this->flash( 'Your data has been updated.','/order/order_items/detail/'.$order_id.'/'.$order_line_id.'/'.$this->OrderItem->id );
+				$this->flash( 'your data has been updated','/order/order_items/detail/'.$order_id.'/'.$order_line_id.'/'.$this->OrderItem->id );
 			}
 		}
 	}
 	
 	function edit( $order_id=null, $order_line_id=null, $order_item_id=null ) {
-		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', NULL, TRUE ); }
-		if ( !$order_line_id ) { $this->redirect( '/pages/err_ord_no_line_id', NULL, TRUE ); }
-		if ( !$order_item_id ) { $this->redirect( '/pages/err_ord_no_item_id', NULL, TRUE ); }
+		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', null, true ); }
+		if ( !$order_line_id ) { $this->redirect( '/pages/err_ord_no_line_id', null, true ); }
+		if ( !$order_item_id ) { $this->redirect( '/pages/err_ord_no_item_id', null, true ); }
 		
 		$this->set( 'atim_menu', $this->Menus->get('/order/order_items/listall/%%Order.id%%/%%OrderLine.id%%/'));
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'OrderLine.id'=>$order_line_id, 'OrderItem.id'=>$order_item_id) );
 		
-		$this->hook();
-		
 		if ( !empty($this->data) ) {
 			$this->OrderItem->id = $order_item_id;
 			if ( $this->OrderItem->save($this->data) ) {
-				$this->flash( 'Your data has been updated.','/order/order_items/detail/'.$order_id.'/'.$order_line_id.'/'.$order_item_id );
+				$this->flash( 'your data has been updated','/order/order_items/detail/'.$order_id.'/'.$order_line_id.'/'.$order_item_id );
 			}
 		} else {
 			$this->data = $this->OrderItem->find('first',array('conditions'=>array('OrderItem.id'=>$order_item_id)));
@@ -57,22 +50,19 @@ class OrderItemsController extends OrderAppController {
 	}
 	
 	function detail( $order_id=null, $order_line_id=null, $order_item_id=null ) {
-		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', NULL, TRUE ); }
-		if ( !$order_line_id ) { $this->redirect( '/pages/err_ord_no_line_id', NULL, TRUE ); }
-		if ( !$order_item_id ) { $this->redirect( '/pages/err_ord_no_item_id', NULL, TRUE ); }
+		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', null, true ); }
+		if ( !$order_line_id ) { $this->redirect( '/pages/err_ord_no_line_id', null, true ); }
+		if ( !$order_item_id ) { $this->redirect( '/pages/err_ord_no_item_id', null, true ); }
 		
 		$this->set( 'atim_menu', $this->Menus->get('/order/order_items/listall/%%Order.id%%/%%OrderLine.id%%/'));
 		
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'OrderLine.id'=>$order_line_id, 'OrderItem.id'=>$order_item_id) );
-		
-		$this->hook();
-		
 		$this->data = $this->OrderItem->find('first',array('conditions'=>array('OrderItem.id'=>$order_item_id)));
 	}
 	
 	function shipment_items ( $order_id=null, $shipment_id=null ){
-		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', NULL, TRUE ); }
-		if ( !$shipment_id ) { $this->redirect( 'pages/err_ord_no_ship_id', NULL, TRUE ); }
+		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', null, true ); }
+		if ( !$shipment_id ) { $this->redirect( 'pages/err_ord_no_ship_id', null, true ); }
 		
 		$this->set('atim_menu', $this->Menus->get('/order/order_items/shipment_items/%%Order.id%%/%%Shipment.id%%/'));
 		
@@ -81,11 +71,9 @@ class OrderItemsController extends OrderAppController {
 	}
 	
 	function delete( $order_id=null, $order_line_id=null, $order_item_id=null ) {
-		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', NULL, TRUE ); }
-		if ( !$order_line_id ) { $this->redirect( '/pages/err_ord_no_line_id', NULL, TRUE ); }
-		if ( !$order_item_id ) { $this->redirect( '/pages/err_ord_no_item_id', NULL, TRUE ); }
-		
-		$this->hook();
+		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', null, true ); }
+		if ( !$order_line_id ) { $this->redirect( '/pages/err_ord_no_line_id', null, true ); }
+		if ( !$order_item_id ) { $this->redirect( '/pages/err_ord_no_item_id', null, true ); }
 		
 		if( $this->OrderItem->atim_delete( $order_item_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/order/order_items/listall/'.$order_id.'/'.$order_line_id );
@@ -95,13 +83,13 @@ class OrderItemsController extends OrderAppController {
 	}
 	
 	function deleteFromShipment( $order_id=null,$order_item_id=null ){
-		if( !$order_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if( !$order_item_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if( !$order_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', null, true ); }
+		if( !$order_item_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', null, true ); }
 		
 		$this->data = $this->OrderItem->find('first', array('conditions'=>array('OrderItem.id'=>$order_item_id)));
 		
 		$shipment_id = $this->data['OrderItem']['shipment_id'];
-		$this->data['OrderItem']['shipment_id'] = NULL;
+		$this->data['OrderItem']['shipment_id'] = null;
 		
 		//Turned off validations because its not working
 		if($this->OrderItem->save($this->data, false)){
@@ -112,37 +100,149 @@ class OrderItemsController extends OrderAppController {
 	}
 	
 	function manage_shipments( $order_id=null, $order_line_id=null ){
-		if( !$order_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if( !$order_line_id ) { $this->redirect('/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if( !$order_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', null, true ); }
+		if( !$order_line_id ) { $this->redirect('/pages/err_clin-ann_no_part_id', null, true ); }
 		
 		$this->set( 'atim_menu', $this->Menus->get('/order/order_items/listall/%%Order.id%%/%%OrderLine.id%%/'));
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'OrderLine.id'=>$order_line_id));
 		
-		$this->data = $this->paginate($this->OrderItem, array('OrderItem.orderline_id'=>$order_line_id));
+		$this->data = $this->paginate($this->OrderItem, array('OrderItem.order_line_id'=>$order_line_id));
 	}
 	
 	function manage_unshipped_items( $order_id=null, $order_line_id=null ){
-		if( !$order_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if( !$order_line_id ) { $this->redirect('/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if( !$order_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', null, true ); }
+		if( !$order_line_id ) { $this->redirect('/pages/err_clin-ann_no_part_id', null, true ); }
 		
 		$this->set( 'atim_menu', $this->Menus->get('/order/order_items/listall/%%Order.id%%/%%OrderLine.id%%/'));
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'OrderLine.id'=>$order_line_id));
 		
 		
 	}
+	
+	
+	
+	function process_add_aliquots( $order_id=null, $order_line_id=null ) {
+		
+		// set data for easier access
+		$process_data = $_SESSION['ctrapp_core']['datamart']['process'];
+		
+		// kick out to DATAMART if no BATCH data
+		$bool_all_aliquots_managed = true;
+		
+		if ( !isset($process_data['AliquotMaster']) || !is_array($process_data['AliquotMaster']) || !count($process_data['AliquotMaster']) ) {
+			$bool_all_aliquots_managed = false;
+		}
+		
+		if($bool_all_aliquots_managed) {
+			
+			// get Aliquots beeing already included to an order item
+			$aliquot_criteria = 'OrderItem.aliquot_master_id IN ('.implode( ',', $process_data['AliquotMaster']['id'] ).')';
+			$aliquot_already_included_into_order
+				= $this->OrderItem->generateList(
+						$aliquot_criteria, 
+						null, 
+						null, 
+						'{n}.OrderItem.aliquot_master_id', 
+						'{n}.OrderItem.aliquot_master_id');
+			
+//			// find EXISTING aliquots in LINE
+//			$existing_items_criteria = '';
+//			$existing_items_criteria = 'OrderItem.order_line_id="'.$order_line_id.'"';
+//			$existing_items_result = $this->OrderItem->findAll( $existing_items_criteria );
+//			
+//			// remove IDs from BATCH data if already in LINE
+//			foreach ($existing_items_result as $key=>$val) {
+//				if ($val['OrderItem']['aliquot_master_id']) {
+//					if ( in_array($val['OrderItem']['aliquot_master_id'],$process_data['AliquotMaster']['id']) ) {
+//						unset($process_data['AliquotMaster']['id'][ array_search($val['OrderItem']['aliquot_master_id'], $process_data['AliquotMaster']['id']) ]);
+//					}
+//				}
+//			}
+			
+			// get ALIQUOTS matching BATCH data (IDs)
+			$aliquot_criteria = '';
+			$aliquot_criteria = 'AliquotMaster.id IN ('.implode( ',', $process_data['AliquotMaster']['id'] ).')';
+			$aliquot_result = $this->AliquotMaster->findAll( $aliquot_criteria );
+		
+			if ( is_array($aliquot_result) && count($aliquot_result) ) {
+				
+				// ADD each ALIQUOT to LINE's ITEMs
+				foreach ($aliquot_result as $key=>$val) {
+					
+					if(isset($aliquot_already_included_into_order[$val['AliquotMaster']['id']])) {
+						// This aliquot has already been attached to another order...
+						$bool_all_aliquots_managed = false;
+					
+					} else {
+					
+						$add_aliquot_data = array();
+						$add_aliquot_data['OrderItem'] = array();
+						$add_aliquot_data['OrderItem']['id'] = null;
+						$add_aliquot_data['OrderItem']['barcode'] = $val['AliquotMaster']['barcode'];
+						$add_aliquot_data['OrderItem']['date_added'] = date('Y-m-d');
+						$add_aliquot_data['OrderItem']['added_by'] = '';	//$this->othAuth->user('first_name').' '.$this->othAuth->user('last_name');
+						$add_aliquot_data['OrderItem']['status'] = 'pending';
+						$add_aliquot_data['OrderItem']['created'] = date('Y-m-d G:i');
+						$add_aliquot_data['OrderItem']['created_by'] = $this->othAuth->user('id');
+						$add_aliquot_data['OrderItem']['modified'] = date('Y-m-d G:i');
+						$add_aliquot_data['OrderItem']['modified_by'] = $this->othAuth->user('id');
+						$add_aliquot_data['OrderItem']['order_line_id'] = $order_line_id;
+						$add_aliquot_data['OrderItem']['aliquot_master_id'] = $val['AliquotMaster']['id'];
+						
+						$add_aliquot_result = $this->OrderItem->save( $add_aliquot_data );
+						
+						// Update the status of the aliquot
+						$aliq_mast_update = array(
+							'id' => $val['AliquotMaster']['id'],
+							'status' => 'not available',
+							'status_reason' => 'reserved for order',
+							'modified' => date('Y-m-d G:i'),
+							'modified_by' => $this->othAuth->user('id'));
+								
+						$this->AliquotMaster->save($aliq_mast_update);	
+					
+					}
+	
+				}
+				
+			}
+		}
+				
+		// empty PROCESS data, process complete
+		unset($process_data);
+		unset($_SESSION['ctrapp_core']['datamart']['process']);
+		
+		// REDIRECT to LINE's ITEMs
+		if($bool_all_aliquots_managed) {
+			$this->flash( 'your data has been updated', '/order_items/listall/'.$order_id.'/'.$order_line_id );
+		} else {
+			$this->flash( 'the process has been done but a part of the aliquots have not been ' .
+					'included', '/order_items/listall/'.$order_id.'/'.$order_line_id );			
+		}
+		
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
 /*	
-	function obsolete_datagrid( $order_id=null, $orderline_id=null ) {
+	function obsolete_datagrid( $order_id=null, $order_line_id=null ) {
 		
 		//TODO
 		
 	}
 	
-	function manageUnshippedItems( $order_id=null, $orderline_id=null ) {
+	function manageUnshippedItems( $order_id=null, $order_line_id=null ) {
 		
 		// set MENU varible for echo on VIEW
 		// $ctrapp_menu[] = $this->Menus->tabs( 'ord_CAN_101', 'ord_CAN_102', $order_id );
 		$ctrapp_menu[] = $this->Menus->tabs( 'ord_CAN_101', 'ord_CAN_114', $order_id );
-		$ctrapp_menu[] = $this->Menus->tabs( 'ord_CAN_114', 'ord_CAN_117', $order_id.'/'.$orderline_id );
+		$ctrapp_menu[] = $this->Menus->tabs( 'ord_CAN_114', 'ord_CAN_117', $order_id.'/'.$order_line_id );
 		$this->set( 'ctrapp_menu', $ctrapp_menu );
 		
 		// set FORM variable, for HELPER call on VIEW 
@@ -157,15 +257,15 @@ class OrderItemsController extends OrderAppController {
 		
 		// set FORM variable, for HELPER call on VIEW
 		$this->set( 'order_id', $order_id ); 
-		$this->set( 'orderline_id', $orderline_id );
+		$this->set( 'order_line_id', $order_line_id );
 		
 		$criteria = array();
-		$criteria['orderline_id'] = $orderline_id;
+		$criteria['order_line_id'] = $order_line_id;
 		$criteria[] = "status NOT IN ('shipped')";
 		$criteria = array_filter($criteria);
 		
 		list( $order, $limit, $page ) = $this->Pagination->init( $criteria );
-		$item_list = $this->OrderItem->findAll($criteria, NULL, $order);
+		$item_list = $this->OrderItem->findAll($criteria, null, $order);
 		$this->set( 'data',  $item_list);
 		
 		// look for CUSTOM HOOKS, "format"
@@ -184,7 +284,7 @@ class OrderItemsController extends OrderAppController {
 			// set a FLAG
 			$submitted_data_validates = true;
 			
-			// VALIDATE each row separately, setting the FLAG to FALSE if ANY row has a problem
+			// VALIDATE each row separately, setting the FLAG to false if ANY row has a problem
 			foreach ( $this->data as $key=>$val ) {
 				if ( !$this->OrderItem->validates( $val ) ) {
 					$submitted_data_validates = false;
@@ -199,7 +299,7 @@ class OrderItemsController extends OrderAppController {
 					$this->OrderItem->save( $val );
 				}
 				
-				$this->flash( 'Your data has been saved.', '/order_items/listall/'.$order_id.'/'.$orderline_id.'/' );
+				$this->flash( 'Your data has been saved.', '/order_items/listall/'.$order_id.'/'.$order_line_id.'/' );
 				exit;
 			
 			} else {
@@ -213,12 +313,12 @@ class OrderItemsController extends OrderAppController {
 		
 	}
 	
-	function manageShipments( $order_id=null, $orderline_id=null ) {
+	function manageShipments( $order_id=null, $order_line_id=null ) {
 		
 		// set MENU varible for echo on VIEW
 		// $ctrapp_menu[] = $this->Menus->tabs( 'ord_CAN_101', 'ord_CAN_102', $order_id );
 		$ctrapp_menu[] = $this->Menus->tabs( 'ord_CAN_101', 'ord_CAN_114', $order_id );
-		$ctrapp_menu[] = $this->Menus->tabs( 'ord_CAN_114', 'ord_CAN_117', $order_id.'/'.$orderline_id );
+		$ctrapp_menu[] = $this->Menus->tabs( 'ord_CAN_114', 'ord_CAN_117', $order_id.'/'.$order_line_id );
 		$this->set( 'ctrapp_menu', $ctrapp_menu );
 		
 		// set FORM variable, for HELPER call on VIEW 
@@ -233,20 +333,20 @@ class OrderItemsController extends OrderAppController {
 		
 		// set FORM variable, for HELPER call on VIEW
 		$this->set( 'order_id', $order_id ); 
-		$this->set( 'orderline_id', $orderline_id );
+		$this->set( 'order_line_id', $order_line_id );
 		
 		$criteria = array();
-		$criteria['orderline_id'] = $orderline_id;
+		$criteria['order_line_id'] = $order_line_id;
 		$criteria[] = "status NOT IN ('shipped')";
 		$criteria = array_filter($criteria);
 		
 		list( $order, $limit, $page ) = $this->Pagination->init( $criteria );
-		$item_list = $this->OrderItem->findAll($criteria, NULL, $order);
+		$item_list = $this->OrderItem->findAll($criteria, null, $order);
 		$this->set( 'data',  $item_list);
 		
 		// Populate Shipment dropdown from shipments table
 		$option_criteria = 'Shipment.order_id="'.$order_id.'"';
-		$fields = NULL;
+		$fields = null;
 		$order = 'Shipment.shipment_code ASC';
 		$shipment_id_findall_result = $this->Shipment->findAll( $option_criteria, $fields, $order );
 		$shipment_id_findall = array();
@@ -295,13 +395,13 @@ class OrderItemsController extends OrderAppController {
 					// Track shipped item data
 					$new_studied_item['OrderItem']['status'] = 'shipped';
 					
-					// VALIDATE each row separately, setting the FLAG to FALSE if ANY row has a problem
+					// VALIDATE each row separately, setting the FLAG to false if ANY row has a problem
 					if ( !$this->OrderItem->validates( $new_studied_item['OrderItem'] ) ) {
 						$submitted_data_validates = false;
 					}
 					
 					// Create use record
-					// VALIDATE each row separately, setting the FLAG to FALSE if ANY row has a problem
+					// VALIDATE each row separately, setting the FLAG to false if ANY row has a problem
 //					if ( !$this->AliquotUse->validates( $new_studied_item['AliquotUse'] ) ) {
 //						$submitted_data_validates = false;
 //					}
@@ -314,7 +414,7 @@ class OrderItemsController extends OrderAppController {
 			}
 			
 			if(empty($items_to_update)) {
-				$this->flash( 'No data to update.', '/order_items/listall/'.$order_id.'/'.$orderline_id.'/' );
+				$this->flash( 'No data to update.', '/order_items/listall/'.$order_id.'/'.$order_line_id.'/' );
 				exit;
 			}
 			
@@ -349,9 +449,9 @@ class OrderItemsController extends OrderAppController {
 					$shipped_aliquot = $aliquot_result[0]['AliquotMaster'];
 					$shipped_aliquot['status'] = 'not available';
 					$shipped_aliquot['status_reason'] = 'shipped';
-					$shipped_aliquot['storage_master_id'] = NULL;
-					$shipped_aliquot['storage_coord_x'] = NULL;
-					$shipped_aliquot['storage_coord_y'] = NULL;
+					$shipped_aliquot['storage_master_id'] = null;
+					$shipped_aliquot['storage_coord_x'] = null;
+					$shipped_aliquot['storage_coord_y'] = null;
 					
 					if(!$this->AliquotMaster->save($shipped_aliquot)) {
 						$save_validates = false;
@@ -361,7 +461,7 @@ class OrderItemsController extends OrderAppController {
 					// 2- Record use
 					
 					$aliquot_use_data = array();
-					$aliquot_use_data['id'] = NULL;
+					$aliquot_use_data['id'] = null;
 					$aliquot_use_data['aliquot_master_id'] = $aliquot_master_id;
 					
 					$aliquot_use_data['use_definition'] = 'aliquot shipment';
@@ -389,7 +489,7 @@ class OrderItemsController extends OrderAppController {
 				}
 				
 				if($save_validates) {
-					$this->flash( 'Your data has been saved.', '/order_items/listall/'.$order_id.'/'.$orderline_id.'/' );
+					$this->flash( 'Your data has been saved.', '/order_items/listall/'.$order_id.'/'.$order_line_id.'/' );
 					exit;	
 				} else {
 					$this->redirect('/pages/err_order_system_error'); 
@@ -402,12 +502,12 @@ class OrderItemsController extends OrderAppController {
 		
 	}
 	
-	function add( $order_id=null, $orderline_id=null ) {
+	function add( $order_id=null, $order_line_id=null ) {
 		
  		// set MENU varible for echo on VIEW
     	// $ctrapp_menu[] = $this->Menus->tabs( 'ord_CAN_101', 'ord_CAN_102', $order_id );
 		$ctrapp_menu[] = $this->Menus->tabs( 'ord_CAN_101', 'ord_CAN_114', $order_id );
-		$ctrapp_menu[] = $this->Menus->tabs( 'ord_CAN_114', 'ord_CAN_117', $order_id.'/'.$orderline_id );
+		$ctrapp_menu[] = $this->Menus->tabs( 'ord_CAN_114', 'ord_CAN_117', $order_id.'/'.$order_line_id );
     	$this->set( 'ctrapp_menu', $ctrapp_menu );
     
    		// set FORM variable, for HELPER call on VIEW 
@@ -423,11 +523,11 @@ class OrderItemsController extends OrderAppController {
 								 $this->params['action'] ) );
 								 
 		$this->set( 'order_id', $order_id ); 
-		$this->set( 'orderline_id', $orderline_id );
+		$this->set( 'order_line_id', $order_line_id );
 		
 //		// Populate Shipment dropdown from shipments table
 //		$option_criteria = 'Shipment.order_id="'.$order_id.'"';
-//		$fields = NULL;
+//		$fields = null;
 //		$order = 'Shipment.shipment_code ASC';
 //		$shipment_id_findall_result = $this->Shipment->findAll( $option_criteria, $fields, $order );
 //		$shipment_id_findall = array();
@@ -444,7 +544,7 @@ class OrderItemsController extends OrderAppController {
 	    	}
     
     		// Search aliquot master id
-			$aliquot_master_id = NULL;
+			$aliquot_master_id = null;
 			if(isset($this->data['OrderItem']['barcode']) 
 			&& (!empty($this->data['OrderItem']['barcode']))) {
 				$aliq_barcode = $this->data['OrderItem']['barcode'];
@@ -473,11 +573,11 @@ class OrderItemsController extends OrderAppController {
 			// Set status of the order
 			$this->data['OrderItem']['status'] = 'pending';
 			
-			$submitted_data_validates = TRUE;
+			$submitted_data_validates = true;
 			
 			// Validates Fields
 			if(!$this->OrderItem->validates($this->data['OrderItem'])){
-				$submitted_data_validates = FALSE;
+				$submitted_data_validates = false;
 			}
 			
 			// Verify aliquot has not already been defined as an order item
@@ -485,7 +585,7 @@ class OrderItemsController extends OrderAppController {
 				$criteria = 'OrderItem.aliquot_master_id ="' .$aliquot_master_id.'"';			 
 				$aliquot_order_nbr = $this->OrderItem->findCount($criteria);	
 				if($aliquot_order_nbr > 0) {
-					$submitted_data_validates = FALSE;
+					$submitted_data_validates = false;
 					$this->OrderItem->validationErrors[] = "the aliquot has already been included into an order item";	
 				}
 			}
@@ -508,7 +608,7 @@ class OrderItemsController extends OrderAppController {
 							
 					if($this->AliquotMaster->save($aliq_mast_update)) {
 						$this->flash( 'Your data has been saved.',
-							'/order_items/detail/'.$order_id.'/'.$orderline_id.'/'.$this->OrderItem->getLastInsertId() );					
+							'/order_items/detail/'.$order_id.'/'.$order_line_id.'/'.$this->OrderItem->getLastInsertId() );					
 					} else {
 						$this->redirect('/pages/err_order_system_error'); 
 						exit;
@@ -520,7 +620,7 @@ class OrderItemsController extends OrderAppController {
     	}		
  	}
   
-	function edit( $order_id=null, $orderline_id=null, $orderitem_id=null ) {
+	function edit( $order_id=null, $order_line_id=null, $orderitem_id=null ) {
 	
  		// setup MODEL(s) validation array(s) for displayed FORM 
 		foreach ( $this->Forms->getValidateArray('orderitems') as $validate_model=>$validate_rules ) {
@@ -530,8 +630,8 @@ class OrderItemsController extends OrderAppController {
     	// set MENU varible for echo on VIEW 
 		// $ctrapp_menu[] = $this->Menus->tabs( 'ord_CAN_101', 'ord_CAN_102', $order_id );
 		$ctrapp_menu[] = $this->Menus->tabs( 'ord_CAN_101', 'ord_CAN_114', $order_id );
-		$ctrapp_menu[] = $this->Menus->tabs( 'ord_CAN_114', 'ord_CAN_117', $order_id.'/'.$orderline_id );
-//    	$ctrapp_menu[] = $this->Menus->tabs( 'ord_CAN_117', 'ord_CAN_118', $order_id.'/'.$orderline_id.'/'.$orderitem_id );
+		$ctrapp_menu[] = $this->Menus->tabs( 'ord_CAN_114', 'ord_CAN_117', $order_id.'/'.$order_line_id );
+//    	$ctrapp_menu[] = $this->Menus->tabs( 'ord_CAN_117', 'ord_CAN_118', $order_id.'/'.$order_line_id.'/'.$orderitem_id );
 		$this->set( 'ctrapp_menu', $ctrapp_menu );
     
     	// set FORM variable, for HELPER call on VIEW 
@@ -547,11 +647,11 @@ class OrderItemsController extends OrderAppController {
 								 $this->params['action'] ) );
 
 		$this->set( 'order_id', $order_id);
-		$this->set( 'orderline_id', $orderline_id);
+		$this->set( 'order_line_id', $order_line_id);
 
 		// Populate Shipment dropdown from shipments table
 //		$option_criteria = 'Shipment.order_id="'.$order_id.'"';
-//		$fields = NULL;
+//		$fields = null;
 //		$order = 'Shipment.shipment_code ASC';
 //		$shipment_id_findall_result = $this->Shipment->findAll( $option_criteria, $fields, $order );
 //		$shipment_id_findall = array();
@@ -577,21 +677,21 @@ class OrderItemsController extends OrderAppController {
     		$this->data = $item_data;
     		$this->set( 'data', $this->data );
     	} else {
-    		$this->OrderLine->id = $orderline_id;	  
+    		$this->OrderLine->id = $order_line_id;	  
     		if ( $this->OrderItem->save( $this->data['OrderItem'] ) ) {
-				$this->flash( 'Your data has been updated.','/order_items/detail/'.$order_id.'/'.$orderline_id.'/'.$orderitem_id );
+				$this->flash( 'your data has been updated','/order_items/detail/'.$order_id.'/'.$order_line_id.'/'.$orderitem_id );
       		} else {
 				//print_r($this->params['data']);
       		}      
     	} 
 	}
   
- 	function detail( $order_id=null, $orderline_id=null, $orderitem_id=null ) {
+ 	function detail( $order_id=null, $order_line_id=null, $orderitem_id=null ) {
  		// set MENU varible for echo on VIEW 
     	// $ctrapp_menu[] = $this->Menus->tabs( 'ord_CAN_101', 'ord_CAN_102', $order_id );
 		$ctrapp_menu[] = $this->Menus->tabs( 'ord_CAN_101', 'ord_CAN_114', $order_id );
-		$ctrapp_menu[] = $this->Menus->tabs( 'ord_CAN_114', 'ord_CAN_117', $order_id.'/'.$orderline_id );
-//		$ctrapp_menu[] = $this->Menus->tabs( 'ord_CAN_117', 'ord_CAN_118', $order_id.'/'.$orderline_id.'/'.$orderitem_id );
+		$ctrapp_menu[] = $this->Menus->tabs( 'ord_CAN_114', 'ord_CAN_117', $order_id.'/'.$order_line_id );
+//		$ctrapp_menu[] = $this->Menus->tabs( 'ord_CAN_117', 'ord_CAN_118', $order_id.'/'.$order_line_id.'/'.$orderitem_id );
 		$this->set( 'ctrapp_menu', $ctrapp_menu );
 		
 		// set FORM variable, for HELPER call on VIEW 
@@ -606,17 +706,17 @@ class OrderItemsController extends OrderAppController {
 		
 		// set FORM variable, for HELPER call on VIEW
 		$this->set( 'order_id', $order_id );
-		$this->set( 'orderline_id', $orderline_id );
+		$this->set( 'order_line_id', $order_line_id );
 		
-		$allow_deletion = FALSE;
+		$allow_deletion = false;
 		if($this->allowOrderItemDeletion($orderitem_id)) {
-			$allow_deletion = TRUE; 			
+			$allow_deletion = true; 			
   		}
 		$this->set( 'allow_deletion', $allow_deletion );
 				
 		// Populate Shipment dropdown from shipments table
 		$option_criteria = 'Shipment.order_id="'.$order_id.'"';
-		$fields = NULL;
+		$fields = null;
 		$order = 'Shipment.shipment_code ASC';
 		$shipment_id_findall_result = $this->Shipment->findAll( $option_criteria, $fields, $order );
 		$shipment_id_findall = array();
@@ -639,7 +739,7 @@ class OrderItemsController extends OrderAppController {
 		}	
 	}
   
-	function delete( $order_id=null, $orderline_id=null, $orderitem_id=null ) {
+	function delete( $order_id=null, $order_line_id=null, $orderitem_id=null ) {
 		
 		if(!$this->allowOrderItemDeletion($orderitem_id)) {
 			$this->redirect('/pages/err_order_system_error'); 
@@ -650,7 +750,7 @@ class OrderItemsController extends OrderAppController {
 		$order_item = $this->OrderItem->find($criteria);
   		
  		// ** Update aliquot status **
-		$bool_delete_aliquot_from_line = TRUE;
+		$bool_delete_aliquot_from_line = true;
 	
 		// Update the status of the aliquot
 		$aliq_mast_update = array(
@@ -661,11 +761,11 @@ class OrderItemsController extends OrderAppController {
 			'modified_by' => $this->othAuth->user('id'));
 			
 		if(!$this->AliquotMaster->save($aliq_mast_update)){
-			$bool_delete_aliquot_from_line = FALSE;		
+			$bool_delete_aliquot_from_line = false;		
 		}
 		
 		if($bool_delete_aliquot_from_line && ($this->OrderItem->del( $orderitem_id ))){
-	    	$this->flash( 'Your data has been deleted.', '/order_items/listall/'.$order_id.'/'.$orderline_id.'/' );
+	    	$this->flash( 'Your data has been deleted.', '/order_items/listall/'.$order_id.'/'.$order_line_id.'/' );
 		} else {
 			$this->redirect('/pages/err_order_system_error'); 
 			exit;  					
@@ -698,7 +798,7 @@ class OrderItemsController extends OrderAppController {
 		$criteria = array_filter($criteria);
 			
 		list( $order, $limit, $page ) = $this->Pagination->init( $criteria );
-		$this->set( 'orderitems', $this->OrderItem->findAll( $criteria, NULL, $order, $limit, $page ) );
+		$this->set( 'orderitems', $this->OrderItem->findAll( $criteria, null, $order, $limit, $page ) );
 		
 		// look for CUSTOM HOOKS, "format"
 		$custom_ctrapp_controller_hook 
@@ -717,106 +817,7 @@ class OrderItemsController extends OrderAppController {
 		Multi-part process, linking Orders, OrderLines, and OrderItems (all ACTIONs the same name in each CONTROLLER)
 	
 	
-	function process_add_aliquots( $order_id=null, $orderline_id=null ) {
-		
-		// set data for easier access
-		$process_data = $_SESSION['ctrapp_core']['datamart']['process'];
-		
-		// kick out to DATAMART if no BATCH data
-		$bool_all_aliquots_managed = TRUE;
-		
-		if ( !isset($process_data['AliquotMaster']) || !is_array($process_data['AliquotMaster']) || !count($process_data['AliquotMaster']) ) {
-			$bool_all_aliquots_managed = FALSE;
-		}
-		
-		if($bool_all_aliquots_managed) {
-			
-			// get Aliquots beeing already included to an order item
-			$aliquot_criteria = 'OrderItem.aliquot_master_id IN ('.implode( ',', $process_data['AliquotMaster']['id'] ).')';
-			$aliquot_already_included_into_order
-				= $this->OrderItem->generateList(
-						$aliquot_criteria, 
-						null, 
-						null, 
-						'{n}.OrderItem.aliquot_master_id', 
-						'{n}.OrderItem.aliquot_master_id');
-			
-//			// find EXISTING aliquots in LINE
-//			$existing_items_criteria = '';
-//			$existing_items_criteria = 'OrderItem.orderline_id="'.$orderline_id.'"';
-//			$existing_items_result = $this->OrderItem->findAll( $existing_items_criteria );
-//			
-//			// remove IDs from BATCH data if already in LINE
-//			foreach ($existing_items_result as $key=>$val) {
-//				if ($val['OrderItem']['aliquot_master_id']) {
-//					if ( in_array($val['OrderItem']['aliquot_master_id'],$process_data['AliquotMaster']['id']) ) {
-//						unset($process_data['AliquotMaster']['id'][ array_search($val['OrderItem']['aliquot_master_id'], $process_data['AliquotMaster']['id']) ]);
-//					}
-//				}
-//			}
-			
-			// get ALIQUOTS matching BATCH data (IDs)
-			$aliquot_criteria = '';
-			$aliquot_criteria = 'AliquotMaster.id IN ('.implode( ',', $process_data['AliquotMaster']['id'] ).')';
-			$aliquot_result = $this->AliquotMaster->findAll( $aliquot_criteria );
-		
-			if ( is_array($aliquot_result) && count($aliquot_result) ) {
-				
-				// ADD each ALIQUOT to LINE's ITEMs
-				foreach ($aliquot_result as $key=>$val) {
-					
-					if(isset($aliquot_already_included_into_order[$val['AliquotMaster']['id']])) {
-						// This aliquot has already been attached to another order...
-						$bool_all_aliquots_managed = FALSE;
-					
-					} else {
-					
-						$add_aliquot_data = array();
-						$add_aliquot_data['OrderItem'] = array();
-						$add_aliquot_data['OrderItem']['id'] = NULL;
-						$add_aliquot_data['OrderItem']['barcode'] = $val['AliquotMaster']['barcode'];
-						$add_aliquot_data['OrderItem']['date_added'] = date('Y-m-d');
-						$add_aliquot_data['OrderItem']['added_by'] = '';	//$this->othAuth->user('first_name').' '.$this->othAuth->user('last_name');
-						$add_aliquot_data['OrderItem']['status'] = 'pending';
-						$add_aliquot_data['OrderItem']['created'] = date('Y-m-d G:i');
-						$add_aliquot_data['OrderItem']['created_by'] = $this->othAuth->user('id');
-						$add_aliquot_data['OrderItem']['modified'] = date('Y-m-d G:i');
-						$add_aliquot_data['OrderItem']['modified_by'] = $this->othAuth->user('id');
-						$add_aliquot_data['OrderItem']['orderline_id'] = $orderline_id;
-						$add_aliquot_data['OrderItem']['aliquot_master_id'] = $val['AliquotMaster']['id'];
-						
-						$add_aliquot_result = $this->OrderItem->save( $add_aliquot_data );
-						
-						// Update the status of the aliquot
-						$aliq_mast_update = array(
-							'id' => $val['AliquotMaster']['id'],
-							'status' => 'not available',
-							'status_reason' => 'reserved for order',
-							'modified' => date('Y-m-d G:i'),
-							'modified_by' => $this->othAuth->user('id'));
-								
-						$this->AliquotMaster->save($aliq_mast_update);	
-					
-					}
-	
-				}
-				
-			}
-		}
-				
-		// empty PROCESS data, process complete
-		unset($process_data);
-		unset($_SESSION['ctrapp_core']['datamart']['process']);
-		
-		// REDIRECT to LINE's ITEMs
-		if($bool_all_aliquots_managed) {
-			$this->flash( 'Your data has been updated.', '/order_items/listall/'.$order_id.'/'.$orderline_id );
-		} else {
-			$this->flash( 'the process has been done but a part of the aliquots have not been ' .
-					'included', '/order_items/listall/'.$order_id.'/'.$orderline_id );			
-		}
-		
-	}
+
 	
 	function deleteFromShipment($order_id=null, $orderitem_id=null) {
 		
@@ -839,7 +840,7 @@ class OrderItemsController extends OrderAppController {
 		}
 				
 		$criteria = array();		
-		$criteria['OrderLine.id'] = $oder_item_data['OrderItem']['orderline_id'];
+		$criteria['OrderLine.id'] = $oder_item_data['OrderItem']['order_line_id'];
 		$criteria['OrderLine.order_id'] = $order_id;
 		
 		$oder_line_data = $this->OrderLine->find($criteria, null, null, 0);					
@@ -874,10 +875,10 @@ class OrderItemsController extends OrderAppController {
 		}
 		
 		// ** Delete Use Record **
-		$bool_delete_aliquot_from_shipment = TRUE;
+		$bool_delete_aliquot_from_shipment = true;
 	
 		if(!$this->AliquotUse->del($aliquot_use_id)){
-			$bool_delete_aliquot_from_shipment = FALSE;		
+			$bool_delete_aliquot_from_shipment = false;		
 		}
 		
 		// Update the status of the aliquot
@@ -889,20 +890,20 @@ class OrderItemsController extends OrderAppController {
 			'modified_by' => $this->othAuth->user('id'));
 			
 		if(!$this->AliquotMaster->save($aliq_mast_update)){
-			$bool_delete_aliquot_from_shipment = FALSE;		
+			$bool_delete_aliquot_from_shipment = false;		
 		}			
 		
 		// Update order	
 		$orer_item_update = array();
 		$orer_item_update['id'] = $orderitem_id;
 		$orer_item_update['status'] = 'pending';
-		$orer_item_update['shipment_id'] = NULL;
-		$orer_item_update['aliquot_use_id'] = NULL;
+		$orer_item_update['shipment_id'] = null;
+		$orer_item_update['aliquot_use_id'] = null;
 		$orer_item_update['modified'] = date('Y-m-d G:i');
 		$orer_item_update['modified_by'] = $this->othAuth->user('id');
 		
 		if(!$this->OrderItem->save($orer_item_update)){
-			$bool_delete_aliquot_from_shipment = FALSE;		
+			$bool_delete_aliquot_from_shipment = false;		
 		}
 		
 		if(!$bool_delete_aliquot_from_shipment){
@@ -910,7 +911,7 @@ class OrderItemsController extends OrderAppController {
 			exit;
 		}
 		
-		$this->flash( 'Your data has been updated.', '/order_items/listall/'.$order_id.'/'.$oder_item_data['OrderItem']['orderline_id'] );
+		$this->flash( 'your data has been updated', '/order_items/listall/'.$order_id.'/'.$oder_item_data['OrderItem']['order_line_id'] );
 		
 	}
 	
@@ -922,12 +923,12 @@ class OrderItemsController extends OrderAppController {
 		
 		if((strcmp($order_item['OrderItem']['status'], "shipped") == 0)
 		|| (!empty($order_item['OrderItem']['shipment_id']))) {
-			return FALSE;
+			return false;
 		}
 				
 		// Etc...
 		
-		return TRUE;
+		return true;
 	}
 */	
 }
