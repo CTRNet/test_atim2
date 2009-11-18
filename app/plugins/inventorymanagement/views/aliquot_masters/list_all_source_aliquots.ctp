@@ -2,6 +2,7 @@
 	$structure_links = array(
 		'index'=>array(
 			'detail' => '/inventorymanagement/aliquot_masters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%',
+			//TODO: reaches the proper function, but the data is not flagged as deleted
 			'delete' => '/inventorymanagement/aliquot_masters/deleteAliquotUse/%%SampleMaster.collection_id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%/%%AliquotUse.id%%/2/'
 		),
 		'bottom'=>array(
