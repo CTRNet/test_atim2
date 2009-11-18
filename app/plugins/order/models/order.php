@@ -1,10 +1,15 @@
 <?php
 
-class Order extends OrderAppModel
-{
-	var $name = 'Order';
-	var $useTable = 'orders';
-
+class Order extends OrderAppModel {
+	
+	var $hasMany = array(
+		'OrderLine' => array(
+			'className'   => 'Order.OrderLine',
+			 'foreignKey'  => 'order_id'),
+		'Shipment' => array(
+			'className'   => 'Order.Shipment',
+			 'foreignKey'  => 'order_id')); 
+	
 	function summary( $variables=array() ) {
 		$return = false;
 		
@@ -14,14 +19,14 @@ class Order extends OrderAppModel
 			
 			$return = array(
 				'Summary'	 => array(
-					'menu'			=>	array( NULL, __($result['Order']['short_title'], TRUE)),
-					'title'			=>	array( NULL, __($result['Order']['short_title'], TRUE)),
+					'menu'			=>	array( 'order', ': ' . $result['Order']['order_number']),
+					'title'			=>	array( null, __('order', true) . ': ' . $result['Order']['order_number']),
 					
 					'description'	=>	array(
-						__('order number', TRUE)		=>	__($result['Order']['order_number'], TRUE),
-						__('date placed', TRUE)			=>	__($result['Order']['date_order_placed'], TRUE),
-						__('processing status', TRUE)	=>  __($result['Order']['processing_status'], TRUE),
-						__('description', TRUE)	    	=>  __($result['Order']['description'], TRUE)
+						__('order number', true)		=>	$result['Order']['order_number'],
+						__('short title', true)		=>	$result['Order']['short_title'],
+						__('date placed', true)			=>	$result['Order']['date_order_placed'],
+						__('processing status', true)	=>  __($result['Order']['processing_status'], true)
 					)
 				)
 			);
