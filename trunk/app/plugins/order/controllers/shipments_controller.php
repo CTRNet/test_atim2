@@ -6,11 +6,11 @@ class ShipmentsController extends OrderAppController {
 	var $paginate = array('Shipment'=>array('limit'=>10,'order'=>'Shipment.shipment_code'));
 	
 	function listall( $order_id=null ) {
-		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', NULL, TRUE ); }
+		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', null, true ); }
 	
 		$this->set('atim_menu', $this->Menus->get('/order/shipments/listall'));
 		
-		if ( !$order_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$order_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', null, true ); }
 
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id));
 		
@@ -20,7 +20,7 @@ class ShipmentsController extends OrderAppController {
 	}
 
 	function add( $order_id=null ) {
- 		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', NULL, TRUE ); }
+ 		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', null, true ); }
 	
 		$this->set('atim_menu', $this->Menus->get('/order/shipments/listall'));
 		
@@ -31,14 +31,14 @@ class ShipmentsController extends OrderAppController {
 		if ( !empty($this->data) ) {
 			$this->data['Shipment']['order_id'] = $order_id;
 			if ( $this->Shipment->save($this->data) ) {
-				$this->flash( 'Your data has been updated.','/order/shipments/detail/'.$order_id.'/'.$this->Shipment->id );
+				$this->flash( 'your data has been updated','/order/shipments/detail/'.$order_id.'/'.$this->Shipment->id );
 			}
 		}	
 	}
   
 	function edit( $order_id=null, $shipment_id=null ) {
- 		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', NULL, TRUE ); }
-		if ( !$shipment_id ) { $this->redirect( '/pages/err_ord_no_ship_id', NULL, TRUE ); }
+ 		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', null, true ); }
+		if ( !$shipment_id ) { $this->redirect( '/pages/err_ord_no_ship_id', null, true ); }
 		
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'Shipment.id'=>$shipment_id) );
 		
@@ -47,7 +47,7 @@ class ShipmentsController extends OrderAppController {
 		if ( !empty($this->data) ) {
 			$this->Shipment->id = $shipment_id;
 			if ( $this->Shipment->save($this->data) ) {
-				$this->flash( 'Your data has been updated.','/order/shipments/detail/'.$order_id.'/'.$shipment_id );
+				$this->flash( 'your data has been updated','/order/shipments/detail/'.$order_id.'/'.$shipment_id );
 			}
 		} else {
 			$this->data = $this->Shipment->find('first',array('conditions'=>array('Shipment.id'=>$shipment_id)));
@@ -55,8 +55,8 @@ class ShipmentsController extends OrderAppController {
 	}
   
 	function detail( $order_id=null, $shipment_id=null ) {
-		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', NULL, TRUE ); }
-		if ( !$shipment_id ) { $this->redirect( '/pages/err_ord_no_ship_id', NULL, TRUE ); }
+		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', null, true ); }
+		if ( !$shipment_id ) { $this->redirect( '/pages/err_ord_no_ship_id', null, true ); }
 		
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'Shipment.id'=>$shipment_id) );
 		
@@ -66,8 +66,8 @@ class ShipmentsController extends OrderAppController {
 	}
   
 	function delete( $order_id=null, $shipment_id=null ) {
-  		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', NULL, TRUE ); }
-		if ( !$shipment_id ) { $this->redirect( '/pages/err_ord_no_ship_id', NULL, TRUE ); }
+  		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', null, true ); }
+		if ( !$shipment_id ) { $this->redirect( '/pages/err_ord_no_ship_id', null, true ); }
 		
 		$this->hook();
 		
