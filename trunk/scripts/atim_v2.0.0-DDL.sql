@@ -1,8 +1,8 @@
 ﻿-- ATiM v2.0.0 Database Creation Script
 
-DROP DATABASE IF EXISTS `atim`;
-CREATE DATABASE `atim`;
-USE `atim`;
+-- DROP DATABASE IF EXISTS `atim`;
+-- CREATE DATABASE `atim`;
+-- USE `atim`;
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
@@ -3044,7 +3044,7 @@ CREATE TABLE `reproductive_histories` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `reproductive_histories_revs` (
-  `id` int(11) NOT NULL auto_increment,
+  `id` int(11) NOT NULL,
   `date_captured` date default NULL,
   `menopause_status` varchar(50) default NULL,
   `menopause_onset_reason` varchar(50) default NULL,
