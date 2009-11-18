@@ -641,3 +641,190 @@ VALUES
 	('inv_CAN_23', 'inv_CAN_2', 0, 3, 'listall collection aliquots', NULL, '/inventorymanagement/aliquot_masters/listAll/%%Collection.id%%/-1', '', 'Inventorymanagement.Collection::contentFilterSummary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('inv_CAN_3', 'inv_CAN', 0, 3, 'listall collection path reviews', NULL, '/underdevelopment/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
+-- ----------
+
+
+ALTER TABLE `order_lines`
+  DROP `cancer_type`,
+  DROP `base_price`,
+  DROP `quantity_shipped`,
+  DROP `discount_code`,
+  DROP `min_qty_UM`,
+  DROP `min_qty_ordered`,
+  DROP `quantity_UM`;
+  
+ALTER TABLE `order_lines_revs`
+  DROP `cancer_type`,
+  DROP `base_price`,
+  DROP `quantity_shipped`,
+  DROP `discount_code`,
+  DROP `min_qty_UM`,
+  DROP `min_qty_ordered`,
+  DROP `quantity_UM`;
+  
+ALTER TABLE `order_lines` ADD `aliquot_control_id` INT( 11 ) NULL DEFAULT NULL AFTER `sample_control_id`;
+ALTER TABLE `order_lines_revs` ADD `aliquot_control_id` INT( 11 ) NULL DEFAULT NULL AFTER `sample_control_id`;
+  
+ALTER TABLE `order_lines` CHANGE `quantity_ordered` `quantity_ordered` VARCHAR( 30 ) NULL DEFAULT NULL ;
+ALTER TABLE `order_lines_revs` CHANGE `quantity_ordered` `quantity_ordered` VARCHAR( 30 ) NULL DEFAULT NULL ;
+
+ALTER TABLE `order_lines` 
+ADD `min_quantity_ordered` VARCHAR( 30 ) NULL AFTER `quantity_ordered` ,
+ADD `quantity_unit` VARCHAR( 10 ) NULL AFTER `min_quantity_ordered`; 
+
+ALTER TABLE `order_lines_revs` 
+ADD `min_quantity_ordered` VARCHAR( 30 ) NULL AFTER `quantity_ordered` ,
+ADD `quantity_unit` VARCHAR( 10 ) NULL AFTER `min_quantity_ordered`; 
+
+ALTER TABLE `order_lines` ADD `sample_aliquot_precision` VARCHAR( 30 ) NULL AFTER `aliquot_control_id`; 
+ALTER TABLE `order_lines_revs` ADD `sample_aliquot_precision` VARCHAR( 30 ) NULL AFTER `aliquot_control_id`; 
+
+DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM `structure_fields` WHERE `model` LIKE 'OrderLine' AND field IN ('cancer_type', 'base_price', 'quantity_shipped', 'discount_code'));
+DELETE FROM structure_fields WHERE `model` LIKE 'OrderLine' AND field IN ('cancer_type', 'base_price', 'quantity_shipped', 'discount_code');
+
+ALTER TABLE `order_items` CHANGE `orderline_id` `order_line_id` INT( 11 ) NULL DEFAULT NULL;
+ALTER TABLE `order_items_revs` CHANGE `orderline_id` `order_line_id` INT( 11 ) NULL DEFAULT NULL;
+
+ALTER TABLE `order_items`
+  DROP `barcode`,
+  DROP `base_price`,
+  DROP `datetime_scanned_out`;
+ 
+ALTER TABLE `order_items_revs`
+  DROP `barcode`,
+  DROP `base_price`,
+  DROP `datetime_scanned_out`;
+  
+UPDATE `structure_formats`
+SET `flag_datagrid` = '0'
+WHERE `structure_old_id` = 'CAN-999-999-000-999-51';
+
+UPDATE `structure_formats`
+SET `flag_index` = '1'
+WHERE `old_id` = 'CAN-999-999-000-999-51_CAN-999-999-000-999-360';
+
+UPDATE `structure_formats`
+SET `display_order` = '9'
+WHERE `old_id` = 'CAN-999-999-000-999-51_CAN-999-999-000-999-358';
+
+DELETE FROM `structure_fields` WHERE old_id = 'CAN-999-999-000-999-1281';
+INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, '', 'CAN-999-999-000-999-1281', 'Order', 'OrderLine', '', 'aliquot_control_id', '', '-', 'select', '', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+DELETE FROM `structure_fields` WHERE old_id = 'CAN-999-999-000-999-1282';
+INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, '', 'CAN-999-999-000-999-1282', 'Order', 'FunctionManagement', '', 'sample_aliquot_control_id', 'product type', '', 'select', '', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+UPDATE `structure_fields`
+SET `field` = 'min_quantity_ordered'
+WHERE `old_id` = 'CAN-999-999-000-999-502';
+
+UPDATE `structure_fields`
+SET `field` = 'quantity_unit'
+WHERE `old_id` = 'CAN-999-999-000-999-503';
+
+DELETE FROM `structure_formats` WHERE `structure_field_old_id` IN ('CAN-999-999-000-999-490');
+DELETE FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-490';
+
+UPDATE `structure_fields` 
+SET `language_label` = 'product type', `language_tag` = ''
+ WHERE old_id = 'CAN-999-999-000-999-1264';
+
+UPDATE `structure_fields` SET `type` = 'input', `setting` = 'size=10',
+`structure_value_domain` = '0' WHERE `old_id` = 'CAN-999-999-000-999-488';
+
+UPDATE `structure_fields` 
+SET `language_label` = 'minimum quantity', `language_tag` = ''
+ WHERE old_id = 'CAN-999-999-000-999-502';
+ 
+ UPDATE `structure_fields` 
+SET `language_label` = '', `language_tag` = 'unit'
+ WHERE old_id = 'CAN-999-999-000-999-503';
+
+DELETE FROM `structure_validations` WHERE `structure_field_old_id = 'CAN-999-999-000-999-1282';
+INSERT INTO `structure_validations` (`id`, `old_id`, `structure_field_id`, `structure_field_old_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modifed_by`) VALUES
+(null, '0', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-1282'), 'CAN-999-999-000-999-1282', 'notEmpty', '1', '0', '', 'product type is required.', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+DELETE FROM `structure_fields` WHERE old_id = 'CAN-999-999-000-999-1283';
+INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, '', 'CAN-999-999-000-999-1283', '', 'Generated', '', 'order_line_completion', 'completion', '', 'input', 'size=30', '', 0, 'order_line_completion_help', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+DELETE FROM `structure_fields` WHERE old_id = 'CAN-999-999-000-999-1284';
+INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, '', 'CAN-999-999-000-999-1284', '', 'OrderLine', '', 'sample_aliquot_precision', '', 'sample aliquot type precision', 'input', 'size=30', '', 0, 'sample_aliquot_type_precision_help', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+DELETE FROM `structure_formats` WHERE `structure_old_id` = 'CAN-999-999-000-999-60';
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, 'CAN-999-999-000-999-60_CAN-999-999-000-999-1282', (SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-60'), 'CAN-999-999-000-999-60', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1282'), 'CAN-999-999-000-999-1282', 0, 0, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'CAN-999-999-000-999-60_CAN-999-999-000-999-1264', (SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-60'), 'CAN-999-999-000-999-60', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1264'), 'CAN-999-999-000-999-1264', 0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'CAN-999-999-000-999-60_CAN-999-999-000-999-1281', (SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-60'), 'CAN-999-999-000-999-60', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1281'), 'CAN-999-999-000-999-1281', 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'CAN-999-999-000-999-60_CAN-999-999-000-999-1284', (SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-60'), 'CAN-999-999-000-999-60', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1284'), 'CAN-999-999-000-999-1284', 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+
+(null, 'CAN-999-999-000-999-60_CAN-999-999-000-999-488', (SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-60'), 'CAN-999-999-000-999-60', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-488'), 'CAN-999-999-000-999-488', 0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'CAN-999-999-000-999-60_CAN-999-999-000-999-492', (SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-60'), 'CAN-999-999-000-999-60', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-492'), 'CAN-999-999-000-999-492', 0, 21, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'CAN-999-999-000-999-60_CAN-999-999-000-999-489', (SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-60'), 'CAN-999-999-000-999-60', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-489'), 'CAN-999-999-000-999-489', 0, 10, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'CAN-999-999-000-999-60_CAN-999-999-000-999-503', (SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-60'), 'CAN-999-999-000-999-60', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-503'), 'CAN-999-999-000-999-503', 0, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'CAN-999-999-000-999-60_CAN-999-999-000-999-502', (SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-60'), 'CAN-999-999-000-999-60', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-502'), 'CAN-999-999-000-999-502', 0, 12, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'CAN-999-999-000-999-60_CAN-999-999-000-999-494', (SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-60'), 'CAN-999-999-000-999-60', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-494'), 'CAN-999-999-000-999-494', 1, 22, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'CAN-999-999-000-999-60_CAN-999-999-000-999-1283', (SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-60'), 'CAN-999-999-000-999-60', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1283'), 'CAN-999-999-000-999-1283', 1, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '9', '0', '9', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+DELETE FROM `i18n` WHERE `id` IN ('minimum quantity', 'product type', 'product type is required',
+'order_line_completion_help', 'sample aliquot type precision', 'sample_aliquot_type_precision_help', 'completion');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('sample aliquot type precision', 'global', 'Precision', 'Pr&eacute;cision'),
+('completion', 'global', 'Completion', '&Eacute;tat d''avancement'),
+('sample_aliquot_type_precision_help', 'global', 
+'Allow user to add additional product type precision like ''frozen'', ''OCT'', etc.', 
+'Permet &agrave; l''utilisateur de pr&eacutre;ciser le type du produit comme ''OCT'', ''congel&eacute;'', etc.'),
+('product type', 'global', 'Product Type', 'Type de produit'),
+('product type is required', 'global', 'Product type is required!', 'Le type de produit est requis!'),
+('minimum quantity', 'global', 'Minimum Quantity', 'Quantit&eacute; minimale'),
+('order_line_completion_help', 'global', 'Order line completion: ''shipped items number / order line items number.''', 
+'&Eacute;tat d''avancement de la ligne de commande: nombre d''items envoy&eacute;s / nombre d''items inclus.');
+
+DELETE FROM `i18n` WHERE `id` IN ('error deleting data - contact administrator',
+'order line exists for the deleted order', 'shipment exists for the deleted order');
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('error deleting data - contact administrator', 'global', 
+'Error Deleting Data - Contact Administrator', 'Erreur durant la suppression des donn&eacute;es - Contactez votre administrateur du syst&egrave;me!'),
+
+('order line exists for the deleted order', 'global', 
+'Your data cannot be deleted! <br>Order lines exist for the deleted order.', 
+'Vos donn&eacute;es ne peuvent &ecirc;tre supprim&eacute;es! Des lignes de commandes existent pour votre commande.'),
+
+('shipment exists for the deleted order', 'global', 
+'Your data cannot be deleted! <br>Shipments exist for the deleted order.', 
+'Vos donn&eacute;es ne peuvent &ecirc;tre supprim&eacute;es! Des exp&eacute;ditions existent pour votre commande.');
+
+DELETE FROM menus
+WHERE id LIKE 'ord_CAN%';
+
+INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_title`, `language_description`, `use_link`, `use_params`, `use_summary`, `active`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+('ord_CAN_101', 'core_CAN_33', 1, 4, 'order_order management', 'order_order management', '/order/orders/index/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+
+('ord_CAN_113', 'ord_CAN_101', 0, 1, 'details', 'order', '/order/orders/detail/%%Order.id%%/', '', 'Order.Order::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('ord_CAN_114', 'ord_CAN_101', 0, 2, 'order_order lines', 'order_order lines', '/order/order_lines/listall/%%Order.id%%/', '', 'Order.Order::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+	('ord_CAN_115', 'ord_CAN_114', 0, 1, 'order_order line detail', 'order_order line detail', '/order/order_lines/detail/%%Order.id%%/%%OrderLine.id%%/', '', 'Order.OrderLine::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+	('ord_CAN_117', 'ord_CAN_114', 0, 2, 'order_order items', 'order_order items', '/order/order_items/listall/%%Order.id%%/%%OrderLine.id%%/', '', 'Order.OrderLine::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+		('ord_CAN_118', 'ord_CAN_117', 0, 1, 'order_order item detail', 'order_order item detail', '/order/order_items/detail/%%Order.id%%/%%OrderLine.id%%/%%OrderItem.id%%/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('ord_CAN_116', 'ord_CAN_101', 0, 3, 'order_shipments', 'order_shipments', '/order/shipments/listall/%%Order.id%%/', '', 'Order.Order::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+	('ord_CAN_119', 'ord_CAN_116', 0, 1, 'order_shipment detail', 'order_shipment detail', '/order/shipments/detail/%%Order.id%%/%%Shipment.id%%/', '', 'Order.Shipment::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+	('ord_CAN_120', 'ord_CAN_116', 0, 2, 'order_shipment items', 'order_shipment items', '/order/order_items/shipment_items/%%Order.id%%/%%Shipment.id%%/', '', 'Order.Shipment::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+DELETE FROM `i18n` WHERE `id` IN ('order line', 'line');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('order line', 'global', 'Order Line', 'Ligne de commande'),
+('line', 'global', 'Line', 'Ligne');
+
+DELETE FROM `structure_formats` WHERE `structure_field_id` IN (SELECT id FROM `structure_fields` WHERE `model` LIKE 'OrderItem' AND `field` IN ('barcode', 'base_price', 'datetime_scanned_out'));
+DELETE FROM `structure_fields` WHERE `model` LIKE 'OrderItem' AND `field` IN ('barcode', 'base_price', 'datetime_scanned_out');
+
+DELETE FROM `structure_formats` WHERE `structure_old_id` = 'CAN-999-999-000-999-61';
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, 'CAN-999-999-000-999-61_CAN-999-999-000-999-1100', (SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-61'), 'CAN-999-999-000-999-61', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1100'), 'CAN-999-999-000-999-1100', 1, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'CAN-999-999-000-999-61_CAN-999-999-000-999-498', (SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-61'), 'CAN-999-999-000-999-61', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-498'), 'CAN-999-999-000-999-498', 1, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'CAN-999-999-000-999-61_CAN-999-999-000-999-499', (SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-61'), 'CAN-999-999-000-999-61', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-499'), 'CAN-999-999-000-999-499', 1, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'CAN-999-999-000-999-61_CAN-999-999-000-999-1261', (SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-61'), 'CAN-999-999-000-999-61', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1261'), 'CAN-999-999-000-999-1261', 1, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'CAN-999-999-000-999-61_CAN-999-999-000-999-501', (SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-61'), 'CAN-999-999-000-999-61', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-501'), 'CAN-999-999-000-999-501', 1, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'CAN-999-999-000-999-61_CAN-999-999-000-999-504', (SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-61'), 'CAN-999-999-000-999-61', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-504'), 'CAN-999-999-000-999-504', 1, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
