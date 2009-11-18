@@ -30,13 +30,13 @@
 	$structure_links = array(
 		'tree'=>array(
 			'Collection' => array(
-				'detail' => '/inventorymanagement/collections/detail/%%Collection.id%%/true/'
+				'detail' => '/inventorymanagement/collections/detail/%%Collection.id%%/' . true . '/' . false
 			),
 			'SampleMaster' => array(
-				'detail' => '/inventorymanagement/sample_masters/detail/%%SampleMaster.collection_id%%/%%SampleMaster.id%%/1/true'
+				'detail' => '/inventorymanagement/sample_masters/detail/%%SampleMaster.collection_id%%/%%SampleMaster.id%%/' . true . '/' . false
 			),
 			'AliquotMaster' => array(
-				'detail' => '/inventorymanagement/aliquot_masters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/1/1/true'
+				'detail' => '/inventorymanagement/aliquot_masters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/' . true . '/' . false
 			)
 
 			
