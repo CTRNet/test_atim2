@@ -14,13 +14,13 @@ class Shipment extends OrderAppModel
 			
 			$return = array(
 				'Summary'		=> array(
-					'menu'			=>	array( NULL, __('Shipment',TRUE)),
-					'title'			=>	array( NULL, NULL),
+					'menu'			=>	array( null, __('Shipment',true)),
+					'title'			=>	array( null, null),
 					'description'	=>	array(
-						__('shipping code', TRUE)			=>	__($result['Shipment']['shipment_code'], TRUE),
-						__('recipient', TRUE)				=>	__($result['Shipment']['recipient'], TRUE),
-						__('shipping company', TRUE)		=>	__($result['Shipment']['shipping_company'], TRUE),
-						__('shipping account number', TRUE)	=>  __($result['Shipment']['shipping_account_nbr'], TRUE)
+						__('shipping code', true)			=>	__($result['Shipment']['shipment_code'], true),
+						__('recipient', true)				=>	__($result['Shipment']['recipient'], true),
+						__('shipping company', true)		=>	__($result['Shipment']['shipping_company'], true),
+						__('shipping account number', true)	=>  __($result['Shipment']['shipping_account_nbr'], true)
 					)
 				)
 			);	
