@@ -2,7 +2,7 @@
 
 class PathCollectionReviewsController extends InventoryManagementAppController {
 	
-	var $uses = array('InventoryManagement.PathCollectionReview', 'InventoryManagement.Collection', 'InventoryManagement.AliquotMaster');
+	var $uses = array('Inventorymanagement.PathCollectionReview', 'Inventorymanagement.Collection', 'Inventorymanagement.AliquotMaster');
 	var $paginate = array('PathCollectionReview'=>array('limit'=>10, 'order' => 'PathCollectionReview.path_coll_rev_code'));
 	
 	function listall ($collection_id) {

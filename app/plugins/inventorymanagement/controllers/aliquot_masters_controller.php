@@ -335,6 +335,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 			default:
 				$this->redirect('/pages/err_inv_system_error', null, true);
 		}
+
+		// TODO: SampleToAliquotControl : test all realtion with status, etc to be sure all it's correctly set into db
 		
 		// Get control data
 		$criteria = array(
