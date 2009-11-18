@@ -2,7 +2,7 @@
 	$structure_links = array(
 		'index'=>array(
 			'detail'=>'/inventorymanagement/aliquot_masters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%',
-			'delete'=>'/inventorymanagement/quality_ctrls/deleteTestedAliquot/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%QualityCtrl.id%%/%%QualityCtrlTestedAliquot.id%%'
+			'delete'=>'/inventorymanagement/aliquot_masters/deleteAliquotUse/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/%%AliquotUse.id%%/3/%%QualityCtrl.id%%/'
 		),
 		'bottom'=>array(
 			'add'=>'/inventorymanagement/quality_ctrls/addTestedAliquots/'

@@ -670,12 +670,14 @@ unset($this->data['AliquotMaster']);
 	
 	function listAllAliquotUses($collection_id, $sample_master_id, $aliquot_master_id) {
 		if((!$collection_id) || (!$sample_master_id) || (!$aliquot_master_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }
-		
 		// MANAGE DATA
 		
 		// Get the aliquot data
 		$aliquot_data = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id, 'AliquotMaster.id' => $aliquot_master_id)));
-		if(empty($aliquot_data)) { $this->redirect('/pages/err_inv_aliquot_no_data', null, true); }		
+		if(empty($aliquot_data)) { 
+			echo("AAA");
+			exit;
+			$this->redirect('/pages/err_inv_aliquot_no_data', null, true); }		
 						
 		$this->data = $this->paginate($this->AliquotUse, array('AliquotUse.aliquot_master_id' => $aliquot_master_id));		
 				
@@ -823,9 +825,8 @@ unset($this->data['AliquotMaster']);
 		}
 	}
 	
-	function deleteAliquotUse($collection_id, $sample_master_id, $aliquot_master_id, $aliquot_use_id, $redirect = null) {
+	function deleteAliquotUse($collection_id, $sample_master_id, $aliquot_master_id, $aliquot_use_id, $redirect = null, $extra_param = null) {
 		if((!$collection_id) || (!$sample_master_id) || (!$aliquot_master_id) || (!$aliquot_use_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }
-
 //TODO redirect all delete to this function...				
 
  		// MANAGE DATA
@@ -833,15 +834,19 @@ unset($this->data['AliquotMaster']);
 		// Get the use data
 		$use_data = $this->AliquotUse->find('first', array('conditions' => array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id, 'AliquotMaster.id' => $aliquot_master_id, 'AliquotUse.id' => $aliquot_use_id)));
 		if(empty($use_data)) { $this->redirect('/pages/err_inv_aliq_use_no_data', null, true); }		
-		
+
 		// Set url to display next page
 		if($redirect == 1){
 			$flash_url = '/inventorymanagement/aliquot_masters/listAllRealiquotedParents/' . $collection_id . '/' . $sample_master_id . '/' . $aliquot_master_id;
+		}else if($redirect == 2){
+			$flash_url = '/inventorymanagement/quality_ctrls/listAllSourceAliquots/' . $collection_id . '/' . $sample_master_id . '/';
+		}else if($redirect == 3){
+			$flash_url = '/inventorymanagement/quality_ctrls/listallTestedAliquots/' . $collection_id . '/' . $sample_master_id . '/' . $extra_param . '/';
 		}else{
 			$flash_url = '/inventorymanagement/aliquot_masters/listAllAliquotUses/' . $collection_id . '/' . $sample_master_id . '/' . $aliquot_master_id;
 		}
 		// Set Use Detail table
-		$accepted_use_detail_table = array('quality_ctrl_tested_aliquots', 'source_aliquots');
+		$accepted_use_detail_table = array('quality_ctrl_tested_aliquots', 'source_aliquots', 'realiquotings');
 		$this->AliquotUseDetail = null;
 		if(!empty($use_data['AliquotUse']['use_recorded_into_table'])) {
 			if(in_array($use_data['AliquotUse']['use_recorded_into_table'], $accepted_use_detail_table)) {
@@ -1043,32 +1048,7 @@ unset($this->data['AliquotMaster']);
 		}
 	}
 	
-	function deleteSourceAliquot($collection_id, $sample_master_id, $source_aliquot_master_id) {
-		if((!$collection_id) || (!$sample_master_id) || (!$source_aliquot_master_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }		
-		
-		// Get the source aliquot data
-		$source_aliquot_data = $this->SourceAliquot->find('first', array('conditions' => array('AliquotMaster.id' => $source_aliquot_master_id, 'SampleMaster.id' => $sample_master_id, 'SampleMaster.collection_id' => $collection_id)));
-		if(empty($source_aliquot_data)) { $this->redirect('/pages/err_inv_system_error', null, true); }		
-		
-		// Launch deletion
-		$deletion_done = true;
-		if(!$this->SourceAliquot->atim_delete($source_aliquot_data['SourceAliquot']['id'])) { $deletion_done = false; }
-		if($deletion_done) {
-			if(!$this->AliquotUse->atim_delete($source_aliquot_data['SourceAliquot']['aliquot_use_id'])) { $deletion_done = false; }	
-		}
-		if($deletion_done) {
-			if(!$this->Aliquots->updateAliquotCurrentVolume($source_aliquot_master_id)) { $deletion_done = false; }
-		}
-
-		if($deletion_done) {
-			//TODO Error in the redirection
-			$this->flash('xxxx message confirmation oubliez pas de status aliquot ', '/inventorymanagement/aliquot_masters/listAllSourceAliquots/' . $collection_id . '/' . $sample_master_id); 
-		} else {
-			$this->flash('Error deleting data - Contact administrator . ', '/inventorymanagement/aliquot_masters/listAllSourceAliquots/' . $collection_id . '/' . $sample_master_id); 
-		}	
-	}	
-	
-	/* ------------------------------ REALIQUOTING ------------------------------ */
+		/* ------------------------------ REALIQUOTING ------------------------------ */
 	
 	
 	
@@ -1084,13 +1064,17 @@ unset($this->data['AliquotMaster']);
 		$current_aliquot_data = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id, 'AliquotMaster.id' => $aliquot_master_id)));
 		if(empty($current_aliquot_data)) { $this->redirect('/pages/err_inv_aliquot_no_data', null, true); }		
 
+		$atim_menu_link = ($current_aliquot_data['SampleMaster']['sample_category'] == 'specimen') ? '/inventorymanagement/aliquot_masters/listAllAliquotUses/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%/%%AliquotMaster.id%%': '/inventorymanagement/aliquot_masters/listAllAliquotUses/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%';
+		
+		$this->set('atim_menu', $this->Menus->get($atim_menu_link));
+		
 		$this->set('atim_menu_variables', array('Collection.id' => $collection_id,
 												'SampleMaster.id' => $sample_master_id,
 												'AliquotMaster.id' => $aliquot_master_id,
 												'SampleMaster.initial_specimen_sample_id' => $current_aliquot_data['SampleMaster']['initial_specimen_sample_id']));
 
-		$aliquot_data = $this->AliquotMaster->find('all', array('conditions' => "AliquotMaster.id != '".$aliquot_master_id."'"));
 		
+		$aliquot_data = $this->AliquotMaster->find('all', array('conditions' => "AliquotMaster.id != '".$aliquot_master_id."'"));
 		//filter data
 		foreach($aliquot_data as $key => $aliquot){
 			$found = false;
@@ -1131,7 +1115,7 @@ unset($this->data['AliquotMaster']);
 					$aliquot_use['AliquotUse']['use_definition'] = "realiquoted to";
 					$aliquot_use['AliquotUse']['use_details'] = "";
 					$aliquot_use['AliquotUse']['use_code'] = $realiquoted['AliquotMaster']['barcode'];//child barcode
-					$aliquot_use['AliquotUse']['use_recorded_into_table'] = "";
+					$aliquot_use['AliquotUse']['use_recorded_into_table'] = "realiquotings";
 					$aliquot_use['AliquotUse']['used_volume'] = is_numeric($realiquoted['FunctionManagement']['input_number']) ? $realiquoted['FunctionManagement']['input_number'] : null; 
 					$aliquot_use['AliquotUse']['use_datetime'] = $date;
 					$aliquot_use['AliquotUse']['used_by'] = "";
@@ -1148,7 +1132,8 @@ unset($this->data['AliquotMaster']);
 					unset($this->data[$key]);
 				}
 			}
-			$this->data = array_values($this->data);
+			$this->Flash('Data saved. ', 
+						'/inventorymanagement/aliquot_masters/listAllAliquotUses/'.$collection_id.'/'.$sample_master_id.'/'.$aliquot_master_id.'/');
 		}else{
 			$this->data = $aliquot_data;
 		}
@@ -1168,6 +1153,10 @@ unset($this->data['AliquotMaster']);
 		
 		if(empty($current_aliquot_data)) { $this->redirect('/pages/err_inv_aliquot_no_data', null, true); }		
 
+		$atim_menu_link = ($current_aliquot_data['SampleMaster']['sample_category'] == 'specimen') ? '/inventorymanagement/aliquot_masters/listAllAliquotUses/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%/%%AliquotMaster.id%%': '/inventorymanagement/aliquot_masters/listAllAliquotUses/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%';
+		
+		$this->set('atim_menu', $this->Menus->get($atim_menu_link));
+		
 		$this->set('atim_menu_variables', array('Collection.id' => $collection_id,
 												'SampleMaster.id' => $sample_master_id,
 												'AliquotMaster.id' => $aliquot_master_id,
@@ -1176,7 +1165,7 @@ unset($this->data['AliquotMaster']);
 		
 		$this->set('atim_structure', $this->Structures->get('form', 'realiquotedparent'));
 		
-		$this->data = $this->paginate($this->Realiquoting, "Realiquoting.child_aliquot_master_id = '".$aliquot_master_id."'");
+		$this->data = $this->paginate($this->Realiquoting, "Realiquoting.child_aliquot_master_id = '".$aliquot_master_id."' AND Realiquoting.deleted != 1 ");
 
 		foreach($this->data as &$val){
 			$val['AliquotMaster'] = $val['AliquotMasterParent'];
