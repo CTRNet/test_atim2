@@ -9,6 +9,9 @@ class StudyFundingsController extends StudyAppController {
 		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_no_summary_id', NULL, TRUE ); }
 
 		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id));
+		
+		$this->hook();
+		
 		$this->data = $this->paginate($this->StudyFunding, array('StudyFunding.study_summary_id'=>$study_summary_id));
 		
 	}
@@ -17,6 +20,8 @@ class StudyFundingsController extends StudyAppController {
 		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_no_summary_id', NULL, TRUE ); }
 	
 		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id));
+		
+		$this->hook();
 		
 		if ( !empty($this->data) ) {
 			$this->data['StudyFunding']['study_summary_id'] = $study_summary_id;
@@ -31,6 +36,8 @@ class StudyFundingsController extends StudyAppController {
 		if ( !$study_funding_id ) { $this->redirect( '/pages/err_study_no_fund_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id, 'StudyFunding.id'=>$study_funding_id) );
+		
+		$this->hook();
 		
 		if ( !empty($this->data) ) {
 			$this->StudyFunding->id = $study_funding_id;
@@ -47,12 +54,17 @@ class StudyFundingsController extends StudyAppController {
 		if ( !$study_funding_id ) { $this->redirect( '/pages/err_study_no_fund_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id, 'StudyFunding.id'=>$study_funding_id) );
+		
+		$this->hook();
+		
 		$this->data = $this->StudyFunding->find('first',array('conditions'=>array('StudyFunding.id'=>$study_funding_id)));
 	}
   
 	function delete( $study_summary_id=null, $study_funding_id=null ) {
 		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_no_summary_id', NULL, TRUE ); }
 		if ( !$study_funding_id ) { $this->redirect( '/pages/err_study_no_fund_id', NULL, TRUE ); }
+		
+		$this->hook();
 		
 		if( $this->StudyFunding->atim_delete( $study_funding_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/study/study_fundings/listall/'.$study_summary_id );

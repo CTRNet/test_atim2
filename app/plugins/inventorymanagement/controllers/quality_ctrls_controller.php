@@ -27,6 +27,8 @@ class QualityCtrlsController extends InventoryManagementAppController {
 		$sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id), 'recursive' => '-1'));
 		if(empty($sample_data)) { $this->redirect('/pages/err_inv_samp_no_data', null, true); }	
 		
+		$this->hook();
+		
 		$this->data = $this->paginate($this->QualityCtrl,array('QualityCtrl.sample_master_id'=>$sample_master_id));
 		
 		$sample_id_parameter = ($sample_data['SampleMaster']['sample_category'] == 'specimen')? '%%SampleMaster.initial_specimen_sample_id%%': '%%SampleMaster.id%%';
@@ -53,6 +55,8 @@ class QualityCtrlsController extends InventoryManagementAppController {
 				'SampleMaster.initial_specimen_sample_id' => $sample_data['SampleMaster']['initial_specimen_sample_id']) 
 		);
 		
+		$this->hook();
+		
 		if ( !empty($this->data) ) {
 			$this->data['QualityCtrl']['sample_master_id'] = $sample_master_id;
 			if ( $this->QualityCtrl->save( $this->data )) {
@@ -74,6 +78,8 @@ class QualityCtrlsController extends InventoryManagementAppController {
 	function detail($collection_id, $sample_master_id, $quality_ctrl_id) {
 		if((!$collection_id) || (!$sample_master_id) || (!$quality_ctrl_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }		
 
+		$this->hook();
+		
 		$this->data = $this->QualityCtrl->find('first',array('conditions'=>array('QualityCtrl.id'=>$quality_ctrl_id, 'SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id)));
 		if(empty($this->data)) { $this->redirect('/pages/err_inv_qc_no_data', null, true); }
 
@@ -102,6 +108,8 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			'SampleMaster.initial_specimen_sample_id' =>  $qc_data['SampleMaster']['initial_specimen_sample_id'],
 			'QualityCtrl.id' => $quality_ctrl_id) );
 				
+		$this->hook();
+				
 		if ( !empty($this->data) ) {
 			// Get aliquot use ids of the tested aliquots
 			$aliquot_use_ids = array();
@@ -129,6 +137,9 @@ class QualityCtrlsController extends InventoryManagementAppController {
 		$arr_allow_deletion = $this->allowQcDeletion($quality_ctrl_id);
 			
 		if($arr_allow_deletion['allow_deletion']) {
+		
+			$this->hook();
+		
 			if($this->QualityCtrl->atim_delete($quality_ctrl_id)) {
 				$this->flash( 'Your data has been deleted.', 
 						'/inventorymanagement/quality_ctrls/listall/'

@@ -27,6 +27,8 @@ class ParticipantsController extends ClinicalannotationAppController {
 		// if SEARCH form data, parse and create conditions
 		if ( $this->data ) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions();
 		
+		$this->hook();
+		
 		$this->data = $this->paginate($this->Participant, $_SESSION['ctrapp_core']['search']['criteria']);
 		
 		// if SEARCH form data, save number of RESULTS and URL
@@ -36,15 +38,22 @@ class ParticipantsController extends ClinicalannotationAppController {
 
 	function profile( $participant_id ) {
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id) );
+		
+		$this->hook();
+		
 		$this->data = $this->Participant->find('first',array('conditions'=>array('Participant.id'=>$participant_id)));
 	}
 	
 	function listall( ){
+		$this->hook();
+	
 		$this->data = $this->paginate($this->Participant, array());
 	}
 	
 	function add() {
 		$this->set( 'atim_menu', $this->Menus->get('/clinicalannotation/participants/index') );
+		
+		$this->hook();
 		
 		if ( !empty($this->data) ) {
 			if ( $this->Participant->save($this->data) ) $this->flash( 'Your data has been updated.','/clinicalannotation/participants/profile/'.$this->Participant->getLastInsertID());
@@ -53,6 +62,8 @@ class ParticipantsController extends ClinicalannotationAppController {
 	
 	function edit( $participant_id ) {
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id) );
+		
+		$this->hook();
 		
 		if ( !empty($this->data) ) {
 			$this->Participant->id = $participant_id;
@@ -80,6 +91,9 @@ class ParticipantsController extends ClinicalannotationAppController {
 		
 		if ( $consent_master_id == NULL && $event_id == NULL && $contact_id == NULL && $diagnosis_master_id == NULL && $family_id == NULL && $identifier_id == NULL && $link_id == NULL &&
 			$message_id == NULL && $reproductive_id == NULL && $treatment_id == NULL){
+			
+			$this->hook();
+			
 			if( $this->Participant->atim_delete( $participant_id ) ) {
 				$this->flash( 'Your data has been deleted.', '/clinicalannotation/participants/index/');
 			} else {

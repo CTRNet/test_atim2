@@ -9,7 +9,9 @@ class PasswordsController extends AppController {
 		$this->set( 'atim_structure', $this->Structures->get(NULL,'users') );
 			
 		$this->User->id = $_SESSION['Auth']['User']['id'];
-			
+		
+		$this->hook();
+		
 		if ( empty($this->data) ) {
 			$this->set( 'data', $this->User->read() );
 		} 

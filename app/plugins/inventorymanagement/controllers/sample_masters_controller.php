@@ -73,6 +73,9 @@ class SampleMastersController extends InventorymanagementAppController {
 				'className' => 'Inventorymanagement.SampleMaster',
 				'foreignKey' => 'parent_id')));
 		$this->SampleMaster->bindModel($belongs_to_details, false);	
+		
+		$this->hook();
+		
 		$this->data = $this->paginate($this->SampleMaster, $criteria);
 		$this->SampleMaster->unbindModel(array('belongsTo' => array('GeneratedParentSample')), false);
 		
@@ -111,7 +114,10 @@ class SampleMastersController extends InventorymanagementAppController {
 		}
 		$criteria['SampleMaster.collection_id'] = $collection_id;
 		$collection_samples = $this->SampleMaster->find('threaded', array('conditions' => $criteria, 'order' => 'SampleMaster.sample_type DESC, SampleMaster.sample_code DESC', 'recursive' => '-1'));
-	 	$this->data = $this->completeCollectionContent($collection_samples);
+	 	
+		$this->hook();
+		
+		$this->data = $this->completeCollectionContent($collection_samples);
 				
 		// MANAGE FORM, MENU AND ACTION BUTTONS	
 			 	
@@ -309,7 +315,9 @@ class SampleMastersController extends InventorymanagementAppController {
 		}
 
 		// MANAGE DATA
-				
+		
+		$this->hook();
+		
 		// Search data to display
 		$this->setSampleSearchData(array_merge(array('SampleMaster.collection_id' => $collection_id), $specific_sample_search_criteria));
 		
@@ -381,6 +389,8 @@ class SampleMastersController extends InventorymanagementAppController {
 				$this->redirect('/pages/err_inv_system_error', null, true);
 		}
 
+		$this->hook();
+		
 		$this->data = $sample_data;
 
 		// Get parent sample information
@@ -488,6 +498,8 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->set('atim_structure', $this->Structures->get('form', $sample_control_data['SampleControl']['form_alias']));
 	
 		// MANAGE DATA RECORD
+			
+		$this->hook();
 			
 		if(!empty($this->data)) {	
 
@@ -609,6 +621,8 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 		// MANAGE DATA RECORD
 		
+		$this->hook();
+		
 		if(empty($this->data)) {
 				$this->data = $sample_data;
 
@@ -687,6 +701,9 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 		if($arr_allow_deletion['allow_deletion']) {
 			$deletion_done = true;
+			
+			$this->hook();
+			
 			if(!$this->SampleMaster->atim_delete($sample_master_id)) { $deletion_done = false; }
 			if($deletion_done) {
 				if($bool_is_specimen) {

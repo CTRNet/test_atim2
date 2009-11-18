@@ -8,6 +8,8 @@ class PreferencesController extends CustomizeAppController {
 	function index() {
 		$this->set( 'atim_structure', $this->Structures->get( 'form', 'preferences' ) );
 		
+		$this->hook();
+		
 		// get USER data
 		
 			$this->data = $this->User->find('first',array('conditions'=>array('User.id'=>$_SESSION['Auth']['User']['id'])));
@@ -54,6 +56,8 @@ class PreferencesController extends CustomizeAppController {
 			if ( (!$config_results || !count($config_results)) ) {
 				$config_results = $this->Config->find('first', array('conditions'=>'(bank_id="0" OR bank_id IS NULL) AND (group_id="0" OR group_id IS NULL) AND (user_id="0" OR user_id IS NULL)'));
 			}
+		
+		$this->hook();
 		
 		if ( !empty($this->data) ) {
 		

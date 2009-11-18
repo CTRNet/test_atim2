@@ -9,6 +9,9 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
+		
+		$this->hook();
+		
 		$this->data = $this->paginate($this->ParticipantMessage, array('ParticipantMessage.participant_id'=>$participant_id));
 	}
 	
@@ -17,6 +20,9 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController {
 		if ( !$participant_message_id ) { $this->redirect( '/pages/err_clin-ann_no_message_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'ParticipantMessage.id'=>$participant_message_id) );
+		
+		$this->hook();
+		
 		$this->data = $this->ParticipantMessage->find('first',array('conditions'=>array('ParticipantMessage.id'=>$participant_message_id)));
 	}
 	
@@ -24,6 +30,8 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 	
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
+		
+		$this->hook();
 		
 		if ( !empty($this->data) ) {
 			$this->data['ParticipantMessage']['participant_id'] = $participant_id;
@@ -39,6 +47,8 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController {
 		
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'ParticipantMessage.id'=>$participant_message_id) );
 		
+		$this->hook();
+		
 		if ( !empty($this->data) ) {
 			$this->ParticipantMessage->id = $participant_message_id;
 			if ( $this->ParticipantMessage->save($this->data) ) {
@@ -52,6 +62,8 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController {
 	function delete( $participant_id=null, $participant_message_id=null ) {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		if ( !$participant_message_id ) { $this->redirect( '/pages/err_clin-ann_no_message_id', NULL, TRUE ); }
+		
+		$this->hook();
 		
 		if( $this->ParticipantMessage->atim_delete( $participant_message_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/clinicalannotation/participant_messages/listall/'.$participant_id );

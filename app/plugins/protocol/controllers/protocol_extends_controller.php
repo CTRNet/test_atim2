@@ -18,6 +18,8 @@ class ProtocolExtendsController extends ProtocolAppController {
 		$use_form_alias = $protocol_master_data['ProtocolControl']['extend_form_alias'];
 		$this->set('atim_structure', $this->Structures->get('form', $use_form_alias));
 		
+		$this->hook();
+		
 		$this->data = $this->paginate($this->ProtocolExtend, array('ProtocolExtend.protocol_master_id'=>$protocol_master_id));
 		
 		$drug_list = $this->Drug->find('list', array('fields' => array('Drug.id', 'Drug.generic_name'), 'order' => array('Drug.generic_name')));
@@ -36,6 +38,8 @@ class ProtocolExtendsController extends ProtocolAppController {
 		$use_form_alias = $protocol_master_data['ProtocolControl']['extend_form_alias'];
 	    $this->set( 'atim_structure', $this->Structures->get( 'form', $use_form_alias ) );
 
+		$this->hook();
+		
 	    $this->data = $this->ProtocolExtend->find('first',array('conditions'=>array('ProtocolExtend.id'=>$protocol_extend_id)));
 	    
 		// Get all drugs to override drug_id with generic drug name
@@ -58,6 +62,8 @@ class ProtocolExtendsController extends ProtocolAppController {
 		// Get all drugs to override drug_id with generic drug name
 		$drug_list = $this->Drug->find('list', array('fields' => array('Drug.id', 'Drug.generic_name'), 'order' => array('Drug.generic_name')));
 		$this->set('drug_list', $drug_list);
+		
+		$this->hook();
 		
 		if ( !empty($this->data) ) {
 			$this->data['ProtocolExtend']['protocol_master_id'] = $protocol_master_data['ProtocolMaster']['id'];
@@ -88,6 +94,8 @@ class ProtocolExtendsController extends ProtocolAppController {
 	    
 	    $this_data = $this->ProtocolExtend->find('first',array('conditions'=>array('ProtocolExtend.id'=>$protocol_extend_id)));
 
+		$this->hook();
+		
 	    if (!empty($this->data)) {
 			$this->ProtocolExtend->id = $protocol_extend_id;
 			if ($this->ProtocolExtend->save($this->data)) {
@@ -99,7 +107,9 @@ class ProtocolExtendsController extends ProtocolAppController {
 	}
 
 	function delete($protocol_master_id=null, $protocol_extend_id=null) {
-
+		
+		$this->hook();
+		
 		$this->ProtocolExtend->del( $protocol_extend_id );
 		$this->flash( 'Your data has been deleted.', '/protocol/protocol_extends/listall/'.$protocol_master_id );
 

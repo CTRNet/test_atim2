@@ -21,6 +21,8 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		$use_form_alias = $tx_master_data['TreatmentControl']['extend_form_alias'];
 	    $this->set( 'atim_structure', $this->Structures->get( 'form', $use_form_alias ) );
 		
+		$this->hook();
+		
 		$this->data = $this->paginate($this->TreatmentExtend, array('TreatmentExtend.tx_master_id'=>$tx_master_id));
 		
 		$this->set('tx_group', $tx_master_data['TreatmentMaster']['tx_group']);
@@ -45,6 +47,8 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		$use_form_alias = $tx_master_data['TreatmentControl']['extend_form_alias'];
 	    $this->set( 'atim_structure', $this->Structures->get( 'form', $use_form_alias ) );
 
+		$this->hook();
+		
 	    $this->data = $this->TreatmentExtend->find('first',array('conditions'=>array('TreatmentExtend.id'=>$tx_extend_id)));
 	    
 		$this->set('tx_group', $tx_master_data['TreatmentMaster']['tx_group']);
@@ -80,6 +84,8 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 				$this->set('drug_list', $this->Drug->find('list', array('fields'=>array('Drug.id','Drug.generic_name'), 'order'=>array('Drug.generic_name'))));
 				break;
 		}
+		
+		$this->hook();
 		
 		if ( !empty($this->data) ) {
 			$this->data['TreatmentExtend']['tx_master_id'] = $tx_master_data['TreatmentMaster']['id'];
@@ -117,7 +123,9 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		}
 	    
 	    $this_data = $this->TreatmentExtend->find('first',array('conditions'=>array('TreatmentExtend.id'=>$tx_extend_id)));
-
+		
+		$this->hook();
+		
 	    if (!empty($this->data)) {
 			$this->TreatmentExtend->id = $tx_extend_id;
 			if ($this->TreatmentExtend->save($this->data)) {
@@ -129,6 +137,8 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 	}
 
 	function delete($participant_id=null, $tx_master_id=null, $tx_extend_id=null) {
+		$this->hook();
+	
 		// TODO: ATiM remove function
 		$this->TreatmentExtend->atim_delete( $tx_extend_id );
 		$this->flash( 'Your data has been deleted.', '/clinicalannotation/treatment_extends/listall/'.$participant_id.'/'.$tx_master_id );

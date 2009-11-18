@@ -6,6 +6,8 @@ class SopMastersController extends SopAppController {
 	var $paginate = array('SopMaster'=>array('limit'=>10,'order'=>'SopMaster.title DESC'));
 	
 	function listall() {
+		$this->hook();
+		
 		$this->data = $this->paginate($this->SopMaster, array());
 		
 		// find all EVENTCONTROLS, for ADD form
@@ -20,6 +22,8 @@ class SopMastersController extends SopAppController {
 		
 		// set FORM ALIAS based off VALUE from CONTROL table
 		$this->set( 'atim_structure', $this->Structures->get('form',$this_data['SopControl']['detail_form_alias']) );
+		
+		$this->hook();
 		
 		if ( !empty($this->data) ) {
 			
@@ -39,6 +43,9 @@ class SopMastersController extends SopAppController {
 		if ( !$sop_master_id ) { $this->redirect( '/pages/err_sop_no_sop_id', NULL, TRUE ); }
 	
 		$this->set( 'atim_menu_variables', array('SopMaster.id'=>$sop_master_id));
+		
+		$this->hook();
+		
 		$this->data = $this->SopMaster->find('first',array('conditions'=>array('SopMaster.id'=>$sop_master_id)));
 		
 		// set FORM ALIAS based off VALUE from MASTER table
@@ -54,6 +61,8 @@ class SopMastersController extends SopAppController {
 		// set FORM ALIAS based off VALUE from MASTER table
 		$this->set( 'atim_structure', $this->Structures->get('form',$this_data['SopControl']['detail_form_alias']) );
 		
+		$this->hook();
+		
 		if ( !empty($this->data) ) {
 			$this->SopMaster->id = $sop_master_id;
 			if ( $this->SopMaster->save($this->data) ) $this->flash( 'Your data has been updated.','/sop/sop_masters/detail/'.$sop_master_id.'/');
@@ -65,6 +74,8 @@ class SopMastersController extends SopAppController {
 	
 	function delete( $sop_master_id ) {
 		if ( !$sop_master_id ) { $this->redirect( '/pages/err_sop_no_sop_id', NULL, TRUE ); }
+		
+		$this->hook();
 		
 		if( $this->SopMaster->atim_delete( $sop_master_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/sop/sop_masters/listall/');

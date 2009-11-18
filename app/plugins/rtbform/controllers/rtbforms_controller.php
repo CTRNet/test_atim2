@@ -14,6 +14,8 @@ class RtbformsController extends RtbformAppController {
 		
 		if ( $this->data ) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions();
 		
+		$this->hook();
+		
 		$this->data = $this->paginate($this->Rtbform, $_SESSION['ctrapp_core']['search']['criteria']);
 		
 		// if SEARCH form data, save number of RESULTS and URL
@@ -25,11 +27,16 @@ class RtbformsController extends RtbformAppController {
 		if ( !$rtbform_id ) { $this->redirect( '/pages/err_rtb_no_rtbform_id', NULL, TRUE ); }
   
 		$this->set( 'atim_menu_variables', array('Rtbform.id'=>$rtbform_id) );
+		
+		$this->hook();
+		
 		$this->data = $this->Rtbform->find('first',array('conditions'=>array('Rtbform.id'=>$rtbform_id)));
 	}
   
 
 	function add() {
+		$this->hook();
+	
 		if ( !empty($this->data) ) {
 			if ( $this->Rtbform->save($this->data) ) $this->flash( 'Your data has been updated.','/rtbform/rtbforms/profile/'.$this->Rtbform->id );
 		}
@@ -40,6 +47,8 @@ class RtbformsController extends RtbformAppController {
 		if ( !$rtbform_id ) { $this->redirect( '/pages/err_rtb_no_rtbform_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('Rtbform.id'=>$rtbform_id) );
+		
+		$this->hook();
 		
 		if ( !empty($this->data) ) {
 			$this->Rtbform->id = $rtbform_id;
@@ -53,6 +62,8 @@ class RtbformsController extends RtbformAppController {
   
 	function delete( $rtbform_id=null ) {
 		if ( !$rtbform_id ) { $this->redirect( '/pages/err_rtb_no_rtbform_id', NULL, TRUE ); }
+		
+		$this->hook();
 		
 		if( $this->Rtbform->atim_delete( $rtbform_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/rtbform/rtbforms/search/');

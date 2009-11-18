@@ -9,6 +9,9 @@ class StudyRelatedController extends StudyAppController {
 		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_no_summary_id', NULL, TRUE ); }
 
 		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id));
+		
+		$this->hook();
+		
 		$this->data = $this->paginate($this->StudyRelated, array('StudyRelated.study_summary_id'=>$study_summary_id));
 		
 	}
@@ -17,6 +20,8 @@ class StudyRelatedController extends StudyAppController {
 		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_no_summary_id', NULL, TRUE ); }
 	
 		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id));
+		
+		$this->hook();
 		
 		if ( !empty($this->data) ) {
 			$this->data['StudyRelated']['study_summary_id'] = $study_summary_id;
@@ -31,6 +36,8 @@ class StudyRelatedController extends StudyAppController {
 		if ( !$study_related_id ) { $this->redirect( '/pages/err_study_no_related_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id, 'StudyRelated.id'=>$study_related_id) );
+		
+		$this->hook();
 		
 		if ( !empty($this->data) ) {
 			$this->StudyRelated->id = $study_related_id;
@@ -47,12 +54,17 @@ class StudyRelatedController extends StudyAppController {
 		if ( !$study_related_id ) { $this->redirect( '/pages/err_study_no_related_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id, 'StudyRelated.id'=>$study_related_id) );
+		
+		$this->hook();
+		
 		$this->data = $this->StudyRelated->find('first',array('conditions'=>array('StudyRelated.id'=>$study_related_id)));
 	}
   
 	function delete( $study_summary_id=null, $study_related_id=null ) {
 		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_no_summary_id', NULL, TRUE ); }
 		if ( !$study_related_id ) { $this->redirect( '/pages/err_study_no_related_id', NULL, TRUE ); }
+		
+		$this->hook();
 		
 		if( $this->StudyRelated->atim_delete( $study_related_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/study/study_related/listall/'.$study_summary_id );

@@ -7,11 +7,13 @@ class GroupsController extends AdministrateAppController {
 	
 	function index( $bank_id ) {
 		$this->set( 'atim_menu_variables', array('Bank.id'=>$bank_id) );
+		$this->hook();
 		$this->data = $this->paginate($this->Group, array('Group.bank_id'=>$bank_id));
 	}
 	
 	function detail( $bank_id, $group_id ) {
 		$this->set( 'atim_menu_variables', array('Bank.id'=>$bank_id,'Group.id'=>$group_id) );
+		$this->hook();
 		$this->data = $this->Group->find('first',array('conditions'=>array('Group.id'=>$group_id)));
 		
 		/*
@@ -27,6 +29,8 @@ class GroupsController extends AdministrateAppController {
 
 	function add() {
 		$this->set( 'atim_menu_variables', array('Bank.id'=>$bank_id) );
+		
+		$this->hook();
 		
 		if (!empty($this->data)) {
 			$this->Group->create();
@@ -54,6 +58,9 @@ class GroupsController extends AdministrateAppController {
 			$this->Session->setFlash(__('Invalid Group', true));
 			$this->redirect(array('action'=>'index'));
 		}
+		
+		$this->hook();
+		
 		if (!empty($this->data)) {
 			if ($this->Group->save($this->data)) {
 				foreach($this->data['Aro']['Permission'] as $permission){
@@ -106,6 +113,9 @@ class GroupsController extends AdministrateAppController {
 			$this->Session->setFlash(__('Invalid id for Group', true));
 			$this->redirect(array('action'=>'index'));
 		}
+		
+		$this->hook();
+		
 		if ($this->Group->del($group_id)) {
 			$this->Session->setFlash(__('Group deleted', true));
 			$this->redirect(array('action'=>'index'));

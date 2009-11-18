@@ -8,22 +8,29 @@ class BanksController extends AdministrateAppController {
 	function add(){
 		$this->set( 'atim_menu', $this->Menus->get('/administrate/banks') );
 		
+		$this->hook();
+		
 		if ( !empty($this->data) ) {
+			
 			if ( $this->Bank->save($this->data) ) $this->flash( 'Your data has been updated.','/administrate/banks/detail/'.$this->Bank->id );
 		}
 	}
 	
 	function index() {
+		$this->hook();
 		$this->data = $this->paginate($this->Bank);
 	}
 	
 	function detail( $bank_id ) {
 		$this->set( 'atim_menu_variables', array('Bank.id'=>$bank_id) );
+		$this->hook();
 		$this->data = $this->Bank->find('first',array('conditions'=>array('Bank.id'=>$bank_id)));
 	}
 	
 	function edit( $bank_id ) {
 		$this->set( 'atim_menu_variables', array('Bank.id'=>$bank_id) );
+		
+		$this->hook();
 		
 		if ( !empty($this->data) ) {
 			$this->Bank->id = $bank_id;
@@ -34,6 +41,7 @@ class BanksController extends AdministrateAppController {
 	}
 	
 	function delete( $bank_id ) {
+		$this->hook();
 		$this->Bank->del( $bank_id );
 		$this->flash( 'Your data has been deleted.', '/administrate/banks/index' );
 	}

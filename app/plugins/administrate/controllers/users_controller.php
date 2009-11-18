@@ -7,11 +7,17 @@ class UsersController extends AdministrateAppController {
 	
 	function listall( $bank_id, $group_id ) {
 		$this->set( 'atim_menu_variables', array('Bank.id'=>$bank_id,'Group.id'=>$group_id) );
+		
+		$this->hook();
+		
 		$this->data = $this->paginate($this->User, array('User.group_id'=>$group_id));
 	}
 	
 	function detail( $bank_id, $group_id, $user_id ) {
 		$this->set( 'atim_menu_variables', array('Bank.id'=>$bank_id,'Group.id'=>$group_id,'User.id'=>$user_id) );
+		
+		$this->hook();
+		
 		$this->data = $this->User->find('first',array('conditions'=>array('User.id'=>$user_id)));
 	}
 

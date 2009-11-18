@@ -14,6 +14,8 @@ class ProvidersController extends ProviderAppController
 		
 		$this->set('atim_menu', $this->Menus->get('/provider/providers/index/'));
 		
+		$this->hook();
+		
 		$this->data = $this->paginate($this->Provider, $_SESSION['ctrapp_core']['search']['criteria']);
 		
 		// if SEARCH form data, save number of RESULTS and URL
@@ -24,11 +26,15 @@ class ProvidersController extends ProviderAppController
 	function listall(){
 		$this->set('atim_menu', $this->Menus->get('/provider/providers/index/'));
 	
+		$this->hook();
+	
 		$this->data = $this->paginate($this->Provider, array());
 	}
 	
 	function add() {
 		$this->set('atim_menu', $this->Menus->get('/provider/providers/index/'));
+	
+		$this->hook();
 	
 		if ( !empty($this->data) ) {
 			if ( $this->Provider->save($this->data) ) {
@@ -43,6 +49,9 @@ class ProvidersController extends ProviderAppController
 		if ( !$provider_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('Provider.id'=>$provider_id) );
+
+		$this->hook();
+
 		$this->data = $this->Provider->find('first',array('conditions'=>array('Provider.id'=>$provider_id)));
 	}
 	
@@ -50,6 +59,8 @@ class ProvidersController extends ProviderAppController
 		if ( !$provider_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('Provider.id'=>$provider_id) );
+		
+		$this->hook();
 		
 		if ( !empty($this->data) ) {
 			$this->Provider->id = $provider_id;
@@ -63,6 +74,8 @@ class ProvidersController extends ProviderAppController
 	
 	function delete( $provider_id=null ){
 		if ( !$provider_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		
+		$this->hook();
 		
 		if( $this->Provider->atim_delete( $provider_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/provider/providers/listall/');

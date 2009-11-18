@@ -44,6 +44,8 @@ class CollectionsController extends InventorymanagementAppController {
 		
 		if ($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions();
 		
+		$this->hook();
+		
 		$this->data = $this->paginate($this->Collection, $_SESSION['ctrapp_core']['search']['criteria']);
 		
 		// if SEARCH form data, save number of RESULTS and URL
@@ -62,6 +64,8 @@ class CollectionsController extends InventorymanagementAppController {
 		
 		// MANAGE DATA
 
+		$this->hook();
+		
 		$collection_data = $this->Collection->find('first', array('conditions' => array('Collection.id' => $collection_id)));
 		if(empty($collection_data)) { $this->redirect('/pages/err_inv_coll_no_data', null, true); }
 		$this->data = $collection_data;
@@ -99,7 +103,9 @@ class CollectionsController extends InventorymanagementAppController {
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/collections/index'));
 
 		// MANAGE DATA RECORD
-				
+		
+		$this->hook();
+		
 		if (!empty($this->data)) {
 			// Save collection
 			$collection_id = null;
@@ -140,6 +146,8 @@ class CollectionsController extends InventorymanagementAppController {
 
 		// MANAGE DATA RECORD
 
+		$this->hook();
+		
 		if(empty($this->data)) {
 				$this->data = $collection_data;	
 		} else {
@@ -162,6 +170,7 @@ class CollectionsController extends InventorymanagementAppController {
 		$arr_allow_deletion = $this->allowCollectionDeletion($collection_id);
 		
 		if($arr_allow_deletion['allow_deletion']) {
+			$this->hook();
 			
 			// Delete collection			
 			if($this->ClinicalCollectionLink->atim_delete($collection_data['ClinicalCollectionLink']['id']) && $this->Collection->atim_delete($collection_id)) {

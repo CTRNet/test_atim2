@@ -8,6 +8,9 @@ class StudyResultsController extends StudyAppController {
 		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_no_summary_id', NULL, TRUE ); }
 
 		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id));
+		
+		$this->hook();
+		
 		$this->data = $this->paginate($this->StudyResult, array('StudyResult.study_summary_id'=>$study_summary_id));
 		
 	}
@@ -16,6 +19,8 @@ class StudyResultsController extends StudyAppController {
 		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_no_summary_id', NULL, TRUE ); }
 	
 		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id));
+		
+		$this->hook();
 		
 		if ( !empty($this->data) ) {
 			$this->data['StudyResult']['study_summary_id'] = $study_summary_id;
@@ -30,6 +35,8 @@ class StudyResultsController extends StudyAppController {
 		if ( !$study_result_id ) { $this->redirect( '/pages/err_study_no_result_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id, 'StudyResult.id'=>$study_result_id) );
+		
+		$this->hook();
 		
 		if ( !empty($this->data) ) {
 			$this->StudyResult->id = $study_result_id;
@@ -46,12 +53,17 @@ class StudyResultsController extends StudyAppController {
 		if ( !$study_result_id ) { $this->redirect( '/pages/err_study_no_result_id', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id, 'StudyResult.id'=>$study_result_id) );
+		
+		$this->hook();
+		
 		$this->data = $this->StudyResult->find('first',array('conditions'=>array('StudyResult.id'=>$study_result_id)));
 	}
   
 	function delete( $study_summary_id=null, $study_result_id=null ) {
 		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_no_summary_id', NULL, TRUE ); }
 		if ( !$study_result_id ) { $this->redirect( '/pages/err_study_no_result_id', NULL, TRUE ); }
+		
+		$this->hook();
 		
 		if( $this->StudyResult->atim_delete( $study_result_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/study/study_results/listall/'.$study_summary_id );

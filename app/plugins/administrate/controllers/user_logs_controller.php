@@ -7,6 +7,9 @@ class UserLogsController extends AdministrateAppController {
 	
 	function index( $bank_id, $group_id, $user_id ) {
 		$this->set( 'atim_menu_variables', array('Bank.id'=>$bank_id,'Group.id'=>$group_id,'User.id'=>$user_id) );
+		
+		$this->hook();
+		
 		$this->data = $this->paginate($this->UserLog, array('UserLog.user_id'=>$user_id));
 	}
 	

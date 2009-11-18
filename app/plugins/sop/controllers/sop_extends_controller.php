@@ -18,6 +18,8 @@ class SopExtendsController extends SopAppController {
 		$use_form_alias = $sop_master_data['SopControl']['extend_form_alias'];
 		$this->set('atim_structure', $this->Structures->get('form', $use_form_alias));
 		
+		$this->hook();
+		
 		$this->data = $this->paginate($this->SopExtend, array('SopExtend.sop_master_id'=>$sop_master_id));
 		
 		$material_list = $this->Material->find('all', array('fields'=>array('Material.id', 'Material.item_name'), 'order'  => array('Material.item_name')));
@@ -36,6 +38,8 @@ class SopExtendsController extends SopAppController {
 		$use_form_alias = $sop_master_data['SopControl']['extend_form_alias'];
 	    $this->set( 'atim_structure', $this->Structures->get( 'form', $use_form_alias ) );
 
+		$this->hook();
+		
 	    $this->data = $this->SopExtend->find('first',array('conditions'=>array('SopExtend.id'=>$sop_extend_id)));
 	    
 		$material_list = $this->Material->find('all', array('fields'=>array('Material.id', 'Material.item_name'), 'order'  => array('Material.item_name')));
@@ -56,6 +60,8 @@ class SopExtendsController extends SopAppController {
 
 		$material_list = $this->Material->find('all', array('fields'=>array('Material.id', 'Material.item_name'), 'order'  => array('Material.item_name')));
 		$this->set('material_list', $material_list);
+		
+		$this->hook();
 		
 		if ( !empty($this->data) ) {
 			$this->data['SopExtend']['sop_master_id'] = $sop_master_data['SopMaster']['id'];
@@ -85,6 +91,8 @@ class SopExtendsController extends SopAppController {
 	    
 	    $this_data = $this->SopExtend->find('first',array('conditions'=>array('SopExtend.id'=>$sop_extend_id)));
 
+		$this->hook();
+		
 	    if (!empty($this->data)) {
 			$this->SopExtend->id = $sop_extend_id;
 			if ($this->SopExtend->save($this->data)) {
@@ -97,6 +105,8 @@ class SopExtendsController extends SopAppController {
 
 	function delete($sop_master_id=null, $sop_extend_id=null) {
 
+		$this->hook();
+	
 		$this->SopExtend->del( $sop_extend_id );
 		$this->flash( 'Your data has been deleted.', '/sop/sop_extends/listall/'.$sop_master_id );
 
