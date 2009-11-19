@@ -683,9 +683,6 @@ ALTER TABLE `order_lines_revs` ADD `sample_aliquot_precision` VARCHAR( 30 ) NULL
 DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM `structure_fields` WHERE `model` LIKE 'OrderLine' AND field IN ('cancer_type', 'base_price', 'quantity_shipped', 'discount_code'));
 DELETE FROM structure_fields WHERE `model` LIKE 'OrderLine' AND field IN ('cancer_type', 'base_price', 'quantity_shipped', 'discount_code');
 
-ALTER TABLE `order_items` CHANGE `orderline_id` `order_line_id` INT( 11 ) NULL DEFAULT NULL;
-ALTER TABLE `order_items_revs` CHANGE `orderline_id` `order_line_id` INT( 11 ) NULL DEFAULT NULL;
-
 UPDATE `structure_formats`
 SET `flag_datagrid` = '0'
 WHERE `structure_old_id` = 'CAN-999-999-000-999-51';
