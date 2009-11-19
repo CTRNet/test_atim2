@@ -7,6 +7,11 @@ class OrderLine extends OrderAppModel {
 			'className'   => 'Order.OrderItem',
 			 'foreignKey'  => 'order_line_id'));
 	
+	var $belongsTo = array(       
+		'Order' => array(           
+			'className'    => 'Order.Order',            
+			'foreignKey'    => 'order_id'));
+	
 	function summary( $variables=array() ) {
 		
 		$return = false;
