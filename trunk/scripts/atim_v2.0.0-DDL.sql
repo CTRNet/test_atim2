@@ -6435,7 +6435,7 @@ ALTER TABLE `order_lines`
   ON UPDATE RESTRICT; 
   
 ALTER TABLE `order_items`
-  ADD CONSTRAINT `FK_order_items_orders`
+  ADD CONSTRAINT `FK_order_items_order_lines`
   FOREIGN KEY (`order_line_id`) REFERENCES `order_lines` (`id`)
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
