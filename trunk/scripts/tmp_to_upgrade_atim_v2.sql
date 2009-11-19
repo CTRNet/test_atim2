@@ -232,6 +232,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('warning', 'global', 'Warning', 'Avertissement'),
 ('unclassify', 'global', 'Unclassify', 'DŽclasser');
 
+DROP TABLE IF EXISTS `dxd_bloods`;
 CREATE TABLE `dxd_bloods` (
   `id` int(11) NOT NULL auto_increment,
   `diagnosis_master_id` int(11) default NULL,
@@ -526,8 +527,8 @@ ALTER TABLE `realiquotings`
   DROP `realiquoted_by`,
   DROP `realiquoted_datetime`;
  
-UPDATE `atim_new`.`structure_fields` SET `model` = 'AliquotUse', `field` = 'used_by', `language_label` = 'use by' WHERE `structure_fields`.`id` =380 LIMIT 1;
-UPDATE `atim_new`.`structure_fields` SET `model` = 'AliquotUse', `field` = 'use_datetime', `language_label` = 'use date' WHERE `structure_fields`.`id` = 381 LIMIT 1 ;
+UPDATE `structure_fields` SET `model` = 'AliquotUse', `field` = 'used_by', `language_label` = 'use by' WHERE `structure_fields`.`id` =380 LIMIT 1;
+UPDATE `structure_fields` SET `model` = 'AliquotUse', `field` = 'use_datetime', `language_label` = 'use date' WHERE `structure_fields`.`id` = 381 LIMIT 1 ;
 
   
 ALTER TABLE `realiquotings` ADD UNIQUE `parent_child_combo` ( `parent_aliquot_master_id` , `child_aliquot_master_id` );
@@ -685,16 +686,6 @@ DELETE FROM structure_fields WHERE `model` LIKE 'OrderLine' AND field IN ('cance
 ALTER TABLE `order_items` CHANGE `orderline_id` `order_line_id` INT( 11 ) NULL DEFAULT NULL;
 ALTER TABLE `order_items_revs` CHANGE `orderline_id` `order_line_id` INT( 11 ) NULL DEFAULT NULL;
 
-ALTER TABLE `order_items`
-  DROP `barcode`,
-  DROP `base_price`,
-  DROP `datetime_scanned_out`;
- 
-ALTER TABLE `order_items_revs`
-  DROP `barcode`,
-  DROP `base_price`,
-  DROP `datetime_scanned_out`;
-  
 UPDATE `structure_formats`
 SET `flag_datagrid` = '0'
 WHERE `structure_old_id` = 'CAN-999-999-000-999-51';
@@ -741,7 +732,7 @@ SET `language_label` = 'minimum quantity', `language_tag` = ''
 SET `language_label` = '', `language_tag` = 'unit'
  WHERE old_id = 'CAN-999-999-000-999-503';
 
-DELETE FROM `structure_validations` WHERE `structure_field_old_id = 'CAN-999-999-000-999-1282';
+DELETE FROM `structure_validations` WHERE `structure_field_old_id` = 'CAN-999-999-000-999-1282';
 INSERT INTO `structure_validations` (`id`, `old_id`, `structure_field_id`, `structure_field_old_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modifed_by`) VALUES
 (null, '0', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-1282'), 'CAN-999-999-000-999-1282', 'notEmpty', '1', '0', '', 'product type is required.', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
