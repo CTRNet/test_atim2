@@ -1990,11 +1990,8 @@ CREATE TABLE `orders_revs` (
 
 CREATE TABLE `order_items` (
   `id` int(11) NOT NULL auto_increment,
-  `barcode` varchar(255) default NULL,
-  `base_price` varchar(255) default NULL,
   `date_added` date default NULL,
   `added_by` varchar(255) default NULL,
-  `datetime_scanned_out` datetime default NULL,
   `status` varchar(255) default NULL,
   `created` date default NULL,
   `created_by` varchar(50) default NULL,
@@ -2006,17 +2003,13 @@ CREATE TABLE `order_items` (
   `aliquot_use_id` int(11) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`),
-  INDEX `barcode` (`barcode`)
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `order_items_revs` (
   `id` int(11) NOT NULL,
-  `barcode` varchar(255) default NULL,
-  `base_price` varchar(255) default NULL,
   `date_added` date default NULL,
   `added_by` varchar(255) default NULL,
-  `datetime_scanned_out` datetime default NULL,
   `status` varchar(255) default NULL,
   `created` date default NULL,
   `created_by` varchar(50) default NULL,
