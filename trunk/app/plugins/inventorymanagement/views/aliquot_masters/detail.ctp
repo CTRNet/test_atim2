@@ -14,7 +14,7 @@
 		$structure_links['bottom'] =array(
 			'edit' => '/inventorymanagement/aliquot_masters/edit/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'], 
 			'delete' => '/inventorymanagement/aliquot_masters/delete/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'], 
-			'add to order' => '/underdevelopment/',
+			'add to order' => '/inventorymanagement/aliquot_masters/addToOrder/'.$atim_menu_variables['AliquotMaster.id'].'/',
 			'remove from storage' => '/inventorymanagement/aliquot_masters/removeAliquotFromStorage/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'],
 			'plugin storagelayout access to storage' => $acces_to_storage_link
 		);
