@@ -816,3 +816,34 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (null, 'CAN-999-999-000-999-61_CAN-999-999-000-999-1261', (SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-61'), 'CAN-999-999-000-999-61', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1261'), 'CAN-999-999-000-999-1261', 1, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (null, 'CAN-999-999-000-999-61_CAN-999-999-000-999-501', (SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-61'), 'CAN-999-999-000-999-61', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-501'), 'CAN-999-999-000-999-501', 1, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (null, 'CAN-999-999-000-999-61_CAN-999-999-000-999-504', (SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-61'), 'CAN-999-999-000-999-61', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-504'), 'CAN-999-999-000-999-504', 1, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+-- --------------------------------------
+
+DELETE FROM `structure_value_domains_permissible_values`
+WHERE `structure_value_domain_id` IN ( 78, 79 )
+AND `structure_permissible_value_id` IN (307, 308, 309);
+
+DELETE FROM `structure_permissible_values` WHERE `id` IN (307, 308, 309); 
+DELETE FROM `structure_value_domains` WHERE `id` = 79;
+
+UPDATE `structure_fields`
+SET `structure_value_domain` = '78'
+WHERE `old_id` = 'CAN-999-999-000-999-1261';
+
+DELETE FROM `structure_formats` WHERE `old_id` = 'CAN-999-999-000-999-61_CAN-999-999-000-999-501';
+
+UPDATE `structure_formats`
+SET `old_id` = 'CAN-999-999-000-999-1068_CAN-999-999-000-999-1261',
+`structure_field_id` = (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1261'), 
+`structure_field_old_id` = 'CAN-999-999-000-999-1261'
+WHERE `old_id` = 'CAN-999-999-000-999-1068_CAN-999-999-000-999-501';
+
+DELETE FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-501';
+
+DELETE FROM `structure_formats` WHERE `structure_old_id` = 'CAN-999-999-000-999-61';
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, 'CAN-999-999-000-999-61_CAN-999-999-000-999-1100', (SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-61'), 'CAN-999-999-000-999-61', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1100'), 'CAN-999-999-000-999-1100', 0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'CAN-999-999-000-999-61_CAN-999-999-000-999-498', (SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-61'), 'CAN-999-999-000-999-61', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-498'), 'CAN-999-999-000-999-498', 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'CAN-999-999-000-999-61_CAN-999-999-000-999-499', (SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-61'), 'CAN-999-999-000-999-61', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-499'), 'CAN-999-999-000-999-499', 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'CAN-999-999-000-999-61_CAN-999-999-000-999-1261', (SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-61'), 'CAN-999-999-000-999-61', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1261'), 'CAN-999-999-000-999-1261', 0, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'CAN-999-999-000-999-61_CAN-999-999-000-999-504', (SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-61'), 'CAN-999-999-000-999-61', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-504'), 'CAN-999-999-000-999-504', 0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
