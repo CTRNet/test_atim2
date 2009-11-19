@@ -2,21 +2,31 @@
 
 class OrderItemsController extends OrderAppController {
 	
-	var $uses = array('Order.OrderItem', 'Order.Order', 'Order.OrderLine');
-	var $paginate = array('OrderItem'=>array('limit'=>'10','order'=>'OrderItem.barcode'));
-	
-	function listall( $order_id=null, $order_line_id=null ) {
-		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', null, true ); }
-		if ( !$order_line_id ) { $this->redirect( '/pages/err_ord_no_line_id', null, true ); }
-
-		$this->set( 'atim_menu', $this->Menus->get('/order/order_items/listall/%%Order.id%%/%%OrderLine.id%%/'));
+	var $uses = array(
+		'Order.Order', 
+		'Order.OrderLine', 
+		'Order.OrderItem');
 		
-		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'OrderLine.id'=>$order_line_id));
-		$this->data = $this->paginate($this->OrderItem, array('OrderItem.order_line_id'=>$order_line_id));
-			
-	}
+	var $paginate = array('OrderItem'=>array('limit'=>'10','order'=>'AliquotMaster.barcode'));
+	
+	function listall( $order_id, $order_line_id ) {
+  		if (( !$order_id ) || ( !$order_line_id )) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
 
-	function add( $order_id=null, $order_line_id=null ) {
+		$order_line_data = $this->OrderLine->find('first',array('conditions'=>array('OrderLine.id'=>$order_line_id, 'OrderLine.order_id'=>$order_id)));
+		if(empty($order_line_data)) { $this->redirect( '/pages/err_order_no_data', null, true ); }		
+
+		$this->data = $this->paginate($this->OrderItem, array('OrderItem.order_line_id'=>$order_line_id));			
+
+		$this->set( 'atim_menu', $this->Menus->get('/order/order_items/listall/%%Order.id%%/%%OrderLine.id%%/'));		
+		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'OrderLine.id'=>$order_line_id));
+	}
+	
+	
+	
+	
+	
+	
+	function add( $order_id, $order_line_id ) {
 		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', null, true ); }
 		if ( !$order_line_id ) { $this->redirect( '/pages/err_ord_no_line_id', null, true ); }
 		
@@ -31,7 +41,7 @@ class OrderItemsController extends OrderAppController {
 		}
 	}
 	
-	function edit( $order_id=null, $order_line_id=null, $order_item_id=null ) {
+	function edit( $order_id, $order_line_id, $order_item_id ) {
 		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', null, true ); }
 		if ( !$order_line_id ) { $this->redirect( '/pages/err_ord_no_line_id', null, true ); }
 		if ( !$order_item_id ) { $this->redirect( '/pages/err_ord_no_item_id', null, true ); }
@@ -49,7 +59,7 @@ class OrderItemsController extends OrderAppController {
 		}
 	}
 	
-	function detail( $order_id=null, $order_line_id=null, $order_item_id=null ) {
+	function detail( $order_id, $order_line_id, $order_item_id ) {
 		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', null, true ); }
 		if ( !$order_line_id ) { $this->redirect( '/pages/err_ord_no_line_id', null, true ); }
 		if ( !$order_item_id ) { $this->redirect( '/pages/err_ord_no_item_id', null, true ); }
@@ -60,7 +70,7 @@ class OrderItemsController extends OrderAppController {
 		$this->data = $this->OrderItem->find('first',array('conditions'=>array('OrderItem.id'=>$order_item_id)));
 	}
 	
-	function shipment_items ( $order_id=null, $shipment_id=null ){
+	function shipment_items ( $order_id, $shipment_id ){
 		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', null, true ); }
 		if ( !$shipment_id ) { $this->redirect( 'pages/err_ord_no_ship_id', null, true ); }
 		
@@ -70,7 +80,7 @@ class OrderItemsController extends OrderAppController {
 		$this->data = $this->paginate($this->OrderItem, array('OrderItem.shipment_id'=>$shipment_id));
 	}
 	
-	function delete( $order_id=null, $order_line_id=null, $order_item_id=null ) {
+	function delete( $order_id, $order_line_id, $order_item_id ) {
 		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', null, true ); }
 		if ( !$order_line_id ) { $this->redirect( '/pages/err_ord_no_line_id', null, true ); }
 		if ( !$order_item_id ) { $this->redirect( '/pages/err_ord_no_item_id', null, true ); }
@@ -82,7 +92,7 @@ class OrderItemsController extends OrderAppController {
 		}
 	}
 	
-	function deleteFromShipment( $order_id=null,$order_item_id=null ){
+	function deleteFromShipment( $order_id,$order_item_id ){
 		if( !$order_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', null, true ); }
 		if( !$order_item_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', null, true ); }
 		
@@ -99,7 +109,7 @@ class OrderItemsController extends OrderAppController {
 		}
 	}
 	
-	function manage_shipments( $order_id=null, $order_line_id=null ){
+	function manage_shipments( $order_id, $order_line_id ){
 		if( !$order_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', null, true ); }
 		if( !$order_line_id ) { $this->redirect('/pages/err_clin-ann_no_part_id', null, true ); }
 		
@@ -109,7 +119,7 @@ class OrderItemsController extends OrderAppController {
 		$this->data = $this->paginate($this->OrderItem, array('OrderItem.order_line_id'=>$order_line_id));
 	}
 	
-	function manage_unshipped_items( $order_id=null, $order_line_id=null ){
+	function manage_unshipped_items( $order_id, $order_line_id ){
 		if( !$order_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', null, true ); }
 		if( !$order_line_id ) { $this->redirect('/pages/err_clin-ann_no_part_id', null, true ); }
 		
@@ -121,7 +131,7 @@ class OrderItemsController extends OrderAppController {
 	
 	
 	
-	function process_add_aliquots( $order_id=null, $order_line_id=null ) {
+	function addInBatch( $order_id, $order_line_id ) {
 		
 		// set data for easier access
 		$process_data = $_SESSION['ctrapp_core']['datamart']['process'];
