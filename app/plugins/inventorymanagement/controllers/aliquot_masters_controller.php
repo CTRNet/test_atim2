@@ -1590,8 +1590,7 @@ unset($this->data['AliquotMaster']);
 		Multi-part process, linking Orders, OrderLines, and OrderItems (all ACTIONs the same name in each CONTROLLER)
 	*/
 	
-	function process_add_aliquots($aliquot_id) {
-		
+	function addToOrder($aliquot_id) {
 		// clear SESSION info
 		$_SESSION['ctrapp_core']['datamart']['process'] = array(
 			'AliquotMaster' => array(
@@ -1600,13 +1599,13 @@ unset($this->data['AliquotMaster']);
 				)
 			),
 			'BatchSet' => array(
-				'process' => 'order/orders/process_add_aliquots',
+				'process' => '/order/order_lines/addAliquotToOrder/',
 				'id' => 0,
 				'model' => 'AliquotMaster'
 			)
 		);
 		
-		$this->redirect('order/orders/process_add_aliquots/');
+		$this->redirect('/order/order_lines/addAliquotToOrder/');
 		exit();
 		
 	}
