@@ -229,7 +229,7 @@ class OrderLinesController extends OrderAppController {
 		return array('allow_deletion' => true, 'msg' => '');
 	}
 	
-	function addAliquotToOrder(){
+	function addAliquotToOrder($aliquot_id){
 		$this->data = $this->Order->find('all');
 		$atim_structure = array();
 		$atim_structure['Order'] = $this->Structures->get('form', 'orders');
@@ -243,6 +243,7 @@ class OrderLinesController extends OrderAppController {
 			unset($var['Shipment']);
 		}
 		$this->set('atim_structure', $atim_structure);
+		$this->set('aliquot_master_id', $aliquot_id);
 	}
 }
 
