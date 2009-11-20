@@ -52,7 +52,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		'Storagelayout.StorageMaster',
 		
-		'Study.StudySummary'
+		'Study.StudySummary',
+		'Order.OrderItem'
 	);
 	
 	var $paginate = array('AliquotMaster' => array('limit' =>10 , 'order' => 'AliquotMaster.barcode DESC'), 'AliquotUse' => array('limit' => 10, 'order' => 'AliquotUse.use_datetime DESC'));
@@ -528,6 +529,12 @@ unset($this->data['AliquotMaster']);
 		// Define if this detail form is displayed into the collection content tree view
 		$this->set('is_tree_view_detail_form', $is_tree_view_detail_form);
 		$this->set('is_inventory_plugin_form', $is_inventory_plugin_form);
+		
+		if($aliquot_data['AliquotMaster']['status'] != 'available'){
+			$order_item = $this->OrderItem->find('first', array('conditions' => array('OrderItem.aliquot_master_id' => $aliquot_data['AliquotMaster']['id'])));
+			$this->set('order_line_id', $order_item['OrderLine']['id']);
+			$this->set('order_id', $order_item['OrderLine']['order_id']);
+		}
 	}
 	
 	function edit($collection_id, $sample_master_id, $aliquot_master_id) {
@@ -1599,13 +1606,13 @@ unset($this->data['AliquotMaster']);
 				)
 			),
 			'BatchSet' => array(
-				'process' => '/order/order_lines/addAliquotToOrder/',
+				'process' => '/order/order_lines/addAliquotToOrder/'.$aliquot_id.'/',
 				'id' => 0,
 				'model' => 'AliquotMaster'
 			)
 		);
 		
-		$this->redirect('/order/order_lines/addAliquotToOrder/');
+		$this->redirect('/order/order_lines/addAliquotToOrder/'.$aliquot_id.'/');
 		exit();
 		
 	}
