@@ -4,16 +4,11 @@
 			'Order'		=> 'Order',
 			'OrderLine'	=> 'OrderLine'
 		),		
-//		'columns' => array(
-//			1	=> array('width' => '30%'),
-//			10	=> array('width' => '70%')
-//		)
 	);
-	
 	$structure_links = array(
 		'tree'=>array(
 			'OrderLine' => array(
-				'add' => '/order/order_items/addInBatch/%%Order.id%%/%%OrderLine.id%%/'
+				'add' => '/order/order_items/add/%%OrderLine.order_id%%/%%OrderLine.id%%/'.$aliquot_master_id.'/'
 			),
 		),
 	);
