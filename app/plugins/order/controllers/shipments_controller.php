@@ -112,7 +112,7 @@ class ShipmentsController extends OrderAppController {
 		}		
 	}
 	
-	function shipment_items ( $order_id, $shipment_id ){
+	function shipmentItems ( $order_id, $shipment_id ){
 		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', null, true ); }
 		if ( !$shipment_id ) { $this->redirect( 'pages/err_ord_no_ship_id', null, true ); }
 		
