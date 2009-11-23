@@ -113,15 +113,6 @@ class OrderItemsController extends OrderAppController {
 		$this->data = $this->OrderItem->find('first',array('conditions'=>array('OrderItem.id'=>$order_item_id)));
 	}
 	
-	function shipment_items ( $order_id, $shipment_id ){
-		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', null, true ); }
-		if ( !$shipment_id ) { $this->redirect( 'pages/err_ord_no_ship_id', null, true ); }
-		
-		$this->set('atim_menu', $this->Menus->get('/order/order_items/shipment_items/%%Order.id%%/%%Shipment.id%%/'));
-		
-		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'Shipment.id'=>$shipment_id));
-		$this->data = $this->paginate($this->OrderItem, array('OrderItem.shipment_id'=>$shipment_id));
-	}
 	
 	function delete( $order_id, $order_line_id, $order_item_id ) {
 		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', null, true ); }
@@ -140,33 +131,6 @@ class OrderItemsController extends OrderAppController {
 		}
 	}
 	
-//	function deleteFromShipment( $order_id,$order_item_id ){
-//		if( !$order_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', null, true ); }
-//		if( !$order_item_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', null, true ); }
-//		
-//		$this->data = $this->OrderItem->find('first', array('conditions'=>array('OrderItem.id'=>$order_item_id)));
-//		
-//		$shipment_id = $this->data['OrderItem']['shipment_id'];
-//		$this->data['OrderItem']['shipment_id'] = null;
-//		
-//		//Turned off validations because its not working
-//		if($this->OrderItem->save($this->data, false)){
-//			$this->flash( 'Your order item was removed from shipment.', '/order/order_items/shipment_items/'.$order_id.'/'.$shipment_id.'/' );
-//		}else{
-//			$this->flash( 'Your order item was not removed from shipment.', '/order/order_items/shipment_items/'.$order_id.'/'.$shipment_id.'/' );
-//		}
-//	}
-//	
-//	function manage_shipments( $order_id, $order_line_id ){
-//		if( !$order_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', null, true ); }
-//		if( !$order_line_id ) { $this->redirect('/pages/err_clin-ann_no_part_id', null, true ); }
-//		
-//		$this->set( 'atim_menu', $this->Menus->get('/order/order_items/listall/%%Order.id%%/%%OrderLine.id%%/'));
-//		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'OrderLine.id'=>$order_line_id));
-//		
-//		$this->data = $this->paginate($this->OrderItem, array('OrderItem.order_line_id'=>$order_line_id));
-//	}
-	
 	function manage_unshipped_items( $order_id, $order_line_id ){
 		if( !$order_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', null, true ); }
 		if( !$order_line_id ) { $this->redirect('/pages/err_clin-ann_no_part_id', null, true ); }
@@ -176,8 +140,6 @@ class OrderItemsController extends OrderAppController {
 		
 		
 	}
-	
-	
 	
 	function addInBatch( $order_id, $order_line_id ) {
 		
@@ -203,19 +165,6 @@ class OrderItemsController extends OrderAppController {
 						'{n}.OrderItem.aliquot_master_id', 
 						'{n}.OrderItem.aliquot_master_id');
 			
-//			// find EXISTING aliquots in LINE
-//			$existing_items_criteria = '';
-//			$existing_items_criteria = 'OrderItem.order_line_id="'.$order_line_id.'"';
-//			$existing_items_result = $this->OrderItem->findAll( $existing_items_criteria );
-//			
-//			// remove IDs from BATCH data if already in LINE
-//			foreach ($existing_items_result as $key=>$val) {
-//				if ($val['OrderItem']['aliquot_master_id']) {
-//					if ( in_array($val['OrderItem']['aliquot_master_id'],$process_data['AliquotMaster']['id']) ) {
-//						unset($process_data['AliquotMaster']['id'][ array_search($val['OrderItem']['aliquot_master_id'], $process_data['AliquotMaster']['id']) ]);
-//					}
-//				}
-//			}
 			
 			// get ALIQUOTS matching BATCH data (IDs)
 			$aliquot_criteria = '';
@@ -280,25 +229,6 @@ class OrderItemsController extends OrderAppController {
 		
 	}
 	
-	function addToShipment($order_id, $shipment_id){
-		if(!empty($this->data)){
-			foreach($this->data['foo'] as $item_id){
-				if($item_id != 0){
-					//this item ships!
-					$full_order_item = $this->OrderItem->find('first', array('conditions' => array('OrderItem.id' => $item_id, 'OrderLine.order_id' => $order_id, 'OrderItem.shipment_id IS NULL')));
-					$order_item['OrderItem'] = $full_order_item['OrderItem'];
-					$aliquot_master['AliquotMaster'] = $full_order_item['AliquotMaster'];
-					$order_item['OrderItem']['shipment_id'] = $shipment_id;
-					$aliquot_master['AliquotMaster']['status'] = "shipped";
-					$this->OrderItem->save($order_item);
-					$this->AliquotMaster->save($aliquot_master);
-				}
-			}
-			$this->flash('Your data has been saved.', '/order/order_items/shipment_items/'.$order_id.'/'.$shipment_id.'/');
-		}
-		$this->set('atim_menu_variables', array('Order.id' => $order_id, 'Shipment.id' => $shipment_id));
-		$this->set('atim_structure', $this->Structures->get('form', 'orderitems'));
-		$this->data = $this->OrderItem->find('all', array('conditions' => array('OrderLine.order_id' => $order_id, 'OrderItem.shipment_id IS NULL')));		
-	}	
+	
 }
 ?>
