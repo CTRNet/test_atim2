@@ -847,3 +847,53 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (null, 'CAN-999-999-000-999-61_CAN-999-999-000-999-499', (SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-61'), 'CAN-999-999-000-999-61', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-499'), 'CAN-999-999-000-999-499', 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (null, 'CAN-999-999-000-999-61_CAN-999-999-000-999-1261', (SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-61'), 'CAN-999-999-000-999-61', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1261'), 'CAN-999-999-000-999-1261', 0, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (null, 'CAN-999-999-000-999-61_CAN-999-999-000-999-504', (SELECT `id` FROM `structures` WHERE `old_id` = 'CAN-999-999-000-999-61'), 'CAN-999-999-000-999-61', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-504'), 'CAN-999-999-000-999-504', 0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+#-------order items mich-----
+UPDATE `structure_formats` SET `flag_datagrid` = '1',
+`flag_datagrid_readonly` = '1' WHERE `structure_formats`.`id` =2257 LIMIT 1 ;
+
+UPDATE `structure_formats` SET `flag_datagrid` = '1' WHERE `structure_formats`.`id` =2258 OR `structure_formats`.`id` =2259;  
+
+
+
+INSERT INTO `structure_formats` (`old_id` ,`structure_id` ,`structure_old_id` ,`structure_field_id` ,`structure_field_old_id` ,`display_column` ,`display_order` ,`language_heading` ,`flag_override_label` ,`language_label` ,`flag_override_tag` ,`language_tag` ,`flag_override_help` ,`language_help` ,`flag_override_type` ,`type` ,
+`flag_override_setting` ,
+`setting` ,
+`flag_override_default` ,
+`default` ,
+`flag_add` ,
+`flag_add_readonly` ,
+`flag_edit` ,
+`flag_edit_readonly` ,
+`flag_search` ,
+`flag_search_readonly` ,
+`flag_datagrid` ,
+`flag_datagrid_readonly` ,
+`flag_index` ,
+`flag_detail` ,
+`created` ,
+`created_by` ,
+`modified` ,
+`modified_by`
+)
+VALUES (
+CAN-999-999-000-999-61_CAN-999-999-000-999-1119', '140', 'CAN-999-999-000-999-61', '235', 'CAN-999-999-000-999-1119', '2', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''
+ );
+
+ INSERT INTO `atim_new`.`i18n` (
+`id` ,
+`page_id` ,
+`en` ,
+`fr`
+)
+VALUES (
+'copy', 'global', 'Copy', 'Copier'
+), (
+'paste', 'global', 'Paste', 'Coller'
+), (
+'copying', 'global', 'Copying', 'Copie'
+), (
+'copy control', 'global', 'Copy control', 'Controle de copie'
+);
+
+UPDATE `menus` SET `use_link` = '/order/shipments/shipment_items/%%Order.id%%/%%Shipment.id%%/' WHERE `menus`.`id` = 'ord_CAN_120' LIMIT 1 ;
