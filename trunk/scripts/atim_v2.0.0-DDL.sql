@@ -2,6 +2,66 @@
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
+-- DROP
+
+SET FOREIGN_KEY_CHECKS=0;
+
+DROP TABLE `acos`, `ad_bags`, `ad_bags_revs`, `ad_blocks`, `ad_blocks_revs`, `ad_cell_cores`, `ad_cell_cores_revs`, 
+`ad_cell_slides`, `ad_cell_slides_revs`, `ad_gel_matrices`, `ad_gel_matrices_revs`, `ad_tissue_cores`, `ad_tissue_cores_revs`, 
+`ad_tissue_slides`, `ad_tissue_slides_revs`, `ad_tubes`, `ad_tubes_revs`, `ad_whatman_papers`, `ad_whatman_papers_revs`, 
+`aliquot_controls`, `aliquot_masters`, `aliquot_masters_revs`, `aliquot_uses`, `aliquot_uses_revs`, `announcements`, `aros`, 
+`aros_acos`, `atim_information`, `banks`, `banks_revs`, `cd_atypes`, `cd_atypes_revs`, `cd_btypes`, `cd_btypes_revs`, 
+`clinical_collection_links`, `clinical_collection_links_revs`, `coding_adverse_events`, `coding_adverse_events_revs`, 
+`coding_icd10`, `collections`, `collections_revs`, `configs`, `consent_controls`, `consent_masters`, `consent_masters_revs`, 
+`datamart_adhoc`, `datamart_adhoc_favourites`, `datamart_adhoc_saved`, `datamart_batch_ids`, `datamart_batch_processes`, 
+`datamart_batch_sets`, `derivative_details`, `derivative_details_revs`, `diagnosis_controls`, `diagnosis_masters`, 
+`diagnosis_masters_revs`, `drugs`, `drugs_revs`, `dxd_bloods`, `dxd_bloods_rev`, `dxd_tissues`, `dxd_tissues_rev`, 
+`ed_allsolid_lab_pathology`, `ed_allsolid_lab_pathology_revs`, `ed_all_adverse_events_adverse_event`, 
+`ed_all_adverse_events_adverse_event_revs`, `ed_all_clinical_followup`, `ed_all_clinical_followup_revs`, 
+`ed_all_clinical_presentation`, `ed_all_clinical_presentation_revs`, `ed_all_lifestyle_base`, `ed_all_lifestyle_base_revs`, 
+`ed_all_protocol_followup`, `ed_all_protocol_followup_revs`, `ed_all_study_research`, `ed_all_study_research_revs`, 
+`ed_breast_lab_pathology`, `ed_breast_lab_pathology_revs`, `ed_breast_screening_mammogram`, `ed_breast_screening_mammogram_revs`, 
+`event_controls`, `event_masters`, `event_masters_revs`, `family_histories`, `family_histories_revs`, `groups`, `i18n`, `langs`, 
+`materials`, `materials_revs`, `menus`, `misc_identifiers`, `misc_identifiers_revs`, `orders`, `orders_revs`, `order_items`, 
+`order_items_revs`, `order_lines`, `order_lines_revs`, `pages`, `parent_to_derivative_sample_controls`, `participants`, 
+`participants_revs`, `participant_contacts`, `participant_contacts_revs`, `participant_messages`, `participant_messages_revs`, 
+`path_collection_reviews`, `path_collection_reviews_revs`, `pd_chemos`, `pd_chemos_revs`, `pe_chemos`, `pe_chemos_revs`, 
+`protocol_controls`, `protocol_masters`, `protocol_masters_revs`, `providers`, `providers_revs`, `quality_ctrls`, 
+`quality_ctrls_revs`, `quality_ctrl_tested_aliquots`, `quality_ctrl_tested_aliquots_revs`, `rd_bloodcellcounts`, 
+`rd_bloodcellcounts_revs`, `rd_blood_cells`, `rd_blood_cells_revs`, `rd_breastcancertypes`, `rd_breastcancertypes_revs`, 
+`rd_breast_cancers`, `rd_breast_cancers_revs`, `rd_coloncancertypes`, `rd_coloncancertypes_revs`, `rd_genericcancertypes`, 
+`rd_genericcancertypes_revs`, `rd_ovarianuteruscancertypes`, `rd_ovarianuteruscancertypes_revs`, `realiquotings`, 
+`realiquotings_revs`, `reproductive_histories`, `reproductive_histories_revs`, `review_controls`, `review_masters`, 
+`review_masters_revs`, `rtbforms`, `rtbforms_revs`, `sample_controls`, `sample_masters`, `sample_masters_revs`, 
+`sample_to_aliquot_controls`, `sd_der_amp_dnas`, `sd_der_amp_dnas_revs`, `sd_der_amp_rnas`, `sd_der_amp_rnas_revs`, 
+`sd_der_ascite_cells`, `sd_der_ascite_cells_revs`, `sd_der_ascite_sups`, `sd_der_ascite_sups_revs`, `sd_der_blood_cells`, 
+`sd_der_blood_cells_revs`, `sd_der_b_cells`, `sd_der_b_cells_revs`, `sd_der_cell_cultures`, `sd_der_cell_cultures_revs`, 
+`sd_der_dnas`, `sd_der_dnas_revs`, `sd_der_fluid_cells`, `sd_der_fluid_cells_revs`, `sd_der_fluid_sups`, `sd_der_fluid_sups_revs`, 
+`sd_der_other_cells`, `sd_der_other_cells_revs`, `sd_der_other_sups`, `sd_der_other_sups_revs`, `sd_der_pbmcs`, `sd_der_pbmcs_revs`, 
+`sd_der_plasmas`, `sd_der_plasmas_revs`, `sd_der_pw_cells`, `sd_der_pw_cells_revs`, `sd_der_pw_sups`, `sd_der_pw_sups_revs`, 
+`sd_der_rnas`, `sd_der_rnas_revs`, `sd_der_serums`, `sd_der_serums_revs`, `sd_der_tiss_lysates`, `sd_der_tiss_lysates_revs`, 
+`sd_der_tiss_susps`, `sd_der_tiss_susps_revs`, `sd_der_urine_cents`, `sd_der_urine_cents_revs`, `sd_der_urine_cons`, 
+`sd_der_urine_cons_revs`, `sd_spe_ascites`, `sd_spe_ascites_revs`, `sd_spe_bloods`, `sd_spe_bloods_revs`, `sd_spe_cystic_fluids`, 
+`sd_spe_cystic_fluids_revs`, `sd_spe_other_fluids`, `sd_spe_other_fluids_revs`, `sd_spe_peritoneal_washes`,
+ `sd_spe_peritoneal_washes_revs`, `sd_spe_tissues`, `sd_spe_tissues_revs`, `sd_spe_urines`, `sd_spe_urines_revs`, `shelves`, 
+ `shelves_revs`, `shipments`, `shipments_revs`, `sidebars`, `sopd_general_all`, `sopd_general_all_revs`, `sopd_inventory_all`, 
+ `sopd_inventory_all_revs`, `sope_general_all`, `sope_general_all_revs`, `sope_inventory_all`, `sope_inventory_all_revs`, 
+ `sop_controls`, `sop_masters`, `sop_masters_revs`, `source_aliquots`, `source_aliquots_revs`, `specimen_details`, 
+ `specimen_details_revs`, `std_boxs`, `std_boxs_revs`, `std_cupboards`, `std_cupboards_revs`, `std_freezers`, `std_freezers_revs`, 
+ `std_fridges`, `std_fridges_revs`, `std_incubators`, `std_incubators_revs`, `std_nitro_locates`, `std_nitro_locates_revs`, 
+ `std_racks`, `std_racks_revs`, `std_rooms`, `std_rooms_revs`, `std_shelfs`, `std_shelfs_revs`, `std_tma_blocks`, 
+ `std_tma_blocks_revs`, `storage_controls`, `storage_coordinates`, `storage_coordinates_revs`, `storage_masters`, 
+ `storage_masters_revs`, `structures`, `structure_fields`, `structure_formats`, `structure_options`, `structure_permissible_values`, 
+ `structure_validations`, `structure_value_domains`, `structure_value_domains_permissible_values`, `study_contacts`, 
+ `study_contacts_revs`, `study_ethics_boards`, `study_ethics_boards_revs`, `study_fundings`, `study_fundings_revs`, 
+ `study_investigators`, `study_investigators_revs`, `study_related`, `study_related_revs`, `study_results`, `study_results_revs`, 
+ `study_reviews`, `study_reviews_revs`, `study_summaries`, `study_summaries_revs`, `tma_slides`, `tma_slides_revs`, `towers`, 
+ `towers_revs`, `txd_chemos`, `txd_chemos_revs`, `txd_radiations`, `txd_radiations_revs`, `txd_surgeries`, `txd_surgeries_revs`, 
+ `txe_chemos`, `txe_chemos_revs`, `txe_radiations`, `txe_radiations_revs`, `txe_surgeries`, `txe_surgeries_revs`, `tx_controls`, 
+ `tx_masters`, `tx_masters_revs`, `users`, `user_logs`, `versions`;
+
+SET FOREIGN_KEY_CHECKS=1;
+
 --
 -- Table structure for table `acos`
 --
@@ -32,8 +92,7 @@ CREATE TABLE IF NOT EXISTS `ad_blocks` (
   `modified_by` varchar(50) DEFAULT NULL,
   `deleted` int(11) DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `aliquot_master_id` (`aliquot_master_id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `ad_blocks_revs` (
@@ -49,8 +108,7 @@ CREATE TABLE IF NOT EXISTS `ad_blocks_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
-  PRIMARY KEY (`version_id`),
-  KEY `aliquot_master_id` (`aliquot_master_id`)
+  PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -66,8 +124,7 @@ CREATE TABLE `ad_bags` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY (`id`),
-  KEY `aliquot_master_id` (`aliquot_master_id` )
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 CREATE TABLE `ad_bags_revs` (
@@ -81,8 +138,7 @@ CREATE TABLE `ad_bags_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `aliquot_master_id` (`aliquot_master_id`)
+  PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
@@ -99,9 +155,7 @@ CREATE TABLE IF NOT EXISTS `ad_cell_cores` (
   `modified_by` varchar(50) DEFAULT NULL,
   `deleted` int(11) DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `aliquot_master_id` (`aliquot_master_id`),
-  KEY `ad_gel_matrix_id` (`gel_matrix_aliquot_master_id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `ad_cell_cores_revs` (
@@ -116,9 +170,7 @@ CREATE TABLE IF NOT EXISTS `ad_cell_cores_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
-  PRIMARY KEY (`version_id`),
-  KEY `aliquot_master_id` (`aliquot_master_id`),
-  KEY `ad_gel_matrix_id` (`gel_matrix_aliquot_master_id`)
+  PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -135,8 +187,7 @@ CREATE TABLE `ad_cell_slides` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `aliquot_master_id` (`aliquot_master_id`)
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `ad_cell_slides_revs` (
@@ -151,8 +202,7 @@ CREATE TABLE `ad_cell_slides_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `aliquot_master_id` (`aliquot_master_id`)
+  PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -170,8 +220,7 @@ CREATE TABLE `ad_gel_matrices` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `aliquot_master_id` (`aliquot_master_id`)
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `ad_gel_matrices_revs` (
@@ -187,8 +236,7 @@ CREATE TABLE `ad_gel_matrices_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `aliquot_master_id` (`aliquot_master_id`)
+  PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -205,9 +253,7 @@ CREATE TABLE IF NOT EXISTS `ad_tissue_cores` (
   `modified_by` varchar(50) DEFAULT NULL,
   `deleted` int(11) DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `aliquot_master_id` (`aliquot_master_id`),
-  KEY `ad_block_id` (`block_aliquot_master_id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `ad_tissue_cores_revs` (
@@ -222,9 +268,7 @@ CREATE TABLE IF NOT EXISTS `ad_tissue_cores_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
-  PRIMARY KEY (`version_id`),
-  KEY `aliquot_master_id` (`aliquot_master_id`),
-  KEY `ad_block_id` (`block_aliquot_master_id`)
+  PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -242,9 +286,7 @@ CREATE TABLE IF NOT EXISTS `ad_tissue_slides` (
   `modified_by` varchar(50) DEFAULT NULL,
   `deleted` int(11) DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `aliquot_master_id` (`aliquot_master_id`),
-  KEY `ad_block_id` (`block_aliquot_master_id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `ad_tissue_slides_revs` (
@@ -260,9 +302,7 @@ CREATE TABLE IF NOT EXISTS `ad_tissue_slides_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
-  PRIMARY KEY (`version_id`),
-  KEY `aliquot_master_id` (`aliquot_master_id`),
-  KEY `ad_block_id` (`block_aliquot_master_id`)
+  PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -283,8 +323,7 @@ CREATE TABLE IF NOT EXISTS `ad_tubes` (
   `modified_by` varchar(50) DEFAULT NULL,
   `deleted` int(11) DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `aliquot_master_id` (`aliquot_master_id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `ad_tubes_revs` (
@@ -303,8 +342,7 @@ CREATE TABLE IF NOT EXISTS `ad_tubes_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
-  PRIMARY KEY (`version_id`),
-  KEY `aliquot_master_id` (`aliquot_master_id`)
+  PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -322,8 +360,7 @@ CREATE TABLE `ad_whatman_papers` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `aliquot_master_id` (`aliquot_master_id`)
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `ad_whatman_papers_revs` (
@@ -337,8 +374,7 @@ CREATE TABLE `ad_whatman_papers_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `aliquot_master_id` (`aliquot_master_id`)
+  PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -390,12 +426,8 @@ CREATE TABLE IF NOT EXISTS `aliquot_masters` (
   `deleted` int(11) DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `aliquot_control_id` (`aliquot_control_id`),
-  KEY `collection_id` (`collection_id`),
-  KEY `sample_master_id` (`sample_master_id`),
-  KEY `sop_master_id` (`sop_master_id`),
-  KEY `study_summary_id` (`study_summary_id`),
-  KEY `aliquot_masters_ibfk_6` (`storage_master_id`)
+  INDEX `barcode` (`barcode`),
+  INDEX `aliquot_type` (`aliquot_type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `aliquot_masters_revs` (
@@ -428,13 +460,7 @@ CREATE TABLE IF NOT EXISTS `aliquot_masters_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
-  PRIMARY KEY (`version_id`),
-  KEY `aliquot_control_id` (`aliquot_control_id`),
-  KEY `collection_id` (`collection_id`),
-  KEY `sample_master_id` (`sample_master_id`),
-  KEY `sop_master_id` (`sop_master_id`),
-  KEY `study_summary_id` (`study_summary_id`),
-  KEY `aliquot_masters_ibfk_6` (`storage_master_id`)
+  PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 --
@@ -778,7 +804,7 @@ CREATE TABLE IF NOT EXISTS `collections` (
   `deleted` int(11) DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `sop_master_id` (`sop_master_id`)
+  INDEX `acquisition_label` (`acquisition_label`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `collections_revs` (
@@ -806,8 +832,7 @@ CREATE TABLE IF NOT EXISTS `collections_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
-  PRIMARY KEY (`version_id`),
-  KEY `sop_master_id` (`sop_master_id`)
+  PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -1040,8 +1065,7 @@ CREATE TABLE `derivative_details` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `derivative_details_revs` (
@@ -1058,8 +1082,7 @@ CREATE TABLE `derivative_details_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 --
@@ -3234,11 +3257,7 @@ CREATE TABLE `sample_masters` (
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
-  KEY `sample_control_id` (`sample_control_id`),
-  KEY `initial_specimen_sample_id` (`initial_specimen_sample_id`),
-  KEY `parent_id` (`parent_id`),
-  KEY `collection_id` (`collection_id`),
-  KEY `sop_master_id` (`sop_master_id`)
+  INDEX `sample_code` (`sample_code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `sample_masters_revs` (
@@ -3263,12 +3282,7 @@ CREATE TABLE `sample_masters_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `sample_control_id` (`sample_control_id`),
-  KEY `initial_specimen_sample_id` (`initial_specimen_sample_id`),
-  KEY `parent_id` (`parent_id`),
-  KEY `collection_id` (`collection_id`),
-  KEY `sop_master_id` (`sop_master_id`)
+  PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -3284,8 +3298,7 @@ CREATE TABLE `sd_der_ascite_cells` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY (`id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 CREATE TABLE `sd_der_ascite_cells_revs` (
@@ -3299,8 +3312,7 @@ CREATE TABLE `sd_der_ascite_cells_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY (`version_id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
@@ -3316,8 +3328,7 @@ CREATE TABLE `sd_der_ascite_sups` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY (`id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 CREATE TABLE `sd_der_ascite_sups_revs` (
@@ -3331,8 +3342,7 @@ CREATE TABLE `sd_der_ascite_sups_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY (`version_id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
@@ -3348,8 +3358,7 @@ CREATE TABLE `sd_der_blood_cells` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY (`id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 CREATE TABLE `sd_der_blood_cells_revs` (
@@ -3363,8 +3372,7 @@ CREATE TABLE `sd_der_blood_cells_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY (`version_id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
@@ -3380,8 +3388,7 @@ CREATE TABLE `sd_der_pbmcs` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY (`id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 CREATE TABLE `sd_der_pbmcs_revs` (
@@ -3395,8 +3402,7 @@ CREATE TABLE `sd_der_pbmcs_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY (`version_id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
@@ -3412,8 +3418,7 @@ CREATE TABLE `sd_der_dnas` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY (`id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 CREATE TABLE `sd_der_dnas_revs` (
@@ -3427,8 +3432,7 @@ CREATE TABLE `sd_der_dnas_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY (`version_id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
@@ -3444,8 +3448,7 @@ CREATE TABLE `sd_der_rnas` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY (`id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 CREATE TABLE `sd_der_rnas_revs` (
@@ -3459,8 +3462,7 @@ CREATE TABLE `sd_der_rnas_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY (`version_id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
@@ -3476,8 +3478,7 @@ CREATE TABLE `sd_der_urine_cons` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY (`id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 CREATE TABLE `sd_der_urine_cons_revs` (
@@ -3491,8 +3492,7 @@ CREATE TABLE `sd_der_urine_cons_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY (`version_id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
@@ -3508,8 +3508,7 @@ CREATE TABLE `sd_der_urine_cents` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY (`id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 CREATE TABLE `sd_der_urine_cents_revs` (
@@ -3523,8 +3522,7 @@ CREATE TABLE `sd_der_urine_cents_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY (`version_id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
@@ -3540,8 +3538,7 @@ CREATE TABLE `sd_der_amp_dnas` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY (`id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `sd_der_amp_dnas_revs` (
@@ -3555,8 +3552,7 @@ CREATE TABLE `sd_der_amp_dnas_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY (`version_id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
@@ -3572,8 +3568,7 @@ CREATE TABLE `sd_der_amp_rnas` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY (`id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 CREATE TABLE `sd_der_amp_rnas_revs` (
@@ -3587,8 +3582,7 @@ CREATE TABLE `sd_der_amp_rnas_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY (`version_id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
@@ -3604,8 +3598,7 @@ CREATE TABLE `sd_der_b_cells` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY (`id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 CREATE TABLE `sd_der_b_cells_revs` (
@@ -3619,8 +3612,7 @@ CREATE TABLE `sd_der_b_cells_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY (`version_id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
@@ -3636,8 +3628,7 @@ CREATE TABLE `sd_der_tiss_lysates` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY (`id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 CREATE TABLE `sd_der_tiss_lysates_revs` (
@@ -3651,8 +3642,7 @@ CREATE TABLE `sd_der_tiss_lysates_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY (`version_id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
@@ -3668,8 +3658,7 @@ CREATE TABLE `sd_der_tiss_susps` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY (`id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 CREATE TABLE `sd_der_tiss_susps_revs` (
@@ -3683,8 +3672,7 @@ CREATE TABLE `sd_der_tiss_susps_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY (`version_id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
@@ -3700,8 +3688,7 @@ CREATE TABLE `sd_der_pw_cells` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY (`id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 CREATE TABLE `sd_der_pw_cells_revs` (
@@ -3715,8 +3702,7 @@ CREATE TABLE `sd_der_pw_cells_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY (`version_id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
@@ -3732,8 +3718,7 @@ CREATE TABLE `sd_der_pw_sups` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY (`id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 CREATE TABLE `sd_der_pw_sups_revs` (
@@ -3747,8 +3732,7 @@ CREATE TABLE `sd_der_pw_sups_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY (`version_id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
@@ -3764,8 +3748,7 @@ CREATE TABLE `sd_der_fluid_cells` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY (`id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 CREATE TABLE `sd_der_fluid_cells_revs` (
@@ -3779,8 +3762,7 @@ CREATE TABLE `sd_der_fluid_cells_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY (`version_id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
@@ -3796,8 +3778,7 @@ CREATE TABLE `sd_der_fluid_sups` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY (`id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 CREATE TABLE `sd_der_fluid_sups_revs` (
@@ -3811,8 +3792,7 @@ CREATE TABLE `sd_der_fluid_sups_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY (`version_id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
@@ -3828,8 +3808,7 @@ CREATE TABLE `sd_der_other_cells` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY (`id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 CREATE TABLE `sd_der_other_cells_revs` (
@@ -3843,8 +3822,7 @@ CREATE TABLE `sd_der_other_cells_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY (`version_id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
@@ -3860,8 +3838,7 @@ CREATE TABLE `sd_der_other_sups` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY (`id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 CREATE TABLE `sd_der_other_sups_revs` (
@@ -3875,8 +3852,7 @@ CREATE TABLE `sd_der_other_sups_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY (`version_id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
@@ -3895,8 +3871,7 @@ CREATE TABLE `sd_der_cell_cultures` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `sd_der_cell_cultures_revs` (
@@ -3913,8 +3888,7 @@ CREATE TABLE `sd_der_cell_cultures_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -3931,8 +3905,7 @@ CREATE TABLE `sd_der_plasmas` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `sd_der_plasmas_revs` (
@@ -3947,8 +3920,7 @@ CREATE TABLE `sd_der_plasmas_revs` (
   `version_date` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -3965,8 +3937,7 @@ CREATE TABLE `sd_der_serums` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `sd_der_serums_revs` (
@@ -3981,8 +3952,7 @@ CREATE TABLE `sd_der_serums_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -4000,8 +3970,7 @@ CREATE TABLE `sd_spe_ascites` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `sd_spe_ascites_revs` (
@@ -4017,8 +3986,7 @@ CREATE TABLE `sd_spe_ascites_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -4038,8 +4006,7 @@ CREATE TABLE `sd_spe_bloods` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `sd_spe_bloods_revs` (
@@ -4057,8 +4024,7 @@ CREATE TABLE `sd_spe_bloods_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -4076,8 +4042,7 @@ CREATE TABLE `sd_spe_cystic_fluids` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `sd_spe_cystic_fluids_revs` (
@@ -4093,8 +4058,7 @@ CREATE TABLE `sd_spe_cystic_fluids_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -4112,8 +4076,7 @@ CREATE TABLE `sd_spe_other_fluids` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `sd_spe_other_fluids_revs` (
@@ -4129,8 +4092,7 @@ CREATE TABLE `sd_spe_other_fluids_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -4148,8 +4110,7 @@ CREATE TABLE `sd_spe_peritoneal_washes` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `sd_spe_peritoneal_washes_revs` (
@@ -4165,8 +4126,7 @@ CREATE TABLE `sd_spe_peritoneal_washes_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -4187,8 +4147,7 @@ CREATE TABLE `sd_spe_tissues` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `sd_spe_tissues_revs` (
@@ -4207,8 +4166,7 @@ CREATE TABLE `sd_spe_tissues_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -4232,8 +4190,7 @@ CREATE TABLE `sd_spe_urines` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `sd_spe_urines_revs` (
@@ -4255,8 +4212,7 @@ CREATE TABLE `sd_spe_urines_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -4627,8 +4583,7 @@ CREATE TABLE `specimen_details` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `specimen_details_revs` (
@@ -4643,8 +4598,7 @@ CREATE TABLE `specimen_details_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -6413,12 +6367,148 @@ ALTER TABLE `tx_masters`
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
 
+-- Inventory Management Foreign Keys --
+
+ALTER TABLE `collections`
+  ADD CONSTRAINT `FK_collections_banks`
+  FOREIGN KEY (`bank_id`) REFERENCES `banks` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+  
+ALTER TABLE `collections`
+  ADD CONSTRAINT `FK_collections_sops`
+  FOREIGN KEY (`sop_master_id`) REFERENCES `sop_masters` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT; 
+
+ALTER TABLE `sample_masters`
+  ADD CONSTRAINT `FK_sample_masters_collections`
+  FOREIGN KEY (`collection_id`) REFERENCES `collections` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT; 
+
+ALTER TABLE `sample_masters`
+  ADD CONSTRAINT `FK_sample_masters_sample_controls`
+  FOREIGN KEY (`sample_control_id`) REFERENCES `sample_controls` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;  
+
+ALTER TABLE `sample_masters`
+  ADD CONSTRAINT `FK_sample_masters_sample_specimens`
+  FOREIGN KEY (`initial_specimen_sample_id`) REFERENCES `sample_masters` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT; 
+
+ALTER TABLE `sample_masters`
+  ADD CONSTRAINT `FK_sample_masters_parents`
+  FOREIGN KEY (`parent_id`) REFERENCES `sample_masters` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT; 
+
+ALTER TABLE `sample_masters`
+  ADD CONSTRAINT `FK_sample_masters_sops`
+  FOREIGN KEY (`sop_master_id`) REFERENCES `sop_masters` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;  
+
+ALTER TABLE `specimen_details`
+  ADD CONSTRAINT `FK_specimen_details_sample_masters`
+  FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT; 
+
+ALTER TABLE `derivative_details`
+  ADD CONSTRAINT `FK_detivative_details_sample_masters`
+  FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT; 
+
+ALTER TABLE `sd_der_amp_dnas` ADD CONSTRAINT `FK_sd_der_amp_dnas_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `sd_der_amp_rnas` ADD CONSTRAINT `FK_sd_der_amp_rnas_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `sd_der_ascite_cells` ADD CONSTRAINT `FK_sd_der_ascite_cells_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `sd_der_ascite_sups` ADD CONSTRAINT `FK_sd_der_ascite_sups_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `sd_der_blood_cells` ADD CONSTRAINT `FK_sd_der_blood_cells_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `sd_der_b_cells` ADD CONSTRAINT `FK_sd_der_b_cells_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `sd_der_cell_cultures` ADD CONSTRAINT `FK_sd_der_cell_cultures_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `sd_der_dnas` ADD CONSTRAINT `FK_sd_der_dnas_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `sd_der_fluid_cells` ADD CONSTRAINT `FK_sd_der_fluid_cells_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `sd_der_fluid_sups` ADD CONSTRAINT `FK_sd_der_fluid_sups_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `sd_der_other_cells` ADD CONSTRAINT `FK_sd_der_other_cells_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `sd_der_other_sups` ADD CONSTRAINT `FK_sd_der_other_sups_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `sd_der_pbmcs` ADD CONSTRAINT `FK_sd_der_pbmcs_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `sd_der_plasmas` ADD CONSTRAINT `FK_sd_der_plasmas_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `sd_der_pw_cells` ADD CONSTRAINT `FK_sd_der_pw_cells_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `sd_der_pw_sups` ADD CONSTRAINT `FK_sd_der_pw_sups_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `sd_der_rnas` ADD CONSTRAINT `FK_sd_der_rnas_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `sd_der_serums` ADD CONSTRAINT `FK_sd_der_serums_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `sd_der_tiss_lysates` ADD CONSTRAINT `FK_sd_der_tiss_lysates_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `sd_der_tiss_susps` ADD CONSTRAINT `FK_sd_der_tiss_susps_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `sd_der_urine_cents` ADD CONSTRAINT `FK_sd_der_urine_cents_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `sd_der_urine_cons` ADD CONSTRAINT `FK_sd_der_urine_cons_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `sd_spe_ascites` ADD CONSTRAINT `FK_sd_spe_ascites_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `sd_spe_bloods` ADD CONSTRAINT `FK_sd_spe_bloods_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `sd_spe_cystic_fluids` ADD CONSTRAINT `FK_sd_spe_cystic_fluids_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `sd_spe_other_fluids` ADD CONSTRAINT `FK_sd_spe_other_fluids_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `sd_spe_peritoneal_washes` ADD CONSTRAINT `FK_sd_spe_peritoneal_washes_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `sd_spe_tissues` ADD CONSTRAINT `FK_sd_spe_tissues_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `sd_spe_urines` ADD CONSTRAINT `FK_sd_spe_urines_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+
+ALTER TABLE `aliquot_masters`
+  ADD CONSTRAINT `FK_aliquot_masters_aliquot_controls`
+  FOREIGN KEY (`aliquot_control_id`) REFERENCES `aliquot_controls` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT; 
+
+ALTER TABLE `aliquot_masters`
+  ADD CONSTRAINT `FK_aliquot_masters_collections`
+  FOREIGN KEY (`collection_id`) REFERENCES `collections` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT; 
+
+ALTER TABLE `aliquot_masters`
+  ADD CONSTRAINT `FK_aliquot_masters_sample_masters`
+  FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT; 
+
+ALTER TABLE `aliquot_masters`
+  ADD CONSTRAINT `FK_aliquot_masters_sops`
+  FOREIGN KEY (`sop_master_id`) REFERENCES `sop_masters` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT; 
+
+ALTER TABLE `aliquot_masters`
+  ADD CONSTRAINT `FK_aliquot_masters_study_summaries`
+  FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT; 
+
+ALTER TABLE `aliquot_masters`
+  ADD CONSTRAINT `FK_aliquot_masters_storage_masters`
+  FOREIGN KEY (`storage_master_id`) REFERENCES `storage_masters` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT; 
+
+ALTER TABLE `ad_bags` ADD CONSTRAINT `FK_ad_bags_aliquot_masters` FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `ad_blocks` ADD CONSTRAINT `FK_ad_blocks_aliquot_masters` FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `ad_cell_cores` ADD CONSTRAINT `FK_ad_cell_cores_aliquot_masters` FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `ad_cell_slides` ADD CONSTRAINT `FK_ad_cell_slides_aliquot_masters` FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `ad_gel_matrices` ADD CONSTRAINT `FK_ad_gel_matrices_aliquot_masters` FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `ad_tissue_cores` ADD CONSTRAINT `FK_ad_tissue_cores_aliquot_masters` FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `ad_tissue_slides` ADD CONSTRAINT `FK_ad_tissue_slides_aliquot_masters` FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `ad_tubes` ADD CONSTRAINT `FK_ad_tubes_aliquot_masters` FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `ad_whatman_papers` ADD CONSTRAINT `FK_ad_whatman_papers_aliquot_masters` FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+
+ALTER TABLE `ad_cell_cores` ADD CONSTRAINT `FK_ad_cell_cores_gel_matrices` FOREIGN KEY (`gel_matrix_aliquot_master_id`) REFERENCES `aliquot_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+
+ALTER TABLE `ad_tissue_cores` ADD CONSTRAINT `FK_ad_tissue_cores_blocks` FOREIGN KEY (`block_aliquot_master_id`) REFERENCES `aliquot_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `ad_tissue_slides` ADD CONSTRAINT `FK_ad_tissue_slides_aliquot_ad_cell_coress` FOREIGN KEY (`block_aliquot_master_id`) REFERENCES `aliquot_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+
 -- Order Management Foreign Keys --
 
 ALTER TABLE `orders`
   ADD CONSTRAINT `FK_orders_study_summaries`
   FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`)
-  ON DELETE RESTRICT
   ON UPDATE RESTRICT;
 
 ALTER TABLE `order_lines`
