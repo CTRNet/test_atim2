@@ -1,9 +1,5 @@
 ﻿-- ATiM v2.0.0 Database Creation Script
 
--- DROP DATABASE IF EXISTS `atim`;
--- CREATE DATABASE `atim`;
--- USE `atim`;
-
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
 --
@@ -19,7 +15,7 @@ CREATE TABLE `acos` (
   `lft` int(10) default NULL,
   `rght` int(10) default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci ;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 --
 -- Table structure for table `ad_blocks`
@@ -72,7 +68,7 @@ CREATE TABLE `ad_bags` (
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`id`),
   KEY `aliquot_master_id` (`aliquot_master_id` )
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 CREATE TABLE `ad_bags_revs` (
   `id` int(11) NOT NULL,
@@ -87,7 +83,7 @@ CREATE TABLE `ad_bags_revs` (
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`),
   KEY `aliquot_master_id` (`aliquot_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
 -- Table structure for table `ad_cell_cores`
@@ -359,7 +355,7 @@ CREATE TABLE IF NOT EXISTS `aliquot_controls` (
   `comment` varchar(255) DEFAULT NULL,
   `display_order` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=16 ;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 --
 -- Table structure for table `aliquot_masters`
@@ -449,10 +445,12 @@ CREATE TABLE `aliquot_uses` (
   `id` int(11) NOT NULL auto_increment,
   `aliquot_master_id` int(11) default NULL,
   `use_definition` varchar(30) default NULL,
+  `use_code` varchar(50) DEFAULT NULL,
   `use_details` varchar(250) default NULL,
   `use_recorded_into_table` varchar(40) default NULL,
   `used_volume` decimal(10,5) default NULL,
   `use_datetime` datetime default NULL,
+  `used_by` varchar(50) DEFAULT NULL,
   `study_summary_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` varchar(50) NOT NULL default '',
@@ -469,10 +467,12 @@ CREATE TABLE `aliquot_uses_revs` (
   `id` int(11) NOT NULL,
   `aliquot_master_id` int(11) default NULL,
   `use_definition` varchar(30) default NULL,
+  `use_code` varchar(50) DEFAULT NULL,
   `use_details` varchar(250) default NULL,
   `use_recorded_into_table` varchar(40) default NULL,
   `used_volume` decimal(10,5) default NULL,
   `use_datetime` datetime default NULL,
+  `used_by` varchar(50) DEFAULT NULL,
   `study_summary_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` varchar(50) NOT NULL default '',
@@ -521,7 +521,7 @@ CREATE TABLE `aros` (
   `lft` int(10) default NULL,
   `rght` int(10) default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
 -- Table structure for table `aros_acos`
@@ -537,7 +537,7 @@ CREATE TABLE `aros_acos` (
   `_delete` varchar(2) character set latin1 NOT NULL default '0',
   PRIMARY KEY  (`id`),
   UNIQUE KEY `ARO_ACO_KEY` (`aro_id`,`aco_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci ;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
 -- Table structure for table `atim_information`
@@ -554,7 +554,7 @@ CREATE TABLE `atim_information` (
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
   `modified_by` varchar(50) default NULL,
   PRIMARY KEY( `id` )
-) ENGINE=INNODB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 --
 -- Table structure for table `banks`
@@ -748,7 +748,7 @@ CREATE TABLE `coding_icd10` (
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ;
 
 -- 
 -- Table structure for table `collections`
@@ -831,7 +831,7 @@ CREATE TABLE `configs` (
   `modified` datetime NOT NULL,
   `modified_by` int(11) NOT NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 --
 -- Table structure for table `consent_controls`
@@ -845,7 +845,7 @@ CREATE TABLE IF NOT EXISTS `consent_controls` (
   `detail_tablename` varchar(255) NOT NULL,
   `display_order` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 --
 -- Table structure for table `consent_masters`
@@ -961,7 +961,7 @@ CREATE TABLE `datamart_adhoc_favourites` (
   `adhoc_id` int(11) default NULL,
   `user_id` int(11) default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
 -- Table structure for table `datamart_adhoc_saved`
@@ -1074,7 +1074,7 @@ CREATE TABLE IF NOT EXISTS `diagnosis_controls` (
   `detail_tablename` varchar(255) NOT NULL,
   `display_order` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 --
 -- Table structure for table `diagnosis_masters`
@@ -1172,6 +1172,7 @@ CREATE TABLE IF NOT EXISTS `diagnosis_masters_revs` (
 CREATE TABLE IF NOT EXISTS `dxd_bloods` (
   `id` int(11) NOT NULL,
   `diagnosis_master_id` int(11) NOT NULL DEFAULT '0',
+  `text_field` varchar(10) NOT NULL default '',
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` varchar(255) NOT NULL default '',
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -1185,6 +1186,7 @@ CREATE TABLE IF NOT EXISTS `dxd_bloods` (
 CREATE TABLE IF NOT EXISTS `dxd_bloods_rev` (
   `id` int(11) NOT NULL,
   `diagnosis_master_id` int(11) NOT NULL DEFAULT '0',
+  `text_field` varchar(10) NOT NULL default '',
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` varchar(255) NOT NULL default '',
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -1197,13 +1199,13 @@ CREATE TABLE IF NOT EXISTS `dxd_bloods_rev` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 --
--- Table structure for table `dxd_solids`
+-- Table structure for table `dxd_tissues`
 --
 
-CREATE TABLE IF NOT EXISTS `dxd_solids` (
+CREATE TABLE IF NOT EXISTS `dxd_tissues` (
   `id` int(11) NOT NULL,
-  `laterality` varchar(50) DEFAULT NULL,
-  `diagnosis_master_id` int(11) unsigned NOT NULL DEFAULT '0',
+  `diagnosis_master_id` int(11) NOT NULL DEFAULT '0',
+  `text_field` varchar(10) NOT NULL default '',
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` varchar(255) NOT NULL default '',
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -1214,10 +1216,10 @@ CREATE TABLE IF NOT EXISTS `dxd_solids` (
   INDEX `diagnosis_master_id` (`diagnosis_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS `dxd_solids_rev` (
+CREATE TABLE IF NOT EXISTS `dxd_tissues_rev` (
   `id` int(11) NOT NULL,
-  `laterality` varchar(50) DEFAULT NULL,
-  `diagnosis_master_id` int(11) unsigned NOT NULL DEFAULT '0',
+  `diagnosis_master_id` int(11) NOT NULL DEFAULT '0',
+  `text_field` varchar(10) NOT NULL default '',
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` varchar(255) NOT NULL default '',
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -1246,7 +1248,7 @@ CREATE TABLE `drugs` (
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 CREATE TABLE `drugs_revs` (
   `id` int(11) NOT NULL,
@@ -1263,7 +1265,7 @@ CREATE TABLE `drugs_revs` (
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
 -- Table structure for table `ed_allsolid_lab_pathology`
@@ -1811,7 +1813,7 @@ CREATE TABLE `groups` (
   `created` datetime default NULL,
   `modified` datetime default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
 -- Table structure for table `i18n`
@@ -2031,52 +2033,46 @@ CREATE TABLE `order_items_revs` (
 -- 
 
 CREATE TABLE `order_lines` (
-  `id` int(11) NOT NULL auto_increment,
-  `cancer_type` varchar(255) default NULL,
-  `quantity_ordered` int(255) default NULL,
-  `quantity_UM` varchar(255) default NULL,
-  `min_qty_ordered` int(11) default NULL,
-  `min_qty_UM` varchar(50) default NULL,
-  `base_price` varchar(255) default NULL,
-  `date_required` date default NULL,
-  `quantity_shipped` int(11) default NULL,
-  `status` varchar(255) default NULL,
-  `created` datetime default NULL,
-  `created_by` varchar(50) default NULL,
-  `modified` datetime default NULL,
-  `modified_by` varchar(50) default NULL,
-  `discount_code` varchar(50) default NULL,
-  `product_code` varchar(50) default NULL,
-  `sample_control_id` int(11) default NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `quantity_ordered` varchar(30) DEFAULT NULL,
+  `min_quantity_ordered` varchar(30) DEFAULT NULL,
+  `quantity_unit` varchar(10) DEFAULT NULL,
+  `date_required` date DEFAULT NULL,
+  `status` varchar(255) DEFAULT NULL,
+  `created` datetime DEFAULT NULL,
+  `created_by` varchar(50) DEFAULT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` varchar(50) DEFAULT NULL,
+  `product_code` varchar(50) DEFAULT NULL,
+  `sample_control_id` int(11) DEFAULT NULL,
+  `aliquot_control_id` int(11) DEFAULT NULL,
+  `sample_aliquot_precision` varchar(30) DEFAULT NULL,
   `order_id` int(11) NOT NULL,
-  `deleted` int(11) default 0,
-  `deleted_date` datetime default NULL,
+  `deleted` int(11) DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `order_lines_revs` (
   `id` int(11) NOT NULL,
-  `cancer_type` varchar(255) default NULL,
-  `quantity_ordered` int(255) default NULL,
-  `quantity_UM` varchar(255) default NULL,
-  `min_qty_ordered` int(11) default NULL,
-  `min_qty_UM` varchar(50) default NULL,
-  `base_price` varchar(255) default NULL,
-  `date_required` date default NULL,
-  `quantity_shipped` int(11) default NULL,
-  `status` varchar(255) default NULL,
-  `created` datetime default NULL,
-  `created_by` varchar(50) default NULL,
-  `modified` datetime default NULL,
-  `modified_by` varchar(50) default NULL,
-  `discount_code` varchar(50) default NULL,
-  `product_code` varchar(50) default NULL,
-  `sample_control_id` int(11) default NULL,
+  `quantity_ordered` varchar(30) DEFAULT NULL,
+  `min_quantity_ordered` varchar(30) DEFAULT NULL,
+  `quantity_unit` varchar(10) DEFAULT NULL,
+  `date_required` date DEFAULT NULL,
+  `status` varchar(255) DEFAULT NULL,
+  `created` datetime DEFAULT NULL,
+  `created_by` varchar(50) DEFAULT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` varchar(50) DEFAULT NULL,
+  `product_code` varchar(50) DEFAULT NULL,
+  `sample_control_id` int(11) DEFAULT NULL,
+  `aliquot_control_id` int(11) DEFAULT NULL,
+  `sample_aliquot_precision` varchar(30) DEFAULT NULL,
   `order_id` int(11) NOT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
-  `deleted_date` datetime default NULL,
+  `deleted` int(11) DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
@@ -2085,7 +2081,7 @@ CREATE TABLE `order_lines_revs` (
 -- 
 
 CREATE TABLE `pages` (
-  `id` varchar(100) character set utf8 collate utf8_unicode_ci NOT NULL default '',
+  `id` varchar(100) NOT NULL default '',
   `error_flag` tinyint(4) NOT NULL default '0',
   `language_title` varchar(255) NOT NULL default '',
   `language_body` text NOT NULL,
@@ -2517,7 +2513,7 @@ CREATE TABLE `providers` (
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
   PRIMARY KEY ( `id` )
-)  ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `providers_revs` (
   `id` int(11) NOT NULL,
@@ -2536,15 +2532,15 @@ CREATE TABLE `providers_revs` (
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
   PRIMARY KEY ( `version_id` )
-)  ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
--- Table structure for table `qc_tested_aliquots`
+-- Table structure for table `quality_ctrl_tested_aliquots`
 -- 
 
-CREATE TABLE `qc_tested_aliquots` (
+CREATE TABLE `quality_ctrl_tested_aliquots` (
   `id` int(11) NOT NULL auto_increment,
-  `quality_control_id` int(11) default NULL,
+  `quality_ctrl_id` int(11) default NULL,
   `aliquot_master_id` int(11) default NULL,
   `aliquot_use_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -2554,14 +2550,14 @@ CREATE TABLE `qc_tested_aliquots` (
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
-  KEY `quality_control_id` (`quality_control_id`),
+  KEY `quality_ctrl_id` (`quality_ctrl_id`),
   KEY `aliquot_master_id` (`aliquot_master_id`),
   KEY `aliquot_use_id` (`aliquot_use_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE `qc_tested_aliquots_revs` (
+CREATE TABLE `quality_ctrl_tested_aliquots_revs` (
   `id` int(11) NOT NULL,
-  `quality_control_id` int(11) default NULL,
+  `quality_ctrl_id` int(11) default NULL,
   `aliquot_master_id` int(11) default NULL,
   `aliquot_use_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -2573,7 +2569,7 @@ CREATE TABLE `qc_tested_aliquots_revs` (
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`),
-  KEY `quality_control_id` (`quality_control_id`),
+  KEY `quality_ctrl_id` (`quality_ctrl_id`),
   KEY `aliquot_master_id` (`aliquot_master_id`),
   KEY `aliquot_use_id` (`aliquot_use_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -2584,10 +2580,12 @@ CREATE TABLE `qc_tested_aliquots_revs` (
 
 CREATE TABLE `quality_ctrls` (
   `id` int(11) NOT NULL auto_increment,
+  `qc_code` varchar(20) DEFAULT NULL,
   `sample_master_id` int(11) default NULL,
   `type` varchar(30) default NULL,
   `tool` varchar(30) default NULL,
   `run_id` varchar(30) default NULL,
+  `run_by` varchar(50) DEFAULT NULL,
   `date` date default NULL,
   `score` varchar(30) default NULL,
   `unit` varchar(30) default NULL,
@@ -2605,10 +2603,12 @@ CREATE TABLE `quality_ctrls` (
 
 CREATE TABLE `quality_ctrls_revs` (
   `id` int(11) NOT NULL,
+  `qc_code` varchar(20) DEFAULT NULL,
   `sample_master_id` int(11) default NULL,
   `type` varchar(30) default NULL,
   `tool` varchar(30) default NULL,
   `run_id` varchar(30) default NULL,
+  `run_by` varchar(50) DEFAULT NULL,
   `date` date default NULL,
   `score` varchar(30) default NULL,
   `unit` varchar(30) default NULL,
@@ -2961,8 +2961,6 @@ CREATE TABLE `realiquotings` (
   `parent_aliquot_master_id` int(11) default NULL,
   `child_aliquot_master_id` int(11) default NULL,
   `aliquot_use_id` int(11) default NULL,
-  `realiquoted_by` varchar(20) default NULL,
-  `realiquoted_datetime` datetime default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
@@ -2970,6 +2968,7 @@ CREATE TABLE `realiquotings` (
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
+  UNIQUE KEY `parent_child_combo` (`parent_aliquot_master_id`,`child_aliquot_master_id`),
   KEY `parent_aliquot_master_id` (`parent_aliquot_master_id`),
   KEY `child_aliquot_master_id` (`child_aliquot_master_id`),
   KEY `aliquot_use_id` (`aliquot_use_id`)
@@ -2980,8 +2979,6 @@ CREATE TABLE `realiquotings_revs` (
   `parent_aliquot_master_id` int(11) default NULL,
   `child_aliquot_master_id` int(11) default NULL,
   `aliquot_use_id` int(11) default NULL,
-  `realiquoted_by` varchar(20) default NULL,
-  `realiquoted_datetime` datetime default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
@@ -2991,6 +2988,7 @@ CREATE TABLE `realiquotings_revs` (
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`),
+  UNIQUE KEY `parent_child_combo` (`parent_aliquot_master_id`,`child_aliquot_master_id`),
   KEY `parent_aliquot_master_id` (`parent_aliquot_master_id`),
   KEY `child_aliquot_master_id` (`child_aliquot_master_id`),
   KEY `aliquot_use_id` (`aliquot_use_id`)
@@ -3179,7 +3177,7 @@ CREATE TABLE `rtbforms_revs` (
   `deleted` int(11) default 0,
   `deleted_date` datetime NULL,
   PRIMARY KEY  (`version_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
 -- Table structure for table `derivative_sample_control_id`
@@ -3193,7 +3191,7 @@ CREATE TABLE IF NOT EXISTS `sample_to_aliquot_controls` (
   PRIMARY KEY (`id`),
   KEY `sample_control_id` (`sample_control_id`),
   KEY `aliquot_control_id` (`aliquot_control_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=45 ;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
 -- Table structure for table `sample_controls`
@@ -3288,7 +3286,7 @@ CREATE TABLE `sd_der_ascite_cells` (
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`id`),
   KEY `sample_master_id` (`sample_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 CREATE TABLE `sd_der_ascite_cells_revs` (
   `id` int(11) NOT NULL,
@@ -3303,7 +3301,7 @@ CREATE TABLE `sd_der_ascite_cells_revs` (
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`version_id`),
   KEY `sample_master_id` (`sample_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
 -- Table structure for table `sd_der_ascite_sups`
@@ -3320,7 +3318,7 @@ CREATE TABLE `sd_der_ascite_sups` (
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`id`),
   KEY `sample_master_id` (`sample_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 CREATE TABLE `sd_der_ascite_sups_revs` (
   `id` int(11) NOT NULL,
@@ -3335,7 +3333,7 @@ CREATE TABLE `sd_der_ascite_sups_revs` (
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`version_id`),
   KEY `sample_master_id` (`sample_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
 -- Table structure for table `sd_der_blood_cells`
@@ -3352,7 +3350,7 @@ CREATE TABLE `sd_der_blood_cells` (
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`id`),
   KEY `sample_master_id` (`sample_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 CREATE TABLE `sd_der_blood_cells_revs` (
   `id` int(11) NOT NULL,
@@ -3367,7 +3365,7 @@ CREATE TABLE `sd_der_blood_cells_revs` (
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`version_id`),
   KEY `sample_master_id` (`sample_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
 -- Table structure for table `sd_der_pbmcs`
@@ -3384,7 +3382,7 @@ CREATE TABLE `sd_der_pbmcs` (
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`id`),
   KEY `sample_master_id` (`sample_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 CREATE TABLE `sd_der_pbmcs_revs` (
   `id` int(11) NOT NULL,
@@ -3399,7 +3397,7 @@ CREATE TABLE `sd_der_pbmcs_revs` (
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`version_id`),
   KEY `sample_master_id` (`sample_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
 -- Table structure for table `sd_der_dnas`
@@ -3416,7 +3414,7 @@ CREATE TABLE `sd_der_dnas` (
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`id`),
   KEY `sample_master_id` (`sample_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 CREATE TABLE `sd_der_dnas_revs` (
   `id` int(11) NOT NULL,
@@ -3431,7 +3429,7 @@ CREATE TABLE `sd_der_dnas_revs` (
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`version_id`),
   KEY `sample_master_id` (`sample_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
 -- Table structure for table `sd_der_rnas`
@@ -3448,7 +3446,7 @@ CREATE TABLE `sd_der_rnas` (
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`id`),
   KEY `sample_master_id` (`sample_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 CREATE TABLE `sd_der_rnas_revs` (
   `id` int(11) NOT NULL,
@@ -3463,7 +3461,7 @@ CREATE TABLE `sd_der_rnas_revs` (
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`version_id`),
   KEY `sample_master_id` (`sample_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
 -- Table structure for table `sd_der_urine_cons`
@@ -3480,7 +3478,7 @@ CREATE TABLE `sd_der_urine_cons` (
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`id`),
   KEY `sample_master_id` (`sample_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 CREATE TABLE `sd_der_urine_cons_revs` (
   `id` int(11) NOT NULL,
@@ -3495,7 +3493,7 @@ CREATE TABLE `sd_der_urine_cons_revs` (
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`version_id`),
   KEY `sample_master_id` (`sample_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
 -- Table structure for table `sd_der_urine_cents`
@@ -3512,7 +3510,7 @@ CREATE TABLE `sd_der_urine_cents` (
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`id`),
   KEY `sample_master_id` (`sample_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 CREATE TABLE `sd_der_urine_cents_revs` (
   `id` int(11) NOT NULL,
@@ -3527,7 +3525,7 @@ CREATE TABLE `sd_der_urine_cents_revs` (
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`version_id`),
   KEY `sample_master_id` (`sample_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
 -- Table structure for table `sd_der_amp_dnas`
@@ -3544,7 +3542,7 @@ CREATE TABLE `sd_der_amp_dnas` (
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`id`),
   KEY `sample_master_id` (`sample_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `sd_der_amp_dnas_revs` (
   `id` int(11) NOT NULL,
@@ -3559,7 +3557,7 @@ CREATE TABLE `sd_der_amp_dnas_revs` (
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`version_id`),
   KEY `sample_master_id` (`sample_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
 -- Table structure for table `sd_der_amp_rnas`
@@ -3576,7 +3574,7 @@ CREATE TABLE `sd_der_amp_rnas` (
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`id`),
   KEY `sample_master_id` (`sample_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 CREATE TABLE `sd_der_amp_rnas_revs` (
   `id` int(11) NOT NULL,
@@ -3591,7 +3589,7 @@ CREATE TABLE `sd_der_amp_rnas_revs` (
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`version_id`),
   KEY `sample_master_id` (`sample_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
 -- Table structure for table `sd_der_b_cells`
@@ -3608,7 +3606,7 @@ CREATE TABLE `sd_der_b_cells` (
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`id`),
   KEY `sample_master_id` (`sample_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 CREATE TABLE `sd_der_b_cells_revs` (
   `id` int(11) NOT NULL,
@@ -3623,7 +3621,7 @@ CREATE TABLE `sd_der_b_cells_revs` (
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`version_id`),
   KEY `sample_master_id` (`sample_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
 -- Table structure for table `sd_der_tiss_lysates`
@@ -3640,7 +3638,7 @@ CREATE TABLE `sd_der_tiss_lysates` (
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`id`),
   KEY `sample_master_id` (`sample_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 CREATE TABLE `sd_der_tiss_lysates_revs` (
   `id` int(11) NOT NULL,
@@ -3655,7 +3653,7 @@ CREATE TABLE `sd_der_tiss_lysates_revs` (
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`version_id`),
   KEY `sample_master_id` (`sample_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
 -- Table structure for table `sd_der_tiss_susps`
@@ -3672,7 +3670,7 @@ CREATE TABLE `sd_der_tiss_susps` (
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`id`),
   KEY `sample_master_id` (`sample_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 CREATE TABLE `sd_der_tiss_susps_revs` (
   `id` int(11) NOT NULL,
@@ -3687,7 +3685,7 @@ CREATE TABLE `sd_der_tiss_susps_revs` (
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`version_id`),
   KEY `sample_master_id` (`sample_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
 -- Table structure for table `sd_der_pw_cells`
@@ -3704,7 +3702,7 @@ CREATE TABLE `sd_der_pw_cells` (
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`id`),
   KEY `sample_master_id` (`sample_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 CREATE TABLE `sd_der_pw_cells_revs` (
   `id` int(11) NOT NULL,
@@ -3719,7 +3717,7 @@ CREATE TABLE `sd_der_pw_cells_revs` (
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`version_id`),
   KEY `sample_master_id` (`sample_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
 -- Table structure for table `sd_der_pw_sups`
@@ -3736,7 +3734,7 @@ CREATE TABLE `sd_der_pw_sups` (
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`id`),
   KEY `sample_master_id` (`sample_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 CREATE TABLE `sd_der_pw_sups_revs` (
   `id` int(11) NOT NULL,
@@ -3751,7 +3749,7 @@ CREATE TABLE `sd_der_pw_sups_revs` (
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`version_id`),
   KEY `sample_master_id` (`sample_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
 -- Table structure for table `sd_der_fluid_cells`
@@ -3768,7 +3766,7 @@ CREATE TABLE `sd_der_fluid_cells` (
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`id`),
   KEY `sample_master_id` (`sample_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 CREATE TABLE `sd_der_fluid_cells_revs` (
   `id` int(11) NOT NULL,
@@ -3783,7 +3781,7 @@ CREATE TABLE `sd_der_fluid_cells_revs` (
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`version_id`),
   KEY `sample_master_id` (`sample_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
 -- Table structure for table `sd_der_fluid_sups`
@@ -3800,7 +3798,7 @@ CREATE TABLE `sd_der_fluid_sups` (
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`id`),
   KEY `sample_master_id` (`sample_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 CREATE TABLE `sd_der_fluid_sups_revs` (
   `id` int(11) NOT NULL,
@@ -3815,7 +3813,7 @@ CREATE TABLE `sd_der_fluid_sups_revs` (
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`version_id`),
   KEY `sample_master_id` (`sample_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
 -- Table structure for table `sd_der_other_cells`
@@ -3832,7 +3830,7 @@ CREATE TABLE `sd_der_other_cells` (
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`id`),
   KEY `sample_master_id` (`sample_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 CREATE TABLE `sd_der_other_cells_revs` (
   `id` int(11) NOT NULL,
@@ -3847,7 +3845,7 @@ CREATE TABLE `sd_der_other_cells_revs` (
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`version_id`),
   KEY `sample_master_id` (`sample_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
 -- Table structure for table `sd_der_other_sups`
@@ -3864,7 +3862,7 @@ CREATE TABLE `sd_der_other_sups` (
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`id`),
   KEY `sample_master_id` (`sample_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 CREATE TABLE `sd_der_other_sups_revs` (
   `id` int(11) NOT NULL,
@@ -3879,7 +3877,7 @@ CREATE TABLE `sd_der_other_sups_revs` (
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`version_id`),
   KEY `sample_master_id` (`sample_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1; 
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
 -- Table structure for table `sd_der_cell_cultures`
@@ -4999,15 +4997,16 @@ CREATE TABLE IF NOT EXISTS `storage_controls` (
   `coord_y_title` varchar(30) DEFAULT NULL,
   `coord_y_type` enum('alphabetical','integer','list') DEFAULT NULL,
   `coord_y_size` int(4) DEFAULT NULL,
+  `square_box` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'This field is used if the storage only has one dimension size specified',
+  `horizontal_display` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'used on 1 dimension controls when y = 1',
   `set_temperature` varchar(7) DEFAULT NULL,
   `is_tma_block` varchar(5) DEFAULT NULL,
   `status` varchar(20) DEFAULT NULL,
   `form_alias` varchar(255) NOT NULL,
   `form_alias_for_children_pos` varchar(50) DEFAULT NULL,
   `detail_tablename` varchar(255) NOT NULL,
-  `display_order` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
 -- Table structure for table `storage_coordinates`
@@ -5017,7 +5016,7 @@ CREATE TABLE `storage_coordinates` (
   `id` int(11) NOT NULL auto_increment,
   `storage_master_id` int(11) default NULL,
   `dimension` varchar(4) default '',
-  `coordinate_value` varchar(30) default '',
+  `coordinate_value` varchar(50) default '',
   `order` int(4) default '0',
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` varchar(50) NOT NULL default '',
@@ -5034,7 +5033,7 @@ CREATE TABLE `storage_coordinates_revs` (
   `id` int(11) NOT NULL,
   `storage_master_id` int(11) default NULL,
   `dimension` varchar(4) default '',
-  `coordinate_value` varchar(30) default '',
+  `coordinate_value` varchar(50) default '',
   `order` int(4) default '0',
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` varchar(50) NOT NULL default '',
@@ -5095,9 +5094,9 @@ CREATE TABLE IF NOT EXISTS `storage_masters_revs` (
   `short_label` varchar(10) DEFAULT NULL,
   `selection_label` varchar(60) DEFAULT '',
   `storage_status` varchar(20) DEFAULT '',
-  `parent_storage_coord_x` varchar(11) DEFAULT NULL,
+  `parent_storage_coord_x` varchar(50) DEFAULT NULL,
   `coord_x_order` int(3) DEFAULT NULL,
-  `parent_storage_coord_y` varchar(11) DEFAULT NULL,
+  `parent_storage_coord_y` varchar(50) DEFAULT NULL,
   `coord_y_order` int(3) DEFAULT NULL,
   `set_temperature` varchar(7) DEFAULT NULL,
   `temperature` decimal(5,2) DEFAULT NULL,
@@ -5122,20 +5121,20 @@ CREATE TABLE IF NOT EXISTS `storage_masters_revs` (
 
 CREATE TABLE IF NOT EXISTS `structures` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `old_id` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
+  `old_id` varchar(255) NOT NULL DEFAULT '0',
   `alias` varchar(255) NOT NULL DEFAULT '',
   `language_title` text NOT NULL,
   `language_help` text NOT NULL,
-  `flag_add_columns` set('0','1') CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
-  `flag_edit_columns` set('0','1') CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
-  `flag_search_columns` set('0','1') CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
-  `flag_detail_columns` set('0','1') CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
+  `flag_add_columns` set('0','1') NOT NULL DEFAULT '0',
+  `flag_edit_columns` set('0','1') NOT NULL DEFAULT '0',
+  `flag_search_columns` set('0','1') NOT NULL DEFAULT '0',
+  `flag_detail_columns` set('0','1') NOT NULL DEFAULT '0',
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `created_by` varchar(255) NOT NULL DEFAULT '',
   `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `modified_by` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 --
 -- Table structure for table `structure_fields`
@@ -5164,7 +5163,7 @@ CREATE TABLE IF NOT EXISTS `structure_fields` (
   `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `modified_by` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 --
 -- Table structure for table `structure_formats`
@@ -5172,42 +5171,42 @@ CREATE TABLE IF NOT EXISTS `structure_fields` (
 
 CREATE TABLE IF NOT EXISTS `structure_formats` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `old_id` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `old_id` varchar(255) NOT NULL,
   `structure_id` int(11) DEFAULT NULL,
-  `structure_old_id` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `structure_old_id` varchar(255) NOT NULL,
   `structure_field_id` int(11) DEFAULT NULL,
-  `structure_field_old_id` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `structure_field_old_id` varchar(255) NOT NULL,
   `display_column` int(11) NOT NULL DEFAULT '1',
   `display_order` int(11) NOT NULL DEFAULT '0',
   `language_heading` varchar(255) NOT NULL DEFAULT '',
-  `flag_override_label` set('0','1') CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
+  `flag_override_label` set('0','1') NOT NULL DEFAULT '0',
   `language_label` text NOT NULL,
-  `flag_override_tag` set('0','1') CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
+  `flag_override_tag` set('0','1') NOT NULL DEFAULT '0',
   `language_tag` text NOT NULL,
-  `flag_override_help` set('0','1') CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
+  `flag_override_help` set('0','1') NOT NULL DEFAULT '0',
   `language_help` text NOT NULL,
-  `flag_override_type` set('0','1') CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
+  `flag_override_type` set('0','1') NOT NULL DEFAULT '0',
   `type` varchar(255) NOT NULL DEFAULT '',
-  `flag_override_setting` set('0','1') CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
+  `flag_override_setting` set('0','1') NOT NULL DEFAULT '0',
   `setting` varchar(255) NOT NULL DEFAULT '',
-  `flag_override_default` set('0','1') CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
+  `flag_override_default` set('0','1') NOT NULL DEFAULT '0',
   `default` varchar(255) NOT NULL DEFAULT '',
-  `flag_add` set('0','1') CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
-  `flag_add_readonly` set('0','1') CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
-  `flag_edit` set('0','1') CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
-  `flag_edit_readonly` set('0','1') CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
-  `flag_search` set('0','1') CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
-  `flag_search_readonly` set('0','1') CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
-  `flag_datagrid` set('0','1') CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
-  `flag_datagrid_readonly` set('0','1') CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
-  `flag_index` set('0','1') CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
-  `flag_detail` set('0','1') CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
+  `flag_add` set('0','1') NOT NULL DEFAULT '0',
+  `flag_add_readonly` set('0','1') NOT NULL DEFAULT '0',
+  `flag_edit` set('0','1') NOT NULL DEFAULT '0',
+  `flag_edit_readonly` set('0','1') NOT NULL DEFAULT '0',
+  `flag_search` set('0','1') NOT NULL DEFAULT '0',
+  `flag_search_readonly` set('0','1') NOT NULL DEFAULT '0',
+  `flag_datagrid` set('0','1') NOT NULL DEFAULT '0',
+  `flag_datagrid_readonly` set('0','1') NOT NULL DEFAULT '0',
+  `flag_index` set('0','1') NOT NULL DEFAULT '0',
+  `flag_detail` set('0','1') NOT NULL DEFAULT '0',
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `created_by` varchar(255) NOT NULL DEFAULT '',
   `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `modified_by` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 --
 -- Table structure for table `structure_options`
@@ -5227,7 +5226,7 @@ CREATE TABLE `structure_options` (
   `modified` datetime default NULL,
   `modified_by` varchar(50) character set latin1 default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
 -- Table structure for table `structure_permissible_values`
@@ -5238,7 +5237,7 @@ CREATE TABLE `structure_permissible_values` (
   `value` varchar(255) NOT NULL,
   `language_alias` varchar(255) NOT NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
 -- Table structure for table `structure_validations`
@@ -5250,16 +5249,16 @@ CREATE TABLE `structure_validations` (
   `structure_field_id` INT(11) NOT NULL default 0,
   `structure_field_old_id` varchar(255) character set latin1 NOT NULL default '0',
   `rule` text character set latin1 NOT NULL,
-  `flag_empty` set('0','1') collate utf8_unicode_ci NOT NULL default '0',
-  `flag_required` set('0','1') collate utf8_unicode_ci NOT NULL default '0',
-  `on_action` varchar(255) collate utf8_unicode_ci NOT NULL,
+  `flag_empty` set('0','1') NOT NULL default '0',
+  `flag_required` set('0','1') NOT NULL default '0',
+  `on_action` varchar(255) NOT NULL,
   `language_message` text character set latin1 NOT NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` varchar(255) character set latin1 NOT NULL default '',
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
   `modifed_by` varchar(255) character set latin1 NOT NULL default '',
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 --
 -- Table structure for table `structure_value_domains`
@@ -5267,11 +5266,11 @@ CREATE TABLE `structure_validations` (
 
 CREATE TABLE `structure_value_domains` (
   `id` int(11) NOT NULL auto_increment,
-  `domain_name` varchar(255) collate utf8_unicode_ci NOT NULL,
-  `override` set('extend','locked','open') collate utf8_unicode_ci NOT NULL default 'open',
-  `category` varchar(255) collate utf8_unicode_ci NOT NULL,
+  `domain_name` varchar(255) NOT NULL,
+  `override` set('extend','locked','open') NOT NULL default 'open',
+  `category` varchar(255) NOT NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 --
 -- Table structure for table `structure_value_domains_permissible_values`
@@ -5285,7 +5284,7 @@ CREATE TABLE IF NOT EXISTS `structure_value_domains_permissible_values` (
   `active` set('yes','no') NOT NULL DEFAULT 'yes',
   `language_alias` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 --
 -- Table structure for table `study_contacts`
@@ -6249,7 +6248,7 @@ CREATE TABLE `users` (
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
 -- Table structure for table `user_logs`
@@ -6262,7 +6261,7 @@ CREATE TABLE `user_logs` (
   `visited` timestamp NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
   `allowed` tinyint(4) NOT NULL default '0',
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
 -- Table structure for table `versions`
@@ -6278,7 +6277,7 @@ CREATE TABLE `versions` (
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
   `modified_by` varchar(50) default NULL,
   PRIMARY KEY (`id`)
-) ENGINE=INNODB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 
 -- Create INDEX for access control object (acos) table.
