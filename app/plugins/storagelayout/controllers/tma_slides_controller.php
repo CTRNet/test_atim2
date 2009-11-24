@@ -31,7 +31,7 @@ class TmaSlidesController extends StoragelayoutAppController {
 		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') != 0) { $this->redirect('/pages/err_sto_not_a_tma_block', null, true); }
 
 		// Get TMA slide liste
-		$this->data = $this->paginate($this->TmaSlide, array('TmaSlide.std_tma_block_id' => $tma_block_storage_master_id));
+		$this->data = $this->paginate($this->TmaSlide, array('TmaSlide.tma_block_storage_master_id' => $tma_block_storage_master_id));
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 
@@ -93,7 +93,7 @@ class TmaSlidesController extends StoragelayoutAppController {
 
 		} else {			
 			// Set tma block storage master id
-			$this->data['TmaSlide']['std_tma_block_id'] = $tma_block_storage_master_id;
+			$this->data['TmaSlide']['tma_block_storage_master_id'] = $tma_block_storage_master_id;
 			
 			// Validates data
 			$submitted_data_validates = true;
@@ -161,7 +161,7 @@ class TmaSlidesController extends StoragelayoutAppController {
 		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') != 0) { $this->redirect('/pages/err_sto_not_a_tma_block', null, true); }
 		
 		// Get the tma slide data
-		$tma_slide_data = $this->TmaSlide->find('first', array('conditions' => array('TmaSlide.id' => $tma_slide_id, 'TmaSlide.std_tma_block_id' => $tma_block_storage_master_id)));
+		$tma_slide_data = $this->TmaSlide->find('first', array('conditions' => array('TmaSlide.id' => $tma_slide_id, 'TmaSlide.tma_block_storage_master_id' => $tma_block_storage_master_id)));
 		if(empty($tma_slide_data)) { $this->redirect('/pages/err_sto_no_tma_slide_data', null, true); }		
 		$this->data = $tma_slide_data; 
 		
@@ -206,7 +206,7 @@ class TmaSlidesController extends StoragelayoutAppController {
 		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') != 0) { $this->redirect('/pages/err_sto_not_a_tma_block', null, true); }
 		
 		// Get the tma slide data
-		$tma_slide_data = $this->TmaSlide->find('first', array('conditions' => array('TmaSlide.id' => $tma_slide_id, 'TmaSlide.std_tma_block_id' => $tma_block_storage_master_id)));
+		$tma_slide_data = $this->TmaSlide->find('first', array('conditions' => array('TmaSlide.id' => $tma_slide_id, 'TmaSlide.tma_block_storage_master_id' => $tma_block_storage_master_id)));
 		if(empty($tma_slide_data)) { $this->redirect('/pages/err_sto_no_tma_slide_data', null, true); }		
 
 		// Set list of available SOPs to build TMA slide
@@ -312,7 +312,7 @@ class TmaSlidesController extends StoragelayoutAppController {
 		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') != 0) { $this->redirect('/pages/err_sto_not_a_tma_block', null, true); }
 		
 		// Get the tma slide data
-		$tma_slide_data = $this->TmaSlide->find('first', array('conditions' => array('TmaSlide.id' => $tma_slide_id, 'TmaSlide.std_tma_block_id' => $tma_block_storage_master_id)));
+		$tma_slide_data = $this->TmaSlide->find('first', array('conditions' => array('TmaSlide.id' => $tma_slide_id, 'TmaSlide.tma_block_storage_master_id' => $tma_block_storage_master_id)));
 		if(empty($tma_slide_data)) { $this->redirect('/pages/err_sto_no_tma_slide_data', null, true); }		
 
 		// Check deletion is allowed
