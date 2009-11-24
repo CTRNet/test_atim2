@@ -1,6 +1,7 @@
 -- ATiM v2.0.0
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
+SET FOREIGN_KEY_CHECKS=0;
 
 --
 -- Dumping data for table `acos`
@@ -12994,3 +12995,6 @@ INSERT INTO `users` (`id`, `username`, `first_name`, `last_name`, `password`, `e
 
 INSERT INTO `versions` (`id`, `version_number`, `date_installed`, `status`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 (1, 'ATiM v2.0.0 (1000)', '2009-11-23 12:13:43', 'installed', '0000-00-00 00:00:00', NULL, '0000-00-00 00:00:00', NULL);
+
+
+SET FOREIGN_KEY_CHECKS=1;
