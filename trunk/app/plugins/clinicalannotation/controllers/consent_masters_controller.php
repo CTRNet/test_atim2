@@ -24,7 +24,7 @@ class ConsentMastersController extends ClinicalannotationAppController {
 		
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id) );
 		$this->set('consent_controls_list', $this->ConsentControl->find('all', array('conditions' => array('ConsentControl.status' => 'active'))));
-		
+		$this->set('atim_structure', $this->Structures->get('form', 'consent_masters'));
 		$this->hook();
 		
 		$this->data = $this->paginate($this->ConsentMaster, array('ConsentMaster.participant_id'=>$participant_id));
@@ -72,6 +72,7 @@ class ConsentMastersController extends ClinicalannotationAppController {
 			$this->data['ConsentMaster']['participant_id'] = $participant_id;
 			$this->data['ConsentMaster']['consent_control_id'] = $consent_control_id;
 			$this->data['ConsentMaster']['type'] = $storage_data['ConsentControl']['controls_type'];
+			$this->data['ConsentMaster']['diagnosis_master_id'] = null;
 			if ( $this->ConsentMaster->save($this->data) ) {
 				$this->flash( 'Your data has been updated.','/clinicalannotation/consent_masters/detail/'.$participant_id.'/'.$this->ConsentMaster->id );
 			}
