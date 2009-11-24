@@ -870,11 +870,11 @@ class StorageMastersController extends StoragelayoutAppController {
 
 		foreach($data['children'] as &$children_array){
 			if(isset($children_array['StorageMaster'])){
-				buildChildrenArray(&$children_array, "StorageMaster", "parent_storage_coord_x", "parent_storage_coord_y", "selection_label", $rkey_coordinate_list);
+				buildChildrenArray($children_array, "StorageMaster", "parent_storage_coord_x", "parent_storage_coord_y", "selection_label", $rkey_coordinate_list);
 			}else if(isset($children_array['AliquotMaster'])){
-				buildChildrenArray(&$children_array, "AliquotMaster", "storage_coord_x", "storage_coord_y", "barcode", $rkey_coordinate_list);
+				buildChildrenArray($children_array, "AliquotMaster", "storage_coord_x", "storage_coord_y", "barcode", $rkey_coordinate_list);
 			}else if(isset($children_array['TmaSlide'])){
-				buildChildrenArray(&$children_array, "TmaSlide", "storage_coord_x", "storage_coord_y", "barcode", $rkey_coordinate_list);
+				buildChildrenArray($children_array, "TmaSlide", "storage_coord_x", "storage_coord_y", "barcode", $rkey_coordinate_list);
 			}
 		}
 //		pr($data);
@@ -932,7 +932,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		if($nbr_storage_aliquots > 0) { return array('allow_deletion' => false, 'msg' => 'aliquot exists within the deleted storage'); }
 
 		// Check storage is not attached to tma slide	
-		$nbr_tma_slides = $this->TmaSlide->find('count', array('conditions' => array('TmaSlide.std_tma_block_id' => $storage_master_id), 'recursive' => '-1'));
+		$nbr_tma_slides = $this->TmaSlide->find('count', array('conditions' => array('TmaSlide.tma_block_storage_master_id' => $storage_master_id), 'recursive' => '-1'));
 		if($nbr_tma_slides > 0) { return array('allow_deletion' => false, 'msg' => 'slide exists for the deleted tma'); }
 		
 		// verify storage is not attached to tma slide

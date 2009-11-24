@@ -25,7 +25,7 @@
 				'detail' => '/inventorymanagement/aliquot_masters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/' . true . '/' . false
 			),
 			'TmaSlide' => array(
-				'detail' => '/storagelayout/tma_slides/detail/%%TmaSlide.std_tma_block_id%%/%%TmaSlide.id%%/1'
+				'detail' => '/storagelayout/tma_slides/detail/%%TmaSlide.tma_block_storage_master_id%%/%%TmaSlide.id%%/1'
 			)
 		),
 		'bottom' => array(
