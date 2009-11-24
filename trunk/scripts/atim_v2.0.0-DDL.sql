@@ -6,7 +6,7 @@ SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
 SET FOREIGN_KEY_CHECKS=0;
 
-DROP TABLE `acos`, `ad_bags`, `ad_bags_revs`, `ad_blocks`, `ad_blocks_revs`, `ad_cell_cores`, `ad_cell_cores_revs`, 
+DROP TABLE IF EXISTS `acos`, `ad_bags`, `ad_bags_revs`, `ad_blocks`, `ad_blocks_revs`, `ad_cell_cores`, `ad_cell_cores_revs`, 
 `ad_cell_slides`, `ad_cell_slides_revs`, `ad_gel_matrices`, `ad_gel_matrices_revs`, `ad_tissue_cores`, `ad_tissue_cores_revs`, 
 `ad_tissue_slides`, `ad_tissue_slides_revs`, `ad_tubes`, `ad_tubes_revs`, `ad_whatman_papers`, `ad_whatman_papers_revs`, 
 `aliquot_controls`, `aliquot_masters`, `aliquot_masters_revs`, `aliquot_uses`, `aliquot_uses_revs`, `announcements`, `aros`, 
@@ -378,7 +378,7 @@ CREATE TABLE `ad_whatman_papers_revs` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
--- Table structure for table `aliquot_controls`
+-- Table structure for table ``
 -- 
 
 CREATE TABLE IF NOT EXISTS `aliquot_controls` (
@@ -484,9 +484,7 @@ CREATE TABLE `aliquot_uses` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `aliquot_master_id` (`aliquot_master_id`),
-  KEY `study_summary_id` (`study_summary_id`)
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `aliquot_uses_revs` (
@@ -508,9 +506,7 @@ CREATE TABLE `aliquot_uses_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `aliquot_master_id` (`aliquot_master_id`),
-  KEY `study_summary_id` (`study_summary_id`)
+  PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 --
@@ -2126,8 +2122,7 @@ CREATE TABLE `parent_to_derivative_sample_controls` (
   `derivative_sample_control_id` int(11) default NULL,
   `status` varchar(20) default NULL,
   PRIMARY KEY  (`id`),
-  KEY `parent_sample_control_id` (`parent_sample_control_id`),
-  KEY `derivative_sample_control_id` (`derivative_sample_control_id`)
+  UNIQUE KEY `parent_to_derivative_sample` (`parent_sample_control_id`,`derivative_sample_control_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 --
@@ -2572,10 +2567,7 @@ CREATE TABLE `quality_ctrl_tested_aliquots` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `quality_ctrl_id` (`quality_ctrl_id`),
-  KEY `aliquot_master_id` (`aliquot_master_id`),
-  KEY `aliquot_use_id` (`aliquot_use_id`)
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `quality_ctrl_tested_aliquots_revs` (
@@ -2591,10 +2583,7 @@ CREATE TABLE `quality_ctrl_tested_aliquots_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `quality_ctrl_id` (`quality_ctrl_id`),
-  KEY `aliquot_master_id` (`aliquot_master_id`),
-  KEY `aliquot_use_id` (`aliquot_use_id`)
+  PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -2621,7 +2610,7 @@ CREATE TABLE `quality_ctrls` (
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  INDEX `run_id` (`run_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `quality_ctrls_revs` (
@@ -2645,8 +2634,7 @@ CREATE TABLE `quality_ctrls_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -2991,10 +2979,7 @@ CREATE TABLE `realiquotings` (
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
-  UNIQUE KEY `parent_child_combo` (`parent_aliquot_master_id`,`child_aliquot_master_id`),
-  KEY `parent_aliquot_master_id` (`parent_aliquot_master_id`),
-  KEY `child_aliquot_master_id` (`child_aliquot_master_id`),
-  KEY `aliquot_use_id` (`aliquot_use_id`)
+  UNIQUE KEY `parent_child_combo` (`parent_aliquot_master_id`,`child_aliquot_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `realiquotings_revs` (
@@ -3010,11 +2995,7 @@ CREATE TABLE `realiquotings_revs` (
   `version_date` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  UNIQUE KEY `parent_child_combo` (`parent_aliquot_master_id`,`child_aliquot_master_id`),
-  KEY `parent_aliquot_master_id` (`parent_aliquot_master_id`),
-  KEY `child_aliquot_master_id` (`child_aliquot_master_id`),
-  KEY `aliquot_use_id` (`aliquot_use_id`)
+  PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -3212,8 +3193,7 @@ CREATE TABLE IF NOT EXISTS `sample_to_aliquot_controls` (
   `aliquot_control_id` int(11) DEFAULT NULL,
   `status` enum('inactive','active') DEFAULT 'inactive',
   PRIMARY KEY (`id`),
-  KEY `sample_control_id` (`sample_control_id`),
-  KEY `aliquot_control_id` (`aliquot_control_id`)
+  UNIQUE KEY `sample_to_aliquot` (`sample_control_id`,`aliquot_control_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -4544,10 +4524,7 @@ CREATE TABLE `source_aliquots` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `aliquot_master_id` (`aliquot_master_id`),
-  KEY `aliquot_use_id` (`aliquot_use_id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `source_aliquots_revs` (
@@ -4563,10 +4540,7 @@ CREATE TABLE `source_aliquots_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `aliquot_master_id` (`aliquot_master_id`),
-  KEY `aliquot_use_id` (`aliquot_use_id`),
-  KEY `sample_master_id` (`sample_master_id`)
+  PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -4614,8 +4588,7 @@ CREATE TABLE `std_cupboards` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `storage_master_id` (`storage_master_id`)
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `std_cupboards_revs` (
@@ -4629,8 +4602,7 @@ CREATE TABLE `std_cupboards_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `storage_master_id` (`storage_master_id`)
+  PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -4646,8 +4618,7 @@ CREATE TABLE `std_nitro_locates` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `storage_master_id` (`storage_master_id`)
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `std_nitro_locates_revs` (
@@ -4661,8 +4632,7 @@ CREATE TABLE `std_nitro_locates_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `storage_master_id` (`storage_master_id`)
+  PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -4678,8 +4648,7 @@ CREATE TABLE `std_fridges` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `storage_master_id` (`storage_master_id`)
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `std_fridges_revs` (
@@ -4693,8 +4662,7 @@ CREATE TABLE `std_fridges_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `storage_master_id` (`storage_master_id`)
+  PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 --
@@ -4710,8 +4678,7 @@ CREATE TABLE `std_freezers` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `storage_master_id` (`storage_master_id`)
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `std_freezers_revs` (
@@ -4725,8 +4692,7 @@ CREATE TABLE `std_freezers_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `storage_master_id` (`storage_master_id`)
+  PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -4742,8 +4708,7 @@ CREATE TABLE `std_boxs` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `storage_master_id` (`storage_master_id`)
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `std_boxs_revs` (
@@ -4757,8 +4722,7 @@ CREATE TABLE `std_boxs_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `storage_master_id` (`storage_master_id`)
+  PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -4774,8 +4738,7 @@ CREATE TABLE `std_racks` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `storage_master_id` (`storage_master_id`)
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `std_racks_revs` (
@@ -4789,8 +4752,7 @@ CREATE TABLE `std_racks_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `storage_master_id` (`storage_master_id`)
+  PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -4806,8 +4768,7 @@ CREATE TABLE `std_shelfs` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `storage_master_id` (`storage_master_id`)
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `std_shelfs_revs` (
@@ -4821,8 +4782,7 @@ CREATE TABLE `std_shelfs_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `storage_master_id` (`storage_master_id`)
+  PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -4840,8 +4800,7 @@ CREATE TABLE `std_incubators` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `storage_master_id` (`storage_master_id`)
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `std_incubators_revs` (
@@ -4857,8 +4816,7 @@ CREATE TABLE `std_incubators_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `storage_master_id` (`storage_master_id`)
+  PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 --
@@ -4876,8 +4834,7 @@ CREATE TABLE `std_rooms` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `storage_master_id` (`storage_master_id`)
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `std_rooms_revs` (
@@ -4893,8 +4850,7 @@ CREATE TABLE `std_rooms_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `storage_master_id` (`storage_master_id`)
+  PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -4913,9 +4869,7 @@ CREATE TABLE `std_tma_blocks` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `storage_master_id` (`storage_master_id`),
-  KEY `sop_master_id` (`sop_master_id`)
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `std_tma_blocks_revs` (
@@ -4932,9 +4886,7 @@ CREATE TABLE `std_tma_blocks_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `storage_master_id` (`storage_master_id`),
-  KEY `sop_master_id` (`sop_master_id`)
+  PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -4978,8 +4930,7 @@ CREATE TABLE `storage_coordinates` (
   `modified_by` varchar(50) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `storage_master_id` (`storage_master_id`)
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 
@@ -4997,8 +4948,7 @@ CREATE TABLE `storage_coordinates_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `storage_master_id` (`storage_master_id`)
+  PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -5032,8 +4982,10 @@ CREATE TABLE IF NOT EXISTS `storage_masters` (
   `deleted` int(11) DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `storage_control_id` (`storage_control_id`),
-  KEY `parent_id` (`parent_id`)
+  INDEX `code` (`code`),
+  INDEX `barcode` (`barcode`),
+  INDEX `short_label` (`short_label`),
+  INDEX `selection_label` (`selection_label`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `storage_masters_revs` (
@@ -5064,9 +5016,7 @@ CREATE TABLE IF NOT EXISTS `storage_masters_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
-  PRIMARY KEY (`version_id`),
-  KEY `storage_control_id` (`storage_control_id`),
-  KEY `parent_id` (`parent_id`)
+  PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -5753,7 +5703,7 @@ CREATE TABLE `study_summaries_revs` (
 
 CREATE TABLE IF NOT EXISTS `tma_slides` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `std_tma_block_id` int(11) DEFAULT NULL,
+  `tma_block_storage_master_id` int(11) DEFAULT NULL, 
   `barcode` varchar(30) NOT NULL DEFAULT '',
   `product_code` varchar(20) DEFAULT NULL,
   `sop_master_id` int(11) DEFAULT NULL,
@@ -5772,14 +5722,13 @@ CREATE TABLE IF NOT EXISTS `tma_slides` (
   `deleted` int(11) DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `storage_master_id` (`storage_master_id`),
-  KEY `sop_master_id` (`sop_master_id`),
-  KEY `std_tma_block_id` (`std_tma_block_id`)
+  INDEX `barcode` (`barcode`),
+  INDEX `product_code` (`product_code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `tma_slides_revs` (
   `id` int(11) NOT NULL,
-  `std_tma_block_id` int(11) DEFAULT NULL,
+  `tma_block_storage_master_id` int(11) DEFAULT NULL, 
   `barcode` varchar(30) NOT NULL DEFAULT '',
   `product_code` varchar(20) DEFAULT NULL,
   `sop_master_id` int(11) DEFAULT NULL,
@@ -5799,46 +5748,7 @@ CREATE TABLE IF NOT EXISTS `tma_slides_revs` (
   `version_created` datetime NOT NULL,
   `deleted` int(11) DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
-  PRIMARY KEY (`version_id`),
-  KEY `storage_master_id` (`storage_master_id`),
-  KEY `sop_master_id` (`sop_master_id`),
-  KEY `std_tma_block_id` (`std_tma_block_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
--- 
--- Table structure for table `towers`
--- 
-
-CREATE TABLE `towers` (
-  `id` int(11) NOT NULL auto_increment,
-  `storage_id` int(11) default NULL,
-  `shelf_id` int(11) default NULL,
-  `description` varchar(50) NOT NULL default '',
-  `created` datetime NOT NULL default '0000-00-00 00:00:00',
-  `created_by` varchar(50) NOT NULL default '',
-  `modified` datetime default NULL,
-  `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
-  `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `shelf_id` (`shelf_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
-CREATE TABLE `towers_revs` (
-  `id` int(11) NOT NULL,
-  `storage_id` int(11) default NULL,
-  `shelf_id` int(11) default NULL,
-  `description` varchar(50) NOT NULL default '',
-  `created` datetime NOT NULL default '0000-00-00 00:00:00',
-  `created_by` varchar(50) NOT NULL default '',
-  `modified` datetime default NULL,
-  `modified_by` varchar(50) default NULL,
-  `version_id` int(11) NOT NULL AUTO_INCREMENT,
-  `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
-  `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `shelf_id` (`shelf_id`)
+  PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -6400,7 +6310,7 @@ ALTER TABLE `sample_masters`
   ON UPDATE RESTRICT; 
 
 ALTER TABLE `sample_masters`
-  ADD CONSTRAINT `FK_sample_masters_parents`
+  ADD CONSTRAINT `FK_sample_masters_parent`
   FOREIGN KEY (`parent_id`) REFERENCES `sample_masters` (`id`)
   ON DELETE RESTRICT
   ON UPDATE RESTRICT; 
@@ -6503,6 +6413,193 @@ ALTER TABLE `ad_cell_cores` ADD CONSTRAINT `FK_ad_cell_cores_gel_matrices` FOREI
 
 ALTER TABLE `ad_tissue_cores` ADD CONSTRAINT `FK_ad_tissue_cores_blocks` FOREIGN KEY (`block_aliquot_master_id`) REFERENCES `aliquot_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
 ALTER TABLE `ad_tissue_slides` ADD CONSTRAINT `FK_ad_tissue_slides_aliquot_ad_cell_coress` FOREIGN KEY (`block_aliquot_master_id`) REFERENCES `aliquot_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+
+ALTER TABLE `aliquot_uses`
+  ADD CONSTRAINT `FK_aliquot_uses_study_summaries`
+  FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT; 
+
+ALTER TABLE `aliquot_uses` 
+  ADD CONSTRAINT `FK_aliquot_uses_aliquot_masters` 
+  FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`) 
+  ON DELETE RESTRICT 
+  ON UPDATE RESTRICT; 
+  
+ALTER TABLE `source_aliquots` 
+  ADD CONSTRAINT `FK_source_aliquots_aliquot_masters` 
+  FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`) 
+  ON DELETE RESTRICT 
+  ON UPDATE RESTRICT; 
+  
+ALTER TABLE `source_aliquots` 
+  ADD CONSTRAINT `FK_source_aliquots_aliquot_uses` 
+  FOREIGN KEY (`aliquot_use_id`) REFERENCES `aliquot_uses` (`id`) 
+  ON DELETE RESTRICT 
+  ON UPDATE RESTRICT;   
+  
+ALTER TABLE `source_aliquots` 
+  ADD CONSTRAINT `FK_source_aliquots_sample_masters` 
+  FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) 
+  ON DELETE RESTRICT 
+  ON UPDATE RESTRICT;   
+  
+ALTER TABLE `realiquotings` 
+  ADD CONSTRAINT `FK_realiquotings_parent_aliquot_masters` 
+  FOREIGN KEY (`parent_aliquot_master_id`) REFERENCES `aliquot_masters` (`id`) 
+  ON DELETE RESTRICT 
+  ON UPDATE RESTRICT; 
+
+ALTER TABLE `realiquotings` 
+  ADD CONSTRAINT `FK_realiquotings_child_aliquot_masters` 
+  FOREIGN KEY (`child_aliquot_master_id`) REFERENCES `aliquot_masters` (`id`) 
+  ON DELETE RESTRICT 
+  ON UPDATE RESTRICT; 
+  
+ALTER TABLE `realiquotings` 
+  ADD CONSTRAINT `FK_realiquotings_aliquot_uses` 
+  FOREIGN KEY (`aliquot_use_id`) REFERENCES `aliquot_uses` (`id`) 
+  ON DELETE RESTRICT 
+  ON UPDATE RESTRICT;   
+    
+ALTER TABLE `quality_ctrls` 
+  ADD CONSTRAINT `FK_quality_ctrls_sample_masters` 
+  FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) 
+  ON DELETE RESTRICT 
+  ON UPDATE RESTRICT;  
+
+ALTER TABLE `quality_ctrl_tested_aliquots` 
+  ADD CONSTRAINT `FK_quality_ctrl_tested_aliquots_aliquot_masters` 
+  FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`) 
+  ON DELETE RESTRICT 
+  ON UPDATE RESTRICT; 
+  
+ALTER TABLE `quality_ctrl_tested_aliquots` 
+  ADD CONSTRAINT `FK_quality_ctrl_tested_aliquots_aliquot_uses` 
+  FOREIGN KEY (`aliquot_use_id`) REFERENCES `aliquot_uses` (`id`) 
+  ON DELETE RESTRICT 
+  ON UPDATE RESTRICT;  
+
+ALTER TABLE `quality_ctrl_tested_aliquots` 
+  ADD CONSTRAINT `FK_quality_ctrl_tested_aliquots_quality_ctrls` 
+  FOREIGN KEY (`quality_ctrl_id`) REFERENCES `quality_ctrls` (`id`) 
+  ON DELETE RESTRICT 
+  ON UPDATE RESTRICT;  
+
+ALTER TABLE `sample_to_aliquot_controls` 
+  ADD CONSTRAINT `FK_sample_to_aliquot_controls_sample_controls` 
+  FOREIGN KEY (`sample_control_id`) REFERENCES `sample_controls` (`id`) 
+  ON DELETE RESTRICT 
+  ON UPDATE RESTRICT;  
+  
+ALTER TABLE `sample_to_aliquot_controls` 
+  ADD CONSTRAINT `FK_sample_to_aliquot_controls_aliquot_controls` 
+  FOREIGN KEY (`aliquot_control_id`) REFERENCES `aliquot_controls` (`id`) 
+  ON DELETE RESTRICT 
+  ON UPDATE RESTRICT; 
+
+ALTER TABLE `parent_to_derivative_sample_controls` 
+  ADD CONSTRAINT `FK_parent_to_derivative_sample_controls_parent` 
+  FOREIGN KEY (`parent_sample_control_id`) REFERENCES `sample_controls` (`id`) 
+  ON DELETE RESTRICT 
+  ON UPDATE RESTRICT;  
+  
+ALTER TABLE `parent_to_derivative_sample_controls` 
+  ADD CONSTRAINT `FK_parent_to_derivative_sample_controls_derivative` 
+  FOREIGN KEY (`derivative_sample_control_id`) REFERENCES `sample_controls` (`id`) 
+  ON DELETE RESTRICT 
+  ON UPDATE RESTRICT;  
+  
+-- StorageLayout Foreign Keys --
+
+ALTER TABLE `std_cupboards`
+  ADD CONSTRAINT `FK_std_cupboards_storage_masters`
+  FOREIGN KEY (`storage_master_id`) REFERENCES `storage_masters` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT; 
+ALTER TABLE `std_nitro_locates`
+  ADD CONSTRAINT `FK_std_nitro_locates_storage_masters`
+  FOREIGN KEY (`storage_master_id`) REFERENCES `storage_masters` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT; 
+ALTER TABLE `std_fridges`
+  ADD CONSTRAINT `FK_std_fridges_storage_masters`
+  FOREIGN KEY (`storage_master_id`) REFERENCES `storage_masters` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT; 
+ALTER TABLE `std_freezers`
+  ADD CONSTRAINT `FK_std_freezers_storage_masters`
+  FOREIGN KEY (`storage_master_id`) REFERENCES `storage_masters` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT; 
+ALTER TABLE `std_boxs`
+  ADD CONSTRAINT `FK_std_boxs_storage_masters`
+  FOREIGN KEY (`storage_master_id`) REFERENCES `storage_masters` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT; 
+ALTER TABLE `std_racks`
+  ADD CONSTRAINT `FK_std_racks_storage_masters`
+  FOREIGN KEY (`storage_master_id`) REFERENCES `storage_masters` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT; 
+ALTER TABLE `std_shelfs`
+  ADD CONSTRAINT `FK_std_shelfs_storage_masters`
+  FOREIGN KEY (`storage_master_id`) REFERENCES `storage_masters` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT; 
+ALTER TABLE `std_incubators`
+  ADD CONSTRAINT `FK_std_incubators_storage_masters`
+  FOREIGN KEY (`storage_master_id`) REFERENCES `storage_masters` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT; 
+ALTER TABLE `std_rooms`
+  ADD CONSTRAINT `FK_std_rooms_storage_masters`
+  FOREIGN KEY (`storage_master_id`) REFERENCES `storage_masters` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT; 
+ALTER TABLE `storage_coordinates`
+  ADD CONSTRAINT `FK_storage_coordinates_storage_masters`
+  FOREIGN KEY (`storage_master_id`) REFERENCES `storage_masters` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT; 
+
+ALTER TABLE `std_tma_blocks`
+  ADD CONSTRAINT `FK_std_tma_blocks_storage_masters`
+  FOREIGN KEY (`storage_master_id`) REFERENCES `storage_masters` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT; 
+ALTER TABLE `std_tma_blocks`
+  ADD CONSTRAINT `FK_std_tma_blocks_sop_masters`
+  FOREIGN KEY (`sop_master_id`) REFERENCES `sop_masters` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT; 
+
+ALTER TABLE `tma_slides`
+  ADD CONSTRAINT `FK_tma_slides_storage_masters`
+  FOREIGN KEY (`storage_master_id`) REFERENCES `storage_masters` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT; 
+ALTER TABLE `tma_slides`
+  ADD CONSTRAINT `FK_tma_slides_sop_masters`
+  FOREIGN KEY (`sop_master_id`) REFERENCES `sop_masters` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT; 
+ALTER TABLE `tma_slides`
+  ADD CONSTRAINT `FK_tma_slides_tma_blocks`
+  FOREIGN KEY (`tma_block_storage_master_id`) REFERENCES `storage_masters` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT; 
+  
+ALTER TABLE `storage_masters`
+  ADD CONSTRAINT `FK_storage_masters_storage_controls`
+  FOREIGN KEY (`storage_control_id`) REFERENCES `storage_controls` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT; 
+ALTER TABLE `storage_masters`
+  ADD CONSTRAINT `FK_storage_masters_parent`
+  FOREIGN KEY (`parent_id`) REFERENCES `storage_masters` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT; 
 
 -- Order Management Foreign Keys --
 
