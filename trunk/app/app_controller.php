@@ -123,22 +123,13 @@ class AppController extends Controller {
 			
 	}
 	
-	function hook($type = 'unknown', $hook_file_name=NULL ) {
-		$extension = '';
-		switch($type) {
-			case 'format':
-				$extension = '_format';
-				break;
-			case 'validation':
-				$extension = '_validation';
-				break;
-			case 'unknown':
-			default:
-		}
+	function hook( $hook_extension='' ) {
+		if ( $hook_extension ) $hook_extension = '_'.$hook_extension;
 		
-		$hook_file = APP . 'plugins' . DS . $this->params['plugin'] . DS . 'controllers' . DS . 'hooks' . DS . $this->params['controller'].'_'.$this->params['action'].$extension.'.php';
-		if ( $hook_file_name ) $hook_file = $hook_file_name;
-		if ( file_exists($hook_file) ) require( $hook_file );
+		$hook_file = APP . 'plugins' . DS . $this->params['plugin'] . DS . 'controllers' . DS . 'hooks' . DS . $this->params['controller'].'_'.$this->params['action'].$hook_extension.'.php';
+		if ( !file_exists($hook_file) ) $hook_file=false;
+		
+		return $hook_file;
 	}
 	
 	/**
