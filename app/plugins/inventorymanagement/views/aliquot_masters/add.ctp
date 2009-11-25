@@ -44,3 +44,12 @@
 	$structures->build($atim_structure, array('links' => $structure_links, 'override' => $structure_override, 'type' => 'datagrid', 	'settings'=> array('pagination' => false, 'add_fields' => true, 'del_fields' => true)));
 	
 ?>
+<div id="debug"></div>
+<script type="text/javascript">
+var copyStr = "<?php echo(__("copy", null)); ?>";
+var pasteStr = "<?php echo(__("paste")); ?>";
+var copyingStr = "<?php echo(__("copying")); ?>";
+</script>
+<?php 
+echo $javascript->link('copyControl')."\n";
+?>
