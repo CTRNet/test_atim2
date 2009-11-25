@@ -165,7 +165,8 @@ class AdhocsController extends DatamartAppController {
 					}
 				}
 			}
-			$conditions = $this->Structures->parse_search_conditions($this->Structures->get('form', 'datamart_part'));
+			
+			$conditions = $this->Structures->parse_search_conditions($this->Structures->get('form', $adhoc['Adhoc']['form_alias_for_results']));
 			foreach($conditions as $key => $value){
 				if(strpos($key, " >=") == strlen($key) - 3){
 					$conditions[substr($key, 0, strlen($key) - 3)."_start"] = $value;
@@ -285,7 +286,6 @@ class AdhocsController extends DatamartAppController {
 	}
 	
 	function process() {
-		pr($this->data); exit;
 		
 		if ( !isset($this->data['Adhoc']['process']) || !$this->data['Adhoc']['process'] ) {
 			$this->data['Adhoc']['process'] = '/datamart/batch_sets/add';
