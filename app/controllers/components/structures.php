@@ -82,12 +82,11 @@ class StructuresComponent extends Object {
 				
 			}
 		}
-		
+
 		// parse DATA to generate SQL conditions
 		// use ONLY the form_fields array values IF data for that MODEL.KEY combo was provided
 		foreach ( $this->controller->data as $model=>$fields ) {
 			foreach ( $fields as $key=>$data ) {
-				
 				// if MODEL data was passed to this function, use it to generate SQL criteria...
 				if ( count($form_fields) ) {
 					
@@ -134,7 +133,6 @@ class StructuresComponent extends Object {
 							if ( !is_array($data) && strpos($form_fields[$model.'.'.$key]['key'], ' LIKE')!==false ) {
 								$data = '%'.$data.'%';
 							}
-							
 							$conditions[ $form_fields[$model.'.'.$key]['key'] ] = $data;
 						}
 						
@@ -151,25 +149,29 @@ class StructuresComponent extends Object {
 		
 	}
 	
-	function parse_sql_conditions( $sql=NULL ) {
+	function parse_sql_conditions( $sql=NULL, $conditions=NULL ) {
 		
 		$sql_with_search_terms = $sql;
 		$sql_without_search_terms = $sql;
-		
-		foreach ( $this->controller->data as $model=>$model_value ) {
-			foreach ( $model_value as $field=>$field_value ) {
-				if ( is_array($field_value) ) {
-					foreach ( $field_value as $k=>$v ) { $field_value[$k] = '"'.$v.'"'; }
-					$field_value = implode(',',$field_value);
+		if($conditions == null){
+			foreach ( $this->controller->data as $model=>$model_value ) {
+				foreach ( $model_value as $field=>$field_value ) {
+					if ( is_array($field_value) ) {
+						foreach ( $field_value as $k=>$v ) { $field_value[$k] = '"'.$v.'"'; }
+						$field_value = implode(',',$field_value);
+					}
+					$sql_with_search_terms = str_replace( '@@'.$model.'.'.$field.'@@', $field_value, $sql_with_search_terms );
+					$sql_without_search_terms = str_replace( '@@'.$model.'.'.$field.'@@', '', $sql_without_search_terms );
 				}
-				
-				$sql_with_search_terms = str_replace( '@@'.$model.'.'.$field.'@@', $field_value, $sql_with_search_terms );
-				$sql_without_search_terms = str_replace( '@@'.$model.'.'.$field.'@@', '', $sql_without_search_terms );
+			}
+		}else{
+			foreach($conditions as $model_field => $field_value){
+				$sql_with_search_terms = str_replace( '@@'.$model_field.'@@', $field_value, $sql_with_search_terms );
+				$sql_without_search_terms = str_replace( '@@'.$model_field.'@@', '', $sql_without_search_terms );
 			}
 		}
 		
 		// WITH
-			
 			// regular expression to change search over field for BLANK values to be searches over fields for BLANK OR NULL values...
 			$sql_with_search_terms = preg_replace( '/([\w\.]+)\s+LIKE\s+([\||\"])\%\%\2/i', '($1 LIKE $2%%$2 OR $1 IS NULL)', $sql_with_search_terms );
 			$sql_with_search_terms = preg_replace( '/([\w\.]+)\s+\=\s+([\||\"])\2/i', '($1 LIKE $2%%$2 OR $1 IS NULL)', $sql_with_search_terms );
@@ -205,7 +207,6 @@ class StructuresComponent extends Object {
 			
 			// regular expression to change search over RANGE fields for BLANK values to be searches over fields for BLANK OR NULL values...
 			$sql_without_search_terms = preg_replace( '/([\w\.]+)\s*([\>|\<]\=)\s*([\||\"])\3\s+AND\s+\1\s*([\>|\<]\=)\s*([\||\"])\3/i', '(($1$2${3}-999999${3} AND $1$4${3}999999${3}) OR $1 IS NULL)', $sql_without_search_terms );
-			
 		// return BOTH	
 		return array( $sql_with_search_terms, $sql_without_search_terms );
 		
