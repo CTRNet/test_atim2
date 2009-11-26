@@ -170,6 +170,11 @@ class StructuresComponent extends Object {
 				$sql_without_search_terms = str_replace( '@@'.$model_field.'@@', '', $sql_without_search_terms );
 			}
 		}
+			//whipe was wasn't replaced
+			$sql_with_search_terms = preg_replace('/"@@[\w\.]+\_(start|end)@@"/i', "\"\"", $sql_with_search_terms);
+			$sql_without_search_terms = preg_replace('/"@@[\w\.]+\_(start|end)@@"/i', "\"\"", $sql_without_search_terms);
+			$sql_with_search_terms = preg_replace('/"@@[\w\.]+@@"/i', "\"%\"", $sql_with_search_terms);
+			$sql_without_search_terms = preg_replace('/"@@[\w\.]+@@"/i', "\"%\"", $sql_without_search_terms);
 		
 		// WITH
 			// regular expression to change search over field for BLANK values to be searches over fields for BLANK OR NULL values...
@@ -187,7 +192,8 @@ class StructuresComponent extends Object {
 			$sql_with_search_terms = preg_replace( '/([\w\.]+)\s*([\>|\<]\=)\s*([\||\"])0000\-00\-00 00\:00\:00\3\s+AND\s+\1\s*([\>|\<]\=)\s*([\||\"])9999\-00\-00 00\:00\:00\3/i', '(($1$2${3}0000-00-00 00:00:00${3} AND $1$4${3}9999-00-00 00:00:00${3}) OR $1 IS NULL)', $sql_with_search_terms );
 			
 			// regular expression to change search over RANGE fields for BLANK values to be searches over fields for BLANK OR NULL values...
-			$sql_with_search_terms = preg_replace( '/([\w\.]+)\s*([\>|\<]\=)\s*([\||\"])\3\s+AND\s+\1\s*([\>|\<]\=)\s*([\||\"])\3/i', '(($1$2${3}-999999${3} AND $1$4${3}999999${3}) OR $1 IS NULL)', $sql_with_search_terms );
+			$sql_with_search_terms = preg_replace( '/([\w\.]+)\s*\>\=\s*([\||\"])\2/i', '(($1 >= ${2}-999999${2}) OR $1 IS NULL)', $sql_with_search_terms);
+			$sql_with_search_terms = preg_replace( '/([\w\.]+)\s*\<\=\s*([\||\"])\2/i', '(($1 <= ${2}999999${2}) OR $1 IS NULL)', $sql_with_search_terms);
 			
 		// WITHOUT
 			
