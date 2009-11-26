@@ -6,6 +6,23 @@ class StructuresHelper extends Helper {
 		
 	var $helpers = array( 'Csv', 'Html', 'Form', 'Javascript', 'Ajax', 'Paginator','Session' );
 
+
+/********************************************************************************************************************************************************************************/
+
+	
+	function hook( $hook_extension='' ) {
+		if ( $hook_extension ) $hook_extension = '_'.$hook_extension;
+		
+		$hook_file = APP . 'plugins' . DS . $this->params['plugin'] . DS . 'views' . DS . $this->params['controller'] . DS . 'hooks' . DS . $this->params['action'].$hook_extension.'.php';
+		if ( !file_exists($hook_file) ) $hook_file=false;
+		
+		return $hook_file;
+	}
+
+
+/********************************************************************************************************************************************************************************/
+
+	
 	function build( $atim_structure=array(), $options=array() ) {
 		
 		$return_string = ''; 
