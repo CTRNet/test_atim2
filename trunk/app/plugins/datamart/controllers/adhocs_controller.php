@@ -132,41 +132,8 @@ class AdhocsController extends DatamartAppController {
 			$sql_query_with_search_terms = $adhoc['Adhoc']['sql_query_for_results'];
 			$sql_query_without_search_terms = $adhoc['Adhoc']['sql_query_for_results'];
 			
-			
-			//patch the incomplete dates
-			foreach($this->data as &$model){
-				foreach($model as $field_name => &$field_value){
-					if(strpos($field_name, "_start") == strlen($field_name) - 6 && isset($field_value['year'])){
-						if($field_value['year'] == ''){
-							$field_value['year'] = '1800';
-							$field_value['month'] = '01';
-							$field_value['day'] = '01';
-						}else{
-							if($field_value['month'] == ''){
-								$field_value['month'] = '01';
-							}
-							if($field_value['day'] == ''){
-								$field_value['day'] = '01';
-							}
-						}
-					}else if(strpos($field_name, "_end") == strlen($field_name) - 4 && isset($field_value['year'])){
-						if($field_value['year'] == ''){
-							$field_value['year'] = '9999';
-							$field_value['month'] = '12';
-							$field_value['day'] = '31';
-						}else{
-							if($field_value['month'] == ''){
-								$field_value['month'] = '12';
-							}
-							if($field_value['day'] == ''){
-								$field_value['day'] = '31';
-							}
-						}
-					}
-				}
-			}
-			
 			$conditions = $this->Structures->parse_search_conditions($this->Structures->get('form', $adhoc['Adhoc']['form_alias_for_results']));
+			//rename the keys to make them ready for parse_sql_conditions
 			foreach($conditions as $key => $value){
 				if(strpos($key, " >=") == strlen($key) - 3){
 					$conditions[substr($key, 0, strlen($key) - 3)."_start"] = $value;
@@ -174,9 +141,13 @@ class AdhocsController extends DatamartAppController {
 				}else if(strpos($key, " <=") == strlen($key) - 3){
 					$conditions[substr($key, 0, strlen($key) - 3)."_end"] = $value;
 					unset($conditions[$key]);
+				}else if(strpos($key, " LIKE") == strlen($key) - 3){
+					$conditions[substr($key, 0, strlen($key) - 5)] = $value;
+					unset($conditions[$key]);
 				}
+				
 			}
-
+			
 			// if SEARCH form data, parse and create conditions
 			$criteria = array();
 			

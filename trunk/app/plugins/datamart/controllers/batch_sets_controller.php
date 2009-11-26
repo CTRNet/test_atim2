@@ -163,14 +163,14 @@ class BatchSetsController extends DatamartAppController {
 		
 			// use ADHOC id to get BATCHSET field values
 			$adhoc_source = $this->Adhoc->find('first', array('conditions'=>'Adhoc.id="'.$this->data['Adhoc']['id'].'"'));
-				
-				$this->data['BatchSet']['plugin']						= $adhoc_source['Adhoc']['plugin'];
-				$this->data['BatchSet']['model']							= $adhoc_source['Adhoc']['model'];
-				$this->data['BatchSet']['form_alias_for_results']	= $adhoc_source['Adhoc']['form_alias_for_results'];
-				$this->data['BatchSet']['form_links_for_results']	= $adhoc_source['Adhoc']['form_links_for_results'];
-				$this->data['BatchSet']['flag_use_query_results']	= $adhoc_source['Adhoc']['flag_use_query_results'];
-				
-				$this->data['BatchSet']['sql_query_for_results']	= $this->data['Adhoc']['sql_query_for_results'];
+			
+			$this->data['BatchSet']['plugin']						= $adhoc_source['Adhoc']['plugin'];
+			$this->data['BatchSet']['model']							= $adhoc_source['Adhoc']['model'];
+			$this->data['BatchSet']['form_alias_for_results']	= $adhoc_source['Adhoc']['form_alias_for_results'];
+			$this->data['BatchSet']['form_links_for_results']	= $adhoc_source['Adhoc']['form_links_for_results'] == null ? '' : $adhoc_source['Adhoc']['form_links_for_results']; 
+			$this->data['BatchSet']['flag_use_query_results']	= $adhoc_source['Adhoc']['flag_use_query_results'];
+			
+			$this->data['BatchSet']['sql_query_for_results']	= $this->data['Adhoc']['sql_query_for_results'];
 				
 			// generate TEMP description for this SET
 			$this->data['BatchSet']['description'] = '(unlabelled set generated on '.date('M d Y').')';
