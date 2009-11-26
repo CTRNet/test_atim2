@@ -1584,7 +1584,7 @@ class StructuresHelper extends Helper {
 									$year_name		= 'data['.str_replace('.','][',$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']).'][year]';
 									
 									$hour_name		= 'data['.str_replace('.','][',$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']).'][hour]';
-									$minute_name	= 'data['.str_replace('.','][',$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']).'][minute]';
+									$minute_name	= 'data['.str_replace('.','][',$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']).'][min]';
 									$meridian_name	= 'data['.str_replace('.','][',$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']).'][meridian]';
 									
 								// since building dates MANUALLY for JS tool, set up date OVERRIDES manually as well..
