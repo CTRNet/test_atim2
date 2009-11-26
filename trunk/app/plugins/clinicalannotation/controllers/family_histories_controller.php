@@ -189,7 +189,7 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 		
 		// CUSTOM CODE
 				
-		$hook_link = $this->hook('format');
+		$hook_link = $this->hook('delete');
 		if( $hook_link ) { require($hook_link); }		
 		
 		if($arr_allow_deletion['allow_deletion']) {
