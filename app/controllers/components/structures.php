@@ -153,7 +153,7 @@ class StructuresComponent extends Object {
 		
 		$sql_with_search_terms = $sql;
 		$sql_without_search_terms = $sql;
-		if($conditions == null){
+		if($conditions === null){
 			foreach ( $this->controller->data as $model=>$model_value ) {
 				foreach ( $model_value as $field=>$field_value ) {
 					if ( is_array($field_value) ) {
@@ -170,11 +170,18 @@ class StructuresComponent extends Object {
 				$sql_without_search_terms = str_replace( '@@'.$model_field.'@@', '', $sql_without_search_terms );
 			}
 		}
-			//whipe was wasn't replaced
-			$sql_with_search_terms = preg_replace('/"@@[\w\.]+\_(start|end)@@"/i', "\"\"", $sql_with_search_terms);
-			$sql_without_search_terms = preg_replace('/"@@[\w\.]+\_(start|end)@@"/i', "\"\"", $sql_without_search_terms);
-			$sql_with_search_terms = preg_replace('/"@@[\w\.]+@@"/i', "\"%\"", $sql_with_search_terms);
-			$sql_without_search_terms = preg_replace('/"@@[\w\.]+@@"/i', "\"%\"", $sql_without_search_terms);
+			//whipe what wasn't replaced
+			//range
+			$sql_with_search_terms = preg_replace('/(\>|\<)\=\s*"@@[\w\.]+@@"/i', "$1= \"\"", $sql_with_search_terms);
+			$sql_without_search_terms = preg_replace('/(\>|\<)\=\s*"@@[\w\.]+@@"/i', "1= \"\"", $sql_without_search_terms);
+			
+			//LIKE
+			$sql_with_search_terms = preg_replace('/LIKE\s*"@@[\w\.]+@@"/i', "LIKE \"%%\"", $sql_with_search_terms);
+			$sql_without_search_terms = preg_replace('/LIKE\s*"@@[\w\.]+@@"/i', "LIKE \"%%\"", $sql_without_search_terms);
+			
+			//others
+//			$sql_with_search_terms = preg_replace('/"@@[\w\.]+@@"/i', "\"\"", $sql_with_search_terms);
+//			$sql_without_search_terms = preg_replace('/"@@[\w\.]+@@"/i', "\"\"", $sql_without_search_terms);
 		
 		// WITH
 			// regular expression to change search over field for BLANK values to be searches over fields for BLANK OR NULL values...
