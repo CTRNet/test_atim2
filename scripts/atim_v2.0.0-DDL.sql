@@ -774,7 +774,10 @@ CREATE TABLE `coding_icd10` (
 
 -- 
 -- Table structure for table `collections`
--- 
+--
+
+-- Revision Date : 2009/11/24
+-- Revision Author : NL
 
 CREATE TABLE IF NOT EXISTS `collections` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -782,17 +785,10 @@ CREATE TABLE IF NOT EXISTS `collections` (
   `bank_id` int(11) DEFAULT NULL,
   `collection_site` varchar(30) DEFAULT NULL,
   `collection_datetime` datetime DEFAULT NULL,
-  `reception_by` varchar(50) DEFAULT NULL,
-  `reception_datetime` datetime DEFAULT NULL,
+  `collection_datetime_accuracy` varchar(4) DEFAULT NULL,
   `sop_master_id` int(11) DEFAULT NULL,
   `collection_property` varchar(50) DEFAULT NULL,
   `collection_notes` text,
-  `erlab_number` int(11) DEFAULT NULL,
-  `mb_tbnumber` varchar(50) DEFAULT NULL,
-  `path_report_num` varchar(50) DEFAULT NULL,
-  `protected` varchar(20) DEFAULT NULL,
-  `case_type` varchar(50) DEFAULT NULL,
-  `case_other` varchar(20) DEFAULT NULL,
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `created_by` varchar(50) NOT NULL DEFAULT '',
   `modified` datetime DEFAULT NULL,
@@ -806,20 +802,13 @@ CREATE TABLE IF NOT EXISTS `collections` (
 CREATE TABLE IF NOT EXISTS `collections_revs` (
   `id` int(11) NOT NULL,
   `acquisition_label` varchar(50) NOT NULL DEFAULT '',
-  `bank` varchar(50) DEFAULT NULL,
+  `bank_id` int(11) DEFAULT NULL,
   `collection_site` varchar(30) DEFAULT NULL,
   `collection_datetime` datetime DEFAULT NULL,
-  `reception_by` varchar(50) DEFAULT NULL,
-  `reception_datetime` datetime DEFAULT NULL,
+  `collection_datetime_accuracy` varchar(4) DEFAULT NULL,
   `sop_master_id` int(11) DEFAULT NULL,
   `collection_property` varchar(50) DEFAULT NULL,
   `collection_notes` text,
-  `erlab_number` int(11) DEFAULT NULL,
-  `mb_tbnumber` varchar(50) DEFAULT NULL,
-  `path_report_num` varchar(50) DEFAULT NULL,
-  `protected` varchar(20) DEFAULT NULL,
-  `case_type` varchar(50) DEFAULT NULL,
-  `case_other` varchar(20) DEFAULT NULL,
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `created_by` varchar(50) NOT NULL DEFAULT '',
   `modified` datetime DEFAULT NULL,
@@ -3216,6 +3205,9 @@ CREATE TABLE `sample_controls` (
 -- Table structure for table `sample_masters`
 -- 
 
+-- Revision Date : 2009/11/24
+-- Revision Author : NL
+
 CREATE TABLE `sample_masters` (
   `id` int(11) NOT NULL auto_increment,
   `sample_code` varchar(30) NOT NULL default '',
@@ -4547,10 +4539,16 @@ CREATE TABLE `source_aliquots_revs` (
 -- Table structure for table `specimen_details`
 -- 
 
+-- Revision Date : 2009/11/24
+-- Revision Author : NL
+
 CREATE TABLE `specimen_details` (
   `id` int(11) NOT NULL auto_increment,
   `sample_master_id` int(11) default NULL,
   `supplier_dept` varchar(40) default NULL,
+  `reception_by` varchar(50) DEFAULT NULL,
+  `reception_datetime` datetime DEFAULT NULL,
+  `reception_datetime_accuracy` varchar(4) DEFAULT NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
@@ -4564,6 +4562,9 @@ CREATE TABLE `specimen_details_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) default NULL,
   `supplier_dept` varchar(40) default NULL,
+  `reception_by` varchar(50) DEFAULT NULL,
+  `reception_datetime` datetime DEFAULT NULL,
+  `reception_datetime_accuracy` varchar(4) DEFAULT NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
@@ -6649,3 +6650,6 @@ ALTER TABLE `shipments`
   FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`)
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
+  
+  
+  
