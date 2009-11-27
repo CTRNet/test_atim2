@@ -67,3 +67,5 @@ WHERE s.old_id != sfo.structure_old_id;
 UPDATE structure_formats AS sfo
 SET old_id=CONCAT(sfo.structure_old_id, "_", sfo.structure_field_old_id)
 WHERE sfo.structure_old_id!="" && sfo.structure_field_old_id!="";
+
+UPDATE structure_fields SET field='CopyCtrl', language_label='copy control' WHERE id=235;
