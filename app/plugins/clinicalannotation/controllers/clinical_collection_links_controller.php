@@ -42,7 +42,7 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 		$this->set( 'atim_structure_consent_detail', $this->Structures->get( 'form', 'consent_masters' ) );
 		$this->set( 'atim_structure_diagnosis_detail', $this->Structures->get( 'form', 'diagnosis_masters' ) );
 		
-		$collection_data = $this->Collection->find('all', array('conditions' => array('Collection.deleted' => '0', 'ClinicalCollectionLink.participant_id IS NULL')));
+		$collection_data = $this->Collection->find('all', array('conditions' => array('Collection.deleted' => '0', 'ClinicalCollectionLink.participant_id IS NULL', 'collection_property' => 'participant collection')));
 		$this->set( 'collection_data', $collection_data );
 
 		$consent_data = $this->ConsentMaster->find('all', array('conditions' => array('ConsentMaster.deleted' => '0', 'ClinicalCollectionLink.participant_id IS NULL', 'ConsentMaster.participant_id' => $participant_id)));
