@@ -436,7 +436,7 @@ class SampleMastersController extends InventorymanagementAppController {
 
 	function add($collection_id, $sample_control_id, $parent_sample_master_id = null) {
 		if((!$collection_id) || (!$sample_control_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }		
-		
+//TODO calendar not display for reception date		
 		// MANAGE DATA
 		
 		$bool_is_specimen = null;
@@ -564,7 +564,7 @@ class SampleMastersController extends InventorymanagementAppController {
 						if(!$this->DerivativeDetail->save($this->data['DerivativeDetail'], false)) { $this->redirect('/pages/err_inv_system_error', null, true); }
 					}						
 					
-					$this->flash('Your data has been saved . ', '/inventorymanagement/sample_masters/detail/' . $collection_id . '/' . $sample_master_id);	
+					$this->flash('your data has been saved', '/inventorymanagement/sample_masters/detail/' . $collection_id . '/' . $sample_master_id);	
 				}					
 			}			
 		}		
@@ -667,7 +667,7 @@ class SampleMastersController extends InventorymanagementAppController {
 //						}
 //					}
 					
-					$this->flash('Your data has been updated . ', '/inventorymanagement/sample_masters/detail/' . $collection_id . '/' . $sample_master_id);		
+					$this->flash('your data has been updated', '/inventorymanagement/sample_masters/detail/' . $collection_id . '/' . $sample_master_id);		
 				}				
 			}
 		}
@@ -715,9 +715,9 @@ class SampleMastersController extends InventorymanagementAppController {
 			
 			if($deletion_done) {
 				//TODO Error in the redirection
-				$this->flash('Your data has been deleted . ', '/inventorymanagement/sample_masters/contentTreeView/' . $collection_id);
+				$this->flash('your data has been deleted', '/inventorymanagement/sample_masters/contentTreeView/' . $collection_id);
 			} else {
-				$this->flash('Error deleting data - Contact administrator . ', '/inventorymanagement/sample_masters/contentTreeView/' . $collection_id);
+				$this->flash('error deleting data - contact administrator', '/inventorymanagement/sample_masters/contentTreeView/' . $collection_id);
 			}
 			
 		} else {

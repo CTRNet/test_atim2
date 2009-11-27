@@ -29,7 +29,12 @@ class CollectionsController extends InventorymanagementAppController {
 		$this->unsetInventorySessionData();
 				
 		// Set list of banks
-		$this->set('banks', $this->getBankList());		
+		$this->set('banks', $this->getBankList());	
+		
+		// CUSTOM CODE: FORMAT DISPLAY DATA
+		
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { require($hook_link); }			
 	}
 	
 	function search() {
@@ -44,8 +49,6 @@ class CollectionsController extends InventorymanagementAppController {
 		
 		if ($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions();
 		
-		$this->hook();
-		
 		$this->data = $this->paginate($this->Collection, $_SESSION['ctrapp_core']['search']['criteria']);
 		
 		// if SEARCH form data, save number of RESULTS and URL
@@ -57,22 +60,21 @@ class CollectionsController extends InventorymanagementAppController {
 		
 		// Set list of available SOPs to build collections
 		$this->set('arr_collection_sops', $this->getCollectionSopList());
+		
+		// CUSTOM CODE: FORMAT DISPLAY DATA
+		
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { require($hook_link); }
 	}
 	
 	function detail($collection_id, $is_tree_view_detail_form = false, $is_inventory_plugin_form = true) {
-		if(!$collection_id) { $this->redirect('/pages/err_inv_coll_no_id', null, true); }
+		if(!$collection_id) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }
 		
 		// MANAGE DATA
-
-		$this->hook();
 		
 		$collection_data = $this->Collection->find('first', array('conditions' => array('Collection.id' => $collection_id)));
-		if(empty($collection_data)) { $this->redirect('/pages/err_inv_coll_no_data', null, true); }
+		if(empty($collection_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }
 		$this->data = $collection_data;
-		
-		// Calulate spent time between collection and reception
-		$arr_spent_time = $this->getSpentTime($this->data['Collection']['collection_datetime'], $this->data['Collection']['reception_datetime']);
-		$this->set('col_to_rec_spent_time', $arr_spent_time);	
 				
 		// Set list of banks
 		$this->set('banks', $this->getBankList());
@@ -87,6 +89,11 @@ class CollectionsController extends InventorymanagementAppController {
 		// Define if this detail form is displayed into the collection content tree view
 		$this->set('is_tree_view_detail_form', $is_tree_view_detail_form);
 		$this->set('is_inventory_plugin_form', $is_inventory_plugin_form);
+		
+		// CUSTOM CODE: FORMAT DISPLAY DATA
+		
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { require($hook_link); }
 	}
 	
 	function add() {
@@ -102,32 +109,52 @@ class CollectionsController extends InventorymanagementAppController {
 		
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/collections/index'));
 
-		// MANAGE DATA RECORD
+		// CUSTOM CODE: FORMAT DISPLAY DATA
 		
-		$this->hook();
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { require($hook_link); }
 		
 		if (!empty($this->data)) {
-			// Save collection
-			$collection_id = null;
-			if($this->Collection->save($this->data)) {
-				$collection_id = $this->Collection->getLastInsertId();
+			
+			// LAUNCH SAVE PROCESS
+			// 1- SET ADDITIONAL DATA	
+			
+			// 2- LAUNCH SPECIAL VALIDATION PROCESS	
+			
+			$submitted_data_validates = true;
+			
+			// ... special validations
+			
+			// 3- CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
+			
+			$hook_link = $this->hook('presave_process');
+			if( $hook_link ) { require($hook_link); }			
+			
+			if($submitted_data_validates) {
+
+				// 4- SAVE
 				
-				// Create clinical collection link
-				if(!$this->ClinicalCollectionLink->save(array('ClinicalCollectionLink' => array('collection_id' => $collection_id)))) { $this->redirect('/pages/err_inv_coll_record_err', null, true); }
-				
-				$this->flash('Your data has been saved . ', '/inventorymanagement/collections/detail/' . $collection_id);
+				$collection_id = null;
+				if($this->Collection->save($this->data)) {
+					$collection_id = $this->Collection->getLastInsertId();
+					
+					// Create clinical collection link
+					if(!$this->ClinicalCollectionLink->save(array('ClinicalCollectionLink' => array('collection_id' => $collection_id)))) { $this->redirect('/pages/err_inv_record_err', null, true); }
+					
+					$this->flash('your data has been saved', '/inventorymanagement/collections/detail/' . $collection_id);
+				}				
 			}
 		}
 	}
 	
 	function edit($collection_id) {
-		if(!$collection_id) { $this->redirect('/pages/err_inv_coll_no_id', null, true); }
+		if(!$collection_id) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }
 		
 		// MANAGE DATA
 		
 		$this->Collection->unbindModel(array('hasMany' => array('SampleMaster')));		
 		$collection_data = $this->Collection->find('first', array('conditions' => array('Collection.id' => $collection_id)));
-		if(empty($collection_data)) { $this->redirect('/pages/err_inv_coll_no_data', null, true); }
+		if(empty($collection_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }
 				
 		// Set list of banks
 		$this->set('banks', $this->getBankList());
@@ -144,39 +171,67 @@ class CollectionsController extends InventorymanagementAppController {
 			$this->set('atim_structure', $this->Structures->get('form', 'linked_collections'));
 		}
 
-		// MANAGE DATA RECORD
-
-		$this->hook();
+		// CUSTOM CODE: FORMAT DISPLAY DATA
+		
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { require($hook_link); }
 		
 		if(empty($this->data)) {
 				$this->data = $collection_data;	
+
 		} else {
-			//Update data
-			$this->Collection->id = $collection_id;
-			if ($this->Collection->save($this->data)) {
-				$this->flash('Your data has been updated . ', '/inventorymanagement/collections/detail/' . $collection_id);
+			
+			// 1- SET ADDITIONAL DATA	
+			
+			//....
+			
+			// 2- LAUNCH SPECIAL VALIDATION PROCESS	
+			
+			$submitted_data_validates = true;
+			
+			// ... special validations
+			
+			// 3- CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
+			
+			$hook_link = $this->hook('presave_process');
+			if( $hook_link ) { require($hook_link); }			
+			
+			if($submitted_data_validates) {
+				
+				// 4- SAVE
+			
+				$this->Collection->id = $collection_id;
+				if ($this->Collection->save($this->data)) {
+					$this->flash('your data has been updated', '/inventorymanagement/collections/detail/' . $collection_id);
+				}
 			}
 		}
 	}
 	
 	function delete($collection_id) {
-		if(!$collection_id) { $this->redirect('/pages/err_inv_coll_no_id', null, true); }
-		
+		if(!$collection_id) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }
+
+		// MANAGE DATA
+				
 		// Get collection data
 		$collection_data = $this->Collection->find('first', array('conditions' => array('Collection.id' => $collection_id)));
-		if(empty($collection_data)) { $this->redirect('/pages/err_inv_coll_no_data', null, true); }	
+		if(empty($collection_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }	
 		
 		// Check deletion is allowed
 		$arr_allow_deletion = $this->allowCollectionDeletion($collection_id);
 		
+		// CUSTOM CODE
+				
+		$hook_link = $this->hook('delete');
+		if( $hook_link ) { require($hook_link); }		
+		
 		if($arr_allow_deletion['allow_deletion']) {
-			$this->hook();
 			
 			// Delete collection			
 			if($this->ClinicalCollectionLink->atim_delete($collection_data['ClinicalCollectionLink']['id']) && $this->Collection->atim_delete($collection_id)) {
-				$this->flash('Your data has been deleted . ', '/inventorymanagement/collections/index/');
+				$this->flash('your data has been deleted', '/inventorymanagement/collections/index/');
 			} else {
-				$this->flash('Error deleting data - Contact administrator . ', '/inventorymanagement/collections/index/');
+				$this->flash('error deleting data - contact administrator', '/inventorymanagement/collections/index/');
 			}		
 		
 		} else {
@@ -219,9 +274,7 @@ class CollectionsController extends InventorymanagementAppController {
 		
 		// Check Collection has not been linked to a participant, consent or diagnosis
 		$criteria = 'ClinicalCollectionLink.collection_id = "' . $collection_id . '" ';
-		$criteria .= 'AND (ClinicalCollectionLink.participant_id != NULL ';
-		$criteria .= 'OR ClinicalCollectionLink.diagnosis_master_id != NULL ';
-		$criteria .= 'OR ClinicalCollectionLink.consent_master_id != NULL)';		
+		$criteria .= 'AND ClinicalCollectionLink.participant_id IS NOT NULL';		
 		$returned_nbr = $this->ClinicalCollectionLink->find('count', array('conditions' => array($criteria), 'recursive' => '-1'));
 		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'the deleted collection is linked to participant'); }
 

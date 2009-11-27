@@ -241,7 +241,7 @@ class StorageMastersController extends StoragelayoutAppController {
 					} else {
 						$link = '/storagelayout/storage_masters/editStoragePosition/' . $storage_master_id;
 					}
-					$this->flash('Your data has been saved . ', $link);				
+					$this->flash('your data has been saved', $link);				
 				}						
 			}
 		}		
@@ -361,7 +361,7 @@ class StorageMastersController extends StoragelayoutAppController {
 						$link = '/storagelayout/storage_masters/editStoragePosition/' . $storage_master_id;
 					}					
 				}			
-				$this->flash('Your data has been updated . ', $link); 
+				$this->flash('your data has been updated', $link); 
 			}	
 		}
 	}
@@ -469,7 +469,7 @@ class StorageMastersController extends StoragelayoutAppController {
 			
 			$this->StorageMaster->id = $storage_master_id;		
 			if($this->StorageMaster->save($storage_data_to_update)) { 
-				$this->flash('Your data has been updated . ', '/storagelayout/storage_masters/detail/' . $storage_master_id); 
+				$this->flash('your data has been updated', '/storagelayout/storage_masters/detail/' . $storage_master_id); 
 			}	
 		}
 	}
@@ -500,9 +500,9 @@ class StorageMastersController extends StoragelayoutAppController {
 			if($this->StorageMaster->atim_delete($storage_master_id, true)) {
 				//TODO;
 				pr('to test');exit;
-				$this->flash('Your data has been deleted . ', '/storagelayout/storage_masters/index/');
+				$this->flash('your data has been deleted', '/storagelayout/storage_masters/index/');
 			} else {
-				$this->flash('Error deleting data - Contact administrator . ', '/storagelayout/storage_masters/index/');
+				$this->flash('error deleting data - contact administrator', '/storagelayout/storage_masters/index/');
 			}		
 		
 		} else {
@@ -675,7 +675,7 @@ class StorageMastersController extends StoragelayoutAppController {
 						
 			$this->StorageMaster->id = $storage_master_id;		
 			if($this->StorageMaster->save($storage_data_to_update)) { 
-				$this->flash('Your data has been updated . ', '/storagelayout/storage_masters/detail/' . $storage_master_id); 
+				$this->flash('your data has been updated', '/storagelayout/storage_masters/detail/' . $storage_master_id); 
 			}
 			
 			
@@ -740,7 +740,7 @@ class StorageMastersController extends StoragelayoutAppController {
 					$this->redirect('/pages/err_sto_aliquot_record_err'); 
 					exit;
 				} else {
-					$this->flash('Your data has been updated . ',
+					$this->flash('your data has been updated',
 						'/storage_masters/searchStorageAliquots/' . $storage_master_id);
 				}			
 			}

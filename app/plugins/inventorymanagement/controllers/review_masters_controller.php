@@ -313,7 +313,7 @@ class ReviewMastersController extends InventoryManagementAppController {
 					exit;
 				} else {
 					// Data has been recorded
-					$this->flash('Your data has been saved . ', 
+					$this->flash('your data has been saved', 
 						"/review_masters/listall/$menu_id/$review_sample_group/$collection_id");				
 				}
 				
@@ -461,7 +461,7 @@ class ReviewMastersController extends InventoryManagementAppController {
 					exit;
 				} else {
 					// Data has been recorded
-					$this->flash('Your data has been updated . ', 
+					$this->flash('your data has been updated', 
 						"/review_masters/listall/$menu_id/$review_sample_group/$collection_id");				
 				}
 											
@@ -525,7 +525,7 @@ class ReviewMastersController extends InventoryManagementAppController {
 			exit;
 		}
 
-		$this->flash('Your data has been deleted . ',
+		$this->flash('your data has been deleted',
 				"/review_masters/listall/$menu_id/$review_sample_group/$collection_id");
 
 	}

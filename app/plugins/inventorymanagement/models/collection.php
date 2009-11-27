@@ -21,13 +21,13 @@ class Collection extends InventorymanagementAppModel {
 			
 			$return = array(
 				'Summary' => array(
-					'menu' => array(null, $collection_data['Collection']['acquisition_label']),
+					'menu' => array('collection', $collection_data['Collection']['acquisition_label']),
 					'title' => array(null, $collection_data['Collection']['acquisition_label']),
 					
 					'description'=> array(
 						__('collection bank', true) => $collection_data['Bank']['name'],
 						__('collection datetime', true) => $collection_data['Collection']['collection_datetime'],
-						__('Reception Date', true) => $collection_data['Collection']['reception_datetime']
+						__('collection site', true) => $collection_data['Collection']['collection_site']
 					)
 				)
 			);			
