@@ -18,6 +18,11 @@ class OrdersController extends OrderAppController {
 		
 		// Set list of studies
 		$this->set('arr_studies', $this->getStudiesList());
+		
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link); 
+		}
 	}
   
 	function search() {
@@ -33,6 +38,11 @@ class OrdersController extends OrderAppController {
 		
 		// Set list of studies
 		$this->set('arr_studies', $this->getStudiesList());
+
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link);
+		}
 	}
 	
 	function add() {
@@ -41,8 +51,19 @@ class OrdersController extends OrderAppController {
 		// Set list of studies
 		$this->set('arr_studies', $this->getStudiesList());
 
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link);
+		}
+	
+		
 		if ( !empty($this->data) ) {
-			if ( $this->Order->save($this->data) ) {
+			$submitted_data_validates = true;
+			$hook_link = $this->hook('presave_process');
+			if($hook_link){
+				require($hook_link);
+			}
+			if ($submitted_data_validates && $this->Order->save($this->data) ) {
 				$this->flash( 'your data has been saved','/order/orders/detail/'.$this->Order->id );
 			}
 		} 
@@ -60,6 +81,11 @@ class OrdersController extends OrderAppController {
 		$this->set('arr_studies', $this->getStudiesList());
 		
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id) );
+		
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link);
+		}
 	}
 
 	function edit( $order_id ) {
@@ -73,9 +99,20 @@ class OrdersController extends OrderAppController {
 		
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id) );
 		
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link);
+		}
+		
 		if ( !empty($this->data) ) {
 			$this->Order->id = $order_id;
-			if ( $this->Order->save($this->data) ) {
+			
+			$submitted_data_validates = true;
+			$hook_link = $this->hook('presave_process');
+			if($hook_link){
+				require($hook_link);
+			}
+			if ($submitted_data_validates && $this->Order->save($this->data) ) {
 				$this->flash( 'your data has been updated','/order/orders/detail/'.$order_id );
 			}
 		} else {
@@ -93,7 +130,13 @@ class OrdersController extends OrderAppController {
 		$arr_allow_deletion = $this->allowOrderDeletion($order_id);
 			
 		if($arr_allow_deletion['allow_deletion']) {
-			if($this->Order->atim_delete($order_id)) {
+			$submitted_data_validates = true;
+			$hook_link = $this->hook('delete');
+			if($hook_link){
+				require($hook_link);
+			}
+			
+			if($submitted_data_validates && $this->Order->atim_delete($order_id)) {
 				$this->flash('your data has been deleted', '/order/orders/index/');
 			} else {
 				$this->flash('error deleting data - contact administrator', '/order/orders/index/');
