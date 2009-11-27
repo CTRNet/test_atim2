@@ -37,7 +37,7 @@ class PathCollectionReviewsController extends InventoryManagementAppController {
 		if (!empty($this->data)) {
 			$this->data['PathCollectionReview']['collection_id'] = $collection_id;
 			if ($this->PathCollectionReview->save($this->data)) {
-				$this->flash('Your data has been updated . ','/inventorymanagement/path_collection_reviews/detail/' . $collection_id . '/' . $this->PathCollectionReview->id);
+				$this->flash('your data has been updated','/inventorymanagement/path_collection_reviews/detail/' . $collection_id . '/' . $this->PathCollectionReview->id);
 			}
 		}
 	}
@@ -77,7 +77,7 @@ class PathCollectionReviewsController extends InventoryManagementAppController {
 		if (!empty($this->data)) {
 			$this->PathCollectionReview->id = $path_collection_review_id;
 			if ($this->PathCollectionReview->save($this->data)) {
-				$this->flash('Your data has been updated . ','/inventorymanagement/path_collection_reviews/detail/' . $collection_id . '/' . $path_collection_review_id);
+				$this->flash('your data has been updated','/inventorymanagement/path_collection_reviews/detail/' . $collection_id . '/' . $path_collection_review_id);
 			}
 		} else {
 			$this->data = $this->PathCollectionReview->find('first',array('conditions'=>array('PathCollectionReview.id'=>$path_collection_review_id)));
@@ -91,9 +91,9 @@ class PathCollectionReviewsController extends InventoryManagementAppController {
 		$this->hook();
 		
 		if($this->PathCollectionReview->atim_delete($path_collection_review_id)) {
-			$this->flash('Your data has been deleted . ', '/inventorymanagement/path_collection_reviews/listall/' . $collection_id);
+			$this->flash('your data has been deleted', '/inventorymanagement/path_collection_reviews/listall/' . $collection_id);
 		} else {
-			$this->flash('Error deleting data - Contact administrator . ', '/inventorymanagement/path_collection_reviews/listall/' . $collection_id);
+			$this->flash('error deleting data - contact administrator', '/inventorymanagement/path_collection_reviews/listall/' . $collection_id);
 		}
   	}
 	
@@ -279,7 +279,7 @@ class PathCollectionReviewsController extends InventoryManagementAppController {
 			}
 			
 			if ($this->PathCollectionReview->save($this->data)) {
-				$this->flash('Your data has been saved . ', '/path_collection_reviews/listall/' . $collection_id);
+				$this->flash('your data has been saved', '/path_collection_reviews/listall/' . $collection_id);
 			}
 			
 		}
@@ -348,7 +348,7 @@ class PathCollectionReviewsController extends InventoryManagementAppController {
 			}
 			
 			if ($this->PathCollectionReview->save($this->data['PathCollectionReview'])) {
-				$this->flash('Your data has been updated . ','/path_collection_reviews/detail/' . $collection_id . '/' . $path_collection_review_id . '/');
+				$this->flash('your data has been updated','/path_collection_reviews/detail/' . $collection_id . '/' . $path_collection_review_id . '/');
 			}
 			
 		}
@@ -363,7 +363,7 @@ class PathCollectionReviewsController extends InventoryManagementAppController {
 		}
 		
 		$this->PathCollectionReview->del($path_collection_review_id);
-		$this->flash('Your data has been deleted . ', '/path_collection_reviews/listall/' . $collection_id);
+		$this->flash('your data has been deleted', '/path_collection_reviews/listall/' . $collection_id);
 		
 	}
 	

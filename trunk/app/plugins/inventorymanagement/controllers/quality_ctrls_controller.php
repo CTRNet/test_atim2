@@ -146,7 +146,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 						.$qc_data['SampleMaster']['collection_id'].'/'
 						.$qc_data['QualityCtrl']['sample_master_id'].'/');
 			} else {
-				$this->flash('Error deleting data - Contact administrator . ', '/inventorymanagement/quality_ctrls/listall/' . $collection_id . '/' . $sample_master_id);
+				$this->flash('error deleting data - contact administrator', '/inventorymanagement/quality_ctrls/listall/' . $collection_id . '/' . $sample_master_id);
 			}
 		} else {
 			$this->flash($arr_allow_deletion['msg'], '/inventorymanagement/quality_ctrls/detail/' . $collection_id . '/' . $sample_master_id . '/' . $quality_ctrl_id);
