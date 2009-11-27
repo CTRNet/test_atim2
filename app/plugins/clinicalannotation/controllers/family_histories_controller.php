@@ -127,7 +127,7 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 		}
 	}
 	
-	function edit( $participant_id=null, $family_history_id=null) {
+	function edit( $participant_id, $family_history_id) {
 		if (( !$participant_id ) && ( !$family_history_id )) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }	
 		
 		// MANAGE DATA
@@ -177,7 +177,7 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 		}
 	}
 	
-	function delete( $participant_id=null, $family_history_id=null ) {
+	function delete( $participant_id, $family_history_id ) {
 		if (( !$participant_id ) && ( !$family_history_id )) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }	
 		
 		// MANAGE DATA
