@@ -15,7 +15,7 @@ class Participant extends ClinicalannotationAppModel {
 					'title'			=>	array( NULL, __($result['Participant']['first_name'].' '.$result['Participant']['last_name'], TRUE) ),
 					
 					'description'		=>	array(
-						__('tumour bank number',TRUE)	=>	__($result['Participant']['tb_number'], TRUE),
+						__('participant identifier',TRUE)	=>	__($result['Participant']['participant_identifier'], TRUE),
 						__('date of birth', TRUE)		=>	__($result['Participant']['date_of_birth'], TRUE),
 						__('marital status', TRUE)		=>	__($result['Participant']['marital_status'], TRUE),
 						__('vital status', TRUE)		=>	__($result['Participant']['vital_status'], TRUE),
