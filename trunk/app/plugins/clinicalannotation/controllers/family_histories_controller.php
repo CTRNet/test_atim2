@@ -47,7 +47,6 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id));
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
-		
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }
 	}
@@ -121,7 +120,7 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 				// 4- SAVE
 				
 				if ( $this->FamilyHistory->save($this->data) ) {
-					$this->flash( 'your data has been saved','/clinicalannotation/family_histories/detail/'.$participant_id.'/'.$this->FamilyHistory->id );
+					$this->flash( 'Your data has been saved.','/clinicalannotation/family_histories/detail/'.$participant_id.'/'.$this->FamilyHistory->id );
 				}				
 			}
 		}
