@@ -1,7 +1,5 @@
 ﻿-- ATiM v2.0.0
 
-USE `atim`;
-
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 SET FOREIGN_KEY_CHECKS=0;
 
