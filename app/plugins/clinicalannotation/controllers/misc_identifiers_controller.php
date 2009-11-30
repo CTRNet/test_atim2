@@ -2,77 +2,156 @@
 
 class MiscIdentifiersController extends ClinicalannotationAppController {
 
-	var $uses = array('Clinicalannotation.MiscIdentifier', 'Clinicalannotation.Participant');
+	var $uses = array(
+		'Clinicalannotation.MiscIdentifier',
+		'Clinicalannotation.Participant'
+	);
 	var $paginate = array('MiscIdentifier'=>array('limit'=>10,'order'=>'MiscIdentifier.name ASC'));
 	
-	function listall( $participant_id=null ) {
-		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+	function listall( $participant_id ) {
+		if ( !$participant_id ) { $this->redirect( 'err_clin_funct_param_missing', NULL, TRUE ); }
 
-		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
-		
-		$this->hook();
+		// MANAGE DATA
+		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));		
+		if(empty($participant_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
 		
 		$this->data = $this->paginate($this->MiscIdentifier, array('MiscIdentifier.participant_id'=>$participant_id));
+		
+		// MANAGE FORM, MENU AND ACTION BUTTONS
+		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
+				
+		// CUSTOM CODE: FORMAT DISPLAY DATA
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { require($hook_link); }
 	}
 	
-	function detail( $participant_id=null, $misc_identifier_id=null ) {
-		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if ( !$misc_identifier_id ) { $this->redirect( '/pages/err_clin-ann_no_misc_id', NULL, TRUE ); }
+	function detail( $participant_id, $misc_identifier_id ) {
+		if ( !$participant_id && !$misc_identifier_id ) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
+
+		// MANAGE DATA
+		$misc_identifier_data = $this->MiscIdentifier->find('first', array('conditions'=>array('MiscIdentifier.id'=>$misc_identifier_id, 'MiscIdentifier.participant_id'=>$participant_id), 'recursive' => '-1'));		
+		if(empty($misc_identifier_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
+		$this->data = $misc_identifier_data;
 		
+		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'MiscIdentifier.id'=>$misc_identifier_id) );
 		
-		$this->hook();
-		
-		$this->data = $this->MiscIdentifier->find('first',array('conditions'=>array('MiscIdentifier.id'=>$misc_identifier_id)));
+		// CUSTOM CODE: FORMAT DISPLAY DATA
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { require($hook_link); }		
 	}
 	
 	function add( $participant_id=null ) {
-		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$participant_id ) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
 	
+		// MANAGE DATA
+		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
+		if(empty($participant_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
+		
+		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
 		
-		$this->hook();
+		// CUSTOM CODE: FORMAT DISPLAY DATA
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { require($hook_link); }
 		
 		if ( !empty($this->data) ) {
 			$this->data['MiscIdentifier']['participant_id'] = $participant_id;
+
+			$submitted_data_validates = true;
+			// ... special validations
 			
-			if ( $this->MiscIdentifier->save($this->data) ) {
-				$this->flash( 'Your data has been updated.','/clinicalannotation/misc_identifiers/detail/'.$participant_id.'/'.$this->MiscIdentifier->id );
+			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
+			$hook_link = $this->hook('presave_process');
+			if( $hook_link ) { require($hook_link); }	
+			
+			if($submitted_data_validates) {
+					if ( $this->MiscIdentifier->save($this->data) ) {
+						$this->flash( 'Your data has been saved.','/clinicalannotation/misc_identifiers/detail/'.$participant_id.'/'.$this->MiscIdentifier->id );
+					}
 			}
 		}
 	}
 	
-	function edit( $participant_id=null, $misc_identifier_id=null) {
-		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if ( !$misc_identifier_id ) { $this->redirect( '/pages/err_clin-ann_no_misc_id', NULL, TRUE ); }
+	function edit( $participant_id, $misc_identifier_id) {
+		if ( !$participant_id && !$misc_identifier_id ) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
 		
+		// MANAGE DATA
+		$misc_identifier_data = $this->MiscIdentifier->find('first', array('conditions'=>array('MiscIdentifier.id'=>$misc_identifier_id, 'MiscIdentifier.participant_id'=>$participant_id), 'recursive' => '-1'));		
+		if(empty($misc_identifier_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
+		
+		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'MiscIdentifier.id'=>$misc_identifier_id) );
 		
-		$this->hook();
+		// CUSTOM CODE: FORMAT DISPLAY DATA
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { require($hook_link); }		
 		
-		if ( !empty($this->data) ) {
-			$this->MiscIdentifier->id = $misc_identifier_id;
-	
-			if ( $this->MiscIdentifier->save($this->data) ) {
-				$this->flash( 'Your data has been updated.','/clinicalannotation/misc_identifiers/detail/'.$participant_id.'/'.$misc_identifier_id );
-			}
+		if(empty($this->data)) {
+			$this->data = $misc_identifier_data;		
 		} else {
-			$this->data = $this->MiscIdentifier->find('first',array('conditions'=>array('MiscIdentifier.id'=>$misc_identifier_id)));
+			$submitted_data_validates = true;
+			// ... special validations
+			
+			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
+			$hook_link = $this->hook('presave_process');
+			if( $hook_link ) { require($hook_link); }	
+			
+			if($submitted_data_validates) {
+				$this->MiscIdentifier->id = $misc_identifier_id;
+				if ( $this->MiscIdentifier->save($this->data) ) {
+					$this->flash( 'Your data has been updated.','/clinicalannotation/misc_identifiers/detail/'.$participant_id.'/'.$misc_identifier_id );
+				}
+			}
 		}
 	}
 
-	function delete( $participant_id=null, $misc_identifier_id=null ) {
-		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if ( !$misc_identifier_id ) { $this->redirect( '/pages/err_clin-ann_no_misc_id', NULL, TRUE ); }
+	function delete( $participant_id, $misc_identifier_id ) {
+		if ( !$participant_id && !$misc_identifier_id ) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
 		
-		$this->hook();
+		// MANAGE DATA
+		$misc_identifier_data = $this->MiscIdentifier->find('first', array('conditions'=>array('MiscIdentifier.id'=>$misc_identifier_id, 'MiscIdentifier.participant_id'=>$participant_id), 'recursive' => '-1'));		
+		if(empty($misc_identifier_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
+
+		$arr_allow_deletion = $this->allowMiscIdentifierDeletion($misc_identifier_id);
 		
-		if( $this->MiscIdentifier->atim_delete( $misc_identifier_id ) ) {
-			$this->flash( 'Your data has been deleted.', '/clinicalannotation/misc_identifiers/listall/'.$participant_id );
+		// CUSTOM CODE
+		$hook_link = $this->hook('delete');
+		if( $hook_link ) { require($hook_link); }		
+		
+		if($arr_allow_deletion['allow_deletion']) {
+			if( $this->MiscIdentifier->atim_delete( $misc_identifier_id ) ) {
+				$this->flash( 'Your data has been deleted.', '/clinicalannotation/misc_identifiers/listall/'.$participant_id );
+			} else {
+				$this->flash( 'Error deleting data - Contact administrator.', '/clinicalannotation/misc_identifiers/listall/'.$participant_id );
+			}	
 		} else {
-			$this->flash( 'Error deleting data - Contact administrator.', '/clinicalannotation/misc_identifiers/listall/'.$participant_id );
-		}
+			$this->flash($arr_allow_deletion['msg'], '/clinicalannotation/misc_identifiers/detail/'.$participant_id.'/'.$misc_identifier_id);
+		}	
 	}
+	
+	/* --------------------------------------------------------------------------
+	 * ADDITIONAL FUNCTIONS
+	 * -------------------------------------------------------------------------- */
+
+	/**
+	 * Check if a record can be deleted.
+	 * 
+	 * @param $misc_identifier_id Id of the studied record.
+	 * 
+	 * @return Return results as array:
+	 * 	['allow_deletion'] = true/false
+	 * 	['msg'] = message to display when previous field equals false
+	 * 
+	 * @author N. Luc
+	 * @since 2007-10-16
+	 */	
+	 
+	function allowMiscIdentifierDeletion( $misc_identifier_id ) {
+		//$returned_nbr = $this->LinkedModel->find('count', array('conditions' => array('LinkedModel.family_history_id' => $family_history_id), 'recursive' => '-1'));
+		//if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'a LinkedModel exists for the deleted family history'); }
+		return array('allow_deletion' => true, 'msg' => '');
+	}	
 }
 
 ?>
