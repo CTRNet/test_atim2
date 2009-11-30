@@ -2188,15 +2188,14 @@ CREATE TABLE `participants_revs` (
 
 CREATE TABLE `participant_contacts` (
   `id` int(11) NOT NULL auto_increment,
-  `name` varchar(50) NOT NULL default '',
-  `facility` varchar(50) default NULL,
+  `contact_name` varchar(50) NOT NULL default '',
   `contact_type` varchar(50) NOT NULL default '',
   `other_contact_type` varchar(100) default NULL,
   `effective_date` date default NULL,
   `expiry_date` date default NULL,
-  `memo` text,
+  `notes` text,
   `street` varchar(50) default NULL,
-  `city` varchar(50) NOT NULL default '',
+  `locality` varchar(50) NOT NULL default '',
   `region` varchar(50) NOT NULL default '',
   `country` varchar(50) NOT NULL default '',
   `mail_code` varchar(10) NOT NULL default '',
@@ -2217,15 +2216,14 @@ CREATE TABLE `participant_contacts` (
 
 CREATE TABLE `participant_contacts_revs` (
   `id` int(11) NOT NULL,
-  `name` varchar(50) NOT NULL default '',
-  `facility` varchar(50) default NULL,
+  `contact_name` varchar(50) NOT NULL default '',
   `contact_type` varchar(50) NOT NULL default '',
   `other_contact_type` varchar(100) default NULL,
   `effective_date` date default NULL,
   `expiry_date` date default NULL,
-  `memo` text,
+  `notes` text,
   `street` varchar(50) default NULL,
-  `city` varchar(50) NOT NULL default '',
+  `locality` varchar(50) NOT NULL default '',
   `region` varchar(50) NOT NULL default '',
   `country` varchar(50) NOT NULL default '',
   `mail_code` varchar(10) NOT NULL default '',
@@ -2238,15 +2236,14 @@ CREATE TABLE `participant_contacts_revs` (
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
   `modified_by` varchar(50) NOT NULL default '',
   `participant_id` int(11) default NULL,
-  `version_id` int(11) NOT NULL AUTO_INCREMENT,
-  `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  INDEX `participant_id` (`participant_id`)
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
--- 
+--
 -- Table structure for table `participant_messages`
 --
 
@@ -2292,7 +2289,7 @@ CREATE TABLE `participant_messages_revs` (
   INDEX `participant_id` (`participant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
--- 
+--
 -- Table structure for table `path_collection_reviews`
 --
 
@@ -6339,7 +6336,7 @@ ALTER TABLE `sd_der_amp_rnas` ADD CONSTRAINT `FK_sd_der_amp_rnas_sample_masters`
 ALTER TABLE `sd_der_ascite_cells` ADD CONSTRAINT `FK_sd_der_ascite_cells_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
 ALTER TABLE `sd_der_ascite_sups` ADD CONSTRAINT `FK_sd_der_ascite_sups_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
 ALTER TABLE `sd_der_blood_cells` ADD CONSTRAINT `FK_sd_der_blood_cells_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-ALTER TABLE `sd_der_b_cells` ADD CONSTRAINT `FK_sd_der_b_cells_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `sd_der_b_cells` ADD CONSTRAINT `FK_sd_der_b_cells_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
 ALTER TABLE `sd_der_cell_cultures` ADD CONSTRAINT `FK_sd_der_cell_cultures_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
 ALTER TABLE `sd_der_dnas` ADD CONSTRAINT `FK_sd_der_dnas_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
 ALTER TABLE `sd_der_fluid_cells` ADD CONSTRAINT `FK_sd_der_fluid_cells_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
