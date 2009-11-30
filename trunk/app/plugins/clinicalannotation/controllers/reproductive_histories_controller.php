@@ -2,28 +2,44 @@
 
 class ReproductiveHistoriesController extends ClinicalAnnotationAppController {
 	
-	var $uses = array('Clinicalannotation.ReproductiveHistory','Clinicalannotation.Participant');
+	var $uses = array(
+		'Clinicalannotation.ReproductiveHistory',
+		'Clinicalannotation.Participant'
+	);
 	var $paginate = array('ReproductiveHistory'=>array('limit'=>10,'order'=>'ReproductiveHistory.date_captured'));
 	
 	function listall( $participant_id ) {
-		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$participant_id ) { $this->redirect( 'err_clin_funct_param_missing', NULL, TRUE ); }
 
-		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
-		
-		$this->hook();
-		
+		// MANAGE DATA
+		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));		
+		if(empty($participant_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
+	
 		$this->data = $this->paginate($this->ReproductiveHistory, array('ReproductiveHistory.participant_id'=>$participant_id));
+		
+		// MANAGE FORM, MENU AND ACTION BUTTONS
+		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
+				
+		// CUSTOM CODE: FORMAT DISPLAY DATA
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { require($hook_link); }
 	}
 	
 	function detail( $participant_id, $reproductive_history_id ) {
-		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if ( !$reproductive_history_id ) { $this->redirect( '/pages/err_clin-ann_no_reprod_id', NULL, TRUE ); }
+		if ( !$participant_id && !$reproductive_history_id ) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
 		
-		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'ReproductiveHistory.id'=>$reproductive_history_id) );
-		
-		$this->hook();
+		// MANAGE DATA
+		$misc_identifier_data = $this->MiscIdentifier->find('first', array('conditions'=>array('MiscIdentifier.id'=>$misc_identifier_id, 'MiscIdentifier.participant_id'=>$participant_id), 'recursive' => '-1'));		
+		if(empty($misc_identifier_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
+		$this->data = $misc_identifier_data;
 		
 		$this->data = $this->ReproductiveHistory->find('first',array('conditions'=>array('ReproductiveHistory.id'=>$reproductive_history_id)));
+		// MANAGE FORM, MENU AND ACTION BUTTONS
+		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'ReproductiveHistory.id'=>$reproductive_history_id) );
+		
+		// CUSTOM CODE: FORMAT DISPLAY DATA
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { require($hook_link); }	
 	}
 	
 	function add( $participant_id ) {

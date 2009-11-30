@@ -65,7 +65,7 @@ class ParticipantContactsController extends ClinicalannotationAppController {
 			
 			if($submitted_data_validates) {
 				if ( $this->ParticipantContact->save($this->data) ) {
-					$this->flash( 'Your data has been updated.','/clinicalannotation/participant_contacts/detail/'.$participant_id.'/'.$this->ParticipantContact->id );
+					$this->flash( 'your data has been updated','/clinicalannotation/participant_contacts/detail/'.$participant_id.'/'.$this->ParticipantContact->id );
 				}
 			}
 		}
@@ -98,7 +98,7 @@ class ParticipantContactsController extends ClinicalannotationAppController {
 			if($submitted_data_validates) {
 				$this->ParticipantContact->id = $participant_contact_id;
 				if ( $this->ParticipantContact->save($this->data) ) {
-					$this->flash( 'Your data has been updated.','/clinicalannotation/participant_contacts/detail/'.$participant_id.'/'.$participant_contact_id );
+					$this->flash( 'your data has been updated','/clinicalannotation/participant_contacts/detail/'.$participant_id.'/'.$participant_contact_id );
 				}
 			}
 		}
@@ -115,10 +115,10 @@ class ParticipantContactsController extends ClinicalannotationAppController {
 		
 		if($arr_allow_deletion['allow_deletion']) {
 			if( $this->ParticipantContact->atim_delete( $participant_contact_id ) ) {
-				$this->flash( 'Your data has been deleted.', '/clinicalannotation/participant_contacts/listall/'.$participant_id );
+				$this->flash( 'your data has been deleted', '/clinicalannotation/participant_contacts/listall/'.$participant_id );
 			}
 			else {
-				$this->flash( 'Error deleting data - Contact administrator.', '/clinicalannotation/participant_contacts/listall/'.$participant_id );
+				$this->flash( 'error deleting data - contact administrator', '/clinicalannotation/participant_contacts/listall/'.$participant_id );
 			}
 		} else {
 			$this->flash($arr_allow_deletion['msg'], '/clinicalannotation/participant_messages/detail/'.$participant_id.'/'.$misc_identifier_id);

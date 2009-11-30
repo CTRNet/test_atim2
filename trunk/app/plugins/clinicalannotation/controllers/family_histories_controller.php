@@ -120,7 +120,7 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 				// 4- SAVE
 				
 				if ( $this->FamilyHistory->save($this->data) ) {
-					$this->flash( 'Your data has been saved.','/clinicalannotation/family_histories/detail/'.$participant_id.'/'.$this->FamilyHistory->id );
+					$this->flash( 'your data has been saved','/clinicalannotation/family_histories/detail/'.$participant_id.'/'.$this->FamilyHistory->id );
 				}				
 			}
 		}
@@ -197,9 +197,9 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 			
 			$flash_link = '/clinicalannotation/family_histories/listall/'.$participant_id;
 			if ($this->FamilyHistory->atim_delete($family_history_id)) {
-				$this->flash( 'Your data has been deleted', $flash_link );
+				$this->flash( 'your data has been deleted', $flash_link );
 			} else {
-				$this->flash( 'Error deleting data - Contact administrator', $flash_link );
+				$this->flash( 'error deleting data - contact administrator', $flash_link );
 			}	
 		} else {
 			$this->flash($arr_allow_deletion['msg'], '/clinicalannotation/family_histories/detail/'.$participant_id.'/'.$family_history_id);
