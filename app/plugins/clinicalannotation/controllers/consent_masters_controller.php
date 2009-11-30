@@ -12,119 +12,191 @@ class ConsentMastersController extends ClinicalannotationAppController {
 	
 	var $paginate = array('ConsentMaster'=>array('limit'=>10,'order'=>'ConsentMaster.date ASC')); 
 
-	function listall( $participant_id=null ) {
+	function listall( $participant_id ) {
 		// Missing or empty function variable, send to ERROR page
-		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$participant_id ) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
+
+		// MANAGE DATA
+		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
+		if(empty($participant_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }	
+
+		$this->data = $this->paginate($this->ConsentMaster, array('ConsentMaster.participant_id'=>$participant_id));
 		
+		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$facility_list = $this->Provider->find('all', array('conditions'=>array('Provider.active'=>'yes','Provider.deleted'=>'0')), array('fields' => array('Provider.id', 'Provider.name'), 'order' => array('Provider.name')));
 		foreach ( $facility_list as $record ) {
 			$facility_id_findall[ $record['Provider']['id'] ] = $record['Provider']['name'];
 		}
 		$this->set('facility_id_findall', $facility_id_findall);
 		
-		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id) );
+		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id) );
 		$this->set('consent_controls_list', $this->ConsentControl->find('all', array('conditions' => array('ConsentControl.status' => 'active'))));
 		$this->set('atim_structure', $this->Structures->get('form', 'consent_masters'));
-		$this->hook();
 		
-		$this->data = $this->paginate($this->ConsentMaster, array('ConsentMaster.participant_id'=>$participant_id));
+		// CUSTOM CODE: FORMAT DISPLAY DATA
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { require($hook_link); }		
 	}	
 
-	function detail( $participant_id=null, $consent_master_id=null) {
-		// Missing or empty function variable, send to ERROR page
-		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if ( !$consent_master_id ) { $this->redirect( '/pages/err_clin-ann_no_consent_id', NULL, TRUE ); }
+	function detail( $participant_id, $consent_master_id) {
+		if (( !$participant_id ) && ( !$consent_master_id )) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }	
 		
+		// MANAGE DATA
+		$consent_master_data = $this->ConsentMaster->find('first',array('conditions'=>array('ConsentMaster.id'=>$consent_master_id, 'ConsentMaster.participant_id'=>$participant_id)));
+		if(empty($consent_master_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }		
+		$this->data = $consent_master_data;
+		
+		// MANAGE FORM, MENU AND ACTION BUTTONS
+		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'ConsentMaster.id'=>$consent_master_id) );
+		$consent_control_data = $this->ConsentControl->find('first', array('conditions' => array('ConsentControl.id' => $this->data['ConsentMaster']['consent_control_id'])));
+		$this->set('atim_structure', $this->Structures->get('form', $consent_control_data['ConsentControl']['form_alias']));
+		
+		// Get all providers and populate provider list on form
 		$facility_list = $this->Provider->find('all', array('conditions'=>array('Provider.active'=>'yes','Provider.deleted'=>'0')), array('fields' => array('Provider.id', 'Provider.name'), 'order' => array('Provider.name')));
 		foreach ( $facility_list as $record ) {
 			$facility_id_findall[ $record['Provider']['id'] ] = $record['Provider']['name'];
 		}
 		$this->set('facility_id_findall', $facility_id_findall);
 		
-		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'ConsentMaster.id'=>$consent_master_id) );
-		
-		$this->hook();
-		
-		$this->data = $this->ConsentMaster->find('first',array('conditions'=>array('ConsentMaster.id'=>$consent_master_id)));
-		$storage_data = $this->ConsentControl->find('first', array('conditions' => array('ConsentControl.id' => $this->data['ConsentMaster']['consent_control_id'])));
-		$this->set('atim_structure', $this->Structures->get('form', $storage_data['ConsentControl']['form_alias']));
-		
+		// CUSTOM CODE: FORMAT DISPLAY DATA
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { require($hook_link); }
 	}
 	
 	function add( $participant_id=null, $consent_control_id ) {
-		// Missing or empty function variable, send to ERROR page
-		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if (( !$participant_id ) && ( !$consent_control_id )) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
+
+		// MANAGE DATA
+		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
+		if(empty($participant_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
 		
+		// MANAGE FORM, MENU AND ACTION BUTTONS
+		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'ConsentControl.id' => $consent_control_id) );
+		$consent_control_data = $this->ConsentControl->find('first', array('conditions' => array('ConsentControl.id' => $consent_control_id)));
+		$this->set('atim_structure', $this->Structures->get('form', $consent_control_data['ConsentControl']['form_alias']));
+		
+		// Get all providers and populate provider list on form
 		$facility_list = $this->Provider->find('all', array('conditions'=>array('Provider.active'=>'yes','Provider.deleted'=>'0')), array('fields' => array('Provider.id', 'Provider.name'), 'order' => array('Provider.name')));
 		foreach ( $facility_list as $record ) {
 			$facility_id_findall[ $record['Provider']['id'] ] = $record['Provider']['name'];
 		}
 		$this->set('facility_id_findall', $facility_id_findall);
 		
-		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'ConsentControl.id' => $consent_control_id) );
-		
-		$storage_data = $this->ConsentControl->find('first', array('conditions' => array('ConsentControl.id' => $consent_control_id)));
-		$this->set('atim_structure', $this->Structures->get('form', $storage_data['ConsentControl']['form_alias']));
-		
-		$this->hook();
+		// CUSTOM CODE: FORMAT DISPLAY DATA
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { require($hook_link); }
 		
 		if ( !empty($this->data) ) {
 			$this->data['ConsentMaster']['participant_id'] = $participant_id;
 			$this->data['ConsentMaster']['consent_control_id'] = $consent_control_id;
-			$this->data['ConsentMaster']['type'] = $storage_data['ConsentControl']['controls_type'];
+			$this->data['ConsentMaster']['type'] = $consent_control_data['ConsentControl']['controls_type'];
 			$this->data['ConsentMaster']['diagnosis_master_id'] = null;
-			if ( $this->ConsentMaster->save($this->data) ) {
-				$this->flash( 'Your data has been updated.','/clinicalannotation/consent_masters/detail/'.$participant_id.'/'.$this->ConsentMaster->id );
+			
+			$submitted_data_validates = true;
+			// ... special validations
+			
+			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
+			$hook_link = $this->hook('presave_process');
+			if( $hook_link ) { require($hook_link); }	
+			
+			if($submitted_data_validates) {
+				if ( $this->ConsentMaster->save($this->data) ) {
+					$this->flash( 'your data has been saved','/clinicalannotation/consent_masters/detail/'.$participant_id.'/'.$this->ConsentMaster->id );
+				}
 			}
 		}
 	}
 
-	function edit( $participant_id=null, $consent_master_id=null) {
-		// Missing or empty function variable, send to ERROR page
-		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if ( !$consent_master_id ) { $this->redirect( '/pages/err_clin-ann_no_consent_id', NULL, TRUE ); }
+	function edit( $participant_id, $consent_master_id ) {
+		if (( !$participant_id ) && ( !$consent_master_id )) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }	
 		
+		// MANAGE DATA
+		$consent_master_data = $this->ConsentMaster->find('first',array('conditions'=>array('ConsentMaster.id'=>$consent_master_id, 'ConsentMaster.participant_id'=>$participant_id)));
+		if(empty($consent_master_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
+		
+		// MANAGE FORM, MENU AND ACTION BUTTONS
+		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'ConsentMaster.id'=>$consent_master_id) );
+		$consent_control_data = $this->ConsentControl->find('first', array('conditions' => array('ConsentControl.id' => $consent_master_data['ConsentMaster']['consent_control_id'])));
+		$this->set('atim_structure', $this->Structures->get('form', $consent_control_data['ConsentControl']['form_alias']));		
+		
+		// Get all providers and populate provider list on form
 		$facility_list = $this->Provider->find('all', array('conditions'=>array('Provider.active'=>'yes','Provider.deleted'=>'0')), array('fields' => array('Provider.id', 'Provider.name'), 'order' => array('Provider.name')));
 		foreach ( $facility_list as $record ) {
 			$facility_id_findall[ $record['Provider']['id'] ] = $record['Provider']['name'];
 		}
 		$this->set('facility_id_findall', $facility_id_findall);
-		
-		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'ConsentMaster.id'=>$consent_master_id) );
-		$storage_data = $this->ConsentMaster->find('first', array('conditions' => array('ConsentMaster.id' => $consent_master_id)));
-		$storage_data = $this->ConsentControl->find('first', array('conditions' => array('ConsentControl.id' => $storage_data['ConsentMaster']['consent_control_id'])));
-		$this->set('atim_structure', $this->Structures->get('form', $storage_data['ConsentControl']['form_alias']));
-		
-		$this->hook();
-		
-		if ( !empty($this->data) ) {
-			$this->ConsentMaster->id = $consent_master_id;
-			if ( $this->ConsentMaster->save($this->data) ) {
-				$this->flash( 'Your data has been updated.','/clinicalannotation/consent_masters/detail/'.$participant_id.'/'.$consent_master_id );
-			}
+	
+		// CUSTOM CODE: FORMAT DISPLAY DATA
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { require($hook_link); }
+
+		if(empty($this->data)) {
+			$this->data = $consent_master_data;
 		} else {
-			$this->data = $this->ConsentMaster->find('first',array('conditions'=>array('ConsentMaster.id'=>$consent_master_id)));
+			$submitted_data_validates = true;
+			// ... special validations
+			
+			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
+			$hook_link = $this->hook('presave_process');
+			if( $hook_link ) { require($hook_link); }
+		
+			if($submitted_data_validates) {
+				$this->ConsentMaster->id = $consent_master_id;
+				if ( $this->ConsentMaster->save($this->data) ) {
+					$this->flash( 'your data has been updated','/clinicalannotation/consent_masters/detail/'.$participant_id.'/'.$consent_master_id );
+				}
+			}
 		}
 	}
 
-	function delete( $participant_id=null, $consent_master_id=null) {
-		// Missing or empty function variable, send to ERROR page
-		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if ( !$consent_master_id ) { $this->redirect( '/pages/err_clin-ann_no_consent_id', NULL, TRUE ); }
+	function delete( $participant_id, $consent_master_id ) {
+		if (( !$participant_id ) && ( !$consent_master_id )) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
 		
-		$storage_data = $this->ConsentMaster->find('first', array('conditions' => array('ConsentMaster.id' => $consent_master_id)));
-		$storage_data = $this->ConsentControl->find('first', array('conditions' => array('ConsentControl.id' => $storage_data['ConsentMaster']['consent_control_id'])));
-		$this->set('atim_structure', $this->Structures->get('form', $storage_data['ConsentControl']['form_alias']));
+		// MANAGE DATA
+		$consent_master_data = $this->ConsentMaster->find('first',array('conditions'=>array('ConsentMaster.id'=>$consent_master_id, 'ConsentMaster.participant_id'=>$participant_id)));
+		if(empty($consent_master_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
+
+		$arr_allow_deletion = $this->allowConsentDeletion($consent_master_id);
 		
-		$this->hook();
+		// CUSTOM CODE		
+		$hook_link = $this->hook('delete');
+		if( $hook_link ) { require($hook_link); }
 		
-		if( $this->ConsentMaster->atim_delete( $consent_master_id ) ) {
-			$this->flash( 'Your data has been deleted.', '/clinicalannotation/consent_masters/listall/'.$participant_id );
-		}
-		else {
-			$this->flash( 'Error deleting data - Contact administrator.', '/clinicalannotation/consent_masters/listall/'.$participant_id );
+		if($arr_allow_deletion['allow_deletion']) {
+			if( $this->ConsentMaster->atim_delete( $consent_master_id ) ) {
+				$this->flash( 'your data has been deleted', '/clinicalannotation/consent_masters/listall/'.$participant_id );
+			} else {
+				$this->flash( 'error deleting data - contact administrator', '/clinicalannotation/consent_masters/listall/'.$participant_id );
+			}
+		} else {
+			$this->flash($arr_allow_deletion['msg'], '/clinicalannotation/consent_masters/detail/'.$participant_id.'/'.$consent_master_id);
 		}
 	}
+
+	/* --------------------------------------------------------------------------
+	 * ADDITIONAL FUNCTIONS
+	 * -------------------------------------------------------------------------- */
+
+	/**
+	 * Check if a record can be deleted.
+	 * 
+	 * @param $consent_master_id Id of the studied record.
+	 * 
+	 * @return Return results as array:
+	 * 	['allow_deletion'] = true/false
+	 * 	['msg'] = message to display when previous field equals false
+	 * 
+	 * @author N. Luc
+	 * @since 2007-10-16
+	 */
+	 
+	function allowConsentDeletion($consent_master_id){
+		//$returned_nbr = $this->LinkedModel->find('count', array('conditions' => array('LinkedModel.family_history_id' => $family_history_id), 'recursive' => '-1'));
+		//if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'a LinkedModel exists for the deleted family history'); }
+		
+		return array('allow_deletion' => true, 'msg' => '');
+	}	
+	
 }
 
 ?>
