@@ -20,13 +20,21 @@ class OrderLinesController extends OrderAppController {
 			$order_data = $this->Order->find('first',array('conditions'=>array('Order.id'=>$order_id)));
 			if(empty($order_data)) { $this->redirect( '/pages/err_order_no_data', null, true ); }
 
-			$data = $this->paginate($this->OrderLine, array('OrderLine.order_id'=>$order_id));
+			$data = $this->paginate($this->OrderLine, array('OrderLine.order_id'=>$order_id, 'OrderLine.deleted' => 0));
 
 			// Add completion information
 			foreach($data as $key => $new_order_line) {
 				$shipped_counter = 0;
-				foreach($new_order_line['OrderItem'] as $new_item) { if($new_item['status'] == 'shipped') { $shipped_counter++; } }
-				$completion = empty($new_order_line['OrderItem'])? 'n/a': $shipped_counter.'/'.sizeof($new_order_line['OrderItem']);
+				$items_counter = 0;
+				foreach($new_order_line['OrderItem'] as $new_item){
+					if($new_item['deleted'] == 0){
+						++ $items_counter;	
+						if($new_item['status'] == 'shipped'){
+							++ $shipped_counter; 
+						}
+					}
+				}
+				$completion = empty($new_order_line['OrderItem'])? 'n/a': $shipped_counter.'/'.$items_counter;
 				$data[$key]['Generated']['order_line_completion'] = $completion;
 			}
 
@@ -139,8 +147,17 @@ class OrderLinesController extends OrderAppController {
 
 			// Add completion information
 			$shipped_counter = 0;
-			foreach($order_line_data['OrderItem'] as $new_item) { if($new_item['status'] == 'shipped') { $shipped_counter++; } }
-			$completion = empty($order_line_data['OrderItem'])? 'n/a': $shipped_counter.'/'.sizeof($order_line_data['OrderItem']);
+			$items_counter = 0;
+			foreach($order_line_data['OrderItem'] as $new_item) {
+				if($new_item['deleted'] == 0){
+					++ $items_counter;
+					if($new_item['status'] == 'shipped'){
+						++ $shipped_counter;
+					}
+				}
+			 }
+			 
+			$completion = empty($order_line_data['OrderItem'])? 'n/a': $shipped_counter.'/'.$items_counter;
 			$order_line_data['Generated']['order_line_completion'] = $completion;
 
 			$this->data = $order_line_data;
@@ -166,7 +183,9 @@ class OrderLinesController extends OrderAppController {
 			if (( !$order_id ) || ( !$order_line_id )) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
 
 			$order_line_data = $this->OrderLine->find('first',array('conditions'=>array('OrderLine.id'=>$order_line_id, 'OrderLine.order_id'=>$order_id)));
-			if(empty($order_line_data)) { $this->redirect( '/pages/err_order_no_data', null, true ); }
+			if(empty($order_line_data)){
+				$this->redirect( '/pages/err_order_no_data', null, true ); 
+			}
 
 
 			// Check deletion is allowed
@@ -282,7 +301,8 @@ class OrderLinesController extends OrderAppController {
 			}
 			$this->set('atim_structure', $atim_structure);
 			$this->set('aliquot_master_id', $aliquot_id);
-
+			$this->set('atim_menu', $this->Menus->get("/order/orders/index/"));
+			
 			$hook_link = $this->hook('format');
 			if($hook_link){
 				require($hook_link);

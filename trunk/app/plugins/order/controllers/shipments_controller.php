@@ -109,7 +109,8 @@ class ShipmentsController extends OrderAppController {
 		
 		if(!empty($order_item)){
 			$order_item['OrderItem']['shipment_id'] = null;
-			$order_item['AliquotMaster']['status'] = 'pending';
+			$order_item['OrderItem']['status'] = 'pending';
+			$order_item['AliquotMaster']['status'] = 'reserved for order';
 			
 			$submitted_data_validates = true;
 			$hook_link = $this->hook('delete');
@@ -152,6 +153,7 @@ class ShipmentsController extends OrderAppController {
 						$aliquot_master['AliquotMaster'] = $full_order_item['AliquotMaster'];
 						$order_item['OrderItem']['shipment_id'] = $shipment_id;
 						$aliquot_master['AliquotMaster']['status'] = "shipped";
+						$order_item['OrderItem']['status'] = "shipped";
 						$this->OrderItem->save($order_item);
 						$this->AliquotMaster->save($aliquot_master);
 					}
@@ -161,7 +163,7 @@ class ShipmentsController extends OrderAppController {
 		}else{
 			$this->set('atim_menu_variables', array('Order.id' => $order_id, 'Shipment.id' => $shipment_id));
 			$this->set('atim_structure', $this->Structures->get('form', 'orderitems'));
-			$this->data = $this->OrderItem->find('all', array('conditions' => array('OrderLine.order_id' => $order_id, 'OrderItem.shipment_id IS NULL')));
+			$this->data = $this->OrderItem->find('all', array('conditions' => array('OrderLine.order_id' => $order_id, 'OrderItem.shipment_id IS NULL', 'OrderItem.deleted' => 0)));
 		}		
 	}
 	
