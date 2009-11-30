@@ -40,7 +40,6 @@ class OrderItemsController extends OrderAppController {
 	function add( $order_id, $order_line_id, $aliquot_master_id = null ) {
 //		my function (aliquot->addToOrder) must call this add
 //		orderItemShipmentId
-
 		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', null, true ); }
 		if ( !$order_line_id ) { $this->redirect( '/pages/err_ord_no_line_id', null, true ); }
 		$tmp = $this->OrderLine->find('first', array('conditions' => array('OrderLine.id' => $order_line_id, 'Order.id' => $order_id, 'OrderLine.deleted' => '0')));
@@ -159,7 +158,7 @@ class OrderItemsController extends OrderAppController {
 		if ( !$order_item_id ) { $this->redirect( '/pages/err_ord_no_item_id', null, true ); }
 		
 		$tmp = $this->OrderItem->find('first', array('conditions' => array('OrderItem.id' => $order_item_id, 'OrderLine.id' => $order_line_id, 'OrderLine.deleted' => '0')));
-		if ( $tmp['Shipment']['id'] == "") {
+		if($tmp['Shipment']['id'] == ""){
 			$aliquot_master['AliquotMaster'] = $tmp['AliquotMaster'];
 			$aliquot_master['AliquotMaster']['status'] = 'available';
 
@@ -174,8 +173,8 @@ class OrderItemsController extends OrderAppController {
 				$this->OrderItem->atim_delete( $order_item_id );
 				$this->flash( 'Your data has been deleted.', '/order/order_items/listall/'.$order_id.'/'.$order_line_id );
 			}
-		} else {
-			$this->redirect( '/pages/err_order_no_data', null, true );
+		}else{
+			$this->flash( "This item cannot be deleted because it was already shipped.", '/order/order_items/listall/'.$order_id.'/'.$order_line_id );
 		}
 	}
 	
