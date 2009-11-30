@@ -66,9 +66,9 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 			if( $hook_link ) { require($hook_link); }	
 			
 			if($submitted_data_validates) {
-					if ( $this->MiscIdentifier->save($this->data) ) {
-						$this->flash( 'Your data has been saved.','/clinicalannotation/misc_identifiers/detail/'.$participant_id.'/'.$this->MiscIdentifier->id );
-					}
+				if ( $this->MiscIdentifier->save($this->data) ) {
+					$this->flash( 'Your data has been saved.','/clinicalannotation/misc_identifiers/detail/'.$participant_id.'/'.$this->MiscIdentifier->id );
+				}
 			}
 		}
 	}
