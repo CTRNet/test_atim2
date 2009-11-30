@@ -13,108 +13,161 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 	var $paginate = array('DiagnosisMaster'=>array('limit'=>10,'order'=>'DiagnosisMaster.dx_date')); 
 	
 	function listall( $participant_id=null ) {
-		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
+		if ( !$participant_id ) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
+		
+		// MANAGE DATA
+		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
+		if(empty($participant_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }	
+		
+		$this->data = $this->paginate($this->DiagnosisMaster, array('DiagnosisMaster.participant_id'=>$participant_id));
+		
+		// MANAGE FORM, MENU AND ACTION BUTTONS
+		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id));
 		$this->set('diagnosis_controls_list', $this->DiagnosisControl->find('all', array('conditions' => array('DiagnosisControl.status' => 'active'))));
 		
-		$this->hook();
-		
-		$this->data = $this->paginate($this->DiagnosisMaster,	array('DiagnosisMaster.participant_id'=>$participant_id));
-		
-		//$storage_data = $this->DiagnosisControl->find('first', array('conditions' => array('DiagnosisControl.id' => 1)));
-		//$this->set('atim_structure', $this->Structures->get('form', $storage_data['DiagnosisControl']['form_alias']));		
+		// CUSTOM CODE: FORMAT DISPLAY DATA
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { require($hook_link); }			
 	}
 
-	function detail( $participant_id=null, $diagnosis_master_id=null) {
-		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if ( !$diagnosis_master_id ) { $this->redirect( '/pages/err_clin-ann_no_diagnosis_master_id', NULL, TRUE ); }
+	function detail( $participant_id, $diagnosis_master_id ) {
+		if (( !$participant_id ) && ( !$diagnosis_master_id )) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
 	
-		$this->hook();
+		// MANAGE DATA
+		$dx_master_data = $this->DiagnosisMaster->find('first',array('conditions'=>array('DiagnosisMaster.id'=>$diagnosis_master_id, 'DiagnosisMaster.participant_id'=>$participant_id)));
+		if(empty($dx_master_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }		
+		$this->data = $dx_master_data;
 		
-		$storage_data = $this->DiagnosisMaster->find('first',array('conditions'=>array('DiagnosisMaster.id'=>$diagnosis_master_id)));
-		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'DiagnosisMaster.id'=>$diagnosis_master_id, 'DiagnosisMaster.diagnosis_control_id' => $storage_data['DiagnosisMaster']['diagnosis_control_id']) );
-
-		$storage_data = $this->DiagnosisControl->find('first', array('conditions' => array('DiagnosisControl.id' => $storage_data['DiagnosisMaster']['diagnosis_control_id'])));
-		$this->set('atim_structure', $this->Structures->get('form', $storage_data['DiagnosisControl']['form_alias']));
-		
-		$this->data = $this->DiagnosisMaster->find('first',array('conditions'=>array('DiagnosisMaster.id'=>$diagnosis_master_id)));
-		
+		// MANAGE FORM, MENU AND ACTION BUTTONS
+		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'DiagnosisMaster.id'=>$diagnosis_master_id, 'DiagnosisMaster.diagnosis_control_id' => $dx_master_data['DiagnosisMaster']['diagnosis_control_id']) );
+		$dx_control_data = $this->DiagnosisControl->find('first', array('conditions' => array('DiagnosisControl.id' => $dx_master_data['DiagnosisMaster']['diagnosis_control_id'])));
+		$this->set('atim_structure', $this->Structures->get('form', $dx_control_data['DiagnosisControl']['form_alias']));
+	
+		// CUSTOM CODE: FORMAT DISPLAY DATA
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { require($hook_link); }
 	}
 
-	function add( $participant_id=null, $table_id=null ) {
-		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if(!$table_id){ $this->redirect( '/pages/err_missing_param', NULL, TRUE ); }
-		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, "tableId"=>$table_id));
-		$this->set( 'atim_menu', $this->Menus->get('/clinicalannotation/diagnosis_masters/listall/') );
-		
-		$storage_data = $this->DiagnosisControl->find('first', array('conditions' => array('DiagnosisControl.id' => $table_id)));
-		$this->set('atim_structure', $this->Structures->get('form', $storage_data['DiagnosisControl']['form_alias']));
+	function add( $participant_id=null, $dx_control_id=null ) {
+		if (( !$participant_id ) && ( !$dx_control_id )) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
 
-		$this->hook();
+		// MANAGE DATA
+		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
+		if(empty($participant_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
+		
+		// MANAGE FORM, MENU AND ACTION BUTTONS
+		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, "tableId"=>$dx_control_id));
+		$this->set( 'atim_menu', $this->Menus->get('/clinicalannotation/diagnosis_masters/listall/') );
+		$dx_control_data = $this->DiagnosisControl->find('first', array('conditions' => array('DiagnosisControl.id' => $dx_control_id)));
+		$this->set('atim_structure', $this->Structures->get('form', $dx_control_data['DiagnosisControl']['form_alias']));
+
+		// CUSTOM CODE: FORMAT DISPLAY DATA
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { require($hook_link); }
 		
 		if ( !empty($this->data) ) {
 			$this->data['DiagnosisMaster']['participant_id'] = $participant_id;
-			$this->data['DiagnosisMaster']['diagnosis_control_id'] = $table_id;
-			$this->data['DiagnosisMaster']['type'] = $storage_data['DiagnosisControl']['controls_type']; 
+			$this->data['DiagnosisMaster']['diagnosis_control_id'] = $dx_control_id;
+			$this->data['DiagnosisMaster']['type'] = $dx_control_data['DiagnosisControl']['controls_type']; 
+
+			$submitted_data_validates = true;
+			// ... special validations
 			
-			if ( $this->DiagnosisMaster->save( $this->data )) {
-				$this->flash( 'Your data has been saved.', '/clinicalannotation/diagnosis_masters/detail/'.$participant_id.'/'.$this->DiagnosisMaster->id.'/' );
+			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
+			$hook_link = $this->hook('presave_process');
+			if( $hook_link ) { require($hook_link); }
+			
+			if($submitted_data_validates) {
+				if ( $this->DiagnosisMaster->save( $this->data )) {
+					$this->flash( 'your data has been saved', '/clinicalannotation/diagnosis_masters/detail/'.$participant_id.'/'.$this->DiagnosisMaster->id.'/' );
+				}
 			}
 		}
 	}
 
-	function edit( $participant_id=null, $diagnosis_master_id=null) {
-		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if ( !$diagnosis_master_id ) { $this->redirect( '/pages/err_clin-ann_no_diagnosis_master_id', NULL, TRUE ); }
+	function edit( $participant_id, $diagnosis_master_id ) {
+		if (( !$participant_id ) && ( !$diagnosis_master_id )) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }	
 
+		// MANAGE DATA
+		$dx_master_data = $this->DiagnosisMaster->find('first',array('conditions'=>array('DiagnosisMaster.id'=>$diagnosis_master_id, 'DiagnosisMaster.participant_id'=>$participant_id)));
+		if(empty($dx_master_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
+		
+		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'DiagnosisMaster.id'=>$diagnosis_master_id));
+		$dx_control_data = $this->DiagnosisControl->find('first', array('conditions' => array('DiagnosisControl.id' => $dx_master_data['DiagnosisMaster']['diagnosis_control_id'])));
+		$this->set('atim_structure', $this->Structures->get('form', $dx_control_data['DiagnosisControl']['form_alias']));
 		
-		$storage_data = $this->DiagnosisMaster->find('first',array('conditions'=>array('DiagnosisMaster.id'=>$diagnosis_master_id)));
-		$storage_data = $this->DiagnosisControl->find('first', array('conditions' => array('DiagnosisControl.id' => $storage_data['DiagnosisMaster']['diagnosis_control_id'])));
-		$this->set('atim_structure', $this->Structures->get('form', $storage_data['DiagnosisControl']['form_alias']));
+		// CUSTOM CODE: FORMAT DISPLAY DATA
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { require($hook_link); }
 		
-		$this->hook();
-		
-		if ( !empty($this->data) ) {
-			$this->DiagnosisMaster->id = $diagnosis_master_id;
-
-			if ( $this->DiagnosisMaster->save($this->data) ) {
-				$this->flash( 'Your data has been updated.','/clinicalannotation/diagnosis_masters/detail/'.$participant_id.'/'.$diagnosis_master_id );
-			}
+		if(empty($this->data)) {
+			$this->data = $dx_master_data;
 		} else {
-			$this->data = $this->DiagnosisMaster->find('first',array('conditions'=>array('DiagnosisMaster.id'=>$diagnosis_master_id)));
+			$submitted_data_validates = true;
+			// ... special validations
+			
+			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
+			$hook_link = $this->hook('presave_process');
+			if( $hook_link ) { require($hook_link); }
+			
+			if($submitted_data_validates) {
+				$this->DiagnosisMaster->id = $diagnosis_master_id;
+				if ( $this->DiagnosisMaster->save($this->data) ) {
+					$this->flash( 'your data has been updated','/clinicalannotation/diagnosis_masters/detail/'.$participant_id.'/'.$diagnosis_master_id );
+				}
+			}
 		}
 	}
 
-	function delete( $participant_id=null, $diagnosis_master_id=null ) {
-		if ( !$participant_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
-		if ( !$diagnosis_master_id ) { $this->redirect( '/pages/err_clin-ann_no_diagnosis_master_id', NULL, TRUE ); }
-		
-		$treatment_id = $this->TreatmentMaster->find('first', array('conditions'=>array('TreatmentMaster.diagnosis_master_id'=>$diagnosis_master_id, 'TreatmentMaster.deleted'=>0),'fields'=>array('TreatmentMaster.id'))); 
-		$event_id = $this->EventMaster->find('first', array('conditions'=>array('EventMaster.diagnosis_master_id'=>$diagnosis_master_id, 'EventMaster.deleted'=>0),'fields'=>array('EventMaster.id')));
-		//$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'DiagnosisMaster.id'=>$diagnosis_master_id));
+	function delete( $participant_id, $diagnosis_master_id ) {
+		if (( !$participant_id ) && ( !$diagnosis_master_id )) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
+	
+		// MANAGE DATA
+		$diagnosis_master_data = $this->DiagnosisMaster->find('first',array('conditions'=>array('DiagnosisMaster.id'=>$diagnosis_master_id, 'DiagnosisMaster.participant_id'=>$participant_id)));
+		if(empty($diagnosis_master_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
 
-		if( $treatment_id == NULL && $event_id == NULL ){
-			$this->hook();
-			
+		$arr_allow_deletion = $this->allowDiagnosisDeletion($diagnosis_master_id);
+		
+		// CUSTOM CODE		
+		$hook_link = $this->hook('delete');
+		if( $hook_link ) { require($hook_link); }
+		
+		if($arr_allow_deletion['allow_deletion']) {
 			if( $this->DiagnosisMaster->atim_delete( $diagnosis_master_id ) ) {
-				$this->flash( 'Your data has been deleted.', '/clinicalannotation/diagnosis_masters/listall/'.$participant_id );
+				$this->flash( 'your data has been deleted', '/clinicalannotation/diagnosis_masters/listall/'.$participant_id );
 			} else {
-				$this->flash( 'Error deleting data - Contact administrator.', '/clinicalannotation/diagnosis_masters/listall/'.$participant_id );
+				$this->flash( 'error deleting data - contact administrator', '/clinicalannotation/diagnosis_masters/listall/'.$participant_id );
 			}
 		} else {
-			$message = "Your data cannot be deleted because the following records exist: ";
-			if( $treatment_id != NULL ){
-				$message = $message."A treatment record exists, ";
-			}
-			if( $event_id != NULL ){
-				$message = $message."An annotation record exists, ";
-			}
-			
-			$message = substr($message, 0, -2);
-			
-			$this->flash( $message, '/clinicalannotation/diagnosis_masters/details/'.$participant_id.'/'.$diagnosis_master_id.'/');
-		}
+			$this->flash($arr_allow_deletion['msg'], '/clinicalannotation/diagnosis_masters/detail/'.$participant_id.'/'.$consent_master_id);
+		}		
 	}
+	
+	/* --------------------------------------------------------------------------
+	 * ADDITIONAL FUNCTIONS
+	 * -------------------------------------------------------------------------- */
+
+	/**
+	 * Check if a record can be deleted.
+	 * 
+	 * @param $diagnosis_master_id Id of the studied record.
+	 * 
+	 * @return Return results as array:
+	 * 	['allow_deletion'] = true/false
+	 * 	['msg'] = message to display when previous field equals false
+	 * 
+	 * @author N. Luc
+	 * @since 2007-10-16
+	 */
+	 
+	function allowDiagnosisDeletion($diagnosis_master_id){
+		//$returned_nbr = $this->LinkedModel->find('count', array('conditions' => array('LinkedModel.family_history_id' => $family_history_id), 'recursive' => '-1'));
+		//if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'a LinkedModel exists for the deleted family history'); }
+		
+		// $treatment_id = $this->TreatmentMaster->find('first', array('conditions'=>array('TreatmentMaster.diagnosis_master_id'=>$diagnosis_master_id, 'TreatmentMaster.deleted'=>0),'fields'=>array('TreatmentMaster.id'))); 
+		// $event_id = $this->EventMaster->find('first', array('conditions'=>array('EventMaster.diagnosis_master_id'=>$diagnosis_master_id, 'EventMaster.deleted'=>0),'fields'=>array('EventMaster.id')));
+		return array('allow_deletion' => true, 'msg' => '');
+	}	
 }
 ?>
