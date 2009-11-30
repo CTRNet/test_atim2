@@ -1912,16 +1912,16 @@ CREATE TABLE IF NOT EXISTS `menus` (
 CREATE TABLE `misc_identifiers` (
   `id` int(11) NOT NULL auto_increment,
   `identifier_value` varchar(40) default NULL,
-  `name` varchar(50) default NULL,
+  `identifier_name` varchar(50) default NULL,
   `identifier_abrv` varchar(20) default NULL,
   `effective_date` date default NULL,
   `expiry_date` date default NULL,
-  `memo` varchar(100) default NULL,
+  `notes` varchar(100) default NULL,
+  `participant_id` int(11) default NULL,
   `created` datetime default NULL,
   `created_by` varchar(50) default NULL,
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `participant_id` int(11) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
@@ -1931,22 +1931,21 @@ CREATE TABLE `misc_identifiers` (
 CREATE TABLE `misc_identifiers_revs` (
   `id` int(11) NOT NULL,
   `identifier_value` varchar(40) default NULL,
-  `name` varchar(50) default NULL,
+  `identifier_name` varchar(50) default NULL,
   `identifier_abrv` varchar(20) default NULL,
   `effective_date` date default NULL,
   `expiry_date` date default NULL,
-  `memo` varchar(100) default NULL,
+  `notes` varchar(100) default NULL,
+  `participant_id` int(11) default NULL,
   `created` datetime default NULL,
   `created_by` varchar(50) default NULL,
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `participant_id` int(11) default NULL,
-  `version_id` int(11) NOT NULL AUTO_INCREMENT,
-  `version_created` datetime NOT NULL,
   `deleted`  int(11) default NULL,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  INDEX `participant_id` (`participant_id`)
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -2251,16 +2250,16 @@ CREATE TABLE `participant_messages` (
   `id` int(11) NOT NULL auto_increment,
   `date_requested` date default NULL,
   `author` varchar(50) default NULL,
-  `type` varchar(20) default NULL,
+  `message_type` varchar(20) default NULL,
   `title` varchar(50) default NULL,
   `description` text,
   `due_date` datetime default NULL,
   `expiry_date` date default NULL,
+  `participant_id` int(11) default NULL,
   `created` datetime default NULL,
   `created_by` varchar(50) default NULL,
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `participant_id` int(11) default NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
@@ -2271,22 +2270,21 @@ CREATE TABLE `participant_messages_revs` (
   `id` int(11) NOT NULL,
   `date_requested` date default NULL,
   `author` varchar(50) default NULL,
-  `type` varchar(20) default NULL,
+  `message_type` varchar(20) default NULL,
   `title` varchar(50) default NULL,
   `description` text,
   `due_date` datetime default NULL,
   `expiry_date` date default NULL,
+  `participant_id` int(11) default NULL,
   `created` datetime default NULL,
   `created_by` varchar(50) default NULL,
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `participant_id` int(11) default NULL,
-  `version_id` int(11) NOT NULL AUTO_INCREMENT,
-  `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  INDEX `participant_id` (`participant_id`)
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 --
@@ -3061,7 +3059,7 @@ CREATE TABLE `reproductive_histories_revs` (
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
--- 
+--
 -- Table structure for table `review_controls`
 -- 
 

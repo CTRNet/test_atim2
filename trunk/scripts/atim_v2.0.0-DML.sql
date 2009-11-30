@@ -1,4 +1,6 @@
--- ATiM v2.0.0
+ï»¿-- ATiM v2.0.0
+
+USE `atim`;
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 SET FOREIGN_KEY_CHECKS=0;
@@ -3527,7 +3529,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('clinical collection link error', 'global', 'Clinical Collection Link Error', 'Erreur dans la d&eacute;finition des liens de la collection'),
 ('clinical stage', 'global', 'Clinical Stage', ''),
 ('clinicalannotation', 'global', 'Clinical Annotation', 'Annotation Clinique'),
-('clinicalannotation_module_description', 'global', 'To describe...<br><br><br><font color="#ff0000">Please note:\r\nThis application contains sample data for demonstration purposes only. Any similarity to people or persons living or dead is entirely coincidental.</font><br>', '&Agrave; d&eacute;crire...<br><br><br><font color="#ff0000">Note:\r\nCette application contient des données fictives. Toutes similarit&eacute;s avec des personnes existantes ou mortes est une coincidence.</font><br>'),
+('clinicalannotation_module_description', 'global', 'To describe...<br><br><br><font color="#ff0000">Please note:\r\nThis application contains sample data for demonstration purposes only. Any similarity to people or persons living or dead is entirely coincidental.</font><br>', '&Agrave; d&eacute;crire...<br><br><br><font color="#ff0000">Note:\r\nCette application contient des donnï¿½es fictives. Toutes similarit&eacute;s avec des personnes existantes ou mortes est une coincidence.</font><br>'),
 ('clinicalannotation_module_title', 'global', 'Module Description', 'Description du Module'),
 ('clin_demographics', 'global', 'Demographics', ''),
 ('clin_english', 'global', 'English', ''),
