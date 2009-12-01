@@ -166,6 +166,7 @@ div#wrapper div.actions {
 	height: 25px;
 	padding: 10px 0 10px 20px;
 	margin: 0;
+	margin-left: -1px;
 	border: 1px solid #243340;
 	border-color: #243340;
 	border-top: none;
@@ -186,23 +187,39 @@ div#wrapper div.actions {
 		float: left;
 		padding: 0 10px 0 0;
 	}
-	div#wrapper div.actions a {
+	div#wrapper div.actions div {
+		background: url(../img/btnBack.png);
+		-moz-border-radius: 7px; -webkit-border-radius: 7px;
+		border-color: #999999;
+		border-style: solid;
+		border-width: 1px;
+		margin-left: 5px;
+		margin-right: 5px;
+		display: inline-block;
+	}
+	
+	
+	div#wrapper div.actions div a {
 		/* font-weight: bold; */
 		font-size: 12px;
 		/* text-transform: uppercase; */
 		text-decoration: none;
 		background-position: 8px center;
-		background-color: #c1d7e9;
+		/*background-color: #c1d7e9;*/
 		padding: 5px 10px 4px 27px;
+		color: #000;
 		
 		-moz-border-radius: 7px; -webkit-border-radius: 7px;
 		
 	}
+	div#wrapper div.actions div:hover {
+		border-color: #000;
+		background-image: url("../img/btnBackSel.png");
+	}
 	
 	div#wrapper div.actions ul li.at a,
-	div#wrapper div.actions ul li a:hover {
-		background-color: #486680;
-		color: #fff;
+	div#wrapper div.actions div a:hover{
+		color: #000;
 	}
 	
 	div#wrapper div.actions a.not_allowed {
@@ -211,10 +228,6 @@ div#wrapper div.actions {
 	div#wrapper div.actions a.search_results {
 		background-position: 7px center;
 		padding: 5px 10px 5px 25px;
-	}
-	div#wrapper div.actions a.search_results:hover {
-		background-color: #486680;
-		color: #fff;
 	}
 	
 	div#wrapper div.actions ul ul.filter {
@@ -234,8 +247,6 @@ div#wrapper div.actions {
 		position: relative;
 	}
 	div#wrapper div.actions ul ul.filter li a.form.popup {
-		margin: 0;
-		line-height: 16px;
 		z-index: 5000;
 	}
 	
@@ -246,65 +257,79 @@ div#wrapper div.actions {
 	}
 	
 	div#wrapper div.actions ul ul.filter:hover a {
-		background-color: #486680;
-		color: #fff;
+		/*background-color: #486680;
+		color: #fff;*/
 	}
 
 	div#wrapper div.actions ul ul.filter li:hover div.filter_menu {
+	
 		display: block;
 		width: 200px;
-		top: -70px;
-		right: 55px;
-		height: 70px;
+		top: 22px;
+		right: 5px;
+		/*height: 70px; no scrollable menu*/
 		overflow: hidden;
-		line-height: 20px;
+		line-height: 14px;
 		position: absolute;
-		background: #486680;
+		background: #a9a9a9;
 		margin: 0;
-		padding: 10px 0;
 		text-align: left;
-		-moz-border-radius: 15px; -webkit-border-radius: 15px;
-		-moz-border-radius-bottomright: 0; -webkit-border-bottom-right-radius: 0;
-		z-index: 1000;
+		border-color: #000000;
+		-moz-border-radius-bottomleft: 15px; -webkit-border-bottom-left-radius: 15px;
+		-moz-border-radius-topleft: 15px; -webkit-border-top-left-radius: 15px;
+		-moz-border-radius-bottomright: 15px; -webkit-border-bottom-right-radius: 15px;
+		-moz-border-radius-topright: 0px; -webkit-border-top-right-radius: 0px;
 	}
 	div#wrapper div.actions ul ul.filter li:hover span,
 	div#wrapper div.actions ul ul.filter li:hover span a {
 		color: #fff;
 	}
-	div#wrapper div.actions ul ul.filter div.filter_menu ul {
-			padding-top: 10px !important;
-			padding-bottom: 10px !important;
-	}
 	div#wrapper div.actions ul ul.filter div.filter_menu ul li {
 		width: 200px;
 		margin: 0;
-		padding: 3px 10px;
+		padding-left: 10px;
+		padding-right: 10px;
 		w\idth: 180px;
 		border: 0;
 		border-top: 1px dotted #ccc;
 		background: none;
 		color: #999;
 		z-index: 5;
+		background-image: url("../img/btnBack.png");
 	}
+	div#wrapper div.actions ul ul.filter div.filter_menu ul li:hover {
+		background-image: url("../img/btnBackSel.png");
+	}
+	
 	div#wrapper div.actions ul ul.filter div.filter_menu ul li a {
+		color: #000000;
+		display: none;
 		-moz-border-radius: 0; -webkit-border-radius: 0;
 	}
-	div#wrapper div.actions ul ul.filter div.filter_menu ul li:hover a {
-		background-color: #4D6E89;
-/* 		-moz-border-radius: 7px; -webkit-border-radius: 7px; */
-	}
+
 	div#wrapper div.actions ul ul.filter div.filter_menu ul li.count_0 {
 		border: 0;
 		margin: 0;
+		-moz-border-radius-topleft: 15px; -webkit-border-top-left-radius: 15px;
+	}
+	div#wrapper div.actions ul ul.filter div.filter_menu ul li.count_last_line {
+		border: 0;
+		margin: 0;
+		-moz-border-radius-bottomleft: 15px; -webkit-border-bottom-left-radius: 15px;
+		-moz-border-radius-bottomright: 15px; -webkit-border-bottom-right-radius: 15px;
 	}
 	div#wrapper div.actions ul ul.filter div.filter_menu ul li a {
+		/*background-color: #4D6E89;*/
+		line-height: 18px;
 		float: none;
 		display: block;
 		text-transform: none;
 		font-weight: normal;
 		font-size: 11px;
-		color: #fff;
 		cursor: pointer;
+	}
+	div#wrapper div.actions ul ul.filter div.filter_menu ul li a:hover {
+		color: #fff;
 	}
 	
 	div#wrapper div.actions ul ul.filter ul li a.not_allowed {
@@ -1012,7 +1037,7 @@ div.menu ul#summary ul dl lh {
 					a.redo { background: url("../img/icons/Refresh_16x16.png") no-repeat left center; }
 					a.summary { background: url("../img/icons/Paste_16x16.png") no-repeat left center; }
 					a.search { background: url("../img/icons/Preview_16x16.png") no-repeat left center; }
-					a.search_results { background: #5081a5 url("../img/icons/Preview_16x16.png") no-repeat left center; }
+					a.search_results { background: url("../img/icons/Preview_16x16.png") no-repeat left center; }
 					a.thumbsdown { background: url("../img/icons/Flag Black_16x16.png") no-repeat left center; }
 					a.thumbsup { background: url("../img/icons/Flag Green_16x16.png") no-repeat left center; }
 					a.users { background: url("../img/icons/Group_16x16.png") no-repeat left center; }
@@ -1086,6 +1111,7 @@ div.menu ul#summary ul dl lh {
 					}
 					
 					div#wrapper div#frame div.actions {
+						/*tabs*/
 						background: none;
 						padding: 5px 0 0 20px;
 						margin: 2px;
@@ -1094,9 +1120,7 @@ div.menu ul#summary ul dl lh {
 					}
 					
 					div#wrapper div#frame div.actions a {
-						background-color: #486680;
 						padding: 5px 10px 4px 27px;
-						color: #dde8f2;
 						
 						-moz-border-radius: 7px; -webkit-border-radius: 7px;
 						-moz-border-radius-topleft: 0; -webkit-border-top-left-radius: 0;
@@ -1104,8 +1128,6 @@ div.menu ul#summary ul dl lh {
 					}
 										
 					div#wrapper div#frame div.actions a:hover {
-						background-color: #293B49; 
-						color: #fff;
 					}
 							
 			div#wrapper table.structure table.columns tr.pagination th {
@@ -1139,31 +1161,49 @@ div.menu ul#summary ul dl lh {
 
 	fieldset.submit {
 		margin: 0;
-		background-color: #fff;
+		margin-left: -1px;
 		
 		border-top: 1px solid #eaedf2; 
 		border-right: 1px solid #243340;
 		border-left: 1px solid #243340;
 	}
 	
-	fieldset.submit input {
+	fieldset.submit div span{
+		background: url(../img/btnBack.png);
+		display: inline-block;
 		margin: 10px;
-	}
-	fieldset.submit input.submit {
-		background: #c1d7e9 url("../img/icons/Save_16x16.png") no-repeat 10px center;
-		padding: 8px 12px 7px 30px;
-		color: #5081a5;
-		font-size: 12px;
-		border: none;
-		cursor: pointer;
+		line-height: 30px;
 		
 		-moz-border-radius: 9px; -webkit-border-radius: 9px;
 	}
 	
-		fieldset.submit input.submit:hover {
-			background-color: #486680; 
-			color: #fff;
-		}
+	fieldset.submit input.submit,
+	#submit_button_link {
+		background-image: url("../img/icons/Save_16x16.png");
+		background-repeat: no-repeat;
+		background-position: 10px center; 
+		background-color: none;
+		padding: 8px 12px 7px 30px;
+		font-size: 12px;
+		border: solid;
+		border-width: 1px;
+		cursor: pointer;
+		border-color: #999999;
+		text-decoration:none;
+		color: #000;
+		
+		-moz-border-radius: 9px; -webkit-border-radius: 9px;
+	}
+	
+	fieldset.submit div span:hover{
+		background-image: url("../img/btnBackSel.png");
+	}
+	
+	fieldset.submit input.submit:hover,
+	#submit_button_link:hover {
+		/*background-color: #486680;*/ 
+		border-color: #000;
+	}
 	
 	div#validation {
 		margin: 0 10px;
