@@ -33,10 +33,6 @@ class OrderItemsController extends OrderAppController {
 	}
 	
 	
-	
-	
-	
-	
 	function add( $order_id, $order_line_id, $aliquot_master_id = null ) {
 //		my function (aliquot->addToOrder) must call this add
 //		orderItemShipmentId
@@ -71,9 +67,12 @@ class OrderItemsController extends OrderAppController {
 				$this->data['OrderItem']['order_line_id'] = $order_line_id;
 				$this->data['OrderItem']['aliquot_master_id'] = $aliquot_master['AliquotMaster']['id'];
 				unset($this->data['AliquotMaster']);
-				
+				$order_line = $this->OrderLine->find('first', array('conditions' => array('OrderLine.id' => $order_line_id), 'recursive' => 0));
+				$order_line['OrderLine']['status'] = 'pending';
+				pr($order_line);
 				if($submitted_data_validates){
 					$this->OrderItem->save($this->data);
+					$this->OrderLine->save($order_line);
 					$aliquot_master['AliquotMaster']['status'] = 'reserved for order';
 					$this->AliquotMaster->save($aliquot_master);
 					$this->flash('Your data has been saved.', '/order/order_items/listall/'.$order_id.'/'.$order_line_id.'/');
@@ -169,6 +168,13 @@ class OrderItemsController extends OrderAppController {
 			}
 			
 			if($submitted_data_validates) {
+				$order_item_nshipped_count = $this->OrderItem->find('count', array('conditions' => array('OrderItem.status != "shipped"', 'OrderItem.order_line_id' => $order_line_id), 'recursive' => 0));
+				$order_item_count = $this->OrderItem->find('count', array('conditions' => array('OrderItem.order_line_id' => $order_line_id), 'recursive' => 0));
+				if($order_item_nshipped_count > 0 || sizeof($order_item_count) == 0){
+					$order_line = $this->OrderLine->find('first', array('conditions' => array('OrderLine.id' => $order_line_id), 'recursive' => 0));
+					$order_line['OrderLine']['status'] = 'pending';
+					$this->OrderLine->save($order_line);
+				}
 				$this->AliquotMaster->save($aliquot_master);
 				$this->OrderItem->atim_delete( $order_item_id );
 				$this->flash( 'Your data has been deleted.', '/order/order_items/listall/'.$order_id.'/'.$order_line_id );
