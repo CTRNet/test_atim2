@@ -122,6 +122,24 @@ class AppController extends Controller {
 			$this->set( 'atim_menu', $this->Menus->get() );
 			
 	}
+
+	/**
+	 * Get the structure based on the submitted alias and set the 'validate'
+	 * attibutes for each models (linked to the structure). 
+	 * 
+	 * @param $new_form_alias Alias of the expected structure
+	 * 
+	 * @return New structure data
+	 * 
+	 * @author N. Luc
+	 * @since 2007-10-16
+	 */
+	 
+	function getNewStructure($new_form_alias) {
+		//TODO getNewStructure requires Wil validation
+		foreach ( $this->Structures->get('rules', $new_form_alias) as $model=>$rules ) $this->{ $model }->validate = $rules;
+		return $this->Structures->get('form', $new_form_alias);
+	}
 	
 	function hook( $hook_extension='' ) {
 		if ( $hook_extension ) $hook_extension = '_'.$hook_extension;
