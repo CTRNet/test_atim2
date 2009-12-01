@@ -8,13 +8,15 @@ class StructuresComponent extends Object {
 		$this->controller =& $controller;
 	}
 	
-	/*
-		Combined function to simplify plugin usage, sets validation for models AND sets atim_structure for view
-	*/
-	
-	function set( $alias=NULL ) {
+	/* Combined function to simplify plugin usage, 
+	 * sets validation for models AND sets atim_structure for view
+	 * 
+	 * @param $alias Form alias of the new structure
+	 * @param $structure_name Structure name (by default name will be 'atim_structure')
+	 */
+	function set( $alias=NULL, $structure_name = 'atim_structure' ) {
 		foreach ( $this->get('rules', $alias) as $model=>$rules ) $this->controller->{ $model }->validate = $rules;
-		$this->controller->set( 'atim_structure', $this->get('form', $alias) );
+		$this->controller->set( $structure_name, $this->get('form', $alias) );
 	}
 	
 	function get( $mode=NULL, $alias=NULL ) {
