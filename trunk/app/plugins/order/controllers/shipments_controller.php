@@ -2,7 +2,7 @@
 
 class ShipmentsController extends OrderAppController {
 	
-	var $uses = array('Order.Shipment', 'Order.Order', 'Order.OrderItem', 'Inventorymanagement.AliquotMaster');
+	var $uses = array('Order.Shipment', 'Order.Order', 'Order.OrderItem', 'Order.OrderLine', 'Inventorymanagement.AliquotMaster');
 	var $paginate = array('Shipment'=>array('limit'=>10,'order'=>'Shipment.shipment_code'));
 	
 	function listall( $order_id=null ) {
@@ -121,6 +121,10 @@ class ShipmentsController extends OrderAppController {
 			if($submitted_data_validates){
 				$this->AliquotMaster->save($order_item);
 				
+				$order_line['OrderLine']['id'] = $order_item['OrderItem']['order_line_id'];
+				$order_line['OrderLine']['status'] = 'pending';
+				$this->OrderLine->save($order_line);
+				
 				$this->OrderItem->save($order_item, false);//no validation because we just want to set the shipment_id to null and that is forbidden
 				$this->flash('Your data has been deleted.', '/order/shipments/shipmentItems/'.$order_id.'/'.$shipment_id.'/');
 			}
@@ -145,17 +149,30 @@ class ShipmentsController extends OrderAppController {
 				require($hook_link);
 			}
 			if($submitted_data_validates){
+				$order_line_to_update = array();
 				foreach($this->data['order_item_id'] as $item_id){
 					if($item_id != 0){
 						//this item ships!
 						$full_order_item = $this->OrderItem->find('first', array('conditions' => array('OrderItem.id' => $item_id, 'OrderLine.order_id' => $order_id, 'OrderItem.shipment_id IS NULL')));
 						$order_item['OrderItem'] = $full_order_item['OrderItem'];
+						$order_line_id = $full_order_item['OrderLine']['id'];
 						$aliquot_master['AliquotMaster'] = $full_order_item['AliquotMaster'];
 						$order_item['OrderItem']['shipment_id'] = $shipment_id;
 						$aliquot_master['AliquotMaster']['status'] = "shipped";
 						$order_item['OrderItem']['status'] = "shipped";
 						$this->OrderItem->save($order_item);
 						$this->AliquotMaster->save($aliquot_master);
+						
+						$order_line_to_update[$order_line_id] = "";
+					}
+				}
+				foreach($order_line_to_update as $order_line_id => $foo){
+					$items_counts = $this->OrderItem->find('count', array('conditions' => array('OrderItem.order_line_id' => $order_line_id, 'OrderItem.status != "shipped"')));
+					if($items_counts == 0){
+						//update if everything is shipped
+						$order_line['OrderLine']['id'] = $order_line_id;
+						$order_line['OrderLine']['status'] = "shipped";
+						$this->OrderLine->save($order_line);
 					}
 				}
 				$this->flash('Your data has been saved.', '/order/shipments/shipmentItems/'.$order_id.'/'.$shipment_id.'/');

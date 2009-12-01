@@ -89,6 +89,7 @@ class OrderLinesController extends OrderAppController {
 					
 				// Set order id
 				$this->data['OrderLine']['order_id'] = $order_id;
+				$this->data['OrderLine']['status'] = 'pending';
 					
 					
 				if ($submitted_data_validates && $this->OrderLine->save($this->data) ) {
