@@ -2,9 +2,8 @@
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 SET FOREIGN_KEY_CHECKS=0;
-
 --
--- Dumping data for table `acos`
+-- Dumping data for table`acos`
 --
 
 INSERT INTO `acos` (`id`, `parent_id`, `model`, `foreign_key`, `alias`, `lft`, `rght`) VALUES
@@ -460,97 +459,97 @@ INSERT INTO `acos` (`id`, `parent_id`, `model`, `foreign_key`, `alias`, `lft`, `
 (898, 892, NULL, NULL, 'delete', 896, 897);
 
 --
--- Dumping data for table `ad_bags`
+-- Dumping data for table`ad_bags`
 --
 
 
 --
--- Dumping data for table `ad_bags_revs`
+-- Dumping data for table`ad_bags_revs`
 --
 
 
 --
--- Dumping data for table `ad_blocks`
+-- Dumping data for table`ad_blocks`
 --
 
 
 --
--- Dumping data for table `ad_blocks_revs`
+-- Dumping data for table`ad_blocks_revs`
 --
 
 
 --
--- Dumping data for table `ad_cell_cores`
+-- Dumping data for table`ad_cell_cores`
 --
 
 
 --
--- Dumping data for table `ad_cell_cores_revs`
+-- Dumping data for table`ad_cell_cores_revs`
 --
 
 
 --
--- Dumping data for table `ad_cell_slides`
+-- Dumping data for table`ad_cell_slides`
 --
 
 
 --
--- Dumping data for table `ad_cell_slides_revs`
+-- Dumping data for table`ad_cell_slides_revs`
 --
 
 
 --
--- Dumping data for table `ad_gel_matrices`
+-- Dumping data for table`ad_gel_matrices`
 --
 
 
 --
--- Dumping data for table `ad_gel_matrices_revs`
+-- Dumping data for table`ad_gel_matrices_revs`
 --
 
 
 --
--- Dumping data for table `ad_tissue_cores`
+-- Dumping data for table`ad_tissue_cores`
 --
 
 
 --
--- Dumping data for table `ad_tissue_cores_revs`
+-- Dumping data for table`ad_tissue_cores_revs`
 --
 
 
 --
--- Dumping data for table `ad_tissue_slides`
+-- Dumping data for table`ad_tissue_slides`
 --
 
 
 --
--- Dumping data for table `ad_tissue_slides_revs`
+-- Dumping data for table`ad_tissue_slides_revs`
 --
 
 
 --
--- Dumping data for table `ad_tubes`
+-- Dumping data for table`ad_tubes`
 --
 
 
 --
--- Dumping data for table `ad_tubes_revs`
+-- Dumping data for table`ad_tubes_revs`
 --
 
 
 --
--- Dumping data for table `ad_whatman_papers`
+-- Dumping data for table`ad_whatman_papers`
 --
 
 
 --
--- Dumping data for table `ad_whatman_papers_revs`
+-- Dumping data for table`ad_whatman_papers_revs`
 --
 
 
 --
--- Dumping data for table `aliquot_controls`
+-- Dumping data for table`aliquot_controls`
 --
 
 INSERT INTO `aliquot_controls` (`id`, `aliquot_type`, `status`, `form_alias`, `detail_tablename`, `volume_unit`, `comment`, `display_order`) VALUES
@@ -571,34 +570,34 @@ INSERT INTO `aliquot_controls` (`id`, `aliquot_type`, `status`, `form_alias`, `d
 (15, 'tube', 'active', 'ad_der_cell_tubes_incl_ml_vol', 'ad_tubes', 'ml', 'Derivative tube requiring volume in ml specific for cells', 0);
 
 --
--- Dumping data for table `aliquot_masters`
+-- Dumping data for table`aliquot_masters`
 --
 
 
 --
--- Dumping data for table `aliquot_masters_revs`
+-- Dumping data for table`aliquot_masters_revs`
 --
 
 
 --
--- Dumping data for table `aliquot_uses`
+-- Dumping data for table`aliquot_uses`
 --
 
 
 --
--- Dumping data for table `aliquot_uses_revs`
+-- Dumping data for table`aliquot_uses_revs`
 --
 
 
 --
--- Dumping data for table `announcements`
+-- Dumping data for table`announcements`
 --
 
 INSERT INTO `announcements` (`id`, `user_id`, `group_id`, `bank_id`, `date`, `title`, `body`, `date_start`, `date_end`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 (1, 0, 0, 1, '2008-03-19', 'Welcome to ATiM!', 'This is a demonstration of the announcement system of the ATiM application. Thank you for joining our meeting! ', '2008-01-01', '2009-01-01', '2008-03-17 14:45:27', '1', '2008-04-10 14:18:41', '1');
 
 --
--- Dumping data for table `aros`
+-- Dumping data for table`aros`
 --
 
 INSERT INTO `aros` (`id`, `parent_id`, `model`, `foreign_key`, `alias`, `lft`, `rght`) VALUES
@@ -610,7 +609,7 @@ INSERT INTO `aros` (`id`, `parent_id`, `model`, `foreign_key`, `alias`, `lft`, `
 (6, 3, 'User', 3, 'User::3', 10, 11);
 
 --
--- Dumping data for table `aros_acos`
+-- Dumping data for table`aros_acos`
 --
 
 INSERT INTO `aros_acos` (`id`, `aro_id`, `aco_id`, `_create`, `_read`, `_update`, `_delete`) VALUES
@@ -619,7 +618,7 @@ INSERT INTO `aros_acos` (`id`, `aro_id`, `aco_id`, `_create`, `_read`, `_update`
 (15, 3, 449, '1', '1', '1', '1');
 
 --
--- Dumping data for table `atim_information`
+-- Dumping data for table`atim_information`
 --
 
 INSERT INTO `atim_information` (`id`, `tablename`, `field`, `data_element_identifier`, `datatype`, `created`, `created_by`, `modified`, `modified_by`) VALUES
@@ -2461,59 +2460,59 @@ INSERT INTO `atim_information` (`id`, `tablename`, `field`, `data_element_identi
 (1850, 'versions', 'modified_by', NULL, 'varchar', '0000-00-00 00:00:00', NULL, '0000-00-00 00:00:00', NULL);
 
 --
--- Dumping data for table `banks`
+-- Dumping data for table`banks`
 --
 
 INSERT INTO `banks` (`id`, `name`, `description`, `created_by`, `created`, `modified_by`, `modified`, `deleted`, `deleted_date`) VALUES
 (1, 'Default Bank', 'This is an example bank, that gets automatically created when the application is installed. You should renamed this, changing the title and description to match your own bank.', 0, '0000-00-00 00:00:00', 1, '2009-04-08 16:13:19', 0, '0000-00-00 00:00:00');
 
 --
--- Dumping data for table `banks_revs`
+-- Dumping data for table`banks_revs`
 --
 
 
 --
--- Dumping data for table `cd_atypes`
+-- Dumping data for table`cd_atypes`
 --
 
 
 --
--- Dumping data for table `cd_atypes_revs`
+-- Dumping data for table`cd_atypes_revs`
 --
 
 
 --
--- Dumping data for table `cd_btypes`
+-- Dumping data for table`cd_btypes`
 --
 
 
 --
--- Dumping data for table `cd_btypes_revs`
+-- Dumping data for table`cd_btypes_revs`
 --
 
 
 --
--- Dumping data for table `clinical_collection_links`
+-- Dumping data for table`clinical_collection_links`
 --
 
 
 --
--- Dumping data for table `clinical_collection_links_revs`
+-- Dumping data for table`clinical_collection_links_revs`
 --
 
 
 --
--- Dumping data for table `coding_adverse_events`
+-- Dumping data for table`coding_adverse_events`
 --
 
 
 --
--- Dumping data for table `coding_adverse_events_revs`
+-- Dumping data for table`coding_adverse_events_revs`
 --
 
 
 --
--- Dumping data for table `coding_icd10`
+-- Dumping data for table`coding_icd10`
 --
 
 INSERT INTO `coding_icd10` (`id`, `category`, `icd_group`, `site`, `subsite`, `description`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
@@ -2945,24 +2944,24 @@ INSERT INTO `coding_icd10` (`id`, `category`, `icd_group`, `site`, `subsite`, `d
 ('Z80.9', 'Malignant neoplasms', 'Family History', 'Unspecified', '', 'Family history of malignant neoplasm, unspecified', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '', 0, NULL);
 
 --
--- Dumping data for table `collections`
+-- Dumping data for table`collections`
 --
 
 
 --
--- Dumping data for table `collections_revs`
+-- Dumping data for table`collections_revs`
 --
 
 
 --
--- Dumping data for table `configs`
+-- Dumping data for table`configs`
 --
 
 INSERT INTO `configs` (`id`, `bank_id`, `group_id`, `user_id`, `config_debug`, `config_language`, `define_date_format`, `define_csv_separator`, `define_show_help`, `define_show_summary`, `define_pagination_amount`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 (1, 0, 0, 0, '2', 'eng', 'MDY', ',', '1', '1', '10', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
 
 --
--- Dumping data for table `consent_controls`
+-- Dumping data for table`consent_controls`
 --
 
 INSERT INTO `consent_controls` (`id`, `controls_type`, `status`, `form_alias`, `detail_tablename`, `display_order`) VALUES
@@ -2970,17 +2969,17 @@ INSERT INTO `consent_controls` (`id`, `controls_type`, `status`, `form_alias`, `
 (2, 'btype', 'active', 'c_btypes', 'cd_btypes', 0);
 
 --
--- Dumping data for table `consent_masters`
+-- Dumping data for table`consent_masters`
 --
 
 
 --
--- Dumping data for table `consent_masters_revs`
+-- Dumping data for table`consent_masters_revs`
 --
 
 
 --
--- Dumping data for table `datamart_adhoc`
+-- Dumping data for table`datamart_adhoc`
 --
 
 INSERT INTO `datamart_adhoc` (`id`, `description`, `plugin`, `model`, `form_alias_for_search`, `form_alias_for_results`, `form_links_for_results`, `sql_query_for_results`, `flag_use_query_results`, `created`, `created_by`, `modified`, `modified_by`) VALUES
@@ -2997,42 +2996,42 @@ INSERT INTO `datamart_adhoc` (`id`, `description`, `plugin`, `model`, `form_alia
 (12, 'Tissue Accrual Rate query, that searches by tissue type, collection date, and collection bank.', '', 'Collection', 'qry_tissue_search', 'qry_tissue_results', NULL, 'SELECT\r\n   Collection.id,\r\n   Collection.acquisition_label,\r\n   Collection.bank,\r\n   Collection.collection_datetime,\r\n   SampleMaster.id,\r\n   SampleMaster.sample_code,\r\n   SampleDetail.id,\r\n   SampleDetail.tissue_source\r\nFROM\r\n   `collections` AS Collection,\r\n   `sample_masters` AS SampleMaster,\r\n   `sd_spe_tissues` AS SampleDetail\r\nWHERE\r\n   Collection.bank LIKE "%@@Collection.bank@@%"\r\n   AND Collection.collection_datetime >= "@@Collection.collection_datetime_start@@"\r\n   AND Collection. collection_datetime <="@@Collection.collection_datetime_end@@"\r\n   AND SampleDetail.tissue_source LIKE "%@@SampleDetail.tissue_source@@%"\r\n   AND SampleMaster.collection_id = Collection.id\r\n   AND SampleDetail.sample_master_id = SampleMaster.id;\r\n', 1, '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 --
--- Dumping data for table `datamart_adhoc_favourites`
+-- Dumping data for table`datamart_adhoc_favourites`
 --
 
 
 --
--- Dumping data for table `datamart_adhoc_saved`
+-- Dumping data for table`datamart_adhoc_saved`
 --
 
 
 --
--- Dumping data for table `datamart_batch_ids`
+-- Dumping data for table`datamart_batch_ids`
 --
 
 
 --
--- Dumping data for table `datamart_batch_processes`
+-- Dumping data for table`datamart_batch_processes`
 --
 
 
 --
--- Dumping data for table `datamart_batch_sets`
+-- Dumping data for table`datamart_batch_sets`
 --
 
 
 --
--- Dumping data for table `derivative_details`
+-- Dumping data for table`derivative_details`
 --
 
 
 --
--- Dumping data for table `derivative_details_revs`
+-- Dumping data for table`derivative_details_revs`
 --
 
 
 --
--- Dumping data for table `diagnosis_controls`
+-- Dumping data for table`diagnosis_controls`
 --
 
 INSERT INTO `diagnosis_controls` (`id`, `controls_type`, `status`, `form_alias`, `detail_tablename`, `display_order`) VALUES
@@ -3040,137 +3039,137 @@ INSERT INTO `diagnosis_controls` (`id`, `controls_type`, `status`, `form_alias`,
 (2, 'Tissue', 'active', 'dx_tissues', 'dxd_tissues', 0);
 
 --
--- Dumping data for table `diagnosis_masters`
+-- Dumping data for table`diagnosis_masters`
 --
 
 
 --
--- Dumping data for table `diagnosis_masters_revs`
+-- Dumping data for table`diagnosis_masters_revs`
 --
 
 
 --
--- Dumping data for table `drugs`
+-- Dumping data for table`drugs`
 --
 
 
 --
--- Dumping data for table `drugs_revs`
+-- Dumping data for table`drugs_revs`
 --
 
 
 --
--- Dumping data for table `dxd_bloods`
+-- Dumping data for table`dxd_bloods`
 --
 
 
 --
--- Dumping data for table `dxd_bloods_rev`
+-- Dumping data for table`dxd_bloods_rev`
 --
 
 
 --
--- Dumping data for table `dxd_tissues`
+-- Dumping data for table`dxd_tissues`
 --
 
 
 --
--- Dumping data for table `dxd_tissues_rev`
+-- Dumping data for table`dxd_tissues_rev`
 --
 
 
 --
--- Dumping data for table `ed_allsolid_lab_pathology`
+-- Dumping data for table`ed_allsolid_lab_pathology`
 --
 
 
 --
--- Dumping data for table `ed_allsolid_lab_pathology_revs`
+-- Dumping data for table`ed_allsolid_lab_pathology_revs`
 --
 
 
 --
--- Dumping data for table `ed_all_adverse_events_adverse_event`
+-- Dumping data for table`ed_all_adverse_events_adverse_event`
 --
 
 
 --
--- Dumping data for table `ed_all_adverse_events_adverse_event_revs`
+-- Dumping data for table`ed_all_adverse_events_adverse_event_revs`
 --
 
 
 --
--- Dumping data for table `ed_all_clinical_followup`
+-- Dumping data for table`ed_all_clinical_followup`
 --
 
 
 --
--- Dumping data for table `ed_all_clinical_followup_revs`
+-- Dumping data for table`ed_all_clinical_followup_revs`
 --
 
 
 --
--- Dumping data for table `ed_all_clinical_presentation`
+-- Dumping data for table`ed_all_clinical_presentation`
 --
 
 
 --
--- Dumping data for table `ed_all_clinical_presentation_revs`
+-- Dumping data for table`ed_all_clinical_presentation_revs`
 --
 
 
 --
--- Dumping data for table `ed_all_lifestyle_base`
+-- Dumping data for table`ed_all_lifestyle_base`
 --
 
 
 --
--- Dumping data for table `ed_all_lifestyle_base_revs`
+-- Dumping data for table`ed_all_lifestyle_base_revs`
 --
 
 
 --
--- Dumping data for table `ed_all_protocol_followup`
+-- Dumping data for table`ed_all_protocol_followup`
 --
 
 
 --
--- Dumping data for table `ed_all_protocol_followup_revs`
+-- Dumping data for table`ed_all_protocol_followup_revs`
 --
 
 
 --
--- Dumping data for table `ed_all_study_research`
+-- Dumping data for table`ed_all_study_research`
 --
 
 
 --
--- Dumping data for table `ed_all_study_research_revs`
+-- Dumping data for table`ed_all_study_research_revs`
 --
 
 
 --
--- Dumping data for table `ed_breast_lab_pathology`
+-- Dumping data for table`ed_breast_lab_pathology`
 --
 
 
 --
--- Dumping data for table `ed_breast_lab_pathology_revs`
+-- Dumping data for table`ed_breast_lab_pathology_revs`
 --
 
 
 --
--- Dumping data for table `ed_breast_screening_mammogram`
+-- Dumping data for table`ed_breast_screening_mammogram`
 --
 
 
 --
--- Dumping data for table `ed_breast_screening_mammogram_revs`
+-- Dumping data for table`ed_breast_screening_mammogram_revs`
 --
 
 
 --
--- Dumping data for table `event_controls`
+-- Dumping data for table`event_controls`
 --
 
 INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`, `status`, `form_alias`, `detail_tablename`, `display_order`) VALUES
@@ -3185,27 +3184,27 @@ INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`,
 (34, 'all', 'study', 'research', 'active', 'ed_all_study_research', 'ed_all_study_research', 0);
 
 --
--- Dumping data for table `event_masters`
+-- Dumping data for table`event_masters`
 --
 
 
 --
--- Dumping data for table `event_masters_revs`
+-- Dumping data for table`event_masters_revs`
 --
 
 
 --
--- Dumping data for table `family_histories`
+-- Dumping data for table`family_histories`
 --
 
 
 --
--- Dumping data for table `family_histories_revs`
+-- Dumping data for table`family_histories_revs`
 --
 
 
 --
--- Dumping data for table `groups`
+-- Dumping data for table`groups`
 --
 
 INSERT INTO `groups` (`id`, `bank_id`, `name`, `created`, `modified`) VALUES
@@ -3214,7 +3213,7 @@ INSERT INTO `groups` (`id`, `bank_id`, `name`, `created`, `modified`) VALUES
 (3, 1, 'Users', '2009-02-18 13:05:59', '2009-04-06 12:58:31');
 
 --
--- Dumping data for table `i18n`
+-- Dumping data for table`i18n`
 --
 
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
@@ -3527,7 +3526,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('clinical collection link error', 'global', 'Clinical Collection Link Error', 'Erreur dans la d&eacute;finition des liens de la collection'),
 ('clinical stage', 'global', 'Clinical Stage', ''),
 ('clinicalannotation', 'global', 'Clinical Annotation', 'Annotation Clinique'),
-('clinicalannotation_module_description', 'global', 'To describe...<br><br><br><font color="#ff0000">Please note:\r\nThis application contains sample data for demonstration purposes only. Any similarity to people or persons living or dead is entirely coincidental.</font><br>', '&Agrave; d&eacute;crire...<br><br><br><font color="#ff0000">Note:\r\nCette application contient des donn�es fictives. Toutes similarit&eacute;s avec des personnes existantes ou mortes est une coincidence.</font><br>'),
+('clinicalannotation_module_description', 'global', 'To describe...<br><br><br><font color="#ff0000">Please note:\r\nThis application contains sample data for demonstration purposes only. Any similarity to people or persons living or dead is entirely coincidental.</font><br>', '&Agrave; d&eacute;crire...<br><br><br><font color="#ff0000">Note:\r\nCette application contient des donn?es fictives. Toutes similarit&eacute;s avec des personnes existantes ou mortes est une coincidence.</font><br>'),
 ('clinicalannotation_module_title', 'global', 'Module Description', 'Description du Module'),
 ('clin_demographics', 'global', 'Demographics', ''),
 ('clin_english', 'global', 'English', ''),
@@ -4335,6 +4334,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('number positive', 'global', 'Number Positive', ''),
 ('number resected', 'global', 'Number Resected', ''),
 ('number should be a positif decimal', 'global', 'Number should be a positive decimal!', 'Le nombre doit &ecirc;tre un d&eacute;cimal positif!'),
+('number should be a positif integer', 'global', 'Number should be a positif integer!', 'Le nombre doit &ecirc;tre un entier positif!'),
 ('O', 'global', 'O', ''),
 ('obtained', 'global', 'Obtained', ''),
 ('oct', 'global', 'Oct', 'Oct'),
@@ -4458,10 +4458,10 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('pathologic report', 'global', 'Pathologic Report', 'Rapport de Pathologie'),
 ('pathologist', 'global', 'Pathologist', 'Pathologiste'),
 ('pathology', 'global', 'Pathology', 'Pathologie'),
-('pathology dept', 'global', 'Pathology', 'Pathologie'),
-('pathology number', 'global', 'Pathology Number', ''),
-('pathology review', 'global', 'Pathology Review', '');
+('pathology dept', 'global', 'Pathology', 'Pathologie');
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('pathology number', 'global', 'Pathology Number', ''),
+('pathology review', 'global', 'Pathology Review', ''),
 ('path_collection_reviews', 'global', 'Review', 'Rapport de pathologie (niveau collection)'),
 ('path_collection_review_id', 'global', 'Collection Review Date', 'Date du rapport de pathologie (niv. coll.)'),
 ('patient vital status', 'global', 'Patient Vital Status', ''),
@@ -6070,22 +6070,22 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('ZCSA', 'global', 'ZCSA', 'ZCSA');
 
 --
--- Dumping data for table `langs`
+-- Dumping data for table`langs`
 --
 
 
 --
--- Dumping data for table `materials`
+-- Dumping data for table`materials`
 --
 
 
 --
--- Dumping data for table `materials_revs`
+-- Dumping data for table`materials_revs`
 --
 
 
 --
--- Dumping data for table `menus`
+-- Dumping data for table`menus`
 --
 
 INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_title`, `language_description`, `use_link`, `use_params`, `use_summary`, `active`, `created`, `created_by`, `modified`, `modified_by`) VALUES
@@ -6225,47 +6225,47 @@ INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_ti
 ('tool_CAN_48', 'core_CAN_33', 1, 100, 'collection kit', 'collection kit', '/under_development/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 --
--- Dumping data for table `misc_identifiers`
+-- Dumping data for table`misc_identifiers`
 --
 
 
 --
--- Dumping data for table `misc_identifiers_revs`
+-- Dumping data for table`misc_identifiers_revs`
 --
 
 
 --
--- Dumping data for table `orders`
+-- Dumping data for table`orders`
 --
 
 
 --
--- Dumping data for table `orders_revs`
+-- Dumping data for table`orders_revs`
 --
 
 
 --
--- Dumping data for table `order_items`
+-- Dumping data for table`order_items`
 --
 
 
 --
--- Dumping data for table `order_items_revs`
+-- Dumping data for table`order_items_revs`
 --
 
 
 --
--- Dumping data for table `order_lines`
+-- Dumping data for table`order_lines`
 --
 
 
 --
--- Dumping data for table `order_lines_revs`
+-- Dumping data for table`order_lines_revs`
 --
 
 
 --
--- Dumping data for table `pages`
+-- Dumping data for table`pages`
 --
 
 INSERT INTO `pages` (`id`, `error_flag`, `language_title`, `language_body`, `created`, `created_by`, `modified`, `modified_by`) VALUES
@@ -6345,7 +6345,7 @@ INSERT INTO `pages` (`id`, `error_flag`, `language_title`, `language_body`, `cre
 ('installation', 0, 'installation', 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\r\n\r\nLorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\r\n\r\nLorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\r\n\r\n\r\nLorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\r\n\r\n\r\nLorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\r\n\r\n\r\nLorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\r\n\r\n', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 --
--- Dumping data for table `parent_to_derivative_sample_controls`
+-- Dumping data for table`parent_to_derivative_sample_controls`
 --
 
 INSERT INTO `parent_to_derivative_sample_controls` (`id`, `parent_sample_control_id`, `derivative_sample_control_id`, `status`) VALUES
@@ -6379,217 +6379,216 @@ INSERT INTO `parent_to_derivative_sample_controls` (`id`, `parent_sample_control
 (104, 103, 107, 'active'),
 (105, 104, 108, 'active'),
 (106, 104, 109, 'active'),
-(107, 105, 110, 'active'),
-(108, 105, 111, 'active'),
 (109, 106, 11, 'active'),
 (110, 106, 12, 'active'),
 (111, 106, 13, 'active'),
 (112, 108, 11, 'active'),
 (113, 108, 12, 'active'),
 (114, 108, 13, 'active'),
-(115, 110, 11, 'active'),
-(116, 110, 12, 'active'),
-(117, 110, 13, 'active'),
 (118, 2, 13, 'active'),
-(119, 7, 11, 'active');
+(119, 7, 11, 'active'),
+(120, 112, 114, 'active'),
+(121, 112, 115, 'active'),
+(122, 113, 116, 'active'),
+(123, 113, 117, 'active');
 
 --
--- Dumping data for table `participants`
+-- Dumping data for table`participants`
 --
 
 
 --
--- Dumping data for table `participants_revs`
+-- Dumping data for table`participants_revs`
 --
 
 
 --
--- Dumping data for table `participant_contacts`
+-- Dumping data for table`participant_contacts`
 --
 
 
 --
--- Dumping data for table `participant_contacts_revs`
+-- Dumping data for table`participant_contacts_revs`
 --
 
 
 --
--- Dumping data for table `participant_messages`
+-- Dumping data for table`participant_messages`
 --
 
 
 --
--- Dumping data for table `participant_messages_revs`
+-- Dumping data for table`participant_messages_revs`
 --
 
 
 --
--- Dumping data for table `path_collection_reviews`
+-- Dumping data for table`path_collection_reviews`
 --
 
 
 --
--- Dumping data for table `path_collection_reviews_revs`
+-- Dumping data for table`path_collection_reviews_revs`
 --
 
 
 --
--- Dumping data for table `pd_chemos`
+-- Dumping data for table`pd_chemos`
 --
 
 
 --
--- Dumping data for table `pd_chemos_revs`
+-- Dumping data for table`pd_chemos_revs`
 --
 
 
 --
--- Dumping data for table `pe_chemos`
+-- Dumping data for table`pe_chemos`
 --
 
 
 --
--- Dumping data for table `pe_chemos_revs`
+-- Dumping data for table`pe_chemos_revs`
 --
 
 
 --
--- Dumping data for table `protocol_controls`
+-- Dumping data for table`protocol_controls`
 --
 
 
 --
--- Dumping data for table `protocol_masters`
+-- Dumping data for table`protocol_masters`
 --
 
 
 --
--- Dumping data for table `protocol_masters_revs`
+-- Dumping data for table`protocol_masters_revs`
 --
 
 
 --
--- Dumping data for table `providers`
+-- Dumping data for table`providers`
 --
 
 
 --
--- Dumping data for table `providers_revs`
+-- Dumping data for table`providers_revs`
 --
 
 
 --
--- Dumping data for table `quality_ctrls`
+-- Dumping data for table`quality_ctrls`
 --
 
 
 --
--- Dumping data for table `quality_ctrls_revs`
+-- Dumping data for table`quality_ctrls_revs`
 --
 
 
 --
--- Dumping data for table `quality_ctrl_tested_aliquots`
+-- Dumping data for table`quality_ctrl_tested_aliquots`
 --
 
 
 --
--- Dumping data for table `quality_ctrl_tested_aliquots_revs`
+-- Dumping data for table`quality_ctrl_tested_aliquots_revs`
 --
 
 
 --
--- Dumping data for table `rd_bloodcellcounts`
+-- Dumping data for table`rd_bloodcellcounts`
 --
 
 
 --
--- Dumping data for table `rd_bloodcellcounts_revs`
+-- Dumping data for table`rd_bloodcellcounts_revs`
 --
 
 
 --
--- Dumping data for table `rd_blood_cells`
+-- Dumping data for table`rd_blood_cells`
 --
 
 
 --
--- Dumping data for table `rd_blood_cells_revs`
+-- Dumping data for table`rd_blood_cells_revs`
 --
 
 
 --
--- Dumping data for table `rd_breastcancertypes`
+-- Dumping data for table`rd_breastcancertypes`
 --
 
 
 --
--- Dumping data for table `rd_breastcancertypes_revs`
+-- Dumping data for table`rd_breastcancertypes_revs`
 --
 
 
 --
--- Dumping data for table `rd_breast_cancers`
+-- Dumping data for table`rd_breast_cancers`
 --
 
 
 --
--- Dumping data for table `rd_breast_cancers_revs`
+-- Dumping data for table`rd_breast_cancers_revs`
 --
 
 
 --
--- Dumping data for table `rd_coloncancertypes`
+-- Dumping data for table`rd_coloncancertypes`
 --
 
 
 --
--- Dumping data for table `rd_coloncancertypes_revs`
+-- Dumping data for table`rd_coloncancertypes_revs`
 --
 
 
 --
--- Dumping data for table `rd_genericcancertypes`
+-- Dumping data for table`rd_genericcancertypes`
 --
 
 
 --
--- Dumping data for table `rd_genericcancertypes_revs`
+-- Dumping data for table`rd_genericcancertypes_revs`
 --
 
 
 --
--- Dumping data for table `rd_ovarianuteruscancertypes`
+-- Dumping data for table`rd_ovarianuteruscancertypes`
 --
 
 
 --
--- Dumping data for table `rd_ovarianuteruscancertypes_revs`
+-- Dumping data for table`rd_ovarianuteruscancertypes_revs`
 --
 
 
 --
--- Dumping data for table `realiquotings`
+-- Dumping data for table`realiquotings`
 --
 
 
 --
--- Dumping data for table `realiquotings_revs`
+-- Dumping data for table`realiquotings_revs`
 --
 
 
 --
--- Dumping data for table `reproductive_histories`
+-- Dumping data for table`reproductive_histories`
 --
 
 
 --
--- Dumping data for table `reproductive_histories_revs`
+-- Dumping data for table`reproductive_histories_revs`
 --
 
 
 --
--- Dumping data for table `review_controls`
+-- Dumping data for table`review_controls`
 --
 
 INSERT INTO `review_controls` (`id`, `review_type`, `review_sample_group`, `status`, `form_alias`, `detail_tablename`, `display_order`) VALUES
@@ -6597,27 +6596,27 @@ INSERT INTO `review_controls` (`id`, `review_type`, `review_sample_group`, `stat
 (2, 'blood cell review', 'blood', 'active', 'rd_blood_cells', 'rd_blood_cells', 0);
 
 --
--- Dumping data for table `review_masters`
+-- Dumping data for table`review_masters`
 --
 
 
 --
--- Dumping data for table `review_masters_revs`
+-- Dumping data for table`review_masters_revs`
 --
 
 
 --
--- Dumping data for table `rtbforms`
+-- Dumping data for table`rtbforms`
 --
 
 
 --
--- Dumping data for table `rtbforms_revs`
+-- Dumping data for table`rtbforms_revs`
 --
 
 
 --
--- Dumping data for table `sample_controls`
+-- Dumping data for table`sample_controls`
 --
 
 INSERT INTO `sample_controls` (`id`, `sample_type`, `sample_type_code`, `sample_category`, `status`, `form_alias`, `detail_tablename`, `display_order`) VALUES
@@ -6636,33 +6635,35 @@ INSERT INTO `sample_controls` (`id`, `sample_type`, `sample_type_code`, `sample_
 (13, 'rna', 'RNA', 'derivative', 'active', 'sd_undetailed_derivatives', 'sd_der_rnas', 0),
 (14, 'concentrated urine', 'CONC-U', 'derivative', 'active', 'sd_undetailed_derivatives', 'sd_der_urine_cons', 0),
 (15, 'centrifuged urine', 'CENT-U', 'derivative', 'active', 'sd_undetailed_derivatives', 'sd_der_urine_cents', 0),
-(16, 'amplified dna', 'AMP-DNA', 'derivative', 'inactive', 'sd_undetailed_derivatives', 'sd_der_amp_dnas', 0),
 (17, 'amplified rna', 'AMP-RNA', 'derivative', 'active', 'sd_undetailed_derivatives', 'sd_der_amp_rnas', 0),
 (18, 'b cell', 'BC', 'derivative', 'active', 'sd_der_b_cells', 'sd_der_b_cells', 0),
 (101, 'tissue lysate', 'T-LYS', 'derivative', 'active', 'sd_undetailed_derivatives', 'sd_der_tiss_lysates', 0),
 (102, 'tissue suspension', 'T-SUSP', 'derivative', 'active', 'sd_undetailed_derivatives', 'sd_der_tiss_susps', 0),
 (103, 'peritoneal wash', 'PW', 'specimen', 'active', 'sd_spe_peritoneal_washes', 'sd_spe_peritoneal_washes', 0),
 (104, 'cystic fluid', 'CF', 'specimen', 'active', 'sd_spe_cystic_fluids', 'sd_spe_cystic_fluids', 0),
-(105, 'other fluid', 'OF', 'specimen', 'active', 'sd_spe_other_fluids', 'sd_spe_other_fluids', 0),
 (106, 'peritoneal wash cell', 'PW-C', 'derivative', 'active', 'sd_undetailed_derivatives', 'sd_der_pw_cells', 0),
 (107, 'peritoneal wash supernatant', 'PW-S', 'derivative', 'active', 'sd_undetailed_derivatives', 'sd_der_pw_sups', 0),
-(108, 'cystic fluid cell', 'CF-C', 'derivative', 'active', 'sd_undetailed_derivatives', 'sd_der_fluid_cells', 0),
-(109, 'cystic fluid supernatant', 'CF-S', 'derivative', 'active', 'sd_undetailed_derivatives', 'sd_der_fluid_sups', 0),
-(110, 'other fluid cell', 'OF-C', 'derivative', 'active', 'sd_undetailed_derivatives', 'sd_der_other_cells', 0),
-(111, 'other fluid supernatant', 'OF-S', 'derivative', 'active', 'sd_undetailed_derivatives', 'sd_der_other_sups', 0);
+(108, 'cystic fluid cell', 'CF-C', 'derivative', 'active', 'sd_undetailed_derivatives', 'sd_der_cystic_fl_cells', 0),
+(109, 'cystic fluid supernatant', 'CF-S', 'derivative', 'active', 'sd_undetailed_derivatives', 'sd_der_cystic_fl_sups', 0),
+(112, 'pericardial fluid', 'PC-F', 'specimen', 'active', 'sd_spe_pericardial_fluids', 'sd_spe_pericardial_fluids', 0),
+(113, 'pleural fluid', 'PL-F', 'specimen', 'active', 'sd_spe_pleural_fluids', 'sd_spe_pleural_fluids', 0),
+(114, 'pericardial fluid cell', 'PC-C', 'derivative', 'active', 'sd_undetailed_derivatives', 'sd_der_pericardial_fl_cells', 0),
+(115, 'pericardial fluid supernatant', 'PC-S', 'derivative', 'active', 'sd_undetailed_derivatives', 'sd_der_pericardial_fl_sups', 0),
+(116, 'pleural fluid cell', 'PL-C', 'derivative', 'active', 'sd_undetailed_derivatives', 'sd_der_pleural_fl_cells', 0),
+(117, 'pleural fluid supernatant', 'PL-S', 'derivative', 'active', 'sd_undetailed_derivatives', 'sd_der_pleural_fl_sups', 0);
 
 --
--- Dumping data for table `sample_masters`
+-- Dumping data for table`sample_masters`
 --
 
 
 --
--- Dumping data for table `sample_masters_revs`
+-- Dumping data for table`sample_masters_revs`
 --
 
 
 --
--- Dumping data for table `sample_to_aliquot_controls`
+-- Dumping data for table`sample_to_aliquot_controls`
 --
 
 INSERT INTO `sample_to_aliquot_controls` (`id`, `sample_control_id`, `aliquot_control_id`, `status`) VALUES
@@ -6682,382 +6683,402 @@ INSERT INTO `sample_to_aliquot_controls` (`id`, `sample_control_id`, `aliquot_co
 (17, 10, 8, 'active'),
 (18, 12, 11, 'active'),
 (19, 13, 11, 'active'),
-(20, 16, 11, 'active'),
 (21, 17, 11, 'active'),
 (23, 11, 10, 'active'),
 (30, 103, 2, 'inactive'),
 (31, 104, 2, 'inactive'),
-(32, 105, 2, 'inactive'),
 (33, 106, 8, 'active'),
 (34, 107, 8, 'active'),
 (35, 108, 8, 'active'),
 (36, 109, 8, 'active'),
-(37, 110, 8, 'active'),
-(38, 111, 8, 'active'),
 (39, 101, 15, 'active'),
 (40, 102, 15, 'active'),
 (41, 3, 12, 'active'),
 (42, 18, 14, 'active'),
 (43, 18, 13, 'active'),
-(44, 18, 15, 'active');
+(44, 18, 15, 'active'),
+(45, 114, 8, 'active'),
+(46, 115, 8, 'active'),
+(47, 116, 8, 'active'),
+(48, 117, 8, 'active');
 
 --
--- Dumping data for table `sd_der_amp_dnas`
+-- Dumping data for table`sd_der_amp_rnas`
 --
 
 
 --
--- Dumping data for table `sd_der_amp_dnas_revs`
+-- Dumping data for table`sd_der_amp_rnas_revs`
 --
 
 
 --
--- Dumping data for table `sd_der_amp_rnas`
+-- Dumping data for table`sd_der_ascite_cells`
 --
 
 
 --
--- Dumping data for table `sd_der_amp_rnas_revs`
+-- Dumping data for table`sd_der_ascite_cells_revs`
 --
 
 
 --
--- Dumping data for table `sd_der_ascite_cells`
+-- Dumping data for table`sd_der_ascite_sups`
 --
 
 
 --
--- Dumping data for table `sd_der_ascite_cells_revs`
+-- Dumping data for table`sd_der_ascite_sups_revs`
 --
 
 
 --
--- Dumping data for table `sd_der_ascite_sups`
+-- Dumping data for table`sd_der_blood_cells`
 --
 
 
 --
--- Dumping data for table `sd_der_ascite_sups_revs`
+-- Dumping data for table`sd_der_blood_cells_revs`
 --
 
 
 --
--- Dumping data for table `sd_der_blood_cells`
+-- Dumping data for table`sd_der_b_cells`
 --
 
 
 --
--- Dumping data for table `sd_der_blood_cells_revs`
+-- Dumping data for table`sd_der_b_cells_revs`
 --
 
 
 --
--- Dumping data for table `sd_der_b_cells`
+-- Dumping data for table`sd_der_cell_cultures`
 --
 
 
 --
--- Dumping data for table `sd_der_b_cells_revs`
+-- Dumping data for table`sd_der_cell_cultures_revs`
 --
 
 
 --
--- Dumping data for table `sd_der_cell_cultures`
+-- Dumping data for table`sd_der_cystic_fl_cells`
 --
 
 
 --
--- Dumping data for table `sd_der_cell_cultures_revs`
+-- Dumping data for table`sd_der_cystic_fl_cells_revs`
 --
 
 
 --
--- Dumping data for table `sd_der_dnas`
+-- Dumping data for table`sd_der_cystic_fl_sups`
 --
 
 
 --
--- Dumping data for table `sd_der_dnas_revs`
+-- Dumping data for table`sd_der_cystic_fl_sups_revs`
 --
 
 
 --
--- Dumping data for table `sd_der_fluid_cells`
+-- Dumping data for table`sd_der_dnas`
 --
 
 
 --
--- Dumping data for table `sd_der_fluid_cells_revs`
+-- Dumping data for table`sd_der_dnas_revs`
 --
 
 
 --
--- Dumping data for table `sd_der_fluid_sups`
+-- Dumping data for table`sd_der_pbmcs`
 --
 
 
 --
--- Dumping data for table `sd_der_fluid_sups_revs`
+-- Dumping data for table`sd_der_pbmcs_revs`
 --
 
 
 --
--- Dumping data for table `sd_der_other_cells`
+-- Dumping data for table`sd_der_pericardial_fl_cells`
 --
 
 
 --
--- Dumping data for table `sd_der_other_cells_revs`
+-- Dumping data for table`sd_der_pericardial_fl_cells_revs`
 --
 
 
 --
--- Dumping data for table `sd_der_other_sups`
+-- Dumping data for table`sd_der_pericardial_fl_sups`
 --
 
 
 --
--- Dumping data for table `sd_der_other_sups_revs`
+-- Dumping data for table`sd_der_pericardial_fl_sups_revs`
 --
 
 
 --
--- Dumping data for table `sd_der_pbmcs`
+-- Dumping data for table`sd_der_plasmas`
 --
 
 
 --
--- Dumping data for table `sd_der_pbmcs_revs`
+-- Dumping data for table`sd_der_plasmas_revs`
 --
 
 
 --
--- Dumping data for table `sd_der_plasmas`
+-- Dumping data for table`sd_der_pleural_fl_cells`
 --
 
 
 --
--- Dumping data for table `sd_der_plasmas_revs`
+-- Dumping data for table`sd_der_pleural_fl_cells_revs`
 --
 
 
 --
--- Dumping data for table `sd_der_pw_cells`
+-- Dumping data for table`sd_der_pleural_fl_sups`
 --
 
 
 --
--- Dumping data for table `sd_der_pw_cells_revs`
+-- Dumping data for table`sd_der_pleural_fl_sups_revs`
 --
 
 
 --
--- Dumping data for table `sd_der_pw_sups`
+-- Dumping data for table`sd_der_pw_cells`
 --
 
 
 --
--- Dumping data for table `sd_der_pw_sups_revs`
+-- Dumping data for table`sd_der_pw_cells_revs`
 --
 
 
 --
--- Dumping data for table `sd_der_rnas`
+-- Dumping data for table`sd_der_pw_sups`
 --
 
 
 --
--- Dumping data for table `sd_der_rnas_revs`
+-- Dumping data for table`sd_der_pw_sups_revs`
 --
 
 
 --
--- Dumping data for table `sd_der_serums`
+-- Dumping data for table`sd_der_rnas`
 --
 
 
 --
--- Dumping data for table `sd_der_serums_revs`
+-- Dumping data for table`sd_der_rnas_revs`
 --
 
 
 --
--- Dumping data for table `sd_der_tiss_lysates`
+-- Dumping data for table`sd_der_serums`
 --
 
 
 --
--- Dumping data for table `sd_der_tiss_lysates_revs`
+-- Dumping data for table`sd_der_serums_revs`
 --
 
 
 --
--- Dumping data for table `sd_der_tiss_susps`
+-- Dumping data for table`sd_der_tiss_lysates`
 --
 
 
 --
--- Dumping data for table `sd_der_tiss_susps_revs`
+-- Dumping data for table`sd_der_tiss_lysates_revs`
 --
 
 
 --
--- Dumping data for table `sd_der_urine_cents`
+-- Dumping data for table`sd_der_tiss_susps`
 --
 
 
 --
--- Dumping data for table `sd_der_urine_cents_revs`
+-- Dumping data for table`sd_der_tiss_susps_revs`
 --
 
 
 --
--- Dumping data for table `sd_der_urine_cons`
+-- Dumping data for table`sd_der_urine_cents`
 --
 
 
 --
--- Dumping data for table `sd_der_urine_cons_revs`
+-- Dumping data for table`sd_der_urine_cents_revs`
 --
 
 
 --
--- Dumping data for table `sd_spe_ascites`
+-- Dumping data for table`sd_der_urine_cons`
 --
 
 
 --
--- Dumping data for table `sd_spe_ascites_revs`
+-- Dumping data for table`sd_der_urine_cons_revs`
 --
 
 
 --
--- Dumping data for table `sd_spe_bloods`
+-- Dumping data for table`sd_spe_ascites`
 --
 
 
 --
--- Dumping data for table `sd_spe_bloods_revs`
+-- Dumping data for table`sd_spe_ascites_revs`
 --
 
 
 --
--- Dumping data for table `sd_spe_cystic_fluids`
+-- Dumping data for table`sd_spe_bloods`
 --
 
 
 --
--- Dumping data for table `sd_spe_cystic_fluids_revs`
+-- Dumping data for table`sd_spe_bloods_revs`
 --
 
 
 --
--- Dumping data for table `sd_spe_other_fluids`
+-- Dumping data for table`sd_spe_cystic_fluids`
 --
 
 
 --
--- Dumping data for table `sd_spe_other_fluids_revs`
+-- Dumping data for table`sd_spe_cystic_fluids_revs`
 --
 
 
 --
--- Dumping data for table `sd_spe_peritoneal_washes`
+-- Dumping data for table`sd_spe_pericardial_fluids`
 --
 
 
 --
--- Dumping data for table `sd_spe_peritoneal_washes_revs`
+-- Dumping data for table`sd_spe_pericardial_fluids_revs`
 --
 
 
 --
--- Dumping data for table `sd_spe_tissues`
+-- Dumping data for table`sd_spe_peritoneal_washes`
 --
 
 
 --
--- Dumping data for table `sd_spe_tissues_revs`
+-- Dumping data for table`sd_spe_peritoneal_washes_revs`
 --
 
 
 --
--- Dumping data for table `sd_spe_urines`
+-- Dumping data for table`sd_spe_pleural_fluids`
 --
 
 
 --
--- Dumping data for table `sd_spe_urines_revs`
+-- Dumping data for table`sd_spe_pleural_fluids_revs`
 --
 
 
 --
--- Dumping data for table `shelves`
+-- Dumping data for table`sd_spe_tissues`
 --
 
 
 --
--- Dumping data for table `shelves_revs`
+-- Dumping data for table`sd_spe_tissues_revs`
 --
 
 
 --
--- Dumping data for table `shipments`
+-- Dumping data for table`sd_spe_urines`
 --
 
 
 --
--- Dumping data for table `shipments_revs`
+-- Dumping data for table`sd_spe_urines_revs`
 --
 
 
 --
--- Dumping data for table `sidebars`
+-- Dumping data for table`shelves`
 --
 
 
 --
--- Dumping data for table `sopd_general_all`
+-- Dumping data for table`shelves_revs`
 --
 
 
 --
--- Dumping data for table `sopd_general_all_revs`
+-- Dumping data for table`shipments`
 --
 
 
 --
--- Dumping data for table `sopd_inventory_all`
+-- Dumping data for table`shipments_revs`
 --
 
 
 --
--- Dumping data for table `sopd_inventory_all_revs`
+-- Dumping data for table`sidebars`
 --
 
 
 --
--- Dumping data for table `sope_general_all`
+-- Dumping data for table`sopd_general_all`
 --
 
 
 --
--- Dumping data for table `sope_general_all_revs`
+-- Dumping data for table`sopd_general_all_revs`
 --
 
 
 --
--- Dumping data for table `sope_inventory_all`
+-- Dumping data for table`sopd_inventory_all`
 --
 
 
 --
--- Dumping data for table `sope_inventory_all_revs`
+-- Dumping data for table`sopd_inventory_all_revs`
 --
 
 
 --
--- Dumping data for table `sop_controls`
+-- Dumping data for table`sope_general_all`
+--
+
+
+--
+-- Dumping data for table`sope_general_all_revs`
+--
+
+
+--
+-- Dumping data for table`sope_inventory_all`
+--
+
+
+--
+-- Dumping data for table`sope_inventory_all_revs`
+--
+
+
+--
+-- Dumping data for table`sop_controls`
 --
 
 INSERT INTO `sop_controls` (`id`, `sop_group`, `type`, `detail_tablename`, `form_alias`, `extend_tablename`, `extend_form_alias`, `display_order`, `created`, `created_by`, `modified`, `modified_by`) VALUES
@@ -7065,137 +7086,137 @@ INSERT INTO `sop_controls` (`id`, `sop_group`, `type`, `detail_tablename`, `form
 (2, 'Inventory', 'All', 'sopd_inventory_all', 'sopd_inventory_all', 'sope_inventory_all', 'sope_inventory_all', 0, NULL, NULL, NULL, NULL);
 
 --
--- Dumping data for table `sop_masters`
+-- Dumping data for table`sop_masters`
 --
 
 
 --
--- Dumping data for table `sop_masters_revs`
+-- Dumping data for table`sop_masters_revs`
 --
 
 
 --
--- Dumping data for table `source_aliquots`
+-- Dumping data for table`source_aliquots`
 --
 
 
 --
--- Dumping data for table `source_aliquots_revs`
+-- Dumping data for table`source_aliquots_revs`
 --
 
 
 --
--- Dumping data for table `specimen_details`
+-- Dumping data for table`specimen_details`
 --
 
 
 --
--- Dumping data for table `specimen_details_revs`
+-- Dumping data for table`specimen_details_revs`
 --
 
 
 --
--- Dumping data for table `std_boxs`
+-- Dumping data for table`std_boxs`
 --
 
 
 --
--- Dumping data for table `std_boxs_revs`
+-- Dumping data for table`std_boxs_revs`
 --
 
 
 --
--- Dumping data for table `std_cupboards`
+-- Dumping data for table`std_cupboards`
 --
 
 
 --
--- Dumping data for table `std_cupboards_revs`
+-- Dumping data for table`std_cupboards_revs`
 --
 
 
 --
--- Dumping data for table `std_freezers`
+-- Dumping data for table`std_freezers`
 --
 
 
 --
--- Dumping data for table `std_freezers_revs`
+-- Dumping data for table`std_freezers_revs`
 --
 
 
 --
--- Dumping data for table `std_fridges`
+-- Dumping data for table`std_fridges`
 --
 
 
 --
--- Dumping data for table `std_fridges_revs`
+-- Dumping data for table`std_fridges_revs`
 --
 
 
 --
--- Dumping data for table `std_incubators`
+-- Dumping data for table`std_incubators`
 --
 
 
 --
--- Dumping data for table `std_incubators_revs`
+-- Dumping data for table`std_incubators_revs`
 --
 
 
 --
--- Dumping data for table `std_nitro_locates`
+-- Dumping data for table`std_nitro_locates`
 --
 
 
 --
--- Dumping data for table `std_nitro_locates_revs`
+-- Dumping data for table`std_nitro_locates_revs`
 --
 
 
 --
--- Dumping data for table `std_racks`
+-- Dumping data for table`std_racks`
 --
 
 
 --
--- Dumping data for table `std_racks_revs`
+-- Dumping data for table`std_racks_revs`
 --
 
 
 --
--- Dumping data for table `std_rooms`
+-- Dumping data for table`std_rooms`
 --
 
 
 --
--- Dumping data for table `std_rooms_revs`
+-- Dumping data for table`std_rooms_revs`
 --
 
 
 --
--- Dumping data for table `std_shelfs`
+-- Dumping data for table`std_shelfs`
 --
 
 
 --
--- Dumping data for table `std_shelfs_revs`
+-- Dumping data for table`std_shelfs_revs`
 --
 
 
 --
--- Dumping data for table `std_tma_blocks`
+-- Dumping data for table`std_tma_blocks`
 --
 
 
 --
--- Dumping data for table `std_tma_blocks_revs`
+-- Dumping data for table`std_tma_blocks_revs`
 --
 
 
 --
--- Dumping data for table `storage_controls`
+-- Dumping data for table`storage_controls`
 --
 
 INSERT INTO `storage_controls` (`id`, `storage_type`, `storage_type_code`, `coord_x_title`, `coord_x_type`, `coord_x_size`, `coord_y_title`, `coord_y_type`, `coord_y_size`, `square_box`, `horizontal_display`, `set_temperature`, `is_tma_block`, `status`, `form_alias`, `form_alias_for_children_pos`, `detail_tablename`) VALUES
@@ -7220,27 +7241,27 @@ INSERT INTO `storage_controls` (`id`, `storage_type`, `storage_type_code`, `coor
 (20, 'TMA-blc 29X21', 'TMA609', 'column', 'integer', 29, 'row', 'integer', 21, 0, 0, 'FALSE', 'TRUE', 'active', 'std_tma_blocks', 'std_2_dim_position_selection', 'std_tma_blocks');
 
 --
--- Dumping data for table `storage_coordinates`
+-- Dumping data for table`storage_coordinates`
 --
 
 
 --
--- Dumping data for table `storage_coordinates_revs`
+-- Dumping data for table`storage_coordinates_revs`
 --
 
 
 --
--- Dumping data for table `storage_masters`
+-- Dumping data for table`storage_masters`
 --
 
 
 --
--- Dumping data for table `storage_masters_revs`
+-- Dumping data for table`storage_masters_revs`
 --
 
 
 --
--- Dumping data for table `structures`
+-- Dumping data for table`structures`
 --
 
 INSERT INTO `structures` (`id`, `old_id`, `alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`) VALUES
@@ -7417,7 +7438,7 @@ INSERT INTO `structures` (`id`, `old_id`, `alias`, `language_title`, `language_h
 (195, 'CANM-00016', 'realiquotedparent', '', '', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 --
--- Dumping data for table `structure_fields`
+-- Dumping data for table`structure_fields`
 --
 
 INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) VALUES
@@ -7566,7 +7587,7 @@ INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `
 (158, '', 'CAN-999-999-000-999-1006', 'Inventorymanagement', 'SpecimenDetail', '', 'reception_datetime', 'reception date', '', 'datetime', '', '', 0, 'inv_reception_datetime_defintion', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (159, '', 'CAN-999-999-000-999-1007', 'Inventorymanagement', 'Collection', '', 'sop_master_id', 'collection sop', '', 'select', '', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (160, '', 'CAN-999-999-000-999-1008', 'Inventorymanagement', 'Collection', '', 'collection_notes', 'notes', '', 'textarea', 'cols=30,rows=4', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(161, '', 'CAN-999-999-000-999-1009', '', 'Generated', '', 'coll_to_rec_spent_time_msg', 'collection to reception spent time', '', 'input', 'size=30', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(161, '', 'CAN-999-999-000-999-1009', 'Inventorymanagement', 'Generated', '', 'coll_to_rec_spent_time_msg', 'collection to reception spent time', '', 'input', 'size=30', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (166, '', 'CAN-999-999-000-999-1013', 'Inventorymanagement', 'Collection', '', 'collection_property', 'collection property', '', 'select', '', '', 16, 'inv_collection_type_defintion', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (169, '', 'CAN-999-999-000-999-1016', 'Inventorymanagement', 'SampleMaster', '', 'sample_code', 'code', '', 'input', 'size=10', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (170, '', 'CAN-999-999-000-999-1018', 'Inventorymanagement', 'SampleMaster', '', 'sample_type', 'sample type', '', 'select', '', '', 144, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -7577,13 +7598,12 @@ INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `
 (177, '', 'CAN-999-999-000-999-1029', 'Inventorymanagement', 'SampleMaster', '', 'is_problematic', 'is problematic', '', 'radio', '', 'no', 142, 'inv_is_problematic_sample_defintion', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (179, '', 'CAN-999-999-000-999-1030', 'Inventorymanagement', 'SampleMaster', '', 'sop_master_id', 'sample sop', '', 'select', '', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (180, '', 'CAN-999-999-000-999-1031', 'Inventorymanagement', 'SampleMaster', '', 'product_code', 'product code', '', 'input', 'size=20', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(181, '', 'CAN-999-999-000-999-1032', 'Inventorymanagement', 'SpecimenDetail', '', 'supplier_dept', 'supplier dept', '', 'select', '', '', 145, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(181, '', 'CAN-999-999-000-999-1032', 'Inventorymanagement', 'SpecimenDetail', '', 'supplier_dept', 'supplier dept', '', 'select', '', '', 175, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (182, '', 'CAN-999-999-000-999-1035', 'Inventorymanagement', 'SampleDetail', '', 'blood_type', 'blood tube type', '', 'select', '', '', 140, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (183, '', 'CAN-999-999-000-999-1036', 'Inventorymanagement', 'SampleDetail', '', 'collected_volume', 'collected volume', '', 'input', 'size=10', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (184, '', 'CAN-999-999-000-999-1037', 'Inventorymanagement', 'SampleDetail', '', 'collected_volume_unit', '', 'unit', 'select', '', '', 130, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (185, '', 'CAN-999-999-000-999-1038', 'Inventorymanagement', 'SampleDetail', '', 'collected_tube_nbr', 'collected tubes nbr', '', 'input', 'size=4', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(187, '', 'CAN-999-999-000-999-1040', 'Inventorymanagement', 'SampleDetail', '', 'tissue_source', 'tissue source', '', 'select', '', '', 139, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(188, '', 'CAN-999-999-000-999-1041', 'Inventorymanagement', 'SampleDetail', '', 'tissue_nature', 'Nature', '', 'select', '', '', 135, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(187, '', 'CAN-999-999-000-999-1040', 'Inventorymanagement', 'SampleDetail', '', 'tissue_source', 'tissue source', '', 'select', '', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (189, '', 'CAN-999-999-000-999-1043', 'Inventorymanagement', 'SampleDetail', '', 'tissue_laterality', 'Laterality', '', 'select', '', '', 134, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (190, '', 'CAN-999-999-000-999-1044', 'Inventorymanagement', 'SampleDetail', '', 'pathology_reception_datetime', 'date of reception in pathology', '', 'datetime', '', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (191, '', 'CAN-999-999-000-999-1045', 'Inventorymanagement', 'SampleDetail', '', 'tissue_size', 'received tissue size', '', 'input', 'size=20', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -7599,7 +7619,7 @@ INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `
 (203, '', 'CAN-999-999-000-999-1065', 'Inventorymanagement', 'SampleDetail', '', 'culture_status', 'culture status', '', 'select', '', '', 131, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (204, '', 'CAN-999-999-000-999-1066', 'Inventorymanagement', 'SampleDetail', '', 'culture_status_reason', '', 'Detail', 'select', '', '', 132, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (205, '', 'CAN-999-999-000-999-1067', 'Inventorymanagement', 'SampleDetail', '', 'cell_passage_number', 'cell pasage number', '', 'input', 'size=6', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(207, '', 'CAN-999-999-000-999-1070', '', 'Generated', '', 'coll_to_creation_spent_time_msg', 'collection to creation spent time', '', 'input', 'size=30', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(207, '', 'CAN-999-999-000-999-1070', 'Inventorymanagement', 'Generated', '', 'coll_to_creation_spent_time_msg', 'collection to creation spent time', '', 'input', 'size=30', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (211, '', 'CAN-999-999-000-999-1075', 'Inventorymanagement', 'SampleDetail', '', 'hemolyze_signs', 'hemolyze signs', '', 'select', '', '', 133, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (214, '', 'CAN-999-999-000-999-11', 'Clinicalannotation', 'Participant', '', 'sex', 'sex', '', 'select', '', '', 89, 'help_sex', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (216, '', 'CAN-999-999-000-999-1100', 'Inventorymanagement', 'AliquotMaster', '', 'barcode', 'barcode', '', 'input', 'size=30', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -7651,9 +7671,9 @@ INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `
 (288, '', 'CAN-999-999-000-999-1173', 'Inventorymanagement', 'QualityCtrl', '', 'notes', 'notes', '', 'textarea', 'cols=30,rows=4', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (289, '', 'CAN-999-999-000-999-1174', 'Inventorymanagement', 'QualityCtrl', '', 'aliquot_master_id', 'tested aliquot', '', 'select', '', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (290, '', 'CAN-999-999-000-999-118', 'Inventorymanagement', 'PathCollectionReview', '', 'comments', 'comments', '', 'textarea', 'cols=40,rows=6', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(291, '', 'CAN-999-999-000-999-1180', 'Storagelayout', 'StorageMaster', '', 'code', 'storage code', '', 'input', 'size=30', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(291, '', 'CAN-999-999-000-999-1180', 'Storagelayout', 'StorageMaster', '', 'code', 'storage code', '', 'input', 'size=30', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(292, '', 'CAN-999-999-000-999-1181', 'Storagelayout', 'StorageMaster', '', 'storage_type', 'storage type', '', 'select', '', '', 146, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) VALUES
-(292, '', 'CAN-999-999-000-999-1181', 'Storagelayout', 'StorageMaster', '', 'storage_type', 'storage type', '', 'select', '', '', 146, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (294, '', 'CAN-999-999-000-999-1183', 'Storagelayout', 'StorageMaster', '', 'barcode', 'barcode', '', 'input', 'size=30', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (296, '', 'CAN-999-999-000-999-1185', 'Storagelayout', 'StorageMaster', '', 'parent_id', 'parent storage id', '', 'select', '', '', 0, 'stor_parent_id_defintion', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (297, '', 'CAN-999-999-000-999-1186', '', 'Generated', '', 'coord_x_title', 'coordinate x', 'title', 'select', '', '', 69, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -7874,9 +7894,9 @@ INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `
 (571, '', 'CAN-999-999-000-999-310', 'Protocol', 'ProtocolExtend', '', 'frequency', 'frequency', '', 'input', 'size=10', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (572, '', 'CAN-999-999-000-999-311', 'Protocol', 'ProtocolExtend', '', 'drug_id', 'drug', '', 'select', '', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (573, '', 'CAN-999-999-000-999-312', 'Clinicalannotation', 'TreatmentExtend', '', 'source', 'source', '', 'select', '', '', 161, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(574, '', 'CAN-999-999-000-999-313', 'Clinicalannotation', 'TreatmentExtend', '', 'method', 'method', '', 'select', '', '', 160, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(574, '', 'CAN-999-999-000-999-313', 'Clinicalannotation', 'TreatmentExtend', '', 'method', 'method', '', 'select', '', '', 160, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(575, '', 'CAN-999-999-000-999-314', 'Clinicalannotation', 'TreatmentExtend', '', 'reduction', 'reduction', '', 'input', 'size=10', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) VALUES
-(575, '', 'CAN-999-999-000-999-314', 'Clinicalannotation', 'TreatmentExtend', '', 'reduction', 'reduction', '', 'input', 'size=10', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (576, '', 'CAN-999-999-000-999-315', 'Clinicalannotation', 'TreatmentExtend', '', 'cycle_number', 'cycle number', '', 'input', 'size=10', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (577, '', 'CAN-999-999-000-999-316', 'Clinicalannotation', 'TreatmentExtend', '', 'completed_cycles', 'completed cycles', '', 'input', 'size=10', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (578, '', 'CAN-999-999-000-999-317', 'Clinicalannotation', 'TreatmentExtend', '', 'drug_id', 'drug', '', 'select', '', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -8106,9 +8126,9 @@ INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `
 (810, '', 'CAN-999-999-000-999-66', 'Clinicalannotation', 'ConsentMaster', '', 'contact_method', 'route of recruitment', '', 'select', '', '', 27, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (811, '', 'CAN-999-999-000-999-67', 'Clinicalannotation', 'ConsentMaster', '', 'acquisition_id', 'Acquisition ID', '', 'input', '', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (812, '', 'CAN-999-999-000-999-68', 'Clinicalannotation', 'DiagnosisMaster', '', 'dx_number', 'dx_number', '', 'input', 'size=4', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(813, '', 'CAN-999-999-000-999-69', 'Clinicalannotation', 'DiagnosisMaster', '', 'dx_method', 'dx_method', '', 'select', '', '', 33, 'help_dx method', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(813, '', 'CAN-999-999-000-999-69', 'Clinicalannotation', 'DiagnosisMaster', '', 'dx_method', 'dx_method', '', 'select', '', '', 33, 'help_dx method', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(814, '', 'CAN-999-999-000-999-7', 'Clinicalannotation', 'Participant', '', 'race', 'race', '', 'select', '', '', 88, 'help_race', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) VALUES
-(814, '', 'CAN-999-999-000-999-7', 'Clinicalannotation', 'Participant', '', 'race', 'race', '', 'select', '', '', 88, 'help_race', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (815, '', 'CAN-999-999-000-999-70', 'Clinicalannotation', 'DiagnosisMaster', '', 'dx_nature', 'dx nature', '', 'select', '', '', 34, 'help_dx nature', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (816, '', 'CAN-999-999-000-999-71', 'Clinicalannotation', 'DiagnosisMaster', '', 'dx_date', 'dx_date', '', 'date', '', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (817, '', 'CAN-999-999-000-999-72', 'Clinicalannotation', 'DiagnosisMaster', '', 'icd10_id', 'icd10', '', 'autocomplete', 'size=20,url=/coding_icd10s/autocomplete/,tool=/coding_icd10s/tool/DiagnosisIcd10Id/,append=/coding_icd10s/append/', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '2008-10-01 11:16:16', '1'),
@@ -8166,7 +8186,7 @@ INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `
 (877, '', 'CANM-00002', 'Clinicalannotation', 'DiagnosisDetail', '', 'text_field', 'text_field', '', 'input', 'size=10', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (878, '', 'CANM-00004', 'Clinicalannotation', 'ConsentDetail', '', 'data', 'data', '', 'input', 'size=10', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (879, '', 'CANM-00005', 'Clinicalannotation', 'ConsentDetail', '', 'data', 'data', '', 'input', 'size=10', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(880, '', 'CAN-999-999-000-999-1276', '', 'GeneratedParentSample', '', 'sample_type', 'parent sample type', '', 'select', '', '', 141, 'generated_parent_sample_sample_type_help', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(880, '', 'CAN-999-999-000-999-1276', 'Inventorymanagement', 'GeneratedParentSample', '', 'sample_type', 'parent sample type', '', 'select', '', '', 141, 'generated_parent_sample_sample_type_help', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (881, '', 'CAN-999-999-000-999-1277', 'Inventorymanagement', 'AliquotUse', '', 'use_code', '', 'code', 'input', 'size=30', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (882, '', 'CAN-999-999-000-999-1278', 'Inventorymanagement', 'QualityCtrl', '', 'qc_code', 'code', '', 'input', 'size=10', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (883, '', 'CAN-999-999-000-999-1279', 'Inventorymanagement', 'QualityCtrl', '', 'run_by', 'run by', '', 'input', 'size=20', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -8177,11 +8197,13 @@ INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `
 (888, '', 'CAN-999-999-000-999-1282', 'Order', 'FunctionManagement', '', 'sample_aliquot_control_id', 'product type', '', 'select', '', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (889, '', 'CAN-999-999-000-999-1283', '', 'Generated', '', 'order_line_completion', 'completion', '', 'input', 'size=30', '', 0, 'order_line_completion_help', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (890, '', 'CAN-999-999-000-999-1284', '', 'OrderLine', '', 'sample_aliquot_precision', '', 'sample aliquot type precision', 'input', 'size=30', '', 0, 'sample_aliquot_type_precision_help', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(891, '', 'CAN-999-999-000-999-1285', 'Inventorymanagement', 'Collection', 'Inventorymanagement', 'collection_datetime_accuracy', '', 'accuracy', 'select', '', '', 172, 'datetime_accuracy_indicator_help', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(892, '', 'CAN-999-999-000-999-1286', '', 'SpecimenDetail', 'Inventorymanagement', 'reception_datetime_accuracy', '', 'accuracy', 'select', '', '', 172, 'datetime_accuracy_indicator_help', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(891, '', 'CAN-999-999-000-999-1285', 'Inventorymanagement', 'Collection', '', 'collection_datetime_accuracy', '', 'accuracy', 'select', '', '', 172, 'datetime_accuracy_indicator_help', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(892, '', 'CAN-999-999-000-999-1286', 'Inventorymanagement', 'SpecimenDetail', '', 'reception_datetime_accuracy', '', 'accuracy', 'select', '', '', 172, 'datetime_accuracy_indicator_help', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(893, '', 'CAN-999-999-000-999-1287', 'Inventorymanagement', 'DerivativeDetail', '', 'creation_datetime_accuracy', '', 'accuracy', 'select', '', '', 172, 'datetime_accuracy_indicator_help', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(894, '', 'CAN-999-999-000-999-1288', 'Inventorymanagement', 'SampleDetail', '', 'tissue_size_unit', '', 'unit', 'input', 'size=5', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 --
--- Dumping data for table `structure_formats`
+-- Dumping data for table`structure_formats`
 --
 
 INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
@@ -8373,7 +8395,6 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (239, 'CAN-999-999-000-999-1008_CAN-999-999-000-999-1030', 39, 'CAN-999-999-000-999-1008', 179, 'CAN-999-999-000-999-1030', 0, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (241, 'CAN-999-999-000-999-1008_CAN-999-999-000-999-1032', 39, 'CAN-999-999-000-999-1008', 181, 'CAN-999-999-000-999-1032', 1, 30, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (242, 'CAN-999-999-000-999-1008_CAN-999-999-000-999-1040', 39, 'CAN-999-999-000-999-1008', 187, 'CAN-999-999-000-999-1040', 1, 41, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(243, 'CAN-999-999-000-999-1008_CAN-999-999-000-999-1041', 39, 'CAN-999-999-000-999-1008', 188, 'CAN-999-999-000-999-1041', 1, 42, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (244, 'CAN-999-999-000-999-1008_CAN-999-999-000-999-1043', 39, 'CAN-999-999-000-999-1008', 189, 'CAN-999-999-000-999-1043', 1, 44, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (245, 'CAN-999-999-000-999-1008_CAN-999-999-000-999-1044', 39, 'CAN-999-999-000-999-1008', 190, 'CAN-999-999-000-999-1044', 1, 45, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (246, 'CAN-999-999-000-999-1008_CAN-999-999-000-999-1045', 39, 'CAN-999-999-000-999-1008', 191, 'CAN-999-999-000-999-1045', 1, 46, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -8399,8 +8420,8 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (268, 'CAN-999-999-000-999-1010_CAN-999-999-000-999-1027', 41, 'CAN-999-999-000-999-1010', 176, 'CAN-999-999-000-999-1027', 0, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (269, 'CAN-999-999-000-999-1010_CAN-999-999-000-999-1029', 41, 'CAN-999-999-000-999-1010', 177, 'CAN-999-999-000-999-1029', 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (270, 'CAN-999-999-000-999-1010_CAN-999-999-000-999-1030', 41, 'CAN-999-999-000-999-1010', 179, 'CAN-999-999-000-999-1030', 0, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(272, 'CAN-999-999-000-999-1010_CAN-999-999-000-999-1060', 41, 'CAN-999-999-000-999-1010', 200, 'CAN-999-999-000-999-1060', 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(273, 'CAN-999-999-000-999-1010_CAN-999-999-000-999-1061', 41, 'CAN-999-999-000-999-1010', 201, 'CAN-999-999-000-999-1061', 1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(272, 'CAN-999-999-000-999-1010_CAN-999-999-000-999-1060', 41, 'CAN-999-999-000-999-1010', 200, 'CAN-999-999-000-999-1060', 1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(273, 'CAN-999-999-000-999-1010_CAN-999-999-000-999-1061', 41, 'CAN-999-999-000-999-1010', 201, 'CAN-999-999-000-999-1061', 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (274, 'CAN-999-999-000-999-1010_CAN-999-999-000-999-1062', 41, 'CAN-999-999-000-999-1010', 202, 'CAN-999-999-000-999-1062', 1, 30, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (275, 'CAN-999-999-000-999-1011_CAN-999-999-000-999-1016', 42, 'CAN-999-999-000-999-1011', 169, 'CAN-999-999-000-999-1016', 0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (276, 'CAN-999-999-000-999-1011_CAN-999-999-000-999-1018', 42, 'CAN-999-999-000-999-1011', 170, 'CAN-999-999-000-999-1018', 0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -8409,8 +8430,8 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (280, 'CAN-999-999-000-999-1011_CAN-999-999-000-999-1027', 42, 'CAN-999-999-000-999-1011', 176, 'CAN-999-999-000-999-1027', 0, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (281, 'CAN-999-999-000-999-1011_CAN-999-999-000-999-1029', 42, 'CAN-999-999-000-999-1011', 177, 'CAN-999-999-000-999-1029', 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (282, 'CAN-999-999-000-999-1011_CAN-999-999-000-999-1030', 42, 'CAN-999-999-000-999-1011', 179, 'CAN-999-999-000-999-1030', 0, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(284, 'CAN-999-999-000-999-1011_CAN-999-999-000-999-1060', 42, 'CAN-999-999-000-999-1011', 200, 'CAN-999-999-000-999-1060', 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(285, 'CAN-999-999-000-999-1011_CAN-999-999-000-999-1061', 42, 'CAN-999-999-000-999-1011', 201, 'CAN-999-999-000-999-1061', 1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(284, 'CAN-999-999-000-999-1011_CAN-999-999-000-999-1060', 42, 'CAN-999-999-000-999-1011', 200, 'CAN-999-999-000-999-1060', 1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(285, 'CAN-999-999-000-999-1011_CAN-999-999-000-999-1061', 42, 'CAN-999-999-000-999-1011', 201, 'CAN-999-999-000-999-1061', 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (286, 'CAN-999-999-000-999-1011_CAN-999-999-000-999-1062', 42, 'CAN-999-999-000-999-1011', 202, 'CAN-999-999-000-999-1062', 1, 30, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (287, 'CAN-999-999-000-999-1011_CAN-999-999-000-999-1065', 42, 'CAN-999-999-000-999-1011', 203, 'CAN-999-999-000-999-1065', 1, 45, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (288, 'CAN-999-999-000-999-1011_CAN-999-999-000-999-1066', 42, 'CAN-999-999-000-999-1011', 204, 'CAN-999-999-000-999-1066', 1, 46, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -8422,10 +8443,10 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (295, 'CAN-999-999-000-999-1012_CAN-999-999-000-999-1027', 43, 'CAN-999-999-000-999-1012', 176, 'CAN-999-999-000-999-1027', 0, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (296, 'CAN-999-999-000-999-1012_CAN-999-999-000-999-1029', 43, 'CAN-999-999-000-999-1012', 177, 'CAN-999-999-000-999-1029', 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (297, 'CAN-999-999-000-999-1012_CAN-999-999-000-999-1030', 43, 'CAN-999-999-000-999-1012', 179, 'CAN-999-999-000-999-1030', 0, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(299, 'CAN-999-999-000-999-1012_CAN-999-999-000-999-1060', 43, 'CAN-999-999-000-999-1012', 200, 'CAN-999-999-000-999-1060', 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(300, 'CAN-999-999-000-999-1012_CAN-999-999-000-999-1061', 43, 'CAN-999-999-000-999-1012', 201, 'CAN-999-999-000-999-1061', 1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(299, 'CAN-999-999-000-999-1012_CAN-999-999-000-999-1060', 43, 'CAN-999-999-000-999-1012', 200, 'CAN-999-999-000-999-1060', 1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(300, 'CAN-999-999-000-999-1012_CAN-999-999-000-999-1061', 43, 'CAN-999-999-000-999-1012', 201, 'CAN-999-999-000-999-1061', 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (301, 'CAN-999-999-000-999-1012_CAN-999-999-000-999-1062', 43, 'CAN-999-999-000-999-1012', 202, 'CAN-999-999-000-999-1062', 1, 30, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(302, 'CAN-999-999-000-999-1012_CAN-999-999-000-999-1070', 43, 'CAN-999-999-000-999-1012', 207, 'CAN-999-999-000-999-1070', 1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(302, 'CAN-999-999-000-999-1012_CAN-999-999-000-999-1070', 43, 'CAN-999-999-000-999-1012', 207, 'CAN-999-999-000-999-1070', 1, 34, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (306, 'CAN-999-999-000-999-1013_CAN-999-999-000-999-1016', 44, 'CAN-999-999-000-999-1013', 169, 'CAN-999-999-000-999-1016', 0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (307, 'CAN-999-999-000-999-1013_CAN-999-999-000-999-1018', 44, 'CAN-999-999-000-999-1013', 170, 'CAN-999-999-000-999-1018', 0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (308, 'CAN-999-999-000-999-1013_CAN-999-999-000-999-1022', 44, 'CAN-999-999-000-999-1013', 172, 'CAN-999-999-000-999-1022', 0, 25, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -8433,10 +8454,10 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (311, 'CAN-999-999-000-999-1013_CAN-999-999-000-999-1027', 44, 'CAN-999-999-000-999-1013', 176, 'CAN-999-999-000-999-1027', 0, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (312, 'CAN-999-999-000-999-1013_CAN-999-999-000-999-1029', 44, 'CAN-999-999-000-999-1013', 177, 'CAN-999-999-000-999-1029', 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (313, 'CAN-999-999-000-999-1013_CAN-999-999-000-999-1030', 44, 'CAN-999-999-000-999-1013', 179, 'CAN-999-999-000-999-1030', 0, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(315, 'CAN-999-999-000-999-1013_CAN-999-999-000-999-1060', 44, 'CAN-999-999-000-999-1013', 200, 'CAN-999-999-000-999-1060', 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(316, 'CAN-999-999-000-999-1013_CAN-999-999-000-999-1061', 44, 'CAN-999-999-000-999-1013', 201, 'CAN-999-999-000-999-1061', 1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(315, 'CAN-999-999-000-999-1013_CAN-999-999-000-999-1060', 44, 'CAN-999-999-000-999-1013', 200, 'CAN-999-999-000-999-1060', 1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(316, 'CAN-999-999-000-999-1013_CAN-999-999-000-999-1061', 44, 'CAN-999-999-000-999-1013', 201, 'CAN-999-999-000-999-1061', 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (317, 'CAN-999-999-000-999-1013_CAN-999-999-000-999-1062', 44, 'CAN-999-999-000-999-1013', 202, 'CAN-999-999-000-999-1062', 1, 30, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(318, 'CAN-999-999-000-999-1013_CAN-999-999-000-999-1070', 44, 'CAN-999-999-000-999-1013', 207, 'CAN-999-999-000-999-1070', 1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(318, 'CAN-999-999-000-999-1013_CAN-999-999-000-999-1070', 44, 'CAN-999-999-000-999-1013', 207, 'CAN-999-999-000-999-1070', 1, 34, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (322, 'CAN-999-999-000-999-1014_CAN-999-999-000-999-1016', 45, 'CAN-999-999-000-999-1014', 169, 'CAN-999-999-000-999-1016', 0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (323, 'CAN-999-999-000-999-1014_CAN-999-999-000-999-1018', 45, 'CAN-999-999-000-999-1014', 170, 'CAN-999-999-000-999-1018', 0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (324, 'CAN-999-999-000-999-1014_CAN-999-999-000-999-1022', 45, 'CAN-999-999-000-999-1014', 172, 'CAN-999-999-000-999-1022', 0, 25, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -8444,10 +8465,10 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (327, 'CAN-999-999-000-999-1014_CAN-999-999-000-999-1027', 45, 'CAN-999-999-000-999-1014', 176, 'CAN-999-999-000-999-1027', 0, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (328, 'CAN-999-999-000-999-1014_CAN-999-999-000-999-1029', 45, 'CAN-999-999-000-999-1014', 177, 'CAN-999-999-000-999-1029', 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (329, 'CAN-999-999-000-999-1014_CAN-999-999-000-999-1030', 45, 'CAN-999-999-000-999-1014', 179, 'CAN-999-999-000-999-1030', 0, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(331, 'CAN-999-999-000-999-1014_CAN-999-999-000-999-1060', 45, 'CAN-999-999-000-999-1014', 200, 'CAN-999-999-000-999-1060', 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(332, 'CAN-999-999-000-999-1014_CAN-999-999-000-999-1061', 45, 'CAN-999-999-000-999-1014', 201, 'CAN-999-999-000-999-1061', 1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(331, 'CAN-999-999-000-999-1014_CAN-999-999-000-999-1060', 45, 'CAN-999-999-000-999-1014', 200, 'CAN-999-999-000-999-1060', 1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(332, 'CAN-999-999-000-999-1014_CAN-999-999-000-999-1061', 45, 'CAN-999-999-000-999-1014', 201, 'CAN-999-999-000-999-1061', 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (333, 'CAN-999-999-000-999-1014_CAN-999-999-000-999-1062', 45, 'CAN-999-999-000-999-1014', 202, 'CAN-999-999-000-999-1062', 1, 30, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(334, 'CAN-999-999-000-999-1014_CAN-999-999-000-999-1070', 45, 'CAN-999-999-000-999-1014', 207, 'CAN-999-999-000-999-1070', 1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(334, 'CAN-999-999-000-999-1014_CAN-999-999-000-999-1070', 45, 'CAN-999-999-000-999-1014', 207, 'CAN-999-999-000-999-1070', 1, 34, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (338, 'CAN-999-999-000-999-1014_CAN-999-999-000-999-1075', 45, 'CAN-999-999-000-999-1014', 211, 'CAN-999-999-000-999-1075', 1, 40, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (339, 'CAN-999-999-000-999-1015_CAN-999-999-000-999-1016', 46, 'CAN-999-999-000-999-1015', 169, 'CAN-999-999-000-999-1016', 0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (340, 'CAN-999-999-000-999-1015_CAN-999-999-000-999-1018', 46, 'CAN-999-999-000-999-1015', 170, 'CAN-999-999-000-999-1018', 0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -8456,10 +8477,10 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (344, 'CAN-999-999-000-999-1015_CAN-999-999-000-999-1027', 46, 'CAN-999-999-000-999-1015', 176, 'CAN-999-999-000-999-1027', 0, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (345, 'CAN-999-999-000-999-1015_CAN-999-999-000-999-1029', 46, 'CAN-999-999-000-999-1015', 177, 'CAN-999-999-000-999-1029', 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (346, 'CAN-999-999-000-999-1015_CAN-999-999-000-999-1030', 46, 'CAN-999-999-000-999-1015', 179, 'CAN-999-999-000-999-1030', 0, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(348, 'CAN-999-999-000-999-1015_CAN-999-999-000-999-1060', 46, 'CAN-999-999-000-999-1015', 200, 'CAN-999-999-000-999-1060', 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(349, 'CAN-999-999-000-999-1015_CAN-999-999-000-999-1061', 46, 'CAN-999-999-000-999-1015', 201, 'CAN-999-999-000-999-1061', 1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(348, 'CAN-999-999-000-999-1015_CAN-999-999-000-999-1060', 46, 'CAN-999-999-000-999-1015', 200, 'CAN-999-999-000-999-1060', 1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(349, 'CAN-999-999-000-999-1015_CAN-999-999-000-999-1061', 46, 'CAN-999-999-000-999-1015', 201, 'CAN-999-999-000-999-1061', 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (350, 'CAN-999-999-000-999-1015_CAN-999-999-000-999-1062', 46, 'CAN-999-999-000-999-1015', 202, 'CAN-999-999-000-999-1062', 1, 30, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(351, 'CAN-999-999-000-999-1015_CAN-999-999-000-999-1070', 46, 'CAN-999-999-000-999-1015', 207, 'CAN-999-999-000-999-1070', 1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(351, 'CAN-999-999-000-999-1015_CAN-999-999-000-999-1070', 46, 'CAN-999-999-000-999-1015', 207, 'CAN-999-999-000-999-1070', 1, 34, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (355, 'CAN-999-999-000-999-1015_CAN-999-999-000-999-1075', 46, 'CAN-999-999-000-999-1015', 211, 'CAN-999-999-000-999-1075', 1, 40, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (356, 'CAN-999-999-000-999-1016_CAN-999-999-000-999-1016', 47, 'CAN-999-999-000-999-1016', 169, 'CAN-999-999-000-999-1016', 0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (357, 'CAN-999-999-000-999-1016_CAN-999-999-000-999-1018', 47, 'CAN-999-999-000-999-1016', 170, 'CAN-999-999-000-999-1018', 0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -8525,9 +8546,9 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (432, 'CAN-999-999-000-999-1022_CAN-999-999-000-999-1128', 52, 'CAN-999-999-000-999-1022', 245, 'CAN-999-999-000-999-1128', 1, 60, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (433, 'CAN-999-999-000-999-1022_CAN-999-999-000-999-1165', 52, 'CAN-999-999-000-999-1022', 279, 'CAN-999-999-000-999-1165', 0, 35, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (434, 'CAN-999-999-000-999-1022_CAN-999-999-000-999-1194', 52, 'CAN-999-999-000-999-1022', 306, 'CAN-999-999-000-999-1194', 0, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(435, 'CAN-999-999-000-999-1022_CAN-999-999-000-999-1216', 52, 'CAN-999-999-000-999-1022', 327, 'CAN-999-999-000-999-1216', 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(435, 'CAN-999-999-000-999-1022_CAN-999-999-000-999-1216', 52, 'CAN-999-999-000-999-1022', 327, 'CAN-999-999-000-999-1216', 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(436, 'CAN-999-999-000-999-1022_CAN-999-999-000-999-1217', 52, 'CAN-999-999-000-999-1022', 328, 'CAN-999-999-000-999-1217', 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
-(436, 'CAN-999-999-000-999-1022_CAN-999-999-000-999-1217', 52, 'CAN-999-999-000-999-1022', 328, 'CAN-999-999-000-999-1217', 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (437, 'CAN-999-999-000-999-1022_CAN-999-999-000-999-1259', 52, 'CAN-999-999-000-999-1022', 372, 'CAN-999-999-000-999-1259', 0, 36, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (438, 'CAN-999-999-000-999-1024_CAN-999-999-000-999-1100', 53, 'CAN-999-999-000-999-1024', 216, 'CAN-999-999-000-999-1100', 0, 10, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '1', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (440, 'CAN-999-999-000-999-1024_CAN-999-999-000-999-1102', 53, 'CAN-999-999-000-999-1024', 218, 'CAN-999-999-000-999-1102', 0, 9, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '1', '1', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -8694,9 +8715,9 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (671, 'CAN-999-999-000-999-1033_CAN-999-999-000-999-1180', 60, 'CAN-999-999-000-999-1033', 291, 'CAN-999-999-000-999-1180', 0, 21, '', '1', '', '1', 'code', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (672, 'CAN-999-999-000-999-1033_CAN-999-999-000-999-1118', 60, 'CAN-999-999-000-999-1033', 234, 'CAN-999-999-000-999-1118', 0, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (674, 'CAN-999-999-000-999-1033_CAN-999-999-000-999-1120', 60, 'CAN-999-999-000-999-1033', 237, 'CAN-999-999-000-999-1120', 1, 70, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(675, 'CAN-999-999-000-999-1033_CAN-999-999-000-999-1130', 60, 'CAN-999-999-000-999-1033', 247, 'CAN-999-999-000-999-1130', 1, 71, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(675, 'CAN-999-999-000-999-1033_CAN-999-999-000-999-1130', 60, 'CAN-999-999-000-999-1033', 247, 'CAN-999-999-000-999-1130', 1, 71, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(676, 'CAN-999-999-000-999-1033_CAN-999-999-000-999-1131', 60, 'CAN-999-999-000-999-1033', 248, 'CAN-999-999-000-999-1131', 1, 72, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
-(676, 'CAN-999-999-000-999-1033_CAN-999-999-000-999-1131', 60, 'CAN-999-999-000-999-1033', 248, 'CAN-999-999-000-999-1131', 1, 72, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (677, 'CAN-999-999-000-999-1033_CAN-999-999-000-999-1132', 60, 'CAN-999-999-000-999-1033', 249, 'CAN-999-999-000-999-1132', 1, 73, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (678, 'CAN-999-999-000-999-1033_CAN-999-999-000-999-1131', 60, 'CAN-999-999-000-999-1033', 248, 'CAN-999-999-000-999-1131', 1, 74, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '1', '1', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (679, 'CAN-999-999-000-999-1033_CAN-999-999-000-999-1140', 60, 'CAN-999-999-000-999-1033', 256, 'CAN-999-999-000-999-1140', 1, 60, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -8863,9 +8884,9 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (874, 'CAN-999-999-000-999-1053_CAN-999-999-000-999-1004', 79, 'CAN-999-999-000-999-1053', 156, 'CAN-999-999-000-999-1004', 0, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (875, 'CAN-999-999-000-999-1053_CAN-999-999-000-999-1016', 79, 'CAN-999-999-000-999-1053', 169, 'CAN-999-999-000-999-1016', 0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '1', '1', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (876, 'CAN-999-999-000-999-1053_CAN-999-999-000-999-1018', 79, 'CAN-999-999-000-999-1053', 170, 'CAN-999-999-000-999-1018', 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(877, 'CAN-999-999-000-999-1053_CAN-999-999-000-999-1027', 79, 'CAN-999-999-000-999-1053', 176, 'CAN-999-999-000-999-1027', 0, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(877, 'CAN-999-999-000-999-1053_CAN-999-999-000-999-1027', 79, 'CAN-999-999-000-999-1053', 176, 'CAN-999-999-000-999-1027', 0, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(878, 'CAN-999-999-000-999-1053_CAN-999-999-000-999-1222', 79, 'CAN-999-999-000-999-1053', 332, 'CAN-999-999-000-999-1222', 0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
-(878, 'CAN-999-999-000-999-1053_CAN-999-999-000-999-1222', 79, 'CAN-999-999-000-999-1053', 332, 'CAN-999-999-000-999-1222', 0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (879, 'CAN-999-999-000-999-1054_CAN-999-999-000-999-1100', 80, 'CAN-999-999-000-999-1054', 216, 'CAN-999-999-000-999-1100', 0, 10, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '1', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (881, 'CAN-999-999-000-999-1054_CAN-999-999-000-999-1102', 80, 'CAN-999-999-000-999-1054', 218, 'CAN-999-999-000-999-1102', 0, 9, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '1', '1', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (882, 'CAN-999-999-000-999-1054_CAN-999-999-000-999-1103', 80, 'CAN-999-999-000-999-1054', 219, 'CAN-999-999-000-999-1103', 0, 13, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -8955,7 +8976,6 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (981, 'CAN-999-999-000-999-1059_CAN-999-999-000-999-1236', 85, 'CAN-999-999-000-999-1059', 347, 'CAN-999-999-000-999-1236', 1, 14, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (982, 'CAN-999-999-000-999-1059_CAN-999-999-000-999-1237', 85, 'CAN-999-999-000-999-1059', 348, 'CAN-999-999-000-999-1237', 1, 15, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (983, 'CAN-999-999-000-999-1060_CAN-999-999-000-999-1040', 86, 'CAN-999-999-000-999-1060', 187, 'CAN-999-999-000-999-1040', 0, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(984, 'CAN-999-999-000-999-1060_CAN-999-999-000-999-1041', 86, 'CAN-999-999-000-999-1060', 188, 'CAN-999-999-000-999-1041', 0, 9, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (985, 'CAN-999-999-000-999-1060_CAN-999-999-000-999-1043', 86, 'CAN-999-999-000-999-1060', 189, 'CAN-999-999-000-999-1043', 0, 10, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (986, 'CAN-999-999-000-999-1060_CAN-999-999-000-999-1100', 86, 'CAN-999-999-000-999-1060', 216, 'CAN-999-999-000-999-1100', 0, 4, '', '1', 'tissue core', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (987, 'CAN-999-999-000-999-1060_CAN-999-999-000-999-1107', 86, 'CAN-999-999-000-999-1060', 223, 'CAN-999-999-000-999-1107', 0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -8972,10 +8992,10 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (999, 'CAN-999-999-000-999-1061_CAN-999-999-000-999-1027', 87, 'CAN-999-999-000-999-1061', 176, 'CAN-999-999-000-999-1027', 0, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1000, 'CAN-999-999-000-999-1061_CAN-999-999-000-999-1029', 87, 'CAN-999-999-000-999-1061', 177, 'CAN-999-999-000-999-1029', 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1001, 'CAN-999-999-000-999-1061_CAN-999-999-000-999-1030', 87, 'CAN-999-999-000-999-1061', 179, 'CAN-999-999-000-999-1030', 0, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(1003, 'CAN-999-999-000-999-1061_CAN-999-999-000-999-1060', 87, 'CAN-999-999-000-999-1061', 200, 'CAN-999-999-000-999-1060', 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(1004, 'CAN-999-999-000-999-1061_CAN-999-999-000-999-1061', 87, 'CAN-999-999-000-999-1061', 201, 'CAN-999-999-000-999-1061', 1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(1003, 'CAN-999-999-000-999-1061_CAN-999-999-000-999-1060', 87, 'CAN-999-999-000-999-1061', 200, 'CAN-999-999-000-999-1060', 1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(1004, 'CAN-999-999-000-999-1061_CAN-999-999-000-999-1061', 87, 'CAN-999-999-000-999-1061', 201, 'CAN-999-999-000-999-1061', 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1005, 'CAN-999-999-000-999-1061_CAN-999-999-000-999-1062', 87, 'CAN-999-999-000-999-1061', 202, 'CAN-999-999-000-999-1062', 1, 30, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(1006, 'CAN-999-999-000-999-1061_CAN-999-999-000-999-1070', 87, 'CAN-999-999-000-999-1061', 207, 'CAN-999-999-000-999-1070', 1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(1006, 'CAN-999-999-000-999-1061_CAN-999-999-000-999-1070', 87, 'CAN-999-999-000-999-1061', 207, 'CAN-999-999-000-999-1070', 1, 34, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1010, 'CAN-999-999-000-999-1063_CAN-999-999-000-999-1100', 88, 'CAN-999-999-000-999-1063', 216, 'CAN-999-999-000-999-1100', 0, 10, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '1', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1012, 'CAN-999-999-000-999-1063_CAN-999-999-000-999-1102', 88, 'CAN-999-999-000-999-1063', 218, 'CAN-999-999-000-999-1102', 0, 9, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '1', '1', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1013, 'CAN-999-999-000-999-1063_CAN-999-999-000-999-1103', 88, 'CAN-999-999-000-999-1063', 219, 'CAN-999-999-000-999-1103', 0, 13, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -9032,10 +9052,10 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (1086, 'CAN-999-999-000-999-1065_CAN-999-999-000-999-1118', 90, 'CAN-999-999-000-999-1065', 234, 'CAN-999-999-000-999-1118', 0, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1088, 'CAN-999-999-000-999-1065_CAN-999-999-000-999-1120', 90, 'CAN-999-999-000-999-1065', 237, 'CAN-999-999-000-999-1120', 1, 70, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1089, 'CAN-999-999-000-999-1065_CAN-999-999-000-999-1130', 90, 'CAN-999-999-000-999-1065', 247, 'CAN-999-999-000-999-1130', 1, 71, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(1090, 'CAN-999-999-000-999-1065_CAN-999-999-000-999-1131', 90, 'CAN-999-999-000-999-1065', 248, 'CAN-999-999-000-999-1131', 1, 72, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
-INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(1090, 'CAN-999-999-000-999-1065_CAN-999-999-000-999-1131', 90, 'CAN-999-999-000-999-1065', 248, 'CAN-999-999-000-999-1131', 1, 72, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1091, 'CAN-999-999-000-999-1065_CAN-999-999-000-999-1132', 90, 'CAN-999-999-000-999-1065', 249, 'CAN-999-999-000-999-1132', 1, 73, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(1092, 'CAN-999-999-000-999-1065_CAN-999-999-000-999-1131', 90, 'CAN-999-999-000-999-1065', 248, 'CAN-999-999-000-999-1131', 1, 74, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '1', '1', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(1092, 'CAN-999-999-000-999-1065_CAN-999-999-000-999-1131', 90, 'CAN-999-999-000-999-1065', 248, 'CAN-999-999-000-999-1131', 1, 74, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '1', '1', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 (1093, 'CAN-999-999-000-999-1065_CAN-999-999-000-999-1140', 90, 'CAN-999-999-000-999-1065', 256, 'CAN-999-999-000-999-1140', 1, 60, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1097, 'CAN-999-999-000-999-1065_CAN-999-999-000-999-1165', 90, 'CAN-999-999-000-999-1065', 279, 'CAN-999-999-000-999-1165', 0, 35, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1098, 'CAN-999-999-000-999-1065_CAN-999-999-000-999-1194', 90, 'CAN-999-999-000-999-1065', 306, 'CAN-999-999-000-999-1194', 0, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -9204,10 +9224,10 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (1352, 'CAN-999-999-000-999-26_CAN-999-999-000-999-138', 110, 'CAN-999-999-000-999-26', 398, 'CAN-999-999-000-999-138', 1, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1353, 'CAN-999-999-000-999-26_CAN-999-999-000-999-139', 110, 'CAN-999-999-000-999-26', 399, 'CAN-999-999-000-999-139', 2, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1354, 'CAN-999-999-000-999-26_CAN-999-999-000-999-140', 110, 'CAN-999-999-000-999-26', 400, 'CAN-999-999-000-999-140', 2, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(1355, 'CAN-999-999-000-999-26_CAN-999-999-000-999-141', 110, 'CAN-999-999-000-999-26', 401, 'CAN-999-999-000-999-141', 2, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
-INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(1355, 'CAN-999-999-000-999-26_CAN-999-999-000-999-141', 110, 'CAN-999-999-000-999-26', 401, 'CAN-999-999-000-999-141', 2, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1356, 'CAN-999-999-000-999-26_CAN-999-999-000-999-142', 110, 'CAN-999-999-000-999-26', 402, 'CAN-999-999-000-999-142', 2, 7, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(1357, 'CAN-999-999-000-999-26_CAN-999-999-000-999-143', 110, 'CAN-999-999-000-999-26', 403, 'CAN-999-999-000-999-143', 2, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(1357, 'CAN-999-999-000-999-26_CAN-999-999-000-999-143', 110, 'CAN-999-999-000-999-26', 403, 'CAN-999-999-000-999-143', 2, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 (1358, 'CAN-999-999-000-999-26_CAN-999-999-000-999-145', 110, 'CAN-999-999-000-999-26', 405, 'CAN-999-999-000-999-145', 2, 12, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1359, 'CAN-999-999-000-999-26_CAN-999-999-000-999-146', 110, 'CAN-999-999-000-999-26', 406, 'CAN-999-999-000-999-146', 1, 14, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1360, 'CAN-999-999-000-999-26_CAN-999-999-000-999-147', 110, 'CAN-999-999-000-999-26', 407, 'CAN-999-999-000-999-147', 1, 13, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -9376,10 +9396,10 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (1545, 'CAN-999-999-000-999-52_CAN-999-999-000-999-367', 130, 'CAN-999-999-000-999-52', 606, 'CAN-999-999-000-999-367', 1, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1546, 'CAN-999-999-000-999-52_CAN-999-999-000-999-368', 130, 'CAN-999-999-000-999-52', 607, 'CAN-999-999-000-999-368', 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1547, 'CAN-999-999-000-999-52_CAN-999-999-000-999-369', 130, 'CAN-999-999-000-999-52', 608, 'CAN-999-999-000-999-369', 2, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(1548, 'CAN-999-999-000-999-52_CAN-999-999-000-999-370', 130, 'CAN-999-999-000-999-52', 610, 'CAN-999-999-000-999-370', 2, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
-INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(1548, 'CAN-999-999-000-999-52_CAN-999-999-000-999-370', 130, 'CAN-999-999-000-999-52', 610, 'CAN-999-999-000-999-370', 2, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1549, 'CAN-999-999-000-999-52_CAN-999-999-000-999-371', 130, 'CAN-999-999-000-999-52', 611, 'CAN-999-999-000-999-371', 2, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(1550, 'CAN-999-999-000-999-52_CAN-999-999-000-999-372', 130, 'CAN-999-999-000-999-52', 612, 'CAN-999-999-000-999-372', 2, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(1550, 'CAN-999-999-000-999-52_CAN-999-999-000-999-372', 130, 'CAN-999-999-000-999-52', 612, 'CAN-999-999-000-999-372', 2, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 (1551, 'CAN-999-999-000-999-52_CAN-999-999-000-999-373', 130, 'CAN-999-999-000-999-52', 613, 'CAN-999-999-000-999-373', 2, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1552, 'CAN-999-999-000-999-52_CAN-999-999-000-999-374', 130, 'CAN-999-999-000-999-52', 614, 'CAN-999-999-000-999-374', 2, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1553, 'CAN-999-999-000-999-52_CAN-999-999-000-999-375', 130, 'CAN-999-999-000-999-52', 615, 'CAN-999-999-000-999-375', 3, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -9548,10 +9568,10 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (1748, 'CAN-999-999-000-999-69_AAA-000-000-000-000-70', 148, 'CAN-999-999-000-999-69', 97, 'AAA-000-000-000-000-70', 1, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1749, 'CAN-999-999-000-999-69_AAA-000-000-000-000-71', 148, 'CAN-999-999-000-999-69', 98, 'AAA-000-000-000-000-71', 1, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '2008-08-26 01:35:44', ''),
 (1750, 'CAN-999-999-000-999-6_CAN-999-999-000-002-11', 138, 'CAN-999-999-000-999-6', 139, 'CAN-999-999-000-002-11', 1, 9, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(1751, 'CAN-999-999-000-999-6_CAN-999-999-000-999-324', 138, 'CAN-999-999-000-999-6', 585, 'CAN-999-999-000-999-324', 1, 7, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
-INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(1751, 'CAN-999-999-000-999-6_CAN-999-999-000-999-324', 138, 'CAN-999-999-000-999-6', 585, 'CAN-999-999-000-999-324', 1, 7, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1752, 'CAN-999-999-000-999-6_CAN-999-999-000-999-68', 138, 'CAN-999-999-000-999-6', 812, 'CAN-999-999-000-999-68', 1, 0, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(1753, 'CAN-999-999-000-999-6_CAN-999-999-000-999-69', 138, 'CAN-999-999-000-999-6', 813, 'CAN-999-999-000-999-69', 1, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(1753, 'CAN-999-999-000-999-6_CAN-999-999-000-999-69', 138, 'CAN-999-999-000-999-6', 813, 'CAN-999-999-000-999-69', 1, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 (1754, 'CAN-999-999-000-999-6_CAN-999-999-000-999-70', 138, 'CAN-999-999-000-999-6', 815, 'CAN-999-999-000-999-70', 1, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1755, 'CAN-999-999-000-999-6_CAN-999-999-000-999-71', 138, 'CAN-999-999-000-999-6', 816, 'CAN-999-999-000-999-71', 1, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1756, 'CAN-999-999-000-999-6_CAN-999-999-000-999-72', 138, 'CAN-999-999-000-999-6', 817, 'CAN-999-999-000-999-72', 1, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '2008-10-01 11:16:32', ''),
@@ -9726,14 +9746,14 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (1926, 'CAN-999-999-000-999-1073_CAN-999-999-000-999-1232', 181, 'CAN-999-999-000-999-1073', 343, 'CAN-999-999-000-999-1232', 0, 1, '', '1', ' ', '1', 'tma slide', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1927, 'CAN-999-999-000-999-1074_CAN-999-999-000-999-1108', 182, 'CAN-999-999-000-999-1074', 224, 'CAN-999-999-000-999-1108', 0, 22, '', '0', '-', '1', '-', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1928, 'CAN-999-999-000-999-1075_CAN-999-999-000-999-1275', 183, 'CAN-999-999-000-999-1075', 875, 'CAN-999-999-000-999-1275', 0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(1929, 'CAN-999-999-000-999-1002_CAN-999-999-000-999-1018', 33, 'CAN-999-999-000-999-1002', 170, 'CAN-999-999-000-999-1018', 0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(1929, 'CAN-999-999-000-999-1002_CAN-999-999-000-999-1018', 33, 'CAN-999-999-000-999-1002', 170, 'CAN-999-999-000-999-1018', 0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(1930, 'CAN-999-999-000-999-1002_CAN-999-999-000-999-1016', 33, 'CAN-999-999-000-999-1002', 169, 'CAN-999-999-000-999-1016', 0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
-(1930, 'CAN-999-999-000-999-1002_CAN-999-999-000-999-1016', 33, 'CAN-999-999-000-999-1002', 169, 'CAN-999-999-000-999-1016', 0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1931, 'CAN-999-999-000-999-1002_CAN-999-999-000-999-1027', 33, 'CAN-999-999-000-999-1002', 176, 'CAN-999-999-000-999-1027', 0, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1932, 'CAN-999-999-000-999-1002_CAN-999-999-000-999-1000', 33, 'CAN-999-999-000-999-1002', 152, 'CAN-999-999-000-999-1000', 0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1933, 'CAN-999-999-000-999-1002_CAN-999-999-000-999-1223', 33, 'CAN-999-999-000-999-1002', 333, 'CAN-999-999-000-999-1223', 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(1935, 'CAN-999-999-000-999-1011_CAN-999-999-000-999-1070', 42, 'CAN-999-999-000-999-1011', 207, 'CAN-999-999-000-999-1070', 1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(1936, 'CAN-999-999-000-999-1010_CAN-999-999-000-999-1070', 41, 'CAN-999-999-000-999-1010', 207, 'CAN-999-999-000-999-1070', 1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(1935, 'CAN-999-999-000-999-1011_CAN-999-999-000-999-1070', 42, 'CAN-999-999-000-999-1011', 207, 'CAN-999-999-000-999-1070', 1, 34, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(1936, 'CAN-999-999-000-999-1010_CAN-999-999-000-999-1070', 41, 'CAN-999-999-000-999-1010', 207, 'CAN-999-999-000-999-1070', 1, 34, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1937, 'CAN-999-999-000-999-1010_CAN-999-999-000-999-1222', 41, 'CAN-999-999-000-999-1010', 332, 'CAN-999-999-000-999-1222', 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1938, 'CAN-999-999-000-999-1011_CAN-999-999-000-999-1222', 42, 'CAN-999-999-000-999-1011', 332, 'CAN-999-999-000-999-1222', 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1939, 'CAN-999-999-000-999-1012_CAN-999-999-000-999-1222', 43, 'CAN-999-999-000-999-1012', 332, 'CAN-999-999-000-999-1222', 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -9908,9 +9928,9 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (2114, 'CAN-999-999-000-999-1022_CAN-999-999-000-999-1000', 52, 'CAN-999-999-000-999-1022', 152, 'CAN-999-999-000-999-1000', 0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2115, 'CAN-999-999-000-999-1022_CAN-999-999-000-999-1223', 52, 'CAN-999-999-000-999-1022', 333, 'CAN-999-999-000-999-1223', 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2116, 'CAN-999-999-000-999-1022_CAN-999-999-000-999-1018', 52, 'CAN-999-999-000-999-1022', 170, 'CAN-999-999-000-999-1018', 0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2117, 'CAN-999-999-000-999-1024_CAN-999-999-000-999-1000', 53, 'CAN-999-999-000-999-1024', 152, 'CAN-999-999-000-999-1000', 0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(2117, 'CAN-999-999-000-999-1024_CAN-999-999-000-999-1000', 53, 'CAN-999-999-000-999-1024', 152, 'CAN-999-999-000-999-1000', 0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(2118, 'CAN-999-999-000-999-1024_CAN-999-999-000-999-1223', 53, 'CAN-999-999-000-999-1024', 333, 'CAN-999-999-000-999-1223', 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
-(2118, 'CAN-999-999-000-999-1024_CAN-999-999-000-999-1223', 53, 'CAN-999-999-000-999-1024', 333, 'CAN-999-999-000-999-1223', 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2119, 'CAN-999-999-000-999-1024_CAN-999-999-000-999-1018', 53, 'CAN-999-999-000-999-1024', 170, 'CAN-999-999-000-999-1018', 0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2120, 'CAN-999-999-000-999-1026_CAN-999-999-000-999-1000', 54, 'CAN-999-999-000-999-1026', 152, 'CAN-999-999-000-999-1000', 0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2121, 'CAN-999-999-000-999-1026_CAN-999-999-000-999-1223', 54, 'CAN-999-999-000-999-1026', 333, 'CAN-999-999-000-999-1223', 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -10073,17 +10093,17 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (2285, 'CAN-999-999-000-999-1016_CAN-999-999-000-999-1005', 47, 'CAN-999-999-000-999-1016', 157, 'CAN-999-999-000-999-1005', 1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2286, 'CAN-999-999-000-999-1017_CAN-999-999-000-999-1005', 48, 'CAN-999-999-000-999-1017', 157, 'CAN-999-999-000-999-1005', 1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2287, 'CAN-999-999-000-999-1018_CAN-999-999-000-999-1005', 49, 'CAN-999-999-000-999-1018', 157, 'CAN-999-999-000-999-1005', 1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2288, 'CAN-999-999-000-999-1005_CAN-999-999-000-999-1006', 36, 'CAN-999-999-000-999-1005', 158, 'CAN-999-999-000-999-1006', 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2289, 'CAN-999-999-000-999-1006_CAN-999-999-000-999-1006', 37, 'CAN-999-999-000-999-1006', 158, 'CAN-999-999-000-999-1006', 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2290, 'CAN-999-999-000-999-1007_CAN-999-999-000-999-1006', 38, 'CAN-999-999-000-999-1007', 158, 'CAN-999-999-000-999-1006', 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2291, 'CAN-999-999-000-999-1008_CAN-999-999-000-999-1006', 39, 'CAN-999-999-000-999-1008', 158, 'CAN-999-999-000-999-1006', 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2292, 'CAN-999-999-000-999-1009_CAN-999-999-000-999-1006', 40, 'CAN-999-999-000-999-1009', 158, 'CAN-999-999-000-999-1006', 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2293, 'CAN-999-999-000-999-1016_CAN-999-999-000-999-1006', 47, 'CAN-999-999-000-999-1016', 158, 'CAN-999-999-000-999-1006', 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2294, 'CAN-999-999-000-999-1017_CAN-999-999-000-999-1006', 48, 'CAN-999-999-000-999-1017', 158, 'CAN-999-999-000-999-1006', 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2295, 'CAN-999-999-000-999-1018_CAN-999-999-000-999-1006', 49, 'CAN-999-999-000-999-1018', 158, 'CAN-999-999-000-999-1006', 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2296, 'CAN-999-999-000-999-1005_CAN-999-999-000-999-1286', 36, 'CAN-999-999-000-999-1005', 892, 'CAN-999-999-000-999-1286', 1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(2288, 'CAN-999-999-000-999-1005_CAN-999-999-000-999-1006', 36, 'CAN-999-999-000-999-1005', 158, 'CAN-999-999-000-999-1006', 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(2289, 'CAN-999-999-000-999-1006_CAN-999-999-000-999-1006', 37, 'CAN-999-999-000-999-1006', 158, 'CAN-999-999-000-999-1006', 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(2290, 'CAN-999-999-000-999-1007_CAN-999-999-000-999-1006', 38, 'CAN-999-999-000-999-1007', 158, 'CAN-999-999-000-999-1006', 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(2291, 'CAN-999-999-000-999-1008_CAN-999-999-000-999-1006', 39, 'CAN-999-999-000-999-1008', 158, 'CAN-999-999-000-999-1006', 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(2292, 'CAN-999-999-000-999-1009_CAN-999-999-000-999-1006', 40, 'CAN-999-999-000-999-1009', 158, 'CAN-999-999-000-999-1006', 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(2293, 'CAN-999-999-000-999-1016_CAN-999-999-000-999-1006', 47, 'CAN-999-999-000-999-1016', 158, 'CAN-999-999-000-999-1006', 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(2294, 'CAN-999-999-000-999-1017_CAN-999-999-000-999-1006', 48, 'CAN-999-999-000-999-1017', 158, 'CAN-999-999-000-999-1006', 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(2295, 'CAN-999-999-000-999-1018_CAN-999-999-000-999-1006', 49, 'CAN-999-999-000-999-1018', 158, 'CAN-999-999-000-999-1006', 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(2296, 'CAN-999-999-000-999-1005_CAN-999-999-000-999-1286', 36, 'CAN-999-999-000-999-1005', 892, 'CAN-999-999-000-999-1286', 1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(2297, 'CAN-999-999-000-999-1006_CAN-999-999-000-999-1286', 37, 'CAN-999-999-000-999-1006', 892, 'CAN-999-999-000-999-1286', 1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
-(2297, 'CAN-999-999-000-999-1006_CAN-999-999-000-999-1286', 37, 'CAN-999-999-000-999-1006', 892, 'CAN-999-999-000-999-1286', 1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2298, 'CAN-999-999-000-999-1007_CAN-999-999-000-999-1286', 38, 'CAN-999-999-000-999-1007', 892, 'CAN-999-999-000-999-1286', 1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2299, 'CAN-999-999-000-999-1008_CAN-999-999-000-999-1286', 39, 'CAN-999-999-000-999-1008', 892, 'CAN-999-999-000-999-1286', 1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2300, 'CAN-999-999-000-999-1009_CAN-999-999-000-999-1286', 40, 'CAN-999-999-000-999-1009', 892, 'CAN-999-999-000-999-1286', 1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -10105,10 +10125,18 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (2316, 'CAN-999-999-000-999-1001_CAN-999-999-000-999-1007', 32, 'CAN-999-999-000-999-1001', 159, 'CAN-999-999-000-999-1007', 0, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2317, 'CAN-999-999-000-999-1001_CAN-999-999-000-999-1008', 32, 'CAN-999-999-000-999-1001', 160, 'CAN-999-999-000-999-1008', 0, 13, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2318, 'CAN-999-999-000-999-1001_CAN-999-999-000-999-1013', 32, 'CAN-999-999-000-999-1001', 166, 'CAN-999-999-000-999-1013', 0, 12, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2319, 'CAN-999-999-000-999-1001_CAN-999-999-000-999-1285', 32, 'CAN-999-999-000-999-1001', 891, 'CAN-999-999-000-999-1285', 0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(2319, 'CAN-999-999-000-999-1001_CAN-999-999-000-999-1285', 32, 'CAN-999-999-000-999-1001', 891, 'CAN-999-999-000-999-1285', 0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(2320, 'CAN-999-999-000-999-1010_CAN-999-999-000-999-1287', 41, 'CAN-999-999-000-999-1010', 893, 'CAN-999-999-000-999-1287', 1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(2321, 'CAN-999-999-000-999-1011_CAN-999-999-000-999-1287', 42, 'CAN-999-999-000-999-1011', 893, 'CAN-999-999-000-999-1287', 1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(2322, 'CAN-999-999-000-999-1012_CAN-999-999-000-999-1287', 43, 'CAN-999-999-000-999-1012', 893, 'CAN-999-999-000-999-1287', 1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(2323, 'CAN-999-999-000-999-1013_CAN-999-999-000-999-1287', 44, 'CAN-999-999-000-999-1013', 893, 'CAN-999-999-000-999-1287', 1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(2324, 'CAN-999-999-000-999-1014_CAN-999-999-000-999-1287', 45, 'CAN-999-999-000-999-1014', 893, 'CAN-999-999-000-999-1287', 1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(2325, 'CAN-999-999-000-999-1015_CAN-999-999-000-999-1287', 46, 'CAN-999-999-000-999-1015', 893, 'CAN-999-999-000-999-1287', 1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(2326, 'CAN-999-999-000-999-1061_CAN-999-999-000-999-1287', 87, 'CAN-999-999-000-999-1061', 893, 'CAN-999-999-000-999-1287', 1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(2327, 'CAN-999-999-000-999-1008_CAN-999-999-000-999-1288', 39, 'CAN-999-999-000-999-1008', 894, 'CAN-999-999-000-999-1288', 1, 47, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 --
--- Dumping data for table `structure_options`
+-- Dumping data for table`structure_options`
 --
 
 INSERT INTO `structure_options` (`id`, `alias`, `section`, `subsection`, `value`, `language_choice`, `display_order`, `active`, `created`, `created_by`, `modified`, `modified_by`) VALUES
@@ -11006,7 +11034,7 @@ INSERT INTO `structure_options` (`id`, `alias`, `section`, `subsection`, `value`
 (11866, 'aliquot_type', NULL, NULL, 'core', 'core', 4, 'yes', NULL, NULL, NULL, NULL);
 
 --
--- Dumping data for table `structure_permissible_values`
+-- Dumping data for table`structure_permissible_values`
 --
 
 INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VALUES
@@ -11776,10 +11804,13 @@ INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VAL
 (769, 'collection_site_etc', 'collection_site_etc'),
 (770, 'custom_laboratory_staff_1', 'custom_laboratory_staff_1'),
 (771, 'custom_laboratory_staff_2', 'custom_laboratory_staff_2'),
-(772, 'custom_laboratory_staff_etc', 'custom_laboratory_staff_etc');
+(772, 'custom_laboratory_staff_etc', 'custom_laboratory_staff_etc'),
+(773, 'custom_supplier_dept_1', 'custom_supplier_dept_1'),
+(774, 'custom_supplier_dept_2', 'custom_supplier_dept_2'),
+(775, 'custom_supplier_dept_etc', 'custom_supplier_dept_etc');
 
 --
--- Dumping data for table `structure_validations`
+-- Dumping data for table`structure_validations`
 --
 
 INSERT INTO `structure_validations` (`id`, `old_id`, `structure_field_id`, `structure_field_old_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modifed_by`) VALUES
@@ -11822,10 +11853,10 @@ INSERT INTO `structure_validations` (`id`, `old_id`, `structure_field_id`, `stru
 (37, '0', 166, 'CAN-999-999-000-999-1013', 'notEmpty', '1', '0', '', '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (38, '0', 173, 'CAN-999-999-000-999-1023', 'notEmpty', '1', '0', '', 'the parent sample is required', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (39, '0', 177, 'CAN-999-999-000-999-1029', 'notEmpty', '1', '0', '', '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(40, '0', 183, 'CAN-999-999-000-999-1036', 'decimal', '1', '0', '', 'volume should be a positif decimal', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(41, '0', 185, 'CAN-999-999-000-999-1038', 'decimal', '1', '0', '', 'number should be a positif decimal', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(42, '0', 195, 'CAN-999-999-000-999-1054', 'decimal', '1', '0', '', 'volume should be a positif decimal', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(43, '0', 197, 'CAN-999-999-000-999-1056', 'decimal', '1', '0', '', 'volume should be a positif decimal', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(40, '0', 183, 'CAN-999-999-000-999-1036', 'custom,/^([0-9]+(\\.[0-9]+)?)?$/', '1', '0', '', 'volume should be a positif decimal', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(41, '0', 185, 'CAN-999-999-000-999-1038', 'custom,/^([0-9]+)?$/', '1', '0', '', 'number should be a positif integer', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(42, '0', 195, 'CAN-999-999-000-999-1054', 'custom,/^([0-9]+(\\.[0-9]+)?)?$/', '1', '0', '', 'volume should be a positif decimal', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(43, '0', 197, 'CAN-999-999-000-999-1056', 'custom,/^([0-9]+(\\.[0-9]+)?)?$/', '1', '0', '', 'volume should be a positif decimal', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (44, '0', 205, 'CAN-999-999-000-999-1067', 'decimal', '1', '0', '', 'cell passage number should be a positif decimal', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (45, '0', 219, 'CAN-999-999-000-999-1103', 'notEmpty', '1', '0', '', '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (46, '0', 223, 'CAN-999-999-000-999-1107', 'custom,/^(?!err!).*$/', '1', '0', '', '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -11855,7 +11886,7 @@ INSERT INTO `structure_validations` (`id`, `old_id`, `structure_field_id`, `stru
 (72, '0', 888, 'CAN-999-999-000-999-1282', 'notEmpty', '1', '0', '', 'product type is required.', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 --
--- Dumping data for table `structure_value_domains`
+-- Dumping data for table`structure_value_domains`
 --
 
 INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`) VALUES
@@ -11991,17 +12022,14 @@ INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `categor
 (132, 'cell_culture_status_reason', 'open', ''),
 (133, 'yesno', 'open', ''),
 (134, 'tissue_laterality', 'open', ''),
-(135, 'tissue_nature', 'open', ''),
 (136, 'yesno', 'open', ''),
 (137, 'sample_volume_unit', 'open', ''),
 (138, 'sample_volume_unit', 'open', ''),
-(139, 'tissue_source', 'open', ''),
 (140, 'blood_type', 'open', ''),
 (141, 'sample_type', 'open', ''),
 (142, 'yesno', 'open', ''),
 (143, 'sample_category', 'open', ''),
 (144, 'sample_type', 'open', ''),
-(145, 'specimen_supplier_dept', 'open', ''),
 (146, 'storage_type', 'open', ''),
 (147, 'temperature_unit_code', 'open', ''),
 (148, 'status', 'open', ''),
@@ -12030,10 +12058,11 @@ INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `categor
 (171, 'provider_active_yesno', 'open', ' '),
 (172, 'datetime_accuracy_indicator', 'open', ''),
 (173, 'custom_collection_site', 'open', ''),
-(174, 'custom_laboratory_staff', 'open', '');
+(174, 'custom_laboratory_staff', 'open', ''),
+(175, 'custom_specimen_supplier_dept', 'open', '');
 
 --
--- Dumping data for table `structure_value_domains_permissible_values`
+-- Dumping data for table`structure_value_domains_permissible_values`
 --
 
 INSERT INTO `structure_value_domains_permissible_values` (`id`, `structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `active`, `language_alias`) VALUES
@@ -12607,25 +12636,12 @@ INSERT INTO `structure_value_domains_permissible_values` (`id`, `structure_value
 (571, '134', '571', 2, 'yes', 'right'),
 (572, '134', '572', 3, 'yes', 'unknown'),
 (573, '134', '573', 1, 'yes', 'left'),
-(574, '135', '574', 2, 'yes', 'malignant'),
-(575, '135', '575', 3, 'yes', 'metastatic'),
-(576, '135', '576', 4, 'yes', 'normal'),
-(577, '135', '577', 5, 'yes', 'unknown'),
-(578, '135', '578', 1, 'yes', 'benign'),
 (579, '136', '579', 1, 'yes', 'yes'),
 (580, '136', '580', 0, 'yes', 'no'),
 (581, '137', '581', 1, 'yes', 'ml'),
 (582, '137', '582', 2, 'yes', 'ul'),
 (583, '138', '583', 1, 'yes', 'ml'),
 (584, '138', '584', 2, 'yes', 'ul'),
-(585, '139', '585', 0, 'yes', 'brain'),
-(586, '139', '586', 5, 'yes', 'prostate'),
-(587, '139', '587', 1, 'yes', 'breast'),
-(588, '139', '588', 6, 'yes', 'skin'),
-(589, '139', '589', 2, 'yes', 'lung'),
-(590, '139', '590', 7, 'yes', 'unknown'),
-(591, '139', '591', 3, 'yes', 'intestine'),
-(592, '139', '592', 4, 'yes', 'ovary'),
 (593, '140', '593', 2, 'yes', 'EDTA'),
 (594, '140', '594', 3, 'yes', 'gel CSA'),
 (595, '140', '595', 2, 'yes', 'heparine'),
@@ -12805,160 +12821,164 @@ INSERT INTO `structure_value_domains_permissible_values` (`id`, `structure_value
 (933, '173', '769', 0, 'yes', 'collection_site_etc'),
 (934, '174', '770', 0, 'yes', 'custom_laboratory_staff_1'),
 (935, '174', '771', 0, 'yes', 'custom_laboratory_staff_2'),
-(936, '174', '772', 0, 'yes', 'custom_laboratory_staff_etc');
+(936, '174', '772', 0, 'yes', 'custom_laboratory_staff_etc'),
+(937, '175', '773', 0, 'yes', 'custom_supplier_dept_1'),
+(938, '175', '774', 0, 'yes', 'custom_supplier_dept_2'),
+(939, '175', '775', 0, 'yes', 'custom_supplier_dept_etc'),
+(940, '134', '129', 4, 'yes', 'not applicable');
 
 --
--- Dumping data for table `study_contacts`
---
-
-
---
--- Dumping data for table `study_contacts_revs`
---
-
-
---
--- Dumping data for table `study_ethics_boards`
+-- Dumping data for table`study_contacts`
 --
 
 
 --
--- Dumping data for table `study_ethics_boards_revs`
+-- Dumping data for table`study_contacts_revs`
 --
 
 
 --
--- Dumping data for table `study_fundings`
+-- Dumping data for table`study_ethics_boards`
 --
 
 
 --
--- Dumping data for table `study_fundings_revs`
+-- Dumping data for table`study_ethics_boards_revs`
 --
 
 
 --
--- Dumping data for table `study_investigators`
+-- Dumping data for table`study_fundings`
 --
 
 
 --
--- Dumping data for table `study_investigators_revs`
+-- Dumping data for table`study_fundings_revs`
 --
 
 
 --
--- Dumping data for table `study_related`
+-- Dumping data for table`study_investigators`
 --
 
 
 --
--- Dumping data for table `study_related_revs`
+-- Dumping data for table`study_investigators_revs`
 --
 
 
 --
--- Dumping data for table `study_results`
+-- Dumping data for table`study_related`
 --
 
 
 --
--- Dumping data for table `study_results_revs`
+-- Dumping data for table`study_related_revs`
 --
 
 
 --
--- Dumping data for table `study_reviews`
+-- Dumping data for table`study_results`
 --
 
 
 --
--- Dumping data for table `study_reviews_revs`
+-- Dumping data for table`study_results_revs`
 --
 
 
 --
--- Dumping data for table `study_summaries`
+-- Dumping data for table`study_reviews`
 --
 
 
 --
--- Dumping data for table `study_summaries_revs`
+-- Dumping data for table`study_reviews_revs`
 --
 
 
 --
--- Dumping data for table `tma_slides`
+-- Dumping data for table`study_summaries`
 --
 
 
 --
--- Dumping data for table `tma_slides_revs`
+-- Dumping data for table`study_summaries_revs`
 --
 
 
 --
--- Dumping data for table `txd_chemos`
+-- Dumping data for table`tma_slides`
 --
 
 
 --
--- Dumping data for table `txd_chemos_revs`
+-- Dumping data for table`tma_slides_revs`
 --
 
 
 --
--- Dumping data for table `txd_radiations`
+-- Dumping data for table`txd_chemos`
 --
 
 
 --
--- Dumping data for table `txd_radiations_revs`
+-- Dumping data for table`txd_chemos_revs`
 --
 
 
 --
--- Dumping data for table `txd_surgeries`
+-- Dumping data for table`txd_radiations`
 --
 
 
 --
--- Dumping data for table `txd_surgeries_revs`
+-- Dumping data for table`txd_radiations_revs`
 --
 
 
 --
--- Dumping data for table `txe_chemos`
+-- Dumping data for table`txd_surgeries`
 --
 
 
 --
--- Dumping data for table `txe_chemos_revs`
+-- Dumping data for table`txd_surgeries_revs`
 --
 
 
 --
--- Dumping data for table `txe_radiations`
+-- Dumping data for table`txe_chemos`
 --
 
 
 --
--- Dumping data for table `txe_radiations_revs`
+-- Dumping data for table`txe_chemos_revs`
 --
 
 
 --
--- Dumping data for table `txe_surgeries`
+-- Dumping data for table`txe_radiations`
 --
 
 
 --
--- Dumping data for table `txe_surgeries_revs`
+-- Dumping data for table`txe_radiations_revs`
 --
 
 
 --
--- Dumping data for table `tx_controls`
+-- Dumping data for table`txe_surgeries`
+--
+
+
+--
+-- Dumping data for table`txe_surgeries_revs`
+--
+
+
+--
+-- Dumping data for table`tx_controls`
 --
 
 INSERT INTO `tx_controls` (`id`, `tx_group`, `disease_site`, `status`, `detail_tablename`, `form_alias`, `extend_tablename`, `extend_form_alias`, `display_order`) VALUES
@@ -12967,17 +12987,17 @@ INSERT INTO `tx_controls` (`id`, `tx_group`, `disease_site`, `status`, `detail_t
 (3, 'surgery', 'all', 'active', 'txd_surgeries', 'txd_surgeries', 'txe_surgeries', 'txe_surgeries', 0);
 
 --
--- Dumping data for table `tx_masters`
+-- Dumping data for table`tx_masters`
 --
 
 
 --
--- Dumping data for table `tx_masters_revs`
+-- Dumping data for table`tx_masters_revs`
 --
 
 
 --
--- Dumping data for table `users`
+-- Dumping data for table`users`
 --
 
 INSERT INTO `users` (`id`, `username`, `first_name`, `last_name`, `password`, `email`, `department`, `job_title`, `institution`, `laboratory`, `help_visible`, `street`, `city`, `region`, `country`, `mail_code`, `phone_work`, `phone_home`, `lang`, `pagination`, `last_visit`, `group_id`, `active`, `created`, `modified`) VALUES
@@ -12986,16 +13006,15 @@ INSERT INTO `users` (`id`, `username`, `first_name`, `last_name`, `password`, `e
 (3, 'user', 'Joe Example', NULL, '9f5271385d730e9c44a54123f7aaa10f3298c4ee', 'user@atim2core.dev', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'en', 5, '0000-00-00 00:00:00', 3, 0, '2009-02-18 13:07:07', '2009-02-18 13:07:07');
 
 --
--- Dumping data for table `user_logs`
+-- Dumping data for table`user_logs`
 --
 
 
 --
--- Dumping data for table `versions`
+-- Dumping data for table`versions`
 --
 
 INSERT INTO `versions` (`id`, `version_number`, `date_installed`, `status`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 (1, 'ATiM v2.0.0 (1000)', '2009-11-23 12:13:43', 'installed', '0000-00-00 00:00:00', NULL, '0000-00-00 00:00:00', NULL);
-
 
 SET FOREIGN_KEY_CHECKS=1;

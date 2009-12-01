@@ -58,7 +58,9 @@ DROP TABLE IF EXISTS `acos`, `ad_bags`, `ad_bags_revs`, `ad_blocks`, `ad_blocks_
  `study_reviews`, `study_reviews_revs`, `study_summaries`, `study_summaries_revs`, `tma_slides`, `tma_slides_revs`, `towers`, 
  `towers_revs`, `txd_chemos`, `txd_chemos_revs`, `txd_radiations`, `txd_radiations_revs`, `txd_surgeries`, `txd_surgeries_revs`, 
  `txe_chemos`, `txe_chemos_revs`, `txe_radiations`, `txe_radiations_revs`, `txe_surgeries`, `txe_surgeries_revs`, `tx_controls`, 
- `tx_masters`, `tx_masters_revs`, `users`, `user_logs`, `versions`;
+ `tx_masters`, `tx_masters_revs`, `users`, `user_logs`, `sd_spe_pericardial_fluids`, `sd_der_pericardial_fl_cells`, `sd_der_pericardial_fl_sups`, `sd_spe_pleural_fluids`, 
+`sd_der_pleural_fl_cells`, `sd_der_pleural_fl_sups`, `sd_der_cystic_fl_cells`, `sd_der_cystic_fl_sups`, `sd_spe_pericardial_fluids_revs`, `sd_der_pericardial_fl_cells_revs`, `sd_der_pericardial_fl_sups_revs`, `sd_spe_pleural_fluids_revs`, 
+`sd_der_pleural_fl_cells_revs`, `sd_der_pleural_fl_sups_revs`, `sd_der_cystic_fl_cells_revs`, `sd_der_cystic_fl_sups_revs`, `versions`;
 
 SET FOREIGN_KEY_CHECKS=1;
 
@@ -3493,36 +3495,6 @@ CREATE TABLE `sd_der_urine_cents_revs` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
--- Table structure for table `sd_der_amp_dnas`
--- 
-
-CREATE TABLE `sd_der_amp_dnas` (
-  `id` int(11) NOT NULL auto_increment,
-  `sample_master_id` int(11) default NULL,
-  `created` datetime NOT NULL default '0000-00-00 00:00:00',
-  `created_by` varchar(50) NOT NULL default '',
-  `modified` datetime default NULL,
-  `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
-  `deleted_date` datetime default NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
-CREATE TABLE `sd_der_amp_dnas_revs` (
-  `id` int(11) NOT NULL,
-  `sample_master_id` int(11) default NULL,
-  `created` datetime NOT NULL default '0000-00-00 00:00:00',
-  `created_by` varchar(50) NOT NULL default '',
-  `modified` datetime default NULL,
-  `modified_by` varchar(50) default NULL,
-  `version_id` int(11) NOT NULL AUTO_INCREMENT,
-  `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
-  `deleted_date` datetime default NULL,
-  PRIMARY KEY (`version_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
-
--- 
 -- Table structure for table `sd_der_amp_rnas`
 -- 
 
@@ -3703,10 +3675,10 @@ CREATE TABLE `sd_der_pw_sups_revs` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
--- Table structure for table `sd_der_fluid_cells`
+-- Table structure for table `sd_der_cystic_fl_cells`
 -- 
 
-CREATE TABLE `sd_der_fluid_cells` (
+CREATE TABLE `sd_der_cystic_fl_cells` (
   `id` int(11) NOT NULL auto_increment,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3718,7 +3690,7 @@ CREATE TABLE `sd_der_fluid_cells` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
-CREATE TABLE `sd_der_fluid_cells_revs` (
+CREATE TABLE `sd_der_cystic_fl_cells_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3733,10 +3705,10 @@ CREATE TABLE `sd_der_fluid_cells_revs` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
--- Table structure for table `sd_der_fluid_sups`
+-- Table structure for table `sd_spe_pericardial_fluids`
 -- 
 
-CREATE TABLE `sd_der_fluid_sups` (
+CREATE TABLE `sd_spe_pericardial_fluids` (
   `id` int(11) NOT NULL auto_increment,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3748,7 +3720,7 @@ CREATE TABLE `sd_der_fluid_sups` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
-CREATE TABLE `sd_der_fluid_sups_revs` (
+CREATE TABLE `sd_spe_pericardial_fluids_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3763,10 +3735,10 @@ CREATE TABLE `sd_der_fluid_sups_revs` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
--- Table structure for table `sd_der_other_cells`
+-- Table structure for table `sd_der_pericardial_fl_cells`
 -- 
 
-CREATE TABLE `sd_der_other_cells` (
+CREATE TABLE `sd_der_pericardial_fl_cells` (
   `id` int(11) NOT NULL auto_increment,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3778,7 +3750,7 @@ CREATE TABLE `sd_der_other_cells` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
-CREATE TABLE `sd_der_other_cells_revs` (
+CREATE TABLE `sd_der_pericardial_fl_cells_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3793,10 +3765,10 @@ CREATE TABLE `sd_der_other_cells_revs` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 -- 
--- Table structure for table `sd_der_other_sups`
+-- Table structure for table `sd_der_pericardial_fl_sups`
 -- 
 
-CREATE TABLE `sd_der_other_sups` (
+CREATE TABLE `sd_der_pericardial_fl_sups` (
   `id` int(11) NOT NULL auto_increment,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3808,7 +3780,127 @@ CREATE TABLE `sd_der_other_sups` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
-CREATE TABLE `sd_der_other_sups_revs` (
+CREATE TABLE `sd_der_pericardial_fl_sups_revs` (
+  `id` int(11) NOT NULL,
+  `sample_master_id` int(11) default NULL,
+  `created` datetime NOT NULL default '0000-00-00 00:00:00',
+  `created_by` varchar(50) NOT NULL default '',
+  `modified` datetime default NULL,
+  `modified_by` varchar(50) default NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `deleted` int(11) default 0,
+  `deleted_date` datetime default NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
+
+-- 
+-- Table structure for table `sd_spe_pleural_fluids`
+-- 
+
+CREATE TABLE `sd_spe_pleural_fluids` (
+  `id` int(11) NOT NULL auto_increment,
+  `sample_master_id` int(11) default NULL,
+  `created` datetime NOT NULL default '0000-00-00 00:00:00',
+  `created_by` varchar(50) NOT NULL default '',
+  `modified` datetime default NULL,
+  `modified_by` varchar(50) default NULL,
+  `deleted` int(11) default 0,
+  `deleted_date` datetime default NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
+
+CREATE TABLE `sd_spe_pleural_fluids_revs` (
+  `id` int(11) NOT NULL,
+  `sample_master_id` int(11) default NULL,
+  `created` datetime NOT NULL default '0000-00-00 00:00:00',
+  `created_by` varchar(50) NOT NULL default '',
+  `modified` datetime default NULL,
+  `modified_by` varchar(50) default NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `deleted` int(11) default 0,
+  `deleted_date` datetime default NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
+
+-- 
+-- Table structure for table `sd_der_pleural_fl_cells`
+-- 
+
+CREATE TABLE `sd_der_pleural_fl_cells` (
+  `id` int(11) NOT NULL auto_increment,
+  `sample_master_id` int(11) default NULL,
+  `created` datetime NOT NULL default '0000-00-00 00:00:00',
+  `created_by` varchar(50) NOT NULL default '',
+  `modified` datetime default NULL,
+  `modified_by` varchar(50) default NULL,
+  `deleted` int(11) default 0,
+  `deleted_date` datetime default NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
+
+CREATE TABLE `sd_der_pleural_fl_cells_revs` (
+  `id` int(11) NOT NULL,
+  `sample_master_id` int(11) default NULL,
+  `created` datetime NOT NULL default '0000-00-00 00:00:00',
+  `created_by` varchar(50) NOT NULL default '',
+  `modified` datetime default NULL,
+  `modified_by` varchar(50) default NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `deleted` int(11) default 0,
+  `deleted_date` datetime default NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
+
+-- 
+-- Table structure for table `sd_der_pleural_fl_sups`
+-- 
+
+CREATE TABLE `sd_der_pleural_fl_sups` (
+  `id` int(11) NOT NULL auto_increment,
+  `sample_master_id` int(11) default NULL,
+  `created` datetime NOT NULL default '0000-00-00 00:00:00',
+  `created_by` varchar(50) NOT NULL default '',
+  `modified` datetime default NULL,
+  `modified_by` varchar(50) default NULL,
+  `deleted` int(11) default 0,
+  `deleted_date` datetime default NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
+
+CREATE TABLE `sd_der_pleural_fl_sups_revs` (
+  `id` int(11) NOT NULL,
+  `sample_master_id` int(11) default NULL,
+  `created` datetime NOT NULL default '0000-00-00 00:00:00',
+  `created_by` varchar(50) NOT NULL default '',
+  `modified` datetime default NULL,
+  `modified_by` varchar(50) default NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `deleted` int(11) default 0,
+  `deleted_date` datetime default NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
+
+-- 
+-- Table structure for table `sd_der_cystic_fl_sups`
+-- 
+
+CREATE TABLE `sd_der_cystic_fl_sups` (
+  `id` int(11) NOT NULL auto_increment,
+  `sample_master_id` int(11) default NULL,
+  `created` datetime NOT NULL default '0000-00-00 00:00:00',
+  `created_by` varchar(50) NOT NULL default '',
+  `modified` datetime default NULL,
+  `modified_by` varchar(50) default NULL,
+  `deleted` int(11) default 0,
+  `deleted_date` datetime default NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
+
+CREATE TABLE `sd_der_cystic_fl_sups_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -4029,40 +4121,6 @@ CREATE TABLE `sd_spe_cystic_fluids_revs` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
--- Table structure for table `sd_spe_other_fluids`
--- 
-
-CREATE TABLE `sd_spe_other_fluids` (
-  `id` int(11) NOT NULL auto_increment,
-  `sample_master_id` int(11) default NULL,
-  `collected_volume` decimal(10,5) default NULL,
-  `collected_volume_unit` varchar(20) default NULL,
-  `created` datetime NOT NULL default '0000-00-00 00:00:00',
-  `created_by` varchar(50) NOT NULL default '',
-  `modified` datetime default NULL,
-  `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
-  `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
-CREATE TABLE `sd_spe_other_fluids_revs` (
-  `id` int(11) NOT NULL,
-  `sample_master_id` int(11) default NULL,
-  `collected_volume` decimal(10,5) default NULL,
-  `collected_volume_unit` varchar(20) default NULL,
-  `created` datetime NOT NULL default '0000-00-00 00:00:00',
-  `created_by` varchar(50) NOT NULL default '',
-  `modified` datetime default NULL,
-  `modified_by` varchar(50) default NULL,
-  `version_id` int(11) NOT NULL AUTO_INCREMENT,
-  `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
-  `deleted_date` datetime NULL,
-  PRIMARY KEY  (`version_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
--- 
 -- Table structure for table `sd_spe_peritoneal_washes`
 -- 
 
@@ -4108,6 +4166,7 @@ CREATE TABLE `sd_spe_tissues` (
   `tissue_laterality` varchar(10) default NULL,
   `pathology_reception_datetime` datetime default NULL,
   `tissue_size` varchar(20) default NULL,
+  `tissue_size_unit` varchar(10) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
@@ -4125,6 +4184,7 @@ CREATE TABLE `sd_spe_tissues_revs` (
   `tissue_laterality` varchar(10) default NULL,
   `pathology_reception_datetime` datetime default NULL,
   `tissue_size` varchar(20) default NULL,
+  `tissue_size_unit` varchar(10) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
@@ -6329,7 +6389,6 @@ ALTER TABLE `derivative_details`
   ON DELETE RESTRICT
   ON UPDATE RESTRICT; 
 
-ALTER TABLE `sd_der_amp_dnas` ADD CONSTRAINT `FK_sd_der_amp_dnas_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
 ALTER TABLE `sd_der_amp_rnas` ADD CONSTRAINT `FK_sd_der_amp_rnas_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
 ALTER TABLE `sd_der_ascite_cells` ADD CONSTRAINT `FK_sd_der_ascite_cells_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
 ALTER TABLE `sd_der_ascite_sups` ADD CONSTRAINT `FK_sd_der_ascite_sups_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
@@ -6337,10 +6396,14 @@ ALTER TABLE `sd_der_blood_cells` ADD CONSTRAINT `FK_sd_der_blood_cells_sample_ma
 ALTER TABLE `sd_der_b_cells` ADD CONSTRAINT `FK_sd_der_b_cells_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
 ALTER TABLE `sd_der_cell_cultures` ADD CONSTRAINT `FK_sd_der_cell_cultures_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
 ALTER TABLE `sd_der_dnas` ADD CONSTRAINT `FK_sd_der_dnas_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-ALTER TABLE `sd_der_fluid_cells` ADD CONSTRAINT `FK_sd_der_fluid_cells_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-ALTER TABLE `sd_der_fluid_sups` ADD CONSTRAINT `FK_sd_der_fluid_sups_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-ALTER TABLE `sd_der_other_cells` ADD CONSTRAINT `FK_sd_der_other_cells_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-ALTER TABLE `sd_der_other_sups` ADD CONSTRAINT `FK_sd_der_other_sups_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `sd_der_cystic_fl_cells` ADD CONSTRAINT `FK_sd_der_cystic_fl_cells_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `sd_spe_pericardial_fluids` ADD CONSTRAINT `FK_sd_spe_pericardial_fluids_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `sd_der_pericardial_fl_cells` ADD CONSTRAINT `FK_sd_der_pericardial_fl_cells_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `sd_der_pericardial_fl_sups` ADD CONSTRAINT `FK_sd_der_pericardial_fl_sups_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `sd_spe_pleural_fluids` ADD CONSTRAINT `FK_sd_spe_pleural_fluids_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `sd_der_pleural_fl_cells` ADD CONSTRAINT `FK_sd_der_pleural_fl_cells_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `sd_der_pleural_fl_sups` ADD CONSTRAINT `FK_sd_der_pleural_fl_sups_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `sd_der_cystic_fl_sups` ADD CONSTRAINT `FK_sd_der_cystic_fl_sups_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
 ALTER TABLE `sd_der_pbmcs` ADD CONSTRAINT `FK_sd_der_pbmcs_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
 ALTER TABLE `sd_der_plasmas` ADD CONSTRAINT `FK_sd_der_plasmas_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
 ALTER TABLE `sd_der_pw_cells` ADD CONSTRAINT `FK_sd_der_pw_cells_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
@@ -6354,7 +6417,6 @@ ALTER TABLE `sd_der_urine_cons` ADD CONSTRAINT `FK_sd_der_urine_cons_sample_mast
 ALTER TABLE `sd_spe_ascites` ADD CONSTRAINT `FK_sd_spe_ascites_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
 ALTER TABLE `sd_spe_bloods` ADD CONSTRAINT `FK_sd_spe_bloods_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
 ALTER TABLE `sd_spe_cystic_fluids` ADD CONSTRAINT `FK_sd_spe_cystic_fluids_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-ALTER TABLE `sd_spe_other_fluids` ADD CONSTRAINT `FK_sd_spe_other_fluids_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
 ALTER TABLE `sd_spe_peritoneal_washes` ADD CONSTRAINT `FK_sd_spe_peritoneal_washes_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
 ALTER TABLE `sd_spe_tissues` ADD CONSTRAINT `FK_sd_spe_tissues_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
 ALTER TABLE `sd_spe_urines` ADD CONSTRAINT `FK_sd_spe_urines_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
