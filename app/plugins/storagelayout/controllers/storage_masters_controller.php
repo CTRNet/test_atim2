@@ -106,7 +106,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		$this->set('atim_menu_variables', array('StorageMaster.id' => $storage_master_id));
 
 		// Set structure				
-		$this->set('atim_structure', $this->Structures->get('form', $storage_data['StorageControl']['form_alias']));
+		$this->Structures->set($storage_data['StorageControl']['form_alias']);
 
 		// Set boolean
 		$this->set('is_tma', $is_tma);		
@@ -128,7 +128,7 @@ class StorageMastersController extends StoragelayoutAppController {
 			$bool_define_position = true;
 
 			// set structure				
-			$this->set('atim_structure_for_position', $this->Structures->get('form', $parent_storage_data['StorageControl']['form_alias_for_children_pos']));
+			$this->Structures->set($parent_storage_data['StorageControl']['form_alias_for_children_pos'], 'atim_structure_for_position');
 						
 			// set data to display on view
 			$parent_coord_x_title = $parent_storage_data['StorageControl']['coord_x_title'];
@@ -175,7 +175,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		$this->set('atim_menu_variables', array('StorageControl.id' => $storage_control_id));
 		
 		// set structure alias based on VALUE from CONTROL table
-		$this->set('atim_structure', $this->Structures->get('form', $storage_control_data['StorageControl']['form_alias']));
+		$this->Structures->set($storage_control_data['StorageControl']['form_alias']);
 	
 		// MANAGE DATA RECORD
 			
@@ -292,8 +292,8 @@ class StorageMastersController extends StoragelayoutAppController {
 		$this->set('atim_menu_variables', array('StorageMaster.id' => $storage_master_id));
 
 		// Set structure				
-		$this->set('atim_structure', $this->Structures->get('form', $storage_data['StorageControl']['form_alias']));
-
+		$this->Structures->set($storage_data['StorageControl']['form_alias']);
+	
 		// MANAGE DATA RECORD
 
 		$this->hook();
@@ -433,8 +433,8 @@ class StorageMastersController extends StoragelayoutAppController {
 		$this->set('atim_menu_variables', array('StorageMaster.id' => $storage_master_id));
 		
 		// set structure				
-		$this->set('atim_structure', $this->Structures->get('form', $storage_data['StorageControl']['form_alias']));
-		
+		$this->Structures->set($storage_data['StorageControl']['form_alias']);
+	
 		// MANAGE (SECOND)FORM TO DEFINE STORAGE POSITION INTO PARENT 
 		
 		// Build predefined list of allowed positions
@@ -444,8 +444,8 @@ class StorageMastersController extends StoragelayoutAppController {
 		$this->set('a_coord_y_list', $arr_allowed_y_position['array_to_display']);
 		
 		// Set structure 				
-		$this->set('atim_structure_to_set_position', $this->Structures->get('form', $parent_storage_data['StorageControl']['form_alias_for_children_pos']));
-		
+		$this->Structures->set($parent_storage_data['StorageControl']['form_alias_for_children_pos'], 'atim_structure_to_set_position');
+	
 		// MANAGE DATA RECORD
 		
 		$this->hook();
@@ -653,8 +653,8 @@ class StorageMastersController extends StoragelayoutAppController {
 
 		// Set structure 		
 		$structure_alias = (is_null($storage_data['StorageControl']['form_alias_for_children_pos']))? 'manage_storage_aliquots_without_position': $storage_data['StorageControl']['form_alias_for_children_pos'] . '_for_aliquot';	
-		$this->set('atim_structure', $this->Structures->get('form', $structure_alias));
-
+		$this->Structures->set($structure_alias);
+	
 		//TODO editAliquotPosition: underdevelopment
 		//Becarful about position order (with integer): use order field
 		$this->flash('under development', '/storagelayout/storage_masters/contentTreeView/' . $storage_master_id);
@@ -853,7 +853,8 @@ class StorageMastersController extends StoragelayoutAppController {
 		$this->set('atim_menu_variables', array('StorageMaster.id' => $storage_master_id));
 
 		// Set structure				
-		$this->set('atim_structure', $this->Structures->get('form', 'storagemasters'));
+		$this->Structures->set('storagemasters');
+	
 		$data['parent'] = $storage_data;
 		if(isset($coordinate_list)){
 			$data['parent']['list'] = $coordinate_list;

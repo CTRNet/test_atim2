@@ -48,7 +48,7 @@ class TmaSlidesController extends StoragelayoutAppController {
 		$this->set('atim_menu_variables', array('StorageMaster.id' => $tma_block_storage_master_id));
 
 		// Set structure					
-		$this->set('atim_structure', $this->Structures->get('form', 'tma_slides'));
+		$this->Structures->set('tma_slides');
 	}
 	
 	 function add($tma_block_storage_master_id) {
@@ -81,7 +81,7 @@ class TmaSlidesController extends StoragelayoutAppController {
 		$this->set('atim_menu_variables', array('StorageMaster.id' => $tma_block_storage_master_id));
 
 		// Set structure					
-		$this->set('atim_structure', $this->Structures->get('form', 'tma_slides'));
+		$this->Structures->set('tma_slides');
 		
 		// MANAGE DATA RECORD
 		
@@ -190,7 +190,7 @@ class TmaSlidesController extends StoragelayoutAppController {
 		$this->set('atim_menu_variables', $atim_menu_variables);
 		
 		// Set structure					
-		$this->set('atim_structure', $this->Structures->get('form', 'tma_slides'));		
+		$this->Structures->set('tma_slides');	
 	}
 	
 	function edit($tma_block_storage_master_id, $tma_slide_id) {
@@ -239,7 +239,7 @@ class TmaSlidesController extends StoragelayoutAppController {
 		$this->set('atim_menu_variables', $atim_menu_variables);
 		
 		// Set structure					
-		$this->set('atim_structure', $this->Structures->get('form', 'tma_slides'));	
+		$this->Structures->set('tma_slides');
 		
 		// MANAGE DATA RECORD
 
