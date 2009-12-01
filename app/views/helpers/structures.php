@@ -136,8 +136,13 @@ class StructuresHelper extends Helper {
 			$return_string .= '
 				</fieldset>
 				
-				<fieldset class="submit"
-					<input class="submit" type="submit" value="Submit" />
+				<fieldset class="submit">
+					<div>
+						<span>
+							<input id="submit_button" class="submit" type="submit" value="Submit" style="display: none;"/>
+							<a id="submit_button_link" href="#" onclick="$(\'submit_button\').click();">'.__('submit', null).'</a>
+						</span>
+					</div>
 			';
 		}
 		
@@ -1939,19 +1944,21 @@ class StructuresHelper extends Helper {
 			else {
 				
 				$links_append = '
-					<ul class="filter">
-						<li>
 							<a class="form popup" href="javascript:return false;">'.__($link_name, TRUE).'</a>
-							
 							<!-- container DIV for JS functionality -->
 							<div class="filter_menu">
 								<ul>
 				';
 				
 				$count = 0;
+				$tmpSize = sizeof($link_results) - 1;
 				foreach ( $link_results as $link_label=>$link_location ) {
+					$class_last_line = "";
+					if($count == $tmpSize){
+						$class_last_line = " count_last_line";
+					}
 					$links_append .= '
-									<li class="count_'.$count.'">
+									<li class="count_'.$count.$class_last_line.'">
 										'.$link_location.'
 									</li>
 					';
@@ -1962,10 +1969,6 @@ class StructuresHelper extends Helper {
 				$links_append .= '
 								</ul>
 							</div>
-							<!-- /end container DIV -->
-							
-						</li>
-					</ul>
 				';
 				
 				$return_links[$link_name] = $links_append;
@@ -1985,9 +1988,9 @@ class StructuresHelper extends Helper {
 			if ( isset($_SESSION) && isset($_SESSION['Auth']) && isset($_SESSION['Auth']['User']) && count($_SESSION['Auth']['User']) ) {
 				if ( isset($_SESSION['ctrapp_core']['search']) && is_array($_SESSION['ctrapp_core']['search']) ) {
 					$return_string .= '
-							<a class="search_results" href="'.$this->Html->url($_SESSION['ctrapp_core']['search']['url']).'">
+							<div style="padding-bottom: 5px; padding-top: 5px;"><a class="search_results" href="'.$this->Html->url($_SESSION['ctrapp_core']['search']['url']).'">
 								'.$_SESSION['ctrapp_core']['search']['results'].'
-							</a>
+							</a></div>
 					';
 				}
 			} else {
@@ -1996,15 +1999,17 @@ class StructuresHelper extends Helper {
 			
 			if ( count($return_links) ) {
 				$return_string .= '
-					<ul>
-						<li>'.implode('</li><li>',$return_links).'</li>
-					</ul>
+					<ul><li><ul class="filter">
+						<li><div class="bottom_button">'.implode('</div></li><li><div class="bottom_button">',$return_links).'</div></li>
+					</ul></li></ul>
 				';
 			}
 			
 			$return_string .= '
 				</div>
 			';
+			
+			
 			
 		} else if ( $state=='top' ) {
 		
