@@ -6,7 +6,7 @@ class PreferencesController extends CustomizeAppController {
 	var $uses = array('User', 'Config');
 	
 	function index() {
-		$this->set( 'atim_structure', $this->Structures->get( 'form', 'preferences' ) );
+		$this->Structures->set('preferences' );
 		
 		$this->hook();
 		
@@ -35,7 +35,7 @@ class PreferencesController extends CustomizeAppController {
 	}
 	
 	function edit() {
-		$this->set( 'atim_structure', $this->Structures->get( 'form', 'preferences' ) );
+		$this->Structures->set('preferences' );
 		
 		$config_id = NULL;
 		

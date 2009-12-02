@@ -6,7 +6,7 @@ class ProfilesController extends CustomizeAppController {
 	var $uses = array('User');
 	
 	function index() {
-		$this->set( 'atim_structure', $this->Structures->get( 'form', 'users' ) );
+		$this->Structures->set('users' );
 		
 		$this->hook();
 		
@@ -14,7 +14,7 @@ class ProfilesController extends CustomizeAppController {
 	}
 	
 	function edit() {
-		$this->set( 'atim_structure', $this->Structures->get( 'form', 'users' ) );
+		$this->Structures->set('users' );
 		
 		$this->hook();
 		

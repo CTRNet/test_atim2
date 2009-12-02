@@ -22,14 +22,14 @@ class EventMastersController extends ClinicalannotationAppController {
 				$_SESSION['MasterDetail_filter']['EventMaster.participant_id'] = $participant_id;
 				$_SESSION['MasterDetail_filter']['EventMaster.event_group'] = $event_group;
 				
-				$this->set( 'atim_structure', $this->Structures->get('form','eventmasters') );
+				$this->Structures->set('eventmasters');
 			}
 			
 			else {
 				$_SESSION['MasterDetail_filter']['EventMaster.event_control_id'] = $event_control_id;
 				
 				$filter_data = $this->EventControl->find('first',array('conditions'=>array('EventControl.id'=>$event_control_id)));
-				$this->set( 'atim_structure', $this->Structures->get('form',$filter_data['EventControl']['form_alias']) );
+				$this->Structures->set($filter_data['EventControl']['form_alias']);
 			}
 			
 		
@@ -55,7 +55,7 @@ class EventMastersController extends ClinicalannotationAppController {
 		$this->data = $this->EventMaster->find('first',array('conditions'=>array('EventMaster.id'=>$event_master_id)));
 		
 		// set FORM ALIAS based off VALUE from MASTER table
-		$this->set( 'atim_structure', $this->Structures->get('form',$this->data['EventControl']['form_alias']) );
+		$this->Structures->set($this->data['EventControl']['form_alias']);
 	}
 	
 	function add( $event_group=NULL, $participant_id=null, $event_control_id=null) {
@@ -70,7 +70,7 @@ class EventMastersController extends ClinicalannotationAppController {
 		$this_data = $this->EventControl->find('first',array('conditions'=>array('EventControl.id'=>$event_control_id)));
 		
 		// set FORM ALIAS based off VALUE from CONTROL table
-		$this->set( 'atim_structure', $this->Structures->get('form',$this_data['EventControl']['form_alias']) );
+		$this->Structures->set($this_data['EventControl']['form_alias']);
 		
 		$this->hook();
 		
@@ -102,7 +102,7 @@ class EventMastersController extends ClinicalannotationAppController {
 		$this_data = $this->EventMaster->find('first',array('conditions'=>array('EventMaster.id'=>$event_master_id)));
 		
 		// set FORM ALIAS based off VALUE from MASTER table
-		$this->set( 'atim_structure', $this->Structures->get('form',$this_data['EventControl']['form_alias']) );
+		$this->Structures->set($this_data['EventControl']['form_alias']);
 		
 		$this->hook();
 		

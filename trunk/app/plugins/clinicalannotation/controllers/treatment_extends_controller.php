@@ -19,7 +19,7 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		// Set form alias/tablename to use
 		$this->TreatmentExtend = new TreatmentExtend( false, $tx_master_data['TreatmentControl']['extend_tablename'] );
 		$use_form_alias = $tx_master_data['TreatmentControl']['extend_form_alias'];
-	    $this->set( 'atim_structure', $this->Structures->get( 'form', $use_form_alias ) );
+	    $this->Structures->set( $use_form_alias );
 		
 		$this->hook();
 		
@@ -45,7 +45,7 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		// Set form alias/tablename to use
 		$this->TreatmentExtend = new TreatmentExtend( false, $tx_master_data['TreatmentControl']['extend_tablename'] );
 		$use_form_alias = $tx_master_data['TreatmentControl']['extend_form_alias'];
-	    $this->set( 'atim_structure', $this->Structures->get( 'form', $use_form_alias ) );
+	    $this->Structures->set($use_form_alias );
 
 		$this->hook();
 		
@@ -72,7 +72,7 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		// Set form alias/tablename to use
 		$this->TreatmentExtend = new TreatmentExtend( false, $tx_master_data['TreatmentControl']['extend_tablename'] );
 		$use_form_alias = $tx_master_data['TreatmentControl']['extend_form_alias'];
-	    $this->set( 'atim_structure', $this->Structures->get( 'form', $use_form_alias ) );
+	    $this->Structures->set($use_form_alias );
 		
 		$this->set('tx_group', $tx_master_data['TreatmentMaster']['tx_group']);
 		
@@ -109,7 +109,7 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		// Set form alias/tablename to use
 		$this->TreatmentExtend = new TreatmentExtend( false, $tx_master_data['TreatmentControl']['extend_tablename'] );
 		$use_form_alias = $tx_master_data['TreatmentControl']['extend_form_alias'];
-	    $this->set( 'atim_structure', $this->Structures->get( 'form', $use_form_alias ) );
+	    $this->Structures->set($use_form_alias );
 		
 		$this->set('tx_group', $tx_master_data['TreatmentMaster']['tx_group']);
 		

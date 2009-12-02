@@ -25,7 +25,7 @@ class BatchSetsController extends DatamartAppController {
 		}
 		
 		$this->set( 'atim_menu_variables', array( 'Param.Type_Of_List'=>$type_of_list ) );
-		$this->set( 'atim_structure', $this->Structures->get( 'form', 'querytool_batch_set' ) );
+		$this->Structures->set('querytool_batch_set' );
 		
 		$this->data = $this->paginate($this->BatchSet, $_SESSION['BatchSet_filter']);
 		
@@ -238,7 +238,7 @@ class BatchSetsController extends DatamartAppController {
 	
 	function edit( $type_of_list='all', $batch_set_id=0 ) {
 		$this->set( 'atim_menu_variables', array( 'Param.Type_Of_List'=>$type_of_list, 'BatchSet.id'=>$batch_set_id ) );
-		$this->set( 'atim_structure', $this->Structures->get( 'form', 'querytool_batch_set' ) );
+		$this->Structures->set('querytool_batch_set' );
 		
 		if ( !empty($this->data) ) {
 			$this->BatchSet->id = $batch_set_id;
@@ -339,7 +339,7 @@ class BatchSetsController extends DatamartAppController {
 		   	// add COUNT of IDS to array results, for form list 
 				$batch_set['BatchSet']['count_of_BatchId'] = count($batch_set['BatchId']); 
 			
-		$this->set( 'atim_structure', $this->Structures->get( 'form', $batch_set['BatchSet']['form_alias_for_results'] ) );
+		$this->Structures->set($batch_set['BatchSet']['form_alias_for_results'] );
 		
 		
 		

@@ -47,7 +47,7 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		$this->set('protocol_list', $protocol_list);
 
 		// set structure alias based rom control data
-		$this->set( 'atim_structure', $this->Structures->get('form', $tx_control_data['TreatmentControl']['form_alias']) );
+		$this->Structures->set($tx_control_data['TreatmentControl']['form_alias']);
 	}
 	
 	function edit( $participant_id=null, $tx_master_id=null ) {
@@ -70,7 +70,7 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		$this->set('protocol_list', $protocol_list);
 		
 		// set FORM ALIAS based off VALUE from MASTER table
-		$this->set( 'atim_structure', $this->Structures->get('form', $tx_control_data['TreatmentControl']['form_alias']) );
+		$this->Structures->set($tx_control_data['TreatmentControl']['form_alias']);
 		
 		$this->hook();
 		
@@ -98,7 +98,7 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		$this->set( 'data_for_checklist', $this->DiagnosisMaster->find('all', array('conditions'=>array('DiagnosisMaster.participant_id'=>$participant_id))) );
 		$this->set( 'atim_structure_for_checklist', $this->Structures->get('form','diagnosis_masters') );
 		
-		$this->set('atim_structure', $this->Structures->get('form', $tx_control_data['TreatmentControl']['form_alias']));
+		$this->Structures->set($tx_control_data['TreatmentControl']['form_alias']);
 		
 		$protocol_list = $this->ProtocolMaster->find('list', array('conditions'=>array('ProtocolMaster.deleted'=>'0')), array('fields' => array('ProtocolMaster.id', 'ProtocolMaster.name'), 'order' => array('ProtocolMaster.name')));
 		$this->set('protocol_list', $protocol_list);
