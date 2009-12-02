@@ -236,7 +236,7 @@ class AdhocSavedController extends DatamartAppController {
 	function edit( $adhoc_id=0, $saved_id=0 ) {
 		$this->set( 'atim_menu', $this->Menus->get('/datamart/adhocs/index') );
 		$this->set( 'atim_menu_variables', array( 'Param.Type_Of_List'=>'saved', 'Adhoc.id'=>$adhoc_id, 'AdhocSaved.id'=>$saved_id ) );
-		$this->set( 'atim_structure', $this->Structures->get( 'form', 'querytool_adhoc_saved' ) );
+		$this->Structures->set('querytool_adhoc_saved' );
 		
 		if ( !empty($this->data) ) {
 			$this->AdhocSaved->id = $saved_id;

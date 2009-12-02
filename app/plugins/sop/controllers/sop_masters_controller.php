@@ -21,7 +21,7 @@ class SopMastersController extends SopAppController {
 		$this_data = $this->SopControl->find('first',array('conditions'=>array('SopControl.id'=>$sop_control_id)));
 		
 		// set FORM ALIAS based off VALUE from CONTROL table
-		$this->set( 'atim_structure', $this->Structures->get('form',$this_data['SopControl']['detail_form_alias']) );
+		$this->Structures->set($this_data['SopControl']['detail_form_alias']);
 		
 		$this->hook();
 		
@@ -49,7 +49,7 @@ class SopMastersController extends SopAppController {
 		$this->data = $this->SopMaster->find('first',array('conditions'=>array('SopMaster.id'=>$sop_master_id)));
 		
 		// set FORM ALIAS based off VALUE from MASTER table
-		$this->set( 'atim_structure', $this->Structures->get('form',$this->data['SopControl']['detail_form_alias']) );
+		$this->Structures->set($this->data['SopControl']['detail_form_alias']);
 	}
 
 	function edit( $sop_master_id  ) {
@@ -59,7 +59,7 @@ class SopMastersController extends SopAppController {
 		$this_data = $this->SopMaster->find('first',array('conditions'=>array('SopMaster.id'=>$sop_master_id)));
 		
 		// set FORM ALIAS based off VALUE from MASTER table
-		$this->set( 'atim_structure', $this->Structures->get('form',$this_data['SopControl']['detail_form_alias']) );
+		$this->Structures->set($this_data['SopControl']['detail_form_alias']);
 		
 		$this->hook();
 		

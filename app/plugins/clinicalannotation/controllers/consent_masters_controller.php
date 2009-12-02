@@ -31,7 +31,7 @@ class ConsentMastersController extends ClinicalannotationAppController {
 		
 		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id) );
 		$this->set('consent_controls_list', $this->ConsentControl->find('all', array('conditions' => array('ConsentControl.status' => 'active'))));
-		$this->set('atim_structure', $this->Structures->get('form', 'consent_masters'));
+		$this->Structures->set('consent_masters');
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
@@ -49,7 +49,7 @@ class ConsentMastersController extends ClinicalannotationAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'ConsentMaster.id'=>$consent_master_id) );
 		$consent_control_data = $this->ConsentControl->find('first', array('conditions' => array('ConsentControl.id' => $this->data['ConsentMaster']['consent_control_id'])));
-		$this->set('atim_structure', $this->Structures->get('form', $consent_control_data['ConsentControl']['form_alias']));
+		$this->Structures->set($consent_control_data['ConsentControl']['form_alias']);
 		
 		// Get all providers and populate provider list on form
 		$facility_list = $this->Provider->find('all', array('conditions'=>array('Provider.active'=>'yes','Provider.deleted'=>'0')), array('fields' => array('Provider.id', 'Provider.name'), 'order' => array('Provider.name')));
@@ -73,7 +73,7 @@ class ConsentMastersController extends ClinicalannotationAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'ConsentControl.id' => $consent_control_id) );
 		$consent_control_data = $this->ConsentControl->find('first', array('conditions' => array('ConsentControl.id' => $consent_control_id)));
-		$this->set('atim_structure', $this->Structures->get('form', $consent_control_data['ConsentControl']['form_alias']));
+		$this->Structures->set($consent_control_data['ConsentControl']['form_alias']);
 		
 		// Get all providers and populate provider list on form
 		$facility_list = $this->Provider->find('all', array('conditions'=>array('Provider.active'=>'yes','Provider.deleted'=>'0')), array('fields' => array('Provider.id', 'Provider.name'), 'order' => array('Provider.name')));
@@ -117,7 +117,7 @@ class ConsentMastersController extends ClinicalannotationAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'ConsentMaster.id'=>$consent_master_id) );
 		$consent_control_data = $this->ConsentControl->find('first', array('conditions' => array('ConsentControl.id' => $consent_master_data['ConsentMaster']['consent_control_id'])));
-		$this->set('atim_structure', $this->Structures->get('form', $consent_control_data['ConsentControl']['form_alias']));		
+		$this->Structures->set($consent_control_data['ConsentControl']['form_alias']);		
 		
 		// Get all providers and populate provider list on form
 		$facility_list = $this->Provider->find('all', array('conditions'=>array('Provider.active'=>'yes','Provider.deleted'=>'0')), array('fields' => array('Provider.id', 'Provider.name'), 'order' => array('Provider.name')));

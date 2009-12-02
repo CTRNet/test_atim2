@@ -20,7 +20,7 @@ class AdhocsController extends DatamartAppController {
 	function index( $type_of_list='all' ) {
 		
 		$this->set( 'atim_menu_variables', array( 'Param.Type_Of_List'=>$type_of_list ) );
-		$this->set( 'atim_structure', $this->Structures->get( 'form', 'querytool_adhoc' ) );
+		$this->Structures->set('querytool_adhoc' );
 		
 		if ( !$type_of_list || $type_of_list=='all' ) {
 			$this->data = $this->paginate($this->Adhoc);
@@ -279,7 +279,7 @@ class AdhocsController extends DatamartAppController {
 			$conditions = array( 'Adhoc.id' => $adhoc_id );
 			$adhoc_result = $this->Adhoc->find( 'first', array( 'conditions'=>$conditions ) ); 
 			
-		$this->set( 'atim_structure', $this->Structures->get( 'form', $adhoc_result['Adhoc']['form_alias_for_results'] ) );
+		$this->Structures->set($adhoc_result['Adhoc']['form_alias_for_results'] );
 		
 		
 		// use adhoc MODEl info to find session IDs

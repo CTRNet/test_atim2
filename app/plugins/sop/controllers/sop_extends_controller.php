@@ -16,7 +16,7 @@ class SopExtendsController extends SopAppController {
 		
 		$this->SopExtend = new SopExtend(false, $sop_master_data['SopControl']['extend_tablename']);
 		$use_form_alias = $sop_master_data['SopControl']['extend_form_alias'];
-		$this->set('atim_structure', $this->Structures->get('form', $use_form_alias));
+		$this->Structures->set($use_form_alias);
 		
 		$this->hook();
 		
@@ -36,7 +36,7 @@ class SopExtendsController extends SopAppController {
 		// Set form alias/tablename to use
 		$this->SopExtend = new SopExtend( false, $sop_master_data['SopControl']['extend_tablename'] );
 		$use_form_alias = $sop_master_data['SopControl']['extend_form_alias'];
-	    $this->set( 'atim_structure', $this->Structures->get( 'form', $use_form_alias ) );
+	    $this->Structures->set($use_form_alias );
 
 		$this->hook();
 		
@@ -56,7 +56,7 @@ class SopExtendsController extends SopAppController {
 		// Set form alias/tablename to use
 		$this->SopExtend = new SopExtend( false, $sop_master_data['SopControl']['extend_tablename'] );
 		$use_form_alias = $sop_master_data['SopControl']['extend_form_alias'];
-	    $this->set( 'atim_structure', $this->Structures->get( 'form', $use_form_alias ) );
+	    $this->Structures->set($use_form_alias );
 
 		$material_list = $this->Material->find('all', array('fields'=>array('Material.id', 'Material.item_name'), 'order'  => array('Material.item_name')));
 		$this->set('material_list', $material_list);
@@ -84,7 +84,7 @@ class SopExtendsController extends SopAppController {
 		// Set form alias/tablename to use
 		$this->SopExtend = new SopExtend( false, $sop_master_data['SopControl']['extend_tablename'] );
 		$use_form_alias = $sop_master_data['SopControl']['extend_form_alias'];
-	    $this->set('atim_structure', $this->Structures->get('form', $use_form_alias));
+	    $this->Structures->set($use_form_alias);
 
 	    $material_list = $this->Material->find('all', array('fields'=>array('Material.id', 'Material.item_name'), 'order'  => array('Material.item_name')));
 		$this->set('material_list', $material_list);

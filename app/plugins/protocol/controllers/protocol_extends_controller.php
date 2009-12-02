@@ -16,7 +16,7 @@ class ProtocolExtendsController extends ProtocolAppController {
 		
 		$this->ProtocolExtend = new ProtocolExtend(false, $protocol_master_data['ProtocolControl']['extend_tablename']);
 		$use_form_alias = $protocol_master_data['ProtocolControl']['extend_form_alias'];
-		$this->set('atim_structure', $this->Structures->get('form', $use_form_alias));
+		$this->Structures->set($use_form_alias);
 		
 		$this->hook();
 		
@@ -36,7 +36,7 @@ class ProtocolExtendsController extends ProtocolAppController {
 		// Set form alias/tablename to use
 		$this->ProtocolExtend = new ProtocolExtend( false, $protocol_master_data['ProtocolControl']['extend_tablename'] );
 		$use_form_alias = $protocol_master_data['ProtocolControl']['extend_form_alias'];
-	    $this->set( 'atim_structure', $this->Structures->get( 'form', $use_form_alias ) );
+	    $this->Structures->set($use_form_alias );
 
 		$this->hook();
 		
@@ -57,7 +57,7 @@ class ProtocolExtendsController extends ProtocolAppController {
 		// Set form alias/tablename to use
 		$this->ProtocolExtend = new ProtocolExtend( false, $protocol_master_data['ProtocolControl']['extend_tablename'] );
 		$use_form_alias = $protocol_master_data['ProtocolControl']['extend_form_alias'];
-	    $this->set( 'atim_structure', $this->Structures->get( 'form', $use_form_alias ) );
+	    $this->Structures->set($use_form_alias );
 
 		// Get all drugs to override drug_id with generic drug name
 		$drug_list = $this->Drug->find('list', array('fields' => array('Drug.id', 'Drug.generic_name'), 'order' => array('Drug.generic_name')));
@@ -86,7 +86,7 @@ class ProtocolExtendsController extends ProtocolAppController {
 		// Set form alias/tablename to use
 		$this->ProtocolExtend = new ProtocolExtend( false, $protocol_master_data['ProtocolControl']['extend_tablename'] );
 		$use_form_alias = $protocol_master_data['ProtocolControl']['extend_form_alias'];
-	    $this->set('atim_structure', $this->Structures->get('form', $use_form_alias));
+	    $this->Structures->set($use_form_alias);
 
 	    // Get all drugs to override drug_id with generic drug name
 		$drug_list = $this->Drug->find('list', array('fields' => array('Drug.id', 'Drug.generic_name'), 'order' => array('Drug.generic_name')));
