@@ -1,4 +1,4 @@
-﻿-- ATiM v2.0.0 Database Creation Script
+-- ATiM v2.0.0 Database Creation Script
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
@@ -374,6 +374,8 @@ CREATE TABLE `ad_whatman_papers_revs` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
+  `deleted` int(11) default 0,
+  `deleted_date` datetime default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
   PRIMARY KEY  (`version_id`)
@@ -598,8 +600,6 @@ CREATE TABLE `banks` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `banks_revs` (
-  `version_id` int(11) NOT NULL auto_increment,
-  `version_created` datetime NOT NULL,
   `id` int(11) NOT NULL,
   `name` varchar(255) NOT NULL default '',
   `description` text NOT NULL,
@@ -609,6 +609,8 @@ CREATE TABLE `banks_revs` (
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
+  `version_id` int(11) NOT NULL auto_increment,
+  `version_created` datetime NOT NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
@@ -630,7 +632,7 @@ CREATE TABLE IF NOT EXISTS `cd_atypes` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `cd_atypes_revs` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) NOT NULL,
   `consent_master_id` int(11) NOT NULL,
   `data` varchar(50) NOT NULL DEFAULT '',
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
@@ -639,7 +641,9 @@ CREATE TABLE IF NOT EXISTS `cd_atypes_revs` (
   `modified_by` varchar(50) DEFAULT NULL,
   `deleted` int(11) DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 --
@@ -660,7 +664,7 @@ CREATE TABLE IF NOT EXISTS `cd_btypes` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `cd_btypes_revs` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) NOT NULL,
   `consent_master_id` int(11) NOT NULL,
   `data` varchar(50) NOT NULL DEFAULT '',
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
@@ -669,7 +673,9 @@ CREATE TABLE IF NOT EXISTS `cd_btypes_revs` (
   `modified_by` varchar(50) DEFAULT NULL,
   `deleted` int(11) DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -1134,41 +1140,40 @@ CREATE TABLE IF NOT EXISTS `diagnosis_masters` (
 
 CREATE TABLE IF NOT EXISTS `diagnosis_masters_revs` (
   `id` int(11) NOT NULL,
-  `dx_number` varchar(50) DEFAULT NULL,
+  `dx_identifier` varchar(50) DEFAULT NULL,
+  `primary_number` int(11) DEFAULT NULL,
   `dx_method` varchar(20) DEFAULT NULL,
   `dx_nature` varchar(50) DEFAULT NULL,
   `dx_origin` varchar(50) DEFAULT NULL,
   `dx_date` date DEFAULT NULL,
   `dx_date_accuracy` varchar(50) default NULL,
   `primary_icd10_code` varchar(10) DEFAULT NULL,
+  `previous_primary_code` varchar(10) DEFAULT NULL,
+  `previous_primary_code_system` varchar(50) DEFAULT NULL,
   `morphology` varchar(50) DEFAULT NULL,
-  `laterality` varchar(50) DEFAULT NULL,
-  `information_source` varchar(30) DEFAULT NULL,
+  `topography` varchar(50) DEFAULT NULL,
+  `tumour_grade` varchar(50) DEFAULT NULL,
+  `information_source` varchar(50) DEFAULT NULL,
   `age_at_dx` int(11) DEFAULT NULL,
   `age_at_dx_accuracy` varchar(50) DEFAULT NULL,
-  `case_number` int(11) DEFAULT NULL,
-  `clinical_stage` varchar(50) DEFAULT NULL,
-  `collaborative_stage` varchar(50) DEFAULT NULL,
-  `tstage` varchar(5) DEFAULT NULL,
-  `nstage` varchar(5) DEFAULT NULL,
-  `mstage` varchar(5) DEFAULT NULL,
-  `stage_grouping` varchar(5) DEFAULT NULL,
+  `ajcc_edition` varchar(50) DEFAULT NULL,
+  `collaborative_staged` varchar(50) DEFAULT NULL,
   `clinical_tstage` varchar(5) DEFAULT NULL,
   `clinical_nstage` varchar(5) DEFAULT NULL,
   `clinical_mstage` varchar(5) DEFAULT NULL,
-  `clinical_stage_grouping` varchar(5) DEFAULT NULL,
+  `clinical_stage_summary` varchar(5) DEFAULT NULL,
   `path_tstage` varchar(5) DEFAULT NULL,
   `path_nstage` varchar(5) DEFAULT NULL,
   `path_mstage` varchar(5) DEFAULT NULL,
-  `path_stage_grouping` varchar(5) DEFAULT NULL,
-  `type` varchar(6) NOT NULL DEFAULT '',
+  `path_stage_summary` varchar(5) DEFAULT NULL,
+  `survival_time_months` int(11) DEFAULT NULL,
   `diagnosis_control_id` int(11) NOT NULL DEFAULT '0',
   `created` datetime DEFAULT NULL,
   `created_by` varchar(50) DEFAULT NULL,
   `modified` datetime DEFAULT NULL,
   `modified_by` varchar(50) DEFAULT NULL,
-  `participant_id` int(11) DEFAULT NULL,
-  `deleted` int(11) NOT NULL DEFAULT '0',
+  `participant_id` int(11) NOT NULL DEFAULT '0',
+  `deleted` int(11) DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
@@ -1193,7 +1198,7 @@ CREATE TABLE IF NOT EXISTS `dxd_bloods` (
   INDEX `diagnosis_master_id` (`diagnosis_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS `dxd_bloods_rev` (
+CREATE TABLE IF NOT EXISTS `dxd_bloods_revs` (
   `id` int(11) NOT NULL,
   `diagnosis_master_id` int(11) NOT NULL DEFAULT '0',
   `text_field` varchar(10) NOT NULL default '',
@@ -1226,7 +1231,7 @@ CREATE TABLE IF NOT EXISTS `dxd_tissues` (
   INDEX `diagnosis_master_id` (`diagnosis_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS `dxd_tissues_rev` (
+CREATE TABLE IF NOT EXISTS `dxd_tissues_revs` (
   `id` int(11) NOT NULL,
   `diagnosis_master_id` int(11) NOT NULL DEFAULT '0',
   `text_field` varchar(10) NOT NULL default '',
@@ -1753,8 +1758,6 @@ CREATE TABLE IF NOT EXISTS `event_masters_revs` (
   `created_by` varchar(50) NOT NULL DEFAULT '',
   `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `modified_by` varchar(50) NOT NULL DEFAULT '',
-  `form_alias` varchar(255) NOT NULL,
-  `detail_tablename` varchar(255) NOT NULL,
   `participant_id` int(11) DEFAULT NULL,
   `diagnosis_master_id` int(11) DEFAULT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1943,7 +1946,7 @@ CREATE TABLE `misc_identifiers_revs` (
   `created_by` varchar(50) default NULL,
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted`  int(11) default NULL,
+  `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
@@ -2482,10 +2485,6 @@ CREATE TABLE `protocol_masters_revs` (
   `status` varchar(50) default NULL,
   `expiry` date default NULL,
   `activated` date default NULL,
-  `detail_tablename` varchar(255) NOT NULL,
-  `form_alias` varchar(255) NOT NULL,
-  `extend_tablename` varchar(255) NOT NULL default '',
-  `extend_form_alias` varchar(255) NOT NULL default '',
   `created` date default NULL,
   `created_by` varchar(50) default NULL,
   `modified` date default NULL,
@@ -2978,7 +2977,7 @@ CREATE TABLE `realiquotings_revs` (
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
-  `version_date` datetime NOT NULL,
+  `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
@@ -3976,7 +3975,7 @@ CREATE TABLE `sd_der_plasmas_revs` (
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
-  `version_date` datetime NOT NULL,
+  `version_created` datetime NOT NULL,
   `deleted` int(11) default 0,
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
@@ -4540,10 +4539,6 @@ CREATE TABLE `sop_masters_revs` (
   `activated_date` date default NULL,
   `scope` text,
   `purpose` text,
-  `detail_tablename` varchar(255) NOT NULL,
-  `form_alias` varchar(255) NOT NULL,
-  `extend_tablename` varchar(255) NOT NULL,
-  `extend_form_alias` varchar(255) NOT NULL,
   `created` datetime default NULL,
   `created_by` varchar(50) default NULL,
   `modified` datetime default NULL,
@@ -5023,9 +5018,9 @@ CREATE TABLE IF NOT EXISTS `storage_masters` (
   `short_label` varchar(10) DEFAULT NULL,
   `selection_label` varchar(60) DEFAULT '',
   `storage_status` varchar(20) DEFAULT '',
-  `parent_storage_coord_x` varchar(11) DEFAULT NULL,
+  `parent_storage_coord_x` varchar(50) DEFAULT NULL,
   `coord_x_order` int(3) DEFAULT NULL,
-  `parent_storage_coord_y` varchar(11) DEFAULT NULL,
+  `parent_storage_coord_y` varchar(50) DEFAULT NULL,
   `coord_y_order` int(3) DEFAULT NULL,
   `set_temperature` varchar(7) DEFAULT NULL,
   `temperature` decimal(5,2) DEFAULT NULL,
@@ -5626,6 +5621,7 @@ CREATE TABLE `study_results_revs` (
   `conclusion` text,
   `comparison` text,
   `future` text,
+  `result_date` datetime default NULL,
   `created` date default NULL,
   `created_by` varchar(50) default NULL,
   `modified` date default NULL,
