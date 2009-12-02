@@ -179,7 +179,7 @@ class ShipmentsController extends OrderAppController {
 			}
 		}else{
 			$this->set('atim_menu_variables', array('Order.id' => $order_id, 'Shipment.id' => $shipment_id));
-			$this->set('atim_structure', $this->Structures->get('form', 'orderitems'));
+			$this->Structures->set('orderitems');
 			$this->data = $this->OrderItem->find('all', array('conditions' => array('OrderLine.order_id' => $order_id, 'OrderItem.shipment_id IS NULL', 'OrderItem.deleted' => 0)));
 		}		
 	}
@@ -190,7 +190,7 @@ class ShipmentsController extends OrderAppController {
 		
 		$this->set('atim_menu', $this->Menus->get('/order/shipments/shipmentItems/%%Order.id%%/%%Shipment.id%%/'));
 		
-		$this->set('atim_structure', $this->Structures->get('form', 'orderitems'));
+		$this->Structures->set('orderitems');
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'Shipment.id'=>$shipment_id));
 		$this->data = $this->paginate($this->OrderItem, array('OrderItem.shipment_id'=>$shipment_id));
 		
