@@ -309,9 +309,11 @@ div#wrapper div.actions {
 	div#wrapper div.actions ul ul.filter div.filter_menu ul li {
 		width: 200px;
 		margin: 0;
+/*
 		padding-left: 10px;
 		padding-right: 10px;
 		w\idth: 180px;
+*/
 		border: 0;
 		border-top: 1px dotted #ccc;
 		background: none;
@@ -350,7 +352,7 @@ div#wrapper div.actions {
 		cursor: pointer;
 	}
 	div#wrapper div.actions ul ul.filter div.filter_menu ul li a:hover {
-		background-color: #4D6E89;
+		background-color: #293B49;
 		color: #fff;
 	}
 	
@@ -486,13 +488,12 @@ div.menu ul li {
 	position: relative;
 	float: right;
 	height: 28px;
-	padding: 8px 5px 5px 25px;
+	padding: 8px 10px 5px 25px;
 	background: #374D61 url(../img/breadcrumb_separator.png) left center no-repeat;
 }
 
 div.menu ul li.count_0 { 
 	background-color: transparent;
-	padding: 8px 40px 5px 20px;
 }
 
 div.menu ul li.root,
@@ -562,7 +563,6 @@ div.menu.level_1 li.not_allowed {
 	color: #99a;
 }
 div.menu.level_1 li a {
-	float: none;
 	font-weight: normal;
 	text-transform: none;
 	text-decoration: none;
