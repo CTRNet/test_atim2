@@ -92,7 +92,7 @@ CREATE TABLE IF NOT EXISTS `ad_blocks` (
   `created_by` varchar(50) NOT NULL DEFAULT '',
   `modified` datetime DEFAULT NULL,
   `modified_by` varchar(50) DEFAULT NULL,
-  `deleted` int(11) DEFAULT '0',
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -108,7 +108,7 @@ CREATE TABLE IF NOT EXISTS `ad_blocks_revs` (
   `modified_by` varchar(50) DEFAULT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) DEFAULT '0',
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -124,7 +124,7 @@ CREATE TABLE `ad_bags` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -138,7 +138,7 @@ CREATE TABLE `ad_bags_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -155,7 +155,7 @@ CREATE TABLE IF NOT EXISTS `ad_cell_cores` (
   `created_by` varchar(50) NOT NULL DEFAULT '',
   `modified` datetime DEFAULT NULL,
   `modified_by` varchar(50) DEFAULT NULL,
-  `deleted` int(11) DEFAULT '0',
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -170,7 +170,7 @@ CREATE TABLE IF NOT EXISTS `ad_cell_cores_revs` (
   `modified_by` varchar(50) DEFAULT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) DEFAULT '0',
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -187,7 +187,7 @@ CREATE TABLE `ad_cell_slides` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -202,7 +202,7 @@ CREATE TABLE `ad_cell_slides_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -220,7 +220,7 @@ CREATE TABLE `ad_gel_matrices` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -236,7 +236,7 @@ CREATE TABLE `ad_gel_matrices_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -253,7 +253,7 @@ CREATE TABLE IF NOT EXISTS `ad_tissue_cores` (
   `created_by` varchar(50) NOT NULL DEFAULT '',
   `modified` datetime DEFAULT NULL,
   `modified_by` varchar(50) DEFAULT NULL,
-  `deleted` int(11) DEFAULT '0',
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -268,7 +268,7 @@ CREATE TABLE IF NOT EXISTS `ad_tissue_cores_revs` (
   `modified_by` varchar(50) DEFAULT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) DEFAULT '0',
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -286,7 +286,7 @@ CREATE TABLE IF NOT EXISTS `ad_tissue_slides` (
   `created_by` varchar(50) NOT NULL DEFAULT '',
   `modified` datetime DEFAULT NULL,
   `modified_by` varchar(50) DEFAULT NULL,
-  `deleted` int(11) DEFAULT '0',
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -302,7 +302,7 @@ CREATE TABLE IF NOT EXISTS `ad_tissue_slides_revs` (
   `modified_by` varchar(50) DEFAULT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) DEFAULT '0',
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -323,7 +323,7 @@ CREATE TABLE IF NOT EXISTS `ad_tubes` (
   `created_by` varchar(50) NOT NULL DEFAULT '',
   `modified` datetime DEFAULT NULL,
   `modified_by` varchar(50) DEFAULT NULL,
-  `deleted` int(11) DEFAULT '0',
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -342,7 +342,7 @@ CREATE TABLE IF NOT EXISTS `ad_tubes_revs` (
   `modified_by` varchar(50) DEFAULT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) DEFAULT '0',
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -360,7 +360,7 @@ CREATE TABLE `ad_whatman_papers` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -374,7 +374,7 @@ CREATE TABLE `ad_whatman_papers_revs` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
@@ -427,7 +427,7 @@ CREATE TABLE IF NOT EXISTS `aliquot_masters` (
   `created_by` varchar(50) NOT NULL DEFAULT '',
   `modified` datetime DEFAULT NULL,
   `modified_by` varchar(50) DEFAULT NULL,
-  `deleted` int(11) DEFAULT '0',
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   INDEX `barcode` (`barcode`),
@@ -462,7 +462,7 @@ CREATE TABLE IF NOT EXISTS `aliquot_masters_revs` (
   `modified_by` varchar(50) DEFAULT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) DEFAULT '0',
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -486,7 +486,7 @@ CREATE TABLE `aliquot_uses` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -508,7 +508,7 @@ CREATE TABLE `aliquot_uses_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -594,7 +594,7 @@ CREATE TABLE `banks` (
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `modified_by` int(11) NOT NULL,
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -607,7 +607,7 @@ CREATE TABLE `banks_revs` (
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `modified_by` int(11) NOT NULL,
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   `version_id` int(11) NOT NULL auto_increment,
   `version_created` datetime NOT NULL,
@@ -626,7 +626,7 @@ CREATE TABLE IF NOT EXISTS `cd_atypes` (
   `created_by` varchar(50) NOT NULL DEFAULT '',
   `modified` datetime DEFAULT NULL,
   `modified_by` varchar(50) DEFAULT NULL,
-  `deleted` int(11) DEFAULT '0',
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -639,7 +639,7 @@ CREATE TABLE IF NOT EXISTS `cd_atypes_revs` (
   `created_by` varchar(50) NOT NULL DEFAULT '',
   `modified` datetime DEFAULT NULL,
   `modified_by` varchar(50) DEFAULT NULL,
-  `deleted` int(11) DEFAULT '0',
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
@@ -658,7 +658,7 @@ CREATE TABLE IF NOT EXISTS `cd_btypes` (
   `created_by` varchar(50) NOT NULL DEFAULT '',
   `modified` datetime DEFAULT NULL,
   `modified_by` varchar(50) DEFAULT NULL,
-  `deleted` int(11) DEFAULT '0',
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -671,7 +671,7 @@ CREATE TABLE IF NOT EXISTS `cd_btypes_revs` (
   `created_by` varchar(50) NOT NULL DEFAULT '',
   `modified` datetime DEFAULT NULL,
   `modified_by` varchar(50) DEFAULT NULL,
-  `deleted` int(11) DEFAULT '0',
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
@@ -692,7 +692,7 @@ CREATE TABLE IF NOT EXISTS `clinical_collection_links` (
   `created_by` varchar(50) NOT NULL DEFAULT '',
   `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `modified_by` varchar(50) NOT NULL DEFAULT '',
-  `deleted` int(11) DEFAULT '0',
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   INDEX `participant_id` (`participant_id`),
@@ -713,7 +713,7 @@ CREATE TABLE IF NOT EXISTS `clinical_collection_links_revs` (
   `modified_by` varchar(50) NOT NULL DEFAULT '',
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) DEFAULT '0',
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`version_id`),
   INDEX `participant_id` (`participant_id`),
@@ -737,7 +737,7 @@ CREATE TABLE `coding_adverse_events` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
   `modified_by` varchar(50) NOT NULL default '',
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -755,7 +755,7 @@ CREATE TABLE `coding_adverse_events_revs` (
   `modified_by` varchar(50) NOT NULL default '',
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -775,7 +775,7 @@ CREATE TABLE `coding_icd10` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
   `modified_by` varchar(50) NOT NULL default '',
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 ;
@@ -801,7 +801,7 @@ CREATE TABLE IF NOT EXISTS `collections` (
   `created_by` varchar(50) NOT NULL DEFAULT '',
   `modified` datetime DEFAULT NULL,
   `modified_by` varchar(50) DEFAULT NULL,
-  `deleted` int(11) DEFAULT '0',
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   INDEX `acquisition_label` (`acquisition_label`)
@@ -823,7 +823,7 @@ CREATE TABLE IF NOT EXISTS `collections_revs` (
   `modified_by` varchar(50) DEFAULT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) DEFAULT '0',
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -898,7 +898,7 @@ CREATE TABLE IF NOT EXISTS `consent_masters` (
   `acquisition_id` varchar(10) DEFAULT NULL,
   `participant_id` int(11) NOT NULL default 0,
   `diagnosis_master_id` int(11) NOT NULL default 0,
-  `deleted` int(11) DEFAULT '0',
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   `consent_control_id` int(11) NOT NULL,
   `type` varchar(10) NOT NULL DEFAULT '',
@@ -939,7 +939,7 @@ CREATE TABLE IF NOT EXISTS `consent_masters_revs` (
   `diagnosis_master_id` int(11) NOT NULL DEFAULT 0,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) DEFAULT '0',
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   `consent_control_id` int(11) NOT NULL,
   `type` varchar(10) NOT NULL DEFAULT '',
@@ -1056,7 +1056,7 @@ CREATE TABLE `derivative_details` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -1073,7 +1073,7 @@ CREATE TABLE `derivative_details_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -1131,7 +1131,7 @@ CREATE TABLE IF NOT EXISTS `diagnosis_masters` (
   `created_by` varchar(50) DEFAULT NULL,
   `modified` datetime DEFAULT NULL,
   `modified_by` varchar(50) DEFAULT NULL,
-  `deleted` int(11) DEFAULT '0',
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   INDEX `participant_id` (`participant_id`),
@@ -1173,7 +1173,7 @@ CREATE TABLE IF NOT EXISTS `diagnosis_masters_revs` (
   `modified` datetime DEFAULT NULL,
   `modified_by` varchar(50) DEFAULT NULL,
   `participant_id` int(11) NOT NULL DEFAULT '0',
-  `deleted` int(11) DEFAULT '0',
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
@@ -1260,7 +1260,7 @@ CREATE TABLE `drugs` (
   `created_by` int(11) NOT NULL default 0,
   `modified` datetime NOT NULL default '0000-00-00',
   `modified_by` int(11) NOT NULL default 0,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -1277,7 +1277,7 @@ CREATE TABLE `drugs_revs` (
   `modified_by` int(11) NOT NULL default 0,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -1305,7 +1305,7 @@ CREATE TABLE `ed_allsolid_lab_pathology` (
   `modified` date NOT NULL default '0000-00-00',
   `modified_by` varchar(50) NOT NULL default '',
   `event_master_id` int(11) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
   KEY `event_master_id` (`event_master_id`)
@@ -1332,7 +1332,7 @@ CREATE TABLE `ed_allsolid_lab_pathology_revs` (
   `event_master_id` int(11) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`),
   KEY `event_master_id` (`event_master_id`)
@@ -1353,7 +1353,7 @@ CREATE TABLE `ed_all_adverse_events_adverse_event` (
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
   `modified_by` varchar(50) NOT NULL default '',
   `event_master_id` int(11) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
   KEY `event_master_id` (`event_master_id`)
@@ -1372,7 +1372,7 @@ CREATE TABLE `ed_all_adverse_events_adverse_event_revs` (
   `event_master_id` int(11) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`),
   KEY `event_master_id` (`event_master_id`)
@@ -1393,7 +1393,7 @@ CREATE TABLE `ed_all_clinical_followup` (
   `modified` date NOT NULL default '0000-00-00',
   `modified_by` varchar(50) NOT NULL default '',
   `event_master_id` int(11) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
   KEY `event_master_id` (`event_master_id`)
@@ -1412,7 +1412,7 @@ CREATE TABLE `ed_all_clinical_followup_revs` (
   `event_master_id` int(11) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`),
   KEY `event_master_id` (`event_master_id`)
@@ -1431,7 +1431,7 @@ CREATE TABLE `ed_all_clinical_presentation` (
   `modified` date default NULL,
   `modified_by` varchar(50) default NULL,
   `event_master_id` int(11) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
   KEY `event_master_id` (`event_master_id`)
@@ -1448,7 +1448,7 @@ CREATE TABLE `ed_all_clinical_presentation_revs` (
   `event_master_id` int(11) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`),
   KEY `event_master_id` (`event_master_id`)
@@ -1472,7 +1472,7 @@ CREATE TABLE `ed_all_lifestyle_base` (
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
   `modified_by` varchar(50) NOT NULL default '',
   `event_master_id` int(11) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
   KEY `event_master_id` (`event_master_id`)
@@ -1494,7 +1494,7 @@ CREATE TABLE `ed_all_lifestyle_base_revs` (
   `event_master_id` int(11) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`),
   KEY `event_master_id` (`event_master_id`)
@@ -1512,7 +1512,7 @@ CREATE TABLE `ed_all_protocol_followup` (
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
   `modified_by` varchar(50) NOT NULL default '',
   `event_master_id` int(11) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
   KEY `event_master_id` (`event_master_id`)
@@ -1528,7 +1528,7 @@ CREATE TABLE `ed_all_protocol_followup_revs` (
   `event_master_id` int(11) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`),
   KEY `event_master_id` (`event_master_id`)
@@ -1548,7 +1548,7 @@ CREATE TABLE `ed_all_study_research` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
   `modified_by` varchar(50) NOT NULL default '',
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
   KEY `event_master_id` (`event_master_id`)
@@ -1566,7 +1566,7 @@ CREATE TABLE `ed_all_study_research_revs` (
   `modified_by` varchar(50) NOT NULL default '',
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`),
   KEY `event_master_id` (`event_master_id`)
@@ -1611,7 +1611,7 @@ CREATE TABLE `ed_breast_lab_pathology` (
   `modified` date NOT NULL default '0000-00-00',
   `modified_by` varchar(50) NOT NULL default '',
   `event_master_id` int(11) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -1653,7 +1653,7 @@ CREATE TABLE `ed_breast_lab_pathology_revs` (
   `event_master_id` int(11) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -1670,7 +1670,7 @@ CREATE TABLE `ed_breast_screening_mammogram` (
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
   `modified_by` varchar(50) NOT NULL default '',
   `event_master_id` int(11) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
   KEY `event_master_id` (`event_master_id`)
@@ -1686,7 +1686,7 @@ CREATE TABLE `ed_breast_screening_mammogram_revs` (
   `event_master_id` int(11) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`),
   KEY `event_master_id` (`event_master_id`)
@@ -1732,7 +1732,7 @@ CREATE TABLE IF NOT EXISTS `event_masters` (
   `modified_by` varchar(50) NOT NULL DEFAULT '',
   `participant_id` int(11) DEFAULT NULL,
   `diagnosis_master_id` int(11) DEFAULT NULL,
-  `deleted` int(11) DEFAULT '0',
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   INDEX `participant_id` (`participant_id`),
@@ -1762,7 +1762,7 @@ CREATE TABLE IF NOT EXISTS `event_masters_revs` (
   `diagnosis_master_id` int(11) DEFAULT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) DEFAULT '0',
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`version_id`),
   INDEX `participant_id` (`participant_id`),
@@ -1788,7 +1788,7 @@ CREATE TABLE `family_histories` (
   `created_by` varchar(50) default NULL,
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
   INDEX `participant_id` (`participant_id`)
@@ -1808,7 +1808,7 @@ CREATE TABLE `family_histories_revs` (
   `created_by` varchar(50) default NULL,
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
@@ -1867,7 +1867,7 @@ CREATE TABLE `materials` (
   `created_by` varchar(50) NOT NULL,
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
   `modified_by` varchar(50) NOT NULL default '',
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -1883,7 +1883,7 @@ CREATE TABLE `materials_revs` (
   `modified_by` varchar(50) NOT NULL default '',
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -1927,7 +1927,7 @@ CREATE TABLE `misc_identifiers` (
   `created_by` varchar(50) default NULL,
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
   INDEX `participant_id` (`participant_id`)
@@ -1946,7 +1946,7 @@ CREATE TABLE `misc_identifiers_revs` (
   `created_by` varchar(50) default NULL,
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
@@ -1971,7 +1971,7 @@ CREATE TABLE `orders` (
   `modified` datetime default NULL,
   `modified_by` varchar(45) default NULL,
   `study_summary_id` int(11) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
   INDEX `order_number` (`order_number`)
@@ -1993,7 +1993,7 @@ CREATE TABLE `orders_revs` (
   `study_summary_id` int(11) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -2015,7 +2015,7 @@ CREATE TABLE `order_items` (
   `shipment_id` int(11) default NULL,
   `aliquot_master_id` int(11) default NULL,
   `aliquot_use_id` int(11) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -2035,7 +2035,7 @@ CREATE TABLE `order_items_revs` (
   `aliquot_use_id` int(11) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -2060,7 +2060,7 @@ CREATE TABLE `order_lines` (
   `aliquot_control_id` int(11) DEFAULT NULL,
   `sample_aliquot_precision` varchar(30) DEFAULT NULL,
   `order_id` int(11) NOT NULL,
-  `deleted` int(11) DEFAULT '0',
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -2083,7 +2083,7 @@ CREATE TABLE `order_lines_revs` (
   `order_id` int(11) NOT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) DEFAULT '0',
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -2147,7 +2147,7 @@ CREATE TABLE `participants` (
   `created_by` varchar(255) NOT NULL default '',
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
   `modified_by` varchar(255) NOT NULL default '',
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
   INDEX `participant_identifier` (`participant_identifier`),
@@ -2179,7 +2179,7 @@ CREATE TABLE `participants_revs` (
   `created_by` varchar(255) NOT NULL default '',
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
   `modified_by` varchar(255) NOT NULL default '',
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
@@ -2212,7 +2212,7 @@ CREATE TABLE `participant_contacts` (
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
   `modified_by` varchar(50) NOT NULL default '',
   `participant_id` int(11) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
   INDEX `participant_id` (`participant_id`)
@@ -2240,7 +2240,7 @@ CREATE TABLE `participant_contacts_revs` (
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
   `modified_by` varchar(50) NOT NULL default '',
   `participant_id` int(11) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
@@ -2265,7 +2265,7 @@ CREATE TABLE `participant_messages` (
   `created_by` varchar(50) default NULL,
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
   INDEX `participant_id` (`participant_id`)
@@ -2285,7 +2285,7 @@ CREATE TABLE `participant_messages_revs` (
   `created_by` varchar(50) default NULL,
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
@@ -2319,7 +2319,7 @@ CREATE TABLE `path_collection_reviews` (
   `created_by` varchar(50) default NULL,
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
   KEY `collection_id` (`collection_id`)
@@ -2350,7 +2350,7 @@ CREATE TABLE `path_collection_reviews_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`),
   KEY `collection_id` (`collection_id`)
@@ -2369,7 +2369,7 @@ CREATE TABLE `pd_chemos` (
   `modified` date NOT NULL default '0000-00-00',
   `modified_by` varchar(50) NOT NULL default '',
   `protocol_master_id` int(11) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -2385,7 +2385,7 @@ CREATE TABLE `pd_chemos_revs` (
   `protocol_master_id` int(11) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -2405,7 +2405,7 @@ CREATE TABLE `pe_chemos` (
   `modified_by` varchar(50) default NULL,
   `protocol_master_id` int(11) default NULL,
   `drug_id` int(11) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -2423,7 +2423,7 @@ CREATE TABLE `pe_chemos_revs` (
   `drug_id` int(11) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -2468,7 +2468,7 @@ CREATE TABLE `protocol_masters` (
   `modified` date default NULL,
   `modified_by` varchar(50) default NULL,
   `form_id` int(11) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -2492,7 +2492,7 @@ CREATE TABLE `protocol_masters_revs` (
   `form_id` int(11) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -2513,7 +2513,7 @@ CREATE TABLE `providers` (
   `created_by` varchar(255) NOT NULL default '',
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
   `modified_by` varchar(255) NOT NULL default '',
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY ( `id` )
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -2532,7 +2532,7 @@ CREATE TABLE `providers_revs` (
   `modified_by` varchar(255) NOT NULL default '',
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY ( `version_id` )
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -2550,7 +2550,7 @@ CREATE TABLE `quality_ctrl_tested_aliquots` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -2566,7 +2566,7 @@ CREATE TABLE `quality_ctrl_tested_aliquots_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -2592,7 +2592,7 @@ CREATE TABLE `quality_ctrls` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
   INDEX `run_id` (`run_id`)
@@ -2617,7 +2617,7 @@ CREATE TABLE `quality_ctrls_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -2643,7 +2643,7 @@ CREATE TABLE `rd_bloodcellcounts` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
   KEY `review_master_id` (`review_master_id`)
@@ -2668,7 +2668,7 @@ CREATE TABLE `rd_bloodcellcounts_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`),
   KEY `review_master_id` (`review_master_id`)
@@ -2690,7 +2690,7 @@ CREATE TABLE `rd_blood_cells` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
   `modified_by` varchar(50) NOT NULL default '',
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -2709,7 +2709,7 @@ CREATE TABLE `rd_blood_cells_revs` (
   `modified_by` varchar(50) NOT NULL default '',
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -2733,7 +2733,7 @@ CREATE TABLE `rd_breastcancertypes` (
   `created_by` varchar(50) default NULL,
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
   KEY `review_master_id` (`review_master_id`)
@@ -2756,7 +2756,7 @@ CREATE TABLE `rd_breastcancertypes_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`),
   KEY `review_master_id` (`review_master_id`)
@@ -2783,7 +2783,7 @@ CREATE TABLE `rd_breast_cancers` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
   `modified_by` varchar(50) NOT NULL default '',
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -2807,7 +2807,7 @@ CREATE TABLE `rd_breast_cancers_revs` (
   `modified_by` varchar(50) NOT NULL default '',
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -2830,7 +2830,7 @@ CREATE TABLE `rd_coloncancertypes` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
   KEY `review_master_id` (`review_master_id`)
@@ -2852,7 +2852,7 @@ CREATE TABLE `rd_coloncancertypes_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`),
   KEY `review_master_id` (`review_master_id`)
@@ -2876,7 +2876,7 @@ CREATE TABLE `rd_genericcancertypes` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
   KEY `review_master_id` (`review_master_id`)
@@ -2898,7 +2898,7 @@ CREATE TABLE `rd_genericcancertypes_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`),
   KEY `review_master_id` (`review_master_id`)
@@ -2921,7 +2921,7 @@ CREATE TABLE `rd_ovarianuteruscancertypes` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
   KEY `review_master_id` (`review_master_id`)
@@ -2942,7 +2942,7 @@ CREATE TABLE `rd_ovarianuteruscancertypes_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`),
   KEY `review_master_id` (`review_master_id`)
@@ -2961,7 +2961,7 @@ CREATE TABLE `realiquotings` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `parent_child_combo` (`parent_aliquot_master_id`,`child_aliquot_master_id`)
@@ -2978,7 +2978,7 @@ CREATE TABLE `realiquotings_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -3017,7 +3017,7 @@ CREATE TABLE `reproductive_histories` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` date NOT NULL default '0000-00-00',
   `modified_by` varchar(50) NOT NULL default '',
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
   INDEX `participant_id` (`participant_id`)
@@ -3053,7 +3053,7 @@ CREATE TABLE `reproductive_histories_revs` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` date NOT NULL default '0000-00-00',
   `modified_by` varchar(50) NOT NULL default '',
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
@@ -3094,7 +3094,7 @@ CREATE TABLE `review_masters` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -3116,7 +3116,7 @@ CREATE TABLE `review_masters_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`),
   UNIQUE KEY `version_id` (`version_id`)
@@ -3141,7 +3141,7 @@ CREATE TABLE `rtbforms` (
   `created_by` int(11) default NULL,
   `modified` datetime default NULL,
   `modified_by` int(11) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 ;
@@ -3163,7 +3163,7 @@ CREATE TABLE `rtbforms_revs` (
   `modified_by` int(11) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -3222,7 +3222,7 @@ CREATE TABLE `sample_masters` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
   INDEX `sample_code` (`sample_code`)
@@ -3248,7 +3248,7 @@ CREATE TABLE `sample_masters_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -3264,7 +3264,7 @@ CREATE TABLE `sd_der_ascite_cells` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -3278,7 +3278,7 @@ CREATE TABLE `sd_der_ascite_cells_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -3294,7 +3294,7 @@ CREATE TABLE `sd_der_ascite_sups` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -3308,7 +3308,7 @@ CREATE TABLE `sd_der_ascite_sups_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -3324,7 +3324,7 @@ CREATE TABLE `sd_der_blood_cells` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -3338,7 +3338,7 @@ CREATE TABLE `sd_der_blood_cells_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -3354,7 +3354,7 @@ CREATE TABLE `sd_der_pbmcs` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -3368,7 +3368,7 @@ CREATE TABLE `sd_der_pbmcs_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -3384,7 +3384,7 @@ CREATE TABLE `sd_der_dnas` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -3398,7 +3398,7 @@ CREATE TABLE `sd_der_dnas_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -3414,7 +3414,7 @@ CREATE TABLE `sd_der_rnas` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -3428,7 +3428,7 @@ CREATE TABLE `sd_der_rnas_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -3444,7 +3444,7 @@ CREATE TABLE `sd_der_urine_cons` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -3458,7 +3458,7 @@ CREATE TABLE `sd_der_urine_cons_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -3474,7 +3474,7 @@ CREATE TABLE `sd_der_urine_cents` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -3488,7 +3488,7 @@ CREATE TABLE `sd_der_urine_cents_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -3504,7 +3504,7 @@ CREATE TABLE `sd_der_amp_rnas` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -3518,7 +3518,7 @@ CREATE TABLE `sd_der_amp_rnas_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -3534,7 +3534,7 @@ CREATE TABLE `sd_der_b_cells` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -3548,7 +3548,7 @@ CREATE TABLE `sd_der_b_cells_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -3564,7 +3564,7 @@ CREATE TABLE `sd_der_tiss_lysates` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -3578,7 +3578,7 @@ CREATE TABLE `sd_der_tiss_lysates_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -3594,7 +3594,7 @@ CREATE TABLE `sd_der_tiss_susps` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -3608,7 +3608,7 @@ CREATE TABLE `sd_der_tiss_susps_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -3624,7 +3624,7 @@ CREATE TABLE `sd_der_pw_cells` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -3638,7 +3638,7 @@ CREATE TABLE `sd_der_pw_cells_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -3654,7 +3654,7 @@ CREATE TABLE `sd_der_pw_sups` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -3668,7 +3668,7 @@ CREATE TABLE `sd_der_pw_sups_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -3684,7 +3684,7 @@ CREATE TABLE `sd_der_cystic_fl_cells` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -3698,7 +3698,7 @@ CREATE TABLE `sd_der_cystic_fl_cells_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -3714,7 +3714,7 @@ CREATE TABLE `sd_spe_pericardial_fluids` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -3728,7 +3728,7 @@ CREATE TABLE `sd_spe_pericardial_fluids_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -3744,7 +3744,7 @@ CREATE TABLE `sd_der_pericardial_fl_cells` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -3758,7 +3758,7 @@ CREATE TABLE `sd_der_pericardial_fl_cells_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -3774,7 +3774,7 @@ CREATE TABLE `sd_der_pericardial_fl_sups` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -3788,7 +3788,7 @@ CREATE TABLE `sd_der_pericardial_fl_sups_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -3804,7 +3804,7 @@ CREATE TABLE `sd_spe_pleural_fluids` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -3818,7 +3818,7 @@ CREATE TABLE `sd_spe_pleural_fluids_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -3834,7 +3834,7 @@ CREATE TABLE `sd_der_pleural_fl_cells` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -3848,7 +3848,7 @@ CREATE TABLE `sd_der_pleural_fl_cells_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -3864,7 +3864,7 @@ CREATE TABLE `sd_der_pleural_fl_sups` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -3878,7 +3878,7 @@ CREATE TABLE `sd_der_pleural_fl_sups_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -3894,7 +3894,7 @@ CREATE TABLE `sd_der_cystic_fl_sups` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -3908,7 +3908,7 @@ CREATE TABLE `sd_der_cystic_fl_sups_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
@@ -3927,7 +3927,7 @@ CREATE TABLE `sd_der_cell_cultures` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -3944,7 +3944,7 @@ CREATE TABLE `sd_der_cell_cultures_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -3961,7 +3961,7 @@ CREATE TABLE `sd_der_plasmas` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -3976,7 +3976,7 @@ CREATE TABLE `sd_der_plasmas_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -3993,7 +3993,7 @@ CREATE TABLE `sd_der_serums` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4008,7 +4008,7 @@ CREATE TABLE `sd_der_serums_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4026,7 +4026,7 @@ CREATE TABLE `sd_spe_ascites` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4042,7 +4042,7 @@ CREATE TABLE `sd_spe_ascites_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4062,7 +4062,7 @@ CREATE TABLE `sd_spe_bloods` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4080,7 +4080,7 @@ CREATE TABLE `sd_spe_bloods_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4098,7 +4098,7 @@ CREATE TABLE `sd_spe_cystic_fluids` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4114,7 +4114,7 @@ CREATE TABLE `sd_spe_cystic_fluids_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4132,7 +4132,7 @@ CREATE TABLE `sd_spe_peritoneal_washes` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4148,7 +4148,7 @@ CREATE TABLE `sd_spe_peritoneal_washes_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4170,7 +4170,7 @@ CREATE TABLE `sd_spe_tissues` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4190,7 +4190,7 @@ CREATE TABLE `sd_spe_tissues_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4214,7 +4214,7 @@ CREATE TABLE `sd_spe_urines` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4236,7 +4236,7 @@ CREATE TABLE `sd_spe_urines_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4253,7 +4253,7 @@ CREATE TABLE `shelves` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
   KEY `storage_id` (`storage_id`)
@@ -4269,7 +4269,7 @@ CREATE TABLE `shelves_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`),
   KEY `storage_id` (`storage_id`)
@@ -4299,7 +4299,7 @@ CREATE TABLE `shipments` (
   `modified` datetime default NULL,
   `modified_by` varchar(45) default NULL,
   `order_id` int(11) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
   INDEX `shipment_code` (`shipment_code`),
@@ -4329,7 +4329,7 @@ CREATE TABLE `shipments_revs` (
   `order_id` int(11) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4362,7 +4362,7 @@ CREATE TABLE `sopd_general_all` (
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
   `modified_by` varchar(50) NOT NULL default '',
   `sop_master_id` int(11) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4377,7 +4377,7 @@ CREATE TABLE `sopd_general_all_revs` (
   `sop_master_id` int(11) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4393,7 +4393,7 @@ CREATE TABLE `sopd_inventory_all` (
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
   `modified_by` varchar(50) NOT NULL default '',
   `sop_master_id` int(11) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4408,7 +4408,7 @@ CREATE TABLE `sopd_inventory_all_revs` (
   `sop_master_id` int(11) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4426,7 +4426,7 @@ CREATE TABLE `sope_general_all` (
   `modified_by` varchar(50) default NULL,
   `sop_master_id` int(11) default NULL,
   `material_id` int(11) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4442,7 +4442,7 @@ CREATE TABLE `sope_general_all_revs` (
   `material_id` int(11) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4458,7 +4458,7 @@ CREATE TABLE `sope_inventory_all` (
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
   `sop_master_id` int(11) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4472,7 +4472,7 @@ CREATE TABLE `sope_inventory_all_revs` (
   `sop_master_id` int(11) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4520,7 +4520,7 @@ CREATE TABLE `sop_masters` (
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
   `form_id` int(11) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4546,7 +4546,7 @@ CREATE TABLE `sop_masters_revs` (
   `form_id` int(11) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4564,7 +4564,7 @@ CREATE TABLE `source_aliquots` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4580,7 +4580,7 @@ CREATE TABLE `source_aliquots_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4603,7 +4603,7 @@ CREATE TABLE `specimen_details` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4621,7 +4621,7 @@ CREATE TABLE `specimen_details_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4637,7 +4637,7 @@ CREATE TABLE `std_cupboards` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4651,7 +4651,7 @@ CREATE TABLE `std_cupboards_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4667,7 +4667,7 @@ CREATE TABLE `std_nitro_locates` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4681,7 +4681,7 @@ CREATE TABLE `std_nitro_locates_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4697,7 +4697,7 @@ CREATE TABLE `std_fridges` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4711,7 +4711,7 @@ CREATE TABLE `std_fridges_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4727,7 +4727,7 @@ CREATE TABLE `std_freezers` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4741,7 +4741,7 @@ CREATE TABLE `std_freezers_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4757,7 +4757,7 @@ CREATE TABLE `std_boxs` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4771,7 +4771,7 @@ CREATE TABLE `std_boxs_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4787,7 +4787,7 @@ CREATE TABLE `std_racks` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4801,7 +4801,7 @@ CREATE TABLE `std_racks_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4817,7 +4817,7 @@ CREATE TABLE `std_shelfs` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4831,7 +4831,7 @@ CREATE TABLE `std_shelfs_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4849,7 +4849,7 @@ CREATE TABLE `std_incubators` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4865,7 +4865,7 @@ CREATE TABLE `std_incubators_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4883,7 +4883,7 @@ CREATE TABLE `std_rooms` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4899,7 +4899,7 @@ CREATE TABLE `std_rooms_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4918,7 +4918,7 @@ CREATE TABLE `std_tma_blocks` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4935,7 +4935,7 @@ CREATE TABLE `std_tma_blocks_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4979,7 +4979,7 @@ CREATE TABLE `storage_coordinates` (
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
   `modified_by` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -4997,7 +4997,7 @@ CREATE TABLE `storage_coordinates_revs` (
   `modified_by` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -5030,7 +5030,7 @@ CREATE TABLE IF NOT EXISTS `storage_masters` (
   `created_by` varchar(50) NOT NULL DEFAULT '',
   `modified` datetime DEFAULT NULL,
   `modified_by` varchar(50) DEFAULT NULL,
-  `deleted` int(11) DEFAULT '0',
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   INDEX `code` (`code`),
@@ -5065,7 +5065,7 @@ CREATE TABLE IF NOT EXISTS `storage_masters_revs` (
   `modified_by` varchar(50) DEFAULT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) DEFAULT '0',
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -5281,7 +5281,7 @@ CREATE TABLE `study_contacts` (
   `modified` date default NULL,
   `modified_by` varchar(50) default NULL,
   `study_summary_id` int(11) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -5324,7 +5324,7 @@ CREATE TABLE `study_contacts_revs` (
   `study_summary_id` int(11) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -5359,7 +5359,7 @@ CREATE TABLE `study_ethics_boards` (
   `modified` date default NULL,
   `modified_by` varchar(50) default NULL,
   `study_summary_id` int(11) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -5392,7 +5392,7 @@ CREATE TABLE `study_ethics_boards_revs` (
   `study_summary_id` int(11) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -5433,7 +5433,7 @@ CREATE TABLE `study_fundings` (
   `modified_by` varchar(50) default NULL,
   `rtbform_id` int(11) default NULL,
   `study_summary_id` int(11) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -5472,7 +5472,7 @@ CREATE TABLE `study_fundings_revs` (
   `study_summary_id` int(11) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -5506,7 +5506,7 @@ CREATE TABLE `study_investigators` (
   `modified_by` varchar(50) default NULL,
   `path_to_file` text,
   `study_summary_id` int(11) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -5538,7 +5538,7 @@ CREATE TABLE `study_investigators_revs` (
   `study_summary_id` int(11) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -5563,7 +5563,7 @@ CREATE TABLE `study_related` (
   `modified_by` varchar(50) default NULL,
   `study_summary_id` int(11) default NULL,
   `path_to_file` varchar(255) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -5586,7 +5586,7 @@ CREATE TABLE `study_related_revs` (
   `path_to_file` varchar(255) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -5609,7 +5609,7 @@ CREATE TABLE `study_results` (
   `modified_by` varchar(50) default NULL,
   `rtbform_id` int(11) default NULL,
   `study_summary_id` int(11) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -5630,7 +5630,7 @@ CREATE TABLE `study_results_revs` (
   `study_summary_id` int(11) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -5659,7 +5659,7 @@ CREATE TABLE `study_reviews` (
   `modified` date default NULL,
   `modified_by` varchar(50) default NULL,
   `study_summary_id` int(11) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -5686,7 +5686,7 @@ CREATE TABLE `study_reviews_revs` (
   `study_summary_id` int(11) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -5716,7 +5716,7 @@ CREATE TABLE `study_summaries` (
   `modified` date default NULL,
   `modified_by` varchar(50) default NULL,
   `path_to_file` varchar(255) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -5744,7 +5744,7 @@ CREATE TABLE `study_summaries_revs` (
   `path_to_file` varchar(255) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -5771,7 +5771,7 @@ CREATE TABLE IF NOT EXISTS `tma_slides` (
   `created_by` varchar(50) NOT NULL DEFAULT '',
   `modified` datetime DEFAULT NULL,
   `modified_by` varchar(50) DEFAULT NULL,
-  `deleted` int(11) DEFAULT '0',
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   INDEX `barcode` (`barcode`),
@@ -5798,7 +5798,7 @@ CREATE TABLE IF NOT EXISTS `tma_slides_revs` (
   `modified_by` varchar(50) DEFAULT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) DEFAULT '0',
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -5819,7 +5819,7 @@ CREATE TABLE `txd_chemos` (
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
   `modified_by` varchar(50) NOT NULL default '',
   `tx_master_id` int(11) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
   KEY `tx_master_id` (`tx_master_id`)
@@ -5839,7 +5839,7 @@ CREATE TABLE `txd_chemos_revs` (
   `tx_master_id` int(11) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`),
   KEY `tx_master_id` (`tx_master_id`)
@@ -5858,7 +5858,7 @@ CREATE TABLE `txd_radiations` (
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
   `modified_by` varchar(50) NOT NULL default '',
   `tx_master_id` int(11) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
   KEY `tx_master_id` (`tx_master_id`)
@@ -5875,7 +5875,7 @@ CREATE TABLE `txd_radiations_revs` (
   `tx_master_id` int(11) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`),
   KEY `tx_master_id` (`tx_master_id`)
@@ -5895,7 +5895,7 @@ CREATE TABLE `txd_surgeries` (
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
   `modified_by` varchar(50) NOT NULL default '',
   `tx_master_id` int(11) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
   KEY `tx_master_id` (`tx_master_id`)
@@ -5913,7 +5913,7 @@ CREATE TABLE `txd_surgeries_revs` (
   `tx_master_id` int(11) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`),
   KEY `tx_master_id` (`tx_master_id`)
@@ -5940,7 +5940,7 @@ CREATE TABLE `txe_chemos` (
   `modified_by` varchar(50) default NULL,
   `tx_master_id` int(11) default NULL,
   `drug_id` varchar(50) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -5964,7 +5964,7 @@ CREATE TABLE `txe_chemos_revs` (
   `drug_id` varchar(50) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -5990,7 +5990,7 @@ CREATE TABLE `txe_radiations` (
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
   `modified_by` varchar(50) default NULL,
   `tx_master_id` int(11) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
   KEY `tx_master_id` (`tx_master_id`)
@@ -6015,7 +6015,7 @@ CREATE TABLE `txe_radiations_revs` (
   `tx_master_id` int(11) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`),
   KEY `tx_master_id` (`tx_master_id`)
@@ -6033,7 +6033,7 @@ CREATE TABLE `txe_surgeries` (
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
   `modified_by` varchar(50) default NULL,
   `tx_master_id` int(11) default NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
   KEY `tx_master_id` (`tx_master_id`)
@@ -6049,7 +6049,7 @@ CREATE TABLE `txe_surgeries_revs` (
   `tx_master_id` int(11) default NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` int(11) default 0,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`version_id`),
   KEY `tx_master_id` (`tx_master_id`)
@@ -6097,7 +6097,7 @@ CREATE TABLE IF NOT EXISTS `tx_masters` (
   `protocol_id` int(11) DEFAULT NULL,
   `participant_id` int(11) DEFAULT NULL,
   `diagnosis_master_id` int(11) DEFAULT NULL,
-  `deleted` int(11) DEFAULT '0',
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   INDEX `participant_id` (`participant_id`),
@@ -6126,7 +6126,7 @@ CREATE TABLE IF NOT EXISTS `tx_masters_revs` (
   `protocol_id` int(11) DEFAULT NULL,
   `participant_id` int(11) DEFAULT NULL,
   `diagnosis_master_id` int(11) DEFAULT NULL,
-  `deleted` int(11) DEFAULT '0',
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
