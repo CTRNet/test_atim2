@@ -1,5 +1,4 @@
 <?php
-
 class AliquotMastersController extends InventoryManagementAppController {
 	
 	/*
@@ -66,6 +65,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 	 
 	/* ----------------------------- ALIQUOT MASTER ----------------------------- */
 	
+	
+	
 	function index() {
 		// MANAGE (FIRST) FORM TO DEFINE SEARCH TYPE 
 
@@ -101,221 +102,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$_SESSION['ctrapp_core']['search']['url'] = '/inventorymanagement/aliquot_masters/search';
 	}
 	
-	function setAliquotSearchData($criteria) {
-		// Search Data
-		$has_many_details = array(
-			'hasMany' => array(
-				'RealiquotedParent' => array(
-					'className' => 'Inventorymanagement.Realiquoting',
-					'foreignKey' => 'child_aliquot_master_id'),
-				'ChildrenAliquot' => array(
-					'className' => 'Inventorymanagement.Realiquoting',
-					'foreignKey' => 'parent_aliquot_master_id')));
 		
-		$this->AliquotMaster->bindModel($has_many_details, false);	
-		$working_data = $this->paginate($this->AliquotMaster, $criteria);
-		$this->AliquotMaster->unbindModel(array('hasMany' => array('RealiquotedParent', 'ChildrenAliquot')), false);
-		
-		// Manage Data
-		$key_to_sample_parent_id = array();
-		foreach($working_data as $key => $aliquot_data) {
-			// Set aliquot use
-			//TODO add patch to correct bug listed in issue #650
-			$working_data[$key]['Generated']['aliquot_use_counter'] = sizeof($aliquot_data['AliquotUse']);
-			
-			// Set realiquoting data
-			$realiquoting_value = 0;
-			$realiquoting_value += (sizeof($aliquot_data['ChildrenAliquot']))? 1: 0;
-			$realiquoting_value += (sizeof($aliquot_data['RealiquotedParent']))? 2: 0;
-			
-			switch($realiquoting_value) {
-				case '0':
-					$working_data[$key]['Generated']['realiquoting_data'] = 'n/a';
-					break;
-				case '1':
-					$working_data[$key]['Generated']['realiquoting_data'] = 'parent';
-					break;
-				case '2':
-					$working_data[$key]['Generated']['realiquoting_data'] = 'child';
-					break;
-				case '3':
-					$working_data[$key]['Generated']['realiquoting_data'] = 'parent/child';
-					break;	
-			}
-			
-			// Build GeneratedParentSample
-			$working_data[$key]['GeneratedParentSample'] = array();
-			if(!empty($aliquot_data['SampleMaster']['parent_id'])) { $key_to_sample_parent_id[$key] = $aliquot_data['SampleMaster']['parent_id']; }
-		}
-		
-		// Add GeneratedParentSample Data
-		$parent_sample_data = $this->SampleMaster->atim_list(array('conditions' => array('SampleMaster.id' => $key_to_sample_parent_id), 'recursive' => '-1'));
-		foreach($key_to_sample_parent_id as $key => $parent_id) {
-			if(!isset($parent_sample_data[$parent_id])) { $this->redirect('/pages/err_inv_system_error', null, true); }
-			$working_data[$key]['GeneratedParentSample'] = $parent_sample_data[$parent_id]['SampleMaster'];
-		}
-		
-		$this->data = $working_data;
-		
-		// Set list of banks
-		$this->set('banks', $this->getBankList());
-	}
-	
 	function listAll($collection_id, $sample_master_id, $filter_option = null) {
 		if((!$collection_id) || (!$sample_master_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }		
-		
-		// MANAGE FILTER OPTION
-		
-		$is_collection_aliquot_list = ($sample_master_id == '-1')? true: false;
-		
-		$specific_aliquot_search_criteria = array();
-		$specific_form_alias = null;
-		$specific_menu_variables = array();
-		
-		if($is_collection_aliquot_list) {
-			// User is working on collection aliquots list
-			
-			// Manage filter option
-			if(is_null($filter_option)) {
-				if(isset($_SESSION['InventoryManagement']['CollectionAliquots']['Filter'])) { 
-					// Get existing filter
-					$filter_option = $_SESSION['InventoryManagement']['CollectionAliquots']['Filter']; 
-				}
-			} else if($filter_option == '-1') {
-				// User inactived filter
-				$filter_option = null;
-				unset($_SESSION['InventoryManagement']['CollectionAliquots']['Filter']);
-			}
-			
-			// Search data to display	
-			$specific_menu_variables['FilterLevel'] = 'collection';
-	
-			if(!is_null($filter_option)) {
-				// Get filter options
-				$option_for_list_all = explode("|", $filter_option);			
-				if(sizeof($option_for_list_all) != 2)  { $this->redirect('/pages/err_inv_system_error', null, true); }
-				$sample_control_id = $option_for_list_all[0];
-				$aliquot_control_id = $option_for_list_all[1];
-				
-				$specific_aliquot_search_criteria['SampleMaster.sample_control_id'] = $sample_control_id;	
-				$specific_aliquot_search_criteria['AliquotMaster.aliquot_control_id'] = $aliquot_control_id; 
-
-				$sample_control_data = $this->SampleControl->find('first', array('conditions' => array('SampleControl.id' => $sample_control_id)));
-				if(empty($sample_control_data)) { $this->redirect('/pages/err_inv_no_samp_cont_data', null, true); }	
-				$specific_menu_variables['SampleTypeForFilter'] = $sample_control_data['SampleControl']['sample_type'];
-				
-				$aliquot_control_data = $this->AliquotControl->find('first', array('conditions' => array('AliquotControl.id' => $option_for_list_all[1])));
-				if(empty($aliquot_control_data)) { $this->redirect('/pages/err_inv_no_aliqu_cont_data', null, true); }					
-				$specific_form_alias = $aliquot_control_data['AliquotControl']['form_alias'];
-				$specific_menu_variables['AliquotTypeForFilter'] = $aliquot_control_data['AliquotControl']['aliquot_type'];	
-				
-				// Set filter option in session
-				$_SESSION['InventoryManagement']['CollectionAliquots']['Filter'] = $filter_option;
-			}			
-			
-		} else {
-			// User is working on sample aliquots list	
-			$sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id), 'recursive' => '-1'));
-			if(empty($sample_data)) { $this->redirect('/pages/err_inv_samp_no_data', null, true); }		
-			$specific_menu_variables['SampleMaster.initial_specimen_sample_id'] = $sample_data['SampleMaster']['initial_specimen_sample_id'];
-			$specific_menu_variables['SampleMaster.id'] = $sample_data['SampleMaster']['id'];
-
-			// Set sample master id into criteria
-			$specific_aliquot_search_criteria['AliquotMaster.sample_master_id'] = $sample_master_id; 
-					
-			// Manage filter option
-			if(is_null($filter_option)) {
-				// Get existing filter
-				if(isset($_SESSION['InventoryManagement']['SampleAliquots']['Filter'])) { 
-					if($_SESSION['InventoryManagement']['SampleAliquots']['Filter']['SampleMasterId'] != $sample_master_id) {
-						// New studied sample: clear filter option
-						$filter_option = null;
-						unset($_SESSION['InventoryManagement']['SampleAliquots']['Filter']);						
-						
-					} else {
-						// Get existing filter
-						$filter_option = $_SESSION['InventoryManagement']['SampleAliquots']['Filter']['Option']; 
-					}
-				}
-			} else if($filter_option == '-1') {
-				// User inactived filter
-				$filter_option = null;
-				unset($_SESSION['InventoryManagement']['SampleAliquots']['Filter']);
-			}
-			
-			// Search data to display	
-			$specific_menu_variables['FilterLevel'] = 'sample';
-				
-			if(!is_null($filter_option)) {
-				// Get filter options (being sample_control_id and aliquot_control_id)
-				$option_for_list_all = explode("|", $filter_option);			
-				if(sizeof($option_for_list_all) != 2)  { $this->redirect('/pages/err_inv_system_error', null, true); }
-				$sample_control_id = $option_for_list_all[0];
-				$aliquot_control_id = $option_for_list_all[1];
-				
-				$specific_aliquot_search_criteria['AliquotMaster.aliquot_control_id'] = $aliquot_control_id; 
-				
-				$aliquot_control_data = $this->AliquotControl->find('first', array('conditions' => array('AliquotControl.id' => $option_for_list_all[1])));
-				if(empty($aliquot_control_data)) { $this->redirect('/pages/err_inv_no_aliqu_cont_data', null, true); }					
-				$specific_form_alias = $aliquot_control_data['AliquotControl']['form_alias'];
-				$specific_menu_variables['AliquotTypeForFilter'] = $aliquot_control_data['AliquotControl']['aliquot_type'];	
-				
-				// Set filter option in session
-				$_SESSION['InventoryManagement']['SampleAliquots']['Filter'] = array(
-					'SampleMasterId' => $sample_master_id,
-					'Option' => $filter_option);
-			}			
-		}
-
-		// MANAGE DATA
-				
-		$this->setAliquotSearchData(array_merge(array('AliquotMaster.collection_id' => $collection_id), $specific_aliquot_search_criteria));		
-
-		// MANAGE FORM, MENU AND ACTION BUTTONS	
-		$form_alias = (is_null($specific_form_alias))? 'aliquotmasters': $specific_form_alias;
-		$this->Structures->set($form_alias);
-				
-		// Get all collection/sample 'sample aliquot type list' to build the filter button
-		$sample_aliquot_types = array();
-		$criteria = array('AliquotMaster.collection_id' => $collection_id);
-		if(!$is_collection_aliquot_list) { $criteria['AliquotMaster.sample_master_id'] = $sample_master_id; }
-		$tmp_sample_aliquot_type_list = $this->AliquotMaster->find('all', array('fields' => 'DISTINCT SampleMaster.sample_type, SampleMaster.sample_control_id, AliquotMaster.aliquot_type, AliquotMaster.aliquot_control_id', 'conditions' => $criteria, 'order' => 'SampleMaster.sample_type ASC, AliquotMaster.aliquot_type ASC', 'recursive' => '0'));
-		foreach($tmp_sample_aliquot_type_list as $new_sample_aliquot_type) {
-			// Should create key because looks like it's not a real distinct: Perhaps exists a better solution 
-			$sample_control_id = $new_sample_aliquot_type['SampleMaster']['sample_control_id'];
-			$aliquot_control_id = $new_sample_aliquot_type['AliquotMaster']['aliquot_control_id'];
-			$sample_aliquot_types[$sample_control_id . '|' . $aliquot_control_id] = array(
-				'sample_type' => $new_sample_aliquot_type['SampleMaster']['sample_type'],
-				'sample_control_id' => $new_sample_aliquot_type['SampleMaster']['sample_control_id'],
-				'aliquot_type' => $new_sample_aliquot_type['AliquotMaster']['aliquot_type'],
-				'aliquot_control_id' => $new_sample_aliquot_type['AliquotMaster']['aliquot_control_id']);
-		}
-		$this->set('existing_sample_aliquot_types', $sample_aliquot_types);
-		
-		// Get all aliquot control types to build the add to selected button
-		$allowed_aliquot_type = array();
-		if(!$is_collection_aliquot_list) {
-			$allowed_aliquot_type = $this->getAllowedAliquotTypes($sample_data['SampleMaster']['sample_control_id']);
-		}
-		$this->set('allowed_aliquot_type', $allowed_aliquot_type);
-
-		// Get the current menu object
-		$last_menu_parameter = '-1';
-		if(!$is_collection_aliquot_list) {	
-			// User is working on sample aliquots
-			if($specific_menu_variables['SampleMaster.initial_specimen_sample_id'] == $specific_menu_variables['SampleMaster.id']) {
-				// Studied sample is a specimen
-				$last_menu_parameter = '%%SampleMaster.initial_specimen_sample_id%%';
-			} else {
-				// Studied sample is a derivative
-				$last_menu_parameter = '%%SampleMaster.id%%';	
-			}
-		}	
-		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/aliquot_masters/listAll/%%Collection.id%%/' . $last_menu_parameter));
-				
-		// Set menu variables
-		$atim_menu_variables = array_merge(array('Collection.id' => $collection_id), $specific_menu_variables);
-		$this->set('atim_menu_variables', $atim_menu_variables);
+		$this->samf_listAll($collection_id, $sample_master_id, $filter_option);
 	}
 	
 	function add($collection_id, $sample_master_id, $aliquot_control_id) {

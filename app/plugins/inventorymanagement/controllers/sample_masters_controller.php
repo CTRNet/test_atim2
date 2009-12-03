@@ -368,7 +368,6 @@ class SampleMastersController extends InventorymanagementAppController {
 	
 	function detail($collection_id, $sample_master_id, $is_tree_view_detail_form = false, $is_inventory_plugin_form = true) {
 		if((!$collection_id) || (!$sample_master_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }		
-		
 		// MANAGE DATA
 
 		// Get the sample data
@@ -393,8 +392,6 @@ class SampleMastersController extends InventorymanagementAppController {
 				$this->redirect('/pages/err_inv_system_error', null, true);
 		}
 
-		
-		
 		$this->data = $sample_data;
 
 		// Get parent sample information
@@ -437,6 +434,13 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->set('is_tree_view_detail_form', $is_tree_view_detail_form);
 		$this->set('is_inventory_plugin_form', $is_inventory_plugin_form);
 		$this->data['Generated']['coll_to_rec_spent_time_msg'] = $this->manageSpentTimeDataDisplay($this->getSpentTime($this->data['Collection']['collection_datetime'], $this->data['SpecimenDetail']['reception_datetime']));
+		
+		$this->set("sample_master_data", $this->data);
+		$this->data = array();//set to empty array to avoir warning
+		
+		if(!$is_tree_view_detail_form){
+			$this->samf_listAll($collection_id, $sample_master_id, null);
+		}
 	}
 
 	function add($collection_id, $sample_control_id, $parent_sample_master_id = null) {
