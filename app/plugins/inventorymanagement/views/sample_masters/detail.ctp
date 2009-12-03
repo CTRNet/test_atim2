@@ -49,7 +49,6 @@
 	
 	$structure_override['SampleMaster.sop_master_id'] = $arr_sample_sops;
 	$structure_override['SampleMaster.parent_id'] = (empty($parent_sample_data))? '' : $parent_sample_data['SampleMaster']['sample_code'] . ' [' . __($parent_sample_data['SampleMaster']['sample_type'], TRUE) . ']';
-	if(!empty($col_to_creation_spent_time)) { $structure_override['Generated.coll_to_creation_spent_time_msg'] = $this->manageSpentTimeDataDisplay($col_to_creation_spent_time); }
 
 	$structures->build($atim_structure, array('links'=>$structure_links, 'override' => $structure_override));
 ?>

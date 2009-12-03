@@ -501,14 +501,13 @@ unset($this->data['AliquotMaster']);
 		// Set times spent since either sample collection/reception or sample creation and sample storage					
 		switch($aliquot_data['SampleMaster']['sample_category']) {
 			case 'specimen':
-				$this->set('coll_to_stor_spent_time_msg', $this->getSpentTime($aliquot_data['Collection']['collection_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
-				$this->set('rec_to_stor_spent_time_msg', $this->getSpentTime($aliquot_data['Collection']['reception_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
+				$this->data['Generated']['coll_to_stor_spent_time'] = $this->manageSpentTimeDataDisplay($this->getSpentTime($aliquot_data['Collection']['collection_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
+				$this->data['Generated']['rec_to_stor_spent_time'] = $this->manageSpentTimeDataDisplay($this->getSpentTime($aliquot_data['Collection']['reception_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
 				break;
-				
 			case 'derivative':
 				$derivative_detail_data = $this->DerivativeDetail->find('first', array('conditions' => array('DerivativeDetail.sample_master_id' => $sample_master_id)));
 				if(empty($derivative_detail_data)) { $this->redirect('/pages/err_inv_missing_samp_data', null, true); }	
-				$this->set('creat_to_stor_spent_time_msg', $this->getSpentTime($derivative_detail_data['DerivativeDetail']['creation_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
+				$this->data['Generated']['creat_to_stor_spent_time'] = $this->manageSpentTimeDataDisplay($this->getSpentTime($derivative_detail_data['DerivativeDetail']['creation_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
 				break;
 				
 			default:
