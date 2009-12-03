@@ -62,33 +62,9 @@
 	}	
 	$structure_override['AliquotDetail.gel_matrix_aliquot_master_id'] = $gel_matrices_list;	
 
-	if(isset($coll_to_stor_spent_time_msg)) { $structure_override['Generated.coll_to_stor_spent_time_msg'] = manageSpentTimeDataDisplay($coll_to_stor_spent_time_msg); }
-	if(isset($rec_to_stor_spent_time_msg)) { $structure_override['Generated.rec_to_stor_spent_time_msg'] = manageSpentTimeDataDisplay($rec_to_stor_spent_time_msg); }
-	if(isset($creat_to_stor_spent_time_msg)) { $structure_override['Generated.creat_to_stor_spent_time_msg'] = manageSpentTimeDataDisplay($creat_to_stor_spent_time_msg); }
+	if(isset($coll_to_stor_spent_time_msg)) { $structure_override['Generated.coll_to_stor_spent_time_msg'] = $this->manageSpentTimeDataDisplay($coll_to_stor_spent_time_msg); }
+	if(isset($rec_to_stor_spent_time_msg)) { $structure_override['Generated.rec_to_stor_spent_time_msg'] = $this->manageSpentTimeDataDisplay($rec_to_stor_spent_time_msg); }
+	if(isset($creat_to_stor_spent_time_msg)) { $structure_override['Generated.creat_to_stor_spent_time_msg'] = $this->manageSpentTimeDataDisplay($creat_to_stor_spent_time_msg); }
 	
 	$structures->build($atim_structure, array('links'=>$structure_links, 'override' => $structure_override));
-		
-	/* --------------------------------------------------------------------------
-	 * ADDITIONAL FUNCTIONS
-	 * -------------------------------------------------------------------------- */
-	
-	function manageSpentTimeDataDisplay($spent_time_data) {
-		$spent_time_msg = '';
-		if(!empty($spent_time_data)) {		
-			if(!empty($spent_time_data['message'])) { 
-				$spent_time_msg = __($spent_time_data['message'], TRUE); 
-			} else {
-				$spent_time_msg = translateDateValueAndUnit($spent_time_data, 'days') . translateDateValueAndUnit($spent_time_data, 'hours') . translateDateValueAndUnit($spent_time_data, 'minutes');
-			} 	
-		}
-		return $spent_time_msg;
-	}
-	
-	function translateDateValueAndUnit($spent_time_data, $time_unit) {
-		if(array_key_exists($time_unit, $spent_time_data)) {
-			return (((!empty($spent_time_data[$time_unit])) && ($spent_time_data[$time_unit] != '00'))? ($spent_time_data[$time_unit] . ' ' . __($time_unit, TRUE) . ' ') : '');
-		} 
-		return  '#err#';
-	}
-  
 ?>

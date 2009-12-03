@@ -436,6 +436,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		// Define if this detail form is displayed into the collection content tree view
 		$this->set('is_tree_view_detail_form', $is_tree_view_detail_form);
 		$this->set('is_inventory_plugin_form', $is_inventory_plugin_form);
+		$this->data['Generated']['coll_to_rec_spent_time_msg'] = $this->manageSpentTimeDataDisplay($this->getSpentTime($this->data['Collection']['collection_datetime'], $this->data['SpecimenDetail']['reception_datetime']));
 	}
 
 	function add($collection_id, $sample_control_id, $parent_sample_master_id = null) {

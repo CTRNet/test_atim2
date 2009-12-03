@@ -25,7 +25,7 @@
 	foreach ($specimen_sample_controls_list as $sample_control) {
 		$add_links[$sample_control['SampleControl']['sample_type']] = '/inventorymanagement/sample_masters/add/' . $atim_menu_variables['Collection.id'] . '/' . $sample_control['SampleControl']['id'];
 	}
-pr($specimen_sample_controls_list);	
+//pr($specimen_sample_controls_list);	
 	$search_type_links = array();
 	$search_type_links['collection'] = '/inventorymanagement/collections/index/';
 	$search_type_links['sample'] = '/inventorymanagement/sample_masters/index/';
