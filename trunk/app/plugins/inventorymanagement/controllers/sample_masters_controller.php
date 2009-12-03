@@ -500,14 +500,12 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 		// set structure alias based on VALUE from CONTROL table
 		//TODO validates could be hidden
-		$this->Structures->set($sample_control_data['SampleControl']['form_alias']);	
+		$this->Structures->set($sample_control_data['SampleControl']['form_alias']);
+		
+			
 		
 		// MANAGE DATA RECORD
-			
-		
-			
 		if(!empty($this->data)) {	
-
 			// Set additional data
 			$this->data['SampleMaster']['collection_id'] = $collection_id;
 			$this->data['SampleMaster']['sample_control_id'] = $sample_control_data['SampleControl']['id'];
@@ -573,7 +571,16 @@ class SampleMastersController extends InventorymanagementAppController {
 					$this->flash('your data has been saved', '/inventorymanagement/sample_masters/detail/' . $collection_id . '/' . $sample_master_id);	
 				}					
 			}			
-		}		
+		}
+		if($bool_is_specimen){
+			if($this->SampleMaster->find('count', array('conditions' => array('SampleMaster.collection_id' => $collection_id))) == 0){
+				$collection = $this->Collection->find('first', array('conditions' => array('Collection.id' => $collection_id)));
+				$this->data['SpecimenDetail']['reception_datetime'] = $collection['Collection']['collection_datetime'];
+			}else{
+				$sample = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id), 'fields' => array('MIN(SpecimenDetail.reception_datetime) AS reception_datetime')));
+				$this->data['SpecimenDetail']['reception_datetime'] = $sample[0]['reception_datetime'];
+			}
+		}
 	}
 
 	function edit($collection_id, $sample_master_id) {
