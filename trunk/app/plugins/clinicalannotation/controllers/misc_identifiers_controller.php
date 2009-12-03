@@ -6,7 +6,7 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 		'Clinicalannotation.MiscIdentifier',
 		'Clinicalannotation.Participant'
 	);
-	var $paginate = array('MiscIdentifier'=>array('limit'=>10,'order'=>'MiscIdentifier.name ASC'));
+	var $paginate = array('MiscIdentifier'=>array('limit'=>10,'order'=>'MiscIdentifier.identifier_name ASC'));
 	
 	function listall( $participant_id ) {
 		if ( !$participant_id ) { $this->redirect( 'err_clin_funct_param_missing', NULL, TRUE ); }
