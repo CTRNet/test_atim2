@@ -19,6 +19,10 @@ class ParticipantsController extends ClinicalannotationAppController {
 	
 	function index() {
 		$_SESSION['ctrapp_core']['search'] = NULL; // clear SEARCH criteria
+		
+		// CUSTOM CODE: FORMAT DISPLAY DATA
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { require($hook_link); }	
 	}
 	
 	function search() {
@@ -30,14 +34,14 @@ class ParticipantsController extends ClinicalannotationAppController {
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu', $this->Menus->get('/clinicalannotation/participants/index') );		
-		
-		// CUSTOM CODE: FORMAT DISPLAY DATA
-		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }
-		
+				
 		// if SEARCH form data, save number of RESULTS and URL
 		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['Participant']['count'];
 		$_SESSION['ctrapp_core']['search']['url'] = '/clinicalannotation/participants/search';
+	
+		// CUSTOM CODE: FORMAT DISPLAY DATA
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { require($hook_link); }	
 	}
 
 	function profile( $participant_id ) {
