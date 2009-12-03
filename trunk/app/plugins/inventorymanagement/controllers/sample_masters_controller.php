@@ -411,7 +411,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		if(isset($sample_data['DerivativeDetail'])) {
 			$arr_spent_time = $this->getSpentTime($sample_data['Collection']['collection_datetime'], $sample_data['DerivativeDetail']['creation_datetime']);
 		}
-		$this->set('col_to_creation_spent_time', $arr_spent_time);
+		$this->data['Generated']['coll_to_creation_spent_time'] = $arr_spent_time == null ? null : $this->manageSpentTimeDataDisplay($arr_spent_time);
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 
