@@ -21,7 +21,7 @@ class CollectionsController extends InventorymanagementAppController {
 		// MANAGE (FIRST) FORM TO DEFINE SEARCH TYPE 
 
 		// Set structure 				
-		$this->set('atim_structure_for_search_type', $this->Structures->get('form', 'collection_search_type'));
+		$this->Structures->set('collection_search_type', 'atim_structure_for_search_type');	
 		
 		// MANAGE INDEX FORM
 		
@@ -41,7 +41,7 @@ class CollectionsController extends InventorymanagementAppController {
 		// MANAGE (FIRST) FORM TO DEFINE SEARCH TYPE 
 
 		// Set structure 				
-		$this->set('atim_structure_for_search_type', $this->Structures->get('form', 'collection_search_type'));
+		$this->Structures->set('collection_search_type', 'atim_structure_for_search_type');	
 		
 		// MANAGE INDEX FORM
 		
@@ -168,7 +168,7 @@ class CollectionsController extends InventorymanagementAppController {
 		
 		if(!empty($collection_data['ClinicalCollectionLink']['participant_id'])) {
 			// Linked collection: Set specific structure
-			$this->set('atim_structure', $this->Structures->get('form', 'linked_collections'));
+			$this->Structures->set('linked_collections');	
 		}
 
 		// CUSTOM CODE: FORMAT DISPLAY DATA

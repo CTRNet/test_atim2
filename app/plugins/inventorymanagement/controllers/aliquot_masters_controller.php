@@ -61,6 +61,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS
 	 * -------------------------------------------------------------------------- */
+
+//TODO: change ',' to '.' for AliquotMaster.initial_volume 	AliquotDetail.used_blood_volume AliquotUse.	used_volume
 	 
 	/* ----------------------------- ALIQUOT MASTER ----------------------------- */
 	
@@ -68,7 +70,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// MANAGE (FIRST) FORM TO DEFINE SEARCH TYPE 
 
 		// Set structure 				
-		$this->set('atim_structure_for_search_type', $this->Structures->get('form', 'collection_search_type'));
+		$this->Structures->set('collection_search_type', 'atim_structure_for_search_type');
 		
 		// MANAGE INDEX FORM
 
@@ -85,8 +87,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// MANAGE (FIRST) FORM TO DEFINE SEARCH TYPE 
 
 		// Set structure 				
-		$this->set('atim_structure_for_search_type', $this->Structures->get('form', 'collection_search_type'));
-		
+		$this->Structures->set('collection_search_type', 'atim_structure_for_search_type');
+				
 		// MANAGE INDEX FORM
 		
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/collections/index'));
@@ -271,8 +273,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS	
 		$form_alias = (is_null($specific_form_alias))? 'aliquotmasters': $specific_form_alias;
-		$this->set('atim_structure', $this->Structures->get('form', $form_alias));
-		
+		$this->Structures->set($form_alias);
+				
 		// Get all collection/sample 'sample aliquot type list' to build the filter button
 		$sample_aliquot_types = array();
 		$criteria = array('AliquotMaster.collection_id' => $collection_id);
@@ -373,8 +375,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->set('atim_menu_variables', array('Collection.id' => $collection_id, 'SampleMaster.id' => $sample_master_id, 'SampleMaster.initial_specimen_sample_id' => $sample_data['SampleMaster']['initial_specimen_sample_id']));
 		
 		// set structure alias based on VALUE from CONTROL table
-		$this->set('atim_structure', $this->Structures->get('form', $aliquot_control_data['AliquotControl']['form_alias']));	
-	
+		$this->Structures->set($aliquot_control_data['AliquotControl']['form_alias']);
+			
 		// MANAGE DATA RECORD
 
 		if (empty($this->data)) {
@@ -524,8 +526,8 @@ unset($this->data['AliquotMaster']);
 		$this->set('atim_menu_variables', array('Collection.id' => $collection_id, 'SampleMaster.id' => $sample_master_id, 'SampleMaster.initial_specimen_sample_id' => $aliquot_data['SampleMaster']['initial_specimen_sample_id'], 'AliquotMaster.id' => $aliquot_master_id));
 		
 		// Set structure
-		$this->set('atim_structure', $this->Structures->get('form', $aliquot_data['AliquotControl']['form_alias']));
-
+		$this->Structures->set($aliquot_data['AliquotControl']['form_alias']);
+		
 		// Define if this detail form is displayed into the collection content tree view
 		$this->set('is_tree_view_detail_form', $is_tree_view_detail_form);
 		$this->set('is_inventory_plugin_form', $is_inventory_plugin_form);
@@ -567,8 +569,8 @@ unset($this->data['AliquotMaster']);
 		$this->set('atim_menu_variables', array('Collection.id' => $collection_id, 'SampleMaster.id' => $sample_master_id, 'SampleMaster.initial_specimen_sample_id' => $aliquot_data['SampleMaster']['initial_specimen_sample_id'], 'AliquotMaster.id' => $aliquot_master_id));
 		
 		// Set structure
-		$this->set('atim_structure', $this->Structures->get('form', $aliquot_data['AliquotControl']['form_alias']));
-	
+		$this->Structures->set($aliquot_data['AliquotControl']['form_alias']);
+		
 		// MANAGE DATA RECORD
 		
 		if(empty($this->data)) {
@@ -701,7 +703,7 @@ unset($this->data['AliquotMaster']);
 		$this->set('atim_menu_variables', array('Collection.id' => $collection_id, 'SampleMaster.id' => $sample_master_id, 'SampleMaster.initial_specimen_sample_id' => $aliquot_data['SampleMaster']['initial_specimen_sample_id'], 'AliquotMaster.id' => $aliquot_master_id));
 		
 		// Set structure
-		$this->set('atim_structure', $this->Structures->get('form', 'aliquotuses'));
+		$this->Structures->set('aliquotuses');
 	}
 	
 	function addAliquotUse($collection_id, $sample_master_id, $aliquot_master_id, $aliquot_use_defintion = null) {
@@ -742,8 +744,8 @@ unset($this->data['AliquotMaster']);
 		$this->set('atim_menu_variables', array('Collection.id' => $collection_id, 'SampleMaster.id' => $sample_master_id, 'SampleMaster.initial_specimen_sample_id' => $aliquot_data['SampleMaster']['initial_specimen_sample_id'], 'AliquotMaster.id' => $aliquot_master_id));
 		
 		// Set structure
-		$this->set('atim_structure', $this->Structures->get('form', 'aliquotuses'));
-
+		$this->Structures->set('aliquotuses');
+		
 		// MANAGE DATA RECORD
 
 		if(empty($this->data)) {
@@ -802,9 +804,9 @@ unset($this->data['AliquotMaster']);
 		$this->set('atim_menu_variables', array('Collection.id' => $collection_id, 'SampleMaster.id' => $sample_master_id, 'SampleMaster.initial_specimen_sample_id' => $sample_data['SampleMaster']['initial_specimen_sample_id'], 'AliquotMaster.id' => $aliquot_master_id, 'AliquotUse.id' => $aliquot_use_id));
 		
 		// Set structure
-		$alias = in_array($use_data['AliquotUse']['use_definition'], array('internal use'))? 'aliquotuses': 'linkedaliquotuses';
-		$this->set('atim_structure', $this->Structures->get('form', $alias));
-	
+		$form_alias = in_array($use_data['AliquotUse']['use_definition'], array('internal use'))? 'aliquotuses': 'linkedaliquotuses';
+		$this->Structures->set($form_alias);
+		
 		// MANAGE DATA RECORD
 		
 		if(empty($this->data)) {
@@ -906,7 +908,7 @@ unset($this->data['AliquotMaster']);
 			'SampleMaster.id' => $sample_master_id,
 			'SampleMaster.initial_specimen_sample_id' => $sample_data['SampleMaster']['initial_specimen_sample_id']));
 		
-		$this->set('atim_structure', $this->Structures->get('form', 'sourcealiquots'));
+		$this->Structures->set('sourcealiquots');
 	}
 	
 	function addSourceAliquots($collection_id, $sample_master_id) {
@@ -944,7 +946,7 @@ unset($this->data['AliquotMaster']);
 			'SampleMaster.id' => $sample_master_id,
 			'SampleMaster.initial_specimen_sample_id' => $sample_data['SampleMaster']['initial_specimen_sample_id']) );
 
-		$this->set('atim_structure', $this->Structures->get('form', 'sourcealiquots'));
+		$this->Structures->set('sourcealiquots');
 		
 		if (empty($this->data)) {
 			$this->data = $available_sample_aliquots;
@@ -1099,8 +1101,8 @@ unset($this->data['AliquotMaster']);
 			}
 		}
 		$aliquot_data = array_values($aliquot_data);
-		$this->set( 'atim_structure_aliquot', $this->Structures->get( 'form', 'aliquot_children_linking' ) );
-		$this->set('atim_datetime_input',  $this->Structures->get('form', 'datetime_input'));
+		$this->Structures->set('aliquot_children_linking', 'atim_structure_aliquot');
+		$this->Structures->set('datetime_input', 'atim_datetime_input');
 		$aliquot_id_by_barcode = array();
 		foreach($aliquot_data as $aliquot_unit){
 			$aliquot_id_by_barcode[$aliquot_unit['AliquotMaster']['barcode']] = $aliquot_unit['AliquotMaster']['id']; 
@@ -1159,7 +1161,7 @@ unset($this->data['AliquotMaster']);
 												'SampleMaster.initial_specimen_sample_id' => $current_aliquot_data['SampleMaster']['initial_specimen_sample_id'],
 												'AliquotMasterParent.id' => 'coco'));
 		
-		$this->set('atim_structure', $this->Structures->get('form', 'realiquotedparent'));
+		$this->Structures->set('realiquotedparent');
 		
 		$this->data = $this->paginate($this->Realiquoting, "Realiquoting.child_aliquot_master_id = '".$aliquot_master_id."' AND Realiquoting.deleted != 1 ");
 

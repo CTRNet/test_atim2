@@ -27,7 +27,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 		$sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id), 'recursive' => '-1'));
 		if(empty($sample_data)) { $this->redirect('/pages/err_inv_samp_no_data', null, true); }	
 		
-		$this->hook();
+		
 		
 		$this->data = $this->paginate($this->QualityCtrl,array('QualityCtrl.sample_master_id'=>$sample_master_id));
 		
@@ -55,7 +55,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 				'SampleMaster.initial_specimen_sample_id' => $sample_data['SampleMaster']['initial_specimen_sample_id']) 
 		);
 		
-		$this->hook();
+		
 		
 		if ( !empty($this->data) ) {
 			$this->data['QualityCtrl']['sample_master_id'] = $sample_master_id;
@@ -78,7 +78,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 	function detail($collection_id, $sample_master_id, $quality_ctrl_id) {
 		if((!$collection_id) || (!$sample_master_id) || (!$quality_ctrl_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }		
 
-		$this->hook();
+		
 		
 		$this->data = $this->QualityCtrl->find('first',array('conditions'=>array('QualityCtrl.id'=>$quality_ctrl_id, 'SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id)));
 		if(empty($this->data)) { $this->redirect('/pages/err_inv_qc_no_data', null, true); }
@@ -108,7 +108,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			'SampleMaster.initial_specimen_sample_id' =>  $qc_data['SampleMaster']['initial_specimen_sample_id'],
 			'QualityCtrl.id' => $quality_ctrl_id) );
 				
-		$this->hook();
+		
 				
 		if ( !empty($this->data) ) {
 			// Get aliquot use ids of the tested aliquots
@@ -138,7 +138,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			
 		if($arr_allow_deletion['allow_deletion']) {
 		
-			$this->hook();
+			
 		
 			if($this->QualityCtrl->atim_delete($quality_ctrl_id)) {
 				$this->flash( 'Your data has been deleted.', 
@@ -172,7 +172,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			'SampleMaster.initial_specimen_sample_id' => $qc_data['SampleMaster']['initial_specimen_sample_id'],
 			'QualityCtrl.id' => $quality_ctrl_id) );
 		
-		$this->set('atim_structure', $this->Structures->get('form', 'qctestedaliquots'));
+		$this->Structures->set('qctestedaliquots');	
 	}
 	
 	function addTestedAliquots($collection_id, $sample_master_id, $quality_ctrl_id) {
@@ -210,7 +210,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			'SampleMaster.initial_specimen_sample_id' => $qc_data['SampleMaster']['initial_specimen_sample_id'],
 			'QualityCtrl.id' => $quality_ctrl_id) );
 
-		$this->set('atim_structure', $this->Structures->get('form', 'qctestedaliquots'));
+		$this->Structures->set('qctestedaliquots');
 		
 		if (empty($this->data)) {
 			$this->data = $available_sample_aliquots;
