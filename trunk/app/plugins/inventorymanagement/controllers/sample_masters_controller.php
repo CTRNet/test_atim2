@@ -29,12 +29,16 @@ class SampleMastersController extends InventorymanagementAppController {
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS
 	 * -------------------------------------------------------------------------- */
+
+//TODO: review sample list into global lookup
+
+//TODO: change ',' to '.' for SampleDetail  	  	collected_volume 	pellet_volume
 	
 	function index() {
 		// MANAGE (FIRST) FORM TO DEFINE SEARCH TYPE 
-
+		
 		// Set structure 				
-		$this->set('atim_structure_for_search_type', $this->Structures->get('form', 'collection_search_type'));
+		$this->Structures->set('collection_search_type', 'atim_structure_for_search_type');
 		
 		// MANAGE INDEX FORM
 
@@ -51,7 +55,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		// MANAGE (FIRST) FORM TO DEFINE SEARCH TYPE 
 
 		// Set structure 				
-		$this->set('atim_structure_for_search_type', $this->Structures->get('form', 'collection_search_type'));
+		$this->Structures->set('collection_search_type', 'atim_structure_for_search_type');
 		
 		// MANAGE INDEX FORM
 		
@@ -74,7 +78,7 @@ class SampleMastersController extends InventorymanagementAppController {
 				'foreignKey' => 'parent_id')));
 		$this->SampleMaster->bindModel($belongs_to_details, false);	
 		
-		$this->hook();
+		
 		
 		$this->data = $this->paginate($this->SampleMaster, $criteria);
 		$this->SampleMaster->unbindModel(array('belongsTo' => array('GeneratedParentSample')), false);
@@ -115,7 +119,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		$criteria['SampleMaster.collection_id'] = $collection_id;
 		$collection_samples = $this->SampleMaster->find('threaded', array('conditions' => $criteria, 'order' => 'SampleMaster.sample_type DESC, SampleMaster.sample_code DESC', 'recursive' => '-1'));
 	 	
-		$this->hook();
+		
 		
 		$this->data = $this->completeCollectionContent($collection_samples);
 				
@@ -316,14 +320,14 @@ class SampleMastersController extends InventorymanagementAppController {
 
 		// MANAGE DATA
 		
-		$this->hook();
+		
 		
 		// Search data to display
 		$this->setSampleSearchData(array_merge(array('SampleMaster.collection_id' => $collection_id), $specific_sample_search_criteria));
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS	
 		$form_alias = (is_null($specific_form_alias))? 'samplemasters': $specific_form_alias;
-		$this->set('atim_structure', $this->Structures->get('form', $form_alias));
+		$this->Structures->set($form_alias);		
 		
 		// Get all sample control types to build the add to selected button (only for collection samples form)
 		$specimen_sample_controls_list = array();
@@ -389,7 +393,7 @@ class SampleMastersController extends InventorymanagementAppController {
 				$this->redirect('/pages/err_inv_system_error', null, true);
 		}
 
-		$this->hook();
+		
 		
 		$this->data = $sample_data;
 
@@ -418,7 +422,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->set('atim_menu_variables', array('Collection.id' => $collection_id, 'SampleMaster.id' => $sample_master_id, 'SampleMaster.initial_specimen_sample_id' => $sample_data['SampleMaster']['initial_specimen_sample_id']));
 		
 		// Set structure
-		$this->set('atim_structure', $this->Structures->get('form', $sample_data['SampleControl']['form_alias']));
+		$this->Structures->set($sample_data['SampleControl']['form_alias']);	
 
 		// Define if this detail form is displayed into the collection content tree view
 		$this->set('is_tree_view_detail_form', $is_tree_view_detail_form);
@@ -495,11 +499,12 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->set('atim_menu_variables', $atim_menu_variables);
 		
 		// set structure alias based on VALUE from CONTROL table
-		$this->set('atim_structure', $this->Structures->get('form', $sample_control_data['SampleControl']['form_alias']));
-	
+		//TODO validates could be hidden
+		$this->Structures->set($sample_control_data['SampleControl']['form_alias']);	
+		
 		// MANAGE DATA RECORD
 			
-		$this->hook();
+		
 			
 		if(!empty($this->data)) {	
 
@@ -523,14 +528,15 @@ class SampleMastersController extends InventorymanagementAppController {
 			}
 			
 			// Validates data
+			
 			$submitted_data_validates = true;
-
-			//TODO test validation
+			
 			$this->SampleMaster->set($this->data);
 			$submitted_data_validates = ($this->SampleMaster->validates())? $submitted_data_validates: false;
-			$this->SampleDetail = new SampleDetail(false, $sample_control_data['SampleControl']['detail_tablename']);
+			
 			$this->SampleDetail->set($this->data);
 			$submitted_data_validates = ($this->SampleDetail->validates())? $submitted_data_validates: false;
+			
 			if($bool_is_specimen) { 
 				$this->SpecimenDetail->set($this->data);
 				$submitted_data_validates = ($this->SpecimenDetail->validates())? $submitted_data_validates: false; 
@@ -617,11 +623,11 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->set('atim_menu_variables', array('Collection.id' => $collection_id, 'SampleMaster.id' => $sample_master_id, 'SampleMaster.initial_specimen_sample_id' => $sample_data['SampleMaster']['initial_specimen_sample_id']));
 		
 		// Set structure	
-		$this->set('atim_structure', $this->Structures->get('form', $sample_data['SampleControl']['form_alias']));
+		$this->Structures->set($sample_data['SampleControl']['form_alias']);	
 		
 		// MANAGE DATA RECORD
 		
-		$this->hook();
+		
 		
 		if(empty($this->data)) {
 				$this->data = $sample_data;
@@ -631,18 +637,23 @@ class SampleMastersController extends InventorymanagementAppController {
 			if(isset($this->data['SampleMaster']['parent_id']) && ($sample_data['SampleMaster']['parent_id'] !== $this->data['SampleMaster']['parent_id'])) { $this->redirect('/pages/err_inv_system_error', null, true); }
 			
 			// Validates data
+			
 			$submitted_data_validates = true;
 			
-			//TODO test validation
+			$this->SampleMaster->set($this->data);
 			$submitted_data_validates = ($this->SampleMaster->validates())? $submitted_data_validates: false;
-			$this->SampleDetail = new SampleDetail(false, $sample_data['SampleControl']['detail_tablename']);		
+			
+			$this->SampleDetail->set($this->data);
 			$submitted_data_validates = ($this->SampleDetail->validates())? $submitted_data_validates: false;
+			
 			if($bool_is_specimen) { 
+				$this->SpecimenDetail->set($this->data);
 				$submitted_data_validates = ($this->SpecimenDetail->validates())? $submitted_data_validates: false; 
 			} else { 
+				$this->DerivativeDetail->set($this->data);
 				$submitted_data_validates = ($this->DerivativeDetail->validates())? $submitted_data_validates: false; 
 			}
-								
+			
 			if($submitted_data_validates) {
 				// Save sample data
 				$this->SampleMaster->id = $sample_master_id;
@@ -702,7 +713,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		if($arr_allow_deletion['allow_deletion']) {
 			$deletion_done = true;
 			
-			$this->hook();
+			
 			
 			if(!$this->SampleMaster->atim_delete($sample_master_id)) { $deletion_done = false; }
 			if($deletion_done) {
