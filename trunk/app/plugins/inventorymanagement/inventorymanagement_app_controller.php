@@ -211,8 +211,26 @@ class InventorymanagementAppController extends AppController
 		return $allowed_aliquot_type;		
 	}	
 	
+	function manageSpentTimeDataDisplay($spent_time_data) {
+		$spent_time_msg = '';
+		if(!empty($spent_time_data)) {		
+			if(!empty($spent_time_data['message'])) { 
+				$spent_time_msg = __($spent_time_data['message'], TRUE); 
+			} else {
+				$spent_time_msg = $this->translateDateValueAndUnit($spent_time_data, 'days') 
+								.$this->translateDateValueAndUnit($spent_time_data, 'hours') 
+								.$this->translateDateValueAndUnit($spent_time_data, 'minutes');
+			} 	
+		}
+		return $spent_time_msg;
+	}
 	
-
+	function translateDateValueAndUnit($spent_time_data, $time_unit) {
+		if(array_key_exists($time_unit, $spent_time_data)) {
+			return (((!empty($spent_time_data[$time_unit])) && ($spent_time_data[$time_unit] != '00'))? ($spent_time_data[$time_unit] . ' ' . __($time_unit, TRUE) . ' ') : '');
+		} 
+		return  '#err#';
+	}
 		
 		
 		
