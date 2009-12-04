@@ -319,7 +319,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 					if(!$this->Aliquots->updateAliquotCurrentVolume($aliquot_master_id)) { $this->redirect('/pages/err_inv_aliquot_record_err', null, true); }
 				}
 				
-				$this->flash('Your data has been saved.', '/inventorymanagement/aliquot_masters/listallSourceAliquots/' . $collection_id . '/' . $sample_master_id . '/' . $quality_ctrl_id . '/'); 
+				$this->flash('Your data has been saved.', '/inventorymanagement/aliquot_masters/listAllTestedAliquots/' . $collection_id . '/' . $sample_master_id . '/' . $quality_ctrl_id . '/'); 
 			}
 		}
 	}
