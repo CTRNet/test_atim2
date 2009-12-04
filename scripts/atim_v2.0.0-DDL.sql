@@ -60,7 +60,7 @@ DROP TABLE IF EXISTS `acos`, `ad_bags`, `ad_bags_revs`, `ad_blocks`, `ad_blocks_
  `txe_chemos`, `txe_chemos_revs`, `txe_radiations`, `txe_radiations_revs`, `txe_surgeries`, `txe_surgeries_revs`, `tx_controls`, 
  `tx_masters`, `tx_masters_revs`, `users`, `user_logs`, `sd_spe_pericardial_fluids`, `sd_der_pericardial_fl_cells`, `sd_der_pericardial_fl_sups`, `sd_spe_pleural_fluids`, 
 `sd_der_pleural_fl_cells`, `sd_der_pleural_fl_sups`, `sd_der_cystic_fl_cells`, `sd_der_cystic_fl_sups`, `sd_spe_pericardial_fluids_revs`, `sd_der_pericardial_fl_cells_revs`, `sd_der_pericardial_fl_sups_revs`, `sd_spe_pleural_fluids_revs`, 
-`sd_der_pleural_fl_cells_revs`, `sd_der_pleural_fl_sups_revs`, `sd_der_cystic_fl_cells_revs`, `sd_der_cystic_fl_sups_revs`, `versions`;
+`sd_der_pleural_fl_cells_revs`, `sd_der_pleural_fl_sups_revs`, `sd_der_cystic_fl_cells_revs`, `sd_der_cystic_fl_sups_revs`, `versions`, `dxd_bloods_revs`, `dxd_tissues_revs`;
 
 SET FOREIGN_KEY_CHECKS=1;
 
@@ -4205,8 +4205,6 @@ CREATE TABLE `sd_spe_urines` (
   `urine_aspect` varchar(30) default NULL,
   `collected_volume` decimal(10,5) default NULL,
   `collected_volume_unit` varchar(20) default NULL,
-  `received_volume` decimal(10,5) default NULL,
-  `received_volume_unit` varchar(20) default NULL,
   `pellet_signs` varchar(10) default NULL,
   `pellet_volume` decimal(10,5) default NULL,
   `pellet_volume_unit` varchar(20) default NULL,
@@ -4225,8 +4223,6 @@ CREATE TABLE `sd_spe_urines_revs` (
   `urine_aspect` varchar(30) default NULL,
   `collected_volume` decimal(10,5) default NULL,
   `collected_volume_unit` varchar(20) default NULL,
-  `received_volume` decimal(10,5) default NULL,
-  `received_volume_unit` varchar(20) default NULL,
   `pellet_signs` varchar(10) default NULL,
   `pellet_volume` decimal(10,5) default NULL,
   `pellet_volume_unit` varchar(20) default NULL,
