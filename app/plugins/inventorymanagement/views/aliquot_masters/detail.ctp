@@ -34,6 +34,14 @@
 		$search_type_links['collection'] = '/inventorymanagement/collections/index/';
 		$search_type_links['sample'] = '/inventorymanagement/sample_masters/index/';
 		$search_type_links['aliquot'] = '/inventorymanagement/aliquot_masters/index/';
+		
+		$structure_links['index'] = array(
+		   'edit' => '/inventorymanagement/aliquot_masters/editAliquotUse/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/%%AliquotUse.id%%',
+			'delete' => '/inventorymanagement/aliquot_masters/deleteAliquotUse/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/%%AliquotUse.id%%'
+		);
+		$structure_links['bottom']['uses'] = array('add internal use' => '/inventorymanagement/aliquot_masters/addAliquotUse/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'] . '/internal use',
+											'define realiquoted children' => '/inventorymanagement/aliquot_masters/defineRealiquotedChildren/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id']);
+	
 	
 		$structure_links['bottom']['search'] = $search_type_links;
 	}
@@ -62,5 +70,15 @@
 	}	
 	$structure_override['AliquotDetail.gel_matrix_aliquot_master_id'] = $gel_matrices_list;	
 
-	$structures->build($atim_structure, array('links'=>$structure_links, 'override' => $structure_override));
+	if($is_tree_view_detail_form){
+		$structures->build($atim_structure, array('links'=>$structure_links, 'override' => $structure_override));
+	}else{
+		$structures->build($atim_structure, array('links'=>$structure_links, 'override' => $structure_override, 'settings' => array('actions' => false)));
+		?>
+		<table class="structure" cellspacing="0">
+			<tbody><tr><th style='text-align: left; padding-left: 10px; padding-right: 10px;'><hr/><?php echo(__('uses', null)); ?></th></tr>
+		</tbody></table>
+		<?php
+		$structures->build($aliquots_uses_structure, array('data' => $aliquots_uses_data, 'type' => 'index', 'links'=>$structure_links));
+	}
 ?>

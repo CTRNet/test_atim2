@@ -1,28 +1,6 @@
 <?php
 class AliquotMastersController extends InventoryManagementAppController {
 	
-	/*
-	var $uses = array(
-			'AliquotControl', 
-			'AliquotMaster', 
-			'AliquotUse', 
-			'Collection',
-			'DerivativeDetail',
-			'OrderItem',
-			'PathCollectionReview',
-			'QualityCtrl', 
-			
-			'ReviewMaster',
-			'SampleAliquotControlLink', 
-			'SampleControl', 
-			'SampleMaster',
-			'SopMaster', 
-			'SourceAliquot', 
-			'StorageMaster',
-			'StudySummary'
-	);
-	*/
-
 	var $components = array('Inventorymanagement.Aliquots', 'Study.StudySummaries', 'Storagelayout.Storages');
 	
 	var $uses = array(
@@ -327,6 +305,13 @@ unset($this->data['AliquotMaster']);
 			$this->set('order_line_id', $order_item['OrderLine']['id']);
 			$this->set('order_id', $order_item['OrderLine']['order_id']);
 		}
+		
+		$this->set('aliquots_uses_data', $this->paginate($this->AliquotUse, array('AliquotUse.aliquot_master_id' => $aliquot_master_id)));
+		$this->set('aliquots_uses_structure', $this->Structures->get('form', 'aliquotuses'));
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { 
+			require($hook_link); 
+		}
 	}
 	
 	function edit($collection_id, $sample_master_id, $aliquot_master_id) {
@@ -475,10 +460,7 @@ unset($this->data['AliquotMaster']);
 		
 		// Get the aliquot data
 		$aliquot_data = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id, 'AliquotMaster.id' => $aliquot_master_id)));
-		if(empty($aliquot_data)) { 
-			echo("AAA");
-			exit;
-			$this->redirect('/pages/err_inv_aliquot_no_data', null, true); }		
+		if(empty($aliquot_data)) { $this->redirect('/pages/err_inv_aliquot_no_data', null, true); }		
 						
 		$this->data = $this->paginate($this->AliquotUse, array('AliquotUse.aliquot_master_id' => $aliquot_master_id));		
 				
