@@ -61,12 +61,28 @@
 
 	if(!$bool_define_position) {
 		// No sorage position within parent can be set	
-		$structures->build($atim_structure, array('links' => $structure_links, 'override' => $structure_override));
+		$final_atim_structure = $atim_structure; 
+		$final_options = array('links' => $structure_links, 'override' => $structure_override);
+		
+		// CUSTOM CODE
+		$hook_link = $structures->hook();
+		if( $hook_link ) { require($hook_link); }
+			
+		// BUILD FORM
+		$structures->build( $final_atim_structure, $final_options );
 	
 	} else {
 		// A sorage position within parent can be set	
-		$structures->build($atim_structure, array('settings' => array('actions' => FALSE), 'override' => $structure_override));
-
+		$final_atim_structure = $atim_structure; 
+		$final_options = array('settings' => array('actions' => FALSE), 'override' => $structure_override);
+		
+		// CUSTOM CODE
+		$hook_link = $structures->hook();
+		if( $hook_link ) { require($hook_link); }
+			
+		// BUILD FORM
+		$structures->build( $final_atim_structure, $final_options );
+	
 		// DISPLAY STORAGE POSITION FORM
 		if(!$is_tree_view_detail_form) {	$structure_links['bottom']['edit position'] = '/storagelayout/storage_masters/editStoragePosition/' . $atim_menu_variables['StorageMaster.id']; }
 		
@@ -75,7 +91,30 @@
 		if(!empty($parent_coord_x_title)) { $position_structure_override['Generated.parent_coord_x_title'] = __($parent_coord_x_title, TRUE); }
 		if(!empty($parent_coord_y_title)) { $position_structure_override['Generated.parent_coord_y_title'] = __($parent_coord_y_title, TRUE); }
 		
-		$structures->build($atim_structure_for_position, array('links' => $structure_links, 'override' => $position_structure_override));
+		$final_atim_structure = $atim_structure_for_position; 
+		$final_options = array('links' => $structure_links, 'override' => $position_structure_override);
+		
+		// CUSTOM CODE
+		$hook_link = $structures->hook('position');
+		if( $hook_link ) { require($hook_link); }
+			
+		// BUILD FORM
+		$structures->build( $final_atim_structure, $final_options );
 	}
+	
+	
+	$final_atim_structure = $atim_structure; 
+	$final_options = array();
+	
+	// CUSTOM CODE
+	$hook_link = $structures->hook();
+	if( $hook_link ) { require($hook_link); }
+		
+	// BUILD FORM
+	$structures->build( $final_atim_structure, $final_options );
+	
+	
+	
+	
 	
 ?>
