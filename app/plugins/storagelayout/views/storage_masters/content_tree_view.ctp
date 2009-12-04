@@ -36,7 +36,6 @@
 					'update' => 'frame',
 					'before' => 'set_at_state_in_tree_root(this)'
 				),
-			'index' => array(
 				'plugin inventorymanagement aliquot detail' => array(
 					'update' => 'frame',
 					'before' => 'set_at_state_in_tree_root(this)'
@@ -50,9 +49,16 @@
 	$structure_extras = array();
 	$structure_extras[10] = '<div id="frame"></div>';	
 	
-	// BUILD
-
-	$structures->build($atim_structure, array('type' => 'tree', 'settings'=>$structure_settings, 'links'=>$structure_links, 'extras'=>$structure_extras));
+	$final_atim_structure = $atim_structure; 
+	$final_options = array('type' => 'tree', 'settings'=>$structure_settings, 'links'=>$structure_links, 'extras'=>$structure_extras);
+	
+	// CUSTOM CODE
+	$hook_link = $structures->hook();
+	if( $hook_link ) { require($hook_link); }
+		
+	// BUILD FORM
+	$structures->build( $final_atim_structure, $final_options );
+	
 ?>
 								
 <script>

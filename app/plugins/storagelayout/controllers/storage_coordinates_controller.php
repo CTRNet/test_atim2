@@ -18,20 +18,18 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 	 * -------------------------------------------------------------------------- */	
 	
 	 function listAll($storage_master_id) {
-		if (!$storage_master_id) { $this->redirect('/pages/err_sto_no_stor_id', null, true); }
+		if (!$storage_master_id) { $this->redirect('/pages/err_sto_funct_param_missing', null, true); }
 
 		// MANAGE DATA
 		
 		// Get the storage data
 		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
-		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_stor_data', null, true); }	
+		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }	
 		
 		if(!$this->Storages->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
 			// Check storage supports custom coordinates
-			$this->redirect('/pages/err_sto_no_custom_coord_allowed', null, true); 
+			$this->redirect('/pages/err_sto_system_error', null, true); 
 		}
-
-		$this->hook();
 		
 		// Get storage coordinates
 		$this->data = $this->paginate($this->StorageCoordinate, array('StorageCoordinate.storage_master_id' => $storage_master_id));
@@ -40,20 +38,25 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 		
 		$this->Structures->set('std_storage_coordinates');	
 		$this->set('atim_menu_variables', array('StorageMaster.id' => $storage_master_id));
+
+		// CUSTOM CODE: FORMAT DISPLAY DATA
+		
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { require($hook_link); }
 	}
 	
 	function add($storage_master_id) {
-		if (!$storage_master_id) { $this->redirect('/pages/err_sto_no_stor_id', null, true); }
+		if (!$storage_master_id) { $this->redirect('/pages/err_sto_funct_param_missing', null, true); }
 				
 		// MANAGE DATA
 		
 		// Get the storage data
 		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
-		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_stor_data', null, true); }	
+		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }	
 
 		if(!$this->Storages->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
 			// Check storage supports custom coordinates
-			$this->redirect('/pages/err_sto_no_custom_coord_allowed', null, true); 
+			$this->redirect('/pages/err_sto_system_error', null, true); 
 		}
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -61,9 +64,10 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 		$this->Structures->set('std_storage_coordinates');	
 		$this->set('atim_menu_variables', array('StorageMaster.id' => $storage_master_id));
 
-		// MANAGE DATA RECORD
-
-		$this->hook();
+		// CUSTOM CODE: FORMAT DISPLAY DATA
+		
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { require($hook_link); }
 		
 		if (!empty($this->data)) {	
 			// Set dimension
@@ -79,6 +83,11 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 				$submitted_data_validates = false;
 			}
 			
+			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
+			
+			$hook_link = $this->hook('presave_process');
+			if( $hook_link ) { require($hook_link); }		
+			
 			if($submitted_data_validates) {
 				// Save data		
 				if ($this->StorageCoordinate->save($this->data['StorageCoordinate'])) {
@@ -87,31 +96,24 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 			}
 		}
 	}
-
-	function edit($storage_master_id) {
-		$this->redirect('/pages/err_sto_system_error', null, true);
-		// Not supported: will be complex to manage order
-	}
 	
 	function detail($storage_master_id, $storage_coordinate_id) {	
 		if((!$storage_master_id) || (!$storage_coordinate_id)) { $this->redirect('/pages/err_sto_funct_param_missing', null, true); }
 
 		// MANAGE DATA
 		
-		$this->hook();
-		
 		// Get the storage data
 		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
-		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_stor_data', null, true); }	
+		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }	
 
 		if(!$this->Storages->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
 			// Check storage supports custom coordinates
-			$this->redirect('/pages/err_sto_no_custom_coord_allowed', null, true); 
+			$this->redirect('/pages/err_sto_system_error', null, true); 
 		}
 		
 		// Get the coordinate data
 		$storage_coordinate_data = $this->StorageCoordinate->find('first', array('conditions' => array('StorageCoordinate.id' => $storage_coordinate_id, 'StorageCoordinate.storage_master_id' => $storage_master_id)));
-		if(empty($storage_coordinate_data)) { $this->redirect('/pages/err_sto_no_stor_coord_data', null, true); }		
+		if(empty($storage_coordinate_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }		
 		$this->data = $storage_coordinate_data; 
 				
 		// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -121,7 +123,12 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 		$atim_menu_variables = array();
 		$atim_menu_variables['StorageMaster.id'] = $storage_master_id;
 		$atim_menu_variables['StorageCoordinate.id'] = $storage_coordinate_id;		
-		$this->set('atim_menu_variables', $atim_menu_variables);		
+		$this->set('atim_menu_variables', $atim_menu_variables);	
+
+		// CUSTOM CODE: FORMAT DISPLAY DATA
+		
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { require($hook_link); }	
 	}
 	 
 	function delete($storage_master_id, $storage_coordinate_id) {
@@ -131,23 +138,26 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 		
 		// Get the storage data
 		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
-		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_stor_data', null, true); }	
+		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }	
 
 		if(!$this->Storages->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
 			// Check storage supports custom coordinates
-			$this->redirect('/pages/err_sto_no_custom_coord_allowed', null, true); 
+			$this->redirect('/pages/err_sto_system_error', null, true); 
 		}
 		
 		// Get the coordinate data
 		$storage_coordinate_data = $this->StorageCoordinate->find('first', array('conditions' => array('StorageCoordinate.id' => $storage_coordinate_id, 'StorageCoordinate.storage_master_id' => $storage_master_id)));
-		if(empty($storage_coordinate_data)) { $this->redirect('/pages/err_sto_no_stor_coord_data', null, true); }		
+		if(empty($storage_coordinate_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }		
 
 		// Check deletion is allowed
 		$arr_allow_deletion = $this->allowStorageCoordinateDeletion($storage_master_id, $storage_coordinate_data);
+
+		// CUSTOM CODE
+		
+		$hook_link = $this->hook('delete');
+		if( $hook_link ) { require($hook_link); }
+		
 		if($arr_allow_deletion['allow_deletion']) {
-		
-			$this->hook();
-		
 			// Delete coordinate
 			if($this->StorageCoordinate->atim_delete($storage_coordinate_id)) {
 				$this->flash('your data has been deleted', '/storagelayout/storage_coordinates/listAll/' . $storage_master_id);
