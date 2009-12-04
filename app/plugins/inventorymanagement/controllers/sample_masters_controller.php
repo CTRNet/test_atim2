@@ -441,6 +441,11 @@ class SampleMastersController extends InventorymanagementAppController {
 		if(!$is_tree_view_detail_form){
 			$this->samf_listAll($collection_id, $sample_master_id, null);
 		}
+		
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { 
+			require($hook_link); 
+		}
 	}
 
 	function add($collection_id, $sample_control_id, $parent_sample_master_id = null) {
