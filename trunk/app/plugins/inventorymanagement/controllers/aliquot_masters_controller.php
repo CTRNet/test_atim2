@@ -292,7 +292,8 @@ unset($this->data['AliquotMaster']);
 		switch($aliquot_data['SampleMaster']['sample_category']) {
 			case 'specimen':
 				$this->data['Generated']['coll_to_stor_spent_time'] = $this->manageSpentTimeDataDisplay($this->getSpentTime($aliquot_data['Collection']['collection_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
-				$this->data['Generated']['rec_to_stor_spent_time'] = $this->manageSpentTimeDataDisplay($this->getSpentTime($aliquot_data['Collection']['reception_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
+				$sample_master = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.id' => $aliquot_data['SampleMaster']['id'])));
+				$this->data['Generated']['rec_to_stor_spent_time'] = $this->manageSpentTimeDataDisplay($this->getSpentTime($sample_master['SpecimenDetail']['reception_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
 				break;
 			case 'derivative':
 				$derivative_detail_data = $this->DerivativeDetail->find('first', array('conditions' => array('DerivativeDetail.sample_master_id' => $sample_master_id)));
@@ -1124,8 +1125,8 @@ unset($this->data['AliquotMaster']);
 				// Default creation date will be the specimen reception date
 				$collection_data = $this->Collection->find('first', array('conditions' => array('Collection.id' => $sample_master_data['SampleMaster']['collection_id']), 'recursive' => '-1'));
 				if(empty($collection_data)) { $this->redirect('/pages/err_inv_coll_no_data', null, true); }
-				
-				return $collection_data['Collection']['reception_datetime'];
+				$sample_master = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.id' => $sample_master_data['SampleMaster']['id'])));
+				return $sample_master['SpecimenDetail']['reception_datetime'];
 				
 			case 'derivative':
 				// Default creation date will be the derivative creation date or Specimen reception date
