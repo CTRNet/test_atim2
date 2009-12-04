@@ -580,7 +580,7 @@ class StructuresHelper extends Helper {
 							$return_string .= '
 								<tr id="'.$add_another_unique_link_id.'">
 									<td class="right" colspan="'.$column_count.'">
-										<a style="color:#090; font-weight:bold;" href="#" onclick="'.$add_another_unique_function_name.'();" title="'.__( 'click to remove these elements', true ).'">+</a>
+										<a style="color:#090; font-weight:bold;" href="#" onclick="'.$add_another_unique_function_name.'(); return false;" title="'.__( 'click to add a line', true ).'">+</a>
 									</td>
 								</tr>
 								
