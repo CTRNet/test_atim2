@@ -1114,7 +1114,7 @@ div#wrapper table.structure table.columns td.no_data_available {
 	padding-top: 1em;
 	padding-bottom: 1em;
 	font-style: italic;
-	color: #eaedf2;
+	color: #888888;
 }
 div#wrapper table.structure table.columns td a.not_allowed {
 	color: #dde8f2;
