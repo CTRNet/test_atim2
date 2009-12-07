@@ -454,30 +454,6 @@ unset($this->data['AliquotMaster']);
 	
 	/* ------------------------------ ALIQUOT USES ------------------------------ */
 	
-	function listAllAliquotUses($collection_id, $sample_master_id, $aliquot_master_id) {
-		if((!$collection_id) || (!$sample_master_id) || (!$aliquot_master_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }
-		// MANAGE DATA
-		
-		// Get the aliquot data
-		$aliquot_data = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id, 'AliquotMaster.id' => $aliquot_master_id)));
-		if(empty($aliquot_data)) { $this->redirect('/pages/err_inv_aliquot_no_data', null, true); }		
-						
-		$this->data = $this->paginate($this->AliquotUse, array('AliquotUse.aliquot_master_id' => $aliquot_master_id));		
-				
-		// Set list of studies
-		$this->set('arr_studies', $this->getStudiesList());		
-				
-		// MANAGE FORM, MENU AND ACTION BUTTONS
-
-		// Get the current menu object.
-		$atim_menu_link = ($aliquot_data['SampleMaster']['sample_category'] == 'specimen')? '/inventorymanagement/aliquot_masters/listAllAliquotUses/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%/%%AliquotMaster.id%%': '/inventorymanagement/aliquot_masters/listAllAliquotUses/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%';
-		$this->set('atim_menu', $this->Menus->get($atim_menu_link));
-		$this->set('atim_menu_variables', array('Collection.id' => $collection_id, 'SampleMaster.id' => $sample_master_id, 'SampleMaster.initial_specimen_sample_id' => $aliquot_data['SampleMaster']['initial_specimen_sample_id'], 'AliquotMaster.id' => $aliquot_master_id));
-		
-		// Set structure
-		$this->Structures->set('aliquotuses');
-	}
-	
 	function addAliquotUse($collection_id, $sample_master_id, $aliquot_master_id, $aliquot_use_defintion = null) {
 		if((!$collection_id) || (!$sample_master_id) || (!$aliquot_master_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }
 		
@@ -511,8 +487,7 @@ unset($this->data['AliquotMaster']);
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 
 		// Get the current menu object.
-		$atim_menu_link = ($aliquot_data['SampleMaster']['sample_category'] == 'specimen')? '/inventorymanagement/aliquot_masters/listAllAliquotUses/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%/%%AliquotMaster.id%%': '/inventorymanagement/aliquot_masters/listAllAliquotUses/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%';
-		$this->set('atim_menu', $this->Menus->get($atim_menu_link));
+		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%/%%AliquotMaster.id%%'));
 		$this->set('atim_menu_variables', array('Collection.id' => $collection_id, 'SampleMaster.id' => $sample_master_id, 'SampleMaster.initial_specimen_sample_id' => $aliquot_data['SampleMaster']['initial_specimen_sample_id'], 'AliquotMaster.id' => $aliquot_master_id));
 		
 		// Set structure
@@ -541,7 +516,7 @@ unset($this->data['AliquotMaster']);
 				$this->data['AliquotUse']['aliquot_master_id'] = $aliquot_master_id;			
 				if ($this->AliquotUse->save($this->data)) { 
 					if(!$this->Aliquots->updateAliquotCurrentVolume($aliquot_master_id)) { $this->redirect('/pages/err_inv_aliquot_use_record_err', null, true); }	
-					$this->flash('your data has been saved', '/inventorymanagement/aliquot_masters/listAllAliquotUses/' . $collection_id . '/' . $sample_master_id . '/' . $aliquot_master_id);
+					$this->flash('your data has been saved', '/inventorymanagement/aliquot_masters/detail/'.$collection_id.'/'.$aliquot_data['SampleMaster']['initial_specimen_sample_id'].'/'.$aliquot_master_id.'/');
 				} 
 			}
 		}
@@ -571,8 +546,6 @@ unset($this->data['AliquotMaster']);
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Get the current menu object.
-		$atim_menu_link = ($sample_data['SampleMaster']['sample_category'] == 'specimen')? '/inventorymanagement/aliquot_masters/listAllAliquotUses/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%/%%AliquotMaster.id%%': '/inventorymanagement/aliquot_masters/listAllAliquotUses/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%';
-		$this->set('atim_menu', $this->Menus->get($atim_menu_link));
 		$this->set('atim_menu_variables', array('Collection.id' => $collection_id, 'SampleMaster.id' => $sample_master_id, 'SampleMaster.initial_specimen_sample_id' => $sample_data['SampleMaster']['initial_specimen_sample_id'], 'AliquotMaster.id' => $aliquot_master_id, 'AliquotUse.id' => $aliquot_use_id));
 		
 		// Set structure
@@ -602,7 +575,7 @@ unset($this->data['AliquotMaster']);
 				if ($this->AliquotUse->save($this->data)) { 
 					if(!$this->Aliquots->updateAliquotCurrentVolume($aliquot_master_id)) { $this->redirect('/pages/err_inv_aliquot_use_record_err', null, true); }
 					
-					$this->flash('your data has been saved', '/inventorymanagement/aliquot_masters/listAllAliquotUses/' . $collection_id . '/' . $sample_master_id . '/' . $aliquot_master_id);
+					$this->flash('your data has been saved', '/inventorymanagement/aliquot_masters/detail/' . $collection_id . '/' . $sample_master_id . '/' . $aliquot_master_id);
 				} 
 			}
 		}
@@ -624,9 +597,9 @@ unset($this->data['AliquotMaster']);
 		}else if($redirect == 2){
 			$flash_url = '/inventorymanagement/quality_ctrls/listAllSourceAliquots/' . $collection_id . '/' . $sample_master_id . '/';
 		}else if($redirect == 3){
-			$flash_url = '/inventorymanagement/quality_ctrls/listallTestedAliquots/' . $collection_id . '/' . $sample_master_id . '/' . $extra_param . '/';
+			$flash_url = '/inventorymanagement/quality_ctrls/detail/' . $collection_id . '/' . $sample_master_id . '/' . $extra_param . '/';
 		}else{
-			$flash_url = '/inventorymanagement/aliquot_masters/listAllAliquotUses/' . $collection_id . '/' . $sample_master_id . '/' . $aliquot_master_id;
+			$flash_url = '/inventorymanagement/aliquot_masters/detail/' . $collection_id . '/' . $sample_master_id . '/' . $aliquot_master_id;
 		}
 		// Set Use Detail table
 		$accepted_use_detail_table = array('quality_ctrl_tested_aliquots', 'source_aliquots', 'realiquotings');
@@ -840,9 +813,7 @@ unset($this->data['AliquotMaster']);
 		$current_aliquot_data = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id, 'AliquotMaster.id' => $aliquot_master_id)));
 		if(empty($current_aliquot_data)) { $this->redirect('/pages/err_inv_aliquot_no_data', null, true); }		
 
-		$atim_menu_link = ($current_aliquot_data['SampleMaster']['sample_category'] == 'specimen') ? '/inventorymanagement/aliquot_masters/listAllAliquotUses/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%/%%AliquotMaster.id%%': '/inventorymanagement/aliquot_masters/listAllAliquotUses/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%';
-		
-		$this->set('atim_menu', $this->Menus->get($atim_menu_link));
+		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%/%%AliquotMaster.id%%'));
 		
 		$this->set('atim_menu_variables', array('Collection.id' => $collection_id,
 												'SampleMaster.id' => $sample_master_id,
@@ -909,7 +880,7 @@ unset($this->data['AliquotMaster']);
 				}
 			}
 			$this->Flash('Data saved. ', 
-						'/inventorymanagement/aliquot_masters/listAllAliquotUses/'.$collection_id.'/'.$sample_master_id.'/'.$aliquot_master_id.'/');
+						'/inventorymanagement/aliquot_masters/detail/'.$collection_id.'/'.$sample_master_id.'/'.$aliquot_master_id.'/');
 		}else{
 			$this->data = $aliquot_data;
 		}
@@ -923,9 +894,6 @@ unset($this->data['AliquotMaster']);
 		
 		if(empty($current_aliquot_data)) { $this->redirect('/pages/err_inv_aliquot_no_data', null, true); }		
 
-		$atim_menu_link = ($current_aliquot_data['SampleMaster']['sample_category'] == 'specimen') ? '/inventorymanagement/aliquot_masters/listAllAliquotUses/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%/%%AliquotMaster.id%%': '/inventorymanagement/aliquot_masters/listAllAliquotUses/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%';
-		
-		$this->set('atim_menu', $this->Menus->get($atim_menu_link));
 		
 		$this->set('atim_menu_variables', array('Collection.id' => $collection_id,
 												'SampleMaster.id' => $sample_master_id,
