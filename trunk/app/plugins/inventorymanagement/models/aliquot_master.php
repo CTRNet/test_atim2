@@ -27,6 +27,13 @@ class AliquotMaster extends InventoryManagementAppModel {
 			'className' => 'Inventorymanagement.Realiquoting',
 			'foreignKey' => 'parent_aliquot_master_id'));
 	
+	var $hasOne = array(
+		'SpecimenDetail' => array(
+			'className'   => 'Inventorymanagement.SpecimenDetail',
+			 	'foreignKey'  => 'sample_master_id',
+			 	'dependent' => true)
+	);
+	
 	function summary($variables=array()) {
 		$return = false;
 		

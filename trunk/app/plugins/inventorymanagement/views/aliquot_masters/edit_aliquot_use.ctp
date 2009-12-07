@@ -2,7 +2,7 @@
 	
 	$structure_links = array(
 		'top' => '/inventorymanagement/aliquot_masters/editAliquotUse/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'] . '/' . $atim_menu_variables['AliquotUse.id'],
-		'bottom' => array('cancel' => '/inventorymanagement/aliquot_masters/listAllAliquotUses/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id']
+		'bottom' => array('cancel' => '/inventorymanagement/aliquot_masters/detail/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id']
 		)
 	);
 	

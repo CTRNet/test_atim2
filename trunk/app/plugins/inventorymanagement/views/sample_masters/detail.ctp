@@ -52,7 +52,7 @@
 
 	//$structures->build($atim_structure, array('links'=>$structure_links, 'override' => $structure_override));
 	if(isset($aliquots_listall_structure)){
-		$structures->build($atim_structure, array('override' => $structure_override, 'settings' => array('actions' => false), 'data' => 'sample_master_data'));
+		$structures->build($atim_structure, array('override' => $structure_override, 'settings' => array('actions' => false), 'data' => $sample_master_data));
 		$structure_links['index']['detail'] = '/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%';
 		
 		$structure_override = array();
@@ -68,7 +68,7 @@
 		<?php
 		$structures->build($aliquots_listall_structure, array('type' => 'index', 'links' => $structure_links, 'override' => $structure_override, 'data' => $aliquots_data));
 	}else{
-		$structures->build($atim_structure, array('override' => $structure_override, 'links' => $structure_links, 'data' => 'sample_master_data'));
+		$structures->build($atim_structure, array('override' => $structure_override, 'links' => $structure_links, 'data' => $sample_master_data));
 	}
 	
 ?>

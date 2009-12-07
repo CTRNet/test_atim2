@@ -19,12 +19,9 @@
 			.$atim_menu_variables['SampleMaster.id'].'/'
 				.$atim_menu_variables['AliquotMaster.id'].'/',
 		'bottom'=>array(
-			'cancel'=>'/inventorymanagement/aliquot_masters/listAllAliquotUses/'.$atim_menu_variables['Collection.id'].'/'
-			.$atim_menu_variables['SampleMaster.id'].'/'
-				.$atim_menu_variables['AliquotMaster.id'].'/'
+			'cancel' => '/inventorymanagement/aliquot_masters/detail/'.$atim_menu_variables['Collection.id'].'/'.$atim_menu_variables['SampleMaster.initial_specimen_sample_id'].'/'.$atim_menu_variables['AliquotMaster.id'].'/'
 		),
 	);
-	
 	$structure_settings = array(
 		'form_bottom'=>true, 
 	);
