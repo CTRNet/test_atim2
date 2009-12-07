@@ -146,6 +146,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->Structures->set($aliquot_control_data['AliquotControl']['form_alias']);
 			
 		// MANAGE DATA RECORD
+		
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link); 
+		}
 
 		if (empty($this->data)) {
 			// Initial Display
@@ -207,6 +212,11 @@ unset($this->data['AliquotMaster']);
 					}
 				}
 			}	
+			
+			$hook_link = $this->hook('presave_process');
+			if($hook_link){
+				require($hook_link); 
+			}		
 
 			if($submitted_data_validates) {
 				// Save data
@@ -351,8 +361,15 @@ unset($this->data['AliquotMaster']);
 		if(empty($this->data)) {
 			$this->data = $aliquot_data;
 			$this->set('arr_preselected_storages', empty($aliquot_data['StorageMaster']['id'])? array(): array($aliquot_data['StorageMaster']['id'] => array('StorageMaster' => $aliquot_data['StorageMaster'])));
-			
+			$hook_link = $this->hook('format');
+			if($hook_link){
+				require($hook_link);
+			}
 		} else {
+			$hook_link = $this->hook('format');
+			if($hook_link){
+				require($hook_link); 
+			}
 			//Update data
 			if(array_key_exists('initial_volume', $this->data['AliquotMaster']) && empty($aliquot_data['AliquotControl']['volume_unit'])) { $this->redirect('/pages/err_inv_system_error', null, true); }
 									
@@ -382,6 +399,11 @@ unset($this->data['AliquotMaster']);
 						$errors['AliquotMaster'][$field][$message] = '-';
 					}
 				}
+			}
+			
+			$hook_link = $this->hook('presave_process');
+			if($hook_link){
+				require($hook_link);
 			}
 			
 			// Save data
@@ -500,6 +522,10 @@ unset($this->data['AliquotMaster']);
 			$this->set('default_use_volume', $default_use_volume);				
 			
 		} else {
+			$hook_link = $this->hook('format');
+			if($hook_link){
+				require($hook_link);
+			}
 			// Launch validations		
 			$submitted_data_validates = true;
 			
@@ -509,6 +535,11 @@ unset($this->data['AliquotMaster']);
 				$submitted_data_validates = false;			
 			} else if(empty($this->data['AliquotUse']['used_volume'])) {
 				$this->data['AliquotUse']['used_volume'] = null;
+			}
+			
+			$hook_link = $this->hook('presave_process');
+			if($hook_link){
+				require($hook_link);
 			}
 			
 			// if data VALIDATE, then save data
@@ -556,8 +587,15 @@ unset($this->data['AliquotMaster']);
 		
 		if(empty($this->data)) {
 			$this->data = $use_data;
-			
+			$hook_link = $this->hook('format');
+			if($hook_link){
+				require($hook_link);
+			}
 		} else {
+			$hook_link = $this->hook('format');
+			if($hook_link){
+				require($hook_link);
+			}
 			// Launch validations		
 			$submitted_data_validates = true;
 			
@@ -569,6 +607,10 @@ unset($this->data['AliquotMaster']);
 				$this->data['AliquotUse']['used_volume'] = null;
 			}
 			
+			$hook_link = $this->hook('presave_process');
+			if($hook_link){
+				require($hook_link); 
+			}
 			// if data VALIDATE, then save data
 			if ($submitted_data_validates) {
 				$this->AliquotUse->id = $aliquot_use_id;			
@@ -654,6 +696,11 @@ unset($this->data['AliquotMaster']);
 			'SampleMaster.initial_specimen_sample_id' => $sample_data['SampleMaster']['initial_specimen_sample_id']));
 		
 		$this->Structures->set('sourcealiquots');
+
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link);
+		}
 	}
 	
 	function addSourceAliquots($collection_id, $sample_master_id) {
@@ -695,8 +742,15 @@ unset($this->data['AliquotMaster']);
 		
 		if (empty($this->data)) {
 			$this->data = $available_sample_aliquots;
-			
-		} else {		
+			$hook_link = $this->hook('format');
+			if($hook_link){
+				require($hook_link);
+			}
+		} else {
+			$hook_link = $this->hook('format');
+			if($hook_link){
+				require($hook_link);
+			}
 			// Work on submitted data
 			$submitted_data_validates = true;	
 			$aliquots_defined_as_source = array();
@@ -734,7 +788,12 @@ unset($this->data['AliquotMaster']);
 			if(empty($aliquots_defined_as_source)) { 
 				$this->AliquotUse->validationErrors[] = 'no aliquot has been defined as source aliquot.';	
 				$submitted_data_validates = false;			
-			}			
+			}
+
+			$hook_link = $this->hook('presave_process');
+			if($hook_link){
+				require($hook_link);
+			}
 		
 			if (!$submitted_data_validates) {
 				// Set error message
@@ -852,37 +911,60 @@ unset($this->data['AliquotMaster']);
 		}
 		
 		if(!empty($this->data)){
+			$hook_link = $this->hook('format');
+			if($hook_link){
+				require($hook_link);
+			}
 			$date = $this->data['FunctionManagement']['realiquoting_date'];
 			//$date = $date['year']."-".$date['month']."-".$date['day']." ".$date['hour'].":".$date['minute']." ".$date['meridian'];
 			unset($this->data['FunctionManagement']);
 			
-			foreach($this->data as $key => $realiquoted){
-				if($realiquoted['FunctionManagement']['use'] && isset($aliquot_id_by_barcode[$realiquoted['AliquotMaster']['barcode']])){
-					$aliquot_use['AliquotUse']['aliquot_master_id'] = $aliquot_master_id;
-					$aliquot_use['AliquotUse']['use_definition'] = "realiquoted to";
-					$aliquot_use['AliquotUse']['use_details'] = "";
-					$aliquot_use['AliquotUse']['use_code'] = $realiquoted['AliquotMaster']['barcode'];//child barcode
-					$aliquot_use['AliquotUse']['use_recorded_into_table'] = "realiquotings";
-					$aliquot_use['AliquotUse']['used_volume'] = is_numeric($realiquoted['FunctionManagement']['input_number']) ? $realiquoted['FunctionManagement']['input_number'] : null; 
-					$aliquot_use['AliquotUse']['use_datetime'] = $date;
-					$aliquot_use['AliquotUse']['used_by'] = "";
-					$aliquot_use['AliquotUse']['study_summary_id'] = "";
-					//TODO: Volume control (ie: numeric) is not working
-					$this->AliquotUse->save($aliquot_use);
-					
-					$realiquoting['Realiquoting']['parent_aliquot_master_id'] = $aliquot_master_id;
-					$realiquoting['Realiquoting']['child_aliquot_master_id'] = $aliquot_id_by_barcode[$realiquoted['AliquotMaster']['barcode']];
-					$realiquoting['Realiquoting']['aliquot_use_id'] = $this->AliquotUse->id;
-					$this->Realiquoting->save($realiquoting);
-					
-					$this->Aliquots->updateAliquotCurrentVolume($current_aliquot_data['AliquotMaster']['id']);
-					unset($this->data[$key]);
+			
+			$submitted_data_validates = true;
+			$hook_link = $this->hook('presave_process');
+			if($hook_link){
+				require($hook_link); 
+			}
+
+			if($submitted_data_validates){
+				foreach($this->data as $key => $realiquoted){
+					if($realiquoted['FunctionManagement']['use'] && isset($aliquot_id_by_barcode[$realiquoted['AliquotMaster']['barcode']])){
+						$aliquot_use['AliquotUse']['aliquot_master_id'] = $aliquot_master_id;
+						$aliquot_use['AliquotUse']['use_definition'] = "realiquoted to";
+						$aliquot_use['AliquotUse']['use_details'] = "";
+						$aliquot_use['AliquotUse']['use_code'] = $realiquoted['AliquotMaster']['barcode'];//child barcode
+						$aliquot_use['AliquotUse']['use_recorded_into_table'] = "realiquotings";
+						$aliquot_use['AliquotUse']['used_volume'] = is_numeric($realiquoted['FunctionManagement']['input_number']) ? $realiquoted['FunctionManagement']['input_number'] : null; 
+						$aliquot_use['AliquotUse']['use_datetime'] = $date;
+						$aliquot_use['AliquotUse']['used_by'] = "";
+						$aliquot_use['AliquotUse']['study_summary_id'] = "";
+						//TODO: Volume control (ie: numeric) is not working
+						$this->AliquotUse->save($aliquot_use);
+						
+						$realiquoting['Realiquoting']['parent_aliquot_master_id'] = $aliquot_master_id;
+						$realiquoting['Realiquoting']['child_aliquot_master_id'] = $aliquot_id_by_barcode[$realiquoted['AliquotMaster']['barcode']];
+						$realiquoting['Realiquoting']['aliquot_use_id'] = $this->AliquotUse->id;
+						$this->Realiquoting->save($realiquoting);
+						
+						$this->Aliquots->updateAliquotCurrentVolume($current_aliquot_data['AliquotMaster']['id']);
+						unset($this->data[$key]);
+					}
+				}
+				$this->Flash('Data saved. ', 
+							'/inventorymanagement/aliquot_masters/detail/'.$collection_id.'/'.$sample_master_id.'/'.$aliquot_master_id.'/');
+			}else{
+				$this->data = $aliquot_data;
+				$hook_link = $this->hook('format');
+				if($hook_link){
+					require($hook_link);
 				}
 			}
-			$this->Flash('Data saved. ', 
-						'/inventorymanagement/aliquot_masters/detail/'.$collection_id.'/'.$sample_master_id.'/'.$aliquot_master_id.'/');
 		}else{
 			$this->data = $aliquot_data;
+			$hook_link = $this->hook('format');
+			if($hook_link){
+				require($hook_link);
+			}
 		}
 	}
 	
@@ -907,6 +989,11 @@ unset($this->data['AliquotMaster']);
 
 		foreach($this->data as &$val){
 			$val['AliquotMaster'] = $val['AliquotMasterParent'];
+		}
+		
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link);
 		}
 		
 	} // listRealiquotedParent

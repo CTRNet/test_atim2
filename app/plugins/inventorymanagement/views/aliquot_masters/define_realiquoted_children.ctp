@@ -11,6 +11,11 @@
 		'actions'=>false,
 		'pagination'=>false
 	);
+	
+	$hook_link = $structures->hook('aliquot');
+	if($hook_link){
+		require($hook_link); 
+	}
 	$structures->build( $atim_structure_aliquot, array('type'=>'datagrid', 'links'=>$structure_links, 'settings' => $structure_settings) );
 	
 	$structure_links = array(
@@ -25,6 +30,11 @@
 	$structure_settings = array(
 		'form_bottom'=>true, 
 	);
+	
+	$hook_link = $structures->hook('datetime');
+	if($hook_link){
+		require($hook_link); 
+	}
 	$structures->build( $atim_datetime_input, array('type'=>'add', 'links'=>$structure_links, 'settings' => $structure_settings, 'data' => array()));
 ?>
 

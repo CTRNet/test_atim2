@@ -70,7 +70,13 @@
 	}	
 	$structure_override['AliquotDetail.gel_matrix_aliquot_master_id'] = $gel_matrices_list;	
 
+	$hook_link = $structures->hook();
+	if($hook_link){
+		require($hook_link); 
+	}
+	
 	if($is_tree_view_detail_form){
+		
 		$structures->build($atim_structure, array('links'=>$structure_links, 'override' => $structure_override));
 	}else{
 		$structures->build($atim_structure, array('links'=>$structure_links, 'override' => $structure_override, 'settings' => array('actions' => false)));
@@ -79,6 +85,10 @@
 			<tbody><tr><th style='text-align: left; padding-left: 10px; padding-right: 10px;'><hr/><?php echo(__('uses', null)); ?></th></tr>
 		</tbody></table>
 		<?php
+		$hook_link = $structures->hook('uses');
+		if($hook_link){
+			require($hook_link); 
+		}
 		$structures->build($aliquots_uses_structure, array('data' => $aliquots_uses_data, 'type' => 'index', 'links'=>$structure_links));
 	}
 ?>

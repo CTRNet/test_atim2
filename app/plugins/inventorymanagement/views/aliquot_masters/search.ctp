@@ -26,7 +26,12 @@
 		$bank_list[$new_bank['Bank']['id']] = $new_bank['Bank']['name'];
 	}
 	$structure_override['Collection.bank_id'] = $bank_list;
-		
+	
+	$hook_link = $structures->hook();
+	if($hook_link){
+		require($hook_link); 
+	}
+	
 	$structures->build($atim_structure, array('type' => 'index', 'data' => $this->data, 'links' => $structure_links, 'override' => $structure_override));
 	
 ?>
