@@ -387,6 +387,11 @@ class InventorymanagementAppController extends AppController
 		// Set menu variables
 		$atim_menu_variables = array_merge(array('Collection.id' => $collection_id), $specific_menu_variables);
 		$this->set('atim_menu_variables', $atim_menu_variables);
+		
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link);
+		}
 	}
 	
 	function setAliquotSearchData($criteria) {
