@@ -13,12 +13,13 @@ class PathCollectionReviewsController extends InventoryManagementAppController {
 			$aliquot_master_id_findall[ $record['AliquotMaster']['id'] ] = $record['AliquotMaster']['barcode'];
 		}
 		$this->set('aliquot_master_id_findall', $aliquot_master_id_findall);
-		
 		$this->set('atim_menu_variables', array('Collection.id'=>$collection_id));
 		
-		$this->hook();
-		
 		$this->data = $this->paginate($this->PathCollectionReview, array('PathCollectionReview.collection_id'=>$collection_id));
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link);
+		}
 	}
 	
 	function add ($collection_id) {
@@ -32,11 +33,16 @@ class PathCollectionReviewsController extends InventoryManagementAppController {
 		
 		$this->set('atim_menu_variables', array('Collection.id'=>$collection_id));
 		
-		$this->hook();
-		
 		if (!empty($this->data)) {
 			$this->data['PathCollectionReview']['collection_id'] = $collection_id;
-			if ($this->PathCollectionReview->save($this->data)) {
+			
+			$submitted_data_validates = true;
+			$hook_link = $this->hook('presave_process');
+			if($hook_link){
+				require($hook_link);
+			}
+			
+			if ($submitted_data_validates && $this->PathCollectionReview->save($this->data)) {
 				$this->flash('your data has been updated','/inventorymanagement/path_collection_reviews/detail/' . $collection_id . '/' . $this->PathCollectionReview->id);
 			}
 		}
@@ -51,12 +57,14 @@ class PathCollectionReviewsController extends InventoryManagementAppController {
 			$aliquot_master_id_findall[ $record['AliquotMaster']['id'] ] = $record['AliquotMaster']['barcode'];
 		}
 		$this->set('aliquot_master_id_findall', $aliquot_master_id_findall);
-		
 		$this->set('atim_menu_variables', array('Collection.id'=>$collection_id, 'PathCollectionReview.id'=>$path_collection_review_id));
 		
-		$this->hook();
-		
 		$this->data = $this->PathCollectionReview->find('first',array('conditions'=>array('PathCollectionReview.id'=>$path_collection_review_id)));
+		
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link);
+		}
 	}
 	
 	
@@ -72,15 +80,23 @@ class PathCollectionReviewsController extends InventoryManagementAppController {
 		
 		$this->set('atim_menu_variables', array('Collection.id'=>$collection_id, 'PathCollectionReview.id'=>$path_collection_review_id));
 		
-		$this->hook();
-		
 		if (!empty($this->data)) {
 			$this->PathCollectionReview->id = $path_collection_review_id;
-			if ($this->PathCollectionReview->save($this->data)) {
+			
+			$submitted_data_validates = true;
+			$hook_link = $this->hook('presave_process');
+			if($hook_link){
+				require($hook_link);
+			}
+			if ($submitted_data_validates && $this->PathCollectionReview->save($this->data)) {
 				$this->flash('your data has been updated','/inventorymanagement/path_collection_reviews/detail/' . $collection_id . '/' . $path_collection_review_id);
 			}
 		} else {
 			$this->data = $this->PathCollectionReview->find('first',array('conditions'=>array('PathCollectionReview.id'=>$path_collection_review_id)));
+			$hook_link = $this->hook('format');
+			if($hook_link){
+				require($hook_link);
+			}
 		}
 	}
 	
