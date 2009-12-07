@@ -48,7 +48,12 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->unsetInventorySessionData();
 		
 		// Set list of banks
-		$this->set('banks', $this->getBankList());	
+		$this->set('banks', $this->getBankList());
+		
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link); 
+		}
 	}
 	
 	function search() {
@@ -68,6 +73,10 @@ class SampleMastersController extends InventorymanagementAppController {
 		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['SampleMaster']['count'];
 		$_SESSION['ctrapp_core']['search']['url'] = '/inventorymanagement/sample_masters/search';
 		
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link); 
+		}
 	}
 	
 	function setSampleSearchData($criteria) {
@@ -161,6 +170,12 @@ class SampleMastersController extends InventorymanagementAppController {
 
 		// Set menu variables
 		$this->set('atim_menu_variables', array('Collection.id' => $collection_id, 'FilterLevel' => 'collection', 'SampleTypeForFilter' => $filter_value));		
+		
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link); 
+		}
+		
 	}
 	
 	/**
@@ -364,6 +379,11 @@ class SampleMastersController extends InventorymanagementAppController {
 		// Set menu variables
 		$atim_menu_variables = array_merge(array('Collection.id' => $collection_id), $specific_menu_variables);
 		$this->set('atim_menu_variables', $atim_menu_variables);
+		
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link); 
+		}
 	}
 	
 	function detail($collection_id, $sample_master_id, $is_tree_view_detail_form = false, $is_inventory_plugin_form = true) {
@@ -517,7 +537,7 @@ class SampleMastersController extends InventorymanagementAppController {
 			
 		
 		// MANAGE DATA RECORD
-		if(!empty($this->data)) {	
+		if(!empty($this->data)) {
 			// Set additional data
 			$this->data['SampleMaster']['collection_id'] = $collection_id;
 			$this->data['SampleMaster']['sample_control_id'] = $sample_control_data['SampleControl']['id'];
@@ -536,6 +556,11 @@ class SampleMastersController extends InventorymanagementAppController {
 				$this->data['SampleMaster']['initial_specimen_sample_type'] = $parent_sample_data['SampleMaster']['initial_specimen_sample_type'];
 				$this->data['SampleMaster']['initial_specimen_sample_id'] = $parent_sample_data['SampleMaster']['initial_specimen_sample_id'];
 			}
+			$hook_link = $this->hook('format');
+			if($hook_link){
+				require($hook_link);
+			}
+				
 			
 			// Validates data
 			
@@ -555,6 +580,11 @@ class SampleMastersController extends InventorymanagementAppController {
 				$submitted_data_validates = ($this->DerivativeDetail->validates())? $submitted_data_validates: false; 
 			}
 			
+			$hook_link = $this->hook('presave_process');
+			if($hook_link){
+				require($hook_link);
+			}
+				
 			if($submitted_data_validates) {
 				// Save sample data
 				$sample_master_id = null;
@@ -649,9 +679,18 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 		
 		if(empty($this->data)) {
-				$this->data = $sample_data;
+			$this->data = $sample_data;
+			$hook_link = $this->hook('format');
+			if($hook_link){
+				require($hook_link);
+			}
 
 		} else {
+			$hook_link = $this->hook('format');
+			if($hook_link){
+				require($hook_link);
+			}
+				
 			//Update data	
 			if(isset($this->data['SampleMaster']['parent_id']) && ($sample_data['SampleMaster']['parent_id'] !== $this->data['SampleMaster']['parent_id'])) { $this->redirect('/pages/err_inv_system_error', null, true); }
 			
@@ -673,6 +712,11 @@ class SampleMastersController extends InventorymanagementAppController {
 				$submitted_data_validates = ($this->DerivativeDetail->validates())? $submitted_data_validates: false; 
 			}
 			
+			$hook_link = $this->hook('presave_process');
+			if($hook_link){
+				require($hook_link);
+			}
+				
 			if($submitted_data_validates) {
 				// Save sample data
 				$this->SampleMaster->id = $sample_master_id;
@@ -688,15 +732,6 @@ class SampleMastersController extends InventorymanagementAppController {
 						if(!$this->DerivativeDetail->save($this->data['DerivativeDetail'], false)) { $this->redirect('/pages/err_inv_system_error', null, true); }
 					}
 
-//					//TODO update source aliquots use data
-//					if((!$bool_is_specimen) && isset($this->data['DerivativeDetail'])){
-//						$old_derivative_creation_date = $specimen_or_derivative_data['DerivativeDetail']['creation_datetime'];
-//						$new_derivative_creation_date = $this->data['DerivativeDetail']['creation_datetime'];
-//						if(strcmp($old_derivative_creation_date,$new_derivative_creation_date)!=0) {
-//							$this->updateSourceAliquotUses($sample_master_id, $sample_master_data['SampleMaster']['sample_code'], $new_derivative_creation_date);
-//						}
-//					}
-					
 					$this->flash('your data has been updated', '/inventorymanagement/sample_masters/detail/' . $collection_id . '/' . $sample_master_id);		
 				}				
 			}

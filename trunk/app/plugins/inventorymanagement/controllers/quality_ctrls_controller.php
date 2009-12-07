@@ -38,6 +38,11 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			array('Collection.id' => $sample_data['SampleMaster']['collection_id'], 
 			'SampleMaster.id' => $sample_master_id,
 			'SampleMaster.initial_specimen_sample_id' => $sample_data['SampleMaster']['initial_specimen_sample_id']) );
+			
+		$hook_link = $this->hook('presave_process');
+		if( $hook_link ) {
+			require($hook_link);
+		}
 	}
 
 	function add($collection_id, $sample_master_id){
@@ -59,7 +64,18 @@ class QualityCtrlsController extends InventoryManagementAppController {
 		
 		if ( !empty($this->data) ) {
 			$this->data['QualityCtrl']['sample_master_id'] = $sample_master_id;
-			if ( $this->QualityCtrl->save( $this->data )) {
+			$hook_link = $this->hook('format');
+			if($hook_link){
+				require($hook_link);
+			}
+			
+			$submitted_data_validates = true;
+			$hook_link = $this->hook('presave_process');
+			if($hook_link){
+				require($hook_link);
+			}
+				
+			if ($submitted_data_validates && $this->QualityCtrl->save( $this->data )) {
 				$qc_id = $this->QualityCtrl->getLastInsertId();
 				
 				// Record additional qc data
@@ -119,19 +135,33 @@ class QualityCtrlsController extends InventoryManagementAppController {
 		
 				
 		if ( !empty($this->data) ) {
+			$hook_link = $this->hook('format');
+			if( $hook_link ) {
+				require($hook_link);
+			}
 			// Get aliquot use ids of the tested aliquots
 			$aliquot_use_ids = array();
 			foreach($qc_data['QualityCtrlTestedAliquot'] as $new_tested_aliquots) { $aliquot_use_ids[] = $new_tested_aliquots['aliquot_use_id']; }
 			
 			// Launch save
 			$this->QualityCtrl->id = $quality_ctrl_id;
-			if ( $this->QualityCtrl->save( $this->data )) {
+			
+			$submitted_data_validates = true;
+			$hook_link = $this->hook('presave_process');
+			if( $hook_link ) { 
+				require($hook_link); 
+			}
+			if ($submitted_data_validates && $this->QualityCtrl->save( $this->data )) {
 				//TODO should we test if values are different?
 				if(!$this->Aliquots->updateAliquotUses($aliquot_use_ids, $this->data['QualityCtrl']['date'], $this->data['QualityCtrl']['run_by'])) { $this->redirect('/pages/err_inv_system_error', null, true); }
 				$this->flash( 'Your data has been saved.', '/inventorymanagement/quality_ctrls/detail/'.$collection_id.'/'.$sample_master_id.'/'.$quality_ctrl_id.'/' );
 			}
 		}else{
 			$this->data = $qc_data;
+			$hook_link = $this->hook('format');
+			if( $hook_link ) {
+				require($hook_link);
+			}
 		}
 	}
 	
@@ -199,9 +229,15 @@ class QualityCtrlsController extends InventoryManagementAppController {
 		
 		if (empty($this->data)) {
 			$this->data = $available_sample_aliquots;
-			
+			$hook_link = $this->hook('format');
+			if( $hook_link ) {
+				require($hook_link);
+			}
 		} else {
-			
+			$hook_link = $this->hook('format');
+			if( $hook_link ) {
+				require($hook_link);
+			}
 			// Work on submitted data
 			$submitted_data_validates = true;	
 			$aliquots_defined_as_tested = array();
@@ -239,7 +275,12 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			if(empty($aliquots_defined_as_tested)) { 
 				$this->AliquotUse->validationErrors[] = 'no aliquot has been defined as sample tested aliquot.';	
 				$submitted_data_validates = false;			
-			}			
+			}
+			
+			$hook_link = $this->hook('presave_process');
+			if( $hook_link ) {
+				require($hook_link);
+			}
 		
 			if (!$submitted_data_validates) {
 				// Set error message
