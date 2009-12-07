@@ -17,6 +17,11 @@
 	}	
 	$structure_override['AliquotUse.study_summary_id'] = $studies_list;	
 	
+	$hook_link = $structures->hook();
+	if($hook_link){
+		require($hook_link); 
+	}
+	
 	$structures->build($atim_structure, array('links' => $structure_links, 'override' => $structure_override, 'type' => 'add'));
 	
 ?>

@@ -41,6 +41,11 @@
 	}
 	$structure_override['AliquotMaster.storage_master_id'] = $translated_matching_storage_list;
 
+	$hook_link = $structures->hook();
+	if($hook_link){
+		require($hook_link); 
+	}
+	
 	$structures->build($atim_structure, array('links' => $structure_links, 'override' => $structure_override, 'type' => 'datagrid', 	'settings'=> array('pagination' => false, 'add_fields' => true, 'del_fields' => true)));
 	
 ?>
