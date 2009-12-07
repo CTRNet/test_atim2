@@ -999,7 +999,9 @@ span.help:hover {
 *===========================================================*/
 /* -=site wide*/
 a.add { background: url("../img/icons/Add_16x16.png") no-repeat left center; }
+a.aliquot { background: url("../img/icons/aliquot_16x16.png") no-repeat left center; }
 a.cancel { background: url("../img/icons/Control Rewind_16x16.png") no-repeat left center; }
+a.default { background: url("../img/icons/Document Blank_16x16.png") no-repeat left center; }
 a.delete { background: url("../img/icons/Close_16x16.png") no-repeat left center; }
 a.detail { background: url("../img/icons/Control Play_16x16.png") no-repeat left center; }
 a.duplicate { background: url("../img/icons/Documents x3_16x16.png") no-repeat center center; }
@@ -1016,11 +1018,11 @@ a.redo { background: url("../img/icons/Refresh_16x16.png") no-repeat left center
 a.summary { background: url("../img/icons/Paste_16x16.png") no-repeat left center; }
 a.search { background: url("../img/icons/Preview_16x16.png") no-repeat left center; }
 a.search_results { background: url("../img/icons/Preview_16x16.png") no-repeat left center; }
+a.storage {	background: url("../img/icons/storage_16x16.png") no-repeat left center; }			
 a.thumbsdown { background: url("../img/icons/Flag Black_16x16.png") no-repeat left center; }
 a.thumbsup { background: url("../img/icons/Flag Green_16x16.png") no-repeat left center; }
 a.users { background: url("../img/icons/Group_16x16.png") no-repeat left center; }
 a.not_allowed { background: url("../img/icons/Warning_16x16.png") no-repeat left center; }
-a.default { background: url("../img/icons/Document Blank_16x16.png") no-repeat left center; }
 
 /* -=toolbox*/
 a.plugin.login {background: url("../img/icons/Authenticate_32x32.png") no-repeat center center;}
@@ -1044,7 +1046,6 @@ a.plugin.pricing {background: url("../img/icons/For Sale Dollars_32x32.png.png")
 a.plugin.provider {background: url("../img/icons/provider.png") no-repeat center center;}
 a.plugin.not_allowed {background: url("../img/icons/Warning_32x32.png") no-repeat center center;}
 a.plugin.default {background: url("../img/icons/Document Blank_32x32.png") no-repeat center center;}
-					
 td.id a,
 td.id a:hover,
 table.tree ul a,
