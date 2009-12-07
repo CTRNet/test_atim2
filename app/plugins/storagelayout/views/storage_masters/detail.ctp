@@ -74,7 +74,7 @@
 	} else {
 		// A sorage position within parent can be set	
 		$final_atim_structure = $atim_structure; 
-		$final_options = array('settings' => array('actions' => FALSE), 'override' => $structure_override);
+		$final_options = array('settings' => array('actions' => false), 'override' => $structure_override);
 		
 		// CUSTOM CODE
 		$hook_link = $structures->hook();
@@ -101,20 +101,4 @@
 		// BUILD FORM
 		$structures->build( $final_atim_structure, $final_options );
 	}
-	
-	
-	$final_atim_structure = $atim_structure; 
-	$final_options = array();
-	
-	// CUSTOM CODE
-	$hook_link = $structures->hook();
-	if( $hook_link ) { require($hook_link); }
-		
-	// BUILD FORM
-	$structures->build( $final_atim_structure, $final_options );
-	
-	
-	
-	
-	
 ?>

@@ -39,8 +39,6 @@ class StorageMastersController extends StoragelayoutAppController {
 		
 		if($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions();
 		
-		$this->hook();
-		
 		$this->data = $this->paginate($this->StorageMaster, $_SESSION['ctrapp_core']['search']['criteria']);
 		
 		//find all storage control types to build add button
@@ -166,14 +164,17 @@ class StorageMastersController extends StoragelayoutAppController {
 		
 		// Set parent storage list for selection
 		$available_parent_storage_list = array(); 
+		$is_predefined_parent = false;
 		if(is_null($predefined_parent_storage_id)) { 
 			$available_parent_storage_list = $this->Storages->getStorageList();
 		} else {
 			$predefined_parent_storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $predefined_parent_storage_id, 'StorageControl.is_tma_block' => 'FALSE')));
 			if(empty($predefined_parent_storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }		
 			$available_parent_storage_list[$predefined_parent_storage_id] = $predefined_parent_storage_data;
+			$is_predefined_parent = true;
 		}
 		$this->set('available_parent_storage_list', $available_parent_storage_list);	
+		$this->set('is_predefined_parent', $is_predefined_parent);	
 		
 		// Set list of available SOPs to build TMA
 		if(strcmp($storage_control_data['StorageControl']['is_tma_block'], 'TRUE') == 0) {	
@@ -211,6 +212,11 @@ class StorageMastersController extends StoragelayoutAppController {
 			// Set storage temperature information
 			$this->data['StorageMaster']['set_temperature'] = $storage_control_data['StorageControl']['set_temperature'];
 				
+			// Replace ',' to '.' for temperature
+			if(isset($this->data['StorageMaster']['temperature'])) {
+				$this->data['StorageMaster']['temperature'] = str_replace(',', '.', $this->data['StorageMaster']['temperature']);
+			}
+				
 			if((strcmp($storage_control_data['StorageControl']['set_temperature'], 'FALSE') == 0) && (!empty($parent_storage_data))) {
 				// Define storage surrounding temperature based on selected parent temperature
 				$this->data['StorageMaster']['temperature'] = $parent_storage_data['StorageMaster']['temperature'];
@@ -229,13 +235,19 @@ class StorageMastersController extends StoragelayoutAppController {
 			
 			$hook_link = $this->hook('presave_process');
 			if( $hook_link ) { require($hook_link); }		
-						
-			if($submitted_data_validates) {
+				
+			$this->StorageMaster->set($this->data);		
+			if($submitted_data_validates && $this->StorageMaster->validates()) {
+				
 				// Save storage data
 				$bool_save_done = true;
 				
+				if($this->data['StorageMaster']['parent_id'] == '0') { 
+					$this->data['StorageMaster']['parent_id'] = '';
+				}
+				
 				$storage_master_id = null;
-				if($this->StorageMaster->save($this->data)) {
+				if($this->StorageMaster->save($this->data, false)) {
 					$storage_master_id = $this->StorageMaster->getLastInsertId();
 				} else {
 					$bool_save_done = false;
@@ -347,6 +359,11 @@ class StorageMastersController extends StoragelayoutAppController {
 					$this->data['StorageMaster']['temperature'] = $parent_storage_data['StorageMaster']['temperature'];
 					$this->data['StorageMaster']['temp_unit'] = $parent_storage_data['StorageMaster']['temp_unit'];						
 				}
+			} else {
+				// Replace ',' to '.' for temperature
+				if(isset($this->data['StorageMaster']['temperature'])) {
+					$this->data['StorageMaster']['temperature'] = str_replace(',', '.', $this->data['StorageMaster']['temperature']);
+				}
 			}	
 				
 			// Update parent storage coordinate values				
@@ -367,11 +384,17 @@ class StorageMastersController extends StoragelayoutAppController {
 			
 			$hook_link = $this->hook('presave_process');
 			if( $hook_link ) { require($hook_link); }		
-						
-			if($submitted_data_validates) {
+			
+			$this->StorageMaster->set($this->data);		
+			if($submitted_data_validates && $this->StorageMaster->validates()) {
+				
+				if($this->data['StorageMaster']['parent_id'] == '0') { 
+					$this->data['StorageMaster']['parent_id'] = '';
+				}
+				
 				// Save storage data
 				$this->StorageMaster->id = $storage_master_id;		
-				if($this->StorageMaster->save($this->data)) { 
+				if($this->StorageMaster->save($this->data, false)) { 
 					// Manage children temperature
 					$storage_temperature = (array_key_exists('temperature', $this->data['StorageMaster']))? $this->data['StorageMaster']['temperature'] : $storage_data['StorageMaster']['temperature'];
 					$storage_temp_unit = (array_key_exists('temp_unit', $this->data['StorageMaster']))? $this->data['StorageMaster']['temp_unit'] : $storage_data['StorageMaster']['temp_unit'];
@@ -688,7 +711,8 @@ class StorageMastersController extends StoragelayoutAppController {
 		$aliquot_master_c = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id), 'recursive' => '-1'));
 		$tma_slide_c = $this->TmaSlide->find('all', array('conditions' => array('TmaSlide.storage_master_id' => $storage_master_id), 'recursive' => '-1'));
 
-		if(!empty($this->data)){		
+		if(!empty($this->data)){	
+
 			$data = array();
 			$unclassified = array();
 			$json = (json_decode($this->data));
@@ -697,11 +721,13 @@ class StorageMastersController extends StoragelayoutAppController {
 				//builds a $cell[type][id] array
 				$data[$json[$i]->{'type'}][$json[$i]->{'id'}] = (array)$json[$i]; 
 			}
-			
+					
 			if($storage_data['StorageControl']['coord_x_type'] == "list"){
-				foreach($data['StorageMaster'] as &$value){
-					if(is_numeric($value['x'])){
-						$value['x'] = $coordinate_list[$value['x']]['StorageCoordinate']['coordinate_value'];
+				foreach($data as &$data_model){
+					foreach($data_model as &$value){
+						if(is_numeric($value['x'])){
+							$value['x'] = $coordinate_list[$value['x']]['StorageCoordinate']['coordinate_value'];
+						}
 					}
 				}
 			}
@@ -748,11 +774,11 @@ class StorageMastersController extends StoragelayoutAppController {
 
 		foreach($data['children'] as &$children_array){
 			if(isset($children_array['StorageMaster'])){
-				buildChildrenArray($children_array, "StorageMaster", "parent_storage_coord_x", "parent_storage_coord_y", "selection_label", $rkey_coordinate_list);
+				$this->buildChildrenArray($children_array, "StorageMaster", "parent_storage_coord_x", "parent_storage_coord_y", "selection_label", $rkey_coordinate_list);
 			}else if(isset($children_array['AliquotMaster'])){
-				buildChildrenArray($children_array, "AliquotMaster", "storage_coord_x", "storage_coord_y", "barcode", $rkey_coordinate_list);
+				$this->buildChildrenArray($children_array, "AliquotMaster", "storage_coord_x", "storage_coord_y", "barcode", $rkey_coordinate_list);
 			}else if(isset($children_array['TmaSlide'])){
-				buildChildrenArray($children_array, "TmaSlide", "storage_coord_x", "storage_coord_y", "barcode", $rkey_coordinate_list);
+				$this->buildChildrenArray($children_array, "TmaSlide", "storage_coord_x", "storage_coord_y", "barcode", $rkey_coordinate_list);
 			}
 		}
 		
@@ -817,7 +843,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		$nbr_storage_aliquots = $this->AliquotMaster->find('count', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id), 'recursive' => '-1'));
 		if($nbr_storage_aliquots > 0) { return array('allow_deletion' => false, 'msg' => 'aliquot exists within the deleted storage'); }
 
-		// Check storage is not attached to tma slide	
+		// Check storage is not a block attached to tma slide	
 		$nbr_tma_slides = $this->TmaSlide->find('count', array('conditions' => array('TmaSlide.tma_block_storage_master_id' => $storage_master_id), 'recursive' => '-1'));
 		if($nbr_tma_slides > 0) { return array('allow_deletion' => false, 'msg' => 'slide exists for the deleted tma'); }
 		
@@ -1093,23 +1119,23 @@ class StorageMastersController extends StoragelayoutAppController {
 		$data_array = array_values($data_array);
 		
 	}
-}
 
-function buildChildrenArray(&$children_array, $type_key, $x_key, $y_key, $label_key, $coordinate_list){
-	
-	$children_array['DisplayData']['id'] = $children_array[$type_key]['id'];
-	$children_array['DisplayData']['y'] = strlen($children_array[$type_key][$y_key]) > 0 ? $children_array[$type_key][$y_key] : 1; 
-	if($coordinate_list == null){
-		$children_array['DisplayData']['x'] = $children_array[$type_key][$x_key];
-	}else if(isset($coordinate_list[$children_array[$type_key][$x_key]])){
-		$children_array['DisplayData']['x'] = $coordinate_list[$children_array[$type_key][$x_key]]['StorageCoordinate']['id'];
-		$children_array['DisplayData']['y'] = 1;
-	}else{
-		$children_array['DisplayData']['x'] = "";
+	function buildChildrenArray(&$children_array, $type_key, $x_key, $y_key, $label_key, $coordinate_list){
+		
+		$children_array['DisplayData']['id'] = $children_array[$type_key]['id'];
+		$children_array['DisplayData']['y'] = strlen($children_array[$type_key][$y_key]) > 0 ? $children_array[$type_key][$y_key] : 1; 
+		if($coordinate_list == null){
+			$children_array['DisplayData']['x'] = $children_array[$type_key][$x_key];
+		}else if(isset($coordinate_list[$children_array[$type_key][$x_key]])){
+			$children_array['DisplayData']['x'] = $coordinate_list[$children_array[$type_key][$x_key]]['StorageCoordinate']['id'];
+			$children_array['DisplayData']['y'] = 1;
+		}else{
+			$children_array['DisplayData']['x'] = "";
+		}
+		
+		$children_array['DisplayData']['label'] = $children_array[$type_key][$label_key];
+		$children_array['DisplayData']['type'] = $type_key;
+		
 	}
-	
-	$children_array['DisplayData']['label'] = $children_array[$type_key][$label_key];
-	$children_array['DisplayData']['type'] = $type_key;
-	
 }
 ?>
