@@ -28,6 +28,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 //		'Inventorymanagement.OrderItem',
 		
 		'Storagelayout.StorageMaster',
+		'Storagelayout.StorageCoordinate',
 		
 		'Study.StudySummary',
 		'Order.OrderItem'
