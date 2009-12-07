@@ -17,11 +17,19 @@
 		)
 	);
 	
+	$hook_link = $structures->hook();
+	if($hook_link){
+		require($hook_link); 
+	}
 	$structures->build( $atim_structure, array('settings' => array('actions' => false)) );
 	?>
 	<table class="structure" cellspacing="0">
 		<tbody><tr><th style='text-align: left; padding-left: 10px; padding-right: 10px;'><hr/><?php echo(__('tested aliquots', null)); ?></th></tr>
 	</tbody></table>
 	<?php
+	$hook_link = $structures->hook('tested aliquots');
+	if($hook_link){
+		require($hook_link); 
+	}
 	$structures->build( $quality_ctrl_structure, array('type' => 'index', 'data' => $quality_ctrl_data, 'links' => $structure_links) );
 ?>

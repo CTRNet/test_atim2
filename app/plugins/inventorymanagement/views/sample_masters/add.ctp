@@ -16,6 +16,10 @@
 
 //TODO tissue_source
 			
+	$hook_link = $structures->hook();
+	if($hook_link){
+		require($hook_link); 
+	}
 	$structures->build($atim_structure, array('links' => $structure_links, 'override' => $structure_override));
 	
 ?>
