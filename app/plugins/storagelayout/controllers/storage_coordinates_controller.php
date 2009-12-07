@@ -188,7 +188,6 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 		if($nbr_coord_values == 0) { return false; }
 
 		// The value already exists: Set the errors
-//TODO validate
 		$this->StorageCoordinate->validationErrors['dimension']	= 'coordinate must be unique for the storage';
 
 		return true;		
