@@ -738,7 +738,6 @@ class StructuresHelper extends Helper {
 
 
 	function build_tree( $atim_structure, $options ) {
-		
 		$return_string = '';
 		
 		// display table...
@@ -1838,7 +1837,6 @@ class StructuresHelper extends Helper {
 	// MODEL data, LINKS array, LANG array, ADD array list to INCLUDE, SKIP list to NOT include, and ID value to attach, if any 
 	// function generate_links_list( $links=array(), $lang=array(), $add=array(), $skip=array(), $id=NULL, $title='', $in_table=0 ) {
 	function generate_links_list( $data=array(), $options=array(), $state='index' ) {
-			
 		$aro_alias = 'Group::'.$this->Session->read('Auth.User.group_id');
 		
 		$return_string = '';
@@ -1857,9 +1855,15 @@ class StructuresHelper extends Helper {
 			}
 			
 			$link_results = array();
-			
-			foreach ( $link_array as $link_label=>$link_location ) {
-				
+
+			$icon = "";
+			if(isset($link_array['link'])){
+				if(isset($link_array['icon'])){
+					$icon = $link_array['icon'];
+				}
+				$link_array = array( $link_name => $link_array['link'] );
+			}
+			foreach ( $link_array as $link_label => &$link_location ) {
 				if ( !Configure::read("debug") ) {
 					// check on EDIT only 
 					$parts = Router::parse($link_location);
@@ -1874,11 +1878,14 @@ class StructuresHelper extends Helper {
 				if ( Configure::read("debug") || strpos($aco_alias,'controllers/Users')!==false || strpos($aco_alias,'controllers/Pages')!==false || $Acl->check($aro_alias, $aco_alias) ) {
 					
 					$display_class_name = $this->generate_link_class($link_name, $link_location);
-						
-					$htmlAttributes = array(
-						'class'	=>	'form '.$display_class_name,
-						'title'	=>	strip_tags( __($link_name, true) )
-					);
+					
+					$htmlAttributes['title'] = strip_tags( __($link_name, true) ); 
+					
+					if(strlen($icon) > 0){
+						$htmlAttributes['class'] = 'form '.$icon;
+					}else{
+						$htmlAttributes['class'] = 'form '.$display_class_name;
+					}
 					
 					// set Javascript confirmation msg...
 					if ( $display_class_name=='delete' ) {
@@ -1906,7 +1913,6 @@ class StructuresHelper extends Helper {
 							else {
 								$htmlAttributes['update'] = $options['links']['ajax'][$state][$link_name];
 							}
-							
 							$link_results[$link_label]	= $this->Ajax->link(
 								 ( $state=='index' ? '&nbsp;' : __($link_label, true) ), 
 								 $link_location, 
