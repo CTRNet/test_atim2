@@ -19,15 +19,17 @@
 	$structure_links = array(
 		'tree'=>array(
 			'StorageMaster' => array(
-				'detail' => array(
-					'link' => '/storagelayout/storage_masters/detail/%%StorageMaster.id%%/1',
-					'icon' => 'storage')),
+				'detail' => '/storagelayout/storage_masters/detail/%%StorageMaster.id%%/1'
+			),
 			'AliquotMaster' => array(
-				'detail' => array(
-					'link' => '/inventorymanagement/aliquot_masters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/' . true . '/' . false,
-					'icon' => 'aliquot')),
+				'plugin inventorymanagement aliquot detail' => array(
+					'link' => '/inventorymanagement/aliquot_masters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/' . true . '/' . true,
+					'icon' => 'aliquot')
+			),
 			'TmaSlide' => array(
-				'detail' => '/storagelayout/tma_slides/detail/%%TmaSlide.tma_block_storage_master_id%%/%%TmaSlide.id%%/1'
+				'plugin inventorymanagement aliquot detail' => array(
+					'link' => '/storagelayout/tma_slides/detail/%%TmaSlide.tma_block_storage_master_id%%/%%TmaSlide.id%%/1',
+					'icon' => 'slide')
 			)
 		),
 		'bottom' => array(
