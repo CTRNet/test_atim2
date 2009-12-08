@@ -71,7 +71,7 @@ window.onload = function(){
 	}
 	//bind onclick command and refresh lines
 	for(var i = 0; i < rowCount; i ++){
-		$(i + "FunctionManagementCopyCtrl").parentNode.innerHTML += "<span class='copyCtrl' id='" + i + "copy' >" + copyStr + "</span><span class='copyCtrl' id='" + i + "paste' >" + pasteStr + "</span><span style='margin-left: 10px;' id='" + i + "copying'></span>";
+		$(i + "FunctionManagementCopyCtrl").parentNode.innerHTML += "<span class='button' id='" + i + "copy' >" + copyStr + "</span><span class='button' id='" + i + "paste' >" + pasteStr + "</span><span style='margin-left: 10px;' id='" + i + "copying'></span>";
 		$(i + "FunctionManagementCopyCtrl").setStyle({ display: 'none'});
 		$(i + "copy").setAttribute('onclick', 'copyLine(' + i + ');');
 		$(i + "paste").setAttribute('onclick', 'pasteLine(' + i + ');');
@@ -135,7 +135,7 @@ function enableCopyCtrl(lineId){
 							|| currentCell.childNodes[j] == "[object HTMLInputElement]"){
 						if(currentCell.childNodes[j].getAttribute("id").indexOf("FunctionManagementCopyCtrl") > -1){
 							//it's the copy control cell
-							currentCell.innerHTML = "<span class='copyCtrl' id='" + rowCount + "copy' >" + copyStr + "</span><span class='copyCtrl' id='" + rowCount + "paste' >" + pasteStr + "</span><span style='margin-left: 10px;' id='" + rowCount + "copying'></span>";
+							currentCell.innerHTML = "<span class='button' id='" + rowCount + "copy' >" + copyStr + "</span><span class='button' id='" + rowCount + "paste' >" + pasteStr + "</span><span style='margin-left: 10px;' id='" + rowCount + "copying'></span>";
 							$(rowCount + "copy").setAttribute('onclick', 'copyLine(' + rowCount + ');');
 							$(rowCount + "paste").setAttribute('onclick', 'pasteLine(' + rowCount + ');');
 						}else{

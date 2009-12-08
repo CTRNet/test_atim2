@@ -138,7 +138,7 @@ class StructuresHelper extends Helper {
 				
 				<fieldset class="submit">
 					<div>
-						<span>
+						<span class="button large">
 							<input id="submit_button" class="submit" type="submit" value="Submit" style="display: none;"/>
 							<a id="submit_button_link" href="#" onclick="$(\'submit_button\').click();">'.__('submit', null).'</a>
 						</span>

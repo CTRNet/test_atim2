@@ -1134,7 +1134,7 @@ div#wrapper table.structure table.columns td a.not_allowed {
 		background: url(../img/btnBack.png);
 		display: inline-block;
 		margin: 10px;
-		line-height: 30px;
+		/*line-height: 30px;*/
 		padding-top: 1px;
 		-moz-border-radius: 5px; -webkit-border-radius: 5px;
 	}
@@ -1147,8 +1147,6 @@ div#wrapper table.structure table.columns td a.not_allowed {
 		background-color: none;
 		padding: 8px 12px 7px 30px;
 		font-size: 12px;
-		border: solid;
-		border-width: 1px;
 		cursor: pointer;
 		border-color: #999999;
 		text-decoration:none;
@@ -1258,7 +1256,7 @@ table.cake-sql-log th {
 	font-weight: bold;
 }
 
-.copyCtrl{
+.button{
 	background: url(../img/btnBack.png);
 	-moz-border-radius: 5px; -webkit-border-radius: 5px;
 	border-color: #999999;
@@ -1269,15 +1267,24 @@ table.cake-sql-log th {
 	padding: 5px;
 	display: inline-block;
 	cursor: pointer;
-	margin-bottom: 5px;
+	margin-top: 3px;
+	margin-bottom: 3px;
 	font-size: 12px;
 	color: #000;
 	padding: 5px;
 }
 
-.copyCtrl:hover{
+.button.large{
+	line-height: 22px;	
+}
+
+.button:hover{
 	background: url(../img/btnBackSel.png);
 	border-color: #000;
+}
+.button .ui-icon{
+	float: left; 
+	margin-top: -3px	
 }
 
 div.loading{
