@@ -1279,3 +1279,12 @@ table.cake-sql-log th {
 	background: url(../img/btnBackSel.png);
 	border-color: #000;
 }
+
+div.loading{
+	text-align: center;
+	line-height: 60px;
+	background: url("../img/wait30.gif") no-repeat center;
+	border-style: solid;
+	border-colot: #000;
+	border-width: 1px;
+}
