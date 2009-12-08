@@ -34,7 +34,10 @@
 	$structure_links = array(
 		'tree'=>array(
 			'SampleMaster' => array(
-				'detail' => '/inventorymanagement/sample_masters/detail/%%SampleMaster.collection_id%%/%%SampleMaster.id%%/' . true . '/' . true
+				'detail' => array(
+					'link' => '/inventorymanagement/sample_masters/detail/%%SampleMaster.collection_id%%/%%SampleMaster.id%%/' . true . '/' . true,
+					'icon' => 'lungs'
+				)
 			),
 			'AliquotMaster' => array(
 				'plugin inventorymanagement aliquot detail' => array(
