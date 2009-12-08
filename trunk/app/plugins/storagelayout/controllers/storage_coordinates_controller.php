@@ -83,6 +83,10 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 				$submitted_data_validates = false;
 			}
 			
+			if($this->isDuplicatedOrder($storage_master_id, $this->data['StorageCoordinate']['order'])) {
+				$submitted_data_validates = false;
+			}
+			
 			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			
 			$hook_link = $this->hook('presave_process');
@@ -188,11 +192,34 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 		if($nbr_coord_values == 0) { return false; }
 
 		// The value already exists: Set the errors
-		$this->StorageCoordinate->validationErrors['dimension']	= 'coordinate must be unique for the storage';
+		$this->StorageCoordinate->validationErrors['coordinate_value']	= 'coordinate must be unique for the storage';
 
 		return true;		
 	}
 	
+	/**
+	 * Check the coordinate order does not already exists and set error if not.
+	 * 
+	 * @param $storage_master_id Id of the studied storage.
+	 * @param $new_coordinate_order New coordinate order.
+	 * 
+	 * @return Return true if the storage coordinate order has already been set.
+	 * 
+	 * @author N. Luc
+	 * @since 2008-02-04
+	 * @updated A. Suggitt
+	 */
+	
+	function isDuplicatedOrder($storage_master_id, $new_coordinate_order) {	
+		$nbr_coord_values = $this->StorageCoordinate->find('count', array('conditions' => array('StorageCoordinate.storage_master_id' => $storage_master_id, 'StorageCoordinate.order' => $new_coordinate_order), 'recursive' => '-1'));
+		
+		if($nbr_coord_values == 0) { return false; }
+
+		// The value already exists: Set the errors
+		$this->StorageCoordinate->validationErrors['order']	= 'coordinate order must be unique for the storage';
+
+		return true;		
+	}	
 }
 
 ?>

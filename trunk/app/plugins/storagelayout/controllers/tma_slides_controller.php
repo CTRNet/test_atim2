@@ -39,9 +39,6 @@ class TmaSlidesController extends StoragelayoutAppController {
 		// Inactivate Storage Coordinate Menu (unpossible for TMA type)
 		$atim_menu = $this->Storages->inactivateStorageCoordinateMenu($atim_menu);
 		
-		// Inactivate Children Storage Menu (unpossible for TMA type)
-		$atim_menu = $this->Storages->inactivateChildrenStorageMenu($atim_menu);
-			
 		$this->set('atim_menu', $atim_menu);
 		$this->set('atim_menu_variables', array('StorageMaster.id' => $tma_block_storage_master_id));
 
@@ -77,9 +74,6 @@ class TmaSlidesController extends StoragelayoutAppController {
 		// Inactivate Storage Coordinate Menu (unpossible for TMA type)
 		$atim_menu = $this->Storages->inactivateStorageCoordinateMenu($atim_menu);
 		
-		// Inactivate Children Storage Menu (unpossible for TMA type)
-		$atim_menu = $this->Storages->inactivateChildrenStorageMenu($atim_menu);
-						
 		$this->set('atim_menu', $atim_menu);
 		$this->set('atim_menu_variables', array('StorageMaster.id' => $tma_block_storage_master_id));
 
@@ -186,9 +180,6 @@ class TmaSlidesController extends StoragelayoutAppController {
 		// Inactivate Storage Coordinate Menu (unpossible for TMA type)
 		$atim_menu = $this->Storages->inactivateStorageCoordinateMenu($atim_menu);
 		
-		// Inactivate Children Storage Menu (unpossible for TMA type)
-		$atim_menu = $this->Storages->inactivateChildrenStorageMenu($atim_menu);
-						
 		$this->set('atim_menu', $atim_menu);
 		
 		$atim_menu_variables = array();
@@ -240,9 +231,6 @@ class TmaSlidesController extends StoragelayoutAppController {
 		// Inactivate Storage Coordinate Menu (unpossible for TMA type)
 		$atim_menu = $this->Storages->inactivateStorageCoordinateMenu($atim_menu);
 		
-		// Inactivate Children Storage Menu (unpossible for TMA type)
-		$atim_menu = $this->Storages->inactivateChildrenStorageMenu($atim_menu);
-						
 		$this->set('atim_menu', $atim_menu);
 		
 		$atim_menu_variables = array();

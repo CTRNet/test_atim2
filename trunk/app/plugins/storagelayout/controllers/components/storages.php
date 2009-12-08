@@ -125,31 +125,7 @@ class StoragesComponent extends Object {
 	 function inactivateStorageLayoutMenu($atim_menu) {
  		foreach($atim_menu as $menu_group_id => $menu_group) {
 			foreach($menu_group as $menu_id => $menu_data) {
-				if(strpos($menu_data['Menu']['use_link'], '/storagelayout/storage_masters/seeStorageLayout/') !== false) {
-					$atim_menu[$menu_group_id][$menu_id]['Menu']['allowed'] = 0;
-					return $atim_menu;
-				}
-			}
- 		}	
- 		
- 		return $atim_menu;
-	 }
-	 
-	/**
-	 * Inactivate the children storage menu.
-	 * 
-	 * @param $atim_menu ATiM menu.
-	 * 
-	 * @return Modified ATiM menu.
-	 * 
-	 * @author N. Luc
-	 * @since 2009-08-12
-	 */
-		 
-	 function inactivateChildrenStorageMenu($atim_menu) {
- 		foreach($atim_menu as $menu_group_id => $menu_group) {
-			foreach($menu_group as $menu_id => $menu_data) {
-				if(strpos($menu_data['Menu']['use_link'], '/storagelayout/storage_masters/listChildrenStorages/') !== false) {
+				if(strpos($menu_data['Menu']['use_link'], '/storagelayout/storage_masters/storageLayout/') !== false) {
 					$atim_menu[$menu_group_id][$menu_id]['Menu']['allowed'] = 0;
 					return $atim_menu;
 				}
