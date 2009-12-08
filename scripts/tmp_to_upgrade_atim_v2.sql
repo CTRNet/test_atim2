@@ -14,12 +14,12 @@ VALUES (
 'uses', '', 'Uses', 'Utilisations'
 );
 
-DELETE FROM `atim_new`.`menus` WHERE `menus`.`id` = 'inv_CAN_2232' LIMIT 1;
+DELETE FROM `menus` WHERE `menus`.`id` = 'inv_CAN_2232' LIMIT 1;
 
 UPDATE `structure_formats` SET `flag_override_label` = '1',
 `language_label` = 'Date' WHERE `structure_formats`.`id` =2233 LIMIT 1 ;
 
-DELETE FROM `atim_new`.`menus` WHERE `menus`.`id` = 'inv_CAN_2242' LIMIT 1;
+DELETE FROM `menus` WHERE `menus`.`id` = 'inv_CAN_2242' LIMIT 1;
 
 UPDATE `menus` SET `use_link` = '/inventorymanagement/aliquot_masters/listAllRealiquotedParents/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%/',
 `use_summary`='Inventorymanagement.AliquotMaster::summary'
