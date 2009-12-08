@@ -740,13 +740,13 @@ class StorageMastersController extends StoragelayoutAppController {
 			}
 			
 			//update StorageMaster
-			$this->updateAndSaveDataArray($storage_master_c, "StorageMaster", "parent_storage_coord_x", "parent_storage_coord_y", "parent_id", $data, $this->StorageMaster);
+			$this->updateAndSaveDataArray($storage_master_c, "StorageMaster", "parent_storage_coord_x", "parent_storage_coord_y", "parent_id", $data, $this->StorageMaster, $storage_data['StorageControl']);
 			
 			//Update AliquotMaster
-			$this->updateAndSaveDataArray($aliquot_master_c, "AliquotMaster", "storage_coord_x", "storage_coord_y", "storage_master_id", $data, $this->AliquotMaster);
+			$this->updateAndSaveDataArray($aliquot_master_c, "AliquotMaster", "storage_coord_x", "storage_coord_y", "storage_master_id", $data, $this->AliquotMaster, $storage_data['StorageControl']);
 			
 			//Update TmaSlide
-			$this->updateAndSaveDataArray($tma_slide_c, "TmaSlide", "storage_coord_x", "storage_coord_y", "storage_master_id", $data, $this->TmaSlide);
+			$this->updateAndSaveDataArray($tma_slide_c, "TmaSlide", "storage_coord_x", "storage_coord_y", "storage_master_id", $data, $this->TmaSlide, $storage_data['StorageControl']);
 		}
 					
 		// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -1093,7 +1093,7 @@ class StorageMastersController extends StoragelayoutAppController {
 	 * @param rcv_data The data received from the user
 	 * @param UpdaterObject The object to use to update the data
 	 */
-	function updateAndSaveDataArray(&$data_array, $type, $x_key, $y_key, $storage_parent_key, $rcv_data, $UpdaterObject){
+	function updateAndSaveDataArray(&$data_array, $type, $x_key, $y_key, $storage_parent_key, $rcv_data, $UpdaterObject, $storage_control){
 		for($i = sizeof($data_array) - 1; $i >= 0; -- $i){
 			if(isset($rcv_data[$type]) && isset($rcv_data[$type][$data_array[$i][$type]['id']])){
 				$trash = false;
@@ -1110,8 +1110,8 @@ class StorageMastersController extends StoragelayoutAppController {
 					$data_array[$i][$type][$y_key] = null;
 				}else{
 					//positioned
-					$data_array[$i][$type][$x_key] = ($rcv_data[$type][$data_array[$i][$type]['id']]['x'] == 1 ? null : $rcv_data[$type][$data_array[$i][$type]['id']]['x']); 
-					$data_array[$i][$type][$y_key] = ($rcv_data[$type][$data_array[$i][$type]['id']]['y'] == 1 ? null : $rcv_data[$type][$data_array[$i][$type]['id']]['y']);
+					$data_array[$i][$type][$x_key] = ($storage_control['coord_x_size'] == null && $storage_control['coord_x_type'] != 'list' ? null : $rcv_data[$type][$data_array[$i][$type]['id']]['x']); 
+					$data_array[$i][$type][$y_key] = ($storage_control['coord_y_size'] == null && $storage_control['coord_y_type'] != 'list' ? null : $rcv_data[$type][$data_array[$i][$type]['id']]['y']);
 				}
 				//clean the array asap to gain efficiency
 				unset($rcv_data[$type][$data_array[$i][$type]['id']]);
