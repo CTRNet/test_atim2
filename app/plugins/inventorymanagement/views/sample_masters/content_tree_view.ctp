@@ -82,12 +82,8 @@
 ?>
 								
 <script>
-	function set_at_state_in_tree_root(new_at_li) {
-		var tree_root = document.getElementById("tree_root");
-		var tree_root_lis = tree_root.getElementsByTagName("li");
-		for (var i=0; i<tree_root_lis.length; i++) {
-			tree_root_lis[i].className = false;
-		}
-		new_at_li.parentNode.className = "at";
-	}
+var loadingStr = "<?php echo(__("loading", null)); ?>";
 </script>
+<?php 
+echo $javascript->link('treeViewControl')."\n";
+?>
