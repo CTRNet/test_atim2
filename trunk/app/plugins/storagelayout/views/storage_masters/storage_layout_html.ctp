@@ -77,7 +77,7 @@
 						$display_value = $x_val."-".$y_val;
 					}
 				}
-				echo("<td style='border-style:solid; border-width:1px; min-width: 30px;' class='droppable'>"
+				echo("<td style='border-style:solid; border-width:1px; min-width: 30px; border-color: #000;' class='droppable'>"
 				.'<b>'.$display_value."</b><ul id='cell_".$use_value."' /></td>");
 			}
 			echo("</tr>\n");
@@ -92,14 +92,14 @@
 	</div>
 	</div>
 	<div class="droppable" style="border-style:solid; border-width:1px; display: inline-block; vertical-align: top; margin-left: 10px;">
-		<h4 class="ui-widget-header" style="height: 15px;  padding-right: 5px;">
+		<h4 class="ui-widget-header" style="height: 15px;  padding-right: 5px;  margin-bottom: 5px;">
 			<span class="ui-icon ui-icon-refresh" style="float: left;"></span><?php echo(__("Unclassified", true)); ?>
 		</h4>
 		<ul id="unclassified" style="margin-right: 5px;"></ul>
 		<span id="TrashUnclassified" class="button"><span class="ui-icon ui-icon-close" style="float: left;"></span><?php echo(__("remove all unclassified", true)); ?></span>
 	</div>
 	<div class="droppable" style="border-style:solid; border-width:1px; display: inline-block; vertical-align: top; margin-left: 10px;">
-		<h4 class="ui-widget-header" style="height: 15px; padding-right: 5px;">
+		<h4 class="ui-widget-header" style="height: 15px; padding-right: 5px; margin-bottom: 5px;">
 			<span class="ui-icon ui-icon-close" style="float: left;"></span><?php echo(__("remove", true)); ?>
 		</h4>
 		<ul id="trash" style="margin-right: 5px;"></ul>
@@ -145,6 +145,7 @@
 }
 .handle{
 	cursor: move;
+	vertical-align: top;
 }
 .mycell{
 	padding: 5px;

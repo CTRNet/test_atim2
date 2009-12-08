@@ -9,8 +9,10 @@ window.onload = function(){
 	var jsonOrgItems = eval('(' + orgItems + ')');
 	for(var i = jsonOrgItems.length - 1; i >= 0; -- i){
 		var appendString = "<li class='dragme " + jsonOrgItems[i].type + " { \"id\" : \"" + jsonOrgItems[i].id + "\", \"type\" : \"" + jsonOrgItems[i].type + "\"}'>"
-			+ '<a href="#" title="' + removeString + '" class="ui-icon ui-icon-close" style="float: left;">' + removeString + '</a>'
-			+ '<a href="#" title="' + unclassifyString + '" title="Recycle" class="ui-icon ui-icon-refresh" style="float: left;">' + removeString + '</a>'
+			//+ '<a href="#" title="' + removeString + '" class="ui-icon ui-icon-close" style="float: left;">' + removeString + '</a>'
+			+ '<span class="button small removeItem" title="' + removeString + '"><span class="ui-icon ui-icon-close" style="float: left;"></span></span>'
+			//+ '<a href="#" title="' + unclassifyString + '" title="Recycle" class="ui-icon ui-icon-refresh" style="float: left;">' + removeString + '</a>'
+			+ '<span class="button small recycleItem" title="' + unclassifyString + '"><span class="ui-icon ui-icon-refresh" style="float: left;"></span></span>'
 			+ '<span class="handle">' + jsonOrgItems[i].label + '</span></li>';
 
 		if(jsonOrgItems[i].x.length > 0){
@@ -43,13 +45,13 @@ window.onload = function(){
 	}
 	
 	//bind delete to the close icon
-	elements = $$("a.ui-icon-close");
+	elements = $$(".removeItem");
 	for(var i = elements.length - 1; i >= 0; --i){
 		elements[i].setAttribute('onclick', 'deleteItem(this.parentNode);');
 	}
 	
 	//bind recycle to the refresh icon
-	elements = $$("a.ui-icon-refresh");
+	elements = $$(".recycleItem");
 	for(var i = elements.length - 1; i >= 0; --i){
 		elements[i].setAttribute('onclick', 'recycleItem(this.parentNode);');
 	}
@@ -84,8 +86,8 @@ function moveItem( draggable,droparea){
 		}else if(droparea.childNodes.length >= 3 && droparea.childNodes[3].getAttribute("id") == "unclassified"){
 			recycleItem(draggable);
 		}else{
-			draggable.childNodes[0].setStyle({ display: 'block'});//show trash can
-			draggable.childNodes[1].setStyle({ display: 'block'});//show recycle
+			draggable.childNodes[0].setStyle({ display: 'inline-block'});//show trash can
+			draggable.childNodes[1].setStyle({ display: 'inline-block'});//show recycle
 			draggable.parentNode.removeChild(draggable);
 			var li = Builder.node('li');
 			li.setAttribute('class', draggable.getAttribute('class'));
@@ -108,7 +110,7 @@ function moveItem( draggable,droparea){
 function deleteItem(item) {
 	item.parentNode.removeChild(item);
 	item.childNodes[0].setStyle({ display: 'none'});//hide trash can
-	item.childNodes[1].setStyle({ display: 'block'});//show recycle
+	item.childNodes[1].setStyle({ display: 'inline-block'});//show recycle
 	item.setAttribute('style', 'display: none; position: relative;');
 	$("trash").appendChild(item);
 	item.appear();
@@ -125,7 +127,7 @@ function deleteItem(item) {
  */
 function recycleItem(item) {
 	item.parentNode.removeChild(item);
-	item.childNodes[0].setStyle({ display: 'block'});//show trash can
+	item.childNodes[0].setStyle({ display: 'inline-block'});//show trash can
 	item.childNodes[1].setStyle({ display: 'none'});//hide recycle
 	item.setAttribute('style', 'display: none; position: relative;');
 	$("unclassified").appendChild(item);

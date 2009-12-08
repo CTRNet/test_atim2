@@ -1275,7 +1275,15 @@ table.cake-sql-log th {
 }
 
 .button.large{
-	line-height: 22px;	
+	line-height: 22px;
+}
+.button.small{
+	height: 3px;
+	width: 3px;
+	margin: 0px 2px 0px 2px;
+}
+.button.small .ui-icon{
+	margin: -7px;
 }
 
 .button:hover{
