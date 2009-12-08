@@ -2,25 +2,6 @@
 	<tbody>
 		<tr>
 			<td class="this_column_1 total_columns_1">
-				<ul style="margin-left: 10px;">
-					<li style="display: inline; list-style-type: none;"><b>Legend</b></li>
-					<li class="StorageMaster" style="display: inline; list-style-type: none; margin-left: 10px;"><?php echo(__("storage", true)); ?></li>
-					<li class="AliquotMaster" style="display: inline; list-style-type: none; margin-left: 10px;"><?php echo(__("aliquot", true)); ?></li>
-					<li class="TmaSlide" style="display: inline; list-style-type: none; margin-left: 10px;"><?php echo(__("tma slide", true)); ?></li>
-				</ul>
-
-<?php
-//	$structure_links = array(
-//		'bottom'=>array(
-//			'edit children storage positions' => '/underdevelopment/',
-//			'edit aliquots positions' => '/storagelayout/storage_masters/editAliquotPositionInBatch/' . $atim_menu_variables['StorageMaster.id']
-//		)
-//	);
-//		
-//	$structure_override = array('StorageMaster.code' => 'In Dev');
-//
-//	$structures->build($atim_structure, array('type' => 'detail', 'links' => $structure_links, 'override' => $structure_override));
-?>
 	<div style="border-style:solid; border-width:1px; min-height: 50px; margin: 10px;">
 		<h4 class="ui-widget-header" style="height: 15px;  padding-right: 5px;">
 			<span class="ui-icon ui-icon-calculator" style="float: left;"></span><?php echo(__("storage", true)); ?></h4>
@@ -105,9 +86,9 @@
 ?>
 	</table>
 	<div style="text-align: right;">
-		<button style="margin: 5px;" id="Reset"><span class="ui-icon ui-icon-gear" style="float: left;"></span><?php echo(__("reset", true)); ?></button>
-		<button style="margin: 5px;" id="RecycleStorage"><span class="ui-icon ui-icon-refresh" style="float: left;"></span><?php echo(__("unclassify all storage's items", true)); ?></button>
-		<button style="margin: 5px;" id="TrashStorage"><span class="ui-icon ui-icon-close" style="float: left;"></span><?php echo(__("remove all storage's items", true)); ?></button>
+		<span id="Reset" class="button"><span class="ui-icon ui-icon-gear"></span><?php echo(__("reset", true)); ?></span> 
+		<span id="RecycleStorage" class="button"><span class="ui-icon ui-icon-refresh"></span><?php echo(__("unclassify all storage's items", true)); ?></span>
+		<span id="TrashStorage" class="button"><span class="ui-icon ui-icon-close"></span><?php echo(__("remove all storage's items", true)); ?></span>
 	</div>
 	</div>
 	<div class="droppable" style="border-style:solid; border-width:1px; display: inline-block; vertical-align: top; margin-left: 10px;">
@@ -115,29 +96,45 @@
 			<span class="ui-icon ui-icon-refresh" style="float: left;"></span><?php echo(__("Unclassified", true)); ?>
 		</h4>
 		<ul id="unclassified" style="margin-right: 5px;"></ul>
-		<button style="margin: 10px;" id="TrashUnclassified"><span class="ui-icon ui-icon-close" style="float: left;"></span><?php echo(__("remove all unclassified", true)); ?></button>
+		<span id="TrashUnclassified" class="button"><span class="ui-icon ui-icon-close" style="float: left;"></span><?php echo(__("remove all unclassified", true)); ?></span>
 	</div>
 	<div class="droppable" style="border-style:solid; border-width:1px; display: inline-block; vertical-align: top; margin-left: 10px;">
 		<h4 class="ui-widget-header" style="height: 15px; padding-right: 5px;">
 			<span class="ui-icon ui-icon-close" style="float: left;"></span><?php echo(__("remove", true)); ?>
 		</h4>
 		<ul id="trash" style="margin-right: 5px;"></ul>
-		<button style="margin: 10px;" id="RecycleTrash"><span class="ui-icon ui-icon-refresh" style="float: left;"></span><?php echo(__("unclassify all removed", true)); ?></button>
+		<span id="RecycleTrash" class="button"><span class="ui-icon ui-icon-refresh" style="float: left;"></span><?php echo(__("unclassify all removed", true)); ?></span>
 	</div>
-		
-<div id="debug"></div>
-</td></tr></tbody></table>
-<div class="actions">
-	<form method="post">
-		<input type="hidden" id="data" name="data" value="patate chaude"/>
-		<input type="submit" id="submitButton" style="margin-top: 10px;"/>
+	<div style="border-style:solid; border-width:1px; display: inline-block; vertical-align: top; margin-left: 10px; width: 200px;">
+		<h4 class="ui-widget-header" style="height: 15px; padding-right: 5px;">
+			<?php echo(__("legend", true)); ?>
+		</h4>
+		<ul style="margin-left: 10px;">
+			<li class="StorageMaster" style="list-style-type: none;"><?php echo(__("storage", true)); ?></li>
+			<li class="AliquotMaster" style="list-style-type: none;"><?php echo(__("aliquot", true)); ?></li>
+			<li class="TmaSlide" style="list-style-type: none;"><?php echo(__("tma slide", true)); ?></li>
+		</ul>
+	</div>
+
+	<div style="margin-top: 10px;">
+		<form method="post">
+			<input type="hidden" id="data" name="data" value="patate chaude" />
+			<input id="submitButton" class="submit" type="submit" style="display: none;" value="Submit" /> 
+				<span class="button large"><a id="submit_button_link" onclick="$('submitButton').click();" href="#"><?php echo(__('submit', null)); ?></a></span>
 		<div style="display: inline-block;">
-			<div style="display: none; background-color: transparent;" id="saveWarning">
-				<span class="ui-icon ui-icon-alert" style="float: left;"></span>
-				<span style="color: #ff0000;"><?php echo(__("warning", true).": ".__("the data has been modified", true).". "); echo(" ".__("do not forget to save")."."); //yes, 2 echo, but there is a bug with only one"?></span>
-			</div>
+		<div style="display: none; background-color: transparent;"
+			id="saveWarning">
+			<span class="ui-icon ui-icon-alert" style="float: left;"></span> 
+			<span style="color: #ff0000;"><?php echo(__("warning", true).": ".__("the data has been modified", true).". "); echo(" ".__("do not forget to save")."."); //yes, 2 echo, but there is a bug with only one"?></span>
 		</div>
-	</form>
+		</div>
+		</form>
+	</div>
+	<div id="debug"></div>
+</td></tr></tbody></table>
+
+<div class="actions">
+	
 </div>
 
 <?php echo $html->css('jQuery/themes/ui-lightness/jquery-ui-1.7.2.custom')."\n"; ?>
