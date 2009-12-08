@@ -23,8 +23,10 @@
 	}
 	$structure_override['StorageMaster.parent_id'] = $translated_available_parent_storage_list;
 	
-	if(isset($arr_tma_sops)){
-		$form_override['StorageDetail/sop_master_id'] = $arr_tma_sops;
+	if(isset($arr_tma_sops)){ 
+		$sops_list = array();
+		foreach($arr_tma_sops as $sop_masters) { $sops_list[$sop_masters['SopMaster']['id']] = $sop_masters['SopMaster']['code']; }
+		$structure_override['StorageDetail.sop_master_id'] = $sops_list; 
 	}
 	
 	$final_atim_structure = $atim_structure; 

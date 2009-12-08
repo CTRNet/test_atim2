@@ -7,7 +7,9 @@
 
 	$structure_override = array();
 		
-	$structure_override['TmaSlide.sop_master_id'] = $arr_tma_slide_sops;
+	$sops_list = array();
+	foreach($arr_tma_slide_sops as $sop_masters) { $sops_list[$sop_masters['SopMaster']['id']] = $sop_masters['SopMaster']['code']; }
+	$structure_override['TmaSlide.sop_master_id'] = $sops_list; 
 		
 	$translated_matching_storage_list = array();
 	foreach ($matching_storage_list as $storage_id => $storage_data) {

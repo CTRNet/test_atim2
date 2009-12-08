@@ -92,7 +92,6 @@ class StorageMastersController extends StoragelayoutAppController {
 		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') == 0) {
 			// TMA menu
 			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/detail/%%StorageMaster.id%%/0/TMA');
-			$atim_menu = $this->Storages->inactivateChildrenStorageMenu($atim_menu);
 			$is_tma = true;
 		} else {
 			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/detail/%%StorageMaster.id%%');
@@ -307,7 +306,6 @@ class StorageMastersController extends StoragelayoutAppController {
 		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') == 0) {
 			// TMA menu
 			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/detail/%%StorageMaster.id%%/0/TMA');
-			$atim_menu = $this->Storages->inactivateChildrenStorageMenu($atim_menu);
 		} else {
 			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/detail/%%StorageMaster.id%%');
 		}
@@ -389,7 +387,7 @@ class StorageMastersController extends StoragelayoutAppController {
 			if( $hook_link ) { require($hook_link); }		
 			
 			if($submitted_data_validates) {
-				
+								
 				$this->StorageMaster->set($this->data);	
 				if($this->StorageMaster->validates()) {
 				
@@ -475,7 +473,6 @@ class StorageMastersController extends StoragelayoutAppController {
 		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') == 0) {
 			// TMA menu
 			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/detail/%%StorageMaster.id%%/0/TMA');
-			$atim_menu = $this->Storages->inactivateChildrenStorageMenu($atim_menu);
 		} else {
 			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/detail/%%StorageMaster.id%%');
 		}
@@ -570,15 +567,19 @@ class StorageMastersController extends StoragelayoutAppController {
 			$this->StorageMaster->save($cleaned_storage_data);
 			
 			// Create has many relation to delete the storage coordinate
-			$this->StorageMaster->bindModel(array('hasMany' => array('StorageCoordinate' => array('className' => 'StorageCoordinate', 'foreignKey' => 'storage_master_id', 'dependent' => true))));	
-			
+			$this->StorageMaster->bindModel(array('hasMany' => array('StorageCoordinate' => array('className' => 'StorageCoordinate', 'foreignKey' => 'storage_master_id', 'dependent' => true))), false);	
+
 			// Delete storage
+			$message = '';
 			if($this->StorageMaster->atim_delete($storage_master_id, true)) {
-				$this->flash('your data has been deleted', '/storagelayout/storage_masters/index/');
+				$message = 'your data has been deleted';
 			} else {
-				$this->flash('error deleting data - contact administrator', '/storagelayout/storage_masters/index/');
-			}		
-		
+				$message = 'error deleting data - contact administrator';
+			}
+			
+			$this->StorageMaster->bindModel(array('hasMany' => array('StorageCoordinate')), false);
+			$this->flash($message, '/storagelayout/storage_masters/index/');		
+			
 		} else {
 			$this->flash($arr_allow_deletion['msg'], '/storagelayout/storage_masters/detail/' . $storage_master_id);
 		}		
@@ -617,7 +618,7 @@ class StorageMastersController extends StoragelayoutAppController {
 			// Check storage supports custom coordinates and disable access to coordinates menu option if required
 			$atim_menu = $this->Storages->inactivateStorageCoordinateMenu($atim_menu);
 		}
-					
+						
 		if(empty($storage_data['StorageControl']['coord_x_type'])) {
 			// Check storage supports coordinates and disable access to storage layout menu option if required
 			$atim_menu = $this->Storages->inactivateStorageLayoutMenu($atim_menu);
