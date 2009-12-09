@@ -26,7 +26,7 @@ class StructuresHelper extends Helper {
 	function build( $atim_structure=array(), $options=array() ) {
 		
 		$return_string = ''; 
-		
+
 		// DEFAULT set of options, overridden by PASSED options
 		$defaults = array(
 			'type'		=>	$this->params['action'], // defaults to ACTION
@@ -104,6 +104,12 @@ class StructuresHelper extends Helper {
 						<fieldset>
 				';
 			}
+		}
+		
+		if(isset($options['settings']['header'])){
+			$return_string .= '<table class="structure" cellspacing="0">
+				<tbody><tr><th style="text-align: left; padding-left: 10px; padding-right: 10px;"><hr/>'.$options['settings']['header'].'</th></tr>
+				</tbody></table>';
 		}
 		
 		// run specific TYPE function to build structure

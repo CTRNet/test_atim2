@@ -70,25 +70,29 @@
 	}	
 	$structure_override['AliquotDetail.gel_matrix_aliquot_master_id'] = $gel_matrices_list;	
 
-	$hook_link = $structures->hook();
-	if($hook_link){
-		require($hook_link); 
-	}
+	$final_atim_structure = $atim_structure;
 	
 	if($is_tree_view_detail_form){
-		
-		$structures->build($atim_structure, array('links'=>$structure_links, 'override' => $structure_override));
+		$final_options = array('links'=>$structure_links, 'override' => $structure_override);
+
+		$hook_link = $structures->hook();
+		if($hook_link){
+			require($hook_link);
+		}
+
+		$structures->build($final_atim_structure, $final_options);
 	}else{
-		$structures->build($atim_structure, array('links'=>$structure_links, 'override' => $structure_override, 'settings' => array('actions' => false)));
-		?>
-		<table class="structure" cellspacing="0">
-			<tbody><tr><th style='text-align: left; padding-left: 10px; padding-right: 10px;'><hr/><?php echo(__('uses', null)); ?></th></tr>
-		</tbody></table>
-		<?php
+		$final_options = array('links'=>$structure_links, 'override' => $structure_override, 'settings' => array('actions' => false));
+		$structures->build($final_atim_structure, $final_options);
+		
+		$final_atim_structure = $aliquots_uses_structure;
+		$final_options = array('data' => $aliquots_uses_data, 'type' => 'index', 'links'=>$structure_links, 'settings' => array('header' => __('uses', null)));
+
 		$hook_link = $structures->hook('uses');
 		if($hook_link){
 			require($hook_link); 
+		
 		}
-		$structures->build($aliquots_uses_structure, array('data' => $aliquots_uses_data, 'type' => 'index', 'links'=>$structure_links));
+		$structures->build($final_atim_structure, $final_options);
 	}
 ?>

@@ -25,15 +25,8 @@
 		
 	// BUILD FORM
 	$structures->build( $final_atim_structure, $final_options );	
-?>
-
-	<table class="structure" cellspacing="0">
-		<tbody><tr><th style='text-align: left; padding-left: 10px; padding-right: 10px;'><hr/><?php echo(__('tested aliquots', null)); ?></th></tr>
-	</tbody></table>
-
-<?php
 	$final_atim_structure = $quality_ctrl_structure; 
-	$final_options = array('type' => 'index', 'data' => $quality_ctrl_data, 'links' => $structure_links);
+	$final_options = array('type' => 'index', 'data' => $quality_ctrl_data, 'links' => $structure_links, 'settings' => array('header' => __('tested aliquots', null)));
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook('tested_aliquots');
