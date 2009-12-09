@@ -1,5 +1,4 @@
 <?php
-
 	$structure_links = array(
 		'index'=>array(
 			'detail'=>'/inventorymanagement/aliquot_masters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%',
@@ -17,19 +16,29 @@
 		)
 	);
 	
+	$final_atim_structure = $atim_structure; 
+	$final_options = array('settings' => array('actions' => false));
+	
+	// CUSTOM CODE
 	$hook_link = $structures->hook();
-	if($hook_link){
-		require($hook_link); 
-	}
-	$structures->build( $atim_structure, array('settings' => array('actions' => false)) );
-	?>
+	if( $hook_link ) { require($hook_link); }
+		
+	// BUILD FORM
+	$structures->build( $final_atim_structure, $final_options );	
+?>
+
 	<table class="structure" cellspacing="0">
 		<tbody><tr><th style='text-align: left; padding-left: 10px; padding-right: 10px;'><hr/><?php echo(__('tested aliquots', null)); ?></th></tr>
 	</tbody></table>
-	<?php
-	$hook_link = $structures->hook('tested aliquots');
-	if($hook_link){
-		require($hook_link); 
-	}
-	$structures->build( $quality_ctrl_structure, array('type' => 'index', 'data' => $quality_ctrl_data, 'links' => $structure_links) );
+
+<?php
+	$final_atim_structure = $quality_ctrl_structure; 
+	$final_options = array('type' => 'index', 'data' => $quality_ctrl_data, 'links' => $structure_links);
+	
+	// CUSTOM CODE
+	$hook_link = $structures->hook('tested_aliquots');
+	if( $hook_link ) { require($hook_link); }
+		
+	// BUILD FORM
+	$structures->build( $final_atim_structure, $final_options );
 ?>
