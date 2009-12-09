@@ -1,9 +1,5 @@
-
+<?php
 	
-	<table class="structure" cellspacing="0">
-			<tbody><tr><th style='text-align: left; padding-left: 10px;'>Collection</th></tr>
-	</tbody></table>
-	<?php 
 	$structure_links = array(
 		'top'=> '/clinicalannotation/clinical_collection_links/add/'.$atim_menu_variables['Participant.id'].'/',
 		'radiolist' => array(
@@ -15,7 +11,8 @@
 		'form_bottom'=>false, 
 		'form_inputs'=>false,
 		'actions'=>false,
-		'pagination'=>false
+		'pagination'=>false,
+		'header' => __('collection', null)
 	);
 	if(sizeof($collection_data) == 0){
 		$doNotPrintSubmit = true;
