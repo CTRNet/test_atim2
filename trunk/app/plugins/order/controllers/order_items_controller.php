@@ -12,7 +12,7 @@ class OrderItemsController extends OrderAppController {
 	var $paginate = array('OrderItem'=>array('limit'=>'10','order'=>'AliquotMaster.barcode'));
 	
 	function listall( $order_id, $order_line_id ) {
-		//todo: add delete button on each line
+		//TODO: add delete button on each line
   		if (( !$order_id ) || ( !$order_line_id )) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
 
 		$order_line_data = $this->OrderLine->find('first',array('conditions'=>array('OrderLine.id'=>$order_line_id, 'OrderLine.order_id'=>$order_id)));
@@ -36,18 +36,22 @@ class OrderItemsController extends OrderAppController {
 	function add( $order_id, $order_line_id, $aliquot_master_id = null ) {
 //		my function (aliquot->addToOrder) must call this add
 //		orderItemShipmentId
-		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', null, true ); }
-		if ( !$order_line_id ) { $this->redirect( '/pages/err_ord_no_line_id', null, true ); }
+		if (( !$order_id ) || ( !$order_line_id )) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
+		
 		$tmp = $this->OrderLine->find('first', array('conditions' => array('OrderLine.id' => $order_line_id, 'Order.id' => $order_id, 'OrderLine.deleted' => '0')));
 		if(empty($tmp)){
 			$this->redirect( '/pages/err_order_no_data', null, true );
 		}
+		
+		$this->set( 'atim_menu', $this->Menus->get('/order/order_items/listall/%%Order.id%%/%%OrderLine.id%%/'));
+		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'OrderLine.id'=>$order_line_id));
 		
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { 
 			require($hook_link); 
 		}
 		
+		//TODO check second condition
 		if(!empty($this->data) || $aliquot_master_id != null){
 			if($aliquot_master_id == null){
 				$aliquot_master = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.barcode' => $this->data['AliquotMaster']['barcode'], 'AliquotMaster.deleted' => '0', 'AliquotMaster.status' => 'available')));
@@ -57,40 +61,47 @@ class OrderItemsController extends OrderAppController {
 			if(empty($aliquot_master)){
 				$this->AliquotMaster->validationErrors["barcode"] = __("invalid barcode", true);
 			}else{
+				$this->data['OrderItem']['status'] = 'pending';
+				$this->data['OrderItem']['order_line_id'] = $order_line_id;
+				$this->data['OrderItem']['aliquot_master_id'] = $aliquot_master['AliquotMaster']['id'];
+				
+				unset($this->data['AliquotMaster']);
+				
+				$order_line = $this->OrderLine->find('first', array('conditions' => array('OrderLine.id' => $order_line_id), 'recursive' => 0));
+				$order_line['OrderLine']['status'] = 'pending';
+				
+				$aliquot_master['AliquotMaster']['status'] = 'reserved for order';
+					
 				$submitted_data_validates = true;
+				
 				$hook_link = $this->hook('presave_process');
 				if( $hook_link ) { 
 					require($hook_link); 
 				}
 
-				$this->data['OrderItem']['status'] = 'pending';
-				$this->data['OrderItem']['order_line_id'] = $order_line_id;
-				$this->data['OrderItem']['aliquot_master_id'] = $aliquot_master['AliquotMaster']['id'];
-				unset($this->data['AliquotMaster']);
-				$order_line = $this->OrderLine->find('first', array('conditions' => array('OrderLine.id' => $order_line_id), 'recursive' => 0));
-				$order_line['OrderLine']['status'] = 'pending';
-				pr($order_line);
 				if($submitted_data_validates){
 					$this->OrderItem->save($this->data);
 					$this->OrderLine->save($order_line);
-					$aliquot_master['AliquotMaster']['status'] = 'reserved for order';
 					$this->AliquotMaster->save($aliquot_master);
-					$this->flash('Your data has been saved.', '/order/order_items/listall/'.$order_id.'/'.$order_line_id.'/');
+					$this->flash('your data has been saved', '/order/order_items/listall/'.$order_id.'/'.$order_line_id.'/');
 				}
 			}
 		}
-		
-		$this->set( 'atim_menu', $this->Menus->get('/order/order_items/listall/%%Order.id%%/%%OrderLine.id%%/'));
-		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'OrderLine.id'=>$order_line_id));
-		
-		
 	}
 	
 	function edit( $order_id, $order_line_id ) {
 		//added by and added date (only editable fields)
-		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', null, true ); }
-		if ( !$order_line_id ) { $this->redirect( '/pages/err_ord_no_line_id', null, true ); }
+		if (( !$order_id ) || ( !$order_line_id )) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
 
+		$this->set( 'atim_menu', $this->Menus->get('/order/order_items/listall/%%Order.id%%/%%OrderLine.id%%/'));
+		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'OrderLine.id'=>$order_line_id) );
+		
+		//TODO validate why paginate
+		
+		//TODO: stopped at this level NL 20091208
+		//Miss sample master aliquot master quality control and shipment
+		$this->data = $this->paginate($this->OrderItem, array('OrderItem.order_line_id' => $order_line_id, 'OrderItem.status' => 'pending'));
+		
 		$hook_link = $this->hook('format');
 		if($hook_link){
 			require($hook_link);
@@ -125,18 +136,13 @@ class OrderItemsController extends OrderAppController {
 				}
 			}
 		}
-
-		$this->set( 'atim_menu', $this->Menus->get('/order/order_items/listall/%%Order.id%%/%%OrderLine.id%%/'));
-		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'OrderLine.id'=>$order_line_id) );
-		
-		$this->data = $this->paginate($this->OrderItem, array('OrderItem.order_line_id' => $order_line_id, 'OrderItem.status' => 'pending'));
 	}
 	
 	function detail( $order_id, $order_line_id, $order_item_id ) {
 		//TODO: will require structure override
-		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', null, true ); }
-		if ( !$order_line_id ) { $this->redirect( '/pages/err_ord_no_line_id', null, true ); }
-		if ( !$order_item_id ) { $this->redirect( '/pages/err_ord_no_item_id', null, true ); }
+		if ( !$order_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
+		if ( !$order_line_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
+		if ( !$order_item_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
 		
 		$this->set( 'atim_menu', $this->Menus->get('/order/order_items/listall/%%Order.id%%/%%OrderLine.id%%/'));
 		
@@ -152,9 +158,9 @@ class OrderItemsController extends OrderAppController {
 	
 	
 	function delete( $order_id, $order_line_id, $order_item_id ) {
-		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', null, true ); }
-		if ( !$order_line_id ) { $this->redirect( '/pages/err_ord_no_line_id', null, true ); }
-		if ( !$order_item_id ) { $this->redirect( '/pages/err_ord_no_item_id', null, true ); }
+		if ( !$order_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
+		if ( !$order_line_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
+		if ( !$order_item_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
 		
 		$tmp = $this->OrderItem->find('first', array('conditions' => array('OrderItem.id' => $order_item_id, 'OrderLine.id' => $order_line_id, 'OrderLine.deleted' => '0')));
 		if($tmp['Shipment']['id'] == ""){
@@ -177,7 +183,7 @@ class OrderItemsController extends OrderAppController {
 				}
 				$this->AliquotMaster->save($aliquot_master);
 				$this->OrderItem->atim_delete( $order_item_id );
-				$this->flash( 'Your data has been deleted.', '/order/order_items/listall/'.$order_id.'/'.$order_line_id );
+				$this->flash( 'your data has been deleted', '/order/order_items/listall/'.$order_id.'/'.$order_line_id );
 			}
 		}else{
 			$this->flash( "This item cannot be deleted because it was already shipped.", '/order/order_items/listall/'.$order_id.'/'.$order_line_id );

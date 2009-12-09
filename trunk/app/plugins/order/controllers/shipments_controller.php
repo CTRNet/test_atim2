@@ -6,7 +6,7 @@ class ShipmentsController extends OrderAppController {
 	var $paginate = array('Shipment'=>array('limit'=>10,'order'=>'Shipment.shipment_code'));
 	
 	function listall( $order_id=null ) {
-		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', null, true ); }
+		if ( !$order_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
 		$this->set('atim_menu', $this->Menus->get('/order/shipments/listall'));
 		if ( !$order_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', null, true ); }
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id));
@@ -19,7 +19,7 @@ class ShipmentsController extends OrderAppController {
 	}
 
 	function add( $order_id=null ) {
- 		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', null, true ); }
+ 		if ( !$order_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
 		$this->set('atim_menu', $this->Menus->get('/order/shipments/listall'));
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id));
 		
@@ -43,8 +43,8 @@ class ShipmentsController extends OrderAppController {
 	}
   
 	function edit( $order_id=null, $shipment_id=null ) {
- 		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', null, true ); }
-		if ( !$shipment_id ) { $this->redirect( '/pages/err_ord_no_ship_id', null, true ); }
+ 		if ( !$order_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
+		if ( !$shipment_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
 		
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'Shipment.id'=>$shipment_id) );
 		
@@ -70,8 +70,8 @@ class ShipmentsController extends OrderAppController {
 	}
   
 	function detail( $order_id=null, $shipment_id=null ) {
-		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', null, true ); }
-		if ( !$shipment_id ) { $this->redirect( '/pages/err_ord_no_ship_id', null, true ); }
+		if ( !$order_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
+		if ( !$shipment_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
 		
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'Shipment.id'=>$shipment_id) );
 		$this->data = $this->Shipment->find('first',array('conditions'=>array('Shipment.id'=>$shipment_id)));
@@ -83,8 +83,8 @@ class ShipmentsController extends OrderAppController {
 	}
   
 	function delete( $order_id=null, $shipment_id=null ) {
-  		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', null, true ); }
-		if ( !$shipment_id ) { $this->redirect( '/pages/err_ord_no_ship_id', null, true ); }
+  		if ( !$order_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
+		if ( !$shipment_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
 		
 		$submitted_data_validates = true;
 		$hook_link = $this->hook('delete');
@@ -94,16 +94,16 @@ class ShipmentsController extends OrderAppController {
 		
 		
 		if($submitted_data_validates &&  $this->Shipment->atim_delete( $shipment_id ) ) {
-			$this->flash( 'Your data has been deleted.', '/order/shipments/listall/'.$order_id );
+			$this->flash( 'your data has been deleted', '/order/shipments/listall/'.$order_id );
 		} else {
-			$this->flash( 'Error deleting data - Contact administrator.', '/order/shipments/listall/'.$order_id );
+			$this->flash( 'error deleting data - contact administrator', '/order/shipments/listall/'.$order_id );
 		}
 	}
 	
 	function deleteFromShipment($order_id, $order_item_id, $shipment_id){
-		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', null, true ); }
-		if ( !$order_item_id ) { $this->redirect( '/pages/err_ord_no_order_item_id', null, true ); }
-		if ( !$shipment_id ) { $this->redirect( '/pages/err_ord_no_ship_id', null, true ); }
+		if ( !$order_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
+		if ( !$order_item_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
+		if ( !$shipment_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
 		
 		$order_item = $this->OrderItem->find('first', array('conditions' => array('OrderItem.id' => $order_item_id, 'OrderLine.order_id' => $order_id)));
 		
@@ -126,7 +126,7 @@ class ShipmentsController extends OrderAppController {
 				$this->OrderLine->save($order_line);
 				
 				$this->OrderItem->save($order_item, false);//no validation because we just want to set the shipment_id to null and that is forbidden
-				$this->flash('Your data has been deleted.', '/order/shipments/shipmentItems/'.$order_id.'/'.$shipment_id.'/');
+				$this->flash('your data has been deleted', '/order/shipments/shipmentItems/'.$order_id.'/'.$shipment_id.'/');
 			}
 		}else{
 			$this->flash('Invalid deleted.', '/order/shipments/shipmentItems/'.$order_id.'/'.$shipment_id.'/');
@@ -134,8 +134,8 @@ class ShipmentsController extends OrderAppController {
 	}
 	
 	function addToShipment($order_id, $shipment_id){
-		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', null, true ); }
-		if ( !$shipment_id ) { $this->redirect( '/pages/err_ord_no_shipment_id', null, true ); }
+		if ( !$order_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
+		if ( !$shipment_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
 		
 		$hook_link = $this->hook('format');
 		if($hook_link){
@@ -175,7 +175,7 @@ class ShipmentsController extends OrderAppController {
 						$this->OrderLine->save($order_line);
 					}
 				}
-				$this->flash('Your data has been saved.', '/order/shipments/shipmentItems/'.$order_id.'/'.$shipment_id.'/');
+				$this->flash('your data has been saved', '/order/shipments/shipmentItems/'.$order_id.'/'.$shipment_id.'/');
 			}
 		}else{
 			$this->set('atim_menu_variables', array('Order.id' => $order_id, 'Shipment.id' => $shipment_id));
@@ -185,8 +185,8 @@ class ShipmentsController extends OrderAppController {
 	}
 	
 	function shipmentItems ( $order_id, $shipment_id ){
-		if ( !$order_id ) { $this->redirect( '/pages/err_ord_no_order_id', null, true ); }
-		if ( !$shipment_id ) { $this->redirect( 'pages/err_ord_no_ship_id', null, true ); }
+		if ( !$order_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
+		if ( !$shipment_id ) { $this->redirect( 'pages/err_order_funct_param_missing', null, true ); }
 		
 		$this->set('atim_menu', $this->Menus->get('/order/shipments/shipmentItems/%%Order.id%%/%%Shipment.id%%/'));
 		

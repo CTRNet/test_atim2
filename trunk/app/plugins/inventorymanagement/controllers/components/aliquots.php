@@ -22,11 +22,11 @@ class AliquotsComponent extends Object {
 	 */
 	 
 	function updateAliquotCurrentVolume($aliquot_master_id){
-		if(empty($aliquot_master_id)) { $this->controller->redirect('/pages/err_inv_aliquot_no_id', null, true); }
+		if(empty($aliquot_master_id)) { $this->controller->redirect('/pages/err_inv_funct_param_missing', null, true); }
 		
 		$aliquot_data = $this->controller->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.id' => $aliquot_master_id)));
 		
-		if(empty($aliquot_data)) { $this->controller->redirect('/pages/err_inv_aliquot_no_data', null, true); }
+		if(empty($aliquot_data)) { $this->controller->redirect('/pages/err_inv_no_data', null, true); }
 				
 		$initial_volume = $aliquot_data['AliquotMaster']['initial_volume'];
 		$current_volume = $aliquot_data['AliquotMaster']['current_volume'];

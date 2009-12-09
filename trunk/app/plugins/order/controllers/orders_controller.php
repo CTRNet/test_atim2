@@ -55,14 +55,15 @@ class OrdersController extends OrderAppController {
 		if($hook_link){
 			require($hook_link);
 		}
-	
 		
 		if ( !empty($this->data) ) {
 			$submitted_data_validates = true;
+
 			$hook_link = $this->hook('presave_process');
 			if($hook_link){
 				require($hook_link);
 			}
+
 			if ($submitted_data_validates && $this->Order->save($this->data) ) {
 				$this->flash( 'your data has been saved','/order/orders/detail/'.$this->Order->id );
 			}
@@ -103,20 +104,24 @@ class OrdersController extends OrderAppController {
 		if($hook_link){
 			require($hook_link);
 		}
-		
-		if ( !empty($this->data) ) {
-			$this->Order->id = $order_id;
-			
+				
+		if ( empty($this->data) ) {
+			$this->data = $order_data;		
+
+		} else {			
 			$submitted_data_validates = true;
+			
 			$hook_link = $this->hook('presave_process');
 			if($hook_link){
 				require($hook_link);
 			}
-			if ($submitted_data_validates && $this->Order->save($this->data) ) {
-				$this->flash( 'your data has been updated','/order/orders/detail/'.$order_id );
+			
+			if($submitted_data_validates) {
+				$this->Order->id = $order_id;
+				if ($this->Order->save($this->data) ) {
+					$this->flash( 'your data has been updated','/order/orders/detail/'.$order_id );
+				}							
 			}
-		} else {
-			$this->data = $order_data;
 		}
 	}
   
@@ -129,14 +134,13 @@ class OrdersController extends OrderAppController {
 		// Check deletion is allowed
 		$arr_allow_deletion = $this->allowOrderDeletion($order_id);
 			
+		// CUSTOM CODE
+				
+		$hook_link = $this->hook('delete');
+		if( $hook_link ) { require($hook_link); }		
+		
 		if($arr_allow_deletion['allow_deletion']) {
-			$submitted_data_validates = true;
-			$hook_link = $this->hook('delete');
-			if($hook_link){
-				require($hook_link);
-			}
-			
-			if($submitted_data_validates && $this->Order->atim_delete($order_id)) {
+			if($this->Order->atim_delete($order_id)) {
 				$this->flash('your data has been deleted', '/order/orders/index/');
 			} else {
 				$this->flash('error deleting data - contact administrator', '/order/orders/index/');

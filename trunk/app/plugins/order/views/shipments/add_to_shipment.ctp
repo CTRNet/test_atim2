@@ -11,5 +11,13 @@
 		'pagination' => false
 	);
 	
-	$structures->build( $atim_structure, array('type'=>'checklist','links'=>$structure_links, 'settings' => $structure_settings) );
+	$final_atim_structure = $atim_structure; 
+	$final_options = array('type'=>'checklist','links'=>$structure_links, 'settings' => $structure_settings);
+	
+	// CUSTOM CODE
+	$hook_link = $structures->hook();
+	if( $hook_link ) { require($hook_link); }
+		
+	// BUILD FORM
+	$structures->build( $final_atim_structure, $final_options );
 ?>
