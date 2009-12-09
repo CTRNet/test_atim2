@@ -17,7 +17,7 @@
 //TODO tissue_source
 			
 	$final_atim_structure = $atim_structure; 
-	$final_options = array('type'=>'index','links'=>$structure_links, 'override' => $structure_override));
+	$final_options = array('type'=>'index','links'=>$structure_links, 'override' => $structure_override);
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook();
