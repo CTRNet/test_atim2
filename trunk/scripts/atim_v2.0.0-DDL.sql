@@ -3712,6 +3712,8 @@ CREATE TABLE `sd_der_cystic_fl_cells_revs` (
 CREATE TABLE `sd_spe_pericardial_fluids` (
   `id` int(11) NOT NULL auto_increment,
   `sample_master_id` int(11) default NULL,
+  `collected_volume` decimal(10,5) default NULL,
+  `collected_volume_unit` varchar(20) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
@@ -3724,6 +3726,8 @@ CREATE TABLE `sd_spe_pericardial_fluids` (
 CREATE TABLE `sd_spe_pericardial_fluids_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) default NULL,
+  `collected_volume` decimal(10,5) default NULL,
+  `collected_volume_unit` varchar(20) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
@@ -3802,6 +3806,8 @@ CREATE TABLE `sd_der_pericardial_fl_sups_revs` (
 CREATE TABLE `sd_spe_pleural_fluids` (
   `id` int(11) NOT NULL auto_increment,
   `sample_master_id` int(11) default NULL,
+  `collected_volume` decimal(10,5) default NULL,
+  `collected_volume_unit` varchar(20) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
@@ -3814,6 +3820,8 @@ CREATE TABLE `sd_spe_pleural_fluids` (
 CREATE TABLE `sd_spe_pleural_fluids_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) default NULL,
+  `collected_volume` decimal(10,5) default NULL,
+  `collected_volume_unit` varchar(20) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime default NULL,
@@ -4162,7 +4170,7 @@ CREATE TABLE `sd_spe_peritoneal_washes_revs` (
 CREATE TABLE `sd_spe_tissues` (
   `id` int(11) NOT NULL auto_increment,
   `sample_master_id` int(11) default NULL,
-  `tissue_source` varchar(20) default NULL,
+  `tissue_source` varchar(50) default NULL,
   `tissue_nature` varchar(15) default NULL,
   `tissue_laterality` varchar(10) default NULL,
   `pathology_reception_datetime` datetime default NULL,
@@ -4180,7 +4188,7 @@ CREATE TABLE `sd_spe_tissues` (
 CREATE TABLE `sd_spe_tissues_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) default NULL,
-  `tissue_source` varchar(20) default NULL,
+  `tissue_source` varchar(50) default NULL,
   `tissue_nature` varchar(15) default NULL,
   `tissue_laterality` varchar(10) default NULL,
   `pathology_reception_datetime` datetime default NULL,

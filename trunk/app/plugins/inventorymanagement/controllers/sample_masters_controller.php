@@ -22,15 +22,15 @@ class SampleMastersController extends InventorymanagementAppController {
 		'Inventorymanagement.PathCollectionReview',
 		'Inventorymanagement.ReviewMaster',
 		
-		'Inventorymanagement.SampleToAliquotControl');
+		'Inventorymanagement.SampleToAliquotControl',
+		
+		'Inventorymanagement.IcdTenCode');
 	
 	var $paginate = array('SampleMaster' => array('limit' => 10, 'order' => 'SampleMaster.sample_code DESC'));
 
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS
 	 * -------------------------------------------------------------------------- */
-
-//TODO: review sample list into global lookup
 
 //TODO: change ',' to '.' for SampleDetail  	  	collected_volume 	pellet_volume
 	
@@ -257,6 +257,11 @@ class SampleMastersController extends InventorymanagementAppController {
 										
 						$specific_form_alias = $sample_control_data['SampleControl']['form_alias'];
 						$specific_menu_variables['SampleTypeForFilter'] = $sample_control_data['SampleControl']['sample_type'];
+						
+						// Set list of tissue sources
+						if($sample_control_data['SampleControl']['sample_type'] == 'tissue') {
+							$this->set('arr_tissue_sources', $this->getTissueSourceList());
+						}
 						break;
 						
 					default:
@@ -333,11 +338,9 @@ class SampleMastersController extends InventorymanagementAppController {
 
 		// MANAGE DATA
 		
-		
-		
 		// Search data to display
 		$this->setSampleSearchData(array_merge(array('SampleMaster.collection_id' => $collection_id), $specific_sample_search_criteria));
-		
+
 		// MANAGE FORM, MENU AND ACTION BUTTONS	
 		$form_alias = (is_null($specific_form_alias))? 'samplemasters': $specific_form_alias;
 		$this->Structures->set($form_alias);		
@@ -421,6 +424,11 @@ class SampleMastersController extends InventorymanagementAppController {
 		// Set list of available SOPs to create sample
 		$this->set('arr_sample_sops', $this->getSampleSopList($sample_data['SampleMaster']['sample_type']));	
 		
+		// Set list of tissue sources
+		if($sample_data['SampleControl']['sample_type'] == 'tissue') {
+			$this->set('arr_tissue_sources', $this->getTissueSourceList());
+		}
+	
 		// Calulate spent time between specimen collection and derivative creation
 		$arr_spent_time = null;
 		if(isset($sample_data['DerivativeDetail'])) {
@@ -470,7 +478,7 @@ class SampleMastersController extends InventorymanagementAppController {
 
 	function add($collection_id, $sample_control_id, $parent_sample_master_id = null) {
 		if((!$collection_id) || (!$sample_control_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }		
-//TODO calendar not display for reception date		
+			
 		// MANAGE DATA
 		
 		$bool_is_specimen = null;
@@ -517,6 +525,11 @@ class SampleMastersController extends InventorymanagementAppController {
 		// Set list of available SOPs to create sample
 		$this->set('arr_sample_sops', $this->getSampleSopList($sample_control_data['SampleControl']['sample_type']));
 		
+		// Set list of tissue sources
+		if($sample_control_data['SampleControl']['sample_type'] == 'tissue') {
+			$this->set('arr_tissue_sources', $this->getTissueSourceList());
+		}
+	
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Set menu
@@ -532,7 +545,10 @@ class SampleMastersController extends InventorymanagementAppController {
 		//TODO validates could be hidden
 		$this->Structures->set($sample_control_data['SampleControl']['form_alias']);
 		
-			
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link);
+		}	
 		
 		// MANAGE DATA RECORD
 		if(!empty($this->data)) {
@@ -554,11 +570,10 @@ class SampleMastersController extends InventorymanagementAppController {
 				$this->data['SampleMaster']['initial_specimen_sample_type'] = $parent_sample_data['SampleMaster']['initial_specimen_sample_type'];
 				$this->data['SampleMaster']['initial_specimen_sample_id'] = $parent_sample_data['SampleMaster']['initial_specimen_sample_id'];
 			}
-			$hook_link = $this->hook('format');
-			if($hook_link){
-				require($hook_link);
-			}
-				
+  	  			  	
+			// Replace ',' to '.' for volume
+			if(isset($this->data['SampleDetail']['collected_volume'])) { $this->data['SampleDetail']['collected_volume'] = str_replace(',', '.', $this->data['SampleDetail']['collected_volume']); }				
+			if(isset($this->data['SampleDetail']['pellet_volume'])) { $this->data['SampleDetail']['pellet_volume'] = str_replace(',', '.', $this->data['SampleDetail']['pellet_volume']); }				
 			
 			// Validates data
 			
@@ -660,6 +675,11 @@ class SampleMastersController extends InventorymanagementAppController {
 
 		// Set list of available SOPs to create sample
 		$this->set('arr_sample_sops', $this->getSampleSopList($sample_data['SampleMaster']['sample_type']));	
+		
+		// Set list of tissue sources
+		if($sample_data['SampleMaster']['sample_type'] == 'tissue') {
+			$this->set('arr_tissue_sources', $this->getTissueSourceList());
+		}
 	
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -674,14 +694,13 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 		// MANAGE DATA RECORD
 		
-		
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link);
+		}
 		
 		if(empty($this->data)) {
 			$this->data = $sample_data;
-			$hook_link = $this->hook('format');
-			if($hook_link){
-				require($hook_link);
-			}
 
 		} else {
 			$hook_link = $this->hook('format');
@@ -691,7 +710,11 @@ class SampleMastersController extends InventorymanagementAppController {
 				
 			//Update data	
 			if(isset($this->data['SampleMaster']['parent_id']) && ($sample_data['SampleMaster']['parent_id'] !== $this->data['SampleMaster']['parent_id'])) { $this->redirect('/pages/err_inv_system_error', null, true); }
-			
+
+			// Replace ',' to '.' for volume
+			if(isset($this->data['SampleDetail']['collected_volume'])) { $this->data['SampleDetail']['collected_volume'] = str_replace(',', '.', $this->data['SampleDetail']['collected_volume']); }				
+			if(isset($this->data['SampleDetail']['pellet_volume'])) { $this->data['SampleDetail']['pellet_volume'] = str_replace(',', '.', $this->data['SampleDetail']['pellet_volume']); }				
+						
 			// Validates data
 			
 			$submitted_data_validates = true;
@@ -871,6 +894,22 @@ class SampleMastersController extends InventorymanagementAppController {
 		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'review exists for the deleted sample'); }
 		
 		return array('allow_deletion' => true, 'msg' => '');
+	}
+
+	/**
+	 * Get list of organs a sample tissue could come from.
+	 *
+	 * @author N. Luc
+	 * @since 2009-09-11
+	 * @updated N. Luc
+	 */
+	 
+	function getTissueSourceList() {
+		//TODO Define content of tissue_source list
+		$res = $this->IcdTenCode->find('all', array('fields' => 'DISTINCT site', 'order' => 'site ASC', 'conditions' => array('site != \'\'')));
+		$final_arr = array();
+		if(!empty($res)) { foreach($res as $data) { $final_arr[strtolower($data['IcdTenCode']['site'])] = $data['IcdTenCode']['site']; }}
+		return $final_arr;
 	}
 	
 //	function updateSourceAliquotUses($sample_master_id, $use_details, $use_date) {

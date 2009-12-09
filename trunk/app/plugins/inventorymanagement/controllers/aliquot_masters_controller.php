@@ -42,8 +42,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 	 
 	/* ----------------------------- ALIQUOT MASTER ----------------------------- */
 	
-	
-	
 	function index() {
 		// MANAGE (FIRST) FORM TO DEFINE SEARCH TYPE 
 
@@ -106,8 +104,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 				$this->redirect('/pages/err_inv_system_error', null, true);
 		}
 
-		// TODO: SampleToAliquotControl : test all realtion with status, etc to be sure all it's correctly set into db
-		
 		// Get control data
 		$criteria = array(
 			'SampleControl.id' => $sample_data['SampleMaster']['sample_control_id'],

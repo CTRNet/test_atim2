@@ -8,9 +8,10 @@
 		}
 		
 		$structure_links['bottom'] = array(
+			'add specimen' => $add_links,
 			'edit' => '/inventorymanagement/collections/edit/' . $atim_menu_variables['Collection.id'], 
-			'delete' => '/inventorymanagement/collections/delete/' . $atim_menu_variables['Collection.id'],
-			'add specimen' => $add_links
+			'delete' => '/inventorymanagement/collections/delete/' . $atim_menu_variables['Collection.id']
+
 		);
 	}
 		
