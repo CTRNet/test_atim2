@@ -25,7 +25,7 @@
 	foreach ($specimen_sample_controls_list as $sample_control) {
 		$add_links[$sample_control['SampleControl']['sample_type']] = '/inventorymanagement/sample_masters/add/' . $atim_menu_variables['Collection.id'] . '/' . $sample_control['SampleControl']['id'];
 	}
-//pr($specimen_sample_controls_list);	
+		
 	$search_type_links = array();
 	$search_type_links['collection'] = '/inventorymanagement/collections/index/';
 	$search_type_links['sample'] = '/inventorymanagement/sample_masters/index/';
@@ -40,13 +40,10 @@
 				)
 			),
 			'AliquotMaster' => array(
-				'plugin inventorymanagement aliquot detail' => array(
+				'detail' => array(
 					'link' => '/inventorymanagement/aliquot_masters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/' . true . '/' . true,
 					'icon' => 'aliquot')
 			)
-//		'AliquotMaster' => array(
-//				'plugin inventorymanagement aliquot detail' => '/inventorymanagement/aliquot_masters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/' . true . '/' . true
-//			)
 		),
 		'bottom' => array(
 			'add' => $add_links,
@@ -74,16 +71,22 @@
 	
 	// BUILD
 	
+	$final_atim_structure = $atim_structure; 
+	$final_options = array('type' => 'tree', 'settings'=>$structure_settings, 'links'=>$structure_links, 'extras'=>$structure_extras);
+	
+	// CUSTOM CODE
 	$hook_link = $structures->hook();
-	if($hook_link){
-		require($hook_link); 
-	}
-	$structures->build($atim_structure, array('type' => 'tree', 'settings'=>$structure_settings, 'links'=>$structure_links, 'extras'=>$structure_extras));
+	if( $hook_link ) { require($hook_link); }
+		
+	// BUILD FORM
+	$structures->build( $final_atim_structure, $final_options );	
+	
 ?>
 								
 <script>
 var loadingStr = "<?php echo(__("loading", null)); ?>";
 </script>
+
 <?php 
 echo $javascript->link('treeViewControl')."\n";
 ?>

@@ -50,12 +50,24 @@
 	$structure_override['SampleMaster.sop_master_id'] = $arr_sample_sops;
 	$structure_override['SampleMaster.parent_id'] = (empty($parent_sample_data))? '' : $parent_sample_data['SampleMaster']['sample_code'] . ' [' . __($parent_sample_data['SampleMaster']['sample_type'], TRUE) . ']';
 
-	$hook_link = $structures->hook();
-	if($hook_link){
-		require($hook_link);
-	}
+	// BUILD FORM
+	
 	if(isset($aliquots_listall_structure)){
-		$structures->build($atim_structure, array('override' => $structure_override, 'settings' => array('actions' => false), 'data' => $sample_master_data));
+		
+		// 1- SAMPLE DETAIL	
+		
+		$final_atim_structure = $atim_structure; 
+		$final_options = array('override' => $structure_override, 'settings' => array('actions' => false), 'data' => $sample_master_data);
+		
+		// CUSTOM CODE
+		$hook_link = $structures->hook('aliquots');
+		if( $hook_link ) { require($hook_link); }
+			
+		// BUILD FORM
+		$structures->build( $final_atim_structure, $final_options );
+
+		// 2- ALIQUOTS LIST
+		
 		$structure_links['index']['detail'] = '/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%';
 		
 		$structure_override = array();
@@ -64,18 +76,39 @@
 			$bank_list[$new_bank['Bank']['id']] = $new_bank['Bank']['name'];
 		}
 		$structure_override['Collection.bank_id'] = $bank_list;
-		?>
+
+?>
+
 		<table class="structure" cellspacing="0">
-			<tbody><tr><th style='text-align: left; padding-left: 10px; padding-right: 10px;'><hr/><?php echo(__('Aliquots', null)); ?></th></tr>
+			<tbody><tr><th style='text-align: left; padding-left: 10px; padding-right: 10px;'><hr/><?php echo(__('aliquots', null)); ?></th></tr>
 		</tbody></table>
-		<?php
+
+<?php
+		
+		$final_atim_structure = $aliquots_listall_structure; 
+		$final_options = array('type' => 'index', 'links' => $structure_links, 'override' => $structure_override, 'data' => $aliquots_data);
+		
+		// CUSTOM CODE
 		$hook_link = $structures->hook('aliquots');
-		if($hook_link){
-			require($hook_link);
-		}
-		$structures->build($aliquots_listall_structure, array('type' => 'index', 'links' => $structure_links, 'override' => $structure_override, 'data' => $aliquots_data));
+		if( $hook_link ) { require($hook_link); }
+			
+		// BUILD FORM
+		$structures->build( $final_atim_structure, $final_options );	
+		
 	}else{
-		$structures->build($atim_structure, array('override' => $structure_override, 'links' => $structure_links, 'data' => $sample_master_data));
+		// For details form linked to tree view
+		
+		// 1- SAMPLE DETAIL	
+		
+		$final_atim_structure = $atim_structure; 
+		$final_options = array('override' => $structure_override, 'links' => $structure_links, 'data' => $sample_master_data);
+		
+		// CUSTOM CODE
+		$hook_link = $structures->hook('aliquots');
+		if( $hook_link ) { require($hook_link); }
+			
+		// BUILD FORM
+		$structures->build( $final_atim_structure, $final_options );
 	}
 	
 ?>
