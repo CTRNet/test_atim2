@@ -76,17 +76,9 @@
 			$bank_list[$new_bank['Bank']['id']] = $new_bank['Bank']['name'];
 		}
 		$structure_override['Collection.bank_id'] = $bank_list;
-
-?>
-
-		<table class="structure" cellspacing="0">
-			<tbody><tr><th style='text-align: left; padding-left: 10px; padding-right: 10px;'><hr/><?php echo(__('aliquots', null)); ?></th></tr>
-		</tbody></table>
-
-<?php
 		
 		$final_atim_structure = $aliquots_listall_structure; 
-		$final_options = array('type' => 'index', 'links' => $structure_links, 'override' => $structure_override, 'data' => $aliquots_data);
+		$final_options = array('type' => 'index', 'links' => $structure_links, 'override' => $structure_override, 'data' => $aliquots_data, 'settings' => array('header' => __('aliquots', null)));
 		
 		// CUSTOM CODE
 		$hook_link = $structures->hook('aliquots');
