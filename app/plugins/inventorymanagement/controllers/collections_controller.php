@@ -5,6 +5,7 @@ class CollectionsController extends InventorymanagementAppController {
 	var $uses = array(
 		'Inventorymanagement.Collection',
 		'Inventorymanagement.SampleMaster',
+		'Inventorymanagement.SampleControl',
 		'Inventorymanagement.AliquotMaster',
 		'Inventorymanagement.PathCollectionReview',
 		'Inventorymanagement.ReviewMaster',
@@ -80,7 +81,11 @@ class CollectionsController extends InventorymanagementAppController {
 		$this->set('banks', $this->getBankList());
 		
 		// Set list of available SOPs to build collections
-		$this->set('arr_collection_sops', $this->getCollectionSopList());		
+		$this->set('arr_collection_sops', $this->getCollectionSopList());	
+		
+		// Get all sample control types to build the add to selected button
+		$specimen_sample_controls_list = $this->SampleControl->atim_list(array('conditions' => array('SampleControl.status' => 'active', 'SampleControl.sample_category' => 'specimen'), 'order' => 'SampleControl.sample_type ASC'));
+		$this->set('specimen_sample_controls_list', $specimen_sample_controls_list);	
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -226,9 +231,8 @@ class CollectionsController extends InventorymanagementAppController {
 		if( $hook_link ) { require($hook_link); }		
 		
 		if($arr_allow_deletion['allow_deletion']) {
-			
 			// Delete collection			
-			if($this->ClinicalCollectionLink->atim_delete($collection_data['ClinicalCollectionLink']['id']) && $this->Collection->atim_delete($collection_id)) {
+			if($this->Collection->atim_delete($collection_id, true)) {
 				$this->flash('your data has been deleted', '/inventorymanagement/collections/index/');
 			} else {
 				$this->flash('error deleting data - contact administrator', '/inventorymanagement/collections/index/');
