@@ -25,7 +25,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 		if((!$collection_id) || (!$sample_master_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }		
 		
 		$sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id), 'recursive' => '-1'));
-		if(empty($sample_data)) { $this->redirect('/pages/err_inv_samp_no_data', null, true); }	
+		if(empty($sample_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }	
 		
 		
 		
@@ -49,7 +49,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 		if((!$collection_id) || (!$sample_master_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }		
 		
 		$sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id), 'recursive' => '-1'));
-		if(empty($sample_data)) { $this->redirect('/pages/err_inv_samp_no_data', null, true); }	
+		if(empty($sample_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }	
 		
 		$sample_id_parameter = ($sample_data['SampleMaster']['sample_category'] == 'specimen')? '%%SampleMaster.initial_specimen_sample_id%%': '%%SampleMaster.id%%';
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/quality_ctrls/listall/%%Collection.id%%/' . $sample_id_parameter));		
@@ -59,8 +59,6 @@ class QualityCtrlsController extends InventoryManagementAppController {
 				'SampleMaster.id' => $sample_master_id,
 				'SampleMaster.initial_specimen_sample_id' => $sample_data['SampleMaster']['initial_specimen_sample_id']) 
 		);
-		
-		
 		
 		if ( !empty($this->data) ) {
 			$this->data['QualityCtrl']['sample_master_id'] = $sample_master_id;
@@ -85,7 +83,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 				$this->QualityCtrl->id = $qc_id;					
 				if(!$this->QualityCtrl->save($qc_data_to_update, false)) { $this->redirect('/pages/err_inv_system_error', null, true); }
 				
-				$this->flash( 'Your data has been saved.', 
+				$this->flash( 'your data has been saved', 
 					'/inventorymanagement/quality_ctrls/detail/'.$collection_id.'/'.$sample_master_id.'/'.$this->QualityCtrl->id.'/' );
 			}
 		}
@@ -97,7 +95,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 		
 		
 		$this->data = $this->QualityCtrl->find('first',array('conditions'=>array('QualityCtrl.id'=>$quality_ctrl_id, 'SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id)));
-		if(empty($this->data)) { $this->redirect('/pages/err_inv_qc_no_data', null, true); }
+		if(empty($this->data)) { $this->redirect('/pages/err_inv_no_data', null, true); }
 
 		$sample_id_parameter = ($this->data['SampleMaster']['sample_category'] == 'specimen')? '%%SampleMaster.initial_specimen_sample_id%%': '%%SampleMaster.id%%';
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/quality_ctrls/detail/%%Collection.id%%/' . $sample_id_parameter . '/%%QualityCtrl.id%%'));	
@@ -121,7 +119,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 		if((!$collection_id) || (!$sample_master_id) || (!$quality_ctrl_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }		
 
 		$qc_data = $this->QualityCtrl->find('first',array('conditions'=>array('QualityCtrl.id'=>$quality_ctrl_id, 'SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id)));
-		if(empty($qc_data)) { $this->redirect('/pages/err_inv_qc_no_data', null, true); }
+		if(empty($qc_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }
 
 		$sample_id_parameter = ($qc_data['SampleMaster']['sample_category'] == 'specimen')? '%%SampleMaster.initial_specimen_sample_id%%': '%%SampleMaster.id%%';
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/quality_ctrls/detail/%%Collection.id%%/' . $sample_id_parameter . '/%%QualityCtrl.id%%'));	
@@ -154,7 +152,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			if ($submitted_data_validates && $this->QualityCtrl->save( $this->data )) {
 				//TODO should we test if values are different?
 				if(!$this->Aliquots->updateAliquotUses($aliquot_use_ids, $this->data['QualityCtrl']['date'], $this->data['QualityCtrl']['run_by'])) { $this->redirect('/pages/err_inv_system_error', null, true); }
-				$this->flash( 'Your data has been saved.', '/inventorymanagement/quality_ctrls/detail/'.$collection_id.'/'.$sample_master_id.'/'.$quality_ctrl_id.'/' );
+				$this->flash( 'your data has been saved', '/inventorymanagement/quality_ctrls/detail/'.$collection_id.'/'.$sample_master_id.'/'.$quality_ctrl_id.'/' );
 			}
 		}else{
 			$this->data = $qc_data;
@@ -169,7 +167,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 		if((!$collection_id) || (!$sample_master_id) || (!$quality_ctrl_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }		
 
 		$qc_data = $this->QualityCtrl->find('first',array('conditions'=>array('QualityCtrl.id'=>$quality_ctrl_id, 'SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id)));
-		if(empty($qc_data)) { $this->redirect('/pages/err_inv_qc_no_data', null, true); }
+		if(empty($qc_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }
 
 		// Check deletion is allowed
 		$arr_allow_deletion = $this->allowQcDeletion($quality_ctrl_id);
@@ -179,7 +177,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			
 		
 			if($this->QualityCtrl->atim_delete($quality_ctrl_id)) {
-				$this->flash( 'Your data has been deleted.', 
+				$this->flash( 'your data has been deleted', 
 						'/inventorymanagement/quality_ctrls/listall/'
 						.$qc_data['SampleMaster']['collection_id'].'/'
 						.$qc_data['QualityCtrl']['sample_master_id'].'/');
@@ -195,7 +193,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 		if((!$collection_id) || (!$sample_master_id) || (!$quality_ctrl_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }		
 
 		$qc_data = $this->QualityCtrl->find('first',array('conditions'=>array('QualityCtrl.id'=>$quality_ctrl_id, 'SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id)));
-		if(empty($qc_data)) { $this->redirect('/pages/err_inv_qc_no_data', null, true); }
+		if(empty($qc_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }
 			
 		$already_tested_aliquot_ids = array();
 		if(!empty($qc_data['QualityCtrlTestedAliquot'])) {
@@ -329,22 +327,22 @@ class QualityCtrlsController extends InventoryManagementAppController {
 					// Save data:
 					// - AliquotMaster
 					$this->AliquotMaster->id = $aliquot_master_id;
-					if(!$this->AliquotMaster->save($new_used_aliquot, false)) { $this->redirect('/pages/err_inv_aliquot_record_err', null, true); }
+					if(!$this->AliquotMaster->save($new_used_aliquot, false)) { $this->redirect('/pages/err_inv_record_err', null, true); }
 					
 					// - AliquotUse
 					$this->AliquotUse->id = null;
-					if(!$this->AliquotUse->save($new_used_aliquot, false)) { $this->redirect('/pages/err_inv_aliquot_record_err', null, true); }
+					if(!$this->AliquotUse->save($new_used_aliquot, false)) { $this->redirect('/pages/err_inv_record_err', null, true); }
 					$aliquot_use_id = $this->AliquotUse->getLastInsertId();
 					
 					// - QualityCtrlTestedAliquot
 					$this->QualityCtrlTestedAliquot->id = null;
 					$qc_aliquot_data = array( 'QualityCtrlTestedAliquot' => array('aliquot_master_id' => $aliquot_master_id, 'quality_ctrl_id' => $quality_ctrl_id, 'aliquot_use_id' => $aliquot_use_id));
-					if(!$this->QualityCtrlTestedAliquot->save($qc_aliquot_data)) { $this->redirect('/pages/err_inv_aliquot_record_err', null, true); }
+					if(!$this->QualityCtrlTestedAliquot->save($qc_aliquot_data)) { $this->redirect('/pages/err_inv_record_err', null, true); }
 
 					// - Update aliquot current volume
-					if(!$this->Aliquots->updateAliquotCurrentVolume($aliquot_master_id)) { $this->redirect('/pages/err_inv_aliquot_record_err', null, true); }
+					if(!$this->Aliquots->updateAliquotCurrentVolume($aliquot_master_id)) { $this->redirect('/pages/err_inv_record_err', null, true); }
 				}
-				$this->flash('Your data has been saved.', '/inventorymanagement/quality_ctrls/detail/' . $collection_id . '/' . $sample_master_id . '/' . $quality_ctrl_id . '/'); 
+				$this->flash('your data has been saved', '/inventorymanagement/quality_ctrls/detail/' . $collection_id . '/' . $sample_master_id . '/' . $quality_ctrl_id . '/'); 
 			}
 		}
 	}

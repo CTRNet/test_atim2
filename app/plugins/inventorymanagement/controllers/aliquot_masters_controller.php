@@ -25,8 +25,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		'Inventorymanagement.PathCollectionReview',
 		
-//		'Inventorymanagement.OrderItem',
-		
 		'Storagelayout.StorageMaster',
 		'Storagelayout.StorageCoordinate',
 		
@@ -94,7 +92,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 
 		// Get Sample Data
 		$sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id), 'recursive' => '-1'));
-		if(empty($sample_data)) { $this->redirect('/pages/err_inv_samp_no_data', null, true); }	
+		if(empty($sample_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }	
 		
 		$bool_is_specimen = null;
 		switch($sample_data['SampleMaster']['sample_category']) {
@@ -117,7 +115,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			'AliquotControl.status' => 'active',
 			'AliquotControl.id' => $aliquot_control_id);
 		$sample_to_aliquot_control = $this->SampleToAliquotControl->find('first', array('conditions' => $criteria));	
-		if(empty($sample_to_aliquot_control)) { $this->redirect('/pages/err_inv_no_aliqu_cont_data', null, true); }			
+		if(empty($sample_to_aliquot_control)) { $this->redirect('/pages/err_inv_no_data', null, true); }			
 		$aliquot_control_data = array('AliquotControl' => $sample_to_aliquot_control['AliquotControl']);
 		
 		// Set new aliquot control information
@@ -228,7 +226,7 @@ unset($this->data['AliquotMaster']);
 					$new_aliquot['AliquotMaster']['sample_master_id'] = $sample_master_id;
 					$new_aliquot['AliquotMaster']['aliquot_control_id'] = $aliquot_control_id;
 					$new_aliquot['AliquotMaster']['aliquot_type'] = $aliquot_control_data['AliquotControl']['aliquot_type'];
-					if(!$this->AliquotMaster->save($new_aliquot, false)) { $this->redirect('/pages/err_inv_aliquot_record_err', null, true); } 
+					if(!$this->AliquotMaster->save($new_aliquot, false)) { $this->redirect('/pages/err_inv_record_err', null, true); } 
 				}
 				$this->flash('your data has been saved', '/inventorymanagement/aliquot_masters/listAll/' . $collection_id . '/' . $sample_master_id);									
 
@@ -257,7 +255,7 @@ unset($this->data['AliquotMaster']);
 
 		// Get the aliquot data
 		$aliquot_data = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id, 'AliquotMaster.id' => $aliquot_master_id)));
-		if(empty($aliquot_data)) { $this->redirect('/pages/err_inv_aliquot_no_data', null, true); }		
+		if(empty($aliquot_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }		
 
 		// Set aliquot use
 		//TODO add patch to correct bug listed in issue #650
@@ -286,7 +284,7 @@ unset($this->data['AliquotMaster']);
 				break;
 			case 'derivative':
 				$derivative_detail_data = $this->DerivativeDetail->find('first', array('conditions' => array('DerivativeDetail.sample_master_id' => $sample_master_id)));
-				if(empty($derivative_detail_data)) { $this->redirect('/pages/err_inv_missing_samp_data', null, true); }	
+				if(empty($derivative_detail_data)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }	
 				$this->data['Generated']['creat_to_stor_spent_time'] = $this->manageSpentTimeDataDisplay($this->getSpentTime($derivative_detail_data['DerivativeDetail']['creation_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
 				break;
 				
@@ -333,7 +331,7 @@ unset($this->data['AliquotMaster']);
 		// Get the aliquot data
 				
 		$aliquot_data = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id, 'AliquotMaster.id' => $aliquot_master_id)));
-		if(empty($aliquot_data)) { $this->redirect('/pages/err_inv_aliquot_no_data', null, true); }		
+		if(empty($aliquot_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }		
 
 		// Set list of available SOPs to create aliquot
 		$this->set('arr_aliquot_sops', $this->getAliquotSopList($aliquot_data['SampleMaster']['sample_type'], $aliquot_data['AliquotMaster']['aliquot_type']));
@@ -410,8 +408,8 @@ unset($this->data['AliquotMaster']);
 			// Save data
 			if($submitted_data_validates) {
 				$this->AliquotMaster->id = $aliquot_master_id;
-				if(!$this->AliquotMaster->save($this->data, false)) { $this->redirect('/pages/err_inv_aliquot_record_err', null, true);	}
-				if(!$this->Aliquots->updateAliquotCurrentVolume($aliquot_master_id)) { $this->redirect('/pages/err_inv_aliquot_record_err', null, true); }			
+				if(!$this->AliquotMaster->save($this->data, false)) { $this->redirect('/pages/err_inv_record_err', null, true); }
+				if(!$this->Aliquots->updateAliquotCurrentVolume($aliquot_master_id)) { $this->redirect('/pages/err_inv_record_err', null, true); }			
 				$this->flash('your data has been updated', '/inventorymanagement/aliquot_masters/detail/' . $collection_id . '/' . $sample_master_id. '/' . $aliquot_master_id);				
 			
 			} else {
@@ -439,12 +437,12 @@ unset($this->data['AliquotMaster']);
 
 		// Get the aliquot data
 		$aliquot_data = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id, 'AliquotMaster.id' => $aliquot_master_id)));
-		if(empty($aliquot_data)) { $this->redirect('/pages/err_inv_aliquot_no_data', null, true); }		
+		if(empty($aliquot_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }		
 		
 		// Delete storage data
 		$this->AliquotMaster->id = $aliquot_master_id;
 		if(!$this->AliquotMaster->save(array('AliquotMaster' => array('storage_master_id' => null, 'storage_coord_x' => null, 'storage_coord_y' => null)))) {
-			$this->redirect('/pages/err_inv_aliquot_record_err', null, true);
+			$this->redirect('/pages/err_inv_record_err', null, true);
 		}
 		
 		$this->flash('your data has been updated', '/inventorymanagement/aliquot_masters/detail/' . $collection_id . '/' . $sample_master_id. '/' . $aliquot_master_id);				
@@ -455,7 +453,7 @@ unset($this->data['AliquotMaster']);
 	
 		// Get the aliquot data
 		$aliquot_data = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id, 'AliquotMaster.id' => $aliquot_master_id)));
-		if(empty($aliquot_data)) { $this->redirect('/pages/err_inv_aliquot_no_data', null, true); }		
+		if(empty($aliquot_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }		
 		
 		// Check deletion is allowed
 		$arr_allow_deletion = $this->allowAliquotDeletion($aliquot_master_id);
@@ -484,7 +482,7 @@ unset($this->data['AliquotMaster']);
 
 		// Get the aliquot data
 		$aliquot_data = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id, 'AliquotMaster.id' => $aliquot_master_id)));
-		if(empty($aliquot_data)) { $this->redirect('/pages/err_inv_aliquot_no_data', null, true); }		
+		if(empty($aliquot_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }		
 
 		// Set list of studies
 		$this->set('arr_studies', $this->getStudiesList());		
@@ -547,7 +545,7 @@ unset($this->data['AliquotMaster']);
 			if ($submitted_data_validates) {
 				$this->data['AliquotUse']['aliquot_master_id'] = $aliquot_master_id;			
 				if ($this->AliquotUse->save($this->data)) { 
-					if(!$this->Aliquots->updateAliquotCurrentVolume($aliquot_master_id)) { $this->redirect('/pages/err_inv_aliquot_use_record_err', null, true); }	
+					if(!$this->Aliquots->updateAliquotCurrentVolume($aliquot_master_id)) { $this->redirect('/pages/err_inv_record_err', null, true); }	
 					$this->flash('your data has been saved', '/inventorymanagement/aliquot_masters/detail/'.$collection_id.'/'.$aliquot_data['SampleMaster']['initial_specimen_sample_id'].'/'.$aliquot_master_id.'/');
 				} 
 			}
@@ -561,11 +559,11 @@ unset($this->data['AliquotMaster']);
 
 		// Get the use data
 		$use_data = $this->AliquotUse->find('first', array('conditions' => array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id, 'AliquotMaster.id' => $aliquot_master_id, 'AliquotUse.id' => $aliquot_use_id)));
-		if(empty($use_data)) { $this->redirect('/pages/err_inv_aliq_use_no_data', null, true); }		
+		if(empty($use_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }		
 		
 		// Get Sample Data
 		$sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id), 'recursive' => '-1'));
-		if(empty($sample_data)) { $this->redirect('/pages/err_inv_samp_no_data', null, true); }	
+		if(empty($sample_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }	
 				
 		// Set list of studies
 		$this->set('arr_studies', $this->getStudiesList());		
@@ -616,7 +614,7 @@ unset($this->data['AliquotMaster']);
 			if ($submitted_data_validates) {
 				$this->AliquotUse->id = $aliquot_use_id;			
 				if ($this->AliquotUse->save($this->data)) { 
-					if(!$this->Aliquots->updateAliquotCurrentVolume($aliquot_master_id)) { $this->redirect('/pages/err_inv_aliquot_use_record_err', null, true); }
+					if(!$this->Aliquots->updateAliquotCurrentVolume($aliquot_master_id)) { $this->redirect('/pages/err_inv_record_err', null, true); }
 					
 					$this->flash('your data has been saved', '/inventorymanagement/aliquot_masters/detail/' . $collection_id . '/' . $sample_master_id . '/' . $aliquot_master_id);
 				} 
@@ -632,7 +630,7 @@ unset($this->data['AliquotMaster']);
 		
 		// Get the use data
 		$use_data = $this->AliquotUse->find('first', array('conditions' => array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id, 'AliquotMaster.id' => $aliquot_master_id, 'AliquotUse.id' => $aliquot_use_id)));
-		if(empty($use_data)) { $this->redirect('/pages/err_inv_aliq_use_no_data', null, true); }		
+		if(empty($use_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }		
 
 		// Set url to display next page
 		if($redirect == 1){
@@ -661,7 +659,7 @@ unset($this->data['AliquotMaster']);
 		$deletion_done = true;
 		if(!is_null($this->AliquotUseDetail)) {
 			$aliquot_use_detail = $this->AliquotUseDetail->find('first', array('conditions' => array('aliquot_use_id' => $aliquot_use_id)));
-			if(empty($aliquot_use_detail)) { $this->redirect('/pages/err_inv_aliq_use_no_data', null, true); }
+			if(empty($aliquot_use_detail)) { $this->redirect('/pages/err_inv_no_data', null, true); }
 			$aliquot_use_detail_id = $aliquot_use_detail['AliquotUseDetail']['id']; 
 			if(!$this->AliquotUseDetail->atim_delete($aliquot_use_detail_id)) { $deletion_done = false; }
 		}
@@ -687,7 +685,7 @@ unset($this->data['AliquotMaster']);
 		if((!$collection_id) || (!$sample_master_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }
 
 		$sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id), 'recursive' => '-1'));
-		if(empty($sample_data)) { $this->redirect('/pages/err_inv_samp_no_data', null, true); }	
+		if(empty($sample_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }	
 		
 		$this->data = $this->paginate($this->SourceAliquot, array('SourceAliquot.sample_master_id'=>$sample_master_id, 'SampleMaster.collection_id'=>$collection_id));
 
@@ -708,7 +706,7 @@ unset($this->data['AliquotMaster']);
 		if((!$collection_id) || (!$sample_master_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }
 		
 		$sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id), 'recursive' => '0'));
-		if(empty($sample_data)) { $this->redirect('/pages/err_inv_samp_no_data', null, true); }	
+		if(empty($sample_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }	
 		
 		$existing_source_aliquots = $this->SourceAliquot->find('all', array('conditions' => array('SourceAliquot.sample_master_id'=>$sample_master_id), 'recursive' => '-1'));
 		
@@ -843,23 +841,23 @@ unset($this->data['AliquotMaster']);
 					// Save data:
 					// - AliquotMaster
 					$this->AliquotMaster->id = $aliquot_master_id;
-					if(!$this->AliquotMaster->save($new_source_aliquot, false)) { $this->redirect('/pages/err_inv_aliquot_record_err', null, true); }
+					if(!$this->AliquotMaster->save($new_source_aliquot, false)) { $this->redirect('/pages/err_inv_record_err', null, true); }
 					
 					// - AliquotUse
 					$this->AliquotUse->id = null;
-					if(!$this->AliquotUse->save($new_source_aliquot, false)) { $this->redirect('/pages/err_inv_aliquot_record_err', null, true); }
+					if(!$this->AliquotUse->save($new_source_aliquot, false)) { $this->redirect('/pages/err_inv_record_err', null, true); }
 					$aliquot_use_id = $this->AliquotUse->getLastInsertId();
 					
 					// - QualityCtrlTestedAliquot
 					$this->SourceAliquot->id = null;
 					$source_aliquot_data = array( 'SourceAliquot' => array('aliquot_master_id' => $aliquot_master_id, 'sample_master_id' => $sample_master_id, 'aliquot_use_id' => $aliquot_use_id));
-					if(!$this->SourceAliquot->save($source_aliquot_data)) { $this->redirect('/pages/err_inv_aliquot_record_err', null, true); }
+					if(!$this->SourceAliquot->save($source_aliquot_data)) { $this->redirect('/pages/err_inv_record_err', null, true); }
 
 					// - Update aliquot current volume
-					if(!$this->Aliquots->updateAliquotCurrentVolume($aliquot_master_id)) { $this->redirect('/pages/err_inv_aliquot_record_err', null, true); }
+					if(!$this->Aliquots->updateAliquotCurrentVolume($aliquot_master_id)) { $this->redirect('/pages/err_inv_record_err', null, true); }
 				}
 				
-				$this->flash('Your data has been saved.', '/inventorymanagement/aliquot_masters/listAllSourceAliquots/' . $collection_id . '/' . $sample_master_id); 
+				$this->flash('your data has been saved', '/inventorymanagement/aliquot_masters/listAllSourceAliquots/' . $collection_id . '/' . $sample_master_id); 
 			}
 		}
 	}
@@ -871,7 +869,7 @@ unset($this->data['AliquotMaster']);
 		// MANAGE DATA
 		// Get the aliquot data
 		$current_aliquot_data = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id, 'AliquotMaster.id' => $aliquot_master_id)));
-		if(empty($current_aliquot_data)) { $this->redirect('/pages/err_inv_aliquot_no_data', null, true); }		
+		if(empty($current_aliquot_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }		
 
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%/%%AliquotMaster.id%%'));
 		
@@ -975,7 +973,7 @@ unset($this->data['AliquotMaster']);
 		// Get the aliquot data
 		$current_aliquot_data = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id, 'AliquotMaster.id' => $aliquot_master_id)));
 		
-		if(empty($current_aliquot_data)) { $this->redirect('/pages/err_inv_aliquot_no_data', null, true); }		
+		if(empty($current_aliquot_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }		
 
 		
 		$this->set('atim_menu_variables', array('Collection.id' => $collection_id,
@@ -1023,7 +1021,6 @@ unset($this->data['AliquotMaster']);
 		
 		$this->redirect('/order/order_lines/addAliquotToOrder/'.$aliquot_id.'/');
 		exit();
-		
 	}
 	
 	/* --------------------------------------------------------------------------
@@ -1162,14 +1159,14 @@ unset($this->data['AliquotMaster']);
 			case 'specimen':
 				// Default creation date will be the specimen reception date
 				$collection_data = $this->Collection->find('first', array('conditions' => array('Collection.id' => $sample_master_data['SampleMaster']['collection_id']), 'recursive' => '-1'));
-				if(empty($collection_data)) { $this->redirect('/pages/err_inv_coll_no_data', null, true); }
+				if(empty($collection_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }
 				$sample_master = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.id' => $sample_master_data['SampleMaster']['id'])));
 				return $sample_master['SpecimenDetail']['reception_datetime'];
 				
 			case 'derivative':
 				// Default creation date will be the derivative creation date or Specimen reception date
 				$derivative_detail_data = $this->DerivativeDetail->find('first', array('conditions' => array('DerivativeDetail.sample_master_id' => $sample_master_data['SampleMaster']['id']), 'recursive' => '-1'));
-				if(empty($derivative_detail_data)) { $this->redirect('/pages/err_inv_missing_samp_data', null, true); }
+				if(empty($derivative_detail_data)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }
 				
 				return $derivative_detail_data['DerivativeDetail']['creation_datetime'];
 				

@@ -79,11 +79,6 @@ class OrderLinesController extends OrderAppController {
 				// Set sample and aliquot control id
 				$product_controls = explode("|", $this->data['FunctionManagement']['sample_aliquot_control_id']);
 				if(sizeof($product_controls) != 2)  { $this->redirect('/pages/err_order_system_error', null, true); }
-				$submitted_data_validates = true;
-				$hook_link = $this->hook('presave_process');
-				if($hook_link){
-					require($hook_link);
-				}
 				$this->data['OrderLine']['sample_control_id'] = $product_controls[0];
 				$this->data['OrderLine']['aliquot_control_id'] = $product_controls[1];
 					
@@ -91,10 +86,18 @@ class OrderLinesController extends OrderAppController {
 				$this->data['OrderLine']['order_id'] = $order_id;
 				$this->data['OrderLine']['status'] = 'pending';
 					
-					
-				if ($submitted_data_validates && $this->OrderLine->save($this->data) ) {
-					$this->flash( 'your data has been updated','/order/order_lines/detail/'.$order_id.'/'.$this->OrderLine->id );
+				$submitted_data_validates = true;
+				
+				$hook_link = $this->hook('presave_process');
+				if($hook_link){
+					require($hook_link);
 				}
+					
+				if ($submitted_data_validates) {
+					if( $this->OrderLine->save($this->data) ) {
+						$this->flash( 'your data has been updated','/order/order_lines/detail/'.$order_id.'/'.$this->OrderLine->id );
+					}
+				} 
 			}
 		}
 
@@ -118,25 +121,29 @@ class OrderLinesController extends OrderAppController {
 				require($hook_link);
 			}
 
-			if ( !empty($this->data) ) {
+			if ( empty($this->data) ) {
+				$this->data = $order_line_data;
+
+			} else {
 				// Set sample and aliquot control id
 				$product_controls = explode("|", $this->data['FunctionManagement']['sample_aliquot_control_id']);
 				if(sizeof($product_controls) != 2)  { $this->redirect('/pages/err_order_system_error', null, true); }
+				$this->data['OrderLine']['sample_control_id'] = $product_controls[0];
+				$this->data['OrderLine']['aliquot_control_id'] = $product_controls[1];
+					
 				$submitted_data_validates = true;
+				
 				$hook_link = $this->hook('presave_process');
 				if($hook_link){
 					require($hook_link);
 				}
-				$this->data['OrderLine']['sample_control_id'] = $product_controls[0];
-				$this->data['OrderLine']['aliquot_control_id'] = $product_controls[1];
-					
-
-				$this->OrderLine->id = $order_line_id;
-				if ($submitted_data_validates && $this->OrderLine->save($this->data)) {
-					$this->flash( 'your data has been updated','/order/order_lines/detail/'.$order_id.'/'.$order_line_id );
+				
+				if ($submitted_data_validates) {
+					$this->OrderLine->id = $order_line_id;
+					if($this->OrderLine->save($this->data)) {
+						$this->flash( 'your data has been updated','/order/order_lines/detail/'.$order_id.'/'.$order_line_id );
+					}
 				}
-			} else {
-				$this->data = $order_line_data;
 			}
 		}
 
@@ -188,18 +195,16 @@ class OrderLinesController extends OrderAppController {
 				$this->redirect( '/pages/err_order_no_data', null, true ); 
 			}
 
-
 			// Check deletion is allowed
 			$arr_allow_deletion = $this->allowOrderLineDeletion($order_line_id);
-
-			if($arr_allow_deletion['allow_deletion']) {
-				$submitted_data_validates = true;
-				$hook_link = $this->hook('delete');
-				if($hook_link){
-					require($hook_link);
-				}
+			
+			$hook_link = $this->hook('delete');
+			if($hook_link){
+				require($hook_link);
+			}
 				
-				if($submitted_data_validates && $this->OrderLine->atim_delete($order_line_id)) {
+			if($arr_allow_deletion['allow_deletion']) {
+				if($this->OrderLine->atim_delete($order_line_id)) {
 					$this->flash('your data has been deleted', '/order/order_lines/listall/'.$order_id);
 				} else {
 					$this->flash('error deleting data - contact administrator', '/order/order_lines/listall/'.$order_id);
@@ -289,6 +294,7 @@ class OrderLinesController extends OrderAppController {
 
 		function addAliquotToOrder($aliquot_id){
 			$this->data = $this->Order->find('all');
+
 			$atim_structure = array();
 			$atim_structure['Order'] = $this->Structures->get('form', 'orders');
 			$atim_structure['OrderLine'] = $this->Structures->get('form', 'orderlines');
@@ -304,6 +310,7 @@ class OrderLinesController extends OrderAppController {
 			$this->set('aliquot_master_id', $aliquot_id);
 			$this->set('atim_menu', $this->Menus->get("/order/orders/index/"));
 			
+			//TODO check during test
 			$hook_link = $this->hook('format');
 			if($hook_link){
 				require($hook_link);
