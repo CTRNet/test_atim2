@@ -2,9 +2,15 @@
 
 	$structure_links = array();
 	if($is_inventory_plugin_form){
+		$add_links = array();
+		foreach ($specimen_sample_controls_list as $sample_control) {
+			$add_links[$sample_control['SampleControl']['sample_type']] = '/inventorymanagement/sample_masters/add/' . $atim_menu_variables['Collection.id'] . '/' . $sample_control['SampleControl']['id'];
+		}
+		
 		$structure_links['bottom'] = array(
 			'edit' => '/inventorymanagement/collections/edit/' . $atim_menu_variables['Collection.id'], 
-			'delete' => '/inventorymanagement/collections/delete/' . $atim_menu_variables['Collection.id']
+			'delete' => '/inventorymanagement/collections/delete/' . $atim_menu_variables['Collection.id'],
+			'add specimen' => $add_links
 		);
 	}
 		
@@ -29,7 +35,9 @@
 	}
 	$structure_override['Collection.bank_id'] = $bank_list;
 	
-	$structure_override['Collection.sop_master_id'] = $arr_collection_sops;	
+	$sops_list = array();
+	foreach($arr_collection_sops as $sop_masters) { $sops_list[$sop_masters['SopMaster']['id']] = $sop_masters['SopMaster']['code']; }
+	$structure_override['Collection.sop_master_id'] = $sops_list; 
 
 	$final_atim_structure = $atim_structure; 
 	$final_options = array('links' => $structure_links, 'override' => $structure_override);

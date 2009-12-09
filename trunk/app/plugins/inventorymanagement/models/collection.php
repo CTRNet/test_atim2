@@ -10,7 +10,8 @@ class Collection extends InventorymanagementAppModel {
 	var $hasOne = array(
 		'ClinicalCollectionLink' => array(
 			'className' => 'Clinicalannotation.ClinicalCollectionLink',
-			'foreignKey' => 'collection_id'));
+			'foreignKey' => 'collection_id',
+			'dependent' => true));
 	
 	function summary($variables=array()) {
 		$return = false;
