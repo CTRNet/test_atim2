@@ -5824,6 +5824,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('xshipments_delivery_street_address_help', '', '', ''),
 ('xshipments_facility_help', '', 'The facility that carries the inventory to be shipped', '');
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('add specimen', 'global', 'Add Specimen', 'Cr&eacute;er sp&eacute;cimen'),
 ('xshipments_recipient_help', '', 'The name of the recipient of the shipment', ''),
 ('xshipments_shipment_code_help', '', '', ''),
 ('xshipments_shipped_by_help', '', '', ''),
@@ -6355,10 +6356,6 @@ INSERT INTO `pages` (`id`, `error_flag`, `language_title`, `language_body`, `cre
 ('err_order_no_data', 1, 'data not found', 'no data exists for the specified id', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('err_order_record_err', 1, 'data creation - update error', 'an error occured during the creation or the update of the data', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('err_order_system_error', 1, 'system error', 'a system error has been detetced', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('err_ord_no_item_id', 1, 'no item id', 'the order item id has not been defined', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('err_ord_no_line_id', 1, 'no line id', 'the order line id has not been defined', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('err_ord_no_order_id', 1, 'no order id', 'the order id has not been defined', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('err_ord_no_ship_id', 1, 'no shipment id', 'the shipment id has not been defined', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('err_pro_no_proto_id', 1, 'no protocol id', 'the protocol master id has not been defined', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('err_rev_master_general_error', 1, 'review master general error', 'an error has been detected during the process execution on your reviews', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('err_rtb_no_form_id', 1, 'no rtbform id', 'the rtbform id has not been defined', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -11709,6 +11706,8 @@ INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VAL
 (788, '6-9', '6-9'),
 (789, 'more than 10', 'more than 10'),
 (790, 'active', 'active'),
+('791', 'pericardial fluid', 'pericardial fluid'),
+('794', 'pleural fluid', 'pleural fluid'),
 (797, 'pericardial fluid', 'pericardial fluid'),
 (798, 'pericardial fluid cell', 'pericardial fluid cell'),
 (799, 'pericardial fluid supernatant', 'pericardial fluid supernatant'),

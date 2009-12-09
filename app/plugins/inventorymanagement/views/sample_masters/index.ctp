@@ -1,11 +1,18 @@
 <?php 
-
 	// DISPLAY COLLETCION SEARCH TYPE FORM
 	
 	$structure_override = array();
 	$structure_override['Generated.collection_search_type'] = __('sample', TRUE);
 	
-	$structures->build($atim_structure_for_search_type, array('type' => 'detail', 'settings' => array('actions' => FALSE), 'override' => $structure_override));
+	$final_atim_structure = $atim_structure_for_search_type; 
+	$final_options = array('type' => 'detail', 'settings' => array('actions' => FALSE), 'override' => $structure_override);
+	
+	// custom code
+	$hook_link = $structures->hook('search_type');
+	if( $hook_link ) { require($hook_link); }
+		
+	// build form
+	$structures->build( $final_atim_structure, $final_options );
 	
 	// DISPLAY COLLETCION INDEX FORM	
 
@@ -27,13 +34,9 @@
 	}
 	$structure_override['Collection.bank_id'] = $bank_list;
 	
-	$hook_link = $structures->hook();
-	if($hook_link){
-		require($hook_link); 
-	}
 	$final_atim_structure = $atim_structure; 
 	$final_options = array('type' => 'search', 'links' => $structure_links, 'override' => $structure_override);
-	
+		
 	// CUSTOM CODE
 	$hook_link = $structures->hook();
 	if( $hook_link ) { require($hook_link); }

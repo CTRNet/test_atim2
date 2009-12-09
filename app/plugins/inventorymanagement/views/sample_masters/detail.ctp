@@ -47,9 +47,14 @@
 
 	$structure_override = array();
 	
-	$structure_override['SampleMaster.sop_master_id'] = $arr_sample_sops;
+	$sops_list = array();
+	foreach($arr_sample_sops as $sop_masters) { $sops_list[$sop_masters['SopMaster']['id']] = $sop_masters['SopMaster']['code']; }
+	$structure_override['SampleMaster.sop_master_id'] = $sops_list; 	
+	
 	$structure_override['SampleMaster.parent_id'] = (empty($parent_sample_data))? '' : $parent_sample_data['SampleMaster']['sample_code'] . ' [' . __($parent_sample_data['SampleMaster']['sample_type'], TRUE) . ']';
 
+	if(isset($arr_tissue_sources)) { $structure_override['SampleDetail.tissue_source'] = $arr_tissue_sources; }
+	
 	// BUILD FORM
 	
 	if(isset($aliquots_listall_structure)){

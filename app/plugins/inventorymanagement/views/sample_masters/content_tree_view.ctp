@@ -88,5 +88,7 @@ var loadingStr = "<?php echo(__("loading", null)); ?>";
 </script>
 
 <?php 
-echo $javascript->link('treeViewControl')."\n";
+
+	echo $javascript->link('treeViewControl')."\n";
+
 ?>

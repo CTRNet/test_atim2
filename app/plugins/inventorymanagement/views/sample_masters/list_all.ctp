@@ -50,6 +50,8 @@
 		$bank_list[$new_bank['Bank']['id']] = $new_bank['Bank']['name'];
 	}
 	$structure_override['Collection.bank_id'] = $bank_list;
+
+	if(isset($arr_tissue_sources)) { $structure_override['SampleDetail.tissue_source'] = $arr_tissue_sources; }
 	
 	$final_atim_structure = $atim_structure; 
 	$final_options = array('type' => 'index', 'links' => $structure_links, 'override' => $structure_override);

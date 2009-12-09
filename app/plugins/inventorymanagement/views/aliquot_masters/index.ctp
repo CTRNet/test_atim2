@@ -5,7 +5,16 @@
 	$structure_override = array();
 	$structure_override['Generated.collection_search_type'] = __('aliquot', TRUE);
 	
-	$structures->build($atim_structure_for_search_type, array('type' => 'detail', 'settings' => array('actions' => FALSE), 'override' => $structure_override));
+	$final_atim_structure = $atim_structure_for_search_type; 
+	$final_options = array('type' => 'detail', 'settings' => array('actions' => FALSE), 'override' => $structure_override);
+	
+	// custom code
+	$hook_link = $structures->hook('search_type');
+	if( $hook_link ) { require($hook_link); }
+		
+	// build form
+	$structures->build( $final_atim_structure, $final_options );
+	
 	
 	// DISPLAY COLLETCION INDEX FORM	
 
