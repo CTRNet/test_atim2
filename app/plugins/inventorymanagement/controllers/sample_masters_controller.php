@@ -32,8 +32,6 @@ class SampleMastersController extends InventorymanagementAppController {
 	 * DISPLAY FUNCTIONS
 	 * -------------------------------------------------------------------------- */
 
-//TODO: change ',' to '.' for SampleDetail  	  	collected_volume 	pellet_volume
-	
 	function index() {
 		// MANAGE (FIRST) FORM TO DEFINE SEARCH TYPE 
 		
@@ -126,8 +124,6 @@ class SampleMastersController extends InventorymanagementAppController {
 		$criteria['SampleMaster.collection_id'] = $collection_id;
 		$collection_samples = $this->SampleMaster->find('threaded', array('conditions' => $criteria, 'order' => 'SampleMaster.sample_type DESC, SampleMaster.sample_code DESC', 'recursive' => '-1'));
 	 	
-		
-		
 		$this->data = $this->completeCollectionContent($collection_samples);
 				
 		// MANAGE FORM, MENU AND ACTION BUTTONS	
@@ -386,7 +382,7 @@ class SampleMastersController extends InventorymanagementAppController {
 			require($hook_link); 
 		}
 	}
-	
+//TODO NL validation stopped here: 20091210	
 	function detail($collection_id, $sample_master_id, $is_tree_view_detail_form = false, $is_inventory_plugin_form = true) {
 		if((!$collection_id) || (!$sample_master_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }		
 		// MANAGE DATA

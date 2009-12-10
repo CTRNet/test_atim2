@@ -65,7 +65,7 @@
 		$final_options = array('override' => $structure_override, 'settings' => array('actions' => false), 'data' => $sample_master_data);
 		
 		// CUSTOM CODE
-		$hook_link = $structures->hook('aliquots');
+		$hook_link = $structures->hook();
 		if( $hook_link ) { require($hook_link); }
 			
 		// BUILD FORM
@@ -101,7 +101,7 @@
 		$final_options = array('override' => $structure_override, 'links' => $structure_links, 'data' => $sample_master_data);
 		
 		// CUSTOM CODE
-		$hook_link = $structures->hook('aliquots');
+		$hook_link = $structures->hook();
 		if( $hook_link ) { require($hook_link); }
 			
 		// BUILD FORM

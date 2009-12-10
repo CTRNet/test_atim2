@@ -789,15 +789,12 @@ class StorageMastersController extends StoragelayoutAppController {
 			}
 		}
 		
-		$this->set('data', $data);
-		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }		
 		
-		//TODO test hook
-			
+		$this->set('data', $data);
 	}
 	
 	/* --------------------------------------------------------------------------
