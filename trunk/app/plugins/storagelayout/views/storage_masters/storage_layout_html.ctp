@@ -83,6 +83,9 @@
 			echo("</tr>\n");
 		}
 	}
+	
+	//NOTE: No hook supported!
+	
 ?>
 	</table>
 	<div style="text-align: right;">
