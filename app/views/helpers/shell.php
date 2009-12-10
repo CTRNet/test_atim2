@@ -396,7 +396,7 @@ class ShellHelper extends Helper {
 					$return_summary .= '
 						<ul id="summary">
 							<li>
-								<span>Summary</span>
+								<span>'.__('summary', null).'</span>
 								
 								<ul>
 					';
