@@ -1020,7 +1020,7 @@ a.summary { background: url("../img/icons/Paste_16x16.png") no-repeat left cente
 a.search { background: url("../img/icons/Preview_16x16.png") no-repeat left center; }
 a.search_results { background: url("../img/icons/Preview_16x16.png") no-repeat left center; }
 a.slide { background: url("../img/icons/slide_16x16.png") no-repeat left center; }
-a.storage {	background: url("../img/icons/storage_16x16.png") no-repeat left center; }			
+a.storage, a.form.plugin.storagelayout {	background: url("../img/icons/storage_16x16.png") no-repeat left center; }
 a.thumbsdown { background: url("../img/icons/Flag Black_16x16.png") no-repeat left center; }
 a.thumbsup { background: url("../img/icons/Flag Green_16x16.png") no-repeat left center; }
 a.users { background: url("../img/icons/Group_16x16.png") no-repeat left center; }
@@ -1042,7 +1042,7 @@ a.plugin.order {background: url("../img/icons/Cart_32x32.png") no-repeat center 
 a.plugin.protocol {background: url("../img/icons/Address Book_32x32.png") no-repeat center center;}
 a.plugin.material {background: url("../img/icons/Shipping Weight_32x32.png") no-repeat center center;}
 a.plugin.sop {background: url("../img/icons/List_32x32.png") no-repeat center center;}
-a.plugin.storagelayout {background: url("../img/icons/Safe_32x32.png") no-repeat center center;}
+a.menu.plugin.storagelayout {background: url("../img/icons/Safe_32x32.png") no-repeat center center;}
 a.plugin.study {background: url("../img/icons/Statistics_32x32.png") no-repeat center center;}
 a.plugin.pricing {background: url("../img/icons/For Sale Dollars_32x32.png.png") no-repeat center center;}
 a.plugin.provider {background: url("../img/icons/provider.png") no-repeat center center;}
