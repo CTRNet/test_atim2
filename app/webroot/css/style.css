@@ -1225,7 +1225,6 @@ div#footer a:hover {
 
 /* this is the CAKEPHP DEBUG table that appears at the bottom of every view when enabled */
 table.cake-sql-log {
-	display: none;
 	clear: both;
 	margin: 3em auto;
 	width: 70%;
