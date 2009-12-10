@@ -1,4 +1,4 @@
-﻿-- ATiM v2.0.0 Database Creation Script
+-- ATiM v2.0.0 Database Creation Script
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
@@ -431,7 +431,8 @@ CREATE TABLE IF NOT EXISTS `aliquot_masters` (
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   INDEX `barcode` (`barcode`),
-  INDEX `aliquot_type` (`aliquot_type`)
+  INDEX `aliquot_type` (`aliquot_type`),
+  UNIQUE `unique_barcode` (`barcode`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `aliquot_masters_revs` (
@@ -2597,7 +2598,8 @@ CREATE TABLE `quality_ctrls` (
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
-  INDEX `run_id` (`run_id`)
+  INDEX `run_id` (`run_id`),
+  UNIQUE `unique_qc_code` (`qc_code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `quality_ctrls_revs` (
@@ -3227,7 +3229,8 @@ CREATE TABLE `sample_masters` (
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
-  INDEX `sample_code` (`sample_code`)
+  INDEX `sample_code` (`sample_code`),
+  UNIQUE `unique_sample_code` (`sample_code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `sample_masters_revs` (
@@ -5042,7 +5045,8 @@ CREATE TABLE IF NOT EXISTS `storage_masters` (
   INDEX `code` (`code`),
   INDEX `barcode` (`barcode`),
   INDEX `short_label` (`short_label`),
-  INDEX `selection_label` (`selection_label`)
+  INDEX `selection_label` (`selection_label`),
+  UNIQUE `unique_code` (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `storage_masters_revs` (
@@ -5781,7 +5785,8 @@ CREATE TABLE IF NOT EXISTS `tma_slides` (
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   INDEX `barcode` (`barcode`),
-  INDEX `product_code` (`product_code`)
+  INDEX `product_code` (`product_code`),
+  UNIQUE `unique_barcode` (`barcode`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `tma_slides_revs` (
