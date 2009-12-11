@@ -40,7 +40,7 @@ class ProtocolMastersController extends ProtocolAppController {
 		$this_data = $this->ProtocolControl->find('first',array('conditions'=>array('ProtocolControl.id'=>$protocol_control_id)));
 		
 		// set FORM ALIAS based off VALUE from CONTROL table
-		$this->Structures->set($this_data['ProtocolControl']['detail_form_alias']);
+		$this->Structures->set($this_data['ProtocolControl']['form_alias']);
 		
 		$this->hook();
 		
@@ -56,6 +56,8 @@ class ProtocolMastersController extends ProtocolAppController {
 				$this->data = $this_data;
 			}
 		} 
+		$this->data['ProtocolMaster']['tumour_group'] = $this_data['ProtocolControl']['tumour_group'];
+		$this->data['ProtocolMaster']['type'] = $this_data['ProtocolControl']['type'];
 	}
 	
 	function detail($protocol_master_id=null) {
@@ -68,7 +70,7 @@ class ProtocolMastersController extends ProtocolAppController {
 		$this->data = $this->ProtocolMaster->find('first',array('conditions'=>array('ProtocolMaster.id'=>$protocol_master_id)));
 		
 		// set FORM ALIAS based off VALUE from MASTER table
-		$this->Structures->set($this->data['ProtocolControl']['detail_form_alias']);
+		$this->Structures->set($this->data['ProtocolControl']['form_alias']);
 	}
 
 	function edit( $protocol_master_id=null ) {
@@ -78,7 +80,7 @@ class ProtocolMastersController extends ProtocolAppController {
 		$this_data = $this->ProtocolMaster->find('first',array('conditions'=>array('ProtocolMaster.id'=>$protocol_master_id)));
 		
 		// set FORM ALIAS based off VALUE from MASTER table
-		$this->Structures->set($this_data['ProtocolControl']['detail_form_alias']);
+		$this->Structures->set($this_data['ProtocolControl']['form_alias']);
 		
 		$this->hook();
 		
