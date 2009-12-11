@@ -108,8 +108,6 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		if ( !empty($this->data) ) {
 			$this->data['TreatmentMaster']['participant_id'] = $participant_id;
 			$this->data['TreatmentMaster']['treatment_control_id'] = $treatment_control_id;
-			pr($this->data);
-			exit;
 			if ( $this->TreatmentMaster->save($this->data) ) {
 				$this->flash( 'Your data has been added.','/clinicalannotation/treatment_masters/detail/'.$participant_id.'/'.$this->TreatmentMaster->getLastInsertId());
 			} else {
