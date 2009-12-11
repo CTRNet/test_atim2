@@ -56,7 +56,7 @@ INSERT INTO `protocol_controls` (
 `modified_by`
 )
 VALUES (
-NULL , 'tumor_grp' , 'chemotherapy' , 'pd_chemos', 'pd_chemos', 'pe_chemos', 'pe_chemos', NULL , NULL , NULL , NULL
+NULL , 'all' , 'chemotherapy' , 'pd_chemos', 'pd_chemos', 'pe_chemos', 'pe_chemos', NULL , NULL , NULL , NULL
 );
 
 DELETE FROM `structures` WHERE `structures`.`id` = 187 LIMIT 1;
