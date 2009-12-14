@@ -122,3 +122,5 @@ UPDATE `structure_formats` SET `flag_add` = '0',
 
 ALTER TABLE dxd_tissues MODIFY column id int unsigned not null auto_increment;
 ALTER TABLE dxd_bloods MODIFY column id int unsigned not null auto_increment;
+
+DELETE FROM `structure_formats` WHERE `structure_formats`.`id` = 1947 LIMIT 1
