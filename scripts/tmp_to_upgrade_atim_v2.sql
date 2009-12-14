@@ -91,3 +91,7 @@ INSERT INTO `structure_value_domains_permissible_values` (structure_value_domain
 (100, @last_id, 2, 'yes', 'IM: intramuscular injection'),
 (100, @last_id + 1, 3, 'yes', 'SC: subcutaneous injection'),
 (100, @last_id + 2, 5, 'yes', 'PR: per rectum');
+
+UPDATE `menus` SET `use_link` = '/study/study_summaries/detail/%%StudySummary.id%%/' WHERE `menus`.`id` = 'tool_CAN_104' LIMIT 1 ;
+
+UPDATE menus SET parent_id = 'tool_CAN_100' WHERE parent_id = 'tool_CAN_104';
