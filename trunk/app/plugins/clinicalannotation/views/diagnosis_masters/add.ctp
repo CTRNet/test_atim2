@@ -8,12 +8,39 @@
 	
 	// Set form structure and option 
 	$final_atim_structure = $atim_structure; 
-	$final_options = array('links'=>$structure_links);
+	$final_options = array('links'=>$structure_links, 'settings' => array('form_top' => false));
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook();
 	if( $hook_link ) { require($hook_link); }
 		
 	// BUILD FORM
+	//print only the form top
+	$structures->build($empty_structure, array('links' => array('top' => $structure_links['top']), 'settings' => array('form_bottom' => false, 'actions' => false)));
+	
+	?>
+	<table class="structure" cellspacing="0">
+		<tbody>
+			<tr><td style='text-align: left; padding-left: 10px;'><input type='radio' name='data[DiagnosisMaster][primary_number]' checked='checked' value='0'/>0, <?php echo(__('no primary', null));?></td><td>
+			
+	<?php
+	$structures->build($atim_structure, array('data' => $existing_dx[0], 'type' => 'list', 'settings' => array('form_bottom' => false, 'actions' => false, 'pagination' => false)));
+	unset($existing_dx[0]);
+	$max_key = 0;
+	foreach($existing_dx as $key => $dx){
+		?>
+		</td>
+		</tr>
+		<tr><td style='text-align: left; padding-left: 10px;'><input type='radio' name='data[DiagnosisMaster][primary_number]' value='<?php echo($key); ?>'/><?php echo($key);?></td><td>
+		<?php
+		$structures->build($atim_structure, array('data' => $existing_dx[$key], 'type' => 'list', 'settings' => array('form_bottom' => false, 'actions' => false, 'pagination' => false)));
+		$max_key = $key; 
+	}
+	?>
+	</td></tr>
+	<tr><td style='text-align: left; padding-left: 10px;'><input type='radio' name='data[DiagnosisMaster][primary_number]' value='<?php echo($max_key + 1); ?>'/><?php echo(($max_key + 1).", ".__('new primary', null));?></td><td></td></tr>
+		</tbody>
+	</table>
+	<?php
 	$structures->build( $final_atim_structure, $final_options );
 ?>
