@@ -21,7 +21,7 @@ function summary( $variables=array() ) {
 			
 			$return = array(
 				'Summary'	 => array(
-					'menu' => array(NULL, __($result['DiagnosisMaster']['type'], TRUE)),
+					'menu' => array(NULL, __($result['DiagnosisMaster']['diagnosis_control_id'] == 1 ? "blood" : "tissue", TRUE)),
 					'title' => array(NULL, 'NOT WORKING title'),
 					'description' => array(
 						__('nature', TRUE) => __($result['DiagnosisMaster']['dx_nature'], TRUE),

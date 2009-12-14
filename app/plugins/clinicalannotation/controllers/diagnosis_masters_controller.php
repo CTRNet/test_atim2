@@ -60,6 +60,7 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		$this->set( 'atim_menu', $this->Menus->get('/clinicalannotation/diagnosis_masters/listall/') );
 		$dx_control_data = $this->DiagnosisControl->find('first', array('conditions' => array('DiagnosisControl.id' => $dx_control_id)));
 		$this->Structures->set($dx_control_data['DiagnosisControl']['form_alias']);
+		$this->Structures->set('empty', 'empty_structure');
 
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
@@ -83,6 +84,8 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 				}
 			}
 		}
+		
+		$this->buildAndSetExistingDx($participant_id, 0, 0);
 	}
 
 	function edit( $participant_id, $diagnosis_master_id ) {
@@ -118,6 +121,9 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 				}
 			}
 		}
+		
+		$this->Structures->set('empty', 'empty_structure');
+		$this->buildAndSetExistingDx($participant_id, $diagnosis_master_id, $dx_master_data['DiagnosisMaster']['primary_number']);
 	}
 
 	function delete( $participant_id, $diagnosis_master_id ) {
@@ -169,5 +175,29 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		// $event_id = $this->EventMaster->find('first', array('conditions'=>array('EventMaster.diagnosis_master_id'=>$diagnosis_master_id, 'EventMaster.deleted'=>0),'fields'=>array('EventMaster.id')));
 		return array('allow_deletion' => true, 'msg' => '');
 	}	
+	
+	function buildAndSetExistingDx($participant_id, $current_dx_id, $current_dx_primary_number){
+		$existing_dx = $this->DiagnosisMaster->find('all', array('conditions' => array('DiagnosisMaster.participant_id' => $participant_id, 'DiagnosisMaster.id != '.$current_dx_id)));
+		//sort by dx number
+		if(empty($existing_dx)){
+			$sorted_dx[0] = array();
+		}else{
+			foreach($existing_dx as $dx){
+				if(isset($sorted_dx[$dx['DiagnosisMaster']['primary_number']])){
+					array_push($sorted_dx[$dx['DiagnosisMaster']['primary_number']], $dx);
+				}else{
+					$sorted_dx[$dx['DiagnosisMaster']['primary_number']][0] = $dx;
+				}
+			}
+			if(!isset($sorted_dx[0])){
+				$sorted_dx[0] = array();
+			}
+			if(!isset($sorted_dx[$current_dx_primary_number])){
+				$sorted_dx[$current_dx_primary_number] = array();			
+			}
+		}
+		ksort($sorted_dx);
+		$this->set('existing_dx', $sorted_dx);	
+	}
 }
 ?>

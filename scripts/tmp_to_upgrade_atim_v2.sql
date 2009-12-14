@@ -95,3 +95,30 @@ INSERT INTO `structure_value_domains_permissible_values` (structure_value_domain
 UPDATE `menus` SET `use_link` = '/study/study_summaries/detail/%%StudySummary.id%%/' WHERE `menus`.`id` = 'tool_CAN_104' LIMIT 1 ;
 
 UPDATE menus SET parent_id = 'tool_CAN_100' WHERE parent_id = 'tool_CAN_104';
+
+INSERT INTO `structures` (
+`id` ,
+`old_id` ,
+`alias` ,
+`language_title` ,
+`language_help` ,
+`flag_add_columns` ,
+`flag_edit_columns` ,
+`flag_search_columns` ,
+`flag_detail_columns` ,
+`created` ,
+`created_by` ,
+`modified` ,
+`modified_by`
+)
+VALUES (
+NULL , 'CANM-00018', 'empty', 'empty structure', 'empty structure', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''
+);
+
+UPDATE `structure_formats` SET `flag_add` = '0',
+`flag_edit` = '0' WHERE `structure_formats`.`id` =1958 LIMIT 1 ;
+UPDATE `structure_formats` SET `flag_add` = '0',
+`flag_edit` = '0' WHERE `structure_formats`.`id` =1959 LIMIT 1 ;
+
+ALTER TABLE dxd_tissues MODIFY column id int unsigned not null auto_increment;
+ALTER TABLE dxd_bloods MODIFY column id int unsigned not null auto_increment;
