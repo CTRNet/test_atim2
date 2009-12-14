@@ -35,13 +35,13 @@ class EventMastersController extends ClinicalannotationAppController {
 		
 		$this->set( 'atim_menu_variables', array('EventMaster.event_group'=>$event_group,'Participant.id'=>$participant_id, 'EventControl.id'=>$event_control_id) );
 		
-		$this->hook();
-		
 		$this->data = $this->paginate($this->EventMaster, $_SESSION['MasterDetail_filter']);
 		
 		// find all EVENTCONTROLS, for ADD form
 		$this->set( 'event_controls', $this->EventControl->find('all', array('conditions'=>array('event_group'=>$event_group))) );
 				
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { require($hook_link); }
 	}
 	
 	function detail( $event_group=NULL, $participant_id=null, $event_master_id=null ) {
@@ -50,12 +50,15 @@ class EventMastersController extends ClinicalannotationAppController {
 		
 		$this->set( 'atim_menu_variables', array('EventMaster.event_group'=>$event_group,'Participant.id'=>$participant_id,'EventMaster.id'=>$event_master_id) );
 		
-		$this->hook();
-		
 		$this->data = $this->EventMaster->find('first',array('conditions'=>array('EventMaster.id'=>$event_master_id)));
+		$this->set('dx_data', $this->DiagnosisMaster->find('all', array('conditions' => array('DiagnosisMaster.id' => $this->data['EventMaster']['diagnosis_master_id']))));
 		
 		// set FORM ALIAS based off VALUE from MASTER table
 		$this->Structures->set($this->data['EventControl']['form_alias']);
+		$this->Structures->set('diagnosismasters', 'diagnosis_structure');
+		
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { require($hook_link); }
 	}
 	
 	function add( $event_group=NULL, $participant_id=null, $event_control_id=null) {
@@ -72,7 +75,9 @@ class EventMastersController extends ClinicalannotationAppController {
 		// set FORM ALIAS based off VALUE from CONTROL table
 		$this->Structures->set($this_data['EventControl']['form_alias']);
 		
-		$this->hook();
+		
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { require($hook_link); }
 		
 		if ( !empty($this->data) ) {
 			
@@ -82,12 +87,19 @@ class EventMastersController extends ClinicalannotationAppController {
 			$this->data['EventMaster']['event_type'] = $this_data['EventControl']['event_type'];
 			$this->data['EventMaster']['disease_site'] = $this_data['EventControl']['disease_site'];
 			
-			if ( $this->EventMaster->save($this->data) ) {
+			$submitted_data_validates = true;
+			$hook_link = $this->hook('presave_process');
+			if( $hook_link ) { require($hook_link); }
+		
+			if ($submitted_data_validates && $this->EventMaster->save($this->data) ) {
 				$this->flash( 'Your data has been updated.','/clinicalannotation/event_masters/detail/'.$event_group.'/'.$participant_id.'/'.$this->EventMaster->getLastInsertId());
 			} else {
 				$this->data = $this_data;
 			}
-		} 		
+		} 
+		
+		$this->Structures->set('diagnosismasters', 'diagnosis_structure');
+		$this->Structures->set('empty', 'empty_structure');
 	}
 	
 	function edit( $event_group=NULL, $participant_id=null, $event_master_id=null ) {
@@ -96,7 +108,8 @@ class EventMastersController extends ClinicalannotationAppController {
 		
 		// set DIAGANOSES
 			$this->set( 'data_for_checklist', $this->DiagnosisMaster->find('all', array('conditions'=>array('DiagnosisMaster.participant_id'=>$participant_id))) );
-			$this->set( 'atim_structure_for_checklist', $this->Structures->get('form','diagnosis_master') );
+			$this->Structures->set('diagnosismasters', 'diagnosis_structure');
+			
 		
 		$this->set( 'atim_menu_variables', array('EventMaster.event_group'=>$event_group,'Participant.id'=>$participant_id,'EventMaster.id'=>$event_master_id) );
 		$this_data = $this->EventMaster->find('first',array('conditions'=>array('EventMaster.id'=>$event_master_id)));
@@ -104,12 +117,17 @@ class EventMastersController extends ClinicalannotationAppController {
 		// set FORM ALIAS based off VALUE from MASTER table
 		$this->Structures->set($this_data['EventControl']['form_alias']);
 		
-		$this->hook();
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { require($hook_link); }
 		
 		if ( !empty($this->data) ) {
 			$this->EventMaster->id = $event_master_id;
 
-			if ( $this->EventMaster->save($this->data) ) $this->flash( 'Your data has been updated.','/clinicalannotation/event_masters/detail/'.$event_group.'/'.$participant_id.'/'.$event_master_id);
+			$submitted_data_validates = true;
+			$hook_link = $this->hook('presave_process');
+			if( $hook_link ) { require($hook_link); }
+			
+			if ($submitted_data_validates && $this->EventMaster->save($this->data) ) $this->flash( 'Your data has been updated.','/clinicalannotation/event_masters/detail/'.$event_group.'/'.$participant_id.'/'.$event_master_id);
 		} else {
 			$this->data = $this_data;
 		}
@@ -121,8 +139,9 @@ class EventMastersController extends ClinicalannotationAppController {
 			$this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE );
 		}
 
-		$this->hook();
-		
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { require($hook_link); }
+	
 		// TODO: Update del function call with ATiM delete
 		if( $this->EventMaster->atim_delete( $event_master_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/clinicalannotation/event_masters/listall/'.$event_group.'/'.$participant_id );

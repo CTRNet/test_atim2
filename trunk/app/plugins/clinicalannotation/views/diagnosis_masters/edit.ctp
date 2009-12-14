@@ -8,10 +8,9 @@
 	
 	// Set form structure and option 
 	$final_atim_structure = $atim_structure; 
-	$final_options = array('links'=>$structure_links, 'settings' => array('form_top' => false));
 	
 	// CUSTOM CODE
-	$hook_link = $structures->hook();
+	$hook_link = $structures->hook('dx_list');
 	if( $hook_link ) { require($hook_link); }
 		
 	// BUILD FORM
@@ -24,7 +23,10 @@
 			<tr><td style='text-align: left; padding-left: 10px;'><input type='radio' name='data[DiagnosisMaster][primary_number]' checked='checked' value='0'/>0, <?php echo(__('no primary', null));?></td><td>
 			
 	<?php
-	$structures->build($atim_structure, array('data' => $existing_dx[0], 'type' => 'list', 'settings' => array('form_bottom' => false, 'actions' => false, 'pagination' => false)));
+	$final_options = array('data' => $existing_dx[0], 'type' => 'list', 'settings' => array('form_bottom' => false, 'actions' => false, 'pagination' => false));
+	$hook_link = $structures->hook('dx_list');
+	if( $hook_link ) { require($hook_link); }	
+	$structures->build($final_atim_structure, $final_options);
 	unset($existing_dx[0]);
 	$max_key = 0;
 	$own_primary = false;//do not print a new number if the current dx is the only one having it's current number
@@ -43,7 +45,11 @@
 				<input type='radio' name='data[DiagnosisMaster][primary_number]' value='<?php echo($key); ?>' <?php echo($checked); ?>/><?php echo($key);?>
 			</td><td>
 		<?php
-		$structures->build($atim_structure, array('data' => $existing_dx[$key], 'type' => 'list', 'settings' => array('form_bottom' => false, 'actions' => false, 'pagination' => false)));
+		$final_options = array('data' => $existing_dx[$key], 'type' => 'list', 'settings' => array('form_bottom' => false, 'actions' => false, 'pagination' => false));
+		$hook_link = $structures->hook('dx_list');
+		if( $hook_link ) { require($hook_link); }	
+	
+		$structures->build($final_atim_structure, $final_options);
 		$max_key = $key; 
 	}
 	?>
@@ -56,5 +62,10 @@
 		</tbody>
 	</table>
 	<?php
+	$final_options = array('links'=>$structure_links, 'settings' => array('form_top' => false));
+	// CUSTOM CODE
+	$hook_link = $structures->hook();
+	if( $hook_link ) { require($hook_link); }
+	
 	$structures->build( $final_atim_structure, $final_options );
 ?>

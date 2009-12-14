@@ -19,35 +19,10 @@
 		)
 	); 
 	
-	$structures->build( $atim_structure, array('links'=>$structure_links));
+	$final_atim_structure = $atim_structure;
+	$final_options = array('links'=>$structure_links);
+	$hook_link = $structures->hook();
+	if( $hook_link ) { require($hook_link); }
+	$structures->build( $atim_structure, $final_options);
 	
-	/*
-	// EXPANDED add action, based on CONTROL->MASTER->DETAIL datatable setup
-	$expanded_add = array();
-			
-	// loop through related CONTROL table rows 
-	foreach ( $event_controls as $option ) {
-		if ( $option['EventControl']['form_alias'] && $option['EventControl']['detail_tablename'] ) {
-			$expanded_add [ $option['EventControl']['id'] ] = ($option['EventControl']['disease_site'].' - '.$option['EventControl']['event_type']);
-		}
-	}
-	
-	if ( !empty( $expanded_add ) ) {
-		echo('
-				<fieldset>
-					<select name="event_control_id">
-		');
-			foreach ( $expanded_add as $key=>$value ) {
-				echo('
-					<option value="'.$key.'">'.$value.'</option>
-				');
-			}
-		echo('
-				</select>
-				<input type="submit" class="submit add" value="'.add.'" />
-				</fieldset>
-			</form>
-		');
-	} // end IF
-	*/
 ?>
