@@ -1,4 +1,4 @@
--- ATiM v2.0.0 Database Creation Script
+﻿-- ATiM v2.0.0 Database Creation Script
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
@@ -3017,9 +3017,9 @@ CREATE TABLE `reproductive_histories` (
   `lnmp_date` date default NULL,
   `lnmp_accuracy` varchar(50) default NULL,
   `participant_id` int(11) default NULL,
-  `created` date NOT NULL default '0000-00-00',
+  `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` varchar(50) NOT NULL default '',
-  `modified` date NOT NULL default '0000-00-00',
+  `modified` datetime default NULL,
   `modified_by` varchar(50) NOT NULL default '',
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
@@ -3053,9 +3053,9 @@ CREATE TABLE `reproductive_histories_revs` (
   `lnmp_date` date default NULL,
   `lnmp_accuracy` varchar(50) default NULL,
   `participant_id` int(11) default NULL,
-  `created` date NOT NULL default '0000-00-00',
+  `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` varchar(50) NOT NULL default '',
-  `modified` date NOT NULL default '0000-00-00',
+  `modified` datetime default NULL,
   `modified_by` varchar(50) NOT NULL default '',
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
