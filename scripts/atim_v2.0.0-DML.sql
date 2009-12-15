@@ -1,5 +1,4 @@
 ﻿-- ATiM v2.0.0
-USE `atim`;
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 SET FOREIGN_KEY_CHECKS=0;
@@ -3292,6 +3291,8 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('add as saved search', 'global', 'Add as Saved Search', ''),
 ('add collection', 'global', 'Add Collection', 'Cr&eacute;er collection'),
 ('add derivative', 'global', 'Add Derivative', 'Cr&eacute;er d&eacute;riv&eacute;'),
+('add specimen', 'global', 'Add Specimen', 'Cr&eacute;er sp&eacute;cimen'),
+('add tma slide', 'global', 'Add Slide', 'Cr&eacute;er lame'),
 ('add to order', 'global', 'Add To Order', 'Ajoutez aux commandes'),
 ('add to storage', 'global', 'Add To Storage', 'Ajouter &agrave; l''entreposage'),
 ('additional clinical', 'global', 'Additional Clinical', ''),
@@ -3322,6 +3323,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('age_at_dx', 'global', 'Age at Diagnosis', ''),
 ('AJCC 5th Edition', 'global', 'AJCC 5th Edition', 'AJCC 5th Edition'),
 ('AJCC 6th Edition', 'global', 'AJCC 6th Edition', 'AJCC 6th Edition'),
+('ajcc edition', 'global', 'AJCC Edition', ''),
 ('alethia-arcturus', 'global', 'Alethia-Arcturus', 'Al&eacute;thia-Arcturus'),
 ('alethia-ramp', 'global', 'Alethia-Ramp', 'Al&eacute;thia-Ramp'),
 ('aliquot', 'global', 'Aliquot', 'Aliquot'),
@@ -3642,7 +3644,6 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('coord x', 'global', 'Coord X', 'Coord X'),
 ('coord y', 'global', 'Coord Y', 'Coord Y'),
 ('coordinate dimension', 'global', 'Dimension', 'Dimension'),
-('add tma slide', 'global', 'Add Slide', 'Cr&eacute;er lame'),
 ('coordinate must be unique for the storage', 'global', 'Coordinate value must be unique for the storage!', 'La valeur de la coordonn&eacute;e doit &ecirc;tre unique pour l''entreposage!'),
 ('coordinate order must be unique for the storage', 'global', 'Coordinate order must be unique for the storage!', 'L''ordre de la coordonn&eacute;e doit &ecirc;tre unique pour l''entreposage!'),
 ('coordinate size', 'global', 'Size', 'Taille'),
@@ -3811,6 +3812,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('diagnosis', 'global', 'Diagnosis', 'Diagnose'),
 ('diagnosis date', 'global', 'Date of Diagnosis', ''),
 ('diagnosis id', 'global', 'Diagnosis ID', ''),
+('diagnosis identifier', '', 'Diagnosis Identifier', ''),
 ('died of disease', 'global', 'Died of Disease', ''),
 ('died of other cause', 'global', 'Died of other cause', ''),
 ('died of unknown cause', 'global', 'Died of unknown cause', ''),
@@ -3830,7 +3832,8 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('DMSO + serum', 'global', 'DMSO + Serum', 'DMSO + S&eacute;rum'),
 ('dna', 'global', 'DNA', 'ADN'),
 ('dna amplification method', 'global', 'DNA Amplification Method', ''),
-('dna extraction method', 'global', 'DNA Extraction Method', 'M&eacute;thode d''Extraction de l''ADN'),
+('dna extraction method', 'global', 'DNA Extraction Method', 'M&eacute;thode d''Extraction de l''ADN');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('dna rna tubes', 'global', 'Tube', 'Tube'),
 ('do not forget to save', 'global', 'Do not forget to save', 'N''oubliez pas d''enregistrer'),
 ('doctor', 'global', 'Doctor', ''),
@@ -3841,8 +3844,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('dr.', 'global', 'Dr.', 'Dr.'),
 ('Dr. A', 'global', 'Dr. A', 'Dr. A'),
 ('Dr. B', 'global', 'Dr.B', 'Dr. B'),
-('drug', 'global', 'Drug', '');
-INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('drug', 'global', 'Drug', ''),
 ('drug administration', 'global', 'Drug Administration', ''),
 ('drug dose', 'global', 'Drug Dose', ''),
 ('drug type', 'global', 'Drug Type', ''),
@@ -4471,15 +4473,15 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('parent storage', 'global', 'Parent Storage', 'Contenant (Entreposage)'),
 ('parent storage id', 'global', 'Parent Storage', 'Entreposage parent'),
 ('parent type', 'global', 'Parent Type', 'Type du Parent'),
-('parent/child', 'global', 'Parent/Child', 'Parent/Enfant'),
+('parent/child', 'global', 'Parent/Child', 'Parent/Enfant');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('partial', 'global', 'Partial', ''),
 ('partially degraded', 'global', 'Partially Degraded', 'Partiellement d&eacute;grad&eacute;'),
 ('participant', 'global', 'Participant', 'Participant'),
 ('participant collection', 'global', 'Participant Collection', 'Collection de participant'),
 ('participant identifier', '', 'Participant Identifier', ''),
 ('participant profile', 'global', 'Participant Profile', ''),
-('participants', 'global', 'Participants', 'Participants');
-INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('participants', 'global', 'Participants', 'Participants'),
 ('participant_contacts', 'global', 'Participant Contacts', ''),
 ('participant_messages', 'global', 'Participant Messages', ''),
 ('pass', 'global', 'Pass', 'Passable'),
@@ -4494,6 +4496,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('path report', 'global', 'Path Report', ''),
 ('patho dept block code', 'global', 'Pathology Department Block Code', 'Code du d&eacute;partement de pathologie'),
 ('pathologic report', 'global', 'Pathologic Report', 'Rapport de Pathologie'),
+('pathological stage', '', 'Pathological Stage', ''),
 ('pathologist', 'global', 'Pathologist', 'Pathologiste'),
 ('pathology', 'global', 'Pathology', 'Pathologie'),
 ('pathology department block code', 'global', 'Patho Code', 'Code de patho'),
@@ -4574,6 +4577,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('primary grade', 'global', 'Primary Grade', 'Grade primaire'),
 ('primary number', '', 'Primary Number', ''),
 ('primary phone number', 'global', 'Primary Telephone', ''),
+('primary_number', '', 'Primary Number', ''),
 ('principle_investigator', 'global', 'Principle Investigator', ''),
 ('problem during source sample list creation', 'global', 'Error of Source Sample List Creation', 'Erreur durant la cr&eacute;ation de la liste d''&eacute;chantillon ''sources'''),
 ('process batch set', 'global', 'Process Batch Set', ''),
@@ -5056,10 +5060,10 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('the defined storage id and the coordinate storage id are different', 'global', 'The defined storage id and the coordinate storage id are different!<br>Please try again or contact your system administrator.', 'L''identifiant de l''entreposage est diff&eacute;rent de celui de la coordonn&eacute;e de l''entreposage!<br>Essayez de nouveau ou contactez votre administrateur du syst&egrave;me.'),
 ('the defined storage is a tma', 'global', 'The defined storage is a TMA', 'L''entreposage d&eacute;fini est un TMA!'),
 ('the defintion of the number of aliquots to create is not correct', 'global', 'The defintion of the number of aliquots to create is not correct!<br>Please try again or contact your system administrator.', 'Les nombre d''aliquots &agrave; cr&eacute;er n''est pas correcte!<br>Essayez de nouveau ou contactez votre administrateur du syst&egrave;me.'),
-('the deleted collection is linked to participant', 'global', 'Your data cannot be deleted! <br>Collection is linked to participant.', 'Vos donn&eacute;es ne peuvent &ecirc;tre supprim&eacute;es! La collection est attach&eacute;e &agrave; un participant.'),
-('the parent sample is required', 'global', 'The parent sample is required!', 'L''&Eacute;chantillon parent est requis!'),
-('the process has been done but a part of the aliquots have not been included', 'global', 'The process has been done but a part of the aliquots have not been included into the order: No aliquot already included into another order can be included to a new order!', 'Le processus a &eacute;t&eacute; ex&eacute;cut&eacute; correctement mais les aliquots d&eacute;j&agrave; inclus dans une autre commande ont &eacute;t&eacute; exclus du processus!');
+('the deleted collection is linked to participant', 'global', 'Your data cannot be deleted! <br>Collection is linked to participant.', 'Vos donn&eacute;es ne peuvent &ecirc;tre supprim&eacute;es! La collection est attach&eacute;e &agrave; un participant.');
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('the parent sample is required', 'global', 'The parent sample is required!', 'L''&Eacute;chantillon parent est requis!'),
+('the process has been done but a part of the aliquots have not been included', 'global', 'The process has been done but a part of the aliquots have not been included into the order: No aliquot already included into another order can be included to a new order!', 'Le processus a &eacute;t&eacute; ex&eacute;cut&eacute; correctement mais les aliquots d&eacute;j&agrave; inclus dans une autre commande ont &eacute;t&eacute; exclus du processus!'),
 ('the review code is required and must be unique into the collection', 'global', 'The review code is required and must be unique into the collection!', 'Code du rapport de collection est requis et doit &ecirc;tre unique pour la collection!'),
 ('the sample can not be deleted', 'global', 'The sample can not be deleted!<br>Please try again or contact your system administrator.', 'L''&eacute;chantillon ne peut pas &ecirc;tre supprim&eacute;!<br>Essayez de nouveau ou contactez votre administrateur du syst&egrave;me.'),
 ('the sample control id has not been defined', 'global', 'The sample control id has not been defined!<br>Please try again or contact your system administrator.', 'L''ID du contr&ocirc;le de l''&eacute;chantillon n''a pas &eacute;t&eacute d&eacute;fini!<br>Essayez de nouveau ou contactez votre administrateur du syst&egrave;me.'),
@@ -5167,7 +5171,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('tubular', 'global', 'Tubular', 'Tubulaire'),
 ('tumor', 'global', 'Tumor', 'Tumeur'),
 ('tumour bank number', 'global', 'Tumour Bank Number', ''),
-('tumour grade', '', '', ''),
+('tumour grade', 'global', 'Tumour Grade', ''),
 ('Tumour Grade Category', 'global', 'Tumour Grade Category', ''),
 ('tumour group', 'global', 'Tumour Group', ''),
 ('tumour size', 'global', 'Tumour Size', ''),
@@ -5812,7 +5816,8 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('xsd_undetailed_specimens_sop_master_id_help', '', '', ''),
 ('xsd_undetailed_specimens_supplier_dept_help', '', '', ''),
 ('xsd_urineproducts_available_quantity_help', '', '', ''),
-('xsd_urineproducts_quantity_help', '', '', ''),
+('xsd_urineproducts_quantity_help', '', '', '');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('xSearch', 'global', 'Search', ''),
 ('xSetting', 'global', 'Setting', ''),
 ('xshelves_description_help', '', 'Description of a structure used to support a weight load', ''),
@@ -5823,9 +5828,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('xshipments_delivery_postal_code_help', '', '', ''),
 ('xshipments_delivery_province_help', '', '', ''),
 ('xshipments_delivery_street_address_help', '', '', ''),
-('xshipments_facility_help', '', 'The facility that carries the inventory to be shipped', '');
-INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
-('add specimen', 'global', 'Add Specimen', 'Cr&eacute;er sp&eacute;cimen'),
+('xshipments_facility_help', '', 'The facility that carries the inventory to be shipped', ''),
 ('xshipments_recipient_help', '', 'The name of the recipient of the shipment', ''),
 ('xshipments_shipment_code_help', '', '', ''),
 ('xshipments_shipped_by_help', '', '', ''),
@@ -7708,9 +7711,9 @@ INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `
 (292, '', 'CAN-999-999-000-999-1181', 'Storagelayout', 'StorageMaster', '', 'storage_type', 'storage type', '', 'select', '', '', 146, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (294, '', 'CAN-999-999-000-999-1183', 'Storagelayout', 'StorageMaster', '', 'barcode', 'barcode', '', 'input', 'size=30', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (296, '', 'CAN-999-999-000-999-1185', 'Storagelayout', 'StorageMaster', '', 'parent_id', 'parent storage id', '', 'select', '', '', 0, 'stor_parent_id_defintion', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(297, '', 'CAN-999-999-000-999-1186', 'Storagelayout', 'Generated', '', 'coord_x_title', 'coordinate x', 'title', 'select', '', '', 69, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(298, '', 'CAN-999-999-000-999-1187', 'Storagelayout', 'Generated', '', 'coord_x_type', '', 'coordinate type', 'select', '', '', 70, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(297, '', 'CAN-999-999-000-999-1186', 'Storagelayout', 'Generated', '', 'coord_x_title', 'coordinate x', 'title', 'select', '', '', 69, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(298, '', 'CAN-999-999-000-999-1187', 'Storagelayout', 'Generated', '', 'coord_x_type', '', 'coordinate type', 'select', '', '', 70, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (299, '', 'CAN-999-999-000-999-1188', 'Storagelayout', 'Generated', '', 'coord_x_size', '', 'coordinate size', 'input', 'size=10', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (300, '', 'CAN-999-999-000-999-1189', 'Storagelayout', 'Generated', '', 'coord_y_title', 'coordinate y', 'title', 'select', '', '', 71, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (301, '', 'CAN-999-999-000-999-119', 'Inventorymanagement', 'PathCollectionReview', '', 'tumour_type', 'tumour type', '', 'select', '', '', 98, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -7926,9 +7929,9 @@ INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `
 (575, '', 'CAN-999-999-000-999-314', 'Clinicalannotation', 'TreatmentExtend', '', 'reduction', 'reduction', '', 'input', 'size=10', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (576, '', 'CAN-999-999-000-999-315', 'Clinicalannotation', 'TreatmentExtend', '', 'cycle_number', 'cycle number', '', 'input', 'size=10', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (577, '', 'CAN-999-999-000-999-316', 'Clinicalannotation', 'TreatmentExtend', '', 'completed_cycles', 'completed cycles', '', 'input', 'size=10', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(578, '', 'CAN-999-999-000-999-317', 'Clinicalannotation', 'TreatmentExtend', '', 'drug_id', 'drug', '', 'select', '', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(579, '', 'CAN-999-999-000-999-318', 'Clinicalannotation', 'EventDetail', '', 'smoking_history', 'smoking history', '', 'select', '', '', 52, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(578, '', 'CAN-999-999-000-999-317', 'Clinicalannotation', 'TreatmentExtend', '', 'drug_id', 'drug', '', 'select', '', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(579, '', 'CAN-999-999-000-999-318', 'Clinicalannotation', 'EventDetail', '', 'smoking_history', 'smoking history', '', 'select', '', '', 52, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (580, '', 'CAN-999-999-000-999-319', 'Clinicalannotation', 'EventDetail', '', 'smoking_status', 'smoking status', '', 'select', '', '', 53, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (581, '', 'CAN-999-999-000-999-32', 'Clinicalannotation', 'FamilyHistory', 'family_histories', 'age_at_dx', 'age at dx', '', 'number', 'size=4', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (582, '', 'CAN-999-999-000-999-320', 'Clinicalannotation', 'EventDetail', '', 'pack_years', 'pack years', '', 'date', '', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -8154,9 +8157,9 @@ INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `
 (811, '', 'CAN-999-999-000-999-67', 'Clinicalannotation', 'ConsentMaster', '', 'acquisition_id', 'Acquisition ID', '', 'input', '', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (812, '', 'CAN-812', 'Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters', 'dx_identifier', 'diagnosis identifier', '', 'input', 'size=4', '', 0, 'help_dx identifier', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (813, '', 'CAN-999-999-000-999-69', 'Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters', 'dx_method', 'dx_method', '', 'select', '', '', 33, 'help_dx method', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(814, '', 'CAN-999-999-000-999-7', 'Clinicalannotation', 'Participant', 'participants', 'race', 'race', '', 'select', '', '', 88, 'help_race', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(815, '', 'CAN-999-999-000-999-70', 'Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters', 'dx_nature', 'dx nature', '', 'select', '', '', 34, 'help_dx nature', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(814, '', 'CAN-999-999-000-999-7', 'Clinicalannotation', 'Participant', 'participants', 'race', 'race', '', 'select', '', '', 88, 'help_race', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(815, '', 'CAN-999-999-000-999-70', 'Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters', 'dx_nature', 'dx nature', '', 'select', '', '', 34, 'help_dx nature', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (816, '', 'CAN-999-999-000-999-71', 'Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters', 'dx_date', 'dx_date', '', 'date', '', '', 0, 'help_dx date', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (817, '', 'CAN-999-999-000-999-72', 'Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters', 'primary_icd10_code', 'primary disease code', '', 'autocomplete', 'size=20,url=/coding_icd10s/autocomplete/,tool=/coding_icd10s/tool/DiagnosisIcd10Id/,append=/coding_icd10s/append/', '', 0, 'help_primary code', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '2008-10-01 11:16:16', '1'),
 (818, '', 'CAN-999-999-000-999-73', 'Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters', 'information_source', 'information_source', '', 'select', '', '', 36, 'help_information source', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -8228,7 +8231,7 @@ INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `
 (894, '', 'CAN-999-999-000-999-1288', 'Inventorymanagement', 'SampleDetail', '', 'tissue_size_unit', '', 'unit', 'input', 'size=5', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (895, '', 'CAN-895', 'Clinicalannotation', 'Participant', 'participants', 'secondary_cod_icd10_code', 'secondary cause of death', '', 'autocomplete', 'size=20,url=/coding_icd10s/autocomplete/,tool=/coding_icd10s/tool/ParticipantIcd10Id/,append=/coding_icd10s/append/', '', NULL, 'help_icd10 coding', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (896, '', 'CAN-896', 'Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters', 'notes', 'notes', '', 'textarea', 'cols=40,rows=6', '', NULL, 'help_notes', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(897, '', 'CAN-897', 'Administrate', 'User', 'users', 'new_password', 'core_newpassword', '',  'input', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(897, '', 'CAN-897', 'Administrate', 'User', 'users', 'new_password', 'core_newpassword', '', 'input', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (898, '', 'CAN-898', 'Administrate', 'User', 'users', 'confirm_password', 'core_confirmpassword', '', 'input', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (899, '', 'CAN-899', 'Administrate', 'Config', 'configs', 'define_date_format', 'define_date_format', '', 'input', '', 'MDY', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (900, '', 'CAN-900', 'Administrate', 'Config', 'configs', 'define_csv_separator', 'define_csv_separator', '', 'input', '', ',', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -9471,22 +9474,21 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (1747, 'CAN-999-999-000-999-69_AAA-000-000-000-000-69', 148, 'CAN-999-999-000-999-69', 95, 'AAA-000-000-000-000-69', 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1748, 'CAN-999-999-000-999-69_AAA-000-000-000-000-70', 148, 'CAN-999-999-000-999-69', 97, 'AAA-000-000-000-000-70', 1, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1749, 'CAN-999-999-000-999-69_AAA-000-000-000-000-71', 148, 'CAN-999-999-000-999-69', 98, 'AAA-000-000-000-000-71', 1, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '2008-08-26 01:35:44', ''),
-(1750, 'CAN-999-999-000-999-6_CAN-999-999-000-002-11', 138, 'CAN-999-999-000-999-6', 139, 'CAN-999-999-000-002-11', 1, 9, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(1751, 'CAN-999-999-000-999-6_CAN-999-999-000-999-324', 138, 'CAN-999-999-000-999-6', 585, 'CAN-999-999-000-999-324', 1, 7, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(1752, 'CAN-999-999-000-999-6_CAN-999-999-000-999-68', 138, 'CAN-999-999-000-999-6', 812, 'CAN-999-999-000-999-68', 1, 0, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(1753, 'CAN-999-999-000-999-6_CAN-999-999-000-999-69', 138, 'CAN-999-999-000-999-6', 813, 'CAN-999-999-000-999-69', 1, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(1754, 'CAN-999-999-000-999-6_CAN-999-999-000-999-70', 138, 'CAN-999-999-000-999-6', 815, 'CAN-999-999-000-999-70', 1, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(1755, 'CAN-999-999-000-999-6_CAN-999-999-000-999-71', 138, 'CAN-999-999-000-999-6', 816, 'CAN-999-999-000-999-71', 1, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(1756, 'CAN-999-999-000-999-6_CAN-999-999-000-999-72', 138, 'CAN-999-999-000-999-6', 817, 'CAN-999-999-000-999-72', 1, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '2008-10-01 11:16:32', ''),
-(1757, 'CAN-999-999-000-999-6_CAN-999-999-000-999-73', 138, 'CAN-999-999-000-999-6', 818, 'CAN-999-999-000-999-73', 1, 10, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(1758, 'CAN-999-999-000-999-6_CAN-999-999-000-999-74', 138, 'CAN-999-999-000-999-6', 819, 'CAN-999-999-000-999-74', 1, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(1759, 'CAN-999-999-000-999-6_CAN-999-999-000-999-76', 138, 'CAN-999-999-000-999-6', 821, 'CAN-999-999-000-999-76', 1, -1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(1751, 'CAN-999-999-000-999-6_CAN-999-999-000-999-324', 138, 'CAN-999-999-000-999-6', 585, 'CAN-999-999-000-999-324', 2, 7, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(1752, 'CAN-999-999-000-999-6_CAN-999-999-000-999-68', 138, 'CAN-999-999-000-999-6', 812, 'CAN-999-999-000-999-68', 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(1753, 'CAN-999-999-000-999-6_CAN-999-999-000-999-69', 138, 'CAN-999-999-000-999-6', 813, 'CAN-999-999-000-999-69', 1, 9, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(1754, 'CAN-999-999-000-999-6_CAN-999-999-000-999-70', 138, 'CAN-999-999-000-999-6', 815, 'CAN-999-999-000-999-70', 1, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(1755, 'CAN-999-999-000-999-6_CAN-999-999-000-999-71', 138, 'CAN-999-999-000-999-6', 816, 'CAN-999-999-000-999-71', 1, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(1756, 'CAN-999-999-000-999-6_CAN-999-999-000-999-72', 138, 'CAN-999-999-000-999-6', 817, 'CAN-999-999-000-999-72', 2, 1, 'coding', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '2008-10-01 11:16:32', ''),
+(1757, 'CAN-999-999-000-999-6_CAN-999-999-000-999-73', 138, 'CAN-999-999-000-999-6', 818, 'CAN-999-999-000-999-73', 1, 12, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(1758, 'CAN-999-999-000-999-6_CAN-999-999-000-999-74', 138, 'CAN-999-999-000-999-6', 819, 'CAN-999-999-000-999-74', 1, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(1759, 'CAN-999-999-000-999-6_CAN-999-999-000-999-76', 138, 'CAN-999-999-000-999-6', 821, 'CAN-999-999-000-999-76', 1, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1760, 'CAN-999-999-000-999-6_CAN-999-999-000-999-77', 138, 'CAN-999-999-000-999-6', 823, 'CAN-999-999-000-999-77', 2, 13, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(1761, 'CAN-999-999-000-999-6_CAN-999-999-000-999-78', 138, 'CAN-999-999-000-999-6', 824, 'CAN-999-999-000-999-78', 2, 14, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(1762, 'CAN-999-999-000-999-6_CAN-999-999-000-999-79', 138, 'CAN-999-999-000-999-6', 825, 'CAN-999-999-000-999-79', 2, 15, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(1761, 'CAN-999-999-000-999-6_CAN-999-999-000-999-78', 138, 'CAN-999-999-000-999-6', 824, 'CAN-999-999-000-999-78', 2, 14, 'staging', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(1762, 'CAN-999-999-000-999-6_CAN-999-999-000-999-79', 138, 'CAN-999-999-000-999-6', 825, 'CAN-999-999-000-999-79', 1, 10, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1763, 'CAN-999-999-000-999-6_CAN-999-999-000-999-80', 138, 'CAN-999-999-000-999-6', 827, 'CAN-999-999-000-999-80', 2, 16, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(1764, 'CAN-999-999-000-999-6_CAN-999-999-000-999-81', 138, 'CAN-999-999-000-999-6', 828, 'CAN-999-999-000-999-81', 2, 17, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(1765, 'CAN-999-999-000-999-6_CAN-999-999-000-999-82', 138, 'CAN-999-999-000-999-6', 829, 'CAN-999-999-000-999-82', 2, 18, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(1764, 'CAN-999-999-000-999-6_CAN-999-999-000-999-81', 138, 'CAN-999-999-000-999-6', 828, 'CAN-999-999-000-999-81', 1, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(1765, 'CAN-999-999-000-999-6_CAN-999-999-000-999-82', 138, 'CAN-999-999-000-999-6', 829, 'CAN-999-999-000-999-82', 1, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1766, 'CAN-999-999-000-999-6_CAN-999-999-000-999-83', 138, 'CAN-999-999-000-999-6', 830, 'CAN-999-999-000-999-83', 2, 19, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1767, 'CAN-999-999-000-999-6_CAN-999-999-000-999-84', 138, 'CAN-999-999-000-999-6', 831, 'CAN-999-999-000-999-84', 2, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1768, 'CAN-999-999-000-999-6_CAN-999-999-000-999-85', 138, 'CAN-999-999-000-999-6', 832, 'CAN-999-999-000-999-85', 2, 21, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -9495,7 +9497,7 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (1771, 'CAN-999-999-000-999-6_CAN-999-999-000-999-88', 138, 'CAN-999-999-000-999-6', 835, 'CAN-999-999-000-999-88', 2, 24, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1772, 'CAN-999-999-000-999-6_CAN-999-999-000-999-89', 138, 'CAN-999-999-000-999-6', 836, 'CAN-999-999-000-999-89', 2, 24, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1773, 'CAN-999-999-000-999-6_CAN-999-999-000-999-90', 138, 'CAN-999-999-000-999-6', 837, 'CAN-999-999-000-999-90', 2, 25, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(1774, 'CAN-999-999-000-999-6_CAN-999-999-000-999-91', 138, 'CAN-999-999-000-999-6', 838, 'CAN-999-999-000-999-91', 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(1774, 'CAN-999-999-000-999-6_CAN-999-999-000-999-91', 138, 'CAN-999-999-000-999-6', 838, 'CAN-999-999-000-999-91', 1, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1775, 'CAN-999-999-000-999-7_CAN-999-999-000-999-116', 149, 'CAN-999-999-000-999-7', 273, 'CAN-999-999-000-999-116', 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1776, 'CAN-999-999-000-999-7_CAN-999-999-000-999-117', 149, 'CAN-999-999-000-999-7', 284, 'CAN-999-999-000-999-117', 0, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1777, 'CAN-999-999-000-999-7_CAN-999-999-000-999-118', 149, 'CAN-999-999-000-999-7', 290, 'CAN-999-999-000-999-118', 0, 15, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -9610,9 +9612,9 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (1886, 'QRY-999-999-000-999-18_QRY-999-999-000-999-11', 174, 'QRY-999-999-000-999-18', 867, 'QRY-999-999-000-999-11', 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1887, 'QRY-999-999-000-999-19_CAN-999-999-000-999-26', 175, 'QRY-999-999-000-999-19', 521, 'CAN-999-999-000-999-26', 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1888, 'QRY-999-999-000-999-19_CAN-999-999-000-999-4', 175, 'QRY-999-999-000-999-19', 636, 'CAN-999-999-000-999-4', 1, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(1889, 'QRY-999-999-000-999-19_CAN-999-999-000-999-1', 175, 'QRY-999-999-000-999-19', 149, 'CAN-999-999-000-999-1', 1, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(1889, 'QRY-999-999-000-999-19_CAN-999-999-000-999-1', 175, 'QRY-999-999-000-999-19', 149, 'CAN-999-999-000-999-1', 1, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(1890, 'QRY-999-999-000-999-19_CAN-999-999-000-999-2', 175, 'QRY-999-999-000-999-19', 460, 'CAN-999-999-000-999-2', 1, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
-(1890, 'QRY-999-999-000-999-19_CAN-999-999-000-999-2', 175, 'QRY-999-999-000-999-19', 460, 'CAN-999-999-000-999-2', 1, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1891, 'QRY-999-999-000-999-19_CAN-999-999-000-999-57', 175, 'QRY-999-999-000-999-19', 801, 'CAN-999-999-000-999-57', 1, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1892, 'QRY-999-999-000-999-19_QRY-999-999-000-999-11', 175, 'QRY-999-999-000-999-19', 867, 'QRY-999-999-000-999-11', 1, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1893, 'QRY-999-999-000-999-20_CAN-999-999-000-999-1223', 176, 'QRY-999-999-000-999-20', 333, 'CAN-999-999-000-999-1223', 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -9661,7 +9663,6 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (1938, 'CAN-999-999-000-999-1011_CAN-999-999-000-999-1222', 42, 'CAN-999-999-000-999-1011', 332, 'CAN-999-999-000-999-1222', 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1942, 'CAN-999-999-000-999-1015_CAN-999-999-000-999-1222', 46, 'CAN-999-999-000-999-1015', 332, 'CAN-999-999-000-999-1222', 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1943, 'CAN-999-999-000-999-1014_CAN-999-999-000-999-1222', 45, 'CAN-999-999-000-999-1014', 332, 'CAN-999-999-000-999-1222', 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(1947, 'CAN-999-999-000-999-6_CANM-00001', 138, 'CAN-999-999-000-999-6', 876, 'CANM-00001', 2, 26, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1949, 'CANM-00001_CAN-999-999-000-002-11', 184, 'CANM-00001', 139, 'CAN-999-999-000-002-11', 2, 99, 'tissue specific', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1950, 'CANM-00001_CAN-999-999-000-999-324', 184, 'CANM-00001', 585, 'CAN-999-999-000-999-324', 2, 7, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1951, 'CANM-00001_CAN-999-999-000-999-68', 184, 'CANM-00001', 812, 'CAN-999-999-000-999-68', 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -9708,56 +9709,6 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (1992, 'CANM-00003_CAN-999-999-000-999-66', 185, 'CANM-00003', 810, 'CAN-999-999-000-999-66', 2, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1993, 'CANM-00003_CANM-00004', 185, 'CANM-00003', 878, 'CANM-00004', 2, 12, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (1994, 'CAN-999-999-000-999-12_CANM-00005', 98, 'CAN-999-999-000-999-12', 879, 'CANM-00005', 2, 12, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(1995, 'CANM-00006_CAN-999-999-000-002-11', 186, 'CANM-00006', 139, 'CAN-999-999-000-002-11', 1, 9, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(1996, 'CANM-00006_CAN-999-999-000-999-324', 186, 'CANM-00006', 585, 'CAN-999-999-000-999-324', 1, 7, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(1997, 'CANM-00006_CAN-999-999-000-999-68', 186, 'CANM-00006', 812, 'CAN-999-999-000-999-68', 1, 0, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(1998, 'CANM-00006_CAN-999-999-000-999-69', 186, 'CANM-00006', 813, 'CAN-999-999-000-999-69', 1, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(1999, 'CANM-00006_CAN-999-999-000-999-70', 186, 'CANM-00006', 815, 'CAN-999-999-000-999-70', 1, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2000, 'CANM-00006_CAN-999-999-000-999-71', 186, 'CANM-00006', 816, 'CAN-999-999-000-999-71', 1, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2001, 'CANM-00006_CAN-999-999-000-999-72', 186, 'CANM-00006', 817, 'CAN-999-999-000-999-72', 1, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '2008-10-01 11:16:32', ''),
-(2002, 'CANM-00006_CAN-999-999-000-999-73', 186, 'CANM-00006', 818, 'CAN-999-999-000-999-73', 1, 10, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2003, 'CANM-00006_CAN-999-999-000-999-74', 186, 'CANM-00006', 819, 'CAN-999-999-000-999-74', 1, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2004, 'CANM-00006_CAN-999-999-000-999-76', 186, 'CANM-00006', 821, 'CAN-999-999-000-999-76', 1, -1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2005, 'CANM-00006_CAN-999-999-000-999-77', 186, 'CANM-00006', 823, 'CAN-999-999-000-999-77', 2, 13, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2006, 'CANM-00006_CAN-999-999-000-999-78', 186, 'CANM-00006', 824, 'CAN-999-999-000-999-78', 2, 14, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2007, 'CANM-00006_CAN-999-999-000-999-79', 186, 'CANM-00006', 825, 'CAN-999-999-000-999-79', 2, 15, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2008, 'CANM-00006_CAN-999-999-000-999-80', 186, 'CANM-00006', 827, 'CAN-999-999-000-999-80', 2, 16, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2009, 'CANM-00006_CAN-999-999-000-999-81', 186, 'CANM-00006', 828, 'CAN-999-999-000-999-81', 2, 17, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2010, 'CANM-00006_CAN-999-999-000-999-82', 186, 'CANM-00006', 829, 'CAN-999-999-000-999-82', 2, 18, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2011, 'CANM-00006_CAN-999-999-000-999-83', 186, 'CANM-00006', 830, 'CAN-999-999-000-999-83', 2, 19, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2012, 'CANM-00006_CAN-999-999-000-999-84', 186, 'CANM-00006', 831, 'CAN-999-999-000-999-84', 2, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2013, 'CANM-00006_CAN-999-999-000-999-85', 186, 'CANM-00006', 832, 'CAN-999-999-000-999-85', 2, 21, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2014, 'CANM-00006_CAN-999-999-000-999-86', 186, 'CANM-00006', 833, 'CAN-999-999-000-999-86', 2, 22, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2015, 'CANM-00006_CAN-999-999-000-999-87', 186, 'CANM-00006', 834, 'CAN-999-999-000-999-87', 2, 23, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2016, 'CANM-00006_CAN-999-999-000-999-88', 186, 'CANM-00006', 835, 'CAN-999-999-000-999-88', 2, 24, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2017, 'CANM-00006_CAN-999-999-000-999-89', 186, 'CANM-00006', 836, 'CAN-999-999-000-999-89', 2, 24, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2018, 'CANM-00006_CAN-999-999-000-999-90', 186, 'CANM-00006', 837, 'CAN-999-999-000-999-90', 2, 25, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2019, 'CANM-00006_CAN-999-999-000-999-91', 186, 'CANM-00006', 838, 'CAN-999-999-000-999-91', 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2020, 'CANM-00006_CAN-999-999-000-002-11', 187, 'CANM-00006', 139, 'CAN-999-999-000-002-11', 1, 9, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2021, 'CANM-00006_CAN-999-999-000-999-324', 187, 'CANM-00006', 585, 'CAN-999-999-000-999-324', 1, 7, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2022, 'CANM-00006_CAN-999-999-000-999-68', 187, 'CANM-00006', 812, 'CAN-999-999-000-999-68', 1, 0, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2023, 'CANM-00006_CAN-999-999-000-999-69', 187, 'CANM-00006', 813, 'CAN-999-999-000-999-69', 1, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2024, 'CANM-00006_CAN-999-999-000-999-70', 187, 'CANM-00006', 815, 'CAN-999-999-000-999-70', 1, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2025, 'CANM-00006_CAN-999-999-000-999-71', 187, 'CANM-00006', 816, 'CAN-999-999-000-999-71', 1, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2026, 'CANM-00006_CAN-999-999-000-999-72', 187, 'CANM-00006', 817, 'CAN-999-999-000-999-72', 1, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '2008-10-01 11:16:32', ''),
-(2027, 'CANM-00006_CAN-999-999-000-999-73', 187, 'CANM-00006', 818, 'CAN-999-999-000-999-73', 1, 10, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2028, 'CANM-00006_CAN-999-999-000-999-74', 187, 'CANM-00006', 819, 'CAN-999-999-000-999-74', 1, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2029, 'CANM-00006_CAN-999-999-000-999-76', 187, 'CANM-00006', 821, 'CAN-999-999-000-999-76', 1, -1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2030, 'CANM-00006_CAN-999-999-000-999-77', 187, 'CANM-00006', 823, 'CAN-999-999-000-999-77', 2, 13, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2031, 'CANM-00006_CAN-999-999-000-999-78', 187, 'CANM-00006', 824, 'CAN-999-999-000-999-78', 2, 14, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2032, 'CANM-00006_CAN-999-999-000-999-79', 187, 'CANM-00006', 825, 'CAN-999-999-000-999-79', 2, 15, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2033, 'CANM-00006_CAN-999-999-000-999-80', 187, 'CANM-00006', 827, 'CAN-999-999-000-999-80', 2, 16, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2034, 'CANM-00006_CAN-999-999-000-999-81', 187, 'CANM-00006', 828, 'CAN-999-999-000-999-81', 2, 17, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2035, 'CANM-00006_CAN-999-999-000-999-82', 187, 'CANM-00006', 829, 'CAN-999-999-000-999-82', 2, 18, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2036, 'CANM-00006_CAN-999-999-000-999-83', 187, 'CANM-00006', 830, 'CAN-999-999-000-999-83', 2, 19, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2037, 'CANM-00006_CAN-999-999-000-999-84', 187, 'CANM-00006', 831, 'CAN-999-999-000-999-84', 2, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2038, 'CANM-00006_CAN-999-999-000-999-85', 187, 'CANM-00006', 832, 'CAN-999-999-000-999-85', 2, 21, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2039, 'CANM-00006_CAN-999-999-000-999-86', 187, 'CANM-00006', 833, 'CAN-999-999-000-999-86', 2, 22, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2040, 'CANM-00006_CAN-999-999-000-999-87', 187, 'CANM-00006', 834, 'CAN-999-999-000-999-87', 2, 23, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2041, 'CANM-00006_CAN-999-999-000-999-88', 187, 'CANM-00006', 835, 'CAN-999-999-000-999-88', 2, 24, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2042, 'CANM-00006_CAN-999-999-000-999-89', 187, 'CANM-00006', 836, 'CAN-999-999-000-999-89', 2, 24, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2043, 'CANM-00006_CAN-999-999-000-999-90', 187, 'CANM-00006', 837, 'CAN-999-999-000-999-90', 2, 25, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2044, 'CANM-00006_CAN-999-999-000-999-91', 187, 'CANM-00006', 838, 'CAN-999-999-000-999-91', 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2045, 'CANM-00007_CAN-046-003-000-002-29', 188, 'CANM-00007', 116, 'CAN-046-003-000-002-29', 1, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2046, 'CANM-00007_CAN-046-003-000-999-1', 188, 'CANM-00007', 117, 'CAN-046-003-000-999-1', 1, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2047, 'CANM-00007_CAN-046-003-000-999-5', 188, 'CANM-00007', 119, 'CAN-046-003-000-999-5', 1, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -9793,8 +9744,7 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (2083, 'CAN-999-999-000-999-1002_CAN-999-999-000-999-1276', 33, 'CAN-999-999-000-999-1002', 880, 'CAN-999-999-000-999-1276', 0, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2088, 'CAN-999-999-000-999-1011_CAN-999-999-000-999-1000', 42, 'CAN-999-999-000-999-1011', 152, 'CAN-999-999-000-999-1000', 0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2089, 'CAN-999-999-000-999-1011_CAN-999-999-000-999-1223', 42, 'CAN-999-999-000-999-1011', 333, 'CAN-999-999-000-999-1223', 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2092, 'CAN-999-999-000-999-1014_CAN-999-999-000-999-1000', 45, 'CAN-999-999-000-999-1014', 152, 'CAN-999-999-000-999-1000', 0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
-INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(2092, 'CAN-999-999-000-999-1014_CAN-999-999-000-999-1000', 45, 'CAN-999-999-000-999-1014', 152, 'CAN-999-999-000-999-1000', 0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2093, 'CAN-999-999-000-999-1014_CAN-999-999-000-999-1223', 45, 'CAN-999-999-000-999-1014', 333, 'CAN-999-999-000-999-1223', 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2094, 'CAN-999-999-000-999-1015_CAN-999-999-000-999-1000', 46, 'CAN-999-999-000-999-1015', 152, 'CAN-999-999-000-999-1000', 0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2095, 'CAN-999-999-000-999-1015_CAN-999-999-000-999-1223', 46, 'CAN-999-999-000-999-1015', 333, 'CAN-999-999-000-999-1223', 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -9841,7 +9791,8 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (2139, 'CAN-999-999-000-999-1020_CAN-999-999-000-999-1018', 50, 'CAN-999-999-000-999-1020', 170, 'CAN-999-999-000-999-1018', 0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2145, 'CAN-999-999-000-999-1032_CAN-999-999-000-999-1000', 59, 'CAN-999-999-000-999-1032', 152, 'CAN-999-999-000-999-1000', 0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2146, 'CAN-999-999-000-999-1032_CAN-999-999-000-999-1223', 59, 'CAN-999-999-000-999-1032', 333, 'CAN-999-999-000-999-1223', 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2147, 'CAN-999-999-000-999-1032_CAN-999-999-000-999-1222', 59, 'CAN-999-999-000-999-1032', 332, 'CAN-999-999-000-999-1222', 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(2147, 'CAN-999-999-000-999-1032_CAN-999-999-000-999-1222', 59, 'CAN-999-999-000-999-1032', 332, 'CAN-999-999-000-999-1222', 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 (2148, 'CAN-999-999-000-999-1032_CAN-999-999-000-999-1276', 59, 'CAN-999-999-000-999-1032', 880, 'CAN-999-999-000-999-1276', 0, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2149, 'CAN-999-999-000-999-1032_CAN-999-999-000-999-1018', 59, 'CAN-999-999-000-999-1032', 170, 'CAN-999-999-000-999-1018', 0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2155, 'CAN-999-999-000-999-1034_CAN-999-999-000-999-1000', 61, 'CAN-999-999-000-999-1034', 152, 'CAN-999-999-000-999-1000', 0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -9967,8 +9918,7 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (2286, 'CAN-999-999-000-999-1017_CAN-999-999-000-999-1005', 48, 'CAN-999-999-000-999-1017', 157, 'CAN-999-999-000-999-1005', 1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2287, 'CAN-999-999-000-999-1018_CAN-999-999-000-999-1005', 49, 'CAN-999-999-000-999-1018', 157, 'CAN-999-999-000-999-1005', 1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2288, 'CAN-999-999-000-999-1005_CAN-999-999-000-999-1006', 36, 'CAN-999-999-000-999-1005', 158, 'CAN-999-999-000-999-1006', 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2289, 'CAN-999-999-000-999-1006_CAN-999-999-000-999-1006', 37, 'CAN-999-999-000-999-1006', 158, 'CAN-999-999-000-999-1006', 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
-INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(2289, 'CAN-999-999-000-999-1006_CAN-999-999-000-999-1006', 37, 'CAN-999-999-000-999-1006', 158, 'CAN-999-999-000-999-1006', 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2290, 'CAN-999-999-000-999-1007_CAN-999-999-000-999-1006', 38, 'CAN-999-999-000-999-1007', 158, 'CAN-999-999-000-999-1006', 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2291, 'CAN-999-999-000-999-1008_CAN-999-999-000-999-1006', 39, 'CAN-999-999-000-999-1008', 158, 'CAN-999-999-000-999-1006', 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2292, 'CAN-999-999-000-999-1009_CAN-999-999-000-999-1006', 40, 'CAN-999-999-000-999-1009', 158, 'CAN-999-999-000-999-1006', 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -10015,7 +9965,8 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (2336, 'CAN-999-999-000-999-1078_CAN-999-999-000-999-1018', 196, 'CAN-999-999-000-999-1078', 170, 'CAN-999-999-000-999-1018', 0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2337, 'CAN-999-999-000-999-1078_CAN-999-999-000-999-1022', 196, 'CAN-999-999-000-999-1078', 172, 'CAN-999-999-000-999-1022', 0, 25, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2338, 'CAN-999-999-000-999-1078_CAN-999-999-000-999-1027', 196, 'CAN-999-999-000-999-1078', 176, 'CAN-999-999-000-999-1027', 0, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2339, 'CAN-999-999-000-999-1078_CAN-999-999-000-999-1029', 196, 'CAN-999-999-000-999-1078', 177, 'CAN-999-999-000-999-1029', 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(2339, 'CAN-999-999-000-999-1078_CAN-999-999-000-999-1029', 196, 'CAN-999-999-000-999-1078', 177, 'CAN-999-999-000-999-1029', 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 (2340, 'CAN-999-999-000-999-1078_CAN-999-999-000-999-1030', 196, 'CAN-999-999-000-999-1078', 179, 'CAN-999-999-000-999-1030', 0, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2341, 'CAN-999-999-000-999-1078_CAN-999-999-000-999-1032', 196, 'CAN-999-999-000-999-1078', 181, 'CAN-999-999-000-999-1032', 1, 30, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2342, 'CAN-999-999-000-999-1078_CAN-999-999-000-999-1036', 196, 'CAN-999-999-000-999-1078', 183, 'CAN-999-999-000-999-1036', 1, 42, '', '1', 'Collected Volume', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -10031,14 +9982,17 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (2352, 'CANM-00010_CAN-999-999-000-999-75', 191, 'CANM-00010', 820, 'CAN-999-999-000-999-75', 1, 0, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2353, 'CANM-00001_CAN-822', 184, 'CANM-00001', 822, 'CAN-822', 2, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2354, 'CANM-00001_CAN-820', 184, 'CANM-00001', 820, 'CAN-820', 1, 7, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2355, '', 184, '', 331, '', 2, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2356, '', 184, '', 896, '', 1, 13, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(2355, 'CANM-00001_', 184, 'CANM-00001', 331, '', 2, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(2356, 'CANM-00001_', 184, 'CANM-00001', 896, '', 1, 13, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2357, '', 197, '', 897, '', 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2358, '', 197, '', 898, '', 1, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2359, '', 4, '', 899, '', '1', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2360, '', 4, '', 900, '', '1', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2361, '', 4, '', 901, '', '1', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2362, '', 4, '', 902, '', '1', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(2359, '', 4, '', 899, '', 1, 0, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(2360, '', 4, '', 900, '', 1, 0, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(2361, '', 4, '', 901, '', 1, 0, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(2362, '', 4, '', 902, '', 1, 0, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(2363, 'CAN-999-999-000-999-6_CAN-820', 138, 'CAN-999-999-000-999-6', 820, 'CAN-820', 1, 7, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(2364, 'CAN-999-999-000-999-6_CAN-822', 138, 'CAN-999-999-000-999-6', 822, 'CAN-822', 2, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(2365, 'CAN-999-999-000-999-6_CAN-896', 138, 'CAN-999-999-000-999-6', 896, 'CAN-896', 1, 13, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 
 --
