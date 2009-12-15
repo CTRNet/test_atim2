@@ -422,10 +422,14 @@ class StructuresHelper extends Helper {
 									$return_string .= '
 										<td class="radiobutton">
 									';
-									
 									foreach ( $options['links']['radiolist'] as $radiobutton_name=>$radiobutton_value ) {
+										list($tmp_model, $tmp_field) = split("\.", $radiobutton_name);
 										$radiobutton_value = $this->str_replace_link( $radiobutton_value, $val );
-										$return_string .= $this->Form->radio($radiobutton_name, array($radiobutton_value=>''), array('legend'=>false, 'value'=>false) );
+										$tmp_attributes = array('legend'=>false, 'value'=>false);
+										if(isset($val[$tmp_model][$tmp_field]) && $val[$tmp_model][$tmp_field] == $radiobutton_value){
+											$tmp_attributes['checked'] = 'checked';
+										}
+										$return_string .= $this->Form->radio($radiobutton_name, array($radiobutton_value=>''), $tmp_attributes);
 									}
 									
 									$return_string .= '
@@ -1482,7 +1486,6 @@ class StructuresHelper extends Helper {
 							break;
 							
 						case 'radio':
-							
 							$html_element_array['options'] = array();
 							
 							if ( $options['type']=='search' || !count($field['StructureField']['StructureValidation']) ) {
