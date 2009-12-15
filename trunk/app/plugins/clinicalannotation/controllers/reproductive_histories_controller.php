@@ -29,9 +29,9 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController {
 		if ( !$participant_id && !$reproductive_history_id ) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
 		
 		// MANAGE DATA
-		$misc_identifier_data = $this->MiscIdentifier->find('first', array('conditions'=>array('MiscIdentifier.id'=>$misc_identifier_id, 'MiscIdentifier.participant_id'=>$participant_id), 'recursive' => '-1'));		
-		if(empty($misc_identifier_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
-		$this->data = $misc_identifier_data;
+		$reproductive_data = $this->ReproductiveHistory->find('first', array('conditions'=>array('ReproductiveHistory.id'=>$reproductive_history_id, 'ReproductiveHistory.participant_id'=>$participant_id), 'recursive' => '-1'));		
+		if(empty($reproductive_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
+		$this->data = $reproductive_data;
 		
 		$this->data = $this->ReproductiveHistory->find('first',array('conditions'=>array('ReproductiveHistory.id'=>$reproductive_history_id)));
 		// MANAGE FORM, MENU AND ACTION BUTTONS
