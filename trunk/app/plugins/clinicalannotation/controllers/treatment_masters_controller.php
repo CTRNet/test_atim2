@@ -48,6 +48,8 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 
 		// set structure alias based rom control data
 		$this->Structures->set($tx_control_data['TreatmentControl']['form_alias']);
+		$this->Structures->set('diagnosismasters', 'diagnosis_structure');
+		$this->set('diagnosis_data', $this->DiagnosisMaster->find('all', array('conditions'=>array('DiagnosisMaster.id' => $this->data['TreatmentMaster']['diagnosis_master_id']))));
 	}
 	
 	function edit( $participant_id=null, $tx_master_id=null ) {
@@ -62,10 +64,6 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		$this_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id)));
 		$tx_control_data = $this->TreatmentControl->find('first',array('conditions'=>array('TreatmentControl.id'=>$this_data['TreatmentMaster']['treatment_control_id'])));
 
-		// set DIAGANOSES
-		$this->set( 'data_for_checklist', $this->DiagnosisMaster->find('all', array('conditions'=>array('DiagnosisMaster.participant_id'=>$participant_id))) );
-		$this->set( 'atim_structure_for_checklist', $this->Structures->get('form','diagnosis_masters') );
-				
 		$protocol_list = $this->ProtocolMaster->find('list', array('conditions'=>array('ProtocolMaster.deleted'=>'0')), array('fields' => array('ProtocolMaster.id', 'ProtocolMaster.name'), 'order' => array('ProtocolMaster.name')));
 		$this->set('protocol_list', $protocol_list);
 		
@@ -84,6 +82,16 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		} else {
 			$this->data = $this_data;
 		}
+
+		// set DIAGANOSES
+		$dx_data = $this->DiagnosisMaster->find('all', array('conditions'=>array('DiagnosisMaster.participant_id'=>$participant_id)));
+		foreach($dx_data as &$dx_tmp_data){
+			$dx_tmp_data['TreatmentMaster']['diagnosis_master_id'] = $this->data['TreatmentMaster']['diagnosis_master_id'];
+		}
+		$this->set( 'data_for_checklist', $dx_data);
+		$this->Structures->set('diagnosismasters', 'diagnosis_structure');
+		$this->Structures->Set('empty', 'empty_structure');
+				
 	}
 	
 	function add($participant_id=null, $treatment_control_id=null) {
@@ -96,8 +104,7 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 
 		// set DIAGANOSES radio list form
 		$this->set( 'data_for_checklist', $this->DiagnosisMaster->find('all', array('conditions'=>array('DiagnosisMaster.participant_id'=>$participant_id))) );
-		$this->set( 'atim_structure_for_checklist', $this->Structures->get('form','diagnosis_masters') );
-		
+		$this->Structures->set('diagnosismasters', 'diagnosis_structure');
 		$this->Structures->set($tx_control_data['TreatmentControl']['form_alias']);
 		
 		$protocol_list = $this->ProtocolMaster->find('list', array('conditions'=>array('ProtocolMaster.deleted'=>'0')), array('fields' => array('ProtocolMaster.id', 'ProtocolMaster.name'), 'order' => array('ProtocolMaster.name')));
@@ -113,7 +120,8 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 			} else {
 				$this->flash( 'Error adding record - Contact your administrator','/clinicalannotation/treatment_masters/listall/'.$participant_id);
 			}
-		} 	
+		 } 	
+		$this->Structures->Set('empty', 'empty_structure');
 	}
 
 	function delete( $participant_id=null, $tx_master_id=null ) {
