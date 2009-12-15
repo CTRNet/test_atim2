@@ -108,7 +108,9 @@ class StructuresHelper extends Helper {
 		
 		if(isset($options['settings']['header'])){
 			$return_string .= '<table class="structure" cellspacing="0">
-				<tbody><tr><th style="text-align: left; padding-left: 10px; padding-right: 10px;"><hr/>'.$options['settings']['header'].'</th></tr>
+				<tbody><tr><td>
+					<table class="columns details"><tr><td class="heading"><h4>'.$options['settings']['header'].'</h4></td></tr></table>
+				</td></tr>
 				</tbody></table>';
 		}
 		
@@ -2239,7 +2241,7 @@ class StructuresHelper extends Helper {
 					if ( $display_class_array[1]=='study' )													$display_class_name = 'plugin study';
 					if ( $display_class_array[1]=='pricing' )													$display_class_name = 'plugin pricing';
 					if ( $display_class_array[1]=='provider' )													$display_class_name = 'plugin provider';
-					
+					if ( $display_class_array[1]=='underdevelopment')	$display_class_name = 'plugin underdev';
 					$display_class_name = $display_class_name ?												$display_class_name : 'plugin default';
 				}
 				
