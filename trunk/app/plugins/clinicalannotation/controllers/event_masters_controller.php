@@ -106,11 +106,6 @@ class EventMastersController extends ClinicalannotationAppController {
 		
 		$this->set( 'atim_menu', $this->Menus->get('/'.$this->params['plugin'].'/'.$this->params['controller'].'/listall/'.$event_group) );
 		
-		// set DIAGANOSES
-			$this->set( 'data_for_checklist', $this->DiagnosisMaster->find('all', array('conditions'=>array('DiagnosisMaster.participant_id'=>$participant_id))) );
-			$this->Structures->set('diagnosismasters', 'diagnosis_structure');
-			
-		
 		$this->set( 'atim_menu_variables', array('EventMaster.event_group'=>$event_group,'Participant.id'=>$participant_id,'EventMaster.id'=>$event_master_id) );
 		$this_data = $this->EventMaster->find('first',array('conditions'=>array('EventMaster.id'=>$event_master_id)));
 		
@@ -131,7 +126,15 @@ class EventMastersController extends ClinicalannotationAppController {
 		} else {
 			$this->data = $this_data;
 		}
+		$this->Structures->set('empty', 'empty_structure');
 		
+		// set DIAGANOSES
+		$diagnosis_data = $this->DiagnosisMaster->find('all', array('conditions'=>array('DiagnosisMaster.participant_id'=>$participant_id)));
+		foreach($diagnosis_data as &$dx){
+			$dx['EventMaster']['diagnosis_master_id'] = $this->data['EventMaster']['diagnosis_master_id'];
+		} 
+		$this->set( 'data_for_checklist', $diagnosis_data);
+		$this->Structures->set('diagnosismasters', 'diagnosis_structure');
 	}
 
 	function delete($event_group=NULL, $participant_id=null, $event_master_id=null) {
