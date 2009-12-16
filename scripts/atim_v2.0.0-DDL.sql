@@ -5820,7 +5820,7 @@ CREATE TABLE IF NOT EXISTS `tma_slides_revs` (
 
 CREATE TABLE `txd_chemos` (
   `id` int(11) NOT NULL auto_increment,
-  `completed` varchar(50) default NULL,
+  `chemo_completed` varchar(50) default NULL,
   `response` varchar(50) default NULL,
   `num_cycles` int(11) default NULL,
   `length_cycles` int(11) default NULL,
@@ -5838,7 +5838,7 @@ CREATE TABLE `txd_chemos` (
 
 CREATE TABLE `txd_chemos_revs` (
   `id` int(11) NOT NULL,
-  `completed` varchar(50) default NULL,
+  `chemo_completed` varchar(50) default NULL,
   `response` varchar(50) default NULL,
   `num_cycles` int(11) default NULL,
   `length_cycles` int(11) default NULL,
@@ -5852,8 +5852,7 @@ CREATE TABLE `txd_chemos_revs` (
   `version_created` datetime NOT NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `tx_master_id` (`tx_master_id`)
+  PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -5862,13 +5861,12 @@ CREATE TABLE `txd_chemos_revs` (
 
 CREATE TABLE `txd_radiations` (
   `id` int(11) NOT NULL auto_increment,
-  `source` varchar(50) default NULL,
-  `mould` varchar(50) default NULL,
+  `rad_completed` varchar(50) default NULL,
+  `tx_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
   `modified_by` varchar(50) NOT NULL default '',
-  `tx_master_id` int(11) default NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
@@ -5876,20 +5874,18 @@ CREATE TABLE `txd_radiations` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `txd_radiations_revs` (
-  `id` int(11) NOT NULL,
-  `source` varchar(50) default NULL,
-  `mould` varchar(50) default NULL,
+  `id` int(11) NOT NULL auto_increment,
+  `rad_completed` varchar(50) default NULL,
+  `tx_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
   `modified_by` varchar(50) NOT NULL default '',
-  `tx_master_id` int(11) default NULL,
-  `version_id` int(11) NOT NULL AUTO_INCREMENT,
-  `version_created` datetime NOT NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `tx_master_id` (`tx_master_id`)
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -5900,12 +5896,11 @@ CREATE TABLE `txd_surgeries` (
   `id` int(11) NOT NULL auto_increment,
   `path_num` varchar(50) default NULL,
   `primary` varchar(50) default NULL,
-  `surgeon` varchar(50) default NULL,
+  `tx_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
   `modified_by` varchar(50) NOT NULL default '',
-  `tx_master_id` int(11) default NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
@@ -5913,21 +5908,19 @@ CREATE TABLE `txd_surgeries` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `txd_surgeries_revs` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL auto_increment,
   `path_num` varchar(50) default NULL,
   `primary` varchar(50) default NULL,
-  `surgeon` varchar(50) default NULL,
+  `tx_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` varchar(50) NOT NULL default '',
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
   `modified_by` varchar(50) NOT NULL default '',
-  `tx_master_id` int(11) default NULL,
-  `version_id` int(11) NOT NULL AUTO_INCREMENT,
-  `version_created` datetime NOT NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `tx_master_id` (`tx_master_id`)
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -6028,8 +6021,7 @@ CREATE TABLE `txe_radiations_revs` (
   `version_created` datetime NOT NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `tx_master_id` (`tx_master_id`)
+  PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -6062,8 +6054,7 @@ CREATE TABLE `txe_surgeries_revs` (
   `version_created` datetime NOT NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`version_id`),
-  KEY `tx_master_id` (`tx_master_id`)
+  PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
@@ -6090,7 +6081,7 @@ CREATE TABLE `tx_controls` (
 CREATE TABLE IF NOT EXISTS `tx_masters` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `treatment_control_id` int(11) NOT NULL DEFAULT '0',
-  `tx_group` varchar(50) DEFAULT NULL,
+  `tx_method` varchar(50) DEFAULT NULL,
   `disease_site` varchar(50) DEFAULT NULL,
   `tx_intent` varchar(50) DEFAULT NULL,
   `target_site_icdo` varchar(50) DEFAULT NULL,
@@ -6101,13 +6092,13 @@ CREATE TABLE IF NOT EXISTS `tx_masters` (
   `information_source` varchar(50) DEFAULT NULL,
   `facility` varchar(50) DEFAULT NULL,
   `notes` text,
+  `protocol_id` int(11) DEFAULT NULL,
+  `participant_id` int(11) DEFAULT NULL,
+  `diagnosis_master_id` int(11) DEFAULT NULL,
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `created_by` varchar(50) NOT NULL DEFAULT '',
   `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `modified_by` varchar(50) NOT NULL DEFAULT '',
-  `protocol_id` int(11) DEFAULT NULL,
-  `participant_id` int(11) DEFAULT NULL,
-  `diagnosis_master_id` int(11) DEFAULT NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -6119,7 +6110,7 @@ CREATE TABLE IF NOT EXISTS `tx_masters` (
 CREATE TABLE IF NOT EXISTS `tx_masters_revs` (
   `id` int(11) NOT NULL,
   `treatment_control_id` int(11) NOT NULL DEFAULT '0',
-  `tx_group` varchar(50) DEFAULT NULL,
+  `tx_method` varchar(50) DEFAULT NULL,
   `disease_site` varchar(50) DEFAULT NULL,
   `tx_intent` varchar(50) DEFAULT NULL,
   `target_site_icdo` varchar(50) DEFAULT NULL,
