@@ -14,6 +14,11 @@
 		echo $html->css('datepicker')."\n";
 		echo $html->css('lightwindow')."\n";
 
+		?>
+	<script type="text/javascript">
+		var webroot_dir = "<?php echo($this->webroot); ?>app/webroot/";
+	</script>
+	<?php 	
 		echo $javascript->link('datepicker')."\n";
 		echo $javascript->link('prototype')."\n";
 		echo $javascript->link('scriptaculous.js?load=effects,dragdrop')."\n";
@@ -21,7 +26,6 @@
 		echo $javascript->link('default')."\n";
 		
 	?>
-	
 </head>
 <body>
 	
