@@ -77,7 +77,7 @@ body {
 	background-color: #f2f2ff;
 	font: 11px/1.2em "Lucida Grande", Futura, Helvetica, Arial, Verdana, sans-serif;
 }
-div {
+div#wrapper {
 	clear: both;
 	margin: 0 10px 10px 10px;
 	padding: 0.25em 1em;
