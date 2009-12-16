@@ -6159,11 +6159,11 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 
 INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_title`, `language_description`, `use_link`, `use_params`, `use_summary`, `active`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 ('15', '3', 0, 5, 'path_collection_reviews', 'path_collection_reviews', '/unknown/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('20', '11', 0, 99, 'consent', 'consent', '/under_development/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('20', '11', 0, 99, 'consent', 'consent', '/underdevelopment/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('23', '3', 0, 3, 'review', 'review', '/unknow/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('44', '18', 0, 1, 'aliquot detail', 'aliquot detail', '/inventorymanagement/aliquots/detail/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('53', '18', 0, 10, 'aliquot annotation', 'aliquot annotation', '/under_development/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('56', '3', 0, 10, 'participant', 'participant', '/under_development/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('53', '18', 0, 10, 'aliquot annotation', 'aliquot annotation', '/underdevelopment/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('56', '3', 0, 10, 'participant', 'participant', '/underdevelopment/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('70', '55', 0, 0, 'storage', 'storage', '/underdev/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('71', '55', 0, 0, 'shelf', 'shelf', '/inventorymanagement/shelves/listall/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('72', '55', 0, 0, 'tower', 'tower', '/inventorymanagement/towers/listall/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -6289,9 +6289,9 @@ INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_ti
 ('tool_CAN_109', 'tool_CAN_104', 0, 6, 'tool_funding', 'tool_funding', '/study/study_fundings/listall/%%StudySummary.id%%/', '', 'Study.StudySummary::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('tool_CAN_110', 'tool_CAN_104', 0, 7, 'tool_result', 'tool_result', '/study/study_results/listall/%%StudySummary.id%%/', '', 'Study.StudySummary::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('tool_CAN_112', 'tool_CAN_104', 0, 9, 'tool_related studies', 'tool_related studies', '/study/study_related/listall/%%StudySummary%%/', '', 'Study.StudySummary::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('tool_CAN_38', 'core_CAN_33', 1, 101, 'pricing', 'pricing', '/under_development/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('tool_CAN_38', 'core_CAN_33', 1, 101, 'pricing', 'pricing', '/underdevelopment/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('tool_CAN_43', 'core_CAN_33', 1, 102, 'provider', 'provider', '/provider/providers/index/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('tool_CAN_48', 'core_CAN_33', 1, 100, 'collection kit', 'collection kit', '/under_development/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+('tool_CAN_48', 'core_CAN_33', 1, 100, 'collection kit', 'collection kit', '/underdevelopment/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 --
 -- Dumping data for table `misc_identifiers`
