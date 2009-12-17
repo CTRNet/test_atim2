@@ -1304,6 +1304,8 @@ div.loading{
 	border-width: 1px;
 }
 
+
+/** CakePHP auto complete **/
 div.auto_complete    {
      position         :absolute;
      width            :250px;
@@ -1314,3 +1316,4 @@ div.auto_complete    {
      overflow: hidden;
 } 
 li.selected    { background-color: #ffb; }
+/** end of CakePHP auto complete **/
