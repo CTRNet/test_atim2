@@ -24,7 +24,7 @@
 		echo $javascript->link('scriptaculous.js?load=effects,dragdrop')."\n";
 		echo $javascript->link('lightwindow')."\n";
 		echo $javascript->link('default')."\n";
-		
+		echo $javascript->link('controls')."\n";
 	?>
 </head>
 <body>

@@ -1391,29 +1391,6 @@ class StructuresHelper extends Helper {
 					$display_value =  '
 							<!-- '.$field['StructureField']['type'].' '.$field['id'].' -->
 							';
-						
-					/*
-					// autocomplete (treat as special INPUT) 
-					if ( $field['StructureField']['type']=='autocomplete' ) {
-						
-						if ( $field['flag_'.$options['type'].'_readonly'] && $options['type']!='search' ) {
-							$html_element_array['class'] .= 'readonly';
-							$html_element_array['readonly'] ='readonly';
-						} else if ( count($field['StructureField']['StructureValidation']) ) {
-							$html_element_array['class'] .= 'required';
-						}
-						
-						
-						if ( $options['type']=='editgrid' ) { 
-							$html_element_array['value'] = $this->data[$field['StructureField']['model']][$field['StructureField']['field']]; 
-							$html_elemt_array['id'] = 'editgrid'.$key.$field['StructureField']['model'].$field['StructureField']['field'].'_autoComplete';
-						}
-						
-						$autocomplete_url = $html_element_array['url'].$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'];
-						$display_value .=  $this->Ajax->autoComplete( $field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], $autocomplete_url, $html_element_array );
-						
-					}
-					*/
 					
 					$html_element_array['div'] = false;
 					$html_element_array['label'] = false;
@@ -1646,9 +1623,6 @@ class StructuresHelper extends Helper {
 							break;
 							
 						case 'autocomplete':
-							
-							// temporarily changed to plain INPUT field
-							
 							$html_element_array['type'] = 'text';
 							break;
 							
@@ -1659,11 +1633,33 @@ class StructuresHelper extends Helper {
 					}
 					
 					if ( $use_cakephp_form_helper ) {
-						$display_value .= $this->Form->input(
-							$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'],
-							$html_element_array
-						);
-						
+						if($field['StructureField']['type'] == "autocomplete" && !isset($field['flag_'.$options['type'].'_readonly'])){
+							//autocomplete field, use cakephp autocomplete
+							$settings_tmp = array();
+							$autocomplete_url = "";
+							foreach($field['StructureField']['setting'] as $setting_item){
+								if(strpos($setting_item, "url=") === 0){
+									//get the url setting
+									$autocomplete_url = substr($setting_item, 4);
+								}else if(strpos($setting_item, "tool=") === false && strpos($setting_item, "append=") === false){
+									//settings that are not url, tool nor append are input settings
+									$index = strpos($setting_item, "=");
+									if($index > 0){
+										$settings_tmp[substr($setting_item, 0, $index)] = substr($setting_item, $index + 1);
+									}
+								}
+							}
+							$display_value .= $this->Ajax->autoComplete(
+								$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], 
+								$autocomplete_url,
+								$settings_tmp);
+						}else{
+							$display_value .= $this->Form->input(
+								$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'],
+								$html_element_array
+							);
+						}
+
 						// when a field is DISABLED, pass a HIDDEN field with value to be submitted...
 						if ( isset($field['flag_'.$options['type'].'_readonly']) && $field['flag_'.$options['type'].'_readonly'] && $options['type']!='search' ) {
 							$html_element_array['type'] = 'hidden';

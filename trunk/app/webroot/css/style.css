@@ -1303,3 +1303,14 @@ div.loading{
 	border-colot: #000;
 	border-width: 1px;
 }
+
+div.auto_complete    {
+     position         :absolute;
+     width            :250px;
+     background-color :white;
+     border           :1px solid #888;
+     margin           :0px;
+     padding          :0px;
+     overflow: hidden;
+} 
+li.selected    { background-color: #ffb; }
