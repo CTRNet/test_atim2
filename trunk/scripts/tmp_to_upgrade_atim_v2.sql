@@ -127,7 +127,7 @@ DELETE FROM `structure_formats` WHERE `structure_formats`.`id` = 1947 LIMIT 1;
 
 DELETE FROM `structure_formats` WHERE `structure_formats`.`id` = 1441 LIMIT 1;
 
-UPDATE `structure_fields` SET `setting` = 'size=20,url=/codingicd10/coding_icd10s/autoComplete/,tool=/codingicd10/coding_icd10s/ParticipantIcd10Id/,append=/coding_icd10s/append/' WHERE `structure_fields`.`id` =501 LIMIT 1 ;
-UPDATE `structure_fields` SET `setting` = 'size=20,url=/codingicd10/coding_icd10s/autoComplete/,tool=/codingicd10/coding_icd10s/FamilyHistoryIcd10Id/,append=/coding_icd10s/append/' WHERE `structure_fields`.`id` =570 LIMIT 1 ;
-UPDATE `structure_fields` SET `setting` = 'size=20,url=/codingicd10/coding_icd10s/autoComplete/,tool=/codingicd10/coding_icd10s/DiagnosisIcd10Id/,append=/coding_icd10s/append/' WHERE `structure_fields`.`id` =817 LIMIT 1 ;
-UPDATE `structure_fields` SET `setting` = 'size=20,url=/codingicd10/coding_icd10s/autoComplete/,tool=/codingicd10/coding_icd10s/ParticipantIcd10Id/,append=/coding_icd10s/append/' WHERE `structure_fields`.`id` =895 LIMIT 1 ;
+UPDATE `structure_fields` SET `setting` = 'size=20,url=/codingicd10/coding_icd10s/autoComplete/,tool=/codingicd10/coding_icd10s/tool/ParticipantCodIcd10Code/,append=/coding_icd10s/append/' WHERE `structure_fields`.`id` =501 LIMIT 1 ;
+UPDATE `structure_fields` SET `setting` = 'size=20,url=/codingicd10/coding_icd10s/autoComplete/,tool=/codingicd10/coding_icd10s/tool/ParticipantSecondaryCodIcd10Code/,append=/coding_icd10s/append/' WHERE `structure_fields`.`id` =895 LIMIT 1 ;
+UPDATE `structure_fields` SET `setting` = 'size=20,url=/codingicd10/coding_icd10s/autoComplete/,tool=/codingicd10/coding_icd10s/tool/FamilyHistoryPrimaryIcd10Code/,append=/coding_icd10s/append/' WHERE `structure_fields`.`id` =570 LIMIT 1 ;
+UPDATE `structure_fields` SET `setting` = 'size=20,url=/codingicd10/coding_icd10s/autoComplete/,tool=/codingicd10/coding_icd10s/tool/DiagnosisMasterPrimaryIcd10Code/,append=/coding_icd10s/append/' WHERE `structure_fields`.`id` =817 LIMIT 1 ;

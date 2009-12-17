@@ -1631,9 +1631,9 @@ class StructuresHelper extends Helper {
 							break;
 							
 					}
-					
 					if ( $use_cakephp_form_helper ) {
-						if($field['StructureField']['type'] == "autocomplete" && !isset($field['flag_'.$options['type'].'_readonly'])){
+						if($field['StructureField']['type'] == "autocomplete" 
+							&& (!isset($field['flag_'.$options['type'].'_readonly']) || !$field['flag_'.$options['type'].'_readonly'])){
 							//autocomplete field, use cakephp autocomplete
 							$settings_tmp = array();
 							$autocomplete_url = "";
