@@ -1,6 +1,6 @@
 <ul>
- <?php foreach($posts as $post): ?>
+ <?php foreach($posts as $post){ ?>
      <li><?php echo $post['CodingIcd10']['id']; ?></li>
- <?php endforeach; ?>
+ <?php } ?>
 </ul> 
 <?php 
