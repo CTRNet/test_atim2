@@ -1635,7 +1635,7 @@ class StructuresHelper extends Helper {
 						if($field['StructureField']['type'] == "autocomplete" 
 							&& (!isset($field['flag_'.$options['type'].'_readonly']) || !$field['flag_'.$options['type'].'_readonly'])){
 							//autocomplete field, use cakephp autocomplete
-							$settings_tmp = array();
+							$settings_tmp['tabindex'] = $html_element_array['tabindex'];
 							$autocomplete_url = "";
 							foreach($field['StructureField']['setting'] as $setting_item){
 								if(strpos($setting_item, "url=") === 0){
