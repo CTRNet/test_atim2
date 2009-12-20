@@ -1188,7 +1188,7 @@ CREATE TABLE IF NOT EXISTS `diagnosis_masters_revs` (
 --
 
 CREATE TABLE IF NOT EXISTS `dxd_bloods` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `diagnosis_master_id` int(11) NOT NULL DEFAULT '0',
   `text_field` varchar(10) NOT NULL default '',
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -1221,7 +1221,7 @@ CREATE TABLE IF NOT EXISTS `dxd_bloods_revs` (
 --
 
 CREATE TABLE IF NOT EXISTS `dxd_tissues` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `diagnosis_master_id` int(11) NOT NULL DEFAULT '0',
   `text_field` varchar(10) NOT NULL default '',
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -2365,8 +2365,6 @@ CREATE TABLE `path_collection_reviews_revs` (
 
 CREATE TABLE `pd_chemos` (
   `id` int(11) NOT NULL auto_increment,
-  `num_cycles` int(11) default NULL,
-  `length_cycles` int(11) default NULL,
   `created` date NOT NULL default '0000-00-00',
   `created_by` varchar(50) NOT NULL default '',
   `modified` date NOT NULL default '0000-00-00',
@@ -2379,8 +2377,6 @@ CREATE TABLE `pd_chemos` (
 
 CREATE TABLE `pd_chemos_revs` (
   `id` int(11) NOT NULL,
-  `num_cycles` int(11) default NULL,
-  `length_cycles` int(11) default NULL,
   `created` date NOT NULL default '0000-00-00',
   `created_by` varchar(50) NOT NULL default '',
   `modified` date NOT NULL default '0000-00-00',
@@ -5098,7 +5094,8 @@ CREATE TABLE IF NOT EXISTS `structures` (
   `created_by` varchar(255) NOT NULL DEFAULT '',
   `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `modified_by` varchar(255) NOT NULL DEFAULT '',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE `unique_alias` (`alias`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 --
@@ -5874,7 +5871,7 @@ CREATE TABLE `txd_radiations` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `txd_radiations_revs` (
-  `id` int(11) NOT NULL auto_increment,
+  `id` int(11) NOT NULL,
   `rad_completed` varchar(50) default NULL,
   `tx_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -5908,7 +5905,7 @@ CREATE TABLE `txd_surgeries` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `txd_surgeries_revs` (
-  `id` int(11) NOT NULL auto_increment,
+  `id` int(11) NOT NULL,
   `path_num` varchar(50) default NULL,
   `primary` varchar(50) default NULL,
   `tx_master_id` int(11) default NULL,
