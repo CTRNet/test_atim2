@@ -457,6 +457,7 @@ unset($this->data['AliquotMaster']);
 		if($arr_allow_deletion['allow_deletion']) {
 			if($this->AliquotMaster->atim_delete($aliquot_master_id)) {
 				//TODO There is a problem with flash function
+				//but only when debug is activated
 				pr('test deletion of master and detail level!');
 				pr('/inventorymanagement/aliquot_masters/listAll/' . $collection_id . '/' . $sample_master_id);
 				$this->flash('your data has been deleted', '/inventorymanagement/aliquot_masters/listAll/' . $collection_id . '/' . $sample_master_id);
