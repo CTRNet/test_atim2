@@ -279,6 +279,15 @@ class SoftDeletableBehavior extends ModelBehavior
                     array_push($queryData['conditions'], $Model->alias . '.' . $this->__settings[$Model->alias]['field'].' != 1'); 
                 } 
             } 
+            
+            //Add the deleted != 1 condition for hasMany relationships
+            foreach($Model->hasMany as $key => &$hasMany){
+	            if(isset($hasMany['conditions']) && $hasMany['conditions'] != ""){
+	            	array_push($hasMany['conditions'], $key.".deleted != 1"); 
+	            }else{
+	            	$hasMany['conditions'] = array($key.".deleted != 1");
+	            }
+            }
         } 
 
         return $queryData; 
