@@ -15,7 +15,7 @@ class CodingIcd10 extends AppModel {
 	function getDescription($id){
 		if($id != null && strlen($id) > 0){
 			$query_result = $this->find('first', array('fields' => array('CodingIcd10.description'), 'conditions' => array('CodingIcd10.id' => $id)));
-			return $query_result['CodingIcd10']['description'];
+			return __($query_result['CodingIcd10']['description'], null);
 		}else{
 			return "";
 		}
