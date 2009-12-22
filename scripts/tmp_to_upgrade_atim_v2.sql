@@ -42,4 +42,12 @@ VALUES (
 'invalid secondary cause of death code', 'global', 'Invalid secondary cause of death code', 'Code de cause secondaire du décès invalide'
 ), (
 'invalid primary disease code', 'global', 'Invalid primary disease code', 'Code de maladie primaire invalide'
+), (
+'ICD-10 selection tool', 'global', 'ICD-10 Selection Tool', 'Outil de sélection d'ICD-10'
 );
+
+UPDATE `structure_fields` SET `setting` = 'size=20,url=/codingicd10/coding_icd10s/autoComplete/,tool=/codingicd10/coding_icd10s/tool/ParticipantCodIcd10Code/,append=/coding_icd10s/append/,tool_label=ICD-10 selection tool' WHERE `structure_fields`.`id` =501 LIMIT 1 ;
+UPDATE `structure_fields` SET `setting` = 'size=20,url=/codingicd10/coding_icd10s/autoComplete/,tool=/codingicd10/coding_icd10s/tool/FamilyHistoryPrimaryIcd10Code/,append=/coding_icd10s/append/,tool_label=ICD-10 selection tool' WHERE `structure_fields`.`id` =570 LIMIT 1 ;
+UPDATE `structure_fields` SET `setting` = 'size=20,url=/codingicd10/coding_icd10s/autoComplete/,tool=/codingicd10/coding_icd10s/tool/DiagnosisMasterPrimaryIcd10Code/,append=/coding_icd10s/append/,tool_label=ICD-10 selection tool' WHERE `structure_fields`.`id` =817 LIMIT 1 ;
+UPDATE `structure_fields` SET `setting` = 'size=20,url=/codingicd10/coding_icd10s/autoComplete/,tool=/codingicd10/coding_icd10s/tool/ParticipantSecondaryCodIcd10Code/,append=/coding_icd10s/append/,tool_label=ICD-10 selection tool' WHERE `structure_fields`.`id` =895 LIMIT 1 ;
+

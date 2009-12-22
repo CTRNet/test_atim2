@@ -1351,6 +1351,7 @@ class StructuresHelper extends Helper {
 					
 					// var TOOLS/APPENDS, if any 
 					$append_field_tool = '';
+					$append_field_tool_label = 'core tools';
 					$append_field_display = '';
 					$append_field_display_value = '';
 					
@@ -1372,6 +1373,8 @@ class StructuresHelper extends Helper {
 								$append_field_tool = $setting[1];
 							} else if ( $setting[0]=='append' ) {
 								$append_field_display = $setting[1];
+							} else if ( $setting[0] == 'tool_label'){
+								$append_field_tool_label = $setting[1];
 							} else {
 								$html_element_array[ $setting[0] ] = $setting[1];
 							}
@@ -1733,19 +1736,8 @@ class StructuresHelper extends Helper {
 							
 							
 							$display_value .= '
-								<a href="'.$this->Html->Url( $append_field_tool ).'" class="lightwindow" params="lightwindow_width=800,lightwindow_height=400">'.__( 'core_tools', true).'</a>
+								<a href="'.$this->Html->Url( $append_field_tool ).'" class="lightwindow" params="lightwindow_width=800,lightwindow_height=400">'.__($append_field_tool_label, true).'</a>
 							';
-							
-							/*
-							$display_value .= '
-								<a href="#" class="tools" onclick="'.$javascript_inline.'">'.__( 'core_tools', true).'</a>
-								
-								<div class="ajax_tool" id="'.$append_field_tool_id.'" style="display: none;">
-								</div>
-								
-							';
-							*/
-							
 						}
 						
 					}
