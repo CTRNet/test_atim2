@@ -20,6 +20,14 @@ class CodingIcd10 extends AppModel {
 			return "";
 		}
 	}
+	
+	function id_blank_or_exists($id){
+		$result = true;
+		if(strlen($id) > 0){
+			$result = is_array($this->CodingIcd10->find('first', array('fields' => array('CodingIcd10.id'), 'conditions' => array('CodingIcd10.id' => $id))));
+		}
+		return $result;
+	}
 }
 
 ?>
