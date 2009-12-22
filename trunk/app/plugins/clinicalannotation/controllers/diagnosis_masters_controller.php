@@ -8,7 +8,8 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		'Clinicalannotation.DiagnosisControl',
 		'Clinicalannotation.Participant',
 		'Clinicalannotation.TreatmentMaster',
-		'Clinicalannotation.EventMaster'
+		'Clinicalannotation.EventMaster',
+		'codingicd10.CodingIcd10'
 	);
 	var $paginate = array('DiagnosisMaster'=>array('limit'=>10,'order'=>'DiagnosisMaster.dx_date')); 
 	
@@ -25,6 +26,10 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id));
 		$this->set('diagnosis_controls_list', $this->DiagnosisControl->find('all', array('conditions' => array('DiagnosisControl.status' => 'active'))));
 		
+		foreach($this->data as &$dx){
+			$dx['DiagnosisMaster']['primary_icd10_code'] .= " - ".$this->CodingIcd10->getDescription($dx['DiagnosisMaster']['primary_icd10_code']);
+		}
+
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }			
@@ -43,6 +48,8 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		$dx_control_data = $this->DiagnosisControl->find('first', array('conditions' => array('DiagnosisControl.id' => $dx_master_data['DiagnosisMaster']['diagnosis_control_id'])));
 		$this->Structures->set($dx_control_data['DiagnosisControl']['form_alias']);
 	
+		$this->data['DiagnosisMaster']['primary_icd10_code'] .= " - ".$this->CodingIcd10->getDescription($this->data['DiagnosisMaster']['primary_icd10_code']);
+		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }

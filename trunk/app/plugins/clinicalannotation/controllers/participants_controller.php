@@ -13,7 +13,8 @@ class ParticipantsController extends ClinicalannotationAppController {
 		'Clinicalannotation.MiscIdentifier',
 		'Clinicalannotation.ClinicalCollectionLink',
 		'Clinicalannotation.ReproductiveHistory',
-		'Clinicalannotation.TreatmentMaster'
+		'Clinicalannotation.TreatmentMaster',
+		'codingicd10.CodingIcd10'
 	);
 	var $paginate = array('Participant'=>array('limit'=>10,'order'=>'Participant.last_name ASC, Participant.first_name ASC')); 
 	
@@ -55,6 +56,9 @@ class ParticipantsController extends ClinicalannotationAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id) );
 		
+		$this->data['Participant']['cod_icd10_code'] .= " - ".$this->CodingIcd10->getDescription($this->data['Participant']['cod_icd10_code']);
+		$this->data['Participant']['secondary_cod_icd10_code'] .= " - ".$this->CodingIcd10->getDescription($this->data['Participant']['secondary_cod_icd10_code']);
+
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }
@@ -113,7 +117,6 @@ class ParticipantsController extends ClinicalannotationAppController {
 				if ( $this->Participant->save($this->data) ) $this->flash( 'your data has been updated','/clinicalannotation/participants/profile/'.$participant_id );		
 			}
 		}
-		
 	}
 
 	function delete( $participant_id ) {
