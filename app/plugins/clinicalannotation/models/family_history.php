@@ -2,6 +2,13 @@
 
 class FamilyHistory extends ClinicalAnnotationAppModel
 {
+	var $belongsTo = array(
+		'CodingIcd10' => array(
+			'className'   => 'codingicd10.CodingIcd10',
+			 	'foreignKey'  => 'primary_icd10_code',
+			 	'dependent' => true)
+	);
+	
     function summary( $variables=array() ) {
 		$return = false;
 		
@@ -26,6 +33,21 @@ class FamilyHistory extends ClinicalAnnotationAppModel
 		}
 		
 		return $return;
+	}
+	
+	function validateIcd10Code(&$check){
+		$values = array_values($check);
+		return CodingIcd10::id_blank_or_exists($values[0]);
+	}
+	
+	/**
+	 * Replaces icd10 empty string to null values to respect foreign keys constraints
+	 * @param $participantArray
+	 */
+	function patchIcd10NullValues(&$participantArray){
+		if(strlen(trim($participantArray['FamilyHistory']['primary_icd10_code'])) == 0){
+			$participantArray['FamilyHistory']['primary_icd10_code'] = null;
+		}
 	}
 }
 

@@ -5,7 +5,11 @@ class DiagnosisMaster extends ClinicalannotationAppModel {
 		'DiagnosisControl' => array(            
 		'className'    => 'Clinicalannotation.DiagnosisControl',            
 		'foreignKey'    => 'diagnosis_control_id'
-		)    
+		),
+		'CodingIcd10' => array(
+			'className'   => 'codingicd10.CodingIcd10',
+			 	'foreignKey'  => 'primary_icd10_code',
+			 	'dependent' => true)    
 	);
 	
 	var $hasOne = array(
@@ -13,8 +17,7 @@ class DiagnosisMaster extends ClinicalannotationAppModel {
 			'className' => 'Clinicalannotation.ClinicalCollectionLink',
 			'foreignKey' => 'diagnosis_master_id'));
 	
-	
-function summary( $variables=array() ) {
+	function summary( $variables=array() ) {
 		$return = false;
 		if ( isset($variables['DiagnosisMaster.id']) ) {
 			$result = $this->find('first', array('conditions'=>array('DiagnosisMaster.id'=>$variables['DiagnosisMaster.id'])));
@@ -35,19 +38,20 @@ function summary( $variables=array() ) {
 		}
 		return $return;
 	}
+	
+	function validateIcd10Code(&$check){
+		$values = array_values($check);
+		return CodingIcd10::id_blank_or_exists($values[0]);
+	}
+	
+	/**
+	 * Replaces icd10 empty string to null values to respect foreign keys constraints
+	 * @param $participantArray
+	 */
+	function patchIcd10NullValues(&$participantArray){
+		if(strlen(trim($participantArray['DiagnosisMaster']['primary_icd10_code'])) == 0){
+			$participantArray['DiagnosisMaster']['primary_icd10_code'] = null;
+		}
+	}
 }
-/*$return = array(
-				'Summary'	 => array(
-					'menu'			=>	array( NULL, __($result['Participant']['first_name'].' '.$result['Participant']['last_name'], TRUE) ),
-					'title'			=>	array( NULL, __($result['Participant']['first_name'].' '.$result['Participant']['last_name'], TRUE) ),
-					
-					'description'		=>	array(
-						__('tumour bank number',TRUE)	=>	__($result['Participant']['tb_number'], TRUE),
-						__('date of birth', TRUE)		=>	__($result['Participant']['date_of_birth'], TRUE),
-						__('marital status', TRUE)		=>	__($result['Participant']['marital_status'], TRUE),
-						__('vital status', TRUE)		=>	__($result['Participant']['vital_status'], TRUE),
-						__('sex', TRUE)					=>	__($result['Participant']['sex'], TRUE)
-					)
-				)
-			);*/
 ?>
