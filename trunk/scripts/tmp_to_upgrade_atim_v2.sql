@@ -1,6 +1,6 @@
-ALTER TABLE participants ADD
-FOREIGN KEY (cod_icd10_code) REFERENCES coding_icd10 (id),
-FOREIGN KEY (secondary_cod_icd10_code) REFERENCES coding_icd10 (id);
+ALTER TABLE participants 
+ADD FOREIGN KEY (cod_icd10_code) REFERENCES coding_icd10 (id),
+ADD FOREIGN KEY (secondary_cod_icd10_code) REFERENCES coding_icd10 (id);
 
 ALTER TABLE diagnosis_masters ADD
 FOREIGN KEY (primary_icd10_code) REFERENCES coding_icd10 (id);
@@ -43,7 +43,7 @@ VALUES (
 ), (
 'invalid primary disease code', 'global', 'Invalid primary disease code', 'Code de maladie primaire invalide'
 ), (
-'ICD-10 selection tool', 'global', 'ICD-10 Selection Tool', 'Outil de sélection d'ICD-10'
+'ICD-10 selection tool', 'global', 'ICD-10 Selection Tool', 'Outil de sélection d\'ICD-10'
 );
 
 UPDATE `structure_fields` SET `setting` = 'size=20,url=/codingicd10/coding_icd10s/autoComplete/,tool=/codingicd10/coding_icd10s/tool/ParticipantCodIcd10Code/,append=/coding_icd10s/append/,tool_label=ICD-10 selection tool' WHERE `structure_fields`.`id` =501 LIMIT 1 ;
