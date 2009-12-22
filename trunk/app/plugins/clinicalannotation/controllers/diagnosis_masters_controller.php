@@ -74,6 +74,7 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		if( $hook_link ) { require($hook_link); }
 		
 		if ( !empty($this->data) ) {
+			$this->DiagnosisMaster->patchIcd10NullValues($this->data);
 			$this->data['DiagnosisMaster']['participant_id'] = $participant_id;
 			$this->data['DiagnosisMaster']['diagnosis_control_id'] = $dx_control_id;
 			$this->data['DiagnosisMaster']['type'] = $dx_control_data['DiagnosisControl']['controls_type']; 
@@ -114,6 +115,7 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		if(empty($this->data)) {
 			$this->data = $dx_master_data;
 		} else {
+			$this->DiagnosisMaster->patchIcd10NullValues($this->data);
 			$submitted_data_validates = true;
 			// ... special validations
 			

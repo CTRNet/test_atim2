@@ -1,6 +1,12 @@
 <?php
 
 class Participant extends ClinicalannotationAppModel {
+	var $belongsTo = array(
+		'CodingIcd10' => array(
+			'className'   => 'codingicd10.CodingIcd10',
+			 	'foreignKey'  => 'cod_icd10_code',
+			 	'dependent' => true)
+	);
 	
 	function summary( $variables=array() ) {
 		$return = false;
@@ -28,67 +34,23 @@ class Participant extends ClinicalannotationAppModel {
 		return $return;
 	}
    
-   /*
-   var $hasMany = array(
-						
-						'Diagnosis' =>
-						 array('className'   => 'Diagnosis',
-                               'conditions'  => '',
-                               'order'       => '',
-                               'limit'       => '',
-                               'foreignKey'  => 'participant_id',
-                               'dependent'   => true,
-                               'exclusive'   => false,
-                               'finderSql'   => ''
-                         ),
-						 
-						 'FamilyHistory' =>
-						 array('className'   => 'FamilyHistory',
-                               'conditions'  => '',
-                               'order'       => '',
-                               'limit'       => '',
-                               'foreignKey'  => 'participant_id',
-                               'dependent'   => true,
-                               'exclusive'   => false,
-                               'finderSql'   => ''
-                         ),
-						 
-						 'ParticipantContact' =>
-						 array('className'   => 'ParticipantContact',
-                               'conditions'  => '',
-                               'order'       => '',
-                               'limit'       => '',
-                               'foreignKey'  => 'participant_id',
-                               'dependent'   => true,
-                               'exclusive'   => false,
-                               'finderSql'   => ''
-                         ),
-						 
-						 'ParticipantMessage' =>
-						 array('className'   => 'ParticipantMessage',
-                               'conditions'  => '',
-                               'order'       => '',
-                               'limit'       => '',
-                               'foreignKey'  => 'participant_id',
-                               'dependent'   => true,
-                               'exclusive'   => false,
-                               'finderSql'   => ''
-                         ),
-						 
-						 'MiscIdentifier' =>
-						 array('className'   => 'MiscIdentifier',
-                               'conditions'  => '',
-                               'order'       => '',
-                               'limit'       => '',
-                               'foreignKey'  => 'participant_id',
-                               'dependent'   => true,
-                               'exclusive'   => true,
-                               'finderSql'   => ''
-                         )
-						 
-                  );
-	*/
+	function validateIcd10Code(&$check){
+		$values = array_values($check);
+		return CodingIcd10::id_blank_or_exists($values[0]);
+	}
 	
+	/**
+	 * Replaces icd10 empty string to null values to respect foreign keys constraints
+	 * @param $participantArray
+	 */
+	function patchIcd10NullValues(&$participantArray){
+		if(strlen(trim($participantArray['Participant']['cod_icd10_code'])) == 0){
+			$participantArray['Participant']['cod_icd10_code'] = null;
+		}
+		if(strlen(trim($participantArray['Participant']['secondary_cod_icd10_code'])) == 0){
+			$participantArray['Participant']['secondary_cod_icd10_code'] = null;
+		}
+	}
 }
 
 ?>

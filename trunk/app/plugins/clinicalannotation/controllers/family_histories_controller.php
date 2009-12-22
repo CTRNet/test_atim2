@@ -99,7 +99,7 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 		if( $hook_link ) { require($hook_link); }
 				
 		if ( !empty($this->data) ) {
-			
+			$this->FamilyHistory->patchIcd10NullValues($this->data);
 			// LAUNCH SAVE PROCESS
 			// 1- SET ADDITIONAL DATA	
 			
@@ -154,7 +154,7 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 		if(empty($this->data)) {
 			$this->data = $family_history_data;
 		} else {
-			
+			$this->FamilyHistory->patchIcd10NullValues($this->data);
 			// 1- SET ADDITIONAL DATA	
 			
 			//....

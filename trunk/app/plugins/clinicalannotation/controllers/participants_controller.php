@@ -73,6 +73,7 @@ class ParticipantsController extends ClinicalannotationAppController {
 		if( $hook_link ) { require($hook_link); }
 		
 		if ( !empty($this->data) ) {
+			$this->Participant->patchIcd10NullValues($this->data);
 			$submitted_data_validates = true;
 			// ... special validations
 			
@@ -101,13 +102,12 @@ class ParticipantsController extends ClinicalannotationAppController {
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }
-		
 		if(empty($this->data)) {
 			$this->data = $participant_data;
 		} else {
+			$this->Participant->patchIcd10NullValues($this->data);
 			$submitted_data_validates = true;
 			// ... special validations
-			
 			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			$hook_link = $this->hook('presave_process');
 			if( $hook_link ) { require($hook_link); }
