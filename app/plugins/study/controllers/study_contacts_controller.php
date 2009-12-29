@@ -104,7 +104,7 @@ class StudyContactsController extends StudyAppController {
 
 		
 		if (empty($this->data) ) {
-			$this->data = $study_contact_data
+			$this->data = $study_contact_data;
 			} else {
 				// 1- SET ADDITIONAL DATA
 

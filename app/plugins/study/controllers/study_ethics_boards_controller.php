@@ -114,7 +114,7 @@ class StudyEthicsBoardsController extends StudyAppController {
 
 
 		if (empty($this->data) ) {
-			$this->data = $study_ethics_board_data
+			$this->data = $study_ethics_board_data;
 			} else {
 				// 1- SET ADDITIONAL DATA
 
