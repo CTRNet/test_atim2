@@ -113,7 +113,7 @@ class StudyFundingsController extends StudyAppController {
 		
 
 		if (empty($this->data) ) {
-			$this->data = $study_funding_data
+			$this->data = $study_funding_data;
 			} else {
 				// 1- SET ADDITIONAL DATA
 
