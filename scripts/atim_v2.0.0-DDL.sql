@@ -6703,5 +6703,57 @@ ALTER TABLE `shipments`
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
   
-  
+
+-- Studies Foreign Keys --
+
+ALTER TABLE `study_contacts`
+  ADD CONSTRAINT `FK_study_contacts_study_summaries`
+  FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+
+
+ALTER TABLE `study_ethics_boards`
+  ADD CONSTRAINT `FK_study_ethics_boards_study_summaries`
+  FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+
+ALTER TABLE `study_fundings`
+  ADD CONSTRAINT `FK_study_fundings_study_summaries`
+  FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+
+ALTER TABLE `study_investigators`
+  ADD CONSTRAINT `FK_study_investigators_study_summaries`
+  FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+
+ALTER TABLE `study_related`
+  ADD CONSTRAINT `FK_study_related_study_summaries`
+  FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+
+ALTER TABLE `study_results`
+  ADD CONSTRAINT `FK_study_results_study_summaries`
+  FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+
+ALTER TABLE `study_reviews`
+  ADD CONSTRAINT `FK_study_reviews_study_summaries`
+  FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+
   
