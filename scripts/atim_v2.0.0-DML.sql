@@ -3664,7 +3664,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('core_actions', 'global', 'Actions', 'Actions'),
 ('core_administrate', 'global', 'Administration', ''),
 ('core_announcements', 'global', 'Announcements', 'Annonces'),
-('core_appname', 'global', 'ATiM Development Environment', 'ATiM Environnement de d&eacute;veloppement'),
+('core_appname', 'global', 'ATiM - Advanced Tissue Management', 'ATiM - Application de gestion avanc&eacute;e des tissus'),
 ('core_appname_abbrev', 'global', 'ATiM Dev', 'ATiM Dev'),
 ('core_are you sure you want to delete this data?', 'global', 'Are you sure you want to delete this data?', ''),
 ('core_back_to_mainmenu', 'global', 'Back to main menu', ''),
