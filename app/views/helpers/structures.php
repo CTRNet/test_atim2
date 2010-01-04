@@ -198,9 +198,6 @@ class StructuresHelper extends Helper {
 	// FUNCTION 
 	function build_detail( $atim_structure, $options ) {
 		
-		// pr($this->data);
-		// pr($atim_structure);
-		
 		$return_string = '';
 			
 		$table_index = $this->build_stack( $atim_structure, $options );
@@ -637,10 +634,10 @@ class StructuresHelper extends Helper {
 												'.$this->Paginator->next( __( 'Next',true ), NULL, __( 'Next',true ) ).'
 											</span>
 											
-											'.$this->Paginator->link( '5', array('page'=>1, 'per'=>5)).' |
-											'.$this->Paginator->link( '10', array('page'=>1, 'per'=>10)).' |
-											'.$this->Paginator->link( '20', array('page'=>1, 'per'=>20)).' |
-											'.$this->Paginator->link( '50', array('page'=>1, 'per'=>50)).'
+											'.$this->Paginator->link( '5', array('page'=>1, 'limit'=>5)).' |
+											'.$this->Paginator->link( '10', array('page'=>1, 'limit'=>10)).' |
+											'.$this->Paginator->link( '20', array('page'=>1, 'limit'=>20)).' |
+											'.$this->Paginator->link( '50', array('page'=>1, 'limit'=>50)).'
 											
 										</th>
 									</tr>
