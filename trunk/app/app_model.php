@@ -104,7 +104,7 @@ class AppModel extends Model {
 	}
 	
 	function paginate($conditions, $fields, $order, $limit, $page, $recursive, $extra){
-		return $this->find('all', array('conditions' => $conditions, 'order' => $order, 'limit' => $limit, 'offset' => $limit * ($page - 1), 'recursive' => $recursive, 'extra' => $extra));
+		return $this->find('all', array('conditions' => $conditions, 'order' => $order, 'limit' => $limit, 'offset' => $limit * ($page > 0 ? $page - 1 : 0), 'recursive' => $recursive, 'extra' => $extra));
 	}
 	
 }
