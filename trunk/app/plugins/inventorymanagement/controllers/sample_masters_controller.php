@@ -24,7 +24,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 		'Inventorymanagement.SampleToAliquotControl',
 		
-		'Inventorymanagement.IcdTenCode');
+		'Codingicd10.CodingIcd10');
 	
 	var $paginate = array('SampleMaster' => array('limit' => 10, 'order' => 'SampleMaster.sample_code DESC'));
 
@@ -65,7 +65,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/collections/index'));
 		
 		if($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions();
-		$this->setSampleSearchData($_SESSION['ctrapp_core']['search']['criteria']);
+		$this->setDataForSamplesList($_SESSION['ctrapp_core']['search']['criteria']);
 		
 		// if SEARCH form data, save number of RESULTS and URL
 		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['SampleMaster']['count'];
@@ -77,7 +77,18 @@ class SampleMastersController extends InventorymanagementAppController {
 		}
 	}
 	
-	function setSampleSearchData($criteria) {
+	/**
+	 * Set all data used to display a list of samples according search criteria 
+	 * ($this->data, 'banks', etc).
+	 *
+	 *	@param $criteria Sample Search Criteria
+	 *
+	 * @author N. Luc
+	 * @since 2009-09-11
+	 * @updated N. Luc
+	 */
+	 
+	function setDataForSamplesList($criteria) {
 		// Search Data
 		$belongs_to_details = array(
 			'belongsTo' => array('GeneratedParentSample' => array(
@@ -335,7 +346,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		// MANAGE DATA
 		
 		// Search data to display
-		$this->setSampleSearchData(array_merge(array('SampleMaster.collection_id' => $collection_id), $specific_sample_search_criteria));
+		$this->setDataForSamplesList(array_merge(array('SampleMaster.collection_id' => $collection_id), $specific_sample_search_criteria));
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS	
 		$form_alias = (is_null($specific_form_alias))? 'samplemasters': $specific_form_alias;
@@ -382,7 +393,7 @@ class SampleMastersController extends InventorymanagementAppController {
 			require($hook_link); 
 		}
 	}
-//TODO NL validation stopped here: 20091210	
+	
 	function detail($collection_id, $sample_master_id, $is_tree_view_detail_form = false, $is_inventory_plugin_form = true) {
 		if((!$collection_id) || (!$sample_master_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }		
 		// MANAGE DATA
@@ -409,8 +420,6 @@ class SampleMastersController extends InventorymanagementAppController {
 				$this->redirect('/pages/err_inv_system_error', null, true);
 		}
 
-		$this->data = $sample_data;
-
 		// Get parent sample information
 		$parent_sample_master_id = $sample_data['SampleMaster']['parent_id'];
 		$parent_sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $parent_sample_master_id), 'recursive' => '-1'));
@@ -425,12 +434,21 @@ class SampleMastersController extends InventorymanagementAppController {
 			$this->set('arr_tissue_sources', $this->getTissueSourceList());
 		}
 	
-		// Calulate spent time between specimen collection and derivative creation
-		$arr_spent_time = null;
-		if(isset($sample_data['DerivativeDetail'])) {
-			$arr_spent_time = $this->getSpentTime($sample_data['Collection']['collection_datetime'], $sample_data['DerivativeDetail']['creation_datetime']);
+		// Calulate spent time between:
+		if($bool_is_specimen){
+			// -> specimen collection and specimen reception
+			$sample_data['Generated']['coll_to_rec_spent_time_msg'] = $this->manageSpentTimeDataDisplay($this->getSpentTime($sample_data['Collection']['collection_datetime'], $sample_data['SpecimenDetail']['reception_datetime']));
+		} else {
+			// -> specimen collection and derivative creation
+			$sample_data['Generated']['coll_to_creation_spent_time_msg'] = $this->manageSpentTimeDataDisplay($this->getSpentTime($sample_data['Collection']['collection_datetime'], $sample_data['DerivativeDetail']['creation_datetime']));
 		}
-		$this->data['Generated']['coll_to_creation_spent_time'] = $arr_spent_time == null ? null : $this->manageSpentTimeDataDisplay($arr_spent_time);
+		
+		// Set sample data
+		$this->set("sample_master_data", $sample_data);
+		$this->data = array();//set to empty array to avoid warning
+		
+		// Set sample aliquot list
+		if(!$is_tree_view_detail_form) { $this->setDataForAliquotsList(array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id)); }
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 
@@ -442,36 +460,26 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 		// Set structure
 		$this->Structures->set($sample_data['SampleControl']['form_alias']);	
+		if(!$is_tree_view_detail_form) { $this->Structures->set('aliquotmasters_for_sample_details', 'aliquots_listall_structure');	}
 
 		// Define if this detail form is displayed into the collection content tree view
 		$this->set('is_tree_view_detail_form', $is_tree_view_detail_form);
-
+		
+		// Define if this detail form is displayed into a form of the inventory plugin
+		$this->set('is_inventory_plugin_form', $is_inventory_plugin_form);
+		
 		// Get all sample control types to build the add to selected button
 		$this->set('allowed_derivative_type', $this->getAllowedDerivativeTypes($sample_data['SampleControl']['id']));
 
 		// Get all aliquot control types to build the add to selected button
 		$this->set('allowed_aliquot_type', $this->getAllowedAliquotTypes($sample_data['SampleControl']['id']));
 
-		// Define if this detail form is displayed into the collection content tree view
-		$this->set('is_tree_view_detail_form', $is_tree_view_detail_form);
-		$this->set('is_inventory_plugin_form', $is_inventory_plugin_form);
-		if($bool_is_specimen){
-			$this->data['Generated']['coll_to_rec_spent_time_msg'] = $this->manageSpentTimeDataDisplay($this->getSpentTime($this->data['Collection']['collection_datetime'], $this->data['SpecimenDetail']['reception_datetime']));
-		}
-		
-		$this->set("sample_master_data", $this->data);
-		$this->data = array();//set to empty array to avoid warning
-		
-		if(!$is_tree_view_detail_form){
-			$this->samf_listAll($collection_id, $sample_master_id, null);
-		}
-		
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { 
 			require($hook_link); 
 		}
 	}
-
+	
 	function add($collection_id, $sample_control_id, $parent_sample_master_id = null) {
 		if((!$collection_id) || (!$sample_control_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }		
 			
@@ -538,7 +546,6 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->set('atim_menu_variables', $atim_menu_variables);
 		
 		// set structure alias based on VALUE from CONTROL table
-		//TODO validates could be hidden
 		$this->Structures->set($sample_control_data['SampleControl']['form_alias']);
 		
 		$hook_link = $this->hook('format');
@@ -547,7 +554,22 @@ class SampleMastersController extends InventorymanagementAppController {
 		}	
 		
 		// MANAGE DATA RECORD
-		if(!empty($this->data)) {
+		
+		if(empty($this->data)) {
+		
+			//Set default reception date
+			if($bool_is_specimen){
+				if($this->SampleMaster->find('count', array('conditions' => array('SampleMaster.collection_id' => $collection_id))) == 0){
+					$collection = $this->Collection->find('first', array('conditions' => array('Collection.id' => $collection_id)));
+					$default_reception_datetime = $collection['Collection']['collection_datetime'];
+				}else{
+					$sample = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id), 'fields' => array('MIN(SpecimenDetail.reception_datetime) AS reception_datetime')));
+					$default_reception_datetime = $sample[0]['reception_datetime'];
+				}
+				$this->data['SpecimenDetail']['reception_datetime'] = $default_reception_datetime;
+			}
+		
+		} else {
 			// Set additional data
 			$this->data['SampleMaster']['collection_id'] = $collection_id;
 			$this->data['SampleMaster']['sample_control_id'] = $sample_control_data['SampleControl']['id'];
@@ -623,17 +645,8 @@ class SampleMastersController extends InventorymanagementAppController {
 				}					
 			}			
 		}
-		if($bool_is_specimen){
-			if($this->SampleMaster->find('count', array('conditions' => array('SampleMaster.collection_id' => $collection_id))) == 0){
-				$collection = $this->Collection->find('first', array('conditions' => array('Collection.id' => $collection_id)));
-				$this->data['SpecimenDetail']['reception_datetime'] = $collection['Collection']['collection_datetime'];
-			}else{
-				$sample = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id), 'fields' => array('MIN(SpecimenDetail.reception_datetime) AS reception_datetime')));
-				$this->data['SpecimenDetail']['reception_datetime'] = $sample[0]['reception_datetime'];
-			}
-		}
 	}
-
+	
 	function edit($collection_id, $sample_master_id) {
 		if((!$collection_id) || (!$sample_master_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }		
 		
@@ -699,11 +712,6 @@ class SampleMastersController extends InventorymanagementAppController {
 			$this->data = $sample_data;
 
 		} else {
-			$hook_link = $this->hook('format');
-			if($hook_link){
-				require($hook_link);
-			}
-				
 			//Update data	
 			if(isset($this->data['SampleMaster']['parent_id']) && ($sample_data['SampleMaster']['parent_id'] !== $this->data['SampleMaster']['parent_id'])) { $this->redirect('/pages/err_inv_system_error', null, true); }
 
@@ -784,9 +792,8 @@ class SampleMastersController extends InventorymanagementAppController {
 		if($arr_allow_deletion['allow_deletion']) {
 			$deletion_done = true;
 			
-			
-			
 			if(!$this->SampleMaster->atim_delete($sample_master_id)) { $deletion_done = false; }
+			
 			if($deletion_done) {
 				if($bool_is_specimen) {
 					if(!$this->SpecimenDetail->atim_delete($sample_data['SpecimenDetail']['id'])) { $deletion_done = false; }
@@ -796,7 +803,6 @@ class SampleMastersController extends InventorymanagementAppController {
 			}
 			
 			if($deletion_done) {
-				//TODO Error in the redirection
 				$this->flash('your data has been deleted', '/inventorymanagement/sample_masters/contentTreeView/' . $collection_id);
 			} else {
 				$this->flash('error deleting data - contact administrator', '/inventorymanagement/sample_masters/contentTreeView/' . $collection_id);
@@ -902,38 +908,11 @@ class SampleMastersController extends InventorymanagementAppController {
 	 
 	function getTissueSourceList() {
 		//TODO Define content of tissue_source list
-		$res = $this->IcdTenCode->find('all', array('fields' => 'DISTINCT site', 'order' => 'site ASC', 'conditions' => array('site != \'\'')));
+		$res = $this->CodingIcd10->find('all', array('fields' => 'DISTINCT site', 'order' => 'site ASC', 'conditions' => array('site != \'\'')));
 		$final_arr = array();
-		if(!empty($res)) { foreach($res as $data) { $final_arr[strtolower($data['IcdTenCode']['site'])] = $data['IcdTenCode']['site']; }}
+		if(!empty($res)) { foreach($res as $data) { $final_arr[strtolower($data['CodingIcd10']['site'])] = $data['CodingIcd10']['site']; }}
 		return $final_arr;
-	}
-	
-//	function updateSourceAliquotUses($sample_master_id, $use_details, $use_date) {
-//		
-//		$this->SourceAliquot->bindModel(array('belongsTo' => 
-//			array('AliquotUse' => array(
-//					'className' => 'AliquotUse',
-//					'conditions' => '',
-//					'order'      => '',
-//					'foreignKey' => 'aliquot_use_id'))));
-//		
-//		$criteria = array();
-//		$criteria['SourceAliquot.sample_master_id'] = $sample_master_id;
-//		$criteria = array_filter($criteria);
-//		
-//		$aliquot_uses = $this->SourceAliquot->findAll($criteria, null, null, null, 1);
-//		
-//		if(!empty($aliquot_uses)) {
-//			foreach($aliquot_uses as $tmp => $tested_aliquot_use_data) {
-//				$this->updateAliquotUseDetailAndDate($tested_aliquot_use_data['AliquotUse']['id'], 
-//					$tested_aliquot_use_data['AliquotUse']['aliquot_master_id'], 
-//					$use_details, 
-//					$use_date);
-//			}
-//		}	
-//	
-//	}
-	
+	}	
 }
 	
 ?>

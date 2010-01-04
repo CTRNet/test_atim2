@@ -56,8 +56,26 @@
 	if(isset($arr_tissue_sources)) { $structure_override['SampleDetail.tissue_source'] = $arr_tissue_sources; }
 	
 	// BUILD FORM
-	
-	if(isset($aliquots_listall_structure)){
+
+	if(!isset($aliquots_listall_structure)) {
+
+		// DISPLAY ONLY SAMPLE DETAIL FORM
+		
+		// 1- SAMPLE DETAIL	
+		
+		$final_atim_structure = $atim_structure; 
+		$final_options = array('override' => $structure_override, 'links' => $structure_links, 'data' => $sample_master_data);
+		
+		// CUSTOM CODE
+		$hook_link = $structures->hook();
+		if( $hook_link ) { require($hook_link); }
+			
+		// BUILD FORM
+		$structures->build( $final_atim_structure, $final_options );
+		
+	} else { 
+		
+		// DISPLAY BOTH SAMPLE DETAIL FORM AND SAMPLE ALIQUOTS LIST
 		
 		// 1- SAMPLE DETAIL	
 		
@@ -92,20 +110,6 @@
 		// BUILD FORM
 		$structures->build( $final_atim_structure, $final_options );	
 		
-	}else{
-		// For details form linked to tree view
-		
-		// 1- SAMPLE DETAIL	
-		
-		$final_atim_structure = $atim_structure; 
-		$final_options = array('override' => $structure_override, 'links' => $structure_links, 'data' => $sample_master_data);
-		
-		// CUSTOM CODE
-		$hook_link = $structures->hook();
-		if( $hook_link ) { require($hook_link); }
-			
-		// BUILD FORM
-		$structures->build( $final_atim_structure, $final_options );
 	}
 	
 ?>
