@@ -6232,6 +6232,18 @@ ALTER TABLE `clinical_collection_links`
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
 
+ALTER TABLE `participants` 
+  ADD CONSTRAINT `FK_participants_icd10_code`
+  FOREIGN KEY (cod_icd10_code) REFERENCES coding_icd10 (id)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+  
+ALTER TABLE `participants` 
+  ADD CONSTRAINT `FK_participants_icd10_code_2`
+  FOREIGN KEY (secondary_cod_icd10_code) REFERENCES coding_icd10 (id)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
 ALTER TABLE `consent_masters`
   ADD CONSTRAINT `FK_consent_masters_participant`
   FOREIGN KEY (`participant_id`) REFERENCES `participants` (`id`)
@@ -6261,7 +6273,13 @@ ALTER TABLE `diagnosis_masters`
   FOREIGN KEY (`diagnosis_control_id`) REFERENCES `diagnosis_controls` (`id`)
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
-
+  
+ALTER TABLE `diagnosis_masters`
+  ADD CONSTRAINT `FK_diagnosis_masters_icd10_code`
+  FOREIGN KEY (primary_icd10_code) REFERENCES coding_icd10 (id)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+  
 ALTER TABLE `event_masters`
   ADD CONSTRAINT `FK_event_masters_participant`
   FOREIGN KEY (`participant_id`) REFERENCES `participants` (`id`)
@@ -6283,6 +6301,12 @@ ALTER TABLE `event_masters`
 ALTER TABLE `family_histories`
   ADD CONSTRAINT `FK_family_histories_participant`
   FOREIGN KEY (`participant_id`) REFERENCES `participants` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+ALTER TABLE `family_histories` 
+  ADD CONSTRAINT `FK_family_histories_icd10_code`
+  FOREIGN KEY (primary_icd10_code) REFERENCES coding_icd10 (id)
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
 
@@ -6654,11 +6678,13 @@ ALTER TABLE `storage_masters`
   ON DELETE RESTRICT
   ON UPDATE RESTRICT; 
 
+
 -- Order Management Foreign Keys --
 
 ALTER TABLE `orders`
   ADD CONSTRAINT `FK_orders_study_summaries`
   FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`)
+  ON DELETE RESTRICT
   ON UPDATE RESTRICT;
 
 ALTER TABLE `order_lines`
@@ -6712,14 +6738,11 @@ ALTER TABLE `study_contacts`
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
 
-
-
 ALTER TABLE `study_ethics_boards`
   ADD CONSTRAINT `FK_study_ethics_boards_study_summaries`
   FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`)
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
-
 
 ALTER TABLE `study_fundings`
   ADD CONSTRAINT `FK_study_fundings_study_summaries`
@@ -6727,13 +6750,11 @@ ALTER TABLE `study_fundings`
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
 
-
 ALTER TABLE `study_investigators`
   ADD CONSTRAINT `FK_study_investigators_study_summaries`
   FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`)
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
-
 
 ALTER TABLE `study_related`
   ADD CONSTRAINT `FK_study_related_study_summaries`
@@ -6741,13 +6762,11 @@ ALTER TABLE `study_related`
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
 
-
 ALTER TABLE `study_results`
   ADD CONSTRAINT `FK_study_results_study_summaries`
   FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`)
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
-
 
 ALTER TABLE `study_reviews`
   ADD CONSTRAINT `FK_study_reviews_study_summaries`
