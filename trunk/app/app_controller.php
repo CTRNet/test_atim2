@@ -47,6 +47,7 @@
 		
 		// parse result, set configs/defines
 		if ( $config_results ) {
+			Configure::write('Config.language', $config_results['Config']['config_language']);
 			foreach ( $config_results['Config'] as $config_key=>$config_data ) {
 				if ( strpos($config_key,'_')!==false ) {
 					
@@ -78,6 +79,10 @@ class AppController extends Controller {
 	var $helpers		= array('Ajax', 'Csv', 'Html', 'Javascript', 'Shell', 'Structures', 'Time');
 	
 	function beforeFilter() {
+		if(Configure::read('Config.language') != $this->Session->read('Config.language')){
+			//set language
+			$this->Session->write('Config.language', Configure::read('Config.language')); 
+		}
 		// Uncomment the following to create an Aco entry for every plugin/controller/method combination in the app.
 			// $this->buildAcl();
 		// Uncomment the following to set up default permissions.
