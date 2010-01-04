@@ -17,7 +17,7 @@
 					or die("Could not connect to MySQL");
 					
 	//Selects the languages database
-	@mysql_select_db("atim_2")
+	@mysql_select_db("atim_new")
 					or die("Could not select database");
     
 	//Executes query
@@ -45,7 +45,7 @@
 			$fr = substr($fr, 0, 1014);
 		}
 		$english = "msgid\t\"$id\"\nmsgstr\t\"$en\"\n";
-		$french = "msgid=\"$id\"\nmsgstr=\"$fr\";\n";
+		$french = "msgid\t\"$id\"\nmsgstr\t\"$fr\"\n";
 		
 		//Writes output to file
 		fwrite($filee, $english);
