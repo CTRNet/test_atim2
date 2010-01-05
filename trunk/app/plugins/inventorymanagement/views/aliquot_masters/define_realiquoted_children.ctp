@@ -36,6 +36,18 @@
 		require($hook_link); 
 	}
 	$structures->build( $atim_datetime_input, array('type'=>'add', 'links'=>$structure_links, 'settings' => $structure_settings, 'data' => array()));
+
+	$final_atim_structure = ; 
+	$final_options = ;
+	
+	// CUSTOM CODE
+	$hook_link = $structures->hook();
+	if( $hook_link ) { require($hook_link); }
+		
+	// BUILD FORM
+	$structures->build( $final_atim_structure, $final_options );	
+
+
 ?>
 
 

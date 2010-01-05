@@ -1,4 +1,5 @@
 <?php 
+
 	// DISPLAY COLLETCION SEARCH TYPE FORM
 	
 	$structure_override = array();
@@ -13,6 +14,7 @@
 		
 	// build form
 	$structures->build( $final_atim_structure, $final_options );
+
 	
 	// DISPLAY COLLETCION INDEX FORM	
 

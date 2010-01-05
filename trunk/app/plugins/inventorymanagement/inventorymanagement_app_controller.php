@@ -232,10 +232,39 @@ class InventorymanagementAppController extends AppController
 		} 
 		return  '#err#';
 	}
+	
+	/**
+	 * Set all data used to display a list of samples according search criteria 
+	 * (samples_data, 'banks', etc).
+	 *
+	 *	@param $criteria Sample Search Criteria
+	 *
+	 * @author N. Luc
+	 * @since 2009-09-11
+	 * @updated N. Luc
+	 */
+	 
+	function setDataForSamplesList($criteria) {
+		// Search Data
+		$belongs_to_details = array(
+			'belongsTo' => array('GeneratedParentSample' => array(
+				'className' => 'Inventorymanagement.SampleMaster',
+				'foreignKey' => 'parent_id')));
+pr($this->paginate);			
+		$this->SampleMaster->bindModel($belongs_to_details, false);			
+		$working_data = $this->paginate($this->SampleMaster, $criteria);
+		$this->SampleMaster->unbindModel(array('belongsTo' => array('GeneratedParentSample')), false);
+		
+		// Set samples list	
+		$this->set('samples_data', $working_data);
+				
+		// Set list of banks
+		$this->set('banks', $this->getBankList());
+	}
 
 	/**
 	 * Set all data used to display a list of aliquots according search criteria 
-	 * ($this->data, etc).
+	 * (aliquots_data, banks, etc).
 	 *
 	 *	@param $criteria Aliquot Search Criteria
 	 *
@@ -259,7 +288,7 @@ class InventorymanagementAppController extends AppController
 		$this->AliquotMaster->bindModel($has_many_details, false);	
 		$working_data = $this->paginate($this->AliquotMaster, $criteria);
 		$this->AliquotMaster->unbindModel(array('hasMany' => array('RealiquotedParent', 'ChildrenAliquot')), false);
-		
+				
 		// Manage Data
 		$key_to_sample_parent_id = array();
 		foreach($working_data as $key => $aliquot_data) {
@@ -291,14 +320,15 @@ class InventorymanagementAppController extends AppController
 			$working_data[$key]['GeneratedParentSample'] = array();
 			if(!empty($aliquot_data['SampleMaster']['parent_id'])) { $key_to_sample_parent_id[$key] = $aliquot_data['SampleMaster']['parent_id']; }
 		}
-		
+				
 		// Add GeneratedParentSample Data
 		$parent_sample_data = $this->SampleMaster->atim_list(array('conditions' => array('SampleMaster.id' => $key_to_sample_parent_id), 'recursive' => '-1'));
 		foreach($key_to_sample_parent_id as $key => $parent_id) {
 			if(!isset($parent_sample_data[$parent_id])) { $this->redirect('/pages/err_inv_system_error', null, true); }
 			$working_data[$key]['GeneratedParentSample'] = $parent_sample_data[$parent_id]['SampleMaster'];
 		}
-		
+			
+		// Set aliquots list	
 		$this->set('aliquots_data', $working_data);
 		
 		// Set list of banks
