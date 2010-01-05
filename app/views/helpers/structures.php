@@ -1458,7 +1458,7 @@ class StructuresHelper extends Helper {
 							
 							if ( count($field['StructureField']['StructureValueDomain']) && isset($field['StructureField']['StructureValueDomain']['StructurePermissibleValue']) ) {
 								foreach ( $field['StructureField']['StructureValueDomain']['StructurePermissibleValue'] as $lookup ) {
-									$html_element_array['options'][ $lookup['value'] ] = __( $lookup['language_alias'], true );
+									$html_element_array['options'][ $lookup['value'] ] = html_entity_decode(__( $lookup['language_alias'], true ));
 								}
 							}
 							
