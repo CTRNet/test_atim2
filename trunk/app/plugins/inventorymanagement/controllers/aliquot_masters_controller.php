@@ -41,13 +41,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 	/* ----------------------------- ALIQUOT MASTER ----------------------------- */
 	
 	function index() {
-		// MANAGE (FIRST) FORM TO DEFINE SEARCH TYPE 
-
-		// Set structure 				
-		$this->Structures->set('collection_search_type', 'atim_structure_for_search_type');
-		
-		// MANAGE INDEX FORM
-
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/collections/index'));
 						
 		$_SESSION['ctrapp_core']['search'] = null; // clear SEARCH criteria
@@ -63,17 +56,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 	}
 	
 	function search() {
-		// MANAGE (FIRST) FORM TO DEFINE SEARCH TYPE 
-
-		// Set structure 				
-		$this->Structures->set('collection_search_type', 'atim_structure_for_search_type');
-				
-		// MANAGE INDEX FORM
-		
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/collections/index'));
 		
 		if ($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions();
 		$this->setDataForAliquotsList($_SESSION['ctrapp_core']['search']['criteria']);
+		$this->data = array();
 		
 		// if SEARCH form data, save number of RESULTS and URL
 		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['AliquotMaster']['count'];
@@ -85,7 +72,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 	}
 	
-		
 	function listAll($collection_id, $sample_master_id, $filter_option = null) {
 		if((!$collection_id) || (!$sample_master_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }
 
@@ -126,11 +112,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 				$specific_aliquot_search_criteria['AliquotMaster.aliquot_control_id'] = $aliquot_control_id;
 
 				$sample_control_data = $this->SampleControl->find('first', array('conditions' => array('SampleControl.id' => $sample_control_id)));
-				if(empty($sample_control_data)) { $this->redirect('/pages/err_inv_no_samp_cont_data', null, true); }
+				if(empty($sample_control_data)) { $this->redirect('/pages/err_inv_system_error', null, true); }
 				$specific_menu_variables['SampleTypeForFilter'] = $sample_control_data['SampleControl']['sample_type'];
 
 				$aliquot_control_data = $this->AliquotControl->find('first', array('conditions' => array('AliquotControl.id' => $option_for_list_all[1])));
-				if(empty($aliquot_control_data)) { $this->redirect('/pages/err_inv_no_aliqu_cont_data', null, true); }
+				if(empty($aliquot_control_data)) { $this->redirect('/pages/err_inv_system_error', null, true); }
 				$specific_form_alias = $aliquot_control_data['AliquotControl']['form_alias'];
 				$specific_menu_variables['AliquotTypeForFilter'] = $aliquot_control_data['AliquotControl']['aliquot_type'];
 
@@ -141,7 +127,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		} else {
 			// User is working on sample aliquots list
 			$sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id), 'recursive' => '-1'));
-			if(empty($sample_data)) { $this->redirect('/pages/err_inv_samp_no_data', null, true); }
+			if(empty($sample_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }
 			$specific_menu_variables['SampleMaster.initial_specimen_sample_id'] = $sample_data['SampleMaster']['initial_specimen_sample_id'];
 			$specific_menu_variables['SampleMaster.id'] = $sample_data['SampleMaster']['id'];
 
@@ -181,7 +167,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				$specific_aliquot_search_criteria['AliquotMaster.aliquot_control_id'] = $aliquot_control_id;
 
 				$aliquot_control_data = $this->AliquotControl->find('first', array('conditions' => array('AliquotControl.id' => $option_for_list_all[1])));
-				if(empty($aliquot_control_data)) { $this->redirect('/pages/err_inv_no_aliqu_cont_data', null, true); }
+				if(empty($aliquot_control_data)) { $this->redirect('/pages/err_inv_system_error', null, true); }
 				$specific_form_alias = $aliquot_control_data['AliquotControl']['form_alias'];
 				$specific_menu_variables['AliquotTypeForFilter'] = $aliquot_control_data['AliquotControl']['aliquot_type'];
 
@@ -195,7 +181,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// MANAGE DATA
 
 		$this->setDataForAliquotsList(array_merge(array('AliquotMaster.collection_id' => $collection_id), $specific_aliquot_search_criteria));
-
+		$this->data = array();
+		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		$form_alias = (is_null($specific_form_alias))? 'aliquotmasters': $specific_form_alias;
@@ -248,6 +235,14 @@ class AliquotMastersController extends InventoryManagementAppController {
 			require($hook_link);
 		}
 	}
+	
+	
+	
+	
+	
+	
+	
+	
 	
 //TODO: change ',' to '.' for AliquotMaster.initial_volume 	AliquotDetail.used_blood_volume AliquotUse.	used_volume
 	 
@@ -320,11 +315,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$this->set('default_storage_datetime', $this->getDefaultAliquotStorageDate($sample_data));
 			$this->set('arr_preselected_storages', array());
 						
-			//TODO correct this line
 			$this->data = array(array());
 			
 		} else {
 // TODO used to correct a bug
+pr($this->data);exit;
 unset($this->data['AliquotMaster']);	
 				
 			// Set current volume

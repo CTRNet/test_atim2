@@ -25,10 +25,10 @@
 	if($is_inventory_plugin_form){
 		$structure_links['bottom'] = array(
 			'edit' => '/inventorymanagement/sample_masters/edit/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'], 
-			'delete' => '/inventorymanagement/sample_masters/delete/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'], 
-			'see parent sample' => $show_parent_link,
 			'add derivative' => $add_derivatives,
-			'add aliquot' => $add_aliquots
+			'add aliquot' => $add_aliquots,
+			'see parent sample' => $show_parent_link,
+			'delete' => '/inventorymanagement/sample_masters/delete/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id']
 		);
 	}
 		
@@ -38,11 +38,11 @@
 	} else {
 		// General detail form display
 		$search_type_links = array();
-		$search_type_links['collection'] = '/inventorymanagement/collections/index/';
-		$search_type_links['sample'] = '/inventorymanagement/sample_masters/index/';
-		$search_type_links['aliquot'] = '/inventorymanagement/aliquot_masters/index/';
+		$search_type_links['collections'] = '/inventorymanagement/collections/index/';
+		$search_type_links['samples'] = '/inventorymanagement/sample_masters/index/';
+		$search_type_links['aliquots'] = '/inventorymanagement/aliquot_masters/index/';
 	
-		$structure_links['bottom']['search'] = $search_type_links;
+		$structure_links['bottom']['new search type'] = $search_type_links;
 	}
 
 	$structure_override = array();

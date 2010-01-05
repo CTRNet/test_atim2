@@ -26,20 +26,13 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 		'Codingicd10.CodingIcd10');
 	
-	var $paginate = array('SampleMaster' => array('limit' => 5, 'order' => 'SampleMaster.sample_code DESC'));
+	var $paginate = array('SampleMaster' => array('limit' => 10, 'order' => 'SampleMaster.sample_code DESC'));
 
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS
 	 * -------------------------------------------------------------------------- */
 
 	function index() {
-		// MANAGE (FIRST) FORM TO DEFINE SEARCH TYPE 
-		
-		// Set structure 				
-		$this->Structures->set('collection_search_type', 'atim_structure_for_search_type');
-		
-		// MANAGE INDEX FORM
-
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/collections/index'));
 						
 		$_SESSION['ctrapp_core']['search'] = null; // clear SEARCH criteria
@@ -55,18 +48,12 @@ class SampleMastersController extends InventorymanagementAppController {
 	}
 	
 	function search() {
-		// MANAGE (FIRST) FORM TO DEFINE SEARCH TYPE 
-
-		// Set structure 				
-		$this->Structures->set('collection_search_type', 'atim_structure_for_search_type');
-		
-		// MANAGE INDEX FORM
-		
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/collections/index'));
 		
 		if($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions();
 		$this->setDataForSamplesList($_SESSION['ctrapp_core']['search']['criteria']);
-		
+		$this->data = array();
+				
 		// if SEARCH form data, save number of RESULTS and URL
 		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['SampleMaster']['count'];
 		$_SESSION['ctrapp_core']['search']['url'] = '/inventorymanagement/sample_masters/search';
@@ -419,7 +406,8 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 		// Set sample data
 		$this->set('sample_master_data', $sample_data);
-			
+		$this->data = array();
+					
 		// Set sample aliquot list
 		if(!$is_tree_view_detail_form) { $this->setDataForAliquotsList(array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id)); }
 		
