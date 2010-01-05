@@ -38,8 +38,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 	 * DISPLAY FUNCTIONS
 	 * -------------------------------------------------------------------------- */
 
-//TODO: change ',' to '.' for AliquotMaster.initial_volume 	AliquotDetail.used_blood_volume AliquotUse.	used_volume
-	 
 	/* ----------------------------- ALIQUOT MASTER ----------------------------- */
 	
 	function index() {
@@ -57,6 +55,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		// Set list of banks
 		$this->set('banks', $this->getBankList());	
+		
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link); 
+		}
 	}
 	
 	function search() {
@@ -75,6 +78,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// if SEARCH form data, save number of RESULTS and URL
 		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['AliquotMaster']['count'];
 		$_SESSION['ctrapp_core']['search']['url'] = '/inventorymanagement/aliquot_masters/search';
+		
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link); 
+		}
 	}
 	
 		
@@ -241,6 +249,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 	}
 	
+//TODO: change ',' to '.' for AliquotMaster.initial_volume 	AliquotDetail.used_blood_volume AliquotUse.	used_volume
+	 
 	function add($collection_id, $sample_master_id, $aliquot_control_id) {
 		if((!$collection_id) || (!$sample_master_id) || (!$aliquot_control_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }		
 		

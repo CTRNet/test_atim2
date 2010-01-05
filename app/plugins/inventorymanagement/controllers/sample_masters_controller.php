@@ -26,7 +26,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 		'Codingicd10.CodingIcd10');
 	
-	var $paginate = array('SampleMaster' => array('limit' => 10, 'order' => 'SampleMaster.sample_code DESC'));
+	var $paginate = array('SampleMaster' => array('limit' => 5, 'order' => 'SampleMaster.sample_code DESC'));
 
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS
@@ -75,32 +75,6 @@ class SampleMastersController extends InventorymanagementAppController {
 		if($hook_link){
 			require($hook_link); 
 		}
-	}
-	
-	/**
-	 * Set all data used to display a list of samples according search criteria 
-	 * ($this->data, 'banks', etc).
-	 *
-	 *	@param $criteria Sample Search Criteria
-	 *
-	 * @author N. Luc
-	 * @since 2009-09-11
-	 * @updated N. Luc
-	 */
-	 
-	function setDataForSamplesList($criteria) {
-		// Search Data
-		$belongs_to_details = array(
-			'belongsTo' => array('GeneratedParentSample' => array(
-				'className' => 'Inventorymanagement.SampleMaster',
-				'foreignKey' => 'parent_id')));
-				
-		$this->SampleMaster->bindModel($belongs_to_details, false);			
-		$this->data = $this->paginate($this->SampleMaster, $criteria);
-		$this->SampleMaster->unbindModel(array('belongsTo' => array('GeneratedParentSample')), false);
-		
-		// Set list of banks
-		$this->set('banks', $this->getBankList());
 	}
 	
 	function contentTreeView($collection_id, $studied_specimen_sample_control_id = null) {
@@ -444,9 +418,8 @@ class SampleMastersController extends InventorymanagementAppController {
 		}
 		
 		// Set sample data
-		$this->set("sample_master_data", $sample_data);
-		$this->data = array();//set to empty array to avoid warning
-		
+		$this->set('sample_master_data', $sample_data);
+			
 		// Set sample aliquot list
 		if(!$is_tree_view_detail_form) { $this->setDataForAliquotsList(array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id)); }
 		

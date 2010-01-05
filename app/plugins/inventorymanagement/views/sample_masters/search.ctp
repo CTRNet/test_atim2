@@ -15,6 +15,7 @@
 	// build form
 	$structures->build( $final_atim_structure, $final_options );	
 		
+		
 	// DISPLAY COLLETCION INDEX FORM	
 	
 	$search_type_links = array();
@@ -34,9 +35,9 @@
 		$bank_list[$new_bank['Bank']['id']] = $new_bank['Bank']['name'];
 	}
 	$structure_override['Collection.bank_id'] = $bank_list;
-		
+	
 	$final_atim_structure = $atim_structure; 
-	$final_options = array('type' => 'index', 'data' => $this->data, 'links' => $structure_links, 'override' => $structure_override);
+	$final_options = array('type' => 'index', 'data' => $samples_data, 'links' => $structure_links, 'override' => $structure_override);
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook();

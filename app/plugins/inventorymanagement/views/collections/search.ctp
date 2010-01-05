@@ -14,7 +14,7 @@
 		
 	// build form
 	$structures->build( $final_atim_structure, $final_options );
-
+	
 	
 	// DISPLAY COLLETCION INDEX FORM	
 

@@ -45,11 +45,25 @@
 	}
 	$structure_override['Collection.bank_id'] = $bank_list;
 	
+	
+	
+	
 	$hook_link = $structures->hook();
 	if($hook_link){
 		require($hook_link); 
 	}
 	
 	$structures->build($aliquots_listall_structure, array('type' => 'index', 'links' => $structure_links, 'override' => $structure_override, 'data' => $aliquots_data));
+
+	$final_atim_structure = ; 
+	$final_options = ;
+	
+	// CUSTOM CODE
+	$hook_link = $structures->hook();
+	if( $hook_link ) { require($hook_link); }
+		
+	// BUILD FORM
+	$structures->build( $final_atim_structure, $final_options );	
+
 
 ?>
