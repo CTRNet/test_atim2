@@ -83,9 +83,9 @@ class DATABASE_CONFIG {
 		'persistent' => false,
 		'host' => 'localhost',
 		'login' => 'root',
-		'password' => '',
-		'database' => 'atim_2',
-		'prefix' => '',
+		'password' => 'root',
+		'database' => 'atim_new',
+		'prefix' => ''
 	);
 }
 ?>

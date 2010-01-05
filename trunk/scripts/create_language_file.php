@@ -15,14 +15,16 @@
 	//Establishes a connection to the MySQL server
 	$connection = @mysql_connect("127.0.0.1:8889", "root", "root")
 					or die("Could not connect to MySQL");
-					
+	if(!mysql_set_charset("latin1", $connection)){
+		die("We failed");
+	}				
+	echo(mysql_client_encoding($connection)."\n");
 	//Selects the languages database
 	@mysql_select_db("atim_new")
 					or die("Could not select database");
     
 	//Executes query
 	$query = "SELECT * FROM i18n";
-	mysql_query("SET NAMES 'utf8'");
 	$result = mysql_query($query);
 	
 	
@@ -50,7 +52,7 @@
 		//Writes output to file
 		fwrite($filee, $english);
 		fwrite($filef, $french);
-		
+		echo($french."\n");
 	}
 	
 	///Close file

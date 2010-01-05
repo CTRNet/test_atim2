@@ -5,7 +5,6 @@ class ShellHelper extends Helper {
 	var $helpers = array('Html','Session','Structures');
 	
 	function header( $options=array() ) {
-		
 		$return = '';
 		
 		// get/set menu for menu BAR
@@ -37,15 +36,6 @@ class ShellHelper extends Helper {
 						$html_attributes['class'] = 'menu '.$this->Structures->generate_link_class( 'plugin '.$menu_item['Menu']['use_link'] );
 						$html_attributes['title'] = __($menu_item['Menu']['language_title'], true);
 								
-						/*
-						$root_menu_for_header .= '
-									<!-- '.$menu_item['Menu']['id'].' -->
-									<li class="'.( !$menu_item['Menu']['allowed'] ? 'not_allowed ' : '' ).( $menu_item['Menu']['at'] ? 'at ' : '' ).'count_'.$key.'">
-										'.( $menu_item['Menu']['allowed'] ? $this->Html->link( __($menu_item['Menu']['language_title'], true), $menu_item['Menu']['use_link'], $html_attributes ) : __($menu_item['Menu']['language_title'], true) ).'
-									</li>
-						';
-						*/
-						
 						if ( !$menu_item['Menu']['allowed'] ) {
 							
 							$root_menu_for_header .= '
@@ -61,7 +51,7 @@ class ShellHelper extends Helper {
 							$root_menu_for_header .= '
 									<!-- '.$menu_item['Menu']['id'].' -->
 									<li class="'.( $menu_item['Menu']['at'] ? 'at ' : '' ).'count_'.$key.'">
-										'.$this->Html->link( __($menu_item['Menu']['language_title'], true), $menu_item['Menu']['use_link'], $html_attributes ).'
+										'.$this->Html->link( html_entity_decode(__($menu_item['Menu']['language_title'], true)), $menu_item['Menu']['use_link'], $html_attributes ).'
 									</li>
 							';
 						}
@@ -82,16 +72,7 @@ class ShellHelper extends Helper {
 						
 						$html_attributes = array();
 						$html_attributes['class'] = 'menu '.$this->Structures->generate_link_class( 'plugin '.$menu_item['Menu']['use_link'] );
-						$html_attributes['title'] = __($menu_item['Menu']['language_title'], true);
-								
-						/*
-						$root_menu_for_header .= '
-									<!-- '.$menu_item['Menu']['id'].' -->
-									<li class="'.( !$menu_item['Menu']['allowed'] ? 'not_allowed ' : '' ).( $menu_item['Menu']['at'] ? 'at ' : '' ).'count_'.$key.'">
-										'.( $menu_item['Menu']['allowed'] ? $this->Html->link( __($menu_item['Menu']['language_title'], true), $menu_item['Menu']['use_link'], $html_attributes ) : __($menu_item['Menu']['language_title'], true) ).'
-									</li>
-						';
-						*/
+						$html_attributes['title'] = html_entity_decode(__($menu_item['Menu']['language_title'], true));
 						
 						if ( !$menu_item['Menu']['allowed'] ) {
 							
@@ -108,7 +89,7 @@ class ShellHelper extends Helper {
 							$root_menu_for_header .= '
 									<!-- '.$menu_item['Menu']['id'].' -->
 									<li class="'.( $menu_item['Menu']['at'] ? 'at ' : '' ).'count_'.$key.'">
-										'.$this->Html->link( __($menu_item['Menu']['language_title'], true), $menu_item['Menu']['use_link'], $html_attributes ).'
+										'.$this->Html->link( html_entity_decode(__($menu_item['Menu']['language_title'], true)), $menu_item['Menu']['use_link'], $html_attributes ).'
 									</li>
 							';
 						}
@@ -119,17 +100,6 @@ class ShellHelper extends Helper {
 					
 				}
 				
-			// set HEADER logged in user
-				
-				/*
-				$user_for_header .= '
-					<p id="user_for_header">
-						<span>Logged in as:</span>
-						'.$_SESSION['Auth']['User']['name'].'
-					</p>
-				';
-				*/
-			
 		} else {
 			$logged_in = false;
 		}
@@ -219,11 +189,11 @@ class ShellHelper extends Helper {
 				
 				<p>
 					<span>
-						'.$this->Html->link( __('core_footer_about', true), '/pages/about/' ).'
-						'.$this->Html->link( __('core_footer_installation', true), '/pages/installation/' ).'
-						'.$this->Html->link( __('core_footer_credits', true), '/pages/credits/' ).'
+						'.$this->Html->link( html_entity_decode(__('core_footer_about', true)), '/pages/about/' ).'
+						'.$this->Html->link( html_entity_decode(__('core_footer_installation', true)), '/pages/installation/' ).'
+						'.$this->Html->link( html_entity_decode(__('core_footer_credits', true)), '/pages/credits/' ).'
 					</span>
-						'.__('core_copyright', true).' &copy; '.date('Y').' '.$this->Html->link( __('core_ctrnet', true), 'https://www.ctrnet.ca/' ).'
+						'.__('core_copyright', true).' &copy; '.date('Y').' '.$this->Html->link( html_entity_decode(__('core_ctrnet', true)), 'https://www.ctrnet.ca/' ).'
 				</p>
 				
 			</div>
@@ -300,7 +270,7 @@ class ShellHelper extends Helper {
 										
 										if ( $is_root ) {
 											$html_attributes['class'] .= ' menu '.$this->Structures->generate_link_class( 'plugin '.$menu_item['Menu']['use_link'] );
-											$html_attributes['title'] = __($menu_item['Menu']['language_title'], true);
+											$html_attributes['title'] = html_entity_decode(__($menu_item['Menu']['language_title'], true));
 											
 											// $active_item = $menu_item['Menu']['allowed'] ? $this->Html->link( __($menu_item['Menu']['language_title'], true), $menu_item['Menu']['use_link'], $html_attributes ) : __($menu_item['Menu']['language_title'], true);
 											
@@ -309,7 +279,7 @@ class ShellHelper extends Helper {
 											}
 											
 											else {
-												$active_item = $this->Html->link( __($menu_item['Menu']['language_title'], true), $menu_item['Menu']['use_link'], $html_attributes );
+												$active_item = $this->Html->link( html_entity_decode(__($menu_item['Menu']['language_title'], true)), $menu_item['Menu']['use_link'], $html_attributes );
 											}
 										} 
 										
@@ -324,15 +294,6 @@ class ShellHelper extends Helper {
 								
 								$html_attributes = array();
 								$html_attributes['class'] = 'menu list'; // $html_attributes['class'] = 'menu '.$this->Structures->generate_link_class( $menu_item['Menu']['language_title'], $menu_item['Menu']['use_link'] );
-								
-								/*
-								$append_menu .= '
-											<!-- '.$menu_item['Menu']['id'].' -->
-											<li class="'.( !$menu_item['Menu']['allowed'] ? 'not_allowed ' : '' ).( $menu_item['Menu']['at'] ? 'at ' : '' ).'count_'.$sub_count.'">
-												'.( $menu_item['Menu']['allowed'] ? $this->Html->link( __($menu_item['Menu']['language_title'], true), $menu_item['Menu']['use_link'], $html_attributes ) : __($menu_item['Menu']['language_title'], true) ).'
-											</li>
-								';
-								*/
 								
 								if ( !$menu_item['Menu']['allowed'] ) {
 									
@@ -349,7 +310,7 @@ class ShellHelper extends Helper {
 									$append_menu .= '
 											<!-- '.$menu_item['Menu']['id'].' -->
 											<li class="'.( $menu_item['Menu']['at'] ? 'at ' : '' ).'count_'.$sub_count.'">
-												'.$this->Html->link( __($menu_item['Menu']['language_title'], true), $menu_item['Menu']['use_link'], $html_attributes ).'
+												'.$this->Html->link( html_entity_decode(__($menu_item['Menu']['language_title'], true)), $menu_item['Menu']['use_link'], $html_attributes ).'
 											</li>
 									';
 								}

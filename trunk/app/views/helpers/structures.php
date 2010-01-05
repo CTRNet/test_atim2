@@ -1165,14 +1165,13 @@ class StructuresHelper extends Helper {
 					$table_index[ $field['display_column'] ][ $row_count ]['model'] = $field['StructureField']['model'];
 					$table_index[ $field['display_column'] ][ $row_count ]['field'] = $field['StructureField']['field'];
 					$table_index[ $field['display_column'] ][ $row_count ]['type'] = $field['StructureField']['type'];
-					
 					// place translated HEADING in label column of new row 
 					if ( $field['language_heading'] ) $table_index[ $field['display_column'] ][ $row_count ]['heading'] = __( $field['language_heading'], true );
 					
 					// place translated LABEL in label column of new row 
 					// use FIELD's LABEL, or use FORMAT's LABEL if override FLAG is set
 					if ( $field['flag_override_label'] ) $field['StructureField']['language_label'] = $field['language_label'];
-					if ( $field['StructureField']['language_label'] )  $table_index[ $field['display_column'] ][ $row_count ]['label'] = __( $field['StructureField']['language_label'], true );
+					if ( $field['StructureField']['language_label'] )  $table_index[ $field['display_column'] ][ $row_count ]['label'] = html_entity_decode(__( $field['StructureField']['language_label'], true ));
 					
 					/*
 					// add CHECK/UNCHECK links to appropriate FORM/FIELD types

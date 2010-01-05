@@ -1,5 +1,4 @@
 <?php
-	
 	$atim_content = array();
 	$atim_content['menu'] = '';
 	
@@ -17,15 +16,6 @@
 				$html_attributes['title'] = __($menu['Menu']['language_title'], true);
 				
 				if ( !$menu['Menu']['language_description'] ) $menu['Menu']['language_description'] = $menu['Menu']['language_title'];
-						
-				/*
-				$atim_content['menu'] .= '
-							<!-- '.$menu['Menu']['id'].' -->
-							<li class="'.( !$menu['Menu']['allowed'] ? 'not_allowed ' : '' ).'count_'.$count.'">
-								'.( $menu['Menu']['allowed'] ? $html->link( __($menu['Menu']['language_title'], true), $menu['Menu']['use_link'], $html_attributes ) : __($menu['Menu']['language_title'], true) ).'
-							</li>
-				';
-				*/
 						
 				if ( !$menu['Menu']['allowed'] ) {
 					
