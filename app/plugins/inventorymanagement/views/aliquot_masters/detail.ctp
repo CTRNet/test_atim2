@@ -26,9 +26,9 @@
 	} else {
 		// General detail form display
 		$search_type_links = array();
-		$search_type_links['collection'] = '/inventorymanagement/collections/index/';
-		$search_type_links['sample'] = '/inventorymanagement/sample_masters/index/';
-		$search_type_links['aliquot'] = '/inventorymanagement/aliquot_masters/index/';
+		$search_type_links['collections'] = '/inventorymanagement/collections/index/';
+		$search_type_links['samples'] = '/inventorymanagement/sample_masters/index/';
+		$search_type_links['aliquots'] = '/inventorymanagement/aliquot_masters/index/';
 		
 		$structure_links['index'] = array(
 		   'edit' => '/inventorymanagement/aliquot_masters/editAliquotUse/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/%%AliquotUse.id%%',
@@ -38,7 +38,7 @@
 											'define realiquoted children' => '/inventorymanagement/aliquot_masters/defineRealiquotedChildren/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id']);
 	
 	
-		$structure_links['bottom']['search'] = $search_type_links;
+		$structure_links['bottom']['new search type'] = $search_type_links;
 	}
 
 	$structure_override = array();

@@ -250,7 +250,7 @@ class InventorymanagementAppController extends AppController
 			'belongsTo' => array('GeneratedParentSample' => array(
 				'className' => 'Inventorymanagement.SampleMaster',
 				'foreignKey' => 'parent_id')));
-pr($this->paginate);			
+				
 		$this->SampleMaster->bindModel($belongs_to_details, false);			
 		$working_data = $this->paginate($this->SampleMaster, $criteria);
 		$this->SampleMaster->unbindModel(array('belongsTo' => array('GeneratedParentSample')), false);

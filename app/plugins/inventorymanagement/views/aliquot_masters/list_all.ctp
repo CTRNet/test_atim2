@@ -22,18 +22,18 @@
 
 	// Manage search button	
 	$search_type_links = array();
-	$search_type_links['collection'] = '/inventorymanagement/collections/index/';
-	$search_type_links['sample'] = '/inventorymanagement/sample_masters/index/';
-	$search_type_links['aliquot'] = '/inventorymanagement/aliquot_masters/index/';
+	$search_type_links['collections'] = '/inventorymanagement/collections/index/';
+	$search_type_links['samples'] = '/inventorymanagement/sample_masters/index/';
+	$search_type_links['aliquots'] = '/inventorymanagement/aliquot_masters/index/';
 	
 	$structure_links = array(
 		'index' => array(
 			'detail' => '/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%'
 		),
 		'bottom' => array(
+			'add aliquot' => $add_aliquots,
 			'filter' => $filter_links,
-			'search' => $search_type_links,
-			'add aliquot' => $add_aliquots
+			'new search type' => $search_type_links
 		)
 	);
 
@@ -45,18 +45,8 @@
 	}
 	$structure_override['Collection.bank_id'] = $bank_list;
 	
-	
-	
-	
-	$hook_link = $structures->hook();
-	if($hook_link){
-		require($hook_link); 
-	}
-	
-	$structures->build($aliquots_listall_structure, array('type' => 'index', 'links' => $structure_links, 'override' => $structure_override, 'data' => $aliquots_data));
-
-	$final_atim_structure = ; 
-	$final_options = ;
+	$final_atim_structure = $aliquots_listall_structure; 
+	$final_options = array('type' => 'index', 'links' => $structure_links, 'override' => $structure_override, 'data' => $aliquots_data);
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook();
@@ -64,6 +54,5 @@
 		
 	// BUILD FORM
 	$structures->build( $final_atim_structure, $final_options );	
-
 
 ?>

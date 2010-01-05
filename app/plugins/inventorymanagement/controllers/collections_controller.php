@@ -19,13 +19,6 @@ class CollectionsController extends InventorymanagementAppController {
 	 * -------------------------------------------------------------------------- */
 	
 	function index() {
-		// MANAGE (FIRST) FORM TO DEFINE SEARCH TYPE 
-
-		// Set structure 				
-		$this->Structures->set('collection_search_type', 'atim_structure_for_search_type');	
-		
-		// MANAGE INDEX FORM
-		
 		$_SESSION['ctrapp_core']['search'] = null; // clear SEARCH criteria
 		$this->unsetInventorySessionData();
 				
@@ -39,18 +32,12 @@ class CollectionsController extends InventorymanagementAppController {
 	}
 	
 	function search() {
-		// MANAGE (FIRST) FORM TO DEFINE SEARCH TYPE 
-
-		// Set structure 				
-		$this->Structures->set('collection_search_type', 'atim_structure_for_search_type');	
-		
-		// MANAGE INDEX FORM
-		
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/collections/index'));
 		
 		if ($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions();
 		
-		$this->data = $this->paginate($this->Collection, $_SESSION['ctrapp_core']['search']['criteria']);
+		$this->set('collections_data', $this->paginate($this->Collection, $_SESSION['ctrapp_core']['search']['criteria']));
+		$this->data = array();
 		
 		// if SEARCH form data, save number of RESULTS and URL
 		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['Collection']['count'];
