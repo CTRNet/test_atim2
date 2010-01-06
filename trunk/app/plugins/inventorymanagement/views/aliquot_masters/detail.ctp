@@ -43,7 +43,9 @@
 
 	$structure_override = array();
 
-	$structure_override['AliquotMaster.sop_master_id'] = $arr_aliquot_sops;		
+	$sops_list = array();
+	foreach($arr_aliquot_sops as $sop_masters) { $sops_list[$sop_masters['SopMaster']['id']] = $sop_masters['SopMaster']['code']; }
+	$structure_override['AliquotMaster.sop_master_id'] = $sops_list; 	
 		
 	$studies_list = array();
 	foreach($arr_studies as $new_study) {
@@ -54,7 +56,7 @@
 	$blocks_list = array();
 	pr('to test block');
 	foreach($arr_sample_blocks as $new_block) {
-		// TODO test
+		$blocks_list[$new_block['AliquotMaster']['id']] = $new_block['AliquotMaster']['barcode'];
 	}	
 	$structure_override['AliquotDetail.block_aliquot_master_id'] = $blocks_list;	
 
@@ -65,42 +67,56 @@
 	}	
 	$structure_override['AliquotDetail.gel_matrix_aliquot_master_id'] = $gel_matrices_list;	
 
-	$final_atim_structure = $atim_structure;
-	
 	if($is_tree_view_detail_form){
+		
+		// DISPLAY ONLY ALIQUOT DETAIL FORM
+		
+		// 1- ALIQUOT DETAIL	
+		
+		$final_atim_structure = $atim_structure;
 		$final_options = array('links'=>$structure_links, 'override' => $structure_override);
 
+		// CUSTOM CODE
 		$hook_link = $structures->hook();
 		if($hook_link){
 			require($hook_link);
 		}
 
+		// BUILD FORM
 		$structures->build($final_atim_structure, $final_options);
+
 	}else{
+		
+		// DISPLAY BOTH ALIQUOT DETAIL FORM AND ALIQUOT USES LIST
+		
+		// 1- ALIQUOT DETAIL	
+		
+		$final_atim_structure = $atim_structure;
 		$final_options = array('links'=>$structure_links, 'override' => $structure_override, 'settings' => array('actions' => false));
+		
+		// CUSTOM CODE
+		$hook_link = $structures->hook();
+		if($hook_link){
+			require($hook_link);
+		}
+
+		// BUILD FORM
 		$structures->build($final_atim_structure, $final_options);
+		
+		// 2- USES LIST
 		
 		$final_atim_structure = $aliquots_uses_structure;
 		$final_options = array('data' => $aliquots_uses_data, 'type' => 'index', 'links'=>$structure_links, 'settings' => array('header' => __('uses', null)));
 
+		// CUSTOM CODE
 		$hook_link = $structures->hook('uses');
 		if($hook_link){
 			require($hook_link); 
 		
 		}
+		
+		// BUILD FORM
 		$structures->build($final_atim_structure, $final_options);
 	}
-	
-	
-	$final_atim_structure = ; 
-	$final_options = ;
-	
-	// CUSTOM CODE
-	$hook_link = $structures->hook();
-	if( $hook_link ) { require($hook_link); }
-		
-	// BUILD FORM
-	$structures->build( $final_atim_structure, $final_options );	
-
 	
 ?>

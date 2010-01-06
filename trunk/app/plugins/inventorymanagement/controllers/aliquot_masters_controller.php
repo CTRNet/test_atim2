@@ -236,16 +236,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 	}
 	
-	
-	
-	
-	
-	
-	
-	
-	
-//TODO: change ',' to '.' for AliquotMaster.initial_volume 	AliquotDetail.used_blood_volume AliquotUse.	used_volume
-	 
 	function add($collection_id, $sample_master_id, $aliquot_control_id) {
 		if((!$collection_id) || (!$sample_master_id) || (!$aliquot_control_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }		
 		
@@ -312,26 +302,31 @@ class AliquotMastersController extends InventoryManagementAppController {
 
 		if (empty($this->data)) {
 			// Initial Display
+// TODO 2010-01-05: Unable to override default_storage_datetime
 			$this->set('default_storage_datetime', $this->getDefaultAliquotStorageDate($sample_data));
 			$this->set('arr_preselected_storages', array());
 						
 			$this->data = array(array());
 			
 		} else {
-// TODO used to correct a bug
-pr($this->data);exit;
+// TODO Used to correct a bug
+pr($this->data);
 unset($this->data['AliquotMaster']);	
-				
-			// Set current volume
+			
+			// Manage volume
 			foreach($this->data as $key => $data) {
+				// Format decimal data
+				$this->data[$key] = $this->formatAliquotFieldDecimalData($this->data[$key]);
+				
+				// Set AliquotMaster.initial_volume
 				if(array_key_exists('initial_volume', $this->data[$key]['AliquotMaster'])){
 					if(empty($aliquot_control_data['AliquotControl']['volume_unit'])) { $this->redirect('/pages/err_inv_system_error', null, true); }
 					$this->data[$key]['AliquotMaster']['current_volume'] = $this->data[$key]['AliquotMaster']['initial_volume'];				
-				}
+				}				
 			}
-			
+					
 			// Launch validations
-			//TODO test validation
+			
 			$submitted_data_validates = true;
 			$errors = array();
 					
@@ -343,9 +338,8 @@ unset($this->data['AliquotMaster']);
 				foreach($this->AliquotMaster->invalidFields() as $field => $error) { $errors['AliquotMaster'][$field][$error] = '-'; }
 
 				// AliquotDetail
-				$this->AliquotDetail = new AliquotDetail(false, $aliquot_control_data['AliquotControl']['detail_tablename']);
 				$this->AliquotDetail->set($this->data[$key]);
-				$submitted_data_validates = ($this->AliquotDetail->validates())? $submitted_data_validates: false;
+				$submitted_data_validates = ($this->AliquotDetail->validates())? $submitted_data_validates: false;			
 				foreach($this->AliquotDetail->invalidFields() as $field => $error) { $errors['AliquotDetail'][$field][$error] = '-'; }
 			}
 			
@@ -355,7 +349,7 @@ unset($this->data['AliquotMaster']);
 				// Duplicated barcodes have been detected
 				$submitted_data_validates = false;
 				foreach($duplicated_barcode_validation['messages'] as $messages) {
-					$errors['AliquotDetail']['barcode'][$messages] = '-';
+					$errors['AliquotMaster']['barcode'][$messages] = '-';
 				}
 			}
 			
@@ -482,6 +476,8 @@ unset($this->data['AliquotMaster']);
 		}
 	}
 	
+//TODO: change ',' to '.' for AliquotMaster.initial_volume 	AliquotDetail.used_blood_volume AliquotUse.used_volume
+
 	function edit($collection_id, $sample_master_id, $aliquot_master_id) {
 		if((!$collection_id) || (!$sample_master_id) || (!$aliquot_master_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }		
 		
@@ -530,6 +526,8 @@ unset($this->data['AliquotMaster']);
 			}
 			//Update data
 			if(array_key_exists('initial_volume', $this->data['AliquotMaster']) && empty($aliquot_data['AliquotControl']['volume_unit'])) { $this->redirect('/pages/err_inv_system_error', null, true); }
+
+//TODO $this->data[$key] = formatAliquotFieldDecimalData($this->data[$key]);
 									
 			// Launch validations
 			//TODO test validation
@@ -542,7 +540,6 @@ unset($this->data['AliquotMaster']);
 			$submitted_data_validates = ($this->AliquotMaster->validates())? $submitted_data_validates: false;
 			foreach($this->AliquotMaster->invalidFields() as $field => $error) { $errors['AliquotMaster'][$field][$error] = '-'; }
 			//  --> AliquotDetail
-			$this->AliquotDetail = new AliquotDetail(false, $aliquot_data['AliquotControl']['detail_tablename']);
 			$this->AliquotDetail->set($this->data);
 			$submitted_data_validates = ($this->AliquotDetail->validates())? $submitted_data_validates: false;
 			foreach($this->AliquotDetail->invalidFields() as $field => $error) { $errors['AliquotDetail'][$field][$error] = '-'; }
@@ -634,7 +631,14 @@ unset($this->data['AliquotMaster']);
 	}
 	
 	/* ------------------------------ ALIQUOT USES ------------------------------ */
+
+//TODO: change ',' to '.' for AliquotMaster.initial_volume 	AliquotDetail.used_blood_volume AliquotUse.used_volume
 	
+
+
+
+//CAN-999-999-000-999-1153	Aliquot Use			Used Volume	Positive decimal. / Should be empty when no unit displayed into unit field.
+//CAN-999-999-000-999-1153	Inventorymanagement	AliquotUse		used_volume
 	function addAliquotUse($collection_id, $sample_master_id, $aliquot_master_id, $aliquot_use_defintion = null) {
 		if((!$collection_id) || (!$sample_master_id) || (!$aliquot_master_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }
 		
@@ -861,6 +865,8 @@ unset($this->data['AliquotMaster']);
 			require($hook_link);
 		}
 	}
+	
+//TODO: change ',' to '.' for AliquotMaster.initial_volume 	AliquotDetail.used_blood_volume AliquotUse.used_volume
 	
 	function addSourceAliquots($collection_id, $sample_master_id) {
 		if((!$collection_id) || (!$sample_master_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }
@@ -1415,6 +1421,34 @@ unset($this->data['AliquotMaster']);
 		}
 		
 		return array('is_duplicated_barcode' => $is_duplicated_barcode, 'messages' => $messages);
+	}
+	
+	/**
+	 * Replace ',' by '.' for all decimal field values gathered into 
+	 * data submitted for aliquot creation or modification.
+	 * 
+	 * @param $submtted_data Submitted data
+	 * 
+	 * @return Formatted data.
+	 *
+	 * @author N. Luc
+	 * @since 2009-09-11
+	 */	
+	
+	function formatAliquotFieldDecimalData($submtted_data) {
+		// Work on AliquotMaster fields
+		if(isset($submtted_data['AliquotMaster'])) {
+			if(isset($submtted_data['AliquotMaster']['initial_volume'])) { $submtted_data['AliquotMaster']['initial_volume'] = str_replace(',', '.', $submtted_data['AliquotMaster']['initial_volume']); }					
+		}
+		
+		// Work on AliquotDetail fields
+		if(isset($submtted_data['AliquotDetail'])) {
+			if(isset($submtted_data['AliquotDetail']['used_blood_volume'])) { $submtted_data['AliquotDetail']['used_blood_volume'] = str_replace(',', '.', $submtted_data['AliquotDetail']['used_blood_volume']); }					
+			if(isset($submtted_data['AliquotDetail']['cell_count'])) { $submtted_data['AliquotDetail']['cell_count'] = str_replace(',', '.', $submtted_data['AliquotDetail']['cell_count']); }					
+			if(isset($submtted_data['AliquotDetail']['concentration'])) { $submtted_data['AliquotDetail']['concentration'] = str_replace(',', '.', $submtted_data['AliquotDetail']['concentration']); }					
+		}
+		
+		return $submtted_data;
 	}
 
 	/**

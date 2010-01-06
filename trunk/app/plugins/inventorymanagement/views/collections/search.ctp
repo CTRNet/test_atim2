@@ -18,8 +18,6 @@
 	}
 	$structure_override['Collection.bank_id'] = $bank_list;
 	
-	$structure_override['Collection.sop_master_id'] = $arr_collection_sops;
-	
 	$final_atim_structure = $atim_structure;
 	$final_options = array('type' => 'index', 'data' => $collections_data, 'links' => $structure_links, 'override' => $structure_override, 'settings' => array('header' => __('search type', null).': '.__('collections', null)));
 	

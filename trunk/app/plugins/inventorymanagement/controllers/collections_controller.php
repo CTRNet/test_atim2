@@ -46,9 +46,6 @@ class CollectionsController extends InventorymanagementAppController {
 		// Set list of banks
 		$this->set('banks', $this->getBankList());
 		
-		// Set list of available SOPs to build collections
-		$this->set('arr_collection_sops', $this->getCollectionSopList());
-		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		
 		$hook_link = $this->hook('format');
