@@ -12,11 +12,16 @@
 		'pagination'=>false
 	);
 	
+	$final_atim_structure = $atim_structure_aliquot; 
+	$final_options =  array('type'=>'datagrid', 'links'=>$structure_links, 'settings' => $structure_settings);
+	
+	// CUSTOM CODE
 	$hook_link = $structures->hook('aliquot');
-	if($hook_link){
-		require($hook_link); 
-	}
-	$structures->build( $atim_structure_aliquot, array('type'=>'datagrid', 'links'=>$structure_links, 'settings' => $structure_settings) );
+	if( $hook_link ) { require($hook_link); }
+		
+	// BUILD FORM
+	$structures->build( $final_atim_structure, $final_options );	
+
 	
 	$structure_links = array(
 		'top'=>'/inventorymanagement/aliquot_masters/defineRealiquotedChildren/'
@@ -31,17 +36,11 @@
 		'form_bottom'=>true, 
 	);
 	
-	$hook_link = $structures->hook('datetime');
-	if($hook_link){
-		require($hook_link); 
-	}
-	$structures->build( $atim_datetime_input, array('type'=>'add', 'links'=>$structure_links, 'settings' => $structure_settings, 'data' => array()));
-
-	$final_atim_structure = ; 
-	$final_options = ;
+	$final_atim_structure = $atim_datetime_input; 
+	$final_options =  array('type'=>'add', 'links'=>$structure_links, 'settings' => $structure_settings, 'data' => array());
 	
 	// CUSTOM CODE
-	$hook_link = $structures->hook();
+	$hook_link = $structures->hook('datetime');
 	if( $hook_link ) { require($hook_link); }
 		
 	// BUILD FORM
