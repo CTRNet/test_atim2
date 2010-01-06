@@ -1,4 +1,4 @@
-﻿-- ATiM v2.0.0 Database Creation Script
+-- ATiM v2.0.0 Database Creation Script
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
