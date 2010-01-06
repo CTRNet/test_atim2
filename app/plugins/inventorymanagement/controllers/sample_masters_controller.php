@@ -551,9 +551,8 @@ class SampleMastersController extends InventorymanagementAppController {
 			}
   	  			  	
 			// Replace ',' to '.' for volume
-			if(isset($this->data['SampleDetail']['collected_volume'])) { $this->data['SampleDetail']['collected_volume'] = str_replace(',', '.', $this->data['SampleDetail']['collected_volume']); }				
-			if(isset($this->data['SampleDetail']['pellet_volume'])) { $this->data['SampleDetail']['pellet_volume'] = str_replace(',', '.', $this->data['SampleDetail']['pellet_volume']); }				
-			
+			$this->data = $this->formatSampleFieldDecimalData($this->data);
+						
 			// Validates data
 			
 			$submitted_data_validates = true;
@@ -677,9 +676,8 @@ class SampleMastersController extends InventorymanagementAppController {
 			if(isset($this->data['SampleMaster']['parent_id']) && ($sample_data['SampleMaster']['parent_id'] !== $this->data['SampleMaster']['parent_id'])) { $this->redirect('/pages/err_inv_system_error', null, true); }
 
 			// Replace ',' to '.' for volume
-			if(isset($this->data['SampleDetail']['collected_volume'])) { $this->data['SampleDetail']['collected_volume'] = str_replace(',', '.', $this->data['SampleDetail']['collected_volume']); }				
-			if(isset($this->data['SampleDetail']['pellet_volume'])) { $this->data['SampleDetail']['pellet_volume'] = str_replace(',', '.', $this->data['SampleDetail']['pellet_volume']); }				
-						
+			$this->data = $this->formatSampleFieldDecimalData($this->data);
+									
 			// Validates data
 			
 			$submitted_data_validates = true;
@@ -873,7 +871,25 @@ class SampleMastersController extends InventorymanagementAppController {
 		$final_arr = array();
 		if(!empty($res)) { foreach($res as $data) { $final_arr[strtolower($data['CodingIcd10']['site'])] = $data['CodingIcd10']['site']; }}
 		return $final_arr;
-	}	
+	}
+	
+	/**
+	 * Replace ',' by '.' for all decimal field values gathered into 
+	 * data submitted for sample creation or modification.
+	 * 
+	 * @param $submtted_data Submitted data
+	 * 
+	 * @return Formatted data.
+	 *
+	 * @author N. Luc
+	 * @since 2009-09-11
+	 */	
+	
+	function formatSampleFieldDecimalData($submtted_data) {
+		if(isset($submtted_data['SampleDetail']['collected_volume'])) { $submtted_data['SampleDetail']['collected_volume'] = str_replace(',', '.', $submtted_data['SampleDetail']['collected_volume']); }				
+		if(isset($submtted_data['SampleDetail']['pellet_volume'])) { $submtted_data['SampleDetail']['pellet_volume'] = str_replace(',', '.', $submtted_data['SampleDetail']['pellet_volume']); }				
+		return $submtted_data;
+	}
 }
 	
 ?>
