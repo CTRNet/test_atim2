@@ -2,8 +2,8 @@
 
 class StudyResultsController extends StudyAppController {
 			
-	var $uses = array('Study.StudyResults','Study.StudySummary');
-	var $paginate = array('StudyResults'=>array('limit'=>10,'order'=>'StudyResults.title'));
+	var $uses = array('Study.StudyResult','Study.StudySummary');
+	var $paginate = array('StudyResult'=>array('limit'=>10,'order'=>'StudyResult.abstract'));
 	
 	function listall( $study_summary_id ) {
 		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
@@ -12,7 +12,7 @@ class StudyResultsController extends StudyAppController {
     	$study_results_data= $this->StudySummary->find('first',array('conditions'=>array('StudySummary.id'=>$study_summary_id), 'recursive' => '-1'));
         if(empty($study_results_data)) { $this->redirect( '/pages/err_study_no_data', null, true ); }
 
-		$this->data = $this->paginate($this->StudyResults, array('StudyResults.study_summary_id'=>$study_summary_id));
+		$this->data = $this->paginate($this->StudyResult, array('StudyResult.study_summary_id'=>$study_summary_id));
 
 
     	// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -31,12 +31,12 @@ class StudyResultsController extends StudyAppController {
 		
 
     	// MANAGE DATA
-    	$study_results_data= $this->StudyResults->find('first',array('conditions'=>array('StudyResults.id'=>$study_results_id, 'StudyResults.study_summary_id'=>$study_summary_id)));
+    	$study_results_data= $this->StudyResult->find('first',array('conditions'=>array('StudyResult.id'=>$study_results_id, 'StudyResult.study_summary_id'=>$study_summary_id)));
     	if(empty($study_results_data)) { $this->redirect( '/pages/err_study_no_data', null, true ); }
     	$this->data = $study_results_data;
 
     	// MANAGE FORM, MENU AND ACTION BUTTONS
-		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id, 'StudyResults.id'=>$study_results_id) );
+		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id, 'StudyResult.id'=>$study_results_id) );
 		
     	// CUSTOM CODE: FORMAT DISPLAY DATA
    		$hook_link = $this->hook('format');
@@ -71,7 +71,7 @@ class StudyResultsController extends StudyAppController {
 			// LAUNCH SAVE PROCESS
 			// 1- SET ADDITIONAL DATA
 
-			$this->data['StudyResults']['study_summary_id'] = $study_summary_id;
+			$this->data['StudyResult']['study_summary_id'] = $study_summary_id;
 
 			// 2- LAUNCH SPECIAL VALIDATION PROCESS
 			$submitted_data_validates = true;
@@ -86,8 +86,8 @@ class StudyResultsController extends StudyAppController {
 
 				// 4- SAVE
 
-				if ( $this->StudyResults->save($this->data) ) {
-					$this->flash( 'your data has been saved.','/study/study_results/detail/'.$study_summary_id.'/'.$this->StudyResults->id );
+				if ( $this->StudyResult->save($this->data) ) {
+					$this->flash( 'your data has been saved.','/study/study_results/detail/'.$study_summary_id.'/'.$this->StudyResult->id );
 					}
 				}
 			}
@@ -100,12 +100,12 @@ class StudyResultsController extends StudyAppController {
 		if ( !$study_results_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
 		
 		// MANAGE DATA
-		$study_results_data= $this->StudyResults->find('first',array('conditions'=>array('StudyResults.id'=>$study_results_id, 'StudyResults.study_summary_id'=>$study_summary_id)));
+		$study_results_data= $this->StudyResult->find('first',array('conditions'=>array('StudyResult.id'=>$study_results_id, 'StudyResult.study_summary_id'=>$study_summary_id)));
 		if(empty($study_results_data)) { $this->redirect( '/pages/err_study_no_data', null, true ); }
 
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
-		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id, 'StudyResults.id'=>$study_results_id) );
+		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id, 'StudyResult.id'=>$study_results_id) );
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
@@ -134,8 +134,8 @@ class StudyResultsController extends StudyAppController {
 
 					// 4- SAVE
 
-					$this->StudyResults->id = $study_results_id;
-					if ( $this->StudyResults->save($this->data) ) {
+					$this->StudyResult->id = $study_results_id;
+					if ( $this->StudyResult->save($this->data) ) {
 						$this->flash( 'your data has been updated.','/study/study_results/detail/'.$study_summary_id.'/'.$study_results_id );
 						}
 					}
@@ -148,10 +148,10 @@ class StudyResultsController extends StudyAppController {
 		if ( !$study_results_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
 		
 		// MANAGE DATA
-		$study_results_data= $this->StudyResults->find('first',array('conditions'=>array('StudyResults.id'=>$study_results_id, 'StudyResults.study_summary_id'=>$study_summary_id)));
+		$study_results_data= $this->StudyResult->find('first',array('conditions'=>array('StudyResult.id'=>$study_results_id, 'StudyResult.study_summary_id'=>$study_summary_id)));
 		if(empty($study_results_data)) { $this->redirect( '/pages/err_study_no_data', null, true ); }
 
-		$arr_allow_deletion = $this->allowStudyResultsDeletion($study_results_id);
+		$arr_allow_deletion = $this->allowStudyResultDeletion($study_results_id);
 
 
 		// CUSTOM CODE
@@ -162,7 +162,7 @@ class StudyResultsController extends StudyAppController {
 
 				// DELETE DATA
 
-				if( $this->StudyResults->atim_delete( $study_results_id ) ) {
+				if( $this->StudyResult->atim_delete( $study_results_id ) ) {
 					$this->flash( 'your data has been deleted.', '/study/study_results/listall/'.$study_summary_id );
 				} else {
 					$this->flash( 'error deleting data - contact administrator.', '/study/study_results/listall/'.$study_summary_id );
@@ -191,7 +191,7 @@ class StudyResultsController extends StudyAppController {
  * @since 2007-10-16
  */
 
-	function allowStudyResultsDeletion($study_results_id){
+	function allowStudyResultDeletion($study_results_id){
 		//$returned_nbr = $this->LinkedModel->find('count', array('conditions' => array('LinkedModel.family_history_id' => $family_history_id), 'recursive' => '-1'));
 		//if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'a LinkedModel exists for the deleted family history'); }
 

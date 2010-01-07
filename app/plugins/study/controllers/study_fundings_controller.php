@@ -87,7 +87,7 @@ class StudyFundingsController extends StudyAppController {
 				// 4- SAVE
 
 				if ( $this->StudyFunding->save($this->data) ) {
-					$this->flash( 'your data has been saved.','/study/study_contacts/detail/'.$study_summary_id.'/'.$this->StudyFunding->id );
+					$this->flash( 'your data has been saved.','/study/study_fundings/detail/'.$study_summary_id.'/'.$this->StudyFunding->id );
 					}
 				}
 			}
