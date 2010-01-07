@@ -32,6 +32,9 @@ INSERT INTO `sop_masters` (`id`, `sop_control_id`, `title`, `notes`, `code`, `ve
 INSERT INTO `sop_masters_revs` (`id`, `sop_control_id`, `title`, `notes`, `code`, `version`, `sop_group`, `type`, `status`, `expiry_date`, `activated_date`, `scope`, `purpose`, `created`, `created_by`, `modified`, `modified_by`, `form_id`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
 (1, 1, 'SOP1', '', '809038SOP', '', 'General', 'All', '', NULL, NULL, '', '', '2009-12-08 13:26:23', '1', '2009-12-08 13:26:23', '1', NULL, 1, '2009-12-08 13:26:24', 0, NULL),
 (2, 1, 'SOP2', '', '7890083SOP', '', 'General', 'All', '', NULL, NULL, '', '', '2009-12-08 13:26:34', '1', '2009-12-08 13:26:34', '1', NULL, 2, '2009-12-08 13:26:34', 0, NULL);
+
+-- Storages Test Data
+
 INSERT INTO `std_boxs` (`id`, `storage_master_id`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
 (1, 4, '2009-12-08 14:07:58', '1', '2009-12-08 14:08:10', '1', 0, NULL),
 (2, 5, '2009-12-08 14:09:56', '1', '2009-12-08 14:13:09', '1', 0, NULL),
