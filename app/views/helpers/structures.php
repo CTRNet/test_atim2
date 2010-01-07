@@ -232,24 +232,11 @@ class StructuresHelper extends Helper {
 						$table_row_count = 0;
 						foreach ( $table_column as $table_row_key=>$table_row ) {
 							
-							/*
 							// display heading row, if any...
 							if ( $table_row['heading'] ) {
 								$return_string .= '
 									<tr>
-										<td class="heading no_border" colspan="'.( $this->othAuth->user('help_visible')=='yes' ? '3' : '2' ).'">
-											<h4>'.$table_row['heading'].'</h4>
-										</td>
-									</tr>
-								';
-							}
-							*/
-							
-							// display heading row, if any...
-							if ( $table_row['heading'] ) {
-								$return_string .= '
-									<tr>
-										<td class="heading" colspan="3">
+										<td class="heading no_border" colspan="'.( show_help ? '3' : '2' ).'">
 											<h4>'.$table_row['heading'].'</h4>
 										</td>
 									</tr>
@@ -266,8 +253,7 @@ class StructuresHelper extends Helper {
 										</td>
 							';
 							
-							// if 	( $this->othAuth->user('help_visible')=='yes' ) {
-							if ( 1==1 ) {
+							if ( show_help ) {
 								$return_string .= '
 										<td class="help'.( !$table_row_count && !$table_row['heading'] ? ' no_border' : '' ).'">
 											'.$table_row['help'].'
@@ -1016,9 +1002,9 @@ class StructuresHelper extends Helper {
 								$return_string .= $table_row['label'];
 							}
 							
-							// if ( $this->othAuth->user('help_visible')=='yes' ) {
+							if ( show_help ) {
 								$return_string .= $table_row['help'];
-							// }
+							}
 							
 							$column_count++;
 						}

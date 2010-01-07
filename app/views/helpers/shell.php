@@ -348,12 +348,12 @@ class ShellHelper extends Helper {
 					}
 				}
 				
-			// if summary info has been provided, provide expandable tab
+			// if summary info has been provided AND config variable allows it, provide expandable tab
 				
 				$return_summary = '';
 				$summaries = array_filter($summaries);
 				
-				if ( count($summaries) ) {
+				if ( show_summary && count($summaries) ) {
 					$return_summary .= '
 						<ul id="summary">
 							<li>
