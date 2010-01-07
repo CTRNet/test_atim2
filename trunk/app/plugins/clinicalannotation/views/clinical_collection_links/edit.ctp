@@ -15,7 +15,15 @@
 		'pagination'=>false
 	);
 	
-	$structures->build( $atim_structure_collection_detail, array('type'=>'radiolist', 'data'=>$collection_data, 'settings'=>$structure_settings, 'links'=>$structure_links) );
+	$final_atim_structure = $atim_structure_collection_detail; 
+	$final_options = array('type'=>'radiolist', 'data'=>$collection_data, 'settings'=>$structure_settings, 'links'=>$structure_links);
+
+	// CUSTOM CODE
+	$hook_link = $structures->hook('collection_detail');
+	if( $hook_link ) { require($hook_link); }
+		
+	// BUILD FORM
+	$structures->build( $final_atim_structure, $final_options );
 	?>
 	<table class="structure" cellspacing="0">
 			<tbody><tr><th style='text-align: left; padding-left: 10px; padding-right: 10px;'><hr/>Consent</th></tr>
@@ -28,8 +36,15 @@
 			),
 	);
 	
-	//consent
-	$structures->build( $atim_structure_consent_detail, array('type'=>'radiolist', 'data'=>$consent_data, 'settings'=>$structure_settings, 'links'=>$structure_links) );
+	$final_atim_structure = $atim_structure_consent_detail; 
+	$final_options = array('type'=>'radiolist', 'data'=>$consent_data, 'settings'=>$structure_settings, 'links'=>$structure_links);
+
+	// CUSTOM CODE
+	$hook_link = $structures->hook('consent_detail');
+	if( $hook_link ) { require($hook_link); }
+		
+	// BUILD FORM
+	$structures->build( $final_atim_structure, $final_options );
 
 	//diag
 	$structure_links = array(
@@ -49,6 +64,14 @@
 	</tbody></table>
 	<?php 
 	//consent
-	$structures->build( $atim_structure_diagnosis_detail, array('type'=>'radiolist', 'data'=>$diagnosis_data, 'settings'=>array('form_bottom'=>true, 'form_top'=>true, 'form_inputs'=>false, 'actions'=>true, 'pagination'=>false), 'links'=>$structure_links) );
+	$final_atim_structure = $atim_structure_diagnosis_detail; 
+	$final_options = array('type'=>'radiolist', 'data'=>$diagnosis_data, 'settings'=>array('form_bottom'=>true, 'form_top'=>true, 'form_inputs'=>false, 'actions'=>true, 'pagination'=>false), 'links'=>$structure_links);
+
+	// CUSTOM CODE
+	$hook_link = $structures->hook('diagnosis_detail');
+	if( $hook_link ) { require($hook_link); }
+		
+	// BUILD FORM
+	$structures->build( $final_atim_structure, $final_options );
 
 ?>
