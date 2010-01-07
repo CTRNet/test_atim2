@@ -49,7 +49,7 @@ class StudySummariesController extends StudyAppController {
 		
 			if($submitted_data_validates) {
 				if ( $this->StudySummary->save($this->data) ) {
-					$this->flash( 'your data has been updated','/study/study_summaries/detail/'.$this->StudySummary->id );
+					$this->flash( 'your data has been saved','/study/study_summaries/detail/'.$this->StudySummary->id );
 				}
 			}
 		}
@@ -132,8 +132,8 @@ class StudySummariesController extends StudyAppController {
 	 */
 	 
 	function allowStudySummaryDeletion($study_summary_id){
-		//$returned_nbr = $this->LinkedModel->find('count', array('conditions' => array('LinkedModel.family_history_id' => $family_history_id), 'recursive' => '-1'));
-		//if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'a LinkedModel exists for the deleted family history'); }
+		//$returned_nbr = $this->LinkedModel->find('count', array('conditions' => array('LinkedModel.study_summary_id' => $study_summary_id), 'recursive' => '-1'));
+		//if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'a LinkedModel exists for the deleted study summary'); }
 		
 		return array('allow_deletion' => true, 'msg' => '');
 	}

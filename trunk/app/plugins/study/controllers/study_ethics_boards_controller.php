@@ -137,7 +137,7 @@ class StudyEthicsBoardsController extends StudyAppController {
 
 					$this->StudyEthicsBoard->id = $study_ethics_board_id;
 					if ( $this->StudyEthicsBoard->save($this->data) ) {
-						$this->flash( 'your data has been updated.','/study/study_ethics_board/detail/'.$study_summary_id.'/'.$study_ethics_board_id );
+						$this->flash( 'your data has been updated.','/study/study_ethics_boards/detail/'.$study_summary_id.'/'.$study_ethics_board_id );
 						}
 					}
 				}
@@ -165,12 +165,12 @@ class StudyEthicsBoardsController extends StudyAppController {
 			// DELETE DATA
 
 			if( $this->StudyEthicsBoard->atim_delete( $study_ethics_board_id ) ) {
-				$this->flash( 'your data has been deleted.', '/study/study_ethics_board/listall/'.$study_summary_id );
+				$this->flash( 'your data has been deleted.', '/study/study_ethics_boards/listall/'.$study_summary_id );
 			} else {
-				$this->flash( 'error deleting data - contact administrator.', '/study/study_ethics_board/listall/'.$study_summary_id );
+				$this->flash( 'error deleting data - contact administrator.', '/study/study_ethics_boards/listall/'.$study_summary_id );
 			}
 		}else {
-				$this->flash($arr_allow_deletion['msg'], '/study/study_ethics_board/detail/'.$study_summary_id.'/'.$study_ethics_board_id);
+				$this->flash($arr_allow_deletion['msg'], '/study/study_ethics_boards/detail/'.$study_summary_id.'/'.$study_ethics_board_id);
 		}
 	}
 

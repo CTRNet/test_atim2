@@ -183,8 +183,8 @@ class StudyContactsController extends StudyAppController {
  */
 
 	function allowStudyContactDeletion($study_contact_id){
-		//$returned_nbr = $this->LinkedModel->find('count', array('conditions' => array('LinkedModel.family_history_id' => $family_history_id), 'recursive' => '-1'));
-		//if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'a LinkedModel exists for the deleted family history'); }
+		//$returned_nbr = $this->LinkedModel->find('count', array('conditions' => array('LinkedModel.study_contact_id' => $study_contact_id), 'recursive' => '-1'));
+		//if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'a LinkedModel exists for the deleted study contact'); }
 
 		return array('allow_deletion' => true, 'msg' => '');
 	}
