@@ -12,7 +12,8 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 	function listall( $participant_id ) {
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
 		
-		$this->hook();
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { require($hook_link); }
 		
 		$this->data = $this->paginate($this->ClinicalCollectionLink, array('ClinicalCollectionLink.participant_id'=>$participant_id));
 	}
@@ -20,27 +21,33 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 	function detail( $participant_id, $clinical_collection_links_id ) {
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'ClinicalCollectionLink.id'=>$clinical_collection_links_id) );
 		
-		$this->hook();
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { require($hook_link); }
 		
 		$this->data = $this->ClinicalCollectionLink->find('first',array('conditions'=>array('ClinicalCollectionLink.id'=>$clinical_collection_links_id)));
 	}
 	
 	function add( $participant_id ) {
-		$this->hook();
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { require($hook_link); }
 	
 		if ( !empty($this->data) ) {
 			$this->data['ClinicalCollectionLink']['participant_id'] = $participant_id;
 			$tmp_data = $this->ClinicalCollectionLink->find('first',array('conditions'=>array('ClinicalCollectionLink.collection_id' => $this->data['ClinicalCollectionLink']['collection_id'])));
 			$this->ClinicalCollectionLink->id = $tmp_data['ClinicalCollectionLink']['id']; 
 			
-			if ( $this->ClinicalCollectionLink->save($this->data) ) $this->flash( 'Your data has been updated.','/clinicalannotation/clinical_collection_links/detail/'.$participant_id.'/'.$this->ClinicalCollectionLink->id );
+			$submitted_data_validates = true;
+			$hook_link = $this->hook('presave_process');
+			if( $hook_link ) { require($hook_link); }
+		
+			if ( $submitted_data_validates && $this->ClinicalCollectionLink->save($this->data) ) $this->flash( 'Your data has been updated.','/clinicalannotation/clinical_collection_links/detail/'.$participant_id.'/'.$this->ClinicalCollectionLink->id );
 		}
 		$this->set( 'atim_menu', $this->Menus->get('/clinicalannotation/clinical_collection_links/listall/') );
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
 		
-		$this->set( 'atim_structure_collection_detail', $this->Structures->get( 'form', 'collections' ) );
-		$this->set( 'atim_structure_consent_detail', $this->Structures->get( 'form', 'consent_masters' ) );
-		$this->set( 'atim_structure_diagnosis_detail', $this->Structures->get( 'form', 'diagnosis_masters' ) );
+		$this->Structures->set('collections', 'atim_structure_collection_detail');
+		$this->Structures->set('consent_masters', 'atim_structure_consent_detail');
+		$this->Structures->set('diagnosismasters', 'atim_structure_diagnosis_detail');
 		
 		$collection_data = $this->Collection->find('all', array('conditions' => array('Collection.deleted' => '0', 'ClinicalCollectionLink.participant_id IS NULL', 'collection_property' => 'participant collection')));
 		$this->set( 'collection_data', $collection_data );
@@ -54,21 +61,26 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 	}
 	
 	function edit( $participant_id, $clinical_collection_links_id) {
-		$this->hook();
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { require($hook_link); }
 	
 		if ( !empty($this->data) ) {
 			$this->ClinicalCollectionLink->id = $clinical_collection_links_id;
 			
-			if ( $this->ClinicalCollectionLink->save($this->data) ) $this->flash( 'Your data has been updated.','/clinicalannotation/clinical_collection_links/detail/'.$participant_id.'/'.$clinical_collection_links_id );
+			$submitted_data_validates = true;
+			$hook_link = $this->hook('presave_process');
+			if( $hook_link ) { require($hook_link); }
+			
+			if ($submitted_data_validates && $this->ClinicalCollectionLink->save($this->data) ) $this->flash( 'Your data has been updated.','/clinicalannotation/clinical_collection_links/detail/'.$participant_id.'/'.$clinical_collection_links_id );
 		} else {
 			$this->data = $this->ClinicalCollectionLink->find('first',array('conditions'=>array('ClinicalCollectionLink.id'=>$clinical_collection_links_id)));
 		}
 		$this->set( 'atim_menu', $this->Menus->get('/clinicalannotation/clinical_collection_links/listall/') );
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'ClinicalCollectionLinks.id'=>$clinical_collection_links_id) );
 		
-		$this->set( 'atim_structure_collection_detail', $this->Structures->get( 'form', 'collections' ) );
-		$this->set( 'atim_structure_consent_detail', $this->Structures->get( 'form', 'consent_masters' ) );
-		$this->set( 'atim_structure_diagnosis_detail', $this->Structures->get( 'form', 'diagnosis_masters' ) );
+		$this->Structures->set('collections', 'atim_structure_collection_detail');
+		$this->Structures->set('consent_masters', 'atim_structure_consent_detail');
+		$this->Structures->set('diagnosismasters', 'atim_structure_diagnosis_detail');
 		
 		$collection_data = $this->Collection->find('all', array('conditions' => array('ClinicalCollectionLink.id' => $clinical_collection_links_id)));
 		$this->set( 'collection_data', $collection_data );
@@ -99,9 +111,12 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 				'diagnosis_master_id' => null,
 				'consent_master_id' => null));
 				
-			$this->hook();
+			$arr_allow_deletion['allow_deletion'] = true;
+			$submitted_data_validates = true;
+			$hook_link = $this->hook('delete');
+			if( $hook_link ) { require($hook_link); }
 				
-			if ( $this->ClinicalCollectionLink->save($this->data)){
+			if ($arr_allow_deletion['allow_deletion'] && $this->ClinicalCollectionLink->save($this->data)){
 				$this->flash( 'Your data has been deleted.','/clinicalannotation/clinical_collection_links/listall/'.$participant_id.'/');
 			}else{
 				$this->flash( 'Deletion failed.','/clinicalannotation/clinical_collection_links/edit/'.$participant_id.'/'.$clinical_collection_link_id.'/');

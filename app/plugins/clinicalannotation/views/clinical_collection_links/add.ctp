@@ -17,7 +17,15 @@
 	if(sizeof($collection_data) == 0){
 		$doNotPrintSubmit = true;
 	}else{
-		$structures->build( $atim_structure_collection_detail, array('type'=>'radiolist', 'data'=>$collection_data, 'settings'=>$structure_settings, 'links'=>$structure_links) );
+		$final_atim_structure = $atim_structure_collection_detail; 
+		$final_options = array('type'=>'radiolist', 'data'=>$collection_data, 'settings'=>$structure_settings, 'links'=>$structure_links);
+	
+		// CUSTOM CODE
+		$hook_link = $structures->hook('collection_detail');
+		if( $hook_link ) { require($hook_link); }
+			
+		// BUILD FORM
+		$structures->build( $final_atim_structure, $final_options );
 	}
 	?>
 	<table class="structure" cellspacing="0">
@@ -30,10 +38,18 @@
 				'ClinicalCollectionLink.consent_master_id'=>'%%ConsentMaster.id%%'
 			),
 	);
-	
+	unset($structure_settings['header']);
 	//consent
 	if(sizeof($consent_data) > 0){
-		$structures->build( $atim_structure_consent_detail, array('type'=>'radiolist', 'data'=>$consent_data, 'settings'=>$structure_settings, 'links'=>$structure_links) );
+		$final_atim_structure = $atim_structure_consent_detail; 
+		$final_options = array('type'=>'radiolist', 'data'=>$consent_data, 'settings'=>$structure_settings, 'links'=>$structure_links);
+	
+		// CUSTOM CODE
+		$hook_link = $structures->hook('consent_detail');
+		if( $hook_link ) { require($hook_link); }
+			
+		// BUILD FORM
+		$structures->build($final_atim_structure, $final_options );
 	}
 
 	//diag
@@ -57,10 +73,32 @@
 	</tbody></table>
 	<?php 
 	//consent
+//	$final_atim_structure = $atim_structure_diagnosis_detail; 
+//	if(sizeof($diagnosis_data) > 0){
+//		$final_options = array('type'=>'radiolist', 'data'=>$diagnosis_data, 'settings'=>array('form_bottom'=>true, 'form_top'=>true, 'form_inputs'=>false, 'actions'=>true, 'pagination'=>false), 'links'=>$structure_links);
+//	
+//		// CUSTOM CODE
+//		$hook_link = $structures->hook('diagnosis_detail');
+//		if( $hook_link ) { require($hook_link); }
+//			
+//		// BUILD FORM
+//		$structures->build( $final_atim_structure, $final_options );
+//	}else{
+//		$final_options = array('data'=> '', 'links'=>$structure_links);
+//	
+//		// CUSTOM CODE
+//		$hook_link = $structures->hook('diagnosis_detail');
+//		if( $hook_link ) { require($hook_link); }
+//			
+//		// BUILD FORM
+//		$structures->build( $final_atim_structure, $final_options );
+//	}
+
 	if(sizeof($diagnosis_data) > 0){
 		$structures->build( $atim_structure_diagnosis_detail, array('type'=>'radiolist', 'data'=>$diagnosis_data, 'settings'=>array('form_bottom'=>true, 'form_top'=>true, 'form_inputs'=>false, 'actions'=>true, 'pagination'=>false), 'links'=>$structure_links) );
 	}else{
 		$structures->build( $atim_structure_diagnosis_detail, array('data'=> '', 'links'=>$structure_links) );
 	}
+	pr($atim_structure_diagnosis_detail);
 	
 ?>
