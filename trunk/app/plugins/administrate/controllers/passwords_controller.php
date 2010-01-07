@@ -61,14 +61,15 @@ class PasswordsController extends AppController {
 						
 						unset($this->data['User']['new_password']);
 						unset($this->data['User']['confirm_password']);
+						
+						if ( $this->User->save( $this->data ) ) {
+							$this->flash( 'Your data has been updated.','/administrate/passwords/index/'.$bank_id.'/'.$group_id.'/'.$user_id );
+						}
 					}
 				}
 			}
 			
-			if ( $this->User->save( $this->data ) ) {
-				$this->flash( 'Your data has been updated.','/administrate/passwords/index/'.$bank_id.'/'.$group_id.'/'.$user_id );
-			}
-			
+			$this->flash( 'Sorry, new password was not entered correctly.','/customize/passwords/index' );
 		}
 		
 	}
