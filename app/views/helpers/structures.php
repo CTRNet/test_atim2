@@ -997,7 +997,7 @@ class StructuresHelper extends Helper {
 							$sorting_link .= isset($_REQUEST['page']) ? '&amp;page='.$_REQUEST['page'] : '';
 							
 							if ( $options['settings']['pagination'] ) {
-								$return_string .= $this->Paginator->sort($table_row['label'], $table_row['model'].'.'.$table_row['field']);
+								$return_string .= $this->Paginator->sort(html_entity_decode($table_row['label']), $table_row['model'].'.'.$table_row['field']);
 							} else {
 								$return_string .= $table_row['label'];
 							}
