@@ -1,84 +1,84 @@
 <?php
 class ProductMastersController extends ClinicalannotationAppController {
 
+	var $components = array('Inventorymanagement.Samples');
+	
 	var $uses = array(
+		'Clinicalannotation.Participant',
 		'Clinicalannotation.ClinicalCollectionLink',
-		'Clinicalannotation.Collection',
+		
+		'Inventorymanagement.Collection',
 		'Inventorymanagement.SampleMaster',
-		'Inventorymanagement.AliquotMaster'
+		'Inventorymanagement.AliquotMaster',
+		'Inventorymanagement.SampleControl'		
 	);
 	
-	var $paginate = array('DiagnosisMaster'=>array('limit'=>10,'order'=>'DiagnosisMaster.dx_date')); 
-	
-	function listall( $participant_id, $current_filter = null) {
+	function productsTreeView($participant_id, $studied_specimen_sample_control_id = null) {
+		if ( !$participant_id ) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
+
+		// MANAGE DATA
+		
+		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
+		if(empty($participant_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
+		
+		// Get participant collection ids
+		$participant_collections =  $this->Collection->find('all', array('conditions' => 'ClinicalCollectionLink.participant_id='.$participant_id, 'order' => 'Collection.collection_datetime ASC', 'recursive' => 0));
+		
+		$participant_collection_ids = array();
+		$data_for_tree_view = array();
+		
+		foreach($participant_collections as $new_collection) {
+			$participant_collection_ids[] = $new_collection['Collection']['id'];
+			$new_collection_contents = $this->Samples->buildCollectionContentForTreeView($new_collection['Collection']['id'], $studied_specimen_sample_control_id);
+			if(is_null($studied_specimen_sample_control_id)) {
+				// Add collection data
+				$data_for_tree_view[] = array('Collection' => $new_collection['Collection'], 'children' => $new_collection_contents);
+			} else {
+				foreach($new_collection_contents as $data) {
+					$data_for_tree_view[] = $data;
+				}
+			}
+		}
+		
+		$this->data = $data_for_tree_view;
+					
+		// MANAGE FORM, MENU AND ACTION BUTTONS	
+			 	
 		$atim_structure = array();
-		$atim_structure['ClinicalCollectionLink']	= $this->Structures->get('form','clinicalcollectionlinks');
 		$atim_structure['Collection']	= $this->Structures->get('form','collection_tree_view');
 		$atim_structure['SampleMaster']	= $this->Structures->get('form','sample_masters_for_collection_tree_view');
 		$atim_structure['AliquotMaster']	= $this->Structures->get('form','aliquot_masters_for_collection_tree_view');
 		$this->set('atim_structure', $atim_structure);
 		
-		$this->set('atim_menu_variables', array('Participant.id' => $participant_id, 'CurrentFilter' => $current_filter));
+		// Get all collections specimen types list to build the filter button
+		$specimen_type_list = array();
+		$specimen_type_list_temp = $this->SampleMaster->find('all', array('fields' => 'DISTINCT SampleMaster.sample_type, SampleMaster.sample_control_id', 'conditions' => array('SampleMaster.collection_id' => $participant_collection_ids, 'SampleMaster.sample_category' => 'specimen'), 'order' => 'SampleMaster.sample_type ASC', 'recursive' => '-1'));
+		foreach($specimen_type_list_temp as $new_specimen_type) {
+			$sample_control_id = $new_specimen_type['SampleMaster']['sample_control_id'];
+			$sample_type = $new_specimen_type['SampleMaster']['sample_type'];
+			$specimen_type_list[$sample_type] = $sample_control_id;
+		}
+		$this->set('specimen_type_list', $specimen_type_list);
 		
-		$this->hook();
+		// Set filter value
+		$filter_value = null;
+		if($studied_specimen_sample_control_id) {
+			$sample_control_data = $this->SampleControl->find('first', array('conditions' => array('id' => $studied_specimen_sample_control_id)));
+			if(empty($sample_control_data)) { 
+				unset($_SESSION['ClinicalAnnotation']['productsTreeView']['Filter']);
+				$this->redirect('/pages/err_inv_system_error', null, true); 
+			}
+			$filter_value = $sample_control_data['SampleControl']['sample_type'];
+		}		
 		
-		$collection_data = $this->Collection->find('all', array('conditions' => 'ClinicalCollectionLink.participant_id='.$participant_id, 'recursive' => 2));
-		$this->data = array();
-		$tmp_data = array();
-		$filters = array();
-		$collection_n = 0;
-		foreach($collection_data as $key => $value){//iterate over collections
-			if(isset($collection_data[$key]['SampleMaster'][0])){
-				$tmp_data[$collection_n]['Collection'] = $collection_data[$key]['Collection'];
-				$sample_data = $this->SampleMaster->find('threaded', array('conditions' => 'Collection.id='.$collection_data[$key]['Collection']['id']));
-				$this->build_sample_recur(&$sample_data, &$filters, $current_filter);
-				$tmp_data[$collection_n]['children'] = $sample_data;
-				++ $collection_n;
-			}
-		}
-		if($current_filter != null){
-			foreach($tmp_data as $key => $value){//iterate over collections
-				if(isset($tmp_data[$key]['children'])){
-					foreach($tmp_data[$key]['children'] as $key2 => $value2){
-						array_push($this->data, $value2);
-					}
-				}
-			}
-			$this->set('none_filter', true);
-		}else{
-			$this->data = $tmp_data;
-		}
-		$this->set('filters', $filters);
-	}
-	
-	function build_sample_recur($sample_data, $filters, $current_filter){
-		foreach($sample_data as $key => $value){//iterate over samples
-			$aliquot_n = 0;
-			$tmp_aliquot_array = array();
-			if(isset($sample_data[$key]['AliquotMaster'])){
-				foreach($sample_data[$key]['AliquotMaster'] as $key2 => $value2){//iterate over aliquots
-						$tmp_aliquot_array[$aliquot_n ++]['AliquotMaster'] = $sample_data[$key]['AliquotMaster'][$key2];
-				}
-			}
-			$this->clean(&$sample_data[$key], 'SampleMaster');
-			$filters[$sample_data[$key]['SampleMaster']['initial_specimen_sample_type']] = "";
-			if($current_filter != null && $sample_data[$key]['SampleMaster']['initial_specimen_sample_type'] != $current_filter){
-				unset($sample_data[$key]);
-			}
-			else if(isset($sample_data[$key]['children'])){
-				$this->build_sample_recur(&$sample_data[$key]['children'], &$filters, $current_filter);
-				$sample_data[$key]['children'] = array_merge($sample_data[$key]['children'], $tmp_aliquot_array);
-			}else{
-				$sample_data[$key]['children'] = $tmp_aliquot_array;
-			}
-		}
-	}
-	
-	function clean($arr, $keep){
-		foreach($arr as $key => $value){
-			if($key != $keep && $key != 'children'){
-				unset($arr[$key]);
-			}
-		}
-	}
+		// Set menu variables
+		$this->set('atim_menu_variables', array('Participant.id' => $participant_id, 'FilterLevel'  => 'participant_products', 'FilterForTreeView' => $filter_value));
+		
+		// CUSTOM CODE: FORMAT DISPLAY DATA
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { require($hook_link); }	
+	}		
+		
+
+
 }
