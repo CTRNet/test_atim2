@@ -22,7 +22,6 @@
 	}
 	$specimen_type_filter_links['no filter'] = '/clinicalannotation/product_masters/productsTreeView/'.$atim_menu_variables['Participant.id'];	
 		
-	
 	$structure_links = array(
 		'tree'=>array(
 			'Collection' => array(
@@ -38,13 +37,9 @@
 				'detail' => array(
 					'link'=> '/inventorymanagement/aliquot_masters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/1/0',
 					'icon' => 'aliquot'
-				)
-					 
+				)		 
 			)
-
-			
 		),
-		
 		'bottom' => array(
 			'filter' => $specimen_type_filter_links
 		),
@@ -57,6 +52,7 @@
 			)
 		)
 	);
+	
 	// EXTRAS
 	
 	$structure_extras = array();
@@ -64,7 +60,15 @@
 	
 	// BUILD
 	
-	$structures->build($atim_structure, array('type' => 'tree', 'settings'=>$structure_settings, 'links'=>$structure_links, 'extras'=>$structure_extras));
+	$final_atim_structure = $atim_structure; 
+	$final_options = array('type' => 'tree', 'settings'=>$structure_settings, 'links'=>$structure_links, 'extras'=>$structure_extras);
+	
+	// CUSTOM CODE
+	$hook_link = $structures->hook();
+	if( $hook_link ) { require($hook_link); }
+		
+	// BUILD FORM
+	$structures->build( $final_atim_structure, $final_options );	
 	
 ?>
 								
