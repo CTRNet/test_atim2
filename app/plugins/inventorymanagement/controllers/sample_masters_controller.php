@@ -2,6 +2,8 @@
 
 class SampleMastersController extends InventorymanagementAppController {
 
+	var $components = array('Inventorymanagement.Samples');
+
 	var $uses = array(
 		'Inventorymanagement.Collection',
 		
@@ -84,20 +86,9 @@ class SampleMastersController extends InventorymanagementAppController {
 			}
 		}
 		
-		// Search data to display		
-		$criteria = array();
-		if($studied_specimen_sample_control_id) { 
-			// Limit display to specific specimen type plus derivative
-			$specimen_criteria['SampleMaster.sample_control_id'] = $studied_specimen_sample_control_id; 
-			$specimen_criteria['SampleMaster.collection_id'] = $collection_id;
-			$studied_collection_specimens = $this->SampleMaster->atim_list(array('conditions' => $specimen_criteria, 'recursive' => '-1'));
-			$criteria['SampleMaster.initial_specimen_sample_id'] = array_keys($studied_collection_specimens);	
-		}
-		$criteria['SampleMaster.collection_id'] = $collection_id;
-		$collection_samples = $this->SampleMaster->find('threaded', array('conditions' => $criteria, 'order' => 'SampleMaster.sample_type DESC, SampleMaster.sample_code DESC', 'recursive' => '-1'));
-	 	
-		$this->data = $this->completeCollectionContent($collection_samples);
-				
+		// Get formatted collection samples data to display
+		$this->data = $this->Samples->buildCollectionContentForTreeView($collection_id, $studied_specimen_sample_control_id);
+		
 		// MANAGE FORM, MENU AND ACTION BUTTONS	
 			 	
 		$atim_structure = array();
@@ -141,36 +132,6 @@ class SampleMastersController extends InventorymanagementAppController {
 		if($hook_link){
 			require($hook_link); 
 		}
-		
-	}
-	
-	/**
-	 * Parsing a nested array gathering collection samples, the funtion will add
-	 * aliquots records for each sample.
-	 * 
-	 * @param $children_list Nested array gathering collection samples.
-	 * 
-	 * @return The completed nested array
-	 * 
-	 * @author N. Luc
-	 * @since 2009-09-13
-	 */
-	
-	function completeCollectionContent($children_list) {
-		foreach ($children_list as $key => $studied_sample) {
-			
-			// recursive first on existing MODEL CHILDREN
-			if (isset($studied_sample['children']) && count($studied_sample['children'])) {
-				$children_list[$key]['children'] = $this->completeCollectionContent($studied_sample['children']);
-			}
-			
-			// get OUTSIDE MODEL data and append as CHILDREN: Add sample aliquots
-			$this->AliquotMaster->unbindModel(array('belongsTo' => array('Collection', 'SampleMaster', 'AliquotControl')));	
-			$studied_sample_aliquots = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.sample_master_id' => $studied_sample['SampleMaster']['id']), 'order' => 'AliquotMaster.storage_coord_x ASC, AliquotMaster.storage_coord_y ASC', 'recursive' => '0'));
-			foreach ($studied_sample_aliquots as $new_aliquot) { $children_list[$key]['children'][] = $new_aliquot; }
-		}
-		
-		return $children_list;
 	}
 	
 	function listAll($collection_id, $initial_specimen_sample_id, $filter_option = null) {
@@ -308,7 +269,8 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 		// Search data to display
 		$this->setDataForSamplesList(array_merge(array('SampleMaster.collection_id' => $collection_id), $specific_sample_search_criteria));
-
+		$this->data = array();
+	
 		// MANAGE FORM, MENU AND ACTION BUTTONS	
 		$form_alias = (is_null($specific_form_alias))? 'samplemasters': $specific_form_alias;
 		$this->Structures->set($form_alias);		

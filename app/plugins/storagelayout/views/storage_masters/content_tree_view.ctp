@@ -25,7 +25,7 @@
 			),
 			'AliquotMaster' => array(
 				'detail' => array(
-					'link' => '/inventorymanagement/aliquot_masters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/' . true . '/' . true,
+					'link' => '/inventorymanagement/aliquot_masters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/1/0',
 					'icon' => 'aliquot')
 			),
 			'TmaSlide' => array(

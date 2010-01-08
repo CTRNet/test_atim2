@@ -11,6 +11,8 @@ class OrderItemsController extends OrderAppController {
 		
 	var $paginate = array('OrderItem'=>array('limit'=>'10','order'=>'AliquotMaster.barcode'));
 	
+//TODO verify an aliquot could be added to order just one time
+	
 	function listall( $order_id, $order_line_id ) {
 		//TODO: add delete button on each line
   		if (( !$order_id ) || ( !$order_line_id )) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }

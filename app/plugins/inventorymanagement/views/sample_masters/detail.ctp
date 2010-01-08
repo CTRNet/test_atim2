@@ -35,6 +35,7 @@
 	if($is_tree_view_detail_form) {
 		// Detail form displayed in tree view: Add button to access all sample data
 		$structure_links['bottom']['access to all data'] = '/inventorymanagement/sample_masters/detail/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'];
+
 	} else {
 		// General detail form display
 		$search_type_links = array();
@@ -45,6 +46,7 @@
 		$structure_links['bottom']['new search type'] = $search_type_links;
 	}
 
+	// Set override
 	$structure_override = array();
 	
 	$sops_list = array();

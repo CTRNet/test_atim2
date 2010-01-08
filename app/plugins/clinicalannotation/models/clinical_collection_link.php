@@ -30,6 +30,29 @@ class ClinicalCollectionLink extends ClinicalAnnotationAppModel{
 		
 		return $return;
 	}
+	
+	function productFilterSummary($variables=array()) {
+		$return = false;
+		
+		if(array_key_exists('FilterLevel', $variables) && ($variables['FilterLevel'] == 'participant_products')) {
+			// User is working on participant product
+			
+			// Build filter information
+			$studied_sample_type = array_key_exists('FilterForTreeView', $variables)? $variables['FilterForTreeView']: '';
+			
+			$filter_data = empty($studied_sample_type)? '': __($studied_sample_type, true);
+			$filter_data = empty($filter_data)? __('all products', true): $filter_data;
+
+			// Set summary						
+			$return = array(
+				'Summary' => array(
+					'menu' => array(null, $filter_data,
+					'title' => false,
+					'description'=> false)));	
+		}
+		
+		return $return;
+	}
 }
 
 ?>

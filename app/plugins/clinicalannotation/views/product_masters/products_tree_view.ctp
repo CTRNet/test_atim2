@@ -4,9 +4,6 @@
 	
 	$structure_settings = array(
 		'tree'=>array(
-			//'SampleMaster'		=> 'SampleMaster',
-			//'AliquotMaster'	=> 'AliquotMaster',
-			//'ClinicalCollectionLink' => 'ClinicalCollectionLink',
 			'Collection' => 'Collection',
 			'SampleMaster' => 'SampleMaster',
 			'AliquotMaster' => 'AliquotMaster'
@@ -18,36 +15,38 @@
 	);
 	
 	// LINKS
-	$filter_links = array();
-	foreach($filters as $key => $value){
-		$filter_links[__($key, true)] = '/clinicalannotation/product_masters/listall/'.$atim_menu_variables['Participant.id'].'/'.$key.'/';
+	
+	$specimen_type_filter_links = array();
+	foreach ($specimen_type_list as $type => $sample_control_id) {
+		$specimen_type_filter_links[$type] = '/clinicalannotation/product_masters/productsTreeView/'.$atim_menu_variables['Participant.id'].'/'.$sample_control_id;
 	}
-	ksort($filter_links);
-	if(isset($none_filter)){
-		$filter_links["--".__('no filter', true)."--"] = '/clinicalannotation/product_masters/listall/'.$atim_menu_variables['Participant.id'].'/';
-	}
+	$specimen_type_filter_links['no filter'] = '/clinicalannotation/product_masters/productsTreeView/'.$atim_menu_variables['Participant.id'];	
+		
 	
 	$structure_links = array(
 		'tree'=>array(
 			'Collection' => array(
-				'detail' => '/inventorymanagement/collections/detail/%%Collection.id%%/' . true . '/' . false
+				'detail' => '/inventorymanagement/collections/detail/%%Collection.id%%/1/0'
 			),
 			'SampleMaster' => array(
-				'detail' => '/inventorymanagement/sample_masters/detail/%%SampleMaster.collection_id%%/%%SampleMaster.id%%/' . true . '/' . false
+				'detail' => array(
+					'link' => '/inventorymanagement/sample_masters/detail/%%SampleMaster.collection_id%%/%%SampleMaster.id%%/1/0',
+					'icon' => 'lungs'
+				)
 			),
 			'AliquotMaster' => array(
-				'detail' => '/inventorymanagement/aliquot_masters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/' . true . '/' . false
+				'detail' => array(
+					'link'=> '/inventorymanagement/aliquot_masters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/1/0',
+					'icon' => 'aliquot'
+				)
+					 
 			)
 
 			
 		),
-//		'bottom' => array(
-//			'add' => $add_links,
-//			'filter' => $specimen_type_filter_links,
-//			'search' => $search_type_links
-//		),
+		
 		'bottom' => array(
-			'filter' => $filter_links
+			'filter' => $specimen_type_filter_links
 		),
 		'ajax' => array(
 			'index' => array(

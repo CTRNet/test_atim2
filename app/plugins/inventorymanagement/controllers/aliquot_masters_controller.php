@@ -310,7 +310,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 			
 		} else {
 // TODO Used to correct a bug
-pr($this->data);
 unset($this->data['AliquotMaster']);	
 			
 			// Manage volume
@@ -411,11 +410,9 @@ unset($this->data['AliquotMaster']);
 		if(empty($aliquot_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }		
 
 		// Set aliquot use
-		//TODO add patch to correct bug listed in issue #650
+//TODO add patch to correct bug listed in issue #650
 		$aliquot_data['Generated']['aliquot_use_counter'] = sizeof($aliquot_data['AliquotUse']);
 				
-		$this->data = $aliquot_data;
-		
 		// Set list of available SOPs to create aliquot
 		$this->set('arr_aliquot_sops', $this->getAliquotSopList($aliquot_data['SampleMaster']['sample_type'], $aliquot_data['AliquotMaster']['aliquot_type']));
 
@@ -428,25 +425,32 @@ unset($this->data['AliquotMaster']);
 		// Set list of sample gel matrices (will only works for sample type being linked to gel matrix type)
 		$this->set('arr_sample_gel_matrices', $this->getSampleGelMatricesList(array('SampleMaster' => $aliquot_data['SampleMaster'])));
 
-		// Set times spent since either sample collection/reception or sample creation and sample storage					
+		// Set times spent since either sample collection/reception or sample creation and sample storage		
 		switch($aliquot_data['SampleMaster']['sample_category']) {
 			case 'specimen':
-				$this->data['Generated']['coll_to_stor_spent_time'] = $this->manageSpentTimeDataDisplay($this->getSpentTime($aliquot_data['Collection']['collection_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
+				$aliquot_data['Generated']['coll_to_stor_spent_time_msg'] = $this->manageSpentTimeDataDisplay($this->getSpentTime($aliquot_data['Collection']['collection_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
 				$sample_master = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.id' => $aliquot_data['SampleMaster']['id'])));
-				$this->data['Generated']['rec_to_stor_spent_time'] = $this->manageSpentTimeDataDisplay($this->getSpentTime($sample_master['SpecimenDetail']['reception_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
+				$aliquot_data['Generated']['rec_to_stor_spent_time_msg'] = $this->manageSpentTimeDataDisplay($this->getSpentTime($sample_master['SpecimenDetail']['reception_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
 				break;
 			case 'derivative':
 				$derivative_detail_data = $this->DerivativeDetail->find('first', array('conditions' => array('DerivativeDetail.sample_master_id' => $sample_master_id)));
 				if(empty($derivative_detail_data)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }	
-				$this->data['Generated']['creat_to_stor_spent_time'] = $this->manageSpentTimeDataDisplay($this->getSpentTime($derivative_detail_data['DerivativeDetail']['creation_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
+				$aliquot_data['Generated']['creat_to_stor_spent_time_msg'] = $this->manageSpentTimeDataDisplay($this->getSpentTime($derivative_detail_data['DerivativeDetail']['creation_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
 				break;
 				
 			default:
 				$this->redirect('/pages/err_inv_system_error', null, true);
 		}
 		
+		// Set aliquot data
+		$this->set('aliquot_master_data', $aliquot_data);
+		$this->data = array();
+		
 		// Set storage data
-		$this->set('aliquot_storage_data', empty($this->data['StorageMaster']['id'])? array(): array('StorageMaster' => $this->data['StorageMaster']));
+		$this->set('aliquot_storage_data', empty($aliquot_data['StorageMaster']['id'])? array(): array('StorageMaster' => $aliquot_data['StorageMaster']));
+		
+		// Set aliquot uses
+		$this->set('aliquots_uses_data', $this->paginate($this->AliquotUse, array('AliquotUse.aliquot_master_id' => $aliquot_master_id)));
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 
@@ -457,19 +461,20 @@ unset($this->data['AliquotMaster']);
 		
 		// Set structure
 		$this->Structures->set($aliquot_data['AliquotControl']['form_alias']);
+		$this->set('aliquots_uses_structure', $this->Structures->get('form', 'aliquotuses'));
 		
 		// Define if this detail form is displayed into the collection content tree view
 		$this->set('is_tree_view_detail_form', $is_tree_view_detail_form);
 		$this->set('is_inventory_plugin_form', $is_inventory_plugin_form);
-		
+
+//TODO ici		
+
 		if($aliquot_data['AliquotMaster']['status'] != 'available'){
 			$order_item = $this->OrderItem->find('first', array('conditions' => array('OrderItem.aliquot_master_id' => $aliquot_data['AliquotMaster']['id'])));
 			$this->set('order_line_id', $order_item['OrderLine']['id']);
 			$this->set('order_id', $order_item['OrderLine']['order_id']);
 		}
 		
-		$this->set('aliquots_uses_data', $this->paginate($this->AliquotUse, array('AliquotUse.aliquot_master_id' => $aliquot_master_id)));
-		$this->set('aliquots_uses_structure', $this->Structures->get('form', 'aliquotuses'));
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { 
 			require($hook_link); 
