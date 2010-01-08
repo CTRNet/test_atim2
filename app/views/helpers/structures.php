@@ -1157,7 +1157,7 @@ class StructuresHelper extends Helper {
 					// place translated LABEL in label column of new row 
 					// use FIELD's LABEL, or use FORMAT's LABEL if override FLAG is set
 					if ( $field['flag_override_label'] ) $field['StructureField']['language_label'] = $field['language_label'];
-					if ( $field['StructureField']['language_label'] )  $table_index[ $field['display_column'] ][ $row_count ]['label'] = html_entity_decode(__( $field['StructureField']['language_label'], true ));
+					if ( $field['StructureField']['language_label'] )  $table_index[ $field['display_column'] ][ $row_count ]['label'] = __( $field['StructureField']['language_label'], true );
 					
 					/*
 					// add CHECK/UNCHECK links to appropriate FORM/FIELD types
@@ -1171,7 +1171,7 @@ class StructuresHelper extends Helper {
 				
 				// display TAG, sub label, use FIELD's TAG, or use FORMAT's TAG if override FLAG is set
 					if ( $field['flag_override_tag'] ) $field['StructureField']['language_tag'] = $field['language_tag'];
-					if ( $field['StructureField']['language_tag'] ) $table_index[ $field['display_column'] ][ $row_count ]['tag'] = '<span class="tag">'.__( $field['StructureField']['language_tag'], true ).'</span> ';
+					if ( $field['StructureField']['language_tag'] ) $table_index[ $field['display_column'] ][ $row_count ]['tag'] = '<span class="tag">'.__( $field['StructureField']['language_tag'], true).'</span> ';
 					
 				// LABEL and HELP marker, if available...
 					if ( $field['flag_override_label'] && $field['language_label'] ) $field['StructureField']['language_label'] = $field['language_label'];
