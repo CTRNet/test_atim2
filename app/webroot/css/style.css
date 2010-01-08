@@ -392,12 +392,14 @@ ul#main_menu_for_header li a {
 	overflow: hidden;
 	text-indent: -1000px;
 }
-/*
-ul#root_menu_for_header li:hover,
-ul#main_menu_for_header li:hover { 
-	background: url(../img/icons/toolbox_bot_bk01.png) no-repeat 0 0; 
-}
-*/
+
+#root_menu_for_header li:hover{
+	background-image: url("../img/icons/toolbox_top_bk01.png");
+} 
+
+#main_menu_for_header li:hover{
+	background-image: url("../img/icons/toolbox_bot_bk01.png");
+} 
 
 ul#root_menu_for_header li.not_allowed,
 ul#main_menu_for_header li.not_allowed {
