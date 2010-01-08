@@ -1001,6 +1001,7 @@ span.help:hover {
 a.add { background: url("../img/icons/Add_16x16.png") no-repeat left center; }
 a.aliquot { background: url("../img/icons/aliquot_16x16.png") no-repeat left center; }
 a.cancel { background: url("../img/icons/Control Rewind_16x16.png") no-repeat left center; }
+a.collection { background: url("../img/icons/collection_16x16.png") no-repeat left center; }
 a.default { background: url("../img/icons/Document Blank_16x16.png") no-repeat left center; }
 a.delete { background: url("../img/icons/Close_16x16.png") no-repeat left center; }
 a.detail { background: url("../img/icons/Control Play_16x16.png") no-repeat left center; }
@@ -1008,7 +1009,6 @@ a.duplicate { background: url("../img/icons/Documents x3_16x16.png") no-repeat c
 a.edit { background: url("../img/icons/Edit_16x16.png") no-repeat left center; }
 a.filter { background: url("../img/icons/Tag_16x16.png") no-repeat left center; }
 a.grid { background: url("../img/icons/Table_16x16.png") no-repeat left center; }
-a.inventory { background: url("../img/icons/inventory_16x16.png") no-repeat left center; }
 a.list { background: url("../img/icons/Folder Open_16x16.png") no-repeat left center; }
 a.lungs { background: url("../img/icons/lungs_16x16.png") no-repeat left center; }
 a.news { background: url("../img/icons/News_16x16.png") no-repeat left center; }
