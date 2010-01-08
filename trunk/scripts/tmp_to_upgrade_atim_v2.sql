@@ -49,3 +49,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('all products', 'global', 'All Products', 'Tous les produits');
+
+UPDATE `menus` SET `active` = 'no' WHERE `menus`.`id` = 'clin_CAN_34' LIMIT 1 ;
+UPDATE `menus` SET `active` = 'no' WHERE `menus`.`id` = 'tool_CAN_38' LIMIT 1 ;
+UPDATE `menus` SET `active` = 'no' WHERE `menus`.`id` = 'tool_CAN_48' LIMIT 1 ;
