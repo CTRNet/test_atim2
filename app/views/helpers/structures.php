@@ -1880,7 +1880,7 @@ class StructuresHelper extends Helper {
 				if ( Configure::read("debug") || strpos($aco_alias,'controllers/Users')!==false || strpos($aco_alias,'controllers/Pages')!==false || $Acl->check($aro_alias, $aco_alias) ) {
 					
 					$display_class_name = $this->generate_link_class($link_name, $link_location);
-					$htmlAttributes['title'] = strip_tags( html_entity_decode(__("detail", true)) ); 
+					$htmlAttributes['title'] = strip_tags( html_entity_decode(__($link_name, true)) ); 
 					
 					if(strlen($icon) > 0){
 						$htmlAttributes['class'] = 'form '.$icon;
