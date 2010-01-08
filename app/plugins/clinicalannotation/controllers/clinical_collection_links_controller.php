@@ -48,6 +48,9 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 	
 	function add( $participant_id ) {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
+		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
+		if(empty($participant_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }	
+		
 
 		// MANAGE DATA
 		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
@@ -74,6 +77,7 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 		$this->Structures->set('collections', 'atim_structure_collection_detail');
 		$this->Structures->set('consent_masters', 'atim_structure_consent_detail');
 		$this->Structures->set('diagnosismasters', 'atim_structure_diagnosis_detail');
+		$this->Structures->set('empty', 'empty_structure');
 		
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }
@@ -94,9 +98,6 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 	}
 	
 	function edit( $participant_id, $clinical_collection_links_id) {
-		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }
-	
 		if ( !empty($this->data) ) {
 			$this->ClinicalCollectionLink->id = $clinical_collection_links_id;
 			
@@ -114,6 +115,10 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 		$this->Structures->set('collections', 'atim_structure_collection_detail');
 		$this->Structures->set('consent_masters', 'atim_structure_consent_detail');
 		$this->Structures->set('diagnosismasters', 'atim_structure_diagnosis_detail');
+		$this->Structures->set('empty', 'empty_structure');
+		
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { require($hook_link); }
 		
 		$collection_data = $this->Collection->find('all', array('conditions' => array('ClinicalCollectionLink.id' => $clinical_collection_links_id)));
 		$this->set( 'collection_data', $collection_data );
