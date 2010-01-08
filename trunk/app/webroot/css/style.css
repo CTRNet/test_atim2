@@ -1008,6 +1008,7 @@ a.duplicate { background: url("../img/icons/Documents x3_16x16.png") no-repeat c
 a.edit { background: url("../img/icons/Edit_16x16.png") no-repeat left center; }
 a.filter { background: url("../img/icons/Tag_16x16.png") no-repeat left center; }
 a.grid { background: url("../img/icons/Table_16x16.png") no-repeat left center; }
+a.inventory { background: url("../img/icons/inventory_16x16.png") no-repeat left center; }
 a.list { background: url("../img/icons/Folder Open_16x16.png") no-repeat left center; }
 a.lungs { background: url("../img/icons/lungs_16x16.png") no-repeat left center; }
 a.news { background: url("../img/icons/News_16x16.png") no-repeat left center; }
