@@ -2,32 +2,79 @@
 
 class ClinicalCollectionLinksController extends ClinicalannotationAppController {
 	
-	var $uses = array('Clinicalannotation.ClinicalCollectionLink', 
-		'Inventorymanagement.Collection',
+	var $uses = array(
+		'Clinicalannotation.Participant', 
+		'Clinicalannotation.ClinicalCollectionLink', 
 		'Clinicalannotation.ConsentMaster',
-		'Clinicalannotation.DiagnosisMaster');
+		'Clinicalannotation.DiagnosisMaster',
+		
+		'Inventorymanagement.Collection'
+	);
 	
 	var $paginate = array('ClinicalCollectionLinks'=>array('limit'=>10,'order'=>'ClinicalCollectionLinks.id ASC'));	
 	
 	function listall( $participant_id ) {
+		if ( !$participant_id ) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
+
+		// MANAGE DATA
+		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
+		if(empty($participant_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }	
+
+		$this->data = $this->paginate($this->ClinicalCollectionLink, array('ClinicalCollectionLink.participant_id'=>$participant_id));
+		
+		// MANAGE FORM, MENU AND ACTION BUTTONS
+		
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
 		
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }
-		
-		$this->data = $this->paginate($this->ClinicalCollectionLink, array('ClinicalCollectionLink.participant_id'=>$participant_id));
 	}
 	
 	function detail( $participant_id, $clinical_collection_links_id ) {
+		if (( !$participant_id ) || ( !$clinical_collection_links_id )) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
+
+		// MANAGE DATA
+		$clinical_collection_data = $this->ClinicalCollectionLink->find('first',array('conditions'=>array('ClinicalCollectionLink.id'=>$clinical_collection_links_id,'ClinicalCollectionLink.participant_id'=>$participant_id)));
+		if(empty($clinical_collection_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }	
+		$this->data = $clinical_collection_data;	
+		
+		// MANAGE FORM, MENU AND ACTION BUTTONS
+		
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'ClinicalCollectionLink.id'=>$clinical_collection_links_id) );
 		
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }
-		
-		$this->data = $this->ClinicalCollectionLink->find('first',array('conditions'=>array('ClinicalCollectionLink.id'=>$clinical_collection_links_id)));
 	}
 	
 	function add( $participant_id ) {
+		if ( !$participant_id ) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
+
+		// MANAGE DATA
+		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
+		if(empty($participant_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }	
+
+		// collection data
+		$collection_data = $this->Collection->find('all', array('conditions' => array('Collection.deleted' => '0', 'ClinicalCollectionLink.participant_id IS NULL', 'collection_property' => 'participant collection')));
+		$this->set( 'collection_data', $collection_data );
+
+		// consent data
+		$consent_data = $this->ConsentMaster->find('all', array('conditions' => array('ConsentMaster.deleted' => '0', 'ClinicalCollectionLink.participant_id IS NULL', 'ConsentMaster.participant_id' => $participant_id)));
+		$this->set( 'consent_data', $consent_data );
+	
+		// diagnosis data
+		$diagnosis_data = $this->DiagnosisMaster->find('all', array('conditions' => //array('DiagnosisMaster.deleted' => '0', 'ClinicalCollectionLink.participant_id IS NULL', 'DiagnosisMaster.participant_id' => $participant_id)));
+			'DiagnosisMaster.deleted = 0 AND ClinicalCollectionLink.participant_id IS NULL AND DiagnosisMaster.participant_id='.$participant_id));
+		$this->set( 'diagnosis_data', $diagnosis_data );
+				
+		// MANAGE FORM, MENU AND ACTION BUTTONS
+		
+		$this->set( 'atim_menu', $this->Menus->get('/clinicalannotation/clinical_collection_links/listall/') );
+		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
+		
+		$this->Structures->set('collections', 'atim_structure_collection_detail');
+		$this->Structures->set('consent_masters', 'atim_structure_consent_detail');
+		$this->Structures->set('diagnosismasters', 'atim_structure_diagnosis_detail');
+		
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }
 	
@@ -40,24 +87,10 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 			$hook_link = $this->hook('presave_process');
 			if( $hook_link ) { require($hook_link); }
 		
-			if ( $submitted_data_validates && $this->ClinicalCollectionLink->save($this->data) ) $this->flash( 'Your data has been updated.','/clinicalannotation/clinical_collection_links/detail/'.$participant_id.'/'.$this->ClinicalCollectionLink->id );
+			if ( $submitted_data_validates && $this->ClinicalCollectionLink->save($this->data) ) {
+				$this->flash( 'Your data has been updated.','/clinicalannotation/clinical_collection_links/detail/'.$participant_id.'/'.$this->ClinicalCollectionLink->id );
+			}
 		}
-		$this->set( 'atim_menu', $this->Menus->get('/clinicalannotation/clinical_collection_links/listall/') );
-		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
-		
-		$this->Structures->set('collections', 'atim_structure_collection_detail');
-		$this->Structures->set('consent_masters', 'atim_structure_consent_detail');
-		$this->Structures->set('diagnosismasters', 'atim_structure_diagnosis_detail');
-		
-		$collection_data = $this->Collection->find('all', array('conditions' => array('Collection.deleted' => '0', 'ClinicalCollectionLink.participant_id IS NULL', 'collection_property' => 'participant collection')));
-		$this->set( 'collection_data', $collection_data );
-
-		$consent_data = $this->ConsentMaster->find('all', array('conditions' => array('ConsentMaster.deleted' => '0', 'ClinicalCollectionLink.participant_id IS NULL', 'ConsentMaster.participant_id' => $participant_id)));
-		$this->set( 'consent_data', $consent_data );
-	
-		$diagnosis_data = $this->DiagnosisMaster->find('all', array('conditions' => //array('DiagnosisMaster.deleted' => '0', 'ClinicalCollectionLink.participant_id IS NULL', 'DiagnosisMaster.participant_id' => $participant_id)));
-			'DiagnosisMaster.deleted = 0 AND ClinicalCollectionLink.participant_id IS NULL AND DiagnosisMaster.participant_id='.$participant_id));
-		$this->set( 'diagnosis_data', $diagnosis_data );
 	}
 	
 	function edit( $participant_id, $clinical_collection_links_id) {
