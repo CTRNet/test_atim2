@@ -7,6 +7,26 @@ class AliquotsComponent extends Object {
 	}
 	
 	/**
+	 * Get list of SOPs existing to build aliquot.
+	 * 
+	 * Note: Function to allow bank to customize this function when they don't use 
+	 * SOP module.
+	 *
+	 *	@param $sample_type Sample Type
+	 *	@param $aliquot_type Aliquot Type
+	 *
+	 * @return Array gathering all sops
+	 *
+	 * @author N. Luc
+	 * @since 2009-09-11
+	 * @updated N. Luc
+	 */
+	 
+	function getAliquotSopList($sample_type, $aliquot_type) {
+		return $this->controller->Sops->getSopList();
+	}
+	
+	/**
 	 * Update the current volume of an aliquot.
 	 * 
 	 * Note:

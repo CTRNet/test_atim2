@@ -25,7 +25,10 @@
 	$structure_links = array(
 		'tree'=>array(
 			'Collection' => array(
-				'detail' => '/inventorymanagement/collections/detail/%%Collection.id%%/1/0'
+				'detail' => array(
+					'link' => '/inventorymanagement/collections/detail/%%Collection.id%%/1/0',
+					'icon' => 'collection'
+				)
 			),
 			'SampleMaster' => array(
 				'detail' => array(

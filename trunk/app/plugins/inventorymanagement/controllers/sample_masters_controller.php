@@ -2,7 +2,12 @@
 
 class SampleMastersController extends InventorymanagementAppController {
 
-	var $components = array('Inventorymanagement.Samples');
+	var $components = array(
+		'Inventorymanagement.Collections', 
+		'Inventorymanagement.Samples', 
+
+		'Administrate.Administrates',
+		'Sop.Sops');
 
 	var $uses = array(
 		'Inventorymanagement.Collection',
@@ -26,6 +31,9 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 		'Inventorymanagement.SampleToAliquotControl',
 		
+		'Administrate.Bank',
+		'Sop.SopMaster',
+		
 		'Codingicd10.CodingIcd10');
 	
 	var $paginate = array('SampleMaster' => array('limit' => 10, 'order' => 'SampleMaster.sample_code DESC'));
@@ -41,7 +49,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->unsetInventorySessionData();
 		
 		// Set list of banks
-		$this->set('banks', $this->getBankList());
+		$this->set('banks', $this->Collections->getBankList());
 		
 		$hook_link = $this->hook('format');
 		if($hook_link){
@@ -350,7 +358,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->set('parent_sample_data', $parent_sample_data);	
 
 		// Set list of available SOPs to create sample
-		$this->set('arr_sample_sops', $this->getSampleSopList($sample_data['SampleMaster']['sample_type']));	
+		$this->set('arr_sample_sops', $this->Samples->getSampleSopList($sample_data['SampleMaster']['sample_type']));	
 		
 		// Set list of tissue sources
 		if($sample_data['SampleControl']['sample_type'] == 'tissue') {
@@ -450,7 +458,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->set('sample_control_data', $sample_control_data);	
 		
 		// Set list of available SOPs to create sample
-		$this->set('arr_sample_sops', $this->getSampleSopList($sample_control_data['SampleControl']['sample_type']));
+		$this->set('arr_sample_sops', $this->Samples->getSampleSopList($sample_control_data['SampleControl']['sample_type']));
 		
 		// Set list of tissue sources
 		if($sample_control_data['SampleControl']['sample_type'] == 'tissue') {
@@ -605,7 +613,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->set('parent_sample_data', $parent_sample_data);	
 
 		// Set list of available SOPs to create sample
-		$this->set('arr_sample_sops', $this->getSampleSopList($sample_data['SampleMaster']['sample_type']));	
+		$this->set('arr_sample_sops', $this->Samples->getSampleSopList($sample_data['SampleMaster']['sample_type']));	
 		
 		// Set list of tissue sources
 		if($sample_data['SampleMaster']['sample_type'] == 'tissue') {
@@ -737,23 +745,6 @@ class SampleMastersController extends InventorymanagementAppController {
 	/* --------------------------------------------------------------------------
 	 * ADDITIONAL FUNCTIONS
 	 * -------------------------------------------------------------------------- */
-	
-	/**
-	 * Get list of SOPs existing to build sample.
-	 * 
-	 * Note: Function to allow bank to customize this function when they don't use 
-	 * SOP module.
-	 *
-	 *	@param $sample_type Sample Type
-	 *
-	 * @author N. Luc
-	 * @since 2009-09-11
-	 * @updated N. Luc
-	 */
-	 
-	function getSampleSopList($sample_type) {
-		return $this->getSopList('sample');
-	}
 	
 	/**
 	 * Create Sample code of a created sample. 

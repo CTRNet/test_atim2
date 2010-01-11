@@ -1,16 +1,185 @@
 <?php
 
-class InventorymanagementAppController extends AppController
-{	
-	var $components = array('Administrate.Administrates', 'Sop.Sops');
-
-	var $uses = array(
-		'Administrate.Bank', 
-		'Sop.SopMaster');
+class InventorymanagementAppController extends AppController {	
 		
 	function beforeFilter() {
 		parent::beforeFilter();
 		$this->Auth->actionPath = 'controllers/Inventorymanagement/';
+	}
+	
+	/**
+	 * Unset session data linked to the inventroy management system.
+	 *
+	 * @author N. Luc
+	 * @since 2009-09-11
+	 * @updated N. Luc
+	 */
+	 
+	function unsetInventorySessionData() {
+		unset($_SESSION['InventoryManagement']['treeView']['Filter']);
+		unset($_SESSION['InventoryManagement']['CollectionSamples']['Filter']);
+		unset($_SESSION['InventoryManagement']['CollectionAliquots']['Filter']);
+
+		unset($_SESSION['InventoryManagement']['SpecimenDerivatives']['Filter']);
+		unset($_SESSION['InventoryManagement']['SampleAliquots']['Filter']);
+	}
+	
+	/**
+	 * Get list of 'derivative' sample types that could be created from 
+	 * a 'parent' sample type.
+	 *
+	 * @param $parent_sample_control_id ID of the sample control linked the studied parent sample.
+	 * 
+	 * @return List of allowed derivative types stored into the following array:
+	 * 	array('sample_control_id' => 'sample_type')
+	 * 
+	 * @author N. Luc
+	 * @since 2009-11-01
+	 */	
+	
+	function getAllowedDerivativeTypes($parent_sample_control_id) {
+		$criteria = array(
+			'ParentSampleControl.id' => $parent_sample_control_id,
+			'ParentToDerivativeSampleControl.status' => 'active',
+			'DerivativeControl.status' => 'active');
+		$allowed_derivative_type_temp = $this->ParentToDerivativeSampleControl->find('all', array('conditions' => $criteria, 'order' => 'DerivativeControl.sample_type ASC'));
+
+		$allowed_derivative_type = array();
+		foreach($allowed_derivative_type_temp as $new_link) {
+			$allowed_derivative_type[$new_link['DerivativeControl']['id']]['SampleControl'] = $new_link['DerivativeControl'];
+		}
+		
+		return $allowed_derivative_type;
+	}
+	
+	/**
+	 * Get list of aliquot types that could be created from 
+	 * a sample type.
+	 *
+	 * @param $sample_control_id ID of the sample control linked to the studied sample.
+	 * 
+	 * @return List of allowed aliquot types stored into the following array:
+	 * 	array('aliquot_control_id' => 'aliquot_type')
+	 * 
+	 * @author N. Luc
+	 * @since 2009-11-01
+	 */	
+	
+	function getAllowedAliquotTypes($sample_control_id) {
+		$criteria = array(
+			'SampleControl.id' => $sample_control_id,
+			'SampleToAliquotControl.status' => 'active',
+			'AliquotControl.status' => 'active');
+		$allowed_aliquot_type_temp = $this->SampleToAliquotControl->find('all', array('conditions' => $criteria, 'order' => 'AliquotControl.aliquot_type ASC'));
+		
+		$allowed_aliquot_type = array();
+		foreach($allowed_aliquot_type_temp as $new_link) {
+			$allowed_aliquot_type[$new_link['AliquotControl']['id']]['AliquotControl'] = $new_link['AliquotControl'];
+		}
+		
+		return $allowed_aliquot_type;		
+	}
+	
+	/**
+	 * Set all data used to display a list of samples according search criteria 
+	 * (samples_data, 'banks', etc).
+	 *
+	 *	@param $criteria Sample Search Criteria
+	 *
+	 * @author N. Luc
+	 * @since 2009-09-11
+	 * @updated N. Luc
+	 */
+	 
+	function setDataForSamplesList($criteria) {
+		// Search Data
+		$belongs_to_details = array(
+			'belongsTo' => array('GeneratedParentSample' => array(
+				'className' => 'Inventorymanagement.SampleMaster',
+				'foreignKey' => 'parent_id')));
+				
+		$this->SampleMaster->bindModel($belongs_to_details, false);			
+		$working_data = $this->paginate($this->SampleMaster, $criteria);
+		$this->SampleMaster->unbindModel(array('belongsTo' => array('GeneratedParentSample')), false);
+		
+		// Set samples list	
+		$this->set('samples_data', $working_data);
+				
+		// Set list of banks
+		$this->set('banks', $this->Collections->getBankList());
+	}
+
+	/**
+	 * Set all data used to display a list of aliquots according search criteria 
+	 * (aliquots_data, banks, etc).
+	 *
+	 *	@param $criteria Aliquot Search Criteria
+	 *
+	 * @author N. Luc
+	 * @since 2009-09-11
+	 * @updated N. Luc
+	 */
+	 
+	function setDataForAliquotsList($criteria) {
+		
+		// Search Data
+		$has_many_details = array(
+			'hasMany' => array(
+				'RealiquotedParent' => array(
+					'className' => 'Inventorymanagement.Realiquoting',
+					'foreignKey' => 'child_aliquot_master_id'),
+				'ChildrenAliquot' => array(
+					'className' => 'Inventorymanagement.Realiquoting',
+					'foreignKey' => 'parent_aliquot_master_id')));
+		
+		$this->AliquotMaster->bindModel($has_many_details, false);	
+		$working_data = $this->paginate($this->AliquotMaster, $criteria);
+		$this->AliquotMaster->unbindModel(array('hasMany' => array('RealiquotedParent', 'ChildrenAliquot')), false);
+				
+		// Manage Data
+		$key_to_sample_parent_id = array();
+		foreach($working_data as $key => $aliquot_data) {
+			// Set aliquot use
+			//TODO add patch to correct bug listed in issue #650
+			$working_data[$key]['Generated']['aliquot_use_counter'] = sizeof($aliquot_data['AliquotUse']);
+			
+			// Set realiquoting data
+			$realiquoting_value = 0;
+			$realiquoting_value += (sizeof($aliquot_data['ChildrenAliquot']))? 1: 0;
+			$realiquoting_value += (sizeof($aliquot_data['RealiquotedParent']))? 2: 0;
+			
+			switch($realiquoting_value) {
+				case '0':
+					$working_data[$key]['Generated']['realiquoting_data'] = 'n/a';
+					break;
+				case '1':
+					$working_data[$key]['Generated']['realiquoting_data'] = 'parent';
+					break;
+				case '2':
+					$working_data[$key]['Generated']['realiquoting_data'] = 'child';
+					break;
+				case '3':
+					$working_data[$key]['Generated']['realiquoting_data'] = 'parent/child';
+					break;	
+			}
+			
+			// Build GeneratedParentSample
+			$working_data[$key]['GeneratedParentSample'] = array();
+			if(!empty($aliquot_data['SampleMaster']['parent_id'])) { $key_to_sample_parent_id[$key] = $aliquot_data['SampleMaster']['parent_id']; }
+		}
+				
+		// Add GeneratedParentSample Data
+		$parent_sample_data = $this->SampleMaster->atim_list(array('conditions' => array('SampleMaster.id' => $key_to_sample_parent_id), 'recursive' => '-1'));
+		foreach($key_to_sample_parent_id as $key => $parent_id) {
+			if(!isset($parent_sample_data[$parent_id])) { $this->redirect('/pages/err_inv_system_error', null, true); }
+			$working_data[$key]['GeneratedParentSample'] = $parent_sample_data[$parent_id]['SampleMaster'];
+		}
+			
+		// Set aliquots list	
+		$this->set('aliquots_data', $working_data);
+		
+		// Set list of banks
+		$this->set('banks', $this->Collections->getBankList());
 	}
 	
 	/**
@@ -100,116 +269,6 @@ class InventorymanagementAppController extends AppController
 		list($hour, $minute, $second) = explode(':',$time);
 
 		return mktime($hour, $minute, $second, $month, $day, $year);
-	}
-	
-	/**
-	 * Get list of banks.
-	 * 
-	 * Note: Function to allow bank to customize this function when they don't use 
-	 * ADministrate module.
-	 *
-	 * @author N. Luc
-	 * @since 2009-09-11
-	 * @updated N. Luc
-	 */
-	 
-	function getBankList() {
-		return $this->Administrates->getBankList();
-	}
-	
-	/**
-	 * Get list of SOPs existing to build inventory entity like collection, aliquot, etc.
-	 *
-	 * @param $entity_type Type of the studied inventory entity (collection, sample, aliquot)
-	 *
-	 * @author N. Luc
-	 * @since 2009-09-11
-	 * @updated N. Luc
-	 */
-	 
-	function getSopList($entity_type) {
-		switch($entity_type) {
-			case 'collection':
-			case 'sample':
-			case 'aliquot':
-				return $this->Sops->getSopList();
-				break;
-			default:
-				$this->redirect('/pages/err_inv_system_error', null, true); 
-		}
-	}
-	
-	/**
-	 * Unset session data linked to the inventroy management system.
-	 *
-	 * @author N. Luc
-	 * @since 2009-09-11
-	 * @updated N. Luc
-	 */
-	 
-	function unsetInventorySessionData() {
-		unset($_SESSION['InventoryManagement']['treeView']['Filter']);
-		unset($_SESSION['InventoryManagement']['CollectionSamples']['Filter']);
-		unset($_SESSION['InventoryManagement']['CollectionAliquots']['Filter']);
-
-		unset($_SESSION['InventoryManagement']['SpecimenDerivatives']['Filter']);
-		unset($_SESSION['InventoryManagement']['SampleAliquots']['Filter']);
-	}
-	
-	/**
-	 * Get list of 'derivative' sample types that could be created from 
-	 * a 'parent' sample type.
-	 *
-	 * @param $parent_sample_control_id ID of the sample control linked the studied parent sample.
-	 * 
-	 * @return List of allowed derivative types stored into the following array:
-	 * 	array('sample_control_id' => 'sample_type')
-	 * 
-	 * @author N. Luc
-	 * @since 2009-11-01
-	 */	
-	
-	function getAllowedDerivativeTypes($parent_sample_control_id) {
-		$criteria = array(
-			'ParentSampleControl.id' => $parent_sample_control_id,
-			'ParentToDerivativeSampleControl.status' => 'active',
-			'DerivativeControl.status' => 'active');
-		$allowed_derivative_type_temp = $this->ParentToDerivativeSampleControl->find('all', array('conditions' => $criteria, 'order' => 'DerivativeControl.sample_type ASC'));
-
-		$allowed_derivative_type = array();
-		foreach($allowed_derivative_type_temp as $new_link) {
-			$allowed_derivative_type[$new_link['DerivativeControl']['id']]['SampleControl'] = $new_link['DerivativeControl'];
-		}
-		
-		return $allowed_derivative_type;
-	}
-	
-	/**
-	 * Get list of aliquot types that could be created from 
-	 * a sample type.
-	 *
-	 * @param $sample_control_id ID of the sample control linked to the studied sample.
-	 * 
-	 * @return List of allowed aliquot types stored into the following array:
-	 * 	array('aliquot_control_id' => 'aliquot_type')
-	 * 
-	 * @author N. Luc
-	 * @since 2009-11-01
-	 */	
-	
-	function getAllowedAliquotTypes($sample_control_id) {
-		$criteria = array(
-			'SampleControl.id' => $sample_control_id,
-			'SampleToAliquotControl.status' => 'active',
-			'AliquotControl.status' => 'active');
-		$allowed_aliquot_type_temp = $this->SampleToAliquotControl->find('all', array('conditions' => $criteria, 'order' => 'AliquotControl.aliquot_type ASC'));
-		
-		$allowed_aliquot_type = array();
-		foreach($allowed_aliquot_type_temp as $new_link) {
-			$allowed_aliquot_type[$new_link['AliquotControl']['id']]['AliquotControl'] = $new_link['AliquotControl'];
-		}
-		
-		return $allowed_aliquot_type;		
 	}	
 	
 	function manageSpentTimeDataDisplay($spent_time_data) {
@@ -232,109 +291,6 @@ class InventorymanagementAppController extends AppController
 		} 
 		return  '#err#';
 	}
-	
-	/**
-	 * Set all data used to display a list of samples according search criteria 
-	 * (samples_data, 'banks', etc).
-	 *
-	 *	@param $criteria Sample Search Criteria
-	 *
-	 * @author N. Luc
-	 * @since 2009-09-11
-	 * @updated N. Luc
-	 */
-	 
-	function setDataForSamplesList($criteria) {
-		// Search Data
-		$belongs_to_details = array(
-			'belongsTo' => array('GeneratedParentSample' => array(
-				'className' => 'Inventorymanagement.SampleMaster',
-				'foreignKey' => 'parent_id')));
-				
-		$this->SampleMaster->bindModel($belongs_to_details, false);			
-		$working_data = $this->paginate($this->SampleMaster, $criteria);
-		$this->SampleMaster->unbindModel(array('belongsTo' => array('GeneratedParentSample')), false);
-		
-		// Set samples list	
-		$this->set('samples_data', $working_data);
-				
-		// Set list of banks
-		$this->set('banks', $this->getBankList());
-	}
-
-	/**
-	 * Set all data used to display a list of aliquots according search criteria 
-	 * (aliquots_data, banks, etc).
-	 *
-	 *	@param $criteria Aliquot Search Criteria
-	 *
-	 * @author N. Luc
-	 * @since 2009-09-11
-	 * @updated N. Luc
-	 */
-	 
-	function setDataForAliquotsList($criteria) {
-		
-		// Search Data
-		$has_many_details = array(
-			'hasMany' => array(
-				'RealiquotedParent' => array(
-					'className' => 'Inventorymanagement.Realiquoting',
-					'foreignKey' => 'child_aliquot_master_id'),
-				'ChildrenAliquot' => array(
-					'className' => 'Inventorymanagement.Realiquoting',
-					'foreignKey' => 'parent_aliquot_master_id')));
-		
-		$this->AliquotMaster->bindModel($has_many_details, false);	
-		$working_data = $this->paginate($this->AliquotMaster, $criteria);
-		$this->AliquotMaster->unbindModel(array('hasMany' => array('RealiquotedParent', 'ChildrenAliquot')), false);
-				
-		// Manage Data
-		$key_to_sample_parent_id = array();
-		foreach($working_data as $key => $aliquot_data) {
-			// Set aliquot use
-			//TODO add patch to correct bug listed in issue #650
-			$working_data[$key]['Generated']['aliquot_use_counter'] = sizeof($aliquot_data['AliquotUse']);
-			
-			// Set realiquoting data
-			$realiquoting_value = 0;
-			$realiquoting_value += (sizeof($aliquot_data['ChildrenAliquot']))? 1: 0;
-			$realiquoting_value += (sizeof($aliquot_data['RealiquotedParent']))? 2: 0;
-			
-			switch($realiquoting_value) {
-				case '0':
-					$working_data[$key]['Generated']['realiquoting_data'] = 'n/a';
-					break;
-				case '1':
-					$working_data[$key]['Generated']['realiquoting_data'] = 'parent';
-					break;
-				case '2':
-					$working_data[$key]['Generated']['realiquoting_data'] = 'child';
-					break;
-				case '3':
-					$working_data[$key]['Generated']['realiquoting_data'] = 'parent/child';
-					break;	
-			}
-			
-			// Build GeneratedParentSample
-			$working_data[$key]['GeneratedParentSample'] = array();
-			if(!empty($aliquot_data['SampleMaster']['parent_id'])) { $key_to_sample_parent_id[$key] = $aliquot_data['SampleMaster']['parent_id']; }
-		}
-				
-		// Add GeneratedParentSample Data
-		$parent_sample_data = $this->SampleMaster->atim_list(array('conditions' => array('SampleMaster.id' => $key_to_sample_parent_id), 'recursive' => '-1'));
-		foreach($key_to_sample_parent_id as $key => $parent_id) {
-			if(!isset($parent_sample_data[$parent_id])) { $this->redirect('/pages/err_inv_system_error', null, true); }
-			$working_data[$key]['GeneratedParentSample'] = $parent_sample_data[$parent_id]['SampleMaster'];
-		}
-			
-		// Set aliquots list	
-		$this->set('aliquots_data', $working_data);
-		
-		// Set list of banks
-		$this->set('banks', $this->getBankList());
-	}
-	
 }
 
 ?>
