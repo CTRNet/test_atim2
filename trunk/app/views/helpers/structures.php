@@ -108,7 +108,9 @@ class StructuresHelper extends Helper {
 		
 		if(isset($options['settings']['header'])){
 			$return_string .= '<table class="structure" cellspacing="0">
-				<tbody><tr><td>
+				<tbody>
+				<tr><td>
+					<hr/>
 					<table class="columns details"><tr><td class="heading"><h4>'.$options['settings']['header'].'</h4></td></tr></table>
 				</td></tr>
 				</tbody></table>';
