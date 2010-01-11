@@ -19,14 +19,12 @@
 	$structure_override['AliquotMaster.study_summary_id'] = $studies_list;	
 
 	$blocks_list = array();
-	pr('to test block');pr($blocks_list);
 	foreach($arr_sample_blocks as $new_block) {
 		$blocks_list[$new_block['AliquotMaster']['id']] = $new_block['AliquotMaster']['barcode'];
 	}	
 	$structure_override['AliquotDetail.block_aliquot_master_id'] = $blocks_list;	
 
 	$gel_matrices_list = array();
-	pr('to test matrix');
 	foreach($arr_sample_gel_matrices as $new_matrix) {
 		$gel_matrices_list[$new_matrix['AliquotMaster']['id']] = $new_matrix['AliquotMaster']['barcode'];
 	}	
@@ -47,6 +45,5 @@
 		
 	// BUILD FORM
 	$structures->build( $final_atim_structure, $final_options );	
-
 	
 ?>

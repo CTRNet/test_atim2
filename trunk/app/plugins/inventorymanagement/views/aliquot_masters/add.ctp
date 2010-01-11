@@ -50,15 +50,16 @@
 		
 	// BUILD FORM
 	$structures->build( $final_atim_structure, $final_options );	
-
 	
 ?>
+
 <div id="debug"></div>
 <script type="text/javascript">
 var copyStr = "<?php echo(__("copy", null)); ?>";
 var pasteStr = "<?php echo(__("paste")); ?>";
 var copyingStr = "<?php echo(__("copying")); ?>";
 </script>
+
 <?php 
-echo $javascript->link('copyControl')."\n";
+	echo $javascript->link('copyControl')."\n";
 ?>

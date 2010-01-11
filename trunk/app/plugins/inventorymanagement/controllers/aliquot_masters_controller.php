@@ -303,24 +303,22 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// set structure alias based on VALUE from CONTROL table
 		$this->Structures->set($aliquot_control_data['AliquotControl']['form_alias']);
 			
-		// MANAGE DATA RECORD
-		
 		$hook_link = $this->hook('format');
 		if($hook_link){
 			require($hook_link); 
 		}
 
+		// MANAGE DATA RECORD
+		
 		if (empty($this->data)) {
 			// Initial Display
-// TODO 2010-01-05: Unable to override default_storage_datetime
 			$this->set('default_storage_datetime', $this->getDefaultAliquotStorageDate($sample_data));
 			$this->set('arr_preselected_storages', array());
 						
 			$this->data = array(array());
 			
 		} else {
-// TODO Used to correct a bug
-unset($this->data['AliquotMaster']);	
+			// Record process
 			
 			// Manage volume
 			foreach($this->data as $key => $data) {
@@ -391,7 +389,7 @@ unset($this->data['AliquotMaster']);
 					if(!$this->AliquotMaster->save($new_aliquot, false)) { $this->redirect('/pages/err_inv_record_err', null, true); } 
 				}
 				$this->flash('your data has been saved', '/inventorymanagement/aliquot_masters/listAll/' . $collection_id . '/' . $sample_master_id);									
-
+				return;
 			} else {
 				// Set error message
 				foreach($errors as $model => $field_messages) {
@@ -418,9 +416,8 @@ unset($this->data['AliquotMaster']);
 		// Get the aliquot data
 		$aliquot_data = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id, 'AliquotMaster.id' => $aliquot_master_id)));
 		if(empty($aliquot_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }		
-
+		
 		// Set aliquot use
-//TODO add patch to correct bug listed in issue #650
 		$aliquot_data['Generated']['aliquot_use_counter'] = sizeof($aliquot_data['AliquotUse']);
 				
 		// Set list of available SOPs to create aliquot
@@ -477,10 +474,9 @@ unset($this->data['AliquotMaster']);
 		$this->set('is_tree_view_detail_form', $is_tree_view_detail_form);
 		$this->set('is_inventory_plugin_form', $is_inventory_plugin_form);
 
-//TODO ici		
-
-		if($aliquot_data['AliquotMaster']['status'] != 'available'){
-			$order_item = $this->OrderItem->find('first', array('conditions' => array('OrderItem.aliquot_master_id' => $aliquot_data['AliquotMaster']['id'])));
+		// Define if aliquot is included into an order
+		$order_item = $this->OrderItem->find('first', array('conditions' => array('OrderItem.aliquot_master_id' => $aliquot_master_id)));
+		if(!empty($order_item)){
 			$this->set('order_line_id', $order_item['OrderLine']['id']);
 			$this->set('order_id', $order_item['OrderLine']['order_id']);
 		}
@@ -491,8 +487,6 @@ unset($this->data['AliquotMaster']);
 		}
 	}
 	
-//TODO: change ',' to '.' for AliquotMaster.initial_volume 	AliquotDetail.used_blood_volume AliquotUse.used_volume
-
 	function edit($collection_id, $sample_master_id, $aliquot_master_id) {
 		if((!$collection_id) || (!$sample_master_id) || (!$aliquot_master_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }		
 		
@@ -511,10 +505,10 @@ unset($this->data['AliquotMaster']);
 		
 		// Set list of sample blocks (will only works for sample type being linked to block type)
 		$this->set('arr_sample_blocks', $this->getSampleBlocksList(array('SampleMaster' => $aliquot_data['SampleMaster'])));
-
+		
 		// Set list of sample gel matrices (will only works for sample type being linked to gel matrix type)
 		$this->set('arr_sample_gel_matrices', $this->getSampleGelMatricesList(array('SampleMaster' => $aliquot_data['SampleMaster'])));
-	
+		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Get the current menu object.
@@ -525,27 +519,27 @@ unset($this->data['AliquotMaster']);
 		// Set structure
 		$this->Structures->set($aliquot_data['AliquotControl']['form_alias']);
 		
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link); 
+		}
+		
 		// MANAGE DATA RECORD
 		
 		if(empty($this->data)) {
 			$this->data = $aliquot_data;
 			$this->set('arr_preselected_storages', empty($aliquot_data['StorageMaster']['id'])? array(): array($aliquot_data['StorageMaster']['id'] => array('StorageMaster' => $aliquot_data['StorageMaster'])));
-			$hook_link = $this->hook('format');
-			if($hook_link){
-				require($hook_link);
-			}
+
 		} else {
-			$hook_link = $this->hook('format');
-			if($hook_link){
-				require($hook_link); 
-			}
+			
 			//Update data
 			if(array_key_exists('initial_volume', $this->data['AliquotMaster']) && empty($aliquot_data['AliquotControl']['volume_unit'])) { $this->redirect('/pages/err_inv_system_error', null, true); }
 
-//TODO $this->data[$key] = formatAliquotFieldDecimalData($this->data[$key]);
+			// Format decimal data
+			$this->data = $this->formatAliquotFieldDecimalData($this->data);
 									
 			// Launch validations
-			//TODO test validation
+			
 			$submitted_data_validates = true;
 			$errors = array();
 					
@@ -582,7 +576,7 @@ unset($this->data['AliquotMaster']);
 				if(!$this->AliquotMaster->save($this->data, false)) { $this->redirect('/pages/err_inv_record_err', null, true); }
 				if(!$this->Aliquots->updateAliquotCurrentVolume($aliquot_master_id)) { $this->redirect('/pages/err_inv_record_err', null, true); }			
 				$this->flash('your data has been updated', '/inventorymanagement/aliquot_masters/detail/' . $collection_id . '/' . $sample_master_id. '/' . $aliquot_master_id);				
-			
+				return;
 			} else {
 				// Set error message
 				foreach($errors as $model => $field_messages) {
@@ -631,12 +625,7 @@ unset($this->data['AliquotMaster']);
 			
 		if($arr_allow_deletion['allow_deletion']) {
 			if($this->AliquotMaster->atim_delete($aliquot_master_id)) {
-				//TODO There is a problem with flash function
-				//but only when debug is activated
-				pr('test deletion of master and detail level!');
-				pr('/inventorymanagement/aliquot_masters/listAll/' . $collection_id . '/' . $sample_master_id);
 				$this->flash('your data has been deleted', '/inventorymanagement/aliquot_masters/listAll/' . $collection_id . '/' . $sample_master_id);
-				exit;
 			} else {
 				$this->flash('error deleting data - contact administrator', '/inventorymanagement/aliquot_masters/listAll/' . $collection_id . '/' . $sample_master_id);
 			}
@@ -648,10 +637,6 @@ unset($this->data['AliquotMaster']);
 	/* ------------------------------ ALIQUOT USES ------------------------------ */
 
 //TODO: change ',' to '.' for AliquotMaster.initial_volume 	AliquotDetail.used_blood_volume AliquotUse.used_volume
-	
-
-
-
 //CAN-999-999-000-999-1153	Aliquot Use			Used Volume	Positive decimal. / Should be empty when no unit displayed into unit field.
 //CAN-999-999-000-999-1153	Inventorymanagement	AliquotUse		used_volume
 	function addAliquotUse($collection_id, $sample_master_id, $aliquot_master_id, $aliquot_use_defintion = null) {
