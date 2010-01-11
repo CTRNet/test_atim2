@@ -616,13 +616,12 @@ CREATE TABLE `banks_revs` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 --
--- Table structure for table `cd_atypes`
+-- Table structure for table `cd_nationals`
 --
 
-CREATE TABLE IF NOT EXISTS `cd_atypes` (
+CREATE TABLE IF NOT EXISTS `cd_nationals` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `consent_master_id` int(11) NOT NULL,
-  `data` varchar(50) NOT NULL DEFAULT '',
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `created_by` varchar(50) NOT NULL DEFAULT '',
   `modified` datetime DEFAULT NULL,
@@ -632,42 +631,9 @@ CREATE TABLE IF NOT EXISTS `cd_atypes` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS `cd_atypes_revs` (
+CREATE TABLE IF NOT EXISTS `cd_nationals_revs` (
   `id` int(11) NOT NULL,
   `consent_master_id` int(11) NOT NULL,
-  `data` varchar(50) NOT NULL DEFAULT '',
-  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `created_by` varchar(50) NOT NULL DEFAULT '',
-  `modified` datetime DEFAULT NULL,
-  `modified_by` varchar(50) DEFAULT NULL,
-  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `deleted_date` datetime DEFAULT NULL,
-  `version_id` int(11) NOT NULL AUTO_INCREMENT,
-  `version_created` datetime NOT NULL,
-  PRIMARY KEY (`version_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
---
--- Table structure for table `cd_btypes`
---
-
-CREATE TABLE IF NOT EXISTS `cd_btypes` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `consent_master_id` int(11) NOT NULL,
-  `data` varchar(50) NOT NULL DEFAULT '',
-  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `created_by` varchar(50) NOT NULL DEFAULT '',
-  `modified` datetime DEFAULT NULL,
-  `modified_by` varchar(50) DEFAULT NULL,
-  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `deleted_date` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
-CREATE TABLE IF NOT EXISTS `cd_btypes_revs` (
-  `id` int(11) NOT NULL,
-  `consent_master_id` int(11) NOT NULL,
-  `data` varchar(50) NOT NULL DEFAULT '',
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `created_by` varchar(50) NOT NULL DEFAULT '',
   `modified` datetime DEFAULT NULL,
@@ -858,7 +824,7 @@ CREATE TABLE `configs` (
 
 CREATE TABLE IF NOT EXISTS `consent_controls` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `controls_type` varchar(6) NOT NULL,
+  `controls_type` varchar(50) NOT NULL,
   `status` varchar(50) NOT NULL DEFAULT 'active',
   `form_alias` varchar(255) NOT NULL,
   `detail_tablename` varchar(255) NOT NULL,
@@ -872,82 +838,74 @@ CREATE TABLE IF NOT EXISTS `consent_controls` (
 
 CREATE TABLE IF NOT EXISTS `consent_masters` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `date` date DEFAULT NULL,
+  `date_of_referral` date DEFAULT NULL,
+  `route_of_referral` varchar(50) DEFAULT NULL,
+  `date_first_contact` date DEFAULT NULL,
+  `consent_signed_date` date DEFAULT NULL,    
   `form_version` varchar(50) DEFAULT NULL,
   `reason_denied` varchar(200) DEFAULT NULL,
   `consent_status` varchar(50) DEFAULT NULL,
+  `process_status` varchar(50) DEFAULT NULL,  
   `status_date` date DEFAULT NULL,
   `surgeon` varchar(50) DEFAULT NULL,
-  `contact_method` varchar(50) DEFAULT NULL,
   `operation_date` datetime DEFAULT NULL,
   `facility` varchar(50) DEFAULT NULL,
-  `memo` text,
-  `biological_material_use` varchar(50) DEFAULT NULL,
-  `use_of_tissue` varchar(50) DEFAULT NULL,
-  `contact_future_research` varchar(50) DEFAULT NULL,
-  `access_medical_information` varchar(50) DEFAULT NULL,
-  `use_of_blood` varchar(50) DEFAULT NULL,
-  `use_of_urine` varchar(50) DEFAULT NULL,
-  `research_other_disease` varchar(50) DEFAULT NULL,
-  `inform_significant_discovery` varchar(50) DEFAULT NULL,
+  `notes` text,
+  `consent_method` varchar(50) DEFAULT NULL,
+  `translator_indicator` varchar(50) DEFAULT NULL,
+  `translator_signature` varchar(50) DEFAULT NULL,
+  `consent_person` varchar(50) DEFAULT NULL,
   `facility_other` varchar(50) DEFAULT NULL,
+  `consent_master_id` int(11) DEFAULT NULL,
+  `acquisition_id` varchar(10) DEFAULT NULL,
+  `participant_id` int(11) NOT NULL DEFAULT 0,
+  `consent_control_id` int(11) NOT NULL,
+  `type` varchar(10) NOT NULL DEFAULT '',    
   `created` datetime DEFAULT NULL,
   `created_by` varchar(50) DEFAULT NULL,
   `modified` datetime DEFAULT NULL,
   `modified_by` varchar(50) DEFAULT NULL,
-  `consent_master_id` int(11) DEFAULT NULL,
-  `acquisition_id` varchar(10) DEFAULT NULL,
-  `participant_id` int(11) NOT NULL DEFAULT 0,
-  `diagnosis_master_id` int(11) DEFAULT NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
-  `consent_control_id` int(11) NOT NULL,
-  `type` varchar(10) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
-  INDEX `diagnosis_id` (`diagnosis_master_id`),
   INDEX `participant_id` (`participant_id`),
   INDEX `consent_control_id` (`consent_control_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `consent_masters_revs` (
   `id` int(11) NOT NULL,
-  `date` date DEFAULT NULL,
+  `date_of_referral` date DEFAULT NULL,
+  `route_of_referral` varchar(50) DEFAULT NULL,
+  `date_first_contact` date DEFAULT NULL,
+  `consent_signed_date` date DEFAULT NULL,    
   `form_version` varchar(50) DEFAULT NULL,
   `reason_denied` varchar(200) DEFAULT NULL,
   `consent_status` varchar(50) DEFAULT NULL,
+  `process_status` varchar(50) DEFAULT NULL,  
   `status_date` date DEFAULT NULL,
   `surgeon` varchar(50) DEFAULT NULL,
-  `contact_method` varchar(50) DEFAULT NULL,
   `operation_date` datetime DEFAULT NULL,
   `facility` varchar(50) DEFAULT NULL,
-  `memo` text,
-  `biological_material_use` varchar(50) DEFAULT NULL,
-  `use_of_tissue` varchar(50) DEFAULT NULL,
-  `contact_future_research` varchar(50) DEFAULT NULL,
-  `access_medical_information` varchar(50) DEFAULT NULL,
-  `use_of_blood` varchar(50) DEFAULT NULL,
-  `use_of_urine` varchar(50) DEFAULT NULL,
-  `research_other_disease` varchar(50) DEFAULT NULL,
-  `inform_significant_discovery` varchar(50) DEFAULT NULL,
+  `notes` text,
+  `consent_method` varchar(50) DEFAULT NULL,
+  `translator_indicator` varchar(50) DEFAULT NULL,
+  `translator_signature` varchar(50) DEFAULT NULL,
+  `consent_person` varchar(50) DEFAULT NULL,
   `facility_other` varchar(50) DEFAULT NULL,
+  `consent_master_id` int(11) DEFAULT NULL,
+  `acquisition_id` varchar(10) DEFAULT NULL,
+  `participant_id` int(11) NOT NULL DEFAULT 0,
+  `consent_control_id` int(11) NOT NULL,
+  `type` varchar(10) NOT NULL DEFAULT '',    
   `created` datetime DEFAULT NULL,
   `created_by` varchar(50) DEFAULT NULL,
   `modified` datetime DEFAULT NULL,
   `modified_by` varchar(50) DEFAULT NULL,
-  `consent_master_id` int(11) DEFAULT NULL,
-  `acquisition_id` varchar(10) DEFAULT NULL,
-  `participant_id` int(11) NOT NULL DEFAULT 0,
-  `diagnosis_master_id` int(11) DEFAULT NULL,
-  `version_id` int(11) NOT NULL AUTO_INCREMENT,
-  `version_created` datetime NOT NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
-  `consent_control_id` int(11) NOT NULL,
-  `type` varchar(10) NOT NULL DEFAULT '',
-  PRIMARY KEY (`version_id`),
-  INDEX `diagnosis_id` (`diagnosis_master_id`),
-  INDEX `participant_id` (`participant_id`),
-  INDEX `consent_control_id` (`consent_control_id`)
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
