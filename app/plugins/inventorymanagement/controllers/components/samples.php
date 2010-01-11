@@ -7,6 +7,23 @@ class SamplesComponent extends Object {
 	}
 	
 	/**
+	 * Get list of SOPs existing to build sample.
+	 * 
+	 * Note: Function to allow bank to customize this function when they don't use 
+	 * SOP module.
+	 *
+	 *	@param $sample_type Sample Type
+	 *
+	 * @author N. Luc
+	 * @since 2009-09-11
+	 * @updated N. Luc
+	 */
+	 
+	function getSampleSopList($sample_type) {
+		return $this->controller->Sops->getSopList();
+	}
+	
+	/**
 	 * Will build formatted data gathering collection content for tree view.
 	 * 
 	 * @param $collection_id Id of the studied collection.
@@ -73,8 +90,6 @@ class SamplesComponent extends Object {
 		
 		return $children_list;
 	}
-	
-	
 }
 
 ?>

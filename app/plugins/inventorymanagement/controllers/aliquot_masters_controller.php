@@ -1,7 +1,15 @@
 <?php
 class AliquotMastersController extends InventoryManagementAppController {
 	
-	var $components = array('Inventorymanagement.Aliquots', 'Study.StudySummaries', 'Storagelayout.Storages');
+	var $components = array(
+		'Inventorymanagement.Collections', 
+		'Inventorymanagement.Aliquots', 
+		
+		'Storagelayout.Storages',
+		
+		'Study.StudySummaries', 
+		'Administrate.Administrates',
+		'Sop.Sops');
 	
 	var $uses = array(
 		'Inventorymanagement.Collection',
@@ -28,8 +36,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 		'Storagelayout.StorageMaster',
 		'Storagelayout.StorageCoordinate',
 		
+		'Administrate.Bank',
 		'Study.StudySummary',
-		'Order.OrderItem'
+		'Order.OrderItem',
+		'Sop.SopMaster'
 	);
 	
 	var $paginate = array('AliquotMaster' => array('limit' =>10 , 'order' => 'AliquotMaster.barcode DESC'), 'AliquotUse' => array('limit' => 10, 'order' => 'AliquotUse.use_datetime DESC'));
@@ -47,7 +57,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->unsetInventorySessionData();
 		
 		// Set list of banks
-		$this->set('banks', $this->getBankList());	
+		$this->set('banks', $this->Collections->getBankList());	
 		
 		$hook_link = $this->hook('format');
 		if($hook_link){
@@ -271,7 +281,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->set('aliquot_control_data', $aliquot_control_data);	
 		
 		// Set list of available SOPs to create aliquot
-		$this->set('arr_aliquot_sops', $this->getAliquotSopList($sample_data['SampleMaster']['sample_type'], $aliquot_control_data['AliquotControl']['aliquot_type']));
+		$this->set('arr_aliquot_sops', $this->Aliquots->getAliquotSopList($sample_data['SampleMaster']['sample_type'], $aliquot_control_data['AliquotControl']['aliquot_type']));
 
 		// Set list of studies
 		$this->set('arr_studies', $this->getStudiesList());
@@ -414,7 +424,7 @@ unset($this->data['AliquotMaster']);
 		$aliquot_data['Generated']['aliquot_use_counter'] = sizeof($aliquot_data['AliquotUse']);
 				
 		// Set list of available SOPs to create aliquot
-		$this->set('arr_aliquot_sops', $this->getAliquotSopList($aliquot_data['SampleMaster']['sample_type'], $aliquot_data['AliquotMaster']['aliquot_type']));
+		$this->set('arr_aliquot_sops', $this->Aliquots->getAliquotSopList($aliquot_data['SampleMaster']['sample_type'], $aliquot_data['AliquotMaster']['aliquot_type']));
 
 		// Set list of studies
 		$this->set('arr_studies', $this->getStudiesList());
@@ -494,7 +504,7 @@ unset($this->data['AliquotMaster']);
 		if(empty($aliquot_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }		
 
 		// Set list of available SOPs to create aliquot
-		$this->set('arr_aliquot_sops', $this->getAliquotSopList($aliquot_data['SampleMaster']['sample_type'], $aliquot_data['AliquotMaster']['aliquot_type']));
+		$this->set('arr_aliquot_sops', $this->Aliquots->getAliquotSopList($aliquot_data['SampleMaster']['sample_type'], $aliquot_data['AliquotMaster']['aliquot_type']));
 
 		// Set list of studies
 		$this->set('arr_studies', $this->getStudiesList());
@@ -1197,26 +1207,6 @@ unset($this->data['AliquotMaster']);
 	/* --------------------------------------------------------------------------
 	 * ADDITIONAL FUNCTIONS
 	 * -------------------------------------------------------------------------- */
-	
-	/**
-	 * Get list of SOPs existing to build aliquot.
-	 * 
-	 * Note: Function to allow bank to customize this function when they don't use 
-	 * SOP module.
-	 *
-	 *	@param $sample_type Sample Type
-	 *	@param $aliquot_type Aliquot Type
-	 *
-	 * @return Array gathering all sops
-	 *
-	 * @author N. Luc
-	 * @since 2009-09-11
-	 * @updated N. Luc
-	 */
-	 
-	function getAliquotSopList($sample_type, $aliquot_type) {
-		return $this->getSopList('aliquot');
-	}
 	
 	/**
 	 * Get list of Studies existing into the system.

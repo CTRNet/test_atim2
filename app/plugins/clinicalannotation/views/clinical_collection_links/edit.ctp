@@ -13,8 +13,16 @@
 		'header' => __('collection', true)
 	);
 	
+	$structure_override = array();
+	
+	$bank_list = array();
+	foreach($banks as $new_bank) {
+		$bank_list[$new_bank['Bank']['id']] = $new_bank['Bank']['name'];
+	}
+	$structure_override['Collection.bank_id'] = $bank_list;
+	
 	$final_atim_structure = $atim_structure_collection_detail; 
-	$final_options = array('type'=>'radiolist', 'data'=>$collection_data, 'settings'=>$structure_settings, 'links'=>$structure_links);
+	$final_options = array('type'=>'radiolist', 'data'=>$collection_data, 'settings'=>$structure_settings, 'links'=>$structure_links, 'override' => $structure_override);
 
 	// CUSTOM CODE
 	$hook_link = $structures->hook('collection_detail');
