@@ -7,6 +7,29 @@ class StoragesComponent extends Object {
 	}
 	
 	/**
+	 * Get list of SOPs existing to build specific storage entity like:
+	 *  - TMA
+	 *  - TMA slide
+	 *
+	 * @param $entity_type Type of the studied storage entity (tma, tma_slide)
+	 *
+	 * @author N. Luc
+	 * @since 2009-09-11
+	 * @updated N. Luc
+	 */
+		 
+	function getSopList($entity_type) {
+		switch($entity_type) {
+			case 'tma':
+			case 'tma_slide':
+				return $this->controller->Sops->getSopList();
+				break;
+			default:
+				$this->controller->redirect('/pages/err_sto_system_error', null, true); 
+		}
+	}
+	
+	/**
 	 * This function builds an array of storage records, except those having TMA type. 
 	 * 
 	 * When a storage master id is passed in arguments, this storage 
@@ -86,54 +109,6 @@ class StoragesComponent extends Object {
 
 		return true;
 	 }	
-	 
-	/**
-	 * Inactivate the storage coordinate menu.
-	 * 
-	 * @param $atim_menu ATiM menu.
-	 * 
-	 * @return Modified ATiM menu.
-	 * 
-	 * @author N. Luc
-	 * @since 2009-08-12
-	 */
-		 
-	 function inactivateStorageCoordinateMenu($atim_menu) {
- 		foreach($atim_menu as $menu_group_id => $menu_group) {
-			foreach($menu_group as $menu_id => $menu_data) {
-				if(strpos($menu_data['Menu']['use_link'], '/storagelayout/storage_coordinates/listAll/') !== false) {
-					$atim_menu[$menu_group_id][$menu_id]['Menu']['allowed'] = 0;
-					return $atim_menu;
-				}
-			}
- 		}	
- 		
- 		return $atim_menu;
-	 }	
-	 
-	/**
-	 * Inactivate the storage layout menu.
-	 * 
-	 * @param $atim_menu ATiM menu.
-	 * 
-	 * @return Modified ATiM menu.
-	 * 
-	 * @author N. Luc
-	 * @since 2009-08-12
-	 */
-		 
-	 function inactivateStorageLayoutMenu($atim_menu) {
- 		foreach($atim_menu as $menu_group_id => $menu_group) {
-			foreach($menu_group as $menu_id => $menu_data) {
-				if(strpos($menu_data['Menu']['use_link'], '/storagelayout/storage_masters/storageLayout/') !== false) {
-					$atim_menu[$menu_group_id][$menu_id]['Menu']['allowed'] = 0;
-					return $atim_menu;
-				}
-			}
- 		}	
- 		
- 		return $atim_menu;
-	 }
 	 
 	/**
 	 * Using the id of a storage, the function will return data of each of the parent storages 
@@ -448,8 +423,7 @@ class StoragesComponent extends Object {
 		}
 		if(!empty($array_to_order)) { $array_to_display = array_combine($array_to_order, $array_to_order); }
 		return array('array_to_display' => $array_to_display, 'array_to_order' => array_flip($array_to_order));
-	}	
-	 
+	} 
 }
 
 ?>

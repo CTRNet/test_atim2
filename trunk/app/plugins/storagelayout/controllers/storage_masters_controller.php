@@ -2,7 +2,7 @@
 
 class StorageMastersController extends StoragelayoutAppController {
 
-	var $components = array('Storagelayout.Storages');
+	var $components = array('Storagelayout.Storages', 'Sop.Sops');
 	
 	var $uses = array(
 		'Storagelayout.StorageMaster',
@@ -10,6 +10,9 @@ class StorageMastersController extends StoragelayoutAppController {
 		'Storagelayout.StorageCoordinate',
 		'Storagelayout.TmaSlide',
 		'Storagelayout.StorageCoordinate',
+		
+		'Sop.SopMaster',
+		
 		'Inventorymanagement.AliquotMaster');
 	
 	var $paginate = array('StorageMaster' => array('limit' => 10, 'order' => 'StorageMaster.selection_label ASC'));
@@ -81,7 +84,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		
 		// Set list of available SOPs to build TMA
 		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') == 0) {	
-			$this->set('arr_tma_sops', $this->getTmaSopList());
+			$this->set('arr_tma_sops', $this->Storages->getSopList('tma'));
 		}
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -99,12 +102,12 @@ class StorageMastersController extends StoragelayoutAppController {
 		
 		if(!$this->Storages->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
 			// Check storage supports custom coordinates and disable access to coordinates menu option if required
-			$atim_menu = $this->Storages->inactivateStorageCoordinateMenu($atim_menu);
+			$atim_menu = $this->inactivateStorageCoordinateMenu($atim_menu);
 		}
 					
 		if(empty($storage_data['StorageControl']['coord_x_type'])) {
 			// Check storage supports coordinates and disable access to storage layout menu option if required
-			$atim_menu = $this->Storages->inactivateStorageLayoutMenu($atim_menu);
+			$atim_menu = $this->inactivateStorageLayoutMenu($atim_menu);
 		}
 		
 		$this->set('atim_menu', $atim_menu);
@@ -177,7 +180,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		
 		// Set list of available SOPs to build TMA
 		if(strcmp($storage_control_data['StorageControl']['is_tma_block'], 'TRUE') == 0) {	
-			$this->set('arr_tma_sops', $this->getTmaSopList());
+			$this->set('arr_tma_sops', $this->Storages->getSopList('tma'));
 		}
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -296,7 +299,7 @@ class StorageMastersController extends StoragelayoutAppController {
 
 		// Set list of available SOPs to build TMA
 		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') == 0) {	
-			$this->set('arr_tma_sops', $this->getTmaSopList());
+			$this->set('arr_tma_sops', $this->Storages->getSopList('tma'));
 		}	
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -312,12 +315,12 @@ class StorageMastersController extends StoragelayoutAppController {
 		
 		if(!$this->Storages->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
 			// Check storage supports custom coordinates and disable access to coordinates menu option if required
-			$atim_menu = $this->Storages->inactivateStorageCoordinateMenu($atim_menu);
+			$atim_menu = $this->inactivateStorageCoordinateMenu($atim_menu);
 		}
 					
 		if(empty($storage_data['StorageControl']['coord_x_type'])) {
 			// Check storage supports coordinates and disable access to storage layout menu option if required
-			$atim_menu = $this->Storages->inactivateStorageLayoutMenu($atim_menu);
+			$atim_menu = $this->inactivateStorageLayoutMenu($atim_menu);
 		}
 
 		$this->set('atim_menu', $atim_menu);
@@ -463,7 +466,7 @@ class StorageMastersController extends StoragelayoutAppController {
 
 		// Set list of available SOPs to build TMA
 		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') == 0) {	
-			$this->set('arr_tma_sops', $this->getTmaSopList());
+			$this->set('arr_tma_sops', $this->Storages->getSopList('tma'));
 		}		
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS	
@@ -479,12 +482,12 @@ class StorageMastersController extends StoragelayoutAppController {
 		
 		if(!$this->Storages->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
 			// Check storage supports custom coordinates and disable access to coordinates menu option if required
-			$atim_menu = $this->Storages->inactivateStorageCoordinateMenu($atim_menu);
+			$atim_menu = $this->inactivateStorageCoordinateMenu($atim_menu);
 		}
 		
 		if(empty($storage_data['StorageControl']['coord_x_type'])) {
 			// Check storage supports coordinates and disable access to storage layout menu option if required
-			$atim_menu = $this->Storages->inactivateStorageLayoutMenu($atim_menu);
+			$atim_menu = $this->inactivateStorageLayoutMenu($atim_menu);
 		}
 		
 		$this->set('atim_menu', $atim_menu);		
@@ -616,12 +619,12 @@ class StorageMastersController extends StoragelayoutAppController {
 	
 		if(!$this->Storages->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
 			// Check storage supports custom coordinates and disable access to coordinates menu option if required
-			$atim_menu = $this->Storages->inactivateStorageCoordinateMenu($atim_menu);
+			$atim_menu = $this->inactivateStorageCoordinateMenu($atim_menu);
 		}
 						
 		if(empty($storage_data['StorageControl']['coord_x_type'])) {
 			// Check storage supports coordinates and disable access to storage layout menu option if required
-			$atim_menu = $this->Storages->inactivateStorageLayoutMenu($atim_menu);
+			$atim_menu = $this->inactivateStorageLayoutMenu($atim_menu);
 		}
 
 		$this->set('atim_menu', $atim_menu);
@@ -756,7 +759,7 @@ class StorageMastersController extends StoragelayoutAppController {
 	
 		if(!$this->Storages->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
 			// Check storage supports custom coordinates and disable access to coordinates menu option if required
-			$atim_menu = $this->Storages->inactivateStorageCoordinateMenu($atim_menu);
+			$atim_menu = $this->inactivateStorageCoordinateMenu($atim_menu);
 		}
 
 		$this->set('atim_menu', $atim_menu);
@@ -1062,21 +1065,6 @@ class StorageMastersController extends StoragelayoutAppController {
 		}
 
 		return;
-	}
-	
-	/**
-	 * Get list of SOPs existing to build TMA.
-	 * 
-	 * Note: Function to allow bank to customize this function when they don't use 
-	 * SOP module.
-	 *
-	 * @author N. Luc
-	 * @since 2009-09-11
-	 * @updated N. Luc
-	 */
-	 
-	function getTmaSopList() {
-		return $this->getSopList('tma');
 	}
 	
 	/**
