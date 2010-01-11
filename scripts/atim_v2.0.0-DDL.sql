@@ -6208,11 +6208,11 @@ ALTER TABLE `consent_masters`
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
 
-ALTER TABLE `consent_masters`
-  ADD CONSTRAINT `FK_consent_masters_diagnosis_masters`
-  FOREIGN KEY (`diagnosis_master_id`) REFERENCES `diagnosis_masters` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
+-- ALTER TABLE `consent_masters`
+--   ADD CONSTRAINT `FK_consent_masters_diagnosis_masters`
+--   FOREIGN KEY (`diagnosis_master_id`) REFERENCES `diagnosis_masters` (`id`)
+--   ON DELETE RESTRICT
+--   ON UPDATE RESTRICT;
 
 ALTER TABLE `consent_masters`
   ADD CONSTRAINT `FK_consent_masters_consent_controls`
