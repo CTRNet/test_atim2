@@ -9,7 +9,7 @@
 		$structure_links['bottom']['remove from storage'] = empty($aliquot_storage_data)? '/underdevelopment/': '/inventorymanagement/aliquot_masters/removeAliquotFromStorage/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'];
 		
 		if(isset($order_line_id) && isset($order_id)){
-			$structure_links['bottom']['access order'] = '/order/order_items/listall/'.$order_id.'/'.$order_line_id.'/';
+			$structure_links['bottom']['access to order'] = '/order/order_items/listall/'.$order_id.'/'.$order_line_id.'/';
 		}else{
 			$structure_links['bottom']['add to order'] = '/inventorymanagement/aliquot_masters/addToOrder/'.$atim_menu_variables['AliquotMaster.id'].'/';
 		}		
@@ -36,6 +36,7 @@
 	}
 	
 	// Set override
+	
 	$structure_override = array();
 
 	$sops_list = array();

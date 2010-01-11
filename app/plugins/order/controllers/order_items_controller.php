@@ -72,7 +72,7 @@ class OrderItemsController extends OrderAppController {
 				$order_line = $this->OrderLine->find('first', array('conditions' => array('OrderLine.id' => $order_line_id), 'recursive' => 0));
 				$order_line['OrderLine']['status'] = 'pending';
 				
-				$aliquot_master['AliquotMaster']['status'] = 'reserved for order';
+				$aliquot_master['AliquotMaster']['status_reason'] = 'reserved for order';
 					
 				$submitted_data_validates = true;
 				
