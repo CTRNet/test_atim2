@@ -65,24 +65,6 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 		
 		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
 		if(empty($participant_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
-	
-		if ( !empty($this->data) ) {
-			// Launch Save Process
-			
-			$this->data['ClinicalCollectionLink']['participant_id'] = $participant_id;
-			$tmp_data = $this->ClinicalCollectionLink->find('first',array('conditions'=>array('ClinicalCollectionLink.collection_id' => $this->data['ClinicalCollectionLink']['collection_id'])));
-			$this->ClinicalCollectionLink->id = $tmp_data['ClinicalCollectionLink']['id']; 
-			
-			$submitted_data_validates = true;
-			
-			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }
-		
-			if ( $submitted_data_validates && $this->ClinicalCollectionLink->save($this->data) ) {
-				$this->flash( 'Your data has been updated.','/clinicalannotation/clinical_collection_links/detail/'.$participant_id.'/'.$this->ClinicalCollectionLink->id );
-				return;
-			}
-		}	
 
 		// Set collections list
 		$collection_data = $this->Collection->find('all', array('conditions' => array('Collection.deleted' => '0', 'ClinicalCollectionLink.participant_id IS NULL', 'collection_property' => 'participant collection')));
@@ -116,6 +98,26 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 		
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }
+	
+		// MANAGE DATA RECORD
+		
+		if ( !empty($this->data) ) {
+			// Launch Save Process
+			
+			$this->data['ClinicalCollectionLink']['participant_id'] = $participant_id;
+			$tmp_data = $this->ClinicalCollectionLink->find('first',array('conditions'=>array('ClinicalCollectionLink.collection_id' => $this->data['ClinicalCollectionLink']['collection_id'])));
+			$this->ClinicalCollectionLink->id = $tmp_data['ClinicalCollectionLink']['id']; 
+			
+			$submitted_data_validates = true;
+			
+			$hook_link = $this->hook('presave_process');
+			if( $hook_link ) { require($hook_link); }
+		
+			if ( $submitted_data_validates && $this->ClinicalCollectionLink->save($this->data) ) {
+				$this->flash( 'Your data has been updated.','/clinicalannotation/clinical_collection_links/detail/'.$participant_id.'/'.$this->ClinicalCollectionLink->id );
+				return;
+			}
+		}
 	}
 	
 	function edit( $participant_id, $clinical_collection_link_id) {
@@ -125,24 +127,6 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 	
 		$clinical_collection_data = $this->ClinicalCollectionLink->find('first',array('conditions'=>array('ClinicalCollectionLink.id'=>$clinical_collection_link_id,'ClinicalCollectionLink.participant_id'=>$participant_id)));
 		if(empty($clinical_collection_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }	
-			
-		if ( !empty($this->data) ) {
-			// Launch Save Process
-			
-			$submitted_data_validates = true;
-			
-			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }
-			
-			$this->ClinicalCollectionLink->id = $clinical_collection_link_id;
-			if ($submitted_data_validates && $this->ClinicalCollectionLink->save($this->data) ) {
-				$this->flash( 'Your data has been updated.','/clinicalannotation/clinical_collection_links/detail/'.$participant_id.'/'.$clinical_collection_link_id );
-				return;
-			}
-		} else {
-			// Launch Initial Display Process
-			$this->data = $clinical_collection_data;
-		}
 		
 		// Set collection data	
 		$collection_data = $this->Collection->find('all', array('conditions' => array('ClinicalCollectionLink.id' => $clinical_collection_link_id)));
@@ -171,6 +155,26 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 		
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }
+			
+		// MANAGE DATA RECORD
+		
+		if ( !empty($this->data) ) {
+			// Launch Save Process
+			
+			$submitted_data_validates = true;
+			
+			$hook_link = $this->hook('presave_process');
+			if( $hook_link ) { require($hook_link); }
+			
+			$this->ClinicalCollectionLink->id = $clinical_collection_link_id;
+			if ($submitted_data_validates && $this->ClinicalCollectionLink->save($this->data) ) {
+				$this->flash( 'Your data has been updated.','/clinicalannotation/clinical_collection_links/detail/'.$participant_id.'/'.$clinical_collection_link_id );
+				return;
+			}
+		} else {
+			// Launch Initial Display Process
+			$this->data = $clinical_collection_data;
+		}
 	}
 
 	function delete( $participant_id, $clinical_collection_link_id ) {
