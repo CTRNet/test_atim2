@@ -10,7 +10,7 @@ class ConsentMastersController extends ClinicalannotationAppController {
 		'Provider.Provider'
 	);
 	
-	var $paginate = array('ConsentMaster'=>array('limit'=>10,'order'=>'ConsentMaster.date ASC')); 
+	var $paginate = array('ConsentMaster'=>array('limit'=>10,'order'=>'ConsentMaster.date_first_contact ASC')); 
 
 	function listall( $participant_id ) {
 		// Missing or empty function variable, send to ERROR page
@@ -23,12 +23,6 @@ class ConsentMastersController extends ClinicalannotationAppController {
 		$this->data = $this->paginate($this->ConsentMaster, array('ConsentMaster.participant_id'=>$participant_id));
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
-		$facility_list = $this->Provider->find('all', array('conditions'=>array('Provider.active'=>'yes','Provider.deleted'=>'0')), array('fields' => array('Provider.id', 'Provider.name'), 'order' => array('Provider.name')));
-		foreach ( $facility_list as $record ) {
-			$facility_id_findall[ $record['Provider']['id'] ] = $record['Provider']['name'];
-		}
-		$this->set('facility_id_findall', $facility_id_findall);
-		
 		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id) );
 		$this->set('consent_controls_list', $this->ConsentControl->find('all', array('conditions' => array('ConsentControl.status' => 'active'))));
 		$this->Structures->set('consent_masters');
@@ -51,37 +45,24 @@ class ConsentMastersController extends ClinicalannotationAppController {
 		$consent_control_data = $this->ConsentControl->find('first', array('conditions' => array('ConsentControl.id' => $this->data['ConsentMaster']['consent_control_id'])));
 		$this->Structures->set($consent_control_data['ConsentControl']['form_alias']);
 		
-		// Get all providers and populate provider list on form
-		$facility_list = $this->Provider->find('all', array('conditions'=>array('Provider.active'=>'yes','Provider.deleted'=>'0')), array('fields' => array('Provider.id', 'Provider.name'), 'order' => array('Provider.name')));
-		foreach ( $facility_list as $record ) {
-			$facility_id_findall[ $record['Provider']['id'] ] = $record['Provider']['name'];
-		}
-		$this->set('facility_id_findall', $facility_id_findall);
-		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }
 	}
 	
-	function add( $participant_id=null, $consent_control_id ) {
+	function add( $participant_id=null, $consent_control_id=null ) {
 		if (( !$participant_id ) && ( !$consent_control_id )) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
 
 		// MANAGE DATA
 		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
 		if(empty($participant_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
-		
+
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'ConsentControl.id' => $consent_control_id) );
 		$consent_control_data = $this->ConsentControl->find('first', array('conditions' => array('ConsentControl.id' => $consent_control_id)));
 		$this->Structures->set($consent_control_data['ConsentControl']['form_alias']);
-		
-		// Get all providers and populate provider list on form
-		$facility_list = $this->Provider->find('all', array('conditions'=>array('Provider.active'=>'yes','Provider.deleted'=>'0')), array('fields' => array('Provider.id', 'Provider.name'), 'order' => array('Provider.name')));
-		foreach ( $facility_list as $record ) {
-			$facility_id_findall[ $record['Provider']['id'] ] = $record['Provider']['name'];
-		}
-		$this->set('facility_id_findall', $facility_id_findall);
-		
+		$this->Structures->set('empty', 'empty_structure');
+				
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }
@@ -89,8 +70,6 @@ class ConsentMastersController extends ClinicalannotationAppController {
 		if ( !empty($this->data) ) {
 			$this->data['ConsentMaster']['participant_id'] = $participant_id;
 			$this->data['ConsentMaster']['consent_control_id'] = $consent_control_id;
-			$this->data['ConsentMaster']['type'] = $consent_control_data['ConsentControl']['controls_type'];
-			$this->data['ConsentMaster']['diagnosis_master_id'] = null;
 			
 			$submitted_data_validates = true;
 			// ... special validations
@@ -104,7 +83,7 @@ class ConsentMastersController extends ClinicalannotationAppController {
 					$this->flash( 'your data has been saved','/clinicalannotation/consent_masters/detail/'.$participant_id.'/'.$this->ConsentMaster->id );
 				}
 			}
-		}
+		} 
 	}
 
 	function edit( $participant_id, $consent_master_id ) {
@@ -119,13 +98,6 @@ class ConsentMastersController extends ClinicalannotationAppController {
 		$consent_control_data = $this->ConsentControl->find('first', array('conditions' => array('ConsentControl.id' => $consent_master_data['ConsentMaster']['consent_control_id'])));
 		$this->Structures->set($consent_control_data['ConsentControl']['form_alias']);		
 		
-		// Get all providers and populate provider list on form
-		$facility_list = $this->Provider->find('all', array('conditions'=>array('Provider.active'=>'yes','Provider.deleted'=>'0')), array('fields' => array('Provider.id', 'Provider.name'), 'order' => array('Provider.name')));
-		foreach ( $facility_list as $record ) {
-			$facility_id_findall[ $record['Provider']['id'] ] = $record['Provider']['name'];
-		}
-		$this->set('facility_id_findall', $facility_id_findall);
-	
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }
