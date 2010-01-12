@@ -462,7 +462,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 
 		// Get the current menu object.
-		$atim_menu_link = ($aliquot_data['SampleMaster']['sample_category'] == 'specimen')? '/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%/%%AliquotMaster.id%%': '/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%';
+		$atim_menu_link = ($aliquot_data['SampleMaster']['sample_category'] == 'specimen')? 
+			'/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%/%%AliquotMaster.id%%': 
+			'/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%';
 		$this->set('atim_menu', $this->Menus->get($atim_menu_link));
 		$this->set('atim_menu_variables', array('Collection.id' => $collection_id, 'SampleMaster.id' => $sample_master_id, 'SampleMaster.initial_specimen_sample_id' => $aliquot_data['SampleMaster']['initial_specimen_sample_id'], 'AliquotMaster.id' => $aliquot_master_id));
 		
@@ -512,7 +514,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Get the current menu object.
-		$atim_menu_link = ($aliquot_data['SampleMaster']['sample_category'] == 'specimen')? '/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%/%%AliquotMaster.id%%': '/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%';
+		$atim_menu_link = ($aliquot_data['SampleMaster']['sample_category'] == 'specimen')? 
+			'/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%/%%AliquotMaster.id%%': 
+			'/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%';
 		$this->set('atim_menu', $this->Menus->get($atim_menu_link));
 		$this->set('atim_menu_variables', array('Collection.id' => $collection_id, 'SampleMaster.id' => $sample_master_id, 'SampleMaster.initial_specimen_sample_id' => $aliquot_data['SampleMaster']['initial_specimen_sample_id'], 'AliquotMaster.id' => $aliquot_master_id));
 		
@@ -636,9 +640,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 	
 	/* ------------------------------ ALIQUOT USES ------------------------------ */
 
-//TODO: change ',' to '.' for AliquotMaster.initial_volume 	AliquotDetail.used_blood_volume AliquotUse.used_volume
-//CAN-999-999-000-999-1153	Aliquot Use			Used Volume	Positive decimal. / Should be empty when no unit displayed into unit field.
-//CAN-999-999-000-999-1153	Inventorymanagement	AliquotUse		used_volume
+// TODO Alias AliquotUse should be validated: Define read only field...
+
+// TODO see how order ... are added as use
+
 	function addAliquotUse($collection_id, $sample_master_id, $aliquot_master_id, $aliquot_use_defintion = null) {
 		if((!$collection_id) || (!$sample_master_id) || (!$aliquot_master_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }
 		
@@ -652,51 +657,50 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->set('arr_studies', $this->getStudiesList());		
 			
 		// Set aliquot volume unit
-		//TODO: add n/a to aliquot volume unit
 		$aliquot_volume_unit = empty($aliquot_data['AliquotMaster']['aliquot_volume_unit'])? 'n/a': $aliquot_data['AliquotMaster']['aliquot_volume_unit'];
 		$this->set('aliquot_volume_unit', $aliquot_volume_unit);	
 		
 		// Set use defintion
-		$use_defintion = null;
-		if(empty($aliquot_use_defintion)) { $this->redirect('/pages/err_inv_system_error', null, true); }
-		switch($aliquot_use_defintion) {
-			case 'internal use':
-				$use_defintion = 'internal use';
-				break;
-			default:
-				$this->redirect('/pages/err_inv_system_error', null, true);
-		}
-			
-		$this->set('use_defintion', $use_defintion);	
+		$use_defintions_system_dependent = array('quality control', 'sample derivative creation', 'realiquoted to', 'aliquot shipment');
+		if(empty($aliquot_use_defintion)  || (in_array($aliquot_use_defintion, $use_defintions_system_dependent))) { $this->redirect('/pages/err_inv_system_error', null, true); }			
+		$this->set('use_defintion', $aliquot_use_defintion);	
 				
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 
 		// Get the current menu object.
-		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%/%%AliquotMaster.id%%'));
+		$atim_menu_link = ($aliquot_data['SampleMaster']['sample_category'] == 'specimen')? 
+			'/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%/%%AliquotMaster.id%%': 
+			'/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%';
+		$this->set('atim_menu', $this->Menus->get($atim_menu_link));
 		$this->set('atim_menu_variables', array('Collection.id' => $collection_id, 'SampleMaster.id' => $sample_master_id, 'SampleMaster.initial_specimen_sample_id' => $aliquot_data['SampleMaster']['initial_specimen_sample_id'], 'AliquotMaster.id' => $aliquot_master_id));
 		
 		// Set structure
 		$this->Structures->set('aliquotuses');
 		
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link);
+		}
+		
 		// MANAGE DATA RECORD
 
 		if(empty($this->data)) {
-			$default_use_volume = empty($aliquot_data['AliquotMaster']['aliquot_volume_unit'])? 'n/a': '';
-			$this->set('default_use_volume', $default_use_volume);				
+			// Force $this->data to empty array() to override AliquotMaster.aliquot_volume_unit 
+			$this->data = array();
 			
 		} else {
-			$hook_link = $this->hook('format');
-			if($hook_link){
-				require($hook_link);
-			}
-			// Launch validations		
+			// Format decimal data
+			$this->data = $this->formatAliquotUseFieldDecimalData($this->data);
+			
+			// Launch save process
 			$submitted_data_validates = true;
 			
-			if((!empty($this->data['AliquotUse']['used_volume'])) && empty($aliquot_data['AliquotMaster']['aliquot_volume_unit'])) {
+			if(((!empty($this->data['AliquotUse']['used_volume'])) || ($this->data['AliquotUse']['used_volume'] == '0'))&& empty($aliquot_data['AliquotMaster']['aliquot_volume_unit'])) {
 				// No volume has to be recored for this aliquot type				
 				$this->AliquotUse->validationErrors['used_volume'] = 'no volume has to be recorded for this aliquot type';	
 				$submitted_data_validates = false;			
 			} else if(empty($this->data['AliquotUse']['used_volume'])) {
+				// Change '0' to null
 				$this->data['AliquotUse']['used_volume'] = null;
 			}
 			
@@ -710,7 +714,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				$this->data['AliquotUse']['aliquot_master_id'] = $aliquot_master_id;			
 				if ($this->AliquotUse->save($this->data)) { 
 					if(!$this->Aliquots->updateAliquotCurrentVolume($aliquot_master_id)) { $this->redirect('/pages/err_inv_record_err', null, true); }	
-					$this->flash('your data has been saved', '/inventorymanagement/aliquot_masters/detail/'.$collection_id.'/'.$aliquot_data['SampleMaster']['initial_specimen_sample_id'].'/'.$aliquot_master_id.'/');
+					$this->flash('your data has been saved', '/inventorymanagement/aliquot_masters/detail/'.$collection_id.'/'.$sample_master_id.'/'.$aliquot_master_id.'/');
 				} 
 			}
 		}
@@ -718,7 +722,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 	
 	function editAliquotUse($collection_id, $sample_master_id, $aliquot_master_id, $aliquot_use_id) {
 		if((!$collection_id) || (!$sample_master_id) || (!$aliquot_master_id) || (!$aliquot_use_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }
-//TODO change volume with , to .		
+			
  		// MANAGE DATA
 
 		// Get the use data
@@ -734,31 +738,37 @@ class AliquotMastersController extends InventoryManagementAppController {
 			
 		// Set aliquot volume unit
 		$aliquot_volume_unit = empty($use_data['AliquotMaster']['aliquot_volume_unit'])? 'n/a': $use_data['AliquotMaster']['aliquot_volume_unit'];
-		//TODO test $aliquot_volume_unit
 		$this->set('aliquot_volume_unit', $aliquot_volume_unit);	
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
+		$atim_menu_link = ($sample_data['SampleMaster']['sample_category'] == 'specimen')? 
+			'/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%/%%AliquotMaster.id%%': 
+			'/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%';
+		$this->set('atim_menu', $this->Menus->get($atim_menu_link));	
+			
 		// Get the current menu object.
 		$this->set('atim_menu_variables', array('Collection.id' => $collection_id, 'SampleMaster.id' => $sample_master_id, 'SampleMaster.initial_specimen_sample_id' => $sample_data['SampleMaster']['initial_specimen_sample_id'], 'AliquotMaster.id' => $aliquot_master_id, 'AliquotUse.id' => $aliquot_use_id));
 		
 		// Set structure
-		$form_alias = in_array($use_data['AliquotUse']['use_definition'], array('internal use'))? 'aliquotuses': 'linkedaliquotuses';
+		$use_defintions_system_dependent = array('quality control', 'sample derivative creation', 'realiquoted to', 'aliquot shipment');
+		$form_alias = in_array($use_data['AliquotUse']['use_definition'], $use_defintions_system_dependent)?  'aliquotuses_system_dependent':'aliquotuses';
 		$this->Structures->set($form_alias);
-		
+
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link);
+		}
+					
 		// MANAGE DATA RECORD
 		
 		if(empty($this->data)) {
 			$this->data = $use_data;
-			$hook_link = $this->hook('format');
-			if($hook_link){
-				require($hook_link);
-			}
+
 		} else {
-			$hook_link = $this->hook('format');
-			if($hook_link){
-				require($hook_link);
-			}
+			// Format decimal data
+			$this->data = $this->formatAliquotUseFieldDecimalData($this->data);
+						
 			// Launch validations		
 			$submitted_data_validates = true;
 			
@@ -767,6 +777,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				$this->AliquotUse->validationErrors['used_volume'] = 'no volume has to be recorded for this aliquot type';	
 				$submitted_data_validates = false;			
 			} else if(empty($this->data['AliquotUse']['used_volume'])) {
+				// Change '0' to null
 				$this->data['AliquotUse']['used_volume'] = null;
 			}
 			
@@ -774,12 +785,12 @@ class AliquotMastersController extends InventoryManagementAppController {
 			if($hook_link){
 				require($hook_link); 
 			}
+			
 			// if data VALIDATE, then save data
 			if ($submitted_data_validates) {
 				$this->AliquotUse->id = $aliquot_use_id;			
 				if ($this->AliquotUse->save($this->data)) { 
 					if(!$this->Aliquots->updateAliquotCurrentVolume($aliquot_master_id)) { $this->redirect('/pages/err_inv_record_err', null, true); }
-					
 					$this->flash('your data has been saved', '/inventorymanagement/aliquot_masters/detail/' . $collection_id . '/' . $sample_master_id . '/' . $aliquot_master_id);
 				} 
 			}
@@ -787,8 +798,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 	}
 	
 	function deleteAliquotUse($collection_id, $sample_master_id, $aliquot_master_id, $aliquot_use_id, $redirect = null, $extra_param = null) {
-		if((!$collection_id) || (!$sample_master_id) || (!$aliquot_master_id) || (!$aliquot_use_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }
-//TODO redirect all delete to this function...				
+		if((!$collection_id) || (!$sample_master_id) || (!$aliquot_master_id) || (!$aliquot_use_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }	
 
  		// MANAGE DATA
 		
@@ -797,29 +807,38 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if(empty($use_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }		
 
 		// Set url to display next page
-		if($redirect == 1){
-			$flash_url = '/inventorymanagement/aliquot_masters/listAllRealiquotedParents/' . $collection_id . '/' . $sample_master_id . '/' . $aliquot_master_id;
-		}else if($redirect == 2){
-			$flash_url = '/inventorymanagement/quality_ctrls/listAllSourceAliquots/' . $collection_id . '/' . $sample_master_id . '/';
-		}else if($redirect == 3){
-			$flash_url = '/inventorymanagement/quality_ctrls/detail/' . $collection_id . '/' . $sample_master_id . '/' . $extra_param . '/';
-		}else{
+		$flash_url = '';
+		switch($redirect) {
+			case '1':
+				$flash_url = '/inventorymanagement/aliquot_masters/listAllRealiquotedParents/' . $collection_id . '/' . $sample_master_id . '/' . $aliquot_master_id;
+				break;
+			case '2':
+				$flash_url = '/inventorymanagement/quality_ctrls/listAllSourceAliquots/' . $collection_id . '/' . $sample_master_id . '/';
+				break;
+			case '3':
+				$flash_url = '/inventorymanagement/quality_ctrls/detail/' . $collection_id . '/' . $sample_master_id . '/' . $extra_param . '/';
+				break;
+			default:
 			$flash_url = '/inventorymanagement/aliquot_masters/detail/' . $collection_id . '/' . $sample_master_id . '/' . $aliquot_master_id;
 		}
+		
 		// Set Use Detail table
-		$accepted_use_detail_table = array('quality_ctrl_tested_aliquots', 'source_aliquots', 'realiquotings');
 		$this->AliquotUseDetail = null;
 		if(!empty($use_data['AliquotUse']['use_recorded_into_table'])) {
-			if(in_array($use_data['AliquotUse']['use_recorded_into_table'], $accepted_use_detail_table)) {
+			$supported_use_detail_table = array('quality_ctrl_tested_aliquots', 'source_aliquots', 'realiquotings');
+//TODO test		
+			pr('to test');exit;
+			if(in_array($use_data['AliquotUse']['use_recorded_into_table'], $supported_use_detail_table)) {
 				$this->AliquotUseDetail = new AliquotUseDetail(false, $use_data['AliquotUse']['use_recorded_into_table']);
 			} else {
-				//TODO message is not display
 				$this->flash('deletion of this type of use is currently not supported from use list', $flash_url);
-				exit;
+				return;
 			}	
 		}
 	
-		// Launch deletion	
+		// LAUNCH DELETION
+		
+		// -> Delete use detail if exists	
 		$deletion_done = true;
 		if(!is_null($this->AliquotUseDetail)) {
 			$aliquot_use_detail = $this->AliquotUseDetail->find('first', array('conditions' => array('aliquot_use_id' => $aliquot_use_id)));
@@ -828,15 +847,17 @@ class AliquotMastersController extends InventoryManagementAppController {
 			if(!$this->AliquotUseDetail->atim_delete($aliquot_use_detail_id)) { $deletion_done = false; }
 		}
 		
+		// -> Delete use
 		if($deletion_done) {
 			if(!$this->AliquotUse->atim_delete($aliquot_use_id)) { $deletion_done = false; }	
 		}
+		
+		// -> Delete use
 		if($deletion_done) {
 			if(!$this->Aliquots->updateAliquotCurrentVolume($aliquot_master_id)) { $deletion_done = false; }
 		}
 
 		if($deletion_done) {
-			//TODO Error in the redirection
 			$this->flash('your data has been deleted', $flash_url); 
 		} else {
 			$this->flash('error deleting data - contact administrator', $flash_url); 
@@ -896,6 +917,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$this->flash('no new sample aliquot could be actually defined as source aliquot', '/inventorymanagement/aliquot_masters/listallSourceAliquots/' . $collection_id . '/' . $sample_master_id);
 		}
 		
+		//TODO check menu
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/aliquot_masters/listallSourceAliquots/%%Collection.id%%/%%SampleMaster.id%%'));	
 		
 		$this->set( 'atim_menu_variables', 
@@ -1037,6 +1059,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$current_aliquot_data = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id, 'AliquotMaster.id' => $aliquot_master_id)));
 		if(empty($current_aliquot_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }		
 
+		//TODO check menu
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%/%%AliquotMaster.id%%'));
 		
 		$this->set('atim_menu_variables', array('Collection.id' => $collection_id,
@@ -1426,6 +1449,27 @@ class AliquotMastersController extends InventoryManagementAppController {
 			if(isset($submtted_data['AliquotDetail']['used_blood_volume'])) { $submtted_data['AliquotDetail']['used_blood_volume'] = str_replace(',', '.', $submtted_data['AliquotDetail']['used_blood_volume']); }					
 			if(isset($submtted_data['AliquotDetail']['cell_count'])) { $submtted_data['AliquotDetail']['cell_count'] = str_replace(',', '.', $submtted_data['AliquotDetail']['cell_count']); }					
 			if(isset($submtted_data['AliquotDetail']['concentration'])) { $submtted_data['AliquotDetail']['concentration'] = str_replace(',', '.', $submtted_data['AliquotDetail']['concentration']); }					
+		}
+		
+		return $submtted_data;
+	}
+	
+	/**
+	 * Replace ',' by '.' for all decimal field values gathered into 
+	 * data submitted for aliquot use creation or modification.
+	 * 
+	 * @param $submtted_data Submitted data
+	 * 
+	 * @return Formatted data.
+	 *
+	 * @author N. Luc
+	 * @since 2009-09-11
+	 */	
+	
+	function formatAliquotUseFieldDecimalData($submtted_data) {
+		// Work on AliquotUse fields
+		if(isset($submtted_data['AliquotUse'])) {
+			if(isset($submtted_data['AliquotUse']['used_volume'])) { $submtted_data['AliquotUse']['used_volume'] = str_replace(',', '.', $submtted_data['AliquotUse']['used_volume']); }					
 		}
 		
 		return $submtted_data;
