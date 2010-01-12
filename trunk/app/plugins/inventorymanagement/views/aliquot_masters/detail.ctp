@@ -48,6 +48,7 @@
 		$studies_list[$new_study['StudySummary']['id']] = $new_study['StudySummary']['title'];
 	}	
 	$structure_override['AliquotMaster.study_summary_id'] = $studies_list;	
+	$structure_override['AliquotUse.study_summary_id'] = $studies_list;	
 
 	$blocks_list = array();
 	foreach($arr_sample_blocks as $new_block) {
@@ -105,7 +106,7 @@
 		);
 		
 		$final_atim_structure = $aliquots_uses_structure;
-		$final_options = array('data' => $aliquots_uses_data, 'type' => 'index', 'links'=>$structure_links, 'settings' => array('header' => __('uses', null)));
+		$final_options = array('data' => $aliquots_uses_data, 'type' => 'index', 'links'=>$structure_links, 'override' => $structure_override, 'settings' => array('header' => __('uses', null)));
 
 		// CUSTOM CODE
 		$hook_link = $structures->hook('uses');
