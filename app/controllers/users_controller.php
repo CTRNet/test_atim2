@@ -19,6 +19,7 @@ class UsersController extends AppController {
 	}
 	
 	function logout() {
+		$this->Acl->flushCache();
 		$this->Session->setFlash('Good-Bye');
 		$this->redirect($this->Auth->logout());
 	}
