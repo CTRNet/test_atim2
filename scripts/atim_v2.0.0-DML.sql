@@ -7582,7 +7582,7 @@ INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `
 (63, '', 'AAA-000-000-000-000-39', '', 'User', '', 'institution', 'institution', '', 'input', 'size=50', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (64, '', 'AAA-000-000-000-000-4', '', 'Transaction', '', 'quantity', 'quantity', '', 'input', 'size=10', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (65, '', 'AAA-000-000-000-000-40', '', 'User', '', 'laboratory', 'laboratory', '', 'input', 'size=50', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(66, '', 'AAA-000-000-000-000-41', '', 'Config', 'configs', 'define_show_help', 'help visible', '', 'select', '', '', 168, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(66, '', 'AAA-000-000-000-000-41', '', 'Config', 'configs', 'define_show_help', 'help visible', '', 'select', '', '1', 168, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (67, '', 'AAA-000-000-000-000-42', '', 'Config', 'configs', 'config_language', 'language', '', 'select', '', '', 169, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (68, '', 'AAA-000-000-000-000-43', '', 'User', '', 'street', 'street', '', 'input', 'size=50', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (69, '', 'AAA-000-000-000-000-44', '', 'User', '', 'city', 'city', '', 'input', 'size=20', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -8267,10 +8267,10 @@ INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `
 (896, '', 'CAN-896', 'Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters', 'notes', 'notes', '', 'textarea', 'cols=40,rows=6', '', NULL, 'help_notes', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (897, '', 'CAN-897', 'Administrate', 'User', 'users', 'new_password', 'core_newpassword', '', 'input', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (898, '', 'CAN-898', 'Administrate', 'User', 'users', 'confirm_password', 'core_confirmpassword', '', 'input', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(899, '', 'CAN-899', 'Administrate', 'Config', 'configs', 'define_date_format', 'define_date_format', '', 'input', '', 'MDY', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(900, '', 'CAN-900', 'Administrate', 'Config', 'configs', 'define_csv_separator', 'define_csv_separator', '', 'input', '', ',', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(901, '', 'CAN-901', 'Administrate', 'Config', 'configs', 'define_show_summary', 'define_show_summary', '', 'input', '', '1', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(902, '', 'CAN-902', '', 'Config', 'configs', 'config_debug', 'config_debug', '', 'input', '', '0', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(899, '', 'CAN-899', 'Administrate', 'Config', 'configs', 'define_date_format', 'define_date_format', '', 'select', '', 'MDY', 180, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(900, '', 'CAN-900', 'Administrate', 'Config', 'configs', 'define_csv_separator', 'define_csv_separator', '', 'input', 'size=3,maxlength=1'', ',', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(901, '', 'CAN-901', 'Administrate', 'Config', 'configs', 'define_show_summary', 'define_show_summary', '', 'checkbox', '', '1', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(902, '', 'CAN-902', '', 'Config', 'configs', 'config_debug', 'config_debug', '', 'input', 'size=3,maxlength=1'', '0', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (903, '', 'CAN-903', 'Clinicalannotation', 'TreatmentMaster', 'tx_masters', 'target_site_idco', 'target site', '', 'input', 'size=10', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (904, '', 'CAN-904', 'Clinicalannotation', 'TreatmentMaster', 'tx_masters', 'start_date_accuracy', '', '', 'select', '', '', 62, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (905, '', 'CAN-905', 'Clinicalannotation', 'TreatmentMaster', 'tx_masters', 'finish_date_accuracy', '', '', 'select', '', '', 62, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
@@ -11742,6 +11742,11 @@ INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VAL
 (820, 'custom_laboratory_site_1', 'custom_laboratory_site_1'),
 (821, 'custom_laboratory_site_2', 'custom_laboratory_site_2'),
 (822, 'custom_laboratory_site_etc', 'custom_laboratory_site_etc');
+INSERT INTO  `structure_permissible_values` (  `id` ,  `value` ,  `language_alias` ) VALUES
+(823 ,  'DMY',  'DMY'),
+(824 ,  'MDY',  'MDY'),
+(825 ,  'YMD',  'YMD');
+
 
 --
 -- Dumping data for table `structure_validations`
@@ -11990,7 +11995,8 @@ INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `categor
 (176, 'cell_count_unit', 'open', ''),
 (177, 'tumour grade', 'locked', 'diagnosis'),
 (178, 'ajcc edition', 'extend', ''),
-(179, 'custom_laboratory_site', 'open', '');
+(179, 'custom_laboratory_site', 'open', ''),
+(180, 'define_date_format', 'open', '');
 
 --
 -- Dumping data for table `structure_value_domains_permissible_values`
@@ -12766,6 +12772,10 @@ INSERT INTO `structure_value_domains_permissible_values` (`id`, `structure_value
 (1008, '179', '820', 0, 'yes', 'custom_laboratory_site_1'),
 (1009, '179', '821', 0, 'yes', 'custom_laboratory_site_2'),
 (1010, '179', '822', 0, 'yes', 'custom_laboratory_site_etc');
+INSERT INTO  `structure_value_domains_permissible_values` (  `id` ,  `structure_value_domain_id` ,  `structure_permissible_value_id` ,  `display_order` ,  `active` ,  `language_alias` ) VALUES
+(1011, '180', '823', 0, 'yes', 'DMY'),
+(1012, '180', '824', 0, 'yes', 'MDY'),
+(1013, '180', '825', 0, 'yes', 'YMD');
 
 --
 -- Dumping data for table `study_contacts`
