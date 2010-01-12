@@ -35,3 +35,5 @@ DELETE FROM `i18n` WHERE `id` = 'used by';
 DELETE FROM `i18n` WHERE `id` = 'study';
  INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('study', 'global', 'Study', '&Eacute;tude');
+
+UPDATE `menus` SET `use_link` = '/customize/profiles/index/' WHERE `menus`.`id` = 'core_CAN_42' LIMIT 1 ;
