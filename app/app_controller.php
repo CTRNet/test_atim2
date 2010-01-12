@@ -74,8 +74,10 @@
 
 class AppController extends Controller {
 	
-	var $uses			= array('Config', 'Aco', 'Aro', 'Permission');
-	var $components	= array('Acl', 'Auth', 'Menus', 'RequestHandler', 'Structures');
+	// var $uses			= array('Config', 'Aco', 'Aro', 'Permission');
+	
+	var $uses			= array('Config');
+	var $components	= array('Session', 'SessionAcl', 'Auth', 'Menus', 'RequestHandler', 'Structures');
 	var $helpers		= array('Ajax', 'Csv', 'Html', 'Javascript', 'Shell', 'Structures', 'Time');
 	
 	function beforeFilter() {

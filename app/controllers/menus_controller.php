@@ -36,9 +36,11 @@ class MenusController extends AppController {
 		foreach ( $menu_data as &$current_item ) {
 			$current_item['Menu']['at'] = false;
 			
+			/*
 			if ( Configure::read("debug") ) {
 				$current_item['Menu']['allowed'] = true;
 			} else {
+			*/
 				$aro_alias = 'Group::'.$this->Session->read('Auth.User.group_id');
 				
 				$parts = Router::parse($current_item['Menu']['use_link']);
@@ -47,7 +49,7 @@ class MenusController extends AppController {
 				$aco_alias .= ($parts['action'] ? $parts['action'] : '');
 				
 				$current_item['Menu']['allowed'] = $this->Acl->check($aro_alias, $aco_alias);
-			}
+			// }
 			
 		}
 		

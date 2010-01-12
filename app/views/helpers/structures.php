@@ -1868,7 +1868,7 @@ class StructuresHelper extends Helper {
 				$link_array = array( $link_name => $link_array['link'] );
 			}
 			foreach ( $link_array as $link_label => &$link_location ) {
-				if ( !Configure::read("debug") ) {
+				// if ( !Configure::read("debug") ) {
 					// check on EDIT only 
 					$parts = Router::parse($link_location);
 					$aco_alias = 'controllers/'.($parts['plugin'] ? Inflector::camelize($parts['plugin']).'/' : '');
@@ -1876,10 +1876,11 @@ class StructuresHelper extends Helper {
 					$aco_alias .= ($parts['action'] ? $parts['action'] : '');
 					
 					$Acl = new AclComponent();
-				}	
+				// }	
 				
 				// if ACO/ARO permissions check succeeds, create link
-				if ( Configure::read("debug") || strpos($aco_alias,'controllers/Users')!==false || strpos($aco_alias,'controllers/Pages')!==false || $Acl->check($aro_alias, $aco_alias) ) {
+				// if ( Configure::read("debug") || strpos($aco_alias,'controllers/Users')!==false || strpos($aco_alias,'controllers/Pages')!==false || $Acl->check($aro_alias, $aco_alias) ) {
+				if ( strpos($aco_alias,'controllers/Users')!==false || strpos($aco_alias,'controllers/Pages')!==false || $Acl->check($aro_alias, $aco_alias) ) {
 					
 					$display_class_name = $this->generate_link_class($link_name, $link_location);
 					$htmlAttributes['title'] = strip_tags( html_entity_decode(__($link_name, true)) ); 
