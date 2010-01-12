@@ -117,14 +117,14 @@ class AppController extends Controller {
 		// menu grabbed for HEADER
 			$this->set( 'atim_menu_for_header', $this->Menus->get('/menus/tools') );
 			
-		// ATiM1 "ctrapp_form" = ATiM2 "atim_structure"
-		// ATiM1 Forms validation = ATiM2 Structure validation
-			$this->Structures->set();
-			
 		// menu, passed to Layout where it would be rendered through a Helper
 			$this->set( 'atim_menu_variables', array() );
 			$this->set( 'atim_menu', $this->Menus->get() );
-			
+	}
+	
+	function beforeRender() {
+		// if an ATiM FORM STRUCTURE has not been set already by the plugin/controller, do so now based on defaults...
+		if ( !isset($this->viewVars['atim_structure']) ) $this->Structures->set();
 	}
 
 	function hook( $hook_extension='' ) {
