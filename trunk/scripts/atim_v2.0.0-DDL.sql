@@ -1,10 +1,9 @@
 -- ATiM v2.0.0 Database Creation Script
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
-
--- DROP
-
 SET FOREIGN_KEY_CHECKS=0;
+
+-- DROP tables
 
 DROP TABLE IF EXISTS `acos`, `ad_bags`, `ad_bags_revs`, `ad_blocks`, `ad_blocks_revs`, `ad_cell_cores`, `ad_cell_cores_revs`, 
 `ad_cell_slides`, `ad_cell_slides_revs`, `ad_gel_matrices`, `ad_gel_matrices_revs`, `ad_tissue_cores`, `ad_tissue_cores_revs`, 
