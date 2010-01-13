@@ -71,7 +71,7 @@
  *
  */
  
-	Configure::write('Cache.disable', true);
+//	Configure::write('Cache.disable', true);
 	
 /**
  * Enable cache checking.
@@ -227,4 +227,10 @@
  *
  */
 	Cache::config('default', array('engine' => 'File'));
+	
+	/* Custom ATiM cache for menus */
+	Configure::write('ATiMMenuCache.disable', false);
+	
+	/* Custom ATiM cache for structures */
+	Configure::write('ATiMStructureCache.disable', false);
 ?>

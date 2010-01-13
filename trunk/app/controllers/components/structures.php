@@ -20,27 +20,38 @@ class StructuresComponent extends Object {
 	}
 	
 	function get( $mode=NULL, $alias=NULL ) {
-		
 		$return = array();
 		$mode		= strtolower($mode);
 		$alias	= $alias ? strtolower($alias) : str_replace('_','',$this->controller->params['controller']);
 		
-		if ( $alias ) {
-			
-			App::import('model', 'Structure');
-			$this->Component_Structure =& new Structure;
-			
-			$result = $this->Component_Structure->find(
-							( ( $mode=='rule' || $mode=='rules' ) ? 'rules' : 'first'), 
-							array(
-								'conditions'	=>	array( 'Structure.alias' => $alias ), 
-								'recursive'		=>	5
-							)
-			);
-			
-			if ( $result ) $return = $result;
+		$fname = "../tmp/cache/structures/".$mode.".".$alias.".cache";
+		if(file_exists($fname) && Configure::read('ATiMStructureCache.disable') != 1){
+			$fhandle = fopen($fname, 'r');
+			$return = unserialize(fread($fhandle, filesize($fname)));
+			fclose($fhandle);
+		}else{
+			$fhandle = fopen($fname, 'w');
+			if ( $alias ) {
+				
+				App::import('model', 'Structure');
+				$this->Component_Structure =& new Structure;
+				
+				$result = $this->Component_Structure->find(
+								( ( $mode=='rule' || $mode=='rules' ) ? 'rules' : 'first'), 
+								array(
+									'conditions'	=>	array( 'Structure.alias' => $alias ), 
+									'recursive'		=>	5
+								)
+				);
+				
+				if ( $result ) $return = $result;
+			}
+			if(Configure::read('ATiMStructureCache.disable') != 1){
+				fwrite($fhandle, serialize($return));
+				flush();
+				fclose($fhandle);
+			}
 		}
-		
 		return $return;
 		
 	}
