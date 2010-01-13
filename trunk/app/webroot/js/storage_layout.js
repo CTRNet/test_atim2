@@ -20,6 +20,7 @@ window.onload = function(){
 			if($$("#cell_" + jsonOrgItems[i].x + "_" + jsonOrgItems[i].y).size() > 0){
 				$$("#cell_" + jsonOrgItems[i].x + "_" + jsonOrgItems[i].y)[0].innerHTML += appendString;
 			}else{
+				$("unclassified").innerHTML += appendString;
 				debug("Error: [#cell_" + jsonOrgItems[i].x + "_" + jsonOrgItems[i].y + "] not foud");	
 			}
 		}else{
