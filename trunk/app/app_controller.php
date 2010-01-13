@@ -122,13 +122,12 @@ class AppController extends Controller {
 		// menu, passed to Layout where it would be rendered through a Helper
 			$this->set( 'atim_menu_variables', array() );
 			$this->set( 'atim_menu', $this->Menus->get() );
+		
+		// get default STRUCTRES, used for forms, views, and validation	
+			$this->Structures->set();
+			
 	}
 	
-	function beforeRender() {
-		// if an ATiM FORM STRUCTURE has not been set already by the plugin/controller, do so now based on defaults...
-		if ( !isset($this->viewVars['atim_structure']) ) $this->Structures->set();
-	}
-
 	function hook( $hook_extension='' ) {
 		if ( $hook_extension ) $hook_extension = '_'.$hook_extension;
 		
