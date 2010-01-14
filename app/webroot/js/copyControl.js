@@ -85,12 +85,14 @@ window.onload = function(){
  * @return
  */
 function copyLine(index){
-	for(var i = 0; i < rowCount; i ++){
-		$(i + "copying").innerHTML = "";
-	}
-	
 	//disabled as this could get confusing
-	//$(index + "copying").innerHTML = copyingStr;
+//	for(var i = 0; i < rowCount; i ++){
+//		if($(i + "copying")){
+//			$(i + "copying").innerHTML = "";
+//		}
+//	}
+	
+//	$(index + "copying").innerHTML = copyingStr;
 
 	for(var i = 0; i < componentsArray.length; i ++){
 		componentsArrayCopy[i] = $F(index + componentsArray[i]);
@@ -157,5 +159,5 @@ function enableCopyCtrl(lineId){
 }
 
 function debug(str){
-//	$("debug").innerHTML += str + "<br/>";
+	$("debug").innerHTML += str + "<br/>";
 }
