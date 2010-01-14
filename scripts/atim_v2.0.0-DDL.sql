@@ -5,7 +5,7 @@ SET FOREIGN_KEY_CHECKS=0;
 
 -- DROP tables
 
-DROP TABLE IF EXISTS `acos`, `ad_bags`, `ad_bags_revs`, `ad_blocks`, `ad_blocks_revs`, `ad_cell_cores`, `ad_cell_cores_revs`, 
+DROP TABLE IF EXISTS `cd_nationals`, `cd_nationals_revs`, `acos`, `ad_bags`, `ad_bags_revs`, `ad_blocks`, `ad_blocks_revs`, `ad_cell_cores`, `ad_cell_cores_revs`, 
 `ad_cell_slides`, `ad_cell_slides_revs`, `ad_gel_matrices`, `ad_gel_matrices_revs`, `ad_tissue_cores`, `ad_tissue_cores_revs`, 
 `ad_tissue_slides`, `ad_tissue_slides_revs`, `ad_tubes`, `ad_tubes_revs`, `ad_whatman_papers`, `ad_whatman_papers_revs`, 
 `aliquot_controls`, `aliquot_masters`, `aliquot_masters_revs`, `aliquot_uses`, `aliquot_uses_revs`, `announcements`, `aros`, 
@@ -2920,8 +2920,7 @@ CREATE TABLE `realiquotings` (
   `modified_by` varchar(50) default NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`),
-  UNIQUE KEY `parent_child_combo` (`parent_aliquot_master_id`,`child_aliquot_master_id`)
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE `realiquotings_revs` (

@@ -2486,22 +2486,12 @@ INSERT INTO `banks` (`id`, `name`, `description`, `created_by`, `created`, `modi
 
 
 --
--- Dumping data for table `cd_atypes`
+-- Dumping data for table `cd_nationals`
 --
 
 
 --
--- Dumping data for table `cd_atypes_revs`
---
-
-
---
--- Dumping data for table `cd_btypes`
---
-
-
---
--- Dumping data for table `cd_btypes_revs`
+-- Dumping data for table `cd_nationals_revs`
 --
 
 
@@ -3262,6 +3252,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('7', 'global', '7', ''),
 ('8', 'global', '8', ''),
 ('9', 'global', '9', ''),
+(':', 'global', ':', ':'),
 ('a paramater used by the executed function has not been set', 'global', 'All required parameters are not defined!<br>Please try again or contact your system administrator.', 'Tous les param&egrave;tres requis ne sont pas d&eacute;finis!<br>Essayez de nouveau ou contactez votre administrateur du syst&egrave;me.'),
 ('a parent should be defined for a derivative', 'global', 'A parent should be defined for a derivative!<br>Please try again or contact your system administrator.', 'Un parent doit &ecirc;tre d&eacute;fini pour un produit d&eacute;riv&eacute;!<br>Essayez de nouveau ou contactez votre administrateur du syst&egrave;me.'),
 ('a system error has been detetced', 'global', 'A system error has been detetced!<br>Please try again or contact your system administrator.', 'Une erreur du syst&egrave;me a &eacute;t&eacute; detect&eacute;e!<br>Essayez de nouveau ou contactez votre administrateur du syst&egrave;me.'),
@@ -3273,6 +3264,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('access medical information', 'global', 'Access Medical Information?', ''),
 ('access to aliquot data', 'global', 'Access to aliquot data', 'Acc&eacute;der aux donn?es de l''aliquot'),
 ('access to all data', 'global', 'Access To Data', 'Acc&eacute;der aux donn&eacute;es'),
+('access to order', 'global', 'Access To Order', 'Acc&eacute;der &agrave; la commande'),
 ('access to slide data', 'global', 'Access to slide data!', 'Acc&eacute;der aux donn?es de la lame'),
 ('access to storage data', 'global', 'Access to storage data', 'Acc&eacute;der aux donn?es de l''entreposage'),
 ('accuracy', 'global', 'Accuracy', 'Pr&eacute;cision'),
@@ -3290,10 +3282,12 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('add as saved search', 'global', 'Add as Saved Search', ''),
 ('add collection', 'global', 'Add Collection', 'Cr&eacute;er collection'),
 ('add derivative', 'global', 'Add Derivative', 'Cr&eacute;er d&eacute;riv&eacute;'),
+('add internal use', 'global', 'Add Internal Use', 'Cr&eacute;er utilisation interne'),
 ('add specimen', 'global', 'Add Specimen', 'Cr&eacute;er sp&eacute;cimen'),
 ('add tma slide', 'global', 'Add Slide', 'Cr&eacute;er lame'),
 ('add to order', 'global', 'Add To Order', 'Ajoutez aux commandes'),
 ('add to storage', 'global', 'Add To Storage', 'Ajouter &agrave; l''entreposage'),
+('add uses', 'global', 'Add Uses', 'Cr&eacute;er utilisations'),
 ('additional clinical', 'global', 'Additional Clinical', ''),
 ('adenocarcinoma', 'global', 'Adenocarcinoma', 'Adenocarcinome'),
 ('adenocarcinoma(mucinous)', 'global', 'Adenocarcinoma (mucinous)', ''),
@@ -3407,7 +3401,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('atypical', 'global', 'Atypical', ''),
 ('atypical medullary', 'global', 'Atypical Medullary', ''),
 ('atypical nd', 'global', 'Atypical ND', ''),
-('aug', 'global', 'Aug', 'AoÃ»t'),
+('aug', 'global', 'Aug', 'Août'),
 ('August', 'global', 'August', 'Aout'),
 ('aunt', 'global', 'Aunt', ''),
 ('automatic update', 'global', 'Automatic Update', 'Mise &agrave; jour'),
@@ -3801,6 +3795,8 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('dec', 'global', 'Dec', 'D?c'),
 ('December', 'global', 'December', 'D?cembre'),
 ('declined', 'global', 'Declined', ''),
+('define as child', 'global', 'Define as Child', 'D&eacute;finir comme r&eacute;-aliquot&eacute;'),
+('define realiquoted children', 'global', 'Define Realiquoted Children', 'D&eacute;finir enfants r&eacute;-aliquot&eacute;s'),
 ('define storage position', 'global', 'Define Storage Position', 'D&eacute;finir la Position de l''entit&eacute; d''Entreposage'),
 ('define storage position description', 'global', '<br>Define position of the new or modified storage entity into the parent storage entity.<br>', 'D&eacute;finir la position de l''entit&eacute; d''entreposage dans l''entit&eacute; d''entreposage ''parent''. <br>'),
 ('degraded', 'global', 'Degraded', 'D&eacute;grad&eacute;'),
@@ -3819,7 +3815,8 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('derivative type', 'global', 'Derivative Type', 'Type du D&eacute;riv&eacute;'),
 ('description', 'global', 'Description', 'Description'),
 ('detail', 'global', 'Detail', 'D&eacute;tail'),
-('details', 'global', 'Details', 'D&eacute;tails'),
+('details', 'global', 'Details', 'D&eacute;tails');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('diagnoses', 'global', 'Diagnoses', ''),
 ('diagnosis', 'global', 'Diagnosis', 'Diagnose'),
 ('diagnosis date', 'global', 'Date of Diagnosis', ''),
@@ -3828,8 +3825,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('died of disease', 'global', 'Died of Disease', ''),
 ('died of other cause', 'global', 'Died of other cause', ''),
 ('died of unknown cause', 'global', 'Died of unknown cause', ''),
-('digestive', 'global', 'Digestive/gastrointestinal', '');
-INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('digestive', 'global', 'Digestive/gastrointestinal', ''),
 ('digestive/gastrointestinal', 'global', 'Digestive/Gastrointestinal', ''),
 ('disease code', 'global', 'Disease Code', ''),
 ('disease code system', 'global', 'Disease Code System', ''),
@@ -4105,7 +4101,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('intensity', 'global', 'Intensity', 'Intensit&eacute;'),
 ('intensity percentage', 'global', 'Intensity Percentage', 'Pourcentage de l''intensit&eacute;'),
 ('intent', 'global', 'Intent', ''),
-('internal use', 'global', 'Internal Use', 'Utilisation interne!'),
+('internal use', 'global', 'Internal Use', 'Utilisation interne'),
 ('intestine', 'global', 'Intestine', 'Intestin'),
 ('invalid aliquot source defintion', 'global', 'Invalid Aliquot Source Definition', 'D&eacute;finition invalide de l''aliquot source'),
 ('invalid cause of death code', 'global', 'Invalid cause of death code', 'Code de cause du d&&eacute;c&egrave;s invalide'),
@@ -4320,6 +4316,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('no aliquot control id', 'global', 'Missing Aliquot Control ID', 'ID du contr&ocirc;le de l''aliquot manquant'),
 ('no aliquot data', 'global', 'Missing Aliquot Data', 'Donn&eacute;es de l''aliquot manquantes'),
 ('no aliquot data exists for the specified id', 'global', 'The aliquot data has not been found!<br>Please try again or contact your system administrator.', 'Les donn&eacute;es de l''aliquot n''ont pas &eacute;t&eacute trouv&eacute;es!<br>Essayez de nouveau ou contactez votre administrateur du syst&egrave;me.'),
+('no aliquot has been defined as realiquoted child', 'global', 'No aliquot has been defined as realiquoted child!', 'Aucun aliquot n''a &eacute;t&eacute; d&eacute;fini comme aliquot r&eacute;-aliquot&eacute; (enfant)!'),
 ('No aliquot has been defined as sample source aliquot.', 'global', 'No aliquot has been defined as sample source aliquot.', 'Aucun aliquot n''a &eacute;t&eacute; d&eacute;fini comme aliquot ''source''.'),
 ('no aliquot id', 'global', 'Missing Aliquot ID', 'ID de l''aliquot manquant'),
 ('no aliquot is stored into this storage', 'global', 'No aliquot is stored into this storage!', 'Aucun aliquot n''est entrepos&eacute; dans cette entit&eacute;!'),
@@ -4335,6 +4332,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('no diagnosis', 'global', 'No Diagnosis', ''),
 ('no filter', 'global', 'No Filter', 'Supprimer Filtre'),
 ('No new parent sample aliquot could be actually defined as source aliquot', 'global', 'No new parent sample aliquot could be actually defined as source aliquot!', 'Auncun nouvel aliquot de l''&eacute;chantillon ''parent'' ne peut actuellement &ecirc;tre d&eacute;fini comme aliquot ''source''!'),
+('no new sample aliquot could be actually defined as realiquoted child', 'global', 'No new sample aliquot could be actually defined as realiquoted child!', 'Auncun nouvel aliquot de l''&eacute;chantillon ne peut actuellement &ecirc;tre d&eacute;fini comme aliquot r&eacute;-aliquot&eacute; (enfant)!'),
 ('No new sample aliquot could be actually defined as realiquoted parent', 'global', 'No new sample aliquot could be actually defined as realiquoted parent.', 'Auncun nouvel aliquot de l''&eacute;chantillon ne peut actuellement &ecirc;tre d&eacute;fini comme aliquot r&eacute;-aliquot&eacute;!'),
 ('no new sample aliquot could be actually defined as tested aliquot', 'global', 'No new sample aliquot could be actually defined as tested aliquot!', 'Auncun nouvel aliquot ne peut actuellement &ecirc;tre d&eacute;fini comme aliquot ''test&eacute;''!'),
 ('no parent id should be recorded for a specimen', 'global', 'No parent id should be recorded for a specimen!<br>Please try again or contact your system administrator.', 'Aucun parent id ne doit &ecirc;tre enregistr&eacute; pour un sp&eacute;cimen!<br>Essayez de nouveau ou contactez votre administrateur du syst&egrave;me.'),
@@ -4446,7 +4444,8 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('order_line_completion_help', 'global', 'Order line completion: ''shipped items number / order line items number.''', '&Eacute;tat d''avancement de la ligne de commande: nombre d''items envoy&eacute;s / nombre d''items inclus.'),
 ('order_management_description', 'global', 'To describe...', '&Agrave; d&eacute;crire...'),
 ('order_min qty ordered', 'global', 'Minimum Quantity Ordered', ''),
-('order_min qty UM', 'global', 'Minimum Quantity UM', ''),
+('order_min qty UM', 'global', 'Minimum Quantity UM', '');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('order_order item detail', 'global', 'Details', 'D&eacute;tail'),
 ('order_order items', 'global', 'Items', ''),
 ('order_order line detail', 'global', 'Details', 'D&eacute;tail'),
@@ -4464,8 +4463,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('order_shipment detail', 'global', 'Details', 'D&eacute;tail'),
 ('order_shipment items', 'global', 'Items', ''),
 ('order_shipments', 'global', 'Shipments', ''),
-('order_shipped_by', 'global', 'Shipped By', '');
-INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('order_shipped_by', 'global', 'Shipped By', ''),
 ('order_shipping_account_nbr', 'global', 'Shipping Account Number', ''),
 ('order_shipping_country', 'global', 'Shipping Country', ''),
 ('order_short title', 'global', 'Short Title', ''),
@@ -4507,6 +4505,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('parent storage', 'global', 'Parent Storage', 'Contenant (Entreposage)'),
 ('parent storage id', 'global', 'Parent Storage', 'Entreposage parent'),
 ('parent type', 'global', 'Parent Type', 'Type du Parent'),
+('parent used volume', 'global', 'Parent Used Volume', 'Volume utilis&eacute; du parent'),
 ('parent/child', 'global', 'Parent/Child', 'Parent/Enfant'),
 ('partial', 'global', 'Partial', ''),
 ('partially degraded', 'global', 'Partially Degraded', 'Partiellement d&eacute;grad&eacute;'),
@@ -4696,6 +4695,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('RBC top-left', 'global', 'RBC top-left', 'RBC top-left'),
 ('RBC top-right', 'global', 'RBC top-right', 'RBC top-right'),
 ('realiquoted by', 'global', 'Realiquoted By', 'R&eacute;-aliquot&eacute; Par'),
+('realiquoted children selection', 'global', 'Realiquoted Children Selection', 'Selection des aliquots r&eacute;-aliquot&eacute;s (enfant)'),
 ('realiquoted parent', 'global', 'Realiquoted Parent', 'Parent r&eacute;-aliquot&eacute;'),
 ('realiquoted parent selection is required', 'global', 'Realiquoted parent selection is required!', 'La s&eacute;lection d''un parent r&eacute;-aliquot&eacute; est requise!'),
 ('realiquoted to', 'global', 'Realiquoted To', 'R&eacute;-aliquot&eacute; en'),
@@ -4706,8 +4706,8 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('reason denied or withdrawn', 'global', 'Reason Denied/Withdrawn', ''),
 ('reason_denied', 'global', 'Reason Denied', ''),
 ('Rebecca Barnes', 'global', 'Rebecca Barnes', 'Rebecca Barnes'),
-('Received By', 'global', 'Received By', 'ReÃ§u Pr&eacute;s'),
-('Received DateTime', 'global', 'Received Date and Time', 'Date et heure ReÃ§ues'),
+('Received By', 'global', 'Received By', 'Reçu Pr&eacute;s'),
+('Received DateTime', 'global', 'Received Date and Time', 'Date et heure Reçues'),
 ('received tissue size', 'global', 'Received Tissue Size', 'Taille du tissu re&ccedil;u'),
 ('received volume', 'global', 'Received Volume', 'Volume re&ccedil;u'),
 ('reception by', 'global', 'Taken Delivery By', 'R&eacute;ceptionn&eacute; par'),
@@ -4932,7 +4932,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('status', 'global', 'Status', 'Statut'),
 ('status date', 'global', 'Status Date', ''),
 ('status reason', 'global', 'Status Reason', ''),
-('status_help', 'global', 'This is help information about the Status field. It cannot be blank.', 'C''est des informations d''aide sur le champ de statut. Elle ne peut pas Ãªtre blanche.'),
+('status_help', 'global', 'This is help information about the Status field. It cannot be blank.', 'C''est des informations d''aide sur le champ de statut. Elle ne peut pas être blanche.'),
 ('steroid', 'global', 'Steroid', ''),
 ('stopped', 'global', 'Stopped', 'Arr&ecirc;t&eacute;e'),
 ('storage', 'global', 'Storage', 'Contenant'),
@@ -4989,7 +4989,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('studied sample', 'global', 'Studied Sample', '&Eacute;chantillon &eacute;tudi&eacute;'),
 ('studies', 'global', 'Studies', ''),
 ('studies manager', 'global', 'Studies Manager', ''),
-('study', 'global', 'Studies\r\n', ''),
+('study', 'global', 'Study', '&Eacute;tude'),
 ('study file id', 'global', 'Study File Id', ''),
 ('study type', 'global', 'Type of Study', ''),
 ('study_$', 'global', '$', ''),
@@ -5075,7 +5075,8 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('surgery provider', 'global', 'Surgery Provider', ''),
 ('surgical', '', 'Surgical', ''),
 ('surgical exploration', 'global', 'Surgical Exploration', ''),
-('surgical/clin', 'global', 'Surgical/Clinical', ''),
+('surgical/clin', 'global', 'Surgical/Clinical', '');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('surrounding temperature', 'global', 'Surrounding Temperature', 'Temp&eacute;rature environnante'),
 ('survival time months', '', 'Survival Time in Months', ''),
 ('suspicious', 'global', 'Suspicious', ''),
@@ -5092,8 +5093,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('temperature', 'global', 'Temperature', 'Temp&eacute;rature'),
 ('temperature abbreviation', 'global', 'T&deg;', 'T&deg;'),
 ('temperature should be a decimal', 'global', 'The temperature should be a decimal!', 'La temp&eacute;rature doit &ecirc;tre un nombre d&eacute;cimal!'),
-('tested aliquot', 'global', 'Tested Aliquot', 'Aliquot test&eacute;');
-INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('tested aliquot', 'global', 'Tested Aliquot', 'Aliquot test&eacute;'),
 ('the aliquot can not be deleted', 'global', 'The aliquot can not be deleted!<br>Please try again or contact your system administrator.', 'L''aliquot ne peut pas &ecirc;tre supprim&eacute;!<br>Essayez de nouveau ou contactez votre administrateur du syst&egrave;me.'),
 ('the aliquot control id has not been defined', 'global', 'The aliquot control id has not been defined!<br>Please try again or contact your system administrator.', 'L''ID du contr&ocirc;le de l''aliquot n''a pas &eacute;t&eacute d&eacute;fini!<br>Essayez de nouveau ou contactez votre administrateur du syst&egrave;me.'),
 ('the aliquot has already been included into an order item', 'global', 'The aliquot has already been defined as an order item!', 'L''aliquot &agrave; d&eacute;j&agrave; &eacute;t&eacute; inclus dans une commande!'),
@@ -5260,6 +5260,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('used and/or sent', 'global', 'Used and/or Sent', 'Utilis&eacute; et/ou envoy&eacute;'),
 ('used and/or stored', 'global', 'Used and/or Stored', 'Utilis&eacute;e et/ou entrepos&eacute;e'),
 ('used blood volume', 'global', 'Used Blood Volume', 'Volume de sang utilis&eacute;'),
+('used by', 'global', 'Used By', 'Utilis&eacute; par'),
 ('used container', 'global', 'Used Container', ''),
 ('used volume', 'global', 'Used Volume', 'Volume utilis&eacute;'),
 ('used volume should be a positif decimal', 'global', 'Used blood volume should be a positive decimal!', 'Volume de sang utilis&eacute; doit &ecirc;tre un d&eacute;cimal positif!'),
@@ -5773,7 +5774,8 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('xreproductivehistories_second_ovary_out_age_help', '', '', ''),
 ('xreproductivehistories_second_ovary_out_help', '', '', ''),
 ('xreproductivehistories_years_on_oralcontraceptives_help', '', '', ''),
-('xreviewmasters_review_date_help', '', '', ''),
+('xreviewmasters_review_date_help', '', '', '');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('xreviewmasters_review_status_help', '', '', ''),
 ('xreviewmasters_review_type_help', '', '', ''),
 ('xreviewmasters_sample_master_id_help', '', '', ''),
@@ -5799,8 +5801,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('xsamples_stored_datetime_help', '', '', ''),
 ('xsamples_time_stabilized_help', '', '', ''),
 ('xsamples_time_tissue_removal_help', '', '', ''),
-('xsamples_tissuesubsite_id_help', '', '', '');
-INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('xsamples_tissuesubsite_id_help', '', '', ''),
 ('xsamples_tissue_site_id_help', '', '', ''),
 ('xsamples_tissue_type_id_help', '', '', ''),
 ('xsd_bloodproducts_available_quantity_help', '', '', ''),
@@ -6235,7 +6236,7 @@ INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_ti
 ('clin_CAN_9', 'clin_CAN_1', 0, 2, 'consent', 'consent', '/clinicalannotation/consent_masters/listall/%%Participant.id%%', '', 'Clinicalannotation.Participant::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('core_CAN_33', 'MAIN_MENU_1', 1, 6, 'core_tools', 'core_tools', '/menus/tools/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('core_CAN_41', 'core_CAN_33', 1, 1, 'core_administrate', 'core_administrate', '/administrate/banks', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('core_CAN_42', '0', 1, 5, 'core_customize', 'core_customize', '/customize/profiles/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('core_CAN_42', '0', 1, 5, 'core_customize', 'core_customize', '/customize/profiles/index/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('core_CAN_70', 'core_CAN_41', 0, 1, 'xApplication', 'xApplication', '/administrate/versions/listall/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('core_CAN_71', 'core_CAN_41', 0, 2, 'xMenus', 'xMenus', '/administrate/menus/index/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('core_CAN_72', 'core_CAN_41', 0, 3, 'xForms', 'xForms', '/administrate/structures/index/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -6271,14 +6272,13 @@ INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_ti
 ('inv_CAN_2222', 'inv_CAN_222', 0, 2, 'listall source aliquots', NULL, '/inventorymanagement/aliquot_masters/listAllSourceAliquots/%%Collection.id%%/%%SampleMaster.id%%', '', 'Inventorymanagement.SampleMaster::derivativeSummary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('inv_CAN_2223', 'inv_CAN_222', 0, 3, 'listall aliquots', NULL, '/inventorymanagement/aliquot_masters/listAll/%%Collection.id%%/%%SampleMaster.id%%', '', 'Inventorymanagement.SampleMaster::derivativeSummary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('inv_CAN_22231', 'inv_CAN_2223', 0, 1, 'details', NULL, '/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%', '', 'Inventorymanagement.AliquotMaster::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('inv_CAN_22232', 'inv_CAN_2223', 0, 2, 'listall aliquot uses', NULL, '/inventorymanagement/aliquot_masters/listAllAliquotUses/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%', '', 'Inventorymanagement.AliquotMaster::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('inv_CAN_22233', 'inv_CAN_2223', 0, 3, 'realiquoted parent', NULL, '/inventorymanagement/aliquot_masters/listAllRealiquotedParents/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%/', '', 'Inventorymanagement.AliquotMaster::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('inv_CAN_2224', 'inv_CAN_222', 0, 4, 'quality controls', NULL, '/inventorymanagement/quality_ctrls/listAll/%%Collection.id%%/%%SampleMaster.id%%', '', 'Inventorymanagement.SampleMaster::derivativeSummary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('inv_CAN_22241', 'inv_CAN_2224', 0, 1, 'details', NULL, '/inventorymanagement/quality_ctrls/detail/%%Collection.id%%/%%SampleMaster.id%%/%%QualityCtrl.id%%', '', 'Inventorymanagement.QualityCtrl::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('inv_CAN_22242', 'inv_CAN_2224', 0, 2, 'listall tested aliquots', NULL, '/inventorymanagement/quality_ctrls/listAllTestedAliquots/%%Collection.id%%/%%SampleMaster.id%%/%%QualityCtrl.id%%', '', 'Inventorymanagement.QualityCtrl::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('inv_CAN_223', 'inv_CAN_22', 0, 3, 'listall aliquots', NULL, '/inventorymanagement/aliquot_masters/listAll/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%', '', 'Inventorymanagement.SampleMaster::specimenSummary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('inv_CAN_2231', 'inv_CAN_223', 0, 1, 'details', NULL, '/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%/%%AliquotMaster.id%%', '', 'Inventorymanagement.AliquotMaster::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('inv_CAN_2233', 'inv_CAN_223', 0, 3, 'realiquoted parent', NULL, '/inventorymanagement/aliquot_masters/listAllRealiquotedParents/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%/', '', 'Inventorymanagement.AliquotMaster::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('inv_CAN_2233', 'inv_CAN_223', 0, 3, 'realiquoted parent', NULL, '/inventorymanagement/aliquot_masters/listAllRealiquotedParents/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%/%%AliquotMaster.id%%', '', 'Inventorymanagement.AliquotMaster::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('inv_CAN_224', 'inv_CAN_22', 0, 4, 'quality controls', NULL, '/inventorymanagement/quality_ctrls/listAll/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%', '', 'Inventorymanagement.SampleMaster::specimenSummary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('inv_CAN_2241', 'inv_CAN_224', 0, 1, 'details', NULL, '/inventorymanagement/quality_ctrls/detail/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%/%%QualityCtrl.id%%', '', 'Inventorymanagement.QualityCtrl::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('inv_CAN_23', 'inv_CAN_2', 0, 3, 'listall collection aliquots', NULL, '/inventorymanagement/aliquot_masters/listAll/%%Collection.id%%/-1', '', 'Inventorymanagement.Collection::contentFilterSummary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -7361,6 +7361,11 @@ INSERT INTO `storage_controls` (`id`, `storage_type`, `storage_type_code`, `coor
 -- Dumping data for table `structures`
 --
 
+
+--
+-- Dumping data for table `structure_fields`
+--
+
 INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 (1, '', 'AAA-000-000-000-000-1', '', 'User', '', 'username', 'username', '', 'input', 'size=20', '', 0, 'login_help', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (10, '', 'AAA-000-000-000-000-17-1', 'Administrate', 'Bank', '', 'name', 'xBank', '', 'input', 'size=40', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '2007-12-19 01:16:28', '1'),
@@ -8089,8 +8094,6 @@ INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `
 (882, '', 'CAN-999-999-000-999-1278', 'Inventorymanagement', 'QualityCtrl', '', 'qc_code', 'code', '', 'input', 'size=10', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (883, '', 'CAN-999-999-000-999-1279', 'Inventorymanagement', 'QualityCtrl', '', 'run_by', 'run by', '', 'select', '', '', 174, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (884, '', 'CAN-999-999-000-999-1280', 'Inventorymanagement', 'AliquotUse', '', 'used_by', 'used by', '', 'select', '', '', 174, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(885, '', 'CANM-00013', '', 'FunctionManagement', '', 'input_number', '', '', 'input', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(886, '', 'CANM-00014', '', 'FunctionManagement', '', 'realiquoting_date', '', '', 'datetime', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (887, '', 'CAN-999-999-000-999-1281', 'Order', 'OrderLine', '', 'aliquot_control_id', '', '-', 'select', '', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (888, '', 'CAN-999-999-000-999-1282', 'Order', 'FunctionManagement', '', 'sample_aliquot_control_id', 'product type', '', 'select', '', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (889, '', 'CAN-999-999-000-999-1283', '', 'Generated', '', 'order_line_completion', 'completion', '', 'input', 'size=30', '', 0, 'order_line_completion_help', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -8109,7 +8112,8 @@ INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `
 (902, '', 'CAN-902', '', 'Config', 'configs', 'config_debug', 'config_debug', '', 'input', 'size=3,maxlength=1', '0', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (903, '', 'CAN-903', 'Clinicalannotation', 'TreatmentMaster', 'tx_masters', 'target_site_idco', 'target site', '', 'input', 'size=10', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (904, '', 'CAN-904', 'Clinicalannotation', 'TreatmentMaster', 'tx_masters', 'start_date_accuracy', '', '', 'select', '', '', 62, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(905, '', 'CAN-905', 'Clinicalannotation', 'TreatmentMaster', 'tx_masters', 'finish_date_accuracy', '', '', 'select', '', '', 62, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(905, '', 'CAN-905', 'Clinicalannotation', 'TreatmentMaster', 'tx_masters', 'finish_date_accuracy', '', '', 'select', '', '', 62, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(906, '', 'CAN-999-999-000-999-1289', 'Inventorymanagement', 'GeneratedParentAliquot', '', 'aliquot_volume_unit', '', '', 'select', '', '', 6, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 --
 -- Dumping data for table `structure_formats`
@@ -9702,7 +9706,7 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (2205, 'CANM-00010_CAN-999-999-000-999-89', 191, 'CANM-00010', 836, 'CAN-999-999-000-999-89', 2, 24, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2206, 'CANM-00010_CAN-999-999-000-999-90', 191, 'CANM-00010', 837, 'CAN-999-999-000-999-90', 2, 25, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2207, 'CANM-00010_CAN-999-999-000-999-91', 191, 'CANM-00010', 838, 'CAN-999-999-000-999-91', 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2208, 'CAN-999-999-000-999-1035_CAN-999-999-000-999-1277', 62, 'CAN-999-999-000-999-1035', 881, 'CAN-999-999-000-999-1277', 0, 1, '', '0', '', '1', '-', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(2208, 'CAN-999-999-000-999-1035_CAN-999-999-000-999-1277', 62, 'CAN-999-999-000-999-1035', 881, 'CAN-999-999-000-999-1277', 0, 1, '', '0', '', '1', ':', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2209, 'CAN-999-999-000-999-1038_CAN-999-999-000-999-1278', 65, 'CAN-999-999-000-999-1038', 882, 'CAN-999-999-000-999-1278', 0, 0, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2210, 'CAN-999-999-000-999-1038_CAN-999-999-000-999-1279', 65, 'CAN-999-999-000-999-1038', 883, 'CAN-999-999-000-999-1279', 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2211, 'CAN-999-999-000-999-1035_CAN-999-999-000-999-1280', 62, 'CAN-999-999-000-999-1035', 884, 'CAN-999-999-000-999-1280', 0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -9712,7 +9716,7 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (2215, 'CAN-999-999-000-999-1077_CAN-999-999-000-999-1162', 192, 'CAN-999-999-000-999-1077', 276, 'CAN-999-999-000-999-1162', 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2216, 'CAN-999-999-000-999-1077_CAN-999-999-000-999-1163', 192, 'CAN-999-999-000-999-1077', 277, 'CAN-999-999-000-999-1163', 0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2217, 'CAN-999-999-000-999-1077_CAN-999-999-000-999-1271', 192, 'CAN-999-999-000-999-1077', 386, 'CAN-999-999-000-999-1271', 0, 7, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2218, 'CAN-999-999-000-999-1077_CAN-999-999-000-999-1277', 192, 'CAN-999-999-000-999-1077', 881, 'CAN-999-999-000-999-1277', 0, 1, '', '0', '', '1', '-', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(2218, 'CAN-999-999-000-999-1077_CAN-999-999-000-999-1277', 192, 'CAN-999-999-000-999-1077', 881, 'CAN-999-999-000-999-1277', 0, 1, '', '0', '', '1', ':', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2219, 'CAN-999-999-000-999-1077_CAN-999-999-000-999-1280', 192, 'CAN-999-999-000-999-1077', 884, 'CAN-999-999-000-999-1280', 0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2220, 'CAN-999-999-000-999-1036_CAN-999-999-000-999-1100', 63, 'CAN-999-999-000-999-1036', 216, 'CAN-999-999-000-999-1100', 0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2221, 'CAN-999-999-000-999-1036_CAN-999-999-000-999-1102', 63, 'CAN-999-999-000-999-1036', 218, 'CAN-999-999-000-999-1102', 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -9723,11 +9727,6 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (2226, 'CAN-999-999-000-999-1036_CAN-999-999-000-999-1153', 63, 'CAN-999-999-000-999-1036', 266, 'CAN-999-999-000-999-1153', 0, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2227, 'CAN-999-999-000-999-1036_CAN-999-999-000-999-1130', 63, 'CAN-999-999-000-999-1036', 247, 'CAN-999-999-000-999-1130', 0, 9, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2228, 'CAN-999-999-000-999-1036_CAN-999-999-000-999-1131', 63, 'CAN-999-999-000-999-1036', 248, 'CAN-999-999-000-999-1131', 0, 10, '', '1', 'volume unit', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2229, 'CANM-00011_CAN-999-999-000-999-1100', 193, 'CANM-00011', 216, 'CAN-999-999-000-999-1100', 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2230, 'CANM-00011_CAN-999-999-000-999-1160', 193, 'CANM-00011', 274, 'CAN-999-999-000-999-1160', 2, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2231, 'CANM-00011_CANM-00013', 193, 'CANM-00011', 885, 'CANM-00013', 2, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2232, 'CANM-00011_CAN-999-999-000-999-1131', 193, 'CANM-00011', 248, 'CAN-999-999-000-999-1131', 2, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2233, 'CANM-00015_CANM-00014', 194, 'CANM-00015', 886, 'CANM-00014', 1, 1, '', '1', 'Date', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2234, 'CANM-00016_CAN-999-999-000-999-1153', 195, 'CANM-00016', 266, 'CAN-999-999-000-999-1153', 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2235, 'CANM-00016_CAN-999-999-000-999-1131', 195, 'CANM-00016', 248, 'CAN-999-999-000-999-1131', 0, 4, '', '1', 'volume unit', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2236, 'CANM-00016_CAN-999-999-000-999-1162', 195, 'CANM-00016', 276, 'CAN-999-999-000-999-1162', 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -9842,13 +9841,13 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (2358, '', 197, '', 898, '', 1, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2359, '', 4, '', 899, '', 1, 0, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2360, '', 4, '', 900, '', 1, 0, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2361, '', 4, '', 901, '', 1, 0, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
-INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(2361, '', 4, '', 901, '', 1, 0, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2362, '', 4, '', 902, '', 1, 0, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2363, 'CAN-999-999-000-999-6_CAN-820', 138, 'CAN-999-999-000-999-6', 820, 'CAN-820', 1, 7, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2364, 'CAN-999-999-000-999-6_CAN-822', 138, 'CAN-999-999-000-999-6', 822, 'CAN-822', 2, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2365, 'CAN-999-999-000-999-6_CAN-896', 138, 'CAN-999-999-000-999-6', 896, 'CAN-896', 1, 13, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2366, 'CAN-999-999-000-999-6_CAN-331', 138, 'CAN-999-999-000-999-6', 331, 'CAN-331', 2, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(2366, 'CAN-999-999-000-999-6_CAN-331', 138, 'CAN-999-999-000-999-6', 331, 'CAN-331', 2, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 (2367, 'CAN-999-999-000-999-33_CAN-903', 116, 'CAN-999-999-000-999-33', 903, 'CAN-903', 1, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2368, 'CAN-999-999-000-999-33_CAN-904', 116, 'CAN-999-999-000-999-33', 904, 'CAN-904', 1, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2369, 'CAN-999-999-000-999-33_CAN-905', 116, 'CAN-999-999-000-999-33', 905, 'CAN-905', 1, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -9868,7 +9867,16 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (2383, 'CAN-999-999-000-999-1079_CAN-999-999-000-999-1268', 199, 'CAN-999-999-000-999-1079', 382, 'CAN-999-999-000-999-1268', 0, 16, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2384, 'CAN-999-999-000-999-1079_CAN-999-999-000-999-1217', 199, 'CAN-999-999-000-999-1079', 328, 'CAN-999-999-000-999-1217', 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (2385, 'CAN-999-999-000-999-1079_CAN-999-999-000-999-1107', 199, 'CAN-999-999-000-999-1079', 223, 'CAN-999-999-000-999-1107', 0, 23, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(2386, 'CAN-999-999-000-999-1079_CAN-999-999-000-999-1108', 199, 'CAN-999-999-000-999-1079', 224, 'CAN-999-999-000-999-1108', 0, 24, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(2386, 'CAN-999-999-000-999-1079_CAN-999-999-000-999-1108', 199, 'CAN-999-999-000-999-1079', 224, 'CAN-999-999-000-999-1108', 0, 24, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(2387, 'CANM-00011_CAN-999-999-000-999-1100', 193, 'CANM-00011', 216, 'CAN-999-999-000-999-1100', 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(2388, 'CANM-00011_CAN-999-999-000-999-1102', 193, 'CANM-00011', 218, 'CAN-999-999-000-999-1102', 1, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(2389, 'CANM-00011_CAN-999-999-000-999-1103', 193, 'CANM-00011', 219, 'CAN-999-999-000-999-1103', 1, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(2390, 'CANM-00011_CAN-999-999-000-999-1160', 193, 'CANM-00011', 274, 'CAN-999-999-000-999-1160', 1, 10, '', '1', 'define as child', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(2391, 'CANM-00011_CAN-999-999-000-999-1163', 193, 'CANM-00011', 277, 'CAN-999-999-000-999-1163', 1, 11, '', '1', 'realiquoting date', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(2392, 'CANM-00011_CAN-999-999-000-999-1280', 193, 'CANM-00011', 884, 'CAN-999-999-000-999-1280', 1, 12, '', '1', 'realiquoted by', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(2393, 'CANM-00011_CAN-999-999-000-999-1153', 193, 'CANM-00011', 266, 'CAN-999-999-000-999-1153', 1, 13, '', '1', 'parent used volume', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(2394, 'CANM-00011_CAN-999-999-000-999-1289', 193, 'CANM-00011', 906, 'CAN-999-999-000-999-1289', 1, 14, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(2395, 'CANM-00011_CAN-999-999-000-999-1119', 193, 'CANM-00011', 235, 'AN-999-999-000-999-1119', 1, 99, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 --
 -- Dumping data for table `structure_options`
@@ -11577,12 +11585,10 @@ INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VAL
 (819, 'PR: per rectum', 'PR: per rectum'),
 (820, 'custom_laboratory_site_1', 'custom_laboratory_site_1'),
 (821, 'custom_laboratory_site_2', 'custom_laboratory_site_2'),
-(822, 'custom_laboratory_site_etc', 'custom_laboratory_site_etc');
-INSERT INTO  `structure_permissible_values` (  `id` ,  `value` ,  `language_alias` ) VALUES
-(823 ,  'DMY',  'DMY'),
-(824 ,  'MDY',  'MDY'),
-(825 ,  'YMD',  'YMD');
-
+(822, 'custom_laboratory_site_etc', 'custom_laboratory_site_etc'),
+(823, 'DMY', 'DMY'),
+(824, 'MDY', 'MDY'),
+(825, 'YMD', 'YMD');
 
 --
 -- Dumping data for table `structure_validations`
@@ -12607,11 +12613,11 @@ INSERT INTO `structure_value_domains_permissible_values` (`id`, `structure_value
 (1007, '100', '819', 5, 'yes', 'PR: per rectum'),
 (1008, '179', '820', 0, 'yes', 'custom_laboratory_site_1'),
 (1009, '179', '821', 0, 'yes', 'custom_laboratory_site_2'),
-(1010, '179', '822', 0, 'yes', 'custom_laboratory_site_etc');
-INSERT INTO  `structure_value_domains_permissible_values` (  `id` ,  `structure_value_domain_id` ,  `structure_permissible_value_id` ,  `display_order` ,  `active` ,  `language_alias` ) VALUES
+(1010, '179', '822', 0, 'yes', 'custom_laboratory_site_etc'),
 (1011, '180', '823', 0, 'yes', 'DMY'),
 (1012, '180', '824', 0, 'yes', 'MDY'),
-(1013, '180', '825', 0, 'yes', 'YMD');
+(1013, '180', '825', 0, 'yes', 'YMD'),
+(1014, '6', '271', 0, 'yes', 'n/a');
 
 --
 -- Dumping data for table `study_contacts`
