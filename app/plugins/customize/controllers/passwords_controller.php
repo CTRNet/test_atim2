@@ -32,12 +32,17 @@ class PasswordsController extends AppController {
 							$this->flash( 'Your data has been updated.','/customize/passwords/index' );
 						}
 						
+					} else {
+						$this->flash( 'Sorry, new password was not entered correctly.','/customize/passwords/index' );
 					}
+					
+				} else {
+					$this->flash( 'Sorry, new password was not entered correctly.','/customize/passwords/index' );
 				}
 				
 			}
 			
-			$this->flash( 'Sorry, new password was not entered correctly.','/customize/passwords/index' );
+			
 		}
 		
 	}

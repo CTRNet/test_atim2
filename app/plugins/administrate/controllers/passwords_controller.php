@@ -65,11 +65,17 @@ class PasswordsController extends AppController {
 						if ( $this->User->save( $this->data ) ) {
 							$this->flash( 'Your data has been updated.','/administrate/passwords/index/'.$bank_id.'/'.$group_id.'/'.$user_id );
 						}
+						
+					} else {
+						$this->flash( 'Sorry, new password was not entered correctly.','/customize/passwords/index' );
 					}
+					
+				} else {
+					$this->flash( 'Sorry, new password was not entered correctly.','/customize/passwords/index' );
 				}
+				
 			}
 			
-			$this->flash( 'Sorry, new password was not entered correctly.','/customize/passwords/index' );
 		}
 		
 	}
