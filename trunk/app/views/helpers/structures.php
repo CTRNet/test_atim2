@@ -1601,6 +1601,8 @@ class StructuresHelper extends Helper {
 												$minute_value 		= $override_time[1];	
 												$meridian_value	= $override_time[0]>12 ? 'pm' : 'am';
 												
+												if ( trim($hour_value)!=='' && $hour_value!==false ) $hour_value = '0';
+												
 											}
 										}
 									
