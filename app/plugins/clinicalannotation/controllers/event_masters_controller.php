@@ -12,6 +12,11 @@ class EventMastersController extends ClinicalannotationAppController {
 		'EventMaster'=>array('limit'=>10,'order'=>'EventMaster.event_date DESC')
 	);
 	
+	function beforeFilter( ) {
+		parent::beforeFilter();
+		$this->set( 'atim_menu', $this->Menus->get( '/'.$this->params['plugin'].'/'.$this->params['controller'].'/'.$this->params['action'].'/'.$this->params['pass'][0] ) );
+	}
+	
 	function listall( $event_group=NULL, $participant_id=null, $event_control_id=null ) {
 		
 		// set FILTER, used as this->data CONDITIONS
