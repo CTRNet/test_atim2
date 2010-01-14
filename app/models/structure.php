@@ -58,7 +58,7 @@ class Structure extends AppModel {
 						
 						$rule_array = array(
 							'rule' => $rule,
-							'allow_empty' => $allow_empty,
+							'allowEmpty' => $allow_empty,
 							'required' => $required,
 						);
 						
