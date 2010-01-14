@@ -208,6 +208,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			'AliquotMaster.collection_id' => $collection_id,
 			'AliquotMaster.sample_master_id' => $sample_master_id,
 			'AliquotMaster.status' => 'available');
+			//TODO use 			'NOT' => array('AliquotMaster.id' => $existing_children)
 		if(!empty($already_tested_aliquot_ids)) { $criteria[] = ' AliquotMaster.id NOT IN (\''.implode('\',\'', array_keys($already_tested_aliquot_ids)).'\')'; }
 		$available_sample_aliquots = $this->AliquotMaster->find('all', array('conditions' => $criteria, 'order' => 'AliquotMaster.barcode ASC', 'recursive' => '-1'));
 
