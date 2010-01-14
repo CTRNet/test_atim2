@@ -804,13 +804,13 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		// Get the use data
 		$use_data = $this->AliquotUse->find('first', array('conditions' => array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id, 'AliquotMaster.id' => $aliquot_master_id, 'AliquotUse.id' => $aliquot_use_id)));
-		if(empty($use_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }		
+		if(empty($use_data)) { exit;$this->redirect('/pages/err_inv_no_data', null, true); }		
 
 		// Set url to display next page
 		$flash_url = '';
 		switch($redirect) {
-			case '1':
-				$flash_url = '/inventorymanagement/aliquot_masters/listAllRealiquotedParents/' . $collection_id . '/' . $sample_master_id . '/' . $aliquot_master_id;
+			case 'realiquoting':
+				$flash_url = '/inventorymanagement/aliquot_masters/listAllRealiquotedParents/' . $collection_id . '/' . $sample_master_id . '/' . $extra_param;
 				break;
 			case '2':
 				$flash_url = '/inventorymanagement/quality_ctrls/listAllSourceAliquots/' . $collection_id . '/' . $sample_master_id . '/';
@@ -819,7 +819,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				$flash_url = '/inventorymanagement/quality_ctrls/detail/' . $collection_id . '/' . $sample_master_id . '/' . $extra_param . '/';
 				break;
 			default:
-			$flash_url = '/inventorymanagement/aliquot_masters/detail/' . $collection_id . '/' . $sample_master_id . '/' . $aliquot_master_id;
+				$flash_url = '/inventorymanagement/aliquot_masters/detail/' . $collection_id . '/' . $sample_master_id . '/' . $aliquot_master_id;
 		}
 		
 		// Set Use Detail table
@@ -827,7 +827,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if(!empty($use_data['AliquotUse']['use_recorded_into_table'])) {
 			$supported_use_detail_table = array('quality_ctrl_tested_aliquots', 'source_aliquots', 'realiquotings');
 //TODO test		
-			pr('to test');exit;
+			pr('to test: '.$use_data['AliquotUse']['use_recorded_into_table']);
 			if(in_array($use_data['AliquotUse']['use_recorded_into_table'], $supported_use_detail_table)) {
 				$this->AliquotUseDetail = new AliquotUseDetail(false, $use_data['AliquotUse']['use_recorded_into_table']);
 			} else {
@@ -1231,8 +1231,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$current_aliquot_data = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id, 'AliquotMaster.id' => $aliquot_master_id)));
 		if(empty($current_aliquot_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }		
 		
+		// Get/Manage Parent Aliquots
 		$this->data = $this->paginate($this->Realiquoting, array('Realiquoting.child_aliquot_master_id '=> $aliquot_master_id));
-		pr($this->data);
+				
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 
 		// Get the current menu object.
@@ -1443,12 +1444,19 @@ class AliquotMastersController extends InventoryManagementAppController {
 				
 		// check data structure
 		$is_multi_records_data = true;
-		if(isset($aliquots_data[0]['AliquotMaster'])) {
-			// Multi records: Nothing to do
-		} else if(isset($aliquots_data['AliquotMaster'])) {
-			// Single record to manage as multi records
-			$aliquots_data = array('0' => $aliquots_data);
-			$is_multi_records_data = false;
+		if(is_array($aliquots_data)) {
+			if(isset($aliquots_data['AliquotMaster'])) {
+				// Single record to manage as multi records
+				$aliquots_data = array('0' => $aliquots_data);
+				$is_multi_records_data = false;
+			} else {
+				$tmp_arr_to_test = array_values($aliquots_data);	// Use in case user created aliquots in batch and hidden the first row of the datagrid
+				if(is_array($tmp_arr_to_test) && isset($tmp_arr_to_test[0]['AliquotMaster'])) {
+					// Multi records: Nothing to do				
+				} else {
+					$this->redirect('/pages/err_inv_system_error', null, true);
+				}
+			}
 		} else {
 			$this->redirect('/pages/err_inv_system_error', null, true);
 		}
@@ -1572,12 +1580,19 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		// check data structure
 		$is_multi_records_data = true;
-		if(isset($aliquots_data[0]['AliquotMaster'])) {
-			// Multi records: Nothing to do
-		} else if(isset($aliquots_data['AliquotMaster'])) {
-			// Single record to manage as multi records
-			$aliquots_data = array('0' => $aliquots_data);
-			$is_multi_records_data = false;
+		if(is_array($aliquots_data)) {
+			if(isset($aliquots_data['AliquotMaster'])) {
+				// Single record to manage as multi records
+				$aliquots_data = array('0' => $aliquots_data);
+				$is_multi_records_data = false;
+			} else {
+				$tmp_arr_to_test = array_values($aliquots_data);	// Use in case user created aliquots in batch and hidden the first row of the datagrid
+				if(is_array($tmp_arr_to_test) && isset($tmp_arr_to_test[0]['AliquotMaster'])) {
+					// Multi records: Nothing to do				
+				} else {
+					$this->redirect('/pages/err_inv_system_error', null, true);
+				}
+			}
 		} else {
 			$this->redirect('/pages/err_inv_system_error', null, true);
 		}
