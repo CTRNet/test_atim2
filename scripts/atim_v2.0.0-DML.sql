@@ -1,4 +1,4 @@
--- ATiM v2.0.0
+-- ATiM v2.0.0 DML Script
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 SET FOREIGN_KEY_CHECKS=0;
@@ -3895,6 +3895,14 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('er', 'global', 'ER', ''),
 ('er assay ligand', 'global', 'Assay by Ligand Binding', ''),
 ('erb approved', 'global', 'ERB Approved', 'ERB Approved'),
+('error_range_ageatmenopause', 'global', 'Error - Age at menopause must be between 40 and 100', ''),
+('error_range_para_between 0-20', 'global', 'Error - Para must be between 0 and 20', ''),
+('error_numeric_firstparturition_mustbeage', 'global', 'Error - Age at First Parturition must be between 0 and 150', ''),
+('error_numeric_lastparturition_mustbeage', 'global', 'Error - Age at Last Parturition must be between 0 and 150', ''),
+('error_numeric_ageatmenarche_mustbeage', 'global', 'Error - Age at Menarche must be between 0 and 50', ''),
+('error_range_yearsonoral_between 0-150', 'global', 'Error - Years on Hormonal Contraceptive must be between 0 and 150', ''),
+('error_range_ageathysterectomy', 'global', 'Error - Age at hysterectomy must be between 0 and 150', ''),
+('error_range_gravida_between 0-20', 'global', 'Error - Gravida must be between 0 and 20', ''),
 ('error deleting data - contact administrator', 'global', 'Error Deleting Data - Contact Administrator', 'Erreur durant la suppression des donn&eacute;es - Contactez votre administrateur du syst&egrave;me!'),
 ('error in the aliquot position(s) definition', 'global', 'Error in the aliquot position(s) definition!', 'Erreure dans la d&eacute;finition des positions des aliquots!'),
 ('error in the date definitions', 'global', 'Error in the date definitions', 'Erreur dans la d&eacute;finition des dates'),
