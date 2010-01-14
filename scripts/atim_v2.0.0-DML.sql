@@ -7589,7 +7589,7 @@ INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `
 (63, '', 'AAA-000-000-000-000-39', '', 'User', '', 'institution', 'institution', '', 'input', 'size=50', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (64, '', 'AAA-000-000-000-000-4', '', 'Transaction', '', 'quantity', 'quantity', '', 'input', 'size=10', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (65, '', 'AAA-000-000-000-000-40', '', 'User', '', 'laboratory', 'laboratory', '', 'input', 'size=50', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(66, '', 'AAA-000-000-000-000-41', '', 'Config', 'configs', 'define_show_help', 'help visible', '', 'select', '', '1', 168, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(66, '', 'AAA-000-000-000-000-41', '', 'Config', 'configs', 'define_show_help', 'help visible', '', 'checkbox', '', '1', 168, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (67, '', 'AAA-000-000-000-000-42', '', 'Config', 'configs', 'config_language', 'language', '', 'select', '', '', 169, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (68, '', 'AAA-000-000-000-000-43', '', 'User', '', 'street', 'street', '', 'input', 'size=50', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (69, '', 'AAA-000-000-000-000-44', '', 'User', '', 'city', 'city', '', 'input', 'size=20', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
