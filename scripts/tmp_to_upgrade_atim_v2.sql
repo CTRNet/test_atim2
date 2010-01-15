@@ -14,3 +14,24 @@ INSERT INTO `structure_validations` (`id`,`old_id`,`structure_field_id` ,`struct
 
 INSERT INTO `i18n` (`id` ,`page_id` ,`en` ,`fr`) VALUES
 ('error_participant identifier must be unique', '', 'Error - Participant Identifier must be unique', '');
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('no new sample aliquot could be actually defined as source aliquot', 'global', 'No new sample aliquot could be actually defined as source aliquot!', 
+'Aucun nouvel aliquot de l''&echantillon ne peut actuellement &ecirc;tre d&eacute;fini comme aliquot source!');
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('no aliquot has been defined as source aliquot', 'global', 
+'No aliquot has been defined as source child!',
+'Aucun aliquot n''a &eacute;&eacute; d&eacute;fini comme aliquot source!');
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('no aliquot has been defined as sample tested aliquot', 'global', 
+'No aliquot has been defined as tested aliquot!',
+'Aucun aliquot n''a &eacute;&eacute; d&eacute;fini comme aliquot test&eacute;!');
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('tested aliquots', 'global', 
+'Tested Aliquots',
+'Aliquots Test&eacute;s');
+
+DELETE FROM `menus` WHERE `id` = 'inv_CAN_22242';
