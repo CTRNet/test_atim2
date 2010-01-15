@@ -79,10 +79,12 @@ class SamplesComponent extends Object {
 			$formatted_sample_data['SampleMaster'] = $new_sample['SampleMaster'];
 			$formatted_sample_data['children'] = $this->completeCollectionContentForTreeView($new_sample['children']);
 			
-			// 
+			// Add Aliquot
 			$new_sample_aliquots = $new_sample['AliquotMaster'];
+			$new_sample_aliquots= array_reverse($new_sample_aliquots);
 			foreach($new_sample_aliquots as $new_aliquot) {
-				$formatted_sample_data['children'][]['AliquotMaster'] = $new_aliquot;
+				//	$formatted_sample_data['children'][]['AliquotMaster'] = $new_aliquot;
+				array_unshift($formatted_sample_data['children'], array('AliquotMaster' => $new_aliquot));
 			}			
 			
 			$children_list[$key] = $formatted_sample_data;
