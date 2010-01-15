@@ -36,6 +36,7 @@
 			),
 	);
 	$structure_settings['header'] = __('consent', true);
+	$structure_settings['separator'] = true;
 	$structure_settings['form_top'] = false;
 	$final_atim_structure = $atim_structure_consent_detail; 
 	$final_options = array('type'=>'radiolist', 'data'=>$consent_data, 'settings'=>$structure_settings, 'links'=>$structure_links);
@@ -74,7 +75,7 @@
 	 
 	//consent
 	$final_atim_structure = $atim_structure_diagnosis_detail; 
-	$final_options = array('type'=>'radiolist', 'data'=>$diagnosis_data, 'settings'=>array('form_bottom'=>false, 'form_top'=>false, 'form_inputs'=>false, 'actions'=>false, 'pagination'=>false, 'header' => __('diagnosis', true)), 'links'=>$structure_links);
+	$final_options = array('type'=>'radiolist', 'data'=>$diagnosis_data, 'settings'=>array('form_bottom'=>false, 'form_top'=>false, 'form_inputs'=>false, 'actions'=>false, 'pagination'=>false, 'header' => __('diagnosis', true), 'separator' => true), 'links'=>$structure_links);
 	// CUSTOM CODE
 	$hook_link = $structures->hook('diagnosis_detail');
 	if( $hook_link ) { require($hook_link); }

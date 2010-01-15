@@ -106,7 +106,7 @@
 		);
 		
 		$final_atim_structure = $aliquots_uses_structure;
-		$final_options = array('data' => $aliquots_uses_data, 'type' => 'index', 'links'=>$structure_links, 'override' => $structure_override, 'settings' => array('header' => __('uses', null)));
+		$final_options = array('data' => $aliquots_uses_data, 'type' => 'index', 'links'=>$structure_links, 'override' => $structure_override, 'settings' => array('header' => __('uses', null), 'separator' => true));
 
 		// CUSTOM CODE
 		$hook_link = $structures->hook('uses');
