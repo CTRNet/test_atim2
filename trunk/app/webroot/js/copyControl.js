@@ -159,5 +159,5 @@ function enableCopyCtrl(lineId){
 }
 
 function debug(str){
-	$("debug").innerHTML += str + "<br/>";
+//	$("debug").innerHTML += str + "<br/>";
 }
