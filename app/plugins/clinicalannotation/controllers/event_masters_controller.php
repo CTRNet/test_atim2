@@ -150,7 +150,6 @@ class EventMastersController extends ClinicalannotationAppController {
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }
 	
-		// TODO: Update del function call with ATiM delete
 		if( $this->EventMaster->atim_delete( $event_master_id ) ) {
 			$this->flash( 'Your data has been deleted.', '/clinicalannotation/event_masters/listall/'.$event_group.'/'.$participant_id );
 		} else {
