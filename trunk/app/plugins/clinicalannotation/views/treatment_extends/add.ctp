@@ -6,7 +6,7 @@
 		)
 	);
 	
-	switch($tx_group){
+	switch($tx_method){
 		case "chemotherapy":
 			$structure_override = array('TreatmentExtend.drug_id'=>$drug_list);
 			break;

@@ -132,10 +132,10 @@ class ConsentMastersController extends ClinicalannotationAppController {
 		
 		// CUSTOM CODE		
 		$hook_link = $this->hook('delete');
-		if( $hook_link ) { require($hook_link); }
+		if ($hook_link) { require($hook_link); }
 		
-		if($arr_allow_deletion['allow_deletion']) {
-			if( $this->ConsentMaster->atim_delete( $consent_master_id ) ) {
+		if ($arr_allow_deletion['allow_deletion']) {
+			if ($this->ConsentMaster->atim_delete( $consent_master_id )) {
 				$this->flash( 'your data has been deleted', '/clinicalannotation/consent_masters/listall/'.$participant_id );
 			} else {
 				$this->flash( 'error deleting data - contact administrator', '/clinicalannotation/consent_masters/listall/'.$participant_id );
