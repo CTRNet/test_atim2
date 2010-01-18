@@ -1,4 +1,4 @@
--- ATiM v2.0.0 Database Creation Script
+-- ATiM v2.0.0 DDL Database Creation Script
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 SET FOREIGN_KEY_CHECKS=0;
@@ -5882,21 +5882,14 @@ CREATE TABLE `txd_surgeries_revs` (
 
 CREATE TABLE `txe_chemos` (
   `id` int(11) NOT NULL auto_increment,
-  `source` varchar(50) default NULL,
-  `frequency` varchar(50) default NULL,
   `dose` varchar(50) default NULL,
   `method` varchar(50) default NULL,
-  `reduction` varchar(50) default NULL,
-  `cycle_number` int(11) default NULL,
-  `completed_cycles` int(11) default NULL,
-  `start_date` date default NULL,
-  `end_date` date default NULL,
+  `drug_id` int(11) default NULL,
+  `tx_master_id` int(11) NOT NULL default '0',  
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` varchar(50) default NULL,
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
   `modified_by` varchar(50) default NULL,
-  `tx_master_id` int(11) default NULL,
-  `drug_id` varchar(50) default NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
@@ -5904,25 +5897,18 @@ CREATE TABLE `txe_chemos` (
 
 CREATE TABLE `txe_chemos_revs` (
   `id` int(11) NOT NULL,
-  `source` varchar(50) default NULL,
-  `frequency` varchar(50) default NULL,
   `dose` varchar(50) default NULL,
   `method` varchar(50) default NULL,
-  `reduction` varchar(50) default NULL,
-  `cycle_number` int(11) default NULL,
-  `completed_cycles` int(11) default NULL,
-  `start_date` date default NULL,
-  `end_date` date default NULL,
+  `drug_id` int(11) default NULL,
+  `tx_master_id` int(11) NOT NULL default '0',  
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` varchar(50) default NULL,
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
   `modified_by` varchar(50) default NULL,
-  `tx_master_id` int(11) default NULL,
-  `drug_id` varchar(50) default NULL,
-  `version_id` int(11) NOT NULL AUTO_INCREMENT,
-  `version_created` datetime NOT NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
@@ -5984,11 +5970,11 @@ CREATE TABLE `txe_radiations_revs` (
 CREATE TABLE `txe_surgeries` (
   `id` int(11) NOT NULL auto_increment,
   `surgical_procedure` varchar(50) default NULL,
+  `tx_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` varchar(50) default NULL,
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
   `modified_by` varchar(50) default NULL,
-  `tx_master_id` int(11) default NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
@@ -5998,15 +5984,15 @@ CREATE TABLE `txe_surgeries` (
 CREATE TABLE `txe_surgeries_revs` (
   `id` int(11) NOT NULL,
   `surgical_procedure` varchar(50) default NULL,
+  `tx_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` varchar(50) default NULL,
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
   `modified_by` varchar(50) default NULL,
-  `tx_master_id` int(11) default NULL,
-  `version_id` int(11) NOT NULL AUTO_INCREMENT,
-  `version_created` datetime NOT NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
