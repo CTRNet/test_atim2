@@ -14,7 +14,7 @@ INSERT INTO `structure_validations` (`id`,`old_id`,`structure_field_id` ,`struct
 (null, '0', '521', 'CAN-999-999-000-999-26', 'isUnique', '1', '1', '', 'error_participant identifier must be unique', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 INSERT INTO `i18n` (`id` ,`page_id` ,`en` ,`fr`) VALUES
-('error_participant identifier required', '', 'Error - Participant Identifier', '');
+('error_participant identifier required', '', 'Error - Participant Identifier', ''),
 ('error_participant identifier must be unique', '', 'Error - Participant Identifier must be unique', '');
 
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
