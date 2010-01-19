@@ -38,7 +38,9 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 		'Codingicd10.CodingIcd10');
 	
-	var $paginate = array('SampleMaster' => array('limit' => 10, 'order' => 'SampleMaster.sample_code DESC'));
+	var $paginate = array(
+		'SampleMaster' => array('limit' => 10, 'order' => 'SampleMaster.sample_code DESC'),
+		'AliquotMaster' => array('limit' =>10 , 'order' => 'AliquotMaster.barcode DESC'));
 
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS
