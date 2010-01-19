@@ -206,7 +206,9 @@ class ShellHelper extends Helper {
 	function menu( $atim_menu=array(), $options=array() ) {
 		
 		$page_title = array();
-		$this->pageTitle = '';
+		if(!isset($this->pageTitle)){
+			$this->pageTitle = '';
+		}
 						
 		$return_html = '';
 		$root_menu_array = array();
@@ -396,8 +398,9 @@ class ShellHelper extends Helper {
 		}
 		
 		// reverse-sort the Page Title array, and set pageTitle
-			
+		if(strlen($this->pageTitle) == 0){
 			$this->pageTitle = implode(' &laquo; ',$page_title);
+		}
 		
 		$return_array = array( $return_html, $root_menu_array, $main_menu_array );
 		return $return_array;
