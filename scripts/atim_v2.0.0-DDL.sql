@@ -6002,7 +6002,7 @@ CREATE TABLE `txe_surgeries_revs` (
 
 CREATE TABLE `tx_controls` (
   `id` int(11) NOT NULL auto_increment,
-  `tx_group` varchar(50) default NULL,
+  `tx_method` varchar(50) default NULL,
   `disease_site` varchar(50) default NULL,
   `status` varchar(50) NOT NULL default '',
   `detail_tablename` varchar(255) NOT NULL,
