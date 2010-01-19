@@ -20,7 +20,7 @@ INSERT INTO `i18n` (`id`,`page_id`,`en`,`fr`) VALUES
 UPDATE `structure_validations` SET `flag_empty` = '0' WHERE `id` =36 LIMIT 1 ;
 
 -- Fixed spelling error on field
-ALTER TABLE `structure_validations` CHANGE `modifed_by` `modified_by` VARCHAR( 255 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT ''
+ALTER TABLE `structure_validations` CHANGE `modifed_by` `modified_by` VARCHAR( 255 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT '';
 
 UPDATE `pages` SET `language_title` = 'credits_title',
 `language_body` = 'credits_body' WHERE `pages`.`id` = 'credits';
