@@ -2,15 +2,33 @@
 
 class ShipmentsController extends OrderAppController {
 	
-	var $uses = array('Order.Shipment', 'Order.Order', 'Order.OrderItem', 'Order.OrderLine', 'Inventorymanagement.AliquotMaster');
+	var $uses = array(
+		'Order.Shipment', 
+		'Order.Order', 
+		'Order.OrderItem', 
+		'Order.OrderLine', 
+		'Inventorymanagement.AliquotMaster');
+		
 	var $paginate = array('Shipment'=>array('limit'=>10,'order'=>'Shipment.shipment_code'));
-	
+//TODO do summary	
 	function listall( $order_id=null ) {
 		if ( !$order_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
+
+		// MANAGE DATA
+		
+		// Check order
+		$order_data = $this->Order->find('first',array('conditions'=>array('Order.id'=>$order_id)));
+		if(empty($order_data)) { $this->redirect( '/pages/err_order_no_data', null, true ); }		
+	
+		
+		// Get shipments
+		$shipments_data = $this->paginate($this->Shipment, array('Shipment.order_id'=>$order_id));
+		$this->data = $shipments_data;
+		
+		// MANAGE FORM, MENU AND ACTION BUTTONS
+		
 		$this->set('atim_menu', $this->Menus->get('/order/shipments/listall'));
-		if ( !$order_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', null, true ); }
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id));
-		$this->data = $this->paginate($this->Shipment, array('Shipment.order_id'=>$order_id));
 		
 		$hook_link = $this->hook('format');
 		if($hook_link){
@@ -19,7 +37,16 @@ class ShipmentsController extends OrderAppController {
 	}
 
 	function add( $order_id=null ) {
- 		if ( !$order_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
+		if ( !$order_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
+
+		// MANAGE DATA
+		
+		// Check order
+		$order_data = $this->Order->find('first',array('conditions'=>array('Order.id'=>$order_id)));
+		if(empty($order_data)) { $this->redirect( '/pages/err_order_no_data', null, true ); }		
+	
+		// MANAGE FORM, MENU AND ACTION BUTTONS
+		
 		$this->set('atim_menu', $this->Menus->get('/order/shipments/listall'));
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id));
 		
@@ -28,16 +55,20 @@ class ShipmentsController extends OrderAppController {
 			require($hook_link);
 		}
 		
+		// SAVE PROCESS
+					
 		if ( !empty($this->data) ) {
-			$this->data['Shipment']['order_id'] = $order_id;
-			
+			// Launch validation
 			$submitted_data_validates = true;
+			
 			$hook_link = $this->hook('presave_process');
 			if($hook_link){
 				require($hook_link);
 			}
+			
+			$this->data['Shipment']['order_id'] = $order_id;
 			if ($submitted_data_validates && $this->Shipment->save($this->data) ) {
-				$this->flash( 'your data has been updated','/order/shipments/detail/'.$order_id.'/'.$this->Shipment->id );
+				$this->flash( 'your data has been saved','/order/shipments/detail/'.$order_id.'/'.$this->Shipment->id );
 			}
 		}	
 	}

@@ -2,6 +2,8 @@
 	$structure_links = array(
 		'bottom'=>array(
 			'edit'=>'/order/order_lines/edit/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['OrderLine.id'],
+			'add order line item'=>'/order/order_items/add/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['OrderLine.id'].'/',
+			'add shipment'=>'/order/shipments/add/' . $atim_menu_variables['Order.id'] . '/',
 			'delete'=>'/order/order_lines/delete/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['OrderLine.id']
 		)
 	);
