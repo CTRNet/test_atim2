@@ -5,15 +5,15 @@ require_once("tables_mapping/consents.php");
 require_once("tables_mapping/participants.php");
 
 //validate each file exists and prep them
-foreach($tables as $table_name => &$table){
+foreach($tables as $ref_name => &$table){
 	if(!is_file($table['app_data']['file'])){
-		die("File for [".$table_name."] does not exist. [".$table['app_data']['file']."]\n");
+		die("File for [".$ref_name."] does not exist. [".$table['app_data']['file']."]\n");
 	}
 	$table['app_data']['file_handler'] = fopen($table['app_data']['file'], 'r');
 	if(!$table['app_data']['file_handler']){
-		die("fopen failed on ".$table_name);
+		die("fopen failed on ".$ref_name);
 	}
-	$table['app_data']['query_insert'] = "INSERT INTO ".$table_name." (".buildInsertQuery($tables[$table_name]).") VALUES(";
+	$table['app_data']['query_master_insert'] = "INSERT INTO ".$table["app_data"]['master_table_name']." (".buildInsertQuery($tables[$ref_name]['master']).") VALUES(";
 	$table['app_data']['keys'] = lineToArray(fgets($table['app_data']['file_handler'], 4096));	
 	$table['app_data']['values'] = lineToArray(fgets($table['app_data']['file_handler'], 4096));
 	associate($table['app_data']['keys'], $table['app_data']['values']);
@@ -72,11 +72,13 @@ function buildValuesQuery($fields, $values){
 	global $created_id;
 	$result = "";
 	foreach($fields as $field => $value){
-		if($field != "app_data" && strlen($value) > 0){
+		if(strpos($value, "@") === 0){
+			$result .= "'".substr($value, 1)."', ";
+		}else if(strlen($value) > 0){
 			$result .= "'".$values[$value]."', ";
 		}
 	}
-	return $result."NOW(), ".$created_id.", NOW(), ".$created_id;
+	return $result."NOW(), ".$created_id.", NOW(), ".$created_id;	
 }
 
 function clean($element){
@@ -114,7 +116,7 @@ function insertTable($table_name, &$tables, $csv_parent_key = null, $mysql_paren
 			$current_table['app_data']['values'][$current_table[$current_table['app_data']['parent_key']]] = $mysql_parent_id;
 		}
 		
-		$query = $current_table['app_data']['query_insert'].buildValuesQuery($current_table, $current_table['app_data']['values']).")";
+		$query = $current_table['app_data']['query_master_insert'].buildValuesQuery($current_table["master"], $current_table['app_data']['values']).")";
 		mysqli_query($connection, $query) or die("query failed[".$table_name."][".$query."][".mysqli_errno($connection) . ": " . mysqli_error($connection)."]".print_r($current_table)."\n");
 		$last_id = mysqli_insert_id($connection);
 		echo $query."\n";
@@ -149,3 +151,4 @@ function insertTable($table_name, &$tables, $csv_parent_key = null, $mysql_paren
 
 
 
+//TODO: Skip line when pkey is null, it will allow to have multiple tables within the same file! :)
