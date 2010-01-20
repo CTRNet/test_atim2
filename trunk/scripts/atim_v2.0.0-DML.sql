@@ -5021,7 +5021,7 @@ INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `
 (91, '', 'AAA-000-000-000-000-65', '', 'Announcement', '', 'date_start', 'date_range', '', 'date', '', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (92, '', 'AAA-000-000-000-000-66', '', 'Announcement', '', 'date_end', '', 'to', 'date', '', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (93, '', 'AAA-000-000-000-000-67', 'Rtbform', 'Rtbform', '', 'frmGroup', 'form group', '', 'input', 'size=30', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(94, '', 'AAA-000-000-000-000-68', '', 'User', 'configs', 'pagination', 'core_pagination', '', 'input', 'size=3', '5', 182, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '2007-12-20 02:53:50', '1'),
+(94, '', 'AAA-000-000-000-000-68', '', 'User', 'configs', 'pagination', 'core_pagination', '', 'select', '', '5', 182, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '2007-12-20 02:53:50', '1'),
 (95, '', 'AAA-000-000-000-000-69', 'Material', 'Material', '', 'item_name', 'mat_item name', '', 'input', 'size=30', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (97, '', 'AAA-000-000-000-000-70', 'Material', 'Material', '', 'item_type', 'mat_item type', '', 'select', '', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (98, '', 'AAA-000-000-000-000-71', 'Material', 'Material', '', 'description', 'mat_description', '', 'textarea', 'cols=40,rows=6', '', 0, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '2008-08-26 01:35:39', '1'),
