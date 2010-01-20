@@ -1,5 +1,6 @@
 <?php
 $consent_masters["app_data"]["file"] = "/Users/francois-michellheureux/Desktop/DataForMigration Lady Davies/Sardex_DrBasikData_consent.csv";
+$consent_masters["app_data"]["pkey"] = "";
 
 $consent_masters["master"]["date_of_referral"] = "";
 $consent_masters["master"]["route_of_referral"] = "";
@@ -28,6 +29,6 @@ $consent_masters["master"]["type"] = "consent_type";
 //do not modify this section
 $consent_masters["app_data"]['parent_key'] = "participant_id";
 $consent_masters["app_data"]['child'] = array();
-$participants["app_data"]['master_table_name'] = "consents";
+$consent_masters["app_data"]['master_table_name'] = "consent_masters";
 $tables['consent_masters'] = $consent_masters;
 //-------------------------------
