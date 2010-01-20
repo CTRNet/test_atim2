@@ -5174,7 +5174,7 @@ CREATE TABLE `structure_validations` (
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` varchar(255) character set latin1 NOT NULL default '',
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
-  `modifed_by` varchar(255) character set latin1 NOT NULL default '',
+  `modified_by` varchar(255) character set latin1 NOT NULL default '',
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
@@ -6128,7 +6128,7 @@ CREATE TABLE `versions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `version_number` VARCHAR(255) NOT NULL,
   `date_installed` TIMESTAMP NOT NULL default CURRENT_TIMESTAMP,
-  `status` VARCHAR(45) NOT NULL,
+  `build_number` VARCHAR(45) NOT NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` varchar(50) default NULL,
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
