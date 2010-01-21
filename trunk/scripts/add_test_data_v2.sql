@@ -2,7 +2,6 @@
 SET FOREIGN_KEY_CHECKS=0;
 -- ------------------------------------------------------------------------------------------------------------
 
-
 -- ------------------------------------------------------------------------------------------------------------
 --
 -- TOOLS
@@ -17,6 +16,23 @@ SET FOREIGN_KEY_CHECKS=0;
 
 -- Drugs Test Data
 
+-- Orders Test Data
+
+INSERT INTO `orders` (`id`, `order_number`, `short_title`, `description`, `date_order_placed`, `date_order_completed`, `processing_status`, `comments`, `created`, `created_by`, `modified`, `modified_by`, `study_summary_id`, `deleted`, `deleted_date`) VALUES
+(1, 'Ord_Test1', 'TO_001', '...', '2010-01-03', '2010-02-19', 'pending', '', '2010-01-21 10:14:38', '1', '2010-01-21 10:14:38', '1', 2, 0, NULL),
+(2, 'Ord_test2', 'TO_002', '', '2010-01-06', NULL, 'pending', '', '2010-01-21 10:17:57', '1', '2010-01-21 10:18:29', '1', 1, 0, NULL);
+INSERT INTO `orders_revs` (`id`, `order_number`, `short_title`, `description`, `date_order_placed`, `date_order_completed`, `processing_status`, `comments`, `created`, `created_by`, `modified`, `modified_by`, `study_summary_id`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
+(1, 'Ord_Test1', 'TO_001', '...', '2010-01-03', '2010-02-19', 'pending', '', '2010-01-21 10:14:38', '1', '2010-01-21 10:14:38', '1', 2, 1, '2010-01-21 10:14:38', 0, NULL),
+(2, 'Ord_test2', '', '', NULL, NULL, '', '', '2010-01-21 10:17:57', '1', '2010-01-21 10:17:57', '1', NULL, 2, '2010-01-21 10:17:57', 0, NULL),
+(2, 'Ord_test2', 'TO_002', '', '2010-01-06', NULL, 'pending', '', '2010-01-21 10:17:57', '1', '2010-01-21 10:18:29', '1', 1, 3, '2010-01-21 10:18:29', 0, NULL);
+INSERT INTO `order_lines` (`id`, `quantity_ordered`, `min_quantity_ordered`, `quantity_unit`, `date_required`, `status`, `created`, `created_by`, `modified`, `modified_by`, `product_code`, `sample_control_id`, `aliquot_control_id`, `sample_aliquot_precision`, `order_id`, `deleted`, `deleted_date`) VALUES
+(1, '10', '', 'tubes', '2010-01-22', 'pending', '2010-01-21 10:15:27', '1', '2010-01-21 10:15:27', '1', '', 12, NULL, 'precision 1', 1, 0, NULL),
+(2, '50', '', 'ml', '2010-01-22', 'pending', '2010-01-21 10:16:57', '1', '2010-01-21 10:16:57', '1', '', 8, 15, 'Frozen', 1, 0, NULL),
+(3, '4', '', 'blcoks', NULL, 'pending', '2010-01-21 10:19:07', '1', '2010-01-21 10:19:07', '1', '', 3, 4, 'OCT', 2, 0, NULL);
+INSERT INTO `order_lines_revs` (`id`, `quantity_ordered`, `min_quantity_ordered`, `quantity_unit`, `date_required`, `status`, `created`, `created_by`, `modified`, `modified_by`, `product_code`, `sample_control_id`, `aliquot_control_id`, `sample_aliquot_precision`, `order_id`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
+(1, '10', '', 'tubes', '2010-01-22', 'pending', '2010-01-21 10:15:27', '1', '2010-01-21 10:15:27', '1', '', 12, NULL, 'precision 1', 1, 1, '2010-01-21 10:15:27', 0, NULL),
+(2, '50', '', 'ml', '2010-01-22', 'pending', '2010-01-21 10:16:57', '1', '2010-01-21 10:16:57', '1', '', 8, 15, 'Frozen', 1, 2, '2010-01-21 10:16:57', 0, NULL),
+(3, '4', '', 'blcoks', NULL, 'pending', '2010-01-21 10:19:07', '1', '2010-01-21 10:19:07', '1', '', 3, 4, 'OCT', 2, 3, '2010-01-21 10:19:07', 0, NULL);
 
 -- Study Test Data
 
