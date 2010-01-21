@@ -2,15 +2,18 @@
 require_once("commonFunctions.php");
 
 $split_on[] = array('use_key' => 'sample_code',
-					'key_rename' => 'sample_code_plasma',
+					'group_key' => 'sample_code_plasma',
+					'split_key' => 'aliquot_plasma',
 					'split' => array("plasma_barcodes" => ""),
 					'copy' => array("plasma_status" => "", "plasma_status_reason" => ""));
 $split_on[] = array('use_key' => 'sample_code',
-					'key_rename' => 'sample_code_serum',
+					'group_key' => 'sample_code_serum',
+					'split_key' => 'aliquot_serum',
 					'split' => array("serum_barcodes" => "", "serum_pwet" => ""),
 					'copy' => array("serum_creation_date" => "", "serum_notes" => "", "serum_status" => "", "serum_status_reason" => ""));
 $split_on[] = array('use_key' => 'sample_code',
-					'key_rename' => 'sample_code_buffy_coat',
+					'group_key' => 'sample_code_buffy_coat',
+					'split_key' => 'aliquot_buffy_coat',
 					'split' => array("buffy coat_barcodes" => ""),
 					'copy' => array("buffy coat_creation_date" => "", "buffy coat_notes" => "", "buffy coat_status" => "", "buffy coat_status_reason" => ""));
 
@@ -26,7 +29,8 @@ if(!fh){
 
 $keys = lineToArray(fgets($fh, 4096));
 foreach($split_on as $split_unit){
-	$keys[] = $split_unit['key_rename'];
+	$keys[] = $split_unit['group_key'];
+	$keys[] = $split_unit['split_key'];
 }
 
 
@@ -59,7 +63,8 @@ function printLine($values, $split_on){
 			if(sizeOf($split_unit['split'][$split_col_name]) > 0){
 				$values[$split_col_name] = $split_unit['split'][$split_col_name][0];
 				$split_unit['using_key'] = $values[$split_unit['use_key']];
-				$values[$split_unit['key_rename']] = $split_unit['using_key'];
+				$values[$split_unit['group_key']] = $split_unit['using_key'];
+				$values[$split_unit['split_key']] = $split_unit['using_key'];
 			}
 		}
 		foreach($split_unit['copy'] as $key => $empty){
@@ -89,7 +94,7 @@ function printLine($values, $split_on){
 				if(sizeOf($split_unit['split'][$split_col_name]) > $i){
 					$splitted = true;
 					$values[$split_col_name] = $split_unit['split'][$split_col_name][$i];
-					$values[$split_unit['key_rename']] = $split_unit['using_key'];
+					$values[$split_unit['split_key']] = $split_unit['using_key'];
 				}
 			}
 			if($splitted){
