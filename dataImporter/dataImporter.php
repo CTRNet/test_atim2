@@ -1,9 +1,12 @@
 <?php
+require_once("commonFunctions.php");
 require_once("config.php");
 require_once("dataImporter.php");
-require_once("tables_mapping/consents.php");
-require_once("tables_mapping/participants.php");
+require_once("tables_mapping/collections.php");
+//require_once("tables_mapping/consents.php");
+//require_once("tables_mapping/participants.php");
 require_once("tables_mapping/sd_spe_bloods.php");
+require_once("tables_mapping/sd_der_plasmas.php");
 
 //validate each file exists and prep them
 foreach($tables as $ref_name => &$table){
@@ -19,9 +22,8 @@ foreach($tables as $ref_name => &$table){
 		if(isset($table["app_data"]['detail_table_name'])){
 			$table['app_data']['query_detail_insert'] = "INSERT INTO ".$table["app_data"]['detail_table_name']." (".buildInsertQuery($tables[$ref_name]['detail']).") VALUES(";
 		}
-		$table['app_data']['keys'] = lineToArray(fgets($table['app_data']['file_handler'], 4096));	
-		$table['app_data']['values'] = lineToArray(fgets($table['app_data']['file_handler'], 4096));
-		associate($table['app_data']['keys'], $table['app_data']['values']);
+		$table['app_data']['keys'] = lineToArray(fgets($table['app_data']['file_handler'], 4096));
+		readLine($table);
 	}
 }
 unset($table);//weird bug otherwise
@@ -36,21 +38,26 @@ if(!mysqli_set_charset($connection, $database['charset'])){
 mysqli_autocommit($connection, false);
 
 //create the temporary id linking table
-$query = "CREATE TEMPORARY TABLE id_linking(
+mysqli_query($connection, "DROP TABLE IF EXISTS id_linking ") or die("DROP tmp failed");
+$query = "CREATE  TABLE id_linking(
 	csv_id varchar(10) not null,
 	mysql_id int unsigned not null, 
 	model varchar(15) not null
 	)Engine=InnoDB";
 mysqli_query($connection, $query) or die("temporary table query failed[".mysqli_errno($connection) . ": " . mysqli_error($connection)."]\n");
 
+//define the primary tables (collection links is considered to be a special table)
 $primary_tables = array(//"participants" => $participants,
-						"sd_spe_bloods" => $sd_spe_bloods);
+						"collections" => $collections);
 
+//iteratover the primary tables who will, in turn, iterate over their children
 foreach($primary_tables as $table_name => $table){
 	insertTable($table_name, $tables);
 }
 
 //TODO: treat special tables such as collection links
+
+//validate that each file handler has reached the end of it's file so that no data is left behind
 $insert = true;
 foreach($tables as $ref_name => &$table){
 	if(strlen($table['app_data']['file']) > 0){
@@ -62,18 +69,20 @@ foreach($tables as $ref_name => &$table){
 }
 
 if($insert){
-//	mysqli_commit($connection);
+	mysqli_commit($connection);
 	echo("Insertions commited\n");
+	echo("*************************\n"
+		."********VictWare*********\n"
+		."* Integration completed *\n"
+		."*************************\n");
 }else{
 	echo("Insertions cancelled\n");
 }
 
-echo("*************************\n"
-	."* Integration completed *\n"
-	."*************************\n");
 
 /**
- * Takes an array of field and returns a string contianing those who have a non empty string value
+ * Takes an array of field and returns a string contaning those who have a non empty string value
+ * and adds the default created, created_by, modified, modified_by fields at the end
  * @param array $fields 
  * @return string
  */
@@ -88,6 +97,13 @@ function buildInsertQuery($fields){
 	return $result."created, created_by, modified, modified_by";
 }
 
+/**
+ * Takes the fields array and the values array in order to build the values part of the query.
+ * The value fields starting with @Êwill be put directly into the query without beign replaced (minus the first @)
+ * @param unknown_type $fields The array of the fields configuration
+ * @param unknown_type $values The array of values read from the csv
+ * @return string
+ */
 function buildValuesQuery($fields, $values){
 	global $created_id;
 	$result = "";
@@ -101,29 +117,21 @@ function buildValuesQuery($fields, $values){
 	return $result."NOW(), ".$created_id.", NOW(), ".$created_id;	
 }
 
-function clean($element){
-	return str_replace('"', '', $element);
-}
 
-function associate($keys, &$values){
-	foreach($keys as $i => $v){
-		$values[$v] = $values[$i];
-//		echo($keys[$i]." -> ".$values[$i]."\n");
-	}
-}
-
-function lineToArray($line){
-	$result = explode(";", substr($line, 0, strlen($line) - 1));
-	return array_map("clean", $result);
-	
-}
-
-
-function insertTable($table_name, &$tables, $csv_parent_key = null, $mysql_parent_id = null){
+/**
+ * Inserts a given table data into the database. For each row, there is a verification to see if children exist to call this
+ * function recursively
+ * @param unknown_type $table_name The name of the table to work on
+ * @param unknown_type $tables The full array containing every tables config
+ * @param unknown_type $csv_parent_key The csv key of the parent table if it exists
+ * @param unknown_type $mysql_parent_id The id (integer) of the mysql parent row
+ */
+function insertTable($table_name, &$tables, $csv_parent_key = null, $mysql_parent_id = null, $parent_data = null){
 	global $connection;
 	$current_table = &$tables[$table_name];
 	$i = 0;
-//	if($table_name == "consent_masters"){
+	//debug info
+//	if($table_name == "sd_der_plasmas"){
 //		echo("Size: ".sizeof($current_table['app_data']['values'])."\n");
 //		echo($current_table['app_data']['values'][$current_table['master'][$current_table['app_data']['parent_key']]]."  -  ".$csv_parent_key."\n");
 //		print_r($current_table['app_data']['values']);
@@ -133,8 +141,14 @@ function insertTable($table_name, &$tables, $csv_parent_key = null, $mysql_paren
 		($csv_parent_key == null || $current_table['app_data']['values'][$current_table['master'][$current_table['app_data']['parent_key']]] == $csv_parent_key)){
 		//replace parent value.
 		if($mysql_parent_id != null){
-			$current_table['app_data']['key before replace'] = $current_table['app_data']['values'][$current_table[$current_table['app_data']['parent_key']]];
+			$current_table['app_data']['key before replace'] = $current_table['app_data']['values'][$current_table['master'][$current_table['app_data']['parent_key']]];
 			$current_table['app_data']['values'][$current_table['master'][$current_table['app_data']['parent_key']]] = $mysql_parent_id;
+		}
+		if(isset($parent_data)){
+			//put answers in place
+			foreach($parent_data as $question => $answer){
+				$current_table['app_data']['values'][$question] = $answer;
+			}
 		}
 		
 		$query = $current_table['app_data']['query_master_insert'].buildValuesQuery($current_table["master"], $current_table['app_data']['values']).")";
@@ -169,23 +183,43 @@ function insertTable($table_name, &$tables, $csv_parent_key = null, $mysql_paren
 		
 		//treat child
 		foreach($current_table["app_data"]['child'] as $child_table_name){
-			insertTable($child_table_name, $tables, $current_table['app_data']['values'][$current_table["app_data"]["pkey"]], $last_id);
+			$child_required_data = array();
+			if(isset($tables[$child_table_name]['app_data']['ask_parent'])){
+				foreach($tables[$child_table_name]['app_data']['ask_parent'] as $question => $where_to_answer){
+					echo("child asking for: ".$question."\n");
+					if($question == "id"){
+						$child_required_data[$where_to_answer] = $last_id;
+					}else{
+						$child_required_data[$where_to_answer] = $current_table['app_data']['values'][$current_table['master'][$question]];
+					} 
+				}
+			}
+			insertTable($child_table_name, $tables, $current_table['app_data']['values'][$current_table["app_data"]["pkey"]], $last_id, $child_required_data);
 		}
 		flush();
+		readLine($current_table);
+//		++ $i;
+//		if($i == 3){
+//			exit;
+//		}
+	}
+}
+
+function readLine(&$current_table){
+	if(feof($current_table['app_data']['file_handler'])){
+		$current_table['app_data']['values'] = array();
+	}else{
+		do{
+			//read line, skip empty lines
+			$line = fgets($current_table['app_data']['file_handler'], 4096);
+			//				echo($line."\n");
+			$current_table['app_data']['values'] = lineToArray($line);
+			associate($current_table['app_data']['keys'], $current_table['app_data']['values']);
+		}while(!feof($current_table['app_data']['file_handler']) && (sizeof($current_table['app_data']['values']) <= (sizeof($current_table['app_data']['keys']) + 1) ||
+		(strlen($current_table["app_data"]["pkey"]) > 0 && strlen($current_table['app_data']['values'][$current_table["app_data"]["pkey"]]) == 0)));
+		
 		if(feof($current_table['app_data']['file_handler'])){
 			$current_table['app_data']['values'] = array();
-		}else{
-			do{
-				//read line, skip empty lines
-				$line = fgets($current_table['app_data']['file_handler'], 4096);
-//				echo($line."\n");
-				$current_table['app_data']['values'] = lineToArray($line);
-				associate($current_table['app_data']['keys'], $current_table['app_data']['values']);
-			}while(!feof($current_table['app_data']['file_handler']) && (sizeof($current_table['app_data']['values']) <= (sizeof($current_table['app_data']['keys']) + 1) || 
-				(strlen($current_table["app_data"]["pkey"]) > 0 && strlen($current_table['app_data']['values'][$current_table["app_data"]["pkey"]]) == 0)));
-			if(feof($current_table['app_data']['file_handler'])){
-				$current_table['app_data']['values'] = array();
-			}
 		}
 	}
 }

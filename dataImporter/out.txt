@@ -1,0 +1,29 @@
+INSERT INTO collections (acquisition_label, collection_property, created, created_by, modified, modified_by) VALUES('T-8', 'Participant collection', NOW(), 1, NOW(), 1)
+INSERT INTO id_linking (csv_id, mysql_id, model) VALUES('T-8', 22, 'collections')
+INSERT INTO sample_masters (sample_code, collection_id, sample_type, sample_control_id, sample_category, initial_specimen_sample_type, created, created_by, modified, modified_by) VALUES('c8', '22', 'blood', '2', 'specimen', 'blood', NOW(), 1, NOW(), 1)
+INSERT INTO sd_spe_bloods (sample_master_id, created, created_by, modified, modified_by) VALUES('46', NOW(), 1, NOW(), 1)
+UPDATE sample_masters SET initial_specimen_sample_id=46 WHERE id=46
+child asking for: collection_id
+INSERT INTO sample_masters (sample_code, initial_specimen_sample_id, sample_type, sample_control_id, sample_category, initial_specimen_sample_type, collection_id, created, created_by, modified, modified_by) VALUES('plasma_tmp', '46', 'plasma', '9', 'derivative', 'blood', '22', NOW(), 1, NOW(), 1)
+INSERT INTO sd_der_plasmas (sample_master_id, created, created_by, modified, modified_by) VALUES('47', NOW(), 1, NOW(), 1)
+UPDATE sample_masters SET sample_code='P - 47' WHERE id=47
+INSERT INTO sample_masters (sample_code, initial_specimen_sample_id, sample_type, sample_control_id, sample_category, initial_specimen_sample_type, collection_id, created, created_by, modified, modified_by) VALUES('plasma_tmp', '46', 'plasma', '9', 'derivative', 'blood', '22', NOW(), 1, NOW(), 1)
+INSERT INTO sd_der_plasmas (sample_master_id, created, created_by, modified, modified_by) VALUES('48', NOW(), 1, NOW(), 1)
+UPDATE sample_masters SET sample_code='P - 48' WHERE id=48
+INSERT INTO sample_masters (sample_code, initial_specimen_sample_id, sample_type, sample_control_id, sample_category, initial_specimen_sample_type, collection_id, created, created_by, modified, modified_by) VALUES('plasma_tmp', '46', 'plasma', '9', 'derivative', 'blood', '22', NOW(), 1, NOW(), 1)
+INSERT INTO sd_der_plasmas (sample_master_id, created, created_by, modified, modified_by) VALUES('49', NOW(), 1, NOW(), 1)
+UPDATE sample_masters SET sample_code='P - 49' WHERE id=49
+INSERT INTO sample_masters (sample_code, initial_specimen_sample_id, sample_type, sample_control_id, sample_category, initial_specimen_sample_type, collection_id, created, created_by, modified, modified_by) VALUES('plasma_tmp', '46', 'plasma', '9', 'derivative', 'blood', '22', NOW(), 1, NOW(), 1)
+INSERT INTO sd_der_plasmas (sample_master_id, created, created_by, modified, modified_by) VALUES('50', NOW(), 1, NOW(), 1)
+UPDATE sample_masters SET sample_code='P - 50' WHERE id=50
+INSERT INTO sample_masters (sample_code, initial_specimen_sample_id, sample_type, sample_control_id, sample_category, initial_specimen_sample_type, collection_id, created, created_by, modified, modified_by) VALUES('plasma_tmp', '46', 'plasma', '9', 'derivative', 'blood', '22', NOW(), 1, NOW(), 1)
+INSERT INTO sd_der_plasmas (sample_master_id, created, created_by, modified, modified_by) VALUES('51', NOW(), 1, NOW(), 1)
+UPDATE sample_masters SET sample_code='P - 51' WHERE id=51
+INSERT INTO sample_masters (sample_code, initial_specimen_sample_id, sample_type, sample_control_id, sample_category, initial_specimen_sample_type, collection_id, created, created_by, modified, modified_by) VALUES('plasma_tmp', '46', 'plasma', '9', 'derivative', 'blood', '22', NOW(), 1, NOW(), 1)
+INSERT INTO sd_der_plasmas (sample_master_id, created, created_by, modified, modified_by) VALUES('52', NOW(), 1, NOW(), 1)
+UPDATE sample_masters SET sample_code='P - 52' WHERE id=52
+Insertions commited
+*************************
+********VictWare*********
+* Integration completed *
+*************************
