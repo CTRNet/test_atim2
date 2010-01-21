@@ -1273,31 +1273,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 	}
 	
 	/* -------------------------------- ORDERING -------------------------------- */
-
-	/*
-		DATAMART PROCESS, addes BATCH SET aliquot IDs to ORDER ITEMs
-		Multi-part process, linking Orders, OrderLines, and OrderItems (all ACTIONs the same name in each CONTROLLER)
-	*/
-	
-	function addToOrder($aliquot_id) {
-		//TODO:  do review
-		// clear SESSION info
-		$_SESSION['ctrapp_core']['datamart']['process'] = array(
-			'AliquotMaster' => array(
-				'id' => array(
-					'0' => $aliquot_id
-				)
-			),
-			'BatchSet' => array(
-				'process' => '/order/order_lines/addAliquotToOrder/'.$aliquot_id.'/',
-				'id' => 0,
-				'model' => 'AliquotMaster'
-			)
-		);
-		
-		$this->redirect('/order/order_lines/addAliquotToOrder/'.$aliquot_id.'/');
-		exit();
-	}
 	
 	/* --------------------------------------------------------------------------
 	 * ADDITIONAL FUNCTIONS
