@@ -1726,7 +1726,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('collaborative staged', '', 'Collaborative Staged', ''),
 ('collagenase', 'global', 'Collagenase', 'Collag&eacute;nase'),
 ('Collected By', 'global', 'Collected By', 'Collected By'),
-('collected tubes nbr', 'global', 'Collected Tube Number', 'Nombre de tubes collect&eacute;s'),
+('collected tubes nbr', 'global', 'Number of collected tubes', 'Nombre de tubes collect&eacute;s'),
 ('collected volume', 'global', 'Collected Volume', 'Volume collect&eacute;'),
 ('collection', 'global', 'Collection', 'Collection'),
 ('collection annotation', 'global', 'Collection Annotation', 'Annotation de Collection'),
