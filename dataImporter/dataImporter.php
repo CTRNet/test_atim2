@@ -3,10 +3,15 @@ require_once("commonFunctions.php");
 require_once("config.php");
 require_once("dataImporter.php");
 require_once("tables_mapping/collections.php");
-//require_once("tables_mapping/consents.php");
-//require_once("tables_mapping/participants.php");
+require_once("tables_mapping/consents.php");
+require_once("tables_mapping/participants.php");
 require_once("tables_mapping/sd_spe_bloods.php");
+require_once("tables_mapping/sd_der_pbmcs.php");
 require_once("tables_mapping/sd_der_plasmas.php");
+require_once("tables_mapping/sd_der_serums.php");
+require_once("tables_mapping/tubes/ad_tubes_plasma.php");
+require_once("tables_mapping/tubes/ad_tubes_pbmc.php");
+require_once("tables_mapping/tubes/ad_tubes_serum.php");
 
 //validate each file exists and prep them
 foreach($tables as $ref_name => &$table){
@@ -47,7 +52,7 @@ $query = "CREATE  TABLE id_linking(
 mysqli_query($connection, $query) or die("temporary table query failed[".mysqli_errno($connection) . ": " . mysqli_error($connection)."]\n");
 
 //define the primary tables (collection links is considered to be a special table)
-$primary_tables = array(//"participants" => $participants,
+$primary_tables = array("participants" => $participants,
 						"collections" => $collections);
 
 //iteratover the primary tables who will, in turn, iterate over their children
@@ -131,15 +136,19 @@ function insertTable($table_name, &$tables, $csv_parent_key = null, $mysql_paren
 	$current_table = &$tables[$table_name];
 	$i = 0;
 	//debug info
-//	if($table_name == "sd_der_plasmas"){
+//	if($table_name == "ad_tubes_pbmc"){
 //		echo("Size: ".sizeof($current_table['app_data']['values'])."\n");
 //		echo($current_table['app_data']['values'][$current_table['master'][$current_table['app_data']['parent_key']]]."  -  ".$csv_parent_key."\n");
 //		print_r($current_table['app_data']['values']);
 //		echo($current_table['app_data']['values'][$current_table['master'][$current_table['app_data']['parent_key']]]."\n");
+//		exit;
 //	}
 	while(sizeof($current_table['app_data']['values']) > 0 && 
 		($csv_parent_key == null || $current_table['app_data']['values'][$current_table['master'][$current_table['app_data']['parent_key']]] == $csv_parent_key)){
 		//replace parent value.
+			if($table_name == "ad_tubes_pbmc"){
+				echo("IN WHILE!");
+			}
 		if($mysql_parent_id != null){
 			$current_table['app_data']['key before replace'] = $current_table['app_data']['values'][$current_table['master'][$current_table['app_data']['parent_key']]];
 			$current_table['app_data']['values'][$current_table['master'][$current_table['app_data']['parent_key']]] = $mysql_parent_id;
@@ -165,14 +174,17 @@ function insertTable($table_name, &$tables, $csv_parent_key = null, $mysql_paren
 			echo $query."\n";
 		}
 		
+		
+		//treat additional querries
 		if(isset($current_table["app_data"]['additional_queries'])){
-			//treat additional querries
 			foreach($current_table["app_data"]['additional_queries'] as $ad_query){
 				$ad_query = str_replace("%%last_master_insert_id%%", $last_id, str_replace("%%last_detail_insert_id%%", $last_detail_id, $ad_query));
 				mysqli_query($connection, $ad_query) or die("ad query failed[".$table_name."][".$ad_query."][".mysqli_errno($connection) . ": " . mysqli_error($connection)."]".print_r($current_table)."\n");
 				echo $ad_query."\n";
 			}
 		}
+		
+		//saving id if required
 		if(isset($current_table['app_data']['save_id']) && $current_table['app_data']['save_id']){
 			$query = "INSERT INTO id_linking (csv_id, mysql_id, model) VALUES('"
 					.$current_table['app_data']['values'][$current_table['app_data']['pkey']]."', "
@@ -186,15 +198,24 @@ function insertTable($table_name, &$tables, $csv_parent_key = null, $mysql_paren
 			$child_required_data = array();
 			if(isset($tables[$child_table_name]['app_data']['ask_parent'])){
 				foreach($tables[$child_table_name]['app_data']['ask_parent'] as $question => $where_to_answer){
-					echo("child asking for: ".$question."\n");
+//					echo("child asking for: ".$question."\n");
 					if($question == "id"){
 						$child_required_data[$where_to_answer] = $last_id;
 					}else{
 						$child_required_data[$where_to_answer] = $current_table['app_data']['values'][$current_table['master'][$question]];
-					} 
+					}
 				}
 			}
-			insertTable($child_table_name, $tables, $current_table['app_data']['values'][$current_table["app_data"]["pkey"]], $last_id, $child_required_data);
+//			if($child_table_name == "ad_tubes_plasma"){
+//				print_r($current_table['app_data']);
+//				echo($current_table['app_data']['key before replace']."\n");
+//				exit;
+//			}
+			insertTable($child_table_name, 
+							$tables, 
+							$current_table['app_data']['values'][$current_table["app_data"]["pkey"]], 
+							$last_id, 
+							$child_required_data);
 		}
 		flush();
 		readLine($current_table);
