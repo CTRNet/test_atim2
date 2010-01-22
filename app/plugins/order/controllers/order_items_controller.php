@@ -4,7 +4,9 @@ class OrderItemsController extends OrderAppController {
 	
 	var $uses = array(
 		'Inventorymanagement.AliquotMaster',	
-	
+		'Inventorymanagement.SampleControl',
+		'Inventorymanagement.AliquotControl',	
+			
 		'Order.Order', 
 		'Order.OrderLine', 
 		'Order.OrderItem');
@@ -35,15 +37,7 @@ class OrderItemsController extends OrderAppController {
 			require($hook_link); 
 		}
 	}
-	
-//TODO change line status...
-//TODO verify an aliquot could be added to order just one time
-//TODO add in batch $_SESSION['Order']['NewAliquotsForOrder']
-	
-//		my function (aliquot->addToOrder) must call this add
-//		orderItemShipmentId
 
-	
 	function add( $order_id, $order_line_id ) {
 		if (( !$order_id ) || ( !$order_line_id )) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
 		
@@ -103,7 +97,7 @@ class OrderItemsController extends OrderAppController {
 				if($this->OrderItem->save($new_order_item_data)) {
 					// Update Order Line status
 					$new_order_line_data = array();
-					$new_order_line_data = $new_order_line_data['OrderLine']['status'] = 'pending';
+					$new_order_line_data['OrderLine']['status'] = 'pending';
 					
 					$this->OrderLine->id = $order_line_data['OrderLine']['id'];
 					if(!$this->OrderLine->save($new_order_line_data)) { $this->redirect( '/pages/err_order_record_err', null, true ); }
@@ -121,26 +115,11 @@ class OrderItemsController extends OrderAppController {
 			}
 		}
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-  	
-  	
   	
   	function addAliquotsInBatch($aliquot_master_id = null, $order_id = null, $order_line_id = null){
-			
+  		
 		// MANAGE SET OF ALIQUOT IDS TO WORK ON
+		
 		$aliquot_ids_to_add = null;
 		$url_to_redirect = null;
 		$launch_save_process = false;
@@ -236,9 +215,7 @@ class OrderItemsController extends OrderAppController {
 		
 		// Build data for order line selection
 		$this->data = $this->Order->find('all', array('conditions' => array('NOT' => array('Order.processing_status' => array('completed')))));
-		$this->data = $this->Order->find('all', array('conditions' => array('NOT' => array('Order.processing_status' => 'completed'))));
-		$this->data = $this->Order->find('all', array('conditions' => array("Order.processing_status != 'completed'")));
-exit;
+		
 		foreach($this->data as &$var){
 			$var['children'] = $var['OrderLine'];
 			unset($var['OrderLine']);
@@ -250,6 +227,15 @@ exit;
 		
 		// Set url for cancel button
 		$this->set('url_to_cancel', $url_to_redirect);
+		
+		// Populate both sample and aliquot control
+		$sample_controls_list = $this->SampleControl->find('all', array('recursive' => '-1'));
+		$sample_controls_list = empty($sample_controls_list)? array(): $sample_controls_list;
+		$aliquot_controls_list = $this->AliquotControl->find('all', array('recursive' => '-1'));
+		$aliquot_controls_list = empty($aliquot_controls_list)? array(): $aliquot_controls_list;
+
+		$this->set('sample_controls_list', $sample_controls_list);
+		$this->set('aliquot_controls_list', $aliquot_controls_list);
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -288,7 +274,6 @@ exit;
 			if($submitted_data_validates){
 				
 				foreach($aliquot_ids_to_add as $added_aliquot_master_id) {
-					pr('create ' . $added_aliquot_master_id);
 					// Add order item
 					$new_order_item_data = array();
 					$new_order_item_data['OrderItem']['status'] = 'pending';
@@ -308,11 +293,14 @@ exit;
 				
 				// Update Order Line status
 				$new_order_line_data = array();
-				$new_order_line_data = $new_order_line_data['OrderLine']['status'] = 'pending';
+				$new_order_line_data['OrderLine']['status'] = 'pending';
 				
 				$this->OrderLine->id = $order_line_id;
 				if(!$this->OrderLine->save($new_order_line_data)) { $this->redirect( '/pages/err_order_record_err', null, true ); }
-					
+				
+				// Unset session data
+				unset($_SESSION['Order']['AliquotIdsToAddToOrder']);
+				
 				// Redirect
 				$this->flash('your data has been saved', '/order/order_items/listall/'.$order_id.'/'.$order_line_id.'/');
 			}
