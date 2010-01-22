@@ -1431,6 +1431,24 @@ class StructuresHelper extends Helper {
 						case 'number':
 							
 							$html_element_array['type'] = 'text';
+							
+							if ( $options['type']=='search' ) {
+								
+								$display_value .= $this->Form->input(
+									$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start',
+									$html_element_array
+								);
+								
+								$display_value .= ' <span class="tag">'.__('to',TRUE).'</span> ';
+								
+								$display_value .= $this->Form->input(
+									$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end',
+									$html_element_array
+								);
+								
+								$use_cakephp_form_helper = FALSE;
+							}
+							
 							break;
 							
 						case 'input':
