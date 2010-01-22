@@ -9,7 +9,9 @@ class OrderItemsController extends OrderAppController {
 		'Order.OrderLine', 
 		'Order.OrderItem');
 		
-	var $paginate = array('OrderItem'=>array('limit'=>'10','order'=>'AliquotMaster.barcode'));
+	var $paginate = array(
+		'OrderItem'=>array('limit'=>'10','order'=>'AliquotMaster.barcode'),
+		'AliquotMaster' => array('limit' =>10 , 'order' => 'AliquotMaster.barcode DESC'));
 	
 	function listall( $order_id, $order_line_id ) {
   		if (( !$order_id ) || ( !$order_line_id )) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
@@ -255,6 +257,151 @@ class OrderItemsController extends OrderAppController {
 			$this->flash($arr_allow_deletion['msg'], $url);
 		}
 	}
+  	
+  	
+  	
+  	function addAliquotsInBatch($aliquot_master_id = null, $order_id = null, $order_line_id = null){
+			
+		// MANAGE SET OF ALIQUOT IDS TO WORK ON
+		$aliquot_ids_to_add = null;
+		$url_to_redirect = null;
+		$launch_save_process = false;
+		
+		if(is_null($order_id) && is_null($order_line_id)) {
+			// A- User just launched the process: set ids in session
+			
+			// A.1- Get ids
+			$studied_aliquot_master_ids = array();
+					
+			if(!empty($aliquot_master_id)) {
+				// Add aliquot from inventorymanagement plugin
+				$studied_aliquot_master_ids[] = $aliquot_master_id;
+				
+				// Get aliquot data
+				$aliquot_data = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.id' => $studied_aliquot_master_ids), 'recursive' => '-1'));
+				if(empty($aliquot_data)) { $this->redirect( '/pages/err_order_no_data', null, true ); }
+				
+				// Build redirect url
+				$url_to_redirect = '/aliquot_masters/detail/' . $aliquot_data['AliquotMaster']['collection_id'] . '/' . $aliquot_data['AliquotMaster']['sample_master_id'] . '/' . $aliquot_data['AliquotMaster']['id'] . '/';				
+				
+					
+			} else if(isset($_SESSION['ctrapp_core']['datamart']['process']['AliquotMaster']['id'])){
+				// Add aliquots from batchset
+				$batch_set_id = $_SESSION['ctrapp_core']['datamart']['process']['BatchSet']['id'];
+				
+				//TODO Add following lines to patch bug on the array of ids sent by the batchset process
+				// $studied_aliquot_master_ids = $_SESSION['ctrapp_core']['datamart']['process']['AliquotMaster']['id'];
+				$aliquot_master_ids = $_SESSION['ctrapp_core']['datamart']['process']['AliquotMaster']['id'];
+				foreach($aliquot_master_ids as $new_id) { if(!empty($new_id)) { $studied_aliquot_master_ids[] = $new_id; } }
+				$aliquot_master_ids = null;
+				
+				// Check all aliquots exist
+				$aliquots_count = $this->AliquotMaster->find('count', array('conditions' => array('AliquotMaster.id' => $studied_aliquot_master_ids), 'recursive' => '-1'));
+				if($aliquots_count != sizeof($studied_aliquot_master_ids)) { 
+					$this->redirect('/pages/err_order_system_error', null, true); 
+				}
+				
+				// Build redirect url
+				$url_to_redirect = '/datamart/batch_sets/listall/all/' . $batch_set_id;
+			
+			} else {
+				$this->redirect( '/pages/err_order_funct_param_missing', null, true );
+			}
+			
+			//TODO unset($_SESSION['ctrapp_core']['datamart']['process']);
+			
+			// A.2- Validate submitted aliquot ids
+			$submitted_aliquots_validates = true;
+			$error_message = '';
+			
+			if(empty($studied_aliquot_master_ids)) {
+				// No aliquot has been submitted
+				$submitted_aliquots_validates = false;
+				$error_message = 'no aliquot has been submitted';
+			}
+					
+			if($submitted_aliquots_validates) {
+				// Check aliquots have never been added to an order
+				$existing_order_aliquots = $this->OrderItem->find('all', array('conditions' => array('OrderItem.aliquot_master_id' => $studied_aliquot_master_ids), 'recursive' => '0'));
+				if(!empty($existing_order_aliquots)) {
+					$aliquots_list_for_display = '';
+					foreach($existing_order_aliquots as $new_record) { $aliquots_list_for_display .= '<br> - ' . $new_record['AliquotMaster']['barcode']; }
+					$submitted_aliquots_validates = false;
+					$error_message = __('an aliquot could be added once into an order', true) .  '<br>' . __('please check aliquots', true) . ' : ' . $aliquots_list_for_display;				
+				}
+			}
+			
+			if(!$submitted_aliquots_validates) {	
+				// Error has been detected: Redirect
+				$this->flash($error_message, $url_to_redirect);
+				return;
+				
+			} else {
+				// Set data to session
+				$aliquot_ids_to_add = $studied_aliquot_master_ids;
+				$_SESSION['Order']['AliquotIdsToAddToOrder'] = $studied_aliquot_master_ids;
+			}	
+					
+		} else {
+			// B- User should have selected an order line: get ids from session and launch save process
+			
+			if(!isset($_SESSION['Order']['AliquotIdsToAddToOrder'])) { $this->redirect('/pages/err_order_system_error', null, true); }
+			$aliquot_ids_to_add = $_SESSION['Order']['AliquotIdsToAddToOrder'];
+			$launch_save_process = true;
+		}
+		
+		// MANAGE DATA
+		
+		// Get aliquot data
+		$aliquots_data = $this->paginate($this->AliquotMaster, array('AliquotMaster.id'=>$aliquot_ids_to_add));
+		$this->set('aliquots_data' , $aliquots_data);
+		
+		// Build data for order line selection
+		$this->data = $this->Order->find('all', array('conditions' => array('NOT' => array('Order.processing_status' => array('completed')))));
+		foreach($this->data as &$var){
+			$var['children'] = $var['OrderLine'];
+			unset($var['OrderLine']);
+			foreach($var['children'] as $key => &$var2){
+				$var['children'][$key] = array('OrderLine' => $var2);
+			}
+			unset($var['Shipment']);
+		}	
+		
+		// Set url for cancel button
+		$this->set('url_to_cancel', $url_to_redirect);
+		
+		// MANAGE FORM, MENU AND ACTION BUTTONS
+		
+		// Structures
+		$atim_structure = array();
+		$atim_structure['Order'] = $this->Structures->get('form', 'orders');
+		$atim_structure['OrderLine'] = $this->Structures->get('form', 'orderlines');
+		$this->set('atim_structure', $atim_structure);
+		
+		$this->Structures->set('aliquotmasters_summary', 'atim_structure_for_aliquots_list');
+
+		// Menu
+		$this->set('atim_menu', $this->Menus->get("/order/orders/index/"));
+		
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link);
+		}
+				
+		// SAVE DATA
+
+		if($launch_save_process) {
+			pr('la');
+			pr($order_id);
+			pr($order_line_id);
+			pr($aliquot_ids_to_add);
+			exit;
+		}
+		
+
+	}
+  	
+  	
   	
 	/* --------------------------------------------------------------------------
 	 * ADDITIONAL FUNCTIONS

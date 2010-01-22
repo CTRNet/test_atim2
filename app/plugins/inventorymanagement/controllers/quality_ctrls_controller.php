@@ -128,7 +128,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			'SampleMaster.initial_specimen_sample_id' => $quality_ctrl_data['SampleMaster']['initial_specimen_sample_id'],
 			'QualityCtrl.id' => $quality_ctrl_id) );
 					
-		$this->set('structure_for_tested_aliquots', $this->Structures->get('form', 'qctestedaliquots'));
+		$this->Structures->set('qctestedaliquots', 'structure_for_tested_aliquots');
 		
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { 
