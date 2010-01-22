@@ -12,13 +12,12 @@ class Participant extends ClinicalannotationAppModel {
 		$return = false;
 		
 		if ( isset($variables['Participant.id']) ) {
-			
 			$result = $this->find('first', array('conditions'=>array('Participant.id'=>$variables['Participant.id'])));
 			
 			$return = array(
 				'Summary'	 => array(
-					'menu'			=>	array( NULL, __($result['Participant']['first_name'].' '.$result['Participant']['last_name'], TRUE) ),
-					'title'			=>	array( NULL, __($result['Participant']['first_name'].' '.$result['Participant']['last_name'], TRUE) ),
+					'menu'			=>	array( NULL, ($result['Participant']['participant_identifier'].' - '.$result['Participant']['last_name']) ),
+					'title'			=>	array( NULL, ($result['Participant']['participant_identifier'].' - '.$result['Participant']['last_name']) ),
 					
 					'description'		=>	array(
 						__('participant identifier',TRUE)	=>	__($result['Participant']['participant_identifier'], TRUE),

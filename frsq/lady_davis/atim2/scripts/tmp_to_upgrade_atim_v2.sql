@@ -1,9 +1,21 @@
-DELETE FROM `structure_formats` WHERE `structure_old_id` = 'CANM-00016';
-INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
-(null, 'CANM-00016_CAN-999-999-000-999-1100', 195, 'CANM-00016', 216, 'CAN-999-999-000-999-1100', 0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(null, 'CANM-00016_CAN-999-999-000-999-1102', 195, 'CANM-00016', 218, 'CAN-999-999-000-999-1102', 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-    	  		  	
-(null, 'CANM-00016_CAN-999-999-000-999-1153', 195, 'CANM-00016', 266, 'CAN-999-999-000-999-1153', 0, 10, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(null, 'CANM-00016_CAN-999-999-000-999-1131', 195, 'CANM-00016', 248, 'CAN-999-999-000-999-1131', 0, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(null, 'CANM-00016_CAN-999-999-000-999-1267', 195, 'CANM-00016', 381, 'CAN-999-999-000-999-1267', 0, 12, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(null, 'CANM-00016_CAN-999-999-000-999-1266', 195, 'CANM-00016', 380, 'CAN-999-999-000-999-1266', 0, 13, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+﻿UPDATE `structure_validations`
+SET `flag_empty` = '0'
+WHERE `rule` LIKE 'notEmpty'
+AND `flag_empty` LIKE '1';
+
+UPDATE `i18n` SET fr='Décembre' WHERE id='December';
+update `i18n` set fr='Déc' WHERE id='dec';
+update `i18n` set fr='Février' WHERE id='February';
+update `i18n` set fr='Fév' WHERE id='feb';
+
+UPDATE `structure_fields` 
+SET `structure_value_domain` = (SELECT id FROM `structure_value_domains` WHERE `domain_name`  = 'custom_laboratory_staff'),
+type = 'select',
+setting = null
+WHERE old_id = 'CAN-999-999-000-999-499';
+
+DELETE FROM `structure_formats` WHERE `structure_id` IN (SELECT `id` FROM `structures` WHERE `alias` = 'available_bank_participants_aliquots');
+DELETE FROM `structures` WHERE `alias` = 'available_bank_participants_aliquots';
+
+DELETE FROM `structure_formats` WHERE `structure_id` IN (SELECT `id` FROM `structures` WHERE `alias` = 'aliquot_masters_for_search_result');
+DELETE FROM `structures` WHERE `alias` = 'aliquot_masters_for_search_result';

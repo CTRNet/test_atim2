@@ -5,6 +5,7 @@ class SampleMastersController extends InventorymanagementAppController {
 	var $components = array(
 		'Inventorymanagement.Collections', 
 		'Inventorymanagement.Samples', 
+		'Inventorymanagement.Aliquots', 
 
 		'Administrate.Administrates',
 		'Sop.Sops');
@@ -25,6 +26,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		'Inventorymanagement.AliquotMaster',
 		
 		'Inventorymanagement.SourceAliquot',
+		'Inventorymanagement.AliquotUse',
 		'Inventorymanagement.QualityCtrl',
 		'Inventorymanagement.PathCollectionReview',
 		'Inventorymanagement.ReviewMaster',
@@ -36,7 +38,9 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 		'Codingicd10.CodingIcd10');
 	
-	var $paginate = array('SampleMaster' => array('limit' => 10, 'order' => 'SampleMaster.sample_code DESC'));
+	var $paginate = array(
+		'SampleMaster' => array('limit' => 10, 'order' => 'SampleMaster.sample_code DESC'),
+		'AliquotMaster' => array('limit' =>10 , 'order' => 'AliquotMaster.barcode DESC'));
 
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS
@@ -684,6 +688,17 @@ class SampleMastersController extends InventorymanagementAppController {
 						// DerivativeDetail
 						$this->DerivativeDetail->id = $sample_data['DerivativeDetail']['id'];
 						if(!$this->DerivativeDetail->save($this->data['DerivativeDetail'], false)) { $this->redirect('/pages/err_inv_system_error', null, true); }
+					
+						// Update source aliquot use data
+						//TODO Add test to verifiy date and created_by have been modified  before to launch update function
+						$source_aliquots = $this->SourceAliquot->find('all', array('conditions' => array('SourceAliquot.sample_master_id' => $sample_master_id), 'recursive' => '-1'));
+						if(!empty($source_aliquots)) {
+							$use_ids = array();
+							foreach($source_aliquots as $source_data) {
+								$use_ids[] = $source_data['SourceAliquot']['aliquot_use_id'];
+							}
+							if(!$this->Aliquots->updateAliquotUses($use_ids, $this->data['DerivativeDetail']['creation_datetime'], $this->data['DerivativeDetail']['creation_by'])) { $this->redirect('/pages/err_inv_system_error', null, true); }
+						}
 					}
 
 					$this->flash('your data has been updated', '/inventorymanagement/sample_masters/detail/' . $collection_id . '/' . $sample_master_id);		
@@ -717,6 +732,9 @@ class SampleMastersController extends InventorymanagementAppController {
 				
 		// Check deletion is allowed
 		$arr_allow_deletion = $this->allowSampleDeletion($sample_master_id);
+		
+		$hook_link = $this->hook('delete');
+		if( $hook_link ) { require($hook_link); }		
 		
 		if($arr_allow_deletion['allow_deletion']) {
 			$deletion_done = true;

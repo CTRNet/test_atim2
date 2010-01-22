@@ -69,8 +69,6 @@ class AliquotsComponent extends Object {
 			$new_current_volume = $initial_volume;
 			
 			foreach($aliquot_data['AliquotUse'] as $id => $aliquot_use){
-				//TODO to patch bug listed in issue #650
-				if($aliquot_use['deleted'] == '1') { continue; }
 				$used_volume = $aliquot_use['used_volume'];
 				if(!empty($used_volume)){
 					// Take used volume in consideration only when this one is not empty
@@ -111,12 +109,33 @@ class AliquotsComponent extends Object {
 	 */
 	 
 	function updateAliquotUses($aliquot_use_ids, $use_datetime, $used_by) {
-		if((!$aliquot_use_ids) || (!$use_datetime) || (!$used_by)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }		
+		if(((!is_array($aliquot_use_ids)) && !$aliquot_use_ids) || (!$use_datetime) || (!$used_by)) { $this->controller->redirect('/pages/err_inv_funct_param_missing', null, true); }		
 		foreach($aliquot_use_ids as $aliquot_use_id) {
 			$this->controller->AliquotUse->id = $aliquot_use_id;
 			if(!$this->controller->AliquotUse->save(array('AliquotUse' => array('used_by' => $used_by, 'use_datetime' => $use_datetime)))) { return false; }
 		}
 		return true;
+	}
+	
+	/**
+	 * Replace ',' by '.' for all decimal field values gathered into 
+	 * data submitted for aliquot use creation or modification.
+	 * 
+	 * @param $submtted_data Submitted data
+	 * 
+	 * @return Formatted data.
+	 *
+	 * @author N. Luc
+	 * @since 2009-09-11
+	 */	
+	
+	function formatAliquotUseFieldDecimalData($submtted_data) {
+		// Work on AliquotUse fields
+		if(isset($submtted_data['AliquotUse'])) {
+			if(isset($submtted_data['AliquotUse']['used_volume'])) { $submtted_data['AliquotUse']['used_volume'] = str_replace(',', '.', $submtted_data['AliquotUse']['used_volume']); }					
+		}
+		
+		return $submtted_data;
 	}
 }
 

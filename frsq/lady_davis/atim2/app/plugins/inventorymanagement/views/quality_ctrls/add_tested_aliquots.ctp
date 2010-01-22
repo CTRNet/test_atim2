@@ -14,7 +14,7 @@
 	);
 	
 	$final_atim_structure = $atim_structure; 
-	$final_options = array('links' => $structure_links, 'override' => $structure_override, 'type' => 'datagrid', 'settings'=> array('pagination' => false));
+	$final_options = array('links' => $structure_links, 'type' => 'datagrid', 'settings'=> array('pagination' => false));
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook();

@@ -140,7 +140,6 @@ class InventorymanagementAppController extends AppController {
 		$key_to_sample_parent_id = array();
 		foreach($working_data as $key => $aliquot_data) {
 			// Set aliquot use
-			//TODO add patch to correct bug listed in issue #650
 			$working_data[$key]['Generated']['aliquot_use_counter'] = sizeof($aliquot_data['AliquotUse']);
 			
 			// Set realiquoting data

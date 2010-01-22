@@ -1,7 +1,7 @@
 <?php 
 	$add_links = array();
 	foreach ( $treatment_controls as $treatment_control ) {
-		$add_links[$treatment_control['TreatmentControl']['disease_site'].' - '.$treatment_control['TreatmentControl']['tx_group']] = '/clinicalannotation/treatment_masters/add/'.$atim_menu_variables['Participant.id'].'/'.$treatment_control['TreatmentControl']['id'];
+		$add_links[$treatment_control['TreatmentControl']['tx_method']] = '/clinicalannotation/treatment_masters/add/'.$atim_menu_variables['Participant.id'].'/'.$treatment_control['TreatmentControl']['id'];
 	}
 	
 	$structure_links = array(
