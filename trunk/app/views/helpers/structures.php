@@ -1629,7 +1629,7 @@ class StructuresHelper extends Helper {
 									}
 									
 									if ( $field['StructureField']['type']=='datetime' ) {
-										$display_value .= $this->Form->hour($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], FALSE, $hour_value, am(array('name'=>$hour_name),$html_element_array) );
+										$display_value .= $this->Form->hour($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], FALSE, ($hour_value == 0 ? 12 : $hour_value), am(array('name'=>$hour_name),$html_element_array) );
 										$display_value .= $this->Form->minute($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], $minute_value,  am(array('name'=>$minute_name),$html_element_array) );
 										$display_value .= $this->Form->meridian($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], $meridian_value,  am(array('name'=>$meridian_name),$html_element_array) );
 									}
