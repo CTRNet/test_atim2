@@ -1,65 +1,16 @@
--- ATiM v2.0.0 Database Creation Script
+-- ATiM v2.0.0 DDL Database Creation Script
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 SET FOREIGN_KEY_CHECKS=0;
 
 -- DROP tables
 
-DROP TABLE IF EXISTS `cd_nationals`, `cd_nationals_revs`, `acos`, `ad_bags`, `ad_bags_revs`, `ad_blocks`, `ad_blocks_revs`, `ad_cell_cores`, `ad_cell_cores_revs`, 
-`ad_cell_slides`, `ad_cell_slides_revs`, `ad_gel_matrices`, `ad_gel_matrices_revs`, `ad_tissue_cores`, `ad_tissue_cores_revs`, 
-`ad_tissue_slides`, `ad_tissue_slides_revs`, `ad_tubes`, `ad_tubes_revs`, `ad_whatman_papers`, `ad_whatman_papers_revs`, 
-`aliquot_controls`, `aliquot_masters`, `aliquot_masters_revs`, `aliquot_uses`, `aliquot_uses_revs`, `announcements`, `aros`, 
-`aros_acos`, `atim_information`, `banks`, `banks_revs`, `cd_atypes`, `cd_atypes_revs`, `cd_btypes`, `cd_btypes_revs`, 
-`clinical_collection_links`, `clinical_collection_links_revs`, `coding_adverse_events`, `coding_adverse_events_revs`, 
-`coding_icd10`, `collections`, `collections_revs`, `configs`, `consent_controls`, `consent_masters`, `consent_masters_revs`, 
-`datamart_adhoc`, `datamart_adhoc_favourites`, `datamart_adhoc_saved`, `datamart_batch_ids`, `datamart_batch_processes`, 
-`datamart_batch_sets`, `derivative_details`, `derivative_details_revs`, `diagnosis_controls`, `diagnosis_masters`, 
-`diagnosis_masters_revs`, `drugs`, `drugs_revs`, `dxd_bloods`, `dxd_bloods_rev`, `dxd_tissues`, `dxd_tissues_rev`, 
-`ed_allsolid_lab_pathology`, `ed_allsolid_lab_pathology_revs`, `ed_all_adverse_events_adverse_event`,
-`ed_all_adverse_events_adverse_event_revs`, `ed_all_clinical_followup`, `ed_all_clinical_followup_revs`, 
-`ed_all_clinical_presentation`, `ed_all_clinical_presentation_revs`, `ed_all_lifestyle_base`, `ed_all_lifestyle_base_revs`, 
-`ed_all_protocol_followup`, `ed_all_protocol_followup_revs`, `ed_all_study_research`, `ed_all_study_research_revs`, 
-`ed_breast_lab_pathology`, `ed_breast_lab_pathology_revs`, `ed_breast_screening_mammogram`, `ed_breast_screening_mammogram_revs`, 
-`event_controls`, `event_masters`, `event_masters_revs`, `family_histories`, `family_histories_revs`, `groups`, `i18n`, `langs`, 
-`materials`, `materials_revs`, `menus`, `misc_identifiers`, `misc_identifiers_revs`, `orders`, `orders_revs`, `order_items`, 
-`order_items_revs`, `order_lines`, `order_lines_revs`, `pages`, `parent_to_derivative_sample_controls`, `participants`, 
-`participants_revs`, `participant_contacts`, `participant_contacts_revs`, `participant_messages`, `participant_messages_revs`, 
-`path_collection_reviews`, `path_collection_reviews_revs`, `pd_chemos`, `pd_chemos_revs`, `pe_chemos`, `pe_chemos_revs`, 
-`protocol_controls`, `protocol_masters`, `protocol_masters_revs`, `providers`, `providers_revs`, `quality_ctrls`, 
-`quality_ctrls_revs`, `quality_ctrl_tested_aliquots`, `quality_ctrl_tested_aliquots_revs`, `rd_bloodcellcounts`, 
-`rd_bloodcellcounts_revs`, `rd_blood_cells`, `rd_blood_cells_revs`, `rd_breastcancertypes`, `rd_breastcancertypes_revs`, 
-`rd_breast_cancers`, `rd_breast_cancers_revs`, `rd_coloncancertypes`, `rd_coloncancertypes_revs`, `rd_genericcancertypes`, 
-`rd_genericcancertypes_revs`, `rd_ovarianuteruscancertypes`, `rd_ovarianuteruscancertypes_revs`, `realiquotings`, 
-`realiquotings_revs`, `reproductive_histories`, `reproductive_histories_revs`, `review_controls`, `review_masters`, 
-`review_masters_revs`, `rtbforms`, `rtbforms_revs`, `sample_controls`, `sample_masters`, `sample_masters_revs`, 
-`sample_to_aliquot_controls`, `sd_der_amp_dnas`, `sd_der_amp_dnas_revs`, `sd_der_amp_rnas`, `sd_der_amp_rnas_revs`, 
-`sd_der_ascite_cells`, `sd_der_ascite_cells_revs`, `sd_der_ascite_sups`, `sd_der_ascite_sups_revs`, `sd_der_blood_cells`, 
-`sd_der_blood_cells_revs`, `sd_der_b_cells`, `sd_der_b_cells_revs`, `sd_der_cell_cultures`, `sd_der_cell_cultures_revs`, 
-`sd_der_dnas`, `sd_der_dnas_revs`, `sd_der_fluid_cells`, `sd_der_fluid_cells_revs`, `sd_der_fluid_sups`, `sd_der_fluid_sups_revs`, 
-`sd_der_other_cells`, `sd_der_other_cells_revs`, `sd_der_other_sups`, `sd_der_other_sups_revs`, `sd_der_pbmcs`, `sd_der_pbmcs_revs`, 
-`sd_der_plasmas`, `sd_der_plasmas_revs`, `sd_der_pw_cells`, `sd_der_pw_cells_revs`, `sd_der_pw_sups`, `sd_der_pw_sups_revs`, 
-`sd_der_rnas`, `sd_der_rnas_revs`, `sd_der_serums`, `sd_der_serums_revs`, `sd_der_tiss_lysates`, `sd_der_tiss_lysates_revs`, 
-`sd_der_tiss_susps`, `sd_der_tiss_susps_revs`, `sd_der_urine_cents`, `sd_der_urine_cents_revs`, `sd_der_urine_cons`, 
-`sd_der_urine_cons_revs`, `sd_spe_ascites`, `sd_spe_ascites_revs`, `sd_spe_bloods`, `sd_spe_bloods_revs`, `sd_spe_cystic_fluids`, 
-`sd_spe_cystic_fluids_revs`, `sd_spe_other_fluids`, `sd_spe_other_fluids_revs`, `sd_spe_peritoneal_washes`,
- `sd_spe_peritoneal_washes_revs`, `sd_spe_tissues`, `sd_spe_tissues_revs`, `sd_spe_urines`, `sd_spe_urines_revs`, `shelves`, 
- `shelves_revs`, `shipments`, `shipments_revs`, `sidebars`, `sopd_general_all`, `sopd_general_all_revs`, `sopd_inventory_all`, 
- `sopd_inventory_all_revs`, `sope_general_all`, `sope_general_all_revs`, `sope_inventory_all`, `sope_inventory_all_revs`, 
- `sop_controls`, `sop_masters`, `sop_masters_revs`, `source_aliquots`, `source_aliquots_revs`, `specimen_details`, 
- `specimen_details_revs`, `std_boxs`, `std_boxs_revs`, `std_cupboards`, `std_cupboards_revs`, `std_freezers`, `std_freezers_revs`, 
- `std_fridges`, `std_fridges_revs`, `std_incubators`, `std_incubators_revs`, `std_nitro_locates`, `std_nitro_locates_revs`, 
- `std_racks`, `std_racks_revs`, `std_rooms`, `std_rooms_revs`, `std_shelfs`, `std_shelfs_revs`, `std_tma_blocks`, 
- `std_tma_blocks_revs`, `storage_controls`, `storage_coordinates`, `storage_coordinates_revs`, `storage_masters`, 
- `storage_masters_revs`, `structures`, `structure_fields`, `structure_formats`, `structure_options`, `structure_permissible_values`, 
- `structure_validations`, `structure_value_domains`, `structure_value_domains_permissible_values`, `study_contacts`, 
- `study_contacts_revs`, `study_ethics_boards`, `study_ethics_boards_revs`, `study_fundings`, `study_fundings_revs`, 
- `study_investigators`, `study_investigators_revs`, `study_related`, `study_related_revs`, `study_results`, `study_results_revs`, 
- `study_reviews`, `study_reviews_revs`, `study_summaries`, `study_summaries_revs`, `tma_slides`, `tma_slides_revs`, `towers`, 
- `towers_revs`, `txd_chemos`, `txd_chemos_revs`, `txd_radiations`, `txd_radiations_revs`, `txd_surgeries`, `txd_surgeries_revs`, 
- `txe_chemos`, `txe_chemos_revs`, `txe_radiations`, `txe_radiations_revs`, `txe_surgeries`, `txe_surgeries_revs`, `tx_controls`, 
- `tx_masters`, `tx_masters_revs`, `users`, `user_logs`, `sd_spe_pericardial_fluids`, `sd_der_pericardial_fl_cells`, `sd_der_pericardial_fl_sups`, `sd_spe_pleural_fluids`, 
-`sd_der_pleural_fl_cells`, `sd_der_pleural_fl_sups`, `sd_der_cystic_fl_cells`, `sd_der_cystic_fl_sups`, `sd_spe_pericardial_fluids_revs`, `sd_der_pericardial_fl_cells_revs`, `sd_der_pericardial_fl_sups_revs`, `sd_spe_pleural_fluids_revs`, 
-`sd_der_pleural_fl_cells_revs`, `sd_der_pleural_fl_sups_revs`, `sd_der_cystic_fl_cells_revs`, `sd_der_cystic_fl_sups_revs`, `versions`, `dxd_bloods_revs`, `dxd_tissues_revs`;
+DROP TABLE IF EXISTS `acos`, `ad_bags`, `ad_bags_revs`, `ad_blocks`, `ad_blocks_revs`, `ad_cell_cores`, `ad_cell_cores_revs`, `ad_cell_slides`, `ad_cell_slides_revs`, `ad_gel_matrices`, `ad_gel_matrices_revs`, `ad_tissue_cores`, `ad_tissue_cores_revs`, `ad_tissue_slides`, `ad_tissue_slides_revs`, `ad_tubes`, `ad_tubes_revs`, `ad_whatman_papers`, `ad_whatman_papers_revs`, `aliquot_controls`, `aliquot_masters`, `aliquot_masters_revs`, `aliquot_uses`, `aliquot_uses_revs`, `announcements`, `aros`, `aros_acos`, `atim_information`, `banks`, `banks_revs`, `cd_nationals`, `cd_nationals_revs`, `clinical_collection_links`, `clinical_collection_links_revs`, `coding_adverse_events`, `coding_adverse_events_revs`, `coding_icd10`, `collections`, `collections_revs`, `configs`, `consent_controls`, `consent_masters`, `consent_masters_revs`, `datamart_adhoc`, `datamart_adhoc_favourites`, `datamart_adhoc_saved`, `datamart_batch_ids`, `datamart_batch_processes`, `datamart_batch_sets`, `derivative_details`, `derivative_details_revs`, `diagnosis_controls`, `diagnosis_masters`, `diagnosis_masters_revs`, `drugs`, `drugs_revs`, `dxd_bloods`, `dxd_bloods_revs`, `dxd_tissues`, `dxd_tissues_revs`, 
+`ed_allsolid_lab_pathology`, `ed_allsolid_lab_pathology_revs`, `ed_all_adverse_events_adverse_event`, `ed_all_adverse_events_adverse_event_revs`, `ed_all_clinical_followup`, `ed_all_clinical_followup_revs`, `ed_all_clinical_presentation`, `ed_all_clinical_presentation_revs`, `ed_all_lifestyle_base`, `ed_all_lifestyle_base_revs`, `ed_all_protocol_followup`, `ed_all_protocol_followup_revs`, `ed_all_study_research`, `ed_all_study_research_revs`, `ed_breast_lab_pathology`, `ed_breast_lab_pathology_revs`, `ed_breast_screening_mammogram`, `ed_breast_screening_mammogram_revs`, `event_controls`, `event_masters`, `event_masters_revs`, `family_histories`, `family_histories_revs`, `groups`, `i18n`, `langs`, `materials`, `materials_revs`, `menus`, `misc_identifiers`, `misc_identifiers_revs`, `orders`, `orders_revs`, `order_items`, `order_items_revs`, `order_lines`, `order_lines_revs`, `pages`, `parent_to_derivative_sample_controls`, `participants`, `participants_revs`, `participant_contacts`, `participant_contacts_revs`, `participant_messages`, `participant_messages_revs`, `path_collection_reviews`, `path_collection_reviews_revs`, `pd_chemos`, `pd_chemos_revs`, `pe_chemos`, `pe_chemos_revs`, `protocol_controls`, `protocol_masters`, `protocol_masters_revs`, `providers`, `providers_revs`, 
+`quality_ctrls`, `quality_ctrls_revs`, `quality_ctrl_tested_aliquots`, `quality_ctrl_tested_aliquots_revs`, `rd_bloodcellcounts`, `rd_bloodcellcounts_revs`, `rd_blood_cells`, `rd_blood_cells_revs`, `rd_breastcancertypes`, `rd_breastcancertypes_revs`, `rd_breast_cancers`, `rd_breast_cancers_revs`, `rd_coloncancertypes`, `rd_coloncancertypes_revs`, `rd_genericcancertypes`, `rd_genericcancertypes_revs`, `rd_ovarianuteruscancertypes`, `rd_ovarianuteruscancertypes_revs`, `realiquotings`, `realiquotings_revs`, `reproductive_histories`, `reproductive_histories_revs`, `review_controls`, `review_masters`, `review_masters_revs`, `rtbforms`, `rtbforms_revs`, 
+`sample_controls`, `sample_masters`, `sample_masters_revs`, `sample_to_aliquot_controls`, `sd_der_amp_rnas`, `sd_der_amp_rnas_revs`, `sd_der_ascite_cells`, `sd_der_ascite_cells_revs`, `sd_der_ascite_sups`, `sd_der_ascite_sups_revs`, `sd_der_blood_cells`, `sd_der_blood_cells_revs`, `sd_der_b_cells`, `sd_der_b_cells_revs`, `sd_der_cell_cultures`, `sd_der_cell_cultures_revs`, `sd_der_cystic_fl_cells`, `sd_der_cystic_fl_cells_revs`, `sd_der_cystic_fl_sups`, `sd_der_cystic_fl_sups_revs`, `sd_der_dnas`, `sd_der_dnas_revs`, `sd_der_pbmcs`, `sd_der_pbmcs_revs`, `sd_der_pericardial_fl_cells`, `sd_der_pericardial_fl_cells_revs`, `sd_der_pericardial_fl_sups`, `sd_der_pericardial_fl_sups_revs`, `sd_der_plasmas`, `sd_der_plasmas_revs`, `sd_der_pleural_fl_cells`, `sd_der_pleural_fl_cells_revs`, `sd_der_pleural_fl_sups`, `sd_der_pleural_fl_sups_revs`, `sd_der_pw_cells`, `sd_der_pw_cells_revs`, `sd_der_pw_sups`, `sd_der_pw_sups_revs`, `sd_der_rnas`, `sd_der_rnas_revs`, `sd_der_serums`, `sd_der_serums_revs`, `sd_der_tiss_lysates`, `sd_der_tiss_lysates_revs`, `sd_der_tiss_susps`, `sd_der_tiss_susps_revs`, `sd_der_urine_cents`, `sd_der_urine_cents_revs`, `sd_der_urine_cons`, `sd_der_urine_cons_revs`, `sd_spe_ascites`, `sd_spe_ascites_revs`, 
+`sd_spe_bloods`, `sd_spe_bloods_revs`, `sd_spe_cystic_fluids`, `sd_spe_cystic_fluids_revs`, `sd_spe_pericardial_fluids`, `sd_spe_pericardial_fluids_revs`, `sd_spe_peritoneal_washes`, `sd_spe_peritoneal_washes_revs`, `sd_spe_pleural_fluids`, `sd_spe_pleural_fluids_revs`, `sd_spe_tissues`, `sd_spe_tissues_revs`, `sd_spe_urines`, `sd_spe_urines_revs`, `shelves`, `shelves_revs`, `shipments`, `shipments_revs`, `sidebars`, `sopd_general_all`, `sopd_general_all_revs`, `sopd_inventory_all`, `sopd_inventory_all_revs`, `sope_general_all`, `sope_general_all_revs`, `sope_inventory_all`, `sope_inventory_all_revs`, `sop_controls`, `sop_masters`, `sop_masters_revs`, `source_aliquots`, `source_aliquots_revs`, `specimen_details`, `specimen_details_revs`, `std_boxs`, `std_boxs_revs`, `std_cupboards`, `std_cupboards_revs`, `std_freezers`, `std_freezers_revs`, `std_fridges`, `std_fridges_revs`, `std_incubators`, `std_incubators_revs`, `std_nitro_locates`, `std_nitro_locates_revs`, `std_racks`, `std_racks_revs`, `std_rooms`, `std_rooms_revs`, `std_shelfs`, `std_shelfs_revs`, `std_tma_blocks`, `std_tma_blocks_revs`, `storage_controls`, `storage_coordinates`, `storage_coordinates_revs`, `storage_masters`, `storage_masters_revs`, `structures`, 
+`structure_fields`, `structure_formats`, `structure_options`, `structure_permissible_values`, `structure_validations`, `structure_value_domains`, `structure_value_domains_permissible_values`, `study_contacts`, `study_contacts_revs`, `study_ethics_boards`, `study_ethics_boards_revs`, `study_fundings`, `study_fundings_revs`, `study_investigators`, `study_investigators_revs`, `study_related`, `study_related_revs`, `study_results`, `study_results_revs`, `study_reviews`, `study_reviews_revs`, `study_summaries`, `study_summaries_revs`, `tma_slides`, `tma_slides_revs`, `txd_chemos`, `txd_chemos_revs`, `txd_radiations`, `txd_radiations_revs`, `txd_surgeries`, `txd_surgeries_revs`, `txe_chemos`, `txe_chemos_revs`, `txe_radiations`, `txe_radiations_revs`, `txe_surgeries`, `txe_surgeries_revs`, `tx_controls`, `tx_masters`, `tx_masters_revs`, `users`, `user_logs`, `versions`;
 
 SET FOREIGN_KEY_CHECKS=1;
 
@@ -5174,7 +5125,7 @@ CREATE TABLE `structure_validations` (
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` varchar(255) character set latin1 NOT NULL default '',
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
-  `modifed_by` varchar(255) character set latin1 NOT NULL default '',
+  `modified_by` varchar(255) character set latin1 NOT NULL default '',
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
@@ -5882,21 +5833,14 @@ CREATE TABLE `txd_surgeries_revs` (
 
 CREATE TABLE `txe_chemos` (
   `id` int(11) NOT NULL auto_increment,
-  `source` varchar(50) default NULL,
-  `frequency` varchar(50) default NULL,
   `dose` varchar(50) default NULL,
   `method` varchar(50) default NULL,
-  `reduction` varchar(50) default NULL,
-  `cycle_number` int(11) default NULL,
-  `completed_cycles` int(11) default NULL,
-  `start_date` date default NULL,
-  `end_date` date default NULL,
+  `drug_id` int(11) default NULL,
+  `tx_master_id` int(11) NOT NULL default '0',  
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` varchar(50) default NULL,
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
   `modified_by` varchar(50) default NULL,
-  `tx_master_id` int(11) default NULL,
-  `drug_id` varchar(50) default NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`)
@@ -5904,25 +5848,18 @@ CREATE TABLE `txe_chemos` (
 
 CREATE TABLE `txe_chemos_revs` (
   `id` int(11) NOT NULL,
-  `source` varchar(50) default NULL,
-  `frequency` varchar(50) default NULL,
   `dose` varchar(50) default NULL,
   `method` varchar(50) default NULL,
-  `reduction` varchar(50) default NULL,
-  `cycle_number` int(11) default NULL,
-  `completed_cycles` int(11) default NULL,
-  `start_date` date default NULL,
-  `end_date` date default NULL,
+  `drug_id` int(11) default NULL,
+  `tx_master_id` int(11) NOT NULL default '0',  
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` varchar(50) default NULL,
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
   `modified_by` varchar(50) default NULL,
-  `tx_master_id` int(11) default NULL,
-  `drug_id` varchar(50) default NULL,
-  `version_id` int(11) NOT NULL AUTO_INCREMENT,
-  `version_created` datetime NOT NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
@@ -5984,11 +5921,11 @@ CREATE TABLE `txe_radiations_revs` (
 CREATE TABLE `txe_surgeries` (
   `id` int(11) NOT NULL auto_increment,
   `surgical_procedure` varchar(50) default NULL,
+  `tx_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` varchar(50) default NULL,
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
   `modified_by` varchar(50) default NULL,
-  `tx_master_id` int(11) default NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
   PRIMARY KEY  (`id`),
@@ -5998,15 +5935,15 @@ CREATE TABLE `txe_surgeries` (
 CREATE TABLE `txe_surgeries_revs` (
   `id` int(11) NOT NULL,
   `surgical_procedure` varchar(50) default NULL,
+  `tx_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` varchar(50) default NULL,
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',
   `modified_by` varchar(50) default NULL,
-  `tx_master_id` int(11) default NULL,
-  `version_id` int(11) NOT NULL AUTO_INCREMENT,
-  `version_created` datetime NOT NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime default NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
   PRIMARY KEY  (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
@@ -6016,7 +5953,7 @@ CREATE TABLE `txe_surgeries_revs` (
 
 CREATE TABLE `tx_controls` (
   `id` int(11) NOT NULL auto_increment,
-  `tx_group` varchar(50) default NULL,
+  `tx_method` varchar(50) default NULL,
   `disease_site` varchar(50) default NULL,
   `status` varchar(50) NOT NULL default '',
   `detail_tablename` varchar(255) NOT NULL,
@@ -6142,7 +6079,7 @@ CREATE TABLE `versions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `version_number` VARCHAR(255) NOT NULL,
   `date_installed` TIMESTAMP NOT NULL default CURRENT_TIMESTAMP,
-  `status` VARCHAR(45) NOT NULL,
+  `build_number` VARCHAR(45) NOT NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` varchar(50) default NULL,
   `modified` datetime NOT NULL default '0000-00-00 00:00:00',

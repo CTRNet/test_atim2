@@ -25,9 +25,9 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		
 		$this->data = $this->paginate($this->TreatmentExtend, array('TreatmentExtend.tx_master_id'=>$tx_master_id));
 		
-		$this->set('tx_group', $tx_master_data['TreatmentMaster']['tx_group']);
+		$this->set('tx_method', $tx_master_data['TreatmentMaster']['tx_method']);
 		
-		switch($tx_master_data['TreatmentMaster']['tx_group']){
+		switch($tx_master_data['TreatmentMaster']['tx_method']) {
 			case "chemotherapy":
 				// Get all drugs to override drug_id with generic drug name
 				$this->set('drug_list', $this->Drug->find('list', array('fields'=>array('Drug.id','Drug.generic_name'), 'order'=>array('Drug.generic_name'))));
@@ -51,9 +51,9 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		
 	    $this->data = $this->TreatmentExtend->find('first',array('conditions'=>array('TreatmentExtend.id'=>$tx_extend_id)));
 	    
-		$this->set('tx_group', $tx_master_data['TreatmentMaster']['tx_group']);
+		$this->set('tx_method', $tx_master_data['TreatmentMaster']['tx_method']);
 		
-		switch($tx_master_data['TreatmentMaster']['tx_group']){
+		switch($tx_master_data['TreatmentMaster']['tx_method']){
 			case "chemotherapy":
 				// Get all drugs to override drug_id with generic drug name
 				// $drug_list = $this->Drug->find('first', array('conditions'=>array('Drug.id'=>$this->data['TreatmentExtend']['drug_id']), 'fields'=>array('Drug.generic_name')));
@@ -74,9 +74,9 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		$use_form_alias = $tx_master_data['TreatmentControl']['extend_form_alias'];
 	    $this->Structures->set($use_form_alias );
 		
-		$this->set('tx_group', $tx_master_data['TreatmentMaster']['tx_group']);
+		$this->set('tx_method', $tx_master_data['TreatmentMaster']['tx_method']);
 		
-		switch($tx_master_data['TreatmentMaster']['tx_group']){
+		switch($tx_master_data['TreatmentMaster']['tx_method']){
 			case "chemotherapy":
 				// Get all drugs to override drug_id with generic drug name
 				// $drug_list = $this->Drug->find('list', array('conditions' => array('Drug.type'=>'chemotherapy'), 'fields' => array('Drug.id', 'Drug.generic_name'), 'order' => array('Drug.generic_name')));
@@ -111,9 +111,9 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		$use_form_alias = $tx_master_data['TreatmentControl']['extend_form_alias'];
 	    $this->Structures->set($use_form_alias );
 		
-		$this->set('tx_group', $tx_master_data['TreatmentMaster']['tx_group']);
+		$this->set('tx_method', $tx_master_data['TreatmentMaster']['tx_method']);
 		
-		switch($tx_master_data['TreatmentMaster']['tx_group']){
+		switch($tx_master_data['TreatmentMaster']['tx_method']){
 			case "chemotherapy":
 				// Get all drugs to override drug_id with generic drug name
 				// $drug_list = $this->Drug->find('list', array('conditions' => array('Drug.type'=>'chemotherapy'), 'fields' => array('Drug.id', 'Drug.generic_name'), 'order' => array('Drug.generic_name')));
@@ -139,7 +139,6 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 	function delete($participant_id=null, $tx_master_id=null, $tx_extend_id=null) {
 		$this->hook();
 	
-		// TODO: ATiM remove function
 		$this->TreatmentExtend->atim_delete( $tx_extend_id );
 		$this->flash( 'Your data has been deleted.', '/clinicalannotation/treatment_extends/listall/'.$participant_id.'/'.$tx_master_id );
 	}

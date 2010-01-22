@@ -9,12 +9,19 @@ class OrdersController extends OrderAppController {
 		'Order.OrderLine', 
 		'Order.Shipment', 
 		
+		'Inventorymanagement.SampleControl',
+		'Inventorymanagement.AliquotControl',
 		'Study.StudySummary');
 	
-	var $paginate = array('Order'=>array('limit'=>10,'order'=>'Order.order_number'));
-
+	var $paginate = array(
+		'Order'=>array('limit'=>10,'order'=>'Order.date_order_placed DESC'), 
+		'OrderLine'=>array('limit'=>'10','order'=>'OrderLine.date_required DESC'));
+	
 	function index() {
 		$_SESSION['ctrapp_core']['search'] = null;
+		
+		// Clear Order session data
+		unset($_SESSION['Order']['NewAliquotsForOrder']);
 		
 		// Set list of studies
 		$this->set('arr_studies', $this->getStudiesList());
@@ -46,16 +53,22 @@ class OrdersController extends OrderAppController {
 	}
 	
 	function add() {
-		$this->set('atim_menu', $this->Menus->get('/order/orders/index'));
-			
+		// MANAGE DATA
+		
 		// Set list of studies
 		$this->set('arr_studies', $this->getStudiesList());
 
+		// MANAGE FORM, MENU AND ACTION BUTTONS
+		
+		$this->set('atim_menu', $this->Menus->get('/order/orders/index'));
+			
 		$hook_link = $this->hook('format');
 		if($hook_link){
 			require($hook_link);
 		}
-		
+
+		// SAVE PROCESS
+					
 		if ( !empty($this->data) ) {
 			$submitted_data_validates = true;
 
@@ -72,16 +85,28 @@ class OrdersController extends OrderAppController {
   
 	function detail( $order_id ) {
   		if ( !$order_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
+	
+		// MANAGE DATA
 		
 		$order_data = $this->Order->find('first',array('conditions'=>array('Order.id'=>$order_id)));
 		if(empty($order_data)) { $this->redirect( '/pages/err_order_no_data', null, true ); }
 				
-		$this->data = $order_data;
+		// Setorder data
+		$this->set('order_data', $order_data);
+		$this->data = array();
 				
 		// Set list of studies
 		$this->set('arr_studies', $this->getStudiesList());
 		
+		// Set order lines data
+		$this->setDataForOrderLinesList($order_id);
+		
+		// MANAGE FORM, MENU AND ACTION BUTTONS
+		
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id) );
+		
+		// Set structure for order lines list
+		$this->Structures->set('orderlines', 'orderlines_listall_structure');
 		
 		$hook_link = $this->hook('format');
 		if($hook_link){
@@ -92,11 +117,15 @@ class OrdersController extends OrderAppController {
 	function edit( $order_id ) {
 		if ( !$order_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
 
+		// MANAGE DATA
+		
 		$order_data = $this->Order->find('first',array('conditions'=>array('Order.id'=>$order_id)));
 		if(empty($order_data)) { $this->redirect( '/pages/err_order_no_data', null, true ); }
 		
 		// Set list of studies
 		$this->set('arr_studies', $this->getStudiesList());
+		
+		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id) );
 		
@@ -105,9 +134,11 @@ class OrdersController extends OrderAppController {
 			require($hook_link);
 		}
 				
+		// SAVE PROCESS
+					
 		if ( empty($this->data) ) {
-			$this->data = $order_data;		
-
+			$this->data = $order_data;
+			
 		} else {			
 			$submitted_data_validates = true;
 			
@@ -128,6 +159,8 @@ class OrdersController extends OrderAppController {
 	function delete($order_id) {
     	if ( !$order_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
     	
+		// MANAGE DATA
+		
  		$order_data = $this->Order->find('first',array('conditions'=>array('Order.id'=>$order_id)));
 		if(empty($order_data)) { $this->redirect( '/pages/err_order_no_data', null, true ); }
 		

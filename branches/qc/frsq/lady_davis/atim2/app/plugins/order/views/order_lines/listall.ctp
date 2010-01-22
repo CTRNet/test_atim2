@@ -2,7 +2,10 @@
 	
 	$structure_links = array(
 		'index'=>array('detail'=>'/order/order_lines/detail/%%Order.id%%/%%OrderLine.id%%/'),
-		'bottom'=>array('add'=>'/order/order_lines/add/'.$atim_menu_variables['Order.id'].'/')
+		'bottom'=>array(
+			'add order line'=>'/order/order_lines/add/'.$atim_menu_variables['Order.id'].'/',
+			'add shipment'=>'/order/shipments/add/' . $atim_menu_variables['Order.id'] . '/'
+		)
 	);
 	
 	$structure_override = array();
@@ -20,7 +23,7 @@
 	$structure_override['OrderLine.aliquot_control_id'] = $aliquot_types;
 
 	$final_atim_structure = $atim_structure; 
-	$final_options = array('type'=>'index','links'=>$structure_links,'override'=>$structure_override);
+	$final_options = array('type'=>'index','links'=>$structure_links,'override'=>$structure_override, 'data'=>$order_lines_data);
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook();
