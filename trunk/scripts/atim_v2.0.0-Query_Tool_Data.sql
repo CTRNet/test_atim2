@@ -138,5 +138,5 @@ ORDER BY StorageMaster.selection_label, AliquotMaster.storage_coord_x, AliquotMa
 
 DELETE FROM `datamart_batch_processes`;
 INSERT INTO `datamart_batch_processes` (`id` , `name` , `plugin` , `model` ,`url`)
-VALUES (NULL , 'add to order', 'Inventorymanagement', 'AliquotMaster', '/order/order_lines/addAliquotsToOrder/');
+VALUES (NULL , 'add to order', 'Inventorymanagement', 'AliquotMaster', '/order/order_items/addAliquotsInBatch/');
 

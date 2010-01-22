@@ -298,33 +298,8 @@ class OrderLinesController extends OrderAppController {
 		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'item exists for the deleted order line'); }
 
 		return array('allow_deletion' => true, 'msg' => '');
-	}
-
-	function addAliquotToOrder($aliquot_id = null){
-		//TODO Review addAliquotToOrder
-		$this->data = $this->Order->find('all');
-
-		$atim_structure = array();
-		$atim_structure['Order'] = $this->Structures->get('form', 'orders');
-		$atim_structure['OrderLine'] = $this->Structures->get('form', 'orderlines');
-		foreach($this->data as &$var){
-			$var['children'] = $var['OrderLine'];
-			unset($var['OrderLine']);
-			foreach($var['children'] as $key => &$var2){
-				$var['children'][$key] = array('OrderLine' => $var2);
-			}
-			unset($var['Shipment']);
-		}
-		$this->set('atim_structure', $atim_structure);
-		$this->set('aliquot_master_id', $aliquot_id);
-		$this->set('atim_menu', $this->Menus->get("/order/orders/index/"));
-		
-		//TODO test hook works during review
-		$hook_link = $this->hook('format');
-		if($hook_link){
-			require($hook_link);
-		}
-	}
+	}	
+	
 }
 
 ?>

@@ -34,7 +34,10 @@
 	
 	// 2- ORDER LINES
 	
-	$structure_links['index'] = array('detail'=>'/order/order_lines/detail/%%Order.id%%/%%OrderLine.id%%/');
+	$structure_links['index'] = array(
+		'add order line item'=>'/order/order_items/add/%%Order.id%%/%%OrderLine.id%%/',		
+		'detail'=>'/order/order_lines/detail/%%Order.id%%/%%OrderLine.id%%/'
+	);
 	
 	$structure_override = array();
 

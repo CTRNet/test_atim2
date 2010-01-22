@@ -194,10 +194,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->data = array();
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
-		
+				
 		$form_alias = (is_null($specific_form_alias))? 'aliquotmasters': $specific_form_alias;
-		$this->set('aliquots_listall_structure', $this->Structures->get('form', $form_alias));
-
+		$this->Structures->set($form_alias, 'aliquots_listall_structure');
+		
 		// Get all collection/sample 'sample aliquot type list' to build the filter button
 		$sample_aliquot_types = array();
 		$criteria = array('AliquotMaster.collection_id' => $collection_id);
@@ -470,7 +470,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		// Set structure
 		$this->Structures->set($aliquot_data['AliquotControl']['form_alias']);
-		$this->set('aliquots_uses_structure', $this->Structures->get('form', 'aliquotuses'));
+		$this->Structures->set('aliquotuses', 'aliquots_uses_structure');
 		
 		// Define if this detail form is displayed into the collection content tree view
 		$this->set('is_tree_view_detail_form', $is_tree_view_detail_form);
