@@ -1,7 +1,9 @@
 <?php
 
 class ShipmentsController extends OrderAppController {
-	
+
+	var $components = array('Inventorymanagement.Aliquots');
+		
 	var $uses = array(
 		'Order.Shipment', 
 		'Order.Order', 
@@ -82,8 +84,17 @@ class ShipmentsController extends OrderAppController {
  		if (( !$order_id ) || ( !$shipment_id )) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
 		
 		// MANAGE DATA
+		
+		// Get shipment data
 		$shipment_data = $this->Shipment->find('first',array('conditions'=>array('Shipment.id'=>$shipment_id, 'Shipment.order_id'=>$order_id)));
 		if(empty($shipment_data)) { $this->redirect( '/pages/err_order_no_data', null, true ); }				
+
+		// Shipped items
+		$shipped_items = $this->OrderItem->find('all', array('conditions' => array('OrderItem.shipment_id'=>$shipment_id)));
+		$linked_aliquot_uses = array();
+		if(!empty($shipped_items)) {
+			foreach($shipped_items as $new_items) { $linked_aliquot_uses[] = $new_items['AliquotUse']['id']; }
+		}
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -107,6 +118,13 @@ class ShipmentsController extends OrderAppController {
 			
 			$this->Shipment->id = $shipment_id;
 			if ($submitted_data_validates && $this->Shipment->save($this->data) ) {
+				// Update aliquot use
+				if(!empty($linked_aliquot_uses)) {
+					//TODO Add test to verifiy date and created_by have been modified before to launch update function	
+					if(!$this->Aliquots->updateAliquotUses($linked_aliquot_uses, $this->data['Shipment']['datetime_shipped'], $this->data['Shipment']['shipped_by'])) { $this->redirect('/pages/err_order_system_error', null, true); }
+				}
+				
+				// Redirect
 				$this->flash( 'your data has been updated', '/order/shipments/detail/'.$order_id.'/'.$shipment_id );
 			}
 		} 
@@ -345,13 +363,7 @@ class ShipmentsController extends OrderAppController {
 				$this->flash('your data has been saved', '/order/shipments/detail/'.$order_id.'/'.$shipment_id.'/');
 			}		
 		}	
-	}	
-	
-	
-	
-	function updateShippedAliquotUses($shipment_id, $new_shipment_code, $new_shipment_date) {
-		//TODO
-	}	
+	}
 	
 	function deleteFromShipment($order_id, $order_item_id, $shipment_id){
 		$this->flash('underdeveleopment', '/order/shipments/detail/'.$order_id.'/'.$shipment_id.'/');
