@@ -126,6 +126,7 @@ class OrderItemsController extends OrderAppController {
   		if($ignore){
   			exit;
   		}
+  		$rcv_data = $this->data;
 		// MANAGE SET OF ALIQUOT IDS TO WORK ON
 		
 		$aliquot_ids_to_add = null;
@@ -185,7 +186,7 @@ class OrderItemsController extends OrderAppController {
 				$error_message = 'no aliquot has been submitted';
 			}
 			
-			//TODO: test for double entries in $studied_aliquot_master_ids 
+			//TODO: test for double entries in $studied_aliquot_master_ids
 					
 			if($submitted_aliquots_validates) {
 				// Check aliquots have never been added to an order
@@ -290,6 +291,7 @@ class OrderItemsController extends OrderAppController {
 					$new_order_item_data['OrderItem']['status'] = 'pending';
 					$new_order_item_data['OrderItem']['order_line_id'] = $order_line_id;
 					$new_order_item_data['OrderItem']['aliquot_master_id'] = $added_aliquot_master_id;
+					$new_order_item_data['OrderItem'] = array_merge($new_order_item_data['OrderItem'], $rcv_data['OrderItem']);
 					
 					$this->OrderItem->id = null;
 					if(!$this->OrderItem->save($new_order_item_data)) { $this->redirect( '/pages/err_order_record_err', null, true ); }	

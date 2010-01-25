@@ -19,7 +19,11 @@
 	
 	//2- Detail data
 	$final_atim_structure = $add_aliquots_in_batch_info;
-	$final_options = array('type' => 'add', 'links' => array('top' => 'coco'), 'settings' => array('actions' => false, 'header' => __('Data', null), 'separator' => true, 'form_top' => true, 'form_bottom' => false));
+	$final_options = array(
+		'type' => 'add', 
+		'links' => array('top' => 'coco'), 
+		'settings' => array('actions' => false, 'header' => __('order', null), 'separator' => true, 'form_top' => true, 'form_bottom' => false),
+		);
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook('data');
@@ -86,7 +90,7 @@
 ?>
 <script type="text/javascript">
 function customSubmit(data){
-	$$("form")[0].writeAttribute("action", data);
+	$$("form")[0].writeAttribute("action", data.toString().substr(0, data.toString().length - 4));
 	$$("form")[0].submit();
 }
 </script>
