@@ -258,7 +258,9 @@ class SoftDeletableBehavior extends ModelBehavior
                     } 
                 } 
             } 
-            else if (empty($queryData['conditions']) || (!in_array($this->__settings[$Model->alias]['field'], array_keys($queryData['conditions'])) && !in_array($Model->alias . '.' . $this->__settings[$Model->alias]['field'], array_keys($queryData['conditions'])))) 
+            else if (empty($queryData['conditions']) 
+            	|| (!in_array($this->__settings[$Model->alias]['field'], array_keys($queryData['conditions'])) && !in_array($Model->alias . '.' . $this->__settings[$Model->alias]['field'], array_keys($queryData['conditions'])))
+            	|| isset($queryData['conditions'][0])) 
             { 
                 $include = true; 
             } 
@@ -275,7 +277,7 @@ class SoftDeletableBehavior extends ModelBehavior
                     $queryData['conditions'] = $Db->name($Model->alias) . '.' . $Db->name($this->__settings[$Model->alias]['field']) . '!= 1 AND ' . $queryData['conditions']; 
                 } 
                 else 
-                { 
+                {
                     array_push($queryData['conditions'], $Model->alias . '.' . $this->__settings[$Model->alias]['field'].' != 1'); 
                 } 
             } 
@@ -289,7 +291,7 @@ class SoftDeletableBehavior extends ModelBehavior
 	            }
             }
         } 
-
+//pr($queryData);
         return $queryData; 
     } 
 
