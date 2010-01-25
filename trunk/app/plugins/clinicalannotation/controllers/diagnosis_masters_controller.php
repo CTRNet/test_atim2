@@ -9,6 +9,7 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		'Clinicalannotation.Participant',
 		'Clinicalannotation.TreatmentMaster',
 		'Clinicalannotation.EventMaster',
+		'Clinicalannotation.ClinicalCollectionLink',
 		'codingicd10.CodingIcd10'
 	);
 	var $paginate = array('DiagnosisMaster'=>array('limit'=>10,'order'=>'DiagnosisMaster.dx_date')); 
@@ -155,7 +156,7 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 				$this->flash( 'error deleting data - contact administrator', '/clinicalannotation/diagnosis_masters/listall/'.$participant_id );
 			}
 		} else {
-			$this->flash($arr_allow_deletion['msg'], '/clinicalannotation/diagnosis_masters/detail/'.$participant_id.'/'.$consent_master_id);
+			$this->flash($arr_allow_deletion['msg'], '/clinicalannotation/diagnosis_masters/detail/'.$participant_id.'/'.$diagnosis_master_id);
 		}		
 	}
 	
@@ -182,6 +183,11 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		
 		// $treatment_id = $this->TreatmentMaster->find('first', array('conditions'=>array('TreatmentMaster.diagnosis_master_id'=>$diagnosis_master_id, 'TreatmentMaster.deleted'=>0),'fields'=>array('TreatmentMaster.id'))); 
 		// $event_id = $this->EventMaster->find('first', array('conditions'=>array('EventMaster.diagnosis_master_id'=>$diagnosis_master_id, 'EventMaster.deleted'=>0),'fields'=>array('EventMaster.id')));
+		
+		$returned_nbr = $this->ClinicalCollectionLink->find('count', array('conditions' => array('ClinicalCollectionLink.diagnosis_master_id' => $diagnosis_master_id)));
+		if($returned_nbr > 0){
+			return array('allow_deletion' => false, 'msg' => 'This diagnosis cannot be deleted because it is linked to a collection.');
+		}
 		return array('allow_deletion' => true, 'msg' => '');
 	}	
 	
