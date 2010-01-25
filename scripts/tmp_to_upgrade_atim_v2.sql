@@ -79,3 +79,63 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 UPDATE `structures`
 SET flag_add_columns = '1',	flag_edit_columns = '1'
 WHERE `old_id` LIKE 'CAN-999-999-000-999-62';
+
+INSERT INTO `structures` (
+`old_id` ,
+`alias` ,
+`language_title` ,
+`language_help` ,
+`flag_add_columns` ,
+`flag_edit_columns` ,
+`flag_search_columns` ,
+`flag_detail_columns` ,
+`created` ,
+`created_by` ,
+`modified` ,
+`modified_by`
+)
+VALUES (
+'CANM-00023', 'addAliquotsInBatchInfo', '', '', '1', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''
+);
+
+SET @last_id = LAST_INSERT_ID();
+
+INSERT INTO `atim_new`.`structure_formats` (
+`old_id` ,
+`structure_id` ,
+`structure_old_id` ,
+`structure_field_id` ,
+`structure_field_old_id` ,
+`display_column` ,
+`display_order` ,
+`language_heading` ,
+`flag_override_label` ,
+`language_label` ,
+`flag_override_tag` ,
+`language_tag` ,
+`flag_override_help` ,
+`language_help` ,
+`flag_override_type` ,
+`type` ,
+`flag_override_setting` ,
+`setting` ,
+`flag_override_default` ,
+`default` ,
+`flag_add` ,
+`flag_add_readonly` ,
+`flag_edit` ,
+`flag_edit_readonly` ,
+`flag_search` ,
+`flag_search_readonly` ,
+`flag_datagrid` ,
+`flag_datagrid_readonly` ,
+`flag_index` ,
+`flag_detail` ,
+`created` ,
+`created_by` ,
+`modified` ,
+`modified_by`
+)
+VALUES 
+('CANM-00023_CAN-999-999-000-999-498', @last_id , 'CANM-00023', 742 , 'CAN-999-999-000-999-498', '1', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('CANM-00023_CAN-999-999-000-999-499', @last_id , 'CANM-00023', 743 , 'CAN-999-999-000-999-499', '1', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
