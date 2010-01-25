@@ -1,4 +1,4 @@
-﻿UPDATE `structure_validations`
+UPDATE `structure_validations`
 SET `flag_empty` = '0'
 WHERE `rule` LIKE 'notEmpty'
 AND `flag_empty` LIKE '1';
@@ -19,6 +19,20 @@ DELETE FROM `structures` WHERE `alias` = 'available_bank_participants_aliquots';
 
 DELETE FROM `structure_formats` WHERE `structure_id` IN (SELECT `id` FROM `structures` WHERE `alias` = 'aliquot_masters_for_search_result');
 DELETE FROM `structures` WHERE `alias` = 'aliquot_masters_for_search_result';
+
+UPDATE `structure_fields` SET `type` = 'input',
+`structure_value_domain` = '' WHERE `structure_fields`.`id` =490;
+UPDATE `structure_fields` SET `type` = 'input',
+`structure_value_domain` = '' WHERE `structure_fields`.`id` =491;
+
+UPDATE `structure_fields` SET `structure_value_domain` = '0' WHERE `structure_fields`.`id` =490;
+UPDATE `structure_fields` SET `structure_value_domain` = '0' WHERE `structure_fields`.`id` =491;
+
+UPDATE `structure_fields` SET `type` = 'input',
+`setting` = 'size=10',
+`language_help` = 'help_pack years' WHERE `structure_fields`.`id` =582;
+
+UPDATE `structure_fields` SET `language_label` = 'disease site form' WHERE `structure_fields`.`id` =490;
 
 INSERT INTO `structures` (`id`, `old_id`, `alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 (null, 'CAN-999-999-000-999-1090', 'aliquotmasters_summary', '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
@@ -61,7 +75,6 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (null, 'CAN-999-999-000-999-62_CAN-999-999-000-999-512', 141, 'CAN-999-999-000-999-62', 759, 'CAN-999-999-000-999-512', 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (null, 'CAN-999-999-000-999-62_CAN-999-999-000-999-513', 141, 'CAN-999-999-000-999-62', 760, 'CAN-999-999-000-999-513', 0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (null, 'CAN-999-999-000-999-62_CAN-999-999-000-999-514', 141, 'CAN-999-999-000-999-62', 761, 'CAN-999-999-000-999-514', 0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
-
 
 UPDATE `structures`
 SET flag_add_columns = '1',	flag_edit_columns = '1'
