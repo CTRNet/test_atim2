@@ -1,4 +1,5 @@
 <?php 
+
 	$structure_links = array(
 		'top'=>'/order/shipments/add/'.$atim_menu_variables['Order.id'].'/',
 		'bottom'=>array(
@@ -15,4 +16,5 @@
 		
 	// BUILD FORM
 	$structures->build( $final_atim_structure, $final_options );
+	
 ?>

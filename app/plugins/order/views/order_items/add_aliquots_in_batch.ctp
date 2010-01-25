@@ -5,7 +5,7 @@
 	$structure_override = array();
 			
 	$final_atim_structure = $atim_structure_for_aliquots_list;
-	$final_options = array('override' => $structure_override,  'type' => 'index', 'settings' => array('actions' => false, 'header' => __('selected aliquots for order', null)), 'data' => $aliquots_data);
+	$final_options = array('override' => $structure_override,  'type' => 'index', 'settings' => array('actions' => false, 'header' => __('add aliquots to order', null)), 'data' => $aliquots_data);
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook('aliquots');
