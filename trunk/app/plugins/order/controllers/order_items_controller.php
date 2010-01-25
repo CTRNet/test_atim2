@@ -9,7 +9,9 @@ class OrderItemsController extends OrderAppController {
 			
 		'Order.Order', 
 		'Order.OrderLine', 
-		'Order.OrderItem');
+		'Order.OrderItem',
+		
+		'Order.Shipment');
 		
 	var $paginate = array(
 		'OrderItem'=>array('limit'=>'10','order'=>'AliquotMaster.barcode'),
@@ -26,6 +28,10 @@ class OrderItemsController extends OrderAppController {
 		// Set data
 		$this->setDataForOrderItemsList($order_line_id);
 		$this->data = array();
+		
+		// Get shipment list
+		$shipments_data = $this->Shipment->find('all', array('condtions' => array('Shipment.order_id'=>$order_id), 'order'=>'Shipment.datetime_shipped DESC'));
+		$this->set('shipments_data', $shipments_data);		
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -325,6 +331,8 @@ class OrderItemsController extends OrderAppController {
 		$criteria = array('OrderItem.order_line_id' => $order_line_id, 'OrderItem.status' => 'pending');
 		$items_data = $this->OrderItem->find('all', array('conditions' => $criteria, 'order' => 'AliquotMaster.barcode ASC', 'recursive' => '0'));
 
+		if(empty($items_data)) { $this->flash('no unshipped item exists into this order line', '/order/order_items/listall/'.$order_id.'/'.$order_line_id.'/'); }
+
 		// Set array to get id from barcode
 		$order_item_id_by_barcode = array();
 		foreach($items_data as $tmp_data){
@@ -434,7 +442,7 @@ class OrderItemsController extends OrderAppController {
 				}
 				$order_line_data = array();
 				$order_line_data['OrderLine']['status'] = $new_status;
-//TODO: test
+				
 				$this->OrderLine->id = $order_line_id;
 				if(!$this->OrderLine->save($order_line_data)) { $this->redirect( '/pages/err_order_record_err', null, true ); }
 				

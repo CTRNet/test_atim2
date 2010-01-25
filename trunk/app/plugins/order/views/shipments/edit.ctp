@@ -1,8 +1,9 @@
 <?php 
+	
 	$structure_links = array(
-		'top'=>'/order/shipments/edit/'.$atim_menu_variables['Order.id'].'/%%Shipment.id%%/',
+		'top'=>'/order/shipments/edit/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['Shipment.id'].'/',
 		'bottom'=>array(
-			'cancel'=>'/order/shipments/detail/'.$atim_menu_variables['Order.id'].'/%%Shipment.id%%/'
+			'cancel'=>'/order/shipments/detail/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['Shipment.id'].'/'
 		)
 	);
 	
@@ -15,4 +16,5 @@
 		
 	// BUILD FORM
 	$structures->build( $final_atim_structure, $final_options );
+	
 ?>

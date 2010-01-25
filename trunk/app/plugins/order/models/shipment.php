@@ -11,16 +11,16 @@ class Shipment extends OrderAppModel
 		if ( isset($variables['Shipment.id']) ) {
 			
 			$result = $this->find('first', array('conditions'=>array('Shipment.id'=>$variables['Shipment.id'])));
-			
+						
 			$return = array(
 				'Summary'		=> array(
-					'menu'			=>	array( null, __('Shipment',true)),
-					'title'			=>	array( null, null),
+					'menu'			=>	array( null, __('shipment',true) . ' : ' . $result['Shipment']['shipment_code']),
+					'title'			=>	array( null, __('shipment',true) . ' : ' . $result['Shipment']['shipment_code']),
 					'description'	=>	array(
-						__('shipping code', true)			=>	__($result['Shipment']['shipment_code'], true),
-						__('recipient', true)				=>	__($result['Shipment']['recipient'], true),
-						__('shipping company', true)		=>	__($result['Shipment']['shipping_company'], true),
-						__('shipping account number', true)	=>  __($result['Shipment']['shipping_account_nbr'], true)
+						__('shipping code', true)			=>	$result['Shipment']['shipment_code'],
+						__('recipient', true)				=>	$result['Shipment']['recipient'],
+						__('facility', true)		=>	$result['Shipment']['facility'],
+						__('order_datetime_shipped', true)	=>  $result['Shipment']['datetime_shipped']
 					)
 				)
 			);	
