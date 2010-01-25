@@ -99,11 +99,6 @@ class AppModel extends Model {
 	}
 	
 	function find($conditions = null, $fields = array(), $order = null, $recursive = null) {
-		if(isset($fields['conditions']) && is_array($fields['conditions']) && isset($fields['conditions'][0]) && strlen($fields['conditions'][0]) > 0){
-			//manual conditions exist. fixing eventum issue 742 (looks like a cakephp bug somehow)
-			//TODO: when upgrading cake, test if we still need thi manual correction
-			$fields['conditions'][] .= $this->name.".deleted != 1 ";
-		}
 		return Model::find($conditions, $fields, $order, $recursive);
 	}
 	
