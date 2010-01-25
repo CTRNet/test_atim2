@@ -1,4 +1,4 @@
-﻿UPDATE `structure_validations`
+UPDATE `structure_validations`
 SET `flag_empty` = '0'
 WHERE `rule` LIKE 'notEmpty'
 AND `flag_empty` LIKE '1';
@@ -177,3 +177,63 @@ DELETE FROM menus WHERE id = 'ord_CAN_120';
 UPDATE structures 
 SET alias = 'shippeditems'
 WHERE old_id LIKE 'CAN-999-999-000-999-1068';
+
+
+-- Keith's Changes
+
+-- ***** Clinical Annotation *****
+
+	--  /Profile/ 
+	UPDATE `structure_value_domains_permissible_values` SET `display_order` = '0' WHERE `structure_value_domains_permissible_values`.`id` =343 LIMIT 1 ;
+	UPDATE `i18n` SET `en` = 'Aboriginal' WHERE `i18n`.`id` = 'aboriginal' AND `i18n`.`page_id` = 'global' LIMIT 1 ;
+
+	--  /Consent Form/ 
+	UPDATE `structure_fields` SET `language_label` = 'status date',
+	`language_tag` = '' WHERE `structure_fields`.`id` =117 LIMIT 1 ;
+
+	-- Operation Date (date time tag)
+	UPDATE `structure_fields` SET `language_tag` = 'date/time' WHERE `structure_fields`.`id` =120 LIMIT 1 ;
+
+	-- / Diagnosis /
+	UPDATE `structure_fields` SET `language_label` = 'summary',
+	`language_tag` = '' WHERE `structure_fields`.`id` =833 LIMIT 1 ;
+	UPDATE `structure_fields` SET `language_label` = 'summary',
+	`language_tag` = '' WHERE `structure_fields`.`id` =837 LIMIT 1 ;
+
+
+	-- / Treatment /
+	UPDATE `structure_value_domains_permissible_values` SET `display_order` = '1' WHERE `structure_value_domains_permissible_values`.`id` =246 LIMIT 1 ;
+	
+	
+-- ***** Study *****
+	
+	-- /Contact names/
+	UPDATE `structure_fields` SET `setting` = 'size=25' WHERE `structure_fields`.`id` =619 LIMIT 1 ;
+	UPDATE `structure_fields` SET `setting` = 'size=25' WHERE `structure_fields`.`id` =620 LIMIT 1 ;
+	UPDATE `structure_fields` SET `setting` = 'size=25' WHERE `structure_fields`.`id` =621 LIMIT 1 ;
+	
+	-- /Contact phone changes/
+	UPDATE `structure_fields` SET `language_tag` = 'study_number',
+	`setting` = '' WHERE `structure_fields`.`id` =776 LIMIT 1 ;
+	UPDATE `structure_fields` SET `language_tag` = 'study_number',
+	`setting` = '' WHERE `structure_fields`.`id` =777 LIMIT 1 ;
+	UPDATE `structure_fields` SET `language_tag` = 'study_number',
+	`setting` = '' WHERE `structure_fields`.`id` =778 LIMIT 1 ;
+	
+	DELETE FROM `structure_fields` WHERE `structure_fields`.`id` =632;
+	DELETE FROM `structure_fields` WHERE `structure_fields`.`id` =633;
+	DELETE FROM `structure_fields` WHERE `structure_fields`.`id` =635;
+	DELETE FROM `structure_fields` WHERE `structure_fields`.`id` =638;
+	DELETE FROM `structure_fields` WHERE `structure_fields`.`id` =640;
+	DELETE FROM `structure_fields` WHERE `structure_fields`.`id` =641;
+	
+	DELETE FROM `structure_formats` WHERE `structure_field_id` =632;
+	DELETE FROM `structure_formats` WHERE `structure_field_id` =633;
+	DELETE FROM `structure_formats` WHERE `structure_field_id` =635;
+	DELETE FROM `structure_formats` WHERE `structure_field_id` =638;
+	DELETE FROM `structure_formats` WHERE `structure_field_id` =640;
+	DELETE FROM `structure_formats` WHERE `structure_field_id` =641;
+
+	UPDATE `structure_fields` SET `field` = 'phone_number' WHERE `structure_fields`.`id` =776 LIMIT 1 ;
+	UPDATE `structure_fields` SET `field` = 'phone2_number' WHERE `structure_fields`.`id` =777 LIMIT 1 ;
+	UPDATE `structure_fields` SET `field` = 'fax_number' WHERE `structure_fields`.`id` =778 LIMIT 1 ;
