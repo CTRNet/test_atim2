@@ -16,8 +16,22 @@
 	// BUILD FORM
 	$structures->build($final_atim_structure, $final_options);
 
+	
+	//2- Detail data
+	$final_atim_structure = $add_aliquots_in_batch_info;
+	$final_options = array('type' => 'add', 'links' => array('top' => 'coco'), 'settings' => array('actions' => false, 'header' => __('Data', null), 'separator' => true, 'form_top' => true, 'form_bottom' => false));
+	
+	// CUSTOM CODE
+	$hook_link = $structures->hook('data');
+	if($hook_link){
+		require($hook_link);
+	}
 
-	// 2- ORDER LINES
+	// BUILD FORM
+	$structures->build($final_atim_structure, $final_options);
+	echo("</form>");
+	
+	// 3- ORDER LINES
 
 	$structure_settings = array(
 		'tree'=>array(
@@ -31,10 +45,18 @@
 	$structure_links = array(
 		'tree'=>array(
 			'OrderLine' => array(
-				'add' => '/order/order_items/addAliquotsInBatch/-1/%%OrderLine.order_id%%/%%OrderLine.id%%/'
+				'add' => '/order/order_items/addAliquotsInBatch/-1/%%OrderLine.order_id%%/%%OrderLine.id%%/true'
 			),
 		),
-		'bottom' => array('cancel' => $url_to_cancel)
+		'bottom' => array('cancel' => $url_to_cancel),
+		'ajax' => array(
+			'index' => array(
+				'add' => array(
+					'update' => 'frame',
+					'before' => 'customSubmit(this)'
+				)
+			)
+		)
 	);
 	
 	$structure_override = array();
@@ -62,3 +84,9 @@
 	$structures->build( $final_atim_structure, $final_options );	
 	
 ?>
+<script type="text/javascript">
+function customSubmit(data){
+	$$("form")[0].writeAttribute("action", data);
+	$$("form")[0].submit();
+}
+</script>

@@ -116,8 +116,10 @@ class OrderItemsController extends OrderAppController {
 		}
 	}
   	
-  	function addAliquotsInBatch($aliquot_master_id = null, $order_id = null, $order_line_id = null){
-  		
+  	function addAliquotsInBatch($aliquot_master_id = null, $order_id = null, $order_line_id = null, $ignore = false){
+  		if($ignore){
+  			exit;
+  		}
 		// MANAGE SET OF ALIQUOT IDS TO WORK ON
 		
 		$aliquot_ids_to_add = null;
@@ -176,6 +178,8 @@ class OrderItemsController extends OrderAppController {
 				$submitted_aliquots_validates = false;
 				$error_message = 'no aliquot has been submitted';
 			}
+			
+			//TODO: test for double entries in $studied_aliquot_master_ids 
 					
 			if($submitted_aliquots_validates) {
 				// Check aliquots have never been added to an order
@@ -246,6 +250,7 @@ class OrderItemsController extends OrderAppController {
 		$this->set('atim_structure', $atim_structure);
 		
 		$this->Structures->set('aliquotmasters_summary', 'atim_structure_for_aliquots_list');
+		$this->Structures->set('addAliquotsInBatchInfo', 'add_aliquots_in_batch_info');
 
 		// Menu
 		$this->set('atim_menu', $this->Menus->get("/order/orders/index/"));
