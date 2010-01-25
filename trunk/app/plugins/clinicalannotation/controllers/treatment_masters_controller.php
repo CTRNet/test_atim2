@@ -140,7 +140,7 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		if ( !empty($this->data) ) {
 			$this->data['TreatmentMaster']['participant_id'] = $participant_id;
 			$this->data['TreatmentMaster']['treatment_control_id'] = $treatment_control_id;
-			$this->data['TreatmentMaster']['tx_method'] = $tx_control_data['TreatmentControl']['tx_method'];
+			$this->data['TreatmentMaster']['tx_method'] = __($tx_control_data['TreatmentControl']['tx_method'], TRUE);
 			
 			// LAUNCH SPECIAL VALIDATION PROCESS	
 			$submitted_data_validates = true;
