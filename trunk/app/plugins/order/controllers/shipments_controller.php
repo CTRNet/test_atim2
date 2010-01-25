@@ -7,11 +7,15 @@ class ShipmentsController extends OrderAppController {
 		'Order.Order', 
 		'Order.OrderItem', 
 		'Order.OrderLine', 
+		
 		'Inventorymanagement.AliquotMaster');
 		
 	var $paginate = array('Shipment'=>array('limit'=>10,'order'=>'Shipment.shipment_code'));
+	
 //TODO do summary	
+
 	function listall( $order_id=null ) {
+		//TODO review
 		if ( !$order_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
 
 		// MANAGE DATA
@@ -19,7 +23,6 @@ class ShipmentsController extends OrderAppController {
 		// Check order
 		$order_data = $this->Order->find('first',array('conditions'=>array('Order.id'=>$order_id)));
 		if(empty($order_data)) { $this->redirect( '/pages/err_order_no_data', null, true ); }		
-	
 		
 		// Get shipments
 		$shipments_data = $this->paginate($this->Shipment, array('Shipment.order_id'=>$order_id));
@@ -36,7 +39,7 @@ class ShipmentsController extends OrderAppController {
 		}
 	}
 
-	function add( $order_id=null ) {
+	function add( $order_id ) {
 		if ( !$order_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
 
 		// MANAGE DATA
@@ -50,14 +53,17 @@ class ShipmentsController extends OrderAppController {
 		$this->set('atim_menu', $this->Menus->get('/order/shipments/listall'));
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id));
 		
+		// SAVE PROCESS
+					
 		$hook_link = $this->hook('format');
 		if($hook_link){
 			require($hook_link);
 		}
 		
-		// SAVE PROCESS
-					
 		if ( !empty($this->data) ) {
+			// Set order id
+			$this->data['Shipment']['order_id'] = $order_id;
+			
 			// Launch validation
 			$submitted_data_validates = true;
 			
@@ -66,7 +72,6 @@ class ShipmentsController extends OrderAppController {
 				require($hook_link);
 			}
 			
-			$this->data['Shipment']['order_id'] = $order_id;
 			if ($submitted_data_validates && $this->Shipment->save($this->data) ) {
 				$this->flash( 'your data has been saved','/order/shipments/detail/'.$order_id.'/'.$this->Shipment->id );
 			}
@@ -74,7 +79,8 @@ class ShipmentsController extends OrderAppController {
 	}
   
 	function edit( $order_id=null, $shipment_id=null ) {
- 		if ( !$order_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
+ 		//TODO review
+		if ( !$order_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
 		if ( !$shipment_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
 		
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'Shipment.id'=>$shipment_id) );
@@ -101,11 +107,17 @@ class ShipmentsController extends OrderAppController {
 	}
   
 	function detail( $order_id=null, $shipment_id=null ) {
-		if ( !$order_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
-		if ( !$shipment_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
+		if (( !$order_id ) || ( !$shipment_id )) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
+		
+		// MANAGE DATA
+		$shipment_data = $this->Shipment->find('first',array('conditions'=>array('Shipment.id'=>$shipment_id)));
+		if(empty($shipment_data)) { $this->redirect( '/pages/err_order_no_data', null, true ); }				
+		$this->data = $shipment_data;
+		
+		
+		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'Shipment.id'=>$shipment_id) );
-		$this->data = $this->Shipment->find('first',array('conditions'=>array('Shipment.id'=>$shipment_id)));
 		
 		$hook_link = $this->hook('format');
 		if($hook_link){
@@ -114,7 +126,8 @@ class ShipmentsController extends OrderAppController {
 	}
   
 	function delete( $order_id=null, $shipment_id=null ) {
-  		if ( !$order_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
+  		//TODO review
+		if ( !$order_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
 		if ( !$shipment_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
 		
 		$submitted_data_validates = true;
@@ -132,6 +145,7 @@ class ShipmentsController extends OrderAppController {
 	}
 	
 	function deleteFromShipment($order_id, $order_item_id, $shipment_id){
+		//TODO review
 		if ( !$order_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
 		if ( !$order_item_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
 		if ( !$shipment_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
@@ -165,6 +179,7 @@ class ShipmentsController extends OrderAppController {
 	}
 	
 	function addToShipment($order_id, $shipment_id){
+		//TODO review
 		if ( !$order_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
 		if ( !$shipment_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
 		
@@ -216,7 +231,8 @@ class ShipmentsController extends OrderAppController {
 	}
 	
 	function shipmentItems ( $order_id, $shipment_id ){
-		if ( !$order_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
+	//TODO review
+			if ( !$order_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
 		if ( !$shipment_id ) { $this->redirect( 'pages/err_order_funct_param_missing', null, true ); }
 		
 		$this->set('atim_menu', $this->Menus->get('/order/shipments/shipmentItems/%%Order.id%%/%%Shipment.id%%/'));
