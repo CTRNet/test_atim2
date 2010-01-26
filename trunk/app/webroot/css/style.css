@@ -163,7 +163,6 @@ a {
 /* actions, links */
 div#wrapper div.actions {
 	position: relative;
-	z-index: 0;
 	list-style: none;
 	background: #dde8f2;
 	display: block;
@@ -216,7 +215,7 @@ div#wrapper div.actions {
 		-moz-border-radius: 3px; -webkit-border-radius: 3px;
 		
 	}
-	div#wrapper div.actions div:hover {
+	div#wrapper div.actions div:hover, div#wrapper div.actions div:focus {
 		border-color: #000;
 		background-image: url("../img/btnBackSel.png");
 	}
@@ -1160,7 +1159,6 @@ div#wrapper table.structure table.columns td a.not_allowed {
 	}
 	
 	fieldset.submit div span:hover{
-		background-image: url("../img/btnBackSel.png");
 	}
 	
 	fieldset.submit input.submit:hover,
@@ -1289,9 +1287,10 @@ table.cake-sql-log th {
 	margin: -7px;
 }
 
-.button:hover{
+.button:hover, .button:focus{
 	background: url(../img/btnBackSel.png);
 	border-color: #000;
+	
 }
 .button .ui-icon{
 	float: left; 
