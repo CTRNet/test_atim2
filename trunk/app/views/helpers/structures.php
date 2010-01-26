@@ -745,6 +745,9 @@ class StructuresHelper extends Helper {
 	function build_tree( $atim_structure, $options ) {
 		$return_string = '';
 		
+		if ( is_array($options['data']) ) { $data=$options['data']; }
+		else { $data=$this->data; }
+		
 		// display table...
 		$return_string .= '
 			<table class="structure" cellspacing="0">
@@ -784,7 +787,7 @@ class StructuresHelper extends Helper {
 						<tbody>
 					';
 					
-					if ( count($this->data) ) {
+					if ( count($data) ) {
 						
 						// start root level of UL tree, and call NODE function
 						$return_string .= '
@@ -792,7 +795,7 @@ class StructuresHelper extends Helper {
 								<ul id="tree_root">
 						';
 						
-						$return_string .= $this->build_tree_node( $atim_structure, $options, $this->data );
+						$return_string .= $this->build_tree_node( $atim_structure, $options, $data );
 						
 						$return_string .= '
 								</ul>
