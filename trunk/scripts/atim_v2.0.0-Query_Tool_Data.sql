@@ -64,7 +64,7 @@ ConsentMaster.status_date
 FROM participants AS Participant
 LEFT JOIN consent_masters AS ConsentMaster ON ConsentMaster.participant_id = Participant.id
 WHERE Participant.first_name LIKE "%@@Participant.first_name@@%"
-AND Participant.last_name IN (@@Participant.last_name@@) 
+AND TRUE AND Participant.last_name IN (@@Participant.last_name@@) 
 AND ConsentMaster.consent_status = "@@ConsentMaster.consent_status@@"
 AND Participant.date_of_birth >= "@@Participant.date_of_birth_start@@" 
 AND Participant.date_of_birth <= "@@Participant.date_of_birth_end@@" ;
@@ -89,7 +89,7 @@ AliquotMaster.aliquot_volume_unit
 
 FROM sample_masters AS SampleMaster
 INNER JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.sample_master_id = SampleMaster.id 
-WHERE SampleMaster.sample_type = "@@SampleMaster.sample_type@@" 
+WHERE TRUE AND SampleMaster.sample_type = "@@SampleMaster.sample_type@@" 
 AND AliquotMaster.aliquot_type = "@@AliquotMaster.aliquot_type@@" 
 AND AliquotMaster.status = "@@AliquotMaster.status@@";
 
@@ -124,7 +124,7 @@ FROM collections AS Collection
 INNER JOIN sample_masters AS SampleMaster ON SampleMaster.collection_id = Collection.id 
 INNER JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.sample_master_id = SampleMaster.id 
 INNER JOIN storage_masters AS StorageMaster ON AliquotMaster.storage_master_id = StorageMaster.id 
-WHERE Collection.bank_id = "@@Collection.bank_id@@" 
+WHERE TRUE AND Collection.bank_id = "@@Collection.bank_id@@" 
 AND SampleMaster.sample_type = "@@SampleMaster.sample_type@@" 
 AND AliquotMaster.aliquot_type = "@@AliquotMaster.aliquot_type@@" 
 AND AliquotMaster.status = "@@AliquotMaster.status@@" 
