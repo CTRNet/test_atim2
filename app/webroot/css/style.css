@@ -1159,6 +1159,7 @@ div#wrapper table.structure table.columns td a.not_allowed {
 	}
 	
 	fieldset.submit div span:hover{
+		background-image: url("../img/btnBackSel.png");
 	}
 	
 	fieldset.submit input.submit:hover,
