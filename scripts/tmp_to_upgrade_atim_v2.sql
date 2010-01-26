@@ -237,3 +237,8 @@ WHERE old_id LIKE 'CAN-999-999-000-999-1068';
 	UPDATE `structure_fields` SET `field` = 'phone_number' WHERE `structure_fields`.`id` =776 LIMIT 1 ;
 	UPDATE `structure_fields` SET `field` = 'phone2_number' WHERE `structure_fields`.`id` =777 LIMIT 1 ;
 	UPDATE `structure_fields` SET `field` = 'fax_number' WHERE `structure_fields`.`id` =778 LIMIT 1 ;
+	
+	UPDATE `structure_validations`
+SET flag_empty = '0', flag_required = '0'
+WHERE structure_field_old_id IN ('CAN-999-999-000-999-1100', 'CAN-999-999-000-999-1183', 
+'CAN-999-999-000-999-1232', 'CAN-999-999-000-999-26');
