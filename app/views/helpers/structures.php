@@ -1895,9 +1895,20 @@ class StructuresHelper extends Helper {
 				}
 				$link_array = array( $link_name => $link_array['link'] );
 			}
+			$prev_icon = $icon;
 			foreach ( $link_array as $link_label => &$link_location ) {
+				$icon = $prev_icon;
+				if(is_array($link_location)){
+					if(isset($link_location['icon'])){
+						//set requested custom icon
+						$icon = $link_location['icon'];
+					}
+					$link_location = &$link_location['link'];
+				}
+					
 				// if ( !Configure::read("debug") ) {
-					// check on EDIT only 
+					// check on EDIT only
+					
 					$parts = Router::parse($link_location);
 					$aco_alias = 'controllers/'.($parts['plugin'] ? Inflector::camelize($parts['plugin']).'/' : '');
 					$aco_alias .= ($parts['controller'] ? Inflector::camelize($parts['controller']).'/' : '');
