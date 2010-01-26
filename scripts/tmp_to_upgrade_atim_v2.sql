@@ -242,3 +242,13 @@ WHERE old_id LIKE 'CAN-999-999-000-999-1068';
 SET flag_empty = '0', flag_required = '0'
 WHERE structure_field_old_id IN ('CAN-999-999-000-999-1100', 'CAN-999-999-000-999-1183', 
 'CAN-999-999-000-999-1232', 'CAN-999-999-000-999-26');
+
+INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VALUES (NULL, 'none', 'none');
+SET @last_id = LAST_INSERT_ID();
+INSERT INTO `structure_value_domains_permissible_values` (`id`, `structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `active`, `language_alias`)
+VALUES(NULL, 109, @last_id, 6, 'yes', 'none');
+
+INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VALUES (NULL, 'not applicable', 'not applicable');
+SET @last_id = LAST_INSERT_ID();
+INSERT INTO `structure_value_domains_permissible_values` (`id`, `structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `active`, `language_alias`)
+VALUES(NULL, 37, @last_id, 4, 'yes', 'not applicable');
