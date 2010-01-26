@@ -167,7 +167,8 @@ class ParticipantsController extends ClinicalannotationAppController {
 		// Check for existing records linked to the participant. If found, set error message and deny delete
 		$nbr_linked_collection = $this->ClinicalCollectionLink->find('count', array('conditions' => array('ClinicalCollectionLink.diagnosis_master_id' => $participant_id, 'ClinicalCollectionLink.deleted'=>0), 'recursive' => '-1'));
 		if ($nbr_linked_collection > 0) {
-			return array('allow_deletion' => false, 'msg' => 'error_fk_participant_linked_collection');
+			$arr_allow_deletion['allow_deletion'] = false;
+			$arr_allow_deletion['msg'] = 'error_fk_participant_linked_collection';
 		}
 		
 		$nbr_consents = $this->ConsentMaster->find('count', array('conditions'=>array('ConsentMaster.participant_id'=>$participant_id, 'ConsentMaster.deleted'=>0), 'recursive' => '-1'));
