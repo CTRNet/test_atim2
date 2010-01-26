@@ -164,14 +164,14 @@ class ConsentMastersController extends ClinicalannotationAppController {
 	 */
 	 
 	function allowConsentDeletion($consent_master_id){
-		//$returned_nbr = $this->LinkedModel->find('count', array('conditions' => array('LinkedModel.family_history_id' => $family_history_id), 'recursive' => '-1'));
-		//if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'a LinkedModel exists for the deleted family history'); }
+		$arr_allow_deletion = array('allow_deletion' => true, 'msg' => '');
 
 		$returned_nbr = $this->ClinicalCollectionLink->find('count', array('conditions' => array('ClinicalCollectionLink.consent_master_id' => $consent_master_id)));
 		if($returned_nbr > 0){
-			return array('allow_deletion' => false, 'msg' => 'This consent cannot be deleted because it is linked to a collection');
+			$arr_allow_deletion['allow_deletion'] = false;
+			$arr_allow_deletion['msg'] = 'error_fk_consent_linked_collection';
 		}
-		return array('allow_deletion' => true, 'msg' => '');
+		return $arr_allow_deletion;
 	}	
 	
 }
