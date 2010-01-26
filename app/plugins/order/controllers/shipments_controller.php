@@ -366,37 +366,71 @@ class ShipmentsController extends OrderAppController {
 	}
 	
 	function deleteFromShipment($order_id, $order_item_id, $shipment_id){
-		$this->flash('underdeveleopment', '/order/shipments/detail/'.$order_id.'/'.$shipment_id.'/');
-		//TODO review
-		if ( !$order_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
-		if ( !$order_item_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
-		if ( !$shipment_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
+		if (( !$order_id ) || ( !$order_item_id ) || ( !$shipment_id )) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
 		
-		$order_item = $this->OrderItem->find('first', array('conditions' => array('OrderItem.id' => $order_item_id, 'OrderLine.order_id' => $order_id)));
+		// MANAGE DATA
 		
-		if(!empty($order_item)){
-			$order_item['OrderItem']['shipment_id'] = null;
-			$order_item['OrderItem']['status'] = 'pending';
-			$order_item['AliquotMaster']['status'] = 'reserved for order';
+		// Check item
+		$order_item_data = $this->OrderItem->find('first',array('conditions'=>array('OrderItem.id'=>$order_item_id, 'OrderItem.shipment_id'=>$shipment_id), 'recursive' => '-1'));
+		if(empty($order_item_data)) { $this->redirect( '/pages/err_order_no_data', null, true ); }	
+
+		// Set ids
+		$order_line_id = $order_item_data['OrderItem']['order_line_id'];
+		$aliquot_master_id = $order_item_data['OrderItem']['aliquot_master_id'];
+		$aliquot_use_id = $order_item_data['OrderItem']['aliquot_use_id'];
+		
+		// Check deletion is allowed
+		$arr_allow_deletion = $this->allowItemRemoveFromShipment($order_item_id, $shipment_id);
 			
-			$submitted_data_validates = true;
-			$hook_link = $this->hook('delete');
-			if($hook_link){
-				require($hook_link);
+		$hook_link = $this->hook('delete_from_shipment');
+		if( $hook_link ) { require($hook_link); }		
+		
+		// LAUNCH DELETION
+		
+		$url = '/order/shipments/detail/'.$order_id.'/'.$shipment_id;
+		
+		if($arr_allow_deletion['allow_deletion']) {
+			$remove_done = true;
+
+			// -> Remove order item from shipment	
+			$order_item = array();
+			$order_item['OrderItem']['shipment_id'] = null;
+			$order_item['OrderItem']['aliquot_use_id'] = null;
+			$order_item['OrderItem']['status'] = 'pending';
+			$this->OrderItem->id = $order_item_id;
+			if(!$this->OrderItem->save($order_item)) { $remove_done = false; }
+
+			// -> Delete aliquot use
+			if($remove_done) {
+				if(!$this->AliquotUse->atim_delete( $aliquot_use_id )) { $remove_done = false; }
+			}
+			
+			// -> Update aliquot master
+			if($remove_done) {
+				$new_aliquot_master_data = array();
+				//$new_aliquot_master_data['AliquotMaster']['status'] = '';
+				$new_aliquot_master_data['AliquotMaster']['status_reason'] = 'reserved for order';
+				$this->AliquotMaster->id = $aliquot_master_id;
+				if(!$this->AliquotMaster->save($new_aliquot_master_data)) { $remove_done = false; }	
+			}
+			
+			// -> Update order line
+			if($remove_done) {			
+				$order_line = array();
+				$order_line['OrderLine']['status'] = "pending";
+				$this->OrderLine->id = $order_line_id;
+				if(!$this->OrderLine->save($order_line)) { $remove_done = false; }	
 			}
 
-			if($submitted_data_validates){
-				$this->AliquotMaster->save($order_item);
-				
-				$order_line['OrderLine']['id'] = $order_item['OrderItem']['order_line_id'];
-				$order_line['OrderLine']['status'] = 'pending';
-				$this->OrderLine->save($order_line);
-				
-				$this->OrderItem->save($order_item, false);//no validation because we just want to set the shipment_id to null and that is forbidden
-				$this->flash('your data has been deleted', '/order/shipments/shipmentItems/'.$order_id.'/'.$shipment_id.'/');
+			// Redirect
+			if($remove_done) {
+				$this->flash('your data has been removed - update the aliquot status data', $url);
+			} else {
+				$this->flash('error deleting data - contact administrator', $url);
 			}
-		}else{
-			$this->flash('Invalid deleted.', '/order/shipments/shipmentItems/'.$order_id.'/'.$shipment_id.'/');
+		
+		} else {
+			$this->flash($arr_allow_deletion['msg'], $url);
 		}
 	}
   	
@@ -422,6 +456,24 @@ class ShipmentsController extends OrderAppController {
 		$returned_nbr = $this->OrderItem->find('count', array('conditions' => array('OrderItem.shipment_id' => $shipment_id), 'recursive' => '-1'));
 		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'order item exists for the deleted shipment'); }
 		
+		return array('allow_deletion' => true, 'msg' => '');
+	}
+	
+	/**
+	 * Check if an item can be removed from a shipment.
+	 * 
+	 * @param $order_item_id  Id of the studied item.
+	 * @param $shipment_id Id of the studied shipemnt.
+	 * 
+	 * @return Return results as array:
+	 * 	['allow_deletion'] = true/false
+	 * 	['msg'] = message to display when previous field equals false
+	 * 
+	 * @author N. Luc
+	 * @since 2007-10-16
+	 */
+	 
+	function allowItemRemoveFromShipment($order_item_id, $shipment_id){
 		return array('allow_deletion' => true, 'msg' => '');
 	}
 	

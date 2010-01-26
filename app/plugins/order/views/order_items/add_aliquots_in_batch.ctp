@@ -5,7 +5,11 @@
 	$structure_override = array();
 			
 	$final_atim_structure = $atim_structure_for_aliquots_list;
-	$final_options = array('override' => $structure_override,  'type' => 'index', 'settings' => array('actions' => false, 'header' => __('add aliquots to order', null)), 'data' => $aliquots_data);
+	$final_options = array(
+		'type' => 'index', 
+		'data' => $aliquots_data, 
+		'settings' => array('actions' => false, 'header' => __('add aliquots to order: studied aliquots', null)), 
+		'override' => $structure_override);
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook('aliquots');
@@ -17,16 +21,16 @@
 	$structures->build($final_atim_structure, $final_options);
 
 	
-	//2- Detail data
-	$final_atim_structure = $add_aliquots_in_batch_info;
+	//2- ORDER ITEMS DATA ENTRY
+	
+	$final_atim_structure = $atim_structure_orderitems_data;
 	$final_options = array(
 		'type' => 'add', 
 		'links' => array('top' => 'coco'), 
-		'settings' => array('actions' => false, 'header' => __('order', null), 'separator' => true, 'form_top' => true, 'form_bottom' => false),
-		);
+		'settings' => array('actions' => false, 'header' => __('1- add order data', null), 'separator' => true, 'form_top' => true, 'form_bottom' => false));
 	
 	// CUSTOM CODE
-	$hook_link = $structures->hook('data');
+	$hook_link = $structures->hook('order_item');
 	if($hook_link){
 		require($hook_link);
 	}
@@ -35,14 +39,16 @@
 	$structures->build($final_atim_structure, $final_options);
 	echo("</form>");
 	
-	// 3- ORDER LINES
-
+	
+	// 3- ORDER LINES SELECTION
+	
+	
 	$structure_settings = array(
 		'tree'=>array(
 			'Order'		=> 'Order',
 			'OrderLine'	=> 'OrderLine'
 		),
-		'header' => __('select order line', null), 
+		'header' => __('2- select order line', null), 
 		'separator' => true
 	);
 	
@@ -78,7 +84,12 @@
 	$structure_override['OrderLine.aliquot_control_id'] = $aliquot_types;
 	
 	$final_atim_structure = $atim_structure; 
-	$final_options = array('type' => 'tree', 'settings'=>$structure_settings, 'links'=>$structure_links, 'override'=>$structure_override);
+	$final_options = array(
+		'type' => 'tree', 
+		'data' => $order_line_data_for_tree_view,
+		'links'=>$structure_links, 
+		'settings'=>$structure_settings, 
+		'override'=>$structure_override);
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook();
@@ -86,8 +97,9 @@
 		
 	// BUILD FORM
 	$structures->build( $final_atim_structure, $final_options );	
-	
+		
 ?>
+
 <script type="text/javascript">
 function customSubmit(data){
 	$$("form")[0].writeAttribute("action", data.toString().substr(0, data.toString().length - 4));

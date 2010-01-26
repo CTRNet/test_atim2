@@ -7,7 +7,12 @@
 	
 	$structure_links = array(
 		'index' => array('detail' => '/inventorymanagement/collections/detail/%%Collection.id%%'),
-		'bottom' => array('add collection' => '/inventorymanagement/collections/add', 'new search' => $search_type_links['collections'], 'new search type' => $search_type_links)
+		'bottom' => array(
+			'add collection' => '/inventorymanagement/collections/add', 
+			'new search' => array(
+				'link' => $search_type_links['collections'], 
+				'icon' => 'search'),			
+			'new search type' => $search_type_links)
 	);
 	
 	$structure_override = array();
