@@ -110,6 +110,7 @@ class OrderItemsController extends OrderAppController {
 					
 					// Update aliquot master status
 					$new_aliquot_master_data = array();
+					//$new_aliquot_master_data['AliquotMaster']['status'] = '';
 					$new_aliquot_master_data['AliquotMaster']['status_reason'] = 'reserved for order';
 					
 					$this->AliquotMaster->id = $aliquot_data['AliquotMaster']['id'];
@@ -123,11 +124,10 @@ class OrderItemsController extends OrderAppController {
 	}
   	
   	function addAliquotsInBatch($aliquot_master_id = null, $order_id = null, $order_line_id = null, $ignore = false){
-  		if($ignore){
-  			exit;
-  		}
-  		$rcv_data = $this->data;
-		// MANAGE SET OF ALIQUOT IDS TO WORK ON
+  		// Use to ignore Ajax call (see .ctp)
+  		if($ignore){ exit; }
+  		
+  		// MANAGE SET OF ALIQUOT IDS TO WORK ON
 		
 		$aliquot_ids_to_add = null;
 		$url_to_redirect = null;
@@ -153,23 +153,31 @@ class OrderItemsController extends OrderAppController {
 					
 			} else if(isset($_SESSION['ctrapp_core']['datamart']['process']['AliquotMaster']['id'])){
 				// Add aliquots from batchset
+				
+				// Get batchset id
 				$batch_set_id = $_SESSION['ctrapp_core']['datamart']['process']['BatchSet']['id'];
 				
+				// Build redirect url
+				$url_to_redirect = '/datamart/batch_sets/listall/all/' . $batch_set_id;
+			
 				//TODO Add following lines to patch bug on the array of ids sent by the batchset process
 				// $studied_aliquot_master_ids = $_SESSION['ctrapp_core']['datamart']['process']['AliquotMaster']['id'];
 				$aliquot_master_ids = $_SESSION['ctrapp_core']['datamart']['process']['AliquotMaster']['id'];
 				foreach($aliquot_master_ids as $new_id) { if(!empty($new_id)) { $studied_aliquot_master_ids[] = $new_id; } }
 				$aliquot_master_ids = null;
 				
+				//Check all aliquots have been defined once
+				if(sizeof(array_flip($studied_aliquot_master_ids)) != sizeof($studied_aliquot_master_ids)) {
+					$this->flash('an aliquot could be added once into an order', $url_to_redirect);
+					return;
+				}
+
 				// Check all aliquots exist
 				$aliquots_count = $this->AliquotMaster->find('count', array('conditions' => array('AliquotMaster.id' => $studied_aliquot_master_ids), 'recursive' => '-1'));
 				if($aliquots_count != sizeof($studied_aliquot_master_ids)) { 
 					$this->redirect('/pages/err_order_system_error', null, true); 
 				}
 				
-				// Build redirect url
-				$url_to_redirect = '/datamart/batch_sets/listall/all/' . $batch_set_id;
-			
 			} else {
 				$this->redirect( '/pages/err_order_funct_param_missing', null, true );
 			}
@@ -185,8 +193,6 @@ class OrderItemsController extends OrderAppController {
 				$submitted_aliquots_validates = false;
 				$error_message = 'no aliquot has been submitted';
 			}
-			
-			//TODO: test for double entries in $studied_aliquot_master_ids
 					
 			if($submitted_aliquots_validates) {
 				// Check aliquots have never been added to an order
@@ -219,23 +225,23 @@ class OrderItemsController extends OrderAppController {
 		}
 		
 		// MANAGE DATA
-		
-		// Get aliquot data
+
+		// Get data of aliquots to add
 		$aliquots_data = $this->paginate($this->AliquotMaster, array('AliquotMaster.id'=>$aliquot_ids_to_add));
-		$this->set('aliquots_data' , $aliquots_data);
-		
+		$this->set('aliquots_data' , $aliquots_data);	
+				
 		// Build data for order line selection
-		$this->data = $this->Order->find('all', array('conditions' => array('NOT' => array('Order.processing_status' => array('completed')))));
-		
-		foreach($this->data as &$var){
+		$order_line_data_for_tree_view = $this->Order->find('all', array('conditions' => array('NOT' => array('Order.processing_status' => array('completed')))));
+		foreach($order_line_data_for_tree_view as &$var){
 			$var['children'] = $var['OrderLine'];
 			unset($var['OrderLine']);
 			foreach($var['children'] as $key => &$var2){
 				$var['children'][$key] = array('OrderLine' => $var2);
 			}
 			unset($var['Shipment']);
-		}	
-		
+		}
+		$this->set('order_line_data_for_tree_view', $order_line_data_for_tree_view);
+
 		// Set url for cancel button
 		$this->set('url_to_cancel', $url_to_redirect);
 		
@@ -251,14 +257,15 @@ class OrderItemsController extends OrderAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Structures
+		$this->Structures->set('aliquotmasters_summary', 'atim_structure_for_aliquots_list');
+		
+		$this->Structures->set('orderitems_to_addAliquotsInBatch', 'atim_structure_orderitems_data');
+		
 		$atim_structure = array();
 		$atim_structure['Order'] = $this->Structures->get('form', 'orders');
 		$atim_structure['OrderLine'] = $this->Structures->get('form', 'orderlines');
 		$this->set('atim_structure', $atim_structure);
 		
-		$this->Structures->set('aliquotmasters_summary', 'atim_structure_for_aliquots_list');
-		$this->Structures->set('addAliquotsInBatchInfo', 'add_aliquots_in_batch_info');
-
 		// Menu
 		$this->set('atim_menu', $this->Menus->get("/order/orders/index/"));
 		
@@ -277,6 +284,10 @@ class OrderItemsController extends OrderAppController {
 				
 			// Launch validations
 			$submitted_data_validates = true;			
+			
+			// Launch validation on order item data
+			$this->OrderItem->set($this->data);
+			$submitted_data_validates = ($this->OrderItem->validates())? $submitted_data_validates: false;			
 						
 			$hook_link = $this->hook('presave_process');
 			if($hook_link){
@@ -291,13 +302,14 @@ class OrderItemsController extends OrderAppController {
 					$new_order_item_data['OrderItem']['status'] = 'pending';
 					$new_order_item_data['OrderItem']['order_line_id'] = $order_line_id;
 					$new_order_item_data['OrderItem']['aliquot_master_id'] = $added_aliquot_master_id;
-					$new_order_item_data['OrderItem'] = array_merge($new_order_item_data['OrderItem'], $rcv_data['OrderItem']);
+					$new_order_item_data['OrderItem'] = array_merge($new_order_item_data['OrderItem'], $this->data['OrderItem']);
 					
 					$this->OrderItem->id = null;
 					if(!$this->OrderItem->save($new_order_item_data)) { $this->redirect( '/pages/err_order_record_err', null, true ); }	
 					
 					// Update aliquot master status
 					$new_aliquot_master_data = array();
+					//$new_aliquot_master_data['AliquotMaster']['status'] = '';
 					$new_aliquot_master_data['AliquotMaster']['status_reason'] = 'reserved for order';
 					
 					$this->AliquotMaster->id = $added_aliquot_master_id;
@@ -424,6 +436,7 @@ class OrderItemsController extends OrderAppController {
 		if( $hook_link ) { require($hook_link); }		
 		
 		$url = '/order/order_items/listall/'.$order_id.'/'.$order_line_id.'/';
+		
 		if($arr_allow_deletion['allow_deletion']) {
 			// Launch deletion
 			
@@ -431,6 +444,7 @@ class OrderItemsController extends OrderAppController {
 				
 				// Update AliquotMaster data
 				$new_aliquot_master_data = array();
+				//$new_aliquot_master_data['AliquotMaster']['status'] = '';
 				$new_aliquot_master_data['AliquotMaster']['status_reason'] = '';
 				$this->AliquotMaster->id = $order_item_data['OrderItem']['aliquot_master_id'];
 				if(!$this->AliquotMaster->save($new_aliquot_master_data)) { $this->redirect( '/pages/err_order_record_err', null, true ); }				

@@ -2,12 +2,7 @@
 	
 	// 1- SHIPMENT DETAILS
 	
-	$structure_links = array(
-		'bottom'=>array(
-			'edit' => '/order/shipments/edit/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['Shipment.id'].'/',
-			'delete' => '/order/shipments/delete/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['Shipment.id'].'/'
-		)
-	);
+	$structure_links = array();
 	
 	$final_atim_structure = $atim_structure; 
 	$final_options = array('links'=>$structure_links, 'settings' => array('actions' => false), );
@@ -28,7 +23,11 @@
 		'remove'=>'/order/shipments/deleteFromShipment/%%OrderLine.order_id%%/%%OrderItem.id%%/%%Shipment.id%%/',
 	);
 
-	$structure_links['bottom']['add items to shipment'] = '/order/shipments/addToShipment/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['Shipment.id'].'/';
+	$structure_links['bottom'] = array(
+		'edit' => '/order/shipments/edit/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['Shipment.id'].'/',
+		'add items to shipment' => '/order/shipments/addToShipment/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['Shipment.id'].'/',
+		'delete' => '/order/shipments/delete/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['Shipment.id'].'/'
+	);
 	
 	$structure_override = array();
 	
