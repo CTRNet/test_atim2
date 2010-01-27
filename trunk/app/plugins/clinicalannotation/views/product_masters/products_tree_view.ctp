@@ -33,7 +33,7 @@
 			'SampleMaster' => array(
 				'detail' => array(
 					'link' => '/inventorymanagement/sample_masters/detail/%%SampleMaster.collection_id%%/%%SampleMaster.id%%/1/0',
-					'icon' => 'lungs'
+					'icon' => 'flask'
 				)
 			),
 			'AliquotMaster' => array(
