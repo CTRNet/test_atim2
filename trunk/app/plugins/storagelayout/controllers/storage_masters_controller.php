@@ -567,7 +567,7 @@ class StorageMastersController extends StoragelayoutAppController {
 			// First remove storage from tree
 			$this->StorageMaster->id = $storage_master_id;	
 			$cleaned_storage_data = array('StorageMaster' => array('parent_id' => null));
-			$this->StorageMaster->save($cleaned_storage_data);
+			if(!$this->StorageMaster->save($cleaned_storage_data)) { $this->redirect('/pages/err_sto_system_error', null, true); }
 			
 			// Create has many relation to delete the storage coordinate
 			$this->StorageMaster->bindModel(array('hasMany' => array('StorageCoordinate' => array('className' => 'StorageCoordinate', 'foreignKey' => 'storage_master_id', 'dependent' => true))), false);	
