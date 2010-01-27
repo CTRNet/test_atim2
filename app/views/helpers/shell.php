@@ -210,7 +210,7 @@ class ShellHelper extends Helper {
 			$this->pageTitle = '';
 		}
 						
-		$return_html = '';
+		$return_html = array();
 		$root_menu_array = array();
 		$main_menu_array = array();
 		
@@ -334,7 +334,7 @@ class ShellHelper extends Helper {
 								$append_menu = '';
 							}
 							
-							$return_html .= '
+							$return_html[] = '
 								<li class="at count_'.$count.( $is_root ? ' root' : '' ).'">
 									'.$active_item.'
 									'.$append_menu.'
@@ -389,7 +389,7 @@ class ShellHelper extends Helper {
 			$return_html = '
 				<div class="menu level_0">
 					<ul class="total_count_'.$total_count.'">
-						'.$return_html.'
+						'.implode('',array_reverse($return_html)).'
 					</ul>
 					
 					'.$return_summary.'
