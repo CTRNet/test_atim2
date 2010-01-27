@@ -2040,7 +2040,7 @@ class StructuresHelper extends Helper {
 			if ( isset($_SESSION) && isset($_SESSION['Auth']) && isset($_SESSION['Auth']['User']) && count($_SESSION['Auth']['User']) ) {
 				if ( isset($_SESSION['ctrapp_core']['search']) && is_array($_SESSION['ctrapp_core']['search']) ) {
 					$return_string .= '
-							<div style="padding-bottom: 5px; padding-top: 5px;"><a class="search_results" href="'.$this->Html->url($_SESSION['ctrapp_core']['search']['url']).'">
+							<div class="search-result-div"><a class="search_results" href="'.$this->Html->url($_SESSION['ctrapp_core']['search']['url']).'">
 								'.$_SESSION['ctrapp_core']['search']['results'].'
 							</a></div>
 					';
