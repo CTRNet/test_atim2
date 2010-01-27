@@ -173,8 +173,7 @@ div#wrapper div.actions {
 	border-color: #243340;
 	border-top: none;
 	-moz-border-radius-bottomleft: 5px; -webkit-border-bottom-left-radius: 5px;
-	-moz-border-radius-bottomright: 5px; -webkit-border-bottom-right-radius: 5px;	
-	border: 1px solid red;
+	-moz-border-radius-bottomright: 5px; -webkit-border-bottom-right-radius: 5px;
 	font-size: 11px;
 	line-height: 1.3em;
 	color: #bbf;
@@ -255,7 +254,6 @@ div#wrapper div.actions {
 		background: none;
 		padding: 0;
 		margin: 0;
-		z-index: 10;
 		position: relative;
 	}
 	div#wrapper div.actions ul ul.filter li a.form.popup {
@@ -297,7 +295,6 @@ div#wrapper div.actions {
 		width: 200px;
 		top: 5px;
 		right: 55px;
-		z-index: 1000;
 		/* height: 275px; no scrollable menu */
 		overflow: hidden;
 		line-height: 14px;
@@ -328,7 +325,6 @@ div#wrapper div.actions {
 		border-top: 1px dotted #ccc;
 		background: none;
 		color: #999;
-		z-index: 0;
 		/* background-image: url("../img/btnBack.png"); */
 	}
 	div#wrapper div.actions ul ul.filter div.filter_menu ul li:hover {
@@ -1106,7 +1102,7 @@ div#wrapper table.structure table.extra td {
 			border-top: 3px solid #486680;
 		}
 		div#wrapper div#frame div.actions ul {
-			z-index: 20;
+			
 		}
 		div#wrapper div#frame div.actions a {
 			padding: 5px 10px 4px 27px;
