@@ -1009,6 +1009,7 @@ a.detail { background: url("../img/icons/Control Play_16x16.png") no-repeat left
 a.duplicate { background: url("../img/icons/Documents x3_16x16.png") no-repeat center center; }
 a.edit { background: url("../img/icons/Edit_16x16.png") no-repeat left center; }
 a.filter { background: url("../img/icons/Tag_16x16.png") no-repeat left center; }
+a.flask { background: url("../img/icons/flask_16x16.png") no-repeat left center; }
 a.grid { background: url("../img/icons/Table_16x16.png") no-repeat left center; }
 a.list { background: url("../img/icons/Folder Open_16x16.png") no-repeat left center; }
 a.lungs { background: url("../img/icons/lungs_16x16.png") no-repeat left center; }
