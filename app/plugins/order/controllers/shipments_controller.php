@@ -356,7 +356,7 @@ class ShipmentsController extends OrderAppController {
 						$order_line = array();
 						$order_line['OrderLine']['status'] = "shipped";
 						$this->OrderLine->id = $order_line_id;
-						$this->OrderLine->save($order_line);
+						if(!$this->OrderLine->save($order_line)) { $this->redirect('/pages/err_order_record_err', null, true); }		
 					}
 				}
 				
