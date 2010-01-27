@@ -292,13 +292,14 @@ div#wrapper div.actions {
 */
 	div#wrapper div.actions ul ul.filter li:hover div.filter_menu {
 		display: block;
+		position: absolute;
 		width: 200px;
 		top: 5px;
 		right: 55px;
+		
 		/* height: 275px; no scrollable menu */
 		overflow: hidden;
 		line-height: 14px;
-		position: absolute;
 		background: #486680;
 		margin: 0;
 		text-align: left;
@@ -494,7 +495,7 @@ div.menu ul {
 }
 div.menu ul li {
 	position: relative;
-	float: right;
+	float: left;
 	height: 28px;
 	padding: 8px 10px 5px 25px;
 	background: #374D61 url(../img/breadcrumb_separator.png) left center no-repeat;
@@ -1036,6 +1037,8 @@ a.thumbsdown { background: url("../img/icons/Flag Black_16x16.png") no-repeat le
 a.thumbsup { background: url("../img/icons/Flag Green_16x16.png") no-repeat left center; }
 a.users { background: url("../img/icons/Group_16x16.png") no-repeat left center; }
 a.not_allowed { background: url("../img/icons/Warning_16x16.png") no-repeat left center; }
+li.not_allowed a.plugin.not_allowed { background: url("../img/icons/Warning_16x16.png") no-repeat left center; }
+
 
 /* -=toolbox*/
 a.plugin.login {background: url("../img/icons/Authenticate_32x32.png") no-repeat center center;}
@@ -1087,6 +1090,7 @@ div#wrapper table.structure table.extra td {
 	div#wrapper div#frame {
 		padding: 0 0 5px 10px;
 		margin-bottom: 10px;
+		
 	}
 		div#wrapper div#frame table.structure {
 			border: 0;
@@ -1100,6 +1104,7 @@ div#wrapper table.structure table.extra td {
 			margin: 2px;
 			border: none;
 			border-top: 3px solid #486680;
+			z-index: 1000;
 		}
 		div#wrapper div#frame div.actions ul {
 			
