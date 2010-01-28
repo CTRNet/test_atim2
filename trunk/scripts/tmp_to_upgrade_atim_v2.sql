@@ -252,3 +252,16 @@ DELETE FROM  `i18n` WHERE `id` IN (
 'Your data has been deleted. <br>Please update the ''In Stock'' value for your aliquot if required.', 
 'Votre donn&ecirc;e &agrave; &ecirc;t&ecirc; supprim&eacute;e. <br>Veuillez mettre &agrave; jour la valeur de la donn&eacute;e ''En stock'' de votre aliquot au besoin.');
 
+DELETE FROM  `i18n` WHERE `id` IN ( 
+'1- add order data',
+'2- select order line',
+'add aliquots to order: studied aliquots',
+'add aliquots to order line');
+
+ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('1- add order data', 'global', '1- Add order data :', '1- Ajouter les donn&eacute;es de la commande :'),
+('2- select order line', 'global', '2- Select order line :', '2 - S&eacute;lectionner la ligne de commande :'),
+('add aliquots to order: studied aliquots', 'global', 'Add aliquots to order: Studied aliquots', 'Ajout des aliquots &agrave; une commande : Aliquots &eacute;tudi&eacute;s'),
+('add aliquots to order line', 'global', 'Add Aliquots to Order Line', 'Ajoutez les aliquots &agrave; la ligne de commande');
+
+
