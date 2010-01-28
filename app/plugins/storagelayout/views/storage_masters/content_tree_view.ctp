@@ -21,17 +21,20 @@
 			'StorageMaster' => array(
 				'detail' => array(
 					'link' => '/storagelayout/storage_masters/detail/%%StorageMaster.id%%/1',
-					'icon' => 'storage')
+					'icon' => 'storage'),
+				'access to all data' => '/storagelayout/storage_masters/detail/%%StorageMaster.id%%/'
 			),
 			'AliquotMaster' => array(
 				'detail' => array(
 					'link' => '/inventorymanagement/aliquot_masters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/1/0',
-					'icon' => 'aliquot')
+					'icon' => 'aliquot'),
+				'access to all data' => '/inventorymanagement/aliquot_masters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/'
 			),
 			'TmaSlide' => array(
 				'detail' => array(
 					'link' => '/storagelayout/tma_slides/detail/%%TmaSlide.tma_block_storage_master_id%%/%%TmaSlide.id%%/1',
-					'icon' => 'slide')
+					'icon' => 'slide'),
+				'access to all data' => '/storagelayout/tma_slides/detail/%%TmaSlide.tma_block_storage_master_id%%/%%TmaSlide.id%%/'
 			)
 		),
 		'bottom' => array(
@@ -39,10 +42,6 @@
 		'ajax' => array(
 			'index' => array(
 				'detail' => array(
-					'update' => 'frame',
-					'before' => 'set_at_state_in_tree_root(this)'
-				),
-				'plugin inventorymanagement aliquot detail' => array(
 					'update' => 'frame',
 					'before' => 'set_at_state_in_tree_root(this)'
 				)
