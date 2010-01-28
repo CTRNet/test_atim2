@@ -313,8 +313,8 @@ class ShipmentsController extends OrderAppController {
 					
 					// 1- Update Aliquot Master Data
 					$aliquot_master = array();
-					$aliquot_master['AliquotMaster']['status'] = 'not available';
-					$aliquot_master['AliquotMaster']['status_reason'] = 'shipped';
+					$aliquot_master['AliquotMaster']['in_stock'] = 'no';
+					$aliquot_master['AliquotMaster']['in_stock_detail'] = 'shipped';
 					$aliquot_master['AliquotMaster']['storage_master_id'] = null;
 					$aliquot_master['AliquotMaster']['storage_coord_x'] = null;
 					$aliquot_master['AliquotMaster']['storage_coord_y'] = null;	
@@ -408,8 +408,8 @@ class ShipmentsController extends OrderAppController {
 			// -> Update aliquot master
 			if($remove_done) {
 				$new_aliquot_master_data = array();
-				//$new_aliquot_master_data['AliquotMaster']['status'] = '';
-				$new_aliquot_master_data['AliquotMaster']['status_reason'] = 'reserved for order';
+				$new_aliquot_master_data['AliquotMaster']['in_stock'] = 'yes - not available';
+				$new_aliquot_master_data['AliquotMaster']['in_stock_detail'] = 'reserved for order';
 				$this->AliquotMaster->id = $aliquot_master_id;
 				if(!$this->AliquotMaster->save($new_aliquot_master_data)) { $remove_done = false; }	
 			}
@@ -424,7 +424,7 @@ class ShipmentsController extends OrderAppController {
 
 			// Redirect
 			if($remove_done) {
-				$this->flash('your data has been removed - update the aliquot status data', $url);
+				$this->flash('your data has been removed - update the aliquot in stock data', $url);
 			} else {
 				$this->flash('error deleting data - contact administrator', $url);
 			}
