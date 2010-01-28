@@ -55,7 +55,7 @@
 	$structure_links = array(
 		'tree'=>array(
 			'OrderLine' => array(
-				'add aliquots ot order line' => '/order/order_items/addAliquotsInBatch/-1/%%OrderLine.order_id%%/%%OrderLine.id%%/true'
+				'add aliquots to order line' => '/order/order_items/addAliquotsInBatch/-1/%%OrderLine.order_id%%/%%OrderLine.id%%/true'
 			),
 		),
 		'bottom' => array('cancel' => $url_to_cancel),
