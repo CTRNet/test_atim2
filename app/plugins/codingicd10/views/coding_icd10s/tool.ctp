@@ -113,7 +113,7 @@
 		$javascript_inline .= 'icd10_code_pulldown = document.getElementById(\'CodingIcd10/id\'); ';
 		$javascript_inline .= 'icd10_code_pulldown = icd10_code_pulldown.options[ icd10_code_pulldown.selectedIndex ].getAttribute(\'value\'); ';
 		$javascript_inline .= 'icd10_field_name = document.getElementById(\''.$field_id.'\'); ';
-		$javascript_inline .= 'icd10_field_name.setAttribute(\'value\', icd10_code_pulldown); ';
+		$javascript_inline .= 'icd10_field_name.value = icd10_code_pulldown; ';
 		
 		echo('
 				<tr><td colspan="2" style="padding: 20px 0px 10px 0px;"><label>Listing '.count($icd10_listall).' All Codes...</label></td></tr>
