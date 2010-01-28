@@ -1085,11 +1085,12 @@ class AliquotMastersController extends InventoryManagementAppController {
 		foreach($parent_aliquot_data['RealiquotingChildren'] as $realiquoting_data) {
 			$existing_children[] = $realiquoting_data['child_aliquot_master_id'];
 		}
-		
+			
 		// Search Sample Aliquots could be defined as children aliquot
 		$criteria = array(
 			"AliquotMaster.id != '$aliquot_master_id'", 
 			'AliquotMaster.sample_master_id' => $sample_master_id,
+			'AliquotMaster.aliquot_control_id' => $parent_aliquot_data['AliquotMaster']['aliquot_control_id'],
 			'NOT' => array('AliquotMaster.id' => $existing_children)
 		);
 		
