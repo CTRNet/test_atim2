@@ -856,7 +856,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 		
 		if($deletion_done) {
-			$this->flash('your data has been deleted', $flash_url); 
+			$this->flash('your data has been deleted - update the aliquot in stock data', $flash_url); 
 		} else {
 			$this->flash('error deleting data - contact administrator', $flash_url); 
 		}	
@@ -1324,7 +1324,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// Get existing sample block
 		$criteria = array();
 		$criteria['AliquotMaster.aliquot_control_id'] = $block_control_id;
-		$criteria['AliquotMaster.status'] = 'available';
+		$criteria['AliquotMaster.in_stock'] = 'yes - available';
 		$criteria['AliquotMaster.sample_master_id'] = $sample_master_data['SampleMaster']['id'];
 		$criteria['AliquotMaster.collection_id'] = $sample_master_data['SampleMaster']['collection_id'];
 		$criteria['AliquotMaster.deleted'] = '0';
@@ -1363,7 +1363,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// Get existing sample block
 		$criteria = array();
 		$criteria['AliquotMaster.aliquot_control_id'] = $gel_matrix_control_id;
-		$criteria['AliquotMaster.status'] = 'available';
+		$criteria['AliquotMaster.in_stock'] = 'yes - available';
 		$criteria['AliquotMaster.sample_master_id'] = $sample_master_data['SampleMaster']['id'];
 		$criteria['AliquotMaster.collection_id'] = $sample_master_data['SampleMaster']['collection_id'];
 		$criteria['AliquotMaster.deleted'] = '0';

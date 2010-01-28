@@ -81,7 +81,7 @@ class OrderItemsController extends OrderAppController {
 			if($submitted_data_validates) {
 				$is_aliquot_into_order = $this->OrderItem->find('count', array('conditions' => array('OrderItem.aliquot_master_id' => $aliquot_data['AliquotMaster']['id']), 'recursive' => '-1'));
 				if($is_aliquot_into_order)	{
-					$this->AliquotMaster->validationErrors['barcode'] = 'an aliquot could be added once into an order';
+					$this->AliquotMaster->validationErrors['barcode'] = 'an aliquot can only be added once to an order';
 					$submitted_data_validates = false;					
 				}	
 			}
@@ -110,8 +110,8 @@ class OrderItemsController extends OrderAppController {
 					
 					// Update aliquot master status
 					$new_aliquot_master_data = array();
-					//$new_aliquot_master_data['AliquotMaster']['status'] = '';
-					$new_aliquot_master_data['AliquotMaster']['status_reason'] = 'reserved for order';
+					$new_aliquot_master_data['AliquotMaster']['in_stock'] = 'yes - not available';
+					$new_aliquot_master_data['AliquotMaster']['in_stock_detail'] = 'reserved for order';
 					
 					$this->AliquotMaster->id = $aliquot_data['AliquotMaster']['id'];
 					if(!$this->AliquotMaster->save($new_aliquot_master_data)) { $this->redirect( '/pages/err_order_record_err', null, true ); }
@@ -168,7 +168,7 @@ class OrderItemsController extends OrderAppController {
 				
 				//Check all aliquots have been defined once
 				if(sizeof(array_flip($studied_aliquot_master_ids)) != sizeof($studied_aliquot_master_ids)) {
-					$this->flash('an aliquot could be added once into an order', $url_to_redirect);
+					$this->flash('an aliquot can only be added once to an order', $url_to_redirect);
 					return;
 				}
 
@@ -201,7 +201,7 @@ class OrderItemsController extends OrderAppController {
 					$aliquots_list_for_display = '';
 					foreach($existing_order_aliquots as $new_record) { $aliquots_list_for_display .= '<br> - ' . $new_record['AliquotMaster']['barcode']; }
 					$submitted_aliquots_validates = false;
-					$error_message = __('an aliquot could be added once into an order', true) .  '<br>' . __('please check aliquots', true) . ' : ' . $aliquots_list_for_display;				
+					$error_message = __('an aliquot can only be added once to an order', true) .  '<br>' . __('please check aliquots', true) . ' : ' . $aliquots_list_for_display;				
 				}
 			}
 			
@@ -309,8 +309,8 @@ class OrderItemsController extends OrderAppController {
 					
 					// Update aliquot master status
 					$new_aliquot_master_data = array();
-					//$new_aliquot_master_data['AliquotMaster']['status'] = '';
-					$new_aliquot_master_data['AliquotMaster']['status_reason'] = 'reserved for order';
+					$new_aliquot_master_data['AliquotMaster']['in_stock'] = 'yes - not available';
+					$new_aliquot_master_data['AliquotMaster']['in_stock_detail'] = 'reserved for order';
 					
 					$this->AliquotMaster->id = $added_aliquot_master_id;
 					if(!$this->AliquotMaster->save($new_aliquot_master_data)) { $this->redirect( '/pages/err_order_record_err', null, true ); }	
@@ -444,8 +444,8 @@ class OrderItemsController extends OrderAppController {
 				
 				// Update AliquotMaster data
 				$new_aliquot_master_data = array();
-				//$new_aliquot_master_data['AliquotMaster']['status'] = '';
-				$new_aliquot_master_data['AliquotMaster']['status_reason'] = '';
+				$new_aliquot_master_data['AliquotMaster']['in_stock'] = 'yes - available';
+				$new_aliquot_master_data['AliquotMaster']['in_stock_detail'] = '';
 				$this->AliquotMaster->id = $order_item_data['OrderItem']['aliquot_master_id'];
 				if(!$this->AliquotMaster->save($new_aliquot_master_data)) { $this->redirect( '/pages/err_order_record_err', null, true ); }				
 				
@@ -463,7 +463,7 @@ class OrderItemsController extends OrderAppController {
 				if(!$this->OrderLine->save($order_line_data)) { $this->redirect( '/pages/err_order_record_err', null, true ); }
 				
 				// Redirect
-				$this->flash('your data has been deleted', $url);
+				$this->flash('your data has been deleted - update the aliquot in stock data', $url);
 			} else {
 				$this->flash('error deleting data - contact administrator', $url);
 			}

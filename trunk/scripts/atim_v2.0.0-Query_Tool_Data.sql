@@ -83,7 +83,7 @@ SampleMaster.sample_type,
 
 AliquotMaster.aliquot_type, 
 AliquotMaster.barcode, 
-AliquotMaster.status, 
+AliquotMaster.in_stock, 
 AliquotMaster.current_volume, 
 AliquotMaster.aliquot_volume_unit
 
@@ -91,7 +91,7 @@ FROM sample_masters AS SampleMaster
 INNER JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.sample_master_id = SampleMaster.id 
 WHERE TRUE AND SampleMaster.sample_type = "@@SampleMaster.sample_type@@" 
 AND AliquotMaster.aliquot_type = "@@AliquotMaster.aliquot_type@@" 
-AND AliquotMaster.status = "@@AliquotMaster.status@@";
+AND AliquotMaster.in_stock = "@@AliquotMaster.in_stock@@";
 
 ', 1, '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
@@ -109,7 +109,7 @@ SampleMaster.sample_type,
 
 AliquotMaster.aliquot_type, 
 AliquotMaster.barcode, 
-AliquotMaster.status, 
+AliquotMaster.in_stock, 
 AliquotMaster.current_volume, 
 AliquotMaster.aliquot_volume_unit, 
 
@@ -127,7 +127,7 @@ INNER JOIN storage_masters AS StorageMaster ON AliquotMaster.storage_master_id =
 WHERE TRUE AND Collection.bank_id = "@@Collection.bank_id@@" 
 AND SampleMaster.sample_type = "@@SampleMaster.sample_type@@" 
 AND AliquotMaster.aliquot_type = "@@AliquotMaster.aliquot_type@@" 
-AND AliquotMaster.status = "@@AliquotMaster.status@@" 
+AND AliquotMaster.in_stock = "@@AliquotMaster.in_stock@@" 
 AND StorageMaster.selection_label LIKE "%@@StorageMaster.selection_label@@%" 
 AND StorageMaster.temperature >= "@@StorageMaster.temperature_start@@" 
 AND StorageMaster.temperature <= "@@StorageMaster.temperature_end@@" 
