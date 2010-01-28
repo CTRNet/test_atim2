@@ -62,3 +62,8 @@ ALTER TABLE `ed_breast_screening_mammogram`
     -- flag Origin to index
     
     UPDATE `structure_formats` SET `flag_index` = '1' WHERE `structure_formats`.`id` =2207 LIMIT 1 ;
+    
+    
+ DELETE FROM structure_formats
+WHERE old_id = 'CAN-999-999-000-999-1004_CAN-999-999-000-999-1027';
+ 
