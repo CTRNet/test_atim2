@@ -90,7 +90,7 @@ div#header {
 	
 	margin: 0 0 10px 0;
 	padding: 5px 10px 0 10px;
-	border: 0;
+	border: none;
 	
 	border-bottom: 1px solid #000;
 	background: #243340 url(../img/body_bk_02.png) bottom left repeat-x;
@@ -100,11 +100,10 @@ div#header {
 div#header h1 {
 	width: 725px; 
 	height: 64px;
-	padding: 16px 0 0 225px;
+	padding: 14px 0 7px 225px;
 	margin: 0;
 	font-size: 26px;
 	background: url(../img/header_bk_new_01.png) bottom left no-repeat;
-	
 }
 	
 
@@ -378,12 +377,13 @@ ul#main_menu_for_header {
 	padding: 0; 
 	margin: 0;
 	list-style: none;
-	}
+	border: none;
+}
 
 /*===========================================================*
 	-=position for toolbox rows 
 *===========================================================*/
-ul#root_menu_for_header {top: 0;}
+ul#root_menu_for_header { top: 0; }
 ul#main_menu_for_header { top: 45px; }
 
 /*===========================================================*
@@ -393,10 +393,13 @@ ul#root_menu_for_header li,
 ul#root_menu_for_header li a,
 ul#main_menu_for_header li,
 ul#main_menu_for_header li a {
-	display: block; float: left;
-	width: 40px; height: 40px; margin-right: 5px;
-	overflow: hidden;
-	text-indent: -1000px;
+	display: block; 
+	float: left;
+	width: 40px;
+	height: 40px;
+	margin-right: 5px;
+	text-indent: -10000px;
+	text-decoration: none;
 }
 
 #root_menu_for_header li:hover{
