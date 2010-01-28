@@ -5,20 +5,27 @@
 	<?php
 		$header = $shell->header( array('atim_menu_for_header'=>$atim_menu_for_header,'atim_menu'=>$atim_menu,'atim_menu_variables'=>$atim_menu_variables) );
 		$title = $this->loaded['shell']->pageTitle;
+		
 	?>
 	
 	<title><?php echo $title.' &laquo; '.__('core_appname', true); ?></title>
 	
 	<?php 
-		echo $html->css('style'); 
-		echo $html->css('datepicker');
-		echo $html->css('lightwindow');
+		echo $html->css('style')."\n"; 
+		echo $html->css('datepicker')."\n";
+		echo $html->css('lightwindow')."\n";
 
-		echo $javascript->link('datepicker');
-		echo $javascript->link('prototype');
-		echo $javascript->link('scriptaculous.js?load=effects');
-		echo $javascript->link('lightwindow');
-		echo $javascript->link('default');
+		?>
+		<script type="text/javascript">
+		var webroot_dir = "<?php echo($this->webroot); ?>app/webroot/";
+		</script>
+		<?php 
+		echo $javascript->link('datepicker')."\n";
+		echo $javascript->link('prototype')."\n";
+		echo $javascript->link('scriptaculous.js?load=effects,dragdrop')."\n";
+		echo $javascript->link('lightwindow')."\n";
+		echo $javascript->link('default')."\n";
+		echo $javascript->link('controls')."\n";
 	?>
 	<!--[if IE 7]>
 	<?php
