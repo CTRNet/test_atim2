@@ -105,6 +105,7 @@ class ShellHelper extends Helper {
 		}
 		
 		$return .= '
+		<fieldset>
 			<!-- start #header -->
 			<div id="header">
 				<h1>'.__('core_appname', true).'</h1>
@@ -112,8 +113,8 @@ class ShellHelper extends Helper {
 				'.$main_menu_for_header.'
 			</div>
 			<!-- end #header -->
+			
 		';	
-		
 		// display DEFAULT menu
 		if ( $logged_in ) {	
 			$return .= '
@@ -198,6 +199,7 @@ class ShellHelper extends Helper {
 				
 			</div>
 			<!-- end #footer -->
+			</fieldset>
 		';
 		
 		return $return;
