@@ -43,6 +43,11 @@ ALTER TABLE `ed_breast_screening_mammogram`
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
   
+ALTER TABLE `cd_nationals`
+  ADD FOREIGN KEY (`consent_master_id`) REFERENCES `consent_masters` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+  
 /* Clinical Annotation */
 -- /Diagnosis/
   UPDATE `structure_fields` SET `setting` = 'size=1,maxlength=3' WHERE `structure_fields`.`id` =830 LIMIT 1 ;
