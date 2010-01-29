@@ -287,3 +287,23 @@ key_value int NOT NULL
 INSERT INTO `key_increments` VALUES
 ('part_ident_insurance_num', 1),
 ('part_ident_hospital_num', 1);
+
+-- Disable Provider Module
+UPDATE `menus` SET `active` = 'no' WHERE `menus`.`id` = 'prov_CAN_10';
+UPDATE `menus` SET `active` = 'no' WHERE `menus`.`id` = 'tool_CAN_43';
+
+UPDATE `structure_fields` SET `setting` = '' WHERE `structure_fields`.`id` =55;
+
+-- New language aliases for landing menu
+UPDATE `menus` SET `language_description` = 'clinical annotation description' WHERE `menus`.`id` = 'clin_CAN_1';
+UPDATE `menus` SET `language_description` = 'inventory management description' WHERE `menus`.`id` = 'inv_CAN';
+UPDATE `menus` SET `language_description` = 'query tool description' WHERE `menus`.`id` = 'qry-CAN-1';
+UPDATE `menus` SET `language_description` = 'core_tools description' WHERE `menus`.`id` = 'core_CAN_33';
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('add shipment', 'global', 'Add Shipment', ''),
+('add item', 'global', 'Add Item', ''),
+('core_tools description', 'global', 'Additional modules to help support day-to-day bank operations, configure the system, add treatment protocols, setup bank storage facilities.', ''),
+('clinical annotation description', 'global', 'Capture demographics, diagnosis, paths reports, treatment information, outcome and manage consents.', ''),
+('query tool description', 'global', 'Run pre-defined queries and reports. Select records of interest for export to file or save to a batch set for further processing.', ''),
+('inventory management description', 'global', 'Laboratory Information Management module. Manage and annotate all biobank samples. Supports pathologist review findings, quality control results, aliquot usage history and integration with Storage Management.', '');
