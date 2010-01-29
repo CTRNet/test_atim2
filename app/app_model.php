@@ -106,6 +106,19 @@ class AppModel extends Model {
 		return $this->find('all', array('conditions' => $conditions, 'order' => $order, 'limit' => $limit, 'offset' => $limit * ($page > 0 ? $page - 1 : 0), 'recursive' => $recursive, 'extra' => $extra));
 	}
 	
+	/**
+	 * Replace the %%key_increment%% part of a string with the key increment value
+	 * @param string $key - The key to seek in the database
+	 * @param string $str - The string where to put the value. %%key_increment%% will be replaced by the value. 
+	 * @return string The string with the replaced value
+	 */
+	function getKeyIncrement($key, $str){
+		$this->query('LOCK TABLE key_increments WRITE');
+		$result = $this->query('SELECT key_value FROM key_increments WHERE key_name="'.$key.'"');
+		$this->query('UPDATE  key_increments set key_value = key_value + 1 WHERE key_name="'.$key.'"');
+		$this->query('UNLOCK TABLES');
+		return str_replace("%%key_increment%%", $result[0]['key_increments']['key_value'], $str);
+	}
 }
 
 ?>

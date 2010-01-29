@@ -1,11 +1,11 @@
 <?php 
 	$structure_links = array(
-		'top'=>'/clinicalannotation/misc_identifiers/add/'.$atim_menu_variables['Participant.id'].'/',
+		'top'=>'/clinicalannotation/misc_identifiers/add/'.$atim_menu_variables['Participant.id'].'/'.$control_id.'/',
 		'bottom'=>array(
 			'cancel'=>'/clinicalannotation/misc_identifiers/listall/'.$atim_menu_variables['Participant.id'].'/'
 		)
 	);
-	
+
 	// Set form structure and option 
 	$final_atim_structure = $atim_structure; 
 	$final_options = array('links'=>$structure_links);

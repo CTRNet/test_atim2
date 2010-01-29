@@ -71,8 +71,23 @@ UPDATE `structure_formats` SET `flag_index` = '1' WHERE `structure_formats`.`id`
 DELETE FROM structure_formats
 WHERE old_id = 'CAN-999-999-000-999-1004_CAN-999-999-000-999-1027';
  
---
+CREATE TABLE `misc_identifier_controls` (
+  `id` int(11) NOT NULL auto_increment,
+  `misc_identifier_name` varchar(50) NOT NULL default '',
+  `misc_identifier_name_abbrev` varchar(50) NOT NULL default '',
+  `status` varchar(50) NOT NULL default 'active',
+  `autoincrement_name` varchar(50) NOT NULL default '',
+  `display_order` int(11) NOT NULL default 0,
+  `misc_identifier_value` varchar(50) NOT NULL default '',
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
+INSERT INTO misc_identifier_controls (`id`,  `misc_identifier_name`, `status`, `autoincrement_name`, `display_order`, `misc_identifier_value`) VALUES
+(NULL, 'example hospital #', 'active', 'part_ident_hospital_num', 0, 'h# - %%key_increment%%'),
+(NULL, 'example insurance #', 'active', 'part_ident_insurance_num', 1, 'i# - %%key_increment%%');
+
+UPDATE `structure_formats` SET `flag_add_readonly` = '1',
+`flag_edit_readonly` = '1' WHERE `structure_formats`.`id` IN(1782, 1783, 2331);
 
 DELETE FROM `structure_permissible_values` WHERE `language_alias` LIKE 'gr' AND `value` LIKE 'gr';
 DELETE FROM `structure_permissible_values` WHERE `language_alias` LIKE 'cm' AND `value` LIKE 'cm';
@@ -264,4 +279,11 @@ DELETE FROM  `i18n` WHERE `id` IN (
 ('add aliquots to order: studied aliquots', 'global', 'Add aliquots to order: Studied aliquots', 'Ajout des aliquots &agrave; une commande : Aliquots &eacute;tudi&eacute;s'),
 ('add aliquots to order line', 'global', 'Add Aliquots to Order Line', 'Ajoutez les aliquots &agrave; la ligne de commande');
 
+CREATE TABLE key_increments(
+key_name varchar(50) NOT NULL PRIMARY KEY,
+key_value int NOT NULL
+)Engine=InnoDB;
 
+INSERT INTO `key_increments` VALUES
+('part_ident_insurance_num', 1),
+('part_ident_hospital_num', 1);
