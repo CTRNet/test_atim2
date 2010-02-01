@@ -1115,7 +1115,7 @@ INSERT INTO `coding_icd10` (`id`, `category`, `icd_group`, `site`, `subsite`, `d
 --
 
 INSERT INTO `configs` (`id`, `bank_id`, `group_id`, `user_id`, `config_debug`, `config_language`, `define_date_format`, `define_csv_separator`, `define_show_help`, `define_show_summary`, `define_pagination_amount`, `created`, `created_by`, `modified`, `modified_by`) VALUES
-(1, 0, 0, 0, '2', 'eng', 'MDY', ',', '1', '1', '10', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+(1, 0, 0, 0, '0', 'eng', 'MDY', ',', '1', '1', '10', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
 
 --
 -- Dumping data for table `consent_controls`
@@ -10403,7 +10403,7 @@ INSERT INTO `users` (`id`, `username`, `first_name`, `last_name`, `password`, `e
 --
 
 INSERT INTO `versions` (`id`, `version_number`, `date_installed`, `build_number`, `created`, `created_by`, `modified`, `modified_by`) VALUES
-(1, 'v2.0.0', '2010-01-19 12:13:43', '1250', '2010-01-19 00:00:00', NULL, '0000-00-00 00:00:00', NULL);
+(1, 'v2.0.0', '2010-02-01 12:13:43', '929', '0000-00-00 00:00:00', NULL, '0000-00-00 00:00:00', NULL);
 
 -- ---------------------------------------------------------------------------------------------------------
 

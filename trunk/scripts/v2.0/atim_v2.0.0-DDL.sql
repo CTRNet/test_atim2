@@ -5,7 +5,7 @@ SET FOREIGN_KEY_CHECKS=0;
 
 -- DROP tables
 
-DROP TABLE `acos`, `ad_bags`, `ad_bags_revs`, `ad_blocks`, `ad_blocks_revs`, `ad_cell_cores`, `ad_cell_cores_revs`, `ad_cell_slides`,
+DROP TABLE IF EXISTS `acos`, `ad_bags`, `ad_bags_revs`, `ad_blocks`, `ad_blocks_revs`, `ad_cell_cores`, `ad_cell_cores_revs`, `ad_cell_slides`,
  `ad_cell_slides_revs`, `ad_gel_matrices`, `ad_gel_matrices_revs`, `ad_tissue_cores`, `ad_tissue_cores_revs`, `ad_tissue_slides`,
  `ad_tissue_slides_revs`, `ad_tubes`, `ad_tubes_revs`, `ad_whatman_papers`, `ad_whatman_papers_revs`, `aliquot_controls`, `aliquot_masters`,
  `aliquot_masters_revs`, `aliquot_uses`, `aliquot_uses_revs`, `announcements`, `aros`, `aros_acos`, `atim_information`, `banks`, `banks_revs`,
