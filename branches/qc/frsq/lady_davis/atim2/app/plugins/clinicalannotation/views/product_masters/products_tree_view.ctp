@@ -28,19 +28,22 @@
 				'detail' => array(
 					'link' => '/inventorymanagement/collections/detail/%%Collection.id%%/1/0',
 					'icon' => 'collection'
-				)
+				),
+				'access to all data' => '/inventorymanagement/collections/detail/%%Collection.id%%/' 
 			),
 			'SampleMaster' => array(
 				'detail' => array(
 					'link' => '/inventorymanagement/sample_masters/detail/%%SampleMaster.collection_id%%/%%SampleMaster.id%%/1/0',
-					'icon' => 'lungs'
-				)
+					'icon' => 'flask'
+				),
+				'access to all data' => '/inventorymanagement/sample_masters/detail/%%SampleMaster.collection_id%%/%%SampleMaster.id%%/'
 			),
 			'AliquotMaster' => array(
 				'detail' => array(
 					'link'=> '/inventorymanagement/aliquot_masters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/1/0',
 					'icon' => 'aliquot'
-				)		 
+				),
+				'access to all data' => '/inventorymanagement/aliquot_masters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/'  
 			)
 		),
 		'bottom' => array(

@@ -36,13 +36,16 @@
 			'SampleMaster' => array(
 				'detail' => array(
 					'link' => '/inventorymanagement/sample_masters/detail/%%SampleMaster.collection_id%%/%%SampleMaster.id%%/' . true . '/' . true,
-					'icon' => 'lungs'
-				)
+					'icon' => 'flask'
+				),
+				'access to all data' => '/inventorymanagement/sample_masters/detail/%%SampleMaster.collection_id%%/%%SampleMaster.id%%/' 
 			),
 			'AliquotMaster' => array(
 				'detail' => array(
 					'link' => '/inventorymanagement/aliquot_masters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/' . true . '/' . true,
-					'icon' => 'aliquot')
+					'icon' => 'aliquot'
+				),
+				'access to all data' => '/inventorymanagement/aliquot_masters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/' 
 			)
 		),
 		'bottom' => array(
@@ -53,10 +56,6 @@
 		'ajax' => array(
 			'index' => array(
 				'detail' => array(
-					'update' => 'frame',
-					'before' => 'set_at_state_in_tree_root(this)'
-				),
-				'plugin inventorymanagement aliquot detail' => array(
 					'update' => 'frame',
 					'before' => 'set_at_state_in_tree_root(this)'
 				)

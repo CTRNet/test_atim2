@@ -4,10 +4,15 @@
 	$search_type_links['collections'] = '/inventorymanagement/collections/index/';
 	$search_type_links['samples'] = '/inventorymanagement/sample_masters/index/';
 	$search_type_links['aliquots'] = '/inventorymanagement/aliquot_masters/index/';
-	
+		
 	$structure_links = array(
 		'index' => array('detail' => '/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%'),
-		'bottom' => array('add collection' => '/inventorymanagement/collections/add', 'new search' => $search_type_links['aliquots'], 'new search type' => $search_type_links)
+		'bottom' => array(
+			'add collection' => '/inventorymanagement/collections/add', 
+			'new search' => array(
+				'link' => $search_type_links['aliquots'], 
+				'icon' => 'search'),
+			'new search type' => $search_type_links)
 	);
 	
 	$structure_override = array();

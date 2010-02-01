@@ -140,40 +140,7 @@ class ParticipantsController extends ClinicalannotationAppController {
 				$this->flash( 'error deleting data - contact administrator', '/clinicalannotation/participants/index/');
 			}
 		} else {
-			$message = "Your data cannot be deleted because the following records exist: ";
-			if( $consent_master_id != NULL ){
-				$message = $message."A consent record exists, ";
-			}
-			if( $event_id != NULL ){
-				$message = $message."A annotation record exists, ";
-			}
-			if( $contact_id != NULL ){
-				$message = $message."A contact record exists, ";
-			}
-			if( $diagnosis_master_id != NULL ){
-				$message = $message."A diagnosis record exists, ";
-			}
-			if( $family_id != NULL ){
-				$message = $message."A family history record exists, ";
-			}
-			if( $identifier_id != NULL ){
-				$message = $message."A identifier record exists, ";
-			}
-			//if( $link_id != NULL ){
-				//$message = $message."A link to collections exists, ";
-			//}
-			if( $message_id != NULL ){
-				$message = $message."A message record exists, ";
-			}
-			if( $reproductive_id != NULL ){
-				$message = $message."A reproductive history exists, ";
-			}
-			if( $treatment_id != NULL ){
-				$message = $message."A treatment record exists, ";
-			}
-			
-			$message = substr($message, 0, -2);
-			$this->flash( $message, '/clinicalannotation/participants/profile/'.$participant_id.'/');
+			$this->flash( $arr_allow_deletion['msg'], '/clinicalannotation/participants/profile/'.$participant_id.'/');
 		}
 	}
 
@@ -195,25 +162,69 @@ class ParticipantsController extends ClinicalannotationAppController {
 	 */
 	 
 	function allowParticipantDeletion( $participant_id ) {
-		//$returned_nbr = $this->LinkedModel->find('count', array('conditions' => array('LinkedModel.family_history_id' => $family_history_id), 'recursive' => '-1'));
-		//if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'a LinkedModel exists for the deleted family history'); }
-		/*
-		$consent_master_id = $this->ConsentMaster->find('first', array('conditions'=>array('ConsentMaster.participant_id'=>$participant_id, 'ConsentMaster.deleted'=>0),'fields'=>array('ConsentMaster.id')));
-		$event_id = $this->EventMaster->find('first', array('conditions'=>array('EventMaster.participant_id'=>$participant_id, 'EventMaster.deleted'=>0),'fields'=>array('EventMaster.id')));
-		$contact_id = $this->ParticipantContact->find('first', array('conditions'=>array('ParticipantContact.participant_id'=>$participant_id, 'ParticipantContact.deleted'=>0),'fields'=>array('ParticipantContact.id')));
-		$diagnosis_master_id = $this->DiagnosisMaster->find('first', array('conditions'=>array('DiagnosisMaster.participant_id'=>$participant_id, 'DiagnosisMaster.deleted'=>0),'fields'=>array('DiagnosisMaster.id')));
-		$family_id = $this->FamilyHistory->find('first', array('conditions'=>array('FamilyHistory.participant_id'=>$participant_id, 'FamilyHistory.deleted'=>0), 'fields'=>array('FamilyHistory.id')));
-		$identifier_id = $this->MiscIdentifier->find('first', array('conditions'=>array('MiscIdentifier.participant_id'=>$participant_id, 'MiscIdentifier.deleted'=>0), 'fields'=>array('MiscIdentifier.id')));
-		//$link_id = $this->ClinicalCollectionLink->find('first', array('conditions'=>array('ClinicalCollectionLink.participant_id'=>$participant_id, 'ClinicalCollectionLink.deleted'=>0), 'fields'=>array('ClinicalCollectionLink.id')));
-		$link_id = NULL;
-		$message_id = $this->ParticipantMessage->find('first', array('conditions'=>array('ParticipantMessage.participant_id'=>$participant_id, 'ParticipantMessage.deleted'=>0), 'fields'=>array('ParticipantMessage.id')));
-		$reproductive_id = $this->ReproductiveHistory->find('first', array('conditions'=>array('ReproductiveHistory.participant_id'=>$participant_id, 'ReproductiveHistory.deleted'=>0), 'fields'=>array('ReproductiveHistory.id')));
-		$treatment_id = $this->TreatmentMaster->find('first', array('conditions'=>array('TreatmentMaster.participant_id'=>$participant_id, 'TreatmentMaster.deleted'=>0),'fields'=>array('TreatmentMaster.id')));
+		$arr_allow_deletion = array('allow_deletion' => true, 'msg' => '');
 		
-		if ( $consent_master_id == NULL && $event_id == NULL && $contact_id == NULL && $diagnosis_master_id == NULL && $family_id == NULL && $identifier_id == NULL && $link_id == NULL &&
-			$message_id == NULL && $reproductive_id == NULL && $treatment_id == NULL) {		
-		*/
-		return array('allow_deletion' => true, 'msg' => '');
+		// Check for existing records linked to the participant. If found, set error message and deny delete
+		$nbr_linked_collection = $this->ClinicalCollectionLink->find('count', array('conditions' => array('ClinicalCollectionLink.participant_id' => $participant_id, 'ClinicalCollectionLink.deleted'=>0), 'recursive' => '-1'));
+		if ($nbr_linked_collection > 0) {
+			$arr_allow_deletion['allow_deletion'] = false;
+			$arr_allow_deletion['msg'] = 'error_fk_participant_linked_collection';
+		}
+		
+		$nbr_consents = $this->ConsentMaster->find('count', array('conditions'=>array('ConsentMaster.participant_id'=>$participant_id, 'ConsentMaster.deleted'=>0), 'recursive' => '-1'));
+		if ($nbr_consents > 0) {
+			$arr_allow_deletion['allow_deletion'] = false;
+			$arr_allow_deletion['msg'] = 'error_fk_participant_linked_consent';
+		}
+		
+		$nbr_diagnosis = $this->DiagnosisMaster->find('count', array('conditions'=>array('DiagnosisMaster.participant_id'=>$participant_id, 'DiagnosisMaster.deleted'=>0), 'recursive' => '-1'));
+		if ($nbr_diagnosis > 0) {
+			$arr_allow_deletion['allow_deletion'] = false;
+			$arr_allow_deletion['msg'] = 'error_fk_participant_linked_diagnosis';
+		}
+
+		$nbr_treatment = $this->TreatmentMaster->find('count', array('conditions'=>array('TreatmentMaster.participant_id'=>$participant_id, 'TreatmentMaster.deleted'=>0), 'recursive' => '-1'));
+		if ($nbr_treatment > 0) {
+			$arr_allow_deletion['allow_deletion'] = false;
+			$arr_allow_deletion['msg'] = 'error_fk_participant_linked_treatment';
+		}	
+		
+		$nbr_familyhistory = $this->FamilyHistory->find('count', array('conditions'=>array('FamilyHistory.participant_id'=>$participant_id, 'FamilyHistory.deleted'=>0), 'recursive' => '-1'));
+		if ($nbr_familyhistory > 0) {
+			$arr_allow_deletion['allow_deletion'] = false;
+			$arr_allow_deletion['msg'] = 'error_fk_participant_linked_familyhistory';
+		}			
+
+		$nbr_reproductive = $this->ReproductiveHistory->find('count', array('conditions'=>array('ReproductiveHistory.participant_id'=>$participant_id, 'ReproductiveHistory.deleted'=>0), 'recursive' => '-1'));
+		if ($nbr_reproductive > 0) {
+			$arr_allow_deletion['allow_deletion'] = false;
+			$arr_allow_deletion['msg'] = 'error_fk_participant_linked_reproductive';
+		}			
+
+		$nbr_contacts = $this->ParticipantContact->find('count', array('conditions'=>array('ParticipantContact.participant_id'=>$participant_id, 'ParticipantContact.deleted'=>0), 'recursive' => '-1'));
+		if ($nbr_contacts > 0) {
+			$arr_allow_deletion['allow_deletion'] = false;
+			$arr_allow_deletion['msg'] = 'error_fk_participant_linked_contacts';
+		}
+
+		$nbr_identifiers = $this->MiscIdentifier->find('count', array('conditions'=>array('MiscIdentifier.participant_id'=>$participant_id, 'MiscIdentifier.deleted'=>0), 'recursive' => '-1'));
+		if ($nbr_identifiers > 0) {
+			$arr_allow_deletion['allow_deletion'] = false;
+			$arr_allow_deletion['msg'] = 'error_fk_participant_linked_identifiers';
+		}
+
+		$nbr_messages = $this->ParticipantMessage->find('count', array('conditions'=>array('ParticipantMessage.participant_id'=>$participant_id, 'ParticipantMessage.deleted'=>0), 'recursive' => '-1'));
+		if ($nbr_messages > 0) {
+			$arr_allow_deletion['allow_deletion'] = false;
+			$arr_allow_deletion['msg'] = 'error_fk_participant_linked_messages';
+		}			
+
+		$nbr_events = $this->EventMaster->find('count', array('conditions'=>array('EventMaster.participant_id'=>$participant_id, 'EventMaster.deleted'=>0), 'recursive' => '-1'));
+		if ($nbr_events > 0) {
+			$arr_allow_deletion['allow_deletion'] = false;
+			$arr_allow_deletion['msg'] = 'error_fk_participant_linked_events';
+		}
+		return $arr_allow_deletion;
 	}
 }
 

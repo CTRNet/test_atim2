@@ -41,7 +41,7 @@ class CodingIcd10sController extends AppController {
 			
 			$criteria = implode( ' AND ', $criteria );
 			$order = 'CodingIcd10.id ASC';
-			$this->set( 'icd10_listall', $this->CodingIcd10->find('all', array('conditions' => $conditions, 'limit' => 10)));
+			$this->set( 'icd10_listall', $this->CodingIcd10->find('all', array('conditions' => $conditions)));
 			
 			$this->render('tool', 'ajax');
 			

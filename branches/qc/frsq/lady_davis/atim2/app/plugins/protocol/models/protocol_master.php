@@ -28,7 +28,7 @@ class ProtocolMaster extends ProtocolAppModel {
 					'description'	=>	array(
 						__('code', TRUE)		=>	__($result['ProtocolMaster']['code'], TRUE),
 						__('type', TRUE)	    =>  __($result['ProtocolMaster']['type'], TRUE),
-						__('staus', TRUE) 		=> __($result['ProtocolMaster']['status'], TRUE),
+						__('status', TRUE) 		=> __($result['ProtocolMaster']['status'], TRUE),
 						__('notes', TRUE) 		=> __($result['ProtocolMaster']['notes'], TRUE)
 					)
 				)

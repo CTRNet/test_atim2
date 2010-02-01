@@ -14,8 +14,16 @@
 				'icon' => 'aliquot'),
 		'delete' => '/order/order_items/delete/%%OrderLine.order_id%%/%%OrderLine.id%%/%%OrderItem.id%%/');
 	
+	$structure_override = array();
+	
+	$shipments = array();
+	foreach($shipments_data as $new_shipment) {
+		$shipments[$new_shipment['Shipment']['id']] = $new_shipment['Shipment']['shipment_code'];
+	}
+	$structure_override['OrderItem.shipment_id'] = $shipments;
+	
 	$final_atim_structure = $atim_structure; 
-	$final_options = array('type'=>'index','links'=>$structure_links, 'data' => $order_items_data);
+	$final_options = array('type'=>'index','links'=>$structure_links, 'data' => $order_items_data, 'override'=>$structure_override);
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook();

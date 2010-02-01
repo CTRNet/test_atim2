@@ -3,7 +3,9 @@
 // ATiM2 configuration variables from Datatable
 	
 	// parse URI manually to get passed PARAMS
-	
+		global $start_time;
+		$start_time = AppController::microtime_float();	
+
 		$request_uri_params = array();
 		
 		$request_uri = $_SERVER['REQUEST_URI'];
@@ -86,9 +88,9 @@ class AppController extends Controller {
 			$this->Session->write('Config.language', Configure::read('Config.language')); 
 		}
 		// Uncomment the following to create an Aco entry for every plugin/controller/method combination in the app.
-			// $this->buildAcl();
+//			 $this->buildAcl();
 		// Uncomment the following to set up default permissions.
-			// $this->initDB();
+//			 $this->initDB();
 			
 		// Configure AuthComponent
 			$this->Auth->authorize = 'actions';
@@ -316,7 +318,21 @@ class AppController extends Controller {
         }
         return $files;
     }
+    
+	function afterFilter(){
+		global $start_time;
+//		echo("Exec time (sec): ".(AppController::microtime_float() - $start_time));
+	}
 	
+	/**
+	 * Simple function to replicate PHP 5 behaviour
+	 */
+	function microtime_float(){
+		list($usec, $sec) = explode(" ", microtime());
+		return ((float)$usec + (float)$sec);
+	}
+
 }
+
 
 ?>

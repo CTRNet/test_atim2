@@ -11,7 +11,7 @@
 		if(isset($order_line_id) && isset($order_id)){
 			$structure_links['bottom']['access to order'] = '/order/order_items/listall/'.$order_id.'/'.$order_line_id.'/';
 		}else{
-			$structure_links['bottom']['add to order'] = '/order/order_lines/addAliquotsToOrder/'.$atim_menu_variables['AliquotMaster.id'].'/';
+			$structure_links['bottom']['add to order'] = '/order/order_items/addAliquotsInBatch/'.$atim_menu_variables['AliquotMaster.id'].'/';
 		}		
 		
 		$structure_links['bottom']['add uses'] = array(

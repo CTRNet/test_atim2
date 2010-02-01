@@ -236,7 +236,7 @@ class DbAcl extends AclBase {
 		$acoPath = $this->Aco->node($aco);
 
 		if (empty($aroPath) || empty($acoPath)) {
-			trigger_error("DbAcl::check() - Failed ARO/ACO node lookup in permissions check.  Node references:\nAro: " . print_r($aro, true) . "\nAco: " . print_r($aco, true), E_USER_WARNING);
+//			trigger_error("DbAcl::check() - Failed ARO/ACO node lookup in permissions check.  Node references:\nAro: " . print_r($aro, true) . "\nAco: " . print_r($aco, true), E_USER_WARNING);
 			return false;
 		}
 
