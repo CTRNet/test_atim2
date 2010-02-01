@@ -130,12 +130,16 @@ msgid	"add derivative"
 msgstr	"Cr&eacute;er d&eacute;riv&eacute;"
 msgid	"add internal use"
 msgstr	"Cr&eacute;er utilisation interne"
+msgid	"add item"
+msgstr	""
 msgid	"add items to shipment"
 msgstr	"Ajouter article &agrave; la commande"
 msgid	"add order line"
 msgstr	"Ajouter ligne de commande"
 msgid	"add order line item"
 msgstr	"Ajouter Article"
+msgid	"add shipment"
+msgstr	""
 msgid	"add specimen"
 msgstr	"Cr&eacute;er sp&eacute;cimen"
 msgid	"add tma slide"
@@ -383,7 +387,7 @@ msgstr	""
 msgid	"atypical nd"
 msgstr	""
 msgid	"aug"
-msgstr	"Ao?Âªt"
+msgstr	"Ao?¬™t"
 msgid	"August"
 msgstr	"Aout"
 msgid	"aunt"
@@ -678,6 +682,8 @@ msgid	"clinical"
 msgstr	""
 msgid	"clinical annotation"
 msgstr	"Annotation Clinique"
+msgid	"clinical annotation description"
+msgstr	"Enregistrer la d&eacute;mographie, les diagnostiques, les rapports pathologiques, l'information sur les traitements, les r&eacute;sultats et administrer les consentements."
 msgid	"clinical collection link error"
 msgstr	"Erreur dans la d&eacute;finition des liens de la collection"
 msgid	"clinical stage"
@@ -685,7 +691,7 @@ msgstr	""
 msgid	"clinicalannotation"
 msgstr	"Annotation Clinique"
 msgid	"clinicalannotation_module_description"
-msgstr	"&Agrave; d&eacute;crire...<br><br><br><font color="#ff0000">Note:
+msgstr	"&Agrave; d&eacute;crire...<br><br><br><font color="#ff0000">Note:
 Cette application contient des donn?es fictives. Toutes similarit&eacute;s avec des personnes existantes ou mortes est une coincidence.</font><br>"
 msgid	"clinicalannotation_module_title"
 msgstr	"Description du Module"
@@ -1005,6 +1011,8 @@ msgid	"core_to"
 msgstr	"&agrave;"
 msgid	"core_tools"
 msgstr	"Outils"
+msgid	"core_tools description"
+msgstr	"Modules suppl&eacute;mentaires pour aider le support des op&eacute;rations journali&egrave;res des banques, la configuration du syst&egrave;me, l'ajout de protocoles de traitements et la configuration des installations entreposages."
 msgid	"core_uncheck"
 msgstr	""
 msgid	"core_update"
@@ -1068,6 +1076,8 @@ msgstr	""
 msgid	"current contact information"
 msgstr	""
 msgid	"current status"
+msgstr	""
+msgid	"current version information"
 msgstr	""
 msgid	"current volume"
 msgstr	"Volume courrant"
@@ -1155,6 +1165,8 @@ msgid	"datetime_accuracy_indicator_y"
 msgstr	"a"
 msgid	"date_of_birth"
 msgstr	"Date de Naissance"
+msgid	"date_range"
+msgstr	""
 msgid	"date_requested"
 msgstr	""
 msgid	"daughter"
@@ -1174,9 +1186,9 @@ msgstr	""
 msgid	"death code"
 msgstr	""
 msgid	"dec"
-msgstr	"D?Â©c"
+msgstr	"D?¬©c"
 msgid	"December"
-msgstr	"D?Â©cembre"
+msgstr	"D?¬©cembre"
 msgid	"declined"
 msgstr	""
 msgid	"define as child"
@@ -1496,9 +1508,9 @@ msgstr	""
 msgid	"fax"
 msgstr	""
 msgid	"feb"
-msgstr	"F?Â©v"
+msgstr	"F?¬©v"
 msgid	"February"
-msgstr	"F?Â©vrier"
+msgstr	"F?¬©vrier"
 msgid	"female"
 msgstr	"Femme"
 msgid	"field_one"
@@ -1678,8 +1690,8 @@ msgstr	""
 msgid	"help_memo"
 msgstr	""
 msgid	"help_name"
-msgstr	"This is a help message, from the FORMS datatable. It can be as verbose as needed, but remember this is only really an ALIAS value. It is used to look up the correct language info from the I18N datatable.
-
+msgstr	"This is a help message, from the FORMS datatable. It can be as verbose as needed, but remember this is only really an ALIAS value. It is used to look up the correct language info from the I18N datatable.
+
 In this case, for NAME, the first name and last name fields are required for form submission."
 msgid	"help_phone"
 msgstr	""
@@ -1867,6 +1879,8 @@ msgid	"Invasive (%)"
 msgstr	""
 msgid	"inventory management"
 msgstr	"Gestion des &eacute;chantillons"
+msgid	"inventory management description"
+msgstr	"Module d'administration des informations du laboratoire. Administrer et annoter les ?©chantillons des biobanques. Supporte la v?©rification des r?©sultats des pathologistes, le contr&ocirc;le de la qualit&eacute; des r&eacute;sultats, l'historique de l'utilisation des aliquots et l'int&eacute;gration avec l'administration de l'entreposage."
 msgid	"inventorymanagement"
 msgstr	"Gestion des stocks"
 msgid	"invitation date"
@@ -1984,7 +1998,7 @@ msgstr	"Liste"
 msgid	"list content"
 msgstr	"Voire Contenu"
 msgid	"List of Used Parent Sample Aliquots Description"
-msgstr	"Cet &eacute;cran permet de d&eacute;finir la liste des aliquots de l'&eacute;chantillon 'parent' qui ont 
+msgstr	"Cet &eacute;cran permet de d&eacute;finir la liste des aliquots de l'&eacute;chantillon 'parent' qui ont 
 &eacute;t&eacute; utilis&eacute;s pour cr&eacute;er le d&eacute;riv&eacute;."
 msgid	"List of Used Parent Sample Aliquots Title"
 msgstr	"Aliquots 'Source' de l'&Eacute;chantillon Parent"
@@ -3010,6 +3024,8 @@ msgid	"query results"
 msgstr	""
 msgid	"query tool"
 msgstr	"Requ&ecirc;tes"
+msgid	"query tool description"
+msgstr	"Ex&eacute;cuter des requ&ecirc;tes pr&eacute;d&eacute;finies et des rapports. S&eacute;lectionner les enregistrements int&eacute;ressants pour les exporter vers un fichier ou un lot pour les retraiter."
 msgid	"questionnaire"
 msgstr	""
 msgid	"quiagen rneasy kit"
@@ -3089,9 +3105,9 @@ msgstr	""
 msgid	"Rebecca Barnes"
 msgstr	"Rebecca Barnes"
 msgid	"Received By"
-msgstr	"Re?ÃŸu Pr&eacute;s"
+msgstr	"Re??üu Pr&eacute;s"
 msgid	"Received DateTime"
-msgstr	"Date et heure Re?ÃŸues"
+msgstr	"Date et heure Re??üues"
 msgid	"received tissue size"
 msgstr	"Taille du tissu re&ccedil;u"
 msgid	"received volume"
@@ -3541,7 +3557,7 @@ msgstr	""
 msgid	"status reason"
 msgstr	""
 msgid	"status_help"
-msgstr	"C'est des informations d'aide sur le champ de statut. Elle ne peut pas ?â„¢tre blanche."
+msgstr	"C'est des informations d'aide sur le champ de statut. Elle ne peut pas ?‚Ñ¢tre blanche."
 msgid	"steroid"
 msgstr	""
 msgid	"stopped"
@@ -3619,23 +3635,23 @@ msgstr	"Temp&eacute;rature de l'entreposage"
 msgid	"storage type"
 msgstr	"Type"
 msgid	"storages position definition help"
-msgstr	"Cette liste contient les diff&eacut;rents types d'entreposage ainsi que la d&eacute;fintion de leurs coordonn&eacute;es utilis&eacute;es pour d&eacute;terminer la position d'une entit&eacute;e (entreposage, aliquots) dans ce dernier:<ul>
-<li> Pi&egrave;ce (aucune coordonn&eacute;e &agrave; d&eacute;finit). 
-<li> R&eacute;servoir d'azote liquide (aucune coordonn&eacute;e &agrave; d&eacute;finit).   
-<li> Incubateur:<ul> 
-<li> 1st coordonn&eacute;e: '&Eacute;tag&egrave;re' de type inconnu.
-</ul>
-<li> Frigo:<ul> 
-<li> 1st coordonn&eacute;e: '&Eacute;tag&egrave;re' de type inconnu.
-</ul>
-<li> Cong&eacute;lateur (aucune coordonn&eacute;e &agrave; d&eacute;finit). 
-<li> &Eacute;tag&egrave;re:<ul> 
-<li> 1st coordonn&eacute;e: 'plateau' de type inconnu.
-</ul>
-<li> Bo&icirc;te (aucune coordonn&eacute;e &agrave; d&eacute;finit).   
-<li> Bo&icirc;te81 A1-I9:<ul> 
-<li> 1st coordonn&eacute;e: 'colonne' de type alphab$eacute;que (A->I).
-<li> 2nd coordonn&eacute;e: 'ligne' de type entier (1->9).
+msgstr	"Cette liste contient les diff&eacut;rents types d'entreposage ainsi que la d&eacute;fintion de leurs coordonn&eacute;es utilis&eacute;es pour d&eacute;terminer la position d'une entit&eacute;e (entreposage, aliquots) dans ce dernier:<ul>
+<li> Pi&egrave;ce (aucune coordonn&eacute;e &agrave; d&eacute;finit). 
+<li> R&eacute;servoir d'azote liquide (aucune coordonn&eacute;e &agrave; d&eacute;finit).   
+<li> Incubateur:<ul> 
+<li> 1st coordonn&eacute;e: '&Eacute;tag&egrave;re' de type inconnu.
+</ul>
+<li> Frigo:<ul> 
+<li> 1st coordonn&eacute;e: '&Eacute;tag&egrave;re' de type inconnu.
+</ul>
+<li> Cong&eacute;lateur (aucune coordonn&eacute;e &agrave; d&eacute;finit). 
+<li> &Eacute;tag&egrave;re:<ul> 
+<li> 1st coordonn&eacute;e: 'plateau' de type inconnu.
+</ul>
+<li> Bo&icirc;te (aucune coordonn&eacute;e &agrave; d&eacute;finit).   
+<li> Bo&icirc;te81 A1-I9:<ul> 
+<li> 1st coordonn&eacute;e: 'colonne' de type alphab$eacute;que (A->I).
+<li> 2nd coordonn&eacute;e: 'ligne' de type entier (1->9).
 <"
 msgid	"storage_layout_tool_description"
 msgstr	"Ce module permet aux utilisateurs de visualiser ou cr&eacute;er l'infrastructure de l'entreposage. <br><br>L'infrastructure de l'entreposage est d&eacute;finie par la cr&eacute;ation d'entit&eacute;s d'entreposage (comme des 'pi&egrave;ces', des 'Bo&icirc;tes', etc) et la d&eacute;fintion des positions de ces entit&eacute;s dans des entit&eacute;s d'entreposage 'parents'. <br>"
@@ -4208,7 +4224,7 @@ msgstr	"Utilisation Mat&eacute;riel Biologique?"
 msgid	"use of blood"
 msgstr	"Utilisation du Sang?"
 msgid	"use of urine"
-msgstr	"Utilisation de l'urine?
+msgstr	"Utilisation de l'urine?
 "
 msgid	"used and/or sent"
 msgstr	"Utilis&eacute; et/ou envoy&eacute;"
