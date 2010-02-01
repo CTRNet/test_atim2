@@ -50,7 +50,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 						__('barcode', true)=> $result['AliquotMaster']['barcode'],
 						__('product code', true)=> $result['AliquotMaster']['product_code'],
 						__('type', true)	    => __($result['AliquotMaster']['aliquot_type'], true),
-						__('status', true)		=> __($result['AliquotMaster']['status'], true)
+						__('aliquot in stock', true)		=> __($result['AliquotMaster']['in_stock'], true)
 					)
 				)
 			);

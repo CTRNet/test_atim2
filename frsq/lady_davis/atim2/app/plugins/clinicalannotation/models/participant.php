@@ -20,11 +20,11 @@ class Participant extends ClinicalannotationAppModel {
 					'title'			=>	array( NULL, ($result['Participant']['participant_identifier'].' - '.$result['Participant']['last_name']) ),
 					
 					'description'		=>	array(
-						__('participant identifier',TRUE)	=>	__($result['Participant']['participant_identifier'], TRUE),
-						__('date of birth', TRUE)		=>	__($result['Participant']['date_of_birth'], TRUE),
-						__('marital status', TRUE)		=>	__($result['Participant']['marital_status'], TRUE),
-						__('vital status', TRUE)		=>	__($result['Participant']['vital_status'], TRUE),
-						__('sex', TRUE)					=>	__($result['Participant']['sex'], TRUE)
+						__('participant identifier',TRUE)	=>	$result['Participant']['participant_identifier'],
+						__('date of birth', TRUE)		=>	$result['Participant']['date_of_birth'],
+						__('marital status', TRUE)		=>	$result['Participant']['marital_status'],
+						__('vital status', TRUE)		=>	$result['Participant']['vital_status'],
+						__('sex', TRUE)					=>	$result['Participant']['sex']
 					)
 				)
 			);

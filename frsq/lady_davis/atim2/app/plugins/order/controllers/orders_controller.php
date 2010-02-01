@@ -21,7 +21,7 @@ class OrdersController extends OrderAppController {
 		$_SESSION['ctrapp_core']['search'] = null;
 		
 		// Clear Order session data
-		unset($_SESSION['Order']['NewAliquotsForOrder']);
+		unset($_SESSION['Order']['AliquotIdsToAddToOrder']);
 		
 		// Set list of studies
 		$this->set('arr_studies', $this->getStudiesList());

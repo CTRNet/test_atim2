@@ -745,6 +745,9 @@ class StructuresHelper extends Helper {
 	function build_tree( $atim_structure, $options ) {
 		$return_string = '';
 		
+		if ( is_array($options['data']) ) { $data=$options['data']; }
+		else { $data=$this->data; }
+		
 		// display table...
 		$return_string .= '
 			<table class="structure" cellspacing="0">
@@ -784,7 +787,7 @@ class StructuresHelper extends Helper {
 						<tbody>
 					';
 					
-					if ( count($this->data) ) {
+					if ( count($data) ) {
 						
 						// start root level of UL tree, and call NODE function
 						$return_string .= '
@@ -792,7 +795,7 @@ class StructuresHelper extends Helper {
 								<ul id="tree_root">
 						';
 						
-						$return_string .= $this->build_tree_node( $atim_structure, $options, $this->data );
+						$return_string .= $this->build_tree_node( $atim_structure, $options, $data );
 						
 						$return_string .= '
 								</ul>
@@ -1431,6 +1434,24 @@ class StructuresHelper extends Helper {
 						case 'number':
 							
 							$html_element_array['type'] = 'text';
+							
+							if ( $options['type']=='search' ) {
+								
+								$display_value .= $this->Form->input(
+									$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start',
+									$html_element_array
+								);
+								
+								$display_value .= ' <span class="tag">'.__('to',TRUE).'</span> ';
+								
+								$display_value .= $this->Form->input(
+									$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end',
+									$html_element_array
+								);
+								
+								$use_cakephp_form_helper = FALSE;
+							}
+							
 							break;
 							
 						case 'input':
@@ -1629,7 +1650,7 @@ class StructuresHelper extends Helper {
 									}
 									
 									if ( $field['StructureField']['type']=='datetime' ) {
-										$display_value .= $this->Form->hour($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], FALSE, $hour_value, am(array('name'=>$hour_name),$html_element_array) );
+										$display_value .= $this->Form->hour($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], FALSE, ($hour_value === "0" ? 12 : $hour_value), am(array('name'=>$hour_name),$html_element_array) );
 										$display_value .= $this->Form->minute($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], $minute_value,  am(array('name'=>$minute_name),$html_element_array) );
 										$display_value .= $this->Form->meridian($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], $meridian_value,  am(array('name'=>$meridian_name),$html_element_array) );
 									}
@@ -1877,9 +1898,20 @@ class StructuresHelper extends Helper {
 				}
 				$link_array = array( $link_name => $link_array['link'] );
 			}
+			$prev_icon = $icon;
 			foreach ( $link_array as $link_label => &$link_location ) {
+				$icon = $prev_icon;
+				if(is_array($link_location)){
+					if(isset($link_location['icon'])){
+						//set requested custom icon
+						$icon = $link_location['icon'];
+					}
+					$link_location = &$link_location['link'];
+				}
+					
 				// if ( !Configure::read("debug") ) {
-					// check on EDIT only 
+					// check on EDIT only
+					
 					$parts = Router::parse($link_location);
 					$aco_alias = 'controllers/'.($parts['plugin'] ? Inflector::camelize($parts['plugin']).'/' : '');
 					$aco_alias .= ($parts['controller'] ? Inflector::camelize($parts['controller']).'/' : '');
@@ -2008,7 +2040,7 @@ class StructuresHelper extends Helper {
 			if ( isset($_SESSION) && isset($_SESSION['Auth']) && isset($_SESSION['Auth']['User']) && count($_SESSION['Auth']['User']) ) {
 				if ( isset($_SESSION['ctrapp_core']['search']) && is_array($_SESSION['ctrapp_core']['search']) ) {
 					$return_string .= '
-							<div style="padding-bottom: 5px; padding-top: 5px;"><a class="search_results" href="'.$this->Html->url($_SESSION['ctrapp_core']['search']['url']).'">
+							<div class="search-result-div"><a class="search_results" href="'.$this->Html->url($_SESSION['ctrapp_core']['search']['url']).'">
 								'.$_SESSION['ctrapp_core']['search']['results'].'
 							</a></div>
 					';

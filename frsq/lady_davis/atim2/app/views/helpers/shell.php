@@ -105,6 +105,7 @@ class ShellHelper extends Helper {
 		}
 		
 		$return .= '
+		<fieldset>
 			<!-- start #header -->
 			<div id="header">
 				<h1>'.__('core_appname', true).'</h1>
@@ -112,8 +113,8 @@ class ShellHelper extends Helper {
 				'.$main_menu_for_header.'
 			</div>
 			<!-- end #header -->
+			
 		';	
-		
 		// display DEFAULT menu
 		if ( $logged_in ) {	
 			$return .= '
@@ -198,6 +199,7 @@ class ShellHelper extends Helper {
 				
 			</div>
 			<!-- end #footer -->
+			</fieldset>
 		';
 		
 		return $return;
@@ -210,7 +212,7 @@ class ShellHelper extends Helper {
 			$this->pageTitle = '';
 		}
 						
-		$return_html = '';
+		$return_html = array();
 		$root_menu_array = array();
 		$main_menu_array = array();
 		
@@ -334,7 +336,7 @@ class ShellHelper extends Helper {
 								$append_menu = '';
 							}
 							
-							$return_html .= '
+							$return_html[] = '
 								<li class="at count_'.$count.( $is_root ? ' root' : '' ).'">
 									'.$active_item.'
 									'.$append_menu.'
@@ -389,7 +391,7 @@ class ShellHelper extends Helper {
 			$return_html = '
 				<div class="menu level_0">
 					<ul class="total_count_'.$total_count.'">
-						'.$return_html.'
+						'.implode('',array_reverse($return_html)).'
 					</ul>
 					
 					'.$return_summary.'

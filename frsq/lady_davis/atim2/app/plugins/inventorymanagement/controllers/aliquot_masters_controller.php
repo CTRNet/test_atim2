@@ -194,10 +194,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->data = array();
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
-		
+				
 		$form_alias = (is_null($specific_form_alias))? 'aliquotmasters': $specific_form_alias;
-		$this->set('aliquots_listall_structure', $this->Structures->get('form', $form_alias));
-
+		$this->Structures->set($form_alias, 'aliquots_listall_structure');
+		
 		// Get all collection/sample 'sample aliquot type list' to build the filter button
 		$sample_aliquot_types = array();
 		$criteria = array('AliquotMaster.collection_id' => $collection_id);
@@ -470,7 +470,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		// Set structure
 		$this->Structures->set($aliquot_data['AliquotControl']['form_alias']);
-		$this->set('aliquots_uses_structure', $this->Structures->get('form', 'aliquotuses'));
+		$this->Structures->set('aliquotuses', 'aliquots_uses_structure');
 		
 		// Define if this detail form is displayed into the collection content tree view
 		$this->set('is_tree_view_detail_form', $is_tree_view_detail_form);
@@ -856,7 +856,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 		
 		if($deletion_done) {
-			$this->flash('your data has been deleted', $flash_url); 
+			$this->flash('your data has been deleted - update the aliquot in stock data', $flash_url); 
 		} else {
 			$this->flash('error deleting data - contact administrator', $flash_url); 
 		}	
@@ -1085,11 +1085,12 @@ class AliquotMastersController extends InventoryManagementAppController {
 		foreach($parent_aliquot_data['RealiquotingChildren'] as $realiquoting_data) {
 			$existing_children[] = $realiquoting_data['child_aliquot_master_id'];
 		}
-		
+			
 		// Search Sample Aliquots could be defined as children aliquot
 		$criteria = array(
 			"AliquotMaster.id != '$aliquot_master_id'", 
 			'AliquotMaster.sample_master_id' => $sample_master_id,
+			'AliquotMaster.aliquot_control_id' => $parent_aliquot_data['AliquotMaster']['aliquot_control_id'],
 			'NOT' => array('AliquotMaster.id' => $existing_children)
 		);
 		
@@ -1324,7 +1325,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// Get existing sample block
 		$criteria = array();
 		$criteria['AliquotMaster.aliquot_control_id'] = $block_control_id;
-		$criteria['AliquotMaster.status'] = 'available';
+		$criteria['AliquotMaster.in_stock'] = 'yes - available';
 		$criteria['AliquotMaster.sample_master_id'] = $sample_master_data['SampleMaster']['id'];
 		$criteria['AliquotMaster.collection_id'] = $sample_master_data['SampleMaster']['collection_id'];
 		$criteria['AliquotMaster.deleted'] = '0';
@@ -1363,7 +1364,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// Get existing sample block
 		$criteria = array();
 		$criteria['AliquotMaster.aliquot_control_id'] = $gel_matrix_control_id;
-		$criteria['AliquotMaster.status'] = 'available';
+		$criteria['AliquotMaster.in_stock'] = 'yes - available';
 		$criteria['AliquotMaster.sample_master_id'] = $sample_master_data['SampleMaster']['id'];
 		$criteria['AliquotMaster.collection_id'] = $sample_master_data['SampleMaster']['collection_id'];
 		$criteria['AliquotMaster.deleted'] = '0';

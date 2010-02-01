@@ -4,7 +4,8 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 
 	var $uses = array(
 		'Clinicalannotation.MiscIdentifier',
-		'Clinicalannotation.Participant'
+		'Clinicalannotation.Participant',
+		'Clinicalannotation.MiscIdentifierControl'
 	);
 	var $paginate = array('MiscIdentifier'=>array('limit'=>10,'order'=>'MiscIdentifier.identifier_name ASC'));
 	
@@ -19,6 +20,7 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
+		$this->set('add_options', $this->MiscIdentifierControl->find('all'));
 				
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
@@ -41,23 +43,29 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 		if( $hook_link ) { require($hook_link); }		
 	}
 	
-	function add( $participant_id=null ) {
+	function add( $participant_id=null, $control_id ) {
+		$must_save = !empty($this->data);
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
 	
 		// MANAGE DATA
 		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
 		if(empty($participant_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
 		
+		$controls = $this->MiscIdentifierControl->find('first', array('conditions' => array('MiscIdentifierControl.id' => $control_id)));
+		$this->data['MiscIdentifier']['identifier_name'] = $controls['MiscIdentifierControl']['misc_identifier_name'];
+		$this->data['MiscIdentifier']['identifier_abrv'] = $controls['MiscIdentifierControl']['misc_identifier_name_abbrev'];
+		$this->data['MiscIdentifier']['identifier_value'] = $controls['MiscIdentifierControl']['misc_identifier_value'];
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
+		$this->set('control_id', $control_id);
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }
 		
-		if ( !empty($this->data) ) {
+		if ( $must_save ) {
 			$this->data['MiscIdentifier']['participant_id'] = $participant_id;
-
+			$this->data['MiscIdentifier']['identifier_value'] = $this->MiscIdentifierControl->getKeyIncrement($controls['MiscIdentifierControl']['autoincrement_name'], $controls['MiscIdentifierControl']['misc_identifier_value']); 
 			$submitted_data_validates = true;
 			// ... special validations
 			
@@ -71,6 +79,7 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 				}
 			}
 		}
+		
 	}
 	
 	function edit( $participant_id, $misc_identifier_id) {

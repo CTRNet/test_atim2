@@ -73,6 +73,7 @@ class StructuresComponent extends Object {
 				
 				// for RANGE values, which should be searched over with a RANGE...
 				if ( $value['StructureField']['type']=='number' || $value['StructureField']['type']=='date' || $value['StructureField']['type']=='datetime' ) {
+					
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'].'_start' ]['plugin']		= $value['StructureField']['plugin'];
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'].'_start' ]['model']		= $value['StructureField']['model'];
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'].'_start' ]['field']		= $value['StructureField']['field'];
@@ -104,7 +105,7 @@ class StructuresComponent extends Object {
 				
 			}
 		}
-
+		
 		// parse DATA to generate SQL conditions
 		// use ONLY the form_fields array values IF data for that MODEL.KEY combo was provided
 		foreach ( $this->controller->data as $model=>$fields ) {
@@ -154,7 +155,10 @@ class StructuresComponent extends Object {
 						if ( $data ) {
 							if ( !is_array($data) && strpos($form_fields[$model.'.'.$key]['key'], ' LIKE')!==false ) {
 								$data = '%'.$data.'%';
+							} else if ( is_array($data) ) {
+								$data = '"'.implode('","',$data).'"';
 							}
+							
 							$conditions[ $form_fields[$model.'.'.$key]['key'] ] = $data;
 						}
 						
@@ -202,8 +206,8 @@ class StructuresComponent extends Object {
 			$sql_without_search_terms = preg_replace('/LIKE\s*"@@[\w\.]+@@"/i', "LIKE \"%%\"", $sql_without_search_terms);
 			
 			//others
-//			$sql_with_search_terms = preg_replace('/"@@[\w\.]+@@"/i', "\"\"", $sql_with_search_terms);
-//			$sql_without_search_terms = preg_replace('/"@@[\w\.]+@@"/i', "\"\"", $sql_without_search_terms);
+			$sql_with_search_terms = preg_replace('/"@@[\w\.]+@@"/i', "\"\"", $sql_with_search_terms);
+			$sql_without_search_terms = preg_replace('/"@@[\w\.]+@@"/i', "\"\"", $sql_without_search_terms);
 		
 		// WITH
 			// regular expression to change search over field for BLANK values to be searches over fields for BLANK OR NULL values...
