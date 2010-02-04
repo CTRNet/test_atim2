@@ -58,6 +58,7 @@ class EventMastersController extends ClinicalannotationAppController {
 		
 		// MANAGE DATA
 		$this->data = $this->EventMaster->find('first',array('conditions'=>array('EventMaster.id'=>$event_master_id)));
+		$this->data['EventDetail']['file_path'] = $this->webroot.'/uploaded_files/'.$this->data['EventDetail']['file_path'];
 		$this->set('dx_data', $this->DiagnosisMaster->find('all', array('conditions' => array('DiagnosisMaster.id' => $this->data['EventMaster']['diagnosis_master_id']))));		
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -75,7 +76,6 @@ class EventMastersController extends ClinicalannotationAppController {
 	
 	function add( $event_group=NULL, $participant_id=null, $event_control_id=null) {
 		if ( (!$participant_id) && (!$event_group) ) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
-		
 		// MANAGE DATA
 		$event_control_data = $this->EventControl->find('first',array('conditions'=>array('EventControl.id'=>$event_control_id)));
 		
@@ -107,8 +107,13 @@ class EventMastersController extends ClinicalannotationAppController {
 			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			$hook_link = $this->hook('presave_process');
 			if( $hook_link ) { require($hook_link); }
-		
 			if ($submitted_data_validates && $this->EventMaster->save($this->data) ) {
+				if($this->data['EventDetail']['file_name']['error'] == 0){
+					$this->data['EventMaster']['id'] = $this->EventMaster->getLastInsertID();
+					$this->data['EventDetail']['file_path'] = $this->data['EventMaster']['id'].'.'.end(explode(".", $this->data['EventDetail']['file_name']['name']));  
+					move_uploaded_file($this->data['EventDetail']['file_name']['tmp_name'], getcwd().'/uploaded_files/'.$this->data['EventDetail']['file_path']);
+					$this->EventMaster->save($this->data);
+				}
 				$this->flash( 'Your data has been updated.','/clinicalannotation/event_masters/detail/'.$event_group.'/'.$participant_id.'/'.$this->EventMaster->getLastInsertId());
 			}
 		} 
