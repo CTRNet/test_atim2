@@ -61,7 +61,7 @@
 		'bottom' => array('cancel' => $url_to_cancel),
 		'ajax' => array(
 			'index' => array(
-				'add' => array(
+				'add aliquots to order line' => array(
 					'update' => 'frame',
 					'before' => 'customSubmit(this)'
 				)
