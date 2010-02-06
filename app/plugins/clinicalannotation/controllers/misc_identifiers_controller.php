@@ -2,12 +2,54 @@
 
 class MiscIdentifiersController extends ClinicalannotationAppController {
 
+	var $components = array('Clinicalannotation.MiscIdentifiers'); 
+		
 	var $uses = array(
 		'Clinicalannotation.MiscIdentifier',
 		'Clinicalannotation.Participant',
 		'Clinicalannotation.MiscIdentifierControl'
 	);
+	
 	var $paginate = array('MiscIdentifier'=>array('limit'=>10,'order'=>'MiscIdentifier.identifier_name ASC'));
+	
+	function index() {
+		$this->set('atim_menu', $this->Menus->get('/clinicalannotation/participants/index'));
+						
+		$_SESSION['ctrapp_core']['search'] = null; // clear SEARCH criteria
+		
+		$this->set('identifier_names_list', $this->MiscIdentifiers->getIdentiferNamesListForDisplay());
+		$this->Structures->set('miscidentifierssummary');
+				
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link); 
+		}
+	}
+	
+	function search() {
+		$this->set('atim_menu', $this->Menus->get('/clinicalannotation/participants/index'));
+//TODO to test		
+		if($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions();
+
+		$belongs_to_details = array(
+			'belongsTo' => array(
+				'Participant' => array(
+					'className' => 'Clinicalannotation.Participant',
+					'foreignKey' => 'participant_id')));
+					
+		$this->MiscIdentifier->bindModel($belongs_to_details, false);						
+		$this->data = $this->paginate($this->MiscIdentifier, $_SESSION['ctrapp_core']['search']['criteria']);
+		$this->MiscIdentifier->unbindModel(array('belongsTo' => array('Participant')), false);
+			
+		// if SEARCH form data, save number of RESULTS and URL
+		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['SampleMaster']['count'];
+		$_SESSION['ctrapp_core']['search']['url'] = '/inventorymanagement/sample_masters/search';
+		
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link); 
+		}
+	}
 	
 	function listall( $participant_id ) {
 		if ( !$participant_id ) { $this->redirect( 'err_clin_funct_param_missing', NULL, TRUE ); }
@@ -18,9 +60,12 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 		
 		$this->data = $this->paginate($this->MiscIdentifier, array('MiscIdentifier.participant_id'=>$participant_id));
 		
+		$this->set('identifier_controls_list', $this->MiscIdentifierControl->find('all', array('conditions' => array('status' => 'active'))));
+
+		$this->set('identifier_names_list', $this->MiscIdentifiers->getIdentiferNamesListForDisplay());
+		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
-		$this->set('add_options', $this->MiscIdentifierControl->find('all'));
 				
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
@@ -35,6 +80,8 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 		if(empty($misc_identifier_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
 		$this->data = $misc_identifier_data;
 		
+		$this->set('identifier_names_list', $this->MiscIdentifiers->getIdentiferNamesListForDisplay());
+		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'MiscIdentifier.id'=>$misc_identifier_id) );
 		
@@ -43,61 +90,106 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 		if( $hook_link ) { require($hook_link); }		
 	}
 	
-	function add( $participant_id=null, $control_id ) {
-		$must_save = !empty($this->data);
-		if ( !$participant_id ) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
+	function add( $participant_id, $misc_identifier_control_id ) {
+		if ( ( !$participant_id ) || ( !$misc_identifier_control_id ) ) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
 	
 		// MANAGE DATA
+		
 		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
 		if(empty($participant_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
 		
-		$controls = $this->MiscIdentifierControl->find('first', array('conditions' => array('MiscIdentifierControl.id' => $control_id)));
-		$this->data['MiscIdentifier']['identifier_name'] = $controls['MiscIdentifierControl']['misc_identifier_name'];
-		$this->data['MiscIdentifier']['identifier_abrv'] = $controls['MiscIdentifierControl']['misc_identifier_name_abbrev'];
-		$this->data['MiscIdentifier']['identifier_value'] = $controls['MiscIdentifierControl']['misc_identifier_value'];
+		$controls = $this->MiscIdentifierControl->find('first', array('conditions' => array('MiscIdentifierControl.id' => $misc_identifier_control_id)));
+		if(empty($controls)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
+		
+		$this->set('identifier_names_list', $this->MiscIdentifiers->getIdentiferNamesListForDisplay());
+		
+		$is_incremented_identifier = (empty($controls['MiscIdentifierControl']['autoincrement_name'])? false: true);
+		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
-		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
-		$this->set('control_id', $control_id);
+		
+		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'MiscIdentifierControl.id' => $misc_identifier_control_id));
+		
+		$form_alias = $is_incremented_identifier? 'incrementedmiscidentifiers' : 'miscidentifiers';
+		$this->Structures->set($form_alias);
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }
-		
-		if ( $must_save ) {
+		if( $hook_link ) { require($hook_link); }	
+				
+		if ( empty($this->data) ) {	
+			$this->data = array();			
+			$this->data['MiscIdentifier']['identifier_name'] = $controls['MiscIdentifierControl']['misc_identifier_name'];
+			$this->data['MiscIdentifier']['identifier_abrv'] = $controls['MiscIdentifierControl']['misc_identifier_name_abbrev'];
+			
+		} else {
+			// Launch Save Process
+			
+			// Set additional data
 			$this->data['MiscIdentifier']['participant_id'] = $participant_id;
-			$this->data['MiscIdentifier']['identifier_value'] = $this->MiscIdentifierControl->getKeyIncrement($controls['MiscIdentifierControl']['autoincrement_name'], $controls['MiscIdentifierControl']['misc_identifier_value']); 
+			$this->data['MiscIdentifier']['misc_identifier_control_id'] = $misc_identifier_control_id;
+			
+			// Launch validation
 			$submitted_data_validates = true;
 			// ... special validations
+				
+			$this->MiscIdentifier->set($this->data);
+			$submitted_data_validates = ($this->MiscIdentifier->validates())? $submitted_data_validates: false; 
 			
 			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			$hook_link = $this->hook('presave_process');
 			if( $hook_link ) { require($hook_link); }	
 			
 			if($submitted_data_validates) {
+				// Set incremented identifier if required
+				if($is_incremented_identifier) {
+					$new_identifier_value = $this->MiscIdentifierControl->getKeyIncrement($controls['MiscIdentifierControl']['autoincrement_name'], $controls['MiscIdentifierControl']['misc_identifier_format']);
+					if($new_identifier_value === false) { $this->redirect( '/pages/err_clin_system_error', null, true ); }
+					$this->data['MiscIdentifier']['identifier_value'] = $new_identifier_value; 
+				}
+			
+				// Save data
 				if ( $this->MiscIdentifier->save($this->data) ) {
 					$this->flash( 'your data has been saved','/clinicalannotation/misc_identifiers/detail/'.$participant_id.'/'.$this->MiscIdentifier->id );
 				}
 			}
 		}
-		
 	}
 	
 	function edit( $participant_id, $misc_identifier_id) {
 		if ( !$participant_id && !$misc_identifier_id ) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
 		
 		// MANAGE DATA
-		$misc_identifier_data = $this->MiscIdentifier->find('first', array('conditions'=>array('MiscIdentifier.id'=>$misc_identifier_id, 'MiscIdentifier.participant_id'=>$participant_id), 'recursive' => '-1'));		
-		if(empty($misc_identifier_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
+		
+		$belongs_to_details = array(
+			'belongsTo' => array(
+				'MiscIdentifierControl' => array(
+					'className' => 'Clinicalannotation.MiscIdentifierControl',
+					'foreignKey' => 'misc_identifier_control_id')));
+
+		$this->MiscIdentifier->bindModel($belongs_to_details);						
+		$misc_identifier_data = $this->MiscIdentifier->find('first', array('conditions'=>array('MiscIdentifier.id'=>$misc_identifier_id, 'MiscIdentifier.participant_id'=>$participant_id), 'recursive' => '0'));		
+		$this->MiscIdentifier->unbindModel(array('belongsTo' => array('MiscIdentifierControl')));
+
+		if(empty($misc_identifier_data) || (!isset($misc_identifier_data['MiscIdentifierControl'])) || empty($misc_identifier_data['MiscIdentifierControl']['id'])) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
+
+		$is_incremented_identifier = (empty($misc_identifier_data['MiscIdentifierControl']['autoincrement_name'])? false: true);
+		
+		$this->set('identifier_names_list', $this->MiscIdentifiers->getIdentiferNamesListForDisplay());
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
-		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'MiscIdentifier.id'=>$misc_identifier_id) );
 		
+		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'MiscIdentifier.id'=>$misc_identifier_id) );
+
+		$form_alias = $is_incremented_identifier? 'incrementedmiscidentifiers' : 'miscidentifiers';
+		$this->Structures->set($form_alias);
+				
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }		
 		
 		if(empty($this->data)) {
-			$this->data = $misc_identifier_data;		
+			$this->data = $misc_identifier_data;	
+				
 		} else {
 			$submitted_data_validates = true;
 			// ... special validations

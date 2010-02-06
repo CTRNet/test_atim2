@@ -76,10 +76,6 @@ msgid	"abnormal"
 msgstr	"Abnormal"
 msgid	"aboriginal"
 msgstr	"Aboriginal"
-msgid	"about_body"
-msgstr	"The Canadian Tumour Repository Network (CTRNet) is a translational cancer research resource, funded by Canadian Institutes of Health Research, that furthers Canadian health research by linking cancer researchers with provincial tumour banks."
-msgid	"about_title"
-msgstr	"About"
 msgid	"abstract"
 msgstr	"Abstract"
 msgid	"academic"
@@ -695,7 +691,7 @@ msgstr	"Clinical Stage"
 msgid	"clinicalannotation"
 msgstr	"Clinical Annotation"
 msgid	"clinicalannotation_module_description"
-msgstr	"To describe...<br><br><br><font color="#ff0000">Please note:
+msgstr	"To describe...<br><br><br><font color="#ff0000">Please note:
 This application contains sample data for demonstration purposes only. Any similarity to people or persons living or dead is entirely coincidental.</font><br>"
 msgid	"clinicalannotation_module_title"
 msgstr	"Module Description"
@@ -710,8 +706,8 @@ msgstr	"Italian"
 msgid	"clin_other contact type"
 msgstr	"Other Contact Type"
 msgid	"clin_sidebar_participants index"
-msgstr	"Please note:<br>
-<br> 
+msgstr	"Please note:<br>
+<br> 
 This application contains sample data for demonstration purposes only. Any similarity to people or persons living or dead is entirely coincidental.<br>"
 msgid	"clin_study"
 msgstr	"Study"
@@ -768,37 +764,37 @@ msgstr	"Collection ID"
 msgid	"collection id error"
 msgstr	"Collection ID error"
 msgid	"collection index description"
-msgstr	"<br>This module allows user to create and manage all collections built into your laboratory.
-
-<br><br>
-<h4>Collection</h4>
-Used to group
-<ul>
-<li> one or more specimens (or primary samples)
-<ul>
-<li>from the same participant.
-<li>from the same event (date & time).
-<li>for a specific reason (surgery, follow-up, etc).
-<li>related to a diagnosis (optional) or a period of time.
-</ul>
-<li>plus all the derivatives created from these specimens.
-</ul>
-
-<br>
-<h4>Sample</h4>
-A sample defines a biological material that is
-<ul>
-<li>Either directly taken from a participant at a specific date and
-which we will call 'primary sample' or 'specimen' (ex: Tissue, Blood,
-Urine, etc).
-<li>Or created from another sample at a specific date according to a
-specific protocol and which we will call 'derivative sample' (ex: DNA
-extraction, cell culture, etc).
-</ul>
-
-A sample definition can be applied to a set of biological material
-entities (blood tubes, etc) when all of these entities:
-<ul>
+msgstr	"<br>This module allows user to create and manage all collections built into your laboratory.
+
+<br><br>
+<h4>Collection</h4>
+Used to group
+<ul>
+<li> one or more specimens (or primary samples)
+<ul>
+<li>from the same participant.
+<li>from the same event (date & time).
+<li>for a specific reason (surgery, follow-up, etc).
+<li>related to a diagnosis (optional) or a period of time.
+</ul>
+<li>plus all the derivatives created from these specimens.
+</ul>
+
+<br>
+<h4>Sample</h4>
+A sample defines a biological material that is
+<ul>
+<li>Either directly taken from a participant at a specific date and
+which we will call 'primary sample' or 'specimen' (ex: Tissue, Blood,
+Urine, etc).
+<li>Or created from another sample at a specific date according to a
+specific protocol and which we will call 'derivative sample' (ex: DNA
+extraction, cell culture, etc).
+</ul>
+
+A sample definition can be applied to a set of biological material
+entities (blood tubes, etc) when all of these entities:
+<ul>
 <li>"
 msgid	"collection index title"
 msgstr	"Collections, Samples and Aliquots"
@@ -1009,22 +1005,22 @@ msgstr	"Invalid login error has occurred."
 msgid	"core_login_required"
 msgstr	"You are required to log in."
 msgid	"core_login_sidebar"
-msgstr	"<br>
-Welcome to the development site for ATiM (Advanced Tissue Management<br>
-<br>
-English login credentials:<br>
-
-&nbsp;&nbsp;&nbsp;Login - endemo<br>
-&nbsp;&nbsp;&nbsp;Password - endemo<br>
-<br>
-
-French login credentials:<br>
-
-&nbsp;&nbsp;&nbsp;Login: frdemo<br>
-&nbsp;&nbsp;&nbsp;Password: frdemo<br>
-<br>
-Please note:<br>
-<br> 
+msgstr	"<br>
+Welcome to the development site for ATiM (Advanced Tissue Management<br>
+<br>
+English login credentials:<br>
+
+&nbsp;&nbsp;&nbsp;Login - endemo<br>
+&nbsp;&nbsp;&nbsp;Password - endemo<br>
+<br>
+
+French login credentials:<br>
+
+&nbsp;&nbsp;&nbsp;Login: frdemo<br>
+&nbsp;&nbsp;&nbsp;Password: frdemo<br>
+<br>
+Please note:<br>
+<br> 
 This application contains sample data for demonstration purposes only. Any similarity to people or persons living or dead is entirely coincidental.<br> "
 msgid	"core_menu_main"
 msgstr	"Main Menu"
@@ -1104,10 +1100,6 @@ msgid	"creation site"
 msgstr	"Creation Site"
 msgid	"creation to storage spent time"
 msgstr	"Creation to Storage Spent Time"
-msgid	"credits_body"
-msgstr	"ATiM is an open-source project development by leading tumour banks across Canada. For more information on our development team, questions, comments or suggestions please visit our website at http://www.ctrnet.ca"
-msgid	"credits_title"
-msgstr	"Credits"
 msgid	"cryostat datetime"
 msgstr	"Cryostat Datetime"
 msgid	"CSF-C100(CHO)"
@@ -1140,6 +1132,14 @@ msgid	"current volume"
 msgstr	"Current Volume"
 msgid	"currently smoking"
 msgstr	"Currently Smoking"
+msgid	"custom_identifier_breat_bank_nbr"
+msgstr	"Breast Bank ID"
+msgid	"custom_identifier_hospital_nbr"
+msgstr	"Hospital #"
+msgid	"custom_identifier_insurance_nbr"
+msgstr	"Insurance #"
+msgid	"custom_identifier_ovary_bank_nbr"
+msgstr	"Ovary Bank ID"
 msgid	"cutting time"
 msgstr	"Cutting Time"
 msgid	"cycle number"
@@ -1747,18 +1747,18 @@ msgstr	"A demographic parameter indicating a person's current conjugal status."
 msgid	"help_memo"
 msgstr	"Text area for capturing generic comments."
 msgid	"help_name"
-msgstr	"This is a help message, from the FORMS datatable. It can be as verbose as needed, but remember this is only really an ALIAS value. It is used to look up the correct language info from the I18N datatable.
-
+msgstr	"This is a help message, from the FORMS datatable. It can be as verbose as needed, but remember this is only really an ALIAS value. It is used to look up the correct language info from the I18N datatable.
+
 In this case, for NAME, the first name and last name fields are required for form submission."
 msgid	"help_phone"
 msgstr	"Telephone number"
 msgid	"help_phone secondary"
 msgstr	"Telephone number"
 msgid	"help_race"
-msgstr	"A group of persons related by common descent or heredity.
+msgstr	"A group of persons related by common descent or heredity.
 "
 msgid	"help_sex"
-msgstr	"The sex (male, female, unknown) of the participant.
+msgstr	"The sex (male, female, unknown) of the participant.
 "
 msgid	"help_street"
 msgstr	"Street and or unit location."
@@ -1898,10 +1898,6 @@ msgid	"initial volume"
 msgstr	"Initial Volume"
 msgid	"injection into mouse"
 msgstr	"Injection Into Mouse"
-msgid	"installation_body"
-msgstr	"To view your installed version number open the Administration Tool and select ATiM Version from the first menu. ATiM is built on the CakePHP framework (www.cakephp.org)."
-msgid	"installation_title"
-msgstr	"Installation"
 msgid	"institution"
 msgstr	"Institution"
 msgid	"institutional"
@@ -2061,7 +2057,7 @@ msgstr	"List"
 msgid	"list content"
 msgstr	"List Content"
 msgid	"List of Used Parent Sample Aliquots Description"
-msgstr	"This Form allows user to define the list of aliquots of the parent sample that have been used to build the studied derivative.
+msgstr	"This Form allows user to define the list of aliquots of the parent sample that have been used to build the studied derivative.
 <br><br>Only available aliquots of the parent sample can be added to the list."
 msgid	"List of Used Parent Sample Aliquots Title"
 msgstr	"Source Parent Sample Aliquots"
@@ -2102,12 +2098,12 @@ msgstr	"Locked"
 msgid	"login"
 msgstr	"Login"
 msgid	"login_help"
-msgstr	"For demonstration purposes, there are two logins available.
-
-The first is "endemo" as both username and password. This user has a default setting of english.
-
-The second is "frdemo" as both username and password. This user has a default setting of french.
-
+msgstr	"For demonstration purposes, there are two logins available.
+
+The first is "endemo" as both username and password. This user has a default setting of english.
+
+The second is "frdemo" as both username and password. This user has a default setting of french.
+
 All text, including english, is accessed from language datatables. All text to be displayed in a HELPER, VIEW, or LAYOUT should be entered as aliases in all other datatables. A TRANSLATION helper/function calls that alias, and displays the correct language text or the same alias with a mistranlation indication."
 msgid	"logout"
 msgstr	"Logout"
@@ -2227,6 +2223,8 @@ msgid	"misc"
 msgstr	"Misc Identifiers"
 msgid	"misc identifer"
 msgstr	"Miscellaneous Identifier"
+msgid	"misc identifiers"
+msgstr	"Identifiers"
 msgid	"misc_identifiers"
 msgstr	"Miscellaneous Identifiers"
 msgid	"miss"
@@ -3464,16 +3462,16 @@ msgstr	"Shipped"
 msgid	"short title"
 msgstr	"Short Title"
 msgid	"sidebar_tools_intro"
-msgstr	"<p><b>Order Management</b><br />
-This module handles shipping and order entry related tasks within a tumour bank. Orders can be populated with shippable materials from the Inventory Module or a batch set. </p>
-
-<p><b>Forms Manager</b><br />
-This module allows the bank to keep track of the various forms that are be used for day-to-day operation. Examples include Consent Forms, SOP's and Materials Transfer Agreements. </p>
-
-<p><b>Study Module </b><br />
-The Study Module will store information related to each study proposed or undertaken by researchers registered with the tumour bank. </p>
-
-<p><b>Protocol Module </b><br />
+msgstr	"<p><b>Order Management</b><br />
+This module handles shipping and order entry related tasks within a tumour bank. Orders can be populated with shippable materials from the Inventory Module or a batch set. </p>
+
+<p><b>Forms Manager</b><br />
+This module allows the bank to keep track of the various forms that are be used for day-to-day operation. Examples include Consent Forms, SOP's and Materials Transfer Agreements. </p>
+
+<p><b>Study Module </b><br />
+The Study Module will store information related to each study proposed or undertaken by researchers registered with the tumour bank. </p>
+
+<p><b>Protocol Module </b><br />
 Each protocol lists the series of steps that need to be performed for each participant assigned to that protocol. For example, clinical status will be checked annually for participants assigned to a protocol that requires yearly follow-up. For a shipping protocol, the series of steps can be thought of as a checklist that needs to be followed for shipping materials under tha"
 msgid	"significance"
 msgstr	"Significance"
@@ -3714,32 +3712,32 @@ msgstr	"Storage Temperature"
 msgid	"storage type"
 msgstr	"Type"
 msgid	"storages position definition help"
-msgstr	"Here is the list of existing storage types plus their coordinates defintion used to define postion of an entity (storage, aliquot, etc) into this one:<ul>
-<li> Room (no coordinates to set). 
-<li> Nitrogen Container (no coordinate to set).  
-<li> Incubator:<ul> 
-<li> First coordinate: 'shelf' with undefined type.
-</ul>
-<li> Fridge:<ul> 
-<li> First coordinate: 'shelf' with undefined type.
-</ul>
-<li> Freezer (no coordinate to set).  
-<li> Shelf:<ul> 
-<li> First coordinate: 'tray' with undefined type.
-</ul>
-<li> Box (no coordinate to set).  
-<li> Box81 A1-I9:<ul> 
-<li> First coordinate: 'column' alphabetical value from A to I.
-<li> Second coordinate: 'row' integer value from 1 to 9.
-</ul>
-<li> Box81 1-81:<ul> 
-<li> First coordinate: 'position' integer value from 1 to 81.
-</ul>
-<li> Rack16:<ul> 
-<li> First coordinate: 'column' alphabetical value from A to D.
-<li> Second coordinate: 'row' integer value from 1 to 4.
-</ul>
-<li> Rack10:<ul> 
+msgstr	"Here is the list of existing storage types plus their coordinates defintion used to define postion of an entity (storage, aliquot, etc) into this one:<ul>
+<li> Room (no coordinates to set). 
+<li> Nitrogen Container (no coordinate to set).  
+<li> Incubator:<ul> 
+<li> First coordinate: 'shelf' with undefined type.
+</ul>
+<li> Fridge:<ul> 
+<li> First coordinate: 'shelf' with undefined type.
+</ul>
+<li> Freezer (no coordinate to set).  
+<li> Shelf:<ul> 
+<li> First coordinate: 'tray' with undefined type.
+</ul>
+<li> Box (no coordinate to set).  
+<li> Box81 A1-I9:<ul> 
+<li> First coordinate: 'column' alphabetical value from A to I.
+<li> Second coordinate: 'row' integer value from 1 to 9.
+</ul>
+<li> Box81 1-81:<ul> 
+<li> First coordinate: 'position' integer value from 1 to 81.
+</ul>
+<li> Rack16:<ul> 
+<li> First coordinate: 'column' alphabetical value from A to D.
+<li> Second coordinate: 'row' integer value from 1 to 4.
+</ul>
+<li> Rack10:<ul> 
 <li> First coordinate: 'position' integer"
 msgid	"storage_layout_tool_description"
 msgstr	"This module allows users to view or create the storage layout infrastructure.<br><br> The storage layout is defined by the creation of storage entities (as 'Box', 'Room', etc) and the definition of the storage entities positions into the parent storage entities.<br>"
@@ -4345,6 +4343,8 @@ msgid	"value"
 msgstr	"Value"
 msgid	"value error"
 msgstr	"Value Error"
+msgid	"value is required"
+msgstr	"The value is required!"
 msgid	"version number"
 msgstr	"Version Number"
 msgid	"very good"
@@ -4456,7 +4456,7 @@ msgstr	"Number of axillary (regional) nodes that are positive for cancer"
 msgid	"xed_allsolid_lab_pathology_nodes_removed_help"
 msgstr	"Number of nodes resected"
 msgid	"xed_all_adverse_events_adverse_event_description_help"
-msgstr	"Any unfavorable or unintended symptom, sign, or disease including an abnormal laboratory finding) temporally associated with the use of a medical treatment or procedure that may or may not be considered related to the medical treatment or procedure. Such events can be intervention related, dose related, route related, patient related, or caused by an interaction with another drug(s) or procedure(s).
+msgstr	"Any unfavorable or unintended symptom, sign, or disease including an abnormal laboratory finding) temporally associated with the use of a medical treatment or procedure that may or may not be considered related to the medical treatment or procedure. Such events can be intervention related, dose related, route related, patient related, or caused by an interaction with another drug(s) or procedure(s).
 "
 msgid	"xed_all_clinical_followup_disease_status_help"
 msgstr	"The status of the patient's health on followup of a medical procedure, treatment, or previous conultation with a medical professional"
@@ -4579,7 +4579,7 @@ msgstr	"(centigray) The amount of radiation dosage absorbed by the body (1 cGy =
 msgid	"xtxe_radiations_fractions_help"
 msgstr	"A course of radiotherapy is usually given over a number of days or weeks.?  Each treatment is known as a 'fraction'."
 msgid	"xtxe_radiations_frequency_help"
-msgstr	"How often chemotherapy is administered. It may repeat weekly, bi-weekly, or monthly. 
+msgstr	"How often chemotherapy is administered. It may repeat weekly, bi-weekly, or monthly. 
 "
 msgid	"xtxe_radiations_technique_help"
 msgstr	"The specific method used to deliver radiation to tumour sites; Radiotherapay treatment includes both internally delivered radiation techniques and externally delivered radiation techniques "
