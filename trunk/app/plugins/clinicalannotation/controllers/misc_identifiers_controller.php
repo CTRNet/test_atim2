@@ -18,6 +18,7 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 		$_SESSION['ctrapp_core']['search'] = null; // clear SEARCH criteria
 		
 		$this->set('identifier_names_list', $this->MiscIdentifiers->getIdentiferNamesListForDisplay());
+		
 		$this->Structures->set('miscidentifierssummary');
 				
 		$hook_link = $this->hook('format');
@@ -28,7 +29,7 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 	
 	function search() {
 		$this->set('atim_menu', $this->Menus->get('/clinicalannotation/participants/index'));
-//TODO to test		
+			
 		if($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions();
 
 		$belongs_to_details = array(
@@ -40,10 +41,14 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 		$this->MiscIdentifier->bindModel($belongs_to_details, false);						
 		$this->data = $this->paginate($this->MiscIdentifier, $_SESSION['ctrapp_core']['search']['criteria']);
 		$this->MiscIdentifier->unbindModel(array('belongsTo' => array('Participant')), false);
-			
+
+		$this->set('identifier_names_list', $this->MiscIdentifiers->getIdentiferNamesListForDisplay());
+		
+		$this->Structures->set('miscidentifierssummary');
+		
 		// if SEARCH form data, save number of RESULTS and URL
-		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['SampleMaster']['count'];
-		$_SESSION['ctrapp_core']['search']['url'] = '/inventorymanagement/sample_masters/search';
+		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['MiscIdentifier']['count'];
+		$_SESSION['ctrapp_core']['search']['url'] = '/clinicalannotation/misc_identifiers/search';
 		
 		$hook_link = $this->hook('format');
 		if($hook_link){
