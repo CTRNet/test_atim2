@@ -1,9 +1,14 @@
 <?php 
+
+	$search_type_links = array();
+	$search_type_links['participants'] = '/clinicalannotation/participants/index/';
+	$search_type_links['misc identifiers'] = '/clinicalannotation/misc_identifiers/index/';
+	
 	$structure_links = array(
 		'bottom'=>array(
-			'search'=>'/clinicalannotation/participants/index/',
 			'edit'=>'/clinicalannotation/participants/edit/%%Participant.id%%',
-			'delete'=>'/clinicalannotation/participants/delete/%%Participant.id%%'
+			'delete'=>'/clinicalannotation/participants/delete/%%Participant.id%%',			
+			'new search type' => $search_type_links
 		)
 	);
 	
