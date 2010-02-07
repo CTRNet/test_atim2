@@ -2,6 +2,8 @@
 
 class ParticipantsController extends ClinicalannotationAppController {
 
+	var $components = array('Clinicalannotation.MiscIdentifiers'); 
+		
 	var $uses = array(
 		'Clinicalannotation.Participant',
 		'Clinicalannotation.ConsentMaster',
@@ -14,9 +16,14 @@ class ParticipantsController extends ClinicalannotationAppController {
 		'Clinicalannotation.ClinicalCollectionLink',
 		'Clinicalannotation.ReproductiveHistory',
 		'Clinicalannotation.TreatmentMaster',
+		'Clinicalannotation.MiscIdentifier', 
+		'Clinicalannotation.MiscIdentifierControl', 
+		
 		'codingicd10.CodingIcd10'
 	);
-	var $paginate = array('Participant'=>array('limit'=>10,'order'=>'Participant.last_name ASC, Participant.first_name ASC')); 
+	var $paginate = array(
+		'Participant'=>array('limit'=>10,'order'=>'Participant.last_name ASC, Participant.first_name ASC'),
+		'MiscIdentifier'=>array('limit'=>10,'order'=>'MiscIdentifier.identifier_name ASC')); 
 	
 	function index() {
 		$_SESSION['ctrapp_core']['search'] = NULL; // clear SEARCH criteria
@@ -49,16 +56,28 @@ class ParticipantsController extends ClinicalannotationAppController {
 		if (!$participant_id) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
 		
 		// MANAGE DATA
+		
 		$participant_data = $this->Participant->find('first',array('conditions'=>array('Participant.id'=>$participant_id)));
 		if(empty($participant_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }		
 		$this->data = $participant_data;
 		
+		// Set data for identifier list
+		
+		$participant_identifiers_data = $this->paginate($this->MiscIdentifier, array('MiscIdentifier.participant_id'=>$participant_id));
+		$this->set('participant_identifiers_data', $participant_identifiers_data);
+		$this->set('identifier_names_list', $this->MiscIdentifiers->getIdentiferNamesListForDisplay());
+		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
+		
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id) );
 		
 		$this->data['Participant']['cod_icd10_code'] .= " - ".$this->CodingIcd10->getDescription($this->data['Participant']['cod_icd10_code']);
 		$this->data['Participant']['secondary_cod_icd10_code'] .= " - ".$this->CodingIcd10->getDescription($this->data['Participant']['secondary_cod_icd10_code']);
 
+		// Set form for identifier list
+		
+		$this->Structures->set('miscidentifiers', 'atim_structure_for_misc_identifiers');		
+		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }

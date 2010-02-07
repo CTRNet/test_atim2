@@ -10,7 +10,7 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 		'Clinicalannotation.MiscIdentifierControl'
 	);
 	
-	var $paginate = array('MiscIdentifier'=>array('limit'=>10,'order'=>'MiscIdentifier.identifier_name ASC'));
+	var $paginate = array('MiscIdentifier'=>array('limit'=>10,'order'=>'MiscIdentifier.identifier_name ASC, MiscIdentifier.identifier_value ASC'));
 	
 	function index() {
 		$this->set('atim_menu', $this->Menus->get('/clinicalannotation/participants/index'));
