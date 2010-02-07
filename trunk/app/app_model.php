@@ -110,12 +110,15 @@ class AppModel extends Model {
 	 * Replace the %%key_increment%% part of a string with the key increment value
 	 * @param string $key - The key to seek in the database
 	 * @param string $str - The string where to put the value. %%key_increment%% will be replaced by the value. 
-	 * @return string The string with the replaced value
+	 * @return string The string with the replaced value or false when SQL error happens
 	 */
 	function getKeyIncrement($key, $str){
 		$this->query('LOCK TABLE key_increments WRITE');
 		$result = $this->query('SELECT key_value FROM key_increments WHERE key_name="'.$key.'"');
-		$this->query('UPDATE  key_increments set key_value = key_value + 1 WHERE key_name="'.$key.'"');
+		if($this->query('UPDATE key_increments set key_value = key_value + 1 WHERE key_name="'.$key.'"') === false) {
+			$this->query('UNLOCK TABLES');
+			return false; 
+		}
 		$this->query('UNLOCK TABLES');
 		return str_replace("%%key_increment%%", $result[0]['key_increments']['key_value'], $str);
 	}
