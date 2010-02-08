@@ -112,27 +112,17 @@ DELETE FROM  `i18n` WHERE `id` LIKE 'misc identifiers';
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('misc identifiers', 'global', 'Identifiers', 'Identifiants');
 
--- Menus positions
+-- Updated clinical menu order to better match user workflow.
 
-DELETE FROM `menus` WHERE `parent_id` = 'clin_CAN_1';
-INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_title`, `language_description`, `use_link`, `use_params`, `use_summary`, `active`, `created`, `created_by`, `modified`, `modified_by`) VALUES
-('clin_CAN_6', 'clin_CAN_1', 0, 1, 'profile', 'profile', '/clinicalannotation/participants/profile/%%Participant.id%%', '', 'Clinicalannotation.Participant::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('clin_CAN_24', 'clin_CAN_1', 0, 2, 'identification', 'identification', '/clinicalannotation/misc_identifiers/listall/%%Participant.id%%', '', 'Clinicalannotation.Participant::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-
-('clin_CAN_9', 'clin_CAN_1', 0, 5, 'consent', 'consent', '/clinicalannotation/consent_masters/listall/%%Participant.id%%', '', 'Clinicalannotation.Participant::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-
-('clin_CAN_5', 'clin_CAN_1', 0, 10, 'diagnosis', 'diagnosis', '/clinicalannotation/diagnosis_masters/listall/%%Participant.id%%', '', 'Clinicalannotation.Participant::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('clin_CAN_4', 'clin_CAN_1', 0, 11, 'annotation', 'annotation', '/clinicalannotation/event_masters/listall/adverse_events/%%Participant.id%%', '', 'Clinicalannotation.Participant::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('clin_CAN_68', 'clin_CAN_1', 0, 13, 'reproductive history', 'reproductive history', '/clinicalannotation/reproductive_histories/listall/%%Participant.id%%', '', 'Clinicalannotation.Participant::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('clin_CAN_75', 'clin_CAN_1', 0, 12, 'treatment', 'treatment', '/clinicalannotation/treatment_masters/listall/%%Participant.id%%', '', 'Clinicalannotation.Participant::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('clin_CAN_10', 'clin_CAN_1', 0, 14, 'family history', 'family history', '/clinicalannotation/family_histories/listall/%%Participant.id%%', '', 'Clinicalannotation.Participant::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-
-
-('clin_CAN_67', 'clin_CAN_1', 0, 20, 'link to collection', 'link to collection', '/clinicalannotation/clinical_collection_links/listall/%%Participant.id%%', '', 'Clinicalannotation.Participant::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('clin_CAN_57', 'clin_CAN_1', 0, 21, 'products', 'products', '/clinicalannotation/product_masters/productsTreeView/%%Participant.id%%', '', 'Clinicalannotation.Participant::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-
-('clin_CAN_26', 'clin_CAN_1', 0, 30, 'contact', 'contact', '/clinicalannotation/participant_contacts/listall/%%Participant.id%%', '', 'Clinicalannotation.Participant::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('clin_CAN_25', 'clin_CAN_1', 0, 31, 'message', 'message', '/clinicalannotation/participant_messages/listall/%%Participant.id%%', '', 'Clinicalannotation.Participant::summary', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+UPDATE `menus` SET `display_order` = '4' WHERE `menus`.`id` = 'clin_CAN_4';
+UPDATE `menus` SET `display_order` = '3' WHERE `menus`.`id` = 'clin_CAN_5';
+UPDATE `menus` SET `display_order` = '1' WHERE `menus`.`id` = 'clin_CAN_6';
+UPDATE `menus` SET `display_order` = '5' WHERE `menus`.`id` = 'clin_CAN_75';
+UPDATE `menus` SET `display_order` = '7' WHERE `menus`.`id` = 'clin_CAN_10';
+UPDATE `menus` SET `display_order` = '10' WHERE `menus`.`id` = 'clin_CAN_25';
+UPDATE `menus` SET `display_order` = '9' WHERE `menus`.`id` = 'clin_CAN_26';
+UPDATE `menus` SET `display_order` = '8' WHERE `menus`.`id` = 'clin_CAN_68';
+UPDATE `menus` SET `display_order` = '12' WHERE `menus`.`id` = 'clin_CAN_67';
 
 /*
   INVENTORY MANAGEMENT  
