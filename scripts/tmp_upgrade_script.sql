@@ -2,26 +2,6 @@
 -- upgrade scripts for v2.0.1
 
 /*
-  Main Page
-*/
-
-INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
-('credits_title', '', 'Credits', ''),
-('credits_body', '', 'ATiM is an open-source project development by leading tumour banks across Canada. For more information on our development team, questions, comments or suggestions please visit our website at http://www.ctrnet.ca', '');
-
-UPDATE `pages` SET `language_title` = 'about_title', `language_body` = 'about_body' WHERE `pages`.`id` = 'about';
-
-INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
-('about_title', '', 'About', ''),
-('about_body', '', 'The Canadian Tumour Repository Network (CTRNet) is a translational cancer research resource, funded by Canadian Institutes of Health Research, that furthers Canadian health research by linking cancer researchers with provincial tumour banks.', '');
-
-UPDATE `pages` SET `language_title` = 'installation_title', `language_body` = 'installation_body' WHERE `pages`.`id` = 'installation';
-
-INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
-('installation_title', '', 'Installation', ''),
-('installation_body', '', 'To view your installed version number open the Administration Tool and select ATiM Version from the first menu. ATiM is built on the CakePHP framework (www.cakephp.org).', '');
-
-/*
   CLINCIAL ANNOTATION  
 */ 
 
@@ -39,10 +19,6 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`,
 `created_by`, `modified`, `modified_by`) VALUES 
 (NULL , 'CAN-999-999-000-999-65_CANM-00024', '144', 'CAN-999-999-000-999-65', '908', 'CANM-00024', '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
-
--- Fixed field for laterality
-ALTER TABLE `dxd_tissues` CHANGE `text_field` `laterality` VARCHAR( 50 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT '';
-ALTER TABLE `dxd_tissues_revs` CHANGE `text_field` `laterality` VARCHAR( 50 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT '';
 
 -- Add Clinical Annotation System Error Page
 
