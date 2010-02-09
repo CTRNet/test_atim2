@@ -27,7 +27,7 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id));
 		$this->set('diagnosis_controls_list', $this->DiagnosisControl->find('all', array('conditions' => array('DiagnosisControl.status' => 'active'))));
 		
-		foreach($this->data as &$dx){
+		foreach($this->data as &$dx) {
 			$dx['DiagnosisMaster']['primary_icd10_code'] .= " - ".$this->CodingIcd10->getDescription($dx['DiagnosisMaster']['primary_icd10_code']);
 		}
 
