@@ -143,3 +143,43 @@ UPDATE `menus` SET `active` = 'no' WHERE `menus`.`id` = 'clin_CAN_69';
 /*
   INVENTORY MANAGEMENT  
 */ 
+
+#SQL View for collections
+INSERT INTO `structures` (
+`id`, `old_id`, `alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`)
+VALUES (NULL , 'CANM-00025', 'view_collection', '', '', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+SET @last_structure_id = LAST_INSERT_ID();
+
+INSERT INTO structure_fields (public_identifier,old_id,plugin,model,tablename,field,language_label,language_tag,type,setting,`default`,structure_value_domain,language_help,validation_control,value_domain_control,field_control,created,created_by,modified,modified_by)
+SELECT public_identifier, CONCAT(old_id, '-v'),plugin, 'ViewCollection',tablename,field,language_label,language_tag,type,setting,`default`,structure_value_domain,language_help,validation_control,value_domain_control,field_control,created,created_by,modified,modified_by 
+FROM structure_fields WHERE id IN(152, 155, 156,159, 160, 166, 333, 891);
+
+INSERT INTO `structure_formats` (`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`)
+SELECT CONCAT('CANM-00025_', structure_field_old_id, '-v'), @last_structure_id, 'CANM-00025', `structure_field_id`, CONCAT(`structure_field_old_id`, '-v'), `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`
+FROM structure_formats WHERE structure_id=31 AND (flag_search='1' OR flag_index='1' OR flag_detail='1');
+
+SET @last_id = LAST_INSERT_ID();
+
+UPDATE structure_formats
+INNER JOIN structure_fields ON structure_fields.old_id=structure_formats.structure_field_old_id
+SET structure_formats.structure_field_id=structure_fields.id
+WHERE structure_formats.id >= @last_id;
+
+CREATE VIEW view_collections AS 
+SELECT acquisition_label, bank_id, collection_site, collection_datetime, collection_datetime_accuracy, sop_master_id, collection_property, collection_notes, collections.deleted, collections.deleted_date,
+  participant_id, collection_id, diagnosis_master_id, consent_master_id, 
+  title, first_name, middle_name, last_name, date_of_birth, dob_date_accuracy, marital_status, language_preferred, sex, race, vital_status, notes, date_of_death, dod_date_accuracy, cod_icd10_code, secondary_cod_icd10_code, cod_confirmation_source, participant_identifier, last_chart_checked_date
+FROM collections
+LEFT JOIN clinical_collection_links AS ccl ON collections.id=ccl.collection_id AND ccl.deleted != 1
+LEFT JOIN participants ON ccl.participant_id=participants.id AND participants.deleted != 1;
+
+INSERT INTO `atim_new`.`structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`)
+VALUES (NULL , '', 'CANM-00026', 'Inventorymanagement', 'ViewCollection', '', 'participant_identifier', 'participant identifier', '', 'input', '', '', NULL , '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+SET @last_id = LAST_INSERT_ID();
+
+INSERT INTO `atim_new`.`structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`)
+VALUES (NULL , 'CANM-00025_CANM-00026', @last_structure_id, 'CANM-00025', @last_id, 'CANM-00026', '0', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+#end SQL view for collections
