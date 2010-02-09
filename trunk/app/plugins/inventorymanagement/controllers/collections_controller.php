@@ -3,13 +3,13 @@
 class CollectionsController extends InventorymanagementAppController {
 	
 	var $components = array(
-		'Inventorymanagement.Collections', 
-
+		'Inventorymanagement.Collections',
 		'Administrate.Administrates', 
 		'Sop.Sops');
 		
 	var $uses = array(
 		'Inventorymanagement.Collection',
+		'Inventorymanagement.ViewCollection',
 		'Inventorymanagement.SampleMaster',
 		'Inventorymanagement.SampleControl',
 		'Inventorymanagement.AliquotMaster',
@@ -34,8 +34,9 @@ class CollectionsController extends InventorymanagementAppController {
 		// Set list of banks
 		$this->set('banks', $this->Collections->getBankList());	
 		
-		// CUSTOM CODE: FORMAT DISPLAY DATA
+		$this->Structures->set('view_collection');
 		
+		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }			
 	}
@@ -43,13 +44,15 @@ class CollectionsController extends InventorymanagementAppController {
 	function search() {
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/collections/index'));
 		
-		if ($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions();
+		$view_collection = $this->Structures->get('form', 'view_collection');
+		$this->set('atim_structure', $view_collection);
+		if ($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions($view_collection);
 		
-		$this->set('collections_data', $this->paginate($this->Collection, $_SESSION['ctrapp_core']['search']['criteria']));
+		$this->set('collections_data', $this->paginate($this->ViewCollection, $_SESSION['ctrapp_core']['search']['criteria']));
 		$this->data = array();
 		
 		// if SEARCH form data, save number of RESULTS and URL
-		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['Collection']['count'];
+		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['ViewCollection']['count'];
 		$_SESSION['ctrapp_core']['search']['url'] = '/inventorymanagement/collections/search';
 		
 		// Set list of banks
@@ -66,10 +69,10 @@ class CollectionsController extends InventorymanagementAppController {
 		
 		// MANAGE DATA
 		
-		$collection_data = $this->Collection->find('first', array('conditions' => array('Collection.id' => $collection_id)));
+		$collection_data = $this->ViewCollection->find('first', array('conditions' => array('ViewCollection.collection_id' => $collection_id)));
 		if(empty($collection_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }
 		$this->data = $collection_data;
-				
+		
 		// Set list of banks
 		$this->set('banks', $this->Collections->getBankList());
 		
@@ -83,6 +86,7 @@ class CollectionsController extends InventorymanagementAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		$this->set('atim_menu_variables', array('Collection.id' => $collection_id));
+		$this->Structures->set('view_collection');
 
 		// Define if this detail form is displayed into the collection content tree view
 		$this->set('is_tree_view_detail_form', $is_tree_view_detail_form);

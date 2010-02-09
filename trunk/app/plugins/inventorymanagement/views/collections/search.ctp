@@ -6,7 +6,7 @@
 	$search_type_links['aliquots'] = '/inventorymanagement/aliquot_masters/index/';
 	
 	$structure_links = array(
-		'index' => array('detail' => '/inventorymanagement/collections/detail/%%Collection.id%%'),
+		'index' => array('detail' => '/inventorymanagement/collections/detail/%%ViewCollection.collection_id%%'),
 		'bottom' => array(
 			'add collection' => '/inventorymanagement/collections/add', 
 			'new search' => array(
