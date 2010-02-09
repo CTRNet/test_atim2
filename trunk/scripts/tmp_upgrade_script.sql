@@ -135,9 +135,10 @@ UPDATE `menus` SET `display_order` = '6' WHERE `menus`.`id` = 'clin_CAN_69';
 UPDATE `menus` SET `display_order` = '7' WHERE `menus`.`id` = 'clin_CAN_32';
 UPDATE `menus` SET `use_link` = '/clinicalannotation/event_masters/listall/clinical/%%Participant.id%%'  WHERE `menus`.`id` = 'clin_CAN_4';
 
--- Hidde Adverse Event Menu
+-- Hidde Adverse Events and Protocols Menus
 
 UPDATE `menus` SET `active` = 'no' WHERE `menus`.`id` = 'clin_CAN_32';
+UPDATE `menus` SET `active` = 'no' WHERE `menus`.`id` = 'clin_CAN_69';
 
 /*
   INVENTORY MANAGEMENT  
