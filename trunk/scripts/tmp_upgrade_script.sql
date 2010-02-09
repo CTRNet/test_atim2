@@ -5,6 +5,12 @@
   CLINCIAL ANNOTATION  
 */ 
 
+-- Language translations for the annotation summary tab. Need French translations added.
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('event_group', '', 'Annotation Group', ''),
+('event_type', '', 'Form Type', ''),
+('disease site form', '', 'Disease Site Form', '');
+
 -- Identifier tool upgrade
 
 DELETE FROM `misc_identifiers`;
