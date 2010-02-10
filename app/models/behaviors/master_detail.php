@@ -16,6 +16,7 @@ class MasterDetailBehavior extends ModelBehavior {
 			$master_foreign	= Inflector::singularize($model->table).'_id';
 			
 			$control_class		= $default_class.'Control';
+			$control_foreign	= str_replace('master','control',Inflector::singularize($model->table).'_id');
 			
 			$detail_class		= $default_class.'Detail';
 			$detail_tablename	= 'detail_tablename';
@@ -29,10 +30,11 @@ class MasterDetailBehavior extends ModelBehavior {
 				'master_foreign' 		=>	$master_foreign, 
 				
 				'control_class' 		=>	$control_class, 
+				'control_foreign' 	=>	$control_foreign, 
 				
 				'detail_class' 		=>	$detail_class, 
 				'detail_field' 		=>	$detail_tablename,
-				'form_alias'	=> $form_alias,
+				'form_alias'			=> $form_alias,
 				
 				'is_master_model'		=> $is_master_model,
 				'is_control_model'	=> $is_control_model
@@ -96,22 +98,35 @@ class MasterDetailBehavior extends ModelBehavior {
 		$valid = true;
 		
 		if ( $is_master_model ) {
-			// placeholder for automagic validation...
+			
+			$use_form_alias = NULL;
+			$use_table_name = NULL;
+			
+			// import STRUCTURE model, to get validation rules from
 			App::import('model', 'Structure');
 			$this->Component_Structure =& new Structure;
 			
-			$associated = $model->find(array($master_class.'.id' => $model->id), null, null, 1);
+			if ( isset($model->data[$master_class][$control_foreign]) && $model->data[$master_class][$control_foreign] ) {
+				// use CONTROL_ID to get control row
+				$associated = $model->$control_class->find('first',array($control_class.'.id' => $model->data[$master_class][$control_foreign]));
+			} else {
+				// else, if EDIT, use MODEL.ID to get row and find CONTROL_ID that way...
+				$associated = $model->find('first',array($master_class.'.id' => $model->id));
+			}
 			
-			if( isset($form_alias) && isset($associated[$control_class][$form_alias]) ){
+			$use_form_alias = $associated[$control_class][$form_alias];
+			$use_table_name = $associated[$control_class][$detail_field];
+			
+			if ( $use_form_alias ) {
 				
 				$result = $this->Component_Structure->find('rules',
 						array(
-							'conditions'	=>	array( 'Structure.alias' => $associated[$control_class][$form_alias] ), 
+							'conditions'	=>	array( 'Structure.alias' => $use_form_alias ), 
 							'recursive'		=>	5
 						)
 				);
 				foreach ( $result as $m=>$rules ){
-					$detail_class_instance = new AppModel( array('table'=>$associated[$control_class][$detail_field], 'name'=>$detail_class, 'alias'=>$detail_class) );
+					$detail_class_instance = new AppModel( array('table'=>$use_table_name, 'name'=>$detail_class, 'alias'=>$detail_class) );
 					$detail_class_instance->validate = $rules;
 					$detail_class_instance->set($model->data);
 					$valid_detail_class = $detail_class_instance->validates();
@@ -123,6 +138,7 @@ class MasterDetailBehavior extends ModelBehavior {
 					}
 				}
 			}
+			
 		}
 		
 		return $valid;
