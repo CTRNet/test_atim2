@@ -5,11 +5,24 @@
   CLINCIAL ANNOTATION  
 */ 
 
--- Language translations for the annotation summary tab. Need French translations added.
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('event_group', '', 'Annotation Group', ''),
 ('event_type', '', 'Form Type', ''),
+('mail', '', 'Mail', ''),
+('in person', '', 'In Person', ''),
+('surgery specific', '', 'Surgery Specific', ''),
 ('disease site form', '', 'Disease Site Form', '');
+
+-- Fixed field display for topography
+UPDATE `structure_formats` SET `flag_add` = '1',
+`flag_edit` = '1' WHERE `structure_formats`.`old_id` = 'CANM-00001_CAN-823';
+UPDATE `structure_formats` SET `flag_add` = '1',
+`flag_detail` = '1' WHERE `structure_formats`.`old_id` = 'CANM-00010_CAN-823';
+
+-- Improved order of fields on family history form
+UPDATE `structure_formats` SET `display_order` = '5' WHERE `structure_formats`.`old_id` = 'CAN-999-999-000-999-3_CAN-999-999-000-999-29';
+UPDATE `structure_formats` SET `display_order` = '4' WHERE `structure_formats`.`old_id` = 'CAN-999-999-000-999-3_CAN-999-999-000-999-30';
+UPDATE `structure_formats` SET `display_order` = '3' WHERE `structure_formats`.`old_id` = 'CAN-999-999-000-999-3_CAN-999-999-000-999-31';
 
 
 /*
