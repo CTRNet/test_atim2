@@ -106,3 +106,23 @@ INSERT INTO `parent_to_derivative_sample_controls` (`id` ,`parent_sample_control
 (NULL , '11', @last_id, 'active'),#cell culture
 (NULL , '8', @last_id, 'active');#pbmc
 #end cell lysate
+
+#clean up
+UPDATE structure_value_domains_permissible_values AS tu
+INNER JOIN (SELECT spv.id AS spv_id, doubles.id AS d_id, c FROM structure_permissible_values AS spv INNER JOIN
+(select *, count(*) AS c from structure_permissible_values group by value, language_alias HAVING c > 1) AS doubles ON spv.language_alias=doubles.language_alias AND spv.value=doubles.value) as m on tu.structure_permissible_value_id=m.spv_id
+SET tu.structure_permissible_value_id=m.d_id;
+
+CREATE TEMPORARY TABLE tmp_id(
+id int(11) unsigned not null
+);
+
+INSERT INTO tmp_id (SELECT spv.id FROM structure_permissible_values AS spv INNER JOIN
+(select *, count(*) AS c from structure_permissible_values group by value, language_alias HAVING c > 1) AS doubles ON spv.language_alias=doubles.language_alias AND spv.value=doubles.value WHERE spv.id!=doubles.id);
+
+DELETE FROM structure_permissible_values WHERE id IN
+(SELECT * FROM tmp_id);
+
+DROP TABLE tmp_id;
+
+ALTER TABLE structure_permissible_values ADD UNIQUE KEY(value, language_alias);
