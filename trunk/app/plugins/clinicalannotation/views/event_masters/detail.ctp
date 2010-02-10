@@ -23,8 +23,7 @@
 	if( $hook_link ) { require($hook_link); }
 	$structures->build( $final_atim_structure, $final_options );
 	
-	
-	echo('<table class="structure"><tr><td align="center"><img src="'.$this->data['EventDetail']['file_path'].'" alt="test"/></td></tr></table>');
+//	echo('<table class="structure"><tr><td align="center"><img src="'.$this->data['EventDetail']['file_path'].'" alt="test"/></td></tr></table>');
 	
 	$final_atim_structure = $atim_structure;
 	$final_options = array('links'=>$structure_links);

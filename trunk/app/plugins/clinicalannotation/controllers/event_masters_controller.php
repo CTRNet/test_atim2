@@ -107,11 +107,12 @@ class EventMastersController extends ClinicalannotationAppController {
 			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			$hook_link = $this->hook('presave_process');
 			if( $hook_link ) { require($hook_link); }
+			
 			if ($submitted_data_validates && $this->EventMaster->save($this->data) ) {
-				if($this->data['EventDetail']['file_name']['error'] == 0){
+				if($this->data['EventDetail']['file_name']['error'] == 0) {
 					$this->data['EventMaster']['id'] = $this->EventMaster->getLastInsertID();
-					$this->data['EventDetail']['file_path'] = $this->data['EventMaster']['id'].'.'.end(explode(".", $this->data['EventDetail']['file_name']['name']));  
-					move_uploaded_file($this->data['EventDetail']['file_name']['tmp_name'], getcwd().'/uploaded_files/'.$this->data['EventDetail']['file_path']);
+				//	$this->data['EventDetail']['file_path'] = $this->data['EventMaster']['id'].'.'.end(explode(".", $this->data['EventDetail']['file_name']['name']));  
+				//	move_uploaded_file($this->data['EventDetail']['file_name']['tmp_name'], getcwd().'/uploaded_files/'.$this->data['EventDetail']['file_path']);
 					$this->EventMaster->save($this->data);
 				}
 				$this->flash( 'Your data has been updated.','/clinicalannotation/event_masters/detail/'.$event_group.'/'.$participant_id.'/'.$this->EventMaster->getLastInsertId());
