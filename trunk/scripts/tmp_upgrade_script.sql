@@ -5,14 +5,39 @@
   CLINCIAL ANNOTATION  
 */ 
 
-INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
-('event_group', '', 'Annotation Group', ''),
-('event_type', '', 'Form Type', ''),
-('mail', '', 'Mail', ''),
-('in person', '', 'In Person', ''),
-('surgery specific', '', 'Surgery Specific', ''),
-('disease site form', '', 'Disease Site Form', '');
+DELETE FROM `i18n`
+WHERE `id` IN ('event_group','event_type','mail','in person',
+'surgery specific','disease site form', 'annotation', 'event_group',
+'event_form_type','summary','clinical','lab', 'lifestyle','clin_study','screening', 
+'treatment', 'filter', 'reproductive history', 'link to collection',
+'diagnostic' ,'reproductive history','contact', 'diagnosis');
 
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('event_type', '', 'Form Type', 'Type de formulaire'),
+('mail', '', 'Mail', 'Courriel'),
+('in person', '', 'In Person', 'En personne'),
+('annotation', '', 'Annotation', 'Annotation'),
+('event_group', '', 'Annotation Group', 'Groupe d''annotation'),
+('event_form_type', '', 'Form Type', 'Type de formulaire'),
+('summary', '', 'Summary', 'R&eacute;sum&eacute;'),
+
+('clinical', 'global', 'Clinical', 'Clinique'),
+('clin_study', 'global', 'Study', '&Eacute;tude'),
+('disease site form', '', 'Disease Site Form', ''),
+('lab', 'global', 'Lab', 'Lab'),
+('lifestyle', 'global', 'Lifestyle', 'Habitude de vie'),
+('screening', 'global', 'Screening', 'D&eacute;pistage'),
+('surgery specific', '', 'Surgery Specific', ''),
+('filter', 'global', 'Filter', 'Filtre'),
+('treatment', '', 'treatment', 'traitement'),
+
+('link to collection', '', 'Participant Collection', 'Collection du participant'), 
+('diagnosis' ,'', 'Diagnostic', 'Diagnostique'),
+('diagnostic' ,'', 'Diagnostic', 'Diagnostique'),
+('reproductive history', '', 'Reproductive History', 'Gyn&eacute;cologie'),
+('contact', '', 'Contact', 'Contact');
+
+ 	 
 -- Fixed field display for topography
 UPDATE `structure_formats` SET `flag_add` = '1',
 `flag_edit` = '1' WHERE `structure_formats`.`old_id` = 'CANM-00001_CAN-823';
@@ -26,9 +51,25 @@ UPDATE `structure_formats` SET `display_order` = '3' WHERE `structure_formats`.`
 
 -- Manage event language label
 
-UPDATE `structure_fields` SET `language_label` = 'event_type' WHERE `old_id` = 'CAN-999-999-000-999-228';
+UPDATE `structure_fields` SET `language_label` = 'event_form_type' WHERE `old_id` = 'CAN-999-999-000-999-227';
+UPDATE `structure_fields` SET `language_label` = '', `language_tag` = '-' WHERE `old_id` = 'CAN-999-999-000-999-228';
 
+-- Manage event type and site display
 
+UPDATE `structure_formats`
+SET `language_heading` = null,
+`flag_add` = '0',
+`flag_add_readonly` = '0',
+`flag_edit` = '0',
+`flag_edit_readonly` = '0',
+`flag_search` = '0',
+`flag_search_readonly` = '0',
+`flag_datagrid` = '0',
+`flag_datagrid_readonly` = '0',
+`flag_index` = '1',
+`flag_detail` = '0'
+WHERE `structure_field_old_id` IN ('CAN-999-999-000-999-227', 'CAN-999-999-000-999-228')
+AND `structure_old_id` NOT LIKE 'QRY%';
 
 /*
   INVENTORY MANAGEMENT  
