@@ -37,7 +37,7 @@
 	
 	$structure_settings = array(
 		'form_top'=>false,
-		'header' => __($atim_menu_variables['EventControl.event_group'], null), 
+		'header' => __($atim_menu_variables['EventMaster.event_group'], null), 
 		'separator' => true
 	);
 
