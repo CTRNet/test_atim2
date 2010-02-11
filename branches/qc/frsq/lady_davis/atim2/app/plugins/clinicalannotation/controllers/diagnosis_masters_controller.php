@@ -14,7 +14,7 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 	);
 	var $paginate = array('DiagnosisMaster'=>array('limit'=>10,'order'=>'DiagnosisMaster.dx_date')); 
 	
-	function listall( $participant_id=null ) {
+	function listall( $participant_id ) {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
 		
 		// MANAGE DATA
@@ -27,7 +27,7 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id));
 		$this->set('diagnosis_controls_list', $this->DiagnosisControl->find('all', array('conditions' => array('DiagnosisControl.status' => 'active'))));
 		
-		foreach($this->data as &$dx){
+		foreach($this->data as &$dx) {
 			$dx['DiagnosisMaster']['primary_icd10_code'] .= " - ".$this->CodingIcd10->getDescription($dx['DiagnosisMaster']['primary_icd10_code']);
 		}
 
@@ -141,7 +141,7 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 	
 		// MANAGE DATA
 		$diagnosis_master_data = $this->DiagnosisMaster->find('first',array('conditions'=>array('DiagnosisMaster.id'=>$diagnosis_master_id, 'DiagnosisMaster.participant_id'=>$participant_id)));
-		if(empty($diagnosis_master_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
+		if (empty($diagnosis_master_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
 
 		$arr_allow_deletion = $this->allowDiagnosisDeletion($diagnosis_master_id);
 		
@@ -149,7 +149,7 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		$hook_link = $this->hook('delete');
 		if( $hook_link ) { require($hook_link); }
 		
-		if($arr_allow_deletion['allow_deletion']) {
+		if ($arr_allow_deletion['allow_deletion']) {
 			if( $this->DiagnosisMaster->atim_delete( $diagnosis_master_id ) ) {
 				$this->flash( 'your data has been deleted', '/clinicalannotation/diagnosis_masters/listall/'.$participant_id );
 			} else {
@@ -181,19 +181,19 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		$arr_allow_deletion = array('allow_deletion' => true, 'msg' => '');
 		
 		// Check for existing records linked to the participant. If found, set error message and deny delete
-		$nbr_linked_collection = $this->ClinicalCollectionLink->find('count', array('conditions' => array('ClinicalCollectionLink.diagnosis_master_id' => $participant_id, 'ClinicalCollectionLink.deleted'=>0), 'recursive' => '-1'));
+		$nbr_linked_collection = $this->ClinicalCollectionLink->find('count', array('conditions' => array('ClinicalCollectionLink.diagnosis_master_id' => $diagnosis_master_id, 'ClinicalCollectionLink.deleted'=>0), 'recursive' => '-1'));
 		if ($nbr_linked_collection > 0) {
 			$arr_allow_deletion['allow_deletion'] = false;
 			$arr_allow_deletion['msg'] = 'error_fk_diagnosis_linked_collection';
 		}
 		
-		$nbr_events = $this->EventMaster->find('count', array('conditions'=>array('EventMaster.participant_id'=>$participant_id, 'EventMaster.deleted'=>0), 'recursive' => '-1'));
+		$nbr_events = $this->EventMaster->find('count', array('conditions'=>array('EventMaster.diagnosis_master_id'=>$diagnosis_master_id, 'EventMaster.deleted'=>0), 'recursive' => '-1'));
 		if ($nbr_events > 0) {
 			$arr_allow_deletion['allow_deletion'] = false;
 			$arr_allow_deletion['msg'] = 'error_fk_diagnosis_linked_events';
 		}
 
-		$nbr_treatment = $this->TreatmentMaster->find('count', array('conditions'=>array('TreatmentMaster.participant_id'=>$participant_id, 'TreatmentMaster.deleted'=>0), 'recursive' => '-1'));
+		$nbr_treatment = $this->TreatmentMaster->find('count', array('conditions'=>array('TreatmentMaster.diagnosis_master_id'=>$diagnosis_master_id, 'TreatmentMaster.deleted'=>0), 'recursive' => '-1'));
 		if ($nbr_treatment > 0) {
 			$arr_allow_deletion['allow_deletion'] = false;
 			$arr_allow_deletion['msg'] = 'error_fk_diagnosis_linked_treatment';

@@ -11,13 +11,13 @@ class EventControl extends ClinicalannotationAppModel {
 			
 			$return = array(
 				'Summary' => array(
-					'menu'			=>	array( NULL, $result['EventControl']['disease_site'].' - '.$result['EventControl']['event_type'] ),
-					'title'			=>	array( NULL, 'Annotation' ),
+					'menu'			=>	array( NULL, __($result['EventControl']['disease_site'], TRUE).' - '.__($result['EventControl']['event_type'], TRUE) ),
+					'title'			=>	array( NULL, __('annotation', TRUE) ),
 					
 					'description'	=>	array(
-						'disease_site'	=>	$result['EventControl']['disease_site'],
-						'event_group'	=>	$result['EventControl']['event_group'],
-						'event_type'	=>	$result['EventControl']['event_type']
+						__('event_group', TRUE)		=>	__($result['EventControl']['event_group'], TRUE),
+						__('disease_site', TRUE)	=>	__($result['EventControl']['disease_site'], TRUE),
+						__('event_type', TRUE)		=>	__($result['EventControl']['event_type'], TRUE)
 					)
 				)
 			);

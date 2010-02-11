@@ -413,6 +413,10 @@ class ShellHelper extends Helper {
 		
 		if ( $summary ) {
 		
+			// get StructureField model, to swap out permissible values if needed
+				App::import('Model','StructureField');
+				$structure_fields_model = new StructureField;
+			
 			list($model,$function) = split('::',$summary);
 			
 			if ( !$function ) $function = 'summary';
@@ -420,10 +424,10 @@ class ShellHelper extends Helper {
 			if ( $model && App::import('Model',$model) ) {
 				
 				// if model name is PLUGIN.MODEL string, need to split and drop PLUGIN name after import but before NEW
+				$plugin = NULL;
 				if ( strpos($model,'.')!==false ) {
 					$plugin_model_name = $model;
-					$plugin_model_name = explode('.',$plugin_model_name);
-					$model = $plugin_model_name[1];
+					list($plugin,$model) = explode('.',$plugin_model_name);
 				}
 				
 				$summary_model = new $model;
@@ -453,9 +457,13 @@ class ShellHelper extends Helper {
 							
 							if ( isset($summary_result['Summary']['description']) && is_array($summary_result['Summary']['description']) ) {
 								foreach ( $summary_result['Summary']['description'] as $k=>$v ) {
+									
+									// if provided VALUE is an array, it should be a select-option that needs to be looked up and translated...
+									if (is_array($v)) $v = $structure_fields_model->findPermissibleValue($plugin,$model,$v);
+									
 									$formatted_summary .= '
 											<dt>'.__($k,true).'</dt>
-											<dd>'.$v.'</dd>
+											<dd>'.( $v ? $v : '-' ).'</dd>
 									';
 								}
 							}

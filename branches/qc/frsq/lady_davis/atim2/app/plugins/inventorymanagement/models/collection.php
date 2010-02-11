@@ -26,6 +26,7 @@ class Collection extends InventorymanagementAppModel {
 					'title' => array(null, $collection_data['Collection']['acquisition_label']),
 					
 					'description'=> array(
+						__('participant identifier', true) => $collection_data['Bank']['name'],
 						__('collection bank', true) => $collection_data['Bank']['name'],
 						__('collection datetime', true) => $collection_data['Collection']['collection_datetime'],
 						__('collection site', true) => $collection_data['Collection']['collection_site']

@@ -66,17 +66,17 @@ class AliquotsComponent extends Object {
 			// A value has been set for the intial volume		
 			if((!is_numeric($initial_volume)) || ($initial_volume < 0))  { $this->controller->redirect('/pages/err_inv_system_error', null, true); }
 					
-			$new_current_volume = $initial_volume;
-			
+			$total_used_volume = 0;
 			foreach($aliquot_data['AliquotUse'] as $id => $aliquot_use){
 				$used_volume = $aliquot_use['used_volume'];
 				if(!empty($used_volume)){
 					// Take used volume in consideration only when this one is not empty
 					if((!is_numeric($used_volume)) || ($used_volume < 0))  { $this->controller->redirect('/pages/err_inv_system_error', null, true); }
-					$new_current_volume= bcsub($new_current_volume, $used_volume, 5);
+					$total_used_volume += $used_volume;
 				}
 
 			}
+			$new_current_volume = round(($initial_volume - $total_used_volume), 5);
 			$new_current_volume = ($new_current_volume <= 0)? 0: $new_current_volume;
 
 			if($new_current_volume === $current_volume) {
