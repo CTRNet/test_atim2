@@ -21,7 +21,7 @@
 	foreach($banks as $new_bank) {
 		$bank_list[$new_bank['Bank']['id']] = $new_bank['Bank']['name'];
 	}
-	$structure_override['Collection.bank_id'] = $bank_list;
+	$structure_override['ViewCollection.bank_id'] = $bank_list;
 	
 	$final_atim_structure = $atim_structure;
 	$final_options = array('type' => 'index', 'data' => $collections_data, 'links' => $structure_links, 'override' => $structure_override, 'settings' => array('header' => __('search type', null).': '.__('collections', null)));

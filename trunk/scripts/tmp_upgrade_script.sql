@@ -57,20 +57,55 @@ SET structure_formats.structure_field_id=structure_fields.id
 WHERE structure_formats.id >= @last_id;
 
 UPDATE structure_formats
-SET 
-WHERE old_id = '';
+SET display_order = '1'
+WHERE old_id = 'CANM-00025_CANM-00026';
 
-CANM-00025_CANM-00026 1
-	CANM-00025_CAN-999-999-000-999-1000-v 0
+UPDATE structure_formats
+SET display_order = '0'
+WHERE old_id = 'CANM-00025_CAN-999-999-000-999-1000-v'; 
 
 DROP VIEW view_collections;
 CREATE VIEW view_collections AS 
-SELECT acquisition_label, bank_id, collection_site, collection_datetime, collection_datetime_accuracy, sop_master_id, collection_property, collection_notes, collections.deleted, collections.deleted_date,
-  participant_id, collection_id, diagnosis_master_id, consent_master_id, 
-  title, first_name, middle_name, last_name, date_of_birth, dob_date_accuracy, marital_status, language_preferred, sex, race, vital_status, notes, date_of_death, dod_date_accuracy, cod_icd10_code, secondary_cod_icd10_code, cod_confirmation_source, participant_identifier, last_chart_checked_date
+SELECT 
+collection_id, 
+bank_id, 
+sop_master_id, 
+participant_id, 
+diagnosis_master_id, 
+consent_master_id, 
+
+acquisition_label, 
+collection_site, 
+collection_datetime, 
+collection_datetime_accuracy, 
+collection_property, 
+collection_notes, 
+collections.deleted, 
+collections.deleted_date,
+
+first_name, 
+middle_name, 
+last_name, 
+date_of_birth, 
+sex, 
+vital_status, 
+date_of_death, 
+cod_icd10_code, 
+participant_identifier, 
+
+banks.name AS bank_name,
+
+sops.title AS sop_title, 	
+sops.code AS sop_code, 	
+sops.version AS sop_version, 		
+sop_group,
+sops.type 	
+
 FROM collections
 LEFT JOIN clinical_collection_links AS ccl ON collections.id=ccl.collection_id AND ccl.deleted != 1
-LEFT JOIN participants ON ccl.participant_id=participants.id AND participants.deleted != 1;
+LEFT JOIN participants ON ccl.participant_id=participants.id AND participants.deleted != 1
+LEFT JOIN banks ON collections.bank_id=banks.id AND banks.deleted != 1
+LEFT JOIN sop_masters AS sops ON collections.sop_master_id=sops.id AND sops.deleted != 1;
 
 INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`)
 VALUES (NULL , '', 'CANM-00026', 'Inventorymanagement', 'ViewCollection', '', 'participant_identifier', 'participant identifier', '', 'input', '', '', NULL , '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
@@ -79,6 +114,10 @@ SET @last_id = LAST_INSERT_ID();
 
 INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`)
 VALUES (NULL , 'CANM-00025_CANM-00026', @last_structure_id, 'CANM-00025', @last_id, 'CANM-00026', '0', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+UPDATE `menus`
+SET `use_summary` = 'Inventorymanagement.ViewCollection::summary'
+WHERE `use_summary` LIKE 'Inventorymanagement.Collection::summary';
 
 #end SQL view for collections
 
