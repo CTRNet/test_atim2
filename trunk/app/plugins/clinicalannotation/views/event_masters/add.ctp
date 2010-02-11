@@ -1,5 +1,7 @@
 <?php 
 
+	// 1- DIAGNOSTICS
+	
 	$structure_settings = array(
 		'form_bottom'=>false, 
 		'form_inputs'=>false,
@@ -30,8 +32,12 @@
 	<?php
 	$structures->build( $final_atim_structure , $final_options);
 	
+	// 2- EVENT DATA
+	
 	$structure_settings = array(
-		'form_top' => false);
+		'form_top' => false,
+		'header' => __($atim_menu_variables['EventControl.event_group'], null), 
+		'separator' => true);
 
 	$structure_links = array(
 		'top'=>'/clinicalannotation/event_masters/add/'.$atim_menu_variables['EventControl.event_group'].'/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['EventControl.id'].'/',
