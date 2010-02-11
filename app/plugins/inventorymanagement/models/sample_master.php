@@ -52,7 +52,7 @@ class SampleMaster extends InventorymanagementAppModel {
 			// Set summary	 	
 	 		$return = array(
 				'Summary' => array(
-					'menu' => array('sample', __($specimen_data['SampleMaster']['sample_type'], true) . ' : ' . $specimen_data['SampleMaster']['sample_code'] . $filter_data),
+					'menu' => array(null, __($specimen_data['SampleMaster']['sample_type'], true) . ' : ' . $specimen_data['SampleMaster']['sample_code'] . $filter_data),
 					'title' => array(null, __($specimen_data['SampleMaster']['sample_type'], true) . ' : ' . $specimen_data['SampleMaster']['sample_code']),
 
 					'description' => array(
