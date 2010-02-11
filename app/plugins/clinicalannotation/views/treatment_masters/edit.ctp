@@ -1,4 +1,6 @@
 <?php 
+	// 1- DIAGNOSTICS
+	
 	// Setup diagnosis radio-button pick list for linking treatment to a diagnosis
 	$structure_settings = array(
 		'form_bottom'=>false, 
@@ -31,7 +33,14 @@
 	unset($final_options['settings']['header']);
 	$structures->build( $final_atim_structure, $final_options );
 	
-	
+	// 2- TRT DATA
+
+	$structure_settings = array(
+		'form_top'=>false,
+		'header' => __('treatment', null), 
+		'separator' => true
+	);
+		
 	// Setup treatment add form and links for display
 	$structure_links = array(
 		'top'=>'/clinicalannotation/treatment_masters/edit/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id'],
@@ -42,7 +51,7 @@
 	
 	$structure_override = array('TreatmentMaster.protocol_id'=>$protocol_list);
 	
-	$final_options = array('links'=>$structure_links,'override'=>$structure_override);
+	$final_options = array('links'=>$structure_links,'settings'=>$structure_settings,'override'=>$structure_override);
 	$final_atim_structure = $atim_structure; 
 	$hook_link = $structures->hook();
 	if( $hook_link ) { require($hook_link); }
