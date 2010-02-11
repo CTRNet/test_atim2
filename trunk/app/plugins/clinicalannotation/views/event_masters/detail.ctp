@@ -33,7 +33,7 @@
 	// 2- EVENT DATA
 	
 	$structure_settings = array(
-		'header' => __($atim_menu_variables['EventControl.event_group'], null), 
+		'header' => __($atim_menu_variables['EventMaster.event_group'], null), 
 		'separator' => true);
 		
 	$final_atim_structure = $atim_structure;
