@@ -56,6 +56,13 @@ INNER JOIN structure_fields ON structure_fields.old_id=structure_formats.structu
 SET structure_formats.structure_field_id=structure_fields.id
 WHERE structure_formats.id >= @last_id;
 
+UPDATE structure_formats
+SET 
+WHERE old_id = '';
+
+CANM-00025_CANM-00026 1
+	CANM-00025_CAN-999-999-000-999-1000-v 0
+
 DROP VIEW view_collections;
 CREATE VIEW view_collections AS 
 SELECT acquisition_label, bank_id, collection_site, collection_datetime, collection_datetime_accuracy, sop_master_id, collection_property, collection_notes, collections.deleted, collections.deleted_date,
