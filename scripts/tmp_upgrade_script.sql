@@ -24,6 +24,11 @@ UPDATE `structure_formats` SET `display_order` = '5' WHERE `structure_formats`.`
 UPDATE `structure_formats` SET `display_order` = '4' WHERE `structure_formats`.`old_id` = 'CAN-999-999-000-999-3_CAN-999-999-000-999-30';
 UPDATE `structure_formats` SET `display_order` = '3' WHERE `structure_formats`.`old_id` = 'CAN-999-999-000-999-3_CAN-999-999-000-999-31';
 
+-- Manage event language label
+
+UPDATE `structure_fields` SET `language_label` = 'event_type' WHERE `old_id` = 'CAN-999-999-000-999-228';
+
+
 
 /*
   INVENTORY MANAGEMENT  
@@ -51,6 +56,7 @@ INNER JOIN structure_fields ON structure_fields.old_id=structure_formats.structu
 SET structure_formats.structure_field_id=structure_fields.id
 WHERE structure_formats.id >= @last_id;
 
+DROP VIEW view_collections;
 CREATE VIEW view_collections AS 
 SELECT acquisition_label, bank_id, collection_site, collection_datetime, collection_datetime_accuracy, sop_master_id, collection_property, collection_notes, collections.deleted, collections.deleted_date,
   participant_id, collection_id, diagnosis_master_id, consent_master_id, 
@@ -70,6 +76,7 @@ VALUES (NULL , 'CANM-00025_CANM-00026', @last_structure_id, 'CANM-00025', @last_
 #end SQL view for collections
 
 #cell lysate
+DROP TABLE `sd_der_cell_lysates`;
 CREATE TABLE `sd_der_cell_lysates` (
   `id` int(11) NOT NULL auto_increment,
   `sample_master_id` int(11) default NULL,
@@ -82,6 +89,7 @@ CREATE TABLE `sd_der_cell_lysates` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
+DROP TABLE `sd_der_cell_lysates_revs`;
 CREATE TABLE `sd_der_cell_lysates_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) default NULL,
