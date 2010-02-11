@@ -9,7 +9,7 @@
 	?>
 	
 	<title><?php echo $title.' &laquo; '.__('core_appname', true); ?></title>
-	
+	<link rel="shortcut icon" href="<?php echo($this->webroot); ?>/img/favicon.ico"/>
 	<?php 
 		echo $html->css('style')."\n"; 
 		echo $html->css('datepicker')."\n";

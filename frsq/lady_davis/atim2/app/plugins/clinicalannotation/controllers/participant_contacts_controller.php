@@ -121,7 +121,7 @@ class ParticipantContactsController extends ClinicalannotationAppController {
 				$this->flash( 'error deleting data - contact administrator', '/clinicalannotation/participant_contacts/listall/'.$participant_id );
 			}
 		} else {
-			$this->flash($arr_allow_deletion['msg'], '/clinicalannotation/participant_messages/detail/'.$participant_id.'/'.$misc_identifier_id);
+			$this->flash($arr_allow_deletion['msg'], '/clinicalannotation/participant_contacts/detail/'.$participant_id.'/'.$participant_contact_id);
 		}
 	}
 	
