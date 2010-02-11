@@ -29,7 +29,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('screening', 'global', 'Screening', 'D&eacute;pistage'),
 ('surgery specific', '', 'Surgery Specific', ''),
 ('filter', 'global', 'Filter', 'Filtre'),
-('treatment', '', 'treatment', 'traitement'),
+('treatment', '', 'Treatment', 'traitement'),
 
 ('link to collection', '', 'Participant Collection', 'Collection du participant'), 
 ('diagnosis' ,'', 'Diagnostic', 'Diagnostique'),
@@ -97,15 +97,6 @@ INNER JOIN structure_fields ON structure_fields.old_id=structure_formats.structu
 SET structure_formats.structure_field_id=structure_fields.id
 WHERE structure_formats.id >= @last_id;
 
-UPDATE structure_formats
-SET display_order = '1'
-WHERE old_id = 'CANM-00025_CANM-00026';
-
-UPDATE structure_formats
-SET display_order = '0'
-WHERE old_id = 'CANM-00025_CAN-999-999-000-999-1000-v'; 
-
-DROP VIEW view_collections;
 CREATE VIEW view_collections AS 
 SELECT 
 collection_id, 
@@ -152,10 +143,18 @@ UPDATE `menus`
 SET `use_summary` = 'Inventorymanagement.ViewCollection::summary'
 WHERE `use_summary` LIKE 'Inventorymanagement.Collection::summary';
 
+UPDATE structure_formats
+SET display_order = '1'
+WHERE old_id = 'CANM-00025_CANM-00026';
+
+UPDATE structure_formats
+SET display_order = '0'
+WHERE old_id = 'CANM-00025_CAN-999-999-000-999-1000-v'; 
+
 #end SQL view for collections
 
 #cell lysate
-DROP TABLE `sd_der_cell_lysates`;
+
 CREATE TABLE `sd_der_cell_lysates` (
   `id` int(11) NOT NULL auto_increment,
   `sample_master_id` int(11) default NULL,
@@ -168,7 +167,6 @@ CREATE TABLE `sd_der_cell_lysates` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
-DROP TABLE `sd_der_cell_lysates_revs`;
 CREATE TABLE `sd_der_cell_lysates_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) default NULL,
