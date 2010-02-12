@@ -217,6 +217,117 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 --
 -- --------------------------------------------------------------------------------------------------------------------------
 
+/*
+  STRUCTURE TABLES  
+*/ 
+
+-- DELETE DUPLICATED structurest.old_id
+
+UPDATE `structures`
+SET `old_id` = CONCAT('GENERATED-',id),
+`modified_by` = 'NL',
+`modified` = '20100212'
+WHERE `old_id` IN (
+  SELECT res.old_id
+  FROM (SELECT count( * ) AS nbr, old_id FROM `structures` GROUP BY old_id) AS res 
+  WHERE res.nbr >1
+);
+
+ALTER TABLE `structures` 
+CHANGE `old_id` `old_id` VARCHAR( 255 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
+
+ALTER TABLE `structures` ADD UNIQUE (`old_id`);
+
+-- DELETE DUPLICATED structure_fieldst.old_id
+
+UPDATE `structure_fields`
+SET `old_id` = CONCAT('GENERATED-',id),
+`modified_by` = 'NL',
+`modified` = '20100212'
+WHERE `old_id` IN (
+  SELECT res.old_id
+  FROM (SELECT count( * ) AS nbr, old_id FROM `structure_fields` GROUP BY old_id) AS res 
+  WHERE res.nbr >1
+);
+
+ALTER TABLE `structure_fields` ADD UNIQUE (`old_id`);
+
+-- DELETE DUPLICATED structure_fieldst.old_id
+
+UPDATE structure_formats AS st_fo
+INNER JOIN structures AS st ON st_fo.structure_id = st.id
+INNER JOIN structure_fields AS st_fi ON st_fo.structure_field_id = st_fi.id
+SET st_fo.old_id = CONCAT(st.old_id, '_', st_fi.old_id), 
+st_fo.structure_old_id = st.old_id, 
+st_fo.structure_field_old_id=st_fi.old_id,
+st_fo.modified_by = 'NL',
+st_fo.modified = '20100212';
+
+UPDATE `structure_formats`
+SET `old_id` =  CONCAT(CONCAT(old_id,'_'),id),
+`modified_by` = 'NL',
+`modified` = '20100212'
+WHERE `old_id` IN (
+  SELECT res.old_id
+  FROM (SELECT count( * ) AS nbr, old_id FROM `structure_formats` GROUP BY old_id) AS res 
+  WHERE res.nbr >1
+);
+
+ALTER TABLE `structure_formats` ADD UNIQUE (`old_id`);
+
+ALTER TABLE `structure_formats` 
+CHANGE `structure_id` `structure_id` INT( 11 ) NOT NULL ,
+CHANGE `structure_field_id` `structure_field_id` INT( 11 ) NOT NULL;
+
+-- DELETE DUPLICATED structure_validations.old_id
+
+UPDATE structure_validations AS sv
+INNER JOIN structure_fields AS st_fi ON sv.structure_field_id = st_fi.id
+SET sv.old_id = CONCAT('GENERATED-', sv.id),
+sv.structure_field_old_id = st_fi.old_id,
+sv.modified_by = 'NL',
+sv.modified = '20100212';
+
+-- ADD STRUCTURE TABLES FK
+
+DELETE FROM structure_validations WHERE structure_field_id NOT IN (SELECT id FROM structure_fields);
+DELETE FROM structure_formats WHERE structure_field_id NOT IN (SELECT id FROM structure_fields);
+DELETE FROM structure_formats WHERE structure_id NOT IN (SELECT id FROM structures);
+
+ALTER TABLE `structure_validations`
+  ADD CONSTRAINT `FK_structure_validations_structure_fields`
+  FOREIGN KEY (`structure_field_id`) REFERENCES `structure_fields` (`id`);
+  
+ALTER TABLE `structure_formats`
+  ADD CONSTRAINT `FK_structure_formats_structures`
+  FOREIGN KEY (`structure_id`) REFERENCES `structures` (`id`); 
+  
+ALTER TABLE `structure_formats`
+  ADD CONSTRAINT `FK_structure_formats_structure_fields`
+  FOREIGN KEY (`structure_field_id`) REFERENCES `structure_fields` (`id`); 
+
+UPDATE structure_fields
+SET structure_value_domain = NULL
+WHERE structure_value_domain = '0';
+
+ALTER TABLE `structure_fields`
+  ADD CONSTRAINT `FK_structure_fields_structure_value_domains`
+  FOREIGN KEY (`structure_value_domain`) REFERENCES `structure_value_domains` (`id`); 
+  
+ALTER TABLE `structure_validations` 
+CHANGE `old_id` `old_id` VARCHAR( 255 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL ,
+CHANGE `structure_field_id` `structure_field_id` INT( 11 ) NOT NULL ,
+CHANGE `structure_field_old_id` `structure_field_old_id` VARCHAR( 255 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL ;
+
+ALTER TABLE `structures` 
+CHANGE `alias` `alias` VARCHAR( 255 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL ;
+
+ALTER TABLE `structure_validations` ADD UNIQUE (`old_id`);
+
+-- DROP structure_options
+
+DROP TABLE `structure_options`;
+
 -- Add any new SQL changes to this file which will then be merged with the master
 -- upgrade scripts for v2.0.1
 
