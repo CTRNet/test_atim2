@@ -541,3 +541,56 @@ DELETE FROM structure_permissible_values WHERE id IN
 DROP TABLE tmp_id;
 
 ALTER TABLE structure_permissible_values ADD UNIQUE KEY(value, language_alias);
+
+#yes no for checkboxes
+INSERT INTO structure_permissible_values(value, language_alias) VALUES
+('0', 'no'),
+('1', 'yes');
+
+SET @last_id = LAST_INSERT_ID();
+
+INSERT INTO structure_value_domains(domain_name) VALUES('yes_no_checkbox');
+
+SET @last_structure_id = LAST_INSERT_ID();
+
+INSERT INTO structure_value_domains_permissible_values(structure_value_domain_id, structure_permissible_value_id) VALUES
+(@last_structure_id, @last_id),
+(@last_structure_id, @last_id + 1);
+
+#repair accentuated chars
+UPDATE `i18n` SET fr='Août' WHERE id='aug';
+UPDATE `i18n` SET fr='Déc' WHERE id='dec';
+UPDATE `i18n` SET fr='Décembre' WHERE id='December';
+UPDATE `i18n` SET fr='Fév' WHERE id='feb';
+UPDATE `i18n` SET fr='Février' WHERE id='February';
+UPDATE `i18n` SET fr='Cliquez pour supprimer ces éléments' WHERE id='click to remove these elements';
+UPDATE `i18n` SET fr='Reçu par' WHERE id='Received By';
+UPDATE `i18n` SET fr='Date et heure de Réception' WHERE id='Received DateTime';
+
+#structure_value_domains cleanup
+UPDATE structure_fields SET structure_value_domain=6 WHERE structure_value_domain IN(4, 7, 8);
+UPDATE structure_fields SET structure_value_domain=32 WHERE structure_value_domain=60;
+UPDATE structure_fields SET structure_value_domain=101 WHERE structure_value_domain=162;
+UPDATE structure_fields SET structure_value_domain=42 WHERE structure_value_domain=41;
+UPDATE structure_fields SET structure_value_domain=36 WHERE structure_value_domain IN(161, 165);
+UPDATE structure_fields SET structure_value_domain=130 WHERE structure_value_domain IN(137, 138);
+UPDATE structure_fields SET structure_value_domain=77 WHERE structure_value_domain IN(148, 149, 151);
+UPDATE structure_fields SET structure_value_domain=69 WHERE structure_value_domain IN(71, 73, 74);
+UPDATE structure_fields SET structure_value_domain=70 WHERE structure_value_domain=72;
+UPDATE structure_fields SET structure_value_domain=22 WHERE structure_value_domain IN(25, 26, 28, 29, 31, 46, 51, 120, 133, 136, 142, 158, 168);
+UPDATE structure_fields SET structure_value_domain=64 WHERE structure_value_domain IN(65, 66, 67, 68);
+UPDATE structure_fields SET structure_value_domain=76 WHERE structure_value_domain=167; 
+DELETE FROM structure_value_domains WHERE id IN(4, 7, 8, 9, 10, 11, 17, 41, 60, 71, 72, 73, 74, 162, 137, 138, 148, 149, 151, 25, 26, 28, 29, 31, 46, 51, 120, 133, 136, 142, 158, 168, 65, 66, 67, 68, 161, 165, 167);
+UPDATE structure_value_domains SET domain_name='disease site 1' WHERE id=80;
+UPDATE structure_value_domains SET domain_name='disease site 2' WHERE id=101;
+UPDATE structure_value_domains SET domain_name='disease site 3' WHERE id=152;
+UPDATE structure_value_domains SET domain_name='method 1' WHERE id=100;
+UPDATE structure_value_domains SET domain_name='method 2' WHERE id=160;
+UPDATE structure_value_domains SET domain_name='status 1' WHERE id=77;
+UPDATE structure_value_domains SET domain_name='status 2' WHERE id=78;
+UPDATE structure_value_domains SET domain_name='status 3' WHERE id=83;
+UPDATE structure_value_domains SET domain_name='tumor type 1' WHERE id=55;
+UPDATE structure_value_domains SET domain_name='tumor type 2' WHERE id=98;
+UPDATE structure_value_domains SET domain_name='yesno locked' WHERE id=14;
+UPDATE structure_value_domains SET domain_name='yes' WHERE id=64;
+ALTER TABLE structure_value_domains ADD UNIQUE KEY(`domain_name`);
