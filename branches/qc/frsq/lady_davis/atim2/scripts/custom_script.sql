@@ -14,7 +14,7 @@ TRUNCATE TABLE key_increments;
 INSERT INTO `key_increments` (`key_name`, `key_value`) VALUES
 ('main_participant_id', 1000);
 
-INSERT INTO `atim_lady`.`structure_permissible_values` (
+INSERT INTO `structure_permissible_values` (
 `id` ,`value` ,`language_alias`) VALUES
 (NULL , 'biopsy', 'biopsy'), 
 (NULL , 'metastasis', 'metastasis'),
@@ -53,7 +53,7 @@ ALTER TABLE collections_revs ADD COLUMN qc_lady_type VARCHAR(10) DEFAULT '';
 	
 	
 #--------------------------------------------------
-INSERT INTO `atim_lady`.`structure_permissible_values` (
+INSERT INTO `structure_permissible_values` (
 `id` ,`value` ,`language_alias`) VALUES
 (NULL , '6 months', '6 months'), 
 (NULL , '12 months', '12 months'),
@@ -91,12 +91,16 @@ SET @last_id = LAST_INSERT_ID();
 INSERT INTO `structure_formats` (
 `id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) 
 VALUES (NULL , 'CAN-999-999-000-999-1000_qc-lady-00002', '31', 'CAN-999-999-000-999-1000', @last_id, 'qc-lady-00002', '1', '102', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+INSERT INTO structure_formats(`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES ('CANM-00025_qc-lady-00001', (SELECT id FROM structures WHERE old_id = 'CANM-00025'), 'CANM-00025', (SELECT id FROM structure_fields WHERE old_id = 'qc-lady-00001'), 'qc-lady-00001', '1', '100', '', '', '', '', '', '', '', '', '', '', '', '', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '1', '', '', '', '');
+INSERT INTO structure_formats(`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES ('CANM-00025_qc-lady-00002', (SELECT id FROM structures WHERE old_id = 'CANM-00025'), 'CANM-00025', (SELECT id FROM structure_fields WHERE old_id = 'qc-lady-00002'), 'qc-lady-00002', '1', '101', '', '', '', '', '', '', '', '', '', '', '', '', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '1', '', '', '', '');
+
 
 ALTER TABLE collections ADD COLUMN qc_lady_follow_up VARCHAR(10) DEFAULT '';
 ALTER TABLE collections_revs ADD COLUMN qc_lady_follow_up VARCHAR(10) DEFAULT '';
 	
 UPDATE structure_value_domains_permissible_values SET active='no' WHERE structure_permissible_value_id IN(768, 769);
 UPDATE structure_permissible_values SET value='JGH', language_alias='JGH' WHERE id=767;
+UPDATE `structure_fields` SET `default` = 'JGH' WHERE `structure_fields`.`id` =155 LIMIT 1;
 
 UPDATE structure_value_domains_permissible_values SET active='no' WHERE id IN(595, 596, 597, 598);
 INSERT INTO structure_permissible_values (`value`, `language_alias`) VALUES
@@ -141,7 +145,7 @@ INSERT INTO `structure_formats` (
 `id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`)
 VALUES (NULL , 'CAN-999-999-000-999-1008_qc-lady-00003', (SELECT id FROM structures WHERE old_id='CAN-999-999-000-999-1008'), 'CAN-999-999-000-999-1008', @last_id, 'qc-lady-0003', '0', '100', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
-INSERT INTO `atim_lady`.`i18n` (
+INSERT INTO `i18n` (
 `id` , `page_id` , `en` , `fr`)
 VALUES ('from biopsy', 'global', 'From biopsy', 'À partir d\'une biopsie');
 
@@ -182,8 +186,26 @@ VALUES (NULL , 'qc-lady-00004_qc-lady-00005', @last_structure_id, 'qc-lady-00004
 UPDATE `sample_controls` SET `form_alias` = 'qc_lady_sd_der_dnas' WHERE `sample_controls`.`id` =12 LIMIT 1 ;
 
 #storages
-UPDATE storage_controls SET status='disbled' WHERE id NOT IN(10, 17, 18);
-#TODO: validate storages with JGH
+UPDATE storage_controls SET status='disbled' WHERE id NOT IN(10, 17);
+INSERT INTO `storage_controls` (`id` ,`storage_type` ,`storage_type_code` ,`coord_x_title` ,`coord_x_type` ,`coord_x_size` ,`coord_y_title` ,`coord_y_type` ,`coord_y_size` ,`square_box` ,`horizontal_display` ,`set_temperature` ,`is_tma_block` ,`status` ,`form_alias` ,`form_alias_for_children_pos` ,`detail_tablename`) VALUES 
+(NULL , 'box100 1-100', 'B1T100', 'position', 'integer', NULL , NULL , NULL , NULL , '1', '0', 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_boxs');
+INSERT INTO `storage_controls` (`id`,`storage_type`,`storage_type_code`,`coord_x_title`,`coord_x_type`,`coord_x_size`,`coord_y_title`,`coord_y_type`,`coord_y_size`,`square_box`,`horizontal_display`,`set_temperature`,`is_tma_block`,`status`,`form_alias`,`form_alias_for_children_pos`,`detail_tablename`)
+VALUES (NULL , 'freezer 6x5', 'F6X5', 'column', 'integer', '6', 'row', 'integer', '5', '0', '0', 'TRUE', 'FALSE', 'active', 'std_undetail_stg_with_tmp', 'std_2_dim_position_selection', 'std_freezers'),
+(NULL , 'rack 4x4', 'R4X4', 'column', 'integer', '4', 'row', 'integer', '4', '0', '0', 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_2_dim_position_selection', 'std_racks'),
+(NULL , 'freezer 4x5', 'F4X5', 'column', 'integer', '5', 'row', 'integer', '4', '0', '0', 'TRUE', 'FALSE', 'active', 'std_undetail_stg_with_tmp', 'std_2_dim_position_selection', 'std_freezers'),
+(NULL , 'freezer vertical 4x3', '', 'column', 'integer', '4', 'row', 'integer', '3', '0', '0', 'TRUE', 'FALSE', 'active', 'std_undetail_stg_with_tmp', 'std_2_dim_position_selection', 'std_freezers'),
+(NULL , 'rack 1-12', 'R1T12', 'position', 'integer', '12', NULL , NULL , NULL , '0', '0', 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_racks');
+INSERT INTO `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES 
+('freezer 6x5', 'global', 'Freezer 6x5', 'Congélateur 6x5'),
+('rack 4x4', 'global', 'Rack 4x4', 'Étagère 4x4'),
+('freezer 4x5', 'global', 'Freezer 4x5', 'Congélateur 4x5'),
+('freezer vertical 4x3', 'global', 'Vertical freezer 4x3', 'Congélateur vertical 4x3'),
+('rack 1-12', 'global', 'Rack 1-12', 'Étagère 1-12');
+INSERT INTO `storage_masters` (`id`, `code`, `storage_type`, `storage_control_id`, `parent_id`, `lft`, `rght`, `barcode`, `short_label`, `selection_label`, `storage_status`, `parent_storage_coord_x`, `coord_x_order`, `parent_storage_coord_y`, `coord_y_order`, `set_temperature`, `temperature`, `temp_unit`, `notes`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
+(NULL, 'F6X5 - 1', 'freezer 6x5', 22, NULL, 39, 40, '#6 Revco', '#6', '#6', '', NULL, NULL, NULL, NULL, 'TRUE', -80.00, 'celsius', '', '2010-02-16 10:33:13', '1', '2010-02-16 10:33:14', '1', 0, NULL),
+(NULL, 'F4X5 - 2', 'freezer 4x5', 24, NULL, 41, 42, '#85 VWR Symphony', '#85', '#85', '', NULL, NULL, NULL, NULL, 'TRUE', -80.00, 'celsius', '', '2010-02-16 10:52:05', '1', '2010-02-16 10:52:05', '1', 0, NULL),
+(NULL, ' - 3', 'freezer vertical 4x3', 25, NULL, 43, 44, 'NVE Tech 3000', 'NVE3000', 'NVE3000', '', NULL, NULL, NULL, NULL, 'TRUE', -190.00, 'celsius', '', '2010-02-16 10:52:57', '1', '2010-02-16 10:52:57', '1', 0, NULL);
+
 
 #tissue type
 INSERT INTO structure_permissible_values (`value`, `language_alias`) VALUES
@@ -257,9 +279,41 @@ INSERT INTO structure_fields(`public_identifier`, `old_id`, `plugin`, `model`, `
 INSERT INTO structure_formats(`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES ('qc-lady-00004_qc-lady-00008', (SELECT id FROM structures WHERE old_id = 'qc-lady-00004'), 'qc-lady-00004', (SELECT id FROM structure_fields WHERE old_id = 'qc-lady-00008'), 'qc-lady-00008', '0', '100', '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '', '1', '', '0', '', '1', '', '0', '1', '', '', '', '');
 #end dna extraction method
 
-#double EDTA centrifugation
-ALTER TABLE `sd_spe_bloods` ADD `qc_lady_double_centrifugation` TINYINT UNSIGNED NOT NULL AFTER `deleted_date` 
+#double EDTA centrifugation (need new blood control)
+ALTER TABLE `sd_der_plasmas` ADD `qc_lady_double_centrifugation` TINYINT UNSIGNED NOT NULL AFTER `deleted_date`;
 INSERT INTO structure_fields(`public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES ('', 'qc-lady-00009', 'Inventorymanagement', 'SampleDetail', '', 'qc_lady_double_centrifugation', 'double centrifugation', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox'), '', 'open', 'open', 'open');
-INSERT INTO structure_formats(`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES ('CAN-999-999-000-999-1006_qc-lady-00009', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1006'), 'CAN-999-999-000-999-1006', (SELECT id FROM structure_fields WHERE old_id = 'qc-lady-00009'), 'qc-lady-00009', '1', '41', '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '', '1', '', '1', '', '1', '', '0', '1', '', '', '', '');
+INSERT INTO structure_formats(`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES ('CAN-999-999-000-999-1014_qc-lady-00009', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1014'), 'CAN-999-999-000-999-1014', (SELECT id FROM structure_fields WHERE old_id = 'qc-lady-00009'), 'qc-lady-00009', '1', '100', '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '', '', '', '');
 
-#
+INSERT INTO `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES 
+('double centrifugation', 'global', 'Double centrifugation', 'Centrifugation double');
+#end double EDTA centrigugation
+
+
+#coagulation time
+ALTER TABLE `sd_der_serums` ADD `qc_lady_coagulation_time_sec` SMALLINT UNSIGNED NOT NULL AFTER `deleted_date`;
+INSERT INTO structure_fields(`public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES ('', 'qc-lady-00010', 'Inventorymanagement', 'SampleDetail', '', 'qc_lady_coagulation_time_sec', 'coagulation time (sec)', '', 'input', '', '', '0', '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES ('CAN-999-999-000-999-1015_qc-lady-00010', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1015'), 'CAN-999-999-000-999-1015', (SELECT id FROM structure_fields WHERE old_id = 'qc-lady-00010'), 'qc-lady-00010', '1', '100', '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '', '', '', '');
+INSERT INTO `i18n` (`id` , `page_id` , `en` , `fr`)
+VALUES ('coagulation time (sec)', 'global', 'Coagulation time (sec.)', 'Temps de coagulation (sec.)');
+
+#end coagulation time
+
+#tissue tube contains
+ALTER TABLE `ad_tubes` ADD `qc_lady_contains` VARCHAR( 10 ) NOT NULL AFTER `deleted_date`;
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`) VALUES ('qc_lady_tissue_tube_contains', '', '');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('RNA later', 'rna later');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_tissue_tube_contains'),  (SELECT id FROM structure_permissible_values WHERE value='RNA later' AND language_alias='rna later'), '1', 'yes');
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('OCT', 'OCT');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_tissue_tube_contains'),  (SELECT id FROM structure_permissible_values WHERE value='OCT' AND language_alias='OCT'), '2', 'yes');
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('flash freeze', 'flash freeze');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_tissue_tube_contains'),  (SELECT id FROM structure_permissible_values WHERE value='flash freeze' AND language_alias='flash freeze'), '3', 'yes');
+
+INSERT INTO structure_fields(`public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES ('', 'qc-lady-00011', 'Inventorymanagement', 'AliquotDetail', '', 'qc_lady_contains', 'contains', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_tissue_tube_contains'), '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES ('CAN-999-999-000-999-1022_qc-lady-00011', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1022'), 'CAN-999-999-000-999-1022', (SELECT id FROM structure_fields WHERE old_id = 'qc-lady-00011'), 'qc-lady-00011', '1', '100', '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '', '', '', '');
+#end tissue tube contains
+
+INSERT INTO `i18n` (`id` , `page_id` , `en` , `fr`) VALUES
+('an identifier of this type already exists for the current participant.', 'global', 'An identifier of this type already exists for the current participant.', 'Un identifiant de ce type existe déjà pour ce participant.'),
+('metastatis', 'global', 'Metastasis', 'Métastases');
