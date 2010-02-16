@@ -379,6 +379,9 @@ UPDATE `structure_formats` SET `display_order` = '5' WHERE `structure_formats`.`
 UPDATE `structure_formats` SET `display_order` = '4' WHERE `structure_formats`.`old_id` = 'CAN-999-999-000-999-3_CAN-999-999-000-999-30';
 UPDATE `structure_formats` SET `display_order` = '3' WHERE `structure_formats`.`old_id` = 'CAN-999-999-000-999-3_CAN-999-999-000-999-31';
 
+-- Remove validation for Family History: Age at Diagnosis 
+DELETE FROM `structure_validations` WHERE `structure_validations`.`structure_field_id` = (SELECT id FROM `structure_fields` WHERE `plugin` LIKE 'Clinicalannotation' AND `model` LIKE 'FamilyHistory' AND `field` LIKE 'age_at_dx');
+
 -- Manage event language label
 
 UPDATE `structure_fields` SET `language_label` = 'event_form_type' WHERE `old_id` = 'CAN-999-999-000-999-227';
@@ -594,3 +597,6 @@ UPDATE structure_value_domains SET domain_name='tumor type 2' WHERE id=98;
 UPDATE structure_value_domains SET domain_name='yesno locked' WHERE id=14;
 UPDATE structure_value_domains SET domain_name='yes' WHERE id=64;
 ALTER TABLE structure_value_domains ADD UNIQUE KEY(`domain_name`);
+
+-- Remove validation for Family History: Age at Diagnosis 
+DELETE FROM `structure_validations` WHERE `structure_validations`.`structure_field_id` = (SELECT id FROM `structure_fields` WHERE `plugin` LIKE 'Clinicalannotation' AND `model` LIKE 'FamilyHistory' AND `field` LIKE 'age_at_dx');
