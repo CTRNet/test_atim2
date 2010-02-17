@@ -50,6 +50,44 @@ ALTER TABLE `misc_identifiers`
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
 
+-- Drop tables for unused annotation reports
+DROP TABLE IF EXISTS `ed_allsolid_lab_pathology`;
+DROP TABLE IF EXISTS `ed_allsolid_lab_pathology_revs`;
+
+-- Fix created/modified fields. Redefine as DATETIME
+ALTER TABLE `ed_all_clinical_followup` CHANGE `created` `created` DATETIME NULL ,
+CHANGE `modified` `modified` DATETIME NULL; 
+ALTER TABLE `ed_all_clinical_followup_revs` CHANGE `created` `created` DATETIME NULL ,
+CHANGE `modified` `modified` DATETIME NULL; 
+
+ALTER TABLE `ed_all_clinical_presentation` CHANGE `created` `created` DATETIME NULL ,
+CHANGE `modified` `modified` DATETIME NULL; 
+ALTER TABLE `ed_all_clinical_presentation_revs` CHANGE `created` `created` DATETIME NULL ,
+CHANGE `modified` `modified` DATETIME NULL;
+
+ALTER TABLE `ed_breast_lab_pathology` CHANGE `created` `created` DATETIME NULL ,
+CHANGE `modified` `modified` DATETIME NULL; 
+ALTER TABLE `ed_breast_lab_pathology_revs` CHANGE `created` `created` DATETIME NULL ,
+CHANGE `modified` `modified` DATETIME NULL;
+
+ALTER TABLE `order_items` CHANGE `created` `created` DATETIME NULL ,
+CHANGE `modified` `modified` DATETIME NULL; 
+ALTER TABLE `order_items_revs` CHANGE `created` `created` DATETIME NULL ,
+CHANGE `modified` `modified` DATETIME NULL;
+
+ALTER TABLE `pd_chemos` CHANGE `created` `created` DATETIME NULL ,
+CHANGE `modified` `modified` DATETIME NULL; 
+ALTER TABLE `pd_chemos_revs` CHANGE `created` `created` DATETIME NULL ,
+CHANGE `modified` `modified` DATETIME NULL;
+
+ALTER TABLE `protocol_controls` CHANGE `created` `created` DATETIME NULL ,
+CHANGE `modified` `modified` DATETIME NULL; 
+
+ALTER TABLE `protocol_masters` CHANGE `created` `created` DATETIME NULL ,
+CHANGE `modified` `modified` DATETIME NULL; 
+ALTER TABLE `protocol_masters_revs` CHANGE `created` `created` DATETIME NULL ,
+CHANGE `modified` `modified` DATETIME NULL;
+
 /*
 	Module: Inventory Management
 	Description:
@@ -367,6 +405,8 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('reproductive history', '', 'Reproductive History', 'Gyn&eacute;cologie'),
 ('contact', '', 'Contact', 'Contact');
 
+-- Remove validation for Family History: Age at Diagnosis 
+DELETE FROM `structure_validations` WHERE `structure_validations`.`structure_field_id` = (SELECT id FROM `structure_fields` WHERE `plugin` LIKE 'Clinicalannotation' AND `model` LIKE 'FamilyHistory' AND `field` LIKE 'age_at_dx');
  	 
 -- Fixed field display for topography
 UPDATE `structure_formats` SET `flag_add` = '1',
@@ -597,6 +637,3 @@ UPDATE structure_value_domains SET domain_name='tumor type 2' WHERE id=98;
 UPDATE structure_value_domains SET domain_name='yesno locked' WHERE id=14;
 UPDATE structure_value_domains SET domain_name='yes' WHERE id=64;
 ALTER TABLE structure_value_domains ADD UNIQUE KEY(`domain_name`);
-
--- Remove validation for Family History: Age at Diagnosis 
-DELETE FROM `structure_validations` WHERE `structure_validations`.`structure_field_id` = (SELECT id FROM `structure_fields` WHERE `plugin` LIKE 'Clinicalannotation' AND `model` LIKE 'FamilyHistory' AND `field` LIKE 'age_at_dx');
