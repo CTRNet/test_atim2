@@ -8,6 +8,15 @@
 	 
 class FamilyHistoriesControllerCustom extends FamilyHistoriesController {
  	
+ 	/* 
+ 	 * Override add funtion 
+ 	 * */
+ 	function detail( $participant_id, $family_history_id ) {
+ 		pr('here is an override test');
+ 		exit;
+ 	}	
+ 	
+ 	
 }
 	
 ?>
