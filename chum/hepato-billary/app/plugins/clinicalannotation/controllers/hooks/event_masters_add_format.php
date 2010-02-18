@@ -17,7 +17,8 @@
 	
 	$unique_event_type_list = array(
 		'hepatobiliary-clinical-presentation',
-		'hepatobiliary-lifestyle-summary');
+		'hepatobiliary-lifestyle-summary',
+		'hepatobiliary-clinical-medical past history record summary');
 		
 	if(in_array($created_event_type_title, $unique_event_type_list)) {
 		// Should be unique
