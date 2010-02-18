@@ -1,7 +1,7 @@
 <?php 
 
+	// 1- DIAGNOSTICS
 	
-
 	$structure_settings = array(
 		'form_bottom'=>false, 
 		'form_inputs'=>false,
@@ -33,8 +33,12 @@
 	$final_options['settings']['form_top'] = false;
 	$structures->build( $diagnosis_structure,  $final_options);
 	
+	// 2- EVENT DATA
+	
 	$structure_settings = array(
-		'form_top'=>false
+		'form_top'=>false,
+		'header' => __($atim_menu_variables['EventMaster.event_group'], null), 
+		'separator' => true
 	);
 
 	$structure_links = array(

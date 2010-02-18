@@ -1,4 +1,7 @@
 <?php 
+
+	// 1- DIAGNOSTICS
+	
 	$structure_links = array(
 		'bottom'=>array(
 			'list'=>'/clinicalannotation/treatment_masters/listall/'.$atim_menu_variables['Participant.id'].'/',
@@ -21,9 +24,13 @@
 	if( $hook_link ) { require($hook_link); } 
 	$structures->build( $final_atim_structure,  $final_options);	
 	
-	
+	// 2- TRT DATA
+	$structure_settings = array(
+		'header' => __('treatment', null), 
+		'separator' => true);
+			
 	$structure_override = array('TreatmentMaster.protocol_id'=>$protocol_list);
-	$final_options = array('links'=>$structure_links,'override'=>$structure_override);
+	$final_options = array('links'=>$structure_links,'settings'=>$structure_settings,'override'=>$structure_override);
 	$final_atim_structure = $atim_structure; 
 	$hook_link = $structures->hook();
 	if( $hook_link ) { require($hook_link); }

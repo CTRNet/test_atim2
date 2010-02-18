@@ -30,7 +30,6 @@ class StructuresComponent extends Object {
 			$return = unserialize(fread($fhandle, filesize($fname)));
 			fclose($fhandle);
 		}else{
-			$fhandle = fopen($fname, 'w');
 			if ( $alias ) {
 				
 				App::import('model', 'Structure');
@@ -47,6 +46,7 @@ class StructuresComponent extends Object {
 				if ( $result ) $return = $result;
 			}
 			if(Configure::read('ATiMStructureCache.disable') != 1){
+				$fhandle = fopen($fname, 'w');
 				fwrite($fhandle, serialize($return));
 				flush();
 				fclose($fhandle);
@@ -155,8 +155,6 @@ class StructuresComponent extends Object {
 						if ( $data ) {
 							if ( !is_array($data) && strpos($form_fields[$model.'.'.$key]['key'], ' LIKE')!==false ) {
 								$data = '%'.$data.'%';
-							} else if ( is_array($data) ) {
-								$data = '"'.implode('","',$data).'"';
 							}
 							
 							$conditions[ $form_fields[$model.'.'.$key]['key'] ] = $data;

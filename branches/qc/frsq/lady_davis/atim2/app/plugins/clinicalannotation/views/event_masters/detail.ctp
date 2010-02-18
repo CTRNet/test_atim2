@@ -1,4 +1,7 @@
 <?php 
+
+	// 1- DIAGNOSTICS
+	
 	$structure_links = array(
 		'index' => array(
 			'detail' => '/clinicalannotation/diagnosis_masters/detail/%%DiagnosisMaster.participant_id%%/%%DiagnosisMaster.id%%'
@@ -26,9 +29,15 @@
 //	if(isset($this->data['EventDetail']['file_path'])) {
 //		echo('<table class="structure"><tr><td align="center"><img src="'.$this->data['EventDetail']['file_path'].'" alt="test"/></td></tr></table>');
 //	}
+
+	// 2- EVENT DATA
+	
+	$structure_settings = array(
+		'header' => __($atim_menu_variables['EventMaster.event_group'], null), 
+		'separator' => true);
 		
 	$final_atim_structure = $atim_structure;
-	$final_options = array('links'=>$structure_links);
+	$final_options = array('links'=>$structure_links, 'settings'=>$structure_settings);
 	$hook_link = $structures->hook();
 	if( $hook_link ) { require($hook_link); }
 	$structures->build( $final_atim_structure, $final_options );
