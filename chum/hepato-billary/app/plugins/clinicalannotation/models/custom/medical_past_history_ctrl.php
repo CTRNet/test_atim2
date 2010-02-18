@@ -1,8 +1,16 @@
 <?php
 
 class MedicalPastHistoryCtrl extends ClinicalannotationAppModel {
-   var $name = 'MedicalPastHistoryCtrl';
-	var $useTable = 'ee_hepatobiliary_medical_past_history_data_ctrls';
+  
+  var $useTable = 'qc_chum_hb_hepatobiliary_medical_past_history_ctrls';
+  
+	var $belongsTo = array(        
+	   'EventControl' => array(            
+	       'className'    => 'Clinicalannotation.EventControl',            
+	       'foreignKey'    => 'event_control_id'        
+	   )    
+	);
+	
 }
 
 ?>

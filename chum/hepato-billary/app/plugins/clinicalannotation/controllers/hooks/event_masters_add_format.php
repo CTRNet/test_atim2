@@ -1,6 +1,13 @@
 <?php
 
 	// --------------------------------------------------------------------------------
+	// Override Menu For 'clinical' event_group 	 
+	// --------------------------------------------------------------------------------
+	if($event_group == 'clinical') {
+		$this->set('atim_menu', $this->Menus->get('/clinicalannotation/event_masters/listall/clinical/%%Participant.id%%//'));
+	}
+
+	// --------------------------------------------------------------------------------
 	// Check Event Type could be created more than once
 	// --------------------------------------------------------------------------------
 	$created_event_type_title = 
@@ -10,7 +17,6 @@
 	
 	$unique_event_type_list = array(
 		'hepatobiliary-clinical-presentation',
-		'hepatobiliary-clinical-medical_past_history', 
 		'hepatobiliary-lifestyle-summary');
 		
 	if(in_array($created_event_type_title, $unique_event_type_list)) {
@@ -27,5 +33,11 @@
 			return;
 		}
 	}
+	
+	// --------------------------------------------------------------------------------
+	// clinical.hepatobiliary.*** medical past history: 
+	//   Set Medical Past History precisions list
+	// --------------------------------------------------------------------------------
+	$this->setMedicalPastHistoryPrecisions($event_control_data);
 		
 ?>
