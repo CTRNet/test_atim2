@@ -89,6 +89,22 @@ CHANGE `modified` `modified` DATETIME NULL;
 ALTER TABLE `protocol_masters_revs` CHANGE `created` `created` DATETIME NULL ,
 CHANGE `modified` `modified` DATETIME NULL;
 
+-- Fix lifestyle table for smoking only
+ALTER TABLE `ed_all_lifestyle_base`
+  DROP `alcohol_history`,
+  DROP `weight_loss`;
+
+ALTER TABLE `ed_all_lifestyle_base_revs`
+  DROP `alcohol_history`,
+  DROP `weight_loss`;
+
+RENAME TABLE `ed_all_lifestyle_base`  TO `ed_all_lifestyle_smoking`  ;
+RENAME TABLE `ed_all_lifestyle_base_revs`  TO `ed_all_lifestyle_smoking_revs`  ;
+
+ALTER TABLE `ed_all_lifestyle_smoking` CHANGE `pack_years` `pack_years` INT NULL DEFAULT NULL;
+ALTER TABLE `ed_all_lifestyle_smoking_revs` CHANGE `pack_years` `pack_years` INT NULL DEFAULT NULL;
+
+
 /*
 	Module: Inventory Management
 	Description:
@@ -249,12 +265,6 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 DELETE FROM  `i18n` WHERE `id` LIKE 'value is required';
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('value is required', 'global', 'The value is required!', 'La valeur est requise!');
-
--- --------------------------------------------------------------------------------------------------------------------------
---
--- SECTION ABOVE HAS ALREADY INCLUDED INTO atim_v2.0.1-DDL.sql and atim_v2.0.1-DML.sql 
---
--- --------------------------------------------------------------------------------------------------------------------------
 
 /*
   STRUCTURE TABLES  
@@ -444,6 +454,217 @@ SET `language_heading` = null,
 `flag_detail` = '0'
 WHERE `structure_field_old_id` IN ('CAN-999-999-000-999-227', 'CAN-999-999-000-999-228')
 AND `structure_old_id` NOT LIKE 'QRY%';
+
+-- Fixes to Breast Screening form
+UPDATE `structure_fields` SET `tablename` = 'ed_breast_screening_mammogram' WHERE `structure_fields`.`id` =140;
+
+UPDATE `structure_formats` SET `display_column` = '1', `display_order` = '99', `flag_datagrid` = '0', `flag_index` = '0', `modified_by` = ''
+WHERE `structure_formats`.`id` =132;
+
+UPDATE `structure_formats` SET `flag_edit` = '1', `flag_edit_readonly` = '1', `flag_index` = '0', `flag_detail` = '1' 
+WHERE `structure_formats`.`id` =129;
+
+UPDATE `structure_formats` SET `flag_edit` = '1', `flag_edit_readonly` = '1', `flag_index` = '0', `flag_detail` = '1', `modified_by` = '0'
+WHERE `structure_formats`.`id` =130;
+
+-- Fix tablename for all event master fields
+UPDATE `structure_fields` SET `tablename` = 'event_masters' WHERE `structure_fields`.`id` =491;
+UPDATE `structure_fields` SET `tablename` = 'event_masters' WHERE `structure_fields`.`id` =490;
+UPDATE `structure_fields` SET `tablename` = 'event_masters' WHERE `structure_fields`.`id` =492;
+UPDATE `structure_fields` SET `tablename` = 'event_masters' WHERE `structure_fields`.`id` =494;
+
+
+-- Update smoking form
+UPDATE `structures` SET `alias` =  'ed_all_lifestyle_smoking',
+`flag_add_columns` = '1',
+`flag_edit_columns` = '1' WHERE `structures`.`id` =126;
+
+UPDATE `event_controls` SET `event_type` = 'smoking',
+`form_alias` = 'ed_all_lifestyle_smoking',
+`detail_tablename` = 'ed_all_lifestyle_smoking' WHERE `event_controls`.`id` =30;
+
+UPDATE `structure_fields` SET `tablename` = 'ed_all_lifestyle_smoking' WHERE `structure_fields`.`id` =579;
+UPDATE `structure_fields` SET `tablename` = 'ed_all_lifestyle_smoking' WHERE `structure_fields`.`id` =580;
+UPDATE `structure_fields` SET `tablename` = 'ed_all_lifestyle_smoking' WHERE `structure_fields`.`id` =582;
+UPDATE `structure_fields` SET `tablename` = 'ed_all_lifestyle_smoking' WHERE `structure_fields`.`id` =583;
+UPDATE `structure_fields` SET `tablename` = 'ed_all_lifestyle_smoking' WHERE `structure_fields`.`id` =584;
+
+UPDATE `structure_formats` SET `display_order` = '-10',
+`flag_edit` = '1',
+`flag_edit_readonly` = '1',
+`flag_index` = '0',
+`flag_detail` = '1',
+`modified_by` = '' WHERE `structure_formats`.`id` =1500;
+
+UPDATE `structure_formats` SET `display_order` = '-9',
+`flag_edit` = '1',
+`flag_edit_readonly` = '1',
+`flag_index` = '0',
+`flag_detail` = '1',
+`modified_by` = '' WHERE `structure_formats`.`id` =1501;
+
+UPDATE `structure_formats` SET `flag_datagrid` = '0',
+`flag_index` = '0',
+`modified_by` = '' WHERE `structure_formats`.`id` =1502;
+
+UPDATE `structure_formats` SET `display_column` = '1',
+`display_order` = '99',
+`flag_datagrid` = '0',
+`flag_index` = '0',
+`modified_by` = '' WHERE `structure_formats`.`id` =1503;
+
+UPDATE `structure_formats` SET `display_column` = '1',
+`modified_by` = '' WHERE `structure_formats`.`id` =1504;
+
+UPDATE `structure_formats` SET `display_column` = '1',
+`modified_by` = '' WHERE `structure_formats`.`id` =1505;
+
+UPDATE `structure_formats` SET `display_column` = '1',
+`flag_datagrid` = '0',
+`flag_index` = '0',
+`modified_by` = '' WHERE `structure_formats`.`id` =1506;
+
+UPDATE `structure_formats` SET `display_column` = '1',
+`modified_by` = '' WHERE `structure_formats`.`id` =1507;
+
+UPDATE `structure_formats` SET `display_column` = '1',
+`modified_by` = '' WHERE `structure_formats`.`id` =1508;
+
+-- Update research form
+UPDATE `structure_fields` SET `tablename` = 'ed_all_study_research' WHERE `structure_fields`.`id` =770;
+
+UPDATE `structure_fields` SET `tablename` = 'ed_all_study_research' WHERE `structure_fields`.`id` =772;
+
+UPDATE `structure_fields` SET `tablename` = 'ed_all_study_research' WHERE `structure_fields`.`id` =771;
+
+UPDATE `structure_fields` SET `tablename` = 'ed_all_study_research',
+`language_label` = 'picture' WHERE `structure_fields`.`id` =908;
+
+UPDATE `structure_formats` SET `display_order` = '-10',
+`flag_edit` = '1',
+`flag_edit_readonly` = '1',
+`flag_index` = '0',
+`flag_detail` = '1',
+`modified_by` = '' WHERE `structure_formats`.`id` =1715;
+
+UPDATE `structure_formats` SET `display_order` = '-9',
+`flag_edit` = '1',
+`flag_edit_readonly` = '1',
+`flag_index` = '0',
+`flag_detail` = '1',
+`modified_by` = '' WHERE `structure_formats`.`id` =1716;
+
+UPDATE `structure_formats` SET `flag_datagrid` = '0',
+`flag_index` = '0',
+`modified_by` = '' WHERE `structure_formats`.`id` =1717;
+
+UPDATE `structure_formats` SET `display_column` = '1',
+`display_order` = '99',
+`flag_datagrid` = '0',
+`flag_index` = '0',
+`modified_by` = '' WHERE `structure_formats`.`id` =1718;
+
+UPDATE `structure_formats` SET `flag_edit` = '1',
+`flag_detail` = '1',
+`modified_by` = '' WHERE `structure_formats`.`id` =2469;
+
+-- Update followup form
+UPDATE `structure_fields` SET `tablename` = 'ed_all_clinical_followup' WHERE `structure_fields`.`id` =503;
+UPDATE `structure_fields` SET `tablename` = 'ed_all_clinical_followup' WHERE `structure_fields`.`id` =502;
+UPDATE `structure_fields` SET `tablename` = 'ed_all_clinical_followup' WHERE `structure_fields`.`id` =593;
+UPDATE `structure_fields` SET `tablename` = 'ed_all_clinical_followup' WHERE `structure_fields`.`id` =499;
+
+UPDATE `structure_formats` SET `display_order` = '-10',
+`flag_edit` = '1',
+`flag_edit_readonly` = '1',
+`flag_index` = '0',
+`flag_detail` = '1',
+`modified_by` = '' WHERE `structure_formats`.`id` =1391;
+
+UPDATE `structure_formats` SET `display_order` = '-9',
+`flag_edit` = '1',
+`flag_edit_readonly` = '1',
+`flag_index` = '0',
+`flag_detail` = '1',
+`modified_by` = '' WHERE `structure_formats`.`id` =1392;
+
+UPDATE `structure_formats` SET `display_order` = '-1',
+`flag_datagrid` = '0',
+`flag_index` = '0',
+`modified_by` = '' WHERE `structure_formats`.`id` =1393;
+
+UPDATE `structure_formats` SET `display_column` = '1',
+`display_order` = '99',
+`flag_datagrid` = '0',
+`flag_index` = '0',
+`modified_by` = '' WHERE `structure_formats`.`id` =1394;
+
+UPDATE `structure_formats` SET `display_column` = '1',
+`display_order` = '4',
+`modified_by` = '' WHERE `structure_formats`.`id` =1395;
+
+UPDATE `structure_formats` SET `display_column` = '1',
+`modified_by` = '' WHERE `structure_formats`.`id` =1396;
+
+UPDATE `structure_formats` SET `display_column` = '1',
+`display_order` = '2',
+`modified_by` = '' WHERE `structure_formats`.`id` =1397;
+
+UPDATE `structure_formats` SET `display_column` = '1',
+`display_order` = '1',
+`modified_by` = '' WHERE `structure_formats`.`id` =1398;
+
+-- Update presentation form
+ALTER TABLE `ed_all_clinical_presentation` CHANGE `height` `height` DECIMAL( 10, 2 ) NULL DEFAULT NULL,
+CHANGE `weight` `weight` DECIMAL( 10, 2 ) NULL DEFAULT NULL;
+ALTER TABLE `ed_all_clinical_presentation_revs` CHANGE `height` `height` DECIMAL( 10, 2 ) NULL DEFAULT NULL,
+CHANGE `weight` `weight` DECIMAL( 10, 2 ) NULL DEFAULT NULL;
+
+UPDATE `structure_fields` SET `tablename` = 'ed_all_clinical_presentation' WHERE `structure_fields`.`id` =500;
+
+INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`,
+`field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`,
+`language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`,
+`modified`, `modified_by`) VALUES
+(NULL , '', '', 'Clinicalannotation', 'EventDetail', 'ed_all_clinical_presentation', 'weight', 'weight', '', 'input', 'size=4', '', NULL , '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+SET @field = LAST_INSERT_ID();
+
+UPDATE `structure_formats` SET `structure_field_id` = @field,
+`display_column` = '1',
+`display_order` = '2',
+`flag_index` = '1',
+`modified_by` = '' WHERE `structure_formats`.`id` =1388;
+
+UPDATE `structure_formats` SET `display_order` = '-10',
+`flag_edit` = '1',
+`flag_edit_readonly` = '1',
+`flag_index` = '0',
+`flag_detail` = '1',
+`modified_by` = '' WHERE `structure_formats`.`id` =1384;
+
+UPDATE `structure_formats` SET `display_order` = '-9',
+`flag_edit` = '1',
+`flag_edit_readonly` = '1',
+`flag_index` = '0',
+`flag_detail` = '1',
+`modified_by` = '' WHERE `structure_formats`.`id` =1385;
+
+UPDATE `structure_formats` SET `display_order` = '-1',
+`flag_datagrid` = '0',
+`flag_index` = '0',
+`modified_by` = '' WHERE `structure_formats`.`id` =1386;
+
+UPDATE `structure_formats` SET `display_column` = '1',
+`display_order` = '99',
+`flag_datagrid` = '0',
+`flag_index` = '0',
+`modified_by` = '' WHERE `structure_formats`.`id` =1387;
+
+UPDATE `structure_formats` SET `display_column` = '1',
+`display_order` = '3',
+`flag_index` = '1',
+`modified_by` = '' WHERE `structure_formats`.`id` =1389;
 
 /*
   INVENTORY MANAGEMENT  
