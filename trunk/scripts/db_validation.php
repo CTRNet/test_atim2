@@ -93,3 +93,56 @@ if(sizeof($tables) > 0){
 }
 
 ?>
+<h1>Strings requiring translation</h1>
+<ul>
+<?php 
+$query = "SELECT language_heading AS lang FROM structure_formats
+			LEFT JOIN i18n ON i18n.id=language_heading
+			WHERE language_heading != '' AND i18n.id IS NULL
+		UNION
+			SELECT language_label AS lang FROM structure_formats
+			LEFT JOIN i18n ON i18n.id=language_label
+			WHERE language_label != '' AND i18n.id IS NULL
+		UNION
+			SELECT language_tag AS lang FROM structure_formats
+			LEFT JOIN i18n ON i18n.id=language_tag
+			WHERE language_tag != '' AND i18n.id IS NULL
+		UNION
+			SELECT language_help AS lang FROM structure_formats
+			LEFT JOIN i18n ON i18n.id=language_help
+			WHERE language_help != '' AND i18n.id IS NULL
+		UNION
+			SELECT language_label AS lang FROM structure_formats
+			LEFT JOIN i18n ON i18n.id=language_label
+			WHERE language_label != '' AND i18n.id IS NULL	
+
+		UNION
+			SELECT language_label AS lang FROM structure_fields
+			LEFT JOIN i18n ON i18n.id=language_label
+			WHERE language_label != '' AND i18n.id IS NULL
+		UNION
+			SELECT language_tag AS lang FROM structure_fields
+			LEFT JOIN i18n ON i18n.id=language_tag
+			WHERE language_tag != '' AND i18n.id IS NULL
+			
+		UNION
+			SELECT language_alias AS lang FROM structure_permissible_values
+			LEFT JOIN i18n ON i18n.id=language_alias
+			WHERE language_alias != '' AND i18n.id IS NULL
+
+		UNION
+			SELECT language_message AS lang FROM structure_validations
+			LEFT JOIN i18n ON i18n.id=language_message
+			WHERE language_message != '' AND i18n.id IS NULL";
+
+$result = $mysqli->query($query) or die($mysqli->error);
+$tables = array();
+while ($row = $result->fetch_assoc()) {
+	foreach($row as $key => $value){
+		echo("<ol>".$value."</ol>\n");
+	}
+}
+$result->free();
+
+?>
+</ul>
