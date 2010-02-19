@@ -3,7 +3,7 @@
  * @author FM L'Heureux
  * @date 2009-12-02
  * @description: Reads a database and compares base tables with revs tables. Gives the difference between those and gives the list
- * of tables without revs.
+ * of tables without revs. Also gives a list of strings without tranlsation.
  */
 
 $mysqli = mysqli_init();
