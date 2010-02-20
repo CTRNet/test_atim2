@@ -40,12 +40,12 @@ INSERT INTO `key_increments` (`key_name`, `key_value`) VALUES
 
 -- ******** ANNOTATION ******** 
 
-DROP TABLE IF EXISTS `qc_chum_hb_ed_hepatobiliary_clinical_presentation`;
-DROP TABLE IF EXISTS `qc_chum_hb_ed_hepatobiliary_lifestyle`;
-DROP TABLE IF EXISTS `qc_chum_hb_ed_hepatobiliary_medical_past_history`;
-DROP TABLE IF EXISTS `qc_chum_hb_ed_hepatobiliary_med_hist_record_summary`;
+DROP TABLE IF EXISTS `QC-CHUM-HB-ed_hepatobiliary_clinical_presentation`;
+DROP TABLE IF EXISTS `QC-CHUM-HB-ed_hepatobiliary_lifestyle`;
+DROP TABLE IF EXISTS `QC-CHUM-HB-ed_hepatobiliary_medical_past_history`;
+DROP TABLE IF EXISTS `QC-CHUM-HB-ed_hepatobiliary_med_hist_record_summary`;
 
-DROP TABLE IF EXISTS `qc_chum_hb_hepatobiliary_medical_past_history_ctrls`;
+DROP TABLE IF EXISTS `QC-CHUM-HB-hepatobiliary_medical_past_history_ctrls`;
 
 DELETE FROM `event_masters`;
 DELETE FROM `event_controls` ;
@@ -60,16 +60,16 @@ UPDATE `menus` SET `active` =  'no' WHERE `menus`.`id` = 'clin_CAN_33' ;
 
 -- ... CLINIC: presentation ...
 
-DELETE FROM `menus` WHERE `id` IN ('clin_QC_CHUM_HB_31', 'clin_QC_CHUM_HB_32', 'clin_QC_CHUM_HB_33');
+DELETE FROM `menus` WHERE `id` IN ('clin_QC-CHUM-HB-31', 'clin_QC-CHUM-HB-32', 'clin_QC-CHUM-HB-33');
 INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_title`, `language_description`, `use_link`, `use_params`, `use_summary`, `active`, `created`, `created_by`, `modified`, `modified_by`) VALUES
-('clin_QC_CHUM_HB_31', 'clin_CAN_31', 0, 1, 'annotation clinical details', 'annotation clinical details', '/clinicalannotation/event_masters/listall/clinical/%%Participant.id%%//', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('clin_QC_CHUM_HB_33', 'clin_CAN_31', 0, 2, 'annotation clinical reports', 'annotation clinical reports', '/underdevelopment/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+('clin_QC-CHUM-HB-31', 'clin_CAN_31', 0, 1, 'annotation clinical details', 'annotation clinical details', '/clinicalannotation/event_masters/listall/clinical/%%Participant.id%%//', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('clin_QC-CHUM-HB-33', 'clin_CAN_31', 0, 2, 'annotation clinical reports', 'annotation clinical reports', '/underdevelopment/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`, `status`, `form_alias`, `detail_tablename`, `display_order`) VALUES
-(null, 'hepatobiliary', 'clinical', 'presentation', 'active', 'qc_chum_hb_ed_hepatobiliary_clinical_presentation', 'qc_chum_hb_ed_hepatobiliary_clinical_presentation', 0);
+(null, 'hepatobiliary', 'clinical', 'presentation', 'active', 'QC-CHUM-HB-ed_hepatobiliary_clinical_presentation', 'QC-CHUM-HB-ed_hepatobiliary_clinical_presentation', 0);
 
-DROP TABLE IF EXISTS `qc_chum_hb_ed_hepatobiliary_clinical_presentation`;
-CREATE TABLE `qc_chum_hb_ed_hepatobiliary_clinical_presentation` (
+DROP TABLE IF EXISTS `QC-CHUM-HB-ed_hepatobiliary_clinical_presentation`;
+CREATE TABLE `QC-CHUM-HB-ed_hepatobiliary_clinical_presentation` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `weight` decimal(7,3) DEFAULT NULL,
   `height` decimal(7,3) DEFAULT NULL,
@@ -93,13 +93,13 @@ CREATE TABLE `qc_chum_hb_ed_hepatobiliary_clinical_presentation` (
   KEY `event_master_id` (`event_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-ALTER TABLE `qc_chum_hb_ed_hepatobiliary_clinical_presentation`
+ALTER TABLE `QC-CHUM-HB-ed_hepatobiliary_clinical_presentation`
   ADD FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`)
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
 
-DROP TABLE IF EXISTS `qc_chum_hb_ed_hepatobiliary_clinical_presentation_revs`;
-CREATE TABLE `qc_chum_hb_ed_hepatobiliary_clinical_presentation_revs` (
+DROP TABLE IF EXISTS `QC-CHUM-HB-ed_hepatobiliary_clinical_presentation_revs`;
+CREATE TABLE `QC-CHUM-HB-ed_hepatobiliary_clinical_presentation_revs` (
   `id` int(11) NOT NULL,
   `weight` decimal(7,3) DEFAULT NULL,
   `height` decimal(7,3) DEFAULT NULL,
@@ -123,69 +123,69 @@ CREATE TABLE `qc_chum_hb_ed_hepatobiliary_clinical_presentation_revs` (
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-DELETE FROM `structure_validations` WHERE `old_id` LIKE ('QC_CHUM_HB_%');	
-DELETE FROM `structure_formats` WHERE `old_id` LIKE ('QC_CHUM_HB_%');	
+DELETE FROM `structure_validations` WHERE `old_id` LIKE ('QC-CHUM-HB-%');	
+DELETE FROM `structure_formats` WHERE `old_id` LIKE ('QC-CHUM-HB-%');	
 DELETE FROM `structures` WHERE `old_id` LIKE ('QC_CHUM_HB%');
-DELETE FROM `structure_fields` WHERE `old_id` LIKE ('QC_CHUM_HB_%');	
+DELETE FROM `structure_fields` WHERE `old_id` LIKE ('QC-CHUM-HB-%');	
 
 INSERT INTO `structures` 
 (`id`, `old_id`, `alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`) 
 VALUES
-(null, 'QC_CHUM_HB_000001', 'qc_chum_hb_ed_hepatobiliary_clinical_presentation', '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(null, 'QC-CHUM-HB-000001', 'QC-CHUM-HB-ed_hepatobiliary_clinical_presentation', '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 INSERT INTO `structure_fields` 
 (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) 
 VALUES
-(null, '', 'QC_CHUM_HB_000001', 'Clinicalannotation', 'EventDetail', 'qc_chum_hb_ed_hepatobiliary_clinical_presentation', 'bmi', 'bmi', '', 'input', 'size=10', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(null, '', 'QC_CHUM_HB_000002', 'Clinicalannotation', 'EventDetail', 'qc_chum_hb_ed_hepatobiliary_clinical_presentation', 'referral_hospital', 'referral hospital', '', 'input', 'size=20', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(null, '', 'QC_CHUM_HB_000003', 'Clinicalannotation', 'EventDetail', 'qc_chum_hb_ed_hepatobiliary_clinical_presentation', 'referral_physisian', 'referral physisian', '', 'input', 'size=20', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(null, '', 'QC_CHUM_HB_000004', 'Clinicalannotation', 'EventDetail', 'qc_chum_hb_ed_hepatobiliary_clinical_presentation', 'referral_physisian_speciality', '', 'referral physisian speciality', 'input', 'size=20', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(null, '', 'QC_CHUM_HB_000005', 'Clinicalannotation', 'EventDetail', 'qc_chum_hb_ed_hepatobiliary_clinical_presentation', 'referral_physisian_2', 'referral physisian 2', '', 'input', 'size=20', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(null, '', 'QC_CHUM_HB_000006', 'Clinicalannotation', 'EventDetail', 'qc_chum_hb_ed_hepatobiliary_clinical_presentation', 'referral_physisian_speciality_2', '', 'referral physisian speciality', 'input', 'size=20', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(null, '', 'QC_CHUM_HB_000007', 'Clinicalannotation', 'EventDetail', 'qc_chum_hb_ed_hepatobiliary_clinical_presentation', 'referral_physisian_3', 'referral physisian 3', '', 'input', 'size=20', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(null, '', 'QC_CHUM_HB_000008', 'Clinicalannotation', 'EventDetail', 'qc_chum_hb_ed_hepatobiliary_clinical_presentation', 'referral_physisian_speciality_3', '', 'referral physisian speciality', 'input', 'size=20', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(null, '', 'QC_CHUM_HB_000009', 'Clinicalannotation', 'EventDetail', 'qc_chum_hb_ed_hepatobiliary_clinical_presentation', 'hbp_surgeon', 'hbp surgeron', '', 'input', 'size=30', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(null, '', 'QC-CHUM-HB-000001', 'Clinicalannotation', 'EventDetail', 'QC-CHUM-HB-ed_hepatobiliary_clinical_presentation', 'bmi', 'bmi', '', 'input', 'size=10', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, '', 'QC-CHUM-HB-000002', 'Clinicalannotation', 'EventDetail', 'QC-CHUM-HB-ed_hepatobiliary_clinical_presentation', 'referral_hospital', 'referral hospital', '', 'input', 'size=20', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, '', 'QC-CHUM-HB-000003', 'Clinicalannotation', 'EventDetail', 'QC-CHUM-HB-ed_hepatobiliary_clinical_presentation', 'referral_physisian', 'referral physisian', '', 'input', 'size=20', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, '', 'QC-CHUM-HB-000004', 'Clinicalannotation', 'EventDetail', 'QC-CHUM-HB-ed_hepatobiliary_clinical_presentation', 'referral_physisian_speciality', '', 'referral physisian speciality', 'input', 'size=20', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, '', 'QC-CHUM-HB-000005', 'Clinicalannotation', 'EventDetail', 'QC-CHUM-HB-ed_hepatobiliary_clinical_presentation', 'referral_physisian_2', 'referral physisian 2', '', 'input', 'size=20', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, '', 'QC-CHUM-HB-000006', 'Clinicalannotation', 'EventDetail', 'QC-CHUM-HB-ed_hepatobiliary_clinical_presentation', 'referral_physisian_speciality_2', '', 'referral physisian speciality', 'input', 'size=20', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, '', 'QC-CHUM-HB-000007', 'Clinicalannotation', 'EventDetail', 'QC-CHUM-HB-ed_hepatobiliary_clinical_presentation', 'referral_physisian_3', 'referral physisian 3', '', 'input', 'size=20', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, '', 'QC-CHUM-HB-000008', 'Clinicalannotation', 'EventDetail', 'QC-CHUM-HB-ed_hepatobiliary_clinical_presentation', 'referral_physisian_speciality_3', '', 'referral physisian speciality', 'input', 'size=20', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, '', 'QC-CHUM-HB-000009', 'Clinicalannotation', 'EventDetail', 'QC-CHUM-HB-ed_hepatobiliary_clinical_presentation', 'hbp_surgeon', 'hbp surgeron', '', 'input', 'size=30', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 -- first_consultation_date
-(null, 'QC_CHUM_HB_000001_CAN-999-999-000-999-229', (SELECT id FROM structures WHERE old_id = 'QC_CHUM_HB_000001'), 'QC_CHUM_HB_000001', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-229'), 'CAN-999-999-000-999-229', 0, 1, '', '1', 'first consultation date', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CHUM-HB-000001_CAN-999-999-000-999-229', (SELECT id FROM structures WHERE old_id = 'QC-CHUM-HB-000001'), 'QC-CHUM-HB-000001', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-229'), 'CAN-999-999-000-999-229', 0, 1, '', '1', 'first consultation date', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 
 -- disease_site
-(null, 'QC_CHUM_HB_000001_CAN-999-999-000-999-227', (SELECT id FROM structures WHERE old_id = 'QC_CHUM_HB_000001'), 'QC_CHUM_HB_000001', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-227'), 'CAN-999-999-000-999-227', 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CHUM-HB-000001_CAN-999-999-000-999-227', (SELECT id FROM structures WHERE old_id = 'QC-CHUM-HB-000001'), 'QC-CHUM-HB-000001', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-227'), 'CAN-999-999-000-999-227', 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 -- event_type
-(null, 'QC_CHUM_HB_000001_CAN-999-999-000-999-228', (SELECT id FROM structures WHERE old_id = 'QC_CHUM_HB_000001'), 'QC_CHUM_HB_000001', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-228'), 'CAN-999-999-000-999-228', 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CHUM-HB-000001_CAN-999-999-000-999-228', (SELECT id FROM structures WHERE old_id = 'QC-CHUM-HB-000001'), 'QC-CHUM-HB-000001', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-228'), 'CAN-999-999-000-999-228', 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 	
 -- hbp_surgeon
-(null, 'QC_CHUM_HB_000001_QC_CHUM_HB_000009', (SELECT id FROM structures WHERE old_id = 'QC_CHUM_HB_000001'), 'QC_CHUM_HB_000001', (SELECT id FROM structure_fields WHERE old_id = 'QC_CHUM_HB_000009'), 'QC_CHUM_HB_000009', 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CHUM-HB-000001_QC-CHUM-HB-000009', (SELECT id FROM structures WHERE old_id = 'QC-CHUM-HB-000001'), 'QC-CHUM-HB-000001', (SELECT id FROM structure_fields WHERE old_id = 'QC-CHUM-HB-000009'), 'QC-CHUM-HB-000009', 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 
 -- weight
-(null, 'QC_CHUM_HB_000001_CAN-999-999-000-999-235', (SELECT id FROM structures WHERE old_id = 'QC_CHUM_HB_000001'), 'QC_CHUM_HB_000001', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-235'), 'CAN-999-999-000-999-235', 0, 10, '', '1', 'weight (kg)', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CHUM-HB-000001_CAN-999-999-000-999-235', (SELECT id FROM structures WHERE old_id = 'QC-CHUM-HB-000001'), 'QC-CHUM-HB-000001', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-235'), 'CAN-999-999-000-999-235', 0, 10, '', '1', 'weight (kg)', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 -- height
-(null, 'QC_CHUM_HB_000001_CAN-999-999-000-999-236', (SELECT id FROM structures WHERE old_id = 'QC_CHUM_HB_000001'), 'QC_CHUM_HB_000001', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-236'), 'CAN-999-999-000-999-236', 0, 11, '', '1', 'height (cm)', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CHUM-HB-000001_CAN-999-999-000-999-236', (SELECT id FROM structures WHERE old_id = 'QC-CHUM-HB-000001'), 'QC-CHUM-HB-000001', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-236'), 'CAN-999-999-000-999-236', 0, 11, '', '1', 'height (cm)', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 -- bmi
-(null, 'QC_CHUM_HB_000001_QC_CHUM_HB_000001', (SELECT id FROM structures WHERE old_id = 'QC_CHUM_HB_000001'), 'QC_CHUM_HB_000001', (SELECT id FROM structure_fields WHERE old_id = 'QC_CHUM_HB_000001'), 'QC_CHUM_HB_000001', 0, 12, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CHUM-HB-000001_QC-CHUM-HB-000001', (SELECT id FROM structures WHERE old_id = 'QC-CHUM-HB-000001'), 'QC-CHUM-HB-000001', (SELECT id FROM structure_fields WHERE old_id = 'QC-CHUM-HB-000001'), 'QC-CHUM-HB-000001', 0, 12, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 
 -- event_summary
-(null, 'QC_CHUM_HB_000001_CAN-999-999-000-999-230', (SELECT id FROM structures WHERE old_id = 'QC_CHUM_HB_000001'), 'QC_CHUM_HB_000001', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-230'), 'CAN-999-999-000-999-230', 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CHUM-HB-000001_CAN-999-999-000-999-230', (SELECT id FROM structures WHERE old_id = 'QC-CHUM-HB-000001'), 'QC-CHUM-HB-000001', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-230'), 'CAN-999-999-000-999-230', 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 
 -- referral_hospital
-(null, 'QC_CHUM_HB_000001_QC_CHUM_HB_000002', (SELECT id FROM structures WHERE old_id = 'QC_CHUM_HB_000001'), 'QC_CHUM_HB_000001', (SELECT id FROM structure_fields WHERE old_id = 'QC_CHUM_HB_000002'), 'QC_CHUM_HB_000002', 1, 30, 'referral data', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CHUM-HB-000001_QC-CHUM-HB-000002', (SELECT id FROM structures WHERE old_id = 'QC-CHUM-HB-000001'), 'QC-CHUM-HB-000001', (SELECT id FROM structure_fields WHERE old_id = 'QC-CHUM-HB-000002'), 'QC-CHUM-HB-000002', 1, 30, 'referral data', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 -- referral_physisian 
-(null, 'QC_CHUM_HB_000001_QC_CHUM_HB_000003', (SELECT id FROM structures WHERE old_id = 'QC_CHUM_HB_000001'), 'QC_CHUM_HB_000001', (SELECT id FROM structure_fields WHERE old_id = 'QC_CHUM_HB_000003'), 'QC_CHUM_HB_000003', 1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CHUM-HB-000001_QC-CHUM-HB-000003', (SELECT id FROM structures WHERE old_id = 'QC-CHUM-HB-000001'), 'QC-CHUM-HB-000001', (SELECT id FROM structure_fields WHERE old_id = 'QC-CHUM-HB-000003'), 'QC-CHUM-HB-000003', 1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 -- referral_physisian_speciality
-(null, 'QC_CHUM_HB_000001_QC_CHUM_HB_000004', (SELECT id FROM structures WHERE old_id = 'QC_CHUM_HB_000001'), 'QC_CHUM_HB_000001', (SELECT id FROM structure_fields WHERE old_id = 'QC_CHUM_HB_000004'), 'QC_CHUM_HB_000004', 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CHUM-HB-000001_QC-CHUM-HB-000004', (SELECT id FROM structures WHERE old_id = 'QC-CHUM-HB-000001'), 'QC-CHUM-HB-000001', (SELECT id FROM structure_fields WHERE old_id = 'QC-CHUM-HB-000004'), 'QC-CHUM-HB-000004', 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 -- referral_physisian 2
-(null, 'QC_CHUM_HB_000001_QC_CHUM_HB_000005', (SELECT id FROM structures WHERE old_id = 'QC_CHUM_HB_000001'), 'QC_CHUM_HB_000001', (SELECT id FROM structure_fields WHERE old_id = 'QC_CHUM_HB_000005'), 'QC_CHUM_HB_000005', 1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CHUM-HB-000001_QC-CHUM-HB-000005', (SELECT id FROM structures WHERE old_id = 'QC-CHUM-HB-000001'), 'QC-CHUM-HB-000001', (SELECT id FROM structure_fields WHERE old_id = 'QC-CHUM-HB-000005'), 'QC-CHUM-HB-000005', 1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 -- referral_physisian_speciality 2
-(null, 'QC_CHUM_HB_000001_QC_CHUM_HB_000006', (SELECT id FROM structures WHERE old_id = 'QC_CHUM_HB_000001'), 'QC_CHUM_HB_000001', (SELECT id FROM structure_fields WHERE old_id = 'QC_CHUM_HB_000006'), 'QC_CHUM_HB_000006', 1, 34, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CHUM-HB-000001_QC-CHUM-HB-000006', (SELECT id FROM structures WHERE old_id = 'QC-CHUM-HB-000001'), 'QC-CHUM-HB-000001', (SELECT id FROM structure_fields WHERE old_id = 'QC-CHUM-HB-000006'), 'QC-CHUM-HB-000006', 1, 34, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 -- referral_physisian 3 
-(null, 'QC_CHUM_HB_000001_QC_CHUM_HB_000007', (SELECT id FROM structures WHERE old_id = 'QC_CHUM_HB_000001'), 'QC_CHUM_HB_000001', (SELECT id FROM structure_fields WHERE old_id = 'QC_CHUM_HB_000007'), 'QC_CHUM_HB_000007', 1, 35, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CHUM-HB-000001_QC-CHUM-HB-000007', (SELECT id FROM structures WHERE old_id = 'QC-CHUM-HB-000001'), 'QC-CHUM-HB-000001', (SELECT id FROM structure_fields WHERE old_id = 'QC-CHUM-HB-000007'), 'QC-CHUM-HB-000007', 1, 35, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 -- referral_physisian_speciality 3
-(null, 'QC_CHUM_HB_000001_QC_CHUM_HB_000008', (SELECT id FROM structures WHERE old_id = 'QC_CHUM_HB_000001'), 'QC_CHUM_HB_000001', (SELECT id FROM structure_fields WHERE old_id = 'QC_CHUM_HB_000008'), 'QC_CHUM_HB_000008', 1, 36, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(null, 'QC-CHUM-HB-000001_QC-CHUM-HB-000008', (SELECT id FROM structures WHERE old_id = 'QC-CHUM-HB-000001'), 'QC-CHUM-HB-000001', (SELECT id FROM structure_fields WHERE old_id = 'QC-CHUM-HB-000008'), 'QC-CHUM-HB-000008', 1, 36, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
   
 INSERT INTO `structure_validations` (`id`, `old_id`, `structure_field_id`, `structure_field_old_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) VALUES
-(null, 'QC_CHUM_HB_000001', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-235'), 'CAN-999-999-000-999-235', 'custom,/^([0-9]+(\\.[0-9]+)?)?$/', '1', '0', '', 'weight should be a positif decimal', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(null, 'QC_CHUM_HB_000002', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-236'), 'CAN-999-999-000-999-236', 'custom,/^([0-9]+(\\.[0-9]+)?)?$/', '1', '0', '', 'height should be a positif decimal', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(null, 'QC-CHUM-HB-000001', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-235'), 'CAN-999-999-000-999-235', 'custom,/^([0-9]+(\\.[0-9]+)?)?$/', '1', '0', '', 'weight should be a positif decimal', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CHUM-HB-000002', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-236'), 'CAN-999-999-000-999-236', 'custom,/^([0-9]+(\\.[0-9]+)?)?$/', '1', '0', '', 'height should be a positif decimal', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 DELETE FROM `i18n` WHERE `id` IN ('first consultation date', 'referral data', 'referral hospital', 
 'referral physisian', 'referral physisian 2', 'referral physisian 3', 'referral physisian speciality', 
@@ -215,10 +215,10 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`)
 -- ... CLINIC: lifestyle ...
 
 INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`, `status`, `form_alias`, `detail_tablename`, `display_order`) VALUES
-(null, 'hepatobiliary', 'lifestyle', 'summary', 'active', 'qc_chum_hb_ed_hepatobiliary_lifestyle', 'qc_chum_hb_ed_hepatobiliary_lifestyle', 0);
+(null, 'hepatobiliary', 'lifestyle', 'summary', 'active', 'QC-CHUM-HB-ed_hepatobiliary_lifestyle', 'QC-CHUM-HB-ed_hepatobiliary_lifestyle', 0);
 
-DROP TABLE IF EXISTS `qc_chum_hb_ed_hepatobiliary_lifestyle`;
-CREATE TABLE `qc_chum_hb_ed_hepatobiliary_lifestyle` (
+DROP TABLE IF EXISTS `QC-CHUM-HB-ed_hepatobiliary_lifestyle`;
+CREATE TABLE `QC-CHUM-HB-ed_hepatobiliary_lifestyle` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `active_tobacco` varchar(10) DEFAULT NULL, 
   `active_alcohol` varchar(10) DEFAULT NULL, 
@@ -233,13 +233,13 @@ CREATE TABLE `qc_chum_hb_ed_hepatobiliary_lifestyle` (
   KEY `event_master_id` (`event_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-ALTER TABLE `qc_chum_hb_ed_hepatobiliary_lifestyle`
+ALTER TABLE `QC-CHUM-HB-ed_hepatobiliary_lifestyle`
   ADD FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`)
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
   
-DROP TABLE IF EXISTS `qc_chum_hb_ed_hepatobiliary_lifestyle_revs`;
-CREATE TABLE `qc_chum_hb_ed_hepatobiliary_lifestyle_revs` (
+DROP TABLE IF EXISTS `QC-CHUM-HB-ed_hepatobiliary_lifestyle_revs`;
+CREATE TABLE `QC-CHUM-HB-ed_hepatobiliary_lifestyle_revs` (
   `id` int(11) NOT NULL, 
   `active_tobacco` varchar(10) DEFAULT NULL, 
   `active_alcohol` varchar(10) DEFAULT NULL, 
@@ -257,29 +257,29 @@ CREATE TABLE `qc_chum_hb_ed_hepatobiliary_lifestyle_revs` (
 INSERT INTO `structures` 
 (`id`, `old_id`, `alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`) 
 VALUES
-(null, 'QC_CHUM_HB_000002', 'qc_chum_hb_ed_hepatobiliary_lifestyle', '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(null, 'QC-CHUM-HB-000002', 'QC-CHUM-HB-ed_hepatobiliary_lifestyle', '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 INSERT INTO `structure_fields` 
 (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) 
 VALUES
-(null, '', 'QC_CHUM_HB_0000010', 'Clinicalannotation', 'EventDetail', 'qc_chum_hb_ed_hepatobiliary_lifestyle', 'active_tobacco', 'active_tobacco', '', 'select', '', '', @last_domains_id, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(null, '', 'QC_CHUM_HB_0000011', 'Clinicalannotation', 'EventDetail', 'qc_chum_hb_ed_hepatobiliary_lifestyle', 'active_alcohol', 'active_alcohol', '', 'select', '', '', @last_domains_id, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(null, '', 'QC-CHUM-HB-0000010', 'Clinicalannotation', 'EventDetail', 'QC-CHUM-HB-ed_hepatobiliary_lifestyle', 'active_tobacco', 'active_tobacco', '', 'select', '', '', @last_domains_id, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, '', 'QC-CHUM-HB-0000011', 'Clinicalannotation', 'EventDetail', 'QC-CHUM-HB-ed_hepatobiliary_lifestyle', 'active_alcohol', 'active_alcohol', '', 'select', '', '', @last_domains_id, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 -- date
-(null, 'QC_CHUM_HB_000002_CAN-999-999-000-999-229', (SELECT id FROM structures WHERE old_id = 'QC_CHUM_HB_000002'), 'QC_CHUM_HB_000002', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-229'), 'CAN-999-999-000-999-229', 0, 1, '', '1', 'last update date', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CHUM-HB-000002_CAN-999-999-000-999-229', (SELECT id FROM structures WHERE old_id = 'QC-CHUM-HB-000002'), 'QC-CHUM-HB-000002', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-229'), 'CAN-999-999-000-999-229', 0, 1, '', '1', 'last update date', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 
 -- disease_site
-(null, 'QC_CHUM_HB_000002_CAN-999-999-000-999-227', (SELECT id FROM structures WHERE old_id = 'QC_CHUM_HB_000002'), 'QC_CHUM_HB_000002', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-227'), 'CAN-999-999-000-999-227', 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CHUM-HB-000002_CAN-999-999-000-999-227', (SELECT id FROM structures WHERE old_id = 'QC-CHUM-HB-000002'), 'QC-CHUM-HB-000002', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-227'), 'CAN-999-999-000-999-227', 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 -- event_type
-(null, 'QC_CHUM_HB_000002_CAN-999-999-000-999-228', (SELECT id FROM structures WHERE old_id = 'QC_CHUM_HB_000002'), 'QC_CHUM_HB_000002', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-228'), 'CAN-999-999-000-999-228', 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CHUM-HB-000002_CAN-999-999-000-999-228', (SELECT id FROM structures WHERE old_id = 'QC-CHUM-HB-000002'), 'QC-CHUM-HB-000002', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-228'), 'CAN-999-999-000-999-228', 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 	
 -- active_tobacco
-(null, 'QC_CHUM_HB_000002_QC_CHUM_HB_0000010', (SELECT id FROM structures WHERE old_id = 'QC_CHUM_HB_000002'), 'QC_CHUM_HB_000002', (SELECT id FROM structure_fields WHERE old_id = 'QC_CHUM_HB_0000010'), 'QC_CHUM_HB_0000010', 0, 10, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CHUM-HB-000002_QC-CHUM-HB-0000010', (SELECT id FROM structures WHERE old_id = 'QC-CHUM-HB-000002'), 'QC-CHUM-HB-000002', (SELECT id FROM structure_fields WHERE old_id = 'QC-CHUM-HB-0000010'), 'QC-CHUM-HB-0000010', 0, 10, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 -- active_alcohol
-(null, 'QC_CHUM_HB_000002_QC_CHUM_HB_0000011', (SELECT id FROM structures WHERE old_id = 'QC_CHUM_HB_000002'), 'QC_CHUM_HB_000002', (SELECT id FROM structure_fields WHERE old_id = 'QC_CHUM_HB_0000011'), 'QC_CHUM_HB_0000011', 0, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CHUM-HB-000002_QC-CHUM-HB-0000011', (SELECT id FROM structures WHERE old_id = 'QC-CHUM-HB-000002'), 'QC-CHUM-HB-000002', (SELECT id FROM structure_fields WHERE old_id = 'QC-CHUM-HB-0000011'), 'QC-CHUM-HB-0000011', 0, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 -- event_summary
-(null, 'QC_CHUM_HB_000002_CAN-999-999-000-999-230', (SELECT id FROM structures WHERE old_id = 'QC_CHUM_HB_000002'), 'QC_CHUM_HB_000002', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-230'), 'CAN-999-999-000-999-230', 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(null, 'QC-CHUM-HB-000002_CAN-999-999-000-999-230', (SELECT id FROM structures WHERE old_id = 'QC-CHUM-HB-000002'), 'QC-CHUM-HB-000002', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-230'), 'CAN-999-999-000-999-230', 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 DELETE FROM `i18n` WHERE `id` IN ('active_tobacco', 'active_alcohol', 'last update date', 'this type of event has already been created for your participant');
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
@@ -295,19 +295,19 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 
 INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`, `status`, `form_alias`, `detail_tablename`, `display_order`) 
 VALUES
-(null, 'hepatobiliary', 'clinical', 'asa medical past history', 'active', 'qc_chum_hb_ed_hepatobiliary_medical_past_history', 'qc_chum_hb_ed_hepatobiliary_medical_past_history', 0),
-(null, 'hepatobiliary', 'clinical', 'heart disease medical past history', 'active', 'qc_chum_hb_ed_hepatobiliary_medical_past_history', 'qc_chum_hb_ed_hepatobiliary_medical_past_history', 0),
-(null, 'hepatobiliary', 'clinical', 'vascular disease medical past history', 'active', 'qc_chum_hb_ed_hepatobiliary_medical_past_history', 'qc_chum_hb_ed_hepatobiliary_medical_past_history', 0),
-(null, 'hepatobiliary', 'clinical', 'respiratory disease medical past history', 'active', 'qc_chum_hb_ed_hepatobiliary_medical_past_history', 'qc_chum_hb_ed_hepatobiliary_medical_past_history', 0),
-(null, 'hepatobiliary', 'clinical', 'neural vascular disease medical past history', 'active', 'qc_chum_hb_ed_hepatobiliary_medical_past_history', 'qc_chum_hb_ed_hepatobiliary_medical_past_history', 0),
-(null, 'hepatobiliary', 'clinical', 'endocrine disease medical past history', 'active', 'qc_chum_hb_ed_hepatobiliary_medical_past_history', 'qc_chum_hb_ed_hepatobiliary_medical_past_history', 0),
-(null, 'hepatobiliary', 'clinical', 'urinary disease medical past history', 'active', 'qc_chum_hb_ed_hepatobiliary_medical_past_history', 'qc_chum_hb_ed_hepatobiliary_medical_past_history', 0),
-(null, 'hepatobiliary', 'clinical', 'gastro-intestinal disease medical past history', 'active', 'qc_chum_hb_ed_hepatobiliary_medical_past_history', 'qc_chum_hb_ed_hepatobiliary_medical_past_history', 0),
-(null, 'hepatobiliary', 'clinical', 'gynecologic disease medical past history', 'active', 'qc_chum_hb_ed_hepatobiliary_medical_past_history', 'qc_chum_hb_ed_hepatobiliary_medical_past_history', 0),
-(null, 'hepatobiliary', 'clinical', 'other disease medical past history', 'active', 'qc_chum_hb_ed_hepatobiliary_medical_past_history', 'qc_chum_hb_ed_hepatobiliary_medical_past_history', 0);
+(null, 'hepatobiliary', 'clinical', 'asa medical past history', 'active', 'QC-CHUM-HB-ed_hepatobiliary_medical_past_history', 'QC-CHUM-HB-ed_hepatobiliary_medical_past_history', 0),
+(null, 'hepatobiliary', 'clinical', 'heart disease medical past history', 'active', 'QC-CHUM-HB-ed_hepatobiliary_medical_past_history', 'QC-CHUM-HB-ed_hepatobiliary_medical_past_history', 0),
+(null, 'hepatobiliary', 'clinical', 'vascular disease medical past history', 'active', 'QC-CHUM-HB-ed_hepatobiliary_medical_past_history', 'QC-CHUM-HB-ed_hepatobiliary_medical_past_history', 0),
+(null, 'hepatobiliary', 'clinical', 'respiratory disease medical past history', 'active', 'QC-CHUM-HB-ed_hepatobiliary_medical_past_history', 'QC-CHUM-HB-ed_hepatobiliary_medical_past_history', 0),
+(null, 'hepatobiliary', 'clinical', 'neural vascular disease medical past history', 'active', 'QC-CHUM-HB-ed_hepatobiliary_medical_past_history', 'QC-CHUM-HB-ed_hepatobiliary_medical_past_history', 0),
+(null, 'hepatobiliary', 'clinical', 'endocrine disease medical past history', 'active', 'QC-CHUM-HB-ed_hepatobiliary_medical_past_history', 'QC-CHUM-HB-ed_hepatobiliary_medical_past_history', 0),
+(null, 'hepatobiliary', 'clinical', 'urinary disease medical past history', 'active', 'QC-CHUM-HB-ed_hepatobiliary_medical_past_history', 'QC-CHUM-HB-ed_hepatobiliary_medical_past_history', 0),
+(null, 'hepatobiliary', 'clinical', 'gastro-intestinal disease medical past history', 'active', 'QC-CHUM-HB-ed_hepatobiliary_medical_past_history', 'QC-CHUM-HB-ed_hepatobiliary_medical_past_history', 0),
+(null, 'hepatobiliary', 'clinical', 'gynecologic disease medical past history', 'active', 'QC-CHUM-HB-ed_hepatobiliary_medical_past_history', 'QC-CHUM-HB-ed_hepatobiliary_medical_past_history', 0),
+(null, 'hepatobiliary', 'clinical', 'other disease medical past history', 'active', 'QC-CHUM-HB-ed_hepatobiliary_medical_past_history', 'QC-CHUM-HB-ed_hepatobiliary_medical_past_history', 0);
 
-DROP TABLE IF EXISTS `qc_chum_hb_hepatobiliary_medical_past_history_ctrls`;
-CREATE TABLE `qc_chum_hb_hepatobiliary_medical_past_history_ctrls` (
+DROP TABLE IF EXISTS `QC-CHUM-HB-hepatobiliary_medical_past_history_ctrls`;
+CREATE TABLE `QC-CHUM-HB-hepatobiliary_medical_past_history_ctrls` (
   `id` int(11) NOT NULL AUTO_INCREMENT, 
   `event_control_id` int(11) NOT NULL, 
   `disease_precision` varchar(250) NOT NULL,
@@ -315,13 +315,13 @@ CREATE TABLE `qc_chum_hb_hepatobiliary_medical_past_history_ctrls` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-ALTER TABLE `qc_chum_hb_hepatobiliary_medical_past_history_ctrls`
+ALTER TABLE `QC-CHUM-HB-hepatobiliary_medical_past_history_ctrls`
   ADD FOREIGN KEY (`event_control_id`) REFERENCES `event_controls` (`id`)
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
   
 -- TODO Section to delete (for example)
-INSERT INTO `qc_chum_hb_hepatobiliary_medical_past_history_ctrls` 
+INSERT INTO `QC-CHUM-HB-hepatobiliary_medical_past_history_ctrls` 
 (`id`, `event_control_id`, `disease_precision`, `display_order`)
 VALUES 
 (null, (SELECT `id` FROM `event_controls` WHERE `event_type` = 'asa medical past history' AND `disease_site` = 'hepatobiliary' AND `event_group` = 'clinical'), 'drug ex 1', '1'),
@@ -364,10 +364,10 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 INSERT INTO `structures` 
 (`id`, `old_id`, `alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`) 
 VALUES
-(null, 'QC_CHUM_HB_000004', 'qc_chum_hb_ed_hepatobiliary_medical_past_history', '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(null, 'QC-CHUM-HB-000004', 'QC-CHUM-HB-ed_hepatobiliary_medical_past_history', '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
-DROP TABLE IF EXISTS `qc_chum_hb_ed_hepatobiliary_medical_past_history`;
-CREATE TABLE `qc_chum_hb_ed_hepatobiliary_medical_past_history` (
+DROP TABLE IF EXISTS `QC-CHUM-HB-ed_hepatobiliary_medical_past_history`;
+CREATE TABLE `QC-CHUM-HB-ed_hepatobiliary_medical_past_history` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `disease_precision` varchar(250) DEFAULT NULL, 
   `created` date DEFAULT NULL,
@@ -381,13 +381,13 @@ CREATE TABLE `qc_chum_hb_ed_hepatobiliary_medical_past_history` (
   KEY `event_master_id` (`event_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-ALTER TABLE `qc_chum_hb_ed_hepatobiliary_medical_past_history`
+ALTER TABLE `QC-CHUM-HB-ed_hepatobiliary_medical_past_history`
   ADD FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`)
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
 
-DROP TABLE IF EXISTS `qc_chum_hb_ed_hepatobiliary_medical_past_history_revs`;
-CREATE TABLE `qc_chum_hb_ed_hepatobiliary_medical_past_history_revs` (
+DROP TABLE IF EXISTS `QC-CHUM-HB-ed_hepatobiliary_medical_past_history_revs`;
+CREATE TABLE `QC-CHUM-HB-ed_hepatobiliary_medical_past_history_revs` (
   `id` int(11) NOT NULL, 
   `disease_precision` varchar(250) DEFAULT NULL, 
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
@@ -404,23 +404,23 @@ CREATE TABLE `qc_chum_hb_ed_hepatobiliary_medical_past_history_revs` (
 INSERT INTO `structure_fields` 
 (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) 
 VALUES
-(null, '', 'QC_CHUM_HB_0000022', 'Clinicalannotation', 'EventDetail', 'qc_chum_hb_ed_hepatobiliary_medical_past_history', 'disease_precision', 'medical history precision', '', 'select', '', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(null, '', 'QC-CHUM-HB-0000022', 'Clinicalannotation', 'EventDetail', 'QC-CHUM-HB-ed_hepatobiliary_medical_past_history', 'disease_precision', 'medical history precision', '', 'select', '', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
-DELETE FROM `structure_formats` WHERE `old_id` LIKE 'QC_CHUM_HB_000004_%';
+DELETE FROM `structure_formats` WHERE `old_id` LIKE 'QC-CHUM-HB-000004_%';
 INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 -- date
-(null, 'QC_CHUM_HB_000004_CAN-999-999-000-999-229', (SELECT id FROM structures WHERE old_id = 'QC_CHUM_HB_000004'), 'QC_CHUM_HB_000004', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-229'), 'CAN-999-999-000-999-229', 0, 1, '', '1', 'diagnostic date', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CHUM-HB-000004_CAN-999-999-000-999-229', (SELECT id FROM structures WHERE old_id = 'QC-CHUM-HB-000004'), 'QC-CHUM-HB-000004', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-229'), 'CAN-999-999-000-999-229', 0, 1, '', '1', 'diagnostic date', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 
 -- disease_site
-(null, 'QC_CHUM_HB_000004_CAN-999-999-000-999-227', (SELECT id FROM structures WHERE old_id = 'QC_CHUM_HB_000004'), 'QC_CHUM_HB_000004', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-227'), 'CAN-999-999-000-999-227', 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CHUM-HB-000004_CAN-999-999-000-999-227', (SELECT id FROM structures WHERE old_id = 'QC-CHUM-HB-000004'), 'QC-CHUM-HB-000004', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-227'), 'CAN-999-999-000-999-227', 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 -- event_type
-(null, 'QC_CHUM_HB_000004_CAN-999-999-000-999-228', (SELECT id FROM structures WHERE old_id = 'QC_CHUM_HB_000004'), 'QC_CHUM_HB_000004', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-228'), 'CAN-999-999-000-999-228', 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CHUM-HB-000004_CAN-999-999-000-999-228', (SELECT id FROM structures WHERE old_id = 'QC-CHUM-HB-000004'), 'QC-CHUM-HB-000004', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-228'), 'CAN-999-999-000-999-228', 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 	
 -- precision
-(null, 'QC_CHUM_HB_000004_QC_CHUM_HB_0000022', (SELECT id FROM structures WHERE old_id = 'QC_CHUM_HB_000004'), 'QC_CHUM_HB_000004', (SELECT id FROM structure_fields WHERE old_id = 'QC_CHUM_HB_0000022'), 'QC_CHUM_HB_0000022', 0, 10, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CHUM-HB-000004_QC-CHUM-HB-0000022', (SELECT id FROM structures WHERE old_id = 'QC-CHUM-HB-000004'), 'QC-CHUM-HB-000004', (SELECT id FROM structure_fields WHERE old_id = 'QC-CHUM-HB-0000022'), 'QC-CHUM-HB-0000022', 0, 10, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 
 -- event_summary
-(null, 'QC_CHUM_HB_000004_CAN-999-999-000-999-230', (SELECT id FROM structures WHERE old_id = 'QC_CHUM_HB_000004'), 'QC_CHUM_HB_000004', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-230'), 'CAN-999-999-000-999-230', 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(null, 'QC-CHUM-HB-000004_CAN-999-999-000-999-230', (SELECT id FROM structures WHERE old_id = 'QC-CHUM-HB-000004'), 'QC-CHUM-HB-000004', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-230'), 'CAN-999-999-000-999-230', 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 DELETE FROM `i18n` WHERE `id`IN (
 'asa medical past history',
@@ -469,15 +469,15 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 
 INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`, `status`, `form_alias`, `detail_tablename`, `display_order`) 
 VALUES
-(null, 'hepatobiliary', 'clinical', 'medical past history record summary', 'active', 'qc_chum_hb_ed_hepatobiliary_med_hist_record_summary', 'qc_chum_hb_ed_hepatobiliary_med_hist_record_summary', 0);
+(null, 'hepatobiliary', 'clinical', 'medical past history record summary', 'active', 'QC-CHUM-HB-ed_hepatobiliary_med_hist_record_summary', 'QC-CHUM-HB-ed_hepatobiliary_med_hist_record_summary', 0);
 
 INSERT INTO `structures` 
 (`id`, `old_id`, `alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`) 
 VALUES
-(null, 'QC_CHUM_HB_000003', 'qc_chum_hb_ed_hepatobiliary_med_hist_record_summary', '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(null, 'QC-CHUM-HB-000003', 'QC-CHUM-HB-ed_hepatobiliary_med_hist_record_summary', '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
-DROP TABLE IF EXISTS `qc_chum_hb_ed_hepatobiliary_med_hist_record_summary`;
-CREATE TABLE `qc_chum_hb_ed_hepatobiliary_med_hist_record_summary` (
+DROP TABLE IF EXISTS `QC-CHUM-HB-ed_hepatobiliary_med_hist_record_summary`;
+CREATE TABLE `QC-CHUM-HB-ed_hepatobiliary_med_hist_record_summary` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `asa_value` varchar(10) DEFAULT NULL, 
   `heart_disease` varchar(10) DEFAULT NULL, 
@@ -500,13 +500,13 @@ CREATE TABLE `qc_chum_hb_ed_hepatobiliary_med_hist_record_summary` (
   KEY `event_master_id` (`event_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-ALTER TABLE `qc_chum_hb_ed_hepatobiliary_med_hist_record_summary`
+ALTER TABLE `QC-CHUM-HB-ed_hepatobiliary_med_hist_record_summary`
   ADD FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`)
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
 
-DROP TABLE IF EXISTS `qc_chum_hb_ed_hepatobiliary_med_hist_record_summary_revs`;
-CREATE TABLE `qc_chum_hb_ed_hepatobiliary_med_hist_record_summary_revs` (
+DROP TABLE IF EXISTS `QC-CHUM-HB-ed_hepatobiliary_med_hist_record_summary_revs`;
+CREATE TABLE `QC-CHUM-HB-ed_hepatobiliary_med_hist_record_summary_revs` (
   `id` int(11) NOT NULL, 
   `asa_value` varchar(10) DEFAULT NULL, 
   `heart_disease` varchar(10) DEFAULT NULL, 
@@ -532,51 +532,288 @@ CREATE TABLE `qc_chum_hb_ed_hepatobiliary_med_hist_record_summary_revs` (
 INSERT INTO `structure_fields` 
 (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) 
 VALUES
-(null, '', 'QC_CHUM_HB_0000012', 'Clinicalannotation', 'EventDetail', 'qc_chum_hb_ed_hepatobiliary_med_hist_record_summary', 'asa_value', 'asa medical past history', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(null, '', 'QC_CHUM_HB_0000013', 'Clinicalannotation', 'EventDetail', 'qc_chum_hb_ed_hepatobiliary_med_hist_record_summary', 'heart_disease', 'heart disease medical past history', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(null, '', 'QC_CHUM_HB_0000014', 'Clinicalannotation', 'EventDetail', 'qc_chum_hb_ed_hepatobiliary_med_hist_record_summary', 'respiratory_disease', 'respiratory disease medical past history', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(null, '', 'QC_CHUM_HB_0000015', 'Clinicalannotation', 'EventDetail', 'qc_chum_hb_ed_hepatobiliary_med_hist_record_summary', 'vascular_disease', 'vascular disease medical past history', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(null, '', 'QC_CHUM_HB_0000016', 'Clinicalannotation', 'EventDetail', 'qc_chum_hb_ed_hepatobiliary_med_hist_record_summary', 'neural_vascular_disease', 'neural vascular disease medical past history', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(null, '', 'QC_CHUM_HB_0000017', 'Clinicalannotation', 'EventDetail', 'qc_chum_hb_ed_hepatobiliary_med_hist_record_summary', 'endocrine_disease', 'endocrine disease medical past history', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(null, '', 'QC_CHUM_HB_0000018', 'Clinicalannotation', 'EventDetail', 'qc_chum_hb_ed_hepatobiliary_med_hist_record_summary', 'urinary_disease', 'urinary disease medical past history', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(null, '', 'QC_CHUM_HB_0000019', 'Clinicalannotation', 'EventDetail', 'qc_chum_hb_ed_hepatobiliary_med_hist_record_summary', 'gastro_intestinal_disease', 'gastro-intestinal disease medical past history', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(null, '', 'QC_CHUM_HB_0000020', 'Clinicalannotation', 'EventDetail', 'qc_chum_hb_ed_hepatobiliary_med_hist_record_summary', 'gynecologic_disease', 'gynecologic disease medical past history', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(null, '', 'QC_CHUM_HB_0000021', 'Clinicalannotation', 'EventDetail', 'qc_chum_hb_ed_hepatobiliary_med_hist_record_summary', 'other_disease', 'other disease medical past history', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(null, '', 'QC-CHUM-HB-0000012', 'Clinicalannotation', 'EventDetail', 'QC-CHUM-HB-ed_hepatobiliary_med_hist_record_summary', 'asa_value', 'asa medical past history', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, '', 'QC-CHUM-HB-0000013', 'Clinicalannotation', 'EventDetail', 'QC-CHUM-HB-ed_hepatobiliary_med_hist_record_summary', 'heart_disease', 'heart disease medical past history', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, '', 'QC-CHUM-HB-0000014', 'Clinicalannotation', 'EventDetail', 'QC-CHUM-HB-ed_hepatobiliary_med_hist_record_summary', 'respiratory_disease', 'respiratory disease medical past history', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, '', 'QC-CHUM-HB-0000015', 'Clinicalannotation', 'EventDetail', 'QC-CHUM-HB-ed_hepatobiliary_med_hist_record_summary', 'vascular_disease', 'vascular disease medical past history', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, '', 'QC-CHUM-HB-0000016', 'Clinicalannotation', 'EventDetail', 'QC-CHUM-HB-ed_hepatobiliary_med_hist_record_summary', 'neural_vascular_disease', 'neural vascular disease medical past history', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, '', 'QC-CHUM-HB-0000017', 'Clinicalannotation', 'EventDetail', 'QC-CHUM-HB-ed_hepatobiliary_med_hist_record_summary', 'endocrine_disease', 'endocrine disease medical past history', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, '', 'QC-CHUM-HB-0000018', 'Clinicalannotation', 'EventDetail', 'QC-CHUM-HB-ed_hepatobiliary_med_hist_record_summary', 'urinary_disease', 'urinary disease medical past history', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, '', 'QC-CHUM-HB-0000019', 'Clinicalannotation', 'EventDetail', 'QC-CHUM-HB-ed_hepatobiliary_med_hist_record_summary', 'gastro_intestinal_disease', 'gastro-intestinal disease medical past history', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, '', 'QC-CHUM-HB-0000020', 'Clinicalannotation', 'EventDetail', 'QC-CHUM-HB-ed_hepatobiliary_med_hist_record_summary', 'gynecologic_disease', 'gynecologic disease medical past history', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, '', 'QC-CHUM-HB-0000021', 'Clinicalannotation', 'EventDetail', 'QC-CHUM-HB-ed_hepatobiliary_med_hist_record_summary', 'other_disease', 'other disease medical past history', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
  
 INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 -- date
-(null, 'QC_CHUM_HB_000003_CAN-999-999-000-999-229', (SELECT id FROM structures WHERE old_id = 'QC_CHUM_HB_000003'), 'QC_CHUM_HB_000003', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-229'), 'CAN-999-999-000-999-229', 0, 1, '', '1', 'last update date', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CHUM-HB-000003_CAN-999-999-000-999-229', (SELECT id FROM structures WHERE old_id = 'QC-CHUM-HB-000003'), 'QC-CHUM-HB-000003', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-229'), 'CAN-999-999-000-999-229', 0, 1, '', '1', 'last update date', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 
 -- disease_site
-(null, 'QC_CHUM_HB_000003_CAN-999-999-000-999-227', (SELECT id FROM structures WHERE old_id = 'QC_CHUM_HB_000003'), 'QC_CHUM_HB_000003', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-227'), 'CAN-999-999-000-999-227', 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CHUM-HB-000003_CAN-999-999-000-999-227', (SELECT id FROM structures WHERE old_id = 'QC-CHUM-HB-000003'), 'QC-CHUM-HB-000003', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-227'), 'CAN-999-999-000-999-227', 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 -- event_type
-(null, 'QC_CHUM_HB_000003_CAN-999-999-000-999-228', (SELECT id FROM structures WHERE old_id = 'QC_CHUM_HB_000003'), 'QC_CHUM_HB_000003', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-228'), 'CAN-999-999-000-999-228', 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CHUM-HB-000003_CAN-999-999-000-999-228', (SELECT id FROM structures WHERE old_id = 'QC-CHUM-HB-000003'), 'QC-CHUM-HB-000003', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-228'), 'CAN-999-999-000-999-228', 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 	
 -- 
-(null, 'QC_CHUM_HB_000003_QC_CHUM_HB_0000012', (SELECT id FROM structures WHERE old_id = 'QC_CHUM_HB_000003'), 'QC_CHUM_HB_000003', (SELECT id FROM structure_fields WHERE old_id = 'QC_CHUM_HB_0000012'), 'QC_CHUM_HB_0000012', 1, 40, 'reviewed diseases', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CHUM-HB-000003_QC-CHUM-HB-0000012', (SELECT id FROM structures WHERE old_id = 'QC-CHUM-HB-000003'), 'QC-CHUM-HB-000003', (SELECT id FROM structure_fields WHERE old_id = 'QC-CHUM-HB-0000012'), 'QC-CHUM-HB-0000012', 1, 40, 'reviewed diseases', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 -- 
-(null, 'QC_CHUM_HB_000003_QC_CHUM_HB_0000013', (SELECT id FROM structures WHERE old_id = 'QC_CHUM_HB_000003'), 'QC_CHUM_HB_000003', (SELECT id FROM structure_fields WHERE old_id = 'QC_CHUM_HB_0000013'), 'QC_CHUM_HB_0000013', 1, 41, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CHUM-HB-000003_QC-CHUM-HB-0000013', (SELECT id FROM structures WHERE old_id = 'QC-CHUM-HB-000003'), 'QC-CHUM-HB-000003', (SELECT id FROM structure_fields WHERE old_id = 'QC-CHUM-HB-0000013'), 'QC-CHUM-HB-0000013', 1, 41, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 -- 
-(null, 'QC_CHUM_HB_000003_QC_CHUM_HB_0000014', (SELECT id FROM structures WHERE old_id = 'QC_CHUM_HB_000003'), 'QC_CHUM_HB_000003', (SELECT id FROM structure_fields WHERE old_id = 'QC_CHUM_HB_0000014'), 'QC_CHUM_HB_0000014', 1, 42, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CHUM-HB-000003_QC-CHUM-HB-0000014', (SELECT id FROM structures WHERE old_id = 'QC-CHUM-HB-000003'), 'QC-CHUM-HB-000003', (SELECT id FROM structure_fields WHERE old_id = 'QC-CHUM-HB-0000014'), 'QC-CHUM-HB-0000014', 1, 42, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 -- 
-(null, 'QC_CHUM_HB_000003_QC_CHUM_HB_0000015', (SELECT id FROM structures WHERE old_id = 'QC_CHUM_HB_000003'), 'QC_CHUM_HB_000003', (SELECT id FROM structure_fields WHERE old_id = 'QC_CHUM_HB_0000015'), 'QC_CHUM_HB_0000015', 1, 43, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CHUM-HB-000003_QC-CHUM-HB-0000015', (SELECT id FROM structures WHERE old_id = 'QC-CHUM-HB-000003'), 'QC-CHUM-HB-000003', (SELECT id FROM structure_fields WHERE old_id = 'QC-CHUM-HB-0000015'), 'QC-CHUM-HB-0000015', 1, 43, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 -- 
-(null, 'QC_CHUM_HB_000003_QC_CHUM_HB_0000016', (SELECT id FROM structures WHERE old_id = 'QC_CHUM_HB_000003'), 'QC_CHUM_HB_000003', (SELECT id FROM structure_fields WHERE old_id = 'QC_CHUM_HB_0000016'), 'QC_CHUM_HB_0000016', 1, 44, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CHUM-HB-000003_QC-CHUM-HB-0000016', (SELECT id FROM structures WHERE old_id = 'QC-CHUM-HB-000003'), 'QC-CHUM-HB-000003', (SELECT id FROM structure_fields WHERE old_id = 'QC-CHUM-HB-0000016'), 'QC-CHUM-HB-0000016', 1, 44, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 -- 
-(null, 'QC_CHUM_HB_000003_QC_CHUM_HB_0000017', (SELECT id FROM structures WHERE old_id = 'QC_CHUM_HB_000003'), 'QC_CHUM_HB_000003', (SELECT id FROM structure_fields WHERE old_id = 'QC_CHUM_HB_0000017'), 'QC_CHUM_HB_0000017', 1, 45, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CHUM-HB-000003_QC-CHUM-HB-0000017', (SELECT id FROM structures WHERE old_id = 'QC-CHUM-HB-000003'), 'QC-CHUM-HB-000003', (SELECT id FROM structure_fields WHERE old_id = 'QC-CHUM-HB-0000017'), 'QC-CHUM-HB-0000017', 1, 45, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 -- 
-(null, 'QC_CHUM_HB_000003_QC_CHUM_HB_0000018', (SELECT id FROM structures WHERE old_id = 'QC_CHUM_HB_000003'), 'QC_CHUM_HB_000003', (SELECT id FROM structure_fields WHERE old_id = 'QC_CHUM_HB_0000018'), 'QC_CHUM_HB_0000018', 1, 46, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CHUM-HB-000003_QC-CHUM-HB-0000018', (SELECT id FROM structures WHERE old_id = 'QC-CHUM-HB-000003'), 'QC-CHUM-HB-000003', (SELECT id FROM structure_fields WHERE old_id = 'QC-CHUM-HB-0000018'), 'QC-CHUM-HB-0000018', 1, 46, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 -- 
-(null, 'QC_CHUM_HB_000003_QC_CHUM_HB_0000019', (SELECT id FROM structures WHERE old_id = 'QC_CHUM_HB_000003'), 'QC_CHUM_HB_000003', (SELECT id FROM structure_fields WHERE old_id = 'QC_CHUM_HB_0000019'), 'QC_CHUM_HB_0000019', 1, 47, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CHUM-HB-000003_QC-CHUM-HB-0000019', (SELECT id FROM structures WHERE old_id = 'QC-CHUM-HB-000003'), 'QC-CHUM-HB-000003', (SELECT id FROM structure_fields WHERE old_id = 'QC-CHUM-HB-0000019'), 'QC-CHUM-HB-0000019', 1, 47, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 -- 
-(null, 'QC_CHUM_HB_000003_QC_CHUM_HB_0000020', (SELECT id FROM structures WHERE old_id = 'QC_CHUM_HB_000003'), 'QC_CHUM_HB_000003', (SELECT id FROM structure_fields WHERE old_id = 'QC_CHUM_HB_0000020'), 'QC_CHUM_HB_0000020', 1, 48, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CHUM-HB-000003_QC-CHUM-HB-0000020', (SELECT id FROM structures WHERE old_id = 'QC-CHUM-HB-000003'), 'QC-CHUM-HB-000003', (SELECT id FROM structure_fields WHERE old_id = 'QC-CHUM-HB-0000020'), 'QC-CHUM-HB-0000020', 1, 48, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 -- 
-(null, 'QC_CHUM_HB_000003_QC_CHUM_HB_0000021', (SELECT id FROM structures WHERE old_id = 'QC_CHUM_HB_000003'), 'QC_CHUM_HB_000003', (SELECT id FROM structure_fields WHERE old_id = 'QC_CHUM_HB_0000021'), 'QC_CHUM_HB_0000021', 1, 49, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CHUM-HB-000003_QC-CHUM-HB-0000021', (SELECT id FROM structures WHERE old_id = 'QC-CHUM-HB-000003'), 'QC-CHUM-HB-000003', (SELECT id FROM structure_fields WHERE old_id = 'QC-CHUM-HB-0000021'), 'QC-CHUM-HB-0000021', 1, 49, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 
 -- event_summary
-(null, 'QC_CHUM_HB_000003_CAN-999-999-000-999-230', (SELECT id FROM structures WHERE old_id = 'QC_CHUM_HB_000003'), 'QC_CHUM_HB_000003', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-230'), 'CAN-999-999-000-999-230', 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(null, 'QC-CHUM-HB-000003_CAN-999-999-000-999-230', (SELECT id FROM structures WHERE old_id = 'QC-CHUM-HB-000003'), 'QC-CHUM-HB-000003', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-230'), 'CAN-999-999-000-999-230', 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 DELETE FROM `i18n` WHERE `id`IN ('reviewed diseases', 'medical past history record summary');
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('reviewed diseases', '', 'Reviewed Diseases/Events', 'Pathologies/&Eacute;venements r&eacute;visionn&eacute;s'),
 ('medical past history record summary', '', 'Medcial Review Summary', 'R&eacute;sum&eacute; des r&eacute;visions m&eacute;dicales');
+
+#lab_report_biology
+CREATE TABLE ed_hepatobilary_lab_report_biology(
+	id int(11) unsigned not null auto_increment primary key,
+	wbc smallint,
+	rbc smallint,
+	hb smallint,
+	ht smallint,
+	platelets smallint,
+	ptt smallint,
+	inr smallint,
+	na smallint,
+	k smallint,
+	cl smallint,
+	creatinine smallint,
+	urea smallint,
+	ca smallint,
+	p smallint,
+	mg smallint  DEFAULT NULL,
+	protein smallint  DEFAULT NULL,
+	uric_acid smallint  DEFAULT NULL,
+	glycemia smallint  DEFAULT NULL,
+	triglycerides smallint  DEFAULT NULL,
+	cholesterol smallint  DEFAULT NULL,
+	albumin smallint  DEFAULT NULL,
+	total_bilirubin smallint  DEFAULT NULL,
+	direct_bilirubin smallint  DEFAULT NULL,
+	indirect_bilirubin smallint  DEFAULT NULL,
+	ast smallint  DEFAULT NULL,
+	alt smallint  DEFAULT NULL,
+	alkaline_phosphatase smallint  DEFAULT NULL,
+	amylase smallint  DEFAULT NULL,
+	lipase smallint  DEFAULT NULL,
+	a_fp smallint  DEFAULT NULL,
+	cea smallint  DEFAULT NULL,
+	ca_19_9 smallint  DEFAULT NULL,
+	chromogranine smallint  DEFAULT NULL,
+	_5_HIAA smallint  DEFAULT NULL,
+	ca_125 smallint  DEFAULT NULL,
+	ca_15_3 smallint  DEFAULT NULL,
+	b_hcg smallint  DEFAULT NULL,
+	other_marker_1 smallint  DEFAULT NULL,
+	other_marker_2 smallint  DEFAULT NULL,
+	`created` date DEFAULT NULL,
+	`created_by` varchar(50) DEFAULT NULL,
+	`modified` date DEFAULT NULL,
+	`modified_by` varchar(50) DEFAULT NULL,
+	`event_master_id` int(11) DEFAULT NULL,
+	`deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+	`deleted_date` datetime DEFAULT NULL
+)ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+CREATE TABLE ed_hepatobilary_lab_report_biology_revs(
+	id int(11) unsigned not null,
+	wbc smallint,
+	rbc smallint,
+	hb smallint,
+	ht smallint,
+	platelets smallint,
+	ptt smallint,
+	inr smallint,
+	na smallint,
+	k smallint,
+	cl smallint,
+	creatinine smallint,
+	urea smallint,
+	ca smallint,
+	p smallint,
+	mg smallint  DEFAULT NULL,
+	protein smallint  DEFAULT NULL,
+	uric_acid smallint  DEFAULT NULL,
+	glycemia smallint  DEFAULT NULL,
+	triglycerides smallint  DEFAULT NULL,
+	cholesterol smallint  DEFAULT NULL,
+	albumin smallint  DEFAULT NULL,
+	total_bilirubin smallint  DEFAULT NULL,
+	direct_bilirubin smallint  DEFAULT NULL,
+	indirect_bilirubin smallint  DEFAULT NULL,
+	ast smallint  DEFAULT NULL,
+	alt smallint  DEFAULT NULL,
+	alkaline_phosphatase smallint  DEFAULT NULL,
+	amylase smallint  DEFAULT NULL,
+	lipase smallint  DEFAULT NULL,
+	a_fp smallint  DEFAULT NULL,
+	cea smallint  DEFAULT NULL,
+	ca_19_9 smallint  DEFAULT NULL,
+	chromogranine smallint  DEFAULT NULL,
+	_5_HIAA smallint  DEFAULT NULL,
+	ca_125 smallint  DEFAULT NULL,
+	ca_15_3 smallint  DEFAULT NULL,
+	b_hcg smallint  DEFAULT NULL,
+	other_marker_1 smallint  DEFAULT NULL,
+	other_marker_2 smallint  DEFAULT NULL,
+	`created` date DEFAULT NULL,
+	`created_by` varchar(50) DEFAULT NULL,
+	`modified` date DEFAULT NULL,
+	`modified_by` varchar(50) DEFAULT NULL,
+	`event_master_id` int(11) DEFAULT NULL,
+	`deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+	`deleted_date` datetime DEFAULT NULL,
+	`version_id` int(11) NOT NULL AUTO_INCREMENT primary key,
+  	`version_created` datetime NOT NULL
+)ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+INSERT INTO `event_controls` (`id` ,`disease_site` ,`event_group` ,`event_type` ,`status` ,`form_alias` ,`detail_tablename` ,`display_order`) VALUES (NULL , 'hepatobillary', 'lab', 'biology', 'active', 'ed_hepatobiliary_lab_report_biology', 'ed_hepatobilary_lab_report_biology', '0');
+INSERT INTO structures(`old_id`, `alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('QC-CRCHUM-HB-100001', 'ed_hepatobiliary_lab_report_biology', '', '', '1', '1', '1', '1');
+INSERT INTO structure_fields(`public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES ('', 'QC-CRCHUM-HB-100002', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_lab_report_biology', 'wbc', 'wbc', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-CRCHUM-HB-100003', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_lab_report_biology', 'rbc', 'rbc', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-CRCHUM-HB-100004', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_lab_report_biology', 'hb', 'hb', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-CRCHUM-HB-100005', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_lab_report_biology', 'ht', 'ht', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-CRCHUM-HB-100006', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_lab_report_biology', 'platelets', 'platelets', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-CRCHUM-HB-100007', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_lab_report_biology', 'ptt', 'ptt', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-CRCHUM-HB-100008', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_lab_report_biology', 'inr', 'inr', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-CRCHUM-HB-100009', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_lab_report_biology', 'na', 'na', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-CRCHUM-HB-100010', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_lab_report_biology', 'k', 'k', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-CRCHUM-HB-100011', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_lab_report_biology', 'cl', 'cl', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-CRCHUM-HB-100012', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_lab_report_biology', 'creatinine', 'creatinine', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-CRCHUM-HB-100013', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_lab_report_biology', 'urea', 'urea', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-CRCHUM-HB-100014', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_lab_report_biology', 'ca', 'ca', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-CRCHUM-HB-100015', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_lab_report_biology', 'p', 'p', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-CRCHUM-HB-100016', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_lab_report_biology', 'mg', 'mg', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-CRCHUM-HB-100017', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_lab_report_biology', 'protein', 'protein', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-CRCHUM-HB-100018', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_lab_report_biology', 'uric_acid', 'uric acid', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-CRCHUM-HB-100019', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_lab_report_biology', 'glycemia', 'glycemia', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-CRCHUM-HB-100020', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_lab_report_biology', 'triglycerides', 'triglycerides', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-CRCHUM-HB-100021', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_lab_report_biology', 'cholesterol', 'cholesterol', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-CRCHUM-HB-100022', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_lab_report_biology', 'albumin', 'albumin', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-CRCHUM-HB-100023', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_lab_report_biology', 'total_bilirubin', 'total bilirubin', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-CRCHUM-HB-100024', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_lab_report_biology', 'direct_bilirubin', 'direct bilirubin', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-CRCHUM-HB-100025', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_lab_report_biology', 'indirect_bilirubin', 'indirec _bilirubin', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-CRCHUM-HB-100026', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_lab_report_biology', 'ast', 'ast', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-CRCHUM-HB-100027', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_lab_report_biology', 'alt', 'alt', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-CRCHUM-HB-100028', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_lab_report_biology', 'alkaline_phosphatase', 'alkalin _phosphatase', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-CRCHUM-HB-100029', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_lab_report_biology', 'amylase', 'amylase', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-CRCHUM-HB-100030', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_lab_report_biology', 'lipase', 'lipase', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-CRCHUM-HB-100031', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_lab_report_biology', 'a_fp', 'a fp', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-CRCHUM-HB-100032', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_lab_report_biology', 'cea', 'cea', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-CRCHUM-HB-100033', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_lab_report_biology', 'ca_19_9', 'ca 19 9', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-CRCHUM-HB-100034', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_lab_report_biology', 'chromogranine', 'chromogranine', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-CRCHUM-HB-100035', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_lab_report_biology', '_5_HIAA', '5 HIAA', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-CRCHUM-HB-100036', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_lab_report_biology', 'ca_125', 'ca 125', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-CRCHUM-HB-100037', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_lab_report_biology', 'ca_15_3', 'ca 15 3', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-CRCHUM-HB-100038', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_lab_report_biology', 'b_hcg', 'b hcg', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-CRCHUM-HB-100039', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_lab_report_biology', 'other_marker_1', 'other marker 1', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-CRCHUM-HB-100040', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_lab_report_biology', 'other_marker_2', 'other marker 2', '', 'number', '', '', NULL, '', '', '', '');
+SET @last_id = LAST_INSERT_ID();
+INSERT INTO `structure_formats` (`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) (SELECT CONCAT('QC-CRCHUM-HB-100001_', old_id), (SELECT id FROM structures WHERE old_id='QC-CRCHUM-HB-100001'), 'QC-CRCHUM-HB-100001', `id`, `old_id`, IF(id - @last_id <= 19, '0', '1'), (id - @last_id) % 20, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', '1', '0000-00-00 00:00:00', '1' FROM structure_fields WHERE id >= @last_id);
+UPDATE structure_formats SET language_heading='blood formulae' WHERE old_id='QC-CRCHUM-HB-100001_QC_CRCHUM_HB_100002';
+UPDATE structure_formats SET language_heading='coagulation' WHERE old_id='QC-CRCHUM-HB-100001_QC_CRCHUM_HB_100007';
+UPDATE structure_formats SET language_heading='electrolyte' WHERE old_id='QC-CRCHUM-HB-100001_QC_CRCHUM_HB_100009';
+UPDATE structure_formats SET language_heading='other' WHERE old_id='QC-CRCHUM-HB-100001_QC_CRCHUM_HB_100018';
+UPDATE structure_formats SET language_heading='bilan hepatique' WHERE old_id='QC-CRCHUM-HB-100001_QC_CRCHUM_HB_100022';
+UPDATE structure_formats SET language_heading='bilan pancreatique' WHERE old_id='QC-CRCHUM-HB-100001_QC_CRCHUM_HB_100029';
+UPDATE structure_formats SET language_heading='bilan marqueur' WHERE old_id='QC-CRCHUM-HB-100001_QC_CRCHUM_HB_100031';
+
+CREATE TABlE ed_hepatobiliary_lab_radio_enco_nuclear_med(
+	id int(11) unsigned not null auto_increment primary key,
+	abdominal_ultrasound varchar(5) DEFAULT NULL,
+	pelvic_ultrasound varchar(5) DEFAULT NULL,
+	abdominal_cs_scan varchar(5) DEFAULT NULL,
+	pelvis_ct_scan varchar(5) DEFAULT NULL,
+	abdominal_mri varchar(5) DEFAULT NULL,
+	pelvis_mri varchar(5) DEFAULT NULL,
+	chest_x_ray varchar(5) DEFAULT NULL,
+	thorax_ct_scan varchar(5) DEFAULT NULL,
+	tepscan varchar(5) DEFAULT NULL,
+	octreoscan_scintigraphy varchar(5) DEFAULT NULL,
+	contrast_enhanced_ultrasound varchar(5) DEFAULT NULL,
+	endoscopic_ultrasound varchar(5) DEFAULT NULL,
+	colonoscopy varchar(5) DEFAULT NULL,
+	contrast_enema varchar(5) DEFAULT NULL,
+	ercp varchar(5) DEFAULT NULL,
+	transhepatic_cholangiography varchar(5) DEFAULT NULL,
+	`created` date DEFAULT NULL,
+	`created_by` varchar(50) DEFAULT NULL,
+	`modified` date DEFAULT NULL,
+	`modified_by` varchar(50) DEFAULT NULL,
+	`event_master_id` int(11) DEFAULT NULL,
+	`deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+	`deleted_date` datetime DEFAULT NULL
+)ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+CREATE TABlE ed_hepatobiliary_lab_radio_enco_nuclear_med_revs(
+	id int(11) unsigned not null,
+	abdominal_ultrasound varchar(5) DEFAULT NULL,
+	pelvic_ultrasound varchar(5) DEFAULT NULL,
+	abdominal_cs_scan varchar(5) DEFAULT NULL,
+	pelvis_ct_scan varchar(5) DEFAULT NULL,
+	abdominal_mri varchar(5) DEFAULT NULL,
+	pelvis_mri varchar(5) DEFAULT NULL,
+	chest_x_ray varchar(5) DEFAULT NULL,
+	thorax_ct_scan varchar(5) DEFAULT NULL,
+	tepscan varchar(5) DEFAULT NULL,
+	octreoscan_scintigraphy varchar(5) DEFAULT NULL,
+	contrast_enhanced_ultrasound varchar(5) DEFAULT NULL,
+	endoscopic_ultrasound varchar(5) DEFAULT NULL,
+	colonoscopy varchar(5) DEFAULT NULL,
+	contrast_enema varchar(5) DEFAULT NULL,
+	ercp varchar(5) DEFAULT NULL,
+	transhepatic_cholangiography varchar(5) DEFAULT NULL,
+	`created` date DEFAULT NULL,
+	`created_by` varchar(50) DEFAULT NULL,
+	`modified` date DEFAULT NULL,
+	`modified_by` varchar(50) DEFAULT NULL,
+	`event_master_id` int(11) DEFAULT NULL,
+	`deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+	`deleted_date` datetime DEFAULT NULL,
+	`version_id` int(11) NOT NULL AUTO_INCREMENT primary key,
+	`version_created` datetime NOT NULL
+)ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+INSERT INTO `event_controls` (`id` ,`disease_site` ,`event_group` ,`event_type` ,`status` ,`form_alias` ,`detail_tablename` ,`display_order`) VALUES (NULL , 'hepatobillary', 'lab', 'radio_enco_nuclear_med', 'active', 'ed_hepatobiliary_lab_radio_enco_nuclear_med', 'ed_hepatobiliary_lab_radio_enco_nuclear_med', '0');
+INSERT INTO structures(`old_id`, `alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('QC-CRCHUM-HB-100041', 'ed_hepatobiliary_lab_radio_enco_nuclear_med', '', '', '1', '1', '1', '1');
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`) VALUES ('yes_no_ns', '', '');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('yes', 'yes');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='yes_no_ns'),  (SELECT id FROM structure_permissible_values WHERE value='yes' AND language_alias='yes'), '1', 'yes');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('no', 'no');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='yes_no_ns'),  (SELECT id FROM structure_permissible_values WHERE value='no' AND language_alias='no'), '2', 'yes');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('ns', 'ns');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='yes_no_ns'),  (SELECT id FROM structure_permissible_values WHERE value='ns' AND language_alias='ns'), '3', 'yes');
+INSERT INTO structure_fields(`public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES 
+('', 'QC-CRCHUM-HB-100041', 'Clinicalannotation', 'EventDetail', 'ed_hepatobiliary_lab_radio_enco_nuclear_med', 'abdominal_ultrasound', 'abdominal ultrasound', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_ns'), '', '', '', ''),
+('', 'QC-CRCHUM-HB-100042', 'Clinicalannotation', 'EventDetail', 'ed_hepatobiliary_lab_radio_enco_nuclear_med', 'pelvic_ultrasound', 'pelvic ultrasound', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_ns'), '', '', '', ''),
+('', 'QC-CRCHUM-HB-100043', 'Clinicalannotation', 'EventDetail', 'ed_hepatobiliary_lab_radio_enco_nuclear_med', 'abdominal_cs_scan', 'abdominal cs_scan', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_ns'), '', '', '', ''),
+('', 'QC-CRCHUM-HB-100044', 'Clinicalannotation', 'EventDetail', 'ed_hepatobiliary_lab_radio_enco_nuclear_med', 'pelvis_ct_scan', 'pelvis ct_scan', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_ns'), '', '', '', ''),
+('', 'QC-CRCHUM-HB-100045', 'Clinicalannotation', 'EventDetail', 'ed_hepatobiliary_lab_radio_enco_nuclear_med', 'abdominal_mri', 'abdominal mri', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_ns'), '', '', '', ''),
+('', 'QC-CRCHUM-HB-100046', 'Clinicalannotation', 'EventDetail', 'ed_hepatobiliary_lab_radio_enco_nuclear_med', 'chest_x_ray', 'chest x_ray', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_ns'), '', '', '', ''),
+('', 'QC-CRCHUM-HB-100047', 'Clinicalannotation', 'EventDetail', 'ed_hepatobiliary_lab_radio_enco_nuclear_med', 'thorax_ct_scan', 'thorax ct_scan', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_ns'), '', '', '', ''),
+('', 'QC-CRCHUM-HB-100048', 'Clinicalannotation', 'EventDetail', 'ed_hepatobiliary_lab_radio_enco_nuclear_med', 'tepscan', 'tepscan', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_ns'), '', '', '', ''),
+('', 'QC-CRCHUM-HB-100049', 'Clinicalannotation', 'EventDetail', 'ed_hepatobiliary_lab_radio_enco_nuclear_med', 'octreoscan_scintigraphy', 'octreoscan scintigraphy', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_ns'), '', '', '', ''),
+('', 'QC-CRCHUM-HB-100050', 'Clinicalannotation', 'EventDetail', 'ed_hepatobiliary_lab_radio_enco_nuclear_med', 'contrast_enhanced_ultrasound', 'contrast enhanced_ultrasound', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_ns'), '', '', '', ''),
+('', 'QC-CRCHUM-HB-100051', 'Clinicalannotation', 'EventDetail', 'ed_hepatobiliary_lab_radio_enco_nuclear_med', 'endoscopic_ultrasound', 'endoscopic ultrasound', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_ns'), '', '', '', ''),
+('', 'QC-CRCHUM-HB-100052', 'Clinicalannotation', 'EventDetail', 'ed_hepatobiliary_lab_radio_enco_nuclear_med', 'colonoscopy', 'colonoscopy', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_ns'), '', '', '', ''),
+('', 'QC-CRCHUM-HB-100053', 'Clinicalannotation', 'EventDetail', 'ed_hepatobiliary_lab_radio_enco_nuclear_med', 'contrast_enema', 'contrast enema', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_ns'), '', '', '', ''),
+('', 'QC-CRCHUM-HB-100054', 'Clinicalannotation', 'EventDetail', 'ed_hepatobiliary_lab_radio_enco_nuclear_med', 'ercp', 'ercp', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_ns'), '', '', '', ''),
+('', 'QC-CRCHUM-HB-100055', 'Clinicalannotation', 'EventDetail', 'ed_hepatobiliary_lab_radio_enco_nuclear_med', 'transhepatic_cholangiography', 'transhepatic cholangiography', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_ns'), '', '', '', '');
+
+SET @last_id = LAST_INSERT_ID();
+INSERT INTO `structure_formats` (`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) (SELECT CONCAT('QC-CRCHUM-HB-100041_', old_id), (SELECT id FROM structures WHERE old_id='QC-CRCHUM-HB-100041'), 'QC-CRCHUM-HB-100001', `id`, `old_id`, IF(id - @last_id <= 19, '0', '1'), (id - @last_id) % 20, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', '1', '0000-00-00 00:00:00', '1' FROM structure_fields WHERE id >= @last_id);
