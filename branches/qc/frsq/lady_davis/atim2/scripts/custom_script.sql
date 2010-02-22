@@ -363,3 +363,9 @@ INSERT INTO structure_formats(`old_id`, `structure_id`, `structure_old_id`, `str
 #remove invalid block types
 UPDATE structure_value_domains_permissible_values SET active='no' WHERE id IN(8, 10);
 UPDATE structure_fields SET `default`='paraffin' WHERE old_id='CAN-999-999-000-999-1135';
+
+#change application header
+DELETE FROM `i18n` WHERE `id` IN ('core_appname', 'CTRApp');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('core_appname', 'global', 'ATiM.v2 - L.D.', 'ATiM.v2 - L.D.'),
+('CTRApp', 'global', 'ATiM.v2 - L.D.', 'ATiM.v2 - L.D.');
