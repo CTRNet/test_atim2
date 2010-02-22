@@ -4,22 +4,21 @@
 --
 -- -------------------------------------------------------------------
 
+UPDATE `configs` SET `config_debug` = '2' WHERE `configs`.`id` =1 ;
+
+DELETE FROM `structure_formats` WHERE `structure_old_id` LIKE 'QC-FRSQ-CUSM-%' OR `structure_field_old_id` LIKE 'QC-FRSQ-CUSM-%';
+
+DELETE FROM `structure_validations` WHERE `old_id` LIKE 'QC-FRSQ-CUSM-%';
+
+DELETE FROM `structures` WHERE `old_id` LIKE 'QC-FRSQ-CUSM-%';
+DELETE FROM `structure_fields` WHERE `old_id` LIKE 'QC-FRSQ-CUSM-%';
+
 -- General
 
 DELETE FROM `i18n` WHERE `id` IN ('core_appname', 'CTRApp');
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
-('core_appname', 'global', 'ATiM.v2 - CUSM', 'ATiM.v2 - CUSM'),
-('CTRApp', 'global', 'ATiM.v2 - CUSM', 'ATiM.v2 - CUSM');
-
-
-
-
-
-
-
-
-
-
+('core_appname', 'global', 'ATiM.v2 - MUHC', 'ATiM.v2 - CUSM'),
+('CTRApp', 'global', 'ATiM.v2 - MUHC', 'ATiM.v2 - CUSM');
 
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 -- CLINICAL ANNOTATION
@@ -27,26 +26,239 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 
 -- ******** PROFILE ********
 
--- ... IDENTIFIER ...
+-- ... PROFILE ...
+
+-- Participant identifer : Read only & Label changed to 'Participant Code'
+UPDATE `structure_formats`
+SET `flag_add` = '0',
+`flag_add_readonly` = '0',
+`flag_edit_readonly` = '1',
+`flag_datagrid_readonly` = '1',
+`flag_override_label` = '1',
+`language_label` = 'participant code'
+WHERE `old_id` = 'CAN-999-999-000-999-1_CAN-999-999-000-999-26';
+
+DELETE FROM `i18n` WHERE `id` IN ('participant code');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('participant code', 'global', 'Code', 'Code');
+
+-- Participant title + middle name : Hidden
+UPDATE `structure_formats`
+SET `flag_add` = '0',
+`flag_add_readonly` = '0',
+`flag_edit` = '0',
+`flag_edit_readonly` = '0',
+`flag_search` = '0',
+`flag_search_readonly` = '0',
+`flag_edit_readonly` = '0',
+`flag_datagrid` = '0',
+`flag_datagrid_readonly` = '0',
+`flag_index` = '0',
+`flag_detail` = '0'
+WHERE `old_id` IN ('CAN-999-999-000-999-1_CAN-999-999-000-999-295', 'CAN-999-999-000-999-1_CAN-999-999-000-999-4');
+
+-- Participant first name / last name : Required & Add tags
+UPDATE `structure_formats`
+SET 
+`flag_override_label` = '1',
+`language_label` = 'name',
+`flag_override_tag` = '1',
+`language_tag` = 'first name'
+WHERE `old_id` = 'CAN-999-999-000-999-1_CAN-999-999-000-999-1';	
+
+DELETE FROM `structure_validations` WHERE `old_id` = 'QC-FRSQ-CUSM-000001';
+INSERT INTO `structure_validations` 
+(`id`, `old_id`, `structure_field_id`, `structure_field_old_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) 
+VALUES
+(null, 'QC-FRSQ-CUSM-000001', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1'), 'CAN-999-999-000-999-1', 'notEmpty', '0', '0', '', 'first name and last name are required', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+UPDATE `structure_formats`
+SET 
+`flag_override_label` = '0',
+`language_label` = '',
+`flag_override_tag` = '1',
+`language_tag` = 'last name'
+WHERE `old_id` = 'CAN-999-999-000-999-1_CAN-999-999-000-999-2';	
+ 
+DELETE FROM `structure_validations` WHERE `old_id` = 'QC-FRSQ-CUSM-000002';
+INSERT INTO `structure_validations` 
+(`id`, `old_id`, `structure_field_id`, `structure_field_old_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) 
+VALUES
+(null, 'QC-FRSQ-CUSM-000002', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-2'), 'CAN-999-999-000-999-2', 'notEmpty', '0', '0', '', 'first name and last name are required', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+	
+DELETE FROM `i18n` WHERE `id` IN ('first name and last name are required');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('first name and last name are required', 'global', 'First name and last name are required!', 'Le nom et pr&eacute;nom sont requis!');
+
+-- ... CONSENT ...
+
+-- TODO
+
+-- ... DIAGNOSTIC ...
+
+-- TODO
+
+-- ******** ANNOTATION ******** 
+
+-- TODO
+
+-- ******** TREATMENT ******** 
+
+-- TODO
+
+-- ... IDENTIFICATION ...
 
 DELETE FROM `misc_identifier_controls`;
 INSERT INTO `misc_identifier_controls` 
 (`id`, `misc_identifier_name`, `misc_identifier_name_abbrev`, `status`, `display_order`, `autoincrement_name`, `misc_identifier_format`) 
 VALUES
 (null, 'health_insurance_card', 'RAMQ', 'active', 0, '', ''),
-(null, 'saint_luc_hospital_nbr', 'ID HSL', 'active', 1, '', ''),
-(null, 'hepato_bil_bank_participant_id', 'HB-PartID', 'active', 3, 'hepato_bil_bank_participant_id', 'HB-P%%key_increment%%');
+(null, 'montreal_general_hospital_card', 'MGH/HGM Id', 'active', 1, '', ''),
+(null, 'prostate_bank_participant_id', 'PR-PartID', 'active', 3, 'prostate_bank_participant_id', '%%key_increment%%');
 
-DELETE FROM `i18n` WHERE `id` IN ('health_insurance_card', 'saint_luc_hospital_nbr', 'hepato_bil_bank_participant_id');
+DELETE FROM `i18n` WHERE `id` IN ('health_insurance_card', 'montreal_general_hospital_card', 'prostate_bank_participant_id',
+'this identifier has already been created for your participant');
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) 
 VALUES
 ('health_insurance_card', 'global', 'Health Insurance Card', 'Carte d''assurance maladie'),
-('saint_luc_hospital_nbr', 'global', 'St Luc Hospital Number', 'No H&ocirc;pital St Luc'),
-('hepato_bil_bank_participant_id', 'global', 'H.B. Bank Participant Id', 'Num&eacute;ro participant banque H.B.');
+('montreal_general_hospital_card', 'global', 'Montreal General Hospital card', 'carte H&ocirc;pital G&eacute;n&eacute;ral de Montr&eacute;al'),
+('prostate_bank_participant_id', 'global', 'Prostate Bank Participant Id', 'Num&eacute;ro participant banque Prostate'),
+('this identifier has already been created for your participant', '', 'This identifier has already been created for your participant!', 'Cet identification a d&eacute;j&agrave; &eacute;t&eacute; cr&eacute;&eacute;e pour ce participant!');
 
 DELETE FROM `key_increments`;
 INSERT INTO `key_increments` (`key_name`, `key_value`) VALUES
-('hepato_bil_bank_participant_id', 1);
+('prostate_bank_participant_id', 200);
+
+-- ******** REP. HISTORY ******** 
+
+-- TODO
+
+-- ******** FAM. HISTORY ******** 
+
+-- TODO
+
+-- ******** CONTACT ******** 
+
+-- TODO
+
+-- ******** MESSAGE ******** 
+
+-- TODO
+
+-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+-- INVENTORY MANAGEMENT
+-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+-- ******** COLLECTION ******** 
+
+-- Bank : Prostate and required
+UPDATE collections set bank_id = null;
+DELETE FROM banks;
+
+INSERT INTO `banks` (`id`, `name`, `description`, `created_by`, `created`, `modified_by`, `modified`, `deleted`, `deleted_date`) 
+VALUES 
+(NULL, 'Prostate', '', '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '0', NULL);
+
+DELETE FROM `structure_validations` WHERE `old_id` = 'QC-FRSQ-CUSM-000003';
+INSERT INTO `structure_validations` 
+(`id`, `old_id`, `structure_field_id`, `structure_field_old_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) 
+VALUES
+(null, 'QC-FRSQ-CUSM-000003', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1223'), 'CAN-999-999-000-999-1223', 'notEmpty', '0', '0', '', 'bank is required', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+	
+DELETE FROM `i18n` WHERE `id` IN ('bank is required');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('bank is required', 'global', 'Bank is required!', 'La banque est requise!');
+
+-- SOP : Hidden
+
+UPDATE `structure_formats`
+SET `flag_add` = '0',
+`flag_add_readonly` = '0',
+`flag_edit` = '0',
+`flag_edit_readonly` = '0',
+`flag_search` = '0',
+`flag_search_readonly` = '0',
+`flag_edit_readonly` = '0',
+`flag_datagrid` = '0',
+`flag_datagrid_readonly` = '0',
+`flag_index` = '0',
+`flag_detail` = '0'
+WHERE `old_id` IN ('CAN-999-999-000-999-1000_CAN-999-999-000-999-1007');
+
+-- Collection site value
+
+DELETE FROM `structure_permissible_values` WHERE `value` = 'muhc' AND `language_alias` = 'muhc';
+INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) 
+VALUES 
+(NULL, 'muhc', 'muhc');
+
+DELETE FROM `structure_value_domains_permissible_values` WHERE  `structure_value_domain_id` IN (SELECT `id` FROM `structure_value_domains` WHERE `domain_name` LIKE 'custom_collection_site');
+INSERT INTO `structure_value_domains_permissible_values`  
+(`id` , `structure_value_domain_id` , `structure_permissible_value_id` , `display_order` , `active` , `language_alias` )
+VALUES (
+NULL , (SELECT `id` FROM `structure_value_domains` WHERE `domain_name` LIKE 'custom_collection_site'), (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'muhc' AND `language_alias` = 'muhc'), '1', 'yes', 'muhc');
+
+DELETE FROM `i18n` WHERE `id` IN ('muhc');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('muhc', 'global', 'MUHC', 'CUSM');
+
+-- Prostate Bank Identifier
+
+INSERT INTO `structure_fields` 
+(`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) 
+VALUES
+(null, '', 'QC-FRSQ-CUSM-000001', 'Inventorymanagement', 'ViewCollection', '', 'prostate_bank_participant_id', 'prostate_bank_participant_id', '', 'input', 'size=30', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, 'CANM-00025_QC-FRSQ-CUSM-000001', (SELECT id FROM structures WHERE old_id = 'CANM-00025'), 'CANM-00025', (SELECT id FROM structure_fields WHERE old_id = 'QC-FRSQ-CUSM-000001'), 'QC-FRSQ-CUSM-000001', 0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+DROP VIEW IF EXISTS view_collections;
+CREATE VIEW view_collections AS 
+SELECT 
+collection_id, 
+bank_id, 
+sop_master_id, 
+ccl.participant_id AS participant_id, 
+diagnosis_master_id, 
+consent_master_id, 
+
+acquisition_label, 
+collection_site, 
+collection_datetime, 
+collection_datetime_accuracy, 
+collection_property, 
+collection_notes, 
+collections.deleted, 
+collections.deleted_date,
+
+participant_identifier, 
+
+banks.name AS bank_name,
+
+sops.title AS sop_title, 	
+sops.code AS sop_code, 	
+sops.version AS sop_version, 		
+sop_group,
+sops.type,
+
+idents.identifier_value AS prostate_bank_participant_id	
+
+FROM collections
+LEFT JOIN clinical_collection_links AS ccl ON collections.id=ccl.collection_id AND ccl.deleted != 1
+LEFT JOIN participants ON ccl.participant_id=participants.id AND participants.deleted != 1
+LEFT JOIN banks ON collections.bank_id=banks.id AND banks.deleted != 1
+LEFT JOIN sop_masters AS sops ON collections.sop_master_id=sops.id AND sops.deleted != 1
+LEFT JOIN misc_identifiers AS idents ON idents.participant_id=ccl.participant_id AND idents.deleted != 1 AND idents.identifier_name = 'prostate_bank_participant_id';
+
+
+
+
+
+
+
+
+
+
 
 -- ******** ANNOTATION ******** 
 
