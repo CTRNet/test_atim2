@@ -8,8 +8,8 @@
 
 DELETE FROM `i18n` WHERE `id` IN ('core_appname', 'CTRApp');
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
-('core_appname', 'global', 'ATiM - CRCHUM Hepatobiliary', 'ATiM - CRCHUM H&eacute;pato-biliaire'),
-('CTRApp', 'global', 'ATiM - CRCHUM Hepatobiliary', 'ATiM - CRCHUM H&eacute;pato-biliaire');
+('core_appname', 'global', 'ATiM.v2 - CHUM Hep-bil', 'ATiM.v2 - CHUM Hep-bil'),
+('CTRApp', 'global', 'ATiM.v2 - CHUM Hep-bil', 'ATiM.v2 - CHUM Hep-bil');
 
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 -- CLINICAL ANNOTATION
