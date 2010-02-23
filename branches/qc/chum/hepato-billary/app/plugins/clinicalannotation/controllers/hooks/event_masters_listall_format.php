@@ -16,25 +16,26 @@
 	//  - medical imaging type to build 'add medical imaging' button	
 	// --------------------------------------------------------------------------------
 	if($is_clinical_group) {
-		// 1- MEDICAL PAST HISTORY
+		// 1- MEDICAL PAST HISTORY & MEDICAL IMAGING
 		
 		// Build list of medical past history event controls
 		$medical_past_history_event_controls = array();
+		$medical_imaging_event_controls = array();
 		foreach($event_controls as $id => $new_control) {
 			if(strpos($new_control['EventControl']['event_type'], 'medical past history')) {
 				$medical_past_history_event_controls[] = $new_control;
 				unset($event_controls[$id]);
+			}else if(strpos($new_control['EventControl']['event_type'], 'medical imaging') === 0) {
+				$medical_imaging_event_controls[] = $new_control;
+				unset($event_controls[$id]);
 			}
 		}
 		$this->set('medical_past_history_event_controls', $medical_past_history_event_controls);
+		$this->set('medical_imaging_event_controls', $medical_imaging_event_controls);
+		
 		
 		// Reset event controls for add other button		
 		$this->set('event_controls', $event_controls);	
-		
-		// 2- MEDICAL IMAGING
-
-//TODO Mich	
-		
 	}	
 	
 	// --------------------------------------------------------------------------------
