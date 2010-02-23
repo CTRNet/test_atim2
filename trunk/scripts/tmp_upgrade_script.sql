@@ -9,8 +9,8 @@
 	Description:
 */
 
-
-
+-- Add descritpion to structures to add information about a structure
+ALTER TABLE `structures` ADD `description` VARCHAR( 250 ) NULL AFTER `alias` ;
 
 /*
 	Module: Clinical Annotation
