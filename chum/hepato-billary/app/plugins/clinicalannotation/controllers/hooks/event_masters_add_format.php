@@ -40,5 +40,24 @@
 	//   Set Medical Past History precisions list
 	// --------------------------------------------------------------------------------
 	$this->setMedicalPastHistoryPrecisions($event_control_data);
-		
+
+	if(strpos($event_control_data['EventControl']['form_alias'], 'segment') > 0){
+		//load segment
+		$this->Structures->set('QC_CHUM_HB_segment', 'QC_CHUM_HB_segment');
+	}
+
+	if(strpos($event_control_data['EventControl']['form_alias'], 'other') > 0){
+		//load other
+		$this->Structures->set('QC_CHUM_HB_other_localisations', 'QC_CHUM_HB_other_localisations');
+	}
+	
+	
+	if(strpos($event_control_data['EventControl']['form_alias'], 'pancreas') > 0){
+		$this->Structures->set('QC_CHUM_HB_pancreas', 'atim_structure');
+	}else if(strpos($event_control_data['EventControl']['form_alias'], 'other') > 0){
+		$this->Structures->set('QC_CHUM_HB_other_locaisations', 'atim_structure');
+	}else if(strpos($event_control_data['EventControl']['form_alias'], 'segment') > 0){
+		$this->Structures->set('QC_CHUM_HB_segment', 'atim_structure');
+	}
+	
 ?>
