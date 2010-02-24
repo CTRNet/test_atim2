@@ -9,9 +9,6 @@
 	Description:
 */
 
--- Add descritpion to structures to add information about a structure
-ALTER TABLE `structures` ADD `description` VARCHAR( 250 ) NULL AFTER `alias` ;
-
 /*
 	Module: Clinical Annotation
 	Description:
@@ -671,18 +668,29 @@ UPDATE `structure_formats` SET `display_column` = '1',
 */ 
 
 #SQL View for collections
+
+-- 'view_collection' will be used to search/index/detail collection
 INSERT INTO `structures` (
 `id`, `old_id`, `alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`)
-VALUES (NULL , 'CANM-00025', 'view_collection', '', '', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+VALUES (NULL , 'CANM-00025', 'view_collection', '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
-SET @last_structure_id = LAST_INSERT_ID();
+SET @view_collection_structure_id = LAST_INSERT_ID();
 
 INSERT INTO structure_fields (public_identifier,old_id,plugin,model,tablename,field,language_label,language_tag,type,setting,`default`,structure_value_domain,language_help,validation_control,value_domain_control,field_control,created,created_by,modified,modified_by)
-SELECT public_identifier, CONCAT(old_id, '-v'),plugin, 'ViewCollection',tablename,field,language_label,language_tag,type,setting,`default`,structure_value_domain,language_help,validation_control,value_domain_control,field_control,created,created_by,modified,modified_by 
-FROM structure_fields WHERE old_id IN('CAN-999-999-000-999-1000', 'CAN-999-999-000-999-1003', 'CAN-999-999-000-999-1004', 'CAN-999-999-000-999-1007', 'CAN-999-999-000-999-1008', 'CAN-999-999-000-999-1013', 'CAN-999-999-000-999-1223', 'CAN-999-999-000-999-1285');
+SELECT public_identifier,CONCAT(old_id, '-ColView'),plugin,'ViewCollection',tablename,field,language_label,language_tag,type,setting,`default`,structure_value_domain,language_help,validation_control,value_domain_control,field_control,created,created_by,modified,modified_by 
+FROM structure_fields 
+WHERE old_id IN(
+'CAN-999-999-000-999-1000',		-- acquisition_label 
+'CAN-999-999-000-999-1223', 	-- bank_id
+'CAN-999-999-000-999-1003', 	-- collection_site
+'CAN-999-999-000-999-1004', 	-- collection_datetime
+'CAN-999-999-000-999-1285', 	-- collection_datetime accuracy
+'CAN-999-999-000-999-1007', 	-- sop_master_id
+'CAN-999-999-000-999-1013', 	-- collection_property
+'CAN-999-999-000-999-1008'); 	-- collection_notes
 
 INSERT INTO `structure_formats` (`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`)
-SELECT CONCAT('CANM-00025_', structure_field_old_id, '-v'), @last_structure_id, 'CANM-00025', `structure_field_id`, CONCAT(`structure_field_old_id`, '-v'), `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, '0', '0', '0', '0', `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`
+SELECT CONCAT('CANM-00025_', structure_field_old_id, '-ColView'), @view_collection_structure_id, 'CANM-00025', `structure_field_id`, CONCAT(`structure_field_old_id`, '-ColView'), `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, '0', '0', '0', '0', `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`
 FROM structure_formats WHERE structure_old_id='CAN-999-999-000-999-1000' AND (flag_search='1' OR flag_index='1' OR flag_detail='1');
 
 SET @last_id = LAST_INSERT_ID();
@@ -692,59 +700,58 @@ INNER JOIN structure_fields ON structure_fields.old_id=structure_formats.structu
 SET structure_formats.structure_field_id=structure_fields.id
 WHERE structure_formats.id >= @last_id;
 
-CREATE VIEW view_collections AS 
-SELECT 
-collection_id, 
-bank_id, 
-sop_master_id, 
-participant_id, 
-diagnosis_master_id, 
-consent_master_id, 
+UPDATE structure_formats
+SET display_order = '0'
+WHERE old_id = 'CANM-00025_CAN-999-999-000-999-1000-ColView'; 
 
-acquisition_label, 
-collection_site, 
-collection_datetime, 
-collection_datetime_accuracy, 
-collection_property, 
-collection_notes, 
-collections.deleted, 
-collections.deleted_date,
+-- 'collections' will be used to Add/Edit collection: Clean up structures based on previous definitions
+UPDATE structure_formats 
+SET flag_search = '0', flag_search_readonly = '0', 
+flag_datagrid = '0', flag_datagrid_readonly = '0', 
+flag_index = '0', flag_detail = '0'
+WHERE structure_old_id = 'CAN-999-999-000-999-1000';
 
-participant_identifier, 
-
-banks.name AS bank_name,
-
-sops.title AS sop_title, 	
-sops.code AS sop_code, 	
-sops.version AS sop_version, 		
-sop_group,
-sops.type 	
-
-FROM collections
-LEFT JOIN clinical_collection_links AS ccl ON collections.id=ccl.collection_id AND ccl.deleted != 1
-LEFT JOIN participants ON ccl.participant_id=participants.id AND participants.deleted != 1
-LEFT JOIN banks ON collections.bank_id=banks.id AND banks.deleted != 1
-LEFT JOIN sop_masters AS sops ON collections.sop_master_id=sops.id AND sops.deleted != 1;
-
+-- Add fields to collection_view
 INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`)
 VALUES (NULL , '', 'CANM-00026', 'Inventorymanagement', 'ViewCollection', '', 'participant_identifier', 'participant identifier', '', 'input', '', '', NULL , '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
-SET @last_id = LAST_INSERT_ID();
+SET @last_structure_filed_id = LAST_INSERT_ID();
 
 INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`)
-VALUES (NULL , 'CANM-00025_CANM-00026', @last_structure_id, 'CANM-00025', @last_id, 'CANM-00026', '0', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+VALUES (NULL , 'CANM-00025_CANM-00026', @view_collection_structure_id, 'CANM-00025', @last_structure_filed_id, 'CANM-00026', '0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
+-- Update summary
 UPDATE `menus`
 SET `use_summary` = 'Inventorymanagement.ViewCollection::summary'
 WHERE `use_summary` LIKE 'Inventorymanagement.Collection::summary';
 
-UPDATE structure_formats
-SET display_order = '1'
-WHERE old_id = 'CANM-00025_CANM-00026';
+-- Build View
 
-UPDATE structure_formats
-SET display_order = '0'
-WHERE old_id = 'CANM-00025_CAN-999-999-000-999-1000-v'; 
+CREATE VIEW view_collections AS 
+SELECT 
+col.id AS collection_id, 
+col.bank_id, 
+col.sop_master_id, 
+link.participant_id, 
+link.diagnosis_master_id, 
+link.consent_master_id, 
+
+col.acquisition_label, 
+col.collection_site, 
+col.collection_datetime, 
+col.collection_datetime_accuracy, 
+col.collection_property, 
+col.collection_notes, 
+
+part.participant_identifier, 
+
+banks.name AS bank_name
+
+FROM collections AS col
+LEFT JOIN clinical_collection_links AS link ON col.id = link.collection_id AND link.deleted != 1
+LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted != 1
+LEFT JOIN banks ON col.bank_id = banks.id AND banks.deleted != 1
+WHERE col.deleted != 1;
 
 #end SQL view for collections
 
@@ -863,3 +870,10 @@ UPDATE structure_value_domains SET domain_name='tumor type 2' WHERE id=98;
 UPDATE structure_value_domains SET domain_name='yesno locked' WHERE id=14;
 UPDATE structure_value_domains SET domain_name='yes' WHERE id=64;
 ALTER TABLE structure_value_domains ADD UNIQUE KEY(`domain_name`);
+
+-- Add descritpion to structures to add information about a structure
+ALTER TABLE `structures` ADD `description` VARCHAR( 250 ) NULL AFTER `alias` ;
+
+
+
+
