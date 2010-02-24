@@ -32,7 +32,7 @@ class CollectionsController extends InventorymanagementAppController {
 		$this->unsetInventorySessionData();
 				
 		// Set list of banks
-		$this->set('banks', $this->Collections->getBankList());	
+		$this->set('bank_list', $this->Collections->getBankList());
 		
 		$this->Structures->set('view_collection');
 		
@@ -56,7 +56,7 @@ class CollectionsController extends InventorymanagementAppController {
 		$_SESSION['ctrapp_core']['search']['url'] = '/inventorymanagement/collections/search';
 		
 		// Set list of banks
-		$this->set('banks', $this->Collections->getBankList());
+		$this->set('bank_list', $this->Collections->getBankList());
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		
@@ -74,10 +74,10 @@ class CollectionsController extends InventorymanagementAppController {
 		$this->data = $collection_data;
 		
 		// Set list of banks
-		$this->set('banks', $this->Collections->getBankList());
+		$this->set('bank_list', $this->Collections->getBankList());
 		
 		// Set list of available SOPs to build collections
-		$this->set('arr_collection_sops', $this->Collections->getCollectionSopList());	
+		$this->set('sop_list', $this->Collections->getCollectionSopList());	
 		
 		// Get all sample control types to build the add to selected button
 		$specimen_sample_controls_list = $this->SampleControl->atim_list(array('conditions' => array('SampleControl.status' => 'active', 'SampleControl.sample_category' => 'specimen'), 'order' => 'SampleControl.sample_type ASC'));
@@ -102,10 +102,10 @@ class CollectionsController extends InventorymanagementAppController {
 		// MANAGE DATA
 		
 		// Set list of banks
-		$this->set('banks', $this->Collections->getBankList());
+		$this->set('bank_list', $this->Collections->getBankList());
 		
 		// Set list of available SOPs to build collections
-		$this->set('arr_collection_sops', $this->Collections->getCollectionSopList());
+		$this->set('sop_list', $this->Collections->getCollectionSopList());
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -159,10 +159,10 @@ class CollectionsController extends InventorymanagementAppController {
 		if(empty($collection_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }
 				
 		// Set list of banks
-		$this->set('banks', $this->Collections->getBankList());
+		$this->set('bank_list', $this->Collections->getBankList());
 		
 		// Set list of available SOPs to build collections
-		$this->set('arr_collection_sops', $this->Collections->getCollectionSopList());		
+		$this->set('sop_list', $this->Collections->getCollectionSopList());		
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
