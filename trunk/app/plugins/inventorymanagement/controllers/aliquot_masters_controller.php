@@ -57,7 +57,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->unsetInventorySessionData();
 		
 		// Set list of banks
-		$this->set('banks', $this->Collections->getBankList());	
+		$this->set('bank_list', $this->Collections->getBankList());	
 		
 		$hook_link = $this->hook('format');
 		if($hook_link){
