@@ -874,6 +874,183 @@ ALTER TABLE structure_value_domains ADD UNIQUE KEY(`domain_name`);
 -- Add descritpion to structures to add information about a structure
 ALTER TABLE `structures` ADD `description` VARCHAR( 250 ) NULL AFTER `alias` ;
 
+-- Delete structure collection_search_type
+DELETE FROM structure_formats WHERE old_id = 'CAN-999-999-000-999-1075_CAN-999-999-000-999-1275';
+DELETE FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-1275';
+DELETE FROM structures WHERE old_id = 'CAN-999-999-000-999-1075';
+
+-- Add dscription to '%collection%' structures
+UPDATE structures SET description = 'Used both to create (add) and to update (edit) a collection being not linked to a participant.' WHERE alias LIKE 'collections';
+UPDATE structures SET description = 'Used to update (edit) a collection linked to a participant (collection property in read only).' WHERE alias LIKE 'linked_collections';
+UPDATE structures SET description = 'Used to include participant identifier data into following views: collection search, collection index and collection detail.' WHERE alias LIKE 'view_collection';
+UPDATE structures SET description = 'Used to display data into collection tree view (collection data + sample data + aliquot data).' WHERE alias LIKE '%collection_tree_view';
+UPDATE structures SET description = 'Used to display data attached to the participant collection link (collection, diagnosis, consent).' WHERE alias LIKE 'clinicalcollectionlinks';
+
+#SQL create sample view for collection samples listall and samples search
+
+-- Create Sample View Fields
+INSERT INTO structure_fields (public_identifier,old_id,plugin,model,tablename,field,language_label,language_tag,type,setting,`default`,structure_value_domain,language_help,validation_control,value_domain_control,field_control,created,created_by,modified,modified_by)
+SELECT public_identifier,CONCAT(old_id, '-SampView'),plugin,'ViewSample',tablename,field,language_label,language_tag,type,setting,`default`,structure_value_domain,language_help,validation_control,value_domain_control,field_control,created,created_by,modified,modified_by 
+FROM structure_fields 
+WHERE old_id IN(
+'CAN-999-999-000-999-1000',		-- acquisition_label 
+'CAN-999-999-000-999-1223', 	-- bank_id
+'CAN-999-999-000-999-1222', 	-- initial_specimen_sample_type
+'CAN-999-999-000-999-1276', 	-- parent_sample_type
+'CAN-999-999-000-999-1018', 	-- sample_type
+'CAN-999-999-000-999-1016', 	-- sample_code
+'CAN-999-999-000-999-1027'); 	-- sample_category
+
+UPDATE structure_fields SET field = 'parent_sample_type' WHERE old_id LIKE 'CAN-999-999-000-999-1276-SampView';
+
+-- 'view_collection_samplemasters' will be used to list all master data of samples linked to one collection
+INSERT INTO `structures` (
+`id`, `old_id`, `alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`)
+VALUES (NULL , 'CAN-999-999-000-999-1093', 'view_collection_samplemasters', '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+SET @view_collection_samples_structure_id = LAST_INSERT_ID();
+
+INSERT INTO `structure_formats` (`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`)
+SELECT CONCAT('CAN-999-999-000-999-1093_', structure_field_old_id, '-SampView'), @view_collection_samples_structure_id, 'CAN-999-999-000-999-1093', `structure_field_id`, CONCAT(`structure_field_old_id`, '-SampView'), `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, '0', '0', '0', '0', `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`
+FROM structure_formats 
+WHERE structure_old_id='CAN-999-999-000-999-1002' 
+AND structure_field_old_id IN(
+'CAN-999-999-000-999-1222', 	-- initial_specimen_sample_type
+'CAN-999-999-000-999-1276', 	-- parent_sample_type
+'CAN-999-999-000-999-1018', 	-- sample_type
+'CAN-999-999-000-999-1016', 	-- sample_code
+'CAN-999-999-000-999-1027'); 	-- sample_category
+
+SET @last_id = LAST_INSERT_ID();
+
+UPDATE structure_formats
+INNER JOIN structure_fields ON structure_fields.old_id=structure_formats.structure_field_old_id
+SET structure_formats.structure_field_id=structure_fields.id
+WHERE structure_formats.id >= @last_id;
+
+UPDATE structure_formats 
+SET 
+flag_add = '0', flag_add_readonly = '0', 
+flag_edit = '0', flag_edit_readonly = '0', 
+flag_search = '0', flag_search_readonly = '0', 
+flag_datagrid = '0', flag_datagrid_readonly = '0', 
+flag_index = '1', flag_detail = '0'
+WHERE structure_old_id = 'CAN-999-999-000-999-1093';
+
+-- 'view_samplemasters' will be used to search samples and list all master data of samples returned by query
+INSERT INTO `structures` (
+`id`, `old_id`, `alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`)
+VALUES (NULL , 'CAN-999-999-000-999-1094', 'view_samplemasters', '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+SET @view_samples_structure_id = LAST_INSERT_ID();
+
+INSERT INTO `structure_formats` (`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`)
+SELECT CONCAT('CAN-999-999-000-999-1094_', structure_field_old_id, '-SampView'), @view_samples_structure_id, 'CAN-999-999-000-999-1094', `structure_field_id`, CONCAT(`structure_field_old_id`, '-SampView'), `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, '0', '0', '0', '0', `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`
+FROM structure_formats 
+WHERE structure_old_id='CAN-999-999-000-999-1002' 
+AND structure_field_old_id IN(
+'CAN-999-999-000-999-1000',		-- acquisition_label 
+'CAN-999-999-000-999-1223', 	-- bank_id
+'CAN-999-999-000-999-1222', 	-- initial_specimen_sample_type
+'CAN-999-999-000-999-1276', 	-- parent_sample_type
+'CAN-999-999-000-999-1018', 	-- sample_type
+'CAN-999-999-000-999-1016', 	-- sample_code
+'CAN-999-999-000-999-1027'); 	-- sample_category
+
+SET @last_id = LAST_INSERT_ID();
+
+UPDATE structure_formats
+INNER JOIN structure_fields ON structure_fields.old_id=structure_formats.structure_field_old_id
+SET structure_formats.structure_field_id=structure_fields.id
+WHERE structure_formats.id >= @last_id;
+
+UPDATE structure_formats 
+SET 
+flag_add = '0', flag_add_readonly = '0', 
+flag_edit = '0', flag_edit_readonly = '0', 
+flag_search = '1', flag_search_readonly = '0', 
+flag_datagrid = '0', flag_datagrid_readonly = '0', 
+flag_index = '1', flag_detail = '0'
+WHERE structure_old_id = 'CAN-999-999-000-999-1094';
+
+
+-- Add fields to collection_view
+INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`)
+VALUES (NULL , '', 'CAN-999-999-000-999-1290', 'Inventorymanagement', 'ViewSample', '', 'participant_identifier', 'participant identifier', '', 'input', '', '', NULL , '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+SET @last_structure_filed_id = LAST_INSERT_ID();
+
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`)
+VALUES (NULL , 'CAN-999-999-000-999-1094_CAN-999-999-000-999-1290', @view_samples_structure_id, 'CAN-999-999-000-999-1094', @last_structure_filed_id, 'CAN-999-999-000-999-1290', '0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+-- Delete sample masters view
+DELETE FROM structure_formats WHERE structure_old_id = 'CAN-999-999-000-999-1002';
+DELETE FROM structures WHERE old_id = 'CAN-999-999-000-999-1002';
+
+-- Build View
+
+CREATE VIEW view_samples AS 
+SELECT 
+samp.id AS sample_master_id,
+samp.parent_id AS parent_sample_id,
+samp.initial_specimen_sample_id,
+col.id AS collection_id, 
+col.bank_id, 
+col.sop_master_id, 
+link.participant_id, 
+link.diagnosis_master_id, 
+link.consent_master_id,
+
+part.participant_identifier, 
+
+col.acquisition_label, 
+col.collection_datetime, 
+
+samp.initial_specimen_sample_type, 	
+parent_samp.sample_type AS parent_sample_type,
+samp.sample_type,
+samp.sample_code,
+samp.sample_category
+
+FROM sample_masters as samp
+INNER JOIN collections AS col ON col.id = samp.collection_id AND col.deleted != 1
+LEFT JOIN sample_masters as parent_samp ON samp.parent_id = parent_samp.id AND parent_samp.deleted != 1
+LEFT JOIN clinical_collection_links AS link ON col.id = link.collection_id AND link.deleted != 1
+LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted != 1
+WHERE samp.deleted != 1;
+
+-- DELETE FROM acquisition_label and bank_id from sample details structure
+
+DELETE FROM structure_formats WHERE structure_id IN (SELECT id FROM structures WHERE alias LIKE 'sd_%')
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-1000' OR old_id = 'CAN-999-999-000-999-1223');
+
+#end SQL view for samples
+
+-- Delete participant_sample_list structure
+DELETE FROM structure_formats WHERE structure_id IN (SELECT id FROM structures WHERE alias = 'participant_sample_list');
+DELETE FROM structures WHERE alias = 'participant_sample_list';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -79,35 +79,6 @@ class InventorymanagementAppController extends AppController {
 		
 		return $allowed_aliquot_type;		
 	}
-	
-	/**
-	 * Set all data used to display a list of samples according search criteria 
-	 * (samples_data, 'banks', etc).
-	 *
-	 *	@param $criteria Sample Search Criteria
-	 *
-	 * @author N. Luc
-	 * @since 2009-09-11
-	 * @updated N. Luc
-	 */
-	 
-	function setDataForSamplesList($criteria) {
-		// Search Data
-		$belongs_to_details = array(
-			'belongsTo' => array('GeneratedParentSample' => array(
-				'className' => 'Inventorymanagement.SampleMaster',
-				'foreignKey' => 'parent_id')));
-				
-		$this->SampleMaster->bindModel($belongs_to_details, false);			
-		$working_data = $this->paginate($this->SampleMaster, $criteria);
-		$this->SampleMaster->unbindModel(array('belongsTo' => array('GeneratedParentSample')), false);
-		
-		// Set samples list	
-		$this->set('samples_data', $working_data);
-				
-		// Set list of banks
-		$this->set('banks', $this->Collections->getBankList());
-	}
 
 	/**
 	 * Set all data used to display a list of aliquots according search criteria 
@@ -178,7 +149,7 @@ class InventorymanagementAppController extends AppController {
 		$this->set('aliquots_data', $working_data);
 		
 		// Set list of banks
-		$this->set('banks', $this->Collections->getBankList());
+		$this->set('bank_list', $this->Collections->getBankList());
 	}
 	
 	/**
