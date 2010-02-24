@@ -65,7 +65,7 @@ UPDATE `menus` SET `active` =  'no' WHERE `menus`.`id` = 'clin_CAN_33' ;
 DELETE FROM `menus` WHERE `id` IN ('clin_QC_CHUM_HB_31', 'clin_QC_CHUM_HB_32', 'clin_QC_CHUM_HB_33');
 INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_title`, `language_description`, `use_link`, `use_params`, `use_summary`, `active`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 ('clin_QC_CHUM_HB_31', 'clin_CAN_31', 0, 1, 'annotation clinical details', 'annotation clinical details', '/clinicalannotation/event_masters/listall/clinical/%%Participant.id%%//', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('clin_QC_CHUM_HB_33', 'clin_CAN_31', 0, 2, 'annotation clinical reports', 'annotation clinical reports', '/underdevelopment/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+('clin_QC_CHUM_HB_33', 'clin_CAN_31', 0, 2, 'annotation clinical reports', 'annotation clinical reports', '/clinicalannotation/event_masters/imageryReport/%%Participant.id%%/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`, `status`, `form_alias`, `detail_tablename`, `display_order`) VALUES
 (null, 'hepatobiliary', 'clinical', 'presentation', 'active', 'QC_CHUM_HB_ed_hepatobiliary_clinical_presentation', 'QC_CHUM_HB_ed_hepatobiliary_clinical_presentation', 0);
@@ -840,6 +840,7 @@ INSERT INTO structures(`old_id`, `alias`, `language_title`, `language_help`, `fl
 CREATE TABLE ed_hepatobilary_exams(
 	`id` int unsigned NOT NULL auto_increment PRIMARY KEY,
 	`event_master_id` int NOT NULL,
+	
 	`segment_1_number` smallint unsigned DEFAULT NULL,
 	`segment_1_size` smallint unsigned DEFAULT NULL,
 	`segment_2_number` smallint unsigned DEFAULT NULL,
@@ -858,9 +859,20 @@ CREATE TABLE ed_hepatobilary_exams(
 	`segment_7_size` smallint unsigned DEFAULT NULL,
 	`segment_8_number` smallint unsigned DEFAULT NULL,
 	`segment_8_size` smallint unsigned DEFAULT NULL,
-	`number` smallint unsigned DEFAULT NULL,
-	`size` smallint unsigned DEFAULT NULL,
-	`laterality` varchar(10) DEFAULT NULL,
+	
+	`lungs_number` smallint unsigned DEFAULT NULL,
+	`lungs_size` smallint unsigned DEFAULT NULL,
+	`lungs_laterality` varchar(10) DEFAULT NULL,
+	`lymph_node_number` smallint unsigned DEFAULT NULL,
+	`lymph_node_size` smallint unsigned DEFAULT NULL,
+	`colon_number` smallint unsigned DEFAULT NULL,
+	`colon_size` smallint unsigned DEFAULT NULL,
+	`rectum_number` smallint unsigned DEFAULT NULL,
+	`rectum_size` smallint unsigned DEFAULT NULL,
+	`bones_number` smallint unsigned DEFAULT NULL,
+	`bones_size` smallint unsigned DEFAULT NULL,
+	
+	
 	`hepatic_artery` varchar(10) DEFAULT NULL,
 	`coeliac_trunk` varchar(10) DEFAULT NULL,
 	`splenic_artery` varchar(10) DEFAULT NULL,
@@ -879,6 +891,7 @@ CREATE TABLE ed_hepatobilary_exams(
 CREATE TABLE ed_hepatobilary_exams_revs(
 	`id` int unsigned NOT NULL,
 	`event_master_id` int NOT NULL,
+	
 	`segment_1_number` smallint unsigned DEFAULT NULL,
 	`segment_1_size` smallint unsigned DEFAULT NULL,
 	`segment_2_number` smallint unsigned DEFAULT NULL,
@@ -897,9 +910,19 @@ CREATE TABLE ed_hepatobilary_exams_revs(
 	`segment_7_size` smallint unsigned DEFAULT NULL,
 	`segment_8_number` smallint unsigned DEFAULT NULL,
 	`segment_8_size` smallint unsigned DEFAULT NULL,
-	`number` smallint unsigned DEFAULT NULL,
-	`size` smallint unsigned DEFAULT NULL,
-	`laterality` varchar(10) DEFAULT NULL,
+	
+	`lungs_number` smallint unsigned DEFAULT NULL,
+	`lungs_size` smallint unsigned DEFAULT NULL,
+	`lungs_laterality` varchar(10) DEFAULT NULL,
+	`lymph_node_number` smallint unsigned DEFAULT NULL,
+	`lymph_node_size` smallint unsigned DEFAULT NULL,
+	`colon_number` smallint unsigned DEFAULT NULL,
+	`colon_size` smallint unsigned DEFAULT NULL,
+	`rectum_number` smallint unsigned DEFAULT NULL,
+	`rectum_size` smallint unsigned DEFAULT NULL,
+	`bones_number` smallint unsigned DEFAULT NULL,
+	`bones_size` smallint unsigned DEFAULT NULL,
+	
 	`hepatic_artery` varchar(10) DEFAULT NULL,
 	`coeliac_trunk` varchar(10) DEFAULT NULL,
 	`splenic_artery` varchar(10) DEFAULT NULL,
@@ -958,9 +981,9 @@ INSERT INTO structure_formats(`old_id`, `structure_id`, `structure_old_id`, `str
 
 
 INSERT INTO structure_fields(`public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES 
-('', 'CRCHUM-HB-100076', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_exams', 'number', 'number', '', 'number', '', '', NULL, '', '', '', ''),
-('', 'CRCHUM-HB-100077', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_exams', 'size', 'size', '', 'number', '', '', NULL, '', '', '', ''),
-('', 'CRCHUM-HB-100078', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_exams', 'laterality', 'laterality', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='laterality'), '', '', '', '');
+('', 'CRCHUM-HB-100076', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_exams', 'lungs_number', 'lungs number', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'CRCHUM-HB-100077', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_exams', 'lungs_size', 'lungs size', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'CRCHUM-HB-100078', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_exams', 'lungs_laterality', 'lungs laterality', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='laterality'), '', '', '', '');
 
 INSERT INTO structure_formats(`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
 ('QC-CRCHUM-HB-100057_CRCHUM-HB-100076', (SELECT id FROM structures WHERE old_id = 'QC-CRCHUM-HB-100057'), 'QC-CRCHUM-HB-100057', (SELECT id FROM structure_fields WHERE old_id = 'CRCHUM-HB-100076'), 'CRCHUM-HB-100076', '0', '1', '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1'),
@@ -991,6 +1014,33 @@ INSERT INTO structure_formats(`old_id`, `structure_id`, `structure_old_id`, `str
 ('QC-CRCHUM-HB-100058_CRCHUM-HB-100083', (SELECT id FROM structures WHERE old_id = 'QC-CRCHUM-HB-100058'), 'QC-CRCHUM-HB-100058', (SELECT id FROM structure_fields WHERE old_id = 'CRCHUM-HB-100083'), 'CRCHUM-HB-100083', '1', '4', '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1'),
 ('QC-CRCHUM-HB-100058_CRCHUM-HB-100084', (SELECT id FROM structures WHERE old_id = 'QC-CRCHUM-HB-100058'), 'QC-CRCHUM-HB-100058', (SELECT id FROM structure_fields WHERE old_id = 'CRCHUM-HB-100084'), 'CRCHUM-HB-100084', '1', '5', '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1'),
 ('QC-CRCHUM-HB-100058_CRCHUM-HB-100085', (SELECT id FROM structures WHERE old_id = 'QC-CRCHUM-HB-100058'), 'QC-CRCHUM-HB-100058', (SELECT id FROM structure_fields WHERE old_id = 'CRCHUM-HB-100085'), 'CRCHUM-HB-100085', '1', '6', '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1');
+
+INSERT INTO structure_fields(`public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES 
+('', 'CRCHUM-HB-100086', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_exams', 'lymph_node_number', 'lymph node number', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'CRCHUM-HB-100087', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_exams', 'lymph_node_size', 'lymph node size', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'CRCHUM-HB-100088', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_exams', 'colon_number', 'colon number', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'CRCHUM-HB-100089', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_exams', 'colon_size', 'colon size', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'CRCHUM-HB-100090', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_exams', 'rectum_number', 'rectum number', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'CRCHUM-HB-100091', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_exams', 'rectum_size', 'rectum size', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'CRCHUM-HB-100092', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_exams', 'bones_number', 'bones number', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'CRCHUM-HB-100093', 'Clinicalannotation', 'EventDetail', 'ed_hepatobilary_exams', 'bones_size', 'bones size', '', 'number', '', '', NULL, '', '', '', '');
+
+INSERT INTO structure_formats(`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+('QC-CRCHUM-HB-100057_CRCHUM-HB-100086', (SELECT id FROM structures WHERE old_id = 'QC-CRCHUM-HB-100057'), 'QC-CRCHUM-HB-100057', (SELECT id FROM structure_fields WHERE old_id = 'CRCHUM-HB-100086'), 'CRCHUM-HB-100086', '0', '4', 'lymph node', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1'),
+('QC-CRCHUM-HB-100057_CRCHUM-HB-100087', (SELECT id FROM structures WHERE old_id = 'QC-CRCHUM-HB-100057'), 'QC-CRCHUM-HB-100057', (SELECT id FROM structure_fields WHERE old_id = 'CRCHUM-HB-100087'), 'CRCHUM-HB-100087', '0', '5', '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1'),
+('QC-CRCHUM-HB-100057_CRCHUM-HB-100088', (SELECT id FROM structures WHERE old_id = 'QC-CRCHUM-HB-100057'), 'QC-CRCHUM-HB-100057', (SELECT id FROM structure_fields WHERE old_id = 'CRCHUM-HB-100088'), 'CRCHUM-HB-100088', '0', '6', 'colon', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1'),
+('QC-CRCHUM-HB-100057_CRCHUM-HB-100089', (SELECT id FROM structures WHERE old_id = 'QC-CRCHUM-HB-100057'), 'QC-CRCHUM-HB-100057', (SELECT id FROM structure_fields WHERE old_id = 'CRCHUM-HB-100089'), 'CRCHUM-HB-100089', '0', '7', '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1'),
+('QC-CRCHUM-HB-100057_CRCHUM-HB-100090', (SELECT id FROM structures WHERE old_id = 'QC-CRCHUM-HB-100057'), 'QC-CRCHUM-HB-100057', (SELECT id FROM structure_fields WHERE old_id = 'CRCHUM-HB-100090'), 'CRCHUM-HB-100090', '1', '8', 'rectum', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1'),
+('QC-CRCHUM-HB-100057_CRCHUM-HB-100091', (SELECT id FROM structures WHERE old_id = 'QC-CRCHUM-HB-100057'), 'QC-CRCHUM-HB-100057', (SELECT id FROM structure_fields WHERE old_id = 'CRCHUM-HB-100091'), 'CRCHUM-HB-100091', '1', '9', '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1'),
+('QC-CRCHUM-HB-100057_CRCHUM-HB-100092', (SELECT id FROM structures WHERE old_id = 'QC-CRCHUM-HB-100057'), 'QC-CRCHUM-HB-100057', (SELECT id FROM structure_fields WHERE old_id = 'CRCHUM-HB-100092'), 'CRCHUM-HB-100092', '1', '10', 'bones', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1'),
+('QC-CRCHUM-HB-100057_CRCHUM-HB-100093', (SELECT id FROM structures WHERE old_id = 'QC-CRCHUM-HB-100057'), 'QC-CRCHUM-HB-100057', (SELECT id FROM structure_fields WHERE old_id = 'CRCHUM-HB-100093'), 'CRCHUM-HB-100093', '1', '11', '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1');
+
+INSERT INTO structures(`old_id`, `alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES 
+('QC-CRCHUM-HB-100094', 'QC_CHUM_HB_date', '', '', '1', '1', '1', '1');
+INSERT INTO structure_fields(`public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES 
+('', 'CRCHUM-HB-100095', 'Clinicalannotation', 'EventMaster', '', 'event_date', 'date', '', 'date', '', '', NULL, '', '', '', '');
+INSERT INTO structure_formats(`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+('QC-CRCHUM-HB-100094_CRCHUM-HB-100095', (SELECT id FROM structures WHERE old_id = 'QC-CRCHUM-HB-100094'), 'QC-CRCHUM-HB-100094', (SELECT id FROM structure_fields WHERE old_id = 'CRCHUM-HB-100095'), 'CRCHUM-HB-100095', '0', '0', '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1');
 
 
 #end medical imaging

@@ -72,7 +72,15 @@ class EventMastersControllerCustom extends EventMastersController {
 			}
 			$this->set('medical_past_history_precisions', $medical_past_history_precisions);
 		}
-	}	
+	}
+	
+	function imageryReport( $participant_id ){
+		$this->data = $this->EventMaster->find('all', array('conditions' => array('EventMaster.participant_id' => $participant_id)));
+		$this->Structures->set('empty');
+		$atim_menu_variables['Participant.id'] = $participant_id;
+		$this->set('atim_menu_variables', $atim_menu_variables);
+		$this->set('atim_menu', $this->Menus->get('/clinicalannotation/event_masters/imageryReport/%%Participant.id%%/'));
+	}
 	 	
 }
 	

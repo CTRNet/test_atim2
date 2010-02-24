@@ -2350,6 +2350,20 @@ class StructuresHelper extends Helper {
 		return $merged;
 	
 	}
+	
+	function formatDate($date){
+		$tmp = explode("-", $date);
+		if(sizeof($tmp) == 3){
+			if ( date_format=='MDY' ) {
+				$date = $tmp[1]."-".$tmp[2]."-".$tmp[0];
+			} else if ( date_format=='YMD' ) {
+				$date = $tmp[0]."-".$tmp[1]."-".$tmp[2];
+			} else { // default of DATE_FORMAT=='DMY'
+				$date = $tmp[2]."-".$tmp[1]."-".$tmp[0];
+			}
+		}
+		return $date;
+	}
 
 
 }
