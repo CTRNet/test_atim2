@@ -4,7 +4,17 @@ class PermissionsController extends AdministrateAppController {
 	
 	var $uses = array('Aco','Aro'); 
 	
+	function index(){
+		
+	}
+	
+	function regenerate(){
+		$this->PermissionManager->buildAcl();
+		$this->set('log', $this->PermissionManager->log);
+	}
+	
 	function tree( $bank_id=0, $group_id=0, $user_id=0 ) {
+		
 		if($this->data){
 			foreach($this->data['Permission'] as $i => $perm){
 				if(intval($perm['state']) == 0 ){
