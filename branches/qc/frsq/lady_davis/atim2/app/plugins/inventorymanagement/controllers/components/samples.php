@@ -13,6 +13,9 @@ class SamplesComponent extends Object {
 	 * SOP module.
 	 *
 	 *	@param $sample_type Sample Type
+	 * 
+	 * @return SOP list into array having following structure: 
+	 * 	array($sop_id => $sop_label_built_by_function)
 	 *
 	 * @author N. Luc
 	 * @since 2009-09-11
@@ -20,7 +23,15 @@ class SamplesComponent extends Object {
 	 */
 	 
 	function getSampleSopList($sample_type) {
-		return $this->controller->Sops->getSopList();
+		$sop_list = $this->controller->Sops->getSopList();
+		if(empty($sop_list)) { return array(); }
+		
+		$sop_list_to_return = array();
+		foreach($sop_list as $sop_masters) {
+			$sop_list_to_return[$sop_masters['SopMaster']['id']] = $sop_masters['SopMaster']['code'];
+		}
+	
+		return $sop_list_to_return;
 	}
 	
 	/**
