@@ -108,17 +108,6 @@ class SampleMaster extends InventorymanagementAppModel {
 		
 		return $return;
 	}
-			 	 
-//   var $actAs = array('MasterDetail');
-	
-//	function summary($variables=array()) {
-//		$return = false;
-//		
-
-//		
-//		return $return;
-//	}
-
 
 }
 

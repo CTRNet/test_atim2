@@ -11,6 +11,9 @@ class CollectionsComponent extends Object {
 	 * 
 	 * Note: Function to allow bank to customize this function when they don't use 
 	 * ADministrate module.
+	 * 
+	 * @return Bank list into array having following structure: 
+	 * 	array($bank_id => $bank_label_built_by_function)
 	 *
 	 * @author N. Luc
 	 * @since 2009-09-11
@@ -18,7 +21,15 @@ class CollectionsComponent extends Object {
 	 */
 	 
 	function getBankList() {
-		return $this->controller->Administrates->getBankList();
+		$bank_list = $this->controller->Administrates->getBankList();
+		if(empty($bank_list)) { return array(); }
+		
+		$bank_list_to_return = array();
+		foreach($bank_list as $new_bank) {
+			$bank_list_to_return[$new_bank['Bank']['id']] = $new_bank['Bank']['name'];
+		}
+	
+		return $bank_list_to_return;
 	}
 	
 	/**
@@ -26,6 +37,9 @@ class CollectionsComponent extends Object {
 	 * 
 	 * Note: Function to allow bank to customize this function when they don't use 
 	 * SOP module.
+	 * 
+	 * @return SOP list into array having following structure: 
+	 * 	array($sop_id => $sop_label_built_by_function)
 	 *
 	 * @author N. Luc
 	 * @since 2009-09-11
@@ -33,7 +47,15 @@ class CollectionsComponent extends Object {
 	 */
 	 
 	function getCollectionSopList() {
-		return $this->controller->Sops->getSopList();
+		$sop_list = $this->controller->Sops->getSopList();
+		if(empty($sop_list)) { return array(); }
+		
+		$sop_list_to_return = array();
+		foreach($sop_list as $sop_masters) {
+			$sop_list_to_return[$sop_masters['SopMaster']['id']] = $sop_masters['SopMaster']['code'];
+		}
+	
+		return $sop_list_to_return;		
 	}
 }
 

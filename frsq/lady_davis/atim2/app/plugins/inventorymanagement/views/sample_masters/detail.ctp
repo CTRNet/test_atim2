@@ -49,9 +49,7 @@
 	// Set override
 	$structure_override = array();
 	
-	$sops_list = array();
-	foreach($arr_sample_sops as $sop_masters) { $sops_list[$sop_masters['SopMaster']['id']] = $sop_masters['SopMaster']['code']; }
-	$structure_override['SampleMaster.sop_master_id'] = $sops_list; 	
+	$structure_override['SampleMaster.sop_master_id'] = $sample_sop_list; 	
 	
 	$structure_override['SampleMaster.parent_id'] = (empty($parent_sample_data))? '' : $parent_sample_data['SampleMaster']['sample_code'] . ' [' . __($parent_sample_data['SampleMaster']['sample_type'], TRUE) . ']';
 
@@ -96,10 +94,8 @@
 		$structure_links['index']['detail'] = '/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%';
 		
 		$structure_override = array();
-		$bank_list = array();
-		foreach($banks as $new_bank) {
-			$bank_list[$new_bank['Bank']['id']] = $new_bank['Bank']['name'];
-		}
+		
+		//TODO is it usefull?
 		$structure_override['Collection.bank_id'] = $bank_list;
 		
 		$final_atim_structure = $aliquots_listall_structure; 
