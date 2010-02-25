@@ -151,7 +151,7 @@ VALUES (NULL , 'CAN-999-999-000-999-1008_qc-lady-00003', (SELECT id FROM structu
 
 INSERT INTO `i18n` (
 `id` , `page_id` , `en` , `fr`)
-VALUES ('from biopsy', 'global', 'From biopsy', 'À partir d\'une biopsie');
+VALUES ('from biopsy', 'global', 'From biopsy', '√Ä partir d\'une biopsie');
 
 #dna storage solution
 INSERT INTO structure_permissible_values (`value`, `language_alias`) VALUES
@@ -200,11 +200,11 @@ VALUES (NULL , 'freezer 6x5', 'F6X5', 'column', 'integer', '6', 'row', 'integer'
 (NULL , 'freezer vertical 4x3', '', 'column', 'integer', '4', 'row', 'integer', '3', '0', '0', 'TRUE', 'FALSE', 'active', 'std_undetail_stg_with_tmp', 'std_2_dim_position_selection', 'std_freezers'),
 (NULL , 'rack 1-12', 'R1T12', 'position', 'integer', '12', NULL , NULL , NULL , '0', '0', 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_racks');
 INSERT INTO `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES 
-('freezer 6x5', 'global', 'Freezer 6x5', 'Congélateur 6x5'),
-('rack 4x4', 'global', 'Rack 4x4', 'Étagère 4x4'),
-('freezer 4x5', 'global', 'Freezer 4x5', 'Congélateur 4x5'),
-('freezer vertical 4x3', 'global', 'Vertical freezer 4x3', 'Congélateur vertical 4x3'),
-('rack 1-12', 'global', 'Rack 1-12', 'Étagère 1-12');
+('freezer 6x5', 'global', 'Freezer 6x5', 'Cong√©lateur 6x5'),
+('rack 4x4', 'global', 'Rack 4x4', '√âtag√®re 4x4'),
+('freezer 4x5', 'global', 'Freezer 4x5', 'Cong√©lateur 4x5'),
+('freezer vertical 4x3', 'global', 'Vertical freezer 4x3', 'Cong√©lateur vertical 4x3'),
+('rack 1-12', 'global', 'Rack 1-12', '√âtag√®re 1-12');
 INSERT INTO `storage_masters` (`id`, `code`, `storage_type`, `storage_control_id`, `parent_id`, `lft`, `rght`, `barcode`, `short_label`, `selection_label`, `storage_status`, `parent_storage_coord_x`, `coord_x_order`, `parent_storage_coord_y`, `coord_y_order`, `set_temperature`, `temperature`, `temp_unit`, `notes`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
 (NULL, 'F6X5 - 1', 'freezer 6x5', 22, NULL, 39, 40, '#6 Revco', '#6', '#6', '', NULL, NULL, NULL, NULL, 'TRUE', -80.00, 'celsius', '', '2010-02-16 10:33:13', '1', '2010-02-16 10:33:14', '1', 0, NULL),
 (NULL, 'F4X5 - 2', 'freezer 4x5', 24, NULL, 41, 42, '#85 VWR Symphony', '#85', '#85', '', NULL, NULL, NULL, NULL, 'TRUE', -80.00, 'celsius', '', '2010-02-16 10:52:05', '1', '2010-02-16 10:52:05', '1', 0, NULL),
@@ -331,8 +331,8 @@ UPDATE sample_to_aliquot_controls SET aliquot_control_id=@last_id WHERE sample_c
 #end tissue tube contains
 
 INSERT INTO `i18n` (`id` , `page_id` , `en` , `fr`) VALUES
-('an identifier of this type already exists for the current participant.', 'global', 'An identifier of this type already exists for the current participant.', 'Un identifiant de ce type existe déjà pour ce participant.'),
-('metastatis', 'global', 'Metastasis', 'Métastases');
+('an identifier of this type already exists for the current participant.', 'global', 'An identifier of this type already exists for the current participant.', 'Un identifiant de ce type existe dÔøΩjÔøΩ pour ce participant.'),
+('metastatis', 'global', 'Metastasis', 'M√©tastases');
 
 #default bank
 UPDATE structure_fields SET `default`='1' WHERE old_id='CAN-999-999-000-999-1223';
@@ -365,7 +365,6 @@ UPDATE structure_value_domains_permissible_values SET active='no' WHERE id IN(8,
 UPDATE structure_fields SET `default`='paraffin' WHERE old_id='CAN-999-999-000-999-1135';
 
 #change application header
-DELETE FROM `i18n` WHERE `id` IN ('core_appname', 'CTRApp');
-INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+REPLACE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('core_appname', 'global', 'ATiM.v2 - L.D.', 'ATiM.v2 - L.D.'),
 ('CTRApp', 'global', 'ATiM.v2 - L.D.', 'ATiM.v2 - L.D.');
