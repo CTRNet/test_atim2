@@ -711,6 +711,11 @@ flag_datagrid = '0', flag_datagrid_readonly = '0',
 flag_index = '0', flag_detail = '0'
 WHERE structure_old_id = 'CAN-999-999-000-999-1000';
 
+UPDATE structure_formats 
+SET flag_index = '1'
+WHERE structure_old_id = 'CAN-999-999-000-999-1000'
+AND structure_field_old_id IN ('CAN-999-999-000-999-1000', 'CAN-999-999-000-999-1223', 'CAN-999-999-000-999-1004', 'CAN-999-999-000-999-1003');
+
 -- Add fields to collection_view
 INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`)
 VALUES (NULL , '', 'CANM-00026', 'Inventorymanagement', 'ViewCollection', '', 'participant_identifier', 'participant identifier', '', 'input', '', '', NULL , '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
@@ -742,6 +747,7 @@ col.collection_datetime,
 col.collection_datetime_accuracy, 
 col.collection_property, 
 col.collection_notes, 
+col.deleted,
 
 part.participant_identifier, 
 
@@ -1010,7 +1016,8 @@ samp.initial_specimen_sample_type,
 parent_samp.sample_type AS parent_sample_type,
 samp.sample_type,
 samp.sample_code,
-samp.sample_category
+samp.sample_category,
+samp.deleted
 
 FROM sample_masters as samp
 INNER JOIN collections AS col ON col.id = samp.collection_id AND col.deleted != 1
