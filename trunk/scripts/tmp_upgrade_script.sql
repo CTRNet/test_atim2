@@ -1037,13 +1037,48 @@ AND structure_field_id IN (SELECT id FROM structure_fields WHERE old_id = 'CAN-9
 DELETE FROM structure_formats WHERE structure_id IN (SELECT id FROM structures WHERE alias = 'participant_sample_list');
 DELETE FROM structures WHERE alias = 'participant_sample_list';
 
+#protein
+CREATE TABLE `sd_der_proteins` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `sample_master_id` int(11) DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` varchar(50) NOT NULL DEFAULT '',
+  `modified` datetime DEFAULT NULL,
+  `modified_by` varchar(50) DEFAULT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK_sd_der_amp_rnas_sample_masters` (`sample_master_id`),
+  FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE `sd_der_proteins_revs` (
+  `id` int(11) NOT NULL,
+  `sample_master_id` int(11) DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` varchar(50) NOT NULL DEFAULT '',
+  `modified` datetime DEFAULT NULL,
+  `modified_by` varchar(50) DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+INSERT INTO `sample_controls` (`id`, `sample_type`, `sample_type_code`, `sample_category`, `status`, `form_alias`, `detail_tablename`, `display_order`)
+VALUES (NULL , 'protein', 'PROT', 'derivative', 'active', 'sd_undetailed_derivatives', 'sd_der_proteins', '0');
 
+INSERT INTO parent_to_derivative_sample_controls (`parent_sample_control_id`, `derivative_sample_control_id`, `status`) VALUES
+((SELECT id FROM sample_controls WHERE sample_type='cell lysate'), (SELECT id FROM sample_controls WHERE sample_type='dna'), 'active'),
+((SELECT id FROM sample_controls WHERE sample_type='cell lysate'), (SELECT id FROM sample_controls WHERE sample_type='rna'), 'active'),
+((SELECT id FROM sample_controls WHERE sample_type='cell lysate'), (SELECT id FROM sample_controls WHERE sample_type='protein'), 'active');
 
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('protein', 'protein');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='sample_type'),  (SELECT id FROM structure_permissible_values WHERE value='protein' AND language_alias='protein'), '0', 'yes');
 
-
-
-
+INSERT INTO sample_to_aliquot_controls (`sample_control_id`, `aliquot_control_id`, `status`) VALUES
+((SELECT id FROM sample_controls WHERE sample_type='cell lysate'), (SELECT id FROM aliquot_controls WHERE aliquot_type='tube' AND form_alias='ad_spec_tubes'), 'active'),
+((SELECT id FROM sample_controls WHERE sample_type='protein'), (SELECT id FROM aliquot_controls WHERE aliquot_type='tube' AND form_alias='ad_spec_tubes'), 'active');
 
 
 
