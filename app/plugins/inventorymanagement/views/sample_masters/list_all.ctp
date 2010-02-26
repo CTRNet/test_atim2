@@ -32,7 +32,9 @@
 	$search_type_links['samples'] = '/inventorymanagement/sample_masters/index/';
 	$search_type_links['aliquots'] = '/inventorymanagement/aliquot_masters/index/';
 	
-	$detail_link = ($model_to_use == 'ViewSample')? '/inventorymanagement/sample_masters/detail/%%ViewSample.collection_id%%/%%ViewSample.sample_master_id%%': '/inventorymanagement/sample_masters/detail/%%Collection.id%%/%%SampleMaster.id%%';
+	$detail_link = ($model_to_use == 'ViewSample')? 
+		'/inventorymanagement/sample_masters/detail/%%ViewSample.collection_id%%/%%ViewSample.sample_master_id%%': 
+		'/inventorymanagement/sample_masters/detail/%%Collection.id%%/%%SampleMaster.id%%';
 			
 	$structure_links = array(
 		'index' => array(

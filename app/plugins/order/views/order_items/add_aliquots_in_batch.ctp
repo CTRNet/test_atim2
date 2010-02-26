@@ -3,6 +3,7 @@
 	// 1- ALIQUOTS LIST	
 	
 	$structure_override = array();
+	$structure_override['ViewAliquot.bank_id'] = $bank_list;
 			
 	$final_atim_structure = $atim_structure_for_aliquots_list;
 	$final_options = array(

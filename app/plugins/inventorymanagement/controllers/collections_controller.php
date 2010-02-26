@@ -21,7 +21,9 @@ class CollectionsController extends InventorymanagementAppController {
 		'Administrate.Bank',
 		'Sop.SopMaster');
 	
-	var $paginate = array('Collection' => array('limit' => 10, 'order' => 'Collection.acquisition_label ASC')); 
+	var $paginate = array(
+		'Collection' => array('limit' => 10, 'order' => 'Collection.acquisition_label ASC'),
+		'ViewCollection' => array('limit' => 10, 'order' => 'ViewCollection.acquisition_label ASC')); 
 	
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS
