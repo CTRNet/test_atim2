@@ -16,6 +16,10 @@ class PermissionsController extends AdministrateAppController {
 	function tree( $bank_id=0, $group_id=0, $user_id=0 ) {
 		
 		if($this->data){
+			
+			pr($this->data);
+			exit;
+			
 			foreach($this->data['Permission'] as $i => $perm){
 				if(intval($perm['state']) == 0 ){
 					$sql = 'DELETE FROM aros_acos WHERE aro_id = "'.$perm['aro_id'].'" AND aco_id = "'.$perm['aco_id'].'"';
@@ -85,6 +89,46 @@ class PermissionsController extends AdministrateAppController {
 		$this->set('depth',$depth);
 		
 		$this->set('acos', $this->Aco->find('all', array('recursive' => -1, 'order'=>'Aco.lft ASC, Aco.alias ASC')) );
+		
+		
+		$this->Aco->unbindModel(
+			array(
+				'hasAndBelongsToMany' => array('Aro')
+			)
+		);
+		
+		$this->Aco->bindModel(
+			array(
+				'hasAndBelongsToMany' => array(
+					'Aro'	=> array(
+						'className'					=> 'Aro',
+						'joinTable'					=> 'aros_acos',
+						'foreignKey'				=> 'aco_id',
+						'associationForeignKey'	=> 'aro_id',
+						'conditions'				=> array('Aro.model'=>'Group', 'Aro.foreign_key'=>$group_id)
+					)
+				)
+			)
+		);
+		
+		$threaded_data = $this->Aco->find('threaded');
+		$threaded_data = $this->addPermissionStateToThreadedData($threaded_data);
+		
+		$this->data = $threaded_data;
+	}
+	
+	function addPermissionStateToThreadedData( $threaded_data=array() ) {
+		foreach ( $threaded_data as $k=>$v ) {
+			if ( isset($v['Aro'][0]) && isset($v['Aro'][0]['ArosAco']) && isset($v['Aro'][0]['ArosAco']['_create']) ) {
+				$threaded_data[$k]['Aco']['state'] = $v['Aro'][0]['ArosAco']['_create'];
+			}
+			
+			if ( isset($v['children']) && count($v['children']) ) {
+				$threaded_data[$k]['children'] = $this->addPermissionStateToThreadedData($v['children']);
+			}
+		}
+		
+		return $threaded_data;
 	}
 	
 }
