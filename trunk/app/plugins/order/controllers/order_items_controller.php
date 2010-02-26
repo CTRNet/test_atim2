@@ -1,9 +1,14 @@
 <?php
 
 class OrderItemsController extends OrderAppController {
-	
+
+	var $components = array(
+		'Inventorymanagement.Collections',
+		'Administrate.Administrates');
+			
 	var $uses = array(
-		'Inventorymanagement.AliquotMaster',	
+		'Inventorymanagement.AliquotMaster',
+		'Inventorymanagement.ViewAliquot',	
 		'Inventorymanagement.SampleControl',
 		'Inventorymanagement.AliquotControl',	
 			
@@ -11,10 +16,13 @@ class OrderItemsController extends OrderAppController {
 		'Order.OrderLine', 
 		'Order.OrderItem',
 		
-		'Order.Shipment');
+		'Order.Shipment',
+		
+		'Administrate.Bank');
 		
 	var $paginate = array(
 		'OrderItem'=>array('limit'=>'10','order'=>'AliquotMaster.barcode'),
+		'ViewAliquot' => array('limit' =>10 , 'order' => 'ViewAliquot.barcode DESC'), 
 		'AliquotMaster' => array('limit' =>10 , 'order' => 'AliquotMaster.barcode DESC'));
 	
 	function listall( $order_id, $order_line_id ) {
@@ -227,8 +235,11 @@ class OrderItemsController extends OrderAppController {
 		// MANAGE DATA
 
 		// Get data of aliquots to add
-		$aliquots_data = $this->paginate($this->AliquotMaster, array('AliquotMaster.id'=>$aliquot_ids_to_add));
+		$aliquots_data = $this->paginate($this->ViewAliquot, array('ViewAliquot.aliquot_master_id'=>$aliquot_ids_to_add));
 		$this->set('aliquots_data' , $aliquots_data);	
+		
+		// Set list of banks
+		$this->set('bank_list', $this->Collections->getBankList());		
 				
 		// Build data for order line selection
 		$order_line_data_for_tree_view = $this->Order->find('all', array('conditions' => array('NOT' => array('Order.processing_status' => array('completed')))));
@@ -257,7 +268,7 @@ class OrderItemsController extends OrderAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Structures
-		$this->Structures->set('aliquotmasters_summary', 'atim_structure_for_aliquots_list');
+		$this->Structures->set('view_aliquot_joined_to_collection', 'atim_structure_for_aliquots_list');
 		
 		$this->Structures->set('orderitems_to_addAliquotsInBatch', 'atim_structure_orderitems_data');
 		

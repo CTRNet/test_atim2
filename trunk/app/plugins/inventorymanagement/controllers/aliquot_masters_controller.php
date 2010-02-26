@@ -21,7 +21,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 		'Inventorymanagement.SampleToAliquotControl',
 		
 		'Inventorymanagement.AliquotControl', 
-		'Inventorymanagement.AliquotMaster',
+		'Inventorymanagement.AliquotMaster', 
+		'Inventorymanagement.ViewAliquot',
 		'Inventorymanagement.AliquotDetail',			
 		
 		'Inventorymanagement.SampleToAliquotControl',
@@ -42,7 +43,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 		'Sop.SopMaster'
 	);
 	
-	var $paginate = array('AliquotMaster' => array('limit' =>10 , 'order' => 'AliquotMaster.barcode DESC'), 'AliquotUse' => array('limit' => 10, 'order' => 'AliquotUse.use_datetime DESC'));
+	var $paginate = array(
+		'AliquotMaster' => array('limit' =>10 , 'order' => 'AliquotMaster.barcode DESC'), 
+		'ViewAliquot' => array('limit' =>10 , 'order' => 'ViewAliquot.barcode DESC'), 
+		'AliquotUse' => array('limit' => 10, 'order' => 'AliquotUse.use_datetime DESC'));
 
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS
@@ -58,6 +62,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		// Set list of banks
 		$this->set('bank_list', $this->Collections->getBankList());	
+
+		$this->Structures->set('view_aliquot_joined_to_collection');
 		
 		$hook_link = $this->hook('format');
 		if($hook_link){
@@ -67,13 +73,19 @@ class AliquotMastersController extends InventoryManagementAppController {
 	
 	function search() {
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/collections/index'));
+
+		$view_aliquot = $this->Structures->get('form', 'view_aliquot_joined_to_collection');
+		$this->set('atim_structure', $view_aliquot);
+		if ($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions($view_aliquot);
 		
-		if ($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions();
-		$this->setDataForAliquotsList($_SESSION['ctrapp_core']['search']['criteria']);
+		$this->set('aliquots_data', $this->paginate($this->ViewAliquot, $_SESSION['ctrapp_core']['search']['criteria']));
 		$this->data = array();
 		
+		// Set list of banks
+		$this->set('bank_list', $this->Collections->getBankList());
+		
 		// if SEARCH form data, save number of RESULTS and URL
-		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['AliquotMaster']['count'];
+		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['ViewAliquot']['count'];
 		$_SESSION['ctrapp_core']['search']['url'] = '/inventorymanagement/aliquot_masters/search';
 		
 		$hook_link = $this->hook('format');
@@ -89,14 +101,17 @@ class AliquotMastersController extends InventoryManagementAppController {
 
 		$is_collection_aliquot_list = ($sample_master_id == '-1')? true: false;
 
-		$specific_aliquot_search_criteria = array();
-		$specific_form_alias = null;
-		$specific_menu_variables = array();
+		$model_to_use = null;
+		$form_alias = null;
+		$aliquot_search_criteria = array();
+		$menu_variables = array();
 
 		if($is_collection_aliquot_list) {
-			// User is working on collection aliquots list
+			//---------------------------------------------------
+			// A- User is working on collection aliquots list
+			//---------------------------------------------------
 				
-			// Manage filter option
+			// A.1- Manage filter option
 			if(is_null($filter_option)) {
 				if(isset($_SESSION['InventoryManagement']['CollectionAliquots']['Filter'])) {
 					// Get existing filter
@@ -108,43 +123,52 @@ class AliquotMastersController extends InventoryManagementAppController {
 				unset($_SESSION['InventoryManagement']['CollectionAliquots']['Filter']);
 			}
 				
-			// Search data to display
-			$specific_menu_variables['FilterLevel'] = 'collection';
+			// A.2- Set Model, Alias, Menu Criteria and Search Criteria to use
+			$menu_variables['FilterLevel'] = 'collection';
 
-			if(!is_null($filter_option)) {
-				// Get filter options
+			if(is_null($filter_option)) {
+				// No filter
+				$model_to_use = 'ViewAliquot';
+				$form_alias = 'view_aliquot_joined_to_sample';
+				
+			} else  {
+				// Get filter options: list all aliquots according to sample-aliquot types
 				$option_for_list_all = explode("|", $filter_option);
 				if(sizeof($option_for_list_all) != 2)  { $this->redirect('/pages/err_inv_system_error', null, true); }
 				$sample_control_id = $option_for_list_all[0];
 				$aliquot_control_id = $option_for_list_all[1];
 
-				$specific_aliquot_search_criteria['SampleMaster.sample_control_id'] = $sample_control_id;
-				$specific_aliquot_search_criteria['AliquotMaster.aliquot_control_id'] = $aliquot_control_id;
+				$aliquot_search_criteria['SampleMaster.sample_control_id'] = $sample_control_id;
+				$aliquot_search_criteria['AliquotMaster.aliquot_control_id'] = $aliquot_control_id;
 
 				$sample_control_data = $this->SampleControl->find('first', array('conditions' => array('SampleControl.id' => $sample_control_id)));
 				if(empty($sample_control_data)) { $this->redirect('/pages/err_inv_system_error', null, true); }
-				$specific_menu_variables['SampleTypeForFilter'] = $sample_control_data['SampleControl']['sample_type'];
+				$menu_variables['SampleTypeForFilter'] = $sample_control_data['SampleControl']['sample_type'];
 
 				$aliquot_control_data = $this->AliquotControl->find('first', array('conditions' => array('AliquotControl.id' => $option_for_list_all[1])));
 				if(empty($aliquot_control_data)) { $this->redirect('/pages/err_inv_system_error', null, true); }
-				$specific_form_alias = $aliquot_control_data['AliquotControl']['form_alias'];
-				$specific_menu_variables['AliquotTypeForFilter'] = $aliquot_control_data['AliquotControl']['aliquot_type'];
+				$form_alias = $aliquot_control_data['AliquotControl']['form_alias'];
+				$menu_variables['AliquotTypeForFilter'] = $aliquot_control_data['AliquotControl']['aliquot_type'];
 
+				$model_to_use = 'AliquotMaster';
+				$form_alias = $aliquot_control_data['AliquotControl']['form_alias'];
+								
 				// Set filter option in session
-				$_SESSION['InventoryManagement']['CollectionAliquots']['Filter'] = $filter_option;
+				$_SESSION['InventoryManagement']['CollectionAliquots']['Filter'] = $filter_option;				
 			}
 				
 		} else {
-			// User is working on sample aliquots list
+			//---------------------------------------------------
+			// B- User is working on sample aliquots list
+			//---------------------------------------------------
+
+			// B.1- Get Sample Data			
 			$sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id), 'recursive' => '-1'));
 			if(empty($sample_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }
-			$specific_menu_variables['SampleMaster.initial_specimen_sample_id'] = $sample_data['SampleMaster']['initial_specimen_sample_id'];
-			$specific_menu_variables['SampleMaster.id'] = $sample_data['SampleMaster']['id'];
+			$menu_variables['SampleMaster.initial_specimen_sample_id'] = $sample_data['SampleMaster']['initial_specimen_sample_id'];
+			$menu_variables['SampleMaster.id'] = $sample_data['SampleMaster']['id'];
 
-			// Set sample master id into criteria
-			$specific_aliquot_search_criteria['AliquotMaster.sample_master_id'] = $sample_master_id;
-				
-			// Manage filter option
+			// B.2- Manage filter option
 			if(is_null($filter_option)) {
 				// Get existing filter
 				if(isset($_SESSION['InventoryManagement']['SampleAliquots']['Filter'])) {
@@ -164,23 +188,33 @@ class AliquotMastersController extends InventoryManagementAppController {
 				unset($_SESSION['InventoryManagement']['SampleAliquots']['Filter']);
 			}
 				
-			// Search data to display
-			$specific_menu_variables['FilterLevel'] = 'sample';
+			// B.3- Set Model, Alias, Menu Criteria and Search Criteria to use
+			$menu_variables['FilterLevel'] = 'sample';
 
-			if(!is_null($filter_option)) {
-				// Get filter options (being sample_control_id and aliquot_control_id)
+			if(is_null($filter_option)) {
+				// No filter
+				$model_to_use = 'ViewAliquot';
+				$form_alias = 'view_aliquot_joined_to_sample';
+				
+				$aliquot_search_criteria['ViewAliquot.sample_master_id'] = $sample_master_id;
+				
+			} else  {
+				// Get filter options: list all aliquots according to sample-aliquot types
 				$option_for_list_all = explode("|", $filter_option);
 				if(sizeof($option_for_list_all) != 2)  { $this->redirect('/pages/err_inv_system_error', null, true); }
 				$sample_control_id = $option_for_list_all[0];
 				$aliquot_control_id = $option_for_list_all[1];
 
-				$specific_aliquot_search_criteria['AliquotMaster.aliquot_control_id'] = $aliquot_control_id;
+				$aliquot_search_criteria['AliquotMaster.sample_master_id'] = $sample_master_id;
+				$aliquot_search_criteria['AliquotMaster.aliquot_control_id'] = $aliquot_control_id;
 
 				$aliquot_control_data = $this->AliquotControl->find('first', array('conditions' => array('AliquotControl.id' => $option_for_list_all[1])));
 				if(empty($aliquot_control_data)) { $this->redirect('/pages/err_inv_system_error', null, true); }
-				$specific_form_alias = $aliquot_control_data['AliquotControl']['form_alias'];
-				$specific_menu_variables['AliquotTypeForFilter'] = $aliquot_control_data['AliquotControl']['aliquot_type'];
+				$menu_variables['AliquotTypeForFilter'] = $aliquot_control_data['AliquotControl']['aliquot_type'];
 
+				$model_to_use = 'AliquotMaster';
+				$form_alias = $aliquot_control_data['AliquotControl']['form_alias'];
+				
 				// Set filter option in session
 				$_SESSION['InventoryManagement']['SampleAliquots']['Filter'] = array(
 					'SampleMasterId' => $sample_master_id,
@@ -190,12 +224,34 @@ class AliquotMastersController extends InventoryManagementAppController {
 
 		// MANAGE DATA
 
-		$this->setDataForAliquotsList(array_merge(array('AliquotMaster.collection_id' => $collection_id), $specific_aliquot_search_criteria));
+
+		// Search data to display
+		$samples_data = array();
+		switch($model_to_use) {
+			case 'ViewAliquot': 
+				// Get data
+				$aliquots_data = $this->paginate($this->ViewAliquot, array_merge(array('ViewAliquot.collection_id' => $collection_id), $aliquot_search_criteria));
+				break;
+				
+			case 'AliquotMaster':
+				$aliquots_data = $this->getAliquotsListData(array_merge(array('AliquotMaster.collection_id' => $collection_id), $aliquot_search_criteria));
+				break;
+				
+			default:
+				$this->redirect('/pages/err_inv_system_error', null, true);
+		}
+
+
+
+ 		
+//		$this->data = array();
+
+		$this->set('model_to_use', $model_to_use);
+		$this->set('aliquots_data', $aliquots_data);
 		$this->data = array();
-		
+				
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 				
-		$form_alias = (is_null($specific_form_alias))? 'aliquotmasters': $specific_form_alias;
 		$this->Structures->set($form_alias, 'aliquots_listall_structure');
 		
 		// Get all collection/sample 'sample aliquot type list' to build the filter button
@@ -226,7 +282,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$last_menu_parameter = '-1';
 		if(!$is_collection_aliquot_list) {
 			// User is working on sample aliquots
-			if($specific_menu_variables['SampleMaster.initial_specimen_sample_id'] == $specific_menu_variables['SampleMaster.id']) {
+			if($menu_variables['SampleMaster.initial_specimen_sample_id'] == $menu_variables['SampleMaster.id']) {
 				// Studied sample is a specimen
 				$last_menu_parameter = '%%SampleMaster.initial_specimen_sample_id%%';
 			} else {
@@ -237,7 +293,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/aliquot_masters/listAll/%%Collection.id%%/' . $last_menu_parameter));
 
 		// Set menu variables
-		$atim_menu_variables = array_merge(array('Collection.id' => $collection_id), $specific_menu_variables);
+		$atim_menu_variables = array_merge(array('Collection.id' => $collection_id), $menu_variables);
 		$this->set('atim_menu_variables', $atim_menu_variables);
 		
 		$hook_link = $this->hook('format');
