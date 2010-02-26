@@ -900,13 +900,16 @@ class StructuresHelper extends Helper {
 						foreach ( $data_val as $model_name=>$model_array ) {
 							if ( isset($options['settings']['tree'][$model_name]) ) {
 								$tree_node_structure = $atim_structure[ $options['settings']['tree'][$model_name] ];
+								$data_key = $data_val[$model_name]['id'];
 							}
 						}
 					}
 					
 					$options['type'] = 'index';
-					$options['data'] = $data_val;
-						// $options['stack']['key'] = $data_key;
+					
+					$options['data'] = array( $data_key=>$data_val );
+					$options['stack']['key'] = $data_key; // required for multiple data submits from TREE
+					
 					$table_index = $this->build_stack( $tree_node_structure, $options );
 					unset($options['stack']);
 					
@@ -1124,7 +1127,7 @@ class StructuresHelper extends Helper {
 					$data = $options['data'];
 				}
 			}
-		
+			
 		foreach ( $atim_structure['StructureFormat'] as $field ) {
 			
 			// if STRUCTURE does not allows multi-columns, display STRUCTURE in one column only
@@ -1389,7 +1392,7 @@ class StructuresHelper extends Helper {
 					$display_value =  '
 							<!-- '.$field['StructureField']['type'].' '.$field['id'].' -->
 							';
-					
+							
 					$html_element_array['div'] = false;
 					$html_element_array['label'] = false;
 					$html_element_array['type'] = $field['StructureField']['type'];
@@ -1415,6 +1418,10 @@ class StructuresHelper extends Helper {
 						$html_element_array['value'] = $this->data[$field['StructureField']['model']][$field['StructureField']['field']]; 
 					}
 					
+					if ( count($options['settings']['tree']) ) { 
+						$html_element_array['value'] = $data[$field['StructureField']['model']][$field['StructureField']['field']]; 
+					}
+					
 					if ( !isset( $options['override'][$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) && isset( $options['override'][$field['StructureField']['model'].'.'.$field['StructureField']['field']] ) ) {
 						$options['override'][$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] = $options['override'][$field['StructureField']['model'].'.'.$field['StructureField']['field']];
 					}
@@ -1426,6 +1433,13 @@ class StructuresHelper extends Helper {
 					$use_cakephp_form_helper = true;
 					switch ($field['StructureField']['type']) {
 						
+						case 'display':
+							
+							$display_value .= '<span>'.$this->data[$field['StructureField']['model']][$field['StructureField']['field']].'</span>';
+							
+							$use_cakephp_form_helper = FALSE;
+							break;
+							
 						case 'hidden':
 							
 							$html_element_array['class'] .= 'hidden ';
@@ -1470,6 +1484,14 @@ class StructuresHelper extends Helper {
 							if ( isset( $options['override'][$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) && is_array( $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) ) { 
 								$html_element_array['options'] = $options['override'][$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']];
 								unset($html_element_array['value']);
+								
+								if ( $options['type']=='editgrid' ) { 
+									$html_element_array['value'] = $this->data[$field['StructureField']['model']][$field['StructureField']['field']]; 
+								}
+								
+								if ( count($options['settings']['tree']) ) { 
+									$html_element_array['value'] = $data[$field['StructureField']['model']][$field['StructureField']['field']]; 
+								}
 							}
 							
 							if ( count($field['StructureField']['StructureValueDomain']) && isset($field['StructureField']['StructureValueDomain']['StructurePermissibleValue']) ) {
