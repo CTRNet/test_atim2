@@ -422,8 +422,10 @@ class SampleMastersController extends InventorymanagementAppController {
 		$parent_sample_master_id = $sample_data['SampleMaster']['parent_id'];
 		$parent_sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $parent_sample_master_id), 'recursive' => '-1'));
 		if(!empty($parent_sample_master_id) && empty($parent_sample_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }	
-		$this->set('parent_sample_data', $parent_sample_data);	
-
+		
+		$this->set('parent_sample_data_for_display', $this->formatParentSampleDataForDisplay($parent_sample_data));	
+		$this->set('parent_sample_master_id', $parent_sample_master_id);	
+	
 		// Set list of available SOPs to create sample
 		$this->set('sample_sop_list', $this->Samples->getSampleSopList($sample_data['SampleMaster']['sample_type']));	
 		
@@ -523,7 +525,8 @@ class SampleMastersController extends InventorymanagementAppController {
 		}
 		
 		// Set parent data
-		$this->set('parent_sample_data', $parent_sample_data);
+		$this->set('parent_sample_data_for_display', $this->formatParentSampleDataForDisplay($parent_sample_data));	
+		$this->set('parent_sample_master_id', $parent_sample_master_id);
 		
 		// Set new sample control information
 		$this->set('sample_control_data', $sample_control_data);	
@@ -681,8 +684,9 @@ class SampleMastersController extends InventorymanagementAppController {
 		$parent_sample_master_id = $sample_data['SampleMaster']['parent_id'];
 		$parent_sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $parent_sample_master_id), 'recursive' => '-1'));
 		if(!empty($parent_sample_master_id) && empty($parent_sample_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }	
-		$this->set('parent_sample_data', $parent_sample_data);	
 
+		$this->set('parent_sample_data_for_display', $this->formatParentSampleDataForDisplay($parent_sample_data));	
+		
 		// Set list of available SOPs to create sample
 		$this->set('sample_sop_list', $this->Samples->getSampleSopList($sample_data['SampleMaster']['sample_type']));	
 		
@@ -927,6 +931,27 @@ class SampleMastersController extends InventorymanagementAppController {
 		if(isset($submtted_data['SampleDetail']['collected_volume'])) { $submtted_data['SampleDetail']['collected_volume'] = str_replace(',', '.', $submtted_data['SampleDetail']['collected_volume']); }				
 		if(isset($submtted_data['SampleDetail']['pellet_volume'])) { $submtted_data['SampleDetail']['pellet_volume'] = str_replace(',', '.', $submtted_data['SampleDetail']['pellet_volume']); }				
 		return $submtted_data;
+	}
+	
+	/**
+	 * Format parent sample data array for display.
+	 * 
+	 * @param $parent_sample_data Parent sample data
+	 * 
+	 * @return Formatted data.
+	 *
+	 * @author N. Luc
+	 * @since 2009-09-11
+	 */	
+	 
+	function formatParentSampleDataForDisplay($parent_sample_data) {
+		$formatted_data = array();
+		if(!empty($parent_sample_data) && isset($parent_sample_data['SampleMaster'])) {
+			$formatted_data[$parent_sample_data['SampleMaster']['id']] = $parent_sample_data['SampleMaster']['sample_code'] . ' [' . __($parent_sample_data['SampleMaster']['sample_type'], TRUE) . ']';
+			
+		}
+		
+		return $formatted_data;
 	}
 }
 	

@@ -241,11 +241,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 				$this->redirect('/pages/err_inv_system_error', null, true);
 		}
 
-
-
- 		
-//		$this->data = array();
-
 		$this->set('model_to_use', $model_to_use);
 		$this->set('aliquots_data', $aliquots_data);
 		$this->data = array();
@@ -337,16 +332,16 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->set('aliquot_control_data', $aliquot_control_data);	
 		
 		// Set list of available SOPs to create aliquot
-		$this->set('arr_aliquot_sops', $this->Aliquots->getAliquotSopList($sample_data['SampleMaster']['sample_type'], $aliquot_control_data['AliquotControl']['aliquot_type']));
-
+		$this->set('arr_aliquot_sops_for_display', $this->formatSopsForDisplay($this->Aliquots->getAliquotSopList($sample_data['SampleMaster']['sample_type'], $aliquot_control_data['AliquotControl']['aliquot_type'])));
+		
 		// Set list of studies
-		$this->set('arr_studies', $this->getStudiesList());
+		$this->set('arr_studies_for_display', $this->formatStudiesForDisplay($this->getStudiesList()));
 		
 		// Set list of sample blocks (will only works for sample type being linked to block type)
-		$this->set('arr_sample_blocks', $this->getSampleBlocksList($sample_data));
+		$this->set('arr_sample_blocks_for_display', $this->formatBlocksForDisplay($this->getSampleBlocksList($sample_data)));
 
 		// Set list of sample gel matrices (will only works for sample type being linked to gel matrix type)
-		$this->set('arr_sample_gel_matrices', $this->getSampleGelMatricesList($sample_data));
+		$this->set('arr_sample_gel_matrices_for_display', $this->formatGelMatricesForDisplay($this->getSampleGelMatricesList($sample_data)));
 				
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -369,7 +364,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if (empty($this->data)) {
 			// Initial Display
 			$this->set('default_storage_datetime', $this->getDefaultAliquotStorageDate($sample_data));
-			$this->set('arr_preselected_storages', array());
+			$this->set('arr_preselected_storages_for_display', array());
 						
 			$this->data = array(array());
 			
@@ -477,16 +472,16 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$aliquot_data['Generated']['aliquot_use_counter'] = sizeof($aliquot_data['AliquotUse']);
 				
 		// Set list of available SOPs to create aliquot
-		$this->set('arr_aliquot_sops', $this->Aliquots->getAliquotSopList($aliquot_data['SampleMaster']['sample_type'], $aliquot_data['AliquotMaster']['aliquot_type']));
+		$this->set('arr_aliquot_sops_for_display', $this->formatSopsForDisplay($this->Aliquots->getAliquotSopList($aliquot_data['SampleMaster']['sample_type'], $aliquot_data['AliquotMaster']['aliquot_type'])));
 
 		// Set list of studies
-		$this->set('arr_studies', $this->getStudiesList());
+		$this->set('arr_studies_for_display', $this->formatStudiesForDisplay($this->getStudiesList()));
 		
 		// Set list of sample blocks (will only works for sample type being linked to block type)
-		$this->set('arr_sample_blocks', $this->getSampleBlocksList(array('SampleMaster' => $aliquot_data['SampleMaster'])));
+		$this->set('arr_sample_blocks_for_display', $this->formatBlocksForDisplay($this->getSampleBlocksList(array('SampleMaster' => $aliquot_data['SampleMaster']))));
 
 		// Set list of sample gel matrices (will only works for sample type being linked to gel matrix type)
-		$this->set('arr_sample_gel_matrices', $this->getSampleGelMatricesList(array('SampleMaster' => $aliquot_data['SampleMaster'])));
+		$this->set('arr_sample_gel_matrices_for_display', $this->formatGelMatricesForDisplay($this->getSampleGelMatricesList(array('SampleMaster' => $aliquot_data['SampleMaster']))));
 
 		// Set times spent since either sample collection/reception or sample creation and sample storage		
 		switch($aliquot_data['SampleMaster']['sample_category']) {
@@ -556,16 +551,16 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if(empty($aliquot_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }		
 
 		// Set list of available SOPs to create aliquot
-		$this->set('arr_aliquot_sops', $this->Aliquots->getAliquotSopList($aliquot_data['SampleMaster']['sample_type'], $aliquot_data['AliquotMaster']['aliquot_type']));
+		$this->set('arr_aliquot_sops_for_display', $this->formatSopsForDisplay($this->Aliquots->getAliquotSopList($aliquot_data['SampleMaster']['sample_type'], $aliquot_data['AliquotMaster']['aliquot_type'])));
 
 		// Set list of studies
-		$this->set('arr_studies', $this->getStudiesList());
+		$this->set('arr_studies_for_display', $this->formatStudiesForDisplay($this->getStudiesList()));
 		
 		// Set list of sample blocks (will only works for sample type being linked to block type)
-		$this->set('arr_sample_blocks', $this->getSampleBlocksList(array('SampleMaster' => $aliquot_data['SampleMaster'])));
+		$this->set('arr_sample_blocks_for_display', $this->formatBlocksForDisplay($this->getSampleBlocksList(array('SampleMaster' => $aliquot_data['SampleMaster']))));
 		
 		// Set list of sample gel matrices (will only works for sample type being linked to gel matrix type)
-		$this->set('arr_sample_gel_matrices', $this->getSampleGelMatricesList(array('SampleMaster' => $aliquot_data['SampleMaster'])));
+		$this->set('arr_sample_gel_matrices_for_display', $this->formatGelMatricesForDisplay($this->getSampleGelMatricesList(array('SampleMaster' => $aliquot_data['SampleMaster']))));
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -588,7 +583,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		if(empty($this->data)) {
 			$this->data = $aliquot_data;
-			$this->set('arr_preselected_storages', empty($aliquot_data['StorageMaster']['id'])? array(): array($aliquot_data['StorageMaster']['id'] => array('StorageMaster' => $aliquot_data['StorageMaster'])));
+			
+			$tmp_arr_preselected_storages = empty($aliquot_data['StorageMaster']['id'])? array(): array($aliquot_data['StorageMaster']['id'] => array('StorageMaster' => $aliquot_data['StorageMaster']));
+			$this->set('arr_preselected_storages_for_display', $this->formatPreselectedStoragesForDisplay($tmp_arr_preselected_storages));
 
 		} else {
 			
@@ -709,7 +706,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if(empty($aliquot_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }		
 
 		// Set list of studies
-		$this->set('arr_studies', $this->getStudiesList());		
+		$this->set('arr_studies_for_display', $this->formatStudiesForDisplay($this->getStudiesList()));		
 			
 		// Set aliquot volume unit
 		$aliquot_volume_unit = empty($aliquot_data['AliquotMaster']['aliquot_volume_unit'])? 'n/a': $aliquot_data['AliquotMaster']['aliquot_volume_unit'];
@@ -789,7 +786,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if(empty($sample_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }	
 				
 		// Set list of studies
-		$this->set('arr_studies', $this->getStudiesList());		
+		$this->set('arr_studies_for_display', $this->formatStudiesForDisplay($this->getStudiesList()));		
 			
 		// Set aliquot volume unit
 		$aliquot_volume_unit = empty($use_data['AliquotMaster']['aliquot_volume_unit'])? 'n/a': $use_data['AliquotMaster']['aliquot_volume_unit'];
@@ -1665,7 +1662,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 		
 		// Set preselected storage list		
-		$this->set('arr_preselected_storages', $arr_preselected_storages);
+		$this->set('arr_preselected_storages_for_display', $this->formatPreselectedStoragesForDisplay($arr_preselected_storages));
 				
 		// Manage error message
 		$messages = array();
@@ -1750,6 +1747,122 @@ class AliquotMastersController extends InventoryManagementAppController {
 
 		return date('Y-m-d G:i');
 	}
+	
+	/**
+	 * Format sops data array for display.
+	 * 
+	 * @param $sops_data Sops data
+	 * 
+	 * @return Formatted data.
+	 *
+	 * @author N. Luc
+	 * @since 2009-09-11
+	 */	
+	 
+	function formatSopsForDisplay($sops_data) {
+		$formatted_data = array();
+		
+		if(!empty($sops_data)) {
+			foreach($sops_data as $sop_masters) { 
+				$formatted_data[$sop_masters['SopMaster']['id']] = $sop_masters['SopMaster']['code'] . ' ('.__($sop_masters['SopMaster']['sop_group'], true) .'-'.__($sop_masters['SopMaster']['type'], true) .')'; 
+			}
+		}
+		
+		return $formatted_data;
+	}
+	
+	/**
+	 * Format studies data array for display.
+	 * 
+	 * @param $studies_data Sops data
+	 * 
+	 * @return Formatted data.
+	 *
+	 * @author N. Luc
+	 * @since 2009-09-11
+	 */	
+	 
+	function formatStudiesForDisplay($studies_data) {
+		$formatted_data = array();
+		
+		if(!empty($studies_data)) {
+			foreach($studies_data as $new_study) {
+				$formatted_data[$new_study['StudySummary']['id']] = $new_study['StudySummary']['title'] . ' ('.__($new_study['StudySummary']['disease_site'], true) .'-'.__($new_study['StudySummary']['study_type'], true) .')'; 
+			}	
+		}
+		
+		return $formatted_data;
+	}
+	
+	/**
+	 * Format Preselected Storages data array for display.
+	 * 
+	 * @param $arr_preselected_storages PreselectedStorages data
+	 * 
+	 * @return Formatted data.
+	 *
+	 * @author N. Luc
+	 * @since 2009-09-11
+	 */	
+	 
+	function formatPreselectedStoragesForDisplay($arr_preselected_storages) {
+		$formatted_data = array();
+		
+		if(!empty($arr_preselected_storages)) {
+			foreach ($arr_preselected_storages as $storage_id => $storage_data) {
+				$formatted_data[$storage_id] = $storage_data['StorageMaster']['selection_label'] . ' [' . __($storage_data['StorageMaster']['storage_type'], TRUE) . ': ' . $storage_data['StorageMaster']['code'] . ']';
+			}
+		}
+	
+		return $formatted_data;
+	}
+	
+	/**
+	 * Format Blocks data array for display.
+	 * 
+	 * @param $arr_sample_blocks Blocks data
+	 * 
+	 * @return Formatted data.
+	 *
+	 * @author N. Luc
+	 * @since 2009-09-11
+	 */	
+	 
+	function formatBlocksForDisplay($arr_sample_blocks) {
+		$formatted_data = array();
+		
+		if(!empty($arr_sample_blocks)) {
+			foreach($arr_sample_blocks as $new_block) {
+				$formatted_data[$new_block['AliquotMaster']['id']] = $new_block['AliquotMaster']['barcode'] .' ('.$new_block['AliquotDetail']['block_type'].')';
+			}	
+		}
+	
+		return $formatted_data;
+	}
+	
+	/**
+	 * Format Gel Matrices data array for display.
+	 * 
+	 * @param $arr_sample_blocks Blocks data
+	 * 
+	 * @return Formatted data.
+	 *
+	 * @author N. Luc
+	 * @since 2009-09-11
+	 */	
+	 
+	function formatGelMatricesForDisplay($arr_gel_matrices) {
+		$formatted_data = array();
+		
+		if(!empty($arr_gel_matrices)) {
+			foreach($arr_gel_matrices as $new_matrice) {
+				$formatted_data[$new_matrice['AliquotMaster']['id']] = $new_matrice['AliquotMaster']['barcode'];
+			}	
+		}
+	
+		return $formatted_data;
+	}
+	
 }
 
 ?>
