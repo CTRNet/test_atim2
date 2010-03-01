@@ -77,10 +77,11 @@ class StorageMastersController extends StoragelayoutAppController {
 		$parent_storage_id = $storage_data['StorageMaster']['parent_id'];
 		$parent_storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $parent_storage_id)));
 		if(!empty($parent_storage_id) && empty($parent_storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }	
-		$this->set('parent_storage_data', $parent_storage_data);	
 		
-		$storage_path_data = $this->Storages->getStoragePathData($parent_storage_id);
-		$this->set('storage_path_data', (empty($storage_path_data)? array():$storage_path_data));
+		$this->set('parent_storage_id', $parent_storage_id);		
+		$this->set('parent_storage_for_display', $this->formatParentStorageForDisplay($parent_storage_data));	
+		
+		$this->set('storage_path', $this->Storages->getStoragePath($parent_storage_id));
 		
 		// Set list of available SOPs to build TMA
 		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') == 0) {	
@@ -453,7 +454,9 @@ class StorageMastersController extends StoragelayoutAppController {
 		$parent_storage_id = $storage_data['StorageMaster']['parent_id'];
 		$parent_storage_data = $this->StorageMaster->find('first',array('conditions' => array('StorageMaster.id' => $parent_storage_id)));
 		if(!empty($parent_storage_id) && empty($parent_storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }
+		
 		$this->set('parent_storage_data', $parent_storage_data);		
+		$this->set('parent_storage_for_display', $this->formatParentStorageForDisplay($parent_storage_data));		
 				
 		if(empty($parent_storage_id) || is_null($parent_storage_data['StorageControl']['form_alias_for_children_pos'])){
 			// No position has to be set for this storage
@@ -461,8 +464,7 @@ class StorageMastersController extends StoragelayoutAppController {
 			return;
 		}
 
-		$storage_path_data = $this->Storages->getStoragePathData($parent_storage_id);
-		$this->set('storage_path_data', (empty($storage_path_data)? array():$storage_path_data));
+		$this->set('storage_path', $this->Storages->getStoragePath($parent_storage_id));
 
 		// Set list of available SOPs to build TMA
 		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') == 0) {	
@@ -1128,6 +1130,27 @@ class StorageMastersController extends StoragelayoutAppController {
 		$children_array['DisplayData']['label'] = $children_array[$type_key][$label_key];
 		$children_array['DisplayData']['type'] = $type_key;
 		
+	}
+	
+	/**
+	 * Build parent storage title joining many storage information.
+	 * 
+	 * @param $parent_storage_data Parent storages data
+	 * 
+	 * @return Formatted data.
+	 *
+	 * @author N. Luc
+	 * @since 2009-09-11
+	 */	
+	 
+	function formatParentStorageForDisplay($parent_storage_data) {
+		$formatted_data = '';
+		
+		if(!empty($parent_storage_data)) {
+			$formatted_data = $parent_storage_data['StorageMaster']['selection_label'] . ' [' . __($parent_storage_data['StorageMaster']['storage_type'], TRUE) . ': ' . $parent_storage_data['StorageMaster']['code'] . ']';
+		}
+	
+		return $formatted_data;
 	}
 }
 ?>

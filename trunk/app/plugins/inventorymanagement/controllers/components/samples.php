@@ -7,7 +7,7 @@ class SamplesComponent extends Object {
 	}
 	
 	/**
-	 * Get list of SOPs existing to build sample.
+	 * Get formatted list of SOPs existing to build sample.
 	 * 
 	 * Note: Function to allow bank to customize this function when they don't use 
 	 * SOP module.

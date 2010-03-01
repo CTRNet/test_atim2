@@ -7,7 +7,7 @@ class CollectionsComponent extends Object {
 	}
 	
 	/**
-	 * Get list of banks.
+	 * Get formatted list of banks.
 	 * 
 	 * Note: Function to allow bank to customize this function when they don't use 
 	 * ADministrate module.
@@ -33,7 +33,7 @@ class CollectionsComponent extends Object {
 	}
 	
 	/**
-	 * Get list of SOPs existing to build collection.
+	 * Get formatted list of SOPs existing to build collection.
 	 * 
 	 * Note: Function to allow bank to customize this function when they don't use 
 	 * SOP module.
