@@ -123,6 +123,8 @@ class PermissionsController extends AdministrateAppController {
 				$threaded_data[$k]['Aco']['state'] = $v['Aro'][0]['ArosAco']['_create'];
 			}
 			
+			unset($threaded_data[$k]['Aro']);
+			
 			if ( isset($v['children']) && count($v['children']) ) {
 				$threaded_data[$k]['children'] = $this->addPermissionStateToThreadedData($v['children']);
 			}
