@@ -78,8 +78,20 @@ class AppController extends Controller {
 	
 	// var $uses			= array('Config', 'Aco', 'Aro', 'Permission');
 	
-	var $uses			= array('Config');
-	var $components	= array('Session', 'SessionAcl', 'Auth', 'Menus', 'RequestHandler', 'Structures');
+	var $uses = array('Config');
+	var $components	= array(
+		'Session', 'SessionAcl', 'Auth', 'Menus', 'RequestHandler', 'Structures',
+		'PermissionManager' => array(
+			'controllers' => array(
+				'allow' => array('Group::1','Group::2','Group::3'),
+				'deny' => array()
+			),
+			'controllers/Administrate/Permissions' => array(
+				'allow' => array(),
+				'deny' => array('Group::2','Group::3')
+			)
+		)
+	);
 	var $helpers		= array('Ajax', 'Csv', 'Html', 'Javascript', 'Shell', 'Structures', 'Time');
 	
 	function beforeFilter() {
@@ -98,7 +110,7 @@ class AppController extends Controller {
 			$this->Auth->loginRedirect = array('controller' => 'menus', 'action' => 'index', 'plugin' => '');
 			$this->Auth->logoutRedirect = array('controller' => 'users', 'action' => 'login', 'plugin' => '');
 			
-			$this->Auth->actionPath = 'controllers/';
+			$this->Auth->actionPath = 'controllers/App/';
 			// $this->Auth->allowedActions = array('display');
 			
 		// record URL in logs
@@ -139,186 +151,6 @@ class AppController extends Controller {
 		return $hook_file;
 	}
 	
-	/**
-	* initiate PERMISSIONS
-	*/
-	
-	function initDB() {
-		$group =& $this->User->Group;
-		//Allow admins to everything
-		$group->id = 1;
-		$this->Acl->allow($group, 'controllers');
-		
-		//allow managers to posts and widgets
-		$group->id = 2;
-		$this->Acl->allow($group, 'controllers');
-		
-		//allow users to only add and edit on posts and widgets
-		$group->id = 3;
-		$this->Acl->allow($group, 'controllers');
-	}
-	
-	function getControllerMethods($ctrlName){
-		$plugin = preg_match('/^.+\..*$/',$ctrlName) ? preg_replace('/^(.+)\..*$/','\1',$ctrlName) : false;
-		$ctrlName = preg_replace('/^.+\./','',$ctrlName);
-		if(!$plugin || $plugin == 'App'){
-			$file_path = APP.'controllers'.DS.Inflector::underscore($ctrlName.'Controller').'.php';
-		}else{
-			$file_path = APP.'plugins'.DS.Inflector::underscore($plugin).DS
-						.'controllers'.DS.Inflector::underscore($ctrlName.'Controller').'.php';
-		}
-		$matches = array();
-		preg_match_all('/function\s+(\w+)\s*\(/', file_get_contents($file_path), $matches);
-		
-		return $matches[1];
-	}
-	
-	/**
-	* Rebuild the Acl based on the current controllers in the application
-	*
-	* @return void
-	*/
-	
-	function buildAcl() {
-		App::import('Core', 'File');
-		$Controllers = Configure::listObjects('controller');
-		$appIndex = array_search('App', $Controllers);
-		if ($appIndex !== false ) {
-		   unset($Controllers[$appIndex]);
-		}
-		foreach($Controllers as $i => $name){
-			if($name !== 'App') $Controllers[$i] = 'App.'.$name;
-		}
-		// call FUNCTION to get APP.PLUGIN.CONTROLLER list, and append to APP.CONTROLLER list
-		$Plugins = $this->_get_plugin_controller_names();
-		$Controllers = array_merge($Controllers, $Plugins);
-		
-		$log = array();
-		$aco =& $this->Acl->Aco;
-		$root = $aco->node('controllers');
-		if (!$root) {
-		   $aco->create(array('parent_id' => null, 'model' => null, 'alias' => 'controllers'));
-		   $root = $aco->save();
-		   $root['Aco']['id'] = $aco->id; 
-		   $log[] = 'Created Aco node for controllers';
-		} else {
-		   $root = $root[0];
-		}   
-		
-		$baseMethods = get_class_methods('AppController');
-		$baseMethods[] = 'buildAcl';
-		
-		
-		// look at each controller in app/controllers
-		foreach ($Controllers as $ctrlName) {
-		   $methods = $this->getControllerMethods($ctrlName);
-		   $plugin = preg_match('/^.+\..*$/',$ctrlName) ? preg_replace('/^(.+)\..*$/','\1',$ctrlName) : false;
-		   $ctrlName = preg_replace('/^.+\./','',$ctrlName);
-		   
-		   if($plugin){
-			   // find / make controller node
-			   $pluginNode = $aco->node('controllers/'.$plugin);
-			   if(!$pluginNode){
-			      $aco->create(array('parent_id' => $root['Aco']['id'], 'model' => null, 'alias' => $plugin));
-			      $pluginNode = $aco->save();
-			      $pluginNode['Aco']['id'] = $aco->id;
-			      $log[] = 'Created Aco node for '.$plugin;
-			   }else{
-			      $pluginNode = $pluginNode[0];
-			   }
-			   $controllerNode = $aco->node('controllers/'.$plugin.'/'.$ctrlName);
-			   if (!$controllerNode) {
-			       $aco->create(array('parent_id' => $pluginNode['Aco']['id'], 'model' => null, 'alias' => $ctrlName));
-			       $controllerNode = $aco->save();
-			       $controllerNode['Aco']['id'] = $aco->id;
-			       $log[] = 'Created Aco node for '.$ctrlName;
-			   } else {
-			       $controllerNode = $controllerNode[0];
-			   }
-		   }else{
-			   // find / make controller node
-			   $controllerNode = $aco->node('controllers/'.$ctrlName);
-			   if (!$controllerNode) {
-			       $aco->create(array('parent_id' => $root['Aco']['id'], 'model' => null, 'alias' => $ctrlName));
-			       $controllerNode = $aco->save();
-			       $controllerNode['Aco']['id'] = $aco->id;
-			       $log[] = 'Created Aco node for '.$ctrlName;
-			   } else {
-			       $controllerNode = $controllerNode[0];
-			   }
-		   }
-		   
-		   //clean the methods. to remove those in Controller and private actions.
-		   foreach ($methods as $k => $method) {
-		       if (strpos($method, '_', 0) === 0) {
-		           unset($methods[$k]);
-		           continue;
-		       }
-		       if (in_array($method, $baseMethods)) {
-		           unset($methods[$k]);
-		           continue;
-		       }
-		       $methodNode = $plugin ? $aco->node('controllers/'.$plugin.'/'.$ctrlName.'/'.$method) : $aco->node('controllers/'.$ctrlName.'/'.$method);
-		       if (!$methodNode) {
-		           if($plugin){
-		               $aco->create(array('parent_id' => $controllerNode['Aco']['id'], 'model' => null, 'alias' => $method, 'plugin' => $plugin));
-		           }else{
-		               $aco->create(array('parent_id' => $controllerNode['Aco']['id'], 'model' => null, 'alias' => $method));
-		           }
-		           $aco->id = NULL;
-		           $methodNode = $aco->save();
-		           $log[] = 'Created Aco node for '. $method;
-		       }
-		   }
-		}
-		
-		debug($log);
-	}
-
-	
-	/**
-     * Get the names of the plugin controllers ...
-     * 
-     * This function will get an array of the plugin controller names, and
-     * also makes sure the controllers are available for us to get the 
-     * method names by doing an App::import for each plugin controller.
-     *
-     * @return array of plugin names.
-     *
-     */
-    function _get_plugin_controller_names(){
-        App::import('Core', 'File', 'Folder');
-        $paths = Configure::getInstance();
-        $folder =& new Folder();
-        // Change directory to the plugins
-        $folder->cd(APP.'plugins');
-        // Get a list of the files that have a file name that ends
-        // with controller.php
-        $files = $folder->findRecursive('.*_controller\.php');
-        // Get the list of plugins
-        $Plugins = Configure::listObjects('plugin');
-
-        // Loop through the controllers we found int the plugins directory
-        foreach($files as $f => $fileName)
-        {
-            // Get the base file name
-            $pluginName = preg_replace('!^(.*/)([^/]+)(/controllers)/([^/]*)controller\.php!','$2',$fileName);
-            $pluginName = Inflector::camelize($pluginName);
-            
-            // Get the base file name
-            $file = basename($fileName);
-
-            // Get the controller name
-            $file = Inflector::camelize(substr($file, 0, strlen($file)-strlen('_controller.php')));
-            if(!preg_match('/^.*App$/',$file) && strpos('/plugins/',$pluginName) === false){
-            	$files[$f] = $pluginName.'.'.$file;
-            }else{
-            	unset($files[$f]);
-            }
-        }
-        return $files;
-    }
-    
 	function afterFilter(){
 		global $start_time;
 //		echo("Exec time (sec): ".(AppController::microtime_float() - $start_time));
