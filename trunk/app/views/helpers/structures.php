@@ -900,14 +900,14 @@ class StructuresHelper extends Helper {
 						foreach ( $data_val as $model_name=>$model_array ) {
 							if ( isset($options['settings']['tree'][$model_name]) ) {
 								$tree_node_structure = $atim_structure[ $options['settings']['tree'][$model_name] ];
-								$data_key = $data_val[$model_name]['id'];
+								
+								$data_key = $model_array['id']; // so set a UNIQUE id for each set of form elements
 							}
 						}
 					}
 					
 					$options['type'] = 'index';
-					
-					$options['data'] = array( $data_key=>$data_val );
+					$options['data'] = array( $data_key => $data_val );
 					$options['stack']['key'] = $data_key; // required for multiple data submits from TREE
 					
 					$table_index = $this->build_stack( $tree_node_structure, $options );
@@ -1435,7 +1435,13 @@ class StructuresHelper extends Helper {
 						
 						case 'display':
 							
-							$display_value .= '<span>'.$this->data[$field['StructureField']['model']][$field['StructureField']['field']].'</span>';
+							// [ $options['stack']['key'] ]
+							
+							if ( count($options['settings']['tree']) ) {
+								$display_value .= '<span>'.$data[$field['StructureField']['model']][$field['StructureField']['field']].'</span>';
+							} else {
+								$display_value .= '<span>'.$this->data[$field['StructureField']['model']][$field['StructureField']['field']].'</span>';
+							}
 							
 							$use_cakephp_form_helper = FALSE;
 							break;
