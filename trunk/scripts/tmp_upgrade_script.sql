@@ -1296,30 +1296,24 @@ WHERE alias LIKE 'qctestedaliquots';
 DELETE FROM structure_formats WHERE structure_old_id IN (SELECT old_id FROM structures WHERE alias IN ('manage_storage_aliquots_without_position', 'std_1_dim_position_selection_for_aliquot', 'std_2_dim_position_selection_for_aliquot'));
 DELETE FROM structures WHERE alias IN ('manage_storage_aliquots_without_position', 'std_1_dim_position_selection_for_aliquot', 'std_2_dim_position_selection_for_aliquot');
 
+-- Add/modify structure description
 
+ALTER TABLE `structures` CHANGE `description` `description` TEXT CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL; 
 
+UPDATE `structures` SET `description` =  'Used to include sample data plus both initial and parent sample data into collection aliquots list and sample aliquots list.' 
+WHERE `alias` = 'view_aliquot_joined_to_sample' ;
 
+UPDATE `structures` SET `description` =  'Used to include both initial and parent sample data into collection samples list and derivative samples list.' 
+WHERE `alias` = 'view_sample_joined_to_parent' ;
 
+UPDATE `structures` SET `description` =  'Used to select and display aliquots of a sample used to realize a sample quality control test.' 
+WHERE `alias` = 'qctestedaliquots' ;
 
+UPDATE `structures` SET `description` =  'Used to list all aliquots of sample into sample detail view (displaying aliquot without linked sample data).' 
+WHERE `alias` = 'aliquotmasters' ;
 
+UPDATE `structures` SET `description` =  'USed to set data of the created order items when a user adds many aliquots to an order line in batch.'
+WHERE `alias` = 'orderitems_to_addAliquotsInBatch' ;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	
 
