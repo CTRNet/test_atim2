@@ -332,10 +332,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->set('aliquot_control_data', $aliquot_control_data);	
 		
 		// Set list of available SOPs to create aliquot
-		$this->set('arr_aliquot_sops_for_display', $this->formatSopsForDisplay($this->Aliquots->getAliquotSopList($sample_data['SampleMaster']['sample_type'], $aliquot_control_data['AliquotControl']['aliquot_type'])));
+		$this->set('arr_aliquot_sops_for_display', $this->Aliquots->getAliquotSopList($sample_data['SampleMaster']['sample_type'], $aliquot_control_data['AliquotControl']['aliquot_type']));
 		
 		// Set list of studies
-		$this->set('arr_studies_for_display', $this->formatStudiesForDisplay($this->getStudiesList()));
+		$this->set('arr_studies_for_display', $this->getStudiesList());
 		
 		// Set list of sample blocks (will only works for sample type being linked to block type)
 		$this->set('arr_sample_blocks_for_display', $this->formatBlocksForDisplay($this->getSampleBlocksList($sample_data)));
@@ -472,10 +472,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$aliquot_data['Generated']['aliquot_use_counter'] = sizeof($aliquot_data['AliquotUse']);
 				
 		// Set list of available SOPs to create aliquot
-		$this->set('arr_aliquot_sops_for_display', $this->formatSopsForDisplay($this->Aliquots->getAliquotSopList($aliquot_data['SampleMaster']['sample_type'], $aliquot_data['AliquotMaster']['aliquot_type'])));
+		$this->set('arr_aliquot_sops_for_display', $this->Aliquots->getAliquotSopList($aliquot_data['SampleMaster']['sample_type'], $aliquot_data['AliquotMaster']['aliquot_type']));
 
 		// Set list of studies
-		$this->set('arr_studies_for_display', $this->formatStudiesForDisplay($this->getStudiesList()));
+		$this->set('arr_studies_for_display', $this->getStudiesList());
 		
 		// Set list of sample blocks (will only works for sample type being linked to block type)
 		$this->set('arr_sample_blocks_for_display', $this->formatBlocksForDisplay($this->getSampleBlocksList(array('SampleMaster' => $aliquot_data['SampleMaster']))));
@@ -551,10 +551,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if(empty($aliquot_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }		
 
 		// Set list of available SOPs to create aliquot
-		$this->set('arr_aliquot_sops_for_display', $this->formatSopsForDisplay($this->Aliquots->getAliquotSopList($aliquot_data['SampleMaster']['sample_type'], $aliquot_data['AliquotMaster']['aliquot_type'])));
+		$this->set('arr_aliquot_sops_for_display', $this->Aliquots->getAliquotSopList($aliquot_data['SampleMaster']['sample_type'], $aliquot_data['AliquotMaster']['aliquot_type']));
 
 		// Set list of studies
-		$this->set('arr_studies_for_display', $this->formatStudiesForDisplay($this->getStudiesList()));
+		$this->set('arr_studies_for_display', $this->getStudiesList());
 		
 		// Set list of sample blocks (will only works for sample type being linked to block type)
 		$this->set('arr_sample_blocks_for_display', $this->formatBlocksForDisplay($this->getSampleBlocksList(array('SampleMaster' => $aliquot_data['SampleMaster']))));
@@ -706,7 +706,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if(empty($aliquot_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }		
 
 		// Set list of studies
-		$this->set('arr_studies_for_display', $this->formatStudiesForDisplay($this->getStudiesList()));		
+		$this->set('arr_studies_for_display', $this->getStudiesList());		
 			
 		// Set aliquot volume unit
 		$aliquot_volume_unit = empty($aliquot_data['AliquotMaster']['aliquot_volume_unit'])? 'n/a': $aliquot_data['AliquotMaster']['aliquot_volume_unit'];
@@ -786,7 +786,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if(empty($sample_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }	
 				
 		// Set list of studies
-		$this->set('arr_studies_for_display', $this->formatStudiesForDisplay($this->getStudiesList()));		
+		$this->set('arr_studies_for_display', $this->getStudiesList());		
 			
 		// Set aliquot volume unit
 		$aliquot_volume_unit = empty($use_data['AliquotMaster']['aliquot_volume_unit'])? 'n/a': $use_data['AliquotMaster']['aliquot_volume_unit'];
@@ -1333,7 +1333,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 	 * -------------------------------------------------------------------------- */
 	
 	/**
-	 * Get list of Studies existing into the system.
+	 * Get formatted list of Studies existing into the system.
 	 * 
 	 * Note: Function to allow bank to customize this function when they don't use 
 	 * Study module.
@@ -1346,7 +1346,16 @@ class AliquotMastersController extends InventoryManagementAppController {
 	 */
 	 
 	function getStudiesList() {
-		return $this->StudySummaries->getStudiesList();
+		$studies_data = $this->StudySummaries->getStudiesList();
+		
+		$formatted_data = array();
+		if(!empty($studies_data)) {
+			foreach($studies_data as $new_study) {
+				$formatted_data[$new_study['StudySummary']['id']] = $new_study['StudySummary']['title'] . ' ('.__($new_study['StudySummary']['disease_site'], true) .'-'.__($new_study['StudySummary']['study_type'], true) .')'; 
+			}	
+		}
+		
+		return $formatted_data;
 	}
 	
 	/**
@@ -1746,52 +1755,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 
 		return date('Y-m-d G:i');
-	}
-	
-	/**
-	 * Format sops data array for display.
-	 * 
-	 * @param $sops_data Sops data
-	 * 
-	 * @return Formatted data.
-	 *
-	 * @author N. Luc
-	 * @since 2009-09-11
-	 */	
-	 
-	function formatSopsForDisplay($sops_data) {
-		$formatted_data = array();
-		
-		if(!empty($sops_data)) {
-			foreach($sops_data as $sop_masters) { 
-				$formatted_data[$sop_masters['SopMaster']['id']] = $sop_masters['SopMaster']['code'] . ' ('.__($sop_masters['SopMaster']['sop_group'], true) .'-'.__($sop_masters['SopMaster']['type'], true) .')'; 
-			}
-		}
-		
-		return $formatted_data;
-	}
-	
-	/**
-	 * Format studies data array for display.
-	 * 
-	 * @param $studies_data Sops data
-	 * 
-	 * @return Formatted data.
-	 *
-	 * @author N. Luc
-	 * @since 2009-09-11
-	 */	
-	 
-	function formatStudiesForDisplay($studies_data) {
-		$formatted_data = array();
-		
-		if(!empty($studies_data)) {
-			foreach($studies_data as $new_study) {
-				$formatted_data[$new_study['StudySummary']['id']] = $new_study['StudySummary']['title'] . ' ('.__($new_study['StudySummary']['disease_site'], true) .'-'.__($new_study['StudySummary']['study_type'], true) .')'; 
-			}	
-		}
-		
-		return $formatted_data;
 	}
 	
 	/**
