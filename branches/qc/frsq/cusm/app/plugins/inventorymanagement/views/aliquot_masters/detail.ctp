@@ -39,28 +39,11 @@
 	
 	$structure_override = array();
 
-	$sops_list = array();
-	foreach($arr_aliquot_sops as $sop_masters) { $sops_list[$sop_masters['SopMaster']['id']] = $sop_masters['SopMaster']['code']; }
-	$structure_override['AliquotMaster.sop_master_id'] = $sops_list; 	
-		
-	$studies_list = array();
-	foreach($arr_studies as $new_study) {
-		$studies_list[$new_study['StudySummary']['id']] = $new_study['StudySummary']['title'];
-	}	
-	$structure_override['AliquotMaster.study_summary_id'] = $studies_list;	
-	$structure_override['AliquotUse.study_summary_id'] = $studies_list;	
-
-	$blocks_list = array();
-	foreach($arr_sample_blocks as $new_block) {
-		$blocks_list[$new_block['AliquotMaster']['id']] = $new_block['AliquotMaster']['barcode'];
-	}	
-	$structure_override['AliquotDetail.block_aliquot_master_id'] = $blocks_list;	
-
-	$gel_matrices_list = array();
-	foreach($arr_sample_gel_matrices as $new_matrix) {
-		$gel_matrices_list[$new_matrix['AliquotMaster']['id']] = $new_matrix['AliquotMaster']['barcode'];
-	}	
-	$structure_override['AliquotDetail.gel_matrix_aliquot_master_id'] = $gel_matrices_list;	
+	$structure_override['AliquotMaster.sop_master_id'] = $arr_aliquot_sops_for_display;
+	$structure_override['AliquotMaster.study_summary_id'] = $arr_studies_for_display;	
+	$structure_override['AliquotUse.study_summary_id'] = $arr_studies_for_display;	
+	$structure_override['AliquotDetail.block_aliquot_master_id'] = $arr_sample_blocks_for_display;	
+	$structure_override['AliquotDetail.gel_matrix_aliquot_master_id'] = $arr_sample_gel_matrices_for_display;	
 
 	if($is_tree_view_detail_form){
 		

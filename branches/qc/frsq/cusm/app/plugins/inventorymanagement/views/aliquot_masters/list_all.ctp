@@ -25,10 +25,14 @@
 	$search_type_links['collections'] = '/inventorymanagement/collections/index/';
 	$search_type_links['samples'] = '/inventorymanagement/sample_masters/index/';
 	$search_type_links['aliquots'] = '/inventorymanagement/aliquot_masters/index/';
-	
+
+	$detail_link = ($model_to_use == 'ViewAliquot')? 
+		'/inventorymanagement/aliquot_masters/detail/%%ViewAliquot.collection_id%%/%%ViewAliquot.sample_master_id%%/%%ViewAliquot.aliquot_master_id%%':
+		'/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%';
+			
 	$structure_links = array(
 		'index' => array(
-			'detail' => '/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%'
+			'detail' => $detail_link
 		),
 		'bottom' => array(
 			'add aliquot' => $add_aliquots,
@@ -38,12 +42,6 @@
 	);
 
 	$structure_override = array();
-	
-	$bank_list = array();
-	foreach($banks as $new_bank) {
-		$bank_list[$new_bank['Bank']['id']] = $new_bank['Bank']['name'];
-	}
-	$structure_override['Collection.bank_id'] = $bank_list;
 	
 	$final_atim_structure = $aliquots_listall_structure; 
 	$final_options = array('type' => 'index', 'links' => $structure_links, 'override' => $structure_override, 'data' => $aliquots_data);

@@ -17,10 +17,6 @@
 	
 	$structure_override = array();
 	
-	$bank_list = array();
-	foreach($banks as $new_bank) {
-		$bank_list[$new_bank['Bank']['id']] = $new_bank['Bank']['name'];
-	}
 	$structure_override['ViewCollection.bank_id'] = $bank_list;
 	
 	$final_atim_structure = $atim_structure;
