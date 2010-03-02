@@ -403,7 +403,8 @@ class TmaSlidesController extends StoragelayoutAppController {
 	 * 
 	 * @param $arr_preselected_storages PreselectedStorages data
 	 * 
-	 * @return Formatted data.
+	 * @return Preselected storage list into array having following structure: 
+	 * 	array($storage_master_id => $storage_title_built_by_function)
 	 *
 	 * @author N. Luc
 	 * @since 2009-09-11
@@ -414,7 +415,7 @@ class TmaSlidesController extends StoragelayoutAppController {
 		
 		if(!empty($arr_preselected_storages)) {
 			foreach ($arr_preselected_storages as $storage_id => $storage_data) {
-				$formatted_data[$storage_id] = $storage_data['StorageMaster']['selection_label'] . ' [' . __($storage_data['StorageMaster']['storage_type'], TRUE) . ': ' . $storage_data['StorageMaster']['code'] . ']';
+				$formatted_data[$storage_id] = $storage_data['StorageMaster']['selection_label'] . ' [' . __($storage_data['StorageMaster']['code'] . ' ('.$storage_data['StorageMaster']['storage_type'], TRUE) .')'. ']';
 			}
 		}
 	

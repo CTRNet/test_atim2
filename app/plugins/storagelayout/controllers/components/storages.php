@@ -12,6 +12,9 @@ class StoragesComponent extends Object {
 	 *  - TMA slide
 	 *
 	 * @param $entity_type Type of the studied storage entity (tma, tma_slide)
+	 * 
+	 * @return Sops list into array having following structure: 
+	 * 	array($sop_master_id => $sop_title_built_by_function)
 	 *
 	 * @author N. Luc
 	 * @since 2009-09-11
@@ -32,7 +35,7 @@ class StoragesComponent extends Object {
 		$formatted_data = array();
 		if(!empty($sops_data)) {
 			foreach($sops_data as $sop_masters) { 
-				$formatted_data[$sop_masters['SopMaster']['id']] = $sop_masters['SopMaster']['code'] . ' ('.__($sop_masters['SopMaster']['sop_group'], true) .'-'.__($sop_masters['SopMaster']['type'], true) .')'; 
+				$formatted_data[$sop_masters['SopMaster']['id']] = $sop_masters['SopMaster']['code'] . ' ('.__($sop_masters['SopMaster']['sop_group'], true) .' - '.__($sop_masters['SopMaster']['type'], true) .')'; 
 			}
 		}
 		
@@ -48,7 +51,7 @@ class StoragesComponent extends Object {
 	 * @param $excluded_storage_master_id ID of the storage to remove.
 	 * 
 	 * @return Storage list into array having following structure: 
-	 * 	array($storage_master_id => $storage_label_built_by_function)
+	 * 	array($storage_master_id => $storage_title_built_by_function)
 	 * 
 	 * @author N. Luc
 	 * @since 2007-05-22
@@ -145,8 +148,12 @@ class StoragesComponent extends Object {
 		$storage_path_data = $this->controller->StorageMaster->getpath($studied_storage_master_id);
 
 		$path_to_display = '';
+		$separator = '';
 		if(!empty($storage_path_data)){
-			foreach($storage_path_data as $new_parent_storage_data) { $path_to_display .= $new_parent_storage_data['StorageMaster']['code'] . ' / '; }
+			foreach($storage_path_data as $new_parent_storage_data) { 
+				$path_to_display .= $separator.$new_parent_storage_data['StorageMaster']['code']; 
+				$separator = ' >> ';
+			}
 		}
 			
 		return $path_to_display;

@@ -1137,7 +1137,7 @@ class StorageMastersController extends StoragelayoutAppController {
 	 * 
 	 * @param $parent_storage_data Parent storages data
 	 * 
-	 * @return Formatted data.
+	 * @return Parent storage title (string).
 	 *
 	 * @author N. Luc
 	 * @since 2009-09-11
@@ -1147,7 +1147,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		$formatted_data = '';
 		
 		if(!empty($parent_storage_data)) {
-			$formatted_data = $parent_storage_data['StorageMaster']['selection_label'] . ' [' . __($parent_storage_data['StorageMaster']['storage_type'], TRUE) . ': ' . $parent_storage_data['StorageMaster']['code'] . ']';
+			$formatted_data = $parent_storage_data['StorageMaster']['selection_label'] . ' [' . __($parent_storage_data['StorageMaster']['code'] . ' ('.$parent_storage_data['StorageMaster']['storage_type'], TRUE) .')'. ']';
 		}
 	
 		return $formatted_data;

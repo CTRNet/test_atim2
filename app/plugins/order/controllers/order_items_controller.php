@@ -38,8 +38,7 @@ class OrderItemsController extends OrderAppController {
 		$this->data = array();
 		
 		// Get shipment list
-		$shipments_data = $this->Shipment->find('all', array('condtions' => array('Shipment.order_id'=>$order_id), 'order'=>'Shipment.datetime_shipped DESC'));
-		$this->set('shipments_data', $shipments_data);		
+		$this->set('shipments_data', $this->getOrderShipmentList($order_id));		
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -257,13 +256,8 @@ class OrderItemsController extends OrderAppController {
 		$this->set('url_to_cancel', $url_to_redirect);
 		
 		// Populate both sample and aliquot control
-		$sample_controls_list = $this->SampleControl->find('all', array('recursive' => '-1'));
-		$sample_controls_list = empty($sample_controls_list)? array(): $sample_controls_list;
-		$aliquot_controls_list = $this->AliquotControl->find('all', array('recursive' => '-1'));
-		$aliquot_controls_list = empty($aliquot_controls_list)? array(): $aliquot_controls_list;
-
-		$this->set('sample_controls_list', $sample_controls_list);
-		$this->set('aliquot_controls_list', $aliquot_controls_list);
+		$this->set('sample_controls_list', $this->getSampleControlsList());
+		$this->set('aliquot_controls_list', $this->getAliquotControlsList());	
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		

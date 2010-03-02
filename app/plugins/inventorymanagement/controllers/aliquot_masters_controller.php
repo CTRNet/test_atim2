@@ -1338,7 +1338,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 	 * Note: Function to allow bank to customize this function when they don't use 
 	 * Study module.
 	 *
-	 * @return Array gathering all studies
+	 * @return Studies list into array having following structure: 
+	 * 	array($study_id => $study_title_built_by_function)
 	 *
 	 * @author N. Luc
 	 * @since 2009-09-11
@@ -1762,7 +1763,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 	 * 
 	 * @param $arr_preselected_storages PreselectedStorages data
 	 * 
-	 * @return Formatted data.
+	 * @return Preselected storage list into array having following structure: 
+	 * 	array($storage_master_id => $storage_title_built_by_function)
 	 *
 	 * @author N. Luc
 	 * @since 2009-09-11
@@ -1773,7 +1775,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		if(!empty($arr_preselected_storages)) {
 			foreach ($arr_preselected_storages as $storage_id => $storage_data) {
-				$formatted_data[$storage_id] = $storage_data['StorageMaster']['selection_label'] . ' [' . __($storage_data['StorageMaster']['storage_type'], TRUE) . ': ' . $storage_data['StorageMaster']['code'] . ']';
+				$formatted_data[$storage_id] = $storage_data['StorageMaster']['selection_label'] . ' [' . __($storage_data['StorageMaster']['code'] . ' ('.$storage_data['StorageMaster']['storage_type'], TRUE) .')'. ']';
 			}
 		}
 	
@@ -1785,7 +1787,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 	 * 
 	 * @param $arr_sample_blocks Blocks data
 	 * 
-	 * @return Formatted data.
+	 * @return Blocks list into array having following structure: 
+	 * 	array($aliquot_master_id => $block_title_built_by_function)
 	 *
 	 * @author N. Luc
 	 * @since 2009-09-11
@@ -1808,7 +1811,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 	 * 
 	 * @param $arr_sample_blocks Blocks data
 	 * 
-	 * @return Formatted data.
+	 * @return Gel Matrices list into array having following structure: 
+	 * 	array($aliquot_master_id => $gel_matrice_title_built_by_function)
 	 *
 	 * @author N. Luc
 	 * @since 2009-09-11
