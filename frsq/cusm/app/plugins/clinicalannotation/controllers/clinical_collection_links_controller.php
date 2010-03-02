@@ -28,7 +28,7 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 		$this->data = $this->paginate($this->ClinicalCollectionLink, array('ClinicalCollectionLink.participant_id'=>$participant_id));
 
 		// Set list of banks
-		$this->set('banks', $this->Collections->getBankList());	
+		$this->set('bank_list', $this->Collections->getBankList());	
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -48,7 +48,7 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 		$this->data = $clinical_collection_data;	
 		
 		// Set list of banks
-		$this->set('banks', $this->Collections->getBankList());	
+		$this->set('bank_list', $this->Collections->getBankList());	
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -76,7 +76,7 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 		}
 
 		// Set list of banks
-		$this->set('banks', $this->Collections->getBankList());	
+		$this->set('bank_list', $this->Collections->getBankList());	
 		
 		// Set consents list
 		$consent_data = $this->ConsentMaster->find('all', array('conditions' => array('ConsentMaster.deleted' => '0', 'ConsentMaster.participant_id' => $participant_id)));
@@ -133,7 +133,7 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 		$this->set( 'collection_data', $collection_data );
 		
 		// Set list of banks
-		$this->set('banks', $this->Collections->getBankList());	
+		$this->set('bank_list', $this->Collections->getBankList());	
 		
 		// Set consents list
 		$consent_data = $this->ConsentMaster->find('all', array('conditions' => array('ConsentMaster.deleted' => '0', 'ConsentMaster.participant_id' => $participant_id)));
