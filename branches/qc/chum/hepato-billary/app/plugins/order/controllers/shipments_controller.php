@@ -145,8 +145,13 @@ class ShipmentsController extends OrderAppController {
 		$this->set('shipped_items', $shipped_items);
 
 		// Populate both sample and aliquot control
-		$this->set('sample_controls_list', $this->getSampleControlsList());
-		$this->set('aliquot_controls_list', $this->getAliquotControlsList());	
+		$sample_controls_list = $this->SampleControl->find('all', array('recursive' => '-1'));
+		$sample_controls_list = empty($sample_controls_list)? array(): $sample_controls_list;
+		$aliquot_controls_list = $this->AliquotControl->find('all', array('recursive' => '-1'));
+		$aliquot_controls_list = empty($aliquot_controls_list)? array(): $aliquot_controls_list;
+
+		$this->set('sample_controls_list', $sample_controls_list);
+		$this->set('aliquot_controls_list', $aliquot_controls_list);
 				
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -202,8 +207,13 @@ class ShipmentsController extends OrderAppController {
 		if(empty($available_order_items)) { $this->flash('no new item could be actualy added to the shipment', '/order/shipments/detail/'.$order_id.'/'.$shipment_id);  }
 
 		// Populate both sample and aliquot control
-		$this->set('sample_controls_list', $this->getSampleControlsList());
-		$this->set('aliquot_controls_list', $this->getAliquotControlsList());	
+		$sample_controls_list = $this->SampleControl->find('all', array('recursive' => '-1'));
+		$sample_controls_list = empty($sample_controls_list)? array(): $sample_controls_list;
+		$aliquot_controls_list = $this->AliquotControl->find('all', array('recursive' => '-1'));
+		$aliquot_controls_list = empty($aliquot_controls_list)? array(): $aliquot_controls_list;
+
+		$this->set('sample_controls_list', $sample_controls_list);
+		$this->set('aliquot_controls_list', $aliquot_controls_list);
 		
 		// Set array to get ids from barcode
 		$item_id_by_barcode = array();

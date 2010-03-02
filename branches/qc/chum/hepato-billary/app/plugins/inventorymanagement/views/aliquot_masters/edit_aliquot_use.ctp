@@ -9,7 +9,12 @@
 	$structure_override = array();
 	
 	$structure_override['AliquotMaster.aliquot_volume_unit'] = $aliquot_volume_unit;
-	$structure_override['AliquotUse.study_summary_id'] = $arr_studies_for_display;	
+		
+	$studies_list = array();
+	foreach($arr_studies as $new_study) {
+		$studies_list[$new_study['StudySummary']['id']] = $new_study['StudySummary']['title'];
+	}	
+	$structure_override['AliquotUse.study_summary_id'] = $studies_list;	
 	
 	$final_atim_structure = $atim_structure; 
 	$final_options = array('links' => $structure_links, 'override' => $structure_override, 'type' => 'edit');

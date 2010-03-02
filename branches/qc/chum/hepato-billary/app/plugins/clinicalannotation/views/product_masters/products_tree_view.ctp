@@ -64,13 +64,10 @@
 	$structure_extras = array();
 	$structure_extras[10] = '<div id="frame"></div>';	
 	
-	$structure_override = array();
-	$structure_override['Collection.bank_id'] = $bank_list;
-	
 	// BUILD
 	
 	$final_atim_structure = $atim_structure; 
-	$final_options = array('type' => 'tree', 'settings'=>$structure_settings, 'links'=>$structure_links, 'extras'=>$structure_extras, 'override' => $structure_override);
+	$final_options = array('type' => 'tree', 'settings'=>$structure_settings, 'links'=>$structure_links, 'extras'=>$structure_extras);
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook();

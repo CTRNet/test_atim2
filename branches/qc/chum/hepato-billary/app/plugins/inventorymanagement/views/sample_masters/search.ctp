@@ -6,7 +6,7 @@
 	$search_type_links['aliquots'] = '/inventorymanagement/aliquot_masters/index/';
 	
 	$structure_links = array(
-		'index' => array('detail' => '/inventorymanagement/sample_masters/detail/%%ViewSample.collection_id%%/%%ViewSample.sample_master_id%%'),
+		'index' => array('detail' => '/inventorymanagement/sample_masters/detail/%%Collection.id%%/%%SampleMaster.id%%'),
 		'bottom' => array(
 			'add collection' => '/inventorymanagement/collections/add', 
 			'new search' => array(
@@ -16,8 +16,12 @@
 	);
 	
 	$structure_override = array();
-	
-	$structure_override['ViewSample.bank_id'] = $bank_list;
+
+	$bank_list = array();
+	foreach($banks as $new_bank) {
+		$bank_list[$new_bank['Bank']['id']] = $new_bank['Bank']['name'];
+	}
+	$structure_override['Collection.bank_id'] = $bank_list;
 	
 	$final_atim_structure = $atim_structure; 
 	$final_options = array('type' => 'index', 'data' => $samples_data, 'links' => $structure_links, 'override' => $structure_override, 'settings' => array('header' => __('search type', null).': '.__('samples', null)));

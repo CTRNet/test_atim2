@@ -6,7 +6,7 @@
 	$search_type_links['aliquots'] = '/inventorymanagement/aliquot_masters/index/';
 		
 	$structure_links = array(
-		'index' => array('detail' => '/inventorymanagement/aliquot_masters/detail/%%ViewAliquot.collection_id%%/%%ViewAliquot.sample_master_id%%/%%ViewAliquot.aliquot_master_id%%'),
+		'index' => array('detail' => '/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%'),
 		'bottom' => array(
 			'add collection' => '/inventorymanagement/collections/add', 
 			'new search' => array(
@@ -17,7 +17,11 @@
 	
 	$structure_override = array();
 
-	$structure_override['ViewAliquot.bank_id'] = $bank_list;
+	$bank_list = array();
+	foreach($banks as $new_bank) {
+		$bank_list[$new_bank['Bank']['id']] = $new_bank['Bank']['name'];
+	}
+	$structure_override['Collection.bank_id'] = $bank_list;
 	
 	$hook_link = $structures->hook();
 	if($hook_link){

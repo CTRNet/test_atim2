@@ -12,11 +12,5 @@
 	);
 
 	$structure_override = array('TreatmentMaster.protocol_id'=>$protocol_list);
-	
-	$final_options = array('type'=>'index', 'links'=>$structure_links, 'override'=>$structure_override);
-	$final_atim_structure = $atim_structure; 
-	$hook_link = $structures->hook();
-	if( $hook_link ) { require($hook_link); }
-	$structures->build( $final_atim_structure, $final_options );
-	
+	$structures->build( $atim_structure, array('type'=>'index', 'links'=>$structure_links, 'override'=>$structure_override) );
 ?>

@@ -5,6 +5,11 @@
 	);
 	
 	$structure_override = array();
+	
+	$studies_list = array();
+	foreach($arr_studies as $new_study) {
+		$studies_list[$new_study['StudySummary']['id']] = $new_study['StudySummary']['title'];
+	}	
 	$structure_override['Order.study_summary_id'] = $studies_list;	
 	
 	$final_atim_structure = $atim_structure; 

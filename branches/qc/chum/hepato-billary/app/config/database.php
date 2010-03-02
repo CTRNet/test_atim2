@@ -84,7 +84,7 @@ class DATABASE_CONFIG {
 		'host' => 'localhost',
 		'login' => 'nico',
 		'password' => 'nicodb',		
-		'database' => 'atimv2-crchum-hep-bil',
+		'database' => 'atim2-chum-hepbil',
 		'prefix' => ''
 	);
 }
