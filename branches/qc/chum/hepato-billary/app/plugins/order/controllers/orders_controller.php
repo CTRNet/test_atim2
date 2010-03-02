@@ -24,7 +24,7 @@ class OrdersController extends OrderAppController {
 		unset($_SESSION['Order']['AliquotIdsToAddToOrder']);
 		
 		// Set list of studies
-		$this->set('arr_studies', $this->getStudiesList());
+		$this->set('studies_list', $this->getStudiesList());
 		
 		$hook_link = $this->hook('format');
 		if($hook_link){
@@ -44,7 +44,7 @@ class OrdersController extends OrderAppController {
 		$_SESSION['ctrapp_core']['search']['url'] = '/order/orders/search';
 		
 		// Set list of studies
-		$this->set('arr_studies', $this->getStudiesList());
+		$this->set('studies_list', $this->getStudiesList());
 
 		$hook_link = $this->hook('format');
 		if($hook_link){
@@ -56,7 +56,7 @@ class OrdersController extends OrderAppController {
 		// MANAGE DATA
 		
 		// Set list of studies
-		$this->set('arr_studies', $this->getStudiesList());
+		$this->set('studies_list', $this->getStudiesList());
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -96,7 +96,7 @@ class OrdersController extends OrderAppController {
 		$this->data = array();
 				
 		// Set list of studies
-		$this->set('arr_studies', $this->getStudiesList());
+		$this->set('studies_list', $this->getStudiesList());
 		
 		// Set order lines data
 		$this->setDataForOrderLinesList($order_id);
@@ -123,7 +123,7 @@ class OrdersController extends OrderAppController {
 		if(empty($order_data)) { $this->redirect( '/pages/err_order_no_data', null, true ); }
 		
 		// Set list of studies
-		$this->set('arr_studies', $this->getStudiesList());
+		$this->set('studies_list', $this->getStudiesList());
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -188,12 +188,13 @@ class OrdersController extends OrderAppController {
 	 * -------------------------------------------------------------------------- */
 	
 	/**
-	 * Get list of Studies existing into the system.
+	 * Get formatted list of Studies existing into the system.
 	 * 
 	 * Note: Function to allow bank to customize this function when they don't use 
 	 * Study module.
 	 *
-	 * @return Array gathering all studies
+	 * @return Studies list into array having following structure: 
+	 * 	array($study_id => $study_title_built_by_function)
 	 *
 	 * @author N. Luc
 	 * @since 2009-09-11
@@ -201,8 +202,18 @@ class OrdersController extends OrderAppController {
 	 */
 	 
 	function getStudiesList() {
-		return $this->StudySummaries->getStudiesList();
+		$studies_data = $this->StudySummaries->getStudiesList();
+		
+		$formatted_data = array();
+		if(!empty($studies_data)) {
+			foreach($studies_data as $new_study) {
+				$formatted_data[$new_study['StudySummary']['id']] = $new_study['StudySummary']['title'] . ' ('.__($new_study['StudySummary']['disease_site'], true) .'-'.__($new_study['StudySummary']['study_type'], true) .')'; 
+			}	
+		}
+		
+		return $formatted_data;
 	}
+	
 	
 	/**
 	 * Check if an order can be deleted.

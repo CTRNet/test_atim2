@@ -7,7 +7,6 @@
 	foreach ($specimen_sample_controls_list as $sample_control) {
 		$add_links[$sample_control['SampleControl']['sample_type']] = '/inventorymanagement/sample_masters/add/' . $atim_menu_variables['Collection.id'] . '/' . $sample_control['SampleControl']['id'];
 	}
-	$add_links = empty($add_links)? '/underdevelopment/': $add_links;
 	
 	// Manage filter button
 	$main_link = '/inventorymanagement/sample_masters/listAll/' . $atim_menu_variables['Collection.id'] . '/' . $initial_specimen_sample_id;
@@ -32,9 +31,13 @@
 	$search_type_links['samples'] = '/inventorymanagement/sample_masters/index/';
 	$search_type_links['aliquots'] = '/inventorymanagement/aliquot_masters/index/';
 	
+	$detail_link = ($model_to_use == 'ViewSample')? 
+		'/inventorymanagement/sample_masters/detail/%%ViewSample.collection_id%%/%%ViewSample.sample_master_id%%': 
+		'/inventorymanagement/sample_masters/detail/%%Collection.id%%/%%SampleMaster.id%%';
+			
 	$structure_links = array(
 		'index' => array(
-			'detail' => '/inventorymanagement/sample_masters/detail/%%Collection.id%%/%%SampleMaster.id%%'
+			'detail' => $detail_link
 		),
 		'bottom' => array(
 			'add' => $add_links,
@@ -42,15 +45,12 @@
 			'new search type' => $search_type_links
 		)
 	);
+	
+	// Clean up structure link
+	if(empty($add_links)) unset($structure_links['bottom']['add']);
 
 	$structure_override = array();
-		
-	$bank_list = array();
-	foreach($banks as $new_bank) {
-		$bank_list[$new_bank['Bank']['id']] = $new_bank['Bank']['name'];
-	}
-	$structure_override['Collection.bank_id'] = $bank_list;
-
+	if(isset($bank_list)) { $structure_override['ViewSample.bank_id'] = $bank_list; }
 	if(isset($arr_tissue_sources)) { $structure_override['SampleDetail.tissue_source'] = $arr_tissue_sources; }
 	
 	$final_atim_structure = $atim_structure; 
