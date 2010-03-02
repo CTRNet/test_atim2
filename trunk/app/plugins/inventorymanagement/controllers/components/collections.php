@@ -13,7 +13,7 @@ class CollectionsComponent extends Object {
 	 * ADministrate module.
 	 * 
 	 * @return Bank list into array having following structure: 
-	 * 	array($bank_id => $bank_label_built_by_function)
+	 * 	array($bank_id => $bank_title_built_by_function)
 	 *
 	 * @author N. Luc
 	 * @since 2009-09-11
@@ -39,7 +39,7 @@ class CollectionsComponent extends Object {
 	 * SOP module.
 	 * 
 	 * @return SOP list into array having following structure: 
-	 * 	array($sop_id => $sop_label_built_by_function)
+	 * 	array($sop_id => $sop_title_built_by_function)
 	 *
 	 * @author N. Luc
 	 * @since 2009-09-11
@@ -52,7 +52,7 @@ class CollectionsComponent extends Object {
 		
 		$sop_list_to_return = array();
 		foreach($sop_list as $sop_masters) {
-			$sop_list_to_return[$sop_masters['SopMaster']['id']] = $sop_masters['SopMaster']['code'];
+			$sop_list_to_return[$sop_masters['SopMaster']['id']] = $sop_masters['SopMaster']['code'] . ' ('.__($sop_masters['SopMaster']['sop_group'], true) .' - '.__($sop_masters['SopMaster']['type'], true) .')'; 
 		}
 	
 		return $sop_list_to_return;		

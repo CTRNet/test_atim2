@@ -16,7 +16,7 @@ class AliquotsComponent extends Object {
 	 *	@param $aliquot_type Aliquot Type
 	 *
 	 * @return SOP list into array having following structure: 
-	 * 	array($sop_id => $sop_label_built_by_function)
+	 * 	array($sop_id => $sop_title_built_by_function)
 	 *
 	 * @author N. Luc
 	 * @since 2009-09-11
@@ -29,7 +29,7 @@ class AliquotsComponent extends Object {
 		$formatted_data = array();
 		if(!empty($sops_data)) {
 			foreach($sops_data as $sop_masters) { 
-				$formatted_data[$sop_masters['SopMaster']['id']] = $sop_masters['SopMaster']['code'] . ' ('.__($sop_masters['SopMaster']['sop_group'], true) .'-'.__($sop_masters['SopMaster']['type'], true) .')'; 
+				$formatted_data[$sop_masters['SopMaster']['id']] = $sop_masters['SopMaster']['code'] . ' ('.__($sop_masters['SopMaster']['sop_group'], true) .' - '.__($sop_masters['SopMaster']['type'], true) .')'; 
 			}
 		}
 		

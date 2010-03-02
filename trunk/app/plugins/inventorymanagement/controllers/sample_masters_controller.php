@@ -938,7 +938,8 @@ class SampleMastersController extends InventorymanagementAppController {
 	 * 
 	 * @param $parent_sample_data Parent sample data
 	 * 
-	 * @return Formatted data.
+	 * @return Parent sample list into array having following structure: 
+	 * 	array($parent_sample_master_id => $sample_title_built_by_function)
 	 *
 	 * @author N. Luc
 	 * @since 2009-09-11
@@ -948,7 +949,6 @@ class SampleMastersController extends InventorymanagementAppController {
 		$formatted_data = array();
 		if(!empty($parent_sample_data) && isset($parent_sample_data['SampleMaster'])) {
 			$formatted_data[$parent_sample_data['SampleMaster']['id']] = $parent_sample_data['SampleMaster']['sample_code'] . ' [' . __($parent_sample_data['SampleMaster']['sample_type'], TRUE) . ']';
-			
 		}
 		
 		return $formatted_data;
