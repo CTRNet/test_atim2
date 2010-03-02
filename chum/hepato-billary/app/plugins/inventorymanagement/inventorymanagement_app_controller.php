@@ -79,48 +79,24 @@ class InventorymanagementAppController extends AppController {
 		
 		return $allowed_aliquot_type;		
 	}
-	
-	/**
-	 * Set all data used to display a list of samples according search criteria 
-	 * (samples_data, 'banks', etc).
-	 *
-	 *	@param $criteria Sample Search Criteria
-	 *
-	 * @author N. Luc
-	 * @since 2009-09-11
-	 * @updated N. Luc
-	 */
-	 
-	function setDataForSamplesList($criteria) {
-		// Search Data
-		$belongs_to_details = array(
-			'belongsTo' => array('GeneratedParentSample' => array(
-				'className' => 'Inventorymanagement.SampleMaster',
-				'foreignKey' => 'parent_id')));
-				
-		$this->SampleMaster->bindModel($belongs_to_details, false);			
-		$working_data = $this->paginate($this->SampleMaster, $criteria);
-		$this->SampleMaster->unbindModel(array('belongsTo' => array('GeneratedParentSample')), false);
-		
-		// Set samples list	
-		$this->set('samples_data', $working_data);
-				
-		// Set list of banks
-		$this->set('banks', $this->Collections->getBankList());
-	}
 
 	/**
-	 * Set all data used to display a list of aliquots according search criteria 
-	 * (aliquots_data, banks, etc).
+	 * Get Aliquot data to display into aliquots list view:
+	 *   - Will poulate fields
+	 *         . GeneratedParentSample.*
+	 *         . Generated.aliquot_use_counter 
+	 *         . Generated.realiquoting_data 
 	 *
 	 *	@param $criteria Aliquot Search Criteria
 	 *
+	 * @return aliquot_data
+	 *
 	 * @author N. Luc
 	 * @since 2009-09-11
 	 * @updated N. Luc
 	 */
 	 
-	function setDataForAliquotsList($criteria) {
+	function getAliquotsListData($criteria) {
 		
 		// Search Data
 		$has_many_details = array(
@@ -174,11 +150,7 @@ class InventorymanagementAppController extends AppController {
 			$working_data[$key]['GeneratedParentSample'] = $parent_sample_data[$parent_id]['SampleMaster'];
 		}
 			
-		// Set aliquots list	
-		$this->set('aliquots_data', $working_data);
-		
-		// Set list of banks
-		$this->set('banks', $this->Collections->getBankList());
+		return $working_data;
 	}
 	
 	/**

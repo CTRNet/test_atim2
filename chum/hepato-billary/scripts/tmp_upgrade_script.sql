@@ -9,9 +9,6 @@
 	Description:
 */
 
-
-
-
 /*
 	Module: Clinical Annotation
 	Description:
@@ -23,6 +20,7 @@ ALTER TABLE `dxd_tissues_revs` CHANGE `text_field` `laterality` VARCHAR( 50 ) CH
 
 -- Study - Add field for uploading images to the Study form
 ALTER TABLE `ed_all_study_research` ADD `file_path` VARCHAR( 255 ) NOT NULL AFTER `event_master_id`  ;
+ALTER TABLE `ed_all_study_research_revs` ADD `file_path` VARCHAR( 255 ) NOT NULL AFTER `event_master_id`  ;
 
 -- Add new table for identifiers control
 SET FOREIGN_KEY_CHECKS=0;
@@ -49,6 +47,60 @@ ALTER TABLE `misc_identifiers`
   FOREIGN KEY (`misc_identifier_control_id`) REFERENCES `misc_identifier_controls` (`id`)
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
+
+-- Drop tables for unused annotation reports
+DROP TABLE IF EXISTS `ed_allsolid_lab_pathology`;
+DROP TABLE IF EXISTS `ed_allsolid_lab_pathology_revs`;
+
+-- Fix created/modified fields. Redefine as DATETIME
+ALTER TABLE `ed_all_clinical_followup` CHANGE `created` `created` DATETIME NULL ,
+CHANGE `modified` `modified` DATETIME NULL; 
+ALTER TABLE `ed_all_clinical_followup_revs` CHANGE `created` `created` DATETIME NULL ,
+CHANGE `modified` `modified` DATETIME NULL; 
+
+ALTER TABLE `ed_all_clinical_presentation` CHANGE `created` `created` DATETIME NULL ,
+CHANGE `modified` `modified` DATETIME NULL; 
+ALTER TABLE `ed_all_clinical_presentation_revs` CHANGE `created` `created` DATETIME NULL ,
+CHANGE `modified` `modified` DATETIME NULL;
+
+ALTER TABLE `ed_breast_lab_pathology` CHANGE `created` `created` DATETIME NULL ,
+CHANGE `modified` `modified` DATETIME NULL; 
+ALTER TABLE `ed_breast_lab_pathology_revs` CHANGE `created` `created` DATETIME NULL ,
+CHANGE `modified` `modified` DATETIME NULL;
+
+ALTER TABLE `order_items` CHANGE `created` `created` DATETIME NULL ,
+CHANGE `modified` `modified` DATETIME NULL; 
+ALTER TABLE `order_items_revs` CHANGE `created` `created` DATETIME NULL ,
+CHANGE `modified` `modified` DATETIME NULL;
+
+ALTER TABLE `pd_chemos` CHANGE `created` `created` DATETIME NULL ,
+CHANGE `modified` `modified` DATETIME NULL; 
+ALTER TABLE `pd_chemos_revs` CHANGE `created` `created` DATETIME NULL ,
+CHANGE `modified` `modified` DATETIME NULL;
+
+ALTER TABLE `protocol_controls` CHANGE `created` `created` DATETIME NULL ,
+CHANGE `modified` `modified` DATETIME NULL; 
+
+ALTER TABLE `protocol_masters` CHANGE `created` `created` DATETIME NULL ,
+CHANGE `modified` `modified` DATETIME NULL; 
+ALTER TABLE `protocol_masters_revs` CHANGE `created` `created` DATETIME NULL ,
+CHANGE `modified` `modified` DATETIME NULL;
+
+-- Fix lifestyle table for smoking only
+ALTER TABLE `ed_all_lifestyle_base`
+  DROP `alcohol_history`,
+  DROP `weight_loss`;
+
+ALTER TABLE `ed_all_lifestyle_base_revs`
+  DROP `alcohol_history`,
+  DROP `weight_loss`;
+
+RENAME TABLE `ed_all_lifestyle_base`  TO `ed_all_lifestyle_smoking`  ;
+RENAME TABLE `ed_all_lifestyle_base_revs`  TO `ed_all_lifestyle_smoking_revs`  ;
+
+ALTER TABLE `ed_all_lifestyle_smoking` CHANGE `pack_years` `pack_years` INT NULL DEFAULT NULL;
+ALTER TABLE `ed_all_lifestyle_smoking_revs` CHANGE `pack_years` `pack_years` INT NULL DEFAULT NULL;
+
 
 /*
 	Module: Inventory Management
@@ -211,12 +263,6 @@ DELETE FROM  `i18n` WHERE `id` LIKE 'value is required';
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('value is required', 'global', 'The value is required!', 'La valeur est requise!');
 
--- --------------------------------------------------------------------------------------------------------------------------
---
--- SECTION ABOVE HAS ALREADY INCLUDED INTO atim_v2.0.1-DDL.sql and atim_v2.0.1-DML.sql 
---
--- --------------------------------------------------------------------------------------------------------------------------
-
 /*
   STRUCTURE TABLES  
 */ 
@@ -367,6 +413,8 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('reproductive history', '', 'Reproductive History', 'Gyn&eacute;cologie'),
 ('contact', '', 'Contact', 'Contact');
 
+-- Remove validation for Family History: Age at Diagnosis 
+DELETE FROM `structure_validations` WHERE `structure_validations`.`structure_field_id` = (SELECT id FROM `structure_fields` WHERE `plugin` LIKE 'Clinicalannotation' AND `model` LIKE 'FamilyHistory' AND `field` LIKE 'age_at_dx');
  	 
 -- Fixed field display for topography
 UPDATE `structure_formats` SET `flag_add` = '1',
@@ -404,23 +452,245 @@ SET `language_heading` = null,
 WHERE `structure_field_old_id` IN ('CAN-999-999-000-999-227', 'CAN-999-999-000-999-228')
 AND `structure_old_id` NOT LIKE 'QRY%';
 
+-- Fixes to Breast Screening form
+UPDATE `structure_fields` SET `tablename` = 'ed_breast_screening_mammogram' WHERE `structure_fields`.`id` =140;
+
+UPDATE `structure_formats` SET `display_column` = '1', `display_order` = '99', `flag_datagrid` = '0', `flag_index` = '0', `modified_by` = ''
+WHERE `structure_formats`.`id` =132;
+
+UPDATE `structure_formats` SET `flag_edit` = '1', `flag_edit_readonly` = '1', `flag_index` = '0', `flag_detail` = '1' 
+WHERE `structure_formats`.`id` =129;
+
+UPDATE `structure_formats` SET `flag_edit` = '1', `flag_edit_readonly` = '1', `flag_index` = '0', `flag_detail` = '1', `modified_by` = '0'
+WHERE `structure_formats`.`id` =130;
+
+-- Fix tablename for all event master fields
+UPDATE `structure_fields` SET `tablename` = 'event_masters' WHERE `structure_fields`.`id` =491;
+UPDATE `structure_fields` SET `tablename` = 'event_masters' WHERE `structure_fields`.`id` =490;
+UPDATE `structure_fields` SET `tablename` = 'event_masters' WHERE `structure_fields`.`id` =492;
+UPDATE `structure_fields` SET `tablename` = 'event_masters' WHERE `structure_fields`.`id` =494;
+
+
+-- Update smoking form
+UPDATE `structures` SET `alias` =  'ed_all_lifestyle_smoking',
+`flag_add_columns` = '1',
+`flag_edit_columns` = '1' WHERE `structures`.`id` =126;
+
+UPDATE `event_controls` SET `event_type` = 'smoking',
+`form_alias` = 'ed_all_lifestyle_smoking',
+`detail_tablename` = 'ed_all_lifestyle_smoking' WHERE `event_controls`.`id` =30;
+
+UPDATE `structure_fields` SET `tablename` = 'ed_all_lifestyle_smoking' WHERE `structure_fields`.`id` =579;
+UPDATE `structure_fields` SET `tablename` = 'ed_all_lifestyle_smoking' WHERE `structure_fields`.`id` =580;
+UPDATE `structure_fields` SET `tablename` = 'ed_all_lifestyle_smoking' WHERE `structure_fields`.`id` =582;
+UPDATE `structure_fields` SET `tablename` = 'ed_all_lifestyle_smoking' WHERE `structure_fields`.`id` =583;
+UPDATE `structure_fields` SET `tablename` = 'ed_all_lifestyle_smoking' WHERE `structure_fields`.`id` =584;
+
+UPDATE `structure_formats` SET `display_order` = '-10',
+`flag_edit` = '1',
+`flag_edit_readonly` = '1',
+`flag_index` = '0',
+`flag_detail` = '1',
+`modified_by` = '' WHERE `structure_formats`.`id` =1500;
+
+UPDATE `structure_formats` SET `display_order` = '-9',
+`flag_edit` = '1',
+`flag_edit_readonly` = '1',
+`flag_index` = '0',
+`flag_detail` = '1',
+`modified_by` = '' WHERE `structure_formats`.`id` =1501;
+
+UPDATE `structure_formats` SET `flag_datagrid` = '0',
+`flag_index` = '0',
+`modified_by` = '' WHERE `structure_formats`.`id` =1502;
+
+UPDATE `structure_formats` SET `display_column` = '1',
+`display_order` = '99',
+`flag_datagrid` = '0',
+`flag_index` = '0',
+`modified_by` = '' WHERE `structure_formats`.`id` =1503;
+
+UPDATE `structure_formats` SET `display_column` = '1',
+`modified_by` = '' WHERE `structure_formats`.`id` =1504;
+
+UPDATE `structure_formats` SET `display_column` = '1',
+`modified_by` = '' WHERE `structure_formats`.`id` =1505;
+
+UPDATE `structure_formats` SET `display_column` = '1',
+`flag_datagrid` = '0',
+`flag_index` = '0',
+`modified_by` = '' WHERE `structure_formats`.`id` =1506;
+
+UPDATE `structure_formats` SET `display_column` = '1',
+`modified_by` = '' WHERE `structure_formats`.`id` =1507;
+
+UPDATE `structure_formats` SET `display_column` = '1',
+`modified_by` = '' WHERE `structure_formats`.`id` =1508;
+
+-- Update research form
+UPDATE `structure_fields` SET `tablename` = 'ed_all_study_research' WHERE `structure_fields`.`id` =770;
+
+UPDATE `structure_fields` SET `tablename` = 'ed_all_study_research' WHERE `structure_fields`.`id` =772;
+
+UPDATE `structure_fields` SET `tablename` = 'ed_all_study_research' WHERE `structure_fields`.`id` =771;
+
+UPDATE `structure_fields` SET `tablename` = 'ed_all_study_research',
+`language_label` = 'picture' WHERE `structure_fields`.`id` =908;
+
+UPDATE `structure_formats` SET `display_order` = '-10',
+`flag_edit` = '1',
+`flag_edit_readonly` = '1',
+`flag_index` = '0',
+`flag_detail` = '1',
+`modified_by` = '' WHERE `structure_formats`.`id` =1715;
+
+UPDATE `structure_formats` SET `display_order` = '-9',
+`flag_edit` = '1',
+`flag_edit_readonly` = '1',
+`flag_index` = '0',
+`flag_detail` = '1',
+`modified_by` = '' WHERE `structure_formats`.`id` =1716;
+
+UPDATE `structure_formats` SET `flag_datagrid` = '0',
+`flag_index` = '0',
+`modified_by` = '' WHERE `structure_formats`.`id` =1717;
+
+UPDATE `structure_formats` SET `display_column` = '1',
+`display_order` = '99',
+`flag_datagrid` = '0',
+`flag_index` = '0',
+`modified_by` = '' WHERE `structure_formats`.`id` =1718;
+
+UPDATE `structure_formats` SET `flag_edit` = '1',
+`flag_detail` = '1',
+`modified_by` = '' WHERE `structure_formats`.`id` =2469;
+
+-- Update followup form
+UPDATE `structure_fields` SET `tablename` = 'ed_all_clinical_followup' WHERE `structure_fields`.`id` =503;
+UPDATE `structure_fields` SET `tablename` = 'ed_all_clinical_followup' WHERE `structure_fields`.`id` =502;
+UPDATE `structure_fields` SET `tablename` = 'ed_all_clinical_followup' WHERE `structure_fields`.`id` =593;
+UPDATE `structure_fields` SET `tablename` = 'ed_all_clinical_followup' WHERE `structure_fields`.`id` =499;
+
+UPDATE `structure_formats` SET `display_order` = '-10',
+`flag_edit` = '1',
+`flag_edit_readonly` = '1',
+`flag_index` = '0',
+`flag_detail` = '1',
+`modified_by` = '' WHERE `structure_formats`.`id` =1391;
+
+UPDATE `structure_formats` SET `display_order` = '-9',
+`flag_edit` = '1',
+`flag_edit_readonly` = '1',
+`flag_index` = '0',
+`flag_detail` = '1',
+`modified_by` = '' WHERE `structure_formats`.`id` =1392;
+
+UPDATE `structure_formats` SET `display_order` = '-1',
+`flag_datagrid` = '0',
+`flag_index` = '0',
+`modified_by` = '' WHERE `structure_formats`.`id` =1393;
+
+UPDATE `structure_formats` SET `display_column` = '1',
+`display_order` = '99',
+`flag_datagrid` = '0',
+`flag_index` = '0',
+`modified_by` = '' WHERE `structure_formats`.`id` =1394;
+
+UPDATE `structure_formats` SET `display_column` = '1',
+`display_order` = '4',
+`modified_by` = '' WHERE `structure_formats`.`id` =1395;
+
+UPDATE `structure_formats` SET `display_column` = '1',
+`modified_by` = '' WHERE `structure_formats`.`id` =1396;
+
+UPDATE `structure_formats` SET `display_column` = '1',
+`display_order` = '2',
+`modified_by` = '' WHERE `structure_formats`.`id` =1397;
+
+UPDATE `structure_formats` SET `display_column` = '1',
+`display_order` = '1',
+`modified_by` = '' WHERE `structure_formats`.`id` =1398;
+
+-- Update presentation form
+ALTER TABLE `ed_all_clinical_presentation` CHANGE `height` `height` DECIMAL( 10, 2 ) NULL DEFAULT NULL,
+CHANGE `weight` `weight` DECIMAL( 10, 2 ) NULL DEFAULT NULL;
+ALTER TABLE `ed_all_clinical_presentation_revs` CHANGE `height` `height` DECIMAL( 10, 2 ) NULL DEFAULT NULL,
+CHANGE `weight` `weight` DECIMAL( 10, 2 ) NULL DEFAULT NULL;
+
+UPDATE `structure_fields` SET `tablename` = 'ed_all_clinical_presentation' WHERE `structure_fields`.`id` =500;
+
+INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`,
+`field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`,
+`language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`,
+`modified`, `modified_by`) VALUES
+(NULL , '', '', 'Clinicalannotation', 'EventDetail', 'ed_all_clinical_presentation', 'weight', 'weight', '', 'input', 'size=4', '', NULL , '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+SET @field = LAST_INSERT_ID();
+
+UPDATE `structure_formats` SET `structure_field_id` = @field,
+`display_column` = '1',
+`display_order` = '2',
+`flag_index` = '1',
+`modified_by` = '' WHERE `structure_formats`.`id` =1388;
+
+UPDATE `structure_formats` SET `display_order` = '-10',
+`flag_edit` = '1',
+`flag_edit_readonly` = '1',
+`flag_index` = '0',
+`flag_detail` = '1',
+`modified_by` = '' WHERE `structure_formats`.`id` =1384;
+
+UPDATE `structure_formats` SET `display_order` = '-9',
+`flag_edit` = '1',
+`flag_edit_readonly` = '1',
+`flag_index` = '0',
+`flag_detail` = '1',
+`modified_by` = '' WHERE `structure_formats`.`id` =1385;
+
+UPDATE `structure_formats` SET `display_order` = '-1',
+`flag_datagrid` = '0',
+`flag_index` = '0',
+`modified_by` = '' WHERE `structure_formats`.`id` =1386;
+
+UPDATE `structure_formats` SET `display_column` = '1',
+`display_order` = '99',
+`flag_datagrid` = '0',
+`flag_index` = '0',
+`modified_by` = '' WHERE `structure_formats`.`id` =1387;
+
+UPDATE `structure_formats` SET `display_column` = '1',
+`display_order` = '3',
+`flag_index` = '1',
+`modified_by` = '' WHERE `structure_formats`.`id` =1389;
+
 /*
   INVENTORY MANAGEMENT  
 */ 
 
 #SQL View for collections
+
+-- 'view_collection' will be used to search/index/detail collection
 INSERT INTO `structures` (
 `id`, `old_id`, `alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`)
-VALUES (NULL , 'CANM-00025', 'view_collection', '', '', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+VALUES (NULL , 'CANM-00025', 'view_collection', '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
-SET @last_structure_id = LAST_INSERT_ID();
+SET @view_collection_structure_id = LAST_INSERT_ID();
 
 INSERT INTO structure_fields (public_identifier,old_id,plugin,model,tablename,field,language_label,language_tag,type,setting,`default`,structure_value_domain,language_help,validation_control,value_domain_control,field_control,created,created_by,modified,modified_by)
-SELECT public_identifier, CONCAT(old_id, '-v'),plugin, 'ViewCollection',tablename,field,language_label,language_tag,type,setting,`default`,structure_value_domain,language_help,validation_control,value_domain_control,field_control,created,created_by,modified,modified_by 
-FROM structure_fields WHERE old_id IN('CAN-999-999-000-999-1000', 'CAN-999-999-000-999-1003', 'CAN-999-999-000-999-1004', 'CAN-999-999-000-999-1007', 'CAN-999-999-000-999-1008', 'CAN-999-999-000-999-1013', 'CAN-999-999-000-999-1223', 'CAN-999-999-000-999-1285');
+SELECT public_identifier,CONCAT(old_id, '-ColView'),plugin,'ViewCollection',tablename,field,language_label,language_tag,type,setting,`default`,structure_value_domain,language_help,validation_control,value_domain_control,field_control,created,created_by,modified,modified_by 
+FROM structure_fields 
+WHERE old_id IN(
+'CAN-999-999-000-999-1000',		-- acquisition_label 
+'CAN-999-999-000-999-1223', 	-- bank_id
+'CAN-999-999-000-999-1003', 	-- collection_site
+'CAN-999-999-000-999-1004', 	-- collection_datetime
+'CAN-999-999-000-999-1285', 	-- collection_datetime accuracy
+'CAN-999-999-000-999-1007', 	-- sop_master_id
+'CAN-999-999-000-999-1013', 	-- collection_property
+'CAN-999-999-000-999-1008'); 	-- collection_notes
 
 INSERT INTO `structure_formats` (`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`)
-SELECT CONCAT('CANM-00025_', structure_field_old_id, '-v'), @last_structure_id, 'CANM-00025', `structure_field_id`, CONCAT(`structure_field_old_id`, '-v'), `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, '0', '0', '0', '0', `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`
+SELECT CONCAT('CANM-00025_', structure_field_old_id, '-ColView'), @view_collection_structure_id, 'CANM-00025', `structure_field_id`, CONCAT(`structure_field_old_id`, '-ColView'), `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, '0', '0', '0', '0', `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`
 FROM structure_formats WHERE structure_old_id='CAN-999-999-000-999-1000' AND (flag_search='1' OR flag_index='1' OR flag_detail='1');
 
 SET @last_id = LAST_INSERT_ID();
@@ -430,59 +700,64 @@ INNER JOIN structure_fields ON structure_fields.old_id=structure_formats.structu
 SET structure_formats.structure_field_id=structure_fields.id
 WHERE structure_formats.id >= @last_id;
 
-CREATE VIEW view_collections AS 
-SELECT 
-collection_id, 
-bank_id, 
-sop_master_id, 
-participant_id, 
-diagnosis_master_id, 
-consent_master_id, 
+UPDATE structure_formats
+SET display_order = '0'
+WHERE old_id = 'CANM-00025_CAN-999-999-000-999-1000-ColView'; 
 
-acquisition_label, 
-collection_site, 
-collection_datetime, 
-collection_datetime_accuracy, 
-collection_property, 
-collection_notes, 
-collections.deleted, 
-collections.deleted_date,
+-- 'collections' will be used to Add/Edit collection: Clean up structures based on previous definitions
+UPDATE structure_formats 
+SET flag_search = '0', flag_search_readonly = '0', 
+flag_datagrid = '0', flag_datagrid_readonly = '0', 
+flag_index = '0', flag_detail = '0'
+WHERE structure_old_id = 'CAN-999-999-000-999-1000';
 
-participant_identifier, 
+UPDATE structure_formats 
+SET flag_index = '1'
+WHERE structure_old_id = 'CAN-999-999-000-999-1000'
+AND structure_field_old_id IN ('CAN-999-999-000-999-1000', 'CAN-999-999-000-999-1223', 'CAN-999-999-000-999-1004', 'CAN-999-999-000-999-1003');
 
-banks.name AS bank_name,
-
-sops.title AS sop_title, 	
-sops.code AS sop_code, 	
-sops.version AS sop_version, 		
-sop_group,
-sops.type 	
-
-FROM collections
-LEFT JOIN clinical_collection_links AS ccl ON collections.id=ccl.collection_id AND ccl.deleted != 1
-LEFT JOIN participants ON ccl.participant_id=participants.id AND participants.deleted != 1
-LEFT JOIN banks ON collections.bank_id=banks.id AND banks.deleted != 1
-LEFT JOIN sop_masters AS sops ON collections.sop_master_id=sops.id AND sops.deleted != 1;
-
+-- Add fields to collection_view
 INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`)
-VALUES (NULL , '', 'CANM-00026', 'Inventorymanagement', 'ViewCollection', '', 'participant_identifier', 'participant identifier', '', 'input', '', '', NULL , '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+VALUES (NULL , '', 'CANM-00026', 'Inventorymanagement', 'ViewCollection', '', 'participant_identifier', 'participant identifier', '', 'input', 'size=30', '', NULL , '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
-SET @last_id = LAST_INSERT_ID();
+SET @last_structure_filed_id = LAST_INSERT_ID();
 
 INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`)
-VALUES (NULL , 'CANM-00025_CANM-00026', @last_structure_id, 'CANM-00025', @last_id, 'CANM-00026', '0', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+VALUES (NULL , 'CANM-00025_CANM-00026', @view_collection_structure_id, 'CANM-00025', @last_structure_filed_id, 'CANM-00026', '0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
+-- Update summary
 UPDATE `menus`
 SET `use_summary` = 'Inventorymanagement.ViewCollection::summary'
 WHERE `use_summary` LIKE 'Inventorymanagement.Collection::summary';
 
-UPDATE structure_formats
-SET display_order = '1'
-WHERE old_id = 'CANM-00025_CANM-00026';
+-- Build View
 
-UPDATE structure_formats
-SET display_order = '0'
-WHERE old_id = 'CANM-00025_CAN-999-999-000-999-1000-v'; 
+CREATE VIEW view_collections AS 
+SELECT 
+col.id AS collection_id, 
+col.bank_id, 
+col.sop_master_id, 
+link.participant_id, 
+link.diagnosis_master_id, 
+link.consent_master_id, 
+
+part.participant_identifier, 
+
+col.acquisition_label, 
+col.collection_site, 
+col.collection_datetime, 
+col.collection_datetime_accuracy, 
+col.collection_property, 
+col.collection_notes, 
+col.deleted,
+
+banks.name AS bank_name
+
+FROM collections AS col
+LEFT JOIN clinical_collection_links AS link ON col.id = link.collection_id AND link.deleted != 1
+LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted != 1
+LEFT JOIN banks ON col.bank_id = banks.id AND banks.deleted != 1
+WHERE col.deleted != 1;
 
 #end SQL view for collections
 
@@ -514,8 +789,12 @@ CREATE TABLE `sd_der_cell_lysates_revs` (
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('cell lysate', 'cell lysate');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='sample_type'),  (SELECT id FROM structure_permissible_values WHERE value='cell lysate' AND language_alias='cell lysate'), '0', 'yes');
+
 INSERT INTO `sample_controls` (`id`, `sample_type`, `sample_type_code`, `sample_category`, `status`, `form_alias`, `detail_tablename`, `display_order`)
 VALUES (NULL , 'cell lysate', 'C-LYSATE', 'derivative', 'active', 'sd_undetailed_derivatives', 'sd_der_cell_lysates', '0');
+
 
 SET @last_id = LAST_INSERT_ID();
 
@@ -598,5 +877,443 @@ UPDATE structure_value_domains SET domain_name='yesno locked' WHERE id=14;
 UPDATE structure_value_domains SET domain_name='yes' WHERE id=64;
 ALTER TABLE structure_value_domains ADD UNIQUE KEY(`domain_name`);
 
--- Remove validation for Family History: Age at Diagnosis 
-DELETE FROM `structure_validations` WHERE `structure_validations`.`structure_field_id` = (SELECT id FROM `structure_fields` WHERE `plugin` LIKE 'Clinicalannotation' AND `model` LIKE 'FamilyHistory' AND `field` LIKE 'age_at_dx');
+-- Add descritpion to structures to add information about a structure
+ALTER TABLE `structures` ADD `description` VARCHAR( 250 ) NULL AFTER `alias` ;
+
+-- Delete structure collection_search_type
+DELETE FROM structure_formats WHERE old_id = 'CAN-999-999-000-999-1075_CAN-999-999-000-999-1275';
+DELETE FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-1275';
+DELETE FROM structures WHERE old_id = 'CAN-999-999-000-999-1075';
+
+-- Add dscription to '%collection%' structures
+UPDATE structures SET description = 'Used to both create (add) and update (edit) a collection being not linked to a participant plus to display collection data in radiolist view to link a collection to a participant.' WHERE alias LIKE 'collections';
+UPDATE structures SET description = 'Used to update (edit) a collection linked to a participant (collection property in read only).' WHERE alias LIKE 'linked_collections';
+UPDATE structures SET description = 'Used to include participant identifier data into following views: collection search, collection index and collection detail.' WHERE alias LIKE 'view_collection';
+UPDATE structures SET description = 'Used to display data into collection tree view (collection data + sample data + aliquot data).' WHERE alias LIKE '%collection_tree_view';
+UPDATE structures SET description = 'Used to display data attached to the participant collection link (collection, diagnosis, consent).' WHERE alias LIKE 'clinicalcollectionlinks';
+
+#SQL create sample views for 
+#  - collection samples listall ('view_sample_joined_to_parent')
+#  - samples search ('view_sample_joined_to_collection')
+
+-- Create Sample View Fields
+INSERT INTO structure_fields (public_identifier,old_id,plugin,model,tablename,field,language_label,language_tag,type,setting,`default`,structure_value_domain,language_help,validation_control,value_domain_control,field_control,created,created_by,modified,modified_by)
+SELECT public_identifier,CONCAT(old_id, '-SampView'),plugin,'ViewSample',tablename,field,language_label,language_tag,type,setting,`default`,structure_value_domain,language_help,validation_control,value_domain_control,field_control,created,created_by,modified,modified_by 
+FROM structure_fields 
+WHERE old_id IN(
+'CAN-999-999-000-999-1000',		-- acquisition_label 
+'CAN-999-999-000-999-1223', 	-- bank_id
+'CAN-999-999-000-999-1222', 	-- initial_specimen_sample_type
+'CAN-999-999-000-999-1276', 	-- parent_sample_type
+'CAN-999-999-000-999-1018', 	-- sample_type
+'CAN-999-999-000-999-1016', 	-- sample_code
+'CAN-999-999-000-999-1027'); 	-- sample_category
+
+UPDATE structure_fields SET field = 'parent_sample_type' WHERE old_id LIKE 'CAN-999-999-000-999-1276-SampView';
+
+-- 'view_sample_joined_to_parent' will be used to list all master data of samples linked to one collection
+INSERT INTO `structures` (
+`id`, `old_id`, `alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`)
+VALUES (NULL , 'CAN-999-999-000-999-1093', 'view_sample_joined_to_parent', '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+SET @view_collection_samples_structure_id = LAST_INSERT_ID();
+
+INSERT INTO `structure_formats` (`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`)
+SELECT CONCAT('CAN-999-999-000-999-1093_', structure_field_old_id, '-SampView'), @view_collection_samples_structure_id, 'CAN-999-999-000-999-1093', `structure_field_id`, CONCAT(`structure_field_old_id`, '-SampView'), `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, '0', '0', '0', '0', `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`
+FROM structure_formats 
+WHERE structure_old_id='CAN-999-999-000-999-1002' 
+AND structure_field_old_id IN(
+'CAN-999-999-000-999-1222', 	-- initial_specimen_sample_type
+'CAN-999-999-000-999-1276', 	-- parent_sample_type
+'CAN-999-999-000-999-1018', 	-- sample_type
+'CAN-999-999-000-999-1016', 	-- sample_code
+'CAN-999-999-000-999-1027'); 	-- sample_category
+
+SET @last_id = LAST_INSERT_ID();
+
+UPDATE structure_formats
+INNER JOIN structure_fields ON structure_fields.old_id=structure_formats.structure_field_old_id
+SET structure_formats.structure_field_id=structure_fields.id
+WHERE structure_formats.id >= @last_id;
+
+UPDATE structure_formats 
+SET 
+flag_add = '0', flag_add_readonly = '0', 
+flag_edit = '0', flag_edit_readonly = '0', 
+flag_search = '0', flag_search_readonly = '0', 
+flag_datagrid = '0', flag_datagrid_readonly = '0', 
+flag_index = '1', flag_detail = '0'
+WHERE structure_old_id = 'CAN-999-999-000-999-1093';
+
+-- 'view_sample_joined_to_collection' will be used to search samples and list all master data of samples returned by query
+INSERT INTO `structures` (
+`id`, `old_id`, `alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`)
+VALUES (NULL , 'CAN-999-999-000-999-1094', 'view_sample_joined_to_collection', '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+SET @view_samples_structure_id = LAST_INSERT_ID();
+
+INSERT INTO `structure_formats` (`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`)
+SELECT CONCAT('CAN-999-999-000-999-1094_', structure_field_old_id, '-SampView'), @view_samples_structure_id, 'CAN-999-999-000-999-1094', `structure_field_id`, CONCAT(`structure_field_old_id`, '-SampView'), `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, '0', '0', '0', '0', `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`
+FROM structure_formats 
+WHERE structure_old_id='CAN-999-999-000-999-1002' 
+AND structure_field_old_id IN(
+'CAN-999-999-000-999-1000',		-- acquisition_label 
+'CAN-999-999-000-999-1223', 	-- bank_id
+'CAN-999-999-000-999-1222', 	-- initial_specimen_sample_type
+'CAN-999-999-000-999-1276', 	-- parent_sample_type
+'CAN-999-999-000-999-1018', 	-- sample_type
+'CAN-999-999-000-999-1016', 	-- sample_code
+'CAN-999-999-000-999-1027'); 	-- sample_category
+
+SET @last_id = LAST_INSERT_ID();
+
+UPDATE structure_formats
+INNER JOIN structure_fields ON structure_fields.old_id=structure_formats.structure_field_old_id
+SET structure_formats.structure_field_id=structure_fields.id
+WHERE structure_formats.id >= @last_id;
+
+UPDATE structure_formats 
+SET 
+flag_add = '0', flag_add_readonly = '0', 
+flag_edit = '0', flag_edit_readonly = '0', 
+flag_search = '1', flag_search_readonly = '0', 
+flag_datagrid = '0', flag_datagrid_readonly = '0', 
+flag_index = '1', flag_detail = '0'
+WHERE structure_old_id = 'CAN-999-999-000-999-1094';
+
+-- Add fields to sample_view
+INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`)
+VALUES (NULL , '', 'CAN-999-999-000-999-1290', 'Inventorymanagement', 'ViewSample', '', 'participant_identifier', 'participant identifier', '', 'input', 'size=30', '', NULL , '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+SET @last_structure_filed_id = LAST_INSERT_ID();
+
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`)
+VALUES (NULL , 'CAN-999-999-000-999-1094_CAN-999-999-000-999-1290', @view_samples_structure_id, 'CAN-999-999-000-999-1094', @last_structure_filed_id, 'CAN-999-999-000-999-1290', '0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+-- Delete sample masters view
+DELETE FROM structure_formats WHERE structure_old_id = 'CAN-999-999-000-999-1002';
+DELETE FROM structures WHERE old_id = 'CAN-999-999-000-999-1002';
+
+-- Build View
+
+CREATE VIEW view_samples AS 
+SELECT 
+samp.id AS sample_master_id,
+samp.parent_id AS parent_sample_id,
+samp.initial_specimen_sample_id,
+col.id AS collection_id, 
+col.bank_id, 
+col.sop_master_id, 
+link.participant_id, 
+link.diagnosis_master_id, 
+link.consent_master_id,
+
+part.participant_identifier, 
+
+col.acquisition_label, 
+
+samp.initial_specimen_sample_type, 	
+parent_samp.sample_type AS parent_sample_type,
+samp.sample_type,
+samp.sample_code,
+samp.sample_category,
+samp.deleted
+
+FROM sample_masters as samp
+INNER JOIN collections AS col ON col.id = samp.collection_id AND col.deleted != 1
+LEFT JOIN sample_masters as parent_samp ON samp.parent_id = parent_samp.id AND parent_samp.deleted != 1
+LEFT JOIN clinical_collection_links AS link ON col.id = link.collection_id AND link.deleted != 1
+LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted != 1
+WHERE samp.deleted != 1;
+
+-- DELETE FROM acquisition_label and bank_id from sample details structure
+
+DELETE FROM structure_formats WHERE structure_id IN (SELECT id FROM structures WHERE alias LIKE 'sd_%')
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-1000' OR old_id = 'CAN-999-999-000-999-1223');
+
+#end SQL view for samples
+
+-- Delete participant_sample_list structure
+DELETE FROM structure_formats WHERE structure_id IN (SELECT id FROM structures WHERE alias = 'participant_sample_list');
+DELETE FROM structures WHERE alias = 'participant_sample_list';
+
+-- Add dscription to '%sample%' structures
+UPDATE structures SET description = 'Used to include participant identifier and collection data into following views: sample search and sample index.' WHERE alias LIKE 'view_sample_joined_to_collection';
+UPDATE structures SET description = 'Used to include initial and parent sample data into collection samples list and derivative samples list.' WHERE alias LIKE 'view_sample_joined_to_parent';
+
+#End SQL create sample views
+
+#protein
+
+CREATE TABLE `sd_der_proteins` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `sample_master_id` int(11) DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` varchar(50) NOT NULL DEFAULT '',
+  `modified` datetime DEFAULT NULL,
+  `modified_by` varchar(50) DEFAULT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK_sd_der_amp_rnas_sample_masters` (`sample_master_id`),
+  FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE `sd_der_proteins_revs` (
+  `id` int(11) NOT NULL,
+  `sample_master_id` int(11) DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` varchar(50) NOT NULL DEFAULT '',
+  `modified` datetime DEFAULT NULL,
+  `modified_by` varchar(50) DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+INSERT INTO `sample_controls` (`id`, `sample_type`, `sample_type_code`, `sample_category`, `status`, `form_alias`, `detail_tablename`, `display_order`)
+VALUES (NULL , 'protein', 'PROT', 'derivative', 'active', 'sd_undetailed_derivatives', 'sd_der_proteins', '0');
+
+INSERT INTO parent_to_derivative_sample_controls (`parent_sample_control_id`, `derivative_sample_control_id`, `status`) VALUES
+((SELECT id FROM sample_controls WHERE sample_type='cell lysate'), (SELECT id FROM sample_controls WHERE sample_type='dna'), 'active'),
+((SELECT id FROM sample_controls WHERE sample_type='cell lysate'), (SELECT id FROM sample_controls WHERE sample_type='rna'), 'active'),
+((SELECT id FROM sample_controls WHERE sample_type='cell lysate'), (SELECT id FROM sample_controls WHERE sample_type='protein'), 'active');
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('protein', 'protein');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='sample_type'),  (SELECT id FROM structure_permissible_values WHERE value='protein' AND language_alias='protein'), '0', 'yes');
+
+INSERT INTO sample_to_aliquot_controls (`sample_control_id`, `aliquot_control_id`, `status`) VALUES
+((SELECT id FROM sample_controls WHERE sample_type='cell lysate'), (SELECT id FROM aliquot_controls WHERE aliquot_type='tube' AND form_alias='ad_spec_tubes'), 'active'),
+((SELECT id FROM sample_controls WHERE sample_type='protein'), (SELECT id FROM aliquot_controls WHERE aliquot_type='tube' AND form_alias='ad_spec_tubes'), 'active');
+
+#End protein
+
+#SQL 
+# . create aliquot views 
+#     - for aliquot search ('view_aliquot_joined_to_collection')
+#     - for sample aliquots listall ('view_aliquot_joined_to_sample')
+# . create aliquotmasters for aliquot list displayed into sample detail form
+-- Create Aliquot View Fields
+INSERT INTO structure_fields (public_identifier,old_id,plugin,model,tablename,field,language_label,language_tag,type,setting,`default`,structure_value_domain,language_help,validation_control,value_domain_control,field_control,created,created_by,modified,modified_by)
+SELECT public_identifier,CONCAT(old_id, '-AliqView'),plugin,'ViewAliquot',tablename,field,language_label,language_tag,type,setting,`default`,structure_value_domain,language_help,validation_control,value_domain_control,field_control,created,created_by,modified,modified_by 
+FROM structure_fields 
+WHERE old_id IN(
+'CAN-999-999-000-999-1000', 	-- Inventorymanagement.Collection.acquisition_label
+'CAN-999-999-000-999-1223', 	-- Inventorymanagement.Collection.bank_id
+'CAN-999-999-000-999-1222', 	-- Inventorymanagement.SampleMaster.initial_specimen_sample_type
+'CAN-999-999-000-999-1276', 	-- Inventorymanagement.GeneratedParentSample.sample_type
+'CAN-999-999-000-999-1018', 	-- Inventorymanagement.SampleMaster.sample_type
+'CAN-999-999-000-999-1102', 	-- Inventorymanagement.AliquotMaster.aliquot_type
+'CAN-999-999-000-999-1100', 	-- Inventorymanagement.AliquotMaster.barcode
+'CAN-999-999-000-999-1103', 	-- Inventorymanagement.AliquotMaster.in_stock
+'CAN-999-999-000-999-1105', 	-- Inventorymanagement.Generated.aliquot_use_counter
+'CAN-999-999-000-999-1217', 	-- Storagelayout.StorageMaster.selection_label
+'CAN-999-999-000-999-1107', 	-- Inventorymanagement.AliquotMaster.storage_coord_x
+'CAN-999-999-000-999-1108'); 	-- Inventorymanagement.AliquotMaster.storage_coord_y
+
+-- 'view_aliquot_joined_to_collection' will be used to search aliquots and list all master data of aliquots returned by query
+INSERT INTO `structures` (
+`id`, `old_id`, `alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`)
+VALUES (NULL , 'CAN-999-999-000-999-1095', 'view_aliquot_joined_to_collection', '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+SET @view_aliquots_structure_id = LAST_INSERT_ID();
+
+INSERT INTO `structure_formats` (`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`)
+SELECT CONCAT('CAN-999-999-000-999-1095_', structure_field_old_id, '-AliqView'), @view_aliquots_structure_id, 'CAN-999-999-000-999-1095', `structure_field_id`, CONCAT(`structure_field_old_id`, '-AliqView'), `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, '0', '0', '0', '0', `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`
+FROM structure_formats 
+WHERE structure_old_id='CAN-999-999-000-999-1020' 
+AND structure_field_old_id IN(
+'CAN-999-999-000-999-1000', 	-- Inventorymanagement.Collection.acquisition_label
+'CAN-999-999-000-999-1223', 	-- Inventorymanagement.Collection.bank_id
+'CAN-999-999-000-999-1222', 	-- Inventorymanagement.SampleMaster.initial_specimen_sample_type
+'CAN-999-999-000-999-1276', 	-- Inventorymanagement.GeneratedParentSample.sample_type
+'CAN-999-999-000-999-1018', 	-- Inventorymanagement.SampleMaster.sample_type
+'CAN-999-999-000-999-1102', 	-- Inventorymanagement.AliquotMaster.aliquot_type
+'CAN-999-999-000-999-1100', 	-- Inventorymanagement.AliquotMaster.barcode
+'CAN-999-999-000-999-1103', 	-- Inventorymanagement.AliquotMaster.in_stock
+'CAN-999-999-000-999-1105', 	-- Inventorymanagement.Generated.aliquot_use_counter
+'CAN-999-999-000-999-1217', 	-- Storagelayout.StorageMaster.selection_label
+'CAN-999-999-000-999-1107', 	-- Inventorymanagement.AliquotMaster.storage_coord_x
+'CAN-999-999-000-999-1108'); 	-- Inventorymanagement.AliquotMaster.storage_coord_y
+
+SET @last_id = LAST_INSERT_ID();
+
+UPDATE structure_formats
+INNER JOIN structure_fields ON structure_fields.old_id=structure_formats.structure_field_old_id
+SET structure_formats.structure_field_id=structure_fields.id
+WHERE structure_formats.id >= @last_id;
+
+-- Add fields to aliquot_view
+INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`)
+VALUES (NULL , '', 'CAN-999-999-000-999-1291', 'Inventorymanagement', 'ViewAliquot', '', 'participant_identifier', 'participant identifier', '', 'input', 'size=30', '', NULL , '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+SET @last_structure_filed_id = LAST_INSERT_ID();
+
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`)
+VALUES (NULL , 'CAN-999-999-000-999-1095_CAN-999-999-000-999-1291', @view_aliquots_structure_id, 'CAN-999-999-000-999-1095', @last_structure_filed_id, 'CAN-999-999-000-999-1291', '0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+UPDATE structure_fields SET field = 'parent_sample_type' WHERE old_id LIKE 'CAN-999-999-000-999-1276-AliqView';
+
+UPDATE structure_formats 
+SET flag_search = '1'
+WHERE structure_old_id = 'CAN-999-999-000-999-1095'
+AND structure_field_old_id IN('CAN-999-999-000-999-1276-AliqView', 'CAN-999-999-000-999-1217-AliqView') ;
+
+-- Build View
+
+CREATE VIEW view_aliquots AS 
+SELECT 
+al.id AS aliquot_master_id,
+samp.id AS sample_master_id,
+col.id AS collection_id, 
+col.bank_id, 
+stor.id AS storage_master_id,
+link.participant_id, 
+link.diagnosis_master_id, 
+link.consent_master_id,
+
+part.participant_identifier, 
+
+col.acquisition_label, 
+
+samp.initial_specimen_sample_type, 	
+parent_samp.sample_type AS parent_sample_type,
+samp.sample_type,
+
+al.barcode,
+al.aliquot_type,
+al.in_stock,
+
+stor.code,
+stor.selection_label,
+al.storage_coord_x,
+al.storage_coord_y,
+
+stor.temperature,
+stor.temp_unit,
+
+COUNT(al_use.id) as aliquot_use_counter,
+
+al.deleted
+
+FROM aliquot_masters as al
+INNER JOIN sample_masters as samp ON samp.id = al.sample_master_id AND samp.deleted != 1
+INNER JOIN collections AS col ON col.id = samp.collection_id AND col.deleted != 1
+LEFT JOIN aliquot_uses AS al_use ON al_use.aliquot_master_id = al.id AND al_use.deleted != 1
+LEFT JOIN sample_masters as parent_samp ON samp.parent_id = parent_samp.id AND parent_samp.deleted != 1
+LEFT JOIN clinical_collection_links AS link ON col.id = link.collection_id AND link.deleted != 1
+LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted != 1
+LEFT JOIN storage_masters AS stor ON stor.id = al.storage_master_id AND stor.deleted != 1
+WHERE al.deleted != 1
+GROUP BY al.id;
+
+-- Create view_aliquot
+
+UPDATE structures SET alias = 'view_aliquot_joined_to_sample' WHERE old_id = 'CAN-999-999-000-999-1020';
+DELETE FROM structure_formats WHERE structure_old_id = 'CAN-999-999-000-999-1020';
+
+SET @view_collection_aliquots_structure_id = (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1020');
+
+INSERT INTO `structure_formats` (`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`)
+SELECT CONCAT('CAN-999-999-000-999-1020_', structure_field_old_id), @view_collection_aliquots_structure_id, 'CAN-999-999-000-999-1020', `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, '0', '0', '0', '0', `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`
+FROM structure_formats 
+WHERE structure_old_id='CAN-999-999-000-999-1095' 
+AND structure_field_old_id IN(
+'CAN-999-999-000-999-1222-AliqView', 	-- Inventorymanagement.ViewAliquot.initial_specimen_sample_type
+'CAN-999-999-000-999-1276-AliqView', 	-- Inventorymanagement.ViewAliquot.parent_sample_type
+'CAN-999-999-000-999-1018-AliqView', 	-- Inventorymanagement.ViewAliquot.sample_type
+'CAN-999-999-000-999-1102-AliqView', 	-- Inventorymanagement.ViewAliquot.aliquot_type
+'CAN-999-999-000-999-1100-AliqView', 	-- Inventorymanagement.ViewAliquot.barcode
+'CAN-999-999-000-999-1103-AliqView', 	-- Inventorymanagement.ViewAliquot.in_stock
+'CAN-999-999-000-999-1105-AliqView', 	-- Inventorymanagement.ViewAliquot.aliquot_use_counter
+'CAN-999-999-000-999-1217-AliqView', 	-- Storagelayout.ViewAliquot.selection_label
+'CAN-999-999-000-999-1107-AliqView', 	-- Inventorymanagement.ViewAliquot.storage_coord_x
+'CAN-999-999-000-999-1108-AliqView'); 	-- Inventorymanagement.ViewAliquot.storage_coord_y
+
+UPDATE structure_formats 
+SET 
+flag_add = '0', flag_add_readonly = '0', 
+flag_edit = '0', flag_edit_readonly = '0', 
+flag_search = '0', flag_search_readonly = '0', 
+flag_datagrid = '0', flag_datagrid_readonly = '0', 
+flag_index = '1', flag_detail = '0'
+WHERE structure_old_id = 'CAN-999-999-000-999-1020';
+
+-- Create aliquotmasters
+
+UPDATE structures SET alias = 'aliquotmasters' WHERE old_id = 'CAN-999-999-000-999-1079';
+
+UPDATE structure_formats 
+SET 
+flag_add = '0', flag_add_readonly = '0', 
+flag_edit = '0', flag_edit_readonly = '0', 
+flag_search = '0', flag_search_readonly = '0', 
+flag_datagrid = '0', flag_datagrid_readonly = '0', 
+flag_index = '1', flag_detail = '0'
+WHERE structure_old_id = 'CAN-999-999-000-999-1079';
+
+-- Drop structure 'aliquotmasters_summary'
+DELETE FROM structure_formats WHERE structure_old_id = 'CAN-999-999-000-999-1090';
+DELETE FROM structures WHERE old_id = 'CAN-999-999-000-999-1090';
+
+-- Delete collection.acquisition_label and collection.bank_id from aliquot details structures
+DELETE FROM structure_formats WHERE structure_id IN (SELECT id FROM structures WHERE alias LIKE 'ad_der_%' OR alias LIKE 'ad_spec_%')
+AND structure_field_old_id IN(
+'CAN-999-999-000-999-1000', 	-- Inventorymanagement.Collection.acquisition_label;
+'CAN-999-999-000-999-1223');	-- Inventorymanagement.Collection.bank_id;
+
+-- Add dscription to '%aliquot%' structures
+UPDATE structures SET description = 'Used to include participant identifier and collection data into following views: aliquot search and aliquot index.' 
+WHERE alias LIKE 'view_aliquot_joined_to_collection';
+UPDATE structures SET description = 'Used to include sample data plus initial and parent sample data into collection aliquots list and sample aliquots list.' 
+WHERE alias LIKE 'view_aliquot_joined_to_sample';
+UPDATE structures SET description = 'Used to list aliquots data excluding linked sample data into sample detail view.' 
+WHERE alias LIKE 'aliquotmasters';
+
+UPDATE structures SET description = 'Used to list and display detail of aliquot uses plus create and edit all uses not created by the system.' 
+WHERE alias LIKE 'aliquotuses';
+UPDATE structures SET description = 'Used to edit all uses created by the system (as ''realiquoted aliquot'', ''shipped aliquot'', etc).' 
+WHERE alias LIKE 'aliquotuses_system_dependent';
+
+UPDATE structures SET description = 'Used to display aliquot data into storage tree view.' 
+WHERE alias LIKE 'aliquot_masters_for_storage_tree_view';
+
+UPDATE structures SET description = 'Used to select children aliquots created from a parent aliquot (children and parent being both linked to the same sample).' 
+WHERE alias LIKE 'children_aliquots_selection';
+UPDATE structures SET description = 'Used to display realiquoted parent aliquots used to create a children aliquot (children and parent being both linked to the same sample).' 
+WHERE alias LIKE 'realiquotedparent';
+
+UPDATE structures SET description = 'Used to select and list aliquots of a parent sample used to create a derivative sample.' 
+WHERE alias LIKE 'sourcealiquots';
+
+UPDATE structures SET description = 'Used to define and display aliquots of a parent sample used to create a derivative sample.' 
+WHERE alias LIKE 'qctestedaliquots';
+
+#End SQL create sample view for collection samples listall and samples search
+
+-- DELETE unused structure
+DELETE FROM structure_formats WHERE structure_old_id IN (SELECT old_id FROM structures WHERE alias IN ('manage_storage_aliquots_without_position', 'std_1_dim_position_selection_for_aliquot', 'std_2_dim_position_selection_for_aliquot'));
+DELETE FROM structures WHERE alias IN ('manage_storage_aliquots_without_position', 'std_1_dim_position_selection_for_aliquot', 'std_2_dim_position_selection_for_aliquot');
+
+-- Add/modify structure description
+
+ALTER TABLE `structures` CHANGE `description` `description` TEXT CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL; 
+
+UPDATE `structures` SET `description` =  'Used to include sample data plus both initial and parent sample data into collection aliquots list and sample aliquots list.' 
+WHERE `alias` = 'view_aliquot_joined_to_sample' ;
+
+UPDATE `structures` SET `description` =  'Used to include both initial and parent sample data into collection samples list and derivative samples list.' 
+WHERE `alias` = 'view_sample_joined_to_parent' ;
+
+UPDATE `structures` SET `description` =  'Used to select and display aliquots of a sample used to realize a sample quality control test.' 
+WHERE `alias` = 'qctestedaliquots' ;
+
+UPDATE `structures` SET `description` =  'Used to list all aliquots of sample into sample detail view (displaying aliquot without linked sample data).' 
+WHERE `alias` = 'aliquotmasters' ;
+
+UPDATE `structures` SET `description` =  'USed to set data of the created order items when a user adds many aliquots to an order line in batch.'
+WHERE `alias` = 'orderitems_to_addAliquotsInBatch' ;
+
+	
+

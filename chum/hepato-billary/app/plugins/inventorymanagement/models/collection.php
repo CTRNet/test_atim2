@@ -29,7 +29,7 @@ class Collection extends InventorymanagementAppModel {
 						__('participant identifier', true) => $collection_data['Bank']['name'],
 						__('collection bank', true) => $collection_data['Bank']['name'],
 						__('collection datetime', true) => $collection_data['Collection']['collection_datetime'],
-						__('collection site', true) => $collection_data['Collection']['collection_site']
+						__('collection site', true) => __($collection_data['Collection']['collection_site'], true)
 					)
 				)
 			);			
