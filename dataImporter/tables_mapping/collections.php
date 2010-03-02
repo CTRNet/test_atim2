@@ -13,6 +13,7 @@ $collections["master"]["collection_notes"] = "";
 
 //do not modify this section
 $collections["app_data"]['child'][] = "sd_spe_bloods";
+$collections["app_data"]['child'][] = "sd_spe_tissues";
 $collections["app_data"]['save_id'] = true;
 $collections["app_data"]['master_table_name'] = "collections";
 $tables['collections'] = $collections;

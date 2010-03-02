@@ -1,17 +1,20 @@
 <?php
+//TODO: Die if a file pkey column doesnt exist
 require_once("commonFunctions.php");
 require_once("config.php");
 require_once("dataImporter.php");
-require_once("tables_mapping/collections.php");
+//require_once("tables_mapping/collections.php");
 require_once("tables_mapping/consents.php");
+require_once("tables_mapping/identifiers.php");
 require_once("tables_mapping/participants.php");
-require_once("tables_mapping/sd_spe_bloods.php");
-require_once("tables_mapping/sd_der_pbmcs.php");
-require_once("tables_mapping/sd_der_plasmas.php");
-require_once("tables_mapping/sd_der_serums.php");
-require_once("tables_mapping/tubes/ad_tubes_plasma.php");
-require_once("tables_mapping/tubes/ad_tubes_pbmc.php");
-require_once("tables_mapping/tubes/ad_tubes_serum.php");
+//require_once("tables_mapping/sd_der_pbmcs.php");
+//require_once("tables_mapping/sd_der_plasmas.php");
+//require_once("tables_mapping/sd_der_serums.php");
+//require_once("tables_mapping/sd_spe_bloods.php");
+//require_once("tables_mapping/sd_spe_tissues.php");
+//require_once("tables_mapping/tubes/ad_tubes_plasma.php");
+//require_once("tables_mapping/tubes/ad_tubes_pbmc.php");
+//require_once("tables_mapping/tubes/ad_tubes_serum.php");
 
 //validate each file exists and prep them
 foreach($tables as $ref_name => &$table){
@@ -44,7 +47,7 @@ mysqli_autocommit($connection, false);
 
 //create the temporary id linking table
 mysqli_query($connection, "DROP TABLE IF EXISTS id_linking ") or die("DROP tmp failed");
-$query = "CREATE  TABLE id_linking(
+$query = "CREATE TABLE id_linking(
 	csv_id varchar(10) not null,
 	mysql_id int unsigned not null, 
 	model varchar(15) not null
@@ -116,7 +119,7 @@ function buildValuesQuery($fields, $values){
 		if(strpos($value, "@") === 0){
 			$result .= "'".substr($value, 1)."', ";
 		}else if(strlen($value) > 0){
-			$result .= "'".$values[$value]."', ";
+			$result .= "'".str_replace("'", "\\'", $values[$value])."', ";
 		}
 	}
 	return $result."NOW(), ".$created_id.", NOW(), ".$created_id;	
@@ -146,9 +149,6 @@ function insertTable($table_name, &$tables, $csv_parent_key = null, $mysql_paren
 	while(sizeof($current_table['app_data']['values']) > 0 && 
 		($csv_parent_key == null || $current_table['app_data']['values'][$current_table['master'][$current_table['app_data']['parent_key']]] == $csv_parent_key)){
 		//replace parent value.
-			if($table_name == "ad_tubes_pbmc"){
-				echo("IN WHILE!");
-			}
 		if($mysql_parent_id != null){
 			$current_table['app_data']['key before replace'] = $current_table['app_data']['values'][$current_table['master'][$current_table['app_data']['parent_key']]];
 			$current_table['app_data']['values'][$current_table['master'][$current_table['app_data']['parent_key']]] = $mysql_parent_id;
@@ -164,14 +164,14 @@ function insertTable($table_name, &$tables, $csv_parent_key = null, $mysql_paren
 		mysqli_query($connection, $query) or die("query failed[".$table_name."][".$query."][".mysqli_errno($connection) . ": " . mysqli_error($connection)."]".print_r($current_table)."\n");
 		$last_id = mysqli_insert_id($connection);
 		$last_detail_id = 0;
-		echo $query."\n";
+		echo $query.";\n";
 		if(isset($current_table['app_data']['query_detail_insert'])){
 			//detail level
 			$current_table['detail'][$current_table['app_data']['detail_parent_key']] = "@".$last_id;
 			$query = $current_table['app_data']['query_detail_insert'].buildValuesQuery($current_table["detail"], $current_table['app_data']['values']).")";
 			mysqli_query($connection, $query) or die("query failed[".$table_name."][".$query."][".mysqli_errno($connection) . ": " . mysqli_error($connection)."]".print_r($current_table)."\n");
 			$last_detail_id = mysqli_insert_id($connection);
-			echo $query."\n";
+			echo $query.";\n";
 		}
 		
 		
@@ -180,7 +180,7 @@ function insertTable($table_name, &$tables, $csv_parent_key = null, $mysql_paren
 			foreach($current_table["app_data"]['additional_queries'] as $ad_query){
 				$ad_query = str_replace("%%last_master_insert_id%%", $last_id, str_replace("%%last_detail_insert_id%%", $last_detail_id, $ad_query));
 				mysqli_query($connection, $ad_query) or die("ad query failed[".$table_name."][".$ad_query."][".mysqli_errno($connection) . ": " . mysqli_error($connection)."]".print_r($current_table)."\n");
-				echo $ad_query."\n";
+				echo $ad_query.";\n";
 			}
 		}
 		
@@ -189,7 +189,7 @@ function insertTable($table_name, &$tables, $csv_parent_key = null, $mysql_paren
 			$query = "INSERT INTO id_linking (csv_id, mysql_id, model) VALUES('"
 					.$current_table['app_data']['values'][$current_table['app_data']['pkey']]."', "
 					.$last_id.", '".$table_name."')";
-			echo $query."\n";
+			//echo $query.";\n";
 			mysqli_query($connection, $query) or die("tmp id query failed[".$table_name."][".$query."][".mysqli_errno($connection) . ": " . mysqli_error($connection)."]".print_r($current_table)."\n");	
 		}
 		

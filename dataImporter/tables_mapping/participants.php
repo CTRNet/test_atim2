@@ -26,6 +26,7 @@ $participants["master"]["last_chart_checked_date"] = "";
 
 //do not modify this section
 $participants["app_data"]['child'][] = "consent_masters";
+$participants["app_data"]['child'][] = "identifiers";
 $participants["app_data"]['save_id'] = true;
 $participants["app_data"]['master_table_name'] = "participants";
 $tables['participants'] = $participants;
