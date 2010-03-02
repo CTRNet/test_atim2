@@ -12,11 +12,9 @@
 	);	
 	
 	// If a parent storage object is defined then set the 'Show Parent' button
-	if(!empty($parent_storage_id)) { 
-		$show_parent_link = '/storagelayout/storage_masters/detail/' . $parent_storage_id; 
-		$structure_links['bottom']['see parent storage'] = $show_parent_link;
-	}
-	
+	$show_parent_link = '/underdevelopment/';
+	if(!empty($parent_storage_data)) { $show_parent_link = '/storagelayout/storage_masters/detail/' . $parent_storage_data['StorageMaster']['id']; }
+	$structure_links['bottom']['see parent storage'] = $show_parent_link;
 	
 	// Create array of valid storage types for the ADD button
 	if($is_tma) {
@@ -50,14 +48,20 @@
 	$structure_override['Generated.coord_y_type'] = __($coord_y_type, TRUE);
 	$structure_override['Generated.coord_y_size'] = (strcmp($coord_y_size, 'n/a')==0)? __($coord_y_size, TRUE): $coord_y_size;
 	
-	$structure_override['StorageMaster.parent_id'] = $parent_storage_for_display;
-	$structure_override['Generated.path'] = $storage_path;
-	if(isset($arr_tma_sops)){ $structure_override['StorageDetail.sop_master_id'] = $arr_tma_sops; }
+	$structure_override['StorageMaster.parent_id'] = (empty($parent_storage_data))? '' : $parent_storage_data['StorageMaster']['short_label'] . ' [' . __($parent_storage_data['StorageMaster']['storage_type'], TRUE) . ']';
+
+	$path_to_display = '';
+	foreach($storage_path_data as $new_parent_storage_data) { $path_to_display .= $new_parent_storage_data['StorageMaster']['code'] . ' / '; }
+	$structure_override['Generated.path'] = $path_to_display;
+	
+	if(isset($arr_tma_sops)){ 
+		$sops_list = array();
+		foreach($arr_tma_sops as $sop_masters) { $sops_list[$sop_masters['SopMaster']['id']] = $sop_masters['SopMaster']['code']; }
+		$structure_override['StorageDetail.sop_master_id'] = $sops_list; 
+	}
 
 	if(!$bool_define_position) {
 		// No sorage position within parent can be set	
-		unset($structure_links['bottom']['edit position']);
-		
 		$final_atim_structure = $atim_structure; 
 		$final_options = array('links' => $structure_links, 'override' => $structure_override);
 		

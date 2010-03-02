@@ -7,7 +7,7 @@ class AliquotsComponent extends Object {
 	}
 	
 	/**
-	 * Get formatted list of SOPs existing to build aliquot.
+	 * Get list of SOPs existing to build aliquot.
 	 * 
 	 * Note: Function to allow bank to customize this function when they don't use 
 	 * SOP module.
@@ -15,8 +15,7 @@ class AliquotsComponent extends Object {
 	 *	@param $sample_type Sample Type
 	 *	@param $aliquot_type Aliquot Type
 	 *
-	 * @return SOP list into array having following structure: 
-	 * 	array($sop_id => $sop_title_built_by_function)
+	 * @return Array gathering all sops
 	 *
 	 * @author N. Luc
 	 * @since 2009-09-11
@@ -24,16 +23,7 @@ class AliquotsComponent extends Object {
 	 */
 	 
 	function getAliquotSopList($sample_type, $aliquot_type) {
-		$sops_data = $this->controller->Sops->getSopList();
-		
-		$formatted_data = array();
-		if(!empty($sops_data)) {
-			foreach($sops_data as $sop_masters) { 
-				$formatted_data[$sop_masters['SopMaster']['id']] = $sop_masters['SopMaster']['code'] . ' ('.__($sop_masters['SopMaster']['sop_group'], true) .' - '.__($sop_masters['SopMaster']['type'], true) .')'; 
-			}
-		}
-		
-		return $formatted_data;
+		return $this->controller->Sops->getSopList();
 	}
 	
 	/**

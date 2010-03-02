@@ -7,15 +7,12 @@ class SamplesComponent extends Object {
 	}
 	
 	/**
-	 * Get formatted list of SOPs existing to build sample.
+	 * Get list of SOPs existing to build sample.
 	 * 
 	 * Note: Function to allow bank to customize this function when they don't use 
 	 * SOP module.
 	 *
 	 *	@param $sample_type Sample Type
-	 * 
-	 * @return SOP list into array having following structure: 
-	 * 	array($sop_id => $sop_title_built_by_function)
 	 *
 	 * @author N. Luc
 	 * @since 2009-09-11
@@ -23,15 +20,7 @@ class SamplesComponent extends Object {
 	 */
 	 
 	function getSampleSopList($sample_type) {
-		$sop_list = $this->controller->Sops->getSopList();
-		if(empty($sop_list)) { return array(); }
-		
-		$sop_list_to_return = array();
-		foreach($sop_list as $sop_masters) {
-			$sop_list_to_return[$sop_masters['SopMaster']['id']] = $sop_masters['SopMaster']['code'] . ' ('.__($sop_masters['SopMaster']['sop_group'], true) .' - '.__($sop_masters['SopMaster']['type'], true) .')'; 
-		}
-	
-		return $sop_list_to_return;
+		return $this->controller->Sops->getSopList();
 	}
 	
 	/**

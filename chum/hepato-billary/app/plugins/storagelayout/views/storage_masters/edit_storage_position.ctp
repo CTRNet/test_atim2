@@ -12,9 +12,15 @@
 	$structure_override['Generated.coord_y_type'] = __($coord_y_type, TRUE);
 	$structure_override['Generated.coord_y_size'] = (strcmp($coord_y_size, 'n/a')==0)? __($coord_y_size, TRUE): $coord_y_size;
 	
-	$structure_override['StorageMaster.parent_id'] = $parent_storage_for_display;
-	$structure_override['Generated.path'] = $storage_path;
-	if(isset($arr_tma_sops)){ $structure_override['StorageDetail.sop_master_id'] = $arr_tma_sops; }
+	$structure_override['StorageMaster.parent_id'] = (empty($parent_storage_data))? '' : $parent_storage_data['StorageMaster']['short_label'] . ' [' . __($parent_storage_data['StorageMaster']['storage_type'], TRUE) . ']';
+
+	$path_to_display = '';
+	foreach($storage_path_data as $new_parent_storage_data) { $path_to_display .= $new_parent_storage_data['StorageMaster']['code'] . ' / '; }
+	$structure_override['Generated.path'] = $path_to_display;
+	
+	if(isset($arr_tma_sops)){
+		$form_override['StorageDetail/sop_master_id'] = $arr_tma_sops;
+	}
 
 	$final_atim_structure = $atim_structure; 
 	$final_options = array('settings' => array('actions' => FALSE), 'override' => $structure_override);
