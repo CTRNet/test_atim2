@@ -183,7 +183,10 @@ SET `flag_add` = '0',
 `flag_datagrid_readonly` = '0',
 `flag_index` = '0',
 `flag_detail` = '0'
-WHERE `old_id` IN ('CAN-999-999-000-999-1000_CAN-999-999-000-999-1007');
+WHERE `old_id` IN (
+'CAN-999-999-000-999-1000_CAN-999-999-000-999-1007',	-- collections
+'CANM-00025_CAN-999-999-000-999-1007-v',				-- view_collection
+'CAN-999-999-000-999-1001_CAN-999-999-000-999-1007');	-- linked_collections
 
 -- Collection site value
 
@@ -195,8 +198,9 @@ VALUES
 DELETE FROM `structure_value_domains_permissible_values` WHERE  `structure_value_domain_id` IN (SELECT `id` FROM `structure_value_domains` WHERE `domain_name` LIKE 'custom_collection_site');
 INSERT INTO `structure_value_domains_permissible_values`  
 (`id` , `structure_value_domain_id` , `structure_permissible_value_id` , `display_order` , `active` , `language_alias` )
-VALUES (
-NULL , (SELECT `id` FROM `structure_value_domains` WHERE `domain_name` LIKE 'custom_collection_site'), (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'muhc' AND `language_alias` = 'muhc'), '1', 'yes', 'muhc');
+VALUES 
+(NULL , (SELECT `id` FROM `structure_value_domains` WHERE `domain_name` LIKE 'custom_collection_site'), (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'muhc' AND `language_alias` = 'muhc'), '1', 'yes', 'muhc'),
+(NULL , (SELECT `id` FROM `structure_value_domains` WHERE `domain_name` LIKE 'custom_collection_site'), (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'other' AND `language_alias` = 'other'), '2', 'yes', 'other');
 
 DELETE FROM `i18n` WHERE `id` IN ('muhc');
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
