@@ -2,7 +2,7 @@
 
 class MedicalPastHistoryCtrl extends ClinicalannotationAppModel {
   
-  var $useTable = 'qc_chum_hb_hepatobiliary_medical_past_history_ctrls';
+  var $useTable = 'qc_hb_hepatobiliary_medical_past_history_ctrls';
   
 	var $belongsTo = array(        
 	   'EventControl' => array(            

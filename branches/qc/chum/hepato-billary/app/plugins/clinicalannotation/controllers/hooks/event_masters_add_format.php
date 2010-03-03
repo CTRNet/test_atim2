@@ -44,6 +44,6 @@
 	$this->setMedicalImaginStructures($event_control_data);
 	
 	if($event_control_data['EventControl']['form_alias'] == "ed_hepatobiliary_lab_report_biology"){
-		$this->Structures->set('QC_CHUM_HB_dateNSummary', 'QC_CHUM_HB_dateNSummary');
+		$this->Structures->set('qc_hb_dateNSummary', 'qc_hb_dateNSummary');
 	}
 ?>
