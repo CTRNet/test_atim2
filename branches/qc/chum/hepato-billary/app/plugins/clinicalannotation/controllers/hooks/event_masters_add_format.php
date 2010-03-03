@@ -41,9 +41,18 @@
 	// --------------------------------------------------------------------------------
 	$this->setMedicalPastHistoryPrecisions($event_control_data);
 	
+	if(strpos($event_control_data['EventControl']['form_alias'], 'qc_hb_imaging_') === 0){
+		$tmp_data = $this->EventMaster->find('first', array('conditions' => array('EventMaster.event_control_id' => $event_control_data['EventControl']['id'])));
+		if(!empty($tmp_data)){
+			$this->flash( 'this report has already been created for your participant', '/clinicalannotation/event_masters/detail/clinical/'.$tmp_data['EventMaster']['participant_id'].'/'.$tmp_data['EventMaster']['id'] );
+			return;
+		}
+	}
+
 	$this->setMedicalImaginStructures($event_control_data);
 	
 	if($event_control_data['EventControl']['form_alias'] == "ed_hepatobiliary_lab_report_biology"){
 		$this->Structures->set('qc_hb_dateNSummary', 'qc_hb_dateNSummary');
 	}
+	
 ?>
