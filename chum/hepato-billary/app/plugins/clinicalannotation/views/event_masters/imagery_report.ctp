@@ -93,6 +93,7 @@
 		<tbody>
 			<?php 
 			foreach($this->data as $data){
+				if(strpos($data['EventControl']['form_alias'], 'segment') > 0){
 				?>
 				<tr>
 					<th><?php echo(substr($data['EventControl']['event_type'], 16)); ?> - <?php echo($structures->formatDate($data['EventMaster']['event_date'])); ?></th>
@@ -112,6 +113,7 @@
 					<?php } ?>
 				</tr>
 				<?php	
+				}
 			}			
 			?>
 		</tbody>
@@ -202,6 +204,7 @@
 		<tbody>
 		<?php 
 			foreach($this->data as $data){
+				if(strpos($data['EventControl']['form_alias'], 'pancreas') > 0){
 				?>
 				<tr>
 					<th><?php echo(substr($data['EventControl']['event_type'], 16)) ?> - <?php echo($structures->formatDate($data['EventMaster']['event_date'])); ?></th>
@@ -214,12 +217,36 @@
 					<td><?php echo($data['EventDetail']['splenic_vein']); ?></td>
 				</tr>
 				<?php 
+				}
 			}
 		?>
 		</tbody>
 	</table>
 	<?php
-
+	$final_options['settings']['header'] = __('summaries', true); 
+	$structures->build( $final_atim_structure, $final_options );
+	?>
+	<table class="structure mainRules summaries">
+		<thead>
+			<tr>
+				<td></td>
+				<th><?php __('summary'); ?></th>
+			</tr>
+		</thead>
+		<tbody>
+		<?php 
+		foreach($this->data as $data){
+			?>
+			<tr>
+				<th><?php echo(substr($data['EventControl']['event_type'], 16)) ?> - <?php echo($structures->formatDate($data['EventMaster']['event_date'])); ?></th>
+				<td><?php echo($data['EventDetail']['summary']); ?></td>
+			</tr>
+			<?php 
+		}
+		?>
+		</tbody>
+	</table>
+	<?php 
 	unset($final_options['settings']['header']);
 	$final_options['settings']['form_bottom'] = true;
 	$final_options['settings']['actions'] = true;

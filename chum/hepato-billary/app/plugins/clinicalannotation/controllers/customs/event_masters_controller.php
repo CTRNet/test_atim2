@@ -81,7 +81,45 @@ class EventMastersControllerCustom extends EventMastersController {
 		$this->set('atim_menu_variables', $atim_menu_variables);
 		$this->set('atim_menu', $this->Menus->get('/clinicalannotation/event_masters/imageryReport/%%Participant.id%%/'));
 	}
-	 	
+
+	function setMedicalImaginStructures($event_control_data){
+		if(strpos($event_control_data['EventControl']['form_alias'], 'QC_CHUM_HB_imaging_') === 0){
+			$last = true;
+			$this->Structures->set('QC_CHUM_HB_dateNSummary', 'QC_CHUM_HB_dateNSummary');
+			if(strpos($event_control_data['EventControl']['form_alias'], 'pancreas') > 0){
+				$this->Structures->set('QC_CHUM_HB_pancreas');
+				$last = false;
+				$this->set('last_header', __('pancreas', true));
+			}
+			if(strpos($event_control_data['EventControl']['form_alias'], 'volumetry') > 0){
+				if($last){
+					$last = false;
+					$this->Structures->set('QC_CHUM_HB_volumetry');
+					$this->set('last_header', __('volumetry', true));
+				}else{
+					$this->Structures->set('QC_CHUM_HB_volumetry', 'QC_CHUM_HB_volumetry');
+				}
+			}
+			if(strpos($event_control_data['EventControl']['form_alias'], 'other') > 0){
+				if($last){
+					$last = false;
+					$this->Structures->set('QC_CHUM_HB_other_localisations');
+					$this->set('last_header', __('other localisations', true));
+				}else{
+					$this->Structures->set('QC_CHUM_HB_other_localisations', 'QC_CHUM_HB_other_localisations');
+				}
+			}
+			if(strpos($event_control_data['EventControl']['form_alias'], 'segment') > 0){
+				if($last){
+					$last = false;
+					$this->Structures->set('QC_CHUM_HB_segment');
+					$this->set('last_header', __('segment', true));
+				}else{
+					$this->Structures->set('QC_CHUM_HB_segment', 'QC_CHUM_HB_segment');
+				}
+			}
+		}
+	}
 }
 	
 ?>
