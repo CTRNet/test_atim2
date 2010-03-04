@@ -6,10 +6,6 @@
 
 -- General
 
-DELETE FROM `i18n` WHERE `id` IN ('core_appname', 'CTRApp');
-INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
-('core_appname', 'global', 'ATiM.v2 - CHUM Hep-bil', 'ATiM.v2 - CHUM Hep-bil'),
-('CTRApp', 'global', 'ATiM.v2 - CHUM Hep-bil', 'ATiM.v2 - CHUM Hep-bil');
 
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 -- CLINICAL ANNOTATION
@@ -27,14 +23,6 @@ VALUES
 (null, 'saint_luc_hospital_nbr', 'ID HSL', 'active', 1, '', ''),
 (null, 'hepato_bil_bank_participant_id', 'HB-PartID', 'active', 3, 'hepato_bil_bank_participant_id', 'HB-P%%key_increment%%');
 
-DELETE FROM `i18n` WHERE `id` IN ('health_insurance_card', 'saint_luc_hospital_nbr', 'hepato_bil_bank_participant_id',
-'this identifier has already been created for your participant');
-INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) 
-VALUES
-('health_insurance_card', 'global', 'Health Insurance Card', 'Carte d''assurance maladie'),
-('saint_luc_hospital_nbr', 'global', 'St Luc Hospital Number', 'No H&ocirc;pital St Luc'),
-('hepato_bil_bank_participant_id', 'global', 'H.B. Bank Participant Id', 'Num&eacute;ro participant banque H.B.'),
-('this identifier has already been created for your participant', '', 'This identifier has already been created for your participant!', 'Cet identification a d&eacute;j&agrave; &eacute;t&eacute; cr&eacute;&eacute;e pour ce participant!');
 
 DELETE FROM `key_increments`;
 INSERT INTO `key_increments` (`key_name`, `key_value`) VALUES
@@ -84,13 +72,13 @@ CREATE TABLE `qc_hb_ed_hepatobiliary_clinical_presentation` (
   `referral_physisian_3` varchar(50) DEFAULT NULL,
   `referral_physisian_speciality_3` varchar(50) DEFAULT NULL,
   `hbp_surgeon` varchar(50) DEFAULT NULL,
-  `created` date DEFAULT NULL,
-  `created_by` varchar(50) DEFAULT NULL,
-  `modified` date DEFAULT NULL,
-  `modified_by` varchar(50) DEFAULT NULL,
-  `event_master_id` int(11) DEFAULT NULL,
-  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `deleted_date` datetime DEFAULT NULL,
+  `event_master_id` int(11) NOT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+	`created_by` varchar(50) NOT NULL DEFAULT '',
+	`modified` datetime DEFAULT NULL,
+	`modified_by` varchar(50) DEFAULT NULL,
+	`deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+	`deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `event_master_id` (`event_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -114,14 +102,15 @@ CREATE TABLE `qc_hb_ed_hepatobiliary_clinical_presentation_revs` (
   `referral_physisian_3` varchar(50) DEFAULT NULL,
   `referral_physisian_speciality_3` varchar(50) DEFAULT NULL,
   `hbp_surgeon` varchar(50) DEFAULT NULL,
+  `event_master_id` int(11) NOT NULL,
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `created_by` varchar(50) NOT NULL DEFAULT '',
-  `modified` datetime DEFAULT NULL,
-  `modified_by` varchar(50) DEFAULT NULL,
+	`created_by` varchar(50) NOT NULL DEFAULT '',
+	`modified` datetime DEFAULT NULL,
+	`modified_by` varchar(50) DEFAULT NULL,
+	`deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+	`deleted_date` datetime DEFAULT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
@@ -189,30 +178,6 @@ INSERT INTO `structure_validations` (`id`, `old_id`, `structure_field_id`, `stru
 (null, 'QC-HB-000001', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-235'), 'CAN-999-999-000-999-235', 'custom,/^([0-9]+(\\.[0-9]+)?)?$/', '1', '0', '', 'weight should be a positif decimal', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (null, 'QC-HB-000002', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-236'), 'CAN-999-999-000-999-236', 'custom,/^([0-9]+(\\.[0-9]+)?)?$/', '1', '0', '', 'height should be a positif decimal', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
-DELETE FROM `i18n` WHERE `id` IN ('first consultation date', 'referral data', 'referral hospital', 
-'referral physisian', 'referral physisian 2', 'referral physisian 3', 'referral physisian speciality', 
-'weight (kg)', 'height (cm)', 'weight should be a positif decimal', 'height should be a positif decimal', 
-'hepatobiliary');
-INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
-('first consultation date', 'global', 'First Consultation Date', 'Date premi&egrave;re consultation'),
-('referral data', 'global', 'Referral', 'R&eacute;f&eacute;rent'),
-('referral hospital', 'global', 'Referral Hospital', 'H&ocirc;pital r&eacute;f&eacute;rent'),
-('referral physisian', 'global', 'Referral Physisian', 'Medecin r&eacute;f&eacute;rent'),
-('referral physisian 2', 'global', '2nd Referral Physisian', '2nd Medecin r&eacute;f&eacute;rent'),
-('referral physisian 3', 'global', '3rd Referral Physisian', '3eme Medecin r&eacute;f&eacute;rent'),
-('referral physisian speciality', 'global', 'Speciality', 'Sp&eacute;cialit&eacute;'),
-
-('weight (kg)', 'global', 'Weight (kg)', 'Poids (kg)'),
-('height (cm)', 'global', 'Height (cm)', 'Taille (cm)'),
-
-('weight should be a positif decimal', 'global', 'Weight should be a positive decimal!', 'Le poids doit &ecirc;tre un d&eacute;cimal positif!'),
-('height should be a positif decimal', 'global', 'Height should be a positive decimal!', 'Le taille doit &ecirc;tre un d&eacute;cimal positif!'),
-('hepatobiliary', 'global', 'Hepatobiliary', 'H&eacute;pato-biliaire');
-
-DELETE FROM `i18n` WHERE `id` = 'presentation';
-INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`)
- VALUES
-('presentation', 'global', 'Presentation', 'Pr&eacute;sentation');
 
 -- ... CLINIC: lifestyle ...
 
@@ -224,13 +189,13 @@ CREATE TABLE `qc_hb_ed_hepatobiliary_lifestyle` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `active_tobacco` varchar(10) DEFAULT NULL, 
   `active_alcohol` varchar(10) DEFAULT NULL, 
-  `created` date DEFAULT NULL,
-  `created_by` varchar(50) DEFAULT NULL,
-  `modified` date DEFAULT NULL,
-  `modified_by` varchar(50) DEFAULT NULL,
-  `event_master_id` int(11) DEFAULT NULL,
-  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `deleted_date` datetime DEFAULT NULL,
+  `event_master_id` int(11) NOT NULL,
+ `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+	`created_by` varchar(50) NOT NULL DEFAULT '',
+	`modified` datetime DEFAULT NULL,
+	`modified_by` varchar(50) DEFAULT NULL,
+	`deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+	`deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `event_master_id` (`event_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -244,15 +209,16 @@ DROP TABLE IF EXISTS `qc_hb_ed_hepatobiliary_lifestyle_revs`;
 CREATE TABLE `qc_hb_ed_hepatobiliary_lifestyle_revs` (
   `id` int(11) NOT NULL, 
   `active_tobacco` varchar(10) DEFAULT NULL, 
-  `active_alcohol` varchar(10) DEFAULT NULL, 
+  `active_alcohol` varchar(10) DEFAULT NULL,
+  `event_master_id` int(11) NOT NULL, 
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `created_by` varchar(50) NOT NULL DEFAULT '',
-  `modified` datetime DEFAULT NULL,
-  `modified_by` varchar(50) DEFAULT NULL,
+	`created_by` varchar(50) NOT NULL DEFAULT '',
+	`modified` datetime DEFAULT NULL,
+	`modified_by` varchar(50) DEFAULT NULL,
+	`deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+	`deleted_date` datetime DEFAULT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
@@ -283,15 +249,6 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 -- event_summary
 (null, 'QC-HB-000002_CAN-999-999-000-999-230', (SELECT id FROM structures WHERE old_id = 'QC-HB-000002'), 'QC-HB-000002', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-230'), 'CAN-999-999-000-999-230', 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
-DELETE FROM `i18n` WHERE `id` IN ('active_tobacco', 'active_alcohol', 'last update date', 'this type of event has already been created for your participant');
-INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
-('active_tobacco', 'global', 'Active Tobacco', 'Tabagisme actif'),
-('active_alcohol', 'global', 'Active Alcohol', 'Alcolisme chronique'),
-('last update date', 'global', 'Last Update date', 'Date de mise &agrave; jour'),
-
-('this type of event has already been created for your participant', '', 
-  'This type of annotation has already been created for your participant!', 
-  'Ce type d''annotation a d&eacute;j&agrave; eacyte;t&eacute; cr&eacute;&eacute;e pour votre participant!');
 
 -- ... CLINIC: medical_past_history ...
 
@@ -346,23 +303,6 @@ VALUES
 (null, (SELECT `id` FROM `event_controls` WHERE `event_type` = 'gynecologic disease medical past history' AND `disease_site` = 'hepatobiliary' AND `event_group` = 'clinical'), 'to define', '1'),
 (null, (SELECT `id` FROM `event_controls` WHERE `event_type` = 'other disease medical past history' AND `disease_site` = 'hepatobiliary' AND `event_group` = 'clinical'), 'to define', '1');
 
--- TODO to delete (for example)
-DELETE FROM `i18n` WHERE `id` LIKE 'drug ex %';
-DELETE FROM `i18n` WHERE `id`IN ('to define','high blood pressure', 'tachycardia', 'heart attack');
-INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
-('drug ex 1', '', 'Drug 1', 'Mdt 1'),
-('drug ex 2', '', 'Drug 2', 'Mdt 2'),
-('drug ex 3', '', 'Drug 3', 'Mdt 3'),
-('drug ex 4', '', 'Drug 4', 'Mdt 4'),
-('drug ex 5', '', 'Drug 5', 'Mdt 5'),
-
-('to define', '', 'To Define', 'A definir'),
-('high blood pressure', '', 'High blood pressure', 'HTA'),
-('tachycardia', '', 'Tachycardia', 'Tachycardie'),
-('heart attack', '', 'Heart attack', 'Crise cardiaque');
-
--- TODO End section to delete
-
 INSERT INTO `structures` 
 (`id`, `old_id`, `alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`) 
 VALUES
@@ -371,14 +311,14 @@ VALUES
 DROP TABLE IF EXISTS `qc_hb_ed_hepatobiliary_medical_past_history`;
 CREATE TABLE `qc_hb_ed_hepatobiliary_medical_past_history` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `disease_precision` varchar(250) DEFAULT NULL, 
-  `created` date DEFAULT NULL,
-  `created_by` varchar(50) DEFAULT NULL,
-  `modified` date DEFAULT NULL,
-  `modified_by` varchar(50) DEFAULT NULL,
-  `event_master_id` int(11) DEFAULT NULL,
-  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `deleted_date` datetime DEFAULT NULL,
+  `disease_precision` varchar(250) DEFAULT NULL,
+  `event_master_id` int(11) NOT NULL, 
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+	`created_by` varchar(50) NOT NULL DEFAULT '',
+	`modified` datetime DEFAULT NULL,
+	`modified_by` varchar(50) DEFAULT NULL,
+	`deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+	`deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `event_master_id` (`event_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -391,15 +331,16 @@ ALTER TABLE `qc_hb_ed_hepatobiliary_medical_past_history`
 DROP TABLE IF EXISTS `qc_hb_ed_hepatobiliary_medical_past_history_revs`;
 CREATE TABLE `qc_hb_ed_hepatobiliary_medical_past_history_revs` (
   `id` int(11) NOT NULL, 
-  `disease_precision` varchar(250) DEFAULT NULL, 
+  `disease_precision` varchar(250) DEFAULT NULL,
+  `event_master_id` int(11) NOT NULL, 
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `created_by` varchar(50) NOT NULL DEFAULT '',
-  `modified` datetime DEFAULT NULL,
-  `modified_by` varchar(50) DEFAULT NULL,
+	`created_by` varchar(50) NOT NULL DEFAULT '',
+	`modified` datetime DEFAULT NULL,
+	`modified_by` varchar(50) DEFAULT NULL,
+	`deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+	`deleted_date` datetime DEFAULT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
@@ -424,48 +365,7 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 -- event_summary
 (null, 'QC-HB-000004_CAN-999-999-000-999-230', (SELECT id FROM structures WHERE old_id = 'QC-HB-000004'), 'QC-HB-000004', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-230'), 'CAN-999-999-000-999-230', 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
-DELETE FROM `i18n` WHERE `id`IN (
-'asa medical past history',
-'heart disease medical past history',
-'vascular disease medical past history',
-'respiratory disease medical past history',
-'neural vascular disease medical past history',
-'endocrine disease medical past history',
-'urinary disease medical past history',
-'gastro-intestinal disease medical past history',
-'gynecologic disease medical past history',
-'other disease medical past history',
 
-'diagnostic date', 
-'medical history precision',
-
-'detail exists for the deleted medical past history');
-
-INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
-('asa medical past history', '', 'ASA', ''),
-('heart disease medical past history', '', 'Heart Disease', 'Maladie du coeur'),
-('vascular disease medical past history', '', 'Vascular Disease', 'Maladie vasculaire'),
-('respiratory disease medical past history', '', 'Respiratory Disease', 'Maladie respiratoire'),
-('neural vascular disease medical past history', '', 'Neural Vascular Disease', 'Maladie vasculaire cerebrale'),
-('endocrine disease medical past history', '', 'Endocrine Disease', 'Maladie endocrine'),
-('urinary disease medical past history', '', 'Urinary Disease', 'Maladie urinaire'),
-('gastro-intestinal disease medical past history', '', 'Gastro-Intestinal Disease', 'Maladie gastro-intestinal'),
-('gynecologic disease medical past history', '', 'Gynecologic Disease', 'Maladie gynecologique'),
-('other disease medical past history', '', 'Other Disease', 'Autre maladie'),
-
-('diagnostic date', '', 'Diagnostic Date', 'Date de diagnostic'),
-('medical history precision', '', 'Precision', 'Pr&eacute;cision'),
-
-('detail exists for the deleted medical past history', '', 
-'Your data cannot be deleted! <br>Detail exist for the deleted medical past history.', 
-'Vos donn&eacute;es ne peuvent &ecirc;tre supprim&eacute;es! Des d&eacute;tails existent pour votre historique clinique.');
-
-DELETE FROM `i18n` WHERE `id`IN ('annotation clinical details', 'add other clinical event', 'add medical history', 'add medical imaging');
-INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
-('annotation clinical details', '', 'Details', 'D&eacute;tails'),
-('add other clinical event', '', 'Add Other Data', 'Ajouter autres donn�es'),
-('add medical history', '', 'Add Medical History', 'Ajouter &eacute;venement clinique'),
-('add medical imaging', '', 'Add Medical Imaging', 'Ajouter image m&eacute;dicale');
 
 -- ... CLINIC: medical_past_history revision control...
 
@@ -491,13 +391,13 @@ CREATE TABLE `qc_hb_ed_hepatobiliary_med_hist_record_summary` (
   `gastro_intestinal_disease` varchar(10) DEFAULT NULL, 
   `gynecologic_disease` varchar(10) DEFAULT NULL, 
   `other_disease` varchar(10) DEFAULT NULL, 
-  `created` date DEFAULT NULL,
-  `created_by` varchar(50) DEFAULT NULL,
-  `modified` date DEFAULT NULL,
-  `modified_by` varchar(50) DEFAULT NULL,
   `event_master_id` int(11) DEFAULT NULL,
-  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `deleted_date` datetime DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+	`created_by` varchar(50) NOT NULL DEFAULT '',
+	`modified` datetime DEFAULT NULL,
+	`modified_by` varchar(50) DEFAULT NULL,
+	`deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+	`deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `event_master_id` (`event_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -520,14 +420,15 @@ CREATE TABLE `qc_hb_ed_hepatobiliary_med_hist_record_summary_revs` (
   `gastro_intestinal_disease` varchar(10) DEFAULT NULL, 
   `gynecologic_disease` varchar(10) DEFAULT NULL, 
   `other_disease` varchar(10) DEFAULT NULL,
+  `event_master_id` int(11) DEFAULT NULL,
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `created_by` varchar(50) NOT NULL DEFAULT '',
-  `modified` datetime DEFAULT NULL,
-  `modified_by` varchar(50) DEFAULT NULL,
+	`created_by` varchar(50) NOT NULL DEFAULT '',
+	`modified` datetime DEFAULT NULL,
+	`modified_by` varchar(50) DEFAULT NULL,
+	`deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+	`deleted_date` datetime DEFAULT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
-  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
@@ -578,10 +479,6 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 -- event_summary
 (null, 'QC-HB-000003_CAN-999-999-000-999-230', (SELECT id FROM structures WHERE old_id = 'QC-HB-000003'), 'QC-HB-000003', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-230'), 'CAN-999-999-000-999-230', 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
-DELETE FROM `i18n` WHERE `id`IN ('reviewed diseases', 'medical past history record summary');
-INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
-('reviewed diseases', '', 'Reviewed Diseases/Events', 'Pathologies/&Eacute;venements r&eacute;visionn&eacute;s'),
-('medical past history record summary', '', 'Medcial Review Summary', 'R&eacute;sum&eacute; des r&eacute;visions m&eacute;dicales');
 
 #lab_report_biology
 CREATE TABLE qc_hb_ed_hepatobilary_lab_report_biology(
@@ -626,13 +523,13 @@ CREATE TABLE qc_hb_ed_hepatobilary_lab_report_biology(
 	other_marker_1 smallint  DEFAULT NULL,
 	other_marker_2 smallint  DEFAULT NULL,
 	summary text DEFAULT NULL,
-	`created` date DEFAULT NULL,
-	`created_by` varchar(50) DEFAULT NULL,
-	`modified` date DEFAULT NULL,
+	`created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+	`created_by` varchar(50) NOT NULL DEFAULT '',
+	`modified` datetime DEFAULT NULL,
 	`modified_by` varchar(50) DEFAULT NULL,
-	`event_master_id` int(11) DEFAULT NULL,
 	`deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
-	`deleted_date` datetime DEFAULT NULL
+	`deleted_date` datetime DEFAULT NULL,
+	`event_master_id` int(11) DEFAULT NULL
 )ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 CREATE TABLE qc_hb_ed_hepatobilary_lab_report_biology_revs(
 	id int(11) unsigned not null,
@@ -676,13 +573,13 @@ CREATE TABLE qc_hb_ed_hepatobilary_lab_report_biology_revs(
 	other_marker_1 smallint  DEFAULT NULL,
 	other_marker_2 smallint  DEFAULT NULL,
 	summary text DEFAULT NULL,
-	`created` date DEFAULT NULL,
-	`created_by` varchar(50) DEFAULT NULL,
-	`modified` date DEFAULT NULL,
+	`created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+	`created_by` varchar(50) NOT NULL DEFAULT '',
+	`modified` datetime DEFAULT NULL,
 	`modified_by` varchar(50) DEFAULT NULL,
-	`event_master_id` int(11) DEFAULT NULL,
 	`deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
 	`deleted_date` datetime DEFAULT NULL,
+	`event_master_id` int(11) DEFAULT NULL,
 	`version_id` int(11) NOT NULL AUTO_INCREMENT primary key,
   	`version_created` datetime NOT NULL
 )ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -742,7 +639,7 @@ CREATE TABlE qc_hb_ed_hepatobiliary_lab_radio_enco_nuclear_med(
 	id int(11) unsigned not null auto_increment primary key,
 	abdominal_ultrasound varchar(5) DEFAULT NULL,
 	pelvic_ultrasound varchar(5) DEFAULT NULL,
-	abdominal_cs_scan varchar(5) DEFAULT NULL,
+	abdominal_ct_scan varchar(5) DEFAULT NULL,
 	pelvis_ct_scan varchar(5) DEFAULT NULL,
 	abdominal_mri varchar(5) DEFAULT NULL,
 	pelvis_mri varchar(5) DEFAULT NULL,
@@ -756,13 +653,13 @@ CREATE TABlE qc_hb_ed_hepatobiliary_lab_radio_enco_nuclear_med(
 	contrast_enema varchar(5) DEFAULT NULL,
 	ercp varchar(5) DEFAULT NULL,
 	transhepatic_cholangiography varchar(5) DEFAULT NULL,
-	`created` date DEFAULT NULL,
-	`created_by` varchar(50) DEFAULT NULL,
-	`modified` date DEFAULT NULL,
+	`created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+	`created_by` varchar(50) NOT NULL DEFAULT '',
+	`modified` datetime DEFAULT NULL,
 	`modified_by` varchar(50) DEFAULT NULL,
-	`event_master_id` int(11) DEFAULT NULL,
 	`deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
-	`deleted_date` datetime DEFAULT NULL
+	`deleted_date` datetime DEFAULT NULL,
+	`event_master_id` int(11) DEFAULT NULL
 )ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 CREATE TABlE qc_hb_ed_hepatobiliary_lab_radio_enco_nuclear_med_revs(
 	id int(11) unsigned not null,
@@ -782,13 +679,13 @@ CREATE TABlE qc_hb_ed_hepatobiliary_lab_radio_enco_nuclear_med_revs(
 	contrast_enema varchar(5) DEFAULT NULL,
 	ercp varchar(5) DEFAULT NULL,
 	transhepatic_cholangiography varchar(5) DEFAULT NULL,
-	`created` date DEFAULT NULL,
-	`created_by` varchar(50) DEFAULT NULL,
-	`modified` date DEFAULT NULL,
+	`created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+	`created_by` varchar(50) NOT NULL DEFAULT '',
+	`modified` datetime DEFAULT NULL,
 	`modified_by` varchar(50) DEFAULT NULL,
-	`event_master_id` int(11) DEFAULT NULL,
 	`deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
 	`deleted_date` datetime DEFAULT NULL,
+	`event_master_id` int(11) DEFAULT NULL,
 	`version_id` int(11) NOT NULL AUTO_INCREMENT primary key,
 	`version_created` datetime NOT NULL
 )ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -798,7 +695,7 @@ INSERT INTO structures(`old_id`, `alias`, `language_title`, `language_help`, `fl
 INSERT INTO structure_fields(`public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES 
 ('', 'QC-HB-100041', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_lab_radio_enco_nuclear_med', 'abdominal_ultrasound', 'abdominal ultrasound', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox'), '', '', '', ''),
 ('', 'QC-HB-100042', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_lab_radio_enco_nuclear_med', 'pelvic_ultrasound', 'pelvic ultrasound', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox'), '', '', '', ''),
-('', 'QC-HB-100043', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_lab_radio_enco_nuclear_med', 'abdominal_cs_scan', 'abdominal cs_scan', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox'), '', '', '', ''),
+('', 'QC-HB-100043', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_lab_radio_enco_nuclear_med', 'abdominal_ct_scan', 'abdominal ct_scan', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox'), '', '', '', ''),
 ('', 'QC-HB-100044', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_lab_radio_enco_nuclear_med', 'pelvis_ct_scan', 'pelvis ct_scan', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox'), '', '', '', ''),
 ('', 'QC-HB-100045', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_lab_radio_enco_nuclear_med', 'abdominal_mri', 'abdominal mri', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox'), '', '', '', ''),
 ('', 'QC-HB-100046', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_lab_radio_enco_nuclear_med', 'chest_x_ray', 'chest x_ray', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox'), '', '', '', ''),
@@ -893,9 +790,9 @@ CREATE TABLE qc_hb_ed_hepatobilary_exams(
 	
 	`summary` text DEFAULT NULL,
 	
-	`created` date DEFAULT NULL,
-	`created_by` varchar(50) DEFAULT NULL,
-	`modified` date DEFAULT NULL,
+	`created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+	`created_by` varchar(50) NOT NULL DEFAULT '',
+	`modified` datetime DEFAULT NULL,
 	`modified_by` varchar(50) DEFAULT NULL,
 	`deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
 	`deleted_date` datetime DEFAULT NULL,
@@ -950,9 +847,9 @@ CREATE TABLE qc_hb_ed_hepatobilary_exams_revs(
 	
 	`summary` text DEFAULT NULL,
 	
-	`created` date DEFAULT NULL,
-	`created_by` varchar(50) DEFAULT NULL,
-	`modified` date DEFAULT NULL,
+	`created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+	`created_by` varchar(50) NOT NULL DEFAULT '',
+	`modified` datetime DEFAULT NULL,
 	`modified_by` varchar(50) DEFAULT NULL,
 	`deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
 	`deleted_date` datetime DEFAULT NULL,
@@ -1036,14 +933,14 @@ INSERT INTO structure_formats(`old_id`, `structure_id`, `structure_old_id`, `str
 ('QC-HB-100058_QC-HB-100085', (SELECT id FROM structures WHERE old_id = 'QC-HB-100058'), 'QC-HB-100058', (SELECT id FROM structure_fields WHERE old_id = 'QC-HB-100085'), 'QC-HB-100085', '1', '6', '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1');
 
 INSERT INTO structure_fields(`public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES 
-('', 'QC-HB-100086', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_exams', 'lymph_node_number', 'lymph node number', '', 'number', '', '', NULL, '', '', '', ''),
-('', 'QC-HB-100087', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_exams', 'lymph_node_size', 'lymph node size', '', 'number', '', '', NULL, '', '', '', ''),
-('', 'QC-HB-100088', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_exams', 'colon_number', 'colon number', '', 'number', '', '', NULL, '', '', '', ''),
-('', 'QC-HB-100089', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_exams', 'colon_size', 'colon size', '', 'number', '', '', NULL, '', '', '', ''),
-('', 'QC-HB-100090', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_exams', 'rectum_number', 'rectum number', '', 'number', '', '', NULL, '', '', '', ''),
-('', 'QC-HB-100091', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_exams', 'rectum_size', 'rectum size', '', 'number', '', '', NULL, '', '', '', ''),
-('', 'QC-HB-100092', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_exams', 'bones_number', 'bones number', '', 'number', '', '', NULL, '', '', '', ''),
-('', 'QC-HB-100093', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_exams', 'bones_size', 'bones size', '', 'number', '', '', NULL, '', '', '', '');
+('', 'QC-HB-100086', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_exams', 'lymph_node_number', 'number', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-HB-100087', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_exams', 'lymph_node_size', 'size', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-HB-100088', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_exams', 'colon_number', 'number', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-HB-100089', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_exams', 'colon_size', 'size', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-HB-100090', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_exams', 'rectum_number', 'number', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-HB-100091', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_exams', 'rectum_size', 'size', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-HB-100092', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_exams', 'bones_number', 'number', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-HB-100093', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_exams', 'bones_size', 'size', '', 'number', '', '', NULL, '', '', '', '');
 
 INSERT INTO structure_formats(`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
 ('QC-HB-100057_QC-HB-100086', (SELECT id FROM structures WHERE old_id = 'QC-HB-100057'), 'QC-HB-100057', (SELECT id FROM structure_fields WHERE old_id = 'QC-HB-100086'), 'QC-HB-100086', '0', '4', 'lymph node', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1'),
@@ -1075,7 +972,169 @@ INSERT INTO structure_fields(`public_identifier`, `old_id`, `plugin`, `model`, `
 INSERT INTO structure_formats(`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ('QC-HB-100097_QC-HB-100098', (SELECT id FROM structures WHERE old_id='QC-HB-100097'), 'QC-HB-100097', (SELECT id FROM structure_fields WHERE old_id='QC-HB-100098'), 'QC-HB-100098', '0', '0', '', 0, '', 0, '', 0, '', 0, '', 0, '', 0, '', '1', '', '1', '', '', '', '1', '', '1', '1') ON DUPLICATE KEY UPDATE display_column='0', display_order='0', language_heading='', `flag_override_label`=0, `language_label`='', `flag_override_tag`=0, `language_tag`='', `flag_override_help`=0, `language_help`='', `flag_override_type`=0, `type`='', `flag_override_setting`=0, `setting`='', `flag_override_default`=0, `default`='' ;
 INSERT INTO structure_formats(`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ('QC-HB-100097_QC-HB-100099', (SELECT id FROM structures WHERE old_id='QC-HB-100097'), 'QC-HB-100097', (SELECT id FROM structure_fields WHERE old_id='QC-HB-100099'), 'QC-HB-100099', '0', '1', '', 0, '', 0, '', 0, '', 0, '', 0, '', 0, '', '1', '', '1', '', '', '', '1', '', '1', '1') ON DUPLICATE KEY UPDATE display_column='0', display_order='1', language_heading='', `flag_override_label`=0, `language_label`='', `flag_override_tag`=0, `language_tag`='', `flag_override_help`=0, `language_help`='', `flag_override_type`=0, `type`='', `flag_override_setting`=0, `setting`='', `flag_override_default`=0, `default`='' ;
 
-
-
-
 #end medical imaging
+
+
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('first consultation date', 'global', 'First Consultation Date', 'Date premi&egrave;re consultation'),
+('referral data', 'global', 'Referral', 'R&eacute;f&eacute;rent'),
+('referral hospital', 'global', 'Referral Hospital', 'H&ocirc;pital r&eacute;f&eacute;rent'),
+('referral physisian', 'global', 'Referral Physisian', 'Medecin r&eacute;f&eacute;rent'),
+('referral physisian 2', 'global', '2nd Referral Physisian', '2nd Medecin r&eacute;f&eacute;rent'),
+('referral physisian 3', 'global', '3rd Referral Physisian', '3eme Medecin r&eacute;f&eacute;rent'),
+('referral physisian speciality', 'global', 'Speciality', 'Sp&eacute;cialit&eacute;'),
+
+('weight (kg)', 'global', 'Weight (kg)', 'Poids (kg)'),
+('height (cm)', 'global', 'Height (cm)', 'Taille (cm)'),
+
+('weight should be a positif decimal', 'global', 'Weight should be a positive decimal!', 'Le poids doit &ecirc;tre un d&eacute;cimal positif!'),
+('height should be a positif decimal', 'global', 'Height should be a positive decimal!', 'Le taille doit &ecirc;tre un d&eacute;cimal positif!'),
+('hepatobiliary', 'global', 'Hepatobiliary', 'H&eacute;pato-biliaire'),
+('presentation', 'global', 'Presentation', 'Pr&eacute;sentation'),
+
+('core_appname', 'global', 'ATiM.v2 - CHUM Hep-bil', 'ATiM.v2 - CHUM Hep-bil'),
+('CTRApp', 'global', 'ATiM.v2 - CHUM Hep-bil', 'ATiM.v2 - CHUM Hep-bil'),
+
+('health_insurance_card', 'global', 'Health Insurance Card', 'Carte d''assurance maladie'),
+('saint_luc_hospital_nbr', 'global', 'St Luc Hospital Number', 'No H&ocirc;pital St Luc'),
+('hepato_bil_bank_participant_id', 'global', 'H.B. Bank Participant Id', 'Num&eacute;ro participant banque H.B.'),
+('this identifier has already been created for your participant', '', 'This identifier has already been created for your participant!', 'Cet identification a d&eacute;j&agrave; &eacute;t&eacute; cr&eacute;&eacute;e pour ce participant!'),
+
+('active_tobacco', 'global', 'Active Tobacco', 'Tabagisme actif'),
+('active_alcohol', 'global', 'Active Alcohol', 'Alcolisme chronique'),
+('last update date', 'global', 'Last Update date', 'Date de mise &agrave; jour'),
+
+('this type of event has already been created for your participant', '', 
+  'This type of annotation has already been created for your participant!', 
+  'Ce type d''annotation a d&eacute;j&agrave; eacyte;t&eacute; cr&eacute;&eacute;e pour votre participant!'),
+  ('drug ex 1', '', 'Drug 1', 'Mdt 1'),
+('drug ex 2', '', 'Drug 2', 'Mdt 2'),
+('drug ex 3', '', 'Drug 3', 'Mdt 3'),
+('drug ex 4', '', 'Drug 4', 'Mdt 4'),
+('drug ex 5', '', 'Drug 5', 'Mdt 5'),
+
+('to define', '', 'To Define', 'A definir'),
+('high blood pressure', '', 'High blood pressure', 'HTA'),
+('tachycardia', '', 'Tachycardia', 'Tachycardie'),
+('heart attack', '', 'Heart attack', 'Crise cardiaque'),
+
+('asa medical past history', '', 'ASA', ''),
+('heart disease medical past history', '', 'Heart Disease', 'Maladie du coeur'),
+('vascular disease medical past history', '', 'Vascular Disease', 'Maladie vasculaire'),
+('respiratory disease medical past history', '', 'Respiratory Disease', 'Maladie respiratoire'),
+('neural vascular disease medical past history', '', 'Neural Vascular Disease', 'Maladie vasculaire cerebrale'),
+('endocrine disease medical past history', '', 'Endocrine Disease', 'Maladie endocrine'),
+('urinary disease medical past history', '', 'Urinary Disease', 'Maladie urinaire'),
+('gastro-intestinal disease medical past history', '', 'Gastro-Intestinal Disease', 'Maladie gastro-intestinal'),
+('gynecologic disease medical past history', '', 'Gynecologic Disease', 'Maladie gynecologique'),
+('other disease medical past history', '', 'Other Disease', 'Autre maladie'),
+
+('diagnostic date', '', 'Diagnostic Date', 'Date de diagnostic'),
+('medical history precision', '', 'Precision', 'Pr&eacute;cision'),
+
+('detail exists for the deleted medical past history', '', 
+'Your data cannot be deleted! <br>Detail exist for the deleted medical past history.', 
+'Vos donn&eacute;es ne peuvent &ecirc;tre supprim&eacute;es! Des d&eacute;tails existent pour votre historique clinique.'),
+('annotation clinical details', '', 'Details', 'D&eacute;tails'),
+('add other clinical event', '', 'Add Other Data', 'Ajouter autres données'),
+('add medical history', '', 'Add Medical History', 'Ajouter &eacute;venement clinique'),
+('add medical imaging', '', 'Add Medical Imaging', 'Ajouter image m&eacute;dicale'),
+
+('reviewed diseases', '', 'Reviewed Diseases/Events', 'Pathologies/&Eacute;venements r&eacute;visionn&eacute;s'),
+('medical past history record summary', '', 'Medcial Review Summary', 'R&eacute;sum&eacute; des r&eacute;visions m&eacute;dicales'),
+
+('blood formulae', '', 'Blood formulae', 'Formule sanguine'),
+('coagulation', '', 'Coagulation', 'Coagulation'),
+('electrolyte', '', 'Electrolyte', 'Électrolyte'),
+('bilan hepatique', '', 'Hepatic check-up', 'Bilan hépatique'),
+('bilan pancreatique', '', 'Pancreatic check-up', 'Bilan pancréatique'),
+('bilan marqueur', '', 'Marker check-up', 'Bilan marqueur'),
+('segment I', '', 'Segment I', 'Segment I'),
+('segment II', '', 'Segment II', 'Segment II'),
+('segment III', '', 'Segment III', 'Segment III'),
+('segment IVa', '', 'Segment IVa', 'Segment IVa'),
+('segment IVb', '', 'Segment IVb', 'Segment IVb'),
+('segment V', '', 'Segment V', 'Segment V'),
+('segment VI', '', 'Segment VI', 'Segment VI'),
+('segment VII', '', 'Segment VII', 'Segment VII'),
+('segment VIII', '', 'Segment VIII', 'Segment VIII'),
+('lymph node', '', 'Lymph node', 'Noeud lymphatique'),
+('colon', '', 'Colon', 'Colon'),
+('rectum', '', 'Rectum', 'Rectum'),
+('bones', '', 'Bones', 'Os'),
+('tissue core', '', 'Tissue core', 'Carotte de tissu'),
+#('bmi', '', 'bmi', ''),
+('hbp surgeron', '', 'hbp surgeron', ''),
+('wbc', '', 'WBC', 'WBC'),
+('rbc', '', 'RBC', 'RBC'),
+('hb', '', 'Hb', 'Hb'),
+('ht', '', 'Ht', 'Ht'),
+('platelets', '', 'Platelets', 'Plaquettes'),
+('ptt', '', 'PTT', 'PTT'),
+('inr', '', 'INR', 'INR'),
+('na', '', 'Na', 'Na'),
+('k', '', 'K', 'K'),
+('cl', '', 'Cl', 'Cl'),
+('creatinine', '', 'Creatinine', 'Créatinine'),
+('urea', '', 'Urea', 'Urée'),
+('ca', '', 'Ca', 'Ca'),
+('p', '', 'P', 'P'),
+('mg', '', 'Mg', 'Mg'),
+#('uric acid', '', 'uric acid', ''),
+('glycemia', '', 'Glycemia', 'Glycémie'),
+('triglycerides', '', 'Triglycerides', 'Triglycéride'),
+('cholesterol', '', 'Cholesterol', 'Cholestérol'),
+#('albumin', '', 'Albumin', ''),
+#('total bilirubin', '', 'Total bilirubin', ''),
+#('direct bilirubin', '', 'direct bilirubin', ''),
+#('indirec _bilirubin', '', 'indirec _bilirubin', ''),
+('ast', '', 'AST', 'AST'),
+('alt', '', 'ALT', 'ALT'),
+('alkalin _phosphatase', '', 'Alkalin phosphatase', 'Phosphatase alcaline'),
+('amylase', '', 'Amylase', 'Amylase'),
+('lipase', '', 'Lipase', 'Lipase'),
+('a fp', '', 'α-FP', 'α-FP'),
+('cea', '', 'CEA', 'CEA'),
+('ca 19 9', '', 'Ca 19-9', 'Ca 19-9'),
+#('chromogranine', '', 'Chromogranine', ''),
+('5 HIAA', '', '5 HIAA', '5 HIAA'),
+('ca 125', '', 'Ca 125', 'Ca 125'),
+('ca 15 3', '', 'Ca 15-3', 'Ca 15-3'),
+('b hcg', '', 'β HCG', 'β HCG'),
+('other marker 1', '', 'Other marker 1', 'Autre marqueur 1'),
+('other marker 2', '', 'Other marker 2', 'Autre marqueur 2'),
+('abdominal ultrasound', '', 'Abdominal ultrasound', 'Ultrason abdominal'),
+#('pelvic ultrasound', '', 'pelvic ultrasound', ''),
+('abdominal ct_scan', '', 'Abdominal CT-scan', 'CT-scan abdominal'),
+#('pelvis ct_scan', '', 'pelvis ct_scan', ''),
+('abdominal mri', '', 'Abdominal MRI', 'MRI abdominal'),
+('chest x_ray', '', 'Chest X-ray', 'Rayon X du torse'),
+('thorax ct_scan', '', 'Thorax CT-scan', 'CT-Scan du thorax'),
+('tepscan', '', 'TEP-scan', 'TEP-scan'),
+#('octreoscan scintigraphy', '', 'octreoscan scintigraphy', ''),
+('contrast enhanced_ultrasound', '', 'Contrast-enhanced ultrasound (CEUS)', 'Ultrason à contraste amélioré (CEUS)'),
+('endoscopic ultrasound', '', 'Endoscopic ultrasound', 'Ultrason endoscopique'),
+('Colonoscopy', '', 'Colonoscopy', 'Colonoscopie'),
+('contrast enema', '', 'Contrast enema', 'Lavement baryté'),
+('ercp', '', 'ERCP', 'ERCP'),
+('transhepatic cholangiography', '', 'Transhepatic cholangiography', 'Cholangiographie transhépatique'),
+('lungs number', '', 'Lungs number', 'Numéro des poumons'),
+('lungs size', '', 'Lungs size', 'Taille des poumons'),
+('lungs laterality', '', 'Lungs laterality', 'Latéralité des poumons'),
+('hepatic artery', '', 'Hepatic artery', 'Artère hépatique'),
+#('coeliac trunk', '', 'coeliac trunk', ''),
+('splenic artery', '', 'Splenic artery', 'Artère splénique'),
+#('superior esenteric artery', '', 'superior esenteric artery', ''),
+#('portal vein', '', 'portal vein', ''),
+#('superior mesenteric vein', '', 'superior mesenteric vein', ''),
+('splenic vein', '', 'Splenic vein', 'Veine splénique'),
+#('lymph node number', '', 'lymph node number', ''),
+#('lymph node size', '', 'lymph node size', ''),
+('colon number', '', 'Colon number', 'Numéro du colon'),
+('colon size', '', 'Colon size', 'Taille du colon'),
+('rectum number', '', 'Rectum number', 'Numéro du rectum'),
+('rectum size', '', 'Rectum size', 'Taille du rectum'),
+('bones number', '', 'Bones number', 'Numéro des os'),
+('bones size', '', 'Bones size', 'Taille des os'),
+('remnant liver percentage', '', 'Remnant liver percentage', 'Pourcentage du foie restant'),
+('number', '', 'Number', 'Numéro');
