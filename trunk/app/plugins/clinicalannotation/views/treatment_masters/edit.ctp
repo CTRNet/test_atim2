@@ -21,17 +21,21 @@
 	$final_atim_structure = $diagnosis_structure; 
 	$hook_link = $structures->hook('dx_list');
 	if( $hook_link ) { require($hook_link); }
-	$structures->build($empty_structure, array('links' => $final_options['links'], 'settings' => $final_options['settings']));
+	$structures->build($final_atim_structure, $final_options);
+	
+	$checkNA = true;
+	foreach($data_for_checklist as $c_data){
+	if($c_data['DiagnosisMaster']['id'] == $this->data['TreatmentMaster']['diagnosis_master_id']){
+			$checkNA = false;
+			break;
+		}
+	}
 	?>
 	<table class="structure" cellspacing="0">
 		<tbody>
-			<tr><td style='text-align: left; padding-left: 10px;'><input type='radio' name='data[TreatmentMaster][diagnosis_master_id]' checked='checked' value=''/><?php echo(__('n/a', null));?></td>
+			<tr><td style='text-align: left; padding-left: 10px;'><input type='radio' name='data[TreatmentMaster][diagnosis_master_id]' <?php echo($checkNA ? "checked='checked'" : ""); ?> value=''/><?php echo(__('n/a', null));?></td>
 			</tr></tbody></table>
-			
 	<?php
-	$final_options['settings']['form_top'] = false;
-	unset($final_options['settings']['header']);
-	$structures->build( $final_atim_structure, $final_options );
 	
 	// 2- TRT DATA
 
