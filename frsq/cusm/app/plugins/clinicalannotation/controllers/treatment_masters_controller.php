@@ -81,7 +81,9 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		
 		$dx_data = $this->DiagnosisMaster->find('all', array('conditions'=>array('DiagnosisMaster.participant_id'=>$participant_id)));
 		foreach($dx_data as &$dx_tmp_data){
-			$dx_tmp_data['TreatmentMaster']['diagnosis_master_id'] = $this->data['TreatmentMaster']['diagnosis_master_id'];
+			if($dx_tmp_data['DiagnosisMaster']['id'] == $treatment_master_data['TreatmentMaster']['diagnosis_master_id'] ){
+				$dx_tmp_data['TreatmentMaster'] = $treatment_master_data['TreatmentMaster'];
+			}
 		}
 		$this->set('data_for_checklist', $dx_data);		
 		
@@ -107,7 +109,7 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 				}
 			}
 		}
-		$this->Structures->Set('empty', 'empty_structure');			
+		$this->Structures->Set('empty', 'empty_structure');
 	}
 	
 	function add($participant_id=null, $treatment_control_id=null) {
