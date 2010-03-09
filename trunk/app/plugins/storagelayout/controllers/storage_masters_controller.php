@@ -79,7 +79,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		if(!empty($parent_storage_id) && empty($parent_storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }	
 		
 		$this->set('parent_storage_id', $parent_storage_id);		
-		$this->set('parent_storage_for_display', $this->formatParentStorageForDisplay($parent_storage_data));	
+		$this->set('parent_storage_for_display', $this->Storages->formatStorageTitleForDisplay($parent_storage_data));	
 		
 		$this->set('storage_path', $this->Storages->getStoragePath($parent_storage_id));
 		
@@ -173,7 +173,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		} else {
 			$predefined_parent_storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $predefined_parent_storage_id, 'StorageControl.is_tma_block' => 'FALSE')));
 			if(empty($predefined_parent_storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }		
-			$available_parent_storage_list[$predefined_parent_storage_id] = $predefined_parent_storage_data;
+			$available_parent_storage_list[$predefined_parent_storage_id] = $this->Storages->formatStorageTitleForDisplay($predefined_parent_storage_data);;
 			$is_predefined_parent = true;
 		}
 		$this->set('available_parent_storage_list', $available_parent_storage_list);	
@@ -456,7 +456,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		if(!empty($parent_storage_id) && empty($parent_storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }
 		
 		$this->set('parent_storage_data', $parent_storage_data);		
-		$this->set('parent_storage_for_display', $this->formatParentStorageForDisplay($parent_storage_data));		
+		$this->set('parent_storage_for_display', $this->Storages->formatStorageTitleForDisplay($parent_storage_data));		
 				
 		if(empty($parent_storage_id) || is_null($parent_storage_data['StorageControl']['form_alias_for_children_pos'])){
 			// No position has to be set for this storage
@@ -1130,27 +1130,6 @@ class StorageMastersController extends StoragelayoutAppController {
 		$children_array['DisplayData']['label'] = $children_array[$type_key][$label_key];
 		$children_array['DisplayData']['type'] = $type_key;
 		
-	}
-	
-	/**
-	 * Build parent storage title joining many storage information.
-	 * 
-	 * @param $parent_storage_data Parent storages data
-	 * 
-	 * @return Parent storage title (string).
-	 *
-	 * @author N. Luc
-	 * @since 2009-09-11
-	 */	
-	 
-	function formatParentStorageForDisplay($parent_storage_data) {
-		$formatted_data = '';
-		
-		if(!empty($parent_storage_data)) {
-			$formatted_data = $parent_storage_data['StorageMaster']['selection_label'] . ' [' . __($parent_storage_data['StorageMaster']['code'] . ' ('.$parent_storage_data['StorageMaster']['storage_type'], TRUE) .')'. ']';
-		}
-	
-		return $formatted_data;
 	}
 }
 ?>
