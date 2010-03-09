@@ -214,7 +214,7 @@ INSERT INTO `misc_identifier_controls`
 VALUES
 (null, 'health_insurance_card', 'RAMQ', 'active', 0, '', ''),
 (null, 'montreal_general_hospital_card', 'MGH/HGM Id', 'active', 1, '', ''),
-(null, 'prostate_bank_participant_id', 'PR-PartID', 'active', 3, 'prostate_bank_participant_id', 'PS3 P%%key_increment%%');
+(null, 'prostate_bank_participant_id', 'PR-PartID', 'active', 3, 'prostate_bank_participant_id', 'PS3P%%key_increment%%');
 
 DELETE FROM `i18n` WHERE `id` IN ('health_insurance_card', 'montreal_general_hospital_card', 'prostate_bank_participant_id',
 'this identifier has already been created for your participant');
@@ -672,7 +672,7 @@ SET @domain_id = (SELECT `id` FROM `structure_value_domains` WHERE `domain_name`
 UPDATE structure_value_domains_permissible_values
 SET active = 'no'
 WHERE structure_value_domain_id = @domain_id
-AND language_alias NOT IN ('gel CSA', 'heparine', 'unknown', 'EDTA');
+AND language_alias NOT IN ('gel CSA', 'paxgene', 'unknown', 'EDTA');
    
 DELETE FROM `i18n` WHERE `id` IN ('gel CSA');
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
