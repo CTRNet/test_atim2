@@ -6,17 +6,6 @@
 
 UPDATE `configs` SET `config_debug` = '2' WHERE `configs`.`id` =1 ;
 
-DELETE FROM `structure_formats` WHERE `structure_old_id` LIKE 'QC-CUSM-%' OR `structure_field_old_id` LIKE 'QC-CUSM-%';
-
-DELETE FROM `structure_validations` WHERE `old_id` LIKE 'QC-CUSM-%';
-
-DELETE FROM `structures` WHERE `old_id` LIKE 'QC-CUSM-%';
-DELETE FROM `structure_fields` WHERE `old_id` LIKE 'QC-CUSM-%';
-
-UPDATE `structure_fields` SET `structure_value_domain` = null WHERE `structure_value_domain` IN (SELECT `id` FROM `structure_value_domains` WHERE `domain_name` LIKE 'qc_cusm_%');
-DELETE FROM `structure_value_domains_permissible_values` WHERE  `structure_value_domain_id` IN (SELECT `id` FROM `structure_value_domains` WHERE `domain_name` LIKE 'qc_cusm_%');
-DELETE FROM `structure_value_domains` WHERE `domain_name` LIKE 'qc_cusm_%';
-
 -- General
 
 DELETE FROM `i18n` WHERE `id` IN ('core_appname', 'CTRApp');
@@ -68,9 +57,8 @@ SET
 `language_label` = 'name',
 `flag_override_tag` = '1',
 `language_tag` = 'first name'
-WHERE `old_id` = 'CAN-999-999-000-999-1_CAN-999-999-000-999-1';	
+WHERE `old_id` = 'CAN-999-999-000-999-1_CAN-999-999-000-999-1'; 
 
-DELETE FROM `structure_validations` WHERE `old_id` = 'QC-CUSM-000001';
 INSERT INTO `structure_validations` 
 (`id`, `old_id`, `structure_field_id`, `structure_field_old_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) 
 VALUES
@@ -82,14 +70,13 @@ SET
 `language_label` = '',
 `flag_override_tag` = '1',
 `language_tag` = 'last name'
-WHERE `old_id` = 'CAN-999-999-000-999-1_CAN-999-999-000-999-2';	
+WHERE `old_id` = 'CAN-999-999-000-999-1_CAN-999-999-000-999-2'; 
  
-DELETE FROM `structure_validations` WHERE `old_id` = 'QC-CUSM-000002';
 INSERT INTO `structure_validations` 
 (`id`, `old_id`, `structure_field_id`, `structure_field_old_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) 
 VALUES
 (null, 'QC-CUSM-000002', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-2'), 'CAN-999-999-000-999-2', 'notEmpty', '0', '0', '', 'first name and last name are required', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
-	
+ 
 DELETE FROM `i18n` WHERE `id` IN ('first name and last name are required');
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('first name and last name are required', 'global', 'First name and last name are required!', 'Le nom et pr&eacute;nom sont requis!');
@@ -173,7 +160,6 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 1, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
 '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
-DELETE FROM `structure_permissible_values` WHERE `value` IN ('v2006-02-01', 'v2006-01-26');
 INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) 
 VALUES 
 (NULL, 'v2006-02-01', 'v2006-02-01'),
@@ -189,7 +175,6 @@ INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `categor
 
 SET @domain_id = LAST_INSERT_ID();
 
-DELETE FROM `structure_value_domains_permissible_values` WHERE  `structure_value_domain_id` IN (@domain_id);
 INSERT INTO `structure_value_domains_permissible_values`  
 (`id` , `structure_value_domain_id` , `structure_permissible_value_id` , `display_order` , `active` , `language_alias` )
 VALUES 
@@ -209,17 +194,17 @@ WHERE `old_id` = 'CAN-999-999-000-999-53';
 -- ... DIAGNOSTIC ...
 
 -- TODO
-UPDATE `menus` SET `use_link` = '/underdevelopment/' WHERE `id` = 'clin_CAN_5'; -- diagnosis
+UPDATE `menus` SET `active` = 'no' WHERE `id` = 'clin_CAN_5'; -- diagnosis
 
 -- ******** ANNOTATION ******** 
 
 -- TODO
-UPDATE `menus` SET `use_link` = '/underdevelopment/' WHERE `id` = 'clin_CAN_4'; -- annotation
+UPDATE `menus` SET `active` = 'no' WHERE `id` = 'clin_CAN_4'; -- annotation
 
 -- ******** TREATMENT ******** 
 
 -- TODO
-UPDATE `menus` SET `use_link` = '/underdevelopment/' WHERE `id` = 'clin_CAN_75'; -- treatment
+UPDATE `menus` SET `active` = 'no' WHERE `id` = 'clin_CAN_75'; -- treatment
 
 -- ... IDENTIFICATION ...
 
@@ -229,7 +214,7 @@ INSERT INTO `misc_identifier_controls`
 VALUES
 (null, 'health_insurance_card', 'RAMQ', 'active', 0, '', ''),
 (null, 'montreal_general_hospital_card', 'MGH/HGM Id', 'active', 1, '', ''),
-(null, 'prostate_bank_participant_id', 'PR-PartID', 'active', 3, 'prostate_bank_participant_id', '%%key_increment%%');
+(null, 'prostate_bank_participant_id', 'PR-PartID', 'active', 3, 'prostate_bank_participant_id', 'PS3 P%%key_increment%%');
 
 DELETE FROM `i18n` WHERE `id` IN ('health_insurance_card', 'montreal_general_hospital_card', 'prostate_bank_participant_id',
 'this identifier has already been created for your participant');
@@ -242,17 +227,17 @@ VALUES
 
 DELETE FROM `key_increments`;
 INSERT INTO `key_increments` (`key_name`, `key_value`) VALUES
-('prostate_bank_participant_id', 200);
+('prostate_bank_participant_id', 0200);
 
 -- ******** REP. HISTORY ******** 
 
 -- TODO
-UPDATE `menus` SET `use_link` = '/underdevelopment/' WHERE `id` = 'clin_CAN_68'; -- reproductive history
+UPDATE `menus` SET `active` = 'no' WHERE `id` = 'clin_CAN_68'; -- reproductive history
 
 -- ******** FAM. HISTORY ******** 
 
 -- TODO
-UPDATE `menus` SET `use_link` = '/underdevelopment/' WHERE `id` = 'clin_CAN_10'; -- family history
+UPDATE `menus` SET `active` = 'no' WHERE `id` = 'clin_CAN_10'; -- family history
 
 -- ******** CONTACT ******** 
 
@@ -276,12 +261,11 @@ INSERT INTO `banks` (`id`, `name`, `description`, `created_by`, `created`, `modi
 VALUES 
 (NULL, 'Prostate', '', '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '0', NULL);
 
-DELETE FROM `structure_validations` WHERE `old_id` = 'QC-CUSM-000003';
 INSERT INTO `structure_validations` 
 (`id`, `old_id`, `structure_field_id`, `structure_field_old_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) 
 VALUES
 (null, 'QC-CUSM-000003', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1223'), 'CAN-999-999-000-999-1223', 'notEmpty', '0', '0', '', 'bank is required', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
-	
+ 
 DELETE FROM `i18n` WHERE `id` IN ('bank is required');
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('bank is required', 'global', 'Bank is required!', 'La banque est requise!');
@@ -302,9 +286,8 @@ SET `flag_add` = '0',
 `flag_detail` = '0'
 WHERE `structure_field_id` IN (SELECT `id` FROM `structure_fields` WHERE `old_id` IN ('CAN-999-999-000-999-1007', 'CAN-999-999-000-999-1007-ColView'));
 
--- Collection site value
+-- Update custom_collection_site
 
-DELETE FROM `structure_permissible_values` WHERE `value` = 'muhc';
 INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) 
 VALUES 
 (NULL, 'muhc', 'muhc');
@@ -332,7 +315,6 @@ INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `categor
 
 SET @visit_domain_id = LAST_INSERT_ID();
 
-DELETE FROM `structure_permissible_values` WHERE `value` IN ('V01', 'V02', 'V03', 'V04', 'V05');
 INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) 
 VALUES 
 (NULL, 'V01', 'V01'),
@@ -341,7 +323,6 @@ VALUES
 (NULL, 'V04', 'V04'),
 (NULL, 'V05', 'V05');
 
-DELETE FROM `structure_value_domains_permissible_values` WHERE  `structure_value_domain_id` IN (@visit_domain_id);
 INSERT INTO `structure_value_domains_permissible_values`  
 (`id` , `structure_value_domain_id` , `structure_permissible_value_id` , `display_order` , `active` , `language_alias` )
 VALUES 
@@ -352,7 +333,6 @@ VALUES
 (NULL , @visit_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'V05'), '5', 'yes', 'V05');
 
 DELETE FROM `i18n` WHERE `id` IN ('visit', 'V01', 'V02', 'V03', 'V04', 'V05');
-
 INSERT INTO `i18n` ( `id` , `page_id` , `en` , `fr` )
 VALUES
 ('V01', 'global', 'V01', 'V01'),
@@ -365,10 +345,10 @@ VALUES
 INSERT INTO `structure_fields` 
 (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) 
 VALUES
-(null, '', 'QC-CUSM-000005', 'Inventorymanagement', 'Collection', 'collections', 'visit_label', 'visit', '', 'select', '', @visit_domain_id, null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(null, '', 'QC-CUSM-000005', 'Inventorymanagement', 'Collection', 'collections', 'visit_label', 'visit', '', 'select', '', '', @visit_domain_id, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
-(null, 'CANM-00025_QC-CUSM-000005', (SELECT id FROM structures WHERE old_id = 'CANM-00025'), 'CANM-00025', 
+(null, 'CAN-999-999-000-999-1000_QC-CUSM-000005', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1000'), 'CAN-999-999-000-999-1000', 
 (SELECT id FROM structure_fields WHERE old_id = 'QC-CUSM-000005'), 'QC-CUSM-000005', 
 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
 '1', '0', '1', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
@@ -389,11 +369,11 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 INSERT INTO `structure_fields` 
 (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) 
 VALUES
-(null, '', 'QC-CUSM-000006', 'Inventorymanagement', 'ViewCollection', '', 'visit_label', 'visit', '', 'select', '', @visit_domain_id, null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(null, '', 'QC-CUSM-000005-ColView', 'Inventorymanagement', 'ViewCollection', '', 'visit_label', 'visit', '', 'select', '', '', @visit_domain_id, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
-(null, 'CANM-00025_QC-CUSM-000006', (SELECT id FROM structures WHERE old_id = 'CANM-00025'), 'CANM-00025', 
-(SELECT id FROM structure_fields WHERE old_id = 'QC-CUSM-000006'), 'QC-CUSM-000006', 
+(null, 'CANM-00025_QC-CUSM-000005-ColView', (SELECT id FROM structures WHERE old_id = 'CANM-00025'), 'CANM-00025', 
+(SELECT id FROM structure_fields WHERE old_id = 'QC-CUSM-000005-ColView'), 'QC-CUSM-000005-ColView', 
 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
 '0', '0', '0', '0', '1', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
@@ -420,7 +400,7 @@ col.deleted,
 
 banks.name AS bank_name,
 
-idents.identifier_value AS prostate_bank_participant_id	
+idents.identifier_value AS qc_cusm_prostate_bank_identifier 
 
 FROM collections AS col
 LEFT JOIN clinical_collection_links AS link ON col.id = link.collection_id AND link.deleted != 1
@@ -431,7 +411,8 @@ WHERE col.deleted != 1;
 
 -- ******** SAMPLE ******** 
 
--- Define available sample types
+-- Define available sample types :
+--      'tissue', 'urine', 'blood', 'blood cell', 'plasma', 'serum', 'dna', 'rna', 'centrifuged urine'
 
 UPDATE sample_controls
 SET status = 'inactive'
@@ -469,7 +450,7 @@ SET active = 'no'
 WHERE structure_value_domain_id IN (SELECT id FROM `structure_value_domains` WHERE `domain_name` IN ('sample_type', 'specimen_sample_type'))
 AND language_alias NOT IN ('tissue', 'urine', 'blood', 'blood cell', 'plasma', 'serum', 'dna', 'rna', 'centrifuged urine');
 
--- Add sample label
+-- Add sample label to existing structures
 
 ALTER TABLE `sample_masters` ADD `sample_label` VARCHAR(60) NOT NULL default '' AFTER `sample_code`; 
 ALTER TABLE `sample_masters_revs` ADD `sample_label` VARCHAR(60) NOT NULL default '' AFTER `sample_code`; 
@@ -482,72 +463,81 @@ VALUES
 SET @field_id = LAST_INSERT_ID();
 
 INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
--- sample_masters_for_collection_tree_view	CAN-999-999-000-999-1004		0|0	0|0	0|0	0|0	1	0
+-- sample_masters_for_collection_tree_view CAN-999-999-000-999-1004  0|0 0|0 0|0 0|0 1 0
 (null, 'CAN-999-999-000-999-1004_QC-CUSM-000007', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1004'), 'CAN-999-999-000-999-1004', 
 @field_id, 'QC-CUSM-000007', 
 0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
 '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
--- view_sample_joined_to_collection	CAN-999-999-000-999-1094	-SampView	0|0	0|0	1|0	0|0	1	0
-(null, 'CAN-999-999-000-999-1094_QC-CUSM-000007', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1094'), 'CAN-999-999-000-999-1094', 
-@field_id, 'QC-CUSM-000007', 
-0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
-'0', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
--- view_sample_joined_to_parent	CAN-999-999-000-999-1093	-SampView	0|0	0|0	0|0	0|0	1	0
-(null, 'CAN-999-999-000-999-1093_QC-CUSM-000007', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1093'), 'CAN-999-999-000-999-1093', 
-@field_id, 'QC-CUSM-000007', 
-0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
-'0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 
--- sd_spe_bloods	CAN-999-999-000-999-1006		0|0	1|1	0|0	0|0	1	1
+-- sd_spe_bloods CAN-999-999-000-999-1006  0|0 1|1 0|0 0|0 1 1
 (null, 'CAN-999-999-000-999-1006_QC-CUSM-000007', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1006'), 'CAN-999-999-000-999-1006', 
 @field_id, 'QC-CUSM-000007', 
-0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
-'1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
--- sd_spe_tissues	CAN-999-999-000-999-1008		0|0	1|1	0|0	0|0	1	1
+0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+-- sd_spe_tissues CAN-999-999-000-999-1008  0|0 1|1 0|0 0|0 1 1
 (null, 'CAN-999-999-000-999-1008_QC-CUSM-000007', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1008'), 'CAN-999-999-000-999-1008', 
 @field_id, 'QC-CUSM-000007', 
-0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
-'1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
--- sd_spe_urines	CAN-999-999-000-999-1009		0|0	1|1	0|0	0|0	1	1
+0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+-- sd_spe_urines CAN-999-999-000-999-1009  0|0 1|1 0|0 0|0 1 1
 (null, 'CAN-999-999-000-999-1009_QC-CUSM-000007', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1009'), 'CAN-999-999-000-999-1009', 
 @field_id, 'QC-CUSM-000007', 
-0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
-'1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-
--- sd_der_cell_cultures	CAN-999-999-000-999-1011		0|0	1|1	0|0	0|0	1	1
-(null, 'CAN-999-999-000-999-1011_QC-CUSM-000007', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1011'), 'CAN-999-999-000-999-1011', 
-@field_id, 'QC-CUSM-000007', 
-0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
-'1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
--- sd_der_plasmas	CAN-999-999-000-999-1014		0|0	1|1	0|0	0|0	1	1
-(null, 'CAN-999-999-000-999-1014_QC-CUSM-000007', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1014'), 'CAN-999-999-000-999-1014', 
-@field_id, 'QC-CUSM-000007', 
-0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
-'1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
--- sd_der_serums	CAN-999-999-000-999-1015		0|0	1|1	0|0	0|0	1	1
-(null, 'CAN-999-999-000-999-1015_QC-CUSM-000007', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1015'), 'CAN-999-999-000-999-1015', 
-@field_id, 'QC-CUSM-000007', 
-0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
-'1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
--- sd_undetailed_derivatives	CAN-999-999-000-999-1010		0|0	1|1	0|0	0|0	1	1
+0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+-- sd_undetailed_derivatives CAN-999-999-000-999-1010  0|0 1|1 0|0 0|0 1 1
 (null, 'CAN-999-999-000-999-1010_QC-CUSM-000007', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1010'), 'CAN-999-999-000-999-1010', 
 @field_id, 'QC-CUSM-000007', 
-0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
-'1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+-- sd_der_plasmas CAN-999-999-000-999-1014  0|0 1|1 0|0 0|0 1 1
+(null, 'CAN-999-999-000-999-1014_QC-CUSM-000007', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1014'), 'CAN-999-999-000-999-1014', 
+@field_id, 'QC-CUSM-000007', 
+0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+-- sd_der_serums CAN-999-999-000-999-1015  0|0 1|1 0|0 0|0 1 1
+(null, 'CAN-999-999-000-999-1015_QC-CUSM-000007', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1015'), 'CAN-999-999-000-999-1015', 
+@field_id, 'QC-CUSM-000007', 
+0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
--- Add Prostate Bank Identifier and sample label To Sample View
+-- Add Prostate Bank Identifier To view_sample_joined_to_collection
 
 INSERT INTO `structure_fields` 
 (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) 
 VALUES
 (null, '', 'QC-CUSM-000003', 'Inventorymanagement', 'ViewSample', '', 'qc_cusm_prostate_bank_identifier', 'prostate_bank_participant_id', '', 'input', 'size=30', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
+SET @field_id = LAST_INSERT_ID();
+
 INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 -- view_sample_joined_to_collection
 (null, 'CAN-999-999-000-999-1094_QC-CUSM-000003', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1094'), 'CAN-999-999-000-999-1094', 
-(SELECT id FROM structure_fields WHERE old_id = 'QC-CUSM-000003'), 'QC-CUSM-000003', 
+@field_id, 'QC-CUSM-000003', 
 0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
-'0', '0', '0', '0', '1', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+'0', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+-- Add sample label to existing views
+
+INSERT INTO `structure_fields` 
+(`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) 
+VALUES
+(null, '', 'QC-CUSM-000007-SampView', 'Inventorymanagement', 'SampleMaster', 'sample_masters', 'sample_label', 'sample label', '', 'input', 'size=30', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+SET @field_id = LAST_INSERT_ID();
+
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+-- view_sample_joined_to_collection CAN-999-999-000-999-1094 -SampView 0|0 0|0 1|0 0|0 1 0
+(null, 'CAN-999-999-000-999-1094_QC-CUSM-000007-SampView', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1094'), 'CAN-999-999-000-999-1094', 
+@field_id, 'QC-CUSM-000007-SampView', 
+0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+-- view_sample_joined_to_parent CAN-999-999-000-999-1093 -SampView 0|0 0|0 0|0 0|0 1 0
+(null, 'CAN-999-999-000-999-1093_QC-CUSM-000007-SampView', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1093'), 'CAN-999-999-000-999-1093', 
+@field_id, 'QC-CUSM-000007-SampView', 
+0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+-- Update Sample View
 
 DROP VIEW IF EXISTS view_samples;
 CREATE VIEW view_samples AS 
@@ -566,7 +556,7 @@ part.participant_identifier,
 
 col.acquisition_label, 
 
-samp.initial_specimen_sample_type, 	
+samp.initial_specimen_sample_type,  
 parent_samp.sample_type AS parent_sample_type,
 samp.sample_type,
 samp.sample_code,
@@ -574,7 +564,7 @@ samp.sample_label,
 samp.sample_category,
 samp.deleted,
 
-idents.identifier_value AS prostate_bank_participant_id	
+idents.identifier_value AS qc_cusm_prostate_bank_identifier 
 
 FROM sample_masters as samp
 INNER JOIN collections AS col ON col.id = samp.collection_id AND col.deleted != 1
@@ -584,13 +574,16 @@ LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted
 LEFT JOIN misc_identifiers AS idents ON idents.participant_id=link.participant_id AND idents.deleted != 1 AND idents.identifier_name = 'prostate_bank_participant_id'
 WHERE samp.deleted != 1;
 
--- Update laboratory staff
+-- Update custom_laboratory_staff
 
-DELETE FROM `structure_permissible_values` WHERE `value` IN ('lucie hamel', 'eleonora scarlata villegas');
 INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) 
 VALUES 
 (NULL, 'lucie hamel', 'lucie hamel'),
-(NULL, 'eleonora scarlata villegas', 'eleonora scarlata villegas');
+(NULL, 'eleonora scarlata villegas', 'eleonora scarlata villegas'),
+(NULL, 'jinsong chen', 'jinsong chen'),
+(NULL, 'chrysoula makris', 'chrysoula makris'),
+(NULL, 'simone chevalier', 'simone chevalier'),
+(NULL, 'armen aprikian', 'armen aprikian');
 
 SET @domain_id = (SELECT `id` FROM `structure_value_domains` WHERE `domain_name` LIKE 'custom_laboratory_staff');
 
@@ -598,16 +591,65 @@ DELETE FROM `structure_value_domains_permissible_values` WHERE  `structure_value
 INSERT INTO `structure_value_domains_permissible_values`  
 (`id` , `structure_value_domain_id` , `structure_permissible_value_id` , `display_order` , `active` , `language_alias` )
 VALUES 
-(NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'lucie hamel' AND `language_alias` = 'lucie hamel'), '20', 'yes', 'lucie hamel'),
-(NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'eleonora scarlata villegas' AND `language_alias` = 'eleonora scarlata villegas'), '10', 'yes', 'eleonora scarlata villegas'),
+(NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'armen aprikian' AND `language_alias` = 'armen aprikian'), '10', 'yes', 'armen aprikian'),
+(NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'chrysoula makris' AND `language_alias` = 'chrysoula makris'), '15', 'yes', 'chrysoula makris'),
+(NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'eleonora scarlata villegas' AND `language_alias` = 'eleonora scarlata villegas'), '20', 'yes', 'eleonora scarlata villegas'),
+(NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'jinsong chen' AND `language_alias` = 'jinsong chen'), '25', 'yes', 'jinsong chen'),
+(NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'lucie hamel' AND `language_alias` = 'lucie hamel'), '30', 'yes', 'lucie hamel'),
+(NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'simone chevalier' AND `language_alias` = 'simone chevalier'), '35', 'yes', 'simone chevalier'),
 (NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'other' AND `language_alias` = 'other'), '40', 'yes', 'other');
 
-DELETE FROM `i18n` WHERE `id` IN ('lucie hamel', 'eleonora scarlata villegas');
+DELETE FROM `i18n` WHERE `id` IN ('simone chevalier', 'jinsong chen', 'lucie hamel', 'eleonora scarlata villegas', 'chrysoula makris', 'armen aprikian');
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('armen aprikian', 'global', 'Armen Aprikian', 'Armen Aprikian'),
+('chrysoula makris', 'global', 'Chrysoula Makris', 'Chrysoula Makris'),
+('eleonora scarlata villegas', 'global', 'Eleonora Scarlata Villegas', 'Eleonora Scarlata Villegas'),
+('jinsong chen', 'global', 'Jinsong Chen', 'Jinsong Chen'),
 ('lucie hamel', 'global', 'Lucie Hamel', 'Lucie Hamel'),
-('eleonora scarlata villegas', 'global', 'Eleonora Scarlata Villegas', 'Eleonora Scarlata Villegas');
+('simone chevalier', 'global', 'Simone Chevalier', 'Simone Chevalier');
 
--- SOP hidden
+-- Update custom_specimen_supplier_dept
+
+INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) 
+VALUES 
+(NULL, 'urology clinic', 'urology clinic');
+
+SET @domain_id = (SELECT `id` FROM `structure_value_domains` WHERE `domain_name` LIKE 'custom_specimen_supplier_dept');
+
+DELETE FROM `structure_value_domains_permissible_values` WHERE  `structure_value_domain_id` IN (@domain_id);
+INSERT INTO `structure_value_domains_permissible_values`  
+(`id` , `structure_value_domain_id` , `structure_permissible_value_id` , `display_order` , `active` , `language_alias` )
+VALUES 
+(NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'operating room' AND `language_alias` = 'operating room'), '10', 'yes', 'operating room'),
+(NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'urology clinic' AND `language_alias` = 'urology clinic'), '10', 'yes', 'urology clinic'),
+(NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'other' AND `language_alias` = 'other'), '40', 'yes', 'other');
+
+DELETE FROM `i18n` WHERE `id` IN ('urology clinic');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('urology clinic', 'global', 'Urology Clinic', 'Clinique d''urologie');
+
+-- Update custom_laboratory_site
+
+INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) 
+VALUES 
+(NULL, 'r1-103', 'r1-103'),
+(NULL, 'pathology laboratory', 'pathology laboratory');
+
+SET @domain_id = (SELECT `id` FROM `structure_value_domains` WHERE `domain_name` LIKE 'custom_laboratory_site');
+
+DELETE FROM `structure_value_domains_permissible_values` WHERE  `structure_value_domain_id` IN (@domain_id);
+INSERT INTO `structure_value_domains_permissible_values`  
+(`id` , `structure_value_domain_id` , `structure_permissible_value_id` , `display_order` , `active` , `language_alias` )
+VALUES 
+(NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'r1-103' AND `language_alias` = 'r1-103'), '10', 'yes', 'r1-103'),
+(NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pathology laboratory' AND `language_alias` = 'pathology laboratory'), '10', 'yes', 'pathology laboratory'),
+(NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'other' AND `language_alias` = 'other'), '40', 'yes', 'other');
+
+DELETE FROM `i18n` WHERE `id` IN ('pathology laboratory');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('pathology laboratory', 'global', 'Pathology Laboratory', 'Laboratoire de pathologie');
+
+-- sample SOP hidden
 
 UPDATE `structure_formats`
 SET `flag_add` = '0',
@@ -636,19 +678,187 @@ DELETE FROM `i18n` WHERE `id` IN ('gel CSA');
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('gel CSA', 'global', 'Gel CSA/SST', 'Gel de CSA/SST');
 
+-- urine aspect update
 
+UPDATE structure_fields
+SET language_label = 'aspect at reception'
+WHERE old_id = 'CAN-999-999-000-999-1050'; -- SampleDetail.urine_aspect
 
--- Add is micro RNA to RNA
+ALTER TABLE `sd_spe_urines` ADD `aspect_before_centrifugation` VARCHAR(30) NULL AFTER `urine_aspect`; 
+ALTER TABLE `sd_spe_urines_revs` ADD `aspect_before_centrifugation` VARCHAR(30) NULL AFTER `urine_aspect`; 
 
--- TODO
+INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, '', 'QC-CUSM-000010', 'Inventorymanagement', 'SampleDetail', '', 'aspect_before_centrifugation', 'aspect before centrifugation', '', 'select', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'urine_aspect'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
+SET @field_id = LAST_INSERT_ID();
 
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+-- sd_spe_urines CAN-999-999-000-999-1009 1|0 1|0 0|0 0|0 1 1
+(null, 'CAN-999-999-000-999-1009_QC-CUSM-000010', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1009'), 'CAN-999-999-000-999-1009', 
+@field_id, 'QC-CUSM-000010', 
+1, 41, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
+DELETE FROM `i18n` WHERE `id` IN ('aspect at reception', 'aspect before centrifugation');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('aspect at reception', 'global', 'Aspect at Reception', 'Aspect &agrave; la r&eacute;ception'),
+('aspect before centrifugation', 'global', 'Aspect Before Centrifugation', 'Aspect avant centrifugation');
+ 
+-- centrifuged urine : add pellet color
 
+UPDATE sample_controls
+SET form_alias = 'sd_der_centrifuged_urines'
+WHERE sample_type = 'centrifuged urine' ;
 
+INSERT INTO `structures` (`id`, `old_id`, `alias`, `description`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, 'QC-CUSM-000002', 'sd_der_centrifuged_urines', NULL, '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
+SET @structure_id = LAST_INSERT_ID();
 
+ALTER TABLE `sd_der_urine_cents` ADD `pellet_color` VARCHAR(30) NULL AFTER `sample_master_id`; 
+ALTER TABLE `sd_der_urine_cents_revs` ADD `pellet_color` VARCHAR(30) NULL AFTER `sample_master_id`; 
 
+INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) 
+VALUES 
+(NULL, 'red', 'red'),
+(NULL, 'pink', 'pink'),
+(NULL, 'white', 'white'),
+(NULL, 'yellow', 'yellow');
+
+DELETE FROM `i18n` WHERE `id` IN ('red', 'pink', 'white', 'yellow');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('red', 'global', 'Red', 'Rouge'),
+('pink', 'global', 'Pink', 'Rose'),
+('yellow', 'global', 'Yellow', 'Jaune'),
+('white', 'global', 'White', 'Blanc');
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`) VALUES
+(null, 'qc_cusm_centrifuged_urine_pellet_color', 'open', '');
+
+SET @domain_id = LAST_INSERT_ID();
+
+INSERT INTO `structure_value_domains_permissible_values`  
+(`id` , `structure_value_domain_id` , `structure_permissible_value_id` , `display_order` , `active` , `language_alias` )
+VALUES 
+(NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pink'), '10', 'yes', 'pink'),
+(NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'red'), '20', 'yes', 'red'),
+(NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'white'), '30', 'yes', 'white'),
+(NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'yellow'), '40', 'yes', 'yellow'),
+(NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'other'), '50', 'yes', 'other');
+
+INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, '', 'QC-CUSM-000011', 'Inventorymanagement', 'SampleDetail', '', 'pellet_color', 'pellet color', '', 'select', '', '', @domain_id, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+SET @field_id = LAST_INSERT_ID();
+
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+-- CAN-999-999-000-999-1222 SampleMaster.initial_specimen_sample_type
+(null, 'QC-CUSM-000002_CAN-999-999-000-999-1222', @structure_id, 'QC-CUSM-000002', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-1222'), 'CAN-999-999-000-999-1222', 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+-- CAN-999-999-000-999-1276 GeneratedParentSample.sample_type
+(null, 'QC-CUSM-000002_CAN-999-999-000-999-1276', @structure_id, 'QC-CUSM-000002', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-1276'), 'CAN-999-999-000-999-1276', 0, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+-- CAN-999-999-000-999-1018 SampleMaster.sample_type
+(null, 'QC-CUSM-000002_CAN-999-999-000-999-1018', @structure_id, 'QC-CUSM-000002', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-1018'), 'CAN-999-999-000-999-1018', 0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+-- QC-CUSM-000007 SampleMaster.sample_label
+(null, 'QC-CUSM-000002_QC-CUSM-000007', @structure_id, 'QC-CUSM-000002', (SELECT id FROM structure_fields WHERE old_id = 'QC-CUSM-000007'), 'QC-CUSM-000007', 0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+-- CAN-999-999-000-999-1016 SampleMaster.sample_code
+(null, 'QC-CUSM-000002_CAN-999-999-000-999-1016', @structure_id, 'QC-CUSM-000002', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-1016'), 'CAN-999-999-000-999-1016', 0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+-- CAN-999-999-000-999-1027 SampleMaster.sample_category
+(null, 'QC-CUSM-000002_CAN-999-999-000-999-1027', @structure_id, 'QC-CUSM-000002', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-1027'), 'CAN-999-999-000-999-1027', 0, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+-- CAN-999-999-000-999-1023 SampleMaster.parent_id
+(null, 'QC-CUSM-000002_CAN-999-999-000-999-1023', @structure_id, 'QC-CUSM-000002', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-1023'), 'CAN-999-999-000-999-1023', 0, 9, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+-- CAN-999-999-000-999-1030 SampleMaster.sop_master_id
+(null, 'QC-CUSM-000002_CAN-999-999-000-999-1030', @structure_id, 'QC-CUSM-000002', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-1030'), 'CAN-999-999-000-999-1030', 0, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+-- CAN-999-999-000-999-1029 SampleMaster.is_problematic
+(null, 'QC-CUSM-000002_CAN-999-999-000-999-1029', @structure_id, 'QC-CUSM-000002', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-1029'), 'CAN-999-999-000-999-1029', 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+-- CAN-999-999-000-999-1022 SampleMaster.notes
+(null, 'QC-CUSM-000002_CAN-999-999-000-999-1022', @structure_id, 'QC-CUSM-000002', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-1022'), 'CAN-999-999-000-999-1022', 0, 25, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+-- CAN-999-999-000-999-1062 DerivativeDetail.creation_datetime
+(null, 'QC-CUSM-000002_CAN-999-999-000-999-1062', @structure_id, 'QC-CUSM-000002', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-1062'), 'CAN-999-999-000-999-1062', 1, 30, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+-- CAN-999-999-000-999-1287 DerivativeDetail.creation_datetime_accuracy
+(null, 'QC-CUSM-000002_CAN-999-999-000-999-1287', @structure_id, 'QC-CUSM-000002', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-1287'), 'CAN-999-999-000-999-1287', 1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+-- CAN-999-999-000-999-1061 DerivativeDetail.creation_by
+(null, 'QC-CUSM-000002_CAN-999-999-000-999-1061', @structure_id, 'QC-CUSM-000002', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-1061'), 'CAN-999-999-000-999-1061', 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+-- CAN-999-999-000-999-1060 DerivativeDetail.creation_site
+(null, 'QC-CUSM-000002_CAN-999-999-000-999-1060', @structure_id, 'QC-CUSM-000002', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-1060'), 'CAN-999-999-000-999-1060', 1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+-- CAN-999-999-000-999-1070 Generated.coll_to_creation_spent_time_msg
+(null, 'QC-CUSM-000002_CAN-999-999-000-999-1070', @structure_id, 'QC-CUSM-000002', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-1070'), 'CAN-999-999-000-999-1070', 1, 34, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+
+-- new field
+(null, 'QC-CUSM-000002_QC-CUSM-000011', @structure_id, 'QC-CUSM-000002', @field_id, 'QC-CUSM-000011', 1, 40, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL');
+
+-- Add 'on ice' to tissue
+
+ALTER TABLE `sd_spe_tissues` ADD `on_ice` VARCHAR(10) NULL AFTER `tissue_size_unit`; 
+ALTER TABLE `sd_spe_tissues_revs` ADD `on_ice` VARCHAR(10) NULL AFTER `tissue_size_unit`; 
+
+INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, '', 'QC-CUSM-000012', 'Inventorymanagement', 'SampleDetail', '', 'on_ice', 'on ice', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yesno'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+SET @field_id = LAST_INSERT_ID();
+
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, 'CAN-999-999-000-999-1008_QC-CUSM-000012', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1008'), 'CAN-999-999-000-999-1008', 
+@field_id, 'QC-CUSM-000012', 
+1, 48, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+DELETE FROM `i18n` WHERE `id` IN ('on_ice');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('on_ice', 'global', 'On Ice', 'Sur glace');
+
+-- RNA : Add is micro RNA
+
+UPDATE sample_controls
+SET form_alias = 'sd_der_rnas'
+WHERE sample_type = 'rna' ;
+
+INSERT INTO `structures` (`id`, `old_id`, `alias`, `description`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, 'QC-CUSM-000003', 'sd_der_rnas', NULL, '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+SET @structure_id = LAST_INSERT_ID();
+
+ALTER TABLE `sd_der_rnas` ADD `micro_rna` VARCHAR(10) NULL AFTER `sample_master_id`; 
+ALTER TABLE `sd_der_rnas_revs` ADD `micro_rna` VARCHAR(10) NULL AFTER `sample_master_id`; 
+
+INSERT INTO `structure_fields` (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, '', 'QC-CUSM-000013', 'Inventorymanagement', 'SampleDetail', '', 'micro_rna', 'micro rna', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+SET @field_id = LAST_INSERT_ID();
+
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+-- CAN-999-999-000-999-1222 SampleMaster.initial_specimen_sample_type
+(null, 'QC-CUSM-000003_CAN-999-999-000-999-1222', @structure_id, 'QC-CUSM-000003', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-1222'), 'CAN-999-999-000-999-1222', 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+-- CAN-999-999-000-999-1276 GeneratedParentSample.sample_type
+(null, 'QC-CUSM-000003_CAN-999-999-000-999-1276', @structure_id, 'QC-CUSM-000003', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-1276'), 'CAN-999-999-000-999-1276', 0, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+-- CAN-999-999-000-999-1018 SampleMaster.sample_type
+(null, 'QC-CUSM-000003_CAN-999-999-000-999-1018', @structure_id, 'QC-CUSM-000003', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-1018'), 'CAN-999-999-000-999-1018', 0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+-- QC-CUSM-000007 SampleMaster.sample_label
+(null, 'QC-CUSM-000003_QC-CUSM-000007', @structure_id, 'QC-CUSM-000003', (SELECT id FROM structure_fields WHERE old_id = 'QC-CUSM-000007'), 'QC-CUSM-000007', 0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+-- CAN-999-999-000-999-1016 SampleMaster.sample_code
+(null, 'QC-CUSM-000003_CAN-999-999-000-999-1016', @structure_id, 'QC-CUSM-000003', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-1016'), 'CAN-999-999-000-999-1016', 0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+-- CAN-999-999-000-999-1027 SampleMaster.sample_category
+(null, 'QC-CUSM-000003_CAN-999-999-000-999-1027', @structure_id, 'QC-CUSM-000003', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-1027'), 'CAN-999-999-000-999-1027', 0, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+-- CAN-999-999-000-999-1023 SampleMaster.parent_id
+(null, 'QC-CUSM-000003_CAN-999-999-000-999-1023', @structure_id, 'QC-CUSM-000003', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-1023'), 'CAN-999-999-000-999-1023', 0, 9, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+-- CAN-999-999-000-999-1030 SampleMaster.sop_master_id
+(null, 'QC-CUSM-000003_CAN-999-999-000-999-1030', @structure_id, 'QC-CUSM-000003', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-1030'), 'CAN-999-999-000-999-1030', 0, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+-- CAN-999-999-000-999-1029 SampleMaster.is_problematic
+(null, 'QC-CUSM-000003_CAN-999-999-000-999-1029', @structure_id, 'QC-CUSM-000003', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-1029'), 'CAN-999-999-000-999-1029', 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+-- CAN-999-999-000-999-1022 SampleMaster.notes
+(null, 'QC-CUSM-000003_CAN-999-999-000-999-1022', @structure_id, 'QC-CUSM-000003', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-1022'), 'CAN-999-999-000-999-1022', 0, 25, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+-- CAN-999-999-000-999-1062 DerivativeDetail.creation_datetime
+(null, 'QC-CUSM-000003_CAN-999-999-000-999-1062', @structure_id, 'QC-CUSM-000003', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-1062'), 'CAN-999-999-000-999-1062', 1, 30, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+-- CAN-999-999-000-999-1287 DerivativeDetail.creation_datetime_accuracy
+(null, 'QC-CUSM-000003_CAN-999-999-000-999-1287', @structure_id, 'QC-CUSM-000003', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-1287'), 'CAN-999-999-000-999-1287', 1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+-- CAN-999-999-000-999-1061 DerivativeDetail.creation_by
+(null, 'QC-CUSM-000003_CAN-999-999-000-999-1061', @structure_id, 'QC-CUSM-000003', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-1061'), 'CAN-999-999-000-999-1061', 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+-- CAN-999-999-000-999-1060 DerivativeDetail.creation_site
+(null, 'QC-CUSM-000003_CAN-999-999-000-999-1060', @structure_id, 'QC-CUSM-000003', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-1060'), 'CAN-999-999-000-999-1060', 1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+-- CAN-999-999-000-999-1070 Generated.coll_to_creation_spent_time_msg
+(null, 'QC-CUSM-000003_CAN-999-999-000-999-1070', @structure_id, 'QC-CUSM-000003', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-1070'), 'CAN-999-999-000-999-1070', 1, 34, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+
+-- new field
+(null, 'QC-CUSM-000003_QC-CUSM-000013', @structure_id, 'QC-CUSM-000003', @field_id, 'QC-CUSM-000013', 1, 40, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL');
 
 -- ******** ALIQUOT ******** 
 
@@ -672,113 +882,25 @@ SET active = 'no'
 WHERE structure_value_domain_id = (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'aliquot_type')
 AND language_alias IN ('cell gel matrix', 'core', 'slide');
 
--- Add aliquot label
-
-ALTER TABLE `aliquot_masters` ADD `aliquot_label` VARCHAR(60) NOT NULL default '' AFTER `barcode`; 
-ALTER TABLE `aliquot_masters_revs` ADD `aliquot_label` VARCHAR(60) NOT NULL default '' AFTER `barcode`; 
-
-INSERT INTO `structure_fields` 
-(`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) 
-VALUES
-(null, '', 'QC-CUSM-000008', 'Inventorymanagement', 'AliquotMaster', 'aliquot_masters', 'aliquot_label', 'aliquot label', '', 'input', 'size=30', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
-
-SET @field_id = LAST_INSERT_ID();
-
-INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
--- ad_spec_tubes_incl_ml_vol	CAN-999-999-000-999-1024		1|1	1|1	0|0	1|1	1	1
-(null, 'CAN-999-999-000-999-1024_QC-CUSM-000007', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1024'), 'CAN-999-999-000-999-1024', 
-@field_id, 'QC-CUSM-000007', 
-0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
-'1', '1', '1', '1', '0', '0', '1', '1', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
--- ad_spec_tiss_blocks	CAN-999-999-000-999-1028		1|1	1|1	0|0	1|1	1	1
-(null, 'CAN-999-999-000-999-1028_QC-CUSM-000007', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1028'), 'CAN-999-999-000-999-1028', 
-@field_id, 'QC-CUSM-000007', 
-0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
-'1', '1', '1', '1', '0', '0', '1', '1', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
--- ad_spec_whatman_papers	CAN-999-999-000-999-1030		1|1	1|1	0|0	1|1	1	1
-(null, 'CAN-999-999-000-999-1030_QC-CUSM-000007', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1030'), 'CAN-999-999-000-999-1030', 
-@field_id, 'QC-CUSM-000007', 
-0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
-'1', '1', '1', '1', '0', '0', '1', '1', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-
--- ad_der_tubes_incl_ml_vol	CAN-999-999-000-999-1032		1|1	1|1	0|0	1|1	1	1
-(null, 'CAN-999-999-000-999-1032_QC-CUSM-000007', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1032'), 'CAN-999-999-000-999-1032', 
-@field_id, 'QC-CUSM-000007', 
-0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
-'1', '1', '1', '1', '0', '0', '1', '1', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
--- ad_der_tubes_incl_ul_vol_and_conc	CAN-999-999-000-999-1054		1|1	1|1	0|0	1|1	1	1
-(null, 'CAN-999-999-000-999-1054_QC-CUSM-000007', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1054'), 'CAN-999-999-000-999-1054', 
-@field_id, 'QC-CUSM-000007', 
-0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
-'1', '1', '1', '1', '0', '0', '1', '1', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
--- ad_der_cell_tubes_incl_ml_vol	CAN-999-999-000-999-1065		1|1	1|1	0|0	1|1	1	1
-(null, 'CAN-999-999-000-999-1065_QC-CUSM-000007', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1065'), 'CAN-999-999-000-999-1065', 
-@field_id, 'QC-CUSM-000007', 
-0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
-'1', '1', '1', '1', '0', '0', '1', '1', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-
--- aliquotmasters	CAN-999-999-000-999-1079		0|0	0|0	0|0	0|0	1	0
-(null, 'CAN-999-999-000-999-1079_QC-CUSM-000007', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1079'), 'CAN-999-999-000-999-1079', 
-@field_id, 'QC-CUSM-000007', 
-0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
-'0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
--- aliquot_masters_for_collection_tree_view	CAN-999-999-000-999-1074		0|0	0|0	0|0	0|0	1	0
-(null, 'CAN-999-999-000-999-1074_QC-CUSM-000007', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1074'), 'CAN-999-999-000-999-1074', 
-@field_id, 'QC-CUSM-000007', 
-0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
-'0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
--- aliquot_masters_for_storage_tree_view	CAN-999-999-000-999-1076		0|0	0|0	0|0	0|0	1	0
-(null, 'CAN-999-999-000-999-1076_QC-CUSM-000007', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1076'), 'CAN-999-999-000-999-1076', 
-@field_id, 'QC-CUSM-000007', 
-0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
-'0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
--- realiquotedparent	CANM-00016		0|0	0|0	0|0	0|0	1	0
-(null, 'CANM-00016_QC-CUSM-000007', (SELECT id FROM structures WHERE old_id = 'CANM-00016'), 'CANM-00016', 
-@field_id, 'QC-CUSM-000007', 
-0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
-'0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
--- view_aliquot_joined_to_sample	CAN-999-999-000-999-1020	-AliqView	0|0	0|0	0|0	0|0	1	0
-(null, 'CAN-999-999-000-999-1020_QC-CUSM-000007', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1020'), 'CAN-999-999-000-999-1020', 
-@field_id, 'QC-CUSM-000007', 
-0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
-'0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-
--- children_aliquots_selection	CANM-00011		0|0	0|0	0|0	1|1	0	0
-(null, 'CANM-00011_QC-CUSM-000007', (SELECT id FROM structures WHERE old_id = 'CANM-00011'), 'CANM-00011', 
-@field_id, 'QC-CUSM-000007', 
-0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
-'0', '0', '0', '0', '0', '0', '1', '1', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
--- qctestedaliquots	CAN-999-999-000-999-1071		0|0	0|0	0|0	1|1	1	0
-(null, 'CAN-999-999-000-999-1071_QC-CUSM-000007', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1071'), 'CAN-999-999-000-999-1071', 
-@field_id, 'QC-CUSM-000007', 
-0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
-'0', '0', '0', '0', '0', '0', '1', '1', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
--- sourcealiquots	CAN-999-999-000-999-1036		0|0	0|0	0|0	1|1	1	0
-(null, 'CAN-999-999-000-999-1036_QC-CUSM-000007', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1036'), 'CAN-999-999-000-999-1036', 
-@field_id, 'QC-CUSM-000007', 
-0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
-'0', '0', '0', '0', '0', '0', '1', '1', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-
--- view_aliquot_joined_to_collection	CAN-999-999-000-999-1095	-AliqView	0|0	0|0	1|0	0|0	1	0
-(null, 'CAN-999-999-000-999-1095_QC-CUSM-000007', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1095'), 'CAN-999-999-000-999-1095', 
-@field_id, 'QC-CUSM-000007', 
-0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
-'0', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
-
--- Add Prostate Bank Identifier and aliquot label To Aliquot View
+-- Add Prostate Bank Identifier To view_aliquot_joined_to_collection
 
 INSERT INTO `structure_fields` 
 (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) 
 VALUES
 (null, '', 'QC-CUSM-000009', 'Inventorymanagement', 'ViewAliquot', '', 'qc_cusm_prostate_bank_identifier', 'prostate_bank_participant_id', '', 'input', 'size=30', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
+SET @field_id = LAST_INSERT_ID();
+
 INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 -- view_aliquot_joined_to_collection
 (null, 'CAN-999-999-000-999-1095_QC-CUSM-000009', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1095'), 'CAN-999-999-000-999-1095', 
-(SELECT id FROM structure_fields WHERE old_id = 'QC-CUSM-000009'), 'QC-CUSM-000009', 
+@field_id, 'QC-CUSM-000009', 
 0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
 '0', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
+-- Update Aliquot View
+
+DROP VIEW IF EXISTS view_aliquots;
 CREATE VIEW view_aliquots AS 
 SELECT 
 al.id AS aliquot_master_id,
@@ -794,12 +916,11 @@ part.participant_identifier,
 
 col.acquisition_label, 
 
-samp.initial_specimen_sample_type, 	
+samp.initial_specimen_sample_type,  
 parent_samp.sample_type AS parent_sample_type,
 samp.sample_type,
 
 al.barcode,
-al.aliquot_label,
 al.aliquot_type,
 al.in_stock,
 
@@ -858,6 +979,147 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 1, 72, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
 '1', '0', '1', '0', '0', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
+-- Tissue Block: Delete frozen from tissue block type
 
+SET @domain_id = (SELECT `id` FROM `structure_value_domains` WHERE `domain_name` LIKE 'block_type');
+
+DELETE FROM `structure_value_domains_permissible_values` WHERE  `structure_value_domain_id` IN (@domain_id)
+AND language_alias NOT IN ('oct solution', 'paraffin');
+
+-- Tissue Block: Add tissue position
+
+ALTER TABLE `ad_blocks` 
+ADD `tissue_position_code` varchar(10) default NULL AFTER `block_type`;
+
+ALTER TABLE `ad_blocks_revs` 
+ADD `tissue_position_code` varchar(10) default NULL AFTER `block_type`;
+
+INSERT INTO `structure_fields` 
+(`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) 
+VALUES
+(null, '', 'QC-CUSM-000014', 'Inventorymanagement', 'AliquotDetail', 'ad_blocks', 'tissue_position_code', 'tissue position code', '', 'input', 'size=10', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, 'CAN-999-999-000-999-1028_QC-CUSM-000014', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1028'), 'CAN-999-999-000-999-1028', 
+(SELECT id FROM structure_fields WHERE old_id = 'QC-CUSM-000014'), 'QC-CUSM-000014', 
+1, 73, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+DELETE FROM `i18n` WHERE `id` IN ('tissue position code');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('tissue position code', 'global', 'Tissue Position', 'Position du tissue');
+
+-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+-- STORAGE
+-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+-- Hidde unused strorage type
+
+UPDATE `storage_controls` SET  `status` = 'inactive' WHERE `storage_type` NOT IN ('room', 'freezer', 'shelf');
+
+UPDATE structure_value_domains_permissible_values
+SET active = 'no'
+WHERE structure_value_domain_id = (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'storage_type')
+AND language_alias NOT IN ('room', 'freezer', 'shelf');
+
+-- Creatre new strorage type
+
+INSERT INTO `storage_controls` (`id`, `storage_type`, `storage_type_code`, `coord_x_title`, `coord_x_type`, `coord_x_size`, `coord_y_title`, `coord_y_type`, `coord_y_size`, `square_box`, `horizontal_display`, `set_temperature`, `is_tma_block`, `status`, `form_alias`, `form_alias_for_children_pos`, `detail_tablename`) VALUES
+(null , 'rack16 1A-4D', 'RACK', 'column', 'integer', 4, 'row', 'alphabetical', 4, 0, 0, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_2_dim_position_selection', 'std_racks'),
+(null, 'box100', 'B100', 'position', 'integer', 100, null, null, null, 1, 0, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_boxs'),
+(null, 'drawers box', 'DR-BX', 'position', 'integer', 8, null, null, null, 0, 1, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_boxs'),
+(null, 'blocks drawer', 'DR', 'position', 'integer', 2, null, null, null, 0, 1, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_boxs');
+
+INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) 
+VALUES 
+(NULL, 'rack16 1A-4D', 'rack16 1A-4D'),
+(NULL, 'box100', 'box100'),
+(NULL, 'drawers box', 'drawers box'),
+(NULL, 'blocks drawer', 'blocks drawer');
+
+SET @domain_id = (SELECT `id` FROM `structure_value_domains` WHERE `domain_name` LIKE 'storage_type');
+
+INSERT INTO `structure_value_domains_permissible_values`  
+(`id` , `structure_value_domain_id` , `structure_permissible_value_id` , `display_order` , `active` , `language_alias` )
+VALUES 
+(NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'rack16 1A-4D' AND `language_alias` = 'rack16 1A-4D'), '110', 'yes', 'rack16 1A-4D'),
+(NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'box100' AND `language_alias` = 'box100'), '120', 'yes', 'box100'),
+(NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'drawers box' AND `language_alias` = 'drawers box'), '130', 'yes', 'drawers box'),
+(NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'blocks drawer' AND `language_alias` = 'blocks drawer'), '140', 'yes', 'blocks drawer');
+
+DELETE FROM `i18n` WHERE `id` IN ('blocks drawer', 'drawers box', 'box100', 'rack16 1A-4D');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('rack16 1A-4D', 'global', 'Rack ', 'Ratelier'),
+('box100', 'global', 'Box 100', 'Bo&icirc;te 100'),
+('drawers box', 'global', 'Drawers Box', 'Bo&icirc;te &agrave; tiroirs'),
+('blocks drawer', 'global', 'Blocks Drawer', 'Tiroir &agrave; blocs');
+
+-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+-- SOP
+-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+UPDATE `menus` SET `active` = 'no' WHERE `id` LIKE 'sop_CAN_%';
+
+-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+-- MATERIAL
+-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+UPDATE `menus` SET `active` = 'no' WHERE `id` LIKE 'mat_CAN_%';
+
+-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+-- DRUG
+-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+UPDATE `menus` SET `active` = 'no' WHERE `id` LIKE 'drug_CAN_%';
+
+-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+-- PROTOCOL
+-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+UPDATE `menus` SET `active` = 'no' WHERE `id` LIKE 'proto_CAN_%';
+
+-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+-- FORM
+-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+UPDATE `menus` SET `active` = 'no' WHERE `id` LIKE 'rtbf_CAN_%';
+
+-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+-- STUDY
+-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+UPDATE `menus` SET `active` = 'no' WHERE `id` IN (
+'tool_CAN_107',		--	tool_reviews
+'tool_CAN_108',		--	tool_ethics
+'tool_CAN_109',		--	tool_funding
+'tool_CAN_110',		--	tool_result
+'tool_CAN_112');	--	tool_related studies
+
+UPDATE `structure_formats`
+SET `flag_add` = '0',
+`flag_add_readonly` = '0',
+`flag_edit` = '0',
+`flag_edit_readonly` = '0',
+`flag_search` = '0',
+`flag_search_readonly` = '0',
+`flag_edit_readonly` = '0',
+`flag_datagrid` = '0',
+`flag_datagrid_readonly` = '0',
+`flag_index` = '0',
+`flag_detail` = '0'
+WHERE `old_id` IN (
+'CAN-999-999-000-999-52_CAN-999-999-000-999-365',	-- StudySummary.study_type
+'CAN-999-999-000-999-52_CAN-999-999-000-999-366',	-- StudySummary.study_science
+'CAN-999-999-000-999-52_CAN-999-999-000-999-52-3',	-- StudySummary.path_to_file
+'CAN-999-999-000-999-52_CAN-999-999-000-999-370',	-- StudySummary.abstract
+'CAN-999-999-000-999-52_CAN-999-999-000-999-371',	-- StudySummary.hypothesis
+'CAN-999-999-000-999-52_CAN-999-999-000-999-372',	-- StudySummary.approach
+'CAN-999-999-000-999-52_CAN-999-999-000-999-373',	-- StudySummary.analysis
+'CAN-999-999-000-999-52_CAN-999-999-000-999-374',	-- StudySummary.significance
+'CAN-999-999-000-999-52_CAN-999-999-000-999-375');	-- StudySummary.additional_clinical
+
+-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+-- ADMINISTRATION
+-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 
