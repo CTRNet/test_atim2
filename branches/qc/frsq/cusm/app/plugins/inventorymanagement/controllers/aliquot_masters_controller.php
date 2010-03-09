@@ -943,7 +943,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$available_sample_aliquots = $this->AliquotMaster->find('all', array('conditions' => $criteria, 'order' => 'AliquotMaster.barcode ASC', 'recursive' => '-1'));
 		
 		if(empty($available_sample_aliquots)) {
-			$this->flash('no new sample aliquot could be actually defined as source aliquot', '/inventorymanagement/aliquot_masters/listallSourceAliquots/' . $collection_id . '/' . $sample_master_id);
+			$this->flash('no new sample aliquot could be actually defined as source aliquot', '/inventorymanagement/aliquot_masters/listAllSourceAliquots/' . $collection_id . '/' . $sample_master_id);
 		}
 		
 		// Set array to get id from barcode
@@ -954,7 +954,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
-		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/aliquot_masters/listallSourceAliquots/%%Collection.id%%/%%SampleMaster.id%%'));	
+		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/aliquot_masters/listAllSourceAliquots/%%Collection.id%%/%%SampleMaster.id%%'));	
 		
 		// Get the current menu object.
 		$this->set( 'atim_menu_variables', 
