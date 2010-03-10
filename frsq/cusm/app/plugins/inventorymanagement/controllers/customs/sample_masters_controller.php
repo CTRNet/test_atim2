@@ -4,13 +4,15 @@ class SampleMastersControllerCustom extends SampleMastersController {
 	 
 	 function getSampleLabel($collection_id, $sample_master_data, $sample_detail = null) {
 	 	// Check parameters
-	 	if(empty($collection_id) || empty($sample_master_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }
+	 	if(empty($collection_id) || empty($sample_master_data)) { 
+	 		$this->redirect('/pages/err_inv_no_data', null, true); 
+	 	}
 
 		// Get Collection data
 		App::import('Model', 'Inventorymanagement.ViewCollection');		
 		$this->ViewCollection = new ViewCollection();	
 		$view_collection = $this->ViewCollection->find('first', array('conditions' => array('ViewCollection.collection_id' => $collection_id)));
-		if(empty($collection_id)) { $this->redirect('/pages/err_inv_no_data', null, true); }
+		if(empty($view_collection)) { $this->redirect('/pages/err_inv_no_data', null, true); }
 		
 		// Get visit_label
 		$visit_label = strtoupper($view_collection['ViewCollection']['visit_label']);
@@ -49,6 +51,9 @@ class SampleMastersControllerCustom extends SampleMastersController {
 				$sample_label .=	' -BFC';
 				break;
 			case 'urine':
+			case 'centrifuged urine':
+				$sample_label .=	' -URI';
+				break;
 			case 'centrifuged urine':
 				$sample_label .=	' -URN';
 				break;
