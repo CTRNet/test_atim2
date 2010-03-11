@@ -1024,15 +1024,15 @@ AND language_alias NOT IN ('room', 'freezer', 'shelf');
 
 -- Creatre new strorage type
 
-INSERT INTO `storage_controls` (`id`, `storage_type`, `storage_type_code`, `coord_x_title`, `coord_x_type`, `coord_x_size`, `coord_y_title`, `coord_y_type`, `coord_y_size`, `square_box`, `horizontal_display`, `set_temperature`, `is_tma_block`, `status`, `form_alias`, `form_alias_for_children_pos`, `detail_tablename`) VALUES
-(null , 'rack16 1A-4D', 'RACK', 'column', 'integer', 4, 'row', 'alphabetical', 4, 0, 0, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_2_dim_position_selection', 'std_racks'),
-(null, 'box100', 'B100', 'position', 'integer', 100, null, null, null, 1, 0, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_boxs'),
-(null, 'drawers box', 'DR-BX', 'position', 'integer', 8, null, null, null, 0, 1, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_boxs'),
-(null, 'blocks drawer', 'DR', 'position', 'integer', 2, null, null, null, 0, 1, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_boxs');
+INSERT INTO `storage_controls` (`id`, `storage_type`, `storage_type_code`, `coord_x_title`, `coord_x_type`, `coord_x_size`, `coord_y_title`, `coord_y_type`, `coord_y_size`, `display_x_size`, `display_y_size`, `reverse_x_numbering`, `reverse_y_numbering`, `set_temperature`, `is_tma_block`, `status`, `form_alias`, `form_alias_for_children_pos`, `detail_tablename`) VALUES
+(null , 'rack16 A1-D4', 'RACK', 'column', 'alphabetical', 4, 'row', 'integer', 4, 0, 0, 0, 1, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_2_dim_position_selection', 'std_racks'),
+(null, 'box100', 'B100', 'position', 'integer', 100, null, null, null, 10, 10, 0, 0, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_boxs'),
+(null, 'drawers box', 'DR-BX', 'position', 'integer', 8, null, null, null, 3, 2, 0, 0, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_boxs'),
+(null, 'blocks drawer', 'DR', 'position', 'integer', 2, null, null, null, 0, 0, 0, 0, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_boxs');
 
 INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) 
 VALUES 
-(NULL, 'rack16 1A-4D', 'rack16 1A-4D'),
+(NULL, 'rack16 A1-D4', 'rack16 A1-D4'),
 (NULL, 'box100', 'box100'),
 (NULL, 'drawers box', 'drawers box'),
 (NULL, 'blocks drawer', 'blocks drawer');
@@ -1042,14 +1042,14 @@ SET @domain_id = (SELECT `id` FROM `structure_value_domains` WHERE `domain_name`
 INSERT INTO `structure_value_domains_permissible_values`  
 (`id` , `structure_value_domain_id` , `structure_permissible_value_id` , `display_order` , `active` , `language_alias` )
 VALUES 
-(NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'rack16 1A-4D' AND `language_alias` = 'rack16 1A-4D'), '110', 'yes', 'rack16 1A-4D'),
+(NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'rack16 A1-D4' AND `language_alias` = 'rack16 A1-D4'), '110', 'yes', 'rack16 A1-D4'),
 (NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'box100' AND `language_alias` = 'box100'), '120', 'yes', 'box100'),
 (NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'drawers box' AND `language_alias` = 'drawers box'), '130', 'yes', 'drawers box'),
 (NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'blocks drawer' AND `language_alias` = 'blocks drawer'), '140', 'yes', 'blocks drawer');
 
-DELETE FROM `i18n` WHERE `id` IN ('blocks drawer', 'drawers box', 'box100', 'rack16 1A-4D');
+DELETE FROM `i18n` WHERE `id` IN ('blocks drawer', 'drawers box', 'box100', 'rack16 A1-D4');
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
-('rack16 1A-4D', 'global', 'Rack ', 'Ratelier'),
+('rack16 A1-D4', 'global', 'Rack ', 'Ratelier'),
 ('box100', 'global', 'Box 100', 'Bo&icirc;te 100'),
 ('drawers box', 'global', 'Drawers Box', 'Bo&icirc;te &agrave; tiroirs'),
 ('blocks drawer', 'global', 'Blocks Drawer', 'Tiroir &agrave; blocs');
