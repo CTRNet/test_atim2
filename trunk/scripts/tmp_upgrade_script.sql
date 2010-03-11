@@ -1315,5 +1315,85 @@ WHERE `alias` = 'aliquotmasters' ;
 UPDATE `structures` SET `description` =  'USed to set data of the created order items when a user adds many aliquots to an order line in batch.'
 WHERE `alias` = 'orderitems_to_addAliquotsInBatch' ;
 
-	
+ALTER TABLE storage_controls
+	ADD display_x_size tinyint unsigned not null default 0 AFTER coord_y_size,
+	ADD display_y_size tinyint unsigned not null default 0 AFTER display_x_size,
+	ADD reverse_x_numbering boolean not null default false AFTER display_y_size,
+	ADD reverse_y_numbering boolean not null default false AFTER reverse_x_numbering;
 
+UPDATE storage_controls SET display_x_size=sqrt(IFNULL(coord_x_size, 1)), display_y_size=sqrt(IFNULL(coord_x_size, 1)) WHERE square_box=1;
+
+ALTER TABLE storage_controls
+	DROP square_box,
+	DROP horizontal_display;
+
+ALTER TABLE i18n
+	MODIFY id varchar(255) NOT NULL,
+	MODIFY en varchar(255) NOT NULL,
+	MODIFY fr varchar(255) NOT NULL;
+INSERT IGNORE INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES
+#("lang head", "global", "lang head", ""), 
+#("new head", "global", "new head", ""), 
+("tissue core", "global", "Tissue core", "Carotte de tissus"), 
+#("-", "global", "-", ""), 
+("define as shipped", "global", "Define as shipped", "Définir comme expédié"), 
+("new label", "global", "New label", "Nouvel étiquette"), 
+("new tag", "global", "New tag", "Nouveau tag"), 
+("new help", "global", "New help", "Nouvel aide"), 
+("blood lymph", "global", "Blood lymph", "Sang lympathique"), 
+("use by", "global", "Use by", "Utilisation par"), 
+("use date", "global", "Use date", "Date d'utilisation"), 
+("date_effective", "global", "Effective date", "Date d'entrée en vigueur"), 
+("date_expiry", "global", "Expiration date", "Date d'expiration"), 
+("number of participants", "global", "Number of participants", "Nombre de participants"), 
+("aquisition_label", "global", "Aquisition label", "Étiquette d'acquisition"), 
+("data", "global", "Data", "Données"), 
+("surgical procedure", "global", "Surgical procedure", "Procédure chirurgicale"), 
+("picture", "global", "Picture", "Image"), 
+#("lang labq", "global", "lang labq", ""), 
+("date/time", "global", "date/time", "date/heure"), 
+#("lang tag", "global", "lang tag", ""), 
+("0", "global", "0", "0"), 
+("20", "global", "20", "20"), 
+("50", "global", "50", "50"), 
+("5th", "global", "5th", "5è"), 
+("6th", "global", "6th", "6è"), 
+("base", "global", "Base", "Base"), 
+#("custom_tool_2", "global", "custom_tool_2", ""), 
+("cell lysate", "global", "cell lysate", "Lysat cellulaire"), 
+#("collection_site_1", "global", "collection_site_1", ""), 
+#("collection_site_2", "global", "collection_site_2", ""), 
+#("collection_site_etc", "global", "collection_site_etc", ""), 
+#("custom_laboratory_site_1", "global", "custom_laboratory_site_1", ""), 
+#("custom_laboratory_site_2", "global", "custom_laboratory_site_2", ""), 
+#("custom_laboratory_site_etc", "global", "custom_laboratory_site_etc", ""), 
+#("custom_laboratory_staff_1", "global", "custom_laboratory_staff_1", ""), 
+#("custom_laboratory_staff_2", "global", "custom_laboratory_staff_2", ""), 
+#("custom_laboratory_staff_etc", "global", "custom_laboratory_staff_etc", ""), 
+#("custom_supplier_dept_1", "global", "custom_supplier_dept_1", ""), 
+#("custom_supplier_dept_2", "global", "custom_supplier_dept_2", ""), 
+#("custom_supplier_dept_etc", "global", "custom_supplier_dept_etc", ""), 
+#("custom_tool_1", "global", "custom_tool_1", ""), 
+#("custom_tool_etc", "global", "custom_tool_etc", ""), 
+#("d l mix", "global", "d l mix", ""), 
+("DMY", "global", "DMY", "JMA"), 
+("Dr. Carl Spencer", "global", "Dr. Carl Spencer", ""), 
+("Dr. Francois Dionne", "global", "Dr. Francois Dionne", ""), 
+("Dr. James Kelly", "global", "Dr. James Kelly", ""), 
+("Dr. Pete Stevens", "global", "Dr. Pete Stevens", ""), 
+("IM: intramuscular injection", "global", "IM: intramuscular injection", ""), 
+("IV: Intravenous", "global", "IV: Intravenous", ""), 
+("MDY", "global", "MDY", "MJA"), 
+#("p.o.: by mouth", "global", "p.o.: by mouth", "p.o.:Par la bouche"), 
+("PR: per rectum", "global", "PR: per rectum", "PR: Par le rectum"), 
+("protein", "global", "Protein", "Protéine"), 
+("research", "global", "Research", "Recherche"), 
+("SC: subcutaneous injection", "global", "SC: subcutaneous injection", "SC: Injection sous-cuatnée"), 
+("surgical/clinical", "global", "surgical/clinical", "chirurgical/clinique"), 
+("used", "global", "Used", "Utilisé"), 
+("YMD", "global", "YMD", "AMJ"), 
+("A valid username is required, between 5 to 15, and a mix of alphabetical and numeric characters only.", "global", "A valid username is required, between 5 to 15, and a mix of alphabetical and numeric characters only.", "Un nom d'utilisateur composé exclusivement de 5 à 15 caractères alphanumériques est requis."), 
+("Preference setting is required.", "global", "Preference setting is required.", "La paramètre de préférence est requis."), 
+("Consent status field is required.", "global", "Consent status field is required.", "Le champ statut de consentement est requis."), 
+("Estrogen amount is required.", "global", "Estrogen amount is required.", "La quantité d'estrogènes est requise."), 
+("product type is required.", "global", "product type is required.", "Le type de produit est requis.");
