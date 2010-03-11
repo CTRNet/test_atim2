@@ -241,7 +241,23 @@ UPDATE `menus` SET `active` = 'no' WHERE `id` = 'clin_CAN_10'; -- family history
 
 -- ******** CONTACT ******** 
 
--- TODO
+-- Other Contact Type : Hidden
+UPDATE `structure_formats`
+SET `flag_add` = '0',
+`flag_add_readonly` = '0',
+`flag_edit` = '0',
+`flag_edit_readonly` = '0',
+`flag_search` = '0',
+`flag_search_readonly` = '0',
+`flag_edit_readonly` = '0',
+`flag_datagrid` = '0',
+`flag_datagrid_readonly` = '0',
+`flag_index` = '0',
+`flag_detail` = '0'
+WHERE `old_id` IN ('CAN-999-999-000-999-10_CAN-999-999-000-999-546');
+
+-- Other Contact Type : text box
+UPDATE `structure_fields` SET `type` = 'input', `setting` = 'size=30' WHERE `old_id` = 'CAN-999-999-000-999-39' ;
 
 -- ******** MESSAGE ******** 
 
@@ -678,7 +694,7 @@ DELETE FROM `i18n` WHERE `id` IN ('gel CSA');
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('gel CSA', 'global', 'Gel CSA/SST', 'Gel de CSA/SST');
 
--- urine aspect update
+-- Update urine aspect 
 
 UPDATE structure_fields
 SET language_label = 'aspect at reception'
@@ -704,7 +720,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('aspect at reception', 'global', 'Aspect at Reception', 'Aspect &agrave; la r&eacute;ception'),
 ('aspect before centrifugation', 'global', 'Aspect Before Centrifugation', 'Aspect avant centrifugation');
  
--- centrifuged urine : add pellet color
+-- Centrifuged urine : add pellet color
 
 UPDATE sample_controls
 SET form_alias = 'sd_der_centrifuged_urines'
@@ -806,7 +822,7 @@ DELETE FROM `i18n` WHERE `id` IN ('on_ice');
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('on_ice', 'global', 'On Ice', 'Sur glace');
 
--- RNA : Add is micro RNA
+-- RNA : Add 'is micro RNA'
 
 UPDATE sample_controls
 SET form_alias = 'sd_der_rnas'
@@ -859,6 +875,23 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 
 -- new field
 (null, 'QC-CUSM-000003_QC-CUSM-000013', @structure_id, 'QC-CUSM-000003', @field_id, 'QC-CUSM-000013', 1, 40, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL');
+
+-- Tissu laterality: hidden
+-- Tissu pathology_reception_datetime: hidden
+
+UPDATE `structure_formats`
+SET `flag_add` = '0',
+`flag_add_readonly` = '0',
+`flag_edit` = '0',
+`flag_edit_readonly` = '0',
+`flag_search` = '0',
+`flag_search_readonly` = '0',
+`flag_edit_readonly` = '0',
+`flag_datagrid` = '0',
+`flag_datagrid_readonly` = '0',
+`flag_index` = '0',
+`flag_detail` = '0'
+WHERE `old_id` IN ('CAN-999-999-000-999-1008_CAN-999-999-000-999-1043', 'CAN-999-999-000-999-1008_CAN-999-999-000-999-1044');
 
 -- ******** ALIQUOT ******** 
 

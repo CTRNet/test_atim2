@@ -72,6 +72,10 @@ class SampleMastersControllerCustom extends SampleMastersController {
  		
  		return $sample_label;
 	 }
+	
+	function getTissueSourceList() {
+		return array('prostate' => __('prostate', true));
+	}
 	 
 }
 	
