@@ -1027,7 +1027,7 @@ AND language_alias NOT IN ('room', 'freezer', 'shelf');
 INSERT INTO `storage_controls` (`id`, `storage_type`, `storage_type_code`, `coord_x_title`, `coord_x_type`, `coord_x_size`, `coord_y_title`, `coord_y_type`, `coord_y_size`, `display_x_size`, `display_y_size`, `reverse_x_numbering`, `reverse_y_numbering`, `set_temperature`, `is_tma_block`, `status`, `form_alias`, `form_alias_for_children_pos`, `detail_tablename`) VALUES
 (null , 'rack16 A1-D4', 'RACK', 'column', 'alphabetical', 4, 'row', 'integer', 4, 0, 0, 0, 1, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_2_dim_position_selection', 'std_racks'),
 (null, 'box100', 'B100', 'position', 'integer', 100, null, null, null, 10, 10, 0, 0, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_boxs'),
-(null, 'drawers box', 'DR-BX', 'position', 'integer', 8, null, null, null, 3, 2, 0, 0, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_boxs'),
+(null, 'drawers box', 'DR-BX', 'position', 'integer', 8, null, null, null, 4, 2, 0, 0, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_boxs'),
 (null, 'blocks drawer', 'DR', 'position', 'integer', 2, null, null, null, 0, 0, 0, 0, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_boxs');
 
 INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) 
