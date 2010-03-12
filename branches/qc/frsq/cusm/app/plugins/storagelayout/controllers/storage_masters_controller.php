@@ -170,6 +170,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		$is_predefined_parent = false;
 		if(is_null($predefined_parent_storage_id)) { 
 			$available_parent_storage_list = $this->Storages->getStorageList();
+			$available_parent_storage_list['0'] = __('n/a', true);
 		} else {
 			$predefined_parent_storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $predefined_parent_storage_id, 'StorageControl.is_tma_block' => 'FALSE')));
 			if(empty($predefined_parent_storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }		
@@ -296,7 +297,9 @@ class StorageMastersController extends StoragelayoutAppController {
 		$this->setStorageCoordinateValues(array('StorageControl' => $storage_data['StorageControl']));
 
 		// Set parent storage list for selection
-		$this->set('available_parent_storage_list', $this->Storages->getStorageList($storage_master_id));
+		$available_parent_storage_list = $this->Storages->getStorageList();
+		$available_parent_storage_list['0'] = __('n/a', true);
+		$this->set('available_parent_storage_list', $available_parent_storage_list);
 
 		// Set list of available SOPs to build TMA
 		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') == 0) {	
@@ -336,7 +339,8 @@ class StorageMastersController extends StoragelayoutAppController {
 		if( $hook_link ) { require($hook_link); }
 					
 		if(empty($this->data)) {
-				$this->data = $storage_data;	
+			$storage_data['StorageMaster']['parent_id'] = empty($storage_data['StorageMaster']['parent_id'])? '0': $storage_data['StorageMaster']['parent_id'];
+			$this->data = $storage_data;	
 		} else {
 			//Update data
 
