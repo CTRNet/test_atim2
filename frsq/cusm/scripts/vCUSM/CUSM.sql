@@ -815,7 +815,7 @@ SET @field_id = LAST_INSERT_ID();
 INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 (null, 'CAN-999-999-000-999-1008_QC-CUSM-000012', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1008'), 'CAN-999-999-000-999-1008', 
 @field_id, 'QC-CUSM-000012', 
-1, 48, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+1, 60, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
 '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 DELETE FROM `i18n` WHERE `id` IN ('on ice');
@@ -1027,21 +1027,6 @@ ADD `qc_cusm_tissue_position_code` varchar(10) default NULL AFTER `block_type`;
 ALTER TABLE `ad_blocks_revs` 
 ADD `qc_cusm_tissue_position_code` varchar(10) default NULL AFTER `block_type`;
 
-INSERT INTO `structure_fields` 
-(`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) 
-VALUES
-(null, '', 'QC-CUSM-000014', 'Inventorymanagement', 'AliquotDetail', 'ad_blocks', 'qc_cusm_tissue_position_code', 'tissue position code', '', 'select', '', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
-
-INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
-(null, 'CAN-999-999-000-999-1028_QC-CUSM-000014', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1028'), 'CAN-999-999-000-999-1028', 
-(SELECT id FROM structure_fields WHERE old_id = 'QC-CUSM-000014'), 'QC-CUSM-000014', 
-1, 73, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
-'1', '0', '1', '0', '0', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
-
-DELETE FROM `i18n` WHERE `id` IN ('tissue position code');
-INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
-('tissue position code', 'global', 'Tissue Position', 'Position du tissue');
-
 INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) 
 VALUES 
 (NULL, 'right anterior', 'right anterior'),
@@ -1068,6 +1053,21 @@ VALUES
 (NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'left anterior'), '20', 'yes', 'left anterior'),
 (NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'right posterior'), '20', 'yes', 'right posterior'),
 (NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'left posterior'), '20', 'yes', 'left posterior');
+
+INSERT INTO `structure_fields` 
+(`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) 
+VALUES
+(null, '', 'QC-CUSM-000014', 'Inventorymanagement', 'AliquotDetail', 'ad_blocks', 'qc_cusm_tissue_position_code', 'tissue position code', '', 'select', '', '',  @domain_id , '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, 'CAN-999-999-000-999-1028_QC-CUSM-000014', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1028'), 'CAN-999-999-000-999-1028', 
+(SELECT id FROM structure_fields WHERE old_id = 'QC-CUSM-000014'), 'QC-CUSM-000014', 
+1, 73, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+DELETE FROM `i18n` WHERE `id` IN ('tissue position code');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('tissue position code', 'global', 'Tissue Position', 'Position du tissue');
 
 -- Tissue Block: Add tissue section
 
@@ -1116,6 +1116,42 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (null, 'CAN-999-999-000-999-1028_QC-CUSM-000016', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1028'), 'CAN-999-999-000-999-1028', 
 (SELECT id FROM structure_fields WHERE old_id = 'QC-CUSM-000016'), 'QC-CUSM-000016', 
 1, 75, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+ALTER TABLE `ad_blocks` 
+ADD `qc_cusm_block_size_unit` varchar(10) default NULL AFTER `qc_cusm_block_size`;
+
+ALTER TABLE `ad_blocks_revs` 
+ADD `qc_cusm_block_size_unit` varchar(10) default NULL AFTER `qc_cusm_block_size`;
+
+INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) 
+VALUES 
+(NULL, 'mm', 'mm');
+
+DELETE FROM `i18n` WHERE `id` IN ('mm');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('mm', 'global', 'mm', 'mm');
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`) VALUES
+(null, 'qc_cusm_block_size_unit', 'open', '');
+
+SET @domain_id = LAST_INSERT_ID();
+
+INSERT INTO `structure_value_domains_permissible_values`  
+(`id` , `structure_value_domain_id` , `structure_permissible_value_id` , `display_order` , `active` , `language_alias` )
+VALUES 
+(NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'cm'), '20', 'yes', 'cm'),
+(NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'mm'), '20', 'yes', 'mm');
+
+INSERT INTO `structure_fields` 
+(`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) 
+VALUES
+(null, '', 'QC-CUSM-000017', 'Inventorymanagement', 'AliquotDetail', 'ad_blocks', 'qc_cusm_block_size_unit', 'unit', '', 'select', '', '', @domain_id, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, 'CAN-999-999-000-999-1028_QC-CUSM-000017', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1028'), 'CAN-999-999-000-999-1028', 
+(SELECT id FROM structure_fields WHERE old_id = 'QC-CUSM-000017'), 'QC-CUSM-000017', 
+1, 76, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
 '1', '0', '1', '0', '0', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 -- Hidde cells count and concentration fro blood cells tubes
@@ -1174,6 +1210,22 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('box100', 'global', 'Box 100', 'Bo&icirc;te 100'),
 ('drawers box', 'global', 'Drawers Box', 'Bo&icirc;te &agrave; tiroirs'),
 ('blocks drawer', 'global', 'Blocks Drawer', 'Tiroir &agrave; blocs');
+
+-- Storage Barcode : hidden
+
+UPDATE `structure_formats`
+SET `flag_add` = '0',
+`flag_add_readonly` = '0',
+`flag_edit` = '0',
+`flag_edit_readonly` = '0',
+`flag_search` = '0',
+`flag_search_readonly` = '0',
+`flag_edit_readonly` = '0',
+`flag_datagrid` = '0',
+`flag_datagrid_readonly` = '0',
+`flag_index` = '0',
+`flag_detail` = '0'
+WHERE `structure_field_old_id` IN ('CAN-999-999-000-999-1183');
 
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 -- SOP

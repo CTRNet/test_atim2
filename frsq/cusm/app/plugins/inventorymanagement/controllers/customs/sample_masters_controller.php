@@ -15,7 +15,7 @@ class SampleMastersControllerCustom extends SampleMastersController {
 		if(empty($view_collection)) { $this->redirect('/pages/err_inv_no_data', null, true); }
 		
 		// Get visit_label
-		$visit_label = strtoupper($view_collection['ViewCollection']['visit_label']);
+		$visit_label = strtoupper($view_collection['ViewCollection']['qc_cusm_visit_label']);
 		if(empty($visit_label)) { $visit_label = 'V0'; }
 		
 		// Get cusm_prostate_bank_identifier		
