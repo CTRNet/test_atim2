@@ -20,10 +20,8 @@ if($this->data['MiscIdentifier']['identifier_name'] == "biopsy"
 		$submitted_data_validates = false;
 		$this->MiscIdentifier->validationErrors[] = __("an identifier of this type already exists for the current participant.", true);
 	}else{
-		echo "CC";
 		$mi = $this->MiscIdentifier->find('first', array('conditions' =>array('MiscIdentifier.participant_id' => $participant_id, 'MiscIdentifier.identifier_name IN("biopsy", "metastasis", "tumor")')));
 		if(!empty($mi)){
-			echo "DD";
 			//we don't need auto increment, we already have a value
 			$is_incremented_identifier = false;
 			$this->data['MiscIdentifier']['identifier_value'] = strtoupper(substr($this->data['MiscIdentifier']['identifier_name'], 0, 1)).' '.substr($mi['MiscIdentifier']['identifier_value'], strpos($mi['MiscIdentifier']['identifier_value'], ' ') + 1);
