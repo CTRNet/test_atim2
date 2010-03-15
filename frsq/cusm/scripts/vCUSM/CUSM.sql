@@ -111,19 +111,36 @@ CREATE TABLE IF NOT EXISTS `qc_cusm_cd_undetailled` (
   KEY `consent_master_id` (`consent_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
+ALTER TABLE `qc_cusm_cd_undetailled`
+  ADD CONSTRAINT `FK_qc_cusm_cd_undetailled_consent_masters` FOREIGN KEY (`consent_master_id`) REFERENCES `consent_masters` (`id`);
+
+CREATE TABLE IF NOT EXISTS `qc_cusm_cd_undetailled_revs` (
+  `id` int(11) NOT NULL,
+  `consent_master_id` int(11) NOT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` varchar(50) NOT NULL DEFAULT '',
+  `modified` datetime DEFAULT NULL,
+  `modified_by` varchar(50) DEFAULT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
 DELETE FROM `consent_controls`;
 INSERT INTO `consent_controls` 
 (`id`, `controls_type`, `status`, `form_alias`, `detail_tablename`, `display_order`) VALUES
 (null, 'cusm prostate bank consent', 'active', 'qc_cusm_prostate_bank_consents', 'qc_cusm_cd_undetailled', 0);
 
+DELETE FROM `i18n` WHERE `id` IN ('cusm prostate bank consent');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('cusm prostate bank consent', 'global', 'CONSENT FORM Alliance ProCURE', 'CONSENTEMENT Alliance ProCURE');
+
 INSERT INTO `structures` 
 (`id`, `old_id`, `alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`) 
 VALUES
 (null, 'QC-CUSM-000001', 'qc_cusm_prostate_bank_consents', '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
-
-DELETE FROM `i18n` WHERE `id` IN ('cusm prostate bank consent');
-INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
-('cusm prostate bank consent', 'global', 'CONSENT FORM Alliance ProCURE', 'CONSENTEMENT Alliance ProCURE');
 
 SET @consent_structure_id = LAST_INSERT_ID();
 
@@ -193,13 +210,429 @@ WHERE `old_id` = 'CAN-999-999-000-999-53';
 
 -- ... DIAGNOSTIC ...
 
--- TODO
-UPDATE `menus` SET `active` = 'no' WHERE `id` = 'clin_CAN_5'; -- diagnosis
+DELETE FROM `diagnosis_controls`;
+
+INSERT INTO `diagnosis_controls` (`id`, `controls_type`, `status`, `form_alias`, `detail_tablename`, `display_order`) VALUES
+(null, 'procure', 'active', 'qc_cusm_dxd_procure', 'qc_cusm_dxd_procure', 0);
+
+DELETE FROM `i18n` WHERE `id` IN ('procure');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('procure', 'global', 'PROCURE', 'PROCURE');
+
+CREATE TABLE IF NOT EXISTS `qc_cusm_dxd_procure` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `diagnosis_master_id` int(11) NOT NULL DEFAULT '0',
+  `qc_cusm_other_morphology` varchar(50) NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` varchar(255) NOT NULL DEFAULT '',
+  `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `modified_by` varchar(255) NOT NULL DEFAULT '',
+  `deleted` int(11) NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `diagnosis_master_id` (`diagnosis_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE `qc_cusm_dxd_procure`
+  ADD CONSTRAINT `FK_qc_cusm_dxd_procure_diagnosis_masters` FOREIGN KEY (`diagnosis_master_id`) REFERENCES `diagnosis_masters` (`id`);
+
+CREATE TABLE IF NOT EXISTS `qc_cusm_dxd_procure_revs` (
+  `id` int(11) NOT NULL,
+  `diagnosis_master_id` int(11) DEFAULT NULL,  
+  `qc_cusm_other_morphology` varchar(50) NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` varchar(50) NOT NULL DEFAULT '',
+  `modified` datetime DEFAULT NULL,
+  `modified_by` varchar(50) DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`version_id`),
+  KEY `diagnosis_master_id` (`diagnosis_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+-- change morphology to histo/morpho + create domains
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`) VALUES
+(null, 'qc_cusm_histology_values', 'open', '');
+
+SET @histo_domain_id = LAST_INSERT_ID();
+
+INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) 
+VALUES 
+(NULL, 'adenocarcinoma / well differentiated', 'adenocarcinoma / well differentiated'),
+(NULL, 'adenocarcinoma / poorly differentiated', 'adenocarcinoma / poorly differentiated'),
+(NULL, 'prostatic duct adenocarcinoma', 'prostatic duct adenocarcinoma'),
+(NULL, 'mucinous (colloid) adenocarcinoma', 'mucinous (colloid) adenocarcinoma'),
+(NULL, 'signet-ring cell carcinoma', 'signet-ring cell carcinoma'),
+(NULL, 'adenosquamous carcinoma', 'adenosquamous carcinoma'),
+(NULL, 'small cell carcinoma', 'small cell carcinoma'),
+(NULL, 'sarcomatoid carcinoma', 'sarcomatoid carcinoma');
+
+INSERT INTO `structure_value_domains_permissible_values`  
+(`id` , `structure_value_domain_id` , `structure_permissible_value_id` , `display_order` , `active` , `language_alias` )
+VALUES 
+(NULL , @histo_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'adenocarcinoma / well differentiated'), '1', 'yes', 'adenocarcinoma / well differentiated'),
+(NULL , @histo_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'adenocarcinoma / poorly differentiated'), '1', 'yes', 'adenocarcinoma / poorly differentiated'),
+(NULL , @histo_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'prostatic duct adenocarcinoma'), '1', 'yes', 'prostatic duct adenocarcinoma'),
+(NULL , @histo_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'mucinous (colloid) adenocarcinoma'), '1', 'yes', 'mucinous (colloid) adenocarcinoma'),
+(NULL , @histo_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'signet-ring cell carcinoma'), '1', 'yes', 'signet-ring cell carcinoma'),
+(NULL , @histo_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'adenosquamous carcinoma'), '1', 'yes', 'adenosquamous carcinoma'),
+(NULL , @histo_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'small cell carcinoma'), '1', 'yes', 'small cell carcinoma'),
+(NULL , @histo_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'sarcomatoid carcinoma'), '1', 'yes', 'sarcomatoid carcinoma'),
+(NULL , @histo_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'other'), '1', 'yes', 'other');
+
+DELETE FROM `i18n` WHERE `id` IN ('adenocarcinoma / well differentiated', 'adenocarcinoma / poorly differentiated',
+'prostatic duct adenocarcinoma', 'mucinous (colloid) adenocarcinoma', 'signet-ring cell carcinoma',
+'adenosquamous carcinoma', 'small cell carcinoma', 'sarcomatoid carcinoma');
+INSERT INTO `i18n` ( `id` , `page_id` , `en` , `fr` )
+VALUES
+('adenocarcinoma / well differentiated', '', 'Adenocarcinoma / well differentiated', 'Ad&eacute;nocarcinome / bien diff&eacute;renci&eacute;'),
+('adenocarcinoma / poorly differentiated', '', 'Adenocarcinoma / poorly differentiated', 'Ad&eacute;nocarcinome / peu diff&eacute;renci&eacute;'),
+('prostatic duct adenocarcinoma', '', 'Prostatic duct adenocarcinoma', 'Ad&eacute;nocarcinome ductal'),
+('mucinous (colloid) adenocarcinoma', '', 'Mucinous (colloid) adenocarcinoma', 'Ad&eacute;nocarcinome mucineux'),
+('signet-ring cell carcinoma', '', 'Signet-ring cell carcinoma', 'Carcinome &agrave; cellules ind&eacute;pendantes (Signet-ring cell)'),
+('adenosquamous carcinoma', '', 'Adenosquamous carcinoma', 'Carcinome ad&eacute;nosquameux'),
+('small cell carcinoma', '', 'Small cell carcinoma', 'Carcinome &agrave; petites cellules'),
+('sarcomatoid carcinoma', '', 'Sarcomatoid carcinoma', 'Carcinome sarcomatoïde');
+
+UPDATE structure_fields
+SET type  = 'select',
+setting = '',
+structure_value_domain = @histo_domain_id,
+language_label = 'morphology (histology)'
+WHERE old_id LIKE 'CAN-999-999-000-999-324';
+
+DELETE FROM `i18n` WHERE `id` IN ('morphology (histology)');
+INSERT INTO `i18n` ( `id` , `page_id` , `en` , `fr` )
+VALUES
+('morphology (histology)', '', 'Morphology (Histology)', 'Morphologie (Histologie)');
+
+-- histology other precision
+
+INSERT INTO `structure_fields` 
+(`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) 
+VALUES
+(null, '', 'QC-CUSM-000024', 'Clinicalannotation', 'DiagnosisDetail', 'qc_cusm_dxd_procure', 'qc_cusm_other_morphology', '', 'other morphology data', 'input', 'size=30', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+DELETE FROM `i18n` WHERE `id` IN ('other morphology data');
+INSERT INTO `i18n` ( `id` , `page_id` , `en` , `fr` )
+VALUES
+('other morphology data', '', 'Other', 'Autre');
+
+-- change pTNM to select fields
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`) VALUES
+(null, 'qc_cusm_ptnm_pt', 'open', '');
+
+SET @pt_domain_id = LAST_INSERT_ID();
+
+INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) 
+VALUES 
+(NULL, 'pTx', 'pTx'),
+(NULL, 'pT2', 'pT2'),
+(NULL, 'pT2a', 'pT2a'),
+(NULL, 'pT2b', 'pT2b'),
+(NULL, 'pT2c', 'pT2c'),
+(NULL, 'pT3b', 'pT3b'),
+(NULL, 'pT4', 'pT4');
+
+INSERT INTO `structure_value_domains_permissible_values`  
+(`id` , `structure_value_domain_id` , `structure_permissible_value_id` , `display_order` , `active` , `language_alias` )
+VALUES 
+(NULL , @pt_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pTx'), '1', 'yes', 'pTx'),
+(NULL , @pt_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pT2'), '1', 'yes', 'pT2'),
+(NULL , @pt_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pT2a'), '1', 'yes', 'pT2a'),
+(NULL , @pt_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pT2b'), '1', 'yes', 'pT2b'),
+(NULL , @pt_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pT2c'), '1', 'yes', 'pT2c'),
+(NULL , @pt_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pT3a'), '1', 'yes', 'pT3a'),
+(NULL , @pt_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pT3b'), '1', 'yes', 'pT3b'),
+(NULL , @pt_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pT4'), '1', 'yes', 'pT4');
+
+DELETE FROM `i18n` WHERE `id` IN ('pTx', 'pT2', 'pT2a', 'pT2b', 'pT2c', 'pT3a', 'pT3b', 'pT4');
+INSERT INTO `i18n` ( `id` , `page_id` , `en` , `fr` )
+VALUES
+('pTx', '', 'pTx: Insufficient data', 'pTx : Renseignements insuffisants'),
+('pT2', '', 'pT2: Organ confined', 'pT2: Confin&eacute;e &agrave; la prostate'),
+('pT2a', '', 'pT2a: Unilateral, involving one-half of one side (''lobe'') or less', 'pT2a: Unilat&eacute;rale, envahissant la moiti&eacute; ou moins d''un lobe'),
+('pT2b', '', 'pT2b: Unilateral, involving more than one-half of one side (''lobe'') but not both', 'pT2b: Unilat&eacute;rale, envahissant plus de la moiti&eacute; d''un lobe mais pas les deux'),
+('pT2c', '', 'pT2c: Bilateral disease', 'pT2c: Bilat&eacute;rale'),
+('pT3a', '', 'pT3a: Extracapsular extension (uni-or bi-lateral)', 'pT3a: Extension extracapsulaire (uni- ou bi-lat&eacute;rale)'),
+('pT3b', '', 'pT3b: Seminal vesicle invasion', 'pT3b: Envahissant les v&eacute;sicules s&eacute;minales'),
+('pT4', '', 'pT4: Fixed or invading other adjacent structures such as bladder and/or rectum', 'pT4: Fixe ou envahissant d''autres structures adjacentes telles le rectum et/ou la vessie');
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`) VALUES
+(null, 'qc_cusm_ptnm_pn', 'open', '');
+
+SET @pn_domain_id = LAST_INSERT_ID();
+
+INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) 
+VALUES 
+(NULL, 'pNx', 'pNx'),
+(NULL, 'pN0', 'pN0'),
+(NULL, 'pN1', 'pN1');
+
+INSERT INTO `structure_value_domains_permissible_values`  
+(`id` , `structure_value_domain_id` , `structure_permissible_value_id` , `display_order` , `active` , `language_alias` )
+VALUES 
+(NULL , @pn_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pNx'), '1', 'yes', 'pNx'),
+(NULL , @pn_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pN0'), '2', 'yes', 'pN0'),
+(NULL , @pn_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pN1'), '3', 'yes', 'pN1');
+
+DELETE FROM `i18n` WHERE `id` IN ('pNx', 'pN0', 'pN1');
+INSERT INTO `i18n` ( `id` , `page_id` , `en` , `fr` )
+VALUES
+('pNx', '', 'pNx: Insufficient data', 'pNx: Renseignements insuffisants'),
+('pN0', '', 'pN0: No regional lymph node metastasis', 'pN0: Pas d''atteinte des ganglions lymphatiques r&eacute;gionaux'),
+('pN1', '', 'pN1: Metastasis in regional lymph node(s)', 'pN1: Atteinte des ganglions lymphatiques r&eacute;gionaux');
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`) VALUES
+(null, 'qc_cusm_ptnm_pm', 'open', '');
+
+SET @pm_domain_id = LAST_INSERT_ID();
+
+INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) 
+VALUES 
+(NULL, 'pMx', 'pMx'),
+(NULL, 'pM0', 'pM0'),
+(NULL, 'pM1', 'pM1'),
+(NULL, 'pM1a', 'pM1a'),
+(NULL, 'pM1b', 'pM1b'),
+(NULL, 'pM1c', 'pM1c');
+
+INSERT INTO `structure_value_domains_permissible_values`  
+(`id` , `structure_value_domain_id` , `structure_permissible_value_id` , `display_order` , `active` , `language_alias` )
+VALUES 
+(NULL , @pm_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pMx'), '1', 'yes', 'pMx'),
+(NULL , @pm_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pM0'), '2', 'yes', 'pM0'),
+(NULL , @pm_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pM1'), '3', 'yes', 'pM1'),
+(NULL , @pm_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pM1a'), '4', 'yes', 'pM1a'),
+(NULL , @pm_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pM1b'), '5', 'yes', 'pM1b'),
+(NULL , @pm_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pM1c'), '6', 'yes', 'pM1c');
+
+DELETE FROM `i18n` WHERE `id` IN ('', '', '', '', '', '');
+INSERT INTO `i18n` ( `id` , `page_id` , `en` , `fr` )
+VALUES
+('pMx', '', 'pMx: Insufficient data', 'pMx: Renseignements insuffisants'),
+('pM0', '', 'pM0: None', 'pM0: Aucune'),
+('pM1', '', 'pM1: Distant metastasis', 'pM1: M&eacute;tastases &agrave; distance'),
+('pM1a', '', 'pM1a: Non-regional lymph node(s)', 'pM1a: Ganglions lymphatiques (ad&eacute;nopathies) non r&eacute;gionaux'),
+('pM1b', '', 'pM1b: Bone', 'pM1b: Os'),
+('pM1c', '', 'pM1c: Other site(s)', 'pM1c: Autre(s) site(s)');
+
+UPDATE structure_fields
+SET type  = 'select',
+setting = '',
+structure_value_domain = @pt_domain_id,
+language_label = 't stage',
+language_tag = ''
+WHERE old_id LIKE 'CAN-999-999-000-999-87';
+
+UPDATE structure_fields
+SET type  = 'select',
+setting = '',
+structure_value_domain = @pn_domain_id,
+language_label = 'n stage',
+language_tag = ''
+WHERE old_id LIKE 'CAN-999-999-000-999-88';
+
+UPDATE structure_fields
+SET type  = 'select',
+setting = '',
+structure_value_domain = @pm_domain_id,
+language_label = 'm stage',
+language_tag = ''
+WHERE old_id LIKE 'CAN-999-999-000-999-89';
+
+UPDATE structure_fields
+SET 
+language_label = 'summary',
+language_tag = ''
+WHERE old_id LIKE 'CAN-999-999-000-999-90';
+
+-- build structure
+
+INSERT INTO `structures` 
+(`id`, `old_id`, `alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`) 
+VALUES
+(null, 'QC-CUSM-000005', 'qc_cusm_dxd_procure', '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+SET @dx_structure_id = LAST_INSERT_ID();
+
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+-- DiagnosisMaster.dx_identifier	CAN-812
+-- (null, 'QC-CUSM-000005_CAN-812', @dx_structure_id, 'QC-CUSM-000005', 
+-- (SELECT id FROM structure_fields WHERE old_id LIKE 'CAN-812'), 'CAN-812', 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+-- DiagnosisMaster.primary_number	CAN-999-999-000-999-76
+(null, 'QC-CUSM-000005_CAN-999-999-000-999-76', @dx_structure_id, 'QC-CUSM-000005', 
+(SELECT id FROM structure_fields WHERE old_id LIKE 'CAN-999-999-000-999-76'), 'CAN-999-999-000-999-76', 1, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+-- DiagnosisMaster.dx_origin	CAN-999-999-000-999-91
+(null, 'QC-CUSM-000005_CAN-999-999-000-999-91', @dx_structure_id, 'QC-CUSM-000005', 
+(SELECT id FROM structure_fields WHERE old_id LIKE 'CAN-999-999-000-999-91'), 'CAN-999-999-000-999-91', 1, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+-- DiagnosisMaster.dx_date	CAN-999-999-000-999-71
+(null, 'QC-CUSM-000005_CAN-999-999-000-999-71', @dx_structure_id, 'QC-CUSM-000005', 
+(SELECT id FROM structure_fields WHERE old_id LIKE 'CAN-999-999-000-999-71'), 'CAN-999-999-000-999-71', 1, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+-- DiagnosisMaster.dx_date_accuracy	CAN-828
+(null, 'QC-CUSM-000005_CAN-828', @dx_structure_id, 'QC-CUSM-000005', 
+(SELECT id FROM structure_fields WHERE old_id LIKE 'CAN-828'), 'CAN-828', 1, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+-- DiagnosisMaster.dx_nature	CAN-999-999-000-999-70
+(null, 'QC-CUSM-000005_CAN-999-999-000-999-70', @dx_structure_id, 'QC-CUSM-000005', 
+(SELECT id FROM structure_fields WHERE old_id LIKE 'CAN-999-999-000-999-70'), 'CAN-999-999-000-999-70', 1, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+-- DiagnosisMaster.notes	CAN-896
+(null, 'QC-CUSM-000005_CAN-896', @dx_structure_id, 'QC-CUSM-000005', 
+(SELECT id FROM structure_fields WHERE old_id LIKE 'CAN-896'), 'CAN-896', 1, 13, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+
+-- DiagnosisMaster.morphology	CAN-999-999-000-999-324
+(null, 'QC-CUSM-000005_CAN-999-999-000-999-324', @dx_structure_id, 'QC-CUSM-000005', 
+(SELECT id FROM structure_fields WHERE old_id LIKE 'CAN-999-999-000-999-324'), 'CAN-999-999-000-999-324', 2, 7, 'coding', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+-- DiagnosisDetail.qc_cusm_other_morphology	QC-CUSM-000024
+(null, 'QC-CUSM-000005_QC-CUSM-000024', @dx_structure_id, 'QC-CUSM-000005', 
+(SELECT id FROM structure_fields WHERE old_id LIKE 'QC-CUSM-000024'), 'QC-CUSM-000024', 2, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+
+-- DiagnosisMaster.path_tstage	CAN-999-999-000-999-87
+(null, 'QC-CUSM-000005_CAN-999-999-000-999-87', @dx_structure_id, 'QC-CUSM-000005', 
+(SELECT id FROM structure_fields WHERE old_id LIKE 'CAN-999-999-000-999-87'), 'CAN-999-999-000-999-87', 2, 23, 'pathological stage', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+-- DiagnosisMaster.path_nstage	CAN-999-999-000-999-88
+(null, 'QC-CUSM-000005_CAN-999-999-000-999-88', @dx_structure_id, 'QC-CUSM-000005', 
+(SELECT id FROM structure_fields WHERE old_id LIKE 'CAN-999-999-000-999-88'), 'CAN-999-999-000-999-88', 2, 24, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+-- DiagnosisMaster.path_mstage	CAN-999-999-000-999-89
+(null, 'QC-CUSM-000005_CAN-999-999-000-999-89', @dx_structure_id, 'QC-CUSM-000005', 
+(SELECT id FROM structure_fields WHERE old_id LIKE 'CAN-999-999-000-999-89'), 'CAN-999-999-000-999-89', 2, 24, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+-- DiagnosisMaster.path_stage_summary	CAN-999-999-000-999-90
+(null, 'QC-CUSM-000005_CAN-999-999-000-999-90', @dx_structure_id, 'QC-CUSM-000005', 
+(SELECT id FROM structure_fields WHERE old_id LIKE 'CAN-999-999-000-999-90'), 'CAN-999-999-000-999-90', 2, 25, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL');
 
 -- ******** ANNOTATION ******** 
 
--- TODO
-UPDATE `menus` SET `active` = 'no' WHERE `id` = 'clin_CAN_4'; -- annotation
+UPDATE `menus` SET `active` = 'no' WHERE `parent_id` LIKE 'clin_CAN_4' AND language_title NOT IN ('lab', 'lifestyle');
+UPDATE `menus` SET `use_link` = '/clinicalannotation/event_masters/listall/lab/%%Participant.id%%'  WHERE `id` LIKE 'clin_CAN_4';
+
+DELETE FROM `event_controls`;
+
+-- Life style
+
+CREATE TABLE IF NOT EXISTS `qc_cusm_ed_procure_lifestyle` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `qc_cusm_form_version` varchar(30) NULL,
+  `qc_cusm_delivery_date` date NULL,
+  `qc_cusm_reception_date` date NULL,
+  `qc_cusm_completed` varchar(10) NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` varchar(50) NOT NULL DEFAULT '',
+  `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `modified_by` varchar(50) NOT NULL DEFAULT '',
+  `event_master_id` int(11) DEFAULT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE `qc_cusm_ed_procure_lifestyle`
+  ADD CONSTRAINT `FK_qc_cusm_ed_procure_lifestyle_event_masters` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+CREATE TABLE IF NOT EXISTS `qc_cusm_ed_procure_lifestyle_revs` (
+  `id` int(11) NOT NULL,
+  `qc_cusm_form_version` varchar(30) NULL,
+  `qc_cusm_delivery_date` date NULL,
+  `qc_cusm_reception_date` date NULL,
+  `qc_cusm_completed` varchar(10) NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` varchar(50) NOT NULL DEFAULT '',
+  `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `modified_by` varchar(50) NOT NULL DEFAULT '',
+  `event_master_id` int(11) DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`version_id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`, `status`, `form_alias`, `detail_tablename`, `display_order`) VALUES
+(null, 'prostate', 'lifestyle', 'procure', 'active', 'qc_cusm_ed_procure_lifestyle', 'qc_cusm_ed_procure_lifestyle', 0);
+
+INSERT INTO `structures` (`id`, `old_id`, `alias`, `description`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, 'QC-CUSM-000004', 'qc_cusm_ed_procure_lifestyle', NULL, '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+SET @structure_id = LAST_INSERT_ID();
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`) VALUES
+(null, 'qc_cusm_lifestyle_form_version', 'open', '');
+
+SET @version_domain_id = LAST_INSERT_ID();
+
+INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) 
+VALUES 
+(NULL, 'fr october 2006', 'fr oct 2006'),
+(NULL, 'en october 2006', 'en oct 2006');
+
+INSERT INTO `structure_value_domains_permissible_values`  
+(`id` , `structure_value_domain_id` , `structure_permissible_value_id` , `display_order` , `active` , `language_alias` )
+VALUES 
+(NULL , @version_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'fr october 2006'), '20', 'yes', 'fr october 2006'),
+(NULL , @version_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'en october 2006'), '21', 'yes', 'en october 2006'),
+(NULL , @version_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'other'), '50', 'yes', 'other');
+
+DELETE FROM `i18n` WHERE `id` IN ('fr october 2006', 'V05');
+INSERT INTO `i18n` ( `id` , `page_id` , `en` , `fr` )
+VALUES
+('fr october 2006', 'global', 'FR - October 2006', 'FR - Octobre 2006'),
+('en october 2006', 'global', 'EN - October 2006', 'AN - Octobre 2006');
+
+SET @yesno_domain_id = (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yesno');
+
+INSERT INTO `structure_fields` 
+(`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) 
+VALUES
+(null, '', 'QC-CUSM-000020', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_lifestyle', 'qc_cusm_form_version', 'form version', '', 'select', '', '', @version_domain_id, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, '', 'QC-CUSM-000021', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_lifestyle', 'qc_cusm_delivery_date', 'delivery date', '', 'date', '', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, '', 'QC-CUSM-000022', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_lifestyle', 'qc_cusm_reception_date', 'reception date', '', 'date', '', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, '', 'QC-CUSM-000023', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_lifestyle', 'qc_cusm_completed', 'completed', '', 'select', '', '', @yesno_domain_id, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+-- disease_site
+(null, 'QC-CUSM-000004_CAN-999-999-000-999-227', 
+@structure_id, 'QC-CUSM-000004', 
+(SELECT id FROM `structure_fields` WHERE `old_id` LIKE 'CAN-999-999-000-999-227'), 'CAN-999-999-000-999-227', 
+0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', ''),
+-- event_type
+(null, 'QC-CUSM-000004_CAN-999-999-000-999-228', 
+@structure_id, 'QC-CUSM-000004', 
+(SELECT id FROM `structure_fields` WHERE `old_id` LIKE 'CAN-999-999-000-999-228'), 'CAN-999-999-000-999-228', 
+0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', ''),
+-- qc_cusm_completed
+(null, 'QC-CUSM-000004_QC-CUSM-000023', 
+@structure_id, 'QC-CUSM-000004', 
+(SELECT id FROM `structure_fields` WHERE `old_id` LIKE 'QC-CUSM-000023'), 'QC-CUSM-000023', 
+0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', ''),
+-- event_date
+(null, 'QC-CUSM-000004_CAN-999-999-000-999-229', 
+@structure_id, 'QC-CUSM-000004', 
+(SELECT id FROM `structure_fields` WHERE `old_id` LIKE 'CAN-999-999-000-999-229'), 'CAN-999-999-000-999-229', 
+0, 6, '', '1', 'completion date', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', ''),
+-- qc_cusm_form_version
+(null, 'QC-CUSM-000004_QC-CUSM-000020', 
+@structure_id, 'QC-CUSM-000004', 
+(SELECT id FROM `structure_fields` WHERE `old_id` LIKE 'QC-CUSM-000020'), 'QC-CUSM-000020', 
+0, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', ''),
+-- qc_cusm_delivery_date
+(null, 'QC-CUSM-000004_QC-CUSM-000021', 
+@structure_id, 'QC-CUSM-000004', 
+(SELECT id FROM `structure_fields` WHERE `old_id` LIKE 'QC-CUSM-000021'), 'QC-CUSM-000021', 
+1, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', ''),
+-- qc_cusm_reception_date
+(null, 'QC-CUSM-000004_QC-CUSM-000022', 
+@structure_id, 'QC-CUSM-000004', 
+(SELECT id FROM `structure_fields` WHERE `old_id` LIKE 'QC-CUSM-000022'), 'QC-CUSM-000022', 
+1, 21, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', ''),
+-- event_summary
+(null, 'QC-CUSM-000004_CAN-999-999-000-999-230', 
+@structure_id, 'QC-CUSM-000004', 
+(SELECT id FROM `structure_fields` WHERE `old_id` LIKE 'CAN-999-999-000-999-230'), 'CAN-999-999-000-999-230', 
+1, 99, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', '');
 
 -- ******** TREATMENT ******** 
 
@@ -723,11 +1156,11 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 -- Centrifuged urine : add pellet color
 
 UPDATE sample_controls
-SET form_alias = 'sd_der_centrifuged_urines'
+SET form_alias = 'qc_cusm_sd_der_centrifuged_urines'
 WHERE sample_type = 'centrifuged urine' ;
 
 INSERT INTO `structures` (`id`, `old_id`, `alias`, `description`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`) VALUES
-(null, 'QC-CUSM-000002', 'sd_der_centrifuged_urines', NULL, '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(null, 'QC-CUSM-000002', 'qc_cusm_sd_der_centrifuged_urines', NULL, '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 SET @structure_id = LAST_INSERT_ID();
 
@@ -825,11 +1258,11 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 -- RNA : Add 'is micro RNA'
 
 UPDATE sample_controls
-SET form_alias = 'sd_der_rnas'
+SET form_alias = 'qc_cusm_sd_der_rnas'
 WHERE sample_type = 'rna' ;
 
 INSERT INTO `structures` (`id`, `old_id`, `alias`, `description`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`) VALUES
-(null, 'QC-CUSM-000003', 'sd_der_rnas', NULL, '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(null, 'QC-CUSM-000003', 'qc_cusm_sd_der_rnas', NULL, '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 SET @structure_id = LAST_INSERT_ID();
 
@@ -1146,13 +1579,73 @@ VALUES
 INSERT INTO `structure_fields` 
 (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) 
 VALUES
-(null, '', 'QC-CUSM-000017', 'Inventorymanagement', 'AliquotDetail', 'ad_blocks', 'qc_cusm_block_size_unit', 'unit', '', 'select', '', '', @domain_id, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(null, '', 'QC-CUSM-000017', 'Inventorymanagement', 'AliquotDetail', 'ad_blocks', 'qc_cusm_block_size_unit', '', 'unit', 'select', '', '', @domain_id, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 (null, 'CAN-999-999-000-999-1028_QC-CUSM-000017', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1028'), 'CAN-999-999-000-999-1028', 
 (SELECT id FROM structure_fields WHERE old_id = 'QC-CUSM-000017'), 'QC-CUSM-000017', 
 1, 76, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
 '1', '0', '1', '0', '0', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+-- Tissue Block: Add collection to freezing spent time (mn)
+
+ALTER TABLE `ad_blocks` 
+ADD `qc_cusm_coll_to_freezing_spent_time` int(15) default NULL AFTER `qc_cusm_block_size_unit`;
+
+ALTER TABLE `ad_blocks_revs` 
+ADD `qc_cusm_coll_to_freezing_spent_time` int(15) default NULL AFTER `qc_cusm_block_size_unit`;
+
+INSERT INTO `structure_fields` 
+(`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) 
+VALUES
+(null, '', 'QC-CUSM-000018', 'Inventorymanagement', 'AliquotDetail', 'ad_blocks', 'qc_cusm_coll_to_freezing_spent_time', 'collection to freezing spent time (mn)', '', 'input', 'size=10', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+INSERT INTO `structure_validations` 
+(`id`, `old_id`, `structure_field_id`, `structure_field_old_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) 
+VALUES
+(null, 'QC-CUSM-000005', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'QC-CUSM-000018'), 'QC-CUSM-000018', 
+'custom,/^([0-9]+)?$/', '1', '0', '', 'spent time should be a positif integer', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, 'CAN-999-999-000-999-1028_QC-CUSM-000018', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1028'), 'CAN-999-999-000-999-1028', 
+(SELECT id FROM structure_fields WHERE old_id = 'QC-CUSM-000018'), 'QC-CUSM-000018', 
+1, 76, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+DELETE FROM `i18n` WHERE `id` IN ('collection to freezing spent time (mn)', 'spent time should be a positif integer');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('spent time should be a positif integer', 'global', 'Spent time should be a positif integer!', 'Temps &eacute;coul&eacute; doit &ecirc;tre un entier positif!'),
+('collection to freezing spent time (mn)', 'global', 'Collection to Freezing Spent Time(mn)', 'Temps &eacute;coul&eacute; entre collection et cong&eacute;lation (mn)');
+
+-- Tissue Block: Add fixation process duration
+
+ALTER TABLE `ad_blocks` 
+ADD `qc_cusm_fixation_process_duration` int(15) default NULL AFTER `qc_cusm_coll_to_freezing_spent_time`;
+
+ALTER TABLE `ad_blocks_revs` 
+ADD `qc_cusm_fixation_process_duration` int(15) default NULL AFTER `qc_cusm_coll_to_freezing_spent_time`;
+
+INSERT INTO `structure_fields` 
+(`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) 
+VALUES
+(null, '', 'QC-CUSM-000019', 'Inventorymanagement', 'AliquotDetail', 'ad_blocks', 'qc_cusm_fixation_process_duration', 'fixation process duration (hr)', '', 'input', 'size=10', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+INSERT INTO `structure_validations` 
+(`id`, `old_id`, `structure_field_id`, `structure_field_old_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) 
+VALUES
+(null, 'QC-CUSM-000006', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'QC-CUSM-000019'), 'QC-CUSM-000019', 
+'custom,/^([0-9]+)?$/', '1', '0', '', 'fixation duration should be a positif integer', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, 'CAN-999-999-000-999-1028_QC-CUSM-000019', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1028'), 'CAN-999-999-000-999-1028', 
+(SELECT id FROM structure_fields WHERE old_id = 'QC-CUSM-000019'), 'QC-CUSM-000019', 
+1, 77, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+DELETE FROM `i18n` WHERE `id` IN ('fixation process duration (hr)', 'fixation duration should be a positif integer');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('fixation duration should be a positif integer', 'global', 'Spent time should be a positif integer!', 'Dur&eacute;e du processus de fixation doit &ecirc;tre un entier positif!'),
+('fixation process duration (hr)', 'global', 'Fixation Process Duration (hr)', 'Dur&eacute;e du processus de fixation (hr)');
 
 -- Hidde cells count and concentration fro blood cells tubes
 
