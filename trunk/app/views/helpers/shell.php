@@ -438,7 +438,7 @@ class ShellHelper extends Helper {
 					
 					if ( $format=='short' ) {
 						if ( isset($summary_result['Summary']['menu']) && is_array($summary_result['Summary']['menu']) ) {
-							$summary = trim(__($summary_result['Summary']['menu'][0], true).' '.$summary_result['Summary']['menu'][1]); 
+							$summary = trim(__($summary_result['Summary']['menu'][0], true).' '.(isset($summary_result['Summary']['menu'][1])? $summary_result['Summary']['menu'][1]: ''));
 						}
 					}
 					
