@@ -592,6 +592,13 @@ VALUES
 (null, '', 'QC-CUSM-000022', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_lifestyle', 'qc_cusm_reception_date', 'reception date', '', 'date', '', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (null, '', 'QC-CUSM-000023', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_lifestyle', 'qc_cusm_completed', 'completed', '', 'select', '', '', @yesno_domain_id, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
+DELETE FROM `i18n` WHERE `id` IN ('form version', 'delivery date', 'completion date');
+INSERT INTO `i18n` ( `id` , `page_id` , `en` , `fr` )
+VALUES
+('form version', '', 'Form Version', 'Version du formulaire'),
+('delivery date', '', 'Delivery Date', 'Date de d&eacute;livrance'),
+('completion date', '', 'Completion Date', 'Date de compl&eacute;tion');
+
 INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 -- disease_site
 (null, 'QC-CUSM-000004_CAN-999-999-000-999-227', 
