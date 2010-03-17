@@ -129,6 +129,9 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		$this->set('atim_menu', $this->Menus->get('/clinicalannotation/treatment_masters/listall/%%Participant.id%%'));
 		
 		$this->set('protocol_list', $protocol_list);
+	
+		// Set trt data
+		$this->set('tx_method', $tx_control_data['TreatmentControl']['tx_method']);
 		
 		// set DIAGANOSES radio list form
 		$this->set( 'data_for_checklist', $this->DiagnosisMaster->find('all', array('conditions'=>array('DiagnosisMaster.participant_id'=>$participant_id))) );

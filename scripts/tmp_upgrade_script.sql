@@ -130,7 +130,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('credits_body', '', 'ATiM is an open-source project development by leading tumour banks across Canada. For more information on our development team, questions, comments or suggestions please visit our website at http://www.ctrnet.ca', ''),
 ('installation_title', '', 'Installation', ''),
 ('installation_body', '', 'To view your installed version number open the Administration Tool and select ATiM Version from the first menu. ATiM is built on the CakePHP framework (www.cakephp.org).', ''),
-('no data was retrieved for the specified parameters', 'global', 'No data was retrieved for the specified parameters', "Aucune donnée n'a pu être récupérée de la base de données pour les paramètres spécifiés.");
+('no data was retrieved for the specified parameters', 'global', 'No data was retrieved for the specified parameters', 'Aucune donn&eacute;e n''a pu &ecitc;tre r&eacute;cup&eacute;r&eacute;e de la base de donn&eacute;es pour les param&ecirc;tres sp&eacute;cifi&eacute;s.');
 
 -- Update version information
 UPDATE `versions` 
@@ -1473,3 +1473,65 @@ ALTER TABLE users
 	ADD UNIQUE unique_username (username);
 	
 INSERT INTO `pages` (`id` ,`error_flag` ,`language_title` ,`language_body` ,`created` ,`created_by` ,`modified` ,`modified_by`)VALUES ('err_no_data', '0', 'error', 'no data was retrieved for the specified parameters', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');	
+
+-- Hidde disease_site and event_type from event forms
+
+UPDATE structure_formats 
+SET 
+flag_add = '0', flag_add_readonly = '0', 
+flag_edit = '0', flag_edit_readonly = '0', 
+flag_search = '0', flag_search_readonly = '0', 
+flag_datagrid = '0', flag_datagrid_readonly = '0', 
+flag_index = '0', flag_detail = '0'
+WHERE structure_field_old_id IN ('CAN-999-999-000-999-227', 'CAN-999-999-000-999-228')
+AND structure_id IN (SELECT id FROM structures WHERE alias LIKE 'ed_%');
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('related diagnosis', 'global', 'Related Diagnosis', 'Diagnostic connexe');
+
+DELETE FROM `i18n` WHERE `id` = 'n/a';
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('n/a', '', 'N/A', 'N/A');
+
+-- Hidde tx_method from trt forms
+
+UPDATE structure_formats 
+SET 
+flag_add = '0', flag_add_readonly = '0', 
+flag_edit = '0', flag_edit_readonly = '0', 
+flag_search = '0', flag_search_readonly = '0', 
+flag_datagrid = '0', flag_datagrid_readonly = '0', 
+flag_index = '0', flag_detail = '0'
+WHERE structure_field_old_id IN ('CAN-999-999-000-999-276')
+AND structure_id IN (SELECT id FROM structures WHERE alias LIKE 'txd_%'); 	
+
+-- Change diagnosis primary number management system
+
+UPDATE `diagnosis_masters`
+SET primary_number = NULL
+WHERE primary_number = '0';
+
+UPDATE `i18n` 
+SET 
+`en` = 'Diagnoses Group Nbr',
+`fr` = 'No du Groupe de diagnostics'
+WHERE `id` IN ('primary number', 'primary_number');
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('new group', '', 'New Group', 'Nouveau groupe');
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('related diagnoses group', '', 'Related Diagnoses Group', 'Groupe de diagnostics connexes');
+
+-- hidde dx identifier
+
+UPDATE structure_formats 
+SET 
+flag_add = '0', flag_add_readonly = '0', 
+flag_edit = '0', flag_edit_readonly = '0', 
+flag_search = '0', flag_search_readonly = '0', 
+flag_datagrid = '0', flag_datagrid_readonly = '0', 
+flag_index = '0', flag_detail = '0'
+WHERE structure_field_old_id IN ('CAN-812');
+
+
