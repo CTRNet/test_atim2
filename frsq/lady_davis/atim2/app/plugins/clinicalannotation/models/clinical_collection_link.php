@@ -9,7 +9,10 @@ class ClinicalCollectionLink extends ClinicalAnnotationAppModel{
 			'foreignKey' => 'diagnosis_master_id'),
 		'Collection' => array(
 			'className' => 'Inventorymanagement.Collection',
-			'foreignKey' => 'collection_id'));
+			'foreignKey' => 'collection_id'),
+		'Participant' => array(
+			'className' => 'Clinicalannotation.Participant',
+			'foreignKey' => 'participant_id'));
 	
     function summary( $variables=array() ) {
 		$return = false;

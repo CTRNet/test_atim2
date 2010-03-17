@@ -81,17 +81,22 @@ class InventorymanagementAppController extends AppController {
 	}
 
 	/**
-	 * Set all data used to display a list of aliquots according search criteria 
-	 * (aliquots_data, banks, etc).
+	 * Get Aliquot data to display into aliquots list view:
+	 *   - Will poulate fields
+	 *         . GeneratedParentSample.*
+	 *         . Generated.aliquot_use_counter 
+	 *         . Generated.realiquoting_data 
 	 *
 	 *	@param $criteria Aliquot Search Criteria
+	 *
+	 * @return aliquot_data
 	 *
 	 * @author N. Luc
 	 * @since 2009-09-11
 	 * @updated N. Luc
 	 */
 	 
-	function setDataForAliquotsList($criteria) {
+	function getAliquotsListData($criteria) {
 		
 		// Search Data
 		$has_many_details = array(
@@ -145,11 +150,7 @@ class InventorymanagementAppController extends AppController {
 			$working_data[$key]['GeneratedParentSample'] = $parent_sample_data[$parent_id]['SampleMaster'];
 		}
 			
-		// Set aliquots list	
-		$this->set('aliquots_data', $working_data);
-		
-		// Set list of banks
-		$this->set('bank_list', $this->Collections->getBankList());
+		return $working_data;
 	}
 	
 	/**

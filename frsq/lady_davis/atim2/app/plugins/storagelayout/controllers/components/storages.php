@@ -7,11 +7,14 @@ class StoragesComponent extends Object {
 	}
 	
 	/**
-	 * Get list of SOPs existing to build specific storage entity like:
+	 * Get formatted list of SOPs existing to build specific storage entity like:
 	 *  - TMA
 	 *  - TMA slide
 	 *
 	 * @param $entity_type Type of the studied storage entity (tma, tma_slide)
+	 * 
+	 * @return Sops list into array having following structure: 
+	 * 	array($sop_master_id => $sop_title_built_by_function)
 	 *
 	 * @author N. Luc
 	 * @since 2009-09-11
@@ -19,26 +22,36 @@ class StoragesComponent extends Object {
 	 */
 		 
 	function getSopList($entity_type) {
+		$sops_data = array();
 		switch($entity_type) {
 			case 'tma':
 			case 'tma_slide':
-				return $this->controller->Sops->getSopList();
+				$sops_data = $this->controller->Sops->getSopList();
 				break;
 			default:
 				$this->controller->redirect('/pages/err_sto_system_error', null, true); 
 		}
+		
+		$formatted_data = array();
+		if(!empty($sops_data)) {
+			foreach($sops_data as $sop_masters) { 
+				$formatted_data[$sop_masters['SopMaster']['id']] = $sop_masters['SopMaster']['code'] . ' ('.__($sop_masters['SopMaster']['sop_group'], true) .' - '.__($sop_masters['SopMaster']['type'], true) .')'; 
+			}
+		}
+		
+		return $formatted_data;		
 	}
 	
 	/**
-	 * This function builds an array of storage records, except those having TMA type. 
+	 * This function builds formatted list of storages, except those having TMA type. 
 	 * 
 	 * When a storage master id is passed in arguments, this storage 
 	 * plus all its children storages will be removed from the array.
 	 * 
 	 * @param $excluded_storage_master_id ID of the storage to remove.
 	 * 
-	 * @return Array of storage records.
-	 * 	[storage_master_id] => array('StorageMaster'=>array(), 'StorageControl'=>array(), etc))
+	 * @return Storage list into array having following structure: 
+	 * 	array($storage_master_id => $storage_title_built_by_function)
 	 * 
 	 * @author N. Luc
 	 * @since 2007-05-22
@@ -70,7 +83,37 @@ class StoragesComponent extends Object {
 			$studied_parent_ids = $children_ids;
 		}
 		
-		return array_diff_key($arr_storages_list, $ids_to_remove);
+		$res = array_diff_key($arr_storages_list, $ids_to_remove);
+
+		$formatted_data = array();
+		if(!empty($res)) {
+			foreach ($res as $storage_id => $storage_data) {
+				$formatted_data[$storage_id] = $this->formatStorageTitleForDisplay($storage_data);
+			}
+		}
+	
+		return $formatted_data;
+	}
+	
+	/**
+	 * Build storage title joining many storage information.
+	 * 
+	 * @param $storage_data Storages data
+	 * 
+	 * @return Storage title (string).
+	 *
+	 * @author N. Luc
+	 * @since 2009-09-11
+	 */	
+	 
+	function formatStorageTitleForDisplay($storage_data) {
+		$formatted_data = '';
+		
+		if((!empty($storage_data)) && isset($storage_data['StorageMaster'])) {
+			$formatted_data = $storage_data['StorageMaster']['selection_label'] . ' [' . __($storage_data['StorageMaster']['code'] . ' ('.$storage_data['StorageMaster']['storage_type'], TRUE) .')'. ']';
+		}
+	
+		return $formatted_data;
 	}
 	
 	/**
@@ -111,20 +154,30 @@ class StoragesComponent extends Object {
 	 }	
 	 
 	/**
-	 * Using the id of a storage, the function will return data of each of the parent storages 
-	 * in turn plus the studied storage (starting from the root to the studied storage).
+	 * Using the id of a storage, the function will return formatted storages path 
+	 * starting from the root to the studied storage.
 	 * 
 	 * @param $studied_storage_master_id ID of the studied storage.
 	 * 
-	 * @return An array that contains master data of a storage plus all its parents storage odered from
-	 * root to studied storage.
+	 * @return Storage path (string).
 	 * 
 	 * @author N. Luc
 	 * @since 2009-08-12
 	 */ 
 	 
-	function getStoragePathData($studied_storage_master_id) {
-		return $this->controller->StorageMaster->getpath($studied_storage_master_id);
+	function getStoragePath($studied_storage_master_id) {
+		$storage_path_data = $this->controller->StorageMaster->getpath($studied_storage_master_id);
+
+		$path_to_display = '';
+		$separator = '';
+		if(!empty($storage_path_data)){
+			foreach($storage_path_data as $new_parent_storage_data) { 
+				$path_to_display .= $separator.$new_parent_storage_data['StorageMaster']['code']; 
+				$separator = ' >> ';
+			}
+		}
+			
+		return $path_to_display;
 	}	
 	
 	/**

@@ -1332,6 +1332,10 @@ div.loading{
 	border-width: 1px;
 }
 
+table.columns.index tbody tr td{
+	white-space: nowrap;	
+}
+
 
 /** CakePHP auto complete **/
 div.auto_complete    {

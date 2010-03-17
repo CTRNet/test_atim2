@@ -41,6 +41,7 @@ class SampleMastersController extends InventorymanagementAppController {
 	
 	var $paginate = array(
 		'SampleMaster' => array('limit' => 10, 'order' => 'SampleMaster.sample_code DESC'),
+		'ViewSample' => array('limit' =>10 , 'order' => 'ViewSample.sample_code DESC'), 
 		'AliquotMaster' => array('limit' =>10 , 'order' => 'AliquotMaster.barcode DESC'));
 
 	/* --------------------------------------------------------------------------
@@ -56,7 +57,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		// Set list of banks
 		$this->set('bank_list', $this->Collections->getBankList());
 
-		$this->Structures->set('view_samplemasters');
+		$this->Structures->set('view_sample_joined_to_collection');
 				
 		$hook_link = $this->hook('format');
 		if($hook_link){
@@ -67,7 +68,7 @@ class SampleMastersController extends InventorymanagementAppController {
 	function search() {
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/collections/index'));
 
-		$view_sample = $this->Structures->get('form', 'view_samplemasters');
+		$view_sample = $this->Structures->get('form', 'view_sample_joined_to_collection');
 		$this->set('atim_structure', $view_sample);
 		if ($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions($view_sample);
 		
@@ -190,7 +191,7 @@ class SampleMastersController extends InventorymanagementAppController {
 			if(is_null($filter_option)) {
 				// No filter
 				$model_to_use = 'ViewSample';
-				$form_alias = 'view_collection_samplemasters';
+				$form_alias = 'view_sample_joined_to_parent';
 				
 			} else  {
 				// Get filter options
@@ -201,7 +202,7 @@ class SampleMastersController extends InventorymanagementAppController {
 					case 'CATEGORY':
 						// list all collection samples according to sample category: Either specimen or derivative
 						$model_to_use = 'ViewSample';
-						$form_alias = 'view_collection_samplemasters';
+						$form_alias = 'view_sample_joined_to_parent';
 						
 						$sample_category = $option_for_list_all[1];
 						$sample_search_criteria['ViewSample.sample_category'] = $sample_category;
@@ -272,7 +273,7 @@ class SampleMastersController extends InventorymanagementAppController {
 			if(is_null($filter_option)) {	
 				// No filter
 				$model_to_use = 'ViewSample';
-				$form_alias = 'view_collection_samplemasters';
+				$form_alias = 'view_sample_joined_to_parent';
 						
 				$sample_search_criteria['ViewSample.initial_specimen_sample_id'] = $initial_specimen_sample_id; 
 				$sample_search_criteria['ViewSample.sample_category'] = 'derivative'; 
@@ -421,8 +422,10 @@ class SampleMastersController extends InventorymanagementAppController {
 		$parent_sample_master_id = $sample_data['SampleMaster']['parent_id'];
 		$parent_sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $parent_sample_master_id), 'recursive' => '-1'));
 		if(!empty($parent_sample_master_id) && empty($parent_sample_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }	
-		$this->set('parent_sample_data', $parent_sample_data);	
-
+		
+		$this->set('parent_sample_data_for_display', $this->formatParentSampleDataForDisplay($parent_sample_data));	
+		$this->set('parent_sample_master_id', $parent_sample_master_id);	
+	
 		// Set list of available SOPs to create sample
 		$this->set('sample_sop_list', $this->Samples->getSampleSopList($sample_data['SampleMaster']['sample_type']));	
 		
@@ -445,7 +448,9 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->data = array();
 					
 		// Set sample aliquot list
-		if(!$is_tree_view_detail_form) { $this->setDataForAliquotsList(array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id)); }
+		if(!$is_tree_view_detail_form) { 		
+			$this->set('aliquots_data', $this->getAliquotsListData(array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id))); 
+		}
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 
@@ -457,7 +462,9 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 		// Set structure
 		$this->Structures->set($sample_data['SampleControl']['form_alias']);	
-		if(!$is_tree_view_detail_form) { $this->Structures->set('aliquotmasters_for_sample_details', 'aliquots_listall_structure');	}
+		if(!$is_tree_view_detail_form) { 
+			$this->Structures->set('aliquotmasters', 'aliquots_listall_structure');	
+		}
 
 		// Define if this detail form is displayed into the collection content tree view
 		$this->set('is_tree_view_detail_form', $is_tree_view_detail_form);
@@ -518,7 +525,8 @@ class SampleMastersController extends InventorymanagementAppController {
 		}
 		
 		// Set parent data
-		$this->set('parent_sample_data', $parent_sample_data);
+		$this->set('parent_sample_data_for_display', $this->formatParentSampleDataForDisplay($parent_sample_data));	
+		$this->set('parent_sample_master_id', $parent_sample_master_id);
 		
 		// Set new sample control information
 		$this->set('sample_control_data', $sample_control_data);	
@@ -676,8 +684,9 @@ class SampleMastersController extends InventorymanagementAppController {
 		$parent_sample_master_id = $sample_data['SampleMaster']['parent_id'];
 		$parent_sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $parent_sample_master_id), 'recursive' => '-1'));
 		if(!empty($parent_sample_master_id) && empty($parent_sample_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }	
-		$this->set('parent_sample_data', $parent_sample_data);	
 
+		$this->set('parent_sample_data_for_display', $this->formatParentSampleDataForDisplay($parent_sample_data));	
+		
 		// Set list of available SOPs to create sample
 		$this->set('sample_sop_list', $this->Samples->getSampleSopList($sample_data['SampleMaster']['sample_type']));	
 		
@@ -922,6 +931,27 @@ class SampleMastersController extends InventorymanagementAppController {
 		if(isset($submtted_data['SampleDetail']['collected_volume'])) { $submtted_data['SampleDetail']['collected_volume'] = str_replace(',', '.', $submtted_data['SampleDetail']['collected_volume']); }				
 		if(isset($submtted_data['SampleDetail']['pellet_volume'])) { $submtted_data['SampleDetail']['pellet_volume'] = str_replace(',', '.', $submtted_data['SampleDetail']['pellet_volume']); }				
 		return $submtted_data;
+	}
+	
+	/**
+	 * Format parent sample data array for display.
+	 * 
+	 * @param $parent_sample_data Parent sample data
+	 * 
+	 * @return Parent sample list into array having following structure: 
+	 * 	array($parent_sample_master_id => $sample_title_built_by_function)
+	 *
+	 * @author N. Luc
+	 * @since 2009-09-11
+	 */	
+	 
+	function formatParentSampleDataForDisplay($parent_sample_data) {
+		$formatted_data = array();
+		if(!empty($parent_sample_data) && isset($parent_sample_data['SampleMaster'])) {
+			$formatted_data[$parent_sample_data['SampleMaster']['id']] = $parent_sample_data['SampleMaster']['sample_code'] . ' [' . __($parent_sample_data['SampleMaster']['sample_type'], TRUE) . ']';
+		}
+		
+		return $formatted_data;
 	}
 }
 	
