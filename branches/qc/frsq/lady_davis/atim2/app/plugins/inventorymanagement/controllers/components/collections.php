@@ -7,13 +7,13 @@ class CollectionsComponent extends Object {
 	}
 	
 	/**
-	 * Get list of banks.
+	 * Get formatted list of banks.
 	 * 
 	 * Note: Function to allow bank to customize this function when they don't use 
 	 * ADministrate module.
 	 * 
 	 * @return Bank list into array having following structure: 
-	 * 	array($bank_id => $bank_label_built_by_function)
+	 * 	array($bank_id => $bank_title_built_by_function)
 	 *
 	 * @author N. Luc
 	 * @since 2009-09-11
@@ -33,13 +33,13 @@ class CollectionsComponent extends Object {
 	}
 	
 	/**
-	 * Get list of SOPs existing to build collection.
+	 * Get formatted list of SOPs existing to build collection.
 	 * 
 	 * Note: Function to allow bank to customize this function when they don't use 
 	 * SOP module.
 	 * 
 	 * @return SOP list into array having following structure: 
-	 * 	array($sop_id => $sop_label_built_by_function)
+	 * 	array($sop_id => $sop_title_built_by_function)
 	 *
 	 * @author N. Luc
 	 * @since 2009-09-11
@@ -52,7 +52,7 @@ class CollectionsComponent extends Object {
 		
 		$sop_list_to_return = array();
 		foreach($sop_list as $sop_masters) {
-			$sop_list_to_return[$sop_masters['SopMaster']['id']] = $sop_masters['SopMaster']['code'];
+			$sop_list_to_return[$sop_masters['SopMaster']['id']] = $sop_masters['SopMaster']['code'] . ' ('.__($sop_masters['SopMaster']['sop_group'], true) .' - '.__($sop_masters['SopMaster']['type'], true) .')'; 
 		}
 	
 		return $sop_list_to_return;		

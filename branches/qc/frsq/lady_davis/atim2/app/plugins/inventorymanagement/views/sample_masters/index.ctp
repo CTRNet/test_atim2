@@ -11,7 +11,6 @@
 	);
 
 	$structure_override = array();
-		
 	$structure_override['ViewSample.bank_id'] = $bank_list;
 	
 	$final_atim_structure = $atim_structure; 
