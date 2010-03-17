@@ -46,6 +46,8 @@ class ConsentMastersController extends ClinicalannotationAppController {
 		$consent_control_data = $this->ConsentControl->find('first', array('conditions' => array('ConsentControl.id' => $this->data['ConsentMaster']['consent_control_id'])));
 		$this->Structures->set($consent_control_data['ConsentControl']['form_alias']);
 		
+		$this->set('consent_type', $consent_control_data['ConsentControl']['controls_type']);
+		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }
@@ -64,6 +66,8 @@ class ConsentMastersController extends ClinicalannotationAppController {
 		$this->Structures->set($consent_control_data['ConsentControl']['form_alias']);
 		$this->Structures->set('empty', 'empty_structure');
 				
+		$this->set('consent_type', $consent_control_data['ConsentControl']['controls_type']);
+		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }
@@ -98,6 +102,8 @@ class ConsentMastersController extends ClinicalannotationAppController {
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'ConsentMaster.id'=>$consent_master_id) );
 		$consent_control_data = $this->ConsentControl->find('first', array('conditions' => array('ConsentControl.id' => $consent_master_data['ConsentMaster']['consent_control_id'])));
 		$this->Structures->set($consent_control_data['ConsentControl']['form_alias']);		
+		
+		$this->set('consent_type', $consent_control_data['ConsentControl']['controls_type']);
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');

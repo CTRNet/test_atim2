@@ -70,6 +70,8 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		$this->Structures->set($dx_control_data['DiagnosisControl']['form_alias']);
 		$this->Structures->set('empty', 'empty_structure');
 
+		$this->set( 'dx_type', $dx_control_data['DiagnosisControl']['controls_type']);
+
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }
@@ -94,7 +96,7 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 			}
 		}
 		
-		$this->buildAndSetExistingDx($participant_id, 0, 0);
+		$this->buildAndSetExistingDx($participant_id);
 	}
 
 	function edit( $participant_id, $diagnosis_master_id ) {
@@ -201,11 +203,11 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		return $arr_allow_deletion;
 	}	
 	
-	function buildAndSetExistingDx($participant_id, $current_dx_id, $current_dx_primary_number) {
+	function buildAndSetExistingDx($participant_id, $current_dx_id = '0', $current_dx_primary_number = '') {
 		$existing_dx = $this->DiagnosisMaster->find('all', array('conditions' => array('DiagnosisMaster.participant_id' => $participant_id, 'DiagnosisMaster.id != '.$current_dx_id)));
 		//sort by dx number
 		if(empty($existing_dx)){
-			$sorted_dx[0] = array();
+			$sorted_dx[''] = array();
 		}else{
 			foreach($existing_dx as $dx){
 				if(isset($sorted_dx[$dx['DiagnosisMaster']['primary_number']])){
@@ -214,8 +216,8 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 					$sorted_dx[$dx['DiagnosisMaster']['primary_number']][0] = $dx;
 				}
 			}
-			if(!isset($sorted_dx[0])){
-				$sorted_dx[0] = array();
+			if(!isset($sorted_dx[''])){
+				$sorted_dx[''] = array();
 			}
 			if(!isset($sorted_dx[$current_dx_primary_number])){
 				$sorted_dx[$current_dx_primary_number] = array();			

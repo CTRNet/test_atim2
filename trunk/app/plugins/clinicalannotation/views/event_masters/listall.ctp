@@ -18,9 +18,7 @@
 			'add' => $add_links
 		)
 	); 
-	
-	
-//TODO (Aaron): to support multi language			
+			
 	$structure_override = array();
 	$structure_override['EventMaster.disease_site'] = $disease_site_list;
 	$structure_override['EventMaster.event_type'] = $event_type;

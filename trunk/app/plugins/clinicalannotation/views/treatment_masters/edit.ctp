@@ -1,63 +1,72 @@
 <?php 
-	// 1- DIAGNOSTICS
-	
-	// Setup diagnosis radio-button pick list for linking treatment to a diagnosis
-	$structure_settings = array(
-		'form_bottom'=>false, 
-		'form_inputs'=>false,
-		'actions'=>false,
-		'pagination'=>false,
-		'header' => __('diagnosis', null)
-	);
-	
+
 	$structure_links = array(
 		'top'=>'/clinicalannotation/treatment_masters/edit/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id'],
 		'radiolist'=>array(
 			'TreatmentMaster.diagnosis_master_id'=>'%%DiagnosisMaster.id'.'%%'
-		)
-	);
-			
-	$final_options = array( 'type'=>'radiolist', 'settings'=>$structure_settings, 'data'=>$data_for_checklist, 'links'=>$structure_links );
-	$final_atim_structure = $diagnosis_structure; 
-	$hook_link = $structures->hook('dx_list');
-	if( $hook_link ) { require($hook_link); }
-	$structures->build($final_atim_structure, $final_options);
-	
-	$checkNA = true;
-	foreach($data_for_checklist as $c_data){
-	if($c_data['DiagnosisMaster']['id'] == $this->data['TreatmentMaster']['diagnosis_master_id']){
-			$checkNA = false;
-			break;
-		}
-	}
-	?>
-	<table class="structure" cellspacing="0">
-		<tbody>
-			<tr><td style='text-align: left; padding-left: 10px;'><input type='radio' name='data[TreatmentMaster][diagnosis_master_id]' <?php echo($checkNA ? "checked='checked'" : ""); ?> value=''/><?php echo(__('n/a', null));?></td>
-			</tr></tbody></table>
-	<?php
-	
-	// 2- TRT DATA
-
-	$structure_settings = array(
-		'form_top'=>false,
-		'header' => __('treatment', null), 
-		'separator' => true
-	);
-		
-	// Setup treatment add form and links for display
-	$structure_links = array(
-		'top'=>'/clinicalannotation/treatment_masters/edit/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id'],
+		),
 		'bottom'=>array(
 			'cancel'=>'/clinicalannotation/treatment_masters/detail/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id']
 		)
 	);
 	
+	// 1- TRT DATA
+
+	$structure_settings = array(
+		'actions'=>false, 
+		
+		'header' => '1- ' . __('data', null),
+		'form_bottom'=>false);
+	
 	$structure_override = array('TreatmentMaster.protocol_id'=>$protocol_list);
 	
 	$final_options = array('links'=>$structure_links,'settings'=>$structure_settings,'override'=>$structure_override);
 	$final_atim_structure = $atim_structure; 
+	
 	$hook_link = $structures->hook();
 	if( $hook_link ) { require($hook_link); }
+	
 	$structures->build( $final_atim_structure, $final_options );
+	
+	// 2- SEPARATOR & HEADER
+	
+	$structure_settings = array(
+		'actions'=>false, 
+
+		'header' => '2- ' . __('related diagnosis', null),
+		'separator' => true, 
+		'form_top' => false,
+		'form_bottom'=>false
+	);	
+
+	$structures->build($empty_structure, array('settings'=>$structure_settings, 'links'=> null));	
+	
+	// 3- DIAGNOSTICS
+	
+	$structure_settings = array(
+		'form_inputs'=>false,
+		'pagination'=>false,
+		
+		'form_top' => false
+	);	
+	
+	$final_options = array( 'type'=>'radiolist', 'settings'=>$structure_settings, 'data'=>$data_for_checklist, 'links'=>$structure_links );
+	$final_atim_structure = $diagnosis_structure; 
+	
+	$hook_link = $structures->hook('dx_list');
+	if( $hook_link ) { require($hook_link); }
+
+?>
+	
+	<table class="structure" cellspacing="0">
+		<tbody>
+			<tr><td style='text-align: left; padding-left: 10px;'><input type='radio' name='data[TreatmentMaster][diagnosis_master_id]' checked='checked' value=''/><?php echo(__('n/a', null));?></td>
+			</tr>
+		</tbody>
+	</table>
+	
+<?php
+	
+	$structures->build($final_atim_structure, $final_options);
+pr($this->data);
 ?>
