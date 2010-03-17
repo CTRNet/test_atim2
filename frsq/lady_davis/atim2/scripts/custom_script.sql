@@ -191,15 +191,14 @@ VALUES (NULL , 'qc-lady-00004_qc-lady-00005', @last_structure_id, 'qc-lady-00004
 UPDATE `sample_controls` SET `form_alias` = 'qc_lady_sd_der_dnas' WHERE `sample_controls`.`id` =12 LIMIT 1 ;
 
 #storages
-UPDATE storage_controls SET status='disbled' WHERE id NOT IN(10, 17);
-INSERT INTO `storage_controls` (`id` ,`storage_type` ,`storage_type_code` ,`coord_x_title` ,`coord_x_type` ,`coord_x_size` ,`coord_y_title` ,`coord_y_type` ,`coord_y_size` ,`square_box` ,`horizontal_display` ,`set_temperature` ,`is_tma_block` ,`status` ,`form_alias` ,`form_alias_for_children_pos` ,`detail_tablename`) VALUES 
-(NULL , 'box100 1-100', 'B1T100', 'position', 'integer', NULL , NULL , NULL , NULL , '1', '0', 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_boxs');
-INSERT INTO `storage_controls` (`id`,`storage_type`,`storage_type_code`,`coord_x_title`,`coord_x_type`,`coord_x_size`,`coord_y_title`,`coord_y_type`,`coord_y_size`,`square_box`,`horizontal_display`,`set_temperature`,`is_tma_block`,`status`,`form_alias`,`form_alias_for_children_pos`,`detail_tablename`)
-VALUES (NULL , 'freezer 6x5', 'F6X5', 'column', 'integer', '6', 'row', 'integer', '5', '0', '0', 'TRUE', 'FALSE', 'active', 'std_undetail_stg_with_tmp', 'std_2_dim_position_selection', 'std_freezers'),
-(NULL , 'rack 4x4', 'R4X4', 'column', 'integer', '4', 'row', 'integer', '4', '0', '0', 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_2_dim_position_selection', 'std_racks'),
-(NULL , 'freezer 4x5', 'F4X5', 'column', 'integer', '5', 'row', 'integer', '4', '0', '0', 'TRUE', 'FALSE', 'active', 'std_undetail_stg_with_tmp', 'std_2_dim_position_selection', 'std_freezers'),
-(NULL , 'freezer vertical 4x3', '', 'column', 'integer', '4', 'row', 'integer', '3', '0', '0', 'TRUE', 'FALSE', 'active', 'std_undetail_stg_with_tmp', 'std_2_dim_position_selection', 'std_freezers'),
-(NULL , 'rack 1-12', 'R1T12', 'position', 'integer', '12', NULL , NULL , NULL , '0', '0', 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_racks');
+UPDATE storage_controls SET status='disabled' WHERE id NOT IN(10, 17);
+INSERT INTO `storage_controls` (`id` ,`storage_type` ,`storage_type_code` ,`coord_x_title` ,`coord_x_type` ,`coord_x_size` ,`coord_y_title` ,`coord_y_type` ,`coord_y_size` , `display_x_size`, `display_y_size`, `reverse_x_numbering`, `reverse_y_numbering`, `set_temperature` ,`is_tma_block` ,`status` ,`form_alias` ,`form_alias_for_children_pos` ,`detail_tablename`) VALUES 
+(NULL , 'box100 1-100', 'B1T100', 'position', 'integer', NULL , NULL , NULL , NULL , '10', '10', 0, 0, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_boxs'),
+(NULL , 'freezer 6x5', 'F6X5', 'column', 'integer', '6', 'row', 'integer', '5', '0', '0', 0, 0, 'TRUE', 'FALSE', 'active', 'std_undetail_stg_with_tmp', 'std_2_dim_position_selection', 'std_freezers'),
+(NULL , 'rack 4x4', 'R4X4', 'column', 'integer', '4', 'row', 'integer', '4', '0', '0', 0, 0, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_2_dim_position_selection', 'std_racks'),
+(NULL , 'freezer 4x5', 'F4X5', 'column', 'integer', '5', 'row', 'integer', '4', '0', '0', 0, 0, 'TRUE', 'FALSE', 'active', 'std_undetail_stg_with_tmp', 'std_2_dim_position_selection', 'std_freezers'),
+(NULL , 'freezer vertical 4x3', '', 'column', 'integer', '4', 'row', 'integer', '3', '0', '0', 0, 0, 'TRUE', 'FALSE', 'active', 'std_undetail_stg_with_tmp', 'std_2_dim_position_selection', 'std_freezers'),
+(NULL , 'rack 1-12', 'R1T12', 'position', 'integer', '12', NULL , NULL , NULL , '0', '0', 0, 0, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_racks');
 INSERT INTO `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES 
 ('freezer 6x5', 'global', 'Freezer 6x5', 'Congélateur 6x5'),
 ('rack 4x4', 'global', 'Rack 4x4', 'Étagère 4x4'),
