@@ -46,10 +46,16 @@
 
 	// 3.1- Group n/a	
 	
+	// Define radio should be checked
+	$radio_checked = false;
+	if($initial_display || empty($this->data['DiagnosisMaster']['primary_number'])) { 
+		$radio_checked = true; 
+	}
+	
 ?>
 
 	<table class="structure" cellspacing="0"><tbody>
-		<tr><td style='text-align: left; padding-left: 10px;'><input type='radio' name='data[DiagnosisMaster][primary_number]' checked='checked' value=''/><?php echo(__('n/a', null));?></td><td>
+		<tr><td style='text-align: left; padding-left: 10px;'><input type='radio' name='data[DiagnosisMaster][primary_number]' <?php if($radio_checked) { echo("checked='checked'"); }?> value=''/><?php echo(__('n/a', null));?></td><td>
 			
 <?php
 	
@@ -66,10 +72,17 @@
 	unset($existing_dx['']);
 	$max_key = 0;
 	foreach($existing_dx as $key => $dx){
+		
+		// Define radio should be checked
+		$radio_checked = false;
+		if((!$initial_display) && ($this->data['DiagnosisMaster']['primary_number'] == $key)) { 
+			$radio_checked = true; 
+		}		
+		
 ?>
 
 		</td></tr>
-		<tr><td style='text-align: left; padding-left: 10px;'><input type='radio' name='data[DiagnosisMaster][primary_number]' value='<?php echo($key); ?>'/><?php echo(__('group', null) . ' - ' . $key);?></td><td>
+		<tr><td style='text-align: left; padding-left: 10px;'><input type='radio' name='data[DiagnosisMaster][primary_number]' <?php if($radio_checked) { echo("checked='checked'"); }?> value='<?php echo($key); ?>'/><?php echo(__('group', null) . ' - ' . $key);?></td><td>
 
 <?php
 
@@ -83,11 +96,17 @@
 	}
 
 	// 3.3- New group	
-	
+
+	// Define radio should be checked
+	$radio_checked = false;
+	if((!$initial_display) && ($this->data['DiagnosisMaster']['primary_number'] == ($max_key+1))) { 
+		$radio_checked = true; 
+	}	
+			
 ?>
 
 		</td></tr>
-		<tr><td style='text-align: left; padding-left: 10px;'><input type='radio' name='data[DiagnosisMaster][primary_number]' value='<?php echo($max_key + 1); ?>'/><?php echo(__('new group', null));?></td><td></td></tr>
+		<tr><td style='text-align: left; padding-left: 10px;'><input type='radio' name='data[DiagnosisMaster][primary_number]' <?php if($radio_checked) { echo("checked='checked'"); }?> value='<?php echo($max_key + 1); ?>'/><?php echo(__('new group', null));?></td><td></td></tr>
 	</tbody></table>
 
 <?php
