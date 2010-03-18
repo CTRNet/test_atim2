@@ -11,7 +11,8 @@
 		'columns' => array(
 			1	=> array('width' => '30%'),
 			10	=> array('width' => '70%')
-		)
+		),
+		'header' => __('filter', null) . ': '. $filter_value
 	);
 	
 	// LINKS

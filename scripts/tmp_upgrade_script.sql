@@ -1995,4 +1995,36 @@ INSERT INTO `acos` (`id`, `parent_id`, `model`, `foreign_key`, `alias`, `lft`, `
 (456, 112, NULL, NULL, 'search', 234, 235),
 (457, 112, NULL, NULL, 'index', 236, 237);
 
+-- Update inventroy menu and filter data
+
+UPDATE menus SET parent_id = 'inv_CAN' WHERE parent_id = 'inv_CAN_2';
+DELETE FROM menus WHERE id = 'inv_CAN_2';	-- listall collection content
+UPDATE menus SET language_title = 'collection products' WHERE id = 'inv_CAN_21';	-- tree view
+UPDATE menus SET parent_id = 'inv_CAN_21' WHERE parent_id = 'inv_CAN_22';
+UPDATE menus SET use_summary = 'Inventorymanagement.ViewCollection::summary' WHERE use_summary = 'Inventorymanagement.Collection::contentFilterSummary';
+UPDATE menus SET active = 'no' WHERE id = 'inv_CAN_3';	-- listall collection path reviews
+
+DELETE FROM `i18n` WHERE `id` IN ('listall collection samples', 'listall collection aliquots', 'collection products');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('listall collection samples', '', 'Samples List', 'Liste des &eacute;chantillons'),
+('listall collection aliquots', '', 'Aliquots List', 'Liste des aliquots'),
+('collection products', '', 'Products', 'Produits');
+
+UPDATE menus SET active = 'no' WHERE parent_id = 'clin_CAN_57' AND use_link = '/underdevelopment/';	-- participant sample and aliquots
+UPDATE menus SET use_summary = '' WHERE id = 'clin_CAN_571'; -- participant tree view
+
+
+
+ 	
+ 	 	
+
+
+
+
+
+
+
+
+
+
 
