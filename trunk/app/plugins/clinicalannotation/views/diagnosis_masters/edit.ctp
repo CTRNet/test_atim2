@@ -1,11 +1,11 @@
 <?php 
 	$structure_links = array(
-		'top'=>'/clinicalannotation/diagnosis_masters/edit/%%DiagnosisMaster.participant_id%%/%%DiagnosisMaster.id%%/',
+		'top'=>'/clinicalannotation/diagnosis_masters/edit/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['DiagnosisMaster.id'].'/',
 		'bottom'=>array(
-			'cancel'=>'/clinicalannotation/diagnosis_masters/detail/%%DiagnosisMaster.participant_id%%/%%DiagnosisMaster.id%%/'
+			'cancel'=>'/clinicalannotation/diagnosis_masters/detail/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['DiagnosisMaster.id'].'/'
 		)
 	);
-	
+		
 	// 1- DIAGNOSTIC DATA
 	
 	$structure_settings = array(
@@ -45,11 +45,17 @@
 	);		
 	
 	// 3.1- Group n/a	
+	
+	// Define radio should be checked
+	$radio_checked = false;
+	if(empty($this->data['DiagnosisMaster']['primary_number'])) { 
+		$radio_checked = true; 
+	}	
 		
 ?>
 
 	<table class="structure" cellspacing="0"><tbody>
-		<tr><td style='text-align: left; padding-left: 10px;'><input type='radio' name='data[DiagnosisMaster][primary_number]' checked='checked' value=''/><?php echo(__('n/a', null));?></td><td>
+		<tr><td style='text-align: left; padding-left: 10px;'><input type='radio' name='data[DiagnosisMaster][primary_number]' <?php if($radio_checked) { echo("checked='checked'"); }?> value=''/><?php echo(__('n/a', null));?></td><td>
 			
 <?php
 
@@ -70,15 +76,17 @@
 		if(sizeof($existing_dx[$key]) == 0){
 			$own_primary = true;
 		}
-		$checked = "";
-		if($this->data['DiagnosisMaster']['primary_number'] == $key){
-			$checked = " checked='checked' ";
-		}
-
+		
+		// Define radio should be checked
+		$radio_checked = false;
+		if($this->data['DiagnosisMaster']['primary_number'] == $key) { 
+			$radio_checked = true; 
+		}	
+		
 ?>
 
 		</td></tr>
-		<tr><td style='text-align: left; padding-left: 10px;'><input type='radio' name='data[DiagnosisMaster][primary_number]' value='<?php echo($key); ?>' <?php echo($checked); ?>/><?php echo(__('group', null) . ' - ' . $key);?></td><td>
+		<tr><td style='text-align: left; padding-left: 10px;'><input type='radio' name='data[DiagnosisMaster][primary_number]' <?php if($radio_checked) { echo("checked='checked'"); }?> value='<?php echo($key); ?>' /><?php echo(__('group', null) . ' - ' . $key);?></td><td>
 
 <?php
 
@@ -92,6 +100,14 @@
 		
 	}
 	
+	// 3.3- New group	
+
+	// Define radio should be checked
+	$radio_checked = false;
+	if($this->data['DiagnosisMaster']['primary_number'] == ($max_key+1)) { 
+		$radio_checked = true; 
+	}	
+	
 ?>
 
 	</td></tr>
@@ -99,7 +115,7 @@
 <?php if(!$own_primary){ ?>
 	
 	<tr><td style='text-align: left; padding-left: 10px;'>
-		<input type='radio' name='data[DiagnosisMaster][primary_number]' value='<?php echo($max_key + 1); ?>'/><?php echo(__('new group', null));?>
+		<input type='radio' name='data[DiagnosisMaster][primary_number]' <?php if($radio_checked) { echo("checked='checked'"); }?> value='<?php echo($max_key + 1); ?>'/><?php echo(__('new group', null));?>
 		</td><td></td></tr>
 
 <?php } ?>

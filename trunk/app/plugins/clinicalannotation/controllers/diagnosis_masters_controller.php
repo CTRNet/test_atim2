@@ -63,6 +63,10 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
 		if(empty($participant_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
 		
+		$this->buildAndSetExistingDx($participant_id);
+		
+		$this->set('initial_display', (empty($this->data)? true : false));
+		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, "tableId"=>$dx_control_id));
 		$this->set( 'atim_menu', $this->Menus->get('/clinicalannotation/diagnosis_masters/listall/') );
@@ -71,7 +75,7 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		$this->Structures->set('empty', 'empty_structure');
 
 		$this->set( 'dx_type', $dx_control_data['DiagnosisControl']['controls_type']);
-
+		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }
@@ -95,8 +99,6 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 				}
 			}
 		}
-		
-		$this->buildAndSetExistingDx($participant_id);
 	}
 
 	function edit( $participant_id, $diagnosis_master_id ) {
@@ -106,10 +108,14 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		$dx_master_data = $this->DiagnosisMaster->find('first',array('conditions'=>array('DiagnosisMaster.id'=>$diagnosis_master_id, 'DiagnosisMaster.participant_id'=>$participant_id)));
 		if(empty($dx_master_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
 		
+		$this->buildAndSetExistingDx($participant_id, $diagnosis_master_id, $dx_master_data['DiagnosisMaster']['primary_number']);
+
 		// MANAGE FORM, MENU AND ACTION BUTTONS
-		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'DiagnosisMaster.id'=>$diagnosis_master_id));
+		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'DiagnosisMaster.id'=>$diagnosis_master_id, 'DiagnosisMaster.diagnosis_control_id' => $dx_master_data['DiagnosisMaster']['diagnosis_control_id']));
 		$dx_control_data = $this->DiagnosisControl->find('first', array('conditions' => array('DiagnosisControl.id' => $dx_master_data['DiagnosisMaster']['diagnosis_control_id'])));
 		$this->Structures->set($dx_control_data['DiagnosisControl']['form_alias']);
+		
+		$this->Structures->set('empty', 'empty_structure');
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
@@ -134,8 +140,6 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 			}
 		}
 		
-		$this->Structures->set('empty', 'empty_structure');
-		$this->buildAndSetExistingDx($participant_id, $diagnosis_master_id, $dx_master_data['DiagnosisMaster']['primary_number']);
 	}
 
 	function delete( $participant_id, $diagnosis_master_id ) {
