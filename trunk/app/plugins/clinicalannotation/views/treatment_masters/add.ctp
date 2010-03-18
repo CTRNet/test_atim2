@@ -55,13 +55,19 @@
 	
 	$hook_link = $structures->hook('dx_list');
 	if( $hook_link ) { require($hook_link); }
-	
+
+	// Define radio should be checked
+	$radio_checked = false;
+	if($initial_display || empty($this->data['TreatmentMaster']['diagnosis_master_id'])) { 
+		$radio_checked = true; 
+	}
+		
 ?>
 	
 	<!-- N/A value -->
 	<table class="structure" cellspacing="0">
 		<tbody>
-			<tr><td style='text-align: left; padding-left: 10px;'><input type='radio' name='data[TreatmentMaster][diagnosis_master_id]' checked='checked' value=''/><?php echo(__('n/a', null));?></td>
+			<tr><td style='text-align: left; padding-left: 10px;'><input type='radio' name='data[TreatmentMaster][diagnosis_master_id]' <?php if($radio_checked) { echo("checked='checked'"); }?> value=''/><?php echo(__('n/a', null));?></td>
 			</tr>
 		</tbody>
 	</table>
