@@ -3,6 +3,7 @@
 	// SETTINGS
 	
 	$structure_settings = array(
+		'header' => __('filter', true) . ': ' . __($filter_value, true),
 		'tree'=>array(
 			'SampleMaster'		=> 'SampleMaster',
 			'AliquotMaster'	=> 'AliquotMaster'

@@ -66,7 +66,7 @@ class ProductMastersController extends ClinicalannotationAppController {
 		$this->set('specimen_type_list', $specimen_type_list);
 		
 		// Set filter value
-		$filter_value = null;
+		$filter_value = 'no filter';
 		if($studied_specimen_sample_control_id) {
 			$sample_control_data = $this->SampleControl->find('first', array('conditions' => array('id' => $studied_specimen_sample_control_id)));
 			if(empty($sample_control_data)) { 
@@ -75,9 +75,10 @@ class ProductMastersController extends ClinicalannotationAppController {
 			}
 			$filter_value = $sample_control_data['SampleControl']['sample_type'];
 		}		
+		$this->set('filter_value', $filter_value);
 		
 		// Set menu variables
-		$this->set('atim_menu_variables', array('Participant.id' => $participant_id, 'FilterLevel'  => 'participant_products', 'FilterForTreeView' => $filter_value));
+		$this->set('atim_menu_variables', array('Participant.id' => $participant_id));
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
