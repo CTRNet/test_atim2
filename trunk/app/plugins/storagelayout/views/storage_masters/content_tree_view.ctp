@@ -22,19 +22,28 @@
 				'detail' => array(
 					'link' => '/storagelayout/storage_masters/detail/%%StorageMaster.id%%/1',
 					'icon' => 'storage'),
-				'access to all data' => '/storagelayout/storage_masters/detail/%%StorageMaster.id%%/'
+				'access to all data' => array(
+					'link'=> '/storagelayout/storage_masters/detail/%%StorageMaster.id%%/',
+					'icon' => 'access_to_data'
+				)
 			),
 			'AliquotMaster' => array(
 				'detail' => array(
 					'link' => '/inventorymanagement/aliquot_masters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/1/0',
 					'icon' => 'aliquot'),
-				'access to all data' => '/inventorymanagement/aliquot_masters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/'
+				'access to all data' => array(
+					'link'=> '/inventorymanagement/aliquot_masters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/',
+					'icon' => 'access_to_data'
+				)
 			),
 			'TmaSlide' => array(
 				'detail' => array(
 					'link' => '/storagelayout/tma_slides/detail/%%TmaSlide.tma_block_storage_master_id%%/%%TmaSlide.id%%/1',
 					'icon' => 'slide'),
-				'access to all data' => '/storagelayout/tma_slides/detail/%%TmaSlide.tma_block_storage_master_id%%/%%TmaSlide.id%%/'
+				'access to all data' => array(
+					'link'=> '/storagelayout/tma_slides/detail/%%TmaSlide.tma_block_storage_master_id%%/%%TmaSlide.id%%/',
+					'icon' => 'access_to_data'
+				)
 			)
 		),
 		'bottom' => array(
