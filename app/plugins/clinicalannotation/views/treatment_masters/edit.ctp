@@ -49,18 +49,24 @@
 		
 		'form_top' => false
 	);	
-	
+		
 	$final_options = array( 'type'=>'radiolist', 'settings'=>$structure_settings, 'data'=>$data_for_checklist, 'links'=>$structure_links );
 	$final_atim_structure = $diagnosis_structure; 
 	
 	$hook_link = $structures->hook('dx_list');
 	if( $hook_link ) { require($hook_link); }
+	
+	// Define radio should be checked
+	$radio_checked = false;
+	if(empty($this->data['TreatmentMaster']['diagnosis_master_id'])) { 
+		$radio_checked = true; 
+	}
 
 ?>
 	
 	<table class="structure" cellspacing="0">
 		<tbody>
-			<tr><td style='text-align: left; padding-left: 10px;'><input type='radio' name='data[TreatmentMaster][diagnosis_master_id]' checked='checked' value=''/><?php echo(__('n/a', null));?></td>
+			<tr><td style='text-align: left; padding-left: 10px;'><input type='radio' name='data[TreatmentMaster][diagnosis_master_id]' <?php if($radio_checked) { echo("checked='checked'"); }?> value=''/><?php echo(__('n/a', null));?></td>
 			</tr>
 		</tbody>
 	</table>
@@ -68,5 +74,5 @@
 <?php
 	
 	$structures->build($final_atim_structure, $final_options);
-pr($this->data);
+		
 ?>
