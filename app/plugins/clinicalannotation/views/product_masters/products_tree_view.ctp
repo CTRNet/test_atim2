@@ -30,21 +30,30 @@
 					'link' => '/inventorymanagement/collections/detail/%%Collection.id%%/1/0',
 					'icon' => 'collection'
 				),
-				'access to all data' => '/inventorymanagement/collections/detail/%%Collection.id%%/' 
+				'access to all data' => array(
+					'link'=> '/inventorymanagement/collections/detail/%%Collection.id%%/',
+					'icon' => 'access_to_data'
+				)
 			),
 			'SampleMaster' => array(
 				'detail' => array(
 					'link' => '/inventorymanagement/sample_masters/detail/%%SampleMaster.collection_id%%/%%SampleMaster.id%%/1/0',
 					'icon' => 'flask'
 				),
-				'access to all data' => '/inventorymanagement/sample_masters/detail/%%SampleMaster.collection_id%%/%%SampleMaster.id%%/'
+				'access to all data' => array(
+					'link'=> '/inventorymanagement/sample_masters/detail/%%SampleMaster.collection_id%%/%%SampleMaster.id%%/',
+					'icon' => 'access_to_data'
+				)
 			),
 			'AliquotMaster' => array(
 				'detail' => array(
 					'link'=> '/inventorymanagement/aliquot_masters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/1/0',
 					'icon' => 'aliquot'
 				),
-				'access to all data' => '/inventorymanagement/aliquot_masters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/'  
+				'access to all data' => array(
+					'link'=> '/inventorymanagement/aliquot_masters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/',
+					'icon' => 'access_to_data'
+				)
 			)
 		),
 		'bottom' => array(

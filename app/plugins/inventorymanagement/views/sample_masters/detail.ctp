@@ -37,8 +37,9 @@
 			
 	if($is_tree_view_detail_form) {
 		// Detail form displayed in tree view: Add button to access all sample data
-		$structure_links['bottom']['access to all data'] = '/inventorymanagement/sample_masters/detail/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'];
-
+		$structure_links['bottom']['access to all data'] = array(
+			'link'=> '/inventorymanagement/sample_masters/detail/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'],
+			'icon' => 'access_to_data');
 	} else {
 		// General detail form display
 		$search_type_links = array();
