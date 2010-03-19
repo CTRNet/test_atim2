@@ -27,13 +27,8 @@ class OrderLinesController extends OrderAppController {
 		$this->data = array();
 
 		// Populate both sample and aliquot control
-		$sample_controls_list = $this->SampleControl->find('all', array('recursive' => '-1'));
-		$sample_controls_list = empty($sample_controls_list)? array(): $sample_controls_list;
-		$aliquot_controls_list = $this->AliquotControl->find('all', array('recursive' => '-1'));
-		$aliquot_controls_list = empty($aliquot_controls_list)? array(): $aliquot_controls_list;
-
-		$this->set('sample_controls_list', $sample_controls_list);
-		$this->set('aliquot_controls_list', $aliquot_controls_list);
+		$this->set('sample_controls_list', $this->getSampleControlsList());
+		$this->set('aliquot_controls_list', $this->getAliquotControlsList());	
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -175,13 +170,8 @@ class OrderLinesController extends OrderAppController {
 		$this->data = $order_line_data;
 
 		// Populate both sample and aliquot control
-		$sample_controls_list = $this->SampleControl->find('all', array('condition' => array('id' => $order_line_data['OrderLine']['sample_control_id']), 'recursive' => '-1'));
-		$sample_controls_list = empty($sample_controls_list)? array(): $sample_controls_list;
-		$aliquot_controls_list = $this->AliquotControl->find('all', array('condition' => array('id' => $order_line_data['OrderLine']['aliquot_control_id']), 'recursive' => '-1'));
-		$aliquot_controls_list = empty($aliquot_controls_list)? array(): $aliquot_controls_list;
-
-		$this->set('sample_controls_list', $sample_controls_list);
-		$this->set('aliquot_controls_list', $aliquot_controls_list);
+		$this->set('sample_controls_list', $this->getSampleControlsList());
+		$this->set('aliquot_controls_list', $this->getAliquotControlsList());	
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		

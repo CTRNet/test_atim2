@@ -16,7 +16,9 @@
 		
 	if($is_tree_view_detail_form){
 		// Detail form displayed in tree view: Add button to access all sample data
-		$structure_links['bottom']['access to all data'] = '/inventorymanagement/collections/detail/' . $atim_menu_variables['Collection.id'] . '/';
+		$structure_links['bottom']['access to all data'] = array(
+			'link'=> '/inventorymanagement/collections/detail/' . $atim_menu_variables['Collection.id'] . '/',
+			'icon' => 'access_to_data');
 	}else{
 		// General detail form display
 		$search_type_links = array();
@@ -29,15 +31,8 @@
 	
 	$structure_override = array();
 	
-	$bank_list = array();
-	foreach($banks as $new_bank) {
-		$bank_list[$new_bank['Bank']['id']] = $new_bank['Bank']['name'];
-	}
 	$structure_override['ViewCollection.bank_id'] = $bank_list;
-	
-	$sops_list = array();
-	foreach($arr_collection_sops as $sop_masters) { $sops_list[$sop_masters['SopMaster']['id']] = $sop_masters['SopMaster']['code']; }
-	$structure_override['ViewCollection.sop_master_id'] = $sops_list; 
+	$structure_override['ViewCollection.sop_master_id'] = $sop_list; 
 
 	$final_atim_structure = $atim_structure; 
 	$final_options = array('links' => $structure_links, 'override' => $structure_override);
