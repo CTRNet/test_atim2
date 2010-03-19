@@ -129,7 +129,8 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('credits_title', '', 'Credits', ''),
 ('credits_body', '', 'ATiM is an open-source project development by leading tumour banks across Canada. For more information on our development team, questions, comments or suggestions please visit our website at http://www.ctrnet.ca', ''),
 ('installation_title', '', 'Installation', ''),
-('installation_body', '', 'To view your installed version number open the Administration Tool and select ATiM Version from the first menu. ATiM is built on the CakePHP framework (www.cakephp.org).', '');
+('installation_body', '', 'To view your installed version number open the Administration Tool and select ATiM Version from the first menu. ATiM is built on the CakePHP framework (www.cakephp.org).', ''),
+('no data was retrieved for the specified parameters', 'global', 'No data was retrieved for the specified parameters', 'Aucune donn&eacute;e n''a pu &ecitc;tre r&eacute;cup&eacute;r&eacute;e de la base de donn&eacute;es pour les param&ecirc;tres sp&eacute;cifi&eacute;s.');
 
 -- Update version information
 UPDATE `versions` 
@@ -1433,3 +1434,597 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('received tissue weight', 'global', 'Received Tissue Weight', 'Poids du tissu re&ccedil;u');
+
+-- Form updates for administration of permissions
+INSERT INTO `structure_fields` (`public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+('', 'AAA-000-000-000-000-54.1', 'Administrate', 'Aco', '', 'state', 'state', '', 'select', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+SET @FIELD_ID = LAST_INSERT_ID();
+INSERT INTO `structure_formats` (`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+('AAA-000-000-000-000-14_AAA-000-000-000-000-54.1', 6, 'AAA-000-000-000-000-14', @FIELD_ID, 'AAA-000-000-000-000-54', 0, 0, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+INSERT INTO `structure_fields` (`public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+('', 'AAA-000-000-000-000-54.2', 'Administrate', 'Aco', 'acos', 'alias', 'level', '', 'display', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+SET @FIELD_ID = LAST_INSERT_ID();
+INSERT INTO `structure_formats` (`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+('AAA-000-000-000-000-54.2', 6, 'AAA-000-000-000-000-54.2', @FIELD_ID, 'AAA-000-000-000-000-54.2', 1, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '1', '1', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+INSERT INTO `structure_fields` (`public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+('', 'AAA-000-000-000-000-54.3', 'Administrate', 'Aco', 'acos', 'id', '', '', 'hidden', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+SET @FIELD_ID = LAST_INSERT_ID();
+INSERT INTO `structure_formats` (`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+('AAA-000-000-000-000-54.3', 6, 'AAA-000-000-000-000-54.3', @FIELD_ID, 'AAA-000-000-000-000-54.3', 1, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '1', '1', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+INSERT INTO structure_fields(`public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES ('', 'CANM-00027', ' ', 'Generated', ' ', 'field1', '', '', 'input', '', '', NULL, '', '', '', '');
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES (NULL, 'CAN-999-999-000-999-1000_CANM-00027', '31', 'CAN-999-999-000-999-1000', (SELECT id FROM structure_fields WHERE old_id='CANM-00027'), 'CANM-00027', '0', '1', '', '1', 'participant identifier', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+-- Change diagnosis_controls.controls_type size
+ALTER TABLE `diagnosis_controls` CHANGE `controls_type` `controls_type` VARCHAR( 50 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL ;
+
+UPDATE structure_formats SET flag_add='1' WHERE old_id='AAA-000-000-000-000-11_AAA-000-000-000-000-2';
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES (NULL, 'AAA-000-000-000-000-11_CANM-00027', '3', 'AAA-000-000-000-000-11', (SELECT id FROM structure_fields WHERE old_id='CANM-00027'), 'CANM-00027', '1', '2', '', '1', 'password verification', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+UPDATE `structure_formats` SET `display_order`=3, `flag_add_readonly` = '0',`flag_edit` = '0', `flag_override_type` = '1', `type` = 'password' WHERE `structure_formats`.`old_id` ='AAA-000-000-000-000-11_CANM-00027';
+UPDATE `structure_fields` SET `language_label` = 'last name' WHERE `structure_fields`.`id` =59;
+UPDATE `structure_fields` SET `language_label` = 'first name' WHERE `structure_fields`.`id` =58;
+UPDATE `structure_formats` SET `flag_edit_readonly` = '1' WHERE `structure_formats`.`id` =5;
+
+UPDATE `structure_validations` SET `rule` = 'notEmpty,alphaNumeric', `flag_empty` = '0' WHERE `structure_validations`.`id` =4;
+
+ALTER TABLE users 
+	ADD UNIQUE unique_username (username);
+	
+INSERT INTO `pages` (`id` ,`error_flag` ,`language_title` ,`language_body` ,`created` ,`created_by` ,`modified` ,`modified_by`)VALUES ('err_no_data', '0', 'error', 'no data was retrieved for the specified parameters', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');	
+
+-- Hidde disease_site and event_type from event forms
+
+UPDATE structure_formats 
+SET 
+flag_add = '0', flag_add_readonly = '0', 
+flag_edit = '0', flag_edit_readonly = '0', 
+flag_search = '0', flag_search_readonly = '0', 
+flag_datagrid = '0', flag_datagrid_readonly = '0', 
+flag_index = '0', flag_detail = '0'
+WHERE structure_field_old_id IN ('CAN-999-999-000-999-227', 'CAN-999-999-000-999-228')
+AND structure_id IN (SELECT id FROM structures WHERE alias LIKE 'ed_%');
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('related diagnosis', 'global', 'Related Diagnosis', 'Diagnostic connexe');
+
+DELETE FROM `i18n` WHERE `id` = 'n/a';
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('n/a', '', 'N/A', 'N/A');
+
+-- Hidde tx_method from trt forms
+
+UPDATE structure_formats 
+SET 
+flag_add = '0', flag_add_readonly = '0', 
+flag_edit = '0', flag_edit_readonly = '0', 
+flag_search = '0', flag_search_readonly = '0', 
+flag_datagrid = '0', flag_datagrid_readonly = '0', 
+flag_index = '0', flag_detail = '0'
+WHERE structure_field_old_id IN ('CAN-999-999-000-999-276')
+AND structure_id IN (SELECT id FROM structures WHERE alias LIKE 'txd_%'); 	
+
+-- Change diagnosis primary number management system
+
+UPDATE `diagnosis_masters`
+SET primary_number = NULL
+WHERE primary_number = '0';
+
+UPDATE `i18n` 
+SET 
+`en` = 'Diagnoses Group Nbr',
+`fr` = 'No du Groupe de diagnostics'
+WHERE `id` IN ('primary number', 'primary_number');
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('new group', '', 'New Group', 'Nouveau groupe');
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('related diagnoses group', '', 'Related Diagnoses Group', 'Groupe de diagnostics connexes');
+
+-- hidde dx identifier
+
+UPDATE structure_formats 
+SET 
+flag_add = '0', flag_add_readonly = '0', 
+flag_edit = '0', flag_edit_readonly = '0', 
+flag_search = '0', flag_search_readonly = '0', 
+flag_datagrid = '0', flag_datagrid_readonly = '0', 
+flag_index = '0', flag_detail = '0'
+WHERE structure_field_old_id IN ('CAN-812');
+
+-- Update Acos Table Content
+DELETE FROM `acos`;
+INSERT INTO `acos` (`id`, `parent_id`, `model`, `foreign_key`, `alias`, `lft`, `rght`) VALUES
+(1, NULL, NULL, NULL, 'controllers', 1, 914),
+(2, 1, NULL, NULL, 'App', 2, 43),
+(3, 2, NULL, NULL, 'Pages', 3, 6),
+(4, 3, NULL, NULL, 'display', 4, 5),
+(5, 2, NULL, NULL, 'Groups', 7, 18),
+(6, 5, NULL, NULL, 'index', 8, 9),
+(7, 5, NULL, NULL, 'view', 10, 11),
+(8, 5, NULL, NULL, 'add', 12, 13),
+(9, 5, NULL, NULL, 'edit', 14, 15),
+(10, 5, NULL, NULL, 'delete', 16, 17),
+(11, 2, NULL, NULL, 'Menus', 19, 24),
+(12, 11, NULL, NULL, 'index', 20, 21),
+(13, 11, NULL, NULL, 'update', 22, 23),
+(14, 2, NULL, NULL, 'Posts', 25, 36),
+(15, 14, NULL, NULL, 'index', 26, 27),
+(16, 14, NULL, NULL, 'view', 28, 29),
+(17, 14, NULL, NULL, 'add', 30, 31),
+(18, 14, NULL, NULL, 'edit', 32, 33),
+(19, 14, NULL, NULL, 'delete', 34, 35),
+(20, 2, NULL, NULL, 'Users', 37, 42),
+(21, 20, NULL, NULL, 'login', 38, 39),
+(22, 20, NULL, NULL, 'logout', 40, 41),
+(23, 1, NULL, NULL, 'Administrate', 44, 149),
+(24, 23, NULL, NULL, 'Announcements', 45, 56),
+(25, 24, NULL, NULL, 'add', 46, 47),
+(26, 24, NULL, NULL, 'index', 48, 49),
+(27, 24, NULL, NULL, 'detail', 50, 51),
+(28, 24, NULL, NULL, 'edit', 52, 53),
+(29, 24, NULL, NULL, 'delete', 54, 55),
+(30, 23, NULL, NULL, 'Banks', 57, 68),
+(31, 30, NULL, NULL, 'add', 58, 59),
+(32, 30, NULL, NULL, 'index', 60, 61),
+(33, 30, NULL, NULL, 'detail', 62, 63),
+(34, 30, NULL, NULL, 'edit', 64, 65),
+(35, 30, NULL, NULL, 'delete', 66, 67),
+(36, 23, NULL, NULL, 'Groups', 69, 80),
+(37, 36, NULL, NULL, 'index', 70, 71),
+(38, 36, NULL, NULL, 'detail', 72, 73),
+(39, 36, NULL, NULL, 'add', 74, 75),
+(40, 36, NULL, NULL, 'edit', 76, 77),
+(41, 36, NULL, NULL, 'delete', 78, 79),
+(42, 23, NULL, NULL, 'Menus', 81, 90),
+(43, 42, NULL, NULL, 'index', 82, 83),
+(44, 42, NULL, NULL, 'detail', 84, 85),
+(45, 42, NULL, NULL, 'edit', 86, 87),
+(46, 42, NULL, NULL, 'add', 88, 89),
+(47, 23, NULL, NULL, 'Passwords', 91, 94),
+(48, 47, NULL, NULL, 'index', 92, 93),
+(49, 23, NULL, NULL, 'Permissions', 95, 98),
+(50, 49, NULL, NULL, 'tree', 96, 97),
+(51, 23, NULL, NULL, 'Preferences', 99, 104),
+(52, 51, NULL, NULL, 'index', 100, 101),
+(53, 51, NULL, NULL, 'edit', 102, 103),
+(54, 23, NULL, NULL, 'StructureFormats', 105, 114),
+(55, 54, NULL, NULL, 'listall', 106, 107),
+(56, 54, NULL, NULL, 'detail', 108, 109),
+(57, 54, NULL, NULL, 'edit', 110, 111),
+(58, 54, NULL, NULL, 'add', 112, 113),
+(59, 23, NULL, NULL, 'Structures', 115, 124),
+(60, 59, NULL, NULL, 'index', 116, 117),
+(61, 59, NULL, NULL, 'detail', 118, 119),
+(62, 59, NULL, NULL, 'edit', 120, 121),
+(63, 59, NULL, NULL, 'add', 122, 123),
+(64, 23, NULL, NULL, 'UserLogs', 125, 128),
+(65, 64, NULL, NULL, 'index', 126, 127),
+(66, 23, NULL, NULL, 'Users', 129, 144),
+(67, 66, NULL, NULL, 'listall', 130, 131),
+(68, 66, NULL, NULL, 'detail', 132, 133),
+(69, 66, NULL, NULL, 'index', 134, 135),
+(70, 66, NULL, NULL, 'add', 136, 137),
+(71, 66, NULL, NULL, 'edit', 138, 139),
+(72, 66, NULL, NULL, 'delete', 140, 141),
+(73, 66, NULL, NULL, 'view', 142, 143),
+(74, 23, NULL, NULL, 'Versions', 145, 148),
+(75, 74, NULL, NULL, 'detail', 146, 147),
+(76, 1, NULL, NULL, 'Clinicalannotation', 150, 325),
+(77, 76, NULL, NULL, 'ClinicalCollectionLinks', 151, 164),
+(78, 77, NULL, NULL, 'listall', 152, 153),
+(79, 77, NULL, NULL, 'detail', 154, 155),
+(80, 77, NULL, NULL, 'add', 156, 157),
+(81, 77, NULL, NULL, 'edit', 158, 159),
+(82, 77, NULL, NULL, 'delete', 160, 161),
+(83, 77, NULL, NULL, 'allowClinicalCollectionLinkDeletion', 162, 163),
+(84, 76, NULL, NULL, 'ConsentMasters', 165, 178),
+(85, 84, NULL, NULL, 'listall', 166, 167),
+(86, 84, NULL, NULL, 'detail', 168, 169),
+(87, 84, NULL, NULL, 'add', 170, 171),
+(88, 84, NULL, NULL, 'edit', 172, 173),
+(89, 84, NULL, NULL, 'delete', 174, 175),
+(90, 84, NULL, NULL, 'allowConsentDeletion', 176, 177),
+(91, 76, NULL, NULL, 'DiagnosisMasters', 179, 194),
+(92, 91, NULL, NULL, 'listall', 180, 181),
+(93, 91, NULL, NULL, 'detail', 182, 183),
+(94, 91, NULL, NULL, 'add', 184, 185),
+(95, 91, NULL, NULL, 'edit', 186, 187),
+(96, 91, NULL, NULL, 'delete', 188, 189),
+(97, 91, NULL, NULL, 'allowDiagnosisDeletion', 190, 191),
+(98, 91, NULL, NULL, 'buildAndSetExistingDx', 192, 193),
+(99, 76, NULL, NULL, 'EventMasters', 195, 206),
+(100, 99, NULL, NULL, 'listall', 196, 197),
+(101, 99, NULL, NULL, 'detail', 198, 199),
+(102, 99, NULL, NULL, 'add', 200, 201),
+(103, 99, NULL, NULL, 'edit', 202, 203),
+(104, 99, NULL, NULL, 'delete', 204, 205),
+(105, 76, NULL, NULL, 'FamilyHistories', 207, 220),
+(106, 105, NULL, NULL, 'listall', 208, 209),
+(107, 105, NULL, NULL, 'detail', 210, 211),
+(108, 105, NULL, NULL, 'add', 212, 213),
+(109, 105, NULL, NULL, 'edit', 214, 215),
+(110, 105, NULL, NULL, 'delete', 216, 217),
+(111, 105, NULL, NULL, 'allowFamilyHistoryDeletion', 218, 219),
+(112, 76, NULL, NULL, 'MiscIdentifiers', 221, 238),
+(113, 112, NULL, NULL, 'listall', 222, 223),
+(114, 112, NULL, NULL, 'detail', 224, 225),
+(115, 112, NULL, NULL, 'add', 226, 227),
+(116, 112, NULL, NULL, 'edit', 228, 229),
+(117, 112, NULL, NULL, 'delete', 230, 231),
+(118, 112, NULL, NULL, 'allowMiscIdentifierDeletion', 232, 233),
+(119, 76, NULL, NULL, 'ParticipantContacts', 239, 252),
+(120, 119, NULL, NULL, 'listall', 240, 241),
+(121, 119, NULL, NULL, 'detail', 242, 243),
+(122, 119, NULL, NULL, 'add', 244, 245),
+(123, 119, NULL, NULL, 'edit', 246, 247),
+(124, 119, NULL, NULL, 'delete', 248, 249),
+(125, 119, NULL, NULL, 'allowParticipantContactDeletion', 250, 251),
+(126, 76, NULL, NULL, 'ParticipantMessages', 253, 266),
+(127, 126, NULL, NULL, 'listall', 254, 255),
+(128, 126, NULL, NULL, 'detail', 256, 257),
+(129, 126, NULL, NULL, 'add', 258, 259),
+(130, 126, NULL, NULL, 'edit', 260, 261),
+(131, 126, NULL, NULL, 'delete', 262, 263),
+(132, 126, NULL, NULL, 'allowParticipantMessageDeletion', 264, 265),
+(133, 76, NULL, NULL, 'Participants', 267, 282),
+(134, 133, NULL, NULL, 'index', 268, 269),
+(135, 133, NULL, NULL, 'search', 270, 271),
+(136, 133, NULL, NULL, 'profile', 272, 273),
+(137, 133, NULL, NULL, 'add', 274, 275),
+(138, 133, NULL, NULL, 'edit', 276, 277),
+(139, 133, NULL, NULL, 'delete', 278, 279),
+(140, 133, NULL, NULL, 'allowParticipantDeletion', 280, 281),
+(141, 76, NULL, NULL, 'ProductMasters', 283, 286),
+(142, 141, NULL, NULL, 'productsTreeView', 284, 285),
+(143, 76, NULL, NULL, 'ReproductiveHistories', 287, 300),
+(144, 143, NULL, NULL, 'listall', 288, 289),
+(145, 143, NULL, NULL, 'detail', 290, 291),
+(146, 143, NULL, NULL, 'add', 292, 293),
+(147, 143, NULL, NULL, 'edit', 294, 295),
+(148, 143, NULL, NULL, 'delete', 296, 297),
+(149, 143, NULL, NULL, 'allowReproductiveHistoryDeletion', 298, 299),
+(150, 76, NULL, NULL, 'TreatmentExtends', 301, 312),
+(151, 150, NULL, NULL, 'listall', 302, 303),
+(152, 150, NULL, NULL, 'detail', 304, 305),
+(153, 150, NULL, NULL, 'add', 306, 307),
+(154, 150, NULL, NULL, 'edit', 308, 309),
+(155, 150, NULL, NULL, 'delete', 310, 311),
+(156, 76, NULL, NULL, 'TreatmentMasters', 313, 324),
+(157, 156, NULL, NULL, 'listall', 314, 315),
+(158, 156, NULL, NULL, 'detail', 316, 317),
+(159, 156, NULL, NULL, 'edit', 318, 319),
+(160, 156, NULL, NULL, 'add', 320, 321),
+(161, 156, NULL, NULL, 'delete', 322, 323),
+(162, 1, NULL, NULL, '/Applications/MAMP/htdocs/atim2-dev/app/plugins/clinicalannotation/controllers/custom/familyHistoriesController.php', 326, 329),
+(163, 162, NULL, NULL, 'FamilyHistories', 327, 328),
+(164, 1, NULL, NULL, 'Codingicd10', 330, 337),
+(165, 164, NULL, NULL, 'CodingIcd10s', 331, 336),
+(166, 165, NULL, NULL, 'tool', 332, 333),
+(167, 165, NULL, NULL, 'autoComplete', 334, 335),
+(168, 1, NULL, NULL, 'Customize', 338, 361),
+(169, 168, NULL, NULL, 'Announcements', 339, 344),
+(170, 169, NULL, NULL, 'index', 340, 341),
+(171, 169, NULL, NULL, 'detail', 342, 343),
+(172, 168, NULL, NULL, 'Passwords', 345, 348),
+(173, 172, NULL, NULL, 'index', 346, 347),
+(174, 168, NULL, NULL, 'Preferences', 349, 354),
+(175, 174, NULL, NULL, 'index', 350, 351),
+(176, 174, NULL, NULL, 'edit', 352, 353),
+(177, 168, NULL, NULL, 'Profiles', 355, 360),
+(178, 177, NULL, NULL, 'index', 356, 357),
+(179, 177, NULL, NULL, 'edit', 358, 359),
+(180, 1, NULL, NULL, 'Datamart', 362, 411),
+(181, 180, NULL, NULL, 'AdhocSaved', 363, 376),
+(182, 181, NULL, NULL, 'index', 364, 365),
+(183, 181, NULL, NULL, 'add', 366, 367),
+(184, 181, NULL, NULL, 'search', 368, 369),
+(185, 181, NULL, NULL, 'results', 370, 371),
+(186, 181, NULL, NULL, 'edit', 372, 373),
+(187, 181, NULL, NULL, 'delete', 374, 375),
+(188, 180, NULL, NULL, 'Adhocs', 377, 392),
+(189, 188, NULL, NULL, 'index', 378, 379),
+(190, 188, NULL, NULL, 'favourite', 380, 381),
+(191, 188, NULL, NULL, 'unfavourite', 382, 383),
+(192, 188, NULL, NULL, 'search', 384, 385),
+(193, 188, NULL, NULL, 'results', 386, 387),
+(194, 188, NULL, NULL, 'process', 388, 389),
+(195, 188, NULL, NULL, 'csv', 390, 391),
+(196, 180, NULL, NULL, 'BatchSets', 393, 410),
+(197, 196, NULL, NULL, 'index', 394, 395),
+(198, 196, NULL, NULL, 'listall', 396, 397),
+(199, 196, NULL, NULL, 'add', 398, 399),
+(200, 196, NULL, NULL, 'edit', 400, 401),
+(201, 196, NULL, NULL, 'delete', 402, 403),
+(202, 196, NULL, NULL, 'process', 404, 405),
+(203, 196, NULL, NULL, 'remove', 406, 407),
+(204, 196, NULL, NULL, 'csv', 408, 409),
+(205, 1, NULL, NULL, 'Drug', 412, 429),
+(206, 205, NULL, NULL, 'Drugs', 413, 428),
+(207, 206, NULL, NULL, 'index', 414, 415),
+(208, 206, NULL, NULL, 'search', 416, 417),
+(209, 206, NULL, NULL, 'listall', 418, 419),
+(210, 206, NULL, NULL, 'add', 420, 421),
+(211, 206, NULL, NULL, 'edit', 422, 423),
+(212, 206, NULL, NULL, 'detail', 424, 425),
+(213, 206, NULL, NULL, 'delete', 426, 427),
+(214, 1, NULL, NULL, 'Inventorymanagement', 430, 547),
+(215, 214, NULL, NULL, 'AliquotMasters', 431, 480),
+(216, 215, NULL, NULL, 'index', 432, 433),
+(217, 215, NULL, NULL, 'search', 434, 435),
+(218, 215, NULL, NULL, 'listAll', 436, 437),
+(219, 215, NULL, NULL, 'add', 438, 439),
+(220, 215, NULL, NULL, 'detail', 440, 441),
+(221, 215, NULL, NULL, 'edit', 442, 443),
+(222, 215, NULL, NULL, 'removeAliquotFromStorage', 444, 445),
+(223, 215, NULL, NULL, 'delete', 446, 447),
+(224, 215, NULL, NULL, 'addAliquotUse', 448, 449),
+(225, 215, NULL, NULL, 'editAliquotUse', 450, 451),
+(226, 215, NULL, NULL, 'deleteAliquotUse', 452, 453),
+(227, 215, NULL, NULL, 'addSourceAliquots', 454, 455),
+(228, 215, NULL, NULL, 'listAllSourceAliquots', 456, 457),
+(229, 215, NULL, NULL, 'defineRealiquotedChildren', 458, 459),
+(230, 215, NULL, NULL, 'listAllRealiquotedParents', 460, 461),
+(231, 215, NULL, NULL, 'getStudiesList', 462, 463),
+(232, 215, NULL, NULL, 'getSampleBlocksList', 464, 465),
+(233, 215, NULL, NULL, 'getSampleGelMatricesList', 466, 467),
+(234, 215, NULL, NULL, 'getDefaultAliquotStorageDate', 468, 469),
+(235, 215, NULL, NULL, 'isDuplicatedAliquotBarcode', 470, 471),
+(236, 215, NULL, NULL, 'formatAliquotFieldDecimalData', 472, 473),
+(237, 215, NULL, NULL, 'validateAliquotStorageData', 474, 475),
+(238, 215, NULL, NULL, 'allowAliquotDeletion', 476, 477),
+(239, 215, NULL, NULL, 'getDefaultRealiquotingDate', 478, 479),
+(240, 214, NULL, NULL, 'Collections', 481, 496),
+(241, 240, NULL, NULL, 'index', 482, 483),
+(242, 240, NULL, NULL, 'search', 484, 485),
+(243, 240, NULL, NULL, 'detail', 486, 487),
+(244, 240, NULL, NULL, 'add', 488, 489),
+(245, 240, NULL, NULL, 'edit', 490, 491),
+(246, 240, NULL, NULL, 'delete', 492, 493),
+(247, 240, NULL, NULL, 'allowCollectionDeletion', 494, 495),
+(248, 214, NULL, NULL, 'PathCollectionReviews', 497, 498),
+(249, 214, NULL, NULL, 'QualityCtrls', 499, 518),
+(250, 249, NULL, NULL, 'listAll', 500, 501),
+(251, 249, NULL, NULL, 'add', 502, 503),
+(252, 249, NULL, NULL, 'detail', 504, 505),
+(253, 249, NULL, NULL, 'edit', 506, 507),
+(254, 249, NULL, NULL, 'if', 508, 509),
+(255, 249, NULL, NULL, 'delete', 510, 511),
+(256, 249, NULL, NULL, 'addTestedAliquots', 512, 513),
+(257, 249, NULL, NULL, 'allowQcDeletion', 514, 515),
+(258, 249, NULL, NULL, 'createQcCode', 516, 517),
+(259, 214, NULL, NULL, 'ReviewMasters', 519, 520),
+(260, 214, NULL, NULL, 'SampleMasters', 521, 546),
+(261, 260, NULL, NULL, 'index', 522, 523),
+(262, 260, NULL, NULL, 'search', 524, 525),
+(263, 260, NULL, NULL, 'contentTreeView', 526, 527),
+(264, 260, NULL, NULL, 'listAll', 528, 529),
+(265, 260, NULL, NULL, 'detail', 530, 531),
+(266, 260, NULL, NULL, 'add', 532, 533),
+(267, 260, NULL, NULL, 'edit', 534, 535),
+(268, 260, NULL, NULL, 'delete', 536, 537),
+(269, 260, NULL, NULL, 'createSampleCode', 538, 539),
+(270, 260, NULL, NULL, 'allowSampleDeletion', 540, 541),
+(271, 260, NULL, NULL, 'getTissueSourceList', 542, 543),
+(272, 260, NULL, NULL, 'formatSampleFieldDecimalData', 544, 545),
+(273, 1, NULL, NULL, 'Material', 548, 565),
+(274, 273, NULL, NULL, 'Materials', 549, 564),
+(275, 274, NULL, NULL, 'index', 550, 551),
+(276, 274, NULL, NULL, 'search', 552, 553),
+(277, 274, NULL, NULL, 'listall', 554, 555),
+(278, 274, NULL, NULL, 'add', 556, 557),
+(279, 274, NULL, NULL, 'edit', 558, 559),
+(280, 274, NULL, NULL, 'detail', 560, 561),
+(281, 274, NULL, NULL, 'delete', 562, 563),
+(282, 1, NULL, NULL, 'Order', 566, 633),
+(283, 282, NULL, NULL, 'OrderItems', 567, 580),
+(284, 283, NULL, NULL, 'listall', 568, 569),
+(285, 283, NULL, NULL, 'add', 570, 571),
+(286, 283, NULL, NULL, 'edit', 572, 573),
+(287, 283, NULL, NULL, 'delete', 574, 575),
+(288, 283, NULL, NULL, 'addAliquotsInBatch', 576, 577),
+(289, 283, NULL, NULL, 'allowOrderItemDeletion', 578, 579),
+(290, 282, NULL, NULL, 'OrderLines', 581, 596),
+(291, 290, NULL, NULL, 'listall', 582, 583),
+(292, 290, NULL, NULL, 'add', 584, 585),
+(293, 290, NULL, NULL, 'edit', 586, 587),
+(294, 290, NULL, NULL, 'detail', 588, 589),
+(295, 290, NULL, NULL, 'delete', 590, 591),
+(296, 290, NULL, NULL, 'generateSampleAliquotControlList', 592, 593),
+(297, 290, NULL, NULL, 'allowOrderLineDeletion', 594, 595),
+(298, 282, NULL, NULL, 'Orders', 597, 614),
+(299, 298, NULL, NULL, 'index', 598, 599),
+(300, 298, NULL, NULL, 'search', 600, 601),
+(301, 298, NULL, NULL, 'add', 602, 603),
+(302, 298, NULL, NULL, 'detail', 604, 605),
+(303, 298, NULL, NULL, 'edit', 606, 607),
+(304, 298, NULL, NULL, 'delete', 608, 609),
+(305, 298, NULL, NULL, 'getStudiesList', 610, 611),
+(306, 298, NULL, NULL, 'allowOrderDeletion', 612, 613),
+(307, 282, NULL, NULL, 'Shipments', 615, 632),
+(308, 307, NULL, NULL, 'listall', 616, 617),
+(309, 307, NULL, NULL, 'add', 618, 619),
+(310, 307, NULL, NULL, 'edit', 620, 621),
+(311, 307, NULL, NULL, 'detail', 622, 623),
+(312, 307, NULL, NULL, 'delete', 624, 625),
+(313, 307, NULL, NULL, 'deleteFromShipment', 626, 627),
+(314, 307, NULL, NULL, 'addToShipment', 628, 629),
+(315, 307, NULL, NULL, 'shipmentItems', 630, 631),
+(316, 1, NULL, NULL, 'Protocol', 634, 663),
+(317, 316, NULL, NULL, 'ProtocolExtends', 635, 646),
+(318, 317, NULL, NULL, 'listall', 636, 637),
+(319, 317, NULL, NULL, 'detail', 638, 639),
+(320, 317, NULL, NULL, 'add', 640, 641),
+(321, 317, NULL, NULL, 'edit', 642, 643),
+(322, 317, NULL, NULL, 'delete', 644, 645),
+(323, 316, NULL, NULL, 'ProtocolMasters', 647, 662),
+(324, 323, NULL, NULL, 'index', 648, 649),
+(325, 323, NULL, NULL, 'search', 650, 651),
+(326, 323, NULL, NULL, 'listall', 652, 653),
+(327, 323, NULL, NULL, 'add', 654, 655),
+(328, 323, NULL, NULL, 'detail', 656, 657),
+(329, 323, NULL, NULL, 'edit', 658, 659),
+(330, 323, NULL, NULL, 'delete', 660, 661),
+(331, 1, NULL, NULL, 'Provider', 664, 681),
+(332, 331, NULL, NULL, 'Providers', 665, 680),
+(333, 332, NULL, NULL, 'index', 666, 667),
+(334, 332, NULL, NULL, 'search', 668, 669),
+(335, 332, NULL, NULL, 'listall', 670, 671),
+(336, 332, NULL, NULL, 'add', 672, 673),
+(337, 332, NULL, NULL, 'detail', 674, 675),
+(338, 332, NULL, NULL, 'edit', 676, 677),
+(339, 332, NULL, NULL, 'delete', 678, 679),
+(340, 1, NULL, NULL, 'Rtbform', 682, 697),
+(341, 340, NULL, NULL, 'Rtbforms', 683, 696),
+(342, 341, NULL, NULL, 'index', 684, 685),
+(343, 341, NULL, NULL, 'search', 686, 687),
+(344, 341, NULL, NULL, 'profile', 688, 689),
+(345, 341, NULL, NULL, 'add', 690, 691),
+(346, 341, NULL, NULL, 'edit', 692, 693),
+(347, 341, NULL, NULL, 'delete', 694, 695),
+(348, 1, NULL, NULL, 'Sop', 698, 723),
+(349, 348, NULL, NULL, 'SopExtends', 699, 710),
+(350, 349, NULL, NULL, 'listall', 700, 701),
+(351, 349, NULL, NULL, 'detail', 702, 703),
+(352, 349, NULL, NULL, 'add', 704, 705),
+(353, 349, NULL, NULL, 'edit', 706, 707),
+(354, 349, NULL, NULL, 'delete', 708, 709),
+(355, 348, NULL, NULL, 'SopMasters', 711, 722),
+(356, 355, NULL, NULL, 'listall', 712, 713),
+(357, 355, NULL, NULL, 'add', 714, 715),
+(358, 355, NULL, NULL, 'detail', 716, 717),
+(359, 355, NULL, NULL, 'edit', 718, 719),
+(360, 355, NULL, NULL, 'delete', 720, 721),
+(361, 1, NULL, NULL, 'Storagelayout', 724, 781),
+(362, 361, NULL, NULL, 'StorageCoordinates', 725, 738),
+(363, 362, NULL, NULL, 'listAll', 726, 727),
+(364, 362, NULL, NULL, 'add', 728, 729),
+(365, 362, NULL, NULL, 'delete', 730, 731),
+(366, 362, NULL, NULL, 'allowStorageCoordinateDeletion', 732, 733),
+(367, 362, NULL, NULL, 'isDuplicatedValue', 734, 735),
+(368, 362, NULL, NULL, 'isDuplicatedOrder', 736, 737),
+(369, 361, NULL, NULL, 'StorageMasters', 739, 780),
+(370, 369, NULL, NULL, 'index', 740, 741),
+(371, 369, NULL, NULL, 'search', 742, 743),
+(372, 369, NULL, NULL, 'detail', 744, 745),
+(373, 369, NULL, NULL, 'add', 746, 747),
+(374, 369, NULL, NULL, 'edit', 748, 749),
+(375, 369, NULL, NULL, 'editStoragePosition', 750, 751),
+(376, 369, NULL, NULL, 'delete', 752, 753),
+(377, 369, NULL, NULL, 'contentTreeView', 754, 755),
+(378, 369, NULL, NULL, 'completeStorageContent', 756, 757),
+(379, 369, NULL, NULL, 'storageLayout', 758, 759),
+(380, 369, NULL, NULL, 'setStorageCoordinateValues', 760, 761),
+(381, 369, NULL, NULL, 'allowStorageDeletion', 762, 763),
+(382, 369, NULL, NULL, 'getStorageSelectionLabel', 764, 765),
+(383, 369, NULL, NULL, 'updateChildrenStorageSelectionLabel', 766, 767),
+(384, 369, NULL, NULL, 'createSelectionLabel', 768, 769),
+(385, 369, NULL, NULL, 'IsDuplicatedStorageBarCode', 770, 771),
+(386, 369, NULL, NULL, 'createStorageCode', 772, 773),
+(387, 369, NULL, NULL, 'updateChildrenSurroundingTemperature', 774, 775),
+(388, 369, NULL, NULL, 'updateAndSaveDataArray', 776, 777),
+(389, 369, NULL, NULL, 'buildChildrenArray', 778, 779),
+(390, 1, NULL, NULL, 'Storagelayout', 782, 799),
+(391, 390, NULL, NULL, 'TmaSlides', 783, 798),
+(392, 391, NULL, NULL, 'listAll', 784, 785),
+(393, 391, NULL, NULL, 'add', 786, 787),
+(394, 391, NULL, NULL, 'detail', 788, 789),
+(395, 391, NULL, NULL, 'edit', 790, 791),
+(396, 391, NULL, NULL, 'delete', 792, 793),
+(397, 391, NULL, NULL, 'isDuplicatedTmaSlideBarcode', 794, 795),
+(398, 391, NULL, NULL, 'allowTMASlideDeletion', 796, 797),
+(399, 1, NULL, NULL, 'Study', 800, 913),
+(400, 399, NULL, NULL, 'StudyContacts', 801, 814),
+(401, 400, NULL, NULL, 'listall', 802, 803),
+(402, 400, NULL, NULL, 'detail', 804, 805),
+(403, 400, NULL, NULL, 'add', 806, 807),
+(404, 400, NULL, NULL, 'edit', 808, 809),
+(405, 400, NULL, NULL, 'delete', 810, 811),
+(406, 400, NULL, NULL, 'allowStudyContactDeletion', 812, 813),
+(407, 399, NULL, NULL, 'StudyEthicsBoards', 815, 828),
+(408, 407, NULL, NULL, 'listall', 816, 817),
+(409, 407, NULL, NULL, 'detail', 818, 819),
+(410, 407, NULL, NULL, 'add', 820, 821),
+(411, 407, NULL, NULL, 'edit', 822, 823),
+(412, 407, NULL, NULL, 'delete', 824, 825),
+(413, 407, NULL, NULL, 'allowStudyEthicsBoardDeletion', 826, 827),
+(414, 399, NULL, NULL, 'StudyFundings', 829, 842),
+(415, 414, NULL, NULL, 'listall', 830, 831),
+(416, 414, NULL, NULL, 'detail', 832, 833),
+(417, 414, NULL, NULL, 'add', 834, 835),
+(418, 414, NULL, NULL, 'edit', 836, 837),
+(419, 414, NULL, NULL, 'delete', 838, 839),
+(420, 414, NULL, NULL, 'allowStudyFundingDeletion', 840, 841),
+(421, 399, NULL, NULL, 'StudyInvestigators', 843, 856),
+(422, 421, NULL, NULL, 'listall', 844, 845),
+(423, 421, NULL, NULL, 'detail', 846, 847),
+(424, 421, NULL, NULL, 'add', 848, 849),
+(425, 421, NULL, NULL, 'edit', 850, 851),
+(426, 421, NULL, NULL, 'delete', 852, 853),
+(427, 421, NULL, NULL, 'allowStudyInvestigatorDeletion', 854, 855),
+(428, 399, NULL, NULL, 'StudyRelated', 857, 870),
+(429, 428, NULL, NULL, 'listall', 858, 859),
+(430, 428, NULL, NULL, 'detail', 860, 861),
+(431, 428, NULL, NULL, 'add', 862, 863),
+(432, 428, NULL, NULL, 'edit', 864, 865),
+(433, 428, NULL, NULL, 'delete', 866, 867),
+(434, 428, NULL, NULL, 'allowStudyRelatedDeletion', 868, 869),
+(435, 399, NULL, NULL, 'StudyResults', 871, 884),
+(436, 435, NULL, NULL, 'listall', 872, 873),
+(437, 435, NULL, NULL, 'detail', 874, 875),
+(438, 435, NULL, NULL, 'add', 876, 877),
+(439, 435, NULL, NULL, 'edit', 878, 879),
+(440, 435, NULL, NULL, 'delete', 880, 881),
+(441, 435, NULL, NULL, 'allowStudyResultDeletion', 882, 883),
+(442, 399, NULL, NULL, 'StudyReviews', 885, 898),
+(443, 442, NULL, NULL, 'listall', 886, 887),
+(444, 442, NULL, NULL, 'detail', 888, 889),
+(445, 442, NULL, NULL, 'add', 890, 891),
+(446, 442, NULL, NULL, 'edit', 892, 893),
+(447, 442, NULL, NULL, 'delete', 894, 895),
+(448, 442, NULL, NULL, 'allowStudyReviewDeletion', 896, 897),
+(449, 399, NULL, NULL, 'StudySummaries', 899, 912),
+(450, 449, NULL, NULL, 'listall', 900, 901),
+(451, 449, NULL, NULL, 'detail', 902, 903),
+(452, 449, NULL, NULL, 'add', 904, 905),
+(453, 449, NULL, NULL, 'edit', 906, 907),
+(454, 449, NULL, NULL, 'delete', 908, 909),
+(455, 449, NULL, NULL, 'allowStudySummaryDeletion', 910, 911),
+(456, 112, NULL, NULL, 'search', 234, 235),
+(457, 112, NULL, NULL, 'index', 236, 237);
+
+-- Update inventroy menu and filter data
+
+UPDATE menus SET parent_id = 'inv_CAN' WHERE parent_id = 'inv_CAN_2';
+DELETE FROM menus WHERE id = 'inv_CAN_2';	-- listall collection content
+UPDATE menus SET language_title = 'collection products' WHERE id = 'inv_CAN_21';	-- tree view
+UPDATE menus SET parent_id = 'inv_CAN_21' WHERE parent_id = 'inv_CAN_22';
+UPDATE menus SET use_summary = 'Inventorymanagement.ViewCollection::summary' WHERE use_summary = 'Inventorymanagement.Collection::contentFilterSummary';
+UPDATE menus SET active = 'no' WHERE id = 'inv_CAN_3';	-- listall collection path reviews
+
+DELETE FROM `i18n` WHERE `id` IN ('listall collection samples', 'listall collection aliquots', 'collection products');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('listall collection samples', '', 'Samples List', 'Liste des &eacute;chantillons'),
+('listall collection aliquots', '', 'Aliquots List', 'Liste des aliquots'),
+('collection products', '', 'Products', 'Produits');
+
+UPDATE menus SET active = 'no' WHERE parent_id = 'clin_CAN_57' AND use_link = '/underdevelopment/';	-- participant sample and aliquots
+UPDATE menus SET use_summary = '' WHERE id = 'clin_CAN_571'; -- participant tree view
+
+
+
+ 	
+ 	 	
+
+
+
+
+
+
+
+
+
+
+

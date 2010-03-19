@@ -1018,6 +1018,7 @@ a.add { background: url("../img/icons/Add_16x16.png") no-repeat left center; }
 a.aliquot { background: url("../img/icons/aliquot_16x16.png") no-repeat left center; }
 a.cancel { background: url("../img/icons/Control Rewind_16x16.png") no-repeat left center; }
 a.collection { background: url("../img/icons/collection_16x16.png") no-repeat left center; }
+a.access_to_data { background: url("../img/icons/AccessToData_16x16.png") no-repeat left center; }
 a.default { background: url("../img/icons/Document Blank_16x16.png") no-repeat left center; }
 a.delete { background: url("../img/icons/Close_16x16.png") no-repeat left center; }
 a.detail { background: url("../img/icons/Control Play_16x16.png") no-repeat left center; }
@@ -1330,6 +1331,10 @@ div.loading{
 	border-style: solid;
 	border-colot: #000;
 	border-width: 1px;
+}
+
+table.columns.index tbody tr td{
+	white-space: nowrap;	
 }
 
 

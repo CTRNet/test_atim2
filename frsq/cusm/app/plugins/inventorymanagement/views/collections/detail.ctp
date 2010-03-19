@@ -16,7 +16,9 @@
 		
 	if($is_tree_view_detail_form){
 		// Detail form displayed in tree view: Add button to access all sample data
-		$structure_links['bottom']['access to all data'] = '/inventorymanagement/collections/detail/' . $atim_menu_variables['Collection.id'] . '/';
+		$structure_links['bottom']['access to all data'] = array(
+			'link'=> '/inventorymanagement/collections/detail/' . $atim_menu_variables['Collection.id'] . '/',
+			'icon' => 'access_to_data');
 	}else{
 		// General detail form display
 		$search_type_links = array();
