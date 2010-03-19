@@ -1818,9 +1818,9 @@ class StructuresHelper extends Helper {
 					
 					// put display_value into CONTENT array index, ELSE put span tag if value BLANK and INCREMENT empty index 
 						if ( trim($display_value)!='' ) {
-							$table_index[ $field['display_column'] ][ $row_count ]['input'] .= "<span style='white-space: nowrap;'>".$table_index[ $field['display_column'] ][ $row_count ]['tag'].$display_value.'</span> ';
+							$table_index[ $field['display_column'] ][ $row_count ]['input'] .= $table_index[ $field['display_column'] ][ $row_count ]['tag'].$display_value.' ';
 						} else {
-							$table_index[ $field['display_column'] ][ $row_count ]['input'] .= "<span style='white-space: nowrap;'>".$table_index[ $field['display_column'] ][ $row_count ]['tag'].'<span class="empty">-</span></span> ';
+							$table_index[ $field['display_column'] ][ $row_count ]['input'] .= $table_index[ $field['display_column'] ][ $row_count ]['tag'].'<span class="empty">-</span> ';
 							$table_index[ $field['display_column'] ][ $row_count ]['empty']++;
 						}
 				

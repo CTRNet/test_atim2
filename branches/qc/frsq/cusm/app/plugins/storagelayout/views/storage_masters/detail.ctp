@@ -34,7 +34,9 @@
 	if($is_tree_view_detail_form) {
 		// Detail form displayed in children storage tree view
 		// Add button to access all storage data
-		$structure_links['bottom']['access to all data'] = '/storagelayout/storage_masters/detail/' . $atim_menu_variables['StorageMaster.id'];
+		$structure_links['bottom']['access to all data'] = array(
+			'link'=> '/storagelayout/storage_masters/detail/' . $atim_menu_variables['StorageMaster.id'],
+			'icon' => 'access_to_data');
 	} else {
 		// General detail form display
 		$structure_links['bottom']['search'] = '/storagelayout/storage_masters/index/';

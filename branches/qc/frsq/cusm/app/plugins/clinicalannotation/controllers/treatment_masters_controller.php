@@ -68,24 +68,35 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 
 		$tx_control_data = $this->TreatmentControl->find('first',array('conditions'=>array('TreatmentControl.id'=>$treatment_master_data['TreatmentMaster']['treatment_control_id'])));
 		$protocol_list = $this->ProtocolMaster->find('list', array('conditions'=>array('ProtocolMaster.deleted'=>'0')), array('fields' => array('ProtocolMaster.id', 'ProtocolMaster.name'), 'order' => array('ProtocolMaster.name')));
-		
+	
+		// Set diagnosis data for diagnosis selection (radio button)
+		$dx_data = $this->DiagnosisMaster->find('all', array('conditions'=>array('DiagnosisMaster.participant_id'=>$participant_id)));
+		foreach($dx_data as &$dx_tmp_data){
+			// Define treatment data to take in consideration
+			$treatment_master_data_to_use = $treatment_master_data['TreatmentMaster'];
+			if(!empty($this->data)) {
+				// User submitted data: take updated data in consideration in case data validation is wrong and form is redisplayed
+				$treatment_master_data_to_use = $this->data['TreatmentMaster'];
+			}
+			
+			// Set data to display correctly selected diagnosis			
+			if($dx_tmp_data['DiagnosisMaster']['id'] == $treatment_master_data_to_use['diagnosis_master_id'] ){
+				$dx_tmp_data['TreatmentMaster'] = $treatment_master_data_to_use;
+			}
+		}
+		$this->set('data_for_checklist', $dx_data);		
+			
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id,'TreatmentMaster.id'=>$tx_master_id) );
 		$this->set('protocol_list', $protocol_list);
 		
 		// set FORM ALIAS based off VALUE from MASTER table
 		$this->Structures->set($tx_control_data['TreatmentControl']['form_alias']);
+		
+		$this->Structures->Set('empty', 'empty_structure');
 
 		// set DIAGANOSES section
 		$this->Structures->set('diagnosismasters', 'diagnosis_structure');
-		
-		$dx_data = $this->DiagnosisMaster->find('all', array('conditions'=>array('DiagnosisMaster.participant_id'=>$participant_id)));
-		foreach($dx_data as &$dx_tmp_data){
-			if($dx_tmp_data['DiagnosisMaster']['id'] == $treatment_master_data['TreatmentMaster']['diagnosis_master_id'] ){
-				$dx_tmp_data['TreatmentMaster'] = $treatment_master_data['TreatmentMaster'];
-			}
-		}
-		$this->set('data_for_checklist', $dx_data);		
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
@@ -109,7 +120,6 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 				}
 			}
 		}
-		$this->Structures->Set('empty', 'empty_structure');
 	}
 	
 	function add($participant_id=null, $treatment_control_id=null) {
@@ -120,7 +130,22 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		if(empty($participant_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
 		
 		$protocol_list = $this->ProtocolMaster->find('list', array('conditions'=>array('ProtocolMaster.deleted'=>'0')), array('fields' => array('ProtocolMaster.id', 'ProtocolMaster.name'), 'order' => array('ProtocolMaster.name')));
-		
+
+		$this->set('initial_display', (empty($this->data)? true : false));
+			
+		// Set diagnosis data for diagnosis selection (radio button)
+		$dx_data = $this->DiagnosisMaster->find('all', array('conditions'=>array('DiagnosisMaster.participant_id'=>$participant_id)));
+		if(!empty($this->data)) {
+			// User submitted data: take updated data in consideration in case data validation is wrong and form is redisplayed
+			foreach($dx_data as &$dx_tmp_data){
+				// Set data to display correctly selected diagnosis			
+				if($dx_tmp_data['DiagnosisMaster']['id'] == $this->data['TreatmentMaster']['diagnosis_master_id'] ){
+					$dx_tmp_data['TreatmentMaster'] = $this->data['TreatmentMaster'];
+				}
+			}
+		}
+		$this->set('data_for_checklist', $dx_data);					
+				
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'TreatmentControl.id'=>$treatment_control_id));
 		$tx_control_data = $this->TreatmentControl->find('first',array('conditions'=>array('TreatmentControl.id'=>$treatment_control_id)));
@@ -129,11 +154,15 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		$this->set('atim_menu', $this->Menus->get('/clinicalannotation/treatment_masters/listall/%%Participant.id%%'));
 		
 		$this->set('protocol_list', $protocol_list);
+	
+		// Set trt data
+		$this->set('tx_method', $tx_control_data['TreatmentControl']['tx_method']);
 		
 		// set DIAGANOSES radio list form
-		$this->set( 'data_for_checklist', $this->DiagnosisMaster->find('all', array('conditions'=>array('DiagnosisMaster.participant_id'=>$participant_id))) );
 		$this->Structures->set('diagnosismasters', 'diagnosis_structure');
-		$this->Structures->set($tx_control_data['TreatmentControl']['form_alias']);
+		$this->Structures->set($tx_control_data['TreatmentControl']['form_alias']); 
+			
+		$this->Structures->Set('empty', 'empty_structure');
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
@@ -157,8 +186,7 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 					$this->flash( 'Your data has been added.','/clinicalannotation/treatment_masters/detail/'.$participant_id.'/'.$this->TreatmentMaster->getLastInsertId());
 				}
 			}
-		 } 	
-		$this->Structures->Set('empty', 'empty_structure');
+		 }
 	}
 
 	function delete( $participant_id, $tx_master_id ) {
