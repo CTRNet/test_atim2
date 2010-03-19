@@ -6,7 +6,8 @@
 
 if($this->data['MiscIdentifier']['identifier_name'] == "biopsy"
 || $this->data['MiscIdentifier']['identifier_name'] == "metastasis"
-|| $this->data['MiscIdentifier']['identifier_name'] == "tumor"){
+|| $this->data['MiscIdentifier']['identifier_name'] == "tumor"
+|| $this->data['MiscIdentifier']['identifier_name'] == "normal"){
 	$mi = $this->MiscIdentifier->find('first', array('conditions' =>array('MiscIdentifier.participant_id' => $participant_id, 'MiscIdentifier.identifier_name' => $this->data['MiscIdentifier']['identifier_name'])));
 	$mi_deleted = $this->MiscIdentifier->find('first', array('conditions' =>array('MiscIdentifier.participant_id' => $participant_id, 'MiscIdentifier.identifier_name' => $this->data['MiscIdentifier']['identifier_name'], 'MiscIdentifier.deleted' => '1')));
 	if(!empty($mi_deleted)){
