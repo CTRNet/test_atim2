@@ -1402,8 +1402,11 @@ INSERT IGNORE INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES
 -- Add tissue weight
 
 ALTER TABLE `sd_spe_tissues` 
-	ADD `tissue_weight` VARCHAR( 10 ) NULL AFTER `tissue_size_unit`  ;
-ALTER TABLE `sd_spe_tissues` 
+	ADD `tissue_weight` VARCHAR( 10 ) NULL AFTER `tissue_size_unit`,
+	ADD `tissue_weight_unit` VARCHAR( 10 ) NULL AFTER `tissue_weight`  ;
+
+ALTER TABLE `sd_spe_tissues_revs` 
+	ADD `tissue_weight` VARCHAR( 10 ) NULL AFTER `tissue_size_unit`,
 	ADD `tissue_weight_unit` VARCHAR( 10 ) NULL AFTER `tissue_weight`  ;
 	
 DELETE FROM `structure_value_domains_permissible_values` 
