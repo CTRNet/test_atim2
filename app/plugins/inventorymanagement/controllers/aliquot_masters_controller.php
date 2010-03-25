@@ -300,7 +300,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 	
 	function add($collection_id, $sample_master_id, $aliquot_control_id) {
 		if((!$collection_id) || (!$sample_master_id) || (!$aliquot_control_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }		
-		
 		// MANAGE DATA
 
 		// Get Sample Data
@@ -438,7 +437,24 @@ class AliquotMastersController extends InventoryManagementAppController {
 					$new_aliquot['AliquotMaster']['sample_master_id'] = $sample_master_id;
 					$new_aliquot['AliquotMaster']['aliquot_control_id'] = $aliquot_control_id;
 					$new_aliquot['AliquotMaster']['aliquot_type'] = $aliquot_control_data['AliquotControl']['aliquot_type'];
-					if(!$this->AliquotMaster->save($new_aliquot, false)) { $this->redirect('/pages/err_inv_record_err', null, true); } 
+					if(!$this->AliquotMaster->save($new_aliquot, false)) { $this->redirect('/pages/err_inv_record_err', null, true); }
+
+					if($aliquot_control_id == 5 && is_numeric($new_aliquot['AliquotDetail']['block_aliquot_master_id'])){
+					//record use
+					echo("mich:[".$this->AliquotMaster->getLasInsertId()."]");
+						$aliquot_use['AliquotUse']["aliquot_master_id"] = $new_aliquot['AliquotDetail']['block_aliquot_master_id'];
+						$aliquot_use['AliquotUse']["use_definition"] = "cut to slide";
+						$aliquot_use['AliquotUse']["use_code"] = "";//TODO use code
+						$aliquot_use['AliquotUse']["use_details"] = $this->AliquotMaster->getLasInsertId();
+						$aliquot_use['AliquotUse']["use_recorded_into_table"] = "aliquot_masters";
+						$aliquot_use['AliquotUse']["used_volume"] = "";
+						$aliquot_use['AliquotUse']["use_datetime"] = "";//TODO find this info
+						$aliquot_use['AliquotUse']["used_by"] = "";//TODO find this info
+						$aliquot_use['AliquotUse']["study_summary_id"] = "";//TODO find this info
+						if(!$this->AliquotUse->save($aliquot_use)){
+							$this->redirect('/pages/err_inv_record_err', null, true);
+						}
+					}
 				}
 				$this->flash('your data has been saved', '/inventorymanagement/aliquot_masters/listAll/' . $collection_id . '/' . $sample_master_id);									
 				return;
@@ -1379,8 +1395,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 			'SampleToAliquotControl.status' => 'active',
 			'AliquotControl.status' => 'active',
 			'AliquotControl.form_alias' => 'ad_spec_tiss_blocks');
-		$sample_to_block_control = $this->SampleToAliquotControl->find('first', array('conditions' => $criteria));	
 		
+		$sample_to_block_control = $this->SampleToAliquotControl->find('first', array('conditions' => $criteria));	
 		if(empty($sample_to_block_control)) { return array(); }
 		
 		// Get block type control id
@@ -1395,6 +1411,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$criteria['AliquotMaster.deleted'] = '0';
 				
 		$blocks_list = $this->AliquotMaster->atim_list(array('conditions' => $criteria, 'order' => array('AliquotMaster.barcode ASC')));
+		pr($blocks_list);
 		
 		return (empty($blocks_list)? array() : $blocks_list);
 	}
