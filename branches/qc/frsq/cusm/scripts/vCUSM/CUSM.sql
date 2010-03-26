@@ -54,9 +54,9 @@ WHERE `old_id` IN ('CAN-999-999-000-999-1_CAN-999-999-000-999-295', 'CAN-999-999
 UPDATE `structure_formats`
 SET 
 `flag_override_label` = '1',
-`language_label` = 'name',
+`language_label` = 'first name',
 `flag_override_tag` = '1',
-`language_tag` = 'first name'
+`language_tag` = ''
 WHERE `old_id` = 'CAN-999-999-000-999-1_CAN-999-999-000-999-1'; 
 
 INSERT INTO `structure_validations` 
@@ -66,10 +66,10 @@ VALUES
 
 UPDATE `structure_formats`
 SET 
-`flag_override_label` = '0',
-`language_label` = '',
+`flag_override_label` = '1',
+`language_label` = 'last name',
 `flag_override_tag` = '1',
-`language_tag` = 'last name'
+`language_tag` = ''
 WHERE `old_id` = 'CAN-999-999-000-999-1_CAN-999-999-000-999-2'; 
  
 INSERT INTO `structure_validations` 
@@ -95,6 +95,21 @@ SET `flag_add` = '0',
 `flag_index` = '0',
 `flag_detail` = '0'
 WHERE `old_id` IN ('CAN-999-999-000-999-1_CAN-999-999-000-999-7');
+
+-- cod_confirmation_source, secondary_cod_icd10_code, cod_icd10_code : Hidden
+UPDATE `structure_formats`
+SET `flag_add` = '0',
+`flag_add_readonly` = '0',
+`flag_edit` = '0',
+`flag_edit_readonly` = '0',
+`flag_search` = '0',
+`flag_search_readonly` = '0',
+`flag_edit_readonly` = '0',
+`flag_datagrid` = '0',
+`flag_datagrid_readonly` = '0',
+`flag_index` = '0',
+`flag_detail` = '0'
+WHERE `old_id` IN ('CAN-999-999-000-999-1_CAN-999-999-000-999-25', 'CAN-999-999-000-999-1_CAN-895', 'CAN-999-999-000-999-1_CAN-999-999-000-999-24');
 
 -- ... CONSENT ...
 
@@ -135,7 +150,7 @@ INSERT INTO `consent_controls`
 
 DELETE FROM `i18n` WHERE `id` IN ('cusm prostate bank consent');
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
-('cusm prostate bank consent', 'global', 'CONSENT FORM Alliance ProCURE', 'CONSENTEMENT Alliance ProCURE');
+('cusm prostate bank consent', 'global', 'Consent Form - Alliance Procure', 'Consentement - Alliance ProCURE');
 
 INSERT INTO `structures` 
 (`id`, `old_id`, `alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`) 
@@ -213,17 +228,17 @@ WHERE `old_id` = 'CAN-999-999-000-999-53';
 DELETE FROM `diagnosis_controls`;
 
 INSERT INTO `diagnosis_controls` (`id`, `controls_type`, `status`, `form_alias`, `detail_tablename`, `display_order`) VALUES
-(null, 'procure', 'active', 'qc_cusm_dxd_procure', 'qc_cusm_dxd_procure', 0);
+(null, 'prostate procure diagnosis', 'active', 'qc_cusm_dxd_procure', 'qc_cusm_dxd_procure', 0);
 
 DELETE FROM `i18n` WHERE `id` IN ('procure');
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
-('procure', 'global', 'PROCURE', 'PROCURE');
+('prostate procure diagnosis', 'global', 'Prostate - Procure Diagnosis', 'Prostate - Diagnostic Procure');
 
 CREATE TABLE IF NOT EXISTS `qc_cusm_dxd_procure` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `diagnosis_master_id` int(11) NOT NULL DEFAULT '0',
-  `qc_cusm_other_morphology` varchar(50) NULL,
-  `qc_cusm_ptnm_version` varchar(50) NULL,
+  `other_morphology` varchar(50) NULL,
+  `ptnm_version` varchar(50) NULL,
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `created_by` varchar(255) NOT NULL DEFAULT '',
   `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
@@ -240,8 +255,8 @@ ALTER TABLE `qc_cusm_dxd_procure`
 CREATE TABLE IF NOT EXISTS `qc_cusm_dxd_procure_revs` (
   `id` int(11) NOT NULL,
   `diagnosis_master_id` int(11) DEFAULT NULL,  
-  `qc_cusm_other_morphology` varchar(50) NULL,
-  `qc_cusm_ptnm_version` varchar(50) NULL,
+  `other_morphology` varchar(50) NULL,
+  `ptnm_version` varchar(50) NULL,
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `created_by` varchar(50) NOT NULL DEFAULT '',
   `modified` datetime DEFAULT NULL,
@@ -316,7 +331,7 @@ VALUES
 INSERT INTO `structure_fields` 
 (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) 
 VALUES
-(null, '', 'QC-CUSM-000024', 'Clinicalannotation', 'DiagnosisDetail', 'qc_cusm_dxd_procure', 'qc_cusm_other_morphology', 'other morphology data', '', 'input', 'size=30', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(null, '', 'QC-CUSM-000024', 'Clinicalannotation', 'DiagnosisDetail', 'qc_cusm_dxd_procure', 'other_morphology', 'other morphology data', '', 'input', 'size=30', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 DELETE FROM `i18n` WHERE `id` IN ('other morphology data');
 INSERT INTO `i18n` ( `id` , `page_id` , `en` , `fr` )
@@ -328,7 +343,9 @@ VALUES
 INSERT INTO `structure_fields` 
 (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) 
 VALUES
-(null, '', 'QC-CUSM-000025', 'Clinicalannotation', 'DiagnosisDetail', 'qc_cusm_dxd_procure', 'qc_cusm_ptnm_version', 'version', '', 'input', 'size=30', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(null, '', 'QC-CUSM-000025', 'Clinicalannotation', 'DiagnosisDetail', 'qc_cusm_dxd_procure', 'ptnm_version', 'version', '', 'input', 'size=30', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+INSERT IGNORE INTO `i18n` ( `id` , `page_id` , `en` , `fr` )
+VALUES ('version', '', 'Version', 'Version');
 
 -- change pTNM to select fields
 
@@ -495,7 +512,7 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 -- DiagnosisMaster.morphology	CAN-999-999-000-999-324
 (null, 'QC-CUSM-000005_CAN-999-999-000-999-324', @dx_structure_id, 'QC-CUSM-000005', 
 (SELECT id FROM structure_fields WHERE old_id LIKE 'CAN-999-999-000-999-324'), 'CAN-999-999-000-999-324', 2, 7, 'coding', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
--- DiagnosisDetail.qc_cusm_other_morphology	QC-CUSM-000024
+-- DiagnosisDetail.other_morphology	QC-CUSM-000024
 (null, 'QC-CUSM-000005_QC-CUSM-000024', @dx_structure_id, 'QC-CUSM-000005', 
 (SELECT id FROM structure_fields WHERE old_id LIKE 'QC-CUSM-000024'), 'QC-CUSM-000024', 2, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
 
@@ -511,7 +528,7 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 -- DiagnosisMaster.path_stage_summary	CAN-999-999-000-999-90
 (null, 'QC-CUSM-000005_CAN-999-999-000-999-90', @dx_structure_id, 'QC-CUSM-000005', 
 (SELECT id FROM structure_fields WHERE old_id LIKE 'CAN-999-999-000-999-90'), 'CAN-999-999-000-999-90', 2, 25, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
--- DiagnosisDetail.qc_cusm_ptnm_version	QC-CUSM-000025
+-- DiagnosisDetail.ptnm_version	QC-CUSM-000025
 (null, 'QC-CUSM-000005_QC-CUSM-000025', @dx_structure_id, 'QC-CUSM-000005', 
 (SELECT id FROM structure_fields WHERE old_id LIKE 'QC-CUSM-000025'), 'QC-CUSM-000025', 2, 26, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL');
 
@@ -526,10 +543,10 @@ DELETE FROM `event_controls`;
 
 CREATE TABLE IF NOT EXISTS `qc_cusm_ed_procure_lifestyle` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `qc_cusm_form_version` varchar(30) NULL,
-  `qc_cusm_delivery_date` date NULL,
-  `qc_cusm_reception_date` date NULL,
-  `qc_cusm_completed` varchar(10) NULL,
+  `form_version` varchar(30) NULL,
+  `delivery_date` date NULL,
+  `reception_date` date NULL,
+  `completed` varchar(10) NULL,
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `created_by` varchar(50) NOT NULL DEFAULT '',
   `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
@@ -546,10 +563,10 @@ ALTER TABLE `qc_cusm_ed_procure_lifestyle`
 
 CREATE TABLE IF NOT EXISTS `qc_cusm_ed_procure_lifestyle_revs` (
   `id` int(11) NOT NULL,
-  `qc_cusm_form_version` varchar(30) NULL,
-  `qc_cusm_delivery_date` date NULL,
-  `qc_cusm_reception_date` date NULL,
-  `qc_cusm_completed` varchar(10) NULL,
+  `form_version` varchar(30) NULL,
+  `delivery_date` date NULL,
+  `reception_date` date NULL,
+  `completed` varchar(10) NULL,
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `created_by` varchar(50) NOT NULL DEFAULT '',
   `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
@@ -564,7 +581,8 @@ CREATE TABLE IF NOT EXISTS `qc_cusm_ed_procure_lifestyle_revs` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`, `status`, `form_alias`, `detail_tablename`, `display_order`) VALUES
-(null, 'prostate', 'lifestyle', 'procure', 'active', 'qc_cusm_ed_procure_lifestyle', 'qc_cusm_ed_procure_lifestyle', 0);
+(null, 'prostate', 'lifestyle', 'procure lifestyle form', 'active', 'qc_cusm_ed_procure_lifestyle', 'qc_cusm_ed_procure_lifestyle', 0);
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES ('procure lifestyle form', '', 'Procure Lifestyle Form', 'Formulaire habitude de vie Procure');
 
 INSERT INTO `structures` (`id`, `old_id`, `alias`, `description`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 (null, 'QC-CUSM-000004', 'qc_cusm_ed_procure_lifestyle', NULL, '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
@@ -599,10 +617,10 @@ SET @yesno_domain_id = (SELECT id FROM `structure_value_domains` WHERE `domain_n
 INSERT INTO `structure_fields` 
 (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) 
 VALUES
-(null, '', 'QC-CUSM-000020', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_lifestyle', 'qc_cusm_form_version', 'form version', '', 'select', '', '', @version_domain_id, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(null, '', 'QC-CUSM-000021', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_lifestyle', 'qc_cusm_delivery_date', 'delivery date', '', 'date', '', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(null, '', 'QC-CUSM-000022', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_lifestyle', 'qc_cusm_reception_date', 'reception date', '', 'date', '', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(null, '', 'QC-CUSM-000023', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_lifestyle', 'qc_cusm_completed', 'completed', '', 'select', '', '', @yesno_domain_id, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(null, '', 'QC-CUSM-000020', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_lifestyle', 'form_version', 'form version', '', 'select', '', '', @version_domain_id, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, '', 'QC-CUSM-000021', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_lifestyle', 'delivery_date', 'delivery date', '', 'date', '', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, '', 'QC-CUSM-000022', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_lifestyle', 'reception_date', 'reception date', '', 'date', '', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, '', 'QC-CUSM-000023', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_lifestyle', 'completed', 'completed', '', 'select', '', '', @yesno_domain_id, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 DELETE FROM `i18n` WHERE `id` IN ('form version', 'delivery date', 'completion date');
 INSERT INTO `i18n` ( `id` , `page_id` , `en` , `fr` )
@@ -622,7 +640,7 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 @structure_id, 'QC-CUSM-000004', 
 (SELECT id FROM `structure_fields` WHERE `old_id` LIKE 'CAN-999-999-000-999-228'), 'CAN-999-999-000-999-228', 
 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', ''),
--- qc_cusm_completed
+-- completed
 (null, 'QC-CUSM-000004_QC-CUSM-000023', 
 @structure_id, 'QC-CUSM-000004', 
 (SELECT id FROM `structure_fields` WHERE `old_id` LIKE 'QC-CUSM-000023'), 'QC-CUSM-000023', 
@@ -632,17 +650,17 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 @structure_id, 'QC-CUSM-000004', 
 (SELECT id FROM `structure_fields` WHERE `old_id` LIKE 'CAN-999-999-000-999-229'), 'CAN-999-999-000-999-229', 
 0, 6, '', '1', 'completion date', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', ''),
--- qc_cusm_form_version
+-- form_version
 (null, 'QC-CUSM-000004_QC-CUSM-000020', 
 @structure_id, 'QC-CUSM-000004', 
 (SELECT id FROM `structure_fields` WHERE `old_id` LIKE 'QC-CUSM-000020'), 'QC-CUSM-000020', 
 0, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', ''),
--- qc_cusm_delivery_date
+-- delivery_date
 (null, 'QC-CUSM-000004_QC-CUSM-000021', 
 @structure_id, 'QC-CUSM-000004', 
 (SELECT id FROM `structure_fields` WHERE `old_id` LIKE 'QC-CUSM-000021'), 'QC-CUSM-000021', 
 1, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', ''),
--- qc_cusm_reception_date
+-- reception_date
 (null, 'QC-CUSM-000004_QC-CUSM-000022', 
 @structure_id, 'QC-CUSM-000004', 
 (SELECT id FROM `structure_fields` WHERE `old_id` LIKE 'QC-CUSM-000022'), 'QC-CUSM-000022', 
@@ -653,59 +671,62 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (SELECT id FROM `structure_fields` WHERE `old_id` LIKE 'CAN-999-999-000-999-230'), 'CAN-999-999-000-999-230', 
 1, 99, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', '');
 
-
--- TODO
-
 -- Life style
 
 CREATE TABLE IF NOT EXISTS `qc_cusm_ed_procure_prostate_path_report` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
 
-  `qc_cusm_report_number` varchar(50) NULL,
-  `qc_cusm_pathologist_name` varchar(50) NULL,
+  `report_number` varchar(50) NULL,
+  `pathologist_name` varchar(50) NULL,
 
-  `qc_cusm_prostate_weight` decimal(10,3) default NULL COMMENT 'unit (gr)',
-  `qc_cusm_prostate_lenght` decimal(10,3) default NULL COMMENT 'unit (cm)',
-  `qc_cusm_prostate_width` decimal(10,3) default NULL COMMENT 'unit (cm)',
-  `qc_cusm_prostate_height` decimal(10,3) default NULL COMMENT 'unit (cm)',
+  `prostate_weight` decimal(10,3) default NULL COMMENT 'unit (gr)',
+  `prostate_lenght` decimal(10,3) default NULL COMMENT 'unit (cm)',
+  `prostate_width` decimal(10,3) default NULL COMMENT 'unit (cm)',
+  `prostate_height` decimal(10,3) default NULL COMMENT 'unit (cm)',
     
-  `qc_cusm_rgt_seminal_vesicles_lenght` decimal(10,3) default NULL COMMENT 'unit (cm)',
-  `qc_cusm_rgt_seminal_vesicles_width` decimal(10,3) default NULL COMMENT 'unit (cm)',
-  `qc_cusm_rgt_seminal_vesicles_height` decimal(10,3) default NULL COMMENT 'unit (cm)',
+  `rgt_seminal_vesicles_lenght` decimal(10,3) default NULL COMMENT 'unit (cm)',
+  `rgt_seminal_vesicles_width` decimal(10,3) default NULL COMMENT 'unit (cm)',
+  `rgt_seminal_vesicles_height` decimal(10,3) default NULL COMMENT 'unit (cm)',
 
-  `qc_cusm_lft_seminal_vesicles_lenght` decimal(10,3) default NULL COMMENT 'unit (cm)',
-  `qc_cusm_lft_seminal_vesicles_width` decimal(10,3) default NULL COMMENT 'unit (cm)',
-  `qc_cusm_lft_seminal_vesicles_height` decimal(10,3) default NULL COMMENT 'unit (cm)',
+  `lft_seminal_vesicles_lenght` decimal(10,3) default NULL COMMENT 'unit (cm)',
+  `lft_seminal_vesicles_width` decimal(10,3) default NULL COMMENT 'unit (cm)',
+  `lft_seminal_vesicles_height` decimal(10,3) default NULL COMMENT 'unit (cm)',
    
-  `qc_cusm_tumour_location` varchar(50) NULL,
+  `tumour_location_rgt_anterior` varchar(50) NULL,
+  `tumour_location_rgt_posterior` varchar(50) NULL,
+  `tumour_location_lft_anterior` varchar(50) NULL,
+  `tumour_location_lft_posterior` varchar(50) NULL,
+  `tumour_location_apex` varchar(50) NULL,
+  `tumour_location_base` varchar(50) NULL,
+  `tumour_location_bladder_neck` varchar(50) NULL,
 
-  `qc_cusm_primary_grade` varchar(20) NULL,
-  `qc_cusm_secondary_grade` varchar(20) NULL,
-  `qc_cusm_tertiary_grade` varchar(20) NULL,
-  `qc_cusm_gleason_score` varchar(20) NULL,
+  `primary_grade` varchar(20) NULL,
+  `secondary_grade` varchar(20) NULL,
+  `tertiary_grade` varchar(20) NULL,
+  `gleason_score` varchar(20) NULL,
    
-  `qc_cusm_margin_status` varchar(20) NULL,
-  `qc_cusm_margin_focal` varchar(20) NULL,
-  `qc_cusm_margin_position_apical` varchar(10) NULL,
-  `qc_cusm_margin_position_bladder_neck` varchar(10) NULL,
-  `qc_cusm_margin_position_anterior_left` varchar(10) NULL,
-  `qc_cusm_margin_position_anterior_right` varchar(10) NULL,
-  `qc_cusm_margin_position_posterior_left` varchar(10) NULL,
-  `qc_cusm_margin_position_posterior_right` varchar(10) NULL,
+  `margin_status` varchar(20) NULL,
+  `margin_focal` varchar(20) NULL,
+  `margin_position_apical` varchar(10) NULL,
+  `margin_position_bladder_neck` varchar(10) NULL,
+  `margin_position_lft_anterior` varchar(10) NULL,
+  `margin_position_rgt_anterior` varchar(10) NULL,
+  `margin_position_lft_posterior` varchar(10) NULL,
+  `margin_position_rgt_posterior` varchar(10) NULL,
    
-  `qc_cusm_extracapsular_invasion` varchar(10) NULL,
-  `qc_cusm_focal_invasion` varchar(10) NULL,
-  `qc_cusm_focal_established` varchar(10) NULL,
+  `extracapsular_invasion_status` varchar(10) NULL,
+  `focal_extracapsular_invasion` varchar(10) NULL,
+  `established_extracapsular_invasion` varchar(10) NULL,
   
-  `qc_cusm_rgt_ant_quadrant_extracapsular_invasion` varchar(10) NULL,
-  `qc_cusm_rgt_post_quadrant_extracapsular_invasion` varchar(10) NULL,
-  `qc_cusm_lft_ant_quadrant_extracapsular_invasion` varchar(10) NULL,
-  `qc_cusm_lft_post_quadrant_extracapsular_invasion` varchar(10) NULL,
-  `qc_cusm_seminal_vesicles_extracapsular_invasion` varchar(10) NULL,
+  `rgt_ant_quadrant_extracapsular_invasion` varchar(10) NULL,
+  `rgt_post_quadrant_extracapsular_invasion` varchar(10) NULL,
+  `lft_ant_quadrant_extracapsular_invasion` varchar(10) NULL,
+  `lft_post_quadrant_extracapsular_invasion` varchar(10) NULL,
+  `seminal_vesicles_extracapsular_invasion` varchar(10) NULL,
 
-  `qc_cusm_lymph_nodes_collected` varchar(10) NULL,
-  `qc_cusm_examined_lymph_nodes_nbr` int(5) NULL,
-  `qc_cusm_involved_lymph_nodes_nbr` int(5) NULL,
+  `lymph_nodes_collected` varchar(10) NULL,
+  `examined_lymph_nodes_nbr` int(5) NULL,
+  `involved_lymph_nodes_nbr` int(5) NULL,
 
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `created_by` varchar(50) NOT NULL DEFAULT '',
@@ -724,51 +745,57 @@ ALTER TABLE `qc_cusm_ed_procure_prostate_path_report`
 CREATE TABLE IF NOT EXISTS `qc_cusm_ed_procure_prostate_path_report_revs` (
   `id` int(11) NOT NULL,
 
-  `qc_cusm_report_number` varchar(50) NULL,
-  `qc_cusm_pathologist_name` varchar(50) NULL,
+  `report_number` varchar(50) NULL,
+  `pathologist_name` varchar(50) NULL,
 
-  `qc_cusm_prostate_weight` decimal(10,3) default NULL COMMENT 'unit (gr)',
-  `qc_cusm_prostate_lenght` decimal(10,3) default NULL COMMENT 'unit (cm)',
-  `qc_cusm_prostate_width` decimal(10,3) default NULL COMMENT 'unit (cm)',
-  `qc_cusm_prostate_height` decimal(10,3) default NULL COMMENT 'unit (cm)',
+  `prostate_weight` decimal(10,3) default NULL COMMENT 'unit (gr)',
+  `prostate_lenght` decimal(10,3) default NULL COMMENT 'unit (cm)',
+  `prostate_width` decimal(10,3) default NULL COMMENT 'unit (cm)',
+  `prostate_height` decimal(10,3) default NULL COMMENT 'unit (cm)',
     
-  `qc_cusm_rgt_seminal_vesicles_lenght` decimal(10,3) default NULL COMMENT 'unit (cm)',
-  `qc_cusm_rgt_seminal_vesicles_width` decimal(10,3) default NULL COMMENT 'unit (cm)',
-  `qc_cusm_rgt_seminal_vesicles_height` decimal(10,3) default NULL COMMENT 'unit (cm)',
+  `rgt_seminal_vesicles_lenght` decimal(10,3) default NULL COMMENT 'unit (cm)',
+  `rgt_seminal_vesicles_width` decimal(10,3) default NULL COMMENT 'unit (cm)',
+  `rgt_seminal_vesicles_height` decimal(10,3) default NULL COMMENT 'unit (cm)',
 
-  `qc_cusm_lft_seminal_vesicles_lenght` decimal(10,3) default NULL COMMENT 'unit (cm)',
-  `qc_cusm_lft_seminal_vesicles_width` decimal(10,3) default NULL COMMENT 'unit (cm)',
-  `qc_cusm_lft_seminal_vesicles_height` decimal(10,3) default NULL COMMENT 'unit (cm)',
+  `lft_seminal_vesicles_lenght` decimal(10,3) default NULL COMMENT 'unit (cm)',
+  `lft_seminal_vesicles_width` decimal(10,3) default NULL COMMENT 'unit (cm)',
+  `lft_seminal_vesicles_height` decimal(10,3) default NULL COMMENT 'unit (cm)',
    
-  `qc_cusm_tumour_location` varchar(50) NULL,
+  `tumour_location_rgt_anterior` varchar(50) NULL,
+  `tumour_location_rgt_posterior` varchar(50) NULL,
+  `tumour_location_lft_anterior` varchar(50) NULL,
+  `tumour_location_lft_posterior` varchar(50) NULL,
+  `tumour_location_apex` varchar(50) NULL,
+  `tumour_location_base` varchar(50) NULL,
+  `tumour_location_bladder_neck` varchar(50) NULL,
 
-  `qc_cusm_primary_grade` varchar(20) NULL,
-  `qc_cusm_secondary_grade` varchar(20) NULL,
-  `qc_cusm_tertiary_grade` varchar(20) NULL,
-  `qc_cusm_gleason_score` varchar(20) NULL,
+  `primary_grade` varchar(20) NULL,
+  `secondary_grade` varchar(20) NULL,
+  `tertiary_grade` varchar(20) NULL,
+  `gleason_score` varchar(20) NULL,
    
-  `qc_cusm_margin_status` varchar(20) NULL,
-  `qc_cusm_margin_focal` varchar(20) NULL,
-  `qc_cusm_margin_position_apical` varchar(10) NULL,
-  `qc_cusm_margin_position_bladder_neck` varchar(10) NULL,
-  `qc_cusm_margin_position_anterior_left` varchar(10) NULL,
-  `qc_cusm_margin_position_anterior_right` varchar(10) NULL,
-  `qc_cusm_margin_position_posterior_left` varchar(10) NULL,
-  `qc_cusm_margin_position_posterior_right` varchar(10) NULL,
+  `margin_status` varchar(20) NULL,
+  `margin_focal` varchar(20) NULL,
+  `margin_position_apical` varchar(10) NULL,
+  `margin_position_bladder_neck` varchar(10) NULL,
+  `margin_position_lft_anterior` varchar(10) NULL,
+  `margin_position_rgt_anterior` varchar(10) NULL,
+  `margin_position_lft_posterior` varchar(10) NULL,
+  `margin_position_rgt_posterior` varchar(10) NULL,
    
-  `qc_cusm_extracapsular_invasion` varchar(10) NULL,
-  `qc_cusm_focal_invasion` varchar(10) NULL,
-  `qc_cusm_focal_established` varchar(10) NULL,
+  `extracapsular_invasion_status` varchar(10) NULL,
+  `focal_extracapsular_invasion` varchar(10) NULL,
+  `established_extracapsular_invasion` varchar(10) NULL,
   
-  `qc_cusm_rgt_ant_quadrant_extracapsular_invasion` varchar(10) NULL,
-  `qc_cusm_rgt_post_quadrant_extracapsular_invasion` varchar(10) NULL,
-  `qc_cusm_lft_ant_quadrant_extracapsular_invasion` varchar(10) NULL,
-  `qc_cusm_lft_post_quadrant_extracapsular_invasion` varchar(10) NULL,
-  `qc_cusm_seminal_vesicles_extracapsular_invasion` varchar(10) NULL,
+  `rgt_ant_quadrant_extracapsular_invasion` varchar(10) NULL,
+  `rgt_post_quadrant_extracapsular_invasion` varchar(10) NULL,
+  `lft_ant_quadrant_extracapsular_invasion` varchar(10) NULL,
+  `lft_post_quadrant_extracapsular_invasion` varchar(10) NULL,
+  `seminal_vesicles_extracapsular_invasion` varchar(10) NULL,
 
-  `qc_cusm_lymph_nodes_collected` varchar(10) NULL,
-  `qc_cusm_examined_lymph_nodes_nbr` int(5) NULL,
-  `qc_cusm_involved_lymph_nodes_nbr` int(5) NULL,
+  `lymph_nodes_collected` varchar(10) NULL,
+  `examined_lymph_nodes_nbr` int(5) NULL,
+  `involved_lymph_nodes_nbr` int(5) NULL,
 
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `created_by` varchar(50) NOT NULL DEFAULT '',
@@ -784,7 +811,13 @@ CREATE TABLE IF NOT EXISTS `qc_cusm_ed_procure_prostate_path_report_revs` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`, `status`, `form_alias`, `detail_tablename`, `display_order`) VALUES
-(null, 'prostate', 'lab', 'procure', 'active', 'qc_cusm_ed_procure_prostate_path_report', 'qc_cusm_ed_procure_prostate_path_report', 0);
+(null, 'prostate', 'lab', 'procure path report', 'active', 'qc_cusm_ed_procure_prostate_path_report', 'qc_cusm_ed_procure_prostate_path_report', 0);
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES ('procure path report', '', 'Procure Path Report', 'Rapport Pathologie Procure');
+
+INSERT INTO `structures` 
+(`id`, `old_id`, `alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`) 
+VALUES
+(null, 'QC-CUSM-000006', 'qc_cusm_ed_procure_prostate_path_report', '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 INSERT INTO structure_value_domains(`domain_name`, `override`, `category`)
  VALUES 
@@ -797,51 +830,70 @@ INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALU
 ('grade 4', 'grade 4'),
 ('grade 5', 'grade 5');
 
+DELETE FROM `i18n` WHERE `id` IN ('grade 1', 'grade 2', 'grade 3', 'grade 4', 'grade 5');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('grade 1', 'global', '1', '1'),
+('grade 2', 'global', '2', '2'),
+('grade 3', 'global', '3', '3'),
+('grade 4', 'global', '4', '4'),
+('grade 5', 'global', '5', '5');
+
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `active`) 
 VALUES
 ((SELECT id FROM structure_value_domains WHERE domain_name='qc_cusm_grade'),  
-(SELECT id FROM structure_permissible_values WHERE value='grade 1' AND language_alias='grade 1'), '1', 'yes'),
+(SELECT id FROM structure_permissible_values WHERE `value`='grade 1' AND language_alias='grade 1'), '1', 'yes'),
 ((SELECT id FROM structure_value_domains WHERE domain_name='qc_cusm_grade'),  
-(SELECT id FROM structure_permissible_values WHERE value='grade 2' AND language_alias='grade 2'), '2', 'yes'),
+(SELECT id FROM structure_permissible_values WHERE `value`='grade 2' AND language_alias='grade 2'), '2', 'yes'),
 ((SELECT id FROM structure_value_domains WHERE domain_name='qc_cusm_grade'),  
-(SELECT id FROM structure_permissible_values WHERE value='grade 3' AND language_alias='grade 3'), '3', 'yes'),
+(SELECT id FROM structure_permissible_values WHERE `value`='grade 3' AND language_alias='grade 3'), '3', 'yes'),
 ((SELECT id FROM structure_value_domains WHERE domain_name='qc_cusm_grade'),  
-(SELECT id FROM structure_permissible_values WHERE value='grade 4' AND language_alias='grade 4'), '4', 'yes'),
+(SELECT id FROM structure_permissible_values WHERE `value`='grade 4' AND language_alias='grade 4'), '4', 'yes'),
 ((SELECT id FROM structure_value_domains WHERE domain_name='qc_cusm_grade'),  
-(SELECT id FROM structure_permissible_values WHERE value='grade 5' AND language_alias='grade 5'), '5', 'yes');
+(SELECT id FROM structure_permissible_values WHERE `value`='grade 5' AND language_alias='grade 5'), '5', 'yes');
 
 INSERT INTO structure_value_domains(`domain_name`, `override`, `category`)
  VALUES 
- ('qc_cusm_margin_status', '', '');
+ ('margin_status', '', '');
  
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
 ('cannot be assessed', 'cannot be assessed'),
 ('negative', 'negative'),
 ('positive', 'positive');
 
+DELETE FROM `i18n` WHERE `id` IN ('cannot be assessed', 'negative', 'positive');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('cannot be assessed', 'global', 'Cannot Be Assessed', 'Ne peuvent &ecirc;tre &eacute;valu&eacute;es'),
+('negative', 'global', 'Negative', 'N&eacute;gative'),
+('positive', 'global', 'Positive', 'Positive');
+
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `active`) 
 VALUES
-((SELECT id FROM structure_value_domains WHERE domain_name='qc_cusm_margin_status'),  
-(SELECT id FROM structure_permissible_values WHERE value='cannot be assessed' AND language_alias='cannot be assessed'), '1', 'yes'),
-((SELECT id FROM structure_value_domains WHERE domain_name='qc_cusm_margin_status'),  
-(SELECT id FROM structure_permissible_values WHERE value='negative' AND language_alias='negative'), '2', 'yes'),
-((SELECT id FROM structure_value_domains WHERE domain_name='qc_cusm_margin_status'),  
-(SELECT id FROM structure_permissible_values WHERE value='positive' AND language_alias='positive'), '3', 'yes');
+((SELECT id FROM structure_value_domains WHERE domain_name='margin_status'),  
+(SELECT id FROM structure_permissible_values WHERE `value`='cannot be assessed' AND language_alias='cannot be assessed'), '1', 'yes'),
+((SELECT id FROM structure_value_domains WHERE domain_name='margin_status'),  
+(SELECT id FROM structure_permissible_values WHERE `value`='negative' AND language_alias='negative'), '2', 'yes'),
+((SELECT id FROM structure_value_domains WHERE domain_name='margin_status'),  
+(SELECT id FROM structure_permissible_values WHERE `value`='positive' AND language_alias='positive'), '3', 'yes');
 
 INSERT INTO structure_value_domains(`domain_name`, `override`, `category`)
  VALUES 
- ('qc_cusm_margin_focal', '', '');
+ ('margin_focal', '', '');
  
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
 ('unifocal', 'unifocal'),
 ('multifocal', 'multifocal');
 
+DELETE FROM `i18n` WHERE `id` IN ('unifocal', 'multifocal');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('unifocal', 'global', 'UniFocal', 'UniFocale'),
+('multifocal', 'global', 'MultiFocal', 'MultiFocale');
+
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `active`) 
 VALUES
-((SELECT id FROM structure_value_domains WHERE domain_name='qc_cusm_margin_focal'),  
-(SELECT id FROM structure_permissible_values WHERE value='unifocal' AND language_alias='unifocal'), '1', 'yes'),
-((SELECT id FROM structure_value_domains WHERE domain_name='qc_cusm_margin_focal'),  
-(SELECT id FROM structure_permissible_values WHERE value='multifocal' AND language_alias='multifocal'), '2', 'yes');
+((SELECT id FROM structure_value_domains WHERE domain_name='margin_focal'),  
+(SELECT id FROM structure_permissible_values WHERE `value`='unifocal' AND language_alias='unifocal'), '1', 'yes'),
+((SELECT id FROM structure_value_domains WHERE domain_name='margin_focal'),  
+(SELECT id FROM structure_permissible_values WHERE `value`='multifocal' AND language_alias='multifocal'), '2', 'yes');
 
 INSERT INTO structure_value_domains(`domain_name`, `override`, `category`)
  VALUES 
@@ -854,55 +906,56 @@ INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALU
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `active`) 
 VALUES
 ((SELECT id FROM structure_value_domains WHERE domain_name='qc_cusm_absent_present'),  
-(SELECT id FROM structure_permissible_values WHERE value='absent' AND language_alias='absent'), '1', 'yes'),
+(SELECT id FROM structure_permissible_values WHERE `value`='absent' AND language_alias='absent'), '1', 'yes'),
 ((SELECT id FROM structure_value_domains WHERE domain_name='qc_cusm_absent_present'),  
-(SELECT id FROM structure_permissible_values WHERE value='present' AND language_alias='present'), '2', 'yes');
-
--- TODO
-DELETE FROM structure_formats WHERE structure_old_id IN ( 'QC-CUSM-000006');
-DELETE FROM structure_fields WHERE old_id IN ( 'QC-CUSM-000027', 'QC-CUSM-000028', 'QC-CUSM-000029');
-DELETE FROM structure_fields WHERE old_id LIKE 'QC-CUSM-00003%';
-DELETE FROM structure_fields WHERE old_id LIKE 'QC-CUSM-00004%';
-DELETE FROM structure_fields WHERE old_id LIKE 'QC-CUSM-00005%';
-DELETE FROM structure_fields WHERE old_id LIKE 'QC-CUSM-00006%';
+(SELECT id FROM structure_permissible_values WHERE `value`='present' AND language_alias='present'), '2', 'yes');
 
 INSERT INTO structure_fields(`public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
-('', 'QC-CUSM-000027', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'qc_cusm_report_number', 'report number', '', 'input', 'size=30', '', null, '', 'open', 'open', 'open'), 
-('', 'QC-CUSM-000028', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'qc_cusm_pathologist_name', 'pathologist name', '', 'input', 'size=30', '', null, '', 'open', 'open', 'open'), 
-('', 'QC-CUSM-000029', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'qc_cusm_prostate_weight', 'prostate weight', '', 'input', 'size=7', '', null, '', 'open', 'open', 'open'), 
-('', 'QC-CUSM-000030', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'qc_cusm_prostate_lenght', 'prostate lenght', '', 'input', 'size=7', '', null, '', 'open', 'open', 'open'), 
-('', 'QC-CUSM-000031', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'qc_cusm_prostate_width', 'prostate width', '', 'input', 'size=7', '', null, '', 'open', 'open', 'open'), 
-('', 'QC-CUSM-000032', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'qc_cusm_rgt_seminal_vesicles_lenght', 'right seminal vesicles lenght', '', 'input', 'size=7', '', null, '', 'open', 'open', 'open'), 
-('', 'QC-CUSM-000033', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'qc_cusm_rgt_seminal_vesicles_width', 'right seminal vesicles width', '', 'input', 'size=7', '', null, '', 'open', 'open', 'open'), 
-('', 'QC-CUSM-000034', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'qc_cusm_rgt_seminal_vesicles_height', 'right seminal vesicles height', '', 'input', 'size=7', '', null, '', 'open', 'open', 'open'), 
-('', 'QC-CUSM-000035', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'qc_cusm_lft_seminal_vesicles_lenght', 'left seminal vesicles lenght', '', 'input', 'size=7', '', null, '', 'open', 'open', 'open'), 
-('', 'QC-CUSM-000036', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'qc_cusm_lft_seminal_vesicles_width', 'left seminal vesicles width', '', 'input', 'size=7', '', null, '', 'open', 'open', 'open'), 
-('', 'QC-CUSM-000037', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'qc_cusm_lft_seminal_vesicles_height', 'left seminal vesicles height', '', 'input', 'size=7', '', null, '', 'open', 'open', 'open'), 
-('', 'QC-CUSM-000038', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'qc_cusm_primary_grade', 'primary grade', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name LIKE 'qc_cusm_grade'), '', 'open', 'open', 'open'), 
-('', 'QC-CUSM-000039', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'qc_cusm_secondary_grade', 'secondary ', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name LIKE 'qc_cusm_grade'), '', 'open', 'open', 'open'), 
-('', 'QC-CUSM-000040', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'qc_cusm_tertiary_grade', 'tertiary grade', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name LIKE 'qc_cusm_grade'), '', 'open', 'open', 'open'), 
-('', 'QC-CUSM-000041', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'qc_cusm_gleason_score', 'gleason score', '', 'input', 'size=10', '', null, '', 'open', 'open', 'open'), 
-('', 'QC-CUSM-000042', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'qc_cusm_margin_status', 'margin status', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name LIKE 'qc_cusm_margin_status'), '', 'open', 'open', 'open'), 
-('', 'QC-CUSM-000043', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'qc_cusm_margin_focal', 'focal', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name LIKE 'qc_cusm_margin_focal'), '', 'open', 'open', 'open'), 
-('', 'QC-CUSM-000044', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'qc_cusm_margin_position_apical', 'margin position apical', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
-('', 'QC-CUSM-000045', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'qc_cusm_margin_position_bladder_neck', 'margin position bladder neck', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
-('', 'QC-CUSM-000046', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'qc_cusm_margin_position_anterior_left', 'margin position anterior left', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
-('', 'QC-CUSM-000047', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'qc_cusm_margin_position_anterior_right', 'margin position anterior right', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
-('', 'QC-CUSM-000048', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'qc_cusm_margin_position_posterior_left', 'margin position posterior left', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
-('', 'QC-CUSM-000049', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'qc_cusm_margin_position_posterior_right', 'margin position posterior right', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
-('', 'QC-CUSM-000050', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'qc_cusm_extracapsular_invasion', 'extracapsular invasion status', '', 'select', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'qc_cusm_absent_present'), '', 'open', 'open', 'open'), 
-('', 'QC-CUSM-000051', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'qc_cusm_focal_established', 'focal established', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
-('', 'QC-CUSM-000052', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'qc_cusm_focal_invasion', 'focal invasion', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
-('', 'QC-CUSM-000053', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'qc_cusm_rgt_ant_quadrant_extracapsular_invasion', 'right anterior quadrant extracapsular invasion', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
-('', 'QC-CUSM-000054', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'qc_cusm_rgt_post_quadrant_extracapsular_invasion', 'right posterior quadrant extracapsular invasion', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
-('', 'QC-CUSM-000055', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'qc_cusm_lft_ant_quadrant_extracapsular_invasion', 'left anterior quadrant extracapsular invasion', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
-('', 'QC-CUSM-000056', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'qc_cusm_lft_post_quadrant_extracapsular_invasion', 'left posterior quadrant extracapsular invasion', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
-('', 'QC-CUSM-000057', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'qc_cusm_seminal_vesicles_extracapsular_invasion', 'seminal vesicles extracapsular invasion', '', 'select', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'qc_cusm_absent_present'), '', 'open', 'open', 'open'), 
-('', 'QC-CUSM-000058', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'qc_cusm_examined_lymph_nodes_nbr', 'examined lymph nodes nbr', '', 'number', 'size=7', '', null, '', 'open', 'open', 'open'), 
-('', 'QC-CUSM-000059', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'qc_cusm_involved_lymph_nodes_nbr', 'involved lymph nodes nbr', '', 'number', 'size=7', '', null, '', 'open', 'open', 'open'),
+('', 'QC-CUSM-000027', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'report_number', 'report number', '', 'input', 'size=30', '', null, '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000028', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'pathologist_name', 'pathologist name', '', 'input', 'size=30', '', null, '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000029', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'prostate_weight', 'weight', '', 'input', 'size=7', '', null, '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000030', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'prostate_lenght', 'lenght', '', 'input', 'size=7', '', null, '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000031', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'prostate_width', 'width', '', 'input', 'size=7', '', null, '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000032', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'rgt_seminal_vesicles_lenght', 'lenght', '', 'input', 'size=7', '', null, '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000033', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'rgt_seminal_vesicles_width', 'width', '', 'input', 'size=7', '', null, '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000034', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'rgt_seminal_vesicles_height', 'height', '', 'input', 'size=7', '', null, '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000035', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'lft_seminal_vesicles_lenght', 'lenght', '', 'input', 'size=7', '', null, '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000036', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'lft_seminal_vesicles_width', 'width', '', 'input', 'size=7', '', null, '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000037', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'lft_seminal_vesicles_height', 'height', '', 'input', 'size=7', '', null, '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000038', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'primary_grade', 'primary grade', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name LIKE 'qc_cusm_grade'), '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000039', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'secondary_grade', 'secondary grade', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name LIKE 'qc_cusm_grade'), '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000040', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'tertiary_grade', 'tertiary grade', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name LIKE 'qc_cusm_grade'), '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000041', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'gleason_score', 'gleason score', '', 'input', 'size=10', '', null, '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000042', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'margin_status', 'margin status', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name LIKE 'margin_status'), '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000043', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'margin_focal', 'margin focal', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name LIKE 'margin_focal'), '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000044', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'margin_position_apical', 'apical', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000045', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'margin_position_bladder_neck', 'bladder neck', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000046', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'margin_position_lft_anterior', 'left anterior', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000047', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'margin_position_rgt_anterior', 'right anterior', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000048', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'margin_position_lft_posterior', 'left posterior', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000049', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'margin_position_rgt_posterior', 'right posterior', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000050', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'extracapsular_invasion_status', 'extracapsular invasion status', '', 'select', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'qc_cusm_absent_present'), '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000051', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'established_extracapsular_invasion', 'established extracapsular invasion', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000052', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'focal_extracapsular_invasion', 'focal extracapsular invasion', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000053', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'rgt_ant_quadrant_extracapsular_invasion', 'right anterior', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000054', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'rgt_post_quadrant_extracapsular_invasion', 'right posterior', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000055', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'lft_ant_quadrant_extracapsular_invasion', 'left anterior', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000056', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'lft_post_quadrant_extracapsular_invasion', 'left posterior', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000057', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'seminal_vesicles_extracapsular_invasion', 'seminal vesicles extracapsular invasion', '', 'select', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'qc_cusm_absent_present'), '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000058', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'examined_lymph_nodes_nbr', 'examined lymph nodes nbr', '', 'number', 'size=7', '', null, '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000059', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'involved_lymph_nodes_nbr', 'involved lymph nodes nbr', '', 'number', 'size=7', '', null, '', 'open', 'open', 'open'),
 
-('', 'QC-CUSM-000060', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'qc_cusm_prostate_height', 'prostate height', '', 'number', 'size=7', '', null, '', 'open', 'open', 'open'),
-('', 'QC-CUSM-000061', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'qc_cusm_lymph_nodes_collected', 'lymph nodes collected', '', 'select', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yesno'), '', 'open', 'open', 'open');
+('', 'QC-CUSM-000060', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'prostate_height', 'prostate height', '', 'number', 'size=7', '', null, '', 'open', 'open', 'open'),
+('', 'QC-CUSM-000061', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'lymph_nodes_collected', 'lymph nodes collected', '', 'select', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yesno'), '', 'open', 'open', 'open');
+
+INSERT INTO structure_fields(`public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'QC-CUSM-000062', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'tumour_location_rgt_anterior', 'right anterior', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000063', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'tumour_location_rgt_posterior', 'right posterior', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000064', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'tumour_location_lft_anterior', 'left anterior', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000065', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'tumour_location_lft_posterior', 'left posterior', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000066', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'tumour_location_apex', 'apex', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000067', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'tumour_location_base', 'base', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000068', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'tumour_location_bladder_neck', 'bladder neck', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'); 
 
 INSERT INTO structure_formats(`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) 
 VALUES 
@@ -918,205 +971,221 @@ VALUES
 ('QC-CUSM-000006_CAN-999-999-000-999-229', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='CAN-999-999-000-999-229'), 'CAN-999-999-000-999-229', 
 '0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ,
--- qc_cusm_report_number
+-- report_number
 ('QC-CUSM-000006_QC-CUSM-000027', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000027'), 'QC-CUSM-000027', 
 '0', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ,
--- qc_cusm_pathologist_name
+-- pathologist_name
 ('QC-CUSM-000006_QC-CUSM-000028', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000028'), 'QC-CUSM-000028', 
 '0', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
+-- summary
+('QC-CUSM-000006_CAN-999-999-000-999-230', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
+(SELECT id FROM structure_fields WHERE old_id='CAN-999-999-000-999-230'), 'CAN-999-999-000-999-230', 
+'0', '7', '', '0', '', '0', '', '0', '', '0', 'input', '1', '', '1', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
 
--- qc_cusm_prostate_lenght
+-- prostate_lenght
 ('QC-CUSM-000006_QC-CUSM-000030', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000030'), 'QC-CUSM-000030', 
-'1', '12', 'a- measurements', '1', 'prostate', '1', 'lenght (cm)', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
--- qc_cusm_prostate_width
+'0', '12', 'measurements', '1', 'prostate', '1', 'lenght (cm)', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
+-- prostate_width
 ('QC-CUSM-000006_QC-CUSM-000031', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000031'), 'QC-CUSM-000031', 
-'1', '13', '', '1', '', '1', 'width (cm)', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
--- qc_cusm_prostate_height
+'0', '13', '', '1', '', '1', 'width (cm)', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
+-- prostate_height
 ('QC-CUSM-000006_QC-CUSM-000060', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000060'), 'QC-CUSM-000060', 
-'1', '14', '', '1', '', '1', 'height (cm)', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
--- qc_cusm_prostate_weight
+'0', '14', '', '1', '', '1', 'height (cm)', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
+-- prostate_weight
 ('QC-CUSM-000006_QC-CUSM-000029', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000029'), 'QC-CUSM-000029', 
-'1', '15', '', '1', '', '1', 'weight (gr)', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
--- qc_cusm_rgt_seminal_vesicles_lenght
+'0', '15', '', '1', '', '1', 'weight (gr)', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
+-- rgt_seminal_vesicles_lenght
 ('QC-CUSM-000006_QC-CUSM-000032', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000032'), 'QC-CUSM-000032', 
-'1', '16', '', '1', 'right seminal vesicles', '1', 'lenght (cm)', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
--- qc_cusm_rgt_seminal_vesicles_width
+'0', '16', '', '1', 'right seminal vesicles', '1', 'lenght (cm)', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
+-- rgt_seminal_vesicles_width
 ('QC-CUSM-000006_QC-CUSM-000033', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000033'), 'QC-CUSM-000033', 
-'1', '17', '', '1', '', '1', 'width (cm)', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
--- qc_cusm_rgt_seminal_vesicles_height
+'0', '17', '', '1', '', '1', 'width (cm)', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
+-- rgt_seminal_vesicles_height
 ('QC-CUSM-000006_QC-CUSM-000034', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000034'), 'QC-CUSM-000034', 
-'1', '18', '', '1', '', '1', 'height (cm)', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
--- qc_cusm_lft_seminal_vesicles_lenght
+'0', '18', '', '1', '', '1', 'height (cm)', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
+-- lft_seminal_vesicles_lenght
 ('QC-CUSM-000006_QC-CUSM-000035', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000035'), 'QC-CUSM-000035', 
-'1', '19', '', '1', 'left seminal vesicles ', '1', 'lenght (cm)', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
--- qc_cusm_lft_seminal_vesicles_width
+'0', '19', '', '1', 'left seminal vesicles ', '1', 'lenght (cm)', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
+-- lft_seminal_vesicles_width
 ('QC-CUSM-000006_QC-CUSM-000036', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000036'), 'QC-CUSM-000036', 
-'1', '20', '','1', '', '1', 'width (cm)', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
--- qc_cusm_lft_seminal_vesicles_height
+'0', '20', '','1', '', '1', 'width (cm)', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
+-- lft_seminal_vesicles_height
 ('QC-CUSM-000006_QC-CUSM-000037', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000037'), 'QC-CUSM-000037', 
-'1', '21', '','1', '', '1', 'height (cm)', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
+'0', '21', '','1', '', '1', 'height (cm)', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
 
--- qc_cusm_primary_grade
+
+-- tumour_location_rgt_anterior
+('QC-CUSM-000006_QC-CUSM-000062', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
+(SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000062'), 'QC-CUSM-000062', 
+'0', '30', 'tumour location','0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
+-- tumour_location_rgt_posterior
+('QC-CUSM-000006_QC-CUSM-000063', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
+(SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000063'), 'QC-CUSM-000063', 
+'0', '31', '','0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
+-- tumour_location_lft_anterior
+('QC-CUSM-000006_QC-CUSM-000064', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
+(SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000064'), 'QC-CUSM-000064', 
+'0', '32', '','0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
+-- tumour_location_lft_posterior
+('QC-CUSM-000006_QC-CUSM-000065', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
+(SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000065'), 'QC-CUSM-000065', 
+'0', '33', '','0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
+-- tumour_location_apex
+('QC-CUSM-000006_QC-CUSM-000066', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
+(SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000066'), 'QC-CUSM-000066', 
+'0', '34', '','0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
+-- tumour_location_base
+('QC-CUSM-000006_QC-CUSM-000067', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
+(SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000067'), 'QC-CUSM-000067', 
+'0', '35', '','0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
+-- tumour_location_bladder_neck
+('QC-CUSM-000006_QC-CUSM-000068', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
+(SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000068'), 'QC-CUSM-000068', 
+'0', '36', '','0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
+
+-- primary_grade
 ('QC-CUSM-000006_QC-CUSM-000038', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000038'), 'QC-CUSM-000038', 
-'1', '40', 'b- histologic grade', '1', 'grades', '1', 'primary', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
--- qc_cusm_secondary_grade
+'1', '40', 'histologic grade', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
+-- secondary_grade
 ('QC-CUSM-000006_QC-CUSM-000039', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000039'), 'QC-CUSM-000039', 
-'1', '41', '', '1', '', '1', 'secondary', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
--- qc_cusm_tertiary_grade
+'1', '41', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
+-- tertiary_grade
 ('QC-CUSM-000006_QC-CUSM-000040', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000040'), 'QC-CUSM-000040', 
-'1', '42', '', '1', '', '1', 'tertiary', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
--- qc_cusm_gleason_score
+'1', '42', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
+-- gleason_score
 ('QC-CUSM-000006_QC-CUSM-000041', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000041'), 'QC-CUSM-000041', 
 '1', '42', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
 
--- qc_cusm_margin_status
+-- margin_status
 ('QC-CUSM-000006_QC-CUSM-000042', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000042'), 'QC-CUSM-000042',
-'1', '50', 'c- margins', '1', 'status', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
--- qc_cusm_margin_focal
+'1', '50', 'margins', '1', 'status', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
+-- margin_focal
 ('QC-CUSM-000006_QC-CUSM-000043', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000043'), 'QC-CUSM-000043', 
 '1', '51', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
--- qc_cusm_margin_position_apical
+-- margin_position_apical
 ('QC-CUSM-000006_QC-CUSM-000044', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000044'), 'QC-CUSM-000044', 
 '1', '52', '', '1', 'positions', '1', 'apical', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
--- qc_cusm_margin_position_bladder_neck
+-- margin_position_bladder_neck
 ('QC-CUSM-000006_QC-CUSM-000045', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000045'), 'QC-CUSM-000045', 
 '1', '53', '', '1', '', '1', 'bladder neck', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
--- qc_cusm_margin_position_anterior_left
+-- margin_position_lft_anterior
 ('QC-CUSM-000006_QC-CUSM-000046', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000046'), 'QC-CUSM-000046', 
-'1', '54', '', '1', '', '1', 'anterior left', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
--- qc_cusm_margin_position_anterior_right
+'1', '54', '', '1', '', '1', 'left anterior', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
+-- margin_position_rgt_anterior
 ('QC-CUSM-000006_QC-CUSM-000047', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000047'), 'QC-CUSM-000047', 
-'1', '55', '', '1', '', '1', 'anterior right', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
--- qc_cusm_margin_position_posterior_left
+'1', '55', '', '1', '', '1', 'right anterior', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
+-- margin_position_lft_posterior
 ('QC-CUSM-000006_QC-CUSM-000048', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000048'), 'QC-CUSM-000048', 
-'1', '56', '', '1', '', '1', 'posterior left', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
--- qc_cusm_margin_position_posterior_right
+'1', '56', '', '1', '', '1', 'left posterior', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
+-- margin_position_rgt_posterior
 ('QC-CUSM-000006_QC-CUSM-000049', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000049'), 'QC-CUSM-000049', 
-'1', '57', '', '1', '', '1', 'posterior right', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
+'1', '57', '', '1', '', '1', 'right posterior', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
 
--- qc_cusm_extracapsular_invasion
+-- extracapsular_invasion_status
 ('QC-CUSM-000006_QC-CUSM-000050', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000050'), 'QC-CUSM-000050', 
-'1', '70', 'd- extracapsular invasion', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1')  ,
--- qc_cusm_focal_established
+'1', '70', 'extracapsular invasion', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1')  ,
+-- established_extracapsular_invasion
 ('QC-CUSM-000006_QC-CUSM-000051', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000051'), 'QC-CUSM-000051', 
 '1', '72', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
--- qc_cusm_focal_invasion
+-- focal_extracapsular_invasion
 ('QC-CUSM-000006_QC-CUSM-000052', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000052'), 'QC-CUSM-000052', 
 '1', '71', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
 
--- qc_cusm_rgt_ant_quadrant_extracapsular_invasion
+-- rgt_ant_quadrant_extracapsular_invasion
 ('QC-CUSM-000006_QC-CUSM-000053', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000053'), 'QC-CUSM-000053', 
-'1', '80', '', '1', 'location', '1', 'right anterior quadrant ', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
--- qc_cusm_rgt_post_quadrant_extracapsular_invasion
+'1', '80', 'extracapsular invasion location', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
+-- rgt_post_quadrant_extracapsular_invasion
 ('QC-CUSM-000006_QC-CUSM-000054', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000054'), 'QC-CUSM-000054', 
-'1', '81', '', '1', '', '1', 'right posterior quadrant ', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
--- qc_cusm_lft_ant_quadrant_extracapsular_invasion
+'1', '81', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
+-- lft_ant_quadrant_extracapsular_invasion
 ('QC-CUSM-000006_QC-CUSM-000055', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000055'), 'QC-CUSM-000055', 
-'1', '82', '', '1', '', '1', 'left anterior quadrant ', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
--- qc_cusm_lft_post_quadrant_extracapsular_invasion
+'1', '82', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
+-- lft_post_quadrant_extracapsular_invasion
 ('QC-CUSM-000006_QC-CUSM-000056', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000056'), 'QC-CUSM-000056', 
-'1', '83', '', '1', '', '1', 'left posterior quadrant ', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
--- qc_cusm_seminal_vesicles_extracapsular_invasion
+'1', '83', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
+-- seminal_vesicles_extracapsular_invasion
 ('QC-CUSM-000006_QC-CUSM-000057', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000057'), 'QC-CUSM-000057', 
 '1', '84', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
 
--- qc_cusm_lymph_nodes_collected
+-- lymph_nodes_collected
 ('QC-CUSM-000006_QC-CUSM-000061', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000061'), 'QC-CUSM-000061', 
-'1', '90', 'e- lymph nodes', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
--- qc_cusm_examined_lymph_nodes_nbr
+'1', '90', 'regional lymph nodes', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
+-- examined_lymph_nodes_nbr
 ('QC-CUSM-000006_QC-CUSM-000058', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000058'), 'QC-CUSM-000058', 
 '1', '91', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
--- qc_cusm_involved_lymph_nodes_nbr
+-- involved_lymph_nodes_nbr
 ('QC-CUSM-000006_QC-CUSM-000059', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000059'), 'QC-CUSM-000059',
- '1', '92', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
- 
--- summary
-('QC-CUSM-000006_CAN-999-999-000-999-230', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
-(SELECT id FROM structure_fields WHERE old_id='CAN-999-999-000-999-230'), 'CAN-999-999-000-999-230', 
-'0', '7', '', '0', '', '0', '', '0', '', '0', 'input', '1', '', '1', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1');
+ '1', '92', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ;
 
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('report number', 'global', 'Report Number', 'Num&eacute;ro du rapport'),
+('pathologist name', 'global', 'Pathologist Name', 'Nom du pathologiste'),
+('lenght (cm)', 'global', 'Lenght (cm)', 'Longueur (cm)'),
+('width (cm)', 'global', 'Width (cm)', 'Largeur (cm)'),
+('height (cm)', 'global', 'Height (cm)', 'Hauteur (cm)'),
+('weight (gr)', 'global', 'Weight (gr)', 'Poids (cm)'),
+('apex', 'global', 'Apex', 'Apex'),
+('bladder neck', 'global', 'Bladder Neck', 'Col V&eacute;sical'),
+('involved lymph nodes nbr', 'global', 'Involved Number', 'Nombre atteint(s)'),
+('examined lymph nodes nbr', 'global', 'Examined Number', 'Nombre examin&eacute;(s)'),
+('lymph nodes collected', 'global', 'Collected', 'R&eacute;colt&eacute;s'),
+('absent', 'global', 'Absent', 'Absent(e)'),
+('present', 'global', 'Present', 'Pr&eacute;sent(e)'),
+('established extracapsular invasion', 'global', 'Established', '&Eacute;tablie'),
+('focal extracapsular invasion', 'global', 'Focal', 'Focale'),
+('seminal vesicles extracapsular invasion', 'global', 'Seminal Vesicles', 'V&eacute;sicules s&eacute;minales'),
+('extracapsular invasion status', 'global', 'Status', 'Statut'),
+('margin focal', 'global', 'Focal', 'Focale'),
+('tertiary grade', 'global', 'Tertiary Grade', '');
 
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('measurements', 'global', 'Measurements', 'Dimensions'),
+('tumour location', 'global', 'Tumour Location', 'Localisation de la tumeur'),
+('histologic grade', 'global', 'Histologic Grade', 'Grade Histologique'),
+('margins', 'global', 'Margins', 'Marges'),
+('extracapsular invasion', 'global', 'Extracapsular Invasion', 'Invasion extracapsulaire'),
+('extracapsular invasion location', 'global', 'Extracapsular Invasion Location', 'Localisation de l''invasion extracapsulaire'),
+('regional lymph nodes', 'global', 'Regional Lymph Nodes', 'Ad&eacute;nopathies r&eacute;gionales / ganglions');
 
-
-
--- TODO
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('positions', 'global', 'Positions', 'Positions');
 
 -- ******** TREATMENT ******** 
-
 
 UPDATE `menus` SET `active` = 'no' WHERE `id` = 'clin_CAN_75'; -- treatment
 
