@@ -101,7 +101,10 @@ class CollectionsController extends InventorymanagementAppController {
 	}
 	
 	function add($clinical_collection_link_id = 0) {
-		// MANAGE DATA
+		if($clinical_collection_link_id > 0){
+			$ccl_data = $this->ClinicalCollectionLink->find('first', array('conditions' => array('ClinicalCollectionLink.id' => $clinical_collection_link_id, 'ClinicalCollectionLink.collection_id' => NULL, 'ClinicalCollectionLink.deleted' => 1), 'recursive' => '1'));
+		}
+			// MANAGE DATA
 		
 		// Set list of banks
 		$this->set('bank_list', $this->Collections->getBankList());
@@ -156,7 +159,7 @@ class CollectionsController extends InventorymanagementAppController {
 				}				
 			}
 		}
-		if($clinical_collection_link_id > 0){
+		if(!empty($ccl_data)){
 			$ccl_data = $this->ClinicalCollectionLink->find('first', array('conditions' => array('ClinicalCollectionLink.id' => $clinical_collection_link_id, 'ClinicalCollectionLink.collection_id' => NULL, 'ClinicalCollectionLink.deleted' => 1), 'recursive' => '1'));
 			$this->set('atim_variables', array('ClinicalCollectionLink.id' => $clinical_collection_link_id));
 			$this->data['Generated']['field1'] = $ccl_data['Participant']['participant_identifier'];
