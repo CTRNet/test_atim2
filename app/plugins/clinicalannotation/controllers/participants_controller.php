@@ -277,6 +277,11 @@ class ParticipantsController extends ClinicalannotationAppController {
 			$tmpArray[$tx['TreatmentMaster']['finish_date']][] = array('event' => __('treatment', true).", ".__($tx['TreatmentControl']['tx_method'], true)." (".__("end", true).")", 'link' => $tx['TreatmentMaster']['id']);
 		}
 		
+		$ccls = $this->ClinicalCollectionLink->find('all', array('conditions' => array('ClinicalCollectionLink.participant_id' => $participant_id)));
+		foreach($ccls as $ccl){
+			$tmpArray[$ccl['Collection']['collection_datetime']][] = array('event' => __('collection', true)." (".$ccl['Collection']['acquisition_label'].")", 'link' => $ccl['Collection']['id']);
+		}
+		
 		//sort the tmpArray by key (key = date)
 		ksort($tmpArray);
 		
