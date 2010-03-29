@@ -111,6 +111,21 @@ SET `flag_add` = '0',
 `flag_detail` = '0'
 WHERE `old_id` IN ('CAN-999-999-000-999-1_CAN-999-999-000-999-25', 'CAN-999-999-000-999-1_CAN-895', 'CAN-999-999-000-999-1_CAN-999-999-000-999-24');
 
+-- marital_status : Hidden
+UPDATE `structure_formats`
+SET `flag_add` = '0',
+`flag_add_readonly` = '0',
+`flag_edit` = '0',
+`flag_edit_readonly` = '0',
+`flag_search` = '0',
+`flag_search_readonly` = '0',
+`flag_edit_readonly` = '0',
+`flag_datagrid` = '0',
+`flag_datagrid_readonly` = '0',
+`flag_index` = '0',
+`flag_detail` = '0'
+WHERE `old_id` IN ('CAN-999-999-000-999-1_CAN-999-999-000-999-296');
+
 -- ... CONSENT ...
 
 CREATE TABLE IF NOT EXISTS `qc_cusm_cd_undetailled` (
@@ -222,6 +237,26 @@ SET `type` = 'select',
 `setting` = '',
 `structure_value_domain` = @domain_id
 WHERE `old_id` = 'CAN-999-999-000-999-53';
+
+-- clean up consent master
+
+UPDATE `structure_formats`
+SET `flag_add` = '0',
+`flag_add_readonly` = '0',
+`flag_edit` = '0',
+`flag_edit_readonly` = '0',
+`flag_search` = '0',
+`flag_search_readonly` = '0',
+`flag_edit_readonly` = '0',
+`flag_datagrid` = '0',
+`flag_datagrid_readonly` = '0',
+`flag_index` = '0',
+`flag_detail` = '0'
+WHERE `structure_field_old_id` NOT IN (
+'CAN-999-999-000-999-57',	-- consent status
+'CAN-046-003-000-999-1',	-- status date
+'CAN-999-999-000-999-53')	-- form version
+AND `structure_old_id` IN ('GENERATED-188');
 
 -- ... DIAGNOSTIC ...
 
@@ -336,7 +371,7 @@ VALUES
 DELETE FROM `i18n` WHERE `id` IN ('other morphology data');
 INSERT INTO `i18n` ( `id` , `page_id` , `en` , `fr` )
 VALUES
-('other morphology data', '', 'Other', 'Autre');
+('other morphology data', '', 'Other (details)', 'Autre (d&eacute;tails)');
 
 -- ptnm version
 
@@ -532,6 +567,28 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (null, 'QC-CUSM-000005_QC-CUSM-000025', @dx_structure_id, 'QC-CUSM-000005', 
 (SELECT id FROM structure_fields WHERE old_id LIKE 'QC-CUSM-000025'), 'QC-CUSM-000025', 2, 26, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL');
 
+-- clean up diagnosis master
+
+UPDATE `structure_formats`
+SET `flag_add` = '0',
+`flag_add_readonly` = '0',
+`flag_edit` = '0',
+`flag_edit_readonly` = '0',
+`flag_search` = '0',
+`flag_search_readonly` = '0',
+`flag_edit_readonly` = '0',
+`flag_datagrid` = '0',
+`flag_datagrid_readonly` = '0',
+`flag_index` = '0',
+`flag_detail` = '0'
+WHERE `structure_field_old_id` NOT IN (
+'CAN-999-999-000-999-76',	-- Clinicalannotation.DiagnosisMaster.primary_number
+'CAN-999-999-000-999-91',	-- Clinicalannotation.DiagnosisMaster.dx_origin
+'CAN-999-999-000-999-71',	-- Clinicalannotation.DiagnosisMaster.dx_date
+'CAN-999-999-000-999-70',	-- Clinicalannotation.DiagnosisMaster.dx_nature
+'CAN-999-999-000-999-324')	-- Clinicalannotation.DiagnosisMaster.morphology
+AND `structure_old_id` IN ('CANM-00010');
+
 -- ******** ANNOTATION ******** 
 
 UPDATE `menus` SET `active` = 'no' WHERE `parent_id` LIKE 'clin_CAN_4' AND language_title NOT IN ('lab', 'lifestyle');
@@ -596,8 +653,8 @@ SET @version_domain_id = LAST_INSERT_ID();
 
 INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) 
 VALUES 
-(NULL, 'fr october 2006', 'fr oct 2006'),
-(NULL, 'en october 2006', 'en oct 2006');
+(NULL, 'fr october 2006', 'fr october 2006'),
+(NULL, 'en october 2006', 'en october 2006');
 
 INSERT INTO `structure_value_domains_permissible_values`  
 (`id` , `structure_value_domain_id` , `structure_permissible_value_id` , `display_order` , `active` , `language_alias` )
@@ -606,11 +663,11 @@ VALUES
 (NULL , @version_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'en october 2006'), '21', 'yes', 'en october 2006'),
 (NULL , @version_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'other'), '50', 'yes', 'other');
 
-DELETE FROM `i18n` WHERE `id` IN ('fr october 2006', 'V05');
+DELETE FROM `i18n` WHERE `id` IN ('fr october 2006', 'en october 2006');
 INSERT INTO `i18n` ( `id` , `page_id` , `en` , `fr` )
 VALUES
 ('fr october 2006', 'global', 'FR - October 2006', 'FR - Octobre 2006'),
-('en october 2006', 'global', 'EN - October 2006', 'AN - Octobre 2006');
+('en october 2006', 'global', 'ENG - October 2006', 'ANG - Octobre 2006');
 
 SET @yesno_domain_id = (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yesno');
 
@@ -634,12 +691,12 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (null, 'QC-CUSM-000004_CAN-999-999-000-999-227', 
 @structure_id, 'QC-CUSM-000004', 
 (SELECT id FROM `structure_fields` WHERE `old_id` LIKE 'CAN-999-999-000-999-227'), 'CAN-999-999-000-999-227', 
-0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', ''),
+0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', ''),
 -- event_type
 (null, 'QC-CUSM-000004_CAN-999-999-000-999-228', 
 @structure_id, 'QC-CUSM-000004', 
 (SELECT id FROM `structure_fields` WHERE `old_id` LIKE 'CAN-999-999-000-999-228'), 'CAN-999-999-000-999-228', 
-0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', ''),
+0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', ''),
 -- completed
 (null, 'QC-CUSM-000004_QC-CUSM-000023', 
 @structure_id, 'QC-CUSM-000004', 
@@ -962,11 +1019,11 @@ VALUES
 -- disease site
 ('QC-CUSM-000006_CAN-999-999-000-999-227', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='CAN-999-999-000-999-227'), 'CAN-999-999-000-999-227', 
-'0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1') ,
+'0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0') ,
 -- event_type
 ('QC-CUSM-000006_CAN-999-999-000-999-228', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='CAN-999-999-000-999-228'), 'CAN-999-999-000-999-228', 
-'0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1') ,
+'0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0') ,
 -- event_date
 ('QC-CUSM-000006_CAN-999-999-000-999-229', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='CAN-999-999-000-999-229'), 'CAN-999-999-000-999-229', 
@@ -978,7 +1035,7 @@ VALUES
 -- pathologist_name
 ('QC-CUSM-000006_QC-CUSM-000028', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000028'), 'QC-CUSM-000028', 
-'0', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
+'0', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ,
 -- summary
 ('QC-CUSM-000006_CAN-999-999-000-999-230', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='CAN-999-999-000-999-230'), 'CAN-999-999-000-999-230', 
@@ -1024,7 +1081,6 @@ VALUES
 ('QC-CUSM-000006_QC-CUSM-000037', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000037'), 'QC-CUSM-000037', 
 '0', '21', '','1', '', '1', 'height (cm)', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
-
 
 -- tumour_location_rgt_anterior
 ('QC-CUSM-000006_QC-CUSM-000062', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
@@ -1241,6 +1297,14 @@ WHERE `old_id` IN ('CAN-999-999-000-999-10_CAN-999-999-000-999-546');
 UPDATE `structure_fields` SET `type` = 'input', `setting` = 'size=30' WHERE `old_id` = 'CAN-999-999-000-999-39' ;
 
 -- ******** MESSAGE ******** 
+
+-- Change author to select
+
+UPDATE `structure_fields`
+SET `type` = 'select',
+`setting` = '',
+`structure_value_domain` = (SELECT `id` FROM `structure_value_domains` WHERE `domain_name` LIKE 'custom_laboratory_staff')
+WHERE `old_id` = 'CAN-999-999-000-999-1256';
 
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 -- INVENTORY MANAGEMENT
