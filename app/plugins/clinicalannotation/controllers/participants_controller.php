@@ -254,7 +254,9 @@ class ParticipantsController extends ClinicalannotationAppController {
 		//load every wanted information into the tmpArray
 		$participant = $this->Participant->find('first', array('conditions' => array('Participant.id' => $participant_id)));
 		$tmpArray[$participant['Participant']['date_of_birth']][] = array('event' => __('date of birth', true), 'link' => '');
-		$tmpArray[$participant['Participant']['date_of_death']][] = array('event' => __('date of death', true), 'link' => '');
+		if(strlen($participant['Participant']['date_of_death']) > 0){
+			$tmpArray[$participant['Participant']['date_of_death']][] = array('event' => __('date of death', true), 'link' => '');
+		}
 		
 		$consents = $this->ConsentMaster->find('all', array('conditions' => array('ConsentMaster.participant_id' => $participant_id, 'ConsentMaster.consent_status' => 'obtained')));
 		foreach($consents as $consent){
