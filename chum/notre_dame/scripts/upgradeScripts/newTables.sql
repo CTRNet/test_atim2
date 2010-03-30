@@ -45,22 +45,6 @@ CREATE TABLE IF NOT EXISTS `ad_blocks_revs` (
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
--- 
--- Table structure for table `ad_bags`
---
-
-CREATE TABLE IF NOT EXISTS`ad_bags` (
-  `id` int(11) NOT NULL auto_increment,
-  `aliquot_master_id` int(11) default NULL,
-  `created` datetime NOT NULL default '0000-00-00 00:00:00',
-  `created_by` varchar(50) NOT NULL default '',
-  `modified` datetime default NULL,
-  `modified_by` varchar(50) default NULL,
-  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `deleted_date` datetime default NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
-
 CREATE TABLE IF NOT EXISTS`ad_bags_revs` (
   `id` int(11) NOT NULL,
   `aliquot_master_id` int(11) default NULL,
@@ -1061,6 +1045,40 @@ CREATE TABLE IF NOT EXISTS `dxd_tissues_revs` (
   `version_created` datetime NOT NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Table structure for table `dxd_bloods`
+--
+
+CREATE TABLE IF NOT EXISTS `dxd_unknown` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `diagnosis_master_id` int(11) NOT NULL DEFAULT '0',
+  `text_field` varchar(10) NOT NULL default '',
+  `created` datetime NOT NULL default '0000-00-00 00:00:00',
+  `created_by` varchar(255) NOT NULL default '',
+  `modified` datetime NOT NULL default '0000-00-00 00:00:00',
+  `modified_by` varchar(255) NOT NULL default '',
+  `deleted` int(11) NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `diagnosis_master_id` (`diagnosis_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `dxd_unknown_revs` (
+  `id` int(11) NOT NULL,
+  `diagnosis_master_id` int(11) NOT NULL DEFAULT '0',
+  `text_field` varchar(10) NOT NULL default '',
+  `created` datetime NOT NULL default '0000-00-00 00:00:00',
+  `created_by` varchar(255) NOT NULL default '',
+  `modified` datetime NOT NULL default '0000-00-00 00:00:00',
+  `modified_by` varchar(255) NOT NULL default '',
+  `deleted` int(11) NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
 
 --
 -- Table structure for table `drugs`
@@ -2364,23 +2382,6 @@ CREATE TABLE IF NOT EXISTS`providers_revs` (
   PRIMARY KEY ( `version_id` )
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
--- 
--- Table structure for table `quality_ctrl_tested_aliquots`
--- 
-
-CREATE TABLE IF NOT EXISTS`quality_ctrl_tested_aliquots` (
-  `id` int(11) NOT NULL auto_increment,
-  `quality_ctrl_id` int(11) default NULL,
-  `aliquot_master_id` int(11) default NULL,
-  `aliquot_use_id` int(11) default NULL,
-  `created` datetime NOT NULL default '0000-00-00 00:00:00',
-  `created_by` varchar(50) NOT NULL default '',
-  `modified` datetime default NULL,
-  `modified_by` varchar(50) default NULL,
-  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `deleted_date` datetime default NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS`quality_ctrl_tested_aliquots_revs` (
   `id` int(11) NOT NULL,

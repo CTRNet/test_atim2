@@ -1,5 +1,14 @@
 #alter existing tables to fit the newest schema. Add foreign keys and data in control tables
 
+ALTER TABLE ad_tubes
+    ADD cell_count decimal(10,2) NULL DEFAULT NULL COMMENT '' AFTER concentration_unit,
+    ADD cell_count_unit varchar(20) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER cell_count,
+    ADD tmp_storage_method varchar(20) NULL DEFAULT NULL,
+    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
+    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
+    MODIFY aliquot_master_id int(11) NULL DEFAULT NULL COMMENT '';
+
+
 ALTER TABLE ad_blocks
     CHANGE type block_type varchar(30) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER aliquot_master_id,
     ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
@@ -28,8 +37,10 @@ ALTER TABLE ad_cell_cores
 #  Possibly data modifications needed!
 #
 
-#TODO validate dropped table
-#DROP TABLE ad_cell_culture_tubes;
+#mode ad_cell_culture_tubes to ad_tubes
+INSERT INTO ad_tubes (aliquot_master_id, lot_number, concentration, concentration_unit, cell_count, cell_count_unit, tmp_storage_solution, created, created_by, modified, modified_by)
+(SELECT aliquot_master_id, lot_number, concentration, concentration_unit, cell_count, cell_count_unit, tmp_storage_solution, created, created_by, modified, modified_by FROM ad_cell_culture_tubes); 
+DROP TABLE ad_cell_culture_tubes;
 
 ALTER TABLE ad_cell_slides
     ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
@@ -41,8 +52,10 @@ ALTER TABLE ad_cell_slides
 #  Possibly data modifications needed!
 #
 
-#TODO validate dropped table
-#DROP TABLE ad_cell_tubes;
+#move ad_cell_tubes to ad_tubes
+INSERT INTO ad_tubes (aliquot_master_id, lot_number, concentration, concentration_unit, cell_count, cell_count_unit, created, created_by, modified, modified_by) 
+(SELECT aliquot_master_id, lot_number, concentration, concentration_unit, cell_count, cell_count_unit, created, created_by, modified, modified_by FROM ad_cell_tubes);
+DROP TABLE ad_cell_tubes;
 
 ALTER TABLE ad_gel_matrices
     ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
@@ -54,8 +67,10 @@ ALTER TABLE ad_gel_matrices
 #  Possibly data modifications needed!
 #
 
-#TODO validate dropped table
-#DROP TABLE ad_tissue_bags;
+RENAME TABLE ad_tissue_bags TO ad_bags;
+ALTER TABLE ad_bags
+	ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
+    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted;
 
 ALTER TABLE ad_tissue_cores
     CHANGE ad_block_id block_aliquot_master_id int(11) NULL DEFAULT NULL COMMENT '' AFTER aliquot_master_id,
@@ -87,15 +102,9 @@ ALTER TABLE ad_tissue_slides
 #  Possibly data modifications needed!
 #
 
-#TODO validate dropped table
-#DROP TABLE ad_tissue_tubes;
-
-ALTER TABLE ad_tubes
-    ADD cell_count decimal(10,2) NULL DEFAULT NULL COMMENT '' AFTER concentration_unit,
-    ADD cell_count_unit varchar(20) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER cell_count,
-    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    MODIFY aliquot_master_id int(11) NULL DEFAULT NULL COMMENT '';
+INSERT INTO ad_tubes (aliquot_master_id, tmp_storage_solution, tmp_storage_method, created, created_by, modified, modified_by) 
+(SELECT aliquot_master_id, tmp_storage_solution, tmp_storage_method, created, created_by, modified, modified_by FROM ad_tissue_tubes);
+DROP TABLE ad_tissue_tubes;
 #
 #  Fieldformat of
 #    ad_tubes.aliquot_master_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
@@ -357,6 +366,14 @@ ALTER TABLE diagnosis_masters
     ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '',
     ADD deleted_date datetime NULL DEFAULT NULL COMMENT '';
 
+INSERT INTO `diagnosis_controls` (`id`, `controls_type`, `status`, `form_alias`, `detail_tablename`, `display_order`) VALUES
+(1, 'Blood', 'active', 'dx_bloods', 'dxd_bloods', 0),
+(2, 'Tissue', 'active', 'dx_tissues', 'dxd_tissues', 0),
+(3, 'Unknown', 'active', 'dx_unknown', 'dxd_unknown', 0);
+#TODO: build structure for dx_unknown if we keep it
+
+#TODO determine diagnosis_control_id
+UPDATE diagnosis_masters SET diagnosis_control_id=3;
 
 ALTER TABLE drugs
     ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
@@ -563,7 +580,7 @@ ALTER TABLE family_histories
 #  Possibly data modifications needed!
 #
 
-#TODO: Import custom stuff
+#TODO: Import custom stuff or rebuild it with the form builder
 #DROP TABLE form_fields;
 #DROP TABLE form_fields_global_lookups;
 #DROP TABLE form_formats;
@@ -825,8 +842,12 @@ UPDATE protocol_masters SET protocol_control_id=1;
 RENAME TABLE qc_tested_aliquots TO quality_ctrl_tested_aliquots;
 
 ALTER TABLE quality_ctrl_tested_aliquots
+	CHANGE COLUMN quality_control_id quality_ctrl_id int(11) DEFAULT NULL,
     ADD COLUMN deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '',
-    ADD COLUMN deleted_date datetime NULL DEFAULT NULL COMMENT '';
+    ADD COLUMN deleted_date datetime NULL DEFAULT NULL COMMENT '',
+    DROP INDEX quality_control_id,
+	DROP FOREIGN KEY quality_ctrl_tested_aliquots_ibfk_1,
+	ADD INDEX quality_ctrl_id (`quality_ctrl_id`);
 
 #TODO validate drop column chip_model
 RENAME TABLE quality_controls TO quality_ctrls;
@@ -1190,7 +1211,7 @@ ALTER TABLE sd_spe_cystic_fluids
 #  Possibly data modifications needed!
 #
 
-#TODO not droping empty table
+#TODO not droping non empty table
 #DROP TABLE sd_spe_other_fluids;
 
 ALTER TABLE sd_spe_peritoneal_washes
@@ -1347,10 +1368,12 @@ ALTER TABLE std_tma_blocks
 #  Possibly data modifications needed!
 #
 
-#TODO update the square box flag + tablename
+#TODO manualy update display and reverse fields
 ALTER TABLE storage_controls
-    ADD square_box tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'This field is used if the storage only has one dimension size specified' AFTER coord_y_size,
-    ADD horizontal_display tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'used on 1 dimension controls when y = 1' AFTER square_box,
+    ADD display_x_size tinyint(3) UNSIGNED NOT NULL DEFAULT 0,
+    ADD display_y_size tinyint(3) UNSIGNED NOT NULL DEFAULT 0,
+    ADD reverse_x_numbering tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
+    ADD reverse_y_numbering  tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
     MODIFY form_alias varchar(255) NOT NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci,
     MODIFY detail_tablename varchar(255) NOT NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci;
 #
@@ -1538,8 +1561,6 @@ ALTER TABLE tma_slides
 #empty table
 DROP TABLE towers;
 
-
-#TODO tx_controls and stuff cleanup FMLHHHHHHHHHHH
 ALTER TABLE tx_controls
 	CHANGE detail_form_alias form_alias varchar(255) DEFAULT NULL,
 	ADD display_order tinyint unsigned NOT NULL DEFAULT 0;
@@ -1606,7 +1627,7 @@ ALTER TABLE txd_chemos
 #empty table
 DROP TABLE txd_combos;
 
-#TODO do not dump
+#TODO do not drop
 #DROP TABLE txd_drugs;
 
 #TODO validate radiation_type
@@ -1681,8 +1702,8 @@ ALTER TABLE users
     CHANGE passwd password varchar(255) NOT NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci AFTER last_name,
  	ALTER help_visible DROP DEFAULT;
 
-#TODO - the following update fixes the foreign key but shows a bug, investigation required
-UPDATE clinical_collection_links AS ccl LEFT JOIN participants AS p ON ccl.participant_id=p.id SET ccl.participant_id=p.id;
+#TODO - the following update fixes the foreign key
+UPDATE clinical_collection_links SET participant_id=NULL WHERE participant_id=0;
 UPDATE clinical_collection_links SET consent_master_id=NULL WHERE consent_master_id=0;
 UPDATE clinical_collection_links SET diagnosis_master_id=NULL WHERE diagnosis_master_id=0;
 ALTER TABLE clinical_collection_links
@@ -1692,7 +1713,7 @@ ALTER TABLE clinical_collection_links
   	ADD FOREIGN KEY (`participant_id`) REFERENCES `participants` (`id`);
 
 #TODO: This query fixes the unmatched foreign key. Investigate the cause
-UPDATE order_items AS oi LEFT JOIN aliquot_uses AS au ON au.id=oi.aliquot_use_id SET oi.aliquot_use_id=au.id;
+UPDATE order_items SET aliquot_use_id=NULL WHERE aliquot_use_id=0;
 ALTER TABLE order_items
     ADD FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`),
   	ADD FOREIGN KEY (`aliquot_use_id`) REFERENCES `aliquot_uses` (`id`),
@@ -1781,12 +1802,13 @@ ALTER TABLE `diagnosis_masters`
   FOREIGN KEY (`diagnosis_control_id`) REFERENCES `diagnosis_controls` (`id`)
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
-  
-ALTER TABLE `diagnosis_masters`
-  ADD CONSTRAINT `FK_diagnosis_masters_icd10_code`
-  FOREIGN KEY (primary_icd10_code) REFERENCES coding_icd10 (id)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
+
+#TODO: Cannot add foreign key as some codes are missing in coding_icd10  
+#ALTER TABLE `diagnosis_masters`
+#  ADD CONSTRAINT `FK_diagnosis_masters_icd10_code`
+#  FOREIGN KEY (primary_icd10_code) REFERENCES coding_icd10 (id)
+#  ON DELETE RESTRICT
+#  ON UPDATE RESTRICT;
   
 ALTER TABLE `event_masters`
   ADD CONSTRAINT `FK_event_masters_participant`
@@ -2331,3 +2353,5 @@ ALTER TABLE `study_reviews`
   FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`)
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
+
+#TODO: Once done run the db_validation script
