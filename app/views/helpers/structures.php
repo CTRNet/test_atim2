@@ -1249,12 +1249,46 @@ class StructuresHelper extends Helper {
 								
 							// swap out VALUE for LANG LOOKUP choice for SELECTS 
 							// } else if ( $field['type']=='select' ) {
-							} else if ( count($field['StructureField']['StructureValueDomain']) && isset($field['StructureField']['StructureValueDomain']['StructurePermissibleValue']) ) {
+							} else if ( count($field['StructureField']['StructureValueDomain']) ) {
 								
-								foreach ( $field['StructureField']['StructureValueDomain']['StructurePermissibleValue'] as $lookup ) {
-									if ( $lookup['value'] == $display_value && $lookup['language_alias'] ) {
-										$display_value = __( $lookup['language_alias'], true );
+								// if SOURCE is provided, use provided MODEL::FUNCTION call to retrieve pulldown values
+								if ( $field['StructureField']['StructureValueDomain']['source'] ) {
+									
+									list($pulldown_model,$pulldown_function) = split('::',$field['StructureField']['StructureValueDomain']['source']);
+									
+									if ( $pulldown_model && App::import('Model',$pulldown_model) ) {
+				
+										// if model name is PLUGIN.MODEL string, need to split and drop PLUGIN name after import but before NEW
+										$pulldown_plugin = NULL;
+										if ( strpos($pulldown_model,'.')!==false ) {
+											$combined_plugin_model_name = $pulldown_model;
+											list($pulldown_plugin,$pulldown_model) = explode('.',$combined_plugin_model_name);
+										}
+										
+										$pulldown_model_object = new $pulldown_model;
+										$pulldown_result = $pulldown_model_object->{$pulldown_function}();
+										
+										// find MATCH in results (it is assumed any translations have happened in the MODEL already)
+										foreach ( $pulldown_result as $lookup ) {
+											if ( $lookup['value'] == $display_value ) {
+												if ( isset($lookup[$options['type']]) ) { $display_value = $lookup[$options['type']]; }
+												else { $display_value = $lookup['default']; }
+											}
+										}
+										
 									}
+									
+								}
+								
+								// use permissible values associated with this value domain instead
+								else if ( isset($field['StructureField']['StructureValueDomain']['StructurePermissibleValue']) ) {
+								
+									foreach ( $field['StructureField']['StructureValueDomain']['StructurePermissibleValue'] as $lookup ) {
+										if ( $lookup['value'] == $display_value && $lookup['language_alias'] ) {
+											$display_value = __( $lookup['language_alias'], true );
+										}
+									}
+									
 								}
 								
 							}
@@ -1500,10 +1534,42 @@ class StructuresHelper extends Helper {
 								}
 							}
 							
-							if ( count($field['StructureField']['StructureValueDomain']) && isset($field['StructureField']['StructureValueDomain']['StructurePermissibleValue']) ) {
-								foreach ( $field['StructureField']['StructureValueDomain']['StructurePermissibleValue'] as $lookup ) {
-									$html_element_array['options'][ $lookup['value'] ] = html_entity_decode(__( $lookup['language_alias'], true ));
+							if ( count($field['StructureField']['StructureValueDomain']) ) {
+								
+								// if SOURCE is provided, use provided MODEL::FUNCTION call to retrieve pulldown values
+								if ( $field['StructureField']['StructureValueDomain']['source'] ) {
+									
+									list($pulldown_model,$pulldown_function) = split('::',$field['StructureField']['StructureValueDomain']['source']);
+									
+									if ( $pulldown_model && App::import('Model',$pulldown_model) ) {
+				
+										// if model name is PLUGIN.MODEL string, need to split and drop PLUGIN name after import but before NEW
+										$pulldown_plugin = NULL;
+										if ( strpos($pulldown_model,'.')!==false ) {
+											$combined_plugin_model_name = $pulldown_model;
+											list($pulldown_plugin,$pulldown_model) = explode('.',$combined_plugin_model_name);
+										}
+										
+										$pulldown_model_object = new $pulldown_model;
+										$pulldown_result = $pulldown_model_object->{$pulldown_function}();
+										
+										// it is assumed any translations have happened in the MODEL already
+										foreach ( $pulldown_result as $lookup ) {
+											if ( isset($lookup[$options['type']]) ) { $html_element_array['options'][ $lookup['value'] ] = $lookup[$options['type']]; }
+											else { $html_element_array['options'][ $lookup['value'] ] = $lookup['default']; }
+										}
+										
+									}
+									
 								}
+								
+								// use permissible values associated with this value domain instead
+								else if ( isset($field['StructureField']['StructureValueDomain']['StructurePermissibleValue']) ) {
+									foreach ( $field['StructureField']['StructureValueDomain']['StructurePermissibleValue'] as $lookup ) {
+										$html_element_array['options'][ $lookup['value'] ] = html_entity_decode(__( $lookup['language_alias'], true ));
+									}
+								}
+								
 							}
 							
 							break;
