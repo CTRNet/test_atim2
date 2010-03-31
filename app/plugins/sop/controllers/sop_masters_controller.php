@@ -40,7 +40,7 @@ class SopMastersController extends SopAppController {
 	}
 	
 	function detail($sop_master_id) {
-		if ( !$sop_master_id ) { $this->redirect( '/pages/err_sop_no_sop_id', NULL, TRUE ); }
+		if ( !$sop_master_id ) { $this->redirect( '/pages/err_sop_funct_param_missing', NULL, TRUE ); }
 	
 		$this->set( 'atim_menu_variables', array('SopMaster.id'=>$sop_master_id));
 		
@@ -53,7 +53,7 @@ class SopMastersController extends SopAppController {
 	}
 
 	function edit( $sop_master_id  ) {
-		if ( !$sop_master_id ) { $this->redirect( '/pages/err_sop_no_sop_id', NULL, TRUE ); }
+		if ( !$sop_master_id ) { $this->redirect( '/pages/err_sop_funct_param_missing', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('SopMaster.id'=>$sop_master_id) );
 		$this_data = $this->SopMaster->find('first',array('conditions'=>array('SopMaster.id'=>$sop_master_id)));
@@ -73,7 +73,7 @@ class SopMastersController extends SopAppController {
 	}
 	
 	function delete( $sop_master_id ) {
-		if ( !$sop_master_id ) { $this->redirect( '/pages/err_sop_no_sop_id', NULL, TRUE ); }
+		if ( !$sop_master_id ) { $this->redirect( '/pages/err_sop_funct_param_missing', NULL, TRUE ); }
 		
 		$this->hook();
 		

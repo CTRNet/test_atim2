@@ -24,7 +24,7 @@ class RtbformsController extends RtbformAppController {
 	}
 	
 	function profile( $rtbform_id=null ) {
-		if ( !$rtbform_id ) { $this->redirect( '/pages/err_rtb_no_rtbform_id', NULL, TRUE ); }
+		if ( !$rtbform_id ) { $this->redirect( '/pages/err_rtb_funct_param_missing', NULL, TRUE ); }
   
 		$this->set( 'atim_menu_variables', array('Rtbform.id'=>$rtbform_id) );
 		
@@ -44,7 +44,7 @@ class RtbformsController extends RtbformAppController {
   
 
 	function edit( $rtbform_id=null ) {
-		if ( !$rtbform_id ) { $this->redirect( '/pages/err_rtb_no_rtbform_id', NULL, TRUE ); }
+		if ( !$rtbform_id ) { $this->redirect( '/pages/err_rtb_funct_param_missing', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('Rtbform.id'=>$rtbform_id) );
 		
@@ -61,7 +61,7 @@ class RtbformsController extends RtbformAppController {
 	}
   
 	function delete( $rtbform_id=null ) {
-		if ( !$rtbform_id ) { $this->redirect( '/pages/err_rtb_no_rtbform_id', NULL, TRUE ); }
+		if ( !$rtbform_id ) { $this->redirect( '/pages/err_rtb_funct_param_missing', NULL, TRUE ); }
 		
 		$this->hook();
 		

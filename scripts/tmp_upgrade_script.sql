@@ -2054,3 +2054,35 @@ UPDATE  `structure_fields` SET  `type` =  'select', `setting` =  '', `structure_
 -- Enable permissions link under Administration and hide field
 UPDATE  `menus` SET  `use_link` =  '/administrate/permissions/tree/%%Bank.id%%/%%Group.id%%' WHERE  `menus`.`id` =  'core_CAN_88';
 UPDATE  `structure_fields` SET  `type` =  'hidden', `setting` =  '' WHERE  `structure_fields`.`id` =80;
+
+-- Cleanu pages error
+
+DELETE FROM pages WHERE error_flag = '1';
+DELETE FROM pages WHERE id = 'err_no_data';
+DELETE FROM pages WHERE id = 'err_clin_no_data';
+
+INSERT INTO `pages` (`id`, `error_flag`, `language_title`, `language_body`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+('err_admin_no_data', 1, 'data not found', 'no data exists for the specified id', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_clin_funct_param_missing', 1, 'parameter missing', 'a paramater used by the executed function has not been set', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_clin_no_data', 1, 'data not found', 'no data exists for the specified id', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_clin_system_error', 1, 'system error', 'a system error has been detetced', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_drug_funct_param_missing', 1, 'parameter missing', 'a paramater used by the executed function has not been set', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_inv_funct_param_missing', 1, 'parameter missing', 'a paramater used by the executed function has not been set', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_inv_no_data', 1, 'data not found', 'no data exists for the specified id', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_inv_record_err', 1, 'data creation - update error', 'an error occured during the creation or the update of the data', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_inv_system_error', 1, 'system error', 'a system error has been detetced', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_mat_funct_param_missing', 1, 'parameter missing', 'a paramater used by the executed function has not been set', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_no_data', 1, 'data not found', 'no data exists for the specified id', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_order_funct_param_missing', 1, 'parameter missing', 'a paramater used by the executed function has not been set', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_order_no_data', 1, 'data not found', 'no data exists for the specified id', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_order_record_err', 1, 'data creation - update error', 'an error occured during the creation or the update of the data', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_order_system_error', 1, 'system error', 'a system error has been detetced', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_pro_funct_param_missing', 1, 'parameter missing', 'a paramater used by the executed function has not been set', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_prov_funct_param_missing', 1, 'parameter missing', 'a paramater used by the executed function has not been set', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_rtb_funct_param_missing', 1, 'parameter missing', 'a paramater used by the executed function has not been set', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_sop_funct_param_missing', 1, 'parameter missing', 'a paramater used by the executed function has not been set', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_sto_funct_param_missing', 1, 'parameter missing', 'a paramater used by the executed function has not been set', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_sto_no_data', 1, 'data not found', 'no data exists for the specified id', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_sto_system_error', 1, 'system error', 'a system error has been detetced', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_study_funct_param_missing', 1, 'parameter missing', 'a paramater used by the executed function has not been set', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_study_no_data', 1, 'data not found', 'no data exists for the specified id', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
