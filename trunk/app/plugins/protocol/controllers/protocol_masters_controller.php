@@ -69,7 +69,7 @@ class ProtocolMastersController extends ProtocolAppController {
 	}
 	
 	function detail($protocol_master_id=null) {
-		if ( !$protocol_master_id ) { $this->redirect( '/pages/err_pro_no_proto_id', NULL, TRUE ); }
+		if ( !$protocol_master_id ) { $this->redirect( '/pages/err_pro_funct_param_missing', NULL, TRUE ); }
 	
 		$this->set( 'atim_menu_variables', array('ProtocolMaster.id'=>$protocol_master_id));
 		
@@ -83,7 +83,7 @@ class ProtocolMastersController extends ProtocolAppController {
 	}
 
 	function edit( $protocol_master_id=null ) {
-		if ( !$protocol_master_id ) { $this->redirect( '/pages/err_pro_no_proto_id', NULL, TRUE ); }
+		if ( !$protocol_master_id ) { $this->redirect( '/pages/err_pro_funct_param_missing', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('ProtocolMaster.id'=>$protocol_master_id) );
 		$this_data = $this->ProtocolMaster->find('first',array('conditions'=>array('ProtocolMaster.id'=>$protocol_master_id)));
@@ -111,7 +111,7 @@ class ProtocolMastersController extends ProtocolAppController {
 	}
 	
 	function delete( $protocol_master_id ) {
-		if ( !$protocol_master_id ) { $this->redirect( '/pages/err_pro_no_proto_id', NULL, TRUE ); }
+		if ( !$protocol_master_id ) { $this->redirect( '/pages/err_pro_funct_param_missing', NULL, TRUE ); }
 		
 		$hook_link = $this->hook('delete');
 		if( $hook_link ) { require($hook_link); }

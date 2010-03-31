@@ -38,7 +38,7 @@ class DrugsController extends DrugAppController {
   	}
   
 	function edit( $drug_id=null ) {
-		if ( !$drug_id ) { $this->redirect( '/pages/err_drug_no_drug_id', NULL, TRUE ); }
+		if ( !$drug_id ) { $this->redirect( '/pages/err_drug_funct_param_missing', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('Drug.id'=>$drug_id) );
 		
@@ -55,7 +55,7 @@ class DrugsController extends DrugAppController {
   	}
 	
 	function detail( $drug_id=null ) {
-		if ( !$drug_id ) { $this->redirect( '/pages/err_drug_no_drug_id', NULL, TRUE ); }
+		if ( !$drug_id ) { $this->redirect( '/pages/err_drug_funct_param_missing', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('Drug.id'=>$drug_id) );
 		
@@ -65,7 +65,7 @@ class DrugsController extends DrugAppController {
 	}
   
 	function delete( $drug_id=null ) {
-		if ( !$drug_id ) { $this->redirect( '/pages/err_drug_no_drug_id', NULL, TRUE ); }
+		if ( !$drug_id ) { $this->redirect( '/pages/err_drug_funct_param_missing', NULL, TRUE ); }
 		
 		$this->hook();
 		

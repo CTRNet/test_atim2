@@ -46,7 +46,7 @@ class ProvidersController extends ProviderAppController
 	}
 	
 	function detail( $provider_id=null ){
-		if ( !$provider_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$provider_id ) { $this->redirect( '/pages/err_prov_funct_param_missing', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('Provider.id'=>$provider_id) );
 
@@ -56,7 +56,7 @@ class ProvidersController extends ProviderAppController
 	}
 	
 	function edit( $provider_id=null ){
-		if ( !$provider_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$provider_id ) { $this->redirect( '/pages/err_prov_funct_param_missing', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('Provider.id'=>$provider_id) );
 		
@@ -73,7 +73,7 @@ class ProvidersController extends ProviderAppController
 	}
 	
 	function delete( $provider_id=null ){
-		if ( !$provider_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$provider_id ) { $this->redirect( '/pages/err_prov_funct_param_missing', NULL, TRUE ); }
 		
 		$this->hook();
 		
