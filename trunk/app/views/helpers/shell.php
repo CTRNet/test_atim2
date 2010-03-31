@@ -430,7 +430,13 @@ class ShellHelper extends Helper {
 					list($plugin,$model) = explode('.',$plugin_model_name);
 				}
 				
-				$summary_model = new $model;
+				// load MODEL, and override with CUSTOM model if it exists...
+					$summary_model = new $model;
+					
+					$custom_model = $model.'Custom';
+					if ( App::import('Model',$custom_model) ) {
+						$summary_model = new $custom_model;
+					}
 				
 				$summary_result = $summary_model->{$function}( $options['variables'] );
 				
