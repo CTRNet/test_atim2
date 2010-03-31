@@ -1900,7 +1900,11 @@ class StructuresHelper extends Helper {
 					
 					// put display_value into CONTENT array index, ELSE put span tag if value BLANK and INCREMENT empty index 
 						if ( trim($display_value)!='' ) {
-							$table_index[ $field['display_column'] ][ $row_count ]['input'] .= $table_index[ $field['display_column'] ][ $row_count ]['tag'].$display_value.' ';
+							$tmpInput = $table_index[ $field['display_column'] ][ $row_count ]['tag'].$display_value.' ';
+							if($options['type'] != 'datagrid'){
+								$tmpInput = "<span style='white-space: nowrap;'>".$tmpInput."</span>";
+							}
+							$table_index[ $field['display_column'] ][ $row_count ]['input'] .= $tmpInput;
 						} else {
 							$table_index[ $field['display_column'] ][ $row_count ]['input'] .= $table_index[ $field['display_column'] ][ $row_count ]['tag'].'<span class="empty">-</span> ';
 							$table_index[ $field['display_column'] ][ $row_count ]['empty']++;
