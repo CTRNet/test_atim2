@@ -137,7 +137,7 @@ class EventMastersController extends ClinicalannotationAppController {
 			if( $hook_link ) { require($hook_link); }
 
 			if ($submitted_data_validates && $this->EventMaster->save($this->data) ) {
-				$this->flash( 'Your data has been updated.','/clinicalannotation/event_masters/detail/'.$event_group.'/'.$participant_id.'/'.$this->EventMaster->getLastInsertId());
+				$this->flash( 'your data has been updated','/clinicalannotation/event_masters/detail/'.$event_group.'/'.$participant_id.'/'.$this->EventMaster->getLastInsertId());
 			}
 		} 
 	}
@@ -181,7 +181,7 @@ class EventMastersController extends ClinicalannotationAppController {
 			if( $hook_link ) { require($hook_link); }
 			
 			if ($submitted_data_validates && $this->EventMaster->save($this->data) ) {
-				$this->flash( 'Your data has been updated.','/clinicalannotation/event_masters/detail/'.$event_group.'/'.$participant_id.'/'.$event_master_id);
+				$this->flash( 'your data has been updated','/clinicalannotation/event_masters/detail/'.$event_group.'/'.$participant_id.'/'.$event_master_id);
 			}
 		} else {
 			$this->data = $event_master_data;

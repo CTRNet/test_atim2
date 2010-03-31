@@ -12,7 +12,7 @@ class BanksController extends AdministrateAppController {
 		
 		if ( !empty($this->data) ) {
 			
-			if ( $this->Bank->save($this->data) ) $this->flash( 'Your data has been updated.','/administrate/banks/detail/'.$this->Bank->id );
+			if ( $this->Bank->save($this->data) ) $this->flash( 'your data has been updated','/administrate/banks/detail/'.$this->Bank->id );
 		}
 	}
 	
@@ -34,7 +34,7 @@ class BanksController extends AdministrateAppController {
 		
 		if ( !empty($this->data) ) {
 			$this->Bank->id = $bank_id;
-			if ( $this->Bank->save($this->data) ) $this->flash( 'Your data has been updated.','/administrate/banks/detail/'.$bank_id );
+			if ( $this->Bank->save($this->data) ) $this->flash( 'your data has been updated','/administrate/banks/detail/'.$bank_id );
 		} else {
 			$this->data = $this->Bank->find('first',array('conditions'=>array('Bank.id'=>$bank_id)));
 		}
@@ -43,7 +43,7 @@ class BanksController extends AdministrateAppController {
 	function delete( $bank_id ) {
 		$this->hook();
 		$this->Bank->del( $bank_id );
-		$this->flash( 'Your data has been deleted.', '/administrate/banks/index' );
+		$this->flash( 'your data has been deleted', '/administrate/banks/index' );
 	}
 	
 	/*
@@ -121,7 +121,7 @@ class BanksController extends AdministrateAppController {
 		if ( !empty($this->data) ) {
 			
 			if ( $this->Bank->save( $this->data ) ) {
-				$this->flash( 'Your data has been saved.', '/banks/index/' );
+				$this->flash( 'your data has been saved', '/banks/index/' );
 			}
 			
 		}
@@ -162,7 +162,7 @@ class BanksController extends AdministrateAppController {
 		} else {
 			
 			if ( $this->User->save( $this->data['Bank'] ) ) {
-				$this->flash( 'Your data has been updated.','/banks/detail/'.$bank_id );
+				$this->flash( 'your data has been updated','/banks/detail/'.$bank_id );
 			}
 			
 		}

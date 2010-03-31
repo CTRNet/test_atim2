@@ -101,7 +101,7 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController {
 			if($submitted_data_validates) {
 				$this->ReproductiveHistory->id = $reproductive_history_id;
 				if ( $this->ReproductiveHistory->save($this->data) ) {
-					$this->flash( 'Your data has been updated.','/clinicalannotation/reproductive_histories/detail/'.$participant_id.'/'.$reproductive_history_id );
+					$this->flash( 'your data has been updated','/clinicalannotation/reproductive_histories/detail/'.$participant_id.'/'.$reproductive_history_id );
 				}
 			}
 		}

@@ -29,7 +29,7 @@ class AnnouncementsController extends AdministrateAppController {
 			$this->data['Announcement']['group_id'] = $group_id;
 			$this->data['Announcement']['user_id'] = $user_id;
 			if ( $this->Announcement->save($this->data) ) {
-				$this->flash( 'Your data has been updated.','/administrate/announcements/detail/'.$bank_id.'/'.$group_id.'/'.$user_id.'/'.$this->Announcement->id );
+				$this->flash( 'your data has been updated','/administrate/announcements/detail/'.$bank_id.'/'.$group_id.'/'.$user_id.'/'.$this->Announcement->id );
 			}
 		}
 	}
@@ -53,7 +53,7 @@ class AnnouncementsController extends AdministrateAppController {
 		
 		if ( !empty($this->data) ) {
 			$this->Announcement->id = $announcement_id;
-			if ( $this->Announcement->save($this->data) ) $this->flash( 'Your data has been updated.','/administrate/announcements/detail/'.$bank_id.'/'.$group_id.'/'.$user_id.'/'.$announcement_id.'/');
+			if ( $this->Announcement->save($this->data) ) $this->flash( 'your data has been updated','/administrate/announcements/detail/'.$bank_id.'/'.$group_id.'/'.$user_id.'/'.$announcement_id.'/');
 		} else {
 			$this->data = $this->Announcement->find('first',array('conditions'=>array('Announcement.bank_id'=>$bank_id, 'Announcement.group_id'=>$group_id, 'Announcement.user_id'=>$user_id, 'Announcement.id'=>$announcement_id)));
 		}
@@ -63,9 +63,9 @@ class AnnouncementsController extends AdministrateAppController {
 		$this->hook();
 		
 		if( $this->Announcement->del( $announcement_id ) ) {
-			$this->flash( 'Your data has been deleted.', '/administrate/announcements/index/'.$bank_id.'/'.$group_id.'/'.$user_id.'/');
+			$this->flash( 'your data has been deleted', '/administrate/announcements/index/'.$bank_id.'/'.$group_id.'/'.$user_id.'/');
 		} else {
-			$this->flash( 'Your data has been deleted.', '/administrate/announcements/index/'.$bank_id.'/'.$group_id.'/'.$user_id.'/');
+			$this->flash( 'your data has been deleted', '/administrate/announcements/index/'.$bank_id.'/'.$group_id.'/'.$user_id.'/');
 		}
 	}
 	
@@ -205,7 +205,7 @@ class AnnouncementsController extends AdministrateAppController {
 		if ( !empty($this->data) ) {
 			
 			if ( $this->Announcement->save( $this->data ) ) {
-				$this->flash( 'Your data has been saved.', '/announcements/index/'.$bank_id.'/'.$group_id.'/'.$user_id.'/' );
+				$this->flash( 'your data has been saved', '/announcements/index/'.$bank_id.'/'.$group_id.'/'.$user_id.'/' );
 			}
 			
 		}
@@ -260,7 +260,7 @@ class AnnouncementsController extends AdministrateAppController {
 		} else {
 			
 			if ( $this->Announcement->save( $this->data['Announcement'] ) ) {
-				$this->flash( 'Your data has been updated.','/announcements/detail/'.$bank_id.'/'.$group_id.'/'.$user_id.'/'.$announcement_id );
+				$this->flash( 'your data has been updated','/announcements/detail/'.$bank_id.'/'.$group_id.'/'.$user_id.'/'.$announcement_id );
 			}
 			
 		}
@@ -269,7 +269,7 @@ class AnnouncementsController extends AdministrateAppController {
 	function delete( $bank_id=0, $group_id=0, $user_id=0, $announcement_id=0 ) {
 		
 		$this->Announcement->del( $announcement_id );
-		$this->flash( 'Your data has been deleted.', '/announcements/index/'.$bank_id.'/'.$group_id.'/'.$user_id.'/' );
+		$this->flash( 'your data has been deleted', '/announcements/index/'.$bank_id.'/'.$group_id.'/'.$user_id.'/' );
 		
 	}
 	*/
