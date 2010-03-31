@@ -2051,4 +2051,5 @@ SET @value_domain_id = LAST_INSERT_ID();
 
 UPDATE  `structure_fields` SET  `type` =  'select', `setting` =  '', `structure_value_domain` =  @value_domain_id WHERE `structure_fields`.`id` = 501;
 
-
+-- Enable permissions link under Administration
+UPDATE  `menus` SET  `use_link` =  '/administrate/permissions/tree/%%Bank.id%%/%%Group.id%%' WHERE  `menus`.`id` =  'core_CAN_88';
