@@ -2095,3 +2095,9 @@ UPDATE `structure_fields` SET `structure_value_domain`  = '172' WHERE `structure
 UPDATE `structure_fields` SET `structure_value_domain`  = '172' WHERE `structure_fields`.`id` =828;
 UPDATE `structure_fields` SET `structure_value_domain`  = '172' WHERE `structure_fields`.`id` =904;
 UPDATE `structure_fields` SET `structure_value_domain`  = '172' WHERE `structure_fields`.`id` =905;
+
+-- Clean up field help
+
+UPDATE structure_fields
+SET language_help = ''
+WHERE language_help NOT IN (SELECT id FROM `i18n`)
