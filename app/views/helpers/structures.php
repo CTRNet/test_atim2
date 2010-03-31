@@ -1265,7 +1265,15 @@ class StructuresHelper extends Helper {
 											list($pulldown_plugin,$pulldown_model) = explode('.',$combined_plugin_model_name);
 										}
 										
-										$pulldown_model_object = new $pulldown_model;
+										// load MODEL, and override with CUSTOM model if it exists...
+											$pulldown_model_object = new $pulldown_model;
+											
+											$custom_pulldown_model = $pulldown_model.'Custom';
+											if ( App::import('Model',$custom_pulldown_model) ) {
+												$pulldown_model_object = $$custom_pulldown_model;
+											}
+										
+										// run model::function
 										$pulldown_result = $pulldown_model_object->{$pulldown_function}();
 										
 										// find MATCH in results (it is assumed any translations have happened in the MODEL already)
@@ -1550,7 +1558,15 @@ class StructuresHelper extends Helper {
 											list($pulldown_plugin,$pulldown_model) = explode('.',$combined_plugin_model_name);
 										}
 										
-										$pulldown_model_object = new $pulldown_model;
+										// load MODEL, and override with CUSTOM model if it exists...
+											$pulldown_model_object = new $pulldown_model;
+											
+											$custom_pulldown_model = $pulldown_model.'Custom';
+											if ( App::import('Model',$custom_pulldown_model) ) {
+												$pulldown_model_object = new $$custom_pulldown_model;
+											}
+										
+										// run model::function
 										$pulldown_result = $pulldown_model_object->{$pulldown_function}();
 										
 										// it is assumed any translations have happened in the MODEL already
