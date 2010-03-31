@@ -2040,6 +2040,15 @@ INSERT INTO structure_fields(`public_identifier`, `old_id`, `plugin`, `model`, `
 INSERT INTO structure_formats(`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ('CANM-00029_CANM-00030', (SELECT id FROM structures WHERE old_id='CANM-00029'), 'CANM-00029', (SELECT id FROM structure_fields WHERE old_id='CANM-00030'), 'CANM-00030', '0', '1', '', 0, '', 0, '', 0, '', 0, '', 0, '', 0, '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0') ;
 INSERT INTO structure_formats(`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ('CANM-00029_CANM-00031', (SELECT id FROM structures WHERE old_id='CANM-00029'), 'CANM-00029', (SELECT id FROM structure_fields WHERE old_id='CANM-00031'), 'CANM-00031', '0', '2', '', 0, '', 0, '', 0, '', 0, '', 0, '', 0, '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0') ;
 
+-- add "source" field to value domains, as place to put Model::function call to pulldown data, instead of permissible values
+ALTER TABLE  `structure_value_domains` ADD  `source` VARCHAR( 255 ) NULL;
 
+-- New SOURCE functionality using ICD10 field in PARTICIPANT model
+INSERT INTO  `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
+(NULL ,  'icd10',  'locked',  '',  'Clinicalannotation.Icd10::permissibleValues');
+
+SET @value_domain_id = LAST_INSERT_ID();
+
+UPDATE  `structure_fields` SET  `type` =  'select', `setting` =  '', `structure_value_domain` =  @value_domain_id WHERE `structure_fields`.`id` = 501;
 
 
