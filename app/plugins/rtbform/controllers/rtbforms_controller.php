@@ -38,7 +38,7 @@ class RtbformsController extends RtbformAppController {
 		$this->hook();
 	
 		if ( !empty($this->data) ) {
-			if ( $this->Rtbform->save($this->data) ) $this->flash( 'Your data has been updated.','/rtbform/rtbforms/profile/'.$this->Rtbform->id );
+			if ( $this->Rtbform->save($this->data) ) $this->flash( 'your data has been updated','/rtbform/rtbforms/profile/'.$this->Rtbform->id );
 		}
 	}
   
@@ -53,7 +53,7 @@ class RtbformsController extends RtbformAppController {
 		if ( !empty($this->data) ) {
 			$this->Rtbform->id = $rtbform_id;
 			if ( $this->Rtbform->save($this->data) ) {
-				$this->flash( 'Your data has been updated.','/rtbform/rtbforms/profile/'.$rtbform_id );
+				$this->flash( 'your data has been updated','/rtbform/rtbforms/profile/'.$rtbform_id );
 			}
 		} else {
 			$this->data = $this->Rtbform->find('first',array('conditions'=>array('Rtbform.id'=>$rtbform_id)));
@@ -66,9 +66,9 @@ class RtbformsController extends RtbformAppController {
 		$this->hook();
 		
 		if( $this->Rtbform->atim_delete( $rtbform_id ) ) {
-			$this->flash( 'Your data has been deleted.', '/rtbform/rtbforms/search/');
+			$this->flash( 'your data has been deleted', '/rtbform/rtbforms/search/');
 		} else {
-			$this->flash( 'Error deleting data - Contact administrator.', '/rtbform/rtbforms/search/');
+			$this->flash( 'error deleting data - contact administrator', '/rtbform/rtbforms/search/');
 		}
 	}
   

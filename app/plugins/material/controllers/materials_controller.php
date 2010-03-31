@@ -31,7 +31,7 @@ class MaterialsController extends MaterialAppController {
 	
 		if ( !empty($this->data) ) {
 			if ( $this->Material->save($this->data) ) {
-				$this->flash( 'Your data has been updated.','/material/materials/detail/'.$this->Material->id );
+				$this->flash( 'your data has been updated','/material/materials/detail/'.$this->Material->id );
 			}
 		}
   	}
@@ -46,7 +46,7 @@ class MaterialsController extends MaterialAppController {
 		if ( !empty($this->data) ) {
 			$this->Material->id = $material_id;
 			if ( $this->Material->save($this->data) ) {
-				$this->flash( 'Your data has been updated.','/material/materials/detail/'.$material_id );
+				$this->flash( 'your data has been updated','/material/materials/detail/'.$material_id );
 			}
 		} else {
 			$this->data = $this->Material->find('first',array('conditions'=>array('Material.id'=>$material_id)));
@@ -69,9 +69,9 @@ class MaterialsController extends MaterialAppController {
 		$this->hook();
 		
 		if( $this->Material->atim_delete( $material_id ) ) {
-			$this->flash( 'Your data has been deleted.', '/material/materials/listall/');
+			$this->flash( 'your data has been deleted', '/material/materials/listall/');
 		} else {
-			$this->flash( 'Error deleting data - Contact administrator.', '/material/materials/listall/');
+			$this->flash( 'error deleting data - contact administrator', '/material/materials/listall/');
 		}
   	}
 

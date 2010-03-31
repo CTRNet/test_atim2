@@ -59,7 +59,7 @@ class ProtocolMastersController extends ProtocolAppController {
 			if( $hook_link ) { require($hook_link); }
 			
 			if ($submitted_data_validates && $this->ProtocolMaster->save($this->data) ){
-				$this->flash( 'Your data has been updated.','/protocol/protocol_masters/detail/'.$this->ProtocolMaster->getLastInsertId());
+				$this->flash( 'your data has been updated','/protocol/protocol_masters/detail/'.$this->ProtocolMaster->getLastInsertId());
 			} else {
 				$this->data = $this_data;
 			}
@@ -102,7 +102,7 @@ class ProtocolMastersController extends ProtocolAppController {
 			if( $hook_link ) { require($hook_link); }
 			
 			if ($submitted_data_validates && $this->ProtocolMaster->save($this->data) ) {
-				$this->flash( 'Your data has been updated.','/protocol/protocol_masters/detail/'.$protocol_master_id.'/');
+				$this->flash( 'your data has been updated','/protocol/protocol_masters/detail/'.$protocol_master_id.'/');
 			}
 		} else {
 			$this->data = $this_data;
@@ -117,9 +117,9 @@ class ProtocolMastersController extends ProtocolAppController {
 		if( $hook_link ) { require($hook_link); }
 		
 		if( $this->ProtocolMaster->atim_delete( $protocol_master_id ) ) {
-			$this->flash( 'Your data has been deleted.', '/protocol/protocol_masters/listall/');
+			$this->flash( 'your data has been deleted', '/protocol/protocol_masters/listall/');
 		} else {
-			$this->flash( 'Error deleting data - Contact administrator.', '/protocol/protocol_masters/listall/');
+			$this->flash( 'error deleting data - contact administrator', '/protocol/protocol_masters/listall/');
 		}
 	}
 
