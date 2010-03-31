@@ -2055,7 +2055,7 @@ UPDATE  `structure_fields` SET  `type` =  'select', `setting` =  '', `structure_
 UPDATE  `menus` SET  `use_link` =  '/administrate/permissions/tree/%%Bank.id%%/%%Group.id%%' WHERE  `menus`.`id` =  'core_CAN_88';
 UPDATE  `structure_fields` SET  `type` =  'hidden', `setting` =  '' WHERE  `structure_fields`.`id` =80;
 
--- Cleanu pages error
+-- Cleanup pages error
 
 DELETE FROM pages WHERE error_flag = '1';
 DELETE FROM pages WHERE id = 'err_no_data';
@@ -2086,3 +2086,12 @@ INSERT INTO `pages` (`id`, `error_flag`, `language_title`, `language_body`, `cre
 ('err_sto_system_error', 1, 'system error', 'a system error has been detected', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('err_study_funct_param_missing', 1, 'parameter missing', 'a paramater used by the executed function has not been set', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('err_study_no_data', 1, 'data not found', 'no data exists for the specified id', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+-- Update date accuracy codes in Clinical
+
+UPDATE `structure_fields` SET `structure_value_domain`  = '172' WHERE `structure_fields`.`id` =128;
+UPDATE `structure_fields` SET `structure_value_domain`  = '172' WHERE `structure_fields`.`id` =803;
+UPDATE `structure_fields` SET `structure_value_domain`  = '172' WHERE `structure_fields`.`id` =826;
+UPDATE `structure_fields` SET `structure_value_domain`  = '172' WHERE `structure_fields`.`id` =828;
+UPDATE `structure_fields` SET `structure_value_domain`  = '172' WHERE `structure_fields`.`id` =904;
+UPDATE `structure_fields` SET `structure_value_domain`  = '172' WHERE `structure_fields`.`id` =905;
