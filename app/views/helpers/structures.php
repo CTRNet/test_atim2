@@ -149,7 +149,6 @@ class StructuresHelper extends Helper {
 			
 			default:				$options['type'] = 'detail';	$return_string .= $this->build_detail( $atim_structure, $options );	break;
 		}
-			
 		if ( $options['links']['top'] && $options['settings']['form_bottom'] ) {
 			$return_string .= '
 				</fieldset>
@@ -174,7 +173,6 @@ class StructuresHelper extends Helper {
 		if ( $options['settings']['actions'] ) {
 			$return_string .= $this->generate_links_list(  $this->data, $options, 'bottom' );
 		}
-		
 		// RETURN or ECHO resulting structure
 		if ( $options['settings']['return'] ) { return $return_string; } else { echo $return_string; }
 				
@@ -279,7 +277,6 @@ class StructuresHelper extends Helper {
 							$table_row_count++;
 							
 						} // end ROW 
-						
 						$return_string .= '
 								</tbody>
 								</table>
@@ -357,7 +354,6 @@ class StructuresHelper extends Helper {
 					$table_structure[$key] = $this->build_stack( $atim_structure, $options );
 					unset($options['stack']);
 				}
-				
 				$structure_count = 0;
 				$structure_index = array( 1 => $table_structure ); 
 				
@@ -1013,7 +1009,7 @@ class StructuresHelper extends Helper {
 							$sorting_link .= isset($_REQUEST['page']) ? '&amp;page='.$_REQUEST['page'] : '';
 							
 							if ( $options['settings']['pagination'] ) {
-								$return_string .= $this->Paginator->sort(html_entity_decode($table_row['label']), $table_row['model'].'.'.$table_row['field']);
+								$return_string .= $this->Paginator->sort(html_entity_decode($table_row['label'], ENT_QUOTES, "UTF-8"), $table_row['model'].'.'.$table_row['field']);
 							} else {
 								$return_string .= $table_row['label'];
 							}
@@ -1582,7 +1578,7 @@ class StructuresHelper extends Helper {
 								// use permissible values associated with this value domain instead
 								else if ( isset($field['StructureField']['StructureValueDomain']['StructurePermissibleValue']) ) {
 									foreach ( $field['StructureField']['StructureValueDomain']['StructurePermissibleValue'] as $lookup ) {
-										$html_element_array['options'][ $lookup['value'] ] = html_entity_decode(__( $lookup['language_alias'], true ));
+										$html_element_array['options'][ $lookup['value'] ] = html_entity_decode(__( $lookup['language_alias'], true ), ENT_QUOTES, "UTF-8");
 									}
 								}
 								
@@ -2039,7 +2035,7 @@ class StructuresHelper extends Helper {
 				if ( strpos($aco_alias,'controllers/Users')!==false || strpos($aco_alias,'controllers/Pages')!==false || $Acl->check($aro_alias, $aco_alias) ) {
 					
 					$display_class_name = $this->generate_link_class($link_name, $link_location);
-					$htmlAttributes['title'] = strip_tags( html_entity_decode(__($link_name, true)) ); 
+					$htmlAttributes['title'] = strip_tags( html_entity_decode(__($link_name, true), ENT_QUOTES, "UTF-8") ); 
 					
 					if(strlen($icon) > 0){
 						$htmlAttributes['class'] = 'form '.$icon;
