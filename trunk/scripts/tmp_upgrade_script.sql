@@ -2040,6 +2040,9 @@ INSERT INTO structure_fields(`public_identifier`, `old_id`, `plugin`, `model`, `
 INSERT INTO structure_formats(`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ('CANM-00029_CANM-00030', (SELECT id FROM structures WHERE old_id='CANM-00029'), 'CANM-00029', (SELECT id FROM structure_fields WHERE old_id='CANM-00030'), 'CANM-00030', '0', '1', '', 0, '', 0, '', 0, '', 0, '', 0, '', 0, '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0') ;
 INSERT INTO structure_formats(`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ('CANM-00029_CANM-00031', (SELECT id FROM structures WHERE old_id='CANM-00029'), 'CANM-00029', (SELECT id FROM structure_fields WHERE old_id='CANM-00031'), 'CANM-00031', '0', '2', '', 0, '', 0, '', 0, '', 0, '', 0, '', 0, '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0') ;
 
+-- Storage autocomplete
+UPDATE structure_formats SET `type`='autocomplete', `flag_override_setting`='1', `setting`='size=20,url=/storagelayout/storage_masters/autoComplete/' WHERE structure_field_id=(SELECT id FROM structure_fields WHERE old_id='CAN-999-999-000-999-1217') AND structure_field_old_id='CAN-999-999-000-999-1217' AND (flag_edit='1' OR flag_add='1');
+
 -- add "source" field to value domains, as place to put Model::function call to pulldown data, instead of permissible values
 ALTER TABLE  `structure_value_domains` ADD  `source` VARCHAR( 255 ) NULL;
 
@@ -2055,7 +2058,7 @@ UPDATE  `structure_fields` SET  `type` =  'select', `setting` =  '', `structure_
 UPDATE  `menus` SET  `use_link` =  '/administrate/permissions/tree/%%Bank.id%%/%%Group.id%%' WHERE  `menus`.`id` =  'core_CAN_88';
 UPDATE  `structure_fields` SET  `type` =  'hidden', `setting` =  '' WHERE  `structure_fields`.`id` =80;
 
--- Cleanup pages error
+-- Cleanu pages error
 
 DELETE FROM pages WHERE error_flag = '1';
 DELETE FROM pages WHERE id = 'err_no_data';
@@ -2087,24 +2090,19 @@ INSERT INTO `pages` (`id`, `error_flag`, `language_title`, `language_body`, `cre
 ('err_study_funct_param_missing', 1, 'parameter missing', 'a paramater used by the executed function has not been set', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('err_study_no_data', 1, 'data not found', 'no data exists for the specified id', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
--- Update date accuracy codes in Clinical
 
-UPDATE `structure_fields` SET `structure_value_domain`  = '172' WHERE `structure_fields`.`id` =128;
-UPDATE `structure_fields` SET `structure_value_domain`  = '172' WHERE `structure_fields`.`id` =803;
-UPDATE `structure_fields` SET `structure_value_domain`  = '172' WHERE `structure_fields`.`id` =826;
-UPDATE `structure_fields` SET `structure_value_domain`  = '172' WHERE `structure_fields`.`id` =828;
-UPDATE `structure_fields` SET `structure_value_domain`  = '172' WHERE `structure_fields`.`id` =904;
-UPDATE `structure_fields` SET `structure_value_domain`  = '172' WHERE `structure_fields`.`id` =905;
 
--- Clean up field help
+-- update to linked_collections to display them in add mode for ccl new workflow
+UPDATE structure_formats SET display_column='0', display_order='13', language_heading='', `flag_add`='1', `flag_add_readonly`='0', `flag_edit`='1', `flag_edit_readonly`='0', `flag_search`='0', `flag_search_readonly`='0', `flag_datagrid`='0', `flag_datagrid_readonly`='0', `flag_index`='0', `flag_detail`='0', `flag_override_label`='0', `language_label`='', `flag_override_tag`='0', `language_tag`='', `flag_override_help`='0', `language_help`='', `flag_override_type`='0', `type`='', `flag_override_setting`='0', `setting`='', `flag_override_default`='0', `default`=''  WHERE old_id='CAN-999-999-000-999-1001_CAN-999-999-000-999-1008' AND structure_id=(SELECT id FROM structures WHERE old_id='CAN-999-999-000-999-1001') AND structure_old_id='CAN-999-999-000-999-1001' AND structure_field_id=(SELECT id FROM structure_fields WHERE old_id='CAN-999-999-000-999-1008') AND structure_field_old_id='CAN-999-999-000-999-1008';
+UPDATE structure_formats SET display_column='0', display_order='5', language_heading='', `flag_add`='1', `flag_add_readonly`='0', `flag_edit`='1', `flag_edit_readonly`='0', `flag_search`='0', `flag_search_readonly`='0', `flag_datagrid`='0', `flag_datagrid_readonly`='0', `flag_index`='0', `flag_detail`='0', `flag_override_label`='0', `language_label`='', `flag_override_tag`='0', `language_tag`='', `flag_override_help`='0', `language_help`='', `flag_override_type`='0', `type`='', `flag_override_setting`='0', `setting`='', `flag_override_default`='0', `default`=''  WHERE old_id='CAN-999-999-000-999-1001_CAN-999-999-000-999-1285' AND structure_id=(SELECT id FROM structures WHERE old_id='CAN-999-999-000-999-1001') AND structure_old_id='CAN-999-999-000-999-1001' AND structure_field_id=(SELECT id FROM structure_fields WHERE old_id='CAN-999-999-000-999-1285') AND structure_field_old_id='CAN-999-999-000-999-1285';
+UPDATE structure_formats SET display_column='0', display_order='1', language_heading='', `flag_add`='1', `flag_add_readonly`='0', `flag_edit`='1', `flag_edit_readonly`='0', `flag_search`='0', `flag_search_readonly`='0', `flag_datagrid`='0', `flag_datagrid_readonly`='0', `flag_index`='0', `flag_detail`='0', `flag_override_label`='0', `language_label`='', `flag_override_tag`='0', `language_tag`='', `flag_override_help`='0', `language_help`='', `flag_override_type`='0', `type`='', `flag_override_setting`='0', `setting`='', `flag_override_default`='0', `default`=''  WHERE old_id='CAN-999-999-000-999-1001_CAN-999-999-000-999-1000' AND structure_id=(SELECT id FROM structures WHERE old_id='CAN-999-999-000-999-1001') AND structure_old_id='CAN-999-999-000-999-1001' AND structure_field_id=(SELECT id FROM structure_fields WHERE old_id='CAN-999-999-000-999-1000') AND structure_field_old_id='CAN-999-999-000-999-1000';
+UPDATE structure_formats SET display_column='0', display_order='2', language_heading='', `flag_add`='1', `flag_add_readonly`='0', `flag_edit`='1', `flag_edit_readonly`='0', `flag_search`='0', `flag_search_readonly`='0', `flag_datagrid`='0', `flag_datagrid_readonly`='0', `flag_index`='0', `flag_detail`='0', `flag_override_label`='0', `language_label`='', `flag_override_tag`='0', `language_tag`='', `flag_override_help`='0', `language_help`='', `flag_override_type`='0', `type`='', `flag_override_setting`='0', `setting`='', `flag_override_default`='0', `default`=''  WHERE old_id='CAN-999-999-000-999-1001_CAN-999-999-000-999-1223' AND structure_id=(SELECT id FROM structures WHERE old_id='CAN-999-999-000-999-1001') AND structure_old_id='CAN-999-999-000-999-1001' AND structure_field_id=(SELECT id FROM structure_fields WHERE old_id='CAN-999-999-000-999-1223') AND structure_field_old_id='CAN-999-999-000-999-1223';
+UPDATE structure_formats SET display_column='0', display_order='3', language_heading='', `flag_add`='1', `flag_add_readonly`='0', `flag_edit`='1', `flag_edit_readonly`='0', `flag_search`='0', `flag_search_readonly`='0', `flag_datagrid`='0', `flag_datagrid_readonly`='0', `flag_index`='0', `flag_detail`='0', `flag_override_label`='0', `language_label`='', `flag_override_tag`='0', `language_tag`='', `flag_override_help`='0', `language_help`='', `flag_override_type`='0', `type`='', `flag_override_setting`='0', `setting`='', `flag_override_default`='0', `default`=''  WHERE old_id='CAN-999-999-000-999-1001_CAN-999-999-000-999-1003' AND structure_id=(SELECT id FROM structures WHERE old_id='CAN-999-999-000-999-1001') AND structure_old_id='CAN-999-999-000-999-1001' AND structure_field_id=(SELECT id FROM structure_fields WHERE old_id='CAN-999-999-000-999-1003') AND structure_field_old_id='CAN-999-999-000-999-1003';
+UPDATE structure_formats SET display_column='0', display_order='4', language_heading='', `flag_add`='1', `flag_add_readonly`='0', `flag_edit`='1', `flag_edit_readonly`='0', `flag_search`='0', `flag_search_readonly`='0', `flag_datagrid`='0', `flag_datagrid_readonly`='0', `flag_index`='0', `flag_detail`='0', `flag_override_label`='0', `language_label`='', `flag_override_tag`='0', `language_tag`='', `flag_override_help`='0', `language_help`='', `flag_override_type`='0', `type`='', `flag_override_setting`='0', `setting`='', `flag_override_default`='0', `default`=''  WHERE old_id='CAN-999-999-000-999-1001_CAN-999-999-000-999-1004' AND structure_id=(SELECT id FROM structures WHERE old_id='CAN-999-999-000-999-1001') AND structure_old_id='CAN-999-999-000-999-1001' AND structure_field_id=(SELECT id FROM structure_fields WHERE old_id='CAN-999-999-000-999-1004') AND structure_field_old_id='CAN-999-999-000-999-1004';
+UPDATE structure_formats SET display_column='0', display_order='11', language_heading='', `flag_add`='1', `flag_add_readonly`='0', `flag_edit`='1', `flag_edit_readonly`='0', `flag_search`='0', `flag_search_readonly`='0', `flag_datagrid`='0', `flag_datagrid_readonly`='0', `flag_index`='0', `flag_detail`='0', `flag_override_label`='0', `language_label`='', `flag_override_tag`='0', `language_tag`='', `flag_override_help`='0', `language_help`='', `flag_override_type`='0', `type`='', `flag_override_setting`='0', `setting`='', `flag_override_default`='0', `default`=''  WHERE old_id='CAN-999-999-000-999-1001_CAN-999-999-000-999-1007' AND structure_id=(SELECT id FROM structures WHERE old_id='CAN-999-999-000-999-1001') AND structure_old_id='CAN-999-999-000-999-1001' AND structure_field_id=(SELECT id FROM structure_fields WHERE old_id='CAN-999-999-000-999-1007') AND structure_field_old_id='CAN-999-999-000-999-1007';
+UPDATE structure_formats SET display_column='0', display_order='12', language_heading='', `flag_add`='1', `flag_add_readonly`='1', `flag_edit`='1', `flag_edit_readonly`='1', `flag_search`='0', `flag_search_readonly`='0', `flag_datagrid`='0', `flag_datagrid_readonly`='0', `flag_index`='0', `flag_detail`='0', `flag_override_label`='0', `language_label`='', `flag_override_tag`='0', `language_tag`='', `flag_override_help`='0', `language_help`='', `flag_override_type`='0', `type`='', `flag_override_setting`='0', `setting`='', `flag_override_default`='0', `default`=''  WHERE old_id='CAN-999-999-000-999-1001_CAN-999-999-000-999-1013' AND structure_id=(SELECT id FROM structures WHERE old_id='CAN-999-999-000-999-1001') AND structure_old_id='CAN-999-999-000-999-1001' AND structure_field_id=(SELECT id FROM structure_fields WHERE old_id='CAN-999-999-000-999-1013') AND structure_field_old_id='CAN-999-999-000-999-1013';
 
-UPDATE structure_fields
-SET language_help = ''
-WHERE language_help NOT IN (SELECT id FROM `i18n`);
-
--- Clean up i18n table
-
-DELETE FROM `i18n`;
+TRUNCATE `i18n`;
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 (' ', '', '', ''),
 (' => [123] ', '', '', ''),
@@ -2133,9 +2131,9 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('4', '', '4', ''),
 ('4-5', '', '4-5', ''),
 ('5', '', '5', ''),
-('5th', '', '5th', '5è'),
+('5th', '', '5th', '5Ã‹'),
 ('6-9', '', '6-9', ''),
-('6th', '', '6th', '6è'),
+('6th', '', '6th', '6Ã‹'),
 (':', '', ':', ':'),
 ('a LinkedModel exists for the deleted family history', '', '', ''),
 ('a LinkedModel exists for the deleted study contact', '', '', ''),
@@ -2321,7 +2319,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('city', '', 'City', 'Ville'),
 ('clear', '', 'Clear', 'Clair'),
 ('click to add a line', '', 'Click to add a line', 'Cliquez pour ajouter une ligne'),
-('click to remove these elements', '', 'Click to remove these elements', 'Cliquez pour supprimer ces éléments'),
+('click to remove these elements', '', 'Click to remove these elements', 'Cliquez pour supprimer ces ÃˆlÃˆments'),
 ('clinic', '', 'Clinic', 'Clinique'),
 ('clinical', '', 'Clinical', 'Clinique'),
 ('clinical annotation', '', 'Clinical Annotation', 'Annotation Clinique'),
@@ -2457,7 +2455,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('cystic fluid cell', '', 'Cystic Fluid Cell', 'Cellules de liquide kystique'),
 ('cystic fluid supernatant', '', 'Cystic Fluid Supernatant', 'Surnageant de liquide kystique'),
 ('cytology', '', 'Cytology', ''),
-('data', '', 'Data', 'Données'),
+('data', '', 'Data', 'DonnÃˆes'),
 ('data creation - update error', '', 'Data Creation/Update Error', 'Erreur durant la cr&eacute;ation/mise &agrave; jour des donn&eacute;es'),
 ('data not found', '', 'Data Not Found', 'Donn&eacute;es innexistantes'),
 ('date', '', 'Date', 'Date'),
@@ -2482,10 +2480,10 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('dcis', '', 'DCIS', 'DCIS'),
 ('dead', '', 'Dead', ''),
 ('death certificate', '', 'Death Certificate ID', ''),
-('December', '', 'December', 'Décembre'),
+('December', '', 'December', 'DÃˆcembre'),
 ('declined', '', 'Declined', ''),
 ('define as child', '', 'Define as Child', 'D&eacute;finir comme r&eacute;-aliquot&eacute;'),
-('define as shipped', '', 'Define as shipped', 'Définir comme expédié'),
+('define as shipped', '', 'Define as shipped', 'DÃˆfinir comme expÃˆdiÃˆ'),
 ('define realiquoted children', '', 'Define Realiquoted Children', 'D&eacute;finir enfants r&eacute;-aliquot&eacute;s'),
 ('define storage position description', '', '<br>Define position of the new or modified storage entity into the parent storage entity.<br>', 'D&eacute;finir la position de l''entit&eacute; d''entreposage dans l''entit&eacute; d''entreposage ''parent''. <br>'),
 ('degraded', '', 'Degraded', 'D&eacute;grad&eacute;'),
@@ -2556,7 +2554,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('err_clin_no_data_body', '', 'A query was made to the database and no data was return. Please contact your system administrator.', ''),
 ('err_clin_no_data_title', '', 'Clinical Annotation  - Data Error', ''),
 ('err_protocol code is required', '', 'Protocol code is required!', ''),
-('Estrogen amount is required.', '', 'Estrogen amount is required.', 'La quantité d''estrogènes est requise.'),
+('Estrogen amount is required.', '', 'Estrogen amount is required.', 'La quantitÃˆ d''estrogÃ‹nes est requise.'),
 ('Ethics', '', '', ''),
 ('event_form_type', '', 'Form Type', 'Type de formulaire'),
 ('event_group', '', 'Annotation Group', 'Groupe d''annotation'),
@@ -2572,8 +2570,8 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('family history', '', 'Family History', 'Ant&eacute;c&eacute;dents Familiaux'),
 ('father', '', 'Father', ''),
 ('fax', '', 'Fax', ''),
-('feb', '', 'Feb', 'Fév'),
-('February', '', 'February', 'Février'),
+('feb', '', 'Feb', 'FÃˆv'),
+('February', '', 'February', 'FÃˆvrier'),
 ('female', '', 'Female', 'Femme'),
 ('field_one', '', 'Field One', ''),
 ('field_three', '', 'Field Three', ''),
@@ -2689,7 +2687,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('internal use', '', 'Internal Use', 'Utilisation interne'),
 ('Inventory - All', '', '', ''),
 ('inventory management', '', 'Inventory Management', 'Gestion des &eacute;chantillons'),
-('inventory management description', '', 'Laboratory Information Management module. Manage and annotate all biobank samples. Supports pathologist review findings, quality control results, aliquot usage history and integration with Storage Management.', 'Module d''administration des informations du laboratoire. Administrer et annoter les ?©chantillons des biobanques. Supporte la v?©rification des r?©sultats des pathologistes, le contr&ocirc;le de la qualit&eacute; des r&eacute;sultats, l''historique de l''ut'),
+('inventory management description', '', 'Laboratory Information Management module. Manage and annotate all biobank samples. Supports pathologist review findings, quality control results, aliquot usage history and integration with Storage Management.', 'Module d''administration des informations du laboratoire. Administrer et annoter les ?Â©chantillons des biobanques. Supporte la v?Â©rification des r?Â©sultats des pathologistes, le contr&ocirc;le de la qualit&eacute; des r&eacute;sultats, l''historique de l''ut'),
 ('Investigator', '', '', ''),
 ('inv_acquisition_label_defintion', '', 'Label attached to a collection that will help user to recognize his collection in ATiM.', 'Valeur aidant l''utilisateur &agrave; reconna&icirc;tre sa collection dans ATiM.'),
 ('inv_collection_bank_defintion', '', 'Bank being owner of the collection.', 'Banque propri&eacute;taire de la collection.'),
@@ -3000,7 +2998,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('progressive disease', '', 'Progressive Disease', ''),
 ('Proposed', '', 'Proposed', ''),
 ('prospective', '', 'Prospective', ''),
-('protein', '', 'Protein', 'Protéine'),
+('protein', '', 'Protein', 'ProtÃˆine'),
 ('protocol', '', 'Protocol', ''),
 ('protocol detail', '', 'Details', 'D&eacute;tail'),
 ('protocol extend', '', 'Drug List', 'Liste des principes actifs'),
@@ -3096,7 +3094,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('samples', '', 'Samples', 'Sp&eacute;cimen'),
 ('sample_aliquot_type_precision_help', '', 'Allow user to add additional product type precision like ''frozen'', ''OCT'', etc.', 'Permet &agrave; l''utilisateur de pr&eacutre;ciser le type du produit comme ''OCT'', ''congel&eacute;'', etc.'),
 ('saved searches', '', 'Saved Searches', ''),
-('SC: subcutaneous injection', '', 'SC: subcutaneous injection', 'SC: Injection sous-cuatnée'),
+('SC: subcutaneous injection', '', 'SC: subcutaneous injection', 'SC: Injection sous-cuatnÃˆe'),
 ('screening', '', 'Screening', 'D&eacute;pistage'),
 ('search', '', 'Search', 'Chercher'),
 ('search type', '', 'Search Type', 'Type de recherche'),
@@ -3341,7 +3339,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('use by', '', 'Use by', 'Utilisation par'),
 ('use date', '', 'Use date', 'Date d''utilisation'),
 ('use exists for the deleted aliquot', '', 'Your data cannot be deleted! <br>Uses exist for the deleted aliquot.', 'Vos donn&eacute;es ne peuvent &ecirc;tre supprim&eacute;es! Des utilisations existent pour votre aliquot.'),
-('used', '', 'Used', 'Utilisé'),
+('used', '', 'Used', 'UtilisÃˆ'),
 ('used and/or stored', '', 'Used and/or Stored', 'Utilis&eacute;e et/ou entrepos&eacute;e'),
 ('used blood volume', '', 'Used Blood Volume', 'Volume de sang utilis&eacute;'),
 ('used by', '', 'Used By', 'Utilis&eacute; par'),
@@ -3381,4 +3379,3 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('your data has been saved', '', 'Your data has been saved.', 'Vos donn&eacute;es ont &eacute;t&eacute; sauvegard&eacute;es.'),
 ('your data has been updated', '', 'Your data has been updated.', 'Vos donn&eacute;es ont &eacute;t&eacute; mises &agrave; jour.'),
 ('ZCSA', '', 'ZCSA', 'ZCSA');
-
