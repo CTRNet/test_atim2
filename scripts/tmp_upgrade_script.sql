@@ -3683,3 +3683,5 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ALTER TABLE  `configs` DROP  `config_debug`;
 DELETE FROM `structure_formats` WHERE structure_field_id = 902;
 DELETE FROM `structure_fields` WHERE id = 902;
+
+-- Note: tmp_i18n_clean_up.sql creation
