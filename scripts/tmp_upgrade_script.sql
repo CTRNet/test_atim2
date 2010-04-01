@@ -841,16 +841,6 @@ INSERT INTO structure_value_domains_permissible_values(structure_value_domain_id
 (@last_structure_id, @last_id),
 (@last_structure_id, @last_id + 1);
 
-#repair accentuated chars
-UPDATE `i18n` SET fr='Août' WHERE id='aug';
-UPDATE `i18n` SET fr='Déc' WHERE id='dec';
-UPDATE `i18n` SET fr='Décembre' WHERE id='December';
-UPDATE `i18n` SET fr='Fév' WHERE id='feb';
-UPDATE `i18n` SET fr='Février' WHERE id='February';
-UPDATE `i18n` SET fr='Cliquez pour supprimer ces éléments' WHERE id='click to remove these elements';
-UPDATE `i18n` SET fr='Reçu par' WHERE id='Received By';
-UPDATE `i18n` SET fr='Date et heure de Réception' WHERE id='Received DateTime';
-
 #structure_value_domains cleanup
 UPDATE structure_fields SET structure_value_domain=6 WHERE structure_value_domain IN(4, 7, 8);
 UPDATE structure_fields SET structure_value_domain=32 WHERE structure_value_domain=60;
@@ -3379,3 +3369,13 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('your data has been saved', '', 'Your data has been saved.', 'Vos donn&eacute;es ont &eacute;t&eacute; sauvegard&eacute;es.'),
 ('your data has been updated', '', 'Your data has been updated.', 'Vos donn&eacute;es ont &eacute;t&eacute; mises &agrave; jour.'),
 ('ZCSA', '', 'ZCSA', 'ZCSA');
+
+#repair accentuated chars
+UPDATE `i18n` SET fr='Août' WHERE id='aug';
+UPDATE `i18n` SET fr='Déc' WHERE id='dec';
+UPDATE `i18n` SET fr='Décembre' WHERE id='December';
+UPDATE `i18n` SET fr='Fév' WHERE id='feb';
+UPDATE `i18n` SET fr='Février' WHERE id='February';
+UPDATE `i18n` SET fr='Cliquez pour supprimer ces éléments' WHERE id='click to remove these elements';
+UPDATE `i18n` SET fr='Reçu par' WHERE id='Received By';
+UPDATE `i18n` SET fr='Date et heure de Réception' WHERE id='Received DateTime';
