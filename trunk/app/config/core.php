@@ -229,7 +229,6 @@
 	Cache::config('default', array('engine' => 'File'));
 	
 	/* Custom ATiM cache for menus and structures. Can be set manually, but by default, switches handled by debug mode */
-	$ATiMCaching = Configure::read('debug') ? false : true;
-	Configure::write('ATiMMenuCache.disable', $ATiMCaching);
-	Configure::write('ATiMStructureCache.disable', $ATiMCaching);
+	Configure::write('ATiMMenuCache.disable', Configure::read('debug'));
+	Configure::write('ATiMStructureCache.disable', Configure::read('debug'));
 ?>
