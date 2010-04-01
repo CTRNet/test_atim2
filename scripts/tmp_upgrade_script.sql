@@ -3655,3 +3655,31 @@ ALTER TABLE txe_radiations_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY 
 ALTER TABLE txe_surgeries MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
 ALTER TABLE txe_surgeries_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
 ALTER TABLE versions MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+
+-- Add descriptive text to the tools menu
+UPDATE `menus` SET `language_description` = 'administration description' WHERE `menus`.`id` = 'core_CAN_41';
+UPDATE `menus` SET `language_description` = 'drug module description' WHERE `menus`.`id` = 'drug_CAN_96';
+UPDATE `menus` SET `language_description` = 'materials description' WHERE `menus`.`id` = 'mat_CAN_01';
+UPDATE `menus` SET `language_description` = 'order management description' WHERE `menus`.`id` = 'ord_CAN_101';
+UPDATE `menus` SET `language_description` = 'protocol description' WHERE `menus`.`id` = 'proto_CAN_37';
+UPDATE `menus` SET `language_description` = 'form manager description' WHERE `menus`.`id` = 'rtbf_CAN_01';
+UPDATE `menus` SET `language_description` = 'standard operating procedure description' WHERE `menus`.`id` = 'sop_CAN_01';
+UPDATE `menus` SET `language_description` = 'storage layout management description' WHERE `menus`.`id` = 'sto_CAN_01';
+UPDATE `menus` SET `language_description` = 'research study description' WHERE `menus`.`id` = 'tool_CAN_100';
+
+-- Language translations for module descriptions
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('administration description', 'global', 'The Administration module is used for managing application permissions, setting preferences and checking your installed version number.', ''),
+('drug module description', 'global', 'This module allows the bank to specify which agents are used during treatment. Drugs can then be assigned to common treatment protocols.', ''),
+('materials description', 'global', 'Define materials and equipment used in bank Standard Operating Procedures. These items can be assigned to existing SOPs.', ''),
+('order management description', 'global', 'Handles tracking orders for research materials. Each order can be completed across many shipments with multiple product types per order.', ''),
+('protocol description', 'global', 'Setup and define standard treatment protocols used for patient treatment.', ''),
+('form manager description', 'global', 'Ability to track standard forms used by the bank. For example, consent forms and request forms.', ''),
+('standard operating procedure description', 'global', 'Define all of the bank standard operating procedures and materials used in those procedures.', ''),
+('storage layout management description', 'global', 'Tool for management of all bank storage entities.', ''),
+('research study description', 'global', 'Track reseach studies submitted to the bank.', '');
+
+-- Drop out debug setting
+ALTER TABLE  `configs` DROP  `config_debug`;
+DELETE FROM `structure_formats` WHERE structure_field_id = 902;
+DELETE FROM `structure_fields` WHERE id = 902;
