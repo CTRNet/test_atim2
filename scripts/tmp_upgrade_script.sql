@@ -3746,3 +3746,25 @@ SET `value` = 'heparin',
 `language_alias` = 'heparin'
 WHERE `value` = 'heparine' AND
 `language_alias` = 'heparine';
+
+-- Update date accuracy fields to match Inventory. 
+UPDATE `structure_fields` SET `structure_value_domain`  = '172',
+`language_help` = 'help_date accuracy' WHERE `structure_fields`.`id` =803;
+
+UPDATE `structure_fields` SET `structure_value_domain` = '172',
+`language_help` = 'help_date accuracy' WHERE `structure_fields`.`id` =826;
+
+UPDATE `structure_fields` SET `structure_value_domain` = '172',
+`language_help` = 'help_date accuracy' WHERE `structure_fields`.`id` =828;
+
+UPDATE `structure_fields` SET `structure_value_domain` = '172' WHERE `structure_fields`.`id` =128;
+
+UPDATE `structure_fields` SET `structure_value_domain`  = '172',
+`language_help` = 'help_date accuracy' WHERE `structure_fields`.`id` =904;
+
+UPDATE `structure_fields` SET `structure_value_domain` = '172',
+`language_help` = 'help_date accuracy' WHERE `structure_fields`.`id` =905;
+
+UPDATE `structure_fields` SET `language_help` = 'help_age accuracy' WHERE `structure_fields`.`id` =820;
+
+UPDATE `structure_fields` SET `language_help` = 'help_age accuracy' WHERE `structure_fields`.`id` =586;
