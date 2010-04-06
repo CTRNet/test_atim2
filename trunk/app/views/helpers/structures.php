@@ -150,6 +150,13 @@ class StructuresHelper extends Helper {
 			default:				$options['type'] = 'detail';	$return_string .= $this->build_detail( $atim_structure, $options );	break;
 		}
 		if ( $options['links']['top'] && $options['settings']['form_bottom'] ) {
+			if($options['type'] == 'search'){	//search mode
+				$link_class = "search";
+				$link_label = __("search", null);
+			}else{								//other mode
+				$link_class = "submit";
+				$link_label = __("submit", null);
+			}
 			$return_string .= '
 				</fieldset>
 				
@@ -157,7 +164,7 @@ class StructuresHelper extends Helper {
 					<div>
 						<span class="button large">
 							<input id="submit_button" class="submit" type="submit" value="Submit" style="display: none;"/>
-							<a id="submit_button_link" href="#" onclick="$(\'submit_button\').click();">'.__('submit', null).'</a>
+							<a href="#" onclick="$(\'submit_button\').click();" class="form '.$link_class.'">'.$link_label.'</a>
 						</span>
 					</div>
 			';

@@ -1036,7 +1036,7 @@ a.reveal { background: url("../img/icons/Relationship Data_16x16.png") no-repeat
 a.reveal.not_allowed { background: url("../img/icons/Relationship Data_16x16.png") no-repeat left center; }
 a.redo { background: url("../img/icons/Refresh_16x16.png") no-repeat left center; }
 a.summary { background: url("../img/icons/Paste_16x16.png") no-repeat left center; }
-a.search { background: url("../img/icons/Preview_16x16.png") no-repeat left center; }
+a.search { background: url("../img/icons/Preview_16x16.png") no-repeat left center; text-decoration: none; color: #000;}
 a.search_results { background: url("../img/icons/Preview_16x16.png") no-repeat left center; }
 a.slide { background: url("../img/icons/slide_16x16.png") no-repeat left center; }
 a.storage, a.form.plugin.storagelayout {	background: url("../img/icons/storage_16x16.png") no-repeat left center; }
@@ -1168,8 +1168,7 @@ div#wrapper table.structure table.columns td a.not_allowed {
 		-moz-border-radius: 5px; -webkit-border-radius: 5px;
 	}
 	
-	fieldset.submit input.submit,
-	#submit_button_link {
+	fieldset.submit input.submit, a.submit{
 		background-image: url("../img/icons/Save_16x16.png");
 		background-repeat: no-repeat;
 		background-position: 10px center; 
