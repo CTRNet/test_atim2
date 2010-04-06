@@ -2062,13 +2062,13 @@ INSERT INTO `pages` (`id`, `error_flag`, `language_title`, `language_body`, `cre
 ('err_drug_funct_param_missing', 1, 'parameter missing', 'a paramater used by the executed function has not been set', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('err_inv_funct_param_missing', 1, 'parameter missing', 'a paramater used by the executed function has not been set', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('err_inv_no_data', 1, 'data not found', 'no data exists for the specified id', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('err_inv_record_err', 1, 'data creation - update error', 'an error occured during the creation or the update of the data', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_inv_record_err', 1, 'data creation - update error', 'an error occurred during the creation or the update of the data', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('err_inv_system_error', 1, 'system error', 'a system error has been detected', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('err_mat_funct_param_missing', 1, 'parameter missing', 'a paramater used by the executed function has not been set', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('err_no_data', 1, 'data not found', 'no data exists for the specified id', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('err_order_funct_param_missing', 1, 'parameter missing', 'a paramater used by the executed function has not been set', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('err_order_no_data', 1, 'data not found', 'no data exists for the specified id', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('err_order_record_err', 1, 'data creation - update error', 'an error occured during the creation or the update of the data', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_order_record_err', 1, 'data creation - update error', 'an error occurred during the creation or the update of the data', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('err_order_system_error', 1, 'system error', 'a system error has been detected', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('err_pro_funct_param_missing', 1, 'parameter missing', 'a paramater used by the executed function has not been set', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('err_prov_funct_param_missing', 1, 'parameter missing', 'a paramater used by the executed function has not been set', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -3685,3 +3685,64 @@ DELETE FROM `structure_formats` WHERE structure_field_id = 902;
 DELETE FROM `structure_fields` WHERE id = 902;
 
 -- Note: tmp_i18n_clean_up.sql creation
+
+-- Spelling correction
+
+UPDATE structure_validations
+SET language_message = 'number should be a positive integer'
+WHERE language_message = 'number should be a positif integer';
+
+UPDATE structure_validations
+SET language_message = 'cell passage number should be a positive integer'
+WHERE language_message = 'cell passage number should be a positif integer';
+
+UPDATE structure_value_domains_permissible_values
+SET `language_alias` = 'contaminated',
+structure_permissible_value_id = (SELECT id FROM structure_permissible_values WHERE `value` = 'contaminated')
+WHERE `language_alias` = 'contamined';
+
+DELETE FROM structure_permissible_values
+WHERE `value` = 'contamined' AND
+`language_alias` = 'contamined';
+
+UPDATE structure_value_domains_permissible_values
+SET `language_alias` = 'epidemiological'
+WHERE `language_alias` = 'epidimiological';
+
+UPDATE structure_permissible_values
+SET `value` = 'epidemiological',
+`language_alias` = 'epidemiological'
+WHERE `value` = 'epidimiological' AND
+`language_alias` = 'epidimiological';
+
+UPDATE structure_validations
+SET language_message = 'estrogens amount is required.'
+WHERE language_message = 'Estrogen amount is required.';
+
+UPDATE `structure_fields` 
+set `field` = 'hemolysis_signs', 
+`language_label` = 'hemolysis signs'
+WHERE `field` = 'hemolyze_signs' AND 
+`language_label` = 'hemolyze signs';
+
+ALTER TABLE `sd_der_plasmas` CHANGE `hemolyze_signs` 
+`hemolysis_signs` VARCHAR( 10 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL ;
+
+ALTER TABLE `sd_der_plasmas_revs` CHANGE `hemolyze_signs` 
+`hemolysis_signs` VARCHAR( 10 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL ;
+
+ALTER TABLE `sd_der_serums` CHANGE `hemolyze_signs` 
+`hemolysis_signs` VARCHAR( 10 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL ;
+
+ALTER TABLE `sd_der_serums_revs` CHANGE `hemolyze_signs` 
+`hemolysis_signs` VARCHAR( 10 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL ;
+
+UPDATE structure_value_domains_permissible_values
+SET `language_alias` = 'heparin'
+WHERE `language_alias` = 'heparine';
+
+UPDATE structure_permissible_values
+SET `value` = 'heparin',
+`language_alias` = 'heparin'
+WHERE `value` = 'heparine' AND
+`language_alias` = 'heparine';
