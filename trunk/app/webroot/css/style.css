@@ -1075,7 +1075,20 @@ td.id a:hover,
 table.tree ul a,
 table.tree ul a { 
 	text-decoration: none; 
-	padding-right: 0; margin-right: 0;
+	padding-right: 0;
+	margin-right: 0;
+}
+td.id a.default {
+	display: inline-table;
+	width: 20px;
+	height: 20px;
+}
+td.id a.not_allowed {
+	display: inline-table;
+	width: 20px;
+	height: 20px;
+	text-indent: -1000px;
+	color: red;
 }
 div#wrapper table.structure table.columns.tree ul ul {
 	margin-top: 1em;
