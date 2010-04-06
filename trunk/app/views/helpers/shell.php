@@ -147,25 +147,26 @@ class ShellHelper extends Helper {
 		
 		// display any VALIDATION ERRORS
 		if ( isset($this->validationErrors) && count($this->validationErrors) ) {
-			$return .= '
-				<!-- start #validation -->
-				<div id="validation">
-					<ul>
-			';
 			
+			$display_errors = array();
 			foreach ( $this->validationErrors as $model ) {
 				foreach ( $model as $field ) {
-					$return .= '
+					$display_errors[] = '
 						<li>'.__($field, true).'</li>
 					';
 				}
 			}
 			
 			$return .= '
+				<!-- start #validation -->
+				<div id="validation">
+					<ul>
+						'.implode('',array_unique($display_errors)).'
 					</ul>
 				</div>
 				<!-- end #validation -->
 			';
+			
 		}
 		
 		$return .= '	
