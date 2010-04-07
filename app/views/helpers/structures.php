@@ -1766,6 +1766,7 @@ class StructuresHelper extends Helper {
 										$display_value .= $this->Form->year($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], 1900, 2100, $year_value, am(array('name'=>$year_name, 'id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'], 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'),$html_element_array_for_year), $html_element_array['empty']);
 									}
 									
+									// manually adding in CALENDAR JS code
 									$display_value .= '
 										<a href="#" class="date-picker-control" title="" id="fd-but-'.$model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'"><span></span></a>
 									';
