@@ -30,7 +30,7 @@ class StructureFormatsController extends AdministrateAppController {
 		$this->hook();
 		
 		if ( !empty($this->data) ) {
-			if ( $this->StructureFormat->save($this->data) ) $this->flash( 'Your data has been updated.','/administrate/structure_formats/detail/'.$structure_id.'/'.$structure_format_id );
+			if ( $this->StructureFormat->save($this->data) ) $this->flash( 'your data has been updated','/administrate/structure_formats/detail/'.$structure_id.'/'.$structure_format_id );
 		} else {
 			$this->data = $this->StructureFormat->find('first',array('conditions'=>array('StructureFormat.id'=>$structure_format_id)));
 		}
@@ -138,7 +138,7 @@ class StructureFormatsController extends AdministrateAppController {
 		if ( !empty($this->data) ) {
 			
 			if ( $this->FormField->save( $this->data ) ) {
-				$this->flash( 'Your data has been saved.', '/form_formats/index/'.$form_id );
+				$this->flash( 'your data has been saved', '/form_formats/index/'.$form_id );
 			}
 			
 		}
@@ -180,7 +180,7 @@ class StructureFormatsController extends AdministrateAppController {
 		} else {
 			
 			if ( $this->FormFormat->save($this->data['FormFormat']) && $this->FormField->save($this->data['FormField']) ) {
-				$this->flash( 'Your data has been updated.','/form_formats/detail/'.$form_id.'/'.$format_id );
+				$this->flash( 'your data has been updated','/form_formats/detail/'.$form_id.'/'.$format_id );
 			}
 			
 		}

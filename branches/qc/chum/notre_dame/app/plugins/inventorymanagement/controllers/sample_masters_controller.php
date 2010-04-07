@@ -133,7 +133,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->set('specimen_type_list', $specimen_type_list);
 
 		// Set filter value
-		$filter_value = null;
+		$filter_value = 'no filter';
 		if($studied_specimen_sample_control_id) {
 			$sample_control_data = $this->SampleControl->find('first', array('conditions' => array('id' => $studied_specimen_sample_control_id)));
 			if(empty($sample_control_data)) { 
@@ -142,13 +142,14 @@ class SampleMastersController extends InventorymanagementAppController {
 			}
 			$filter_value = $sample_control_data['SampleControl']['sample_type'];
 		}
+		$this->set('filter_value', $filter_value);
 		
 		// Get the current menu object. 
 		$atim_menu = $this->Menus->get('/inventorymanagement/sample_masters/contentTreeView/%%Collection.id%%');
 		$this->set('atim_menu', $atim_menu);
 
 		// Set menu variables
-		$this->set('atim_menu_variables', array('Collection.id' => $collection_id, 'FilterLevel' => 'collection', 'SampleTypeForFilter' => $filter_value));		
+		$this->set('atim_menu_variables', array('Collection.id' => $collection_id));		
 		
 		$hook_link = $this->hook('format');
 		if($hook_link){
@@ -168,6 +169,8 @@ class SampleMastersController extends InventorymanagementAppController {
 		$sample_search_criteria = array();
 		$menu_variables = array();
 		
+		$filter_value = 'no filter';
+		
 		if($is_collection_sample_list) {
 			//---------------------------------------------------
 			// A- User is working on collection samples list
@@ -186,8 +189,6 @@ class SampleMastersController extends InventorymanagementAppController {
 			}
 			
 			// A.2- Set Model, Alias, Menu Criteria and Search Criteria to use
-			$menu_variables['FilterLevel'] = 'collection';
-			
 			if(is_null($filter_option)) {
 				// No filter
 				$model_to_use = 'ViewSample';
@@ -206,7 +207,7 @@ class SampleMastersController extends InventorymanagementAppController {
 						
 						$sample_category = $option_for_list_all[1];
 						$sample_search_criteria['ViewSample.sample_category'] = $sample_category;
-						$menu_variables['SampleTypeForFilter'] = $sample_category;
+						$filter_value = $sample_category;
 						break;
 						
 					case 'SAMP_CONT_ID':
@@ -220,7 +221,7 @@ class SampleMastersController extends InventorymanagementAppController {
 						if(empty($sample_control_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }	
 										
 						$form_alias = $sample_control_data['SampleControl']['form_alias'];
-						$menu_variables['SampleTypeForFilter'] = $sample_control_data['SampleControl']['sample_type'];
+						$filter_value = $sample_control_data['SampleControl']['sample_type'];
 						
 						// Set list of tissue sources
 						if($sample_control_data['SampleControl']['sample_type'] == 'tissue') {
@@ -268,8 +269,6 @@ class SampleMastersController extends InventorymanagementAppController {
 			}
 			
 			// B.2- Set Model, Alias, Menu Criteria and Search Criteria to use
-			$menu_variables['FilterLevel'] = 'sample';
-			
 			if(is_null($filter_option)) {	
 				// No filter
 				$model_to_use = 'ViewSample';
@@ -298,7 +297,7 @@ class SampleMastersController extends InventorymanagementAppController {
 						if(empty($sample_control_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }	
 										
 						$form_alias = $sample_control_data['SampleControl']['form_alias'];
-						$menu_variables['SampleTypeForFilter'] = $sample_control_data['SampleControl']['sample_type'];
+						$filter_value = $sample_control_data['SampleControl']['sample_type'];
 						break;
 						
 					default:
@@ -385,6 +384,8 @@ class SampleMastersController extends InventorymanagementAppController {
 		// Set menu variables
 		$atim_menu_variables = array_merge(array('Collection.id' => $collection_id), $menu_variables);
 		$this->set('atim_menu_variables', $atim_menu_variables);
+		
+		$this->set('filter_value', $filter_value);
 		
 		$hook_link = $this->hook('format');
 		if($hook_link){

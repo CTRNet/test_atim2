@@ -14,23 +14,24 @@
 		'pagination'=>false,
 		'header' => __('collection', null)
 	);
-	if(sizeof($collection_data) == 0){
-		$doNotPrintSubmit = true;
-	}else{
-		$structure_override = array();
-	
-		$structure_override['Collection.bank_id'] = $bank_list;
-	
-		$final_atim_structure = $atim_structure_collection_detail; 
-		$final_options = array('type'=>'radiolist', 'data'=>$collection_data, 'settings'=>$structure_settings, 'links'=>$structure_links, 'override' => $structure_override);
-	
-		// CUSTOM CODE
-		$hook_link = $structures->hook('collection_detail');
-		if( $hook_link ) { require($hook_link); }
-			
-		// BUILD FORM
-		$structures->build( $final_atim_structure, $final_options );
-	}
+	$structure_override = array();
+
+	$structure_override['Collection.bank_id'] = $bank_list;
+
+	$final_atim_structure = $atim_structure_collection_detail; 
+	$final_options = array('type'=>'radiolist', 'data'=>$collection_data, 'settings'=>$structure_settings, 'links'=>$structure_links, 'override' => $structure_override);
+
+	// CUSTOM CODE
+	$hook_link = $structures->hook('collection_detail');
+	if( $hook_link ) { require($hook_link); }
+		
+	// BUILD FORM
+	$structures->build( $final_atim_structure, $final_options );
+	?>
+	<table class="structure" cellspacing="0">
+			<tbody><tr><td style='text-align: left; padding-left: 10px;'><input type='radio' name='data[ClinicalCollectionLink][collection_id]' checked='checked' value=''/><?php echo(__('new collection', true)); ?></td></tr>
+	</tbody></table>
+	<?php
 	 
 	$structure_links = array(
 		'radiolist' => array(
@@ -69,9 +70,6 @@
 			'cancel'=>'/clinicalannotation/clinical_collection_links/listall/'.$atim_menu_variables['Participant.id'].'/'
 		)
 	);
-	if(isset($doNotPrintSubmit)){
-		$structure_links['top'] = '';
-	}
 	//consent
 	$final_atim_structure = $atim_structure_diagnosis_detail; 
 	$final_options = array('type'=>'radiolist', 'data'=>$diagnosis_data, 'settings'=>array('form_bottom'=>true, 'form_top'=>true, 'form_inputs'=>false, 'actions'=>true, 'pagination'=>false, 'header' => __('diagnosis', true), 'form_bottom' => false, 'actions' => false, 'separator' => true), 'links'=>$structure_links);

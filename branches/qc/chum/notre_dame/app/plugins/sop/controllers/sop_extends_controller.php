@@ -66,7 +66,7 @@ class SopExtendsController extends SopAppController {
 		if ( !empty($this->data) ) {
 			$this->data['SopExtend']['sop_master_id'] = $sop_master_data['SopMaster']['id'];
 			if ( $this->SopExtend->save( $this->data ) ) {
-				$this->flash( 'Your data has been saved.', '/sop/sop_extends/listall/'.$sop_master_id );
+				$this->flash( 'your data has been saved', '/sop/sop_extends/listall/'.$sop_master_id );
 			}
 		} 
 	}
@@ -96,7 +96,7 @@ class SopExtendsController extends SopAppController {
 	    if (!empty($this->data)) {
 			$this->SopExtend->id = $sop_extend_id;
 			if ($this->SopExtend->save($this->data)) {
-				$this->flash( 'Your data has been updated.','/sop/sop_extends/detail/'.$sop_master_id.'/'.$sop_extend_id);
+				$this->flash( 'your data has been updated','/sop/sop_extends/detail/'.$sop_master_id.'/'.$sop_extend_id);
 			}
 		} else {
 			$this->data = $this_data;
@@ -108,7 +108,7 @@ class SopExtendsController extends SopAppController {
 		$this->hook();
 	
 		$this->SopExtend->del( $sop_extend_id );
-		$this->flash( 'Your data has been deleted.', '/sop/sop_extends/listall/'.$sop_master_id );
+		$this->flash( 'your data has been deleted', '/sop/sop_extends/listall/'.$sop_master_id );
 
 	}
 

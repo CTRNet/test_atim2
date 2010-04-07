@@ -24,7 +24,7 @@ class RtbformsController extends RtbformAppController {
 	}
 	
 	function profile( $rtbform_id=null ) {
-		if ( !$rtbform_id ) { $this->redirect( '/pages/err_rtb_no_rtbform_id', NULL, TRUE ); }
+		if ( !$rtbform_id ) { $this->redirect( '/pages/err_rtb_funct_param_missing', NULL, TRUE ); }
   
 		$this->set( 'atim_menu_variables', array('Rtbform.id'=>$rtbform_id) );
 		
@@ -38,13 +38,13 @@ class RtbformsController extends RtbformAppController {
 		$this->hook();
 	
 		if ( !empty($this->data) ) {
-			if ( $this->Rtbform->save($this->data) ) $this->flash( 'Your data has been updated.','/rtbform/rtbforms/profile/'.$this->Rtbform->id );
+			if ( $this->Rtbform->save($this->data) ) $this->flash( 'your data has been updated','/rtbform/rtbforms/profile/'.$this->Rtbform->id );
 		}
 	}
   
 
 	function edit( $rtbform_id=null ) {
-		if ( !$rtbform_id ) { $this->redirect( '/pages/err_rtb_no_rtbform_id', NULL, TRUE ); }
+		if ( !$rtbform_id ) { $this->redirect( '/pages/err_rtb_funct_param_missing', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('Rtbform.id'=>$rtbform_id) );
 		
@@ -53,7 +53,7 @@ class RtbformsController extends RtbformAppController {
 		if ( !empty($this->data) ) {
 			$this->Rtbform->id = $rtbform_id;
 			if ( $this->Rtbform->save($this->data) ) {
-				$this->flash( 'Your data has been updated.','/rtbform/rtbforms/profile/'.$rtbform_id );
+				$this->flash( 'your data has been updated','/rtbform/rtbforms/profile/'.$rtbform_id );
 			}
 		} else {
 			$this->data = $this->Rtbform->find('first',array('conditions'=>array('Rtbform.id'=>$rtbform_id)));
@@ -61,14 +61,14 @@ class RtbformsController extends RtbformAppController {
 	}
   
 	function delete( $rtbform_id=null ) {
-		if ( !$rtbform_id ) { $this->redirect( '/pages/err_rtb_no_rtbform_id', NULL, TRUE ); }
+		if ( !$rtbform_id ) { $this->redirect( '/pages/err_rtb_funct_param_missing', NULL, TRUE ); }
 		
 		$this->hook();
 		
 		if( $this->Rtbform->atim_delete( $rtbform_id ) ) {
-			$this->flash( 'Your data has been deleted.', '/rtbform/rtbforms/search/');
+			$this->flash( 'your data has been deleted', '/rtbform/rtbforms/search/');
 		} else {
-			$this->flash( 'Error deleting data - Contact administrator.', '/rtbform/rtbforms/search/');
+			$this->flash( 'error deleting data - contact administrator', '/rtbform/rtbforms/search/');
 		}
 	}
   

@@ -207,7 +207,7 @@ class GroupsController extends AdministrateAppController {
 		if ( !empty($this->data) ) {
 			
 			if ( $this->Group->save( $this->data ) ) {
-				$this->flash( 'Your data has been saved.', '/groups/index/'.$bank_id );
+				$this->flash( 'your data has been saved', '/groups/index/'.$bank_id );
 			}
 			
 		}
@@ -250,7 +250,7 @@ class GroupsController extends AdministrateAppController {
 		} else {
 			
 			if ( $this->User->save( $this->data['Group'] ) ) {
-				$this->flash( 'Your data has been updated.','/groups/detail/'.$bank_id.'/'.$group_id );
+				$this->flash( 'your data has been updated','/groups/detail/'.$bank_id.'/'.$group_id );
 			}
 			
 		}
