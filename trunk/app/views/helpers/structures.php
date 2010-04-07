@@ -49,7 +49,9 @@ class StructuresHelper extends Helper {
 				
 				'columns'		=> array(), // pass inline CSS to any structure COLUMNS
 				
-				'tree'			=> array() // indicates MULTIPLE atim_structures passed to this class, and which ones to use for which MODEL in each tree ROW
+				'tree'			=> array(), // indicates MULTIPLE atim_structures passed to this class, and which ones to use for which MODEL in each tree ROW
+				
+				'tabindex'		=> 0 // when setting TAB indexes, add this value to the number, useful for stacked forms
 			),
 			
 			'links'		=> array(
@@ -1401,7 +1403,7 @@ class StructuresHelper extends Helper {
 					// var for html helper array
 					$html_element_array = array();
 					$html_element_array['class'] = '';
-					$html_element_array['tabindex'] = $field_count + ( ( $tab_key+1 )*1000 );
+					$html_element_array['tabindex'] = $options['settings']['tabindex'] + $field_count + ( ( $tab_key+1 )*1000 );
 					
 					$field['StructureField']['setting'] = trim($field['StructureField']['setting']);
 					if ( $field['StructureField']['setting'] ) {	
