@@ -88,8 +88,29 @@ class StoragesComponent extends Object {
 		$formatted_data = array();
 		if(!empty($res)) {
 			foreach ($res as $storage_id => $storage_data) {
-				$formatted_data[$storage_id] = $storage_data['StorageMaster']['selection_label'] . ' [' . __($storage_data['StorageMaster']['storage_type'], TRUE) . ': ' . $storage_data['StorageMaster']['code'] . ']';
+				$formatted_data[$storage_id] = $this->formatStorageTitleForDisplay($storage_data);
 			}
+		}
+	
+		return $formatted_data;
+	}
+	
+	/**
+	 * Build storage title joining many storage information.
+	 * 
+	 * @param $storage_data Storages data
+	 * 
+	 * @return Storage title (string).
+	 *
+	 * @author N. Luc
+	 * @since 2009-09-11
+	 */	
+	 
+	function formatStorageTitleForDisplay($storage_data) {
+		$formatted_data = '';
+		
+		if((!empty($storage_data)) && isset($storage_data['StorageMaster'])) {
+			$formatted_data = $storage_data['StorageMaster']['selection_label'] . ' [' . __($storage_data['StorageMaster']['code'] . ' ('.$storage_data['StorageMaster']['storage_type'], TRUE) .')'. ']';
 		}
 	
 		return $formatted_data;
@@ -196,7 +217,7 @@ class StoragesComponent extends Object {
 					$storage_definition_error = 'no storage matches (at least one of) the selection label(s)';
 				} else if(sizeof($matching_storage_list) > 1) {
 					// More than one storage matche this storage selection label
-					$storage_definition_error = 'more than one storages matche (at least one of) the selection label(s)';
+					$storage_definition_error = 'more than one storages matches (at least one of) the selection label(s)';
 				} else {
 					// The selection label match only one storage: Get the storage_master_id
 					$selected_storage_master_id = key($matching_storage_list);

@@ -149,8 +149,14 @@ class StructuresHelper extends Helper {
 			
 			default:				$options['type'] = 'detail';	$return_string .= $this->build_detail( $atim_structure, $options );	break;
 		}
-			
 		if ( $options['links']['top'] && $options['settings']['form_bottom'] ) {
+			if($options['type'] == 'search'){	//search mode
+				$link_class = "search";
+				$link_label = __("search", null);
+			}else{								//other mode
+				$link_class = "submit";
+				$link_label = __("submit", null);
+			}
 			$return_string .= '
 				</fieldset>
 				
@@ -158,7 +164,7 @@ class StructuresHelper extends Helper {
 					<div>
 						<span class="button large">
 							<input id="submit_button" class="submit" type="submit" value="Submit" style="display: none;"/>
-							<a id="submit_button_link" href="#" onclick="$(\'submit_button\').click();">'.__('submit', null).'</a>
+							<a href="#" onclick="$(\'submit_button\').click();" class="form '.$link_class.'">'.$link_label.'</a>
 						</span>
 					</div>
 			';
@@ -174,7 +180,6 @@ class StructuresHelper extends Helper {
 		if ( $options['settings']['actions'] ) {
 			$return_string .= $this->generate_links_list(  $this->data, $options, 'bottom' );
 		}
-		
 		// RETURN or ECHO resulting structure
 		if ( $options['settings']['return'] ) { return $return_string; } else { echo $return_string; }
 				
@@ -279,7 +284,6 @@ class StructuresHelper extends Helper {
 							$table_row_count++;
 							
 						} // end ROW 
-						
 						$return_string .= '
 								</tbody>
 								</table>
@@ -357,7 +361,6 @@ class StructuresHelper extends Helper {
 					$table_structure[$key] = $this->build_stack( $atim_structure, $options );
 					unset($options['stack']);
 				}
-				
 				$structure_count = 0;
 				$structure_index = array( 1 => $table_structure ); 
 				
@@ -1013,7 +1016,7 @@ class StructuresHelper extends Helper {
 							$sorting_link .= isset($_REQUEST['page']) ? '&amp;page='.$_REQUEST['page'] : '';
 							
 							if ( $options['settings']['pagination'] ) {
-								$return_string .= $this->Paginator->sort(html_entity_decode($table_row['label']), $table_row['model'].'.'.$table_row['field']);
+								$return_string .= $this->Paginator->sort(html_entity_decode($table_row['label'], ENT_QUOTES, "UTF-8"), $table_row['model'].'.'.$table_row['field']);
 							} else {
 								$return_string .= $table_row['label'];
 							}
@@ -1249,12 +1252,54 @@ class StructuresHelper extends Helper {
 								
 							// swap out VALUE for LANG LOOKUP choice for SELECTS 
 							// } else if ( $field['type']=='select' ) {
-							} else if ( count($field['StructureField']['StructureValueDomain']) && isset($field['StructureField']['StructureValueDomain']['StructurePermissibleValue']) ) {
+							} else if ( count($field['StructureField']['StructureValueDomain']) ) {
 								
-								foreach ( $field['StructureField']['StructureValueDomain']['StructurePermissibleValue'] as $lookup ) {
-									if ( $lookup['value'] == $display_value && $lookup['language_alias'] ) {
-										$display_value = __( $lookup['language_alias'], true );
+								// if SOURCE is provided, use provided MODEL::FUNCTION call to retrieve pulldown values
+								if ( $field['StructureField']['StructureValueDomain']['source'] ) {
+									
+									list($pulldown_model,$pulldown_function) = split('::',$field['StructureField']['StructureValueDomain']['source']);
+									
+									if ( $pulldown_model && App::import('Model',$pulldown_model) ) {
+				
+										// if model name is PLUGIN.MODEL string, need to split and drop PLUGIN name after import but before NEW
+										$pulldown_plugin = NULL;
+										if ( strpos($pulldown_model,'.')!==false ) {
+											$combined_plugin_model_name = $pulldown_model;
+											list($pulldown_plugin,$pulldown_model) = explode('.',$combined_plugin_model_name);
+										}
+										
+										// load MODEL, and override with CUSTOM model if it exists...
+											$pulldown_model_object = new $pulldown_model;
+											
+											$custom_pulldown_model = $pulldown_model.'Custom';
+											if ( App::import('Model',$custom_pulldown_model) ) {
+												$pulldown_model_object = $$custom_pulldown_model;
+											}
+										
+										// run model::function
+										$pulldown_result = $pulldown_model_object->{$pulldown_function}();
+										
+										// find MATCH in results (it is assumed any translations have happened in the MODEL already)
+										foreach ( $pulldown_result as $lookup ) {
+											if ( $lookup['value'] == $display_value ) {
+												if ( isset($lookup[$options['type']]) ) { $display_value = $lookup[$options['type']]; }
+												else { $display_value = $lookup['default']; }
+											}
+										}
+										
 									}
+									
+								}
+								
+								// use permissible values associated with this value domain instead
+								else if ( isset($field['StructureField']['StructureValueDomain']['StructurePermissibleValue']) ) {
+								
+									foreach ( $field['StructureField']['StructureValueDomain']['StructurePermissibleValue'] as $lookup ) {
+										if ( $lookup['value'] == $display_value && $lookup['language_alias'] ) {
+											$display_value = __( $lookup['language_alias'], true );
+										}
+									}
+									
 								}
 								
 							}
@@ -1500,10 +1545,50 @@ class StructuresHelper extends Helper {
 								}
 							}
 							
-							if ( count($field['StructureField']['StructureValueDomain']) && isset($field['StructureField']['StructureValueDomain']['StructurePermissibleValue']) ) {
-								foreach ( $field['StructureField']['StructureValueDomain']['StructurePermissibleValue'] as $lookup ) {
-									$html_element_array['options'][ $lookup['value'] ] = html_entity_decode(__( $lookup['language_alias'], true ));
+							if ( count($field['StructureField']['StructureValueDomain']) ) {
+								
+								// if SOURCE is provided, use provided MODEL::FUNCTION call to retrieve pulldown values
+								if ( $field['StructureField']['StructureValueDomain']['source'] ) {
+									
+									list($pulldown_model,$pulldown_function) = split('::',$field['StructureField']['StructureValueDomain']['source']);
+									
+									if ( $pulldown_model && App::import('Model',$pulldown_model) ) {
+				
+										// if model name is PLUGIN.MODEL string, need to split and drop PLUGIN name after import but before NEW
+										$pulldown_plugin = NULL;
+										if ( strpos($pulldown_model,'.')!==false ) {
+											$combined_plugin_model_name = $pulldown_model;
+											list($pulldown_plugin,$pulldown_model) = explode('.',$combined_plugin_model_name);
+										}
+										
+										// load MODEL, and override with CUSTOM model if it exists...
+											$pulldown_model_object = new $pulldown_model;
+											
+											$custom_pulldown_model = $pulldown_model.'Custom';
+											if ( App::import('Model',$custom_pulldown_model) ) {
+												$pulldown_model_object = new $$custom_pulldown_model;
+											}
+										
+										// run model::function
+										$pulldown_result = $pulldown_model_object->{$pulldown_function}();
+										
+										// it is assumed any translations have happened in the MODEL already
+										foreach ( $pulldown_result as $lookup ) {
+											if ( isset($lookup[$options['type']]) ) { $html_element_array['options'][ $lookup['value'] ] = $lookup[$options['type']]; }
+											else { $html_element_array['options'][ $lookup['value'] ] = $lookup['default']; }
+										}
+										
+									}
+									
 								}
+								
+								// use permissible values associated with this value domain instead
+								else if ( isset($field['StructureField']['StructureValueDomain']['StructurePermissibleValue']) ) {
+									foreach ( $field['StructureField']['StructureValueDomain']['StructurePermissibleValue'] as $lookup ) {
+										$html_element_array['options'][ $lookup['value'] ] = html_entity_decode(__( $lookup['language_alias'], true ), ENT_QUOTES, "UTF-8");
+									}
+								}
+								
 							}
 							
 							break;
@@ -1818,9 +1903,13 @@ class StructuresHelper extends Helper {
 					
 					// put display_value into CONTENT array index, ELSE put span tag if value BLANK and INCREMENT empty index 
 						if ( trim($display_value)!='' ) {
-							$table_index[ $field['display_column'] ][ $row_count ]['input'] .= "<span style='white-space: nowrap;'>".$table_index[ $field['display_column'] ][ $row_count ]['tag'].$display_value.'</span> ';
+							$tmpInput = $table_index[ $field['display_column'] ][ $row_count ]['tag'].$display_value.' ';
+							if($options['type'] != 'datagrid'){
+								$tmpInput = "<span style='white-space: nowrap;'>".$tmpInput."</span>";
+							}
+							$table_index[ $field['display_column'] ][ $row_count ]['input'] .= $tmpInput;
 						} else {
-							$table_index[ $field['display_column'] ][ $row_count ]['input'] .= "<span style='white-space: nowrap;'>".$table_index[ $field['display_column'] ][ $row_count ]['tag'].'<span class="empty">-</span></span> ';
+							$table_index[ $field['display_column'] ][ $row_count ]['input'] .= $table_index[ $field['display_column'] ][ $row_count ]['tag'].'<span class="empty">-</span> ';
 							$table_index[ $field['display_column'] ][ $row_count ]['empty']++;
 						}
 				
@@ -1953,7 +2042,7 @@ class StructuresHelper extends Helper {
 				if ( strpos($aco_alias,'controllers/Users')!==false || strpos($aco_alias,'controllers/Pages')!==false || $Acl->check($aro_alias, $aco_alias) ) {
 					
 					$display_class_name = $this->generate_link_class($link_name, $link_location);
-					$htmlAttributes['title'] = strip_tags( html_entity_decode(__($link_name, true)) ); 
+					$htmlAttributes['title'] = strip_tags( html_entity_decode(__($link_name, true), ENT_QUOTES, "UTF-8") ); 
 					
 					if(strlen($icon) > 0){
 						$htmlAttributes['class'] = 'form '.$icon;

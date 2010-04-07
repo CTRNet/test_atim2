@@ -10,6 +10,9 @@
 	// Set form structure and option 
 	$final_atim_structure = $atim_structure; 
 	$final_options = array('links'=>$structure_links, 'override' => $structure_override);
+	if($atim_structure['Structure']['alias'] == "incrementedmiscidentifiers"){
+		$final_options['settings']['header'] = __("generated identifier", true);
+	}
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook();

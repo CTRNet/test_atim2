@@ -35,24 +35,10 @@ class SampleMaster extends InventorymanagementAppModel {
 				'SampleMaster.id' => $variables['SampleMaster.initial_specimen_sample_id']);
 			$specimen_data = $this->find('first', array('conditions' => $criteria));
 			
-			// Build filter information
-			$filter_data = '';
-			if(array_key_exists('FilterLevel', $variables) && ($variables['FilterLevel'] == 'sample') && isset($variables['SampleMaster.id']) 
-			&& $variables['SampleMaster.initial_specimen_sample_id'] == $variables['SampleMaster.id']) {
-				// User is working on specimen: Build filter value to add it to menu
-				$studied_sample_type = array_key_exists('SampleTypeForFilter', $variables)? $variables['SampleTypeForFilter']: '';
-				$studied_aliquot_type = array_key_exists('AliquotTypeForFilter', $variables)? $variables['AliquotTypeForFilter']: '';
-				
-				$filter_data = empty($studied_sample_type)? '': __($studied_sample_type, true);
-				$filter_data .= empty($filter_data)? '': ' ';
-				$filter_data .= empty($studied_aliquot_type)? '': __($studied_aliquot_type, true);
-				$filter_data = empty($filter_data)? '': ' > ' . $filter_data;
-			}
-
 			// Set summary	 	
 	 		$return = array(
 				'Summary' => array(
-					'menu' => array(null, __($specimen_data['SampleMaster']['sample_type'], true) . ' : ' . $specimen_data['SampleMaster']['sample_code'] . $filter_data),
+					'menu' => array(null, __($specimen_data['SampleMaster']['sample_type'], true) . ' : ' . $specimen_data['SampleMaster']['sample_code']),
 					'title' => array(null, __($specimen_data['SampleMaster']['sample_type'], true) . ' : ' . $specimen_data['SampleMaster']['sample_code']),
 
 					'description' => array(
@@ -77,23 +63,10 @@ class SampleMaster extends InventorymanagementAppModel {
 				'SampleMaster.id' => $variables['SampleMaster.id']);
 			$derivative_data = $this->find('first', array('conditions' => $criteria));
 				 	
-			// Build filter information
-			$filter_data = '';
-			if(array_key_exists('FilterLevel', $variables) && ($variables['FilterLevel'] == 'sample') && $variables['SampleMaster.initial_specimen_sample_id'] != $variables['SampleMaster.id']) {
-				// User is working on derivative: Build filter value to add it to menu
-				$studied_sample_type = array_key_exists('SampleTypeForFilter', $variables)? $variables['SampleTypeForFilter']: '';
-				$studied_aliquot_type = array_key_exists('AliquotTypeForFilter', $variables)? $variables['AliquotTypeForFilter']: '';
-				
-				$filter_data = empty($studied_sample_type)? '': __($studied_sample_type, true);
-				$filter_data .= empty($filter_data)? '': ' ';
-				$filter_data .= empty($studied_aliquot_type)? '': __($studied_aliquot_type, true);
-				$filter_data = empty($filter_data)? '': ' > ' . $filter_data;
-			}
-
 			// Set summary	 	
 	 		$return = array(
 				'Summary' => array(
-					'menu' => array(null, __($derivative_data['SampleMaster']['sample_type'], true) . ' : ' . $derivative_data['SampleMaster']['sample_code'] . $filter_data),
+					'menu' => array(null, __($derivative_data['SampleMaster']['sample_type'], true) . ' : ' . $derivative_data['SampleMaster']['sample_code']),
 					'title' => array(null, __($derivative_data['SampleMaster']['sample_type'], true) . ' : ' . $derivative_data['SampleMaster']['sample_code']),
 
 					'description' => array(

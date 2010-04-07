@@ -105,6 +105,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$form_alias = null;
 		$aliquot_search_criteria = array();
 		$menu_variables = array();
+		
+		$sample_filter_value = '';
+		$aliquot_filter_value = '';
 
 		if($is_collection_aliquot_list) {
 			//---------------------------------------------------
@@ -124,8 +127,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 			}
 				
 			// A.2- Set Model, Alias, Menu Criteria and Search Criteria to use
-			$menu_variables['FilterLevel'] = 'collection';
-
 			if(is_null($filter_option)) {
 				// No filter
 				$model_to_use = 'ViewAliquot';
@@ -143,12 +144,12 @@ class AliquotMastersController extends InventoryManagementAppController {
 
 				$sample_control_data = $this->SampleControl->find('first', array('conditions' => array('SampleControl.id' => $sample_control_id)));
 				if(empty($sample_control_data)) { $this->redirect('/pages/err_inv_system_error', null, true); }
-				$menu_variables['SampleTypeForFilter'] = $sample_control_data['SampleControl']['sample_type'];
+				$sample_filter_value = $sample_control_data['SampleControl']['sample_type'];
 
 				$aliquot_control_data = $this->AliquotControl->find('first', array('conditions' => array('AliquotControl.id' => $option_for_list_all[1])));
 				if(empty($aliquot_control_data)) { $this->redirect('/pages/err_inv_system_error', null, true); }
 				$form_alias = $aliquot_control_data['AliquotControl']['form_alias'];
-				$menu_variables['AliquotTypeForFilter'] = $aliquot_control_data['AliquotControl']['aliquot_type'];
+				$aliquot_filter_value = $aliquot_control_data['AliquotControl']['aliquot_type'];
 
 				$model_to_use = 'AliquotMaster';
 				$form_alias = $aliquot_control_data['AliquotControl']['form_alias'];
@@ -189,8 +190,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 			}
 				
 			// B.3- Set Model, Alias, Menu Criteria and Search Criteria to use
-			$menu_variables['FilterLevel'] = 'sample';
-
 			if(is_null($filter_option)) {
 				// No filter
 				$model_to_use = 'ViewAliquot';
@@ -210,7 +209,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 
 				$aliquot_control_data = $this->AliquotControl->find('first', array('conditions' => array('AliquotControl.id' => $option_for_list_all[1])));
 				if(empty($aliquot_control_data)) { $this->redirect('/pages/err_inv_system_error', null, true); }
-				$menu_variables['AliquotTypeForFilter'] = $aliquot_control_data['AliquotControl']['aliquot_type'];
+				$aliquot_filter_value = $aliquot_control_data['AliquotControl']['aliquot_type'];
 
 				$model_to_use = 'AliquotMaster';
 				$form_alias = $aliquot_control_data['AliquotControl']['form_alias'];
@@ -223,8 +222,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 
 		// MANAGE DATA
-
-
+		
 		// Search data to display
 		$samples_data = array();
 		switch($model_to_use) {
@@ -290,6 +288,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// Set menu variables
 		$atim_menu_variables = array_merge(array('Collection.id' => $collection_id), $menu_variables);
 		$this->set('atim_menu_variables', $atim_menu_variables);
+
+		$this->set('sample_filter_value', $sample_filter_value);
+		$this->set('aliquot_filter_value', $aliquot_filter_value);
 		
 		$hook_link = $this->hook('format');
 		if($hook_link){
@@ -943,7 +944,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$available_sample_aliquots = $this->AliquotMaster->find('all', array('conditions' => $criteria, 'order' => 'AliquotMaster.barcode ASC', 'recursive' => '-1'));
 		
 		if(empty($available_sample_aliquots)) {
-			$this->flash('no new sample aliquot could be actually defined as source aliquot', '/inventorymanagement/aliquot_masters/listallSourceAliquots/' . $collection_id . '/' . $sample_master_id);
+			$this->flash('no new sample aliquot could be actually defined as source aliquot', '/inventorymanagement/aliquot_masters/listAllSourceAliquots/' . $collection_id . '/' . $sample_master_id);
 		}
 		
 		// Set array to get id from barcode
@@ -954,7 +955,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
-		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/aliquot_masters/listallSourceAliquots/%%Collection.id%%/%%SampleMaster.id%%'));	
+		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/aliquot_masters/listAllSourceAliquots/%%Collection.id%%/%%SampleMaster.id%%'));	
 		
 		// Get the current menu object.
 		$this->set( 'atim_menu_variables', 

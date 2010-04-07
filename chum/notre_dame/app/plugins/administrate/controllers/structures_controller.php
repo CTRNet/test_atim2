@@ -25,7 +25,7 @@ class StructuresController extends AdministrateAppController {
 		$this->hook();
 		
 		if ( !empty($this->data) ) {
-			if ( $this->Structure->save($this->data) ) $this->flash( 'Your data has been updated.','/administrate/structures/detail/'.$structure_id );
+			if ( $this->Structure->save($this->data) ) $this->flash( 'your data has been updated','/administrate/structures/detail/'.$structure_id );
 		} else {
 			$this->data = $this->Structure->find('first',array('conditions'=>array('Structure.id'=>$structure_id)));
 		}
@@ -105,7 +105,7 @@ class StructuresController extends AdministrateAppController {
 		if ( !empty($this->data) ) {
 			
 			if ( $this->Form->save( $this->data ) ) {
-				$this->flash( 'Your data has been saved.', '/forms/index/' );
+				$this->flash( 'your data has been saved', '/forms/index/' );
 			}
 			
 		}
@@ -146,7 +146,7 @@ class StructuresController extends AdministrateAppController {
 		} else {
 			
 			if ( $this->Form->save( $this->data['Form'] ) ) {
-				$this->flash( 'Your data has been updated.','/forms/detail/'.$form_id );
+				$this->flash( 'your data has been updated','/forms/detail/'.$form_id );
 			}
 			
 		}

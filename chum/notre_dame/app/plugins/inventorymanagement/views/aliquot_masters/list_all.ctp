@@ -40,11 +40,20 @@
 			'new search type' => $search_type_links
 		)
 	);
+	
+	$filter_value = 'no filter';
+	if(!empty($sample_filter_value)) {
+		$filter_value = __($sample_filter_value, true) . ' ' . __($aliquot_filter_value, true) ;
+	} else if(!empty($aliquot_filter_value)) {
+		$filter_value = __($aliquot_filter_value, true) ;
+	}
+		
+	$structure_settings = array('header' => __('filter', true) . ': ' . __($filter_value, true));
 
 	$structure_override = array();
 	
 	$final_atim_structure = $aliquots_listall_structure; 
-	$final_options = array('type' => 'index', 'links' => $structure_links, 'override' => $structure_override, 'data' => $aliquots_data);
+	$final_options = array('type' => 'index', 'links' => $structure_links, 'override' => $structure_override, 'data' => $aliquots_data, 'settings'=>$structure_settings);
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook();

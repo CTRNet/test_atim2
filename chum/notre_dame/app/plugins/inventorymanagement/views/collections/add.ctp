@@ -1,7 +1,7 @@
 <?php 
 	
 	$structure_links = array(
-		'top' => '/inventorymanagement/collections/add',
+		'top' => '/inventorymanagement/collections/add/'.(isset($atim_variables['ClinicalCollectionLink.id']) ? $atim_variables['ClinicalCollectionLink.id'].'/' : ''),
 		'bottom' => array('cancel' => '/inventorymanagement/collections/index')
 	);
 	
@@ -18,6 +18,6 @@
 	if( $hook_link ) { require($hook_link); }
 		
 	// BUILD FORM
-	$structures->build( $final_atim_structure, $final_options );	
+	$structures->build( $final_atim_structure, $final_options );
 	
 ?>

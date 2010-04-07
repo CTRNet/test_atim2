@@ -37,12 +37,28 @@ class MenusComponent extends Object {
 			$alias_calculated[]	= 'Menu.use_link LIKE "/'.( $this->controller->params['plugin'] ? $this->controller->params['plugin'].'/' : '' ).$this->controller->params['controller'].'%"';
 			
 		}
-		$fname = $fname = "../tmp/cache/menus/".str_replace("/", "_", $alias).".cache";
+		$menu_cache_directory = "../tmp/cache/menus/";
+		$fname = $menu_cache_directory.str_replace("/", "_", $alias).".cache";
 		if(file_exists($fname) && Configure::read('ATiMMenuCache.disable') != 1){
 			$fhandle = fopen($fname, 'r');
 			$return = unserialize(fread($fhandle, filesize($fname)));
 			fclose($fhandle);
 		}else{
+			if(Configure::read('ATiMMenuCache.disable')){
+				//clear menu cache
+				try{
+					if ($dh = opendir($menu_cache_directory)) {
+				        while (($file = readdir($dh)) !== false) {
+				            if(filetype($menu_cache_directory . $file) == "file"){
+				            	unlink($menu_cache_directory . $file);
+				            }
+				        }
+				        closedir($dh);
+				    }
+				}catch(Exception $e){
+					//do nothing, it's a race condition with someone else
+				}
+			}
 			if ( $alias ) {
 				App::import('model', 'Menu');
 				$this->Component_Menu =& new Menu;
