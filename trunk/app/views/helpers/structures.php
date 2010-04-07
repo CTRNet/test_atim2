@@ -110,7 +110,7 @@ class StructuresHelper extends Helper {
 			}
 		}
 		
-		if(isset($options['settings']['separator'])){
+		if( $options['settings']['separator'] ){
 			$return_string .= '<table class="structure" cellspacing="0">
 				<tbody>
 				<tr><td>
@@ -119,7 +119,7 @@ class StructuresHelper extends Helper {
 				</tbody></table>';
 		}
 		
-		if(isset($options['settings']['header'])){
+		if( $options['settings']['header'] ){
 			$return_string .= '<table class="structure" cellspacing="0">
 				<tbody>
 				<tr><td>
