@@ -38,9 +38,12 @@ class StructuresHelper extends Helper {
 				
 				// show/hide various structure elements, useful for STACKING multiple structures (for example, to make one BIG form out of multiple smaller forms)
 				'actions'		=> true, 
+				'header'			=> '',
 				'form_top'		=> true, 
+				'tabindex'		=> 0, // when setting TAB indexes, add this value to the number, useful for stacked forms
 				'form_inputs'	=> true, // if TRUE, use inputs when supposed to, if FALSE use static display values regardless
 				'form_bottom'	=> true,
+				'separator'		=> false,
 				'pagination'	=> true,
 				
 				'all_fields'	=> false, // FALSE acts on structures datatable settings, TRUE ignores them and displays ALL FIELDS in a form regardless
@@ -49,9 +52,8 @@ class StructuresHelper extends Helper {
 				
 				'columns'		=> array(), // pass inline CSS to any structure COLUMNS
 				
-				'tree'			=> array(), // indicates MULTIPLE atim_structures passed to this class, and which ones to use for which MODEL in each tree ROW
+				'tree'			=> array() // indicates MULTIPLE atim_structures passed to this class, and which ones to use for which MODEL in each tree ROW
 				
-				'tabindex'		=> 0 // when setting TAB indexes, add this value to the number, useful for stacked forms
 			),
 			
 			'links'		=> array(
@@ -1763,6 +1765,10 @@ class StructuresHelper extends Helper {
 										$display_value .= $this->Form->month($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], $month_value, am(array('name'=>$month_name, 'id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'-mm'),$html_element_array), $html_element_array['empty']);
 										$display_value .= $this->Form->year($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], 1900, 2100, $year_value, am(array('name'=>$year_name, 'id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'], 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'),$html_element_array_for_year), $html_element_array['empty']);
 									}
+									
+									$display_value .= '
+										<a href="#" class="date-picker-control" title="" id="fd-but-'.$model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'"><span></span></a>
+									';
 									
 									if ( $field['StructureField']['type']=='datetime' ) {
 										$display_value .= $this->Form->hour($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], FALSE, ($hour_value === "0" ? 12 : $hour_value), am(array('name'=>$hour_name),$html_element_array) );
