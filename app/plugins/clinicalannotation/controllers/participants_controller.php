@@ -22,8 +22,8 @@ class ParticipantsController extends ClinicalannotationAppController {
 		'codingicd10.CodingIcd10'
 	);
 	var $paginate = array(
-		'Participant'=>array('limit'=>10,'order'=>'Participant.last_name ASC, Participant.first_name ASC'),
-		'MiscIdentifier'=>array('limit'=>10,'order'=>'MiscIdentifier.identifier_name ASC')); 
+		'Participant'=>array('limit'=>pagination_amount,'order'=>'Participant.last_name ASC, Participant.first_name ASC'),
+		'MiscIdentifier'=>array('limit'=>pagination_amount,'order'=>'MiscIdentifier.identifier_name ASC')); 
 	
 	function index() {
 		$_SESSION['ctrapp_core']['search'] = NULL; // clear SEARCH criteria
