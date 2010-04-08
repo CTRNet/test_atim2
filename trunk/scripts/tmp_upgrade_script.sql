@@ -2462,3 +2462,9 @@ UPDATE `structure_fields` SET `structure_value_domain` = '172',
 UPDATE `structure_fields` SET `language_help` = 'help_age accuracy' WHERE `structure_fields`.`id` =820;
 
 UPDATE `structure_fields` SET `language_help` = 'help_age accuracy' WHERE `structure_fields`.`id` =586;
+
+-- add 'access to participant' action into collection detail
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('access to participant', '', 'Access To Participant', 'Accéder au participant');
+
