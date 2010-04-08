@@ -430,9 +430,9 @@ INSERT INTO `sd_der_pbmcs` (`id`, `sample_master_id`, `created`, `created_by`, `
 (1, 5, '2010-01-20 11:17:55', '1', '2010-01-20 11:17:55', '1', 0, NULL);
 INSERT INTO `sd_der_pbmcs_revs` (`id`, `sample_master_id`, `created`, `created_by`, `modified`, `modified_by`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
 (1, 5, '2010-01-20 11:17:55', '1', '2010-01-20 11:17:55', '1', 1, '2010-01-20 11:17:55', 0, NULL);
-INSERT INTO `sd_der_plasmas` (`id`, `sample_master_id`, `hemolyze_signs`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
+INSERT INTO `sd_der_plasmas` (`id`, `sample_master_id`, `hemolysis_signs`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
 (1, 4, 'yes', '2010-01-20 11:15:43', '1', '2010-01-20 11:15:43', '1', 0, NULL);
-INSERT INTO `sd_der_plasmas_revs` (`id`, `sample_master_id`, `hemolyze_signs`, `created`, `created_by`, `modified`, `modified_by`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
+INSERT INTO `sd_der_plasmas_revs` (`id`, `sample_master_id`, `hemolysis_signs`, `created`, `created_by`, `modified`, `modified_by`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
 (1, 4, 'yes', '2010-01-20 11:15:43', '1', '2010-01-20 11:15:43', '1', 1, '2010-01-20 11:15:43', 0, NULL);
 INSERT INTO `sd_spe_bloods` (`id`, `sample_master_id`, `blood_type`, `collected_tube_nbr`, `collected_volume`, `collected_volume_unit`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
 (1, 3, 'heparin', 3, '123.00000', 'ml', '2010-01-20 11:15:11', '1', '2010-01-20 11:15:12', '1', 0, NULL);
