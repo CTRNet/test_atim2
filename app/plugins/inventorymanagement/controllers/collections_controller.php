@@ -75,6 +75,9 @@ class CollectionsController extends InventorymanagementAppController {
 		if(empty($collection_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }
 		$this->data = $collection_data;
 		
+		// Set participant id
+		$this->set('participant_id', $collection_data['ViewCollection']['participant_id']);
+		
 		// Set list of banks
 		$this->set('bank_list', $this->Collections->getBankList());
 		

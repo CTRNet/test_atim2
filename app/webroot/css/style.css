@@ -1014,11 +1014,11 @@ span.help:hover {
 	-= ICONS
 *===========================================================*/
 /* -=site wide*/
+a.access_to_data { background: url("../img/icons/AccessToData_16x16.png") no-repeat left center; }
 a.add { background: url("../img/icons/Add_16x16.png") no-repeat left center; }
 a.aliquot { background: url("../img/icons/aliquot_16x16.png") no-repeat left center; }
 a.cancel { background: url("../img/icons/Control Rewind_16x16.png") no-repeat left center; }
 a.collection { background: url("../img/icons/collection_16x16.png") no-repeat left center; }
-a.access_to_data { background: url("../img/icons/AccessToData_16x16.png") no-repeat left center; }
 a.default { background: url("../img/icons/Document Blank_16x16.png") no-repeat left center; }
 a.delete { background: url("../img/icons/Close_16x16.png") no-repeat left center; }
 a.detail { background: url("../img/icons/Control Play_16x16.png") no-repeat left center; }
@@ -1030,7 +1030,9 @@ a.grid { background: url("../img/icons/Table_16x16.png") no-repeat left center; 
 a.list { background: url("../img/icons/Folder Open_16x16.png") no-repeat left center; }
 a.lungs { background: url("../img/icons/lungs_16x16.png") no-repeat left center; }
 a.news { background: url("../img/icons/News_16x16.png") no-repeat left center; }
+a.not_allowed { background: url("../img/icons/Warning_16x16.png") no-repeat left center; }
 a.order { background: url("../img/icons/Shopping Cart_16x16.png") no-repeat left center; }
+a.participant { background: url("../img/icons/Contact_16x16.png") no-repeat left center; }
 a.popup { background: url("../img/icons/Trackback_16x16.png") no-repeat left center; }
 a.reveal { background: url("../img/icons/Relationship Data_16x16.png") no-repeat left center; }
 a.reveal.not_allowed { background: url("../img/icons/Relationship Data_16x16.png") no-repeat left center; }
@@ -1043,7 +1045,7 @@ a.storage, a.form.plugin.storagelayout {	background: url("../img/icons/storage_1
 a.thumbsdown { background: url("../img/icons/Flag Black_16x16.png") no-repeat left center; }
 a.thumbsup { background: url("../img/icons/Flag Green_16x16.png") no-repeat left center; }
 a.users { background: url("../img/icons/Group_16x16.png") no-repeat left center; }
-a.not_allowed { background: url("../img/icons/Warning_16x16.png") no-repeat left center; }
+
 li.not_allowed a.plugin.not_allowed { background: url("../img/icons/Warning_16x16.png") no-repeat left center; }
 
 
