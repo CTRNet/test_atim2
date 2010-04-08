@@ -43,8 +43,6 @@
 	$structure_override['AliquotMaster.sop_master_id'] = $arr_aliquot_sops_for_display;
 	$structure_override['AliquotMaster.study_summary_id'] = $arr_studies_for_display;	
 	$structure_override['AliquotUse.study_summary_id'] = $arr_studies_for_display;	
-	$structure_override['AliquotDetail.block_aliquot_master_id'] = $arr_sample_blocks_for_display;	
-	$structure_override['AliquotDetail.gel_matrix_aliquot_master_id'] = $arr_sample_gel_matrices_for_display;	
 
 	if($is_tree_view_detail_form){
 		
