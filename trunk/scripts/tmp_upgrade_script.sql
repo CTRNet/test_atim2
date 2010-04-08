@@ -186,22 +186,6 @@ UPDATE `menus` SET `active` = 'no' WHERE `menus`.`id` = 'clin_CAN_69';
 
 
 -- Updates to the misc identifiers section
-DELETE FROM `misc_identifiers`;
-DELETE FROM `misc_identifiers_revs`;
- 
-INSERT INTO `misc_identifier_controls` 
-(`id`, `misc_identifier_name`, `misc_identifier_name_abbrev`, `status`, `display_order`, `autoincrement_name`, `misc_identifier_format`) 
-VALUES
-(null, 'custom_identifier_hospital_nbr', 'CIHN', 'active', 0, '', ''),
-(null, 'custom_identifier_insurance_nbr', 'CIIN', 'active', 1, '', ''),
-(null, 'custom_identifier_breat_bank_nbr', 'CIBB', 'active', 2, 'part_ident_breat_bank_nbr', 'BR - PART [%%key_increment%%]'),
-(null, 'custom_identifier_ovary_bank_nbr', 'CIOB', 'active', 3, 'part_ident_ovary_bank_nbr', 'OV_PCODE_%%key_increment%%');
-
-DELETE FROM `key_increments`;
-INSERT INTO `key_increments` (`key_name`, `key_value`) VALUES
-('part_ident_breat_bank_nbr', 1340),
-('part_ident_ovary_bank_nbr', 1232411);
-
 DELETE FROM structure_formats WHERE structure_old_id LIKE 'CAN-999-999-000-999-8';
 INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 (null, 'CAN-999-999-000-999-8_CAN-999-999-000-999-34', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-8'), 'CAN-999-999-000-999-8', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-34'), 'CAN-999-999-000-999-34', 0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
