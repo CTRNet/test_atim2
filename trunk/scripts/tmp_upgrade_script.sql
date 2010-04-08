@@ -2468,3 +2468,333 @@ UPDATE `structure_fields` SET `language_help` = 'help_age accuracy' WHERE `struc
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('access to participant', '', 'Access To Participant', 'Accéder au participant');
 
+-- Change process to define 
+--    - either source block of a tissue slide or a tissue slide 
+--    - or source gel matrix of a cell core.
+
+DROP TABLE IF EXISTS `ad_cell_cores` , `ad_cell_cores_revs`;
+CREATE TABLE IF NOT EXISTS `ad_cell_cores` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `aliquot_master_id` int(11) DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+CREATE TABLE IF NOT EXISTS `ad_cell_cores_revs` (
+  `id` int(11) NOT NULL,
+  `aliquot_master_id` int(11) DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `ad_cell_cores` ADD CONSTRAINT `FK_ad_cell_cores_aliquot_masters` FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+
+DROP TABLE IF EXISTS `ad_tissue_cores` , `ad_tissue_cores_revs`;
+CREATE TABLE IF NOT EXISTS `ad_tissue_cores` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `aliquot_master_id` int(11) DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+CREATE TABLE IF NOT EXISTS `ad_tissue_cores_revs` (
+  `id` int(11) NOT NULL,
+  `aliquot_master_id` int(11) DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `ad_tissue_cores` ADD CONSTRAINT `FK_ad_tissue_cores_aliquot_masters` FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+
+DROP TABLE IF EXISTS `ad_tissue_slides` , `ad_tissue_slides_revs`;
+CREATE TABLE IF NOT EXISTS `ad_tissue_slides` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `aliquot_master_id` int(11) DEFAULT NULL,
+  `immunochemistry` varchar(30) DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+CREATE TABLE IF NOT EXISTS `ad_tissue_slides_revs` (
+  `id` int(11) NOT NULL,
+  `aliquot_master_id` int(11) DEFAULT NULL,
+  `immunochemistry` varchar(30) DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `ad_tissue_slides` ADD CONSTRAINT `FK_ad_tissue_slides_aliquot_masters` FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+
+DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM `structure_fields` WHERE `field` LIKE 'gel_matrix_aliquot_master_id');
+DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM `structure_fields` WHERE `field` LIKE 'block_aliquot_master_id');
+
+DELETE FROM `structure_fields` WHERE `field` LIKE 'gel_matrix_aliquot_master_id';
+DELETE FROM `structure_fields` WHERE `field` LIKE 'block_aliquot_master_id';
+
+DELETE FROM `i18n` WHERE id = 'either core or slide exists for the deleted aliquot';
+
+CREATE TABLE IF NOT EXISTS `realiquoting_controls` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `parent_sample_to_aliquot_control_id` int(11) DEFAULT NULL,
+  `child_sample_to_aliquot_control_id` int(11) DEFAULT NULL,
+  `status` enum('inactive','active') DEFAULT 'inactive',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `aliquot_to_aliquot` (`parent_sample_to_aliquot_control_id`,`child_sample_to_aliquot_control_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE `realiquoting_controls`
+  ADD CONSTRAINT `FK_parent_realiquoting_control` FOREIGN KEY (`parent_sample_to_aliquot_control_id`) REFERENCES `sample_to_aliquot_controls` (`id`),
+  ADD CONSTRAINT `FK_child_realiquoting_control` FOREIGN KEY (`child_sample_to_aliquot_control_id`) REFERENCES `sample_to_aliquot_controls` (`id`);
+
+INSERT INTO `realiquoting_controls` (`parent_sample_to_aliquot_control_id`, `child_sample_to_aliquot_control_id`, `status`) 
+VALUES
+-- *** ascite ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'ascite' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'ascite' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** blood ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'blood' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'blood' AND al.aliquot_type = 'tube'),
+'active'),
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'blood' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'blood' AND al.aliquot_type = 'whatman paper'),
+'active'),
+-- *** tissue ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'tissue' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'tissue' AND al.aliquot_type = 'tube'),
+'active'),
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'tissue' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'tissue' AND al.aliquot_type = 'slide'),
+'active'),
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'tissue' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'tissue' AND al.aliquot_type = 'block'),
+'active'),
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'tissue' AND al.aliquot_type = 'block'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'tissue' AND al.aliquot_type = 'slide'),
+'active'),
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'tissue' AND al.aliquot_type = 'block'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'tissue' AND al.aliquot_type = 'core'),
+'active'),
+-- *** urine ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'urine' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'urine' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** ascite cell ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'ascite cell' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'ascite cell' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** ascite supernatant ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'ascite supernatant' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'ascite supernatant' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** blood cell ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'blood cell' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'blood cell' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** pbmc ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'pbmc' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'pbmc' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** plasma ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'plasma' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'plasma' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** serum ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'serum' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'serum' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** cell culture ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'cell culture' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'cell culture' AND al.aliquot_type = 'tube'),
+'active'),
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'cell culture' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'cell culture' AND al.aliquot_type = 'slide'),
+'active'),
+-- *** dna ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'dna' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'dna' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** rna ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'rna' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'rna' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** concentrated urine ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'concentrated urine' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'concentrated urine' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** centrifuged urine ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'centrifuged urine' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'centrifuged urine' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** amplified rna ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'amplified rna' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'amplified rna' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** b cell ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'b cell' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'b cell' AND al.aliquot_type = 'tube'),
+'active'),
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'b cell' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'b cell' AND al.aliquot_type = 'cell gel matrix'),
+'active'),
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'b cell' AND al.aliquot_type = 'cell gel matrix'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'b cell' AND al.aliquot_type = 'core'),
+'active'),
+-- *** tissue lysate ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'tissue lysate' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'tissue lysate' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** tissue suspension ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'tissue suspension' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'tissue suspension' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** peritoneal wash ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'peritoneal wash' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'peritoneal wash' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** cystic fluid ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'cystic fluid' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'cystic fluid' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** peritoneal wash cell ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'peritoneal wash cell' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'peritoneal wash cell' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** peritoneal wash supernatant ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'peritoneal wash supernatant' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'peritoneal wash supernatant' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** cystic fluid cell ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'cystic fluid cell' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'cystic fluid cell' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** cystic fluid supernatant ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'cystic fluid supernatant' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'cystic fluid supernatant' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** pericardial fluid ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'pericardial fluid' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'pericardial fluid' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** pleural fluid ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'pleural fluid' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'pleural fluid' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** pericardial fluid cell ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'pericardial fluid cell' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'pericardial fluid cell' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** pericardial fluid supernatant ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'pericardial fluid supernatant' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'pericardial fluid supernatant' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** pleural fluid cell ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'pleural fluid cell' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'pleural fluid cell' AND al.aliquot_type = 'tube'),
+'active');

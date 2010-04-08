@@ -288,14 +288,14 @@ INSERT INTO `ad_blocks_revs` (`id`, `aliquot_master_id`, `block_type`, `patho_dp
 (3, 3, 'OCT', '#8934443234', '2010-01-20 11:00:58', '1', '2010-01-20 11:00:58', '1', 3, '2010-01-20 11:00:58', 0, NULL),
 (4, 4, 'OCT', '#897643w9823', '2010-01-20 11:00:59', '1', '2010-01-20 11:00:59', '1', 4, '2010-01-20 11:00:59', 0, NULL),
 (1, 1, 'OCT', '#893643231212', '2010-01-20 11:00:57', '1', '2010-01-20 11:14:10', '1', 5, '2010-01-20 11:14:10', 0, NULL);
-INSERT INTO `ad_tissue_slides` (`id`, `aliquot_master_id`, `immunochemistry`, `block_aliquot_master_id`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
-(1, 5, 'AC98', 1, '2010-01-20 11:02:27', '1', '2010-01-20 11:02:27', '1', 0, NULL),
-(2, 6, 'AC98', 1, '2010-01-20 11:02:28', '1', '2010-01-20 11:02:28', '1', 0, NULL),
-(3, 7, 'AC98', 1, '2010-01-20 11:02:28', '1', '2010-01-20 11:02:28', '1', 0, NULL);
-INSERT INTO `ad_tissue_slides_revs` (`id`, `aliquot_master_id`, `immunochemistry`, `block_aliquot_master_id`, `created`, `created_by`, `modified`, `modified_by`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
-(1, 5, 'AC98', 1, '2010-01-20 11:02:27', '1', '2010-01-20 11:02:27', '1', 1, '2010-01-20 11:02:27', 0, NULL),
-(2, 6, 'AC98', 1, '2010-01-20 11:02:28', '1', '2010-01-20 11:02:28', '1', 2, '2010-01-20 11:02:28', 0, NULL),
-(3, 7, 'AC98', 1, '2010-01-20 11:02:28', '1', '2010-01-20 11:02:28', '1', 3, '2010-01-20 11:02:28', 0, NULL);
+INSERT INTO `ad_tissue_slides` (`id`, `aliquot_master_id`, `immunochemistry`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
+(1, 5, 'AC98', '2010-01-20 11:02:27', '1', '2010-01-20 11:02:27', '1', 0, NULL),
+(2, 6, 'AC98', '2010-01-20 11:02:28', '1', '2010-01-20 11:02:28', '1', 0, NULL),
+(3, 7, 'AC98', '2010-01-20 11:02:28', '1', '2010-01-20 11:02:28', '1', 0, NULL);
+INSERT INTO `ad_tissue_slides_revs` (`id`, `aliquot_master_id`, `immunochemistry`, `created`, `created_by`, `modified`, `modified_by`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
+(1, 5, 'AC98', '2010-01-20 11:02:27', '1', '2010-01-20 11:02:27', '1', 1, '2010-01-20 11:02:27', 0, NULL),
+(2, 6, 'AC98', '2010-01-20 11:02:28', '1', '2010-01-20 11:02:28', '1', 2, '2010-01-20 11:02:28', 0, NULL),
+(3, 7, 'AC98', '2010-01-20 11:02:28', '1', '2010-01-20 11:02:28', '1', 3, '2010-01-20 11:02:28', 0, NULL);
 INSERT INTO `ad_tubes` (`id`, `aliquot_master_id`, `lot_number`, `concentration`, `concentration_unit`, `cell_count`, `cell_count_unit`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
 (1, 8, '#98736', '647.00', 'ug/ul', NULL, NULL, '2010-01-20 11:06:51', '1', '2010-01-20 11:11:38', '1', 0, NULL),
 (2, 9, '#98736', '647.00', 'ug/ul', NULL, NULL, '2010-01-20 11:06:52', '1', '2010-01-20 11:06:52', '1', 0, NULL),
