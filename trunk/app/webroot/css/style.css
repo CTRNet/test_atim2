@@ -102,7 +102,7 @@ div#header h1 {
 	height: 64px;
 	padding: 14px 0 7px 225px;
 	margin: 0;
-	font-size: 26px;
+	font: normal 26px/1em Arial Black, Arial Bold, Impact, sans-serif;
 	background: url(../img/header_bk_new_01.png) bottom left no-repeat;
 }
 	
@@ -1362,3 +1362,28 @@ div.auto_complete    {
 } 
 li.selected    { background-color: #ffb; }
 /** end of CakePHP auto complete **/
+
+/*===========================================================*
+	-=flash
+*===========================================================*/
+
+body.flash {
+	background: rgb(72,102,128);
+}
+
+body.flash div#wrapper {
+	width: 600px;
+	margin: 3em auto;
+}
+
+body.flash div#wrapper a {
+	display: block;
+	text-align: center;
+	color: #fff;
+	font: 2em/1.2em Arial Black, Arial Bold, Impact, sans-serif;
+	text-decoration: none;
+}
+
+body.flash div#wrapper a:hover {
+	text-decoration: underline;
+}
