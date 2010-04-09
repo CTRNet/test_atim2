@@ -19,29 +19,30 @@ ALTER TABLE `dxd_tissues` CHANGE `text_field` `laterality` VARCHAR( 50 ) CHARACT
 ALTER TABLE `dxd_tissues_revs` CHANGE `text_field` `laterality` VARCHAR( 50 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT '';
 
 -- Study - Add field for uploading images to the Study form
-ALTER TABLE `ed_all_study_research` ADD `file_path` VARCHAR( 255 ) NOT NULL AFTER `event_master_id`  ;
-ALTER TABLE `ed_all_study_research_revs` ADD `file_path` VARCHAR( 255 ) NOT NULL AFTER `event_master_id`  ;
+#ALTER TABLE `ed_all_study_research` ADD `file_path` VARCHAR( 255 ) NOT NULL AFTER `event_master_id`  ;
+#ALTER TABLE `ed_all_study_research_revs` ADD `file_path` VARCHAR( 255 ) NOT NULL AFTER `event_master_id`  ;
 
 -- Add new table for identifiers control
-SET FOREIGN_KEY_CHECKS=0;
-DROP TABLE IF EXISTS `misc_identifier_controls`;
+#SET FOREIGN_KEY_CHECKS=0;
+#DROP TABLE IF EXISTS `misc_identifier_controls`;
 
-CREATE TABLE `misc_identifier_controls` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `misc_identifier_name` varchar(50) NOT NULL DEFAULT '',
-  `misc_identifier_name_abbrev` varchar(50) NOT NULL DEFAULT '',
-  `status` varchar(50) NOT NULL DEFAULT 'active',
-  `display_order` int(11) NOT NULL DEFAULT '0',
-  `autoincrement_name` varchar(50) default NULL,
-  `misc_identifier_format` varchar(50) default NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_misc_identifier_name` (`misc_identifier_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+#CREATE TABLE `misc_identifier_controls` (
+#  `id` int(11) NOT NULL AUTO_INCREMENT,
+#  `misc_identifier_name` varchar(50) NOT NULL DEFAULT '',
+#  `misc_identifier_name_abbrev` varchar(50) NOT NULL DEFAULT '',
+#  `status` varchar(50) NOT NULL DEFAULT 'active',
+#  `display_order` int(11) NOT NULL DEFAULT '0',
+#  `autoincrement_name` varchar(50) default NULL,
+#  `misc_identifier_format` varchar(50) default NULL,
+#  PRIMARY KEY (`id`),
+#  UNIQUE KEY `unique_misc_identifier_name` (`misc_identifier_name`)
+#) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-SET FOREIGN_KEY_CHECKS=1;
+#SET FOREIGN_KEY_CHECKS=1;
 
-ALTER TABLE `misc_identifiers` ADD `misc_identifier_control_id`  INT( 11 ) NOT NULL DEFAULT '0' AFTER `identifier_value` ; 
-ALTER TABLE `misc_identifiers_revs` ADD `misc_identifier_control_id`  INT( 11 ) NOT NULL DEFAULT '0' AFTER `identifier_value` ; 
+#moved to alterTables
+#ALTER TABLE `misc_identifiers` ADD `misc_identifier_control_id`  INT( 11 ) NOT NULL DEFAULT '0' AFTER `identifier_value` ; 
+#ALTER TABLE `misc_identifiers_revs` ADD `misc_identifier_control_id`  INT( 11 ) NOT NULL DEFAULT '0' AFTER `identifier_value` ; 
 ALTER TABLE `misc_identifiers`
   ADD CONSTRAINT `FK_misc_identifiers_misc_identifier_controls`
   FOREIGN KEY (`misc_identifier_control_id`) REFERENCES `misc_identifier_controls` (`id`)
@@ -186,21 +187,21 @@ UPDATE `menus` SET `active` = 'no' WHERE `menus`.`id` = 'clin_CAN_69';
 
 
 -- Updates to the misc identifiers section
-DELETE FROM `misc_identifiers`;
-DELETE FROM `misc_identifiers_revs`;
+#DELETE FROM `misc_identifiers`;
+#DELETE FROM `misc_identifiers_revs`;
  
-INSERT INTO `misc_identifier_controls` 
-(`id`, `misc_identifier_name`, `misc_identifier_name_abbrev`, `status`, `display_order`, `autoincrement_name`, `misc_identifier_format`) 
-VALUES
-(null, 'custom_identifier_hospital_nbr', 'CIHN', 'active', 0, '', ''),
-(null, 'custom_identifier_insurance_nbr', 'CIIN', 'active', 1, '', ''),
-(null, 'custom_identifier_breat_bank_nbr', 'CIBB', 'active', 2, 'part_ident_breat_bank_nbr', 'BR - PART [%%key_increment%%]'),
-(null, 'custom_identifier_ovary_bank_nbr', 'CIOB', 'active', 3, 'part_ident_ovary_bank_nbr', 'OV_PCODE_%%key_increment%%');
+#INSERT INTO `misc_identifier_controls` 
+#(`id`, `misc_identifier_name`, `misc_identifier_name_abbrev`, `status`, `display_order`, `autoincrement_name`, `misc_identifier_format`) 
+#VALUES
+#(null, 'custom_identifier_hospital_nbr', 'CIHN', 'active', 0, '', ''),
+#(null, 'custom_identifier_insurance_nbr', 'CIIN', 'active', 1, '', ''),
+#(null, 'custom_identifier_breat_bank_nbr', 'CIBB', 'active', 2, 'part_ident_breat_bank_nbr', 'BR - PART [%%key_increment%%]'),
+#(null, 'custom_identifier_ovary_bank_nbr', 'CIOB', 'active', 3, 'part_ident_ovary_bank_nbr', 'OV_PCODE_%%key_increment%%');
 
-DELETE FROM `key_increments`;
-INSERT INTO `key_increments` (`key_name`, `key_value`) VALUES
-('part_ident_breat_bank_nbr', 1340),
-('part_ident_ovary_bank_nbr', 1232411);
+#DELETE FROM `key_increments`;
+#INSERT INTO `key_increments` (`key_name`, `key_value`) VALUES
+#('part_ident_breat_bank_nbr', 1340),
+#('part_ident_ovary_bank_nbr', 1232411);
 
 DELETE FROM structure_formats WHERE structure_old_id LIKE 'CAN-999-999-000-999-8';
 INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
@@ -870,7 +871,7 @@ UPDATE structure_value_domains SET domain_name='yes' WHERE id=64;
 ALTER TABLE structure_value_domains ADD UNIQUE KEY(`domain_name`);
 
 -- Add descritpion to structures to add information about a structure
-ALTER TABLE `structures` ADD `description` VARCHAR( 250 ) NULL AFTER `alias` ;
+#ALTER TABLE `structures` ADD `description` VARCHAR( 250 ) NULL AFTER `alias` ;
 
 -- Delete structure collection_search_type
 DELETE FROM structure_formats WHERE old_id = 'CAN-999-999-000-999-1075_CAN-999-999-000-999-1275';
@@ -1307,17 +1308,17 @@ WHERE `alias` = 'aliquotmasters' ;
 UPDATE `structures` SET `description` =  'USed to set data of the created order items when a user adds many aliquots to an order line in batch.'
 WHERE `alias` = 'orderitems_to_addAliquotsInBatch' ;
 
-ALTER TABLE storage_controls
-	ADD display_x_size tinyint unsigned not null default 0 AFTER coord_y_size,
-	ADD display_y_size tinyint unsigned not null default 0 AFTER display_x_size,
-	ADD reverse_x_numbering boolean not null default false AFTER display_y_size,
-	ADD reverse_y_numbering boolean not null default false AFTER reverse_x_numbering;
+#ALTER TABLE storage_controls
+#	ADD display_x_size tinyint unsigned not null default 0 AFTER coord_y_size,
+#	ADD display_y_size tinyint unsigned not null default 0 AFTER display_x_size,
+#	ADD reverse_x_numbering boolean not null default false AFTER display_y_size,
+#	ADD reverse_y_numbering boolean not null default false AFTER reverse_x_numbering;
 
-UPDATE storage_controls SET display_x_size=sqrt(IFNULL(coord_x_size, 1)), display_y_size=sqrt(IFNULL(coord_x_size, 1)) WHERE square_box=1;
+#UPDATE storage_controls SET display_x_size=sqrt(IFNULL(coord_x_size, 1)), display_y_size=sqrt(IFNULL(coord_x_size, 1)) WHERE square_box=1;
 
-ALTER TABLE storage_controls
-	DROP square_box,
-	DROP horizontal_display;
+#ALTER TABLE storage_controls
+#	DROP square_box,
+#	DROP horizontal_display;
 
 ALTER TABLE i18n
 	MODIFY id varchar(255) NOT NULL,
@@ -2034,7 +2035,7 @@ INSERT INTO structure_formats(`old_id`, `structure_id`, `structure_old_id`, `str
 UPDATE structure_formats SET `type`='autocomplete', `flag_override_setting`='1', `setting`='size=20,url=/storagelayout/storage_masters/autoComplete/' WHERE structure_field_id=(SELECT id FROM structure_fields WHERE old_id='CAN-999-999-000-999-1217') AND structure_field_old_id='CAN-999-999-000-999-1217' AND (flag_edit='1' OR flag_add='1');
 
 -- add "source" field to value domains, as place to put Model::function call to pulldown data, instead of permissible values
-ALTER TABLE  `structure_value_domains` ADD  `source` VARCHAR( 255 ) NULL;
+#ALTER TABLE  `structure_value_domains` ADD  `source` VARCHAR( 255 ) NULL;
 
 -- New SOURCE functionality using ICD10 field in PARTICIPANT model
 INSERT INTO  `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
