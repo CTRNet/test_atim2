@@ -2817,7 +2817,31 @@ WHERE samp.sample_type = 'protein' AND al.aliquot_type = 'tube'),
 WHERE samp.sample_type = 'protein' AND al.aliquot_type = 'tube'),
 'active');
 
+-- clean up realiquoted_by and realiquoting_date fields
 
+UPDATE structure_formats
+SET old_id = 'CANM-00016_CAN-999-999-000-999-1163',
+structure_field_id = (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-1163'),
+structure_field_old_id = 'CAN-999-999-000-999-1163',
+flag_override_label = '1',
+language_label = 'use date'
+WHERE  old_id = 'CANM-00016_CAN-999-999-000-999-1267';
+
+DELETE FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-1267';
+
+UPDATE structure_formats
+SET language_label = 'realiquoting date'
+WHERE  old_id = 'CANM-00016_CAN-999-999-000-999-1163';
+
+UPDATE structure_formats
+SET old_id = 'CANM-00016_CAN-999-999-000-999-1280',
+structure_field_id = (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-1280'),
+structure_field_old_id = 'CAN-999-999-000-999-1280',
+flag_override_label = '1',
+language_label = 'realiquoted by'
+WHERE  old_id = 'CANM-00016_CAN-999-999-000-999-1266';
+
+DELETE FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-1266';
 
 
 
