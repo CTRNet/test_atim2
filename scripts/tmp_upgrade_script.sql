@@ -2844,4 +2844,7 @@ WHERE  old_id = 'CANM-00016_CAN-999-999-000-999-1266';
 DELETE FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-1266';
 
 
-
+-- groups remove extra fields
+DELETE FROM structure_formats WHERE old_id IN('AAA-000-000-000-000-13_AAA-000-000-000-000-51');
+DELETE FROM structure_formats WHERE old_id IN('AAA-000-000-000-000-13_AAA-000-000-000-000-52');
+DELETE FROM structure_formats WHERE old_id IN('AAA-000-000-000-000-13_AAA-000-000-000-000-53');
