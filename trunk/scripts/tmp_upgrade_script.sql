@@ -2797,4 +2797,27 @@ WHERE samp.sample_type = 'pericardial fluid supernatant' AND al.aliquot_type = '
 WHERE samp.sample_type = 'pleural fluid cell' AND al.aliquot_type = 'tube'),
 (SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
 WHERE samp.sample_type = 'pleural fluid cell' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** pleural fluid supernatant ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'pleural fluid supernatant' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'pleural fluid supernatant' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** cell lysate ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'cell lysate' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'cell lysate' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** protein ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'protein' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'protein' AND al.aliquot_type = 'tube'),
 'active');
+
+
+
+
+
