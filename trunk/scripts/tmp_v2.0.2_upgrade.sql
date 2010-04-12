@@ -1,5 +1,5 @@
 -- Version: v2.0.2
--- Description: This SQL script is an upgrade for ATiM v2.0.0 and must be run against
+-- Description: This SQL script is an upgrade for ATiM v2.0.1. to 2.0.2. and must be run against
 -- an existing ATiM installation. Be sure to backup your database before running this script!
 
 -- Update version information
