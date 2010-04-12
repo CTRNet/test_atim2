@@ -50,8 +50,8 @@
 		$french = "msgid\t\"$id\"\nmsgstr\t\"$fr\"\n";
 		
 		//Writes output to file
-		fwrite($filee, $english);
-		fwrite($filef, $french);
+		fwrite($filee, utf8_encode($english));
+		fwrite($filef, utf8_encode($french));
 		echo($french."\n");
 	}
 	
