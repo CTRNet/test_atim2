@@ -38,32 +38,6 @@ class Collection extends InventorymanagementAppModel {
 		return $return;
 	}
 	
-	function contentFilterSummary($variables=array()) {
-		$return = false;
-
-		if(array_key_exists('FilterLevel', $variables) && ($variables['FilterLevel'] == 'collection')) {
-			// User is working on collection content view: either tree view, collection samples list or collection aliquots list)
-
-			// Build filter information
-			$studied_sample_type = array_key_exists('SampleTypeForFilter', $variables)? $variables['SampleTypeForFilter']: '';
-			$studied_aliquot_type = array_key_exists('AliquotTypeForFilter', $variables)? $variables['AliquotTypeForFilter']: '';
-			
-			$filter_data = empty($studied_sample_type)? '': __($studied_sample_type, true);
-			$filter_data .= empty($filter_data)? '': ' ';
-			$filter_data .= empty($studied_aliquot_type)? '': __($studied_aliquot_type, true);
-			$filter_data = empty($filter_data)? __('all content', true): $filter_data;
-
-			// Set summary						
-			$return = array(
-				'Summary' => array(
-					'menu' => array(null, $filter_data,
-					'title' => false,
-					'description'=> false)));	
-		}
-		
-		return $return;
-	}
-	
 }
 
 ?>

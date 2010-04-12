@@ -1135,5 +1135,22 @@ class StorageMastersController extends StoragelayoutAppController {
 		$children_array['DisplayData']['type'] = $type_key;
 		
 	}
+	
+	function autoComplete(){
+		$key = "";
+		foreach($this->data as $model){
+			foreach($model as $field){
+				$key = $field;
+			}
+		}
+		$this->set('posts', $this->StorageMaster->find('all', array(
+			'conditions' => array(
+			'StorageMaster.Selection_label LIKE' => $key.'%'
+			),
+			'fields' => array('StorageMaster.selection_label'),
+			'limit' => 10
+		)));
+		$this->layout = 'ajax';
+	}
 }
 ?>
