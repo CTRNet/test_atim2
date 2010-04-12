@@ -9,6 +9,7 @@
 	?>
 	
 	<title><?php echo $title.' &laquo; '.__('core_appname', true); ?></title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<link rel="shortcut icon" href="<?php echo($this->webroot); ?>/img/favicon.ico"/>
 	<?php 
 		echo $html->css('style')."\n"; 

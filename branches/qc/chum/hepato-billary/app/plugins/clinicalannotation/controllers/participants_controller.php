@@ -22,8 +22,8 @@ class ParticipantsController extends ClinicalannotationAppController {
 		'codingicd10.CodingIcd10'
 	);
 	var $paginate = array(
-		'Participant'=>array('limit'=>10,'order'=>'Participant.last_name ASC, Participant.first_name ASC'),
-		'MiscIdentifier'=>array('limit'=>10,'order'=>'MiscIdentifier.identifier_name ASC')); 
+		'Participant'=>array('limit'=>pagination_amount,'order'=>'Participant.last_name ASC, Participant.first_name ASC'),
+		'MiscIdentifier'=>array('limit'=>pagination_amount,'order'=>'MiscIdentifier.identifier_name ASC')); 
 	
 	function index() {
 		$_SESSION['ctrapp_core']['search'] = NULL; // clear SEARCH criteria
@@ -244,6 +244,57 @@ class ParticipantsController extends ClinicalannotationAppController {
 			$arr_allow_deletion['msg'] = 'error_fk_participant_linked_events';
 		}
 		return $arr_allow_deletion;
+	}
+	
+	function chronology($participant_id){
+		$tmpArray = array();
+		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id) );
+		$this->Structures->set('chronology', 'chronology');
+
+		//load every wanted information into the tmpArray
+		$participant = $this->Participant->find('first', array('conditions' => array('Participant.id' => $participant_id)));
+		$tmpArray[$participant['Participant']['date_of_birth']][] = array('event' => __('date of birth', true), 'link' => '');
+		if(strlen($participant['Participant']['date_of_death']) > 0){
+			$tmpArray[$participant['Participant']['date_of_death']][] = array('event' => __('date of death', true), 'link' => '');
+		}
+		
+		$consents = $this->ConsentMaster->find('all', array('conditions' => array('ConsentMaster.participant_id' => $participant_id, 'ConsentMaster.consent_status' => 'obtained')));
+		foreach($consents as $consent){
+			$tmpArray[$consent['ConsentMaster']['consent_signed_date']][] = array('event' => __('consent', true), 'link' => $consent['ConsentMaster']['id']);
+		}
+		
+		$dxs = $this->DiagnosisMaster->find('all', array('conditions' => array('DiagnosisMaster.participant_id' => $participant_id)));
+		foreach($dxs as $dx){
+			$tmpArray[$dx['DiagnosisMaster']['dx_date']][] = array('event' => __('diagnosis', true), 'link' => $dx['DiagnosisMaster']['id']);
+		}
+		
+		$annotations = $this->EventMaster->find('all', array('conditions' => array('EventMaster.participant_id' => $participant_id)));
+		foreach($annotations as $annotation){
+			$tmpArray[$annotation['EventMaster']['event_date']][] = array('event' => __($annotation['EventMaster']['event_type'], true), 'link' => $annotation['EventMaster']['id']);
+		}
+		
+		$txs = $this->TreatmentMaster->find('all', array('conditions' => array('TreatmentMaster.participant_id' => $participant_id)));
+		foreach($txs as $tx){
+			$tmpArray[$tx['TreatmentMaster']['start_date']][] = array('event' => __('treatment', true).", ".__($tx['TreatmentControl']['tx_method'], true)." (".__("start", true).")", 'link' => $tx['TreatmentMaster']['id']);
+			$tmpArray[$tx['TreatmentMaster']['finish_date']][] = array('event' => __('treatment', true).", ".__($tx['TreatmentControl']['tx_method'], true)." (".__("end", true).")", 'link' => $tx['TreatmentMaster']['id']);
+		}
+		
+		$ccls = $this->ClinicalCollectionLink->find('all', array('conditions' => array('ClinicalCollectionLink.participant_id' => $participant_id)));
+		foreach($ccls as $ccl){
+			$tmpArray[$ccl['Collection']['collection_datetime']][] = array('event' => __('collection', true)." (".$ccl['Collection']['acquisition_label'].")", 'link' => $ccl['Collection']['id']);
+		}
+		
+		//sort the tmpArray by key (key = date)
+		ksort($tmpArray);
+		
+		//transfer the tmpArray into $this->data
+		$this->data = array();
+		foreach($tmpArray as $key => $values){
+			foreach($values as $value){
+				$this->data[] = array('Generated' => array('date' => $key,
+					'event' => $value['event']));
+			}
+		}
 	}
 }
 

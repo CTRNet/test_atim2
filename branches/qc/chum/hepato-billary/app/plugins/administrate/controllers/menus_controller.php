@@ -28,7 +28,7 @@ class MenusController extends AppController {
 		
 		if ( !empty($this->data) ) {
 			$this->Menu->id = $bank_id;
-			if ( $this->Menu->save($this->data) ) $this->flash( 'Your data has been updated.','/administrate/menus/detail/'.$menu_id );
+			if ( $this->Menu->save($this->data) ) $this->flash( 'your data has been updated','/administrate/menus/detail/'.$menu_id );
 		} else {
 			$this->data = $this->Menu->find('first',array('conditions'=>array('Menu.id'=>$menu_id)));
 		}
@@ -113,7 +113,7 @@ class MenusController extends AppController {
 		if ( !empty($this->data) ) {
 			
 			if ( $this->Menu->save( $this->data ) ) {
-				$this->flash( 'Your data has been saved.', '/menus/index/' );
+				$this->flash( 'your data has been saved', '/menus/index/' );
 			}
 			
 		}
@@ -154,7 +154,7 @@ class MenusController extends AppController {
 		} else {
 			
 			if ( $this->Menu->save( $this->data['Menu'] ) ) {
-				$this->flash( 'Your data has been updated.','/menus/detail/'.$menu_id );
+				$this->flash( 'your data has been updated','/menus/detail/'.$menu_id );
 			}
 			
 		}

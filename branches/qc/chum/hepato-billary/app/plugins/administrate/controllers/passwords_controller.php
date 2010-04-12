@@ -63,7 +63,7 @@ class PasswordsController extends AppController {
 						unset($this->data['User']['confirm_password']);
 						
 						if ( $this->User->save( $this->data ) ) {
-							$this->flash( 'Your data has been updated.','/administrate/passwords/index/'.$bank_id.'/'.$group_id.'/'.$user_id );
+							$this->flash( 'your data has been updated','/administrate/passwords/index/'.$bank_id.'/'.$group_id.'/'.$user_id );
 						}
 						
 					} else {

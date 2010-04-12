@@ -70,11 +70,6 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 		$collection_data = $this->Collection->find('all', array('conditions' => array('Collection.deleted' => '0', 'ClinicalCollectionLink.participant_id IS NULL', 'collection_property' => 'participant collection')));
 		$this->set( 'collection_data', $collection_data );
 		
-		if (empty($collection_data)) {
-			$this->flash( 'no unlinked participant collections currently exists' , '/clinicalannotation/clinical_collection_links/listall/'.$participant_id.'/');
-			return;
-		}
-
 		// Set list of banks
 		$this->set('bank_list', $this->Collections->getBankList());	
 		
@@ -106,15 +101,21 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 			
 			$this->data['ClinicalCollectionLink']['participant_id'] = $participant_id;
 			$tmp_data = $this->ClinicalCollectionLink->find('first',array('conditions'=>array('ClinicalCollectionLink.collection_id' => $this->data['ClinicalCollectionLink']['collection_id'])));
-			$this->ClinicalCollectionLink->id = $tmp_data['ClinicalCollectionLink']['id']; 
+			$this->ClinicalCollectionLink->id = $tmp_data['ClinicalCollectionLink']['id'];
+			if(strlen($this->ClinicalCollectionLink->id) == 0){
+				$this->data['ClinicalCollectionLink']['deleted'] = 1;
+			} 
 			
 			$submitted_data_validates = true;
 			
 			$hook_link = $this->hook('presave_process');
 			if( $hook_link ) { require($hook_link); }
-		
 			if ( $submitted_data_validates && $this->ClinicalCollectionLink->save($this->data) ) {
-				$this->flash( 'Your data has been updated.','/clinicalannotation/clinical_collection_links/detail/'.$participant_id.'/'.$this->ClinicalCollectionLink->id );
+				if(isset($this->data['ClinicalCollectionLink']['deleted'])){
+					$this->redirect('/inventorymanagement/collections/add/'.$this->ClinicalCollectionLink->getLastInsertId());
+				}else{
+					$this->flash( 'your data has been updated','/clinicalannotation/clinical_collection_links/detail/'.$participant_id.'/'.$this->ClinicalCollectionLink->id );
+				}
 				return;
 			}
 		}
@@ -168,7 +169,7 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 			
 			$this->ClinicalCollectionLink->id = $clinical_collection_link_id;
 			if ($submitted_data_validates && $this->ClinicalCollectionLink->save($this->data) ) {
-				$this->flash( 'Your data has been updated.','/clinicalannotation/clinical_collection_links/detail/'.$participant_id.'/'.$clinical_collection_link_id );
+				$this->flash( 'your data has been updated','/clinicalannotation/clinical_collection_links/detail/'.$participant_id.'/'.$clinical_collection_link_id );
 				return;
 			}
 		} else {
@@ -200,9 +201,9 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 				
 			$this->ClinicalCollectionLink->id = $clinical_collection_link_id;
 			if ($this->ClinicalCollectionLink->save($this->data)){
-				$this->flash( 'Your data has been deleted.' , '/clinicalannotation/clinical_collection_links/listall/'.$participant_id.'/');
+				$this->flash( 'your data has been deleted' , '/clinicalannotation/clinical_collection_links/listall/'.$participant_id.'/');
 			}else{
-				$this->flash( 'Deletion failed.','/clinicalannotation/clinical_collection_links/detail/'.$participant_id.'/'.$clinical_collection_link_id.'/');
+				$this->flash( 'error deleting data - contact administrator','/clinicalannotation/clinical_collection_links/detail/'.$participant_id.'/'.$clinical_collection_link_id.'/');
 			}
 		} else {
 			$this->flash($arr_allow_deletion['msg'], '/clinicalannotation/clinical_collection_links/detail/'.$participant_id.'/'.$clinical_collection_link_id);
