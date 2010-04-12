@@ -186,22 +186,6 @@ UPDATE `menus` SET `active` = 'no' WHERE `menus`.`id` = 'clin_CAN_69';
 
 
 -- Updates to the misc identifiers section
-DELETE FROM `misc_identifiers`;
-DELETE FROM `misc_identifiers_revs`;
- 
-INSERT INTO `misc_identifier_controls` 
-(`id`, `misc_identifier_name`, `misc_identifier_name_abbrev`, `status`, `display_order`, `autoincrement_name`, `misc_identifier_format`) 
-VALUES
-(null, 'custom_identifier_hospital_nbr', 'CIHN', 'active', 0, '', ''),
-(null, 'custom_identifier_insurance_nbr', 'CIIN', 'active', 1, '', ''),
-(null, 'custom_identifier_breat_bank_nbr', 'CIBB', 'active', 2, 'part_ident_breat_bank_nbr', 'BR - PART [%%key_increment%%]'),
-(null, 'custom_identifier_ovary_bank_nbr', 'CIOB', 'active', 3, 'part_ident_ovary_bank_nbr', 'OV_PCODE_%%key_increment%%');
-
-DELETE FROM `key_increments`;
-INSERT INTO `key_increments` (`key_name`, `key_value`) VALUES
-('part_ident_breat_bank_nbr', 1340),
-('part_ident_ovary_bank_nbr', 1232411);
-
 DELETE FROM structure_formats WHERE structure_old_id LIKE 'CAN-999-999-000-999-8';
 INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 (null, 'CAN-999-999-000-999-8_CAN-999-999-000-999-34', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-8'), 'CAN-999-999-000-999-8', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-34'), 'CAN-999-999-000-999-34', 0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -841,16 +825,6 @@ INSERT INTO structure_value_domains_permissible_values(structure_value_domain_id
 (@last_structure_id, @last_id),
 (@last_structure_id, @last_id + 1);
 
-#repair accentuated chars
-UPDATE `i18n` SET fr='Août' WHERE id='aug';
-UPDATE `i18n` SET fr='Déc' WHERE id='dec';
-UPDATE `i18n` SET fr='Décembre' WHERE id='December';
-UPDATE `i18n` SET fr='Fév' WHERE id='feb';
-UPDATE `i18n` SET fr='Février' WHERE id='February';
-UPDATE `i18n` SET fr='Cliquez pour supprimer ces éléments' WHERE id='click to remove these elements';
-UPDATE `i18n` SET fr='Reçu par' WHERE id='Received By';
-UPDATE `i18n` SET fr='Date et heure de Réception' WHERE id='Received DateTime';
-
 #structure_value_domains cleanup
 UPDATE structure_fields SET structure_value_domain=6 WHERE structure_value_domain IN(4, 7, 8);
 UPDATE structure_fields SET structure_value_domain=32 WHERE structure_value_domain=60;
@@ -1086,8 +1060,8 @@ INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALU
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='sample_type'),  (SELECT id FROM structure_permissible_values WHERE value='protein' AND language_alias='protein'), '0', 'yes');
 
 INSERT INTO sample_to_aliquot_controls (`sample_control_id`, `aliquot_control_id`, `status`) VALUES
-((SELECT id FROM sample_controls WHERE sample_type='cell lysate'), (SELECT id FROM aliquot_controls WHERE aliquot_type='tube' AND form_alias='ad_spec_tubes'), 'active'),
-((SELECT id FROM sample_controls WHERE sample_type='protein'), (SELECT id FROM aliquot_controls WHERE aliquot_type='tube' AND form_alias='ad_spec_tubes'), 'active');
+((SELECT id FROM sample_controls WHERE sample_type='cell lysate'), (SELECT id FROM aliquot_controls WHERE aliquot_type='tube' AND form_alias='ad_der_tubes_incl_ml_vol'), 'active'),
+((SELECT id FROM sample_controls WHERE sample_type='protein'), (SELECT id FROM aliquot_controls WHERE aliquot_type='tube' AND form_alias='ad_der_tubes_incl_ml_vol'), 'active');
 
 #End protein
 
@@ -2040,6 +2014,2074 @@ INSERT INTO structure_fields(`public_identifier`, `old_id`, `plugin`, `model`, `
 INSERT INTO structure_formats(`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ('CANM-00029_CANM-00030', (SELECT id FROM structures WHERE old_id='CANM-00029'), 'CANM-00029', (SELECT id FROM structure_fields WHERE old_id='CANM-00030'), 'CANM-00030', '0', '1', '', 0, '', 0, '', 0, '', 0, '', 0, '', 0, '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0') ;
 INSERT INTO structure_formats(`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ('CANM-00029_CANM-00031', (SELECT id FROM structures WHERE old_id='CANM-00029'), 'CANM-00029', (SELECT id FROM structure_fields WHERE old_id='CANM-00031'), 'CANM-00031', '0', '2', '', 0, '', 0, '', 0, '', 0, '', 0, '', 0, '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0') ;
 
+-- Storage autocomplete
+UPDATE structure_formats SET `type`='autocomplete', `flag_override_setting`='1', `setting`='size=20,url=/storagelayout/storage_masters/autoComplete/' WHERE structure_field_id=(SELECT id FROM structure_fields WHERE old_id='CAN-999-999-000-999-1217') AND structure_field_old_id='CAN-999-999-000-999-1217' AND (flag_edit='1' OR flag_add='1');
+
+-- add "source" field to value domains, as place to put Model::function call to pulldown data, instead of permissible values
+ALTER TABLE  `structure_value_domains` ADD  `source` VARCHAR( 255 ) NULL;
+
+-- New SOURCE functionality using ICD10 field in PARTICIPANT model
+INSERT INTO  `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
+(NULL ,  'icd10',  'locked',  '',  'Clinicalannotation.Icd10::permissibleValues');
+
+SET @value_domain_id = LAST_INSERT_ID();
+
+UPDATE  `structure_fields` SET  `type` =  'select', `setting` =  '', `structure_value_domain` =  @value_domain_id WHERE `structure_fields`.`id` = 501;
+
+-- Enable permissions link under Administration and hide field
+UPDATE  `menus` SET  `use_link` =  '/administrate/permissions/tree/%%Bank.id%%/%%Group.id%%' WHERE  `menus`.`id` =  'core_CAN_88';
+UPDATE  `structure_fields` SET  `type` =  'hidden', `setting` =  '' WHERE  `structure_fields`.`id` =80;
+
+-- Cleanu pages error
+
+DELETE FROM pages WHERE error_flag = '1';
+DELETE FROM pages WHERE id = 'err_no_data';
+DELETE FROM pages WHERE id = 'err_clin_no_data';
+
+INSERT INTO `pages` (`id`, `error_flag`, `language_title`, `language_body`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+('err_admin_no_data', 1, 'data not found', 'no data exists for the specified id', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_clin_funct_param_missing', 1, 'parameter missing', 'a paramater used by the executed function has not been set', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_clin_no_data', 1, 'data not found', 'no data exists for the specified id', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_clin_system_error', 1, 'system error', 'a system error has been detected', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_drug_funct_param_missing', 1, 'parameter missing', 'a paramater used by the executed function has not been set', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_inv_funct_param_missing', 1, 'parameter missing', 'a paramater used by the executed function has not been set', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_inv_no_data', 1, 'data not found', 'no data exists for the specified id', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_inv_record_err', 1, 'data creation - update error', 'an error occurred during the creation or the update of the data', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_inv_system_error', 1, 'system error', 'a system error has been detected', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_mat_funct_param_missing', 1, 'parameter missing', 'a paramater used by the executed function has not been set', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_no_data', 1, 'data not found', 'no data exists for the specified id', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_order_funct_param_missing', 1, 'parameter missing', 'a paramater used by the executed function has not been set', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_order_no_data', 1, 'data not found', 'no data exists for the specified id', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_order_record_err', 1, 'data creation - update error', 'an error occurred during the creation or the update of the data', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_order_system_error', 1, 'system error', 'a system error has been detected', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_pro_funct_param_missing', 1, 'parameter missing', 'a paramater used by the executed function has not been set', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_prov_funct_param_missing', 1, 'parameter missing', 'a paramater used by the executed function has not been set', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_rtb_funct_param_missing', 1, 'parameter missing', 'a paramater used by the executed function has not been set', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_sop_funct_param_missing', 1, 'parameter missing', 'a paramater used by the executed function has not been set', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_sto_funct_param_missing', 1, 'parameter missing', 'a paramater used by the executed function has not been set', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_sto_no_data', 1, 'data not found', 'no data exists for the specified id', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_sto_system_error', 1, 'system error', 'a system error has been detected', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_study_funct_param_missing', 1, 'parameter missing', 'a paramater used by the executed function has not been set', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_study_no_data', 1, 'data not found', 'no data exists for the specified id', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+-- update to linked_collections to display them in add mode for ccl new workflow
+UPDATE structure_formats SET display_column='0', display_order='13', language_heading='', `flag_add`='1', `flag_add_readonly`='0', `flag_edit`='1', `flag_edit_readonly`='0', `flag_search`='0', `flag_search_readonly`='0', `flag_datagrid`='0', `flag_datagrid_readonly`='0', `flag_index`='0', `flag_detail`='0', `flag_override_label`='0', `language_label`='', `flag_override_tag`='0', `language_tag`='', `flag_override_help`='0', `language_help`='', `flag_override_type`='0', `type`='', `flag_override_setting`='0', `setting`='', `flag_override_default`='0', `default`=''  WHERE old_id='CAN-999-999-000-999-1001_CAN-999-999-000-999-1008' AND structure_id=(SELECT id FROM structures WHERE old_id='CAN-999-999-000-999-1001') AND structure_old_id='CAN-999-999-000-999-1001' AND structure_field_id=(SELECT id FROM structure_fields WHERE old_id='CAN-999-999-000-999-1008') AND structure_field_old_id='CAN-999-999-000-999-1008';
+UPDATE structure_formats SET display_column='0', display_order='5', language_heading='', `flag_add`='1', `flag_add_readonly`='0', `flag_edit`='1', `flag_edit_readonly`='0', `flag_search`='0', `flag_search_readonly`='0', `flag_datagrid`='0', `flag_datagrid_readonly`='0', `flag_index`='0', `flag_detail`='0', `flag_override_label`='0', `language_label`='', `flag_override_tag`='0', `language_tag`='', `flag_override_help`='0', `language_help`='', `flag_override_type`='0', `type`='', `flag_override_setting`='0', `setting`='', `flag_override_default`='0', `default`=''  WHERE old_id='CAN-999-999-000-999-1001_CAN-999-999-000-999-1285' AND structure_id=(SELECT id FROM structures WHERE old_id='CAN-999-999-000-999-1001') AND structure_old_id='CAN-999-999-000-999-1001' AND structure_field_id=(SELECT id FROM structure_fields WHERE old_id='CAN-999-999-000-999-1285') AND structure_field_old_id='CAN-999-999-000-999-1285';
+UPDATE structure_formats SET display_column='0', display_order='1', language_heading='', `flag_add`='1', `flag_add_readonly`='0', `flag_edit`='1', `flag_edit_readonly`='0', `flag_search`='0', `flag_search_readonly`='0', `flag_datagrid`='0', `flag_datagrid_readonly`='0', `flag_index`='0', `flag_detail`='0', `flag_override_label`='0', `language_label`='', `flag_override_tag`='0', `language_tag`='', `flag_override_help`='0', `language_help`='', `flag_override_type`='0', `type`='', `flag_override_setting`='0', `setting`='', `flag_override_default`='0', `default`=''  WHERE old_id='CAN-999-999-000-999-1001_CAN-999-999-000-999-1000' AND structure_id=(SELECT id FROM structures WHERE old_id='CAN-999-999-000-999-1001') AND structure_old_id='CAN-999-999-000-999-1001' AND structure_field_id=(SELECT id FROM structure_fields WHERE old_id='CAN-999-999-000-999-1000') AND structure_field_old_id='CAN-999-999-000-999-1000';
+UPDATE structure_formats SET display_column='0', display_order='2', language_heading='', `flag_add`='1', `flag_add_readonly`='0', `flag_edit`='1', `flag_edit_readonly`='0', `flag_search`='0', `flag_search_readonly`='0', `flag_datagrid`='0', `flag_datagrid_readonly`='0', `flag_index`='0', `flag_detail`='0', `flag_override_label`='0', `language_label`='', `flag_override_tag`='0', `language_tag`='', `flag_override_help`='0', `language_help`='', `flag_override_type`='0', `type`='', `flag_override_setting`='0', `setting`='', `flag_override_default`='0', `default`=''  WHERE old_id='CAN-999-999-000-999-1001_CAN-999-999-000-999-1223' AND structure_id=(SELECT id FROM structures WHERE old_id='CAN-999-999-000-999-1001') AND structure_old_id='CAN-999-999-000-999-1001' AND structure_field_id=(SELECT id FROM structure_fields WHERE old_id='CAN-999-999-000-999-1223') AND structure_field_old_id='CAN-999-999-000-999-1223';
+UPDATE structure_formats SET display_column='0', display_order='3', language_heading='', `flag_add`='1', `flag_add_readonly`='0', `flag_edit`='1', `flag_edit_readonly`='0', `flag_search`='0', `flag_search_readonly`='0', `flag_datagrid`='0', `flag_datagrid_readonly`='0', `flag_index`='0', `flag_detail`='0', `flag_override_label`='0', `language_label`='', `flag_override_tag`='0', `language_tag`='', `flag_override_help`='0', `language_help`='', `flag_override_type`='0', `type`='', `flag_override_setting`='0', `setting`='', `flag_override_default`='0', `default`=''  WHERE old_id='CAN-999-999-000-999-1001_CAN-999-999-000-999-1003' AND structure_id=(SELECT id FROM structures WHERE old_id='CAN-999-999-000-999-1001') AND structure_old_id='CAN-999-999-000-999-1001' AND structure_field_id=(SELECT id FROM structure_fields WHERE old_id='CAN-999-999-000-999-1003') AND structure_field_old_id='CAN-999-999-000-999-1003';
+UPDATE structure_formats SET display_column='0', display_order='4', language_heading='', `flag_add`='1', `flag_add_readonly`='0', `flag_edit`='1', `flag_edit_readonly`='0', `flag_search`='0', `flag_search_readonly`='0', `flag_datagrid`='0', `flag_datagrid_readonly`='0', `flag_index`='0', `flag_detail`='0', `flag_override_label`='0', `language_label`='', `flag_override_tag`='0', `language_tag`='', `flag_override_help`='0', `language_help`='', `flag_override_type`='0', `type`='', `flag_override_setting`='0', `setting`='', `flag_override_default`='0', `default`=''  WHERE old_id='CAN-999-999-000-999-1001_CAN-999-999-000-999-1004' AND structure_id=(SELECT id FROM structures WHERE old_id='CAN-999-999-000-999-1001') AND structure_old_id='CAN-999-999-000-999-1001' AND structure_field_id=(SELECT id FROM structure_fields WHERE old_id='CAN-999-999-000-999-1004') AND structure_field_old_id='CAN-999-999-000-999-1004';
+UPDATE structure_formats SET display_column='0', display_order='11', language_heading='', `flag_add`='1', `flag_add_readonly`='0', `flag_edit`='1', `flag_edit_readonly`='0', `flag_search`='0', `flag_search_readonly`='0', `flag_datagrid`='0', `flag_datagrid_readonly`='0', `flag_index`='0', `flag_detail`='0', `flag_override_label`='0', `language_label`='', `flag_override_tag`='0', `language_tag`='', `flag_override_help`='0', `language_help`='', `flag_override_type`='0', `type`='', `flag_override_setting`='0', `setting`='', `flag_override_default`='0', `default`=''  WHERE old_id='CAN-999-999-000-999-1001_CAN-999-999-000-999-1007' AND structure_id=(SELECT id FROM structures WHERE old_id='CAN-999-999-000-999-1001') AND structure_old_id='CAN-999-999-000-999-1001' AND structure_field_id=(SELECT id FROM structure_fields WHERE old_id='CAN-999-999-000-999-1007') AND structure_field_old_id='CAN-999-999-000-999-1007';
+UPDATE structure_formats SET display_column='0', display_order='12', language_heading='', `flag_add`='1', `flag_add_readonly`='1', `flag_edit`='1', `flag_edit_readonly`='1', `flag_search`='0', `flag_search_readonly`='0', `flag_datagrid`='0', `flag_datagrid_readonly`='0', `flag_index`='0', `flag_detail`='0', `flag_override_label`='0', `language_label`='', `flag_override_tag`='0', `language_tag`='', `flag_override_help`='0', `language_help`='', `flag_override_type`='0', `type`='', `flag_override_setting`='0', `setting`='', `flag_override_default`='0', `default`=''  WHERE old_id='CAN-999-999-000-999-1001_CAN-999-999-000-999-1013' AND structure_id=(SELECT id FROM structures WHERE old_id='CAN-999-999-000-999-1001') AND structure_old_id='CAN-999-999-000-999-1001' AND structure_field_id=(SELECT id FROM structure_fields WHERE old_id='CAN-999-999-000-999-1013') AND structure_field_old_id='CAN-999-999-000-999-1013';
+
+#set created_by and modified_by to int unsigned not null
+ALTER TABLE ad_bags MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE ad_bags_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE ad_blocks MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE ad_blocks_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE ad_cell_cores MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE ad_cell_cores_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE ad_cell_slides MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE ad_cell_slides_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE ad_gel_matrices MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE ad_gel_matrices_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE ad_tissue_cores MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE ad_tissue_cores_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE ad_tissue_slides MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE ad_tissue_slides_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE ad_tubes MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE ad_tubes_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE ad_whatman_papers MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE ad_whatman_papers_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE aliquot_masters MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE aliquot_masters_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE aliquot_uses MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE aliquot_uses_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE announcements MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE atim_information MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE banks MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE banks_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE cd_nationals MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE cd_nationals_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE clinical_collection_links MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE clinical_collection_links_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE coding_adverse_events MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE coding_adverse_events_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE coding_icd10 MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE collections MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE collections_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE configs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE consent_masters MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE consent_masters_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE datamart_adhoc MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE datamart_batch_sets MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE derivative_details MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE derivative_details_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE diagnosis_masters MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE diagnosis_masters_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE drugs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE drugs_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE dxd_bloods MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE dxd_bloods_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE dxd_tissues MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE dxd_tissues_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE ed_all_adverse_events_adverse_event MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE ed_all_adverse_events_adverse_event_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE ed_all_clinical_followup MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE ed_all_clinical_followup_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE ed_all_clinical_presentation MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE ed_all_clinical_presentation_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE ed_all_lifestyle_smoking MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE ed_all_lifestyle_smoking_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE ed_all_protocol_followup MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE ed_all_protocol_followup_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE ed_all_study_research MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE ed_all_study_research_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE ed_breast_lab_pathology MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE ed_breast_lab_pathology_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE ed_breast_screening_mammogram MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE ed_breast_screening_mammogram_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE event_masters MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE event_masters_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE family_histories MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE family_histories_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE materials MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE materials_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE menus MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE misc_identifiers MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE misc_identifiers_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE order_items MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE order_items_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE order_lines MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE order_lines_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE orders MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE orders_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE pages MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE participant_contacts MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE participant_contacts_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE participant_messages MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE participant_messages_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE participants MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE participants_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE path_collection_reviews MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE path_collection_reviews_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE pd_chemos MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE pd_chemos_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE pe_chemos MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE pe_chemos_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE protocol_controls MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE protocol_masters MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE protocol_masters_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE providers MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE providers_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE quality_ctrl_tested_aliquots MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE quality_ctrl_tested_aliquots_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE quality_ctrls MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE quality_ctrls_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE rd_blood_cells MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE rd_blood_cells_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE rd_bloodcellcounts MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE rd_bloodcellcounts_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE rd_breast_cancers MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE rd_breast_cancers_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE rd_breastcancertypes MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE rd_breastcancertypes_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE rd_coloncancertypes MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE rd_coloncancertypes_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE rd_genericcancertypes MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE rd_genericcancertypes_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE rd_ovarianuteruscancertypes MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE rd_ovarianuteruscancertypes_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE realiquotings MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE realiquotings_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE reproductive_histories MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE reproductive_histories_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE review_masters MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE review_masters_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE rtbforms MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE rtbforms_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sample_masters MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sample_masters_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_amp_rnas MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_amp_rnas_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_ascite_cells MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_ascite_cells_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_ascite_sups MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_ascite_sups_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_b_cells MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_b_cells_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_blood_cells MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_blood_cells_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_cell_cultures MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_cell_cultures_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_cell_lysates MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_cell_lysates_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_cystic_fl_cells MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_cystic_fl_cells_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_cystic_fl_sups MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_cystic_fl_sups_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_dnas MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_dnas_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_pbmcs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_pbmcs_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_pericardial_fl_cells MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_pericardial_fl_cells_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_pericardial_fl_sups MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_pericardial_fl_sups_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_plasmas MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_plasmas_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_pleural_fl_cells MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_pleural_fl_cells_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_pleural_fl_sups MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_pleural_fl_sups_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_proteins MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_proteins_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_pw_cells MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_pw_cells_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_pw_sups MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_pw_sups_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_rnas MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_rnas_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_serums MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_serums_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_tiss_lysates MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_tiss_lysates_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_tiss_susps MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_tiss_susps_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_urine_cents MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_urine_cents_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_urine_cons MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_der_urine_cons_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_spe_ascites MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_spe_ascites_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_spe_bloods MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_spe_bloods_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_spe_cystic_fluids MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_spe_cystic_fluids_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_spe_pericardial_fluids MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_spe_pericardial_fluids_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_spe_peritoneal_washes MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_spe_peritoneal_washes_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_spe_pleural_fluids MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_spe_pleural_fluids_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_spe_tissues MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_spe_tissues_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_spe_urines MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sd_spe_urines_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE shelves MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE shelves_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE shipments MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE shipments_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sidebars MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sop_controls MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sop_masters MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sop_masters_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sopd_general_all MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sopd_general_all_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sopd_inventory_all MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sopd_inventory_all_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sope_general_all MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sope_general_all_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sope_inventory_all MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE sope_inventory_all_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE source_aliquots MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE source_aliquots_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE specimen_details MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE specimen_details_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE std_boxs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE std_boxs_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE std_cupboards MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE std_cupboards_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE std_freezers MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE std_freezers_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE std_fridges MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE std_fridges_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE std_incubators MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE std_incubators_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE std_nitro_locates MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE std_nitro_locates_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE std_racks MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE std_racks_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE std_rooms MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE std_rooms_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE std_shelfs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE std_shelfs_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE std_tma_blocks MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE std_tma_blocks_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE storage_coordinates MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE storage_coordinates_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE storage_masters MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE storage_masters_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE structure_fields MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE structure_formats MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE structure_validations MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE structures MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE study_contacts MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE study_contacts_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE study_ethics_boards MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE study_ethics_boards_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE study_fundings MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE study_fundings_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE study_investigators MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE study_investigators_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE study_related MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE study_related_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE study_results MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE study_results_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE study_reviews MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE study_reviews_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE study_summaries MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE study_summaries_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE tma_slides MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE tma_slides_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE tx_masters MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE tx_masters_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE txd_chemos MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE txd_chemos_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE txd_radiations MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE txd_radiations_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE txd_surgeries MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE txd_surgeries_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE txe_chemos MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE txe_chemos_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE txe_radiations MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE txe_radiations_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE txe_surgeries MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE txe_surgeries_revs MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+ALTER TABLE versions MODIFY created_by INT UNSIGNED NOT NULL, MODIFY modified_by INT UNSIGNED NOT NULL;
+
+-- Add descriptive text to the tools menu
+UPDATE `menus` SET `language_description` = 'administration description' WHERE `menus`.`id` = 'core_CAN_41';
+UPDATE `menus` SET `language_description` = 'drug module description' WHERE `menus`.`id` = 'drug_CAN_96';
+UPDATE `menus` SET `language_description` = 'materials description' WHERE `menus`.`id` = 'mat_CAN_01';
+UPDATE `menus` SET `language_description` = 'order management description' WHERE `menus`.`id` = 'ord_CAN_101';
+UPDATE `menus` SET `language_description` = 'protocol description' WHERE `menus`.`id` = 'proto_CAN_37';
+UPDATE `menus` SET `language_description` = 'form manager description' WHERE `menus`.`id` = 'rtbf_CAN_01';
+UPDATE `menus` SET `language_description` = 'standard operating procedure description' WHERE `menus`.`id` = 'sop_CAN_01';
+UPDATE `menus` SET `language_description` = 'storage layout management description' WHERE `menus`.`id` = 'sto_CAN_01';
+UPDATE `menus` SET `language_description` = 'research study description' WHERE `menus`.`id` = 'tool_CAN_100';
+
+-- Language translations for module descriptions
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('administration description', 'global', 'The Administration module is used for managing application permissions, setting preferences and checking your installed version number.', ''),
+('drug module description', 'global', 'This module allows the bank to specify which agents are used during treatment. Drugs can then be assigned to common treatment protocols.', ''),
+('materials description', 'global', 'Define materials and equipment used in bank Standard Operating Procedures. These items can be assigned to existing SOPs.', ''),
+('order management description', 'global', 'Handles tracking orders for research materials. Each order can be completed across many shipments with multiple product types per order.', ''),
+('protocol description', 'global', 'Setup and define standard treatment protocols used for patient treatment.', ''),
+('form manager description', 'global', 'Ability to track standard forms used by the bank. For example, consent forms and request forms.', ''),
+('standard operating procedure description', 'global', 'Define all of the bank standard operating procedures and materials used in those procedures.', ''),
+('storage layout management description', 'global', 'Tool for management of all bank storage entities.', ''),
+('research study description', 'global', 'Track reseach studies submitted to the bank.', '');
+
+-- Drop out debug setting
+ALTER TABLE  `configs` DROP  `config_debug`;
+DELETE FROM `structure_formats` WHERE structure_field_id = 902;
+DELETE FROM `structure_fields` WHERE id = 902;
+
+-- i18n clean up + french translation
+
+DELETE FROM `i18n`;
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+(' ', '', '', ''),
+(' of ', '', ' of ', ' sur '),
+('%s could not be found.', '', '%s could not be found.', 'Le(s)/la %s ne peut pas être trouvé(es).'),
+('(at least one of) the selected id does not match a selection label', '', '(At least one of) the selected id does not match a selection label!', '(Au moins) un entreposage sélectionné ne correspond pas à un identifiant de sélection d''entreposage saisi!'),
+('+1', '', '+1', '+1'),
+('+2', '', '+2', '+2'),
+('+3', '', '+3', '+3'),
+('-', '', '-', '-'),
+('...', '', '...', '...'),
+('1', '', '1', '1'),
+('1- add order data', '', '1- Add order data :', '1- Ajouter les données de la commande :'),
+('10e6', '', '10e6', '10e6'),
+('10e7', '', '10e7', '10e7'),
+('10e8', '', '10e8', '10e8'),
+('2', '', '2', '2'),
+('2- select order line', '', '2- Select order line :', '2 - Sélectionner la ligne de commande :'),
+('2-3', '', '2-3', '2-3'),
+('260/230', '', '260/230', '260/230'),
+('260/268', '', '260/268', '260/268'),
+('260/280', '', '260/280', '260/280'),
+('28/18', '', '28/18', '28/18'),
+('3', '', '3', '3'),
+('4', '', '4', '4'),
+('4-5', '', '4-5', '4-5'),
+('5', '', '5', '5'),
+('5th', '', '5th', '5ème'),
+('6-9', '', '6-9', '6-9'),
+('6th', '', '6th', '6ème'),
+(':', '', ':', ':'),
+('a LinkedModel exists for the deleted family history', '', 'Your data cannot be deleted! <br>Linked data exists for the deleted family history.', 'Vos données ne peuvent être supprimées! Des données sont liées à votre historique familial.'),
+('a LinkedModel exists for the deleted study contact', '', 'Your data cannot be deleted! <br>Linked data exists for the deleted study contact.', 'Vos données ne peuvent être supprimées! Des données sont liées à votre contact.'),
+('a LinkedModel exists for the deleted study summary', '', 'Your data cannot be deleted! <br>Linked data exists for the deleted study summary.', 'Vos données ne peuvent être supprimées! Des données sont liées à votre résumé.'),
+('a paramater used by the executed function has not been set', '', 'All required parameters are not defined!<br>Please try again or contact your system administrator.', 'Tous les paramètres requis ne sont pas définis!<br>Essayez de nouveau ou contactez votre administrateur du système.'),
+('a system error has been detetced', '', 'A system error has been detetced!<br>Please try again or contact your system administrator.', 'Une erreur du système a été détectée!<br>Essayez de nouveau ou contactez votre administrateur du système.'),
+('abnormal', '', 'Abnormal', 'Anormal'),
+('aboriginal', '', 'Aboriginal', 'Aborigène'),
+('about_body', '', 'The Canadian Tumour Repository Network (CTRNet) is a translational cancer research resource, funded by Canadian Institutes of Health Research, that furthers Canadian health research by linking cancer researchers with provincial tumour banks.', 'Le réseau canadien de banques de tumeurs (RCBT) est une ressource en recherche translationnelle en cancer, subventionnée par les Instituts de recherche en santé du Canada, qui aide la recherche en santé au Canada en reliant entre eux les chercheurs en onc'),
+('about_title', '', 'About', 'Au sujet de'),
+('academic', '', 'Academic', 'Académique'),
+('acceptable', '', 'Acceptable', 'Acceptable'),
+('access to all data', '', 'Access To Data', 'Accéder aux données'),
+('access to order', '', 'Access To Order', 'Accéder à la commande'),
+('accuracy', '', 'Accuracy', 'Précision'),
+('acquisition label is required', '', 'The acquisition label is required!', 'Le numéro d''acquisition est requis!'),
+('acquisition_label', '', 'Acquisition Label', 'Étiquette d''acquisition'),
+('active', '', 'Active', 'Actif'),
+('add', '', 'Add', 'Créer'),
+('add aliquot', '', 'Add Aliquot', 'Créer aliquot'),
+('add aliquots to order line', '', 'Add Aliquots to Order Line', 'Ajoutez les aliquots à la ligne de commande'),
+('add aliquots to order: studied aliquots', '', 'Add aliquots to order: Studied aliquots', 'Ajout des aliquots à une commande : Aliquots étudiés'),
+('add as favourite', '', 'Add as Favourite', 'Ajouter comme favori'),
+('add collection', '', 'Add Collection', 'Créer collection'),
+('add derivative', '', 'Add Derivative', 'Créer dérivé'),
+('add internal use', '', 'Add Internal Use', 'Créer utilisation interne'),
+('add item', '', 'Add Item', 'Ajouter un article'),
+('add items to shipment', '', 'Add Items to Shipment', 'Ajouter article à la commande'),
+('add order line', '', 'Add Order Line', 'Ajouter ligne de commande'),
+('add order line item', '', 'Add Item', 'Ajouter Article'),
+('add shipment', '', 'Add Shipment', 'Ajouter une expédition'),
+('add specimen', '', 'Add Specimen', 'Créer spécimen'),
+('add tested aliquots', '', 'Add Tested Aliquots', 'Ajouter aliquots testés'),
+('add tma slide', '', 'Add Slide', 'Créer lame'),
+('add to order', '', 'Add To Order', 'Ajoutez aux commandes'),
+('add to storage', '', 'Add To Storage', 'Ajouter à l''entreposage'),
+('add uses', '', 'Add Uses', 'Créer utilisations'),
+('adhoc', '', 'Adhoc Queries', 'Requêtes Ad Hoc'),
+('adjuvant', '', 'Adjuvant', 'Adjuvant'),
+('administration', '', 'Administration', 'Administration'),
+('administration description', '', 'The Administration module is used for managing application permissions, setting preferences and checking your installed version number.', 'Le module Administration est utilisé pour la gestion des autorisations d''accès à l''application, la configuration des préférences et la vérification des numéros de versions installées.'),
+('Adobe pdf', '', 'Adobe (.pdf)', 'Adobe (.pdf)'),
+('agarose gel', '', 'Agarose Gel', 'Gel d''agarose'),
+('age at dx', '', 'Age at Diagnosis', 'Âge au diagnostic'),
+('age at first parturition', '', 'Age at First Parturition', 'Âge à la première parturition'),
+('age at last parturition', '', 'Age at Last Parturition', 'Âge à la dernière parturition'),
+('age at menarche', '', 'Age at Menarche', 'Âge aux premières règles'),
+('age at menopause', '', 'Age at Menopause', 'Âge à la ménopause'),
+('age removed', '', 'Age Removed', 'Age à l''ovariectomie'),
+('age_at_dx', '', 'Age at Diagnosis', 'Âge au diagnostic'),
+('ajcc edition', '', 'AJCC Edition', 'Édition du AJCC'),
+('aliquot', '', 'Aliquot', 'Aliquot'),
+('aliquot concentration', '', 'Concentration', 'Concentration'),
+('aliquot details', '', 'Details', 'Détail'),
+('aliquot exists for the deleted sample', '', 'Your data cannot be deleted! <br>Aliquots exist for the deleted sample.', 'Vos données ne peuvent être supprimées! Des aliquots existent pour votre échantillon.'),
+('aliquot exists within the deleted collection', '', 'Your data cannot be deleted! <br>Aliquots exist within the deleted collection.', 'Vos données ne peuvent être supprimées! Des aliquots existent dans votre collection.'),
+('aliquot exists within the deleted storage', '', 'Your data cannot be deleted! <br>Aliquot exists within the deleted storage.', 'Vos données ne peuvent être supprimées! Des aliquots existent dans votre entreposage.'),
+('aliquot has been linked to the deleted qc', '', 'Your data cannot be deleted! <br>Aliquot has been linked to the deleted quality control.', 'Vos données ne peuvent être supprimées! Des aliquots ont été définis pour votre contrôle de qualité.'),
+('aliquot in stock', '', 'In Stock', 'En stock'),
+('aliquot in stock detail', '', 'Stock Detail', 'Détail du stock'),
+('aliquot is stored within the storage at this position', '', 'Your data cannot be deleted! <br>Aliquot exists within the deleted storage.', 'Vos données ne peuvent être supprimées! Des aliquots sont placés à cette position dans votre entreposage.'),
+('aliquot shipment', '', 'Aliquot Shipment nbr:', 'Numéro d''envoi d''aliquots:'),
+('aliquot sop', '', 'Aliquot SOP', 'SOP de l''aliquot'),
+('aliquot type', '', 'Aliquot Type', 'Type d''aliquot'),
+('aliquots', '', 'Aliquots', 'Aliquots'),
+('aliquot_in_stock_help', '', 'Status of an aliquot: <br> - ''Yes & Available'' => Aliquot exists physically into the bank and is available without restriction. <br> - ''Yes & Not Available'' => Aliquot exists physically into the bank but a restriction exists (reserved for and order, a stu', 'Statut d''un aliquot : <br> - ''Oui & Disponible'' => Aliquot présent physiquement dans la banque et disponible sans restriction. <br> - ''Oui & Non disponible'' => Aliquot présent physiquement dans la banque mais une restriction existe (réservé pour une étude'),
+('alive', '', 'Alive', 'Vivant'),
+('alive and well after re-current disease', '', 'Alive and Well after re-current disease', 'Vivant et bien portant après maladie récurrente'),
+('alive and well with disease', '', 'Alive and well with disease', 'Vivant et bien portant après maladie'),
+('alive with other cancer', '', 'Alive with other cancer', 'Vivant avec un autre cancer'),
+('all', '', 'All', 'Tout'),
+('all - chemotherapy', '', 'All - Chemotherapy', 'Indifférencié - Chimiothérapie'),
+('All - Follow Up', '', 'All - Follow Up', 'Indifférencié - Suivi'),
+('All - Presentation', '', 'All - Presentation', 'Indifférencié - Présentation'),
+('All - Research', '', 'All - Research', 'Indifférencié - Recherche'),
+('All - Smoking', '', 'All - Smoking', 'Indifférencié - Tabac'),
+('all queries', '', 'All Queries', 'Toutes les requêtes'),
+('all solid tumours', '', 'All Solid Tumours', 'Toutes les tumeurs solides'),
+('All Solid Tumours - Pathology', '', 'All Solid Tumours - Pathology', 'Toutes les tumeurs solides - Pathologie'),
+('allowed', '', 'Allowed', 'Permis'),
+('alphabetical', '', 'Alphabetical', 'Alphabétique'),
+('amplified rna', '', 'Amplified RNA', 'ARN amplifié'),
+('an aliquot can only be added once to an order', '', 'An aliquot can only be added once to an order!', 'Un aliquot ne peut être mis que dans une seule commande!'),
+('an aliquot of the parent sample is defined as source aliquot', '', 'Your data cannot be deleted! <br>An aliquot of the parent sample is defined as source aliquot!', 'Vos données ne peuvent être supprimées! Un aliquot de l''échantillon parent est défini comme source.'),
+('an error occurred during the creation or the update of the data', '', 'An error occurred during the data creation/update!<br>Please try again or contact your system administrator.', 'Une erreur a été détectée durant la création/mise à jour des données!<br>Essayez de nouveau ou contactez votre administrateur du système.'),
+('annotation', '', 'Annotation', 'Annotation'),
+('Annotation Group', '', 'Annotation Group', 'Groupe d''annotations'),
+('anti-emetic', '', 'Anti-Emetic', 'Anti-émétique'),
+('April', '', 'April', 'Avril'),
+('arab/west asian', '', 'Arab/West Asian', 'Arabe/Asiatique de l''ouest'),
+('arm', '', 'Arm', 'Bras'),
+('ascite', '', 'Ascite', 'Ascite'),
+('ascite cell', '', 'Ascite Cells', 'Cellules d''ascite'),
+('ascite supernatant', '', 'Ascite Supernatant', 'Surnageant d''ascite'),
+('Ascite Tube', '', 'Ascite Tube', 'Tube d''ascite'),
+('aspect', '', 'Aspect', 'Aspect'),
+('at least one position value does not match format', '', 'At least one position value does not match the position value format expected for the selected storage!', 'Au moins une valeur de position ne correspond pas au format des positions de l''entreposage sélectionné!'),
+('atim version', '', 'ATiM Version', 'Version ATiM'),
+('atypical', '', 'Atypical', 'Atypique'),
+('atypical medullary', '', 'Atypical Medullary', 'Médullaire atypique'),
+('atypical nd', '', 'Atypical ND', ''),
+('August', '', 'August', 'Août'),
+('aunt', '', 'Aunt', 'Tante'),
+('autopsy', '', 'Autopsy', 'Autopsie'),
+('b cell', '', 'B Cells', 'Cellules B'),
+('b-cell', '', 'B-Cell', 'Lymphocyte B'),
+('back to main menu', '', 'Back to main menu', 'Retour au menu principal'),
+('Bank', '', 'Bank', 'Banque'),
+('barcode', '', 'Barcode', 'Barcode'),
+('barcode is required', '', 'The barcode is required!', 'Le barcode est requis!'),
+('barcode is required and should exist', '', 'Barcode is required and should be the barcode of an existing aliquot!', 'Le barcode est requis et doit être le barcode d''un aliquot existant!'),
+('barcode must be unique', '', 'The barcode must be unique!', 'Le barcode doit être unique!'),
+('barcode size is limited', '', 'The barcode size is limited!', 'La taille du barcode est limitée!'),
+('basic', '', 'Basic', 'Fondamental'),
+('batch number', '', 'Batch Number', 'Numéro de lot'),
+('batch sets', '', 'Batch Sets', 'Ensembles de données'),
+('benign', '', 'Benign', 'Bénin'),
+('benign lesion', '', 'Benign Lesion', 'Lésion bénigne'),
+('bioanalyzer', '', 'BioAnalyzer', 'BioAnalyzer'),
+('black', '', 'Black', 'Noir'),
+('block', '', 'Block', 'Bloc'),
+('block type', '', 'Block Type', 'Type du bloc'),
+('blood', '', 'Blood', 'Sang'),
+('blood cell', '', 'Blood Cells', 'Cellules de sang'),
+('Blood Tube', '', 'Blood Tube', 'Tube de sang'),
+('blood tube type', '', 'Type', 'Type'),
+('Blood Whatman Paper', '', 'Whatman Paper', 'Papier Whatman'),
+('bone', '', 'Bone', 'Os'),
+('both-partial', '', 'Both - Partial Removal', 'Élimination partielle'),
+('both-total', '', 'Both - Total Removal', 'Élimination totale'),
+('box', '', 'Box', 'Boîte'),
+('box100 1A-20E', '', 'Box100 1A-20E', 'Boîte100 1A-20E'),
+('box25', '', 'Box25 1-25', 'Boîte81 1-25'),
+('box81', '', 'Box81 1-81', 'Boîte81 1-81'),
+('box81 1A-9I', '', 'Box81 1A-9I', 'Boîte81 1A-9I'),
+('brain', '', 'Brain', 'Cerveau'),
+('breast', '', 'Breast', 'Sein'),
+('Breast - Mammogram', '', 'Breast - Mammogram', 'Sein - Mammographie'),
+('Breast - Pathology', '', 'Breast - Pathology', 'Sein - Pathologie'),
+('breast path report', '', 'Breast Path Report', 'Rapport de pathologie du sein'),
+('brother', '', 'Brother', 'Frère'),
+('build number', '', 'Build Number', 'Version d''application'),
+('building a', '', 'Building A', 'Bâtiment A'),
+('building b', '', 'Building B', 'Bâtiment B'),
+('business', '', 'Business', 'Affaire'),
+('cancel', '', 'Cancel', 'Annuler'),
+('carbonic gaz percentage', '', 'CO2 Percentage', 'Pourcentage de CO2'),
+('category', '', 'Category', 'Catégorie'),
+('caucasian', '', 'Caucasian', 'Caucasien'),
+('cause of death', '', 'Cause of Death', 'Cause du décès'),
+('cell count', '', 'Cells Count', 'Nombre de cellules'),
+('cell count should be a positif decimal', '', 'Cell count should be a positive decimal!', 'Le nombre de cellules doit être un décimal positif!'),
+('cell culture', '', 'Cell Culture', 'Culture cellulaire'),
+('cell dead', '', 'Cell Dead', 'Mort cellulaire'),
+('cell gel matrix', '', 'Gel Matrix', 'Matrice'),
+('cell lysate', '', 'cell lysate', 'Lysat cellulaire'),
+('cell pasage number', '', 'Cell Passage number', 'Nombre de passages cellulaires'),
+('cell passage number should be a positive integer', '', 'Cell passage umber should be a positive integer!', 'Le nombre de passage cellulaire doit être un entier positif!'),
+('cellular', '', 'Cellular', 'Cellulaire'),
+('celsius', '', '°C', '°C'),
+('centrifuged urine', '', 'Centrifuged Urine', 'Urine centrifugée'),
+('chart', '', 'Chart', 'Graphique'),
+('chemical', '', 'Chemical', 'Chimique'),
+('chemotherapy', '', 'Chemotherapy', 'Chimiothérapie'),
+('chemotherapy specific', '', 'Chemotherapy Specific', 'Chimiothérapie spécifique'),
+('chewing', '', 'Chewing', 'Mastication'),
+('child', '', 'Child', 'Enfant'),
+('children storage exists within the deleted storage', '', 'Your data cannot be deleted! <br>Children storage exists within the deleted storage.', 'Vos données ne peuvent être supprimées! Des sous-entreposages existent dans votre entreposage.'),
+('children storage is stored within the storage at this position', '', 'Your data cannot be deleted! <br>Children storage is stored within the storage at this position.', 'Vos données ne peuvent être supprimées! Des sous-entreposages sont placés à cette position dans votre entreposage.'),
+('chinese', '', 'Chinese', 'Chinois'),
+('chronology', '', 'Chronology', 'Chronologie'),
+('cigar', '', 'Cigar', 'Cigare'),
+('cigarettes', '', 'Cigarettes', 'Cigarettes'),
+('cish', '', 'CISH', 'CISH'),
+('city', '', 'City', 'Ville'),
+('clear', '', 'Clear', 'Clair'),
+('click to add a line', '', 'Click to add a line', 'Cliquez pour ajouter une ligne'),
+('click to remove these elements', '', 'Click to remove these elements', 'Cliquez pour supprimer ces éléments'),
+('clinic', '', 'Clinic', 'Clinique'),
+('clinical', '', 'Clinical', 'Clinique'),
+('clinical annotation', '', 'Clinical Annotation', 'Annotation Clinique'),
+('clinical annotation description', '', 'Capture demographics, diagnosis, paths reports, treatment information, outcome and manage consents.', 'Enregistrer la démographie, les diagnostiques, les rapports pathologiques, l''information sur les traitements, les résultats et administrer les consentements.'),
+('clinical stage', '', 'Clinical Stage', 'Stade clinique'),
+('clin_demographics', '', 'Demographics', 'Démographie'),
+('clin_english', '', 'English', 'Anglais'),
+('clin_french', '', 'French', 'Français'),
+('clin_other contact type', '', 'Other Contact Type', 'Autre type de contact'),
+('clin_study', '', 'Study', 'Étude'),
+('cm', '', 'cm', 'cm'),
+('cm3', '', 'cm3', 'cm3'),
+('code', '', 'Code', 'Code'),
+('coding', '', 'Coding', 'Encodage'),
+('collaborative staged', '', 'Collaborative Staged', 'Stade Collaboratif'),
+('collected tubes nbr', '', 'Number of collected tubes', 'Nombre de tubes collectés'),
+('collected volume', '', 'Collected Volume', 'Volume collecté'),
+('collection', '', 'Collection', 'Collection'),
+('collection bank', '', 'Bank', 'Banque'),
+('Collection Date', '', 'Collection Date', 'Date de collection'),
+('collection datetime', '', 'Collection Date', 'Date de prélèvement'),
+('collection details', '', 'Details', 'Détails'),
+('collection products', '', 'Products', 'Produits'),
+('collection property', '', 'Collection Property', 'Propriété de la collection'),
+('collection site', '', 'Collection Site', 'Lieu de prélèvement'),
+('collection sop', '', 'Collection SOP', 'SOP de la collection'),
+('collection to creation spent time', '', 'Collection to Creation Spent Time', 'Temps écoulé entre le prélèvement et la création'),
+('collection to reception spent time', '', 'Collection to Reception Spent Time', 'Temps écoulé entre le prélèvement et la réception'),
+('collection to storage spent time', '', 'Collection to Storage Spent Time', 'Temps écoulé entre le prélèvement et l''entreposage'),
+('collections', '', 'Collections', 'Collections'),
+('column', '', 'Column', 'Colonne'),
+('commercial', '', 'Commercial', 'Commercial'),
+('common law', '', 'Common Law', 'Droit traditionnel'),
+('compatible datamart batches', '', 'Compatible Datamart Batches', 'Groupe de données compatible'),
+('complete', '', 'Complete', 'Complété'),
+('Complete date known and verified', '', 'Complete date known and verified', 'Données complètes connues et vérifiées '),
+('completed', '', 'Completed', 'Complété'),
+('completed cycles', '', 'Completed Cycles', 'Cycles complétés'),
+('completion', '', 'Completion', 'État d''avancement'),
+('concentrated urine', '', 'Concentrated Urine', 'Urine concentrée'),
+('concentration should be a positif decimal', '', 'Concentration should be a positive decimal!', 'Concentration doit être un décimal positif!'),
+('confirmation source', '', 'Confirmation Source', 'Source de la confirmation'),
+('consent', '', 'Consent', 'Consentement'),
+('Consent Form', '', 'Consent Form', 'Formulaire de consentement'),
+('consent method', '', 'Consent Method', 'Méthode de consentement'),
+('Consent National', '', 'Consent National', 'Consentement national'),
+('consent signed date', '', 'Date Consent Signed', 'Date de la signature du consentement'),
+('consent status', '', 'Consent Status', 'Statut du Consentement'),
+('contact', '', 'Contact', 'Contact'),
+('contaminated', '', 'Contaminated', 'Contaminé'),
+('contract', '', 'Contract', 'Contrat'),
+('coordinate must be unique for the storage', '', 'Coordinate value must be unique for the storage!', 'La valeur de la coordonnée doit être unique pour l''entreposage!'),
+('coordinate order must be unique for the storage', '', 'Coordinate order must be unique for the storage!', 'L''ordre de la coordonnée doit être unique pour l''entreposage!'),
+('coordinate size', '', 'Size', 'Taille'),
+('coordinate type', '', 'Type', 'Type'),
+('coordinate value', '', 'Value', 'Valeur'),
+('coordinate value is required', '', 'Coordinate value is required!', 'La valeur de la coordonnée est requise!'),
+('coordinate x', '', 'Coordinate X', 'Coordonnée X'),
+('coordinate y', '', 'Coordinate Y', 'Coordonnée Y'),
+('copy', '', 'Copy', 'Copier'),
+('copy control', '', 'Copy control', 'Contrôle de copie'),
+('copying', '', 'Copying', 'Copie'),
+('core', '', 'Core', 'Core'),
+('core_administrate', '', 'Administration', 'Administration'),
+('core_announcements', '', 'Announcements', 'Annonces'),
+('core_appname', '', 'ATiM - Advanced Tissue Management', 'ATiM - Application de gestion avancée des tissus'),
+('core_are you sure you want to delete this data?', '', 'Are you sure you want to delete this data?', 'Êtes-vous certain de vouloir supprimer cette donnée?'),
+('core_copyright', '', 'Copyright', 'Droit d''auteur'),
+('core_ctrnet', '', 'Canadian Tumour Repository Network', 'Réseau Canadien de Banque de Tumeurs'),
+('core_customize', '', 'Customize', 'Customiser'),
+('core_detail', '', 'Detail', 'Détail'),
+('core_footer_about', '', 'About', 'Information'),
+('core_footer_credits', '', 'Credits', 'Auteurs'),
+('core_footer_installation', '', 'Installation', 'Installation'),
+('core_groups', '', 'Groups', 'Groupes'),
+('core_menu_main', '', 'Main Menu', 'Liste des Options'),
+('core_messages', '', 'Messages', 'Messages'),
+('core_mypasswd', '', 'My Password', 'Mon mot de passe'),
+('core_myprefs', '', 'My Preferences', 'Mes préférences'),
+('core_myprofile', '', 'My Profile', 'Mon profil'),
+('core_no_data_available', '', 'No Data Available', 'Aucune donnée disponible'),
+('core_passwd', '', 'Password', 'Mot de passe'),
+('core_permissions', '', 'Permissions', 'Autorisations'),
+('core_prefs', '', 'Preferences', 'Préférences'),
+('core_profile', '', 'Profile', 'Profil'),
+('core_tools', '', 'Tools', 'Outils'),
+('core_tools description', '', 'Additional modules to help support day-to-day bank operations, configure the system, add treatment protocols, setup bank storage facilities.', 'Modules supplémentaires pour aider le support des opérations journalières des banques, la configuration du système, l''ajout de protocoles de traitements et la configuration des installations entreposages.'),
+('core_userlogs', '', 'User Logs', 'Historique des connexions'),
+('core_users', '', 'Users', 'Utilisateurs'),
+('country', '', 'Country', 'Pays'),
+('cousin', '', 'Cousin', 'Cousin'),
+('co_investigator', '', 'Co-Investigator', 'Co-investigateur'),
+('Create %1$s%2$s in file: %3$s.', '', 'Create %1$s%2$s in file: %3$s.', 'Créer %1$s%2$s dans le fichier: %3$s.'),
+('Create the class %s below in file: %s', '', 'Create the class %s below in file: %s', 'Créer la classe %s plus bas dans le fichier: %s'),
+('created', '', 'Created', 'Créé'),
+('created by', '', 'Created By', 'Créé par'),
+('creation date', '', 'Creation Date', 'Date de création'),
+('creation site', '', 'Creation Site', 'Site de création'),
+('creation to storage spent time', '', 'Creation to Storage Spent Time', 'Temps écoulé entre la création et l''entreposage'),
+('credits_body', '', 'ATiM is an open-source project development by leading tumour banks across Canada. For more information on our development team, questions, comments or suggestions please visit our website at http://www.ctrnet.ca', 'ATiM est un logiciel développé par les plus importantes banques de tumeurs à travers le Canada. Pour de plus amples informations sur notre équipe de développement, des questions, commentaires ou suggestions, veuillez consulter notre site web à http://www.'),
+('credits_title', '', 'Credits', ''),
+('culture status', '', 'Status', 'Statut'),
+('cupboard', '', 'Cupboard', 'Étagère'),
+('curative', '', 'Curative', 'Curatif'),
+('Current', '', 'Current', 'Actuel'),
+('current status', '', 'Current Status', 'Statut actuel'),
+('current version information', '', 'Current Version Information', 'Information sur la version actuelle'),
+('current volume', '', 'Current Volume', 'Volume courant'),
+('cystic fluid', '', 'Cystic Fluid', 'Liquide kystique'),
+('cystic fluid cell', '', 'Cystic Fluid Cell', 'Cellules de liquide kystique'),
+('cystic fluid supernatant', '', 'Cystic Fluid Supernatant', 'Surnageant de liquide kystique'),
+('cytology', '', 'Cytology', 'Cytologie'),
+('data', '', 'Data', 'Données'),
+('data creation - update error', '', 'Data Creation/Update Error', 'Erreur durant la création/mise à jour des données'),
+('data not found', '', 'Data Not Found', 'Données inexistantes'),
+('date', '', 'Date', 'Date'),
+('date captured', '', 'Date Captured', 'Date de la saisie'),
+('Date Form Created', '', 'Date Form Created', 'Date de la création du formulaire'),
+('date installed', '', 'Date Installed', 'Date de l''installation'),
+('date of birth', '', 'Date of Birth', 'Date de Naissance'),
+('date of death', '', 'Date of Death', 'Date Décès'),
+('date of reception in pathology', '', 'Reception Date in Pathology', 'Date de réception en pathologie'),
+('date placed', '', 'Date Placed', 'Date d''ajout'),
+('date/time', '', 'date/time', 'date/heure'),
+('datetime_accuracy_indicator_c', '', 'c', 'c'),
+('datetime_accuracy_indicator_d', '', 'd', 'j'),
+('datetime_accuracy_indicator_help', '', 'Date accuracy:<br>- ''c'': Date is accurate (including hour and minute if exist)<br>- ''d'': Day, month and year are accurate<br>- ''m'': Only month and year are accurate<br>- ''y'': Only year is accurate.', 'Précision de la date:<br>- ''c'': La date est exacte (heure et minute comprises si existent)<br>- ''j'': les jour, mois et année sont exacts<br>- ''m'': Seulement les mois et année sont exacts<br>- ''a'': Seulement l''année est exacte.'),
+('datetime_accuracy_indicator_m', '', 'm', 'm'),
+('datetime_accuracy_indicator_y', '', 'y', 'a'),
+('date_range', '', 'Date Range', 'Période'),
+('daughter', '', 'Daughter', 'Fille'),
+('day of date is uncertain', '', 'Day of date is uncertain', 'Jour exact de la date incertain'),
+('day uncertain', '', 'Day Uncertain', 'Jour exact incertain'),
+('days', '', 'Days', 'Jours'),
+('dcis', '', 'DCIS', 'DCIS'),
+('dead', '', 'Dead', 'Décès'),
+('death certificate', '', 'Death Certificate ID', 'Numéro du certificat de décès'),
+('December', '', 'December', 'Décembre'),
+('declined', '', 'Declined', 'Décliné'),
+('define as child', '', 'Define as Child', 'Définir comme ré-aliquoté'),
+('define as shipped', '', 'Define as shipped', 'Définir comme expédié'),
+('define realiquoted children', '', 'Define Realiquoted Children', 'Définir enfants ré-aliquotés'),
+('define storage position description', '', '<br>Define position of the new or modified storage entity into the parent storage entity.<br>', 'Définir la position de l''entité d''entreposage dans l''entité d''entreposage ''parent''. <br>'),
+('degraded', '', 'Degraded', 'Dégradé'),
+('delete', '', 'Delete', 'Supprimer'),
+('deletion of this type of use is currently not supported from use list', '', 'Deletion of this type of use is not currently supported from use list!', 'La suppression de ce type d''utilisation n''est actuellement pas supportée à partir de cette liste!'),
+('denied', '', 'Denied', 'Refus'),
+('department', '', 'Department', 'Département'),
+('derivative', '', 'Derivative', 'Dérivé'),
+('derivative exists for the deleted sample', '', 'Your data cannot be deleted! <br>Derivatives exist for the deleted sample.', 'Vos données ne peuvent être supprimées! Des dérivés existent pour votre échantillon.'),
+('description', '', 'Description', 'Description'),
+('detail', '', 'Detail', 'Détail'),
+('details', '', 'Details', 'Détails'),
+('diagnosis', '', 'Diagnostic', 'Diagnostique'),
+('died of disease', '', 'Died of Disease', 'Décédé de maladie'),
+('died of other cause', '', 'Died of other cause', 'Décédé d''autre cause '),
+('died of unknown cause', '', 'Died of unknown cause', 'Décédé de cause inconnue'),
+('digestive', '', 'Digestive/gastrointestinal', 'Digestif/gastro-intestinal'),
+('digestive/gastrointestinal', '', 'Digestive/Gastrointestinal', 'Digestif/gastro-intestinal'),
+('disease site', '', 'Disease Site', 'Site de la maladie'),
+('disease status', '', 'Disease Status', 'Statut de la maladie'),
+('display order', '', 'Display Order', 'Ordre d''affichage'),
+('display order should be an integer', '', 'Display order should be an integer!', 'L''ordre d''affichage doit être un entier!'),
+('divorced', '', 'Divorced', 'Divorcé'),
+('dna', '', 'DNA', 'ADN'),
+('do not forget to save', '', 'Do not forget to save', 'N''oubliez pas d''enregistrer'),
+('doctor', '', 'Doctor', 'Médecin'),
+('domain', '', 'Domain', 'Domaine'),
+('dose', '', 'Dose', 'Dose'),
+('dr.', '', 'Dr.', 'Dr.'),
+('drug', '', 'Drug', 'Médicament'),
+('drug administration', '', 'Drug Administration', 'Administration de médicament'),
+('drug module description', '', 'This module allows the bank to specify which agents are used during treatment. Drugs can then be assigned to common treatment protocols.', 'Ce module permet à la banque de spécifier quels agents sont utilisés durant le traitement. Les médicaments peuvent alors être assignés à des protocoles de traitement.'),
+('drug type', '', 'Drug Type', 'Type de médicament'),
+('drugs', '', 'Drugs', 'Médicaments'),
+('duct-lob mixed', '', 'Duct-Lob Mixed', ''),
+('ductal', '', 'Ductal', 'Canalaire'),
+('ductal-special mixed', '', 'Ductal-Special Mixed', ''),
+('due date', '', 'Due Date', 'Date d''échéance'),
+('dx nature', '', 'Nature', 'Nature'),
+('dx_date', '', 'Diagnosis Date', 'Date du diagnostic'),
+('dx_laterality', '', 'Side of the tumour in paired organs or skin sites.', 'Côté de la tumeur dans des organes pairs ou sur la peau'),
+('dx_method', '', 'Diagnosis Method', 'Méthode de diagnostic'),
+('edit', '', 'Edit', 'Modifier'),
+('edit all', '', 'Edit All', 'Modifier tout'),
+('edit position', '', 'Edit Position', 'Modifier position'),
+('EDTA', '', 'EDTA', 'EDTA'),
+('effective_date', '', 'Effective Date', 'Date d''entrée en vigueur'),
+('either core or slide exists for the deleted aliquot', '', 'Your data cannot be deleted! <br>Either cores or slides exist for the deleted aliquot.', 'Vos données ne peuvent être supprimées! Des ''cores'' ou des lames existent pour votre aliquot.'),
+('email', '', 'Email', 'Courriel'),
+('empty', '', 'Empty', 'Vide'),
+('endocrine', '', 'Endocrine', 'Endocrine'),
+('endoscopy', '', 'Endoscopy', 'Endoscopie'),
+('epidemiological', '', 'Epidemiological', 'Épidémiologique'),
+('er', '', 'ER', 'ER'),
+('er assay ligand', '', 'Assay by Ligand Binding', 'Test récepteur'),
+('Error', '', 'Error', 'Erreur'),
+('error deleting data - contact administrator', '', 'Error Deleting Data - Contact Administrator', 'Erreur durant la suppression des données - Contactez votre administrateur du système!'),
+('error in the date definitions', '', 'Error in the date definitions', 'Erreur dans la définition des dates'),
+('error_fk_participant_linked_consent', '', 'Associated record error - The participant you are trying to delete is linked to an existing consent.', 'Erreur de donnée associée - Le participant que vous essayez de supprimer est lié à un consentement existant!'),
+('error_numeric_ageatmenarche_mustbeage', '', 'Error - Age at Menarche must be between 0 and 50!', 'Erreur - Âge des premières règles doit être entre 0 et 50!'),
+('error_numeric_firstparturition_mustbeage', '', 'Error - Age at First Parturition must be between 0 and 150!', 'Erreur - Âge de la première parturition doit être en 0 et 150!'),
+('error_numeric_lastparturition_mustbeage', '', 'Error - Age at Last Parturition must be between 0 and 150!', 'Erreur - Âge de la dernière parturition doit être entre 0 et 150!'),
+('error_participant identifier must be unique', '', 'Error - Participant Identifier must be unique!', 'Erreur - L''identifiant du participant doit être unique '),
+('error_range_ageathysterectomy', '', 'Error - Age at hysterectomy must be between 0 and 150!', 'Erreur - L''âge de l''hystérectomie doit être entre 0 et 150!'),
+('error_range_ageatmenopause', '', 'Error - Age at menopause must be between 40 and 100!', 'Erreur - Âge de la ménopause doit être entre 40 et 100!'),
+('error_range_gravida_between 0-20', '', 'Error - Gravida must be between 0 and 20!', 'Erreur - Nombre de gravida doit être entre 0 et 20!'),
+('error_range_para_between 0-20', '', 'Error - Para must be between 0 and 20!', 'Erreur - Nombre de para doit être entre 0 et 20!'),
+('error_range_yearsonoral_between 0-150', '', 'Error - Years on Hormonal Contraceptive must be between 0 and 150!', 'Erreur - Années de la contraception hormonale doivent être situées entre 0 et 150!'),
+('err_clin_no_data_body', '', 'A query was made to the database and no data was return. Please contact your system administrator.', 'Une requête a été acheminée à la base de données et aucune donnée n''a été retournée. Veuillez contacter votre administrateur de système.'),
+('err_clin_no_data_title', '', 'Clinical Annotation  - Data Error', 'Annotation clinique - Erreur de donnée'),
+('err_protocol code is required', '', 'Protocol code is required!', 'Code du protocole requis'),
+('estrogens amount is required.', '', 'Estrogens amount is required.', 'La quantité d''estrogènes est requise.'),
+('Ethics', '', 'Ethics', 'Éthiques'),
+('event_form_type', '', 'Form Type', 'Type de formulaire'),
+('event_group', '', 'Annotation Group', 'Groupe d''annotation'),
+('ex-smoker', '', 'Ex-Smoker', 'Ex-fumeur'),
+('excisional', '', 'Excisional', 'Excisional'),
+('expiry date', '', 'Expiry Date', 'Date d''expiration'),
+('expiry_date', '', 'Expiry Date', 'Date d''expiration'),
+('extra nodal invasion', '', 'Extra Nodal Invasion', 'Invasion extranodale'),
+('eye', '', 'Eye', 'Oeil'),
+('facility', '', 'Facility', 'Établissement'),
+('fahrenheit', '', '°F', '°F'),
+('family doctor', '', 'Family Doctor', 'Médecin de famille'),
+('family history', '', 'Family History', 'Antécédents Familiaux'),
+('father', '', 'Father', 'Père'),
+('fax', '', 'Fax', 'Télécopieur'),
+('feb', '', 'Feb', 'Fév'),
+('February', '', 'February', 'Février'),
+('female', '', 'Female', 'Femme'),
+('field_one', '', 'Field One', 'Champs 1'),
+('field_three', '', 'Field Three', 'Champs 3'),
+('field_two', '', 'Field Two', 'Champs 3'),
+('File Location', '', 'File Location', 'Emplacement du fichier'),
+('File Type', '', 'File Type', 'Type de fichier'),
+('File Viewer', '', 'Open with', 'Ouvrir avec'),
+('filipino', '', 'Filipino', 'Philippin'),
+('filter', '', 'Filter', 'Filtre'),
+('fine needle aspirate', '', 'Fine Needle Aspirate', 'Aiguille fine pour aspiration'),
+('finish date', '', 'Finish Date', 'Date de fin'),
+('first contact', '', 'Date of First Contact', 'Date du premier contact'),
+('first name', '', 'First Name', 'Prénom'),
+('fish', '', 'FISH', 'FISH'),
+('floor', '', 'Floor', 'Étage'),
+('fna', '', 'FNA', ''),
+('follow up', '', 'Follow Up', 'Suivi'),
+('Form Category', '', 'Category', 'Catégorie'),
+('form group', '', 'Group', 'Groupe'),
+('form manager description', '', 'Ability to track standard forms used by the bank. For example, consent forms and request forms.', 'Utilisé pour la gestion des formulaires standards utilisés par la banque. Par exemple, les formulaires de consentement et de requête'),
+('Form Status', '', 'Status', 'Statut'),
+('Form Title', '', 'Title', 'Titre'),
+('Form Type', '', 'Type', 'Type'),
+('Form Version', '', 'Version', 'Version'),
+('forms', '', 'Forms', 'Formulaire'),
+('forms_menu', '', 'Forms', 'Formulaire'),
+('form_version', '', 'Form Version', 'Version du Consentement'),
+('freezer', '', 'Freezer', 'Congélateur'),
+('frequency', '', 'Frequency', 'Fréquence'),
+('fridge', '', 'Fridge', 'Frigo'),
+('frozen', '', 'Frozen', 'Congelée'),
+('frozen section', '', 'Frozen Section', 'Section congélation'),
+('Funding', '', 'Funding', 'Financement'),
+('gel CSA', '', 'Gel CSA', 'Gel de CSA'),
+('general', '', 'General', 'Général'),
+('General - All', '', 'General - All', 'Général - Indifférencié'),
+('generated identifier', '', 'Generated Identifier', 'Identifiant généré'),
+('generated_parent_sample_sample_type_help', '', 'Type of the sample used to create the studied derivative sample.', 'Type de l''échantillon utilisé pour créer l''échantillon dérivé.'),
+('generic name', '', 'Generic Name', 'Nom générique '),
+('genitourinary', '', 'Genitourinary', 'Génito-urinaire'),
+('germ', '', 'Germ Cell', 'Cellule germinale'),
+('germ cell', '', 'Germ Cell', 'Cellule germinale'),
+('good', '', 'Good', 'Bon'),
+('gr', '', 'gr', 'gr'),
+('grade', '', 'Grade', 'Grade'),
+('grandfather', '', 'Grandfather', 'Grand-père'),
+('grandmother', '', 'Grandmother', 'Grand-mère'),
+('gravida', '', 'Gravida', 'Gravida'),
+('group batch sets', '', 'Group Batch Sets', 'Groupe d''ensembles de données'),
+('gynaecologic', '', 'Gynaecologic', 'Gynécologique'),
+('head and neck', '', 'Head and Neck', 'Tête et cou'),
+('headneck', '', 'Head And Neck', 'Tête et cou'),
+('height', '', 'Height', 'Taille'),
+('help_city', '', 'Enter the City, State/Province, Country and Mail code on this line', 'Entrez la ville, province/état, pays et code postal sur cette ligne'),
+('help_confirmation source', '', 'The source of the notification of the participant''s death.', 'Source de la notification du décès du participant'),
+('help_date of birth', '', 'Enter the participants date of birth here.', 'Entrez la date de naissance des participants ici'),
+('help_date of death', '', 'The date of a death.', 'Date du décès'),
+('help_dx method', '', 'The most definitive diagnostic procedure before radiotherapy (to primary site) and/or chemotherapy is given, by which a malignancy is diagnosed within 3 months of the earliest known encounter with the health care system for (an investigation relating to) ', 'La procédure du meilleur diagnostic définitif avant la radiothérapie (au site primaire) et/ou chimiothérapie, par lequel la malignité est diagnostiquée dans les 3 mois de la première rencontre connue à l''intérieur du système de santé (investigation relati'),
+('help_dx nature', '', 'Indicates the nature of the disease coded in the Registry abstract.', 'Indiquez la nature de la maladie codée dans le registre.'),
+('help_dx origin', '', 'A primary diagnosis indicates the start of a new patient disease. A secondary diagnosis indicates a progression or metastatic from the primary site.', 'Un diagnostic primaire indique un début d''une nouvelle maladie chez le patient. Un second diagnostic indique une progression ou des métastases à partir du site primaire.'),
+('help_icd10 coding', '', 'Coding tool to help select ICD 10 value', 'Outil de codage pour aider à sélectionner la valeur ICD 10'),
+('help_language preferred', '', 'The preferred language for communication.', 'Language de préférence pour communication'),
+('help_marital status', '', 'A demographic parameter indicating a person''s current conjugal status.', 'Définit si le patient est marié, célibataire, veuf, etc.'),
+('help_memo', '', 'Text area for capturing generic comments.', 'Zone de texte pour la saisie des commentaires génériques'),
+('help_race', '', 'A group of persons related by common descent or heredity.\r\n', 'Un groupe de personnes liées par un ancêtre commun ou l''hérédité'),
+('help_sex', '', 'The sex (male, female, unknown) of the participant.\r\n', 'Le sexe (mâle, femelle, inconnu) du participant'),
+('help_street', '', 'Street and or unit location.', 'Rue et/ou emplacement de l''unité '),
+('help_vital status', '', 'The state or condition of being living or deceased.', 'Définit si le patient est décédé ou vivant.'),
+('hematologic', '', 'Hematologic/blood', 'Hématologique/Sang'),
+('hematologic/blood', '', 'Hematologic/Blood', 'Hématologique/Sang'),
+('hemolysis signs', '', 'Hemolysis Signs', 'Signes d''hémolyse'),
+('heparin', '', 'Heparin', 'Héparine'),
+('her2', '', 'HER2', 'HER2'),
+('histology', '', 'Histology', 'Histologie'),
+('home', '', 'Home', 'Résidence'),
+('hormonal', '', 'Hormonal', 'Hormonal'),
+('hormonal contraceptive use', '', 'Hormonal Contraceptive Use', 'Utilisation de contraceptif hormonal'),
+('hours', '', 'Hours', 'Heures'),
+('hrt use', '', 'HRT Use', 'Utilisation d''HRT(hormone de remplacement)'),
+('hysterectomy', '', 'Hysterectomy', 'Hystérectomie'),
+('ICD-10 selection tool', '', 'ICD-10 Selection Tool', 'Outil de sélection d''ICD-10'),
+('identification', '', 'Identification', 'Identification'),
+('identifier abrv', '', 'Identifier Abbreviation', 'Abréviation de l''identifiant'),
+('If you want to customize this error message, create %s', '', 'If you want to customize this error message, create %s', 'Si vous souhaitez personnaliser le message d''erreur, créez %s'),
+('If you want to customize this error message, create %s.', '', 'If you want to customize this error message, create %s.', 'Si vous souhaitez personnaliser le message d''erreur, créez %s.'),
+('ihc', '', 'IHC', 'IHC (immunohistochimie)'),
+('IM: intramuscular injection', '', 'IM: intramuscular injection', 'Injection intramusculaire'),
+('immediate', '', 'Immediate', 'Immédiat'),
+('immunochemistry code', '', 'Immunochemistry Code', 'Code de l''anticorps'),
+('in person', '', 'In Person', 'En personne'),
+('in process', '', 'In process', 'En cours'),
+('in situ', '', 'In Situ', 'In situ'),
+('in situ component', '', 'In Situ Component', 'Composé in situ'),
+('in situ type', '', 'In Situ Type', 'Type in situ'),
+('In Stock', '', 'In Stock', 'En stock'),
+('Inactive', '', 'Inactive', 'Inactif'),
+('incubator', '', 'Incubator', 'Incubateur'),
+('independent collection', '', 'Independent Collection', 'Collection indépendante'),
+('information package', '', 'Information Package', 'Pack d''information'),
+('information source', '', 'Information Source', 'Source de l''information'),
+('information_source', '', 'Information Source', 'Source de l''information'),
+('initial specimen type', '', 'Initial Specimen', 'Spécimen Source'),
+('initial storage date', '', 'Initial Storage Date', 'Date initiale d''entreposage'),
+('initial volume', '', 'Initial Volume', 'Volume initial'),
+('installation_body', '', 'To view your installed version number open the Administration Tool and select ATiM Version from the first menu. ATiM is built on the CakePHP framework (www.cakephp.org).', 'Pour visualiser votre numéro de version installée, ouvrez l''outil administration et sélectionnez la version ATiM à partir du premier menu. ATiM est bâti sur une cadre CakePHP (www.cakephp.org).'),
+('installation_title', '', 'Installation', 'Installation'),
+('institution', '', 'Institution', 'Institution'),
+('integer', '', 'Integer', 'Entier'),
+('intent', '', 'Intent', 'Intention'),
+('internal use', '', 'Internal Use', 'Utilisation interne'),
+('Inventory - All', '', 'Inventory - All', 'Inventaire - Indifférencié'),
+('inventory management', '', 'Inventory Management', 'Gestion des échantillons'),
+('inventory management description', '', 'Laboratory Information Management module. Manage and annotate all biobank samples. Supports pathologist review findings, quality control results, aliquot usage history and integration with Storage Management.', 'Module d''administration des informations du laboratoire. Administrer et annoter les échantillons des biobanques. Supporte la vérification des résultats des pathologistes, le contrôle de la qualité des résultats, l''historique de l''ut'),
+('Investigator', '', 'Investigator', 'Investigateur'),
+('inv_acquisition_label_defintion', '', 'Label attached to a collection that will help user to recognize his collection in ATiM.', 'Valeur aidant l''utilisateur à reconnaître sa collection dans ATiM.'),
+('inv_collection_bank_defintion', '', 'Bank being owner of the collection.', 'Banque propriétaire de la collection.'),
+('inv_collection_datetime_defintion', '', 'Date of the samples collection (ex: surgery date, biopsy date, blood collection date, etc).', 'Date du prélèvement des échantillons de la collection (ex: date de la chirurgie, date de la biopsie, etc).'),
+('inv_collection_type_defintion', '', 'Allow to define a collection either as a bank participant collection (''Participant Collection'') or as a collection that will never be linked to a participant (''Independent Collection'').<br>In the second case, the collection will never be displayed into th', 'Permet de définir une collection comme une collection d''un participant d''une banque (''Collection de participant'') ou comme une collection qui ne sera jamais liée à un participant (''Collection indépendante'').<br>Dans ce second cas, la collection ne sera ja'),
+('inv_is_problematic_sample_defintion', '', 'Allow to flag a sample or a derivative as problematic. This flag could be used as a warning for sample user.', 'Permet de définir un échantillon ou un dérivé comme problématique et permet d''avertir les utilisateurs de ce dernier.'),
+('inv_realiquoting_defintion', '', 'Allow to define if the studied aliquot has been realiquoted to another aliquot (Parent) or is an aliquot created from a realiquoted aliquot (children).', 'Permet de définir si l''aliquot étudié a été réaliquoté en un autre aliquot (parent) ou est un aliquot créé à partir d''un autre aliquot (enfant).'),
+('inv_reception_datetime_defintion', '', 'Date of the samples reception into the bank.', 'Date de la réception des échantillons dans la banque.'),
+('inv_sample_category_defintion', '', 'Allow to define if the studied product is a ''Sample'' meaning the product has been directly collected from human body (blood, tissue, urine, etc) or a ''Derivative'' meaning the product has been created from another product being either a sample or a derivat', 'Permet de définir si le produit étudié est un ''échantillon'' signifiant que ce dernier a été directement extrait du corps humain (sang, urine, tissu, etc) ou un ''Dérivé'' signifiant que le produit a &e'),
+('inv_sample_parent_id_defintion', '', 'Parent sample or derivative used to create the studied derivative.', 'Échantillon ou dérivé utilisé pour créé le dérivé étudié.'),
+('is problematic', '', 'Is Problematic', 'Est problématique'),
+('item exists for the deleted order line', '', 'Your data cannot be deleted! <br>Item exists for the deleted order line.', 'Vos données ne peuvent être supprimées! Des articles existent pour votre ligne de commande.'),
+('IV: Intravenous', '', 'IV: Intravenous', 'IV: intraveineux'),
+('jan', '', 'Jan', 'Jan'),
+('January', '', 'January', 'Janvier'),
+('japanese', '', 'Japanese', 'Japonais'),
+('job title', '', 'Job Title', 'Poste/Emploi'),
+('July', '', 'July', 'Juillet'),
+('June', '', 'June', 'Juin'),
+('known', '', 'Known', 'Inconnu'),
+('korean', '', 'Korean', 'Coréen'),
+('lab', '', 'Lab', 'Lab'),
+('label is required', '', 'The label is required!', 'L''identifiant est requis!'),
+('laboratory', '', 'Laboratory', 'Laboratoire'),
+('language preferred', '', 'Language Preferred', 'Connu'),
+('last chart checked date', '', 'Last Chart Checked Date', 'Date de la dernière révision de données'),
+('last name', '', 'Last Name', 'Nom de famille'),
+('laterality', '', 'Laterality', 'Latéralité'),
+('latin american', '', 'Latin American', 'Latino-Américain'),
+('lcis', '', 'LCIS', 'LCIS'),
+('left', '', 'Left', 'Gauche'),
+('legend', '', 'Legend', 'Légende'),
+('length cycles', '', 'Length of Cycle', 'Longueur du cycle'),
+('less than 1', '', 'Less than 1', 'Moins que 1'),
+('leukemia', '', 'Leukemia', 'Leucémie'),
+('level', '', 'Level', 'Niveau'),
+('level nodal involvement', '', 'Level Nodal Involvement', 'Niveau de l''envahissement ganglionnaire'),
+('lifestyle', '', 'Lifestyle', 'Habitude de vie'),
+('line', '', 'Line', 'Ligne'),
+('link to collection', '', 'Participant Collection', 'Collection du participant'),
+('list', '', 'List', 'Liste'),
+('listall aliquots', '', 'Aliquots', 'Aliquots'),
+('listall collection aliquots', '', 'Aliquots List', 'Liste des aliquots'),
+('listall collection samples', '', 'Samples List', 'Liste des échantillons'),
+('listall derivatives', '', 'Derivatives', 'Dérivés'),
+('listall source aliquots', '', 'Source Aliquots', 'Aliquots sources'),
+('lnmp date', '', 'Last Known Menstrual Period', 'Dernière période menstruelle connue'),
+('loading', '', 'Loading', 'Chargement'),
+('lobular', '', 'Lobular', 'Lobulaire'),
+('lobular special mixed', '', 'Lobular Special Mixed', 'Lobulaire special mixte '),
+('login', '', 'Login', 'Ouverture'),
+('Login failed. Invalid username or password.', '', 'Login failed. Invalid username or password.', 'L''ouverture de session a échoué. Nom d''utilisateur ou mot de passe invalide.'),
+('login_help', '', 'For demonstration purposes, there are two logins available.\r\n\r\nThe first is "endemo" as both username and password. This user has a default setting of english.\r\n\r\nThe second is "frdemo" as both username and password. This user has a default setting of fre', 'Pour fins de démonstration, deux connexions sont disponibles. La première est "endemo" à la fois comme nom d''utilisateur et comme mot de passe. Cette utilisation a un réglage par défaut de la langue anglaise. La seconde est "frdemo" comme nom d''utilisateu'),
+('logout', '', 'Logout', 'Quitter'),
+('lost', '', 'Lost', 'Perdu'),
+('lost contact', '', 'Lost contact', 'Perte de contact'),
+('lot number', '', 'Lot Number', 'Numéro du lot'),
+('lung', '', 'Lung', 'Poumon'),
+('lymphatic vascular invasion', '', 'Lymphatic and/or Vascular Invasion', 'Invasion lymphatique et/ou vasculaire'),
+('lymphatic/vascular invasion', '', 'Lymphatic/Vascular Invasion', 'Invasion lymphatique/vasculaire'),
+('lymphoma', '', 'Lymphoma', 'Lymphome'),
+('m stage', '', 'M', 'M'),
+('mail', '', 'Mail', 'Courriel'),
+('mail_code', '', 'Postal Code', 'Code Postal'),
+('male', '', 'Male', 'Masculin'),
+('malignant', '', 'Malignant', 'Malin'),
+('mammogram', '', 'Mammogram', 'Mammographie'),
+('mar', '', 'Mar', 'Mars'),
+('March', '', 'March', 'Mars'),
+('marital status', '', 'Marital Status', 'Statut Marital'),
+('married', '', 'Married', 'Marié'),
+('material transfer agreement', '', 'Material Transfer Agreement', 'Entente de transfert de matériel'),
+('materials description', '', 'Define materials and equipment used in bank Standard Operating Procedures. These items can be assigned to existing SOPs.', 'Définir le matériel et l''équipement utilisés dans les procédures normalisées de fonctionnement de la banque. Ces éléments peuvent être assignés aux PNFs existantes.'),
+('maternal', '', 'Maternal', 'Maternel'),
+('mat_description', '', 'Description', 'Description'),
+('mat_item name', '', 'Item Name', 'Nom de l''item'),
+('mat_item type', '', 'Item Type', 'Type de l''item'),
+('May', '', 'May', 'Mai'),
+('medullary', '', 'Medullary', 'Médullaire'),
+('memo', '', 'Memo', 'Note'),
+('menopause reason', '', 'Reason for Menopause Onset', 'Raison du début de la ménopause '),
+('menopause status', '', 'Menopause Status', 'Statut Ménopausique');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('message', '', 'Message', 'Message'),
+('message author', '', 'Author', 'Auteur'),
+('message date_requested', '', 'Date Requested/Creation Date', 'Date de la demande/Date de création'),
+('message description', '', 'Description', 'Description'),
+('message title', '', 'Title', 'Titre'),
+('message type', '', 'Type', 'Type'),
+('method', '', 'Method', 'Méthode'),
+('middle name', '', 'Middle Name', 'Deuxième prénom'),
+('million(s)/ml', '', 'million(s)/ml', 'million(s)/ml'),
+('minimum quantity', '', 'Minimum Quantity', 'Quantité minimale'),
+('minutes', '', 'Minutes', 'Minutes'),
+('misc identifiers', '', 'Identifiers', 'Identifiants'),
+('miss', '', 'Miss', 'Mlle'),
+('Missing Controller', '', 'Missing Controller', 'Contrôleur manquant'),
+('missing date', '', 'Date Missing', 'Date manquante'),
+('Missing Method in %s', '', 'Missing Method in %s', 'Date manquante dans %s'),
+('Missing Method in Controller', '', 'Missing Method in Controller', 'Méthode manquante dans le contrôleur'),
+('ml', '', 'ml', 'ml'),
+('model', '', 'Model', 'Modèle'),
+('moderately differentiated', '', 'Moderately differentiated', 'Modérément différencié'),
+('month and day of date uncertain', '', 'Month and day of date uncertain', 'Mois et jour exacts de la date incertains'),
+('month uncertain', '', 'Month Uncertain', 'Mois incertain'),
+('more than 10', '', 'More than 10', 'Plus de 10'),
+('more than one storages matches (at least one of) the selection label(s)', '', 'More than one storages matches (at least one of) the selection label(s)!', 'Plus d''un entreposage correspond à (au moins) un identifiant de sélection d''entreposage!'),
+('morphology', '', 'Morphology', 'Morphologie'),
+('mother', '', 'Mother', 'Mère'),
+('mr.', '', 'Mr.', 'Mr.'),
+('mrs.', '', 'Mrs.', 'Mrs.'),
+('MS Excel xls', '', 'MS Excel (.xls)', 'MS Excel (.xls)'),
+('MS WORD Doc', '', 'MS WORD (.doc)', 'MS WORD (.doc'),
+('ms.', '', 'Ms.', 'Ms.'),
+('msg', '', 'Msg', 'Msg'),
+('mucinous', '', 'Mucinous', 'Mucineux'),
+('multifocal', '', 'Multifocal', 'Multifocal'),
+('musculoskeletal', '', 'Musculoskeletal', 'Musculo-squelettique'),
+('my batch sets', '', 'My Batch Sets', 'Mes groupes de données'),
+('my favourites', '', 'My Favourites', 'Mes favoris'),
+('n stage', '', 'N', 'N'),
+('n/a', '', 'N/A', 'N/A'),
+('name', '', 'Name', 'Nom'),
+('natural', '', 'Natural', 'Naturel'),
+('nature', '', 'Nature', 'Nature'),
+('negative', '', 'Negative', 'Négatif'),
+('neoadjuvant', '', 'Neoadjuvant', 'Néoadjuvant'),
+('nephew', '', 'Nephew', 'Neveu'),
+('neurologic', '', 'Neurologic', 'Neurologique'),
+('new collection', '', 'New Collection', 'Nouvelle collection'),
+('new group', '', 'New Group', 'Nouveau groupe'),
+('new in stock reason', '', 'New Stock Detail', 'Nouveau détail du stock'),
+('new in stock value', '', 'New ''In Stock'' Value', 'Nouvelle valeur ''En stock'''),
+('new search', '', 'New Search', 'Nouvelle recherche'),
+('new search type', '', 'New Search Type', 'Nouveau type de recherche'),
+('next', '', 'Next', 'Après'),
+('ng/ul', '', 'ng/ul', 'ng/ul'),
+('niece', '', 'Niece', 'Nièce'),
+('nipple insitu', '', 'Nipple Insitu', 'Mammelon in situ'),
+('nipple involved', '', 'Nipple Involved', 'Mammelon impliqué'),
+('nitrogen locator', '', 'Nitrogen Locator', 'Réservoir d''azote liquide'),
+('no', '', 'No', 'Non'),
+('no data exists for the specified id', '', 'No data matches the specified ID!<br>Please try again or contact your system administrator.', 'Aucune donnée ne correspond à l''ID spécifié!<br>Essayez de nouveau ou contactez votre administrateur du système.'),
+('no filter', '', 'No Filter', 'Supprimer Filtre'),
+('no new item could be actually added to the shipment', '', 'No new item could be actually added to the shipment.', 'Aucun nouvel article ne peut actuellement être ajoutê à la commande.'),
+('no new sample aliquot could be actually defined as realiquoted child', '', 'No new sample aliquot could be actually defined as realiquoted child!', 'Aucun nouvel aliquot de l''échantillon ne peut actuellement être défini comme aliquot ré-aliquoté (enfant)!'),
+('no new sample aliquot could be actually defined as source aliquot', '', 'No new sample aliquot could be defined as the source aliquot!', 'Aucun nouvel aliquot de l''échantillon ne peut actuellement être défini comme aliquot source!'),
+('no new sample aliquot could be actually defined as tested aliquot', '', 'No new sample aliquot could be actually defined as tested aliquot!', 'Aucun nouvel aliquot ne peut actuellement être défini comme aliquot ''testé''!'),
+('no storage matches (at least one of) the selection label(s)', '', 'No storage matches (at least one of) the selection label(s)!', 'Aucun entreposage ne correspond à au moins un identifiant de sélection d''entreposage!'),
+('no tumour', '', 'No Tumour', 'Pas de tumeur'),
+('no unshipped item exists into this order line', '', 'No unshipped item exists into this order line.', 'Aucun article a envoyer existe dans votre ligne de commande.'),
+('nodes positive', '', 'Nodes Positive', 'Nodules positifs'),
+('nodes removed', '', 'Nodes Removed', 'Nodules enlevés'),
+('non-smoker', '', 'Non-Smoker', 'Non-fumeur'),
+('none', '', 'None', 'Aucun'),
+('normal', '', 'Normal', 'Normal'),
+('not applicable', '', 'Not Applicable', 'Non applicable'),
+('not done', '', 'Not Done', 'Pas fait'),
+('Not Found', '', 'Not Found', 'Introuvable'),
+('note', '', 'Note', 'Note'),
+('notes', '', 'Notes', 'Notes'),
+('Notice', '', 'Notice', 'Notice'),
+('nov', '', 'Nov', 'Nov'),
+('November', '', 'November', 'Novembre'),
+('null cell', '', 'Null cell', ''),
+('number', '', 'Number', 'Nombre'),
+('number cycles', '', 'Number Cycles', 'Nombre de cycles'),
+('number positive', '', 'Number Positive', 'Nombre  de positifs'),
+('number resected', '', 'Number Resected', 'Nombre de réséqués'),
+('number should be a positive integer', '', 'Number should be a positive integer!', 'Le nombre doit être un entier positif!'),
+('obtained', '', 'Obtained', 'Obtenu'),
+('oct solution', '', 'OCT', 'OCT'),
+('October', '', 'October', 'Octobre'),
+('on loan', '', 'On Loan', 'Prêté'),
+('one-partial', '', 'One - Partial', 'Un - partiel'),
+('one-total', '', 'One - Total', 'Un - total'),
+('open biopsy', '', 'Open Biopsy', 'Biopsie ouverte'),
+('operation date', '', 'Operation Date', 'Date de l''opération'),
+('order', '', 'Order', 'Commande'),
+('order exists for the deleted aliquot', '', 'Your data cannot be deleted! <br>Orders exist for the deleted aliquot.', 'Vos données ne peuvent être supprimées! Des commandes existent pour votre aliquot.'),
+('order item exists for the deleted shipment', '', 'Your data cannot be deleted! <br>Item exists for the deleted shipment.', 'Vos données ne peuvent être supprimées! Des articles existent pour votre commande.'),
+('order line', '', 'Order Line', 'Ligne de commande'),
+('order line exists for the deleted order', '', 'Your data cannot be deleted! <br>Order lines exist for the deleted order.', 'Vos données ne peuvent être supprimées! Des lignes de commandes existent pour votre commande.'),
+('order management description', '', 'Handles tracking orders for research materials. Each order can be completed across many shipments with multiple product types per order.', 'Manipulation pour suivre les commandes de matériel de recherche. Chaque commande peut être complétée par plusieurs livraisons avec de multiples types de produits par commande.'),
+('order number', '', 'Order number', 'Numéro de commande'),
+('order number is required', '', 'Order number is required!', 'Le numéro de commande est requis!'),
+('order_added_by', '', 'Added By', 'Ajouté par'),
+('order_comments', '', 'Comments', 'Commentaires'),
+('order_date order completed', '', 'Date Completed', 'Date de la commande complétée'),
+('order_date order placed', '', 'Date Placed', 'Date de la commande placée'),
+('order_datetime_received', '', 'Datetime Received', 'Moment de la réception'),
+('order_datetime_shipped', '', 'Shipping Date', 'Date d''envoi'),
+('order_date_added', '', 'Date Added', 'Date ajoutée'),
+('order_date_required', '', 'Date Required', 'Date requise'),
+('order_delivery_city', '', 'City', 'Ville'),
+('order_delivery_country', '', 'Delivery Country', 'Pays de livraison '),
+('order_delivery_postal_code', '', 'Postal Code', 'Code postal'),
+('order_delivery_province', '', 'Province', 'Province'),
+('order_delivery_street_address', '', 'Street Address', 'Adresse civique'),
+('order_description', '', 'Description', 'Description'),
+('order_line_completion_help', '', 'Order line completion: ''shipped items number / order line items number.''', 'État d''avancement de la ligne de commande: nombre d''items envoyés / nombre d''items inclus.'),
+('order_order items', '', 'Items', 'Articles'),
+('order_order line detail', '', 'Details', 'Détail'),
+('order_order lines', '', 'Lines', 'Lignes'),
+('order_order management', '', 'Order Management', 'Gestion des commandes'),
+('order_order number', '', 'Order Number', 'Numéro de commande'),
+('order_processing status', '', 'Processing Status', 'Statut de la commande'),
+('order_product_code', '', 'Product Code', 'Code du produit'),
+('order_quantity_ordered', '', 'Quantity Ordered', 'Quantité commandée'),
+('order_shipment', '', 'Shipment', 'Envoi'),
+('order_shipment code', '', 'Shipment Code', 'Code de livraison'),
+('order_shipment detail', '', 'Details', 'Détail'),
+('order_shipment items', '', 'Items', 'Articles'),
+('order_shipments', '', 'Shipments', 'Livraisons'),
+('order_shipped_by', '', 'Shipped By', 'Envoyé par'),
+('order_shipping_account_nbr', '', 'Shipping Account Number', 'Numéro de compte de livraison'),
+('order_shipping_company', '', 'Shipping Company', 'Compagnie de transport'),
+('order_short title', '', 'Short Title', 'Bref titre'),
+('order_status', '', 'Status', 'Statut'),
+('order_study', '', 'Study', 'Étude'),
+('origin', '', 'Origin', 'Origine'),
+('other', '', 'Other', 'Autre'),
+('other invasive', '', 'Other Invasive', 'Autre envahissement'),
+('out of range', '', 'Out of range', 'En dehors de l''échelle'),
+('ovary removed', '', 'Ovary Removed Status', 'Statut de l''ovariectomie'),
+('oxygen percentage', '', 'Oxygen Percentage', 'Pourcentage d''oxygène'),
+('p.o.: by mouth', '', 'P.O.: By Mouth', 'PO: Par voie orale'),
+('pack years', '', 'Pack Years', 'Paquet année'),
+('pager', '', 'Pager', 'Paget'),
+('pagets nipple', '', 'Pagets Nipple', 'Maladie de Paget du mammelon'),
+('palliative', '', 'Palliative', 'Palliatif'),
+('papillary', '', 'Papillary', 'Papillaire'),
+('para', '', 'Para', 'Para'),
+('paraffin', '', 'Paraffin', 'Paraffine'),
+('parameter missing', '', 'Missing Parameter', 'Paramètre manquant'),
+('parent', '', 'Parent', 'Parent'),
+('parent sample code', '', 'Parent Sample Code', 'Code de l''échantillon ''Parent'''),
+('parent sample type', '', 'Parent Sample', 'Échantillon parent'),
+('parent storage id', '', 'Parent Storage', 'Entreposage parent'),
+('parent used volume', '', 'Parent Used Volume', 'Volume utilisé du parent'),
+('parent/child', '', 'Parent/Child', 'Parent/Enfant'),
+('partial', '', 'Partial', 'Partiel'),
+('partially degraded', '', 'Partially Degraded', 'Partiellement dégradé'),
+('participant collection', '', 'Participant Collection', 'Collection de participant'),
+('participant identifier', '', 'Participant Identifier', 'Identification du participant'),
+('participants', '', 'Participants', 'Participants'),
+('password', '', 'Password', 'Mot de passe'),
+('paste', '', 'Paste', 'Coller'),
+('paternal', '', 'Paternal', 'Paternel'),
+('path report', '', 'Path Report', 'Rapport de pathologie'),
+('pathological stage', '', 'Pathological Stage', 'Stade pathologique'),
+('pathology', '', 'Pathology', 'Pathologie'),
+('pathology department block code', '', 'Patho Code', 'Code de patho'),
+('pathology number', '', 'Pathology Number', 'Numéro de pathologie'),
+('pathology_department_block_code_help', '', 'Code assigned by the pathology department to the block that could be different than the code used by the bank.', 'Code du bloc défini par le département de pathologie et pouvant être différent de celui utilisé par la banque.'),
+('paxgene', '', 'Paxgene', 'Paxgene'),
+('pbmc', '', 'PBMC', 'PBMC'),
+('pcr', '', 'PCR', 'PCR'),
+('pellet detection', '', 'Pellet Detection', 'Détection de culot'),
+('pending', '', 'Pending', 'En attente'),
+('peri', '', 'Peri', 'Péri'),
+('pericardial fluid', '', 'Pericardial Fluid', 'Liquide péricardique'),
+('pericardial fluid cell', '', 'Pericardial Fluid Cell', 'Cellules de liquide péricardique'),
+('pericardial fluid supernatant', '', 'Pericardial Fluid Supernatant', 'Surnageant de liquide péricardique'),
+('peritoneal wash', '', 'Peritoneal Wash', 'Lavage péritonéal'),
+('peritoneal wash cell', '', 'Peritoneal Wash Cell', 'Cellules de lavage péritonéal'),
+('peritoneal wash supernatant', '', 'Peritoneal Wash Supernatant', 'Surnageant de lavage péritonéal'),
+('perm_type', '', 'Perm Type', 'Type permanent'),
+('person handling consent', '', 'Person Handling Consent', 'Personne en charge'),
+('pg/ul', '', 'pg/ul', 'pg/ul'),
+('phone home', '', 'Phone Home', 'Numéro de téléphone (résidence)'),
+('phone work', '', 'Phone Work', 'Numéro de téléphone (travail)'),
+('phone_secondary_type', '', 'Secondary Phone Type', 'Type de téléphone secondaire'),
+('phone_type', '', 'Telephone Type', 'Type de téléphone'),
+('picture', '', 'Picture', 'Image'),
+('picture path', '', 'Picture Path', 'Image'),
+('pipe', '', 'Pipe', 'Pipe'),
+('planned', '', 'Planned', 'Prévu'),
+('plasma', '', 'Plasma', 'Plasma'),
+('pleural fluid', '', 'Pleural Fluid', 'Liquide pleural'),
+('pleural fluid cell', '', 'Pleural Fluid cell', 'Cellules de liquide pleural'),
+('pleural fluid supernatant', '', 'Pleural Fluid Supernatant', 'Surnageant de liquide pleural'),
+('plugin storagelayout access to storage', '', 'Access To Storage', 'Accéder à l''entreposage'),
+('poor', '', 'Poor', 'Pauvre'),
+('poorly differentiated', '', 'Poorly differentiated', 'Faiblement différencié'),
+('position', '', 'Position', 'Position'),
+('position into storage', '', 'Position into storage', 'Position dans l''entreposage'),
+('positive', '', 'Positive', 'Positif'),
+('post', '', 'Post', 'Poste'),
+('pr', '', 'PR', 'PR'),
+('PR: per rectum', '', 'PR: per rectum', 'PR: Par le rectum'),
+('pre', '', 'Pre', 'Pré'),
+('preneoplastic changes', '', 'Associated Pre-neoplastic Changes', 'Changements pré-néoplasiques associés'),
+('presentation', '', 'Presentation', 'Présentation'),
+('prev', '', 'Previous', 'Précédent'),
+('previous disease code', '', 'Previous Disease Code', 'Code de la maladie anterieur'),
+('previous disease code system', '', 'Previous Disease Code System', 'Système du code de la maladie anterieur'),
+('primary', '', 'Primary', 'Primaire'),
+('primary disease code', '', 'Primary Disease Code', 'Code de maladie primaire'),
+('primary_number', '', 'Diagnoses Group Nbr', 'No du groupe de diagnostics'),
+('principle_investigator', '', 'Principle Investigator', 'Principal investigateur'),
+('process batch set', '', 'Process Batch Set', 'Manipuler goupe de données'),
+('process status', '', 'Process Status', 'Statut du processus'),
+('processing status', '', 'Processing Status', 'Statut du processus'),
+('product code', '', 'Product Code', 'Code du produit'),
+('product type', '', 'Product Type', 'Type de produit'),
+('product used', '', 'Product Used', 'Utilisation du produit'),
+('products', '', 'Products', 'Produits'),
+('profile', '', 'Profile', 'Profil'),
+('progressive disease', '', 'Progressive Disease', 'Maladie progressive'),
+('Proposed', '', 'Proposed', 'Proposé'),
+('prospective', '', 'Prospective', 'Prospectif'),
+('protein', '', 'Protein', 'Protéine'),
+('protocol', '', 'Protocol', 'Protocole'),
+('protocol description', '', 'Setup and define standard treatment protocols used for patient treatment.', 'Protocole pour définir le traitement standard utilisé pour le traitement du patient.'),
+('protocol detail', '', 'Details', 'Détail'),
+('protocol extend', '', 'Drug List', 'Liste des principes actifs'),
+('protocols', '', 'Protocols', 'Protocoles'),
+('qc conclusion', '', 'Conclusion', 'Conclusion'),
+('qc run id is required', '', 'Quality Control Run ID is required!', 'L''identifiant du contrôle de qualité est requis!'),
+('qc run number', '', 'Quality Control Run Id', 'ID du test de Qualité'),
+('qc score', '', 'Score', 'Score'),
+('qc tool', '', 'Tool', 'Appareil de Mesure'),
+('qc type', '', 'Type', 'Type'),
+('quality control', '', 'Quality Control', 'Contrôle de qualité'),
+('quality control abbreviation', '', 'QC', 'QC'),
+('quality control exists for the deleted sample', '', 'Your data cannot be deleted! <br>Quality controls exist for the deleted sample.', 'Vos données ne peuvent être supprimées! Des contrôles de qualité existent pour votre échantillon.'),
+('quality control run id', '', 'Quality Control Run Id', 'ID du test de Qualité'),
+('quality controls', '', 'Quality Controls', 'Contrôles de qualité'),
+('Query has been marked as one of your favourites.', '', 'Query has been marked as one of your favourites.', 'La requête a été définie comme une de vos favorites.'),
+('Query is no longer one of your favourites.', '', 'Query is no longer one of your favourites.', 'La requête n''est plus définie comme une de vos favorites.'),
+('Query is no longer one of your saved searches.', '', 'Query is no longer one of your saved searches.', 'La requête n''est plus définie comme une de vos recherches.'),
+('query tool', '', 'Query Tool', 'Requêtes'),
+('query tool description', '', 'Run pre-defined queries and reports. Select records of interest for export to file or save to a batch set for further processing.', 'Exécuter des requêtes prédéfinies et des rapports. Sélectionner les enregistrements intéressants pour les exporter vers un fichier ou un lot pour les retraiter.'),
+('race', '', 'Race', 'Race'),
+('rack10', '', 'Rack 10', 'Râtelier 10'),
+('rack11', '', 'Rack 11', 'Râtelier 11'),
+('rack16', '', 'Rack 16 (4X4)', 'Râtelier 16 (4X4)'),
+('rack24', '', 'Rack 24', 'Râtelier 24'),
+('rack9', '', 'Rack 9', 'Râtelier 9'),
+('radiation', '', 'Radiation', 'Radiation'),
+('radiation specific', '', 'Radiation Specific', 'Radiation spécifique'),
+('radio/lab', '', 'Radiology/Lab', 'Radiologie/laboratoire'),
+('radiology', '', 'Radiology', 'Radiologie'),
+('realiquoted by', '', 'Realiquoted By', 'Ré-aliquoté par'),
+('realiquoted children selection', '', 'Realiquoted Children Selection', 'Sélection des aliquots ré-aliquotés (enfant)'),
+('realiquoted parent', '', 'Realiquoted Parent', 'Parent ré-aliquoté'),
+('realiquoted to', '', 'Realiquoted To', 'Ré-aliquoté en'),
+('realiquoting', '', 'Realiquoting', 'Re-aliquotage'),
+('realiquoting data exists for the deleted aliquot', '', 'Your data cannot be deleted! <br>Realiquoting data exist for the deleted aliquot.', 'Vos données ne peuvent être supprimées! Des données de réaliquotage existent pour votre aliquot.'),
+('realiquoting date', '', 'Realiquoting Date', 'Date'),
+('reason denied or withdrawn', '', 'Reason Denied/Withdrawn', 'Motif du refus/retrait'),
+('received tissue size', '', 'Received Tissue Size', 'Taille du tissu reçu'),
+('received tissue weight', '', 'Received Tissue Weight', 'Poids du tissu reçu'),
+('reception by', '', 'Taken Delivery By', 'Réceptionné par'),
+('reception date', '', 'Reception Date', 'Date de réception'),
+('reception to storage spent time', '', 'Reception to Storage Spent Time', 'Temps écoulé entre la réception et l''entreposage'),
+('recipient', '', 'Recipient', 'Destinataire'),
+('recurrence status', '', 'Recurrence Status', 'Statut de récurrence'),
+('redirect', '', 'Redirect', 'Rediriger'),
+('referral date', '', 'Date of Referral', 'Date de référence'),
+('region', '', 'Province', 'Province'),
+('related diagnoses group', '', 'Related Diagnoses Group', 'Groupe de diagnostics connexes'),
+('related diagnosis', '', 'Related Diagnosis', 'Diagnostic connexe'),
+('Related Studies', '', 'Related Studies', 'Étude connexe'),
+('relation', '', 'Relation', 'Relation'),
+('remove', '', 'Remove', 'Enlever'),
+('remove all storage''s items', '', 'Remove all storage''s items', 'Retirer tous les items du contenant'),
+('remove all unclassified', '', 'Remove all unclassified', 'Retirer tous les non classés'),
+('remove from storage', '', 'Remove From Storage', 'Supprimer de l''entreposage'),
+('remove_from_storage_help', '', 'Will remove aliquot from its storage deleting all storage information for this aliquot.', 'Supprimera l''aliquot de l''entreposage en effaçant les données d''entreposage de l''aliquot'),
+('reproductive history', '', 'Reproductive History', 'Gynécologie'),
+('research', '', 'Research', 'Recherche'),
+('research study description', '', 'Track research studies submitted to the bank.', 'Suivi des études soumises à la banque '),
+('resection_margin', '', 'Resection Margin', 'Résection marginale'),
+('reserved for order', '', 'Reserved For Order', 'Réservé pour une commande'),
+('reserved for study', '', 'Reserved For Study', 'Réservé pour une étude'),
+('reset', '', 'Reset', 'Réinitialiser'),
+('residential', '', 'Residential', 'Résidentiel'),
+('respiratory', '', 'Respiratory/thoracic', 'Respiratoire/thoracique'),
+('respiratory/thoracic', '', 'Respiratory/Thoracic', 'Respiratoire/thoracique'),
+('response', '', 'Response', 'Réponse'),
+('result', '', 'Result', 'Résultat'),
+('retrospective', '', 'Retrospective', 'Rétrospectif'),
+('review exists for the deleted aliquot', '', 'Your data cannot be deleted! <br>Reviews exist for the deleted aliquot.', 'Vos données ne peuvent être supprimées! Des rapports existent pour votre aliquot.'),
+('review exists for the deleted collection', '', 'Your data cannot be deleted! <br>Reviews exist for the deleted collection.', 'Vos données ne peuvent être supprimées! Des rapports existent pour votre collection.'),
+('review exists for the deleted sample', '', 'Your data cannot be deleted! <br>Reviews exist for the deleted sample.', 'Vos données ne peuvent être supprimées! Des rapports existent pour votre échantillon.'),
+('right', '', 'Right', 'Droit'),
+('RIN', '', 'RIN', 'RIN'),
+('rna', '', 'RNA', 'ARN'),
+('room', '', 'Room', 'Pièce'),
+('route of referral', '', 'Route of Referral', 'Personne référente'),
+('row', '', 'Row', 'Ligne'),
+('rtbform_detail', '', 'Details', 'Détail'),
+('run by', '', 'Run By', 'Exécuté par'),
+('sample aliquot type precision', '', 'Precision', 'Précision'),
+('sample code', '', 'Sample Code', 'Code de l''échantillon'),
+('sample derivative creation', '', 'Sample Derivative Creation', 'Création de dérivé'),
+('sample exists within the deleted collection', '', 'Your data cannot be deleted! <br>Samples exist within the deleted collection.', 'Vos données ne peuvent être supprimées! Des échantillons existent dans votre collection.'),
+('sample sop', '', 'Sample SOP', 'SOP de l''échantillon'),
+('sample type', '', 'Sample Type', 'Type d''échantillon'),
+('samples', '', 'Samples', 'Échantillon'),
+('sample_aliquot_type_precision_help', '', 'Allow user to add additional product type precision like ''frozen'', ''OCT'', etc.', 'Permet à l''utilisateur de préciser le type du produit comme ''OCT'', ''congelé'', etc.'),
+('saved searches', '', 'Saved Searches', 'Recherches sauvegardées'),
+('SC: subcutaneous injection', '', 'SC: subcutaneous injection', 'SC: Injection sous-cutanée'),
+('screening', '', 'Screening', 'Dépistage'),
+('search', '', 'Search', 'Chercher'),
+('search type', '', 'Search Type', 'Type de recherche'),
+('secondary', '', 'Secondary', 'Secondaire'),
+('secondary cause of death', '', 'Secondary Cause of Death', 'Cause secondaire du décès'),
+('see parent sample', '', 'Parent Sample', 'Échantillon parent'),
+('see parent storage', '', 'Parent Storage', 'Contenant'),
+('Selection Label', '', 'Selection Label', 'Label de sélection'),
+('sentinel only', '', 'Sentinel Only', 'Sentinelle seulement'),
+('separated', '', 'Separated', 'Séparé'),
+('September', '', 'September', 'Septembre'),
+('serum', '', 'Serum', 'Sérum'),
+('sex', '', 'Sex', 'Sexe'),
+('shelf', '', 'Shelf', 'Tablette'),
+('shipment', '', 'Shipment', 'Envoi'),
+('shipment code is required', '', 'Shipment code is required!', 'Le code est requis!'),
+('shipment exists for the deleted order', '', 'Your data cannot be deleted! <br>Shipments exist for the deleted order.', 'Vos données ne peuvent être supprimées! Des expéditions existent pour votre commande.'),
+('shipped', '', 'Shipped', 'Envoyé'),
+('shipping code', '', 'Shipping Code', 'Code d''envoie'),
+('Shipping Date', '', 'Shipping Date', 'Date d''envoie'),
+('Short Label', '', 'Short Label', 'Label court'),
+('short title', '', 'Short Title', 'Bref titre'),
+('single', '', 'Single', 'Célibataire'),
+('sister', '', 'Sister', 'Soeur'),
+('skin', '', 'Skin', 'Peau'),
+('skin involved', '', 'Skin Involved', 'Peau impliquée'),
+('slide', '', 'Slide', 'Lame'),
+('slide exists for the deleted tma', '', 'Your data cannot be deleted! <br>Slide exists for the deleted TMA.', 'Vos données ne peuvent être supprimées! Des lames existent pour votre entreposage.'),
+('slide exists within the deleted storage', '', 'Your data cannot be deleted! <br>TMA slide exists within the deleted storage.', 'Vos données ne peuvent être supprimées! Des lames de TMA existent dans votre entreposage.'),
+('slides list', '', 'TMA Slides', 'Lames du TMA'),
+('smoker', '', 'Smoker', 'Fumeur'),
+('smoker at dx', '', 'Smoker at Dx', 'Fumeur au diagnostic'),
+('smoking', '', 'Smoking', 'Fumeur'),
+('smoking history', '', 'Ever Smoked?', 'A déjà fumé?'),
+('smoking status', '', 'Smoking Status', 'Tabagisme'),
+('son', '', 'Son', 'Fils'),
+('sop_code', '', 'Code', 'Code'),
+('sop_date activated', '', 'Date Activated', 'Date d''activation'),
+('sop_detail', '', 'Summary', 'Sommaire'),
+('sop_expiry date', '', 'Expiry Date', 'Date d''expiration'),
+('sop_extend', '', 'Details', 'Détails'),
+('sop_material', '', 'Material', 'Matériel'),
+('sop_materials and equipment', '', 'Materials and Equipment', 'Matériel et équipement'),
+('sop_notes', '', 'Notes', 'Note'),
+('sop_purpose', '', 'Purpose', 'But'),
+('sop_scope', '', 'Scope', 'Portée'),
+('sop_site specific', '', 'Site Specific', 'Site spécifique'),
+('sop_sop group', '', 'SOP Group', 'Groupe de PNFs'),
+('sop_standard operating procedures', '', 'Standard Operating Procedures', 'Procédures normalisées de fonctionnement'),
+('sop_status', '', 'Status', 'Statut'),
+('sop_title', '', 'Title', 'Titre'),
+('sop_type', '', 'Type', 'Type'),
+('sop_version', '', 'Version', 'Version'),
+('Sorry, new password was not entered correctly.', '', 'Sorry, new password was not entered correctly.', 'Le nouveau mot de passe n''a pas été saisi correctement.'),
+('source block', '', 'Source Block', 'Bloc source'),
+('source gel matrix', '', 'Source Gel Matrix', 'Matrice ''Source'''),
+('south asian', '', 'South Asian', 'Sud-Asiatique'),
+('south east asian', '', 'South East Asian', 'Sud-est Asiatique'),
+('specimen', '', 'Specimen', 'Spécimen'),
+('spectrophotometer', '', 'Spectrophotometer', 'Spectrophotomètre'),
+('spread skin nipple', '', 'Spread to Skin or Nipple', 'Propagation à la peau ou au mammelon'),
+('stable disease', '', 'Stable Disease', 'Maladie stable'),
+('staging', '', 'Staging', 'Stade'),
+('standard operating procedure', '', 'Standard Operating Procedure', 'Procédure normalisée de fonctionnement'),
+('standard operating procedure description', '', 'Define all of the bank standard operating procedures and materials used in those procedures.', 'Définir toutes les procédures normalisées de la banque et le matériel utilisé dans ces procédures.'),
+('start date', '', 'Start Date', 'Date du début'),
+('status', '', 'Status', 'Statut'),
+('status date', '', 'Status Date', 'Date du statut'),
+('steroid', '', 'Steroid', 'Stéroïde'),
+('stopped', '', 'Stopped', 'Arrêtée'),
+('storage', '', 'Storage', 'Contenant'),
+('storage code', '', 'Code', 'Code'),
+('storage content', '', 'Storage Content', 'Contenu de l''entreposage'),
+('storage content tree view', '', 'Detail', 'Détail'),
+('storage coordinates', '', 'Coordinates', 'Coordonnées'),
+('storage detail', '', 'Details', 'Détails'),
+('storage layout', '', 'Layout', 'Plan'),
+('storage layout management', '', 'Storage Layout', 'Infrastructure de l''entreposage'),
+('storage layout management description', '', 'Tool for management of all bank storage entities.', 'Outil pour la gestion de toutes les installations d''entreposage de la banque.'),
+('storage path', '', 'Path', 'Accès'),
+('storage selection label', '', 'Selection Label', 'Identifiant de sélection'),
+('storage short label', '', 'Short Label', 'Identifiant court'),
+('storage temperature', '', 'Storage Temperature', 'Température de l''entreposage'),
+('storage type', '', 'Type', 'Type'),
+('stor_parent_id_defintion', '', 'Parent storage in which the studied storage is stored.', 'Entreposage parent dans lequel l''entreposage étudié est entreposé.'),
+('stor_selection_label_defintion', '', 'Label built by the system joining all short labels of the storage parents and the studied parent starting from the root (ex: freezer, fridge, room) to the studied storage and separating all short labels by ''-''.', 'Libellé construit par le système en concaténant tous les identifiants courts des entreposages ''parents'' ainsi que celui de l''entreposage étudié à partir du parent initial (ex: frigidaire, etc) jusqu''à l''entre'),
+('stor_short_label_defintion', '', 'Short label written on the storage to identify this one.', 'Libellé court écrit sur l''entreposage pour identifier ce dernier.'),
+('street', '', 'Street', 'Rue'),
+('study', '', 'Study', 'Étude'),
+('study_$', '', '$', '$'),
+('study_abstract', '', 'Abstract', 'Résumé'),
+('study_accreditation', '', 'Accreditation', 'Accréditation'),
+('study_additional clinical', '', 'Additional Clinical', 'Données cliniques supplémentaires'),
+('study_address', '', 'Address', 'Adresse'),
+('study_analysis', '', 'Analysis', 'Analyse'),
+('study_approach', '', 'Approach', 'Approche'),
+('study_approval number', '', 'Approval Number', 'Numéro d''approbation'),
+('study_brief', '', 'Brief', 'Bref'),
+('study_city', '', 'City', 'Ville'),
+('study_committee', '', 'Committee', 'Comité'),
+('study_comparison', '', 'Comparison', 'Comparaison'),
+('study_conclusion', '', 'Conclusion', 'Conclusion'),
+('study_contact', '', 'Contact', 'Contact'),
+('study_country', '', 'Country', 'Pays'),
+('study_date', '', 'Date', 'Date'),
+('study_date posted', '', 'Date Posted', 'Date de soumission'),
+('study_department', '', 'Department', 'Département'),
+('study_disease site', '', 'Disease Site', 'Site de la maladie'),
+('study_email', '', 'Email', 'Courriel'),
+('study_ethics board', '', 'Ethics Board', 'Comité d''éthique'),
+('study_expected duration', '', 'Expected Duration', 'Durée prévue'),
+('study_expected participation', '', 'Expected Participation', 'Participation prévue'),
+('study_ext', '', 'Extension', 'Extension'),
+('study_fax', '', 'Fax', 'Télécopieur'),
+('study_file location', '', 'File Location', 'Emplacement du fichier'),
+('study_first', '', 'First', 'Premier'),
+('study_future', '', 'Future', 'Avenir'),
+('study_hypothesis', '', 'Hypothesis', 'Hypothèse'),
+('study_institution', '', 'Institution', 'Institution'),
+('study_issue', '', 'Issue', 'Question'),
+('study_journal', '', 'Journal', 'Journal'),
+('study_last', '', 'Last', 'Dernier'),
+('study_middle', '', 'Middle', 'Milieu'),
+('study_name', '', 'Name', 'Nom'),
+('study_number', '', 'Number', 'Numéro'),
+('study_occupation', '', 'Occupation', 'Occupation'),
+('study_organization', '', 'Organization', 'Organisation'),
+('study_phone number', '', 'Phone Number', 'Numéro de téléphone'),
+('study_postal code', '', 'Postal Code', 'Code postal'),
+('study_primary phone', '', 'Primary Phone', 'Téléphone primaire'),
+('study_principal investigator', '', 'Principal Investigator', 'Principal investigateur'),
+('study_province', '', 'Province', 'Province'),
+('study_relevance', '', 'Relevance', 'Pertinence'),
+('study_restrictions', '', 'Restrictions', 'Restrictions'),
+('study_result date', '', 'Result Date', 'Date des résultats'),
+('study_role', '', 'Role', 'Rôle'),
+('study_science', '', 'Type of Science', 'Type de science'),
+('study_secondary phone', '', 'Secondary Number', 'Numéro secondaire'),
+('study_significance', '', 'Significance', 'Signification'),
+('study_sponsor', '', 'Sponsor', 'Commanditaire'),
+('study_status', '', 'Status', 'Statut'),
+('study_status date', '', 'Status Date', 'Date du statut'),
+('study_street', '', 'Street', 'Rue'),
+('study_summary', '', 'Summary', 'Résumé'),
+('study_title', '', 'Title', 'Titre'),
+('study_to', '', 'To', 'à'),
+('study_type', '', 'Study Type', 'Type d''étude'),
+('study_url', '', 'URL', 'URL'),
+('study_use', '', 'Type of Use', 'Type d''utilisation'),
+('study_website', '', 'Website', 'Site web'),
+('study_year', '', 'Year', 'Année'),
+('submit', '', 'Submit', 'Envoyer'),
+('summary', '', 'Summary', 'Résumé'),
+('supplier dept', '', 'Supplier Department', 'Département fournisseur'),
+('surgeon', '', 'Surgeon', 'Chirurgien'),
+('surgery', '', 'Surgery', 'Chirurgie'),
+('surgery specific', '', 'Surgery Specific', 'Chirurgie spécifique'),
+('surgical', '', 'Surgical', 'Chirurgical'),
+('surgical/clinical', '', 'surgical/clinical', 'chirurgical/clinique'),
+('surrounding temperature', '', 'Surrounding Temperature', 'Température environnante'),
+('survival time months', '', 'Survival Time in Months', 'Temps de survie en mois'),
+('suspicious', '', 'Suspicious', 'Suspect'),
+('suspicious nd', '', 'Suspicious ND', ''),
+('system error', '', 'System Error', 'Erreur système'),
+('t stage', '', 'T', 'T'),
+('t-cell', '', 'T-Cell', 'Cellule T'),
+('target site', '', 'Target Site', 'Objectif du site'),
+('task', '', 'Task', 'Tâche'),
+('temperature', '', 'Temperature', 'Température'),
+('temperature abbreviation', '', 'T°', 'T°'),
+('temperature should be a decimal', '', 'The temperature should be a decimal!', 'La température doit être un nombre décimal!'),
+('tested aliquots', '', 'Tested Aliquots', 'Aliquots testés'),
+('The action %1$s is not defined in controller %2$s', '', 'The action %1$s is not defined in controller %2$s', 'L''action %1$s n''est pas défini dans le contrôleur  %2$s'),
+('the data has been modified', '', 'The data has been modified', 'Les données ont été modifiées'),
+('the deleted collection is linked to participant', '', 'Your data cannot be deleted! <br>Collection is linked to participant.', 'Vos données ne peuvent être supprimées! La collection est attachée à un participant.'),
+('The position cannot be set for this storage item', '', 'The position cannot be set for this storage item!', 'La position de cet item dans l''entreposage ne peut pas être définie!'),
+('The requested address %s was not found on this server.', '', 'The requested address %s was not found on this server.', 'L''url %s n''a pas été trouvé sur le serveur.'),
+('This field cannot be left blank', '', 'This field cannot be left blank!', 'Ce champ ne peut pas être vide!'),
+('this item cannot be deleted because it was already shipped', '', 'This item cannot be deleted because it was already shipped!', 'Cet item ne peut pas être supprimé car il a déjà été expédié!'),
+('tissue', '', 'Tissue', 'Tissu'),
+('tissue lysate', '', 'Tissue Lysate', 'Lysat de tissu'),
+('tissue source', '', 'Tissue Source', 'Source du tissu'),
+('tissue specific', '', 'Tissue Specific', 'Tissu spécifique'),
+('tissue suspension', '', 'Tissue Suspension', 'Suspension de tissu'),
+('title', '', 'Title', 'Titre'),
+('tma block', '', 'TMA Block', 'Bloc TMA'),
+('tma slide', '', 'TMA slide', 'Lame de TMA'),
+('tma slide sop', '', 'TMA Slide SOP', 'SOP de la lame du TMA'),
+('tma sop', '', 'TMA SOP', 'SOP du TMA'),
+('TMA-blc 23X15', '', 'TMA-block 23X15', 'TMA-bloc 23X15'),
+('TMA-blc 29X21', '', 'TMA-block 29X21', 'TMA-bloc 29X21'),
+('to', '', 'To', 'à'),
+('Tool', '', 'Tool', 'Outil'),
+('tool_contact', '', 'Contact', 'Contact'),
+('tool_ethics', '', 'Ethics', 'Éthique'),
+('tool_funding', '', 'Funding', 'Subvention'),
+('tool_investigator', '', 'Investigator', 'Investigateur'),
+('tool_related studies', '', 'Related Studies', 'Études connexes'),
+('tool_result', '', 'Result', 'Résultat'),
+('tool_reviews', '', 'Review', 'Révision'),
+('tool_study', '', 'Study', 'Étude'),
+('tool_summary', '', 'Summary', 'Résumé'),
+('topography', '', 'Topography', 'Topographie'),
+('translational', '', 'Translational', 'Translationnel'),
+('translator signature captured', '', 'Translator Signature Captured', 'Signature du traducteur'),
+('translator used', '', 'Translator Used', 'Aide d''un traducteur'),
+('treatment', '', 'Treatment', 'Traitement'),
+('treatment centre', '', 'Treatment Centre', 'Centre de traitement'),
+('treatment detail', '', 'Detail', 'Détail'),
+('treatment facility', '', 'Treatment Facility', 'Installations pour traitements'),
+('tree view', '', 'Tree View', 'Vue hiérarchique'),
+('tru-cut/core biopsy', '', 'Tru-Cut/Core Biopsy', 'Biopsie au trocart type Tru cut'),
+('trucut core biopsy', '', 'Trucut Core Biopsy', 'Biopsie au trocart type Tru cut'),
+('tube', '', 'Tube', 'Tube'),
+('tubular', '', 'Tubular', 'Tubulaire'),
+('tumour grade', '', 'Tumour Grade', 'Grade tumoral'),
+('tumour group', '', 'Tumour Group', 'Groupe tumoral'),
+('tumour size', '', 'Tumour Size', 'Dimension de la tumeur'),
+('tumour type', '', 'Tumour Type', 'Type de tumeur'),
+('turbidity', '', 'Turbidity', 'Trouble'),
+('type', '', 'Type', 'Type'),
+('ug/ul', '', 'ug/ul', 'ug/ul'),
+('ul', '', 'ul', 'ul'),
+('uncertain', '', 'Uncertain', 'Incertain'),
+('uncertain by 5-10 years', '', 'Uncertain by 5-10 years', 'Incertain à 5 à 10 ans près'),
+('uncertain by more than 10 years', '', 'Uncertain by more than 10 years', 'Incertain à plus de 10 ans près'),
+('uncertain within 5 years', '', 'Uncertain within 5 years', 'Incertain à moins de 5 ans près'),
+('unclassified', '', 'Unclassified', 'Non classé'),
+('unclassify', '', 'Unclassify', 'Déclasser'),
+('unclassify all removed', '', 'Unclassify all removed', 'Déclasser tous les retirés'),
+('unclassify all storage''s items', '', 'Unclassify all storage''s items', 'Déclasser tous les items du contenant'),
+('uncle', '', 'Uncle', 'Oncle'),
+('undifferentiated/anaplastic', '', 'Undifferentiated/Anaplastic', 'Indifférencié/anaplasique'),
+('unit', '', 'Unit', 'Unité'),
+('unknown', '', 'Unknown', 'Inconnu'),
+('urine', '', 'Urine', 'Urine'),
+('url', '', 'URL', 'URL'),
+('use', '', 'Use', 'Utilisation'),
+('use by', '', 'Use by', 'Utilisation par'),
+('use date', '', 'Use date', 'Date d''utilisation'),
+('use exists for the deleted aliquot', '', 'Your data cannot be deleted! <br>Uses exist for the deleted aliquot.', 'Vos données ne peuvent être supprimées! Des utilisations existent pour votre aliquot.'),
+('used', '', 'Used', 'Utilisé'),
+('used and/or stored', '', 'Used and/or Stored', 'Utilisée et/ou entreposée'),
+('used blood volume', '', 'Used Blood Volume', 'Volume de sang utilisé'),
+('used by', '', 'Used By', 'Utilisé par'),
+('used volume', '', 'Used Volume', 'Volume utilisé'),
+('used volume should be a positif decimal', '', 'Used blood volume should be a positive decimal!', 'Volume de sang utilisé doit être un décimal positif!'),
+('username', '', 'Username', 'Nom d''utilisateur'),
+('users', '', 'Users', 'Utilisateurs'),
+('uses', '', 'Uses', 'Utilisations'),
+('use_help', '', 'Only selected rows will be taken in consideration!', 'Seules les lignes sélectionnées seront prises en considération!'),
+('value', '', 'Value', 'Valeur'),
+('value is required', '', 'The value is required!', 'La valeur est requise!'),
+('version number', '', 'Version Number', 'Numéro de version'),
+('very good', '', 'Very good', 'Très bon'),
+('vital status', '', 'Vital Status', 'Statut vital'),
+('volume', '', 'Volume', 'Volume'),
+('volume should be a positif decimal', '', 'Volume should be a positive decimal!', 'Le volume doit être un décimal positif!'),
+('volume unit', '', 'Volume Unit', 'Unité de volume'),
+('warning', '', 'Warning', 'Avertissement'),
+('weight', '', 'Weight', 'Poids'),
+('well differentiated', '', 'Well differentiated', 'Bien différencié'),
+('whatman paper', '', 'Whatman Paper', 'Papier whatman'),
+('withdrawn', '', 'Withdrawn', 'Désistement'),
+('xBank', '', 'Bank', 'Banque'),
+('xBanks', '', 'Banks', 'Banques'),
+('xDescription', '', 'Description', 'Description'),
+('year uncertain', '', 'Year uncertain', 'Année incertaine'),
+('years quit smoking', '', 'Years Quit Smoking', 'Années depuis l''arrêt du tabagisme'),
+('years used', '', 'Years Used', 'Nombre d''années d''utilisation'),
+('yes', '', 'Yes', 'Oui'),
+('yes - available', '', 'Yes & Available', 'Oui & Disponible'),
+('yes - not available', '', 'Yes & Not available', 'Oui & Non disponible'),
+('You are not authorized to access that location.', '', 'You are not authorized to access that location.', 'Vous n''êtes pas autorisé à accéder cette page.'),
+('your data has been deleted', '', 'Your data has been deleted.', 'Vos données ont été supprimées.'),
+('your data has been deleted - update the aliquot in stock data', '', 'Your data has been deleted. <br>Please update the ''In Stock'' value for your aliquot if required.', 'Votre donnée à été supprimée. <br>Veuillez mettre à jour la valeur de la donnée ''En stock'' de votre aliquot au besoin.'),
+('your data has been removed - update the aliquot in stock data', '', 'Your data has been removed. <br>Please update the ''In Stock'' value for your aliquot if required.', 'Votre donnée à été enlevée. <br>Veuillez mettre à jour la valeur de la donnée ''En stock'' de votre aliquot au besoin.'),
+('your data has been saved', '', 'Your data has been saved.', 'Vos données ont été sauvegardées.'),
+('your data has been updated', '', 'Your data has been updated.', 'Vos données ont été mises à jour.'),
+('ZCSA', '', 'ZCSA', 'ZCSA');
+
+-- Spelling correction
+
+UPDATE structure_validations
+SET language_message = 'number should be a positive integer'
+WHERE language_message = 'number should be a positif integer';
+
+UPDATE structure_validations
+SET language_message = 'cell passage number should be a positive integer'
+WHERE language_message = 'cell passage number should be a positif integer';
+
+UPDATE structure_value_domains_permissible_values
+SET `language_alias` = 'contaminated',
+structure_permissible_value_id = (SELECT id FROM structure_permissible_values WHERE `value` = 'contaminated')
+WHERE `language_alias` = 'contamined';
+
+DELETE FROM structure_permissible_values
+WHERE `value` = 'contamined' AND
+`language_alias` = 'contamined';
+
+UPDATE structure_value_domains_permissible_values
+SET `language_alias` = 'epidemiological'
+WHERE `language_alias` = 'epidimiological';
+
+UPDATE structure_permissible_values
+SET `value` = 'epidemiological',
+`language_alias` = 'epidemiological'
+WHERE `value` = 'epidimiological' AND
+`language_alias` = 'epidimiological';
+
+UPDATE structure_validations
+SET language_message = 'estrogens amount is required.'
+WHERE language_message = 'Estrogen amount is required.';
+
+UPDATE `structure_fields` 
+set `field` = 'hemolysis_signs', 
+`language_label` = 'hemolysis signs'
+WHERE `field` = 'hemolyze_signs' AND 
+`language_label` = 'hemolyze signs';
+
+ALTER TABLE `sd_der_plasmas` CHANGE `hemolyze_signs` 
+`hemolysis_signs` VARCHAR( 10 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL ;
+
+ALTER TABLE `sd_der_plasmas_revs` CHANGE `hemolyze_signs` 
+`hemolysis_signs` VARCHAR( 10 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL ;
+
+ALTER TABLE `sd_der_serums` CHANGE `hemolyze_signs` 
+`hemolysis_signs` VARCHAR( 10 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL ;
+
+ALTER TABLE `sd_der_serums_revs` CHANGE `hemolyze_signs` 
+`hemolysis_signs` VARCHAR( 10 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL ;
+
+UPDATE structure_value_domains_permissible_values
+SET `language_alias` = 'heparin'
+WHERE `language_alias` = 'heparine';
+
+UPDATE structure_permissible_values
+SET `value` = 'heparin',
+`language_alias` = 'heparin'
+WHERE `value` = 'heparine' AND
+`language_alias` = 'heparine';
+
+-- Update date accuracy fields to match Inventory. 
+UPDATE `structure_fields` SET `structure_value_domain`  = '172',
+`language_help` = 'help_date accuracy' WHERE `structure_fields`.`id` =803;
+
+UPDATE `structure_fields` SET `structure_value_domain` = '172',
+`language_help` = 'help_date accuracy' WHERE `structure_fields`.`id` =826;
+
+UPDATE `structure_fields` SET `structure_value_domain` = '172',
+`language_help` = 'help_date accuracy' WHERE `structure_fields`.`id` =828;
+
+UPDATE `structure_fields` SET `structure_value_domain` = '172' WHERE `structure_fields`.`id` =128;
+
+UPDATE `structure_fields` SET `structure_value_domain`  = '172',
+`language_help` = 'help_date accuracy' WHERE `structure_fields`.`id` =904;
+
+UPDATE `structure_fields` SET `structure_value_domain` = '172',
+`language_help` = 'help_date accuracy' WHERE `structure_fields`.`id` =905;
+
+UPDATE `structure_fields` SET `language_help` = 'help_age accuracy' WHERE `structure_fields`.`id` =820;
+
+UPDATE `structure_fields` SET `language_help` = 'help_age accuracy' WHERE `structure_fields`.`id` =586;
+
+-- add 'access to participant' action into collection detail
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('access to participant', '', 'Access To Participant', 'Accéder au participant');
+
+-- Change process to define 
+--    - either source block of a tissue slide or a tissue slide 
+--    - or source gel matrix of a cell core.
+
+DROP TABLE IF EXISTS `ad_cell_cores` , `ad_cell_cores_revs`;
+CREATE TABLE IF NOT EXISTS `ad_cell_cores` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `aliquot_master_id` int(11) DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+CREATE TABLE IF NOT EXISTS `ad_cell_cores_revs` (
+  `id` int(11) NOT NULL,
+  `aliquot_master_id` int(11) DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `ad_cell_cores` ADD CONSTRAINT `FK_ad_cell_cores_aliquot_masters` FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+
+DROP TABLE IF EXISTS `ad_tissue_cores` , `ad_tissue_cores_revs`;
+CREATE TABLE IF NOT EXISTS `ad_tissue_cores` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `aliquot_master_id` int(11) DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+CREATE TABLE IF NOT EXISTS `ad_tissue_cores_revs` (
+  `id` int(11) NOT NULL,
+  `aliquot_master_id` int(11) DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `ad_tissue_cores` ADD CONSTRAINT `FK_ad_tissue_cores_aliquot_masters` FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+
+DROP TABLE IF EXISTS `ad_tissue_slides` , `ad_tissue_slides_revs`;
+CREATE TABLE IF NOT EXISTS `ad_tissue_slides` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `aliquot_master_id` int(11) DEFAULT NULL,
+  `immunochemistry` varchar(30) DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+CREATE TABLE IF NOT EXISTS `ad_tissue_slides_revs` (
+  `id` int(11) NOT NULL,
+  `aliquot_master_id` int(11) DEFAULT NULL,
+  `immunochemistry` varchar(30) DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `ad_tissue_slides` ADD CONSTRAINT `FK_ad_tissue_slides_aliquot_masters` FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+
+DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM `structure_fields` WHERE `field` LIKE 'gel_matrix_aliquot_master_id');
+DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM `structure_fields` WHERE `field` LIKE 'block_aliquot_master_id');
+
+DELETE FROM `structure_fields` WHERE `field` LIKE 'gel_matrix_aliquot_master_id';
+DELETE FROM `structure_fields` WHERE `field` LIKE 'block_aliquot_master_id';
+
+DELETE FROM `i18n` WHERE id = 'either core or slide exists for the deleted aliquot';
+
+CREATE TABLE IF NOT EXISTS `realiquoting_controls` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `parent_sample_to_aliquot_control_id` int(11) DEFAULT NULL,
+  `child_sample_to_aliquot_control_id` int(11) DEFAULT NULL,
+  `status` enum('inactive','active') DEFAULT 'inactive',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `aliquot_to_aliquot` (`parent_sample_to_aliquot_control_id`,`child_sample_to_aliquot_control_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE `realiquoting_controls`
+  ADD CONSTRAINT `FK_parent_realiquoting_control` FOREIGN KEY (`parent_sample_to_aliquot_control_id`) REFERENCES `sample_to_aliquot_controls` (`id`),
+  ADD CONSTRAINT `FK_child_realiquoting_control` FOREIGN KEY (`child_sample_to_aliquot_control_id`) REFERENCES `sample_to_aliquot_controls` (`id`);
+
+INSERT INTO `realiquoting_controls` (`parent_sample_to_aliquot_control_id`, `child_sample_to_aliquot_control_id`, `status`) 
+VALUES
+-- *** ascite ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'ascite' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'ascite' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** blood ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'blood' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'blood' AND al.aliquot_type = 'tube'),
+'active'),
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'blood' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'blood' AND al.aliquot_type = 'whatman paper'),
+'active'),
+-- *** tissue ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'tissue' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'tissue' AND al.aliquot_type = 'tube'),
+'active'),
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'tissue' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'tissue' AND al.aliquot_type = 'slide'),
+'active'),
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'tissue' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'tissue' AND al.aliquot_type = 'block'),
+'active'),
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'tissue' AND al.aliquot_type = 'block'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'tissue' AND al.aliquot_type = 'slide'),
+'active'),
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'tissue' AND al.aliquot_type = 'block'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'tissue' AND al.aliquot_type = 'core'),
+'active'),
+-- *** urine ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'urine' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'urine' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** ascite cell ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'ascite cell' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'ascite cell' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** ascite supernatant ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'ascite supernatant' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'ascite supernatant' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** blood cell ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'blood cell' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'blood cell' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** pbmc ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'pbmc' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'pbmc' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** plasma ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'plasma' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'plasma' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** serum ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'serum' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'serum' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** cell culture ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'cell culture' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'cell culture' AND al.aliquot_type = 'tube'),
+'active'),
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'cell culture' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'cell culture' AND al.aliquot_type = 'slide'),
+'active'),
+-- *** dna ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'dna' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'dna' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** rna ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'rna' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'rna' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** concentrated urine ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'concentrated urine' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'concentrated urine' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** centrifuged urine ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'centrifuged urine' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'centrifuged urine' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** amplified rna ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'amplified rna' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'amplified rna' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** b cell ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'b cell' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'b cell' AND al.aliquot_type = 'tube'),
+'active'),
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'b cell' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'b cell' AND al.aliquot_type = 'cell gel matrix'),
+'active'),
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'b cell' AND al.aliquot_type = 'cell gel matrix'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'b cell' AND al.aliquot_type = 'core'),
+'active'),
+-- *** tissue lysate ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'tissue lysate' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'tissue lysate' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** tissue suspension ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'tissue suspension' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'tissue suspension' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** peritoneal wash ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'peritoneal wash' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'peritoneal wash' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** cystic fluid ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'cystic fluid' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'cystic fluid' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** peritoneal wash cell ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'peritoneal wash cell' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'peritoneal wash cell' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** peritoneal wash supernatant ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'peritoneal wash supernatant' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'peritoneal wash supernatant' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** cystic fluid cell ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'cystic fluid cell' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'cystic fluid cell' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** cystic fluid supernatant ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'cystic fluid supernatant' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'cystic fluid supernatant' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** pericardial fluid ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'pericardial fluid' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'pericardial fluid' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** pleural fluid ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'pleural fluid' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'pleural fluid' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** pericardial fluid cell ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'pericardial fluid cell' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'pericardial fluid cell' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** pericardial fluid supernatant ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'pericardial fluid supernatant' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'pericardial fluid supernatant' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** pleural fluid cell ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'pleural fluid cell' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'pleural fluid cell' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** pleural fluid supernatant ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'pleural fluid supernatant' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'pleural fluid supernatant' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** cell lysate ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'cell lysate' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'cell lysate' AND al.aliquot_type = 'tube'),
+'active'),
+-- *** protein ***
+((SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'protein' AND al.aliquot_type = 'tube'),
+(SELECT sta_ctrl.id FROM sample_controls AS samp INNER JOIN sample_to_aliquot_controls AS sta_ctrl ON samp.id = sta_ctrl.sample_control_id INNER JOIN aliquot_controls AS al ON sta_ctrl.aliquot_control_id = al.id
+WHERE samp.sample_type = 'protein' AND al.aliquot_type = 'tube'),
+'active');
+
+-- clean up realiquoted_by and realiquoting_date fields
+
+UPDATE structure_formats
+SET old_id = 'CANM-00016_CAN-999-999-000-999-1163',
+structure_field_id = (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-1163'),
+structure_field_old_id = 'CAN-999-999-000-999-1163',
+flag_override_label = '1',
+language_label = 'use date'
+WHERE  old_id = 'CANM-00016_CAN-999-999-000-999-1267';
+
+DELETE FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-1267';
+
+UPDATE structure_formats
+SET language_label = 'realiquoting date'
+WHERE  old_id = 'CANM-00016_CAN-999-999-000-999-1163';
+
+UPDATE structure_formats
+SET old_id = 'CANM-00016_CAN-999-999-000-999-1280',
+structure_field_id = (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-1280'),
+structure_field_old_id = 'CAN-999-999-000-999-1280',
+flag_override_label = '1',
+language_label = 'realiquoted by'
+WHERE  old_id = 'CANM-00016_CAN-999-999-000-999-1266';
+
+DELETE FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-1266';
 
 
-
+-- groups remove extra fields
+DELETE FROM structure_formats WHERE old_id IN('AAA-000-000-000-000-13_AAA-000-000-000-000-51');
+DELETE FROM structure_formats WHERE old_id IN('AAA-000-000-000-000-13_AAA-000-000-000-000-52');
+DELETE FROM structure_formats WHERE old_id IN('AAA-000-000-000-000-13_AAA-000-000-000-000-53');
