@@ -9,6 +9,9 @@
 		
 		$structure_links['bottom'] = array(
 			'edit' => '/inventorymanagement/collections/edit/' . $atim_menu_variables['Collection.id'], 
+			'access to participant' => array(
+				'link' => empty($participant_id)? '/underdevelopment/': '/clinicalannotation/participants/profile/' . $participant_id, 
+				'icon' => 'participant'),
 			'add specimen' => $add_links,
 			'delete' => '/inventorymanagement/collections/delete/' . $atim_menu_variables['Collection.id']
 		);

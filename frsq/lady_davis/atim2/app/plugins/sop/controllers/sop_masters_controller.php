@@ -32,7 +32,7 @@ class SopMastersController extends SopAppController {
 			$this->data['SopMaster']['sop_group'] = $this_data['SopControl']['sop_group'];
 			
 			if ( $this->SopMaster->save($this->data) ) {
-				$this->flash( 'Your data has been updated.','/sop/sop_masters/detail/'.$this->SopMaster->getLastInsertId());
+				$this->flash( 'your data has been updated','/sop/sop_masters/detail/'.$this->SopMaster->getLastInsertId());
 			} else {
 				$this->data = $this_data;
 			}
@@ -40,7 +40,7 @@ class SopMastersController extends SopAppController {
 	}
 	
 	function detail($sop_master_id) {
-		if ( !$sop_master_id ) { $this->redirect( '/pages/err_sop_no_sop_id', NULL, TRUE ); }
+		if ( !$sop_master_id ) { $this->redirect( '/pages/err_sop_funct_param_missing', NULL, TRUE ); }
 	
 		$this->set( 'atim_menu_variables', array('SopMaster.id'=>$sop_master_id));
 		
@@ -53,7 +53,7 @@ class SopMastersController extends SopAppController {
 	}
 
 	function edit( $sop_master_id  ) {
-		if ( !$sop_master_id ) { $this->redirect( '/pages/err_sop_no_sop_id', NULL, TRUE ); }
+		if ( !$sop_master_id ) { $this->redirect( '/pages/err_sop_funct_param_missing', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('SopMaster.id'=>$sop_master_id) );
 		$this_data = $this->SopMaster->find('first',array('conditions'=>array('SopMaster.id'=>$sop_master_id)));
@@ -65,7 +65,7 @@ class SopMastersController extends SopAppController {
 		
 		if ( !empty($this->data) ) {
 			$this->SopMaster->id = $sop_master_id;
-			if ( $this->SopMaster->save($this->data) ) $this->flash( 'Your data has been updated.','/sop/sop_masters/detail/'.$sop_master_id.'/');
+			if ( $this->SopMaster->save($this->data) ) $this->flash( 'your data has been updated','/sop/sop_masters/detail/'.$sop_master_id.'/');
 		} else {
 			$this->data = $this_data;
 		}
@@ -73,14 +73,14 @@ class SopMastersController extends SopAppController {
 	}
 	
 	function delete( $sop_master_id ) {
-		if ( !$sop_master_id ) { $this->redirect( '/pages/err_sop_no_sop_id', NULL, TRUE ); }
+		if ( !$sop_master_id ) { $this->redirect( '/pages/err_sop_funct_param_missing', NULL, TRUE ); }
 		
 		$this->hook();
 		
 		if( $this->SopMaster->atim_delete( $sop_master_id ) ) {
-			$this->flash( 'Your data has been deleted.', '/sop/sop_masters/listall/');
+			$this->flash( 'your data has been deleted', '/sop/sop_masters/listall/');
 		} else {
-			$this->flash( 'Error deleting data - Contact administrator.', '/sop/sop_masters/listall/');
+			$this->flash( 'error deleting data - contact administrator', '/sop/sop_masters/listall/');
 		}
 	}
 }

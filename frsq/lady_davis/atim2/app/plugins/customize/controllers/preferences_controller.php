@@ -72,7 +72,7 @@ class PreferencesController extends CustomizeAppController {
 				$this->User->save($this->data);
 				$this->Config->save($this->data);
 				
-				$this->flash( 'Your data has been updated.','/customize/preferences/index' );
+				$this->flash( 'your data has been updated','/customize/preferences/index' );
 			}
 			
 		} else {
@@ -138,7 +138,7 @@ class PreferencesController extends CustomizeAppController {
 		} else {
 			
 			if ( $this->User->save( $this->data['User'] ) ) {
-				$this->flash( 'Your data has been updated.','/preferences/index/' );
+				$this->flash( 'your data has been updated','/preferences/index/' );
 			}
 			
 		}
