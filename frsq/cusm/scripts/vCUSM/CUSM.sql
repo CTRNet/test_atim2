@@ -79,7 +79,7 @@ VALUES
  
 DELETE FROM `i18n` WHERE `id` IN ('first name and last name are required');
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
-('first name and last name are required', 'global', 'First name and last name are required!', 'Le nom et pr&eacute;nom sont requis!');
+('first name and last name are required', 'global', 'First name and last name are required!', 'Le nom et prénom sont requis!');
 
 -- Participant race : Hidden
 UPDATE `structure_formats`
@@ -132,9 +132,9 @@ CREATE TABLE IF NOT EXISTS `qc_cusm_cd_undetailled` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `consent_master_id` int(11) NOT NULL,
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `created_by` varchar(50) NOT NULL DEFAULT '',
+  `created_by` int(10) unsigned NOT NULL,
   `modified` datetime DEFAULT NULL,
-  `modified_by` varchar(50) DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -148,13 +148,13 @@ CREATE TABLE IF NOT EXISTS `qc_cusm_cd_undetailled_revs` (
   `id` int(11) NOT NULL,
   `consent_master_id` int(11) NOT NULL,
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `created_by` varchar(50) NOT NULL DEFAULT '',
+  `created_by` int(10) unsigned NOT NULL,
   `modified` datetime DEFAULT NULL,
-  `modified_by` varchar(50) DEFAULT NULL,
-  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `deleted_date` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
@@ -275,10 +275,10 @@ CREATE TABLE IF NOT EXISTS `qc_cusm_dxd_procure` (
   `other_morphology` varchar(50) NULL,
   `ptnm_version` varchar(50) NULL,
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `created_by` varchar(255) NOT NULL DEFAULT '',
-  `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `modified_by` varchar(255) NOT NULL DEFAULT '',
-  `deleted` int(11) NOT NULL DEFAULT '0',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `diagnosis_master_id` (`diagnosis_master_id`)
@@ -293,9 +293,9 @@ CREATE TABLE IF NOT EXISTS `qc_cusm_dxd_procure_revs` (
   `other_morphology` varchar(50) NULL,
   `ptnm_version` varchar(50) NULL,
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `created_by` varchar(50) NOT NULL DEFAULT '',
+  `created_by` int(10) unsigned NOT NULL,
   `modified` datetime DEFAULT NULL,
-  `modified_by` varchar(50) DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -340,14 +340,14 @@ DELETE FROM `i18n` WHERE `id` IN ('adenocarcinoma / well differentiated', 'adeno
 'adenosquamous carcinoma', 'small cell carcinoma', 'sarcomatoid carcinoma');
 INSERT INTO `i18n` ( `id` , `page_id` , `en` , `fr` )
 VALUES
-('adenocarcinoma / well differentiated', '', 'Adenocarcinoma / well differentiated', 'Ad&eacute;nocarcinome / bien diff&eacute;renci&eacute;'),
-('adenocarcinoma / poorly differentiated', '', 'Adenocarcinoma / poorly differentiated', 'Ad&eacute;nocarcinome / peu diff&eacute;renci&eacute;'),
-('prostatic duct adenocarcinoma', '', 'Prostatic duct adenocarcinoma', 'Ad&eacute;nocarcinome ductal'),
-('mucinous (colloid) adenocarcinoma', '', 'Mucinous (colloid) adenocarcinoma', 'Ad&eacute;nocarcinome mucineux'),
-('signet-ring cell carcinoma', '', 'Signet-ring cell carcinoma', 'Carcinome &agrave; cellules ind&eacute;pendantes (Signet-ring cell)'),
-('adenosquamous carcinoma', '', 'Adenosquamous carcinoma', 'Carcinome ad&eacute;nosquameux'),
-('small cell carcinoma', '', 'Small cell carcinoma', 'Carcinome &agrave; petites cellules'),
-('sarcomatoid carcinoma', '', 'Sarcomatoid carcinoma', 'Carcinome sarcomato�de');
+('adenocarcinoma / well differentiated', '', 'Adenocarcinoma / well differentiated', 'Adénocarcinome / bien différencié'),
+('adenocarcinoma / poorly differentiated', '', 'Adenocarcinoma / poorly differentiated', 'Adénocarcinome / peu différencié'),
+('prostatic duct adenocarcinoma', '', 'Prostatic duct adenocarcinoma', 'Adénocarcinome ductal'),
+('mucinous (colloid) adenocarcinoma', '', 'Mucinous (colloid) adenocarcinoma', 'Adénocarcinome mucineux'),
+('signet-ring cell carcinoma', '', 'Signet-ring cell carcinoma', 'Carcinome à cellules indépendantes (Signet-ring cell)'),
+('adenosquamous carcinoma', '', 'Adenosquamous carcinoma', 'Carcinome adénosquameux'),
+('small cell carcinoma', '', 'Small cell carcinoma', 'Carcinome à petites cellules'),
+('sarcomatoid carcinoma', '', 'Sarcomatoid carcinoma', 'Carcinome sarcomato�de');
 
 UPDATE structure_fields
 SET type  = 'select',
@@ -371,7 +371,7 @@ VALUES
 DELETE FROM `i18n` WHERE `id` IN ('other morphology data');
 INSERT INTO `i18n` ( `id` , `page_id` , `en` , `fr` )
 VALUES
-('other morphology data', '', 'Other (details)', 'Autre (d&eacute;tails)');
+('other morphology data', '', 'Other (details)', 'Autre (détails)');
 
 -- ptnm version
 
@@ -415,12 +415,12 @@ DELETE FROM `i18n` WHERE `id` IN ('pTx', 'pT2', 'pT2a', 'pT2b', 'pT2c', 'pT3a', 
 INSERT INTO `i18n` ( `id` , `page_id` , `en` , `fr` )
 VALUES
 ('pTx', '', 'pTx: Insufficient data', 'pTx : Renseignements insuffisants'),
-('pT2', '', 'pT2: Organ confined', 'pT2: Confin&eacute;e &agrave; la prostate'),
-('pT2a', '', 'pT2a: Unilateral, involving one-half of one side (''lobe'') or less', 'pT2a: Unilat&eacute;rale, envahissant la moiti&eacute; ou moins d''un lobe'),
-('pT2b', '', 'pT2b: Unilateral, involving more than one-half of one side (''lobe'') but not both', 'pT2b: Unilat&eacute;rale, envahissant plus de la moiti&eacute; d''un lobe mais pas les deux'),
-('pT2c', '', 'pT2c: Bilateral disease', 'pT2c: Bilat&eacute;rale'),
-('pT3a', '', 'pT3a: Extracapsular extension (uni-or bi-lateral)', 'pT3a: Extension extracapsulaire (uni- ou bi-lat&eacute;rale)'),
-('pT3b', '', 'pT3b: Seminal vesicle invasion', 'pT3b: Envahissant les v&eacute;sicules s&eacute;minales'),
+('pT2', '', 'pT2: Organ confined', 'pT2: Confinée à la prostate'),
+('pT2a', '', 'pT2a: Unilateral, involving one-half of one side (''lobe'') or less', 'pT2a: Unilatérale, envahissant la moitié ou moins d''un lobe'),
+('pT2b', '', 'pT2b: Unilateral, involving more than one-half of one side (''lobe'') but not both', 'pT2b: Unilatérale, envahissant plus de la moitié d''un lobe mais pas les deux'),
+('pT2c', '', 'pT2c: Bilateral disease', 'pT2c: Bilatérale'),
+('pT3a', '', 'pT3a: Extracapsular extension (uni-or bi-lateral)', 'pT3a: Extension extracapsulaire (uni- ou bi-latérale)'),
+('pT3b', '', 'pT3b: Seminal vesicle invasion', 'pT3b: Envahissant les vésicules séminales'),
 ('pT4', '', 'pT4: Fixed or invading other adjacent structures such as bladder and/or rectum', 'pT4: Fixe ou envahissant d''autres structures adjacentes telles le rectum et/ou la vessie');
 
 INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`) VALUES
@@ -445,8 +445,8 @@ DELETE FROM `i18n` WHERE `id` IN ('pNx', 'pN0', 'pN1');
 INSERT INTO `i18n` ( `id` , `page_id` , `en` , `fr` )
 VALUES
 ('pNx', '', 'pNx: Insufficient data', 'pNx: Renseignements insuffisants'),
-('pN0', '', 'pN0: No regional lymph node metastasis', 'pN0: Pas d''atteinte des ganglions lymphatiques r&eacute;gionaux'),
-('pN1', '', 'pN1: Metastasis in regional lymph node(s)', 'pN1: Atteinte des ganglions lymphatiques r&eacute;gionaux');
+('pN0', '', 'pN0: No regional lymph node metastasis', 'pN0: Pas d''atteinte des ganglions lymphatiques régionaux'),
+('pN1', '', 'pN1: Metastasis in regional lymph node(s)', 'pN1: Atteinte des ganglions lymphatiques régionaux');
 
 INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`) VALUES
 (null, 'qc_cusm_ptnm_pm', 'open', '');
@@ -477,8 +477,8 @@ INSERT INTO `i18n` ( `id` , `page_id` , `en` , `fr` )
 VALUES
 ('pMx', '', 'pMx: Insufficient data', 'pMx: Renseignements insuffisants'),
 ('pM0', '', 'pM0: None', 'pM0: Aucune'),
-('pM1', '', 'pM1: Distant metastasis', 'pM1: M&eacute;tastases &agrave; distance'),
-('pM1a', '', 'pM1a: Non-regional lymph node(s)', 'pM1a: Ganglions lymphatiques (ad&eacute;nopathies) non r&eacute;gionaux'),
+('pM1', '', 'pM1: Distant metastasis', 'pM1: Métastases à distance'),
+('pM1a', '', 'pM1a: Non-regional lymph node(s)', 'pM1a: Ganglions lymphatiques (adénopathies) non régionaux'),
 ('pM1b', '', 'pM1b: Bone', 'pM1b: Os'),
 ('pM1c', '', 'pM1c: Other site(s)', 'pM1c: Autre(s) site(s)');
 
@@ -605,12 +605,12 @@ CREATE TABLE IF NOT EXISTS `qc_cusm_ed_procure_lifestyle` (
   `reception_date` date NULL,
   `completed` varchar(10) NULL,
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `created_by` varchar(50) NOT NULL DEFAULT '',
-  `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `modified_by` varchar(50) NOT NULL DEFAULT '',
-  `event_master_id` int(11) DEFAULT NULL,
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
+  `event_master_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `event_master_id` (`event_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -625,14 +625,14 @@ CREATE TABLE IF NOT EXISTS `qc_cusm_ed_procure_lifestyle_revs` (
   `reception_date` date NULL,
   `completed` varchar(10) NULL,
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `created_by` varchar(50) NOT NULL DEFAULT '',
-  `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `modified_by` varchar(50) NOT NULL DEFAULT '',
-  `event_master_id` int(11) DEFAULT NULL,
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
+  `event_master_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`version_id`),
   KEY `event_master_id` (`event_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -683,8 +683,8 @@ DELETE FROM `i18n` WHERE `id` IN ('form version', 'delivery date', 'completion d
 INSERT INTO `i18n` ( `id` , `page_id` , `en` , `fr` )
 VALUES
 ('form version', '', 'Form Version', 'Version du formulaire'),
-('delivery date', '', 'Delivery Date', 'Date de d&eacute;livrance'),
-('completion date', '', 'Completion Date', 'Date de compl&eacute;tion');
+('delivery date', '', 'Delivery Date', 'Date de délivrance'),
+('completion date', '', 'Completion Date', 'Date de complétion');
 
 INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 -- disease_site
@@ -786,12 +786,12 @@ CREATE TABLE IF NOT EXISTS `qc_cusm_ed_procure_prostate_path_report` (
   `involved_lymph_nodes_nbr` int(5) NULL,
 
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `created_by` varchar(50) NOT NULL DEFAULT '',
-  `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `modified_by` varchar(50) NOT NULL DEFAULT '',
-  `event_master_id` int(11) DEFAULT NULL,
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
+  `event_master_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `event_master_id` (`event_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -855,14 +855,14 @@ CREATE TABLE IF NOT EXISTS `qc_cusm_ed_procure_prostate_path_report_revs` (
   `involved_lymph_nodes_nbr` int(5) NULL,
 
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `created_by` varchar(50) NOT NULL DEFAULT '',
-  `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `modified_by` varchar(50) NOT NULL DEFAULT '',
-  `event_master_id` int(11) DEFAULT NULL,
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
+  `event_master_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`version_id`),
   KEY `event_master_id` (`event_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -919,8 +919,8 @@ INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALU
 
 DELETE FROM `i18n` WHERE `id` IN ('cannot be assessed', 'negative', 'positive');
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
-('cannot be assessed', 'global', 'Cannot Be Assessed', 'Ne peuvent &ecirc;tre &eacute;valu&eacute;es'),
-('negative', 'global', 'Negative', 'N&eacute;gative'),
+('cannot be assessed', 'global', 'Cannot Be Assessed', 'Ne peuvent être évaluées'),
+('negative', 'global', 'Negative', 'Négative'),
 ('positive', 'global', 'Positive', 'Positive');
 
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `active`) 
@@ -1209,22 +1209,22 @@ VALUES
  '1', '92', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ;
 
 INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
-('report number', 'global', 'Report Number', 'Num&eacute;ro du rapport'),
+('report number', 'global', 'Report Number', 'Numéro du rapport'),
 ('pathologist name', 'global', 'Pathologist Name', 'Nom du pathologiste'),
 ('lenght (cm)', 'global', 'Lenght (cm)', 'Longueur (cm)'),
 ('width (cm)', 'global', 'Width (cm)', 'Largeur (cm)'),
 ('height (cm)', 'global', 'Height (cm)', 'Hauteur (cm)'),
 ('weight (gr)', 'global', 'Weight (gr)', 'Poids (cm)'),
 ('apex', 'global', 'Apex', 'Apex'),
-('bladder neck', 'global', 'Bladder Neck', 'Col V&eacute;sical'),
+('bladder neck', 'global', 'Bladder Neck', 'Col Vésical'),
 ('involved lymph nodes nbr', 'global', 'Involved Number', 'Nombre atteint(s)'),
-('examined lymph nodes nbr', 'global', 'Examined Number', 'Nombre examin&eacute;(s)'),
-('lymph nodes collected', 'global', 'Collected', 'R&eacute;colt&eacute;s'),
+('examined lymph nodes nbr', 'global', 'Examined Number', 'Nombre examiné(s)'),
+('lymph nodes collected', 'global', 'Collected', 'Récoltés'),
 ('absent', 'global', 'Absent', 'Absent(e)'),
-('present', 'global', 'Present', 'Pr&eacute;sent(e)'),
-('established extracapsular invasion', 'global', 'Established', '&Eacute;tablie'),
+('present', 'global', 'Present', 'Présent(e)'),
+('established extracapsular invasion', 'global', 'Established', 'établie'),
 ('focal extracapsular invasion', 'global', 'Focal', 'Focale'),
-('seminal vesicles extracapsular invasion', 'global', 'Seminal Vesicles', 'V&eacute;sicules s&eacute;minales'),
+('seminal vesicles extracapsular invasion', 'global', 'Seminal Vesicles', 'Vésicules séminales'),
 ('extracapsular invasion status', 'global', 'Status', 'Statut'),
 ('margin focal', 'global', 'Focal', 'Focale'),
 ('tertiary grade', 'global', 'Tertiary Grade', '');
@@ -1236,7 +1236,7 @@ INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('margins', 'global', 'Margins', 'Marges'),
 ('extracapsular invasion', 'global', 'Extracapsular Invasion', 'Invasion extracapsulaire'),
 ('extracapsular invasion location', 'global', 'Extracapsular Invasion Location', 'Localisation de l''invasion extracapsulaire'),
-('regional lymph nodes', 'global', 'Regional Lymph Nodes', 'Ad&eacute;nopathies r&eacute;gionales / ganglions');
+('regional lymph nodes', 'global', 'Regional Lymph Nodes', 'Adénopathies régionales / ganglions');
 
 INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('positions', 'global', 'Positions', 'Positions');
@@ -1260,9 +1260,9 @@ DELETE FROM `i18n` WHERE `id` IN ('health_insurance_card', 'montreal_general_hos
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) 
 VALUES
 ('health_insurance_card', 'global', 'Health Insurance Card', 'Carte d''assurance maladie'),
-('montreal_general_hospital_card', 'global', 'Montreal General Hospital card', 'carte H&ocirc;pital G&eacute;n&eacute;ral de Montr&eacute;al'),
-('prostate_bank_participant_id', 'global', 'Prostate Bank Participant Id', 'Num&eacute;ro participant banque Prostate'),
-('this identifier has already been created for your participant', '', 'This identifier has already been created for your participant!', 'Cet identification a d&eacute;j&agrave; &eacute;t&eacute; cr&eacute;&eacute;e pour ce participant!');
+('montreal_general_hospital_card', 'global', 'Montreal General Hospital card', 'carte Hôpital Général de Montréal'),
+('prostate_bank_participant_id', 'global', 'Prostate Bank Participant Id', 'Numéro participant banque Prostate'),
+('this identifier has already been created for your participant', '', 'This identifier has already been created for your participant!', 'Cet identification a déjà été créée pour ce participant!');
 
 DELETE FROM `key_increments`;
 INSERT INTO `key_increments` (`key_name`, `key_value`) VALUES
@@ -1760,7 +1760,7 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 
 DELETE FROM `i18n` WHERE `id` IN ('aspect at reception', 'aspect before centrifugation');
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
-('aspect at reception', 'global', 'Aspect at Reception', 'Aspect &agrave; la r&eacute;ception'),
+('aspect at reception', 'global', 'Aspect at Reception', 'Aspect à la réception'),
 ('aspect before centrifugation', 'global', 'Aspect Before Centrifugation', 'Aspect avant centrifugation');
  
 -- Centrifuged urine : add pellet color
@@ -2140,7 +2140,7 @@ INSERT INTO `structure_validations` (`id`, `old_id`, `structure_field_id`, `stru
 
 DELETE FROM `i18n` WHERE `id` IN ('section should be a positif integer');
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
-('section should be a positif integer', 'global', 'Section should be a positif integer!', 'La section doit &ecirc;tre un entier positif!');
+('section should be a positif integer', 'global', 'Section should be a positif integer!', 'La section doit être un entier positif!');
 
 -- Tissue Block: Add size
 
@@ -2224,8 +2224,8 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 
 DELETE FROM `i18n` WHERE `id` IN ('collection to freezing spent time (mn)', 'spent time should be a positif integer');
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
-('spent time should be a positif integer', 'global', 'Spent time should be a positif integer!', 'Temps &eacute;coul&eacute; doit &ecirc;tre un entier positif!'),
-('collection to freezing spent time (mn)', 'global', 'Collection to Freezing Spent Time(mn)', 'Temps &eacute;coul&eacute; entre collection et cong&eacute;lation (mn)');
+('spent time should be a positif integer', 'global', 'Spent time should be a positif integer!', 'Temps écoulé doit être un entier positif!'),
+('collection to freezing spent time (mn)', 'global', 'Collection to Freezing Spent Time(mn)', 'Temps écoulé entre collection et congélation (mn)');
 
 -- Tissue Block: Add fixation process duration
 
@@ -2254,8 +2254,8 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 
 DELETE FROM `i18n` WHERE `id` IN ('fixation process duration (hr)', 'fixation duration should be a positif integer');
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
-('fixation duration should be a positif integer', 'global', 'Spent time should be a positif integer!', 'Dur&eacute;e du processus de fixation doit &ecirc;tre un entier positif!'),
-('fixation process duration (hr)', 'global', 'Fixation Process Duration (hr)', 'Dur&eacute;e du processus de fixation (hr)');
+('fixation duration should be a positif integer', 'global', 'Spent time should be a positif integer!', 'Durée du processus de fixation doit être un entier positif!'),
+('fixation process duration (hr)', 'global', 'Fixation Process Duration (hr)', 'Durée du processus de fixation (hr)');
 
 -- Hidde cells count and concentration fro blood cells tubes
 
@@ -2310,9 +2310,9 @@ VALUES
 DELETE FROM `i18n` WHERE `id` IN ('blocks drawer', 'drawers box', 'box100', 'rack16 A1-D4');
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('rack16 A1-D4', 'global', 'Rack ', 'Ratelier'),
-('box100', 'global', 'Box 100', 'Bo&icirc;te 100'),
-('drawers box', 'global', 'Drawers Box', 'Bo&icirc;te &agrave; tiroirs'),
-('blocks drawer', 'global', 'Blocks Drawer', 'Tiroir &agrave; blocs');
+('box100', 'global', 'Box 100', 'Boîte 100'),
+('drawers box', 'global', 'Drawers Box', 'Boîte à tiroirs'),
+('blocks drawer', 'global', 'Blocks Drawer', 'Tiroir à blocs');
 
 -- Storage Barcode : hidden
 
