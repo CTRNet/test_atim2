@@ -23,8 +23,9 @@
 	
 	if($is_tree_view_detail_form) {
 		// Detail form displayed in tree view: Add button to access all aliquot data
-		$structure_links['bottom']['access to all data'] = '/inventorymanagement/aliquot_masters/detail/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'];
-		
+		$structure_links['bottom']['access to all data'] = array(
+			'link'=> '/inventorymanagement/aliquot_masters/detail/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'],
+			'icon' => 'access_to_data');
 	} else {
 		// General detail form display
 		$search_type_links = array();

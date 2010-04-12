@@ -501,7 +501,13 @@ REPLACE INTO `i18n` (`id` , `page_id` , `en` , `fr`) VALUES
 ('receptor', 'global', 'Receptor', 'Récepteur'),
 ('sardo number', 'global', 'Sardo number', 'Numéro sardo'),
 ('invalid value', '', 'Invalid value', 'Valeur incorrecte'),
-('qc_lady_collection_participant_help', 'global', 'If this collection is linked to a participant that has an identifier of the same type as this collection, shows the identifier.', "Si la collection est liée à un participant ayant un identifiant du même type que cette collection, affiche l'identifiant.");
+('qc_lady_collection_participant_help', 'global', 'If this collection is linked to a participant that has an identifier of the same type as this collection, shows the identifier.', "Si la collection est liée à un participant ayant un identifiant du même type que cette collection, affiche l'identifiant."),
+('biopsy', '', 'Biopsy', 'Biopsie'),
+('tumor', '', 'Tumor', 'Tumeur'),
+('use of blood', '', 'Use of blood', 'Utilisation de sang'),
+('inform significant discovery', '', 'Inform significant discovery', 'Informer découverte significative'),
+('research other disease', '', 'Research other disease', 'Rechercher d\'autres maladies'),
+('consent type', '', 'Consent type', 'Type du consentement');
 
 -- clean unused menus
 UPDATE menus SET active='no' WHERE id IN('drug_CAN_96', 'drug_CAN_97', 'rtbf_CAN_01', 'rtbf_CAN_02', 'proto_CAN_37', 'proto_CAN_82', 'proto_CAN_83', 'mat_CAN_01', 'mat_CAN_02');

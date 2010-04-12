@@ -16,8 +16,7 @@ class EventControl extends ClinicalannotationAppModel {
 					
 					'description'	=>	array(
 						__('event_group', TRUE)		=>	__($result['EventControl']['event_group'], TRUE),
-						__('disease_site', TRUE)	=>	__($result['EventControl']['disease_site'], TRUE),
-						__('event_type', TRUE)		=>	__($result['EventControl']['event_type'], TRUE)
+						__('event_form_type', TRUE)	=>	__($result['EventControl']['disease_site'], TRUE) . ' - ' . __($result['EventControl']['event_type'], TRUE)
 					)
 				)
 			);
