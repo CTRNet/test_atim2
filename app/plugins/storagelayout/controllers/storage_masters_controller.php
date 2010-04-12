@@ -29,7 +29,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		$this->set('storage_list', $this->Storages->getStorageList());	
 		
 		//find all storage control types to build add button
-		$this->set('storage_controls_list', $this->StorageControl->find('all', array('conditions' => array('StorageControl.status' => 'active'))));
+		$this->set('storage_controls_list', $this->StorageControl->find('all', array('conditions' => array('StorageControl.flag_active' => '1'))));
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		
@@ -45,7 +45,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		$this->data = $this->paginate($this->StorageMaster, $_SESSION['ctrapp_core']['search']['criteria']);
 		
 		//find all storage control types to build add button
-		$this->set('storage_controls_list', $this->StorageControl->find('all', array('conditions' => array('StorageControl.status' => 'active'))));
+		$this->set('storage_controls_list', $this->StorageControl->find('all', array('conditions' => array('StorageControl.flag_active' => '1'))));
 		
 		// if SEARCH form data, save number of RESULTS and URL
 		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['StorageMaster']['count'];
@@ -124,7 +124,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		$this->set('is_tree_view_detail_form', $is_tree_view_detail_form);
 		
 		// Get all storage control types to build the add to selected button
-		$this->set('storage_controls_list', $this->StorageControl->find('all', array('conditions' => array('StorageControl.status' => 'active'))));
+		$this->set('storage_controls_list', $this->StorageControl->find('all', array('conditions' => array('StorageControl.flag_active' => '1'))));
 
 		// MANAGE FORM TO DEFINE STORAGE POSITION INTO PARENT (SECOND FORM)
 		

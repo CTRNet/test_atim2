@@ -40,8 +40,8 @@ class InventorymanagementAppController extends AppController {
 	function getAllowedDerivativeTypes($parent_sample_control_id) {
 		$criteria = array(
 			'ParentSampleControl.id' => $parent_sample_control_id,
-			'ParentToDerivativeSampleControl.status' => 'active',
-			'DerivativeControl.status' => 'active');
+			'ParentToDerivativeSampleControl.flag_active' => '1',
+			'DerivativeControl.flag_active' => '1');
 		$allowed_derivative_type_temp = $this->ParentToDerivativeSampleControl->find('all', array('conditions' => $criteria, 'order' => 'DerivativeControl.sample_type ASC'));
 
 		$allowed_derivative_type = array();
@@ -68,8 +68,8 @@ class InventorymanagementAppController extends AppController {
 	function getAllowedAliquotTypes($sample_control_id) {
 		$criteria = array(
 			'SampleControl.id' => $sample_control_id,
-			'SampleToAliquotControl.status' => 'active',
-			'AliquotControl.status' => 'active');
+			'SampleToAliquotControl.flag_active' => '1',
+			'AliquotControl.flag_active' => '1');
 		$allowed_aliquot_type_temp = $this->SampleToAliquotControl->find('all', array('conditions' => $criteria, 'order' => 'AliquotControl.aliquot_type ASC'));
 		
 		$allowed_aliquot_type = array();
