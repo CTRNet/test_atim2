@@ -1,0 +1,19 @@
+<?php 
+	$sidebars->header( $lang );
+	$sidebars->cols( $ctrapp_sidebar, $lang );
+	$summaries->build( $ctrapp_summary, $lang ); 
+	$menus->tabs( $ctrapp_menu, $lang ); 
+?>
+
+	<?php 
+		$form_type = 'index';
+		$form_model = $announcements;
+		$form_field = $ctrapp_form;
+		$form_link = array( 'detail'=>'/customize/announcements/detail/' );
+		$form_lang = $lang;
+		$form_pagination = $paging;
+		
+		$forms->build( $form_type, $form_model, $form_field, $form_link, $form_lang, $form_pagination );
+	?>
+
+<?php echo $sidebars->footer($lang); ?>
