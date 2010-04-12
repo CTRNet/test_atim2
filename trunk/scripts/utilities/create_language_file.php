@@ -8,8 +8,8 @@
 	//$filee = fopen("C:\\wamp\\www\\atim2\\app\\locale\\eng\\LC_MESSAGES\\default.po", "w+t");
 	//$filef = fopen("C:\\wamp\\www\\atim2\\app\\locale\\fre\\LC_MESSAGES\\default.po", "w+t");
 	//$filex = fopen("C:\\wamp\\www\\atim2\\app\\locale\\error\\ERROR_MESSAGES\\error.po", "w+t");
-	$filee = fopen("../app/locale/eng/LC_MESSAGES/default.po", "w+t");
-	$filef = fopen("../app/locale/fre/LC_MESSAGES/default.po", "w+t");
+	$filee = fopen("../../app/locale/eng/LC_MESSAGES/default.po", "w+t") or die("Failed to open english file");
+	$filef = fopen("../../app/locale/fre/LC_MESSAGES/default.po", "w+t") or die("Failed to open french file");
 	//$filex = fopen("../app/locale/error/ERROR_MESSAGES/error.po", "w+t");
 	
 	//Establishes a connection to the MySQL server
@@ -25,7 +25,7 @@
     
 	//Executes query
 	$query = "SELECT * FROM i18n";
-	$result = mysql_query($query);
+	$result = mysql_query($query) or die("Query 1 failed");
 	
 	
 	//Displays all information returned from query
