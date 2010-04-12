@@ -12,7 +12,7 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		'Clinicalannotation.ClinicalCollectionLink',
 		'codingicd10.CodingIcd10'
 	);
-	var $paginate = array('DiagnosisMaster'=>array('limit'=>10,'order'=>'DiagnosisMaster.dx_date')); 
+	var $paginate = array('DiagnosisMaster'=>array('limit' => pagination_amount,'order'=>'DiagnosisMaster.dx_date')); 
 	
 	function listall( $participant_id ) {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }

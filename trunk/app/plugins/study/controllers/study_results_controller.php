@@ -3,7 +3,7 @@
 class StudyResultsController extends StudyAppController {
 			
 	var $uses = array('Study.StudyResult','Study.StudySummary');
-	var $paginate = array('StudyResult'=>array('limit'=>10,'order'=>'StudyResult.abstract'));
+	var $paginate = array('StudyResult'=>array('limit' => pagination_amount,'order'=>'StudyResult.abstract'));
 	
 	function listall( $study_summary_id ) {
 		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }

@@ -15,7 +15,7 @@ class ShipmentsController extends OrderAppController {
 		'Inventorymanagement.AliquotControl',
 		'Inventorymanagement.AliquotUse');
 		
-	var $paginate = array('Shipment'=>array('limit'=>10,'order'=>'Shipment.datetime_shipped DESC'));
+	var $paginate = array('Shipment'=>array('limit' => pagination_amount,'order'=>'Shipment.datetime_shipped DESC'));
 
 	function listall( $order_id=null ) {
 		if ( !$order_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }

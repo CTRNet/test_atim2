@@ -3,7 +3,7 @@
 class GroupsController extends AdministrateAppController {
 	
 	var $uses = array('Group',	'Aco', 'Aro');
-	var $paginate = array('Group'=>array('limit'=>10,'order'=>'Group.name ASC')); 
+	var $paginate = array('Group'=>array('limit' => pagination_amount,'order'=>'Group.name ASC')); 
 	
 	function index( $bank_id ) {
 		$this->set( 'atim_menu_variables', array('Bank.id'=>$bank_id) );
