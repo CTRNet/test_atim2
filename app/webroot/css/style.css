@@ -1343,7 +1343,7 @@ div.loading{
 	line-height: 60px;
 	background: url("../img/wait30.gif") no-repeat center;
 	border-style: solid;
-	border-colot: #000;
+	border-color: #000;
 	border-width: 1px;
 }
 
