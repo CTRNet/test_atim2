@@ -25,7 +25,7 @@ class ConsentMastersController extends ClinicalannotationAppController {
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id) );
-		$this->set('consent_controls_list', $this->ConsentControl->find('all', array('conditions' => array('ConsentControl.status' => 'active'))));
+		$this->set('consent_controls_list', $this->ConsentControl->find('all', array('conditions' => array('ConsentControl.flag_active' => '1'))));
 		$this->Structures->set('consent_masters');
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
