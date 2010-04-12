@@ -1,6 +1,5 @@
 <?php
 //$this->set('identifier_controls_list', $this->MiscIdentifierControl->find('all', array('conditions' => array('status' => 'active'))));
-
 $mil = $this->MiscIdentifier->find('all', array('conditions' =>array('MiscIdentifier.participant_id' => $participant_id)));
 $identifier_controls_list = $this->MiscIdentifierControl->find('all', array('conditions' => array('status' => 'active')));
 foreach($identifier_controls_list as $mic_key => $mic){

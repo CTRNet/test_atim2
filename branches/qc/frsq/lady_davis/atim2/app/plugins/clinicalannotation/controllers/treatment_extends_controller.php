@@ -90,7 +90,7 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		if ( !empty($this->data) ) {
 			$this->data['TreatmentExtend']['tx_master_id'] = $tx_master_data['TreatmentMaster']['id'];
 			if ( $this->TreatmentExtend->save( $this->data ) ) {
-				$this->flash( 'Your data has been saved.', '/clinicalannotation/treatment_extends/listall/'.$participant_id.'/'.$tx_master_id );
+				$this->flash( 'your data has been saved', '/clinicalannotation/treatment_extends/listall/'.$participant_id.'/'.$tx_master_id );
 			}
 		} 
 	}
@@ -129,7 +129,7 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 	    if (!empty($this->data)) {
 			$this->TreatmentExtend->id = $tx_extend_id;
 			if ($this->TreatmentExtend->save($this->data)) {
-				$this->flash( 'Your data has been updated.','/clinicalannotation/treatment_extends/detail/'.$participant_id.'/'.$tx_master_id.'/'.$tx_extend_id);
+				$this->flash( 'your data has been updated','/clinicalannotation/treatment_extends/detail/'.$participant_id.'/'.$tx_master_id.'/'.$tx_extend_id);
 			}
 		} else {
 			$this->data = $this_data;
@@ -140,7 +140,7 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		$this->hook();
 	
 		$this->TreatmentExtend->atim_delete( $tx_extend_id );
-		$this->flash( 'Your data has been deleted.', '/clinicalannotation/treatment_extends/listall/'.$participant_id.'/'.$tx_master_id );
+		$this->flash( 'your data has been deleted', '/clinicalannotation/treatment_extends/listall/'.$participant_id.'/'.$tx_master_id );
 	}
 }
 

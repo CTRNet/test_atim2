@@ -114,7 +114,7 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 				if(isset($this->data['ClinicalCollectionLink']['deleted'])){
 					$this->redirect('/inventorymanagement/collections/add/'.$this->ClinicalCollectionLink->getLastInsertId());
 				}else{
-					$this->flash( 'Your data has been updated.','/clinicalannotation/clinical_collection_links/detail/'.$participant_id.'/'.$this->ClinicalCollectionLink->id );
+					$this->flash( 'your data has been updated','/clinicalannotation/clinical_collection_links/detail/'.$participant_id.'/'.$this->ClinicalCollectionLink->id );
 				}
 				return;
 			}
@@ -169,7 +169,7 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 			
 			$this->ClinicalCollectionLink->id = $clinical_collection_link_id;
 			if ($submitted_data_validates && $this->ClinicalCollectionLink->save($this->data) ) {
-				$this->flash( 'Your data has been updated.','/clinicalannotation/clinical_collection_links/detail/'.$participant_id.'/'.$clinical_collection_link_id );
+				$this->flash( 'your data has been updated','/clinicalannotation/clinical_collection_links/detail/'.$participant_id.'/'.$clinical_collection_link_id );
 				return;
 			}
 		} else {
@@ -201,9 +201,9 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 				
 			$this->ClinicalCollectionLink->id = $clinical_collection_link_id;
 			if ($this->ClinicalCollectionLink->save($this->data)){
-				$this->flash( 'Your data has been deleted.' , '/clinicalannotation/clinical_collection_links/listall/'.$participant_id.'/');
+				$this->flash( 'your data has been deleted' , '/clinicalannotation/clinical_collection_links/listall/'.$participant_id.'/');
 			}else{
-				$this->flash( 'Deletion failed.','/clinicalannotation/clinical_collection_links/detail/'.$participant_id.'/'.$clinical_collection_link_id.'/');
+				$this->flash( 'error deleting data - contact administrator','/clinicalannotation/clinical_collection_links/detail/'.$participant_id.'/'.$clinical_collection_link_id.'/');
 			}
 		} else {
 			$this->flash($arr_allow_deletion['msg'], '/clinicalannotation/clinical_collection_links/detail/'.$participant_id.'/'.$clinical_collection_link_id);

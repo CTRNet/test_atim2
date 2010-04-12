@@ -29,7 +29,7 @@ class PasswordsController extends AppController {
 						unset($this->data['User']['confirm_password']);
 						
 						if ( $this->User->save( $this->data ) ) {
-							$this->flash( 'Your data has been updated.','/customize/passwords/index' );
+							$this->flash( 'your data has been updated','/customize/passwords/index' );
 						}
 						
 					} else {
@@ -101,7 +101,7 @@ class PasswordsController extends AppController {
 			// exit();
 			
 			if ( $this->User->save( $this->data ) ) {
-				$this->flash( 'Your data has been updated.','/passwords/index/' );
+				$this->flash( 'your data has been updated','/passwords/index/' );
 				exit();
 			}
 			

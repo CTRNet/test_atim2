@@ -217,7 +217,7 @@ class StoragesComponent extends Object {
 					$storage_definition_error = 'no storage matches (at least one of) the selection label(s)';
 				} else if(sizeof($matching_storage_list) > 1) {
 					// More than one storage matche this storage selection label
-					$storage_definition_error = 'more than one storages matche (at least one of) the selection label(s)';
+					$storage_definition_error = 'more than one storages matches (at least one of) the selection label(s)';
 				} else {
 					// The selection label match only one storage: Get the storage_master_id
 					$selected_storage_master_id = key($matching_storage_list);

@@ -48,8 +48,7 @@ class EventMastersController extends ClinicalannotationAppController {
 		// find all EVENTCONTROLS, for ADD form
 		$event_controls = $this->EventControl->find('all', array('conditions'=>array('event_group'=>$event_group)));
 		$this->set( 'event_controls', $event_controls );
-
-//TODO (Aaron): to support multi language		
+	
 		$disease_site_list = array();
 		$event_type = array();
 		foreach($event_controls as $new_event_ctr) {
@@ -73,10 +72,6 @@ class EventMastersController extends ClinicalannotationAppController {
 
 		$this->set('dx_data', $this->DiagnosisMaster->find('all', array('conditions' => array('DiagnosisMaster.id' => $this->data['EventMaster']['diagnosis_master_id']))));		
 
-//		if(isset($this->data['EventDetail']['file_path'])) {
-//			$this->data['EventDetail']['file_path'] = $this->webroot.'/uploaded_files/'.$this->data['EventDetail']['file_path'];
-//		}
-		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu', $this->Menus->get('/'.$this->params['plugin'].'/'.$this->params['controller'].'/listall/'.$event_group) );
 		$this->set( 'atim_menu_variables', array('EventMaster.event_group'=>$event_group,'Participant.id'=>$participant_id,'EventMaster.id'=>$event_master_id,  'EventControl.id'=>$this->data['EventControl']['id']) );
@@ -101,16 +96,18 @@ class EventMastersController extends ClinicalannotationAppController {
 		$event_control_data = $this->EventControl->find('first',array('conditions'=>array('EventControl.id'=>$event_control_id)));
 		if(empty($event_control_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }	
 		
-		// set DIAGANOSES
+		// set DIAGANOSES for diagnosis selection (radio button)
 		$diagnosis_data = $this->DiagnosisMaster->find('all', array('conditions'=>array('DiagnosisMaster.participant_id'=>$participant_id)));
-//TODO (Aaron): Following code should be done everywhere there is diagnosis selection (usefull when form is redisplay when validation error has been detected)
 		if(!empty($this->data)) {
+			//User submitted data: take updated data in consideration in case data validation is wrong and form is redisplayed
 			foreach ($diagnosis_data as &$dx) {
 				$dx['EventMaster']['diagnosis_master_id'] = $this->data['EventMaster']['diagnosis_master_id'];
 			} 			
 		}
 		$this->set( 'data_for_checklist',  $diagnosis_data);
-			
+
+		$this->set('initial_display', (empty($this->data)? true : false));
+					
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu', $this->Menus->get('/'.$this->params['plugin'].'/'.$this->params['controller'].'/listall/'.$event_group) );
 		$this->set( 'atim_menu_variables', array('EventControl.event_group'=>$event_group,'Participant.id'=>$participant_id,'EventControl.id'=>$event_control_id) );
@@ -127,10 +124,6 @@ class EventMastersController extends ClinicalannotationAppController {
 		if ( !empty($this->data) ) {
 			$this->data['EventMaster']['participant_id'] = $participant_id;
 			$this->data['EventMaster']['event_control_id'] = $event_control_id;
-//TODO (Aaron): Not sure groupe type and site should be translated (see other clinicalannotation controller)
-//			$this->data['EventMaster']['event_group'] = __($event_group, TRUE);
-//			$this->data['EventMaster']['event_type'] = __($event_control_data['EventControl']['event_type'], TRUE);
-//			$this->data['EventMaster']['disease_site'] = __($event_control_data['EventControl']['disease_site'], TRUE);
 
 			$this->data['EventMaster']['event_group'] = $event_group;
 			$this->data['EventMaster']['event_type'] = $event_control_data['EventControl']['event_type'];
@@ -144,13 +137,7 @@ class EventMastersController extends ClinicalannotationAppController {
 			if( $hook_link ) { require($hook_link); }
 
 			if ($submitted_data_validates && $this->EventMaster->save($this->data) ) {
-//				if($this->data['EventDetail']['file_name']['error'] == 0) {
-//					$this->data['EventMaster']['id'] = $this->EventMaster->getLastInsertID();
-//				//	$this->data['EventDetail']['file_path'] = $this->data['EventMaster']['id'].'.'.end(explode(".", $this->data['EventDetail']['file_name']['name']));  
-//				//	move_uploaded_file($this->data['EventDetail']['file_name']['tmp_name'], getcwd().'/uploaded_files/'.$this->data['EventDetail']['file_path']);
-//					$this->EventMaster->save($this->data);
-//				}
-				$this->flash( 'Your data has been updated.','/clinicalannotation/event_masters/detail/'.$event_group.'/'.$participant_id.'/'.$this->EventMaster->getLastInsertId());
+				$this->flash( 'your data has been updated','/clinicalannotation/event_masters/detail/'.$event_group.'/'.$participant_id.'/'.$this->EventMaster->getLastInsertId());
 			}
 		} 
 	}
@@ -162,9 +149,8 @@ class EventMastersController extends ClinicalannotationAppController {
 		$event_master_data = $this->EventMaster->find('first',array('conditions'=>array('EventMaster.id'=>$event_master_id, 'EventMaster.participant_id'=>$participant_id)));
 		if (empty($event_master_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
 		
-		// set DIAGANOSES
+		// set DIAGANOSES for diagnosis selection (radio button)
 		$diagnosis_data = $this->DiagnosisMaster->find('all', array('conditions'=>array('DiagnosisMaster.participant_id'=>$participant_id)));
-//TODO (Aaron): Following code should be done everywhere there is diagnosis selection (usefull when form is redisplay when validation error has been detected)
 		$selected_diagnosis_master_id = empty($this->data)? $event_master_data['EventMaster']['diagnosis_master_id'] : $this->data['EventMaster']['diagnosis_master_id'];
 		foreach ($diagnosis_data as &$dx) {
 			$dx['EventMaster']['diagnosis_master_id'] = $selected_diagnosis_master_id;
@@ -195,7 +181,7 @@ class EventMastersController extends ClinicalannotationAppController {
 			if( $hook_link ) { require($hook_link); }
 			
 			if ($submitted_data_validates && $this->EventMaster->save($this->data) ) {
-				$this->flash( 'Your data has been updated.','/clinicalannotation/event_masters/detail/'.$event_group.'/'.$participant_id.'/'.$event_master_id);
+				$this->flash( 'your data has been updated','/clinicalannotation/event_masters/detail/'.$event_group.'/'.$participant_id.'/'.$event_master_id);
 			}
 		} else {
 			$this->data = $event_master_data;
@@ -203,7 +189,7 @@ class EventMastersController extends ClinicalannotationAppController {
 	}
 
 	function delete($event_group, $participant_id, $event_master_id) {
-		if ((!$participant_id) || (!$event_master_id)) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ((!$participant_id) || (!$event_master_id)) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
 
 		$event_master_data = $this->EventMaster->find('first',array('conditions'=>array('EventMaster.id'=>$event_master_id, 'EventMaster.participant_id'=>$participant_id)));
 		if (empty($event_master_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
