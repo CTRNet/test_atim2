@@ -2,7 +2,7 @@
 
 class MaterialsController extends MaterialAppController {
 	var $uses = array('Material.Material');
-	var $paginate = array('Material'=>array('limit'=>10,'order'=>'Material.item_name'));
+	var $paginate = array('Material'=>array('limit' => pagination_amount,'order'=>'Material.item_name'));
 	
 	function index(){
 		$_SESSION['ctrapp_core']['search'] = NULL; // clear SEARCH criteria

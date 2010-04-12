@@ -10,7 +10,7 @@ class EventMastersController extends ClinicalannotationAppController {
 	);
 	
 	var $paginate = array(
-		'EventMaster'=>array('limit'=>10,'order'=>'EventMaster.event_date DESC')
+		'EventMaster'=>array('limit' => pagination_amount,'order'=>'EventMaster.event_date DESC')
 	);
 	
 	function beforeFilter( ) {

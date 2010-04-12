@@ -11,7 +11,7 @@ class ConsentMastersController extends ClinicalannotationAppController {
 		'Provider.Provider'
 	);
 	
-	var $paginate = array('ConsentMaster'=>array('limit'=>10,'order'=>'ConsentMaster.date_first_contact ASC')); 
+	var $paginate = array('ConsentMaster'=>array('limit' => pagination_amount,'order'=>'ConsentMaster.date_first_contact ASC')); 
 
 	function listall( $participant_id ) {
 		// Missing or empty function variable, send to ERROR page

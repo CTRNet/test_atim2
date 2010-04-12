@@ -9,7 +9,7 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		'Clinicalannotation.DiagnosisMaster',
 		'Protocol.ProtocolMaster'
 	);
-	var $paginate = array('TreatmentMaster'=>array('limit'=>10,'order'=>'TreatmentMaster.start_date DESC'));
+	var $paginate = array('TreatmentMaster'=>array('limit' => pagination_amount,'order'=>'TreatmentMaster.start_date DESC'));
 
 	function listall($participant_id) {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }

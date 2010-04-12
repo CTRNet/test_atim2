@@ -45,9 +45,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 	);
 	
 	var $paginate = array(
-		'AliquotMaster' => array('limit' =>10 , 'order' => 'AliquotMaster.barcode DESC'), 
-		'ViewAliquot' => array('limit' =>10 , 'order' => 'ViewAliquot.barcode DESC'), 
-		'AliquotUse' => array('limit' => 10, 'order' => 'AliquotUse.use_datetime DESC'));
+		'AliquotMaster' => array('limit' => pagination_amount , 'order' => 'AliquotMaster.barcode DESC'), 
+		'ViewAliquot' => array('limit' => pagination_amount , 'order' => 'ViewAliquot.barcode DESC'), 
+		'AliquotUse' => array('limit' => pagination_amount, 'order' => 'AliquotUse.use_datetime DESC'));
 
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS
@@ -97,7 +97,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 	
 	function listAll($collection_id, $sample_master_id, $filter_option = null) {
 		if((!$collection_id) || (!$sample_master_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }
-
 		// MANAGE FILTER OPTION
 
 		$is_collection_aliquot_list = ($sample_master_id == '-1')? true: false;
