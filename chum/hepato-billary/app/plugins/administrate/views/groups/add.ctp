@@ -1,15 +1,11 @@
-<div class="groups form">
-<?php echo $form->create('Group');?>
-	<fieldset>
- 		<legend><?php __('Add Group');?></legend>
-	<?php
-		echo $form->input('name');
-	?>
-	</fieldset>
-<?php echo $form->end('Submit');?>
-</div>
-<div class="actions">
-	<ul>
-		<li><?php echo $html->link(__('List Groups', true), array('action'=>'index'));?></li>
-	</ul>
-</div>
+<?php 
+$structure_links = array(
+		'top' => '/administrate/groups/add/'.$atim_menu_variables['Bank.id'].'/',
+		'bottom'=>array(
+			'cancel'=>'/administrate/groups/index/'.$atim_menu_variables['Bank.id'].'/', 
+		)
+	);
+	
+	$structures->build( $atim_structure, array('links'=>$structure_links) );
+	
+?>

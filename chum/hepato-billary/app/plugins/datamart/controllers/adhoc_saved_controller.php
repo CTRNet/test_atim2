@@ -34,7 +34,7 @@ class AdhocSavedController extends DatamartAppController {
 		);
 		
 		$this->AdhocSaved->save( $new_AdhocSaved_data );
-		$this->flash( 'Your data has been saved.', '/datamart/adhocs/index/saved' );
+		$this->flash( 'your data has been saved', '/datamart/adhocs/index/saved' );
 		
 	}
 	
@@ -240,7 +240,7 @@ class AdhocSavedController extends DatamartAppController {
 		
 		if ( !empty($this->data) ) {
 			$this->AdhocSaved->id = $saved_id;
-			if ( $this->AdhocSaved->save($this->data) ) $this->flash( 'Your data has been updated.','/datamart/adhoc_saved/search/'.$adhoc_id.'/'.$saved_id );
+			if ( $this->AdhocSaved->save($this->data) ) $this->flash( 'your data has been updated','/datamart/adhoc_saved/search/'.$adhoc_id.'/'.$saved_id );
 		} else {
 			// BIND models on the fly...
 			$this->AdhocSaved->bindModel(
@@ -340,7 +340,7 @@ class AdhocSavedController extends DatamartAppController {
 		if ( file_exists($custom_ctrapp_controller_hook) ) { require($custom_ctrapp_controller_hook); }
 		
 		$this->AdhocSaved->save( $new_AdhocSaved_data );
-		$this->flash( 'Your data has been saved.', '/adhoc_saved/index/' );
+		$this->flash( 'your data has been saved', '/adhoc_saved/index/' );
 		exit;
 		
 	}
@@ -410,7 +410,7 @@ class AdhocSavedController extends DatamartAppController {
 			if ( file_exists($custom_ctrapp_controller_hook) ) { require($custom_ctrapp_controller_hook); }
 			
 			if ( $this->AdhocSaved->save( $this->data['AdhocSaved'] ) ) {
-				$this->flash( 'Your data has been updated.', '/adhoc_saved/search/'.$adhoc_id.'/'.$saved_id );
+				$this->flash( 'your data has been updated', '/adhoc_saved/search/'.$adhoc_id.'/'.$saved_id );
 			}
 			
 		}

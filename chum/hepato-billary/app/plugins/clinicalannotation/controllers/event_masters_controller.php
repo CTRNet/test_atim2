@@ -137,7 +137,7 @@ class EventMastersController extends ClinicalannotationAppController {
 			if( $hook_link ) { require($hook_link); }
 
 			if ($submitted_data_validates && $this->EventMaster->save($this->data) ) {
-				$this->flash( 'Your data has been updated.','/clinicalannotation/event_masters/detail/'.$event_group.'/'.$participant_id.'/'.$this->EventMaster->getLastInsertId());
+				$this->flash( 'your data has been updated','/clinicalannotation/event_masters/detail/'.$event_group.'/'.$participant_id.'/'.$this->EventMaster->getLastInsertId());
 			}
 		} 
 	}
@@ -181,7 +181,7 @@ class EventMastersController extends ClinicalannotationAppController {
 			if( $hook_link ) { require($hook_link); }
 			
 			if ($submitted_data_validates && $this->EventMaster->save($this->data) ) {
-				$this->flash( 'Your data has been updated.','/clinicalannotation/event_masters/detail/'.$event_group.'/'.$participant_id.'/'.$event_master_id);
+				$this->flash( 'your data has been updated','/clinicalannotation/event_masters/detail/'.$event_group.'/'.$participant_id.'/'.$event_master_id);
 			}
 		} else {
 			$this->data = $event_master_data;
@@ -189,7 +189,7 @@ class EventMastersController extends ClinicalannotationAppController {
 	}
 
 	function delete($event_group, $participant_id, $event_master_id) {
-		if ((!$participant_id) || (!$event_master_id)) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ((!$participant_id) || (!$event_master_id)) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
 
 		$event_master_data = $this->EventMaster->find('first',array('conditions'=>array('EventMaster.id'=>$event_master_id, 'EventMaster.participant_id'=>$participant_id)));
 		if (empty($event_master_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }

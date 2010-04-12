@@ -15,12 +15,12 @@
 	//Establishes a connection to the MySQL server
 	$connection = @mysql_connect("127.0.0.1:8889", "root", "root")
 					or die("Could not connect to MySQL");
-	if(!mysql_set_charset("utf8", $connection)){
+	if(!mysql_set_charset("latin1", $connection)){
 		die("We failed");
 	}				
 	echo(mysql_client_encoding($connection)."\n");
 	//Selects the languages database
-	@mysql_select_db("atim_hepato")
+	@mysql_select_db("atim_new")
 					or die("Could not select database");
     
 	//Executes query

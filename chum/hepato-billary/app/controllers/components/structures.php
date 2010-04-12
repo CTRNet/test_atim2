@@ -24,12 +24,28 @@ class StructuresComponent extends Object {
 		$mode		= strtolower($mode);
 		$alias	= $alias ? strtolower($alias) : str_replace('_','',$this->controller->params['controller']);
 		
-		$fname = "../tmp/cache/structures/".$mode.".".$alias.".cache";
+		$structure_cache_directory = "../tmp/cache/structures/";
+		$fname = $structure_cache_directory.$mode.".".$alias.".cache";
 		if(file_exists($fname) && Configure::read('ATiMStructureCache.disable') != 1){
 			$fhandle = fopen($fname, 'r');
 			$return = unserialize(fread($fhandle, filesize($fname)));
 			fclose($fhandle);
 		}else{
+			if(Configure::read('ATiMStructureCache.disable')){
+				//clear structure cache
+				try{
+					if ($dh = opendir($structure_cache_directory)) {
+				        while (($file = readdir($dh)) !== false) {
+				            if(filetype($structure_cache_directory . $file) == "file"){
+				            	unlink($structure_cache_directory . $file);
+				            }
+				        }
+				        closedir($dh);
+				    }
+				}catch(Exception $e){
+					//do nothing, it's a race condition with someone else
+				}
+			}
 			if ( $alias ) {
 				
 				App::import('model', 'Structure');
