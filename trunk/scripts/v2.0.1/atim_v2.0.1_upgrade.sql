@@ -4407,5 +4407,5 @@ ALTER TABLE `structure_fields`
 	
 -- Update version information
 UPDATE `versions` 
-SET `version_number` = 'v2.0.1', `date_installed` = '2010-04-12 12:13:43', `build_number` = '954'
+SET `version_number` = 'v2.0.1', `date_installed` = '2010-04-12 12:13:43', `build_number` = '1180'
 WHERE `versions`.`id` =1;
