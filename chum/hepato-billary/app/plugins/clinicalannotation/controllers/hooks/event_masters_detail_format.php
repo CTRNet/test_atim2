@@ -13,10 +13,19 @@
 	// --------------------------------------------------------------------------------
 	$this->setMedicalPastHistoryPrecisions(array('EventControl' => $this->data['EventControl']));
 	
-	$event_control_data = $this->EventControl->find('first',array('conditions'=>array('EventControl.id' => $this->data['EventMaster']['event_control_id'])));
-	$this->setMedicalImaginStructures($event_control_data);
-		
-	if($event_control_data['EventControl']['form_alias'] == "ed_hepatobiliary_lab_report_biology"){
+	// --------------------------------------------------------------------------------
+	// lab.hepatobiliary.biology: 
+	//   Add date and summary to the lab report
+	// --------------------------------------------------------------------------------
+	if($this->data['EventControl']['form_alias'] == "ed_hepatobiliary_lab_report_biology"){
 		$this->Structures->set('qc_hb_dateNSummary', 'qc_hb_dateNSummary');
-	}
+	}	
+	
+	
+	
+	
+	
+	$event_control_data = array('EventControl' => $this->data['EventControl']);
+	$this->setMedicalImaginStructures($event_control_data);
+
 ?>

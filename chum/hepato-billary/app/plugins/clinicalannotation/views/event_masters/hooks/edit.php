@@ -8,9 +8,24 @@
 		$final_options['override' ]['EventDetail.disease_precision'] = $medical_past_history_precisions;
 	}
 	
+	// --------------------------------------------------------------------------------
+	// lab.hepatobiliary.biology: 
+	//   Add date and summary if required
+	// --------------------------------------------------------------------------------	
 	if(isset($qc_hb_dateNSummary)){
-		$structures->build( $qc_hb_dateNSummary,  array('settings' => array('form_top' => false, 'form_bottom' => false, 'actions' => false, 'separator' => true), 'links' => $structure_links));
+		$header = $final_options['settings']['header'];
+		unset($final_options['settings']['header']);		
+		$structures->build( $qc_hb_dateNSummary,  array('settings' => array('form_top' => false, 'form_bottom' => false, 'actions' => false, 'header' => $header), 'links' => $structure_links));
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	if(isset($qc_hb_segment)){
 		$structures->build( $qc_hb_segment,  array('settings' => array('form_top' => false, 'form_bottom' => false, 'actions' => false, 'header' => __('segments', true), 'separator' => true), 'links' => $structure_links));
 	}
