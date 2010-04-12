@@ -6,14 +6,94 @@
 
 -- General
 
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('core_appname', 'global', 'ATiM.v2 - CHUM Hep-bil', 'ATiM.v2 - CHUM Hep-bil'),
+('CTRApp', 'global', 'ATiM.v2 - CHUM Hep-bil', 'ATiM.v2 - CHUM Hep-bil');
 
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 -- CLINICAL ANNOTATION
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
--- ******** PROFILE ********
+-- *** PROFILE *********************************************************
 
--- ... IDENTIFIER ...
+-- Participant identifer : Read only & Label changed to 'Participant Code'
+
+UPDATE `structure_formats`
+SET `flag_add` = '0',
+`flag_add_readonly` = '0',
+`flag_edit_readonly` = '1',
+`flag_datagrid_readonly` = '1',
+`flag_override_label` = '1',
+`language_label` = 'participant code'
+WHERE `old_id` = 'CAN-999-999-000-999-1_CAN-999-999-000-999-26';
+
+DELETE FROM `i18n` WHERE `id` IN ('participant code');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('participant code', 'global', 'Code', 'Code');
+
+-- Participant title + middle name : Hidden
+
+UPDATE `structure_formats`
+SET `flag_add` = '0',
+`flag_add_readonly` = '0',
+`flag_edit` = '0',
+`flag_edit_readonly` = '0',
+`flag_search` = '0',
+`flag_search_readonly` = '0',
+`flag_edit_readonly` = '0',
+`flag_datagrid` = '0',
+`flag_datagrid_readonly` = '0',
+`flag_index` = '0',
+`flag_detail` = '0'
+WHERE `structure_field_old_id` IN ('CAN-999-999-000-999-295', 'CAN-999-999-000-999-4');
+
+-- Participant first name / last name : Required & Add tags
+UPDATE `structure_formats`
+SET 
+`flag_override_label` = '1',
+`language_label` = 'first name',
+`flag_override_tag` = '0',
+`language_tag` = ''
+WHERE `old_id` = 'CAN-999-999-000-999-1_CAN-999-999-000-999-1'; 
+
+INSERT INTO `structure_validations` 
+(`id`, `old_id`, `structure_field_id`, `structure_field_old_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) 
+VALUES
+(null, 'QC-CUSM-000001', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-1'), 'CAN-999-999-000-999-1', 'notEmpty', '0', '0', '', 'first name and last name are required', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+UPDATE `structure_formats`
+SET 
+`flag_override_label` = '1',
+`language_label` = 'last name',
+`flag_override_tag` = '0',
+`language_tag` = ''
+WHERE `old_id` = 'CAN-999-999-000-999-1_CAN-999-999-000-999-2'; 
+ 
+INSERT INTO `structure_validations` 
+(`id`, `old_id`, `structure_field_id`, `structure_field_old_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) 
+VALUES
+(null, 'QC-CUSM-000002', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'CAN-999-999-000-999-2'), 'CAN-999-999-000-999-2', 'notEmpty', '0', '0', '', 'first name and last name are required', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+ 
+DELETE FROM `i18n` WHERE `id` IN ('first name and last name are required');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('first name and last name are required', 'global', 'First name and last name are required!', 'Le nom et pr&eacute;nom sont requis!');
+
+-- Participant race : Hidden
+UPDATE `structure_formats`
+SET `flag_add` = '0',
+`flag_add_readonly` = '0',
+`flag_edit` = '0',
+`flag_edit_readonly` = '0',
+`flag_search` = '0',
+`flag_search_readonly` = '0',
+`flag_edit_readonly` = '0',
+`flag_datagrid` = '0',
+`flag_datagrid_readonly` = '0',
+`flag_index` = '0',
+`flag_detail` = '0'
+WHERE `old_id` IN ('CAN-999-999-000-999-1_CAN-999-999-000-999-7');
+
+-- *** IDENTIFIER ******************************************************
 
 DELETE FROM `misc_identifier_controls`;
 INSERT INTO `misc_identifier_controls` 
@@ -23,12 +103,37 @@ VALUES
 (null, 'saint_luc_hospital_nbr', 'ID HSL', 'active', 1, '', ''),
 (null, 'hepato_bil_bank_participant_id', 'HB-PartID', 'active', 3, 'hepato_bil_bank_participant_id', 'HB-P%%key_increment%%');
 
-
 DELETE FROM `key_increments`;
 INSERT INTO `key_increments` (`key_name`, `key_value`) VALUES
 ('hepato_bil_bank_participant_id', 1);
 
--- ******** ANNOTATION ******** 
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('health_insurance_card', 'global', 'Health Insurance Card', 'Carte d''assurance maladie'),
+('saint_luc_hospital_nbr', 'global', 'St Luc Hospital Number', 'No H&ocirc;pital St Luc'),
+('hepato_bil_bank_participant_id', 'global', 'H.B. Bank Participant Id', 'Num&eacute;ro participant banque H.B.'),
+('this identifier has already been created for your participant', '', 'This identifier has already been created for your participant!', 'Cet identification a d&eacute;j&agrave; &eacute;t&eacute; cr&eacute;&eacute;e pour ce participant!');
+
+-- *** CONTACT *********************************************************
+
+-- Other Contact Type : Hidden
+UPDATE `structure_formats`
+SET `flag_add` = '0',
+`flag_add_readonly` = '0',
+`flag_edit` = '0',
+`flag_edit_readonly` = '0',
+`flag_search` = '0',
+`flag_search_readonly` = '0',
+`flag_edit_readonly` = '0',
+`flag_datagrid` = '0',
+`flag_datagrid_readonly` = '0',
+`flag_index` = '0',
+`flag_detail` = '0'
+WHERE `old_id` IN ('CAN-999-999-000-999-10_CAN-999-999-000-999-546');
+
+-- Other Contact Type : text box
+UPDATE `structure_fields` SET `type` = 'input', `setting` = 'size=30' WHERE `old_id` = 'CAN-999-999-000-999-39' ;
+
+-- *** ANNOTATION ******************************************************
 
 DROP TABLE IF EXISTS `qc_hb_ed_hepatobiliary_clinical_presentation`;
 DROP TABLE IF EXISTS `qc_hb_ed_hepatobiliary_lifestyle`;
@@ -40,40 +145,52 @@ DROP TABLE IF EXISTS `qc_hb_hepatobiliary_medical_past_history_ctrls`;
 DELETE FROM `event_masters`;
 DELETE FROM `event_controls` ;
 
--- ... SCREENING ...
+-- ... SCREENING .......................................................
 
 UPDATE `menus` SET `active` = 'no' WHERE `menus`.`id` = 'clin_CAN_27' ;
 
--- ... STUDY ...
+-- ... STUDY ...........................................................
 
 UPDATE `menus` SET `active` =  'no' WHERE `menus`.`id` = 'clin_CAN_33' ;
 
--- ... CLINIC: presentation ...
+-- ... CLINIC: presentation ............................................
 
 DELETE FROM `menus` WHERE `id` IN ('clin_qc_hb_31', 'clin_qc_hb_32', 'clin_qc_hb_33');
 INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_title`, `language_description`, `use_link`, `use_params`, `use_summary`, `active`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 ('clin_qc_hb_31', 'clin_CAN_31', 0, 1, 'annotation clinical details', 'annotation clinical details', '/clinicalannotation/event_masters/listall/clinical/%%Participant.id%%//', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('clin_qc_hb_33', 'clin_CAN_31', 0, 2, 'annotation clinical reports', 'annotation clinical reports', '/clinicalannotation/event_masters/imageryReport/%%Participant.id%%/', '', '', 'yes', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('add other clinical event', '', 'Add Other Data', 'Ajouter autres données'),
+('add medical history', '', 'Add Medical History', 'Ajouter &eacute;venement clinique'),
+('add medical imaging', '', 'Add Medical Imaging', 'Ajouter image m&eacute;dicale'),
+
+('this type of event has already been created for your participant', '', 
+  'This type of annotation has already been created for your participant!', 
+  'Ce type d''annotation a d&eacute;j&agrave; eacyte;t&eacute; cr&eacute;&eacute;e pour votre participant!'),
+
+('annotation clinical details', '', 'Details', 'D&eacute;tails'),
+('annotation clinical reports', '', 'Reports', 'Rapports');
+
 INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`, `status`, `form_alias`, `detail_tablename`, `display_order`) VALUES
 (null, 'hepatobiliary', 'clinical', 'presentation', 'active', 'qc_hb_ed_hepatobiliary_clinical_presentation', 'qc_hb_ed_hepatobiliary_clinical_presentation', 0);
 
 DROP TABLE IF EXISTS `qc_hb_ed_hepatobiliary_clinical_presentation`;
 CREATE TABLE `qc_hb_ed_hepatobiliary_clinical_presentation` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `weight` decimal(7,3) DEFAULT NULL,
-  `height` decimal(7,3) DEFAULT NULL,
-  `bmi` decimal(10,3) DEFAULT NULL,
-  `referral_hospital` varchar(50) DEFAULT NULL, 
-  `referral_physisian` varchar(50) DEFAULT NULL,
-  `referral_physisian_speciality` varchar(50) DEFAULT NULL,
-  `referral_physisian_2` varchar(50) DEFAULT NULL,
-  `referral_physisian_speciality_2` varchar(50) DEFAULT NULL,
-  `referral_physisian_3` varchar(50) DEFAULT NULL,
-  `referral_physisian_speciality_3` varchar(50) DEFAULT NULL,
-  `hbp_surgeon` varchar(50) DEFAULT NULL,
-  `event_master_id` int(11) NOT NULL,
-  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+	`id` int(11) NOT NULL AUTO_INCREMENT,
+	`weight` decimal(7,3) DEFAULT NULL,
+	`height` decimal(7,3) DEFAULT NULL,
+	`bmi` decimal(10,3) DEFAULT NULL,
+	`referral_hospital` varchar(50) DEFAULT NULL, 
+	`referral_physisian` varchar(50) DEFAULT NULL,
+	`referral_physisian_speciality` varchar(50) DEFAULT NULL,
+	`referral_physisian_2` varchar(50) DEFAULT NULL,
+	`referral_physisian_speciality_2` varchar(50) DEFAULT NULL,
+	`referral_physisian_3` varchar(50) DEFAULT NULL,
+	`referral_physisian_speciality_3` varchar(50) DEFAULT NULL,
+	`hbp_surgeon` varchar(50) DEFAULT NULL,
+	`event_master_id` int(11) NOT NULL,
+	`created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 	`created_by` varchar(50) NOT NULL DEFAULT '',
 	`modified` datetime DEFAULT NULL,
 	`modified_by` varchar(50) DEFAULT NULL,
@@ -90,27 +207,27 @@ ALTER TABLE `qc_hb_ed_hepatobiliary_clinical_presentation`
 
 DROP TABLE IF EXISTS `qc_hb_ed_hepatobiliary_clinical_presentation_revs`;
 CREATE TABLE `qc_hb_ed_hepatobiliary_clinical_presentation_revs` (
-  `id` int(11) NOT NULL,
-  `weight` decimal(7,3) DEFAULT NULL,
-  `height` decimal(7,3) DEFAULT NULL,
-  `bmi` decimal(10,3) DEFAULT NULL,
-  `referral_hospital` varchar(50) DEFAULT NULL, 
-  `referral_physisian` varchar(50) DEFAULT NULL,
-  `referral_physisian_speciality` varchar(50) DEFAULT NULL,
-  `referral_physisian_2` varchar(50) DEFAULT NULL,
-  `referral_physisian_speciality_2` varchar(50) DEFAULT NULL,
-  `referral_physisian_3` varchar(50) DEFAULT NULL,
-  `referral_physisian_speciality_3` varchar(50) DEFAULT NULL,
-  `hbp_surgeon` varchar(50) DEFAULT NULL,
-  `event_master_id` int(11) NOT NULL,
-  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+	`id` int(11) NOT NULL,
+	`weight` decimal(7,3) DEFAULT NULL,
+	`height` decimal(7,3) DEFAULT NULL,
+	`bmi` decimal(10,3) DEFAULT NULL,
+	`referral_hospital` varchar(50) DEFAULT NULL, 
+	`referral_physisian` varchar(50) DEFAULT NULL,
+	`referral_physisian_speciality` varchar(50) DEFAULT NULL,
+	`referral_physisian_2` varchar(50) DEFAULT NULL,
+	`referral_physisian_speciality_2` varchar(50) DEFAULT NULL,
+	`referral_physisian_3` varchar(50) DEFAULT NULL,
+	`referral_physisian_speciality_3` varchar(50) DEFAULT NULL,
+	`hbp_surgeon` varchar(50) DEFAULT NULL,
+	`event_master_id` int(11) NOT NULL,
+	`created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 	`created_by` varchar(50) NOT NULL DEFAULT '',
 	`modified` datetime DEFAULT NULL,
 	`modified_by` varchar(50) DEFAULT NULL,
 	`deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
 	`deleted_date` datetime DEFAULT NULL,
-  `version_id` int(11) NOT NULL AUTO_INCREMENT,
-  `version_created` datetime NOT NULL,
+	`version_id` int(11) NOT NULL AUTO_INCREMENT,
+	`version_created` datetime NOT NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
@@ -124,7 +241,6 @@ INSERT INTO `structures`
 VALUES
 (null, 'QC-HB-000001', 'qc_hb_ed_hepatobiliary_clinical_presentation', '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
-
 INSERT INTO structure_value_domains(`domain_name`, `override`, `category`) VALUES ('qc_hb_specialty', '', '');
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('general physician', 'general physician');
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_specialty'),  (SELECT id FROM structure_permissible_values WHERE value='general physician' AND language_alias='general physician'), '', 'yes');
@@ -135,34 +251,59 @@ INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('oncologist', 'oncologist');
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_specialty'),  (SELECT id FROM structure_permissible_values WHERE value='oncologist' AND language_alias='oncologist'), '', 'yes');
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('other', 'other');
+
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_specialty'),  (SELECT id FROM structure_permissible_values WHERE value='other' AND language_alias='other'), '', 'yes');
 INSERT INTO structure_value_domains(`domain_name`, `override`, `category`) VALUES ('qc_hb_hbp_surgeon_list', '', '');
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('Dagenais', 'Dagenais');
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_hbp_surgeon_list'),  (SELECT id FROM structure_permissible_values WHERE value='Dagenais' AND language_alias='Dagenais'), '', 'yes');
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('Lapointe', 'Lapointe');
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_hbp_surgeon_list'),  (SELECT id FROM structure_permissible_values WHERE value='Lapointe' AND language_alias='Lapointe'), '', 'yes');
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('Létourneau', 'Létourneau');
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_hbp_surgeon_list'),  (SELECT id FROM structure_permissible_values WHERE value='Létourneau' AND language_alias='Létourneau'), '', 'yes');
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('Plasse', 'Plasse');
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_hbp_surgeon_list'),  (SELECT id FROM structure_permissible_values WHERE value='Plasse' AND language_alias='Plasse'), '', 'yes');
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('Roy', 'Roy');
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_hbp_surgeon_list'),  (SELECT id FROM structure_permissible_values WHERE value='Roy' AND language_alias='Roy'), '', 'yes');
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('Vanderbroucke-Menu', 'Vanderbroucke-Menu');
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_hbp_surgeon_list'),  (SELECT id FROM structure_permissible_values WHERE value='Vanderbroucke-Menu' AND language_alias='Vanderbroucke-Menu'), '', 'yes');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('dagenais', 'dagenais');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_hbp_surgeon_list'),  (SELECT id FROM structure_permissible_values WHERE value='dagenais' AND language_alias='dagenais'), '', 'yes');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('lapointe', 'lapointe');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_hbp_surgeon_list'),  (SELECT id FROM structure_permissible_values WHERE value='lapointe' AND language_alias='lapointe'), '', 'yes');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('Letourneau', 'Letourneau');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_hbp_surgeon_list'),  (SELECT id FROM structure_permissible_values WHERE value='Letourneau' AND language_alias='Letourneau'), '', 'yes');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('plasse', 'plasse');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_hbp_surgeon_list'),  (SELECT id FROM structure_permissible_values WHERE value='plasse' AND language_alias='plasse'), '', 'yes');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('roy', 'roy');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_hbp_surgeon_list'),  (SELECT id FROM structure_permissible_values WHERE value='roy' AND language_alias='roy'), '', 'yes');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('vanderbroucke-menu', 'vanderbroucke-menu');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_hbp_surgeon_list'),  (SELECT id FROM structure_permissible_values WHERE value='vanderbroucke-menu' AND language_alias='vanderbroucke-menu'), '', 'yes');
 
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('bmi', '', 'BMI', 'IMC'),
+
+('general physician', '', 'General Physician', 'M&eacute;decin g&eacute;n&eacute;raliste'),
+('gastroenterologist', '', 'Gastro-Enterologist', 'Gastro-ent&eacute;rologue'),
+('surgeon', '', 'Surgeon', 'Chirurgien'),
+('oncologist', '', 'Oncologist', 'Oncologue'),
+
+('dagenais', '', 'Dr. Dagenais', 'Dr. Dagenais'),
+('Letourneau', '', 'Dr. L&eacute;tourneau', 'Dr. L&eacute;tourneau'),
+('lapointe', '', 'Dr. Lapointe', 'Dr. Lapointe'),
+('plasse', '', 'Dr. Plasse', 'Dr. Plasse'),
+('roy', '', 'Dr. Roy', 'Dr. Roy'),
+('vanderbroucke-menu', '', 'Dr. Vanderbroucke-Menu', 'Dr. Vanderbroucke-Menu');
 
 INSERT INTO `structure_fields` 
 (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) 
 VALUES
 (null, '', 'QC-HB-000001', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_clinical_presentation', 'bmi', 'bmi', '', 'input', 'size=10', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(null, '', 'QC-HB-000002', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_clinical_presentation', 'referral_hospital', 'referral hospital', '', 'input', 'size=20', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(null, '', 'QC-HB-000003', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_clinical_presentation', 'referral_physisian', 'referral physisian', '', 'input', 'size=20', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, '', 'QC-HB-000002', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_clinical_presentation', 'referral_hospital', 'referral hospital', '', 'input', 'size=30', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, '', 'QC-HB-000003', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_clinical_presentation', 'referral_physisian', 'referral physisian', '', 'input', 'size=10', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (null, '', 'QC-HB-000004', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_clinical_presentation', 'referral_physisian_speciality', '', 'referral physisian speciality', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_specialty'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(null, '', 'QC-HB-000005', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_clinical_presentation', 'referral_physisian_2', 'referral physisian 2', '', 'input', 'size=20', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, '', 'QC-HB-000005', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_clinical_presentation', 'referral_physisian_2', 'referral physisian 2', '', 'input', 'size=10', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (null, '', 'QC-HB-000006', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_clinical_presentation', 'referral_physisian_speciality_2', '', 'referral physisian speciality', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_specialty'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(null, '', 'QC-HB-000007', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_clinical_presentation', 'referral_physisian_3', 'referral physisian 3', '', 'input', 'size=20', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, '', 'QC-HB-000007', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_clinical_presentation', 'referral_physisian_3', 'referral physisian 3', '', 'input', 'size=10', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (null, '', 'QC-HB-000008', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_clinical_presentation', 'referral_physisian_speciality_3', '', 'referral physisian speciality', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_specialty'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (null, '', 'QC-HB-000009', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_clinical_presentation', 'hbp_surgeon', 'hbp surgeron', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_hbp_surgeon_list'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('hbp surgeron', '', 'HBP Surgeron', 'Chirurgien HBP'),
+('first consultation date', 'global', 'First Consultation Date', 'Date premi&egrave;re consultation'),
+('referral data', 'global', 'Referral', 'R&eacute;f&eacute;rent'),
+('referral hospital', 'global', 'Referral Hospital', 'H&ocirc;pital r&eacute;f&eacute;rent'),
+('referral physisian', 'global', 'Referral Physisian', 'Medecin r&eacute;f&eacute;rent'),
+('referral physisian 2', 'global', '2nd Referral Physisian', '2nd Medecin r&eacute;f&eacute;rent'),
+('referral physisian 3', 'global', '3rd Referral Physisian', '3eme Medecin r&eacute;f&eacute;rent'),
+('referral physisian speciality', 'global', 'Speciality', 'Sp&eacute;cialit&eacute;');
 
 INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 -- first_consultation_date
@@ -205,19 +346,28 @@ INSERT INTO `structure_validations` (`id`, `old_id`, `structure_field_id`, `stru
 (null, 'QC-HB-000001', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-235'), 'CAN-999-999-000-999-235', 'custom,/^([0-9]+(\\.[0-9]+)?)?$/', '1', '0', '', 'weight should be a positif decimal', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (null, 'QC-HB-000002', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-236'), 'CAN-999-999-000-999-236', 'custom,/^([0-9]+(\\.[0-9]+)?)?$/', '1', '0', '', 'height should be a positif decimal', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 
--- ... CLINIC: lifestyle ...
+('weight (kg)', 'global', 'Weight (kg)', 'Poids (kg)'),
+('height (cm)', 'global', 'Height (cm)', 'Taille (cm)'),
+
+('weight should be a positif decimal', 'global', 'Weight should be a positive decimal!', 'Le poids doit &ecirc;tre un d&eacute;cimal positif!'),
+('height should be a positif decimal', 'global', 'Height should be a positive decimal!', 'Le taille doit &ecirc;tre un d&eacute;cimal positif!'),
+('hepatobiliary', 'global', 'Hepatobiliary', 'H&eacute;pato-biliaire'),
+('presentation', 'global', 'Presentation', 'Pr&eacute;sentation');
+
+-- ... CLINIC: presentation ............................................
 
 INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`, `status`, `form_alias`, `detail_tablename`, `display_order`) VALUES
 (null, 'hepatobiliary', 'lifestyle', 'summary', 'active', 'qc_hb_ed_hepatobiliary_lifestyle', 'qc_hb_ed_hepatobiliary_lifestyle', 0);
 
 DROP TABLE IF EXISTS `qc_hb_ed_hepatobiliary_lifestyle`;
 CREATE TABLE `qc_hb_ed_hepatobiliary_lifestyle` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `active_tobacco` varchar(10) DEFAULT NULL, 
-  `active_alcohol` varchar(10) DEFAULT NULL, 
-  `event_master_id` int(11) NOT NULL,
- `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+	`id` int(11) NOT NULL AUTO_INCREMENT,
+	`active_tobacco` varchar(10) DEFAULT NULL, 
+	`active_alcohol` varchar(10) DEFAULT NULL, 
+	`event_master_id` int(11) NOT NULL,
+	`created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 	`created_by` varchar(50) NOT NULL DEFAULT '',
 	`modified` datetime DEFAULT NULL,
 	`modified_by` varchar(50) DEFAULT NULL,
@@ -234,18 +384,18 @@ ALTER TABLE `qc_hb_ed_hepatobiliary_lifestyle`
   
 DROP TABLE IF EXISTS `qc_hb_ed_hepatobiliary_lifestyle_revs`;
 CREATE TABLE `qc_hb_ed_hepatobiliary_lifestyle_revs` (
-  `id` int(11) NOT NULL, 
-  `active_tobacco` varchar(10) DEFAULT NULL, 
-  `active_alcohol` varchar(10) DEFAULT NULL,
-  `event_master_id` int(11) NOT NULL, 
-  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+	`id` int(11) NOT NULL, 
+	`active_tobacco` varchar(10) DEFAULT NULL, 
+	`active_alcohol` varchar(10) DEFAULT NULL,
+	`event_master_id` int(11) NOT NULL, 
+	`created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 	`created_by` varchar(50) NOT NULL DEFAULT '',
 	`modified` datetime DEFAULT NULL,
 	`modified_by` varchar(50) DEFAULT NULL,
 	`deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
 	`deleted_date` datetime DEFAULT NULL,
-  `version_id` int(11) NOT NULL AUTO_INCREMENT,
-  `version_created` datetime NOT NULL,
+	`version_id` int(11) NOT NULL AUTO_INCREMENT,
+	`version_created` datetime NOT NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
@@ -254,11 +404,13 @@ INSERT INTO `structures`
 VALUES
 (null, 'QC-HB-000002', 'qc_hb_ed_hepatobiliary_lifestyle', '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
+SET @yesno_domains_id = (SELECT id  FROM `structure_value_domains` WHERE `domain_name` LIKE 'yesno');
+
 INSERT INTO `structure_fields` 
 (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) 
 VALUES
-(null, '', 'QC-HB-0000010', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_lifestyle', 'active_tobacco', 'active_tobacco', '', 'select', '', '', @last_domains_id, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(null, '', 'QC-HB-0000011', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_lifestyle', 'active_alcohol', 'active_alcohol', '', 'select', '', '', @last_domains_id, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(null, '', 'QC-HB-0000010', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_lifestyle', 'active_tobacco', 'active_tobacco', '', 'select', '', '', @yesno_domains_id, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, '', 'QC-HB-0000011', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_lifestyle', 'active_alcohol', 'active_alcohol', '', 'select', '', '', @yesno_domains_id, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 -- date
@@ -276,8 +428,12 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 -- event_summary
 (null, 'QC-HB-000002_CAN-999-999-000-999-230', (SELECT id FROM structures WHERE old_id = 'QC-HB-000002'), 'QC-HB-000002', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-230'), 'CAN-999-999-000-999-230', 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('active_tobacco', 'global', 'Active Tobacco', 'Tabagisme actif'),
+('active_alcohol', 'global', 'Active Alcohol', 'Alcolisme chronique'),
+('last update date', 'global', 'Last Update date', 'Date de mise &agrave; jour');
 
--- ... CLINIC: medical_past_history ...
+-- ... CLINIC: medical_past_history ....................................
 
 INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`, `status`, `form_alias`, `detail_tablename`, `display_order`) 
 VALUES
@@ -294,10 +450,10 @@ VALUES
 
 DROP TABLE IF EXISTS `qc_hb_hepatobiliary_medical_past_history_ctrls`;
 CREATE TABLE `qc_hb_hepatobiliary_medical_past_history_ctrls` (
-  `id` int(11) NOT NULL AUTO_INCREMENT, 
-  `event_control_id` int(11) NOT NULL, 
-  `disease_precision` varchar(250) NOT NULL,
-  `display_order` int(2)default '0',  
+	`id` int(11) NOT NULL AUTO_INCREMENT, 
+	`event_control_id` int(11) NOT NULL, 
+	`disease_precision` varchar(250) NOT NULL,
+	`display_order` int(2)default '0',  
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
@@ -310,25 +466,16 @@ ALTER TABLE `qc_hb_hepatobiliary_medical_past_history_ctrls`
 INSERT INTO `qc_hb_hepatobiliary_medical_past_history_ctrls` 
 (`id`, `event_control_id`, `disease_precision`, `display_order`)
 VALUES 
-(null, (SELECT `id` FROM `event_controls` WHERE `event_type` = 'asa medical past history' AND `disease_site` = 'hepatobiliary' AND `event_group` = 'clinical'), 'drug ex 1', '1'),
-(null, (SELECT `id` FROM `event_controls` WHERE `event_type` = 'asa medical past history' AND `disease_site` = 'hepatobiliary' AND `event_group` = 'clinical'), 'drug ex 2', '2'),
-(null, (SELECT `id` FROM `event_controls` WHERE `event_type` = 'asa medical past history' AND `disease_site` = 'hepatobiliary' AND `event_group` = 'clinical'), 'drug ex 3', '3'),
-(null, (SELECT `id` FROM `event_controls` WHERE `event_type` = 'asa medical past history' AND `disease_site` = 'hepatobiliary' AND `event_group` = 'clinical'), 'drug ex 4', '4'),
-(null, (SELECT `id` FROM `event_controls` WHERE `event_type` = 'asa medical past history' AND `disease_site` = 'hepatobiliary' AND `event_group` = 'clinical'), 'other', '5'),
-
-(null, (SELECT `id` FROM `event_controls` WHERE `event_type` = 'heart disease medical past history' AND `disease_site` = 'hepatobiliary' AND `event_group` = 'clinical'), 'high blood pressure', '1'),
-(null, (SELECT `id` FROM `event_controls` WHERE `event_type` = 'heart disease medical past history' AND `disease_site` = 'hepatobiliary' AND `event_group` = 'clinical'), 'tachycardia', '2'),
-(null, (SELECT `id` FROM `event_controls` WHERE `event_type` = 'heart disease medical past history' AND `disease_site` = 'hepatobiliary' AND `event_group` = 'clinical'), 'heart attack', '3'),
-(null, (SELECT `id` FROM `event_controls` WHERE `event_type` = 'heart disease medical past history' AND `disease_site` = 'hepatobiliary' AND `event_group` = 'clinical'), 'other', '4'),
-
-(null, (SELECT `id` FROM `event_controls` WHERE `event_type` = 'vascular disease medical past history' AND `disease_site` = 'hepatobiliary' AND `event_group` = 'clinical'), 'to define', '1'),
-(null, (SELECT `id` FROM `event_controls` WHERE `event_type` = 'respiratory disease medical past history' AND `disease_site` = 'hepatobiliary' AND `event_group` = 'clinical'), 'to define', '1'),
-(null, (SELECT `id` FROM `event_controls` WHERE `event_type` = 'neural vascular disease medical past history' AND `disease_site` = 'hepatobiliary' AND `event_group` = 'clinical'), 'to define', '1'),
-(null, (SELECT `id` FROM `event_controls` WHERE `event_type` = 'endocrine disease medical past history' AND `disease_site` = 'hepatobiliary' AND `event_group` = 'clinical'), 'to define', '1'),
-(null, (SELECT `id` FROM `event_controls` WHERE `event_type` = 'urinary disease medical past history' AND `disease_site` = 'hepatobiliary' AND `event_group` = 'clinical'), 'to define', '1'),
-(null, (SELECT `id` FROM `event_controls` WHERE `event_type` = 'gastro-intestinal disease medical past history' AND `disease_site` = 'hepatobiliary' AND `event_group` = 'clinical'), 'to define', '1'),
-(null, (SELECT `id` FROM `event_controls` WHERE `event_type` = 'gynecologic disease medical past history' AND `disease_site` = 'hepatobiliary' AND `event_group` = 'clinical'), 'to define', '1'),
-(null, (SELECT `id` FROM `event_controls` WHERE `event_type` = 'other disease medical past history' AND `disease_site` = 'hepatobiliary' AND `event_group` = 'clinical'), 'to define', '1');
+(null, (SELECT `id` FROM `event_controls` WHERE `event_type` = 'asa medical past history' AND `disease_site` = 'hepatobiliary' AND `event_group` = 'clinical'), 'to define (asa)', '1'),
+(null, (SELECT `id` FROM `event_controls` WHERE `event_type` = 'heart disease medical past history' AND `disease_site` = 'hepatobiliary' AND `event_group` = 'clinical'), 'to define (heart)', '1'),
+(null, (SELECT `id` FROM `event_controls` WHERE `event_type` = 'vascular disease medical past history' AND `disease_site` = 'hepatobiliary' AND `event_group` = 'clinical'), 'to define (vascular)', '1'),
+(null, (SELECT `id` FROM `event_controls` WHERE `event_type` = 'respiratory disease medical past history' AND `disease_site` = 'hepatobiliary' AND `event_group` = 'clinical'), 'to define (respiratory)', '1'),
+(null, (SELECT `id` FROM `event_controls` WHERE `event_type` = 'neural vascular disease medical past history' AND `disease_site` = 'hepatobiliary' AND `event_group` = 'clinical'), 'to define (neural)', '1'),
+(null, (SELECT `id` FROM `event_controls` WHERE `event_type` = 'endocrine disease medical past history' AND `disease_site` = 'hepatobiliary' AND `event_group` = 'clinical'), 'to define (endocrine)', '1'),
+(null, (SELECT `id` FROM `event_controls` WHERE `event_type` = 'urinary disease medical past history' AND `disease_site` = 'hepatobiliary' AND `event_group` = 'clinical'), 'to define (urinary)', '1'),
+(null, (SELECT `id` FROM `event_controls` WHERE `event_type` = 'gastro-intestinal disease medical past history' AND `disease_site` = 'hepatobiliary' AND `event_group` = 'clinical'), 'to define (gastro-intestinal)', '1'),
+(null, (SELECT `id` FROM `event_controls` WHERE `event_type` = 'gynecologic disease medical past history' AND `disease_site` = 'hepatobiliary' AND `event_group` = 'clinical'), 'to define (gynecologic)', '1'),
+(null, (SELECT `id` FROM `event_controls` WHERE `event_type` = 'other disease medical past history' AND `disease_site` = 'hepatobiliary' AND `event_group` = 'clinical'), 'to define (other)', '1');
 
 INSERT INTO `structures` 
 (`id`, `old_id`, `alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`) 
@@ -337,10 +484,10 @@ VALUES
 
 DROP TABLE IF EXISTS `qc_hb_ed_hepatobiliary_medical_past_history`;
 CREATE TABLE `qc_hb_ed_hepatobiliary_medical_past_history` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `disease_precision` varchar(250) DEFAULT NULL,
-  `event_master_id` int(11) NOT NULL, 
-  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+	`id` int(11) NOT NULL AUTO_INCREMENT,
+	`disease_precision` varchar(250) DEFAULT NULL,
+	`event_master_id` int(11) NOT NULL, 
+	`created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 	`created_by` varchar(50) NOT NULL DEFAULT '',
 	`modified` datetime DEFAULT NULL,
 	`modified_by` varchar(50) DEFAULT NULL,
@@ -357,17 +504,17 @@ ALTER TABLE `qc_hb_ed_hepatobiliary_medical_past_history`
 
 DROP TABLE IF EXISTS `qc_hb_ed_hepatobiliary_medical_past_history_revs`;
 CREATE TABLE `qc_hb_ed_hepatobiliary_medical_past_history_revs` (
-  `id` int(11) NOT NULL, 
-  `disease_precision` varchar(250) DEFAULT NULL,
-  `event_master_id` int(11) NOT NULL, 
-  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+	`id` int(11) NOT NULL, 
+	`disease_precision` varchar(250) DEFAULT NULL,
+	`event_master_id` int(11) NOT NULL, 
+	`created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 	`created_by` varchar(50) NOT NULL DEFAULT '',
 	`modified` datetime DEFAULT NULL,
 	`modified_by` varchar(50) DEFAULT NULL,
 	`deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
 	`deleted_date` datetime DEFAULT NULL,
-  `version_id` int(11) NOT NULL AUTO_INCREMENT,
-  `version_created` datetime NOT NULL,
+	`version_id` int(11) NOT NULL AUTO_INCREMENT,
+	`version_created` datetime NOT NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
@@ -392,9 +539,26 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 -- event_summary
 (null, 'QC-HB-000004_CAN-999-999-000-999-230', (SELECT id FROM structures WHERE old_id = 'QC-HB-000004'), 'QC-HB-000004', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-230'), 'CAN-999-999-000-999-230', 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('asa medical past history', '', 'ASA', ''),
+('heart disease medical past history', '', 'Heart Disease', 'Maladie du coeur'),
+('vascular disease medical past history', '', 'Vascular Disease', 'Maladie vasculaire'),
+('respiratory disease medical past history', '', 'Respiratory Disease', 'Maladie respiratoire'),
+('neural vascular disease medical past history', '', 'Neural Vascular Disease', 'Maladie vasculaire cerebrale'),
+('endocrine disease medical past history', '', 'Endocrine Disease', 'Maladie endocrine'),
+('urinary disease medical past history', '', 'Urinary Disease', 'Maladie urinaire'),
+('gastro-intestinal disease medical past history', '', 'Gastro-Intestinal Disease', 'Maladie gastro-intestinal'),
+('gynecologic disease medical past history', '', 'Gynecologic Disease', 'Maladie gynecologique'),
+('other disease medical past history', '', 'Other Disease', 'Autre maladie'),
 
+('diagnostic date', '', 'Diagnostic Date', 'Date de diagnostic'),
+('medical history precision', '', 'Precision', 'Pr&eacute;cision'),
 
--- ... CLINIC: medical_past_history revision control...
+('detail exists for the deleted medical past history', '', 
+'Your data cannot be deleted! <br>Detail exist for the deleted medical past history.', 
+'Vos donn&eacute;es ne peuvent &ecirc;tre supprim&eacute;es! Des d&eacute;tails existent pour votre historique clinique.');
+
+-- ... CLINIC: medical_past_history revision control ...................
 
 INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`, `status`, `form_alias`, `detail_tablename`, `display_order`) 
 VALUES
@@ -407,19 +571,19 @@ VALUES
 
 DROP TABLE IF EXISTS `qc_hb_ed_hepatobiliary_med_hist_record_summary`;
 CREATE TABLE `qc_hb_ed_hepatobiliary_med_hist_record_summary` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `asa_value` tinyint unsigned DEFAULT NULL, #1-5
-  `heart_disease` varchar(10) DEFAULT NULL, 
-  `respiratory_disease` varchar(10) DEFAULT NULL, 
-  `vascular_disease` varchar(10) DEFAULT NULL, 
-  `neural_vascular_disease` varchar(10) DEFAULT NULL, 
-  `endocrine_disease` varchar(10) DEFAULT NULL, 
-  `urinary_disease` varchar(10) DEFAULT NULL, 
-  `gastro_intestinal_disease` varchar(10) DEFAULT NULL, 
-  `gynecologic_disease` varchar(10) DEFAULT NULL, 
-  `other_disease` varchar(10) DEFAULT NULL, 
-  `event_master_id` int(11) DEFAULT NULL,
-  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+	`id` int(11) NOT NULL AUTO_INCREMENT,
+	`asa_value` tinyint unsigned DEFAULT NULL, #1-5
+	`heart_disease` varchar(10) DEFAULT NULL, 
+	`respiratory_disease` varchar(10) DEFAULT NULL, 
+	`vascular_disease` varchar(10) DEFAULT NULL, 
+	`neural_vascular_disease` varchar(10) DEFAULT NULL, 
+	`endocrine_disease` varchar(10) DEFAULT NULL, 
+	`urinary_disease` varchar(10) DEFAULT NULL, 
+	`gastro_intestinal_disease` varchar(10) DEFAULT NULL, 
+	`gynecologic_disease` varchar(10) DEFAULT NULL, 
+	`other_disease` varchar(10) DEFAULT NULL, 
+	`event_master_id` int(11) DEFAULT NULL,
+	`created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 	`created_by` varchar(50) NOT NULL DEFAULT '',
 	`modified` datetime DEFAULT NULL,
 	`modified_by` varchar(50) DEFAULT NULL,
@@ -436,26 +600,26 @@ ALTER TABLE `qc_hb_ed_hepatobiliary_med_hist_record_summary`
 
 DROP TABLE IF EXISTS `qc_hb_ed_hepatobiliary_med_hist_record_summary_revs`;
 CREATE TABLE `qc_hb_ed_hepatobiliary_med_hist_record_summary_revs` (
-  `id` int(11) NOT NULL, 
-  `asa_value` tinyint unsigned DEFAULT NULL, #1-5 
-  `heart_disease` varchar(10) DEFAULT NULL, 
-  `respiratory_disease` varchar(10) DEFAULT NULL, 
-  `vascular_disease` varchar(10) DEFAULT NULL, 
-  `neural_vascular_disease` varchar(10) DEFAULT NULL, 
-  `endocrine_disease` varchar(10) DEFAULT NULL, 
-  `urinary_disease` varchar(10) DEFAULT NULL, 
-  `gastro_intestinal_disease` varchar(10) DEFAULT NULL, 
-  `gynecologic_disease` varchar(10) DEFAULT NULL, 
-  `other_disease` varchar(10) DEFAULT NULL,
-  `event_master_id` int(11) DEFAULT NULL,
-  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+	`id` int(11) NOT NULL, 
+	`asa_value` tinyint unsigned DEFAULT NULL, #1-5 
+	`heart_disease` varchar(10) DEFAULT NULL, 
+	`respiratory_disease` varchar(10) DEFAULT NULL, 
+	`vascular_disease` varchar(10) DEFAULT NULL, 
+	`neural_vascular_disease` varchar(10) DEFAULT NULL, 
+	`endocrine_disease` varchar(10) DEFAULT NULL, 
+	`urinary_disease` varchar(10) DEFAULT NULL, 
+	`gastro_intestinal_disease` varchar(10) DEFAULT NULL, 
+	`gynecologic_disease` varchar(10) DEFAULT NULL, 
+	`other_disease` varchar(10) DEFAULT NULL,
+	`event_master_id` int(11) DEFAULT NULL,
+	`created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 	`created_by` varchar(50) NOT NULL DEFAULT '',
 	`modified` datetime DEFAULT NULL,
 	`modified_by` varchar(50) DEFAULT NULL,
 	`deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
 	`deleted_date` datetime DEFAULT NULL,
-  `version_id` int(11) NOT NULL AUTO_INCREMENT,
-  `version_created` datetime NOT NULL,
+	`version_id` int(11) NOT NULL AUTO_INCREMENT,
+	`version_created` datetime NOT NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
@@ -519,6 +683,49 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (null, 'QC-HB-000003_CAN-999-999-000-999-230', (SELECT id FROM structures WHERE old_id = 'QC-HB-000003'), 'QC-HB-000003', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-230'), 'CAN-999-999-000-999-230', 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('reviewed diseases', '', 'Reviewed Diseases/Events', 'Pathologies/&Eacute;venements r&eacute;visionn&eacute;s'),
+('medical past history record summary', '', 'Medcial Review Summary', 'R&eacute;sum&eacute; des r&eacute;visions m&eacute;dicales');
+
+-- ... CLINIC: medical_past_history revision control ...................
+-- ... CLINIC: medical_past_history revision control ...................
+
+
+
+
+iciiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #lab_report_biology
 CREATE TABLE qc_hb_ed_hepatobilary_lab_report_biology(
 	id int(11) unsigned not null auto_increment primary key,
@@ -570,6 +777,7 @@ CREATE TABLE qc_hb_ed_hepatobilary_lab_report_biology(
 	`deleted_date` datetime DEFAULT NULL,
 	`event_master_id` int(11) DEFAULT NULL
 )ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
 CREATE TABLE qc_hb_ed_hepatobilary_lab_report_biology_revs(
 	id int(11) unsigned not null,
 	wbc smallint DEFAULT NULL,
@@ -1052,74 +1260,8 @@ DELETE FROM structure_formats WHERE old_id IN('QC-HB-100097_QC-HB-100099');
 #end medical imaging
 
 
+
 INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
-('first consultation date', 'global', 'First Consultation Date', 'Date premi&egrave;re consultation'),
-('referral data', 'global', 'Referral', 'R&eacute;f&eacute;rent'),
-('referral hospital', 'global', 'Referral Hospital', 'H&ocirc;pital r&eacute;f&eacute;rent'),
-('referral physisian', 'global', 'Referral Physisian', 'Medecin r&eacute;f&eacute;rent'),
-('referral physisian 2', 'global', '2nd Referral Physisian', '2nd Medecin r&eacute;f&eacute;rent'),
-('referral physisian 3', 'global', '3rd Referral Physisian', '3eme Medecin r&eacute;f&eacute;rent'),
-('referral physisian speciality', 'global', 'Speciality', 'Sp&eacute;cialit&eacute;'),
-
-('weight (kg)', 'global', 'Weight (kg)', 'Poids (kg)'),
-('height (cm)', 'global', 'Height (cm)', 'Taille (cm)'),
-
-('weight should be a positif decimal', 'global', 'Weight should be a positive decimal!', 'Le poids doit &ecirc;tre un d&eacute;cimal positif!'),
-('height should be a positif decimal', 'global', 'Height should be a positive decimal!', 'Le taille doit &ecirc;tre un d&eacute;cimal positif!'),
-('hepatobiliary', 'global', 'Hepatobiliary', 'H&eacute;pato-biliaire'),
-('presentation', 'global', 'Presentation', 'Pr&eacute;sentation'),
-
-('core_appname', 'global', 'ATiM.v2 - CHUM Hep-bil', 'ATiM.v2 - CHUM Hep-bil'),
-('CTRApp', 'global', 'ATiM.v2 - CHUM Hep-bil', 'ATiM.v2 - CHUM Hep-bil'),
-
-('health_insurance_card', 'global', 'Health Insurance Card', 'Carte d''assurance maladie'),
-('saint_luc_hospital_nbr', 'global', 'St Luc Hospital Number', 'No H&ocirc;pital St Luc'),
-('hepato_bil_bank_participant_id', 'global', 'H.B. Bank Participant Id', 'Num&eacute;ro participant banque H.B.'),
-('this identifier has already been created for your participant', '', 'This identifier has already been created for your participant!', 'Cet identification a d&eacute;j&agrave; &eacute;t&eacute; cr&eacute;&eacute;e pour ce participant!'),
-
-('active_tobacco', 'global', 'Active Tobacco', 'Tabagisme actif'),
-('active_alcohol', 'global', 'Active Alcohol', 'Alcolisme chronique'),
-('last update date', 'global', 'Last Update date', 'Date de mise &agrave; jour'),
-
-('this type of event has already been created for your participant', '', 
-  'This type of annotation has already been created for your participant!', 
-  'Ce type d''annotation a d&eacute;j&agrave; eacyte;t&eacute; cr&eacute;&eacute;e pour votre participant!'),
-  ('drug ex 1', '', 'Drug 1', 'Mdt 1'),
-('drug ex 2', '', 'Drug 2', 'Mdt 2'),
-('drug ex 3', '', 'Drug 3', 'Mdt 3'),
-('drug ex 4', '', 'Drug 4', 'Mdt 4'),
-('drug ex 5', '', 'Drug 5', 'Mdt 5'),
-
-('to define', '', 'To Define', 'A definir'),
-('high blood pressure', '', 'High blood pressure', 'HTA'),
-('tachycardia', '', 'Tachycardia', 'Tachycardie'),
-('heart attack', '', 'Heart attack', 'Crise cardiaque'),
-
-('asa medical past history', '', 'ASA', ''),
-('heart disease medical past history', '', 'Heart Disease', 'Maladie du coeur'),
-('vascular disease medical past history', '', 'Vascular Disease', 'Maladie vasculaire'),
-('respiratory disease medical past history', '', 'Respiratory Disease', 'Maladie respiratoire'),
-('neural vascular disease medical past history', '', 'Neural Vascular Disease', 'Maladie vasculaire cerebrale'),
-('endocrine disease medical past history', '', 'Endocrine Disease', 'Maladie endocrine'),
-('urinary disease medical past history', '', 'Urinary Disease', 'Maladie urinaire'),
-('gastro-intestinal disease medical past history', '', 'Gastro-Intestinal Disease', 'Maladie gastro-intestinal'),
-('gynecologic disease medical past history', '', 'Gynecologic Disease', 'Maladie gynecologique'),
-('other disease medical past history', '', 'Other Disease', 'Autre maladie'),
-
-('diagnostic date', '', 'Diagnostic Date', 'Date de diagnostic'),
-('medical history precision', '', 'Precision', 'Pr&eacute;cision'),
-
-('detail exists for the deleted medical past history', '', 
-'Your data cannot be deleted! <br>Detail exist for the deleted medical past history.', 
-'Vos donn&eacute;es ne peuvent &ecirc;tre supprim&eacute;es! Des d&eacute;tails existent pour votre historique clinique.'),
-('annotation clinical details', '', 'Details', 'D&eacute;tails'),
-('add other clinical event', '', 'Add Other Data', 'Ajouter autres données'),
-('add medical history', '', 'Add Medical History', 'Ajouter &eacute;venement clinique'),
-('add medical imaging', '', 'Add Medical Imaging', 'Ajouter image m&eacute;dicale'),
-
-('reviewed diseases', '', 'Reviewed Diseases/Events', 'Pathologies/&Eacute;venements r&eacute;visionn&eacute;s'),
-('medical past history record summary', '', 'Medcial Review Summary', 'R&eacute;sum&eacute; des r&eacute;visions m&eacute;dicales'),
-
 ('blood formulae', '', 'Blood formulae', 'Formule sanguine'),
 ('coagulation', '', 'Coagulation', 'Coagulation'),
 ('electrolyte', '', 'Electrolyte', 'Électrolyte'),
@@ -1140,8 +1282,7 @@ INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('rectum', '', 'Rectum', 'Rectum'),
 ('bones', '', 'Bones', 'Os'),
 ('tissue core', '', 'Tissue core', 'Carotte de tissu'),
-#('bmi', '', 'bmi', ''),
-('hbp surgeron', '', 'hbp surgeron', ''),
+
 ('wbc', '', 'WBC', 'WBC'),
 ('rbc', '', 'RBC', 'RBC'),
 ('hb', '', 'Hb', 'Hb'),
