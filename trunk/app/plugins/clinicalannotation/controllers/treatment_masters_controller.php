@@ -27,7 +27,7 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		$this->set('protocol_list', $protocol_list);
 
 		// find all TXCONTROLS, for ADD form
-		$this->set('treatment_controls', $this->TreatmentControl->find('all'));
+		$this->set('treatment_controls', $this->TreatmentControl->find('all', array('conditions' => array('TreatmentControl.flag_active' => "1"))));
 
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
