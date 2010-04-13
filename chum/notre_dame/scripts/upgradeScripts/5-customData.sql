@@ -49,6 +49,7 @@ INSERT IGNORE INTO structure_permissible_values(`value`, `language_alias`) VALUE
 ('Lise','Lise'),
 ('Louise','Louise'),
 ('louise champoux','louise champoux'),
+('Lu-Lin Wang','Lu-Lin Wang'),
 ('Magdalena','Magdalena'),
 ('magdalena zietarska','magdalena zietarska'),
 ('Manon','Manon'),
@@ -91,6 +92,7 @@ INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_
 (`value`='Lise' AND language_alias='Lise') OR
 (`value`='Louise' AND language_alias='Louise') OR
 (`value`='louise champoux' AND language_alias='louise champoux') OR
+(`value`='Lu-Lin Wang' AND language_alias='Lu-Lin Wang') OR
 (`value`='Magdalena' AND language_alias='Magdalena') OR
 (`value`='magdalena zietarska' AND language_alias='magdalena zietarska') OR
 (`value`='Manon' AND language_alias='Manon') OR
@@ -125,3 +127,6 @@ INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_
 
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('u', 'unknown');
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='date_accuracy'),  (SELECT id FROM structure_permissible_values WHERE value='u' AND language_alias='unknown'), '0', 'yes');
+
+
+//TODO: copy data to revs tables
