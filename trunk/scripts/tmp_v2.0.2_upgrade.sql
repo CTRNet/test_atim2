@@ -77,5 +77,5 @@ CREATE TABLE missing_translations(
 	id varchar(255) NOT NULL UNIQUE PRIMARY KEY 
 )Engine=InnoDb;
 
- -- Eventum 785785.
-ALTER TABLE `visuallizard_atim2`.`pages` ADD COLUMN `use_link` VARCHAR(255) NOT NULL  AFTER `language_body`;
+ -- Eventum 785
+ALTER TABLE `pages` ADD COLUMN `use_link` VARCHAR(255) NOT NULL  AFTER `language_body`;
