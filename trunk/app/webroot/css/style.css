@@ -1389,3 +1389,7 @@ body.flash div#wrapper a {
 body.flash div#wrapper a:hover {
 	text-decoration: underline;
 }
+
+a.form:focus{
+	text-decoration:underline;
+}
