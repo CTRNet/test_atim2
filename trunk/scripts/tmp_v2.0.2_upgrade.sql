@@ -76,3 +76,6 @@ ALTER TABLE menus CHANGE `active` flag_active BOOLEAN NOT NULL DEFAULT '1';
 CREATE TABLE missing_translations(
 	id varchar(255) NOT NULL UNIQUE PRIMARY KEY 
 )Engine=InnoDb;
+
+ -- Eventum 785
+ALTER TABLE `visuallizard_atim2`.`pages` ADD COLUMN `use_link` VARCHAR(255) NOT NULL  AFTER `language_body`;
