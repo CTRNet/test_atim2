@@ -73,5 +73,6 @@ UPDATE menus SET `active`='0' WHERE `active`!='active' AND `active`!='yes' AND `
 UPDATE menus SET `active`='1' WHERE `active`!='0';
 ALTER TABLE menus CHANGE `active` flag_active BOOLEAN NOT NULL DEFAULT '1';
 
-
-#menus, users,
+CREATE TABLE missing_translations(
+	id varchar(255) NOT NULL UNIQUE PRIMARY KEY 
+)Engine=InnoDb;

@@ -174,7 +174,7 @@ class I18n extends Object {
 			}
 		}
 
-		if (!empty($_this->__domains[$_this->category][$_this->__lang][$domain][$singular])) {
+		if(!empty($_this->__domains[$_this->category][$_this->__lang][$domain][$singular])) {
 			if (($trans = $_this->__domains[$_this->category][$_this->__lang][$domain][$singular]) || ($plurals) && ($trans = $_this->__domains[$_this->category][$_this->__lang][$domain][$plural])) {
 				if (is_array($trans)) {
 					if (isset($trans[$plurals])) {
@@ -190,6 +190,8 @@ class I18n extends Object {
 
 		if (!empty($plurals)) {
 			return($plural);
+		}else if(empty($_this->__domains[$_this->category][$_this->__lang][$domain][$singular])) {
+			AppController::missingTranslation($singular);
 		}
 		return($singular);
 	}
