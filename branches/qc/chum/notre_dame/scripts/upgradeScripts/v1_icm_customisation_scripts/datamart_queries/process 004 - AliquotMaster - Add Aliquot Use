@@ -1,0 +1,35 @@
+INSERT INTO `datamart_batch_processes` 
+(`name` , `model` , `url` )
+VALUES (
+'Add Aliquot Use', 'AliquotMaster', '/inventorymanagement/aliquot_masters/addAliquotUseInBatch/');
+
+INSERT INTO `forms` (
+`id` ,
+`alias` ,
+`language_title` ,
+`language_help` ,
+`flag_add_columns` ,
+`flag_edit_columns` ,
+`flag_search_columns` ,
+`flag_detail_columns` ,
+`created` ,
+`created_by` ,
+`modified` ,
+`modified_by`
+)
+VALUES (
+'CANM1-00001', 'add_aliquot_use_in_batch', 'Add aliquot use in batch', '', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''
+);
+
+INSERT INTO form_formats (`id`, `form_id`, `field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`)
+(SELECT CONCAT('CANM1-00001_', field_id), 'CANM1-00001', field_id, `display_column`, `display_order` + 4, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, '1', `flag_datagrid_readonly`, `flag_index`, `flag_detail`, NOW(), `created_by`, NOW(), `modified_by` 
+FROM form_formats WHERE form_id = 'CAN-999-999-000-999-1035' OR id IN('CAN-024-001-000-999-0039_CAN-024-001-000-999-0001', 'CAN-024-001-000-999-0039_CAN-999-999-000-999-1101', 'CAN-024-001-000-999-0039_CAN-999-999-000-999-1119', 'CAN-024-001-000-999-0038_CAN-999-999-000-999-1130'));
+
+UPDATE form_formats SET display_order = 1 WHERE id='CANM1-00001_CAN-999-999-000-999-1119';
+UPDATE form_formats SET display_order = 2 WHERE id='CANM1-00001_CAN-024-001-000-999-0001';
+UPDATE form_formats SET display_order = 3 WHERE id='CANM1-00001_CAN-999-999-000-999-1101';
+UPDATE form_formats SET display_order = 4 WHERE id='CANM1-00001_CAN-999-999-000-999-1130';
+
+#SELECT *  FROM `form_formats` 
+#inner join form_fields on form_fields.id=form_formats.field_id
+#WHERE `form_id` LIKE 'CAN-024-001-000-999-0039'
