@@ -481,7 +481,9 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (null, 'QC-HB-000004_CAN-999-999-000-999-230', (SELECT id FROM structures WHERE old_id = 'QC-HB-000004'), 'QC-HB-000004', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-230'), 'CAN-999-999-000-999-230', 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+-- TODO tranlsation
 ('asa medical past history', '', 'ASA', ''),
+-- TODO end todo
 ('heart disease medical past history', '', 'Heart Disease', 'Maladie du coeur'),
 ('vascular disease medical past history', '', 'Vascular Disease', 'Maladie vasculaire'),
 ('respiratory disease medical past history', '', 'Respiratory Disease', 'Maladie respiratoire'),
@@ -700,8 +702,7 @@ INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 -- ... LAB: biology ....................................................
 
 CREATE TABLE IF NOT EXISTS `qc_hb_ed_hepatobilary_lab_report_biology` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT, 
   `wbc` smallint(6) DEFAULT NULL,
   `rbc` smallint(6) DEFAULT NULL,
   `hb` smallint(6) DEFAULT NULL,
@@ -743,7 +744,6 @@ CREATE TABLE IF NOT EXISTS `qc_hb_ed_hepatobilary_lab_report_biology` (
   `other_marker_2` smallint(6) DEFAULT NULL,
   `summary` text,
   `event_master_id` int(11) DEFAULT NULL,
-  
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `created_by` int(10) unsigned NOT NULL,
   `modified` datetime DEFAULT NULL,
@@ -761,7 +761,6 @@ ALTER TABLE `qc_hb_ed_hepatobilary_lab_report_biology`
 
 CREATE TABLE qc_hb_ed_hepatobilary_lab_report_biology_revs(
   `id` int(11) NOT NULL,
-  
   `wbc` smallint(6) DEFAULT NULL,
   `rbc` smallint(6) DEFAULT NULL,
   `hb` smallint(6) DEFAULT NULL,
@@ -803,7 +802,6 @@ CREATE TABLE qc_hb_ed_hepatobilary_lab_report_biology_revs(
   `other_marker_2` smallint(6) DEFAULT NULL,
   `summary` text,
   `event_master_id` int(11) DEFAULT NULL,
-  
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `created_by` int(10) unsigned NOT NULL,
   `modified` datetime DEFAULT NULL,
@@ -943,21 +941,22 @@ INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 CREATE TABLE IF NOT EXISTS `qc_hb_ed_medical_imaging_record_summary` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `abdominal_ultrasound` varchar(5) DEFAULT NULL,
-  `pelvic_ultrasound` varchar(5) DEFAULT NULL,
   `abdominal_ct_scan` varchar(5) DEFAULT NULL,
-  `pelvis_ct_scan` varchar(5) DEFAULT NULL,
+  `pelvic_ct_scan` varchar(5) DEFAULT NULL,
   `abdominal_mri` varchar(5) DEFAULT NULL,
-  `pelvis_mri` varchar(5) DEFAULT NULL,
+  `pelvic_mri` varchar(5) DEFAULT NULL,
   `chest_x_ray` varchar(5) DEFAULT NULL,
-  `thorax_ct_scan` varchar(5) DEFAULT NULL,
-  `tepscan` varchar(5) DEFAULT NULL,
-  `octreoscan_scintigraphy` varchar(5) DEFAULT NULL,
+  `chest_ct_scan` varchar(5) DEFAULT NULL,
+  `tep_scan` varchar(5) DEFAULT NULL,
+  `octreoscan` varchar(5) DEFAULT NULL,
   `contrast_enhanced_ultrasound` varchar(5) DEFAULT NULL,
+  `doppler_ultrasound` varchar(5) DEFAULT NULL,
   `endoscopic_ultrasound` varchar(5) DEFAULT NULL,
   `colonoscopy` varchar(5) DEFAULT NULL,
   `contrast_enema` varchar(5) DEFAULT NULL,
   `ercp` varchar(5) DEFAULT NULL,
   `transhepatic_cholangiography` varchar(5) DEFAULT NULL,
+  `hida_scan` varchar(5) DEFAULT NULL,  
   `event_master_id` int(11) DEFAULT NULL,
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `created_by` int(10) unsigned NOT NULL,
@@ -977,21 +976,22 @@ ALTER TABLE `qc_hb_ed_medical_imaging_record_summary`
 CREATE TABLE IF NOT EXISTS `qc_hb_ed_medical_imaging_record_summary_revs` (
   `id` int(11) unsigned NOT NULL,
   `abdominal_ultrasound` varchar(5) DEFAULT NULL,
-  `pelvic_ultrasound` varchar(5) DEFAULT NULL,
   `abdominal_ct_scan` varchar(5) DEFAULT NULL,
-  `pelvis_ct_scan` varchar(5) DEFAULT NULL,
+  `pelvic_ct_scan` varchar(5) DEFAULT NULL,
   `abdominal_mri` varchar(5) DEFAULT NULL,
-  `pelvis_mri` varchar(5) DEFAULT NULL,
+  `pelvic_mri` varchar(5) DEFAULT NULL,
   `chest_x_ray` varchar(5) DEFAULT NULL,
-  `thorax_ct_scan` varchar(5) DEFAULT NULL,
-  `tepscan` varchar(5) DEFAULT NULL,
-  `octreoscan_scintigraphy` varchar(5) DEFAULT NULL,
+  `chest_ct_scan` varchar(5) DEFAULT NULL,
+  `tep_scan` varchar(5) DEFAULT NULL,
+  `octreoscan` varchar(5) DEFAULT NULL,
   `contrast_enhanced_ultrasound` varchar(5) DEFAULT NULL,
+  `doppler_ultrasound` varchar(5) DEFAULT NULL,
   `endoscopic_ultrasound` varchar(5) DEFAULT NULL,
   `colonoscopy` varchar(5) DEFAULT NULL,
   `contrast_enema` varchar(5) DEFAULT NULL,
   `ercp` varchar(5) DEFAULT NULL,
   `transhepatic_cholangiography` varchar(5) DEFAULT NULL,
+  `hida_scan` varchar(5) DEFAULT NULL,  
   `event_master_id` int(11) DEFAULT NULL,
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `created_by` int(10) unsigned NOT NULL,
@@ -1004,30 +1004,59 @@ CREATE TABLE IF NOT EXISTS `qc_hb_ed_medical_imaging_record_summary_revs` (
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-INSERT INTO `event_controls` (`id` ,`disease_site` ,`event_group` ,`event_type` ,`status` ,`form_alias` ,`detail_tablename` ,`display_order`) VALUES (NULL , 'hepatobillary', 'clinical', 'medical imaging record summary', 'active', 'qc_hb_ed_medical_imaging_record_summary', 'qc_hb_ed_medical_imaging_record_summary', '0');
+INSERT INTO `event_controls` (`id` ,`disease_site` ,`event_group` ,`event_type` ,`status` ,`form_alias` ,`detail_tablename` ,`display_order`) VALUES 
+(null, 'hepatobillary', 'clinical', 'medical imaging record summary', 'active', 'qc_hb_ed_medical_imaging_record_summary', 'qc_hb_ed_medical_imaging_record_summary', '0');
+(null, 'hepatobiliary', 'clinical', 'medical past history record summary', 'active', 'qc_hb_ed_hepatobiliary_med_hist_record_summary', 'qc_hb_ed_hepatobiliary_med_hist_record_summary', 0);
+
+
+
 INSERT INTO structures(`old_id`, `alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('QC-HB-100041', 'qc_hb_ed_medical_imaging_record_summary', '', '', '1', '1', '1', '1');
 
-INSERT INTO structure_fields(`public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES 
-('', 'QC-HB-100041', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'abdominal_ultrasound', 'abdominal ultrasound', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox'), '', '', '', ''),
-('', 'QC-HB-100042', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'pelvic_ultrasound', 'pelvic ultrasound', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox'), '', '', '', ''),
-('', 'QC-HB-100043', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'abdominal_ct_scan', 'abdominal ct_scan', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox'), '', '', '', ''),
-('', 'QC-HB-100044', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'pelvis_ct_scan', 'pelvis ct_scan', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox'), '', '', '', ''),
-('', 'QC-HB-100045', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'abdominal_mri', 'abdominal mri', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox'), '', '', '', ''),
-('', 'QC-HB-100046', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'chest_x_ray', 'chest x_ray', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox'), '', '', '', ''),
-('', 'QC-HB-100047', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'thorax_ct_scan', 'thorax ct_scan', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox'), '', '', '', ''),
-('', 'QC-HB-100048', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'tepscan', 'tepscan', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox'), '', '', '', ''),
-('', 'QC-HB-100049', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'octreoscan_scintigraphy', 'octreoscan scintigraphy', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox'), '', '', '', ''),
-('', 'QC-HB-100050', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'contrast_enhanced_ultrasound', 'contrast enhanced_ultrasound', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox'), '', '', '', ''),
-('', 'QC-HB-100051', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'endoscopic_ultrasound', 'endoscopic ultrasound', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox'), '', '', '', ''),
-('', 'QC-HB-100052', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'colonoscopy', 'colonoscopy', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox'), '', '', '', ''),
-('', 'QC-HB-100053', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'contrast_enema', 'contrast enema', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox'), '', '', '', ''),
-('', 'QC-HB-100054', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'ercp', 'ercp', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox'), '', '', '', ''),
-('', 'QC-HB-100055', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'transhepatic_cholangiography', 'transhepatic cholangiography', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox'), '', '', '', '');
+INSERT INTO structure_fields(`public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, 
+`language_label`, `language_tag`, 
+`type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES 
+('', 'QC-HB-100041', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'abdominal_ultrasound', 'abdominal ultrasound', '', 'checkbox', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox'), '', 'open', 'open', 'open'),
+('', 'QC-HB-100042', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'abdominal_ct_scan', 'abdominal CT-scan', '', 'checkbox', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox'), '', 'open', 'open', 'open'),
+('', 'QC-HB-100043', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'pelvic_ct_scan', 'pelvic CT-scan', '', 'checkbox', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox'), '', 'open', 'open', 'open'),
+('', 'QC-HB-100044', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'abdominal_mri', 'abdominal MRI', '', 'checkbox', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox'), '', 'open', 'open', 'open'),
+('', 'QC-HB-100045', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'pelvic_mri', 'pelvic MRI', '', 'checkbox', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox'), '', 'open', 'open', 'open'),
+('', 'QC-HB-100046', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'chest_x_ray', 'chest X-ray', '', 'checkbox', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox'), '', 'open', 'open', 'open'),
+('', 'QC-HB-100047', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'chest_ct_scan', 'chest CT-scan', '', 'checkbox', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox'), '', 'open', 'open', 'open'),
+('', 'QC-HB-100048', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'tep_scan', 'TEP-scan', '', 'checkbox', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox'), '', 'open', 'open', 'open'),
+('', 'QC-HB-100049', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'octreoscan', 'octreoscan', '', 'checkbox', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox'), '', 'open', 'open', 'open'),
+('', 'QC-HB-100050', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'contrast_enhanced_ultrasound', 'contrast-enhanced ultrasound (CEUS)', '', 'checkbox', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox'), '', 'open', 'open', 'open'),
+('', 'QC-HB-100051', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'doppler_ultrasound', 'doppler ultrasound', '', 'checkbox', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox'), '', 'open', 'open', 'open'),
+('', 'QC-HB-100052', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'endoscopic_ultrasound', 'endoscopic ultrasound (EUS)', '', 'checkbox', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox'), '', 'open', 'open', 'open'),
+('', 'QC-HB-100053', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'colonoscopy', 'colonoscopy', '', 'checkbox', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox'), '', 'open', 'open', 'open'),
+('', 'QC-HB-100054', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'contrast_enema', 'contrast enema', '', 'checkbox', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox'), '', 'open', 'open', 'open'),
+('', 'QC-HB-100055', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'ercp', 'ERCP', '', 'checkbox', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox'), '', 'open', 'open', 'open'),
+('', 'QC-HB-100055.2', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'transhepatic_cholangiography', 'transhepatic cholangiography', '', 'checkbox', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox'), '', 'open', 'open', 'open'),
+('', 'QC-HB-100055.3', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'hida_scan', 'HIDA scan', '', 'checkbox', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox'), '', 'open', 'open', 'open');
 
 SET @last_id = LAST_INSERT_ID();
-INSERT INTO `structure_formats` (`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) (SELECT CONCAT('QC-HB-100041_', old_id), (SELECT id FROM structures WHERE old_id='QC-HB-100041'), 'QC-HB-100001', `id`, `old_id`, IF(id - @last_id <= 19, '0', '1'), (id - @last_id) % 20, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', '1', '0000-00-00 00:00:00', '1' FROM structure_fields WHERE id >= @last_id);
+INSERT INTO `structure_formats` (`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) (SELECT CONCAT('QC-HB-100041_', old_id), (SELECT id FROM structures WHERE old_id='QC-HB-100041'), 'QC-HB-100041', `id`, `old_id`, '1', (id - @last_id + 3), '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', '1', '0000-00-00 00:00:00', '1' FROM structure_fields WHERE id >= @last_id);
+
+INSERT INTO `structure_formats` (`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) (SELECT CONCAT('QC-HB-100001_', old_id), (SELECT id FROM structures WHERE old_id='QC-HB-100001'), 'QC-HB-100001', `id`, `old_id`, '1', (id - @last_id + 3), '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', '1', '0000-00-00 00:00:00', '1' FROM structure_fields WHERE id >= @last_id);
 
 
+
+cccaascac	abdominal ultrasound	acaccascscasc	abdominal ultrasound	cdcdcceees	abdominal ultrasound	cacasascaca
+cccaascac	abdominal CT-scan	acaccascscasc	abdominal CT-scan	cdcdcceees	abdominal CT-scan	cacasascaca
+cccaascac	pelvic CT-scan	acaccascscasc	pelvic CT-scan	cdcdcceees	pelvic CT-scan	cacasascaca
+cccaascac	abdominal MRI	acaccascscasc	abdominal MRI	cdcdcceees	abdominal MRI	cacasascaca
+cccaascac	pelvic MRI	acaccascscasc	pelvic MRI	cdcdcceees	pelvic MRI	cacasascaca
+cccaascac	chest X-ray	acaccascscasc	chest X-ray	cdcdcceees	chest X-ray	cacasascaca
+cccaascac	chest CT-scan	acaccascscasc	chest CT-scan	cdcdcceees	chest CT-scan	cacasascaca
+cccaascac	TEP-scan	acaccascscasc	TEP-scan	cdcdcceees	TEP-scan	cacasascaca
+cccaascac	octreoscan	acaccascscasc	octreoscan	cdcdcceees	octreoscan	cacasascaca
+cccaascac	contrast-enhanced ultrasound (CEUS)	acaccascscasc	contrast-enhanced ultrasound (CEUS)	cdcdcceees	contrast-enhanced ultrasound (CEUS)	cacasascaca
+cccaascac	doppler ultrasound	acaccascscasc	doppler ultrasound	cdcdcceees	doppler ultrasound	cacasascaca
+cccaascac	endoscopic ultrasound (EUS)	acaccascscasc	endoscopic ultrasound (EUS)	cdcdcceees	endoscopic ultrasound (EUS)	cacasascaca
+cccaascac	colonoscopy	acaccascscasc	colonoscopy	cdcdcceees	colonoscopy	cacasascaca
+cccaascac	contrast enema	acaccascscasc	contrast enema	cdcdcceees	contrast enema	cacasascaca
+cccaascac	ERCP	acaccascscasc	ERCP	cdcdcceees	ERCP	cacasascaca
+cccaascac	transhepatic cholangiography	acaccascscasc	transhepatic cholangiography	cdcdcceees	transhepatic cholangiography	cacasascaca
+cccaascac	HIDA scan	acaccascscasc	HIDA scan	cdcdcceees	HIDA scan	cacasascaca
 
 
 
