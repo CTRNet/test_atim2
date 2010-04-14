@@ -13,18 +13,16 @@
 	// --------------------------------------------------------------------------------
 	$this->setMedicalPastHistoryPrecisions(array('EventControl' => $event_master_data['EventControl']));
 	
+	
+	
+	
+	
+	
 	// --------------------------------------------------------------------------------
 	// lab.hepatobiliary.biology: 
 	//   Add date and summary to the lab report
 	// --------------------------------------------------------------------------------
-	if($event_master_data['EventControl']['form_alias'] == "ed_hepatobiliary_lab_report_biology"){
-		$this->Structures->set('qc_hb_dateNSummary', 'qc_hb_dateNSummary');
-	}	
-	
-	
-	
-	
-	
+
 	
 	
 	$this->Structures->set('qc_hb_date', 'qc_hb_date');

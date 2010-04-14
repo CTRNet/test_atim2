@@ -669,25 +669,25 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (null, 'QC-HB-000003_CAN-999-999-000-999-228', (SELECT id FROM structures WHERE old_id = 'QC-HB-000003'), 'QC-HB-000003', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-228'), 'CAN-999-999-000-999-228', 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 	
 -- 
-(null, 'QC-HB-000003_QC-HB-0000012', (SELECT id FROM structures WHERE old_id = 'QC-HB-000003'), 'QC-HB-000003', (SELECT id FROM structure_fields WHERE old_id = 'QC-HB-0000012'), 'QC-HB-0000012', 1, 40, 'reviewed diseases', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-HB-000003_QC-HB-0000012', (SELECT id FROM structures WHERE old_id = 'QC-HB-000003'), 'QC-HB-000003', (SELECT id FROM structure_fields WHERE old_id = 'QC-HB-0000012'), 'QC-HB-0000012', 1, 40, 'reviewed diseases', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 -- 
-(null, 'QC-HB-000003_QC-HB-0000013', (SELECT id FROM structures WHERE old_id = 'QC-HB-000003'), 'QC-HB-000003', (SELECT id FROM structure_fields WHERE old_id = 'QC-HB-0000013'), 'QC-HB-0000013', 1, 41, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-HB-000003_QC-HB-0000013', (SELECT id FROM structures WHERE old_id = 'QC-HB-000003'), 'QC-HB-000003', (SELECT id FROM structure_fields WHERE old_id = 'QC-HB-0000013'), 'QC-HB-0000013', 1, 41, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 -- 
-(null, 'QC-HB-000003_QC-HB-0000014', (SELECT id FROM structures WHERE old_id = 'QC-HB-000003'), 'QC-HB-000003', (SELECT id FROM structure_fields WHERE old_id = 'QC-HB-0000014'), 'QC-HB-0000014', 1, 42, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-HB-000003_QC-HB-0000014', (SELECT id FROM structures WHERE old_id = 'QC-HB-000003'), 'QC-HB-000003', (SELECT id FROM structure_fields WHERE old_id = 'QC-HB-0000014'), 'QC-HB-0000014', 1, 42, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 -- 
-(null, 'QC-HB-000003_QC-HB-0000015', (SELECT id FROM structures WHERE old_id = 'QC-HB-000003'), 'QC-HB-000003', (SELECT id FROM structure_fields WHERE old_id = 'QC-HB-0000015'), 'QC-HB-0000015', 1, 43, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-HB-000003_QC-HB-0000015', (SELECT id FROM structures WHERE old_id = 'QC-HB-000003'), 'QC-HB-000003', (SELECT id FROM structure_fields WHERE old_id = 'QC-HB-0000015'), 'QC-HB-0000015', 1, 43, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 -- 
-(null, 'QC-HB-000003_QC-HB-0000016', (SELECT id FROM structures WHERE old_id = 'QC-HB-000003'), 'QC-HB-000003', (SELECT id FROM structure_fields WHERE old_id = 'QC-HB-0000016'), 'QC-HB-0000016', 1, 44, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-HB-000003_QC-HB-0000016', (SELECT id FROM structures WHERE old_id = 'QC-HB-000003'), 'QC-HB-000003', (SELECT id FROM structure_fields WHERE old_id = 'QC-HB-0000016'), 'QC-HB-0000016', 1, 44, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 -- 
-(null, 'QC-HB-000003_QC-HB-0000017', (SELECT id FROM structures WHERE old_id = 'QC-HB-000003'), 'QC-HB-000003', (SELECT id FROM structure_fields WHERE old_id = 'QC-HB-0000017'), 'QC-HB-0000017', 1, 45, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-HB-000003_QC-HB-0000017', (SELECT id FROM structures WHERE old_id = 'QC-HB-000003'), 'QC-HB-000003', (SELECT id FROM structure_fields WHERE old_id = 'QC-HB-0000017'), 'QC-HB-0000017', 1, 45, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 -- 
-(null, 'QC-HB-000003_QC-HB-0000018', (SELECT id FROM structures WHERE old_id = 'QC-HB-000003'), 'QC-HB-000003', (SELECT id FROM structure_fields WHERE old_id = 'QC-HB-0000018'), 'QC-HB-0000018', 1, 46, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-HB-000003_QC-HB-0000018', (SELECT id FROM structures WHERE old_id = 'QC-HB-000003'), 'QC-HB-000003', (SELECT id FROM structure_fields WHERE old_id = 'QC-HB-0000018'), 'QC-HB-0000018', 1, 46, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 -- 
-(null, 'QC-HB-000003_QC-HB-0000019', (SELECT id FROM structures WHERE old_id = 'QC-HB-000003'), 'QC-HB-000003', (SELECT id FROM structure_fields WHERE old_id = 'QC-HB-0000019'), 'QC-HB-0000019', 1, 47, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-HB-000003_QC-HB-0000019', (SELECT id FROM structures WHERE old_id = 'QC-HB-000003'), 'QC-HB-000003', (SELECT id FROM structure_fields WHERE old_id = 'QC-HB-0000019'), 'QC-HB-0000019', 1, 47, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 -- 
-(null, 'QC-HB-000003_QC-HB-0000020', (SELECT id FROM structures WHERE old_id = 'QC-HB-000003'), 'QC-HB-000003', (SELECT id FROM structure_fields WHERE old_id = 'QC-HB-0000020'), 'QC-HB-0000020', 1, 48, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-HB-000003_QC-HB-0000020', (SELECT id FROM structures WHERE old_id = 'QC-HB-000003'), 'QC-HB-000003', (SELECT id FROM structure_fields WHERE old_id = 'QC-HB-0000020'), 'QC-HB-0000020', 1, 48, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 -- 
-(null, 'QC-HB-000003_QC-HB-0000021', (SELECT id FROM structures WHERE old_id = 'QC-HB-000003'), 'QC-HB-000003', (SELECT id FROM structure_fields WHERE old_id = 'QC-HB-0000021'), 'QC-HB-0000021', 1, 49, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-HB-000003_QC-HB-0000021', (SELECT id FROM structures WHERE old_id = 'QC-HB-000003'), 'QC-HB-000003', (SELECT id FROM structure_fields WHERE old_id = 'QC-HB-0000021'), 'QC-HB-0000021', 1, 49, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 
 -- event_summary
 (null, 'QC-HB-000003_CAN-999-999-000-999-230', (SELECT id FROM structures WHERE old_id = 'QC-HB-000003'), 'QC-HB-000003', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-230'), 'CAN-999-999-000-999-230', 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
@@ -832,11 +832,11 @@ INSERT INTO structure_fields(`public_identifier`, `old_id`, `plugin`, `model`, `
 ('', 'QC-HB-100014', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'ca', 'ca', '', 'number', '', '', NULL, '', '', '', ''),
 ('', 'QC-HB-100015', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'p', 'p', '', 'number', '', '', NULL, '', '', '', ''),
 ('', 'QC-HB-100016', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'mg', 'mg', '', 'number', '', '', NULL, '', '', '', ''),
-('', 'QC-HB-100017', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'protein', 'protein', '', 'number', '', '', NULL, '', '', '', ''),
 ('', 'QC-HB-100018', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'uric_acid', 'uric acid', '', 'number', '', '', NULL, '', '', '', ''),
 ('', 'QC-HB-100019', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'glycemia', 'glycemia', '', 'number', '', '', NULL, '', '', '', ''),
 ('', 'QC-HB-100020', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'triglycerides', 'triglycerides', '', 'number', '', '', NULL, '', '', '', ''),
 ('', 'QC-HB-100021', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'cholesterol', 'cholesterol', '', 'number', '', '', NULL, '', '', '', ''),
+('', 'QC-HB-100017', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'protein', 'protein', '', 'number', '', '', NULL, '', '', '', ''),
 ('', 'QC-HB-100022', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'albumin', 'albumin', '', 'number', '', '', NULL, '', '', '', ''),
 ('', 'QC-HB-100023', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'total_bilirubin', 'total bilirubin', '', 'number', '', '', NULL, '', '', '', ''),
 ('', 'QC-HB-100024', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'direct_bilirubin', 'direct bilirubin', '', 'number', '', '', NULL, '', '', '', ''),
@@ -859,7 +859,8 @@ INSERT INTO structure_fields(`public_identifier`, `old_id`, `plugin`, `model`, `
 
 SET @last_id = LAST_INSERT_ID();
 
-INSERT INTO `structure_formats` (`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) (SELECT CONCAT('QC-HB-100001_', old_id), (SELECT id FROM structures WHERE old_id='QC-HB-100001'), 'QC-HB-100001', `id`, `old_id`, IF(id - @last_id <= 19, '0', '1'), (id - @last_id + 3), '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', '1', '0000-00-00 00:00:00', '1' FROM structure_fields WHERE id >= @last_id);
+INSERT INTO `structure_formats` (`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) (SELECT CONCAT('QC-HB-100001_', old_id), (SELECT id FROM structures WHERE old_id='QC-HB-100001'), 'QC-HB-100001', `id`, `old_id`, IF(id - @last_id <= 19, '0', '1'), (id - @last_id + 3), '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', '1', '0000-00-00 00:00:00', '1' FROM structure_fields WHERE id >= @last_id);
+
 UPDATE structure_formats SET language_heading='blood formulae' WHERE old_id='QC-HB-100001_QC-HB-100002';
 UPDATE structure_formats SET language_heading='coagulation' WHERE old_id='QC-HB-100001_QC-HB-100007';
 UPDATE structure_formats SET language_heading='electrolyte' WHERE old_id='QC-HB-100001_QC-HB-100009';
@@ -868,21 +869,34 @@ UPDATE structure_formats SET language_heading='bilan hepatique' WHERE old_id='QC
 UPDATE structure_formats SET language_heading='bilan pancreatique' WHERE old_id='QC-HB-100001_QC-HB-100029';
 UPDATE structure_formats SET language_heading='bilan marqueur' WHERE old_id='QC-HB-100001_QC-HB-100031';
 
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+-- date
+(null, 'QC-HB-100001_CAN-999-999-000-999-229', (SELECT id FROM structures WHERE old_id = 'QC-HB-100001'), 'QC-HB-100001', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-229'), 'CAN-999-999-000-999-229', 0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+-- event_summary
+(null, 'QC-HB-100001_CAN-999-999-000-999-230', (SELECT id FROM structures WHERE old_id = 'QC-HB-100001'), 'QC-HB-100001', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-230'), 'CAN-999-999-000-999-230', 1, 100, 'summary', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+-- disease_site
+(null, 'QC-HB-100001_CAN-999-999-000-999-227', (SELECT id FROM structures WHERE old_id = 'QC-HB-100001'), 'QC-HB-100001', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-227'), 'CAN-999-999-000-999-227', 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+-- event_type
+(null, 'QC-HB-100001_CAN-999-999-000-999-228', (SELECT id FROM structures WHERE old_id = 'QC-HB-100001'), 'QC-HB-100001', (SELECT id FROM structure_fields WHERE old_id = 'CAN-999-999-000-999-228'), 'CAN-999-999-000-999-228', 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+	
 INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
-('blood formulae', '', 'Blood formulae', 'Formule sanguine'),
+('blood formulae', '', 'Blood Formulae', 'Formule sanguine'),
 ('coagulation', '', 'Coagulation', 'Coagulation'),
 ('electrolyte', '', 'Electrolyte', 'Électrolyte'),
-('bilan hepatique', '', 'Hepatic check-up', 'Bilan hépatique'),
-('bilan pancreatique', '', 'Pancreatic check-up', 'Bilan pancréatique'),
-('bilan marqueur', '', 'Marker check-up', 'Bilan marqueur'),
+('bilan hepatique', '', 'Hepatic Check-Up', 'Bilan hépatique'),
+('bilan pancreatique', '', 'Pancreatic Check-Up', 'Bilan pancréatique'),
+('bilan marqueur', '', 'Marker Check-Up', 'Bilan marqueur'),
 
-('wbc', '', 'WBC', 'WBC'),
-('rbc', '', 'RBC', 'RBC'),
+-- TODO A confirmer
+('wbc', '', 'WBC', 'NGB'),
+('rbc', '', 'RBC', 'NGR'),
 ('hb', '', 'Hb', 'Hb'),
 ('ht', '', 'Ht', 'Ht'),
 ('platelets', '', 'Platelets', 'Plaquettes'),
 
-('ptt', '', 'PTT', 'PTT'),
+('ptt', '', 'PTT', 'TCA'),
 ('inr', '', 'INR', 'INR'),
 
 ('na', '', 'Na', 'Na'),
@@ -903,9 +917,10 @@ INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('total bilirubin', '', 'Total Bilirubin', 'Bilirubine totale'),
 ('direct bilirubin', '', 'Firect Bilirubin', 'Bilirubine directe'),
 ('indirec _bilirubin', '', 'Indirect Bilirubin', 'Bilirubine indirecte'),
+
 ('ast', '', 'AST', 'AST'),
 ('alt', '', 'ALT', 'ALT'),
-('alkalin _phosphatase', '', 'Alkalin phosphatase', 'Phosphatase alcaline'),
+('alkalin _phosphatase', '', 'Alkalin Phosphatase', 'Phosphatase alcaline'),
 
 ('amylase', '', 'Amylase', 'Amylase'),
 ('lipase', '', 'Lipase', 'Lipase'),
@@ -921,87 +936,63 @@ INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('other marker 1', '', 'Other marker 1', 'Autre marqueur 1'),
 ('other marker 2', '', 'Other marker 2', 'Autre marqueur 2');
 
--- Add structure to set event date and summary
-INSERT INTO structures(`old_id`, `alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES 
-('QC-HB-100094', 'qc_hb_dateNSummary', '', '', '1', '1', '1', '1');
-INSERT INTO structure_fields(`public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES 
-('', 'QC-HB-100095', 'Clinicalannotation', 'EventMaster', '', 'event_date', 'date', '', 'date', '', '', NULL, '', '', '', ''),
-('', 'QC-HB-100096', 'Clinicalannotation', 'EventDetail', '', 'summary', 'summary', '', 'textarea', '', '', NULL, '', '', '', '');
-INSERT INTO structure_formats(`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
-('QC-HB-100094_QC-HB-100095', (SELECT id FROM structures WHERE old_id = 'QC-HB-100094'), 'QC-HB-100094', (SELECT id FROM structure_fields WHERE old_id = 'QC-HB-100095'), 'QC-HB-100095', '0', '0', '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1'),
-('QC-HB-100094_QC-HB-100096', (SELECT id FROM structures WHERE old_id = 'QC-HB-100094'), 'QC-HB-100094', (SELECT id FROM structure_fields WHERE old_id = 'QC-HB-100096'), 'QC-HB-100096', '0', '1', '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1');
+-- TODO End todo A confirmer
 
+-- ... CLINIC: medical_past_history revision control ...................
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-CREATE TABlE qc_hb_ed_medical_imaging_record_summary(
-	id int(11) unsigned not null auto_increment primary key,
-	abdominal_ultrasound varchar(5) DEFAULT NULL,
-	pelvic_ultrasound varchar(5) DEFAULT NULL,
-	abdominal_ct_scan varchar(5) DEFAULT NULL,
-	pelvis_ct_scan varchar(5) DEFAULT NULL,
-	abdominal_mri varchar(5) DEFAULT NULL,
-	pelvis_mri varchar(5) DEFAULT NULL,
-	chest_x_ray varchar(5) DEFAULT NULL,
-	thorax_ct_scan varchar(5) DEFAULT NULL,
-	tepscan varchar(5) DEFAULT NULL,
-	octreoscan_scintigraphy varchar(5) DEFAULT NULL,
-	contrast_enhanced_ultrasound varchar(5) DEFAULT NULL,
-	endoscopic_ultrasound varchar(5) DEFAULT NULL,
-	colonoscopy varchar(5) DEFAULT NULL,
-	contrast_enema varchar(5) DEFAULT NULL,
-	ercp varchar(5) DEFAULT NULL,
-	transhepatic_cholangiography varchar(5) DEFAULT NULL,
+CREATE TABLE IF NOT EXISTS `qc_hb_ed_medical_imaging_record_summary` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `abdominal_ultrasound` varchar(5) DEFAULT NULL,
+  `pelvic_ultrasound` varchar(5) DEFAULT NULL,
+  `abdominal_ct_scan` varchar(5) DEFAULT NULL,
+  `pelvis_ct_scan` varchar(5) DEFAULT NULL,
+  `abdominal_mri` varchar(5) DEFAULT NULL,
+  `pelvis_mri` varchar(5) DEFAULT NULL,
+  `chest_x_ray` varchar(5) DEFAULT NULL,
+  `thorax_ct_scan` varchar(5) DEFAULT NULL,
+  `tepscan` varchar(5) DEFAULT NULL,
+  `octreoscan_scintigraphy` varchar(5) DEFAULT NULL,
+  `contrast_enhanced_ultrasound` varchar(5) DEFAULT NULL,
+  `endoscopic_ultrasound` varchar(5) DEFAULT NULL,
+  `colonoscopy` varchar(5) DEFAULT NULL,
+  `contrast_enema` varchar(5) DEFAULT NULL,
+  `ercp` varchar(5) DEFAULT NULL,
+  `transhepatic_cholangiography` varchar(5) DEFAULT NULL,
+  `event_master_id` int(11) DEFAULT NULL,
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `created_by` int(10) unsigned NOT NULL,
   `modified` datetime DEFAULT NULL,
   `modified_by` int(10) unsigned NOT NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
-	`event_master_id` int(11) DEFAULT NULL
-)ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-CREATE TABlE qc_hb_ed_medical_imaging_record_summary_revs(
-	id int(11) unsigned not null,
-	abdominal_ultrasound varchar(5) DEFAULT NULL,
-	pelvic_ultrasound varchar(5) DEFAULT NULL,
-	abdominal_cs_scan varchar(5) DEFAULT NULL,
-	pelvis_ct_scan varchar(5) DEFAULT NULL,
-	abdominal_mri varchar(5) DEFAULT NULL,
-	pelvis_mri varchar(5) DEFAULT NULL,
-	chest_x_ray varchar(5) DEFAULT NULL,
-	thorax_ct_scan varchar(5) DEFAULT NULL,
-	tepscan varchar(5) DEFAULT NULL,
-	octreoscan_scintigraphy varchar(5) DEFAULT NULL,
-	contrast_enhanced_ultrasound varchar(5) DEFAULT NULL,
-	endoscopic_ultrasound varchar(5) DEFAULT NULL,
-	colonoscopy varchar(5) DEFAULT NULL,
-	contrast_enema varchar(5) DEFAULT NULL,
-	ercp varchar(5) DEFAULT NULL,
-	transhepatic_cholangiography varchar(5) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE `qc_hb_ed_medical_imaging_record_summary`
+  ADD FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+  
+CREATE TABLE IF NOT EXISTS `qc_hb_ed_medical_imaging_record_summary_revs` (
+  `id` int(11) unsigned NOT NULL,
+  `abdominal_ultrasound` varchar(5) DEFAULT NULL,
+  `pelvic_ultrasound` varchar(5) DEFAULT NULL,
+  `abdominal_ct_scan` varchar(5) DEFAULT NULL,
+  `pelvis_ct_scan` varchar(5) DEFAULT NULL,
+  `abdominal_mri` varchar(5) DEFAULT NULL,
+  `pelvis_mri` varchar(5) DEFAULT NULL,
+  `chest_x_ray` varchar(5) DEFAULT NULL,
+  `thorax_ct_scan` varchar(5) DEFAULT NULL,
+  `tepscan` varchar(5) DEFAULT NULL,
+  `octreoscan_scintigraphy` varchar(5) DEFAULT NULL,
+  `contrast_enhanced_ultrasound` varchar(5) DEFAULT NULL,
+  `endoscopic_ultrasound` varchar(5) DEFAULT NULL,
+  `colonoscopy` varchar(5) DEFAULT NULL,
+  `contrast_enema` varchar(5) DEFAULT NULL,
+  `ercp` varchar(5) DEFAULT NULL,
+  `transhepatic_cholangiography` varchar(5) DEFAULT NULL,
+  `event_master_id` int(11) DEFAULT NULL,
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `created_by` int(10) unsigned NOT NULL,
   `modified` datetime DEFAULT NULL,
@@ -1010,7 +1001,9 @@ CREATE TABlE qc_hb_ed_medical_imaging_record_summary_revs(
   `version_created` datetime NOT NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
-)ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
 INSERT INTO `event_controls` (`id` ,`disease_site` ,`event_group` ,`event_type` ,`status` ,`form_alias` ,`detail_tablename` ,`display_order`) VALUES (NULL , 'hepatobillary', 'clinical', 'medical imaging record summary', 'active', 'qc_hb_ed_medical_imaging_record_summary', 'qc_hb_ed_medical_imaging_record_summary', '0');
 INSERT INTO structures(`old_id`, `alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('QC-HB-100041', 'qc_hb_ed_medical_imaging_record_summary', '', '', '1', '1', '1', '1');
 
@@ -1034,8 +1027,10 @@ INSERT INTO structure_fields(`public_identifier`, `old_id`, `plugin`, `model`, `
 SET @last_id = LAST_INSERT_ID();
 INSERT INTO `structure_formats` (`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) (SELECT CONCAT('QC-HB-100041_', old_id), (SELECT id FROM structures WHERE old_id='QC-HB-100041'), 'QC-HB-100001', `id`, `old_id`, IF(id - @last_id <= 19, '0', '1'), (id - @last_id) % 20, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', '1', '0000-00-00 00:00:00', '1' FROM structure_fields WHERE id >= @last_id);
 
-ALTER TABLE event_controls
-	MODIFY event_type VARCHAR(55) NOT NULL DEFAULT '';
+
+
+
+
 
 
 
@@ -1067,9 +1062,27 @@ iciiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
 
 
 
+-- Add structure to set event date and summary
+INSERT INTO structures(`old_id`, `alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES 
+('QC-HB-100094', 'qc_hb_dateNSummary', '', '', '1', '1', '1', '1');
+INSERT INTO structure_fields(`public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES 
+('', 'QC-HB-100095', 'Clinicalannotation', 'EventMaster', '', 'event_date', 'date', '', 'date', '', '', NULL, '', '', '', ''),
+('', 'QC-HB-100096', 'Clinicalannotation', 'EventDetail', '', 'summary', 'summary', '', 'textarea', '', '', NULL, '', '', '', '');
+INSERT INTO structure_formats(`old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+('QC-HB-100094_QC-HB-100095', (SELECT id FROM structures WHERE old_id = 'QC-HB-100094'), 'QC-HB-100094', (SELECT id FROM structure_fields WHERE old_id = 'QC-HB-100095'), 'QC-HB-100095', '0', '0', '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
+('QC-HB-100094_QC-HB-100096', (SELECT id FROM structures WHERE old_id = 'QC-HB-100094'), 'QC-HB-100094', (SELECT id FROM structure_fields WHERE old_id = 'QC-HB-100096'), 'QC-HB-100096', '0', '1', '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1');
 
 
 
+
+
+
+
+
+
+
+ALTER TABLE event_controls
+	MODIFY event_type VARCHAR(55) NOT NULL DEFAULT '';
 
 
 
