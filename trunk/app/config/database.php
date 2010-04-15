@@ -85,7 +85,8 @@ class DATABASE_CONFIG {
 		'login' => 'root',
 		'password' => 'root',
 		'database' => 'atim_new',
-		'prefix' => ''
+		'prefix' => '',
+		'encoding' => 'utf8'
 	);
 }
 ?>

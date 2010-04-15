@@ -3774,7 +3774,7 @@ CREATE TABLE `participants` (
 
 LOCK TABLES `participants` WRITE;
 /*!40000 ALTER TABLE `participants` DISABLE KEYS */;
-INSERT INTO `participants` VALUES (1,'','Buzz','','Lightyear','1999-03-13','','','','m','','','',NULL,'',NULL,NULL,'','Part_1_Demo',NULL,'2010-01-20 10:55:40',1,'2010-01-20 10:55:40',1,0,NULL),(2,'Dr.','Mr','','Woody','1993-05-06','','','','m','','','',NULL,'',NULL,NULL,'','Part_2_Demo',NULL,'2010-01-20 10:56:11',1,'2010-01-20 10:56:11',1,0,NULL);
+INSERT INTO `participants` VALUES (1,'','Buzz','','Lightyear','1999-03-13','','','','m','','','',NULL,'',NULL,NULL,'','Part_1_Demo',NULL,'2010-01-20 10:55:40',1,'2010-01-20 10:55:40',1,0,NULL),(2,'Dr.','François','','Noël','1993-05-06','','','','m','','','',NULL,'',NULL,NULL,'','Part_2_Demo',NULL,'2010-01-20 10:56:11',1,'2010-01-20 10:56:11',1,0,NULL);
 /*!40000 ALTER TABLE `participants` ENABLE KEYS */;
 UNLOCK TABLES;
 
