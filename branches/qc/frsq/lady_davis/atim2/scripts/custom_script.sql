@@ -107,9 +107,15 @@ ALTER TABLE collections ADD COLUMN qc_lady_follow_up SMALLINT UNSIGNED DEFAULT N
 ALTER TABLE collections_revs ADD COLUMN qc_lady_follow_up SMALLINT UNSIGNED DEFAULT NULL;
 
 
-	
-UPDATE structure_value_domains_permissible_values SET active='no' WHERE structure_permissible_value_id IN(768, 769);
 UPDATE structure_permissible_values SET value='JGH', language_alias='JGH' WHERE id=767;
+UPDATE structure_permissible_values SET value='oncology department', language_alias='oncology department' WHERE id=768;
+UPDATE structure_permissible_values SET value='jgh collection center', language_alias='jgh collection center' WHERE id=769;
+UPDATE structure_value_domains_permissible_values SET active='yes' WHERE structure_permissible_value_id=769;
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id` ,`structure_permissible_value_id` ,`display_order` ,`active` ,`language_alias`) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name='custom_collection_site'), (SELECT id FROM structure_permissible_values WHERE value='operating room' AND language_alias='operating room'), 0, 'yes', '');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('clinical research unit', 'clinical research unit');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='custom_collection_site'),  (SELECT id FROM structure_permissible_values WHERE value='clinical research unit' AND language_alias='clinical research unit'), '', 'yes');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('pathology operating room', 'pathology operating room');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='custom_collection_site'),  (SELECT id FROM structure_permissible_values WHERE value='pathology operating room' AND language_alias='pathology operating room'), '', 'yes'); 
 UPDATE `structure_fields` SET `default` = 'JGH' WHERE `structure_fields`.`id` =155 LIMIT 1;
 
 UPDATE structure_value_domains_permissible_values SET active='no' WHERE id IN(595, 596, 597, 598);
@@ -1033,3 +1039,11 @@ INSERT INTO `acos` (`id`, `parent_id`, `model`, `foreign_key`, `alias`, `lft`, `
 (463, 459, NULL, NULL, 'edit', 922, 923),
 (464, 459, NULL, NULL, 'delete', 924, 925),
 (465, 459, NULL, NULL, 'allowStudySummaryDeletion', 926, 927);
+
+-- Update version information
+UPDATE `versions` SET `version_number` = 'v2.0.1', `date_installed` = '2010-04-12 12:00:00', `build_number` = '1200' WHERE `versions`.`id` =1;
+UPDATE `announcements` SET `date` =  '2010-04-12', `body` = 'This is a demonstration of the announcement system of the ATiM application. Thank you for using ATiM!',`created` = '2010-04-12 14:45:27',`modified` = '2010-04-12 14:45:27' WHERE `announcements`.`id` =1;
+
+
+-- TODO: verify reception dr basik laboratory
+-- box data?
