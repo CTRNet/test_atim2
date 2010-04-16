@@ -3,7 +3,7 @@
 class StudyContactsController extends StudyAppController {
 	
 	var $uses = array('Study.StudyContact','Study.StudySummary');
-	var $paginate = array('StudyContact'=>array('limit'=>10,'order'=>'StudyContact.last_name'));
+	var $paginate = array('StudyContact'=>array('limit' => pagination_amount,'order'=>'StudyContact.last_name'));
 	
 	function listall( $study_summary_id ) {
 		// Missing or empty function variable, send to ERROR page

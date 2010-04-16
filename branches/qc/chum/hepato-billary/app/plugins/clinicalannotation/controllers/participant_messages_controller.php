@@ -5,7 +5,7 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController {
 	var $uses = array(
 		'Clinicalannotation.ParticipantMessage',
 		'Clinicalannotation.Participant');
-	var $paginate = array('ParticipantMessage'=>array('limit'=>10,'order'=>'ParticipantMessage.date_requested'));
+	var $paginate = array('ParticipantMessage'=>array('limit' => pagination_amount,'order'=>'ParticipantMessage.date_requested'));
 
 	function listall( $participant_id ) {
 		if ( !$participant_id ) { $this->redirect( 'err_clin_funct_param_missing', NULL, TRUE ); }

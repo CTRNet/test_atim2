@@ -14,7 +14,7 @@ class OrdersController extends OrderAppController {
 		'Study.StudySummary');
 	
 	var $paginate = array(
-		'Order'=>array('limit'=>10,'order'=>'Order.date_order_placed DESC'), 
+		'Order'=>array('limit' => pagination_amount,'order'=>'Order.date_order_placed DESC'), 
 		'OrderLine'=>array('limit'=>'10','order'=>'OrderLine.date_required DESC'));
 	
 	function index() {

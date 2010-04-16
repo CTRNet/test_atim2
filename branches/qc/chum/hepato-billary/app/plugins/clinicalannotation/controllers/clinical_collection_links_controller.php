@@ -15,7 +15,7 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 		'Administrate.Bank'
 	);
 	
-	var $paginate = array('ClinicalCollectionLinks'=>array('limit'=>10,'order'=>'Collection.acquisition_label ASC'));	
+	var $paginate = array('ClinicalCollectionLinks'=>array('limit' => pagination_amount,'order'=>'Collection.acquisition_label ASC'));	
 	
 	function listall( $participant_id ) {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }

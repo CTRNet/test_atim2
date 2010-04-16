@@ -82,10 +82,11 @@ class DATABASE_CONFIG {
 		'driver' => 'mysql',
 		'persistent' => false,
 		'host' => 'localhost',
-		'login' => 'nico',
-		'password' => 'nicodb',		
-		'database' => 'atim2-chum-hepbil',
-		'prefix' => ''
+		'login' => '',
+		'password' => '',
+		'database' => '',
+		'prefix' => '',
+		'encoding' => 'utf8'
 	);
 }
 ?>

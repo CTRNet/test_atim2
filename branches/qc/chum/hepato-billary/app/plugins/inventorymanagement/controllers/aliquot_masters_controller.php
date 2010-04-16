@@ -45,9 +45,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 	);
 	
 	var $paginate = array(
-		'AliquotMaster' => array('limit' =>10 , 'order' => 'AliquotMaster.barcode DESC'), 
-		'ViewAliquot' => array('limit' =>10 , 'order' => 'ViewAliquot.barcode DESC'), 
-		'AliquotUse' => array('limit' => 10, 'order' => 'AliquotUse.use_datetime DESC'));
+		'AliquotMaster' => array('limit' => pagination_amount , 'order' => 'AliquotMaster.barcode DESC'), 
+		'ViewAliquot' => array('limit' => pagination_amount , 'order' => 'ViewAliquot.barcode DESC'), 
+		'AliquotUse' => array('limit' => pagination_amount, 'order' => 'AliquotUse.use_datetime DESC'));
 
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS
@@ -97,7 +97,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 	
 	function listAll($collection_id, $sample_master_id, $filter_option = null) {
 		if((!$collection_id) || (!$sample_master_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }
-
 		// MANAGE FILTER OPTION
 
 		$is_collection_aliquot_list = ($sample_master_id == '-1')? true: false;
@@ -323,8 +322,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// Get control data
 		$criteria = array(
 			'SampleControl.id' => $sample_data['SampleMaster']['sample_control_id'],
-			'SampleToAliquotControl.status' => 'active',
-			'AliquotControl.status' => 'active',
+			'SampleToAliquotControl.flag_active' => '1',
+			'AliquotControl.flag_active' => '1',
 			'AliquotControl.id' => $aliquot_control_id);
 		$sample_to_aliquot_control = $this->SampleToAliquotControl->find('first', array('conditions' => $criteria));	
 		if(empty($sample_to_aliquot_control)) { $this->redirect('/pages/err_inv_no_data', null, true); }			
@@ -1127,10 +1126,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$criteria = array(
 			'ParentSampleToAliquotControl.sample_control_id' => $parent_aliquot_data['SampleMaster']['sample_control_id'], 
 			'ParentSampleToAliquotControl.aliquot_control_id' => $parent_aliquot_data['AliquotMaster']['aliquot_control_id'],
-			'ParentSampleToAliquotControl.status' => 'active',
-			'RealiquotingControl.status' => 'active',
+			'ParentSampleToAliquotControl.flag_active' => '1',
+			'RealiquotingControl.flag_active' => '1',
 			'ChildSampleToAliquotControl.sample_control_id' => $parent_aliquot_data['SampleMaster']['sample_control_id'], 
-			'ChildSampleToAliquotControl.status' => 'active'
+			'ChildSampleToAliquotControl.flag_active' => '1'
 		);	
 		
 		$realiquotind_control_data = $this->RealiquotingControl->find('all', array('conditions' => $criteria));

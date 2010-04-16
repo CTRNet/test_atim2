@@ -7,7 +7,7 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		'Clinicalannotation.TreatmentMaster',
 		'Clinicalannotation.TreatmentControl',
 		'Drug.Drug');
-	var $paginate = array('TreatmentExtend'=>array('limit'=>10,'order'=>'TreatmentExtend.id ASC'));
+	var $paginate = array('TreatmentExtend'=>array('limit' => pagination_amount,'order'=>'TreatmentExtend.id ASC'));
 	
 	function listall($participant_id=null, $tx_master_id=null) {
 		
