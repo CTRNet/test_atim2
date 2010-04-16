@@ -79,3 +79,8 @@ CREATE TABLE missing_translations(
 
  -- Eventum 785
 ALTER TABLE `pages` ADD COLUMN `use_link` VARCHAR(255) NOT NULL  AFTER `language_body`;
+
+-- Remove old ID fields from the validations table. Missed from v2.0.1 update.
+ALTER TABLE `structure_validations`
+  DROP `old_id`,
+  DROP `structure_field_old_id`;
