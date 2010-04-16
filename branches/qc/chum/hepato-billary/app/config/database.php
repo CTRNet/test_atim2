@@ -82,9 +82,9 @@ class DATABASE_CONFIG {
 		'driver' => 'mysql',
 		'persistent' => false,
 		'host' => 'localhost',
-		'login' => '',
+		'login' => 'root',
 		'password' => '',
-		'database' => '',
+		'database' => 'qc_chum_hb',
 		'prefix' => '',
 		'encoding' => 'utf8'
 	);
