@@ -3,7 +3,7 @@
 class VersionsController extends AdministrateAppController {
 	
 	var $uses = array('Version');
-	var $paginate = array('Version'=>array('limit'=>10,'order'=>'Version.version_number'));
+	var $paginate = array('Version'=>array('limit' => pagination_amount,'order'=>'Version.version_number'));
 
 	function detail () {
 		// MANAGE DATA

@@ -6,7 +6,7 @@ class ParticipantContactsController extends ClinicalannotationAppController {
 		'Clinicalannotation.ParticipantContact',
 		'Clinicalannotation.Participant'
 	);
-	var $paginate = array('ParticipantContact'=>array('limit'=>10,'order'=>'ParticipantContact.contact_type ASC'));	
+	var $paginate = array('ParticipantContact'=>array('limit' => pagination_amount,'order'=>'ParticipantContact.contact_type ASC'));	
 	
 	function listall( $participant_id ) {
 		// MANAGE DATA

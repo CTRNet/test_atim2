@@ -85,7 +85,7 @@ class CollectionsController extends InventorymanagementAppController {
 		$this->set('sop_list', $this->Collections->getCollectionSopList());	
 		
 		// Get all sample control types to build the add to selected button
-		$specimen_sample_controls_list = $this->SampleControl->atim_list(array('conditions' => array('SampleControl.status' => 'active', 'SampleControl.sample_category' => 'specimen'), 'order' => 'SampleControl.sample_type ASC'));
+		$specimen_sample_controls_list = $this->SampleControl->atim_list(array('conditions' => array('SampleControl.flag_active' => '1', 'SampleControl.sample_category' => 'specimen'), 'order' => 'SampleControl.sample_type ASC'));
 		$this->set('specimen_sample_controls_list', $specimen_sample_controls_list);	
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS

@@ -5,6 +5,7 @@ App::import('component','Acl');
 class StructuresHelper extends Helper {
 		
 	var $helpers = array( 'Csv', 'Html', 'Form', 'Javascript', 'Ajax', 'Paginator','Session' );
+	private static $last_tabindex = 0; 
 
 
 /********************************************************************************************************************************************************************************/
@@ -168,7 +169,7 @@ class StructuresHelper extends Helper {
 					<div>
 						<span class="button large">
 							<input id="submit_button" class="submit" type="submit" value="Submit" style="display: none;"/>
-							<a href="#" onclick="$(\'submit_button\').click();" class="form '.$link_class.'">'.$link_label.'</a>
+							<a href="#" onclick="$(\'submit_button\').click();" class="form '.$link_class.'" tabindex="'.(StructuresHelper::$last_tabindex + 1).'">'.$link_label.'</a>
 						</span>
 					</div>
 			';
@@ -1406,6 +1407,7 @@ class StructuresHelper extends Helper {
 					$html_element_array = array();
 					$html_element_array['class'] = '';
 					$html_element_array['tabindex'] = $options['settings']['tabindex'] + $field_count + ( ( $tab_key+1 )*1000 );
+					StructuresHelper::$last_tabindex = $html_element_array['tabindex'];
 					
 					$field['StructureField']['setting'] = trim($field['StructureField']['setting']);
 					if ( $field['StructureField']['setting'] ) {	

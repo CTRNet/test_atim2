@@ -3,7 +3,7 @@
 class ProtocolMastersController extends ProtocolAppController {
 
 	var $uses = array('Protocol.ProtocolControl', 'Protocol.ProtocolMaster');
-	var $paginate = array('ProtocolMaster'=>array('limit'=>10,'order'=>'ProtocolMaster.name DESC'));
+	var $paginate = array('ProtocolMaster'=>array('limit' => pagination_amount,'order'=>'ProtocolMaster.name DESC'));
 	
 	function index() {
 		$_SESSION['ctrapp_core']['search'] = NULL; // clear SEARCH criteria

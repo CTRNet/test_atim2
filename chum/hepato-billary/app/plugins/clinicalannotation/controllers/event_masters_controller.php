@@ -10,7 +10,7 @@ class EventMastersController extends ClinicalannotationAppController {
 	);
 	
 	var $paginate = array(
-		'EventMaster'=>array('limit'=>10,'order'=>'EventMaster.event_date DESC')
+		'EventMaster'=>array('limit' => pagination_amount,'order'=>'EventMaster.event_date DESC')
 	);
 	
 	function beforeFilter( ) {
@@ -46,7 +46,7 @@ class EventMastersController extends ClinicalannotationAppController {
 		$this->set( 'atim_menu_variables', array('EventMaster.event_group'=>$event_group,'Participant.id'=>$participant_id, 'EventControl.id'=>$event_control_id) );
 		
 		// find all EVENTCONTROLS, for ADD form
-		$event_controls = $this->EventControl->find('all', array('conditions'=>array('event_group'=>$event_group)));
+		$event_controls = $this->EventControl->find('all', array('conditions'=>array('EventControl.event_group'=>$event_group, 'EventControl.flag_active' => '1' )));
 		$this->set( 'event_controls', $event_controls );
 	
 		$disease_site_list = array();

@@ -13,7 +13,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 		'Inventorymanagement.QualityCtrlTestedAliquot'
 	);
 	
-	var $paginate = array('QualityCtrl' => array('limit'=>10, 'order' => 'QualityCtrl.date ASC'), 'QualityCtrlTestedAliquot' => array('limit'=>10, 'order' => 'AliquotUse.use_datetime ASC'));
+	var $paginate = array('QualityCtrl' => array('limit' => pagination_amount, 'order' => 'QualityCtrl.date ASC'), 'QualityCtrlTestedAliquot' => array('limit' => pagination_amount, 'order' => 'AliquotUse.use_datetime ASC'));
 	
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS
