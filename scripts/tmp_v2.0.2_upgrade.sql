@@ -84,3 +84,7 @@ ALTER TABLE `pages` ADD COLUMN `use_link` VARCHAR(255) NOT NULL  AFTER `language
 ALTER TABLE `structure_validations`
   DROP `old_id`,
   DROP `structure_field_old_id`;
+
+-- Add empty structure
+INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) 
+VALUES ('empty', '', '', '1', '1', '0', '1');
