@@ -69,40 +69,6 @@ function uncheckAll( $div ) {
 		
 	}
 	
-	
-	/*
-		Start observing filter menus to auto-scroll them if they are too long to show in the available 250px window.
-	*/
-//	FMLHHHHHHHHHHHHHH
-//	Event.observe(window, 'load', function() {
-//		var menus = $$('.filter_menu');
-//		for(var i=0; i< menus.length; i++){
-//			var el = menus[i];
-//			Event.observe(el, 'mousemove',function(ev){
-//				var ul = el.getElementsByTagName('ul');
-//				var H = el.getHeight();
-//				
-//				if(ul.length > 0){
-//						var h = ul[0].getHeight();
-//					
-//					if(h > H){
-//						Position.absolutize(ul[0]);
-//						
-//						var el_pos = Position.cumulativeOffset(el);
-//						var ul_pos = Position.cumulativeOffset(ul[0]);
-//						
-//						var y = ( ev.pointerY() - el_pos[1] ) / H;
-//						var yh = Math.floor(y * h);
-//						var yH = Math.floor(y * H)
-//						var y_offset = yH - yh;
-//						
-//						new Effect.Move( ul[0], { x:0, y: y_offset, mode:'absolute' } );
-//					}
-//				}
-//			});
-//		}
-//	});
-	
 	function getJsonFromClass(cssClass){
 		var startIndex = cssClass.indexOf("{");
 		return eval ('(' + cssClass.substr(startIndex, cssClass.lastIndexOf("}") - startIndex + 1) + ')');
@@ -139,6 +105,14 @@ function uncheckAll( $div ) {
 			return false;
 		});
 		
+		//autocomplete controls
+		$(".jqueryAutocomplete").each(function(){
+			var json = getJsonFromClass($(this).attr("class"));
+			var fct = eval("(" + json.callback + ")");
+			fct.apply(this, [this, json]);
+			return false;
+		});
+		
 		//calendar controls
 		$.datepicker.setDefaults($.datepicker.regional[locale]);
 		$(".datepicker").each(function(){
@@ -146,15 +120,6 @@ function uncheckAll( $div ) {
 		});
 		//datepicker style
 		$("#ui-datepicker-div").addClass("jquery_cupertino");
-		
-		//add line controls
-//		if($("#addLineLink").length > 0){
-//			var tableBody = $("#addLineLink").parent().parent().parent().parent().children("tbody:first");
-//			var tmpLine = $(tableBody).children("tr:nth-child(2)").html();
-//			$("#addLineLink").click(function(){
-//				$(tableBody).append("<tr>" + tmpLine + "</tr>\n");
-//			});
-//		}	
 	});
 
 	function initDatepicker(element){
@@ -196,4 +161,8 @@ function uncheckAll( $div ) {
 		$(element).parent().children("img").click(function(){
 			$(element).datepicker('show');
 		});
+	}
+	
+	function autoComplete(element, json){
+		//TODO: implement me!
 	}
