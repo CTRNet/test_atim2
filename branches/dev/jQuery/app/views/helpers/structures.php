@@ -1703,6 +1703,7 @@ class StructuresHelper extends Helper {
 									}
 								}
 							}
+							//FIXME - ajax autocomplete is not valid anymore
 							$display_value .= $this->Ajax->autoComplete(
 								$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], 
 								$autocomplete_url,
