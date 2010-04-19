@@ -591,12 +591,13 @@ class StructuresHelper extends Helper {
 							$add_another_unique_link_id = 'add_'.$add_another_unique;
 							
 							$return_string .= '
+							</tbody><tfoot>
 								<tr id="'.$add_another_unique_link_id.'">
 									<td class="right" colspan="'.$column_count.'">
-										<a style="color:#090; font-weight:bold;" href="#" onclick="'.$add_another_unique_function_name.'(); return false;" title="'.__( 'click to add a line', true ).'">+</a>
+										<a id="addLineLink" style="color:#090; font-weight:bold;" href="#" onclick="'.$add_another_unique_function_name.'(); return false;" title="'.__( 'click to add a line', true ).'">+</a>
 									</td>
 								</tr>
-								
+								</tfoot>
 								<script type="text/javascript">
 									if( typeof('.$add_another_unique_next_variable.') == "undefined" ){
 										var '.$add_another_unique_next_variable.' = "'.count($data).'";
@@ -605,13 +606,14 @@ class StructuresHelper extends Helper {
 									}
 									
 									function '.$add_another_unique_function_name.'(){
-										$("'.$add_another_unique_link_id.'").insert({
-											before: "'.$add_another_row_template.'".interpolate({
-												id: '.$add_another_unique_next_variable.'
-											})
-										});
+										var templateLine = "'.$add_another_row_template.'";
+										var tbody = $("#'.$add_another_unique_link_id.'").parent().parent().children("tbody:first"); 
+										$(tbody).append(templateLine.replace(/#{id}/g, '.$add_another_unique_next_variable.')); 
 										'.$add_another_unique_next_variable.'++;
-										
+										$(tbody).children("tr:last").find(".datepicker").each(function(){
+											debug(this.id);
+											initDatepicker(this);
+										});
 										if(window.enableCopyCtrl){
 											//if copy control exists, call it
 											enableCopyCtrl("table1row" + ('.$add_another_unique_next_variable.'  - 1));
@@ -649,7 +651,7 @@ class StructuresHelper extends Helper {
 						}
 						
 						$return_string .= '
-								</tbody>
+								</tfoot>
 								</table>
 								
 							</td>
@@ -2406,7 +2408,10 @@ class StructuresHelper extends Helper {
 		$tmp_datetime_array = array('year' => null, 'month' => null, 'day' => null, 'hour' => null, 'minute' => null, 'meridian' => null);
 		$datetime_array = array_merge($tmp_datetime_array, $datetime_array);
 		$date = "";
-		$date_name_prefix = "data[".$structure_field['model']."][".$structure_field['field'].$search_suffix."]";
+		if(strlen($model_prefix) > 0){
+			$my_model_prefix = "[".substr($model_prefix, 0, 1)."]";
+		}
+		$date_name_prefix = "data".$my_model_prefix."[".$structure_field['model']."][".$structure_field['field'].$search_suffix."]";
 		for($i = 0; $i < 3; ++ $i){
 			$tmp_current = substr(date_format, $i, 1);
 			if($tmp_current == "Y"){
@@ -2433,12 +2438,13 @@ class StructuresHelper extends Helper {
 		}
 		
 		$date .= '<span style="position: relative;">
-				<input type="button" id="fd-but-'.$model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix.'" class="datepicker" value="" tabindex="'.$html_element_array['tabindex'].'"/>
+				<input type="button" id="'.$model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix.'_button" class="datepicker" value="" tabindex="'.$html_element_array['tabindex'].'"/>
 				<img src="'.$this->webroot.'/img/cal.gif" alt="cal" class="fake_datepicker"/>
 			</span>';
 		
 		if ( $structure_field['type']=='datetime' ) {
 			$date .= $this->Form->hour($model_prefix.$structure_field['model'].$model_suffix.$structure_field['field'].$search_suffix, false, $datetime_array['hour'], array('tabindex' => $html_element_array['tabindex']));
+			//TODO: minutes are bugged
 			$date .= $this->Form->minute($model_prefix.$structure_field['model'].$model_suffix.$structure_field['field'].$search_suffix, $datetime_array['minute'], array('tabindex' => $html_element_array['tabindex']));
 			$date .= $this->Form->meridian($model_prefix.$structure_field['model'].$model_suffix.$structure_field['field'].$search_suffix, $datetime_array['meridian'], array('tabindex' => $html_element_array['tabindex']));
 		}

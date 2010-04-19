@@ -44,7 +44,6 @@ class CollectionsController extends InventorymanagementAppController {
 	}
 	
 	function search() {
-		pr($this->data);
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/collections/index'));
 		
 		$view_collection = $this->Structures->get('form', 'view_collection');
