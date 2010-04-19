@@ -193,8 +193,7 @@ function uncheckAll( $div ) {
 		});
 		
 		//activate fake_datepicker in case there is a problem with z-index
-		var currentDatepicker = this;
 		$(element).parent().children("img").click(function(){
-			$(currentDatepicker).datepicker('show');
+			$(element).datepicker('show');
 		});
 	}
