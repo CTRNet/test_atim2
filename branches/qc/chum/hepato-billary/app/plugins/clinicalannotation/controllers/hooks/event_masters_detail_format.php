@@ -13,17 +13,10 @@
 	// --------------------------------------------------------------------------------
 	$this->setMedicalPastHistoryPrecisions(array('EventControl' => $this->data['EventControl']));
 	
-	
-	
-	
-	
 	// --------------------------------------------------------------------------------
-	// lab.hepatobiliary.biology: 
-	//   Add date and summary to the lab report
+	// clinical.hepatobiliary.medical imaging *** : 
+	//   Set Imaging Structure (other +/- pancreas +/- Semgments +/- etc)
 	// --------------------------------------------------------------------------------
-
-	
-	
 	$event_control_data = array('EventControl' => $this->data['EventControl']);
 	$this->setMedicalImaginStructures($event_control_data);
 

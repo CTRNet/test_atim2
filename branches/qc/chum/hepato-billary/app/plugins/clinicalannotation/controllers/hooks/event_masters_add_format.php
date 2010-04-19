@@ -18,7 +18,8 @@
 	$unique_event_type_list = array(
 		'hepatobiliary-clinical-presentation',
 		'hepatobiliary-lifestyle-summary',
-		'hepatobiliary-clinical-medical past history record summary');
+		'hepatobiliary-clinical-medical past history record summary',
+		'hepatobillary-clinical-medical imaging record summary');
 		
 	if(in_array($created_event_type_title, $unique_event_type_list)) {
 		// Should be unique
@@ -41,32 +42,10 @@
 	// --------------------------------------------------------------------------------
 	$this->setMedicalPastHistoryPrecisions($event_control_data);
 	
-	if(strpos($event_control_data['EventControl']['form_alias'], 'qc_hb_imaging_') === 0){
-		$tmp_data = $this->EventMaster->find('first', array('conditions' => array('EventMaster.participant_id' => $participant_id, 'EventMaster.event_control_id' => $event_control_data['EventControl']['id'])));
-		if(!empty($tmp_data)){
-			$this->flash( 'this report has already been created for your participant', '/clinicalannotation/event_masters/detail/clinical/'.$tmp_data['EventMaster']['participant_id'].'/'.$tmp_data['EventMaster']['id'] );
-			return;
-		}
-	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	// --------------------------------------------------------------------------------
-	// lab.hepatobiliary.biology: 
-	//   Add date and summary to the lab report
+	// clinical.hepatobiliary.medical imaging *** : 
+	//   Set Imaging Structure (other +/- pancreas +/- Semgments +/- etc)
 	// --------------------------------------------------------------------------------
-
-	
-	
-
 	$this->setMedicalImaginStructures($event_control_data);
-	
-
 	
 ?>

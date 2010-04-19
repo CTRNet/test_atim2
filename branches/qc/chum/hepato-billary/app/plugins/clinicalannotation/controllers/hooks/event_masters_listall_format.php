@@ -22,12 +22,18 @@
 		$medical_past_history_event_controls = array();
 		$medical_imaging_event_controls = array();
 		foreach($event_controls as $id => $new_control) {
-			$pattern = '/^(.*)_medical_past_history?/';
-			if(preg_match($pattern, $new_control['EventControl']['form_alias'])) { 
+			$med_past_hist_pattern = '/^(.*)_medical_past_history?/';
+			$imaging_pattern = '/^qc_hb_imaging(.*)?/';
+			
+			if(preg_match($med_past_hist_pattern, $new_control['EventControl']['form_alias'])) { 
 				$medical_past_history_event_controls[] = $new_control;
 				unset($event_controls[$id]);
-			}
+			} else if(preg_match($imaging_pattern, $new_control['EventControl']['form_alias'])) { 
+				$medical_imaging_event_controls[] = $new_control;
+				unset($event_controls[$id]);
+			}			
 		}
+		
 		$this->set('medical_past_history_event_controls', $medical_past_history_event_controls);
 		$this->set('medical_imaging_event_controls', $medical_imaging_event_controls);
 		
