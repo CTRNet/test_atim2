@@ -13,26 +13,28 @@ var rowComponentsArrayCopy = new Array();
 
 var rowCount = 0;
 
-window.onload = function(){
-	if($("0FunctionManagementCopyCtrl")){
+$(function(){
+	if($("#0FunctionManagementCopyCtrl")){
 		//loop through the first line to build the array of writable fields ids
-		for(var i = 0; i < $("0FunctionManagementCopyCtrl").parentNode.parentNode.childNodes.length; i ++){
-			var current = $("0FunctionManagementCopyCtrl").parentNode.parentNode.childNodes[i];
+		var nodes = $("#0FunctionManagementCopyCtrl").parent().parent().children();
+		for(var i = 0; i < $("#0FunctionManagementCopyCtrl").parent().parent().children().length; i ++){
+			var current = nodes[i];
 			if(current == "[object HTMLTableCellElement]"){
-				for(var j = 0; j < current.childNodes.length; j ++){
-					if(current.childNodes[j] != "[object Text]" 
-							&& current.childNodes[j] != "[object Comment]" 
-							&& current.childNodes[j].getAttribute("type") != "hidden"	
-							&& (current.childNodes[j].getAttribute("class") == null
-								|| current.childNodes[j].getAttribute("class").indexOf("readonly") == -1)
-							&& (current.childNodes[j].getAttribute("id") == null
-								|| current.childNodes[j].getAttribute("id").indexOf("CopyPrevLine") == -1)){
-						if(current.childNodes[j].getAttribute("id") != null){
-							if(current.childNodes[j].getAttribute("id").indexOf("0") == 0){
-								componentsArray.push(current.childNodes[j].getAttribute("id").substr(1));
-							}else if(current.childNodes[j].getAttribute("id").indexOf("row") == 0){
-//								debug(current.childNodes[j].getAttribute("id") + " --&gt;" + current.childNodes[j].getAttribute("id").substr(4));
-								rowComponentsArray.push(current.childNodes[j].getAttribute("id").substr(4));
+				var children = $(current).children();
+				for(var j = 0; j < $(current).children().length; j ++){
+					if($(children)[j] != "[object Text]" 
+							&& $(children)[j] != "[object Comment]" 
+							&& $($(children)[j]).attr("type") != "hidden"	
+							&& ($($(children)[j]).attr("class") == null
+								|| $($(children)[j]).attr("class").indexOf("readonly") == -1)
+							&& ($(children)[j].id == null
+								|| $(children)[j].id.indexOf("CopyPrevLine") == -1)){
+						if($(children)[j].id != null){
+							if($(children)[j].id.indexOf("0") == 0){
+								componentsArray.push($(children)[j].id.substr(1));
+							}else if($(children)[j].id.indexOf("row") == 0){
+								debug($(children)[j].id + " --&gt;" + $(children)[j].id.substr(4));
+								rowComponentsArray.push($(children)[j].id.substr(4));
 							}
 						}else{
 							debug("Unknown entity found");
@@ -47,12 +49,11 @@ window.onload = function(){
 	
 	//count the number of rows
 	if(componentsArray.length > 0){
-		while($(rowCount + componentsArray[0])){
+		while($("#" + rowCount + componentsArray[0]).length > 0){
 			++ rowCount;
-			
 		}
 	}else{
-		while($("row" + rowCount + rowComponentsArray[0])){
+		while($("#row" + rowCount + rowComponentsArray[0]).length > 0){
 			++ rowCount;		
 		}
 	}
@@ -71,13 +72,18 @@ window.onload = function(){
 	}
 	//bind onclick command and refresh lines
 	for(var i = 0; i < rowCount; i ++){
-		$(i + "FunctionManagementCopyCtrl").parentNode.innerHTML += "<span class='button' id='" + i + "copy' >" + copyStr + "</span><span class='button' id='" + i + "paste' >" + pasteStr + "</span><span style='margin-left: 10px;' id='" + i + "copying'></span>";
-		$(i + "FunctionManagementCopyCtrl").setStyle({ display: 'none'});
-		$(i + "copy").setAttribute('onclick', 'copyLine(' + i + ');');
-		$(i + "paste").setAttribute('onclick', 'pasteLine(' + i + ');');
+		debug(i);
+		$("#" + i + "FunctionManagementCopyCtrl").parent().append("<span class='button' id='" + i + "copy' >" + copyStr + "</span><span class='button' id='" + i + "paste' >" + pasteStr + "</span><span style='margin-left: 10px;' id='" + i + "copying'></span>");
+		$("#" + i + "FunctionManagementCopyCtrl").css("display", 'none');
+		$("#" + i + "copy").click(function(){
+			copyLine(i - 1);
+		});
+		$("#" + i + "paste").click(function (){
+			pasteLine(i - 1);
+		});
 	}
 	
-};
+});
 
 /**
  * Copies a line
@@ -93,16 +99,23 @@ function copyLine(index){
 //	}
 	
 //	$(index + "copying").innerHTML = copyingStr;
-
 	for(var i = 0; i < componentsArray.length; i ++){
-		componentsArrayCopy[i] = $F(index + componentsArray[i]);
+		if($("#" + index + componentsArray[i]).length == 0){
+			debug("empty [" + index + "][" + componentsArray[i] + "]");
+		}else{
+			componentsArrayCopy[i] = $("#" + index + componentsArray[i]).val();
+		}
 	}
 	for(var i = 0; i < rowComponentsArray.length; i ++){
-		if($("row" + index + rowComponentsArray[i]) == null){
-			alert("[row][" + index +  "][" + rowComponentsArray[i] + "]");
+		if($("#row" + index + rowComponentsArray[i]).length == 0){
+			debug("empty [row][" + index +  "][" + rowComponentsArray[i] + "]");
+		}else{
+			rowComponentsArrayCopy[i] = $("#row" + index + rowComponentsArray[i]).val();
 		}
-		rowComponentsArrayCopy[i] = $("row" + index + rowComponentsArray[i]).selectedIndex;
 	}
+	debug("--------");
+	debug(componentsArrayCopy);
+	debug(rowComponentsArrayCopy);
 }
 
 /**
@@ -112,10 +125,10 @@ function copyLine(index){
  */
 function pasteLine(index){
 	for(var i = 0; i < componentsArray.length; i ++){
-		$(index + componentsArray[i]).setValue(componentsArrayCopy[i]);
+		$("#" + index + componentsArray[i]).val(componentsArrayCopy[i]);
 	}
 	for(var i = 0; i < rowComponentsArray.length; i ++){
-		$("row" + index + rowComponentsArray[i]).selectedIndex = rowComponentsArrayCopy[i];
+		$("#row" + index + rowComponentsArray[i]).val(rowComponentsArrayCopy[i]);
 	}
 }
 
@@ -127,25 +140,30 @@ function pasteLine(index){
  * @return
  */
 function enableCopyCtrl(lineId){
+	lineId = "#" + lineId;
 	if($(lineId)){
-		for(var i = 0; i <= $(lineId).childNodes.length; i ++){
-			if($(lineId).childNodes[i] == "[object HTMLTableCellElement]"){
+		for(var i = 0; i <= $(lineId).children().length; i ++){
+			if($(lineId).children()[i] == "[object HTMLTableCellElement]"){
 				//iterate table cells
-				var currentCell = $(lineId).childNodes[i];
-				for(var j = 0; j <= currentCell.childNodes.length; j ++){
-					if(currentCell.childNodes[j] == "[object HTMLSelectElement]"
-							|| currentCell.childNodes[j] == "[object HTMLInputElement]"){
-						if(currentCell.childNodes[j].getAttribute("id").indexOf("FunctionManagementCopyCtrl") > -1){
+				var currentCell = $(lineId).children()[i];
+				for(var j = 0; j <= $(currentCell).children().length; j ++){
+					if($(currentCell).children()[j] == "[object HTMLSelectElement]"
+							|| $(currentCell).children()[j] == "[object HTMLInputElement]"){
+						if($(currentCell).children()[j].id.indexOf("FunctionManagementCopyCtrl") > -1){
 							//it's the copy control cell
-							currentCell.innerHTML = "<span class='button' id='" + rowCount + "copy' >" + copyStr + "</span><span class='button' id='" + rowCount + "paste' >" + pasteStr + "</span><span style='margin-left: 10px;' id='" + rowCount + "copying'></span>";
-							$(rowCount + "copy").setAttribute('onclick', 'copyLine(' + rowCount + ');');
-							$(rowCount + "paste").setAttribute('onclick', 'pasteLine(' + rowCount + ');');
+							$(currentCell).html("<span class='button' id='" + rowCount + "copy' >" + copyStr + "</span><span class='button' id='" + rowCount + "paste' >" + pasteStr + "</span><span style='margin-left: 10px;' id='" + rowCount + "copying'></span>");
+							var currentRow = rowCount;
+							$("#" + currentRow + "copy").click(function(){
+								copyLine(currentRow);
+							});
+							$("#" + currentRow + "paste").click(function(){
+								pasteLine(currentRow);
+							});
 						}else{
 							//update the ids when it's not a "row" prefix 
-							if(currentCell.childNodes[j].getAttribute("id").indexOf("0") == 0){
-								currentCell.childNodes[j].setAttribute("id", rowCount + currentCell.childNodes[j].getAttribute("id").substr(1)); 
+							if($(currentCell).children()[j].id.indexOf("0") == 0){
+								$($(currentCell).children()[j]).attr("id", rowCount + $(currentCell).children()[j].id.substr(1));
 							}
-							debug(currentCell.childNodes[j].getAttribute("id"));
 						}
 					}
 				}
@@ -159,5 +177,5 @@ function enableCopyCtrl(lineId){
 }
 
 function debug(str){
-//	$("debug").innerHTML += str + "<br/>";
+//	$("#debug").append(str + "<br/>");
 }

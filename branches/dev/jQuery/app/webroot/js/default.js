@@ -134,44 +134,59 @@ function uncheckAll( $div ) {
 		//calendar controls
 		$.datepicker.setDefaults($.datepicker.regional[locale]);
 		$(".datepicker").each(function(){
-			var tmpId = this.id.substr(7);
-			//set the current field date into the datepicker
-			$(this).data('val', $('#' + tmpId).val() + "-" + $('#' + tmpId + "-mm").val() + "-" + $('#' + tmpId + "-dd").val());
-			$(this).datepicker({
-				changeMonth: true,
-				changeYear: true,
-				dateFormat: 'yy-mm-dd',
-				firstDay: 0,
-				beforeShow: function(input, inst){
-					//put the date back in place
-					var tmpDate = $(this).data('val');
-					if(tmpDate != null && tmpDate.length > 0){
-						$(this).datepicker('setDate', tmpDate);
-					}
-					//show fake button to hide real button value
-					var item = $(this).parent().children("img")[0];
-					$(item).css("z-index", "1");
-				},
-				onClose: function(dateText,picker) {
-					//hide the date
-					$(this).data('val', $(this).val());
-					$(this).val("");
-					var dateSplit = dateText.split(/-/);
-					$('#' + tmpId).val(dateSplit[0]); 
-		        	$('#' + tmpId + "-mm").val(dateSplit[1]);
-		        	$('#' + tmpId + "-dd").val(dateSplit[2]);
-		        	//hide fake button
-		        	var item = $(this).parent().children("img")[0];
-					$(item).css("z-index", "-1");
-			    }
-			});
-			
-			//activate fake_datepicker in case there is a problem with z-index
-			var currentDatepicker = this;
-			$(this).parent().children("img").click(function(){
-				$(currentDatepicker).datepicker('show');
-			});
+			initDatepicker(this);
 		});
 		//datepicker style
 		$("#ui-datepicker-div").addClass("jquery_cupertino");
+		
+		//add line controls
+//		if($("#addLineLink").length > 0){
+//			var tableBody = $("#addLineLink").parent().parent().parent().parent().children("tbody:first");
+//			var tmpLine = $(tableBody).children("tr:nth-child(2)").html();
+//			$("#addLineLink").click(function(){
+//				$(tableBody).append("<tr>" + tmpLine + "</tr>\n");
+//			});
+//		}	
 	});
+
+	function initDatepicker(element){
+		var tmpId = element.id.substr(0, element.id.length - 7);
+		if($('#' + tmpId).val().length > 0 && $('#' + tmpId + "-mm").val().length > 0 && $('#' + tmpId + "-dd").val().length > 0){
+			//set the current field date into the datepicker
+			$(element).data('val', $('#' + tmpId).val() + "-" + $('#' + tmpId + "-mm").val() + "-" + $('#' + tmpId + "-dd").val());
+		}
+		$(element).datepicker({
+			changeMonth: true,
+			changeYear: true,
+			dateFormat: 'yy-mm-dd',
+			firstDay: 0,
+			beforeShow: function(input, inst){
+				//put the date back in place
+				//because of datagrids copy controls we cannot keep the date in tmp
+				var tmpDate = $('#' + tmpId).val() + "-" + $('#' + tmpId + "-mm").val() + "-" + $('#' + tmpId + "-dd").val();
+				if(tmpDate.length == 10){
+					$(this).datepicker('setDate', tmpDate);
+				}
+				//show fake button to hide real button value
+				var item = $(this).parent().children("img")[0];
+				$(item).css("z-index", "1");
+			},
+			onClose: function(dateText,picker) {
+				//hide the date
+				$(this).val("");
+				var dateSplit = dateText.split(/-/);
+				$('#' + tmpId).val(dateSplit[0]); 
+	        	$('#' + tmpId + "-mm").val(dateSplit[1]);
+	        	$('#' + tmpId + "-dd").val(dateSplit[2]);
+	        	//hide fake button
+	        	var item = $(this).parent().children("img")[0];
+				$(item).css("z-index", "-1");
+		    }
+		});
+		
+		//activate fake_datepicker in case there is a problem with z-index
+		var currentDatepicker = this;
+		$(element).parent().children("img").click(function(){
+			$(currentDatepicker).datepicker('show');
+		});
+	}
