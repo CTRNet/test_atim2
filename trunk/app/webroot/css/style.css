@@ -1393,3 +1393,23 @@ body.flash div#wrapper a:hover {
 a.form:focus{
 	text-decoration:underline;
 }
+
+.datepicker{
+	border-style: none;
+	width: 22px;
+	color: #fff;
+	background: url("../img/cal.gif") no-repeat;
+	cursor: pointer;
+}
+
+img.fake_datepicker{
+	position: absolute; 
+	left: 3px; 
+	top: -1px; 
+	z-index: -1;
+	cursor: pointer;
+}
+
+tr.highlight, td.highlight{
+	background: url("../img/highlight.gif");
+}
