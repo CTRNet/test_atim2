@@ -1409,3 +1409,7 @@ img.fake_datepicker{
 	z-index: -1;
 	cursor: pointer;
 }
+
+tr.highlight, td.highlight{
+	background: url("../img/highlight.gif");
+}

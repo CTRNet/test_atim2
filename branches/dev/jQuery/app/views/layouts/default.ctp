@@ -33,6 +33,7 @@
 		echo $javascript->link('jquery-1.4.2.min')."\n";
 		echo $javascript->link('jquery-ui-1.8.custom.min')."\n";
 		echo $javascript->link('jquery.ui-datepicker-fr.js')."\n";
+		echo $javascript->link('jquery.highlight.js')."\n";
 //		echo $javascript->link('datepicker')."\n";
 //		echo $javascript->link('prototype')."\n";
 //		echo $javascript->link('scriptaculous.js?load=effects,dragdrop')."\n";

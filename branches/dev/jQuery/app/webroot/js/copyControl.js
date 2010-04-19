@@ -12,6 +12,7 @@ var componentsArrayCopy = new Array();
 var rowComponentsArrayCopy = new Array();
 
 var rowCount = 0;
+var templateId = 0;
 
 $(function(){
 	if($("#0FunctionManagementCopyCtrl")){
@@ -72,17 +73,18 @@ $(function(){
 	}
 	//bind onclick command and refresh lines
 	for(var i = 0; i < rowCount; i ++){
-		debug(i);
 		$("#" + i + "FunctionManagementCopyCtrl").parent().append("<span class='button' id='" + i + "copy' >" + copyStr + "</span><span class='button' id='" + i + "paste' >" + pasteStr + "</span><span style='margin-left: 10px;' id='" + i + "copying'></span>");
 		$("#" + i + "FunctionManagementCopyCtrl").css("display", 'none');
+		$("#" + i + "copy").data("index", i);
 		$("#" + i + "copy").click(function(){
-			copyLine(i - 1);
+			copyLine($(this).data("index"));
 		});
+		$("#" + i + "paste").data("index", i);
 		$("#" + i + "paste").click(function (){
-			pasteLine(i - 1);
+			pasteLine($(this).data("index"));
 		});
 	}
-	
+	templateId = rowCount - 1;
 });
 
 /**
@@ -99,6 +101,7 @@ function copyLine(index){
 //	}
 	
 //	$(index + "copying").innerHTML = copyingStr;
+	debug("copying:" + index);
 	for(var i = 0; i < componentsArray.length; i ++){
 		if($("#" + index + componentsArray[i]).length == 0){
 			debug("empty [" + index + "][" + componentsArray[i] + "]");
@@ -124,6 +127,7 @@ function copyLine(index){
  * @return
  */
 function pasteLine(index){
+	debug("pasting: " + index);
 	for(var i = 0; i < componentsArray.length; i ++){
 		$("#" + index + componentsArray[i]).val(componentsArrayCopy[i]);
 	}
@@ -159,11 +163,9 @@ function enableCopyCtrl(lineId){
 							$("#" + currentRow + "paste").click(function(){
 								pasteLine(currentRow);
 							});
-						}else{
+						}else if($(currentCell).children()[j].id.indexOf(templateId) == 0){
 							//update the ids when it's not a "row" prefix 
-							if($(currentCell).children()[j].id.indexOf("0") == 0){
-								$($(currentCell).children()[j]).attr("id", rowCount + $(currentCell).children()[j].id.substr(1));
-							}
+							$($(currentCell).children()[j]).attr("id", rowCount + $(currentCell).children()[j].id.substr(1));
 						}
 					}
 				}

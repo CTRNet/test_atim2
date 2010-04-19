@@ -109,6 +109,13 @@ function uncheckAll( $div ) {
 	}
 	
 	$(function(){
+		//field highlighting
+		if($("#table1row0").length == 1){
+			//gridview
+			$('form').highlight('td');
+		}else{
+			$('form').highlight('tr');
+		}
 		
 		//tree view controls
 		$(".reveal:not(.not_allowed)").each(function(){

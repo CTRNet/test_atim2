@@ -610,10 +610,12 @@ class StructuresHelper extends Helper {
 										var tbody = $("#'.$add_another_unique_link_id.'").parent().parent().children("tbody:first"); 
 										$(tbody).append(templateLine.replace(/#{id}/g, '.$add_another_unique_next_variable.')); 
 										'.$add_another_unique_next_variable.'++;
+										debug("incr: " + '.$add_another_unique_next_variable.');
 										$(tbody).children("tr:last").find(".datepicker").each(function(){
 											debug(this.id);
 											initDatepicker(this);
 										});
+										$("form").highlight("td");
 										if(window.enableCopyCtrl){
 											//if copy control exists, call it
 											enableCopyCtrl("table1row" + ('.$add_another_unique_next_variable.'  - 1));
@@ -2366,7 +2368,7 @@ class StructuresHelper extends Helper {
 	}
 	
 	private function get_date_fields($model_prefix, $model_suffix, $structure_field, $html_element_array, $model_prefix_css, $model_suffix_css, $search_suffix, $datetime_array){
-		$tmp_datetime_array = array('year' => null, 'month' => null, 'day' => null, 'hour' => null, 'minute' => null, 'meridian' => null);
+		$tmp_datetime_array = array('year' => null, 'month' => null, 'day' => null, 'hour' => "", 'minute' => null, 'meridian' => null);
 		$datetime_array = array_merge($tmp_datetime_array, $datetime_array);
 		$date = "";
 		$my_model_prefix = strlen($model_prefix) > 0 ? "[".substr($model_prefix, 0, 1)."]" : "";
@@ -2402,10 +2404,9 @@ class StructuresHelper extends Helper {
 			</span>';
 		
 		if ( $structure_field['type']=='datetime' ) {
-			$date .= $this->Form->hour($model_prefix.$structure_field['model'].$model_suffix.$structure_field['field'].$search_suffix, false, $datetime_array['hour'], array('tabindex' => $html_element_array['tabindex']));
-			//bugged somehow, the minute field is not ok unless we specify it manually
+			$date .= $this->Form->hour($model_prefix.$structure_field['model'].$model_suffix.$structure_field['field'].$search_suffix, false, $datetime_array['hour'], am(array('name'=>$date_name_prefix."[hour]", 'id' => $model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix.'Hour'), $html_element_array));
 			$date .= $this->Form->minute($model_prefix.$structure_field['model'].$model_suffix.$structure_field['field'].$search_suffix, $datetime_array['minute'], am(array('name'=>$date_name_prefix."[min]", 'id' => $model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix.'Min'), $html_element_array));
-			$date .= $this->Form->meridian($model_prefix.$structure_field['model'].$model_suffix.$structure_field['field'].$search_suffix, $datetime_array['meridian'], array('tabindex' => $html_element_array['tabindex']));
+			$date .= $this->Form->meridian($model_prefix.$structure_field['model'].$model_suffix.$structure_field['field'].$search_suffix, $datetime_array['meridian'], am(array('name'=>$date_name_prefix."[meridian]", 'id' => $model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix.'Meridian'), $html_element_array));
 		}
 		
 		return $date;
