@@ -104,7 +104,8 @@ function uncheckAll( $div ) {
 //	});
 	
 	function getJsonFromClass(cssClass){
-		return eval ('(' + cssClass.substr(cssClass.indexOf("{")) + ')');
+		var startIndex = cssClass.indexOf("{");
+		return eval ('(' + cssClass.substr(startIndex, cssClass.lastIndexOf("}") - startIndex + 1) + ')');
 	}
 	
 	$(function(){

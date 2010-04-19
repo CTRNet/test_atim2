@@ -1646,7 +1646,6 @@ class StructuresHelper extends Helper {
 						case 'date':
 						case 'datetime':
 							// if( !isset($field['flag_'.$options['type'].'_readonly']) ) {
-							
 								//use this only if we are not in readonly
 								if ( $options['type']=='search' || !count($field['StructureField']['StructureValidation']) ) {
 									$html_element_array['empty'] = TRUE;
@@ -1663,49 +1662,11 @@ class StructuresHelper extends Helper {
 									$datetime_array = array();
 									if ( isset($options['override'][$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]) ) {
 										$datetime_array = StructuresHelper::datetime_to_array($options['override'][$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]);
-//										if ( $field['StructureField']['type']=='date' ) {
-//											$override_date = explode('-',$options['override'][$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]);
-//										} else {
-//											$override_datetime = explode(' ',$options['override'][$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]);
-//											$override_date = explode('-',$override_datetime[0]);
-//											$override_time = explode(':',$override_datetime[1]);
-//										}
-//										$day_value		= $override_date[2];
-//										$month_value	= $override_date[1];
-//										$year_value		= $override_date[0];
-//											
-//										if ( $field['StructureField']['type']=='datetime' ) {
-//
-//											$hour_value			= $override_time[0]>12 ? $override_time[0]-12 : $override_time[0];
-//											$minute_value 		= $override_time[1];
-//											$meridian_value	= $override_time[0]>12 ? 'pm' : 'am';
-//
-//											if ( trim($hour_value)!=='' && $hour_value!==false ) $hour_value = '0';
-//
-//										}
 									}else if(isset($this->data) && !empty($this->data) && !isset($this->data[0])){
-										//FMLHHHHHHH
 										$datetime_array = StructuresHelper::datetime_to_array($this->data[$field['StructureField']['model']][$field['StructureField']['field']]);
-										//											echo($tmp_datetime." - ");
-										//											$tmp_date = explode('-', substr($tmp_datetime, 0, 10));
-										//											$year_value		= $tmp_date[0];
-										//											$month_value	= $tmp_date[1];
-										//											$day_value		= $tmp_date[2];
-										//											$tmp_time = explode(':', substr($tmp_datetime, 11));
-										//											echo($tmp_time[0].":".$tmp_time[1]);
-										//											$hour_value			= $tmp_time[0]>12 ? $tmp_time[0]-12 : $tmp_time[0];
-										//											$minute_value 		= $tmp_time[1];
-										//											$meridian_value		= $tmp_time[0]>12 ? 'pm' : 'am';
 									}
 									$display_value .= $this->get_date_fields($model_prefix, $model_suffix, $field['StructureField'],
 									$html_element_array, $model_prefix_css, $model_suffix_css, "", $datetime_array);
-
-									//FMLHHH
-									//									if ( $field['StructureField']['type']=='datetime' ) {
-									//										$display_value .= $this->Form->hour($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], FALSE, ($hour_value === "0" ? 12 : $hour_value), am(array('name'=>$hour_name),$html_element_array) );
-									//										$display_value .= $this->Form->minute($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], $minute_value,  am(array('name'=>$minute_name),$html_element_array) );
-									//										$display_value .= $this->Form->meridian($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], $meridian_value,  am(array('name'=>$meridian_name),$html_element_array) );
-									//									}
 										
 								}
 
@@ -2408,9 +2369,7 @@ class StructuresHelper extends Helper {
 		$tmp_datetime_array = array('year' => null, 'month' => null, 'day' => null, 'hour' => null, 'minute' => null, 'meridian' => null);
 		$datetime_array = array_merge($tmp_datetime_array, $datetime_array);
 		$date = "";
-		if(strlen($model_prefix) > 0){
-			$my_model_prefix = "[".substr($model_prefix, 0, 1)."]";
-		}
+		$my_model_prefix = strlen($model_prefix) > 0 ? "[".substr($model_prefix, 0, 1)."]" : "";
 		$date_name_prefix = "data".$my_model_prefix."[".$structure_field['model']."][".$structure_field['field'].$search_suffix."]";
 		for($i = 0; $i < 3; ++ $i){
 			$tmp_current = substr(date_format, $i, 1);
@@ -2444,8 +2403,8 @@ class StructuresHelper extends Helper {
 		
 		if ( $structure_field['type']=='datetime' ) {
 			$date .= $this->Form->hour($model_prefix.$structure_field['model'].$model_suffix.$structure_field['field'].$search_suffix, false, $datetime_array['hour'], array('tabindex' => $html_element_array['tabindex']));
-			//TODO: minutes are bugged
-			$date .= $this->Form->minute($model_prefix.$structure_field['model'].$model_suffix.$structure_field['field'].$search_suffix, $datetime_array['minute'], array('tabindex' => $html_element_array['tabindex']));
+			//bugged somehow, the minute field is not ok unless we specify it manually
+			$date .= $this->Form->minute($model_prefix.$structure_field['model'].$model_suffix.$structure_field['field'].$search_suffix, $datetime_array['minute'], am(array('name'=>$date_name_prefix."[min]", 'id' => $model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix.'Min'), $html_element_array));
 			$date .= $this->Form->meridian($model_prefix.$structure_field['model'].$model_suffix.$structure_field['field'].$search_suffix, $datetime_array['meridian'], array('tabindex' => $html_element_array['tabindex']));
 		}
 		
