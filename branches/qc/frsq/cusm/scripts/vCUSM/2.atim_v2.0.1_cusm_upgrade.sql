@@ -217,13 +217,27 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 
 INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) 
 VALUES 
-(NULL, 'v2006-02-01', 'v2006-02-01'),
-(NULL, 'v2006-01-26', 'v2006-01-26');
+(NULL, 'v2009-07-08 fr', 'v2009-07-08 fr'),
+(NULL, 'v2009-07-08 en', 'v2009-07-08 en'),
 
-DELETE FROM `i18n` WHERE `id` IN ('v2006-02-01', 'v2006-01-26');
+(NULL, 'v2006-02-01 fr', 'v2006-02-01 fr'),
+(NULL, 'v2006-02-01 en', 'v2006-02-01 en'),
+
+(NULL, 'v2006-01-26 fr', 'v2006-01-26 fr'),
+(NULL, 'v2006-01-26 en', 'v2006-01-26 en');
+
+DELETE FROM `i18n` WHERE `id` IN ('v2009-07-08 fr', 'v2009-07-08 en', 
+'v2006-02-01 fr', 'v2006-02-01 en', 
+'v2006-01-26 fr', 'v2006-01-26 en');
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
-('v2006-02-01', 'global', 'v2006-02-01', 'v2006-02-01'),
-('v2006-01-26', 'global', 'v2006-01-26', 'v2006-01-26');
+('v2009-07-08 fr', 'global', 'v2009-07-08 - Fr', 'v2009-07-08 - Fr'),
+('v2009-07-08 en', 'global', 'v2009-07-08 - En', 'v2009-07-08 - En'),
+
+('v2006-02-01 fr', 'global', 'v2006-02-01 - Fr', 'v2006-02-01 - Fr'),
+('v2006-02-01 en', 'global', 'v2006-02-01 - En', 'v2006-02-01 - En'),
+
+('v2006-01-26 fr', 'global', 'v2006-01-26 - Fr', 'v2006-01-26 - Fr'),
+('v2006-01-26 en', 'global', 'v2006-01-26 - En', 'v2006-01-26 - En');
 
 INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`) VALUES
 (null, 'qc_cusm_consent_version', 'open', '');
@@ -233,8 +247,14 @@ SET @domain_id = LAST_INSERT_ID();
 INSERT INTO `structure_value_domains_permissible_values`  
 (`id` , `structure_value_domain_id` , `structure_permissible_value_id` , `display_order` , `active` , `language_alias` )
 VALUES 
-(NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'v2006-02-01'), '20', 'yes', 'v2006-02-01'),
-(NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'v2006-01-26'), '30', 'yes', 'v2006-01-26');
+(NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'v2009-07-08 en'), '10', 'yes', 'v2009-07-08 en'),
+(NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'v2009-07-08 fr'), '11', 'yes', 'v2009-07-08 fr'),
+
+(NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'v2006-02-01 en'), '21', 'yes', 'v2006-02-01 en'),
+(NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'v2006-02-01 fr'), '22', 'yes', 'v2006-02-01 fr'),
+
+(NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'v2006-01-26 en'), '30', 'yes', 'v2006-01-26 en'),
+(NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'v2006-01-26 fr'), '31', 'yes', 'v2006-01-26 fr');
 
 DELETE FROM `i18n` WHERE `id` IN ('muhc');
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
@@ -1588,7 +1608,7 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 INSERT INTO `structure_fields` 
 (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) 
 VALUES
-(null, '', 'QC-CUSM-000007-SampView', 'Inventorymanagement', 'SampleMaster', 'sample_masters', 'qc_cusm_sample_label', 'sample label', '', 'input', 'size=30', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(null, '', 'QC-CUSM-000007-SampView', 'Inventorymanagement', 'SampleMaster', 'sample_views', 'qc_cusm_sample_label', 'sample label', '', 'input', 'size=30', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 SET @field_id = LAST_INSERT_ID();
 
@@ -2283,25 +2303,28 @@ AND `status` = 'active';
 
 -- Hidde unused strorage type
 
-UPDATE `storage_controls` SET  `status` = 'inactive' WHERE `storage_type` NOT IN ('room', 'freezer', 'shelf');
+UPDATE `storage_controls` SET  `status` = 'inactive' 
+WHERE `storage_type` NOT IN ('room', 'freezer', 'shelf', 'box');
 
 UPDATE structure_value_domains_permissible_values
 SET active = 'no'
 WHERE structure_value_domain_id = (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'storage_type')
-AND language_alias NOT IN ('room', 'freezer', 'shelf');
+AND language_alias NOT IN ('room', 'freezer', 'shelf', 'box');
 
 -- Creatre new strorage type
 
 INSERT INTO `storage_controls` (`id`, `storage_type`, `storage_type_code`, `coord_x_title`, `coord_x_type`, `coord_x_size`, `coord_y_title`, `coord_y_type`, `coord_y_size`, `display_x_size`, `display_y_size`, `reverse_x_numbering`, `reverse_y_numbering`, `set_temperature`, `is_tma_block`, `status`, `form_alias`, `form_alias_for_children_pos`, `detail_tablename`) VALUES
-(null , 'rack16 A1-D4', 'RACK', 'column', 'alphabetical', 4, 'row', 'integer', 4, 0, 0, 0, 1, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_2_dim_position_selection', 'std_racks'),
-(null, 'box100', 'B100', 'position', 'integer', 100, null, null, null, 10, 10, 0, 0, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_boxs'),
+(null , 'rack 4x4', 'R', 'column', 'integer', 4, 'row', 'integer', 4, 0, 0, 0, 1, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_2_dim_position_selection', 'std_racks'),
+(null, 'box 10x10', 'B100', 'position', 'integer', 100, null, null, null, 10, 10, 0, 0, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_boxs'),
+(null, 'box 2x8', 'B16', 'column', 'integer', 2, 'row', 'integer', 8, 0, 0, 0, 0, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_boxs'),
 (null, 'drawers box', 'DR-BX', 'position', 'integer', 8, null, null, null, 4, 2, 0, 0, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_boxs'),
 (null, 'blocks drawer', 'DR', 'position', 'integer', 2, null, null, null, 0, 0, 0, 0, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_boxs');
 
 INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) 
 VALUES 
-(NULL, 'rack16 A1-D4', 'rack16 A1-D4'),
-(NULL, 'box100', 'box100'),
+(NULL, 'rack 4x4', 'rack 4x4'),
+(NULL, 'box 10x10', 'box 10x10'),
+(NULL, 'box 2x8', 'box 2x8'),
 (NULL, 'drawers box', 'drawers box'),
 (NULL, 'blocks drawer', 'blocks drawer');
 
@@ -2310,15 +2333,17 @@ SET @domain_id = (SELECT `id` FROM `structure_value_domains` WHERE `domain_name`
 INSERT INTO `structure_value_domains_permissible_values`  
 (`id` , `structure_value_domain_id` , `structure_permissible_value_id` , `display_order` , `active` , `language_alias` )
 VALUES 
-(NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'rack16 A1-D4' AND `language_alias` = 'rack16 A1-D4'), '110', 'yes', 'rack16 A1-D4'),
-(NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'box100' AND `language_alias` = 'box100'), '120', 'yes', 'box100'),
+(NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'rack 4x4' AND `language_alias` = 'rack 4x4'), '110', 'yes', 'rack 4x4'),
+(NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'box 10x10' AND `language_alias` = 'box 10x10'), '120', 'yes', 'box 10x10'),
+(NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'box 2x8' AND `language_alias` = 'box 2x8'), '115', 'yes', 'box 2x8'),
 (NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'drawers box' AND `language_alias` = 'drawers box'), '130', 'yes', 'drawers box'),
 (NULL , @domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'blocks drawer' AND `language_alias` = 'blocks drawer'), '140', 'yes', 'blocks drawer');
 
-DELETE FROM `i18n` WHERE `id` IN ('blocks drawer', 'drawers box', 'box100', 'rack16 A1-D4');
+DELETE FROM `i18n` WHERE `id` IN ('blocks drawer', 'drawers box', 'box 10x10', 'rack 4x4');
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
-('rack16 A1-D4', 'global', 'Rack ', 'Ratelier'),
-('box100', 'global', 'Box 100', 'Boîte 100'),
+('rack 4x4', 'global', 'Rack 4x4', 'Ratelier 4x4'),
+('box 10x10', 'global', 'Box 10x10', 'Boîte 10x10'),
+('box 2x8', 'global', 'Box 2x8', 'Boîte 2x8'),
 ('drawers box', 'global', 'Drawers Box', 'Boîte à tiroirs'),
 ('blocks drawer', 'global', 'Blocks Drawer', 'Tiroir à blocs');
 

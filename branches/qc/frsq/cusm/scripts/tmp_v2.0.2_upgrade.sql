@@ -45,6 +45,7 @@ ALTER TABLE parent_to_derivative_sample_controls CHANGE `status` flag_active BOO
 
 ALTER TABLE protocol_controls ADD flag_active BOOLEAN NOT NULL DEFAULT '1';
 
+ALTER TABLE `realiquoting_controls`  CHANGE `status` `status` VARCHAR( 10 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT '';
 UPDATE realiquoting_controls SET `status`='0' WHERE `status`!='active';
 UPDATE realiquoting_controls SET `status`='1' WHERE `status`!='0';
 ALTER TABLE realiquoting_controls CHANGE `status` flag_active BOOLEAN NOT NULL DEFAULT '1';
@@ -53,6 +54,7 @@ UPDATE sample_controls SET `status`='0' WHERE `status`!='active';
 UPDATE sample_controls SET `status`='1' WHERE `status`!='0';
 ALTER TABLE sample_controls CHANGE `status` flag_active BOOLEAN NOT NULL DEFAULT '1';
 
+ALTER TABLE `sample_to_aliquot_controls`  CHANGE `status` `status` VARCHAR( 10 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT '';
 UPDATE sample_to_aliquot_controls SET `status`='0' WHERE `status`!='active';
 UPDATE sample_to_aliquot_controls SET `status`='1' WHERE `status`!='0';
 ALTER TABLE sample_to_aliquot_controls CHANGE `status` flag_active BOOLEAN NOT NULL DEFAULT '1';
@@ -65,6 +67,7 @@ UPDATE tx_controls SET `status`='0' WHERE `status`!='active';
 UPDATE tx_controls SET `status`='1' WHERE `status`!='0';
 ALTER TABLE tx_controls CHANGE `status` flag_active BOOLEAN NOT NULL DEFAULT '1';
 
+ALTER TABLE `structure_value_domains_permissible_values`  CHANGE `active` `active` VARCHAR( 10 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT '';
 UPDATE structure_value_domains_permissible_values SET `active`='0' WHERE `active`!='yes';
 UPDATE structure_value_domains_permissible_values SET `active`='1' WHERE `active`!='0';
 ALTER TABLE structure_value_domains_permissible_values CHANGE `active` flag_active BOOLEAN NOT NULL DEFAULT '1'; 
