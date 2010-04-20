@@ -1,4 +1,5 @@
-function set_at_state_in_tree_root(new_at_li) {
+function set_at_state_in_tree_root(new_at_li, json) {
+	
 	if(!window.loadingStr){
 		window.loadingStr = "js untranslated loading";	
 	}
@@ -8,5 +9,8 @@ function set_at_state_in_tree_root(new_at_li) {
 		tree_root_lis[i].className = false;
 	}
 	new_at_li.parentNode.className = "at";
-	$("frame").innerHTML = "<div class='loading'>---" + loadingStr + "---</div>";
+	$("#frame").html("<div class='loading'>---" + loadingStr + "---</div>");
+	$.get($(this).attr("href"), {}, function(data){
+		$("#frame").html(data);
+	});
 }

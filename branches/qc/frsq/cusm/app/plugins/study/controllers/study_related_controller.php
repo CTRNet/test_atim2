@@ -3,7 +3,7 @@
 class StudyRelatedController extends StudyAppController {
 			
 	var $uses = array('Study.StudyRelated','Study.StudySummary');
-	var $paginate = array('StudyRelated'=>array('limit'=>10,'order'=>'StudyRelated.title'));
+	var $paginate = array('StudyRelated'=>array('limit' => pagination_amount,'order'=>'StudyRelated.title'));
 	
 	function listall( $study_summary_id ) {
 		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
@@ -87,7 +87,7 @@ class StudyRelatedController extends StudyAppController {
 				// 4- SAVE
 
 				if ( $this->StudyRelated->save($this->data) ) {
-					$this->flash( 'your data has been saved.','/study/study_related/detail/'.$study_summary_id.'/'.$this->StudyRelated->id );
+					$this->flash( 'your data has been saved','/study/study_related/detail/'.$study_summary_id.'/'.$this->StudyRelated->id );
 					}
 				}
 			}
@@ -136,7 +136,7 @@ class StudyRelatedController extends StudyAppController {
 
 					$this->StudyRelated->id = $study_related_id;
 					if ( $this->StudyRelated->save($this->data) ) {
-						$this->flash( 'your data has been updated.','/study/study_related/detail/'.$study_summary_id.'/'.$study_related_id );
+						$this->flash( 'your data has been updated','/study/study_related/detail/'.$study_summary_id.'/'.$study_related_id );
 						}
 					}
 				}
@@ -163,7 +163,7 @@ class StudyRelatedController extends StudyAppController {
 				// DELETE DATA
 
 				if( $this->StudyRelated->atim_delete( $study_related_id ) ) {
-					$this->flash( 'your data has been deleted.', '/study/study_related/listall/'.$study_summary_id );
+					$this->flash( 'your data has been deleted', '/study/study_related/listall/'.$study_summary_id );
 				} else {
 					$this->flash( 'error deleting data - contact administrator.', '/study/study_related/listall/'.$study_summary_id );
 				}

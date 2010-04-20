@@ -3,7 +3,7 @@
 class UserLogsController extends AdministrateAppController {
 	
 	var $uses = array('UserLog');
-	var $paginate = array('UserLog'=>array('limit'=>10,'order'=>'UserLog.visited DESC')); 
+	var $paginate = array('UserLog'=>array('limit' => pagination_amount,'order'=>'UserLog.visited DESC')); 
 	
 	function index( $bank_id, $group_id, $user_id ) {
 		$this->set( 'atim_menu_variables', array('Bank.id'=>$bank_id,'Group.id'=>$group_id,'User.id'=>$user_id) );

@@ -3,7 +3,7 @@
 class StudyContactsController extends StudyAppController {
 	
 	var $uses = array('Study.StudyContact','Study.StudySummary');
-	var $paginate = array('StudyContact'=>array('limit'=>10,'order'=>'StudyContact.last_name'));
+	var $paginate = array('StudyContact'=>array('limit' => pagination_amount,'order'=>'StudyContact.last_name'));
 	
 	function listall( $study_summary_id ) {
 		// Missing or empty function variable, send to ERROR page
@@ -81,7 +81,7 @@ class StudyContactsController extends StudyAppController {
 				// 4- SAVE
 
 				if ( $this->StudyContact->save($this->data) ) {
-					$this->flash( 'your data has been saved.','/study/study_contacts/detail/'.$study_summary_id.'/'.$this->StudyContact->id );
+					$this->flash( 'your data has been saved','/study/study_contacts/detail/'.$study_summary_id.'/'.$this->StudyContact->id );
 					}
 				}
 			}
@@ -127,7 +127,7 @@ class StudyContactsController extends StudyAppController {
 
 					$this->StudyContact->id = $study_contact_id;
 					if ( $this->StudyContact->save($this->data) ) {
-						$this->flash( 'your data has been updated.','/study/study_contacts/detail/'.$study_summary_id.'/'.$study_contact_id );
+						$this->flash( 'your data has been updated','/study/study_contacts/detail/'.$study_summary_id.'/'.$study_contact_id );
 						}
 					}
 				}
@@ -155,7 +155,7 @@ class StudyContactsController extends StudyAppController {
 				// DELETE DATA
 
 				if( $this->StudyContact->atim_delete( $study_contact_id ) ) {
-					$this->flash( 'your data has been deleted.', '/study/study_contacts/listall/'.$study_summary_id );
+					$this->flash( 'your data has been deleted', '/study/study_contacts/listall/'.$study_summary_id );
 				} else {
 					$this->flash( 'error deleting data - contact administrator.', '/study/study_contacts/listall/'.$study_summary_id );
 				}

@@ -2,7 +2,7 @@
 
 class MaterialsController extends MaterialAppController {
 	var $uses = array('Material.Material');
-	var $paginate = array('Material'=>array('limit'=>10,'order'=>'Material.item_name'));
+	var $paginate = array('Material'=>array('limit' => pagination_amount,'order'=>'Material.item_name'));
 	
 	function index(){
 		$_SESSION['ctrapp_core']['search'] = NULL; // clear SEARCH criteria
@@ -31,13 +31,13 @@ class MaterialsController extends MaterialAppController {
 	
 		if ( !empty($this->data) ) {
 			if ( $this->Material->save($this->data) ) {
-				$this->flash( 'Your data has been updated.','/material/materials/detail/'.$this->Material->id );
+				$this->flash( 'your data has been updated','/material/materials/detail/'.$this->Material->id );
 			}
 		}
   	}
   
 	function edit( $material_id=null ) {
-		if ( !$material_id ) { $this->redirect( '/pages/err_material_no_material_id', NULL, TRUE ); }
+		if ( !$material_id ) { $this->redirect( '/pages/err_mat_funct_param_missing', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('Material.id'=>$material_id) );
 		
@@ -46,7 +46,7 @@ class MaterialsController extends MaterialAppController {
 		if ( !empty($this->data) ) {
 			$this->Material->id = $material_id;
 			if ( $this->Material->save($this->data) ) {
-				$this->flash( 'Your data has been updated.','/material/materials/detail/'.$material_id );
+				$this->flash( 'your data has been updated','/material/materials/detail/'.$material_id );
 			}
 		} else {
 			$this->data = $this->Material->find('first',array('conditions'=>array('Material.id'=>$material_id)));
@@ -54,7 +54,7 @@ class MaterialsController extends MaterialAppController {
   	}
 	
 	function detail( $material_id=null ) {
-		if ( !$material_id ) { $this->redirect( '/pages/err_material_no_material_id', NULL, TRUE ); }
+		if ( !$material_id ) { $this->redirect( '/pages/err_mat_funct_param_missing', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('Material.id'=>$material_id) );
 		
@@ -64,14 +64,14 @@ class MaterialsController extends MaterialAppController {
 	}
   
 	function delete( $material_id=null ) {
-		if ( !$material_id ) { $this->redirect( '/pages/err_material_no_material_id', NULL, TRUE ); }
+		if ( !$material_id ) { $this->redirect( '/pages/err_mat_funct_param_missing', NULL, TRUE ); }
 		
 		$this->hook();
 		
 		if( $this->Material->atim_delete( $material_id ) ) {
-			$this->flash( 'Your data has been deleted.', '/material/materials/listall/');
+			$this->flash( 'your data has been deleted', '/material/materials/listall/');
 		} else {
-			$this->flash( 'Error deleting data - Contact administrator.', '/material/materials/listall/');
+			$this->flash( 'error deleting data - contact administrator', '/material/materials/listall/');
 		}
   	}
 

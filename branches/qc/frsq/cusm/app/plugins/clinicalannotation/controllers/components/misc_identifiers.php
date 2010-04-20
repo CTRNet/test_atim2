@@ -8,7 +8,7 @@ class MiscIdentifiersComponent extends Object {
 	
 	function getIdentiferNamesListForDisplay() {
 		// Get all identifier controls
-		$identifier_controls = $this->controller->MiscIdentifierControl->find('all', array('conditions' => array('status' => 'active')));
+		$identifier_controls = $this->controller->MiscIdentifierControl->find('all', array('conditions' => array('flag_active' => '1')));
 		
 		$name = array();
 		foreach($identifier_controls as $new_data) {

@@ -38,7 +38,7 @@ class ProvidersController extends ProviderAppController
 	
 		if ( !empty($this->data) ) {
 			if ( $this->Provider->save($this->data) ) {
-				$this->flash( 'Your data has been updated.','/provider/providers/detail/'.$this->Provider->getLastInsertId());
+				$this->flash( 'your data has been updated','/provider/providers/detail/'.$this->Provider->getLastInsertId());
 			} else {
 				$this->data = $this_data;
 			}
@@ -46,7 +46,7 @@ class ProvidersController extends ProviderAppController
 	}
 	
 	function detail( $provider_id=null ){
-		if ( !$provider_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$provider_id ) { $this->redirect( '/pages/err_prov_funct_param_missing', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('Provider.id'=>$provider_id) );
 
@@ -56,7 +56,7 @@ class ProvidersController extends ProviderAppController
 	}
 	
 	function edit( $provider_id=null ){
-		if ( !$provider_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$provider_id ) { $this->redirect( '/pages/err_prov_funct_param_missing', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('Provider.id'=>$provider_id) );
 		
@@ -65,7 +65,7 @@ class ProvidersController extends ProviderAppController
 		if ( !empty($this->data) ) {
 			$this->Provider->id = $provider_id;
 			if ( $this->Provider->save($this->data) ) {
-				$this->flash( 'Your data has been updated.','/provider/providers/detail/'.$provider_id );
+				$this->flash( 'your data has been updated','/provider/providers/detail/'.$provider_id );
 			}
 		} else {
 			$this->data = $this->Provider->find('first',array('conditions'=>array('Provider.id'=>$provider_id)));
@@ -73,14 +73,14 @@ class ProvidersController extends ProviderAppController
 	}
 	
 	function delete( $provider_id=null ){
-		if ( !$provider_id ) { $this->redirect( '/pages/err_clin-ann_no_part_id', NULL, TRUE ); }
+		if ( !$provider_id ) { $this->redirect( '/pages/err_prov_funct_param_missing', NULL, TRUE ); }
 		
 		$this->hook();
 		
 		if( $this->Provider->atim_delete( $provider_id ) ) {
-			$this->flash( 'Your data has been deleted.', '/provider/providers/listall/');
+			$this->flash( 'your data has been deleted', '/provider/providers/listall/');
 		} else {
-			$this->flash( 'Error deleting data - Contact administrator.', '/provider/providers/listall/');
+			$this->flash( 'error deleting data - contact administrator', '/provider/providers/listall/');
 		}
 	}
 }

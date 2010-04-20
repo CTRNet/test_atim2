@@ -6,7 +6,7 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController {
 		'Clinicalannotation.ReproductiveHistory',
 		'Clinicalannotation.Participant'
 	);
-	var $paginate = array('ReproductiveHistory'=>array('limit'=>10,'order'=>'ReproductiveHistory.date_captured'));
+	var $paginate = array('ReproductiveHistory'=>array('limit' => pagination_amount,'order'=>'ReproductiveHistory.date_captured'));
 	
 	function listall( $participant_id ) {
 		if ( !$participant_id ) { $this->redirect( 'err_clin_funct_param_missing', NULL, TRUE ); }
@@ -101,7 +101,7 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController {
 			if($submitted_data_validates) {
 				$this->ReproductiveHistory->id = $reproductive_history_id;
 				if ( $this->ReproductiveHistory->save($this->data) ) {
-					$this->flash( 'Your data has been updated.','/clinicalannotation/reproductive_histories/detail/'.$participant_id.'/'.$reproductive_history_id );
+					$this->flash( 'your data has been updated','/clinicalannotation/reproductive_histories/detail/'.$participant_id.'/'.$reproductive_history_id );
 				}
 			}
 		}

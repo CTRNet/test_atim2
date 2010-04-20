@@ -37,12 +37,28 @@ class MenusComponent extends Object {
 			$alias_calculated[]	= 'Menu.use_link LIKE "/'.( $this->controller->params['plugin'] ? $this->controller->params['plugin'].'/' : '' ).$this->controller->params['controller'].'%"';
 			
 		}
-		$fname = $fname = "../tmp/cache/menus/".str_replace("/", "_", $alias).".cache";
+		$menu_cache_directory = "../tmp/cache/menus/";
+		$fname = $menu_cache_directory.str_replace("/", "_", $alias).".cache";
 		if(file_exists($fname) && Configure::read('ATiMMenuCache.disable') != 1){
 			$fhandle = fopen($fname, 'r');
 			$return = unserialize(fread($fhandle, filesize($fname)));
 			fclose($fhandle);
 		}else{
+			if(Configure::read('ATiMMenuCache.disable')){
+				//clear menu cache
+				try{
+					if ($dh = opendir($menu_cache_directory)) {
+				        while (($file = readdir($dh)) !== false) {
+				            if(filetype($menu_cache_directory . $file) == "file"){
+				            	unlink($menu_cache_directory . $file);
+				            }
+				        }
+				        closedir($dh);
+				    }
+				}catch(Exception $e){
+					//do nothing, it's a race condition with someone else
+				}
+			}
 			if ( $alias ) {
 				App::import('model', 'Menu');
 				$this->Component_Menu =& new Menu;
@@ -50,7 +66,7 @@ class MenusComponent extends Object {
 				$result = $this->Component_Menu->find(
 								'all', 
 								array(
-									'conditions'	=>	'(Menu.use_link="'.$alias.'" OR Menu.use_link="'.$alias.'/") AND (Menu.active="yes" OR Menu.active="y" OR Menu.active="1")', 
+									'conditions'	=>	'(Menu.use_link="'.$alias.'" OR Menu.use_link="'.$alias.'/") AND Menu.flag_active="1"', 
 									'recursive'		=>	3,
 									'order'			=> 'Menu.parent_id DESC, Menu.display_order ASC',
 										'limit'			=> 1
@@ -62,7 +78,7 @@ class MenusComponent extends Object {
 					$result = $this->Component_Menu->find(
 									'all', 
 									array(
-										'conditions'	=>	'(Menu.use_link LIKE "'.$alias.'%") AND (Menu.active="yes" OR Menu.active="y" OR Menu.active="1")', 
+										'conditions'	=>	'(Menu.use_link LIKE "'.$alias.'%") AND Menu.flag_active="1"', 
 										'recursive'		=>	3,
 										'order'			=> 'Menu.parent_id DESC, Menu.display_order ASC',
 										'limit'			=> 1
@@ -77,7 +93,7 @@ class MenusComponent extends Object {
 						$result = $this->Component_Menu->find(
 									'all', 
 									array(
-										'conditions'	=>	'('.$alias_calculated[$alias_count].') AND (Menu.active="yes" OR Menu.active="y" OR Menu.active="1")', 
+										'conditions'	=>	'('.$alias_calculated[$alias_count].') AND Menu.flag_active="1"', 
 										'recursive'		=>	3,
 										'order'			=> 'Menu.parent_id DESC, Menu.display_order ASC',
 										'limit'			=> 1
@@ -96,7 +112,7 @@ class MenusComponent extends Object {
 				
 				while ( $parent_id!==false ) {
 					
-					$current_level = $this->Component_Menu->find('all', array('conditions' => '(Menu.parent_id = "'.$parent_id.'") AND (Menu.active="yes" OR Menu.active="y" OR Menu.active="1")', 'order'=>'Menu.parent_id DESC, Menu.display_order ASC'));
+					$current_level = $this->Component_Menu->find('all', array('conditions' => '(Menu.parent_id = "'.$parent_id.'") AND Menu.flag_active="1"', 'order'=>'Menu.parent_id DESC, Menu.display_order ASC'));
 					
 					if ( $current_level && count($current_level) ) {
 						
