@@ -101,7 +101,7 @@ class EventMastersControllerCustom extends EventMastersController {
  	 * @param $event_control_data Event control data of the created/studied event.
  	 **/
  	 
-	function setMedicalImaginStructures($event_control_data){pr($event_control_data);
+	function setMedicalImaginStructures($event_control_data){
 		if(strpos($event_control_data['EventControl']['form_alias'], 'qc_hb_imaging') === 0){
 			
 			// Set date and summary structure for all
@@ -132,6 +132,52 @@ class EventMastersControllerCustom extends EventMastersController {
 			$this->set('last_imaging_structure', $last_imaging_structure);
 		}	
 	}
+ 	
+ 	/** 
+ 	 * Complete volumetry data for clinical.hepatobiliary.medical imaging *** - volumetry
+ 	 * and add it to submitted event data.
+ 	 * 
+ 	 * @param $event_data Submitted event data
+ 	 * 
+ 	 * @return Updated event data
+ 	 * */
+	
+ 	function completeVolumetry( $event_data ) { 
+ 		if(isset($event_data['EventDetail']['is_volumetry_post_pve'])) {
+ 			
+ 			if(isset($event_data['EventDetail']['total_liver_volume'])
+ 			&& is_numeric($event_data['EventDetail']['total_liver_volume'])
+ 			&& isset($event_data['EventDetail']['resected_liver_volume'])
+ 			&& is_numeric($event_data['EventDetail']['resected_liver_volume'])) {
+ 				
+ 				// Remanant liver volume (= total liver volume - resected liver volume)
+ 				$remnant_liver_volume = $event_data['EventDetail']['total_liver_volume'] - $event_data['EventDetail']['resected_liver_volume'];
+ 				
+ 				// Remanant liver percentage (= (remnant liver volume / (total_liver_volume - tumoral_volume)) * 100 ))
+ 				$remnant_liver_percentage = '';
+	 			if(isset($event_data['EventDetail']['tumoral_volume'])
+	 			&& is_numeric($event_data['EventDetail']['tumoral_volume'])) {
+	 				$diff = $event_data['EventDetail']['total_liver_volume'] - $event_data['EventDetail']['tumoral_volume'];
+	 				if(!empty($diff)) {
+	 					$remnant_liver_percentage = ($remnant_liver_volume / $diff) * 100;
+	 				}
+	 			} 
+	 			
+	 			$event_data['EventDetail']['remnant_liver_volume'] = $remnant_liver_volume;
+ 				$event_data['EventDetail']['remnant_liver_percentage'] = $remnant_liver_percentage;				
+ 			}
+ 			
+ 			// Remanant liver volume
+ 			if(isset($event_data['EventDetail']['total_liver_volume'])
+ 			&& is_numeric($event_data['EventDetail']['total_liver_volume'])
+ 			&& isset($event_data['EventDetail']['tumoral_volume'])
+ 			&& is_numeric($event_data['EventDetail']['tumoral_volume'])) {
+ 				$event_data['EventDetail']['remnant_liver_volume'] = $event_data['EventDetail']['total_liver_volume'] - $event_data['EventDetail']['resected_liver_volume'];
+ 			} 
+ 		}
+ 			
+ 		return $event_data;		
+ 	}
 }
 	
 ?>
