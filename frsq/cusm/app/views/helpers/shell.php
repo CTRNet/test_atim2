@@ -51,7 +51,7 @@ class ShellHelper extends Helper {
 							$root_menu_for_header .= '
 									<!-- '.$menu_item['Menu']['id'].' -->
 									<li class="'.( $menu_item['Menu']['at'] ? 'at ' : '' ).'count_'.$key.'">
-										'.$this->Html->link( html_entity_decode(__($menu_item['Menu']['language_title'], true)), $menu_item['Menu']['use_link'], $html_attributes ).'
+										'.$this->Html->link( html_entity_decode(__($menu_item['Menu']['language_title'], true), ENT_QUOTES, "UTF-8"), $menu_item['Menu']['use_link'], $html_attributes ).'
 									</li>
 							';
 						}
@@ -72,7 +72,7 @@ class ShellHelper extends Helper {
 						
 						$html_attributes = array();
 						$html_attributes['class'] = 'menu '.$this->Structures->generate_link_class( 'plugin '.$menu_item['Menu']['use_link'] );
-						$html_attributes['title'] = html_entity_decode(__($menu_item['Menu']['language_title'], true));
+						$html_attributes['title'] = html_entity_decode(__($menu_item['Menu']['language_title'], true), ENT_QUOTES, "UTF-8");
 						
 						if ( !$menu_item['Menu']['allowed'] ) {
 							
@@ -89,7 +89,7 @@ class ShellHelper extends Helper {
 							$root_menu_for_header .= '
 									<!-- '.$menu_item['Menu']['id'].' -->
 									<li class="'.( $menu_item['Menu']['at'] ? 'at ' : '' ).'count_'.$key.'">
-										'.$this->Html->link( html_entity_decode(__($menu_item['Menu']['language_title'], true)), $menu_item['Menu']['use_link'], $html_attributes ).'
+										'.$this->Html->link( html_entity_decode(__($menu_item['Menu']['language_title'], true), ENT_QUOTES, "UTF-8"), $menu_item['Menu']['use_link'], $html_attributes ).'
 									</li>
 							';
 						}
@@ -147,25 +147,26 @@ class ShellHelper extends Helper {
 		
 		// display any VALIDATION ERRORS
 		if ( isset($this->validationErrors) && count($this->validationErrors) ) {
-			$return .= '
-				<!-- start #validation -->
-				<div id="validation">
-					<ul>
-			';
 			
+			$display_errors = array();
 			foreach ( $this->validationErrors as $model ) {
 				foreach ( $model as $field ) {
-					$return .= '
+					$display_errors[] = '
 						<li>'.__($field, true).'</li>
 					';
 				}
 			}
 			
 			$return .= '
+				<!-- start #validation -->
+				<div id="validation">
+					<ul>
+						'.implode('',array_unique($display_errors)).'
 					</ul>
 				</div>
 				<!-- end #validation -->
 			';
+			
 		}
 		
 		$return .= '	
@@ -190,11 +191,11 @@ class ShellHelper extends Helper {
 				
 				<p>
 					<span>
-						'.$this->Html->link( html_entity_decode(__('core_footer_about', true)), '/pages/about/' ).'
-						'.$this->Html->link( html_entity_decode(__('core_footer_installation', true)), '/pages/installation/' ).'
-						'.$this->Html->link( html_entity_decode(__('core_footer_credits', true)), '/pages/credits/' ).'
+						'.$this->Html->link( html_entity_decode(__('core_footer_about', true), ENT_QUOTES, "UTF-8"), '/pages/about/' ).'
+						'.$this->Html->link( html_entity_decode(__('core_footer_installation', true), ENT_QUOTES, "UTF-8"), '/pages/installation/' ).'
+						'.$this->Html->link( html_entity_decode(__('core_footer_credits', true), ENT_QUOTES, "UTF-8"), '/pages/credits/' ).'
 					</span>
-						'.__('core_copyright', true).' &copy; '.date('Y').' '.$this->Html->link( html_entity_decode(__('core_ctrnet', true)), 'https://www.ctrnet.ca/' ).'
+						'.__('core_copyright', true).' &copy; '.date('Y').' '.$this->Html->link( html_entity_decode(__('core_ctrnet', true), ENT_QUOTES, "UTF-8"), 'https://www.ctrnet.ca/' ).'
 				</p>
 				
 			</div>
@@ -274,7 +275,7 @@ class ShellHelper extends Helper {
 										
 										if ( $is_root ) {
 											$html_attributes['class'] .= ' menu '.$this->Structures->generate_link_class( 'plugin '.$menu_item['Menu']['use_link'] );
-											$html_attributes['title'] = html_entity_decode(__($menu_item['Menu']['language_title'], true));
+											$html_attributes['title'] = html_entity_decode(__($menu_item['Menu']['language_title'], true), ENT_QUOTES, "UTF-8");
 											
 											// $active_item = $menu_item['Menu']['allowed'] ? $this->Html->link( __($menu_item['Menu']['language_title'], true), $menu_item['Menu']['use_link'], $html_attributes ) : __($menu_item['Menu']['language_title'], true);
 											
@@ -283,7 +284,7 @@ class ShellHelper extends Helper {
 											}
 											
 											else {
-												$active_item = $this->Html->link( html_entity_decode(__($menu_item['Menu']['language_title'], true)), $menu_item['Menu']['use_link'], $html_attributes );
+												$active_item = $this->Html->link( html_entity_decode(__($menu_item['Menu']['language_title'], true), ENT_QUOTES, "UTF-8"), $menu_item['Menu']['use_link'], $html_attributes );
 											}
 										} 
 										
@@ -314,7 +315,7 @@ class ShellHelper extends Helper {
 									$append_menu .= '
 											<!-- '.$menu_item['Menu']['id'].' -->
 											<li class="'.( $menu_item['Menu']['at'] ? 'at ' : '' ).'count_'.$sub_count.'">
-												'.$this->Html->link( html_entity_decode(__($menu_item['Menu']['language_title'], true)), $menu_item['Menu']['use_link'], $html_attributes ).'
+												'.$this->Html->link( html_entity_decode(__($menu_item['Menu']['language_title'], true), ENT_QUOTES, "UTF-8"), $menu_item['Menu']['use_link'], $html_attributes ).'
 											</li>
 									';
 								}
@@ -430,7 +431,13 @@ class ShellHelper extends Helper {
 					list($plugin,$model) = explode('.',$plugin_model_name);
 				}
 				
-				$summary_model = new $model;
+				// load MODEL, and override with CUSTOM model if it exists...
+					$summary_model = new $model;
+					
+					$custom_model = $model.'Custom';
+					if ( App::import('Model',$custom_model) ) {
+						$summary_model = new $custom_model;
+					}
 				
 				$summary_result = $summary_model->{$function}( $options['variables'] );
 				
@@ -451,7 +458,7 @@ class ShellHelper extends Helper {
 							if ( isset($summary_result['Summary']['title']) && is_array($summary_result['Summary']['title']) ) {
 								$formatted_summary .= '
 									'.__($summary_result['Summary']['title'][0], true).'
-									<lh>'.$summary_result['Summary']['title'][1].'</lh>
+									<li class="list_header">'.$summary_result['Summary']['title'][1].'</li>
 								';
 							}
 							

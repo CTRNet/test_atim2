@@ -3,7 +3,7 @@
 class DrugsController extends DrugAppController {
 
 	var $uses = array('Drug.Drug');
-	var $paginate = array('Drug'=>array('limit'=>10,'order'=>'Drug.generic_name ASC')); 
+	var $paginate = array('Drug'=>array('limit' => pagination_amount,'order'=>'Drug.generic_name ASC')); 
 
 	function index() {
 		$_SESSION['ctrapp_core']['search'] = NULL; // clear SEARCH criteria
@@ -32,13 +32,13 @@ class DrugsController extends DrugAppController {
 		
 		if ( !empty($this->data) ) {
 			if ( $this->Drug->save($this->data) ) {
-				$this->flash( 'Your data has been updated.','/drug/drugs/detail/'.$this->Drug->id );
+				$this->flash( 'your data has been updated','/drug/drugs/detail/'.$this->Drug->id );
 			}
 		}
   	}
   
 	function edit( $drug_id=null ) {
-		if ( !$drug_id ) { $this->redirect( '/pages/err_drug_no_drug_id', NULL, TRUE ); }
+		if ( !$drug_id ) { $this->redirect( '/pages/err_drug_funct_param_missing', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('Drug.id'=>$drug_id) );
 		
@@ -47,7 +47,7 @@ class DrugsController extends DrugAppController {
 		if ( !empty($this->data) ) {
 			$this->Drug->id = $drug_id;
 			if ( $this->Drug->save($this->data) ) {
-				$this->flash( 'Your data has been updated.','/drug/drugs/detail/'.$drug_id );
+				$this->flash( 'your data has been updated','/drug/drugs/detail/'.$drug_id );
 			}
 		} else {
 			$this->data = $this->Drug->find('first',array('conditions'=>array('Drug.id'=>$drug_id)));
@@ -55,7 +55,7 @@ class DrugsController extends DrugAppController {
   	}
 	
 	function detail( $drug_id=null ) {
-		if ( !$drug_id ) { $this->redirect( '/pages/err_drug_no_drug_id', NULL, TRUE ); }
+		if ( !$drug_id ) { $this->redirect( '/pages/err_drug_funct_param_missing', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('Drug.id'=>$drug_id) );
 		
@@ -65,14 +65,14 @@ class DrugsController extends DrugAppController {
 	}
   
 	function delete( $drug_id=null ) {
-		if ( !$drug_id ) { $this->redirect( '/pages/err_drug_no_drug_id', NULL, TRUE ); }
+		if ( !$drug_id ) { $this->redirect( '/pages/err_drug_funct_param_missing', NULL, TRUE ); }
 		
 		$this->hook();
 		
 		if( $this->Drug->atim_delete( $drug_id ) ) {
-			$this->flash( 'Your data has been deleted.', '/drug/drugs/listall/');
+			$this->flash( 'your data has been deleted', '/drug/drugs/listall/');
 		} else {
-			$this->flash( 'Error deleting data - Contact administrator.', '/drug/drugs/listall/');
+			$this->flash( 'error deleting data - contact administrator', '/drug/drugs/listall/');
 		}
   	}
 

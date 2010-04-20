@@ -7,7 +7,7 @@ class ProtocolExtendsController extends ProtocolAppController {
 		'Protocol.ProtocolMaster',
 		'Protocol.ProtocolControl',
 		'Drug.Drug');
-	var $paginate = array('ProtocolExtend'=>array('limit'=>10,'order'=>'ProtocolExtend.id DESC'));
+	var $paginate = array('ProtocolExtend'=>array('limit' => pagination_amount,'order'=>'ProtocolExtend.id DESC'));
 
 	function listall($protocol_master_id){
 		$this->set('atim_menu_variables', array('ProtocolMaster.id'=>$protocol_master_id));
@@ -75,7 +75,7 @@ class ProtocolExtendsController extends ProtocolAppController {
 			if( $hook_link ) { require($hook_link); }
 				
 			if ($submitted_data_validates && $this->ProtocolExtend->save( $this->data ) ) {
-				$this->flash( 'Your data has been saved.', '/protocol/protocol_extends/listall/'.$protocol_master_id );
+				$this->flash( 'your data has been saved', '/protocol/protocol_extends/listall/'.$protocol_master_id );
 			}
 		}
 	}
@@ -112,7 +112,7 @@ class ProtocolExtendsController extends ProtocolAppController {
 			if( $hook_link ) { require($hook_link); }
 
 			if ($submitted_data_validates && $this->ProtocolExtend->save($this->data)) {
-				$this->flash( 'Your data has been updated.','/protocol/protocol_extends/detail/'.$protocol_master_id.'/'.$protocol_extend_id);
+				$this->flash( 'your data has been updated','/protocol/protocol_extends/detail/'.$protocol_master_id.'/'.$protocol_extend_id);
 			}
 		} else {
 			$this->data = $this_data;
@@ -125,7 +125,7 @@ class ProtocolExtendsController extends ProtocolAppController {
 		if( $hook_link ) { require($hook_link); }
 
 		$this->ProtocolExtend->del( $protocol_extend_id );
-		$this->flash( 'Your data has been deleted.', '/protocol/protocol_extends/listall/'.$protocol_master_id );
+		$this->flash( 'your data has been deleted', '/protocol/protocol_extends/listall/'.$protocol_master_id );
 
 	}
 }

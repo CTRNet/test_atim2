@@ -11,7 +11,16 @@ class PagesController extends AppController {
 	}
 
 	function display( $page_id=NULL ) {
-		$this->set( 'data', $this->Page->find('first',array('conditions'=>'Page.id="'.$page_id.'"')) );
+		$results = $this->Page->find('first',array('conditions'=>'Page.id="'.$page_id.'"'));
+		$this->set('data',$results);
+		
+		if ( isset($results) && isset($results['Page']) && isset($results['Page']['use_link']) && $results['Page']['use_link'] ) {
+			$use_link = $results['Page']['use_link'];
+		} else {
+			$use_link = '/menus';
+		}
+		
+		$this->set( 'atim_menu', $this->Menus->get($use_link) );
 	}
 
 }

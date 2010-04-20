@@ -40,9 +40,9 @@
  */
 	Configure::write('debug', 2);
 /**
- * Application wide charset encoding
+ * Application wide charset encoding minus database connection
  */
-	Configure::write('App.encoding', 'ISO-8859-1');
+	Configure::write('App.encoding', 'UTF-8');
 /**
  * To configure CakePHP *not* to use mod_rewrite and to
  * use CakePHP pretty URLs, remove these .htaccess
@@ -228,9 +228,8 @@
  */
 	Cache::config('default', array('engine' => 'File'));
 	
-	/* Custom ATiM cache for menus */
-	Configure::write('ATiMMenuCache.disable', true);
-	
-	/* Custom ATiM cache for structures */
-	Configure::write('ATiMStructureCache.disable', true);
+	/* Custom ATiM cache for menus and structures. Can be set manually, but by default, switches handled by debug mode */
+	$ATiMCache = Configure::read('debug') ? true : false; 
+	Configure::write('ATiMMenuCache.disable', $ATiMCache);
+	Configure::write('ATiMStructureCache.disable', $ATiMCache);
 ?>

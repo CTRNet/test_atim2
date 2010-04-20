@@ -26,6 +26,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		'Inventorymanagement.AliquotDetail',			
 		
 		'Inventorymanagement.SampleToAliquotControl',
+		'Inventorymanagement.RealiquotingControl',
 		
 		'Inventorymanagement.AliquotUse',
 		'Inventorymanagement.AliquotUseDetail',
@@ -44,9 +45,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 	);
 	
 	var $paginate = array(
-		'AliquotMaster' => array('limit' =>10 , 'order' => 'AliquotMaster.barcode DESC'), 
-		'ViewAliquot' => array('limit' =>10 , 'order' => 'ViewAliquot.barcode DESC'), 
-		'AliquotUse' => array('limit' => 10, 'order' => 'AliquotUse.use_datetime DESC'));
+		'AliquotMaster' => array('limit' => pagination_amount , 'order' => 'AliquotMaster.barcode DESC'), 
+		'ViewAliquot' => array('limit' => pagination_amount , 'order' => 'ViewAliquot.barcode DESC'), 
+		'AliquotUse' => array('limit' => pagination_amount, 'order' => 'AliquotUse.use_datetime DESC'));
 
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS
@@ -96,7 +97,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 	
 	function listAll($collection_id, $sample_master_id, $filter_option = null) {
 		if((!$collection_id) || (!$sample_master_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }
-
 		// MANAGE FILTER OPTION
 
 		$is_collection_aliquot_list = ($sample_master_id == '-1')? true: false;
@@ -322,8 +322,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// Get control data
 		$criteria = array(
 			'SampleControl.id' => $sample_data['SampleMaster']['sample_control_id'],
-			'SampleToAliquotControl.status' => 'active',
-			'AliquotControl.status' => 'active',
+			'SampleToAliquotControl.flag_active' => '1',
+			'AliquotControl.flag_active' => '1',
 			'AliquotControl.id' => $aliquot_control_id);
 		$sample_to_aliquot_control = $this->SampleToAliquotControl->find('first', array('conditions' => $criteria));	
 		if(empty($sample_to_aliquot_control)) { $this->redirect('/pages/err_inv_no_data', null, true); }			
@@ -338,12 +338,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// Set list of studies
 		$this->set('arr_studies_for_display', $this->getStudiesList());
 		
-		// Set list of sample blocks (will only works for sample type being linked to block type)
-		$this->set('arr_sample_blocks_for_display', $this->formatBlocksForDisplay($this->getSampleBlocksList($sample_data)));
-
-		// Set list of sample gel matrices (will only works for sample type being linked to gel matrix type)
-		$this->set('arr_sample_gel_matrices_for_display', $this->formatGelMatricesForDisplay($this->getSampleGelMatricesList($sample_data)));
-				
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Set menu
@@ -478,12 +472,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// Set list of studies
 		$this->set('arr_studies_for_display', $this->getStudiesList());
 		
-		// Set list of sample blocks (will only works for sample type being linked to block type)
-		$this->set('arr_sample_blocks_for_display', $this->formatBlocksForDisplay($this->getSampleBlocksList(array('SampleMaster' => $aliquot_data['SampleMaster']))));
-
-		// Set list of sample gel matrices (will only works for sample type being linked to gel matrix type)
-		$this->set('arr_sample_gel_matrices_for_display', $this->formatGelMatricesForDisplay($this->getSampleGelMatricesList(array('SampleMaster' => $aliquot_data['SampleMaster']))));
-
 		// Set times spent since either sample collection/reception or sample creation and sample storage		
 		switch($aliquot_data['SampleMaster']['sample_category']) {
 			case 'specimen':
@@ -556,12 +544,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 
 		// Set list of studies
 		$this->set('arr_studies_for_display', $this->getStudiesList());
-		
-		// Set list of sample blocks (will only works for sample type being linked to block type)
-		$this->set('arr_sample_blocks_for_display', $this->formatBlocksForDisplay($this->getSampleBlocksList(array('SampleMaster' => $aliquot_data['SampleMaster']))));
-		
-		// Set list of sample gel matrices (will only works for sample type being linked to gel matrix type)
-		$this->set('arr_sample_gel_matrices_for_display', $this->formatGelMatricesForDisplay($this->getSampleGelMatricesList(array('SampleMaster' => $aliquot_data['SampleMaster']))));
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -1139,15 +1121,32 @@ class AliquotMastersController extends InventoryManagementAppController {
 		foreach($parent_aliquot_data['RealiquotingChildren'] as $realiquoting_data) {
 			$existing_children[] = $realiquoting_data['child_aliquot_master_id'];
 		}
-			
+		
+		// Get aliquot type that could be defined as children of the parent aliquot type
+		$criteria = array(
+			'ParentSampleToAliquotControl.sample_control_id' => $parent_aliquot_data['SampleMaster']['sample_control_id'], 
+			'ParentSampleToAliquotControl.aliquot_control_id' => $parent_aliquot_data['AliquotMaster']['aliquot_control_id'],
+			'ParentSampleToAliquotControl.flag_active' => '1',
+			'RealiquotingControl.flag_active' => '1',
+			'ChildSampleToAliquotControl.sample_control_id' => $parent_aliquot_data['SampleMaster']['sample_control_id'], 
+			'ChildSampleToAliquotControl.flag_active' => '1'
+		);	
+		
+		$realiquotind_control_data = $this->RealiquotingControl->find('all', array('conditions' => $criteria));
+		
+		$allowed_children_aliquot_control_ids = array();
+		foreach($realiquotind_control_data as $new_realiquoting_control) {
+			$allowed_children_aliquot_control_ids[] = $new_realiquoting_control['ChildSampleToAliquotControl']['aliquot_control_id'];
+		}
+		
 		// Search Sample Aliquots could be defined as children aliquot
 		$criteria = array(
 			"AliquotMaster.id != '$aliquot_master_id'", 
 			'AliquotMaster.sample_master_id' => $sample_master_id,
-			'AliquotMaster.aliquot_control_id' => $parent_aliquot_data['AliquotMaster']['aliquot_control_id'],
+			'AliquotMaster.aliquot_control_id' => $allowed_children_aliquot_control_ids,
 			'NOT' => array('AliquotMaster.id' => $existing_children)
 		);
-		
+	
 		$aliquot_data_for_selection = $this->AliquotMaster->find('all', array('conditions' => $criteria, 'recursive' => '0'));
 		if(empty($aliquot_data_for_selection)) {
 			$this->flash('no new sample aliquot could be actually defined as realiquoted child', '/inventorymanagement/aliquot_masters/detail/' . $collection_id . '/' . $sample_master_id . '/' . $aliquot_master_id);
@@ -1359,84 +1358,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		return $formatted_data;
 	}
-	
-	/**
-	 * Get list of blocks created for the studied sample.
-	 * 
-	 * @param $sample_master_data Master data of the studied sample.
-	 * 
-	 * @return Array gathering all sample blocks data.
-	 *
-	 * @author N. Luc
-	 * @since 2009-09-11
-	 * @updated N. Luc
-	 */
-	 
-	function getSampleBlocksList($sample_master_data) {
-		// Check block can be created for the studied sample
-		$criteria = array(
-			'SampleControl.id' => $sample_master_data['SampleMaster']['sample_control_id'],
-			'SampleToAliquotControl.status' => 'active',
-			'AliquotControl.status' => 'active',
-			'AliquotControl.form_alias' => 'ad_spec_tiss_blocks');
-		$sample_to_block_control = $this->SampleToAliquotControl->find('first', array('conditions' => $criteria));	
-		
-		if(empty($sample_to_block_control)) { return array(); }
-		
-		// Get block type control id
-		$block_control_id = $sample_to_block_control['AliquotControl']['id'];
-		
-		// Get existing sample block
-		$criteria = array();
-		$criteria['AliquotMaster.aliquot_control_id'] = $block_control_id;
-		$criteria['AliquotMaster.in_stock'] = 'yes - available';
-		$criteria['AliquotMaster.sample_master_id'] = $sample_master_data['SampleMaster']['id'];
-		$criteria['AliquotMaster.collection_id'] = $sample_master_data['SampleMaster']['collection_id'];
-		$criteria['AliquotMaster.deleted'] = '0';
-				
-		$blocks_list = $this->AliquotMaster->atim_list(array('conditions' => $criteria, 'order' => array('AliquotMaster.barcode ASC')));
-		
-		return (empty($blocks_list)? array() : $blocks_list);
-	}
-	
-	/**
-	 * Get list of gel matrices created for the studied sample.
-	 * 
-	 * @param $sample_master_data Master data of the studied sample.
-	 * 
-	 * @return Array gathering all sample gel matrices data.
-	 *
-	 * @author N. Luc
-	 * @since 2009-09-11
-	 * @updated N. Luc
-	 */
-	 
-	function getSampleGelMatricesList($sample_master_data) {
-		// Check gel matrix can be created for the studied sample
-		$criteria = array(
-			'SampleControl.id' => $sample_master_data['SampleMaster']['sample_control_id'],
-			'SampleToAliquotControl.status' => 'active',
-			'AliquotControl.status' => 'active',
-			'AliquotControl.form_alias' => 'ad_der_cel_gel_matrices');
-		$sample_to_gel_matrix_control = $this->SampleToAliquotControl->find('first', array('conditions' => $criteria));	
-		
-		if(empty($sample_to_gel_matrix_control)) { return array(); }
-		
-		// Get block type control id
-		$gel_matrix_control_id = $sample_to_gel_matrix_control['AliquotControl']['id'];
-		
-		// Get existing sample block
-		$criteria = array();
-		$criteria['AliquotMaster.aliquot_control_id'] = $gel_matrix_control_id;
-		$criteria['AliquotMaster.in_stock'] = 'yes - available';
-		$criteria['AliquotMaster.sample_master_id'] = $sample_master_data['SampleMaster']['id'];
-		$criteria['AliquotMaster.collection_id'] = $sample_master_data['SampleMaster']['collection_id'];
-		$criteria['AliquotMaster.deleted'] = '0';
-				
-		$gel_matrices_list = $this->AliquotMaster->atim_list(array('conditions' => $criteria, 'order' => array('AliquotMaster.barcode ASC')));
-		
-		return (empty($gel_matrices_list)? array() : $gel_matrices_list);
-	}	
 		
 	/**
 	 * Get default storage date for a new created aliquot.
@@ -1721,19 +1642,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// Check aliquot is not linked to order	
 		$returned_nbr = $this->OrderItem->find('count', array('conditions' => array('OrderItem.aliquot_master_id' => $aliquot_master_id), 'recursive' => '-1'));
 		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'order exists for the deleted aliquot'); }
-	
-		// Check aliquot is not block used to create either slide or core
-		$tmp_aliquot_detail = new AliquotDetail(false, 'ad_tissue_cores');
-		$returned_nbr = $tmp_aliquot_detail->find('count', array('conditions' => array('AliquotDetail.block_aliquot_master_id' => $aliquot_master_id)));
-		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'either core or slide exists for the deleted aliquot'); }	
-		$tmp_aliquot_detail = new AliquotDetail(false, 'ad_tissue_slides');
-		$returned_nbr = $tmp_aliquot_detail->find('count', array('conditions' => array('AliquotDetail.block_aliquot_master_id' => $aliquot_master_id)));
-		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'either core or slide exists for the deleted aliquot'); }	
-	
-		// Check aliquot is not gel matrix used to create either core
-		$tmp_aliquot_detail = new AliquotDetail(false, 'ad_cell_cores');
-		$returned_nbr = $tmp_aliquot_detail->find('count', array('conditions' => array('AliquotDetail.gel_matrix_aliquot_master_id' => $aliquot_master_id)));
-		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'either core or slide exists for the deleted aliquot'); }	
 		
 		return array('allow_deletion' => true, 'msg' => '');
 	}
@@ -1782,55 +1690,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 	
 		return $formatted_data;
 	}
-	
-	/**
-	 * Format Blocks data array for display.
-	 * 
-	 * @param $arr_sample_blocks Blocks data
-	 * 
-	 * @return Blocks list into array having following structure: 
-	 * 	array($aliquot_master_id => $block_title_built_by_function)
-	 *
-	 * @author N. Luc
-	 * @since 2009-09-11
-	 */	
-	 
-	function formatBlocksForDisplay($arr_sample_blocks) {
-		$formatted_data = array();
-		
-		if(!empty($arr_sample_blocks)) {
-			foreach($arr_sample_blocks as $new_block) {
-				$formatted_data[$new_block['AliquotMaster']['id']] = $new_block['AliquotMaster']['barcode'] .' ('.$new_block['AliquotDetail']['block_type'].')';
-			}	
-		}
-	
-		return $formatted_data;
-	}
-	
-	/**
-	 * Format Gel Matrices data array for display.
-	 * 
-	 * @param $arr_sample_blocks Blocks data
-	 * 
-	 * @return Gel Matrices list into array having following structure: 
-	 * 	array($aliquot_master_id => $gel_matrice_title_built_by_function)
-	 *
-	 * @author N. Luc
-	 * @since 2009-09-11
-	 */	
-	 
-	function formatGelMatricesForDisplay($arr_gel_matrices) {
-		$formatted_data = array();
-		
-		if(!empty($arr_gel_matrices)) {
-			foreach($arr_gel_matrices as $new_matrice) {
-				$formatted_data[$new_matrice['AliquotMaster']['id']] = $new_matrice['AliquotMaster']['barcode'];
-			}	
-		}
-	
-		return $formatted_data;
-	}
-	
 }
 
 ?>

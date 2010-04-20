@@ -11,8 +11,6 @@
 	$structure_override['AliquotMaster.sop_master_id'] = $arr_aliquot_sops_for_display;
 	$structure_override['AliquotMaster.study_summary_id'] = $arr_studies_for_display;	
 	$structure_override['AliquotMaster.storage_master_id'] = $arr_preselected_storages_for_display;	
-	$structure_override['AliquotDetail.block_aliquot_master_id'] = $arr_sample_blocks_for_display;	
-	$structure_override['AliquotDetail.gel_matrix_aliquot_master_id'] = $arr_sample_gel_matrices_for_display;
 				
 	$final_atim_structure = $atim_structure; 
 	$final_options = array('links'=>$structure_links, 'override' => $structure_override);

@@ -3,7 +3,7 @@
 class ProtocolMastersController extends ProtocolAppController {
 
 	var $uses = array('Protocol.ProtocolControl', 'Protocol.ProtocolMaster');
-	var $paginate = array('ProtocolMaster'=>array('limit'=>10,'order'=>'ProtocolMaster.name DESC'));
+	var $paginate = array('ProtocolMaster'=>array('limit' => pagination_amount,'order'=>'ProtocolMaster.name DESC'));
 	
 	function index() {
 		$_SESSION['ctrapp_core']['search'] = NULL; // clear SEARCH criteria
@@ -59,7 +59,7 @@ class ProtocolMastersController extends ProtocolAppController {
 			if( $hook_link ) { require($hook_link); }
 			
 			if ($submitted_data_validates && $this->ProtocolMaster->save($this->data) ){
-				$this->flash( 'Your data has been updated.','/protocol/protocol_masters/detail/'.$this->ProtocolMaster->getLastInsertId());
+				$this->flash( 'your data has been updated','/protocol/protocol_masters/detail/'.$this->ProtocolMaster->getLastInsertId());
 			} else {
 				$this->data = $this_data;
 			}
@@ -69,7 +69,7 @@ class ProtocolMastersController extends ProtocolAppController {
 	}
 	
 	function detail($protocol_master_id=null) {
-		if ( !$protocol_master_id ) { $this->redirect( '/pages/err_pro_no_proto_id', NULL, TRUE ); }
+		if ( !$protocol_master_id ) { $this->redirect( '/pages/err_pro_funct_param_missing', NULL, TRUE ); }
 	
 		$this->set( 'atim_menu_variables', array('ProtocolMaster.id'=>$protocol_master_id));
 		
@@ -83,7 +83,7 @@ class ProtocolMastersController extends ProtocolAppController {
 	}
 
 	function edit( $protocol_master_id=null ) {
-		if ( !$protocol_master_id ) { $this->redirect( '/pages/err_pro_no_proto_id', NULL, TRUE ); }
+		if ( !$protocol_master_id ) { $this->redirect( '/pages/err_pro_funct_param_missing', NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('ProtocolMaster.id'=>$protocol_master_id) );
 		$this_data = $this->ProtocolMaster->find('first',array('conditions'=>array('ProtocolMaster.id'=>$protocol_master_id)));
@@ -102,7 +102,7 @@ class ProtocolMastersController extends ProtocolAppController {
 			if( $hook_link ) { require($hook_link); }
 			
 			if ($submitted_data_validates && $this->ProtocolMaster->save($this->data) ) {
-				$this->flash( 'Your data has been updated.','/protocol/protocol_masters/detail/'.$protocol_master_id.'/');
+				$this->flash( 'your data has been updated','/protocol/protocol_masters/detail/'.$protocol_master_id.'/');
 			}
 		} else {
 			$this->data = $this_data;
@@ -111,15 +111,15 @@ class ProtocolMastersController extends ProtocolAppController {
 	}
 	
 	function delete( $protocol_master_id ) {
-		if ( !$protocol_master_id ) { $this->redirect( '/pages/err_pro_no_proto_id', NULL, TRUE ); }
+		if ( !$protocol_master_id ) { $this->redirect( '/pages/err_pro_funct_param_missing', NULL, TRUE ); }
 		
 		$hook_link = $this->hook('delete');
 		if( $hook_link ) { require($hook_link); }
 		
 		if( $this->ProtocolMaster->atim_delete( $protocol_master_id ) ) {
-			$this->flash( 'Your data has been deleted.', '/protocol/protocol_masters/listall/');
+			$this->flash( 'your data has been deleted', '/protocol/protocol_masters/listall/');
 		} else {
-			$this->flash( 'Error deleting data - Contact administrator.', '/protocol/protocol_masters/listall/');
+			$this->flash( 'error deleting data - contact administrator', '/protocol/protocol_masters/listall/');
 		}
 	}
 

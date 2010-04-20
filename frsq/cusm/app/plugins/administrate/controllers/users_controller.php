@@ -3,7 +3,7 @@
 class UsersController extends AdministrateAppController {
 	//TODO: add a feature to move a user from a group to another	
 	var $uses = array('User');
-	var $paginate = array('User'=>array('limit'=>10,'order'=>'User.username ASC')); 
+	var $paginate = array('User'=>array('limit' => pagination_amount,'order'=>'User.username ASC')); 
 	
 	function listall( $bank_id, $group_id ) {
 		$this->set( 'atim_menu_variables', array('Bank.id'=>$bank_id,'Group.id'=>$group_id) );
