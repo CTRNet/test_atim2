@@ -648,9 +648,9 @@ class View extends Object {
 		$loadedHelpers = array();
 
 		// ATiM2: load custom view
-		$viewCustom = explode('/',$___viewFn);
-		$viewCustom[ count($viewCustom)-1 ] = 'customs/'.$viewCustom[ count($viewCustom)-1 ];
-		$viewCustom = implode('/',$viewCustom);
+		$viewCustom = explode(DS,$___viewFn);
+		$viewCustom[ count($viewCustom)-1 ] = 'customs'.DS.$viewCustom[ count($viewCustom)-1 ];
+		$viewCustom = implode(DS,$viewCustom);
 		if (file_exists($viewCustom)) $___viewFn = $viewCustom;
 		
 		if ($this->helpers != false && $loadHelpers === true) {
