@@ -169,7 +169,7 @@ class StructuresHelper extends Helper {
 					<div>
 						<span class="button large">
 							<input id="submit_button" class="submit" type="submit" value="Submit" style="display: none;"/>
-							<a href="#" onclick="$(\'submit_button\').click();" class="form '.$link_class.'" tabindex="'.(StructuresHelper::$last_tabindex + 1).'">'.$link_label.'</a>
+							<a href="#" onclick="$(\'#submit_button\').click();" class="form '.$link_class.'" tabindex="'.(StructuresHelper::$last_tabindex + 1).'">'.$link_label.'</a>
 						</span>
 					</div>
 			';
@@ -591,12 +591,13 @@ class StructuresHelper extends Helper {
 							$add_another_unique_link_id = 'add_'.$add_another_unique;
 							
 							$return_string .= '
+							</tbody><tfoot>
 								<tr id="'.$add_another_unique_link_id.'">
 									<td class="right" colspan="'.$column_count.'">
-										<a style="color:#090; font-weight:bold;" href="#" onclick="'.$add_another_unique_function_name.'(); return false;" title="'.__( 'click to add a line', true ).'">+</a>
+										<a id="addLineLink" style="color:#090; font-weight:bold;" href="#" onclick="'.$add_another_unique_function_name.'(); return false;" title="'.__( 'click to add a line', true ).'">+</a>
 									</td>
 								</tr>
-								
+								</tfoot>
 								<script type="text/javascript">
 									if( typeof('.$add_another_unique_next_variable.') == "undefined" ){
 										var '.$add_another_unique_next_variable.' = "'.count($data).'";
@@ -605,13 +606,16 @@ class StructuresHelper extends Helper {
 									}
 									
 									function '.$add_another_unique_function_name.'(){
-										$("'.$add_another_unique_link_id.'").insert({
-											before: "'.$add_another_row_template.'".interpolate({
-												id: '.$add_another_unique_next_variable.'
-											})
-										});
+										var templateLine = "'.$add_another_row_template.'";
+										var tbody = $("#'.$add_another_unique_link_id.'").parent().parent().children("tbody:first"); 
+										$(tbody).append(templateLine.replace(/#{id}/g, '.$add_another_unique_next_variable.')); 
 										'.$add_another_unique_next_variable.'++;
-										
+										debug("incr: " + '.$add_another_unique_next_variable.');
+										$(tbody).children("tr:last").find(".datepicker").each(function(){
+											debug(this.id);
+											initDatepicker(this);
+										});
+										$("form").highlight("td");
 										if(window.enableCopyCtrl){
 											//if copy control exists, call it
 											enableCopyCtrl("table1row" + ('.$add_another_unique_next_variable.'  - 1));
@@ -649,7 +653,7 @@ class StructuresHelper extends Helper {
 						}
 						
 						$return_string .= '
-								</tbody>
+								</tfoot>
 								</table>
 								
 							</td>
@@ -930,7 +934,8 @@ class StructuresHelper extends Helper {
 				// reveal sub ULs if sub ULs exist
 				
 					if ( count($children) ) {
-						$return_string .= '<a class="reveal" href="#" onclick="Effect.toggle(\'tree_'.$unique_id.'\',\'slide\',{duration:0.25}); return false;">+</a> ';
+//						$return_string .= '<a class="reveal" href="#" onclick="Effect.toggle(\'tree_'.$unique_id.'\',\'slide\',{duration:0.25}); return false;">+</a> ';
+						$return_string .= '<a class="reveal {\'tree\' : \''.$unique_id.'\'}" href="#" onclick="return false;">+</a> ';
 					} else {
 						$return_string .= '<a class="reveal not_allowed" onclick="return false;">+</a> ';
 					}
@@ -1643,7 +1648,6 @@ class StructuresHelper extends Helper {
 						case 'date':
 						case 'datetime':
 							// if( !isset($field['flag_'.$options['type'].'_readonly']) ) {
-							
 								//use this only if we are not in readonly
 								if ( $options['type']=='search' || !count($field['StructureField']['StructureValidation']) ) {
 									$html_element_array['empty'] = TRUE;
@@ -1653,134 +1657,21 @@ class StructuresHelper extends Helper {
 								$model_suffix_css = str_replace('.','',$model_suffix);
 								
 								if ( $options['type']=='search' ) {
-									if ( date_format=='MDY' ) {
-										
-										$display_value .= $this->Form->month($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', NULL, array('id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'_start-mm'), $html_element_array['empty']);
-										$display_value .= $this->Form->day($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', NULL, array('id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'_start-dd'), $html_element_array['empty']);
-										$display_value .= $this->Form->year($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', 1900, 2100, NULL, array('id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'_start', 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'), $html_element_array['empty']);
-									} 
-									
-									else if ( date_format=='YMD' ) {
-										$display_value .= $this->Form->year($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', 1900, 2100, NULL, array('id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'_start', 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'), $html_element_array['empty']);
-										$display_value .= $this->Form->month($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', NULL, array('id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'_start-mm'), $html_element_array['empty']);
-										$display_value .= $this->Form->day($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', NULL, array('id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'_start-dd'), $html_element_array['empty']);
-									} 
-									
-									else { // default of DATE_FORMAT=='DMY'
-										$display_value .= $this->Form->day($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', NULL, array('id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'_start-dd'), $html_element_array['empty']);
-										$display_value .= $this->Form->month($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', NULL, array('id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'_start-mm'), $html_element_array['empty']);
-										$display_value .= $this->Form->year($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start', 1900, 2100, NULL, array('id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'_start', 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'), $html_element_array['empty']);
-									}
-									
-									if ( $field['StructureField']['type']=='datetime' ) {
-										$display_value .= $this->Form->hour($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start');
-										$display_value .= $this->Form->minute($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start');
-										$display_value .= $this->Form->meridian($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start');
-									}
-									
+									$display_value .= $this->get_date_fields($model_prefix, $model_suffix, $field['StructureField'], $html_element_array, $model_prefix_css, $model_suffix_css, "_start", array());
 									$display_value .= ' <span class="tag">'.__('to',TRUE).'</span> ';
-									
-									if ( date_format=='MDY' ) {
-										$display_value .= $this->Form->month($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end', NULL, array('id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'_end-mm'), $html_element_array['empty']);
-										$display_value .= $this->Form->day($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end', NULL, array('id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'_end-dd'), $html_element_array['empty']);
-										$display_value .= $this->Form->year($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end', 1900, 2100, NULL, array('id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'_end', 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'), $html_element_array['empty']);
-									} 
-									
-									else if ( date_format=='YMD' ) {
-										$display_value .= $this->Form->year($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end', 1900, 2100, NULL, array('id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'_end', 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'), $html_element_array['empty']);
-										$display_value .= $this->Form->month($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end', NULL, array('id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'_end-mm'), $html_element_array['empty']);
-										$display_value .= $this->Form->day($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end', NULL, array('id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'_end-dd'), $html_element_array['empty']);
-									} 
-									
-									else { // default of DATE_FORMAT=='DMY'
-										$display_value .= $this->Form->day($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end', NULL, array('id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'_end-dd'), $html_element_array['empty']);
-										$display_value .= $this->Form->month($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end', NULL, array('id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'_end-mm'), $html_element_array['empty']);
-										$display_value .= $this->Form->year($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end', 1900, 2100, NULL, array('id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'_end', 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'), $html_element_array['empty']);
+									$display_value .= $this->get_date_fields($model_prefix, $model_suffix, $field['StructureField'], $html_element_array, $model_prefix_css, $model_suffix_css, "_end", array());
+								}else{
+									$datetime_array = array();
+									if ( isset($options['override'][$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]) ) {
+										$datetime_array = StructuresHelper::datetime_to_array($options['override'][$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]);
+									}else if(isset($this->data) && !empty($this->data) && !isset($this->data[0])){
+										$datetime_array = StructuresHelper::datetime_to_array($this->data[$field['StructureField']['model']][$field['StructureField']['field']]);
 									}
-									
-									if ( $field['StructureField']['type']=='datetime' ) {
-										$display_value .= $this->Form->hour($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end');
-										$display_value .= $this->Form->minute($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end');
-										$display_value .= $this->Form->meridian($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end');
-									}
+									$display_value .= $this->get_date_fields($model_prefix, $model_suffix, $field['StructureField'],
+									$html_element_array, $model_prefix_css, $model_suffix_css, "", $datetime_array);
+										
 								}
-								
-								else {
-									// due to a bug with CAKEPHP FORM HELPER, need to force the individual date pulldown SELECT name attributes...
-									
-										$day_name		= 'data['.str_replace('.','][',$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']).'][day]';
-										$month_name		= 'data['.str_replace('.','][',$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']).'][month]';
-										$year_name		= 'data['.str_replace('.','][',$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']).'][year]';
-										
-										$hour_name		= 'data['.str_replace('.','][',$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']).'][hour]';
-										$minute_name	= 'data['.str_replace('.','][',$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']).'][min]';
-										$meridian_name	= 'data['.str_replace('.','][',$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']).'][meridian]';
-										
-									// class attribute in array conflicts with DATE picker, so we remove it for YEAR pulldowns
-										$html_element_array_for_year = $html_element_array;
-										unset($html_element_array_for_year['class']);
-									
-									// since building dates MANUALLY for JS tool, set up date OVERRIDES manually as well..
-										
-										$day_value 			= NULL;
-										$month_value 		= NULL;	
-										$year_value 		= NULL;	
-										
-										$hour_value			= NULL;	
-										$minute_value 		= NULL;	
-										$meridian_value	= NULL;	
-										
-										if ( isset($options['override'][$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]) ) {
-											if ( $field['StructureField']['type']=='date' ) {
-												$override_date = explode('-',$options['override'][$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]);
-											} else {
-												$override_datetime = explode(' ',$options['override'][$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]);
-												$override_date = explode('-',$override_datetime[0]);
-												$override_time = explode(':',$override_datetime[1]);
-											}
-											
-											$day_value		= $override_date[2];
-											$month_value	= $override_date[1];
-											$year_value		= $override_date[0];
-											
-											if ( $field['StructureField']['type']=='datetime' ) {
-												
-												$hour_value			= $override_time[0]>12 ? $override_time[0]-12 : $override_time[0];	
-												$minute_value 		= $override_time[1];	
-												$meridian_value	= $override_time[0]>12 ? 'pm' : 'am';
-												
-												if ( trim($hour_value)!=='' && $hour_value!==false ) $hour_value = '0';
-												
-											}
-										}
-									
-									if ( date_format=='MDY' ) {
-										$display_value .= $this->Form->month($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], $month_value, am(array('name'=>$month_name, 'id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'-mm'),$html_element_array), $html_element_array['empty']);
-										$display_value .= $this->Form->day($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], $day_value, am(array('name'=>$day_name, 'id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'-dd'),$html_element_array), $html_element_array['empty']);
-										$display_value .= $this->Form->year($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], 1900, 2100, $year_value, am(array('name'=>$year_name, 'id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'], 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'),$html_element_array_for_year), $html_element_array['empty']);
-									} else if ( date_format=='YMD' ) {
-										$display_value .= $this->Form->year($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], 1900, 2100, $year_value, am(array('name'=>$year_name, 'id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'], 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'),$html_element_array_for_year), $html_element_array['empty']);
-										$display_value .= $this->Form->month($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], $month_value, am(array('name'=>$month_name, 'id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'-mm'),$html_element_array), $html_element_array['empty']);
-										$display_value .= $this->Form->day($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], $day_value, am(array('name'=>$day_name, 'id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'-dd'),$html_element_array), $html_element_array['empty']);
-									} else { // default of DATE_FORMAT=='DMY'
-										$display_value .= $this->Form->day($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], $day_value, am(array('name'=>$day_name, 'id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'-dd'),$html_element_array), $html_element_array['empty']);
-										$display_value .= $this->Form->month($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], $month_value, am(array('name'=>$month_name, 'id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'-mm'),$html_element_array), $html_element_array['empty']);
-										$display_value .= $this->Form->year($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], 1900, 2100, $year_value, am(array('name'=>$year_name, 'id' => $model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'], 'class' => 'w8em split-date divider-dash highlight-days-12 no-transparency'),$html_element_array_for_year), $html_element_array['empty']);
-									}
-									
-									// manually adding in CALENDAR JS code
-									$display_value .= '
-										<a href="#" class="date-picker-control" title="" id="fd-but-'.$model_prefix_css.$field['StructureField']['model'].$model_suffix_css.$field['StructureField']['field'].'"><span></span></a>
-									';
-									
-									if ( $field['StructureField']['type']=='datetime' ) {
-										$display_value .= $this->Form->hour($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], FALSE, ($hour_value === "0" ? 12 : $hour_value), am(array('name'=>$hour_name),$html_element_array) );
-										$display_value .= $this->Form->minute($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], $minute_value,  am(array('name'=>$minute_name),$html_element_array) );
-										$display_value .= $this->Form->meridian($model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], $meridian_value,  am(array('name'=>$meridian_name),$html_element_array) );
-									}
-									
-								}
-								
+
 								$use_cakephp_form_helper = FALSE;
 							// }
 							break;
@@ -1812,10 +1703,11 @@ class StructuresHelper extends Helper {
 									}
 								}
 							}
-							$display_value .= $this->Ajax->autoComplete(
-								$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'], 
-								$autocomplete_url,
-								$settings_tmp);
+							$html_element_array['class'] .= " jqueryAutocomplete {'callback' : 'autoComplete'}";
+							$display_value .= $this->Form->input(
+								$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'],
+								$html_element_array
+							);
 						}else{
 							$display_value .= $this->Form->input(
 								$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'],
@@ -2085,27 +1977,24 @@ class StructuresHelper extends Helper {
 							
 							// otherwise if STRING set UPDATE option only
 							else {
-								$htmlAttributes['update'] = $options['links']['ajax'][$state][$link_name];
+								$htmlAttributes['json']['update'] = $options['links']['ajax'][$state][$link_name];
 							}
-							$link_results[$link_label]	= $this->Ajax->link(
-								 ( $state=='index' ? '&nbsp;' : __($link_label, true) ), 
-								 $link_location, 
-								 $htmlAttributes,
-								 NULL,
-								 false
-							);
+							//stuff the ajax information in json format within the class attribute
+							$htmlAttributes['class'] .= " ajax {";
+							foreach($htmlAttributes['json'] as $key => $val){
+								$htmlAttributes['class'] .= "'".$key."' : '".$val."', ";
+							}
+							$htmlAttributes['class'] = substr($htmlAttributes['class'], 0, strlen($htmlAttributes['class']) - 2)."}";
+							unset($htmlAttributes['json']);
 						}
-					
-					//otherwise, make a normal link
-						else {
-							$link_results[$link_label]	= $this->Html->link( 
-								( $state=='index' ? '&nbsp;' : __($link_label, true) ), 
-								$link_location, 
-								$htmlAttributes, 
-								$confirmation_msg, 
-								false 
-							);
-						}
+				
+						$link_results[$link_label]	= $this->Html->link( 
+							( $state=='index' ? '&nbsp;' : __($link_label, true) ), 
+							$link_location, 
+							$htmlAttributes, 
+							$confirmation_msg, 
+							false 
+						);
 					
 				}
 				
@@ -2479,21 +2368,70 @@ class StructuresHelper extends Helper {
 	
 	}
 	
-	function formatDate($date){
-		$tmp = explode("-", $date);
-		if(sizeof($tmp) == 3){
-			if ( date_format=='MDY' ) {
-				$date = $tmp[1]."-".$tmp[2]."-".$tmp[0];
-			} else if ( date_format=='YMD' ) {
-				$date = $tmp[0]."-".$tmp[1]."-".$tmp[2];
-			} else { // default of DATE_FORMAT=='DMY'
-				$date = $tmp[2]."-".$tmp[1]."-".$tmp[0];
+	private function get_date_fields($model_prefix, $model_suffix, $structure_field, $html_element_array, $model_prefix_css, $model_suffix_css, $search_suffix, $datetime_array){
+		$tmp_datetime_array = array('year' => null, 'month' => null, 'day' => null, 'hour' => "", 'minute' => null, 'meridian' => null);
+		$datetime_array = array_merge($tmp_datetime_array, $datetime_array);
+		$date = "";
+		$my_model_prefix = strlen($model_prefix) > 0 ? "[".substr($model_prefix, 0, 1)."]" : "";
+		$date_name_prefix = "data".$my_model_prefix."[".$structure_field['model']."][".$structure_field['field'].$search_suffix."]";
+		for($i = 0; $i < 3; ++ $i){
+			$tmp_current = substr(date_format, $i, 1);
+			if($tmp_current == "Y"){
+				$date .= 
+					$this->Form->year($model_prefix.$structure_field['model'].$model_suffix.$structure_field['field'].$search_suffix, 
+					1900, 
+					2100, 
+					$datetime_array['year'], 
+					am(array('name'=>$date_name_prefix."[year]", 'id' => $model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix), $html_element_array), 
+					$html_element_array['empty']);
+			}else if($tmp_current == "M"){
+				$date .= 
+					$this->Form->month($model_prefix.$structure_field['model'].$model_suffix.$structure_field['field'].$search_suffix, 
+					$datetime_array['month'], am(array('name'=>$date_name_prefix."[month]", 'id' => $model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix.'-mm'), $html_element_array), 
+					$html_element_array['empty']);
+			}else if($tmp_current == "D"){
+				$date .= 
+					$this->Form->day($model_prefix.$structure_field['model'].$model_suffix.$structure_field['field'].$search_suffix, 
+					$datetime_array['day'], am(array('name'=>$date_name_prefix."[day]", 'id' => $model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix.'-dd'), $html_element_array), 
+					$html_element_array['empty']);
+			}else{
+				$date .= "UNKNOWN date_format ".date_format;
 			}
 		}
+		
+		$date .= '<span style="position: relative;">
+				<input type="button" id="'.$model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix.'_button" class="datepicker" value="" tabindex="'.$html_element_array['tabindex'].'"/>
+				<img src="'.$this->webroot.'/img/cal.gif" alt="cal" class="fake_datepicker"/>
+			</span>';
+		
+		if ( $structure_field['type']=='datetime' ) {
+			$date .= $this->Form->hour($model_prefix.$structure_field['model'].$model_suffix.$structure_field['field'].$search_suffix, false, $datetime_array['hour'], am(array('name'=>$date_name_prefix."[hour]", 'id' => $model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix.'Hour'), $html_element_array));
+			$date .= $this->Form->minute($model_prefix.$structure_field['model'].$model_suffix.$structure_field['field'].$search_suffix, $datetime_array['minute'], am(array('name'=>$date_name_prefix."[min]", 'id' => $model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix.'Min'), $html_element_array));
+			$date .= $this->Form->meridian($model_prefix.$structure_field['model'].$model_suffix.$structure_field['field'].$search_suffix, $datetime_array['meridian'], am(array('name'=>$date_name_prefix."[meridian]", 'id' => $model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix.'Meridian'), $html_element_array));
+		}
+		
 		return $date;
 	}
 
-
+	/*
+	 * Converts a string like yyyy-MM-dd hh:mm:ss to a date array
+	 */
+	public static function datetime_to_array($datetime){
+		$result = array();
+		if(strlen($datetime) != 0){
+			$date = explode('-', substr($datetime, 0, 10));
+			$result['year']		= $date[0];
+			$result['month']	= $date[1];
+			$result['day']		= $date[2];
+			if(strlen($datetime) > 10){
+				$time = explode(':', substr($datetime, 11));
+				$result['hour']			= $time[0] > 12 ? $time[0] - 12 : $time[0];	
+				$result['minute'] 		= $time[1];	
+				$result['meridian']		= $time[0] > 12 ? 'pm' : 'am';
+			}
+		}
+		return $result;
+	}
 }
 	
 ?>

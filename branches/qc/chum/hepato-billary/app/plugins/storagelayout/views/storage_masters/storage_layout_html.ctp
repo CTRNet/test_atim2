@@ -122,8 +122,10 @@
 	<div style="margin-top: 10px;">
 		<form method="post">
 			<input type="hidden" id="data" name="data" value="patate chaude" />
-			<input id="submitButton" class="submit" type="submit" style="display: none;" value="Submit" /> 
-				<span class="button large"><a id="submit_button_link" onclick="$('submitButton').click();" href="#"><?php echo(__('submit', null)); ?></a></span>
+					<span class="button large">
+						<a href="#" id="submit_button_link" onclick="$('#submitButton').click();" class="form submit" tabindex="1020"><?php echo(__('submit', true));  ?></a>
+					</span>
+
 		<div style="display: inline-block;">
 		<div style="display: none; background-color: transparent;"
 			id="saveWarning">
@@ -140,7 +142,7 @@
 	
 </div>
 
-<?php echo $html->css('jQuery/themes/ui-lightness/jquery-ui-1.7.2.custom')."\n"; ?>
+<?php echo $html->css('jQuery/themes/ui-lightness/jquery-ui-1.8.custom')."\n"; ?>
 <style type="text/css">
 .dragme{
 	list-style-type:none;
@@ -215,6 +217,5 @@ var removeString = "<?php echo(__("remove")); ?>";
 var unclassifyString = "<?php echo(__("unclassify")); ?>";
 </script>
 <?php
-echo $javascript->link('builder')."\n"; 
 echo $javascript->link('storage_layout')."\n";
 ?>
