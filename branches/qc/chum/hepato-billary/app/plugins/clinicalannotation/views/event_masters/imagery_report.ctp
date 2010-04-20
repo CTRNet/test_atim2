@@ -1,5 +1,7 @@
 <?php 
 
+pr('<b>SHOULD BE MOVED TO CUSTOMS DIRECTORY</b>');
+
 	// 1- DIAGNOSTICS
 	
 	$structure_links = array(
@@ -15,7 +17,7 @@
 			'form_inputs'=>false,
 			'actions'=>false,
 			'pagination'=>false,
-			'header' => __('segment', null)
+			'header' => __('liver segments', null)
 		);
 		
 	$final_atim_structure = $atim_structure;
@@ -121,7 +123,7 @@
 	
 	<?php
 	
-	$final_options['settings']['header'] = __('other locations', true); 
+	$final_options['settings']['header'] = __('other localisations', true); 
 	$structures->build( $final_atim_structure, $final_options );
 	
 	?>
