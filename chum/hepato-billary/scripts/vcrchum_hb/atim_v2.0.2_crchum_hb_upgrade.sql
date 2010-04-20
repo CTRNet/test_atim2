@@ -1,7 +1,8 @@
 -- -------------------------------------------------------------------
 --
 -- SCRIPT to customize ATiM fro CRCHMU Hepato-Bil Bank
---
+--	Note:
+--		- To run after tmp_v2.0.2_upgrade.sql
 -- -------------------------------------------------------------------
 
 -- General
