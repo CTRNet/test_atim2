@@ -474,7 +474,7 @@ div.menu.level_0 {
 	line-height: 1.2em;
 	color: #ccf;
 }
-div.menu.level_0 span {
+div.menu.level_0 span:not(.untranslated) {
 	color: #fff;
 	/* font-weight: bold; */
 	font-size: 14px;
@@ -614,7 +614,7 @@ div.menu ul#summary li {
 	padding: 0;
 	margin: 0;
 }
-div.menu ul#summary li span {
+div.menu ul#summary li span:not(.untranslated) {
 	position: relative;
 	
 	display: block;
@@ -1412,4 +1412,9 @@ img.fake_datepicker{
 
 tr.highlight, td.highlight{
 	background: url("../img/highlight.gif");
+}
+
+.untranslated{
+	background-color: yellow;
+	color: black;
 }
