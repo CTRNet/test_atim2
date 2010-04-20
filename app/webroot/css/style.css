@@ -650,7 +650,7 @@ div.menu ul#summary li ul {
 	-moz-border-radius: 7px; -webkit-border-radius: 7px;
 	z-index: 20;
 }	
-	div.menu ul#summary ul li {
+	div.menu ul#summary ul li:not(.list_header) {
 		width: 300px;
 		margin: 0;
 		padding: 5px 10px 15px 10px;
@@ -673,7 +673,7 @@ div.menu ul#summary ul li dl {
 	display: block;
 	clear: both;
 }
-div.menu ul#summary ul dl lh {
+div.menu ul#summary ul dl li.list_header {
 	display: block;
 	margin: 0.25em 0 0.5em 0;
 	font-size: 1.5em;

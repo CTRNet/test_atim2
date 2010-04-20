@@ -458,7 +458,7 @@ class ShellHelper extends Helper {
 							if ( isset($summary_result['Summary']['title']) && is_array($summary_result['Summary']['title']) ) {
 								$formatted_summary .= '
 									'.__($summary_result['Summary']['title'][0], true).'
-									<lh>'.$summary_result['Summary']['title'][1].'</lh>
+									<li class="list_header">'.$summary_result['Summary']['title'][1].'</li>
 								';
 							}
 							
