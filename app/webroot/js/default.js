@@ -117,6 +117,10 @@ function uncheckAll( $div ) {
 		$.datepicker.setDefaults($.datepicker.regional[locale]);
 		$(".datepicker").each(function(){
 			initDatepicker(this);
+			$(this).click(function(){
+				//bug fix for Safari and Chrome
+				$(this).datepicker('show');
+			});
 		});
 		//datepicker style
 		$("#ui-datepicker-div").addClass("jquery_cupertino");
@@ -132,6 +136,8 @@ function uncheckAll( $div ) {
 			changeMonth: true,
 			changeYear: true,
 			dateFormat: 'yy-mm-dd',
+			maxDate: '2100-12-31',
+			yearRange: '-100:+10',
 			firstDay: 0,
 			beforeShow: function(input, inst){
 				//put the date back in place
@@ -146,7 +152,7 @@ function uncheckAll( $div ) {
 			},
 			onClose: function(dateText,picker) {
 				//hide the date
-				$(this).val("");
+				$(this).val(" ");//space required for Safari and Chome or the button disappears
 				var dateSplit = dateText.split(/-/);
 				$('#' + tmpId).val(dateSplit[0]); 
 	        	$('#' + tmpId + "-mm").val(dateSplit[1]);
