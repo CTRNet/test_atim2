@@ -474,7 +474,7 @@ div.menu.level_0 {
 	line-height: 1.2em;
 	color: #ccf;
 }
-div.menu.level_0 span {
+div.menu.level_0 span:not(.untranslated) {
 	color: #fff;
 	/* font-weight: bold; */
 	font-size: 14px;
@@ -614,7 +614,7 @@ div.menu ul#summary li {
 	padding: 0;
 	margin: 0;
 }
-div.menu ul#summary li span {
+div.menu ul#summary li span:not(.untranslated) {
 	position: relative;
 	
 	display: block;
@@ -650,7 +650,7 @@ div.menu ul#summary li ul {
 	-moz-border-radius: 7px; -webkit-border-radius: 7px;
 	z-index: 20;
 }	
-	div.menu ul#summary ul li {
+	div.menu ul#summary ul li:not(.list_header) {
 		width: 300px;
 		margin: 0;
 		padding: 5px 10px 15px 10px;
@@ -673,7 +673,7 @@ div.menu ul#summary ul li dl {
 	display: block;
 	clear: both;
 }
-div.menu ul#summary ul dl lh {
+div.menu ul#summary ul dl li.list_header {
 	display: block;
 	margin: 0.25em 0 0.5em 0;
 	font-size: 1.5em;
@@ -1392,4 +1392,29 @@ body.flash div#wrapper a:hover {
 
 a.form:focus{
 	text-decoration:underline;
+}
+
+.datepicker{
+	border-style: none;
+	width: 22px;
+	color: #fff;
+	background: url("../img/cal.gif") no-repeat;
+	cursor: pointer;
+}
+
+img.fake_datepicker{
+	position: absolute; 
+	left: 3px; 
+	top: -1px; 
+	z-index: -1;
+	cursor: pointer;
+}
+
+tr.highlight, td.highlight{
+	background: url("../img/highlight.gif");
+}
+
+.untranslated{
+	background-color: yellow;
+	color: black;
 }

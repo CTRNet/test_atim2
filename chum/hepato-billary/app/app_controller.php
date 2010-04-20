@@ -178,7 +178,8 @@ class AppController extends Controller {
 		if(!is_numeric($word)){
 			AppController::$missing_translations[] = $word;
 			if(Configure::read('debug') == 2){
-				$word = "<span style='background-color: yellow; color: black;'>".$word."</span>";
+				$word = "<span class='untranslated'>".$word."</span>";
+//				$word .= "[untr]";
 			}
 		}
 	}

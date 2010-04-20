@@ -51,8 +51,10 @@
 		'ajax' => array(
 			'index' => array(
 				'detail' => array(
-					'update' => 'frame',
-					'before' => 'set_at_state_in_tree_root(this)'
+					'json' => array(
+						'update' => 'frame',
+						'callback' => 'set_at_state_in_tree_root'
+					)
 				)
 			)
 		)
