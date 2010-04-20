@@ -82,9 +82,9 @@ class DATABASE_CONFIG {
 		'driver' => 'mysql',
 		'persistent' => false,
 		'host' => 'localhost',
-		'login' => 'nico',
-		'password' => 'nicodb',
-		'database' => 'atimv2-frsq-cusm',
+		'login' => 'root',
+		'password' => '',
+		'database' => 'frsq_cusm',
 		'prefix' => ''
 	);
 }
