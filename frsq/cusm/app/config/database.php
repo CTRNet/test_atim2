@@ -83,8 +83,8 @@ class DATABASE_CONFIG {
 		'persistent' => false,
 		'host' => 'localhost',
 		'login' => 'root',
-		'password' => 'root',
-		'database' => 'atim_new',
+		'password' => '',
+		'database' => 'frsq_cusm',
 		'prefix' => '',
 		'encoding' => 'utf8'
 	);
