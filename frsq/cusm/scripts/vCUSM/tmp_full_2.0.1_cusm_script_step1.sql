@@ -41,7 +41,7 @@ DROP TABLE IF EXISTS `acos`, `ad_bags`, `ad_bags_revs`, `ad_blocks`, `ad_blocks_
  `structure_value_domains_permissible_values`, `study_contacts`, `study_contacts_revs`, `study_ethics_boards`, `study_ethics_boards_revs`, `study_fundings`, `study_fundings_revs`, `study_investigators`,
  `study_investigators_revs`, `study_related`, `study_related_revs`, `study_results`, `study_results_revs`, `study_reviews`, `study_reviews_revs`, `study_summaries`, `study_summaries_revs`, `tma_slides`,
  `tma_slides_revs`, `txd_chemos`, `txd_chemos_revs`, `txd_radiations`, `txd_radiations_revs`, `txd_surgeries`, `txd_surgeries_revs`, `txe_chemos`, `txe_chemos_revs`, `txe_radiations`, `txe_radiations_revs`,
- `txe_surgeries`, `txe_surgeries_revs`, `tx_controls`, `tx_masters`, `tx_masters_revs`, `users`, `user_logs`, `versions`;
+ `txe_surgeries`, `txe_surgeries_revs`, missing_translations, `tx_controls`, `tx_masters`, `tx_masters_revs`, `users`, `user_logs`, `versions`;
  
  
  DROP TABLE IF EXISTS `ed_all_lifestyle_smoking`, `ed_all_lifestyle_smoking_revs`, `qc_cusm_cd_undetailled`, `qc_cusm_cd_undetailled_revs`, `qc_cusm_dxd_procure`, `qc_cusm_dxd_procure_revs`, `qc_cusm_ed_procure_lifestyle`, `qc_cusm_ed_procure_lifestyle_revs`, `qc_cusm_ed_procure_prostate_path_report`, `qc_cusm_ed_procure_prostate_path_report_revs`, `realiquoting_controls`, `sd_der_cell_lysates`, `sd_der_cell_lysates_revs`, `sd_der_proteins`, `sd_der_proteins_revs`;

@@ -589,8 +589,8 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 (null, 'QC-CUSM-000005_CAN-999-999-000-999-89', @dx_structure_id, 'QC-CUSM-000005', 
 (SELECT id FROM structure_fields WHERE old_id LIKE 'CAN-999-999-000-999-89'), 'CAN-999-999-000-999-89', 2, 24, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
 -- DiagnosisMaster.path_stage_summary	CAN-999-999-000-999-90
-(null, 'QC-CUSM-000005_CAN-999-999-000-999-90', @dx_structure_id, 'QC-CUSM-000005', 
-(SELECT id FROM structure_fields WHERE old_id LIKE 'CAN-999-999-000-999-90'), 'CAN-999-999-000-999-90', 2, 25, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+-- (null, 'QC-CUSM-000005_CAN-999-999-000-999-90', @dx_structure_id, 'QC-CUSM-000005', 
+-- (SELECT id FROM structure_fields WHERE old_id LIKE 'CAN-999-999-000-999-90'), 'CAN-999-999-000-999-90', 2, 25, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
 -- DiagnosisDetail.ptnm_version	QC-CUSM-000025
 (null, 'QC-CUSM-000005_QC-CUSM-000025', @dx_structure_id, 'QC-CUSM-000005', 
 (SELECT id FROM structure_fields WHERE old_id LIKE 'QC-CUSM-000025'), 'QC-CUSM-000025', 2, 26, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL');
@@ -764,18 +764,18 @@ CREATE TABLE IF NOT EXISTS `qc_cusm_ed_procure_prostate_path_report` (
   `report_number` varchar(50) NULL,
   `pathologist_name` varchar(50) NULL,
 
-  `prostate_weight` decimal(10,3) default NULL COMMENT 'unit (gr)',
-  `prostate_lenght` decimal(10,3) default NULL COMMENT 'unit (cm)',
-  `prostate_width` decimal(10,3) default NULL COMMENT 'unit (cm)',
-  `prostate_height` decimal(10,3) default NULL COMMENT 'unit (cm)',
+  `prostate_weight` decimal(10,2) default NULL COMMENT 'unit (gr)',
+  `prostate_lenght` decimal(10,2) default NULL COMMENT 'unit (cm)',
+  `prostate_width` decimal(10,2) default NULL COMMENT 'unit (cm)',
+  `prostate_height` decimal(10,2) default NULL COMMENT 'unit (cm)',
     
-  `rgt_seminal_vesicles_lenght` decimal(10,3) default NULL COMMENT 'unit (cm)',
-  `rgt_seminal_vesicles_width` decimal(10,3) default NULL COMMENT 'unit (cm)',
-  `rgt_seminal_vesicles_height` decimal(10,3) default NULL COMMENT 'unit (cm)',
+  `rgt_seminal_vesicles_lenght` decimal(10,2) default NULL COMMENT 'unit (cm)',
+  `rgt_seminal_vesicles_width` decimal(10,2) default NULL COMMENT 'unit (cm)',
+  `rgt_seminal_vesicles_height` decimal(10,2) default NULL COMMENT 'unit (cm)',
 
-  `lft_seminal_vesicles_lenght` decimal(10,3) default NULL COMMENT 'unit (cm)',
-  `lft_seminal_vesicles_width` decimal(10,3) default NULL COMMENT 'unit (cm)',
-  `lft_seminal_vesicles_height` decimal(10,3) default NULL COMMENT 'unit (cm)',
+  `lft_seminal_vesicles_lenght` decimal(10,2) default NULL COMMENT 'unit (cm)',
+  `lft_seminal_vesicles_width` decimal(10,2) default NULL COMMENT 'unit (cm)',
+  `lft_seminal_vesicles_height` decimal(10,2) default NULL COMMENT 'unit (cm)',
    
   `tumour_location_rgt_anterior` varchar(50) NULL,
   `tumour_location_rgt_posterior` varchar(50) NULL,
@@ -833,18 +833,18 @@ CREATE TABLE IF NOT EXISTS `qc_cusm_ed_procure_prostate_path_report_revs` (
   `report_number` varchar(50) NULL,
   `pathologist_name` varchar(50) NULL,
 
-  `prostate_weight` decimal(10,3) default NULL COMMENT 'unit (gr)',
-  `prostate_lenght` decimal(10,3) default NULL COMMENT 'unit (cm)',
-  `prostate_width` decimal(10,3) default NULL COMMENT 'unit (cm)',
-  `prostate_height` decimal(10,3) default NULL COMMENT 'unit (cm)',
+  `prostate_weight` decimal(10,2) default NULL COMMENT 'unit (gr)',
+  `prostate_lenght` decimal(10,2) default NULL COMMENT 'unit (cm)',
+  `prostate_width` decimal(10,2) default NULL COMMENT 'unit (cm)',
+  `prostate_height` decimal(10,2) default NULL COMMENT 'unit (cm)',
     
-  `rgt_seminal_vesicles_lenght` decimal(10,3) default NULL COMMENT 'unit (cm)',
-  `rgt_seminal_vesicles_width` decimal(10,3) default NULL COMMENT 'unit (cm)',
-  `rgt_seminal_vesicles_height` decimal(10,3) default NULL COMMENT 'unit (cm)',
+  `rgt_seminal_vesicles_lenght` decimal(10,2) default NULL COMMENT 'unit (cm)',
+  `rgt_seminal_vesicles_width` decimal(10,2) default NULL COMMENT 'unit (cm)',
+  `rgt_seminal_vesicles_height` decimal(10,2) default NULL COMMENT 'unit (cm)',
 
-  `lft_seminal_vesicles_lenght` decimal(10,3) default NULL COMMENT 'unit (cm)',
-  `lft_seminal_vesicles_width` decimal(10,3) default NULL COMMENT 'unit (cm)',
-  `lft_seminal_vesicles_height` decimal(10,3) default NULL COMMENT 'unit (cm)',
+  `lft_seminal_vesicles_lenght` decimal(10,2) default NULL COMMENT 'unit (cm)',
+  `lft_seminal_vesicles_width` decimal(10,2) default NULL COMMENT 'unit (cm)',
+  `lft_seminal_vesicles_height` decimal(10,2) default NULL COMMENT 'unit (cm)',
    
   `tumour_location_rgt_anterior` varchar(50) NULL,
   `tumour_location_rgt_posterior` varchar(50) NULL,
@@ -1032,6 +1032,23 @@ INSERT INTO structure_fields(`public_identifier`, `old_id`, `plugin`, `model`, `
 
 ('', 'QC-CUSM-000060', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'prostate_height', 'prostate height', '', 'number', 'size=7', '', null, '', 'open', 'open', 'open'),
 ('', 'QC-CUSM-000061', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'lymph_nodes_collected', 'lymph nodes collected', '', 'select', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yesno'), '', 'open', 'open', 'open');
+
+INSERT INTO `structure_validations` 
+(`id`, `old_id`, `structure_field_id`, `structure_field_old_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) 
+VALUES
+(null, 'QC-CUSM-000100', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'QC-CUSM-000029'), 'QC-CUSM-000029', 'custom,/^([0-9]+(\.[0-9]+)?)?$/', '1', '0', '', 'data should be a positif decimal', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CUSM-000101', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'QC-CUSM-000060'), 'QC-CUSM-000060', 'custom,/^([0-9]+(\.[0-9]+)?)?$/', '1', '0', '', 'data should be a positif decimal', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CUSM-000102', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'QC-CUSM-000030'), 'QC-CUSM-000030', 'custom,/^([0-9]+(\.[0-9]+)?)?$/', '1', '0', '', 'data should be a positif decimal', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CUSM-000103', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'QC-CUSM-000031'), 'QC-CUSM-000031', 'custom,/^([0-9]+(\.[0-9]+)?)?$/', '1', '0', '', 'data should be a positif decimal', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CUSM-000104', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'QC-CUSM-000032'), 'QC-CUSM-000032', 'custom,/^([0-9]+(\.[0-9]+)?)?$/', '1', '0', '', 'data should be a positif decimal', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CUSM-000105', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'QC-CUSM-000033'), 'QC-CUSM-000033', 'custom,/^([0-9]+(\.[0-9]+)?)?$/', '1', '0', '', 'data should be a positif decimal', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CUSM-000106', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'QC-CUSM-000034'), 'QC-CUSM-000034', 'custom,/^([0-9]+(\.[0-9]+)?)?$/', '1', '0', '', 'data should be a positif decimal', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CUSM-000107', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'QC-CUSM-000035'), 'QC-CUSM-000035', 'custom,/^([0-9]+(\.[0-9]+)?)?$/', '1', '0', '', 'data should be a positif decimal', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CUSM-000108', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'QC-CUSM-000036'), 'QC-CUSM-000036', 'custom,/^([0-9]+(\.[0-9]+)?)?$/', '1', '0', '', 'data should be a positif decimal', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, 'QC-CUSM-000109', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'QC-CUSM-000037'), 'QC-CUSM-000037', 'custom,/^([0-9]+(\.[0-9]+)?)?$/', '1', '0', '', 'data should be a positif decimal', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('data should be a positif decimal', '', 'Data should be a positive decimal!', 'La données doit être un décimal positif!');
 
 INSERT INTO structure_fields(`public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
 ('', 'QC-CUSM-000062', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'tumour_location_rgt_anterior', 'right anterior', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
@@ -2362,6 +2379,46 @@ SET `flag_add` = '0',
 `flag_index` = '0',
 `flag_detail` = '0'
 WHERE `structure_field_old_id` IN ('CAN-999-999-000-999-1183');
+
+-- Add storage precision
+
+ALTER TABLE `storage_masters` ADD `label_precision` VARCHAR( 10 ) NULL AFTER `short_label` ;
+
+INSERT INTO `structure_fields` 
+(`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) 
+VALUES
+(null, '', 'QC-CUSM-000120', 'Storagelayout', 'StorageMaster', 'storage_masters', 'label_precision', 'storage label precision', '', 'input', 'size=10', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+INSERT INTO `structure_validations` 
+(`id`, `old_id`, `structure_field_id`, `structure_field_old_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) 
+VALUES
+(null, 'QC-CUSM-000112', (SELECT `id` FROM `structure_fields` WHERE `old_id` = 'QC-CUSM-000120'), 'QC-CUSM-000120', 
+'maxLength,10', '1', '0', '', 'precision size is limited', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('precision size is limited', '', 'The label precision size is limited!', 'La taille de la précision du label est limitée!');
+
+INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+-- std_undetail_stg_with_tmp
+(null, 'CAN-999-999-000-999-1041_QC-CUSM-000120', 
+(SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1041'), 'CAN-999-999-000-999-1041', 
+(SELECT id FROM structure_fields WHERE old_id = 'QC-CUSM-000120'), 'QC-CUSM-000120', 0, 7, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+-- std_undetail_stg_with_surr_tmp
+(null, 'CAN-999-999-000-999-1042_QC-CUSM-000120', 
+(SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1042'), 'CAN-999-999-000-999-1042', 
+(SELECT id FROM structure_fields WHERE old_id = 'QC-CUSM-000120'), 'QC-CUSM-000120', 0, 7, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+-- std_rooms
+(null, 'CAN-999-999-000-999-1043_QC-CUSM-000120', 
+(SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1043'), 'CAN-999-999-000-999-1043', 
+(SELECT id FROM structure_fields WHERE old_id = 'QC-CUSM-000120'), 'QC-CUSM-000120', 0, 7, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+-- std_incubators
+(null, 'CAN-999-999-000-999-1044_QC-CUSM-000120', 
+(SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1044'), 'CAN-999-999-000-999-1044', 
+(SELECT id FROM structure_fields WHERE old_id = 'QC-CUSM-000120'), 'QC-CUSM-000120', 0, 7, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL'),
+-- storagemasters
+(null, 'CAN-999-999-000-999-1040_QC-CUSM-000120', 
+(SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1040'), 'CAN-999-999-000-999-1040', 
+(SELECT id FROM structure_fields WHERE old_id = 'QC-CUSM-000120'), 'QC-CUSM-000120', 0, 7, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '2010-02-12 00:00:00', 'NL');
 
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 -- SOP
