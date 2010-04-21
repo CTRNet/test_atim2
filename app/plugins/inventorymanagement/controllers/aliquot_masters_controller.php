@@ -1684,7 +1684,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		if(!empty($arr_preselected_storages)) {
 			foreach ($arr_preselected_storages as $storage_id => $storage_data) {
-				$formatted_data[$storage_id] = $storage_data['StorageMaster']['selection_label'] . ' [' . __($storage_data['StorageMaster']['code'] . ' ('.$storage_data['StorageMaster']['storage_type'], TRUE) .')'. ']';
+				$formatted_data[$storage_id] = $storage_data['StorageMaster']['selection_label'] . ' [' . $storage_data['StorageMaster']['code'] . ' ('.__($storage_data['StorageMaster']['storage_type'], TRUE) .')'. ']';
 			}
 		}
 	
