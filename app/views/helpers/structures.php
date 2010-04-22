@@ -1664,8 +1664,8 @@ class StructuresHelper extends Helper {
 									$datetime_array = array();
 									if ( isset($options['override'][$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]) ) {
 										$datetime_array = StructuresHelper::datetime_to_array($options['override'][$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]);
-									}else if(isset($this->data) && !empty($this->data) && !isset($this->data[0])){
-										$datetime_array = StructuresHelper::datetime_to_array($this->data[$field['StructureField']['model']][$field['StructureField']['field']]);
+									}else if(isset($this->data) && !empty($this->data) && !isset($this->data[0]) && gettype($this->data[$field['StructureField']['model']][$field['StructureField']['field']]) == "Array"){
+										$datetime_array = $this->data[$field['StructureField']['model']][$field['StructureField']['field']];
 									}
 									$display_value .= $this->get_date_fields($model_prefix, $model_suffix, $field['StructureField'],
 									$html_element_array, $model_prefix_css, $model_suffix_css, "", $datetime_array);
