@@ -6,7 +6,6 @@
 	$is_clinical_group = false;
 	if($event_group == 'clinical') {
 		$is_clinical_group = true;
-		$this->set('atim_menu', $this->Menus->get('/clinicalannotation/event_masters/listall/clinical/%%Participant.id%%//'));
 	}
 	$this->set('is_clinical_group', $is_clinical_group);
 		
