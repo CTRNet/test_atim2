@@ -2387,7 +2387,7 @@ CREATE TABLE `ed_score_meld_revs` (
 ) ENGINE = InnoDB;
 
 
-INSERT INTO `atim_hepato`.`event_controls` (`id` ,`disease_site` ,`event_group` ,`event_type` ,`flag_active` ,`form_alias` ,`detail_tablename` ,`display_order`) VALUES 
+INSERT INTO `event_controls` (`id` ,`disease_site` ,`event_group` ,`event_type` ,`flag_active` ,`form_alias` ,`detail_tablename` ,`display_order`) VALUES 
 (NULL , 'hepatobiliary', 'scores', 'cirrhosis', '1', 'ed_score_cirrhosis', 'ed_score_cirrhosis', '0'),
 (NULL , 'hepatobiliary', 'scores', 'child pugh score', '1', 'ed_score_child_pugh', 'ed_score_child_pugh', '0'),
 (NULL , 'hepatobiliary', 'scores', 'okuda score', '1', 'ed_score_okuda', 'ed_score_okuda', '0'),
