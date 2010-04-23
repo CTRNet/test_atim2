@@ -180,7 +180,7 @@ class EventMastersControllerCustom extends EventMastersController {
  	}
  	
 	function setScores($event_control_event_type){
-		if($event_control_event_type == "child pugh score"){
+		if($event_control_event_type == "child pugh score (classic)" || $event_control_event_type == "child pugh score (mod)"){
 			$this->setChildPughScore();
 		}else if($event_control_event_type == "okuda score"){
 			$this->setOkudaScore();
@@ -200,11 +200,11 @@ class EventMastersControllerCustom extends EventMastersController {
 	function setChildPughScore(){
 		$score = 0;
 
-		if($this->data['EventDetail']['bilirubin'] === "<34µmol/l"){
+		if($this->data['EventDetail']['bilirubin'] == "<34µmol/l" || $this->data['EventDetail']['bilirubin'] == "<68µmol/l"){
 			++ $score;
-		}else if($this->data['EventDetail']['bilirubin'] == "34 - 50µmol/l"){
+		}else if($this->data['EventDetail']['bilirubin'] == "34 - 50µmol/l" || $this->data['EventDetail']['bilirubin'] == "68 - 170µmol/l"){
 			$score += 2;
-		}else if($this->data['EventDetail']['bilirubin'] == ">50µmol/l"){
+		}else if($this->data['EventDetail']['bilirubin'] == ">50µmol/l" || $this->data['EventDetail']['bilirubin'] == ">170µmol/l"){
 			$score += 3;
 		}
 		
