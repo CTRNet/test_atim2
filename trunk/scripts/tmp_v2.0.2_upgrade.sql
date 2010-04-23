@@ -4,7 +4,7 @@
 
 -- Update version information
 UPDATE `versions` 
-SET `version_number` = 'v2.0.2', `date_installed` = '2010-04-12', `build_number` = ''
+SET `version_number` = 'v2.0.2', `date_installed` = CURDATE(), `build_number` = ''
 WHERE `versions`.`id` =1;
 
 -- Delete all structures without associated fields
@@ -118,3 +118,8 @@ WHERE `plugin` = 'Clinicalannotation'
 ALTER TABLE structure_fields 
  DROP KEY `unique_fields`,
  ADD UNIQUE KEY `unique_fields` (`plugin`,`model`,`tablename`,`field`, `structure_value_domain`);
+ 
+-- Fix english translation for diagnosis   
+UPDATE `i18n` 
+SET `en` = 'Diagnosis' 
+WHERE `id` = 'diagnosis';
