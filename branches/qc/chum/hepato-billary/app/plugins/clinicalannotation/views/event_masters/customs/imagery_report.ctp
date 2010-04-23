@@ -195,7 +195,7 @@
 				<th><?php echo(__('hepatic artery', true)); ?></th>
 				<th><?php echo(__('coeliac trunk', true)); ?></th>
 				<th><?php echo(__('splenic artery', true)); ?></th>
-				<th><?php echo(__('superior esenteric artery', true)); ?></th>
+				<th><?php echo(__('superior mesenteric artery', true)); ?></th>
 				<th><?php echo(__('portal vein', true)); ?></th>
 				<th><?php echo(__('superior mesenteric vein', true)); ?></th>
 				<th><?php echo(__('splenic vein', true)); ?></th>
@@ -211,7 +211,7 @@
 					<td><?php echo($data['EventDetail']['hepatic_artery']); ?></td>
 					<td><?php echo($data['EventDetail']['coeliac_trunk']); ?></td>
 					<td><?php echo($data['EventDetail']['splenic_artery']); ?></td>
-					<td><?php echo($data['EventDetail']['superior_esenteric_artery']); ?></td>
+					<td><?php echo($data['EventDetail']['superior_mesenteric_artery']); ?></td>
 					<td><?php echo($data['EventDetail']['portal_vein']); ?></td>
 					<td><?php echo($data['EventDetail']['superior_mesenteric_vein']); ?></td>
 					<td><?php echo($data['EventDetail']['splenic_vein']); ?></td>
@@ -239,7 +239,7 @@
 			?>
 			<tr>
 				<th><?php echo(substr($data['EventControl']['event_type'], 16)) ?> - <?php echo($structures->formatDate($data['EventMaster']['event_date'])); ?></th>
-				<td><?php echo($data['EventDetail']['summary']); ?></td>
+				<td><?php echo($data['EventMaster']['event_summary']); ?></td>
 			</tr>
 			<?php 
 		}
