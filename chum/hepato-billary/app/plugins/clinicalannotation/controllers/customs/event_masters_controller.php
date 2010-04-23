@@ -178,6 +178,213 @@ class EventMastersControllerCustom extends EventMastersController {
  			
  		return $event_data;		
  	}
+ 	
+	function setScores($event_control_event_type){
+		if($event_control_event_type == "child pugh score"){
+			$this->setChildPughScore();
+		}else if($event_control_event_type == "okuda score"){
+			$this->setOkudaScore();
+		}else if($event_control_event_type == "barcelona score"){
+			$this->setBarcelonaScore();
+		}else if($event_control_event_type == "clip"){
+			$this->setClipScore();
+		}else if($event_control_event_type == "score de fong"){
+			$this->setFongScore();
+		}else if($event_control_event_type == "gretch"){
+			$this->setGretchScore();
+		}else if($event_control_event_type == "meld score"){
+			$this->setMeldScore();
+		}
+	}
+	
+	function setChildPughScore(){
+		$score = 0;
+
+		if($this->data['EventDetail']['bilirubin'] === "<34µmol/l"){
+			++ $score;
+		}else if($this->data['EventDetail']['bilirubin'] == "34 - 50µmol/l"){
+			$score += 2;
+		}else if($this->data['EventDetail']['bilirubin'] == ">50µmol/l"){
+			$score += 3;
+		}
+		
+		if($this->data['EventDetail']['albumin'] == "<28g/l"){
+			++ $score;
+		}else if($this->data['EventDetail']['albumin'] == "28 - 35g/l"){
+			$score += 2;
+		}else if($this->data['EventDetail']['albumin'] == ">35g/l"){
+			$score += 3;
+		}
+		
+		//TODO: complete inr
+		if($this->data['EventDetail']['inr'] == "<1.7"){
+			
+		}else if($this->data['EventDetail']['inr'] == "1.7 - 2.2"){
+			
+		}else if($this->data['EventDetail']['inr'] == ">2.2"){
+		
+		}
+		
+		if($this->data['EventDetail']['encephalopathy'] == "none"){
+			++ $score;
+		}else if($this->data['EventDetail']['encephalopathy'] == "grade I-II"){
+			$score += 2;
+		}else if($this->data['EventDetail']['encephalopathy'] == "grade III-IV"){
+			$score += 3;
+		}
+		
+		if($this->data['EventDetail']['ascite'] == "none"){
+			++ $score;
+		}else if($this->data['EventDetail']['ascite'] == "mild"){
+			$score += 2;
+		}else if($this->data['EventDetail']['ascite'] == "severe"){
+			$score += 3;
+		}
+		
+		//no score if bellow 4
+		if($score < 7 && $score > 4){
+			$this->data['EventDetail']['result'] = "A";
+		}else if($score <10){
+			$this->data['EventDetail']['result'] = "B";
+		}else if($score < 16){
+			$this->data['EventDetail']['result'] = "C";
+		}
+		$this->data['EventDetail']['result'] .= " (".$score.")";
+	}
+	
+	function setOkudaScore(){
+		$score = 0;
+		
+		if($this->data['EventDetail']['bilirubin'] == ">=50µmol/l"){
+			++ $score;
+		}
+		
+		if($this->data['EventDetail']['albumin'] == "<30g/l"){
+			++ $score;	
+		}
+		
+		if($this->data['EventDetail']['ascite'] == "1"){
+			++ $score;
+		}
+		
+		if($this->data['EventDetail']['tumor_size_ratio'] == ">=50%"){
+			++ $score;			
+		}
+		//no score if bellow 4
+		if($score < 1){
+			$this->data['EventDetail']['result'] = "I";
+		}else if($score < 3){
+			$this->data['EventDetail']['result'] = "II";
+		}else{
+			$this->data['EventDetail']['result'] = "III";
+		}
+		$this->data['EventDetail']['result'] .= " (".$score.")";
+	}
+	
+	function setBarcelonaScore(){
+		$this->data['EventDetail']['result'] = "A";
+		
+		if($this->data['EventDetail']['who'] >= 3
+		|| $this->data['EventDetail']['tumor_morphology'] == "indifferent"
+		|| $this->data['EventDetail']['okuda_score'] == "III"
+		|| $this->data['EventDetail']['liver_function'] == "child-pugh C"){
+			$this->data['EventDetail']['result'] = "D";
+		}else if($this->data['EventDetail']['who'] > 0
+		|| $this->data['EventDetail']['tumor_morphology'] == "metastasis" || $this->data['EventDetail']['tumor_morphology'] == "vascular invasion"
+		|| $this->data['EventDetail']['okuda_score'] == "I" || $this->data['EventDetail']['okuda_score'] == "II"
+		|| $this->data['EventDetail']['liver_function'] == "child-pugh A" || $this->data['EventDetail']['liver_function'] == "child-pugh B"){
+			$this->data['EventDetail']['result'] = "C";
+		}else if($this->data['EventDetail']['who'] > 0){
+			if($this->data['EventDetail']['tumor_morphology'] == "3 tumors, < 3 cm"
+			&& ($this->data['EventDetail']['okuda_score'] == "I" || $this->data['EventDetail']['okuda_score'] == "II")
+			&& ($this->data['EventDetail']['liver_function'] == "child-pugh A" || $this->data['EventDetail']['liver_function'] == "child-pugh B")){
+				$this->data['EventDetail']['result'] = "A4";
+			}else if($this->data['EventDetail']['tumor_morphology'] == "unique, < 5cm"
+			&& $this->data['EventDetail']['okuda_score'] == "I"){
+				if($this->data['EventDetail']['liver_function'] == "HTP, hyperbilirubinemia"){
+					$this->data['EventDetail']['result'] = "A3";	
+				}else if($this->data['EventDetail']['liver_function'] == "HTP, bilirubin N"){
+					$this->data['EventDetail']['result'] = "A2";
+				}else if($this->data['EventDetail']['liver_function'] == "no HTP & bilirubin N"){
+					$this->data['EventDetail']['result'] = "A1";
+				}
+			}
+		}
+		
+	}
+	
+	function setClipScore(){
+		$this->data['EventDetail']['result'] = 0;
+		if($this->data['EventDetail']['child_pugh_score'] == "B"){
+			++ $this->data['EventDetail']['result'];
+		}else if($this->data['EventDetail']['child_pugh_score'] == "C"){
+			$this->data['EventDetail']['result'] += 2;
+		}
+		
+		if($this->data['EventDetail']['morphology_of_tumor'] == "multiple nodules & < 50%"){
+			++ $this->data['EventDetail']['result'];
+		}else if($this->data['EventDetail']['morphology_of_tumor'] == "massive or >= 50%"){
+			$this->data['EventDetail']['result'] += 2;
+		}
+		
+		if($this->data['EventDetail']['alpha_foetoprotein'] == ">= 400 g/L"){
+			++ $this->data['EventDetail']['result'];
+		}
+		
+		if($this->data['EventDetail']['portal_thrombosis'] == "1"){
+			++ $this->data['EventDetail']['result'];
+		}
+	}
+	
+	function setFongScore(){
+		$this->data['EventDetail']['result'] = 0;
+		if($this->data['EventDetail']['metastatic_lymph_nodes'] == 1){
+			++ $this->data['EventDetail']['result'];
+		}
+		if($this->data['EventDetail']['interval_under_year'] == 1){
+			++ $this->data['EventDetail']['result'];
+		}
+		if($this->data['EventDetail']['more_than_one_metastasis'] == 1){
+			++ $this->data['EventDetail']['result'];
+		}
+		if($this->data['EventDetail']['metastasis_greater_five_cm'] == 1){
+			++ $this->data['EventDetail']['result'];
+		}
+		if($this->data['EventDetail']['cea_greater_two_hundred'] == 1){
+			++ $this->data['EventDetail']['result'];
+		}
+	}
+	
+	function setGretchScore(){
+		$score = 0;
+		if($this->data['EventDetail']['kamofsky_index'] == "<= 80%"){
+			$score += 3;
+		}
+		if($this->data['EventDetail']['bilirubin'] == ">=50µmol/l"){
+			$score += 3;
+		}
+		if($this->data['EventDetail']['alkaline_phosphatase'] == ">= 2N"){
+			$score += 2;
+		}
+		if($this->data['EventDetail']['alpha_foetoprotein'] == ">= 35 µg/L"){
+			$score += 2;
+		}
+		if($this->data['EventDetail']['portal_thrombosis'] == ">= 35 µg/L"){
+			$score += 2;
+		}
+		
+		if($score == 0){
+			$this->data['EventDetail']['result'] = "A (0)";
+		}else if($score < 6){
+			$this->data['EventDetail']['result'] = "B (".$score.")";
+		}else{
+			$this->data['EventDetail']['result'] = "C (".$score.")";
+		}
+	}
+	
+	function setMeldScore(){
+		//TODO: mismatch between formulae and listed values
+	}
 }
 	
 ?>
