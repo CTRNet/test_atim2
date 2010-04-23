@@ -1,13 +1,6 @@
 <?php
 
 	// --------------------------------------------------------------------------------
-	// Override Menu For 'clinical' event_group 	 
-	// --------------------------------------------------------------------------------
-	if($event_group == 'clinical') {
-		$this->set('atim_menu', $this->Menus->get('/clinicalannotation/event_masters/listall/clinical/%%Participant.id%%//'));
-	}
-
-	// --------------------------------------------------------------------------------
 	// Check Event Type could be created more than once
 	// --------------------------------------------------------------------------------
 	$created_event_type_title = 

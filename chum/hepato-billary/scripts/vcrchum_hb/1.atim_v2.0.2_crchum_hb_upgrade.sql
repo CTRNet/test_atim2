@@ -222,10 +222,10 @@ UPDATE `menus` SET `flag_active` =  '0' WHERE `menus`.`id` = 'clin_CAN_33' ;
 
 -- ... CLINIC: presentation ............................................
 
-DELETE FROM `menus` WHERE `id` IN ('clin_qc_hb_31', 'clin_qc_hb_32', 'clin_qc_hb_33');
+DELETE FROM `menus` WHERE `id` IN ('clin_qc_hb_31', 'clin_qc_hb_33');
 INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_title`, `language_description`, `use_link`, `use_params`, `use_summary`, `flag_active`, `created`, `created_by`, `modified`, `modified_by`) VALUES
-('clin_qc_hb_31', 'clin_CAN_31', 0, 1, 'annotation clinical details', 'annotation clinical details', '/clinicalannotation/event_masters/listall/clinical/%%Participant.id%%//', '', '', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-('clin_qc_hb_33', 'clin_CAN_31', 0, 2, 'annotation clinical reports', 'annotation clinical reports', '/clinicalannotation/event_masters/imageryReport/%%Participant.id%%/', '', '', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+-- ('clin_qc_hb_31', 'clin_CAN_31', 0, 1, 'annotation clinical details', 'annotation clinical details', '/clinicalannotation/event_masters/listall/clinical/%%Participant.id%%//', '', '', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('clin_qc_hb_33', 'clin_CAN_4', 0, 20, 'annotation clinical reports', 'annotation clinical reports', '/clinicalannotation/event_masters/imageryReport/%%Participant.id%%/', '', '', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 TRUNCATE `acos`;
 INSERT INTO `acos` (`id`, `parent_id`, `model`, `foreign_key`, `alias`, `lft`, `rght`) VALUES
@@ -2103,7 +2103,10 @@ INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('resected liver volume', '', 'Resected Liver Volume', 'Volume du foie réséqué'),
 ('tumoral volume', '', 'Tumoral Volume', 'Volume tumoral');
 
-INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_title`, `language_description`, `use_link`, `use_params`, `use_summary`, `flag_active`, `created`, `created_by`, `modified`, `modified_by`) VALUES ('clin_CAN_1_qc_hb_14', 'clin_CAN_1', '0', '14', 'score', NULL, '/clinicalannotation/event_masters/listall/scores/%%Participant.id%%', '', 'Clinicalannotation.Participant::summary', '1', '0000-00-00 00:00:00', '1', '0000-00-00 00:00:00', '1');
+INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_title`, `language_description`, `use_link`, `use_params`, `use_summary`, `flag_active`, `created`, `created_by`, `modified`, `modified_by`) 
+VALUES 
+('clin_CAN_1_qc_hb_14', 'clin_CAN_4', '0', '14', 'score', NULL, '/clinicalannotation/event_masters/listall/scores/%%Participant.id%%', '', 'Clinicalannotation.EventControl::summary', '1', '0000-00-00 00:00:00', '1', '0000-00-00 00:00:00', '1');
+
 CREATE TABLE `ed_score_cirrhosis` (
 `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
 `event_master_id` INT UNSIGNED NOT NULL ,
