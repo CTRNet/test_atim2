@@ -113,3 +113,8 @@ WHERE `plugin` = 'Clinicalannotation'
    AND `model` = 'Participant'
    AND `tablename` = 'participants'
    AND `field` = 'secondary_cod_icd10_code';
+   
+-- Update the structure_field unique key
+ALTER TABLE structure_fields 
+ DROP KEY `unique_fields`,
+ ADD UNIQUE KEY `unique_fields` (`plugin`,`model`,`tablename`,`field`, `structure_value_domain`);
