@@ -2103,9 +2103,569 @@ INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('resected liver volume', '', 'Resected Liver Volume', 'Volume du foie réséqué'),
 ('tumoral volume', '', 'Tumoral Volume', 'Volume tumoral');
 
+INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_title`, `language_description`, `use_link`, `use_params`, `use_summary`, `flag_active`, `created`, `created_by`, `modified`, `modified_by`) VALUES ('clin_CAN_1_qc_hb_14', 'clin_CAN_1', '0', '14', 'score', NULL, '/clinicalannotation/event_masters/listall/scores/%%Participant.id%%', '', 'Clinicalannotation.Participant::summary', '1', '0000-00-00 00:00:00', '1', '0000-00-00 00:00:00', '1');
+CREATE TABLE `ed_score_cirrhosis` (
+`id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
+`event_master_id` INT UNSIGNED NOT NULL ,
+`type_of_cirrhosis` VARCHAR( 255 ) NOT NULL ,
+`esophageal_varices` VARCHAR( 3 ) NOT NULL ,
+`gastric_varices` VARCHAR( 3 ) NOT NULL ,
+`tips` VARCHAR( 3 ) NOT NULL ,
+`portacaval_gradient` FLOAT NOT NULL ,
+`portal_thrombosis` VARCHAR( 3 ) NOT NULL ,
+`created` DATETIME NOT NULL ,
+`created_by` INT UNSIGNED NOT NULL ,
+`modified` DATETIME NOT NULL ,
+`modified_by` INT UNSIGNED NOT NULL ,
+`deleted` TINYINT UNSIGNED NOT NULL ,
+`deleted_by` INT UNSIGNED NOT NULL,
+INDEX `event_master_id` (`event_master_id`)
+) ENGINE = InnoDB;
+CREATE TABLE `ed_score_cirrhosis_revs` (
+`id` INT UNSIGNED NOT NULL,
+`event_master_id` INT UNSIGNED NOT NULL ,
+`type_of_cirrhosis` VARCHAR( 255 ) NOT NULL ,
+`esophageal_varices` VARCHAR( 3 ) NOT NULL ,
+`gastric_varices` VARCHAR( 3 ) NOT NULL ,
+`tips` VARCHAR( 3 ) NOT NULL ,
+`portacaval_gradient` FLOAT NOT NULL ,
+`portal_thrombosis` VARCHAR( 3 ) NOT NULL ,
+`created` DATETIME NOT NULL ,
+`created_by` INT UNSIGNED NOT NULL ,
+`modified` DATETIME NOT NULL ,
+`modified_by` INT UNSIGNED NOT NULL ,
+`deleted` TINYINT UNSIGNED NOT NULL ,
+`deleted_by` INT UNSIGNED NOT NULL,
+`version_id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+`version_created` datetime NOT NULL
+) ENGINE = InnoDB;
 
 
 
+CREATE TABLE `ed_score_child_pugh` (
+`id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
+`event_master_id` INT UNSIGNED NOT NULL,
+`bilirubin` VARCHAR(255) NOT NULL,
+`albumin` VARCHAR(255) NOT NULL,
+`inr` VARCHAR(255) NOT NULL,
+`encephalopathy` VARCHAR(255) NOT NULL,
+`ascite` VARCHAR(255) NOT NULL,
+`result` VARCHAR(10) NOT NULL DEFAULT '',
+`created` DATETIME NOT NULL ,
+`created_by` INT UNSIGNED NOT NULL ,
+`modified` DATETIME NOT NULL ,
+`modified_by` INT UNSIGNED NOT NULL ,
+`deleted` TINYINT UNSIGNED NOT NULL ,
+`deleted_by` INT UNSIGNED NOT NULL,
+INDEX `event_master_id` (`event_master_id`)
+) ENGINE = InnoDB;
+CREATE TABLE `ed_score_child_pugh_revs` (
+`id` INT UNSIGNED NOT NULL,
+`event_master_id` INT UNSIGNED NOT NULL ,
+`bilirubin` VARCHAR(255) NOT NULL,
+`albumin` VARCHAR(255) NOT NULL,
+`inr` VARCHAR(255) NOT NULL,
+`encephalopathy` VARCHAR(255) NOT NULL,
+`ascite` VARCHAR(255) NOT NULL,
+`result` VARCHAR(10) NOT NULL DEFAULT '',
+`created` DATETIME NOT NULL ,
+`created_by` INT UNSIGNED NOT NULL ,
+`modified` DATETIME NOT NULL ,
+`modified_by` INT UNSIGNED NOT NULL ,
+`deleted` TINYINT UNSIGNED NOT NULL ,
+`deleted_by` INT UNSIGNED NOT NULL,
+`version_id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+`version_created` datetime NOT NULL
+) ENGINE = InnoDB;
+
+CREATE TABLE `ed_score_okuda` (
+`id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
+`event_master_id` INT UNSIGNED NOT NULL,
+`bilirubin` VARCHAR(255) NOT NULL,
+`albumin` VARCHAR(255) NOT NULL,
+`ascite` VARCHAR(255) NOT NULL,
+`tumor_size_ratio` VARCHAR(255) NOT NULL COMMENT '% of liver volume',
+`result` VARCHAR(10) NOT NULL DEFAULT '',
+`created` DATETIME NOT NULL ,
+`created_by` INT UNSIGNED NOT NULL ,
+`modified` DATETIME NOT NULL ,
+`modified_by` INT UNSIGNED NOT NULL ,
+`deleted` TINYINT UNSIGNED NOT NULL ,
+`deleted_by` INT UNSIGNED NOT NULL,
+INDEX `event_master_id` (`event_master_id`)
+) ENGINE = InnoDB;
+CREATE TABLE `ed_score_okuda_revs` (
+`id` INT UNSIGNED NOT NULL,
+`event_master_id` INT UNSIGNED NOT NULL,
+`bilirubin` VARCHAR(255) NOT NULL,
+`albumin` VARCHAR(255) NOT NULL,
+`ascite` VARCHAR(255) NOT NULL,
+`tumor_size_ratio` VARCHAR(255) NOT NULL COMMENT '% of liver volume',
+`result` VARCHAR(10) NOT NULL DEFAULT '',
+`created` DATETIME NOT NULL ,
+`created_by` INT UNSIGNED NOT NULL ,
+`modified` DATETIME NOT NULL ,
+`modified_by` INT UNSIGNED NOT NULL ,
+`deleted` TINYINT UNSIGNED NOT NULL ,
+`deleted_by` INT UNSIGNED NOT NULL,
+`version_id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+`version_created` datetime NOT NULL
+) ENGINE = InnoDB;
+
+CREATE TABLE `ed_score_barcelona` (
+`id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
+`event_master_id` INT UNSIGNED NOT NULL,
+`who` VARCHAR(255) NOT NULL,
+`tumor_morphology` VARCHAR(255) NOT NULL,
+`okuda_score` VARCHAR(255) NOT NULL,
+`liver_function` VARCHAR(255) NOT NULL,
+`result` VARCHAR(10) NOT NULL DEFAULT '',
+`created` DATETIME NOT NULL ,
+`created_by` INT UNSIGNED NOT NULL ,
+`modified` DATETIME NOT NULL ,
+`modified_by` INT UNSIGNED NOT NULL ,
+`deleted` TINYINT UNSIGNED NOT NULL ,
+`deleted_by` INT UNSIGNED NOT NULL,
+INDEX `event_master_id` (`event_master_id`)
+) ENGINE = InnoDB;
+CREATE TABLE `ed_score_barcelona_revs` (
+`id` INT UNSIGNED NOT NULL,
+`event_master_id` INT UNSIGNED NOT NULL,
+`who` VARCHAR(255) NOT NULL,
+`tumor_morphology` VARCHAR(255) NOT NULL,
+`okuda_score` VARCHAR(255) NOT NULL,
+`liver_function` VARCHAR(255) NOT NULL,
+`result` VARCHAR(10) NOT NULL DEFAULT '',
+`created` DATETIME NOT NULL ,
+`created_by` INT UNSIGNED NOT NULL ,
+`modified` DATETIME NOT NULL ,
+`modified_by` INT UNSIGNED NOT NULL ,
+`deleted` TINYINT UNSIGNED NOT NULL ,
+`deleted_by` INT UNSIGNED NOT NULL,
+`version_id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+`version_created` datetime NOT NULL
+) ENGINE = InnoDB;
+
+CREATE TABLE `ed_score_clip` (
+`id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
+`event_master_id` INT UNSIGNED NOT NULL,
+`child_pugh_score` VARCHAR(255) NOT NULL,
+`morphology_of_tumor` VARCHAR(255) NOT NULL,
+`alpha_foetoprotein` VARCHAR(255) NOT NULL,
+`portal_thrombosis` VARCHAR(255) NOT NULL,
+`result` TINYINT(3) UNSIGNED NOT NULL,
+`created` DATETIME NOT NULL ,
+`created_by` INT UNSIGNED NOT NULL ,
+`modified` DATETIME NOT NULL ,
+`modified_by` INT UNSIGNED NOT NULL ,
+`deleted` TINYINT UNSIGNED NOT NULL ,
+`deleted_by` INT UNSIGNED NOT NULL,
+INDEX `event_master_id` (`event_master_id`)
+) ENGINE = InnoDB;
+CREATE TABLE `ed_score_clip_revs` (
+`id` INT UNSIGNED NOT NULL,
+`event_master_id` INT UNSIGNED NOT NULL,
+`child_pugh_score` VARCHAR(255) NOT NULL,
+`morphology_of_tumor` VARCHAR(255) NOT NULL,
+`alpha_foetoprotein` VARCHAR(255) NOT NULL,
+`portal_thrombosis` VARCHAR(255) NOT NULL,
+`result` TINYINT(3) UNSIGNED NOT NULL,
+`created` DATETIME NOT NULL ,
+`created_by` INT UNSIGNED NOT NULL ,
+`modified` DATETIME NOT NULL ,
+`modified_by` INT UNSIGNED NOT NULL ,
+`deleted` TINYINT UNSIGNED NOT NULL ,
+`deleted_by` INT UNSIGNED NOT NULL,
+`version_id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+`version_created` datetime NOT NULL
+) ENGINE = InnoDB;
+
+CREATE TABLE `ed_score_gretch` (
+`id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
+`event_master_id` INT UNSIGNED NOT NULL,
+`kamofsky_index` VARCHAR(255) NOT NULL,
+`bilirubin` VARCHAR(255) NOT NULL,
+`alkaline_phosphatase` VARCHAR(255) NOT NULL,
+`alpha_foetoprotein` VARCHAR(255) NOT NULL,
+`portal_thrombosis` VARCHAR(255) NOT NULL,
+`result` VARCHAR(10) NOT NULL DEFAULT '',
+`created` DATETIME NOT NULL ,
+`created_by` INT UNSIGNED NOT NULL ,
+`modified` DATETIME NOT NULL ,
+`modified_by` INT UNSIGNED NOT NULL ,
+`deleted` TINYINT UNSIGNED NOT NULL ,
+`deleted_by` INT UNSIGNED NOT NULL,
+INDEX `event_master_id` (`event_master_id`)
+) ENGINE = InnoDB;
+CREATE TABLE `ed_score_gretch_revs` (
+`id` INT UNSIGNED NOT NULL,
+`event_master_id` INT UNSIGNED NOT NULL,
+`kamofsky_index` VARCHAR(255) NOT NULL,
+`bilirubin` VARCHAR(255) NOT NULL,
+`alkaline_phosphatase` VARCHAR(255) NOT NULL,
+`alpha_foetoprotein` VARCHAR(255) NOT NULL,
+`portal_thrombosis` VARCHAR(255) NOT NULL,
+`result` VARCHAR(10) NOT NULL DEFAULT '',
+`created` DATETIME NOT NULL ,
+`created_by` INT UNSIGNED NOT NULL ,
+`modified` DATETIME NOT NULL ,
+`modified_by` INT UNSIGNED NOT NULL ,
+`deleted` TINYINT UNSIGNED NOT NULL ,
+`deleted_by` INT UNSIGNED NOT NULL,
+`version_id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+`version_created` datetime NOT NULL
+) ENGINE = InnoDB;
+
+CREATE TABLE `ed_score_fong` (
+`id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
+`event_master_id` INT UNSIGNED NOT NULL,
+`metastatic_lymph_nodes` VARCHAR(3) NOT NULL,
+`interval_under_year` VARCHAR(3) NOT NULL,
+`more_than_one_metastasis` VARCHAR(3) NOT NULL,
+`metastasis_greater_five_cm` VARCHAR(3) NOT NULL,
+`cea_greater_two_hundred` VARCHAR(3) NOT NULL,
+`result` VARCHAR(10) NOT NULL DEFAULT '',
+`created` DATETIME NOT NULL ,
+`created_by` INT UNSIGNED NOT NULL ,
+`modified` DATETIME NOT NULL ,
+`modified_by` INT UNSIGNED NOT NULL ,
+`deleted` TINYINT UNSIGNED NOT NULL ,
+`deleted_by` INT UNSIGNED NOT NULL,
+INDEX `event_master_id` (`event_master_id`)
+) ENGINE = InnoDB;
+CREATE TABLE `ed_score_fong_revs` (
+`id` INT UNSIGNED NOT NULL,
+`event_master_id` INT UNSIGNED NOT NULL,
+`metastatic_lymph_nodes` VARCHAR(3) NOT NULL,
+`interval_under_year` VARCHAR(3) NOT NULL,
+`more_than_one_metastasis` VARCHAR(3) NOT NULL,
+`metastasis_greater_five_cm` VARCHAR(3) NOT NULL,
+`cea_greater_two_hundred` VARCHAR(3) NOT NULL,
+`result` VARCHAR(10) NOT NULL DEFAULT '',
+`created` DATETIME NOT NULL ,
+`created_by` INT UNSIGNED NOT NULL ,
+`modified` DATETIME NOT NULL ,
+`modified_by` INT UNSIGNED NOT NULL ,
+`deleted` TINYINT UNSIGNED NOT NULL ,
+`deleted_by` INT UNSIGNED NOT NULL,
+`version_id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+`version_created` datetime NOT NULL
+) ENGINE = InnoDB;
+
+CREATE TABLE `ed_score_meld` (
+`id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
+`event_master_id` INT UNSIGNED NOT NULL,
+`bilirubin` FLOAT UNSIGNED NOT NULL,
+`inr` FLOAT UNSIGNED NOT NULL,
+`creatinine` FLOAT UNSIGNED NOT NULL,
+`dialysis` TINYINT(3) UNSIGNED NOT NULL,
+`result` FLOAT UNSIGNED NOT NULL,
+`created` DATETIME NOT NULL ,
+`created_by` INT UNSIGNED NOT NULL ,
+`modified` DATETIME NOT NULL ,
+`modified_by` INT UNSIGNED NOT NULL ,
+`deleted` TINYINT UNSIGNED NOT NULL ,
+`deleted_by` INT UNSIGNED NOT NULL,
+INDEX `event_master_id` (`event_master_id`)
+) ENGINE = InnoDB;
+CREATE TABLE `ed_score_meld_revs` (
+`id` INT UNSIGNED NOT NULL,
+`event_master_id` INT UNSIGNED NOT NULL,
+`bilirubin` FLOAT UNSIGNED NOT NULL,
+`inr` FLOAT UNSIGNED NOT NULL,
+`creatinine` FLOAT UNSIGNED NOT NULL,
+`dialysis` TINYINT(3) UNSIGNED NOT NULL,
+`result` FLOAT UNSIGNED NOT NULL,
+`created` DATETIME NOT NULL ,
+`created_by` INT UNSIGNED NOT NULL ,
+`modified` DATETIME NOT NULL ,
+`modified_by` INT UNSIGNED NOT NULL ,
+`deleted` TINYINT UNSIGNED NOT NULL ,
+`deleted_by` INT UNSIGNED NOT NULL,
+`version_id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+`version_created` datetime NOT NULL
+) ENGINE = InnoDB;
+
+
+INSERT INTO `atim_hepato`.`event_controls` (`id` ,`disease_site` ,`event_group` ,`event_type` ,`flag_active` ,`form_alias` ,`detail_tablename` ,`display_order`) VALUES 
+(NULL , 'hepatobiliary', 'scores', 'cirrhosis', '1', 'ed_score_cirrhosis', 'ed_score_cirrhosis', '0'),
+(NULL , 'hepatobiliary', 'scores', 'child pugh score', '1', 'ed_score_child_pugh', 'ed_score_child_pugh', '0'),
+(NULL , 'hepatobiliary', 'scores', 'okuda score', '1', 'ed_score_okuda', 'ed_score_okuda', '0'),
+(NULL , 'hepatobiliary', 'scores', 'barcelona score', '1', 'ed_score_barcelona', 'ed_score_barcelona', '0'),
+(NULL , 'hepatobiliary', 'scores', 'clip', '1', 'ed_score_clip', 'ed_score_clip', '0'),
+(NULL , 'hepatobiliary', 'scores', 'gretch', '1', 'ed_score_gretch', 'ed_score_gretch', '0'),
+(NULL , 'hepatobiliary', 'scores', 'score de fong', '1', 'ed_score_fong', 'ed_score_fong', '0'),
+(NULL , 'hepatobiliary', 'scores', 'meld score', '1', 'ed_score_meld', 'ed_score_meld', '0');
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`) VALUES ('yes_no_na', '', '');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na'),  (SELECT id FROM structure_permissible_values WHERE value='yes' AND language_alias='yes'), '1', '1');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na'),  (SELECT id FROM structure_permissible_values WHERE value='no' AND language_alias='no'), '2', '1');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('n/a', 'n/a');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na'),  (SELECT id FROM structure_permissible_values WHERE value='n/a' AND language_alias='n/a'), '3', '1');
+
+-- TODO: Fill cirrhosis_type
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`) VALUES ('cirrhosis_type', '', '');
+
+-- Structure ed_score_cirrhosis
+INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('ed_score_cirrhosis', '', '', '1', '1', '1', '1');
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES('', 'Clinicalannotation', 'EventDetail', 'ed_score_cirrhosis', 'portacaval_gradient', 'portacaval gradient', '', 'number', '', '', NULL, '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventDetail', 'ed_score_cirrhosis', 'portal_thrombosis', 'portal thrombosis', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na'), '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventDetail', 'ed_score_cirrhosis', 'tips', 'tips', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na'), '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventDetail', 'ed_score_cirrhosis', 'gastric_varices', 'gastric varices', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na'), '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventDetail', 'ed_score_cirrhosis', 'esophageal_varices', 'esophageal varices', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na'), '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventDetail', 'ed_score_cirrhosis', 'type_of_cirrhosis', 'type of cirrhosis', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='cirrhosis_type'), '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_cirrhosis'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `structure_value_domain`  IS NULL  ), '1', '1', '', 1, 'event date', 1, '', 1, '', 1, 'date', 1, '', 1, '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_cirrhosis'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  ), '1', '2', '', 0, '', 0, '', 0, '', 0, '', 0, '', 1, '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_cirrhosis'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_score_cirrhosis' AND `field`='portacaval_gradient' AND `structure_value_domain`  IS NULL  ), '1', '7', '', 0, '', 0, '', 0, '', 0, '', 0, '', 0, '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_cirrhosis'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_score_cirrhosis' AND `field`='portal_thrombosis' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na')  ), '1', '6', '', 0, '', 0, '', 0, '', 0, '', 0, '', 0, '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_cirrhosis'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_score_cirrhosis' AND `field`='tips' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na')  ), '1', '6', '', 0, '', 0, '', 0, '', 0, '', 0, '', 0, '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_cirrhosis'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_score_cirrhosis' AND `field`='gastric_varices' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na')  ), '1', '5', '', 0, '', 0, '', 0, '', 0, '', 0, '', 0, '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_cirrhosis'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_score_cirrhosis' AND `field`='esophageal_varices' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na')  ), '1', '4', '', 0, '', 0, '', 0, '', 0, '', 0, '', 0, '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_cirrhosis'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_score_cirrhosis' AND `field`='type_of_cirrhosis' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cirrhosis_type')  ), '1', '3', '', 0, '', 0, '', 0, '', 0, '', 0, '', 0, '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+
+-- value domain qc_hb_bilirubin_child_pugh
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`) VALUES ('qc_hb_bilirubin_child_pugh', '', '');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('<34µmol/l', '<34µmol/l');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_bilirubin_child_pugh'),  (SELECT id FROM structure_permissible_values WHERE value='<34µmol/l' AND language_alias='<34µmol/l'), '1', '1');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('34 - 50µmol/l', '34 - 50µmol/l');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_bilirubin_child_pugh'),  (SELECT id FROM structure_permissible_values WHERE value='34 - 50µmol/l' AND language_alias='34 - 50µmol/l'), '2', '1');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('>50µmol/l', '>50µmol/l');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_bilirubin_child_pugh'),  (SELECT id FROM structure_permissible_values WHERE value='>50µmol/l' AND language_alias='>50µmol/l'), '3', '1');
+
+-- value domain qc_hb_albumin_child_pugh
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`) VALUES ('qc_hb_albumin_child_pugh', '', '');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('<28g/l', '<28g/l');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_albumin_child_pugh'),  (SELECT id FROM structure_permissible_values WHERE value='<28g/l' AND language_alias='<28g/l'), '1', '1');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('28 - 35g/l', '28 - 35g/l');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_albumin_child_pugh'),  (SELECT id FROM structure_permissible_values WHERE value='28 - 35g/l' AND language_alias='28 - 35g/l'), '2', '1');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('>35g/l', '>35g/l');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_albumin_child_pugh'),  (SELECT id FROM structure_permissible_values WHERE value='>35g/l' AND language_alias='>35g/l'), '3', '1');
+
+-- value domain qc_hb_inr
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`) VALUES ('qc_hb_inr', '', '');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('<1.7', '<1.7');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_inr'),  (SELECT id FROM structure_permissible_values WHERE value='<1.7' AND language_alias='<1.7'), '1', '1');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('1.7 - 2.2', '1.7 - 2.2');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_inr'),  (SELECT id FROM structure_permissible_values WHERE value='1.7 - 2.2' AND language_alias='1.7 - 2.2'), '2', '1');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('>2.2', '>2.2');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_inr'),  (SELECT id FROM structure_permissible_values WHERE value='>2.2' AND language_alias='>2.2'), '3', '1');
+
+-- value domain qc_hb_encephalopathy
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`) VALUES ('qc_hb_encephalopathy', '', '');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('none', 'none');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_encephalopathy'),  (SELECT id FROM structure_permissible_values WHERE value='none' AND language_alias='none'), '1', '1');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('grade I-II', 'grade I-II');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_encephalopathy'),  (SELECT id FROM structure_permissible_values WHERE value='grade I-II' AND language_alias='grade I-II'), '2', '1');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('grade III-IV', 'grade III-IV');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_encephalopathy'),  (SELECT id FROM structure_permissible_values WHERE value='grade III-IV' AND language_alias='grade III-IV'), '3', '1');
+
+-- value domain qc_hb_ascite_child_pugh
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`) VALUES ('qc_hb_ascite_child_pugh', '', '');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('none', 'none');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_ascite_child_pugh'),  (SELECT id FROM structure_permissible_values WHERE value='none' AND language_alias='none'), '1', '1');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('mild', 'mild');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_ascite_child_pugh'),  (SELECT id FROM structure_permissible_values WHERE value='mild' AND language_alias='mild'), '2', '1');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('severe', 'severe');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_ascite_child_pugh'),  (SELECT id FROM structure_permissible_values WHERE value='severe' AND language_alias='severe'), '3', '1');
+
+-- value domain qc_hb_bilirubin_okuda
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`) VALUES ('qc_hb_bilirubin_okuda', '', '');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('<50µmol/l', '<50µmol/l');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_bilirubin_okuda'),  (SELECT id FROM structure_permissible_values WHERE value='<50µmol/l' AND language_alias='<50µmol/l'), '1', '1');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('>=50µmol/l', '>=50µmol/l');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_bilirubin_okuda'),  (SELECT id FROM structure_permissible_values WHERE value='>=50µmol/l' AND language_alias='>=50µmol/l'), '2', '1');
+
+-- value domain qc_hb_albumin_okuda
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`) VALUES ('qc_hb_albumin_okuda', '', '');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('>=30g/l', '>=30g/l');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_albumin_okuda'),  (SELECT id FROM structure_permissible_values WHERE value='>=30g/l' AND language_alias='>=30g/l'), '1', '1');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('<30g/l', '<30g/l');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_albumin_okuda'),  (SELECT id FROM structure_permissible_values WHERE value='<30g/l' AND language_alias='<30g/l'), '2', '1');
+
+-- value domain qc_hb_tumor_size_okuda
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`) VALUES ('qc_hb_tumor_size_okuda', '', '');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('< 50%', '< 50%');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_tumor_size_okuda'),  (SELECT id FROM structure_permissible_values WHERE value='< 50%' AND language_alias='< 50%'), '1', '1');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('>=50%', '>=50%');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_tumor_size_okuda'),  (SELECT id FROM structure_permissible_values WHERE value='>=50%' AND language_alias='>=50%'), '2', '1');
+
+-- value domain qc_hb_who_barcelona
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`) VALUES ('qc_hb_who_barcelona', '', '');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('0', '0');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_who_barcelona'),  (SELECT id FROM structure_permissible_values WHERE value='0' AND language_alias='0'), '1', '1');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('1', '1');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_who_barcelona'),  (SELECT id FROM structure_permissible_values WHERE value='1' AND language_alias='1'), '1', '1');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('2', '2');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_who_barcelona'),  (SELECT id FROM structure_permissible_values WHERE value='2' AND language_alias='2'), '1', '1');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('3', '3');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_who_barcelona'),  (SELECT id FROM structure_permissible_values WHERE value='3' AND language_alias='3'), '1', '1');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('4', '4');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_who_barcelona'),  (SELECT id FROM structure_permissible_values WHERE value='4' AND language_alias='4'), '1', '1');
+
+-- value domain qc_hb_tumor_morphology_barcelona
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`) VALUES ('qc_hb_tumor_morphology_barcelona', '', '');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('unique, < 5cm', 'unique, < 5cm');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_tumor_morphology_barcelona'),  (SELECT id FROM structure_permissible_values WHERE value='unique, < 5cm' AND language_alias='unique, < 5cm'), '1', '1');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('3 tumors, < 3 cm', '3 tumors, < 3 cm');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_tumor_morphology_barcelona'),  (SELECT id FROM structure_permissible_values WHERE value='3 tumors, < 3 cm' AND language_alias='3 tumors, < 3 cm'), '2', '1');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('multinodular', 'multinodular');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_tumor_morphology_barcelona'),  (SELECT id FROM structure_permissible_values WHERE value='multinodular' AND language_alias='multinodular'), '3', '1');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('vascular invasion', 'vascular invasion');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_tumor_morphology_barcelona'),  (SELECT id FROM structure_permissible_values WHERE value='vascular invasion' AND language_alias='vascular invasion'), '4', '1');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('metastasis', 'metastasis');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_tumor_morphology_barcelona'),  (SELECT id FROM structure_permissible_values WHERE value='metastasis' AND language_alias='metastasis'), '5', '1');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('indifferent', 'indifferent');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_tumor_morphology_barcelona'),  (SELECT id FROM structure_permissible_values WHERE value='indifferent' AND language_alias='indifferent'), '6', '1');
+
+
+
+-- value domain qc_hb_okuda_barcelona
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`) VALUES ('qc_hb_okuda_barcelona', '', '');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('I', 'I');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_okuda_barcelona'),  (SELECT id FROM structure_permissible_values WHERE value='I' AND language_alias='I'), '1', '1');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('II', 'II');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_okuda_barcelona'),  (SELECT id FROM structure_permissible_values WHERE value='II' AND language_alias='II'), '2', '1');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('III', 'III');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_okuda_barcelona'),  (SELECT id FROM structure_permissible_values WHERE value='III' AND language_alias='III'), '3', '1');
+
+-- value domain qc_hb_liver_function_barcelona
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`) VALUES ('qc_hb_liver_function_barcelona', '', '');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('no HTP & bilirubin N', 'no HTP & bilirubin N');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_liver_function_barcelona'),  (SELECT id FROM structure_permissible_values WHERE value='no HTP & bilirubin N' AND language_alias='no HTP & bilirubin N'), '1', '1');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('HTP, bilirubin N', 'HTP, bilirubin N');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_liver_function_barcelona'),  (SELECT id FROM structure_permissible_values WHERE value='HTP, bilirubin N' AND language_alias='HTP, bilirubin N'), '2', '1');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('HTP, hyperbilirubinemia', 'HTP, hyperbilirubinemia');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_liver_function_barcelona'),  (SELECT id FROM structure_permissible_values WHERE value='HTP, hyperbilirubinemia' AND language_alias='HTP, hyperbilirubinemia'), '3', '1');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('child-pugh A', 'child-pugh A');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_liver_function_barcelona'),  (SELECT id FROM structure_permissible_values WHERE value='child-pugh A' AND language_alias='child-pugh A'), '4', '1');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('child-pugh B', 'child-pugh B');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_liver_function_barcelona'),  (SELECT id FROM structure_permissible_values WHERE value='child-pugh B' AND language_alias='child-pugh B'), '5', '1');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('child-pugh C', 'child-pugh C');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_liver_function_barcelona'),  (SELECT id FROM structure_permissible_values WHERE value='child-pugh C' AND language_alias='child-pugh C'), '6', '1');
+
+-- value domain qc_hb_chil_pugh_score_clip
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`) VALUES ('qc_hb_chil_pugh_score_clip', '', '');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('A', 'A');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_chil_pugh_score_clip'),  (SELECT id FROM structure_permissible_values WHERE value='A' AND language_alias='A'), '1', '1');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('B', 'B');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_chil_pugh_score_clip'),  (SELECT id FROM structure_permissible_values WHERE value='B' AND language_alias='B'), '2', '1');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('C', 'C');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_chil_pugh_score_clip'),  (SELECT id FROM structure_permissible_values WHERE value='C' AND language_alias='C'), '3', '1');
+
+-- value domain qc_hb_tumor_morphology_clip
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`) VALUES ('qc_hb_tumor_morphology_clip', '', '');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('unique nodule & < 50%', 'unique nodule & < 50%');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_tumor_morphology_clip'),  (SELECT id FROM structure_permissible_values WHERE value='unique nodule & < 50%' AND language_alias='unique nodule & < 50%'), '1', '1');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('multiple nodules & < 50%', 'multiple nodules & < 50%');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_tumor_morphology_clip'),  (SELECT id FROM structure_permissible_values WHERE value='multiple nodules & < 50%' AND language_alias='multiple nodules & < 50%'), '2', '1');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('massive or >= 50%', 'massive or >= 50%');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_tumor_morphology_clip'),  (SELECT id FROM structure_permissible_values WHERE value='massive or >= 50%' AND language_alias='massive or >= 50%'), '3', '1');
+
+-- value domain qc_hb_alpha_foetoprotein_clip
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`) VALUES ('qc_hb_alpha_foetoprotein_clip', '', '');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('< 400 g/L', '< 400 g/L');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_alpha_foetoprotein_clip'),  (SELECT id FROM structure_permissible_values WHERE value='< 400 g/L' AND language_alias='< 400 g/L'), '1', '1');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('>= 400 g/L', '>= 400 g/L');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_alpha_foetoprotein_clip'),  (SELECT id FROM structure_permissible_values WHERE value='>= 400 g/L' AND language_alias='>= 400 g/L'), '2', '1');
+
+-- value domain qc_hb_karnofsky_index_gretch
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`) VALUES ('qc_hb_karnofsky_index_gretch', '', '');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('> 80%', '> 80%');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_karnofsky_index_gretch'),  (SELECT id FROM structure_permissible_values WHERE value='> 80%' AND language_alias='> 80%'), '1', '1');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('<= 80%', '<= 80%');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_karnofsky_index_gretch'),  (SELECT id FROM structure_permissible_values WHERE value='<= 80%' AND language_alias='<= 80%'), '2', '1');
+
+-- value domain qc_hb_alkaline_phosphatase_gretch
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`) VALUES ('qc_hb_alkaline_phosphatase_gretch', '', '');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('< 2N', '< 2N');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_alkaline_phosphatase_gretch'),  (SELECT id FROM structure_permissible_values WHERE value='< 2N' AND language_alias='< 2N'), '1', '1');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('>= 2N', '>= 2N');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_alkaline_phosphatase_gretch'),  (SELECT id FROM structure_permissible_values WHERE value='>= 2N' AND language_alias='>= 2N'), '2', '1');
+
+-- value domain qc_hb_alpha_foetoprotein_gretch
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`) VALUES ('qc_hb_alpha_foetoprotein_gretch', '', '');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('< 35 µg/L', '< 35 µg/L');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_alpha_foetoprotein_gretch'),  (SELECT id FROM structure_permissible_values WHERE value='< 35 µg/L' AND language_alias='< 35 µg/L'), '1', '1');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('>= 35 µg/L', '>= 35 µg/L');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_alpha_foetoprotein_gretch'),  (SELECT id FROM structure_permissible_values WHERE value='>= 35 µg/L' AND language_alias='>= 35 µg/L'), '1', '1');
+
+-- structure score child pugh
+INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('ed_score_child_pugh', '', '', '1', '1', '1', '1');
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES('', 'Clinicalannotation', 'EventDetail', 'ed_score_child_pugh', 'bilirubin', 'bilirubin', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_bilirubin_child_pugh') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventDetail', 'ed_score_child_pugh', 'albumin', 'albumin', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_albumin_child_pugh') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventDetail', 'ed_score_child_pugh', 'inr', 'inr', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_inr') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventDetail', 'ed_score_child_pugh', 'encephalopathy', 'encephalopathy', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_encephalopathy') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventDetail', 'ed_score_child_pugh', 'ascite', 'ascite', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_ascite_child_pugh') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventDetail', 'ed_score_child_pugh', 'result', 'result', '', 'input', '', '',  NULL , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_child_pugh'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `structure_value_domain`  IS NULL  ), '1', '1', '', 1, 'event date', 1, '', 1, '', 1, 'date', 1, '', 1, '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_child_pugh'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  ), '1', '2', '', 1, 'event summary', 1, '', 1, '', 1, 'textarea', 1, '', 1, '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_child_pugh'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_score_child_pugh' AND `field`='bilirubin' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_bilirubin_child_pugh')  ), '1', '3', '', 0, '', 0, '', 0, '', 0, '', 0, '', 0, '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_child_pugh'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_score_child_pugh' AND `field`='albumin' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_albumin_child_pugh')  ), '1', '4', '', 0, '', 0, '', 0, '', 0, '', 0, '', 0, '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_child_pugh'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_score_child_pugh' AND `field`='inr' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_inr')  ), '1', '5', '', 0, '', 0, '', 0, '', 0, '', 0, '', 0, '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_child_pugh'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_score_child_pugh' AND `field`='encephalopathy' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_encephalopathy')  ), '1', '6', '', 0, '', 0, '', 0, '', 0, '', 0, '', 0, '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_child_pugh'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_score_child_pugh' AND `field`='ascite' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_ascite_child_pugh')  ), '1', '7', '', 0, '', 0, '', 0, '', 0, '', 0, '', 0, '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_child_pugh'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_score_child_pugh' AND `field`='result' AND `structure_value_domain`  IS NULL  ), '1', '8', '', 0, '', 0, '', 0, '', 0, '', 0, '', 0, '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1') ;
+
+-- structure score okuda
+INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('ed_score_okuda', '', '', '1', '1', '1', '1');
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES('', 'Clinicalannotation', 'EventDetail', 'ed_score_okuda', 'bilirubin', 'bilirubin', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_bilirubin_okuda') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventDetail', 'ed_score_okuda', 'albumin', 'albumin', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_albumin_okuda') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventDetail', 'ed_score_okuda', 'ascite', 'ascite', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventDetail', 'ed_score_okuda', 'tumor_size_ratio', 'tumor size ratio', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_tumor_size_okuda') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventDetail', 'ed_score_okuda', 'result', 'stade', '', 'input', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_tumor_size_okuda') , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_okuda'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `structure_value_domain`  IS NULL  ), '1', '1', '', 1, 'event date', 1, '', 1, '', 1, 'date', 1, '', 1, '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_okuda'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  ), '1', '2', '', 1, 'event summary', 1, '', 1, '', 1, 'textarea', 1, '', 1, '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_okuda'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_score_okuda' AND `field`='bilirubin' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_bilirubin_okuda')  ), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_okuda'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_score_okuda' AND `field`='albumin' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_albumin_okuda')  ), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_okuda'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_score_okuda' AND `field`='ascite' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  ), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_okuda'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_score_okuda' AND `field`='tumor_size_ratio' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_tumor_size_okuda')  ), '1', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_okuda'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_score_okuda' AND `field`='result' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_tumor_size_okuda')  ), '1', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1') ;
+
+-- structure score barcelona
+INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('ed_score_barcelona', '', '', '1', '1', '1', '1');
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES('', 'Clinicalannotation', 'EventDetail', 'ed_score_barcelona', 'who', 'who', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_who_barcelona') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventDetail', 'ed_score_barcelona', 'tumor_morphology', 'tumor morphology', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_tumor_morphology_barcelona') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventDetail', 'ed_score_barcelona', 'okuda_score', 'okuda score', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_okuda_barcelona') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventDetail', 'ed_score_barcelona', 'liver_function', 'liver function', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_liver_function_barcelona') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventDetail', 'ed_score_barcelona', 'result', 'result', '', 'input', '', '',  NULL , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_barcelona'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `structure_value_domain`  IS NULL  ), '1', '1', '', 1, 'event date', 1, '', 1, '', 1, 'date', 1, '', 1, '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_barcelona'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  ), '1', '2', '', 1, 'event summary', 1, '', 1, '', 1, 'textarea', 1, '', 1, '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_barcelona'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_score_barcelona' AND `field`='who' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_who_barcelona')  ), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_barcelona'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_score_barcelona' AND `field`='tumor_morphology' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_tumor_morphology_barcelona')  ), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_barcelona'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_score_barcelona' AND `field`='okuda_score' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_okuda_barcelona')  ), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_barcelona'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_score_barcelona' AND `field`='liver_function' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_liver_function_barcelona')  ), '1', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_barcelona'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_score_barcelona' AND `field`='result' AND `structure_value_domain`  IS NULL  ), '1', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1') ;
+
+-- structure score clip
+INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('ed_score_clip', '', '', '1', '1', '1', '1');
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES('', 'Clinicalannotation', 'EventDetail', 'ed_score_clip', 'child_pugh_score', 'child pugh score', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_chil_pugh_score_clip') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventDetail', 'ed_score_clip', 'morphology_of_tumor', 'morphology of tumor', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_tumor_morphology_clip') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventDetail', 'ed_score_clip', 'alpha_foetoprotein', 'alpha foetoprotein', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_alpha_foetoprotein_clip') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventDetail', 'ed_score_clip', 'portal_thrombosis', 'portal thrombosis', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_clip'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `structure_value_domain`  IS NULL  ), '1', '1', '', 1, 'event date', 1, '', 1, '', 1, 'date', 1, '', 1, '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_clip'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  ), '1', '2', '', 1, 'event summary', 1, '', 1, '', 1, 'textarea', 1, '', 1, '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_clip'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_score_clip' AND `field`='child_pugh_score' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_chil_pugh_score_clip')  ), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_clip'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_score_clip' AND `field`='morphology_of_tumor' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_tumor_morphology_clip')  ), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_clip'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_score_clip' AND `field`='alpha_foetoprotein' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_alpha_foetoprotein_clip')  ), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_clip'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_score_clip' AND `field`='portal_thrombosis' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  ), '1', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES('', 'Clinicalannotation', 'EventDetail', 'ed_score_clip', 'result', 'result', '', 'number', '', '',  NULL , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_clip'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_score_clip' AND `field`='result' AND `structure_value_domain`  IS NULL  ), '1', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1') ;
+
+
+
+-- structure score gretch
+INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('ed_score_gretch', '', '', '1', '1', '1', '1');
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES('', 'Clinicalannotation', 'EventDetail', 'ed_score_gretch', 'kamofsky_index', 'kamofsky index', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_karnofsky_index_gretch') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventDetail', 'ed_score_gretch', 'bilirubin', 'bilirubin', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_bilirubin_okuda') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventDetail', 'ed_score_gretch', 'alkaline_phosphatase', 'alkaline phosphatase', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_alkaline_phosphatase_gretch') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventDetail', 'ed_score_gretch', 'alpha_foetoprotein', 'alpha foetoprotein', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_alpha_foetoprotein_gretch') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventDetail', 'ed_score_gretch', 'portal_thrombosis', 'portal thrombosis', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventDetail', 'ed_score_gretch', 'result', 'group', '', 'input', '', '',  NULL , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_gretch'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `structure_value_domain`  IS NULL  ), '1', '1', '', 1, 'event date', 1, '', 1, '', 1, 'date', 1, '', 1, '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_gretch'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  ), '1', '2', '', 1, 'event summary', 1, '', 1, '', 1, 'textarea', 1, '', 1, '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_gretch'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_score_gretch' AND `field`='kamofsky_index' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_karnofsky_index_gretch')  ), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_gretch'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_score_gretch' AND `field`='bilirubin' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_bilirubin_okuda')  ), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_gretch'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_score_gretch' AND `field`='alkaline_phosphatase' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_alkaline_phosphatase_gretch')  ), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_gretch'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_score_gretch' AND `field`='alpha_foetoprotein' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_alpha_foetoprotein_gretch')  ), '1', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_gretch'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_score_gretch' AND `field`='portal_thrombosis' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  ), '1', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_gretch'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_score_gretch' AND `field`='result' AND `structure_value_domain`  IS NULL  ), '1', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1') ;
+
+-- Structure score fong
+INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('ed_score_fong', '', '', '1', '1', '1', '1');
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES('', 'Clinicalannotation', 'EventDetail', 'ed_score_fong', 'metastatic_lymph_nodes', 'metastatic lymph nodes', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventDetail', 'ed_score_fong', 'interval_under_year', 'interval under a year', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventDetail', 'ed_score_fong', 'more_than_one_metastasis', 'more than one metastasis', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventDetail', 'ed_score_fong', 'metastasis_greater_five_cm', 'metastasis > 5cm', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventDetail', 'ed_score_fong', 'cea_greater_two_hundred', 'cea > 200', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventDetail', 'ed_score_fong', 'result', 'result', '', 'input', '', '',  NULL , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_fong'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `structure_value_domain`  IS NULL  ), '1', '1', '', 1, 'event date', 1, '', 1, '', 1, 'date', 1, '', 1, '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_fong'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  ), '1', '2', '', 1, 'event summary', 1, '', 1, '', 1, 'textarea', 1, '', 1, '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_fong'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_score_fong' AND `field`='metastatic_lymph_nodes' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  ), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_fong'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_score_fong' AND `field`='interval_under_year' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  ), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_fong'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_score_fong' AND `field`='more_than_one_metastasis' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  ), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_fong'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_score_fong' AND `field`='metastasis_greater_five_cm' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  ), '1', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_fong'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_score_fong' AND `field`='cea_greater_two_hundred' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  ), '1', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_fong'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_score_fong' AND `field`='result' AND `structure_value_domain`  IS NULL  ), '1', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1') ;
+
+-- Structure score meld
+INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('ed_score_meld', '', '', '1', '1', '1', '1');
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES('', 'Clinicalannotation', 'EventMaster', 'ed_score_meld', 'bilirubin', 'bilirubin', '', 'number', '', '',  NULL , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventMaster', 'ed_score_meld', 'inr', 'inr', '', 'number', '', '',  NULL , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventMaster', 'ed_score_meld', 'creatinine', 'creatinine', '', 'number', '', '',  NULL , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventMaster', 'ed_score_meld', 'dialysis', 'dialysis', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventMaster', 'ed_score_meld', 'result', 'result', '', 'number', '', '',  NULL , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_meld'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `structure_value_domain`  IS NULL  ), '1', '1', '', 1, 'event date', 1, '', 1, '', 1, 'date', 1, '', 1, '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_meld'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  ), '1', '2', '', 1, 'event summary', 1, '', 1, '', 1, 'textarea', 1, '', 1, '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_meld'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='ed_score_meld' AND `field`='bilirubin' AND `structure_value_domain`  IS NULL  ), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_meld'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='ed_score_meld' AND `field`='inr' AND `structure_value_domain`  IS NULL  ), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_meld'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='ed_score_meld' AND `field`='creatinine' AND `structure_value_domain`  IS NULL  ), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_meld'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='ed_score_meld' AND `field`='dialysis' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  ), '1', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_meld'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='ed_score_meld' AND `field`='result' AND `structure_value_domain`  IS NULL  ), '1', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1') ;
 
 -- TODO should all field be smallint????? In case we keep smallinf, add validation.
 
