@@ -24,11 +24,11 @@
 		foreach ( $event_controls as $event_control ) {
 			$add_links[ __($event_control['EventControl']['disease_site'],true).' - '.__($event_control['EventControl']['event_type'],true) ] = '/clinicalannotation/event_masters/add/lab/'.$participant_id.'/'.$event_control['EventControl']['id'];
 		}
-		$linked_lab_report_link = array('add lab report' => $add_links);
+		$linked_lab_report_link = array('add path report' => $add_links);
 		
 	} else {
 		// Lab report already exists for the diagnosis
-		$linked_lab_report_link = array('access lab report' => '/clinicalannotation/event_masters/detail/lab/'.$participant_id.'/'.$res['EventMaster']['id']);
+		$linked_lab_report_link = array('access path report' => '/clinicalannotation/event_masters/detail/lab/'.$participant_id.'/'.$res['EventMaster']['id']);
 	}
 	$this->set('linked_lab_report_link', $linked_lab_report_link);
  

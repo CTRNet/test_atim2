@@ -1117,7 +1117,7 @@ VALUES
 -- lft_seminal_vesicles_lenght
 ('QC-CUSM-000006_QC-CUSM-000035', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000035'), 'QC-CUSM-000035', 
-'0', '19', '', '1', 'left seminal vesicles ', '1', 'lenght (cm)', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
+'0', '19', '', '1', 'left seminal vesicles', '1', 'lenght (cm)', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
 -- lft_seminal_vesicles_width
 ('QC-CUSM-000006_QC-CUSM-000036', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000036'), 'QC-CUSM-000036', 
@@ -2488,16 +2488,25 @@ WHERE `old_id` IN (
 -- ADMINISTRATION
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
--- TODO translate
--- prostate
--- right seminal vesicles
--- left seminal vesicles 
--- base
--- primary grade
--- secondary grade
--- gleason score
--- apical
--- storage label precision
--- Prev
--- Next
--- 'access lab report'
+
+-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+-- MISSING i18n
+-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+INSERT IGNORE INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES
+('prostate', '', 'Prostate', 'Prostate'),
+('right seminal vesicles', '', 'Right Seminal Vesicles', 'Vésicules séminales - droite'),
+('left seminal vesicles', '', 'Left Seminal Vesicles', 'Vésicules séminales - gauche'),
+('base', '', 'Base', 'Base'),
+('primary grade', '', 'Primary Grade', 'Grade primaire'),
+('secondary grade', '', 'Secondary Grade', 'Grade scondaire'),
+('gleason score', '', 'Gleason Score', 'Score de gleason'),
+('apical', '', 'Apical', 'Apex'),
+('storage label precision', '', 'Precision', 'Précision'),
+('access path report', '', 'Access Path Report', 'Voir rapport de pathologie'),
+('add lab report', '', 'Add Lab Report', 'Ajouter rapport de pathologie');
+
+-- 
+-- 
+-- 
+-- ''
