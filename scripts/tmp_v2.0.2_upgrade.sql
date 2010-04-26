@@ -123,3 +123,10 @@ ALTER TABLE structure_fields
 UPDATE `i18n` 
 SET `en` = 'Diagnosis' 
 WHERE `id` = 'diagnosis';
+
+-- add missing translation
+INSERT IGNORE INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES
+('Prev', 'global', 'Prev', 'Préc'),
+('Next', 'global', 'Next', 'Suiv'),
+('Details', 'global', 'Details', 'Détails'),
+('event', 'global', 'Event', 'Événement');
