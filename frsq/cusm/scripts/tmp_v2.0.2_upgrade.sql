@@ -1,4 +1,4 @@
--- Version: v2.0.2
+﻿-- Version: v2.0.2
 -- Description: This SQL script is an upgrade for ATiM v2.0.1. to 2.0.2. and must be run against
 -- an existing ATiM installation. Be sure to backup your database before running this script!
 
@@ -168,3 +168,5 @@ DELETE FROM `i18n` WHERE `id` IN
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('Login', '', 'Login', 'Connection');
 
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('May', 'global', 'May', 'Mai');
