@@ -13,8 +13,8 @@
 	<link rel="shortcut icon" href="<?php echo($this->webroot); ?>/img/favicon.ico"/>
 	<?php 
 		echo $html->css('style')."\n"; 
-		echo $html->css('jquery/themes/ui-lightness/jquery-ui-1.8.custom')."\n"; 
-		echo $html->css('jquery/themes/jquery_cupertino/jquery-ui-1.8.custom')."\n"; 
+		echo $html->css('jQuery/themes/ui-lightness/jquery-ui-1.8.custom')."\n"; 
+		echo $html->css('jQuery/themes/jquery_cupertino/jquery-ui-1.8.custom')."\n"; 
 //		echo $html->css('datepicker')."\n";
 //		echo $html->css('lightwindow')."\n";
 
