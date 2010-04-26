@@ -1415,6 +1415,6 @@ tr.highlight, td.highlight{
 }
 
 .untranslated{
-	background-color: yellow;
+	background-color: red;
 	color: black;
 }

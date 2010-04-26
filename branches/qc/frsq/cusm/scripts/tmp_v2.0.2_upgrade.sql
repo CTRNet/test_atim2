@@ -4,7 +4,7 @@
 
 -- Update version information
 UPDATE `versions` 
-SET `version_number` = 'v2.0.2', `date_installed` = '2010-04-12', `build_number` = ''
+SET `version_number` = 'v2.0.2', `date_installed` = CURDATE(), `build_number` = ''
 WHERE `versions`.`id` =1;
 
 -- Delete all structures without associated fields
@@ -13,6 +13,10 @@ DELETE FROM `structures` WHERE id NOT IN
 	SELECT structure_id
 	FROM structure_formats
 );
+
+-- Add empty structure
+INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) 
+VALUES ('empty', '', '', '1', '1', '0', '1');
 
 -- Eventum 848
 DELETE FROM i18n WHERE id IN ('1', '2', '3', '4', '5');
@@ -88,6 +92,41 @@ ALTER TABLE `structure_validations`
   DROP `old_id`,
   DROP `structure_field_old_id`;
 
--- Add empty structure
-INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) 
-VALUES ('empty', '', '', '1', '1', '0', '1');
+-- Replace old ICD-10 coding tool with new select list
+UPDATE `structure_fields` 
+SET `type` = 'select', `setting` = '', `structure_value_domain` = (SELECT `id` FROM `structure_value_domains` WHERE `domain_name` = 'icd10')
+WHERE `plugin` = 'Clinicalannotation'
+   AND `model` = 'FamilyHistory'
+   AND `tablename` = 'family_histories'
+   AND `field` = 'primary_icd10_code';
+
+UPDATE `structure_fields` 
+SET `type` = 'select', `setting` = '', `structure_value_domain` = (SELECT `id` FROM `structure_value_domains` WHERE `domain_name` = 'icd10')
+WHERE `plugin` = 'Clinicalannotation'
+   AND `model` = 'DiagnosisMaster'
+   AND `tablename` = 'diagnosis_masters'
+   AND `field` = 'primary_icd10_code';
+   
+UPDATE `structure_fields` 
+SET `type` = 'select', `setting` = '', `structure_value_domain` = (SELECT `id` FROM `structure_value_domains` WHERE `domain_name` = 'icd10')
+WHERE `plugin` = 'Clinicalannotation'
+   AND `model` = 'Participant'
+   AND `tablename` = 'participants'
+   AND `field` = 'secondary_cod_icd10_code';
+   
+-- Update the structure_field unique key
+ALTER TABLE structure_fields 
+ DROP KEY `unique_fields`,
+ ADD UNIQUE KEY `unique_fields` (`plugin`,`model`,`tablename`,`field`, `structure_value_domain`);
+ 
+-- Fix english translation for diagnosis   
+UPDATE `i18n` 
+SET `en` = 'Diagnosis' 
+WHERE `id` = 'diagnosis';
+
+-- add missing translation
+INSERT IGNORE INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES
+('Prev', 'global', 'Prev', 'Préc'),
+('Next', 'global', 'Next', 'Suiv'),
+('Details', 'global', 'Details', 'Détails'),
+('event', 'global', 'Event', 'Événement');
