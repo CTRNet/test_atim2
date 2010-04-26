@@ -130,3 +130,41 @@ INSERT IGNORE INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES
 ('Next', 'global', 'Next', 'Suiv'),
 ('Details', 'global', 'Details', 'Détails'),
 ('event', 'global', 'Event', 'Événement');
+
+DELETE FROM `i18n` WHERE `id` IN 
+('jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec');
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('jan', '', 'Jan', 'Jan'),
+('feb', '', 'Feb', 'Fév'),
+('mar', '', 'Mar', 'Mars'),
+('apr', '', 'Apr', 'Avr'),
+('may', '', 'May', 'Mai'),
+('jun', '', 'Jun', 'Jun'),
+('jul', '', 'Jul', 'Jul'),
+('aug', '', 'Aug', 'Aoû'),
+('sep', '', 'Sep', 'Sep'),
+('oct', '', 'Oct', 'Oct'),
+('nov', '', 'Nov', 'Nov'),
+('dec', '', 'Dec', 'Déc');
+
+DELETE FROM `i18n` WHERE `id` IN 
+('locked', 'define_date_format', 'define_csv_separator', 
+'define_show_summary', 'help visible', 'language', 'English', 
+'French', 'core_pagination');
+INSERT INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES
+('locked', '', 'Locked', 'Bloqué'),
+('define_date_format', '', 'Date Format', 'Format de date'),
+('define_csv_separator', '', 'CSV Separator', 'Séparateur de CSV'),
+('define_show_summary', '', 'Show Summary', 'Voir les sommaires'),
+('help visible', '', 'Help Visible', 'Aide visible'),
+('language', '', 'Language', 'Lanque'),
+('English', '', 'English', 'Anglais'),
+('French', '', 'French', 'Français'),
+('core_pagination', '', 'pagination', 'pagination');
+
+DELETE FROM `i18n` WHERE `id` IN 
+('Login');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('Login', '', 'Login', 'Connection');
+
