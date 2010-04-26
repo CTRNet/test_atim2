@@ -231,13 +231,13 @@ DELETE FROM `i18n` WHERE `id` IN ('v2009-07-08 fr', 'v2009-07-08 en',
 'v2006-01-26 fr', 'v2006-01-26 en');
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('v2009-07-08 fr', 'global', 'v2009-07-08 - Fr', 'v2009-07-08 - Fr'),
-('v2009-07-08 en', 'global', 'v2009-07-08 - En', 'v2009-07-08 - En'),
+('v2009-07-08 en', 'global', 'v2009-07-08 - En', 'v2009-07-08 - Ang'),
 
 ('v2006-02-01 fr', 'global', 'v2006-02-01 - Fr', 'v2006-02-01 - Fr'),
-('v2006-02-01 en', 'global', 'v2006-02-01 - En', 'v2006-02-01 - En'),
+('v2006-02-01 en', 'global', 'v2006-02-01 - En', 'v2006-02-01 - Ang'),
 
 ('v2006-01-26 fr', 'global', 'v2006-01-26 - Fr', 'v2006-01-26 - Fr'),
-('v2006-01-26 en', 'global', 'v2006-01-26 - En', 'v2006-01-26 - En');
+('v2006-01-26 en', 'global', 'v2006-01-26 - En', 'v2006-01-26 - Ang');
 
 INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`) VALUES
 (null, 'qc_cusm_consent_version', 'open', '');
@@ -681,21 +681,21 @@ SET @version_domain_id = LAST_INSERT_ID();
 
 INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) 
 VALUES 
-(NULL, 'fr october 2006', 'fr october 2006'),
-(NULL, 'en october 2006', 'en october 2006');
+(NULL, 'october 2006 - fr', 'october 2006 - fr'),
+(NULL, 'october 2006 - en', 'october 2006 - en');
 
 INSERT INTO `structure_value_domains_permissible_values`  
 (`id` , `structure_value_domain_id` , `structure_permissible_value_id` , `display_order` , `active` , `language_alias` )
 VALUES 
-(NULL , @version_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'fr october 2006'), '20', 'yes', 'fr october 2006'),
-(NULL , @version_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'en october 2006'), '21', 'yes', 'en october 2006'),
+(NULL , @version_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'october 2006 - fr'), '20', 'yes', 'october 2006 - fr'),
+(NULL , @version_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'october 2006 - en'), '21', 'yes', 'october 2006 - en'),
 (NULL , @version_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'other'), '50', 'yes', 'other');
 
-DELETE FROM `i18n` WHERE `id` IN ('fr october 2006', 'en october 2006');
+DELETE FROM `i18n` WHERE `id` IN ('october 2006 - fr', 'october 2006 - en');
 INSERT INTO `i18n` ( `id` , `page_id` , `en` , `fr` )
 VALUES
-('fr october 2006', 'global', 'FR - October 2006', 'FR - Octobre 2006'),
-('en october 2006', 'global', 'ENG - October 2006', 'ANG - Octobre 2006');
+('october 2006 - fr', 'global', 'October 2006 - Fr', 'October 2006 - Fr'),
+('october 2006 - en', 'global', 'October 2006 - En', 'Octobre 2006 - Ang');
 
 SET @yesno_domain_id = (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yesno');
 
@@ -2488,4 +2488,16 @@ WHERE `old_id` IN (
 -- ADMINISTRATION
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-
+-- TODO translate
+-- prostate
+-- right seminal vesicles
+-- left seminal vesicles 
+-- base
+-- primary grade
+-- secondary grade
+-- gleason score
+-- apical
+-- storage label precision
+-- Prev
+-- Next
+-- 'access lab report'
