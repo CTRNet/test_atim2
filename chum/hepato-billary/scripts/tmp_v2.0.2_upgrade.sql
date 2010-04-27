@@ -88,3 +88,8 @@ ALTER TABLE `structure_validations`
 -- Add empty structure
 INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) 
 VALUES ('empty', '', '', '1', '1', '0', '1');
+
+-- Update the structure_field unique key
+ALTER TABLE structure_fields 
+ DROP KEY `unique_fields`,
+ ADD UNIQUE KEY `unique_fields` (`plugin`,`model`,`tablename`,`field`, `structure_value_domain`);
