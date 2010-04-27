@@ -1364,7 +1364,7 @@ class StructuresHelper extends Helper {
 										
 										$calc_date_divider =  $options['type']!='csv' ? '&nbsp;' : ' ';
 										
-										// format DATE based on DATE CONFIG, with nice translated month name  у, ту, т
+										// format DATE based on DATE CONFIG, with nice translated month name  О©╫, О©╫О©╫, О©╫
 										if ( date_format=='MDY' ) {
 											$display_value = $calc_date_string_month.$calc_date_divider.$calc_date_day.$calc_date_divider.$calc_date_year;
 										} else if ( date_format=='YMD' ) {
@@ -1664,8 +1664,8 @@ class StructuresHelper extends Helper {
 									$datetime_array = array();
 									if ( isset($options['override'][$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]) ) {
 										$datetime_array = StructuresHelper::datetime_to_array($options['override'][$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]);
-									}else if(isset($this->data) && !empty($this->data) && !isset($this->data[0])){
-										$datetime_array = StructuresHelper::datetime_to_array($this->data[$field['StructureField']['model']][$field['StructureField']['field']]);
+									}else if(isset($this->data) && !empty($this->data) && !isset($this->data[0])&& isset($this->data[$field['StructureField']['model']][$field['StructureField']['field']]) && gettype($this->data[$field['StructureField']['model']][$field['StructureField']['field']]) == "Array"){
+										$datetime_array = $this->data[$field['StructureField']['model']][$field['StructureField']['field']];
 									}
 									$display_value .= $this->get_date_fields($model_prefix, $model_suffix, $field['StructureField'],
 									$html_element_array, $model_prefix_css, $model_suffix_css, "", $datetime_array);

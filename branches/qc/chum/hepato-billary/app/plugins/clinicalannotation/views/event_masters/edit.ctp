@@ -71,6 +71,6 @@
 
 <?php
 
-	$structures->build( $diagnosis_structure,  $final_options);
+	$structures->build( $final_atim_structure,  $final_options);
 	
 ?>
