@@ -7,7 +7,7 @@ class SopExtendsController extends SopAppController {
 		'Sop.SopMaster',
 		'Sop.SopControl',
 		'Material.Material');
-	var $paginate = array('SopMaster'=>array('limit'=>10,'order'=>'SopMaster.id DESC'));
+	var $paginate = array('SopMaster'=>array('limit' => pagination_amount,'order'=>'SopMaster.id DESC'));
 	
 	function listall($sop_master_id){
 		$this->set('atim_menu_variables', array('SopMaster.id'=>$sop_master_id));

@@ -84,7 +84,27 @@ class PermissionManagerComponent extends Object {
 		$matches = array();
 		preg_match_all('/function\s+(\w+)\s*\(/', file_get_contents($file_path), $matches);
 		
-		return $matches[1];
+		$methods = $matches[1];
+		
+		if(!$plugin || $plugin == 'App'){
+			$file_path = APP.'controllers'.DS.'customs'.DS.Inflector::underscore($ctrlName.'Controller').'.php';
+		}else{
+			$file_path = APP.'plugins'.DS.Inflector::underscore($plugin).DS
+						.'controllers'.DS.'customs'.DS.Inflector::underscore($ctrlName.'Controller').'.php';
+		}
+		
+		if(file_exists($file_path)){
+			
+			$matches = array();
+			preg_match_all('/function\s+(\w+)\s*\(/', file_get_contents($file_path), $matches);
+			
+			foreach($matches[1] as $match){
+				if(!in_array($match,$methods)){
+					$methods[] = $match;
+				}
+			}
+		}
+		return $methods;
 	}
 	
 	/**

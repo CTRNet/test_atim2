@@ -8,7 +8,7 @@
 		'index'=>array(
 			'detail'=>'/clinicalannotation/treatment_masters/detail/'.$atim_menu_variables['Participant.id'].'/%%TreatmentMaster.id%%/'
 		),
-		'bottom'=>array('add' => $add_links)
+		'bottom'=>array('add' => sizeof($add_links) > 0 ? $add_links : "/underdev/")
 	);
 
 	$structure_override = array('TreatmentMaster.protocol_id'=>$protocol_list);

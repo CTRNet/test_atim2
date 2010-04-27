@@ -3,7 +3,7 @@
 class DrugsController extends DrugAppController {
 
 	var $uses = array('Drug.Drug');
-	var $paginate = array('Drug'=>array('limit'=>10,'order'=>'Drug.generic_name ASC')); 
+	var $paginate = array('Drug'=>array('limit' => pagination_amount,'order'=>'Drug.generic_name ASC')); 
 
 	function index() {
 		$_SESSION['ctrapp_core']['search'] = NULL; // clear SEARCH criteria

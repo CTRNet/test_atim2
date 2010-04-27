@@ -3,7 +3,7 @@
 class BanksController extends AdministrateAppController {
 	
 	var $uses = array('Bank');
-	var $paginate = array('Bank'=>array('limit'=>10,'order'=>'Bank.name ASC')); 
+	var $paginate = array('Bank'=>array('limit' => pagination_amount,'order'=>'Bank.name ASC')); 
 	
 	function add(){
 		$this->set( 'atim_menu', $this->Menus->get('/administrate/banks') );

@@ -647,12 +647,6 @@ class View extends Object {
 	function _render($___viewFn, $___dataForView, $loadHelpers = true, $cached = false) {
 		$loadedHelpers = array();
 
-		// ATiM2: load custom view
-		$viewCustom = explode('/',$___viewFn);
-		$viewCustom[ count($viewCustom)-1 ] = 'customs/'.$viewCustom[ count($viewCustom)-1 ];
-		$viewCustom = implode('/',$viewCustom);
-		if (file_exists($viewCustom)) $___viewFn = $viewCustom;
-		
 		if ($this->helpers != false && $loadHelpers === true) {
 			$loadedHelpers = $this->_loadHelpers($loadedHelpers, $this->helpers);
 
@@ -815,7 +809,17 @@ class View extends Object {
 		$exts = array($this->ext, '.ctp', '.thtml');
 		foreach ($exts as $ext) {
 			foreach ($paths as $path) {
-				if (file_exists($path . $name . $ext)) {
+				
+				// ATiM2: load custom view
+				$custom_name = explode(DS,$name);
+				$custom_name[ count($custom_name)-1 ] = 'customs'.DS.$custom_name[ count($custom_name)-1 ];
+				$custom_name = implode(DS,$custom_name);
+						
+				if (file_exists($path . $custom_name . $ext)) {
+					return $path . $custom_name . $ext;
+				}
+				
+				else if (file_exists($path . $name . $ext)) {
 					return $path . $name . $ext;
 				}
 			}

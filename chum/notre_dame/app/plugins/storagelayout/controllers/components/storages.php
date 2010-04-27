@@ -110,7 +110,7 @@ class StoragesComponent extends Object {
 		$formatted_data = '';
 		
 		if((!empty($storage_data)) && isset($storage_data['StorageMaster'])) {
-			$formatted_data = $storage_data['StorageMaster']['selection_label'] . ' [' . __($storage_data['StorageMaster']['code'] . ' ('.$storage_data['StorageMaster']['storage_type'], TRUE) .')'. ']';
+			$formatted_data = $storage_data['StorageMaster']['selection_label'] . ' [' . $storage_data['StorageMaster']['code'] . ' ('.__($storage_data['StorageMaster']['storage_type'], TRUE) .')'. ']';
 		}
 	
 		return $formatted_data;

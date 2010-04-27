@@ -40,9 +40,9 @@
  */
 	Configure::write('debug', 2);
 /**
- * Application wide charset encoding
+ * Application wide charset encoding minus database connection
  */
-	Configure::write('App.encoding', 'ISO-8859-1');
+	Configure::write('App.encoding', 'UTF-8');
 /**
  * To configure CakePHP *not* to use mod_rewrite and to
  * use CakePHP pretty URLs, remove these .htaccess

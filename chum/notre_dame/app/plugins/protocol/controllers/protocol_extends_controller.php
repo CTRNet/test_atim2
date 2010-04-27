@@ -7,7 +7,7 @@ class ProtocolExtendsController extends ProtocolAppController {
 		'Protocol.ProtocolMaster',
 		'Protocol.ProtocolControl',
 		'Drug.Drug');
-	var $paginate = array('ProtocolExtend'=>array('limit'=>10,'order'=>'ProtocolExtend.id DESC'));
+	var $paginate = array('ProtocolExtend'=>array('limit' => pagination_amount,'order'=>'ProtocolExtend.id DESC'));
 
 	function listall($protocol_master_id){
 		$this->set('atim_menu_variables', array('ProtocolMaster.id'=>$protocol_master_id));

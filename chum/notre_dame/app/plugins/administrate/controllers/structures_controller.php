@@ -3,7 +3,7 @@
 class StructuresController extends AdministrateAppController {
 	
 	var $uses = array('Structure');
-	var $paginate = array('Structure'=>array('limit'=>10,'order'=>'Structure.alias ASC')); 
+	var $paginate = array('Structure'=>array('limit' => pagination_amount,'order'=>'Structure.alias ASC')); 
 	
 	function index() {
 		$this->hook();

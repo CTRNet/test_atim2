@@ -3,7 +3,7 @@
 class RtbformsController extends RtbformAppController {
 	
 	var $uses = array('Rtbform.Rtbform');
-	var $paginate = array('Rtbform'=>array('limit'=>10,'order'=>'Rtbform.frmTitle'));
+	var $paginate = array('Rtbform'=>array('limit' => pagination_amount,'order'=>'Rtbform.frmTitle'));
   
 	function index() {
 		$_SESSION['ctrapp_core']['search'] = NULL; // clear SEARCH criteria
