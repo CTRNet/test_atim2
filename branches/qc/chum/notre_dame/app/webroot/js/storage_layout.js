@@ -4,7 +4,7 @@
 
 var submitted = false; //avoids internal double posts
 
-window.onload = function(){
+$(function(){
 	//create all items
 	var jsonOrgItems = eval('(' + orgItems + ')');
 	for(var i = jsonOrgItems.length - 1; i >= 0; -- i){
@@ -16,62 +16,66 @@ window.onload = function(){
 			+ '<span class="handle">' + jsonOrgItems[i].label + '</span></li>';
 
 		if(jsonOrgItems[i].x.length > 0){
-			debug($$("#cell_" + jsonOrgItems[i].x + "_" + jsonOrgItems[i].y).size());
-			if($$("#cell_" + jsonOrgItems[i].x + "_" + jsonOrgItems[i].y).size() > 0){
-				$$("#cell_" + jsonOrgItems[i].x + "_" + jsonOrgItems[i].y)[0].innerHTML += appendString;
+			debug($("#cell_" + jsonOrgItems[i].x + "_" + jsonOrgItems[i].y).size());
+			if($("#cell_" + jsonOrgItems[i].x + "_" + jsonOrgItems[i].y).size() > 0){
+				$("#cell_" + jsonOrgItems[i].x + "_" + jsonOrgItems[i].y[0]).append(appendString);
 			}else{
-				$("unclassified").innerHTML += appendString;
+				$("#unclassified").append(appendString);
 				debug("Error: [#cell_" + jsonOrgItems[i].x + "_" + jsonOrgItems[i].y + "] not foud");	
 			}
 		}else{
-			$("unclassified").innerHTML += appendString;
+			$("#unclassified").append(appendString);
 		}
 	}
 	
 	//make them draggable
-	var elements = $$(".dragme");
-	for(var i = elements.length - 1; i >= 0; --i){
-		debug(elements[i].childNodes[2]);
-		new Draggable(elements[i], { revert: true, handle: elements[i].childNodes[2], scroll: window });
-	}
+	$(".dragme").draggable({revert : 'invalid'});
 	
 	//create the drop zones
-	elements = $$(".droppable");
-	for(var i = elements.length - 1; i >= 0; --i){
-		Droppables.add(elements[i], {
-			hoverclass: 'ui-state-active',
-	        accept: 'dragme',
-	        onDrop: moveItem
-		});
-	}
+	$(".droppable").droppable({
+		hoverClass: 'ui-state-active',
+		drop: function(event, ui){
+			moveItem(ui.draggable, this);
+		}
+	});
 	
 	//bind delete to the close icon
-	elements = $$(".removeItem");
-	for(var i = elements.length - 1; i >= 0; --i){
-		elements[i].setAttribute('onclick', 'deleteItem(this.parentNode);');
-	}
+	$(".removeItem").click(function() {
+		deleteItem(this.parentNode);
+	});
 	
 	//bind recycle to the refresh icon
-	elements = $$(".recycleItem");
-	for(var i = elements.length - 1; i >= 0; --i){
-		elements[i].setAttribute('onclick', 'recycleItem(this.parentNode);');
-	}
+	$(".recycleItem").click(function(){
+		recycleItem(this.parentNode);
+	});
 	
 	//hide the refresh icon for the unclassified elements
-	elements = $("unclassified").childNodes;
+	elements = $("#unclassified").children();
 	for(var i = 0; i < elements.length; i ++){
-		elements[i].childNodes[1].setStyle({ display: 'none'});
+		$($(elements[i]).children()[1]).css("display", 'none');
 	}
 	
 	//bind preparePost to the submit button
-	$("submitButton").setAttribute('onclick', 'return preparePost();');
+	$("#submit_button_link").click(function(){
+		return preparePost();
+	});
 	
-	$("RecycleStorage").setAttribute('onclick', 'moveStorage(true);');
-	$("TrashStorage").setAttribute('onclick', 'moveStorage(false);');
-	$("TrashUnclassified").setAttribute('onclick', 'moveUlTo($("unclassified"), "trash");');
-	$("RecycleTrash").setAttribute('onclick', 'moveUlTo($("trash"), "unclassified");');
-	$("Reset").setAttribute('onclick', 'document.location="";');
-}
+	$("#RecycleStorage").click(function(){
+		moveStorage(true);
+	});
+	$("#TrashStorage").click(function(){
+		moveStorage(false);
+	});
+	$("#TrashUnclassified").click(function(){
+		moveUlTo("unclassified", "trash");
+	});
+	$("#RecycleTrash").click(function(){
+		moveUlTo("trash", "unclassified");
+	});
+	$("#Reset").click(function(){
+		document.location="";
+	});
+});
 
 /**
  * Called when an item is dropped in a droppable zone, moves the DOM element to the new container and updates the action
@@ -80,26 +84,21 @@ window.onload = function(){
  * @param droparea The drop zone where it was dropped
  * @return
  */
-function moveItem( draggable,droparea){
-	if(draggable.parentNode.parentNode != droparea){
-		if(droparea.childNodes.length >= 3 && droparea.childNodes[3].getAttribute("id") == "trash"){
+function moveItem(draggable, droparea){
+	if($(draggable).parent().attr("id") != $(droparea).children("ul:first")[0].id){
+		if($(droparea).children().length >= 4 && $(droparea).children()[3].id == "trash"){
 			deleteItem(draggable);
-		}else if(droparea.childNodes.length >= 3 && droparea.childNodes[3].getAttribute("id") == "unclassified"){
+		}else if($(droparea).children().length >= 4 && $(droparea).children()[3].id == "unclassified"){
 			recycleItem(draggable);
 		}else{
-			draggable.childNodes[0].setStyle({ display: 'inline-block'});//show trash can
-			draggable.childNodes[1].setStyle({ display: 'inline-block'});//show recycle
-			draggable.parentNode.removeChild(draggable);
-			var li = Builder.node('li');
-			li.setAttribute('class', draggable.getAttribute('class'));
-			li.setAttribute('id', draggable.getAttribute('id'));
-			li.setAttribute('style', 'display: none;');
-			li.innerHTML = draggable.innerHTML;
-			new Draggable(li, { revert: true, scroll: window});
-			droparea.childNodes[1].appendChild(li);
-			li.appear();
-			$('saveWarning').appear();
+			$($(draggable).children()[0]).css("display", 'inline-block');//show trash can
+			$($(draggable).children()[1]).css("display", 'inline-block');//show recycle
+			$(draggable).appendTo($(droparea).children("ul:first"));
+			$('#saveWarning').show();
 		}
+		$(draggable).css({"top" : "0px", "left" : "0px"});
+	}else{
+		$(draggable).draggable({ revert : true });
 	}
 }
 
@@ -109,14 +108,13 @@ function moveItem( draggable,droparea){
  * @return false to avoid browser redirection
  */
 function deleteItem(item) {
-	item.parentNode.removeChild(item);
-	item.childNodes[0].setStyle({ display: 'none'});//hide trash can
-	item.childNodes[1].setStyle({ display: 'inline-block'});//show recycle
-	item.setAttribute('style', 'display: none; position: relative;');
-	$("trash").appendChild(item);
-	item.appear();
-	$('saveWarning').appear();
-	
+	$(item).fadeOut(200, function(){
+		$(this).appendTo($("#trash"));
+		$($(item).children()[0]).css("display", 'none');//hide trash can
+		$($(item).children()[1]).css("display", 'inline-block');//show recycle
+		$(this).fadeIn();
+	});
+	$('#saveWarning').show();
 	return false;
 }
 
@@ -127,14 +125,13 @@ function deleteItem(item) {
  * @return false to avoid browser redirection
  */
 function recycleItem(item) {
-	item.parentNode.removeChild(item);
-	item.childNodes[0].setStyle({ display: 'inline-block'});//show trash can
-	item.childNodes[1].setStyle({ display: 'none'});//hide recycle
-	item.setAttribute('style', 'display: none; position: relative;');
-	$("unclassified").appendChild(item);
-	item.appear();
-	$('saveWarning').appear();
-	
+	$(item).fadeOut(200, function(){
+		$(this).appendTo($("#unclassified"));
+		$($(item).children()[0]).css("display", 'inline-block');//show trash can
+		$($(item).children()[1]).css("display", 'none');//hide recycle
+		$(this).fadeIn();
+	});
+	$('#saveWarning').show();
 	return false;
 }
 
@@ -146,19 +143,17 @@ function preparePost(){
 	if(!submitted){
 		submitted = true;
 		var cells = '';
-		var elements = $$(".dragme");
+		var elements = $(".dragme");
+		debug("JOY" + elements.length);
 		for(var i = elements.length - 1; i >= 0; --i){
-			var tmpIndex = elements[i].getAttribute("class").indexOf('{');
-			var itemData = elements[i].getAttribute("class").substr(tmpIndex, elements[i].getAttribute("class").lastIndexOf('}') - tmpIndex + 1);
-			itemData = eval("(" + itemData + ")");
-			
-			if(elements[i].parentNode.getAttribute("id").indexOf("cell_") == 0){
+			itemData = getJsonFromClass($(elements[i]).attr("class"));
+			if($(elements[i]).parent().attr("id").indexOf("cell_") == 0){
 				//normal cell
-				var cellId = elements[i].parentNode.getAttribute("id");
+				var cellId = $(elements[i]).parent().attr("id");
 				var index1 = cellId.indexOf("_") + 1;
 				var index2 = cellId.lastIndexOf("_");
 				cells += '{"id" : "' + itemData.id + '", "type" : "' + itemData.type + '", "x" : "' + cellId.substr(index1, index2 - index1) + '", "y" : "' + cellId.substr(index2 + 1) + '"},'; 
-			}else if(elements[i].parentNode.getAttribute("id").indexOf("trash") == 0){
+			}else if($(elements[i]).parent().attr("id").indexOf("trash") == 0){
 				//trash, x and y are set to "t"
 				cells += '{"id" : "' + itemData.id + '", "type" : "' + itemData.type + '", "x" : "t", "y" : "t"},';
 			}else{
@@ -169,8 +164,9 @@ function preparePost(){
 		if(cells.length > 0){
 			cells = cells.substr(0, cells.length - 1);
 		}
-		$("data").setAttribute("value", '[' + cells + ']');
-		debug($("data").getAttribute("value"));
+		$("#data").val('[' + cells + ']');
+		debug($("#data").val());
+		$("form").submit();
 	}else{
 		return false;
 	}
@@ -183,15 +179,15 @@ function preparePost(){
  * @return
  */
 function moveStorage(recycle){
-	var elements = $$("ul");
+	var elements = $("ul");
 	for(var i = 0; i < elements.length; ++ i){
-		var id = elements[i].getAttribute("id");
+		var id = elements[i].id;
 		if(id != null && id.indexOf("cell_") == 0){
-			for(var j = elements[i].childNodes.length - 1; j >= 0; -- j){
+			for(var j = $(elements[i]).children().length - 1; j >= 0; -- j){
 				if(recycle){
-					recycleItem(elements[i].childNodes[j]);
+					recycleItem($(elements[i]).children()[j]);
 				}else{
-					deleteItem(elements[i].childNodes[j]);
+					deleteItem($(elements[i]).children()[j]);
 				}
 			}
 		}
@@ -204,16 +200,17 @@ function moveStorage(recycle){
  * @param destination The destination where to move the items
  * @return
  */
-function moveUlTo(ulArray, destination){
-	for(var j = ulArray.childNodes.length - 1; j >= 0; -- j){
-		if(destination == "trash"){
-			deleteItem(ulArray.childNodes[j]);
+function moveUlTo(ulId, destinationId){
+	var liArray = $("#" + ulId).children()
+	for(var j = liArray.length - 1; j >= 0; -- j){
+		if(destinationId == "trash"){
+			deleteItem(liArray[j]);
 		}else{
-			recycleItem(ulArray.childNodes[j]);
+			recycleItem(liArray[j]);
 		}
 	}	
 }
 
 function debug(str){
-//	$("debug").innerHTML += str + "<br/>";
+//	$("#debug").append(str + "<br/>");
 }

@@ -77,7 +77,7 @@
 class AppController extends Controller {
 	
 	// var $uses			= array('Config', 'Aco', 'Aro', 'Permission');
-	
+	private static $missing_translations = array();
 	var $uses = array('Config');
 	var $components	= array(
 		'Session', 'SessionAcl', 'Auth', 'Menus', 'RequestHandler', 'Structures',
@@ -154,6 +154,16 @@ class AppController extends Controller {
 	function afterFilter(){
 		global $start_time;
 //		echo("Exec time (sec): ".(AppController::microtime_float() - $start_time));
+		
+		if(sizeof(AppController::$missing_translations) > 0){
+			$query = "INSERT IGNORE INTO missing_translations VALUES ";
+			foreach(AppController::$missing_translations as $missing_translation){
+				$query .= '("'.str_replace('"', '\\"', str_replace("\\", "\\\\", $missing_translation)).'"), ';
+			}
+			$query = substr($query, 0, strlen($query) -2);
+			$this->{$this->params["models"][0]}->query($query);
+		}
+		
 	}
 	
 	/**
@@ -164,6 +174,15 @@ class AppController extends Controller {
 		return ((float)$usec + (float)$sec);
 	}
 
+	function missingTranslation(&$word){
+		if(!is_numeric($word)){
+			AppController::$missing_translations[] = $word;
+			if(Configure::read('debug') == 2){
+				$word = "<span class='untranslated'>".$word."</span>";
+//				$word .= "[untr]";
+			}
+		}
+	}
 }
 
 

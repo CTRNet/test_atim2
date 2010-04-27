@@ -3,7 +3,7 @@
 class StructureFormatsController extends AdministrateAppController {
 	
 	var $uses = array('StructureFormat');
-	var $paginate = array('StructureFormat'=>array('limit'=>10,'order'=>'StructureFormat.id ASC')); 
+	var $paginate = array('StructureFormat'=>array('limit' => pagination_amount,'order'=>'StructureFormat.id ASC')); 
 	
 	function listall( $structure_id ) {
 		$this->set( 'atim_structure', $this->Structures->get(NULL,'fields') );

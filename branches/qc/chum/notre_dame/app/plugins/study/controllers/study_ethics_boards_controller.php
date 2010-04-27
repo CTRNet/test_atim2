@@ -3,7 +3,7 @@
 class StudyEthicsBoardsController extends StudyAppController {
 		
 	var $uses = array('Study.StudyEthicsBoard','Study.StudySummary');
-	var $paginate = array('StudyEthicsBoard'=>array('limit'=>10,'order'=>'StudyEthicsBoard.ethics_board'));
+	var $paginate = array('StudyEthicsBoard'=>array('limit' => pagination_amount,'order'=>'StudyEthicsBoard.ethics_board'));
 	
 	function listall( $study_summary_id ) {
 		// Missing or empty function variable, send to ERROR page

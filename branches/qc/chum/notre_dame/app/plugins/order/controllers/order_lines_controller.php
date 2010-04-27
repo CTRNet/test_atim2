@@ -233,9 +233,9 @@ class OrderLinesController extends OrderAppController {
 
 	function generateSampleAliquotControlList() {
 		$result = $this->SampleToAliquotControl->find('all',
-		array('conditions' => array('SampleToAliquotControl.status' => 'active',
-				'SampleControl.status' => 'active',
-				'AliquotControl.status' => 'active'),
+		array('conditions' => array('SampleToAliquotControl.flag_active' => '1',
+				'SampleControl.flag_active' => '1',
+				'AliquotControl.flag_active' => '1'),
 			'order' => array('SampleControl.sample_type' => 'asc', 'AliquotControl.aliquot_type' => 'asc')));	
 
 		$final_array = array();

@@ -10,9 +10,10 @@
 
 	<link rel="shortcut icon" href="favicon.ico" type="image/ico" />
 
-	<?php echo $html->charset('UTF-8') ?>
-	
-	<?php echo $html->css('stub') ?>
+	<?php 
+		echo $html->charset('UTF-8');
+		echo $html->css('style');
+	 ?>
 
 	
 </head>

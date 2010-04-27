@@ -3,7 +3,7 @@
 class StudyFundingsController extends StudyAppController {
 		
 	var $uses = array('Study.StudyFunding','Study.StudySummary');
-	var $paginate = array('StudyFunding'=>array('limit'=>10,'order'=>'StudyFunding.study_sponsor'));
+	var $paginate = array('StudyFunding'=>array('limit' => pagination_amount,'order'=>'StudyFunding.study_sponsor'));
 	
 	function listall( $study_summary_id ) {
 		// Missing or empty function variable, send to ERROR page
