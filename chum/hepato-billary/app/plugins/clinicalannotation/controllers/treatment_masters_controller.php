@@ -56,7 +56,7 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }		
+		if( $hook_link ) { require($hook_link); }	
 	}
 	
 	function edit( $participant_id, $tx_master_id ) {
