@@ -1,6 +1,107 @@
-#all database tables, create if not exists, minus the ones that will be renamed
+#Drop all unused or unmigrated existing tables 
 
-CREATE TABLE IF NOT EXISTS`acos` (
+DROP TABLE IF EXISTS
+`ad_cell_cores`,
+`ad_cell_slides`,
+`ad_gel_matrices`,
+`ad_tissue_bags`,
+`ad_tissue_cores`,
+`announcements`,
+`coding_adverse_events`,
+`datamart_adhoc`,
+`datamart_adhoc_favourites`,
+`datamart_adhoc_saved`,
+`datamart_batch_ids`,
+`datamart_batch_processes`,
+`datamart_batch_sets`,
+`ed_all_adverse_events_adverse_event`,
+`ed_all_clinical_followup`,
+`ed_all_clinical_presentation`,
+`ed_all_lifestyle_base`,
+`ed_all_protocol_followup`,
+`ed_all_study_research`,
+`ed_allsolid_lab_pathology`,
+`ed_biopsy_clin_event`,
+`ed_breast_lab_pathology`,
+`ed_breast_screening_mammogram`,
+`ed_coll_for_cyto_clin_event`,
+`ed_examination_clin_event`,
+`ed_lab_blood_report`,
+`ed_lab_path_report`,
+`ed_lab_revision_report`,
+`ed_medical_imaging_clin_event`,
+`form_fields`,
+`form_fields_global_lookups`,
+`form_formats`,
+`form_validations`,
+`forms`,
+`global_lookups`,
+`groups`,
+`groups_permissions`,
+`i18n`,
+`install_studies`,
+`langs`,
+`materials`,
+`menus`,
+`pages`,
+`path_collection_reviews`,
+`pd_chemos`,
+`pd_undetailled_protocols`,
+`pe_chemos`,
+`pe_undetailled_protocols`,
+`permissions`,
+`protocol_controls`,
+
+`protocol_masters`,
+`rd_blood_cells`,
+`rd_bloodcellcounts`,
+`rd_breast_cancers`,
+`rd_breastcancertypes`,
+`rd_coloncancertypes`,
+`rd_genericcancertypes`,
+`rd_ovarianuteruscancertypes`,
+`review_controls`,
+`review_masters`,
+`rtbforms`,
+`shelves`,
+`sidebars`,
+`sop_controls`,
+`sopd_general_all`,
+`sope_general_all`,
+`std_incubators`,
+`storage_coordinates`,
+`study_contacts`,
+`study_ethicsboards`,
+`study_fundings`,
+`study_investigators`,
+`study_related`,
+`study_results`,
+`study_reviews`,
+
+`tma_slides`,
+`towers`,
+`txd_chemos`,
+`txd_combos`,
+`txd_drugs`,
+`txd_radiations`,
+`txd_surgeries`,
+`txe_chemos`,
+`txe_radiations`,
+`txe_surgeries`,
+`tx_controls`,
+`tx_masters`,
+
+`drugs`,
+`std_tma_blocks`;
+
+#Create all database tables (copy of v2.0.0-ddl) if not exists.
+#Won t create the ones that will be renamed
+
+--
+-- Table structure for table `acos`
+--
+
+CREATE TABLE IF NOT EXISTS `acos` (
   `id` int(10) NOT NULL auto_increment,
   `parent_id` int(10) default NULL,
   `model` varchar(255) character set latin1 default NULL,
@@ -45,7 +146,23 @@ CREATE TABLE IF NOT EXISTS `ad_blocks_revs` (
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`ad_bags_revs` (
+-- 
+-- Table structure for table `ad_bags`
+--
+
+CREATE TABLE IF NOT EXISTS `ad_bags` (
+  `id` int(11) NOT NULL auto_increment,
+  `aliquot_master_id` int(11) default NULL,
+  `created` datetime NOT NULL default '0000-00-00 00:00:00',
+  `created_by` varchar(50) NOT NULL default '',
+  `modified` datetime default NULL,
+  `modified_by` varchar(50) default NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime default NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
+
+CREATE TABLE IF NOT EXISTS `ad_bags_revs` (
   `id` int(11) NOT NULL,
   `aliquot_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -95,7 +212,7 @@ CREATE TABLE IF NOT EXISTS `ad_cell_cores_revs` (
 -- Table structure for table `ad_cell_slides`
 -- 
 
-CREATE TABLE IF NOT EXISTS`ad_cell_slides` (
+CREATE TABLE IF NOT EXISTS `ad_cell_slides` (
   `id` int(11) NOT NULL auto_increment,
   `aliquot_master_id` int(11) default NULL,
   `immunochemistry` varchar(30) default NULL,
@@ -108,7 +225,7 @@ CREATE TABLE IF NOT EXISTS`ad_cell_slides` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`ad_cell_slides_revs` (
+CREATE TABLE IF NOT EXISTS `ad_cell_slides_revs` (
   `id` int(11) NOT NULL,
   `aliquot_master_id` int(11) default NULL,
   `immunochemistry` varchar(30) default NULL,
@@ -127,7 +244,7 @@ CREATE TABLE IF NOT EXISTS`ad_cell_slides_revs` (
 -- Table structure for table `ad_gel_matrices`
 -- 
 
-CREATE TABLE IF NOT EXISTS`ad_gel_matrices` (
+CREATE TABLE IF NOT EXISTS `ad_gel_matrices` (
   `id` int(11) NOT NULL auto_increment,
   `aliquot_master_id` int(11) default NULL,
   `cell_count` decimal(10,2) default NULL,
@@ -141,7 +258,7 @@ CREATE TABLE IF NOT EXISTS`ad_gel_matrices` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`ad_gel_matrices_revs` (
+CREATE TABLE IF NOT EXISTS `ad_gel_matrices_revs` (
   `id` int(11) NOT NULL,
   `aliquot_master_id` int(11) default NULL,
   `cell_count` decimal(10,2) default NULL,
@@ -267,7 +384,7 @@ CREATE TABLE IF NOT EXISTS `ad_tubes_revs` (
 -- Table structure for table `ad_whatman_papers`
 -- 
 
-CREATE TABLE IF NOT EXISTS`ad_whatman_papers` (
+CREATE TABLE IF NOT EXISTS `ad_whatman_papers` (
   `id` int(11) NOT NULL auto_increment,
   `aliquot_master_id` int(11) default NULL,
   `used_blood_volume` decimal(10,5) default NULL,
@@ -281,7 +398,7 @@ CREATE TABLE IF NOT EXISTS`ad_whatman_papers` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`ad_whatman_papers_revs` (
+CREATE TABLE IF NOT EXISTS `ad_whatman_papers_revs` (
   `id` int(11) NOT NULL,
   `aliquot_master_id` int(11) default NULL,
   `used_blood_volume` decimal(10,5) default NULL,
@@ -388,7 +505,7 @@ CREATE TABLE IF NOT EXISTS `aliquot_masters_revs` (
 -- Table structure for table `aliquot_uses`
 -- 
 
-CREATE TABLE IF NOT EXISTS`aliquot_uses` (
+CREATE TABLE IF NOT EXISTS `aliquot_uses` (
   `id` int(11) NOT NULL auto_increment,
   `aliquot_master_id` int(11) default NULL,
   `use_definition` varchar(30) default NULL,
@@ -408,7 +525,7 @@ CREATE TABLE IF NOT EXISTS`aliquot_uses` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`aliquot_uses_revs` (
+CREATE TABLE IF NOT EXISTS `aliquot_uses_revs` (
   `id` int(11) NOT NULL,
   `aliquot_master_id` int(11) default NULL,
   `use_definition` varchar(30) default NULL,
@@ -434,7 +551,7 @@ CREATE TABLE IF NOT EXISTS`aliquot_uses_revs` (
 -- Table structure for table `announcements`
 -- 
 
-CREATE TABLE IF NOT EXISTS`announcements` (
+CREATE TABLE IF NOT EXISTS `announcements` (
   `id` int(11) NOT NULL auto_increment,
   `user_id` int(11) default NULL,
   `group_id` int(11) default NULL,
@@ -457,7 +574,7 @@ CREATE TABLE IF NOT EXISTS`announcements` (
 -- Table structure for table `aros`
 -- 
 
-CREATE TABLE IF NOT EXISTS`aros` (
+CREATE TABLE IF NOT EXISTS `aros` (
   `id` int(10) NOT NULL auto_increment,
   `parent_id` int(10) default NULL,
   `model` varchar(255) character set latin1 default NULL,
@@ -472,7 +589,7 @@ CREATE TABLE IF NOT EXISTS`aros` (
 -- Table structure for table `aros_acos`
 -- 
 
-CREATE TABLE IF NOT EXISTS`aros_acos` (
+CREATE TABLE IF NOT EXISTS `aros_acos` (
   `id` int(10) NOT NULL auto_increment,
   `aro_id` int(10) NOT NULL,
   `aco_id` int(10) NOT NULL,
@@ -488,7 +605,7 @@ CREATE TABLE IF NOT EXISTS`aros_acos` (
 -- Table structure for table `atim_information`
 -- 
 
-CREATE TABLE IF NOT EXISTS`atim_information` (
+CREATE TABLE IF NOT EXISTS `atim_information` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `tablename` VARCHAR(255),
   `field` VARCHAR(255),
@@ -505,7 +622,7 @@ CREATE TABLE IF NOT EXISTS`atim_information` (
 -- Table structure for table `banks`
 -- 
 
-CREATE TABLE IF NOT EXISTS`banks` (
+CREATE TABLE IF NOT EXISTS `banks` (
   `id` int(11) NOT NULL auto_increment,
   `name` varchar(255) NOT NULL default '',
   `description` text NOT NULL,
@@ -518,7 +635,7 @@ CREATE TABLE IF NOT EXISTS`banks` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`banks_revs` (
+CREATE TABLE IF NOT EXISTS `banks_revs` (
   `id` int(11) NOT NULL,
   `name` varchar(255) NOT NULL default '',
   `description` text NOT NULL,
@@ -611,7 +728,7 @@ CREATE TABLE IF NOT EXISTS `clinical_collection_links_revs` (
 -- Table structure for table `coding_adverse_events`
 -- 
 
-CREATE TABLE IF NOT EXISTS`coding_adverse_events` (
+CREATE TABLE IF NOT EXISTS `coding_adverse_events` (
   `id` int(11) NOT NULL auto_increment,
   `category` varchar(50) NOT NULL default '',
   `supra-ordinate_term` varchar(255) NOT NULL default '',
@@ -627,7 +744,7 @@ CREATE TABLE IF NOT EXISTS`coding_adverse_events` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`coding_adverse_events_revs` (
+CREATE TABLE IF NOT EXISTS `coding_adverse_events_revs` (
   `id` int(11) NOT NULL,
   `category` varchar(50) NOT NULL default '',
   `supra-ordinate_term` varchar(255) NOT NULL default '',
@@ -649,7 +766,7 @@ CREATE TABLE IF NOT EXISTS`coding_adverse_events_revs` (
 -- Table structure for table `coding_icd10`
 -- 
 
-CREATE TABLE IF NOT EXISTS`coding_icd10` (
+CREATE TABLE IF NOT EXISTS `coding_icd10` (
   `id` varchar(10) NOT NULL default '',
   `category` varchar(50) NOT NULL default '',
   `icd_group` varchar(50) NOT NULL default '',
@@ -717,7 +834,7 @@ CREATE TABLE IF NOT EXISTS `collections_revs` (
 -- Table structure for table `configs`
 -- 
 
-CREATE TABLE IF NOT EXISTS`configs` (
+CREATE TABLE IF NOT EXISTS `configs` (
   `id` int(11) NOT NULL auto_increment,
   `bank_id` int(11) default NULL,
   `group_id` int(11) default NULL,
@@ -752,7 +869,43 @@ CREATE TABLE IF NOT EXISTS `consent_controls` (
 
 --
 -- Table structure for table `consent_masters`
--- Will comme from a rename
+--
+
+-- CREATE TABLE IF NOT EXISTS `consent_masters` (
+--   `id` int(11) NOT NULL AUTO_INCREMENT,
+--   `date_of_referral` date DEFAULT NULL,
+--   `route_of_referral` varchar(50) DEFAULT NULL,
+--   `date_first_contact` date DEFAULT NULL,
+--   `consent_signed_date` date DEFAULT NULL,    
+--   `form_version` varchar(50) DEFAULT NULL,
+--   `reason_denied` varchar(200) DEFAULT NULL,
+--   `consent_status` varchar(50) DEFAULT NULL,
+--   `process_status` varchar(50) DEFAULT NULL,  
+--   `status_date` date DEFAULT NULL,
+--   `surgeon` varchar(50) DEFAULT NULL,
+--   `operation_date` datetime DEFAULT NULL,
+--   `facility` varchar(50) DEFAULT NULL,
+--   `notes` text,
+--   `consent_method` varchar(50) DEFAULT NULL,
+--   `translator_indicator` varchar(50) DEFAULT NULL,
+--   `translator_signature` varchar(50) DEFAULT NULL,
+--   `consent_person` varchar(50) DEFAULT NULL,
+--   `facility_other` varchar(50) DEFAULT NULL,
+--   `consent_master_id` int(11) DEFAULT NULL,
+--   `acquisition_id` varchar(10) DEFAULT NULL,
+--   `participant_id` int(11) NOT NULL DEFAULT 0,
+--   `consent_control_id` int(11) NOT NULL,
+--   `type` varchar(10) NOT NULL DEFAULT '',    
+--   `created` datetime DEFAULT NULL,
+--   `created_by` varchar(50) DEFAULT NULL,
+--   `modified` datetime DEFAULT NULL,
+--   `modified_by` varchar(50) DEFAULT NULL,
+--   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+--   `deleted_date` datetime DEFAULT NULL,
+--  PRIMARY KEY (`id`),
+--  INDEX `participant_id` (`participant_id`),
+--  INDEX `consent_control_id` (`consent_control_id`)
+-- ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `consent_masters_revs` (
   `id` int(11) NOT NULL,
@@ -794,7 +947,7 @@ CREATE TABLE IF NOT EXISTS `consent_masters_revs` (
 -- Table structure for table `datamart_adhoc`
 -- 
 
-CREATE TABLE IF NOT EXISTS`datamart_adhoc` (
+CREATE TABLE IF NOT EXISTS `datamart_adhoc` (
   `id` int(11) NOT NULL auto_increment,
   `description` text,
   `plugin` varchar(255) NOT NULL,
@@ -815,7 +968,7 @@ CREATE TABLE IF NOT EXISTS`datamart_adhoc` (
 -- Table structure for table `datamart_adhoc_favourites`
 -- 
 
-CREATE TABLE IF NOT EXISTS`datamart_adhoc_favourites` (
+CREATE TABLE IF NOT EXISTS `datamart_adhoc_favourites` (
   `id` int(11) NOT NULL auto_increment,
   `adhoc_id` int(11) default NULL,
   `user_id` int(11) default NULL,
@@ -826,7 +979,7 @@ CREATE TABLE IF NOT EXISTS`datamart_adhoc_favourites` (
 -- Table structure for table `datamart_adhoc_saved`
 -- 
 
-CREATE TABLE IF NOT EXISTS`datamart_adhoc_saved` (
+CREATE TABLE IF NOT EXISTS `datamart_adhoc_saved` (
   `id` int(11) NOT NULL auto_increment,
   `adhoc_id` int(11) default NULL,
   `user_id` int(11) default NULL,
@@ -841,7 +994,7 @@ CREATE TABLE IF NOT EXISTS`datamart_adhoc_saved` (
 -- Table structure for table `datamart_batch_ids`
 -- 
 
-CREATE TABLE IF NOT EXISTS`datamart_batch_ids` (
+CREATE TABLE IF NOT EXISTS `datamart_batch_ids` (
   `id` int(11) NOT NULL auto_increment,
   `set_id` int(11) default NULL,
   `lookup_id` int(11) default NULL,
@@ -852,7 +1005,7 @@ CREATE TABLE IF NOT EXISTS`datamart_batch_ids` (
 -- Table structure for table `datamart_batch_processes`
 -- 
 
-CREATE TABLE IF NOT EXISTS`datamart_batch_processes` (
+CREATE TABLE IF NOT EXISTS `datamart_batch_processes` (
   `id` int(11) NOT NULL auto_increment,
   `name` varchar(255) NOT NULL default '',
   `plugin` varchar(100) NOT NULL,
@@ -865,7 +1018,7 @@ CREATE TABLE IF NOT EXISTS`datamart_batch_processes` (
 -- Table structure for table `datamart_batch_sets`
 -- 
 
-CREATE TABLE IF NOT EXISTS`datamart_batch_sets` (
+CREATE TABLE IF NOT EXISTS `datamart_batch_sets` (
   `id` int(11) NOT NULL auto_increment,
   `user_id` int(11) default NULL,
   `group_id` int(11) default NULL,
@@ -887,7 +1040,7 @@ CREATE TABLE IF NOT EXISTS`datamart_batch_sets` (
 -- Table structure for table `derivative_details`
 -- 
 
-CREATE TABLE IF NOT EXISTS`derivative_details` (
+CREATE TABLE IF NOT EXISTS `derivative_details` (
   `id` int(11) NOT NULL auto_increment,
   `sample_master_id` int(11) default NULL,
   `creation_site` varchar(30) default NULL,
@@ -902,7 +1055,7 @@ CREATE TABLE IF NOT EXISTS`derivative_details` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`derivative_details_revs` (
+CREATE TABLE IF NOT EXISTS `derivative_details_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) default NULL,
   `creation_site` varchar(30) default NULL,
@@ -935,7 +1088,50 @@ CREATE TABLE IF NOT EXISTS `diagnosis_controls` (
 
 --
 -- Table structure for table `diagnosis_masters`
--- will come from a rename
+--
+
+-- CREATE TABLE IF NOT EXISTS `diagnosis_masters` (
+--   `id` int(11) NOT NULL AUTO_INCREMENT,
+--   `dx_identifier` varchar(50) DEFAULT NULL,
+--   `primary_number` int(11) DEFAULT NULL,
+--   `dx_method` varchar(20) DEFAULT NULL,
+--   `dx_nature` varchar(50) DEFAULT NULL,
+--   `dx_origin` varchar(50) DEFAULT NULL,
+--   `dx_date` date DEFAULT NULL,
+--   `dx_date_accuracy` varchar(50) default NULL,
+--   `primary_icd10_code` varchar(10) DEFAULT NULL,
+--   `previous_primary_code` varchar(10) DEFAULT NULL,
+--   `previous_primary_code_system` varchar(50) DEFAULT NULL,
+--   `morphology` varchar(50) DEFAULT NULL,
+--   `topography` varchar(50) DEFAULT NULL,
+--   `tumour_grade` varchar(50) DEFAULT NULL,
+--   `age_at_dx` int(11) DEFAULT NULL,
+--   `age_at_dx_accuracy` varchar(50) DEFAULT NULL,
+--   `ajcc_edition` varchar(50) DEFAULT NULL,
+--   `collaborative_staged` varchar(50) DEFAULT NULL,
+--   `clinical_tstage` varchar(5) DEFAULT NULL,
+--   `clinical_nstage` varchar(5) DEFAULT NULL,
+--   `clinical_mstage` varchar(5) DEFAULT NULL,
+--   `clinical_stage_summary` varchar(5) DEFAULT NULL,
+--   `path_tstage` varchar(5) DEFAULT NULL,
+--   `path_nstage` varchar(5) DEFAULT NULL,
+--   `path_mstage` varchar(5) DEFAULT NULL,
+--   `path_stage_summary` varchar(5) DEFAULT NULL,
+--   `survival_time_months` int(11) DEFAULT NULL,
+--   `information_source` varchar(50) DEFAULT NULL,
+--   `notes` TEXT DEFAULT NULL,
+--   `diagnosis_control_id` int(11) NOT NULL DEFAULT '0',
+--   `participant_id` int(11) NOT NULL DEFAULT '0',
+--   `created` datetime DEFAULT NULL,
+--   `created_by` varchar(50) DEFAULT NULL,
+--   `modified` datetime DEFAULT NULL,
+--   `modified_by` varchar(50) DEFAULT NULL,
+--   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+--   `deleted_date` datetime DEFAULT NULL,
+--  PRIMARY KEY (`id`),
+--  INDEX `participant_id` (`participant_id`),
+--  INDEX `diagnosis_control_id` (`diagnosis_control_id`)
+-- ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `diagnosis_masters_revs` (
   `id` int(11) NOT NULL,
@@ -1047,44 +1243,10 @@ CREATE TABLE IF NOT EXISTS `dxd_tissues_revs` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 --
--- Table structure for table `dxd_bloods`
---
-
-CREATE TABLE IF NOT EXISTS `dxd_unknown` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `diagnosis_master_id` int(11) NOT NULL DEFAULT '0',
-  `text_field` varchar(10) NOT NULL default '',
-  `created` datetime NOT NULL default '0000-00-00 00:00:00',
-  `created_by` varchar(255) NOT NULL default '',
-  `modified` datetime NOT NULL default '0000-00-00 00:00:00',
-  `modified_by` varchar(255) NOT NULL default '',
-  `deleted` int(11) NOT NULL DEFAULT '0',
-  `deleted_date` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  INDEX `diagnosis_master_id` (`diagnosis_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
-CREATE TABLE IF NOT EXISTS `dxd_unknown_revs` (
-  `id` int(11) NOT NULL,
-  `diagnosis_master_id` int(11) NOT NULL DEFAULT '0',
-  `text_field` varchar(10) NOT NULL default '',
-  `created` datetime NOT NULL default '0000-00-00 00:00:00',
-  `created_by` varchar(255) NOT NULL default '',
-  `modified` datetime NOT NULL default '0000-00-00 00:00:00',
-  `modified_by` varchar(255) NOT NULL default '',
-  `deleted` int(11) NOT NULL DEFAULT '0',
-  `deleted_date` datetime DEFAULT NULL,
-  `version_id` int(11) NOT NULL AUTO_INCREMENT,
-  `version_created` datetime NOT NULL,
-  PRIMARY KEY (`version_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
-
---
 -- Table structure for table `drugs`
 --
 
-CREATE TABLE IF NOT EXISTS`drugs` (
+CREATE TABLE IF NOT EXISTS `drugs` (
   `id` int(11) NOT NULL auto_increment,
   `generic_name` varchar(50) NOT NULL default '',
   `trade_name` varchar(50) NOT NULL default '',
@@ -1099,7 +1261,7 @@ CREATE TABLE IF NOT EXISTS`drugs` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
-CREATE TABLE IF NOT EXISTS`drugs_revs` (
+CREATE TABLE IF NOT EXISTS `drugs_revs` (
   `id` int(11) NOT NULL,
   `generic_name` varchar(50) NOT NULL default '',
   `trade_name` varchar(50) NOT NULL default '',
@@ -1120,7 +1282,7 @@ CREATE TABLE IF NOT EXISTS`drugs_revs` (
 -- Table structure for table `ed_allsolid_lab_pathology`
 -- 
 
-CREATE TABLE IF NOT EXISTS`ed_allsolid_lab_pathology` (
+CREATE TABLE IF NOT EXISTS `ed_allsolid_lab_pathology` (
   `id` int(11) NOT NULL auto_increment,
   `tumour_type` varchar(50) default NULL,
   `resection_margin` varchar(50) default NULL,
@@ -1145,7 +1307,7 @@ CREATE TABLE IF NOT EXISTS`ed_allsolid_lab_pathology` (
   KEY `event_master_id` (`event_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`ed_allsolid_lab_pathology_revs` (
+CREATE TABLE IF NOT EXISTS `ed_allsolid_lab_pathology_revs` (
   `id` int(11) NOT NULL,
   `tumour_type` varchar(50) default NULL,
   `resection_margin` varchar(50) default NULL,
@@ -1176,7 +1338,7 @@ CREATE TABLE IF NOT EXISTS`ed_allsolid_lab_pathology_revs` (
 -- Table structure for table `ed_all_adverse_events_adverse_event`
 -- 
 
-CREATE TABLE IF NOT EXISTS`ed_all_adverse_events_adverse_event` (
+CREATE TABLE IF NOT EXISTS `ed_all_adverse_events_adverse_event` (
   `id` int(11) NOT NULL auto_increment,
   `supra_ordinate_term` varchar(50) default NULL,
   `select_ae` varchar(50) default NULL,
@@ -1193,7 +1355,7 @@ CREATE TABLE IF NOT EXISTS`ed_all_adverse_events_adverse_event` (
   KEY `event_master_id` (`event_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`ed_all_adverse_events_adverse_event_revs` (
+CREATE TABLE IF NOT EXISTS `ed_all_adverse_events_adverse_event_revs` (
   `id` int(11) NOT NULL,
   `supra_ordinate_term` varchar(50) default NULL,
   `select_ae` varchar(50) default NULL,
@@ -1216,7 +1378,7 @@ CREATE TABLE IF NOT EXISTS`ed_all_adverse_events_adverse_event_revs` (
 -- Table structure for table `ed_all_clinical_followup`
 -- 
 
-CREATE TABLE IF NOT EXISTS`ed_all_clinical_followup` (
+CREATE TABLE IF NOT EXISTS `ed_all_clinical_followup` (
   `id` int(11) NOT NULL auto_increment,
   `weight` int(11) default NULL,
   `recurrence_status` varchar(50) default NULL,
@@ -1233,7 +1395,7 @@ CREATE TABLE IF NOT EXISTS`ed_all_clinical_followup` (
   KEY `event_master_id` (`event_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`ed_all_clinical_followup_revs` (
+CREATE TABLE IF NOT EXISTS `ed_all_clinical_followup_revs` (
   `id` int(11) NOT NULL,
   `weight` int(11) default NULL,
   `recurrence_status` varchar(50) default NULL,
@@ -1256,7 +1418,7 @@ CREATE TABLE IF NOT EXISTS`ed_all_clinical_followup_revs` (
 -- Table structure for table `ed_all_clinical_presentation`
 -- 
 
-CREATE TABLE IF NOT EXISTS`ed_all_clinical_presentation` (
+CREATE TABLE IF NOT EXISTS `ed_all_clinical_presentation` (
   `id` int(11) NOT NULL auto_increment,
   `weight` int(11) default NULL,
   `height` int(11) default NULL,
@@ -1271,7 +1433,7 @@ CREATE TABLE IF NOT EXISTS`ed_all_clinical_presentation` (
   KEY `event_master_id` (`event_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`ed_all_clinical_presentation_revs` (
+CREATE TABLE IF NOT EXISTS `ed_all_clinical_presentation_revs` (
   `id` int(11) NOT NULL,
   `weight` int(11) default NULL,
   `height` int(11) default NULL,
@@ -1292,7 +1454,7 @@ CREATE TABLE IF NOT EXISTS`ed_all_clinical_presentation_revs` (
 -- Table structure for table `ed_all_lifestyle_base`
 --
 
-CREATE TABLE IF NOT EXISTS`ed_all_lifestyle_base` (
+CREATE TABLE IF NOT EXISTS `ed_all_lifestyle_base` (
   `id` int(11) NOT NULL auto_increment,
   `smoking_history` varchar(50) default NULL,
   `smoking_status` varchar(50) default NULL,
@@ -1312,7 +1474,7 @@ CREATE TABLE IF NOT EXISTS`ed_all_lifestyle_base` (
   KEY `event_master_id` (`event_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`ed_all_lifestyle_base_revs` (
+CREATE TABLE IF NOT EXISTS `ed_all_lifestyle_base_revs` (
   `id` int(11) NOT NULL,
   `smoking_history` varchar(50) default NULL,
   `smoking_status` varchar(50) default NULL,
@@ -1338,7 +1500,7 @@ CREATE TABLE IF NOT EXISTS`ed_all_lifestyle_base_revs` (
 -- Table structure for table `ed_all_protocol_followup`
 --
 
-CREATE TABLE IF NOT EXISTS`ed_all_protocol_followup` (
+CREATE TABLE IF NOT EXISTS `ed_all_protocol_followup` (
   `id` int(11) NOT NULL auto_increment,
   `title` varchar(50) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -1352,7 +1514,7 @@ CREATE TABLE IF NOT EXISTS`ed_all_protocol_followup` (
   KEY `event_master_id` (`event_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`ed_all_protocol_followup_revs` (
+CREATE TABLE IF NOT EXISTS `ed_all_protocol_followup_revs` (
   `id` int(11) NOT NULL,
   `title` varchar(50) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -1372,7 +1534,7 @@ CREATE TABLE IF NOT EXISTS`ed_all_protocol_followup_revs` (
 -- Table structure for table `ed_all_study_research`
 -- 
 
-CREATE TABLE IF NOT EXISTS`ed_all_study_research` (
+CREATE TABLE IF NOT EXISTS `ed_all_study_research` (
   `id` int(11) NOT NULL auto_increment,
   `field_one` varchar(50) default NULL,
   `field_two` varchar(50) default NULL,
@@ -1388,7 +1550,7 @@ CREATE TABLE IF NOT EXISTS`ed_all_study_research` (
   KEY `event_master_id` (`event_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`ed_all_study_research_revs` (
+CREATE TABLE IF NOT EXISTS `ed_all_study_research_revs` (
   `id` int(11) NOT NULL,
   `field_one` varchar(50) default NULL,
   `field_two` varchar(50) default NULL,
@@ -1410,7 +1572,7 @@ CREATE TABLE IF NOT EXISTS`ed_all_study_research_revs` (
 -- Table structure for table `ed_breast_lab_pathology`
 --
 
-CREATE TABLE IF NOT EXISTS`ed_breast_lab_pathology` (
+CREATE TABLE IF NOT EXISTS `ed_breast_lab_pathology` (
   `id` int(11) NOT NULL auto_increment,
   `path_number` varchar(50) default NULL,
   `report_type` varchar(50) default NULL,
@@ -1450,7 +1612,7 @@ CREATE TABLE IF NOT EXISTS`ed_breast_lab_pathology` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`ed_breast_lab_pathology_revs` (
+CREATE TABLE IF NOT EXISTS `ed_breast_lab_pathology_revs` (
   `id` int(11) NOT NULL,
   `path_number` varchar(50) default NULL,
   `report_type` varchar(50) default NULL,
@@ -1496,7 +1658,7 @@ CREATE TABLE IF NOT EXISTS`ed_breast_lab_pathology_revs` (
 -- Table structure for table `ed_breast_screening_mammogram`
 -- 
 
-CREATE TABLE IF NOT EXISTS`ed_breast_screening_mammogram` (
+CREATE TABLE IF NOT EXISTS `ed_breast_screening_mammogram` (
   `id` int(11) NOT NULL auto_increment,
   `result` varchar(50) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -1510,7 +1672,7 @@ CREATE TABLE IF NOT EXISTS`ed_breast_screening_mammogram` (
   KEY `event_master_id` (`event_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`ed_breast_screening_mammogram_revs` (
+CREATE TABLE IF NOT EXISTS `ed_breast_screening_mammogram_revs` (
   `id` int(11) NOT NULL,
   `result` varchar(50) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -1530,7 +1692,7 @@ CREATE TABLE IF NOT EXISTS`ed_breast_screening_mammogram_revs` (
 -- Table structure for table `event_controls`
 -- 
 
-CREATE TABLE IF NOT EXISTS`event_controls` (
+CREATE TABLE IF NOT EXISTS `event_controls` (
   `id` int(11) NOT NULL auto_increment,
   `disease_site` varchar(50) NOT NULL default '',
   `event_group` varchar(50) NOT NULL default '',
@@ -1608,7 +1770,7 @@ CREATE TABLE IF NOT EXISTS `event_masters_revs` (
 -- Table structure for table `family_histories`
 -- 
 
-CREATE TABLE IF NOT EXISTS`family_histories` (
+CREATE TABLE IF NOT EXISTS `family_histories` (
   `id` int(11) NOT NULL auto_increment,
   `relation` varchar(50) default NULL,
   `family_domain` varchar(50) default NULL,
@@ -1628,7 +1790,7 @@ CREATE TABLE IF NOT EXISTS`family_histories` (
   INDEX `participant_id` (`participant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`family_histories_revs` (
+CREATE TABLE IF NOT EXISTS `family_histories_revs` (
   `id` int(11) NOT NULL,
   `relation` varchar(50) default NULL,
   `family_domain` varchar(50) default NULL,
@@ -1653,7 +1815,7 @@ CREATE TABLE IF NOT EXISTS`family_histories_revs` (
 -- Table structure for table `groups`
 -- 
 
-CREATE TABLE IF NOT EXISTS`groups` (
+CREATE TABLE IF NOT EXISTS `groups` (
   `id` int(11) NOT NULL auto_increment,
   `bank_id` int(11) default NULL,
   `name` varchar(100) character set latin1 NOT NULL,
@@ -1666,7 +1828,7 @@ CREATE TABLE IF NOT EXISTS`groups` (
 -- Table structure for table `i18n`
 --
 
-CREATE TABLE IF NOT EXISTS`i18n` (
+CREATE TABLE IF NOT EXISTS `i18n` (
   `id` varchar(100) NOT NULL default '',
   `page_id` varchar(100) default NULL,
   `en` text NOT NULL,
@@ -1676,10 +1838,19 @@ CREATE TABLE IF NOT EXISTS`i18n` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- 
+-- Table structure for table `i18n`
+--
+
+-- CREATE TABLE IF NOT EXISTS `key_increments` (
+--   `key_name` varchar(50) NOT NULL PRIMARY KEY,
+--   `key_value` int NOT NULL
+-- ) Engine=InnoDB DEFAULT CHARSET=latin1;
+
+-- 
 -- Table structure for table `langs`
 --
 
-CREATE TABLE IF NOT EXISTS`langs` (
+CREATE TABLE IF NOT EXISTS `langs` (
   `id` varchar(100) NOT NULL default '',
   `name` varchar(100) NOT NULL default '',
   `meta` varchar(100) NOT NULL default '',
@@ -1692,7 +1863,7 @@ CREATE TABLE IF NOT EXISTS`langs` (
 -- Table structure for table `materials`
 --
 
-CREATE TABLE IF NOT EXISTS`materials` (
+CREATE TABLE IF NOT EXISTS `materials` (
   `id` int(11) NOT NULL auto_increment,
   `item_name` varchar(50) NOT NULL,
   `item_type` varchar(50) default NULL,
@@ -1706,7 +1877,7 @@ CREATE TABLE IF NOT EXISTS`materials` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`materials_revs` (
+CREATE TABLE IF NOT EXISTS `materials_revs` (
   `id` int(11) NOT NULL,
   `item_name` varchar(50) NOT NULL,
   `item_type` varchar(50) default NULL,
@@ -1748,7 +1919,7 @@ CREATE TABLE IF NOT EXISTS `menus` (
 -- Table structure for table `misc_identifiers`
 --
 
-CREATE TABLE IF NOT EXISTS`misc_identifiers` (
+CREATE TABLE IF NOT EXISTS `misc_identifiers` (
   `id` int(11) NOT NULL auto_increment,
   `identifier_value` varchar(40) default NULL,
   `identifier_name` varchar(50) default NULL,
@@ -1767,7 +1938,7 @@ CREATE TABLE IF NOT EXISTS`misc_identifiers` (
   INDEX `participant_id` (`participant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`misc_identifiers_revs` (
+CREATE TABLE IF NOT EXISTS `misc_identifiers_revs` (
   `id` int(11) NOT NULL,
   `identifier_value` varchar(40) default NULL,
   `identifier_name` varchar(50) default NULL,
@@ -1791,23 +1962,22 @@ CREATE TABLE IF NOT EXISTS`misc_identifiers_revs` (
 -- Table structure for table `misc_identifier_controls`
 -- 
 
-CREATE TABLE `misc_identifier_controls` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `misc_identifier_name` varchar(50) NOT NULL DEFAULT '',
-  `misc_identifier_name_abbrev` varchar(50) NOT NULL DEFAULT '',
-  `status` varchar(50) NOT NULL DEFAULT 'active',
-  `display_order` int(11) NOT NULL DEFAULT '0',
-  `autoincrement_name` varchar(50) default NULL,
-  `misc_identifier_format` varchar(50) default NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_misc_identifier_name` (`misc_identifier_name`)
+CREATE TABLE IF NOT EXISTS `misc_identifier_controls` (
+  `id` int(11) NOT NULL auto_increment,
+  `misc_identifier_name` varchar(50) NOT NULL default '',
+  `misc_identifier_name_abbrev` varchar(50) NOT NULL default '',
+  `status` varchar(50) NOT NULL default 'active',
+  `autoincrement_name` varchar(50) NOT NULL default '',
+  `display_order` int(11) NOT NULL default 0,
+  `misc_identifier_value` varchar(50) NOT NULL default '',
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
 -- Table structure for table `orders`
 -- 
 
-CREATE TABLE IF NOT EXISTS`orders` (
+CREATE TABLE IF NOT EXISTS `orders` (
   `id` int(11) NOT NULL auto_increment,
   `order_number` varchar(255) NOT NULL,
   `short_title` varchar(45) default NULL,
@@ -1827,7 +1997,7 @@ CREATE TABLE IF NOT EXISTS`orders` (
   INDEX `order_number` (`order_number`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`orders_revs` (
+CREATE TABLE IF NOT EXISTS `orders_revs` (
   `id` int(11) NOT NULL,
   `order_number` varchar(255) NOT NULL,
   `short_title` varchar(45) default NULL,
@@ -1852,7 +2022,7 @@ CREATE TABLE IF NOT EXISTS`orders_revs` (
 -- Table structure for table `order_items`
 -- 
 
-CREATE TABLE IF NOT EXISTS`order_items` (
+CREATE TABLE IF NOT EXISTS `order_items` (
   `id` int(11) NOT NULL auto_increment,
   `date_added` date default NULL,
   `added_by` varchar(255) default NULL,
@@ -1870,7 +2040,7 @@ CREATE TABLE IF NOT EXISTS`order_items` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`order_items_revs` (
+CREATE TABLE IF NOT EXISTS `order_items_revs` (
   `id` int(11) NOT NULL,
   `date_added` date default NULL,
   `added_by` varchar(255) default NULL,
@@ -1894,7 +2064,7 @@ CREATE TABLE IF NOT EXISTS`order_items_revs` (
 -- Table structure for table `order_lines`
 -- 
 
-CREATE TABLE IF NOT EXISTS`order_lines` (
+CREATE TABLE IF NOT EXISTS `order_lines` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `quantity_ordered` varchar(30) DEFAULT NULL,
   `min_quantity_ordered` varchar(30) DEFAULT NULL,
@@ -1915,7 +2085,7 @@ CREATE TABLE IF NOT EXISTS`order_lines` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`order_lines_revs` (
+CREATE TABLE IF NOT EXISTS `order_lines_revs` (
   `id` int(11) NOT NULL,
   `quantity_ordered` varchar(30) DEFAULT NULL,
   `min_quantity_ordered` varchar(30) DEFAULT NULL,
@@ -1942,7 +2112,7 @@ CREATE TABLE IF NOT EXISTS`order_lines_revs` (
 -- Table structure for table `pages`
 -- 
 
-CREATE TABLE IF NOT EXISTS`pages` (
+CREATE TABLE IF NOT EXISTS `pages` (
   `id` varchar(100) NOT NULL default '',
   `error_flag` tinyint(4) NOT NULL default '0',
   `language_title` varchar(255) NOT NULL default '',
@@ -1959,7 +2129,7 @@ CREATE TABLE IF NOT EXISTS`pages` (
 -- Table structure for table `parent_to_derivative_sample_controls`
 --
 
-CREATE TABLE IF NOT EXISTS`parent_to_derivative_sample_controls` (
+CREATE TABLE IF NOT EXISTS `parent_to_derivative_sample_controls` (
   `id` int(11) NOT NULL auto_increment,
   `parent_sample_control_id` int(11) default NULL,
   `derivative_sample_control_id` int(11) default NULL,
@@ -1972,7 +2142,7 @@ CREATE TABLE IF NOT EXISTS`parent_to_derivative_sample_controls` (
 -- Table structure for table `participants`
 --
 
-CREATE TABLE IF NOT EXISTS`participants` (
+CREATE TABLE IF NOT EXISTS `participants` (
   `id` int(11) NOT NULL auto_increment,
   `title` varchar(10) default NULL,
   `first_name` varchar(20) default NULL,
@@ -2004,7 +2174,7 @@ CREATE TABLE IF NOT EXISTS`participants` (
   UNIQUE `unique_participant_identifier` (`participant_identifier`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`participants_revs` (
+CREATE TABLE IF NOT EXISTS `participants_revs` (
   `id` int(11) NOT NULL,
   `title` varchar(10) default NULL,
   `first_name` varchar(20) default NULL,
@@ -2040,7 +2210,7 @@ CREATE TABLE IF NOT EXISTS`participants_revs` (
 -- Table structure for table `participant_contacts`
 -- 
 
-CREATE TABLE IF NOT EXISTS`participant_contacts` (
+CREATE TABLE IF NOT EXISTS `participant_contacts` (
   `id` int(11) NOT NULL auto_increment,
   `contact_name` varchar(50) NOT NULL default '',
   `contact_type` varchar(50) NOT NULL default '',
@@ -2068,7 +2238,7 @@ CREATE TABLE IF NOT EXISTS`participant_contacts` (
   INDEX `participant_id` (`participant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`participant_contacts_revs` (
+CREATE TABLE IF NOT EXISTS `participant_contacts_revs` (
   `id` int(11) NOT NULL,
   `contact_name` varchar(50) NOT NULL default '',
   `contact_type` varchar(50) NOT NULL default '',
@@ -2101,7 +2271,7 @@ CREATE TABLE IF NOT EXISTS`participant_contacts_revs` (
 -- Table structure for table `participant_messages`
 --
 
-CREATE TABLE IF NOT EXISTS`participant_messages` (
+CREATE TABLE IF NOT EXISTS `participant_messages` (
   `id` int(11) NOT NULL auto_increment,
   `date_requested` date default NULL,
   `author` varchar(50) default NULL,
@@ -2121,7 +2291,7 @@ CREATE TABLE IF NOT EXISTS`participant_messages` (
   INDEX `participant_id` (`participant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`participant_messages_revs` (
+CREATE TABLE IF NOT EXISTS `participant_messages_revs` (
   `id` int(11) NOT NULL,
   `date_requested` date default NULL,
   `author` varchar(50) default NULL,
@@ -2146,7 +2316,7 @@ CREATE TABLE IF NOT EXISTS`participant_messages_revs` (
 -- Table structure for table `path_collection_reviews`
 --
 
-CREATE TABLE IF NOT EXISTS`path_collection_reviews` (
+CREATE TABLE IF NOT EXISTS `path_collection_reviews` (
   `id` int(11) NOT NULL auto_increment,
   `path_coll_rev_code` varchar(20) NOT NULL default '0',
   `collection_id` int(11) default NULL,
@@ -2175,7 +2345,7 @@ CREATE TABLE IF NOT EXISTS`path_collection_reviews` (
   KEY `collection_id` (`collection_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`path_collection_reviews_revs` (
+CREATE TABLE IF NOT EXISTS `path_collection_reviews_revs` (
   `id` int(11) NOT NULL,
   `path_coll_rev_code` varchar(20) NOT NULL default '0',
   `collection_id` int(11) default NULL,
@@ -2210,7 +2380,7 @@ CREATE TABLE IF NOT EXISTS`path_collection_reviews_revs` (
 -- Table structure for table `pd_chemos`
 -- 
 
-CREATE TABLE IF NOT EXISTS`pd_chemos` (
+CREATE TABLE IF NOT EXISTS `pd_chemos` (
   `id` int(11) NOT NULL auto_increment,
   `created` date NOT NULL default '0000-00-00',
   `created_by` varchar(50) NOT NULL default '',
@@ -2222,7 +2392,7 @@ CREATE TABLE IF NOT EXISTS`pd_chemos` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`pd_chemos_revs` (
+CREATE TABLE IF NOT EXISTS `pd_chemos_revs` (
   `id` int(11) NOT NULL,
   `created` date NOT NULL default '0000-00-00',
   `created_by` varchar(50) NOT NULL default '',
@@ -2240,7 +2410,7 @@ CREATE TABLE IF NOT EXISTS`pd_chemos_revs` (
 -- Table structure for table `pe_chemos`
 --
 
-CREATE TABLE IF NOT EXISTS`pe_chemos` (
+CREATE TABLE IF NOT EXISTS `pe_chemos` (
   `id` int(11) NOT NULL auto_increment,
   `method` varchar(50) default NULL,
   `dose` varchar(50) default NULL,
@@ -2256,7 +2426,7 @@ CREATE TABLE IF NOT EXISTS`pe_chemos` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`pe_chemos_revs` (
+CREATE TABLE IF NOT EXISTS `pe_chemos_revs` (
   `id` int(11) NOT NULL,
   `method` varchar(50) default NULL,
   `dose` varchar(50) default NULL,
@@ -2278,7 +2448,7 @@ CREATE TABLE IF NOT EXISTS`pe_chemos_revs` (
 -- Table structure for table `protocol_controls`
 -- 
 
-CREATE TABLE IF NOT EXISTS`protocol_controls` (
+CREATE TABLE IF NOT EXISTS `protocol_controls` (
   `id` int(11) NOT NULL auto_increment,
   `tumour_group` varchar(50) default NULL,
   `type` varchar(50) default NULL,
@@ -2297,7 +2467,7 @@ CREATE TABLE IF NOT EXISTS`protocol_controls` (
 -- Table structure for table `protocol_masters`
 -- 
 
-CREATE TABLE IF NOT EXISTS`protocol_masters` (
+CREATE TABLE IF NOT EXISTS `protocol_masters` (
   `id` int(11) NOT NULL auto_increment,
   `protocol_control_id` int(11) NOT NULL default 0,
   `name` varchar(255) default NULL,
@@ -2319,7 +2489,7 @@ CREATE TABLE IF NOT EXISTS`protocol_masters` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`protocol_masters_revs` (
+CREATE TABLE IF NOT EXISTS `protocol_masters_revs` (
   `id` int(11) NOT NULL,
   `protocol_control_id` int(11) NOT NULL default 0,
   `name` varchar(255) default NULL,
@@ -2347,7 +2517,7 @@ CREATE TABLE IF NOT EXISTS`protocol_masters_revs` (
 -- Table structure for table `providers`
 -- 
 
-CREATE TABLE IF NOT EXISTS`providers` (
+CREATE TABLE IF NOT EXISTS `providers` (
   `id` int(11) NOT NULL auto_increment,
   `name` varchar(55) character set latin1 NOT NULL,
   `type` varchar(55) character set latin1 NOT NULL,
@@ -2364,7 +2534,7 @@ CREATE TABLE IF NOT EXISTS`providers` (
   PRIMARY KEY ( `id` )
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`providers_revs` (
+CREATE TABLE IF NOT EXISTS `providers_revs` (
   `id` int(11) NOT NULL,
   `name` varchar(55) character set latin1 NOT NULL,
   `type` varchar(55) character set latin1 NOT NULL,
@@ -2383,8 +2553,25 @@ CREATE TABLE IF NOT EXISTS`providers_revs` (
   PRIMARY KEY ( `version_id` )
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
+-- 
+-- Table structure for table `quality_ctrl_tested_aliquots`
+-- 
 
-CREATE TABLE IF NOT EXISTS`quality_ctrl_tested_aliquots_revs` (
+-- CREATE TABLE IF NOT EXISTS `quality_ctrl_tested_aliquots` (
+--   `id` int(11) NOT NULL auto_increment,
+--   `quality_ctrl_id` int(11) default NULL,
+--   `aliquot_master_id` int(11) default NULL,
+--   `aliquot_use_id` int(11) default NULL,
+--   `created` datetime NOT NULL default '0000-00-00 00:00:00',
+--   `created_by` varchar(50) NOT NULL default '',
+--   `modified` datetime default NULL,
+--   `modified_by` varchar(50) default NULL,
+--   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+--   `deleted_date` datetime default NULL,
+--   PRIMARY KEY  (`id`)
+-- ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `quality_ctrl_tested_aliquots_revs` (
   `id` int(11) NOT NULL,
   `quality_ctrl_id` int(11) default NULL,
   `aliquot_master_id` int(11) default NULL,
@@ -2402,9 +2589,33 @@ CREATE TABLE IF NOT EXISTS`quality_ctrl_tested_aliquots_revs` (
 
 -- 
 -- Table structure for table `quality_ctrls`
--- will come from a rename
+-- 
 
-CREATE TABLE IF NOT EXISTS`quality_ctrls_revs` (
+-- CREATE TABLE IF NOT EXISTS `quality_ctrls` (
+--   `id` int(11) NOT NULL auto_increment,
+--   `qc_code` varchar(20) DEFAULT NULL,
+--   `sample_master_id` int(11) default NULL,
+--   `type` varchar(30) default NULL,
+--   `tool` varchar(30) default NULL,
+--   `run_id` varchar(30) default NULL,
+--   `run_by` varchar(50) DEFAULT NULL,
+--   `date` date default NULL,
+--   `score` varchar(30) default NULL,
+--   `unit` varchar(30) default NULL,
+--   `conclusion` varchar(30) default NULL,
+--   `notes` text,
+--   `created` datetime NOT NULL default '0000-00-00 00:00:00',
+--   `created_by` varchar(50) NOT NULL default '',
+--   `modified` datetime default NULL,
+--   `modified_by` varchar(50) default NULL,
+--   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+--   `deleted_date` datetime default NULL,
+--   PRIMARY KEY  (`id`),
+--   INDEX `run_id` (`run_id`),
+--   UNIQUE `unique_qc_code` (`qc_code`)
+-- ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `quality_ctrls_revs` (
   `id` int(11) NOT NULL,
   `qc_code` varchar(20) DEFAULT NULL,
   `sample_master_id` int(11) default NULL,
@@ -2432,7 +2643,7 @@ CREATE TABLE IF NOT EXISTS`quality_ctrls_revs` (
 -- Table structure for table `rd_bloodcellcounts`
 -- 
 
-CREATE TABLE IF NOT EXISTS`rd_bloodcellcounts` (
+CREATE TABLE IF NOT EXISTS `rd_bloodcellcounts` (
   `id` int(11) NOT NULL auto_increment,
   `review_master_id` int(11) default NULL,
   `count_start_time` time default NULL,
@@ -2455,7 +2666,7 @@ CREATE TABLE IF NOT EXISTS`rd_bloodcellcounts` (
   KEY `review_master_id` (`review_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`rd_bloodcellcounts_revs` (
+CREATE TABLE IF NOT EXISTS `rd_bloodcellcounts_revs` (
   `id` int(11) NOT NULL,
   `review_master_id` int(11) default NULL,
   `count_start_time` time default NULL,
@@ -2484,7 +2695,7 @@ CREATE TABLE IF NOT EXISTS`rd_bloodcellcounts_revs` (
 -- Table structure for table `rd_blood_cells`
 -- 
 
-CREATE TABLE IF NOT EXISTS`rd_blood_cells` (
+CREATE TABLE IF NOT EXISTS `rd_blood_cells` (
   `id` int(11) NOT NULL auto_increment,
   `review_master_id` int(11) default NULL,
   `mmt` varchar(10) default '',
@@ -2501,7 +2712,7 @@ CREATE TABLE IF NOT EXISTS`rd_blood_cells` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`rd_blood_cells_revs` (
+CREATE TABLE IF NOT EXISTS `rd_blood_cells_revs` (
   `id` int(11) NOT NULL,
   `review_master_id` int(11) default NULL,
   `mmt` varchar(10) default '',
@@ -2524,7 +2735,7 @@ CREATE TABLE IF NOT EXISTS`rd_blood_cells_revs` (
 -- Table structure for table `rd_breastcancertypes`
 -- 
 
-CREATE TABLE IF NOT EXISTS`rd_breastcancertypes` (
+CREATE TABLE IF NOT EXISTS `rd_breastcancertypes` (
   `id` int(11) NOT NULL auto_increment,
   `review_master_id` int(11) default NULL,
   `invasive_percentage` decimal(5,1) default NULL,
@@ -2545,7 +2756,7 @@ CREATE TABLE IF NOT EXISTS`rd_breastcancertypes` (
   KEY `review_master_id` (`review_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`rd_breastcancertypes_revs` (
+CREATE TABLE IF NOT EXISTS `rd_breastcancertypes_revs` (
   `id` int(11) NOT NULL,
   `review_master_id` int(11) default NULL,
   `invasive_percentage` decimal(5,1) default NULL,
@@ -2572,7 +2783,7 @@ CREATE TABLE IF NOT EXISTS`rd_breastcancertypes_revs` (
 -- Table structure for table `rd_breast_cancers`
 -- 
 
-CREATE TABLE IF NOT EXISTS`rd_breast_cancers` (
+CREATE TABLE IF NOT EXISTS `rd_breast_cancers` (
   `id` int(11) NOT NULL auto_increment,
   `review_master_id` int(11) default NULL,
   `tumour_type_id` int(11) default NULL,
@@ -2594,7 +2805,7 @@ CREATE TABLE IF NOT EXISTS`rd_breast_cancers` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`rd_breast_cancers_revs` (
+CREATE TABLE IF NOT EXISTS `rd_breast_cancers_revs` (
   `id` int(11) NOT NULL,
   `review_master_id` int(11) default NULL,
   `tumour_type_id` int(11) default NULL,
@@ -2622,7 +2833,7 @@ CREATE TABLE IF NOT EXISTS`rd_breast_cancers_revs` (
 -- Table structure for table `rd_coloncancertypes`
 -- 
 
-CREATE TABLE IF NOT EXISTS`rd_coloncancertypes` (
+CREATE TABLE IF NOT EXISTS `rd_coloncancertypes` (
   `id` int(11) NOT NULL auto_increment,
   `review_master_id` int(11) default NULL,
   `invasive_percentage` decimal(5,1) default NULL,
@@ -2642,7 +2853,7 @@ CREATE TABLE IF NOT EXISTS`rd_coloncancertypes` (
   KEY `review_master_id` (`review_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`rd_coloncancertypes_revs` (
+CREATE TABLE IF NOT EXISTS `rd_coloncancertypes_revs` (
   `id` int(11) NOT NULL,
   `review_master_id` int(11) default NULL,
   `invasive_percentage` decimal(5,1) default NULL,
@@ -2668,7 +2879,7 @@ CREATE TABLE IF NOT EXISTS`rd_coloncancertypes_revs` (
 -- Table structure for table `rd_genericcancertypes`
 -- 
 
-CREATE TABLE IF NOT EXISTS`rd_genericcancertypes` (
+CREATE TABLE IF NOT EXISTS `rd_genericcancertypes` (
   `id` int(11) NOT NULL auto_increment,
   `review_master_id` int(11) default NULL,
   `invasive_percentage` decimal(5,1) default NULL,
@@ -2688,7 +2899,7 @@ CREATE TABLE IF NOT EXISTS`rd_genericcancertypes` (
   KEY `review_master_id` (`review_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`rd_genericcancertypes_revs` (
+CREATE TABLE IF NOT EXISTS `rd_genericcancertypes_revs` (
   `id` int(11) NOT NULL,
   `review_master_id` int(11) default NULL,
   `invasive_percentage` decimal(5,1) default NULL,
@@ -2714,7 +2925,7 @@ CREATE TABLE IF NOT EXISTS`rd_genericcancertypes_revs` (
 -- Table structure for table `rd_ovarianuteruscancertypes`
 -- 
 
-CREATE TABLE IF NOT EXISTS`rd_ovarianuteruscancertypes` (
+CREATE TABLE IF NOT EXISTS `rd_ovarianuteruscancertypes` (
   `id` int(11) NOT NULL auto_increment,
   `review_master_id` int(11) default NULL,
   `invasive_percentage` decimal(5,1) default NULL,
@@ -2733,7 +2944,7 @@ CREATE TABLE IF NOT EXISTS`rd_ovarianuteruscancertypes` (
   KEY `review_master_id` (`review_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`rd_ovarianuteruscancertypes_revs` (
+CREATE TABLE IF NOT EXISTS `rd_ovarianuteruscancertypes_revs` (
   `id` int(11) NOT NULL,
   `review_master_id` int(11) default NULL,
   `invasive_percentage` decimal(5,1) default NULL,
@@ -2758,7 +2969,7 @@ CREATE TABLE IF NOT EXISTS`rd_ovarianuteruscancertypes_revs` (
 -- Table structure for table `realiquotings`
 -- 
 
-CREATE TABLE IF NOT EXISTS`realiquotings` (
+CREATE TABLE IF NOT EXISTS `realiquotings` (
   `id` int(11) NOT NULL auto_increment,
   `parent_aliquot_master_id` int(11) default NULL,
   `child_aliquot_master_id` int(11) default NULL,
@@ -2772,7 +2983,7 @@ CREATE TABLE IF NOT EXISTS`realiquotings` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`realiquotings_revs` (
+CREATE TABLE IF NOT EXISTS `realiquotings_revs` (
   `id` int(11) NOT NULL,
   `parent_aliquot_master_id` int(11) default NULL,
   `child_aliquot_master_id` int(11) default NULL,
@@ -2792,7 +3003,7 @@ CREATE TABLE IF NOT EXISTS`realiquotings_revs` (
 -- Table structure for table `reproductive_histories`
 -- 
 
-CREATE TABLE IF NOT EXISTS`reproductive_histories` (
+CREATE TABLE IF NOT EXISTS `reproductive_histories` (
   `id` int(11) NOT NULL auto_increment,
   `date_captured` date default NULL,
   `menopause_status` varchar(50) default NULL,
@@ -2828,7 +3039,7 @@ CREATE TABLE IF NOT EXISTS`reproductive_histories` (
   INDEX `participant_id` (`participant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`reproductive_histories_revs` (
+CREATE TABLE IF NOT EXISTS `reproductive_histories_revs` (
   `id` int(11) NOT NULL,
   `date_captured` date default NULL,
   `menopause_status` varchar(50) default NULL,
@@ -2869,7 +3080,7 @@ CREATE TABLE IF NOT EXISTS`reproductive_histories_revs` (
 -- Table structure for table `review_controls`
 -- 
 
-CREATE TABLE IF NOT EXISTS`review_controls` (
+CREATE TABLE IF NOT EXISTS `review_controls` (
   `id` int(11) NOT NULL auto_increment,
   `review_type` varchar(30) NOT NULL default '',
   `review_sample_group` varchar(30) NOT NULL default '',
@@ -2884,7 +3095,7 @@ CREATE TABLE IF NOT EXISTS`review_controls` (
 -- Table structure for table `review_masters`
 -- 
 
-CREATE TABLE IF NOT EXISTS`review_masters` (
+CREATE TABLE IF NOT EXISTS `review_masters` (
   `id` int(11) NOT NULL auto_increment,
   `review_control_id` int(11) NOT NULL default 0,
   `collection_id` int(11) default NULL,
@@ -2904,7 +3115,7 @@ CREATE TABLE IF NOT EXISTS`review_masters` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`review_masters_revs` (
+CREATE TABLE IF NOT EXISTS `review_masters_revs` (
   `id` int(11) NOT NULL,
   `review_control_id` int(11) NOT NULL default 0,
   `collection_id` int(11) default NULL,
@@ -2931,7 +3142,7 @@ CREATE TABLE IF NOT EXISTS`review_masters_revs` (
 -- Table structure for table `rtbforms`
 -- 
 
-CREATE TABLE IF NOT EXISTS`rtbforms` (
+CREATE TABLE IF NOT EXISTS `rtbforms` (
   `id` smallint(5) unsigned NOT NULL auto_increment,
   `frmTitle` varchar(200) default NULL,
   `frmVersion` float NOT NULL default '0',
@@ -2951,7 +3162,7 @@ CREATE TABLE IF NOT EXISTS`rtbforms` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 ;
 
-CREATE TABLE IF NOT EXISTS`rtbforms_revs` (
+CREATE TABLE IF NOT EXISTS `rtbforms_revs` (
   `id` smallint(5) unsigned NOT NULL,
   `frmTitle` varchar(200) default NULL,
   `frmVersion` float NOT NULL default '0',
@@ -2975,14 +3186,22 @@ CREATE TABLE IF NOT EXISTS`rtbforms_revs` (
 
 -- 
 -- Table structure for table `derivative_sample_control_id`
--- will come from a rename
+-- 
 
+-- CREATE TABLE IF NOT EXISTS `sample_to_aliquot_controls` (
+--   `id` int(11) NOT NULL AUTO_INCREMENT,
+--   `sample_control_id` int(11) DEFAULT NULL,
+--   `aliquot_control_id` int(11) DEFAULT NULL,
+--   `status` enum('inactive','active') DEFAULT 'inactive',
+--   PRIMARY KEY (`id`),
+--   UNIQUE KEY `sample_to_aliquot` (`sample_control_id`,`aliquot_control_id`)
+-- ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- 
 -- Table structure for table `sample_controls`
 -- 
 
-CREATE TABLE IF NOT EXISTS`sample_controls` (
+CREATE TABLE IF NOT EXISTS `sample_controls` (
   `id` int(11) NOT NULL auto_increment,
   `sample_type` varchar(30) NOT NULL default '',
   `sample_type_code` varchar(10) NOT NULL default '',
@@ -3001,7 +3220,7 @@ CREATE TABLE IF NOT EXISTS`sample_controls` (
 -- Revision Date : 2009/11/24
 -- Revision Author : NL
 
-CREATE TABLE IF NOT EXISTS`sample_masters` (
+CREATE TABLE IF NOT EXISTS `sample_masters` (
   `id` int(11) NOT NULL auto_increment,
   `sample_code` varchar(30) NOT NULL default '',
   `sample_category` varchar(30) NOT NULL default '',
@@ -3026,7 +3245,7 @@ CREATE TABLE IF NOT EXISTS`sample_masters` (
   UNIQUE `unique_sample_code` (`sample_code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`sample_masters_revs` (
+CREATE TABLE IF NOT EXISTS `sample_masters_revs` (
   `id` int(11) NOT NULL,
   `sample_code` varchar(30) NOT NULL default '',
   `sample_category` varchar(30) NOT NULL default '',
@@ -3055,7 +3274,7 @@ CREATE TABLE IF NOT EXISTS`sample_masters_revs` (
 -- Table structure for table `sd_der_ascite_cells`
 -- 
 
-CREATE TABLE IF NOT EXISTS`sd_der_ascite_cells` (
+CREATE TABLE IF NOT EXISTS `sd_der_ascite_cells` (
   `id` int(11) NOT NULL auto_increment,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3067,7 +3286,7 @@ CREATE TABLE IF NOT EXISTS`sd_der_ascite_cells` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
-CREATE TABLE IF NOT EXISTS`sd_der_ascite_cells_revs` (
+CREATE TABLE IF NOT EXISTS `sd_der_ascite_cells_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3085,7 +3304,7 @@ CREATE TABLE IF NOT EXISTS`sd_der_ascite_cells_revs` (
 -- Table structure for table `sd_der_ascite_sups`
 -- 
 
-CREATE TABLE IF NOT EXISTS`sd_der_ascite_sups` (
+CREATE TABLE IF NOT EXISTS `sd_der_ascite_sups` (
   `id` int(11) NOT NULL auto_increment,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3097,7 +3316,7 @@ CREATE TABLE IF NOT EXISTS`sd_der_ascite_sups` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
-CREATE TABLE IF NOT EXISTS`sd_der_ascite_sups_revs` (
+CREATE TABLE IF NOT EXISTS `sd_der_ascite_sups_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3115,7 +3334,7 @@ CREATE TABLE IF NOT EXISTS`sd_der_ascite_sups_revs` (
 -- Table structure for table `sd_der_blood_cells`
 -- 
 
-CREATE TABLE IF NOT EXISTS`sd_der_blood_cells` (
+CREATE TABLE IF NOT EXISTS `sd_der_blood_cells` (
   `id` int(11) NOT NULL auto_increment,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3127,7 +3346,7 @@ CREATE TABLE IF NOT EXISTS`sd_der_blood_cells` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
-CREATE TABLE IF NOT EXISTS`sd_der_blood_cells_revs` (
+CREATE TABLE IF NOT EXISTS `sd_der_blood_cells_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3145,7 +3364,7 @@ CREATE TABLE IF NOT EXISTS`sd_der_blood_cells_revs` (
 -- Table structure for table `sd_der_pbmcs`
 -- 
 
-CREATE TABLE IF NOT EXISTS`sd_der_pbmcs` (
+CREATE TABLE IF NOT EXISTS `sd_der_pbmcs` (
   `id` int(11) NOT NULL auto_increment,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3157,7 +3376,7 @@ CREATE TABLE IF NOT EXISTS`sd_der_pbmcs` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
-CREATE TABLE IF NOT EXISTS`sd_der_pbmcs_revs` (
+CREATE TABLE IF NOT EXISTS `sd_der_pbmcs_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3175,7 +3394,7 @@ CREATE TABLE IF NOT EXISTS`sd_der_pbmcs_revs` (
 -- Table structure for table `sd_der_dnas`
 -- 
 
-CREATE TABLE IF NOT EXISTS`sd_der_dnas` (
+CREATE TABLE IF NOT EXISTS `sd_der_dnas` (
   `id` int(11) NOT NULL auto_increment,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3187,7 +3406,7 @@ CREATE TABLE IF NOT EXISTS`sd_der_dnas` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
-CREATE TABLE IF NOT EXISTS`sd_der_dnas_revs` (
+CREATE TABLE IF NOT EXISTS `sd_der_dnas_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3205,7 +3424,7 @@ CREATE TABLE IF NOT EXISTS`sd_der_dnas_revs` (
 -- Table structure for table `sd_der_rnas`
 -- 
 
-CREATE TABLE IF NOT EXISTS`sd_der_rnas` (
+CREATE TABLE IF NOT EXISTS `sd_der_rnas` (
   `id` int(11) NOT NULL auto_increment,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3217,7 +3436,7 @@ CREATE TABLE IF NOT EXISTS`sd_der_rnas` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
-CREATE TABLE IF NOT EXISTS`sd_der_rnas_revs` (
+CREATE TABLE IF NOT EXISTS `sd_der_rnas_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3235,7 +3454,7 @@ CREATE TABLE IF NOT EXISTS`sd_der_rnas_revs` (
 -- Table structure for table `sd_der_urine_cons`
 -- 
 
-CREATE TABLE IF NOT EXISTS`sd_der_urine_cons` (
+CREATE TABLE IF NOT EXISTS `sd_der_urine_cons` (
   `id` int(11) NOT NULL auto_increment,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3247,7 +3466,7 @@ CREATE TABLE IF NOT EXISTS`sd_der_urine_cons` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
-CREATE TABLE IF NOT EXISTS`sd_der_urine_cons_revs` (
+CREATE TABLE IF NOT EXISTS `sd_der_urine_cons_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3265,7 +3484,7 @@ CREATE TABLE IF NOT EXISTS`sd_der_urine_cons_revs` (
 -- Table structure for table `sd_der_urine_cents`
 -- 
 
-CREATE TABLE IF NOT EXISTS`sd_der_urine_cents` (
+CREATE TABLE IF NOT EXISTS `sd_der_urine_cents` (
   `id` int(11) NOT NULL auto_increment,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3277,7 +3496,7 @@ CREATE TABLE IF NOT EXISTS`sd_der_urine_cents` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
-CREATE TABLE IF NOT EXISTS`sd_der_urine_cents_revs` (
+CREATE TABLE IF NOT EXISTS `sd_der_urine_cents_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3293,9 +3512,21 @@ CREATE TABLE IF NOT EXISTS`sd_der_urine_cents_revs` (
 
 -- 
 -- Table structure for table `sd_der_amp_rnas`
--- will come from a rename
+-- 
 
-CREATE TABLE IF NOT EXISTS`sd_der_amp_rnas_revs` (
+-- CREATE TABLE IF NOT EXISTS `sd_der_amp_rnas` (
+--   `id` int(11) NOT NULL auto_increment,
+--   `sample_master_id` int(11) default NULL,
+--   `created` datetime NOT NULL default '0000-00-00 00:00:00',
+--   `created_by` varchar(50) NOT NULL default '',
+--   `modified` datetime default NULL,
+--   `modified_by` varchar(50) default NULL,
+--   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+--   `deleted_date` datetime default NULL,
+--   PRIMARY KEY (`id`)
+-- ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
+
+CREATE TABLE IF NOT EXISTS `sd_der_amp_rnas_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3313,7 +3544,7 @@ CREATE TABLE IF NOT EXISTS`sd_der_amp_rnas_revs` (
 -- Table structure for table `sd_der_b_cells`
 -- 
 
-CREATE TABLE IF NOT EXISTS`sd_der_b_cells` (
+CREATE TABLE IF NOT EXISTS `sd_der_b_cells` (
   `id` int(11) NOT NULL auto_increment,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3325,7 +3556,7 @@ CREATE TABLE IF NOT EXISTS`sd_der_b_cells` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
-CREATE TABLE IF NOT EXISTS`sd_der_b_cells_revs` (
+CREATE TABLE IF NOT EXISTS `sd_der_b_cells_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3343,7 +3574,7 @@ CREATE TABLE IF NOT EXISTS`sd_der_b_cells_revs` (
 -- Table structure for table `sd_der_tiss_lysates`
 -- 
 
-CREATE TABLE IF NOT EXISTS`sd_der_tiss_lysates` (
+CREATE TABLE IF NOT EXISTS `sd_der_tiss_lysates` (
   `id` int(11) NOT NULL auto_increment,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3355,7 +3586,7 @@ CREATE TABLE IF NOT EXISTS`sd_der_tiss_lysates` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
-CREATE TABLE IF NOT EXISTS`sd_der_tiss_lysates_revs` (
+CREATE TABLE IF NOT EXISTS `sd_der_tiss_lysates_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3373,7 +3604,7 @@ CREATE TABLE IF NOT EXISTS`sd_der_tiss_lysates_revs` (
 -- Table structure for table `sd_der_tiss_susps`
 -- 
 
-CREATE TABLE IF NOT EXISTS`sd_der_tiss_susps` (
+CREATE TABLE IF NOT EXISTS `sd_der_tiss_susps` (
   `id` int(11) NOT NULL auto_increment,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3385,7 +3616,7 @@ CREATE TABLE IF NOT EXISTS`sd_der_tiss_susps` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
-CREATE TABLE IF NOT EXISTS`sd_der_tiss_susps_revs` (
+CREATE TABLE IF NOT EXISTS `sd_der_tiss_susps_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3403,7 +3634,7 @@ CREATE TABLE IF NOT EXISTS`sd_der_tiss_susps_revs` (
 -- Table structure for table `sd_der_pw_cells`
 -- 
 
-CREATE TABLE IF NOT EXISTS`sd_der_pw_cells` (
+CREATE TABLE IF NOT EXISTS `sd_der_pw_cells` (
   `id` int(11) NOT NULL auto_increment,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3415,7 +3646,7 @@ CREATE TABLE IF NOT EXISTS`sd_der_pw_cells` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
-CREATE TABLE IF NOT EXISTS`sd_der_pw_cells_revs` (
+CREATE TABLE IF NOT EXISTS `sd_der_pw_cells_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3433,7 +3664,7 @@ CREATE TABLE IF NOT EXISTS`sd_der_pw_cells_revs` (
 -- Table structure for table `sd_der_pw_sups`
 -- 
 
-CREATE TABLE IF NOT EXISTS`sd_der_pw_sups` (
+CREATE TABLE IF NOT EXISTS `sd_der_pw_sups` (
   `id` int(11) NOT NULL auto_increment,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3445,7 +3676,7 @@ CREATE TABLE IF NOT EXISTS`sd_der_pw_sups` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
-CREATE TABLE IF NOT EXISTS`sd_der_pw_sups_revs` (
+CREATE TABLE IF NOT EXISTS `sd_der_pw_sups_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3463,7 +3694,7 @@ CREATE TABLE IF NOT EXISTS`sd_der_pw_sups_revs` (
 -- Table structure for table `sd_der_cystic_fl_cells`
 -- 
 
-CREATE TABLE IF NOT EXISTS`sd_der_cystic_fl_cells` (
+CREATE TABLE IF NOT EXISTS `sd_der_cystic_fl_cells` (
   `id` int(11) NOT NULL auto_increment,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3475,7 +3706,7 @@ CREATE TABLE IF NOT EXISTS`sd_der_cystic_fl_cells` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
-CREATE TABLE IF NOT EXISTS`sd_der_cystic_fl_cells_revs` (
+CREATE TABLE IF NOT EXISTS `sd_der_cystic_fl_cells_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3493,7 +3724,7 @@ CREATE TABLE IF NOT EXISTS`sd_der_cystic_fl_cells_revs` (
 -- Table structure for table `sd_spe_pericardial_fluids`
 -- 
 
-CREATE TABLE IF NOT EXISTS`sd_spe_pericardial_fluids` (
+CREATE TABLE IF NOT EXISTS `sd_spe_pericardial_fluids` (
   `id` int(11) NOT NULL auto_increment,
   `sample_master_id` int(11) default NULL,
   `collected_volume` decimal(10,5) default NULL,
@@ -3507,7 +3738,7 @@ CREATE TABLE IF NOT EXISTS`sd_spe_pericardial_fluids` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
-CREATE TABLE IF NOT EXISTS`sd_spe_pericardial_fluids_revs` (
+CREATE TABLE IF NOT EXISTS `sd_spe_pericardial_fluids_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) default NULL,
   `collected_volume` decimal(10,5) default NULL,
@@ -3527,7 +3758,7 @@ CREATE TABLE IF NOT EXISTS`sd_spe_pericardial_fluids_revs` (
 -- Table structure for table `sd_der_pericardial_fl_cells`
 -- 
 
-CREATE TABLE IF NOT EXISTS`sd_der_pericardial_fl_cells` (
+CREATE TABLE IF NOT EXISTS `sd_der_pericardial_fl_cells` (
   `id` int(11) NOT NULL auto_increment,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3539,7 +3770,7 @@ CREATE TABLE IF NOT EXISTS`sd_der_pericardial_fl_cells` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
-CREATE TABLE IF NOT EXISTS`sd_der_pericardial_fl_cells_revs` (
+CREATE TABLE IF NOT EXISTS `sd_der_pericardial_fl_cells_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3557,7 +3788,7 @@ CREATE TABLE IF NOT EXISTS`sd_der_pericardial_fl_cells_revs` (
 -- Table structure for table `sd_der_pericardial_fl_sups`
 -- 
 
-CREATE TABLE IF NOT EXISTS`sd_der_pericardial_fl_sups` (
+CREATE TABLE IF NOT EXISTS `sd_der_pericardial_fl_sups` (
   `id` int(11) NOT NULL auto_increment,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3569,7 +3800,7 @@ CREATE TABLE IF NOT EXISTS`sd_der_pericardial_fl_sups` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
-CREATE TABLE IF NOT EXISTS`sd_der_pericardial_fl_sups_revs` (
+CREATE TABLE IF NOT EXISTS `sd_der_pericardial_fl_sups_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3587,7 +3818,7 @@ CREATE TABLE IF NOT EXISTS`sd_der_pericardial_fl_sups_revs` (
 -- Table structure for table `sd_spe_pleural_fluids`
 -- 
 
-CREATE TABLE IF NOT EXISTS`sd_spe_pleural_fluids` (
+CREATE TABLE IF NOT EXISTS `sd_spe_pleural_fluids` (
   `id` int(11) NOT NULL auto_increment,
   `sample_master_id` int(11) default NULL,
   `collected_volume` decimal(10,5) default NULL,
@@ -3601,7 +3832,7 @@ CREATE TABLE IF NOT EXISTS`sd_spe_pleural_fluids` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
-CREATE TABLE IF NOT EXISTS`sd_spe_pleural_fluids_revs` (
+CREATE TABLE IF NOT EXISTS `sd_spe_pleural_fluids_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) default NULL,
   `collected_volume` decimal(10,5) default NULL,
@@ -3621,7 +3852,7 @@ CREATE TABLE IF NOT EXISTS`sd_spe_pleural_fluids_revs` (
 -- Table structure for table `sd_der_pleural_fl_cells`
 -- 
 
-CREATE TABLE IF NOT EXISTS`sd_der_pleural_fl_cells` (
+CREATE TABLE IF NOT EXISTS `sd_der_pleural_fl_cells` (
   `id` int(11) NOT NULL auto_increment,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3633,7 +3864,7 @@ CREATE TABLE IF NOT EXISTS`sd_der_pleural_fl_cells` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
-CREATE TABLE IF NOT EXISTS`sd_der_pleural_fl_cells_revs` (
+CREATE TABLE IF NOT EXISTS `sd_der_pleural_fl_cells_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3651,7 +3882,7 @@ CREATE TABLE IF NOT EXISTS`sd_der_pleural_fl_cells_revs` (
 -- Table structure for table `sd_der_pleural_fl_sups`
 -- 
 
-CREATE TABLE IF NOT EXISTS`sd_der_pleural_fl_sups` (
+CREATE TABLE IF NOT EXISTS `sd_der_pleural_fl_sups` (
   `id` int(11) NOT NULL auto_increment,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3663,7 +3894,7 @@ CREATE TABLE IF NOT EXISTS`sd_der_pleural_fl_sups` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
-CREATE TABLE IF NOT EXISTS`sd_der_pleural_fl_sups_revs` (
+CREATE TABLE IF NOT EXISTS `sd_der_pleural_fl_sups_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3681,7 +3912,7 @@ CREATE TABLE IF NOT EXISTS`sd_der_pleural_fl_sups_revs` (
 -- Table structure for table `sd_der_cystic_fl_sups`
 -- 
 
-CREATE TABLE IF NOT EXISTS`sd_der_cystic_fl_sups` (
+CREATE TABLE IF NOT EXISTS `sd_der_cystic_fl_sups` (
   `id` int(11) NOT NULL auto_increment,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3693,7 +3924,7 @@ CREATE TABLE IF NOT EXISTS`sd_der_cystic_fl_sups` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
-CREATE TABLE IF NOT EXISTS`sd_der_cystic_fl_sups_revs` (
+CREATE TABLE IF NOT EXISTS `sd_der_cystic_fl_sups_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -3711,7 +3942,7 @@ CREATE TABLE IF NOT EXISTS`sd_der_cystic_fl_sups_revs` (
 -- Table structure for table `sd_der_cell_cultures`
 -- 
 
-CREATE TABLE IF NOT EXISTS`sd_der_cell_cultures` (
+CREATE TABLE IF NOT EXISTS `sd_der_cell_cultures` (
   `id` int(11) NOT NULL auto_increment,
   `sample_master_id` int(11) default NULL,
   `culture_status` varchar(30) default NULL,
@@ -3726,7 +3957,7 @@ CREATE TABLE IF NOT EXISTS`sd_der_cell_cultures` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`sd_der_cell_cultures_revs` (
+CREATE TABLE IF NOT EXISTS `sd_der_cell_cultures_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) default NULL,
   `culture_status` varchar(30) default NULL,
@@ -3747,7 +3978,7 @@ CREATE TABLE IF NOT EXISTS`sd_der_cell_cultures_revs` (
 -- Table structure for table `sd_der_plasmas`
 -- 
 
-CREATE TABLE IF NOT EXISTS`sd_der_plasmas` (
+CREATE TABLE IF NOT EXISTS `sd_der_plasmas` (
   `id` int(11) NOT NULL auto_increment,
   `sample_master_id` int(11) default NULL,
   `hemolyze_signs` varchar(10) default NULL,
@@ -3760,7 +3991,7 @@ CREATE TABLE IF NOT EXISTS`sd_der_plasmas` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`sd_der_plasmas_revs` (
+CREATE TABLE IF NOT EXISTS `sd_der_plasmas_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) default NULL,
   `hemolyze_signs` varchar(10) default NULL,
@@ -3779,7 +4010,7 @@ CREATE TABLE IF NOT EXISTS`sd_der_plasmas_revs` (
 -- Table structure for table `sd_der_serums`
 -- 
 
-CREATE TABLE IF NOT EXISTS`sd_der_serums` (
+CREATE TABLE IF NOT EXISTS `sd_der_serums` (
   `id` int(11) NOT NULL auto_increment,
   `sample_master_id` int(11) default NULL,
   `hemolyze_signs` varchar(10) default NULL,
@@ -3792,7 +4023,7 @@ CREATE TABLE IF NOT EXISTS`sd_der_serums` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`sd_der_serums_revs` (
+CREATE TABLE IF NOT EXISTS `sd_der_serums_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) default NULL,
   `hemolyze_signs` varchar(10) default NULL,
@@ -3811,7 +4042,7 @@ CREATE TABLE IF NOT EXISTS`sd_der_serums_revs` (
 -- Table structure for table `sd_spe_ascites`
 --
 
-CREATE TABLE IF NOT EXISTS`sd_spe_ascites` (
+CREATE TABLE IF NOT EXISTS `sd_spe_ascites` (
   `id` int(11) NOT NULL auto_increment,
   `sample_master_id` int(11) default NULL,
   `collected_volume` decimal(10,5) default NULL,
@@ -3825,7 +4056,7 @@ CREATE TABLE IF NOT EXISTS`sd_spe_ascites` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`sd_spe_ascites_revs` (
+CREATE TABLE IF NOT EXISTS `sd_spe_ascites_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) default NULL,
   `collected_volume` decimal(10,5) default NULL,
@@ -3845,7 +4076,7 @@ CREATE TABLE IF NOT EXISTS`sd_spe_ascites_revs` (
 -- Table structure for table `sd_spe_bloods`
 -- 
 
-CREATE TABLE IF NOT EXISTS`sd_spe_bloods` (
+CREATE TABLE IF NOT EXISTS `sd_spe_bloods` (
   `id` int(11) NOT NULL auto_increment,
   `sample_master_id` int(11) default NULL,
   `blood_type` varchar(30) default NULL,
@@ -3861,7 +4092,7 @@ CREATE TABLE IF NOT EXISTS`sd_spe_bloods` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`sd_spe_bloods_revs` (
+CREATE TABLE IF NOT EXISTS `sd_spe_bloods_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) default NULL,
   `blood_type` varchar(30) default NULL,
@@ -3883,7 +4114,7 @@ CREATE TABLE IF NOT EXISTS`sd_spe_bloods_revs` (
 -- Table structure for table `sd_spe_cystic_fluids`
 -- 
 
-CREATE TABLE IF NOT EXISTS`sd_spe_cystic_fluids` (
+CREATE TABLE IF NOT EXISTS `sd_spe_cystic_fluids` (
   `id` int(11) NOT NULL auto_increment,
   `sample_master_id` int(11) default NULL,
   `collected_volume` decimal(10,5) default NULL,
@@ -3897,7 +4128,7 @@ CREATE TABLE IF NOT EXISTS`sd_spe_cystic_fluids` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`sd_spe_cystic_fluids_revs` (
+CREATE TABLE IF NOT EXISTS `sd_spe_cystic_fluids_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) default NULL,
   `collected_volume` decimal(10,5) default NULL,
@@ -3917,7 +4148,7 @@ CREATE TABLE IF NOT EXISTS`sd_spe_cystic_fluids_revs` (
 -- Table structure for table `sd_spe_peritoneal_washes`
 -- 
 
-CREATE TABLE IF NOT EXISTS`sd_spe_peritoneal_washes` (
+CREATE TABLE IF NOT EXISTS `sd_spe_peritoneal_washes` (
   `id` int(11) NOT NULL auto_increment,
   `sample_master_id` int(11) default NULL,
   `collected_volume` decimal(10,5) default NULL,
@@ -3931,7 +4162,7 @@ CREATE TABLE IF NOT EXISTS`sd_spe_peritoneal_washes` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`sd_spe_peritoneal_washes_revs` (
+CREATE TABLE IF NOT EXISTS `sd_spe_peritoneal_washes_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) default NULL,
   `collected_volume` decimal(10,5) default NULL,
@@ -3951,7 +4182,7 @@ CREATE TABLE IF NOT EXISTS`sd_spe_peritoneal_washes_revs` (
 -- Table structure for table `sd_spe_tissues`
 --
 
-CREATE TABLE IF NOT EXISTS`sd_spe_tissues` (
+CREATE TABLE IF NOT EXISTS `sd_spe_tissues` (
   `id` int(11) NOT NULL auto_increment,
   `sample_master_id` int(11) default NULL,
   `tissue_source` varchar(50) default NULL,
@@ -3969,7 +4200,7 @@ CREATE TABLE IF NOT EXISTS`sd_spe_tissues` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`sd_spe_tissues_revs` (
+CREATE TABLE IF NOT EXISTS `sd_spe_tissues_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) default NULL,
   `tissue_source` varchar(50) default NULL,
@@ -3993,7 +4224,7 @@ CREATE TABLE IF NOT EXISTS`sd_spe_tissues_revs` (
 -- Table structure for table `sd_spe_urines`
 -- 
 
-CREATE TABLE IF NOT EXISTS`sd_spe_urines` (
+CREATE TABLE IF NOT EXISTS `sd_spe_urines` (
   `id` int(11) NOT NULL auto_increment,
   `sample_master_id` int(11) default NULL,
   `urine_aspect` varchar(30) default NULL,
@@ -4011,7 +4242,7 @@ CREATE TABLE IF NOT EXISTS`sd_spe_urines` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`sd_spe_urines_revs` (
+CREATE TABLE IF NOT EXISTS `sd_spe_urines_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) default NULL,
   `urine_aspect` varchar(30) default NULL,
@@ -4035,7 +4266,7 @@ CREATE TABLE IF NOT EXISTS`sd_spe_urines_revs` (
 -- Table structure for table `shelves`
 -- 
 
-CREATE TABLE IF NOT EXISTS`shelves` (
+CREATE TABLE IF NOT EXISTS `shelves` (
   `id` int(11) NOT NULL auto_increment,
   `storage_id` int(11) default NULL,
   `description` varchar(50) NOT NULL default '',
@@ -4049,7 +4280,7 @@ CREATE TABLE IF NOT EXISTS`shelves` (
   KEY `storage_id` (`storage_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`shelves_revs` (
+CREATE TABLE IF NOT EXISTS `shelves_revs` (
   `id` int(11) NOT NULL,
   `storage_id` int(11) default NULL,
   `description` varchar(50) NOT NULL default '',
@@ -4069,7 +4300,7 @@ CREATE TABLE IF NOT EXISTS`shelves_revs` (
 -- Table structure for table `shipments`
 -- 
 
-CREATE TABLE IF NOT EXISTS`shipments` (
+CREATE TABLE IF NOT EXISTS `shipments` (
   `id` int(11) NOT NULL auto_increment,
   `shipment_code` varchar(255) NOT NULL default 'No Code',
   `recipient` varchar(60) default NULL,
@@ -4097,7 +4328,7 @@ CREATE TABLE IF NOT EXISTS`shipments` (
   INDEX `facility` (`facility`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`shipments_revs` (
+CREATE TABLE IF NOT EXISTS `shipments_revs` (
   `id` int(11) NOT NULL,
   `shipment_code` varchar(255) NOT NULL default 'No Code',
   `recipient` varchar(60) default NULL,
@@ -4128,7 +4359,7 @@ CREATE TABLE IF NOT EXISTS`shipments_revs` (
 -- Table structure for table `sidebars`
 -- 
 
-CREATE TABLE IF NOT EXISTS`sidebars` (
+CREATE TABLE IF NOT EXISTS `sidebars` (
   `id` int(11) NOT NULL auto_increment,
   `alias` varchar(255) NOT NULL default '',
   `language_title` text NOT NULL,
@@ -4144,7 +4375,7 @@ CREATE TABLE IF NOT EXISTS`sidebars` (
 -- Table structure for table `sopd_general_all`
 -- 
 
-CREATE TABLE IF NOT EXISTS`sopd_general_all` (
+CREATE TABLE IF NOT EXISTS `sopd_general_all` (
   `id` int(11) NOT NULL auto_increment,
   `value` varchar(255) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -4157,7 +4388,7 @@ CREATE TABLE IF NOT EXISTS`sopd_general_all` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`sopd_general_all_revs` (
+CREATE TABLE IF NOT EXISTS `sopd_general_all_revs` (
   `id` int(11) NOT NULL,
   `value` varchar(255) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -4176,7 +4407,7 @@ CREATE TABLE IF NOT EXISTS`sopd_general_all_revs` (
 -- Table structure for table `sopd_inventory_all`
 -- 
 
-CREATE TABLE IF NOT EXISTS`sopd_inventory_all` (
+CREATE TABLE IF NOT EXISTS `sopd_inventory_all` (
   `id` int(11) NOT NULL auto_increment,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` varchar(50) NOT NULL default '',
@@ -4189,7 +4420,7 @@ CREATE TABLE IF NOT EXISTS`sopd_inventory_all` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 
-CREATE TABLE IF NOT EXISTS`sopd_inventory_all_revs` (
+CREATE TABLE IF NOT EXISTS `sopd_inventory_all_revs` (
   `id` int(11) NOT NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` varchar(50) NOT NULL default '',
@@ -4207,7 +4438,7 @@ CREATE TABLE IF NOT EXISTS`sopd_inventory_all_revs` (
 -- Table structure for table `sope_general_all`
 --
 
-CREATE TABLE IF NOT EXISTS`sope_general_all` (
+CREATE TABLE IF NOT EXISTS `sope_general_all` (
   `id` int(11) NOT NULL auto_increment,
   `site_specific` varchar(50) default NULL,
   `created` datetime default NULL,
@@ -4221,7 +4452,7 @@ CREATE TABLE IF NOT EXISTS`sope_general_all` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`sope_general_all_revs` (
+CREATE TABLE IF NOT EXISTS `sope_general_all_revs` (
   `id` int(11) NOT NULL,
   `site_specific` varchar(50) default NULL,
   `created` datetime default NULL,
@@ -4241,7 +4472,7 @@ CREATE TABLE IF NOT EXISTS`sope_general_all_revs` (
 -- Table structure for table `sope_inventory_all`
 --
 
-CREATE TABLE IF NOT EXISTS`sope_inventory_all` (
+CREATE TABLE IF NOT EXISTS `sope_inventory_all` (
   `id` int(11) NOT NULL auto_increment,
   `created` datetime default NULL,
   `created_by` varchar(50) default NULL,
@@ -4253,7 +4484,7 @@ CREATE TABLE IF NOT EXISTS`sope_inventory_all` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`sope_inventory_all_revs` (
+CREATE TABLE IF NOT EXISTS `sope_inventory_all_revs` (
   `id` int(11) NOT NULL,
   `created` datetime default NULL,
   `created_by` varchar(50) default NULL,
@@ -4271,7 +4502,7 @@ CREATE TABLE IF NOT EXISTS`sope_inventory_all_revs` (
 -- Table structure for table `sop_controls`
 -- 
 
-CREATE TABLE IF NOT EXISTS`sop_controls` (
+CREATE TABLE IF NOT EXISTS `sop_controls` (
   `id` int(11) NOT NULL auto_increment,
   `sop_group` varchar(50) default NULL,
   `type` varchar(50) default NULL,
@@ -4291,7 +4522,7 @@ CREATE TABLE IF NOT EXISTS`sop_controls` (
 -- Table structure for table `sop_masters`
 -- 
 
-CREATE TABLE IF NOT EXISTS`sop_masters` (
+CREATE TABLE IF NOT EXISTS `sop_masters` (
   `id` int(11) NOT NULL auto_increment,
   `sop_control_id` int(11) NOT NULL default 0,
   `title` varchar(255) default NULL,
@@ -4315,7 +4546,7 @@ CREATE TABLE IF NOT EXISTS`sop_masters` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`sop_masters_revs` (
+CREATE TABLE IF NOT EXISTS `sop_masters_revs` (
   `id` int(11) NOT NULL,
   `sop_control_id` int(11) NOT NULL default 0,
   `title` varchar(255) default NULL,
@@ -4345,7 +4576,7 @@ CREATE TABLE IF NOT EXISTS`sop_masters_revs` (
 -- Table structure for table `source_aliquots`
 -- 
 
-CREATE TABLE IF NOT EXISTS`source_aliquots` (
+CREATE TABLE IF NOT EXISTS `source_aliquots` (
   `id` int(11) NOT NULL auto_increment,
   `sample_master_id` int(11) default NULL,
   `aliquot_master_id` int(11) default NULL,
@@ -4359,7 +4590,7 @@ CREATE TABLE IF NOT EXISTS`source_aliquots` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`source_aliquots_revs` (
+CREATE TABLE IF NOT EXISTS `source_aliquots_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) default NULL,
   `aliquot_master_id` int(11) default NULL,
@@ -4382,7 +4613,7 @@ CREATE TABLE IF NOT EXISTS`source_aliquots_revs` (
 -- Revision Date : 2009/11/24
 -- Revision Author : NL
 
-CREATE TABLE IF NOT EXISTS`specimen_details` (
+CREATE TABLE IF NOT EXISTS `specimen_details` (
   `id` int(11) NOT NULL auto_increment,
   `sample_master_id` int(11) default NULL,
   `supplier_dept` varchar(40) default NULL,
@@ -4398,7 +4629,7 @@ CREATE TABLE IF NOT EXISTS`specimen_details` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`specimen_details_revs` (
+CREATE TABLE IF NOT EXISTS `specimen_details_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) default NULL,
   `supplier_dept` varchar(40) default NULL,
@@ -4420,7 +4651,7 @@ CREATE TABLE IF NOT EXISTS`specimen_details_revs` (
 -- Table structure for table `std_cupboards`
 -- 
 
-CREATE TABLE IF NOT EXISTS`std_cupboards` (
+CREATE TABLE IF NOT EXISTS `std_cupboards` (
   `id` int(11) NOT NULL auto_increment,
   `storage_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -4432,7 +4663,7 @@ CREATE TABLE IF NOT EXISTS`std_cupboards` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`std_cupboards_revs` (
+CREATE TABLE IF NOT EXISTS `std_cupboards_revs` (
   `id` int(11) NOT NULL,
   `storage_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -4450,7 +4681,7 @@ CREATE TABLE IF NOT EXISTS`std_cupboards_revs` (
 -- Table structure for table `std_nitro_locates`
 -- 
 
-CREATE TABLE IF NOT EXISTS`std_nitro_locates` (
+CREATE TABLE IF NOT EXISTS `std_nitro_locates` (
   `id` int(11) NOT NULL auto_increment,
   `storage_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -4462,7 +4693,7 @@ CREATE TABLE IF NOT EXISTS`std_nitro_locates` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`std_nitro_locates_revs` (
+CREATE TABLE IF NOT EXISTS `std_nitro_locates_revs` (
   `id` int(11) NOT NULL,
   `storage_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -4480,7 +4711,7 @@ CREATE TABLE IF NOT EXISTS`std_nitro_locates_revs` (
 -- Table structure for table `std_fridges`
 --
 
-CREATE TABLE IF NOT EXISTS`std_fridges` (
+CREATE TABLE IF NOT EXISTS `std_fridges` (
   `id` int(11) NOT NULL auto_increment,
   `storage_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -4492,7 +4723,7 @@ CREATE TABLE IF NOT EXISTS`std_fridges` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`std_fridges_revs` (
+CREATE TABLE IF NOT EXISTS `std_fridges_revs` (
   `id` int(11) NOT NULL,
   `storage_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -4510,7 +4741,7 @@ CREATE TABLE IF NOT EXISTS`std_fridges_revs` (
 -- Table structure for table `std_freezers`
 --
 
-CREATE TABLE IF NOT EXISTS`std_freezers` (
+CREATE TABLE IF NOT EXISTS `std_freezers` (
   `id` int(11) NOT NULL auto_increment,
   `storage_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -4522,7 +4753,7 @@ CREATE TABLE IF NOT EXISTS`std_freezers` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`std_freezers_revs` (
+CREATE TABLE IF NOT EXISTS `std_freezers_revs` (
   `id` int(11) NOT NULL,
   `storage_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -4540,7 +4771,7 @@ CREATE TABLE IF NOT EXISTS`std_freezers_revs` (
 -- Table structure for table `std_boxs`
 --
 
-CREATE TABLE IF NOT EXISTS`std_boxs` (
+CREATE TABLE IF NOT EXISTS `std_boxs` (
   `id` int(11) NOT NULL auto_increment,
   `storage_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -4552,7 +4783,7 @@ CREATE TABLE IF NOT EXISTS`std_boxs` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`std_boxs_revs` (
+CREATE TABLE IF NOT EXISTS `std_boxs_revs` (
   `id` int(11) NOT NULL,
   `storage_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -4570,7 +4801,7 @@ CREATE TABLE IF NOT EXISTS`std_boxs_revs` (
 -- Table structure for table `std_racks`
 --
 
-CREATE TABLE IF NOT EXISTS`std_racks` (
+CREATE TABLE IF NOT EXISTS `std_racks` (
   `id` int(11) NOT NULL auto_increment,
   `storage_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -4582,7 +4813,7 @@ CREATE TABLE IF NOT EXISTS`std_racks` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`std_racks_revs` (
+CREATE TABLE IF NOT EXISTS `std_racks_revs` (
   `id` int(11) NOT NULL,
   `storage_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -4600,7 +4831,7 @@ CREATE TABLE IF NOT EXISTS`std_racks_revs` (
 -- Table structure for table `std_shelfs`
 --
 
-CREATE TABLE IF NOT EXISTS`std_shelfs` (
+CREATE TABLE IF NOT EXISTS `std_shelfs` (
   `id` int(11) NOT NULL auto_increment,
   `storage_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -4612,7 +4843,7 @@ CREATE TABLE IF NOT EXISTS`std_shelfs` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`std_shelfs_revs` (
+CREATE TABLE IF NOT EXISTS `std_shelfs_revs` (
   `id` int(11) NOT NULL,
   `storage_master_id` int(11) default NULL,
   `created` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -4630,7 +4861,7 @@ CREATE TABLE IF NOT EXISTS`std_shelfs_revs` (
 -- Table structure for table `std_incubators`
 --
 
-CREATE TABLE IF NOT EXISTS`std_incubators` (
+CREATE TABLE IF NOT EXISTS `std_incubators` (
   `id` int(11) NOT NULL auto_increment,
   `storage_master_id` int(11) default NULL,
   `oxygen_perc` varchar(10) default NULL,
@@ -4644,7 +4875,7 @@ CREATE TABLE IF NOT EXISTS`std_incubators` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`std_incubators_revs` (
+CREATE TABLE IF NOT EXISTS `std_incubators_revs` (
   `id` int(11) NOT NULL,
   `storage_master_id` int(11) default NULL,
   `oxygen_perc` varchar(10) default NULL,
@@ -4664,7 +4895,7 @@ CREATE TABLE IF NOT EXISTS`std_incubators_revs` (
 -- Table structure for table `std_rooms`
 -- 
 
-CREATE TABLE IF NOT EXISTS`std_rooms` (
+CREATE TABLE IF NOT EXISTS `std_rooms` (
   `id` int(11) NOT NULL auto_increment,
   `storage_master_id` int(11) default NULL,
   `laboratory` varchar(50) default NULL,
@@ -4678,7 +4909,7 @@ CREATE TABLE IF NOT EXISTS`std_rooms` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`std_rooms_revs` (
+CREATE TABLE IF NOT EXISTS `std_rooms_revs` (
   `id` int(11) NOT NULL,
   `storage_master_id` int(11) default NULL,
   `laboratory` varchar(50) default NULL,
@@ -4698,7 +4929,7 @@ CREATE TABLE IF NOT EXISTS`std_rooms_revs` (
 -- Table structure for table `std_tma_blocks`
 -- 
 
-CREATE TABLE IF NOT EXISTS`std_tma_blocks` (
+CREATE TABLE IF NOT EXISTS `std_tma_blocks` (
   `id` int(11) NOT NULL auto_increment,
   `storage_master_id` int(11) default NULL,
   `sop_master_id` int(11) default NULL,
@@ -4713,7 +4944,7 @@ CREATE TABLE IF NOT EXISTS`std_tma_blocks` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`std_tma_blocks_revs` (
+CREATE TABLE IF NOT EXISTS `std_tma_blocks_revs` (
   `id` int(11) NOT NULL,
   `storage_master_id` int(11) default NULL,
   `sop_master_id` int(11) default NULL,
@@ -4759,7 +4990,7 @@ CREATE TABLE IF NOT EXISTS `storage_controls` (
 -- Table structure for table `storage_coordinates`
 -- 
 
-CREATE TABLE IF NOT EXISTS`storage_coordinates` (
+CREATE TABLE IF NOT EXISTS `storage_coordinates` (
   `id` int(11) NOT NULL auto_increment,
   `storage_master_id` int(11) default NULL,
   `dimension` varchar(4) default '',
@@ -4775,7 +5006,7 @@ CREATE TABLE IF NOT EXISTS`storage_coordinates` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 
-CREATE TABLE IF NOT EXISTS`storage_coordinates_revs` (
+CREATE TABLE IF NOT EXISTS `storage_coordinates_revs` (
   `id` int(11) NOT NULL,
   `storage_master_id` int(11) default NULL,
   `dimension` varchar(4) default '',
@@ -4959,7 +5190,7 @@ CREATE TABLE IF NOT EXISTS `structure_formats` (
 -- Table structure for table `structure_options`
 --
 
-CREATE TABLE IF NOT EXISTS`structure_options` (
+CREATE TABLE IF NOT EXISTS `structure_options` (
   `id` int(11) NOT NULL auto_increment,
   `alias` varchar(50) character set latin1 default NULL,
   `section` varchar(50) character set latin1 default NULL,
@@ -4979,7 +5210,7 @@ CREATE TABLE IF NOT EXISTS`structure_options` (
 -- Table structure for table `structure_permissible_values`
 -- 
 
-CREATE TABLE IF NOT EXISTS`structure_permissible_values` (
+CREATE TABLE IF NOT EXISTS `structure_permissible_values` (
   `id` int(11) NOT NULL auto_increment,
   `value` varchar(255) NOT NULL,
   `language_alias` varchar(255) NOT NULL,
@@ -4990,7 +5221,7 @@ CREATE TABLE IF NOT EXISTS`structure_permissible_values` (
 -- Table structure for table `structure_validations`
 --
 
-CREATE TABLE IF NOT EXISTS`structure_validations` (
+CREATE TABLE IF NOT EXISTS `structure_validations` (
   `id` int(11) NOT NULL auto_increment,
   `old_id` varchar(255) character set latin1 NOT NULL default '0',
   `structure_field_id` INT(11) NOT NULL default 0,
@@ -5011,7 +5242,7 @@ CREATE TABLE IF NOT EXISTS`structure_validations` (
 -- Table structure for table `structure_value_domains`
 --
 
-CREATE TABLE IF NOT EXISTS`structure_value_domains` (
+CREATE TABLE IF NOT EXISTS `structure_value_domains` (
   `id` int(11) NOT NULL auto_increment,
   `domain_name` varchar(255) NOT NULL,
   `override` set('extend','locked','open') NOT NULL default 'open',
@@ -5037,7 +5268,7 @@ CREATE TABLE IF NOT EXISTS `structure_value_domains_permissible_values` (
 -- Table structure for table `study_contacts`
 --
 
-CREATE TABLE IF NOT EXISTS`study_contacts` (
+CREATE TABLE IF NOT EXISTS `study_contacts` (
   `id` int(11) NOT NULL auto_increment,
   `sort` int(11) default NULL,
   `prefix` int(11) default NULL,
@@ -5072,7 +5303,7 @@ CREATE TABLE IF NOT EXISTS`study_contacts` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`study_contacts_revs` (
+CREATE TABLE IF NOT EXISTS `study_contacts_revs` (
   `id` int(11) NOT NULL,
   `sort` int(11) default NULL,
   `prefix` int(11) default NULL,
@@ -5113,7 +5344,7 @@ CREATE TABLE IF NOT EXISTS`study_contacts_revs` (
 -- Table structure for table `study_ethicsboards`
 --
 
-CREATE TABLE IF NOT EXISTS`study_ethics_boards` (
+CREATE TABLE IF NOT EXISTS `study_ethics_boards` (
   `id` int(11) NOT NULL auto_increment,
   `ethics_board` varchar(255) default NULL,
   `restrictions` text,
@@ -5140,7 +5371,7 @@ CREATE TABLE IF NOT EXISTS`study_ethics_boards` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`study_ethics_boards_revs` (
+CREATE TABLE IF NOT EXISTS `study_ethics_boards_revs` (
   `id` int(11) NOT NULL,
   `ethics_board` varchar(255) default NULL,
   `restrictions` text,
@@ -5173,7 +5404,7 @@ CREATE TABLE IF NOT EXISTS`study_ethics_boards_revs` (
 -- Table structure for table `study_fundings`
 --
 
-CREATE TABLE IF NOT EXISTS`study_fundings` (
+CREATE TABLE IF NOT EXISTS `study_fundings` (
   `id` int(11) NOT NULL auto_increment,
   `study_sponsor` varchar(255) default NULL,
   `restrictions` text,
@@ -5206,7 +5437,7 @@ CREATE TABLE IF NOT EXISTS`study_fundings` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`study_fundings_revs` (
+CREATE TABLE IF NOT EXISTS `study_fundings_revs` (
   `id` int(11) NOT NULL,
   `study_sponsor` varchar(255) default NULL,
   `restrictions` text,
@@ -5245,7 +5476,7 @@ CREATE TABLE IF NOT EXISTS`study_fundings_revs` (
 -- Table structure for table `study_investigators`
 -- 
 
-CREATE TABLE IF NOT EXISTS`study_investigators` (
+CREATE TABLE IF NOT EXISTS `study_investigators` (
   `id` int(11) NOT NULL auto_increment,
   `first_name` varchar(255) default NULL,
   `middle_name` varchar(255) default NULL,
@@ -5275,7 +5506,7 @@ CREATE TABLE IF NOT EXISTS`study_investigators` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`study_investigators_revs` (
+CREATE TABLE IF NOT EXISTS `study_investigators_revs` (
   `id` int(11) NOT NULL,
   `first_name` varchar(255) default NULL,
   `middle_name` varchar(255) default NULL,
@@ -5311,7 +5542,7 @@ CREATE TABLE IF NOT EXISTS`study_investigators_revs` (
 -- Table structure for table `study_related`
 -- 
 
-CREATE TABLE IF NOT EXISTS`study_related` (
+CREATE TABLE IF NOT EXISTS `study_related` (
   `id` int(11) NOT NULL auto_increment,
   `title` varchar(255) default NULL,
   `principal_investigator` varchar(255) default NULL,
@@ -5332,7 +5563,7 @@ CREATE TABLE IF NOT EXISTS`study_related` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`study_related_revs` (
+CREATE TABLE IF NOT EXISTS `study_related_revs` (
   `id` int(11) NOT NULL,
   `title` varchar(255) default NULL,
   `principal_investigator` varchar(255) default NULL,
@@ -5359,7 +5590,7 @@ CREATE TABLE IF NOT EXISTS`study_related_revs` (
 -- Table structure for table `study_results`
 -- 
 
-CREATE TABLE IF NOT EXISTS`study_results` (
+CREATE TABLE IF NOT EXISTS `study_results` (
   `id` int(11) NOT NULL auto_increment,
   `abstract` text,
   `hypothesis` text,
@@ -5378,7 +5609,7 @@ CREATE TABLE IF NOT EXISTS`study_results` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`study_results_revs` (
+CREATE TABLE IF NOT EXISTS `study_results_revs` (
   `id` int(11) NOT NULL,
   `abstract` text,
   `hypothesis` text,
@@ -5403,7 +5634,7 @@ CREATE TABLE IF NOT EXISTS`study_results_revs` (
 -- Table structure for table `study_reviews`
 -- 
 
-CREATE TABLE IF NOT EXISTS`study_reviews` (
+CREATE TABLE IF NOT EXISTS `study_reviews` (
   `id` int(11) NOT NULL auto_increment,
   `prefix` int(11) default NULL,
   `first_name` varchar(255) default NULL,
@@ -5426,7 +5657,7 @@ CREATE TABLE IF NOT EXISTS`study_reviews` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`study_reviews_revs` (
+CREATE TABLE IF NOT EXISTS `study_reviews_revs` (
   `id` int(11) NOT NULL,
   `prefix` int(11) default NULL,
   `first_name` varchar(255) default NULL,
@@ -5455,7 +5686,7 @@ CREATE TABLE IF NOT EXISTS`study_reviews_revs` (
 -- Table structure for table `study_summaries`
 -- 
 
-CREATE TABLE IF NOT EXISTS`study_summaries` (
+CREATE TABLE IF NOT EXISTS `study_summaries` (
   `id` int(11) NOT NULL auto_increment,
   `disease_site` varchar(50) default NULL,
   `study_type` varchar(50) default NULL,
@@ -5481,7 +5712,7 @@ CREATE TABLE IF NOT EXISTS`study_summaries` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`study_summaries_revs` (
+CREATE TABLE IF NOT EXISTS `study_summaries_revs` (
   `id` int(11) NOT NULL,
   `disease_site` varchar(50) default NULL,
   `study_type` varchar(50) default NULL,
@@ -5568,7 +5799,7 @@ CREATE TABLE IF NOT EXISTS `tma_slides_revs` (
 -- Table structure for table `txd_chemos`
 -- 
 
-CREATE TABLE IF NOT EXISTS`txd_chemos` (
+CREATE TABLE IF NOT EXISTS `txd_chemos` (
   `id` int(11) NOT NULL auto_increment,
   `chemo_completed` varchar(50) default NULL,
   `response` varchar(50) default NULL,
@@ -5586,7 +5817,7 @@ CREATE TABLE IF NOT EXISTS`txd_chemos` (
   KEY `tx_master_id` (`tx_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`txd_chemos_revs` (
+CREATE TABLE IF NOT EXISTS `txd_chemos_revs` (
   `id` int(11) NOT NULL,
   `chemo_completed` varchar(50) default NULL,
   `response` varchar(50) default NULL,
@@ -5609,7 +5840,7 @@ CREATE TABLE IF NOT EXISTS`txd_chemos_revs` (
 -- Table structure for table `txd_radiations`
 -- 
 
-CREATE TABLE IF NOT EXISTS`txd_radiations` (
+CREATE TABLE IF NOT EXISTS `txd_radiations` (
   `id` int(11) NOT NULL auto_increment,
   `rad_completed` varchar(50) default NULL,
   `tx_master_id` int(11) default NULL,
@@ -5623,7 +5854,7 @@ CREATE TABLE IF NOT EXISTS`txd_radiations` (
   KEY `tx_master_id` (`tx_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`txd_radiations_revs` (
+CREATE TABLE IF NOT EXISTS `txd_radiations_revs` (
   `id` int(11) NOT NULL,
   `rad_completed` varchar(50) default NULL,
   `tx_master_id` int(11) default NULL,
@@ -5642,7 +5873,7 @@ CREATE TABLE IF NOT EXISTS`txd_radiations_revs` (
 -- Table structure for table `txd_surgeries`
 -- 
 
-CREATE TABLE IF NOT EXISTS`txd_surgeries` (
+CREATE TABLE IF NOT EXISTS `txd_surgeries` (
   `id` int(11) NOT NULL auto_increment,
   `path_num` varchar(50) default NULL,
   `primary` varchar(50) default NULL,
@@ -5657,7 +5888,7 @@ CREATE TABLE IF NOT EXISTS`txd_surgeries` (
   KEY `tx_master_id` (`tx_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`txd_surgeries_revs` (
+CREATE TABLE IF NOT EXISTS `txd_surgeries_revs` (
   `id` int(11) NOT NULL,
   `path_num` varchar(50) default NULL,
   `primary` varchar(50) default NULL,
@@ -5677,7 +5908,7 @@ CREATE TABLE IF NOT EXISTS`txd_surgeries_revs` (
 -- Table structure for table `txe_chemos`
 -- 
 
-CREATE TABLE IF NOT EXISTS`txe_chemos` (
+CREATE TABLE IF NOT EXISTS `txe_chemos` (
   `id` int(11) NOT NULL auto_increment,
   `dose` varchar(50) default NULL,
   `method` varchar(50) default NULL,
@@ -5692,7 +5923,7 @@ CREATE TABLE IF NOT EXISTS`txe_chemos` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`txe_chemos_revs` (
+CREATE TABLE IF NOT EXISTS `txe_chemos_revs` (
   `id` int(11) NOT NULL,
   `dose` varchar(50) default NULL,
   `method` varchar(50) default NULL,
@@ -5713,7 +5944,7 @@ CREATE TABLE IF NOT EXISTS`txe_chemos_revs` (
 -- Table structure for table `txe_radiations`
 -- 
 
-CREATE TABLE IF NOT EXISTS`txe_radiations` (
+CREATE TABLE IF NOT EXISTS `txe_radiations` (
   `id` int(11) NOT NULL auto_increment,
   `modaility` varchar(50) default NULL,
   `technique` varchar(50) default NULL,
@@ -5736,7 +5967,7 @@ CREATE TABLE IF NOT EXISTS`txe_radiations` (
   KEY `tx_master_id` (`tx_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`txe_radiations_revs` (
+CREATE TABLE IF NOT EXISTS `txe_radiations_revs` (
   `id` int(11) NOT NULL,
   `modaility` varchar(50) default NULL,
   `technique` varchar(50) default NULL,
@@ -5764,7 +5995,7 @@ CREATE TABLE IF NOT EXISTS`txe_radiations_revs` (
 -- Table structure for table `txe_surgeries`
 -- 
 
-CREATE TABLE IF NOT EXISTS`txe_surgeries` (
+CREATE TABLE IF NOT EXISTS `txe_surgeries` (
   `id` int(11) NOT NULL auto_increment,
   `surgical_procedure` varchar(50) default NULL,
   `tx_master_id` int(11) default NULL,
@@ -5778,7 +6009,7 @@ CREATE TABLE IF NOT EXISTS`txe_surgeries` (
   KEY `tx_master_id` (`tx_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS`txe_surgeries_revs` (
+CREATE TABLE IF NOT EXISTS `txe_surgeries_revs` (
   `id` int(11) NOT NULL,
   `surgical_procedure` varchar(50) default NULL,
   `tx_master_id` int(11) default NULL,
@@ -5797,7 +6028,7 @@ CREATE TABLE IF NOT EXISTS`txe_surgeries_revs` (
 -- Table structure for table `tx_controls`
 -- 
 
-CREATE TABLE IF NOT EXISTS`tx_controls` (
+CREATE TABLE IF NOT EXISTS `tx_controls` (
   `id` int(11) NOT NULL auto_increment,
   `tx_method` varchar(50) default NULL,
   `disease_site` varchar(50) default NULL,
@@ -5875,7 +6106,7 @@ CREATE TABLE IF NOT EXISTS `tx_masters_revs` (
 -- Table structure for table `users`
 -- 
 
-CREATE TABLE IF NOT EXISTS`users` (
+CREATE TABLE IF NOT EXISTS `users` (
   `id` int(11) NOT NULL auto_increment,
   `username` varchar(200) NOT NULL default '',
   `first_name` varchar(50) default NULL,
@@ -5908,7 +6139,7 @@ CREATE TABLE IF NOT EXISTS`users` (
 -- Table structure for table `user_logs`
 -- 
 
-CREATE TABLE IF NOT EXISTS`user_logs` (
+CREATE TABLE IF NOT EXISTS `user_logs` (
   `id` int(11) NOT NULL auto_increment,
   `user_id` int(11) default NULL,
   `url` text NOT NULL,
@@ -5921,7 +6152,7 @@ CREATE TABLE IF NOT EXISTS`user_logs` (
 -- Table structure for table `versions`
 --
 
-CREATE TABLE IF NOT EXISTS`versions` (
+CREATE TABLE IF NOT EXISTS `versions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `version_number` VARCHAR(255) NOT NULL,
   `date_installed` TIMESTAMP NOT NULL default CURRENT_TIMESTAMP,
@@ -5933,1125 +6164,4 @@ CREATE TABLE IF NOT EXISTS`versions` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-#menus is rebuilt from scratch - new version, no way we'll recylcle old menus
-DROP TABLE `menus`;
-CREATE TABLE IF NOT EXISTS `menus` (
-  `id` varchar(255) NOT NULL DEFAULT '',
-  `parent_id` varchar(255) DEFAULT NULL,
-  `is_root` int(11) NOT NULL DEFAULT '0',
-  `display_order` int(11) NOT NULL DEFAULT '0',
-  `language_title` text NOT NULL,
-  `language_description` text,
-  `use_link` varchar(255) NOT NULL DEFAULT '',
-  `use_params` varchar(255) NOT NULL,
-  `use_summary` varchar(255) NOT NULL,
-  `active` varchar(255) NOT NULL DEFAULT 'yes',
-  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `created_by` int(10) unsigned NOT NULL,
-  `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `modified_by` int(10) unsigned NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
-
-DROP TABLE IF EXISTS `structures`;
-CREATE TABLE `structures` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `old_id` varchar(255) NOT NULL,
-  `alias` varchar(255) NOT NULL,
-  `description` text,
-  `language_title` text NOT NULL,
-  `language_help` text NOT NULL,
-  `flag_add_columns` set('0','1') NOT NULL DEFAULT '0',
-  `flag_edit_columns` set('0','1') NOT NULL DEFAULT '0',
-  `flag_search_columns` set('0','1') NOT NULL DEFAULT '0',
-  `flag_detail_columns` set('0','1') NOT NULL DEFAULT '0',
-  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `created_by` int(10) unsigned NOT NULL,
-  `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `modified_by` int(10) unsigned NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_alias` (`alias`),
-  UNIQUE KEY `old_id` (`old_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=210 ;
-
-CREATE TABLE IF NOT EXISTS `structure_fields` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `public_identifier` varchar(50) NOT NULL,
-  `old_id` varchar(255) NOT NULL,
-  `plugin` varchar(255) NOT NULL DEFAULT '',
-  `model` varchar(255) NOT NULL DEFAULT '',
-  `tablename` varchar(255) NOT NULL DEFAULT '',
-  `field` varchar(255) NOT NULL DEFAULT '',
-  `language_label` text NOT NULL,
-  `language_tag` text NOT NULL,
-  `type` varchar(255) NOT NULL DEFAULT 'input',
-  `setting` text NOT NULL,
-  `default` varchar(255) NOT NULL,
-  `structure_value_domain` int(11) DEFAULT NULL,
-  `language_help` text NOT NULL,
-  `validation_control` varchar(50) NOT NULL DEFAULT 'open',
-  `value_domain_control` varchar(50) NOT NULL DEFAULT 'open',
-  `field_control` varchar(50) NOT NULL DEFAULT 'open',
-  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `created_by` int(10) unsigned NOT NULL,
-  `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `modified_by` int(10) unsigned NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `old_id` (`old_id`),
-  KEY `FK_structure_fields_structure_value_domains` (`structure_value_domain`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=958 ;
-
-CREATE TABLE IF NOT EXISTS `structure_formats` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `old_id` varchar(255) NOT NULL,
-  `structure_id` int(11) NOT NULL,
-  `structure_old_id` varchar(255) NOT NULL,
-  `structure_field_id` int(11) NOT NULL,
-  `structure_field_old_id` varchar(255) NOT NULL,
-  `display_column` int(11) NOT NULL DEFAULT '1',
-  `display_order` int(11) NOT NULL DEFAULT '0',
-  `language_heading` varchar(255) NOT NULL DEFAULT '',
-  `flag_override_label` set('0','1') NOT NULL DEFAULT '0',
-  `language_label` text NOT NULL,
-  `flag_override_tag` set('0','1') NOT NULL DEFAULT '0',
-  `language_tag` text NOT NULL,
-  `flag_override_help` set('0','1') NOT NULL DEFAULT '0',
-  `language_help` text NOT NULL,
-  `flag_override_type` set('0','1') NOT NULL DEFAULT '0',
-  `type` varchar(255) NOT NULL DEFAULT '',
-  `flag_override_setting` set('0','1') NOT NULL DEFAULT '0',
-  `setting` varchar(255) NOT NULL DEFAULT '',
-  `flag_override_default` set('0','1') NOT NULL DEFAULT '0',
-  `default` varchar(255) NOT NULL DEFAULT '',
-  `flag_add` set('0','1') NOT NULL DEFAULT '0',
-  `flag_add_readonly` set('0','1') NOT NULL DEFAULT '0',
-  `flag_edit` set('0','1') NOT NULL DEFAULT '0',
-  `flag_edit_readonly` set('0','1') NOT NULL DEFAULT '0',
-  `flag_search` set('0','1') NOT NULL DEFAULT '0',
-  `flag_search_readonly` set('0','1') NOT NULL DEFAULT '0',
-  `flag_datagrid` set('0','1') NOT NULL DEFAULT '0',
-  `flag_datagrid_readonly` set('0','1') NOT NULL DEFAULT '0',
-  `flag_index` set('0','1') NOT NULL DEFAULT '0',
-  `flag_detail` set('0','1') NOT NULL DEFAULT '0',
-  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `created_by` int(10) unsigned NOT NULL,
-  `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `modified_by` int(10) unsigned NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `old_id` (`old_id`),
-  KEY `FK_structure_formats_structures` (`structure_id`),
-  KEY `FK_structure_formats_structure_fields` (`structure_field_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2560 ;
-
-CREATE TABLE IF NOT EXISTS `structure_permissible_values` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `value` varchar(255) NOT NULL,
-  `language_alias` varchar(255) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `value` (`value`,`language_alias`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=845 ;
-
-DROP TABLE IF EXISTS `structure_validations`;
-CREATE TABLE `structure_validations` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `old_id` varchar(255) NOT NULL,
-  `structure_field_id` int(11) NOT NULL,
-  `structure_field_old_id` varchar(255) NOT NULL,
-  `rule` text NOT NULL,
-  `flag_empty` set('0','1') NOT NULL DEFAULT '0',
-  `flag_required` set('0','1') NOT NULL DEFAULT '0',
-  `on_action` varchar(255) NOT NULL,
-  `language_message` text NOT NULL,
-  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `created_by` int(10) unsigned NOT NULL,
-  `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `modified_by` int(10) unsigned NOT NULL,
-  PRIMARY KEY (`id`),
-  #UNIQUE KEY `old_id` (`old_id`),
-  KEY `FK_structure_validations_structure_fields` (`structure_field_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=81 ;
-
-DROP TABLE IF EXISTS `structure_value_domains`;
-CREATE TABLE `structure_value_domains` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `domain_name` varchar(255) NOT NULL,
-  `override` set('extend','locked','open') NOT NULL DEFAULT 'open',
-  `category` varchar(255) NOT NULL,
-  `source` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-  #UNIQUE KEY `domain_name` (`domain_name`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=188 ;
-
-CREATE TABLE IF NOT EXISTS `structure_value_domains_permissible_values` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `structure_value_domain_id` varchar(255) NOT NULL,
-  `structure_permissible_value_id` varchar(255) NOT NULL,
-  `display_order` int(11) NOT NULL DEFAULT '0',
-  `active` set('yes','no') NOT NULL DEFAULT 'yes',
-  `language_alias` varchar(255) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1038 ;
-
-DROP TABLE IF EXISTS `pages`;
-CREATE TABLE `pages` (
-  `id` varchar(100) NOT NULL DEFAULT '',
-  `error_flag` tinyint(4) NOT NULL DEFAULT '0',
-  `language_title` varchar(255) NOT NULL DEFAULT '',
-  `language_body` text NOT NULL,
-  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `created_by` int(10) unsigned NOT NULL,
-  `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `modified_by` int(10) unsigned NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
-CREATE TABLE IF NOT EXISTS `aros` (
-  `id` int(10) NOT NULL AUTO_INCREMENT,
-  `parent_id` int(10) DEFAULT NULL,
-  `model` varchar(255) DEFAULT NULL,
-  `foreign_key` int(10) DEFAULT NULL,
-  `alias` varchar(255) DEFAULT NULL,
-  `lft` int(10) DEFAULT NULL,
-  `rght` int(10) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `aros_idx1` (`lft`,`rght`),
-  KEY `aros_idx2` (`alias`),
-  KEY `aros_idx3` (`model`,`foreign_key`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=7 ;
-
-CREATE TABLE IF NOT EXISTS `aros_acos` (
-  `id` int(10) NOT NULL AUTO_INCREMENT,
-  `aro_id` int(10) NOT NULL,
-  `aco_id` int(10) NOT NULL,
-  `_create` varchar(2) NOT NULL DEFAULT '0',
-  `_read` varchar(2) NOT NULL DEFAULT '0',
-  `_update` varchar(2) NOT NULL DEFAULT '0',
-  `_delete` varchar(2) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `ARO_ACO_KEY` (`aro_id`,`aco_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=4 ;
-
-ERROR 1048 (23000): Column 'structure_field_id' cannot be null
-Query OK, 0 rows affected (0,01 sec)
-
-Query OK, 1 row affected, 2 warnings (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 7 rows affected (0,00 sec)
-Records: 7  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 1 row affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 4 rows affected (0,00 sec)
-Records: 4  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 1 row affected (0,00 sec)
-
-Query OK, 0 rows affected (0,01 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 2 rows affected (0,22 sec)
-Records: 2  Duplicates: 0  Warnings: 0
-
-Query OK, 2 rows affected (0,30 sec)
-Records: 2  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 1 row affected (0,07 sec)
-Records: 1  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 4 rows affected (0,01 sec)
-Rows matched: 4  Changed: 4  Warnings: 0
-
-Query OK, 20 rows affected (0,14 sec)
-Records: 20  Duplicates: 0  Warnings: 0
-
-Query OK, 20 rows affected, 26 warnings (0,13 sec)
-Records: 20  Duplicates: 0  Warnings: 26
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 20 rows affected (0,01 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 0 rows affected (0,16 sec)
-Records: 0  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,09 sec)
-Records: 0  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,14 sec)
-Records: 0  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 1 row affected (0,15 sec)
-Records: 1  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,15 sec)
-Records: 0  Duplicates: 0  Warnings: 0
-
-Query OK, 2 rows affected (0,13 sec)
-Records: 2  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,13 sec)
-Records: 0  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 13 rows affected (0,01 sec)
-
-Query OK, 21 rows affected (0,00 sec)
-Records: 21  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 1 row affected (0,00 sec)
-Rows matched: 1  Changed: 1  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,01 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,07 sec)
-Records: 0  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,14 sec)
-Records: 0  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 1 row affected (0,01 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 1 row affected, 2 warnings (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 0 rows affected (0,02 sec)
-Records: 0  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,01 sec)
-Records: 0  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 1 row affected (0,01 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 1 row affected (0,00 sec)
-
-Query OK, 0 rows affected (0,01 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,38 sec)
-
-Query OK, 0 rows affected (0,10 sec)
-
-Query OK, 0 rows affected (0,12 sec)
-
-Query OK, 1 row affected (0,00 sec)
-
-ERROR 1048 (23000): Column 'structure_value_domain_id' cannot be null
-Query OK, 1 row affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 3 rows affected (0,00 sec)
-Records: 3  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,01 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,02 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-Records: 0  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,01 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 1 row affected (0,08 sec)
-Records: 1  Duplicates: 0  Warnings: 0
-
-Query OK, 2 rows affected (0,00 sec)
-Records: 2  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 1 row affected, 1 warning (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 2 rows affected, 1 warning (0,00 sec)
-Records: 2  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,01 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 1 row affected (0,06 sec)
-Records: 1  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 1 row affected (0,00 sec)
-Rows matched: 1  Changed: 1  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,03 sec)
-Records: 0  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 1 row affected, 2 warnings (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-Records: 0  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 1 row affected, 2 warnings (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 0 rows affected (0,04 sec)
-Records: 0  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 1 row affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 1 row affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 0 rows affected (0,06 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 1 row affected (0,00 sec)
-Rows matched: 1  Changed: 1  Warnings: 0
-
-Query OK, 1 row affected (0,00 sec)
-Rows matched: 1  Changed: 1  Warnings: 0
-
-Query OK, 0 rows affected (0,14 sec)
-
-Query OK, 0 rows affected (0,14 sec)
-
-Query OK, 1 row affected (0,00 sec)
-
-Query OK, 3 rows affected (0,00 sec)
-Records: 3  Duplicates: 0  Warnings: 0
-
-Query OK, 1 row affected (0,00 sec)
-
-ERROR 1048 (23000): Column 'structure_value_domain_id' cannot be null
-Query OK, 2 rows affected (0,00 sec)
-Records: 2  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,01 sec)
-Records: 0  Duplicates: 0  Warnings: 0
-
-Query OK, 1 row affected, 2 warnings (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 0 rows affected (0,01 sec)
-Records: 0  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 1 row affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 1 row affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,09 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-Records: 0  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 1 row affected (0,00 sec)
-Rows matched: 1  Changed: 1  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 6 rows affected (0,11 sec)
-Records: 6  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,07 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 1 row affected (0,00 sec)
-Rows matched: 1  Changed: 1  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 2663 rows affected, 24 warnings (0,32 sec)
-Records: 2663  Duplicates: 0  Warnings: 24
-
-Query OK, 43 rows affected (0,00 sec)
-Records: 43  Duplicates: 0  Warnings: 0
-
-Query OK, 5278 rows affected (0,38 sec)
-Records: 5278  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,08 sec)
-Records: 0  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 1 row affected, 1 warning (0,01 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-ERROR 1048 (23000): Column 'structure_permissible_value_id' cannot be null
-Query OK, 1 row affected (0,00 sec)
-
-Query OK, 0 rows affected (0,01 sec)
-
-Query OK, 1 row affected (0,01 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-ERROR 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`atim_nd`.`structure_formats`, CONSTRAINT `FK_structure_formats_structures` FOREIGN KEY (`structure_id`) REFERENCES `structures` (`id`))
-Query OK, 1 row affected (0,00 sec)
-
-Query OK, 1 row affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-ERROR 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`atim_nd`.`structure_formats`, CONSTRAINT `FK_structure_formats_structures` FOREIGN KEY (`structure_id`) REFERENCES `structures` (`id`))
-Query OK, 1 row affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-ERROR 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`atim_nd`.`structure_formats`, CONSTRAINT `FK_structure_formats_structures` FOREIGN KEY (`structure_id`) REFERENCES `structures` (`id`))
-Query OK, 1 row affected (0,01 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-ERROR 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`atim_nd`.`structure_formats`, CONSTRAINT `FK_structure_formats_structures` FOREIGN KEY (`structure_id`) REFERENCES `structures` (`id`))
-Query OK, 1 row affected (0,00 sec)
-
-ERROR 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`atim_nd`.`structure_formats`, CONSTRAINT `FK_structure_formats_structures` FOREIGN KEY (`structure_id`) REFERENCES `structures` (`id`))
-Query OK, 3 rows affected (0,11 sec)
-Records: 3  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-ERROR 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`atim_nd`.`structure_formats`, CONSTRAINT `FK_structure_formats_structures` FOREIGN KEY (`structure_id`) REFERENCES `structures` (`id`))
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 16 rows affected (0,13 sec)
-Records: 16  Duplicates: 0  Warnings: 0
-
-Query OK, 1 row affected, 2 warnings (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 1 row affected (0,01 sec)
-
-Query OK, 1 row affected (0,00 sec)
-
-Query OK, 1 row affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,22 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 1 row affected (0,00 sec)
-
-Query OK, 1 row affected (0,01 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 465 rows affected (0,34 sec)
-Records: 465  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 3 rows affected (0,00 sec)
-Records: 3  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 1 row affected, 2 warnings (0,00 sec)
-
-Query OK, 1 row affected, 2 warnings (0,01 sec)
-
-Query OK, 2 rows affected (0,00 sec)
-Records: 2  Duplicates: 0  Warnings: 0
-
-Query OK, 1 row affected (0,01 sec)
-
-Query OK, 1 row affected (0,01 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 1 row affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 1 row affected (0,00 sec)
-
-Query OK, 1 row affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 24 rows affected, 48 warnings (0,01 sec)
-Records: 24  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 0 rows affected (0,00 sec)
-
-Query OK, 769 rows affected, 1 warning (0,05 sec)
-Records: 769  Duplicates: 0  Warnings: 1
-
-Query OK, 505 rows affected (0,03 sec)
-Records: 505  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 1 row affected (0,00 sec)
-Rows matched: 1  Changed: 1  Warnings: 0
-
-Query OK, 1 row affected (0,00 sec)
-Rows matched: 1  Changed: 1  Warnings: 0
-
-Query OK, 1 row affected (0,01 sec)
-Rows matched: 1  Changed: 1  Warnings: 0
-
-Query OK, 1 row affected (0,00 sec)
-Rows matched: 1  Changed: 1  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,28 sec)
-Records: 0  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,12 sec)
-Records: 0  Duplicates: 0  Warnings: 0
-
-Query OK, 3772 rows affected, 962 warnings (0,23 sec)
-Records: 3772  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,08 sec)
-Records: 0  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,12 sec)
-Records: 0  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,14 sec)
-Records: 0  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,15 sec)
-Records: 0  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,12 sec)
-Records: 0  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,12 sec)
-Records: 0  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,12 sec)
-Records: 0  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,13 sec)
-Records: 0  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,12 sec)
-Records: 0  Duplicates: 0  Warnings: 0
-
-Query OK, 4 rows affected (0,41 sec)
-Records: 4  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,21 sec)
-Records: 0  Duplicates: 0  Warnings: 0
-
-Query OK, 64566 rows affected, 13711 warnings (2,86 sec)
-Records: 64566  Duplicates: 0  Warnings: 887
-
-Query OK, 0 rows affected (0,06 sec)
-Records: 0  Duplicates: 0  Warnings: 0
-
-Query OK, 517 rows affected (0,33 sec)
-Records: 517  Duplicates: 0  Warnings: 0
-
-Query OK, 0 rows affected (0,15 sec)
-Records: 0  Duplicates: 0  Warnings: 0
 
