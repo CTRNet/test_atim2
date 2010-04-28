@@ -1,92 +1,64 @@
-#alter existing tables to fit the newest schema. Add foreign keys and data in control tables
+#Alter existing tables to fit the newest schema. 
+#Add foreign keys and data in control tables
+
+##########################################################################
+# INVENTORY
+##########################################################################
 
 ALTER TABLE ad_tubes
     ADD cell_count decimal(10,2) NULL DEFAULT NULL COMMENT '' AFTER concentration_unit,
     ADD cell_count_unit varchar(20) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER cell_count,
-    ADD tmp_storage_method varchar(20) NULL DEFAULT NULL,
+    ADD cell_passage_number varchar(10) NULL DEFAULT NULL AFTER cell_count_unit,
+    ADD tmp_storage_method varchar(30) NULL DEFAULT NULL AFTER cell_passage_number,
     ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
     ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
     MODIFY aliquot_master_id int(11) NULL DEFAULT NULL COMMENT '';
+    
+ALTER TABLE ad_tubes_revs
+    ADD cell_passage_number varchar(10) NULL DEFAULT NULL AFTER cell_count_unit,
+    ADD tmp_storage_method varchar(30) NULL DEFAULT NULL AFTER cell_passage_number,    
+    ADD tmp_storage_solution varchar(30) NULL DEFAULT NULL AFTER tmp_storage_method;
 
+#mode ad_cell_culture_tubes to ad_tubes
+INSERT INTO ad_tubes (aliquot_master_id, lot_number, concentration, concentration_unit, cell_count, cell_count_unit, tmp_storage_solution, cell_passage_number, created, created_by, modified, modified_by)
+(SELECT aliquot_master_id, lot_number, concentration, concentration_unit, cell_count, cell_count_unit, tmp_storage_solution, cell_passage_number, created, created_by, modified, modified_by FROM ad_cell_culture_tubes); 
+
+DROP TABLE ad_cell_culture_tubes;    
+UPDATE aliquot_controls SET detail_tablename = 'ad_tubes' WHERE detail_tablename = 'ad_cell_culture_tubes'; 
+
+#move ad_cell_tubes to ad_tubes
+INSERT INTO ad_tubes (aliquot_master_id, lot_number, concentration, concentration_unit, cell_count, cell_count_unit, created, created_by, modified, modified_by) 
+(SELECT aliquot_master_id, lot_number, concentration, concentration_unit, cell_count, cell_count_unit, created, created_by, modified, modified_by FROM ad_cell_tubes);
+
+DROP TABLE ad_cell_tubes;
+UPDATE aliquot_controls SET detail_tablename = 'ad_tubes' WHERE detail_tablename = 'ad_cell_tubes'; 
+
+#move ad_tissue_tubes to ad_tubes
+INSERT INTO ad_tubes (aliquot_master_id, tmp_storage_solution, tmp_storage_method, created, created_by, modified, modified_by) 
+(SELECT aliquot_master_id, tmp_storage_solution, tmp_storage_method, created, created_by, modified, modified_by FROM ad_tissue_tubes);
+
+DROP TABLE ad_tissue_tubes;
+UPDATE aliquot_controls SET detail_tablename = 'ad_tubes' WHERE detail_tablename = 'ad_tissue_tubes'; 
 
 ALTER TABLE ad_blocks
     CHANGE type block_type varchar(30) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER aliquot_master_id,
     ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
     ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    MODIFY aliquot_master_id int(11) NULL DEFAULT NULL COMMENT ''
-    #,DROP sample_position_code,
-    ;
-#
-#  Fieldformat of
-#    ad_blocks.aliquot_master_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
-#  Possibly data modifications needed!
-#
+    MODIFY aliquot_master_id int(11) NULL DEFAULT NULL COMMENT '';
+    
+ALTER TABLE ad_blocks_revs
+    ADD sample_position_code varchar(10) NULL DEFAULT NULL AFTER block_type,	
+    ADD tmp_gleason_primary_grade varchar(5) NULL DEFAULT NULL AFTER patho_dpt_block_code,	
+    ADD tmp_gleason_secondary_grade varchar(5) NULL DEFAULT NULL AFTER tmp_gleason_primary_grade,	
+    ADD tmp_tissue_primary_desc varchar(20) NULL DEFAULT NULL AFTER tmp_gleason_secondary_grade,	
+    ADD tmp_tissue_secondary_desc varchar(20) NULL DEFAULT NULL AFTER tmp_tissue_primary_desc,	
+    ADD path_report_code varchar(40) NULL DEFAULT NULL AFTER tmp_tissue_secondary_desc;	
 
-ALTER TABLE ad_cell_cores
-    CHANGE ad_gel_matrix_id gel_matrix_aliquot_master_id int(11) NULL DEFAULT NULL COMMENT '' AFTER aliquot_master_id,
-    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    MODIFY aliquot_master_id int(11) NULL DEFAULT NULL COMMENT '',
-    DROP FOREIGN KEY ad_cell_cores_ibfk_1,
-    DROP FOREIGN KEY ad_cell_cores_ibfk_2,
-    ADD FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`),
-    ADD FOREIGN KEY (`gel_matrix_aliquot_master_id`) REFERENCES `aliquot_masters` (`id`);    
-#
-#  Fieldformat of
-#    ad_cell_cores.aliquot_master_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
-#  Possibly data modifications needed!
-#
-
-#mode ad_cell_culture_tubes to ad_tubes
-INSERT INTO ad_tubes (aliquot_master_id, lot_number, concentration, concentration_unit, cell_count, cell_count_unit, tmp_storage_solution, created, created_by, modified, modified_by)
-(SELECT aliquot_master_id, lot_number, concentration, concentration_unit, cell_count, cell_count_unit, tmp_storage_solution, created, created_by, modified, modified_by FROM ad_cell_culture_tubes); 
-DROP TABLE ad_cell_culture_tubes;
-
-ALTER TABLE ad_cell_slides
+ALTER TABLE ad_whatman_papers
     ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
     ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
     MODIFY aliquot_master_id int(11) NULL DEFAULT NULL COMMENT '';
-#
-#  Fieldformat of
-#    ad_cell_slides.aliquot_master_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
-#  Possibly data modifications needed!
-#
-
-#move ad_cell_tubes to ad_tubes
-INSERT INTO ad_tubes (aliquot_master_id, lot_number, concentration, concentration_unit, cell_count, cell_count_unit, created, created_by, modified, modified_by) 
-(SELECT aliquot_master_id, lot_number, concentration, concentration_unit, cell_count, cell_count_unit, created, created_by, modified, modified_by FROM ad_cell_tubes);
-DROP TABLE ad_cell_tubes;
-
-ALTER TABLE ad_gel_matrices
-    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    MODIFY aliquot_master_id int(11) NULL DEFAULT NULL COMMENT '';
-#
-#  Fieldformat of
-#    ad_gel_matrices.aliquot_master_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
-#  Possibly data modifications needed!
-#
-
-RENAME TABLE ad_tissue_bags TO ad_bags;
-ALTER TABLE ad_bags
-	ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted;
-
-ALTER TABLE ad_tissue_cores
-    CHANGE ad_block_id block_aliquot_master_id int(11) NULL DEFAULT NULL COMMENT '' AFTER aliquot_master_id,
-    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    MODIFY aliquot_master_id int(11) NULL DEFAULT NULL COMMENT '',
-    DROP FOREIGN KEY ad_tissue_cores_ibfk_1,
-    DROP FOREIGN KEY ad_tissue_cores_ibfk_2,
-    ADD FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`),
-    ADD FOREIGN KEY (`block_aliquot_master_id`) REFERENCES `aliquot_masters` (`id`);
-#
-#  Fieldformat of
-#    ad_tissue_cores.aliquot_master_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
-#  Possibly data modifications needed!
-#
-
+    
 ALTER TABLE ad_tissue_slides
     CHANGE ad_block_id block_aliquot_master_id int(11) NULL DEFAULT NULL COMMENT '' AFTER immunochemistry,
     ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
@@ -96,43 +68,16 @@ ALTER TABLE ad_tissue_slides
     DROP FOREIGN KEY ad_tissue_slides_ibfk_2,
     ADD FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`),
     ADD FOREIGN KEY (`block_aliquot_master_id`) REFERENCES `aliquot_masters` (`id`);
-#
-#  Fieldformat of
-#    ad_tissue_slides.aliquot_master_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
-#  Possibly data modifications needed!
-#
-
-INSERT INTO ad_tubes (aliquot_master_id, tmp_storage_solution, tmp_storage_method, created, created_by, modified, modified_by) 
-(SELECT aliquot_master_id, tmp_storage_solution, tmp_storage_method, created, created_by, modified, modified_by FROM ad_tissue_tubes);
-DROP TABLE ad_tissue_tubes;
-#
-#  Fieldformat of
-#    ad_tubes.aliquot_master_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
-#  Possibly data modifications needed!
-#
-
-ALTER TABLE ad_whatman_papers
-    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted;
-#
-#  Fieldformat of
-#    ad_whatman_papers.aliquot_master_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
-#  Possibly data modifications needed!
-#
-UPDATE aliquot_controls SET detail_tablename='ad_bags' WHERE id='3';
+    
 ALTER TABLE aliquot_controls
     ADD display_order int(11) NOT NULL DEFAULT '0' COMMENT '' AFTER comment,
     MODIFY form_alias varchar(255) NOT NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci,
     MODIFY detail_tablename varchar(255) NOT NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci;
 
-#
-#  Fieldformats of
-#    aliquot_controls.form_alias changed from varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci to varchar(255) NOT NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci.
-#    aliquot_controls.detail_tablename changed from varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci to varchar(255) NOT NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci.
-#  Possibly data modifications needed!
-#
+#Delete unused aliquot_controls that have not been defined into 2.0 (check #1)
+DELETE FROM sample_aliquot_control_links WHERE aliquot_control_id IN ('3', '7', '9');
+DELETE FROM aliquot_controls WHERE id IN ('3', '7', '9');
 
-#TODO validate dropped fields
 ALTER TABLE aliquot_masters
     CHANGE status in_stock varchar(30) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER aliquot_volume_unit,
     CHANGE status_reason in_stock_detail varchar(30) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER in_stock,
@@ -140,23 +85,36 @@ ALTER TABLE aliquot_masters
     ADD coord_y_order int(3) NULL DEFAULT NULL COMMENT '' AFTER storage_coord_y,
     ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
     ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    DROP aliquot_label,
     MODIFY collection_id int(11) NULL DEFAULT NULL COMMENT '',
     MODIFY sample_master_id int(11) NULL DEFAULT NULL COMMENT '',
-    #DROP stored_by,
-    DROP received,#ok drop
-    DROP received_datetime,#ok drop
-    DROP received_from,#ok drop
-    DROP received_id,#ok drop
+    DROP received,
+    DROP received_datetime,
+    DROP received_from,
+    DROP received_id,
     ADD UNIQUE unique_barcode (barcode),
     ADD INDEX barcode (barcode),
     ADD INDEX aliquot_type (aliquot_type);
-#
-#  Fieldformats of
-#    aliquot_masters.collection_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
-#    aliquot_masters.sample_master_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
-#  Possibly data modifications needed!
-#
+
+UPDATE aliquot_masters set in_stock = 'no' WHERE in_stock = 'not available';
+UPDATE aliquot_masters set in_stock = 'yes - available' WHERE in_stock = 'available' AND in_stock_detail IS NULL;
+UPDATE aliquot_masters set in_stock = 'yes - available' WHERE in_stock = 'available' AND in_stock_detail LIKE '';
+UPDATE aliquot_masters set in_stock = 'yes - not available' WHERE in_stock = 'available';
+UPDATE aliquot_masters set in_stock_detail = 'used' WHERE in_stock_detail = 'used and/or sent';
+ 
+UPDATE aliquot_masters set coord_x_order =  storage_coord_x;   
+UPDATE aliquot_masters set coord_y_order = 1 where storage_coord_y = 'A'; 
+UPDATE aliquot_masters set coord_y_order = 2 where storage_coord_y = 'B'; 
+UPDATE aliquot_masters set coord_y_order = 3 where storage_coord_y = 'C'; 
+UPDATE aliquot_masters set coord_y_order = 4 where storage_coord_y = 'D'; 
+UPDATE aliquot_masters set coord_y_order = 5 where storage_coord_y = 'E'; 
+UPDATE aliquot_masters set coord_y_order = 6 where storage_coord_y = 'F'; 
+UPDATE aliquot_masters set coord_y_order = 7 where storage_coord_y = 'G'; 
+UPDATE aliquot_masters set coord_y_order = 8 where storage_coord_y = 'H'; 
+UPDATE aliquot_masters set coord_y_order = 9 where storage_coord_y = 'I'; 
+
+ALTER TABLE aliquot_masters_revs
+    ADD aliquot_label varchar(60) NOT NULL DEFAULT '' AFTER barcode,
+    ADD stored_by varchar(50) NULL DEFAULT NULL AFTER coord_y_order;
 
 ALTER TABLE aliquot_uses
     ADD use_code varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER use_definition,
@@ -164,6 +122,75 @@ ALTER TABLE aliquot_uses
     ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
     ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
     MODIFY aliquot_master_id int(11) NULL DEFAULT NULL COMMENT '';
+ 
+UPDATE aliquot_uses set use_code = use_details WHERE use_definition = 'internal use';
+
+UPDATE aliquot_uses set use_code = use_details WHERE use_definition = 'realiquoted to';
+UPDATE aliquot_uses set use_details = '' WHERE use_definition = 'realiquoted to';
+
+RENAME TABLE quality_controls TO quality_ctrls;
+ALTER TABLE quality_ctrls
+    ADD qc_code varchar(20) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER id,
+    ADD run_by varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER run_id,
+    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '',
+    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '';
+
+ALTER TABLE quality_ctrls_revs
+    ADD `chip_model` varchar(10) NULL DEFAULT NULL AFTER `type`,
+    ADD `position_into_run` varchar(20) NULL DEFAULT NULL AFTER `run_by`;
+
+UPDATE quality_ctrls SET qc_code = concat('QC - ', id); 
+
+RENAME TABLE qc_tested_aliquots TO quality_ctrl_tested_aliquots;
+
+ALTER TABLE quality_ctrl_tested_aliquots
+	CHANGE COLUMN quality_control_id quality_ctrl_id int(11) DEFAULT NULL,
+    ADD COLUMN deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '',
+    ADD COLUMN deleted_date datetime NULL DEFAULT NULL COMMENT '',
+    DROP INDEX quality_control_id,
+	DROP FOREIGN KEY quality_ctrl_tested_aliquots_ibfk_1,
+	ADD INDEX quality_ctrl_id (`quality_ctrl_id`);
+
+ALTER TABLE `quality_ctrl_tested_aliquots` 
+  ADD CONSTRAINT `FK_quality_ctrl_tested_aliquots_quality_ctrls` 
+  FOREIGN KEY (`quality_ctrl_id`) REFERENCES `quality_ctrls` (`id`) 
+  ON DELETE RESTRICT 
+  ON UPDATE RESTRICT;  
+  
+UPDATE `aliquot_uses` SET `use_recorded_into_table` = 'quality_ctrl_tested_aliquots' WHERE `use_recorded_into_table` LIKE 'qc_tested_aliquots'
+
+UPDATE aliquot_uses alq_use, quality_ctrl_tested_aliquots tst_alq, quality_ctrls qc
+SET alq_use.use_code = qc.qc_code
+WHERE tst_alq.aliquot_use_id = alq_use.id
+AND tst_alq.quality_ctrl_id = qc.id
+AND alq_use.use_definition = 'quality control';
+
+
+
+
+
+
+-- ici
+finir les uses suivant:
+aliquot shipment
+quality control
+
+
+
+
+
+
+
+
+
+   
+    
+SELECT * FROM  aliquot_uses where use_definition = internal use
+  	aliquot shipment
+  	sample derivative creation
+  	   
+    
+
 #
 #  Fieldformat of
 #    aliquot_uses.aliquot_master_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
@@ -855,25 +882,6 @@ ALTER TABLE protocol_masters
 
 UPDATE protocol_masters SET protocol_control_id=1;
 
-RENAME TABLE qc_tested_aliquots TO quality_ctrl_tested_aliquots;
-
-ALTER TABLE quality_ctrl_tested_aliquots
-	CHANGE COLUMN quality_control_id quality_ctrl_id int(11) DEFAULT NULL,
-    ADD COLUMN deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '',
-    ADD COLUMN deleted_date datetime NULL DEFAULT NULL COMMENT '',
-    DROP INDEX quality_control_id,
-	DROP FOREIGN KEY quality_ctrl_tested_aliquots_ibfk_1,
-	ADD INDEX quality_ctrl_id (`quality_ctrl_id`);
-
-#TODO validate drop column chip_model
-RENAME TABLE quality_controls TO quality_ctrls;
-ALTER TABLE quality_ctrls
-    ADD COLUMN qc_code varchar(20) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci,
-    ADD COLUMN run_by varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci,
-    ADD COLUMN deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '',
-    ADD COLUMN deleted_date datetime NULL DEFAULT NULL COMMENT ''
-    #,DROP COLUMN chip_model
-    ;
 
 ALTER TABLE rd_blood_cells
     ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
