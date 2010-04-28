@@ -284,17 +284,17 @@ class EventMastersControllerCustom extends EventMastersController {
 	function setBarcelonaScore(){
 		$this->data['EventDetail']['result'] = "A";
 		
-		if($this->data['EventDetail']['who'] >= 3
+		if($this->data['EventDetail']['who'] == "3 - 4"
 		|| $this->data['EventDetail']['tumor_morphology'] == "indifferent"
 		|| $this->data['EventDetail']['okuda_score'] == "III"
 		|| $this->data['EventDetail']['liver_function'] == "child-pugh C"){
 			$this->data['EventDetail']['result'] = "D";
-		}else if($this->data['EventDetail']['who'] > 0
+		}else if($this->data['EventDetail']['who'] == "1 - 2"
 		|| $this->data['EventDetail']['tumor_morphology'] == "metastasis" || $this->data['EventDetail']['tumor_morphology'] == "vascular invasion"
 		|| $this->data['EventDetail']['okuda_score'] == "I" || $this->data['EventDetail']['okuda_score'] == "II"
 		|| $this->data['EventDetail']['liver_function'] == "child-pugh A" || $this->data['EventDetail']['liver_function'] == "child-pugh B"){
 			$this->data['EventDetail']['result'] = "C";
-		}else if($this->data['EventDetail']['who'] > 0){
+		}else if($this->data['EventDetail']['who'] == "0"){
 			if($this->data['EventDetail']['tumor_morphology'] == "3 tumors, < 3 cm"
 			&& ($this->data['EventDetail']['okuda_score'] == "I" || $this->data['EventDetail']['okuda_score'] == "II")
 			&& ($this->data['EventDetail']['liver_function'] == "child-pugh A" || $this->data['EventDetail']['liver_function'] == "child-pugh B")){
