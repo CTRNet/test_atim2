@@ -125,6 +125,23 @@ ALTER TABLE aliquot_uses
  
 UPDATE aliquot_uses set use_code = use_details WHERE use_definition = 'internal use';
 
+UPDATE aliquot_uses alq_use, realiquotings rq
+SET alq_use.use_datetime = rq.realiquoted_datetime,
+alq_use.used_by = rq.realiquoted_by
+WHERE rq.aliquot_use_id =  alq_use.id
+AND alq_use.use_definition = 'realiquoted to';
+
+ALTER TABLE realiquotings
+    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
+    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
+    MODIFY parent_aliquot_master_id int(11) NULL DEFAULT NULL COMMENT '',
+    MODIFY child_aliquot_master_id int(11) NULL DEFAULT NULL COMMENT '',
+    MODIFY aliquot_use_id int(11) NULL DEFAULT NULL COMMENT '';
+    
+ALTER TABLE realiquotings
+    DROP realiquoted_by,
+    DROP realiquoted_datetime;
+
 UPDATE aliquot_uses set use_code = use_details WHERE use_definition = 'realiquoted to';
 UPDATE aliquot_uses set use_details = '' WHERE use_definition = 'realiquoted to';
 
@@ -165,29 +182,97 @@ WHERE tst_alq.aliquot_use_id = alq_use.id
 AND tst_alq.quality_ctrl_id = qc.id
 AND alq_use.use_definition = 'quality control';
 
+ALTER TABLE source_aliquots
+    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
+    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
+    MODIFY sample_master_id int(11) NULL DEFAULT NULL COMMENT '',
+    MODIFY aliquot_master_id int(11) NULL DEFAULT NULL COMMENT '',
+    MODIFY aliquot_use_id int(11) NULL DEFAULT NULL COMMENT '';
+    
+UPDATE sample_masters samp, source_aliquots sour, aliquot_uses alq_use
+SET alq_use.use_code = samp.sample_code
+WHERE alq_use.id = sour.aliquot_use_id
+AND sour.sample_master_id = samp.id
+AND alq_use.use_definition = 'sample derivative creation';
 
+ALTER TABLE orders
+    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER study_summary_id,
+    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
+    ADD INDEX order_number (order_number),
+    ADD FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`);
+    
+ALTER TABLE orders_revs    
+  ADD `type` varchar(30) DEFAULT NULL AFTER short_title,
+  ADD `microarray_chip` varchar(30) DEFAULT NULL AFTER type;    
 
+ALTER TABLE order_lines
+    DROP cancer_type,
+    DROP quantity_UM,
+	CHANGE min_qty_ordered min_quantity_ordered varchar(30) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER quantity_ordered,
+    ADD quantity_unit varchar(10) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER min_quantity_ordered,
+    DROP min_qty_UM,
+    DROP base_price,
+    DROP quantity_shipped,
+    DROP discount_id,
+    DROP product_id,
+    
+    ADD product_code varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER modified_by,
+    ADD aliquot_control_id int(11) NULL DEFAULT NULL COMMENT '' AFTER sample_control_id,
+    ADD sample_aliquot_precision varchar(30) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER aliquot_control_id,
+    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER order_id,
+    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
+   
+    MODIFY quantity_ordered varchar(30) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci,
+    ADD FOREIGN KEY (`sample_control_id`) REFERENCES `sample_controls` (`id`),
+  	ADD FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`);
+	
+ALTER TABLE order_items
+	CHANGE orderline_id order_line_id int(11) NULL DEFAULT NULL COMMENT '' AFTER modified_by,
+    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER aliquot_use_id,
+    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
+    DROP barcode,
+    DROP base_price,
+    DROP datetime_scanned_out,
+    MODIFY aliquot_use_id int(11) NULL DEFAULT NULL COMMENT '';
 
+ALTER TABLE order_items_revs
+    ADD `shipping_name` varchar(80) DEFAULT NULL AFTER id;
 
+ALTER TABLE shipments
+    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER order_id,
+    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
+    ADD INDEX shipment_code (shipment_code),
+    ADD INDEX recipient (recipient),
+    ADD INDEX facility (facility),
+    ADD INDEX FK_shipments_orders (order_id);
+
+UPDATE order_lines SET status = 'shipped';
+UPDATE order_lines SET status = 'pending' WHERE id NOT IN (SELECT order_line_id FROM order_items);
+UPDATE order_lines SET status = 'pending' WHERE id IN (SELECT order_line_id FROM order_items WHERE status = 'pending');
+
+UPDATE aliquot_masters alq, order_items items
+SET alq.in_stock = 'yes - not available', alq.in_stock_detail = 'reserved for order'
+WHERE alq.id = items.aliquot_master_id
+AND items.status = 'pending';
+
+UPDATE aliquot_masters alq, order_items items
+SET alq.in_stock = 'no', alq.in_stock_detail = 'shipped'
+WHERE alq.id = items.aliquot_master_id
+AND items.status = 'shipped';
+
+UPDATE order_items items, aliquot_uses alq_use, shipments ship
+SET alq_use.use_code = ship.shipment_code,
+alq_use.use_datetime = ship.datetime_shipped,
+alq_use.used_by = ship.shipped_by
+WHERE alq_use.id = items.aliquot_use_id
+AND ship.id = items.shipment_id
+AND items.status = 'shipped'
+AND alq_use.use_definition = 'aliquot shipment';
 
 -- ici
-finir les uses suivant:
-aliquot shipment
-quality control
 
-
-
-
-
-
-
-
-
-   
-    
 SELECT * FROM  aliquot_uses where use_definition = internal use
-  	aliquot shipment
-  	sample derivative creation
+
   	   
     
 
@@ -674,42 +759,14 @@ UPDATE `misc_identifiers` AS mi INNER JOIN misc_identifier_controls AS mic ON mi
 SET mi.misc_identifier_control_id=mic.id;
 
 
-#TODO order_items clean up
-ALTER TABLE order_items
-    ADD order_line_id int(11) NULL DEFAULT NULL COMMENT '' AFTER modified_by,
-    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER aliquot_use_id,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    #DROP barcode,
-    #DROP shipping_name,
-    #DROP base_price,
-    #DROP datetime_scanned_out,
-    #DROP orderline_id,
-    MODIFY aliquot_use_id int(11) NULL DEFAULT NULL COMMENT '';
+
 #
 #  Fieldformat of
 #    order_items.aliquot_use_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
 #  Possibly data modifications needed!
 #
 
-#TODO clean
-ALTER TABLE order_lines
-    CHANGE min_qty_ordered min_quantity_ordered varchar(30) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER quantity_ordered,
-    ADD quantity_unit varchar(10) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER min_quantity_ordered,
-    ADD product_code varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER modified_by,
-    ADD aliquot_control_id int(11) NULL DEFAULT NULL COMMENT '' AFTER sample_control_id,
-    ADD sample_aliquot_precision varchar(30) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER aliquot_control_id,
-    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER order_id,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    DROP cancer_type,#always null
-    MODIFY quantity_ordered varchar(30) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci,
-    #DROP quantity_UM,
-    #DROP min_qty_UM,
-    #DROP base_price,
-    #DROP quantity_shipped,
-    #DROP discount_id,
-    #DROP product_id,
-    ADD FOREIGN KEY (`sample_control_id`) REFERENCES `sample_controls` (`id`),
-  	ADD FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`);
+
 #
 #  Fieldformat of
 #    order_lines.quantity_ordered changed from int(255) NULL DEFAULT NULL COMMENT '' to varchar(30) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci.
@@ -717,13 +774,7 @@ ALTER TABLE order_lines
 #
 
 #TODO clean
-ALTER TABLE orders
-    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER study_summary_id,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    #DROP type,
-    #DROP microarray_chip,
-    ADD INDEX order_number (order_number),
-    ADD FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`);
+
 
 
 ALTER TABLE part_bank_nbr_counters
@@ -955,18 +1006,7 @@ ALTER TABLE rd_ovarianuteruscancertypes
 #  Possibly data modifications needed!
 #
 
-#TODO validate dropped columns
-ALTER TABLE realiquotings
-    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    MODIFY parent_aliquot_master_id int(11) NULL DEFAULT NULL COMMENT '',
-    MODIFY child_aliquot_master_id int(11) NULL DEFAULT NULL COMMENT '',
-    MODIFY aliquot_use_id int(11) NULL DEFAULT NULL COMMENT '';
-    #DROP realiquoted_by,
-    #DROP realiquoted_datetime,
-    #DROP INDEX parent_aliquot_master_id,
-    #DROP INDEX child_aliquot_master_id,
-    #DROP INDEX aliquot_use_id;
+
 #
 #  Fieldformats of
 #    realiquotings.parent_aliquot_master_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
@@ -1284,13 +1324,7 @@ ALTER TABLE shelves
 #  Possibly data modifications needed!
 #
 
-ALTER TABLE shipments
-    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER order_id,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    ADD INDEX shipment_code (shipment_code),
-    ADD INDEX recipient (recipient),
-    ADD INDEX facility (facility),
-    ADD INDEX FK_shipments_orders (order_id);
+
 
 
 ALTER TABLE sop_controls
@@ -1323,12 +1357,7 @@ ALTER TABLE sope_general_all
     ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted;
 
 
-ALTER TABLE source_aliquots
-    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    MODIFY sample_master_id int(11) NULL DEFAULT NULL COMMENT '',
-    MODIFY aliquot_master_id int(11) NULL DEFAULT NULL COMMENT '',
-    MODIFY aliquot_use_id int(11) NULL DEFAULT NULL COMMENT '';
+
 #
 #  Fieldformats of
 #    source_aliquots.sample_master_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
