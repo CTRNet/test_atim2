@@ -34,7 +34,7 @@ class ProtocolMastersController extends ProtocolAppController {
 		// find all PROTOCOLCONTROLS, for ADD form
 		$this->set('protocol_controls', $this->ProtocolControl->find('all'));
 
-		$this->testAndHook('format');
+		$this->hook('format');
 	}
 	
 	function add($protocol_control_id=null) {
