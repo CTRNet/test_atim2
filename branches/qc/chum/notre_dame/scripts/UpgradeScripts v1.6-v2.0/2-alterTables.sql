@@ -5,6 +5,8 @@
 # INVENTORY
 ##########################################################################
 
+# ALIQUOT ----------------------------------------------------------------
+
 ALTER TABLE ad_tubes
     ADD cell_count decimal(10,2) NULL DEFAULT NULL COMMENT '' AFTER concentration_unit,
     ADD cell_count_unit varchar(20) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER cell_count,
@@ -174,7 +176,7 @@ ALTER TABLE `quality_ctrl_tested_aliquots`
   ON DELETE RESTRICT 
   ON UPDATE RESTRICT;  
   
-UPDATE `aliquot_uses` SET `use_recorded_into_table` = 'quality_ctrl_tested_aliquots' WHERE `use_recorded_into_table` LIKE 'qc_tested_aliquots'
+UPDATE `aliquot_uses` SET `use_recorded_into_table` = 'quality_ctrl_tested_aliquots' WHERE `use_recorded_into_table` LIKE 'qc_tested_aliquots';
 
 UPDATE aliquot_uses alq_use, quality_ctrl_tested_aliquots tst_alq, quality_ctrls qc
 SET alq_use.use_code = qc.qc_code
@@ -269,11 +271,264 @@ AND ship.id = items.shipment_id
 AND items.status = 'shipped'
 AND alq_use.use_definition = 'aliquot shipment';
 
--- ici
+# SAMPLE -----------------------------------------------------------------
 
-SELECT * FROM  aliquot_uses where use_definition = internal use
+ALTER TABLE sample_controls
+    ADD display_order int(11) NOT NULL DEFAULT '0' COMMENT '' AFTER detail_tablename,
+    MODIFY form_alias varchar(255) NOT NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci,
+    MODIFY detail_tablename varchar(255) NOT NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci;
 
-  	   
+SET @sample_control_id = '5';
+SET @sample_type = 'ascite cell';
+UPDATE sample_controls SET detail_tablename = 'sd_der_ascite_cells' WHERE id = @sample_control_id AND sample_type = @sample_type;
+INSERT INTO sd_der_ascite_cells (id, sample_master_id, created, created_by, modified, modified_by) 
+(SELECT id, id, created, created_by, modified, modified_by FROM sample_masters WHERE sample_control_id = @sample_control_id AND sample_type = @sample_type);
+  
+SET @sample_control_id = '6';
+SET @sample_type = 'ascite supernatant';
+UPDATE sample_controls SET detail_tablename = 'sd_der_ascite_sups' WHERE id = @sample_control_id AND sample_type = @sample_type;
+INSERT INTO sd_der_ascite_sups (id, sample_master_id, created, created_by, modified, modified_by) 
+(SELECT id, id, created, created_by, modified, modified_by FROM sample_masters WHERE sample_control_id = @sample_control_id AND sample_type = @sample_type);
+ 
+SET @sample_control_id = '14';
+SET @sample_type = 'concentrated urine';
+UPDATE sample_controls SET detail_tablename = 'sd_der_urine_cons' WHERE id = @sample_control_id AND sample_type = @sample_type;
+INSERT INTO sd_der_urine_cons (id, sample_master_id, created, created_by, modified, modified_by) 
+(SELECT id, id, created, created_by, modified, modified_by FROM sample_masters WHERE sample_control_id = @sample_control_id AND sample_type = @sample_type);
+
+SET @sample_control_id = '15';
+SET @sample_type = 'centrifuged urine';
+UPDATE sample_controls SET detail_tablename = 'sd_der_urine_cents' WHERE id = @sample_control_id AND sample_type = @sample_type;
+INSERT INTO sd_der_urine_cents (id, sample_master_id, created, created_by, modified, modified_by) 
+(SELECT id, id, created, created_by, modified, modified_by FROM sample_masters WHERE sample_control_id = @sample_control_id AND sample_type = @sample_type);
+  
+SET @sample_control_id = '101';
+SET @sample_type = 'tissue lysate';
+UPDATE sample_controls SET detail_tablename = 'sd_der_tiss_lysates' WHERE id = @sample_control_id AND sample_type = @sample_type;
+INSERT INTO sd_der_tiss_lysates (id, sample_master_id, created, created_by, modified, modified_by) 
+(SELECT id, id, created, created_by, modified, modified_by FROM sample_masters WHERE sample_control_id = @sample_control_id AND sample_type = @sample_type);
+  
+SET @sample_control_id = '102';
+SET @sample_type = 'tissue suspension';
+UPDATE sample_controls SET detail_tablename = 'sd_der_tiss_susps' WHERE id = @sample_control_id AND sample_type = @sample_type;
+INSERT INTO sd_der_tiss_susps (id, sample_master_id, created, created_by, modified, modified_by) 
+(SELECT id, id, created, created_by, modified, modified_by FROM sample_masters WHERE sample_control_id = @sample_control_id AND sample_type = @sample_type);
+  
+SET @sample_control_id = '106';
+SET @sample_type = 'peritoneal wash cell';
+UPDATE sample_controls SET detail_tablename = 'sd_der_pw_cells' WHERE id = @sample_control_id AND sample_type = @sample_type;
+INSERT INTO sd_der_pw_cells (id, sample_master_id, created, created_by, modified, modified_by) 
+(SELECT id, id, created, created_by, modified, modified_by FROM sample_masters WHERE sample_control_id = @sample_control_id AND sample_type = @sample_type);
+     
+SET @sample_control_id = '107';
+SET @sample_type = 'peritoneal wash supernatant ';
+UPDATE sample_controls SET detail_tablename = 'sd_der_pw_sups' WHERE id = @sample_control_id AND sample_type = @sample_type;
+INSERT INTO sd_der_pw_sups (id, sample_master_id, created, created_by, modified, modified_by) 
+(SELECT id, id, created, created_by, modified, modified_by FROM sample_masters WHERE sample_control_id = @sample_control_id AND sample_type = @sample_type);
+     
+SET @sample_control_id = '108';
+SET @sample_type = 'cystic fluid cell';
+UPDATE sample_controls SET detail_tablename = 'sd_der_cystic_fl_cells' WHERE id = @sample_control_id AND sample_type = @sample_type;
+INSERT INTO sd_der_cystic_fl_cells (id, sample_master_id, created, created_by, modified, modified_by) 
+(SELECT id, id, created, created_by, modified, modified_by FROM sample_masters WHERE sample_control_id = @sample_control_id AND sample_type = @sample_type);
+     
+SET @sample_control_id = '109';
+SET @sample_type = 'cystic fluid supernatant';
+UPDATE sample_controls SET detail_tablename = 'sd_der_cystic_fl_sups' WHERE id = @sample_control_id AND sample_type = @sample_type;
+INSERT INTO sd_der_cystic_fl_sups (id, sample_master_id, created, created_by, modified, modified_by) 
+(SELECT id, id, created, created_by, modified, modified_by FROM sample_masters WHERE sample_control_id = @sample_control_id AND sample_type = @sample_type);
+
+DELETE FROM `sample_aliquot_control_links` WHERE `sample_control_id` IN (SELECT id FROM `sample_controls` WHERE `sample_type` LIKE 'amplified dna');
+DELETE FROM `sample_controls` WHERE `sample_type` LIKE 'amplified dna';
+    
+RENAME TABLE sd_der_amplified_rnas TO sd_der_amp_rnas;
+UPDATE sample_controls SET detail_tablename = 'sd_der_amp_rnas' WHERE detail_tablename = 'sd_der_amplified_rnas';
+
+UPDATE sample_controls SET form_alias = 'sd_undetailed_derivatives', detail_tablename = 'sd_der_b_cells' WHERE `sample_type` LIKE 'b cell';
+
+INSERT INTO `sample_controls` (`id`, `sample_type`, `sample_type_code`, `sample_category`, `status`, `form_alias`, `detail_tablename`, `display_order`) VALUES
+(112, 'pericardial fluid', 'PC-F', 'specimen', 'active', 'sd_spe_pericardial_fluids', 'sd_spe_pericardial_fluids', 0),
+(113, 'pleural fluid', 'PL-F', 'specimen', 'active', 'sd_spe_pleural_fluids', 'sd_spe_pleural_fluids', 0),
+(114, 'pericardial fluid cell', 'PC-C', 'derivative', 'active', 'sd_undetailed_derivatives', 'sd_der_pericardial_fl_cells', 0),
+(115, 'pericardial fluid supernatant', 'PC-S', 'derivative', 'active', 'sd_undetailed_derivatives', 'sd_der_pericardial_fl_sups', 0),
+(116, 'pleural fluid cell', 'PL-C', 'derivative', 'active', 'sd_undetailed_derivatives', 'sd_der_pleural_fl_cells', 0),
+(117, 'pleural fluid supernatant', 'PL-S', 'derivative', 'active', 'sd_undetailed_derivatives', 'sd_der_pleural_fl_sups', 0);
+
+RENAME TABLE sample_aliquot_control_links TO sample_to_aliquot_controls;
+
+INSERT INTO parent_to_derivative_sample_controls (id, parent_sample_control_id, derivative_sample_control_id, status)
+(SELECT id, source_sample_control_id, derived_sample_control_id, status FROM derived_sample_links);
+
+DROP TABLE derived_sample_links;
+
+INSERT INTO `parent_to_derivative_sample_controls` (`id`, `parent_sample_control_id`, `derivative_sample_control_id`, `status`) VALUES
+(120, 112, 114, 'active'),
+(121, 112, 115, 'active'),
+(122, 113, 116, 'active'),
+(123, 113, 117, 'active'),
+(124, 114, 11, 'active'),
+(125, 114, 12, 'active'),
+(126, 114, 13, 'active'),
+(127, 116, 11, 'active'),
+(128, 116, 12, 'active'),
+(129, 116, 13, 'active');
+
+ALTER TABLE sample_to_aliquot_controls
+    MODIFY sample_control_id int(11) NULL DEFAULT NULL COMMENT '',
+    MODIFY aliquot_control_id int(11) NULL DEFAULT NULL COMMENT '';
+
+-- testé jusqu'ici
+
+    
+    
+-- comparer les deux tables icm / v2.0.0
+-- vérifier les types bon ou pas bon
+-- inactiver lien si lien sur aliquot desactivé...   
+INSERT INTO `sample_to_aliquot_controls` (`id`, `sample_control_id`, `aliquot_control_id`, `status`) VALUES
+(45, 114, 8, 'active'),
+(46, 115, 8, 'active'),
+(47, 116, 8, 'active'),
+(48, 117, 8, 'active'),
+(49, 113, 2, 'active'),
+(50, 112, 2, 'active');
+
+
+
+
+
+
+
+
+-- cette partie suivante est bonne
+
+ALTER TABLE sd_der_amp_rnas
+    ADD COLUMN deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '',
+    ADD COLUMN deleted_date datetime NULL DEFAULT NULL COMMENT '';
+
+ALTER TABLE sd_der_amp_rnas_revs
+    ADD `tmp_amplification_method` varchar(30) DEFAULT NULL AFTER sample_master_id,
+    ADD `tmp_amplification_number` varchar(30) DEFAULT NULL AFTER tmp_amplification_method;
+    
+ALTER TABLE sd_der_blood_cells
+    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
+    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
+    MODIFY sample_master_id int(11) NULL DEFAULT NULL COMMENT '';   
+    
+ALTER TABLE sd_der_blood_cells_revs
+    ADD `tmp_solution` varchar(30) DEFAULT NULL AFTER sample_master_id;
+    
+ALTER TABLE sd_der_pbmcs
+    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
+    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
+    MODIFY sample_master_id int(11) NULL DEFAULT NULL COMMENT ''; 
+  
+ALTER TABLE sd_der_pbmcs_revs    
+    ADD `tmp_solution` varchar(30) DEFAULT NULL AFTER sample_master_id;
+
+ALTER TABLE sd_der_dnas
+    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
+    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
+    MODIFY sample_master_id int(11) NULL DEFAULT NULL COMMENT '';
+    
+ALTER TABLE sd_der_dnas_revs    
+    ADD `source_cell_passage_number` varchar(10) DEFAULT NULL AFTER sample_master_id,
+    ADD `source_temperature` decimal(5,2) DEFAULT NULL AFTER source_cell_passage_number,
+    ADD `source_temp_unit` varchar(20) DEFAULT NULL AFTER source_temperature,
+    ADD `tmp_extraction_method` varchar(30) DEFAULT NULL AFTER source_temp_unit,
+    ADD `tmp_source_milieu` varchar(30) DEFAULT NULL AFTER tmp_extraction_method,
+    ADD `tmp_source_storage_method` varchar(30) DEFAULT NULL AFTER tmp_source_milieu;
+  
+ALTER TABLE sd_der_rnas
+    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
+    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
+    MODIFY sample_master_id int(11) NULL DEFAULT NULL COMMENT '';
+
+ALTER TABLE sd_der_rnas_revs
+    ADD `source_cell_passage_number` varchar(10) DEFAULT NULL,
+    ADD `source_temperature` decimal(5,2) DEFAULT NULL,
+    ADD `source_temp_unit` varchar(20) DEFAULT NULL,
+    ADD `tmp_extraction_method` varchar(30) DEFAULT NULL,
+    ADD `tmp_source_milieu` varchar(30) DEFAULT NULL,
+    ADD `tmp_source_storage_method` varchar(30) DEFAULT NULL;
+
+-- fin partie suivante est bonne    
+    
+-- controler autre tables sd_  
+    
+    
+
+
+
+    
+    
+
+
+-- there is no more specific structure for tissue tubes
+UPDATE sample_to_aliquot_controls SET aliquot_control_id=1 WHERE aliquot_control_id=1001;
+UPDATE aliquot_masters SET aliquot_control_id=1 WHERE aliquot_control_id=1001;
+DELETE FROM aliquot_controls WHERE id=1001;
+
+
+
+   
+UPDATE sample_controls SET form_alias='sd_undetailed_derivatives' WHERE id IN('5', '7', '8', '12', '13', '14', '15', '17', '18', '101', '102', '106', '107', '108', '109');
+
+
+
+#
+#  Fieldformats of
+#    sample_controls.form_alias changed from varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci to varchar(255) NOT NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci.
+#    sample_controls.detail_tablename changed from varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci to varchar(255) NOT NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci.
+#  Possibly data modifications needed!
+#
+
+#todo validate drop
+ALTER TABLE sample_masters
+    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
+    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
+    MODIFY collection_id int(11) NULL DEFAULT NULL COMMENT '',
+    #DROP sample_label,
+    ADD UNIQUE unique_sample_code (sample_code),
+    ADD INDEX sample_code (sample_code),
+  	ADD FOREIGN KEY (`initial_specimen_sample_id`) REFERENCES `sample_masters` (`id`);
+#
+#  Fieldformat of
+#    sample_masters.collection_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
+#  Possibly data modifications needed!
+#
+
+SELECT id, id created,	created_by,	modified, modified_by FROM sample_masters WHERE sample_control_id = '5' AND sample_type = 'ascite cell';
+
+
+
+FROM sample_masters AS sm
+INNER JOIN sample_controls
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     
 
 #
@@ -448,8 +703,6 @@ ALTER TABLE derivative_details
 #  Possibly data modifications needed!
 #
 
-#TODO validate drop
-#DROP TABLE derived_sample_links;
 
 #TODO validate big table
 RENAME TABLE diagnoses TO diagnosis_masters;
@@ -1088,74 +1341,11 @@ ALTER TABLE rtbforms
     ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
     MODIFY created_by int(11) NULL DEFAULT NULL COMMENT '',
     MODIFY modified_by int(11) NULL DEFAULT NULL COMMENT '';
-#
-#  Fieldformats of
-#    rtbforms.created_by changed from varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci to int(11) NULL DEFAULT NULL COMMENT ''.
-#    rtbforms.modified_by changed from varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci to int(11) NULL DEFAULT NULL COMMENT ''.
-#  Possibly data modifications needed!
-#
-
-#TODO: this table might need an update to the new version
-RENAME TABLE sample_aliquot_control_links TO sample_to_aliquot_controls;
-
--- there is no more specific structure for tissue tubes
-UPDATE sample_to_aliquot_controls SET aliquot_control_id=1 WHERE aliquot_control_id=1001;
-UPDATE aliquot_masters SET aliquot_control_id=1 WHERE aliquot_control_id=1001;
-DELETE FROM aliquot_controls WHERE id=1001;
-
--- there is no more specific table for cell tubes
-UPDATE aliquot_controls SET detail_tablename='ad_tubes' WHERE id=15;
-#TODO create a structure for aliquot bag (1002)
-
-ALTER TABLE sample_controls
-    ADD display_order int(11) NOT NULL DEFAULT '0' COMMENT '' AFTER detail_tablename,
-    MODIFY form_alias varchar(255) NOT NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci,
-    MODIFY detail_tablename varchar(255) NOT NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci;
-    
-UPDATE sample_controls SET form_alias='sd_undetailed_derivatives' WHERE id IN('5', '7', '8', '12', '13', '14', '15', '17', '18', '101', '102', '106', '107', '108', '109');
-#TODO: amp_rnas had a form called  sd_der_amplified_rnas -> need to reproduce it
-#TODO tablename for amplified dna(16), other fluid cell(110), other fluid supernatant(111) UPDATE sample_controls SET detail_tablename='???' WHERE id='???';
-
-INSERT INTO `sample_controls` (`id`, `sample_type`, `sample_type_code`, `sample_category`, `status`, `form_alias`, `detail_tablename`, `display_order`) VALUES
-(112, 'pericardial fluid', 'PC-F', 'specimen', 'active', 'sd_spe_pericardial_fluids', 'sd_spe_pericardial_fluids', 0),
-(113, 'pleural fluid', 'PL-F', 'specimen', 'active', 'sd_spe_pleural_fluids', 'sd_spe_pleural_fluids', 0),
-(114, 'pericardial fluid cell', 'PC-C', 'derivative', 'active', 'sd_undetailed_derivatives', 'sd_der_pericardial_fl_cells', 0),
-(115, 'pericardial fluid supernatant', 'PC-S', 'derivative', 'active', 'sd_undetailed_derivatives', 'sd_der_pericardial_fl_sups', 0),
-(116, 'pleural fluid cell', 'PL-C', 'derivative', 'active', 'sd_undetailed_derivatives', 'sd_der_pleural_fl_cells', 0),
-(117, 'pleural fluid supernatant', 'PL-S', 'derivative', 'active', 'sd_undetailed_derivatives', 'sd_der_pleural_fl_sups', 0);
 
 
-#
-#  Fieldformats of
-#    sample_controls.form_alias changed from varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci to varchar(255) NOT NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci.
-#    sample_controls.detail_tablename changed from varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci to varchar(255) NOT NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci.
-#  Possibly data modifications needed!
-#
 
-#todo validate drop
-ALTER TABLE sample_masters
-    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    MODIFY collection_id int(11) NULL DEFAULT NULL COMMENT '',
-    #DROP sample_label,
-    ADD UNIQUE unique_sample_code (sample_code),
-    ADD INDEX sample_code (sample_code),
-  	ADD FOREIGN KEY (`initial_specimen_sample_id`) REFERENCES `sample_masters` (`id`);
-#
-#  Fieldformat of
-#    sample_masters.collection_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
-#  Possibly data modifications needed!
-#
 
-RENAME TABLE sd_der_amplified_rnas TO sd_der_amp_rnas;
-ALTER TABLE sd_der_amp_rnas
-    ADD COLUMN deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '',
-    ADD COLUMN deleted_date datetime NULL DEFAULT NULL COMMENT '';
 
-ALTER TABLE sd_der_blood_cells
-    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    MODIFY sample_master_id int(11) NULL DEFAULT NULL COMMENT '';    
 #  Fieldformat of
 #    sd_der_blood_cells.sample_master_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
 #  Possibly data modifications needed!
@@ -1175,24 +1365,14 @@ ALTER TABLE sd_der_cell_cultures
 #
 
 #TODO validate drops
-ALTER TABLE sd_der_dnas
-    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    MODIFY sample_master_id int(11) NULL DEFAULT NULL COMMENT ''
-    #,DROP source_cell_passage_number,
-    #DROP source_temperature,
-    #DROP source_temp_unit,
-    ;
+
 #
 #  Fieldformat of
 #    sd_der_dnas.sample_master_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
 #  Possibly data modifications needed!
 #
 
-ALTER TABLE sd_der_pbmcs
-    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    MODIFY sample_master_id int(11) NULL DEFAULT NULL COMMENT '';
+
     
 #
 #  Fieldformat of
@@ -1211,14 +1391,7 @@ ALTER TABLE sd_der_plasmas
 #
 
 #TODO validate dropped columns
-ALTER TABLE sd_der_rnas
-    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    MODIFY sample_master_id int(11) NULL DEFAULT NULL COMMENT ''
-    #,DROP source_cell_passage_number,
-    #DROP source_temperature,
-    #DROP source_temp_unit,
-    ;
+
 #
 #  Fieldformat of
 #    sd_der_rnas.sample_master_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
