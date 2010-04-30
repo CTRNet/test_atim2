@@ -77,7 +77,8 @@
 		}
 		
 	function myErrorHandler($errno, $errstr, $errfile, $errline){
-		if($errno == E_USER_WARNING && strpos($errstr, "SQL Error:") !== false){
+		$controller = AppController::getInstance();
+		if($errno == E_USER_WARNING && strpos($errstr, "SQL Error:") !== false && $controller->name != 'Pages'){
 			$traceMsg = "<table><tr><th>File</th><th>Line</th><th>Function</th></tr>";
 			try{
 				throw new Exception("");
@@ -89,7 +90,7 @@
 			}
 			$traceMsg .= "</table>";
 			$_SESSION['err_msg'] = $errstr.$traceMsg;
-			AppController::getInstance()->redirect('/pages/err_query');
+			$controller->redirect('/pages/err_query');
 		}
 	}
 
