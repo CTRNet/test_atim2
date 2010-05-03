@@ -3,6 +3,11 @@
 // ATiM2 configuration variables from Datatable
 
 		set_error_handler("myErrorHandler");
+		
+		define('VALID_INTEGER', '/^[-+]?\\b[0-9]+\\b$/');
+		define('VALID_INTEGER_POSITIVE', '/^[+]?\\b[0-9]+\\b$/');
+		define('VALID_FLOAT', '/^[-+]?\\b[0-9]*\\.?[0-9]+\\b$/');
+		define('VALID_FLOAT_POSITIVE', '/^[+]?\\b[0-9]*\\.?[0-9]+\\b$/');
 	
 	// parse URI manually to get passed PARAMS
 		global $start_time;

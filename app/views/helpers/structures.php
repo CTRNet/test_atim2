@@ -1097,7 +1097,6 @@ class StructuresHelper extends Helper {
 
 	// FUNCTION 
 	function build_stack( $atim_structure, $options=array() ) {
-		
 		// for hidden fields, at end of form...
 		$model_names_for_hidden_fields = array();
 		
@@ -1387,6 +1386,12 @@ class StructuresHelper extends Helper {
 									$display_value = '';
 								}
 								
+							}else if($field['StructureField']['type'] == "number"
+							|| $field['StructureField']['type'] == "integer"
+							|| $field['StructureField']['type'] == "integer_positive"
+							|| $field['StructureField']['type'] == "float"
+							|| $field['StructureField']['type'] == "float_positive"){
+								$display_value = StructuresHelper::format_number($display_value);
 							}
 							
 					// put display_value into CONTENT array index, ELSE put span tag if value BLANK and INCREMENT empty index 
@@ -1508,6 +1513,10 @@ class StructuresHelper extends Helper {
 							break;
 							
 						case 'number':
+						case 'integer':
+						case 'integer_positive':
+						case 'float':
+						case 'float_positive':
 							
 							$html_element_array['type'] = 'text';
 							
@@ -2431,6 +2440,10 @@ class StructuresHelper extends Helper {
 			}
 		}
 		return $result;
+	}
+	
+	public static function format_number($number){
+		return decimal_separator == "," ? str_replace(".", ",", $number) : $number;
 	}
 }
 	
