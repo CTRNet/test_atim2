@@ -124,6 +124,8 @@ function uncheckAll( $div ) {
 		});
 		//datepicker style
 		$("#ui-datepicker-div").addClass("jquery_cupertino");
+		//autocomplete style
+		$(".ui-autocomplete").addClass("jquery_cupertino");
 	});
 
 	function initDatepicker(element){
@@ -170,5 +172,8 @@ function uncheckAll( $div ) {
 	}
 	
 	function autoComplete(element, json){
-		//TODO: implement me!
+		alert(root_url + "/" + $(element).attr("url"));
+		$(element).autocomplete({
+			source: root_url + "/" + $(element).attr("url")
+		});
 	}
