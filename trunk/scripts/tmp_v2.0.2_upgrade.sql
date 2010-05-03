@@ -169,7 +169,13 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('Login', '', 'Login', 'Connection');
 
 INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
-('May', 'global', 'May', 'Mai');
+('May', 'global', 'May', 'Mai'),
+('decimal separator', '', 'Decimal separator', 'Séparateur de décimales'),
+("error_must_be_integer", "", "Error - Integer value expected", "Erreur - Valeur entière attendue"),
+("error_must_be_positive_integer", "", "Error - Positive integer value expected", "Erreur - Valeur entière positive attendue"),
+("error_must_be_float", "", "Error - Float value expected", "Erreur - Valeur flottante attendue"),
+("error_must_be_positive_float", "", "Error - Positive float value expected", "Erreur - Valeur flottante positive attendue");
+
 
 -- i18n text fields update
 ALTER TABLE i18n
@@ -188,3 +194,15 @@ REPLACE INTO i18n (id, page_id, en, fr) VALUES
  
  INSERT INTO `atim_new`.`pages` (`id`, `error_flag`, `language_title`, `language_body`, `use_link`, `created`, `created_by`, `modified`, `modified_by`) VALUES 
  ('err_query', '1', 'Query error', 'An error occured on a database query. Send the following lines to support.', '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+ 
+ALTER TABLE `configs` ADD `define_decimal_separator` ENUM( ',', '.' ) NOT NULL DEFAULT '.' AFTER `define_pagination_amount`;
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`) VALUES ('decimal_separator', '', '');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES(".", ".");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="decimal_separator"),  (SELECT id FROM structure_permissible_values WHERE value="." AND language_alias="."), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES(",", ",");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="decimal_separator"),  (SELECT id FROM structure_permissible_values WHERE value="," AND language_alias=","), "2", "1");
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES('', 'Clinicalannotation', 'Config', 'configs', 'define_decimal_separator', 'decimal separator', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='decimal_separator') , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='preferences'), (SELECT id FROM structure_fields WHERE `model`='Config' AND `tablename`='configs' AND `field`='define_decimal_separator' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='decimal_separator')  ), '1', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1');
+
