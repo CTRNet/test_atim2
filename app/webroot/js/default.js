@@ -172,7 +172,6 @@ function uncheckAll( $div ) {
 	}
 	
 	function autoComplete(element, json){
-		alert(root_url + "/" + $(element).attr("url"));
 		$(element).autocomplete({
 			source: root_url + "/" + $(element).attr("url")
 		});

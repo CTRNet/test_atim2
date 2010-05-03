@@ -1136,21 +1136,25 @@ class StorageMastersController extends StoragelayoutAppController {
 		
 	}
 	
-	function autoComplete(){
-		$key = "";
-		foreach($this->data as $model){
-			foreach($model as $field){
-				$key = $field;
-			}
-		}
-		$this->set('posts', $this->StorageMaster->find('all', array(
+	function autocompleteLabel(){
+		$storage_masters = $this->StorageMaster->find('all', array(
 			'conditions' => array(
-			'StorageMaster.Selection_label LIKE' => $key.'%'
+			'StorageMaster.Selection_label LIKE' => $_GET['term'].'%'
 			),
 			'fields' => array('StorageMaster.selection_label'),
 			'limit' => 10
-		)));
+		));
+		$result = "";
+		foreach($storage_masters as $storage_master){
+			$result .= '"'.$storage_master['StorageMaster']['selection_label'].'", ';
+		}
+		if(sizeof($result) > 0){
+			$result = substr($result, 0, -2);
+		}
+		$this->set('result', "[".$result."]");
+		
 		$this->layout = 'ajax';
+		Configure::write('debug', 0);
 	}
 }
 ?>
