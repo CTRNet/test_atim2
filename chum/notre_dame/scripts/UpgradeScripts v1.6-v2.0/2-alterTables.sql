@@ -345,6 +345,7 @@ RENAME TABLE sd_der_amplified_rnas TO sd_der_amp_rnas;
 UPDATE sample_controls SET detail_tablename = 'sd_der_amp_rnas' WHERE detail_tablename = 'sd_der_amplified_rnas';
 
 UPDATE sample_controls SET form_alias = 'sd_undetailed_derivatives', detail_tablename = 'sd_der_b_cells' WHERE `sample_type` LIKE 'b cell';
+UPDATE sample_controls SET status = 'inactive' WHERE `sample_type` LIKE 'b cell';
 
 INSERT INTO `sample_controls` (`id`, `sample_type`, `sample_type_code`, `sample_category`, `status`, `form_alias`, `detail_tablename`, `display_order`) VALUES
 (112, 'pericardial fluid', 'PC-F', 'specimen', 'active', 'sd_spe_pericardial_fluids', 'sd_spe_pericardial_fluids', 0),
@@ -353,6 +354,61 @@ INSERT INTO `sample_controls` (`id`, `sample_type`, `sample_type_code`, `sample_
 (115, 'pericardial fluid supernatant', 'PC-S', 'derivative', 'active', 'sd_undetailed_derivatives', 'sd_der_pericardial_fl_sups', 0),
 (116, 'pleural fluid cell', 'PL-C', 'derivative', 'active', 'sd_undetailed_derivatives', 'sd_der_pleural_fl_cells', 0),
 (117, 'pleural fluid supernatant', 'PL-S', 'derivative', 'active', 'sd_undetailed_derivatives', 'sd_der_pleural_fl_sups', 0);
+
+UPDATE sample_controls SET detail_tablename = 'sd_der_of_cells ' WHERE `sample_type` LIKE 'other fluid cell';
+UPDATE sample_controls SET detail_tablename = 'sd_der_of_sups' WHERE `sample_type` LIKE 'other fluid supernatant';
+
+CREATE TABLE IF NOT EXISTS `sd_der_of_cells` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `sample_master_id` int(11) DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` varchar(50) NOT NULL DEFAULT '',
+  `modified` datetime DEFAULT NULL,
+  `modified_by` varchar(50) DEFAULT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=29663 ;
+
+CREATE TABLE IF NOT EXISTS `sd_der_of_cells_revs` (
+  `id` int(11) NOT NULL,
+  `sample_master_id` int(11) DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` varchar(50) NOT NULL DEFAULT '',
+  `modified` datetime DEFAULT NULL,
+  `modified_by` varchar(50) DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `sd_der_of_sups` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `sample_master_id` int(11) DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` varchar(50) NOT NULL DEFAULT '',
+  `modified` datetime DEFAULT NULL,
+  `modified_by` varchar(50) DEFAULT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=29663 ;
+
+CREATE TABLE IF NOT EXISTS `sd_der_of_sups_revs` (
+  `id` int(11) NOT NULL,
+  `sample_master_id` int(11) DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` varchar(50) NOT NULL DEFAULT '',
+  `modified` datetime DEFAULT NULL,
+  `modified_by` varchar(50) DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ; 
 
 RENAME TABLE sample_aliquot_control_links TO sample_to_aliquot_controls;
 
@@ -377,29 +433,15 @@ ALTER TABLE sample_to_aliquot_controls
     MODIFY sample_control_id int(11) NULL DEFAULT NULL COMMENT '',
     MODIFY aliquot_control_id int(11) NULL DEFAULT NULL COMMENT '';
 
--- testé jusqu'ici
-
-    
-    
--- comparer les deux tables icm / v2.0.0
--- vérifier les types bon ou pas bon
--- inactiver lien si lien sur aliquot desactivé...   
 INSERT INTO `sample_to_aliquot_controls` (`id`, `sample_control_id`, `aliquot_control_id`, `status`) VALUES
 (45, 114, 8, 'active'),
 (46, 115, 8, 'active'),
 (47, 116, 8, 'active'),
 (48, 117, 8, 'active'),
 (49, 113, 2, 'active'),
-(50, 112, 2, 'active');
-
-
-
-
-
-
-
-
--- cette partie suivante est bonne
+(50, 112, 2, 'active'),
+(51, 3, 1, 'inactive'),
+(52, 11, 15, 'inactive');
 
 ALTER TABLE sd_der_amp_rnas
     ADD COLUMN deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '',
@@ -451,28 +493,174 @@ ALTER TABLE sd_der_rnas_revs
     ADD `tmp_source_milieu` varchar(30) DEFAULT NULL,
     ADD `tmp_source_storage_method` varchar(30) DEFAULT NULL;
 
--- fin partie suivante est bonne    
+ALTER TABLE sd_spe_other_fluids
+    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
+    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
+    MODIFY sample_master_id int(11) NULL DEFAULT NULL COMMENT '';
+
+CREATE TABLE IF NOT EXISTS `sd_spe_other_fluids_revs` (
+  `id` int(11) NOT NULL,
+  `sample_master_id` int(11) DEFAULT NULL,
+  `collected_volume` decimal(10,5) DEFAULT NULL,
+  `collected_volume_unit` varchar(20) DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` varchar(50) NOT NULL DEFAULT '',
+  `modified` datetime DEFAULT NULL,
+  `modified_by` varchar(50) DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+
+-- Move other fluid to pericardial fluid
+UPDATE sample_masters 
+SET sample_control_id = '112', sample_type = 'pericardial fluid', initial_specimen_sample_type = 'pericardial fluid'
+WHERE id = 3323;
+
+INSERT INTO sd_spe_pericardial_fluids (id, sample_master_id, collected_volume, collected_volume_unit, created, created_by, modified, modified_by) 
+(SELECT id, id, collected_volume, collected_volume_unit, created, created_by, modified, modified_by FROM sd_spe_other_fluids 
+WHERE sample_master_id = 3323);
+
+DELETE FROM sd_spe_other_fluids WHERE sample_master_id = 3323;
+
+UPDATE sample_masters 
+SET initial_specimen_sample_type = 'pericardial fluid'
+WHERE initial_specimen_sample_id = 3323;
+
+UPDATE sample_masters 
+SET sample_control_id = '114', sample_type = 'pericardial fluid cell'
+WHERE initial_specimen_sample_id = 3323
+AND sample_type = 'other fluid cell';
+
+INSERT INTO sd_der_pericardial_fl_cells (id, sample_master_id, created, created_by, modified, modified_by) 
+(SELECT id, id, created, created_by, modified, modified_by FROM sample_masters 
+WHERE sample_type = 'pericardial fluid cell');
+
+UPDATE sample_masters 
+SET sample_control_id = '115', sample_type = 'pericardial fluid supernatant'
+WHERE initial_specimen_sample_id = 3323
+AND sample_type = 'other fluid supernatant';
+
+INSERT INTO sd_der_pericardial_fl_sups (id, sample_master_id, created, created_by, modified, modified_by) 
+(SELECT id, id, created, created_by, modified, modified_by FROM sample_masters 
+WHERE sample_type = 'pericardial fluid supernatant');
+
+-- Move other fluid to pleural fluid
+UPDATE sample_masters 
+SET sample_control_id = '113', sample_type = 'pleural fluid', initial_specimen_sample_type = 'pleural fluid'
+WHERE id IN (3327, 4677, 14328);
+
+INSERT INTO sd_spe_pleural_fluids (id, sample_master_id, collected_volume, collected_volume_unit, created, created_by, modified, modified_by) 
+(SELECT id, id, collected_volume, collected_volume_unit, created, created_by, modified, modified_by FROM sd_spe_other_fluids 
+WHERE sample_master_id IN (3327, 4677, 14328));
+
+DELETE FROM sd_spe_other_fluids WHERE sample_master_id IN (3327, 4677, 14328);
+
+UPDATE sample_masters 
+SET initial_specimen_sample_type = 'pleural fluid'
+WHERE initial_specimen_sample_id IN (3327, 4677, 14328);
+
+UPDATE sample_masters 
+SET sample_control_id = '116', sample_type = 'pleural fluid cell'
+WHERE initial_specimen_sample_id IN (3327, 4677, 14328)
+AND sample_type = 'other fluid cell';
+
+INSERT INTO sd_der_pleural_fl_cells (id, sample_master_id, created, created_by, modified, modified_by) 
+(SELECT id, id, created, created_by, modified, modified_by FROM sample_masters 
+WHERE sample_type = 'pleural fluid cell');
+
+UPDATE sample_masters 
+SET sample_control_id = '117', sample_type = 'pleural fluid supernatant'
+WHERE initial_specimen_sample_id IN (3327, 4677, 14328)
+AND sample_type = 'other fluid supernatant';
+
+INSERT INTO sd_der_pleural_fl_sups (id, sample_master_id, created, created_by, modified, modified_by) 
+(SELECT id, id, created, created_by, modified, modified_by FROM sample_masters 
+WHERE sample_type = 'pleural fluid supernatant');
+
+-- other fluid clean up
+INSERT INTO sd_der_of_cells (id, sample_master_id, created, created_by, modified, modified_by) 
+(SELECT id, id, created, created_by, modified, modified_by FROM sample_masters 
+WHERE sample_type = 'other fluid cell');
+
+INSERT INTO sd_der_of_sups (id, sample_master_id, created, created_by, modified, modified_by) 
+(SELECT id, id, created, created_by, modified, modified_by FROM sample_masters 
+WHERE sample_type = 'other fluid supernatant');
+
+
+-- Testé jusqu'ici
+
+-- Validate following lines
+
+ALTER TABLE sd_der_cell_cultures
+    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
+    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
+    MODIFY sample_master_id int(11) NULL DEFAULT NULL COMMENT '',
+    MODIFY cell_passage_number int(6) NULL DEFAULT NULL COMMENT '';
+
+ALTER TABLE sd_der_plasmas
+    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
+    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
+    MODIFY sample_master_id int(11) NULL DEFAULT NULL COMMENT '';
     
--- controler autre tables sd_  
+ALTER TABLE sd_der_serums
+    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
+    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
+    MODIFY sample_master_id int(11) NULL DEFAULT NULL COMMENT '';
+
+ALTER TABLE sd_spe_ascites
+    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
+    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
+    MODIFY sample_master_id int(11) NULL DEFAULT NULL COMMENT '';
+
+ALTER TABLE sd_spe_bloods
+    CHANGE type blood_type varchar(30) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER sample_master_id,
+    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
+    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
+    MODIFY sample_master_id int(11) NULL DEFAULT NULL COMMENT '';
+    
+ALTER TABLE sd_spe_cystic_fluids
+    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
+    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
+    MODIFY sample_master_id int(11) NULL DEFAULT NULL COMMENT '';
+
+
+ALTER TABLE sd_spe_peritoneal_washes
+    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
+    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
+    MODIFY sample_master_id int(11) NULL DEFAULT NULL COMMENT '';
+
+ALTER TABLE sd_spe_tissues
+    CHANGE nature tissue_nature varchar(15) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER tissue_source,
+    CHANGE laterality tissue_laterality varchar(10) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER tissue_nature,
+    CHANGE size tissue_size varchar(20) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER pathology_reception_datetime,
+    ADD tissue_size_unit varchar(10) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER tissue_size,
+    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
+    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
+    MODIFY sample_master_id int(11) NULL DEFAULT NULL COMMENT '',
+    MODIFY tissue_source varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci;
+    #--do not drop custom field DROP labo_laterality,
+
+
+ALTER TABLE sd_spe_urines
+    CHANGE aspect urine_aspect varchar(30) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER sample_master_id,
+    CHANGE pellet pellet_signs varchar(10) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER collected_volume_unit,
+    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
+    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
+    MODIFY sample_master_id int(11) NULL DEFAULT NULL COMMENT ''
+    #,DROP received_volume,
+    #DROP received_volume_unit,
+    ;
+    -- controler autre tables sd_  
     
     
 
 
 
     
-    
-
-
--- there is no more specific structure for tissue tubes
-UPDATE sample_to_aliquot_controls SET aliquot_control_id=1 WHERE aliquot_control_id=1001;
-UPDATE aliquot_masters SET aliquot_control_id=1 WHERE aliquot_control_id=1001;
-DELETE FROM aliquot_controls WHERE id=1001;
-
-
-
-   
-UPDATE sample_controls SET form_alias='sd_undetailed_derivatives' WHERE id IN('5', '7', '8', '12', '13', '14', '15', '17', '18', '101', '102', '106', '107', '108', '109');
-
 
 
 #
@@ -1013,20 +1201,7 @@ SET mi.misc_identifier_control_id=mic.id;
 
 
 
-#
-#  Fieldformat of
-#    order_items.aliquot_use_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
-#  Possibly data modifications needed!
-#
 
-
-#
-#  Fieldformat of
-#    order_lines.quantity_ordered changed from int(255) NULL DEFAULT NULL COMMENT '' to varchar(30) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci.
-#  Possibly data modifications needed!
-#
-
-#TODO clean
 
 
 
@@ -1253,20 +1428,7 @@ ALTER TABLE rd_ovarianuteruscancertypes
     ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
     ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
     MODIFY review_master_id int(11) NULL DEFAULT NULL COMMENT '';
-#
-#  Fieldformat of
-#    rd_ovarianuteruscancertypes.review_master_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
-#  Possibly data modifications needed!
-#
 
-
-#
-#  Fieldformats of
-#    realiquotings.parent_aliquot_master_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
-#    realiquotings.child_aliquot_master_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
-#    realiquotings.aliquot_use_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
-#  Possibly data modifications needed!
-#
 
 #TODO looks like a major refactoring
 ALTER TABLE reproductive_histories
@@ -1345,147 +1507,6 @@ ALTER TABLE rtbforms
 
 
 
-
-#  Fieldformat of
-#    sd_der_blood_cells.sample_master_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
-#  Possibly data modifications needed!
-#
-
-#warning can be ignored
-ALTER TABLE sd_der_cell_cultures
-    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    MODIFY sample_master_id int(11) NULL DEFAULT NULL COMMENT '',
-    MODIFY cell_passage_number int(6) NULL DEFAULT NULL COMMENT '';
-#
-#  Fieldformats of
-#    sd_der_cell_cultures.sample_master_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
-#    sd_der_cell_cultures.cell_passage_number changed from varchar(10) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci to int(6) NULL DEFAULT NULL COMMENT ''.
-#  Possibly data modifications needed!
-#
-
-#TODO validate drops
-
-#
-#  Fieldformat of
-#    sd_der_dnas.sample_master_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
-#  Possibly data modifications needed!
-#
-
-
-    
-#
-#  Fieldformat of
-#    sd_der_pbmcs.sample_master_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
-#  Possibly data modifications needed!
-#
-
-ALTER TABLE sd_der_plasmas
-    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    MODIFY sample_master_id int(11) NULL DEFAULT NULL COMMENT '';
-#
-#  Fieldformat of
-#    sd_der_plasmas.sample_master_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
-#  Possibly data modifications needed!
-#
-
-#TODO validate dropped columns
-
-#
-#  Fieldformat of
-#    sd_der_rnas.sample_master_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
-#  Possibly data modifications needed!
-#
-
-ALTER TABLE sd_der_serums
-    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    MODIFY sample_master_id int(11) NULL DEFAULT NULL COMMENT '';
-
-#
-#  Fieldformat of
-#    sd_der_serums.sample_master_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
-#  Possibly data modifications needed!
-#
-
-ALTER TABLE sd_spe_ascites
-    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    MODIFY sample_master_id int(11) NULL DEFAULT NULL COMMENT '';
-
-#
-#  Fieldformat of
-#    sd_spe_ascites.sample_master_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
-#  Possibly data modifications needed!
-#
-
-ALTER TABLE sd_spe_bloods
-    CHANGE type blood_type varchar(30) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER sample_master_id,
-    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    MODIFY sample_master_id int(11) NULL DEFAULT NULL COMMENT '';
-#
-#  Fieldformat of
-#    sd_spe_bloods.sample_master_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
-#  Possibly data modifications needed!
-#
-
-ALTER TABLE sd_spe_cystic_fluids
-    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    MODIFY sample_master_id int(11) NULL DEFAULT NULL COMMENT '';
-#
-#  Fieldformat of
-#    sd_spe_cystic_fluids.sample_master_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
-#  Possibly data modifications needed!
-#
-
-#TODO not droping non empty table
-#DROP TABLE sd_spe_other_fluids;
-
-ALTER TABLE sd_spe_peritoneal_washes
-    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    MODIFY sample_master_id int(11) NULL DEFAULT NULL COMMENT '';
-#
-#  Fieldformat of
-#    sd_spe_peritoneal_washes.sample_master_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
-#  Possibly data modifications needed!
-#
-
-ALTER TABLE sd_spe_tissues
-    CHANGE nature tissue_nature varchar(15) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER tissue_source,
-    CHANGE laterality tissue_laterality varchar(10) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER tissue_nature,
-    CHANGE size tissue_size varchar(20) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER pathology_reception_datetime,
-    ADD tissue_size_unit varchar(10) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER tissue_size,
-    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    MODIFY sample_master_id int(11) NULL DEFAULT NULL COMMENT '',
-    MODIFY tissue_source varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci;
-    #--do not drop custom field DROP labo_laterality,
-#
-#  Fieldformats of
-#    sd_spe_tissues.sample_master_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
-#    sd_spe_tissues.tissue_source changed from varchar(20) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci to varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci.
-#  Possibly data modifications needed!
-#
-
-#TODO validate dropped fields
-ALTER TABLE sd_spe_urines
-    CHANGE aspect urine_aspect varchar(30) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER sample_master_id,
-    CHANGE pellet pellet_signs varchar(10) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER collected_volume_unit,
-    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    MODIFY sample_master_id int(11) NULL DEFAULT NULL COMMENT ''
-    #,DROP received_volume,
-    #DROP received_volume_unit,
-    ;
-#
-#  Fieldformat of
-#    sd_spe_urines.sample_master_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
-#  Possibly data modifications needed!
-#
 
 ALTER TABLE shelves
     ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
