@@ -37,5 +37,15 @@ SELECT id, sample_type, notes FROM `sample_masters` WHERE `sample_control_id` =1
 -- -> 	14328	| other fluid	| 	Ã‰chantillon importÃ© de FileMaker Pro FileMaker Pro : 
 -- -> 			| 				| Liquide pleural Grade 3 Notes : Rien dans le rapport de patho sur ce prÃ©lÃ¨vement. Culture s'est rendue au P4
 
+-- check #8 : Test unused urine fields that will be dropped
+SELECT sample_label, received_volume, collected_volume 
+FROM sample_masters 
+INNER JOIN `sd_spe_urines` ON sample_masters.id = sd_spe_urines.sample_master_id
+WHERE `received_volume` != `collected_volume` 
+-- -> 0 records
 
+-- check #9 : Test unused collection fields that will be dropped
+SELECT DISTINCT `title` , confirmation_source , status, date_status, icd10_id, `middle_name` , `confirmation_source` , `ethnicity`, death_certificate_ident
+FROM `participants`;
+-- -> 0 records
 
