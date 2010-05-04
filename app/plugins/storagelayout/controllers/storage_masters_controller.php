@@ -1137,6 +1137,7 @@ class StorageMastersController extends StoragelayoutAppController {
 	}
 	
 	function autocompleteLabel(){
+		//query the database
 		$storage_masters = $this->StorageMaster->find('all', array(
 			'conditions' => array(
 			'StorageMaster.Selection_label LIKE' => $_GET['term'].'%'
@@ -1144,6 +1145,8 @@ class StorageMastersController extends StoragelayoutAppController {
 			'fields' => array('StorageMaster.selection_label'),
 			'limit' => 10
 		));
+		
+		//build javascript textual array
 		$result = "";
 		foreach($storage_masters as $storage_master){
 			$result .= '"'.$storage_master['StorageMaster']['selection_label'].'", ';
@@ -1153,7 +1156,9 @@ class StorageMastersController extends StoragelayoutAppController {
 		}
 		$this->set('result', "[".$result."]");
 		
+		//layout = ajax to avoid printing layout
 		$this->layout = 'ajax';
+		//debug = 0 to avoid printing debug queries that would break the javascript array
 		Configure::write('debug', 0);
 	}
 }
