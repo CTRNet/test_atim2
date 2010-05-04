@@ -26,8 +26,10 @@
 		}
 		?>
 		<script type="text/javascript">
-		var webroot_dir = "<?php echo($this->webroot); ?>app/webroot/";
+		var root_url = "<?php echo($this->webroot); ?>";
+		var webroot_dir = root_url + "/app/webroot/";
 		var locale = "<?php echo($locale); ?>";
+		var STR_OR = "<?php __('or'); ?>";
 		</script>
 		<?php
 		echo $javascript->link('jquery-1.4.2.min')."\n";

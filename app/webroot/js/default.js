@@ -126,6 +126,8 @@ function uncheckAll( $div ) {
 		$("#ui-datepicker-div").addClass("jquery_cupertino");
 		//autocomplete style
 		$(".ui-autocomplete").addClass("jquery_cupertino");
+		
+		initAdvancedControls();
 	});
 
 	function initDatepicker(element){
@@ -174,5 +176,65 @@ function uncheckAll( $div ) {
 	function autoComplete(element, json){
 		$(element).autocomplete({
 			source: root_url + "/" + $(element).attr("url")
+//			source: function(request, response) {
+//				$.post(root_url + "/" + $(element).attr("url"), request, function(data){
+//					response(eval("(" + data + ")"))
+//				});
+//			}
 		});
+	}
+	
+	function initAdvancedControls(){
+		//toggle show/hide advanced controls
+		$("#adv_ctrl").toggle(function(){
+			$(".adv_ctrl").show();
+			$(this).removeClass("disabled");
+			$(this).addClass("enabled");
+		}, function(){
+			$(".adv_ctrl").hide();
+			$(this).removeClass("enabled");
+			$(this).addClass("disabled");
+			//clear advanced controls values to avoid breakin submission
+			$(".adv_ctrl").val("");
+		});
+		
+		//for each add or button
+		$(".btn_add_or").each(function(){
+			//find the matching input/select
+			var $input = $(this).parent().parent().find("input:last");
+			if($($input).length == 0){
+				$input = $(this).parent().parent().find("select:last");
+			}
+			//update its id and name
+			var id = $($input).attr("id");
+			var idIncrement = 1;
+			$($input).attr({
+				"id" : id + "_0",
+				"name" : $($input).attr("name") + "[]"
+			});
+			
+			//when we click
+			$(this).click(function(){
+				//get the input html
+				var inputHtml = $($input).parent().html();
+				//append it into the text field with "or" string + btn_remove
+				$(this).parent().parent().append("<span class='adv_ctrl'>" + STR_OR + inputHtml + "<a href='#' onclick='return false;' class='adv_ctrl btn_rmv_or'>(-)</a></span> ");
+				//find the newly generated input
+				var $newInput = $(this).parent().parent().find("input:last");
+				if($($newInput).length == 0){
+					$newInput = $(this).parent().parent().find("select:last");
+				}
+				//update its id
+				$($newInput).attr("id", id + "_" + idIncrement ++);
+				//bind the remove command to the remove button
+				$(this).parent().parent().find(".btn_rmv_or:last").click(function(){
+					$(this).parent().remove();
+				});
+				//move the add button to the end
+				$(this).parent().parent().append($(this).parent());
+			});
+		});
+		
+		//one actions are binded hide the advanced controls (bind doesn't work on already hidden components)
+		$(".adv_ctrl").hide();
 	}
