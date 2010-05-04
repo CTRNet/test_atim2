@@ -68,6 +68,7 @@ DROP TABLE IF EXISTS
 `sop_controls`,
 `sopd_general_all`,
 `sope_general_all`,
+`sop_masters`,
 `std_incubators`,
 `storage_coordinates`,
 `study_contacts`,

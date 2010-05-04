@@ -514,7 +514,6 @@ CREATE TABLE IF NOT EXISTS `sd_spe_other_fluids_revs` (
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-
 -- Move other fluid to pericardial fluid
 UPDATE sample_masters 
 SET sample_control_id = '112', sample_type = 'pericardial fluid', initial_specimen_sample_type = 'pericardial fluid'
@@ -590,21 +589,23 @@ INSERT INTO sd_der_of_sups (id, sample_master_id, created, created_by, modified,
 (SELECT id, id, created, created_by, modified, modified_by FROM sample_masters 
 WHERE sample_type = 'other fluid supernatant');
 
-
--- Testé jusqu'ici
-
--- Validate following lines
-
 ALTER TABLE sd_der_cell_cultures
     ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
     ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
     MODIFY sample_master_id int(11) NULL DEFAULT NULL COMMENT '',
     MODIFY cell_passage_number int(6) NULL DEFAULT NULL COMMENT '';
+    
+ALTER TABLE sd_der_cell_cultures_revs
+	ADD `tmp_collection_method` varchar(30) DEFAULT NULL AFTER `cell_passage_number`,
+	ADD `tmp_hormon` varchar(40) DEFAULT NULL AFTER `tmp_collection_method`,
+	ADD `tmp_solution` varchar(30) DEFAULT NULL AFTER `tmp_hormon`,
+	ADD `tmp_percentage_of_oxygen` varchar(30) DEFAULT NULL AFTER `tmp_solution`,
+	ADD `tmp_percentage_of_serum` varchar(30) DEFAULT NULL AFTER `tmp_percentage_of_oxygen`; 
 
 ALTER TABLE sd_der_plasmas
     ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
     ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    MODIFY sample_master_id int(11) NULL DEFAULT NULL COMMENT '';
+    MODIFY sample_master_id int(11) NULL DEFAULT NULL COMMENT ''; 
     
 ALTER TABLE sd_der_serums
     ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
@@ -615,18 +616,17 @@ ALTER TABLE sd_spe_ascites
     ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
     ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
     MODIFY sample_master_id int(11) NULL DEFAULT NULL COMMENT '';
-
+    
 ALTER TABLE sd_spe_bloods
     CHANGE type blood_type varchar(30) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER sample_master_id,
     ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
     ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
     MODIFY sample_master_id int(11) NULL DEFAULT NULL COMMENT '';
-    
+  
 ALTER TABLE sd_spe_cystic_fluids
     ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
     ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
     MODIFY sample_master_id int(11) NULL DEFAULT NULL COMMENT '';
-
 
 ALTER TABLE sd_spe_peritoneal_washes
     ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
@@ -642,55 +642,238 @@ ALTER TABLE sd_spe_tissues
     ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
     MODIFY sample_master_id int(11) NULL DEFAULT NULL COMMENT '',
     MODIFY tissue_source varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci;
-    #--do not drop custom field DROP labo_laterality,
 
+ALTER TABLE sd_spe_tissues_revs
+    ADD `labo_laterality` varchar(10) DEFAULT NULL AFTER tissue_laterality,
+    ADD `tmp_buffer_use` varchar(10) DEFAULT NULL AFTER tissue_size_unit,
+    ADD `tmp_on_ice` varchar(10) DEFAULT NULL AFTER tmp_buffer_use;
 
 ALTER TABLE sd_spe_urines
     CHANGE aspect urine_aspect varchar(30) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER sample_master_id,
     CHANGE pellet pellet_signs varchar(10) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER collected_volume_unit,
     ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
     ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    MODIFY sample_master_id int(11) NULL DEFAULT NULL COMMENT ''
-    #,DROP received_volume,
-    #DROP received_volume_unit,
-    ;
-    -- controler autre tables sd_  
+    MODIFY sample_master_id int(11) NULL DEFAULT NULL COMMENT '';
+      
+ALTER TABLE sd_spe_urines    
+	DROP received_volume,
+	DROP received_volume_unit;
     
-    
+ALTER TABLE specimen_details
+    ADD reception_by varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER supplier_dept,
+    ADD reception_datetime datetime NULL DEFAULT NULL COMMENT '' AFTER reception_by,
+    ADD reception_datetime_accuracy varchar(4) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER reception_datetime,
+    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
+    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
+    MODIFY sample_master_id int(11) NULL DEFAULT NULL COMMENT '';
 
+ALTER TABLE specimen_details_revs
+    ADD `type_code` varchar(10) DEFAULT NULL AFTER reception_datetime_accuracy,
+    ADD `sequence_number` varchar(10) DEFAULT NULL AFTER type_code;
+	 
+UPDATE specimen_details spec, sample_masters samp, collections col
+SET spec.reception_by = col.reception_by,
+spec.reception_datetime = col.reception_datetime
+WHERE spec.sample_master_id = samp.id
+AND samp.collection_id = col.id;
 
+ALTER TABLE derivative_details
+    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
+    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
+    MODIFY sample_master_id int(11) NULL DEFAULT NULL COMMENT '';
 
-    
-
-
-#
-#  Fieldformats of
-#    sample_controls.form_alias changed from varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci to varchar(255) NOT NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci.
-#    sample_controls.detail_tablename changed from varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci to varchar(255) NOT NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci.
-#  Possibly data modifications needed!
-#
-
-#todo validate drop
 ALTER TABLE sample_masters
     ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
     ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
     MODIFY collection_id int(11) NULL DEFAULT NULL COMMENT '',
-    #DROP sample_label,
     ADD UNIQUE unique_sample_code (sample_code),
-    ADD INDEX sample_code (sample_code),
-  	ADD FOREIGN KEY (`initial_specimen_sample_id`) REFERENCES `sample_masters` (`id`);
-#
-#  Fieldformat of
-#    sample_masters.collection_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
-#  Possibly data modifications needed!
-#
+    ADD INDEX sample_code (sample_code);
+    
+ALTER TABLE sample_masters_revs
+    ADD `sample_label` varchar(60) NOT NULL DEFAULT '' AFTER parent_id;    
+    
+# COLLECTION & BANK ------------------------------------------------------  
+    
+ALTER TABLE banks
+    ADD created_by int(11) NOT NULL DEFAULT 0 COMMENT '' AFTER description,
+    ADD modified_by int(11) NOT NULL DEFAULT 0 COMMENT '' AFTER created,
+    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified,
+    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted;
 
-SELECT id, id created,	created_by,	modified, modified_by FROM sample_masters WHERE sample_control_id = '5' AND sample_type = 'ascite cell';
+ALTER TABLE collections
+    ADD bank_id int(11) NULL DEFAULT NULL COMMENT '' AFTER acquisition_label,
+    ADD collection_datetime_accuracy varchar(4) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER collection_datetime,
+    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
+    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
+    MODIFY collection_property varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci,
+    ADD INDEX acquisition_label (acquisition_label);
+    
+ALTER TABLE collections   
+    DROP bank_participant_identifier,
+    DROP reception_by,
+    DROP reception_datetime;
+ 
+ALTER TABLE collections_revs
+    ADD `visit_label` varchar(20) DEFAULT NULL AFTER bank_id;
+
+DELETE FROM banks;
+
+INSERT INTO banks (id, name) VALUES
+(1, 'Breast / Sein'),
+(2, 'Ovary / Ovaire'),
+(3, 'Prostate / Prostate'),
+(4, 'Kidney / Rein'),
+(5, 'Head and Neck / Tête et cou');
+
+UPDATE collections SET bank_id = '1' WHERE bank = 'breast';     
+UPDATE collections SET bank_id = '2' WHERE bank = 'ovary';   
+UPDATE collections SET bank_id = '3' WHERE bank = 'prostate'; 
+UPDATE collections SET bank_id = '4' WHERE bank = 'kidney'; 
+UPDATE collections SET bank_id = '5' WHERE bank = 'head and neck'; 
+
+ALTER TABLE collections
+	DROP bank;
+
+ALTER TABLE clinical_collection_links
+    CHANGE diagnosis_id diagnosis_master_id int(11) NULL DEFAULT NULL COMMENT '' AFTER collection_id,
+    CHANGE consent_id consent_master_id int(11) NULL DEFAULT NULL COMMENT '' AFTER diagnosis_master_id,
+    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
+    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
+    MODIFY participant_id int(11) NULL DEFAULT NULL COMMENT '',
+    MODIFY collection_id int(11) NULL DEFAULT NULL COMMENT '';
+    
+##########################################################################
+# CLINICAL ANNOTATION
+##########################################################################
+
+ALTER TABLE participants
+    CHANGE memo notes text NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER vital_status,
+    CHANGE icd10_id cod_icd10_code varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER dod_date_accuracy,
+    ADD secondary_cod_icd10_code varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER cod_icd10_code,
+    MODIFY title varchar(10) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci,
+	MODIFY first_name varchar(20) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci,
+    MODIFY last_name varchar(20) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci,
+    MODIFY created datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '',
+    MODIFY created_by varchar(255) NOT NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci,
+    MODIFY modified datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '',
+    MODIFY modified_by varchar(255) NOT NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci,
+    MODIFY race varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci,
+	ADD cod_confirmation_source varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER secondary_cod_icd10_code,
+	CHANGE tb_number participant_identifier varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER cod_confirmation_source,
+    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
+    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
+	MODIFY sex varchar(20) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci,
+	CHANGE approximative_date_of_birth dob_date_accuracy varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci,
+    CHANGE approximative_date_of_death dod_date_accuracy varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci,
+    CHANGE approximative_last_visit_date lvd_date_accuracy varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci;
+       
+ALTER TABLE participants    
+	DROP ethnicity,
+    DROP confirmation_source,
+	DROP status,
+	DROP date_status,
+	DROP death_certificate_ident;
+		    
+UPDATE participants SET cod_icd10_code=NULL WHERE cod_icd10_code=''; 
+UPDATE participants SET dob_date_accuracy='' WHERE dob_date_accuracy='yes' AND date_of_birth IS NULL;
+UPDATE participants SET dod_date_accuracy='' WHERE dod_date_accuracy='yes' AND date_of_death IS NULL; 
+UPDATE participants SET dob_date_accuracy='c' WHERE dob_date_accuracy='yes';
+UPDATE participants SET dod_date_accuracy='c' WHERE dod_date_accuracy='yes'; 
+UPDATE participants SET dob_date_accuracy='' WHERE dob_date_accuracy!='yes';
+UPDATE participants SET dod_date_accuracy='' WHERE dod_date_accuracy!='yes'; 
+UPDATE participants SET lvd_date_accuracy='' WHERE lvd_date_accuracy='yes' AND last_visit_date IS NULL; 
+UPDATE participants SET lvd_date_accuracy='c' WHERE lvd_date_accuracy='yes';
+UPDATE participants SET lvd_date_accuracy='' WHERE lvd_date_accuracy!='yes';
+
+UPDATE participants SET sex='f' WHERE sex='F';
+UPDATE participants SET sex='m' WHERE sex='M';
+UPDATE participants SET sex='u' WHERE sex='U';
+
+ALTER TABLE participants_revs
+    ADD `last_visit_date` date DEFAULT NULL,
+    ADD `lvd_date_accuracy` varchar(50) DEFAULT NULL,
+    ADD `sardo_participant_id` varchar(20) DEFAULT NULL,
+    ADD `sardo_numero_dossier` varchar(20) DEFAULT NULL,
+    ADD `last_sardo_import_date` date DEFAULT NULL;
+
+UPDATE participant_contacts 
+SET other_contact_type = type_precision
+WHERE other_contact_type LIKE 'other contact:%';
+    
+UPDATE participant_contacts 
+SET other_contact_type = facility
+WHERE facility NOT LIKE '' AND facility IS NOT NULL;
+
+ALTER TABLE participant_contacts
+	CHANGE city locality varchar(50) NOT NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci AFTER street,
+	DROP street_nbr,
+    CHANGE memo notes text NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER expiry_date,
+    CHANGE name contact_name varchar(50) NOT NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci AFTER id,
+    DROP type_precision,
+    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER participant_id,
+    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
+    DROP facility,
+    MODIFY phone_secondary varchar(15) NOT NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci,
+    MODIFY participant_id int(11) NULL DEFAULT NULL COMMENT '';
+
+ALTER TABLE participant_messages
+    CHANGE type message_type varchar(20) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER author,
+    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
+    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
+    MODIFY participant_id int(11) NULL DEFAULT NULL COMMENT '',
+    DROP sardo_note_id,
+    DROP last_sardo_import_date;
+
+ALTER TABLE participant_messages_revs
+    ADD `status` varchar(20) DEFAULT NULL AFTER expiry_date;
+  
+ALTER TABLE misc_identifiers
+    CHANGE name identifier_name varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER identifier_value,
+    CHANGE memo notes varchar(100) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER expiry_date,
+    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
+    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted;
+
+    
+    
+ -- todo ici  
+#TODO: adjust the autoincrements    
+INSERT INTO misc_identifier_controls(`misc_identifier_name`, `misc_identifier_name_abbrev`, `status`, `display_order`, `autoincrement_name`, `misc_identifier_format`)
+(SELECT identifier_name, '', 'active', '0', NULL, NULL FROM misc_identifiers group by identifier_name);
+
+ALTER TABLE `misc_identifiers` ADD `misc_identifier_control_id`  INT( 11 ) NOT NULL DEFAULT '0' AFTER `identifier_value` ; 
+ALTER TABLE `misc_identifiers_revs` ADD `misc_identifier_control_id`  INT( 11 ) NOT NULL DEFAULT '0' AFTER `identifier_value` ;
+UPDATE `misc_identifiers` AS mi INNER JOIN misc_identifier_controls AS mic ON mi.identifier_name=mic.misc_identifier_name
+SET mi.misc_identifier_control_id=mic.id;
 
 
 
-FROM sample_masters AS sm
-INNER JOIN sample_controls
+
+
+
+
+ALTER TABLE part_bank_nbr_counters
+	CHANGE bank_ident_title keyname varchar(50) NOT NULL,
+	CHANGE last_nbr key_value int(11) NOT NULL;
+
+RENAME TABLE part_bank_nbr_counters TO key_increments;
+UPDATE key_increments SET key_value=key_value + 1; #the old system had the previous value rather than the next one
+ALTER TABLE key_increments
+	CHANGE keyname key_name varchar(50) NOT NULL UNIQUE;
+
+
+-- en todo ici    
+    
+    
+    
+##########################################################################
+# TOOLS
+##########################################################################
+
+ALTER TABLE study_summaries
+    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER path_to_file,
+    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
+    MODIFY created datetime NULL DEFAULT NULL COMMENT '',
+    MODIFY modified datetime NULL DEFAULT NULL COMMENT '';   
 
 
 
@@ -698,23 +881,18 @@ INNER JOIN sample_controls
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+-- ----- to delete -----------------------------------------------------------
+-- ----------------------------------------------------------------
+-- ----------------------------------------------------------------
+-- ----------------------------------------------------------------
+-- ----------------------------------------------------------------
+-- ----------------------------------------------------------------
+-- ----------------------------------------------------------------
+-- ----------------------------------------------------------------
+-- ----------------------------------------------------------------
+-- ----------------------------------------------------------------
+-- ----------------------------------------------------------------
+-- ----------------------------------------------------------------
 
 
     
@@ -731,34 +909,7 @@ ALTER TABLE announcements
     MODIFY user_id int(11) NULL DEFAULT NULL COMMENT '',
     MODIFY group_id int(11) NULL DEFAULT NULL COMMENT '',
     MODIFY bank_id int(11) NULL DEFAULT '0' COMMENT '';
-#
-#  Fieldformats of
-#    announcements.user_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
-#    announcements.group_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
-#    announcements.bank_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT '0' COMMENT ''.
-#  Possibly data modifications needed!
-#
 
-ALTER TABLE banks
-    ADD created_by int(11) NOT NULL DEFAULT 0 COMMENT '' AFTER description,
-    ADD modified_by int(11) NOT NULL DEFAULT 0 COMMENT '' AFTER created,
-    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted;
-
-ALTER TABLE clinical_collection_links
-    CHANGE diagnosis_id diagnosis_master_id int(11) NULL DEFAULT NULL COMMENT '' AFTER collection_id,
-    CHANGE consent_id consent_master_id int(11) NULL DEFAULT NULL COMMENT '' AFTER diagnosis_master_id,
-    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    MODIFY participant_id int(11) NULL DEFAULT NULL COMMENT '',
-    MODIFY collection_id int(11) NULL DEFAULT NULL COMMENT '';
-    
-#
-#  Fieldformats of
-#    clinical_collection_links.participant_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
-#    clinical_collection_links.collection_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
-#  Possibly data modifications needed!
-#
 
 ALTER TABLE coding_adverse_events
     ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
@@ -771,23 +922,7 @@ ALTER TABLE coding_icd10
     ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted;
 
 #validate dropped fields
-ALTER TABLE collections
-    ADD bank_id int(11) NULL DEFAULT NULL COMMENT '' AFTER acquisition_label,
-    ADD collection_datetime_accuracy varchar(4) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER collection_datetime,
-    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    #DROP bank_participant_identifier,
-    #DROP visit_label,
-    #DROP reception_by,
-    #DROP reception_datetime,
-    MODIFY collection_property varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci,
-    DROP INDEX sop_master_id,
-    ADD INDEX acquisition_label (acquisition_label),
-    ADD FOREIGN KEY (`bank_id`) REFERENCES `banks` (`id`),
-    ADD FOREIGN KEY (`sop_master_id`) REFERENCES `sop_masters` (`id`);
-UPDATE collections AS c INNER JOIN banks AS b ON c.bank like b.name SET c.bank_id=b.id, collection_datetime_accuracy='u';
-ALTER TABLE collections
-	DROP bank;
+
 	
 #
 #  Fieldformat of
@@ -874,22 +1009,7 @@ ALTER TABLE datamart_batch_sets
     ADD plugin varchar(100) NOT NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci AFTER description,
     MODIFY user_id int(11) NULL DEFAULT NULL COMMENT '',
     MODIFY group_id int(11) NULL DEFAULT NULL COMMENT '';
-#
-#  Fieldformats of
-#    datamart_batch_sets.user_id changed from int(11) NOT NULL DEFAULT 0 COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
-#    datamart_batch_sets.group_id changed from int(11) NOT NULL DEFAULT 0 COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
-#  Possibly data modifications needed!
-#
 
-ALTER TABLE derivative_details
-    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    MODIFY sample_master_id int(11) NULL DEFAULT NULL COMMENT '';
-#
-#  Fieldformat of
-#    derivative_details.sample_master_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
-#  Possibly data modifications needed!
-#
 
 
 #TODO validate big table
@@ -1178,113 +1298,14 @@ ALTER TABLE i18n
 #DROP TABLE install_disease_sites;
 #DROP TABLE install_locations;
 #DROP TABLE install_studies;
-#DROP TABLE lab_type_laterality_match;
+
 
 ALTER TABLE materials
     ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
     ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted;
 
-ALTER TABLE misc_identifiers
-    CHANGE name identifier_name varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER identifier_value,
-    CHANGE memo notes varchar(100) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER expiry_date,
-    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted;
-
-#TODO: adjust the autoincrements    
-INSERT INTO misc_identifier_controls(`misc_identifier_name`, `misc_identifier_name_abbrev`, `status`, `display_order`, `autoincrement_name`, `misc_identifier_format`)
-(SELECT identifier_name, '', 'active', '0', NULL, NULL FROM misc_identifiers group by identifier_name);
-
-ALTER TABLE `misc_identifiers` ADD `misc_identifier_control_id`  INT( 11 ) NOT NULL DEFAULT '0' AFTER `identifier_value` ; 
-ALTER TABLE `misc_identifiers_revs` ADD `misc_identifier_control_id`  INT( 11 ) NOT NULL DEFAULT '0' AFTER `identifier_value` ;
-UPDATE `misc_identifiers` AS mi INNER JOIN misc_identifier_controls AS mic ON mi.identifier_name=mic.misc_identifier_name
-SET mi.misc_identifier_control_id=mic.id;
 
 
-
-
-
-
-
-ALTER TABLE part_bank_nbr_counters
-	CHANGE bank_ident_title keyname varchar(50) NOT NULL,
-	CHANGE last_nbr key_value int(11) NOT NULL;
-
-RENAME TABLE part_bank_nbr_counters TO key_increments;
-UPDATE key_increments SET key_value=key_value + 1; #the old system had the previous value rather than the next one
-ALTER TABLE key_increments
-	CHANGE keyname key_name varchar(50) NOT NULL UNIQUE;
-
-#TODO validate
-ALTER TABLE participant_contacts
-    CHANGE name contact_name varchar(50) NOT NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci AFTER id,
-    CHANGE memo notes text NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER expiry_date,
-    ADD locality varchar(50) NOT NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci AFTER street,
-    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER participant_id,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    #DROP facility,
-    #DROP type_precision,
-    #DROP street_nbr,
-    #DROP city,
-    MODIFY phone_secondary varchar(15) NOT NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci,
-    MODIFY participant_id int(11) NULL DEFAULT NULL COMMENT '';
-#
-#  Fieldformats of
-#    participant_contacts.phone changed from varchar(30) NOT NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci to varchar(15) NOT NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci.
-#    participant_contacts.phone_secondary changed from varchar(30) NOT NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci to varchar(15) NOT NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci.
-#    participant_contacts.participant_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
-#  Possibly data modifications needed!
-#
-
-#TODO validate
-ALTER TABLE participant_messages
-    CHANGE type message_type varchar(20) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER author,
-    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    #DROP status,
-    MODIFY participant_id int(11) NULL DEFAULT NULL COMMENT '';
-    #--do not drop custom field DROP sardo_note_id,
-    #--do not drop custom field DROP last_sardo_import_date;
-#
-#  Fieldformat of
-#    participant_messages.participant_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
-#  Possibly data modifications needed!
-#
-
-#TODO validate
-ALTER TABLE participants
-    CHANGE memo notes text NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER vital_status,
-    CHANGE icd10_id cod_icd10_code varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER dod_date_accuracy,
-    ADD secondary_cod_icd10_code varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER cod_icd10_code,
-    ADD cod_confirmation_source varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER secondary_cod_icd10_code,
-    ADD participant_identifier varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER cod_confirmation_source,
-    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    MODIFY title varchar(10) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci,
-    MODIFY first_name varchar(20) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci,
-    MODIFY last_name varchar(20) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci,
-    CHANGE approximative_date_of_birth dob_date_accuracy varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci,
-    #DROP date_status,
-    MODIFY sex varchar(20) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci,
-    MODIFY race varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci,
-    #DROP ethnicity,
-    #DROP status,
-    CHANGE approximative_date_of_death dod_date_accuracy varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci,
-    #DROP death_certificate_ident,
-    #DROP confirmation_source,
-    #DROP tb_number,
-    #DROP last_visit_date,
-    #DROP approximative_last_visit_date,
-    #--do not drop custom column DROP sardo_participant_id,
-    #--do not drop custom column DROP sardo_numero_dossier,
-    #--do not drop custom column DROP last_sardo_import_date,
-    MODIFY created datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '',
-    MODIFY created_by varchar(255) NOT NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci,
-    MODIFY modified datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '',
-    MODIFY modified_by varchar(255) NOT NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci,
-    ADD UNIQUE unique_participant_identifier (participant_identifier);    
-UPDATE participants SET cod_icd10_code=NULL WHERE cod_icd10_code=''; 
-UPDATE participants SET dob_date_accuracy='' WHERE dob_date_accuracy='yes' AND date_of_birth IS NULL;
-UPDATE participants SET dod_date_accuracy='' WHERE dod_date_accuracy='yes' AND date_of_death IS NULL; 
 
 ALTER TABLE participants
     ADD FOREIGN KEY (`secondary_cod_icd10_code`) REFERENCES `coding_icd10` (`id`),
@@ -1552,31 +1573,6 @@ ALTER TABLE sope_general_all
 
 
 
-#
-#  Fieldformats of
-#    source_aliquots.sample_master_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
-#    source_aliquots.aliquot_master_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
-#    source_aliquots.aliquot_use_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
-#  Possibly data modifications needed!
-#
-
-#TODO validate dropped columns
-ALTER TABLE specimen_details
-    ADD reception_by varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER supplier_dept,
-    ADD reception_datetime datetime NULL DEFAULT NULL COMMENT '' AFTER reception_by,
-    ADD reception_datetime_accuracy varchar(4) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER reception_datetime,
-    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    MODIFY sample_master_id int(11) NULL DEFAULT NULL COMMENT ''
-    #,DROP type_code,
-    #DROP sequence_number,
-    ;
-#
-#  Fieldformat of
-#    specimen_details.sample_master_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
-#  Possibly data modifications needed!
-#
-
 ALTER TABLE std_incubators
     ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
     ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
@@ -1799,11 +1795,7 @@ ALTER TABLE study_reviews
 #  Possibly data modifications needed!
 #
 
-ALTER TABLE study_summaries
-    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER path_to_file,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    MODIFY created datetime NULL DEFAULT NULL COMMENT '',
-    MODIFY modified datetime NULL DEFAULT NULL COMMENT '';
+
 #
 #  Fieldformats of
 #    study_summaries.created changed from date NULL DEFAULT NULL COMMENT '' to datetime NULL DEFAULT NULL COMMENT ''.
