@@ -94,8 +94,12 @@ DROP TABLE IF EXISTS
 `drugs`,
 `std_tma_blocks`;
 
+DROP TABLE `install_disease_sites`;
+DROP TABLE `install_locations`;
+DROP TABLE coding_icd10;
+DROP TABLE user_logs;
 
-DROP TABLE IF EXISTS coding_icd10;
+tester les tables qui restent
 
 #Create all database tables (copy of v2.0.0-ddl) if not exists.
 #Won t create the ones that will be renamed
