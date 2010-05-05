@@ -779,11 +779,11 @@ UPDATE participants SET dob_date_accuracy='' WHERE dob_date_accuracy='yes' AND d
 UPDATE participants SET dod_date_accuracy='' WHERE dod_date_accuracy='yes' AND date_of_death IS NULL; 
 UPDATE participants SET dob_date_accuracy='c' WHERE dob_date_accuracy='yes';
 UPDATE participants SET dod_date_accuracy='c' WHERE dod_date_accuracy='yes'; 
-UPDATE participants SET dob_date_accuracy='' WHERE dob_date_accuracy!='yes';
-UPDATE participants SET dod_date_accuracy='' WHERE dod_date_accuracy!='yes'; 
+UPDATE participants SET dob_date_accuracy='' WHERE dob_date_accuracy!='c';
+UPDATE participants SET dod_date_accuracy='' WHERE dod_date_accuracy!='c'; 
 UPDATE participants SET lvd_date_accuracy='' WHERE lvd_date_accuracy='yes' AND last_visit_date IS NULL; 
 UPDATE participants SET lvd_date_accuracy='c' WHERE lvd_date_accuracy='yes';
-UPDATE participants SET lvd_date_accuracy='' WHERE lvd_date_accuracy!='yes';
+UPDATE participants SET lvd_date_accuracy='' WHERE lvd_date_accuracy!='c';
 
 UPDATE participants SET sex='f' WHERE sex='F';
 UPDATE participants SET sex='m' WHERE sex='M';
@@ -826,48 +826,330 @@ ALTER TABLE participant_messages
 
 ALTER TABLE participant_messages_revs
     ADD `status` varchar(20) DEFAULT NULL AFTER expiry_date;
-  
+
 ALTER TABLE misc_identifiers
     CHANGE name identifier_name varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER identifier_value,
     CHANGE memo notes varchar(100) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER expiry_date,
     ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
     ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted;
 
-    
-    
- -- todo ici  
-#TODO: adjust the autoincrements    
-INSERT INTO misc_identifier_controls(`misc_identifier_name`, `misc_identifier_name_abbrev`, `status`, `display_order`, `autoincrement_name`, `misc_identifier_format`)
-(SELECT identifier_name, '', 'active', '0', NULL, NULL FROM misc_identifiers group by identifier_name);
+UPDATE misc_identifiers SET identifier_name = 'other center id nbr' WHERE identifier_name = 'other center patient number';
 
-ALTER TABLE `misc_identifiers` ADD `misc_identifier_control_id`  INT( 11 ) NOT NULL DEFAULT '0' AFTER `identifier_value` ; 
-ALTER TABLE `misc_identifiers_revs` ADD `misc_identifier_control_id`  INT( 11 ) NOT NULL DEFAULT '0' AFTER `identifier_value` ;
-UPDATE `misc_identifiers` AS mi INNER JOIN misc_identifier_controls AS mic ON mi.identifier_name=mic.misc_identifier_name
-SET mi.misc_identifier_control_id=mic.id;
+DELETE FROM misc_identifier_controls;
+INSERT INTO misc_identifier_controls  
+(`misc_identifier_name`, `misc_identifier_name_abbrev`, `status`, `display_order`, `autoincrement_name`, `misc_identifier_value`)
+VALUE
+('ovary bank no lab', 'OV NoLabo', 'active', '1', 'ovary bank no lab', '%%key_increment%%'),
+('breast bank no lab', 'BR NoLabo', 'active', '2', 'breast bank no lab', '%%key_increment%%'),
+('kidney bank no lab', 'KD NoLabo', 'active', '3', 'kidney bank no lab', '%%key_increment%%'),
+('head and neck bank no lab', 'HN NoLabo', 'active', '4', 'head and neck bank no lab', '%%key_increment%%'),
+('prostate bank no lab', 'PR NoLabo', 'active', '5', 'prostate bank no lab', '%%key_increment%%'),
+('old bank no lab', 'OLD NoLabo', 'active', '6', null, null),
 
+('ramq nbr', 'RAMQ', 'active', '10', null, null),
 
+('hotel-dieu id nbr', 'HD H#', 'active', '21', null, null),
+('notre-dame id nbr', 'ND H#', 'active', '22', null, null),
+('saint-luc id nbr', 'SL H#', 'active', '23', null, null),
 
+('code-barre', 'BC', 'active', '30', 'code-barre', '%%key_increment%%'),
+('other center id nbr', 'EXT ID#', 'active', '31', null, null);
 
-
-
-
-ALTER TABLE part_bank_nbr_counters
-	CHANGE bank_ident_title keyname varchar(50) NOT NULL,
-	CHANGE last_nbr key_value int(11) NOT NULL;
+UPDATE misc_identifiers id,  misc_identifier_controls ctr
+SET id.identifier_abrv = ctr.misc_identifier_name_abbrev
+WHERE id.identifier_name = ctr.misc_identifier_name;
 
 RENAME TABLE part_bank_nbr_counters TO key_increments;
-UPDATE key_increments SET key_value=key_value + 1; #the old system had the previous value rather than the next one
+
 ALTER TABLE key_increments
-	CHANGE keyname key_name varchar(50) NOT NULL UNIQUE;
+	DROP id,
+	CHANGE bank_ident_title key_name varchar(50) NOT NULL UNIQUE,
+	CHANGE last_nbr key_value int(11) NOT NULL;
+
+UPDATE key_increments SET key_value=key_value + 1; #the old system had the previous value rather than the next one
+
+UPDATE consents 
+SET consent_type = 'FRSQ', consent_version_date = '2008-03-26', consent_language = 'fr'
+WHERE form_version = 'FRSQ_fr_2008-03-26';
+
+UPDATE consents SET form_version = NULL;
+
+ALTER TABLE consent_masters
+	ADD `invitation_date` date DEFAULT NULL AFTER reason_denied,
+	ADD `consent_type` varchar(20) NOT NULL DEFAULT '' AFTER id,
+	ADD `consent_version_date` varchar(10) DEFAULT NULL AFTER consent_type,
+	ADD `consent_language` varchar(10) DEFAULT NULL AFTER consent_version_date;
+  
+ALTER TABLE consent_masters_revs
+	ADD `invitation_date` date DEFAULT NULL AFTER reason_denied,
+	ADD `consent_type` varchar(20) NOT NULL DEFAULT '' AFTER id,
+	ADD `consent_version_date` varchar(10) DEFAULT NULL AFTER consent_type,
+	ADD `consent_language` varchar(10) DEFAULT NULL AFTER consent_version_date;
+	
+INSERT INTO consent_masters	(id, invitation_date,
+consent_type, consent_version_date , consent_language ,
+reason_denied , consent_status , status_date ,
+notes,
+created , created_by , modified , modified_by ,
+participant_id )
+(SELECT id, date, 
+consent_type, consent_version_date, consent_language ,
+reason_denied , consent_status , status_date ,
+memo ,
+created , created_by , modified , modified_by ,
+participant_id 
+FROM consents);
+
+CREATE TABLE IF NOT EXISTS `cd_icm_generics` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `consent_master_id` int(11) NOT NULL,
+  `biological_material_use` varchar(50) DEFAULT NULL,
+  `use_of_blood` varchar(50) DEFAULT NULL,
+  `use_of_urine` varchar(50) DEFAULT NULL,
+  `urine_blood_use_for_followup` varchar(10) DEFAULT NULL,
+  `stop_followup` varchar(10) DEFAULT NULL,
+  `stop_followup_date` date DEFAULT NULL,
+  `contact_for_additional_data` varchar(10) DEFAULT NULL,
+  `allow_questionnaire` varchar(10) DEFAULT NULL,
+  `stop_questionnaire` varchar(10) DEFAULT NULL,
+  `stop_questionnaire_date` date DEFAULT NULL,
+  `research_other_disease` varchar(50) DEFAULT NULL,
+  `inform_discovery_on_other_disease` varchar(10) DEFAULT NULL,
+  `inform_significant_discovery` varchar(50) DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` varchar(50) NOT NULL DEFAULT '',
+  `modified` datetime DEFAULT NULL,
+  `modified_by` varchar(50) DEFAULT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `consent_master_id` (`consent_master_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+	
+CREATE TABLE IF NOT EXISTS `cd_icm_generics_revs` (
+  `id` int(11) NOT NULL,
+  `consent_master_id` int(11) NOT NULL,
+  `biological_material_use` varchar(50) DEFAULT NULL,
+  `use_of_blood` varchar(50) DEFAULT NULL,
+  `use_of_urine` varchar(50) DEFAULT NULL,
+  `urine_blood_use_for_followup` varchar(10) DEFAULT NULL,
+  `stop_followup` varchar(10) DEFAULT NULL,
+  `stop_followup_date` date DEFAULT NULL,
+  `contact_for_additional_data` varchar(10) DEFAULT NULL,
+  `allow_questionnaire` varchar(10) DEFAULT NULL,
+  `stop_questionnaire` varchar(10) DEFAULT NULL,
+  `stop_questionnaire_date` date DEFAULT NULL,
+  `research_other_disease` varchar(50) DEFAULT NULL,
+  `inform_discovery_on_other_disease` varchar(10) DEFAULT NULL,
+  `inform_significant_discovery` varchar(50) DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` varchar(50) NOT NULL DEFAULT '',
+  `modified` datetime DEFAULT NULL,
+  `modified_by` varchar(50) DEFAULT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+INSERT INTO cd_icm_generics (id, consent_master_id,
+biological_material_use, use_of_blood, use_of_urine, 
+urine_blood_use_for_followup, stop_followup, stop_followup_date,
+contact_for_additional_data,
+allow_questionnaire, stop_questionnaire, stop_questionnaire_date,
+research_other_disease, inform_discovery_on_other_disease, inform_significant_discovery,
+created , created_by , modified , modified_by)
+(SELECT id, id,
+biological_material_use, use_of_blood, use_of_urine, 
+urine_blood_use_for_followup, stop_followup, stop_followup_date,
+contact_for_additional_data,
+allow_questionnaire, stop_questionnaire, stop_questionnaire_date,
+research_other_disease, inform_discovery_on_other_disease, inform_significant_discovery,
+created , created_by , modified , modified_by FROM consents);
+  
+DROP TABLE consents;
+
+UPDATE consent_masters SET consent_signed_date = status_date WHERE consent_status = 'obtained';
+
+DELETE FROM consent_controls;
+INSERT INTO consent_controls (controls_type, form_alias, detail_tablename)
+VALUE
+('FRSQ - Network', 'cd_icm_generics', 'cd_icm_generics'),
+('chum - kidney', 'cd_icm_generics', 'cd_icm_generics'),
+('CHUM - Prostate', 'cd_icm_generics', 'cd_icm_generics'),
+('FRSQ', 'cd_icm_generics', 'cd_icm_generics'),
+('PROCURE', 'cd_icm_generics', 'cd_icm_generics'),
+('unknown', 'cd_icm_generics', 'cd_icm_generics');
+
+UPDATE consent_masters SET consent_type = 'unknown' WHERE consent_type = 'unknwon';
+ 
+UPDATE consent_masters mast, consent_controls ctrl
+SET mast.consent_control_id = ctrl.id
+WHERE mast.consent_type = ctrl.controls_type;
+
+CREATE TABLE IF NOT EXISTS `dxd_sardos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `diagnosis_master_id` int(11) NOT NULL DEFAULT '0',
+  `sardo_morpho_desc` varchar(200) DEFAULT NULL,
+  `icd_o_grade` varchar(10) DEFAULT NULL,
+  `grade` varchar(10) DEFAULT NULL,
+  `stade_figo` varchar(100) DEFAULT NULL,
+  `laterality` varchar(50) DEFAULT NULL,
+  `sardo_diagnosis_id` varchar(20) DEFAULT NULL,
+  `last_sardo_import_date` date DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` varchar(255) NOT NULL DEFAULT '',
+  `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `modified_by` varchar(255) NOT NULL DEFAULT '',
+  `deleted` int(11) NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `diagnosis_master_id` (`diagnosis_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `dxd_sardos_revs` (
+  `id` int(11) NOT NULL,
+  `diagnosis_master_id` int(11) NOT NULL DEFAULT '0',
+  `sardo_morpho_desc` varchar(200) DEFAULT NULL,
+  `icd_o_grade` varchar(10) DEFAULT NULL,
+  `grade` varchar(10) DEFAULT NULL,
+  `stade_figo` varchar(100) DEFAULT NULL,
+  `laterality` varchar(50) DEFAULT NULL,
+  `sardo_diagnosis_id` varchar(20) DEFAULT NULL,
+  `last_sardo_import_date` date DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` varchar(255) NOT NULL DEFAULT '',
+  `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `modified_by` varchar(255) NOT NULL DEFAULT '',
+  `deleted` int(11) NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+INSERT INTO diagnosis_masters (id,  
+dx_identifier,dx_origin,dx_date,dx_date_accuracy,age_at_dx, 
+primary_icd10_code,morphology,primary_number, 
+clinical_tstage,clinical_nstage,clinical_mstage,clinical_stage_summary, 
+path_tstage,path_nstage,path_mstage,path_stage_summary, 
+survival_time_months, 
+created,created_by,modified,modified_by, 
+participant_id )
+(SELECT id, 
+dx_number, dx_origin, dx_date, approximative_dx_date, age_at_dx, 
+icd10_id ,morphology, case_number,
+clinical_tstage,clinical_nstage,clinical_mstage,clinical_stage_grouping, 
+path_tstage,path_nstage,path_mstage,path_stage_grouping, 
+survival, 
+created,created_by,modified,modified_by,
+participant_id FROM diagnoses);
+
+INSERT INTO dxd_sardos (id, diagnosis_master_id,
+sardo_morpho_desc,icd_o_grade,grade,stade_figo,laterality,sardo_diagnosis_id,last_sardo_import_date)
+(SELECT id, id, 
+sardo_morpho_desc,icd_o_grade,grade,stade_figo,laterality,sardo_diagnosis_id,last_sardo_import_date FROM diagnoses);
+
+DROP TABLE diagnoses;
+
+UPDATE participants SET dx_date_accuracy='' WHERE dx_date_accuracy='yes' AND dx_date IS NULL;
+UPDATE participants SET dx_date_accuracy='c' WHERE dx_date_accuracy='yes';
+UPDATE participants SET dx_date_accuracy='' WHERE dx_date_accuracy!='c';
+
+DELETE FROM diagnosis_controls;
+INSERT INTO diagnosis_controls (controls_type, form_alias, detail_tablename)
+VALUE
+('sardo', 'dxd_sardos', 'dxd_sardos');
+
+UPDATE diagnosis_masters SET diagnosis_control_id = (SELECT id FROM diagnosis_controls WHERE controls_type = 'sardo');
+
+RENAME TABLE event_masters TO event_masters_old;
+
+CREATE TABLE IF NOT EXISTS `event_masters` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `event_control_id` int(11) NOT NULL DEFAULT '0',
+  `disease_site` varchar(255) NOT NULL DEFAULT '',
+  `event_group` varchar(50) NOT NULL DEFAULT '',
+  `event_type` varchar(50) NOT NULL DEFAULT '',
+  `event_status` varchar(50) DEFAULT NULL,
+  `event_summary` text,
+  `event_date` date DEFAULT NULL,
+  `information_source` varchar(255) DEFAULT NULL,
+  `urgency` varchar(50) DEFAULT NULL,
+  `date_required` date DEFAULT NULL,
+  `date_requested` date DEFAULT NULL,
+  `reference_number` int(11) DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` varchar(50) NOT NULL DEFAULT '',
+  `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `modified_by` varchar(50) NOT NULL DEFAULT '',
+  `participant_id` int(11) DEFAULT NULL,
+  `diagnosis_master_id` int(11) DEFAULT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `participant_id` (`participant_id`),
+  INDEX `diagnosis_id` (`diagnosis_master_id`),
+  INDEX `event_control_id` (`event_control_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+INSERT event_masters (id, 
+disease_site,event_group,event_type, 
+event_status,event_summary,event_date, 
+information_source,urgency,date_required,date_requested,reference_number, 
+created,created_by,modified,modified_by,
+participant_id,diagnosis_master_id)
+(SELECT id, 
+disease_site,event_group,event_type, 
+event_status,event_summary,event_date, 
+information_source,urgency,date_required,date_requested,reference_number, 
+created,created_by,modified,modified_by,
+participant_id,diagnosis_id FROM event_masters_old
+WHERE `disease_site` LIKE 'all'
+AND `event_group` LIKE 'lifestyle'
+AND `event_type` LIKE 'procure');
+
+ALTER TABLE event_controls
+    ADD display_order int(11) NOT NULL DEFAULT '0' COMMENT '' AFTER detail_tablename;
+   
+SET @lifestyle_ctrl_id = SELECT id FROM event_controls WHERE `disease_site` LIKE 'all' AND `event_group` LIKE 'lifestyle' ;AND `event_type` LIKE 'procure';  
+DELETE FROM event_controls WHERE id NOT IN (@lifestyle_ctrl_id);
+
+UPDATE event_masters SET event_control_id = @lifestyle_ctrl_id;
+
+DROP TABLE event_masters_old;
+
+CREATE TABLE IF NOT EXISTS `ed_all_procure_lifestyle_revs` (
+  `id` int(11) NOT NULL,
+  `procure_lifestyle_status` varchar(50) DEFAULT NULL,
+  `completed` varchar(10) DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` varchar(50) NOT NULL DEFAULT '',
+  `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `modified_by` varchar(50) NOT NULL DEFAULT '',
+  `event_master_id` int(11) DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`version_id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 
--- en todo ici    
-    
-    
-    
+
+
+
+
+
+
 ##########################################################################
 # TOOLS
 ##########################################################################
+
+DROP TABLE `install_disease_sites`;
+DROP TABLE `install_locations`;
 
 ALTER TABLE study_summaries
     ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER path_to_file,
@@ -875,10 +1157,16 @@ ALTER TABLE study_summaries
     MODIFY created datetime NULL DEFAULT NULL COMMENT '',
     MODIFY modified datetime NULL DEFAULT NULL COMMENT '';   
 
+DELETE FROM `sop_masters`;
 
-
-
-
+ALTER TABLE sop_masters
+    ADD sop_control_id int(11) NOT NULL DEFAULT '0' COMMENT '' AFTER id,
+    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER form_id,
+    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
+    DROP detail_tablename,
+    DROP detail_form_alias,
+    DROP extend_tablename,
+    DROP extend_form_alias;
 
 
 -- ----- to delete -----------------------------------------------------------
@@ -931,39 +1219,7 @@ ALTER TABLE coding_icd10
 #
 
 #TODO validate drops
-RENAME TABLE consents TO consent_masters;
-ALTER TABLE consent_masters
-	CHANGE date date_of_referral date NULL DEFAULT NULL COMMENT '',
-    ADD COLUMN route_of_referral varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci,
-    ADD COLUMN date_first_contact date NULL DEFAULT NULL COMMENT '',
-    ADD COLUMN consent_signed_date date NULL DEFAULT NULL COMMENT '',
-    ADD COLUMN process_status varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci,
-    CHANGE memo notes text NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci,
-    ADD COLUMN consent_method varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci,
-    ADD COLUMN translator_indicator varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci,
-    ADD COLUMN translator_signature varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci,
-    ADD COLUMN consent_person varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci,
-    ADD COLUMN consent_master_id int(11) NULL DEFAULT NULL COMMENT '',
-    ADD COLUMN consent_control_id int(11) NOT NULL DEFAULT 0 COMMENT '',
-    CHANGE consent_type type varchar(10) NOT NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci,
-    ADD COLUMN deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '',
-    ADD COLUMN deleted_date datetime NULL DEFAULT NULL COMMENT ''
-    #,DROP use_of_blood,
-    #DROP use_of_urine,
-    #DROP urine_blood_use_for_followup,
-    #DROP stop_followup,
-    #DROP stop_followup_date,
-    #DROP contact_for_additional_data,
-    #DROP allow_questionaire,
-    #DROP stop_questionnaire,
-    #DROP stop_questionaire_date,
-    #DROP research_other_disease,
-    #DROP inform_discovery_on_other_disease,
-    #DROP inform_significant_discovery
-    ;
-INSERT INTO `consent_controls` (`id`, `controls_type`, `status`, `form_alias`, `detail_tablename`, `display_order`) VALUES
-(1, 'Consent National', 'active', 'cd_nationals', 'cd_nationals', 0);
-UPDATE consent_masters SET consent_control_id=1;
+
 
 ALTER TABLE datamart_adhoc
     ADD plugin varchar(255) NOT NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci AFTER description;
@@ -1542,19 +1798,7 @@ ALTER TABLE shelves
 
 
 
-ALTER TABLE sop_controls
-    CHANGE detail_form_alias form_alias varchar(255) NOT NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci AFTER detail_tablename,
-    ADD display_order int(11) NOT NULL DEFAULT '0' COMMENT '' AFTER extend_form_alias;
 
-
-ALTER TABLE sop_masters
-    ADD sop_control_id int(11) NOT NULL DEFAULT '0' COMMENT '' AFTER id,
-    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER form_id,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    DROP detail_tablename,
-    DROP detail_form_alias,
-    DROP extend_tablename,
-    DROP extend_form_alias;
 
 
 ALTER TABLE sopd_general_all

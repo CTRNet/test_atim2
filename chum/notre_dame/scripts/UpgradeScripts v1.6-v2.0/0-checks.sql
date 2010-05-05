@@ -49,3 +49,42 @@ SELECT DISTINCT `title` , confirmation_source , status, date_status, icd10_id, `
 FROM `participants`;
 -- -> 0 records
 
+-- check #10 : Test existing identifiers
+SELECT DISTINCT `name` FROM `misc_identifiers`;
+-- -> ovary bank no lab
+-- -> notre-dame id nbr
+-- -> ramq nbr
+-- -> hotel-dieu id nbr
+-- -> breast bank no lab
+-- -> prostate bank no lab
+-- -> code-barre
+-- -> saint-luc id nbr
+-- -> old bank no lab
+-- -> other center id nbr
+-- -> other center patient number
+-- -> kidney bank no lab
+-- -> head and neck bank no lab
+
+-- check #11 : Check issue on consent
+SELECT id, form_version, consent_type, consent_version_date, consent_language FROM `consents` WHERE `consent_type` IS NULL OR `consent_type` LIKE '';
+-- -> 4363	| FRSQ_fr_2008-03-26	| NULL	| NULL
+
+-- check #11 : Check nused consents fields that will be dropped
+SELECT DISTINCT surgeon, contact_method, operation_date, facility,
+use_of_tissue,contact_future_research,access_medical_information,
+facility_other,acquisition_id,diagnosis_id,consent_id FROM consents;
+-- -> 0 records
+
+-- check #12 : Check nused diagnoses fields that will be dropped
+SELECT DISTINCT dx_method ,dx_nature ,
+sequence_nbr ,information_source,age_at_dx_status ,clinical_stage ,collaborative_stage 
+tstage ,nstage ,mstage ,stage_grouping,is_cause_of_death 
+FROM diagnoses;
+-- -> 0 records
+
+-- check #13 : Check diagnoses survival_unit
+SELECT DISTINCT survival_unit FROM `diagnoses`
+-- -> months
+
+
+
