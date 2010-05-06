@@ -99,6 +99,13 @@ DROP TABLE IF EXISTS `install_locations`;
 DROP TABLE IF EXISTS coding_icd10;
 DROP TABLE IF EXISTS user_logs;
 
+DROP TABLE IF EXISTS acos;
+DROP TABLE IF EXISTS aros;
+DROP TABLE IF EXISTS aros_acos;
+DROP TABLE IF EXISTS banks;
+DROP TABLE IF EXISTS groups;
+DROP TABLE IF EXISTS users;
+
 #Create all database tables (copy of v2.0.0-ddl) if not exists.
 #Won t create the ones that will be renamed
 
@@ -624,7 +631,7 @@ CREATE TABLE IF NOT EXISTS `atim_information` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 --
--- Table structure for table `banks`
+-- Table structure for table ``
 -- 
 
 CREATE TABLE IF NOT EXISTS `banks` (
