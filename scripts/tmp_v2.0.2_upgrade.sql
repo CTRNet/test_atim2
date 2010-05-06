@@ -194,7 +194,7 @@ REPLACE INTO i18n (id, page_id, en, fr) VALUES
  ('or', '', 'or', 'où'),
  ('advanced controls', '', 'Advanced controls', 'Contrôles avancés');
  
- INSERT INTO `atim_new`.`pages` (`id`, `error_flag`, `language_title`, `language_body`, `use_link`, `created`, `created_by`, `modified`, `modified_by`) VALUES 
+INSERT INTO `pages` (`id`, `error_flag`, `language_title`, `language_body`, `use_link`, `created`, `created_by`, `modified`, `modified_by`) VALUES 
  ('err_query', '1', 'Query error', 'An error occured on a database query. Send the following lines to support.', '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
  
 ALTER TABLE `configs` ADD `define_decimal_separator` ENUM( ',', '.' ) NOT NULL DEFAULT '.' AFTER `define_pagination_amount`;
