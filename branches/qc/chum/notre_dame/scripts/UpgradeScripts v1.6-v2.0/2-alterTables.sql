@@ -742,6 +742,10 @@ ALTER TABLE clinical_collection_links
     MODIFY participant_id int(11) NULL DEFAULT NULL COMMENT '',
     MODIFY collection_id int(11) NULL DEFAULT NULL COMMENT '';
     
+UPDATE clinical_collection_links SET participant_id=NULL WHERE participant_id=0;
+UPDATE clinical_collection_links SET consent_master_id=NULL WHERE consent_master_id=0;
+UPDATE clinical_collection_links SET diagnosis_master_id=NULL WHERE diagnosis_master_id=0;
+    
 ##########################################################################
 # CLINICAL ANNOTATION
 ##########################################################################
@@ -775,14 +779,14 @@ ALTER TABLE participants
 	DROP death_certificate_ident;
 		    
 UPDATE participants SET cod_icd10_code=NULL WHERE cod_icd10_code=''; 
-UPDATE participants SET dob_date_accuracy='' WHERE dob_date_accuracy='yes' AND date_of_birth IS NULL;
-UPDATE participants SET dod_date_accuracy='' WHERE dod_date_accuracy='yes' AND date_of_death IS NULL; 
-UPDATE participants SET dob_date_accuracy='c' WHERE dob_date_accuracy='yes';
-UPDATE participants SET dod_date_accuracy='c' WHERE dod_date_accuracy='yes'; 
+UPDATE participants SET dob_date_accuracy='' WHERE dob_date_accuracy='no' AND date_of_birth IS NULL;
+UPDATE participants SET dod_date_accuracy='' WHERE dod_date_accuracy='no' AND date_of_death IS NULL; 
+UPDATE participants SET dob_date_accuracy='c' WHERE dob_date_accuracy='no';
+UPDATE participants SET dod_date_accuracy='c' WHERE dod_date_accuracy='no'; 
 UPDATE participants SET dob_date_accuracy='' WHERE dob_date_accuracy!='c';
 UPDATE participants SET dod_date_accuracy='' WHERE dod_date_accuracy!='c'; 
-UPDATE participants SET lvd_date_accuracy='' WHERE lvd_date_accuracy='yes' AND last_visit_date IS NULL; 
-UPDATE participants SET lvd_date_accuracy='c' WHERE lvd_date_accuracy='yes';
+UPDATE participants SET lvd_date_accuracy='' WHERE lvd_date_accuracy='no' AND last_visit_date IS NULL; 
+UPDATE participants SET lvd_date_accuracy='c' WHERE lvd_date_accuracy='no';
 UPDATE participants SET lvd_date_accuracy='' WHERE lvd_date_accuracy!='c';
 
 UPDATE participants SET sex='f' WHERE sex='F';
@@ -1053,8 +1057,8 @@ sardo_morpho_desc,icd_o_grade,grade,stade_figo,laterality,sardo_diagnosis_id,las
 
 DROP TABLE diagnoses;
 
-UPDATE participants SET dx_date_accuracy='' WHERE dx_date_accuracy='yes' AND dx_date IS NULL;
-UPDATE participants SET dx_date_accuracy='c' WHERE dx_date_accuracy='yes';
+UPDATE participants SET dx_date_accuracy='' WHERE dx_date_accuracy='no' AND dx_date IS NULL;
+UPDATE participants SET dx_date_accuracy='c' WHERE dx_date_accuracy='no';
 UPDATE participants SET dx_date_accuracy='' WHERE dx_date_accuracy!='c';
 
 DELETE FROM diagnosis_controls;
@@ -1137,19 +1141,76 @@ CREATE TABLE IF NOT EXISTS `ed_all_procure_lifestyle_revs` (
   KEY `event_master_id` (`event_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
+ALTER TABLE family_histories
+    CHANGE domain family_domain varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci,
+    CHANGE icd10_id primary_icd10_code varchar(10) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER family_domain,
+    ADD previous_primary_code varchar(10) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER primary_icd10_code,
+    ADD previous_primary_code_system varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER previous_primary_code,
+    ADD age_at_dx_accuracy varchar(100) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER age_at_dx,
+    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
+    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
+    MODIFY relation varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci,
+    DROP dx_date,
+    DROP approximative_dx_date,
+    DROP dx_date_status,
+    DROP age_at_dx_status,
+    ADD FOREIGN KEY (`participant_id`) REFERENCES `participants` (`id`) ON DELETE CASCADE;
 
+ALTER TABLE family_histories_revs
+    ADD `sardo_diagnosis_id` varchar(20) DEFAULT NULL AFTER age_at_dx_accuracy,
+    ADD `last_sardo_import_date` date DEFAULT NULL AFTER sardo_diagnosis_id;  
 
+RENAME TABLE reproductive_histories TO reproductive_histories_old;
 
+CREATE TABLE IF NOT EXISTS `reproductive_histories` (
+  `id` int(11) NOT NULL auto_increment,
+  `date_captured` date default NULL,
+  `menopause_status` varchar(50) default NULL,
+  `menopause_onset_reason` varchar(50) default NULL,
+  `age_at_menopause` int(11) default NULL,
+  `menopause_age_accuracy` varchar(50) default NULL,
+  `age_at_menarche` int(11) default NULL,
+  `age_at_menarche_accuracy` varchar(50) default NULL,
+  `hrt_years_used` int(11) default NULL,
+  `hrt_use` varchar(50) default NULL,
+  `hysterectomy_age` int(11) default NULL,
+  `hysterectomy_age_accuracy` varchar(50) default NULL,
+  `hysterectomy` varchar(50) default NULL,
+  `ovary_removed_type` varchar(50) default NULL,
+  `gravida` int(11) default NULL,
+  `para` int(11) default NULL,
+  `age_at_first_parturition` int(11) default NULL,
+  `first_parturition_accuracy` varchar(50) default NULL,
+  `age_at_last_parturition` int(11) default NULL,
+  `last_parturition_accuracy` varchar(50) default NULL,
+  `hormonal_contraceptive_use` varchar(50) default NULL,
+  `years_on_hormonal_contraceptives` int(11) default NULL,
+  `lnmp_date` date default NULL,
+  `lnmp_accuracy` varchar(50) default NULL,
+  `participant_id` int(11) default NULL,
+  `created` datetime NOT NULL default '0000-00-00 00:00:00',
+  `created_by` varchar(50) NOT NULL default '',
+  `modified` datetime default NULL,
+  `modified_by` varchar(50) NOT NULL default '',
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime default NULL,
+  PRIMARY KEY  (`id`),
+  INDEX `participant_id` (`participant_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
+INSERT INTO reproductive_histories (id, menopause_status, lnmp_date, lnmp_accuracy, participant_id, created, created_by, modified, modified_by)
+(SELECT id, menopause_status, lnmp_date, lnmp_certainty, participant_id, created, created_by, modified, modified_by FROM reproductive_histories_old);
 
-
+DROP TABLE reproductive_histories_old;
 
 ##########################################################################
 # TOOLS # OTHER
 ##########################################################################
 
-
-
+ALTER TABLE users
+    CHANGE passwd password varchar(255) NOT NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci AFTER last_name,
+ 	ALTER help_visible DROP DEFAULT;
+ 	
 ALTER TABLE study_summaries
     ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER path_to_file,
     ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
@@ -1167,96 +1228,52 @@ ALTER TABLE sop_masters
     DROP extend_tablename,
     DROP extend_form_alias;
 
-
--- ----- to delete -----------------------------------------------------------
--- ----------------------------------------------------------------
--- ----------------------------------------------------------------
--- ----------------------------------------------------------------
--- ----------------------------------------------------------------
--- ----------------------------------------------------------------
--- ----------------------------------------------------------------
--- ----------------------------------------------------------------
--- ----------------------------------------------------------------
--- ----------------------------------------------------------------
--- ----------------------------------------------------------------
--- ----------------------------------------------------------------
-
-
-#TODO convert approximative yes/no to range or move to dx table??
-ALTER TABLE family_histories
-    CHANGE domain family_domain varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci,
-    CHANGE icd10_id primary_icd10_code varchar(10) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER family_domain,
-    ADD previous_primary_code varchar(10) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER primary_icd10_code,
-    ADD previous_primary_code_system varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER previous_primary_code,
-    ADD age_at_dx_accuracy varchar(100) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER age_at_dx,
-    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    MODIFY relation varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci,
-    #DROP dx_date, #does not exist anymore
-    #DROP approximative_dx_date,
-    DROP dx_date_status,#always null
-    DROP age_at_dx_status,#always null
-    #--do not drop custom column DROP sardo_diagnosis_id,
-    #--do not drop custom column DROP last_sardo_import_date,
-    ADD FOREIGN KEY (`participant_id`) REFERENCES `participants` (`id`) ON DELETE CASCADE;
-
-#TODO looks like a major refactoring
-ALTER TABLE reproductive_histories
-    ADD menopause_onset_reason varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER menopause_status,
-    ADD menopause_age_accuracy varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER age_at_menopause,
-    ADD age_at_menarche_accuracy varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER age_at_menarche,
-    ADD hrt_years_used int(11) NULL DEFAULT NULL COMMENT '' AFTER age_at_menarche_accuracy,
-    ADD hysterectomy_age_accuracy varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER hysterectomy_age,
-    ADD ovary_removed_type varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER hysterectomy,
-    ADD first_parturition_accuracy varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER age_at_first_parturition,
-    ADD last_parturition_accuracy varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER age_at_last_parturition,
-    ADD hormonal_contraceptive_use varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER last_parturition_accuracy,
-    ADD years_on_hormonal_contraceptives int(11) NULL DEFAULT NULL COMMENT '' AFTER hormonal_contraceptive_use,
-    ADD lnmp_accuracy varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER lnmp_date,
-    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    MODIFY menopause_status varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci,
-    #DROP menopause_age_certainty,
-    #DROP hrt_years_on,
-    #DROP hysterectomy_age_certainty,
-    #DROP first_ovary_out_age,
-    #DROP first_ovary_certainty,
-    #DROP second_ovary_out_age,
-    #DROP second_ovary_certainty,
-    #DROP first_ovary_out,
-    #DROP second_ovary_out,
-    #DROP aborta,
-    #DROP first_parturition_certainty,
-    #DROP last_parturition_certainty,
-    #DROP age_at_menarche_certainty,
-    #DROP oralcontraceptive_use,
-    #DROP years_on_oralcontraceptives,
-    #DROP lnmp_certainty,
-    MODIFY created datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '',
-    MODIFY modified datetime NULL DEFAULT NULL COMMENT '',
-    MODIFY participant_id int(11) NULL DEFAULT NULL COMMENT '',
-    ADD INDEX participant_id (participant_id);
-
-
-
-
-
-ALTER TABLE std_incubators
-    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    MODIFY storage_master_id int(11) NULL DEFAULT NULL COMMENT '';
-
 ALTER TABLE std_rooms
     ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
     ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    MODIFY storage_master_id int(11) NULL DEFAULT NULL COMMENT '';
+    MODIFY storage_master_id int(11) NULL DEFAULT NULL COMMENT '';    
 
-ALTER TABLE std_tma_blocks
+ALTER TABLE storage_masters
+    ADD lft int(10) NULL DEFAULT NULL COMMENT '' AFTER parent_id,
+    ADD rght int(10) NULL DEFAULT NULL COMMENT '' AFTER lft,
+    ADD coord_x_order int(3) NULL DEFAULT NULL COMMENT '' AFTER parent_storage_coord_x,
+    ADD coord_y_order int(3) NULL DEFAULT NULL COMMENT '' AFTER parent_storage_coord_y,
     ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
     ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    MODIFY storage_master_id int(11) NULL DEFAULT NULL COMMENT '';
+    MODIFY barcode varchar(60) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci,
+    MODIFY selection_label varchar(60) NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci,
+    MODIFY parent_storage_coord_x varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci,
+    MODIFY parent_storage_coord_y varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci,
+    ADD UNIQUE unique_code (code),
+    ADD INDEX barcode (barcode),
+    ADD INDEX short_label (short_label),
+    ADD INDEX selection_label (selection_label);
 
-
+UPDATE storage_masters set coord_x_order =  parent_storage_coord_x;   
+UPDATE storage_masters set coord_x_order = 1 where parent_storage_coord_x = 'A'; 
+UPDATE storage_masters set coord_x_order = 2 where parent_storage_coord_x = 'B'; 
+UPDATE storage_masters set coord_x_order = 3 where parent_storage_coord_x = 'C'; 
+UPDATE storage_masters set coord_x_order = 4 where parent_storage_coord_x = 'D'; 
+UPDATE storage_masters set coord_x_order = 5 where parent_storage_coord_x = 'E'; 
+UPDATE storage_masters set coord_x_order = 6 where parent_storage_coord_x = 'F'; 
+UPDATE storage_masters set coord_x_order = 7 where parent_storage_coord_x = 'G'; 
+UPDATE storage_masters set coord_x_order = 8 where parent_storage_coord_x = 'H'; 
+UPDATE storage_masters set coord_x_order = 9 where parent_storage_coord_x = 'I';    
+    
+UPDATE storage_masters set coord_y_order =  parent_storage_coord_y;   
+UPDATE storage_masters set coord_y_order = 1 where parent_storage_coord_y = 'A'; 
+UPDATE storage_masters set coord_y_order = 2 where parent_storage_coord_y = 'B'; 
+UPDATE storage_masters set coord_y_order = 3 where parent_storage_coord_y = 'C'; 
+UPDATE storage_masters set coord_y_order = 4 where parent_storage_coord_y = 'D'; 
+UPDATE storage_masters set coord_y_order = 5 where parent_storage_coord_y = 'E'; 
+UPDATE storage_masters set coord_y_order = 6 where parent_storage_coord_y = 'F'; 
+UPDATE storage_masters set coord_y_order = 7 where parent_storage_coord_y = 'G'; 
+UPDATE storage_masters set coord_y_order = 8 where parent_storage_coord_y = 'H'; 
+UPDATE storage_masters set coord_y_order = 9 where parent_storage_coord_y = 'I';       
+    
+    
+-- ici
+    
 ALTER TABLE storage_controls
     ADD display_x_size tinyint(3) UNSIGNED NOT NULL DEFAULT 0,
     ADD display_y_size tinyint(3) UNSIGNED NOT NULL DEFAULT 0,
@@ -1291,64 +1308,25 @@ INSERT INTO `storage_controls` (`id`, `storage_type`, `storage_type_code`, `coor
 (19, 'TMA-blc 23X15', 'TMA345', 'column', 'integer', 23, 'row', 'integer', 15, 0, 0, 0, 0, 'FALSE', 'TRUE', 'active', 'std_tma_blocks', 'std_2_dim_position_selection', 'std_tma_blocks'),
 (20, 'TMA-blc 29X21', 'TMA609', 'column', 'integer', 29, 'row', 'integer', 21, 0, 0, 0, 0, 'FALSE', 'TRUE', 'active', 'std_tma_blocks', 'std_2_dim_position_selection', 'std_tma_blocks');
 SET FOREIGN_KEY_CHECKS=1;
-#
-#  Fieldformats of
-#    storage_controls.form_alias changed from varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci to varchar(255) NOT NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci.
-#    storage_controls.detail_tablename changed from varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci to varchar(255) NOT NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci.
-#  Possibly data modifications needed!
-#
 
-ALTER TABLE storage_coordinates
-    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    MODIFY storage_master_id int(11) NULL DEFAULT NULL COMMENT '',
-    MODIFY coordinate_value varchar(50) NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci;
-#
-#  Fieldformats of
-#    storage_coordinates.storage_master_id changed from int(11) NOT NULL DEFAULT '0' COMMENT '' to int(11) NULL DEFAULT NULL COMMENT ''.
-#    storage_coordinates.coordinate_value changed from varchar(30) NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci to varchar(50) NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci.
-#  Possibly data modifications needed!
-#
-
-ALTER TABLE storage_masters
-    ADD lft int(10) NULL DEFAULT NULL COMMENT '' AFTER parent_id,
-    ADD rght int(10) NULL DEFAULT NULL COMMENT '' AFTER lft,
-    ADD coord_x_order int(3) NULL DEFAULT NULL COMMENT '' AFTER parent_storage_coord_x,
-    ADD coord_y_order int(3) NULL DEFAULT NULL COMMENT '' AFTER parent_storage_coord_y,
-    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    MODIFY barcode varchar(60) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci,
-    MODIFY selection_label varchar(60) NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci,
-    MODIFY parent_storage_coord_x varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci,
-    MODIFY parent_storage_coord_y varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci,
-    ADD UNIQUE unique_code (code),
-    ADD INDEX barcode (barcode),
-    ADD INDEX short_label (short_label),
-    ADD INDEX selection_label (selection_label);
+-- ----- to delete -----------------------------------------------------------
+-- ----------------------------------------------------------------
+-- ----------------------------------------------------------------
+-- ----------------------------------------------------------------
+-- ----------------------------------------------------------------
+-- ----------------------------------------------------------------
+-- ----------------------------------------------------------------
+-- ----------------------------------------------------------------
+-- ----------------------------------------------------------------
+-- ----------------------------------------------------------------
+-- ----------------------------------------------------------------
+-- ----------------------------------------------------------------
 
 
-ALTER TABLE tma_slides
-    CHANGE std_tma_block_id tma_block_storage_master_id int(11) NULL DEFAULT NULL COMMENT '' AFTER id,
-    ADD coord_x_order int(3) NULL DEFAULT NULL COMMENT '' AFTER storage_coord_x,
-    ADD coord_y_order int(3) NULL DEFAULT NULL COMMENT '' AFTER storage_coord_y,
-    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    DROP FOREIGN KEY tma_slides_ibfk_3,
-    ADD UNIQUE unique_barcode (barcode),
-    ADD INDEX barcode (barcode),
-    ADD INDEX product_code (product_code),
-    ADD FOREIGN KEY (`tma_block_storage_master_id`) REFERENCES `storage_masters` (`id`);
+   
 
 
 
-ALTER TABLE users
-    CHANGE passwd password varchar(255) NOT NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci AFTER last_name,
- 	ALTER help_visible DROP DEFAULT;
-
-#TODO - the following update fixes the foreign key
-UPDATE clinical_collection_links SET participant_id=NULL WHERE participant_id=0;
-UPDATE clinical_collection_links SET consent_master_id=NULL WHERE consent_master_id=0;
-UPDATE clinical_collection_links SET diagnosis_master_id=NULL WHERE diagnosis_master_id=0;
 ALTER TABLE clinical_collection_links
     ADD FOREIGN KEY (`collection_id`) REFERENCES `collections` (`id`),
   	ADD FOREIGN KEY (`consent_master_id`) REFERENCES `consent_masters` (`id`),
