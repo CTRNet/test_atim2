@@ -692,13 +692,7 @@ ALTER TABLE sample_masters
 ALTER TABLE sample_masters_revs
     ADD `sample_label` varchar(60) NOT NULL DEFAULT '' AFTER parent_id;    
     
-# COLLECTION & BANK ------------------------------------------------------  
-    
-ALTER TABLE banks
-    ADD created_by int(11) NOT NULL DEFAULT 0 COMMENT '' AFTER description,
-    ADD modified_by int(11) NOT NULL DEFAULT 0 COMMENT '' AFTER created,
-    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted;
+# COLLECTION -------------------------------------------------------------  
 
 ALTER TABLE collections
     ADD bank_id int(11) NULL DEFAULT NULL COMMENT '' AFTER acquisition_label,
@@ -715,15 +709,6 @@ ALTER TABLE collections
  
 ALTER TABLE collections_revs
     ADD `visit_label` varchar(20) DEFAULT NULL AFTER bank_id;
-
-DELETE FROM banks;
-
-INSERT INTO banks (id, name) VALUES
-(1, 'Breast / Sein'),
-(2, 'Ovary / Ovaire'),
-(3, 'Prostate / Prostate'),
-(4, 'Kidney / Rein'),
-(5, 'Head and Neck / Tête et cou');
 
 UPDATE collections SET bank_id = '1' WHERE bank = 'breast';     
 UPDATE collections SET bank_id = '2' WHERE bank = 'ovary';   
@@ -1055,11 +1040,12 @@ sardo_morpho_desc,icd_o_grade,grade,stade_figo,laterality,sardo_diagnosis_id,las
 (SELECT id, id, 
 sardo_morpho_desc,icd_o_grade,grade,stade_figo,laterality,sardo_diagnosis_id,last_sardo_import_date FROM diagnoses);
 
+ALTER TABLE event_masters DROP FOREIGN KEY event_masters_ibfk_2;
 DROP TABLE diagnoses;
 
-UPDATE participants SET dx_date_accuracy='' WHERE dx_date_accuracy='no' AND dx_date IS NULL;
-UPDATE participants SET dx_date_accuracy='c' WHERE dx_date_accuracy='no';
-UPDATE participants SET dx_date_accuracy='' WHERE dx_date_accuracy!='c';
+UPDATE diagnosis_masters SET dx_date_accuracy='' WHERE dx_date_accuracy='no' AND dx_date IS NULL;
+UPDATE diagnosis_masters SET dx_date_accuracy='c' WHERE dx_date_accuracy='no';
+UPDATE diagnosis_masters SET dx_date_accuracy='' WHERE dx_date_accuracy!='c';
 
 DELETE FROM diagnosis_controls;
 INSERT INTO diagnosis_controls (controls_type, form_alias, detail_tablename)
@@ -1117,11 +1103,13 @@ AND `event_type` LIKE 'procure');
 ALTER TABLE event_controls
     ADD display_order int(11) NOT NULL DEFAULT '0' COMMENT '' AFTER detail_tablename;
    
-SET @lifestyle_ctrl_id = SELECT id FROM event_controls WHERE `disease_site` LIKE 'all' AND `event_group` LIKE 'lifestyle' ;AND `event_type` LIKE 'procure';  
+SET @lifestyle_ctrl_id = (SELECT id FROM event_controls WHERE `disease_site` LIKE 'all' AND `event_group` LIKE 'lifestyle' AND `event_type` LIKE 'procure');  
 DELETE FROM event_controls WHERE id NOT IN (@lifestyle_ctrl_id);
 
 UPDATE event_masters SET event_control_id = @lifestyle_ctrl_id;
 
+
+ALTER TABLE `ed_all_procure_lifestyle` DROP FOREIGN KEY ed_all_procure_lifestyle_ibfk_1; 
 DROP TABLE event_masters_old;
 
 CREATE TABLE IF NOT EXISTS `ed_all_procure_lifestyle_revs` (
@@ -1206,10 +1194,6 @@ DROP TABLE reproductive_histories_old;
 ##########################################################################
 # TOOLS # OTHER
 ##########################################################################
-
-ALTER TABLE users
-    CHANGE passwd password varchar(255) NOT NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci AFTER last_name,
- 	ALTER help_visible DROP DEFAULT;
  	
 ALTER TABLE study_summaries
     ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER path_to_file,
@@ -1271,9 +1255,6 @@ UPDATE storage_masters set coord_y_order = 7 where parent_storage_coord_y = 'G';
 UPDATE storage_masters set coord_y_order = 8 where parent_storage_coord_y = 'H'; 
 UPDATE storage_masters set coord_y_order = 9 where parent_storage_coord_y = 'I';       
     
-    
--- ici
-    
 ALTER TABLE storage_controls
     ADD display_x_size tinyint(3) UNSIGNED NOT NULL DEFAULT 0,
     ADD display_y_size tinyint(3) UNSIGNED NOT NULL DEFAULT 0,
@@ -1282,698 +1263,626 @@ ALTER TABLE storage_controls
     MODIFY form_alias varchar(255) NOT NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci,
     MODIFY detail_tablename varchar(255) NOT NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci;
 
-UPDATE storage_controls SET detail_tablename = 'std_boxs' WHERE id IN(101, 102, 103);
-UPDATE storage_controls SET detail_tablename = 'std_racks' WHERE id IN(100, 104);
-
-SET FOREIGN_KEY_CHECKS=0;
-DELETE FROM storage_controls WHERE id < 100;
-INSERT INTO `storage_controls` (`id`, `storage_type`, `storage_type_code`, `coord_x_title`, `coord_x_type`, `coord_x_size`, `coord_y_title`, `coord_y_type`, `coord_y_size`, `display_x_size`, `display_y_size`, `reverse_x_numbering`, `reverse_y_numbering`, `set_temperature`, `is_tma_block`, `status`, `form_alias`, `form_alias_for_children_pos`, `detail_tablename`) VALUES
-(1, 'room', 'R', NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 'TRUE', 'FALSE', 'active', 'std_rooms', NULL, 'std_rooms'),
-(2, 'cupboard', 'CP', 'shelf', 'list', NULL, NULL, NULL, NULL, 0, 0, 0, 0, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_cupboards'),
-(3, 'nitrogen locator', 'NL', NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 'TRUE', 'FALSE', 'active', 'std_undetail_stg_with_tmp', NULL, 'std_nitro_locates'),
-(4, 'incubator', 'INC', 'shelf', 'list', NULL, NULL, NULL, NULL, 0, 0, 0, 0, 'TRUE', 'FALSE', 'active', 'std_incubators', 'std_1_dim_position_selection', 'std_incubators'),
-(5, 'fridge', 'FRI', NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 'TRUE', 'FALSE', 'active', 'std_undetail_stg_with_tmp', NULL, 'std_fridges'),
-(6, 'freezer', 'FRE', NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 'TRUE', 'FALSE', 'active', 'std_undetail_stg_with_tmp', NULL, 'std_freezers'),
-(8, 'box', 'B', NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', NULL, 'std_boxs'),
-(9, 'box81 1A-9I', 'B2D81', 'column', 'integer', 9, 'row', 'alphabetical', 9, 0, 0, 0, 0, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_2_dim_position_selection', 'std_boxs'),
-(10, 'box81', 'B81', 'position', 'integer', 81, NULL, NULL, NULL, 9, 9, 0, 0, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_boxs'),
-(11, 'rack16', 'R2D16', 'column', 'alphabetical', 4, 'row', 'integer', 4, 0, 0, 0, 0, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_2_dim_position_selection', 'std_racks'),
-(12, 'rack10', 'R10', 'position', 'integer', 10, NULL, NULL, NULL, 0, 0, 0, 0, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_racks'),
-(13, 'rack24', 'R24', 'position', 'integer', 24, NULL, NULL, NULL, 0, 0, 0, 0, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_racks'),
-(14, 'shelf', 'SH', NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', NULL, 'std_shelfs'),
-(15, 'rack11', 'R11', 'position', 'integer', 11, NULL, NULL, NULL, 0, 0, 0, 0, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_racks'),
-(16, 'rack9', 'R9', 'position', 'integer', 9, NULL, NULL, NULL, 0, 0, 0, 0, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_racks'),
-(17, 'box25', 'B25', 'position', 'integer', 25, NULL, NULL, NULL, 5, 5, 0, 0, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_boxs'),
-(18, 'box100 1A-20E', 'B2D100', 'column', 'integer', 20, 'row', 'alphabetical', 5, 0, 0, 0, 0, 'FALSE', 'FALSE', 'active', 'std_undetail_stg_with_surr_tmp', 'std_2_dim_position_selection', 'std_boxs'),
-(19, 'TMA-blc 23X15', 'TMA345', 'column', 'integer', 23, 'row', 'integer', 15, 0, 0, 0, 0, 'FALSE', 'TRUE', 'active', 'std_tma_blocks', 'std_2_dim_position_selection', 'std_tma_blocks'),
-(20, 'TMA-blc 29X21', 'TMA609', 'column', 'integer', 29, 'row', 'integer', 21, 0, 0, 0, 0, 'FALSE', 'TRUE', 'active', 'std_tma_blocks', 'std_2_dim_position_selection', 'std_tma_blocks');
-SET FOREIGN_KEY_CHECKS=1;
-
--- ----- to delete -----------------------------------------------------------
--- ----------------------------------------------------------------
--- ----------------------------------------------------------------
--- ----------------------------------------------------------------
--- ----------------------------------------------------------------
--- ----------------------------------------------------------------
--- ----------------------------------------------------------------
--- ----------------------------------------------------------------
--- ----------------------------------------------------------------
--- ----------------------------------------------------------------
--- ----------------------------------------------------------------
--- ----------------------------------------------------------------
-
-
+UPDATE storage_controls SET is_tma_block = 'FALSE' WHERE is_tma_block != 'TRUE' OR is_tma_block IS NULL;
+UPDATE storage_controls SET set_temperature = 'FALSE' WHERE  storage_type LIKE 'rack20';
    
+UPDATE storage_controls SET display_x_size = '9', display_y_size = '9' WHERE storage_type = 'box81';
+UPDATE storage_controls SET display_x_size = '4', display_y_size = '6' WHERE storage_type = 'rack24';
+UPDATE storage_controls SET display_x_size = '5', display_y_size = '5' WHERE storage_type = 'box25';	
+UPDATE storage_controls SET display_x_size = '10', display_y_size = '10' WHERE storage_type = 'box100';	
+UPDATE storage_controls SET display_x_size = '7', display_y_size = '7' WHERE storage_type = 'box49';	
+UPDATE storage_controls SET display_x_size = '4', display_y_size = '5' WHERE storage_type = 'rack20';	
 
+UPDATE storage_controls SET detail_tablename = 'std_boxs' WHERE storage_type LIKE 'box%';
+INSERT std_boxs (id, storage_master_id, created, created_by, modified, modified_by)
+(SELECT id, id, created, created_by, modified, modified_by FROM storage_masters WHERE storage_control_id IN (SELECT id FROM storage_controls WHERE storage_type LIKE 'box%'));
 
+UPDATE storage_controls SET detail_tablename = 'std_racks' WHERE storage_type LIKE 'rack%';
+INSERT std_racks (id, storage_master_id, created, created_by, modified, modified_by)
+(SELECT id, id, created, created_by, modified, modified_by FROM storage_masters WHERE storage_control_id IN 
+(SELECT id FROM storage_controls WHERE storage_type LIKE 'rack%'));
 
-ALTER TABLE clinical_collection_links
-    ADD FOREIGN KEY (`collection_id`) REFERENCES `collections` (`id`),
-  	ADD FOREIGN KEY (`consent_master_id`) REFERENCES `consent_masters` (`id`),
-  	ADD FOREIGN KEY (`diagnosis_master_id`) REFERENCES `diagnosis_masters` (`id`),
-  	ADD FOREIGN KEY (`participant_id`) REFERENCES `participants` (`id`);
+UPDATE storage_controls SET detail_tablename = 'std_cupboards' WHERE storage_type LIKE 'cupboard';
+INSERT std_cupboards (id, storage_master_id, created, created_by, modified, modified_by)
+(SELECT id, id, created, created_by, modified, modified_by FROM storage_masters WHERE storage_control_id IN 
+(SELECT id FROM storage_controls WHERE storage_type LIKE 'cupboard'));
 
-#TODO: This query fixes the unmatched foreign key. Investigate the cause
-UPDATE order_items SET aliquot_use_id=NULL WHERE aliquot_use_id=0;
-ALTER TABLE order_items
-    ADD FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`),
-  	ADD FOREIGN KEY (`aliquot_use_id`) REFERENCES `aliquot_uses` (`id`),
-  	ADD FOREIGN KEY (`order_line_id`) REFERENCES `order_lines` (`id`),
-  	ADD FOREIGN KEY (`shipment_id`) REFERENCES `shipments` (`id`);
+UPDATE storage_controls SET detail_tablename = 'std_freezers' WHERE storage_type LIKE 'freezer';
+INSERT std_freezers (id, storage_master_id, created, created_by, modified, modified_by)
+(SELECT id, id, created, created_by, modified, modified_by FROM storage_masters WHERE storage_control_id IN 
+(SELECT id FROM storage_controls WHERE storage_type LIKE 'freezer'));
 
-  	
-  	
-  	
-  	
--- Create INDEX for access control object (acos) table.
-#TODO - validate that an index does not exists before creating it my brave
-CREATE INDEX acos_idx1 ON acos (lft, rght);
-CREATE INDEX acos_idx2 ON acos (alias);
-CREATE INDEX acos_idx3 ON acos (model, foreign_key);
+UPDATE storage_controls SET detail_tablename = 'std_fridges' WHERE storage_type LIKE 'fridge';
+INSERT std_fridges (id, storage_master_id, created, created_by, modified, modified_by)
+(SELECT id, id, created, created_by, modified, modified_by FROM storage_masters WHERE storage_control_id IN 
+(SELECT id FROM storage_controls WHERE storage_type LIKE 'fridge'));
 
-CREATE INDEX aros_idx1 ON aros (lft, rght);
-CREATE INDEX aros_idx2 ON aros (alias);
-CREATE INDEX aros_idx3 ON aros (model, foreign_key);
+UPDATE storage_controls SET detail_tablename = 'std_nitro_locates' WHERE storage_type LIKE 'nitrogen locator';
+INSERT std_nitro_locates (id, storage_master_id, created, created_by, modified, modified_by)
+(SELECT id, id, created, created_by, modified, modified_by FROM storage_masters WHERE storage_control_id IN 
+(SELECT id FROM storage_controls WHERE storage_type LIKE 'nitrogen locator'));
 
-
--- Clinical Annotation Foreign Keys --
-
-ALTER TABLE `clinical_collection_links`
-  ADD CONSTRAINT `FK_clinical_collection_links_participant`
-  FOREIGN KEY (`participant_id`) REFERENCES `participants` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
-
-ALTER TABLE `clinical_collection_links`
-  ADD CONSTRAINT `FK_clinical_collection_links_diagnosis_masters`
-  FOREIGN KEY (`diagnosis_master_id`) REFERENCES `diagnosis_masters` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
-
-ALTER TABLE `clinical_collection_links`
-  ADD CONSTRAINT `FK_clinical_collection_links_consent_masters`
-  FOREIGN KEY (`consent_master_id`) REFERENCES `consent_masters` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
-
-ALTER TABLE `clinical_collection_links`
-  ADD CONSTRAINT `FK_clinical_collection_links_collections`
-  FOREIGN KEY (`collection_id`) REFERENCES `collections` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
-
-ALTER TABLE `participants` 
-  ADD CONSTRAINT `FK_participants_icd10_code`
-  FOREIGN KEY (cod_icd10_code) REFERENCES coding_icd10 (id)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
+UPDATE storage_controls SET detail_tablename = 'std_shelfs' WHERE storage_type LIKE 'shelf';
+INSERT std_shelfs (id, storage_master_id, created, created_by, modified, modified_by)
+(SELECT id, id, created, created_by, modified, modified_by FROM storage_masters WHERE storage_control_id IN 
+(SELECT id FROM storage_controls WHERE storage_type LIKE 'shelf'));
   
-ALTER TABLE `participants` 
-  ADD CONSTRAINT `FK_participants_icd10_code_2`
-  FOREIGN KEY (secondary_cod_icd10_code) REFERENCES coding_icd10 (id)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
+##########################################################################
+# SYSTEM
+##########################################################################
+
+DELETE FROM `acos`;
+INSERT INTO `acos` (`id`, `parent_id`, `model`, `foreign_key`, `alias`, `lft`, `rght`) VALUES
+(1, NULL, NULL, NULL, 'controllers', 1, 930),
+(2, 1, NULL, NULL, 'Administrate', 2, 111),
+(3, 2, NULL, NULL, 'Announcements', 3, 14),
+(4, 3, NULL, NULL, 'add', 4, 5),
+(5, 3, NULL, NULL, 'index', 6, 7),
+(6, 3, NULL, NULL, 'detail', 8, 9),
+(7, 3, NULL, NULL, 'edit', 10, 11),
+(8, 3, NULL, NULL, 'delete', 12, 13),
+(9, 2, NULL, NULL, 'Banks', 15, 26),
+(10, 9, NULL, NULL, 'add', 16, 17),
+(11, 9, NULL, NULL, 'index', 18, 19),
+(12, 9, NULL, NULL, 'detail', 20, 21),
+(13, 9, NULL, NULL, 'edit', 22, 23),
+(14, 9, NULL, NULL, 'delete', 24, 25),
+(15, 2, NULL, NULL, 'Groups', 27, 38),
+(16, 15, NULL, NULL, 'index', 28, 29),
+(17, 15, NULL, NULL, 'detail', 30, 31),
+(18, 15, NULL, NULL, 'add', 32, 33),
+(19, 15, NULL, NULL, 'edit', 34, 35),
+(20, 15, NULL, NULL, 'delete', 36, 37),
+(21, 2, NULL, NULL, 'Menus', 39, 48),
+(22, 21, NULL, NULL, 'index', 40, 41),
+(23, 21, NULL, NULL, 'detail', 42, 43),
+(24, 21, NULL, NULL, 'edit', 44, 45),
+(25, 21, NULL, NULL, 'add', 46, 47),
+(26, 2, NULL, NULL, 'Passwords', 49, 52),
+(27, 26, NULL, NULL, 'index', 50, 51),
+(28, 2, NULL, NULL, 'Permissions', 53, 66),
+(29, 28, NULL, NULL, 'index', 54, 55),
+(30, 28, NULL, NULL, 'regenerate', 56, 57),
+(31, 28, NULL, NULL, 'update', 58, 59),
+(32, 28, NULL, NULL, 'updatePermission', 60, 61),
+(33, 28, NULL, NULL, 'tree', 62, 63),
+(34, 28, NULL, NULL, 'addPermissionStateToThreadedData', 64, 65),
+(35, 2, NULL, NULL, 'Preferences', 67, 72),
+(36, 35, NULL, NULL, 'index', 68, 69),
+(37, 35, NULL, NULL, 'edit', 70, 71),
+(38, 2, NULL, NULL, 'StructureFormats', 73, 82),
+(39, 38, NULL, NULL, 'listall', 74, 75),
+(40, 38, NULL, NULL, 'detail', 76, 77),
+(41, 38, NULL, NULL, 'edit', 78, 79),
+(42, 38, NULL, NULL, 'add', 80, 81),
+(43, 2, NULL, NULL, 'Structures', 83, 92),
+(44, 43, NULL, NULL, 'index', 84, 85),
+(45, 43, NULL, NULL, 'detail', 86, 87),
+(46, 43, NULL, NULL, 'edit', 88, 89),
+(47, 43, NULL, NULL, 'add', 90, 91),
+(48, 2, NULL, NULL, 'UserLogs', 93, 96),
+(49, 48, NULL, NULL, 'index', 94, 95),
+(50, 2, NULL, NULL, 'Users', 97, 106),
+(51, 50, NULL, NULL, 'listall', 98, 99),
+(52, 50, NULL, NULL, 'detail', 100, 101),
+(53, 50, NULL, NULL, 'add', 102, 103),
+(54, 50, NULL, NULL, 'edit', 104, 105),
+(55, 2, NULL, NULL, 'Versions', 107, 110),
+(56, 55, NULL, NULL, 'detail', 108, 109),
+(57, 1, NULL, NULL, 'App', 112, 153),
+(58, 57, NULL, NULL, 'Groups', 113, 124),
+(59, 58, NULL, NULL, 'index', 114, 115),
+(60, 58, NULL, NULL, 'view', 116, 117),
+(61, 58, NULL, NULL, 'add', 118, 119),
+(62, 58, NULL, NULL, 'edit', 120, 121),
+(63, 58, NULL, NULL, 'delete', 122, 123),
+(64, 57, NULL, NULL, 'Menus', 125, 130),
+(65, 64, NULL, NULL, 'index', 126, 127),
+(66, 64, NULL, NULL, 'update', 128, 129),
+(67, 57, NULL, NULL, 'Pages', 131, 134),
+(68, 67, NULL, NULL, 'display', 132, 133),
+(69, 57, NULL, NULL, 'Posts', 135, 146),
+(70, 69, NULL, NULL, 'index', 136, 137),
+(71, 69, NULL, NULL, 'view', 138, 139),
+(72, 69, NULL, NULL, 'add', 140, 141),
+(73, 69, NULL, NULL, 'edit', 142, 143),
+(74, 69, NULL, NULL, 'delete', 144, 145),
+(75, 57, NULL, NULL, 'Users', 147, 152),
+(76, 75, NULL, NULL, 'login', 148, 149),
+(77, 75, NULL, NULL, 'logout', 150, 151),
+(78, 1, NULL, NULL, 'Clinicalannotation', 154, 333),
+(79, 78, NULL, NULL, 'ClinicalCollectionLinks', 155, 168),
+(80, 79, NULL, NULL, 'listall', 156, 157),
+(81, 79, NULL, NULL, 'detail', 158, 159),
+(82, 79, NULL, NULL, 'add', 160, 161),
+(83, 79, NULL, NULL, 'edit', 162, 163),
+(84, 79, NULL, NULL, 'delete', 164, 165),
+(85, 79, NULL, NULL, 'allowClinicalCollectionLinkDeletion', 166, 167),
+(86, 78, NULL, NULL, 'ConsentMasters', 169, 182),
+(87, 86, NULL, NULL, 'listall', 170, 171),
+(88, 86, NULL, NULL, 'detail', 172, 173),
+(89, 86, NULL, NULL, 'add', 174, 175),
+(90, 86, NULL, NULL, 'edit', 176, 177),
+(91, 86, NULL, NULL, 'delete', 178, 179),
+(92, 86, NULL, NULL, 'allowConsentDeletion', 180, 181),
+(93, 78, NULL, NULL, 'DiagnosisMasters', 183, 198),
+(94, 93, NULL, NULL, 'listall', 184, 185),
+(95, 93, NULL, NULL, 'detail', 186, 187),
+(96, 93, NULL, NULL, 'add', 188, 189),
+(97, 93, NULL, NULL, 'edit', 190, 191),
+(98, 93, NULL, NULL, 'delete', 192, 193),
+(99, 93, NULL, NULL, 'allowDiagnosisDeletion', 194, 195),
+(100, 93, NULL, NULL, 'buildAndSetExistingDx', 196, 197),
+(101, 78, NULL, NULL, 'EventMasters', 199, 212),
+(102, 101, NULL, NULL, 'listall', 200, 201),
+(103, 101, NULL, NULL, 'detail', 202, 203),
+(104, 101, NULL, NULL, 'add', 204, 205),
+(105, 101, NULL, NULL, 'edit', 206, 207),
+(106, 101, NULL, NULL, 'delete', 208, 209),
+(107, 101, NULL, NULL, 'allowEventDeletion', 210, 211),
+(108, 78, NULL, NULL, 'FamilyHistories', 213, 226),
+(109, 108, NULL, NULL, 'listall', 214, 215),
+(110, 108, NULL, NULL, 'detail', 216, 217),
+(111, 108, NULL, NULL, 'add', 218, 219),
+(112, 108, NULL, NULL, 'edit', 220, 221),
+(113, 108, NULL, NULL, 'delete', 222, 223),
+(114, 108, NULL, NULL, 'allowFamilyHistoryDeletion', 224, 225),
+(115, 78, NULL, NULL, 'MiscIdentifiers', 227, 244),
+(116, 115, NULL, NULL, 'index', 228, 229),
+(117, 115, NULL, NULL, 'search', 230, 231),
+(118, 115, NULL, NULL, 'listall', 232, 233),
+(119, 115, NULL, NULL, 'detail', 234, 235),
+(120, 115, NULL, NULL, 'add', 236, 237),
+(121, 115, NULL, NULL, 'edit', 238, 239),
+(122, 115, NULL, NULL, 'delete', 240, 241),
+(123, 115, NULL, NULL, 'allowMiscIdentifierDeletion', 242, 243),
+(124, 78, NULL, NULL, 'ParticipantContacts', 245, 258),
+(125, 124, NULL, NULL, 'listall', 246, 247),
+(126, 124, NULL, NULL, 'detail', 248, 249),
+(127, 124, NULL, NULL, 'add', 250, 251),
+(128, 124, NULL, NULL, 'edit', 252, 253),
+(129, 124, NULL, NULL, 'delete', 254, 255),
+(130, 124, NULL, NULL, 'allowParticipantContactDeletion', 256, 257),
+(131, 78, NULL, NULL, 'ParticipantMessages', 259, 272),
+(132, 131, NULL, NULL, 'listall', 260, 261),
+(133, 131, NULL, NULL, 'detail', 262, 263),
+(134, 131, NULL, NULL, 'add', 264, 265),
+(135, 131, NULL, NULL, 'edit', 266, 267),
+(136, 131, NULL, NULL, 'delete', 268, 269),
+(137, 131, NULL, NULL, 'allowParticipantMessageDeletion', 270, 271),
+(138, 78, NULL, NULL, 'Participants', 273, 290),
+(139, 138, NULL, NULL, 'index', 274, 275),
+(140, 138, NULL, NULL, 'search', 276, 277),
+(141, 138, NULL, NULL, 'profile', 278, 279),
+(142, 138, NULL, NULL, 'add', 280, 281),
+(143, 138, NULL, NULL, 'edit', 282, 283),
+(144, 138, NULL, NULL, 'delete', 284, 285),
+(145, 138, NULL, NULL, 'allowParticipantDeletion', 286, 287),
+(146, 138, NULL, NULL, 'chronology', 288, 289),
+(147, 78, NULL, NULL, 'ProductMasters', 291, 294),
+(148, 147, NULL, NULL, 'productsTreeView', 292, 293),
+(149, 78, NULL, NULL, 'ReproductiveHistories', 295, 308),
+(150, 149, NULL, NULL, 'listall', 296, 297),
+(151, 149, NULL, NULL, 'detail', 298, 299),
+(152, 149, NULL, NULL, 'add', 300, 301),
+(153, 149, NULL, NULL, 'edit', 302, 303),
+(154, 149, NULL, NULL, 'delete', 304, 305),
+(155, 149, NULL, NULL, 'allowReproductiveHistoryDeletion', 306, 307),
+(156, 78, NULL, NULL, 'TreatmentExtends', 309, 320),
+(157, 156, NULL, NULL, 'listall', 310, 311),
+(158, 156, NULL, NULL, 'detail', 312, 313),
+(159, 156, NULL, NULL, 'add', 314, 315),
+(160, 156, NULL, NULL, 'edit', 316, 317),
+(161, 156, NULL, NULL, 'delete', 318, 319),
+(162, 78, NULL, NULL, 'TreatmentMasters', 321, 332),
+(163, 162, NULL, NULL, 'listall', 322, 323),
+(164, 162, NULL, NULL, 'detail', 324, 325),
+(165, 162, NULL, NULL, 'edit', 326, 327),
+(166, 162, NULL, NULL, 'add', 328, 329),
+(167, 162, NULL, NULL, 'delete', 330, 331),
+(168, 1, NULL, NULL, 'Codingicd10', 334, 341),
+(169, 168, NULL, NULL, 'CodingIcd10s', 335, 340),
+(170, 169, NULL, NULL, 'tool', 336, 337),
+(171, 169, NULL, NULL, 'autoComplete', 338, 339),
+(172, 1, NULL, NULL, 'Customize', 342, 365),
+(173, 172, NULL, NULL, 'Announcements', 343, 348),
+(174, 173, NULL, NULL, 'index', 344, 345),
+(175, 173, NULL, NULL, 'detail', 346, 347),
+(176, 172, NULL, NULL, 'Passwords', 349, 352),
+(177, 176, NULL, NULL, 'index', 350, 351),
+(178, 172, NULL, NULL, 'Preferences', 353, 358),
+(179, 178, NULL, NULL, 'index', 354, 355),
+(180, 178, NULL, NULL, 'edit', 356, 357),
+(181, 172, NULL, NULL, 'Profiles', 359, 364),
+(182, 181, NULL, NULL, 'index', 360, 361),
+(183, 181, NULL, NULL, 'edit', 362, 363),
+(184, 1, NULL, NULL, 'Datamart', 366, 415),
+(185, 184, NULL, NULL, 'AdhocSaved', 367, 380),
+(186, 185, NULL, NULL, 'index', 368, 369),
+(187, 185, NULL, NULL, 'add', 370, 371),
+(188, 185, NULL, NULL, 'search', 372, 373),
+(189, 185, NULL, NULL, 'results', 374, 375),
+(190, 185, NULL, NULL, 'edit', 376, 377),
+(191, 185, NULL, NULL, 'delete', 378, 379),
+(192, 184, NULL, NULL, 'Adhocs', 381, 396),
+(193, 192, NULL, NULL, 'index', 382, 383),
+(194, 192, NULL, NULL, 'favourite', 384, 385),
+(195, 192, NULL, NULL, 'unfavourite', 386, 387),
+(196, 192, NULL, NULL, 'search', 388, 389),
+(197, 192, NULL, NULL, 'results', 390, 391),
+(198, 192, NULL, NULL, 'process', 392, 393),
+(199, 192, NULL, NULL, 'csv', 394, 395),
+(200, 184, NULL, NULL, 'BatchSets', 397, 414),
+(201, 200, NULL, NULL, 'index', 398, 399),
+(202, 200, NULL, NULL, 'listall', 400, 401),
+(203, 200, NULL, NULL, 'add', 402, 403),
+(204, 200, NULL, NULL, 'edit', 404, 405),
+(205, 200, NULL, NULL, 'delete', 406, 407),
+(206, 200, NULL, NULL, 'process', 408, 409),
+(207, 200, NULL, NULL, 'remove', 410, 411),
+(208, 200, NULL, NULL, 'csv', 412, 413),
+(209, 1, NULL, NULL, 'Drug', 416, 433),
+(210, 209, NULL, NULL, 'Drugs', 417, 432),
+(211, 210, NULL, NULL, 'index', 418, 419),
+(212, 210, NULL, NULL, 'search', 420, 421),
+(213, 210, NULL, NULL, 'listall', 422, 423),
+(214, 210, NULL, NULL, 'add', 424, 425),
+(215, 210, NULL, NULL, 'edit', 426, 427),
+(216, 210, NULL, NULL, 'detail', 428, 429),
+(217, 210, NULL, NULL, 'delete', 430, 431),
+(218, 1, NULL, NULL, 'Inventorymanagement', 434, 559),
+(219, 218, NULL, NULL, 'AliquotMasters', 435, 490),
+(220, 219, NULL, NULL, 'index', 436, 437),
+(221, 219, NULL, NULL, 'search', 438, 439),
+(222, 219, NULL, NULL, 'listAll', 440, 441),
+(223, 219, NULL, NULL, 'add', 442, 443),
+(224, 219, NULL, NULL, 'detail', 444, 445),
+(225, 219, NULL, NULL, 'edit', 446, 447),
+(226, 219, NULL, NULL, 'removeAliquotFromStorage', 448, 449),
+(227, 219, NULL, NULL, 'delete', 450, 451),
+(228, 219, NULL, NULL, 'addAliquotUse', 452, 453),
+(229, 219, NULL, NULL, 'editAliquotUse', 454, 455),
+(230, 219, NULL, NULL, 'deleteAliquotUse', 456, 457),
+(231, 219, NULL, NULL, 'addSourceAliquots', 458, 459),
+(232, 219, NULL, NULL, 'listAllSourceAliquots', 460, 461),
+(233, 219, NULL, NULL, 'defineRealiquotedChildren', 462, 463),
+(234, 219, NULL, NULL, 'listAllRealiquotedParents', 464, 465),
+(235, 219, NULL, NULL, 'getStudiesList', 466, 467),
+(236, 219, NULL, NULL, 'getSampleBlocksList', 468, 469),
+(237, 219, NULL, NULL, 'getSampleGelMatricesList', 470, 471),
+(238, 219, NULL, NULL, 'getDefaultAliquotStorageDate', 472, 473),
+(239, 219, NULL, NULL, 'isDuplicatedAliquotBarcode', 474, 475),
+(240, 219, NULL, NULL, 'formatAliquotFieldDecimalData', 476, 477),
+(241, 219, NULL, NULL, 'validateAliquotStorageData', 478, 479),
+(242, 219, NULL, NULL, 'allowAliquotDeletion', 480, 481),
+(243, 219, NULL, NULL, 'getDefaultRealiquotingDate', 482, 483),
+(244, 219, NULL, NULL, 'formatPreselectedStoragesForDisplay', 484, 485),
+(245, 219, NULL, NULL, 'formatBlocksForDisplay', 486, 487),
+(246, 219, NULL, NULL, 'formatGelMatricesForDisplay', 488, 489),
+(247, 218, NULL, NULL, 'Collections', 491, 506),
+(248, 247, NULL, NULL, 'index', 492, 493),
+(249, 247, NULL, NULL, 'search', 494, 495),
+(250, 247, NULL, NULL, 'detail', 496, 497),
+(251, 247, NULL, NULL, 'add', 498, 499),
+(252, 247, NULL, NULL, 'edit', 500, 501),
+(253, 247, NULL, NULL, 'delete', 502, 503),
+(254, 247, NULL, NULL, 'allowCollectionDeletion', 504, 505),
+(255, 218, NULL, NULL, 'PathCollectionReviews', 507, 508),
+(256, 218, NULL, NULL, 'QualityCtrls', 509, 528),
+(257, 256, NULL, NULL, 'listAll', 510, 511),
+(258, 256, NULL, NULL, 'add', 512, 513),
+(259, 256, NULL, NULL, 'detail', 514, 515),
+(260, 256, NULL, NULL, 'edit', 516, 517),
+(261, 256, NULL, NULL, 'if', 518, 519),
+(262, 256, NULL, NULL, 'delete', 520, 521),
+(263, 256, NULL, NULL, 'addTestedAliquots', 522, 523),
+(264, 256, NULL, NULL, 'allowQcDeletion', 524, 525),
+(265, 256, NULL, NULL, 'createQcCode', 526, 527),
+(266, 218, NULL, NULL, 'ReviewMasters', 529, 530),
+(267, 218, NULL, NULL, 'SampleMasters', 531, 558),
+(268, 267, NULL, NULL, 'index', 532, 533),
+(269, 267, NULL, NULL, 'search', 534, 535),
+(270, 267, NULL, NULL, 'contentTreeView', 536, 537),
+(271, 267, NULL, NULL, 'listAll', 538, 539),
+(272, 267, NULL, NULL, 'detail', 540, 541),
+(273, 267, NULL, NULL, 'add', 542, 543),
+(274, 267, NULL, NULL, 'edit', 544, 545),
+(275, 267, NULL, NULL, 'delete', 546, 547),
+(276, 267, NULL, NULL, 'createSampleCode', 548, 549),
+(277, 267, NULL, NULL, 'allowSampleDeletion', 550, 551),
+(278, 267, NULL, NULL, 'getTissueSourceList', 552, 553),
+(279, 267, NULL, NULL, 'formatSampleFieldDecimalData', 554, 555),
+(280, 267, NULL, NULL, 'formatParentSampleDataForDisplay', 556, 557),
+(281, 1, NULL, NULL, 'Material', 560, 577),
+(282, 281, NULL, NULL, 'Materials', 561, 576),
+(283, 282, NULL, NULL, 'index', 562, 563),
+(284, 282, NULL, NULL, 'search', 564, 565),
+(285, 282, NULL, NULL, 'listall', 566, 567),
+(286, 282, NULL, NULL, 'add', 568, 569),
+(287, 282, NULL, NULL, 'edit', 570, 571),
+(288, 282, NULL, NULL, 'detail', 572, 573),
+(289, 282, NULL, NULL, 'delete', 574, 575),
+(290, 1, NULL, NULL, 'Order', 578, 649),
+(291, 290, NULL, NULL, 'OrderItems', 579, 592),
+(292, 291, NULL, NULL, 'listall', 580, 581),
+(293, 291, NULL, NULL, 'add', 582, 583),
+(294, 291, NULL, NULL, 'addAliquotsInBatch', 584, 585),
+(295, 291, NULL, NULL, 'edit', 586, 587),
+(296, 291, NULL, NULL, 'delete', 588, 589),
+(297, 291, NULL, NULL, 'allowOrderItemDeletion', 590, 591),
+(298, 290, NULL, NULL, 'OrderLines', 593, 608),
+(299, 298, NULL, NULL, 'listall', 594, 595),
+(300, 298, NULL, NULL, 'add', 596, 597),
+(301, 298, NULL, NULL, 'edit', 598, 599),
+(302, 298, NULL, NULL, 'detail', 600, 601),
+(303, 298, NULL, NULL, 'delete', 602, 603),
+(304, 298, NULL, NULL, 'generateSampleAliquotControlList', 604, 605),
+(305, 298, NULL, NULL, 'allowOrderLineDeletion', 606, 607),
+(306, 290, NULL, NULL, 'Orders', 609, 626),
+(307, 306, NULL, NULL, 'index', 610, 611),
+(308, 306, NULL, NULL, 'search', 612, 613),
+(309, 306, NULL, NULL, 'add', 614, 615),
+(310, 306, NULL, NULL, 'detail', 616, 617),
+(311, 306, NULL, NULL, 'edit', 618, 619),
+(312, 306, NULL, NULL, 'delete', 620, 621),
+(313, 306, NULL, NULL, 'getStudiesList', 622, 623),
+(314, 306, NULL, NULL, 'allowOrderDeletion', 624, 625),
+(315, 290, NULL, NULL, 'Shipments', 627, 648),
+(316, 315, NULL, NULL, 'listall', 628, 629),
+(317, 315, NULL, NULL, 'add', 630, 631),
+(318, 315, NULL, NULL, 'edit', 632, 633),
+(319, 315, NULL, NULL, 'if', 634, 635),
+(320, 315, NULL, NULL, 'detail', 636, 637),
+(321, 315, NULL, NULL, 'delete', 638, 639),
+(322, 315, NULL, NULL, 'addToShipment', 640, 641),
+(323, 315, NULL, NULL, 'deleteFromShipment', 642, 643),
+(324, 315, NULL, NULL, 'allowShipmentDeletion', 644, 645),
+(325, 315, NULL, NULL, 'allowItemRemoveFromShipment', 646, 647),
+(326, 1, NULL, NULL, 'Protocol', 650, 679),
+(327, 326, NULL, NULL, 'ProtocolExtends', 651, 662),
+(328, 327, NULL, NULL, 'listall', 652, 653),
+(329, 327, NULL, NULL, 'detail', 654, 655),
+(330, 327, NULL, NULL, 'add', 656, 657),
+(331, 327, NULL, NULL, 'edit', 658, 659),
+(332, 327, NULL, NULL, 'delete', 660, 661),
+(333, 326, NULL, NULL, 'ProtocolMasters', 663, 678),
+(334, 333, NULL, NULL, 'index', 664, 665),
+(335, 333, NULL, NULL, 'search', 666, 667),
+(336, 333, NULL, NULL, 'listall', 668, 669),
+(337, 333, NULL, NULL, 'add', 670, 671),
+(338, 333, NULL, NULL, 'detail', 672, 673),
+(339, 333, NULL, NULL, 'edit', 674, 675),
+(340, 333, NULL, NULL, 'delete', 676, 677),
+(341, 1, NULL, NULL, 'Provider', 680, 697),
+(342, 341, NULL, NULL, 'Providers', 681, 696),
+(343, 342, NULL, NULL, 'index', 682, 683),
+(344, 342, NULL, NULL, 'search', 684, 685),
+(345, 342, NULL, NULL, 'listall', 686, 687),
+(346, 342, NULL, NULL, 'add', 688, 689),
+(347, 342, NULL, NULL, 'detail', 690, 691),
+(348, 342, NULL, NULL, 'edit', 692, 693),
+(349, 342, NULL, NULL, 'delete', 694, 695),
+(350, 1, NULL, NULL, 'Rtbform', 698, 713),
+(351, 350, NULL, NULL, 'Rtbforms', 699, 712),
+(352, 351, NULL, NULL, 'index', 700, 701),
+(353, 351, NULL, NULL, 'search', 702, 703),
+(354, 351, NULL, NULL, 'profile', 704, 705),
+(355, 351, NULL, NULL, 'add', 706, 707),
+(356, 351, NULL, NULL, 'edit', 708, 709),
+(357, 351, NULL, NULL, 'delete', 710, 711),
+(358, 1, NULL, NULL, 'Sop', 714, 739),
+(359, 358, NULL, NULL, 'SopExtends', 715, 726),
+(360, 359, NULL, NULL, 'listall', 716, 717),
+(361, 359, NULL, NULL, 'detail', 718, 719),
+(362, 359, NULL, NULL, 'add', 720, 721),
+(363, 359, NULL, NULL, 'edit', 722, 723),
+(364, 359, NULL, NULL, 'delete', 724, 725),
+(365, 358, NULL, NULL, 'SopMasters', 727, 738),
+(366, 365, NULL, NULL, 'listall', 728, 729),
+(367, 365, NULL, NULL, 'add', 730, 731),
+(368, 365, NULL, NULL, 'detail', 732, 733),
+(369, 365, NULL, NULL, 'edit', 734, 735),
+(370, 365, NULL, NULL, 'delete', 736, 737),
+(371, 1, NULL, NULL, 'Storagelayout', 740, 815),
+(372, 371, NULL, NULL, 'StorageCoordinates', 741, 754),
+(373, 372, NULL, NULL, 'listAll', 742, 743),
+(374, 372, NULL, NULL, 'add', 744, 745),
+(375, 372, NULL, NULL, 'delete', 746, 747),
+(376, 372, NULL, NULL, 'allowStorageCoordinateDeletion', 748, 749),
+(377, 372, NULL, NULL, 'isDuplicatedValue', 750, 751),
+(378, 372, NULL, NULL, 'isDuplicatedOrder', 752, 753),
+(379, 371, NULL, NULL, 'StorageMasters', 755, 796),
+(380, 379, NULL, NULL, 'index', 756, 757),
+(381, 379, NULL, NULL, 'search', 758, 759),
+(382, 379, NULL, NULL, 'detail', 760, 761),
+(383, 379, NULL, NULL, 'add', 762, 763),
+(384, 379, NULL, NULL, 'edit', 764, 765),
+(385, 379, NULL, NULL, 'editStoragePosition', 766, 767),
+(386, 379, NULL, NULL, 'delete', 768, 769),
+(387, 379, NULL, NULL, 'contentTreeView', 770, 771),
+(388, 379, NULL, NULL, 'completeStorageContent', 772, 773),
+(389, 379, NULL, NULL, 'storageLayout', 774, 775),
+(390, 379, NULL, NULL, 'setStorageCoordinateValues', 776, 777),
+(391, 379, NULL, NULL, 'allowStorageDeletion', 778, 779),
+(392, 379, NULL, NULL, 'getStorageSelectionLabel', 780, 781),
+(393, 379, NULL, NULL, 'updateChildrenStorageSelectionLabel', 782, 783),
+(394, 379, NULL, NULL, 'createSelectionLabel', 784, 785),
+(395, 379, NULL, NULL, 'IsDuplicatedStorageBarCode', 786, 787),
+(396, 379, NULL, NULL, 'createStorageCode', 788, 789),
+(397, 379, NULL, NULL, 'updateChildrenSurroundingTemperature', 790, 791),
+(398, 379, NULL, NULL, 'updateAndSaveDataArray', 792, 793),
+(399, 379, NULL, NULL, 'buildChildrenArray', 794, 795),
+(400, 371, NULL, NULL, 'TmaSlides', 797, 814),
+(401, 400, NULL, NULL, 'listAll', 798, 799),
+(402, 400, NULL, NULL, 'add', 800, 801),
+(403, 400, NULL, NULL, 'detail', 802, 803),
+(404, 400, NULL, NULL, 'edit', 804, 805),
+(405, 400, NULL, NULL, 'delete', 806, 807),
+(406, 400, NULL, NULL, 'isDuplicatedTmaSlideBarcode', 808, 809),
+(407, 400, NULL, NULL, 'allowTMASlideDeletion', 810, 811),
+(408, 400, NULL, NULL, 'formatPreselectedStoragesForDisplay', 812, 813),
+(409, 1, NULL, NULL, 'Study', 816, 929),
+(410, 409, NULL, NULL, 'StudyContacts', 817, 830),
+(411, 410, NULL, NULL, 'listall', 818, 819),
+(412, 410, NULL, NULL, 'detail', 820, 821),
+(413, 410, NULL, NULL, 'add', 822, 823),
+(414, 410, NULL, NULL, 'edit', 824, 825),
+(415, 410, NULL, NULL, 'delete', 826, 827),
+(416, 410, NULL, NULL, 'allowStudyContactDeletion', 828, 829),
+(417, 409, NULL, NULL, 'StudyEthicsBoards', 831, 844),
+(418, 417, NULL, NULL, 'listall', 832, 833),
+(419, 417, NULL, NULL, 'detail', 834, 835),
+(420, 417, NULL, NULL, 'add', 836, 837),
+(421, 417, NULL, NULL, 'edit', 838, 839),
+(422, 417, NULL, NULL, 'delete', 840, 841),
+(423, 417, NULL, NULL, 'allowStudyEthicsBoardDeletion', 842, 843),
+(424, 409, NULL, NULL, 'StudyFundings', 845, 858),
+(425, 424, NULL, NULL, 'listall', 846, 847),
+(426, 424, NULL, NULL, 'detail', 848, 849),
+(427, 424, NULL, NULL, 'add', 850, 851),
+(428, 424, NULL, NULL, 'edit', 852, 853),
+(429, 424, NULL, NULL, 'delete', 854, 855),
+(430, 424, NULL, NULL, 'allowStudyFundingDeletion', 856, 857),
+(431, 409, NULL, NULL, 'StudyInvestigators', 859, 872),
+(432, 431, NULL, NULL, 'listall', 860, 861),
+(433, 431, NULL, NULL, 'detail', 862, 863),
+(434, 431, NULL, NULL, 'add', 864, 865),
+(435, 431, NULL, NULL, 'edit', 866, 867),
+(436, 431, NULL, NULL, 'delete', 868, 869),
+(437, 431, NULL, NULL, 'allowStudyInvestigatorDeletion', 870, 871),
+(438, 409, NULL, NULL, 'StudyRelated', 873, 886),
+(439, 438, NULL, NULL, 'listall', 874, 875),
+(440, 438, NULL, NULL, 'detail', 876, 877),
+(441, 438, NULL, NULL, 'add', 878, 879),
+(442, 438, NULL, NULL, 'edit', 880, 881),
+(443, 438, NULL, NULL, 'delete', 882, 883),
+(444, 438, NULL, NULL, 'allowStudyRelatedDeletion', 884, 885),
+(445, 409, NULL, NULL, 'StudyResults', 887, 900),
+(446, 445, NULL, NULL, 'listall', 888, 889),
+(447, 445, NULL, NULL, 'detail', 890, 891),
+(448, 445, NULL, NULL, 'add', 892, 893),
+(449, 445, NULL, NULL, 'edit', 894, 895),
+(450, 445, NULL, NULL, 'delete', 896, 897),
+(451, 445, NULL, NULL, 'allowStudyResultDeletion', 898, 899),
+(452, 409, NULL, NULL, 'StudyReviews', 901, 914),
+(453, 452, NULL, NULL, 'listall', 902, 903),
+(454, 452, NULL, NULL, 'detail', 904, 905),
+(455, 452, NULL, NULL, 'add', 906, 907),
+(456, 452, NULL, NULL, 'edit', 908, 909),
+(457, 452, NULL, NULL, 'delete', 910, 911),
+(458, 452, NULL, NULL, 'allowStudyReviewDeletion', 912, 913),
+(459, 409, NULL, NULL, 'StudySummaries', 915, 928),
+(460, 459, NULL, NULL, 'listall', 916, 917),
+(461, 459, NULL, NULL, 'detail', 918, 919),
+(462, 459, NULL, NULL, 'add', 920, 921),
+(463, 459, NULL, NULL, 'edit', 922, 923),
+(464, 459, NULL, NULL, 'delete', 924, 925),
+(465, 459, NULL, NULL, 'allowStudySummaryDeletion', 926, 927);
+
+DELETE FROM `aros`;
+INSERT INTO `aros` (`id`, `parent_id`, `model`, `foreign_key`, `alias`, `lft`, `rght`) VALUES
+(1, NULL, 'Group', 1, 'Group::1', 1, 6),
+(2, NULL, 'Group', 2, 'Group::2', 7, 10),
+(3, NULL, 'Group', 3, 'Group::3', 11, 14),
+(4, 1, 'User', 1, 'User::1', 2, 3),
+(5, 2, 'User', 2, 'User::2', 8, 9),
+(6, 3, 'User', 3, 'User::3', 12, 13),
+(7, NULL, 'Group', 4, 'Group::4', 15, 18),
+(8, 7, 'User', 4, NULL, 16, 17),
+(9, NULL, 'Group', 5, 'Group::5', 19, 32),
+(10, 9, 'User', 5, NULL, 20, 21),
+(11, 9, 'User', 6, NULL, 22, 23),
+(12, NULL, 'Group', 6, 'Group::6', 33, 40),
+(13, 12, 'User', 7, NULL, 34, 35),
+(14, 12, 'User', 8, NULL, 36, 37),
+(15, NULL, 'Group', 7, 'Group::7', 41, 46),
+(16, 15, 'User', 9, NULL, 42, 43),
+(17, 9, 'User', 10, NULL, 24, 25),
+(18, 9, 'User', 11, NULL, 26, 27),
+(19, 15, 'User', 12, NULL, 44, 45),
+(20, 9, 'User', 13, NULL, 28, 29),
+(21, 12, 'User', 14, NULL, 38, 39),
+(22, 9, 'User', 15, NULL, 30, 31),
+(23, 1, 'User', 16, NULL, 4, 5),
+(24, NULL, 'Group', 8, 'Group::8', 47, 50),
+(25, 24, 'User', 17, NULL, 48, 49),
+(26, NULL, 'Group', 9, 'Group::9', 51, 56),
+(27, 26, 'User', 18, NULL, 52, 53),
+(28, 26, 'User', 19, NULL, 54, 55);
+
+DELETE FROM `aros_acos`;
+INSERT INTO `aros_acos` (`id`, `aro_id`, `aco_id`, `_create`, `_read`, `_update`, `_delete`) VALUES
+(1, 1, 1, '1', '1', '1', '1'),
+(2, 2, 1, '1', '1', '1', '1'),
+(3, 3, 1, '1', '1', '1', '1'),
+(4, 7, 2, '-1', '-1', '-1', '-1'),
+(5, 7, 281, '-1', '-1', '-1', '-1'),
+(6, 7, 341, '-1', '-1', '-1', '-1'),
+(7, 7, 350, '-1', '-1', '-1', '-1'),
+(8, 7, 358, '-1', '-1', '-1', '-1'),
+(9, 9, 2, '-1', '-1', '-1', '-1'),
+(10, 9, 281, '-1', '-1', '-1', '-1'),
+(11, 9, 341, '-1', '-1', '-1', '-1'),
+(12, 9, 350, '-1', '-1', '-1', '-1'),
+(13, 9, 358, '-1', '-1', '-1', '-1'),
+(14, 12, 2, '-1', '-1', '-1', '-1'),
+(15, 12, 281, '-1', '-1', '-1', '-1'),
+(16, 12, 341, '-1', '-1', '-1', '-1'),
+(17, 12, 350, '-1', '-1', '-1', '-1'),
+(18, 12, 358, '-1', '-1', '-1', '-1'),
+(19, 15, 1, '-1', '-1', '-1', '-1'),
+(20, 24, 2, '-1', '-1', '-1', '-1'),
+(21, 24, 281, '-1', '-1', '-1', '-1'),
+(22, 24, 341, '-1', '-1', '-1', '-1'),
+(23, 24, 350, '-1', '-1', '-1', '-1'),
+(24, 24, 358, '-1', '-1', '-1', '-1'),
+(25, 26, 2, '-1', '-1', '-1', '-1'),
+(26, 26, 281, '-1', '-1', '-1', '-1'),
+(27, 26, 341, '-1', '-1', '-1', '-1'),
+(28, 26, 350, '-1', '-1', '-1', '-1'),
+(29, 26, 358, '-1', '-1', '-1', '-1');
+
+DELETE FROM `banks`;
+INSERT INTO `banks` (`id`, `name`, `description`, `created_by`, `created`, `modified_by`, `modified`, `deleted`, `deleted_date`) VALUES
+(1, 'Administratrion', '', 0, '0000-00-00 00:00:00', 1, '2010-05-06 11:28:48', 0, '0000-00-00 00:00:00'),
+(2, 'Breast/Sein', '', 1, '2010-05-06 11:33:49', 1, '2010-05-06 11:33:49', 0, NULL),
+(3, 'Ovarian/Ovaire', '', 1, '2010-05-06 12:21:35', 1, '2010-05-06 12:21:35', 0, NULL),
+(4, 'Prostate', '', 1, '2010-05-06 12:24:36', 1, '2010-05-06 12:24:36', 0, NULL),
+(5, 'Head&Neck/Tête&cou', '', 1, '2010-05-06 12:37:33', 1, '2010-05-06 12:37:33', 0, NULL),
+(6, 'Kidney/Rein', '', 1, '2010-05-06 12:39:26', 1, '2010-05-06 12:39:26', 0, NULL);
+
+DELETE FROM `groups`;
+INSERT INTO `groups` (`id`, `bank_id`, `name`, `created`, `modified`) VALUES
+(1, 1, 'Syst. Admin.', '2009-02-18 13:05:46', '2010-05-06 11:30:26'),
+(2, 1, 'Developers', '2009-02-18 13:05:52', '2010-05-06 11:31:52'),
+(3, 1, 'Users Admin.', '2009-02-18 13:05:59', '2010-05-06 11:33:13'),
+(4, 2, 'Users', '2010-05-06 11:34:10', '2010-05-06 11:34:10'),
+(5, 3, 'Users', '2010-05-06 12:22:12', '2010-05-06 12:22:12'),
+(6, 4, 'Users', '2010-05-06 12:24:54', '2010-05-06 12:24:54'),
+(7, 1, 'Migration', '2010-05-06 12:29:52', '2010-05-06 12:29:52'),
+(8, 5, 'Users', '2010-05-06 12:37:54', '2010-05-06 12:37:54'),
+(9, 6, 'Users', '2010-05-06 12:39:44', '2010-05-06 12:39:44');
+
+DELETE FROM `users`;
+INSERT INTO `users` (`id`, `username`, `first_name`, `last_name`, `password`, `email`, `department`, `job_title`, `institution`, `laboratory`, `help_visible`, `street`, `city`, `region`, `country`, `mail_code`, `phone_work`, `phone_home`, `lang`, `pagination`, `last_visit`, `group_id`, `active`, `created`, `modified`) VALUES
+(1, 'NicoFr', 'Nico', 'Fr', '0ad07cfe52905f3e71193d457c702193', 'administrator@atim2core.dev', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'en', 5, '0000-00-00 00:00:00', 1, 0, '2009-02-18 13:06:38', '2009-02-18 13:06:38'),
+(2, 'NicoEn', 'Nico', 'En', '0ad07cfe52905f3e71193d457c702193', 'manager@atim2core.dev', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'en', 5, '0000-00-00 00:00:00', 2, 0, '2009-02-18 13:07:00', '2009-02-18 13:07:00'),
+(3, 'AdminManon', 'Manon', 'Admin', '6f8872887ba08477d9301fb340212b81', 'user@atim2core.dev', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'en', 5, '0000-00-00 00:00:00', 3, 0, '2009-02-18 13:07:07', '2009-02-18 13:07:07'),
+(4, 'UrszulaK', 'Urszula', 'Krzemien', 'f344980578dbc368444ef46973503554', '', '', '', '', '', NULL, '', '', '', '', '', '', '', 'en', 5, '0000-00-00 00:00:00', 4, 0, '2010-05-06 11:37:44', '2010-05-06 11:37:44'),
+(5, 'Manon', 'Manon', 'de Ladurantaye', '6f8872887ba08477d9301fb340212b81', '', '', '', '', '', NULL, '', '', '', '', '', '', '', 'en', 5, '0000-00-00 00:00:00', 5, 0, '2010-05-06 12:23:26', '2010-05-06 12:23:26'),
+(6, 'LiseP', 'Lise', 'Portelance', 'bc3a34dd14b4c4ef6a3ffdd83108f6f2', '', '', '', '', '', NULL, '', '', '', '', '', '', '', 'en', 5, '0000-00-00 00:00:00', 5, 0, '2010-05-06 12:24:10', '2010-05-06 12:24:10'),
+(7, 'AuroreP', 'Aurore', 'Pierrard', '60b411bcf9d0f3ae111f84748c49f71d', '', '', '', '', '', NULL, '', '', '', '', '', '', '', 'en', 5, '0000-00-00 00:00:00', 6, 0, '2010-05-06 12:26:16', '2010-05-06 12:26:16'),
+
+(8, 'ChantaleA', 'Chantale', 'Auger', '54793ab3a37ce1d4f7dffa151dda27b3', '', '', '', '', '', NULL, '', '', '', '', '', '', '', 'en', 5, '0000-00-00 00:00:00', 6, 0, '2010-05-06 12:26:46', '2010-05-06 12:26:46'),
+(9, 'Migration', 'Migration', 'Migration', '0ad07cfe52905f3e71193d457c702193', '', '', '', '', '', NULL, '', '', '', '', '', '', '', 'en', 5, '0000-00-00 00:00:00', 7, 0, '2010-05-06 12:30:39', '2010-05-06 12:30:39'),
+(10, 'JennK', 'Jennifer', 'Kendall-Dupont', '3b5aed19be2bf4c6c4fd43cb5dc157b3', '', '', '', '', '', NULL, '', '', '', '', '', '', '', 'en', 5, '0000-00-00 00:00:00', 5, 0, '2010-05-06 12:31:46', '2010-05-06 12:31:46'),
+(11, 'Liliane', 'Liliane', 'Meunier', '97a56ac028d6fd7451a527bb8f70b980', '', '', '', '', '', NULL, '', '', '', '', '', '', '', 'en', 5, '0000-00-00 00:00:00', 5, 0, '2010-05-06 12:32:14', '2010-05-06 12:32:14'),
+(12, 'SardoMigration', 'SardoMigration', 'SardoMigration', '0ad07cfe52905f3e71193d457c702193', '', '', '', '', '', NULL, '', '', '', '', '', '', '', 'en', 5, '0000-00-00 00:00:00', 7, 0, '2010-05-06 12:33:57', '2010-05-06 12:33:57'),
+(13, 'GuilC', 'Guillaume', 'Cardin', '66e333377d39f1eee8aefb26c08c79f2', '', '', '', '', '', NULL, '', '', '', '', '', '', '', 'en', 5, '0000-00-00 00:00:00', 5, 0, '2010-05-06 12:34:38', '2010-05-06 12:34:38'),
+(14, 'TeodoraY', 'Teodora', 'Yaneva', '93b785bd590d54099853051e677d8368', '', '', '', '', '', NULL, '', '', '', '', '', '', '', 'en', 5, '0000-00-00 00:00:00', 6, 0, '2010-05-06 12:35:29', '2010-05-06 12:35:29'),
+(15, 'karine', 'Karine', 'Normandin', '80c2960e8b84ecf58a930c75b94fbead', '', '', '', '', '', NULL, '', '', '', '', '', '', '', 'en', 5, '0000-00-00 00:00:00', 5, 0, '2010-05-06 12:35:48', '2010-05-06 12:35:48'),
+(16, 'MichEn', 'F-M', 'H', '6a1d28d02c836e8c8a93c86f03ad88a1', '', '', '', '', '', NULL, '', '', '', '', '', '', '', 'en', 5, '0000-00-00 00:00:00', 1, 0, '2010-05-06 12:36:56', '2010-05-06 12:36:56'),
+(17, 'achristopoulos', 'Apostolos', 'Christopoulos', 'f7148b6a59ce239d4ebdf2472628797d', '', '', '', '', '', NULL, '', '', '', '', '', '', '', 'en', 5, '0000-00-00 00:00:00', 8, 0, '2010-05-06 12:38:56', '2010-05-06 12:38:56'),
+(18, 'cfduchat', 'Carl Frédéric', 'Duchatelier', 'cbf02a6d0825c92f7dbf7fa418d48d8c', '', '', '', '', '', NULL, '', '', '', '', '', '', '', 'en', 5, '0000-00-00 00:00:00', 9, 0, '2010-05-06 12:40:53', '2010-05-06 12:40:53'),
+(19, 'Jean-Baptiste', 'Jean-Baptiste', 'Lattouf', '453a1e889b0a37dfa97e1d36191ab9db', '', '', '', '', '', NULL, '', '', '', '', '', '', '', 'en', 5, '0000-00-00 00:00:00', 9, 0, '2010-05-06 12:41:23', '2010-05-06 12:41:23');
 
-ALTER TABLE `consent_masters`
-  ADD CONSTRAINT `FK_consent_masters_participant`
-  FOREIGN KEY (`participant_id`) REFERENCES `participants` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
-
--- ALTER TABLE `consent_masters`
---   ADD CONSTRAINT `FK_consent_masters_diagnosis_masters`
---   FOREIGN KEY (`diagnosis_master_id`) REFERENCES `diagnosis_masters` (`id`)
---   ON DELETE RESTRICT
---   ON UPDATE RESTRICT;
-
-ALTER TABLE `consent_masters`
-  ADD CONSTRAINT `FK_consent_masters_consent_controls`
-  FOREIGN KEY (`consent_control_id`) REFERENCES `consent_controls` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
-
-ALTER TABLE `diagnosis_masters`
-  ADD CONSTRAINT `FK_diagnosis_masters_participant`
-  FOREIGN KEY (`participant_id`) REFERENCES `participants` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
-
-ALTER TABLE `diagnosis_masters`
-  ADD CONSTRAINT `FK_diagnosis_masters_diagnosis_controls`
-  FOREIGN KEY (`diagnosis_control_id`) REFERENCES `diagnosis_controls` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
-
-#TODO: Cannot add foreign key as some codes are missing in coding_icd10  
-#ALTER TABLE `diagnosis_masters`
-#  ADD CONSTRAINT `FK_diagnosis_masters_icd10_code`
-#  FOREIGN KEY (primary_icd10_code) REFERENCES coding_icd10 (id)
-#  ON DELETE RESTRICT
-#  ON UPDATE RESTRICT;
-  
-ALTER TABLE `event_masters`
-  ADD CONSTRAINT `FK_event_masters_participant`
-  FOREIGN KEY (`participant_id`) REFERENCES `participants` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
-
-ALTER TABLE `event_masters`
-  ADD CONSTRAINT `FK_event_masters_diagnosis_masters`
-  FOREIGN KEY (`diagnosis_master_id`) REFERENCES `diagnosis_masters` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
-
-ALTER TABLE `event_masters`
-  ADD CONSTRAINT `FK_event_masters_event_controls`
-  FOREIGN KEY (`event_control_id`) REFERENCES `event_controls` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
-
-ALTER TABLE `family_histories`
-  ADD CONSTRAINT `FK_family_histories_participant`
-  FOREIGN KEY (`participant_id`) REFERENCES `participants` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
-
-ALTER TABLE `family_histories` 
-  ADD CONSTRAINT `FK_family_histories_icd10_code`
-  FOREIGN KEY (primary_icd10_code) REFERENCES coding_icd10 (id)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
-
-ALTER TABLE `misc_identifiers`
-  ADD CONSTRAINT `FK_misc_identifiers_participant`
-  FOREIGN KEY (`participant_id`) REFERENCES `participants` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
-
-ALTER TABLE `participant_contacts`
-  ADD CONSTRAINT `FK_participant_contacts_participant`
-  FOREIGN KEY (`participant_id`) REFERENCES `participants` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
-
-ALTER TABLE `participant_messages`
-  ADD CONSTRAINT `FK_participant_messages_participant`
-  FOREIGN KEY (`participant_id`) REFERENCES `participants` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
-
-ALTER TABLE `reproductive_histories`
-  ADD CONSTRAINT `FK_reproductive_histories_participant`
-  FOREIGN KEY (`participant_id`) REFERENCES `participants` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
-
-ALTER TABLE `tx_masters`
-  ADD CONSTRAINT `FK_tx_masters_participant`
-  FOREIGN KEY (`participant_id`) REFERENCES `participants` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
-
-ALTER TABLE `tx_masters`
-  ADD CONSTRAINT `FK_tx_masters_diagnosis_masters`
-  FOREIGN KEY (`diagnosis_master_id`) REFERENCES `diagnosis_masters` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
-
-ALTER TABLE `tx_masters`
-  ADD CONSTRAINT `FK_tx_masters_tx_controls`
-  FOREIGN KEY (`treatment_control_id`) REFERENCES `tx_controls` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
-  
-ALTER TABLE `ed_allsolid_lab_pathology`
-  ADD FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
-
-ALTER TABLE `ed_all_adverse_events_adverse_event`
-  ADD FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
-
-ALTER TABLE `ed_all_clinical_followup`
-  ADD FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
-
-ALTER TABLE `ed_all_clinical_presentation`
-  ADD FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
-
-ALTER TABLE `ed_all_lifestyle_base`
-  ADD FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
-
-ALTER TABLE `ed_all_protocol_followup`
-  ADD FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
-
-ALTER TABLE `ed_all_study_research`
-  ADD FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
-
-ALTER TABLE `ed_breast_lab_pathology`
-  ADD FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
-
-ALTER TABLE `ed_breast_screening_mammogram`
-  ADD FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
-  
-ALTER TABLE `cd_nationals`
-  ADD FOREIGN KEY (`consent_master_id`) REFERENCES `consent_masters` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;  
-
--- Inventory Management Foreign Keys --
-
-ALTER TABLE `collections`
-  ADD CONSTRAINT `FK_collections_banks`
-  FOREIGN KEY (`bank_id`) REFERENCES `banks` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
-  
-ALTER TABLE `collections`
-  ADD CONSTRAINT `FK_collections_sops`
-  FOREIGN KEY (`sop_master_id`) REFERENCES `sop_masters` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT; 
-
-ALTER TABLE `sample_masters`
-  ADD CONSTRAINT `FK_sample_masters_collections`
-  FOREIGN KEY (`collection_id`) REFERENCES `collections` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT; 
-
-ALTER TABLE `sample_masters`
-  ADD CONSTRAINT `FK_sample_masters_sample_controls`
-  FOREIGN KEY (`sample_control_id`) REFERENCES `sample_controls` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;  
-
-ALTER TABLE `sample_masters`
-  ADD CONSTRAINT `FK_sample_masters_sample_specimens`
-  FOREIGN KEY (`initial_specimen_sample_id`) REFERENCES `sample_masters` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT; 
-
-ALTER TABLE `sample_masters`
-  ADD CONSTRAINT `FK_sample_masters_parent`
-  FOREIGN KEY (`parent_id`) REFERENCES `sample_masters` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT; 
-
-ALTER TABLE `sample_masters`
-  ADD CONSTRAINT `FK_sample_masters_sops`
-  FOREIGN KEY (`sop_master_id`) REFERENCES `sop_masters` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;  
-
-ALTER TABLE `specimen_details`
-  ADD CONSTRAINT `FK_specimen_details_sample_masters`
-  FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT; 
-
-ALTER TABLE `derivative_details`
-  ADD CONSTRAINT `FK_detivative_details_sample_masters`
-  FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT; 
-
-ALTER TABLE `sd_der_amp_rnas` ADD CONSTRAINT `FK_sd_der_amp_rnas_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-ALTER TABLE `sd_der_ascite_cells` ADD CONSTRAINT `FK_sd_der_ascite_cells_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-ALTER TABLE `sd_der_ascite_sups` ADD CONSTRAINT `FK_sd_der_ascite_sups_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-ALTER TABLE `sd_der_blood_cells` ADD CONSTRAINT `FK_sd_der_blood_cells_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-ALTER TABLE `sd_der_b_cells` ADD CONSTRAINT `FK_sd_der_b_cells_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
-ALTER TABLE `sd_der_cell_cultures` ADD CONSTRAINT `FK_sd_der_cell_cultures_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-ALTER TABLE `sd_der_dnas` ADD CONSTRAINT `FK_sd_der_dnas_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-ALTER TABLE `sd_der_cystic_fl_cells` ADD CONSTRAINT `FK_sd_der_cystic_fl_cells_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-ALTER TABLE `sd_spe_pericardial_fluids` ADD CONSTRAINT `FK_sd_spe_pericardial_fluids_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-ALTER TABLE `sd_der_pericardial_fl_cells` ADD CONSTRAINT `FK_sd_der_pericardial_fl_cells_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-ALTER TABLE `sd_der_pericardial_fl_sups` ADD CONSTRAINT `FK_sd_der_pericardial_fl_sups_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-ALTER TABLE `sd_spe_pleural_fluids` ADD CONSTRAINT `FK_sd_spe_pleural_fluids_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-ALTER TABLE `sd_der_pleural_fl_cells` ADD CONSTRAINT `FK_sd_der_pleural_fl_cells_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-ALTER TABLE `sd_der_pleural_fl_sups` ADD CONSTRAINT `FK_sd_der_pleural_fl_sups_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-ALTER TABLE `sd_der_cystic_fl_sups` ADD CONSTRAINT `FK_sd_der_cystic_fl_sups_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-ALTER TABLE `sd_der_pbmcs` ADD CONSTRAINT `FK_sd_der_pbmcs_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-ALTER TABLE `sd_der_plasmas` ADD CONSTRAINT `FK_sd_der_plasmas_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-ALTER TABLE `sd_der_pw_cells` ADD CONSTRAINT `FK_sd_der_pw_cells_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-ALTER TABLE `sd_der_pw_sups` ADD CONSTRAINT `FK_sd_der_pw_sups_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-ALTER TABLE `sd_der_rnas` ADD CONSTRAINT `FK_sd_der_rnas_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-ALTER TABLE `sd_der_serums` ADD CONSTRAINT `FK_sd_der_serums_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-ALTER TABLE `sd_der_tiss_lysates` ADD CONSTRAINT `FK_sd_der_tiss_lysates_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-ALTER TABLE `sd_der_tiss_susps` ADD CONSTRAINT `FK_sd_der_tiss_susps_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-ALTER TABLE `sd_der_urine_cents` ADD CONSTRAINT `FK_sd_der_urine_cents_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-ALTER TABLE `sd_der_urine_cons` ADD CONSTRAINT `FK_sd_der_urine_cons_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-ALTER TABLE `sd_spe_ascites` ADD CONSTRAINT `FK_sd_spe_ascites_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-ALTER TABLE `sd_spe_bloods` ADD CONSTRAINT `FK_sd_spe_bloods_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-ALTER TABLE `sd_spe_cystic_fluids` ADD CONSTRAINT `FK_sd_spe_cystic_fluids_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-ALTER TABLE `sd_spe_peritoneal_washes` ADD CONSTRAINT `FK_sd_spe_peritoneal_washes_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-ALTER TABLE `sd_spe_tissues` ADD CONSTRAINT `FK_sd_spe_tissues_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-ALTER TABLE `sd_spe_urines` ADD CONSTRAINT `FK_sd_spe_urines_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-
-ALTER TABLE `aliquot_masters`
-  ADD CONSTRAINT `FK_aliquot_masters_aliquot_controls`
-  FOREIGN KEY (`aliquot_control_id`) REFERENCES `aliquot_controls` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT; 
-
-ALTER TABLE `aliquot_masters`
-  ADD CONSTRAINT `FK_aliquot_masters_collections`
-  FOREIGN KEY (`collection_id`) REFERENCES `collections` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT; 
-
-ALTER TABLE `aliquot_masters`
-  ADD CONSTRAINT `FK_aliquot_masters_sample_masters`
-  FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT; 
-
-ALTER TABLE `aliquot_masters`
-  ADD CONSTRAINT `FK_aliquot_masters_sops`
-  FOREIGN KEY (`sop_master_id`) REFERENCES `sop_masters` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT; 
-
-ALTER TABLE `aliquot_masters`
-  ADD CONSTRAINT `FK_aliquot_masters_study_summaries`
-  FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT; 
-
-ALTER TABLE `aliquot_masters`
-  ADD CONSTRAINT `FK_aliquot_masters_storage_masters`
-  FOREIGN KEY (`storage_master_id`) REFERENCES `storage_masters` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT; 
-
-ALTER TABLE `ad_bags` ADD CONSTRAINT `FK_ad_bags_aliquot_masters` FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-ALTER TABLE `ad_blocks` ADD CONSTRAINT `FK_ad_blocks_aliquot_masters` FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-ALTER TABLE `ad_cell_cores` ADD CONSTRAINT `FK_ad_cell_cores_aliquot_masters` FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-ALTER TABLE `ad_cell_slides` ADD CONSTRAINT `FK_ad_cell_slides_aliquot_masters` FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-ALTER TABLE `ad_gel_matrices` ADD CONSTRAINT `FK_ad_gel_matrices_aliquot_masters` FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-ALTER TABLE `ad_tissue_cores` ADD CONSTRAINT `FK_ad_tissue_cores_aliquot_masters` FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-ALTER TABLE `ad_tissue_slides` ADD CONSTRAINT `FK_ad_tissue_slides_aliquot_masters` FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-ALTER TABLE `ad_tubes` ADD CONSTRAINT `FK_ad_tubes_aliquot_masters` FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-ALTER TABLE `ad_whatman_papers` ADD CONSTRAINT `FK_ad_whatman_papers_aliquot_masters` FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-
-ALTER TABLE `ad_cell_cores` ADD CONSTRAINT `FK_ad_cell_cores_gel_matrices` FOREIGN KEY (`gel_matrix_aliquot_master_id`) REFERENCES `aliquot_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-
-ALTER TABLE `ad_tissue_cores` ADD CONSTRAINT `FK_ad_tissue_cores_blocks` FOREIGN KEY (`block_aliquot_master_id`) REFERENCES `aliquot_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-ALTER TABLE `ad_tissue_slides` ADD CONSTRAINT `FK_ad_tissue_slides_aliquot_ad_cell_coress` FOREIGN KEY (`block_aliquot_master_id`) REFERENCES `aliquot_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-
-ALTER TABLE `aliquot_uses`
-  ADD CONSTRAINT `FK_aliquot_uses_study_summaries`
-  FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT; 
-
-ALTER TABLE `aliquot_uses` 
-  ADD CONSTRAINT `FK_aliquot_uses_aliquot_masters` 
-  FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`) 
-  ON DELETE RESTRICT 
-  ON UPDATE RESTRICT; 
-  
-ALTER TABLE `source_aliquots` 
-  ADD CONSTRAINT `FK_source_aliquots_aliquot_masters` 
-  FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`) 
-  ON DELETE RESTRICT 
-  ON UPDATE RESTRICT; 
-  
-ALTER TABLE `source_aliquots` 
-  ADD CONSTRAINT `FK_source_aliquots_aliquot_uses` 
-  FOREIGN KEY (`aliquot_use_id`) REFERENCES `aliquot_uses` (`id`) 
-  ON DELETE RESTRICT 
-  ON UPDATE RESTRICT;   
-  
-ALTER TABLE `source_aliquots` 
-  ADD CONSTRAINT `FK_source_aliquots_sample_masters` 
-  FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) 
-  ON DELETE RESTRICT 
-  ON UPDATE RESTRICT;   
-  
-ALTER TABLE `realiquotings` 
-  ADD CONSTRAINT `FK_realiquotings_parent_aliquot_masters` 
-  FOREIGN KEY (`parent_aliquot_master_id`) REFERENCES `aliquot_masters` (`id`) 
-  ON DELETE RESTRICT 
-  ON UPDATE RESTRICT; 
-
-ALTER TABLE `realiquotings` 
-  ADD CONSTRAINT `FK_realiquotings_child_aliquot_masters` 
-  FOREIGN KEY (`child_aliquot_master_id`) REFERENCES `aliquot_masters` (`id`) 
-  ON DELETE RESTRICT 
-  ON UPDATE RESTRICT; 
-  
-ALTER TABLE `realiquotings` 
-  ADD CONSTRAINT `FK_realiquotings_aliquot_uses` 
-  FOREIGN KEY (`aliquot_use_id`) REFERENCES `aliquot_uses` (`id`) 
-  ON DELETE RESTRICT 
-  ON UPDATE RESTRICT;   
-    
-ALTER TABLE `quality_ctrls` 
-  ADD CONSTRAINT `FK_quality_ctrls_sample_masters` 
-  FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`) 
-  ON DELETE RESTRICT 
-  ON UPDATE RESTRICT;  
-
-ALTER TABLE `quality_ctrl_tested_aliquots` 
-  ADD CONSTRAINT `FK_quality_ctrl_tested_aliquots_aliquot_masters` 
-  FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`) 
-  ON DELETE RESTRICT 
-  ON UPDATE RESTRICT; 
-  
-ALTER TABLE `quality_ctrl_tested_aliquots` 
-  ADD CONSTRAINT `FK_quality_ctrl_tested_aliquots_aliquot_uses` 
-  FOREIGN KEY (`aliquot_use_id`) REFERENCES `aliquot_uses` (`id`) 
-  ON DELETE RESTRICT 
-  ON UPDATE RESTRICT;  
-
-ALTER TABLE `quality_ctrl_tested_aliquots` 
-  ADD CONSTRAINT `FK_quality_ctrl_tested_aliquots_quality_ctrls` 
-  FOREIGN KEY (`quality_ctrl_id`) REFERENCES `quality_ctrls` (`id`) 
-  ON DELETE RESTRICT 
-  ON UPDATE RESTRICT;  
-
-ALTER TABLE `sample_to_aliquot_controls` 
-  ADD CONSTRAINT `FK_sample_to_aliquot_controls_sample_controls` 
-  FOREIGN KEY (`sample_control_id`) REFERENCES `sample_controls` (`id`) 
-  ON DELETE RESTRICT 
-  ON UPDATE RESTRICT;  
-  
-ALTER TABLE `sample_to_aliquot_controls` 
-  ADD CONSTRAINT `FK_sample_to_aliquot_controls_aliquot_controls` 
-  FOREIGN KEY (`aliquot_control_id`) REFERENCES `aliquot_controls` (`id`) 
-  ON DELETE RESTRICT 
-  ON UPDATE RESTRICT; 
-
-ALTER TABLE `parent_to_derivative_sample_controls` 
-  ADD CONSTRAINT `FK_parent_to_derivative_sample_controls_parent` 
-  FOREIGN KEY (`parent_sample_control_id`) REFERENCES `sample_controls` (`id`) 
-  ON DELETE RESTRICT 
-  ON UPDATE RESTRICT;  
-  
-ALTER TABLE `parent_to_derivative_sample_controls` 
-  ADD CONSTRAINT `FK_parent_to_derivative_sample_controls_derivative` 
-  FOREIGN KEY (`derivative_sample_control_id`) REFERENCES `sample_controls` (`id`) 
-  ON DELETE RESTRICT 
-  ON UPDATE RESTRICT;  
-  
--- StorageLayout Foreign Keys --
-
-ALTER TABLE `std_cupboards`
-  ADD CONSTRAINT `FK_std_cupboards_storage_masters`
-  FOREIGN KEY (`storage_master_id`) REFERENCES `storage_masters` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT; 
-ALTER TABLE `std_nitro_locates`
-  ADD CONSTRAINT `FK_std_nitro_locates_storage_masters`
-  FOREIGN KEY (`storage_master_id`) REFERENCES `storage_masters` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT; 
-ALTER TABLE `std_fridges`
-  ADD CONSTRAINT `FK_std_fridges_storage_masters`
-  FOREIGN KEY (`storage_master_id`) REFERENCES `storage_masters` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT; 
-ALTER TABLE `std_freezers`
-  ADD CONSTRAINT `FK_std_freezers_storage_masters`
-  FOREIGN KEY (`storage_master_id`) REFERENCES `storage_masters` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT; 
-ALTER TABLE `std_boxs`
-  ADD CONSTRAINT `FK_std_boxs_storage_masters`
-  FOREIGN KEY (`storage_master_id`) REFERENCES `storage_masters` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT; 
-ALTER TABLE `std_racks`
-  ADD CONSTRAINT `FK_std_racks_storage_masters`
-  FOREIGN KEY (`storage_master_id`) REFERENCES `storage_masters` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT; 
-ALTER TABLE `std_shelfs`
-  ADD CONSTRAINT `FK_std_shelfs_storage_masters`
-  FOREIGN KEY (`storage_master_id`) REFERENCES `storage_masters` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT; 
-ALTER TABLE `std_incubators`
-  ADD CONSTRAINT `FK_std_incubators_storage_masters`
-  FOREIGN KEY (`storage_master_id`) REFERENCES `storage_masters` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT; 
-ALTER TABLE `std_rooms`
-  ADD CONSTRAINT `FK_std_rooms_storage_masters`
-  FOREIGN KEY (`storage_master_id`) REFERENCES `storage_masters` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT; 
-ALTER TABLE `storage_coordinates`
-  ADD CONSTRAINT `FK_storage_coordinates_storage_masters`
-  FOREIGN KEY (`storage_master_id`) REFERENCES `storage_masters` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT; 
-
-ALTER TABLE `std_tma_blocks`
-  ADD CONSTRAINT `FK_std_tma_blocks_storage_masters`
-  FOREIGN KEY (`storage_master_id`) REFERENCES `storage_masters` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT; 
-ALTER TABLE `std_tma_blocks`
-  ADD CONSTRAINT `FK_std_tma_blocks_sop_masters`
-  FOREIGN KEY (`sop_master_id`) REFERENCES `sop_masters` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT; 
-
-ALTER TABLE `tma_slides`
-  ADD CONSTRAINT `FK_tma_slides_storage_masters`
-  FOREIGN KEY (`storage_master_id`) REFERENCES `storage_masters` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT; 
-ALTER TABLE `tma_slides`
-  ADD CONSTRAINT `FK_tma_slides_sop_masters`
-  FOREIGN KEY (`sop_master_id`) REFERENCES `sop_masters` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT; 
-ALTER TABLE `tma_slides`
-  ADD CONSTRAINT `FK_tma_slides_tma_blocks`
-  FOREIGN KEY (`tma_block_storage_master_id`) REFERENCES `storage_masters` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT; 
-  
-ALTER TABLE `storage_masters`
-  ADD CONSTRAINT `FK_storage_masters_storage_controls`
-  FOREIGN KEY (`storage_control_id`) REFERENCES `storage_controls` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT; 
-ALTER TABLE `storage_masters`
-  ADD CONSTRAINT `FK_storage_masters_parent`
-  FOREIGN KEY (`parent_id`) REFERENCES `storage_masters` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT; 
-
-
--- Order Management Foreign Keys --
-
-ALTER TABLE `orders`
-  ADD CONSTRAINT `FK_orders_study_summaries`
-  FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
-
-ALTER TABLE `order_lines`
-  ADD CONSTRAINT `FK_order_lines_orders`
-  FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
-  
- ALTER TABLE `order_lines`
-  ADD CONSTRAINT `FK_order_lines_sample_controls`
-  FOREIGN KEY (`sample_control_id`) REFERENCES `sample_controls` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT; 
-  
-ALTER TABLE `order_items`
-  ADD CONSTRAINT `FK_order_items_order_lines`
-  FOREIGN KEY (`order_line_id`) REFERENCES `order_lines` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
-
-ALTER TABLE `order_items`
-  ADD CONSTRAINT `FK_order_items_shipments`
-  FOREIGN KEY (`shipment_id`) REFERENCES `shipments` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
-
-ALTER TABLE `order_items`
-  ADD CONSTRAINT `FK_order_items_aliquot_masters`
-  FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
-
-ALTER TABLE `order_items`
-  ADD CONSTRAINT `FK_order_items_aliquot_uses`
-  FOREIGN KEY (`aliquot_use_id`) REFERENCES `aliquot_uses` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
-
-ALTER TABLE `shipments`
-  ADD CONSTRAINT `FK_shipments_orders`
-  FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
-  
-
--- Studies Foreign Keys --
-
-ALTER TABLE `study_contacts`
-  ADD CONSTRAINT `FK_study_contacts_study_summaries`
-  FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
-
-ALTER TABLE `study_ethics_boards`
-  ADD CONSTRAINT `FK_study_ethics_boards_study_summaries`
-  FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
-
-ALTER TABLE `study_fundings`
-  ADD CONSTRAINT `FK_study_fundings_study_summaries`
-  FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
-
-ALTER TABLE `study_investigators`
-  ADD CONSTRAINT `FK_study_investigators_study_summaries`
-  FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
-
-ALTER TABLE `study_related`
-  ADD CONSTRAINT `FK_study_related_study_summaries`
-  FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
-
-ALTER TABLE `study_results`
-  ADD CONSTRAINT `FK_study_results_study_summaries`
-  FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
-
-ALTER TABLE `study_reviews`
-  ADD CONSTRAINT `FK_study_reviews_study_summaries`
-  FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`)
-  ON DELETE RESTRICT
-  ON UPDATE RESTRICT;
-
-#TODO: Once done run the db_validation script
-#TODO: run left right script on storage_masters
