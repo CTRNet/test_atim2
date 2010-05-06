@@ -69,13 +69,13 @@ SELECT DISTINCT `name` FROM `misc_identifiers`;
 SELECT id, form_version, consent_type, consent_version_date, consent_language FROM `consents` WHERE `consent_type` IS NULL OR `consent_type` LIKE '';
 -- -> 4363	| FRSQ_fr_2008-03-26	| NULL	| NULL
 
--- check #11 : Check nused consents fields that will be dropped
+-- check #11 : Check unused consents fields that will be dropped
 SELECT DISTINCT surgeon, contact_method, operation_date, facility,
 use_of_tissue,contact_future_research,access_medical_information,
 facility_other,acquisition_id,diagnosis_id,consent_id FROM consents;
 -- -> 0 records
 
--- check #12 : Check nused diagnoses fields that will be dropped
+-- check #12 : Check unused diagnoses fields that will be dropped
 SELECT DISTINCT dx_method ,dx_nature ,
 sequence_nbr ,information_source,age_at_dx_status ,clinical_stage ,collaborative_stage 
 tstage ,nstage ,mstage ,stage_grouping,is_cause_of_death 
@@ -83,8 +83,14 @@ FROM diagnoses;
 -- -> 0 records
 
 -- check #13 : Check diagnoses survival_unit
-SELECT DISTINCT survival_unit FROM `diagnoses`
+SELECT DISTINCT survival_unit FROM `diagnoses`;
 -- -> months
 
+-- check #14 : Check unused family_histories fields that will be dropped
+SELECT DISTINCT `relation` , `domain` , `dx_date_status` , `age_at_dx`
+FROM `family_histories`;
+-- -> 0 records
 
-
+-- check #15 : Check unused reproductive_histories fields that will be dropped
+SELECT DISTINCT `date_captured` , `age_at_menopause` , `menopause_age_certainty`  , `hrt_years_on` , `hrt_use` , `hysterectomy_age` , `hysterectomy_age_certainty`  , `hysterectomy` , `first_ovary_out_age` , `first_ovary_certainty`  , `second_ovary_out_age`  , `second_ovary_certainty`  , `first_ovary_out` , `second_ovary_out` , `gravida` , `aborta` , `para` , `age_at_first_parturition`  , `first_parturition_certainty`  , `age_at_last_parturition`  , `last_parturition_certainty`  , `age_at_menarche` , `age_at_menarche_certainty`  , `oralcontraceptive_use`  , `years_on_oralcontraceptives`
+FROM reproductive_histories
