@@ -1,6 +1,13 @@
 <?php
 
 // ATiM2 configuration variables from Datatable
+
+		set_error_handler("myErrorHandler");
+		
+		define('VALID_INTEGER', '/^[-+]?\\b[0-9]+\\b$/');
+		define('VALID_INTEGER_POSITIVE', '/^[+]?\\b[0-9]+\\b$/');
+		define('VALID_FLOAT', '/^[-+]?\\b[0-9]*\\.?[0-9]+\\b$/');
+		define('VALID_FLOAT_POSITIVE', '/^[+]?\\b[0-9]*\\.?[0-9]+\\b$/');
 	
 	// parse URI manually to get passed PARAMS
 		global $start_time;
@@ -73,11 +80,30 @@
 				}
 			}
 		}
+		
+	function myErrorHandler($errno, $errstr, $errfile, $errline){
+		$controller = AppController::getInstance();
+		if($errno == E_USER_WARNING && strpos($errstr, "SQL Error:") !== false && $controller->name != 'Pages'){
+			$traceMsg = "<table><tr><th>File</th><th>Line</th><th>Function</th></tr>";
+			try{
+				throw new Exception("");
+			}catch(Exception $e){
+				$traceArr = $e->getTrace();
+				foreach($traceArr as $traceLine){
+					$traceMsg .= "<tr><td>".$traceLine['file']."</td><td>".$traceLine['line']."</td><td>".$traceLine['function']."</td></tr>";
+				}
+			}
+			$traceMsg .= "</table>";
+			$_SESSION['err_msg'] = $errstr.$traceMsg;
+			$controller->redirect('/pages/err_query');
+		}
+	}
 
 class AppController extends Controller {
 	
 	// var $uses			= array('Config', 'Aco', 'Aro', 'Permission');
 	private static $missing_translations = array();
+	private static $me;
 	var $uses = array('Config');
 	var $components	= array(
 		'Session', 'SessionAcl', 'Auth', 'Menus', 'RequestHandler', 'Structures',
@@ -95,6 +121,7 @@ class AppController extends Controller {
 	var $helpers		= array('Ajax', 'Csv', 'Html', 'Javascript', 'Shell', 'Structures', 'Time');
 	
 	function beforeFilter() {
+		AppController::$me = $this;
 		if(Configure::read('Config.language') != $this->Session->read('Config.language')){
 			//set language
 			$this->Session->write('Config.language', Configure::read('Config.language')); 
@@ -163,13 +190,12 @@ class AppController extends Controller {
 			$query = substr($query, 0, strlen($query) -2);
 			$this->{$this->params["models"][0]}->query($query);
 		}
-		
 	}
 	
 	/**
 	 * Simple function to replicate PHP 5 behaviour
 	 */
-	function microtime_float(){
+	static function microtime_float(){
 		list($usec, $sec) = explode(" ", microtime());
 		return ((float)$usec + (float)$sec);
 	}
@@ -182,6 +208,10 @@ class AppController extends Controller {
 //				$word .= "[untr]";
 			}
 		}
+	}
+	
+	static function getInstance(){
+		return AppController::$me;
 	}
 }
 
