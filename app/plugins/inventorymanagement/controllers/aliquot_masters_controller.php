@@ -21,7 +21,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 		'Inventorymanagement.SampleToAliquotControl',
 		
 		'Inventorymanagement.AliquotControl', 
-		'Inventorymanagement.AliquotMaster', 
+		'Inventorymanagement.AliquotMaster',
+		'Inventorymanagement.AliquotMastersRev', 
 		'Inventorymanagement.ViewAliquot',
 		'Inventorymanagement.AliquotDetail',			
 		
@@ -458,7 +459,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if((!$collection_id) || (!$sample_master_id) || (!$aliquot_master_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }		
 		
 		// MANAGE DATA
-
+	
 		// Get the aliquot data
 		$aliquot_data = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id, 'AliquotMaster.id' => $aliquot_master_id)));
 		if(empty($aliquot_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }		
@@ -527,6 +528,66 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if( $hook_link ) { 
 			require($hook_link); 
 		}
+		
+		
+		//storage history
+		$this->Structures->set('custom_aliquot_storage_history', 'custom_aliquot_storage_history');
+		$storage_data = array();
+
+		$qry="SELECT AliquotMastersRev.*, StorageMastersModRev.*, StorageMastersInitRev.* FROM `aliquot_masters_revs` AS AliquotMastersRev "
+			."LEFT JOIN aliquot_masters_revs AS aliquot_after ON aliquot_after.version_id=("
+				."SELECT version_id FROM aliquot_masters_revs AS aliquot_after2 WHERE aliquot_after2.id=".$aliquot_master_id." AND aliquot_after2.modified > AliquotMastersRev.modified ORDER BY modified LIMIT 1) "
+			."LEFT JOIN aliquot_masters_revs AS aliquot_before ON aliquot_before.version_id=("
+				."SELECT version_id FROM aliquot_masters_revs AS aliquot_before2 WHERE aliquot_before2.id=".$aliquot_master_id." AND aliquot_before2.modified < AliquotMastersRev.modified ORDER BY modified DESC LIMIT 1) "
+			."LEFT JOIN storage_masters_revs AS StorageMastersModRev ON AliquotMastersRev.storage_master_id=StorageMastersModRev.id AND StorageMastersModRev.modified > AliquotMastersRev.modified AND (StorageMastersModRev.modified < aliquot_after.modified OR aliquot_after.modified IS NULL) " 
+			."LEFT JOIN storage_masters_revs AS StorageMastersInitRev ON (AliquotMastersRev.storage_master_id!=aliquot_before.storage_master_id OR aliquot_before.storage_master_id IS NULL) AND StorageMastersInitRev.version_id=(SELECT version_id FROM storage_masters_revs WHERE id=AliquotMastersRev.storage_master_id AND storage_masters_revs.modified <= AliquotMastersRev.modified ORDER BY modified DESC LIMIT 1) "
+			."WHERE AliquotMastersRev.id=".$aliquot_master_id." ORDER BY AliquotMastersRev.modified";
+		$storage_data_tmp = $this->AliquotMaster->query($qry);
+		$previous = NULL;
+		$current_storage = NULL;
+		foreach($storage_data_tmp as $storage_data_unit){
+			//it's assumed that the order is already chronological
+			if($previous != NULL){
+				if($previous['AliquotMastersRev']['storage_master_id'] != $storage_data_unit['AliquotMastersRev']['storage_master_id']){
+					//case 1: changed storage
+					$storage_data[]['custom'] = array(
+						'date' => $storage_data_unit['AliquotMastersRev']['modified'], 
+						'event' => __('new storage', true)."[".$storage_data_unit['StorageMastersInitRev']['selection_label']."]. ".__('new temperature', true).": ".$storage_data_unit['StorageMastersInitRev']['temperature'].__($storage_data_unit['StorageMastersRev']['temp_unit'], true));
+					$current_storage = $storage_data_unit['AliquotMastersRev']['storage_master_id'];
+					$previous['AliquotMastersRev'] = $storage_data_unit['AliquotMastersRev'];
+					$previous['StorageMastersRev'] = $storage_data_unit['StorageMastersInitRev'];
+				}else if(!empty($storage_data_unit['StorageMastersModRev']['temperature'])
+				&& $previous['StorageMastersRev']['temperature'] != $storage_data_unit['StorageMastersModRev']['temperature']
+				&& $current_storage == $storage_data_unit['AliquotMastersRev']['storage_master_id']){
+					//case 2: storage changed temperature
+					$storage_data[]['custom'] = array(
+						'date' => $storage_data_unit['AliquotMastersRev']['modified'], 
+						'event' => __('storage temperature changed', true).". ".__('new temperature', true).": ".$storage_data_unit['StorageMastersModRev']['temperature'].__($storage_data_unit['StorageMastersModRev']['temp_unit'], true));
+					$previous['AliquotMastersRev'] = $storage_data_unit['AliquotMastersRev'];
+					$previous['StorageMastersRev'] = $storage_data_unit['StorageMastersModRev'];
+				}else if($previous['AliquotMastersRev']['storage_coord_x'] != $storage_data_unit['AliquotMastersRev']['storage_coord_x']
+				|| $previous['AliquotMastersRev']['storage_coord_y'] != $storage_data_unit['AliquotMastersRev']['storage_coord_y']){
+					//case 3: position changed
+					$coord = $storage_data_unit['AliquotMastersRev']['storage_coord_x'];
+					if(strlen($storage_data_unit['AliquotMastersRev']['storage_coord_y']) > 0){
+						$coord .= ", ".$storage_data_unit['AliquotMastersRev']['storage_coord_y'];
+					}
+					$storage_data[]['custom'] = array(
+						'date' => $storage_data_unit['AliquotMastersRev']['modified'], 
+						'event' => __('moved within storage', true)."[".$coord."]. ".__('temperature unchanged', true));
+					$previous['AliquotMastersRev'] = $storage_data_unit['AliquotMastersRev'];
+				}
+			}else{
+				$current_storage = $storage_data_unit['AliquotMastersRev']['storage_master_id']; 
+				$previous['AliquotMastersRev'] = $storage_data_unit['AliquotMastersRev'];
+				$previous['StorageMastersRev'] = $storage_data_unit['StorageMastersInitRev'];
+			}
+		}
+		$hook_link = $this->hook('format_storage_data');
+		if( $hook_link ) { 
+			require($hook_link); 
+		}
+		$this->set('storage_data', $storage_data);
 	}
 	
 	function edit($collection_id, $sample_master_id, $aliquot_master_id) {
