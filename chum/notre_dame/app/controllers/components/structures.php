@@ -88,7 +88,13 @@ class StructuresComponent extends Object {
 			foreach ( $atim_structure['StructureFormat'] as $value ) {
 				
 				// for RANGE values, which should be searched over with a RANGE...
-				if ( $value['StructureField']['type']=='number' || $value['StructureField']['type']=='date' || $value['StructureField']['type']=='datetime' ) {
+				if ( $value['StructureField']['type']=='number'
+				|| $value['StructureField']['type']=='integer'
+				|| $value['StructureField']['type']=='integer_positive'
+				|| $value['StructureField']['type']=='float'
+				|| $value['StructureField']['type']=='float_positive' 
+				|| $value['StructureField']['type']=='date' 
+				|| $value['StructureField']['type']=='datetime' ) {
 					
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'].'_start' ]['plugin']		= $value['StructureField']['plugin'];
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'].'_start' ]['model']		= $value['StructureField']['model'];
