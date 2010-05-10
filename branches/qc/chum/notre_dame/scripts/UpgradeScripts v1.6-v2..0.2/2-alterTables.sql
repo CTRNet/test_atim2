@@ -752,6 +752,7 @@ ALTER TABLE participants
     ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
     ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
 	MODIFY sex varchar(20) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci,
+	CHANGE sardo_numero_dossier sardo_medical_record_number varchar(20) DEFAULT NULL,
 	CHANGE approximative_date_of_birth dob_date_accuracy varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci,
     CHANGE approximative_date_of_death dod_date_accuracy varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci,
     CHANGE approximative_last_visit_date lvd_date_accuracy varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci;
@@ -782,7 +783,7 @@ ALTER TABLE participants_revs
     ADD `last_visit_date` date DEFAULT NULL,
     ADD `lvd_date_accuracy` varchar(50) DEFAULT NULL,
     ADD `sardo_participant_id` varchar(20) DEFAULT NULL,
-    ADD `sardo_numero_dossier` varchar(20) DEFAULT NULL,
+    ADD `sardo_medical_record_number` varchar(20) DEFAULT NULL,
     ADD `last_sardo_import_date` date DEFAULT NULL;
 
 UPDATE participant_contacts 
