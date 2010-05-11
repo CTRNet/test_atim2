@@ -179,9 +179,10 @@ function uncheckAll( $div ) {
 	function autoComplete(element, json){
 		$(element).autocomplete({
 			source: root_url + "/" + $(element).attr("url")
+			//alternate source for debugging
 //			source: function(request, response) {
 //				$.post(root_url + "/" + $(element).attr("url"), request, function(data){
-//					response(eval("(" + data + ")"))
+//					alert(data);
 //				});
 //			}
 		});
