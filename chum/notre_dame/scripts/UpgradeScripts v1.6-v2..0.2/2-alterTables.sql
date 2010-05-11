@@ -841,7 +841,7 @@ VALUE
 ('hotel-dieu id nbr', 'HD H#', 'active', '21', null, null),
 ('notre-dame id nbr', 'ND H#', 'active', '22', null, null),
 ('saint-luc id nbr', 'SL H#', 'active', '23', null, null),
-
+('participant patho identifier', 'PATHO#', 'active', '40', null, null),
 ('code-barre', 'BC', 'active', '30', 'code-barre', '%%key_increment%%'),
 ('other center id nbr', 'EXT ID#', 'active', '31', null, null);
 
@@ -1336,9 +1336,6 @@ ALTER TABLE `misc_identifiers`
   FOREIGN KEY (`misc_identifier_control_id`) REFERENCES `misc_identifier_controls` (`id`)
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
-
-DROP TABLE IF EXISTS `ed_allsolid_lab_pathology`;
-DROP TABLE IF EXISTS `ed_allsolid_lab_pathology_revs`;  
 
 ALTER TABLE `ed_all_clinical_followup` CHANGE `created` `created` DATETIME NULL ,
 CHANGE `modified` `modified` DATETIME NULL; 
@@ -2851,3 +2848,526 @@ INSERT INTO `users` (`id`, `username`, `first_name`, `last_name`, `password`, `e
 (18, 'cfduchat', 'Carl Frédéric', 'Duchatelier', 'cbf02a6d0825c92f7dbf7fa418d48d8c', '', '', '', '', '', NULL, '', '', '', '', '', '', '', 'en', 5, '0000-00-00 00:00:00', 9, 0, '2010-05-06 12:40:53', '2010-05-06 12:40:53'),
 (19, 'Jean-Baptiste', 'Jean-Baptiste', 'Lattouf', '453a1e889b0a37dfa97e1d36191ab9db', '', '', '', '', '', NULL, '', '', '', '', '', '', '', 'en', 5, '0000-00-00 00:00:00', 9, 0, '2010-05-06 12:41:23', '2010-05-06 12:41:23');
 
+# foreign keys
+ALTER TABLE acos
+  ADD KEY `acos_idx1` (`lft`,`rght`),
+  ADD KEY `acos_idx2` (`alias`),
+  ADD KEY `acos_idx3` (`model`,`foreign_key`);
+  
+ALTER TABLE ad_blocks
+  DROP FOREIGN KEY `ad_blocks_ibfk_1`,
+  DROP KEY `aliquot_master_id`;
+
+ALTER TABLE ad_tissue_slides
+  DROP FOREIGN KEY `ad_tissue_slides_ibfk_3`,
+  DROP KEY `aliquot_master_id`;
+
+ALTER TABLE ad_tubes
+  DROP FOREIGN KEY `ad_tubes_ibfk_1`,
+  DROP KEY `aliquot_master_id`;
+
+ALTER TABLE ad_whatman_papers
+  DROP FOREIGN KEY `ad_whatman_papers_ibfk_1`,
+  DROP KEY `aliquot_master_id`;
+  
+ALTER TABLE aliquot_masters
+  DROP FOREIGN KEY `aliquot_masters_ibfk_1`,
+  DROP FOREIGN KEY `aliquot_masters_ibfk_2`,
+  DROP FOREIGN KEY `aliquot_masters_ibfk_3`,
+  DROP FOREIGN KEY `aliquot_masters_ibfk_4`,
+  DROP FOREIGN KEY `aliquot_masters_ibfk_5`,
+  DROP FOREIGN KEY `aliquot_masters_ibfk_6`,
+  DROP KEY `aliquot_control_id`,
+  DROP KEY `collection_id`,
+  DROP KEY `sample_master_id`,
+  DROP KEY `sop_master_id`,
+  DROP KEY `study_summary_id`,
+  DROP KEY `storage_master_id`;
+  
+ALTER TABLE aliquot_uses
+  DROP FOREIGN KEY `aliquot_uses_ibfk_1`,
+  DROP FOREIGN KEY `aliquot_uses_ibfk_2`,
+  DROP KEY `aliquot_master_id`,
+  DROP KEY `storage_master_id`;
+
+ALTER TABLE aros
+  ADD KEY `aros_idx1` (`lft`,`rght`),
+  ADD KEY `aros_idx2` (`alias`),
+  ADD KEY `aros_idx3` (`model`,`foreign_key`);
+
+ALTER TABLE collections 
+  DROP FOREIGN KEY `collections_ibfk_1`,
+  DROP KEY `sop_master_id`;
+
+ALTER TABLE derivative_details 
+  DROP FOREIGN KEY `derivative_details_ibfk_1`,
+  DROP KEY `sample_master_id`;
+
+ALTER TABLE ed_breast_lab_pathology
+  ADD KEY `event_master_id` (`event_master_id`);
+  
+
+ALTER TABLE family_histories
+  DROP FOREIGN KEY `family_histories_ibfk_1`,
+  DROP FOREIGN KEY `family_histories_ibfk_2`;
+
+ALTER TABLE key_increments
+  DROP KEY `key_name`,
+  ADD PRIMARY KEY (`key_name`);
+
+ALTER TABLE misc_identifiers
+  DROP FOREIGN KEY `misc_identifiers_ibfk_1`;
+
+ALTER TABLE orders
+  DROP FOREIGN KEY `orders_ibfk_1`;
+  
+ALTER TABLE order_lines
+  DROP FOREIGN KEY `order_lines_ibfk_1`,
+  DROP FOREIGN KEY `order_lines_ibfk_2`,
+  DROP KEY `sample_control_id`,
+  DROP KEY `order_id`;
+  
+ALTER TABLE participants 
+  ADD UNIQUE KEY `unique_participant_identifier` (`participant_identifier`),
+  ADD KEY `participant_identifier` (`participant_identifier`);
+  
+ALTER TABLE quality_ctrls
+  DROP FOREIGN KEY `quality_ctrls_ibfk_1`,
+  DROP KEY `sample_master_id`,
+  ADD UNIQUE KEY `unique_qc_code` (`qc_code`),
+  ADD KEY `run_id` (`run_id`);  
+
+ALTER TABLE quality_ctrl_tested_aliquots
+  DROP FOREIGN KEY `FK_quality_ctrl_tested_aliquots_quality_ctrls`,
+  DROP FOREIGN KEY `quality_ctrl_tested_aliquots_ibfk_2`,
+  DROP FOREIGN KEY `quality_ctrl_tested_aliquots_ibfk_3`,
+  DROP KEY `aliquot_master_id`,
+  DROP KEY `aliquot_use_id`,
+  DROP KEY `quality_ctrl_id`;
+  
+ALTER TABLE realiquotings
+  DROP FOREIGN KEY `realiquotings_ibfk_1`,
+  DROP FOREIGN KEY `realiquotings_ibfk_2`,
+  DROP FOREIGN KEY `realiquotings_ibfk_3`,
+  DROP KEY `parent_aliquot_master_id`,
+  DROP KEY `child_aliquot_master_id`,
+  DROP KEY `aliquot_use_id`;
+  
+ALTER TABLE sample_masters
+  DROP FOREIGN KEY `sample_masters_ibfk_1`,
+  DROP FOREIGN KEY `sample_masters_ibfk_2`,
+  DROP FOREIGN KEY `sample_masters_ibfk_3`,
+  DROP FOREIGN KEY `sample_masters_ibfk_4`,
+  DROP KEY `collection_id`,
+  DROP KEY `sample_control_id`,
+  DROP KEY `initial_specimen_sample_id`,
+  DROP KEY `parent_id`,
+  DROP KEY `sop_master_id`;
+
+ALTER TABLE sample_to_aliquot_controls
+  DROP FOREIGN KEY `sample_to_aliquot_controls_ibfk_1`,
+  DROP FOREIGN KEY `sample_to_aliquot_controls_ibfk_2`,
+  DROP KEY `sample_control_id`,
+  DROP KEY `aliquot_control_id`,
+  ADD UNIQUE KEY `sample_to_aliquot` (`sample_control_id`,`aliquot_control_id`);
+  
+ALTER TABLE sd_der_amp_rnas
+  DROP FOREIGN KEY `sd_der_amp_rnas_ibfk_1`,
+  DROP KEY `sample_master_id`;
+
+ALTER TABLE sd_der_blood_cells
+  DROP FOREIGN KEY `sd_der_blood_cells_ibfk_1`,
+  DROP KEY `sample_master_id`;
+
+ALTER TABLE sd_der_cell_cultures
+  DROP FOREIGN KEY `sd_der_cell_cultures_ibfk_1`,
+  DROP KEY `sample_master_id`;
+  
+ALTER TABLE sd_der_dnas
+  DROP FOREIGN KEY `sd_der_dnas_ibfk_1`,
+  DROP KEY `sample_master_id`;
+
+ALTER TABLE sd_der_pbmcs
+  DROP FOREIGN KEY `sd_der_pbmcs_ibfk_1`,
+  DROP KEY `sample_master_id`;
+  
+ALTER TABLE sd_der_plasmas
+  DROP FOREIGN KEY `sd_der_plasmas_ibfk_1`,
+  DROP KEY `sample_master_id`;
+  
+ALTER TABLE sd_der_rnas
+  DROP FOREIGN KEY `sd_der_rnas_ibfk_1`,
+  DROP KEY `sample_master_id`;
+
+ALTER TABLE sd_der_serums
+  DROP FOREIGN KEY `sd_der_serums_ibfk_1`,
+  DROP KEY `sample_master_id`;
+
+ALTER TABLE sd_spe_ascites
+  DROP FOREIGN KEY `sd_spe_ascites_ibfk_1`,
+  DROP KEY `sample_master_id`;
+  
+ALTER TABLE sd_spe_bloods
+  DROP FOREIGN KEY `sd_spe_bloods_ibfk_1`,
+  DROP KEY `sample_master_id`;
+
+ALTER TABLE sd_spe_cystic_fluids
+  DROP FOREIGN KEY `sd_spe_cystic_fluids_ibfk_1`,
+  DROP KEY `sample_master_id`;
+  
+ALTER TABLE sd_spe_peritoneal_washes
+  DROP FOREIGN KEY `sd_spe_peritoneal_washes_ibfk_1`,
+  DROP KEY `sample_master_id`;
+  
+ALTER TABLE sd_spe_other_fluids
+  DROP FOREIGN KEY `sd_spe_other_fluids_ibfk_1`,
+  DROP KEY `sample_master_id`;
+
+ALTER TABLE sd_spe_tissues
+  DROP FOREIGN KEY `sd_spe_tissues_ibfk_1`,
+  DROP KEY `sample_master_id`;
+
+ALTER TABLE sd_spe_urines
+  DROP FOREIGN KEY `sd_spe_urines_ibfk_1`,
+  DROP KEY `sample_master_id`;
+
+ALTER TABLE source_aliquots
+  DROP FOREIGN KEY `source_aliquots_ibfk_1`,
+  DROP FOREIGN KEY `source_aliquots_ibfk_2`,
+  DROP FOREIGN KEY `source_aliquots_ibfk_3`,
+  DROP KEY `aliquot_master_id`,
+  DROP KEY `aliquot_use_id`,
+  DROP KEY `sample_master_id`;
+
+ALTER TABLE specimen_details
+  DROP FOREIGN KEY `specimen_details_ibfk_1`,
+  DROP KEY `sample_master_id`;
+
+ALTER TABLE std_rooms
+  DROP FOREIGN KEY `std_rooms_ibfk_1`,
+  DROP KEY `storage_master_id`;
+
+ALTER TABLE storage_masters
+  DROP FOREIGN KEY `storage_masters_ibfk_1`,
+  DROP FOREIGN KEY `storage_masters_ibfk_2`,
+  DROP KEY `storage_control_id`,
+  DROP KEY `parent_id`,
+  ADD KEY `code` (`code`);
+  
+ALTER TABLE `ad_bags`
+  ADD CONSTRAINT `FK_ad_bags_aliquot_masters` FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`);
+
+ALTER TABLE `ad_blocks`
+  ADD CONSTRAINT `FK_ad_blocks_aliquot_masters` FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`);
+
+ALTER TABLE `ad_cell_slides`
+  ADD CONSTRAINT `FK_ad_cell_slides_aliquot_masters` FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`);
+
+ALTER TABLE `ad_gel_matrices`
+  ADD CONSTRAINT `FK_ad_gel_matrices_aliquot_masters` FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`);
+
+ALTER TABLE `ad_tissue_slides`
+  ADD CONSTRAINT `FK_ad_tissue_slides_aliquot_masters` FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`);
+
+ALTER TABLE `ad_tubes`
+  ADD CONSTRAINT `FK_ad_tubes_aliquot_masters` FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`);
+
+ALTER TABLE `ad_whatman_papers`
+  ADD CONSTRAINT `FK_ad_whatman_papers_aliquot_masters` FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`);
+
+ALTER TABLE `aliquot_masters`
+  ADD CONSTRAINT `FK_aliquot_masters_aliquot_controls` FOREIGN KEY (`aliquot_control_id`) REFERENCES `aliquot_controls` (`id`),
+  ADD CONSTRAINT `FK_aliquot_masters_collections` FOREIGN KEY (`collection_id`) REFERENCES `collections` (`id`),
+  ADD CONSTRAINT `FK_aliquot_masters_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`),
+  ADD CONSTRAINT `FK_aliquot_masters_sops` FOREIGN KEY (`sop_master_id`) REFERENCES `sop_masters` (`id`),
+  ADD CONSTRAINT `FK_aliquot_masters_storage_masters` FOREIGN KEY (`storage_master_id`) REFERENCES `storage_masters` (`id`),
+  ADD CONSTRAINT `FK_aliquot_masters_study_summaries` FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`);
+
+ALTER TABLE `aliquot_uses`
+  ADD CONSTRAINT `FK_aliquot_uses_aliquot_masters` FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`),
+  ADD CONSTRAINT `FK_aliquot_uses_study_summaries` FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`);
+
+ALTER TABLE `cd_nationals`
+  ADD CONSTRAINT `cd_nationals_ibfk_1` FOREIGN KEY (`consent_master_id`) REFERENCES `consent_masters` (`id`);
+
+ALTER TABLE `clinical_collection_links`
+  ADD KEY `participant_id` (`participant_id`),
+  ADD KEY `collection_id` (`collection_id`),
+  ADD KEY `diagnosis_master_id` (`diagnosis_master_id`),
+  ADD KEY `consent_master_id` (`consent_master_id`),
+  ADD CONSTRAINT `FK_clinical_collection_links_collections` FOREIGN KEY (`collection_id`) REFERENCES `collections` (`id`),
+  ADD CONSTRAINT `FK_clinical_collection_links_consent_masters` FOREIGN KEY (`consent_master_id`) REFERENCES `consent_masters` (`id`),
+  ADD CONSTRAINT `FK_clinical_collection_links_diagnosis_masters` FOREIGN KEY (`diagnosis_master_id`) REFERENCES `diagnosis_masters` (`id`),
+  ADD CONSTRAINT `FK_clinical_collection_links_participant` FOREIGN KEY (`participant_id`) REFERENCES `participants` (`id`);
+
+ALTER TABLE `collections`
+  ADD CONSTRAINT `FK_collections_banks` FOREIGN KEY (`bank_id`) REFERENCES `banks` (`id`),
+  ADD CONSTRAINT `FK_collections_sops` FOREIGN KEY (`sop_master_id`) REFERENCES `sop_masters` (`id`);
+
+ALTER TABLE `consent_masters`
+  ADD CONSTRAINT `FK_consent_masters_consent_controls` FOREIGN KEY (`consent_control_id`) REFERENCES `consent_controls` (`id`),
+  ADD CONSTRAINT `FK_consent_masters_participant` FOREIGN KEY (`participant_id`) REFERENCES `participants` (`id`);
+
+ALTER TABLE `derivative_details`
+  ADD CONSTRAINT `FK_detivative_details_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+
+INSERT INTO coding_icd10(id, category, icd_group, site, subsite, description, created, created_by, modified, modified_by, deleted) 
+SELECT primary_icd10_code, '', '', '', '', '', NOW(), 1, NOW(), 1, 0 FROM diagnosis_masters GROUP BY primary_icd10_code;
+ALTER TABLE `diagnosis_masters`
+  ADD CONSTRAINT `FK_diagnosis_masters_diagnosis_controls` FOREIGN KEY (`diagnosis_control_id`) REFERENCES `diagnosis_controls` (`id`),
+  ADD CONSTRAINT `FK_diagnosis_masters_icd10_code` FOREIGN KEY (`primary_icd10_code`) REFERENCES `coding_icd10` (`id`),
+  ADD CONSTRAINT `FK_diagnosis_masters_participant` FOREIGN KEY (`participant_id`) REFERENCES `participants` (`id`);
+
+ALTER TABLE `ed_all_adverse_events_adverse_event`
+  ADD CONSTRAINT `ed_all_adverse_events_adverse_event_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+ALTER TABLE `ed_all_clinical_followup`
+  ADD CONSTRAINT `ed_all_clinical_followup_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+ALTER TABLE `ed_all_clinical_presentation`
+  ADD CONSTRAINT `ed_all_clinical_presentation_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+ALTER TABLE `event_masters`
+  ADD CONSTRAINT `FK_event_masters_diagnosis_masters` FOREIGN KEY (`diagnosis_master_id`) REFERENCES `diagnosis_masters` (`id`),
+  ADD CONSTRAINT `FK_event_masters_event_controls` FOREIGN KEY (`event_control_id`) REFERENCES `event_controls` (`id`),
+  ADD CONSTRAINT `FK_event_masters_participant` FOREIGN KEY (`participant_id`) REFERENCES `participants` (`id`);
+
+INSERT IGNORE INTO coding_icd10(id, category, icd_group, site, subsite, description, created, created_by, modified, modified_by, deleted) 
+SELECT primary_icd10_code, '', '', '', '', '', NOW(), 1, NOW(), 1, 0 FROM family_histories GROUP BY primary_icd10_code;
+ALTER TABLE `family_histories`
+  ADD CONSTRAINT `FK_family_histories_icd10_code` FOREIGN KEY (`primary_icd10_code`) REFERENCES `coding_icd10` (`id`),
+  ADD CONSTRAINT `FK_family_histories_participant` FOREIGN KEY (`participant_id`) REFERENCES `participants` (`id`);
+
+ALTER TABLE `misc_identifiers`
+  ADD CONSTRAINT `FK_misc_identifiers_participant` FOREIGN KEY (`participant_id`) REFERENCES `participants` (`id`);
+
+ALTER TABLE `orders`
+  ADD CONSTRAINT `FK_orders_study_summaries` FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`);
+
+ALTER TABLE `order_lines`
+  ADD CONSTRAINT `FK_order_lines_orders` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`),
+  ADD CONSTRAINT `FK_order_lines_sample_controls` FOREIGN KEY (`sample_control_id`) REFERENCES `sample_controls` (`id`);
+
+ALTER TABLE `parent_to_derivative_sample_controls`
+  ADD CONSTRAINT `FK_parent_to_derivative_sample_controls_derivative` FOREIGN KEY (`derivative_sample_control_id`) REFERENCES `sample_controls` (`id`),
+  ADD CONSTRAINT `FK_parent_to_derivative_sample_controls_parent` FOREIGN KEY (`parent_sample_control_id`) REFERENCES `sample_controls` (`id`);
+
+ALTER TABLE `participants`
+  ADD CONSTRAINT `FK_participants_icd10_code` FOREIGN KEY (`cod_icd10_code`) REFERENCES `coding_icd10` (`id`),
+  ADD CONSTRAINT `FK_participants_icd10_code_2` FOREIGN KEY (`secondary_cod_icd10_code`) REFERENCES `coding_icd10` (`id`);
+
+ALTER TABLE `participant_contacts`
+  ADD CONSTRAINT `FK_participant_contacts_participant` FOREIGN KEY (`participant_id`) REFERENCES `participants` (`id`);
+
+ALTER TABLE `order_items`
+  ADD CONSTRAINT `FK_order_items_aliquot_masters` FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`),
+  #TODO FIXME
+  #ADD CONSTRAINT `FK_order_items_aliquot_uses` FOREIGN KEY (`aliquot_use_id`) REFERENCES `aliquot_uses` (`id`),
+  ADD CONSTRAINT `FK_order_items_order_lines` FOREIGN KEY (`order_line_id`) REFERENCES `order_lines` (`id`),
+  ADD CONSTRAINT `FK_order_items_shipments` FOREIGN KEY (`shipment_id`) REFERENCES `shipments` (`id`);
+
+ALTER TABLE `participant_messages`
+  ADD CONSTRAINT `FK_participant_messages_participant` FOREIGN KEY (`participant_id`) REFERENCES `participants` (`id`);
+
+ALTER TABLE `quality_ctrls`
+  ADD CONSTRAINT `FK_quality_ctrls_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+
+ALTER TABLE `quality_ctrl_tested_aliquots`
+  ADD CONSTRAINT `FK_quality_ctrl_tested_aliquots_aliquot_masters` FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`),
+  ADD CONSTRAINT `FK_quality_ctrl_tested_aliquots_aliquot_uses` FOREIGN KEY (`aliquot_use_id`) REFERENCES `aliquot_uses` (`id`),
+  ADD CONSTRAINT `FK_quality_ctrl_tested_aliquots_quality_ctrls` FOREIGN KEY (`quality_ctrl_id`) REFERENCES `quality_ctrls` (`id`);
+
+ALTER TABLE `realiquotings`
+  ADD CONSTRAINT `FK_realiquotings_aliquot_uses` FOREIGN KEY (`aliquot_use_id`) REFERENCES `aliquot_uses` (`id`),
+  ADD CONSTRAINT `FK_realiquotings_child_aliquot_masters` FOREIGN KEY (`child_aliquot_master_id`) REFERENCES `aliquot_masters` (`id`),
+  ADD CONSTRAINT `FK_realiquotings_parent_aliquot_masters` FOREIGN KEY (`parent_aliquot_master_id`) REFERENCES `aliquot_masters` (`id`);
+
+ALTER TABLE `reproductive_histories`
+  ADD CONSTRAINT `FK_reproductive_histories_participant` FOREIGN KEY (`participant_id`) REFERENCES `participants` (`id`);
+
+ALTER TABLE `sample_masters`
+  ADD CONSTRAINT `FK_sample_masters_collections` FOREIGN KEY (`collection_id`) REFERENCES `collections` (`id`),
+  ADD CONSTRAINT `FK_sample_masters_parent` FOREIGN KEY (`parent_id`) REFERENCES `sample_masters` (`id`),
+  ADD CONSTRAINT `FK_sample_masters_sample_controls` FOREIGN KEY (`sample_control_id`) REFERENCES `sample_controls` (`id`),
+  ADD CONSTRAINT `FK_sample_masters_sample_specimens` FOREIGN KEY (`initial_specimen_sample_id`) REFERENCES `sample_masters` (`id`),
+  ADD CONSTRAINT `FK_sample_masters_sops` FOREIGN KEY (`sop_master_id`) REFERENCES `sop_masters` (`id`);
+
+ALTER TABLE `sample_to_aliquot_controls`
+  ADD CONSTRAINT `FK_sample_to_aliquot_controls_aliquot_controls` FOREIGN KEY (`aliquot_control_id`) REFERENCES `aliquot_controls` (`id`),
+  ADD CONSTRAINT `FK_sample_to_aliquot_controls_sample_controls` FOREIGN KEY (`sample_control_id`) REFERENCES `sample_controls` (`id`);
+  
+ALTER TABLE `sd_der_amp_rnas`
+  ADD CONSTRAINT `FK_sd_der_amp_rnas_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+
+ALTER TABLE `sd_der_ascite_cells`
+  ADD CONSTRAINT `FK_sd_der_ascite_cells_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+
+ALTER TABLE `sd_der_ascite_sups`
+  ADD CONSTRAINT `FK_sd_der_ascite_sups_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+
+ALTER TABLE `sd_der_blood_cells`
+  ADD CONSTRAINT `FK_sd_der_blood_cells_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+
+ALTER TABLE `sd_der_b_cells`
+  ADD CONSTRAINT `FK_sd_der_b_cells_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+
+ALTER TABLE `sd_der_cell_cultures`
+  ADD CONSTRAINT `FK_sd_der_cell_cultures_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+
+ALTER TABLE `sd_der_cystic_fl_cells`
+  ADD CONSTRAINT `FK_sd_der_cystic_fl_cells_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+
+ALTER TABLE `sd_der_cystic_fl_sups`
+  ADD CONSTRAINT `FK_sd_der_cystic_fl_sups_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+
+ALTER TABLE `sd_der_dnas`
+  ADD CONSTRAINT `FK_sd_der_dnas_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+
+ALTER TABLE `sd_der_pbmcs`
+  ADD CONSTRAINT `FK_sd_der_pbmcs_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+
+ALTER TABLE `sd_der_pericardial_fl_cells`
+  ADD CONSTRAINT `FK_sd_der_pericardial_fl_cells_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+
+ALTER TABLE `sd_der_pericardial_fl_sups`
+  ADD CONSTRAINT `FK_sd_der_pericardial_fl_sups_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+
+ALTER TABLE `sd_der_plasmas`
+  ADD CONSTRAINT `FK_sd_der_plasmas_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+
+ALTER TABLE `sd_der_pleural_fl_cells`
+  ADD CONSTRAINT `FK_sd_der_pleural_fl_cells_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+
+ALTER TABLE `sd_der_pleural_fl_sups`
+  ADD CONSTRAINT `FK_sd_der_pleural_fl_sups_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+
+ALTER TABLE `sd_der_pw_cells`
+  ADD CONSTRAINT `FK_sd_der_pw_cells_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+
+ALTER TABLE `sd_der_pw_sups`
+  ADD CONSTRAINT `FK_sd_der_pw_sups_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+
+ALTER TABLE `sd_der_rnas`
+  ADD CONSTRAINT `FK_sd_der_rnas_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+
+ALTER TABLE `sd_der_serums`
+  ADD CONSTRAINT `FK_sd_der_serums_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+
+ALTER TABLE `sd_der_tiss_lysates`
+  ADD CONSTRAINT `FK_sd_der_tiss_lysates_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+
+ALTER TABLE `sd_der_tiss_susps`
+  ADD CONSTRAINT `FK_sd_der_tiss_susps_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+
+ALTER TABLE `sd_der_urine_cents`
+  ADD CONSTRAINT `FK_sd_der_urine_cents_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+
+ALTER TABLE `sd_der_urine_cons`
+  ADD CONSTRAINT `FK_sd_der_urine_cons_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+
+ALTER TABLE `sd_spe_ascites`
+  ADD CONSTRAINT `FK_sd_spe_ascites_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+
+--
+-- Contraintes pour la table `sd_spe_bloods`
+--
+ALTER TABLE `sd_spe_bloods`
+  ADD CONSTRAINT `FK_sd_spe_bloods_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+
+ALTER TABLE `sd_spe_cystic_fluids`
+  ADD CONSTRAINT `FK_sd_spe_cystic_fluids_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+
+ALTER TABLE `sd_spe_pericardial_fluids`
+  ADD CONSTRAINT `FK_sd_spe_pericardial_fluids_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+
+ALTER TABLE `sd_spe_peritoneal_washes`
+  ADD CONSTRAINT `FK_sd_spe_peritoneal_washes_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+
+ALTER TABLE `sd_spe_pleural_fluids`
+  ADD CONSTRAINT `FK_sd_spe_pleural_fluids_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+
+ALTER TABLE `sd_spe_tissues`
+  ADD CONSTRAINT `FK_sd_spe_tissues_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+
+ALTER TABLE `sd_spe_urines`
+  ADD CONSTRAINT `FK_sd_spe_urines_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+
+ALTER TABLE `shipments`
+  ADD CONSTRAINT `FK_shipments_orders` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`);
+
+ALTER TABLE `source_aliquots`
+  ADD CONSTRAINT `FK_source_aliquots_aliquot_masters` FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`),
+  ADD CONSTRAINT `FK_source_aliquots_aliquot_uses` FOREIGN KEY (`aliquot_use_id`) REFERENCES `aliquot_uses` (`id`),
+  ADD CONSTRAINT `FK_source_aliquots_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+
+ALTER TABLE `specimen_details`
+  ADD CONSTRAINT `FK_specimen_details_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+
+ALTER TABLE `std_boxs`
+  ADD CONSTRAINT `FK_std_boxs_storage_masters` FOREIGN KEY (`storage_master_id`) REFERENCES `storage_masters` (`id`);
+
+ALTER TABLE `std_cupboards`
+  ADD CONSTRAINT `FK_std_cupboards_storage_masters` FOREIGN KEY (`storage_master_id`) REFERENCES `storage_masters` (`id`);
+
+ALTER TABLE `std_freezers`
+  ADD CONSTRAINT `FK_std_freezers_storage_masters` FOREIGN KEY (`storage_master_id`) REFERENCES `storage_masters` (`id`);
+
+ALTER TABLE `std_fridges`
+  ADD CONSTRAINT `FK_std_fridges_storage_masters` FOREIGN KEY (`storage_master_id`) REFERENCES `storage_masters` (`id`);
+
+ALTER TABLE `std_incubators`
+  ADD CONSTRAINT `FK_std_incubators_storage_masters` FOREIGN KEY (`storage_master_id`) REFERENCES `storage_masters` (`id`);
+
+ALTER TABLE `std_nitro_locates`
+  ADD CONSTRAINT `FK_std_nitro_locates_storage_masters` FOREIGN KEY (`storage_master_id`) REFERENCES `storage_masters` (`id`);
+
+ALTER TABLE `std_racks`
+  ADD CONSTRAINT `FK_std_racks_storage_masters` FOREIGN KEY (`storage_master_id`) REFERENCES `storage_masters` (`id`);
+
+ALTER TABLE `std_rooms`
+  ADD CONSTRAINT `FK_std_rooms_storage_masters` FOREIGN KEY (`storage_master_id`) REFERENCES `storage_masters` (`id`);
+
+ALTER TABLE `std_shelfs`
+  ADD CONSTRAINT `FK_std_shelfs_storage_masters` FOREIGN KEY (`storage_master_id`) REFERENCES `storage_masters` (`id`);
+
+ALTER TABLE `std_tma_blocks`
+  ADD CONSTRAINT `FK_std_tma_blocks_sop_masters` FOREIGN KEY (`sop_master_id`) REFERENCES `sop_masters` (`id`),
+  ADD CONSTRAINT `FK_std_tma_blocks_storage_masters` FOREIGN KEY (`storage_master_id`) REFERENCES `storage_masters` (`id`);
+
+ALTER TABLE `storage_coordinates`
+  ADD CONSTRAINT `FK_storage_coordinates_storage_masters` FOREIGN KEY (`storage_master_id`) REFERENCES `storage_masters` (`id`);
+
+ALTER TABLE `storage_masters`
+  ADD CONSTRAINT `FK_storage_masters_parent` FOREIGN KEY (`parent_id`) REFERENCES `storage_masters` (`id`),
+  ADD CONSTRAINT `FK_storage_masters_storage_controls` FOREIGN KEY (`storage_control_id`) REFERENCES `storage_controls` (`id`);
+
+ALTER TABLE `study_contacts`
+  ADD CONSTRAINT `FK_study_contacts_study_summaries` FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`);
+
+ALTER TABLE `study_ethics_boards`
+  ADD CONSTRAINT `FK_study_ethics_boards_study_summaries` FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`);
+
+ALTER TABLE `study_fundings`
+  ADD CONSTRAINT `FK_study_fundings_study_summaries` FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`);
+
+ALTER TABLE `study_investigators`
+  ADD CONSTRAINT `FK_study_investigators_study_summaries` FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`);
+
+ALTER TABLE `study_related`
+  ADD CONSTRAINT `FK_study_related_study_summaries` FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`);
+
+ALTER TABLE `study_results`
+  ADD CONSTRAINT `FK_study_results_study_summaries` FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`);
+
+ALTER TABLE `study_reviews`
+  ADD CONSTRAINT `FK_study_reviews_study_summaries` FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`);
+
+ALTER TABLE `tma_slides`
+  ADD CONSTRAINT `FK_tma_slides_sop_masters` FOREIGN KEY (`sop_master_id`) REFERENCES `sop_masters` (`id`),
+  ADD CONSTRAINT `FK_tma_slides_storage_masters` FOREIGN KEY (`storage_master_id`) REFERENCES `storage_masters` (`id`),
+  ADD CONSTRAINT `FK_tma_slides_tma_blocks` FOREIGN KEY (`tma_block_storage_master_id`) REFERENCES `storage_masters` (`id`);
+
+ALTER TABLE `tx_masters`
+  ADD CONSTRAINT `FK_tx_masters_diagnosis_masters` FOREIGN KEY (`diagnosis_master_id`) REFERENCES `diagnosis_masters` (`id`),
+  ADD CONSTRAINT `FK_tx_masters_participant` FOREIGN KEY (`participant_id`) REFERENCES `participants` (`id`),
+  ADD CONSTRAINT `FK_tx_masters_tx_controls` FOREIGN KEY (`treatment_control_id`) REFERENCES `tx_controls` (`id`);
