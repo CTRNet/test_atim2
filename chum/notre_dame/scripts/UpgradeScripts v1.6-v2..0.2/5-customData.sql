@@ -97,12 +97,12 @@ VALUES
 ('last import date', '', 'Last Import Date', 'Date dernier import');
 
 ALTER TABLE participants
-     ADD is_anonymous varchar(10) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER middle_name,
+     ADD is_anonymous varchar(10) NOT NULL DEFAULT '0' COMMENT '' COLLATE latin1_swedish_ci AFTER middle_name,
      ADD anonymous_reason varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER is_anonymous,
      ADD anonymous_precision varchar(255) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER anonymous_reason;
 
 ALTER TABLE participants_revs
-     ADD is_anonymous varchar(10) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER middle_name,
+     ADD is_anonymous varchar(10) NOT NULL DEFAULT '0' COMMENT '' COLLATE latin1_swedish_ci AFTER middle_name,
      ADD anonymous_reason varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER is_anonymous,
      ADD anonymous_precision varchar(255) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER anonymous_reason;
 
@@ -153,7 +153,7 @@ INSERT INTO i18n (`id`, `page_id`, `en`, `fr`)
 VALUES
 ('consent missing', '', 'Consent Missing', 'Consentement manquant'),
 ('consent refused', '', 'Consent Refused', 'Consentement refusé'),
-('other center participant', '', 'Other Center participant', 'Participant autre banque'),
+('other center participant', '', 'Other Center Participant', 'Participant autre banque'),
 
 ('anonymous data', '', 'Anonymous Data', 'Pécision / Anonyme'),
 ('is anonymous', '', 'Is Anonymous', 'Anonyme'),
@@ -196,28 +196,85 @@ UPDATE participants
 SET last_name = 'n/a',
 WHERE last_name IS NULL;
 
+UPDATE participants
+SET is_anonymous = '0'
+WHERE is_anonymous != '1' OR is_anonymous IS NULL;
+
+# IDENTIFIERS ------------------------------------------------------------
+
+INSERT INTO i18n (`id`, `page_id`, `en`, `fr`) 
+VALUES
+('breast bank no lab', '', '''No Labo'' of Breast Bank', '''No Labo'' de la banque Sein'),
+('code-barre', '', 'Code-barre', 'Code à barres'),
+('head and neck bank no lab', '', '''No Labo'' of Head & Neck Bank', '''No Labo'' de la banque Tête & Cou'),
+('hotel-dieu id nbr', '', 'Hôtel-Dieu Medical Record Number', 'Numéro de dossier ''Hôtel-Dieu'''),
+('kidney bank no lab', '', '''No Labo'' of Kidney Bank', '''No Labo'' de la banque Rein'),
+('notre-dame id nbr', '', 'Notre-Dame Medical Record Number', 'Numéro de dossier ''Notre-Dame'''),
+('old bank no lab', '', '''No Labo'' of Old Bank', 'Ancien ''No Labo'' de banque '),
+('other center id nbr', '', 'Other Center Participant Number', 'Numéro participant autre banque'),
+('ovary bank no lab', '', '''No Labo'' of Ovary Bank', '''No Labo'' de la banque Ovaire'),
+('prostate bank no lab', '', '''No Labo'' of Prostate Bank', '''No Labo'' de la banque Prostate'),
+('ramq nbr', '', 'RAMQ', 'RAMQ'),
+('participant patho identifier', '', 'Patho Identifier', 'Identifiant de pathologie'),  
+('saint-luc id nbr', '', 'Saint-Luc Medical Record Number', 'Numéro de dossier ''Saint-Luc''');               |
+
+UPDATE structure_fields field, structure_formats format, structures strct
+SET format.flag_add ='0', format.flag_add_readonly ='0', 
+flag_edit ='0', flag_edit_readonly ='0', 
+flag_search ='0', flag_search_readonly ='0', 
+flag_datagrid ='0', flag_datagrid_readonly ='0', 
+flag_index ='0', 
+flag_detail ='0' 
+WHERE format.structure_id = strct.id
+AND field.id = format.structure_field_id
+AND strct.alias LIKE '%miscidentifiers%'
+AND field.plugin = 'Clinicalannotation'
+AND field.model = 'Participant'
+AND field.tablename = 'participants'
+AND field.field IN  ('title', 'middle_name'); 
+
+UPDATE structure_fields field, structure_formats format, structures strct
+SET format.flag_search ='1', format.flag_override_label = '1', format.language_label = 'first name'
+WHERE format.structure_id = strct.id
+AND field.id = format.structure_field_id
+AND strct.alias LIKE 'miscidentifierssummary'
+AND field.plugin = 'Clinicalannotation'
+AND field.model = 'Participant'
+AND field.tablename = 'participants'
+AND field.field IN  ('first_name'); 
+
+UPDATE structure_fields field, structure_formats format, structures strct
+SET flag_search ='1', format.flag_override_label = '1', format.language_label = 'last name'
+WHERE format.structure_id = strct.id
+AND field.id = format.structure_field_id
+AND strct.alias LIKE 'miscidentifierssummary'
+AND field.plugin = 'Clinicalannotation'
+AND field.model = 'Participant'
+AND field.tablename = 'participants'
+AND field.field IN  ('last_name'); 
+
+INSERT INTO structure_formats
+(`structure_id`, 
+`structure_field_id`, 
+`display_column`, `display_order`, 
+`language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, 
+`flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) 
+VALUES 
+((SELECT id FROM structures WHERE alias='miscidentifierssummary'), 
+(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='is_anonymous'), 
+'0', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '1', '0', '0', '0', '1', '0');
+
+
+
+
+
+
+
+
+
+
 # CONSENT ----------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
