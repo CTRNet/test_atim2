@@ -64,6 +64,7 @@ SELECT DISTINCT `name` FROM `misc_identifiers`;
 -- -> other center patient number
 -- -> kidney bank no lab
 -- -> head and neck bank no lab
+-- -> participant patho identifier 
 
 -- check #11 : Check issue on consent
 SELECT id, form_version, consent_type, consent_version_date, consent_language FROM `consents` WHERE `consent_type` IS NULL OR `consent_type` LIKE '';
