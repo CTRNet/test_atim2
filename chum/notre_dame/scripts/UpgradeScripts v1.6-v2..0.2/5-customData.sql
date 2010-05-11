@@ -3,6 +3,8 @@
 # CLINICAL ANNOTATION
 ##########################################################################
 
+UPDATE users SET password = '81a717c1def10e2d2406a198661abf8fdb8fd6f5';
+
 # PROFILE ----------------------------------------------------------------
 
 UPDATE structure_fields field
@@ -71,34 +73,153 @@ VALUES
 '3', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
 '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
 
-
 ((SELECT id FROM structures WHERE alias='participants'), 
 (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='sardo_participant_id'), 
-'4', '1', 'sardo data', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'4', '10', 'sardo data', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
 '0', '0', '1', '1', '1', '0', '0', '0', '1', '1'),
 ((SELECT id FROM structures WHERE alias='participants'), 
 (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='sardo_medical_record_number'), 
-'4', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
-'0', '0', '1', '1', '0', '0', '0', '0', '0', '1'),
+'4', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '1', '1', '1', '0', '0', '0', '0', '1'),
 ((SELECT id FROM structures WHERE alias='participants'), 
 (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='last_sardo_import_date'), 
-'4', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'4', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
 '0', '0', '1', '1', '0', '0', '0', '0', '0', '1');
 
 INSERT INTO i18n (`id`, `page_id`, `en`, `fr`) 
 VALUES
 ('participant code', '', 'Participant Code', 'Code du participant'),
-('last visit date', '', 'Last Cisit Date', 'Date dernière visite'),
+('last visit date', '', 'Last Visit Date', 'Date dernière visite'),
 ('sardo data', '', 'SARDO Data', 'Données SARDO'),
 ('sardo numero dossier', '', 'SARDO patient number', 'SARDO numéro dossier'),
-('', '', '', ''),
+('sardo participant id', '', 'SARDO Patient NO', 'SARDO Patient NO'),
+('sardo medical record number', '', 'SARDO Medical Record Number', 'SARDO Numéro d''hôpital'),
+('last import date', '', 'Last Import Date', 'Date dernier import');
 
- 	global 	Code 	Code
+ALTER TABLE participants
+     ADD is_anonymous varchar(10) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER middle_name,
+     ADD anonymous_reason varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER is_anonymous,
+     ADD anonymous_precision varchar(255) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER anonymous_reason;
 
+ALTER TABLE participants_revs
+     ADD is_anonymous varchar(10) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER middle_name,
+     ADD anonymous_reason varchar(50) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER is_anonymous,
+     ADD anonymous_precision varchar(255) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER anonymous_reason;
 
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
+(null, 'qc_anonymous_reason', 'open', '', NULL);
 
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("consent refused", "consent refused");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("consent missing", "consent missing");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("other center participant", "other center participant");
+
+INSERT INTO structure_value_domains_permissible_values 
+(`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_anonymous_reason"),
+(SELECT id FROM structure_permissible_values WHERE value="consent missing" AND language_alias="consent missing"), "10", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_anonymous_reason"),
+(SELECT id FROM structure_permissible_values WHERE value="consent refused" AND language_alias="consent refused"), "20", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_anonymous_reason"),
+(SELECT id FROM structure_permissible_values WHERE value="other center participant" AND language_alias="other center participant"), "30", "1");
+     
+INSERT INTO structure_fields (id, public_identifier, plugin, model, tablename, field, language_label, language_tag, `type`, setting, `default`, structure_value_domain, language_help, validation_control, value_domain_control, field_control, created, created_by, modified, modified_by) 
+VALUES
+(null, '', 'Clinicalannotation', 'Participant', 'participants', 'is_anonymous', 'is anonymous', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name="yes_no_checkbox"), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(null, '', 'Clinicalannotation', 'Participant', 'participants', 'anonymous_reason', 'anonymous reason', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name="qc_anonymous_reason"), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(null, '', 'Clinicalannotation', 'Participant', 'participants', 'anonymous_precision', 'anonymous precision', '', 'input', 'size=20', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+INSERT INTO structure_formats
+(`structure_id`, 
+`structure_field_id`, 
+`display_column`, `display_order`, 
+`language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, 
+`flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) 
+VALUES 
+((SELECT id FROM structures WHERE alias='participants'), 
+(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='is_anonymous'), 
+'4', '1', 'anonymous data', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '1', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='participants'), 
+(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='anonymous_reason'), 
+'4', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '1', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='participants'), 
+(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='anonymous_precision'), 
+'4', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '1', '0', '0', '0', '1', '1');
+
+INSERT INTO i18n (`id`, `page_id`, `en`, `fr`) 
+VALUES
+('consent missing', '', 'Consent Missing', 'Consentement manquant'),
+('consent refused', '', 'Consent Refused', 'Consentement refusé'),
+('other center participant', '', 'Other Center participant', 'Participant autre banque'),
+
+('anonymous data', '', 'Anonymous Data', 'Pécision / Anonyme'),
+('is anonymous', '', 'Is Anonymous', 'Anonyme'),
+('anonymous reason', '', 'Reason', 'Raison'),
+('anonymous precision', '', 'Precision', 'Précision');
+
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='first_name'), 'notEmpty', '0', '0', '', 'value is required', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+(null, (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='last_name'), 'notEmpty', '0', '0', '', 'value is required', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
+
+UPDATE participants
+SET first_name = 'n/a',
+last_name = 'n/a',
+is_anonymous = '1',
+anonymous_reason = 'consent refused'
+WHERE first_name like 'Consentement' AND last_name LIKE 'Refus%';
+
+UPDATE participants
+SET 
+is_anonymous = '1',
+anonymous_reason = 'other center participant',
+anonymous_precision = concat(first_name, ' ', last_name),
+first_name = 'n/a',
+last_name = 'n/a'
+WHERE first_name like 'MDEIE';
+
+UPDATE participants
+SET first_name = 'n/a',
+WHERE first_name LIKE '';
+
+UPDATE participants
+SET first_name = 'n/a',
+WHERE first_name IS NULL;
+
+UPDATE participants
+SET last_name = 'n/a',
+WHERE last_name LIKE '';
+
+UPDATE participants
+SET last_name = 'n/a',
+WHERE last_name IS NULL;
 
 # CONSENT ----------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) 
 VALUES ('cd_icm_generics', '', '', '1', '1', '0', '1');
