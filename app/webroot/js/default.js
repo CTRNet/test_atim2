@@ -241,6 +241,9 @@ function uncheckAll( $div ) {
 					});
 					//move the add button to the end
 					$(this).parent().parent().append($(this).parent());
+					
+					//reset the highlighting
+					$('form').highlight('tr');
 				});
 			}else{
 				//range values, no add options
