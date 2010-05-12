@@ -621,7 +621,6 @@ VALUES
 (null, '', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_sardos', 'sardo_diagnosis_id', 'sardo diagnosis id', '', 'input', 'size=20', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (null, '', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_sardos', 'last_sardo_import_date', 'last import date', '', 'date', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
 
-DELETE FROM structure_formats WHERE structure_id IN (SELECT id FROM structures WHERE alias='dxd_sardos');
 INSERT INTO structure_formats
 (`structure_id`, 
 `structure_field_id`, 
@@ -741,12 +740,74 @@ VALUES
 ('icd-o grade', '', 'ICD-O Grade', 'Grade ICD-O'),
 ('diagnosis identifier', '', 'Diagnosis Code', 'Code su diagnostic');
 
+# TREATMENT --------------------------------------------------------------
 
+# EVENT ------------------------------------------------------------------
 
+UPDATE menus SET flag_active = '0' WHERE parent_id = 'clin_CAN_4' AND language_title != 'lifestyle';
+UPDATE menus SET use_link = '/clinicalannotation/event_masters/listall/lifestyle/%%Participant.id%%' WHERE id = 'clin_CAN_4';
 
- 	 	 	
-	 	
- 	 	
+INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) 
+VALUES ('ed_all_procure_lifestyle', '', '', '1', '1', '0', '1');
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
+(null, 'qc_procure_lifestyle_status', 'open', '', NULL);
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("received", "received");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("delivered", "delivered");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("to deliver", "to deliver");
+
+INSERT INTO structure_value_domains_permissible_values 
+(`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_procure_lifestyle_status"),  (SELECT id FROM structure_permissible_values WHERE value="to deliver" AND language_alias="to deliver"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_procure_lifestyle_status"),  (SELECT id FROM structure_permissible_values WHERE value="delivered" AND language_alias="delivered"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_procure_lifestyle_status"),  (SELECT id FROM structure_permissible_values WHERE value="received" AND language_alias="received"), "3", "1");
+
+INSERT INTO structure_fields (id, public_identifier, plugin, model, tablename, field, language_label, language_tag, `type`, setting, `default`, structure_value_domain, language_help, validation_control, value_domain_control, field_control, created, created_by, modified, modified_by) 
+VALUES
+(null, '', 'Clinicalannotation', 'EventDetail', 'ed_all_procure_lifestyle', 'procure_lifestyle_status', 'status', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name="qc_procure_lifestyle_status"), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(null, '', 'Clinicalannotation', 'EventDetail', 'ed_all_procure_lifestyle', 'completed', 'completed', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name="yesno"), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+DELETE FROM structure_formats WHERE structure_id IN (SELECT id FROM structures WHERE alias='ed_all_procure_lifestyle');
+INSERT INTO structure_formats
+(`structure_id`, 
+`structure_field_id`, 
+`display_column`, `display_order`, 
+`language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, 
+`flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) 
+VALUES 
+((SELECT id FROM structures WHERE alias='ed_all_procure_lifestyle'), 
+(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='disease_site'), 
+'0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='ed_all_procure_lifestyle'), 
+(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_type'), 
+'0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
+
+((SELECT id FROM structures WHERE alias='ed_all_procure_lifestyle'), 
+(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_all_procure_lifestyle' AND `field`='procure_lifestyle_status'), 
+'0', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='ed_all_procure_lifestyle'), 
+(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date'), 
+'0', '11', '', '1', 'status date', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='ed_all_procure_lifestyle'), 
+(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_all_procure_lifestyle' AND `field`='completed'), 
+'0', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='ed_all_procure_lifestyle'), 
+(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary'), 
+'0', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1');
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) 
+VALUES
+('received', '', 'Received', 'Reçu'),
+('delivered', '', 'Delivered', 'Délivré'),
+('to deliver', '', 'To Deliver', 'A délivrer');
  	
  	
  	
