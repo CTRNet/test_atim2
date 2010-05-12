@@ -262,24 +262,72 @@ INSERT INTO structure_formats
 VALUES 
 ((SELECT id FROM structures WHERE alias='miscidentifierssummary'), 
 (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='is_anonymous'), 
+'0', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '1', '0', '0', '0', '1', '0');
+
+INSERT INTO structure_formats
+(`structure_id`, 
+`structure_field_id`, 
+`display_column`, `display_order`, 
+`language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, 
+`flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) 
+VALUES 
+((SELECT id FROM structures WHERE alias='miscidentifierssummary'), 
+(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='date_of_birth'), 
 '0', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
 '0', '0', '0', '0', '1', '0', '0', '0', '1', '0');
 
+ALTER TABLE misc_identifier_controls
+	ADD flag_is_unique tinyint(1) NOT NULL DEFAULT '0';
 
+UPDATE misc_identifier_controls SET flag_is_unique = '1' WHERE 	misc_identifier_name NOT IN ('other center id nbr', 'participant patho identifier');
 
-
-
-
-
-
-
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) 
+VALUES
+('this identifier has already been created for your participant', '', 'This identifier has already been created for your participant!', 'Cet identification a déjà été créée pour ce participant!'),
+('ramq format error', '', 'The format of the RAMQ is invalid!', 'Le format de la RAMQ est invalide!');
 
 # CONSENT ----------------------------------------------------------------
 
-
-
 INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) 
 VALUES ('cd_icm_generics', '', '', '1', '1', '0', '1');
+
+UPDATE consent_controls SET controls_type = 'frsq - network' WHERE controls_type = 'FRSQ - Network';
+UPDATE consent_controls SET controls_type = 'chum - prostate' WHERE controls_type = 'CHUM - Prostate';
+UPDATE consent_controls SET controls_type = 'frsq' WHERE controls_type = 'FRSQ';
+UPDATE consent_controls SET controls_type = 'procure' WHERE controls_type = 'PROCURE';
+
+UPDATE consent_masters SET consent_type = 'frsq - network' WHERE consent_type = 'FRSQ - Network';
+UPDATE consent_masters SET consent_type = 'chum - prostate' WHERE consent_type = 'CHUM - Prostate';
+UPDATE consent_masters SET consent_type = 'frsq' WHERE consent_type = 'FRSQ';
+UPDATE consent_masters SET consent_type = 'procure' WHERE consent_type = 'PROCURE';
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
+(null, 'qc_consent_type', 'open', '', NULL);
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("frsq - network", "frsq - network");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("chum - kidney", "chum - kidney");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("chum - prostate", "chum - prostate");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("frsq", "frsq");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("procure", "procure");
+
+INSERT INTO structure_value_domains_permissible_values 
+(`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_consent_type"),  (SELECT id FROM structure_permissible_values WHERE value="frsq - network" AND language_alias="frsq - network"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_consent_type"),  (SELECT id FROM structure_permissible_values WHERE value="chum - kidney" AND language_alias="chum - kidney"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_consent_type"),  (SELECT id FROM structure_permissible_values WHERE value="chum - prostate" AND language_alias="chum - prostate"), "3", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_consent_type"),  (SELECT id FROM structure_permissible_values WHERE value="frsq" AND language_alias="frsq"), "4", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_consent_type"),  (SELECT id FROM structure_permissible_values WHERE value="procure" AND language_alias="procure4"), "5", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_consent_type"),  (SELECT id FROM structure_permissible_values WHERE value="unknwon" AND language_alias="unknwon"), "6", "1");
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) 
+VALUES
+('frsq - network', '', 'FRSQ - Network', 'FRSQ - Réseau'),
+('chum - kidney', '', 'CHUM - Kidney', 'CHUM - Rein'),
+('chum - prostate', '', 'CHUM - Prostate', 'CHUM - Prostate'),
+('frsq', '', 'FRSQ', 'FRSQ'),
+('procure', '', 'PROCURE', 'PROCURE');
 
 INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
 (null, 'qc_global_consent_version', 'open', '', NULL);
@@ -380,25 +428,6 @@ VALUES
 ((SELECT id FROM structure_value_domains WHERE domain_name="qc_global_consent_version"),  (SELECT id FROM structure_permissible_values WHERE value="2000-04-20" AND language_alias="2000-04-20"), "145", "1");
 
 INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
-(null, 'qc_consent_type', 'open', '', NULL);
-
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("FRSQ - Network", "FRSQ - Network");
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("chum - kidney", "chum - kidney");
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("CHUM - Prostate", "CHUM - Prostate");
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("FRSQ", "FRSQ");
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("PROCURE", "PROCURE");
-
-INSERT INTO structure_value_domains_permissible_values 
-(`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
-VALUES
-((SELECT id FROM structure_value_domains WHERE domain_name="qc_consent_type"),  (SELECT id FROM structure_permissible_values WHERE value="FRSQ - Network" AND language_alias="FRSQ - Network"), "1", "1"),
-((SELECT id FROM structure_value_domains WHERE domain_name="qc_consent_type"),  (SELECT id FROM structure_permissible_values WHERE value="chum - kidney" AND language_alias="chum - kidney"), "2", "1"),
-((SELECT id FROM structure_value_domains WHERE domain_name="qc_consent_type"),  (SELECT id FROM structure_permissible_values WHERE value="CHUM - Prostate" AND language_alias="CHUM - Prostate"), "3", "1"),
-((SELECT id FROM structure_value_domains WHERE domain_name="qc_consent_type"),  (SELECT id FROM structure_permissible_values WHERE value="FRSQ" AND language_alias="FRSQ"), "4", "1"),
-((SELECT id FROM structure_value_domains WHERE domain_name="qc_consent_type"),  (SELECT id FROM structure_permissible_values WHERE value="PROCURE" AND language_alias="PROCURE4"), "5", "1"),
-((SELECT id FROM structure_value_domains WHERE domain_name="qc_consent_type"),  (SELECT id FROM structure_permissible_values WHERE value="unknwon" AND language_alias="unknwon"), "6", "1");
-
-INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
 (null, 'qc_consent_language', 'open', '', NULL);
 
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("en", "en");
@@ -412,24 +441,29 @@ VALUES
 
 INSERT INTO structure_fields (id, public_identifier, plugin, model, tablename, field, language_label, language_tag, `type`, setting, `default`, structure_value_domain, language_help, validation_control, value_domain_control, field_control, created, created_by, modified, modified_by) 
 VALUES
-(null, '', 'Clinicalannotation', 'ConsentMaster', 'consent_masters', 'consent_version_date', 'consent version', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name="qc_global_consent_version"), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
-(null, '', 'Clinicalannotation', 'ConsentMaster', 'consent_masters', 'invitation_date', 'invitation date', '', 'date', '', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (null, '', 'Clinicalannotation', 'ConsentMaster', 'consent_masters', 'consent_type', 'consent type', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name="qc_consent_type"), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(null, '', 'Clinicalannotation', 'ConsentMaster', 'consent_masters', 'consent_version_date', 'consent version date', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name="qc_global_consent_version"), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (null, '', 'Clinicalannotation', 'ConsentMaster', 'consent_masters', 'consent_language', 'consent language', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name="qc_consent_language"), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 
+(null, '', 'Clinicalannotation', 'ConsentMaster', 'consent_masters', 'invitation_date', 'invitation date', '', 'date', '', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+
 (null, '', 'Clinicalannotation', 'ConsentDetail', 'cd_icm_generics', 'biological_material_use', 'biological material use', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name="yesno"), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
-(null, '', 'Clinicalannotation', 'ConsentDetail', 'cd_icm_generics', 'use_of_blood', 'use of blood', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name="yesno"), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (null, '', 'Clinicalannotation', 'ConsentDetail', 'cd_icm_generics', 'use_of_urine', 'use of urine', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name="yesno"), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(null, '', 'Clinicalannotation', 'ConsentDetail', 'cd_icm_generics', 'use_of_blood', 'use of blood', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name="yesno"), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+
 (null, '', 'Clinicalannotation', 'ConsentDetail', 'cd_icm_generics', 'urine_blood_use_for_followup', 'urine blood use for followup', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name="yesno"), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (null, '', 'Clinicalannotation', 'ConsentDetail', 'cd_icm_generics', 'stop_followup', 'stop followup', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name="yesno"), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (null, '', 'Clinicalannotation', 'ConsentDetail', 'cd_icm_generics', 'stop_followup_date', 'stop followup date', '', 'date', '', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+
 (null, '', 'Clinicalannotation', 'ConsentDetail', 'cd_icm_generics', 'contact_for_additional_data', 'contact for additional data', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name="yesno"), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+
 (null, '', 'Clinicalannotation', 'ConsentDetail', 'cd_icm_generics', 'allow_questionnaire', 'allow questionnaire', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name="yesno"), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (null, '', 'Clinicalannotation', 'ConsentDetail', 'cd_icm_generics', 'stop_questionnaire', 'stop questionnaire', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name="yesno"), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (null, '', 'Clinicalannotation', 'ConsentDetail', 'cd_icm_generics', 'stop_questionnaire_date', 'stop questionnaire date', '', 'date', '', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+
+(null, '', 'Clinicalannotation', 'ConsentDetail', 'cd_icm_generics', 'inform_significant_discovery', 'inform significant discovery', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name="yesno"), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (null, '', 'Clinicalannotation', 'ConsentDetail', 'cd_icm_generics', 'research_other_disease', 'research other disease', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name="yesno"), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
-(null, '', 'Clinicalannotation', 'ConsentDetail', 'cd_icm_generics', 'inform_discovery_on_other_disease', 'inform discovery on other disease', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name="yesno"), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
-(null, '', 'Clinicalannotation', 'ConsentDetail', 'cd_icm_generics', 'inform_significant_discovery', 'inform significant discovery', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name="yesno"), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+(null, '', 'Clinicalannotation', 'ConsentDetail', 'cd_icm_generics', 'inform_discovery_on_other_disease', 'inform discovery on other disease', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name="yesno"), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
 
 INSERT INTO structure_formats
 (`structure_id`, 
@@ -444,11 +478,11 @@ VALUES
 '1', '1', '1', '1', '0', '0', '0', '0', '1', '1'),
 ((SELECT id FROM structures WHERE alias='cd_icm_generics'), 
 (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='consent_version_date'), 
-'1', '2', '', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
 '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'),
 ((SELECT id FROM structures WHERE alias='cd_icm_generics'), 
 (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='consent_language'), 
-'1', '3', '', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
 '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'),
 
 ((SELECT id FROM structures WHERE alias='cd_icm_generics'), 
@@ -466,27 +500,37 @@ VALUES
 ((SELECT id FROM structures WHERE alias='cd_icm_generics'), 
 (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='consent_signed_date'), 
 '1', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
-'1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
+'1', '0', '1', '0', '0', '0', '0', '0', '1', '1'),
 ((SELECT id FROM structures WHERE alias='cd_icm_generics'), 
 (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='reason_denied'), 
 '1', '14', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
 '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
 
+((SELECT id FROM structures WHERE alias='cd_icm_generics'),
+(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='notes'), 
+'1', '17', 'additional information', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
+
 ((SELECT id FROM structures WHERE alias='cd_icm_generics'), 
 (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_icm_generics' AND `field`='biological_material_use'), 
-'2', '1', 'consent data', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
-'1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
-((SELECT id FROM structures WHERE alias='cd_icm_generics'), 
-(SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_icm_generics' AND `field`='use_of_blood'), 
-'2', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'2', '1', 'agreements', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
 '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
 ((SELECT id FROM structures WHERE alias='cd_icm_generics'), 
 (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_icm_generics' AND `field`='use_of_urine'), 
+'2', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='cd_icm_generics'), 
+(SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_icm_generics' AND `field`='use_of_blood'), 
 '2', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
 '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
 ((SELECT id FROM structures WHERE alias='cd_icm_generics'), 
+(SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_icm_generics' AND `field`='research_other_disease'), 
+'2', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
+
+((SELECT id FROM structures WHERE alias='cd_icm_generics'), 
 (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_icm_generics' AND `field`='urine_blood_use_for_followup'), 
-'2', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'2', '10', 'followup', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
 '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
 ((SELECT id FROM structures WHERE alias='cd_icm_generics'), 
 (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_icm_generics' AND `field`='stop_followup'), 
@@ -496,13 +540,10 @@ VALUES
 (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_icm_generics' AND `field`='stop_followup_date'), 
 '2', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
 '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
-((SELECT id FROM structures WHERE alias='cd_icm_generics'), 
-(SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_icm_generics' AND `field`='contact_for_additional_data'), 
-'2', '20', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
-'1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
+
 ((SELECT id FROM structures WHERE alias='cd_icm_generics'), 
 (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_icm_generics' AND `field`='allow_questionnaire'), 
-'2', '30', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'2', '30', 'questionnaire', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
 '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
 ((SELECT id FROM structures WHERE alias='cd_icm_generics'), 
 (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_icm_generics' AND `field`='stop_questionnaire'), 
@@ -512,23 +553,54 @@ VALUES
 (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_icm_generics' AND `field`='stop_questionnaire_date'), 
 '2', '32', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
 '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
+
 ((SELECT id FROM structures WHERE alias='cd_icm_generics'), 
-(SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_icm_generics' AND `field`='research_other_disease'), 
+(SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_icm_generics' AND `field`='contact_for_additional_data'), 
+'2', '39', 'contact agreement', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='cd_icm_generics'), 
+(SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_icm_generics' AND `field`='inform_significant_discovery'), 
 '2', '40', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
 '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
 ((SELECT id FROM structures WHERE alias='cd_icm_generics'), 
 (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_icm_generics' AND `field`='inform_discovery_on_other_disease'), 
-'2', '41', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
-'1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
-((SELECT id FROM structures WHERE alias='cd_icm_generics'), 
-(SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_icm_generics' AND `field`='inform_significant_discovery'), 
 '2', '42', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
-'1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
-((SELECT id FROM structures WHERE alias='cd_icm_generics'), 
-(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='notes'), 
-'2', '50', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
 '1', '0', '1', '0', '0', '0', '0', '0', '0', '1');
 
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) 
+VALUES
+('fr', '', 'Fr', 'Fr'),
+('en', '', 'Eng', 'Ang'),
+
+('consent version', '', 'Version', 'Version'),
+('consent type', '', 'Consent', 'Consentement'),
+('consent version date', '', 'Version Date', 'Version/Date'),
+('consent language', '', 'Language', 'Langue'),
+
+('invitation date', '', 'Invitation Date', 'Date de délivrance'),
+
+('additional information', '', 'Additional Information', 'Information additionnelle'),
+
+('agreements', '', 'Agreements', 'Autorisations'),
+('biological material use', '', 'Biological Material Use', 'Utilisation du materiel biologique'),
+('use of urine', '', 'Use of Urine', 'Utilisation de l''urine'),
+('use of blood', '', 'se of Blood', 'Utilisation du sange'),
+('research other disease', '', 'Research On Other Disease', 'Recherche sur autre maladie'),
+
+('followup', '', 'Followup', 'Suivi'),
+('urine blood use for followup', '', 'Urine/Blood Use For Followup', 'Utilisation urine/sang pour suivi'),
+('stop followup', '', 'Stop Followup', 'Arrêt du suivi'),
+('stop followup date', '', 'Stop Date', 'Date d''arrêt'),
+
+('questionnaire', '', 'Questionnaire', 'Questionnaire'),
+('allow questionnaire', '', 'Allow Questionnaire', 'Autorise questionnaire'),
+('stop questionnaire', '', 'Stop Questionnaire', 'Arrêt du questionnaire'),
+('stop questionnaire date', '', 'Stop Date', 'Date d''arrêt'),
+
+('contact agreement', '', 'Contact Agreement', 'Autorisation de contact'),
+('contact for additional data', '', 'Contact for additional data', 'Contact pour données suplémentaires'),
+('inform significant discovery', '', 'Inform of disease significant discovery', 'Informer des découvertes importantes sur la maladie'),
+('inform discovery on other disease', '', 'Inform discovery on other disease', 'Informer des découvertes sur autre maladie');
 
 
 
@@ -536,14 +608,9 @@ VALUES
 
 
 
- 	
 
-
-
-
-
-
- 	 	 	 	 	
+ 	 	 	
+	 	
  	 	
  	
  	
