@@ -602,9 +602,144 @@ VALUES
 ('inform significant discovery', '', 'Inform of disease significant discovery', 'Informer des découvertes importantes sur la maladie'),
 ('inform discovery on other disease', '', 'Inform discovery on other disease', 'Informer des découvertes sur autre maladie');
 
+# DIAGNOSIS --------------------------------------------------------------
 
+UPDATE diagnosis_controls SET controls_type = 'sardo diagnosis' WHERE controls_type = 'sardo';
 
+INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) 
+VALUES ('dxd_sardos', '', '', '1', '1', '0', '1');
 
+UPDATE 
+
+INSERT INTO structure_fields (id, public_identifier, plugin, model, tablename, field, language_label, language_tag, `type`, setting, `default`, structure_value_domain, language_help, validation_control, value_domain_control, field_control, created, created_by, modified, modified_by) 
+VALUES
+(null, '', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_sardos', 'sardo_morpho_desc', 'morphology description', '', 'input', 'size=30', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(null, '', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_sardos', 'icd_o_grade', 'icd-o grade', '', 'input', 'size=10', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(null, '', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_sardos', 'grade', 'grade', '', 'input', 'size=10', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(null, '', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_sardos', 'stade_figo', 'figo', '', 'input', 'size=10', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(null, '', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_sardos', 'laterality', 'laterality', '', 'input', 'size=20', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(null, '', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_sardos', 'sardo_diagnosis_id', 'sardo diagnosis id', '', 'input', 'size=20', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(null, '', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_sardos', 'last_sardo_import_date', 'last import date', '', 'date', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+DELETE FROM structure_formats WHERE structure_id IN (SELECT id FROM structures WHERE alias='dxd_sardos');
+INSERT INTO structure_formats
+(`structure_id`, 
+`structure_field_id`, 
+`display_column`, `display_order`, 
+`language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, 
+`flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) 
+VALUES 
+((SELECT id FROM structures WHERE alias='dxd_sardos'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_identifier'), 
+'0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='dxd_sardos'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='primary_number'), 
+'0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='dxd_sardos'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_date'), 
+'0', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='dxd_sardos'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_date_accuracy'), 
+'0', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='dxd_sardos'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='age_at_dx'), 
+'0', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='dxd_sardos'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='age_at_dx_accuracy'), 
+'0', '22', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='dxd_sardos'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='survival_time_months'), 
+'0', '23', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='dxd_sardos'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='notes'), 
+'0', '30', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '0', '1'),
+
+((SELECT id FROM structures WHERE alias='dxd_sardos'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='primary_icd10_code'), 
+'1', '40', 'coding', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='dxd_sardos'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='morphology'), 
+'1', '41', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='dxd_sardos'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_sardos' AND `field`='sardo_morpho_desc'), 
+'1', '42', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='dxd_sardos'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_sardos' AND `field`='laterality'), 
+'1', '43', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='dxd_sardos'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_sardos' AND `field`='icd_o_grade'), 
+'1', '44', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='dxd_sardos'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_sardos' AND `field`='grade'), 
+'1', '45', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='dxd_sardos'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_sardos' AND `field`='stade_figo'), 
+'1', '46', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='dxd_sardos'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='clinical_tstage'), 
+'1', '50', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='dxd_sardos'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='clinical_nstage'), 
+'1', '51', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='dxd_sardos'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='clinical_mstage'), 
+'1', '52', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='dxd_sardos'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='clinical_stage_summary'), 
+'1', '53', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='dxd_sardos'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_tstage'), 
+'1', '54', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='dxd_sardos'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_nstage'), 
+'1', '55', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='dxd_sardos'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_mstage'), 
+'1', '56', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='dxd_sardos'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_stage_summary'), 
+'1', '57', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '0', '1'),
+
+((SELECT id FROM structures WHERE alias='dxd_sardos'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_sardos' AND `field`='sardo_diagnosis_id'), 
+'2', '60', 'sardo data', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='dxd_sardos'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_sardos' AND `field`='last_sardo_import_date'), 
+'2', '61', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '0', '1'); 
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) 
+VALUES
+('sardo diagnosis', '', 'SARDO Diagnosis', 'Diagnostic SARDO'),
+('morphology description', '', 'Description', 'Description'),
+('figo', '', 'Figo', 'Figo'),
+('sardo diagnosis id', '', 'SARDO Diagnosis Number', 'SARDO Numéro diagnostic'),
+('icd-o grade', '', 'ICD-O Grade', 'Grade ICD-O'),
+('diagnosis identifier', '', 'Diagnosis Code', 'Code su diagnostic');
 
 
 
@@ -626,7 +761,7 @@ VALUES
 
 
 
-cd_icm_generics
+
 ##########################################################################
 # INVENTORY
 ##########################################################################
