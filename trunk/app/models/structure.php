@@ -31,7 +31,6 @@ class Structure extends AppModel {
 	}
 	
 	function find($conditions = null, $fields = array(), $order = null, $recursive = null) {
-		
 		$result = parent::find(( ($conditions=='rule' || $conditions=='rules') ? 'first' : $conditions ),$fields,$order,$recursive);
 		
 		if ( $result ) {
@@ -60,6 +59,12 @@ class Structure extends AppModel {
 					}else if($tmp_type == "float_positive"){
 						$tmp_rule = VALID_FLOAT_POSITIVE;
 						$tmp_msg = "error_must_be_positive_float";
+					}else if($tmp_type == "datetime"){
+						$tmp_rule = VALID_DATETIME_YMD;
+						$tmp_msg = "this is not a datetime";
+					}else if($tmp_type == "date"){
+						$tmp_rule = "date";
+						$tmp_msg = "this is not a date";
 					}
 					if($tmp_rule != NULL){
 						$structure_format['StructureField']['StructureValidation'][] = array(
