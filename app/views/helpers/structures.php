@@ -1356,6 +1356,18 @@ class StructuresHelper extends Helper {
 										
 										if ( $field['StructureField']['type']=='datetime' ) {
 											$calc_time_string = $calc_date_string[1];
+											if(time_format == 12){
+												$hours = substr($calc_time_string, 0, 2);
+												if($hours >= 12){
+													$meridian = "pm"; 
+													if($hours > 12){
+														$hours -= 12;
+													}
+												}else{
+													$meridian = "am";
+												}
+												$calc_time_string = ($hours == "00" ? "12" : $hours).substr($calc_time_string, 2).$meridian;
+											}
 										}
 										
 										$calc_date_string = explode( '-', $calc_date_string[0] );
@@ -2394,7 +2406,6 @@ class StructuresHelper extends Helper {
 			$value = $this->value($model_prefix.$structure_field['model'].$model_suffix.$structure_field['field'].$search_suffix);
 			if(is_array($value)){
 				$datetime_array = $value;
-				$datetime_array['minute'] = $datetime_array['min'];
 			}else if(strlen($value) > 0){
 				$datetime_array = $this->datetime_to_array($value);
 			}
@@ -2506,7 +2517,7 @@ class StructuresHelper extends Helper {
 							'size' => 2, 
 							'tabindex' => $html_element_array['tabindex'], 
 							'maxlength' => 2,
-							'value' => $datetime_array['minute']))
+							'value' => $datetime_array['min']))
 					."<div>".__('minutes', true)."</div></span> ";
 			}
 
@@ -2521,7 +2532,7 @@ class StructuresHelper extends Helper {
 	/*
 	 * Converts a string like yyyy-MM-dd hh:mm:ss to a date array
 	 */
-	public static function datetime_to_array($datetime){
+	public static function datetime_to_array($datetime, $format_24 = false){
 		$result = array();
 		if(strlen($datetime) != 0){
 			$date = explode('-', substr($datetime, 0, 10));
@@ -2530,9 +2541,13 @@ class StructuresHelper extends Helper {
 			$result['day']		= $date[2];
 			if(strlen($datetime) > 10){
 				$time = explode(':', substr($datetime, 11));
-				$result['hour']			= $time[0] > 12 ? $time[0] - 12 : $time[0];	
-				$result['minute'] 		= $time[1];	
-				$result['meridian']		= $time[0] > 12 ? 'pm' : 'am';
+				$result['min'] = $time[1];	
+				if($format_24){
+					$result['hour']	= $time[0];
+				}else{
+					$result['hour']			= $time[0] > 12 ? $time[0] - 12 : $time[0] + !($time[0] * 1) * 12;	
+					$result['meridian']		= $time[0] > 12 ? 'pm' : 'am';
+				}
 			}
 		}
 		return $result;
