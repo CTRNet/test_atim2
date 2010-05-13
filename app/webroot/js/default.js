@@ -114,6 +114,7 @@ function uncheckAll( $div ) {
 		});
 
 		initAdvancedControls();
+		initTooltips();
 		
 		//calendar controls
 		$.datepicker.setDefaults($.datepicker.regional[locale]);
@@ -156,9 +157,11 @@ function uncheckAll( $div ) {
 				//hide the date
 				$(this).val(" ");//space required for Safari and Chome or the button disappears
 				var dateSplit = dateText.split(/-/);
-				$('#' + tmpId + tmpSuffix).val(dateSplit[0]); 
-	        	$('#' + tmpId + "-mm" + tmpSuffix).val(dateSplit[1]);
-	        	$('#' + tmpId + "-dd" + tmpSuffix).val(dateSplit[2]);
+				if(dateSplit.length == 3){
+					$('#' + tmpId + tmpSuffix).val(dateSplit[0]); 
+		        	$('#' + tmpId + "-mm" + tmpSuffix).val(dateSplit[1]);
+		        	$('#' + tmpId + "-dd" + tmpSuffix).val(dateSplit[2]);
+				}
 	        	//hide fake button
 	        	var item = $(this).parent().children("img")[0];
 				$(item).css("z-index", "-1");
@@ -253,4 +256,21 @@ function uncheckAll( $div ) {
 		
 		//one actions are binded hide the advanced controls (bind doesn't work on already hidden components)
 		$(".adv_ctrl").hide();
+	}
+	
+	function initTooltips(){
+		$(".tooltip").each(function() {
+			$(this).find("input").each(function(){
+				$(this).focus(function(){
+					//fixes a datepicker issue where the calendar stays open
+					$("#ui-datepicker-div").stop(true, true);
+					$(".datepicker").datepicker('hide');
+					$(this).parent().find("div").css("display", "inline-block");
+				});
+				$(this).blur(function(){
+					$(this).parent().find("div").css("display", "none");
+				});
+			});
+			$(this).find("div").addClass("ui-corner-all").css({"border" : "1px solid", "padding" : "3px"})
+		});	
 	}

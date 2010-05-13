@@ -1420,3 +1420,19 @@ tr.highlight, td.highlight{
 	background-color: red;
 	color: black;
 }
+
+span.tooltip{
+	position: relative;
+}
+span.tooltip div{
+	display: none;
+	border-style: solid;
+	position: absolute;
+	left: 0px;
+	top: 15px;
+	padding: 30px;
+	border-width: 1px;
+	z-index : 1;
+	background-color: #FFFFFF;
+	/* note that some styling is made through js to counter some css hierarchy issues*/
+}
