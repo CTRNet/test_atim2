@@ -253,5 +253,16 @@ INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
 ((SELECT id FROM structures WHERE alias='preferences'), (SELECT id FROM structure_fields WHERE `model`='Config' AND `tablename`='configs' AND `field`='define_datetime_input_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='datetime_input_type')  ), '1', '14', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1');
 
+-- Fixed incorrect table name spellings
+UPDATE `structure_fields` SET `tablename` = 'misc_identifiers'
+WHERE `tablename` = 'misc_identifier';
 
-
+UPDATE `structure_fields`
+SET `tablename` = 'txe_chemos'
+WHERE `model` = 'TreatmentExtend' AND `field` = 'dose';
+  
+UPDATE `structure_fields` SET `tablename` = 'txe_chemos'
+WHERE `model` = 'TreatmentExtend' AND `field` = 'drug_id';
+  
+UPDATE `structure_fields` SET `tablename` = 'txe_chemos'
+WHERE `model` = 'TreatmentExtend' AND `field` = 'method';
