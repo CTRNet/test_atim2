@@ -192,7 +192,18 @@ REPLACE INTO i18n (id, page_id, en, fr) VALUES
  ('Query error', '', 'Query error', 'Erreur de requête'),
  ('An error occured on a database query. Send the following lines to support.', '', 'An error occured on a database query. Send the following lines to support.', "Une erreur s'est produite avec une requête à la base de données. Envoyez les lignes suivantes au support."),
  ('or', '', 'or', 'où'),
- ('advanced controls', '', 'Advanced controls', 'Contrôles avancés');
+ ('advanced controls', '', 'Advanced controls', 'Contrôles avancés'),
+ ('moved within storage', '', 'Moved within storage', "Déplacé à l'intérieur de l'entreposage"),
+ ('new storage', '', 'New storage', 'Nouvel entreposage'),
+ ('temperature unchanged', '', "Temperature unchanged", "Température inchangée"),
+ ('new temperature', '', 'New temperature', "Nouvelle température"),
+ ('storage temperature changed', '', "Storage temperature changed", "La température de l'entreposage a changée"),
+ ('storage history', "", "Storage history", "Historique de l'entreposage"),
+ ('year', '', 'Year', 'Année'),
+ ("month", "", "Month", "Mois"),
+ ("day", "", "Day", "Jour"),
+ ("hour", "", "Hour", "Heure"),
+ ("minutes", "", "Minutes", "Minutes");
  
 INSERT INTO `pages` (`id`, `error_flag`, `language_title`, `language_body`, `use_link`, `created`, `created_by`, `modified`, `modified_by`) VALUES 
  ('err_query', '1', 'Query error', 'An error occured on a database query. Send the following lines to support.', '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
@@ -212,4 +223,46 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 -- storage suggest
 UPDATE `structure_fields` SET `type` = 'autocomplete', `setting` = 'url=/storagelayout/storage_masters/autocompleteLabel' WHERE model='FunctionManagement' AND field='recorded_storage_selection_label';
 
+-- custom_aliquot_storage_history
+INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('custom_aliquot_storage_history', '', '', '1', '1', '1', '1');
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES('', 'Inventorymanagement', 'custom', 'custom', 'date', 'date', '', 'datetime', '', '',  NULL , '', 'open', 'open', 'open'), ('', 'Inventorymanagement', 'custom', '', 'event', 'event', '', 'input', '', '',  NULL , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='custom_aliquot_storage_history'), (SELECT id FROM structure_fields WHERE `model`='custom' AND `tablename`='custom' AND `field`='date' AND `structure_value_domain`  IS NULL  ), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='custom_aliquot_storage_history'), (SELECT id FROM structure_fields WHERE `model`='custom' AND `tablename`='' AND `field`='event' AND `structure_value_domain`  IS NULL  ), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
 
+-- 24 hour support config
+ALTER TABLE `configs` ADD `define_time_format` ENUM( '12', '24' ) NOT NULL DEFAULT '24' AFTER `define_date_format`;
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`) VALUES ('time_format', '', '');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("12", "12");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="time_format"),  (SELECT id FROM structure_permissible_values WHERE value="12" AND language_alias="12"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("24", "24");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="time_format"),  (SELECT id FROM structure_permissible_values WHERE value="24" AND language_alias="24"), "2", "1");
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES('', 'Administrate', 'Config', 'configs', 'define_time_format', 'time format', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='time_format') , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='preferences'), (SELECT id FROM structure_fields WHERE `model`='Config' AND `tablename`='configs' AND `field`='define_time_format' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='time_format')  ), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1');
+UPDATE structure_formats SET display_column='1', display_order='1', language_heading='', `flag_add`='1', `flag_add_readonly`='0', `flag_edit`='1', `flag_edit_readonly`='0', `flag_search`='0', `flag_search_readonly`='0', `flag_datagrid`='0', `flag_datagrid_readonly`='0', `flag_index`='1', `flag_detail`='1', `flag_override_label`='0', `language_label`='', `flag_override_tag`='0', `language_tag`='', `flag_override_help`='0', `language_help`='', `flag_override_type`='0', `type`='', `flag_override_setting`='0', `setting`='', `flag_override_default`='0', `default`=''  WHERE structure_id=(SELECT id FROM structures WHERE alias='preferences') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Config' AND `tablename`='configs' AND `field`='define_date_format' AND `language_label`='define_date_format' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='MDY' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='define_date_format')  AND `language_help`='' );
+
+-- datetime input type
+ALTER TABLE `configs` ADD `define_datetime_input_type` ENUM( 'dropdown', 'textual' ) NOT NULL DEFAULT 'dropdown' AFTER `define_decimal_separator`;  
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`) VALUES ('datetime_input_type', '', '');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("dropdown", "dropdown");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="datetime_input_type"),  (SELECT id FROM structure_permissible_values WHERE value="dropdown" AND language_alias="dropdown"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("textual", "textual");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="datetime_input_type"),  (SELECT id FROM structure_permissible_values WHERE value="textual" AND language_alias="textual"), "2", "1");
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES('', 'Administrate', 'Config', 'configs', 'define_datetime_input_type', 'datetime input type', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='datetime_input_type') , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='preferences'), (SELECT id FROM structure_fields WHERE `model`='Config' AND `tablename`='configs' AND `field`='define_datetime_input_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='datetime_input_type')  ), '1', '14', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1');
+
+-- Fixed incorrect table name spellings
+UPDATE `structure_fields` SET `tablename` = 'misc_identifiers'
+WHERE `tablename` = 'misc_identifier';
+
+UPDATE `structure_fields`
+SET `tablename` = 'txe_chemos'
+WHERE `model` = 'TreatmentExtend' AND `field` = 'dose';
+  
+UPDATE `structure_fields` SET `tablename` = 'txe_chemos'
+WHERE `model` = 'TreatmentExtend' AND `field` = 'drug_id';
+  
+UPDATE `structure_fields` SET `tablename` = 'txe_chemos'
+WHERE `model` = 'TreatmentExtend' AND `field` = 'method';
