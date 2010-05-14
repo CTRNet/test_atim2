@@ -767,7 +767,6 @@ VALUES
 (null, '', 'Clinicalannotation', 'EventDetail', 'ed_all_procure_lifestyle', 'procure_lifestyle_status', 'status', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name="qc_procure_lifestyle_status"), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (null, '', 'Clinicalannotation', 'EventDetail', 'ed_all_procure_lifestyle', 'completed', 'completed', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name="yesno"), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
 
-DELETE FROM structure_formats WHERE structure_id IN (SELECT id FROM structures WHERE alias='ed_all_procure_lifestyle');
 INSERT INTO structure_formats
 (`structure_id`, 
 `structure_field_id`, 
@@ -807,12 +806,71 @@ VALUES
 ('delivered', '', 'Delivered', 'Délivré'),
 ('to deliver', '', 'To Deliver', 'A délivrer');
  	
- 	
- 	
- 	
+# FAMILYHISTORIES --------------------------------------------------------
+	
+INSERT INTO structure_fields (id, public_identifier, plugin, model, tablename, field, language_label, language_tag, `type`, setting, `default`, structure_value_domain, language_help, validation_control, value_domain_control, field_control, created, created_by, modified, modified_by) 
+VALUES
+(null, '', 'Clinicalannotation', 'FamilyHistory', 'family_histories', 'sardo_diagnosis_id', 'sardo diagnosis id', '', 'input', 'size=20', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(null, '', 'Clinicalannotation', 'FamilyHistory', 'family_histories', 'last_sardo_import_date', 'last import date', '', 'date', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
 
+UPDATE structure_formats format, structures strct
+SET format.flag_add ='0', format.flag_add_readonly ='0', 
+flag_edit ='0', flag_edit_readonly ='0', 
+flag_search ='0', flag_search_readonly ='0', 
+flag_datagrid ='0', flag_datagrid_readonly ='0'
+WHERE format.structure_id = strct.id
+AND strct.alias = 'familyhistories'; 
+ 	
+UPDATE structure_fields field, structure_formats format, structures strct
+SET flag_index ='0', 
+flag_detail ='0' 
+WHERE format.structure_id = strct.id
+AND field.id = format.structure_field_id
+AND strct.alias = 'familyhistories'
+AND field.plugin = 'Clinicalannotation'
+AND field.model = 'FamilyHistory'
+AND field.tablename = 'family_histories'
+AND field.field IN  ('previous_primary_code', 'previous_primary_code_system', 'age_at_dx', 'age_at_dx_accuracy'); 
 
+INSERT INTO structure_formats
+(`structure_id`, 
+`structure_field_id`, 
+`display_column`, `display_order`, 
+`language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, 
+`flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) 
+VALUES 
+((SELECT id FROM structures WHERE alias='familyhistories'), 
+(SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='sardo_diagnosis_id'), 
+'2', '20', 'sardo data', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='familyhistories'), 
+(SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='last_sardo_import_date'),
+'2', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '1', '1');
 
+UPDATE structure_fields field, structure_formats format, structures strct
+SET language_heading = 'coding'
+WHERE format.structure_id = strct.id
+AND field.id = format.structure_field_id
+AND strct.alias = 'familyhistories'
+AND field.plugin = 'Clinicalannotation'
+AND field.model = 'FamilyHistory'
+AND field.tablename = 'family_histories'
+AND field.field IN  ('primary_icd10_code');
+
+UPDATE structure_fields field, structure_formats format, structures strct
+SET language_heading = 'relationship'
+WHERE format.structure_id = strct.id
+AND field.id = format.structure_field_id
+AND strct.alias = 'familyhistories'
+AND field.plugin = 'Clinicalannotation'
+AND field.model = 'FamilyHistory'
+AND field.tablename = 'family_histories'
+AND field.field IN  ('family_domain');
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) 
+VALUES
+('relationship', '', 'Relationship', 'Lien de parenté');
 
 
 

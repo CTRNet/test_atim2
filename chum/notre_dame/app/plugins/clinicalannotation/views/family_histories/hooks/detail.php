@@ -1,8 +1,9 @@
 <?php
 
 	// --------------------------------------------------------------------------------
-	// Action denied
+	// Actions denied
 	// -------------------------------------------------------------------------------- 
-	$this->redirect( '/pages/err_clin_system_error', null, true ); 
-	
+	unset($final_options['links']['bottom']['edit']);
+	unset($final_options['links']['bottom']['delete']);
+ 	
 ?>
