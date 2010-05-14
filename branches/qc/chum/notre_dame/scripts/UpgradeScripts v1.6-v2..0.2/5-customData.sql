@@ -181,19 +181,19 @@ last_name = 'n/a'
 WHERE first_name like 'MDEIE';
 
 UPDATE participants
-SET first_name = 'n/a',
+SET first_name = 'n/a'
 WHERE first_name LIKE '';
 
 UPDATE participants
-SET first_name = 'n/a',
+SET first_name = 'n/a'
 WHERE first_name IS NULL;
 
 UPDATE participants
-SET last_name = 'n/a',
+SET last_name = 'n/a'
 WHERE last_name LIKE '';
 
 UPDATE participants
-SET last_name = 'n/a',
+SET last_name = 'n/a'
 WHERE last_name IS NULL;
 
 UPDATE participants
@@ -608,8 +608,6 @@ UPDATE diagnosis_controls SET controls_type = 'sardo diagnosis' WHERE controls_t
 
 INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) 
 VALUES ('dxd_sardos', '', '', '1', '1', '0', '1');
-
-UPDATE 
 
 INSERT INTO structure_fields (id, public_identifier, plugin, model, tablename, field, language_label, language_tag, `type`, setting, `default`, structure_value_domain, language_help, validation_control, value_domain_control, field_control, created, created_by, modified, modified_by) 
 VALUES
