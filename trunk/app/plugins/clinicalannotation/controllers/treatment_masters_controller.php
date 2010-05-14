@@ -52,7 +52,7 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		// set structure alias based on control data
 		$this->Structures->set($tx_control_data['TreatmentControl']['form_alias']);
 		$this->Structures->set('diagnosismasters', 'diagnosis_structure');
-		$this->set('diagnosis_data', $this->DiagnosisMaster->find('all', array('conditions'=>array('DiagnosisMaster.id' => $this->data['TreatmentMaster']['diagnosis_master_id']))));
+		$this->set('diagnosis_data', (empty($this->data['TreatmentMaster']['diagnosis_master_id'])? array(): $this->DiagnosisMaster->find('all', array('conditions'=>array('DiagnosisMaster.id' => $this->data['TreatmentMaster']['diagnosis_master_id'])))));
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');

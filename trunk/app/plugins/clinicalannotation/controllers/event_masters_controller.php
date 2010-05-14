@@ -70,7 +70,7 @@ class EventMastersController extends ClinicalannotationAppController {
 		$this->data = $this->EventMaster->find('first',array('conditions'=>array('EventMaster.id'=>$event_master_id, 'EventMaster.participant_id'=>$participant_id)));
 		if(empty($this->data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }	
 
-		$this->set('dx_data', $this->DiagnosisMaster->find('all', array('conditions' => array('DiagnosisMaster.id' => $this->data['EventMaster']['diagnosis_master_id']))));		
+		$this->set('dx_data', (empty($this->data['EventMaster']['diagnosis_master_id'])? array() : $this->DiagnosisMaster->find('all', array('conditions' => array('DiagnosisMaster.id' => $this->data['EventMaster']['diagnosis_master_id'])))));		
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu', $this->Menus->get('/'.$this->params['plugin'].'/'.$this->params['controller'].'/listall/'.$event_group) );
