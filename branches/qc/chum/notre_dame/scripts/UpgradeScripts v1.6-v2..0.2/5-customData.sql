@@ -223,7 +223,7 @@ VALUES
 ('prostate bank no lab', '', '''No Labo'' of Prostate Bank', '''No Labo'' de la banque Prostate'),
 ('ramq nbr', '', 'RAMQ', 'RAMQ'),
 ('participant patho identifier', '', 'Patho Identifier', 'Identifiant de pathologie'),  
-('saint-luc id nbr', '', 'Saint-Luc Medical Record Number', 'Numéro de dossier ''Saint-Luc''');               |
+('saint-luc id nbr', '', 'Saint-Luc Medical Record Number', 'Numéro de dossier ''Saint-Luc''');
 
 UPDATE structure_fields field, structure_formats format, structures strct
 SET format.flag_add ='0', format.flag_add_readonly ='0', 
@@ -972,6 +972,120 @@ VALUES
 
 # COLLECTION -------------------------------------------------------------
 
+-- collection site
+
+SET @custom_collection_site_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="custom_collection_site");
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+("CHUQ", "CHUQ"),
+("CHUS", "CHUS"),
+("FIDES external clinic", "FIDES external clinic"),
+("notre dame hospital", "notre dame hospital"),
+("saint luc hospital", "saint luc hospital"),
+("hotel dieu hospital", "hotel dieu hospital");
+
+DELETE FROM structure_value_domains_permissible_values WHERE structure_value_domain_id = @custom_collection_site_domain_id;
+INSERT INTO structure_value_domains_permissible_values 
+(`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+(@custom_collection_site_domain_id,  (SELECT id FROM structure_permissible_values WHERE value="CHUQ" AND language_alias="CHUQ"), "1", "1"),
+(@custom_collection_site_domain_id,  (SELECT id FROM structure_permissible_values WHERE value="CHUS" AND language_alias="CHUS"), "2", "1"),
+(@custom_collection_site_domain_id,  (SELECT id FROM structure_permissible_values WHERE value="FIDES external clinic" AND language_alias="FIDES external clinic"), "3", "1"),
+(@custom_collection_site_domain_id,  (SELECT id FROM structure_permissible_values WHERE value="notre dame hospital" AND language_alias="notre dame hospital"), "4", "1"),
+(@custom_collection_site_domain_id,  (SELECT id FROM structure_permissible_values WHERE value="saint luc hospital" AND language_alias="saint luc hospital"), "5", "1"),
+(@custom_collection_site_domain_id,  (SELECT id FROM structure_permissible_values WHERE value="hotel dieu hospital" AND language_alias="hotel dieu hospital"), "6", "1");
+
+INSERT INTO `i18n` (`id`, `en`, `fr`) 
+VALUES
+('CHUQ', 'CHUQ', 'CHUQ'),
+('CHUS', 'CHUS', 'CHUS'),
+('FIDES external clinic', 'FIDES - External Clinic', 'FIDES - Clinique externe'),
+('notre dame hospital', 'Notre-Dame Hospital', 'Hôpital Notre-Dame'),
+('saint luc hospital', 'Saint-Luc Hospital', 'Hôpital Saint-Luc'),
+('hotel dieu hospital', 'Hôtel-Dieu Hospital', 'Hôpital Hôtel-Dieu');
+
+-- Visit
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
+(null, 'qc_visit_label', 'open', '', NULL);
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+("V01", "V01"),
+("V02", "V02"),
+("V03", "V03"),
+("V04", "V04"),
+("V05", "V05");
+
+INSERT INTO structure_value_domains_permissible_values 
+(`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_visit_label"),  (SELECT id FROM structure_permissible_values WHERE value="V01" AND language_alias="V01"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_visit_label"),  (SELECT id FROM structure_permissible_values WHERE value="V02" AND language_alias="V02"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_visit_label"),  (SELECT id FROM structure_permissible_values WHERE value="V03" AND language_alias="V03"), "3", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_visit_label"),  (SELECT id FROM structure_permissible_values WHERE value="V04" AND language_alias="V04"), "4", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_visit_label"),  (SELECT id FROM structure_permissible_values WHERE value="V05" AND language_alias="V05"), "5", "1");
+
+INSERT INTO structure_fields (id, public_identifier, plugin, model, tablename, field, language_label, language_tag, `type`, setting, `default`, structure_value_domain, language_help, validation_control, value_domain_control, field_control, created, created_by, modified, modified_by) 
+VALUES
+(null, '', 'Inventorymanagement', 'Collection', 'collections', 'visit_label', 'visit', '', 'select', '', '', ((SELECT id FROM structure_value_domains WHERE domain_name="qc_visit_label")), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(null, '', 'Inventorymanagement', 'ViewCollection', '', 'visit_label', 'visit', '', 'select', '', '', ((SELECT id FROM structure_value_domains WHERE domain_name="qc_visit_label")), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+INSERT INTO structure_formats
+(`structure_id`, 
+`structure_field_id`, 
+`display_column`, `display_order`, 
+`language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, 
+`flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) 
+VALUES 
+((SELECT id FROM structures WHERE alias='linked_collections'), 
+(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='visit_label'), 
+'0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '0'),
+((SELECT id FROM structures WHERE alias='collections'), 
+(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='visit_label'), 
+'0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='view_collection'), 
+(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='visit_label'), 
+'0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '1', '0', '0', '0', '1', '1');
+
+INSERT INTO `i18n` (`id`, `en`, `fr`) 
+VALUES
+('visit', 'Visit', 'Visite'),
+("V01", "V01", "V01"),
+("V02", "V02", "V02"),
+("V03", "V03", "V03"),
+("V04", "V04", "V04"),
+("V05", "V05", "V05");
+
+-- SOP hidden
+
+UPDATE structure_fields field, structure_formats format
+SET flag_add ='0', flag_add_readonly ='0', 
+flag_edit ='0', flag_edit_readonly ='0', 
+flag_search ='0', flag_search_readonly ='0', 
+flag_datagrid ='0', flag_datagrid_readonly ='0',
+flag_index ='0', 
+flag_detail ='0' 
+WHERE field.id = format.structure_field_id
+AND field.plugin LIKE 'Inventorymanagement'
+AND field.model LIKE '%Collection%'
+AND field.field LIKE 'sop_master_id'; 
+
+-- No Lab
+
+ALTER TABLE misc_identifier_controls
+	ADD bank_id int(11) NULL DEFAULT NULL AFTER flag_is_unique;
+
+ALTER TABLE `misc_identifier_controls`
+  ADD CONSTRAINT `FK_misc_identifier_controls_banks` FOREIGN KEY (`bank_id`) REFERENCES `banks` (`id`);
+
+UPDATE misc_identifier_controls SET bank_id = (SELECT id FROM banks WHERE name LIKE 'Breast/Sein') WHERE misc_identifier_name LIKE 'breast bank no lab';
+UPDATE misc_identifier_controls SET bank_id = (SELECT id FROM banks WHERE name LIKE 'Ovarian/Ovaire') WHERE misc_identifier_name LIKE 'ovary bank no lab';
+UPDATE misc_identifier_controls SET bank_id = (SELECT id FROM banks WHERE name LIKE 'Prostate') WHERE misc_identifier_name LIKE 'prostate bank no lab';
+UPDATE misc_identifier_controls SET bank_id = (SELECT id FROM banks WHERE name LIKE 'Head&Neck/Tête&cou') WHERE misc_identifier_name LIKE 'head and neck bank no lab';
+UPDATE misc_identifier_controls SET bank_id = (SELECT id FROM banks WHERE name LIKE 'Kidney/Rein') WHERE misc_identifier_name LIKE 'kidney bank no lab';
 
 
 
@@ -982,4 +1096,49 @@ VALUES
 
 
 
+
+  
+  
+  
+
+a tester....
+
+DROP VIEW view_collections;
+CREATE VIEW view_collections AS 
+SELECT 
+col.id AS collection_id, 
+col.bank_id, 
+col.sop_master_id,
+col.visit_label,
+link.participant_id, 
+link.diagnosis_master_id, 
+link.consent_master_id, 
+
+part.participant_identifier,
+ident.identifier_name,
+ident.identifier_value,
+
+col.acquisition_label, 
+col.collection_site, 
+col.collection_datetime, 
+col.collection_datetime_accuracy, 
+col.collection_property, 
+col.collection_notes, 
+col.deleted,
+
+banks.name AS bank_name
+
+FROM collections AS col
+
+LEFT JOIN banks ON col.bank_id = banks.id AND banks.deleted != 1
+LEFT JOIN misc_identifier_controls AS bank_ident_ctrl ON col.bank_id = bank_ident_ctrl.bank_id 
+
+LEFT JOIN clinical_collection_links AS link ON col.id = link.collection_id AND link.deleted != 1
+LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted != 1
+LEFT JOIN misc_identifiers as ident ON part.id = ident.participant_id AND bank_ident_ctrl.id = ident.misc_identifier_control_id
+WHERE col.deleted != 1;
+
+
+
+AND bank_ident_ctrl.id = ident.misc_identifier_control_id
 
