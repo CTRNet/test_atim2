@@ -5,6 +5,13 @@
 
 UPDATE users SET password = '81a717c1def10e2d2406a198661abf8fdb8fd6f5';
 
+UPDATE `menus` SET use_summary = '' 
+WHERE use_link LIKE '/clinicalannotation%'
+AND use_summary != 'Clinicalannotation.Participant::summary';
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) 
+VALUES ('participant', '', 'Participant', 'Participant');
+
 # PROFILE ----------------------------------------------------------------
 
 UPDATE structure_fields field
@@ -872,15 +879,107 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`)
 VALUES
 ('relationship', '', 'Relationship', 'Lien de parenté');
 
+# REPRODUCTIVEHISTORIES --------------------------------------------------
 
+UPDATE structure_fields field, structure_formats format, structures strct
+SET format.flag_add ='0', format.flag_add_readonly ='0', 
+flag_edit ='0', flag_edit_readonly ='0', 
+flag_search ='0', flag_search_readonly ='0', 
+flag_datagrid ='0', flag_datagrid_readonly ='0',
+flag_index ='0', 
+flag_detail ='0' 
+WHERE format.structure_id = strct.id
+AND field.id = format.structure_field_id
+AND strct.alias = 'reproductivehistories'
+AND field.plugin = 'Clinicalannotation'
+AND field.model = 'ReproductiveHistory'
+AND field.tablename = 'reproductive_histories'
+AND field.field NOT IN  ('date_captured', 'lnmp_date', 'lnmp_accuracy', 'menopause_status', 
+'age_at_menopause', 'menopause_age_accuracy'); 
 
+UPDATE structure_fields field, structure_formats format, structures strct
+SET display_column = '2', display_order = '99'
+WHERE format.structure_id = strct.id
+AND field.id = format.structure_field_id
+AND strct.alias = 'reproductivehistories'
+AND field.plugin = 'Clinicalannotation'
+AND field.model = 'ReproductiveHistory'
+AND field.tablename = 'reproductive_histories'
+AND field.field IN ('date_captured');
 
+# MESSAGES ---------------------------------------------------------------
 
+UPDATE structures SET flag_add_columns = '1', flag_edit_columns = '1'
+WHERE alias = 'participantmessages';
 
+UPDATE structure_fields field, structure_formats format, structures strct
+SET display_column = '2'
+WHERE format.structure_id = strct.id
+AND field.id = format.structure_field_id
+AND strct.alias = 'participantmessages'
+AND field.plugin = 'Clinicalannotation'
+AND field.model = 'ParticipantMessage'
+AND field.tablename = 'participant_messages'
+AND field.field IN ('date_requested', 'due_date', 'expiry_date');
 
+UPDATE structure_fields field, structure_formats format, structures strct
+SET  format.flag_override_type = '1', format.type = 'datetime'
+WHERE format.structure_id = strct.id
+AND field.id = format.structure_field_id
+AND strct.alias = 'participantmessages'
+AND field.plugin = 'Clinicalannotation'
+AND field.model = 'ParticipantMessage'
+AND field.tablename = 'participant_messages'
+AND field.field IN ('due_date');
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
+(null, 'qc_participant_message_status', 'open', '', NULL);
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("completed", "completed");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pending", "pending");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("in process", "in process");
+
+INSERT INTO structure_value_domains_permissible_values 
+(`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_participant_message_status"),  (SELECT id FROM structure_permissible_values WHERE value="pending" AND language_alias="pending"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_participant_message_status"),  (SELECT id FROM structure_permissible_values WHERE value="in process" AND language_alias="in process"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_participant_message_status"),  (SELECT id FROM structure_permissible_values WHERE value="completed" AND language_alias="completed"), "3", "1");
+
+INSERT INTO structure_fields (id, public_identifier, plugin, model, tablename, field, language_label, language_tag, `type`, setting, `default`, structure_value_domain, language_help, validation_control, value_domain_control, field_control, created, created_by, modified, modified_by) 
+VALUES
+(null, '', 'Clinicalannotation', 'ParticipantMessage', 'participant_messages', 'status', 'status', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name="qc_participant_message_status"), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+INSERT INTO structure_formats
+(`structure_id`, 
+`structure_field_id`, 
+`display_column`, `display_order`, 
+`language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, 
+`flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) 
+VALUES 
+((SELECT id FROM structures WHERE alias='participantmessages'), 
+(SELECT id FROM structure_fields WHERE `model`='ParticipantMessage' AND `tablename`='participant_messages' AND `field`='status'), 
+'2', '20', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '1', '1');
+
+# PARTICIPANT COLLECTIONS ------------------------------------------------
+# CONTACTS ---------------------------------------------------------------
+# CHRONOLOGY -------------------------------------------------------------
 
 ##########################################################################
 # INVENTORY
 ##########################################################################
 
 # COLLECTION -------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
