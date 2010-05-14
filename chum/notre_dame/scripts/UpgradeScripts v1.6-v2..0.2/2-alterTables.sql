@@ -2848,7 +2848,10 @@ INSERT INTO `users` (`id`, `username`, `first_name`, `last_name`, `password`, `e
 (18, 'cfduchat', 'Carl Frédéric', 'Duchatelier', 'cbf02a6d0825c92f7dbf7fa418d48d8c', '', '', '', '', '', NULL, '', '', '', '', '', '', '', 'en', 5, '0000-00-00 00:00:00', 9, 0, '2010-05-06 12:40:53', '2010-05-06 12:40:53'),
 (19, 'Jean-Baptiste', 'Jean-Baptiste', 'Lattouf', '453a1e889b0a37dfa97e1d36191ab9db', '', '', '', '', '', NULL, '', '', '', '', '', '', '', 'en', 5, '0000-00-00 00:00:00', 9, 0, '2010-05-06 12:41:23', '2010-05-06 12:41:23');
 
-# foreign keys
+##########################################################################
+# FOREIGN KEY
+##########################################################################
+
 ALTER TABLE acos
   ADD KEY `acos_idx1` (`lft`,`rght`),
   ADD KEY `acos_idx2` (`alias`),
@@ -2888,7 +2891,7 @@ ALTER TABLE aliquot_uses
   DROP FOREIGN KEY `aliquot_uses_ibfk_1`,
   DROP FOREIGN KEY `aliquot_uses_ibfk_2`,
   DROP KEY `aliquot_master_id`,
-  DROP KEY `storage_master_id`;
+  DROP KEY `study_summary_id`;
 
 ALTER TABLE aros
   ADD KEY `aros_idx1` (`lft`,`rght`),
