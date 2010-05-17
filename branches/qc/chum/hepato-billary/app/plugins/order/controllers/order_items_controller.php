@@ -130,17 +130,14 @@ class OrderItemsController extends OrderAppController {
 		}
 	}
   	
-  	function addAliquotsInBatch($aliquot_master_id = null, $order_id = null, $order_line_id = null, $ignore = false){
-  		// Use to ignore Ajax call (see .ctp)
-  		if($ignore){ exit; }
+  	function addAliquotsInBatch($aliquot_master_id = null){
   		
   		// MANAGE SET OF ALIQUOT IDS TO WORK ON
-		
 		$aliquot_ids_to_add = null;
 		$url_to_redirect = null;
 		$launch_save_process = false;
 		
-		if(is_null($order_id) && is_null($order_line_id)) {
+		if(empty($this->data)) {
 			// A- User just launched the process: set ids in session
 			
 			// A.1- Get ids
@@ -170,7 +167,11 @@ class OrderItemsController extends OrderAppController {
 				//TODO Add following lines to patch bug on the array of ids sent by the batchset process
 				// $studied_aliquot_master_ids = $_SESSION['ctrapp_core']['datamart']['process']['AliquotMaster']['id'];
 				$aliquot_master_ids = $_SESSION['ctrapp_core']['datamart']['process']['AliquotMaster']['id'];
-				foreach($aliquot_master_ids as $new_id) { if(!empty($new_id)) { $studied_aliquot_master_ids[] = $new_id; } }
+				foreach($aliquot_master_ids as $new_id){ 
+					if(!empty($new_id)){ 
+						$studied_aliquot_master_ids[] = $new_id; 
+					}
+				}
 				$aliquot_master_ids = null;
 				
 				//Check all aliquots have been defined once
@@ -225,8 +226,14 @@ class OrderItemsController extends OrderAppController {
 					
 		} else {
 			// B- User should have selected an order line: get ids from session and launch save process
-			
-			if(!isset($_SESSION['Order']['AliquotIdsToAddToOrder'])) { $this->redirect('/pages/err_order_system_error', null, true); }
+			if(isset($this->data['order_line_ids']) && strpos($this->data['order_line_ids'], "_") !== false){
+				$splitted_ids = split("_", $this->data['order_line_ids']);
+				$order_id = $splitted_ids[0];
+				$order_line_id = $splitted_ids[1];
+			}
+			if(!isset($_SESSION['Order']['AliquotIdsToAddToOrder'])) { 
+				$this->redirect('/pages/err_order_system_error', null, true); 
+			}
 			$aliquot_ids_to_add = $_SESSION['Order']['AliquotIdsToAddToOrder'];
 			$launch_save_process = true;
 		}
@@ -263,7 +270,6 @@ class OrderItemsController extends OrderAppController {
 		
 		// Structures
 		$this->Structures->set('view_aliquot_joined_to_collection', 'atim_structure_for_aliquots_list');
-		
 		$this->Structures->set('orderitems_to_addAliquotsInBatch', 'atim_structure_orderitems_data');
 		
 		$atim_structure = array();
@@ -282,17 +288,24 @@ class OrderItemsController extends OrderAppController {
 		// SAVE DATA
 
 		if($launch_save_process) {
-			
-			// Get aliquot data
-			$order_line_data = $this->OrderLine->find('first', array('conditions' => array('OrderLine.id' => $order_line_id, 'OrderLine.order_id' => $order_id), 'recursive' => '-1'));
-			if(empty($order_line_data)) { $this->redirect( '/pages/err_order_system_error', null, true ); }
-				
 			// Launch validations
 			$submitted_data_validates = true;			
+
+			// Get aliquot data
+			if(isset($order_line_id) && isset($order_id)){
+				$order_line_data = $this->OrderLine->find('first', array('conditions' => array('OrderLine.id' => $order_line_id, 'OrderLine.order_id' => $order_id), 'recursive' => '-1'));
+				if(empty($order_line_data)) {
+					$this->redirect( '/pages/err_order_system_error', null, true );
+				}
+			}else{
+				$submitted_data_validates = false;
+				$this->OrderItem->validationErrors[] = __("invalid order line", true);
+			}
+				
 			
 			// Launch validation on order item data
 			$this->OrderItem->set($this->data);
-			$submitted_data_validates = ($this->OrderItem->validates())? $submitted_data_validates: false;			
+			$submitted_data_validates = ($this->OrderItem->validates()) ? $submitted_data_validates : false;			
 						
 			$hook_link = $this->hook('presave_process');
 			if($hook_link){

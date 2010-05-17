@@ -924,7 +924,6 @@ VALUES
 (null, 'hepatobiliary', 'clinical', 'diabetes medical past history', '1', 'qc_hb_ed_hepatobiliary_medical_past_history', 'qc_hb_ed_hepatobiliary_medical_past_history', 0),
 (null, 'hepatobiliary', 'clinical', 'dyslipidemia medical past history', '1', 'qc_hb_ed_hepatobiliary_medical_past_history', 'qc_hb_ed_hepatobiliary_medical_past_history', 0);
 
-
 CREATE TABLE IF NOT EXISTS `qc_hb_hepatobiliary_medical_past_history_ctrls` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `event_control_id` int(11) NOT NULL,
@@ -957,8 +956,11 @@ VALUES
 (null, (SELECT `id` FROM `event_controls` WHERE `event_type` = 'urinary disease medical past history' AND `disease_site` = 'hepatobiliary' AND `event_group` = 'clinical'), 'to define (urinary)', '1'),
 (null, (SELECT `id` FROM `event_controls` WHERE `event_type` = 'gastro-intestinal disease medical past history' AND `disease_site` = 'hepatobiliary' AND `event_group` = 'clinical'), 'to define (gastro-intestinal)', '1'),
 (null, (SELECT `id` FROM `event_controls` WHERE `event_type` = 'gynecologic disease medical past history' AND `disease_site` = 'hepatobiliary' AND `event_group` = 'clinical'), 'to define (gynecologic)', '1'),
-(null, (SELECT `id` FROM `event_controls` WHERE `event_type` = 'other disease medical past history' AND `disease_site` = 'hepatobiliary' AND `event_group` = 'clinical'), 'to define (other)', '1');
+(null, (SELECT `id` FROM `event_controls` WHERE `event_type` = 'other disease medical past history' AND `disease_site` = 'hepatobiliary' AND `event_group` = 'clinical'), 'to define (other)', '1'),
 -- TODO End todo
+
+(null, (SELECT `id` FROM `event_controls` WHERE `event_type` = 'diabetes medical past history' AND `disease_site` = 'hepatobiliary' AND `event_group` = 'clinical'), 'n/a', '1'),
+(null, (SELECT `id` FROM `event_controls` WHERE `event_type` = 'dyslipidemia medical past history' AND `disease_site` = 'hepatobiliary' AND `event_group` = 'clinical'), 'n/a', '1');
 
 INSERT INTO `structures` 
 (`id`, `alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`) 
@@ -1043,6 +1045,11 @@ INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('gastro-intestinal disease medical past history', '', 'Gastro-Intestinal Disease', 'Maladie gastro-intestinal'),
 ('gynecologic disease medical past history', '', 'Gynecologic Disease', 'Maladie gynecologique'),
 ('other disease medical past history', '', 'Other Disease', 'Autre maladie'),
+('diabetes medical past history', '', 'Diabete', 'Diabète'),
+('dyslipidemia medical past history', '', 'Dyslipidemia', 'Dyslipidémie'),
+
+('hepatitis medical past history', '', 'Hepatitis', 'Hépatite'), 
+('cirrhosis medical past history', '', 'Cirrhosis', 'Cirrhose'),
 
 ('diagnostic date', '', 'Diagnostic Date', 'Date de diagnostic'),
 ('medical history precision', '', 'Precision', 'Précision'),
@@ -1050,6 +1057,185 @@ INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('detail exists for the deleted medical past history', '', 
 'Your data cannot be deleted! <br>Detail exist for the deleted medical past history.', 
 'Vos données ne peuvent être supprimées! Des détails existent pour votre historique clinique.');
+
+-- specific section for hepatitis
+
+INSERT INTO `event_controls` (`id` ,`disease_site` ,`event_group` ,`event_type` ,`flag_active` ,`form_alias` ,`detail_tablename` ,`display_order`) VALUES 
+(NULL , 'hepatobillary', 'clinical', 'hepatitis medical past history', '1', 'qc_hb_ed_hepatobiliary_medical_past_history_hepatitis', 'qc_hb_ed_hepatobiliary_medical_past_history_hepatitis', '0');
+
+CREATE TABLE `qc_hb_ed_hepatobiliary_medical_past_history_hepatitis` (
+`id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
+`event_master_id` INT NOT NULL,
+`type` varchar(255) NOT NULL,
+`treatment` varchar(255) NOT NULL,
+`created` DATETIME NOT NULL ,
+`created_by` INT UNSIGNED NOT NULL ,
+`modified` DATETIME NOT NULL ,
+`modified_by` INT UNSIGNED NOT NULL ,
+`deleted` TINYINT UNSIGNED NOT NULL ,
+`deleted_by` INT UNSIGNED NOT NULL,
+INDEX `event_master_id` (`event_master_id`)
+) ENGINE = InnoDB;
+
+ALTER TABLE `qc_hb_ed_hepatobiliary_medical_past_history_hepatitis`
+  ADD FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+CREATE TABLE `qc_hb_ed_hepatobiliary_medical_past_history_hepatitis_revs` (
+`id` INT UNSIGNED NOT NULL,
+`event_master_id` INT NOT NULL,
+`type` varchar(255) NOT NULL,
+`treatment` varchar(255) NOT NULL,
+`created` DATETIME NOT NULL ,
+`created_by` INT UNSIGNED NOT NULL ,
+`modified` DATETIME NOT NULL ,
+`modified_by` INT UNSIGNED NOT NULL ,
+`deleted` TINYINT UNSIGNED NOT NULL ,
+`deleted_by` INT UNSIGNED NOT NULL,
+`version_id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+`version_created` datetime NOT NULL
+) ENGINE = InnoDB;
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`) VALUES ('type_of_hepatitis', '', '');
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`) VALUES ('hepatitis_treatment', '', '');
+
+-- TODO build list: type_of_hepatitis, hepatitis_treatment
+
+INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES 
+('qc_hb_ed_hepatobiliary_medical_past_history_hepatitis', '', '', '1', '1', '1', '1');
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) 
+VALUES
+('', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_medical_past_history_hepatitis', 'type', 'type', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='type_of_hepatitis') , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_medical_past_history_hepatitis', 'treatment', 'treatment', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='hepatitis_treatment') , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) 
+VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_ed_hepatobiliary_medical_past_history_hepatitis'), 
+(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `structure_value_domain`  IS NULL  ), '1', '1', '', 1, 'event date', 1, '', 1, '', 1, 'date', 1, '', 1, '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) 
+VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_ed_hepatobiliary_medical_past_history_hepatitis'), 
+(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  ), '1', '2', '', 1, 'event summary', 1, '', 1, '', 1, 'input', 1, '', 1, '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) 
+VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_ed_hepatobiliary_medical_past_history_hepatitis'), 
+(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_hepatobiliary_medical_past_history_hepatitis' AND `field`='type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='type_of_hepatitis')  ), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) 
+VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_ed_hepatobiliary_medical_past_history_hepatitis'), 
+(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_hepatobiliary_medical_past_history_hepatitis' AND `field`='treatment' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='hepatitis_treatment')  ), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ;
+
+-- specific section for cirrhosis
+INSERT INTO `event_controls` (`id` ,`disease_site` ,`event_group` ,`event_type` ,`flag_active` ,`form_alias` ,`detail_tablename` ,`display_order`) VALUES 
+(NULL , 'hepatobiliary', 'clinical', 'cirrhosis medical past history', '1', 'qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis', 'qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis', '0');
+
+CREATE TABLE `qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis` (
+`id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
+`event_master_id` INT NOT NULL ,
+`type_of_cirrhosis` VARCHAR( 255 ) NOT NULL ,
+`esophageal_varices` VARCHAR( 3 ) NOT NULL ,
+`gastric_varices` VARCHAR( 3 ) NOT NULL ,
+`tips` VARCHAR( 3 ) NOT NULL ,
+`portacaval_gradient` FLOAT NOT NULL ,
+`portal_thrombosis` VARCHAR( 3 ) NOT NULL ,
+`splenomegaly` VARCHAR( 3 ) NOT NULL ,
+`splen_size` FLOAT NOT NULL,
+`created` DATETIME NOT NULL ,
+`created_by` INT UNSIGNED NOT NULL ,
+`modified` DATETIME NOT NULL ,
+`modified_by` INT UNSIGNED NOT NULL ,
+`deleted` TINYINT UNSIGNED NOT NULL ,
+`deleted_by` INT UNSIGNED NOT NULL,
+INDEX `event_master_id` (`event_master_id`)
+) ENGINE = InnoDB;
+
+ALTER TABLE `qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis`
+  ADD FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+CREATE TABLE `qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis_revs` (
+`id` INT UNSIGNED NOT NULL,
+`event_master_id` INT UNSIGNED NOT NULL ,
+`type_of_cirrhosis` VARCHAR( 255 ) NOT NULL ,
+`esophageal_varices` VARCHAR( 3 ) NOT NULL ,
+`gastric_varices` VARCHAR( 3 ) NOT NULL ,
+`tips` VARCHAR( 3 ) NOT NULL ,
+`portacaval_gradient` FLOAT NOT NULL ,
+`portal_thrombosis` VARCHAR( 3 ) NOT NULL ,
+`splenomegaly` VARCHAR( 3 ) NOT NULL ,
+`splen_size` FLOAT NOT NULL,
+`created` DATETIME NOT NULL ,
+`created_by` INT UNSIGNED NOT NULL ,
+`modified` DATETIME NOT NULL ,
+`modified_by` INT UNSIGNED NOT NULL ,
+`deleted` TINYINT UNSIGNED NOT NULL ,
+`deleted_by` INT UNSIGNED NOT NULL,
+`version_id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+`version_created` datetime NOT NULL
+) ENGINE = InnoDB;
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`) VALUES ('cirrhosis_type', '', '');
+
+-- TODO: Fill cirrhosis_type
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`) VALUES ('yes_no_na', '', '');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na'),  (SELECT id FROM structure_permissible_values WHERE value='yes' AND language_alias='yes'), '1', '1');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na'),  (SELECT id FROM structure_permissible_values WHERE value='no' AND language_alias='no'), '2', '1');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('n/a', 'n/a');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na'),  (SELECT id FROM structure_permissible_values WHERE value='n/a' AND language_alias='n/a'), '3', '1');
+
+INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis', '', '', '1', '1', '1', '1');
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) 
+VALUES
+('', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis', 'portacaval_gradient', 'portacaval gradient', '', 'number', '', '', NULL, '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis', 'portal_thrombosis', 'portal thrombosis', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na'), '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis', 'tips', 'tips', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na'), '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis', 'gastric_varices', 'gastric varices', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na'), '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis', 'esophageal_varices', 'esophageal varices', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na'), '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis', 'type_of_cirrhosis', 'type of cirrhosis', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='cirrhosis_type'), '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis', 'splenomegaly', 'splenomegaly', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na') , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis', 'splen_size', 'splen size', '', 'number', '', '',  NULL , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) 
+VALUES ((SELECT id FROM structures WHERE alias='qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis'), 
+(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `structure_value_domain`  IS NULL  ), '1', '1', '', 1, 'event date', 1, '', 1, '', 1, 'date', 1, '', 1, '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) 
+VALUES ((SELECT id FROM structures WHERE alias='qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis'), 
+(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  ), '1', '2', '', 0, '', 0, '', 0, '', 0, '', 0, '', 1, '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) 
+VALUES ((SELECT id FROM structures WHERE alias='qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis'), 
+(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis' AND `field`='type_of_cirrhosis' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cirrhosis_type')  ), '1', '3', '', 0, '', 0, '', 0, '', 0, '', 0, '', 0, '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) 
+VALUES ((SELECT id FROM structures WHERE alias='qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis'), 
+(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis' AND `field`='esophageal_varices' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na')  ), '1', '4', '', 0, '', 0, '', 0, '', 0, '', 0, '', 0, '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) 
+VALUES ((SELECT id FROM structures WHERE alias='qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis'), 
+(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis' AND `field`='gastric_varices' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na')  ), '1', '5', '', 0, '', 0, '', 0, '', 0, '', 0, '', 0, '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) 
+VALUES ((SELECT id FROM structures WHERE alias='qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis'), 
+(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis' AND `field`='tips' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na')  ), '1', '6', '', 0, '', 0, '', 0, '', 0, '', 0, '', 0, '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) 
+VALUES ((SELECT id FROM structures WHERE alias='qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis'), 
+(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis' AND `field`='portacaval_gradient' AND `structure_value_domain`  IS NULL  ), '1', '7', '', 0, '', 0, '', 0, '', 0, '', 0, '', 0, '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) 
+VALUES ((SELECT id FROM structures WHERE alias='qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis'), 
+(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis' AND `field`='splenomegaly' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na')  ), '1', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) 
+VALUES ((SELECT id FROM structures WHERE alias='qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis'), 
+(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis' AND `field`='splen_size' AND `structure_value_domain`  IS NULL  ), '1', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) 
+VALUES ((SELECT id FROM structures WHERE alias='qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis'), 
+(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis' AND `field`='portal_thrombosis' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na')  ), '1', '10', '', 0, '', 0, '', 0, '', 0, '', 0, '', 0, '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
+
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('type of cirrhosis', '', 'Type', 'Type'),
+('esophageal varices', '', 'Esophageal Varices', 'Varices oesophagiennes'),
+-- TODO traduction
+('splen size', '', 'Splen Size', ''),
+('tips', '', '', ''),
+('portacaval gradient', '', '', ''),
+-- TODO end traduction
+('portal thrombosis', '', 'Portal Thrombosis', 'Thrombose portale');
 
 -- ... LIFESTYLE : summary .............................................
 
@@ -1228,8 +1414,14 @@ VALUES
 (null, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_med_hist_record_summary', 'urinary_disease', 'urinary disease medical past history', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (null, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_med_hist_record_summary', 'gastro_intestinal_disease', 'gastro-intestinal disease medical past history', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (null, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_med_hist_record_summary', 'gynecologic_disease', 'gynecologic disease medical past history', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
-(null, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_med_hist_record_summary', 'other_disease', 'other disease medical past history', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
- 
+(null, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_med_hist_record_summary', 'other_disease', 'other disease medical past history', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_med_hist_record_summary', 'diabetes', 'diabetes medical past history', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''), 
+(null, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_med_hist_record_summary', 'dyslipidemia', 'dyslipidemia medical past history', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_med_hist_record_summary', 'hepatitis', 'hepatitis medical past history', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_med_hist_record_summary', 'cirrhosis', 'cirrhosis medical past history', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open');
+
 SET @QC_HB_000003_structure_id = (SELECT id FROM structures WHERE alias = 'qc_hb_ed_hepatobiliary_med_hist_record_summary');
 INSERT INTO `structure_formats` (`id`, `structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 -- date
@@ -1272,11 +1464,25 @@ INSERT INTO `structure_formats` (`id`, `structure_id`, `structure_field_id`, `di
 (SELECT id FROM structure_fields WHERE plugin = 'Clinicalannotation' AND model = 'EventDetail' AND tablename = 'qc_hb_ed_hepatobiliary_med_hist_record_summary' AND field IN ('gynecologic_disease')), 1, 48, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 -- 
 (null, @QC_HB_000003_structure_id,
-(SELECT id FROM structure_fields WHERE plugin = 'Clinicalannotation' AND model = 'EventDetail' AND tablename = 'qc_hb_ed_hepatobiliary_med_hist_record_summary' AND field IN ('other_disease')), 1, 49, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(SELECT id FROM structure_fields WHERE plugin = 'Clinicalannotation' AND model = 'EventDetail' AND tablename = 'qc_hb_ed_hepatobiliary_med_hist_record_summary' AND field IN ('other_disease')), 1, 60, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 
 -- event_summary
 (null, @QC_HB_000003_structure_id, 
 (SELECT id FROM structure_fields WHERE plugin = 'Clinicalannotation' AND model = 'EventMaster' AND tablename = 'event_masters' AND field IN ('event_summary')), 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_ed_hepatobiliary_med_hist_record_summary'), 
+(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_hepatobiliary_med_hist_record_summary' AND `field`='diabetes' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  ), '1', '52', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_ed_hepatobiliary_med_hist_record_summary'), 
+(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_hepatobiliary_med_hist_record_summary' AND `field`='dyslipidemia' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  ), '1', '53', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ;
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_ed_hepatobiliary_med_hist_record_summary'), 
+(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_hepatobiliary_med_hist_record_summary' AND `field`='hepatitis' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  ), '1', '50', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_ed_hepatobiliary_med_hist_record_summary'), 
+(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_hepatobiliary_med_hist_record_summary' AND `field`='cirrhosis' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  ), '1', '51', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ;
 
 INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('reviewed events', '', 'Reviewed Events', 'Évenements révisionnés'),
@@ -2114,55 +2320,29 @@ INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('resected liver volume', '', 'Resected Liver Volume', 'Volume du foie réséqué'),
 ('tumoral volume', '', 'Tumoral Volume', 'Volume tumoral');
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- todo sort following line
+
 INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_title`, `language_description`, `use_link`, `use_params`, `use_summary`, `flag_active`, `created`, `created_by`, `modified`, `modified_by`) 
 VALUES 
 ('clin_CAN_1_qc_hb_14', 'clin_CAN_4', '0', '14', 'score', NULL, '/clinicalannotation/event_masters/listall/scores/%%Participant.id%%', '', 'Clinicalannotation.EventControl::summary', '1', '0000-00-00 00:00:00', '1', '0000-00-00 00:00:00', '1');
 
-CREATE TABLE `qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis` (
-`id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
-`event_master_id` INT UNSIGNED NOT NULL ,
-`type_of_cirrhosis` VARCHAR( 255 ) NOT NULL ,
-`esophageal_varices` VARCHAR( 3 ) NOT NULL ,
-`gastric_varices` VARCHAR( 3 ) NOT NULL ,
-`tips` VARCHAR( 3 ) NOT NULL ,
-`portacaval_gradient` FLOAT NOT NULL ,
-`portal_thrombosis` VARCHAR( 3 ) NOT NULL ,
-`splenomegaly` VARCHAR( 3 ) NOT NULL ,
-`splen_size` FLOAT NOT NULL,
-`created` DATETIME NOT NULL ,
-`created_by` INT UNSIGNED NOT NULL ,
-`modified` DATETIME NOT NULL ,
-`modified_by` INT UNSIGNED NOT NULL ,
-`deleted` TINYINT UNSIGNED NOT NULL ,
-`deleted_by` INT UNSIGNED NOT NULL,
-INDEX `event_master_id` (`event_master_id`)
-) ENGINE = InnoDB;
-CREATE TABLE `qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis_revs` (
-`id` INT UNSIGNED NOT NULL,
-`event_master_id` INT UNSIGNED NOT NULL ,
-`type_of_cirrhosis` VARCHAR( 255 ) NOT NULL ,
-`esophageal_varices` VARCHAR( 3 ) NOT NULL ,
-`gastric_varices` VARCHAR( 3 ) NOT NULL ,
-`tips` VARCHAR( 3 ) NOT NULL ,
-`portacaval_gradient` FLOAT NOT NULL ,
-`portal_thrombosis` VARCHAR( 3 ) NOT NULL ,
-`splenomegaly` VARCHAR( 3 ) NOT NULL ,
-`splen_size` FLOAT NOT NULL,
-`created` DATETIME NOT NULL ,
-`created_by` INT UNSIGNED NOT NULL ,
-`modified` DATETIME NOT NULL ,
-`modified_by` INT UNSIGNED NOT NULL ,
-`deleted` TINYINT UNSIGNED NOT NULL ,
-`deleted_by` INT UNSIGNED NOT NULL,
-`version_id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-`version_created` datetime NOT NULL
-) ENGINE = InnoDB;
-
-
 
 CREATE TABLE `ed_score_child_pugh` (
 `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
-`event_master_id` INT UNSIGNED NOT NULL,
+`event_master_id` INT NOT NULL,
 `bilirubin` VARCHAR(255) NOT NULL,
 `albumin` VARCHAR(255) NOT NULL,
 `inr` VARCHAR(255) NOT NULL,
@@ -2198,7 +2378,7 @@ CREATE TABLE `ed_score_child_pugh_revs` (
 
 CREATE TABLE `ed_score_okuda` (
 `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
-`event_master_id` INT UNSIGNED NOT NULL,
+`event_master_id` INT NOT NULL,
 `bilirubin` VARCHAR(255) NOT NULL,
 `albumin` VARCHAR(255) NOT NULL,
 `ascite` VARCHAR(255) NOT NULL,
@@ -2214,7 +2394,7 @@ INDEX `event_master_id` (`event_master_id`)
 ) ENGINE = InnoDB;
 CREATE TABLE `ed_score_okuda_revs` (
 `id` INT UNSIGNED NOT NULL,
-`event_master_id` INT UNSIGNED NOT NULL,
+`event_master_id` INT NOT NULL,
 `bilirubin` VARCHAR(255) NOT NULL,
 `albumin` VARCHAR(255) NOT NULL,
 `ascite` VARCHAR(255) NOT NULL,
@@ -2232,7 +2412,7 @@ CREATE TABLE `ed_score_okuda_revs` (
 
 CREATE TABLE `ed_score_barcelona` (
 `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
-`event_master_id` INT UNSIGNED NOT NULL,
+`event_master_id` INT NOT NULL,
 `who` VARCHAR(255) NOT NULL,
 `tumor_morphology` VARCHAR(255) NOT NULL,
 `okuda_score` VARCHAR(255) NOT NULL,
@@ -2248,7 +2428,7 @@ INDEX `event_master_id` (`event_master_id`)
 ) ENGINE = InnoDB;
 CREATE TABLE `ed_score_barcelona_revs` (
 `id` INT UNSIGNED NOT NULL,
-`event_master_id` INT UNSIGNED NOT NULL,
+`event_master_id` INT NOT NULL,
 `who` VARCHAR(255) NOT NULL,
 `tumor_morphology` VARCHAR(255) NOT NULL,
 `okuda_score` VARCHAR(255) NOT NULL,
@@ -2266,7 +2446,7 @@ CREATE TABLE `ed_score_barcelona_revs` (
 
 CREATE TABLE `ed_score_clip` (
 `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
-`event_master_id` INT UNSIGNED NOT NULL,
+`event_master_id` INT NOT NULL,
 `child_pugh_score` VARCHAR(255) NOT NULL,
 `morphology_of_tumor` VARCHAR(255) NOT NULL,
 `alpha_foetoprotein` VARCHAR(255) NOT NULL,
@@ -2282,7 +2462,7 @@ INDEX `event_master_id` (`event_master_id`)
 ) ENGINE = InnoDB;
 CREATE TABLE `ed_score_clip_revs` (
 `id` INT UNSIGNED NOT NULL,
-`event_master_id` INT UNSIGNED NOT NULL,
+`event_master_id` INT NOT NULL,
 `child_pugh_score` VARCHAR(255) NOT NULL,
 `morphology_of_tumor` VARCHAR(255) NOT NULL,
 `alpha_foetoprotein` VARCHAR(255) NOT NULL,
@@ -2300,7 +2480,7 @@ CREATE TABLE `ed_score_clip_revs` (
 
 CREATE TABLE `ed_score_gretch` (
 `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
-`event_master_id` INT UNSIGNED NOT NULL,
+`event_master_id` INT NOT NULL,
 `kamofsky_index` VARCHAR(255) NOT NULL,
 `bilirubin` VARCHAR(255) NOT NULL,
 `alkaline_phosphatase` VARCHAR(255) NOT NULL,
@@ -2317,7 +2497,7 @@ INDEX `event_master_id` (`event_master_id`)
 ) ENGINE = InnoDB;
 CREATE TABLE `ed_score_gretch_revs` (
 `id` INT UNSIGNED NOT NULL,
-`event_master_id` INT UNSIGNED NOT NULL,
+`event_master_id` INT NOT NULL,
 `kamofsky_index` VARCHAR(255) NOT NULL,
 `bilirubin` VARCHAR(255) NOT NULL,
 `alkaline_phosphatase` VARCHAR(255) NOT NULL,
@@ -2336,7 +2516,7 @@ CREATE TABLE `ed_score_gretch_revs` (
 
 CREATE TABLE `ed_score_fong` (
 `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
-`event_master_id` INT UNSIGNED NOT NULL,
+`event_master_id` INT NOT NULL,
 `metastatic_lymph_nodes` VARCHAR(3) NOT NULL,
 `interval_under_year` VARCHAR(3) NOT NULL,
 `more_than_one_metastasis` VARCHAR(3) NOT NULL,
@@ -2353,7 +2533,7 @@ INDEX `event_master_id` (`event_master_id`)
 ) ENGINE = InnoDB;
 CREATE TABLE `ed_score_fong_revs` (
 `id` INT UNSIGNED NOT NULL,
-`event_master_id` INT UNSIGNED NOT NULL,
+`event_master_id` INT NOT NULL,
 `metastatic_lymph_nodes` VARCHAR(3) NOT NULL,
 `interval_under_year` VARCHAR(3) NOT NULL,
 `more_than_one_metastasis` VARCHAR(3) NOT NULL,
@@ -2372,7 +2552,7 @@ CREATE TABLE `ed_score_fong_revs` (
 
 CREATE TABLE `ed_score_meld` (
 `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
-`event_master_id` INT UNSIGNED NOT NULL,
+`event_master_id` INT NOT NULL,
 `bilirubin` FLOAT UNSIGNED NOT NULL,
 `inr` FLOAT UNSIGNED NOT NULL,
 `creatinine` FLOAT UNSIGNED NOT NULL,
@@ -2388,7 +2568,7 @@ INDEX `event_master_id` (`event_master_id`)
 ) ENGINE = InnoDB;
 CREATE TABLE `ed_score_meld_revs` (
 `id` INT UNSIGNED NOT NULL,
-`event_master_id` INT UNSIGNED NOT NULL,
+`event_master_id` INT NOT NULL,
 `bilirubin` FLOAT UNSIGNED NOT NULL,
 `inr` FLOAT UNSIGNED NOT NULL,
 `creatinine` FLOAT UNSIGNED NOT NULL,
@@ -2415,28 +2595,7 @@ INSERT INTO `event_controls` (`id` ,`disease_site` ,`event_group` ,`event_type` 
 (NULL , 'hepatobiliary', 'scores', 'score de fong', '1', 'ed_score_fong', 'ed_score_fong', '0'),
 (NULL , 'hepatobiliary', 'scores', 'meld score', '1', 'ed_score_meld', 'ed_score_meld', '0');
 
-INSERT INTO structure_value_domains(`domain_name`, `override`, `category`) VALUES ('yes_no_na', '', '');
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na'),  (SELECT id FROM structure_permissible_values WHERE value='yes' AND language_alias='yes'), '1', '1');
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na'),  (SELECT id FROM structure_permissible_values WHERE value='no' AND language_alias='no'), '2', '1');
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('n/a', 'n/a');
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na'),  (SELECT id FROM structure_permissible_values WHERE value='n/a' AND language_alias='n/a'), '3', '1');
 
--- TODO: Fill cirrhosis_type
-INSERT INTO structure_value_domains(`domain_name`, `override`, `category`) VALUES ('cirrhosis_type', '', '');
-
--- Structure qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis
-INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis', '', '', '1', '1', '1', '1');
-INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES('', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis', 'portacaval_gradient', 'portacaval gradient', '', 'number', '', '', NULL, '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis', 'portal_thrombosis', 'portal thrombosis', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na'), '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis', 'tips', 'tips', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na'), '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis', 'gastric_varices', 'gastric varices', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na'), '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis', 'esophageal_varices', 'esophageal varices', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na'), '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis', 'type_of_cirrhosis', 'type of cirrhosis', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='cirrhosis_type'), '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis', 'splenomegaly', 'splenomegaly', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis', 'splen_size', 'splen size', '', 'number', '', '',  NULL , '', 'open', 'open', 'open');
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `structure_value_domain`  IS NULL  ), '1', '1', '', 1, 'event date', 1, '', 1, '', 1, 'date', 1, '', 1, '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  ), '1', '2', '', 0, '', 0, '', 0, '', 0, '', 0, '', 1, '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis' AND `field`='type_of_cirrhosis' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cirrhosis_type')  ), '1', '3', '', 0, '', 0, '', 0, '', 0, '', 0, '', 0, '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis' AND `field`='esophageal_varices' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na')  ), '1', '4', '', 0, '', 0, '', 0, '', 0, '', 0, '', 0, '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis' AND `field`='gastric_varices' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na')  ), '1', '5', '', 0, '', 0, '', 0, '', 0, '', 0, '', 0, '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis' AND `field`='tips' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na')  ), '1', '6', '', 0, '', 0, '', 0, '', 0, '', 0, '', 0, '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis' AND `field`='portacaval_gradient' AND `structure_value_domain`  IS NULL  ), '1', '7', '', 0, '', 0, '', 0, '', 0, '', 0, '', 0, '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis' AND `field`='splenomegaly' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na')  ), '1', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis' AND `field`='splen_size' AND `structure_value_domain`  IS NULL  ), '1', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis' AND `field`='portal_thrombosis' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na')  ), '1', '10', '', 0, '', 0, '', 0, '', 0, '', 0, '', 0, '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
 
 
 -- value domain qc_hb_bilirubin_child_pugh
@@ -2705,57 +2864,6 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_child_pugh_mod'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_score_child_pugh' AND `field`='result' AND `language_label`='result' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`='' ), '1', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1') ;
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='ed_score_child_pugh_mod'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_score_child_pugh' AND `field`='bilirubin' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_bilirubin_child_pugh_mod')  ), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1') ;
 
--- qc_hb_ed_hepatobiliary_med_hist_record_summary additional fields
-INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES('', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_med_hist_record_summary', 'hepatitis', 'hepatitis', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_med_hist_record_summary', 'cirrhosis', 'cirrhosis', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open');
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='qc_hb_ed_hepatobiliary_med_hist_record_summary'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_hepatobiliary_med_hist_record_summary' AND `field`='hepatitis' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  ), '1', '50', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ;
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='qc_hb_ed_hepatobiliary_med_hist_record_summary'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_hepatobiliary_med_hist_record_summary' AND `field`='cirrhosis' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  ), '1', '51', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ;
-
-INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES('', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_med_hist_record_summary', 'diabetes', 'diabetes', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_med_hist_record_summary', 'dyslipidemia', 'dyslipidemia', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open');
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='qc_hb_ed_hepatobiliary_med_hist_record_summary'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_hepatobiliary_med_hist_record_summary' AND `field`='diabetes' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  ), '1', '52', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ;
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='qc_hb_ed_hepatobiliary_med_hist_record_summary'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_hepatobiliary_med_hist_record_summary' AND `field`='dyslipidemia' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  ), '1', '53', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ;
-
-
-
-
-CREATE TABLE `qc_hb_ed_hepatobiliary_medical_past_history_hepatitis` (
-`id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
-`event_master_id` INT UNSIGNED NOT NULL,
-`type` varchar(255) NOT NULL,
-`treatment` varchar(255) NOT NULL,
-`created` DATETIME NOT NULL ,
-`created_by` INT UNSIGNED NOT NULL ,
-`modified` DATETIME NOT NULL ,
-`modified_by` INT UNSIGNED NOT NULL ,
-`deleted` TINYINT UNSIGNED NOT NULL ,
-`deleted_by` INT UNSIGNED NOT NULL,
-INDEX `event_master_id` (`event_master_id`)
-) ENGINE = InnoDB;
-CREATE TABLE `qc_hb_ed_hepatobiliary_medical_past_history_hepatitis_revs` (
-`id` INT UNSIGNED NOT NULL,
-`event_master_id` INT UNSIGNED NOT NULL,
-`type` varchar(255) NOT NULL,
-`treatment` varchar(255) NOT NULL,
-`created` DATETIME NOT NULL ,
-`created_by` INT UNSIGNED NOT NULL ,
-`modified` DATETIME NOT NULL ,
-`modified_by` INT UNSIGNED NOT NULL ,
-`deleted` TINYINT UNSIGNED NOT NULL ,
-`deleted_by` INT UNSIGNED NOT NULL,
-`version_id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-`version_created` datetime NOT NULL
-) ENGINE = InnoDB;
-
-INSERT INTO structure_value_domains(`domain_name`, `override`, `category`) VALUES ('type_of_hepatitis', '', '');
-INSERT INTO structure_value_domains(`domain_name`, `override`, `category`) VALUES ('hepatitis_treatment', '', '');
-INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('qc_hb_ed_hepatobiliary_medical_past_history_hepatitis', '', '', '1', '1', '1', '1');
-INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES('', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_medical_past_history_hepatitis', 'type', 'type', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='type_of_hepatitis') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_medical_past_history_hepatitis', 'treatment', 'treatment', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='hepatitis_treatment') , '', 'open', 'open', 'open');
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='qc_hb_ed_hepatobiliary_medical_past_history_hepatitis'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `structure_value_domain`  IS NULL  ), '1', '1', '', 1, 'event date', 1, '', 1, '', 1, 'date', 1, '', 1, '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ;
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='qc_hb_ed_hepatobiliary_medical_past_history_hepatitis'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  ), '1', '2', '', 1, 'event summary', 1, '', 1, '', 1, 'input', 1, '', 1, '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ;
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='qc_hb_ed_hepatobiliary_medical_past_history_hepatitis'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_hepatobiliary_medical_past_history_hepatitis' AND `field`='type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='type_of_hepatitis')  ), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ;
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='qc_hb_ed_hepatobiliary_medical_past_history_hepatitis'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_hepatobiliary_medical_past_history_hepatitis' AND `field`='treatment' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='hepatitis_treatment')  ), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ;
-INSERT INTO `event_controls` (`id` ,`disease_site` ,`event_group` ,`event_type` ,`flag_active` ,`form_alias` ,`detail_tablename` ,`display_order`) VALUES 
-(NULL , 'hepatobillary', 'clinical', 'hepatitis medical past history', '1', 'qc_hb_ed_hepatobiliary_medical_past_history_hepatitis', 'qc_hb_ed_hepatobiliary_medical_past_history_hepatitis', '0'),
-(NULL , 'hepatobiliary', 'clinical', 'cirrhosis medical past history', '1', 'qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis', 'qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis', '0');
 
 
 -- chemotherapy
