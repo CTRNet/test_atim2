@@ -158,9 +158,13 @@ class StructuresHelper extends Helper {
 			if($options['type'] == 'search'){	//search mode
 				$link_class = "search";
 				$link_label = __("search", null);
+				$advanced_button = '<span class="button large">
+							<a id="adv_ctrl" href="#" class="form disabled" tabindex="'.(StructuresHelper::$last_tabindex + 2).'">'.__('advanced controls', true).'</a>
+						</span>';
 			}else{								//other mode
 				$link_class = "submit";
 				$link_label = __("submit", null);
+				$advanced_button = "";
 			}
 			$return_string .= '
 				</fieldset>
@@ -171,6 +175,7 @@ class StructuresHelper extends Helper {
 							<input id="submit_button" class="submit" type="submit" value="Submit" style="display: none;"/>
 							<a href="#" onclick="$(\'#submit_button\').click();" class="form '.$link_class.'" tabindex="'.(StructuresHelper::$last_tabindex + 1).'">'.$link_label.'</a>
 						</span>
+						'.$advanced_button.'
 					</div>
 			';
 		}
@@ -262,6 +267,10 @@ class StructuresHelper extends Helper {
 									</tr>
 								';
 							}
+							$tmp_advanced = "";
+							if($options['type'] == "search"){
+								$tmp_advanced = "<span><a class='adv_ctrl btn_add_or' onclick='return false;' href='#'>(+)</a></span>";
+							}
 							
 							$return_string .= '
 									<tr class="'.$table_row['type'].'">
@@ -270,6 +279,7 @@ class StructuresHelper extends Helper {
 										</td>
 										<td class="content'.( $table_row['empty'] ? ' empty' : '' ).( !$table_row_count && !$table_row['heading'] ? ' no_border' : '' ).'">
 											'.( $options['links']['top'] && $options['settings']['form_inputs'] ? $table_row['input'] : $table_row['content'] ).'
+											'.$tmp_advanced.'
 										</td>
 							';
 							
@@ -609,6 +619,7 @@ class StructuresHelper extends Helper {
 										var templateLine = "'.$add_another_row_template.'";
 										var tbody = $("#'.$add_another_unique_link_id.'").parent().parent().children("tbody:first"); 
 										$(tbody).append(templateLine.replace(/#{id}/g, '.$add_another_unique_next_variable.')); 
+										initTooltips();
 										'.$add_another_unique_next_variable.'++;
 										debug("incr: " + '.$add_another_unique_next_variable.');
 										$(tbody).children("tr:last").find(".datepicker").each(function(){
@@ -1097,7 +1108,6 @@ class StructuresHelper extends Helper {
 
 	// FUNCTION 
 	function build_stack( $atim_structure, $options=array() ) {
-		
 		// for hidden fields, at end of form...
 		$model_names_for_hidden_fields = array();
 		
@@ -1346,6 +1356,18 @@ class StructuresHelper extends Helper {
 										
 										if ( $field['StructureField']['type']=='datetime' ) {
 											$calc_time_string = $calc_date_string[1];
+											if(time_format == 12){
+												$hours = substr($calc_time_string, 0, 2);
+												if($hours >= 12){
+													$meridian = "pm"; 
+													if($hours > 12){
+														$hours -= 12;
+													}
+												}else{
+													$meridian = "am";
+												}
+												$calc_time_string = ($hours == "00" ? "12" : $hours).substr($calc_time_string, 2).$meridian;
+											}
 										}
 										
 										$calc_date_string = explode( '-', $calc_date_string[0] );
@@ -1387,6 +1409,12 @@ class StructuresHelper extends Helper {
 									$display_value = '';
 								}
 								
+							}else if($field['StructureField']['type'] == "number"
+							|| $field['StructureField']['type'] == "integer"
+							|| $field['StructureField']['type'] == "integer_positive"
+							|| $field['StructureField']['type'] == "float"
+							|| $field['StructureField']['type'] == "float_positive"){
+								$display_value = StructuresHelper::format_number($display_value);
 							}
 							
 					// put display_value into CONTENT array index, ELSE put span tag if value BLANK and INCREMENT empty index 
@@ -1508,6 +1536,10 @@ class StructuresHelper extends Helper {
 							break;
 							
 						case 'number':
+						case 'integer':
+						case 'integer_positive':
+						case 'float':
+						case 'float_positive':
 							
 							$html_element_array['type'] = 'text';
 							
@@ -2370,6 +2402,14 @@ class StructuresHelper extends Helper {
 	
 	private function get_date_fields($model_prefix, $model_suffix, $structure_field, $html_element_array, $model_prefix_css, $model_suffix_css, $search_suffix, $datetime_array){
 		$tmp_datetime_array = array('year' => null, 'month' => null, 'day' => null, 'hour' => "", 'minute' => null, 'meridian' => null);
+		if(empty($datetime_array)){
+			$value = $this->value($model_prefix.$structure_field['model'].$model_suffix.$structure_field['field'].$search_suffix);
+			if(is_array($value)){
+				$datetime_array = $value;
+			}else if(strlen($value) > 0){
+				$datetime_array = $this->datetime_to_array($value);
+			}
+		}
 		$datetime_array = array_merge($tmp_datetime_array, $datetime_array);
 		$date = "";
 		$my_model_prefix = strlen($model_prefix) > 0 ? "[".substr($model_prefix, 0, 1)."]" : "";
@@ -2377,23 +2417,65 @@ class StructuresHelper extends Helper {
 		for($i = 0; $i < 3; ++ $i){
 			$tmp_current = substr(date_format, $i, 1);
 			if($tmp_current == "Y"){
-				$date .= 
-					$this->Form->year($model_prefix.$structure_field['model'].$model_suffix.$structure_field['field'].$search_suffix, 
-					1900, 
-					2100, 
-					$datetime_array['year'], 
-					am(array('name'=>$date_name_prefix."[year]", 'id' => $model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix), $html_element_array), 
-					$html_element_array['empty']);
+				if(datetime_input_type == "dropdown"){
+					$date .= 
+						$this->Form->year($model_prefix.$structure_field['model'].$model_suffix.$structure_field['field'].$search_suffix, 
+						1900, 
+						2100, 
+						$datetime_array['year'], 
+						am(array('name'=>$date_name_prefix."[year]", 'id' => $model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix), $html_element_array), 
+						$html_element_array['empty']);
+				}else{
+					$date .= 
+						'<span class="tooltip">'
+						.$this->Form->text("", 
+							array(
+								'id' => $model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix, 
+								'name' => $date_name_prefix."[year]",
+								'size' => 4, 
+								'tabindex' => $html_element_array['tabindex'], 
+								'maxlength' => 4,
+								'value' => $datetime_array['year']))
+						."<div>".__('year', true)."</div></span> ";
+				}
 			}else if($tmp_current == "M"){
-				$date .= 
-					$this->Form->month($model_prefix.$structure_field['model'].$model_suffix.$structure_field['field'].$search_suffix, 
-					$datetime_array['month'], am(array('name'=>$date_name_prefix."[month]", 'id' => $model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix.'-mm'), $html_element_array), 
-					$html_element_array['empty']);
+				if(datetime_input_type == "dropdown"){
+					$date .= 
+						$this->Form->month($model_prefix.$structure_field['model'].$model_suffix.$structure_field['field'].$search_suffix, 
+						$datetime_array['month'], am(array('name'=>$date_name_prefix."[month]", 'id' => $model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix.'-mm'), $html_element_array), 
+						$html_element_array['empty']);
+				}else{
+					$date .= 
+						'<span class="tooltip">'
+						.$this->Form->text("", 
+							array(
+								'id' => $model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix."-mm", 
+								'name' => $date_name_prefix."[month]",
+								'size' => 2, 
+								'tabindex' => $html_element_array['tabindex'], 
+								'maxlength' => 2,
+								'value' => $datetime_array['month']))
+						."<div>".__('month', true)."</div></span> ";
+				}
 			}else if($tmp_current == "D"){
-				$date .= 
-					$this->Form->day($model_prefix.$structure_field['model'].$model_suffix.$structure_field['field'].$search_suffix, 
-					$datetime_array['day'], am(array('name'=>$date_name_prefix."[day]", 'id' => $model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix.'-dd'), $html_element_array), 
-					$html_element_array['empty']);
+				if(datetime_input_type == "dropdown"){
+					$date .= 
+						$this->Form->day($model_prefix.$structure_field['model'].$model_suffix.$structure_field['field'].$search_suffix, 
+						$datetime_array['day'], am(array('name'=>$date_name_prefix."[day]", 'id' => $model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix.'-dd'), $html_element_array), 
+						$html_element_array['empty']);
+				}else{
+					$date .= 
+						'<span class="tooltip">'
+						.$this->Form->text("", 
+							array(
+								'id' => $model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix."-dd",
+								'name' => $date_name_prefix."[day]",
+								'size' => 2, 
+								'tabindex' => $html_element_array['tabindex'], 
+								'maxlength' => 2,
+								'value' => $datetime_array['day']))
+						."<div>".__('day', true)."</div></span> ";
+				}
 			}else{
 				$date .= "UNKNOWN date_format ".date_format;
 			}
@@ -2405,9 +2487,43 @@ class StructuresHelper extends Helper {
 			</span>';
 		
 		if ( $structure_field['type']=='datetime' ) {
-			$date .= $this->Form->hour($model_prefix.$structure_field['model'].$model_suffix.$structure_field['field'].$search_suffix, false, $datetime_array['hour'], am(array('name'=>$date_name_prefix."[hour]", 'id' => $model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix.'Hour'), $html_element_array));
-			$date .= $this->Form->minute($model_prefix.$structure_field['model'].$model_suffix.$structure_field['field'].$search_suffix, $datetime_array['minute'], am(array('name'=>$date_name_prefix."[min]", 'id' => $model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix.'Min'), $html_element_array));
-			$date .= $this->Form->meridian($model_prefix.$structure_field['model'].$model_suffix.$structure_field['field'].$search_suffix, $datetime_array['meridian'], am(array('name'=>$date_name_prefix."[meridian]", 'id' => $model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix.'Meridian'), $html_element_array));
+			if(time_format == 24 && isset($datetime_array['meridian'])){
+				$datetime_array['hour'] = $datetime_array['hour'] % 12;
+				if($datetime_array['meridian'] == "pm"){
+					$datetime_array['hour'] += 12;
+				}
+			}
+			if(datetime_input_type == "dropdown"){
+				$date .= $this->Form->hour($model_prefix.$structure_field['model'].$model_suffix.$structure_field['field'].$search_suffix, time_format == 24, $datetime_array['hour'], am(array('name'=>$date_name_prefix."[hour]", 'id' => $model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix.'Hour'), $html_element_array));
+				$date .= $this->Form->minute($model_prefix.$structure_field['model'].$model_suffix.$structure_field['field'].$search_suffix, $datetime_array['minute'], am(array('name'=>$date_name_prefix."[min]", 'id' => $model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix.'Min'), $html_element_array));
+			}else{
+				$date .= 
+					'<span class="tooltip">'
+					.$this->Form->text("", 
+						array(
+							'id' => $model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix."Hour",
+							'name' => $date_name_prefix."[hour]", 
+							'size' => 2, 
+							'tabindex' => $html_element_array['tabindex'], 
+							'maxlength' => 2,
+							'value' => $datetime_array['hour']))
+					."<div>".__('hour', true)."</div></span> ";
+				$date .= 
+					'<span class="tooltip">'
+					.$this->Form->text("", 
+						array(
+							'id' => $model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix."Min",
+							'name' => $date_name_prefix."[min]",
+							'size' => 2, 
+							'tabindex' => $html_element_array['tabindex'], 
+							'maxlength' => 2,
+							'value' => $datetime_array['min']))
+					."<div>".__('minutes', true)."</div></span> ";
+			}
+
+			if(time_format == 12){
+				$date .= $this->Form->meridian($model_prefix.$structure_field['model'].$model_suffix.$structure_field['field'].$search_suffix, $datetime_array['meridian'], am(array('name'=>$date_name_prefix."[meridian]", 'id' => $model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix.'Meridian'), $html_element_array));
+			}
 		}
 		
 		return $date;
@@ -2416,7 +2532,7 @@ class StructuresHelper extends Helper {
 	/*
 	 * Converts a string like yyyy-MM-dd hh:mm:ss to a date array
 	 */
-	public static function datetime_to_array($datetime){
+	public static function datetime_to_array($datetime, $format_24 = false){
 		$result = array();
 		if(strlen($datetime) != 0){
 			$date = explode('-', substr($datetime, 0, 10));
@@ -2425,26 +2541,20 @@ class StructuresHelper extends Helper {
 			$result['day']		= $date[2];
 			if(strlen($datetime) > 10){
 				$time = explode(':', substr($datetime, 11));
-				$result['hour']			= $time[0] > 12 ? $time[0] - 12 : $time[0];	
-				$result['minute'] 		= $time[1];	
-				$result['meridian']		= $time[0] > 12 ? 'pm' : 'am';
+				$result['min'] = $time[1];	
+				if($format_24){
+					$result['hour']	= $time[0];
+				}else{
+					$result['hour']			= $time[0] > 12 ? $time[0] - 12 : $time[0] + !($time[0] * 1) * 12;	
+					$result['meridian']		= $time[0] > 12 ? 'pm' : 'am';
+				}
 			}
 		}
 		return $result;
 	}
 	
-	function formatDate($date){
-		$tmp = explode("-", $date);
-		if(sizeof($tmp) == 3){
-			if ( date_format=='MDY' ) {
-				$date = $tmp[1]."-".$tmp[2]."-".$tmp[0];
-			} else if ( date_format=='YMD' ) {
-				$date = $tmp[0]."-".$tmp[1]."-".$tmp[2];
-			} else { // default of DATE_FORMAT=='DMY'
-				$date = $tmp[2]."-".$tmp[1]."-".$tmp[0];
-			}
-		}
-		return $date;
+	public static function format_number($number){
+		return decimal_separator == "," ? str_replace(".", ",", $number) : $number;
 	}
 }
 	

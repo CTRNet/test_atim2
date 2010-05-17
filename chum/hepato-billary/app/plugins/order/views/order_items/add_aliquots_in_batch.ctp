@@ -27,7 +27,7 @@
 	$final_atim_structure = $atim_structure_orderitems_data;
 	$final_options = array(
 		'type' => 'add', 
-		'links' => array('top' => 'coco'), 
+		'links' => array('top' => '/order/order_items/addAliquotsInBatch/'), 
 		'settings' => array('actions' => false, 'header' => __('1- add order data', null), 'separator' => true, 'form_top' => true, 'form_bottom' => false));
 	
 	// CUSTOM CODE
@@ -56,18 +56,11 @@
 	$structure_links = array(
 		'tree'=>array(
 			'OrderLine' => array(
-				'add aliquots to order line' => '/order/order_items/addAliquotsInBatch/-1/%%OrderLine.order_id%%/%%OrderLine.id%%/true'
+				'add aliquots to order line' => '/order/order_items/addAliquotsInBatch/-1/%%OrderLine.order_id%%_%%OrderLine.id%%'
 			),
 		),
 		'bottom' => array('cancel' => $url_to_cancel),
-		'ajax' => array(
-			'index' => array(
-				'add aliquots to order line' => array(
-					'update' => 'frame',
-					'before' => 'customSubmit(this)'
-				)
-			)
-		)
+		'top' => '/order/order_items/addAliquotsInBatch/'
 	);
 	
 	$structure_override = array();
@@ -79,21 +72,26 @@
 		'type' => 'tree', 
 		'data' => $order_line_data_for_tree_view,
 		'links'=>$structure_links, 
-		'settings'=>$structure_settings, 
-		'override'=>$structure_override);
+		'settings'=> $structure_settings, 
+		'override'=>$structure_override,
+		);
+	$final_options['settings']['form_inputs'] = false;
+	$final_options['settings']['form_top'] = false;
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook();
 	if( $hook_link ) { require($hook_link); }
 		
 	// BUILD FORM
-	$structures->build( $final_atim_structure, $final_options );	
-		
+	$structures->build( $final_atim_structure, $final_options );
 ?>
 
 <script type="text/javascript">
-function customSubmit(data){
-	$$("form")[0].writeAttribute("action", data.toString().substr(0, data.toString().length - 4));
-	$$("form")[0].submit();
-}
+//TODO: validate link
+$(function (){
+	$("a.form.add").each(function(){
+		var link = $(this).attr("href");
+		$(this).replaceWith("<input type='radio' name='data[order_line_ids]' value='" + link.substr(link.lastIndexOf("/") + 1) + "'/>");
+	});
+});
 </script>

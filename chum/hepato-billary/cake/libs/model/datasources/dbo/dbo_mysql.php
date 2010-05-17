@@ -451,14 +451,16 @@ class DboMysql extends DboMysqlBase {
 		$this->connected = false;
 
 		if (!$config['persistent']) {
-			$this->connection = mysql_connect($config['host'] . ':' . $config['port'], $config['login'], $config['password'], true);
+			$this->connection = mysql_connect($config['host'] . ':' . $config['port'], $config['login'], $config['password'], true) or die("Failed to connect to database");
 			$config['connect'] = 'mysql_connect';
 		} else {
-			$this->connection = mysql_pconnect($config['host'] . ':' . $config['port'], $config['login'], $config['password']);
+			$this->connection = mysql_pconnect($config['host'] . ':' . $config['port'], $config['login'], $config['password']) or die("Failed to connect to database");
 		}
 
 		if (mysql_select_db($config['database'], $this->connection)) {
 			$this->connected = true;
+		}else{
+			die("Failed to select database schema");
 		}
 
 		if (!empty($config['encoding'])) {

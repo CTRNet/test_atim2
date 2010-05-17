@@ -10,8 +10,12 @@ class PagesController extends AppController {
 		$this->Auth->allowedActions = array('display');
 	}
 
-	function display( $page_id=NULL ) {
+	function display( $page_id = NULL) {
 		$results = $this->Page->find('first',array('conditions'=>'Page.id="'.$page_id.'"'));
+		if(isset($_SESSION['err_msg'])){
+			$results['err_trace'] = $_SESSION['err_msg'];
+			unset($_SESSION['err_msg']);
+		}
 		$this->set('data',$results);
 		
 		if ( isset($results) && isset($results['Page']) && isset($results['Page']['use_link']) && $results['Page']['use_link'] ) {
