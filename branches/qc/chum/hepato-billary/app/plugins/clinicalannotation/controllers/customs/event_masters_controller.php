@@ -216,13 +216,12 @@ class EventMastersControllerCustom extends EventMastersController {
 			$score += 3;
 		}
 		
-		//TODO: complete inr
 		if($this->data['EventDetail']['inr'] == "<1.7"){
-			
+			++ $score;
 		}else if($this->data['EventDetail']['inr'] == "1.7 - 2.2"){
-			
+			$score += 2;
 		}else if($this->data['EventDetail']['inr'] == ">2.2"){
-		
+			$score += 3;
 		}
 		
 		if($this->data['EventDetail']['encephalopathy'] == "none"){
@@ -283,7 +282,7 @@ class EventMastersControllerCustom extends EventMastersController {
 	
 	function setBarcelonaScore(){
 		$this->data['EventDetail']['result'] = "A";
-		
+//TODO clarifier avec VB		
 		if($this->data['EventDetail']['who'] == "3 - 4"
 		|| $this->data['EventDetail']['tumor_morphology'] == "indifferent"
 		|| $this->data['EventDetail']['okuda_score'] == "III"
@@ -357,7 +356,7 @@ class EventMastersControllerCustom extends EventMastersController {
 	
 	function setGretchScore(){
 		$score = 0;
-		if($this->data['EventDetail']['kamofsky_index'] == "<= 80%"){
+		if($this->data['EventDetail']['karnofsky_index'] == "<= 80%"){
 			$score += 3;
 		}
 		if($this->data['EventDetail']['bilirubin'] == ">=50µmol/l"){
@@ -369,7 +368,7 @@ class EventMastersControllerCustom extends EventMastersController {
 		if($this->data['EventDetail']['alpha_foetoprotein'] == ">= 35 µg/L"){
 			$score += 2;
 		}
-		if($this->data['EventDetail']['portal_thrombosis'] == ">= 35 µg/L"){
+		if($this->data['EventDetail']['portal_thrombosis'] == 1){
 			$score += 2;
 		}
 		
@@ -383,7 +382,18 @@ class EventMastersControllerCustom extends EventMastersController {
 	}
 	
 	function setMeldScore(){
-		//TODO: mismatch between formulae and listed values
+		$this->data['EventDetail']['result'] = null;
+		
+		// Get data
+		$serum_cr = (is_numeric($this->data['EventDetail']['creatinine']) && (!empty($this->data['EventDetail']['creatinine'])))? $this->data['EventDetail']['creatinine'] : null;
+		$serum_bilirubin = (is_numeric($this->data['EventDetail']['bilirubin']) && (!empty($this->data['EventDetail']['bilirubin'])))? $this->data['EventDetail']['bilirubin'] : null;
+		$inr = (is_numeric($this->data['EventDetail']['inr']) && (!empty($this->data['EventDetail']['inr'])))? $this->data['EventDetail']['inr'] : null;
+		
+		//Launch calculation
+		if(!(is_null($serum_cr) || is_null($serum_bilirubin) || is_null($inr))) {
+			$serum_cr = ($this->data['EventDetail']['dialysis'] == 1)? '4' : $serum_cr;
+			$this->data['EventDetail']['result'] = ( (0.957*log($serum_cr)) + (0.378*log($serum_bilirubin)) + (1.12*log($inr)) + 0.643 ) *10;
+		}		
 	}
 }
 	
