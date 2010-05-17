@@ -203,7 +203,8 @@ REPLACE INTO i18n (id, page_id, en, fr) VALUES
  ("month", "", "Month", "Mois"),
  ("day", "", "Day", "Jour"),
  ("hour", "", "Hour", "Heure"),
- ("minutes", "", "Minutes", "Minutes");
+ ("minutes", "", "Minutes", "Minutes"),
+ ("invalid order line", "", "Invalid order line", "Ligne de commande invalide");
  
 INSERT INTO `pages` (`id`, `error_flag`, `language_title`, `language_body`, `use_link`, `created`, `created_by`, `modified`, `modified_by`) VALUES 
  ('err_query', '1', 'Query error', 'An error occured on a database query. Send the following lines to support.', '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
