@@ -9,8 +9,7 @@ class PermissionManagerComponent extends Object {
 	 * Specify the default permissions here
 	 * If there are no permissions in the DB these will be inserted.
 	 *
-	 * NOTE: Currently these are not inserted correctly.
-	 *       Don't allow the acos or aros_acos tables to be emptied
+	 * NOTE: Don't allow the acos tables to be emptied or this will fail.
 	*/
 	var $defaults = array(
 		'controllers' => array(
@@ -23,10 +22,10 @@ class PermissionManagerComponent extends Object {
 		)
 	);
 	
-	function initialize( &$controller, $settings=NULL ) {
+	function initialize( &$controller, $settings=array() ) {
 		$this->log = array();
 		$this->controller =& $controller;
-		if(is_array($settings)) $this->defaults = $settings;
+		if(count($settings)) $this->defaults = $settings;
 		
 		// If there are no Aco entries, build the entire list.
 		if(! $this->controller->Acl->Aco->find('count',array('fields' => 'Aco.id')) ){
@@ -46,11 +45,11 @@ class PermissionManagerComponent extends Object {
 	*/
 	
 	function initDB() {
-		
 		$group =& $this->controller->User->Group;
 		$user =& $this->controller->User;
 		
 		foreach($this->defaults as $alias => $perms){
+			
 			if(isset($perms['allow']) && count($perms['allow'])){
 				foreach($perms['allow'] as $user_alias){
 					list($type,$id) = split('::',$user_alias);
