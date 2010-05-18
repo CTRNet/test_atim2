@@ -2899,18 +2899,18 @@ VALUES
 ('interval under a year', '', 'Interval < 12 Months', 'Interval < 12 mois'),   	      	  
 ('more than one metastasis', '', 'More than one metastasis', 'Plus d''une métastase'), 		 
 ('metastasis > 5cm', '', 'Mmetastasis > 5cm', 'Métastase > 5cm'),		 
-('cea > 200', '', 'CEA > 200', 'CEA > 200');
+('cea > 200', '', 'CEA > 200', 'CEA > 200'),
+('dialysis', '', 'Dialysis', 'Dialyse'),
+('meld score', '', 'Meld Score', 'Score de Meld');
+stop
+-- *** TREATMENT *******************************************************
 
+DELETE FROM `tx_controls` ;
 
+-- ... CHEMOTHERAPY ....................................................
 
-
-
-
-
-
-
-
-
+INSERT INTO `tx_controls` (`id` ,`tx_method` ,`disease_site` ,`flag_active` ,`detail_tablename` ,`form_alias` ,`extend_tablename` ,`extend_form_alias` ,`display_order`)VALUES 
+(NULL , 'chemotherapy', 'hepatobiliary', '1', 'txd_chemos', 'qc_hb_tx_chemos', '', '', '0');
 
 -- chemotherapy
 ALTER TABLE txd_chemos
@@ -2952,9 +2952,17 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='qc_hb_tx_chemos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_chemos' AND `field`='num_cycles' AND `structure_value_domain`  IS NULL  ), '1', '6', '', 1, 'num cycles', 1, '', 1, '', 1, 'number', 1, '', 1, '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ;
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='qc_hb_tx_chemos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_chemos' AND `field`='qc_hb_toxicity' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_chemos_toxicity')  ), '1', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ;
 
-UPDATE tx_controls SET flag_active=0 WHERE tx_method='chemotherapy';
+
+
+
+
+
+
+
 INSERT INTO `tx_controls` (`id` ,`tx_method` ,`disease_site` ,`flag_active` ,`detail_tablename` ,`form_alias` ,`extend_tablename` ,`extend_form_alias` ,`display_order`)VALUES 
-(NULL , 'chemotherapy', 'all', '1', 'txd_chemos', 'qc_hb_tx_chemos', '', '', '0');
+(NULL , 'liver operation', 'all', '1', 'qc_hb_txd_operation_livers', 'qc_hb_txd_operation_livers', '', '', '0'), 
+(NULL , 'pancreas operation', 'all', '1', 'qc_hb_txd_operation_pancreas', 'qc_hb_txd_operation_pancreas', '', '', '0');
+
 
 -- value domains for operations
 INSERT INTO structure_value_domains(`domain_name`, `override`, `category`) VALUES 
@@ -3343,9 +3351,6 @@ splen_size FLOAT DEFAULT NULL,
 `version_created` datetime NOT NULL
 ) ENGINE = InnoDB;
 
-INSERT INTO `tx_controls` (`id` ,`tx_method` ,`disease_site` ,`flag_active` ,`detail_tablename` ,`form_alias` ,`extend_tablename` ,`extend_form_alias` ,`display_order`)VALUES 
-(NULL , 'liver operation', 'all', '1', 'qc_hb_txd_operation_livers', 'qc_hb_txd_operation_livers', '', '', '0'), 
-(NULL , 'pancreas operation', 'all', '1', 'qc_hb_txd_operation_pancreas', 'qc_hb_txd_operation_pancreas', '', '', '0');
 
 
 -- TODO REPAIR THE KEY IF POSSIBLE
