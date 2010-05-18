@@ -24,21 +24,21 @@
 
 	?>
 	<style>
+	thead{
+		background-color: #374D61;
+		color: #FFFFFF; 
+	}
 	.segment thead tr:nth-child(1) th{
 		border-right-style: solid;
 		border-width: 2px;
 	}
-	.segment thead tr:nth-child(2) th:nth-child(odd){
+	.segment thead tr:nth-child(2) th:nth-child(even){
 		border-right-style: solid;
 		border-width: 2px;
 	}
 	
 	.otherLocations thead tr:nth-child(1) th{
-		border-right-style: solid;
-		border-width: 2px;
-	}
-	.otherLocations .rightBorder{
-		border-right-style: solid;
+		border-right-style: solid; 
 		border-width: 2px;
 	}
 	
@@ -47,10 +47,6 @@
 		border-width: 2px;
 	}
 	
-	.mainRules thead tr:nth-child(2) th{
-		border-bottom-style: solid;
-		border-width: 2px;
-	}
 	.mainRules tbody{
 		text-align: center;
 		vertical-align: bottom;
@@ -67,56 +63,87 @@
 		border-style: solid;
 		border-width: 1px;
 	}
+	.mainRules{
+		width: 100%;
+	}
+	.no_data_available{
+		text-align: center;
+	}
 	</style>
-	<table class="structure segment mainRules">
-		<thead>
-			<tr>
-				<td></td>
-				<th colspan="2"><?php echo(__('segment', true))?> I</th>
-				<th colspan="2"><?php echo(__('segment', true))?> II</th>
-				<th colspan="2"><?php echo(__('segment', true))?> III</th>
-				<th colspan="2"><?php echo(__('segment', true))?> IVa</th>
-				<th colspan="2"><?php echo(__('segment', true))?> IVb</th>
-				<th colspan="2"><?php echo(__('segment', true))?> V</th>
-				<th colspan="2"><?php echo(__('segment', true))?> VI</th>
-				<th colspan="2"><?php echo(__('segment', true))?> VII</th>
-				<th colspan="2"><?php echo(__('segment', true))?> VIII</th>
-			</tr>
-			<tr>
-				<td></td>
-				<?php for($i = 0; $i < 9; ++ $i){ ?>
-					<th><?php echo(__('number', true)); ?></th>
-					<th><?php echo(__('size', true)); ?></th>
-				<?php } ?>
-			</tr>
-		</thead>
-		<tbody>
+	<table class="structure">
+		<!-- frame table -->
+		<tr>
 			<?php 
+			//is there segment data?
+			$found = false;
 			foreach($this->data as $data){
 				if(strpos($data['EventControl']['form_alias'], 'segment') > 0){
-				?>
-				<tr>
-					<th><?php echo(substr($data['EventControl']['event_type'], 16)); ?> - <?php echo($structures->formatDate($data['EventMaster']['event_date'])); ?></th>
-					<?php 
-					for($i = 1; $i < 4; ++ $i){
-						?><td><?php echo($data['EventDetail']['segment_1_number']); ?></td>
-						<td><?php echo($data['EventDetail']['segment_'.$i.'_size']); ?></td>
-					<?php } ?>
-					<td><?php echo($data['EventDetail']['segment_4a_number']); ?></td>
-					<td><?php echo($data['EventDetail']['segment_4a_size']); ?></td>
-					<td><?php echo($data['EventDetail']['segment_4b_number']); ?></td>
-					<td><?php echo($data['EventDetail']['segment_4b_size']); ?></td>
-					<?php 
-					for($i = 5; $i < 9; ++ $i){
-						?><td><?php echo($data['EventDetail']['segment_'.$i.'_number']); ?></td>
-						<td><?php echo($data['EventDetail']['segment_'.$i.'_size']); ?></td>
-					<?php } ?>
-				</tr>
-				<?php	
+					$found = true;
+					break;
 				}
-			}			
+			}
+			if($found){
 			?>
-		</tbody>
+			<td>
+				<div style="margin: 10px; border: 1px solid;">
+					<table class="mainRules segment">
+					<!-- content table -->
+						<thead>
+							<tr>
+								<td rowspan="2"></td>
+								<th colspan="2"><?php echo(__('segment', true))?> I</th>
+								<th colspan="2"><?php echo(__('segment', true))?> II</th>
+								<th colspan="2"><?php echo(__('segment', true))?> III</th>
+								<th colspan="2"><?php echo(__('segment', true))?> IVa</th>
+								<th colspan="2"><?php echo(__('segment', true))?> IVb</th>
+								<th colspan="2"><?php echo(__('segment', true))?> V</th>
+								<th colspan="2"><?php echo(__('segment', true))?> VI</th>
+								<th colspan="2"><?php echo(__('segment', true))?> VII</th>
+								<th colspan="2"><?php echo(__('segment', true))?> VIII</th>
+							</tr>
+							<tr>
+								<?php for($i = 0; $i < 9; ++ $i){ ?>
+									<th><?php echo(__('number', true)); ?></th>
+									<th><?php echo(__('size', true)); ?></th>
+								<?php } ?>
+							</tr>
+						</thead>
+						<tbody>
+							<?php 
+							foreach($this->data as $data){
+								if(strpos($data['EventControl']['form_alias'], 'segment') > 0){
+								?>
+								<tr>
+									<th><?php echo(substr($data['EventControl']['event_type'], 16)); ?> - <?php echo($structures->formatDate($data['EventMaster']['event_date'])); ?></th>
+									<?php 
+									for($i = 1; $i < 4; ++ $i){
+										?><td><?php echo($data['EventDetail']['segment_1_number']); ?></td>
+										<td><?php echo($data['EventDetail']['segment_'.$i.'_size']); ?></td>
+									<?php } ?>
+									<td><?php echo($data['EventDetail']['segment_4a_number']); ?></td>
+									<td><?php echo($data['EventDetail']['segment_4a_size']); ?></td>
+									<td><?php echo($data['EventDetail']['segment_4b_number']); ?></td>
+									<td><?php echo($data['EventDetail']['segment_4b_size']); ?></td>
+									<?php 
+									for($i = 5; $i < 9; ++ $i){
+										?><td><?php echo($data['EventDetail']['segment_'.$i.'_number']); ?></td>
+										<td><?php echo($data['EventDetail']['segment_'.$i.'_size']); ?></td>
+									<?php } ?>
+								</tr>
+								<?php	
+								}
+							}			
+							?>
+						</tbody>
+					</table>
+				</div>
+			</td>
+			<?php 
+			}else{
+				?><td class="no_data_available" colspan="1"><?php __( 'core_no_data_available', false); ?></td><?php 
+			}
+			?>
+		</tr>
 	</table>
 	
 	<?php
@@ -125,62 +152,80 @@
 	$structures->build( $final_atim_structure, $final_options );
 	
 	?>
-	<table class="structure otherLocations mainRules">
-		<thead>
-			<tr>
-				<td></td>
-				<th colspan="3"><?php echo(__('lungs', true)); ?></th>
-				<th colspan="3"><?php echo(__('lymph node', true)); ?></th>
-				<th colspan="3"><?php echo(__('colon', true)); ?></th>
-				<th colspan="3"><?php echo(__('rectum', true)); ?></th>
-				<th colspan="3"><?php echo(__('bones', true)); ?></th>
-			</tr>
-			<tr>
-				<td></td>
-				<th><?php echo(__('number', true)); ?></th>
-				<th><?php echo(__('size', true)); ?></th>
-				<th class="rightBorder"><?php echo(__('localisation', true)); ?></th>
-				<th><?php echo(__('number', true)); ?></th>
-				<th><?php echo(__('size', true)); ?></th>
-				<th class="rightBorder"><!-- empty for styling purposes --></th>
-				<th><?php echo(__('number', true)); ?></th>
-				<th><?php echo(__('size', true)); ?></th>
-				<th class="rightBorder"><!-- empty for styling purposes --></th>
-				<th><?php echo(__('number', true)); ?></th>
-				<th><?php echo(__('size', true)); ?></th>
-				<th class="rightBorder"><!-- empty for styling purposes --></th>
-				<th><?php echo(__('number', true)); ?></th>
-				<th class="rightBorder"><?php echo(__('size', true)); ?></th>
-			</tr>
-		</thead>
-		<tbody>
-	<?php 
-	foreach($this->data as $data){
-		if(strpos($data['EventControl']['form_alias'], 'other') > 0){
-			?>
-			<tr>
-				<th><?php echo(substr($data['EventControl']['event_type'], 16)) ?> - <?php echo($structures->formatDate($data['EventMaster']['event_date'])); ?></th>
-				<td><?php echo($data['EventDetail']['lungs_number']) ?></td>
-				<td><?php echo($data['EventDetail']['lungs_size']) ?></td>
-				<td><?php echo($data['EventDetail']['lungs_laterality']) ?></td>
-				<td><?php echo($data['EventDetail']['lymph_node_number']) ?></td>
-				<td><?php echo($data['EventDetail']['lymph_node_size']) ?></td>
-				<td></td>
-				<td><?php echo($data['EventDetail']['colon_number']) ?></td>
-				<td><?php echo($data['EventDetail']['colon_size']) ?></td>
-				<td></td>
-				<td><?php echo($data['EventDetail']['rectum_number']) ?></td>
-				<td><?php echo($data['EventDetail']['rectum_size']) ?></td>
-				<td></td>
-				<td><?php echo($data['EventDetail']['bones_number']) ?></td>
-				<td><?php echo($data['EventDetail']['bones_size']) ?></td>
-				
-			</tr>
+	<table class="structure">
+		<!-- frame table -->
+		<tr>
 			<?php 
-		}
-	}
-	?>
-		</tbody>
+			//is there other data?
+			$found = false;
+			foreach($this->data as $data){
+				if(strpos($data['EventControl']['form_alias'], 'other') > 0){
+					$found = true;
+					break;
+				}
+			}
+			if($found){
+			?>
+			<td>
+				<div style="margin: 10px; border: 1px solid;">
+					<table class="mainRules otherLocations">
+						<thead>
+							<tr>
+								<td rowspan="2"></td>
+								<th colspan="3"><?php echo(__('lungs', true)); ?></th>
+								<th colspan="2"><?php echo(__('lymph node', true)); ?></th>
+								<th colspan="2"><?php echo(__('colon', true)); ?></th>
+								<th colspan="2"><?php echo(__('rectum', true)); ?></th>
+								<th colspan="2"><?php echo(__('bones', true)); ?></th>
+							</tr>
+							<tr>
+								<th><?php echo(__('number', true)); ?></th>
+								<th><?php echo(__('size', true)); ?></th>
+								<th style="border-right-style: solid; border-width: 2px;"><?php echo(__('localisation', true)); ?></th>
+								<th><?php echo(__('number', true)); ?></th>
+								<th style="border-right-style: solid; border-width: 2px;"><?php echo(__('size', true)); ?></th>
+								<th><?php echo(__('number', true)); ?></th>
+								<th style="border-right-style: solid; border-width: 2px;"><?php echo(__('size', true)); ?></th>
+								<th><?php echo(__('number', true)); ?></th>
+								<th style="border-right-style: solid; border-width: 2px;"><?php echo(__('size', true)); ?></th>
+								<th><?php echo(__('number', true)); ?></th>
+								<th style="border-right-style: solid; border-width: 2px;"><?php echo(__('size', true)); ?></th>
+							</tr>
+						</thead>
+						<tbody>
+					<?php 
+					foreach($this->data as $data){
+						if(strpos($data['EventControl']['form_alias'], 'other') > 0){
+							?>
+							<tr>
+								<th><?php echo(substr($data['EventControl']['event_type'], 16)) ?> - <?php echo($structures->formatDate($data['EventMaster']['event_date'])); ?></th>
+								<td><?php echo($data['EventDetail']['lungs_number']) ?></td>
+								<td><?php echo($data['EventDetail']['lungs_size']) ?></td>
+								<td><?php echo($data['EventDetail']['lungs_laterality']) ?></td>
+								<td><?php echo($data['EventDetail']['lymph_node_number']) ?></td>
+								<td><?php echo($data['EventDetail']['lymph_node_size']) ?></td>
+								<td><?php echo($data['EventDetail']['colon_number']) ?></td>
+								<td><?php echo($data['EventDetail']['colon_size']) ?></td>
+								<td><?php echo($data['EventDetail']['rectum_number']) ?></td>
+								<td><?php echo($data['EventDetail']['rectum_size']) ?></td>
+								<td><?php echo($data['EventDetail']['bones_number']) ?></td>
+								<td><?php echo($data['EventDetail']['bones_size']) ?></td>
+								
+							</tr>
+							<?php 
+						}
+					}
+					?>
+						</tbody>
+					</table>
+				</div>
+			</td>
+			<?php 
+			}else{
+				?><td class="no_data_available" colspan="1"><?php __( 'core_no_data_available', false); ?></td><?php 
+			}
+			?>
+		</tr>
 	</table>
 	<?php
 	
@@ -188,63 +233,106 @@
 	$structures->build( $final_atim_structure, $final_options );
 
 	?>
-	<table class="structure mainRules pancreas">
-		<thead>
-			<tr>
-				<td></td>
-				<th><?php echo(__('hepatic artery', true)); ?></th>
-				<th><?php echo(__('coeliac trunk', true)); ?></th>
-				<th><?php echo(__('splenic artery', true)); ?></th>
-				<th><?php echo(__('superior mesenteric artery', true)); ?></th>
-				<th><?php echo(__('portal vein', true)); ?></th>
-				<th><?php echo(__('superior mesenteric vein', true)); ?></th>
-				<th><?php echo(__('splenic vein', true)); ?></th>
-			</tr>
-		</thead>
-		<tbody>
-		<?php 
+	<table class="structure">
+		<!-- frame table -->
+		<tr>
+			<?php 
+			//is there pancreas data?
+			$found = false;
 			foreach($this->data as $data){
 				if(strpos($data['EventControl']['form_alias'], 'pancreas') > 0){
-				?>
-				<tr>
-					<th><?php echo(substr($data['EventControl']['event_type'], 16)) ?> - <?php echo($structures->formatDate($data['EventMaster']['event_date'])); ?></th>
-					<td><?php echo($data['EventDetail']['hepatic_artery']); ?></td>
-					<td><?php echo($data['EventDetail']['coeliac_trunk']); ?></td>
-					<td><?php echo($data['EventDetail']['splenic_artery']); ?></td>
-					<td><?php echo($data['EventDetail']['superior_mesenteric_artery']); ?></td>
-					<td><?php echo($data['EventDetail']['portal_vein']); ?></td>
-					<td><?php echo($data['EventDetail']['superior_mesenteric_vein']); ?></td>
-					<td><?php echo($data['EventDetail']['splenic_vein']); ?></td>
-				</tr>
-				<?php 
+					$found = true;
+					break;
 				}
 			}
-		?>
-		</tbody>
+			if($found){
+			?>
+			<td>
+				<div style="margin: 10px; border: 1px solid;">
+					<table class="mainRules pancreas">
+						<thead>
+							<tr>
+								<td></td>
+								<th><?php echo(__('hepatic artery', true)); ?></th>
+								<th><?php echo(__('coeliac trunk', true)); ?></th>
+								<th><?php echo(__('splenic artery', true)); ?></th>
+								<th><?php echo(__('superior mesenteric artery', true)); ?></th>
+								<th><?php echo(__('portal vein', true)); ?></th>
+								<th><?php echo(__('superior mesenteric vein', true)); ?></th>
+								<th><?php echo(__('splenic vein', true)); ?></th>
+							</tr>
+						</thead>
+						<tbody>
+						<?php 
+							foreach($this->data as $data){
+								if(strpos($data['EventControl']['form_alias'], 'pancreas') > 0){
+								?>
+								<tr>
+									<th><?php echo(substr($data['EventControl']['event_type'], 16)) ?> - <?php echo($structures->formatDate($data['EventMaster']['event_date'])); ?></th>
+									<td><?php echo($data['EventDetail']['hepatic_artery']); ?></td>
+									<td><?php echo($data['EventDetail']['coeliac_trunk']); ?></td>
+									<td><?php echo($data['EventDetail']['splenic_artery']); ?></td>
+									<td><?php echo($data['EventDetail']['superior_mesenteric_artery']); ?></td>
+									<td><?php echo($data['EventDetail']['portal_vein']); ?></td>
+									<td><?php echo($data['EventDetail']['superior_mesenteric_vein']); ?></td>
+									<td><?php echo($data['EventDetail']['splenic_vein']); ?></td>
+								</tr>
+								<?php 
+								}
+							}
+						?>
+						</tbody>
+					</table>
+				</div>
+			</td>
+			<?php 
+			}else{
+				?><td class="no_data_available" colspan="1"><?php __( 'core_no_data_available', false); ?></td><?php 
+			}
+			?>
+		</tr>
 	</table>
 	<?php
 	$final_options['settings']['header'] = __('summaries', true); 
 	$structures->build( $final_atim_structure, $final_options );
 	?>
-	<table class="structure mainRules summaries">
-		<thead>
-			<tr>
-				<td></td>
-				<th><?php __('summary'); ?></th>
-			</tr>
-		</thead>
-		<tbody>
-		<?php 
-		foreach($this->data as $data){
+	<table class="structure">
+		<!-- frame table -->
+		<tr>
+			<?php
+			//is there data?
+			if(sizeof($data) > 0){
 			?>
-			<tr>
-				<th><?php echo(substr($data['EventControl']['event_type'], 16)) ?> - <?php echo($structures->formatDate($data['EventMaster']['event_date'])); ?></th>
-				<td><?php echo($data['EventMaster']['event_summary']); ?></td>
-			</tr>
+			<td>
+				<div style="margin: 10px; border: 1px solid;">
+					<table class="mainRules summaries">
+						<thead>
+							<tr>
+								<td></td>
+								<th style="border-right-style: solid; border-width: 2px;"><?php __('summary'); ?></th>
+							</tr>
+						</thead>
+						<tbody>
+						<?php 
+						foreach($this->data as $data){
+							?>
+							<tr>
+								<th><?php echo(substr($data['EventControl']['event_type'], 16)) ?> - <?php echo($structures->formatDate($data['EventMaster']['event_date'])); ?></th>
+								<td><?php echo($data['EventMaster']['event_summary']); ?></td>
+							</tr>
+							<?php 
+						}
+						?>
+						</tbody>
+					</table>
+				</div>
+			</td>
 			<?php 
-		}
-		?>
-		</tbody>
+			}else{
+				?><td class="no_data_available" colspan="1"><?php __( 'core_no_data_available', false); ?></td><?php 
+			}
+			?>
+		</tr>
 	</table>
 	<?php 
 	unset($final_options['settings']['header']);
