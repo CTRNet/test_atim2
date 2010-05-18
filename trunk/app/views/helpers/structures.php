@@ -158,13 +158,9 @@ class StructuresHelper extends Helper {
 			if($options['type'] == 'search'){	//search mode
 				$link_class = "search";
 				$link_label = __("search", null);
-				$advanced_button = '<span class="button large">
-							<a id="adv_ctrl" href="#" class="form disabled" tabindex="'.(StructuresHelper::$last_tabindex + 2).'">'.__('advanced controls', true).'</a>
-						</span>';
 			}else{								//other mode
 				$link_class = "submit";
 				$link_label = __("submit", null);
-				$advanced_button = "";
 			}
 			$return_string .= '
 				</fieldset>
@@ -175,7 +171,6 @@ class StructuresHelper extends Helper {
 							<input id="submit_button" class="submit" type="submit" value="Submit" style="display: none;"/>
 							<a href="#" onclick="$(\'#submit_button\').click();" class="form '.$link_class.'" tabindex="'.(StructuresHelper::$last_tabindex + 1).'">'.$link_label.'</a>
 						</span>
-						'.$advanced_button.'
 					</div>
 			';
 		}
@@ -268,7 +263,7 @@ class StructuresHelper extends Helper {
 								';
 							}
 							$tmp_advanced = "";
-							if($options['type'] == "search"){
+							if($options['type'] == "search" && show_advanced_controls){
 								$tmp_advanced = "<span><a class='adv_ctrl btn_add_or' onclick='return false;' href='#'>(+)</a></span>";
 							}
 							
