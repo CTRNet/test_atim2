@@ -12,7 +12,7 @@
 	
 	// 1- TRT
 	
-	$structure_override = array('TreatmentMaster.protocol_id'=>$protocol_list);
+	$structure_override = array('TreatmentMaster.protocol_master_id'=>$protocol_list);
 	
 	$structure_settings = array(
 		'actions'=>false, 

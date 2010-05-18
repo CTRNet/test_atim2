@@ -22,14 +22,14 @@ class ProtocolMaster extends ProtocolAppModel {
 			
 			$return = array(
 				'Summary'	 => array(
-					'menu'			=>	array( NULL, __($result['ProtocolMaster']['name'], TRUE)),
-					'title'			=>	array( NULL, __($result['ProtocolMaster']['name'], TRUE)),
+					'menu'			=>	array( NULL, __($result['ProtocolMaster']['code'], TRUE)),
+					'title'			=>	array( NULL, __($result['ProtocolMaster']['code'], TRUE)),
 					
 					'description'	=>	array(
-						__('code', TRUE)		=>	__($result['ProtocolMaster']['code'], TRUE),
-						__('type', TRUE)	    =>  __($result['ProtocolMaster']['type'], TRUE),
-						__('status', TRUE) 		=> __($result['ProtocolMaster']['status'], TRUE),
-						__('notes', TRUE) 		=> __($result['ProtocolMaster']['notes'], TRUE)
+						__('tumour group', TRUE)		=>	__($result['ProtocolMaster']['tumour_group'], TRUE),
+						__('type', TRUE)		=>	__($result['ProtocolMaster']['type'], TRUE),
+						__('name', TRUE)		=>	__($result['ProtocolMaster']['name'], TRUE),
+						__('arm', TRUE)	    =>  __($result['ProtocolMaster']['arm'], TRUE)
 					)
 				)
 			);

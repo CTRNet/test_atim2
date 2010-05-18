@@ -11,7 +11,7 @@
 		'bottom'=>array('add' => sizeof($add_links) > 0 ? $add_links : "/underdev/")
 	);
 
-	$structure_override = array('TreatmentMaster.protocol_id'=>$protocol_list);
+	$structure_override = array('TreatmentMaster.protocol_master_id'=>$protocol_list);
 	
 	$final_options = array('type'=>'index', 'links'=>$structure_links, 'override'=>$structure_override);
 	$final_atim_structure = $atim_structure; 

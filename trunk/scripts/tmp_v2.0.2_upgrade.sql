@@ -274,3 +274,81 @@ WHERE `model` = 'TreatmentExtend' AND `field` = 'drug_id';
   
 UPDATE `structure_fields` SET `tablename` = 'txe_chemos'
 WHERE `model` = 'TreatmentExtend' AND `field` = 'method';
+
+-- Clean up/add FK linked to Protocols, drugs, treatments
+
+ALTER TABLE `pe_chemos`
+  ADD CONSTRAINT `FK_pe_chemos_protocol_masters`
+  FOREIGN KEY (`protocol_master_id`) REFERENCES `protocol_masters` (`id`);
+
+ALTER TABLE `pd_chemos`
+  ADD CONSTRAINT `FK_pd_chemos_protocol_masters`
+  FOREIGN KEY (`protocol_master_id`) REFERENCES `protocol_masters` (`id`);
+
+ALTER TABLE `tx_masters` 
+  CHANGE `protocol_id` `protocol_master_id` int(11) DEFAULT NULL;
+
+ALTER TABLE `tx_masters_revs` 
+  CHANGE `protocol_id` `protocol_master_id` int(11) DEFAULT NULL;
+	
+ALTER TABLE `tx_masters`
+  ADD CONSTRAINT `FK_tx_masters_protocol_masters`
+  FOREIGN KEY (`protocol_master_id`) REFERENCES `protocol_masters` (`id`);
+  
+UPDATE structure_fields 
+SET `field`='protocol_master_id'
+WHERE `tablename`='tx_masters' AND `field`='protocol_id';
+  
+ALTER TABLE `txe_chemos`
+  ADD CONSTRAINT `FK_txe_chemos_drugs`
+  FOREIGN KEY (`drug_id`) REFERENCES `drugs` (`id`); 
+
+ALTER TABLE `pe_chemos`
+  ADD CONSTRAINT `FK_pe_chemos_drugs`
+  FOREIGN KEY (`drug_id`) REFERENCES `drugs` (`id`); 
+  
+ALTER TABLE `txd_chemos`
+  ADD CONSTRAINT `FK_txd_chemos_tx_masters`
+  FOREIGN KEY (`tx_master_id`) REFERENCES `tx_masters` (`id`);
+  
+ALTER TABLE `txd_radiations`
+  ADD CONSTRAINT `FK_txd_radiations_tx_masters`
+  FOREIGN KEY (`tx_master_id`) REFERENCES `tx_masters` (`id`);  
+  
+ALTER TABLE `txd_surgeries`
+  ADD CONSTRAINT `FK_txd_surgeries_tx_masters`
+  FOREIGN KEY (`tx_master_id`) REFERENCES `tx_masters` (`id`);
+  
+ALTER TABLE `txe_chemos`
+  ADD CONSTRAINT `FK_txe_chemos_tx_masters`
+  FOREIGN KEY (`tx_master_id`) REFERENCES `tx_masters` (`id`);
+
+ALTER TABLE `txe_radiations`
+  ADD CONSTRAINT `FK_txe_radiations_tx_masters`
+  FOREIGN KEY (`tx_master_id`) REFERENCES `tx_masters` (`id`);
+
+ALTER TABLE `txe_surgeries`
+  ADD CONSTRAINT `FK_txe_surgeries_tx_masters`
+  FOREIGN KEY (`tx_master_id`) REFERENCES `tx_masters` (`id`);
+  
+INSERT INTO `pages` (`id`, `error_flag`, `language_title`, `language_body`, `use_link`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+('err_drug_system_error', 1, 'system error', 'a system error has been detected', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+('err_drug_no_data', 1, 'data not found', 'no data exists for the specified id', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, (SELECT id FROM structure_fields where plugin = 'Drug' AND model = 'Drug' AND tablename = 'drugs' AND field = 'generic_name'), 'notEmpty', '0', '0', '', 'value is required', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
+
+-- 'drug is defined as a component of at least one participant chemotherapy'
+-- 'drug is defined as a component of at least one chemotherapy protocol'
+-- 'protocol is defined as protocol of at least one participant treatment'
+-- 'at least one drug is defined as protocol component'
+-- 'at least one drug is defined as treatment component'
+
+INSERT INTO `pages` (`id`, `error_flag`, `language_title`, `language_body`, `use_link`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+('err_pro_system_error', 1, 'system error', 'a system error has been detected', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+('err_pro_no_data', 1, 'data not found', 'no data exists for the specified id', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, (SELECT id FROM structure_fields where plugin = 'Protocol' AND model = 'ProtocolExtend' AND tablename = 'pe_chemos' AND field = 'drug_id'), 'notEmpty', '0', '0', '', 'value is required', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+(null, (SELECT id FROM structure_fields where plugin = 'Clinicalannotation' AND model = 'TreatmentExtend' AND tablename = 'txe_chemos' AND field = 'drug_id'), 'notEmpty', '0', '0', '', 'value is required', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
+

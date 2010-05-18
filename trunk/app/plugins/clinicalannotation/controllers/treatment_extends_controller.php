@@ -7,141 +7,223 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		'Clinicalannotation.TreatmentMaster',
 		'Clinicalannotation.TreatmentControl',
 		'Drug.Drug');
+		
 	var $paginate = array('TreatmentExtend'=>array('limit' => pagination_amount,'order'=>'TreatmentExtend.id ASC'));
 	
-	function listall($participant_id=null, $tx_master_id=null) {
-		
-		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id, 'TreatmentMaster.id'=>$tx_master_id));
-		
-		// Get treatment control data from associated master record
-		$tx_master_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id)));
+	function listall($participant_id, $tx_master_id) {
+		if (( !$participant_id ) && ( !$tx_master_id )) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
+				
+		// Get treatment Master data
+		$tx_master_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id, 'TreatmentMaster.participant_id'=>$participant_id)));
+		if(empty($tx_master_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }		
 
-		// Set form alias/tablename to use
+		// Set Extend tablename to use
 		$this->TreatmentExtend = new TreatmentExtend( false, $tx_master_data['TreatmentControl']['extend_tablename'] );
-		$use_form_alias = $tx_master_data['TreatmentControl']['extend_form_alias'];
-	    $this->Structures->set( $use_form_alias );
 		
-		$this->hook();
-		
+		// List trt extends
 		$this->data = $this->paginate($this->TreatmentExtend, array('TreatmentExtend.tx_master_id'=>$tx_master_id));
 		
 		$this->set('tx_method', $tx_master_data['TreatmentMaster']['tx_method']);
 		
-		switch($tx_master_data['TreatmentMaster']['tx_method']) {
-			case "chemotherapy":
-				// Get all drugs to override drug_id with generic drug name
-				$this->set('drug_list', $this->Drug->find('list', array('fields'=>array('Drug.id','Drug.generic_name'), 'order'=>array('Drug.generic_name'))));
-				break;
-		}
-	}
-
-	function detail($participant_id=null, $tx_master_id=null, $tx_extend_id=null) {
+		$this->set('drug_list', $this->getDrugList($tx_master_data['TreatmentMaster']['tx_method']));
+		
+		// Set forms
+		$use_form_alias = $tx_master_data['TreatmentControl']['extend_form_alias'];
+	    $this->Structures->set( $use_form_alias );
 		
 		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id, 'TreatmentMaster.id'=>$tx_master_id));
 		
-		// Get treatment master row for extended data
-		$tx_master_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id)));
-		
-		// Set form alias/tablename to use
-		$this->TreatmentExtend = new TreatmentExtend( false, $tx_master_data['TreatmentControl']['extend_tablename'] );
-		$use_form_alias = $tx_master_data['TreatmentControl']['extend_form_alias'];
-	    $this->Structures->set($use_form_alias );
+		// CUSTOM CODE: FORMAT DISPLAY DATA
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { require($hook_link); }	
+	}
 
-		$this->hook();
+	function detail($participant_id, $tx_master_id, $tx_extend_id) {
+		if (( !$participant_id ) && ( !$tx_master_id ) && ( !$tx_extend_id )) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
+				
+		// Get treatment data
+		$tx_master_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id, 'TreatmentMaster.participant_id'=>$participant_id)));
+		if(empty($tx_master_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }		
+
+		// Set Extend tablename to use
+		$this->TreatmentExtend = new TreatmentExtend( false, $tx_master_data['TreatmentControl']['extend_tablename'] );
 		
-	    $this->data = $this->TreatmentExtend->find('first',array('conditions'=>array('TreatmentExtend.id'=>$tx_extend_id)));
+		// Get extend data
+		$tx_extend_data = $this->TreatmentExtend->find('first',array('conditions'=>array('TreatmentExtend.id'=>$tx_extend_id, 'TreatmentExtend.tx_master_id'=>$tx_master_id)));
+		if(empty($tx_extend_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }		
+		$this->data = $tx_extend_data;
+		
+		$this->set('tx_method', $tx_master_data['TreatmentMaster']['tx_method']);
+		
+		$this->set('drug_list', $this->getDrugList($tx_master_data['TreatmentMaster']['tx_method']));
 	    
-		$this->set('tx_method', $tx_master_data['TreatmentMaster']['tx_method']);
-		
-		switch($tx_master_data['TreatmentMaster']['tx_method']){
-			case "chemotherapy":
-				// Get all drugs to override drug_id with generic drug name
-				// $drug_list = $this->Drug->find('first', array('conditions'=>array('Drug.id'=>$this->data['TreatmentExtend']['drug_id']), 'fields'=>array('Drug.generic_name')));
-				// $this->set('drug_name', $drug_list['Drug']['generic_name']);
-				$this->set('drug_list', $this->Drug->find('list', array('fields'=>array('Drug.id','Drug.generic_name'), 'order'=>array('Drug.generic_name'))));
-				break;
-		}
-	}
-
-	function add($participant_id=null, $tx_master_id=null) {
+		// Set form alias
+		$use_form_alias = $tx_master_data['TreatmentControl']['extend_form_alias'];
+	    $this->Structures->set($use_form_alias );
+	    		
 		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id, 'TreatmentMaster.id'=>$tx_master_id));
 		
-		// Get treatment master row for extended data
-		$tx_master_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id)));
+		// CUSTOM CODE: FORMAT DISPLAY DATA
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { require($hook_link); }			
+	}
 
-		// Set form alias/tablename to use
+	function add($participant_id, $tx_master_id) {
+		if (( !$participant_id ) && ( !$tx_master_id )) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
+				
+		// Get treatment data
+		$tx_master_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id, 'TreatmentMaster.participant_id'=>$participant_id)));
+		if(empty($tx_master_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }		
+
+		// Set Extend tablename to use
 		$this->TreatmentExtend = new TreatmentExtend( false, $tx_master_data['TreatmentControl']['extend_tablename'] );
+		
+		$this->set('tx_method', $tx_master_data['TreatmentMaster']['tx_method']);
+//pr( $this->getDrugList($tx_master_data['TreatmentMaster']['tx_method']));
+		$this->set('drug_list', $this->getDrugList($tx_master_data['TreatmentMaster']['tx_method']));
+		
+		// Set form alias/tablename to use
 		$use_form_alias = $tx_master_data['TreatmentControl']['extend_form_alias'];
 	    $this->Structures->set($use_form_alias );
 		
-		$this->set('tx_method', $tx_master_data['TreatmentMaster']['tx_method']);
+		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id, 'TreatmentMaster.id'=>$tx_master_id));
 		
-		switch($tx_master_data['TreatmentMaster']['tx_method']){
-			case "chemotherapy":
-				// Get all drugs to override drug_id with generic drug name
-				// $drug_list = $this->Drug->find('list', array('conditions' => array('Drug.type'=>'chemotherapy'), 'fields' => array('Drug.id', 'Drug.generic_name'), 'order' => array('Drug.generic_name')));
-				// $this->set('drug_list', $drug_list);
-				$this->set('drug_list', $this->Drug->find('list', array('fields'=>array('Drug.id','Drug.generic_name'), 'order'=>array('Drug.generic_name'))));
-				break;
-		}
-		
-		$this->hook();
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { require($hook_link); }
 		
 		if ( !empty($this->data) ) {
-			$this->data['TreatmentExtend']['tx_master_id'] = $tx_master_data['TreatmentMaster']['id'];
-			if ( $this->TreatmentExtend->save( $this->data ) ) {
+			$this->data['TreatmentExtend']['tx_master_id'] = $tx_master_id;
+			
+			$submitted_data_validates = true;
+			
+			$hook_link = $this->hook('presave_process');
+			if( $hook_link ) { require($hook_link); }
+			
+			if ($submitted_data_validates && $this->TreatmentExtend->save( $this->data ) ) {
 				$this->flash( 'your data has been saved', '/clinicalannotation/treatment_extends/listall/'.$participant_id.'/'.$tx_master_id );
 			}
 		} 
 	}
 
-	function edit($participant_id=null, $tx_master_id=null, $tx_extend_id=null) {
-		
-		$this->set('atim_menu_variables', array(
-			'Participant.id'=>$participant_id,
-			'TreatmentMaster.id'=>$tx_master_id,
-			'TreatmentExtend.id'=>$tx_extend_id
-		));
-		
-		// Get treatment master row for extended data
-		$tx_master_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id)));
+	function edit($participant_id, $tx_master_id, $tx_extend_id) {
+		if (( !$participant_id ) && ( !$tx_master_id ) && ( !$tx_extend_id )) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
 				
-		// Set form alias/tablename to use
+		// Get treatment data
+		$tx_master_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id, 'TreatmentMaster.participant_id'=>$participant_id)));
+		if(empty($tx_master_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }		
+
+		// Set Extend tablename to use
 		$this->TreatmentExtend = new TreatmentExtend( false, $tx_master_data['TreatmentControl']['extend_tablename'] );
-		$use_form_alias = $tx_master_data['TreatmentControl']['extend_form_alias'];
-	    $this->Structures->set($use_form_alias );
+		
+		// Get extend data
+		$tx_extend_data = $this->TreatmentExtend->find('first',array('conditions'=>array('TreatmentExtend.id'=>$tx_extend_id, 'TreatmentExtend.tx_master_id'=>$tx_master_id)));
+		if(empty($tx_extend_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }			
 		
 		$this->set('tx_method', $tx_master_data['TreatmentMaster']['tx_method']);
 		
-		switch($tx_master_data['TreatmentMaster']['tx_method']){
-			case "chemotherapy":
-				// Get all drugs to override drug_id with generic drug name
-				// $drug_list = $this->Drug->find('list', array('conditions' => array('Drug.type'=>'chemotherapy'), 'fields' => array('Drug.id', 'Drug.generic_name'), 'order' => array('Drug.generic_name')));
-				// $this->set('drug_list', $drug_list);
-				$this->set('drug_list', $this->Drug->find('list', array('fields'=>array('Drug.id','Drug.generic_name'), 'order'=>array('Drug.generic_name'))));
-				break;
-		}
+		$this->set('drug_list', $this->getDrugList($tx_master_data['TreatmentMaster']['tx_method']));
 	    
-	    $this_data = $this->TreatmentExtend->find('first',array('conditions'=>array('TreatmentExtend.id'=>$tx_extend_id)));
+		// Set form alias
+		$use_form_alias = $tx_master_data['TreatmentControl']['extend_form_alias'];
+	    $this->Structures->set($use_form_alias );
+		
+		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id, 'TreatmentMaster.id'=>$tx_master_id, 'TreatmentExtend.id'=>$tx_extend_id));
+		
+		$this_data = $this->TreatmentExtend->find('first',array('conditions'=>array('TreatmentExtend.id'=>$tx_extend_id)));
 		
 		$this->hook();
 		
-	    if (!empty($this->data)) {
+		if(empty($this->data)) {
+			$this->data = $this_data;
+		} else {
+			$submitted_data_validates = true;
+			
+			$hook_link = $this->hook('presave_process');
+			if( $hook_link ) { require($hook_link); }			
+			
 			$this->TreatmentExtend->id = $tx_extend_id;
-			if ($this->TreatmentExtend->save($this->data)) {
+			if ($submitted_data_validates && $this->TreatmentExtend->save($this->data)) {
 				$this->flash( 'your data has been updated','/clinicalannotation/treatment_extends/detail/'.$participant_id.'/'.$tx_master_id.'/'.$tx_extend_id);
 			}
-		} else {
-			$this->data = $this_data;
 		}
 	}
 
-	function delete($participant_id=null, $tx_master_id=null, $tx_extend_id=null) {
-		$this->hook();
-	
-		$this->TreatmentExtend->atim_delete( $tx_extend_id );
-		$this->flash( 'your data has been deleted', '/clinicalannotation/treatment_extends/listall/'.$participant_id.'/'.$tx_master_id );
+	function delete($participant_id, $tx_master_id, $tx_extend_id) {
+		if (( !$participant_id ) && ( !$tx_master_id ) && ( !$tx_extend_id )) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
+				
+		// Get treatment data
+		$tx_master_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id, 'TreatmentMaster.participant_id'=>$participant_id)));
+		if(empty($tx_master_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }		
+
+		// Set Extend tablename to use
+		$this->TreatmentExtend = new TreatmentExtend( false, $tx_master_data['TreatmentControl']['extend_tablename'] );
+		
+		// Get extend data
+		$tx_extend_data = $this->TreatmentExtend->find('first',array('conditions'=>array('TreatmentExtend.id'=>$tx_extend_id, 'TreatmentExtend.tx_master_id'=>$tx_master_id)));
+		if(empty($tx_extend_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }			
+		
+		$arr_allow_deletion = $this->allowTrtExtDeletion($tx_extend_id, $tx_master_data['TreatmentControl']['extend_tablename']);
+			
+		// CUSTOM CODE
+		
+		$hook_link = $this->hook('delete');
+		if( $hook_link ) { require($hook_link); }		
+				
+		if($arr_allow_deletion['allow_deletion']) {	
+		
+			if( $this->TreatmentExtend->atim_delete( $tx_extend_id ) ) {
+				$this->flash( 'your data has been deleted', '/clinicalannotation/treatment_extends/listall/'.$participant_id.'/'.$tx_master_id);
+			} else {
+				$this->flash( 'error deleting data - contact administrator', '/clinicalannotation/treatment_extends/listall/'.$participant_id.'/'.$tx_master_id);
+			}	
+		} else {
+			$this->flash($arr_allow_deletion['msg'], '/clinicalannotation/treatment_extends/detail/'.$participant_id.'/'.$tx_master_id.'/'.$tx_extend_id);
+		}
 	}
+
+	/* --------------------------------------------------------------------------
+	 * ADDITIONAL FUNCTIONS
+	 * -------------------------------------------------------------------------- */
+
+	/**
+	 * Check if a record can be deleted.
+	 * 
+	 * @param $tx_extend_id Id of the studied record.
+	 * @param $extend_tablename
+	 * 
+	 * @return Return results as array:
+	 * 	['allow_deletion'] = true/false
+	 * 	['msg'] = message to display when previous field equals false
+	 * 
+	 * @author N. Luc
+	 * @since 2007-10-16
+	 */
+	 
+	function allowTrtExtDeletion($tx_extend_id, $extend_tablename){
+		return array('allow_deletion' => true, 'msg' => '');
+	}	
+	
+	function getDrugList($tx_method) {
+		// Get drugs
+		$drug_list = array();
+		
+		switch($tx_method) {
+			case "Chemotherapy":
+				$drug_list = $this->Drug->find('all', array('order' => array('Drug.generic_name')));
+				break;
+			default:
+				// No list to build
+		}	
+		
+		// Format for display
+		$formated_drug_list = array();
+		foreach($drug_list as $new_drug) {
+			$formated_drug_list[$new_drug['Drug']['id']] = $new_drug['Drug']['generic_name'] . (empty($new_drug['Drug']['type'])? '' : ' (' . __($new_drug['Drug']['type'] ,true). ')');
+		}
+		
+		return $formated_drug_list;
+	}
+
 }
 
 ?>
