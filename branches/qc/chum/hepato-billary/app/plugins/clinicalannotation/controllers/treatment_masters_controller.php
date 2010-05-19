@@ -5,27 +5,42 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 	var $uses = array(
 		'Clinicalannotation.Participant',
 		'Clinicalannotation.TreatmentMaster', 
+		'Clinicalannotation.TreatmentExtend',
 		'Clinicalannotation.TreatmentControl', 
 		'Clinicalannotation.DiagnosisMaster',
 		'Protocol.ProtocolMaster'
 	);
+	
 	var $paginate = array('TreatmentMaster'=>array('limit' => pagination_amount,'order'=>'TreatmentMaster.start_date DESC'));
 
-	function listall($participant_id) {
+	function listall($participant_id, $trt_control_id = null) {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
-		
+
+// set FILTER, used as this->data CONDITIONS
+if ( !isset($_SESSION['TrtMaster_filter']) || !$trt_control_id ) {
+	$_SESSION['TrtMaster_filter'] = array();
+	$_SESSION['TrtMaster_filter']['TreatmentMaster.participant_id'] = $participant_id;
+	
+	$this->Structures->set('treatmentmasters');
+} else {
+	$_SESSION['TrtMaster_filter']['TreatmentMaster.treatment_control_id'] = $trt_control_id;
+	
+	$filter_data = $this->TreatmentControl->find('first',array('conditions'=>array('TreatmentControl.id'=>$trt_control_id)));
+	if(empty($filter_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
+	$this->Structures->set($filter_data['TreatmentControl']['form_alias']);
+}
+				
 		// MANAGE DATA
 		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
 		if(empty($participant_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }	
 		
-		$this->data = $this->paginate($this->TreatmentMaster, array('TreatmentMaster.participant_id'=>$participant_id));
+		$this->data = $this->paginate($this->TreatmentMaster, $_SESSION['TrtMaster_filter']);
 		
+		$this->set('protocol_list', $this->getProtocolList());
+
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id));
 		
-		$protocol_list = $this->ProtocolMaster->find('list', array('conditions'=>array('ProtocolMaster.deleted'=>'0')), array('fields' => array('ProtocolMaster.id', 'ProtocolMaster.name'), 'order' => array('ProtocolMaster.name')));
-		$this->set('protocol_list', $protocol_list);
-
 		// find all TXCONTROLS, for ADD form
 		$this->set('treatment_controls', $this->TreatmentControl->find('all', array('conditions' => array('TreatmentControl.flag_active' => "1"))));
 
@@ -42,17 +57,16 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		if(empty($treatment_master_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }		
 		$this->data = $treatment_master_data;
 
-		$tx_control_data = $this->TreatmentControl->find('first',array('conditions'=>array('TreatmentControl.id'=>$treatment_master_data['TreatmentMaster']['treatment_control_id'])));
-		$protocol_list = $this->ProtocolMaster->find('list', array('conditions'=>array('ProtocolMaster.deleted'=>'0')), array('fields' => array('ProtocolMaster.id', 'ProtocolMaster.name'), 'order' => array('ProtocolMaster.name')));		
+		$this->set('protocol_list', $this->getProtocolList());
+		
+		$this->set('diagnosis_data', (empty($this->data['TreatmentMaster']['diagnosis_master_id'])? array(): $this->DiagnosisMaster->find('all', array('conditions'=>array('DiagnosisMaster.id' => $this->data['TreatmentMaster']['diagnosis_master_id'])))));
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id,'TreatmentMaster.id'=>$tx_master_id));
-		$this->set('protocol_list', $protocol_list);
-
+		
 		// set structure alias based on control data
-		$this->Structures->set($tx_control_data['TreatmentControl']['form_alias']);
+		$this->Structures->set($treatment_master_data['TreatmentControl']['form_alias']);
 		$this->Structures->set('diagnosismasters', 'diagnosis_structure');
-		$this->set('diagnosis_data', (empty($this->data['TreatmentMaster']['diagnosis_master_id'])? array(): $this->DiagnosisMaster->find('all', array('conditions'=>array('DiagnosisMaster.id' => $this->data['TreatmentMaster']['diagnosis_master_id'])))));
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
@@ -66,9 +80,6 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		$treatment_master_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id, 'TreatmentMaster.participant_id'=>$participant_id)));
 		if(empty($treatment_master_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }		
 
-		$tx_control_data = $this->TreatmentControl->find('first',array('conditions'=>array('TreatmentControl.id'=>$treatment_master_data['TreatmentMaster']['treatment_control_id'])));
-		$protocol_list = $this->ProtocolMaster->find('list', array('conditions'=>array('ProtocolMaster.deleted'=>'0')), array('fields' => array('ProtocolMaster.id', 'ProtocolMaster.name'), 'order' => array('ProtocolMaster.name')));
-	
 		// Set diagnosis data for diagnosis selection (radio button)
 		$dx_data = $this->DiagnosisMaster->find('all', array('conditions'=>array('DiagnosisMaster.participant_id'=>$participant_id)));
 		foreach($dx_data as &$dx_tmp_data){
@@ -86,16 +97,14 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		}
 		$this->set('data_for_checklist', $dx_data);		
 			
+		$this->set('protocol_list', $this->getProtocolList());
+		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id,'TreatmentMaster.id'=>$tx_master_id) );
-		$this->set('protocol_list', $protocol_list);
 		
 		// set FORM ALIAS based off VALUE from MASTER table
-		$this->Structures->set($tx_control_data['TreatmentControl']['form_alias']);
-		
+		$this->Structures->set($treatment_master_data['TreatmentControl']['form_alias']);
 		$this->Structures->Set('empty', 'empty_structure');
-
-		// set DIAGANOSES section
 		$this->Structures->set('diagnosismasters', 'diagnosis_structure');
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
@@ -129,8 +138,9 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
 		if(empty($participant_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
 		
-		$protocol_list = $this->ProtocolMaster->find('list', array('conditions'=>array('ProtocolMaster.deleted'=>'0')), array('fields' => array('ProtocolMaster.id', 'ProtocolMaster.name'), 'order' => array('ProtocolMaster.name')));
-
+		$tx_control_data = $this->TreatmentControl->find('first',array('conditions'=>array('TreatmentControl.id'=>$treatment_control_id)));
+		if(empty($tx_control_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
+		
 		$this->set('initial_display', (empty($this->data)? true : false));
 			
 		// Set diagnosis data for diagnosis selection (radio button)
@@ -146,22 +156,20 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		}
 		$this->set('data_for_checklist', $dx_data);					
 				
+		$this->set('protocol_list', $this->getProtocolList());
+	
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'TreatmentControl.id'=>$treatment_control_id));
-		$tx_control_data = $this->TreatmentControl->find('first',array('conditions'=>array('TreatmentControl.id'=>$treatment_control_id)));
 		
 		// Override generated menu to prevent selection of Administration menu item on ADD action
 		$this->set('atim_menu', $this->Menus->get('/clinicalannotation/treatment_masters/listall/%%Participant.id%%'));
 		
-		$this->set('protocol_list', $protocol_list);
-	
-		// Set trt data
-		$this->set('tx_method', $tx_control_data['TreatmentControl']['tx_method']);
+		// Set trt header
+		$this->set('tx_header', __($tx_control_data['TreatmentControl']['disease_site'], true) . ' - ' . __($tx_control_data['TreatmentControl']['tx_method'], true));
 		
 		// set DIAGANOSES radio list form
 		$this->Structures->set('diagnosismasters', 'diagnosis_structure');
-		$this->Structures->set($tx_control_data['TreatmentControl']['form_alias']); 
-			
+		$this->Structures->set($tx_control_data['TreatmentControl']['form_alias']); 			
 		$this->Structures->Set('empty', 'empty_structure');
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
@@ -171,7 +179,8 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		if ( !empty($this->data) ) {
 			$this->data['TreatmentMaster']['participant_id'] = $participant_id;
 			$this->data['TreatmentMaster']['treatment_control_id'] = $treatment_control_id;
-			$this->data['TreatmentMaster']['tx_method'] = __($tx_control_data['TreatmentControl']['tx_method'], TRUE);
+			$this->data['TreatmentMaster']['tx_method'] = $tx_control_data['TreatmentControl']['tx_method'];
+			$this->data['TreatmentMaster']['disease_site'] = $tx_control_data['TreatmentControl']['disease_site'];
 			
 			// LAUNCH SPECIAL VALIDATION PROCESS	
 			$submitted_data_validates = true;
@@ -193,15 +202,66 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		if (( !$participant_id ) && ( !$tx_master_id )) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
 
 		// MANAGE DATA
-		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
-		if(empty($participant_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
+		$treatment_master_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id, 'TreatmentMaster.participant_id'=>$participant_id)));
+		if(empty($treatment_master_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }		
+		
+		$arr_allow_deletion = $this->allowTrtDeletion($tx_master_id, $treatment_master_data['TreatmentControl']['extend_tablename']);
+						
+		// CUSTOM CODE		
+		$hook_link = $this->hook('delete');
+		if ($hook_link) { require($hook_link); }
+		
+		if ($arr_allow_deletion['allow_deletion']) {
+			if( $this->TreatmentMaster->atim_delete( $tx_master_id ) ) {
+				$this->flash( 'your data has been deleted', '/clinicalannotation/treatment_masters/listall/'.$participant_id );
+			} else {
+				$this->flash( 'error deleting data - contact administrator', '/clinicalannotation/treatment_masters/listall/'.$participant_id );
+			}
+		} else {
+			$this->flash($arr_allow_deletion['msg'], '/clinicalannotation/treatment_masters/detail/'.$participant_id.'/'.$tx_master_id);
+		}
+	}
 
-		if( $this->TreatmentMaster->atim_delete( $tx_master_id ) ) {
-			$this->flash( 'your data has been deleted', '/clinicalannotation/treatment_masters/listall/'.$participant_id );
+	/* --------------------------------------------------------------------------
+	 * ADDITIONAL FUNCTIONS
+	 * -------------------------------------------------------------------------- */
+
+	/**
+	 * Check if a record can be deleted.
+	 * 
+	 * @param $tx_master_id Id of the studied record.
+	 * @param $tx_extend_tablename
+	 * 
+	 * @return Return results as array:
+	 * 	['allow_deletion'] = true/false
+	 * 	['msg'] = message to display when previous field equals false
+	 * 
+	 * @author N. Luc
+	 * @since 2010-04-18
+	 */
+	 
+	function allowTrtDeletion($tx_master_id, $tx_extend_tablename){
+		$this->TreatmentExtend = new TreatmentExtend( false, $tx_extend_tablename);
+		$nbr_extends = $this->TreatmentExtend->find('count', array('conditions'=>array('TreatmentExtend.tx_master_id'=>$tx_master_id), 'recursive' => '-1'));
+		if ($nbr_extends > 0) { return array('allow_deletion' => false, 'msg' => 'at least one drug is defined as treatment component'); }
+		
+		return array('allow_deletion' => true, 'msg' => '');
+	}
+	
+	function getProtocolList() {
+		// Get protocols
+		$conditions = array('ProtocolMaster.deleted'=>'0');
+		$orders = array('ProtocolMaster.code');
+		
+		$protocol_list = $this->ProtocolMaster->find('all', array('conditions'=>$conditions, 'order' => $orders));
+		
+		// Format data
+		$formatted_protocol_list = array();
+		foreach($protocol_list as $new_protocol) {
+			$formatted_protocol_list[$new_protocol['ProtocolMaster']['id']] = $new_protocol['ProtocolMaster']['code'] . ' : ' . (empty($new_protocol['ProtocolMaster']['name'])? '-' : $new_protocol['ProtocolMaster']['name']);
 		}
-		else {
-			$this->flash( 'error deleting data - contact administrator', '/clinicalannotation/treatment_masters/listall/'.$participant_id );
-		}
+		
+		return $formatted_protocol_list;
 	}
 }
 

@@ -192,7 +192,7 @@ REPLACE INTO i18n (id, page_id, en, fr) VALUES
  ('Query error', '', 'Query error', 'Erreur de requête'),
  ('An error occured on a database query. Send the following lines to support.', '', 'An error occured on a database query. Send the following lines to support.', "Une erreur s'est produite avec une requête à la base de données. Envoyez les lignes suivantes au support."),
  ('or', '', 'or', 'où'),
- ('advanced controls', '', 'Advanced controls', 'Contrôles avancés'),
+ ('show advanced controls', '', 'Show advanced controls', 'Afficher les contrôles avancés'),
  ('moved within storage', '', 'Moved within storage', "Déplacé à l'intérieur de l'entreposage"),
  ('new storage', '', 'New storage', 'Nouvel entreposage'),
  ('temperature unchanged', '', "Temperature unchanged", "Température inchangée"),
@@ -243,8 +243,10 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='preferences'), (SELECT id FROM structure_fields WHERE `model`='Config' AND `tablename`='configs' AND `field`='define_time_format' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='time_format')  ), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1');
 UPDATE structure_formats SET display_column='1', display_order='1', language_heading='', `flag_add`='1', `flag_add_readonly`='0', `flag_edit`='1', `flag_edit_readonly`='0', `flag_search`='0', `flag_search_readonly`='0', `flag_datagrid`='0', `flag_datagrid_readonly`='0', `flag_index`='1', `flag_detail`='1', `flag_override_label`='0', `language_label`='', `flag_override_tag`='0', `language_tag`='', `flag_override_help`='0', `language_help`='', `flag_override_type`='0', `type`='', `flag_override_setting`='0', `setting`='', `flag_override_default`='0', `default`=''  WHERE structure_id=(SELECT id FROM structures WHERE alias='preferences') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Config' AND `tablename`='configs' AND `field`='define_date_format' AND `language_label`='define_date_format' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='MDY' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='define_date_format')  AND `language_help`='' );
 
--- datetime input type
-ALTER TABLE `configs` ADD `define_datetime_input_type` ENUM( 'dropdown', 'textual' ) NOT NULL DEFAULT 'dropdown' AFTER `define_decimal_separator`;  
+-- datetime input type + advanced controls
+ALTER TABLE `configs`
+ ADD `define_datetime_input_type` ENUM( 'dropdown', 'textual' ) NOT NULL DEFAULT 'dropdown' AFTER `define_decimal_separator`,
+ ADD `define_show_advanced_controls` VARCHAR(255) NOT NULL DEFAULT '1' AFTER `define_datetime_input_type`;  
 INSERT INTO structure_value_domains(`domain_name`, `override`, `category`) VALUES ('datetime_input_type', '', '');
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("dropdown", "dropdown");
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="datetime_input_type"),  (SELECT id FROM structure_permissible_values WHERE value="dropdown" AND language_alias="dropdown"), "1", "1");
@@ -253,6 +255,9 @@ INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_
 INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES('', 'Administrate', 'Config', 'configs', 'define_datetime_input_type', 'datetime input type', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='datetime_input_type') , '', 'open', 'open', 'open');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
 ((SELECT id FROM structures WHERE alias='preferences'), (SELECT id FROM structure_fields WHERE `model`='Config' AND `tablename`='configs' AND `field`='define_datetime_input_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='datetime_input_type')  ), '1', '14', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1');
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES('', 'Administrate', 'Config', 'configs', 'define_show_advanced_controls', 'show advanced controls', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='preferences'), (SELECT id FROM structure_fields WHERE `model`='Config' AND `tablename`='configs' AND `field`='define_show_advanced_controls' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  ), '1', '15', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1');
 
 -- Fixed incorrect table name spellings
 UPDATE `structure_fields` SET `tablename` = 'misc_identifiers'
@@ -267,3 +272,98 @@ WHERE `model` = 'TreatmentExtend' AND `field` = 'drug_id';
   
 UPDATE `structure_fields` SET `tablename` = 'txe_chemos'
 WHERE `model` = 'TreatmentExtend' AND `field` = 'method';
+
+-- Clean up/add FK linked to Protocols, drugs, treatments
+
+ALTER TABLE `pe_chemos`
+  ADD CONSTRAINT `FK_pe_chemos_protocol_masters`
+  FOREIGN KEY (`protocol_master_id`) REFERENCES `protocol_masters` (`id`);
+
+ALTER TABLE `pd_chemos`
+  ADD CONSTRAINT `FK_pd_chemos_protocol_masters`
+  FOREIGN KEY (`protocol_master_id`) REFERENCES `protocol_masters` (`id`);
+
+ALTER TABLE `tx_masters` 
+  CHANGE `protocol_id` `protocol_master_id` int(11) DEFAULT NULL;
+
+ALTER TABLE `tx_masters_revs` 
+  CHANGE `protocol_id` `protocol_master_id` int(11) DEFAULT NULL;
+	
+ALTER TABLE `tx_masters`
+  ADD CONSTRAINT `FK_tx_masters_protocol_masters`
+  FOREIGN KEY (`protocol_master_id`) REFERENCES `protocol_masters` (`id`);
+  
+UPDATE structure_fields 
+SET `field`='protocol_master_id'
+WHERE `tablename`='tx_masters' AND `field`='protocol_id';
+  
+ALTER TABLE `txe_chemos`
+  ADD CONSTRAINT `FK_txe_chemos_drugs`
+  FOREIGN KEY (`drug_id`) REFERENCES `drugs` (`id`); 
+
+ALTER TABLE `pe_chemos`
+  ADD CONSTRAINT `FK_pe_chemos_drugs`
+  FOREIGN KEY (`drug_id`) REFERENCES `drugs` (`id`); 
+  
+ALTER TABLE `txd_chemos`
+  ADD CONSTRAINT `FK_txd_chemos_tx_masters`
+  FOREIGN KEY (`tx_master_id`) REFERENCES `tx_masters` (`id`);
+  
+ALTER TABLE `txd_radiations`
+  ADD CONSTRAINT `FK_txd_radiations_tx_masters`
+  FOREIGN KEY (`tx_master_id`) REFERENCES `tx_masters` (`id`);  
+  
+ALTER TABLE `txd_surgeries`
+  ADD CONSTRAINT `FK_txd_surgeries_tx_masters`
+  FOREIGN KEY (`tx_master_id`) REFERENCES `tx_masters` (`id`);
+  
+ALTER TABLE `txe_chemos`
+  ADD CONSTRAINT `FK_txe_chemos_tx_masters`
+  FOREIGN KEY (`tx_master_id`) REFERENCES `tx_masters` (`id`);
+
+ALTER TABLE `txe_radiations`
+  ADD CONSTRAINT `FK_txe_radiations_tx_masters`
+  FOREIGN KEY (`tx_master_id`) REFERENCES `tx_masters` (`id`);
+
+ALTER TABLE `txe_surgeries`
+  ADD CONSTRAINT `FK_txe_surgeries_tx_masters`
+  FOREIGN KEY (`tx_master_id`) REFERENCES `tx_masters` (`id`);
+  
+INSERT INTO `pages` (`id`, `error_flag`, `language_title`, `language_body`, `use_link`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+('err_drug_system_error', 1, 'system error', 'a system error has been detected', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+('err_drug_no_data', 1, 'data not found', 'no data exists for the specified id', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, (SELECT id FROM structure_fields where plugin = 'Drug' AND model = 'Drug' AND tablename = 'drugs' AND field = 'generic_name'), 'notEmpty', '0', '0', '', 'value is required', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('drug is defined as a component of at least one participant chemotherapy', '', 
+'The drug is defined as a component of at least one participant chemotherapy!' , 
+'Le médicament est défini comme étant le composant d''au moins une chimiothérapie de participant!'),
+('drug is defined as a component of at least one chemotherapy protocol', '', 
+'The drug is defined as a component of at least one chemotherapy protocol!' , 
+'Le médicament est défini comme étant le composant d''au moins un protocole de chimiothérapie!'),
+('protocol is defined as protocol of at least one participant treatment', '', 
+'The protocol is defined as protocol of at least one participant treatment!' ,
+'Le protocole est définie comme étant le protocole d''au moins un traitement de participant!'),
+('at least one drug is defined as protocol component', '', 
+'At least one drug is defined as protocol component!' ,'Au moins un médicament est défini comme étant un composant du protocole!'),
+('at least one drug is defined as treatment component', '', 
+'At least one drug is defined as treatment component!' ,'Au moins un médicament est défini comme étant un composant du traitement!');
+
+INSERT INTO `pages` (`id`, `error_flag`, `language_title`, `language_body`, `use_link`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+('err_pro_system_error', 1, 'system error', 'a system error has been detected', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+('err_pro_no_data', 1, 'data not found', 'no data exists for the specified id', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, (SELECT id FROM structure_fields where plugin = 'Protocol' AND model = 'ProtocolExtend' AND tablename = 'pe_chemos' AND field = 'drug_id'), 'notEmpty', '0', '0', '', 'value is required', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+(null, (SELECT id FROM structure_fields where plugin = 'Clinicalannotation' AND model = 'TreatmentExtend' AND tablename = 'txe_chemos' AND field = 'drug_id'), 'notEmpty', '0', '0', '', 'value is required', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
+
+
+
+
+
+
+
+
+

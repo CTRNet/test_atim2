@@ -192,19 +192,6 @@ function uncheckAll( $div ) {
 	}
 	
 	function initAdvancedControls(){
-		//toggle show/hide advanced controls
-		$("#adv_ctrl").toggle(function(){
-			$(".adv_ctrl").show();
-			$(this).removeClass("disabled");
-			$(this).addClass("enabled");
-		}, function(){
-			$(".adv_ctrl").hide();
-			$(this).removeClass("enabled");
-			$(this).addClass("disabled");
-			//clear advanced controls values to avoid breakin submission
-			$(".adv_ctrl").val("");
-		});
-		
 		//for each add or button
 		$(".btn_add_or").each(function(){
 			var $field = $(this).parent().parent().find("span:first");
@@ -253,9 +240,6 @@ function uncheckAll( $div ) {
 				$(this).remove();
 			}
 		});
-		
-		//one actions are binded hide the advanced controls (bind doesn't work on already hidden components)
-		$(".adv_ctrl").hide();
 	}
 	
 	function initTooltips(){
