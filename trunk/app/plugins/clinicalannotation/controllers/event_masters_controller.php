@@ -33,6 +33,7 @@ class EventMastersController extends ClinicalannotationAppController {
 			$_SESSION['MasterDetail_filter']['EventMaster.event_control_id'] = $event_control_id;
 			
 			$filter_data = $this->EventControl->find('first',array('conditions'=>array('EventControl.id'=>$event_control_id)));
+			if(empty($filter_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
 			$this->Structures->set($filter_data['EventControl']['form_alias']);
 		}
 			

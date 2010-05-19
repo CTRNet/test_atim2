@@ -76,7 +76,7 @@ class ProtocolMastersController extends ProtocolAppController {
 		$this->data = $protocol_data;
 			
 		$this->set( 'atim_menu_variables', array('ProtocolMaster.id'=>$protocol_master_id));
-		$this->Structures->set($this->data['ProtocolControl']['form_alias']);
+		$this->Structures->set($protocol_data['ProtocolControl']['form_alias']);
 		
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }
@@ -151,22 +151,14 @@ class ProtocolMastersController extends ProtocolAppController {
 	 */
 	 
 	function allowProtocolDeletion($protocol_master_id, $protocol_extend_tablename){
-		$arr_allow_deletion = array('allow_deletion' => true, 'msg' => '');
-		
 		$nbr_trt_masters = $this->TreatmentMaster->find('count', array('conditions'=>array('TreatmentMaster.protocol_master_id'=>$protocol_master_id), 'recursive' => '-1'));
-		if ($nbr_trt_masters > 0) {
-			$arr_allow_deletion['allow_deletion'] = false;
-			$arr_allow_deletion['msg'] = 'protocol is defined as protocol of at least one participant treatment';
-		}
+		if ($nbr_trt_masters > 0) { return array('allow_deletion' => false, 'msg' => 'protocol is defined as protocol of at least one participant treatment'); }
 		
 		$this->ProtocolExtend = new ProtocolExtend(false, $protocol_extend_tablename);
 		$nbr_extends = $this->ProtocolExtend->find('count', array('conditions'=>array('ProtocolExtend.protocol_master_id'=>$protocol_master_id), 'recursive' => '-1'));
-		if ($nbr_extends > 0) {
-			$arr_allow_deletion['allow_deletion'] = false;
-			$arr_allow_deletion['msg'] = 'at least one drug is defined as protocol component';
-		}
+		if ($nbr_extends > 0) { return array('allow_deletion' => false, 'msg' => 'at least one drug is defined as protocol component'); }
 		
-		return $arr_allow_deletion;
+		return array('allow_deletion' => true, 'msg' => '');
 	}
 
 }

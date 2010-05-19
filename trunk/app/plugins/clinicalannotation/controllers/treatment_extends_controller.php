@@ -23,14 +23,10 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		// List trt extends
 		$this->data = $this->paginate($this->TreatmentExtend, array('TreatmentExtend.tx_master_id'=>$tx_master_id));
 		
-		$this->set('tx_method', $tx_master_data['TreatmentMaster']['tx_method']);
-		
 		$this->set('drug_list', $this->getDrugList($tx_master_data['TreatmentMaster']['tx_method']));
 		
-		// Set forms
-		$use_form_alias = $tx_master_data['TreatmentControl']['extend_form_alias'];
-	    $this->Structures->set( $use_form_alias );
-		
+		// Set forms and menu data
+		$this->Structures->set( $tx_master_data['TreatmentControl']['extend_form_alias'] );
 		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id, 'TreatmentMaster.id'=>$tx_master_id));
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
@@ -53,15 +49,11 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		if(empty($tx_extend_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }		
 		$this->data = $tx_extend_data;
 		
-		$this->set('tx_method', $tx_master_data['TreatmentMaster']['tx_method']);
-		
 		$this->set('drug_list', $this->getDrugList($tx_master_data['TreatmentMaster']['tx_method']));
 	    
-		// Set form alias
-		$use_form_alias = $tx_master_data['TreatmentControl']['extend_form_alias'];
-	    $this->Structures->set($use_form_alias );
-	    		
-		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id, 'TreatmentMaster.id'=>$tx_master_id));
+		// Set form alias and alias
+		$this->Structures->set($tx_master_data['TreatmentControl']['extend_form_alias'] );
+	    $this->set('atim_menu_variables', array('Participant.id'=>$participant_id, 'TreatmentMaster.id'=>$tx_master_id));
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
@@ -78,14 +70,10 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		// Set Extend tablename to use
 		$this->TreatmentExtend = new TreatmentExtend( false, $tx_master_data['TreatmentControl']['extend_tablename'] );
 		
-		$this->set('tx_method', $tx_master_data['TreatmentMaster']['tx_method']);
-//pr( $this->getDrugList($tx_master_data['TreatmentMaster']['tx_method']));
 		$this->set('drug_list', $this->getDrugList($tx_master_data['TreatmentMaster']['tx_method']));
 		
-		// Set form alias/tablename to use
-		$use_form_alias = $tx_master_data['TreatmentControl']['extend_form_alias'];
-	    $this->Structures->set($use_form_alias );
-		
+		// Set form alias and menu
+		$this->Structures->set($tx_master_data['TreatmentControl']['extend_form_alias'] );
 		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id, 'TreatmentMaster.id'=>$tx_master_id));
 		
 		$hook_link = $this->hook('format');
@@ -119,22 +107,17 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		$tx_extend_data = $this->TreatmentExtend->find('first',array('conditions'=>array('TreatmentExtend.id'=>$tx_extend_id, 'TreatmentExtend.tx_master_id'=>$tx_master_id)));
 		if(empty($tx_extend_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }			
 		
-		$this->set('tx_method', $tx_master_data['TreatmentMaster']['tx_method']);
-		
 		$this->set('drug_list', $this->getDrugList($tx_master_data['TreatmentMaster']['tx_method']));
 	    
-		// Set form alias
-		$use_form_alias = $tx_master_data['TreatmentControl']['extend_form_alias'];
-	    $this->Structures->set($use_form_alias );
-		
+		// Set form alias and menu data
+		$this->Structures->set($tx_master_data['TreatmentControl']['extend_form_alias'] );
 		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id, 'TreatmentMaster.id'=>$tx_master_id, 'TreatmentExtend.id'=>$tx_extend_id));
 		
-		$this_data = $this->TreatmentExtend->find('first',array('conditions'=>array('TreatmentExtend.id'=>$tx_extend_id)));
-		
-		$this->hook();
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { require($hook_link); }
 		
 		if(empty($this->data)) {
-			$this->data = $this_data;
+			$this->data = $tx_extend_data;
 		} else {
 			$submitted_data_validates = true;
 			
@@ -169,8 +152,7 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		$hook_link = $this->hook('delete');
 		if( $hook_link ) { require($hook_link); }		
 				
-		if($arr_allow_deletion['allow_deletion']) {	
-		
+		if($arr_allow_deletion['allow_deletion']) {		
 			if( $this->TreatmentExtend->atim_delete( $tx_extend_id ) ) {
 				$this->flash( 'your data has been deleted', '/clinicalannotation/treatment_extends/listall/'.$participant_id.'/'.$tx_master_id);
 			} else {
@@ -207,8 +189,8 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		// Get drugs
 		$drug_list = array();
 		
-		switch($tx_method) {
-			case "Chemotherapy":
+		switch(strtolower($tx_method)) {
+			case "chemotherapy":
 				$drug_list = $this->Drug->find('all', array('order' => array('Drug.generic_name')));
 				break;
 			default:

@@ -1,8 +1,8 @@
 <?php 
 	$structure_links = array(
-		'top'=>'/drug/drugs/edit/%%Drug.id%%/',
+		'top'=>'/drug/drugs/edit/'.$atim_menu_variables['Drug.id'].'/',
 		'bottom'=>array(
-			'cancel'=>'/drug/drugs/detail/%%Drug.id%%/'
+			'cancel'=>'/drug/drugs/detail/'.$atim_menu_variables['Drug.id'].'/'
 		)
 	);
 	

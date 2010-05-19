@@ -259,8 +259,6 @@ INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
 ((SELECT id FROM structures WHERE alias='preferences'), (SELECT id FROM structure_fields WHERE `model`='Config' AND `tablename`='configs' AND `field`='define_show_advanced_controls' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  ), '1', '15', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1');
 
-
-
 -- Fixed incorrect table name spellings
 UPDATE `structure_fields` SET `tablename` = 'misc_identifiers'
 WHERE `tablename` = 'misc_identifier';
@@ -338,11 +336,20 @@ INSERT INTO `pages` (`id`, `error_flag`, `language_title`, `language_body`, `use
 INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 (null, (SELECT id FROM structure_fields where plugin = 'Drug' AND model = 'Drug' AND tablename = 'drugs' AND field = 'generic_name'), 'notEmpty', '0', '0', '', 'value is required', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
 
--- 'drug is defined as a component of at least one participant chemotherapy'
--- 'drug is defined as a component of at least one chemotherapy protocol'
--- 'protocol is defined as protocol of at least one participant treatment'
--- 'at least one drug is defined as protocol component'
--- 'at least one drug is defined as treatment component'
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('drug is defined as a component of at least one participant chemotherapy', '', 
+'The drug is defined as a component of at least one participant chemotherapy!' , 
+'Le médicament est défini comme étant le composant d''au moins une chimiothérapie de participant!'),
+('drug is defined as a component of at least one chemotherapy protocol', '', 
+'The drug is defined as a component of at least one chemotherapy protocol!' , 
+'Le médicament est défini comme étant le composant d''au moins un protocole de chimiothérapie!'),
+('protocol is defined as protocol of at least one participant treatment', '', 
+'The protocol is defined as protocol of at least one participant treatment!' ,
+'Le protocole est définie comme étant le protocole d''au moins un traitement de participant!'),
+('at least one drug is defined as protocol component', '', 
+'At least one drug is defined as protocol component!' ,'Au moins un médicament est défini comme étant un composant du protocole!'),
+('at least one drug is defined as treatment component', '', 
+'At least one drug is defined as treatment component!' ,'Au moins un médicament est défini comme étant un composant du traitement!');
 
 INSERT INTO `pages` (`id`, `error_flag`, `language_title`, `language_body`, `use_link`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 ('err_pro_system_error', 1, 'system error', 'a system error has been detected', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
@@ -351,4 +358,12 @@ INSERT INTO `pages` (`id`, `error_flag`, `language_title`, `language_body`, `use
 INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 (null, (SELECT id FROM structure_fields where plugin = 'Protocol' AND model = 'ProtocolExtend' AND tablename = 'pe_chemos' AND field = 'drug_id'), 'notEmpty', '0', '0', '', 'value is required', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (null, (SELECT id FROM structure_fields where plugin = 'Clinicalannotation' AND model = 'TreatmentExtend' AND tablename = 'txe_chemos' AND field = 'drug_id'), 'notEmpty', '0', '0', '', 'value is required', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
+
+
+
+
+
+
+
+
 
