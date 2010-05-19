@@ -5,14 +5,14 @@ class GroupsController extends AdministrateAppController {
 	var $uses = array('Group',	'Aco', 'Aro');
 	var $paginate = array('Group'=>array('limit' => pagination_amount,'order'=>'Group.name ASC')); 
 	
-	function index( $bank_id ) {
-		$this->set( 'atim_menu_variables', array('Bank.id'=>$bank_id) );
+	function index() {
+		$this->set("atim_menu", $this->Menus->get('/administrate/groups/index'));
 		$this->hook();
-		$this->data = $this->paginate($this->Group, array('Group.bank_id'=>$bank_id));
+		$this->data = $this->paginate($this->Group, array());
 	}
 	
-	function detail( $bank_id, $group_id ) {
-		$this->set( 'atim_menu_variables', array('Bank.id'=>$bank_id,'Group.id'=>$group_id) );
+	function detail($group_id) {
+		$this->set( 'atim_menu_variables', array('Group.id'=>$group_id) );
 		$this->hook();
 		$this->data = $this->Group->find('first',array('conditions'=>array('Group.id'=>$group_id)));
 		
@@ -27,14 +27,11 @@ class GroupsController extends AdministrateAppController {
 	}
 	
 
-	function add($bank_id) {
-		$this->set( 'atim_menu_variables', array('Bank.id'=>$bank_id) );
-		
+	function add() {
 		$this->hook();
 		
 		if (!empty($this->data)) {
 			$this->Group->create();
-			$this->data['Group']['bank_id'] = $bank_id;
 			if ($this->Group->save($this->data)) {
 				
 				$group_id = $this->Group->id;
@@ -44,15 +41,15 @@ class GroupsController extends AdministrateAppController {
 				$this->Aro->id = $aro_data['Aro']['id'];
 				$this->Aro->save($aro_data);
 				
-				$this->flash('your data has been saved', '/administrate/groups/detail/'.$bank_id.'/'.$group_id);
+				$this->flash('your data has been saved', '/administrate/groups/detail/'.$group_id);
 			} else {
-				$this->flash('The Group could not be saved. Please, try again.', '/administrate/groups/add/'.$bank_id.'/');
+				$this->flash('The Group could not be saved. Please, try again.', '/administrate/groups/add/');
 			}
 		}
 	}
 
-	function edit( $bank_id, $group_id = null ) {
-		$this->set( 'atim_menu_variables', array('Bank.id'=>$bank_id,'Group.id'=>$group_id) );
+	function edit($group_id = null ) {
+		$this->set( 'atim_menu_variables', array('Group.id'=>$group_id) );
 		
 		if (!$group_id && empty($this->data)) {
 			$this->Session->setFlash(__('Invalid Group', true));
@@ -64,9 +61,9 @@ class GroupsController extends AdministrateAppController {
 		if (!empty($this->data)) {
 			$this->Group->id = $group_id;
 			if ($this->Group->save($this->data)) {
-				$this->flash('your data has been updated', '/administrate/groups/detail/'.$bank_id.'/'.$group_id);
+				$this->flash('your data has been updated', '/administrate/groups/detail/'.$group_id);
 			} else {
-				$this->flash('The Group could not be saved. Please, try again.', '/administrate/groups/edit/'.$bank_id.'/'.$group_id);
+				$this->flash('The Group could not be saved. Please, try again.', '/administrate/groups/edit/'.$group_id);
 			}
 		}
 		if (empty($this->data)) {
@@ -96,15 +93,15 @@ class GroupsController extends AdministrateAppController {
 		$this->set('aco_options',$aco_options);
 	}
 
-	function delete( $bank_id, $group_id = null ) {
+	function delete( $group_id = null ) {
 		if (!$group_id) {
-			$this->flash('Invalid id for Group', '/administrate/groups/index/'.$bank_id.'/');
+			$this->flash('Invalid id for Group', '/administrate/groups/index/');
 		}
 		
 		$this->hook();
 
 		if ($this->Group->del($group_id)) {
-			$this->flash('Group deleted', '/administrate/groups/index/'.$bank_id.'/');
+			$this->flash('Group deleted', '/administrate/groups/index/');
 		}
 	}
 
