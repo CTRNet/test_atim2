@@ -359,11 +359,10 @@ INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_e
 (null, (SELECT id FROM structure_fields where plugin = 'Protocol' AND model = 'ProtocolExtend' AND tablename = 'pe_chemos' AND field = 'drug_id'), 'notEmpty', '0', '0', '', 'value is required', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (null, (SELECT id FROM structure_fields where plugin = 'Clinicalannotation' AND model = 'TreatmentExtend' AND tablename = 'txe_chemos' AND field = 'drug_id'), 'notEmpty', '0', '0', '', 'value is required', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
 
-
-
-
-
-
-
-
+-- pagination fix
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES('', 'Administrate', 'Config', 'configs', 'define_pagination_amount', 'pagination', '', 'select', '', '5', (SELECT id FROM structure_value_domains WHERE domain_name='pagination') , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='preferences'), (SELECT id FROM structure_fields WHERE `model`='Config' AND `tablename`='configs' AND `field`='define_pagination_amount' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='pagination')  ), '1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1');
+DELETE FROM structure_formats WHERE `structure_id`='4' AND `structure_field_id`='94' AND `display_column`='1' AND `display_order`='12' AND `language_heading`='' AND `flag_override_label`='0' AND `language_label`='' AND `flag_override_tag`='0' AND `language_tag`='' AND `flag_override_help`='0' AND `language_help`='' AND `flag_override_type`='0' AND `type`='' AND `flag_override_setting`='0' AND `setting`='' AND `flag_override_default`='0' AND `default`='' AND `flag_add`='1' AND `flag_add_readonly`='0' AND `flag_edit`='1' AND `flag_edit_readonly`='0' AND `flag_search`='0' AND `flag_search_readonly`='0' AND `flag_datagrid`='0' AND `flag_datagrid_readonly`='0' AND `flag_index`='0' AND `flag_detail`='1' AND `created`='0000-00-00 00:00:00' AND `created_by`='0' AND `modified`='2010-02-12 00:00:00' AND `modified_by`='0' ;
+ALTER TABLE `users` DROP `pagination`;
 
