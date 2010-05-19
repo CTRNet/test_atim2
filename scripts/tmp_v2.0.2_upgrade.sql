@@ -349,7 +349,14 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('at least one drug is defined as protocol component', '', 
 'At least one drug is defined as protocol component!' ,'Au moins un médicament est défini comme étant un composant du protocole!'),
 ('at least one drug is defined as treatment component', '', 
-'At least one drug is defined as treatment component!' ,'Au moins un médicament est défini comme étant un composant du traitement!');
+'At least one drug is defined as treatment component!' ,'Au moins un médicament est défini comme étant un composant du traitement!'),
+('groups', '', 'Groups', 'Groupes'),
+("banks", "", "Banks", "Banques"),
+("permissions", "", "Permissions", "Permissions"),
+("preferences", "", "Preferences", "Prférences"),
+("user logs", "", "User logs", "Journaux utilisateurs"),
+("messages", "", "Messages", "Messages"),
+("announcement", "", "Announcement", "Annonces");
 
 INSERT INTO `pages` (`id`, `error_flag`, `language_title`, `language_body`, `use_link`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 ('err_pro_system_error', 1, 'system error', 'a system error has been detected', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
@@ -386,7 +393,7 @@ INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_ti
 ('core_CAN_41_1_3_5', 'core_CAN_41_1_3', 0, 5, 'messages', '', '/administrate/announcements/index/%%Group.id%%/%%User.id%%/', '', 'User::summary', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 ('core_CAN_41_2', 'core_CAN_41', 0, 2, 'banks', '', '/administrate/banks/index', '', '', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 ('core_CAN_41_2_1', 'core_CAN_41_2', 0, 1, 'detail', '', '/administrate/banks/detail/%%Bank.id%%/', '', 'Bank::summary', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
-('core_CAN_41_2_2', 'core_CAN_41_2', 0, 2, 'annoucements', '', '/administrate/announcements/index/%%Bank.id%%/', '', 'Bank::summary', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+('core_CAN_41_2_2', 'core_CAN_41_2', 0, 2, 'announcements', '', '/administrate/announcements/index/%%Bank.id%%/', '', 'Bank::summary', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
 
 INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('banks', '', '', 'Administrate.Bank::listAllArray');
 INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES('', '', 'Group', 'groups', 'bank_id', 'bank', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='banks') , '', 'open', 'open', 'open');
