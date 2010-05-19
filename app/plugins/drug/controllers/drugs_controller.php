@@ -32,7 +32,6 @@ class DrugsController extends DrugAppController {
 	}
 
 	function add() {	
-		
 		$this->set( 'atim_menu', $this->Menus->get('/drug/drugs/index/') );
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA		
@@ -105,8 +104,7 @@ class DrugsController extends DrugAppController {
 		$hook_link = $this->hook('delete');
 		if( $hook_link ) { require($hook_link); }		
 				
-		if($arr_allow_deletion['allow_deletion']) {
-		
+		if($arr_allow_deletion['allow_deletion']) {	
 			if( $this->Drug->atim_delete( $drug_id ) ) {
 				$this->flash( 'your data has been deleted', '/drug/drugs/index/');
 			} else {

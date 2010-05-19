@@ -1,10 +1,9 @@
 <?php 
 	$structure_links = array(
 		'bottom'=>array(
-			'list'=>'/drug/drugs/index/',
-			'search'=>'drug/drugs/index/',
-			'edit'=>'/drug/drugs/edit/%%Drug.id%%/',
-			'delete'=>'/drug/drugs/delete/%%Drug.id%%/'
+			'search'=>'/drug/drugs/index/',
+			'edit'=>'/drug/drugs/edit/'.$atim_menu_variables['Drug.id'].'/',
+			'delete'=>'/drug/drugs/delete/'.$atim_menu_variables['Drug.id'].'/'
 		)
 	);
 	

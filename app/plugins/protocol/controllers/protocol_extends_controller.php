@@ -16,16 +16,14 @@ class ProtocolExtendsController extends ProtocolAppController {
 		$protocol_master_data = $this->ProtocolMaster->find('first',array('conditions'=>array('ProtocolMaster.id'=>$protocol_master_id)));
 		if(empty($protocol_master_data)) { $this->redirect( '/pages/err_pro_no_data', null, true ); }				
 		
-		$this->set('atim_menu_variables', array('ProtocolMaster.id'=>$protocol_master_id));
-
 		$this->ProtocolExtend = new ProtocolExtend(false, $protocol_master_data['ProtocolControl']['extend_tablename']);
-		$use_form_alias = $protocol_master_data['ProtocolControl']['extend_form_alias'];
-		$this->Structures->set($use_form_alias);
-
 		$this->data = $this->paginate($this->ProtocolExtend, array('ProtocolExtend.protocol_master_id'=>$protocol_master_id));
 
 		// Get all drugs to override drug_id with generic drug name
 		$this->set('drug_list', $this->getDrugList());
+
+		$this->Structures->set($protocol_master_data['ProtocolControl']['extend_form_alias']);
+		$this->set('atim_menu_variables', array('ProtocolMaster.id'=>$protocol_master_id));
 
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }
@@ -38,11 +36,9 @@ class ProtocolExtendsController extends ProtocolAppController {
 		$protocol_master_data = $this->ProtocolMaster->find('first',array('conditions'=>array('ProtocolMaster.id'=>$protocol_master_id)));
 		if(empty($protocol_master_data)) { $this->redirect( '/pages/err_pro_no_data', null, true ); }	
 		
-		// Set form alias/tablename to use
+		// Set tablename to use
 		$this->ProtocolExtend = new ProtocolExtend( false, $protocol_master_data['ProtocolControl']['extend_tablename'] );
-		$use_form_alias = $protocol_master_data['ProtocolControl']['extend_form_alias'];
-		$this->Structures->set($use_form_alias );
-
+		
 		// Get extend data
 		$prot_extend_data = $this->ProtocolExtend->find('first',array('conditions'=>array('ProtocolExtend.id'=>$protocol_extend_id,'ProtocolExtend.protocol_master_id'=>$protocol_master_id)));
 		if(empty($prot_extend_data)) { $this->redirect( '/pages/err_pro_no_data', null, true ); }	
@@ -51,6 +47,7 @@ class ProtocolExtendsController extends ProtocolAppController {
 		// Get all drugs to override drug_id with generic drug name
 		$this->set('drug_list', $this->getDrugList());
 
+		$this->Structures->set($protocol_master_data['ProtocolControl']['extend_form_alias'] );
 		$this->set('atim_menu_variables', array('ProtocolMaster.id'=>$protocol_master_id, 'ProtocolExtend.id'=>$protocol_extend_id));
 
 		$hook_link = $this->hook('format');
@@ -64,21 +61,20 @@ class ProtocolExtendsController extends ProtocolAppController {
 		$protocol_master_data = $this->ProtocolMaster->find('first',array('conditions'=>array('ProtocolMaster.id'=>$protocol_master_id)));
 		if(empty($protocol_master_data)) { $this->redirect( '/pages/err_pro_no_data', null, true ); }	
 
-		// Set form alias/tablename to use
+		// Set tablename to use
 		$this->ProtocolExtend = new ProtocolExtend( false, $protocol_master_data['ProtocolControl']['extend_tablename'] );
-		$use_form_alias = $protocol_master_data['ProtocolControl']['extend_form_alias'];
-		$this->Structures->set($use_form_alias );
-
+		
 		// Get all drugs to override drug_id with generic drug name
 		$this->set('drug_list', $this->getDrugList());
 
+		$this->Structures->set($protocol_master_data['ProtocolControl']['extend_form_alias'] );
 		$this->set('atim_menu_variables', array('ProtocolMaster.id'=>$protocol_master_id));
 
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }
 
 		if ( !empty($this->data) ) {
-			$this->data['ProtocolExtend']['protocol_master_id'] = $protocol_master_data['ProtocolMaster']['id'];
+			$this->data['ProtocolExtend']['protocol_master_id'] = $protocol_master_id;
 				
 			$submitted_data_validates = true;
 			
@@ -100,10 +96,6 @@ class ProtocolExtendsController extends ProtocolAppController {
 
 		// Set form alias/tablename to use
 		$this->ProtocolExtend = new ProtocolExtend( false, $protocol_master_data['ProtocolControl']['extend_tablename'] );
-		$use_form_alias = $protocol_master_data['ProtocolControl']['extend_form_alias'];
-		$this->Structures->set($use_form_alias);
-
-		$this->set('atim_menu_variables', array('ProtocolMaster.id'=>$protocol_master_id,'ProtocolExtend.id'=>$protocol_extend_id));
 		
 		// Get all drugs to override drug_id with generic drug name
 		$this->set('drug_list', $this->getDrugList());
@@ -112,20 +104,21 @@ class ProtocolExtendsController extends ProtocolAppController {
 		$prot_extend_data = $this->ProtocolExtend->find('first',array('conditions'=>array('ProtocolExtend.id'=>$protocol_extend_id,'ProtocolExtend.protocol_master_id'=>$protocol_master_id)));
 		if(empty($prot_extend_data)) { $this->redirect( '/pages/err_pro_no_data', null, true ); }	
 		
-		$this_data = $this->ProtocolExtend->find('first',array('conditions'=>array('ProtocolExtend.id'=>$protocol_extend_id)));
-
+		$this->Structures->set($protocol_master_data['ProtocolControl']['extend_form_alias']);
+		$this->set('atim_menu_variables', array('ProtocolMaster.id'=>$protocol_master_id,'ProtocolExtend.id'=>$protocol_extend_id));
+		
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }
 
 		if (empty($this->data)) {
-			$this->data = $this_data;
+			$this->data = $prot_extend_data;
 		} else {
-			$this->ProtocolExtend->id = $protocol_extend_id;
-				
 			$submitted_data_validates = true;
+			
 			$hook_link = $this->hook('presave_process');
 			if( $hook_link ) { require($hook_link); }
 
+			$this->ProtocolExtend->id = $protocol_extend_id;
 			if ($submitted_data_validates && $this->ProtocolExtend->save($this->data)) {
 				$this->flash( 'your data has been updated','/protocol/protocol_extends/detail/'.$protocol_master_id.'/'.$protocol_extend_id);
 			}
@@ -141,12 +134,9 @@ class ProtocolExtendsController extends ProtocolAppController {
 		
 		// Set extend data
 		$this->ProtocolExtend = new ProtocolExtend( false, $protocol_master_data['ProtocolControl']['extend_tablename'] );
-		$prot_extend_data = $this->ProtocolExtend->find('first',array());
+		$prot_extend_data = $this->ProtocolExtend->find('first',array('conditions'=>array('ProtocolExtend.id'=>$protocol_extend_id,'ProtocolExtend.protocol_master_id'=>$protocol_master_id)));
 		if(empty($prot_extend_data)) { $this->redirect( '/pages/err_pro_no_data', null, true ); }	
 		
-		$hook_link = $this->hook('delete');
-		if( $hook_link ) { require($hook_link); }
-
 		$arr_allow_deletion = $this->allowProtocolExtendDeletion($protocol_extend_id);
 		
 		// CUSTOM CODE		
@@ -182,10 +172,8 @@ class ProtocolExtendsController extends ProtocolAppController {
 	 * @since 2010-04-18
 	 */
 	 
-	function allowProtocolExtendDeletion($protocol_extend_id){
-		$arr_allow_deletion = array('allow_deletion' => true, 'msg' => '');
-		
-		return $arr_allow_deletion;
+	function allowProtocolExtendDeletion($protocol_extend_id){		
+		return array('allow_deletion' => true, 'msg' => '');
 	}	
 	
 	function getDrugList() {
