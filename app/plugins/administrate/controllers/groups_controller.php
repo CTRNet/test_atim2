@@ -29,21 +29,25 @@ class GroupsController extends AdministrateAppController {
 
 	function add() {
 		$this->hook();
-		
 		if (!empty($this->data)) {
-			$this->Group->create();
-			if ($this->Group->save($this->data)) {
-				
-				$group_id = $this->Group->id;
-				
-				$aro_data = $this->Aro->find('first', array('conditions' => 'Aro.model="Group" AND Aro.foreign_key = "'.$group_id.'"'));
-				$aro_data['Aro']['alias'] = 'Group::'.$group_id;
-				$this->Aro->id = $aro_data['Aro']['id'];
-				$this->Aro->save($aro_data);
-				
-				$this->flash('your data has been saved', '/administrate/groups/detail/'.$group_id);
-			} else {
-				$this->flash('The Group could not be saved. Please, try again.', '/administrate/groups/add/');
+			$group_data = $this->Group->find('first', array('conditions' => array('Group.name' => $this->data['Group']['name'])));
+			if(empty($group_data)){
+				$this->Group->create();
+				if ($this->Group->save($this->data)) {
+					
+					$group_id = $this->Group->id;
+					
+					$aro_data = $this->Aro->find('first', array('conditions' => 'Aro.model="Group" AND Aro.foreign_key = "'.$group_id.'"'));
+					$aro_data['Aro']['alias'] = 'Group::'.$group_id;
+					$this->Aro->id = $aro_data['Aro']['id'];
+					$this->Aro->save($aro_data);
+					
+					$this->flash('your data has been saved', '/administrate/permissions/tree/'.$group_id);
+				} else {
+					$this->flash('The Group could not be saved. Please, try again.', '/administrate/groups/add/');
+				}
+			}else{
+				$this->Group->validationErrors['name'] = 'this name is already in use';
 			}
 		}
 	}
