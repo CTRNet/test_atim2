@@ -336,7 +336,7 @@ INSERT INTO `pages` (`id`, `error_flag`, `language_title`, `language_body`, `use
 INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 (null, (SELECT id FROM structure_fields where plugin = 'Drug' AND model = 'Drug' AND tablename = 'drugs' AND field = 'generic_name'), 'notEmpty', '0', '0', '', 'value is required', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
 
-INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+REPLACE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('drug is defined as a component of at least one participant chemotherapy', '', 
 'The drug is defined as a component of at least one participant chemotherapy!' , 
 'Le médicament est défini comme étant le composant d''au moins une chimiothérapie de participant!'),
@@ -360,7 +360,9 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ("import from associated protocol", "", "Import from associated protocol", "Importer à partir du protocole associé"),
 ("drugs from the associated protocol were imported", "", "Drugs from the associated protocol were imported", "Les drogues associées au protocole ont été importées"),
 ("there is no protocol associated with this treatment", "", "There is no protocol associated with this treatment", "Il n'y a pas de protocole associé à ce traitement"),
-("there is no drug defined in the associated protocol", "", "There is no drug defined in the associated protocol", "Il n'y a pas de drogue définie avec le traitement associé");
+("there is no drug defined in the associated protocol", "", "There is no drug defined in the associated protocol", "Il n'y a pas de drogue définie avec le traitement associé"),
+("this name is already in use", "", "This name is already in use", "Ce nom est déjà utilisé"),
+("bank", "", "Bank", "Banque");
 
 
 INSERT INTO `pages` (`id`, `error_flag`, `language_title`, `language_body`, `use_link`, `created`, `created_by`, `modified`, `modified_by`) VALUES
@@ -412,3 +414,5 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='pe_chemos'), (SELECT id FROM structure_fields WHERE `model`='ProtocolExtend' AND `tablename`='pe_chemos' AND `field`='drug_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='drugs')  ), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1');
 DELETE FROM structure_formats WHERE `structure_id`='125' AND `structure_field_id`='572' AND `display_column`='1' AND `display_order`='1' AND `language_heading`='' AND `flag_override_label`='0' AND `language_label`='' AND `flag_override_tag`='0' AND `language_tag`='' AND `flag_override_help`='0' AND `language_help`='' AND `flag_override_type`='0' AND `type`='' AND `flag_override_setting`='0' AND `setting`='' AND `flag_override_default`='0' AND `default`='' AND `flag_add`='1' AND `flag_add_readonly`='0' AND `flag_edit`='1' AND `flag_edit_readonly`='0' AND `flag_search`='0' AND `flag_search_readonly`='0' AND `flag_datagrid`='1' AND `flag_datagrid_readonly`='0' AND `flag_index`='1' AND `flag_detail`='1' AND `created`='0000-00-00 00:00:00' AND `created_by`='0' AND `modified`='2010-02-12 00:00:00' AND `modified_by`='0' ;
 
+-- unique groups
+ALTER TABLE groups ADD UNIQUE KEY (`name`);
