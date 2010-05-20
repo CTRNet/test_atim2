@@ -27,6 +27,14 @@ class Drug extends DrugAppModel {
 		
 		return $return;
 	}
+	
+	function getDrugList() {
+		$result = array();
+		foreach($this->find('all', array('order' => array('Drug.generic_name'))) as $drug){
+			$result[] = array("value" => $drug["Drug"]["id"], "default" => $drug["Drug"]["generic_name"]);
+		}
+		return $result;
+	}
 }
 
 ?>

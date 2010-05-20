@@ -356,7 +356,12 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ("preferences", "", "Preferences", "Prférences"),
 ("user logs", "", "User logs", "Journaux utilisateurs"),
 ("messages", "", "Messages", "Messages"),
-("announcement", "", "Announcement", "Annonces");
+("announcement", "", "Announcement", "Annonces"),
+("import from associated protocol", "", "Import from associated protocol", "Importer à partir du protocole associé"),
+("drugs from the associated protocol were imported", "", "Drugs from the associated protocol were imported", "Les drogues associées au protocole ont été importées"),
+("there is no protocol associated with this treatment", "", "There is no protocol associated with this treatment", "Il n'y a pas de protocole associé à ce traitement"),
+("there is no drug defined in the associated protocol", "", "There is no drug defined in the associated protocol", "Il n'y a pas de drogue définie avec le traitement associé");
+
 
 INSERT INTO `pages` (`id`, `error_flag`, `language_title`, `language_body`, `use_link`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 ('err_pro_system_error', 1, 'system error', 'a system error has been detected', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
@@ -401,7 +406,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='groups'), (SELECT id FROM structure_fields WHERE `model`='Group' AND `tablename`='groups' AND `field`='bank_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='banks')  ), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '1', '0', '0', '0', '0', '1', '1');
 
 -- drugs dropdown
-INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('drugs', '', '', 'Drug.drugs::getDrugList');
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('drugs', '', '', 'Drug.Drug::getDrugList');
 INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES('', 'Protocol', 'ProtocolExtend', 'pe_chemos', 'drug_id', 'drug', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='drugs') , '', 'open', 'open', 'open');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
 ((SELECT id FROM structures WHERE alias='pe_chemos'), (SELECT id FROM structure_fields WHERE `model`='ProtocolExtend' AND `tablename`='pe_chemos' AND `field`='drug_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='drugs')  ), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1');
