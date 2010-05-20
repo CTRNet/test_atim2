@@ -1186,7 +1186,7 @@ div#wrapper table.structure table.columns td a.not_allowed {
 		-moz-border-radius: 5px; -webkit-border-radius: 5px;
 	}
 	
-	fieldset.submit input.submit, a.submit, a.search{
+	fieldset.submit input.submit, a.submit, fieldset.submit a.search{
 		padding: 3px 12px 2px 30px;
 		font-size: 12px;
 		cursor: pointer;
