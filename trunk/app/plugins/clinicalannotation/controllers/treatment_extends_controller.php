@@ -6,6 +6,9 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		'Clinicalannotation.TreatmentExtend',
 		'Clinicalannotation.TreatmentMaster',
 		'Clinicalannotation.TreatmentControl',
+		'Protocol.ProtocolMaster',
+		'Protocol.ProtocolControl',
+		'Protocol.ProtocolExtend',
 		'Drug.Drug');
 		
 	var $paginate = array('TreatmentExtend'=>array('limit' => pagination_amount,'order'=>'TreatmentExtend.id ASC'));
@@ -160,6 +163,39 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 			}	
 		} else {
 			$this->flash($arr_allow_deletion['msg'], '/clinicalannotation/treatment_extends/detail/'.$participant_id.'/'.$tx_master_id.'/'.$tx_extend_id);
+		}
+	}
+	
+	function importFromProtocol($participant_id, $tx_master_id){
+		$tx_master_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id, 'TreatmentMaster.participant_id'=>$participant_id)));
+		if(is_numeric($tx_master_data['TreatmentMaster']['protocol_master_id'])){
+			$prot_master_data = $this->ProtocolMaster->find('first', array('conditions' => array('ProtocolMaster.id' => $tx_master_data['TreatmentMaster']['protocol_master_id'])));
+			
+			//init proto extend
+			$this->ProtocolExtend = new ProtocolExtend(false, $prot_master_data['ProtocolControl']['extend_tablename']);
+			$prot_extend_data = $this->ProtocolExtend->find('all', array('conditions'=>array('ProtocolExtend.protocol_master_id' => $tx_master_data['TreatmentMaster']['protocol_master_id'])));
+			$drugs_id = array();
+			
+			$this->TreatmentExtend = new TreatmentExtend( false, $tx_master_data['TreatmentControl']['extend_tablename'] );
+			$data = array();
+			if(empty($prot_extend_data)){
+				$this->flash( 'there is no drug defined in the associated protocol', '/clinicalannotation/treatment_extends/listall/'.$participant_id.'/'.$tx_master_id);
+			}else{
+				foreach($prot_extend_data as $prot_extend){
+					$data[]['TreatmentExtend'] = array(
+						'tx_master_id' => $tx_master_id,
+						'drug_id' => $prot_extend['ProtocolExtend']['drug_id'],
+						'method' => $prot_extend['ProtocolExtend']['method'],
+						'dose' => $prot_extend['ProtocolExtend']['dose']);
+				}
+				if($this->TreatmentExtend->saveAll($data)){
+					$this->flash( 'drugs from the associated protocol were imported', '/clinicalannotation/treatment_extends/listall/'.$participant_id.'/'.$tx_master_id);
+				}else{
+					$this->flash( 'unknown error', '/clinicalannotation/treatment_extends/listall/'.$participant_id.'/'.$tx_master_id);
+				}
+			}
+		}else{
+			$this->flash( 'there is no protocol associated with this treatment', '/clinicalannotation/treatment_extends/listall/'.$participant_id.'/'.$tx_master_id);
 		}
 	}
 
