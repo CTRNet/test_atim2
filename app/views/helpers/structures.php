@@ -1489,7 +1489,18 @@ class StructuresHelper extends Helper {
 					}
 					
 					if ( count($field['StructureField']['StructureValidation']) ) {
-						$html_element_array['class'] .= 'required '; 
+						$required = false;
+						foreach($field['StructureField']['StructureValidation'] as $validation){
+							if($validation['rule'] == 'notEmpty'){
+								$required = true;
+								break;
+							}
+						}
+						if($required){
+							$html_element_array['class'] .= ' required ';
+						}else if(Configure::read('debug') > 0){
+							$html_element_array['class'] .= ' validation ';
+						} 
 					}
 					
 					if ( $options['type']=='add' && $field['StructureField']['default'] ) { 
@@ -1540,6 +1551,9 @@ class StructuresHelper extends Helper {
 						case 'float_positive':
 							
 							$html_element_array['type'] = 'text';
+							if(Configure::read('debug') > 0){
+								$html_element_array['class'] .= " validation ";
+							}
 							
 							if ( $options['type']=='search' ) {
 								

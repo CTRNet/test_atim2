@@ -145,6 +145,10 @@ a {
 	background-color: #ffc;
 }
 
+.validation {
+	background-color: #DFD;	
+}
+
 .readonly {
 	background-color: #f3f3f9;
 	color: #889;
