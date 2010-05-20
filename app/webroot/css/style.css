@@ -150,7 +150,7 @@ a {
 	color: #889;
 }
 
-.error {
+.error, .form-error {
 	background-color: #fcc;
 }
 

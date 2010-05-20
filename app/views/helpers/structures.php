@@ -1297,8 +1297,11 @@ class StructuresHelper extends Helper {
 										// find MATCH in results (it is assumed any translations have happened in the MODEL already)
 										foreach ( $pulldown_result as $lookup ) {
 											if ( $lookup['value'] == $display_value ) {
-												if ( isset($lookup[$options['type']]) ) { $display_value = $lookup[$options['type']]; }
-												else { $display_value = $lookup['default']; }
+												if ( isset($lookup[$options['type']]) ) {
+													$display_value = $lookup[$options['type']]; 
+												}else { 
+													$display_value = $lookup['default']; 
+												}
 											}
 										}
 										
@@ -1612,8 +1615,11 @@ class StructuresHelper extends Helper {
 										
 										// it is assumed any translations have happened in the MODEL already
 										foreach ( $pulldown_result as $lookup ) {
-											if ( isset($lookup[$options['type']]) ) { $html_element_array['options'][ $lookup['value'] ] = $lookup[$options['type']]; }
-											else { $html_element_array['options'][ $lookup['value'] ] = $lookup['default']; }
+											if ( isset($lookup[$options['type']])){
+												$html_element_array['options'][ $lookup['value'] ] = $lookup[$options['type']]; 
+											}else { 
+												$html_element_array['options'][ $lookup['value'] ] = $lookup['default']; 
+											}
 										}
 										
 									}
