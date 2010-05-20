@@ -186,11 +186,11 @@ class EventMastersControllerCustom extends EventMastersController {
 			$this->setOkudaScore();
 		}else if($event_control_event_type == "barcelona score"){
 			$this->setBarcelonaScore();
-		}else if($event_control_event_type == "clip"){
+		}else if($event_control_event_type == "clip score"){
 			$this->setClipScore();
-		}else if($event_control_event_type == "score de fong"){
+		}else if($event_control_event_type == "fong score"){
 			$this->setFongScore();
-		}else if($event_control_event_type == "gretch"){
+		}else if($event_control_event_type == "gretch score"){
 			$this->setGretchScore();
 		}else if($event_control_event_type == "meld score"){
 			$this->setMeldScore();
@@ -199,6 +199,7 @@ class EventMastersControllerCustom extends EventMastersController {
 	
 	function setChildPughScore(){
 		$score = 0;
+		$set_score = true;
 
 		if($this->data['EventDetail']['bilirubin'] == "<34µmol/l" || $this->data['EventDetail']['bilirubin'] == "<68µmol/l"){
 			++ $score;
@@ -206,6 +207,8 @@ class EventMastersControllerCustom extends EventMastersController {
 			$score += 2;
 		}else if($this->data['EventDetail']['bilirubin'] == ">50µmol/l" || $this->data['EventDetail']['bilirubin'] == ">170µmol/l"){
 			$score += 3;
+		} else {
+			$set_score = false;
 		}
 		
 		if($this->data['EventDetail']['albumin'] == "<28g/l"){
@@ -214,6 +217,8 @@ class EventMastersControllerCustom extends EventMastersController {
 			$score += 2;
 		}else if($this->data['EventDetail']['albumin'] == ">35g/l"){
 			$score += 3;
+		} else {
+			$set_score = false;
 		}
 		
 		if($this->data['EventDetail']['inr'] == "<1.7"){
@@ -222,6 +227,8 @@ class EventMastersControllerCustom extends EventMastersController {
 			$score += 2;
 		}else if($this->data['EventDetail']['inr'] == ">2.2"){
 			$score += 3;
+		} else {
+			$set_score = false;
 		}
 		
 		if($this->data['EventDetail']['encephalopathy'] == "none"){
@@ -230,6 +237,8 @@ class EventMastersControllerCustom extends EventMastersController {
 			$score += 2;
 		}else if($this->data['EventDetail']['encephalopathy'] == "grade III-IV"){
 			$score += 3;
+		} else {
+			$set_score = false;
 		}
 		
 		if($this->data['EventDetail']['ascite'] == "none"){
@@ -238,28 +247,40 @@ class EventMastersControllerCustom extends EventMastersController {
 			$score += 2;
 		}else if($this->data['EventDetail']['ascite'] == "severe"){
 			$score += 3;
+		} else {
+			$set_score = false;
 		}
 		
-		//no score if bellow 4
-		if($score < 7 && $score > 4){
-			$this->data['EventDetail']['result'] = "A";
-		}else if($score <10){
-			$this->data['EventDetail']['result'] = "B";
-		}else if($score < 16){
-			$this->data['EventDetail']['result'] = "C";
+		if($set_score) {
+			//no score if bellow 4
+			if($score < 7 && $score > 4){
+				$this->data['EventDetail']['result'] = "A";
+			}else if($score <10){
+				$this->data['EventDetail']['result'] = "B";
+			}else if($score < 16){
+				$this->data['EventDetail']['result'] = "C";
+			}
+			$this->data['EventDetail']['result'] .= " (".$score.")";			
+		} else {
+			$this->data['EventDetail']['result'] = '';
 		}
-		$this->data['EventDetail']['result'] .= " (".$score.")";
+
 	}
 	
 	function setOkudaScore(){
 		$score = 0;
+		$set_score = true;
 		
 		if($this->data['EventDetail']['bilirubin'] == ">=50µmol/l"){
 			++ $score;
+		} else if(empty($this->data['EventDetail']['bilirubin'])) {
+			$set_score = false;
 		}
 		
 		if($this->data['EventDetail']['albumin'] == "<30g/l"){
 			++ $score;	
+		} else if(empty($this->data['EventDetail']['albumin'])) {
+			$set_score = false;
 		}
 		
 		if($this->data['EventDetail']['ascite'] == "1"){
@@ -268,70 +289,118 @@ class EventMastersControllerCustom extends EventMastersController {
 		
 		if($this->data['EventDetail']['tumor_size_ratio'] == ">=50%"){
 			++ $score;			
+		} else if(empty($this->data['EventDetail']['tumor_size_ratio'])) {
+			$set_score = false;
 		}
-		//no score if bellow 4
-		if($score < 1){
-			$this->data['EventDetail']['result'] = "I";
-		}else if($score < 3){
-			$this->data['EventDetail']['result'] = "II";
-		}else{
-			$this->data['EventDetail']['result'] = "III";
+
+		if($set_score) {		
+			//no score if bellow 4
+			if($score < 1){
+				$this->data['EventDetail']['result'] = "I";
+			}else if($score < 3){
+				$this->data['EventDetail']['result'] = "II";
+			}else{
+				$this->data['EventDetail']['result'] = "III";
+			}
+			$this->data['EventDetail']['result'] .= " (".$score.")";
+		} else {
+			$this->data['EventDetail']['result'] = '';
 		}
-		$this->data['EventDetail']['result'] .= " (".$score.")";
 	}
 	
 	function setBarcelonaScore(){
-		$this->data['EventDetail']['result'] = "A";
-//TODO clarifier avec VB		
 		if($this->data['EventDetail']['who'] == "3 - 4"
 		|| $this->data['EventDetail']['tumor_morphology'] == "indifferent"
 		|| $this->data['EventDetail']['okuda_score'] == "III"
 		|| $this->data['EventDetail']['liver_function'] == "child-pugh C"){
 			$this->data['EventDetail']['result'] = "D";
-		}else if($this->data['EventDetail']['who'] == "1 - 2"
-		|| $this->data['EventDetail']['tumor_morphology'] == "metastasis" || $this->data['EventDetail']['tumor_morphology'] == "vascular invasion"
-		|| $this->data['EventDetail']['okuda_score'] == "I" || $this->data['EventDetail']['okuda_score'] == "II"
-		|| $this->data['EventDetail']['liver_function'] == "child-pugh A" || $this->data['EventDetail']['liver_function'] == "child-pugh B"){
-			$this->data['EventDetail']['result'] = "C";
-		}else if($this->data['EventDetail']['who'] == "0"){
-			if($this->data['EventDetail']['tumor_morphology'] == "3 tumors, < 3 cm"
-			&& ($this->data['EventDetail']['okuda_score'] == "I" || $this->data['EventDetail']['okuda_score'] == "II")
-			&& ($this->data['EventDetail']['liver_function'] == "child-pugh A" || $this->data['EventDetail']['liver_function'] == "child-pugh B")){
-				$this->data['EventDetail']['result'] = "A4";
-			}else if($this->data['EventDetail']['tumor_morphology'] == "unique, < 5cm"
-			&& $this->data['EventDetail']['okuda_score'] == "I"){
-				if($this->data['EventDetail']['liver_function'] == "HTP, hyperbilirubinemia"){
-					$this->data['EventDetail']['result'] = "A3";	
-				}else if($this->data['EventDetail']['liver_function'] == "HTP, bilirubin N"){
-					$this->data['EventDetail']['result'] = "A2";
-				}else if($this->data['EventDetail']['liver_function'] == "no HTP & bilirubin N"){
-					$this->data['EventDetail']['result'] = "A1";
-				}
-			}
+			return;
 		}
 		
+		if($this->data['EventDetail']['who'] == "1 - 2"
+		|| $this->data['EventDetail']['tumor_morphology'] == "metastasis" 
+		|| $this->data['EventDetail']['tumor_morphology'] == "vascular invasion"){
+			$this->data['EventDetail']['result'] = "C";
+			return;
+		}
+		
+		// Stade A, B: all fields should be completed
+		if(empty($this->data['EventDetail']['who']) 
+		|| empty($this->data['EventDetail']['tumor_morphology'])
+		|| empty($this->data['EventDetail']['okuda_score'])
+		|| empty($this->data['EventDetail']['liver_function'])) { 
+			$this->data['EventDetail']['result'] = '';
+			return; 
+		}
+		
+		// At this level:
+		//   - $this->data['EventDetail']['who'] equals 0 (automatically)
+
+		if(($this->data['EventDetail']['tumor_morphology'] == "multinodular")
+		&& (($this->data['EventDetail']['okuda_score'] == "I")
+		|| ($this->data['EventDetail']['okuda_score'] == "II"))
+		&& (($this->data['EventDetail']['liver_function'] == "child-pugh A")
+		|| ($this->data['EventDetail']['liver_function'] == "child-pugh B"))) {
+			$this->data['EventDetail']['result'] = 'B';
+			return;	
+		}
+		
+		if(($this->data['EventDetail']['tumor_morphology'] == "3 tumors, < 3 cm")
+		&& (($this->data['EventDetail']['okuda_score'] == "I")
+		|| ($this->data['EventDetail']['okuda_score'] == "II"))
+		&& (($this->data['EventDetail']['liver_function'] == "child-pugh A")
+		|| ($this->data['EventDetail']['liver_function'] == "child-pugh B"))) {
+			$this->data['EventDetail']['result'] = 'A4';
+			return;	
+		}
+		
+		if(($this->data['EventDetail']['tumor_morphology'] == "unique, < 5cm")
+		&& ($this->data['EventDetail']['okuda_score'] == "I")) {
+			if($this->data['EventDetail']['liver_function'] == "HTP, hyperbilirubinemia"){
+				$this->data['EventDetail']['result'] = "A3";	
+			}else if($this->data['EventDetail']['liver_function'] == "HTP, bilirubin N"){
+				$this->data['EventDetail']['result'] = "A2";
+			}else {
+				$this->data['EventDetail']['result'] = "A1";
+			}			
+			return;			
+		}		
+		
+		$this->data['EventDetail']['result'] = "?";
 	}
 	
 	function setClipScore(){
+		$set_score = true;
+		
 		$this->data['EventDetail']['result'] = 0;
 		if($this->data['EventDetail']['child_pugh_score'] == "B"){
 			++ $this->data['EventDetail']['result'];
 		}else if($this->data['EventDetail']['child_pugh_score'] == "C"){
 			$this->data['EventDetail']['result'] += 2;
+		} else if(empty($this->data['EventDetail']['child_pugh_score'])) {
+			$set_score = false;
 		}
 		
 		if($this->data['EventDetail']['morphology_of_tumor'] == "multiple nodules & < 50%"){
 			++ $this->data['EventDetail']['result'];
 		}else if($this->data['EventDetail']['morphology_of_tumor'] == "massive or >= 50%"){
 			$this->data['EventDetail']['result'] += 2;
+		} else if(empty($this->data['EventDetail']['morphology_of_tumor'])) {
+			$set_score = false;
 		}
 		
 		if($this->data['EventDetail']['alpha_foetoprotein'] == ">= 400 g/L"){
 			++ $this->data['EventDetail']['result'];
+		} else if(empty($this->data['EventDetail']['alpha_foetoprotein'])) {
+			$set_score = false;
 		}
 		
 		if($this->data['EventDetail']['portal_thrombosis'] == "1"){
 			++ $this->data['EventDetail']['result'];
+		}
+		
+		if(!$set_score) {
+			$this->data['EventDetail']['result'] = '';
 		}
 	}
 	
@@ -356,28 +425,42 @@ class EventMastersControllerCustom extends EventMastersController {
 	
 	function setGretchScore(){
 		$score = 0;
+		$set_score = true;
+		
 		if($this->data['EventDetail']['karnofsky_index'] == "<= 80%"){
 			$score += 3;
+		} else if(empty($this->data['EventDetail']['karnofsky_index'])) {
+			$set_score = false;
 		}
 		if($this->data['EventDetail']['bilirubin'] == ">=50µmol/l"){
 			$score += 3;
+		} else if(empty($this->data['EventDetail']['bilirubin'])) {
+			$set_score = false;
 		}
 		if($this->data['EventDetail']['alkaline_phosphatase'] == ">= 2N"){
 			$score += 2;
+		} else if(empty($this->data['EventDetail']['alkaline_phosphatase'])) {
+			$set_score = false;
 		}
 		if($this->data['EventDetail']['alpha_foetoprotein'] == ">= 35 µg/L"){
 			$score += 2;
+		} else if(empty($this->data['EventDetail']['alpha_foetoprotein'])) {
+			$set_score = false;
 		}
 		if($this->data['EventDetail']['portal_thrombosis'] == 1){
 			$score += 2;
 		}
 		
-		if($score == 0){
-			$this->data['EventDetail']['result'] = "A (0)";
-		}else if($score < 6){
-			$this->data['EventDetail']['result'] = "B (".$score.")";
-		}else{
-			$this->data['EventDetail']['result'] = "C (".$score.")";
+		if(!$set_score) {
+			$this->data['EventDetail']['result'] = '';
+		} else {
+			if($score == 0){
+				$this->data['EventDetail']['result'] = "A (0)";
+			}else if($score < 6){
+				$this->data['EventDetail']['result'] = "B (".$score.")";
+			}else{
+				$this->data['EventDetail']['result'] = "C (".$score.")";
+			}			
 		}
 	}
 	
