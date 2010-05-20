@@ -1033,9 +1033,7 @@ INSERT INTO `structure_formats` (`id`, `structure_id`, `structure_field_id`, `di
 (SELECT id FROM structure_fields WHERE plugin = 'Clinicalannotation' AND model = 'EventMaster' AND tablename = 'event_masters' AND field IN ('event_summary')), 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
--- TODO tranlsation
-('asa medical past history', '', 'ASA', 'todo (asa)'),
--- TODO end todo
+('asa medical past history', '', 'ASA', 'ASA'),
 ('heart disease medical past history', '', 'Heart Disease', 'Maladie du coeur'),
 ('vascular disease medical past history', '', 'Vascular Disease', 'Maladie vasculaire'),
 ('respiratory disease medical past history', '', 'Respiratory Disease', 'Maladie respiratoire'),
@@ -1061,13 +1059,13 @@ INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 -- specific section for hepatitis
 
 INSERT INTO `event_controls` (`id` ,`disease_site` ,`event_group` ,`event_type` ,`flag_active` ,`form_alias` ,`detail_tablename` ,`display_order`) VALUES 
-(NULL , 'hepatobillary', 'clinical', 'hepatitis medical past history', '1', 'qc_hb_ed_hepatobiliary_medical_past_history_hepatitis', 'qc_hb_ed_hepatobiliary_medical_past_history_hepatitis', '0');
+(NULL , 'hepatobiliary', 'clinical', 'hepatitis medical past history', '1', 'qc_hb_ed_hepatobiliary_medical_past_history_hepatitis', 'qc_hb_ed_hepatobiliary_medical_past_history_hepatitis', '0');
 
 CREATE TABLE `qc_hb_ed_hepatobiliary_medical_past_history_hepatitis` (
 `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
 `event_master_id` INT NOT NULL,
-`type` varchar(255) NOT NULL,
-`treatment` varchar(255) NOT NULL,
+`type` varchar(255) NOT NULL DEFAULT '',
+`treatment` varchar(255) NOT NULL DEFAULT '',
 `created` DATETIME NOT NULL ,
 `created_by` INT UNSIGNED NOT NULL ,
 `modified` DATETIME NOT NULL ,
@@ -1132,14 +1130,14 @@ INSERT INTO `event_controls` (`id` ,`disease_site` ,`event_group` ,`event_type` 
 CREATE TABLE `qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis` (
 `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
 `event_master_id` INT NOT NULL ,
-`type_of_cirrhosis` VARCHAR( 255 ) NOT NULL ,
-`esophageal_varices` VARCHAR( 3 ) NOT NULL ,
-`gastric_varices` VARCHAR( 3 ) NOT NULL ,
-`tips` VARCHAR( 3 ) NOT NULL ,
-`portacaval_gradient` FLOAT NOT NULL ,
-`portal_thrombosis` VARCHAR( 3 ) NOT NULL ,
-`splenomegaly` VARCHAR( 3 ) NOT NULL ,
-`splen_size` FLOAT NOT NULL,
+`type_of_cirrhosis` VARCHAR( 255 ) DEFAULT NULL,
+`esophageal_varices` VARCHAR( 3 ) DEFAULT NULL,
+`gastric_varices` VARCHAR( 3 ) DEFAULT NULL,
+`tips` VARCHAR( 3 ) DEFAULT NULL,
+`portacaval_gradient` FLOAT DEFAULT NULL,
+`portal_thrombosis` VARCHAR( 3 ) DEFAULT NULL,
+`splenomegaly` VARCHAR( 3 ) DEFAULT NULL,
+`splen_size` FLOAT DEFAULT NULL,
 `created` DATETIME NOT NULL ,
 `created_by` INT UNSIGNED NOT NULL ,
 `modified` DATETIME NOT NULL ,
@@ -1157,14 +1155,14 @@ ALTER TABLE `qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis`
 CREATE TABLE `qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis_revs` (
 `id` INT UNSIGNED NOT NULL,
 `event_master_id` INT UNSIGNED NOT NULL ,
-`type_of_cirrhosis` VARCHAR( 255 ) NOT NULL ,
-`esophageal_varices` VARCHAR( 3 ) NOT NULL ,
-`gastric_varices` VARCHAR( 3 ) NOT NULL ,
-`tips` VARCHAR( 3 ) NOT NULL ,
-`portacaval_gradient` FLOAT NOT NULL ,
-`portal_thrombosis` VARCHAR( 3 ) NOT NULL ,
-`splenomegaly` VARCHAR( 3 ) NOT NULL ,
-`splen_size` FLOAT NOT NULL,
+`type_of_cirrhosis` VARCHAR( 255 ) DEFAULT NULL,
+`esophageal_varices` VARCHAR( 3 ) DEFAULT NULL,
+`gastric_varices` VARCHAR( 3 ) DEFAULT NULL,
+`tips` VARCHAR( 3 ) DEFAULT NULL,
+`portacaval_gradient` FLOAT DEFAULT NULL,
+`portal_thrombosis` VARCHAR( 3 ) DEFAULT NULL,
+`splenomegaly` VARCHAR( 3 ) DEFAULT NULL,
+`splen_size` FLOAT DEFAULT NULL,
 `created` DATETIME NOT NULL ,
 `created_by` INT UNSIGNED NOT NULL ,
 `modified` DATETIME NOT NULL ,
@@ -1231,9 +1229,9 @@ INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('type of cirrhosis', '', 'Type', 'Type'),
 ('esophageal varices', '', 'Esophageal Varices', 'Varices oesophagiennes'),
 -- TODO traduction
-('splen size', '', 'Splen Size', 'todo (splen size)'),
-('tips', '', '', 'todo (tips)'),
-('portacaval gradient', '', '', 'todo (portacaval gradient)'),
+('splen size', '', 'Splen Size', ''),
+('tips', '', 'TIPS', ''),
+('portacaval gradient', '', '', ''),
 -- TODO end traduction
 ('portal thrombosis', '', 'Portal Thrombosis', 'Thrombose portale');
 
@@ -1602,7 +1600,7 @@ CREATE TABLE qc_hb_ed_hepatobilary_lab_report_biology_revs(
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-INSERT INTO `event_controls` (`id` ,`disease_site` ,`event_group` ,`event_type` ,`flag_active` ,`form_alias` ,`detail_tablename` ,`display_order`) VALUES (NULL , 'hepatobillary', 'lab', 'biology', '1', 'ed_hepatobiliary_lab_report_biology', 'qc_hb_ed_hepatobilary_lab_report_biology', '0');
+INSERT INTO `event_controls` (`id` ,`disease_site` ,`event_group` ,`event_type` ,`flag_active` ,`form_alias` ,`detail_tablename` ,`display_order`) VALUES (NULL , 'hepatobiliary', 'lab', 'biology', '1', 'ed_hepatobiliary_lab_report_biology', 'qc_hb_ed_hepatobilary_lab_report_biology', '0');
 
 INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) 
 VALUES ('ed_hepatobiliary_lab_report_biology', '', '', '1', '1', '0', '1');
@@ -1727,7 +1725,7 @@ INSERT INTO `structure_formats` (`id`, `structure_id`, `structure_field_id`, `di
 (SELECT id FROM structure_fields WHERE plugin = 'Clinicalannotation' AND model = 'EventMaster' AND tablename = 'event_masters' AND field IN ('event_type')), 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 	
 INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
-('hepatobillary', '', 'Hepatobillary', 'Hépato-Biliaire'),
+('hepatobiliary', '', 'hepatobiliary', 'Hépato-Biliaire'),
 ('blood formulae', '', 'Blood Formulae', 'Formule sanguine'),
 ('coagulation', '', 'Coagulation', 'Coagulation'),
 ('electrolyte', '', 'Electrolyte', 'Électrolyte'),
@@ -1735,14 +1733,13 @@ INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('bilan pancreatique', '', 'Pancreatic Check-Up', 'Bilan pancréatique'),
 ('bilan marqueur', '', 'Marker Check-Up', 'Bilan marqueur'),
 
--- TODO A confirmer
-('wbc', '', 'WBC', 'NGB'),
+('wbc', '', 'WBC', 'GB'),
 ('rbc', '', 'RBC', 'NGR'),
 ('hb', '', 'Hb', 'Hb'),
 ('ht', '', 'Ht', 'Ht'),
 ('platelets', '', 'Platelets', 'Plaquettes'),
 
-('ptt', '', 'PTT', 'TCA'),
+('ptt', '', 'PTT', 'PTT'),
 ('inr', '', 'INR', 'INR'),
 
 ('na', '', 'Na', 'Na'),
@@ -1761,7 +1758,7 @@ INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 
 ('albumin', '', 'Albumin', 'Albumine'),
 ('total bilirubin', '', 'Total Bilirubin', 'Bilirubine totale'),
-('direct bilirubin', '', 'Firect Bilirubin', 'Bilirubine directe'),
+('direct bilirubin', '', 'Direct Bilirubin', 'Bilirubine directe'),
 ('indirec _bilirubin', '', 'Indirect Bilirubin', 'Bilirubine indirecte'),
 
 ('ast', '', 'AST', 'AST'),
@@ -1774,15 +1771,13 @@ INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('a fp', '', '&#945;-FP', '&#945;-FP'),
 ('cea', '', 'CEA', 'CEA'),
 ('ca 19 9', '', 'Ca 19-9', 'Ca 19-9'),
-('chromogranine', '', 'Chromogranine', ''),
+('chromogranine', '', 'Chromogranine', 'Chromogranine'),
 ('5 HIAA', '', '5 HIAA', '5 HIAA'),
 ('ca 125', '', 'Ca 125', 'Ca 125'),
 ('ca 15 3', '', 'Ca 15-3', 'Ca 15-3'),
 ('b hcg', '', '&#223; HCG', '&#223; HCG'),
 ('other marker 1', '', 'Other marker 1', 'Autre marqueur 1'),
 ('other marker 2', '', 'Other marker 2', 'Autre marqueur 2');
-
--- TODO End todo A confirmer
 
 -- ... CLINIC: medical_past_history revision control ...................
 
@@ -1853,7 +1848,7 @@ CREATE TABLE IF NOT EXISTS `qc_hb_ed_medical_imaging_record_summary_revs` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 INSERT INTO `event_controls` (`id` ,`disease_site` ,`event_group` ,`event_type` ,`flag_active` ,`form_alias` ,`detail_tablename` ,`display_order`) VALUES 
-(null, 'hepatobillary', 'clinical', 'medical imaging record summary', '1', 'qc_hb_ed_medical_imaging_record_summary', 'qc_hb_ed_medical_imaging_record_summary', '0');
+(null, 'hepatobiliary', 'clinical', 'medical imaging record summary', '1', 'qc_hb_ed_medical_imaging_record_summary', 'qc_hb_ed_medical_imaging_record_summary', '0');
 
 INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) 
 VALUES ('qc_hb_ed_medical_imaging_record_summary', '', '', '1', '1', '0', '1');
@@ -1909,22 +1904,21 @@ AND structure_field_id = (
 );
 
 INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
--- TODO translation in french
 ('medical imaging abdominal ultrasound', '', 'Abdominal Ultrasound', 'Ultrason abdominal'),
 ('medical imaging abdominal CT-scan', '', 'Abdominal CT-Scan', 'CT-scan abdominal'),
 ('medical imaging pelvic CT-scan', '', 'Pelvic CT-Scan', 'CT-scan pelvien'),
 ('medical imaging abdominal MRI', '', 'Abdominal MRI', 'IRM abdominal'),
 ('medical imaging pelvic MRI', '', 'Pelvic MRI', 'IRM pelvien'),
-('medical imaging chest X-ray', '', 'Chest X-Ray', 'Radiographie de la poitrine'),
-('medical imaging chest CT-scan', '', 'Chest CT-Scan', 'CT-scan de la poitrine'),
+('medical imaging chest X-ray', '', 'Chest X-Ray', 'Radiographie du thorax'),
+('medical imaging chest CT-scan', '', 'Chest CT-Scan', 'CT-scan du thorax'),
 ('medical imaging TEP-scan', '', 'TEP-Scan', 'TEP-Scan'),
 ('medical imaging octreoscan', '', 'Octreoscan', 'Scintigraphie à l''Octreoscan'),
 ('medical imaging contrast-enhanced ultrasound (CEUS)', '', 'Contrast-Enhanced Ultrasound (CEUS)', 'Échographie de contraste (CEUS)'),
-('medical imaging doppler ultrasound', '', 'Doppler Ultrasound', ''),
-('medical imaging endoscopic ultrasound (EUS)', '', 'Endoscopic Ultrasound (EUS)', ''),
+('medical imaging doppler ultrasound', '', 'Doppler Ultrasound', 'Doppler'),
+('medical imaging endoscopic ultrasound (EUS)', '', 'Endoscopic Ultrasound (EUS)', 'Echographie'),
 ('medical imaging colonoscopy', '', 'Colonoscopy', 'Colonoscopie'),
 ('medical imaging contrast enema', '', 'Contrast Enema', 'Lavement baryté'),
-('medical imaging ERCP', '', 'ERCP', 'ERCP'),
+('medical imaging ERCP', '', 'ERCP', 'CPRE'),
 ('medical imaging transhepatic cholangiography', '', 'Transhepatic Cholangiography', 'Cholangiographie transhépatique'),
 ('medical imaging HIDA scan', '', 'HIDA-Scan', 'HIDA-scan'),
 ('medical imaging record summary', '', 'Imaging Review Checklist', 'Révision imagerie médicale - Liste de contrôle');
@@ -1942,23 +1936,23 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 -- Add event_controls
 INSERT INTO `event_controls` (`id` ,`disease_site` ,`event_group` ,`event_type` ,`flag_active` ,`form_alias` ,`detail_tablename` ,`display_order`) VALUES 
-(NULL , 'hepatobillary', 'clinical', 'medical imaging abdominal ultrasound', '1', 'qc_hb_imaging_segment_other', 'qc_hb_ed_hepatobilary_medical_imagings', '0'),
-(NULL , 'hepatobillary', 'clinical', 'medical imaging abdominal CT-scan', '1', 'qc_hb_imaging_segment_other_pancreas_volumetry', 'qc_hb_ed_hepatobilary_medical_imagings', '0'),
-(NULL , 'hepatobillary', 'clinical', 'medical imaging pelvic CT-scan', '1', 'qc_hb_imaging_other', 'qc_hb_ed_hepatobilary_medical_imagings', '0'),
-(NULL , 'hepatobillary', 'clinical', 'medical imaging abdominal MRI', '1', 'qc_hb_imaging_segment_other_pancreas_volumetry', 'qc_hb_ed_hepatobilary_medical_imagings', '0'),
-(NULL , 'hepatobillary', 'clinical', 'medical imaging pelvic MRI', '1', 'qc_hb_imaging_other', 'qc_hb_ed_hepatobilary_medical_imagings', '0'),
-(NULL , 'hepatobillary', 'clinical', 'medical imaging chest X-ray', '1', 'qc_hb_imaging_other', 'qc_hb_ed_hepatobilary_medical_imagings', '0'),
-(NULL , 'hepatobillary', 'clinical', 'medical imaging chest CT-scan', '1', 'qc_hb_imaging_other', 'qc_hb_ed_hepatobilary_medical_imagings', '0'),
-(NULL , 'hepatobillary', 'clinical', 'medical imaging TEP-scan', '1', 'qc_hb_imaging_segment_other', 'qc_hb_ed_hepatobilary_medical_imagings', '0'),
-(NULL , 'hepatobillary', 'clinical', 'medical imaging octreoscan', '1', 'qc_hb_imaging_segment_other_pancreas', 'qc_hb_ed_hepatobilary_medical_imagings', '0'),
-(NULL , 'hepatobillary', 'clinical', 'medical imaging contrast-enhanced ultrasound (CEUS)', '1', 'qc_hb_imaging_segment', 'qc_hb_ed_hepatobilary_medical_imagings', '0'),
-(NULL , 'hepatobillary', 'clinical', 'medical imaging doppler ultrasound', '1', 'qc_hb_imaging', 'qc_hb_ed_hepatobilary_medical_imagings', '0'),
-(NULL , 'hepatobillary', 'clinical', 'medical imaging endoscopic ultrasound (EUS)', '1', 'qc_hb_imaging_other_pancreas', 'qc_hb_ed_hepatobilary_medical_imagings', '0'),
-(NULL , 'hepatobillary', 'clinical', 'medical imaging colonoscopy', '1', 'qc_hb_imaging_other', 'qc_hb_ed_hepatobilary_medical_imagings', '0'),
-(NULL , 'hepatobillary', 'clinical', 'medical imaging contrast enema', '1', 'qc_hb_imaging_other', 'qc_hb_ed_hepatobilary_medical_imagings', '0'),
-(NULL , 'hepatobillary', 'clinical', 'medical imaging ERCP', '1', 'qc_hb_imaging', 'qc_hb_ed_hepatobilary_medical_imagings', '0'),
-(NULL , 'hepatobillary', 'clinical', 'medical imaging transhepatic cholangiography', '1', 'qc_hb_imaging', 'qc_hb_ed_hepatobilary_medical_imagings', '0'),
-(NULL , 'hepatobillary', 'clinical', 'medical imaging HIDA scan', '1', 'qc_hb_imaging', 'qc_hb_ed_hepatobilary_exams', '0');
+(NULL , 'hepatobiliary', 'clinical', 'medical imaging abdominal ultrasound', '1', 'qc_hb_imaging_segment_other', 'qc_hb_ed_hepatobilary_medical_imagings', '0'),
+(NULL , 'hepatobiliary', 'clinical', 'medical imaging abdominal CT-scan', '1', 'qc_hb_imaging_segment_other_pancreas_volumetry', 'qc_hb_ed_hepatobilary_medical_imagings', '0'),
+(NULL , 'hepatobiliary', 'clinical', 'medical imaging pelvic CT-scan', '1', 'qc_hb_imaging_other', 'qc_hb_ed_hepatobilary_medical_imagings', '0'),
+(NULL , 'hepatobiliary', 'clinical', 'medical imaging abdominal MRI', '1', 'qc_hb_imaging_segment_other_pancreas_volumetry', 'qc_hb_ed_hepatobilary_medical_imagings', '0'),
+(NULL , 'hepatobiliary', 'clinical', 'medical imaging pelvic MRI', '1', 'qc_hb_imaging_other', 'qc_hb_ed_hepatobilary_medical_imagings', '0'),
+(NULL , 'hepatobiliary', 'clinical', 'medical imaging chest X-ray', '1', 'qc_hb_imaging_other', 'qc_hb_ed_hepatobilary_medical_imagings', '0'),
+(NULL , 'hepatobiliary', 'clinical', 'medical imaging chest CT-scan', '1', 'qc_hb_imaging_other', 'qc_hb_ed_hepatobilary_medical_imagings', '0'),
+(NULL , 'hepatobiliary', 'clinical', 'medical imaging TEP-scan', '1', 'qc_hb_imaging_segment_other', 'qc_hb_ed_hepatobilary_medical_imagings', '0'),
+(NULL , 'hepatobiliary', 'clinical', 'medical imaging octreoscan', '1', 'qc_hb_imaging_segment_other_pancreas', 'qc_hb_ed_hepatobilary_medical_imagings', '0'),
+(NULL , 'hepatobiliary', 'clinical', 'medical imaging contrast-enhanced ultrasound (CEUS)', '1', 'qc_hb_imaging_segment', 'qc_hb_ed_hepatobilary_medical_imagings', '0'),
+(NULL , 'hepatobiliary', 'clinical', 'medical imaging doppler ultrasound', '1', 'qc_hb_imaging', 'qc_hb_ed_hepatobilary_medical_imagings', '0'),
+(NULL , 'hepatobiliary', 'clinical', 'medical imaging endoscopic ultrasound (EUS)', '1', 'qc_hb_imaging_other_pancreas', 'qc_hb_ed_hepatobilary_medical_imagings', '0'),
+(NULL , 'hepatobiliary', 'clinical', 'medical imaging colonoscopy', '1', 'qc_hb_imaging_other', 'qc_hb_ed_hepatobilary_medical_imagings', '0'),
+(NULL , 'hepatobiliary', 'clinical', 'medical imaging contrast enema', '1', 'qc_hb_imaging_other', 'qc_hb_ed_hepatobilary_medical_imagings', '0'),
+(NULL , 'hepatobiliary', 'clinical', 'medical imaging ERCP', '1', 'qc_hb_imaging', 'qc_hb_ed_hepatobilary_medical_imagings', '0'),
+(NULL , 'hepatobiliary', 'clinical', 'medical imaging transhepatic cholangiography', '1', 'qc_hb_imaging', 'qc_hb_ed_hepatobilary_medical_imagings', '0'),
+(NULL , 'hepatobiliary', 'clinical', 'medical imaging HIDA scan', '1', 'qc_hb_imaging', 'qc_hb_ed_hepatobilary_exams', '0');
 
 CREATE TABLE IF NOT EXISTS `qc_hb_ed_hepatobilary_medical_imagings` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -2329,12 +2323,12 @@ VALUES
 CREATE TABLE `ed_score_child_pugh` (
 `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
 `event_master_id` INT NOT NULL,
-`bilirubin` VARCHAR(255) NOT NULL,
-`albumin` VARCHAR(255) NOT NULL,
-`inr` VARCHAR(255) NOT NULL,
-`encephalopathy` VARCHAR(255) NOT NULL,
-`ascite` VARCHAR(255) NOT NULL,
-`result` VARCHAR(10) NOT NULL DEFAULT '',
+`bilirubin` VARCHAR(255) DEFAULT NULL,
+`albumin` VARCHAR(255)DEFAULT NULL,
+`inr` VARCHAR(255) DEFAULT NULL,
+`encephalopathy` VARCHAR(255) DEFAULT NULL,
+`ascite` VARCHAR(255) DEFAULT NULL,
+`result` VARCHAR(10) DEFAULT NULL,
 `created` DATETIME NOT NULL ,
 `created_by` INT UNSIGNED NOT NULL ,
 `modified` DATETIME NOT NULL ,
@@ -2348,12 +2342,12 @@ ALTER TABLE `ed_score_child_pugh`
 CREATE TABLE `ed_score_child_pugh_revs` (
 `id` INT UNSIGNED NOT NULL,
 `event_master_id` INT UNSIGNED NOT NULL ,
-`bilirubin` VARCHAR(255) NOT NULL,
-`albumin` VARCHAR(255) NOT NULL,
-`inr` VARCHAR(255) NOT NULL,
-`encephalopathy` VARCHAR(255) NOT NULL,
-`ascite` VARCHAR(255) NOT NULL,
-`result` VARCHAR(10) NOT NULL DEFAULT '',
+`bilirubin` VARCHAR(255) DEFAULT NULL,
+`albumin` VARCHAR(255)DEFAULT NULL,
+`inr` VARCHAR(255) DEFAULT NULL,
+`encephalopathy` VARCHAR(255) DEFAULT NULL,
+`ascite` VARCHAR(255) DEFAULT NULL,
+`result` VARCHAR(10) DEFAULT NULL,
 `created` DATETIME NOT NULL ,
 `created_by` INT UNSIGNED NOT NULL ,
 `modified` DATETIME NOT NULL ,
@@ -2367,11 +2361,11 @@ CREATE TABLE `ed_score_child_pugh_revs` (
 CREATE TABLE `ed_score_okuda` (
 `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
 `event_master_id` INT NOT NULL,
-`bilirubin` VARCHAR(255) NOT NULL,
-`albumin` VARCHAR(255) NOT NULL,
-`ascite` VARCHAR(255) NOT NULL,
-`tumor_size_ratio` VARCHAR(255) NOT NULL COMMENT '% of liver volume',
-`result` VARCHAR(10) NOT NULL DEFAULT '',
+`bilirubin` VARCHAR(255) DEFAULT NULL,
+`albumin` VARCHAR(255) DEFAULT NULL,
+`ascite` VARCHAR(255) DEFAULT NULL,
+`tumor_size_ratio` VARCHAR(255) DEFAULT NULL COMMENT '% of liver volume',
+`result` VARCHAR(10) DEFAULT NULL,
 `created` DATETIME NOT NULL ,
 `created_by` INT UNSIGNED NOT NULL ,
 `modified` DATETIME NOT NULL ,
@@ -2385,11 +2379,11 @@ ALTER TABLE `ed_score_okuda`
 CREATE TABLE `ed_score_okuda_revs` (
 `id` INT UNSIGNED NOT NULL,
 `event_master_id` INT NOT NULL,
-`bilirubin` VARCHAR(255) NOT NULL,
-`albumin` VARCHAR(255) NOT NULL,
-`ascite` VARCHAR(255) NOT NULL,
-`tumor_size_ratio` VARCHAR(255) NOT NULL COMMENT '% of liver volume',
-`result` VARCHAR(10) NOT NULL DEFAULT '',
+`bilirubin` VARCHAR(255) DEFAULT NULL,
+`albumin` VARCHAR(255) DEFAULT NULL,
+`ascite` VARCHAR(255) DEFAULT NULL,
+`tumor_size_ratio` VARCHAR(255) DEFAULT NULL COMMENT '% of liver volume',
+`result` VARCHAR(10) DEFAULT NULL,
 `created` DATETIME NOT NULL ,
 `created_by` INT UNSIGNED NOT NULL ,
 `modified` DATETIME NOT NULL ,
@@ -2403,11 +2397,11 @@ CREATE TABLE `ed_score_okuda_revs` (
 CREATE TABLE `ed_score_barcelona` (
 `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
 `event_master_id` INT NOT NULL,
-`who` VARCHAR(255) NOT NULL,
-`tumor_morphology` VARCHAR(255) NOT NULL,
-`okuda_score` VARCHAR(255) NOT NULL,
-`liver_function` VARCHAR(255) NOT NULL,
-`result` VARCHAR(10) NOT NULL DEFAULT '',
+`who` VARCHAR(255) DEFAULT NULL,
+`tumor_morphology` VARCHAR(255) DEFAULT NULL,
+`okuda_score` VARCHAR(255) DEFAULT NULL,
+`liver_function` VARCHAR(255) DEFAULT NULL,
+`result` VARCHAR(10) DEFAULT NULL,
 `created` DATETIME NOT NULL ,
 `created_by` INT UNSIGNED NOT NULL ,
 `modified` DATETIME NOT NULL ,
@@ -2421,11 +2415,11 @@ ALTER TABLE `ed_score_barcelona`
 CREATE TABLE `ed_score_barcelona_revs` (
 `id` INT UNSIGNED NOT NULL,
 `event_master_id` INT NOT NULL,
-`who` VARCHAR(255) NOT NULL,
-`tumor_morphology` VARCHAR(255) NOT NULL,
-`okuda_score` VARCHAR(255) NOT NULL,
-`liver_function` VARCHAR(255) NOT NULL,
-`result` VARCHAR(10) NOT NULL DEFAULT '',
+`who` VARCHAR(255) DEFAULT NULL,
+`tumor_morphology` VARCHAR(255) DEFAULT NULL,
+`okuda_score` VARCHAR(255) DEFAULT NULL,
+`liver_function` VARCHAR(255) DEFAULT NULL,
+`result` VARCHAR(10) DEFAULT NULL,
 `created` DATETIME NOT NULL ,
 `created_by` INT UNSIGNED NOT NULL ,
 `modified` DATETIME NOT NULL ,
@@ -2439,11 +2433,11 @@ CREATE TABLE `ed_score_barcelona_revs` (
 CREATE TABLE `ed_score_clip` (
 `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
 `event_master_id` INT NOT NULL,
-`child_pugh_score` VARCHAR(255) NOT NULL,
-`morphology_of_tumor` VARCHAR(255) NOT NULL,
-`alpha_foetoprotein` VARCHAR(255) NOT NULL,
-`portal_thrombosis` VARCHAR(255) NOT NULL,
-`result` TINYINT(3) UNSIGNED NOT NULL,
+`child_pugh_score` VARCHAR(255) DEFAULT NULL,
+`morphology_of_tumor` VARCHAR(255) DEFAULT NULL,
+`alpha_foetoprotein` VARCHAR(255) DEFAULT NULL,
+`portal_thrombosis` VARCHAR(255) DEFAULT NULL,
+`result` TINYINT(3) UNSIGNED DEFAULT NULL,
 `created` DATETIME NOT NULL ,
 `created_by` INT UNSIGNED NOT NULL ,
 `modified` DATETIME NOT NULL ,
@@ -2457,11 +2451,11 @@ ALTER TABLE `ed_score_clip`
 CREATE TABLE `ed_score_clip_revs` (
 `id` INT UNSIGNED NOT NULL,
 `event_master_id` INT NOT NULL,
-`child_pugh_score` VARCHAR(255) NOT NULL,
-`morphology_of_tumor` VARCHAR(255) NOT NULL,
-`alpha_foetoprotein` VARCHAR(255) NOT NULL,
-`portal_thrombosis` VARCHAR(255) NOT NULL,
-`result` TINYINT(3) UNSIGNED NOT NULL,
+`child_pugh_score` VARCHAR(255) DEFAULT NULL,
+`morphology_of_tumor` VARCHAR(255) DEFAULT NULL,
+`alpha_foetoprotein` VARCHAR(255) DEFAULT NULL,
+`portal_thrombosis` VARCHAR(255) DEFAULT NULL,
+`result` TINYINT(3) UNSIGNED DEFAULT NULL,
 `created` DATETIME NOT NULL ,
 `created_by` INT UNSIGNED NOT NULL ,
 `modified` DATETIME NOT NULL ,
@@ -2475,12 +2469,12 @@ CREATE TABLE `ed_score_clip_revs` (
 CREATE TABLE `ed_score_gretch` (
 `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
 `event_master_id` INT NOT NULL,
-`karnofsky_index` VARCHAR(255) NOT NULL,
-`bilirubin` VARCHAR(255) NOT NULL,
-`alkaline_phosphatase` VARCHAR(255) NOT NULL,
-`alpha_foetoprotein` VARCHAR(255) NOT NULL,
-`portal_thrombosis` VARCHAR(255) NOT NULL,
-`result` VARCHAR(10) NOT NULL DEFAULT '',
+`karnofsky_index` VARCHAR(255) DEFAULT NULL,
+`bilirubin` VARCHAR(255) DEFAULT NULL,
+`alkaline_phosphatase` VARCHAR(255) DEFAULT NULL,
+`alpha_foetoprotein` VARCHAR(255) DEFAULT NULL,
+`portal_thrombosis` VARCHAR(255) DEFAULT NULL,
+`result` VARCHAR(10) DEFAULT NULL,
 `created` DATETIME NOT NULL ,
 `created_by` INT UNSIGNED NOT NULL ,
 `modified` DATETIME NOT NULL ,
@@ -2494,12 +2488,12 @@ ALTER TABLE `ed_score_gretch`
 CREATE TABLE `ed_score_gretch_revs` (
 `id` INT UNSIGNED NOT NULL,
 `event_master_id` INT NOT NULL,
-`karnofsky_index` VARCHAR(255) NOT NULL,
-`bilirubin` VARCHAR(255) NOT NULL,
-`alkaline_phosphatase` VARCHAR(255) NOT NULL,
-`alpha_foetoprotein` VARCHAR(255) NOT NULL,
-`portal_thrombosis` VARCHAR(255) NOT NULL,
-`result` VARCHAR(10) NOT NULL DEFAULT '',
+`karnofsky_index` VARCHAR(255) DEFAULT NULL,
+`bilirubin` VARCHAR(255) DEFAULT NULL,
+`alkaline_phosphatase` VARCHAR(255) DEFAULT NULL,
+`alpha_foetoprotein` VARCHAR(255) DEFAULT NULL,
+`portal_thrombosis` VARCHAR(255) DEFAULT NULL,
+`result` VARCHAR(10) DEFAULT NULL,
 `created` DATETIME NOT NULL ,
 `created_by` INT UNSIGNED NOT NULL ,
 `modified` DATETIME NOT NULL ,
@@ -2513,12 +2507,12 @@ CREATE TABLE `ed_score_gretch_revs` (
 CREATE TABLE `ed_score_fong` (
 `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
 `event_master_id` INT NOT NULL,
-`metastatic_lymph_nodes` VARCHAR(3) NOT NULL,
-`interval_under_year` VARCHAR(3) NOT NULL,
-`more_than_one_metastasis` VARCHAR(3) NOT NULL,
-`metastasis_greater_five_cm` VARCHAR(3) NOT NULL,
-`cea_greater_two_hundred` VARCHAR(3) NOT NULL,
-`result` VARCHAR(10) NOT NULL DEFAULT '',
+`metastatic_lymph_nodes` VARCHAR(3) DEFAULT NULL,
+`interval_under_year` VARCHAR(3) DEFAULT NULL,
+`more_than_one_metastasis` VARCHAR(3) DEFAULT NULL,
+`metastasis_greater_five_cm` VARCHAR(3) DEFAULT NULL,
+`cea_greater_two_hundred` VARCHAR(3) DEFAULT NULL,
+`result` VARCHAR(10) DEFAULT NULL,
 `created` DATETIME NOT NULL ,
 `created_by` INT UNSIGNED NOT NULL ,
 `modified` DATETIME NOT NULL ,
@@ -2532,12 +2526,12 @@ ALTER TABLE `ed_score_fong`
 CREATE TABLE `ed_score_fong_revs` (
 `id` INT UNSIGNED NOT NULL,
 `event_master_id` INT NOT NULL,
-`metastatic_lymph_nodes` VARCHAR(3) NOT NULL,
-`interval_under_year` VARCHAR(3) NOT NULL,
-`more_than_one_metastasis` VARCHAR(3) NOT NULL,
-`metastasis_greater_five_cm` VARCHAR(3) NOT NULL,
-`cea_greater_two_hundred` VARCHAR(3) NOT NULL,
-`result` VARCHAR(10) NOT NULL DEFAULT '',
+`metastatic_lymph_nodes` VARCHAR(3) DEFAULT NULL,
+`interval_under_year` VARCHAR(3) DEFAULT NULL,
+`more_than_one_metastasis` VARCHAR(3) DEFAULT NULL,
+`metastasis_greater_five_cm` VARCHAR(3) DEFAULT NULL,
+`cea_greater_two_hundred` VARCHAR(3) DEFAULT NULL,
+`result` VARCHAR(10) DEFAULT NULL,
 `created` DATETIME NOT NULL ,
 `created_by` INT UNSIGNED NOT NULL ,
 `modified` DATETIME NOT NULL ,
@@ -2551,11 +2545,11 @@ CREATE TABLE `ed_score_fong_revs` (
 CREATE TABLE `ed_score_meld` (
 `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
 `event_master_id` INT NOT NULL,
-`bilirubin` FLOAT UNSIGNED NOT NULL,
-`inr` FLOAT UNSIGNED NOT NULL,
-`creatinine` FLOAT UNSIGNED NOT NULL,
-`dialysis` TINYINT(3) UNSIGNED NOT NULL,
-`result` FLOAT UNSIGNED NOT NULL,
+`bilirubin` FLOAT UNSIGNED DEFAULT NULL,
+`inr` FLOAT UNSIGNED DEFAULT NULL,
+`creatinine` FLOAT UNSIGNED DEFAULT NULL,
+`dialysis` TINYINT(3) UNSIGNED DEFAULT NULL,
+`result` FLOAT UNSIGNED DEFAULT NULL,
 `created` DATETIME NOT NULL ,
 `created_by` INT UNSIGNED NOT NULL ,
 `modified` DATETIME NOT NULL ,
@@ -2569,11 +2563,11 @@ ALTER TABLE `ed_score_meld`
 CREATE TABLE `ed_score_meld_revs` (
 `id` INT UNSIGNED NOT NULL,
 `event_master_id` INT NOT NULL,
-`bilirubin` FLOAT UNSIGNED NOT NULL,
-`inr` FLOAT UNSIGNED NOT NULL,
-`creatinine` FLOAT UNSIGNED NOT NULL,
-`dialysis` TINYINT(3) UNSIGNED NOT NULL,
-`result` FLOAT UNSIGNED NOT NULL,
+`bilirubin` FLOAT UNSIGNED DEFAULT NULL,
+`inr` FLOAT UNSIGNED DEFAULT NULL,
+`creatinine` FLOAT UNSIGNED DEFAULT NULL,
+`dialysis` TINYINT(3) UNSIGNED DEFAULT NULL,
+`result` FLOAT UNSIGNED DEFAULT NULL,
 `created` DATETIME NOT NULL ,
 `created_by` INT UNSIGNED NOT NULL ,
 `modified` DATETIME NOT NULL ,
@@ -2671,8 +2665,8 @@ INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_
 
 -- value domain qc_hb_who_barcelona
 INSERT INTO structure_value_domains(`domain_name`, `override`, `category`) VALUES ('qc_hb_who_barcelona', '', '');
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('0', '0');
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_who_barcelona'),  (SELECT id FROM structure_permissible_values WHERE value='0' AND language_alias='0'), '1', '1');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('0', '_0_');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_who_barcelona'),  (SELECT id FROM structure_permissible_values WHERE value='0' AND language_alias='_0_'), '1', '1');
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('1 - 2', '1 - 2');
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_who_barcelona'),  (SELECT id FROM structure_permissible_values WHERE value='1 - 2' AND language_alias='1 - 2'), '2', '1');
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('3 - 4', '3 - 4');
@@ -2901,6 +2895,7 @@ VALUES
 ('metastasis > 5cm', '', 'Mmetastasis > 5cm', 'Métastase > 5cm'),		 
 ('cea > 200', '', 'CEA > 200', 'CEA > 200'),
 ('dialysis', '', 'Dialysis', 'Dialyse'),
+('group', '', 'Group', 'Groupe'),
 ('meld score', '', 'Meld Score', 'Score de Meld');
 
 -- *** TREATMENT *******************************************************
@@ -3043,62 +3038,6 @@ INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('alcohol', 'alcohol');
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_tx_surgery_type_of_local_treatment'),  (SELECT id FROM structure_permissible_values WHERE value='alcohol' AND language_alias='alcohol'), '3', '1');
 
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("drain d'argyl", "drain d'argyl");
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_tx_surgery_type_of_drain"),  (SELECT id FROM structure_permissible_values WHERE value="drain d'argyl" AND language_alias="drain d'argyl"), "", "1");
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("drain d'irrigation", "drain d'irrigation");
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_tx_surgery_type_of_drain"),  (SELECT id FROM structure_permissible_values WHERE value="drain d'irrigation" AND language_alias="drain d'irrigation"), "", "1");
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('hémovac', 'hémovac');
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_tx_surgery_type_of_drain"),  (SELECT id FROM structure_permissible_values WHERE value="hémovac" AND language_alias="hémovac"), "", "1");
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('pen-rose', 'pen-rose');
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_tx_surgery_type_of_drain"),  (SELECT id FROM structure_permissible_values WHERE value="pen-rose" AND language_alias="pen-rose"), "", "1");
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('tubulaire', 'tubulaire');
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_tx_surgery_type_of_drain"),  (SELECT id FROM structure_permissible_values WHERE value="tubulaire" AND language_alias="tubulaire"), "", "1");
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('other', 'other');
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_tx_surgery_type_of_drain"),  (SELECT id FROM structure_permissible_values WHERE value="other" AND language_alias="other"), "", "1");
-
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('tisseel', 'tisseel');
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_tx_surgery_type_of_glue"),  (SELECT id FROM structure_permissible_values WHERE value="tisseel" AND language_alias="tisseel"), "", "1");
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('bioglue', 'bioglue');
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_tx_surgery_type_of_glue"),  (SELECT id FROM structure_permissible_values WHERE value="bioglue" AND language_alias="bioglue"), "", "1");
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('other', 'other');
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_tx_surgery_type_of_glue"),  (SELECT id FROM structure_permissible_values WHERE value="other" AND language_alias="other"), "", "1");
-
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('normal', 'normal');
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_tx_surgery_liver_appearance"),  (SELECT id FROM structure_permissible_values WHERE value="normal" AND language_alias="normal"), "", "1");
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('dilatation sinusoïdale', 'dilatation sinusoïdale');
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_tx_surgery_liver_appearance"),  (SELECT id FROM structure_permissible_values WHERE value="dilatation sinusoïdale" AND language_alias="dilatation sinusoïdale"), "", "1");
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('stéato-hépatite', 'stéato-hépatite');
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_tx_surgery_liver_appearance"),  (SELECT id FROM structure_permissible_values WHERE value="stéato-hépatite" AND language_alias="stéato-hépatite"), "", "1");
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('stéatose', 'stéatose');
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_tx_surgery_liver_appearance"),  (SELECT id FROM structure_permissible_values WHERE value="stéatose" AND language_alias="stéatose"), "", "1");
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('other', 'other');
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_tx_surgery_liver_appearance"),  (SELECT id FROM structure_permissible_values WHERE value="other" AND language_alias="other"), "", "1");
-
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('exclusion vasculaire du foie', 'Exclusion vasculaire du foie');
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_tx_surgery_liver_type_of_vascular_occlusion"),  (SELECT id FROM structure_permissible_values WHERE value="exclusion vasculaire du foie" AND language_alias="Exclusion vasculaire du foie"), "", "1");
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('pédiculaire', 'pédiculaire');
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_tx_surgery_liver_type_of_vascular_occlusion"),  (SELECT id FROM structure_permissible_values WHERE value="pédiculaire" AND language_alias="pédiculaire"), "", "1");
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('sus-hépatique', 'sus-hépatique');
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_tx_surgery_liver_type_of_vascular_occlusion"),  (SELECT id FROM structure_permissible_values WHERE value="sus-hépatique" AND language_alias="sus-hépatique"), "", "1");
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('other', 'other');
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_tx_surgery_liver_type_of_vascular_occlusion"),  (SELECT id FROM structure_permissible_values WHERE value="other" AND language_alias="other"), "", "1");
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('pédiculaire + sus-hépatique', 'pédiculaire + sus-hépatique');
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_tx_surgery_liver_type_of_vascular_occlusion"),  (SELECT id FROM structure_permissible_values WHERE value="pédiculaire + sus-hépatique" AND language_alias="pédiculaire + sus-hépatique"), "", "1");
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('ipsilatéral', 'ipsilatéral');
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_tx_surgery_liver_type_of_vascular_occlusion"),  (SELECT id FROM structure_permissible_values WHERE value="ipsilatéral" AND language_alias="ipsilatéral"), "", "1");
-
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('normal', 'normal');
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_tx_surgery_pancreas_appearance"),  (SELECT id FROM structure_permissible_values WHERE value="normal" AND language_alias="normal"), "", "1");
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('pancréatite chronique', 'pancréatite chronique');
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_tx_surgery_pancreas_appearance"),  (SELECT id FROM structure_permissible_values WHERE value="pancréatite chronique" AND language_alias="pancréatite chronique"), "", "1");
-
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('wirsungo-jéjunale', 'wirsungo-jéjunale');
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_tx_surgery_pancreas_type_of_anastomosis"),  (SELECT id FROM structure_permissible_values WHERE value="wirsungo-jéjunale" AND language_alias="wirsungo-jéjunale"), "", "1");
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('intussuseption', 'intussuseption');
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_tx_surgery_pancreas_type_of_anastomosis"),  (SELECT id FROM structure_permissible_values WHERE value="intussuseption" AND language_alias="intussuseption"), "", "1");
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('other', 'other');
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_tx_surgery_pancreas_type_of_anastomosis"),  (SELECT id FROM structure_permissible_values WHERE value="other" AND language_alias="other"), "", "1");
-
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('total', 'total');
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_segment_resection"),  (SELECT id FROM structure_permissible_values WHERE value="total" AND language_alias="total"), "", "1");
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('partial', 'partial');
@@ -3106,8 +3045,8 @@ INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_
 
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="yes_no_ns"),  (SELECT id FROM structure_permissible_values WHERE value="yes" AND language_alias="yes"), "1", "1");
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="yes_no_ns"),  (SELECT id FROM structure_permissible_values WHERE value="no" AND language_alias="no"), "2", "1");
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('ns', 'ns');
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="yes_no_ns"),  (SELECT id FROM structure_permissible_values WHERE value="ns" AND language_alias="ns"), "3", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('n/s', 'n/s');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="yes_no_ns"),  (SELECT id FROM structure_permissible_values WHERE value="n/s" AND language_alias="n/s"), "3", "1");
 
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="yes_no_conversion"),  (SELECT id FROM structure_permissible_values WHERE value="yes" AND language_alias="yes"), "1", "1");
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="yes_no_conversion"),  (SELECT id FROM structure_permissible_values WHERE value="no" AND language_alias="no"), "2", "1");
@@ -3125,48 +3064,48 @@ CREATE TABLE qc_hb_txd_surgery_livers(
 id INT(11) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
 tx_master_id INT(11) NOT NULL,
 -- master section
-principal_surgery VARCHAR(50) NOT NULL,
-associated_surgery_1 VARCHAR(50) NOT NULL,
-associated_surgery_2 VARCHAR(50) NOT NULL,
-associated_surgery_3 VARCHAR(50) NOT NULL,
-local_treatment VARCHAR(3) NOT NULL,
-type_of_local_treatment VARCHAR(50) NOT NULL,
-other_organ_resection_1 VARCHAR(50) NOT NULL,
-other_organ_resection_2 VARCHAR(50) NOT NULL,
-other_organ_resection_3 VARCHAR(50) NOT NULL,
-surgeon VARCHAR(50) NOT NULL,
+principal_surgery VARCHAR(50) NOT NULL DEFAULT '',
+associated_surgery_1 VARCHAR(50) NOT NULL DEFAULT '',
+associated_surgery_2 VARCHAR(50) NOT NULL DEFAULT '',
+associated_surgery_3 VARCHAR(50) NOT NULL DEFAULT '',
+local_treatment VARCHAR(3) NOT NULL DEFAULT '',
+type_of_local_treatment VARCHAR(50) NOT NULL DEFAULT '',
+other_organ_resection_1 VARCHAR(50) NOT NULL DEFAULT '',
+other_organ_resection_2 VARCHAR(50) NOT NULL DEFAULT '',
+other_organ_resection_3 VARCHAR(50) NOT NULL DEFAULT '',
+surgeon VARCHAR(50) NOT NULL DEFAULT '',
 operative_time SMALLINT UNSIGNED DEFAULT NULL,
-laparoscopy VARCHAR(10) NOT NULL,
+laparoscopy VARCHAR(10) NOT NULL DEFAULT '',
 operative_bleeding SMALLINT UNSIGNED DEFAULT NULL,
-transfusions VARCHAR(3) NOT NULL,
+transfusions VARCHAR(3) NOT NULL DEFAULT '',
 rbc_units SMALLINT UNSIGNED DEFAULT NULL,
 plasma_units SMALLINT UNSIGNED DEFAULT NULL,
 platelets_units SMALLINT UNSIGNED DEFAULT NULL,
-operative_pathological_report VARCHAR(3) NOT NULL,
-pathological_report VARCHAR(50) NOT NULL,
-drainage VARCHAR(3) NOT NULL,
-type_of_drain_1 VARCHAR(50) NOT NULL,
-type_of_drain_2 VARCHAR(50) NOT NULL,
-type_of_drain_3 VARCHAR(50) NOT NULL,
-biological_glue VARCHAR(3) NOT NULL,
-type_of_glue VARCHAR(50) NOT NULL,
-operative_ultrasound_ous VARCHAR(3) NOT NULL,
-impact_of_ous VARCHAR(5) NOT NULL,
+operative_pathological_report VARCHAR(3) NOT NULL DEFAULT '',
+pathological_report VARCHAR(50) NOT NULL DEFAULT '',
+drainage VARCHAR(3) NOT NULL DEFAULT '',
+type_of_drain_1 VARCHAR(50) NOT NULL DEFAULT '',
+type_of_drain_2 VARCHAR(50) NOT NULL DEFAULT '',
+type_of_drain_3 VARCHAR(50) NOT NULL DEFAULT '',
+biological_glue VARCHAR(3) NOT NULL DEFAULT '',
+type_of_glue VARCHAR(50) NOT NULL DEFAULT '',
+operative_ultrasound_ous VARCHAR(3) NOT NULL DEFAULT '',
+impact_of_ous VARCHAR(5) NOT NULL DEFAULT '',
 -- liver specific
-liver_appearance VARCHAR(50) NOT NULL,
-vascular_occlusion VARCHAR(3) NOT NULL,
-type_of_vascular_occlusion VARCHAR(50) NOT NULL,
+liver_appearance VARCHAR(50) NOT NULL DEFAULT '',
+vascular_occlusion VARCHAR(3) NOT NULL DEFAULT '',
+type_of_vascular_occlusion VARCHAR(50) NOT NULL DEFAULT '',
 resected_liver_weight SMALLINT UNSIGNED DEFAULT NULL,
-segment_1_resection VARCHAR(10) NOT NULL,
-segment_2_resection VARCHAR(10) NOT NULL,
-segment_3_resection VARCHAR(10) NOT NULL,
-segment_4a_resection VARCHAR(10) NOT NULL,
-segment_4b_resection VARCHAR(10) NOT NULL,
-segment_5_resection VARCHAR(10) NOT NULL,
-segment_6_resection VARCHAR(10) NOT NULL,
-segment_7_resection VARCHAR(10) NOT NULL,
-segment_8_resection VARCHAR(10) NOT NULL,
--- post operative data
+segment_1_resection VARCHAR(10) NOT NULL DEFAULT '',
+segment_2_resection VARCHAR(10) NOT NULL DEFAULT '',
+segment_3_resection VARCHAR(10) NOT NULL DEFAULT '',
+segment_4a_resection VARCHAR(10) NOT NULL DEFAULT '',
+segment_4b_resection VARCHAR(10) NOT NULL DEFAULT '',
+segment_5_resection VARCHAR(10) NOT NULL DEFAULT '',
+segment_6_resection VARCHAR(10) NOT NULL DEFAULT '',
+segment_7_resection VARCHAR(10) NOT NULL DEFAULT '',
+segment_8_resection VARCHAR(10) NOT NULL DEFAULT '',
+-- pre operative data
 lab_report_id INT DEFAULT NULL,
 imagery_id INT DEFAULT NULL,
 fong_score_id INT DEFAULT NULL,
@@ -3175,6 +3114,7 @@ gretch_score_id INT DEFAULT NULL,
 clip_score_id INT DEFAULT NULL,
 barcelona_score_id INT DEFAULT NULL,
 okuda_score_id INT DEFAULT NULL,
+
 type_of_cirrhosis VARCHAR(50) DEFAULT NULL,
 esophageal_varices VARCHAR(3) DEFAULT NULL,
 gastric_varices VARCHAR(3) DEFAULT NULL,
@@ -3206,48 +3146,48 @@ CREATE TABLE `qc_hb_txd_surgery_livers_revs` (
 `id` INT UNSIGNED NOT NULL,
 tx_master_id INT(11) NOT NULL,
 -- master section
-principal_surgery VARCHAR(50) NOT NULL,
-associated_surgery_1 VARCHAR(50) NOT NULL,
-associated_surgery_2 VARCHAR(50) NOT NULL,
-associated_surgery_3 VARCHAR(50) NOT NULL,
-local_treatment VARCHAR(3) NOT NULL,
-type_of_local_treatment VARCHAR(50) NOT NULL,
-other_organ_resection_1 VARCHAR(50) NOT NULL,
-other_organ_resection_2 VARCHAR(50) NOT NULL,
-other_organ_resection_3 VARCHAR(50) NOT NULL,
-surgeon VARCHAR(50) NOT NULL,
+principal_surgery VARCHAR(50) NOT NULL DEFAULT '',
+associated_surgery_1 VARCHAR(50) NOT NULL DEFAULT '',
+associated_surgery_2 VARCHAR(50) NOT NULL DEFAULT '',
+associated_surgery_3 VARCHAR(50) NOT NULL DEFAULT '',
+local_treatment VARCHAR(3) NOT NULL DEFAULT '',
+type_of_local_treatment VARCHAR(50) NOT NULL DEFAULT '',
+other_organ_resection_1 VARCHAR(50) NOT NULL DEFAULT '',
+other_organ_resection_2 VARCHAR(50) NOT NULL DEFAULT '',
+other_organ_resection_3 VARCHAR(50) NOT NULL DEFAULT '',
+surgeon VARCHAR(50) NOT NULL DEFAULT '',
 operative_time SMALLINT UNSIGNED DEFAULT NULL,
-laparoscopy VARCHAR(10) NOT NULL,
+laparoscopy VARCHAR(10) NOT NULL DEFAULT '',
 operative_bleeding SMALLINT UNSIGNED DEFAULT NULL,
-transfusions VARCHAR(3) NOT NULL,
+transfusions VARCHAR(3) NOT NULL DEFAULT '',
 rbc_units SMALLINT UNSIGNED DEFAULT NULL,
 plasma_units SMALLINT UNSIGNED DEFAULT NULL,
 platelets_units SMALLINT UNSIGNED DEFAULT NULL,
-operative_pathological_report VARCHAR(3) NOT NULL,
-pathological_report VARCHAR(50) NOT NULL,
-drainage VARCHAR(3) NOT NULL,
-type_of_drain_1 VARCHAR(50) NOT NULL,
-type_of_drain_2 VARCHAR(50) NOT NULL,
-type_of_drain_3 VARCHAR(50) NOT NULL,
-biological_glue VARCHAR(3) NOT NULL,
-type_of_glue VARCHAR(50) NOT NULL,
-operative_ultrasound_ous VARCHAR(3) NOT NULL,
-impact_of_ous VARCHAR(5) NOT NULL,
+operative_pathological_report VARCHAR(3) NOT NULL DEFAULT '',
+pathological_report VARCHAR(50) NOT NULL DEFAULT '',
+drainage VARCHAR(3) NOT NULL DEFAULT '',
+type_of_drain_1 VARCHAR(50) NOT NULL DEFAULT '',
+type_of_drain_2 VARCHAR(50) NOT NULL DEFAULT '',
+type_of_drain_3 VARCHAR(50) NOT NULL DEFAULT '',
+biological_glue VARCHAR(3) NOT NULL DEFAULT '',
+type_of_glue VARCHAR(50) NOT NULL DEFAULT '',
+operative_ultrasound_ous VARCHAR(3) NOT NULL DEFAULT '',
+impact_of_ous VARCHAR(5) NOT NULL DEFAULT '',
 -- liver specific
-liver_appearance VARCHAR(50) NOT NULL,
-vascular_occlusion VARCHAR(3) NOT NULL,
-type_of_vascular_occlusion VARCHAR(50) NOT NULL,
+liver_appearance VARCHAR(50) NOT NULL DEFAULT '',
+vascular_occlusion VARCHAR(3) NOT NULL DEFAULT '',
+type_of_vascular_occlusion VARCHAR(50) NOT NULL DEFAULT '',
 resected_liver_weight SMALLINT UNSIGNED DEFAULT NULL,
-segment_1_resection VARCHAR(10) NOT NULL,
-segment_2_resection VARCHAR(10) NOT NULL,
-segment_3_resection VARCHAR(10) NOT NULL,
-segment_4a_resection VARCHAR(10) NOT NULL,
-segment_4b_resection VARCHAR(10) NOT NULL,
-segment_5_resection VARCHAR(10) NOT NULL,
-segment_6_resection VARCHAR(10) NOT NULL,
-segment_7_resection VARCHAR(10) NOT NULL,
-segment_8_resection VARCHAR(10) NOT NULL,
--- post operative data
+segment_1_resection VARCHAR(10) NOT NULL DEFAULT '',
+segment_2_resection VARCHAR(10) NOT NULL DEFAULT '',
+segment_3_resection VARCHAR(10) NOT NULL DEFAULT '',
+segment_4a_resection VARCHAR(10) NOT NULL DEFAULT '',
+segment_4b_resection VARCHAR(10) NOT NULL DEFAULT '',
+segment_5_resection VARCHAR(10) NOT NULL DEFAULT '',
+segment_6_resection VARCHAR(10) NOT NULL DEFAULT '',
+segment_7_resection VARCHAR(10) NOT NULL DEFAULT '',
+segment_8_resection VARCHAR(10) NOT NULL DEFAULT '',
+-- pre operative data
 lab_report_id INT DEFAULT NULL,
 imagery_id INT DEFAULT NULL,
 fong_score_id INT DEFAULT NULL,
@@ -3256,6 +3196,7 @@ gretch_score_id INT DEFAULT NULL,
 clip_score_id INT DEFAULT NULL,
 barcelona_score_id INT DEFAULT NULL,
 okuda_score_id INT DEFAULT NULL,
+
 type_of_cirrhosis VARCHAR(50) DEFAULT NULL,
 esophageal_varices VARCHAR(3) DEFAULT NULL,
 gastric_varices VARCHAR(3) DEFAULT NULL,
@@ -3279,43 +3220,43 @@ CREATE TABLE qc_hb_txd_surgery_pancreas(
 id INT(11) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
 tx_master_id INT(11) NOT NULL,
 -- master section
-principal_surgery VARCHAR(50) NOT NULL,
-associated_surgery_1 VARCHAR(50) NOT NULL,
-associated_surgery_2 VARCHAR(50) NOT NULL,
-associated_surgery_3 VARCHAR(50) NOT NULL,
-local_treatment VARCHAR(3) NOT NULL,
-type_of_local_treatment VARCHAR(50) NOT NULL,
-other_organ_resection_1 VARCHAR(50) NOT NULL,
-other_organ_resection_2 VARCHAR(50) NOT NULL,
-other_organ_resection_3 VARCHAR(50) NOT NULL,
-surgeon VARCHAR(50) NOT NULL,
+principal_surgery VARCHAR(50) NOT NULL DEFAULT '',
+associated_surgery_1 VARCHAR(50) NOT NULL DEFAULT '',
+associated_surgery_2 VARCHAR(50) NOT NULL DEFAULT '',
+associated_surgery_3 VARCHAR(50) NOT NULL DEFAULT '',
+local_treatment VARCHAR(3) NOT NULL DEFAULT '',
+type_of_local_treatment VARCHAR(50) NOT NULL DEFAULT '',
+other_organ_resection_1 VARCHAR(50) NOT NULL DEFAULT '',
+other_organ_resection_2 VARCHAR(50) NOT NULL DEFAULT '',
+other_organ_resection_3 VARCHAR(50) NOT NULL DEFAULT '',
+surgeon VARCHAR(50) NOT NULL DEFAULT '',
 operative_time SMALLINT UNSIGNED DEFAULT NULL,
-laparoscopy VARCHAR(10) NOT NULL,
+laparoscopy VARCHAR(10) NOT NULL DEFAULT '',
 operative_bleeding SMALLINT UNSIGNED DEFAULT NULL,
-transfusions VARCHAR(3) NOT NULL,
+transfusions VARCHAR(3) NOT NULL DEFAULT '',
 rbc_units SMALLINT UNSIGNED DEFAULT NULL,
 plasma_units SMALLINT UNSIGNED DEFAULT NULL,
 platelets_units SMALLINT UNSIGNED DEFAULT NULL,
-operative_pathological_report VARCHAR(3) NOT NULL,
-pathological_report VARCHAR(50) NOT NULL,
-drainage VARCHAR(3) NOT NULL,
-type_of_drain_1 VARCHAR(50) NOT NULL,
-type_of_drain_2 VARCHAR(50) NOT NULL,
-type_of_drain_3 VARCHAR(50) NOT NULL,
-biological_glue VARCHAR(3) NOT NULL,
-type_of_glue VARCHAR(50) NOT NULL,
-operative_ultrasound_ous VARCHAR(3) NOT NULL,
-impact_of_ous VARCHAR(5) NOT NULL,
+operative_pathological_report VARCHAR(3) NOT NULL DEFAULT '',
+pathological_report VARCHAR(50) NOT NULL DEFAULT '',
+drainage VARCHAR(3) NOT NULL DEFAULT '',
+type_of_drain_1 VARCHAR(50) NOT NULL DEFAULT '',
+type_of_drain_2 VARCHAR(50) NOT NULL DEFAULT '',
+type_of_drain_3 VARCHAR(50) NOT NULL DEFAULT '',
+biological_glue VARCHAR(3) NOT NULL DEFAULT '',
+type_of_glue VARCHAR(50) NOT NULL DEFAULT '',
+operative_ultrasound_ous VARCHAR(3) NOT NULL DEFAULT '',
+impact_of_ous VARCHAR(5) NOT NULL DEFAULT '',
 -- pancreas specific
-pancreas_appearance VARCHAR(50) NOT NULL,
+pancreas_appearance VARCHAR(50) NOT NULL DEFAULT '',
 wisung_diameter SMALLINT UNSIGNED DEFAULT NULL,
-recoupe_pancreas VARCHAR(3) NOT NULL,
-portal_vein_resection VARCHAR(3) NOT NULL,
-pancreas_anastomosis VARCHAR(3) NOT NULL,
-type_of_pancreas_anastomosis VARCHAR(50) NOT NULL,
-pylori_preservation VARCHAR(3) NOT NULL,
-preoperative_sandostatin VARCHAR(3) NOT NULL,
--- post operative data
+recoupe_pancreas VARCHAR(3) NOT NULL DEFAULT '',
+portal_vein_resection VARCHAR(3) NOT NULL DEFAULT '',
+pancreas_anastomosis VARCHAR(3) NOT NULL DEFAULT '',
+type_of_pancreas_anastomosis VARCHAR(50) NOT NULL DEFAULT '',
+pylori_preservation VARCHAR(3) NOT NULL DEFAULT '',
+preoperative_sandostatin VARCHAR(3) NOT NULL DEFAULT '',
+-- pre operative data
 lab_report_id INT DEFAULT NULL,
 imagery_id INT DEFAULT NULL,
 fong_score_id INT DEFAULT NULL,
@@ -3324,6 +3265,7 @@ gretch_score_id INT DEFAULT NULL,
 clip_score_id INT DEFAULT NULL,
 barcelona_score_id INT DEFAULT NULL,
 okuda_score_id INT DEFAULT NULL,
+
 type_of_cirrhosis VARCHAR(50) DEFAULT NULL,
 esophageal_varices VARCHAR(3) DEFAULT NULL,
 gastric_varices VARCHAR(3) DEFAULT NULL,
@@ -3355,43 +3297,43 @@ CREATE TABLE `qc_hb_txd_surgery_pancreas_revs` (
 `id` INT UNSIGNED NOT NULL,
 tx_master_id INT(11) NOT NULL,
 -- master section
-principal_surgery VARCHAR(50) NOT NULL,
-associated_surgery_1 VARCHAR(50) NOT NULL,
-associated_surgery_2 VARCHAR(50) NOT NULL,
-associated_surgery_3 VARCHAR(50) NOT NULL,
-local_treatment VARCHAR(3) NOT NULL,
-type_of_local_treatment VARCHAR(50) NOT NULL,
-other_organ_resection_1 VARCHAR(50) NOT NULL,
-other_organ_resection_2 VARCHAR(50) NOT NULL,
-other_organ_resection_3 VARCHAR(50) NOT NULL,
-surgeon VARCHAR(50) NOT NULL,
+principal_surgery VARCHAR(50) NOT NULL DEFAULT '',
+associated_surgery_1 VARCHAR(50) NOT NULL DEFAULT '',
+associated_surgery_2 VARCHAR(50) NOT NULL DEFAULT '',
+associated_surgery_3 VARCHAR(50) NOT NULL DEFAULT '',
+local_treatment VARCHAR(3) NOT NULL DEFAULT '',
+type_of_local_treatment VARCHAR(50) NOT NULL DEFAULT '',
+other_organ_resection_1 VARCHAR(50) NOT NULL DEFAULT '',
+other_organ_resection_2 VARCHAR(50) NOT NULL DEFAULT '',
+other_organ_resection_3 VARCHAR(50) NOT NULL DEFAULT '',
+surgeon VARCHAR(50) NOT NULL DEFAULT '',
 operative_time SMALLINT UNSIGNED DEFAULT NULL,
-laparoscopy VARCHAR(10) NOT NULL,
+laparoscopy VARCHAR(10) NOT NULL DEFAULT '',
 operative_bleeding SMALLINT UNSIGNED DEFAULT NULL,
-transfusions VARCHAR(3) NOT NULL,
+transfusions VARCHAR(3) NOT NULL DEFAULT '',
 rbc_units SMALLINT UNSIGNED DEFAULT NULL,
 plasma_units SMALLINT UNSIGNED DEFAULT NULL,
 platelets_units SMALLINT UNSIGNED DEFAULT NULL,
-operative_pathological_report VARCHAR(3) NOT NULL,
-pathological_report VARCHAR(50) NOT NULL,
-drainage VARCHAR(3) NOT NULL,
-type_of_drain_1 VARCHAR(50) NOT NULL,
-type_of_drain_2 VARCHAR(50) NOT NULL,
-type_of_drain_3 VARCHAR(50) NOT NULL,
-biological_glue VARCHAR(3) NOT NULL,
-type_of_glue VARCHAR(50) NOT NULL,
-operative_ultrasound_ous VARCHAR(3) NOT NULL,
-impact_of_ous VARCHAR(5) NOT NULL,
+operative_pathological_report VARCHAR(3) NOT NULL DEFAULT '',
+pathological_report VARCHAR(50) NOT NULL DEFAULT '',
+drainage VARCHAR(3) NOT NULL DEFAULT '',
+type_of_drain_1 VARCHAR(50) NOT NULL DEFAULT '',
+type_of_drain_2 VARCHAR(50) NOT NULL DEFAULT '',
+type_of_drain_3 VARCHAR(50) NOT NULL DEFAULT '',
+biological_glue VARCHAR(3) NOT NULL DEFAULT '',
+type_of_glue VARCHAR(50) NOT NULL DEFAULT '',
+operative_ultrasound_ous VARCHAR(3) NOT NULL DEFAULT '',
+impact_of_ous VARCHAR(5) NOT NULL DEFAULT '',
 -- pancreas specific
-pancreas_appearance VARCHAR(50) NOT NULL,
+pancreas_appearance VARCHAR(50) NOT NULL DEFAULT '',
 wisung_diameter SMALLINT UNSIGNED DEFAULT NULL,
-recoupe_pancreas VARCHAR(3) NOT NULL,
-portal_vein_resection VARCHAR(3) NOT NULL,
-pancreas_anastomosis VARCHAR(3) NOT NULL,
-type_of_pancreas_anastomosis VARCHAR(50) NOT NULL,
-pylori_preservation VARCHAR(3) NOT NULL,
-preoperative_sandostatin VARCHAR(3) NOT NULL,
--- post operative data
+recoupe_pancreas VARCHAR(3) NOT NULL DEFAULT '',
+portal_vein_resection VARCHAR(3) NOT NULL DEFAULT '',
+pancreas_anastomosis VARCHAR(3) NOT NULL DEFAULT '',
+type_of_pancreas_anastomosis VARCHAR(50) NOT NULL DEFAULT '',
+pylori_preservation VARCHAR(3) NOT NULL DEFAULT '',
+preoperative_sandostatin VARCHAR(3) NOT NULL DEFAULT '',
+-- pre operative data
 lab_report_id INT DEFAULT NULL,
 imagery_id INT DEFAULT NULL,
 fong_score_id INT DEFAULT NULL,
@@ -3400,6 +3342,7 @@ gretch_score_id INT DEFAULT NULL,
 clip_score_id INT DEFAULT NULL,
 barcelona_score_id INT DEFAULT NULL,
 okuda_score_id INT DEFAULT NULL,
+
 type_of_cirrhosis VARCHAR(50) DEFAULT NULL,
 esophageal_varices VARCHAR(3) DEFAULT NULL,
 gastric_varices VARCHAR(3) DEFAULT NULL,
@@ -3420,7 +3363,7 @@ splen_size FLOAT DEFAULT NULL,
 ) ENGINE = InnoDB;
 
 -- TODO REPAIR THE KEY IF POSSIBLE
-ALTER TABLE structure_fields DROP INDEX unique_fields;
+-- ALTER TABLE structure_fields DROP INDEX unique_fields;
 
 INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('qc_hb_txd_surgery_livers', '', '', '1', '1', '1', '1');
 INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES('', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'principal_surgery', 'principal surgery', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_tx_surgery_principal_surgery') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'associated_surgery_1', 'associated surgery 1', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_tx_surgery_associated_surgery') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'associated_surgery_2', 'associated surgery 2', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_tx_surgery_associated_surgery') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'associated_surgery_3', 'associated surgery 3', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_tx_surgery_associated_surgery') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'local_treatment', 'local treatment', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_ns') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'type_of_local_treatment', 'type of local treatment', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_tx_surgery_type_of_local_treatment') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'other_organ_resection_1', 'other organ resection 1', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_tx_surgery_other_organ_resection') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'other_organ_resection_2', 'other organ resection 2', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_tx_surgery_other_organ_resection') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'other_organ_resection_3', 'other organ resection 3', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_tx_surgery_other_organ_resection') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'surgeon', 'surgeon', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'operative_time', 'operative time', '', 'number', '', '',  NULL , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'laparoscopy', 'laparoscopy', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_conversion') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'operative_bleeding', 'operative bleeding', '', 'number', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_conversion') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'transfusions', 'transfusions', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_ns') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'rbc_units', 'rbc units', '', 'number', '', '',  NULL , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'plasma_units', 'plasma units', '', 'number', '', '',  NULL , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'platelets_units', 'platelets units', '', 'number', '', '',  NULL , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'operative_pathological_report', 'operative pathological report', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_ns') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'pathological_report', 'pathological report', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_tx_surgery_pathological_report') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'drainage', 'drainage', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_ns') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'type_of_drain_1', 'type of drain 1', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_tx_surgery_type_of_drain') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'type_of_drain_2', 'type of drain 2', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_tx_surgery_type_of_drain') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'type_of_drain_3', 'type of drain 3', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_tx_surgery_type_of_drain') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'biological_glue', 'biological glue', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_ns') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'type_of_glue', 'type of glue', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_tx_surgery_type_of_glue') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'operative_ultrasound_ous', 'operative ultrasound ous', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_ns') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'impact_of_ous', 'impact of ous', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_impact_of_ous') , '', 'open', 'open', 'open');
@@ -3511,33 +3454,33 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_pancreas'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_pancreas' AND `field`='pylori_preservation' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_ns')  ), '2', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ;
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES ((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_pancreas'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_pancreas' AND `field`='preoperative_sandostatin' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_ns')  ), '2', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ;
 
--- post operative details
+-- pre operative details
 INSERT INTO `menus` (`id` ,`parent_id` ,`is_root` ,`display_order` ,`language_title` ,`language_description` ,`use_link` ,`use_params` ,`use_summary` ,`flag_active` ,`created` ,`created_by` ,`modified` ,`modified_by`) VALUES
- ('clin_CAN_75_2', 'clin_CAN_75', '0', '2', 'post operative data', NULL , '/clinicalannotation/treatment_masters/postOperativeDetail/%%Participant.id%%/%%TreatmentMaster.id%%', '', '', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+ ('clin_CAN_75_2', 'clin_CAN_75', '0', '2', 'pre operative data', NULL , '/clinicalannotation/treatment_masters/preOperativeDetail/%%Participant.id%%/%%TreatmentMaster.id%%', '', 'Clinicalannotation.TreatmentMaster::summary', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
-INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('qc_hb_post_surgery_livers', '', '', '1', '1', '1', '1');
+INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('qc_hb_pre_surgery_livers', '', '', '1', '1', '1', '1');
 INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES('', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'type_of_cirrhosis', 'type of cirrhosis', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='cirrhosis_type') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'esophageal_varices', 'esophageal varices', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'gastric_varices', 'gastric varices', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'tips', 'tips', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'portacaval_gradient', 'portacaval gradient', '', 'number', '', '',  NULL , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'portal_thrombosis', 'portal thrombosis', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'splenomegaly', 'splenomegaly', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'splen_size', 'splen size', '', 'number', '', '',  NULL , '', 'open', 'open', 'open');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
-((SELECT id FROM structures WHERE alias='qc_hb_post_surgery_livers'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_livers' AND `field`='type_of_cirrhosis' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cirrhosis_type')  ), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
-((SELECT id FROM structures WHERE alias='qc_hb_post_surgery_livers'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_livers' AND `field`='esophageal_varices' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na')  ), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
-((SELECT id FROM structures WHERE alias='qc_hb_post_surgery_livers'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_livers' AND `field`='gastric_varices' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na')  ), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
-((SELECT id FROM structures WHERE alias='qc_hb_post_surgery_livers'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_livers' AND `field`='tips' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na')  ), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
-((SELECT id FROM structures WHERE alias='qc_hb_post_surgery_livers'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_livers' AND `field`='portacaval_gradient' AND `structure_value_domain`  IS NULL  ), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
-((SELECT id FROM structures WHERE alias='qc_hb_post_surgery_livers'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_livers' AND `field`='portal_thrombosis' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na')  ), '1', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
-((SELECT id FROM structures WHERE alias='qc_hb_post_surgery_livers'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_livers' AND `field`='splenomegaly' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na')  ), '1', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
-((SELECT id FROM structures WHERE alias='qc_hb_post_surgery_livers'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_livers' AND `field`='splen_size' AND `structure_value_domain`  IS NULL  ), '1', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1');
+((SELECT id FROM structures WHERE alias='qc_hb_pre_surgery_livers'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_livers' AND `field`='type_of_cirrhosis' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cirrhosis_type')  ), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='qc_hb_pre_surgery_livers'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_livers' AND `field`='esophageal_varices' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na')  ), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='qc_hb_pre_surgery_livers'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_livers' AND `field`='gastric_varices' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na')  ), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='qc_hb_pre_surgery_livers'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_livers' AND `field`='tips' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na')  ), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='qc_hb_pre_surgery_livers'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_livers' AND `field`='portacaval_gradient' AND `structure_value_domain`  IS NULL  ), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='qc_hb_pre_surgery_livers'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_livers' AND `field`='portal_thrombosis' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na')  ), '1', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='qc_hb_pre_surgery_livers'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_livers' AND `field`='splenomegaly' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na')  ), '1', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='qc_hb_pre_surgery_livers'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_livers' AND `field`='splen_size' AND `structure_value_domain`  IS NULL  ), '1', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1');
 
-INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('qc_hb_post_surgery_pancreas', '', '', '1', '1', '1', '1');
+INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('qc_hb_pre_surgery_pancreas', '', '', '1', '1', '1', '1');
 INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES('', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'type_of_cirrhosis', 'type of cirrhosis', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='cirrhosis_type') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'esophageal_varices', 'esophageal varices', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'gastric_varices', 'gastric varices', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'tips', 'tips', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'portacaval_gradient', 'portacaval gradient', '', 'number', '', '',  NULL , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'portal_thrombosis', 'portal thrombosis', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'splenomegaly', 'splenomegaly', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na') , '', 'open', 'open', 'open'), ('', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'splen_size', 'splen size', '', 'number', '', '',  NULL , '', 'open', 'open', 'open');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
-((SELECT id FROM structures WHERE alias='qc_hb_post_surgery_pancreas'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_pancreas' AND `field`='type_of_cirrhosis' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cirrhosis_type')  ), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
-((SELECT id FROM structures WHERE alias='qc_hb_post_surgery_pancreas'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_pancreas' AND `field`='esophageal_varices' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na')  ), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
-((SELECT id FROM structures WHERE alias='qc_hb_post_surgery_pancreas'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_pancreas' AND `field`='gastric_varices' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na')  ), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
-((SELECT id FROM structures WHERE alias='qc_hb_post_surgery_pancreas'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_pancreas' AND `field`='tips' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na')  ), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
-((SELECT id FROM structures WHERE alias='qc_hb_post_surgery_pancreas'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_pancreas' AND `field`='portacaval_gradient' AND `structure_value_domain`  IS NULL  ), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
-((SELECT id FROM structures WHERE alias='qc_hb_post_surgery_pancreas'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_pancreas' AND `field`='portal_thrombosis' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na')  ), '1', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
-((SELECT id FROM structures WHERE alias='qc_hb_post_surgery_pancreas'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_pancreas' AND `field`='splenomegaly' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na')  ), '1', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
-((SELECT id FROM structures WHERE alias='qc_hb_post_surgery_pancreas'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_pancreas' AND `field`='splen_size' AND `structure_value_domain`  IS NULL  ), '1', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1');
+((SELECT id FROM structures WHERE alias='qc_hb_pre_surgery_pancreas'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_pancreas' AND `field`='type_of_cirrhosis' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cirrhosis_type')  ), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='qc_hb_pre_surgery_pancreas'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_pancreas' AND `field`='esophageal_varices' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na')  ), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='qc_hb_pre_surgery_pancreas'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_pancreas' AND `field`='gastric_varices' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na')  ), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='qc_hb_pre_surgery_pancreas'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_pancreas' AND `field`='tips' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na')  ), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='qc_hb_pre_surgery_pancreas'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_pancreas' AND `field`='portacaval_gradient' AND `structure_value_domain`  IS NULL  ), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='qc_hb_pre_surgery_pancreas'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_pancreas' AND `field`='portal_thrombosis' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na')  ), '1', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='qc_hb_pre_surgery_pancreas'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_pancreas' AND `field`='splenomegaly' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_na')  ), '1', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='qc_hb_pre_surgery_pancreas'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_pancreas' AND `field`='splen_size' AND `structure_value_domain`  IS NULL  ), '1', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1');
 
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
 ((SELECT id FROM structures WHERE alias='qc_hb_dateNSummary'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_type' AND `structure_value_domain`  IS NULL  ), '0', '2', '', 1, 'event type', 1, '', 1, '', 1, 'input', 1, '', 1, '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
@@ -3548,10 +3491,73 @@ UPDATE structure_formats SET display_column='0', display_order='2', language_hea
 INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) 
 VALUES
 ('child pugh score', '', 'Child Pugh Score', 'Score de Child Pugh'),
-('post operative data', '','Post Operative ata', 'Données post-opératoire'),
-('medical imaging', '', 'Medical Imaging', 'Imagerie Médicale');
+('pre operative data', '','Pre Operative Data', 'Données pre-opératoire'),
+('medical imaging', '', 'Medical Imaging', 'Imagerie Médicale'),
+('liver surgery', '', 'Liver Surgery', 'Chirurgie du foie'),
+('_0_', '', '0', '0'),
+('pancreas surgery', '', 'Pancreas Surgery', 'Chirurgie du pancreas');
 
-
+INSERT IGNORE INTO `i18n` (`id`, `en`, `fr`) 
+VALUES
+-- TODO add traduction
+('biology', 'Biology', 'Biologie'),
+('alcohol','Alcohol', 'Alcool'),
+('associated surgery 1','1st Associated Surgery', '1er Chirurgie associée'),
+('associated surgery 2','2nd Associated Surgery', '2eme Chirurgie associée'),
+('associated surgery 3','3th Associated Surgery', '3eme Chirurgie associée'),
+('biological glue','biological glue', ''),
+('conversion','Conversion', 'Conversion'),
+('drainage','Drainage', 'Drainage'),
+('impact of ous','Impact of OUS', ''),
+('laparoscopy','Laparoscopy', 'Laparoscopie'),
+('less','Less', 'Moins'),
+('liver appearance','Liver Appearance', 'Apparence du foie'),
+('local treatment','Local Treatment', 'Traitement local'),
+('microwaves','Microwaves', 'Micro-ondes'),
+('more','More', 'Plus'),
+('n/s','N/S', 'N/S'),
+('operative bleeding','operative bleeding', ''),
+('operative pathological report','operative pathological report', ''),
+('operative time','Operative Time', ''),
+('operative ultrasound ous','Operative Ultrasound OUS', ''),
+('other organ resection 1','Other Organ Resection 1', ''),
+('other organ resection 2','Other Organ Resection 2', ''),
+('other organ resection 3','Other Organ Resection 3', ''),
+('pathological report','Pathological Report', ''),
+('plasma units','Plasma Units', ''),
+('platelets units','Platelets Units', ''),
+('principal surgery','Principal Surgery', ''),
+('rbc units','RBC Units', ''),
+('resected liver weight','Resected Liver Weight', ''),
+('same','Same', 'Identique'),
+('segment 1 resection','Segment 1 Resection', ''),
+('segment 2 resection','Segment 2 Resection', ''),
+('segment 3 resection','Segment 3 Resection', ''),
+('segment 4a resection','Segment 4a Resection', ''),
+('segment 4b resection','Segment 4b Resection', ''),
+('segment 5 resection','Segment 5 Resection', ''),
+('segment 6 resection','Segment 6 Resection', ''),
+('segment 7 resection','Segment 7 Resection', ''),
+('segment 8 resection','Segment 8 Resection', ''),
+('surgery date','Surgery Date', 'Date de chirurgie'),
+('total','Total', 'Total'),
+('transfusions','Transfusions', 'Transfusions'),
+('type of drain 1','Type of Drain 1', ''),
+('type of drain 2','Type of Drain 2', ''),
+('type of drain 3','Type of Drain 3', ''),
+('type of glue','Type of Glue', ''),
+('type of local treatment','Type of Local Treatment', ''),
+('type of vascular occlusion','Type of Vascular Occlusion', ''),
+('vascular occlusion','Vascular Occlusion', ''),
+('RFA','RFA', ''),
+('cirrhosis', 'Cirrhosis', 'Cirrhose'),
+('no pre operative data has to be defined for this type of treatment', 
+'No pre-operative data has to be defined for this type of treatment!',
+'Aucune donnée pré-opératoire ne doit être définie pour ce type de traitement!'),
+('cirrhosis data', 'Cirrhosis Data', 'Données de cirrhose'),
+('gastric varices' ,'Gastric Varices', ''),
+('portacaval gradient' ,'Portacaval Gradient', ''),
+('splenomegaly' ,'Splenomegaly', '');
 
 -- TODO should all field be smallint????? In case we keep smallinf, add validation.
 TRUNCATE acos;
@@ -4032,8 +4038,8 @@ INSERT INTO `acos` (`id`, `parent_id`, `model`, `foreign_key`, `alias`, `lft`, `
 (480, 156, NULL, NULL, 'getDrugList', 348, 349),
 (481, 162, NULL, NULL, 'allowTrtDeletion', 362, 363),
 (482, 162, NULL, NULL, 'getProtocolList', 364, 365),
-(483, 162, NULL, NULL, 'postOperativeDetail', 366, 367),
-(484, 162, NULL, NULL, 'postOperativeEdit', 368, 369),
+(483, 162, NULL, NULL, 'preOperativeDetail', 366, 367),
+(484, 162, NULL, NULL, 'preOperativeEdit', 368, 369),
 (485, 210, NULL, NULL, 'allowDrugDeletion', 468, 469),
 (486, 327, NULL, NULL, 'allowProtocolExtendDeletion', 692, 693),
 (487, 327, NULL, NULL, 'getDrugList', 694, 695),
