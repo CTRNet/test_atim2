@@ -4,7 +4,8 @@
 	foreach ( $protocol_controls as $protocol_control ) {
 		$add_links[__($protocol_control['ProtocolControl']['tumour_group'],true).' - '.__($protocol_control['ProtocolControl']['type'],true)] = '/protocol/protocol_masters/add/'.$protocol_control['ProtocolControl']['id'].'/';
 	}
-
+	ksort($add_links);
+	
 	$structure_links = array(
 		'top'=>array('search'=>'/protocol/protocol_masters/search/'),
 		'bottom'=>array(
