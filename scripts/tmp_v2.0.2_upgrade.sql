@@ -363,7 +363,14 @@ REPLACE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ("there is no drug defined in the associated protocol", "", "There is no drug defined in the associated protocol", "Il n'y a pas de drogue définie avec le traitement associé"),
 ("this name is already in use", "", "This name is already in use", "Ce nom est déjà utilisé"),
 ("bank", "", "Bank", "Banque"),
-("no additional data has to be defined for this type of treatment", "", "No additional data has to be defined for this type of treatment", "Pas de données additionnelles pour ce type de traitement");
+("no additional data has to be defined for this type of treatment", "", "No additional data has to be defined for this type of treatment", "Pas de données additionnelles pour ce type de traitement"),
+("pagination", "", "Pagination", "Pagination"),
+("time format", "", "Time format", "Format de l'heure"),
+("datetime input type", "", "Datetime input time", "Foramat des champs dates et heures"),
+("dropdown", "", "Dropdown", "Menu déroulant"),
+("textual", "", "Textual", "Textuel"),
+("remove from batch set", "", "Remove from batch set", "Retirer de l'ensemble de données"),
+("export as CSV file (comma-separated values)", "", "Export as CSV file (Comma-separated values)", "Exporter comme fichier CSV (Comma-separated values)"); 
 
 
 INSERT INTO `pages` (`id`, `error_flag`, `language_title`, `language_body`, `use_link`, `created`, `created_by`, `modified`, `modified_by`) VALUES
