@@ -420,3 +420,31 @@ ALTER TABLE groups ADD UNIQUE KEY (`name`);
 
 ALTER TABLE `tx_controls` ADD `allow_administration` BOOLEAN NOT NULL;
 UPDATE tx_controls SET allow_administration=true WHERE tx_method='chemotherapy';
+
+-- Update protocol master form
+
+UPDATE structure_formats 
+SET display_order = '2'
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE tablename = 'protocol_masters' AND field = 'name');
+
+UPDATE structure_formats 
+SET display_order = '1'
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE tablename = 'protocol_masters' AND field = 'code');
+
+UPDATE structure_formats 
+SET flag_datagrid = '0',
+flag_datagrid_readonly = '0'
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE tablename = 'protocol_masters');
+
+UPDATE structure_formats 
+SET flag_search = '0',
+flag_search_readonly = '0'
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE tablename = 'protocol_masters' AND field IN ('notes'));
+
+
+
+
+
+
+
+
