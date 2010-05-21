@@ -484,6 +484,161 @@ UPDATE structure_fields
 SET structure_value_domain = @protocol_tumour_group_domain_id
 WHERE plugin = 'Protocol' AND model = 'ProtocolMaster' AND tablename = 'protocol_masters' AND field = 'tumour_group';
 
+UPDATE `structure_fields` SET `public_identifier` = 'DE-17'
+WHERE `field` = 'participant_identifier' AND `tablename` = 'participants' AND `model` = 'Participant';
 
+UPDATE `structure_fields` SET `public_identifier` = 'DE-18'
+WHERE `field` = 'notes' AND `tablename` = 'participants' AND `model` = 'Participant';
 
+UPDATE `structure_fields` SET `public_identifier` = 'DE-3'
+WHERE `field` = 'date_of_birth' AND `tablename` = 'participants' AND `model` = 'Participant';
 
+UPDATE `structure_fields` SET `public_identifier` = 'DE-7'
+WHERE `field` = 'secondary_cod_icd10_code' AND `tablename` = 'participants' AND `model` = 'Participant';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-8'
+WHERE `field` = 'title' AND `tablename` = 'participants' AND `model` = 'Participant';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-9'
+WHERE `field` = 'first_name' AND `tablename` = 'participants' AND `model` = 'Participant';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-6'
+WHERE `field` = 'cod_icd10_code' AND `tablename` = 'participants' AND `model` = 'Participant';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-5'
+WHERE `field` = 'date_of_death' AND `tablename` = 'participants' AND `model` = 'Participant';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-4'
+WHERE `field` = 'dob_date_accuracy' AND `tablename` = 'participants' AND `model` = 'Participant';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-4'
+WHERE `field` = 'dod_date_accuracy' AND `tablename` = 'participants' AND `model` = 'Participant';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-2'
+WHERE `field` = 'last_chart_checked_date' AND `tablename` = 'participants' AND `model` = 'Participant';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-16'
+WHERE `field` = 'vital_status' AND `tablename` = 'participants' AND `model` = 'Participant';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-15'
+WHERE `field` = 'sex' AND `tablename` = 'participants' AND `model` = 'Participant';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-14'
+WHERE `field` = 'race' AND `tablename` = 'participants' AND `model` = 'Participant';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-13'
+WHERE `field` = 'marital_status' AND `tablename` = 'participants' AND `model` = 'Participant';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-12'
+WHERE `field` = 'language_preferred' AND `tablename` = 'participants' AND `model` = 'Participant';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-11'
+WHERE `field` = 'last_name' AND `tablename` = 'participants' AND `model` = 'Participant';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-1'
+WHERE `field` = 'cod_confirmation_source' AND `tablename` = 'participants' AND `model` = 'Participant';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-10'
+WHERE `field` = 'middle_name' AND `tablename` = 'participants' AND `model` = 'Participant';
+
+-- Update consent identifiers
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-18'
+WHERE `field` = 'notes' AND `tablename` = 'consent_masters' AND `model` = 'ConsentMaster';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-65'
+WHERE `field` = 'date_of_referral' AND `tablename` = 'consent_masters' AND `model` = 'ConsentMaster';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-48'
+WHERE `field` = 'facility' AND `tablename` = 'consent_masters' AND `model` = 'ConsentMaster';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-78'
+WHERE `field` = 'translator_indicator' AND `tablename` = 'consent_masters' AND `model` = 'ConsentMaster';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-79'
+WHERE `field` = 'translator_signature' AND `tablename` = 'consent_masters' AND `model` = 'ConsentMaster';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-77'
+WHERE `field` = 'consent_person' AND `tablename` = 'consent_masters' AND `model` = 'ConsentMaster';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-76'
+WHERE `field` = 'operation_date' AND `tablename` = 'consent_masters' AND `model` = 'ConsentMaster';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-75'
+WHERE `field` = 'surgeon' AND `tablename` = 'consent_masters' AND `model` = 'ConsentMaster';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-74'
+WHERE `field` = 'reason_denied' AND `tablename` = 'consent_masters' AND `model` = 'ConsentMaster';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-73'
+WHERE `field` = 'consent_method' AND `tablename` = 'consent_masters' AND `model` = 'ConsentMaster';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-72'
+WHERE `field` = 'status_date' AND `tablename` = 'consent_masters' AND `model` = 'ConsentMaster';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-66'
+WHERE `field` = 'route_of_referral' AND `tablename` = 'consent_masters' AND `model` = 'ConsentMaster';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-67'
+WHERE `field` = 'date_first_contact' AND `tablename` = 'consent_masters' AND `model` = 'ConsentMaster';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-68'
+WHERE `field` = 'consent_signed_date' AND `tablename` = 'consent_masters' AND `model` = 'ConsentMaster';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-69'
+WHERE `field` = 'form_version' AND `tablename` = 'consent_masters' AND `model` = 'ConsentMaster';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-70'
+WHERE `field` = 'consent_status' AND `tablename` = 'consent_masters' AND `model` = 'ConsentMaster';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-71'
+WHERE `field` = 'process_status' AND `tablename` = 'consent_masters' AND `model` = 'ConsentMaster';
+
+-- Update family history identifiers
+UPDATE `structure_fields` SET `public_identifier` = 'DE-20'
+WHERE `field` = 'family_domain' AND `tablename` = 'family_histories' AND `model` = 'FamilyHistory';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-21'
+WHERE `field` = 'relation' AND `tablename` = 'family_histories' AND `model` = 'FamilyHistory';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-22'
+WHERE `field` = 'primary_icd10_code' AND `tablename` = 'family_histories' AND `model` = 'FamilyHistory';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-23'
+WHERE `field` = 'previous_primary_code' AND `tablename` = 'family_histories' AND `model` = 'FamilyHistory';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-24'
+WHERE `field` = 'previous_primary_code_system' AND `tablename` = 'family_histories' AND `model` = 'FamilyHistory';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-19'
+WHERE `field` = 'age_at_dx' AND `tablename` = 'family_histories' AND `model` = 'FamilyHistory';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-25'
+WHERE `field` = 'age_at_dx_accuracy' AND `tablename` = 'family_histories' AND `model` = 'FamilyHistory';
+
+-- Update misc identifiers
+UPDATE `structure_fields` SET `public_identifier` = 'DE-117'
+WHERE `field` = 'identifier_name' AND `tablename` = 'misc_identifiers' AND `model` = 'MiscIdentifier';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-118'
+WHERE `field` = 'identifier_abrv' AND `tablename` = 'misc_identifiers' AND `model` = 'MiscIdentifier';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-18'
+WHERE `field` = 'notes' AND `tablename` = 'misc_identifiers' AND `model` = 'MiscIdentifier';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-120'
+WHERE `field` = 'effective_date' AND `tablename` = 'misc_identifiers' AND `model` = 'MiscIdentifier';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-121'
+WHERE `field` = 'expiry_date' AND `tablename` = 'misc_identifiers' AND `model` = 'MiscIdentifier';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-119'
+WHERE `field` = 'identifier_value' AND `tablename` = 'misc_identifiers' AND `model` = 'MiscIdentifier';
+
+ALTER TABLE `structure_fields` DROP INDEX `unique_fields`;
+
+ALTER TABLE `structure_fields`
+	CHANGE `plugin` `plugin` VARCHAR( 150 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT '',
+	CHANGE `model` `model` VARCHAR( 150 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT '',
+	CHANGE `tablename` `tablename` VARCHAR( 150 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT '',
+	CHANGE `field` `field` VARCHAR( 150 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT '';
