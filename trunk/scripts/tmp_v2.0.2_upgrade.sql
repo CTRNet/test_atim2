@@ -431,11 +431,16 @@ UPDATE tx_controls SET allow_administration=true WHERE tx_method='chemotherapy';
 -- Update protocol master form
 
 UPDATE structure_formats 
-SET display_order = '2'
+SET display_order = '10'
 WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE tablename = 'protocol_masters' AND field = 'name');
 
 UPDATE structure_formats 
-SET display_order = '1'
+SET display_order = '11'
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE tablename = 'protocol_masters' AND field = 'arm');
+
+UPDATE structure_formats 
+SET display_order = '1',
+flag_edit_readonly = '1'
 WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE tablename = 'protocol_masters' AND field = 'code');
 
 UPDATE structure_formats 
@@ -448,9 +453,36 @@ SET flag_search = '0',
 flag_search_readonly = '0'
 WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE tablename = 'protocol_masters' AND field IN ('notes'));
 
+UPDATE `structure_validations`
+SET structure_field_id = (SELECT id FROM structure_fields WHERE plugin = 'Protocol' AND model = 'ProtocolExtend'
+AND tablename = 'pe_chemos' AND field = 'drug_id' AND structure_value_domain IS NOT NULL)
+WHERE `structure_field_id`
+IN (SELECT id FROM structure_fields WHERE plugin = 'Protocol' AND model = 'ProtocolExtend'
+AND tablename = 'pe_chemos' AND field = 'drug_id' AND structure_value_domain IS NULL);
 
+DELETE FROM structure_fields
+WHERE plugin = 'Protocol'
+AND model = 'ProtocolExtend'
+AND tablename = 'pe_chemos'
+AND field = 'drug_id'
+AND structure_value_domain IS NULL;
 
+DELETE FROM `structure_value_domains_permissible_values`
+WHERE `structure_value_domain_id` IN (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'protocol type');
 
+UPDATE `structure_value_domains` 
+SET source = 'Protocol.ProtocolControl::getProtocolTypeList'
+WHERE `domain_name` LIKE 'protocol type';
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) 
+VALUES
+(null, 'protocol tumour group', 'open', '', 'Protocol.ProtocolControl::getProtocolTumourGroupList');
+
+SET @protocol_tumour_group_domain_id = LAST_INSERT_ID();
+
+UPDATE structure_fields
+SET structure_value_domain = @protocol_tumour_group_domain_id
+WHERE plugin = 'Protocol' AND model = 'ProtocolMaster' AND tablename = 'protocol_masters' AND field = 'tumour_group';
 
 
 
