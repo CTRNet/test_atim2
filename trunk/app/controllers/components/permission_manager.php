@@ -291,7 +291,7 @@ class PermissionManagerComponent extends Object {
 		foreach($files as $f => $fileName)
 		{
 				// Get the base file name
-				$pluginName = preg_replace('!^(.*/)(.+)(/controllers)/(.*)controller\.php!','$2',$fileName);
+				$pluginName = preg_replace('!^(.*'.preg_quote(DS).')(.+)('.preg_quote(DS).'controllers)'.preg_quote(DS).'(.*)controller\.php!','$2',$fileName);
 				$pluginName = Inflector::camelize($pluginName);
 				
 				// Get the base file name
@@ -299,7 +299,7 @@ class PermissionManagerComponent extends Object {
 
 				// Get the controller name
 				$file = Inflector::camelize(substr($file, 0, strlen($file)-strlen('_controller.php')));
-				if(!preg_match('/^.*App$/',$file) && strpos('/plugins/',$pluginName) === false){
+				if(!preg_match('/^.*App$/',$file) && strpos(DS.'plugins'.DS,$pluginName) === false){
 					$files[$f] = $pluginName.'.'.$file;
 				}else{
 					unset($files[$f]);
