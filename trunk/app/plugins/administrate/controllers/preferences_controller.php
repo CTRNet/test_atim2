@@ -1,6 +1,6 @@
 <?php
 
-class PreferencesController extends AppController {
+class PreferencesController extends AdministrateAppController {
 	
 	var $name = 'Preferences';
 	var $uses = array('User', 'Config');

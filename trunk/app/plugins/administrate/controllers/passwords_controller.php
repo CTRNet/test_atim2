@@ -1,6 +1,6 @@
 <?php
 
-class PasswordsController extends AppController {
+class PasswordsController extends AdministrateAppController {
 	
 	var $name = 'Passwords';
 	var $uses = array('User');
