@@ -5,8 +5,9 @@
 	// Manage add button
 	$add_links = array();
 	foreach ($specimen_sample_controls_list as $sample_control) {
-		$add_links[$sample_control['SampleControl']['sample_type']] = '/inventorymanagement/sample_masters/add/' . $atim_menu_variables['Collection.id'] . '/' . $sample_control['SampleControl']['id'];
+		$add_links[__($sample_control['SampleControl']['sample_type'],true)] = '/inventorymanagement/sample_masters/add/' . $atim_menu_variables['Collection.id'] . '/' . $sample_control['SampleControl']['id'];
 	}
+	ksort($add_links);
 	
 	// Manage filter button
 	$main_link = '/inventorymanagement/sample_masters/listAll/' . $atim_menu_variables['Collection.id'] . '/' . $initial_specimen_sample_id;
@@ -14,14 +15,20 @@
 	$filter_links = array();	
 	if(!empty($existing_specimen_sample_types)) {
 		$filter_links['specimen'] = $main_link . '/CATEGORY|specimen';
+		$filter_links_tmp = array();
 		foreach ($existing_specimen_sample_types as $type => $sample_control_id) {
-			$filter_links[$type] = $main_link . '/SAMP_CONT_ID|' . $sample_control_id;
+			$filter_links_tmp[__($type,true)] = $main_link . '/SAMP_CONT_ID|' . $sample_control_id;
 		}
+		ksort($filter_links_tmp);
+		$filter_links = $filter_links + $filter_links_tmp;
 		$filter_links['derivative'] = $main_link . '/CATEGORY|derivative';		
 	}
+	$filter_links_tmp = array();
 	foreach ($existing_derivative_sample_types as $type => $sample_control_id) {
-		$filter_links[$type] = $main_link . '/SAMP_CONT_ID|' . $sample_control_id;
-	}	
+		$filter_links_tmp[__($type,true)] = $main_link . '/SAMP_CONT_ID|' . $sample_control_id;
+	}
+	ksort($filter_links_tmp);
+	$filter_links = $filter_links + $filter_links_tmp;	
 	$filter_links['no filter'] = $main_link . '/-1';
 	$filter_links = (sizeof($filter_links) == 1)? '/underdevelopment/': $filter_links;
 

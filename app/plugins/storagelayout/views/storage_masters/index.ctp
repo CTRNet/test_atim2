@@ -2,8 +2,9 @@
 
 	$add_links = array();
 	foreach ($storage_controls_list as $storage_control) {
-		$add_links[$storage_control['StorageControl']['storage_type']] = '/storagelayout/storage_masters/add/' . $storage_control['StorageControl']['id'];
+		$add_links[__($storage_control['StorageControl']['storage_type'], true)] = '/storagelayout/storage_masters/add/' . $storage_control['StorageControl']['id'];
 	}
+	ksort($add_links);
 
 	$structure_links = array(
 		'top' => array('search' =>'/storagelayout/storage_masters/search/'),

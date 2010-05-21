@@ -10,14 +10,16 @@
 	// Create array of derivative type that could be created from studied sample for the ADD button
 	$add_derivatives = array();
 	foreach($allowed_derivative_type as $sample_control) {
-		$add_derivatives[$sample_control['SampleControl']['sample_type']] = '/inventorymanagement/sample_masters/add/' . $atim_menu_variables['Collection.id'] . '/' . $sample_control['SampleControl']['id'] . '/' . $atim_menu_variables['SampleMaster.id'];
+		$add_derivatives[__($sample_control['SampleControl']['sample_type'],true)] = '/inventorymanagement/sample_masters/add/' . $atim_menu_variables['Collection.id'] . '/' . $sample_control['SampleControl']['id'] . '/' . $atim_menu_variables['SampleMaster.id'];
 	}
+	ksort($add_derivatives);
 	
 	// Create array of aliquot type that could be created for the studied sample for the ADD button 
 	$add_aliquots = array();	
 	foreach($allowed_aliquot_type as $aliquot_control) {
-		$add_aliquots[$aliquot_control['AliquotControl']['aliquot_type']] = '/inventorymanagement/aliquot_masters/add/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $aliquot_control['AliquotControl']['id'];
+		$add_aliquots[__($aliquot_control['AliquotControl']['aliquot_type'],true)] = '/inventorymanagement/aliquot_masters/add/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $aliquot_control['AliquotControl']['id'];
 	}
+	ksort($add_aliquots);
 	
 	$structure_links = array();
 	if($is_inventory_plugin_form){
