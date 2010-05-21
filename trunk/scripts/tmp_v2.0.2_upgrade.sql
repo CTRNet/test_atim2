@@ -362,7 +362,8 @@ REPLACE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ("there is no protocol associated with this treatment", "", "There is no protocol associated with this treatment", "Il n'y a pas de protocole associé à ce traitement"),
 ("there is no drug defined in the associated protocol", "", "There is no drug defined in the associated protocol", "Il n'y a pas de drogue définie avec le traitement associé"),
 ("this name is already in use", "", "This name is already in use", "Ce nom est déjà utilisé"),
-("bank", "", "Bank", "Banque");
+("bank", "", "Bank", "Banque"),
+("no additional data has to be defined for this type of treatment", "", "No additional data has to be defined for this type of treatment", "Pas de données additionnelles pour ce type de traitement");
 
 
 INSERT INTO `pages` (`id`, `error_flag`, `language_title`, `language_body`, `use_link`, `created`, `created_by`, `modified`, `modified_by`) VALUES
@@ -416,3 +417,6 @@ DELETE FROM structure_formats WHERE `structure_id`='125' AND `structure_field_id
 
 -- unique groups
 ALTER TABLE groups ADD UNIQUE KEY (`name`);
+
+ALTER TABLE `tx_controls` ADD `allow_administration` BOOLEAN NOT NULL;
+UPDATE tx_controls SET allow_administration=true WHERE tx_method='chemotherapy';
