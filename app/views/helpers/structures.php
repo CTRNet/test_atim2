@@ -1600,7 +1600,7 @@ class StructuresHelper extends Helper {
 								}
 							}
 							
-							if ( count($field['StructureField']['StructureValueDomain']) ) {
+							else if ( count($field['StructureField']['StructureValueDomain']) ) {
 								
 								// if SOURCE is provided, use provided MODEL::FUNCTION call to retrieve pulldown values
 								if ( $field['StructureField']['StructureValueDomain']['source'] ) {
