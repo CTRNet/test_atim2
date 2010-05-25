@@ -11,10 +11,8 @@
 		'bottom' => array('add' => $add_links)
 	);
 
-	$structure_override = array('StorageMaster.parent_id' => $storage_list);  
-
 	$final_atim_structure = $atim_structure; 
-	$final_options = array('type' => 'search', 'links' => $structure_links, 'override' => $structure_override);
+	$final_options = array('type' => 'search', 'links' => $structure_links);
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook();

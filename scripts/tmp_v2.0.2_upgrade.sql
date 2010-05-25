@@ -644,3 +644,68 @@ ALTER TABLE `structure_fields`
 	CHANGE `field` `field` VARCHAR( 150 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT '';
 
 ALTER TABLE `structure_fields` ADD UNIQUE `unique_fields` (`field`, `model` , `tablename`);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- Use model funtion to populate storage fields value domain
+
+DELETE FROM `structure_value_domains_permissible_values`
+WHERE `structure_value_domain_id` IN (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'storage_type');
+
+UPDATE `structure_value_domains` 
+SET source = 'StorageLayout.StorageControl::getStorageTypeList'
+WHERE `domain_name` LIKE 'storage_type';
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) 
+VALUES
+(null, 'parent_storages', 'open', '', 'StorageLayout.StorageMaster::getParentStorageList');
+
+SET @domain_id = LAST_INSERT_ID();
+
+UPDATE structure_fields
+SET structure_value_domain = @domain_id
+WHERE plugin = 'Storagelayout'
+AND model = 'StorageMaster'
+AND tablename = 'storage_masters'
+AND field = 'parent_id';
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) 
+VALUES
+(null, 'tma_sop_list', 'open', '', 'Sop.SopMaster::getTmaBlockSopList');
+
+SET @domain_id = LAST_INSERT_ID();
+
+UPDATE structure_fields
+SET structure_value_domain = @domain_id ,
+tablename = 'std_tma_blocks'
+WHERE plugin = 'Storagelayout'
+AND model = 'StorageDetail'
+AND field = 'sop_master_id';
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) 
+VALUES
+(null, 'tma_slide_sop_list', 'open', '', 'Sop.SopMaster::getTmaSlideSopList');
+
+SET @domain_id = LAST_INSERT_ID();
+
+UPDATE structure_fields
+SET structure_value_domain = @domain_id 
+WHERE plugin = 'Storagelayout'
+AND model = 'TmaSlide'
+AND field = 'sop_master_id';
+ 	 	 	
