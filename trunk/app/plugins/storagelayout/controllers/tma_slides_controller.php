@@ -2,15 +2,13 @@
 
 class TmaSlidesController extends StoragelayoutAppController {
 	
-	var $components = array('Storagelayout.Storages', 'Sop.Sops');
+	var $components = array('Storagelayout.Storages');
 	
 	var $uses = array(
 		'Storagelayout.StorageMaster',
 		'Storagelayout.TmaSlide',
 		'Storagelayout.StorageCoordinate',
-		'Storagelayout.StorageControl',
-		
-		'Sop.SopMaster');
+		'Storagelayout.StorageControl');
 	
 	var $paginate = array('TmaSlide' => array('limit' => 10,'order' => 'TmaSlide.barcode DESC'));
 
@@ -64,9 +62,6 @@ class TmaSlidesController extends StoragelayoutAppController {
 
 		// Verify storage is tma block
 		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') != 0) { $this->redirect('/pages/err_sto_system_error', null, true); }
-
-		// Set list of available SOPs to build TMA slide
-		$this->set('arr_tma_slide_sops', $this->Storages->getSopList('tma_slide'));
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 
@@ -168,9 +163,6 @@ class TmaSlidesController extends StoragelayoutAppController {
 		if(empty($tma_slide_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }		
 		$this->data = $tma_slide_data; 
 		
-		// Set list of available SOPs to build TMA slide
-		$this->set('arr_tma_slide_sops', $this->Storages->getSopList('tma_slide'));
-
 		// Define if this detail form is displayed into the children storage tree view
 		$this->set('is_tree_view_detail_form', $is_tree_view_detail_form);
 			
@@ -214,9 +206,6 @@ class TmaSlidesController extends StoragelayoutAppController {
 		$tma_slide_data = $this->TmaSlide->find('first', array('conditions' => array('TmaSlide.id' => $tma_slide_id, 'TmaSlide.tma_block_storage_master_id' => $tma_block_storage_master_id)));
 		if(empty($tma_slide_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }		
 
-		// Set list of available SOPs to build TMA slide
-		$this->set('arr_tma_slide_sops', $this->Storages->getSopList('tma_slide'));
-		
 		// Get parent storage data
 		$parent_storage_data = array();
 		if(!empty($tma_slide_data['TmaSlide']['storage_master_id'])) {

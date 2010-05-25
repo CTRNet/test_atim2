@@ -37,6 +37,16 @@ class SopMaster extends SopAppModel
 		return $return;
 	}
 	
+	function getTmaBlockSopList() {
+		return array();
+		
+	}
+	
+	function getTmaSlideSopList() {
+		return array();
+		
+	}
+	
 }
 
 ?>

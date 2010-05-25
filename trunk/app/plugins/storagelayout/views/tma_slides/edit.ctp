@@ -7,7 +7,6 @@
 
 	$structure_override = array();
 	
-	$structure_override['TmaSlide.sop_master_id'] = $arr_tma_slide_sops; 
 	$structure_override['TmaSlide.storage_master_id'] = $matching_storage_list;
 	
 	$final_atim_structure = $atim_structure; 
