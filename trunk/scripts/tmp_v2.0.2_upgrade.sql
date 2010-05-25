@@ -642,3 +642,5 @@ ALTER TABLE `structure_fields`
 	CHANGE `model` `model` VARCHAR( 150 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT '',
 	CHANGE `tablename` `tablename` VARCHAR( 150 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT '',
 	CHANGE `field` `field` VARCHAR( 150 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT '';
+
+ALTER TABLE `structure_fields` ADD UNIQUE `unique_fields` (`field`, `model` , `tablename`);
