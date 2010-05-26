@@ -36,13 +36,35 @@ class SopMaster extends SopAppModel
 		
 		return $return;
 	}
-	
-	function getTmaBlockSopList() {
+
+ 	/**
+	 * Get permissible values array gathering all existing sops developped for TMA Block.
+	 * To Develop
+	 *
+	 * @return Array having following structure:
+	 * 	array ('value' => '', 'default' => '')
+	 * 
+	 * @author N. Luc
+	 * @since 2010-05-26
+	 * @updated N. Luc
+	 */  		
+	function getTmaBlockSopPermissibleValues() {
 		return array();
 		
 	}
-	
-	function getTmaSlideSopList() {
+
+ 	/**
+	 * Get permissible values array gathering all existing sops developped for TMA Block Slide.
+	 * To Develop
+	 *
+	 * @return Array having following structure:
+	 * 	array ('value' => '', 'default' => '')
+	 * 
+	 * @author N. Luc
+	 * @since 2010-05-26
+	 * @updated N. Luc
+	 */  	
+	function getTmaSlidePermissibleValues() {
 		return array();
 		
 	}

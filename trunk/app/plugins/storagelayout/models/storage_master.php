@@ -37,7 +37,7 @@ class StorageMaster extends StoragelayoutAppModel {
 	}
 	
 	/**
-	 * This function builds formatted list of storages, except those having TMA type. 
+	 * Get permissible values array gathering storages, except those having TMA type. 
 	 * 
 	 * When a storage master id is passed in arguments, this storage 
 	 * plus all its children storages will be removed from the array.
@@ -46,13 +46,15 @@ class StorageMaster extends StoragelayoutAppModel {
 	 * 
 	 * @return Storage list into array having following structure: 
 	 * 	array($storage_master_id => $storage_title_built_by_function)
+	 * @return Array having following structure:
+	 * 	array ('value' => 'StorageMaster.id', 'default' => (translated string describing storage))
 	 * 
 	 * @author N. Luc
 	 * @since 2007-05-22
 	 * @updated A. Suggitt on 2009-07-22
 	*/
 	
-	function getParentStorageList($excluded_storage_master_id = null) {	
+	function getParentStoragePermissibleValues($excluded_storage_master_id = null) {	
 		// Find control ID for all storages of type TMA. These will be excluded from the returned array
 		App::import('Model','Storagelayout.StorageControl');
 		$storage_ctrl = new StorageControl();

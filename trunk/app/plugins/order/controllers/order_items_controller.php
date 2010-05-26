@@ -2,23 +2,17 @@
 
 class OrderItemsController extends OrderAppController {
 
-	var $components = array(
-		'Inventorymanagement.Collections',
-		'Administrate.Administrates');
+	var $components = array();
 			
 	var $uses = array(
 		'Inventorymanagement.AliquotMaster',
 		'Inventorymanagement.ViewAliquot',	
-		'Inventorymanagement.SampleControl',
-		'Inventorymanagement.AliquotControl',	
 			
 		'Order.Order', 
 		'Order.OrderLine', 
 		'Order.OrderItem',
 		
-		'Order.Shipment',
-		
-		'Administrate.Bank');
+		'Order.Shipment');
 		
 	var $paginate = array(
 		'OrderItem'=>array('limit'=>'10','order'=>'AliquotMaster.barcode'),
@@ -37,8 +31,12 @@ class OrderItemsController extends OrderAppController {
 		$this->setDataForOrderItemsList($order_line_id);
 		$this->data = array();
 		
-		// Get shipment list
-		$this->set('shipments_data', $this->getOrderShipmentList($order_id));		
+		// Get order shipment list
+		$order_shipment_list = array();
+		foreach($this->Shipment->getShipmentPermissibleValues($order_id) as $new_record) {
+			$order_shipment_list[$new_record['value']] = $new_record['default'];
+		}
+		$this->set('order_shipment_list', $order_shipment_list);		
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -243,9 +241,6 @@ class OrderItemsController extends OrderAppController {
 		// Get data of aliquots to add
 		$aliquots_data = $this->paginate($this->ViewAliquot, array('ViewAliquot.aliquot_master_id'=>$aliquot_ids_to_add));
 		$this->set('aliquots_data' , $aliquots_data);	
-		
-		// Set list of banks
-		$this->set('bank_list', $this->Collections->getBankList());		
 				
 		// Build data for order line selection
 		$order_line_data_for_tree_view = $this->Order->find('all', array('conditions' => array('NOT' => array('Order.processing_status' => array('completed')))));
@@ -260,11 +255,7 @@ class OrderItemsController extends OrderAppController {
 		$this->set('order_line_data_for_tree_view', $order_line_data_for_tree_view);
 
 		// Set url for cancel button
-		$this->set('url_to_cancel', $url_to_redirect);
-		
-		// Populate both sample and aliquot control
-		$this->set('sample_controls_list', $this->getSampleControlsList());
-		$this->set('aliquot_controls_list', $this->getAliquotControlsList());	
+		$this->set('url_to_cancel', $url_to_redirect);	
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		

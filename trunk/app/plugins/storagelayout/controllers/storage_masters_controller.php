@@ -273,7 +273,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		$storage_data = $this->setStorageCoordinateValues(array('StorageControl' => $storage_data['StorageControl']), $storage_data);
 
 		// Set parent storage list for selection
-		$available_parent_storage_list_tmp = $this->StorageMaster->getParentStorageList($storage_master_id);
+		$available_parent_storage_list_tmp = $this->StorageMaster->getParentStoragePermissibleValues($storage_master_id);
 		$available_parent_storage_list = array();
 		foreach($available_parent_storage_list_tmp as $new_parent) { $available_parent_storage_list[$new_parent['value']] = $new_parent['default']; }
 		$this->set('available_parent_storage_list', $available_parent_storage_list);
