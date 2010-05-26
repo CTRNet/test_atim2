@@ -61,8 +61,8 @@ class SamplesComponent extends Object {
 			$criteria['SampleMaster.initial_specimen_sample_id'] = array_keys($studied_collection_specimens);	
 		}
 		$criteria['SampleMaster.collection_id'] = $collection_id;
-		
-		$collection_content_to_display = $this->controller->SampleMaster->find('threaded', array('conditions' => $criteria, 'order' => 'SampleMaster.sample_type DESC, SampleMaster.sample_code DESC', 'recursive' => '1'));
+		$this->controller->SampleMaster->contain(array('SampleControl', 'SpecimenDetail', 'DerivativeDetail', 'AliquotMaster' => array('AliquotControl', 'StorageMaster')));
+		$collection_content_to_display = $this->controller->SampleMaster->find('threaded', array('conditions' => $criteria, 'order' => 'SampleMaster.sample_type DESC, SampleMaster.sample_code DESC', 'recursive' => '2'));
 		if(empty($collection_content_to_display)) { return array(); }
 		
 		// Build formatted collection data for tree view
@@ -94,8 +94,15 @@ class SamplesComponent extends Object {
 			$new_sample_aliquots = $new_sample['AliquotMaster'];
 			$new_sample_aliquots= array_reverse($new_sample_aliquots);
 			foreach($new_sample_aliquots as $new_aliquot) {
+				$aliquot_control_data = $new_aliquot['AliquotControl'];
+				unset($new_aliquot['AliquotControl']);
+				$storage_master_data = $new_aliquot['StorageMaster'];
+				unset($new_aliquot['StorageMaster']);
 				//	$formatted_sample_data['children'][]['AliquotMaster'] = $new_aliquot;
-				array_unshift($formatted_sample_data['children'], array('AliquotMaster' => $new_aliquot));
+				$formatted_aliquot_data = array(
+					'AliquotMaster' => $new_aliquot, 
+					'StorageMaster' => $storage_master_data);
+				array_unshift($formatted_sample_data['children'], $formatted_aliquot_data);
 			}			
 			
 			$children_list[$key] = $formatted_sample_data;
