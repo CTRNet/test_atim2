@@ -149,9 +149,6 @@ function uncheckAll( $div ) {
 				if(tmpDate.length == 10){
 					$(this).datepicker('setDate', tmpDate);
 				}
-				//show fake button to hide real button value
-				var item = $(this).parent().children("img")[0];
-//				$(item).css("z-index", "1");
 			},
 			onClose: function(dateText,picker) {
 				//hide the date
@@ -162,9 +159,6 @@ function uncheckAll( $div ) {
 		        	$('#' + tmpId + "-mm" + tmpSuffix).val(dateSplit[1]);
 		        	$('#' + tmpId + "-dd" + tmpSuffix).val(dateSplit[2]);
 				}
-	        	//hide fake button
-	        	var item = $(this).parent().children("img")[0];
-//				$(item).css("z-index", "-1");
 		    }
 		});
 		
