@@ -760,3 +760,10 @@ UPDATE structure_fields
 SET structure_value_domain = @domain_id 
 WHERE plugin = 'Inventorymanagement'
 AND field = 'bank_id';
+
+-- Missing language aliases
+DELETE FROM `i18n` WHERE `id` IN 
+('newpassword', 'confirmpassword');
+INSERT INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES
+('newpassword', '', 'New Password', 'Nouveau mot de passe'),
+('confirmpassword', '', 'Confirm Password', 'Confirmez le mot de passe');
