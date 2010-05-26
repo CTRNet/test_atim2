@@ -151,7 +151,7 @@ function uncheckAll( $div ) {
 				}
 				//show fake button to hide real button value
 				var item = $(this).parent().children("img")[0];
-				$(item).css("z-index", "1");
+//				$(item).css("z-index", "1");
 			},
 			onClose: function(dateText,picker) {
 				//hide the date
@@ -164,7 +164,7 @@ function uncheckAll( $div ) {
 				}
 	        	//hide fake button
 	        	var item = $(this).parent().children("img")[0];
-				$(item).css("z-index", "-1");
+//				$(item).css("z-index", "-1");
 		    }
 		});
 		
