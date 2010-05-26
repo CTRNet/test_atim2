@@ -3,8 +3,6 @@
 	// DISPLAY STORAGE FORM
 	
 	$structure_override = array();
-	
-	$structure_override['StorageMaster.parent_id'] = $parent_storage_for_display;
 	$structure_override['Generated.path'] = $storage_path;
 	
 	$final_atim_structure = $atim_structure; 

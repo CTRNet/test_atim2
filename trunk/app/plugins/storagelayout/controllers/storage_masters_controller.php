@@ -74,8 +74,6 @@ class StorageMastersController extends StoragelayoutAppController {
 		if(!empty($parent_storage_id) && empty($parent_storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }	
 		
 		$this->set('parent_storage_id', $parent_storage_id);		
-		$this->set('parent_storage_for_display', $this->StorageMaster->createStorageTitleForDisplay($parent_storage_data));	
-		
 		$this->set('storage_path', $this->Storages->getStoragePath($parent_storage_id));
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -156,8 +154,8 @@ class StorageMastersController extends StoragelayoutAppController {
 		if(!is_null($predefined_parent_storage_id)) {
 			$predefined_parent_storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $predefined_parent_storage_id, 'StorageControl.is_tma_block' => 'FALSE')));
 			if(empty($predefined_parent_storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }		
-			$available_parent_storage_list[$predefined_parent_storage_id] = $this->StorageMaster->createStorageTitleForDisplay($predefined_parent_storage_data);;
-			$this->set('predefined_parent_storage_list', $available_parent_storage_list);	
+			$predefined_parent_storage_list[$predefined_parent_storage_id] = $this->StorageMaster->createStorageTitleForDisplay($predefined_parent_storage_data);;
+			$this->set('predefined_parent_storage_list', $predefined_parent_storage_list);	
 		}
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -432,8 +430,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		if(!empty($parent_storage_id) && empty($parent_storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }
 		
 		$this->set('parent_storage_data', $parent_storage_data);		
-		$this->set('parent_storage_for_display', $this->StorageMaster->createStorageTitleForDisplay($parent_storage_data));	
-				
+
 		if(empty($parent_storage_id) || is_null($parent_storage_data['StorageControl']['form_alias_for_children_pos'])){
 			// No position has to be set for this storage
 			$this->flash('The position cannot be set for this storage item', '/storagelayout/storage_masters/detail/' . $storage_master_id);					
