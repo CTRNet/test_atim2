@@ -1409,7 +1409,7 @@ img.fake_datepicker{
 	position: absolute; 
 	left: 3px; 
 	top: -1px; 
-	z-index: -1;
+	z-index: 1;
 	cursor: pointer;
 }
 
