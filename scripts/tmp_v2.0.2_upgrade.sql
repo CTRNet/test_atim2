@@ -410,13 +410,13 @@ INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_ti
 ('core_CAN_41_2_1', 'core_CAN_41_2', 0, 1, 'detail', '', '/administrate/banks/detail/%%Bank.id%%/', '', 'Bank::summary', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 ('core_CAN_41_2_2', 'core_CAN_41_2', 0, 2, 'announcements', '', '/administrate/announcements/index/%%Bank.id%%/', '', 'Bank::summary', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
 
-INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('banks', '', '', 'Administrate.Bank::listAllArray');
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('banks', '', '', 'Administrate.Bank::getBankPermissibleValues');
 INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES('', '', 'Group', 'groups', 'bank_id', 'bank', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='banks') , '', 'open', 'open', 'open');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
 ((SELECT id FROM structures WHERE alias='groups'), (SELECT id FROM structure_fields WHERE `model`='Group' AND `tablename`='groups' AND `field`='bank_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='banks')  ), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '1', '0', '0', '0', '0', '1', '1');
 
 -- drugs dropdown
-INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('drugs', '', '', 'Drug.Drug::getDrugList');
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('drugs', '', '', 'Drug.Drug::getDrugPermissibleValues');
 INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES('', 'Protocol', 'ProtocolExtend', 'pe_chemos', 'drug_id', 'drug', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='drugs') , '', 'open', 'open', 'open');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
 ((SELECT id FROM structures WHERE alias='pe_chemos'), (SELECT id FROM structure_fields WHERE `model`='ProtocolExtend' AND `tablename`='pe_chemos' AND `field`='drug_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='drugs')  ), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1');
@@ -471,12 +471,12 @@ DELETE FROM `structure_value_domains_permissible_values`
 WHERE `structure_value_domain_id` IN (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'protocol type');
 
 UPDATE `structure_value_domains` 
-SET source = 'Protocol.ProtocolControl::getProtocolTypeList'
+SET source = 'Protocol.ProtocolControl::getProtocolTypePermissibleValues'
 WHERE `domain_name` LIKE 'protocol type';
 
 INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) 
 VALUES
-(null, 'protocol tumour group', 'open', '', 'Protocol.ProtocolControl::getProtocolTumourGroupList');
+(null, 'protocol tumour group', 'open', '', 'Protocol.ProtocolControl::getProtocolTumourGroupPermissibleValues');
 
 SET @protocol_tumour_group_domain_id = LAST_INSERT_ID();
 
@@ -645,35 +645,18 @@ ALTER TABLE `structure_fields`
 
 ALTER TABLE `structure_fields` ADD UNIQUE `unique_fields` (`field`, `model` , `tablename`);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 -- Use model funtion to populate storage fields value domain
 
 DELETE FROM `structure_value_domains_permissible_values`
 WHERE `structure_value_domain_id` IN (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'storage_type');
 
 UPDATE `structure_value_domains` 
-SET source = 'StorageLayout.StorageControl::getStorageTypeList'
+SET source = 'StorageLayout.StorageControl::getStorageTypePermissibleValues'
 WHERE `domain_name` LIKE 'storage_type';
 
 INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) 
 VALUES
-(null, 'parent_storages', 'open', '', 'StorageLayout.StorageMaster::getParentStorageList');
+(null, 'parent_storages', 'open', '', 'StorageLayout.StorageMaster::getParentStoragePermissibleValues');
 
 SET @domain_id = LAST_INSERT_ID();
 
@@ -686,7 +669,7 @@ AND field = 'parent_id';
 
 INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) 
 VALUES
-(null, 'tma_sop_list', 'open', '', 'Sop.SopMaster::getTmaBlockSopList');
+(null, 'tma_sop_list', 'open', '', 'Sop.SopMaster::getTmaBlockSopPermissibleValues');
 
 SET @domain_id = LAST_INSERT_ID();
 
@@ -699,7 +682,7 @@ AND field = 'sop_master_id';
 
 INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) 
 VALUES
-(null, 'tma_slide_sop_list', 'open', '', 'Sop.SopMaster::getTmaSlideSopList');
+(null, 'tma_slide_sop_list', 'open', '', 'Sop.SopMaster::getTmaSlidePermissibleValues');
 
 SET @domain_id = LAST_INSERT_ID();
 
@@ -709,3 +692,71 @@ WHERE plugin = 'Storagelayout'
 AND model = 'TmaSlide'
 AND field = 'sop_master_id';
  	 	 	
+-- Use model funtion to populate order fields value domain
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) 
+VALUES
+(null, 'study_list', 'open', '', 'Study.StudySummary::getStudyPermissibleValues');
+
+SET @domain_id = LAST_INSERT_ID();
+
+UPDATE structure_fields
+SET structure_value_domain = @domain_id 
+WHERE plugin = 'Order'
+AND model = 'Order'
+AND field = 'study_summary_id';
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) 
+VALUES
+(null, 'aliquot_type_list', 'open', '', 'Inventorymanagement.AliquotControl::getAliquotTypePermissibleValues');
+
+SET @domain_id = LAST_INSERT_ID();
+
+UPDATE structure_fields
+SET structure_value_domain = @domain_id 
+WHERE plugin = 'Order'
+AND model = 'OrderLine'
+AND field = 'aliquot_control_id';
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) 
+VALUES
+(null, 'sample_type_list', 'open', '', 'Inventorymanagement.SampleControl::getSampleTypePermissibleValues');
+
+SET @domain_id = LAST_INSERT_ID();
+
+UPDATE structure_fields
+SET structure_value_domain = @domain_id 
+WHERE plugin = 'Order'
+AND model = 'OrderLine'
+AND field = 'sample_control_id';
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) 
+VALUES
+(null, 'sample_aliquot_type_list', 'open', '', 'Inventorymanagement.SampleToAliquotControl::getSampleAliquotTypesPermissibleValues');
+
+SET @domain_id = LAST_INSERT_ID();
+
+UPDATE structure_fields
+SET structure_value_domain = @domain_id 
+WHERE plugin = 'Order'
+AND model = 'FunctionManagement'
+AND field = 'sample_aliquot_control_id';
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) 
+VALUES
+(null, 'shipment_list', 'open', '', 'Order.Shipment::getShipmentPermissibleValues');
+
+SET @domain_id = LAST_INSERT_ID();
+
+UPDATE structure_fields
+SET structure_value_domain = @domain_id 
+WHERE plugin = 'Order'
+AND model = 'OrderItem'
+AND field = 'shipment_id';
+
+SET @domain_id = (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'banks');
+
+UPDATE structure_fields
+SET structure_value_domain = @domain_id 
+WHERE plugin = 'Inventorymanagement'
+AND field = 'bank_id';

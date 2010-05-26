@@ -7,9 +7,9 @@ class StudySummariesComponent extends Object {
 	}
 	
 	// TODO: Develop this function to retrun Studies list according different parameters
-	function getStudiesList() {		
-		$studies_list = $this->controller->StudySummary->atim_list(array('conditions' => array('StudySummary.deleted' => '0'), 'order' => array('StudySummary.title ASC')));
-		return (empty($studies_list)? array(): $studies_list);
+	function getStudiesList() {
+		pr('fonction getStudiesList() deprecated!');		
+		return array();
 	}
 	
 }
