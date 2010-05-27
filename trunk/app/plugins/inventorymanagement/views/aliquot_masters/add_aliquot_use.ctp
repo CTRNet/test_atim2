@@ -10,7 +10,6 @@
 		
 	$structure_override['AliquotMaster.aliquot_volume_unit'] = $aliquot_volume_unit;	
 	$structure_override['AliquotUse.use_definition'] = $use_defintion;
-	$structure_override['AliquotUse.study_summary_id'] = $arr_studies_for_display;	
 	
 	$final_atim_structure = $atim_structure; 
 	$final_options = array('links' => $structure_links, 'override' => $structure_override, 'type' => 'add');

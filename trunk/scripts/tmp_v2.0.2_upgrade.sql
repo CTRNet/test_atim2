@@ -767,3 +767,105 @@ DELETE FROM `i18n` WHERE `id` IN
 INSERT INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES
 ('newpassword', '', 'New Password', 'Nouveau mot de passe'),
 ('confirmpassword', '', 'Confirm Password', 'Confirmez le mot de passe');
+
+-- Use model funtion to populate inventory fields value domain
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) 
+VALUES
+(null, 'collection_sop_list', 'open', '', 'Sop.SopMaster::getCollectionSopPermissibleValues');
+
+SET @domain_id = LAST_INSERT_ID();
+
+UPDATE structure_fields
+SET structure_value_domain = @domain_id 
+WHERE plugin = 'Inventorymanagement'
+AND model = 'Collection'
+AND field = 'sop_master_id';
+
+UPDATE structure_fields
+SET structure_value_domain = (SELECT id FROM structure_value_domains WHERE domain_name = 'collection_sop_list') 
+WHERE plugin = 'Inventorymanagement'
+AND model = 'ViewCollection'
+AND field = 'sop_master_id';
+
+DELETE FROM `structure_value_domains_permissible_values`
+WHERE `structure_value_domain_id` IN (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'sample_type');
+
+UPDATE `structure_value_domains` 
+SET source = 'Inventorymanagement.SampleControl::getSampleTypePermissibleValues'
+WHERE `domain_name` LIKE 'sample_type';
+
+UPDATE `structure_value_domains` 
+SET source = 'Inventorymanagement.SampleControl::getSampleTypePermissibleValuesFromId',
+domain_name = 'sample_type_from_id'
+WHERE `domain_name` LIKE 'sample_type_list';
+
+DELETE FROM `structure_value_domains_permissible_values`
+WHERE `structure_value_domain_id` IN (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'sample_type');
+
+UPDATE `structure_value_domains` 
+SET source = 'Inventorymanagement.SampleControl::getSpecimenSampleTypePermissibleValues'
+WHERE `domain_name` LIKE 'specimen_sample_type';
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) 
+VALUES
+(null, 'sample_sop_list', 'open', '', 'Sop.SopMaster::getSampleSopPermissibleValues');
+
+SET @domain_id = LAST_INSERT_ID();
+
+UPDATE structure_fields
+SET structure_value_domain = @domain_id 
+WHERE plugin = 'Inventorymanagement'
+AND model = 'SampleMaster'
+AND field = 'sop_master_id';
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) 
+VALUES
+(null, 'tissue_source_list', 'open', '', 'Inventorymanagement.SampleDetail::getTissueSourcePermissibleValues');
+
+SET @domain_id = LAST_INSERT_ID();
+
+UPDATE structure_fields
+SET structure_value_domain = @domain_id,
+tablename = 'sd_spe_tissues'
+WHERE plugin = 'Inventorymanagement'
+AND model = 'SampleDetail'
+AND field = 'tissue_source';
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) 
+VALUES
+(null, 'aliquot_sop_list', 'open', '', 'Sop.SopMaster::getAliquotSopPermissibleValues');
+
+SET @domain_id = LAST_INSERT_ID();
+
+UPDATE structure_fields
+SET structure_value_domain = @domain_id 
+WHERE plugin = 'Inventorymanagement'
+AND model = 'AliquotMaster'
+AND field = 'sop_master_id';
+
+UPDATE structure_fields
+SET structure_value_domain = (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'study_list') 
+WHERE plugin = 'Inventorymanagement'
+AND model = 'AliquotMaster'
+AND field = 'study_summary_id';
+
+UPDATE structure_fields
+SET structure_value_domain = (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'study_list') 
+WHERE plugin = 'Inventorymanagement'
+AND model = 'AliquotUse'
+AND field = 'study_summary_id';
+
+UPDATE `structure_value_domains` 
+SET source = 'Inventorymanagement.AliquotControl::getAliquotTypePermissibleValuesFromId',
+domain_name = 'aliquot_type_from_id'
+WHERE `domain_name` LIKE 'aliquot_type_list';
+
+DELETE FROM `structure_value_domains_permissible_values`
+WHERE `structure_value_domain_id` IN (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'aliquot_type');
+
+UPDATE `structure_value_domains` 
+SET source = 'Inventorymanagement.AliquotControl::getAliquotTypePermissibleValues'
+WHERE `domain_name` LIKE 'aliquot_type';
+
+

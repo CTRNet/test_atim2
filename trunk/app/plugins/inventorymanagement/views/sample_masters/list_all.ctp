@@ -59,8 +59,6 @@
 	$structure_settings = array('header' => __('filter', true) . ': ' . __($filter_value, true));
 
 	$structure_override = array();
-	if(isset($bank_list)) { $structure_override['ViewSample.bank_id'] = $bank_list; }
-	if(isset($arr_tissue_sources)) { $structure_override['SampleDetail.tissue_source'] = $arr_tissue_sources; }
 	
 	$final_atim_structure = $atim_structure; 
 	$final_options = array('type' => 'index',  'data' => $samples_data, 'links' => $structure_links, 'override' => $structure_override, 'settings'=>$structure_settings);
