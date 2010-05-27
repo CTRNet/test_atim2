@@ -77,7 +77,6 @@
 	$structure_extras[10] = '<div id="frame"></div>';	
 	
 	$structure_override = array();
-	$structure_override['Collection.bank_id'] = $bank_list;
 	
 	// BUILD
 	
