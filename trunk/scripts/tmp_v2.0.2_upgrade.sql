@@ -682,7 +682,7 @@ AND field = 'sop_master_id';
 
 INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) 
 VALUES
-(null, 'tma_slide_sop_list', 'open', '', 'Sop.SopMaster::getTmaSlidePermissibleValues');
+(null, 'tma_slide_sop_list', 'open', '', 'Sop.SopMaster::getTmaSlideSopPermissibleValues');
 
 SET @domain_id = LAST_INSERT_ID();
 
@@ -807,6 +807,9 @@ UPDATE `structure_value_domains`
 SET source = 'Inventorymanagement.SampleControl::getSpecimenSampleTypePermissibleValues'
 WHERE `domain_name` LIKE 'specimen_sample_type';
 
+DELETE FROM `structure_value_domains_permissible_values`
+WHERE `structure_value_domain_id` IN (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'specimen_sample_type');
+
 INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) 
 VALUES
 (null, 'sample_sop_list', 'open', '', 'Sop.SopMaster::getSampleSopPermissibleValues');
@@ -868,4 +871,38 @@ UPDATE `structure_value_domains`
 SET source = 'Inventorymanagement.AliquotControl::getAliquotTypePermissibleValues'
 WHERE `domain_name` LIKE 'aliquot_type';
 
+-- Add correction on flag and tag for fields displayed into inventory management module
+
+UPDATE structure_formats 
+SET flag_override_label = 0,
+language_label = '' 
+WHERE structure_field_id IN (SELECT id FROM  `structure_fields`
+WHERE `field` LIKE 'collected_volume');
+
+UPDATE structure_fields SET language_label = 'laterality' WHERE language_label = 'Laterality';
+
+-- Update domain name called status
+
+UPDATE structure_value_domains
+SET domain_name = 'processing_status'
+WHERE domain_name = 'status 1';
+
+UPDATE structure_value_domains
+SET domain_name = 'order_item_status'
+WHERE domain_name = 'status 2';
+
+UPDATE structure_value_domains
+SET domain_name = 'order_line_status'
+WHERE domain_name = 'status 3';
+
+UPDATE structure_value_domains
+SET domain_name = 'chemotherapy_method'
+WHERE domain_name = 'method 1';
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('no aliquot has been defined as realiquoted child', '', 
+'No aliquot has been defined as realiquoted child!', 
+'Aucun aliquot n''a été aliquot ré-aliquoté (enfant)!');
+
+ 
 

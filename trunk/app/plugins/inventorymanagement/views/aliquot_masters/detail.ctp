@@ -50,7 +50,7 @@
 		$final_options = array('links'=>$structure_links, 'override' => $structure_override, 'data' => $aliquot_master_data);
 
 		// CUSTOM CODE
-		$hook_link = $structures->hook();
+		$hook_link = $structures->hook('aliquot_detail_1');
 		if($hook_link){
 			require($hook_link);
 		}
@@ -68,7 +68,7 @@
 		$final_options = array('override' => $structure_override, 'settings' => array('actions' => false), 'data' => $aliquot_master_data);
 		
 		// CUSTOM CODE
-		$hook_link = $structures->hook();
+		$hook_link = $structures->hook('aliquot_detail_2');
 		if($hook_link){
 			require($hook_link);
 		}
@@ -95,15 +95,17 @@
 		// BUILD FORM
 		$structures->build($final_atim_structure, $final_options);
 
+		// 3- STORAGE HISTORY	
 		
-		//storage history
 		unset($structure_links['index']);
 		$final_atim_structure = $custom_aliquot_storage_history;
 		$final_options = array('data' => $storage_data, 'type' => 'index', 'links'=>$structure_links, 'settings' => array('header' => __('storage history', null), 'separator' => true, 'pagination' => false));
+		
 		$hook_link = $structures->hook('storage_history');
 		if($hook_link){
 			require($hook_link);
 		}
+		
 		$structures->build($final_atim_structure, $final_options);
 	}
 	

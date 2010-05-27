@@ -55,7 +55,6 @@
 	// Set override
 	$structure_override = array();
 	$structure_override['SampleMaster.parent_id'] = $parent_sample_data_for_display;
-	if(isset($arr_tissue_sources)) { $structure_override['SampleDetail.tissue_source'] = $arr_tissue_sources; }
 	
 	// BUILD FORM
 
