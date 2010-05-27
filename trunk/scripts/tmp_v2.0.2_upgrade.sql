@@ -944,7 +944,22 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ALTER TABLE `misc_identifier_controls`
 	ADD `flag_once_per_participant` tinyint(1) NOT NULL DEFAULT '0';
 
+-- Add consent type to consent master view
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) 
+VALUES
+(null, 'consent_type_list', 'open', '', 'Clinicalannotation.ConsentControl::getConsentTypePermissibleValuesFromId');
 	
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) 
+VALUES
+('', 'Clinicalannotation', 'ConsentMaster', 'consent_masters', 'consent_control_id', 'type', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='consent_type_list') , '', 'open', 'open', 'open');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='consent_masters'), 
+(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='consent_control_id'), 
+'1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
 
 
 
