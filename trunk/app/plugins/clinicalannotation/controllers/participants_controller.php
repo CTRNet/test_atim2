@@ -2,7 +2,7 @@
 
 class ParticipantsController extends ClinicalannotationAppController {
 
-	var $components = array('Clinicalannotation.MiscIdentifiers'); 
+	var $components = array(); 
 		
 	var $uses = array(
 		'Clinicalannotation.Participant',
@@ -65,7 +65,6 @@ class ParticipantsController extends ClinicalannotationAppController {
 		
 		$participant_identifiers_data = $this->paginate($this->MiscIdentifier, array('MiscIdentifier.participant_id'=>$participant_id));
 		$this->set('participant_identifiers_data', $participant_identifiers_data);
-		$this->set('identifier_names_list', $this->MiscIdentifiers->getIdentiferNamesListForDisplay());
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
