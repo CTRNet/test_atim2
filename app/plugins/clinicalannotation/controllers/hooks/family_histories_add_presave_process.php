@@ -7,7 +7,7 @@
 	 * This hook will be call before to save data to allow custom code to manipulate submitted data:
 	 * 	- launch additional validation
 	 *    - set additional data
-	 */
+	 
 	
 	if ( Configure::read('debug') ) { 
 		if(($this->data['FamilyHistory']['age_at_dx'] == '-999') || ($this->data['FamilyHistory']['age_at_dx'] == '???')) {
@@ -17,5 +17,6 @@
 			$submitted_data_validates = false;
 		}
 	}
+	*/
  	
 ?>

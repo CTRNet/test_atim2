@@ -1,6 +1,6 @@
 <?php 
 	
-	pr('here is a view override example');
+	// pr('here is a view override example');
 	
 	$structure_links = array(
 		'bottom'=>array(
@@ -11,7 +11,7 @@
 	);
 	
 	// Set form structure and option 
-/* ==> Note: Set both form structure and option into 2 variables to allow hooks to modify them */
+   // ==> Note: Set both form structure and option into 2 variables to allow hooks to modify them 
 	$final_atim_structure = $atim_structure; 
 	$final_options = array('links'=>$structure_links);
 	
@@ -21,5 +21,4 @@
 		
 	// BUILD FORM
 	$structures->build( $final_atim_structure, $final_options );
-	
 ?>
