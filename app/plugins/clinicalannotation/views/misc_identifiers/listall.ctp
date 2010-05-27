@@ -3,8 +3,9 @@
 	// Build Link
 	$add_identifiers_link = array();
 	foreach($identifier_controls_list as $option){
-		$add_identifiers_link[$option['MiscIdentifierControl']['misc_identifier_name']] = '/clinicalannotation/misc_identifiers/add/'.$atim_menu_variables['Participant.id'].'/'.$option['MiscIdentifierControl']['id'].'/';
+		$add_identifiers_link[__($option['MiscIdentifierControl']['misc_identifier_name'], true)] = '/clinicalannotation/misc_identifiers/add/'.$atim_menu_variables['Participant.id'].'/'.$option['MiscIdentifierControl']['id'].'/';
 	}
+	ksort($add_identifiers_link);
 		
 	$structure_links = array(
 		'index'=>array('detail'=>'/clinicalannotation/misc_identifiers/detail/'.$atim_menu_variables['Participant.id'].'/%%MiscIdentifier.id%%/'),
@@ -12,7 +13,6 @@
 	);
 	
 	$structure_override = array();
-	$structure_override['MiscIdentifier.identifier_name'] = $identifier_names_list;	
 
 	// Set form structure and option
 	$final_atim_structure = $atim_structure; 

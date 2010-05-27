@@ -904,5 +904,49 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 'No aliquot has been defined as realiquoted child!', 
 'Aucun aliquot n''a été aliquot ré-aliquoté (enfant)!');
 
- 
+-- Use model funtion to populate clinicalannotation fields value domain
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) 
+VALUES
+(null, 'identifier_name_list', 'open', '', 'Clinicalannotation.MiscIdentifierControl::getMiscIdentifierNamePermissibleValues');
+
+SET @domain_id = LAST_INSERT_ID();
+
+UPDATE structure_fields
+SET `type` = 'select',
+setting = '',
+structure_value_domain = @domain_id 
+WHERE plugin = 'Clinicalannotation'
+AND model = 'MiscIdentifier'
+AND field = 'identifier_name'; 
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) 
+VALUES
+(null, 'identifier_abrv_list', 'open', '', 'Clinicalannotation.MiscIdentifierControl::getMiscIdentifierNameAbrevPermissibleValues');
+
+SET @domain_id = LAST_INSERT_ID();
+
+UPDATE structure_fields
+SET `type` = 'select',
+setting = '',
+structure_value_domain = @domain_id 
+WHERE plugin = 'Clinicalannotation'
+AND model = 'MiscIdentifier'
+AND field = 'identifier_abrv';
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('this identifier has already been created for this participant', 
+'', 'This identifier has already been created for this participant and can not be created more than once!',
+'Cet identifiant a déjà été créé pour le participant et ne peut être créé plus d''une fois');
+
+-- Add unique identifier flag
+
+ALTER TABLE `misc_identifier_controls`
+	ADD `flag_once_per_participant` tinyint(1) NOT NULL DEFAULT '0';
+
+	
+
+
+
+
 
