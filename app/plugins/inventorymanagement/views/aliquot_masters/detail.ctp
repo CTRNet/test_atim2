@@ -40,10 +40,6 @@
 	
 	$structure_override = array();
 
-	$structure_override['AliquotMaster.sop_master_id'] = $arr_aliquot_sops_for_display;
-	$structure_override['AliquotMaster.study_summary_id'] = $arr_studies_for_display;	
-	$structure_override['AliquotUse.study_summary_id'] = $arr_studies_for_display;	
-
 	if($is_tree_view_detail_form){
 		
 		// DISPLAY ONLY ALIQUOT DETAIL FORM

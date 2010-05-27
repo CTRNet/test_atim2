@@ -7,14 +7,8 @@
 	);
 	
 	$structure_override = array();
-		
-	$structure_override['SampleMaster.sample_type'] = $sample_control_data['SampleControl']['sample_type'];	
-	$structure_override['SampleMaster.sample_category'] = $sample_control_data['SampleControl']['sample_category'];		
-	$structure_override['SampleMaster.sop_master_id'] = $sample_sop_list; 	
 	$structure_override['SampleMaster.parent_id'] = $parent_sample_data_for_display;
 
-	if(isset($arr_tissue_sources)) { $structure_override['SampleDetail.tissue_source'] = $arr_tissue_sources; }
-	
 	$final_atim_structure = $atim_structure; 
 	$final_options = array('links'=>$structure_links, 'override' => $structure_override);
 	

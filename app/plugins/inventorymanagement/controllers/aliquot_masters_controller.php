@@ -1,15 +1,9 @@
 <?php
 class AliquotMastersController extends InventoryManagementAppController {
 	
-	var $components = array(
-		'Inventorymanagement.Collections', 
+	var $components = array( 
 		'Inventorymanagement.Aliquots', 
-		
-		'Storagelayout.Storages',
-		
-		'Study.StudySummaries', 
-		'Administrate.Administrates',
-		'Sop.Sops');
+		'Storagelayout.Storages');
 	
 	var $uses = array(
 		'Inventorymanagement.Collection',
@@ -39,10 +33,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		'Storagelayout.StorageMaster',
 		'Storagelayout.StorageCoordinate',
 		
-		'Administrate.Bank',
-		'Study.StudySummary',
-		'Order.OrderItem',
-		'Sop.SopMaster'
+		'Order.OrderItem'
 	);
 	
 	var $paginate = array(
@@ -62,9 +53,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$_SESSION['ctrapp_core']['search'] = null; // clear SEARCH criteria
 		$this->unsetInventorySessionData();
 		
-		// Set list of banks
-		$this->set('bank_list', $this->Collections->getBankList());	
-
 		$this->Structures->set('view_aliquot_joined_to_collection');
 		
 		$hook_link = $this->hook('format');
@@ -82,9 +70,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		$this->set('aliquots_data', $this->paginate($this->ViewAliquot, $_SESSION['ctrapp_core']['search']['criteria']));
 		$this->data = array();
-		
-		// Set list of banks
-		$this->set('bank_list', $this->Collections->getBankList());
 		
 		// if SEARCH form data, save number of RESULTS and URL
 		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['ViewAliquot']['count'];
@@ -333,12 +318,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// Set new aliquot control information
 		$this->set('aliquot_control_data', $aliquot_control_data);	
 		
-		// Set list of available SOPs to create aliquot
-		$this->set('arr_aliquot_sops_for_display', $this->Aliquots->getAliquotSopList($sample_data['SampleMaster']['sample_type'], $aliquot_control_data['AliquotControl']['aliquot_type']));
-		
-		// Set list of studies
-		$this->set('arr_studies_for_display', $this->getStudiesList());
-		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Set menu
@@ -362,9 +341,12 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$this->set('default_storage_datetime', $this->getDefaultAliquotStorageDate($sample_data));
 			$this->set('arr_preselected_storages_for_display', array());
 						
-			$this->data = array(array());
+			$this->data = array(array(
+				'AliquotMaster' => array(
+					'aliquot_type' => $aliquot_control_data['AliquotControl']['aliquot_type'],
+					'aliquot_volume_unit' => $aliquot_control_data['AliquotControl']['volume_unit'])));
 			
-		} else {
+		} else {pr($this->data);exit;
 			// Record process
 			
 			// Manage volume
@@ -467,12 +449,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// Set aliquot use
 		$aliquot_data['Generated']['aliquot_use_counter'] = sizeof($aliquot_data['AliquotUse']);
 				
-		// Set list of available SOPs to create aliquot
-		$this->set('arr_aliquot_sops_for_display', $this->Aliquots->getAliquotSopList($aliquot_data['SampleMaster']['sample_type'], $aliquot_data['AliquotMaster']['aliquot_type']));
-
-		// Set list of studies
-		$this->set('arr_studies_for_display', $this->getStudiesList());
-		
 		// Set times spent since either sample collection/reception or sample creation and sample storage		
 		switch($aliquot_data['SampleMaster']['sample_category']) {
 			case 'specimen':
@@ -600,12 +576,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$aliquot_data = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id, 'AliquotMaster.id' => $aliquot_master_id)));
 		if(empty($aliquot_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }		
 
-		// Set list of available SOPs to create aliquot
-		$this->set('arr_aliquot_sops_for_display', $this->Aliquots->getAliquotSopList($aliquot_data['SampleMaster']['sample_type'], $aliquot_data['AliquotMaster']['aliquot_type']));
-
-		// Set list of studies
-		$this->set('arr_studies_for_display', $this->getStudiesList());
-		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Get the current menu object.
@@ -749,9 +719,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$aliquot_data = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id, 'AliquotMaster.id' => $aliquot_master_id)));
 		if(empty($aliquot_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }		
 
-		// Set list of studies
-		$this->set('arr_studies_for_display', $this->getStudiesList());		
-			
 		// Set aliquot volume unit
 		$aliquot_volume_unit = empty($aliquot_data['AliquotMaster']['aliquot_volume_unit'])? 'n/a': $aliquot_data['AliquotMaster']['aliquot_volume_unit'];
 		$this->set('aliquot_volume_unit', $aliquot_volume_unit);	
@@ -829,9 +796,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id), 'recursive' => '-1'));
 		if(empty($sample_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }	
 				
-		// Set list of studies
-		$this->set('arr_studies_for_display', $this->getStudiesList());		
-			
 		// Set aliquot volume unit
 		$aliquot_volume_unit = empty($use_data['AliquotMaster']['aliquot_volume_unit'])? 'n/a': $use_data['AliquotMaster']['aliquot_volume_unit'];
 		$this->set('aliquot_volume_unit', $aliquot_volume_unit);	
@@ -1392,34 +1356,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 	/* --------------------------------------------------------------------------
 	 * ADDITIONAL FUNCTIONS
 	 * -------------------------------------------------------------------------- */
-	
-	/**
-	 * Get formatted list of Studies existing into the system.
-	 * 
-	 * Note: Function to allow bank to customize this function when they don't use 
-	 * Study module.
-	 *
-	 * @return Studies list into array having following structure: 
-	 * 	array($study_id => $study_title_built_by_function)
-	 *
-	 * @author N. Luc
-	 * @since 2009-09-11
-	 * @updated N. Luc
-	 */
-	 
-	function getStudiesList() {
-		$studies_data = $this->StudySummaries->getStudiesList();
-		
-		$formatted_data = array();
-		if(!empty($studies_data)) {
-			foreach($studies_data as $new_study) {
-				$formatted_data[$new_study['StudySummary']['id']] = $new_study['StudySummary']['title'] . ' ('.__($new_study['StudySummary']['disease_site'], true) .'-'.__($new_study['StudySummary']['study_type'], true) .')'; 
-			}	
-		}
-		
-		return $formatted_data;
-	}
-		
+			
 	/**
 	 * Get default storage date for a new created aliquot.
 	 * 

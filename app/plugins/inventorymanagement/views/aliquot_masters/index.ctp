@@ -11,8 +11,6 @@
 	);
 
 	$structure_override = array();
-		
-	$structure_override['ViewAliquot.bank_id'] = $bank_list;
 	
 	$hook_link = $structures->hook();
 	if($hook_link){
