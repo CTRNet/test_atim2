@@ -49,7 +49,7 @@ class SopMaster extends SopAppModel
 	 * @updated N. Luc
 	 */  		
 	function getCollectionSopPermissibleValues() {
-		return array();
+		return $this->getAllSopPermissibleValues();
 	}
 
  	/**
@@ -64,7 +64,7 @@ class SopMaster extends SopAppModel
 	 * @updated N. Luc
 	 */  		
 	function getSampleSopPermissibleValues() {
-		return array();
+		return $this->getAllSopPermissibleValues();
 	}
 
  	/**
@@ -79,7 +79,7 @@ class SopMaster extends SopAppModel
 	 * @updated N. Luc
 	 */  		
 	function getAliquotSopPermissibleValues() {
-		return array();
+		return $this->getAllSopPermissibleValues();
 	}				
 
  	/**
@@ -94,7 +94,7 @@ class SopMaster extends SopAppModel
 	 * @updated N. Luc
 	 */  		
 	function getTmaBlockSopPermissibleValues() {
-		return array();		
+		return $this->getAllSopPermissibleValues();		
 	}
 
  	/**
@@ -108,9 +108,23 @@ class SopMaster extends SopAppModel
 	 * @since 2010-05-26
 	 * @updated N. Luc
 	 */  	
-	function getTmaSlidePermissibleValues() {
-		return array();		
+	function getTmaSlideSopPermissibleValues() {
+		return $this->getAllSopPermissibleValues();		
 	}
+	
+	function getAllSopPermissibleValues() {
+		$result = array();
+		
+		// Build tmp array to sort according translation
+		foreach($this->find('all', array('order' => 'SopMaster.title')) as $sop) {
+			$result[] = array('value' => $sop['SopMaster']['id'], 'default' => $sop['SopMaster']['title']);
+		}
+		
+		return $result;
+	}
+	
+	
+	
 	
 }
 

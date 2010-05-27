@@ -7,11 +7,7 @@
 	);
 	
 	$structure_override = array();
-	
 	$structure_override['AliquotMaster.storage_master_id'] = $arr_preselected_storages_for_display;	
-	
-	if(isset($default_storage_datetime)) { $structure_override['AliquotMaster.storage_datetime'] = $default_storage_datetime; }
-
 	
 	$final_atim_structure = $atim_structure; 
 	$final_options = array('links' => $structure_links, 'override' => $structure_override, 'type' => 'datagrid', 'settings'=> array('pagination' => false, 'add_fields' => true, 'del_fields' => true));
