@@ -37,6 +37,28 @@ class ProtocolMaster extends ProtocolAppModel {
 		
 		return $return;
 	}
+	
+	/**
+	 * Get permissible values array gathering all existing protocol.
+	 *
+	 * @return Array having following structure:
+	 * 	array ('value' => 'ProtocolMaster.id ', 'default' => (translated string describing protocol))
+	 * 
+	 * @author N. Luc
+	 * @since 2010-05-26
+	 * @updated N. Luc
+	 */  	
+	function getProtocolPermissibleValuesFromId() {
+		$result = array();
+
+		// Build tmp array to sort according translation
+		foreach($this->find('all', array('order' => 'ProtocolMaster.code')) as $new_protocol) {
+			$result[] = array('value' => $new_protocol['ProtocolMaster']['id'], 'default' => $new_protocol['ProtocolMaster']['code'] . ' : ' . (empty($new_protocol['ProtocolMaster']['name'])? '-' : $new_protocol['ProtocolMaster']['name']));
+		}
+				
+		return $result;
+	}	
+	
 }
 
 ?>

@@ -49,15 +49,6 @@ class EventMastersController extends ClinicalannotationAppController {
 		// find all EVENTCONTROLS, for ADD form
 		$event_controls = $this->EventControl->find('all', array('conditions'=>array('EventControl.event_group'=>$event_group, 'EventControl.flag_active' => '1' )));
 		$this->set( 'event_controls', $event_controls );
-	
-		$disease_site_list = array();
-		$event_type = array();
-		foreach($event_controls as $new_event_ctr) {
-			$disease_site_list[$new_event_ctr['EventControl']['disease_site']] = __($new_event_ctr['EventControl']['disease_site'], true);
-			$event_type[$new_event_ctr['EventControl']['event_type']] = __($new_event_ctr['EventControl']['event_type'], true);
-		}
-		$this->set('disease_site_list', $disease_site_list);
-		$this->set('event_type', $event_type);
 				
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');

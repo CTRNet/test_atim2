@@ -960,8 +960,101 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
 '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
 
+-- Add diagnosis type to consent master view
 
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) 
+VALUES
+(null, 'diagnosis_type_list', 'open', '', 'Clinicalannotation.DiagnosisControl::getDiagnosisTypePermissibleValuesFromId');
+	
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) 
+VALUES
+('', 'Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters', 'diagnosis_control_id', 'type', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='diagnosis_type_list') , '', 'open', 'open', 'open');
 
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='diagnosismasters'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='diagnosis_control_id'), 
+'1', '-2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
 
+-- Add event_disease_site and type to event master view
 
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) 
+VALUES
+(null, 'event_disease_site_list', 'open', '', 'Clinicalannotation.EventControl::getEventDiseaseSitePermissibleValues');
+	
+SET @domain_id = LAST_INSERT_ID();
 
+UPDATE structure_fields
+SET `type` = 'select',
+setting = '',
+structure_value_domain = @domain_id 
+WHERE plugin = 'Clinicalannotation'
+AND model = 'EventMaster'
+AND field = 'disease_site';
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) 
+VALUES
+(null, 'event_type_list', 'open', '', 'Clinicalannotation.EventControl::getEventTypePermissibleValues');
+	
+SET @domain_id = LAST_INSERT_ID();
+
+UPDATE structure_fields
+SET `type` = 'select',
+setting = '',
+structure_value_domain = @domain_id 
+WHERE plugin = 'Clinicalannotation'
+AND model = 'EventMaster'
+AND field = 'event_type';
+
+-- add model function to build treatment list like type, disease, protocol
+
+DELETE FROM `structure_value_domains_permissible_values`
+WHERE `structure_value_domain_id` IN (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'disease site 2');
+
+UPDATE structure_value_domains 
+SET domain_name = 'tx_disease_site_list',
+`source` = 'Clinicalannotation.TreatmentControl::getDiseaseSitePermissibleValues'
+WHERE domain_name = 'disease site 2';
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) 
+VALUES
+(null, 'tx_method_site_list', 'open', '', 'Clinicalannotation.TreatmentControl::getMethodPermissibleValues');
+	
+SET @domain_id = LAST_INSERT_ID();
+
+UPDATE structure_fields
+SET `type` = 'select',
+setting = '',
+structure_value_domain = @domain_id 
+WHERE plugin = 'Clinicalannotation'
+AND model = 'TreatmentMaster'
+AND field = 'tx_method';
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) 
+VALUES
+(null, 'protocol_site_list', 'open', '', 'Protocol.ProtocolMaster::getProtocolPermissibleValuesFromId');
+	
+SET @domain_id = LAST_INSERT_ID();
+
+UPDATE structure_fields
+SET `type` = 'select',
+setting = '',
+structure_value_domain = @domain_id 
+WHERE plugin = 'Clinicalannotation'
+AND model = 'TreatmentMaster'
+AND field = 'protocol_master_id';
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='treatmentmasters'), 
+(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='tx_masters' AND `field`='disease_site'), 
+'1', '0', '', '1', 'type', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+UPDATE structure_formats
+SET `flag_override_label` = '1', `language_label` = '',
+`flag_override_tag` = '1', `language_tag` = '-', `flag_edit_readonly` = '0'
+WHERE structure_id IN (SELECT id FROM structures WHERE alias='treatmentmasters')
+AND `structure_field_id` IN (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='tx_masters' AND `field`='tx_method');
+
+UPDATE structure_fields SET `language_label` = ''
+WHERE `model`='TreatmentMaster' AND `tablename`='tx_masters' AND `field`='tx_method';
