@@ -1669,6 +1669,9 @@ class StructuresHelper extends Helper {
 								}
 							}
 							
+							if(!isset($html_element_array['legend'])){
+								$html_element_array['legend'] = "";
+							}
 							break;
 							
 						case 'checkbox':
