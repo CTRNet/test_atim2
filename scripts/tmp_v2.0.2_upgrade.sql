@@ -1546,3 +1546,22 @@ INSERT IGNORE INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES
 ('precision', 'global', 'Precision', 'Précision');
 
 TRUNCATE key_increments;
+
+-- Swap value dead with deceased for health_status
+INSERT INTO `structure_permissible_values` (`value`, `language_alias`) VALUES
+('deceased', 'deceased');
+
+SET @value_id = LAST_INSERT_ID();
+
+INSERT INTO `structure_value_domains_permissible_values` (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`, `language_alias`) VALUES
+((SELECT `id` FROM `structure_value_domains` WHERE `domain_name` = 'health_status'), @value_id, 2, 1, 'deceased');
+
+DELETE FROM `structure_value_domains_permissible_values` 
+WHERE `structure_value_domain_id` = (SELECT `id` FROM `structure_value_domains` WHERE `domain_name` = 'health_status') AND
+`structure_permissible_value_id` = (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'dead');
+
+DELETE FROM `structure_permissible_values`
+WHERE `value` = 'dead';
+
+INSERT IGNORE INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES
+('deceased', 'global', 'Deceased', 'Décédé');
