@@ -14,13 +14,13 @@ class StudySummary extends StudyAppModel
 			
 			$return = array(
 				'Summary' => array(
-					'menu'			=>	array( NULL, __($result['StudySummary']['title'], TRUE)),
-					'title'			=>	array( NULL, __($result['StudySummary']['title'], TRUE)),
+					'menu'			=>	array( NULL, $result['StudySummary']['title'], TRUE),
+					'title'			=>	array( NULL, $result['StudySummary']['title'], TRUE),
 					
 					'description'	=>	array(
 						__('disease site', TRUE)	=>	__($result['StudySummary']['disease_site'], TRUE),
 						__('type', TRUE)			=>	__($result['StudySummary']['study_type'], TRUE),
-						__('summary', TRUE)		    =>  __($result['StudySummary']['summary'], TRUE)
+						__('summary', TRUE)		    =>  $result['StudySummary']['summary']
 					)
 				)
 			);

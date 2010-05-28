@@ -18,8 +18,8 @@ class Drug extends DrugAppModel {
 					'title'			=>	array( NULL, $result['Drug']['generic_name']),
 					
 					'description'	=>	array(
-						'type'		=>	$result['Drug']['type'],
-						'description'   =>  $result['Drug']['description']
+						__('type', true)		=>	__($result['Drug']['type'], true),
+						__('description', true)   =>  $result['Drug']['description']
 					)
 				)
 			);
