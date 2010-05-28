@@ -1565,3 +1565,13 @@ WHERE `value` = 'dead';
 
 INSERT IGNORE INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES
 ('deceased', 'global', 'Deceased', 'Décédé');
+
+-- Clean up storage layout display
+
+UPDATE storage_controls SET display_x_size = '1', display_y_size = '10' WHERE storage_type = 'rack10';
+UPDATE storage_controls SET display_x_size = '1', display_y_size = '24' WHERE storage_type = 'rack24';
+UPDATE storage_controls SET display_x_size = '1', display_y_size = '11' WHERE storage_type = 'rack11';
+UPDATE storage_controls SET display_x_size = '1', display_y_size = '9' WHERE storage_type = 'rack9';
+UPDATE storage_controls SET display_x_size = '5', display_y_size = '5' WHERE storage_type = 'box25';
+
+-- demo data script has been created at this level tmp_v2.0.2_demo_data.sql
