@@ -229,7 +229,6 @@ INSERT INTO `aliquot_uses_revs` (`id`, `aliquot_master_id`, `use_definition`, `u
 --
 
 INSERT INTO `banks` (`id`, `name`, `description`, `created_by`, `created`, `modified_by`, `modified`, `deleted`, `deleted_date`) VALUES
-(1, 'Default Bank', 'This is an example bank, that gets automatically created when the application is installed. You should rename this, changing the title and description to match your own bank.', 0, '0000-00-00 00:00:00', 1, '2009-04-08 16:13:19', 0, '0000-00-00 00:00:00'),
 (2, 'Ovary Bk', '', 1, '2010-05-28 10:47:46', 1, '2010-05-28 10:47:46', 0, NULL),
 (3, 'Prostate Bk', '', 1, '2010-05-28 10:49:46', 1, '2010-05-28 10:49:46', 0, NULL);
 
