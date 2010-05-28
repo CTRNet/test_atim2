@@ -46,27 +46,6 @@ class Drug extends DrugAppModel {
 		return $result;
 	}
 	
-	function getDrugListForTx($tx_method) {
-		// Get drugs
-		$drug_list = array();
-		
-		switch(strtolower($tx_method)) {
-			case "chemotherapy":
-				$drug_list = $this->find('all', array('order' => array('Drug.generic_name')));
-				break;
-			default:
-				// No list to build
-		}	
-		
-		// Format for display
-		$formated_drug_list = array();
-		foreach($drug_list as $new_drug) {
-			$formated_drug_list[$new_drug['Drug']['id']] = $new_drug['Drug']['generic_name'] . (empty($new_drug['Drug']['type'])? '' : ' (' . __($new_drug['Drug']['type'] ,true). ')');
-		}
-		
-		return $formated_drug_list;
-	}
-	
 }
 
 ?>
