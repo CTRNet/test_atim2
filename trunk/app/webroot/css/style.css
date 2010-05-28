@@ -1027,6 +1027,7 @@ a.default { background: url("../img/icons/Document Blank_16x16.png") no-repeat l
 a.delete { background: url("../img/icons/Close_16x16.png") no-repeat left center; }
 a.detail { background: url("../img/icons/Control Play_16x16.png") no-repeat left center; }
 a.disabled { background: url("../img/icons/light_off_16x16.png") no-repeat left center; text-decoration: none; color: #000;}
+a.drug { background: url("../img/icons/Security_16x16.png") no-repeat center center; }
 a.duplicate { background: url("../img/icons/Documents x3_16x16.png") no-repeat center center; }
 a.edit { background: url("../img/icons/Edit_16x16.png") no-repeat left center; }
 a.enabled { background: url("../img/icons/light_on_16x16.png") no-repeat left center; text-decoration: none; color: #000;}

@@ -8,8 +8,7 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		'Clinicalannotation.TreatmentControl',
 		'Protocol.ProtocolMaster',
 		'Protocol.ProtocolControl',
-		'Protocol.ProtocolExtend',
-		'Drug.Drug');
+		'Protocol.ProtocolExtend');
 		
 	var $paginate = array('TreatmentExtend'=>array('limit' => pagination_amount,'order'=>'TreatmentExtend.id ASC'));
 	
@@ -32,8 +31,6 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		
 		// List trt extends
 		$this->data = $this->paginate($this->TreatmentExtend, array('TreatmentExtend.tx_master_id'=>$tx_master_id));
-		
-		$this->set('drug_list', $this->Drug->getDrugListForTx($tx_master_data['TreatmentMaster']['tx_method']));
 		
 		// Set forms and menu data
 		$this->Structures->set( $tx_master_data['TreatmentControl']['extend_form_alias'] );
@@ -61,8 +58,6 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		if(empty($tx_extend_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }		
 		$this->data = $tx_extend_data;
 		
-		$this->set('drug_list', $this->Drug->getDrugListForTx($tx_master_data['TreatmentMaster']['tx_method']));
-	    
 		// Set form alias and alias
 		$this->Structures->set($tx_master_data['TreatmentControl']['extend_form_alias'] );
 	    $this->set('atim_menu_variables', array('Participant.id'=>$participant_id, 'TreatmentMaster.id'=>$tx_master_id));
@@ -81,8 +76,6 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 
 		// Set Extend tablename to use
 		$this->TreatmentExtend = new TreatmentExtend( false, $tx_master_data['TreatmentControl']['extend_tablename'] );
-		
-		$this->set('drug_list', $this->Drug->getDrugListForTx($tx_master_data['TreatmentMaster']['tx_method']));
 		
 		// Set form alias and menu
 		$this->Structures->set($tx_master_data['TreatmentControl']['extend_form_alias'] );
@@ -119,8 +112,6 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		$tx_extend_data = $this->TreatmentExtend->find('first',array('conditions'=>array('TreatmentExtend.id'=>$tx_extend_id, 'TreatmentExtend.tx_master_id'=>$tx_master_id)));
 		if(empty($tx_extend_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }			
 		
-		$this->set('drug_list', $this->Drug->getDrugListForTx($tx_master_data['TreatmentMaster']['tx_method']));
-	    
 		// Set form alias and menu data
 		$this->Structures->set($tx_master_data['TreatmentControl']['extend_form_alias'] );
 		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id, 'TreatmentMaster.id'=>$tx_master_id, 'TreatmentExtend.id'=>$tx_extend_id));
@@ -174,6 +165,24 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 			$this->flash($arr_allow_deletion['msg'], '/clinicalannotation/treatment_extends/detail/'.$participant_id.'/'.$tx_master_id.'/'.$tx_extend_id);
 		}
 	}
+	
+	
+	/**
+	 * Check if a record can be deleted.
+	 * 
+	 * @param $tx_extend_id Id of the studied record.
+	 * @param $extend_tablename
+	 * 
+	 * @return Return results as array:
+	 * 	['allow_deletion'] = true/false
+	 * 	['msg'] = message to display when previous field equals false
+	 * 
+	 * @author N. Luc
+	 * @since 2007-10-16
+	 */
+	function allowTrtExtDeletion($tx_extend_id, $extend_tablename){
+		return array('allow_deletion' => true, 'msg' => '');
+	}	
 	
 	function importFromProtocol($participant_id, $tx_master_id){
 		$tx_master_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id, 'TreatmentMaster.participant_id'=>$participant_id)));
