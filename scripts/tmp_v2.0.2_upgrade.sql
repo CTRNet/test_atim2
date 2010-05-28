@@ -1545,3 +1545,4 @@ UPDATE menus SET language_title = 'precision' WHERE id = 'clin_CAN_80';
 INSERT IGNORE INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES
 ('precision', 'global', 'Precision', 'Précision');
 
+TRUNCATE key_increments;
