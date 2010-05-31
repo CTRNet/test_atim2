@@ -11,13 +11,6 @@
 	);
 
 	$structure_override = array();
-		
-	$structure_override['ViewAliquot.bank_id'] = $bank_list;
-	
-	$hook_link = $structures->hook();
-	if($hook_link){
-		require($hook_link); 
-	}
 	
 	$final_atim_structure = $atim_structure; 
 	$final_options = array('type' => 'search', 'links' => $structure_links, 'override' => $structure_override, 'settings' => array('header' => __('search type', null).': '.__('aliquots', null)));

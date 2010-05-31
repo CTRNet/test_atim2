@@ -18,8 +18,8 @@ class Drug extends DrugAppModel {
 					'title'			=>	array( NULL, $result['Drug']['generic_name']),
 					
 					'description'	=>	array(
-						'type'		=>	$result['Drug']['type'],
-						'description'   =>  $result['Drug']['description']
+						__('type', true)		=>	__($result['Drug']['type'], true),
+						__('description', true)   =>  $result['Drug']['description']
 					)
 				)
 			);
@@ -27,6 +27,25 @@ class Drug extends DrugAppModel {
 		
 		return $return;
 	}
+	
+ 	/**
+	 * Get permissible values array gathering all existing drugs.
+	 *
+	 * @return Array having following structure:
+	 * 	array ('value' => 'Drug.id', 'default' => (translated string describing drug))
+	 * 
+	 * @author N. Luc
+	 * @since 2010-05-26
+	 * @updated N. Luc
+	 */  	
+	function getDrugPermissibleValues() {
+		$result = array();
+		foreach($this->find('all', array('order' => array('Drug.generic_name'))) as $drug){
+			$result[] = array("value" => $drug["Drug"]["id"], "default" => $drug["Drug"]["generic_name"]);
+		}
+		return $result;
+	}
+	
 }
 
 ?>

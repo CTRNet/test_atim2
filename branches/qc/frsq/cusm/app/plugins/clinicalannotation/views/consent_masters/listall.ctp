@@ -1,9 +1,10 @@
 <?php
 	$add_links = array();
 	foreach ($consent_controls_list as $consent_control) {
-		$add_links[$consent_control['ConsentControl']['controls_type']] = '/clinicalannotation/consent_masters/add/'.$atim_menu_variables['Participant.id'].'/'.$consent_control['ConsentControl']['id'].'/';
+		$add_links[__($consent_control['ConsentControl']['controls_type'], true)] = '/clinicalannotation/consent_masters/add/'.$atim_menu_variables['Participant.id'].'/'.$consent_control['ConsentControl']['id'].'/';
 	}
-
+	asort($add_links);
+	
 	$structure_links = array(
 		'top'=>NULL,
 		'index'=>'/clinicalannotation/consent_masters/detail/'.$atim_menu_variables['Participant.id'].'/%%ConsentMaster.id%%',

@@ -8,11 +8,11 @@
 Fmlh::launch();
 
 class Fmlh{
-	public static $database_schema = "atim_nd";
+	public static $database_schema = "atim_hepato";
 	public static $server = "localhost:8889";
 	public static $user = "root";
 	public static $password = "root";
-	public static $table_name = "storage_masters";
+	public static $table_name = "acos";
 	
 	private static $mysqli;//db_conn array
 	private static $ps;//prepared statement array

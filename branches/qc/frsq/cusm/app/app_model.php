@@ -115,12 +115,33 @@ class AppModel extends Model {
 	function getKeyIncrement($key, $str){
 		$this->query('LOCK TABLE key_increments WRITE');
 		$result = $this->query('SELECT key_value FROM key_increments WHERE key_name="'.$key.'"');
+		if(empty($result)) return false;
 		if($this->query('UPDATE key_increments set key_value = key_value + 1 WHERE key_name="'.$key.'"') === false) {
 			$this->query('UNLOCK TABLES');
 			return false; 
 		}
 		$this->query('UNLOCK TABLES');
 		return str_replace("%%key_increment%%", $result[0]['key_increments']['key_value'], $str);
+	}
+
+	/**
+	 * Overrides Model::validates - It corrects the number fields before submitting them
+	 * @param unknown_type $options
+	 * 
+	 * @note the validated is $this->model->data. Thus calling this from a structure where the data is in
+	 * $this->data (so structure->data) will not work. Following the same example, it needs to be
+	 * $this->model->data.
+	 */
+	function validates($options = array()) {
+		//we replace the comma "," for a dot "." when the field validation is a number - usefull for international radix
+		foreach($this->validate as $field => $rules_arr){
+			foreach($rules_arr as $rule){
+				if(strlen($this->data[$this->name][$field]) > 0 && ($rule['rule'] == VALID_FLOAT || $rule['rule'] == VALID_FLOAT_POSITIVE)){
+					$this->data[$this->name][$field] = str_replace(",", ".", $this->data[$this->name][$field]);
+				}
+			}
+		}
+		return Model::validates($options);
 	}
 }
 

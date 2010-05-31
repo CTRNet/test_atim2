@@ -31,7 +31,6 @@ class Structure extends AppModel {
 	}
 	
 	function find($conditions = null, $fields = array(), $order = null, $recursive = null) {
-		
 		$result = parent::find(( ($conditions=='rule' || $conditions=='rules') ? 'first' : $conditions ),$fields,$order,$recursive);
 		
 		if ( $result ) {
@@ -39,17 +38,48 @@ class Structure extends AppModel {
 			if ( $conditions=='rule' || $conditions=='rules' ) {
 				
 				$return = array();
-				
 				foreach ( $result['StructureFormat'] as $structure_format  ) {
 					
 					if ( !isset($return[ $structure_format['StructureField']['model'] ]) ) {
 						$return[ $structure_format['StructureField']['model'] ] = array();
 					}
-					
+					$tmp_type = $structure_format['flag_override_type'] ? $structure_format['type'] : $structure_format['StructureField']['type'];
+					$tmp_rule = NULL;
+					$tmp_msg = NULL;
+					if($tmp_type == "integer"){
+						$tmp_rule = VALID_INTEGER;
+						$tmp_msg = "error_must_be_integer";
+					}else if($tmp_type == "integer_positive"){
+						$tmp_rule = VALID_INTEGER_POSITIVE;
+						$tmp_msg = "error_must_be_positive_integer";
+					}else if($tmp_type == "float" || $tmp_type == "number"){
+						$tmp_rule = VALID_FLOAT;
+						$tmp_msg = "error_must_be_float";
+					}else if($tmp_type == "float_positive"){
+						$tmp_rule = VALID_FLOAT_POSITIVE;
+						$tmp_msg = "error_must_be_positive_float";
+					}else if($tmp_type == "datetime"){
+						$tmp_rule = VALID_DATETIME_YMD;
+						$tmp_msg = "this is not a datetime";
+					}else if($tmp_type == "date"){
+						$tmp_rule = "date";
+						$tmp_msg = "this is not a date";
+					}
+					if($tmp_rule != NULL){
+						$structure_format['StructureField']['StructureValidation'][] = array(
+							'structure_field_id' => $structure_format['StructureField']['id'],
+							'rule' => $tmp_rule, 
+							'flag_empty' => 1, 
+							'flag_required' => 0, 
+							'on_action' => NULL,
+							'language_message' => $tmp_msg);
+					}
+//					pr($structure_format['StructureField']['StructureValidation']);
 					foreach ( $structure_format['StructureField']['StructureValidation'] as $validation ) {
-						
 						$rule = split(',',$validation['rule']);
-							if(count($rule) == 1) $rule = $rule[0];
+						if(count($rule) == 1){
+							$rule = $rule[0];
+						}
 						
 						$allow_empty =  $validation['flag_empty'] ? true : false;
 						$required = $validation['flag_required'] ? true : false;

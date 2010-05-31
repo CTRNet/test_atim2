@@ -22,14 +22,14 @@ class ProtocolMaster extends ProtocolAppModel {
 			
 			$return = array(
 				'Summary'	 => array(
-					'menu'			=>	array( NULL, __($result['ProtocolMaster']['name'], TRUE)),
-					'title'			=>	array( NULL, __($result['ProtocolMaster']['name'], TRUE)),
+					'menu'			=>	array( NULL, $result['ProtocolMaster']['code']),
+					'title'			=>	array( NULL, $result['ProtocolMaster']['code']),
 					
 					'description'	=>	array(
-						__('code', TRUE)		=>	__($result['ProtocolMaster']['code'], TRUE),
-						__('type', TRUE)	    =>  __($result['ProtocolMaster']['type'], TRUE),
-						__('status', TRUE) 		=> __($result['ProtocolMaster']['status'], TRUE),
-						__('notes', TRUE) 		=> __($result['ProtocolMaster']['notes'], TRUE)
+						__('tumour group', TRUE)		=>	__($result['ProtocolMaster']['tumour_group'], TRUE),
+						__('type', TRUE)		=>	__($result['ProtocolMaster']['type'], TRUE),
+						__('name', TRUE)		=>	$result['ProtocolMaster']['name'],
+						__('arm', TRUE)	    =>  $result['ProtocolMaster']['arm']
 					)
 				)
 			);
@@ -37,6 +37,28 @@ class ProtocolMaster extends ProtocolAppModel {
 		
 		return $return;
 	}
+	
+	/**
+	 * Get permissible values array gathering all existing protocol.
+	 *
+	 * @return Array having following structure:
+	 * 	array ('value' => 'ProtocolMaster.id ', 'default' => (translated string describing protocol))
+	 * 
+	 * @author N. Luc
+	 * @since 2010-05-26
+	 * @updated N. Luc
+	 */  	
+	function getProtocolPermissibleValuesFromId() {
+		$result = array();
+
+		// Build tmp array to sort according translation
+		foreach($this->find('all', array('order' => 'ProtocolMaster.code')) as $new_protocol) {
+			$result[] = array('value' => $new_protocol['ProtocolMaster']['id'], 'default' => $new_protocol['ProtocolMaster']['code'] . ' : ' . (empty($new_protocol['ProtocolMaster']['name'])? '-' : $new_protocol['ProtocolMaster']['name']));
+		}
+				
+		return $result;
+	}	
+	
 }
 
 ?>
