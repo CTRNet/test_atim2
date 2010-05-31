@@ -1986,7 +1986,6 @@ class StructuresHelper extends Helper {
 					$aco_alias = 'controllers/'.($parts['plugin'] ? Inflector::camelize($parts['plugin']).'/' : '');
 					$aco_alias .= ($parts['controller'] ? Inflector::camelize($parts['controller']).'/' : '');
 					$aco_alias .= ($parts['action'] ? $parts['action'] : '');
-					echo("[".$aco_alias." - ".$aro_alias."]");
 					$Acl = new AclComponent();
 				// }	
 				
