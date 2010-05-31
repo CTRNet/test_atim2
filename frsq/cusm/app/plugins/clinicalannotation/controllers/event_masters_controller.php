@@ -33,6 +33,7 @@ class EventMastersController extends ClinicalannotationAppController {
 			$_SESSION['MasterDetail_filter']['EventMaster.event_control_id'] = $event_control_id;
 			
 			$filter_data = $this->EventControl->find('first',array('conditions'=>array('EventControl.id'=>$event_control_id)));
+			if(empty($filter_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
 			$this->Structures->set($filter_data['EventControl']['form_alias']);
 		}
 			
@@ -48,15 +49,6 @@ class EventMastersController extends ClinicalannotationAppController {
 		// find all EVENTCONTROLS, for ADD form
 		$event_controls = $this->EventControl->find('all', array('conditions'=>array('EventControl.event_group'=>$event_group, 'EventControl.flag_active' => '1' )));
 		$this->set( 'event_controls', $event_controls );
-	
-		$disease_site_list = array();
-		$event_type = array();
-		foreach($event_controls as $new_event_ctr) {
-			$disease_site_list[$new_event_ctr['EventControl']['disease_site']] = __($new_event_ctr['EventControl']['disease_site'], true);
-			$event_type[$new_event_ctr['EventControl']['event_type']] = __($new_event_ctr['EventControl']['event_type'], true);
-		}
-		$this->set('disease_site_list', $disease_site_list);
-		$this->set('event_type', $event_type);
 				
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
@@ -70,7 +62,7 @@ class EventMastersController extends ClinicalannotationAppController {
 		$this->data = $this->EventMaster->find('first',array('conditions'=>array('EventMaster.id'=>$event_master_id, 'EventMaster.participant_id'=>$participant_id)));
 		if(empty($this->data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }	
 
-		$this->set('dx_data', $this->DiagnosisMaster->find('all', array('conditions' => array('DiagnosisMaster.id' => $this->data['EventMaster']['diagnosis_master_id']))));		
+		$this->set('dx_data', (empty($this->data['EventMaster']['diagnosis_master_id'])? array() : $this->DiagnosisMaster->find('all', array('conditions' => array('DiagnosisMaster.id' => $this->data['EventMaster']['diagnosis_master_id'])))));		
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu', $this->Menus->get('/'.$this->params['plugin'].'/'.$this->params['controller'].'/listall/'.$event_group) );

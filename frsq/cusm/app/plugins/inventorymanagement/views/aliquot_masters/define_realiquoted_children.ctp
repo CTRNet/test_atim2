@@ -9,10 +9,6 @@
 
 	$structure_override = array();
 	
-	if(isset($default_realiquoting_date)) { $structure_override['AliquotUse.use_datetime'] = $default_realiquoting_date; }
-	
-	$structure_override['GeneratedParentAliquot.aliquot_volume_unit'] = $parent_aliquot_volume_unit;
-	
 	$final_atim_structure = $atim_structure_for_children_aliquots_selection; 
 	$final_options =  array('type'=>'datagrid', 'links' => $structure_links, 'settings' => $structure_settings, 'override' => $structure_override);
 	

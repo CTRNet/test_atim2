@@ -2,7 +2,7 @@
 
 class MiscIdentifiersController extends ClinicalannotationAppController {
 
-	var $components = array('Clinicalannotation.MiscIdentifiers'); 
+	var $components = array(); 
 		
 	var $uses = array(
 		'Clinicalannotation.MiscIdentifier',
@@ -17,8 +17,6 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 						
 		$_SESSION['ctrapp_core']['search'] = null; // clear SEARCH criteria
 		
-		$this->set('identifier_names_list', $this->MiscIdentifiers->getIdentiferNamesListForDisplay());
-		
 		$this->Structures->set('miscidentifierssummary');
 				
 		$hook_link = $this->hook('format');
@@ -29,8 +27,9 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 	
 	function search() {
 		$this->set('atim_menu', $this->Menus->get('/clinicalannotation/participants/index'));
+		$this->Structures->set('miscidentifierssummary');
 			
-		if($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions();
+		if($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions($this->viewVars['atim_structure']);
 
 		$belongs_to_details = array(
 			'belongsTo' => array(
@@ -42,10 +41,6 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 		$this->data = $this->paginate($this->MiscIdentifier, $_SESSION['ctrapp_core']['search']['criteria']);
 		$this->MiscIdentifier->unbindModel(array('belongsTo' => array('Participant')), false);
 
-		$this->set('identifier_names_list', $this->MiscIdentifiers->getIdentiferNamesListForDisplay());
-		
-		$this->Structures->set('miscidentifierssummary');
-		
 		// if SEARCH form data, save number of RESULTS and URL
 		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['MiscIdentifier']['count'];
 		$_SESSION['ctrapp_core']['search']['url'] = '/clinicalannotation/misc_identifiers/search';
@@ -67,8 +62,6 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 		
 		$this->set('identifier_controls_list', $this->MiscIdentifierControl->find('all', array('conditions' => array('flag_active' => '1'))));
 
-		$this->set('identifier_names_list', $this->MiscIdentifiers->getIdentiferNamesListForDisplay());
-		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
 				
@@ -84,8 +77,6 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 		$misc_identifier_data = $this->MiscIdentifier->find('first', array('conditions'=>array('MiscIdentifier.id'=>$misc_identifier_id, 'MiscIdentifier.participant_id'=>$participant_id), 'recursive' => '-1'));		
 		if(empty($misc_identifier_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
 		$this->data = $misc_identifier_data;
-		
-		$this->set('identifier_names_list', $this->MiscIdentifiers->getIdentiferNamesListForDisplay());
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'MiscIdentifier.id'=>$misc_identifier_id) );
@@ -106,7 +97,14 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 		$controls = $this->MiscIdentifierControl->find('first', array('conditions' => array('MiscIdentifierControl.id' => $misc_identifier_control_id)));
 		if(empty($controls)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
 		
-		$this->set('identifier_names_list', $this->MiscIdentifiers->getIdentiferNamesListForDisplay());
+		if($controls['MiscIdentifierControl']['flag_once_per_participant']) {
+			// Check identifier has not already been created
+			$already_exist = $this->MiscIdentifier->find('count', array('condition' => array('misc_identifier_control_id' => $misc_identifier_control_id, 'participant_id' => $participant_id)));
+			if($already_exist) {
+				$this->flash( 'this identifier has already been created for this participant','/clinicalannotation/misc_identifiers/listall/'.$participant_id.'/' );
+				return;
+			}
+		}
 		
 		$is_incremented_identifier = (empty($controls['MiscIdentifierControl']['autoincrement_name'])? false: true);
 		
@@ -178,8 +176,6 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 		if(empty($misc_identifier_data) || (!isset($misc_identifier_data['MiscIdentifierControl'])) || empty($misc_identifier_data['MiscIdentifierControl']['id'])) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
 
 		$is_incremented_identifier = (empty($misc_identifier_data['MiscIdentifierControl']['autoincrement_name'])? false: true);
-		
-		$this->set('identifier_names_list', $this->MiscIdentifiers->getIdentiferNamesListForDisplay());
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		

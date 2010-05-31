@@ -16,8 +16,8 @@ class Participant extends ClinicalannotationAppModel {
 			
 			$return = array(
 				'Summary'	 => array(
-					'menu'			=>	array( NULL, ($result['Participant']['participant_identifier'].' - '.$result['Participant']['last_name']) ),
-					'title'			=>	array( NULL, ($result['Participant']['participant_identifier'].' - '.$result['Participant']['last_name']) ),
+					'menu'			=>	array( NULL, ($result['Participant']['participant_identifier']) ),
+					'title'			=>	array( NULL, ($result['Participant']['participant_identifier']) ),
 					
 					'description'		=>	array(
 						__('participant identifier', TRUE)	=>	$result['Participant']['participant_identifier'],

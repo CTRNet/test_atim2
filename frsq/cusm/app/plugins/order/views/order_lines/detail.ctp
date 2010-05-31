@@ -9,8 +9,6 @@
 	);
 	
 	$structure_override = array();
-	$structure_override['OrderLine.sample_control_id'] = $sample_controls_list;
-	$structure_override['OrderLine.aliquot_control_id'] = $aliquot_controls_list;
 
 	$final_atim_structure = $atim_structure; 
 	$final_options = array('links'=>$structure_links,'override'=>$structure_override);

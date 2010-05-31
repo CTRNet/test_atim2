@@ -145,12 +145,16 @@ a {
 	background-color: #ffc;
 }
 
+.validation {
+	background-color: #DFD;	
+}
+
 .readonly {
 	background-color: #f3f3f9;
 	color: #889;
 }
 
-.error {
+.error, .form-error {
 	background-color: #fcc;
 }
 
@@ -1022,8 +1026,11 @@ a.collection { background: url("../img/icons/collection_16x16.png") no-repeat le
 a.default { background: url("../img/icons/Document Blank_16x16.png") no-repeat left center; }
 a.delete { background: url("../img/icons/Close_16x16.png") no-repeat left center; }
 a.detail { background: url("../img/icons/Control Play_16x16.png") no-repeat left center; }
+a.disabled { background: url("../img/icons/light_off_16x16.png") no-repeat left center; text-decoration: none; color: #000;}
+a.drug { background: url("../img/icons/Security_16x16.png") no-repeat center center; }
 a.duplicate { background: url("../img/icons/Documents x3_16x16.png") no-repeat center center; }
 a.edit { background: url("../img/icons/Edit_16x16.png") no-repeat left center; }
+a.enabled { background: url("../img/icons/light_on_16x16.png") no-repeat left center; text-decoration: none; color: #000;}
 a.filter { background: url("../img/icons/Tag_16x16.png") no-repeat left center; }
 a.flask { background: url("../img/icons/flask_16x16.png") no-repeat left center; }
 a.grid { background: url("../img/icons/Table_16x16.png") no-repeat left center; }
@@ -1038,10 +1045,11 @@ a.reveal { background: url("../img/icons/Relationship Data_16x16.png") no-repeat
 a.reveal.not_allowed { background: url("../img/icons/Relationship Data_16x16.png") no-repeat left center; }
 a.redo { background: url("../img/icons/Refresh_16x16.png") no-repeat left center; }
 a.summary { background: url("../img/icons/Paste_16x16.png") no-repeat left center; }
-a.search { background: url("../img/icons/Preview_16x16.png") no-repeat left center; text-decoration: none; color: #000;}
+a.search { background: url("../img/icons/Preview_16x16.png") no-repeat 10px center; text-decoration: none; color: #000;}
 a.search_results { background: url("../img/icons/Preview_16x16.png") no-repeat left center; }
 a.slide { background: url("../img/icons/slide_16x16.png") no-repeat left center; }
 a.storage, a.form.plugin.storagelayout {	background: url("../img/icons/storage_16x16.png") no-repeat left center; }
+a.submit{ background: url("../img/icons/Save_16x16.png") no-repeat 10px center; text-decoration: none; color: #000;}
 a.thumbsdown { background: url("../img/icons/Flag Black_16x16.png") no-repeat left center; }
 a.thumbsup { background: url("../img/icons/Flag Green_16x16.png") no-repeat left center; }
 a.users { background: url("../img/icons/Group_16x16.png") no-repeat left center; }
@@ -1178,23 +1186,19 @@ div#wrapper table.structure table.columns td a.not_allowed {
 		background: url(../img/btnBack.png);
 		display: inline-block;
 		margin: 10px;
+		padding: 0px;
 		/*line-height: 30px;*/
-		padding-top: 1px;
 		-moz-border-radius: 5px; -webkit-border-radius: 5px;
 	}
 	
-	fieldset.submit input.submit, a.submit{
-		background-image: url("../img/icons/Save_16x16.png");
-		background-repeat: no-repeat;
-		background-position: 10px center; 
-		background-color: none;
-		padding: 8px 12px 7px 30px;
+	fieldset.submit input.submit, a.submit, fieldset.submit a.search{
+		padding: 3px 12px 2px 30px;
 		font-size: 12px;
 		cursor: pointer;
 		border-color: #999999;
 		text-decoration:none;
 		color: #000;
-		
+		display: inline-block;
 		-moz-border-radius: 3px; -webkit-border-radius: 3px;
 	}
 	
@@ -1406,7 +1410,7 @@ img.fake_datepicker{
 	position: absolute; 
 	left: 3px; 
 	top: -1px; 
-	z-index: -1;
+	z-index: 1;
 	cursor: pointer;
 }
 
@@ -1417,4 +1421,20 @@ tr.highlight, td.highlight{
 .untranslated{
 	background-color: red;
 	color: black;
+}
+
+span.tooltip{
+	position: relative;
+}
+span.tooltip div{
+	display: none;
+	border-style: solid;
+	position: absolute;
+	left: 0px;
+	top: 15px;
+	padding: 30px;
+	border-width: 1px;
+	z-index : 1;
+	background-color: #FFFFFF;
+	/* note that some styling is made through js to counter some css hierarchy issues*/
 }

@@ -4,8 +4,7 @@
 		'bottom'=>array('cancel'=>'/clinicalannotation/misc_identifiers/listall/'.$atim_menu_variables['Participant.id'].'/')
 	);
 	
-	$structure_override = array();
-	$structure_override['MiscIdentifier.identifier_name'] = $identifier_names_list;		
+	$structure_override = array();	
 
 	// Set form structure and option 
 	$final_atim_structure = $atim_structure; 

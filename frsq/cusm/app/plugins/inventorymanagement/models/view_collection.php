@@ -11,7 +11,7 @@ class ViewCollection extends InventorymanagementAppModel {
 		
 			$return = array(
 				'Summary' => array(
-					'menu' => array($collection_data['ViewCollection']['acquisition_label']),
+					'menu' => array(null, $collection_data['ViewCollection']['acquisition_label']),
 					'title' => array(null, __('collection', true) . ' : ' . $collection_data['ViewCollection']['acquisition_label']),
 					
 					'description'=> array(

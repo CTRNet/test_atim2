@@ -5,16 +5,16 @@ class UsersController extends AdministrateAppController {
 	var $uses = array('User');
 	var $paginate = array('User'=>array('limit' => pagination_amount,'order'=>'User.username ASC')); 
 	
-	function listall( $bank_id, $group_id ) {
-		$this->set( 'atim_menu_variables', array('Bank.id'=>$bank_id,'Group.id'=>$group_id) );
+	function listall($group_id ) {
+		$this->set( 'atim_menu_variables', array('Group.id'=>$group_id) );
 		
 		$this->hook();
 		
 		$this->data = $this->paginate($this->User, array('User.group_id'=>$group_id));
 	}
 	
-	function detail( $bank_id, $group_id, $user_id ) {
-		$this->set( 'atim_menu_variables', array('Bank.id'=>$bank_id,'Group.id'=>$group_id,'User.id'=>$user_id) );
+	function detail($group_id, $user_id ) {
+		$this->set( 'atim_menu_variables', array('Group.id'=>$group_id,'User.id'=>$user_id) );
 		
 		$this->hook();
 		
@@ -24,8 +24,8 @@ class UsersController extends AdministrateAppController {
 		}
 	}
 
-	function add($bank_id, $group_id){
-		$this->set( 'atim_menu_variables', array('Bank.id'=>$bank_id,'Group.id'=>$group_id) );
+	function add($group_id){
+		$this->set( 'atim_menu_variables', array('Group.id'=>$group_id) );
 	
 		$this->Structures->set('users');
 		$hook_link = $this->hook('format');
@@ -52,7 +52,7 @@ class UsersController extends AdministrateAppController {
 			
 			if($submitted_data_validates) {
 				if($this->User->save($this->data)){
-					$this->flash( 'your data has been saved', '/administrate/users/detail/'.$bank_id.'/'.$group_id.'/'.$this->User->getLastInsertId().'/' );
+					$this->flash( 'your data has been saved', '/administrate/users/detail/'.$group_id.'/'.$this->User->getLastInsertId().'/' );
 				}
 			}
 			//reset password display
@@ -61,8 +61,8 @@ class UsersController extends AdministrateAppController {
 		}
 	}
 	
-	function edit($bank_id, $group_id, $user_id){
-		$this->set( 'atim_menu_variables', array('Bank.id'=>$bank_id,'Group.id'=>$group_id, 'User.id'=>$user_id) );
+	function edit($group_id, $user_id){
+		$this->set( 'atim_menu_variables', array('Group.id'=>$group_id, 'User.id'=>$user_id) );
 	
 		$this->Structures->set('users');
 		$hook_link = $this->hook('format');
@@ -80,7 +80,7 @@ class UsersController extends AdministrateAppController {
 			
 			if($submitted_data_validates) {
 				if($this->User->save($this->data)){
-					$this->flash( 'your data has been saved', '/administrate/users/detail/'.$bank_id.'/'.$group_id.'/'.$user_id.'/' );
+					$this->flash( 'your data has been saved', '/administrate/users/detail/'.$group_id.'/'.$user_id.'/' );
 				}
 			}
 		}

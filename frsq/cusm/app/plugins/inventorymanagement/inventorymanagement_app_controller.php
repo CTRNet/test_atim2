@@ -177,7 +177,7 @@ class InventorymanagementAppController extends AppController {
 	function getSpentTime($start_date, $end_date){
 		$arr_spent_time 
 			= array(
-				'message' => '',
+				'message' => null,
 				'days' => '0',
 				'hours' => '0',
 				'minutes' => '0');
@@ -203,7 +203,7 @@ class InventorymanagementAppController extends AppController {
 				$arr_spent_time['message'] = 'error in the date definitions';
 			} else if($spent_time == 0){
 				// Nothing to change to $arr_spent_time
-				$arr_spent_time['message'] = 'null';
+				$arr_spent_time['message'] = '0';
 			} else {
 				// Return spend time
 				$arr_spent_time['days'] = floor($spent_time / 86400);
@@ -244,15 +244,16 @@ class InventorymanagementAppController extends AppController {
 	
 	function manageSpentTimeDataDisplay($spent_time_data) {
 		$spent_time_msg = '';
-		if(!empty($spent_time_data)) {		
-			if(!empty($spent_time_data['message'])) { 
-				$spent_time_msg = __($spent_time_data['message'], TRUE); 
+		if(!empty($spent_time_data)) {	
+			if(!is_null($spent_time_data['message'])) {
+				$spent_time_msg = ($spent_time_data['message'] == '0')? $spent_time_data['message'] : __($spent_time_data['message'], TRUE); 
 			} else {
 				$spent_time_msg = $this->translateDateValueAndUnit($spent_time_data, 'days') 
 								.$this->translateDateValueAndUnit($spent_time_data, 'hours') 
 								.$this->translateDateValueAndUnit($spent_time_data, 'minutes');
 			} 	
 		}
+		
 		return $spent_time_msg;
 	}
 	

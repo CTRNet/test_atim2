@@ -1,13 +1,13 @@
 <?php
 
-class PreferencesController extends AppController {
+class PreferencesController extends AdministrateAppController {
 	
 	var $name = 'Preferences';
 	var $uses = array('User', 'Config');
 	
-	function index( $bank_id, $group_id, $user_id ) {
+	function index($group_id, $user_id ) {
 		$this->Structures->set('preferences');
-		$this->set( 'atim_menu_variables', array('Bank.id'=>$bank_id,'Group.id'=>$group_id,'User.id'=>$user_id) );
+		$this->set( 'atim_menu_variables', array('Group.id'=>$group_id,'User.id'=>$user_id) );
 		
 		// get USER data
 		
@@ -33,9 +33,9 @@ class PreferencesController extends AppController {
 			$this->data['Config'] = $config_results['Config'];
 	}
 	
-	function edit( $bank_id, $group_id, $user_id ) {
+	function edit($group_id, $user_id ) {
 		$this->Structures->set('preferences');
-		$this->set( 'atim_menu_variables', array('Bank.id'=>$bank_id,'Group.id'=>$group_id,'User.id'=>$user_id) );
+		$this->set( 'atim_menu_variables', array('Group.id'=>$group_id,'User.id'=>$user_id) );
 		
 		$config_id = NULL;
 		
