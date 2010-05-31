@@ -490,7 +490,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 			."LEFT JOIN storage_masters_revs AS StorageMastersModRev ON AliquotMastersRev.storage_master_id=StorageMastersModRev.id AND StorageMastersModRev.modified > AliquotMastersRev.modified AND (StorageMastersModRev.modified < aliquot_after.modified OR aliquot_after.modified IS NULL) " 
 			."LEFT JOIN storage_masters_revs AS StorageMastersInitRev ON (AliquotMastersRev.storage_master_id!=aliquot_before.storage_master_id OR aliquot_before.storage_master_id IS NULL) AND StorageMastersInitRev.version_id=(SELECT version_id FROM storage_masters_revs WHERE id=AliquotMastersRev.storage_master_id AND storage_masters_revs.modified <= AliquotMastersRev.modified ORDER BY modified DESC LIMIT 1) "
 			."WHERE AliquotMastersRev.id=".$aliquot_master_id." ORDER BY AliquotMastersRev.modified";
-			echo $qry;
 		$storage_data_tmp = $this->AliquotMaster->query($qry);
 		$previous = NULL;
 		$current_storage = NULL;
