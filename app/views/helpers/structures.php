@@ -1986,13 +1986,16 @@ class StructuresHelper extends Helper {
 					$aco_alias = 'controllers/'.($parts['plugin'] ? Inflector::camelize($parts['plugin']).'/' : '');
 					$aco_alias .= ($parts['controller'] ? Inflector::camelize($parts['controller']).'/' : '');
 					$aco_alias .= ($parts['action'] ? $parts['action'] : '');
-					
+					echo("[".$aco_alias." - ".$aro_alias."]");
 					$Acl = new AclComponent();
 				// }	
 				
 				// if ACO/ARO permissions check succeeds, create link
 				// if ( Configure::read("debug") || strpos($aco_alias,'controllers/Users')!==false || strpos($aco_alias,'controllers/Pages')!==false || $Acl->check($aro_alias, $aco_alias) ) {
-				if ( strpos($aco_alias,'controllers/Users')!==false || strpos($aco_alias,'controllers/Pages')!==false || $Acl->check($aro_alias, $aco_alias) ) {
+				if ( strpos($aco_alias,'controllers/Users')!==false 
+				|| strpos($aco_alias,'controllers/Pages')!==false
+				|| $aco_alias == "controllers/Menus/index"
+				|| $Acl->check($aro_alias, $aco_alias) ) {
 					
 					$display_class_name = $this->generate_link_class($link_name, $link_location);
 					$htmlAttributes['title'] = strip_tags( html_entity_decode(__($link_name, true), ENT_QUOTES, "UTF-8") ); 
