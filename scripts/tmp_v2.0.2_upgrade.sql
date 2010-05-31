@@ -1543,9 +1543,9 @@ INSERT INTO `acos` (`id`, `parent_id`, `model`, `foreign_key`, `alias`, `lft`, `
 UPDATE menus SET language_title = 'precision' WHERE id = 'clin_CAN_80';
 
 INSERT IGNORE INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES
-('precision', 'global', 'Precision', 'Précision');
-
-TRUNCATE key_increments;
+('precision', 'global', 'Precision', 'Précision'),
+('storage initial temperature', '', 'Storage initial temperature', "Température initiale de l'entreposage"),
+('from', '', 'From', 'De');
 
 -- Swap value dead with deceased for health_status
 INSERT INTO `structure_permissible_values` (`value`, `language_alias`) VALUES
@@ -1565,6 +1565,8 @@ WHERE `value` = 'dead';
 
 INSERT IGNORE INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES
 ('deceased', 'global', 'Deceased', 'Décédé');
+
+UPDATE participants SET vital_status='deceased' WHERE vital_status='dead';
 
 -- Clean up storage layout display
 
