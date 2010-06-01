@@ -2502,7 +2502,7 @@ class StructuresHelper extends Helper {
 		}
 		
 		$date .= '<span style="position: relative;">
-				<input type="button" id="'.$model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix.'_button" class="datepicker" value="" tabindex="'.$html_element_array['tabindex'].'"/>
+				<input type="button" id="'.$model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix.'_button" class="datepicker" value=""/>
 				<img src="'.$this->webroot.'/img/cal.gif" alt="cal" class="fake_datepicker"/>
 			</span>';
 		
