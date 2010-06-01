@@ -91,3 +91,12 @@
 	$structures->build( $final_atim_structure, $final_options );	
 	
 ?>
+<script>
+var loadingStr = "<?php echo(__("loading", null)); ?>";
+</script>
+
+<?php 
+
+	echo $javascript->link('treeViewControl')."\n";
+
+?>
