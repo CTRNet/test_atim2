@@ -1,44 +1,56 @@
 <?php
 	 
 class SampleMastersControllerCustom extends SampleMastersController {
-	 
-	 function getSampleLabel($collection_id, $sample_master_data, $sample_detail = null) {
-	 	// Check parameters
-	 	if(empty($collection_id) || empty($sample_master_data)) { 
-	 		$this->redirect('/pages/err_inv_no_data', null, true); 
-	 	}
+	
+	function getTissueSourceList() {
+		return array('prostate' => __('prostate', true));
+	}
+	
+	function createSampleLabel($collection_id, $sample_data, $cusm_prostate_bank_identifier = null, $visit_label = null) {
+			
+		// Check parameters
+	 	if(empty($collection_id) || empty($sample_data) || (!isset($sample_data['SampleMaster'])) || (!isset($sample_data['SampleDetail']))) { $this->redirect('/pages/err_inv_system_error', null, true); }
 
-		// Get Collection data
-		App::import('Model', 'Inventorymanagement.ViewCollection');		
-		$this->ViewCollection = new ViewCollection();	
-		$view_collection = $this->ViewCollection->find('first', array('conditions' => array('ViewCollection.collection_id' => $collection_id)));
-		if(empty($view_collection)) { $this->redirect('/pages/err_inv_no_data', null, true); }
-		
-		// Get visit_label
-		$visit_label = strtoupper($view_collection['ViewCollection']['qc_cusm_visit_label']);
-		if(empty($visit_label)) { $visit_label = 'V0'; }
-		
-		// Get cusm_prostate_bank_identifier		
-		$cusm_prostate_bank_identifier = $view_collection['ViewCollection']['qc_cusm_prostate_bank_identifier'];
-		if(empty($cusm_prostate_bank_identifier)) { $cusm_prostate_bank_identifier = 'unknown'; }
+		// Get missing data
+		if(is_null($cusm_prostate_bank_identifier) || is_null($visit_label)) {
+			// Get Collection data
+			App::import('Model', 'Inventorymanagement.ViewCollection');		
+			$ViewCollection= new ViewCollection();
+			
+			$view_collection = $ViewCollection->find('first', array('conditions' => array('ViewCollection.collection_id' => $collection_id)));
+			if(empty($view_collection)) { $this->redirect('/pages/err_inv_system_error', null, true); }
+			
+			// Get visit_label
+			$visit_label = strtoupper($view_collection['ViewCollection']['qc_cusm_visit_label']);
+			if(empty($visit_label)) { $visit_label = 'V0'; }
+			
+			// Get cusm_prostate_bank_identifier		
+			$cusm_prostate_bank_identifier = $view_collection['ViewCollection']['qc_cusm_prostate_bank_identifier'];
+			if(empty($cusm_prostate_bank_identifier)) { $cusm_prostate_bank_identifier = 'unknown'; }			
+		}
+
 
 		// Build sample label
 		$sample_label = $cusm_prostate_bank_identifier . ' ' . $visit_label;
-		switch($sample_master_data['sample_type']) {
+		switch($sample_data['SampleMaster']['sample_type']) {
 			case 'blood':
-				switch($sample_detail['blood_type']) {
-					case 'EDTA':	
-						$sample_label .=	' -EDB';					
-						break;
-					case 'gel CSA':	
-						$sample_label .=	' -SRB';					
-						break;	
-					case 'paxgene':	
-						$sample_label .=	' -RNB';					
-						break;						
-					case 'unknown':
-					default:	
-						$sample_label .=	' -unknown';
+				if(isset($sample_data['SampleDetail']['blood_type'])) {
+					switch($sample_data['SampleDetail']['blood_type']) {
+						case 'EDTA':	
+							$sample_label .=	' -EDB';					
+							break;
+						case 'gel CSA':	
+							$sample_label .=	' -SRB';					
+							break;	
+						case 'paxgene':	
+							$sample_label .=	' -RNB';					
+							break;						
+						case 'unknown':
+						default:
+							$sample_label .= ' -unknown';	
+					}	
+				} else {
+					$sample_label .= ' -unknown';
 				}
 				break;
 			case 'serum':
@@ -72,11 +84,7 @@ class SampleMastersControllerCustom extends SampleMastersController {
 		}
  		
  		return $sample_label;
-	 }
-	
-	function getTissueSourceList() {
-		return array('prostate' => __('prostate', true));
-	}
+	 }	
 	 
 }
 	
