@@ -122,7 +122,7 @@
 	<div style="margin-top: 10px;">
 		<form method="post">
 			<input type="hidden" id="data" name="data" value="patate chaude" />
-					<span class="button large">
+					<span class="button large" style="line-height: inherit;">
 						<a href="#" id="submit_button_link" onclick="$('#submitButton').click();" class="form submit" tabindex="1020"><?php echo(__('submit', true));  ?></a>
 					</span>
 
