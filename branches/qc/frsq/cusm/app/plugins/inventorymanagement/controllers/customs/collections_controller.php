@@ -5,6 +5,16 @@ class CollectionsControllerCustom extends CollectionsController {
 	function updateCollectionSampleLabels($collection_data, $qc_cusm_prostate_bank_identifier = null) {
 		$collection_id = $collection_data['Collection']['id'];
 		
+		if(!isset($this->SampleMaster)) {
+			App::import('Model', 'Inventorymanagement.SampleMaster');
+			$this->SampleMaster = new SampleMaster();
+		}
+		
+		if(!isset($this->ViewCollection)) {
+			App::import('Model', 'Inventorymanagement.ViewCollection');
+			$this->ViewCollection = new ViewCollection();
+		}
+		
 		// Get qc_cusm_prostate_bank_identifier
 		if(is_null($qc_cusm_prostate_bank_identifier)) {
 			$collection_view_data = $this->ViewCollection->find('first', array('conditions' => array('ViewCollection.collection_id' => $collection_id)));
@@ -16,7 +26,8 @@ class CollectionsControllerCustom extends CollectionsController {
 		$qc_cusm_visit_label = $collection_data['Collection']['qc_cusm_visit_label'];
 		
 		// Get collection samples list
-		$this->SampleMaster->contain(array('SampleControl', 'SpecimenDetail', 'DerivativeDetail', 'SampleDetail'));
+//		$this->SampleMaster->contain(array('SampleControl', 'SpecimenDetail', 'DerivativeDetail', 'SampleDetail'));
+		$this->SampleMaster->unbindModel(array('hasMany' => array('AliquotMaster'), 'belongsTo' => array('Collection')));
 		$collection_samples = $this->SampleMaster->find('all', array('conditions' => array('SampleMaster.collection_id' => $collection_id), 'recursive' => '1'));
 		
 		// Update collection samples label
