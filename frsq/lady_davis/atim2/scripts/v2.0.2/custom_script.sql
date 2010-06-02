@@ -364,6 +364,65 @@ ALTER TABLE `structure_formats`
   DROP `structure_old_id`,
   DROP `structure_field_old_id`;
 
--- Unique constraint for fields, move to end of script
-ALTER TABLE `structure_fields`
-	ADD UNIQUE `unique_fields` (`field`, `tablename`, `model`, `plugin`);
+  
+ALTER TABLE sd_der_plasmas
+  ADD qc_lady_centri_1_rpm MEDIUMINT UNSIGNED DEFAULT NULL,
+  ADD qc_lady_centri_1_duration_min FLOAT UNSIGNED DEFAULT NULL,
+  ADD qc_lady_centri_2_rpm MEDIUMINT UNSIGNED DEFAULT NULL,
+  ADD qc_lady_centri_2_duration_min FLOAT UNSIGNED DEFAULT NULL;
+ALTER TABLE sd_der_plasmas_revs
+  ADD qc_lady_centri_1_rpm MEDIUMINT UNSIGNED DEFAULT NULL,
+  ADD qc_lady_centri_1_duration_min FLOAT UNSIGNED DEFAULT NULL,
+  ADD qc_lady_centri_2_rpm MEDIUMINT UNSIGNED DEFAULT NULL,
+  ADD qc_lady_centri_2_duration_min FLOAT UNSIGNED DEFAULT NULL;
+UPDATE sd_der_plasmas SET qc_lady_centri_1_rpm='2000', qc_lady_centri_1_duration_min='10', qc_lady_centri_2_rpm='13000', qc_lady_centri_2_duration_min='15' WHERE qc_lady_double_centrifugation='1';
+UPDATE sd_der_plasmas_revs SET qc_lady_centri_1_rpm='2000', qc_lady_centri_1_duration_min='10', qc_lady_centri_2_rpm='13000', qc_lady_centri_2_duration_min='15' WHERE qc_lady_double_centrifugation='1';
+UPDATE sd_der_plasmas SET qc_lady_centri_1_rpm='2000', qc_lady_centri_1_duration_min='10' WHERE qc_lady_double_centrifugation='0';
+UPDATE sd_der_plasmas_revs SET qc_lady_centri_1_rpm='2000', qc_lady_centri_1_duration_min='10' WHERE qc_lady_double_centrifugation='0';
+ALTER TABLE sd_der_plasmas
+  DROP qc_lady_double_centrifugation;
+ALTER TABLE sd_der_plasmas_revs
+  DROP qc_lady_double_centrifugation;
+  
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Inventorymanagement', 'SampleDetail', 'sd_der_plasmas', 'qc_lady_centri_1_duration_min', 'centri 1 duration min', '', 'float_positive', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Inventorymanagement', 'SampleDetail', 'sd_der_plasmas', 'qc_lady_centri_2_rpm', 'centri 2 rpm', '', 'integer_positive', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Inventorymanagement', 'SampleDetail', 'sd_der_plasmas', 'qc_lady_centri_2_duration_min', 'centri 2 duration min', '', 'float_positive', '', '',  NULL , '', 'open', 'open', 'open');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_der_plasmas'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_plasmas' AND `field`='qc_lady_centri_1_duration_min' AND `language_label`='centri 1 duration min' AND `language_tag`='' AND `type`='float_positive' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '101', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='sd_der_plasmas'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_plasmas' AND `field`='qc_lady_centri_2_rpm' AND `language_label`='centri 2 rpm' AND `language_tag`='' AND `type`='integer_positive' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '102', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='sd_der_plasmas'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_plasmas' AND `field`='qc_lady_centri_2_duration_min' AND `language_label`='centri 2 duration min' AND `language_tag`='' AND `type`='float_positive' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '103', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1');
+UPDATE structure_fields SET  `tablename`='sd_der_plasmas',  `field`='qc_lady_centri_1_rpm',  `language_label`='centri 1 rpm',  `type`='integer_positive',  `structure_value_domain`= NULL  WHERE model='SampleDetail' AND tablename='' AND field='qc_lady_double_centrifugation';
+
+REPLACE INTO i18n (`id`, `en`, `fr`) VALUES
+('centri 1 rpm', "Centrifugation 1 RPM", "Centrifugation 1 RPM"),
+('centri 2 rpm', "Centrifugation 2 RPM", "Centrifugation 2 RPM"),
+('centri 1 duration min', "Centrifugation 1 duration (min.)", "Centrifugation 1 durée (min.)"),
+('centri 2 duration min', "Centrifugation 2 duration (min.)", "Centrifugation 2 durée (min.)");
+
+UPDATE sample_masters SET is_problematic='no' WHERE is_problematic IS NULL;
+
+ALTER TABLE sd_der_serums
+  ADD qc_lady_centri_1_rpm MEDIUMINT UNSIGNED DEFAULT NULL,
+  ADD qc_lady_centri_1_duration_min FLOAT UNSIGNED DEFAULT NULL,
+  ADD qc_lady_centri_2_rpm MEDIUMINT UNSIGNED DEFAULT NULL,
+  ADD qc_lady_centri_2_duration_min FLOAT UNSIGNED DEFAULT NULL;
+ALTER TABLE sd_der_serums_revs
+  ADD qc_lady_centri_1_rpm MEDIUMINT UNSIGNED DEFAULT NULL,
+  ADD qc_lady_centri_1_duration_min FLOAT UNSIGNED DEFAULT NULL,
+  ADD qc_lady_centri_2_rpm MEDIUMINT UNSIGNED DEFAULT NULL,
+  ADD qc_lady_centri_2_duration_min FLOAT UNSIGNED DEFAULT NULL;
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Inventorymanagement', 'SampleDetail', 'sd_der_serums', 'qc_lady_centri_1_rpm', 'centri 1 rpm', '', 'integer_positive', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Inventorymanagement', 'SampleDetail', 'sd_der_serums', 'qc_lady_centri_1_duration_min', 'centri 1 duration min', '', 'float_positive', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Inventorymanagement', 'SampleDetail', 'sd_der_serums', 'qc_lady_centri_2_rpm', 'centri 2 rpm', '', 'integer_positive', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Inventorymanagement', 'SampleDetail', 'sd_der_serums', 'qc_lady_centri_2_duration_min', 'centri 2 duration min', '', 'float_positive', '', '',  NULL , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_der_serums'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_serums' AND `field`='qc_lady_centri_1_rpm' AND `language_label`='centri 1 rpm' AND `language_tag`='' AND `type`='integer_positive' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '101', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='sd_der_serums'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_serums' AND `field`='qc_lady_centri_1_duration_min' AND `language_label`='centri 1 duration min' AND `language_tag`='' AND `type`='float_positive' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '102', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='sd_der_serums'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_serums' AND `field`='qc_lady_centri_2_rpm' AND `language_label`='centri 2 rpm' AND `language_tag`='' AND `type`='integer_positive' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '103', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='sd_der_serums'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_serums' AND `field`='qc_lady_centri_2_duration_min' AND `language_label`='qc lady centri 2 duration min' AND `language_tag`='' AND `type`='float_positive' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '104', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1');
+
+ALTER TABLE `sd_der_serums` MODIFY `qc_lady_coagulation_time_sec` SMALLINT UNSIGNED DEFAULT NULL AFTER `deleted_date`;
+ALTER TABLE `sd_der_serums_revs` MODIFY `qc_lady_coagulation_time_sec` SMALLINT UNSIGNED DEFAULT NULL AFTER `deleted_date`;
