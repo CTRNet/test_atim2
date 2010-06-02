@@ -1045,5 +1045,8 @@ UPDATE `versions` SET `version_number` = 'v2.0.1', `date_installed` = '2010-04-1
 UPDATE `announcements` SET `date` =  '2010-04-12', `body` = 'This is a demonstration of the announcement system of the ATiM application. Thank you for using ATiM!',`created` = '2010-04-12 14:45:27',`modified` = '2010-04-12 14:45:27' WHERE `announcements`.`id` =1;
 
 
--- TODO: verify reception dr basik laboratory
--- box data?
+UPDATE structure_permissible_VALUES SET value="hood tissue culture room", language_alias="hood tissue culture room" WHERE value="custom_laboratory_site_1" AND language_alias="custom_laboratory_site_1";
+UPDATE structure_permissible_VALUES SET value="laboratory bench", language_alias="laboratory bench" WHERE value="custom_laboratory_site_2" AND language_alias="custom_laboratory_site_2";
+UPDATE structure_formats SET `flag_override_tag`=0, `language_tag`='', `flag_override_help`=0, `language_help`='', `flag_override_setting`=0, `setting`='', `flag_override_default`=0, `default`='', `flag_add`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='linked_collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Collection' AND tablename='' AND field='qc_lady_follow_up');
+
+UPDATE structure_formats SET `flag_add`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='linked_collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Collection' AND tablename='' AND field='qc_lady_type');
