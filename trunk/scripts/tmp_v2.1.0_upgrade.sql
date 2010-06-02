@@ -38,3 +38,5 @@ UPDATE structure_fields SET  `language_help`='' WHERE model='ParticipantContact'
 UPDATE structure_fields SET  `language_help`='' WHERE model='ParticipantContact' AND tablename='participant_contacts' AND field='mail_code';
 UPDATE structure_fields SET  `language_help`='help_memo' WHERE model='ParticipantContact' AND tablename='participant_contacts' AND field='notes';
 
+-- Eventum 923
+ALTER TABLE aliquot_masters DROP KEY `unique_barcode`, ADD KEY (`barcode`);
