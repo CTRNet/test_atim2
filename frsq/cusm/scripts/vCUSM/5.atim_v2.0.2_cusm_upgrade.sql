@@ -432,5 +432,20 @@ INSERT INTO `storage_masters_revs` (`id`, `code`, `storage_type`, `storage_contr
 
 SET FOREIGN_KEY_CHECKS=1;
 
-INSERT INTO `key_increments` (`key_name`, `key_value`) VALUES ('prostate_bank_participant_id', '678')
+TRUNCATE `key_increments`;
+INSERT INTO `key_increments` (`key_name`, `key_value`) VALUES ('prostate_bank_participant_id', '678');
+
+DELETE FROM `i18n` WHERE `id` IN ('core_appname','CTRApp');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('core_appname', 'global', 'ATiM - MUHC', 'ATiM - CUSM'),
+('CTRApp', 'global', 'ATiM - MUHC', 'ATiM - CUSM');
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('micro rna', '', 'Micro RNA', 'Micro ARN'),
+('sample label', '', 'Sample Label', 'Label de l''échantillon'),
+('operating room', '', 'Operating Room', 'Salle d''opération'),
+('size', '', 'Size', 'Taille');
+
+UPDATE `structure_value_domains` SET `source` = 'Inventorymanagement.SampleDetailCustom::getTissueSourcePermissibleValues' 
+WHERE `domain_name` = 'tissue_source_list';
 

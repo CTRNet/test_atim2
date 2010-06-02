@@ -2,16 +2,18 @@
 --
 -- SCRIPT to customize ATiM for CUSM Bank
 --	NOTE: 
---		- Use to add cusm application data on ATiM trunk v2.0.1 to developp 
---			the cusm atim version 2.0.1
+--		- Use to add cusm application data on ATiM trunk v2.0.2
 --		- Run following scripts in this order to:
 -- 			. \scripts\v2.0\atim_v2.0.0-DDL.sql
 -- 			. \scripts\v2.0\atim_v2.0.0-DML.sql
 -- 			. \scripts\vCUSM\1.atim_v2.0.1_upgrade_for_cusm_step_1.sql
 -- 			. \scripts\vCUSM\2.atim_v2.0.1_cusm_upgrade.sql (this file)
 -- 			. \scripts\vCUSM\3.atim_v2.0.1_upgrade_for_cusm_step_2.sql
+-- 			. \scripts\vCUSM\4.atim_v2.0.2_upgrade.sql
+-- 			. \scripts\vCUSM\5.atim_v2.0.2_cusm_upgrade.sql
 -- 		- Don't run following script
 -- 			. \scripts\v2.0.1\atim_v2.0.1_upgrade.sql
+-- 			. \scripts\v2.0.2\atim_v2.0.2_upgrade.sql
 -- -------------------------------------------------------------------
 
 -- General
