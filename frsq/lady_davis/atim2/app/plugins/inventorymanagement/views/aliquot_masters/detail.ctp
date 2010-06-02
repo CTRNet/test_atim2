@@ -40,10 +40,6 @@
 	
 	$structure_override = array();
 
-	$structure_override['AliquotMaster.sop_master_id'] = $arr_aliquot_sops_for_display;
-	$structure_override['AliquotMaster.study_summary_id'] = $arr_studies_for_display;	
-	$structure_override['AliquotUse.study_summary_id'] = $arr_studies_for_display;	
-
 	if($is_tree_view_detail_form){
 		
 		// DISPLAY ONLY ALIQUOT DETAIL FORM
@@ -54,7 +50,7 @@
 		$final_options = array('links'=>$structure_links, 'override' => $structure_override, 'data' => $aliquot_master_data);
 
 		// CUSTOM CODE
-		$hook_link = $structures->hook();
+		$hook_link = $structures->hook('aliquot_detail_1');
 		if($hook_link){
 			require($hook_link);
 		}
@@ -72,7 +68,7 @@
 		$final_options = array('override' => $structure_override, 'settings' => array('actions' => false), 'data' => $aliquot_master_data);
 		
 		// CUSTOM CODE
-		$hook_link = $structures->hook();
+		$hook_link = $structures->hook('aliquot_detail_2');
 		if($hook_link){
 			require($hook_link);
 		}
@@ -88,7 +84,7 @@
 		);
 		
 		$final_atim_structure = $aliquots_uses_structure;
-		$final_options = array('data' => $aliquots_uses_data, 'type' => 'index', 'links'=>$structure_links, 'override' => $structure_override, 'settings' => array('header' => __('uses', null), 'separator' => true));
+		$final_options = array('data' => $aliquots_uses_data, 'type' => 'index', 'links'=>$structure_links, 'override' => $structure_override, 'settings' => array('header' => __('uses', null), 'separator' => true, 'actions' => false));
 
 		// CUSTOM CODE
 		$hook_link = $structures->hook('uses');
@@ -97,6 +93,19 @@
 		}
 		
 		// BUILD FORM
+		$structures->build($final_atim_structure, $final_options);
+
+		// 3- STORAGE HISTORY	
+		
+		unset($structure_links['index']);
+		$final_atim_structure = $custom_aliquot_storage_history;
+		$final_options = array('data' => $storage_data, 'type' => 'index', 'links'=>$structure_links, 'settings' => array('header' => __('storage history', null), 'separator' => true, 'pagination' => false));
+		
+		$hook_link = $structures->hook('storage_history');
+		if($hook_link){
+			require($hook_link);
+		}
+		
 		$structures->build($final_atim_structure, $final_options);
 	}
 	

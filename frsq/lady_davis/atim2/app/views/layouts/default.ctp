@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE HTML>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 
@@ -13,20 +13,35 @@
 	<link rel="shortcut icon" href="<?php echo($this->webroot); ?>/img/favicon.ico"/>
 	<?php 
 		echo $html->css('style')."\n"; 
-		echo $html->css('datepicker')."\n";
-		echo $html->css('lightwindow')."\n";
+		echo $html->css('jQuery/themes/ui-lightness/jquery-ui-1.8.custom')."\n"; 
+		echo $html->css('jQuery/themes/jquery_cupertino/jquery-ui-1.8.custom')."\n"; 
+//		echo $html->css('datepicker')."\n";
+//		echo $html->css('lightwindow')."\n";
 
+		//set the locale
+		if(__('clin_english', true) == "Anglais"){
+			$locale = "fr";
+		}else{
+			$locale = "";
+		}
 		?>
 		<script type="text/javascript">
-		var webroot_dir = "<?php echo($this->webroot); ?>app/webroot/";
+		var root_url = "<?php echo($this->webroot); ?>";
+		var webroot_dir = root_url + "/app/webroot/";
+		var locale = "<?php echo($locale); ?>";
+		var STR_OR = "<?php __('or'); ?>";
 		</script>
-		<?php 
-		echo $javascript->link('datepicker')."\n";
-		echo $javascript->link('prototype')."\n";
-		echo $javascript->link('scriptaculous.js?load=effects,dragdrop')."\n";
-		echo $javascript->link('lightwindow')."\n";
+		<?php
+		echo $javascript->link('jquery-1.4.2.min')."\n";
+		echo $javascript->link('jquery-ui-1.8.custom.min')."\n";
+		echo $javascript->link('jquery.ui-datepicker-fr.js')."\n";
+		echo $javascript->link('jquery.highlight.js')."\n";
+//		echo $javascript->link('datepicker')."\n";
+//		echo $javascript->link('prototype')."\n";
+//		echo $javascript->link('scriptaculous.js?load=effects,dragdrop')."\n";
+//		echo $javascript->link('lightwindow')."\n";
 		echo $javascript->link('default')."\n";
-		echo $javascript->link('controls')."\n";
+//		echo $javascript->link('controls')."\n";
 	?>
 	<!--[if IE 7]>
 	<?php

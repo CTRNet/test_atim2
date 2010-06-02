@@ -12,12 +12,12 @@
 	
 	// 1- TRT
 	
-	$structure_override = array('TreatmentMaster.protocol_id'=>$protocol_list);
+	$structure_override = array();
 	
 	$structure_settings = array(
 		'actions'=>false, 
 		
-		'header' => '1- ' . __('data', null) . ' : ' . __($tx_method, null),
+		'header' => '1- ' . __('data', null) . ' : ' . $tx_header,
 		'form_bottom'=>false);
 			 	
 	$final_options = array('links'=>$structure_links,'settings'=>$structure_settings, 'override'=>$structure_override);

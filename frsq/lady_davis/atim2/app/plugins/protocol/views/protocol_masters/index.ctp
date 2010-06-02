@@ -1,9 +1,11 @@
 <?php
+
 	$add_links = array();
 	foreach ( $protocol_controls as $protocol_control ) {
-		$add_links[$protocol_control['ProtocolControl']['tumour_group'].' - '.$protocol_control['ProtocolControl']['type']] = '/protocol/protocol_masters/add/'.$protocol_control['ProtocolControl']['id'].'/';
+		$add_links[__($protocol_control['ProtocolControl']['tumour_group'],true).' - '.__($protocol_control['ProtocolControl']['type'],true)] = '/protocol/protocol_masters/add/'.$protocol_control['ProtocolControl']['id'].'/';
 	}
-
+	ksort($add_links);
+	
 	$structure_links = array(
 		'top'=>array('search'=>'/protocol/protocol_masters/search/'),
 		'bottom'=>array(
@@ -11,8 +13,14 @@
 		)
 	);
 	
+	$final_atim_structure = $atim_structure; 
+	$final_options = array('type'=>'search','links'=>$structure_links);
+	
+	// CUSTOM CODE
 	$hook_link = $structures->hook();
 	if( $hook_link ) { require($hook_link); }
-	
-	$structures->build( $atim_structure, array('type'=>'search','links'=>$structure_links) );
+		
+	// BUILD FORM
+	$structures->build( $final_atim_structure, $final_options );' .
+			'
 ?>

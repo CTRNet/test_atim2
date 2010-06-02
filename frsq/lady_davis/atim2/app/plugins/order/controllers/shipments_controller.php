@@ -11,11 +11,9 @@ class ShipmentsController extends OrderAppController {
 		'Order.OrderLine', 
 		
 		'Inventorymanagement.AliquotMaster',
-		'Inventorymanagement.SampleControl',
-		'Inventorymanagement.AliquotControl',
 		'Inventorymanagement.AliquotUse');
 		
-	var $paginate = array('Shipment'=>array('limit'=>10,'order'=>'Shipment.datetime_shipped DESC'));
+	var $paginate = array('Shipment'=>array('limit' => pagination_amount,'order'=>'Shipment.datetime_shipped DESC'));
 
 	function listall( $order_id=null ) {
 		if ( !$order_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
@@ -143,10 +141,6 @@ class ShipmentsController extends OrderAppController {
 		// Shipped items
 		$shipped_items = $this->paginate($this->OrderItem, array('OrderItem.shipment_id'=>$shipment_id));
 		$this->set('shipped_items', $shipped_items);
-
-		// Populate both sample and aliquot control
-		$this->set('sample_controls_list', $this->getSampleControlsList());
-		$this->set('aliquot_controls_list', $this->getAliquotControlsList());	
 				
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -201,10 +195,6 @@ class ShipmentsController extends OrderAppController {
 		$available_order_items = $this->OrderItem->find('all', array('conditions' => array('OrderLine.order_id' => $order_id, 'OrderItem.shipment_id IS NULL'), 'order' => 'OrderItem.date_added DESC, OrderLine.id'));
 		if(empty($available_order_items)) { $this->flash('no new item could be actually added to the shipment', '/order/shipments/detail/'.$order_id.'/'.$shipment_id);  }
 
-		// Populate both sample and aliquot control
-		$this->set('sample_controls_list', $this->getSampleControlsList());
-		$this->set('aliquot_controls_list', $this->getAliquotControlsList());	
-		
 		// Set array to get ids from barcode
 		$item_id_by_barcode = array();
 		$order_line_id_by_barcode = array();

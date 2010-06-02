@@ -2,9 +2,18 @@
 	$structure_links = array(
 		'top'=>'/drug/drugs/add/',
 		'bottom'=>array(
-			'cancel'=>'/drug/drugs/listall/'
+			'cancel'=>'/drug/drugs/index/'
 		)
 	);
 	
-	$structures->build( $atim_structure, array('links'=>$structure_links) );
+	$final_atim_structure = $atim_structure; 
+	$final_options = array('links'=>$structure_links);
+	
+	// CUSTOM CODE
+	$hook_link = $structures->hook();
+	if( $hook_link ) { require($hook_link); }
+		
+	// BUILD FORM
+	$structures->build( $final_atim_structure, $final_options );
+	
 ?>

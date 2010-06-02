@@ -9,15 +9,17 @@
 	foreach ($existing_sample_aliquot_types as $controls_key => $sample_aliquot_type_data) {
 		$filter_key = __($sample_aliquot_type_data['sample_type'], TRUE) . ' ' . __($sample_aliquot_type_data['aliquot_type'], TRUE);
 		$filter_links[$filter_key] = $main_link . '/' . $controls_key;
-	}	
+	}
+	ksort($filter_links);	
 	$filter_links['no filter'] = $main_link . '/-1';
 	$filter_links = (sizeof($filter_links) == 1)? '/underdevelopment/': $filter_links;
 
 	// Create array of aliquot type that could be created for the studied sample for the ADD button 
 	$add_aliquots = array();	
 	foreach($allowed_aliquot_type as $aliquot_control) {
-		$add_aliquots[$aliquot_control['AliquotControl']['aliquot_type']] = '/inventorymanagement/aliquot_masters/add/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $aliquot_control['AliquotControl']['id'];
-	}		
+		$add_aliquots[__($aliquot_control['AliquotControl']['aliquot_type'],true)] = '/inventorymanagement/aliquot_masters/add/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $aliquot_control['AliquotControl']['id'];
+	}	
+	ksort($add_aliquots);	
 	$add_aliquots = empty($add_aliquots)? '/underdevelopment/': $add_aliquots;
 
 	// Manage search button	

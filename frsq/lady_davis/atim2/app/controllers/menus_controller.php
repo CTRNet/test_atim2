@@ -7,6 +7,10 @@ class MenusController extends AppController {
 	
 	function beforeFilter() {
 		parent::beforeFilter();
+		
+		// Don't restrict the index action so that users with NO permissions
+		// who have VALID login credentials will not trigger an infinite loop.
+		$this->Auth->allowedActions = array('index');
 	}
 	
 	function index( $set_of_menus=NULL ) {
@@ -22,13 +26,13 @@ class MenusController extends AppController {
 		
 			$this->set( 'announcements_data', $this->Announcement->find( 'all', array( 'conditions'=>$findAll_conditions, 'order'=>'date DESC') ) );
 		
-			$menu_data = $this->Menu->find('all',array('conditions'=>'Menu.parent_id="MAIN_MENU_1" AND (Menu.active="yes" OR Menu.active="y" OR Menu.active="1")', 'order'=>'Menu.display_order ASC'));
+			$menu_data = $this->Menu->find('all',array('conditions'=>'Menu.parent_id="MAIN_MENU_1" AND Menu.flag_active="1"', 'order'=>'Menu.display_order ASC'));
 			
 			$this->set( 'atim_menu', $this->Menus->get('/menus') );
 		}
 		
 		else {
-			$menu_data = $this->Menu->find('all',array('conditions'=>'Menu.parent_id="core_CAN_33" AND (Menu.active="yes" OR Menu.active="y" OR Menu.active="1")', 'order'=>'Menu.display_order ASC'));
+			$menu_data = $this->Menu->find('all',array('conditions'=>'Menu.parent_id="core_CAN_33" AND Menu.flag_active="1"', 'order'=>'Menu.display_order ASC'));
 			
 			$this->set( 'atim_menu', $this->Menus->get('/menus/tools') );
 		}

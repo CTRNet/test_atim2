@@ -25,11 +25,11 @@ class DiagnosisMaster extends ClinicalannotationAppModel {
 			$return = array(
 				'Summary'	 => array(
 					'menu' => array(NULL, __($result['DiagnosisControl']['controls_type'], TRUE)),
-					'title' => array(NULL, 'NOT WORKING title'),
+					'title' => array(NULL, __('diagnosis', TRUE)),
 					'description' => array(
 						__('nature', TRUE) => __($result['DiagnosisMaster']['dx_nature'], TRUE),
 						__('origin', TRUE) => __($result['DiagnosisMaster']['dx_origin'], TRUE),
-						__('date', TRUE) => __($result['DiagnosisMaster']['dx_date'], TRUE),
+						__('date', TRUE) => $result['DiagnosisMaster']['dx_date'],
 						__('method', TRUE) => __($result['DiagnosisMaster']['dx_method'], TRUE)
 					)
 				)

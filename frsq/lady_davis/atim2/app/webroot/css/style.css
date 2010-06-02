@@ -137,7 +137,6 @@ a {
 	color: #5081a5; 
 }
 .not_allowed {
-	text-decoration: line-through;
 	cursor: not-allowed;
 }
 
@@ -145,12 +144,16 @@ a {
 	background-color: #ffc;
 }
 
+.validation {
+	background-color: #DFD;	
+}
+
 .readonly {
 	background-color: #f3f3f9;
 	color: #889;
 }
 
-.error {
+.error, .form-error {
 	background-color: #fcc;
 }
 
@@ -474,7 +477,7 @@ div.menu.level_0 {
 	line-height: 1.2em;
 	color: #ccf;
 }
-div.menu.level_0 span {
+div.menu.level_0 span:not(.untranslated) {
 	color: #fff;
 	/* font-weight: bold; */
 	font-size: 14px;
@@ -588,7 +591,7 @@ div.menu.level_1 li:hover {
 	background-color: #293B49; 
 	color: #fff; 
 }
-div.menu.level_1 li:hover a { 
+div.menu.level_1 li:hover a:not(.not_allowed) { 
 	text-decoration: underline;
 	color: #fff; 
 }
@@ -614,7 +617,7 @@ div.menu ul#summary li {
 	padding: 0;
 	margin: 0;
 }
-div.menu ul#summary li span {
+div.menu ul#summary li span:not(.untranslated) {
 	position: relative;
 	
 	display: block;
@@ -650,7 +653,7 @@ div.menu ul#summary li ul {
 	-moz-border-radius: 7px; -webkit-border-radius: 7px;
 	z-index: 20;
 }	
-	div.menu ul#summary ul li {
+	div.menu ul#summary ul li:not(.list_header) {
 		width: 300px;
 		margin: 0;
 		padding: 5px 10px 15px 10px;
@@ -673,7 +676,7 @@ div.menu ul#summary ul li dl {
 	display: block;
 	clear: both;
 }
-div.menu ul#summary ul dl lh {
+div.menu ul#summary ul dl li.list_header {
 	display: block;
 	margin: 0.25em 0 0.5em 0;
 	font-size: 1.5em;
@@ -1022,8 +1025,11 @@ a.collection { background: url("../img/icons/collection_16x16.png") no-repeat le
 a.default { background: url("../img/icons/Document Blank_16x16.png") no-repeat left center; }
 a.delete { background: url("../img/icons/Close_16x16.png") no-repeat left center; }
 a.detail { background: url("../img/icons/Control Play_16x16.png") no-repeat left center; }
+a.disabled { background: url("../img/icons/light_off_16x16.png") no-repeat left center; text-decoration: none; color: #000;}
+a.drug { background: url("../img/icons/Security_16x16.png") no-repeat center center; }
 a.duplicate { background: url("../img/icons/Documents x3_16x16.png") no-repeat center center; }
 a.edit { background: url("../img/icons/Edit_16x16.png") no-repeat left center; }
+a.enabled { background: url("../img/icons/light_on_16x16.png") no-repeat left center; text-decoration: none; color: #000;}
 a.filter { background: url("../img/icons/Tag_16x16.png") no-repeat left center; }
 a.flask { background: url("../img/icons/flask_16x16.png") no-repeat left center; }
 a.grid { background: url("../img/icons/Table_16x16.png") no-repeat left center; }
@@ -1038,10 +1044,11 @@ a.reveal { background: url("../img/icons/Relationship Data_16x16.png") no-repeat
 a.reveal.not_allowed { background: url("../img/icons/Relationship Data_16x16.png") no-repeat left center; }
 a.redo { background: url("../img/icons/Refresh_16x16.png") no-repeat left center; }
 a.summary { background: url("../img/icons/Paste_16x16.png") no-repeat left center; }
-a.search { background: url("../img/icons/Preview_16x16.png") no-repeat left center; text-decoration: none; color: #000;}
+a.search { background: url("../img/icons/Preview_16x16.png") no-repeat 10px center; text-decoration: none; color: #000;}
 a.search_results { background: url("../img/icons/Preview_16x16.png") no-repeat left center; }
 a.slide { background: url("../img/icons/slide_16x16.png") no-repeat left center; }
 a.storage, a.form.plugin.storagelayout {	background: url("../img/icons/storage_16x16.png") no-repeat left center; }
+a.submit{ background: url("../img/icons/Save_16x16.png") no-repeat 10px center; text-decoration: none; color: #000;}
 a.thumbsdown { background: url("../img/icons/Flag Black_16x16.png") no-repeat left center; }
 a.thumbsup { background: url("../img/icons/Flag Green_16x16.png") no-repeat left center; }
 a.users { background: url("../img/icons/Group_16x16.png") no-repeat left center; }
@@ -1178,23 +1185,19 @@ div#wrapper table.structure table.columns td a.not_allowed {
 		background: url(../img/btnBack.png);
 		display: inline-block;
 		margin: 10px;
+		padding: 0px;
 		/*line-height: 30px;*/
-		padding-top: 1px;
 		-moz-border-radius: 5px; -webkit-border-radius: 5px;
 	}
 	
-	fieldset.submit input.submit, a.submit{
-		background-image: url("../img/icons/Save_16x16.png");
-		background-repeat: no-repeat;
-		background-position: 10px center; 
-		background-color: none;
-		padding: 8px 12px 7px 30px;
+	fieldset.submit input.submit, a.submit, fieldset.submit a.search{
+		padding: 3px 12px 2px 30px;
 		font-size: 12px;
 		cursor: pointer;
 		border-color: #999999;
 		text-decoration:none;
 		color: #000;
-		
+		display: inline-block;
 		-moz-border-radius: 3px; -webkit-border-radius: 3px;
 	}
 	
@@ -1343,7 +1346,7 @@ div.loading{
 	line-height: 60px;
 	background: url("../img/wait30.gif") no-repeat center;
 	border-style: solid;
-	border-colot: #000;
+	border-color: #000;
 	border-width: 1px;
 }
 
@@ -1388,4 +1391,49 @@ body.flash div#wrapper a {
 
 body.flash div#wrapper a:hover {
 	text-decoration: underline;
+}
+
+a.form:focus{
+	text-decoration:underline;
+}
+
+.datepicker{
+	border-style: none;
+	width: 22px;
+	color: #fff;
+	background: url("../img/cal.gif") no-repeat;
+	cursor: pointer;
+}
+
+img.fake_datepicker{
+	position: absolute; 
+	left: 3px; 
+	top: -1px; 
+	z-index: 1;
+	cursor: pointer;
+}
+
+tr.highlight, td.highlight{
+	background: url("../img/highlight.gif");
+}
+
+.untranslated{
+	background-color: red;
+	color: black;
+}
+
+span.tooltip{
+	position: relative;
+}
+span.tooltip div{
+	display: none;
+	border-style: solid;
+	position: absolute;
+	left: 0px;
+	top: 15px;
+	padding: 30px;
+	border-width: 1px;
+	z-index : 1;
+	background-color: #FFFFFF;
+	/* note that some styling is made through js to counter some css hierarchy issues*/
 }

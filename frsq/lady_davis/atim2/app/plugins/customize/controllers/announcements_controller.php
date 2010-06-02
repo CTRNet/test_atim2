@@ -3,7 +3,7 @@
 class AnnouncementsController extends CustomizeAppController {
 	
 	var $uses = array('Announcement');
-	var $paginate = array('Announcement'=>array('limit'=>10,'order'=>'Announcement.date DESC')); 
+	var $paginate = array('Announcement'=>array('limit' => pagination_amount,'order'=>'Announcement.date DESC')); 
 	
 	function index() {;
 		

@@ -3,13 +3,29 @@
 class PermissionManagerComponent extends Object {
 	
 	var $controller;
-	var $defaults = array();
 	var $log = array();
+	
+	/*
+	 * Specify the default permissions here
+	 * If there are no permissions in the DB these will be inserted.
+	 *
+	 * NOTE: Don't allow the acos tables to be emptied or this will fail.
+	*/
+	var $defaults = array(
+		'controllers' => array(
+			'allow' => array('Group::1','Group::2','Group::3'),
+			'deny' => array()
+		),
+		'controllers/Administrate/Permissions' => array(
+			'allow' => array(),
+			'deny' => array('Group::2','Group::3')
+		)
+	);
 	
 	function initialize( &$controller, $settings=array() ) {
 		$this->log = array();
 		$this->controller =& $controller;
-		$this->defaults = $settings;
+		if(count($settings)) $this->defaults = $settings;
 		
 		// If there are no Aco entries, build the entire list.
 		if(! $this->controller->Acl->Aco->find('count',array('fields' => 'Aco.id')) ){
@@ -29,11 +45,11 @@ class PermissionManagerComponent extends Object {
 	*/
 	
 	function initDB() {
-		
 		$group =& $this->controller->User->Group;
 		$user =& $this->controller->User;
 		
 		foreach($this->defaults as $alias => $perms){
+			
 			if(isset($perms['allow']) && count($perms['allow'])){
 				foreach($perms['allow'] as $user_alias){
 					list($type,$id) = split('::',$user_alias);
@@ -84,7 +100,27 @@ class PermissionManagerComponent extends Object {
 		$matches = array();
 		preg_match_all('/function\s+(\w+)\s*\(/', file_get_contents($file_path), $matches);
 		
-		return $matches[1];
+		$methods = $matches[1];
+		
+		if(!$plugin || $plugin == 'App'){
+			$file_path = APP.'controllers'.DS.'customs'.DS.Inflector::underscore($ctrlName.'Controller').'.php';
+		}else{
+			$file_path = APP.'plugins'.DS.Inflector::underscore($plugin).DS
+						.'controllers'.DS.'customs'.DS.Inflector::underscore($ctrlName.'Controller').'.php';
+		}
+		
+		if(file_exists($file_path)){
+			
+			$matches = array();
+			preg_match_all('/function\s+(\w+)\s*\(/', file_get_contents($file_path), $matches);
+			
+			foreach($matches[1] as $match){
+				if(!in_array($match,$methods)){
+					$methods[] = $match;
+				}
+			}
+		}
+		return $methods;
 	}
 	
 	/**
@@ -255,7 +291,7 @@ class PermissionManagerComponent extends Object {
 		foreach($files as $f => $fileName)
 		{
 				// Get the base file name
-				$pluginName = preg_replace('!^(.*/)(.+)(/controllers)/(.*)controller\.php!','$2',$fileName);
+				$pluginName = preg_replace('!^(.*'.preg_quote(DS).')(.+)('.preg_quote(DS).'controllers)'.preg_quote(DS).'(.*)controller\.php!','$2',$fileName);
 				$pluginName = Inflector::camelize($pluginName);
 				
 				// Get the base file name
@@ -263,7 +299,7 @@ class PermissionManagerComponent extends Object {
 
 				// Get the controller name
 				$file = Inflector::camelize(substr($file, 0, strlen($file)-strlen('_controller.php')));
-				if(!preg_match('/^.*App$/',$file) && strpos('/plugins/',$pluginName) === false){
+				if(!preg_match('/^.*App$/',$file) && strpos(DS.'plugins'.DS,$pluginName) === false){
 					$files[$f] = $pluginName.'.'.$file;
 				}else{
 					unset($files[$f]);

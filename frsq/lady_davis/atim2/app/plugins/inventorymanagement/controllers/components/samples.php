@@ -7,34 +7,6 @@ class SamplesComponent extends Object {
 	}
 	
 	/**
-	 * Get formatted list of SOPs existing to build sample.
-	 * 
-	 * Note: Function to allow bank to customize this function when they don't use 
-	 * SOP module.
-	 *
-	 *	@param $sample_type Sample Type
-	 * 
-	 * @return SOP list into array having following structure: 
-	 * 	array($sop_id => $sop_title_built_by_function)
-	 *
-	 * @author N. Luc
-	 * @since 2009-09-11
-	 * @updated N. Luc
-	 */
-	 
-	function getSampleSopList($sample_type) {
-		$sop_list = $this->controller->Sops->getSopList();
-		if(empty($sop_list)) { return array(); }
-		
-		$sop_list_to_return = array();
-		foreach($sop_list as $sop_masters) {
-			$sop_list_to_return[$sop_masters['SopMaster']['id']] = $sop_masters['SopMaster']['code'] . ' ('.__($sop_masters['SopMaster']['sop_group'], true) .' - '.__($sop_masters['SopMaster']['type'], true) .')'; 
-		}
-	
-		return $sop_list_to_return;
-	}
-	
-	/**
 	 * Will build formatted data gathering collection content for tree view.
 	 * 
 	 * @param $collection_id Id of the studied collection.
@@ -61,8 +33,8 @@ class SamplesComponent extends Object {
 			$criteria['SampleMaster.initial_specimen_sample_id'] = array_keys($studied_collection_specimens);	
 		}
 		$criteria['SampleMaster.collection_id'] = $collection_id;
-		
-		$collection_content_to_display = $this->controller->SampleMaster->find('threaded', array('conditions' => $criteria, 'order' => 'SampleMaster.sample_type DESC, SampleMaster.sample_code DESC', 'recursive' => '1'));
+		$this->controller->SampleMaster->contain(array('SampleControl', 'SpecimenDetail', 'DerivativeDetail', 'AliquotMaster' => array('AliquotControl', 'StorageMaster')));
+		$collection_content_to_display = $this->controller->SampleMaster->find('threaded', array('conditions' => $criteria, 'order' => 'SampleMaster.sample_type DESC, SampleMaster.sample_code DESC', 'recursive' => '2'));
 		if(empty($collection_content_to_display)) { return array(); }
 		
 		// Build formatted collection data for tree view
@@ -94,8 +66,15 @@ class SamplesComponent extends Object {
 			$new_sample_aliquots = $new_sample['AliquotMaster'];
 			$new_sample_aliquots= array_reverse($new_sample_aliquots);
 			foreach($new_sample_aliquots as $new_aliquot) {
+				$aliquot_control_data = $new_aliquot['AliquotControl'];
+				unset($new_aliquot['AliquotControl']);
+				$storage_master_data = $new_aliquot['StorageMaster'];
+				unset($new_aliquot['StorageMaster']);
 				//	$formatted_sample_data['children'][]['AliquotMaster'] = $new_aliquot;
-				array_unshift($formatted_sample_data['children'], array('AliquotMaster' => $new_aliquot));
+				$formatted_aliquot_data = array(
+					'AliquotMaster' => $new_aliquot, 
+					'StorageMaster' => $storage_master_data);
+				array_unshift($formatted_sample_data['children'], $formatted_aliquot_data);
 			}			
 			
 			$children_list[$key] = $formatted_sample_data;
