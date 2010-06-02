@@ -569,8 +569,8 @@ class SampleMastersController extends InventorymanagementAppController {
 			$this->SampleMaster->set($this->data);
 			$submitted_data_validates = ($this->SampleMaster->validates())? $submitted_data_validates: false;
 			
-			$this->SampleDetail->set($this->data);
-			$submitted_data_validates = ($this->SampleDetail->validates())? $submitted_data_validates: false;
+			//for error field highlight in detail
+			$this->SampleDetail->validationErrors = $this->SampleMaster->validationErrors;
 			
 			if($bool_is_specimen) { 
 				$this->SpecimenDetail->set($this->data);
@@ -687,8 +687,8 @@ class SampleMastersController extends InventorymanagementAppController {
 			$this->SampleMaster->set($this->data);
 			$submitted_data_validates = ($this->SampleMaster->validates())? $submitted_data_validates: false;
 			
-			$this->SampleDetail->set($this->data);
-			$submitted_data_validates = ($this->SampleDetail->validates())? $submitted_data_validates: false;
+			//for error field highlight in detail
+			$this->SampleDetail->validationErrors = $this->SampleMaster->validationErrors;
 			
 			if($bool_is_specimen) { 
 				$this->SpecimenDetail->set($this->data);

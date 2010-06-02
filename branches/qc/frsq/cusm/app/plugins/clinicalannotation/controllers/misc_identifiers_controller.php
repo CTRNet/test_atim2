@@ -99,7 +99,7 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 		
 		if($controls['MiscIdentifierControl']['flag_once_per_participant']) {
 			// Check identifier has not already been created
-			$already_exist = $this->MiscIdentifier->find('count', array('condition' => array('misc_identifier_control_id' => $misc_identifier_control_id, 'participant_id' => $participant_id)));
+			$already_exist = $this->MiscIdentifier->find('count', array('conditions' => array('misc_identifier_control_id' => $misc_identifier_control_id, 'participant_id' => $participant_id)));
 			if($already_exist) {
 				$this->flash( 'this identifier has already been created for this participant','/clinicalannotation/misc_identifiers/listall/'.$participant_id.'/' );
 				return;

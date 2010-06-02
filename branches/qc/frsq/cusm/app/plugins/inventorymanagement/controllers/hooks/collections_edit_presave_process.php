@@ -4,7 +4,7 @@
 	// Update collection Sample Labels
 	// -------------------------------------------------------------------------------- 	
 	if($collection_data['Collection']['qc_cusm_visit_label'] != $this->data['Collection']['qc_cusm_visit_label']) {
-		// Collection Sample Labels have to be updated: Manage collection data record into the hook
+		// Collection Sample Labels have to be updated: Manage collection data record into the hook + update collection sample label
 		$submitted_data_validates = false;
 		
 		// Save collection

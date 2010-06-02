@@ -4,8 +4,11 @@
 	// Manage prostate_bank_participant_id creation
 	// -------------------------------------------------------------------------------- 	
  	if($controls['MiscIdentifierControl']['autoincrement_name'] == 'prostate_bank_participant_id') {
-		// Set incremented identifier if required
 		if($submitted_data_validates && $is_incremented_identifier) {
+			// Create new bank identifier + update participant sample labels
+			$submitted_data_validates = false;
+			
+			// Create new identifier
 			$new_identifier_value = $this->MiscIdentifierControl->getKeyIncrement($controls['MiscIdentifierControl']['autoincrement_name'], $controls['MiscIdentifierControl']['misc_identifier_format']);
 			if($new_identifier_value === false) { $this->redirect( '/pages/err_clin_system_error', null, true ); }
 			
@@ -15,12 +18,29 @@
 			while($id_lenght < 4) {
 				$id_lenght++;
 				$new_identifier_value_end = '0'.$new_identifier_value_end;
-			}			
-			$this->data['MiscIdentifier']['identifier_value'] = $new_identifier_value_start.$new_identifier_value_end; 
+			}		
+			$new_identifier_value = $new_identifier_value_start.$new_identifier_value_end;	
+			$this->data['MiscIdentifier']['identifier_value'] = $new_identifier_value; 
 			
-			$is_incremented_identifier = false;
+			if ( $this->MiscIdentifier->save($this->data) ) {
+				// Update participant collection sample labels
+				App::import('Model', 'Clinicalannotation.ClinicalCollectionLink');
+				$ClinicalCollectionLink = new ClinicalCollectionLink();	
+				
+				//Get participant collections
+				$participant_collection_list = $ClinicalCollectionLink->find('all', array('conditions' => array('ClinicalCollectionLink.participant_id' => $participant_id)));
+				pr($participant_collection_list);exit;
+				
+				
+				
+				
+				
+				
+				
+				
+				$this->flash( 'your data has been saved','/clinicalannotation/misc_identifiers/detail/'.$participant_id.'/'.$this->MiscIdentifier->id );
+			}
 		}
-
  	} 
  
 ?>
