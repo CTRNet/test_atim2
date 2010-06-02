@@ -738,14 +738,14 @@ span.help:hover {
 	div#wrapper span.help div {
 		display: none;
 	}
-		div#wrapper td.help span.help:hover div {
+		div#wrapper td.help span.help:hover div, div#wrapper th span.help:hover div {
 			display: block;
 			text-indent: 0;
 			top: 10px; right: 10px;
 			position: absolute;
 			width: 300px;
 			padding: 8px 20px 8px 12px;
-			w\idth: 270px;
+			width: 270px;
 			background: #486680;
 			color: #ccc;
 			font-size: 11px;
@@ -762,7 +762,9 @@ span.help:hover {
 			margin: 0 0 1em 0;
 		}
 		div#wrapper th.column_1 span.help div {
-			top: 10px; left: -5px;
+			top: 10px; left: 10px;
+			-moz-border-radius: 15px; -webkit-border-radius: 15px;
+			-moz-border-radius-topleft: 0; -webkit-border-top-left-radius: 0;
 		}
 
 	/* -= table.structure =- */
