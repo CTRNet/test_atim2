@@ -27,17 +27,17 @@
 				App::import('Model', 'Clinicalannotation.ClinicalCollectionLink');
 				$ClinicalCollectionLink = new ClinicalCollectionLink();	
 				
-				//Get participant collections
 				$participant_collection_list = $ClinicalCollectionLink->find('all', array('conditions' => array('ClinicalCollectionLink.participant_id' => $participant_id)));
-				pr($participant_collection_list);exit;
-				
-				
-				
-				
-				
-				
-				
-				
+				if(!empty($participant_collection_list)) {
+					App::import('Controller', 'Inventorymanagement.Collections');
+					$CollectionsCtrl = new CollectionsControllerCustom();	
+					
+					foreach($participant_collection_list as $new_linked_collection) {
+						// Update participant collection sample labels
+						$CollectionsCtrl->updateCollectionSampleLabels($new_linked_collection, $new_identifier_value);
+					}
+				}
+
 				$this->flash( 'your data has been saved','/clinicalannotation/misc_identifiers/detail/'.$participant_id.'/'.$this->MiscIdentifier->id );
 			}
 		}
