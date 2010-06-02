@@ -3,7 +3,7 @@
 class AnnouncementsController extends AdministrateAppController {
 	
 	var $uses = array('Administrate.Announcement');
-	var $paginate = array('Announcement'=>array('limit'=>10,'order'=>'Announcement.date_start DESC')); 
+	var $paginate = array('Announcement'=>array('limit' => pagination_amount,'order'=>'Announcement.date_start DESC')); 
 	
 	function beforeFilter() {
 		parent::beforeFilter(); 

@@ -31,7 +31,6 @@
 	$structure_links['index'] = array('detail'=>'/clinicalannotation/misc_identifiers/detail/'.$atim_menu_variables['Participant.id'].'/%%MiscIdentifier.id%%/');
 	
 	$structure_override = array();
-	$structure_override['MiscIdentifier.identifier_name'] = $identifier_names_list;	
 	
 	$final_atim_structure = $atim_structure_for_misc_identifiers; 
 	$final_options = array('type'=>'index', 'links'=>$structure_links, 'override'=>$structure_override, 'data' => $participant_identifiers_data, 'settings' => array('header' => __('misc identifiers', null), 'separator' => true));

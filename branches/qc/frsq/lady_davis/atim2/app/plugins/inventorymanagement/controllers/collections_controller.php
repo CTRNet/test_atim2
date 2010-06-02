@@ -2,10 +2,7 @@
 
 class CollectionsController extends InventorymanagementAppController {
 	
-	var $components = array(
-		'Inventorymanagement.Collections',
-		'Administrate.Administrates', 
-		'Sop.Sops');
+	var $components = array();
 		
 	var $uses = array(
 		'Inventorymanagement.Collection',
@@ -16,10 +13,7 @@ class CollectionsController extends InventorymanagementAppController {
 		'Inventorymanagement.PathCollectionReview',
 		'Inventorymanagement.ReviewMaster',
 		
-		'Clinicalannotation.ClinicalCollectionLink',
-		
-		'Administrate.Bank',
-		'Sop.SopMaster');
+		'Clinicalannotation.ClinicalCollectionLink');
 	
 	var $paginate = array(
 		'Collection' => array('limit' => 10, 'order' => 'Collection.acquisition_label ASC'),
@@ -33,9 +27,6 @@ class CollectionsController extends InventorymanagementAppController {
 		$_SESSION['ctrapp_core']['search'] = null; // clear SEARCH criteria
 		$this->unsetInventorySessionData();
 				
-		// Set list of banks
-		$this->set('bank_list', $this->Collections->getBankList());
-		
 		$this->Structures->set('view_collection');
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
@@ -57,9 +48,6 @@ class CollectionsController extends InventorymanagementAppController {
 		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['ViewCollection']['count'];
 		$_SESSION['ctrapp_core']['search']['url'] = '/inventorymanagement/collections/search';
 		
-		// Set list of banks
-		$this->set('bank_list', $this->Collections->getBankList());
-		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		
 		$hook_link = $this->hook('format');
@@ -78,14 +66,8 @@ class CollectionsController extends InventorymanagementAppController {
 		// Set participant id
 		$this->set('participant_id', $collection_data['ViewCollection']['participant_id']);
 		
-		// Set list of banks
-		$this->set('bank_list', $this->Collections->getBankList());
-		
-		// Set list of available SOPs to build collections
-		$this->set('sop_list', $this->Collections->getCollectionSopList());	
-		
 		// Get all sample control types to build the add to selected button
-		$specimen_sample_controls_list = $this->SampleControl->atim_list(array('conditions' => array('SampleControl.status' => 'active', 'SampleControl.sample_category' => 'specimen'), 'order' => 'SampleControl.sample_type ASC'));
+		$specimen_sample_controls_list = $this->SampleControl->atim_list(array('conditions' => array('SampleControl.flag_active' => '1', 'SampleControl.sample_category' => 'specimen'), 'order' => 'SampleControl.sample_type ASC'));
 		$this->set('specimen_sample_controls_list', $specimen_sample_controls_list);	
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -109,12 +91,6 @@ class CollectionsController extends InventorymanagementAppController {
 		}
 			// MANAGE DATA
 		
-		// Set list of banks
-		$this->set('bank_list', $this->Collections->getBankList());
-		
-		// Set list of available SOPs to build collections
-		$this->set('sop_list', $this->Collections->getCollectionSopList());
-
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/collections/index'));
@@ -183,12 +159,6 @@ class CollectionsController extends InventorymanagementAppController {
 		$collection_data = $this->Collection->find('first', array('conditions' => array('Collection.id' => $collection_id)));
 		if(empty($collection_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }
 				
-		// Set list of banks
-		$this->set('bank_list', $this->Collections->getBankList());
-		
-		// Set list of available SOPs to build collections
-		$this->set('sop_list', $this->Collections->getCollectionSopList());		
-		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		$this->set('atim_menu_variables', array('Collection.id' => $collection_id));		

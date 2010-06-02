@@ -1,15 +1,9 @@
 <?php
 class AliquotMastersController extends InventoryManagementAppController {
 	
-	var $components = array(
-		'Inventorymanagement.Collections', 
+	var $components = array( 
 		'Inventorymanagement.Aliquots', 
-		
-		'Storagelayout.Storages',
-		
-		'Study.StudySummaries', 
-		'Administrate.Administrates',
-		'Sop.Sops');
+		'Storagelayout.Storages');
 	
 	var $uses = array(
 		'Inventorymanagement.Collection',
@@ -21,7 +15,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 		'Inventorymanagement.SampleToAliquotControl',
 		
 		'Inventorymanagement.AliquotControl', 
-		'Inventorymanagement.AliquotMaster', 
+		'Inventorymanagement.AliquotMaster',
+		'Inventorymanagement.AliquotMastersRev', 
 		'Inventorymanagement.ViewAliquot',
 		'Inventorymanagement.AliquotDetail',			
 		
@@ -38,16 +33,13 @@ class AliquotMastersController extends InventoryManagementAppController {
 		'Storagelayout.StorageMaster',
 		'Storagelayout.StorageCoordinate',
 		
-		'Administrate.Bank',
-		'Study.StudySummary',
-		'Order.OrderItem',
-		'Sop.SopMaster'
+		'Order.OrderItem'
 	);
 	
 	var $paginate = array(
-		'AliquotMaster' => array('limit' =>10 , 'order' => 'AliquotMaster.barcode DESC'), 
-		'ViewAliquot' => array('limit' =>10 , 'order' => 'ViewAliquot.barcode DESC'), 
-		'AliquotUse' => array('limit' => 10, 'order' => 'AliquotUse.use_datetime DESC'));
+		'AliquotMaster' => array('limit' => pagination_amount , 'order' => 'AliquotMaster.barcode DESC'), 
+		'ViewAliquot' => array('limit' => pagination_amount , 'order' => 'ViewAliquot.barcode DESC'), 
+		'AliquotUse' => array('limit' => pagination_amount, 'order' => 'AliquotUse.use_datetime DESC'));
 
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS
@@ -61,9 +53,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$_SESSION['ctrapp_core']['search'] = null; // clear SEARCH criteria
 		$this->unsetInventorySessionData();
 		
-		// Set list of banks
-		$this->set('bank_list', $this->Collections->getBankList());	
-
 		$this->Structures->set('view_aliquot_joined_to_collection');
 		
 		$hook_link = $this->hook('format');
@@ -82,9 +71,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->set('aliquots_data', $this->paginate($this->ViewAliquot, $_SESSION['ctrapp_core']['search']['criteria']));
 		$this->data = array();
 		
-		// Set list of banks
-		$this->set('bank_list', $this->Collections->getBankList());
-		
 		// if SEARCH form data, save number of RESULTS and URL
 		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['ViewAliquot']['count'];
 		$_SESSION['ctrapp_core']['search']['url'] = '/inventorymanagement/aliquot_masters/search';
@@ -97,7 +83,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 	
 	function listAll($collection_id, $sample_master_id, $filter_option = null) {
 		if((!$collection_id) || (!$sample_master_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }
-
 		// MANAGE FILTER OPTION
 
 		$is_collection_aliquot_list = ($sample_master_id == '-1')? true: false;
@@ -322,8 +307,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// Get control data
 		$criteria = array(
 			'SampleControl.id' => $sample_data['SampleMaster']['sample_control_id'],
-			'SampleToAliquotControl.status' => 'active',
-			'AliquotControl.status' => 'active',
+			'SampleToAliquotControl.flag_active' => '1',
+			'AliquotControl.flag_active' => '1',
 			'AliquotControl.id' => $aliquot_control_id);
 		$sample_to_aliquot_control = $this->SampleToAliquotControl->find('first', array('conditions' => $criteria));	
 		if(empty($sample_to_aliquot_control)) { $this->redirect('/pages/err_inv_no_data', null, true); }			
@@ -331,12 +316,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		// Set new aliquot control information
 		$this->set('aliquot_control_data', $aliquot_control_data);	
-		
-		// Set list of available SOPs to create aliquot
-		$this->set('arr_aliquot_sops_for_display', $this->Aliquots->getAliquotSopList($sample_data['SampleMaster']['sample_type'], $aliquot_control_data['AliquotControl']['aliquot_type']));
-		
-		// Set list of studies
-		$this->set('arr_studies_for_display', $this->getStudiesList());
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -358,10 +337,13 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		if (empty($this->data)) {
 			// Initial Display
-			$this->set('default_storage_datetime', $this->getDefaultAliquotStorageDate($sample_data));
 			$this->set('arr_preselected_storages_for_display', array());
 						
-			$this->data = array(array());
+			$this->data = array(array(
+				'AliquotMaster' => array(
+					'aliquot_type' => $aliquot_control_data['AliquotControl']['aliquot_type'],
+					'aliquot_volume_unit' => $aliquot_control_data['AliquotControl']['volume_unit'],
+					'storage_datetime' => $this->getDefaultAliquotStorageDate($sample_data))));
 			
 		} else {
 			// Record process
@@ -458,7 +440,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if((!$collection_id) || (!$sample_master_id) || (!$aliquot_master_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }		
 		
 		// MANAGE DATA
-
+	
 		// Get the aliquot data
 		$aliquot_data = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id, 'AliquotMaster.id' => $aliquot_master_id)));
 		if(empty($aliquot_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }		
@@ -466,12 +448,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// Set aliquot use
 		$aliquot_data['Generated']['aliquot_use_counter'] = sizeof($aliquot_data['AliquotUse']);
 				
-		// Set list of available SOPs to create aliquot
-		$this->set('arr_aliquot_sops_for_display', $this->Aliquots->getAliquotSopList($aliquot_data['SampleMaster']['sample_type'], $aliquot_data['AliquotMaster']['aliquot_type']));
-
-		// Set list of studies
-		$this->set('arr_studies_for_display', $this->getStudiesList());
-		
 		// Set times spent since either sample collection/reception or sample creation and sample storage		
 		switch($aliquot_data['SampleMaster']['sample_category']) {
 			case 'specimen':
@@ -497,8 +473,80 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->set('aliquot_storage_data', empty($aliquot_data['StorageMaster']['id'])? array(): array('StorageMaster' => $aliquot_data['StorageMaster']));
 		
 		// Set aliquot uses
-		$this->set('aliquots_uses_data', $this->paginate($this->AliquotUse, array('AliquotUse.aliquot_master_id' => $aliquot_master_id)));
-		
+		if(!$is_tree_view_detail_form) {			
+			$this->set('aliquots_uses_data', $this->paginate($this->AliquotUse, array('AliquotUse.aliquot_master_id' => $aliquot_master_id)));
+		}
+
+	//storage history
+		$this->Structures->set('custom_aliquot_storage_history', 'custom_aliquot_storage_history');
+		$storage_data = array();
+
+		$qry="SELECT AliquotMastersRev.*, StorageMastersModRev.*, StorageMastersInitRev.* FROM `aliquot_masters_revs` AS AliquotMastersRev "
+			."LEFT JOIN aliquot_masters_revs AS aliquot_after ON aliquot_after.version_id=("
+				."SELECT version_id FROM aliquot_masters_revs AS aliquot_after2 WHERE aliquot_after2.id=".$aliquot_master_id." AND aliquot_after2.modified > AliquotMastersRev.modified ORDER BY modified LIMIT 1) "
+			."LEFT JOIN aliquot_masters_revs AS aliquot_before ON aliquot_before.version_id=("
+				."SELECT version_id FROM aliquot_masters_revs AS aliquot_before2 WHERE aliquot_before2.id=".$aliquot_master_id." AND aliquot_before2.modified < AliquotMastersRev.modified ORDER BY modified DESC LIMIT 1) "
+			."LEFT JOIN storage_masters_revs AS StorageMastersModRev ON AliquotMastersRev.storage_master_id=StorageMastersModRev.id AND StorageMastersModRev.modified > AliquotMastersRev.modified AND (StorageMastersModRev.modified < aliquot_after.modified OR aliquot_after.modified IS NULL) " 
+			."LEFT JOIN storage_masters_revs AS StorageMastersInitRev ON (AliquotMastersRev.storage_master_id!=aliquot_before.storage_master_id OR aliquot_before.storage_master_id IS NULL) AND StorageMastersInitRev.version_id=(SELECT version_id FROM storage_masters_revs WHERE id=AliquotMastersRev.storage_master_id AND storage_masters_revs.modified <= AliquotMastersRev.modified ORDER BY modified DESC LIMIT 1) "
+			."WHERE AliquotMastersRev.id=".$aliquot_master_id." ORDER BY AliquotMastersRev.modified";
+		$storage_data_tmp = $this->AliquotMaster->query($qry);
+		$previous = NULL;
+		$current_storage = NULL;
+		foreach($storage_data_tmp as $storage_data_unit){
+			//it's assumed that the order is already chronological
+			if($previous != NULL){
+				if($previous['AliquotMastersRev']['storage_master_id'] != $storage_data_unit['AliquotMastersRev']['storage_master_id']){
+					//case 1: changed storage
+					$storage_data[]['custom'] = array(
+						'date' => $storage_data_unit['AliquotMastersRev']['modified'], 
+						'event' => __('new storage', true)." "
+							.__('from', true).": [".$previous['StorageMastersRev']['selection_label']." ".__('temperature', true).": ".$previous['StorageMastersRev']['temperature'].__($storage_data_unit['StorageMastersRev']['temp_unit'], true)."] "
+							.__('to', true).": [".$storage_data_unit['StorageMastersInitRev']['selection_label']." ".__('temperature', true).": ".$storage_data_unit['StorageMastersInitRev']['temperature'].__($storage_data_unit['StorageMastersRev']['temp_unit'], true)."]");
+					$current_storage = $storage_data_unit['AliquotMastersRev']['storage_master_id'];
+					$previous['AliquotMastersRev'] = $storage_data_unit['AliquotMastersRev'];
+					$previous['StorageMastersRev'] = $storage_data_unit['StorageMastersInitRev'];
+				}else if(!empty($storage_data_unit['StorageMastersModRev']['temperature'])
+				&& $previous['StorageMastersRev']['temperature'] != $storage_data_unit['StorageMastersModRev']['temperature']
+				&& $current_storage == $storage_data_unit['AliquotMastersRev']['storage_master_id']){
+					//case 2: storage changed temperature
+					$storage_data[]['custom'] = array(
+						'date' => $storage_data_unit['StorageMastersModRev']['modified'], 
+						'event' => __('storage temperature changed', true).". "
+							.__('from', true).": ".$previous['StorageMastersRev']['temperature'].__($previous['StorageMastersRev']['temp_unit'], true)." "
+							.__('to', true).": ".$storage_data_unit['StorageMastersModRev']['temperature'].__($storage_data_unit['StorageMastersModRev']['temp_unit'], true));
+					$previous['AliquotMastersRev'] = $storage_data_unit['AliquotMastersRev'];
+					$previous['StorageMastersRev'] = $storage_data_unit['StorageMastersModRev'];
+				}else if($previous['AliquotMastersRev']['storage_coord_x'] != $storage_data_unit['AliquotMastersRev']['storage_coord_x']
+				|| $previous['AliquotMastersRev']['storage_coord_y'] != $storage_data_unit['AliquotMastersRev']['storage_coord_y']){
+					//case 3: position changed
+					$coordFrom = $previous['AliquotMastersRev']['storage_coord_x'];
+					$coordTo = $storage_data_unit['AliquotMastersRev']['storage_coord_x'];
+					if(strlen($storage_data_unit['AliquotMastersRev']['storage_coord_y']) > 0){
+						$coordFrom .= ", ".$previous['AliquotMastersRev']['storage_coord_y'];
+					}
+					if(strlen($storage_data_unit['AliquotMastersRev']['storage_coord_y']) > 0){
+						$coordTo .= ", ".$storage_data_unit['AliquotMastersRev']['storage_coord_y'];
+					}
+					$storage_data[]['custom'] = array(
+						'date' => $storage_data_unit['AliquotMastersRev']['modified'], 
+						'event' => __('moved within storage', true)." ".__('from', true).": [".$coordFrom."] ".__('to', true).": [".$coordTo."]. ".__('temperature unchanged', true));
+					$previous['AliquotMastersRev'] = $storage_data_unit['AliquotMastersRev'];
+				}
+			}else{
+				$current_storage = $storage_data_unit['AliquotMastersRev']['storage_master_id']; 
+				$previous['AliquotMastersRev'] = $storage_data_unit['AliquotMastersRev'];
+				$previous['StorageMastersRev'] = $storage_data_unit['StorageMastersModRev'];
+				if($storage_data_unit['StorageMastersInitRev']['temperature'] != $storage_data_unit['StorageMastersRev']['temperature']){
+					$storage_data[]['custom'] = array(
+						'date' => $storage_data_unit['StorageMastersModRev']['modified'], 
+						'event' => __('storage temperature changed', true).". "
+							.__('from', true).": ".$storage_data_unit['StorageMastersInitRev']['temperature'].__($storage_data_unit['StorageMastersInitRev']['temp_unit'], true)." "
+							.__('to', true).": ".$storage_data_unit['StorageMastersModRev']['temperature'].__($storage_data_unit['StorageMastersModRev']['temp_unit'], true));
+				}
+			}
+			$this->set('storage_data', $storage_data);
+		}
+				
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 
 		// Get the current menu object.
@@ -510,7 +558,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		// Set structure
 		$this->Structures->set($aliquot_data['AliquotControl']['form_alias']);
-		$this->Structures->set('aliquotuses', 'aliquots_uses_structure');
+		if(!$is_tree_view_detail_form) {
+			$this->Structures->set('aliquotuses', 'aliquots_uses_structure');
+			$this->Structures->set('custom_aliquot_storage_history', 'custom_aliquot_storage_history');
+		}
 		
 		// Define if this detail form is displayed into the collection content tree view
 		$this->set('is_tree_view_detail_form', $is_tree_view_detail_form);
@@ -527,6 +578,14 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if( $hook_link ) { 
 			require($hook_link); 
 		}
+		
+		
+		
+		$hook_link = $this->hook('format_storage_data');
+		if( $hook_link ) { 
+			require($hook_link); 
+		}
+		$this->set('storage_data', $storage_data);
 	}
 	
 	function edit($collection_id, $sample_master_id, $aliquot_master_id) {
@@ -539,12 +598,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$aliquot_data = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id, 'AliquotMaster.id' => $aliquot_master_id)));
 		if(empty($aliquot_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }		
 
-		// Set list of available SOPs to create aliquot
-		$this->set('arr_aliquot_sops_for_display', $this->Aliquots->getAliquotSopList($aliquot_data['SampleMaster']['sample_type'], $aliquot_data['AliquotMaster']['aliquot_type']));
-
-		// Set list of studies
-		$this->set('arr_studies_for_display', $this->getStudiesList());
-		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Get the current menu object.
@@ -688,17 +741,12 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$aliquot_data = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id, 'AliquotMaster.id' => $aliquot_master_id)));
 		if(empty($aliquot_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }		
 
-		// Set list of studies
-		$this->set('arr_studies_for_display', $this->getStudiesList());		
-			
 		// Set aliquot volume unit
 		$aliquot_volume_unit = empty($aliquot_data['AliquotMaster']['aliquot_volume_unit'])? 'n/a': $aliquot_data['AliquotMaster']['aliquot_volume_unit'];
-		$this->set('aliquot_volume_unit', $aliquot_volume_unit);	
 		
 		// Set use defintion
 		$use_defintions_system_dependent = array('quality control', 'sample derivative creation', 'realiquoted to', 'aliquot shipment');
-		if(empty($aliquot_use_defintion)  || (in_array($aliquot_use_defintion, $use_defintions_system_dependent))) { $this->redirect('/pages/err_inv_system_error', null, true); }			
-		$this->set('use_defintion', $aliquot_use_defintion);	
+		if(empty($aliquot_use_defintion)  || (in_array($aliquot_use_defintion, $use_defintions_system_dependent))) { $this->redirect('/pages/err_inv_system_error', null, true); }				
 				
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 
@@ -707,7 +755,12 @@ class AliquotMastersController extends InventoryManagementAppController {
 			'/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%/%%AliquotMaster.id%%': 
 			'/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%';
 		$this->set('atim_menu', $this->Menus->get($atim_menu_link));
-		$this->set('atim_menu_variables', array('Collection.id' => $collection_id, 'SampleMaster.id' => $sample_master_id, 'SampleMaster.initial_specimen_sample_id' => $aliquot_data['SampleMaster']['initial_specimen_sample_id'], 'AliquotMaster.id' => $aliquot_master_id));
+		$this->set('atim_menu_variables', 
+			array('Collection.id' => $collection_id, 
+				'SampleMaster.id' => $sample_master_id, 
+				'SampleMaster.initial_specimen_sample_id' => $aliquot_data['SampleMaster']['initial_specimen_sample_id'], 
+				'AliquotMaster.id' => $aliquot_master_id, 
+				'AliquotUse.use_definition' => $aliquot_use_defintion));
 		
 		// Set structure
 		$this->Structures->set('aliquotuses');
@@ -722,7 +775,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if(empty($this->data)) {
 			// Force $this->data to empty array() to override AliquotMaster.aliquot_volume_unit 
 			$this->data = array();
-			
+			$this->data['AliquotMaster']['aliquot_volume_unit'] = $aliquot_volume_unit;
+			$this->data['AliquotUse']['use_definition'] = $aliquot_use_defintion;
+				
 		} else {
 			// Format decimal data
 			$this->data = $this->Aliquots->formatAliquotUseFieldDecimalData($this->data);
@@ -768,12 +823,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id), 'recursive' => '-1'));
 		if(empty($sample_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }	
 				
-		// Set list of studies
-		$this->set('arr_studies_for_display', $this->getStudiesList());		
-			
 		// Set aliquot volume unit
 		$aliquot_volume_unit = empty($use_data['AliquotMaster']['aliquot_volume_unit'])? 'n/a': $use_data['AliquotMaster']['aliquot_volume_unit'];
-		$this->set('aliquot_volume_unit', $aliquot_volume_unit);	
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -799,6 +850,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		if(empty($this->data)) {
 			$this->data = $use_data;
+			$this->data['AliquotMaster']['aliquot_volume_unit'] = $aliquot_volume_unit;
 
 		} else {
 			// Format decimal data
@@ -1126,10 +1178,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$criteria = array(
 			'ParentSampleToAliquotControl.sample_control_id' => $parent_aliquot_data['SampleMaster']['sample_control_id'], 
 			'ParentSampleToAliquotControl.aliquot_control_id' => $parent_aliquot_data['AliquotMaster']['aliquot_control_id'],
-			'ParentSampleToAliquotControl.status' => 'active',
-			'RealiquotingControl.status' => 'active',
+			'ParentSampleToAliquotControl.flag_active' => '1',
+			'RealiquotingControl.flag_active' => '1',
 			'ChildSampleToAliquotControl.sample_control_id' => $parent_aliquot_data['SampleMaster']['sample_control_id'], 
-			'ChildSampleToAliquotControl.status' => 'active'
+			'ChildSampleToAliquotControl.flag_active' => '1'
 		);	
 		
 		$realiquotind_control_data = $this->RealiquotingControl->find('all', array('conditions' => $criteria));
@@ -1147,7 +1199,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			'NOT' => array('AliquotMaster.id' => $existing_children)
 		);
 	
-		$aliquot_data_for_selection = $this->AliquotMaster->find('all', array('conditions' => $criteria, 'recursive' => '0'));
+		$aliquot_data_for_selection = $this->AliquotMaster->find('all', array('conditions' => $criteria, 'order' => 'AliquotMaster.storage_datetime DESC', 'recursive' => '0'));
 		if(empty($aliquot_data_for_selection)) {
 			$this->flash('no new sample aliquot could be actually defined as realiquoted child', '/inventorymanagement/aliquot_masters/detail/' . $collection_id . '/' . $sample_master_id . '/' . $aliquot_master_id);
 			return;
@@ -1160,8 +1212,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 			
 		// Set parent aliquot volume unit
-		$aliquot_volume_unit = empty($parent_aliquot_data['AliquotMaster']['aliquot_volume_unit'])? 'n/a': $parent_aliquot_data['AliquotMaster']['aliquot_volume_unit'];
-		$this->set('parent_aliquot_volume_unit', $aliquot_volume_unit);	
+		$parent_aliquot_volume_unit = empty($parent_aliquot_data['AliquotMaster']['aliquot_volume_unit'])? 'n/a': $parent_aliquot_data['AliquotMaster']['aliquot_volume_unit'];
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 
@@ -1185,8 +1236,14 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// MANAGE DATA RECORD
 		
 		if(empty($this->data)) {
-			$this->set('default_realiquoting_date', $this->getDefaultRealiquotingDate($aliquot_data_for_selection));
 			$this->data = $aliquot_data_for_selection;
+			
+			//Set default data
+			$default_use_datetime = $this->getDefaultRealiquotingDate($aliquot_data_for_selection);
+			foreach($this->data as $id => $new_record) {
+				$this->data[$id]['AliquotUse']['use_datetime'] = $default_use_datetime;
+				$this->data[$id]['GeneratedParentAliquot']['aliquot_volume_unit'] = $parent_aliquot_volume_unit;
+			}
 			
 		} else {
 						
@@ -1331,34 +1388,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 	/* --------------------------------------------------------------------------
 	 * ADDITIONAL FUNCTIONS
 	 * -------------------------------------------------------------------------- */
-	
-	/**
-	 * Get formatted list of Studies existing into the system.
-	 * 
-	 * Note: Function to allow bank to customize this function when they don't use 
-	 * Study module.
-	 *
-	 * @return Studies list into array having following structure: 
-	 * 	array($study_id => $study_title_built_by_function)
-	 *
-	 * @author N. Luc
-	 * @since 2009-09-11
-	 * @updated N. Luc
-	 */
-	 
-	function getStudiesList() {
-		$studies_data = $this->StudySummaries->getStudiesList();
-		
-		$formatted_data = array();
-		if(!empty($studies_data)) {
-			foreach($studies_data as $new_study) {
-				$formatted_data[$new_study['StudySummary']['id']] = $new_study['StudySummary']['title'] . ' ('.__($new_study['StudySummary']['disease_site'], true) .'-'.__($new_study['StudySummary']['study_type'], true) .')'; 
-			}	
-		}
-		
-		return $formatted_data;
-	}
-		
+			
 	/**
 	 * Get default storage date for a new created aliquot.
 	 * 
@@ -1684,7 +1714,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		if(!empty($arr_preselected_storages)) {
 			foreach ($arr_preselected_storages as $storage_id => $storage_data) {
-				$formatted_data[$storage_id] = $storage_data['StorageMaster']['selection_label'] . ' [' . __($storage_data['StorageMaster']['code'] . ' ('.$storage_data['StorageMaster']['storage_type'], TRUE) .')'. ']';
+				$formatted_data[$storage_id] = $this->StorageMaster->createStorageTitleForDisplay($storage_data);
 			}
 		}
 	

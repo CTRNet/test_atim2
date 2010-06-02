@@ -2,7 +2,7 @@
 
 class ClinicalCollectionLinksController extends ClinicalannotationAppController {
 	
-	var $components = array('Inventorymanagement.Collections', 'Administrate.Administrates');
+	var $components = array();
 	
 	var $uses = array(
 		'Clinicalannotation.Participant', 
@@ -10,12 +10,10 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 		'Clinicalannotation.ConsentMaster',
 		'Clinicalannotation.DiagnosisMaster',
 		
-		'Inventorymanagement.Collection',
-		
-		'Administrate.Bank'
+		'Inventorymanagement.Collection'
 	);
 	
-	var $paginate = array('ClinicalCollectionLinks'=>array('limit'=>10,'order'=>'Collection.acquisition_label ASC'));	
+	var $paginate = array('ClinicalCollectionLinks'=>array('limit' => pagination_amount,'order'=>'Collection.acquisition_label ASC'));	
 	
 	function listall( $participant_id ) {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
@@ -27,9 +25,6 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 
 		$this->data = $this->paginate($this->ClinicalCollectionLink, array('ClinicalCollectionLink.participant_id'=>$participant_id));
 
-		// Set list of banks
-		$this->set('bank_list', $this->Collections->getBankList());	
-		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
@@ -46,9 +41,6 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 		$clinical_collection_data = $this->ClinicalCollectionLink->find('first',array('conditions'=>array('ClinicalCollectionLink.id'=>$clinical_collection_link_id,'ClinicalCollectionLink.participant_id'=>$participant_id)));
 		if(empty($clinical_collection_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }	
 		$this->data = $clinical_collection_data;	
-		
-		// Set list of banks
-		$this->set('bank_list', $this->Collections->getBankList());	
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -69,9 +61,6 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 		// Set collections list
 		$collection_data = $this->Collection->find('all', array('conditions' => array('Collection.deleted' => '0', 'ClinicalCollectionLink.participant_id IS NULL', 'collection_property' => 'participant collection')));
 		$this->set( 'collection_data', $collection_data );
-		
-		// Set list of banks
-		$this->set('bank_list', $this->Collections->getBankList());	
 		
 		// Set consents list
 		$consent_data = $this->ConsentMaster->find('all', array('conditions' => array('ConsentMaster.deleted' => '0', 'ConsentMaster.participant_id' => $participant_id)));
@@ -132,9 +121,6 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 		// Set collection data	
 		$collection_data = $this->Collection->find('all', array('conditions' => array('ClinicalCollectionLink.id' => $clinical_collection_link_id)));
 		$this->set( 'collection_data', $collection_data );
-		
-		// Set list of banks
-		$this->set('bank_list', $this->Collections->getBankList());	
 		
 		// Set consents list
 		$consent_data = $this->ConsentMaster->find('all', array('conditions' => array('ConsentMaster.deleted' => '0', 'ConsentMaster.participant_id' => $participant_id)));

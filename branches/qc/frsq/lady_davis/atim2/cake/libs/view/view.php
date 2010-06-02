@@ -1,25 +1,25 @@
 <?php
-/* SVN FILE: $Id: view.php 7961 2008-12-25 23:21:36Z gwoo $ */
+/* SVN FILE: $Id$ */
 /**
  * Methods for displaying presentation data in the view.
  *
  * PHP versions 4 and 5
  *
  * CakePHP(tm) :  Rapid Development Framework (http://www.cakephp.org)
- * Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
+ * Copyright 2005-2010, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
  * @filesource
- * @copyright     Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
+ * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
  * @link          http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
  * @package       cake
  * @subpackage    cake.cake.libs.view
  * @since         CakePHP(tm) v 0.10.0.1076
- * @version       $Revision: 7961 $
- * @modifiedby    $LastChangedBy: gwoo $
- * @lastmodified  $Date: 2008-12-25 15:21:36 -0800 (Thu, 25 Dec 2008) $
+ * @version       $Revision$
+ * @modifiedby    $LastChangedBy$
+ * @lastmodified  $Date$
  * @license       http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -417,6 +417,10 @@ class View extends Object {
  */
 	function renderLayout($content_for_layout, $layout = null) {
 		$layoutFileName = $this->_getLayoutFileName($layout);
+		if (empty($layoutFileName)) {
+			return $this->output;
+		}
+
 		$debug = '';
 
 		if (isset($this->viewVars['cakeDebug']) && Configure::read() > 2) {
@@ -433,7 +437,7 @@ class View extends Object {
 		$data_for_layout = array_merge($this->viewVars, array(
 			'title_for_layout' => $pageTitle,
 			'content_for_layout' => $content_for_layout,
-			'scripts_for_layout' => join("\n\t", $this->__scripts),
+			'scripts_for_layout' => implode("\n\t", $this->__scripts),
 			'cakeDebug' => $debug
 		));
 
@@ -642,13 +646,7 @@ class View extends Object {
  */
 	function _render($___viewFn, $___dataForView, $loadHelpers = true, $cached = false) {
 		$loadedHelpers = array();
-		
-		// ATiM2: load custom view
-		$viewCustom = explode('/',$___viewFn);
-		$viewCustom[ count($viewCustom)-1 ] = 'customs/'.$viewCustom[ count($viewCustom)-1 ];
-		$viewCustom = implode('/',$viewCustom);
-		if (file_exists($viewCustom)) $___viewFn = $viewCustom;
-		
+
 		if ($this->helpers != false && $loadHelpers === true) {
 			$loadedHelpers = $this->_loadHelpers($loadedHelpers, $this->helpers);
 
@@ -688,7 +686,7 @@ class View extends Object {
 				$cache->helpers = $this->helpers;
 				$cache->action = $this->action;
 				$cache->controllerName = $this->name;
-				$cache->layout	= $this->layout;
+				$cache->layout = $this->layout;
 				$cache->cacheAction = $this->cacheAction;
 				$cache->cache($___viewFn, $out, $cached);
 			}
@@ -806,15 +804,24 @@ class View extends Object {
 			}
 		}
 
-		$paths = $this->_paths($this->plugin);
-
-		foreach ($paths as $path) {
-			if (file_exists($path . $name . $this->ext)) {
-				return $path . $name . $this->ext;
-			} elseif (file_exists($path . $name . '.ctp')) {
-				return $path . $name . '.ctp';
-			} elseif (file_exists($path . $name . '.thtml')) {
-				return $path . $name . '.thtml';
+		$paths = $this->_paths(Inflector::underscore($this->plugin));
+		
+		$exts = array($this->ext, '.ctp', '.thtml');
+		foreach ($exts as $ext) {
+			foreach ($paths as $path) {
+				
+				// ATiM2: load custom view
+				$custom_name = explode(DS,$name);
+				$custom_name[ count($custom_name)-1 ] = 'customs'.DS.$custom_name[ count($custom_name)-1 ];
+				$custom_name = implode(DS,$custom_name);
+						
+				if (file_exists($path . $custom_name . $ext)) {
+					return $path . $custom_name . $ext;
+				}
+				
+				else if (file_exists($path . $name . $ext)) {
+					return $path . $name . $ext;
+				}
 			}
 		}
 		$defaultPath = $paths[0];
@@ -846,12 +853,12 @@ class View extends Object {
 		if (!is_null($this->layoutPath)) {
 			$subDir = $this->layoutPath . DS;
 		}
-		$paths = $this->_paths($this->plugin);
+		$paths = $this->_paths(Inflector::underscore($this->plugin));
 		$file = 'layouts' . DS . $subDir . $name;
 
 		$exts = array($this->ext, '.ctp', '.thtml');
-		foreach ($paths as $path) {
-			foreach ($exts as $ext) {
+		foreach ($exts as $ext) {
+			foreach ($paths as $path) {
 				if (file_exists($path . $file . $ext)) {
 					return $path . $file . $ext;
 				}
@@ -897,11 +904,14 @@ class View extends Object {
 		}
 		$paths = array();
 		$viewPaths = Configure::read('viewPaths');
+		$corePaths = array_flip(Configure::corePaths('view'));
 
-		if ($plugin !== null) {
+		if (!empty($plugin)) {
 			$count = count($viewPaths);
 			for ($i = 0; $i < $count; $i++) {
-				$paths[] = $viewPaths[$i] . 'plugins' . DS . $plugin . DS;
+				if (!isset($corePaths[$viewPaths[$i]])) {
+					$paths[] = $viewPaths[$i] . 'plugins' . DS . $plugin . DS;
+				}
 			}
 			$pluginPaths = Configure::read('pluginPaths');
 			$count = count($pluginPaths);

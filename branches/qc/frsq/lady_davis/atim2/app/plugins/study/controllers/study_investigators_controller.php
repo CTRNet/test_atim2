@@ -3,7 +3,7 @@
 class StudyInvestigatorsController extends StudyAppController {
 	
 	var $uses = array('Study.StudyInvestigator','Study.StudySummary');
-	var $paginate = array('StudyInvestigator'=>array('limit'=>10,'order'=>'StudyInvestigator.last_name'));
+	var $paginate = array('StudyInvestigator'=>array('limit' => pagination_amount,'order'=>'StudyInvestigator.last_name'));
 	
 	function listall( $study_summary_id ) {
 		// Missing or empty function variable, send to ERROR page

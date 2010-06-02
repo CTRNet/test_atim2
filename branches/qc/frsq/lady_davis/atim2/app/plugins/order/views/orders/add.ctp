@@ -5,7 +5,6 @@
 	);
 	
 	$structure_override = array();
-	$structure_override['Order.study_summary_id'] = $studies_list;	
 	
 	$final_atim_structure = $atim_structure; 
 	$final_options = array('links'=>$structure_links,'override'=>$structure_override);
