@@ -4,7 +4,7 @@
 
 -- Update version information
 UPDATE `versions` 
-SET `version_number` = 'v2.0.2', `date_installed` = CURDATE(), `build_number` = ''
+SET `version_number` = 'v2.0.2', `date_installed` = CURDATE(), `build_number` = '1423'
 WHERE `versions`.`id` =1;
 
 -- Delete all structures without associated fields
