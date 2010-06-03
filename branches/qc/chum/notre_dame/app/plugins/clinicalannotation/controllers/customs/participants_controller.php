@@ -22,7 +22,7 @@ class ParticipantsControllerCustom extends ParticipantsController {
 		$last_pariticpant = $this->Participant->find('first', array('order' => 'Participant.id DESC'));
 		$next_pariticpant_id = empty($last_pariticpant)? '1': ($last_pariticpant['Participant']['id'] + 1);
 
-		return "Ap-" . $next_pariticpant_id;;
+		return "ATIMp-" . $next_pariticpant_id;;
 	}
 }
 
