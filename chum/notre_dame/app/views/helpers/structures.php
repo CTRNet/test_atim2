@@ -158,13 +158,9 @@ class StructuresHelper extends Helper {
 			if($options['type'] == 'search'){	//search mode
 				$link_class = "search";
 				$link_label = __("search", null);
-				$advanced_button = '<span class="button large">
-							<a id="adv_ctrl" href="#" class="form disabled" tabindex="'.(StructuresHelper::$last_tabindex + 2).'">'.__('advanced controls', true).'</a>
-						</span>';
 			}else{								//other mode
 				$link_class = "submit";
 				$link_label = __("submit", null);
-				$advanced_button = "";
 			}
 			$return_string .= '
 				</fieldset>
@@ -175,7 +171,6 @@ class StructuresHelper extends Helper {
 							<input id="submit_button" class="submit" type="submit" value="Submit" style="display: none;"/>
 							<a href="#" onclick="$(\'#submit_button\').click();" class="form '.$link_class.'" tabindex="'.(StructuresHelper::$last_tabindex + 1).'">'.$link_label.'</a>
 						</span>
-						'.$advanced_button.'
 					</div>
 			';
 		}
@@ -268,7 +263,7 @@ class StructuresHelper extends Helper {
 								';
 							}
 							$tmp_advanced = "";
-							if($options['type'] == "search"){
+							if($options['type'] == "search" && show_advanced_controls){
 								$tmp_advanced = "<span><a class='adv_ctrl btn_add_or' onclick='return false;' href='#'>(+)</a></span>";
 							}
 							
@@ -1302,8 +1297,11 @@ class StructuresHelper extends Helper {
 										// find MATCH in results (it is assumed any translations have happened in the MODEL already)
 										foreach ( $pulldown_result as $lookup ) {
 											if ( $lookup['value'] == $display_value ) {
-												if ( isset($lookup[$options['type']]) ) { $display_value = $lookup[$options['type']]; }
-												else { $display_value = $lookup['default']; }
+												if ( isset($lookup[$options['type']]) ) {
+													$display_value = $lookup[$options['type']]; 
+												}else { 
+													$display_value = $lookup['default']; 
+												}
 											}
 										}
 										
@@ -1491,7 +1489,18 @@ class StructuresHelper extends Helper {
 					}
 					
 					if ( count($field['StructureField']['StructureValidation']) ) {
-						$html_element_array['class'] .= 'required '; 
+						$required = false;
+						foreach($field['StructureField']['StructureValidation'] as $validation){
+							if($validation['rule'] == 'notEmpty'){
+								$required = true;
+								break;
+							}
+						}
+						if($required){
+							$html_element_array['class'] .= ' required ';
+						}else if(Configure::read('debug') > 0){
+							$html_element_array['class'] .= ' validation ';
+						} 
 					}
 					
 					if ( $options['type']=='add' && $field['StructureField']['default'] ) { 
@@ -1542,6 +1551,9 @@ class StructuresHelper extends Helper {
 						case 'float_positive':
 							
 							$html_element_array['type'] = 'text';
+							if(Configure::read('debug') > 0){
+								$html_element_array['class'] .= " validation ";
+							}
 							
 							if ( $options['type']=='search' ) {
 								
@@ -1588,7 +1600,7 @@ class StructuresHelper extends Helper {
 								}
 							}
 							
-							if ( count($field['StructureField']['StructureValueDomain']) ) {
+							else if ( count($field['StructureField']['StructureValueDomain']) ) {
 								
 								// if SOURCE is provided, use provided MODEL::FUNCTION call to retrieve pulldown values
 								if ( $field['StructureField']['StructureValueDomain']['source'] ) {
@@ -1617,8 +1629,11 @@ class StructuresHelper extends Helper {
 										
 										// it is assumed any translations have happened in the MODEL already
 										foreach ( $pulldown_result as $lookup ) {
-											if ( isset($lookup[$options['type']]) ) { $html_element_array['options'][ $lookup['value'] ] = $lookup[$options['type']]; }
-											else { $html_element_array['options'][ $lookup['value'] ] = $lookup['default']; }
+											if ( isset($lookup[$options['type']])){
+												$html_element_array['options'][ $lookup['value'] ] = $lookup[$options['type']]; 
+											}else { 
+												$html_element_array['options'][ $lookup['value'] ] = $lookup['default']; 
+											}
 										}
 										
 									}
@@ -1654,6 +1669,9 @@ class StructuresHelper extends Helper {
 								}
 							}
 							
+							if(!isset($html_element_array['legend'])){
+								$html_element_array['legend'] = "";
+							}
 							break;
 							
 						case 'checkbox':
@@ -1968,13 +1986,15 @@ class StructuresHelper extends Helper {
 					$aco_alias = 'controllers/'.($parts['plugin'] ? Inflector::camelize($parts['plugin']).'/' : '');
 					$aco_alias .= ($parts['controller'] ? Inflector::camelize($parts['controller']).'/' : '');
 					$aco_alias .= ($parts['action'] ? $parts['action'] : '');
-					
 					$Acl = new AclComponent();
 				// }	
 				
 				// if ACO/ARO permissions check succeeds, create link
 				// if ( Configure::read("debug") || strpos($aco_alias,'controllers/Users')!==false || strpos($aco_alias,'controllers/Pages')!==false || $Acl->check($aro_alias, $aco_alias) ) {
-				if ( strpos($aco_alias,'controllers/Users')!==false || strpos($aco_alias,'controllers/Pages')!==false || $Acl->check($aro_alias, $aco_alias) ) {
+				if ( strpos($aco_alias,'controllers/Users')!==false 
+				|| strpos($aco_alias,'controllers/Pages')!==false
+				|| $aco_alias == "controllers/Menus/index"
+				|| $Acl->check($aro_alias, $aco_alias) ) {
 					
 					$display_class_name = $this->generate_link_class($link_name, $link_location);
 					$htmlAttributes['title'] = strip_tags( html_entity_decode(__($link_name, true), ENT_QUOTES, "UTF-8") ); 
@@ -2482,7 +2502,7 @@ class StructuresHelper extends Helper {
 		}
 		
 		$date .= '<span style="position: relative;">
-				<input type="button" id="'.$model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix.'_button" class="datepicker" value="" tabindex="'.$html_element_array['tabindex'].'"/>
+				<input type="button" id="'.$model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix.'_button" class="datepicker" value=""/>
 				<img src="'.$this->webroot.'/img/cal.gif" alt="cal" class="fake_datepicker"/>
 			</span>';
 		

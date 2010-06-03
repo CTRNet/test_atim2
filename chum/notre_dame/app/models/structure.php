@@ -38,13 +38,12 @@ class Structure extends AppModel {
 			if ( $conditions=='rule' || $conditions=='rules' ) {
 				
 				$return = array();
-				
 				foreach ( $result['StructureFormat'] as $structure_format  ) {
 					
 					if ( !isset($return[ $structure_format['StructureField']['model'] ]) ) {
 						$return[ $structure_format['StructureField']['model'] ] = array();
 					}
-					$tmp_type = $structure_format['StructureField']['type'];
+					$tmp_type = $structure_format['flag_override_type'] ? $structure_format['type'] : $structure_format['StructureField']['type'];
 					$tmp_rule = NULL;
 					$tmp_msg = NULL;
 					if($tmp_type == "integer"){
@@ -68,11 +67,14 @@ class Structure extends AppModel {
 					}
 					if($tmp_rule != NULL){
 						$structure_format['StructureField']['StructureValidation'][] = array(
+							'structure_field_id' => $structure_format['StructureField']['id'],
 							'rule' => $tmp_rule, 
 							'flag_empty' => 1, 
 							'flag_required' => 0, 
+							'on_action' => NULL,
 							'language_message' => $tmp_msg);
 					}
+//					pr($structure_format['StructureField']['StructureValidation']);
 					foreach ( $structure_format['StructureField']['StructureValidation'] as $validation ) {
 						$rule = split(',',$validation['rule']);
 						if(count($rule) == 1){

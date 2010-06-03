@@ -13,7 +13,7 @@ class PermissionsController extends AdministrateAppController {
 		$this->set('log', $this->PermissionManager->log);
 	}
 	
-	function update($bank_id = 0, $aro_id, $aco_id, $state){
+	function update($aro_id, $aco_id, $state){
 		
 		$this->autoRender = false;
 		
@@ -23,12 +23,12 @@ class PermissionsController extends AdministrateAppController {
 		list($type,$id) = split('::',$aro['Aro']['alias']);
 		switch($type){
 		case 'Group':
-			$this->redirect('/administrate/permissions/tree/'.$bank_id.'/'.$id);
+			$this->redirect('/administrate/permissions/tree/'.$id);
 			break;
 		case 'User':
 			$parent = $this->Aro->find('first', array('conditions' => 'Aro.id = "'.$aro['Aro']['parent_id'].'"', 'order'=>'alias ASC', 'recursive' => -1));
 			list($type,$gid) = split('::',$parent['Aro']['alias']);
-			$this->redirect('/administrate/permissions/tree/'.$bank_id.'/'.$gid.'/'.$id);
+			$this->redirect('/administrate/permissions/tree/'.$gid.'/'.$id);
 			break;
 		}
 		exit();
@@ -69,9 +69,9 @@ class PermissionsController extends AdministrateAppController {
 		
 	}
 	
-	function tree( $bank_id=0, $group_id=0, $user_id=0 ) {
+	function tree($group_id=0, $user_id=0 ) {
 		
-		$this->set( 'atim_menu_variables', array('Bank.id'=>$bank_id,'Group.id'=>$group_id,'User.id'=>$user_id) );
+		$this->set( 'atim_menu_variables', array('Group.id'=>$group_id,'User.id'=>$user_id) );
 		$aro = $this->Aro->find('first', array('conditions' => 'Aro.alias = "Group::'.$group_id.'"', 'order'=>'alias ASC', 'recursive' => 1));
 		$known_acos = array_combine(Set::extract('Aco.{n}.id',$aro), Set::extract('Aco.{n}.Permission',$aro));
 		$this->set('aro', $aro );
@@ -82,7 +82,7 @@ class PermissionsController extends AdministrateAppController {
 			foreach($this->data as $i => $aco){
 				$this->updatePermission($aro['Aro']['id'],$aco['Aco']['id'],intval($aco['Aco']['state']));
 			}
-			$this->redirect('/administrate/permissions/tree/'.$bank_id.'/'.$group_id.'/'.$user_id);
+			$this->redirect('/administrate/permissions/tree/'.$group_id.'/'.$user_id);
 			break;
 		}
 		

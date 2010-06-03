@@ -6,12 +6,6 @@ class AdministratesComponent extends Object {
 		$this->controller =& $controller;
 	}
 	
-	// TODO: Develop this function to retrun Bank list according different parameters
-	function getBankList() {		
-		$bank_list = $this->controller->Bank->atim_list(array('conditions' => array('Bank.deleted' => '0'), 'order' => array('Bank.name ASC')));
-		return (empty($bank_list)? array(): $bank_list);
-	}
-	
 }
 
 ?>

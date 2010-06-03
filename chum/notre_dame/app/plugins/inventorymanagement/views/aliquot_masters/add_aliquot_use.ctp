@@ -1,16 +1,12 @@
 <?php 
 	
 	$structure_links = array(
-		'top' => '/inventorymanagement/aliquot_masters/addAliquotUse/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'] . '/' . $use_defintion,
+		'top' => '/inventorymanagement/aliquot_masters/addAliquotUse/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'] . '/' . $atim_menu_variables['AliquotUse.use_definition'],
 		'bottom' => array('cancel' => '/inventorymanagement/aliquot_masters/detail/'.$atim_menu_variables['Collection.id'].'/'.$atim_menu_variables['SampleMaster.initial_specimen_sample_id'].'/'.$atim_menu_variables['AliquotMaster.id'].'/'
 		)
 	);
 	
 	$structure_override = array();
-		
-	$structure_override['AliquotMaster.aliquot_volume_unit'] = $aliquot_volume_unit;	
-	$structure_override['AliquotUse.use_definition'] = $use_defintion;
-	$structure_override['AliquotUse.study_summary_id'] = $arr_studies_for_display;	
 	
 	$final_atim_structure = $atim_structure; 
 	$final_options = array('links' => $structure_links, 'override' => $structure_override, 'type' => 'add');

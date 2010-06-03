@@ -196,7 +196,6 @@ class StructuresComponent extends Object {
 	}
 	
 	function parse_sql_conditions( $sql=NULL, $conditions=NULL ) {
-		
 		$sql_with_search_terms = $sql;
 		$sql_without_search_terms = $sql;
 		if($conditions === null){
@@ -211,8 +210,24 @@ class StructuresComponent extends Object {
 				}
 			}
 		}else{
-			foreach($conditions as $model_field => $field_value){
-				$sql_with_search_terms = str_replace( '@@'.$model_field.'@@', $field_value, $sql_with_search_terms );
+			foreach($conditions as $model_field => $field_value_arr){
+				if(sizeof($field_value_arr) > 1){
+					//expand query for OR
+					$matches = array();
+					preg_match_all("/[\w\.\`]+[\s]+(LIKE|=)[\s]+\"@@".$model_field."@@\"/", $sql_with_search_terms, $matches, PREG_OFFSET_CAPTURE);
+					//start with the end
+					$matches[0] = array_reverse($matches[0]);
+					foreach($matches[0] as $match){
+						$str = "";
+						foreach($field_value_arr as $field_value){
+							$str .= str_replace('@@'.$model_field.'@@', $field_value, $match[0])." OR ";
+						}
+						$str = "(".substr($str, 0, -4).")";
+						$sql_with_search_terms = substr($sql_with_search_terms, 0, $match[1]).$str.substr($sql_with_search_terms, $match[1] + strlen($match[0]));
+					}
+				}else{
+					$sql_with_search_terms = str_replace( '@@'.$model_field.'@@', $field_value_arr[0], $sql_with_search_terms );
+				}
 				$sql_without_search_terms = str_replace( '@@'.$model_field.'@@', '', $sql_without_search_terms );
 			}
 		}

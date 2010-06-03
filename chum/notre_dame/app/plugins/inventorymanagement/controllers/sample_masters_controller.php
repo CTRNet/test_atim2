@@ -3,12 +3,8 @@
 class SampleMastersController extends InventorymanagementAppController {
 
 	var $components = array(
-		'Inventorymanagement.Collections', 
 		'Inventorymanagement.Samples', 
-		'Inventorymanagement.Aliquots', 
-
-		'Administrate.Administrates',
-		'Sop.Sops');
+		'Inventorymanagement.Aliquots');
 
 	var $uses = array(
 		'Inventorymanagement.Collection',
@@ -32,12 +28,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		'Inventorymanagement.PathCollectionReview',
 		'Inventorymanagement.ReviewMaster',
 		
-		'Inventorymanagement.SampleToAliquotControl',
-		
-		'Administrate.Bank',
-		'Sop.SopMaster',
-		
-		'Codingicd10.CodingIcd10');
+		'Inventorymanagement.SampleToAliquotControl');
 	
 	var $paginate = array(
 		'SampleMaster' => array('limit' => 10, 'order' => 'SampleMaster.sample_code DESC'),
@@ -54,9 +45,6 @@ class SampleMastersController extends InventorymanagementAppController {
 		$_SESSION['ctrapp_core']['search'] = null; // clear SEARCH criteria
 		$this->unsetInventorySessionData();
 		
-		// Set list of banks
-		$this->set('bank_list', $this->Collections->getBankList());
-
 		$this->Structures->set('view_sample_joined_to_collection');
 				
 		$hook_link = $this->hook('format');
@@ -75,9 +63,6 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->set('samples_data', $this->paginate($this->ViewSample, $_SESSION['ctrapp_core']['search']['criteria']));
 		$this->data = array();
 		
-		// Set list of banks
-		$this->set('bank_list', $this->Collections->getBankList());
-				
 		// if SEARCH form data, save number of RESULTS and URL
 		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['ViewSample']['count'];
 		$_SESSION['ctrapp_core']['search']['url'] = '/inventorymanagement/sample_masters/search';
@@ -222,11 +207,6 @@ class SampleMastersController extends InventorymanagementAppController {
 										
 						$form_alias = $sample_control_data['SampleControl']['form_alias'];
 						$filter_value = $sample_control_data['SampleControl']['sample_type'];
-						
-						// Set list of tissue sources
-						if($sample_control_data['SampleControl']['sample_type'] == 'tissue') {
-							$this->set('arr_tissue_sources', $this->getTissueSourceList());
-						}
 						break;
 						
 					default:
@@ -319,9 +299,6 @@ class SampleMastersController extends InventorymanagementAppController {
 			case 'ViewSample': 
 				// Get data
 				$samples_data = $this->paginate($this->ViewSample, array_merge(array('ViewSample.collection_id' => $collection_id), $sample_search_criteria));
-				
-				// Set list of banks
-				$this->set('bank_list', $this->Collections->getBankList());	
 				break;
 				
 			case 'SampleMaster':		
@@ -427,14 +404,6 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->set('parent_sample_data_for_display', $this->formatParentSampleDataForDisplay($parent_sample_data));	
 		$this->set('parent_sample_master_id', $parent_sample_master_id);	
 	
-		// Set list of available SOPs to create sample
-		$this->set('sample_sop_list', $this->Samples->getSampleSopList($sample_data['SampleMaster']['sample_type']));	
-		
-		// Set list of tissue sources
-		if($sample_data['SampleControl']['sample_type'] == 'tissue') {
-			$this->set('arr_tissue_sources', $this->getTissueSourceList());
-		}
-	
 		// Calulate spent time between:
 		if($bool_is_specimen){
 			// -> specimen collection and specimen reception
@@ -532,14 +501,6 @@ class SampleMastersController extends InventorymanagementAppController {
 		// Set new sample control information
 		$this->set('sample_control_data', $sample_control_data);	
 		
-		// Set list of available SOPs to create sample
-		$this->set('sample_sop_list', $this->Samples->getSampleSopList($sample_control_data['SampleControl']['sample_type']));
-		
-		// Set list of tissue sources
-		if($sample_control_data['SampleControl']['sample_type'] == 'tissue') {
-			$this->set('arr_tissue_sources', $this->getTissueSourceList());
-		}
-	
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Set menu
@@ -562,7 +523,10 @@ class SampleMastersController extends InventorymanagementAppController {
 		// MANAGE DATA RECORD
 		
 		if(empty($this->data)) {
-		
+			$this->data = array();
+			$this->data['SampleMaster']['sample_type'] = $sample_control_data['SampleControl']['sample_type'];
+			$this->data['SampleMaster']['sample_category'] = $sample_control_data['SampleControl']['sample_category'];
+	
 			//Set default reception date
 			if($bool_is_specimen){
 				if($this->SampleMaster->find('count', array('conditions' => array('SampleMaster.collection_id' => $collection_id))) == 0){
@@ -605,8 +569,8 @@ class SampleMastersController extends InventorymanagementAppController {
 			$this->SampleMaster->set($this->data);
 			$submitted_data_validates = ($this->SampleMaster->validates())? $submitted_data_validates: false;
 			
-			$this->SampleDetail->set($this->data);
-			$submitted_data_validates = ($this->SampleDetail->validates())? $submitted_data_validates: false;
+			//for error field highlight in detail
+			$this->SampleDetail->validationErrors = $this->SampleMaster->validationErrors;
 			
 			if($bool_is_specimen) { 
 				$this->SpecimenDetail->set($this->data);
@@ -688,14 +652,6 @@ class SampleMastersController extends InventorymanagementAppController {
 
 		$this->set('parent_sample_data_for_display', $this->formatParentSampleDataForDisplay($parent_sample_data));	
 		
-		// Set list of available SOPs to create sample
-		$this->set('sample_sop_list', $this->Samples->getSampleSopList($sample_data['SampleMaster']['sample_type']));	
-		
-		// Set list of tissue sources
-		if($sample_data['SampleMaster']['sample_type'] == 'tissue') {
-			$this->set('arr_tissue_sources', $this->getTissueSourceList());
-		}
-	
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Get the current menu object. Needed to disable menu options based on sample category
@@ -731,8 +687,8 @@ class SampleMastersController extends InventorymanagementAppController {
 			$this->SampleMaster->set($this->data);
 			$submitted_data_validates = ($this->SampleMaster->validates())? $submitted_data_validates: false;
 			
-			$this->SampleDetail->set($this->data);
-			$submitted_data_validates = ($this->SampleDetail->validates())? $submitted_data_validates: false;
+			//for error field highlight in detail
+			$this->SampleDetail->validationErrors = $this->SampleMaster->validationErrors;
 			
 			if($bool_is_specimen) { 
 				$this->SpecimenDetail->set($this->data);
@@ -898,22 +854,6 @@ class SampleMastersController extends InventorymanagementAppController {
 		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'review exists for the deleted sample'); }
 		
 		return array('allow_deletion' => true, 'msg' => '');
-	}
-
-	/**
-	 * Get list of organs a sample tissue could come from.
-	 *
-	 * @author N. Luc
-	 * @since 2009-09-11
-	 * @updated N. Luc
-	 */
-	 
-	function getTissueSourceList() {
-		//TODO Define content of tissue_source list
-		$res = $this->CodingIcd10->find('all', array('fields' => 'DISTINCT site', 'order' => 'site ASC', 'conditions' => array('site != \'\'')));
-		$final_arr = array();
-		if(!empty($res)) { foreach($res as $data) { $final_arr[strtolower($data['CodingIcd10']['site'])] = $data['CodingIcd10']['site']; }}
-		return $final_arr;
 	}
 	
 	/**
