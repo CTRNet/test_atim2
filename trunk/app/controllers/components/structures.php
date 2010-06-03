@@ -49,7 +49,7 @@ class StructuresComponent extends Object {
 			if ( $alias ) {
 				
 				App::import('model', 'Structure');
-				$this->Component_Structure =& new Structure;
+				$this->Component_Structure = new Structure;
 				
 				$result = $this->Component_Structure->find(
 								( ( $mode=='rule' || $mode=='rules' ) ? 'rules' : 'first'), 
