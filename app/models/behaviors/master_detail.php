@@ -93,56 +93,6 @@ class MasterDetailBehavior extends ModelBehavior {
 	
 	function beforeSave (&$model) {
 		return $this->beforeValidateAndSave($model);
-//		// make all SETTINGS into individual VARIABLES, with the KEYS as names
-//		extract($this->__settings[$model->alias]);
-//		
-//		$valid = true;
-//		
-//		if ( $is_master_model ) {
-//			
-//			$use_form_alias = NULL;
-//			$use_table_name = NULL;
-//			
-//			// import STRUCTURE model, to get validation rules from
-//			App::import('model', 'Structure');
-//			$this->Component_Structure =& new Structure;
-//			
-//			if ( isset($model->data[$master_class][$control_foreign]) && $model->data[$master_class][$control_foreign] ) {
-//				// use CONTROL_ID to get control row
-//				$associated = $model->$control_class->find('first',array($control_class.'.id' => $model->data[$master_class][$control_foreign]));
-//			} else {
-//				// else, if EDIT, use MODEL.ID to get row and find CONTROL_ID that way...
-//				$associated = $model->find('first',array($master_class.'.id' => $model->id));
-//			}
-//			
-//			$use_form_alias = $associated[$control_class][$form_alias];
-//			$use_table_name = $associated[$control_class][$detail_field];
-//			
-//			if ( $use_form_alias ) {
-//				
-//				$result = $this->Component_Structure->find('rules',
-//						array(
-//							'conditions'	=>	array( 'Structure.alias' => $use_form_alias ), 
-//							'recursive'		=>	5
-//						)
-//				);
-//				foreach ( $result as $m=>$rules ){
-//					$detail_class_instance = new AppModel( array('table'=>$use_table_name, 'name'=>$detail_class, 'alias'=>$detail_class) );
-//					$detail_class_instance->validate = $rules;
-//					$detail_class_instance->set($model->data);
-//					$valid_detail_class = $detail_class_instance->validates();
-//					
-//					$valid = $valid_detail_class && $valid;
-//					
-//					if ( !$valid_detail_class ){
-//						$model->validationErrors = array_merge($model->validationErrors,$detail_class_instance->validationErrors);
-//					}
-//				}
-//			}
-//			
-//		}
-//		
-//		return $valid;
 	}
 	
 	function afterSave (&$model, $created) {
@@ -236,7 +186,7 @@ class MasterDetailBehavior extends ModelBehavior {
 			
 			// import STRUCTURE model, to get validation rules from
 			App::import('model', 'Structure');
-			$this->Component_Structure =& new Structure;
+			$this->Component_Structure = new Structure;
 			
 			if ( isset($model->data[$master_class][$control_foreign]) && $model->data[$master_class][$control_foreign] ) {
 				// use CONTROL_ID to get control row
