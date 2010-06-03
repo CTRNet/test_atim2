@@ -108,19 +108,7 @@ class AppController extends Controller {
 	private static $missing_translations = array();
 	private static $me;
 	var $uses = array('Config');
-	var $components	= array(
-		'Session', 'SessionAcl', 'Auth', 'Menus', 'RequestHandler', 'Structures',
-		'PermissionManager' => array(
-			'controllers' => array(
-				'allow' => array('Group::1','Group::2','Group::3'),
-				'deny' => array()
-			),
-			'controllers/Administrate/Permissions' => array(
-				'allow' => array(),
-				'deny' => array('Group::2','Group::3')
-			)
-		)
-	);
+	var $components	= array( 'Session', 'SessionAcl', 'Auth', 'Menus', 'RequestHandler', 'Structures', 'PermissionManager' );
 	var $helpers		= array('Ajax', 'Csv', 'Html', 'Javascript', 'Shell', 'Structures', 'Time');
 	
 	function beforeFilter() {

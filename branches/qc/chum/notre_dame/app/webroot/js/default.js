@@ -149,9 +149,6 @@ function uncheckAll( $div ) {
 				if(tmpDate.length == 10){
 					$(this).datepicker('setDate', tmpDate);
 				}
-				//show fake button to hide real button value
-				var item = $(this).parent().children("img")[0];
-				$(item).css("z-index", "1");
 			},
 			onClose: function(dateText,picker) {
 				//hide the date
@@ -162,9 +159,6 @@ function uncheckAll( $div ) {
 		        	$('#' + tmpId + "-mm" + tmpSuffix).val(dateSplit[1]);
 		        	$('#' + tmpId + "-dd" + tmpSuffix).val(dateSplit[2]);
 				}
-	        	//hide fake button
-	        	var item = $(this).parent().children("img")[0];
-				$(item).css("z-index", "-1");
 		    }
 		});
 		
@@ -192,19 +186,6 @@ function uncheckAll( $div ) {
 	}
 	
 	function initAdvancedControls(){
-		//toggle show/hide advanced controls
-		$("#adv_ctrl").toggle(function(){
-			$(".adv_ctrl").show();
-			$(this).removeClass("disabled");
-			$(this).addClass("enabled");
-		}, function(){
-			$(".adv_ctrl").hide();
-			$(this).removeClass("enabled");
-			$(this).addClass("disabled");
-			//clear advanced controls values to avoid breakin submission
-			$(".adv_ctrl").val("");
-		});
-		
 		//for each add or button
 		$(".btn_add_or").each(function(){
 			var $field = $(this).parent().parent().find("span:first");
@@ -253,9 +234,6 @@ function uncheckAll( $div ) {
 				$(this).remove();
 			}
 		});
-		
-		//one actions are binded hide the advanced controls (bind doesn't work on already hidden components)
-		$(".adv_ctrl").hide();
 	}
 	
 	function initTooltips(){

@@ -84,7 +84,7 @@ class DATABASE_CONFIG {
 		'host' => 'localhost',
 		'login' => 'root',
 		'password' => '',
-		'database' => 'frsq_icm_prod',
+		'database' => 'frsq_icm_v2',
 		'prefix' => '',
 		'encoding' => 'utf8'
 	);

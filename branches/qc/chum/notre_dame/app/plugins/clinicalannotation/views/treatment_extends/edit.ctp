@@ -6,14 +6,16 @@
 		)
 	);
 	
-	switch($tx_method){
-		case "chemotherapy":
-			$structure_override = array('TreatmentExtend.drug_id'=>$drug_list);
-			break;
-		default:
-			$structure_override = array();
-			break;
-	}
-	$structures->build( $atim_structure, array('links'=>$structure_links, 'override'=>$structure_override) );
-
+	$structure_override = array();
+	
+	$final_atim_structure = $atim_structure; 
+	$final_options = array('links'=>$structure_links,'override'=>$structure_override);
+	
+	// CUSTOM CODE
+	$hook_link = $structures->hook();
+	if( $hook_link ) { require($hook_link); }
+		
+	// BUILD FORM
+	$structures->build( $final_atim_structure, $final_options );
+	
 ?>

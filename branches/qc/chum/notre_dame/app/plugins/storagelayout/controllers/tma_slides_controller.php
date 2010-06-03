@@ -2,15 +2,13 @@
 
 class TmaSlidesController extends StoragelayoutAppController {
 	
-	var $components = array('Storagelayout.Storages', 'Sop.Sops');
+	var $components = array('Storagelayout.Storages');
 	
 	var $uses = array(
 		'Storagelayout.StorageMaster',
 		'Storagelayout.TmaSlide',
 		'Storagelayout.StorageCoordinate',
-		'Storagelayout.StorageControl',
-		
-		'Sop.SopMaster');
+		'Storagelayout.StorageControl');
 	
 	var $paginate = array('TmaSlide' => array('limit' => 10,'order' => 'TmaSlide.barcode DESC'));
 
@@ -65,9 +63,6 @@ class TmaSlidesController extends StoragelayoutAppController {
 		// Verify storage is tma block
 		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') != 0) { $this->redirect('/pages/err_sto_system_error', null, true); }
 
-		// Set list of available SOPs to build TMA slide
-		$this->set('arr_tma_slide_sops', $this->Storages->getSopList('tma_slide'));
-
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 
 		// Get the current menu object. Needed to disable menu options based on storage type		
@@ -89,7 +84,7 @@ class TmaSlidesController extends StoragelayoutAppController {
 		
 		if(empty($this->data)) {
 			// Set default value
-			$this->set('matching_storage_list', array());
+			$this->set('arr_preselected_storages_for_display', array());
 
 		} else {			
 			// Set tma block storage master id
@@ -102,7 +97,7 @@ class TmaSlidesController extends StoragelayoutAppController {
 			$arr_storage_selection_results = $this->Storages->validateStorageIdVersusSelectionLabel($this->data['FunctionManagement']['recorded_storage_selection_label'], $this->data['TmaSlide']['storage_master_id']);
 					
 			$this->data['TmaSlide']['storage_master_id'] = $arr_storage_selection_results['selected_storage_master_id'];
-			$this->set('matching_storage_list', $this->formatPreselectedStoragesForDisplay($arr_storage_selection_results['matching_storage_list']));							
+			$this->set('arr_preselected_storages_for_display', $this->formatPreselectedStoragesForDisplay($arr_storage_selection_results['matching_storage_list']));							
 			if(!empty($arr_storage_selection_results['storage_definition_error'])) {
 				$submitted_data_validates = false;
 				$this->TmaSlide->validationErrors['storage_master_id'] = $arr_storage_selection_results['storage_definition_error'];		
@@ -168,9 +163,6 @@ class TmaSlidesController extends StoragelayoutAppController {
 		if(empty($tma_slide_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }		
 		$this->data = $tma_slide_data; 
 		
-		// Set list of available SOPs to build TMA slide
-		$this->set('arr_tma_slide_sops', $this->Storages->getSopList('tma_slide'));
-
 		// Define if this detail form is displayed into the children storage tree view
 		$this->set('is_tree_view_detail_form', $is_tree_view_detail_form);
 			
@@ -214,17 +206,6 @@ class TmaSlidesController extends StoragelayoutAppController {
 		$tma_slide_data = $this->TmaSlide->find('first', array('conditions' => array('TmaSlide.id' => $tma_slide_id, 'TmaSlide.tma_block_storage_master_id' => $tma_block_storage_master_id)));
 		if(empty($tma_slide_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }		
 
-		// Set list of available SOPs to build TMA slide
-		$this->set('arr_tma_slide_sops', $this->Storages->getSopList('tma_slide'));
-		
-		// Get parent storage data
-		$parent_storage_data = array();
-		if(!empty($tma_slide_data['TmaSlide']['storage_master_id'])) {
-			$parent_storage_data = $this->StorageMaster->atim_list(array('conditions' => array('StorageMaster.id' => $tma_slide_data['TmaSlide']['storage_master_id'])));
-			if(empty($parent_storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }	
-		}
-		$this->set('matching_storage_list', $this->formatPreselectedStoragesForDisplay($parent_storage_data));			
-		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Get the current menu object. Needed to disable menu options based on storage type		
@@ -250,6 +231,14 @@ class TmaSlidesController extends StoragelayoutAppController {
 		
 		if(empty($this->data)) {
 			$this->data = $tma_slide_data;	
+			
+			// Get parent storage data
+			$parent_storage_data = array();
+			if(!empty($tma_slide_data['TmaSlide']['storage_master_id'])) {
+				$parent_storage_data = $this->StorageMaster->atim_list(array('conditions' => array('StorageMaster.id' => $tma_slide_data['TmaSlide']['storage_master_id'])));
+				if(empty($parent_storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }	
+			}
+			$this->set('arr_preselected_storages_for_display', $this->formatPreselectedStoragesForDisplay($parent_storage_data));			
 
 		} else {
 			//Update data
@@ -261,7 +250,7 @@ class TmaSlidesController extends StoragelayoutAppController {
 			$arr_storage_selection_results = $this->Storages->validateStorageIdVersusSelectionLabel($this->data['FunctionManagement']['recorded_storage_selection_label'], $this->data['TmaSlide']['storage_master_id']);
 					
 			$this->data['TmaSlide']['storage_master_id'] = $arr_storage_selection_results['selected_storage_master_id'];
-			$this->set('matching_storage_list', $this->formatPreselectedStoragesForDisplay($arr_storage_selection_results['matching_storage_list']));							
+			$this->set('arr_preselected_storages_for_display', $this->formatPreselectedStoragesForDisplay($arr_storage_selection_results['matching_storage_list']));							
 			if(!empty($arr_storage_selection_results['storage_definition_error'])) {
 				$submitted_data_validates = false;
 				$this->TmaSlide->validationErrors['storage_master_id'] = $arr_storage_selection_results['storage_definition_error'];		
@@ -415,7 +404,7 @@ class TmaSlidesController extends StoragelayoutAppController {
 		
 		if(!empty($arr_preselected_storages)) {
 			foreach ($arr_preselected_storages as $storage_id => $storage_data) {
-				$formatted_data[$storage_id] = $storage_data['StorageMaster']['selection_label'] . ' [' . __($storage_data['StorageMaster']['code'] . ' ('.$storage_data['StorageMaster']['storage_type'], TRUE) .')'. ']';
+				$formatted_data[$storage_id] = $this->StorageMaster->createStorageTitleForDisplay($storage_data);
 			}
 		}
 	

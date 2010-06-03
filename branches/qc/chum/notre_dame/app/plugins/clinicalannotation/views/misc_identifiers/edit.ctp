@@ -5,7 +5,6 @@
 	);
 	
 	$structure_override = array();
-	$structure_override['MiscIdentifier.identifier_name'] = $identifier_names_list;		
 
 	// Set form structure and option
 	$final_atim_structure = $atim_structure; 

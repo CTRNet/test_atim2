@@ -4,8 +4,9 @@
 	if($is_inventory_plugin_form){
 		$add_links = array();
 		foreach ($specimen_sample_controls_list as $sample_control) {
-			$add_links[$sample_control['SampleControl']['sample_type']] = '/inventorymanagement/sample_masters/add/' . $atim_menu_variables['Collection.id'] . '/' . $sample_control['SampleControl']['id'];
+			$add_links[__($sample_control['SampleControl']['sample_type'], true)] = '/inventorymanagement/sample_masters/add/' . $atim_menu_variables['Collection.id'] . '/' . $sample_control['SampleControl']['id'];
 		}
+		ksort($add_links);
 		
 		$structure_links['bottom'] = array(
 			'edit' => '/inventorymanagement/collections/edit/' . $atim_menu_variables['Collection.id'], 
@@ -34,9 +35,6 @@
 	
 	$structure_override = array();
 	
-	$structure_override['ViewCollection.bank_id'] = $bank_list;
-	$structure_override['ViewCollection.sop_master_id'] = $sop_list; 
-
 	$final_atim_structure = $atim_structure; 
 	$final_options = array('links' => $structure_links, 'override' => $structure_override);
 	

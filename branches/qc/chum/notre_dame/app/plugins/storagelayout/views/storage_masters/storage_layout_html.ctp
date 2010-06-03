@@ -96,7 +96,7 @@
 	</div>
 	<div class="droppable" style="border-style:solid; border-width:1px; display: inline-block; vertical-align: top; margin-left: 10px;">
 		<h4 class="ui-widget-header" style="height: 15px;  padding-right: 5px;  margin-bottom: 5px;">
-			<span class="ui-icon ui-icon-refresh" style="float: left;"></span><?php echo(__("Unclassified", true)); ?>
+			<span class="ui-icon ui-icon-refresh" style="float: left;"></span><?php echo(__("unclassified", true)); ?>
 		</h4>
 		<ul id="unclassified" style="margin-right: 5px;"></ul>
 		<span id="TrashUnclassified" class="button"><span class="ui-icon ui-icon-close" style="float: left;"></span><?php echo(__("remove all unclassified", true)); ?></span>
@@ -122,7 +122,7 @@
 	<div style="margin-top: 10px;">
 		<form method="post">
 			<input type="hidden" id="data" name="data" value="patate chaude" />
-					<span class="button large">
+					<span class="button large" style="line-height: inherit;">
 						<a href="#" id="submit_button_link" onclick="$('#submitButton').click();" class="form submit" tabindex="1020"><?php echo(__('submit', true));  ?></a>
 					</span>
 

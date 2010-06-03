@@ -77,7 +77,6 @@
 	$structure_extras[10] = '<div id="frame"></div>';	
 	
 	$structure_override = array();
-	$structure_override['Collection.bank_id'] = $bank_list;
 	
 	// BUILD
 	
@@ -91,4 +90,13 @@
 	// BUILD FORM
 	$structures->build( $final_atim_structure, $final_options );	
 	
+?>
+<script>
+var loadingStr = "<?php echo(__("loading", null)); ?>";
+</script>
+
+<?php 
+
+	echo $javascript->link('treeViewControl')."\n";
+
 ?>

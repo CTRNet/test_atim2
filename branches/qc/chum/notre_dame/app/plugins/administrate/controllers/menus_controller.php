@@ -1,6 +1,6 @@
 <?php
 
-class MenusController extends AppController {
+class MenusController extends AdministrateAppController {
 	
 	var $uses = array('Menu');
 	

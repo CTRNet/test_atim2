@@ -1,7 +1,7 @@
 <?php
 class ProductMastersController extends ClinicalannotationAppController {
 
-	var $components = array('Inventorymanagement.Collections', 'Administrate.Administrates', 'Inventorymanagement.Samples');
+	var $components = array('Inventorymanagement.Samples');
 	
 	var $uses = array(
 		'Clinicalannotation.Participant',
@@ -10,9 +10,7 @@ class ProductMastersController extends ClinicalannotationAppController {
 		'Inventorymanagement.Collection',
 		'Inventorymanagement.SampleMaster',
 		'Inventorymanagement.AliquotMaster',
-		'Inventorymanagement.SampleControl',
-		
-		'Administrate.Bank'	
+		'Inventorymanagement.SampleControl'
 	);
 	
 	function productsTreeView($participant_id, $studied_specimen_sample_control_id = null) {
@@ -44,9 +42,6 @@ class ProductMastersController extends ClinicalannotationAppController {
 		
 		$this->data = $data_for_tree_view;
 		
-		// Set list of banks
-		$this->set('bank_list', $this->Collections->getBankList());	
-					
 		// MANAGE FORM, MENU AND ACTION BUTTONS	
 			 	
 		$atim_structure = array();

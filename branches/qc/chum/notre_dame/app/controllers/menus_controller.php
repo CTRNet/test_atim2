@@ -7,6 +7,10 @@ class MenusController extends AppController {
 	
 	function beforeFilter() {
 		parent::beforeFilter();
+		
+		// Don't restrict the index action so that users with NO permissions
+		// who have VALID login credentials will not trigger an infinite loop.
+		$this->Auth->allowedActions = array('index');
 	}
 	
 	function index( $set_of_menus=NULL ) {
