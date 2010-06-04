@@ -1002,7 +1002,7 @@ VALUES
 (@custom_collection_site_domain_id,  (SELECT id FROM structure_permissible_values WHERE value="saint luc hospital" AND language_alias="saint luc hospital"), "5", "1"),
 (@custom_collection_site_domain_id,  (SELECT id FROM structure_permissible_values WHERE value="hotel dieu hospital" AND language_alias="hotel dieu hospital"), "6", "1");
 
-INSERT INTO `i18n` (`id`, `en`, `fr`) 
+INSERT IGNORE INTO `i18n` (`id`, `en`, `fr`) 
 VALUES
 ('CHUQ', 'CHUQ', 'CHUQ'),
 ('CHUS', 'CHUS', 'CHUS'),
@@ -1060,20 +1060,12 @@ VALUES
 (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='visit_label'), 
 '0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
 '1', '0', '1', '0', '0', '0', '0', '0', '0', '0'),
-((SELECT id FROM structures WHERE alias='view_aliquot_joined_to_collection'), 
-(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='visit_label'), 
-'0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
-'0', '0', '0', '0', '1', '0', '0', '0', '1', '0'),
 ((SELECT id FROM structures WHERE alias='view_collection'), 
 (SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='visit_label'), 
 '0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
-'0', '0', '0', '0', '1', '0', '0', '0', '1', '1'),
-((SELECT id FROM structures WHERE alias='view_sample_joined_to_collection'), 
-(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='visit_label'), 
-'0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
-'0', '0', '0', '0', '1', '0', '0', '0', '1', '0');
+'0', '0', '0', '0', '1', '0', '0', '0', '1', '1');
 
-INSERT INTO `i18n` (`id`, `en`, `fr`) 
+INSERT  IGNORE INTO `i18n` (`id`, `en`, `fr`) 
 VALUES
 ('visit', 'Visit', 'Visite'),
 ("V01", "V01", "V01"),
@@ -1096,33 +1088,60 @@ AND field.plugin LIKE 'Inventorymanagement'
 AND field.model LIKE '%Collection%'
 AND field.field LIKE 'sop_master_id'; 
 
+-- collection_datetime_accuracy into view
+
+UPDATE structure_fields field, structure_formats format, structures
+SET flag_add ='0', flag_add_readonly ='0', 
+flag_edit ='0', flag_edit_readonly ='0', 
+flag_search ='0', flag_search_readonly ='0', 
+flag_datagrid ='0', flag_datagrid_readonly ='0',
+flag_index ='0', 
+flag_detail ='1' 
+WHERE field.id = format.structure_field_id
+AND structures.id = format.structure_id
+AND structures.alias LIKE 'view_collection'
+AND field.field LIKE 'collection_datetime_accuracy'; 
+
 -- No Lab
 
 ALTER TABLE banks
-	ADD misc_identifier_control_id int(11) NULL DEFAULT NULL AFTER description,
-	ADD identifier_name varchar(50) DEFAULT NULL AFTER misc_identifier_control_id;
+	ADD misc_identifier_control_id int(11) NULL DEFAULT NULL AFTER description;
 	
 ALTER TABLE `banks`
   ADD CONSTRAINT `FK_banks_misc_identifier_controls` FOREIGN KEY (`misc_identifier_control_id`) REFERENCES `misc_identifier_controls` (`id`);
 
 SET @bank = 'Ovarian/Ovaire';
 SET @identifier = 'ovary bank no lab';
-UPDATE banks SET identifier_name = @identifier, misc_identifier_control_id = (SELECT id FROM misc_identifier_controls WHERE misc_identifier_name = @identifier) WHERE name = @bank;
+UPDATE banks SET misc_identifier_control_id = (SELECT id FROM misc_identifier_controls WHERE misc_identifier_name = @identifier) 
+WHERE name = @bank;
+
 SET @bank = 'Breast/Sein';
 SET @identifier = 'breast bank no lab';
-UPDATE banks SET identifier_name = @identifier, misc_identifier_control_id = (SELECT id FROM misc_identifier_controls WHERE misc_identifier_name = @identifier) WHERE name = @bank;
+UPDATE banks SET misc_identifier_control_id = (SELECT id FROM misc_identifier_controls WHERE misc_identifier_name = @identifier) 
+WHERE name = @bank;
+
 SET @bank = 'Kidney/Rein';
 SET @identifier = 'kidney bank no lab';
-UPDATE banks SET identifier_name = @identifier, misc_identifier_control_id = (SELECT id FROM misc_identifier_controls WHERE misc_identifier_name = @identifier) WHERE name = @bank;
+UPDATE banks SET misc_identifier_control_id = (SELECT id FROM misc_identifier_controls 
+WHERE misc_identifier_name = @identifier) WHERE name = @bank;
+
 SET @identifier = 'head and neck bank no lab';
-UPDATE banks SET identifier_name = @identifier, misc_identifier_control_id = (SELECT id FROM misc_identifier_controls WHERE misc_identifier_name = @identifier) WHERE name LIKE 'Head&Neck%';
+UPDATE banks SET misc_identifier_control_id = (SELECT id FROM misc_identifier_controls WHERE misc_identifier_name = @identifier) 
+WHERE name LIKE 'Head&Neck%';
+
 SET @bank = 'Prostate';
 SET @identifier = 'prostate bank no lab';
-UPDATE banks SET identifier_name = @identifier, misc_identifier_control_id = (SELECT id FROM misc_identifier_controls WHERE misc_identifier_name = @identifier) WHERE name = @bank;
+UPDATE banks SET misc_identifier_control_id = (SELECT id FROM misc_identifier_controls WHERE misc_identifier_name = @identifier) 
+WHERE name = @bank;
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
+(null, 'qc_identifier_name_list_from_id', 'open', '', 'Clinicalannotation.MiscIdentifierControl::getMisIdentPermissibleValuesFromId');
+
+SET @domain_id = LAST_INSERT_ID();
 
 INSERT INTO structure_fields (id, public_identifier, plugin, model, tablename, field, language_label, language_tag, `type`, setting, `default`, structure_value_domain, language_help, validation_control, value_domain_control, field_control, created, created_by, modified, modified_by) 
 VALUES
-(null, '', 'Administrate', 'Bank', 'banks', 'identifier_name', 'identifier name', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name="identifier_name_list"), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+(null, '', 'Administrate', 'Bank', 'banks', 'misc_identifier_control_id', 'bank identifier type', '', 'select', '', '', @domain_id, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
 
 SET @field_id = LAST_INSERT_ID();
 
@@ -1138,10 +1157,9 @@ VALUES
 '0', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
 '0', '0', '1', '1', '0', '0', '0', '0', '1', '1');
 
-
-
-
-
+INSERT INTO `i18n` (`id`, `en`, `fr`) 
+VALUES
+('bank identifier type', '''No Labo'' Type', 'Type de ''No Labo''');
 
 DROP VIEW IF EXISTS view_collections;
 CREATE VIEW view_collections AS 
@@ -1159,6 +1177,7 @@ ident.identifier_value,
 
 col.acquisition_label, 
 col.collection_site, 
+col.visit_label, 
 col.collection_datetime, 
 col.collection_datetime_accuracy, 
 col.collection_property, 
@@ -1173,6 +1192,29 @@ LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted
 LEFT JOIN banks ON col.bank_id = banks.id AND banks.deleted != 1
 LEFT JOIN misc_identifiers AS ident ON ident.misc_identifier_control_id = banks.misc_identifier_control_id AND ident.participant_id = part.id AND ident.deleted != 1
 WHERE col.deleted != 1;
+
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('bank no lab', '', 'Bank ''No Labo''', '''No Labo'' de la banque');
+
+INSERT INTO structure_fields (id, public_identifier, plugin, model, tablename, field, language_label, language_tag, `type`, setting, `default`, structure_value_domain, language_help, validation_control, value_domain_control, field_control, created, created_by, modified, modified_by) 
+VALUES
+(null, '', 'Inventorymanagement', 'ViewCollection', '', 'identifier_value', 'bank no lab', '', 'input', 'size=30', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+INSERT INTO structure_formats
+(`structure_id`, 
+`structure_field_id`, 
+`display_column`, `display_order`, 
+`language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, 
+`flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) 
+VALUES 
+((SELECT id FROM structures WHERE alias='view_collection'), 
+(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='identifier_value'), 
+'0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '1', '0', '0', '0', '1', '1');
+
+# SAMPLE -----------------------------------------------------------------
+
+-- Visit Label & No Labo
 
 DROP VIEW IF EXISTS view_samples;
 CREATE VIEW view_samples AS 
@@ -1192,6 +1234,7 @@ ident.identifier_name,
 ident.identifier_value,
 
 col.acquisition_label, 
+col.visit_label,
 
 samp.initial_specimen_sample_type, 	
 parent_samp.sample_type AS parent_sample_type,
@@ -1208,6 +1251,31 @@ LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted
 LEFT JOIN banks ON col.bank_id = banks.id AND banks.deleted != 1
 LEFT JOIN misc_identifiers AS ident ON ident.misc_identifier_control_id = banks.misc_identifier_control_id AND ident.participant_id = part.id AND ident.deleted != 1
 WHERE samp.deleted != 1;
+
+INSERT INTO structure_fields (id, public_identifier, plugin, model, tablename, field, language_label, language_tag, `type`, setting, `default`, structure_value_domain, language_help, validation_control, value_domain_control, field_control, created, created_by, modified, modified_by) 
+VALUES
+(null, '', 'Inventorymanagement', 'ViewSample', '', 'identifier_value', 'bank no lab', '', 'input', 'size=30', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(null, '', 'Inventorymanagement', 'ViewSample', '', 'visit_label', 'visit', '', 'select', '', '', ((SELECT id FROM structure_value_domains WHERE domain_name="qc_visit_label")), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+INSERT INTO structure_formats
+(`structure_id`, 
+`structure_field_id`, 
+`display_column`, `display_order`, 
+`language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, 
+`flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) 
+VALUES 
+((SELECT id FROM structures WHERE alias='view_sample_joined_to_collection'), 
+(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='' AND `field`='identifier_value'), 
+'0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '1', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='view_sample_joined_to_collection'), 
+(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='' AND `field`='visit_label'), 
+'0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '1', '0', '0', '0', '1', '0');
+
+# ALIQUOT ----------------------------------------------------------------
+
+-- Visit Label & No Labo
 
 DROP VIEW IF EXISTS view_aliquots;
 CREATE VIEW view_aliquots AS 
@@ -1226,6 +1294,7 @@ ident.identifier_name,
 ident.identifier_value,
 
 col.acquisition_label, 
+col.visit_label,
 
 samp.initial_specimen_sample_type, 	
 parent_samp.sample_type AS parent_sample_type,
@@ -1260,3 +1329,29 @@ LEFT JOIN misc_identifiers AS ident ON ident.misc_identifier_control_id = banks.
 WHERE al.deleted != 1
 GROUP BY al.id;
   
+INSERT INTO structure_fields (id, public_identifier, plugin, model, tablename, field, language_label, language_tag, `type`, setting, `default`, structure_value_domain, language_help, validation_control, value_domain_control, field_control, created, created_by, modified, modified_by) 
+VALUES
+(null, '', 'Inventorymanagement', 'ViewAliquot', '', 'identifier_value', 'bank no lab', '', 'input', 'size=30', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(null, '', 'Inventorymanagement', 'ViewAliquot', '', 'visit_label', 'visit', '', 'select', '', '', ((SELECT id FROM structure_value_domains WHERE domain_name="qc_visit_label")), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+INSERT INTO structure_formats
+(`structure_id`, 
+`structure_field_id`, 
+`display_column`, `display_order`, 
+`language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, 
+`flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) 
+VALUES 
+((SELECT id FROM structures WHERE alias='view_aliquot_joined_to_collection'), 
+(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='identifier_value'), 
+'0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '1', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='view_aliquot_joined_to_collection'), 
+(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='visit_label'), 
+'0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '1', '0', '0', '0', '1', '0');
+
+
+
+
+
+
