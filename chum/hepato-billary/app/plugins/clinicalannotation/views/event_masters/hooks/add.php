@@ -19,9 +19,9 @@
 				'form_bottom' => false, 
 				'actions' => false, 
 				'header' => null, 
-				'separator' => false), 
+				'separator' => false,
+				'tabindex' => 1), 
 			'links' => $structure_links);
-		
 		
 		// 1- Date and Summary	
 		if($last_imaging_structure == 'qc_hb_dateNSummary_for_imaging') {
@@ -29,6 +29,7 @@
 			$final_atim_structure = $qc_hb_dateNSummary_for_imaging;
 		} else {
 			// More than date and summary structure has to be displayed
+			$final_options['settings']['tabindex'] = 100;
 			$structures->build( $qc_hb_dateNSummary_for_imaging,  $final_options );
 		}
 		
@@ -39,6 +40,7 @@
 				$final_options = $imaging_structure_options;
 				$final_atim_structure = $qc_hb_segment;
 			} else {
+				$imaging_structure_options['settings']['tabindex'] = 200;
 				$structures->build( $qc_hb_segment, $imaging_structure_options);
 			}
 		}
@@ -51,6 +53,7 @@
 				$final_options = $imaging_structure_options;
 				$final_atim_structure = $qc_hb_other_localisations;
 			} else {
+				$imaging_structure_options['settings']['tabindex'] = 300;
 				$structures->build( $qc_hb_other_localisations, $imaging_structure_options);
 			}
 		}
@@ -62,6 +65,7 @@
 				$final_options = $imaging_structure_options;
 				$final_atim_structure = $qc_hb_pancreas;
 			} else {
+				$imaging_structure_options['settings']['tabindex'] = 400;
 				$structures->build( $qc_hb_pancreas,  $imaging_structure_options);
 			}
 		}
