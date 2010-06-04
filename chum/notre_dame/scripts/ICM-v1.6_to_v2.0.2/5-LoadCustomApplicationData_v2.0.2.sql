@@ -1240,6 +1240,7 @@ samp.initial_specimen_sample_type,
 parent_samp.sample_type AS parent_sample_type,
 samp.sample_type,
 samp.sample_code,
+samp.sample_label,
 samp.sample_category,
 samp.deleted
 
@@ -1273,6 +1274,215 @@ VALUES
 '0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
 '0', '0', '0', '0', '1', '0', '0', '0', '1', '0');
 
+-- SAMPLE LABEL
+
+INSERT INTO structure_fields (id, public_identifier, plugin, model, tablename, field, language_label, language_tag, `type`, setting, `default`, structure_value_domain, language_help, validation_control, value_domain_control, field_control, created, created_by, modified, modified_by) 
+VALUES
+(null, '', 'Inventorymanagement', 'SampleMaster', 'sample_masters', 'sample_label', 'sample label', '', 'input', 'size=30', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(null, '', 'Inventorymanagement', 'ViewSample', '', 'sample_label', 'sample label', '', 'input', 'size=30', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('sample label', 'global', 'Sample Label', 'Identifiant de l''échantillon');
+
+INSERT INTO structure_formats
+(`structure_id`, 
+`structure_field_id`, 
+`display_column`, `display_order`, 
+`language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, 
+`flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) 
+VALUES 
+((SELECT id FROM structures WHERE alias='sample_masters_for_collection_tree_view'), 
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_label'), 
+'0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='sd_der_cell_cultures'), 
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_label'), 
+'0', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '1', '1', '0', '0', '0', '0', '1', '1'),
+
+((SELECT id FROM structures WHERE alias='sd_der_plasmas'), 
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_label'), 
+'0', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '1', '1', '0', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='sd_der_serums'), 
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_label'), 
+'0', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '1', '1', '0', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='sd_spe_ascites'), 
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_label'), 
+'0', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '1', '1', '0', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='sd_spe_bloods'), 
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_label'), 
+'0', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '1', '1', '0', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='sd_spe_cystic_fluids'), 
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_label'), 
+'0', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '1', '1', '0', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='sd_spe_pericardial_fluids'), 
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_label'), 
+'0', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '1', '1', '0', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='sd_spe_peritoneal_washes'), 
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_label'), 
+'0', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '1', '1', '0', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='sd_spe_pleural_fluids'), 
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_label'), 
+'0', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '1', '1', '0', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'), 
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_label'), 
+'0', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '1', '1', '0', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='sd_spe_urines'), 
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_label'), 
+'0', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '1', '1', '0', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='sd_undetailed_derivatives'), 
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_label'), 
+'0', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '1', '1', '0', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='sd_undetailed_specimens'), 
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_label'), 
+'0', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '1', '1', '0', '0', '0', '0', '1', '1'),
+
+((SELECT id FROM structures WHERE alias='view_sample_joined_to_collection'), 
+(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='' AND `field`='sample_label'), 
+'0', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '1', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='view_sample_joined_to_parent'), 
+(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='' AND `field`='sample_label'), 
+'0', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+-- Specimen Detail Fields
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
+(null, 'qc_labo_type_code', 'open', '', 'Inventorymanagement.LabTypeLateralityMatch::getLaboTypeCodes');
+
+INSERT INTO structure_fields (id, public_identifier, plugin, model, tablename, field, language_label, language_tag, `type`, setting, `default`, structure_value_domain, language_help, validation_control, value_domain_control, field_control, created, created_by, modified, modified_by) 
+VALUES
+(null, '', 'Inventorymanagement', 'SpecimenDetail', '', 'type_code', 'labo type code', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name LIKE 'qc_labo_type_code'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(null, '', 'Inventorymanagement', 'SpecimenDetail', '', 'sequence_number', 'sequence number', '', 'input', 'size=30', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, (SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='' AND `field`='sequence_number'), 'custom,/(^[\\d]*$)|(^[ABCabc]$)/', '0', '0', '', 'sequence should be an integer or equal to character A,B or C', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
+
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('labo type code', 'global', 'Type Code (Labo Defintion)', 'Code du type (Définition du labo)'),	
+('sequence number', '', 'Sequence number', 'Numéro de séquence'),
+('sequence should be an integer or equal to character A,B or C', 'global', 'The sequence number should be a positive integer or equal to character A,B or C!', 'Le numéro de séquence doit être un entier positif ou la lettre A,B ou C!');
+
+INSERT INTO structure_formats
+(`structure_id`, 
+`structure_field_id`, 
+`display_column`, `display_order`, 
+`language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, 
+`flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) 
+VALUES 
+((SELECT id FROM structures WHERE alias='sd_spe_ascites'), 
+(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='' AND `field`='type_code'), 
+'1', '36', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='sd_spe_ascites'), 
+(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='' AND `field`='sequence_number'), 
+'1', '37', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '1', '1'),
+
+((SELECT id FROM structures WHERE alias='sd_spe_bloods'), 
+(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='' AND `field`='type_code'), 
+'1', '36', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='sd_spe_bloods'), 
+(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='' AND `field`='sequence_number'), 
+'1', '37', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '1', '1'),
+
+((SELECT id FROM structures WHERE alias='sd_spe_cystic_fluids'), 
+(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='' AND `field`='type_code'), 
+'1', '36', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='sd_spe_cystic_fluids'), 
+(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='' AND `field`='sequence_number'), 
+'1', '37', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '1', '1'),
+
+((SELECT id FROM structures WHERE alias='sd_spe_pericardial_fluids'), 
+(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='' AND `field`='type_code'), 
+'1', '36', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='sd_spe_pericardial_fluids'), 
+(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='' AND `field`='sequence_number'), 
+'1', '37', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '1', '1'),
+
+((SELECT id FROM structures WHERE alias='sd_spe_peritoneal_washes'), 
+(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='' AND `field`='type_code'), 
+'1', '36', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='sd_spe_peritoneal_washes'), 
+(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='' AND `field`='sequence_number'), 
+'1', '37', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '1', '1'),
+
+((SELECT id FROM structures WHERE alias='sd_spe_pleural_fluids'), 
+(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='' AND `field`='type_code'), 
+'1', '36', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='sd_spe_pleural_fluids'), 
+(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='' AND `field`='sequence_number'), 
+'1', '37', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '1', '1'),
+
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'), 
+(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='' AND `field`='type_code'), 
+'1', '36', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'), 
+(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='' AND `field`='sequence_number'), 
+'1', '37', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '1', '1'),
+
+((SELECT id FROM structures WHERE alias='sd_spe_urines'), 
+(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='' AND `field`='type_code'), 
+'1', '36', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='sd_spe_urines'), 
+(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='' AND `field`='sequence_number'), 
+'1', '37', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '1', '1'),
+
+((SELECT id FROM structures WHERE alias='sd_undetailed_specimens'), 
+(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='' AND `field`='type_code'), 
+'1', '36', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='sd_undetailed_specimens'), 
+(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='' AND `field`='sequence_number'), 
+'1', '37', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '1', '1');
+
+UPDATE lab_type_laterality_match SET selected_type_code = 'unknown' WHERE  selected_type_code = 'unknwon';
+UPDATE specimen_details SET type_code = 'unknown' WHERE  type_code = 'unknwon';
+
+-- blood type
+
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES ('gel SST', '', 'Gel SST', 'Gel SST');
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+("gel SST", "gel SST");
+
+INSERT INTO structure_value_domains_permissible_values 
+(`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="blood_type"),  (SELECT id FROM structure_permissible_values WHERE value="gel SST" AND language_alias="gel SST"), "3", "1");
+
+UPDATE structure_value_domains_permissible_values SET flag_active = '0'
+WHERE structure_value_domain_id IN (SELECT id FROM structure_value_domains WHERE domain_name="blood_type")
+AND language_alias LIKE 'gel CSA';
+
 # ALIQUOT ----------------------------------------------------------------
 
 -- Visit Label & No Labo
@@ -1299,6 +1509,7 @@ col.visit_label,
 samp.initial_specimen_sample_type, 	
 parent_samp.sample_type AS parent_sample_type,
 samp.sample_type,
+samp.sample_label,
 
 al.barcode,
 al.aliquot_type,
@@ -1312,22 +1523,18 @@ al.storage_coord_y,
 stor.temperature,
 stor.temp_unit,
 
-COUNT(al_use.id) as aliquot_use_counter,
-
 al.deleted
 
 FROM aliquot_masters as al
 INNER JOIN sample_masters as samp ON samp.id = al.sample_master_id AND samp.deleted != 1
 INNER JOIN collections AS col ON col.id = samp.collection_id AND col.deleted != 1
-LEFT JOIN aliquot_uses AS al_use ON al_use.aliquot_master_id = al.id AND al_use.deleted != 1
 LEFT JOIN sample_masters as parent_samp ON samp.parent_id = parent_samp.id AND parent_samp.deleted != 1
 LEFT JOIN clinical_collection_links AS link ON col.id = link.collection_id AND link.deleted != 1
 LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted != 1
 LEFT JOIN storage_masters AS stor ON stor.id = al.storage_master_id AND stor.deleted != 1
 LEFT JOIN banks ON col.bank_id = banks.id AND banks.deleted != 1
 LEFT JOIN misc_identifiers AS ident ON ident.misc_identifier_control_id = banks.misc_identifier_control_id AND ident.participant_id = part.id AND ident.deleted != 1
-WHERE al.deleted != 1
-GROUP BY al.id;
+WHERE al.deleted != 1;
   
 INSERT INTO structure_fields (id, public_identifier, plugin, model, tablename, field, language_label, language_tag, `type`, setting, `default`, structure_value_domain, language_help, validation_control, value_domain_control, field_control, created, created_by, modified, modified_by) 
 VALUES
@@ -1349,6 +1556,42 @@ VALUES
 (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='visit_label'), 
 '0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
 '0', '0', '0', '0', '1', '0', '0', '0', '1', '0');
+
+INSERT INTO structure_fields (id, public_identifier, plugin, model, tablename, field, language_label, language_tag, `type`, setting, `default`, structure_value_domain, language_help, validation_control, value_domain_control, field_control, created, created_by, modified, modified_by) 
+VALUES
+(null, '', 'Inventorymanagement', 'ViewAliquot', '', 'sample_label', 'sample label', '', 'input', 'size=30', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+INSERT INTO structure_formats
+(`structure_id`, 
+`structure_field_id`, 
+`display_column`, `display_order`, 
+`language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, 
+`flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) 
+VALUES 
+((SELECT id FROM structures WHERE alias='view_aliquot_joined_to_collection'), 
+(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='sample_label'), 
+'0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '1', '0', '0', '0', '1', '0');
+
+
+-- view_aliquot_joined_to_collection hidden
+
+UPDATE structure_fields field, structure_formats format, structures
+SET flag_add ='0', flag_add_readonly ='0', 
+flag_edit ='0', flag_edit_readonly ='0', 
+flag_search ='0', flag_search_readonly ='0', 
+flag_datagrid ='0', flag_datagrid_readonly ='0',
+flag_index ='0', 
+flag_detail ='0' 
+WHERE field.id = format.structure_field_id
+AND structures.id = format.structure_id
+AND structures.alias LIKE 'view_aliquot_joined_to_collection'
+AND field.field LIKE 'aliquot_use_counter'; 
+
+
+
+
+
 
 
 
