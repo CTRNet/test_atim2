@@ -15,6 +15,17 @@
 	);
 	
 	// LINKS
+	$bottom = array();
+	if(isset($search)){
+		$add_links = array();
+		foreach ($storage_controls_list as $storage_control) {
+			$add_links[__($storage_control['StorageControl']['storage_type'], true)] = '/storagelayout/storage_masters/add/' . $storage_control['StorageControl']['id'];
+		}
+		ksort($add_links);
+		$bottom = array(
+			'search' => '/storagelayout/storage_masters/index', 
+			'add' => $add_links);
+	}
 	
 	$structure_links = array(
 		'tree'=>array(
@@ -46,8 +57,7 @@
 				)
 			)
 		),
-		'bottom' => array(
-		),		
+		'bottom' => $bottom,		
 		'ajax' => array(
 			'index' => array(
 				'detail' => array(
