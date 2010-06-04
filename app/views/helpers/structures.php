@@ -1221,8 +1221,10 @@ class StructuresHelper extends Helper {
 						*/
 						
 						// include jTip link or no-help type indicator
-							if ( $field['flag_override_help'] && $field['language_help'] ) $field['StructureField']['language_help'] = $field['language_help'];
-							if (  $field['StructureField']['language_help'] ) {
+							if ($field['flag_override_help']){
+								$field['StructureField']['language_help'] = $field['language_help'];
+							}
+							if ($field['StructureField']['language_help']) {
 								$table_index[ $field['display_column'] ][ $row_count ]['help'] = '<span class="help">&nbsp;<div>'.__($field['StructureField']['language_help'],true).'</div></span> ';
 							} else {
 								$table_index[ $field['display_column'] ][ $row_count ]['help'] = '<span class="help error">&nbsp;</span>';
