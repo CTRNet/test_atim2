@@ -1275,7 +1275,12 @@ class StructuresHelper extends Helper {
 									list($pulldown_model,$pulldown_function) = split('::',$field['StructureField']['StructureValueDomain']['source']);
 									
 									if ( $pulldown_model && App::import('Model',$pulldown_model) ) {
-				
+										
+										// setup VARS for custom model (if any)
+										$custom_pulldown_object = $pulldown_model.'Custom';
+										$custom_pulldown_plugin = NULL;
+										$custom_pulldown_model = NULL;
+										
 										// if model name is PLUGIN.MODEL string, need to split and drop PLUGIN name after import but before NEW
 										$pulldown_plugin = NULL;
 										if ( strpos($pulldown_model,'.')!==false ) {
@@ -1286,10 +1291,13 @@ class StructuresHelper extends Helper {
 										// load MODEL, and override with CUSTOM model if it exists...
 											$pulldown_model_object = new $pulldown_model;
 											
-											$custom_pulldown_model = $pulldown_model.'Custom';
-											if ( App::import('Model',$custom_pulldown_model) ) {
-												$pulldown_model_object = $$custom_pulldown_model;
-											}
+										// check for CUSTOM models, and use that if exists
+										$custom_pulldown_plugin = $pulldown_plugin;
+										$custom_pulldown_model = $pulldown_model.'Custom';
+									
+										if ( App::import('Model',$custom_pulldown_object) ) {
+											$pulldown_model_object = new $custom_pulldown_model;
+										}
 										
 										// run model::function
 										$pulldown_result = $pulldown_model_object->{$pulldown_function}();
@@ -1609,6 +1617,11 @@ class StructuresHelper extends Helper {
 									
 									if ( $pulldown_model && App::import('Model',$pulldown_model) ) {
 				
+										// setup VARS for custom model (if any)
+										$custom_pulldown_object = $pulldown_model.'Custom';
+										$custom_pulldown_plugin = NULL;
+										$custom_pulldown_model = NULL;
+										
 										// if model name is PLUGIN.MODEL string, need to split and drop PLUGIN name after import but before NEW
 										$pulldown_plugin = NULL;
 										if ( strpos($pulldown_model,'.')!==false ) {
@@ -1619,10 +1632,13 @@ class StructuresHelper extends Helper {
 										// load MODEL, and override with CUSTOM model if it exists...
 											$pulldown_model_object = new $pulldown_model;
 											
-											$custom_pulldown_model = $pulldown_model.'Custom';
-											if ( App::import('Model',$custom_pulldown_model) ) {
-												$pulldown_model_object = new $$custom_pulldown_model;
-											}
+										// check for CUSTOM models, and use that if exists
+										$custom_pulldown_plugin = $pulldown_plugin;
+										$custom_pulldown_model = $pulldown_model.'Custom';
+									
+										if ( App::import('Model',$custom_pulldown_object) ) {
+											$pulldown_model_object = new $custom_pulldown_model;
+										}
 										
 										// run model::function
 										$pulldown_result = $pulldown_model_object->{$pulldown_function}();
