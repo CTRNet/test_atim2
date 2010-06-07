@@ -449,3 +449,9 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 UPDATE `structure_value_domains` SET `source` = 'Inventorymanagement.SampleDetailCustom::getTissueSourcePermissibleValues' 
 WHERE `domain_name` = 'tissue_source_list';
 
+INSERT INTO `storage_controls` (`id`, `storage_type`, `storage_type_code`, `coord_x_title`, `coord_x_type`, `coord_x_size`, `coord_y_title`, `coord_y_type`, `coord_y_size`, `display_x_size`, `display_y_size`, `reverse_x_numbering`, `reverse_y_numbering`, `set_temperature`, `is_tma_block`, `flag_active`, `form_alias`, `form_alias_for_children_pos`, `detail_tablename`) VALUES
+(null, 'box 7x7', 'B49', 'position', 'integer', 49, null, null, null, 7, 7, 0, 0, 'FALSE', 'FALSE', '1', 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_boxs');
+
+INSERT IGNORE INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES
+('box 7x7', 'global', 'Box 7x7', 'Boîte 7x7');
+
