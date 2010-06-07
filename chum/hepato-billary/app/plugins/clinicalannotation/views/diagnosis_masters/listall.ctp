@@ -2,9 +2,10 @@
 	
 	$add_links = array();
 	foreach ($diagnosis_controls_list as $diagnosis_control) {
-		$add_links[$diagnosis_control['DiagnosisControl']['controls_type']] = '/clinicalannotation/diagnosis_masters/add/'.$atim_menu_variables['Participant.id'].'/'.$diagnosis_control['DiagnosisControl']['id'].'/';
+		$add_links[__($diagnosis_control['DiagnosisControl']['controls_type'], true)] = '/clinicalannotation/diagnosis_masters/add/'.$atim_menu_variables['Participant.id'].'/'.$diagnosis_control['DiagnosisControl']['id'].'/';
 	}
-
+	ksort($add_links);
+	
 	$structure_links = array(
 		'index'=>array('detail'=>'/clinicalannotation/diagnosis_masters/detail/%%DiagnosisMaster.participant_id%%/%%DiagnosisMaster.id%%'),
 		'bottom'=>array(

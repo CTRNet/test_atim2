@@ -16,7 +16,7 @@ class SopMastersController extends SopAppController {
 
 	
 	function add($sop_control_id=null) {
-		$this->set('atim_menu', $this->Menus->get('/sop/sop_masters/index/'));
+		
 		$this->set( 'atim_menu_variables', array('SopControl.id'=>$sop_control_id)); 
 		$this_data = $this->SopControl->find('first',array('conditions'=>array('SopControl.id'=>$sop_control_id)));
 		

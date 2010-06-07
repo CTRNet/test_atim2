@@ -134,13 +134,12 @@ class BatchSetsController extends DatamartAppController {
 		
 		// add COUNT of IDS to array results, for form list 
 		$batch_set_processes = array();
-		$batch_set_processes['/datamart/batch_sets/remove']	= 'remove from batch set';
-		$batch_set_processes['/datamart/batch_sets/csv']		= 'export as comma-separated file';
+		$batch_set_processes['/datamart/batch_sets/remove']	= __('remove from batch set', true);
+		$batch_set_processes['/datamart/batch_sets/csv']		= __('export as CSV file (comma-separated values)', true);
 		
 		foreach ( $batch_set_process_results as &$value) {
-			$batch_set_processes[ $value['BatchSetProcess']['url'] ] = strlen( $value['BatchSetProcess']['name'] )>60 ? substr( $value['BatchSetProcess']['name'], 0, 60 ).'...' : $value['BatchSetProcess']['name'];
+			$batch_set_processes[ $value['BatchSetProcess']['url'] ] = strlen( $value['BatchSetProcess']['name'] ) > 60 ? substr( $value['BatchSetProcess']['name'], 0, 60 ).'...' : __($value['BatchSetProcess']['name'], true);
 		}
-		
 		$this->set( 'batch_set_processes', $batch_set_processes );
 	
 	}

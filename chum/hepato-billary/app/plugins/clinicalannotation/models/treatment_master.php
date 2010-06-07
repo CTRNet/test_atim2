@@ -23,8 +23,8 @@ class TreatmentMaster extends ClinicalannotationAppModel {
 					'title'	 		=> array( NULL, __($result['TreatmentMaster']['disease_site'], TRUE)  . ' - ' . __($result['TreatmentMaster']['tx_method'], TRUE)),
 
 					'description'	=> array(
-						__('Intent', TRUE)		=>	__($result['TreatmentMaster']['tx_intent'], TRUE),
-						__('Start Date', TRUE)  =>  __($result['TreatmentMaster']['start_date'], TRUE)
+						__('intent', TRUE)		=>	__($result['TreatmentMaster']['tx_intent'], TRUE),
+						__('start date', TRUE)  =>  $result['TreatmentMaster']['start_date']
 					)
 				)
 			);

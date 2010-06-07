@@ -10,7 +10,6 @@
 	);
 
 	$structure_override = array();
-	$structure_override['MiscIdentifier.identifier_name'] = $identifier_names_list;		
 	
 	$final_atim_structure = $atim_structure; 
 	$final_options = array('type' => 'search', 'links' => $structure_links, 'override' => $structure_override, 'settings' => array('header' => __('search type', null).': '.__('misc identifiers', null)));

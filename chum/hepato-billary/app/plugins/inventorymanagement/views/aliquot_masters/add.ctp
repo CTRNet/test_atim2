@@ -7,16 +7,7 @@
 	);
 	
 	$structure_override = array();
-	
-	$structure_override['AliquotMaster.aliquot_type'] = $aliquot_control_data['AliquotControl']['aliquot_type'];	
-	$structure_override['AliquotMaster.aliquot_volume_unit'] = $aliquot_control_data['AliquotControl']['volume_unit'];	
-	
-	$structure_override['AliquotMaster.sop_master_id'] = $arr_aliquot_sops_for_display; 	
-	$structure_override['AliquotMaster.study_summary_id'] = $arr_studies_for_display;	
 	$structure_override['AliquotMaster.storage_master_id'] = $arr_preselected_storages_for_display;	
-	
-	if(isset($default_storage_datetime)) { $structure_override['AliquotMaster.storage_datetime'] = $default_storage_datetime; }
-
 	
 	$final_atim_structure = $atim_structure; 
 	$final_options = array('links' => $structure_links, 'override' => $structure_override, 'type' => 'datagrid', 'settings'=> array('pagination' => false, 'add_fields' => true, 'del_fields' => true));

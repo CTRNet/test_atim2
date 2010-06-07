@@ -26,8 +26,9 @@
 	} else {
 		$add_links = array();
 		foreach ($storage_controls_list as $storage_control) {
-			$add_links[$storage_control['StorageControl']['storage_type']] = '/storagelayout/storage_masters/add/' . $storage_control['StorageControl']['id'] . '/' . $atim_menu_variables['StorageMaster.id'];
+			$add_links[__($storage_control['StorageControl']['storage_type'], true)] = '/storagelayout/storage_masters/add/' . $storage_control['StorageControl']['id'] . '/' . $atim_menu_variables['StorageMaster.id'];
 		}
+		ksort($add_links);
 		$structure_links['bottom']['add to storage'] = (empty($add_links)? '/underdevelopment/': $add_links);					
 	}
 		
@@ -43,19 +44,8 @@
 	}
 		
 	$structure_override = array();
-	
-	$structure_override['Generated.coord_x_title'] = __($coord_x_title, TRUE);
-	$structure_override['Generated.coord_x_type'] = __($coord_x_type, TRUE);
-	$structure_override['Generated.coord_x_size'] = (strcmp($coord_x_size, 'n/a')==0)? __($coord_x_size, TRUE): $coord_x_size;
-	
-	$structure_override['Generated.coord_y_title'] = __($coord_y_title, TRUE);
-	$structure_override['Generated.coord_y_type'] = __($coord_y_type, TRUE);
-	$structure_override['Generated.coord_y_size'] = (strcmp($coord_y_size, 'n/a')==0)? __($coord_y_size, TRUE): $coord_y_size;
-	
-	$structure_override['StorageMaster.parent_id'] = $parent_storage_for_display;
 	$structure_override['Generated.path'] = $storage_path;
-	if(isset($arr_tma_sops)){ $structure_override['StorageDetail.sop_master_id'] = $arr_tma_sops; }
-
+	
 	if(!$bool_define_position) {
 		// No sorage position within parent can be set	
 		unset($structure_links['bottom']['edit position']);
