@@ -16068,110 +16068,24 @@ INSERT INTO `versions` (`id`, `version_number`, `date_installed`, `build_number`
 -- --------------------------------------------------------
 
 --
--- Doublure de structure pour la vue `view_aliquots`
---
-CREATE TABLE IF NOT EXISTS `view_aliquots` (
-`aliquot_master_id` int(11)
-,`sample_master_id` int(11)
-,`collection_id` int(11)
-,`bank_id` int(11)
-,`storage_master_id` int(11)
-,`participant_id` int(11)
-,`diagnosis_master_id` int(11)
-,`consent_master_id` int(11)
-,`participant_identifier` varchar(50)
-,`acquisition_label` varchar(50)
-,`initial_specimen_sample_type` varchar(30)
-,`parent_sample_type` varchar(30)
-,`sample_type` varchar(30)
-,`barcode` varchar(60)
-,`aliquot_type` varchar(30)
-,`in_stock` varchar(30)
-,`code` varchar(30)
-,`selection_label` varchar(60)
-,`storage_coord_x` varchar(11)
-,`storage_coord_y` varchar(11)
-,`temperature` decimal(5,2)
-,`temp_unit` varchar(20)
-,`aliquot_use_counter` bigint(21)
-,`deleted` tinyint(3) unsigned
-);
--- --------------------------------------------------------
-
---
--- Doublure de structure pour la vue `view_collections`
---
-CREATE TABLE IF NOT EXISTS `view_collections` (
-`collection_id` int(11)
-,`bank_id` int(11)
-,`sop_master_id` int(11)
-,`participant_id` int(11)
-,`diagnosis_master_id` int(11)
-,`consent_master_id` int(11)
-,`participant_identifier` varchar(50)
-,`acquisition_label` varchar(50)
-,`qc_cusm_visit_label` varchar(20)
-,`collection_site` varchar(30)
-,`collection_datetime` datetime
-,`collection_datetime_accuracy` varchar(4)
-,`collection_property` varchar(50)
-,`collection_notes` text
-,`deleted` tinyint(3) unsigned
-,`bank_name` varchar(255)
-,`qc_cusm_prostate_bank_identifier` varchar(40)
-);
--- --------------------------------------------------------
-
---
--- Doublure de structure pour la vue `view_samples`
---
-CREATE TABLE IF NOT EXISTS `view_samples` (
-`sample_master_id` int(11)
-,`parent_sample_id` int(11)
-,`initial_specimen_sample_id` int(11)
-,`collection_id` int(11)
-,`bank_id` int(11)
-,`sop_master_id` int(11)
-,`participant_id` int(11)
-,`diagnosis_master_id` int(11)
-,`consent_master_id` int(11)
-,`participant_identifier` varchar(50)
-,`acquisition_label` varchar(50)
-,`initial_specimen_sample_type` varchar(30)
-,`parent_sample_type` varchar(30)
-,`sample_type` varchar(30)
-,`sample_code` varchar(30)
-,`qc_cusm_sample_label` varchar(60)
-,`sample_category` varchar(30)
-,`deleted` tinyint(3) unsigned
-,`qc_cusm_prostate_bank_identifier` varchar(40)
-);
--- --------------------------------------------------------
-
---
 -- Structure de la vue `view_aliquots`
 --
-DROP TABLE IF EXISTS `view_aliquots`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `view_aliquots` AS select `al`.`id` AS `aliquot_master_id`,`samp`.`id` AS `sample_master_id`,`col`.`id` AS `collection_id`,`col`.`bank_id` AS `bank_id`,`stor`.`id` AS `storage_master_id`,`link`.`participant_id` AS `participant_id`,`link`.`diagnosis_master_id` AS `diagnosis_master_id`,`link`.`consent_master_id` AS `consent_master_id`,`part`.`participant_identifier` AS `participant_identifier`,`col`.`acquisition_label` AS `acquisition_label`,`samp`.`initial_specimen_sample_type` AS `initial_specimen_sample_type`,`parent_samp`.`sample_type` AS `parent_sample_type`,`samp`.`sample_type` AS `sample_type`,`al`.`barcode` AS `barcode`,`al`.`aliquot_type` AS `aliquot_type`,`al`.`in_stock` AS `in_stock`,`stor`.`code` AS `code`,`stor`.`selection_label` AS `selection_label`,`al`.`storage_coord_x` AS `storage_coord_x`,`al`.`storage_coord_y` AS `storage_coord_y`,`stor`.`temperature` AS `temperature`,`stor`.`temp_unit` AS `temp_unit`,count(`al_use`.`id`) AS `aliquot_use_counter`,`al`.`deleted` AS `deleted` from (((((((`aliquot_masters` `al` join `sample_masters` `samp` on(((`samp`.`id` = `al`.`sample_master_id`) and (`samp`.`deleted` <> 1)))) join `collections` `col` on(((`col`.`id` = `samp`.`collection_id`) and (`col`.`deleted` <> 1)))) left join `aliquot_uses` `al_use` on(((`al_use`.`aliquot_master_id` = `al`.`id`) and (`al_use`.`deleted` <> 1)))) left join `sample_masters` `parent_samp` on(((`samp`.`parent_id` = `parent_samp`.`id`) and (`parent_samp`.`deleted` <> 1)))) left join `clinical_collection_links` `link` on(((`col`.`id` = `link`.`collection_id`) and (`link`.`deleted` <> 1)))) left join `participants` `part` on(((`link`.`participant_id` = `part`.`id`) and (`part`.`deleted` <> 1)))) left join `storage_masters` `stor` on(((`stor`.`id` = `al`.`storage_master_id`) and (`stor`.`deleted` <> 1)))) where (`al`.`deleted` <> 1) group by `al`.`id`;
-
--- --------------------------------------------------------
+CREATE VIEW `view_aliquots` AS select `al`.`id` AS `aliquot_master_id`,`samp`.`id` AS `sample_master_id`,`col`.`id` AS `collection_id`,`col`.`bank_id` AS `bank_id`,`stor`.`id` AS `storage_master_id`,`link`.`participant_id` AS `participant_id`,`link`.`diagnosis_master_id` AS `diagnosis_master_id`,`link`.`consent_master_id` AS `consent_master_id`,`part`.`participant_identifier` AS `participant_identifier`,`col`.`acquisition_label` AS `acquisition_label`,`samp`.`initial_specimen_sample_type` AS `initial_specimen_sample_type`,`parent_samp`.`sample_type` AS `parent_sample_type`,`samp`.`sample_type` AS `sample_type`,`al`.`barcode` AS `barcode`,`al`.`aliquot_type` AS `aliquot_type`,`al`.`in_stock` AS `in_stock`,`stor`.`code` AS `code`,`stor`.`selection_label` AS `selection_label`,`al`.`storage_coord_x` AS `storage_coord_x`,`al`.`storage_coord_y` AS `storage_coord_y`,`stor`.`temperature` AS `temperature`,`stor`.`temp_unit` AS `temp_unit`,count(`al_use`.`id`) AS `aliquot_use_counter`,`al`.`deleted` AS `deleted` from (((((((`aliquot_masters` `al` join `sample_masters` `samp` on(((`samp`.`id` = `al`.`sample_master_id`) and (`samp`.`deleted` <> 1)))) join `collections` `col` on(((`col`.`id` = `samp`.`collection_id`) and (`col`.`deleted` <> 1)))) left join `aliquot_uses` `al_use` on(((`al_use`.`aliquot_master_id` = `al`.`id`) and (`al_use`.`deleted` <> 1)))) left join `sample_masters` `parent_samp` on(((`samp`.`parent_id` = `parent_samp`.`id`) and (`parent_samp`.`deleted` <> 1)))) left join `clinical_collection_links` `link` on(((`col`.`id` = `link`.`collection_id`) and (`link`.`deleted` <> 1)))) left join `participants` `part` on(((`link`.`participant_id` = `part`.`id`) and (`part`.`deleted` <> 1)))) left join `storage_masters` `stor` on(((`stor`.`id` = `al`.`storage_master_id`) and (`stor`.`deleted` <> 1)))) where (`al`.`deleted` <> 1) group by `al`.`id`;
 
 --
 -- Structure de la vue `view_collections`
 --
-DROP TABLE IF EXISTS `view_collections`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `view_collections` AS select `col`.`id` AS `collection_id`,`col`.`bank_id` AS `bank_id`,`col`.`sop_master_id` AS `sop_master_id`,`link`.`participant_id` AS `participant_id`,`link`.`diagnosis_master_id` AS `diagnosis_master_id`,`link`.`consent_master_id` AS `consent_master_id`,`part`.`participant_identifier` AS `participant_identifier`,`col`.`acquisition_label` AS `acquisition_label`,`col`.`qc_cusm_visit_label` AS `qc_cusm_visit_label`,`col`.`collection_site` AS `collection_site`,`col`.`collection_datetime` AS `collection_datetime`,`col`.`collection_datetime_accuracy` AS `collection_datetime_accuracy`,`col`.`collection_property` AS `collection_property`,`col`.`collection_notes` AS `collection_notes`,`col`.`deleted` AS `deleted`,`banks`.`name` AS `bank_name`,`idents`.`identifier_value` AS `qc_cusm_prostate_bank_identifier` from ((((`collections` `col` left join `clinical_collection_links` `link` on(((`col`.`id` = `link`.`collection_id`) and (`link`.`deleted` <> 1)))) left join `participants` `part` on(((`link`.`participant_id` = `part`.`id`) and (`part`.`deleted` <> 1)))) left join `banks` on(((`col`.`bank_id` = `banks`.`id`) and (`banks`.`deleted` <> 1)))) left join `misc_identifiers` `idents` on(((`idents`.`participant_id` = `link`.`participant_id`) and (`idents`.`deleted` <> 1) and (`idents`.`identifier_name` = 'prostate_bank_participant_id')))) where (`col`.`deleted` <> 1);
-
--- --------------------------------------------------------
+CREATE VIEW `view_collections` AS select `col`.`id` AS `collection_id`,`col`.`bank_id` AS `bank_id`,`col`.`sop_master_id` AS `sop_master_id`,`link`.`participant_id` AS `participant_id`,`link`.`diagnosis_master_id` AS `diagnosis_master_id`,`link`.`consent_master_id` AS `consent_master_id`,`part`.`participant_identifier` AS `participant_identifier`,`col`.`acquisition_label` AS `acquisition_label`,`col`.`qc_cusm_visit_label` AS `qc_cusm_visit_label`,`col`.`collection_site` AS `collection_site`,`col`.`collection_datetime` AS `collection_datetime`,`col`.`collection_datetime_accuracy` AS `collection_datetime_accuracy`,`col`.`collection_property` AS `collection_property`,`col`.`collection_notes` AS `collection_notes`,`col`.`deleted` AS `deleted`,`banks`.`name` AS `bank_name`,`idents`.`identifier_value` AS `qc_cusm_prostate_bank_identifier` from ((((`collections` `col` left join `clinical_collection_links` `link` on(((`col`.`id` = `link`.`collection_id`) and (`link`.`deleted` <> 1)))) left join `participants` `part` on(((`link`.`participant_id` = `part`.`id`) and (`part`.`deleted` <> 1)))) left join `banks` on(((`col`.`bank_id` = `banks`.`id`) and (`banks`.`deleted` <> 1)))) left join `misc_identifiers` `idents` on(((`idents`.`participant_id` = `link`.`participant_id`) and (`idents`.`deleted` <> 1) and (`idents`.`identifier_name` = 'prostate_bank_participant_id')))) where (`col`.`deleted` <> 1);
 
 --
 -- Structure de la vue `view_samples`
 --
-DROP TABLE IF EXISTS `view_samples`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `view_samples` AS select `samp`.`id` AS `sample_master_id`,`samp`.`parent_id` AS `parent_sample_id`,`samp`.`initial_specimen_sample_id` AS `initial_specimen_sample_id`,`col`.`id` AS `collection_id`,`col`.`bank_id` AS `bank_id`,`col`.`sop_master_id` AS `sop_master_id`,`link`.`participant_id` AS `participant_id`,`link`.`diagnosis_master_id` AS `diagnosis_master_id`,`link`.`consent_master_id` AS `consent_master_id`,`part`.`participant_identifier` AS `participant_identifier`,`col`.`acquisition_label` AS `acquisition_label`,`samp`.`initial_specimen_sample_type` AS `initial_specimen_sample_type`,`parent_samp`.`sample_type` AS `parent_sample_type`,`samp`.`sample_type` AS `sample_type`,`samp`.`sample_code` AS `sample_code`,`samp`.`qc_cusm_sample_label` AS `qc_cusm_sample_label`,`samp`.`sample_category` AS `sample_category`,`samp`.`deleted` AS `deleted`,`idents`.`identifier_value` AS `qc_cusm_prostate_bank_identifier` from (((((`sample_masters` `samp` join `collections` `col` on(((`col`.`id` = `samp`.`collection_id`) and (`col`.`deleted` <> 1)))) left join `sample_masters` `parent_samp` on(((`samp`.`parent_id` = `parent_samp`.`id`) and (`parent_samp`.`deleted` <> 1)))) left join `clinical_collection_links` `link` on(((`col`.`id` = `link`.`collection_id`) and (`link`.`deleted` <> 1)))) left join `participants` `part` on(((`link`.`participant_id` = `part`.`id`) and (`part`.`deleted` <> 1)))) left join `misc_identifiers` `idents` on(((`idents`.`participant_id` = `link`.`participant_id`) and (`idents`.`deleted` <> 1) and (`idents`.`identifier_name` = 'prostate_bank_participant_id')))) where (`samp`.`deleted` <> 1);
+CREATE VIEW `view_samples` AS select `samp`.`id` AS `sample_master_id`,`samp`.`parent_id` AS `parent_sample_id`,`samp`.`initial_specimen_sample_id` AS `initial_specimen_sample_id`,`col`.`id` AS `collection_id`,`col`.`bank_id` AS `bank_id`,`col`.`sop_master_id` AS `sop_master_id`,`link`.`participant_id` AS `participant_id`,`link`.`diagnosis_master_id` AS `diagnosis_master_id`,`link`.`consent_master_id` AS `consent_master_id`,`part`.`participant_identifier` AS `participant_identifier`,`col`.`acquisition_label` AS `acquisition_label`,`samp`.`initial_specimen_sample_type` AS `initial_specimen_sample_type`,`parent_samp`.`sample_type` AS `parent_sample_type`,`samp`.`sample_type` AS `sample_type`,`samp`.`sample_code` AS `sample_code`,`samp`.`qc_cusm_sample_label` AS `qc_cusm_sample_label`,`samp`.`sample_category` AS `sample_category`,`samp`.`deleted` AS `deleted`,`idents`.`identifier_value` AS `qc_cusm_prostate_bank_identifier` from (((((`sample_masters` `samp` join `collections` `col` on(((`col`.`id` = `samp`.`collection_id`) and (`col`.`deleted` <> 1)))) left join `sample_masters` `parent_samp` on(((`samp`.`parent_id` = `parent_samp`.`id`) and (`parent_samp`.`deleted` <> 1)))) left join `clinical_collection_links` `link` on(((`col`.`id` = `link`.`collection_id`) and (`link`.`deleted` <> 1)))) left join `participants` `part` on(((`link`.`participant_id` = `part`.`id`) and (`part`.`deleted` <> 1)))) left join `misc_identifiers` `idents` on(((`idents`.`participant_id` = `link`.`participant_id`) and (`idents`.`deleted` <> 1) and (`idents`.`identifier_name` = 'prostate_bank_participant_id')))) where (`samp`.`deleted` <> 1);
+
+
 
 --
 -- Contraintes pour les tables exportées
