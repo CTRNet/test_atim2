@@ -7,9 +7,9 @@ class SampleMastersControllerCustom extends SampleMastersController {
 	}
 	
 	function createSampleLabel($collection_id, $sample_data, $cusm_prostate_bank_identifier = null, $visit_label = null) {
-			
+					
 		// Check parameters
-	 	if(empty($collection_id) || empty($sample_data) || (!isset($sample_data['SampleMaster'])) || (!isset($sample_data['SampleDetail']))) { $this->redirect('/pages/err_inv_system_error', null, true); }
+	 	if(empty($collection_id) || empty($sample_data) || (!isset($sample_data['SampleMaster']))) { $this->redirect('/pages/err_inv_system_error', null, true); }
 
 		// Get missing data
 		if(is_null($cusm_prostate_bank_identifier) || is_null($visit_label)) {
