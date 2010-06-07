@@ -7,9 +7,6 @@
 	);
 	
 	$structure_override = array();
-	
-	$structure_override['AliquotMaster.sop_master_id'] = $arr_aliquot_sops_for_display;
-	$structure_override['AliquotMaster.study_summary_id'] = $arr_studies_for_display;	
 	$structure_override['AliquotMaster.storage_master_id'] = $arr_preselected_storages_for_display;	
 				
 	$final_atim_structure = $atim_structure; 

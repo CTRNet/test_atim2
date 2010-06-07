@@ -115,6 +115,7 @@ class AppModel extends Model {
 	function getKeyIncrement($key, $str){
 		$this->query('LOCK TABLE key_increments WRITE');
 		$result = $this->query('SELECT key_value FROM key_increments WHERE key_name="'.$key.'"');
+		if(empty($result)) return false;
 		if($this->query('UPDATE key_increments set key_value = key_value + 1 WHERE key_name="'.$key.'"') === false) {
 			$this->query('UNLOCK TABLES');
 			return false; 

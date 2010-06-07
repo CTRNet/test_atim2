@@ -22,7 +22,7 @@ class Collection extends InventorymanagementAppModel {
 			
 			$return = array(
 				'Summary' => array(
-					'menu' => array('collection', $collection_data['Collection']['acquisition_label']),
+					'menu' => array(null, $collection_data['Collection']['acquisition_label']),
 					'title' => array(null, $collection_data['Collection']['acquisition_label']),
 					
 					'description'=> array(

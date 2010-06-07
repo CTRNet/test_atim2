@@ -7,8 +7,7 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		'Clinicalannotation.TreatmentMaster', 
 		'Clinicalannotation.TreatmentExtend',
 		'Clinicalannotation.TreatmentControl', 
-		'Clinicalannotation.DiagnosisMaster',
-		'Protocol.ProtocolMaster'
+		'Clinicalannotation.DiagnosisMaster'
 	);
 	
 	var $paginate = array('TreatmentMaster'=>array('limit' => pagination_amount,'order'=>'TreatmentMaster.start_date DESC'));
@@ -16,19 +15,19 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 	function listall($participant_id, $trt_control_id = null) {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
 
-// set FILTER, used as this->data CONDITIONS
-if ( !isset($_SESSION['TrtMaster_filter']) || !$trt_control_id ) {
-	$_SESSION['TrtMaster_filter'] = array();
-	$_SESSION['TrtMaster_filter']['TreatmentMaster.participant_id'] = $participant_id;
-	
-	$this->Structures->set('treatmentmasters');
-} else {
-	$_SESSION['TrtMaster_filter']['TreatmentMaster.treatment_control_id'] = $trt_control_id;
-	
-	$filter_data = $this->TreatmentControl->find('first',array('conditions'=>array('TreatmentControl.id'=>$trt_control_id)));
-	if(empty($filter_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
-	$this->Structures->set($filter_data['TreatmentControl']['form_alias']);
-}
+		// set FILTER, used as this->data CONDITIONS
+		if ( !isset($_SESSION['TrtMaster_filter']) || !$trt_control_id ) {
+			$_SESSION['TrtMaster_filter'] = array();
+			$_SESSION['TrtMaster_filter']['TreatmentMaster.participant_id'] = $participant_id;
+			
+			$this->Structures->set('treatmentmasters');
+		} else {
+			$_SESSION['TrtMaster_filter']['TreatmentMaster.treatment_control_id'] = $trt_control_id;
+			
+			$filter_data = $this->TreatmentControl->find('first',array('conditions'=>array('TreatmentControl.id'=>$trt_control_id)));
+			if(empty($filter_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
+			$this->Structures->set($filter_data['TreatmentControl']['form_alias']);
+		}
 				
 		// MANAGE DATA
 		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
@@ -36,8 +35,6 @@ if ( !isset($_SESSION['TrtMaster_filter']) || !$trt_control_id ) {
 		
 		$this->data = $this->paginate($this->TreatmentMaster, $_SESSION['TrtMaster_filter']);
 		
-		$this->set('protocol_list', $this->getProtocolList());
-
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id));
 		
@@ -57,8 +54,6 @@ if ( !isset($_SESSION['TrtMaster_filter']) || !$trt_control_id ) {
 		if(empty($treatment_master_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }		
 		$this->data = $treatment_master_data;
 
-		$this->set('protocol_list', $this->getProtocolList());
-		
 		$this->set('diagnosis_data', (empty($this->data['TreatmentMaster']['diagnosis_master_id'])? array(): $this->DiagnosisMaster->find('all', array('conditions'=>array('DiagnosisMaster.id' => $this->data['TreatmentMaster']['diagnosis_master_id'])))));
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -97,8 +92,6 @@ if ( !isset($_SESSION['TrtMaster_filter']) || !$trt_control_id ) {
 		}
 		$this->set('data_for_checklist', $dx_data);		
 			
-		$this->set('protocol_list', $this->getProtocolList());
-		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id,'TreatmentMaster.id'=>$tx_master_id) );
 		
@@ -156,8 +149,6 @@ if ( !isset($_SESSION['TrtMaster_filter']) || !$trt_control_id ) {
 		}
 		$this->set('data_for_checklist', $dx_data);					
 				
-		$this->set('protocol_list', $this->getProtocolList());
-	
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'TreatmentControl.id'=>$treatment_control_id));
 		
@@ -248,21 +239,6 @@ if ( !isset($_SESSION['TrtMaster_filter']) || !$trt_control_id ) {
 		return array('allow_deletion' => true, 'msg' => '');
 	}
 	
-	function getProtocolList() {
-		// Get protocols
-		$conditions = array('ProtocolMaster.deleted'=>'0');
-		$orders = array('ProtocolMaster.code');
-		
-		$protocol_list = $this->ProtocolMaster->find('all', array('conditions'=>$conditions, 'order' => $orders));
-		
-		// Format data
-		$formatted_protocol_list = array();
-		foreach($protocol_list as $new_protocol) {
-			$formatted_protocol_list[$new_protocol['ProtocolMaster']['id']] = $new_protocol['ProtocolMaster']['code'] . ' : ' . (empty($new_protocol['ProtocolMaster']['name'])? '-' : $new_protocol['ProtocolMaster']['name']);
-		}
-		
-		return $formatted_protocol_list;
-	}
 }
 
 ?>
