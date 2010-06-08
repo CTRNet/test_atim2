@@ -2,7 +2,8 @@
 
 class GroupsController extends AdministrateAppController {
 	
-	var $uses = array('Group',	'Aco', 'Aro');
+	var $uses = array('Administrate.Group',	'Aco', 'Aro');
+	
 	var $paginate = array('Group'=>array('limit' => pagination_amount,'order'=>'Group.name ASC')); 
 	
 	function index() {
@@ -15,15 +16,6 @@ class GroupsController extends AdministrateAppController {
 		$this->set( 'atim_menu_variables', array('Group.id'=>$group_id) );
 		$this->hook();
 		$this->data = $this->Group->find('first',array('conditions'=>array('Group.id'=>$group_id)));
-		
-		/*
-		if (!$id) {
-			$this->Session->setFlash(__('Invalid Group.', true));
-			$this->redirect(array('action'=>'index'));
-		}
-		
-		$this->set('group', $this->Group->read(null, $id));
-		*/
 	}
 	
 
@@ -102,10 +94,15 @@ class GroupsController extends AdministrateAppController {
 			$this->flash('Invalid id for Group', '/administrate/groups/index/');
 		}
 		
+		$this->data = $this->Group->find('first',array('conditions'=>array('Group.id'=>$group_id)));	
 		$this->hook();
 
-		if ($this->Group->del($group_id)) {
-			$this->flash('Group deleted', '/administrate/groups/index/');
+		if(empty($this->data['User'])){
+			if ($this->Group->del($group_id)) {
+				$this->flash('Group deleted', '/administrate/groups/index/');
+			}
+		}else{
+			$this->flash('this group is being used and cannot be deleted', '/administrate/groups/detail/'.$group_id."/");
 		}
 	}
 
