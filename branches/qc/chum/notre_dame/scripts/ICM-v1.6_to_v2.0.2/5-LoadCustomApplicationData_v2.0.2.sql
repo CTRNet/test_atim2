@@ -1818,7 +1818,7 @@ INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('tmp blood cell solution','','Solution (tmp)','Solution (tmp)'),
 ('DMSO + serum','','DMSO + Serum','DMSO + Sérum');
 
-INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('Labo Christopoulos', 'global', 'Labo Christopoulos', 'Labo Christopoulos'),
 ('Labo Dr Maugard', 'global', 'Labo Dr Maugard', 'Labo Dr Maugard'),
 ('Labo Dr Mes-Masson', 'global', 'Labo Dr Mes-Masson', 'Labo Dr Mes-Masson'),
@@ -1902,6 +1902,217 @@ INSERT INTO `structure_formats` (`structure_id`, `structure_field_id`, `display_
 1, 40, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
 '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
 
+-- Tissue
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
+(null, 'qc_labo_tissue_laterality', 'open', '', NULL);
+
+SET @qc_labo_tissue_laterality_domain_id = LAST_INSERT_ID();
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+('D', 'lab laterality D'),	-- 3
+('EP', 'lab laterality EP'),	-- 6
+('G', 'lab laterality G'),	-- 9
+('M', 'lab laterality M'),	-- 12
+('PT', 'lab laterality PT'),	-- 15
+('TR', 'lab laterality TR'),	-- 18
+('TRD', 'lab laterality TRD'),	-- 21
+('TRG', 'lab laterality TRG'),	-- 24
+('UniLat NS', 'lab laterality UniLat NS'),	-- 27
+('unknown', 'unknown');	-- 50
+
+INSERT INTO structure_value_domains_permissible_values 
+(`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+(@qc_labo_tissue_laterality_domain_id, (SELECT id FROM structure_permissible_values WHERE value="D" AND language_alias="lab laterality D"), "3", "1"),
+(@qc_labo_tissue_laterality_domain_id, (SELECT id FROM structure_permissible_values WHERE value="EP" AND language_alias="lab laterality EP"), "6", "1"),
+(@qc_labo_tissue_laterality_domain_id, (SELECT id FROM structure_permissible_values WHERE value="G" AND language_alias="lab laterality G"), "9", "1"),
+(@qc_labo_tissue_laterality_domain_id, (SELECT id FROM structure_permissible_values WHERE value="M" AND language_alias="lab laterality M"), "12", "1"),
+(@qc_labo_tissue_laterality_domain_id, (SELECT id FROM structure_permissible_values WHERE value="PT" AND language_alias="lab laterality PT"), "15", "1"),
+(@qc_labo_tissue_laterality_domain_id, (SELECT id FROM structure_permissible_values WHERE value="TR" AND language_alias="lab laterality TR"), "18", "1"),
+(@qc_labo_tissue_laterality_domain_id, (SELECT id FROM structure_permissible_values WHERE value="TRD" AND language_alias="lab laterality TRD"), "21", "1"),
+(@qc_labo_tissue_laterality_domain_id, (SELECT id FROM structure_permissible_values WHERE value="TRG" AND language_alias="lab laterality TRG"), "24", "1"),
+(@qc_labo_tissue_laterality_domain_id, (SELECT id FROM structure_permissible_values WHERE value="UniLat NS" AND language_alias="lab laterality UniLat NS"), "27", "1"),
+(@qc_labo_tissue_laterality_domain_id, (SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "50", "1");
+
+INSERT INTO structure_fields (id, public_identifier, plugin, model, tablename, field, language_label, language_tag, `type`, setting, `default`, structure_value_domain, language_help, validation_control, value_domain_control, field_control, created, created_by, modified, modified_by) 
+VALUES
+(null, '', 'Inventorymanagement', 'SampleDetail', 'sd_spe_tissues', 'labo_laterality', 'labo tissue laterality', '', 'select', '', '', @qc_labo_tissue_laterality_domain_id, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('lab laterality D', 'global', 'D', 'D'),
+('lab laterality EP', 'global', 'EP', 'EP'),
+('lab laterality G', 'global', 'G', 'G'),
+('lab laterality M', 'global', 'M', 'M'),
+('lab laterality PT', 'global', 'PT', 'PT'),
+('lab laterality TR', 'global', 'TR', 'TR'),
+('lab laterality TRD', 'global', 'TRD', 'TRD'),
+('lab laterality TRG', 'global', 'TRG', 'TRG'),
+('lab laterality UniLat NS', 'global', 'UniLateral unspecified', 'UniLatéral non spécifié');
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('labo tissue laterality', 'global', 'Laterality (Labo Defintion)', 'Latéralité (Définition du labo)');
+
+INSERT INTO structure_fields (id, public_identifier, plugin, model, tablename, field, language_label, language_tag, `type`, setting, `default`, structure_value_domain, language_help, validation_control, value_domain_control, field_control, created, created_by, modified, modified_by) 
+VALUES
+(null, '', 'Inventorymanagement', 'SampleDetail', 'sd_spe_tissues', 'tmp_buffer_use', 'tmp buffer use', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name LIKE 'yesno'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('tmp buffer use', 'global', 'Bufferer Use (tmp)', 'Utilisation de Tampon (tmp)');
+
+INSERT INTO structure_fields (id, public_identifier, plugin, model, tablename, field, language_label, language_tag, `type`, setting, `default`, structure_value_domain, language_help, validation_control, value_domain_control, field_control, created, created_by, modified, modified_by) 
+VALUES
+(null, '', 'Inventorymanagement', 'SampleDetail', 'sd_spe_tissues', 'tmp_on_ice', 'tmp on ice', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name LIKE 'yesno'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('tmp on ice', 'global', 'On Ice (tmp)', 'Sur Glace (tmp)');
+
+INSERT INTO `structure_formats` (`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='labo_laterality'), 
+1, 36, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='tmp_buffer_use'), 
+1, 60, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='tmp_on_ice'), 
+1, 61, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
+
+-- cell culture
+
+UPDATE sd_der_cell_cultures SET culture_status = 'active' WHERE culture_status = 'in culture';
+UPDATE sd_der_cell_cultures SET culture_status_reason = 'thrown' WHERE culture_status_reason = 'threw';
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+('thrown', 'thrown');
+
+INSERT INTO structure_value_domains_permissible_values 
+(`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+((SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'cell_culture_status_reason'), 
+(SELECT id FROM structure_permissible_values WHERE value="thrown" AND language_alias="thrown"), "3", "1");
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('thrown', 'global', 'Thrown', 'Jeté');
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
+(null, 'qc_cell_collection_method', 'open', '', NULL);
+
+SET @qc_cell_collection_method_domain_id = LAST_INSERT_ID();
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+('unknown','unknown'),
+('centrifugation','centrifugation'),
+('collagenase','collagenase'),
+('mechanic','mechanic'),
+('tissue section','tissue section'),
+('scratching','scratching'),
+('trypsin','trypsin'),
+('scissors','scissors'),
+('clone','clone'),
+('spheroides','spheroides');
+
+INSERT INTO structure_value_domains_permissible_values 
+(`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+(@qc_cell_collection_method_domain_id, (SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "1", "1"),
+(@qc_cell_collection_method_domain_id, (SELECT id FROM structure_permissible_values WHERE value="centrifugation" AND language_alias="centrifugation"), "2", "1"),
+(@qc_cell_collection_method_domain_id, (SELECT id FROM structure_permissible_values WHERE value="collagenase" AND language_alias="collagenase"), "3", "1"),
+(@qc_cell_collection_method_domain_id, (SELECT id FROM structure_permissible_values WHERE value="mechanic" AND language_alias="mechanic"), "5", "1"),
+(@qc_cell_collection_method_domain_id, (SELECT id FROM structure_permissible_values WHERE value="tissue section" AND language_alias="tissue section"), "6", "1"),
+(@qc_cell_collection_method_domain_id, (SELECT id FROM structure_permissible_values WHERE value="scratching" AND language_alias="scratching"), "7", "1"),
+(@qc_cell_collection_method_domain_id, (SELECT id FROM structure_permissible_values WHERE value="trypsin" AND language_alias="trypsin"), "8", "1"),
+(@qc_cell_collection_method_domain_id, (SELECT id FROM structure_permissible_values WHERE value="scissors" AND language_alias="scissors"), "9", "1"),
+(@qc_cell_collection_method_domain_id, (SELECT id FROM structure_permissible_values WHERE value="clone" AND language_alias="clone"), "10", "1"),
+(@qc_cell_collection_method_domain_id, (SELECT id FROM structure_permissible_values WHERE value="spheroides" AND language_alias="spheroides"), "11", "1");
+
+INSERT INTO structure_fields (id, public_identifier, plugin, model, tablename, field, language_label, language_tag, `type`, setting, `default`, structure_value_domain, language_help, validation_control, value_domain_control, field_control, created, created_by, modified, modified_by) 
+VALUES
+(null, '', 'Inventorymanagement', 'SampleDetail', 'sd_der_cell_cultures', 'tmp_collection_method', 'tmp collection method', '', 'select', '', '', @qc_cell_collection_method_domain_id, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
+(null, 'qc_culture_hormone', 'open', '', NULL);
+
+SET @qc_culture_hormone_domain_id = LAST_INSERT_ID();
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+('unknown','unknown'),
+('egf+bpe+insulin+hydrocortisone','egf+bpe+insulin+hydrocortisone'),
+('b-estradiol','b-estradiol'),
+('progesterone','progesterone'),
+('b-estradiol+progesterone','b-estradiol+progesterone');
+
+INSERT INTO structure_value_domains_permissible_values 
+(`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+(@qc_culture_hormone_domain_id, (SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "1", "1"),
+(@qc_culture_hormone_domain_id, (SELECT id FROM structure_permissible_values WHERE value="egf+bpe+insulin+hydrocortisone" AND language_alias="egf+bpe+insulin+hydrocortisone"), "2", "1"),
+(@qc_culture_hormone_domain_id, (SELECT id FROM structure_permissible_values WHERE value="b-estradiol" AND language_alias="b-estradiol"), "3", "1"),
+(@qc_culture_hormone_domain_id, (SELECT id FROM structure_permissible_values WHERE value="progesterone" AND language_alias="progesterone"), "4", "1"),
+(@qc_culture_hormone_domain_id, (SELECT id FROM structure_permissible_values WHERE value="b-estradiol+progesterone" AND language_alias="b-estradiol+progesterone"), "5", "1");
+
+INSERT INTO structure_fields (id, public_identifier, plugin, model, tablename, field, language_label, language_tag, `type`, setting, `default`, structure_value_domain, language_help, validation_control, value_domain_control, field_control, created, created_by, modified, modified_by) 
+VALUES
+(null, '', 'Inventorymanagement', 'SampleDetail', 'sd_der_cell_cultures', 'tmp_hormon', 'tmp hormon', '', 'select', '', '', @qc_culture_hormone_domain_id, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('b-estradiol', 'global', 'B-estradiol', 'B-estradiol'),
+('b-estradiol+progesterone', 'global', 'B-estradiol+Progesterone', 'B-estradiol+Progest&eacute;rone'),
+('centrifugation', 'global', 'Centrifugation', 'Centrifugation'),
+('clone', 'global', 'Clone', 'Clone'),
+('collagenase', 'global', 'Collagenase', 'Collag&eacute;nase'),
+('egf+bpe+insulin+hydrocortisone', 'global', 'EGF+BPE+Insulin+Hydrocortisone', 'EGF+BPE+Insuline+Hydrocortisone'),
+('mechanic', 'global', 'Mechanic', 'M&eacute;canique'),
+('progesterone', 'global', 'Progesterone', 'Progest&eacute;rone'),
+('scissors', 'global', 'Scissors', 'Ciseaux'),
+('scratching', 'global', 'Scratching', 'Grattage'),
+('spheroides', 'global', 'Spheroides', 'Sph&eacute;ro&iuml;des'),
+('tissue section', 'global', 'Tissue Section', 'Bouts de tissu'),
+('tmp collection method', 'global', 'Collection Method (tmp)', 'M&eacute;thode de pr&eacute;l&egrave;vement (tmp)'),
+('tmp hormon', 'global', 'Hormon (tmp)', 'Hormone (tmp)'),
+('trypsin', 'global', 'Trypsin', 'Trypsine'),
+('unknown', 'global', 'Unknown', 'Inconnu');
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
+(null, 'qc_culture_solution', 'open', '', NULL);
+
+SET @qc_culture_solution_id = LAST_INSERT_ID();
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+('unknown','unknown'), -- 1", "1"),
+('OSE','OSE'), -- 2", "1"),
+('DMEM','DMEM'), -- 3", "1"),
+('CSF-C100(CHO)','CSF-C100(CHO)'); -- 4", "1"),
+
+INSERT INTO structure_value_domains_permissible_values 
+(`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+(@qc_culture_solution_id, (SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "1", "1"),
+(@qc_culture_solution_id, (SELECT id FROM structure_permissible_values WHERE value="OSE" AND language_alias="OSE"), "2", "1"),
+(@qc_culture_solution_id, (SELECT id FROM structure_permissible_values WHERE value="DMEM" AND language_alias="DMEM"), "3", "1"),
+(@qc_culture_solution_id, (SELECT id FROM structure_permissible_values WHERE value="CSF-C100(CHO)" AND language_alias="CSF-C100(CHO)"), "4", "1");
+
+INSERT INTO structure_fields (id, public_identifier, plugin, model, tablename, field, language_label, language_tag, `type`, setting, `default`, structure_value_domain, language_help, validation_control, value_domain_control, field_control, created, created_by, modified, modified_by) 
+VALUES
+(null, '', 'Inventorymanagement', 'SampleDetail', 'sd_der_cell_cultures', 'tmp_solution', 'tmp culture solution', '', 'select', '', '', @qc_culture_solution_id, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('CSF-C100(CHO)', 'global', 'CSF-C100(CHO)', 'CSF-C100(CHO)'),
+('DMEM', 'global', 'DMEM', 'DMEM'),
+('OSE', 'global', 'OSE', 'OSE'),
+('tmp culture solution', 'global', 'Culture Solution (tmp)', 'Milieu de Culture (tmp)');
+
+
+-- CAN-024-001-000-999-tmp003 	SampleDetail 	  	tmp collection method  	  	select  	   	   	  	0 	0 	0 	0000-00-00 00:00:00  	  	0000-00-00 00:00:00  	 
+-- CAN-024-001-000-999-tmp004 	SampleDetail 	tmp_hormon 	tmp hormon 	  	select 	  	  	  	0 	0 	0 	0000-00-00 00:00:00 	  	0000-00-00 00:00:00 	 
+-- CAN-024-001-000-999-tmp005 	SampleDetail 	tmp_solution 	tmp culture solution 	  	select 	  	  	  	0 	0 	0 	0000-00-00 00:00:00 	  	0000-00-00 00:00:00 	 
+	Modifier 	Effacer 	CAN-024-001-000-999-tmp006 	SampleDetail 	tmp_percentage_of_oxygen 	tmp percentage of oxygen 	  	input 	size=10 	  	  	0 	0 	0 	0000-00-00 00:00:00 	  	0000-00-00 00:00:00 	 
+	Modifier 	Effacer 	CAN-024-001-000-999-tmp007 	SampleDetail 	tmp_percentage_of_serum 	tmp percentage of serum 	  	input 	size=10 	  	  	0 	0 	0 	0000-00-00 00:00:00 	  	0000-00-00 00:00:00 	 
+
+todo complete cell culture
 
 # ALIQUOT ----------------------------------------------------------------
 
