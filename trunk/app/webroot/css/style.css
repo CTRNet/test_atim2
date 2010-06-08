@@ -1197,10 +1197,12 @@ div#wrapper table.structure table.columns td a.not_allowed {
 		font-size: 12px;
 		cursor: pointer;
 		border-color: #999999;
-		text-decoration:none;
 		color: #000;
 		display: inline-block;
 		-moz-border-radius: 3px; -webkit-border-radius: 3px;
+	}
+	fieldset.submit input.submit, a.submit, fieldset.submit a.search:not(:focus){
+		text-decoration:none;
 	}
 	
 	fieldset.submit div span:hover{
