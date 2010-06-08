@@ -1214,6 +1214,217 @@ VALUES
 
 # SAMPLE -----------------------------------------------------------------
 
+SET @domain_id = (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'custom_specimen_supplier_dept');
+
+DELETE FROM structure_value_domains_permissible_values WHERE structure_value_domain_id = @domain_id;
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+('biological sample taking center', 'biological sample taking center'),
+('clinic', 'clinic'),
+('breast clinic', 'breast clinic'),
+('external clinic', 'external clinic'),
+('gynaecology/oncology clinic', 'gynaecology/oncology clinic'),
+('family cancer center', 'family cancer center'),
+('preoperative checkup', 'preoperative checkup'),
+('operating room', 'operating room'),
+('pathology dept', 'pathology dept'),
+('other', 'other');
+
+INSERT INTO structure_value_domains_permissible_values 
+(`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='biological sample taking center' AND language_alias='biological sample taking center'), "1", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='clinic' AND language_alias='clinic'), "2", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='breast clinic' AND language_alias='breast clinic'), "3", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='external clinic' AND language_alias='external clinic'), "4", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='gynaecology/oncology clinic' AND language_alias='gynaecology/oncology clinic'), "5", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='family cancer center' AND language_alias='family cancer center'), "6", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='preoperative checkup' AND language_alias='preoperative checkup'), "7", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='operating room' AND language_alias='operating room'), "8", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='pathology dept' AND language_alias='pathology dept'), "9", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='day surgery' AND language_alias='day surgery'), "10", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='other' AND language_alias='other'), "11", "1");
+
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('biological sample taking center', 'global', 'Biological Sample Taking Center', 'Centre de prélèvement'),
+('breast clinic', 'global', 'Breast Clinic', 'Clinique du sein'),
+('clinic', 'global', 'Clinic', 'Clinique'),
+('external clinic', 'global', 'External Clinic', 'Clinique externe'),
+('family cancer center', 'global', 'Family Cancer Center', 'Clinique des cancers familiaux'),
+('gynaecology/oncology clinic', 'global', 'Gynaec/Onco Clinic', 'Clinique Gyneco/Onco'),
+('operating room', 'global', 'Operating Room', 'Salle d''opération'),
+('pathology dept', 'global', 'Pathology', 'Pathologie'),
+('preoperative checkup', 'global', 'Preoperative Checkup', 'Bilan préopératoire');
+
+SET @domain_id = (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'custom_laboratory_staff');
+
+DELETE FROM structure_value_domains_permissible_values WHERE structure_value_domain_id = @domain_id;
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+('aurore pierrard', 'aurore pierrard'),
+('cecile grange', 'cecile grange'),
+('chantale auger', 'chantale auger'),
+('christine abaji', 'christine abaji'),
+('emilio, johanne et phil', 'emilio, johanne et phil'),
+('guillaume cardin', 'guillaume cardin'),
+('hafida lounis', 'hafida lounis'),
+('isabelle letourneau', 'isabelle letourneau'),
+('jason madore', 'jason madore'),
+('jennifer kendall dupont', 'jennifer kendall dupont'),
+('jessica godin ethier', 'jessica godin ethier'),
+('josh levin', 'josh levin'),
+('julie desgagnes', 'julie desgagnes'),
+('karine normandin', 'karine normandin'),
+('katia caceres', 'katia caceres'),
+('kevin gu', 'kevin gu'),
+('labo externe', 'labo externe'),
+('liliane meunier', 'liliane meunier'),
+('lise portelance', 'lise portelance'),
+('louise champoux', 'louise champoux'),
+('magdalena zietarska', 'magdalena zietarska'),
+('manon de ladurantaye', 'manon de ladurantaye'),
+('marie-andree forget', 'marie-andree forget'),
+('marie-josee milot', 'marie-josee milot'),
+('marie-line puiffe', 'marie-line puiffe'),
+('marise roy', 'marise roy'),
+('matthew starek', 'matthew starek'),
+('mona alam', 'mona alam'),
+('nathalie delvoye', 'nathalie delvoye'),
+('pathologie', 'pathologie'),
+('patrick kibangou bondza', 'patrick kibangou bondza'),
+('stephanie lepage', 'stephanie lepage'),
+('teodora yaneva', 'teodora yaneva'),
+('urszula krzemien', 'urszula krzemien'),
+('valerie forest', 'valerie forest'),
+('veronique barres', 'veronique barres'),
+('veronique ouellet', 'veronique ouellet'),
+('yuan chang', 'yuan chang'),
+('unknown', 'unknown'),
+('other', 'other');
+
+INSERT INTO structure_value_domains_permissible_values 
+(`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='aurore pierrard' AND language_alias='aurore pierrard'), "0", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='cecile grange' AND language_alias='cecile grange'), "1", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='chantale auger' AND language_alias='chantale auger'), "2", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='christine abaji' AND language_alias='christine abaji'), "3", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='emilio, johanne et phil' AND language_alias='emilio, johanne et phil'), "4", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='guillaume cardin' AND language_alias='guillaume cardin'), "5", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='hafida lounis' AND language_alias='hafida lounis'), "6", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='isabelle letourneau' AND language_alias='isabelle letourneau'), "7", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='jason madore' AND language_alias='jason madore'), "8", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='jennifer kendall dupont' AND language_alias='jennifer kendall dupont'), "9", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='jessica godin ethier' AND language_alias='jessica godin ethier'), "20", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='josh levin' AND language_alias='josh levin'), "21", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='julie desgagnes' AND language_alias='julie desgagnes'), "22", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='karine normandin' AND language_alias='karine normandin'), "23", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='katia caceres' AND language_alias='katia caceres'), "24", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='kevin gu' AND language_alias='kevin gu'), "25", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='labo externe' AND language_alias='labo externe'), "26", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='liliane meunier' AND language_alias='liliane meunier'), "27", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='lise portelance' AND language_alias='lise portelance'), "28", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='louise champoux' AND language_alias='louise champoux'), "29", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='magdalena zietarska' AND language_alias='magdalena zietarska'), "40", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='manon de ladurantaye' AND language_alias='manon de ladurantaye'), "41", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='marie-andree forget' AND language_alias='marie-andree forget'), "42", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='marie-josee milot' AND language_alias='marie-josee milot'), "43", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='marie-line puiffe' AND language_alias='marie-line puiffe'), "44", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='marise roy' AND language_alias='marise roy'), "45", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='matthew starek' AND language_alias='matthew starek'), "46", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='mona alam' AND language_alias='mona alam'), "47", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='nathalie delvoye' AND language_alias='nathalie delvoye'), "48", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='pathologie' AND language_alias='pathologie'), "49", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='patrick kibangou bondza' AND language_alias='patrick kibangou bondza'), "50", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='stephanie lepage' AND language_alias='stephanie lepage'), "60", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='teodora yaneva' AND language_alias='teodora yaneva'), "61", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='urszula krzemien' AND language_alias='urszula krzemien'), "62", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='valerie forest' AND language_alias='valerie forest'), "63", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='veronique barres' AND language_alias='veronique barres'), "64", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='veronique ouellet' AND language_alias='veronique ouellet'), "65", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='yuan chang' AND language_alias='yuan chang'), "66", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='unknown' AND language_alias='unknown'), "80", "1"),
+(@domain_id,  (SELECT id FROM structure_permissible_values WHERE value='other' AND language_alias='other'), "81", "1");
+
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('aurore pierrard', 'global', 'Aurore Pierrard', 'Aurore Pierrard'),
+('cecile grange', '', 'Cécile Grange', 'Cécile Grange'),
+('other', 'global', 'Other', 'Autre'),
+('chantale auger', 'global', 'Chantale Auger', 'Chantale Auger'),
+('christine abaji', 'global', 'Christine Abaji', 'Christine Abaji'),
+('emilio, johanne et phil', 'global', '&Eacute;milio, Johanne et Phil', '&Eacute;milio, Johanne et Phil'),
+('guillaume cardin', 'global', 'Guillaume Cardin', 'Guillaume Cardin'),
+('hafida lounis', 'global', 'Hafida Lounis', 'Hafida Lounis'),
+('unknown', 'global', 'Unknown', 'Inconnu'),
+('isabelle letourneau', 'global', 'Isabelle L&eacute;tourneau', 'Isabelle L&eacute;tourneau'),
+('jason madore', 'global', 'Jason Madore', 'Jason Madore'),
+('jennifer kendall dupont', 'global', 'Jennifer Kendall Dupont', 'Jennifer Kendall Dupont'),
+('jessica godin ethier', 'global', 'Jessica Godin Ethier', 'Jessica Godin Ethier'),
+('josh levin', 'global', 'Josh Levin', 'Josh Levin'),
+('julie desgagnes', 'global', 'Julie Desgagn&eacute;s', 'Julie Desgagn&eacute;s'),
+('karine normandin', 'global', 'Karine Normandin', 'Karine Normandin'),
+('katia caceres', 'global', 'Katia Caceres', 'Katia Caceres'),
+('kevin gu', 'global', 'Kevin Gu', 'Kevin Gu'),
+('labo externe', 'global', 'Labo externe', 'Labo externe'),
+('liliane meunier', 'global', 'Liliane Meunier', 'Liliane Meunier'),
+('lise portelance', 'global', 'Lise Portelance', 'Lise Portelance'),
+('louise champoux', 'global', 'Louise Champoux', 'Louise Champoux'),
+('magdalena zietarska', 'global', 'Magdalena Zietarska', 'Magdalena Zietarska'),
+('manon de ladurantaye', 'global', 'Manon de Ladurantaye', 'Manon de Ladurantaye'),
+('marie-andree forget', 'global', 'Marie-Andr&eacute;e Forget', 'Marie-Andr&eacute;e Forget'),
+('marie-josee milot', 'global', 'Marie-Jos&eacute;e Milot', 'Marie-Jos&eacute;e Milot'),
+('marie-line puiffe', 'global', 'Marie-Line Puiffe', 'Marie-Line Puiffe'),
+('marise roy', 'global', 'Marise Roy', 'Marise Roy'),
+('matthew starek', 'global', 'Matthew Starek', 'Matthew Starek'),
+('mona alam', 'global', 'Mona Alam', 'Mona Alam'),
+('nathalie delvoye', 'global', 'Nathalie Delvoye', 'Nathalie Delvoye'),
+('pathologie', 'global', 'Pathologie', 'Pathologie'),
+('patrick kibangou bondza', 'global', 'Patrick Kibangou Bondza', 'Patrick Kibangou Bondza'),
+('stephanie lepage', 'global', 'St&eacute;phanie Lepage', 'St&eacute;phanie Lepage'),
+('teodora yaneva', 'global', 'Teodora Yaneva', 'Teodora Yaneva'),
+('urszula krzemien', 'global', 'Urszula Krzemien', 'Urszula Krzemien'),
+('valerie forest', 'global', 'Val&eacute;rie Forest', 'Val&eacute;rie Forest'),
+('veronique barres', 'global', 'V&eacute;ronique Barr&eagrave;s', 'V&eacute;ronique Barr&eagrave;s'),
+('veronique ouellet', 'global', 'V&eacute;ronique Ouellet', 'V&eacute;ronique Ouellet'),
+('yuan chang', 'global', 'Yuan Chang', 'Yuan Chang');
+
+UPDATE aliquot_masters SET stored_by = 'other' WHERE stored_by = 'autre';
+UPDATE aliquot_masters SET stored_by = 'unknown' WHERE stored_by = 'inconnue';
+
+UPDATE specimen_details SET reception_by = 'other' WHERE reception_by = 'autre';
+UPDATE specimen_details SET reception_by = 'unknown' WHERE reception_by = 'inconnue';
+
+UPDATE derivative_details SET creation_by = 'other' WHERE creation_by = 'autre';
+UPDATE derivative_details SET creation_by = 'unknown' WHERE creation_by = 'inconnue';
+
+UPDATE aliquot_uses SET used_by = 'other' WHERE used_by = 'autre';
+UPDATE aliquot_uses SET used_by = 'unknown' WHERE used_by = 'inconnue';
+
+UPDATE order_items SET added_by = 'other' WHERE added_by = 'autre';
+UPDATE order_items SET added_by = 'unknown' WHERE added_by = 'inconnue';
+
+UPDATE shipments SET shipped_by = 'other' WHERE shipped_by = 'autre';
+UPDATE shipments SET shipped_by = 'unknown' WHERE shipped_by = 'inconnue';
+
+UPDATE quality_ctrls SET run_by  = 'other' WHERE run_by  = 'autre';
+UPDATE quality_ctrls SET run_by  = 'unknown' WHERE run_by  = 'inconnue';
+
+-- SOP
+
+-- SOP hidden
+
+UPDATE structure_fields field, structure_formats format
+SET flag_add ='0', flag_add_readonly ='0', 
+flag_edit ='0', flag_edit_readonly ='0', 
+flag_search ='0', flag_search_readonly ='0', 
+flag_datagrid ='0', flag_datagrid_readonly ='0',
+flag_index ='0', 
+flag_detail ='0' 
+WHERE field.id = format.structure_field_id
+AND field.plugin LIKE 'Inventorymanagement'
+AND field.model LIKE '%SampleMaster%'
+AND field.field LIKE 'sop_master_id'; 
+
 -- Visit Label & No Labo
 
 DROP VIEW IF EXISTS view_samples;
@@ -1482,6 +1693,215 @@ VALUES
 UPDATE structure_value_domains_permissible_values SET flag_active = '0'
 WHERE structure_value_domain_id IN (SELECT id FROM structure_value_domains WHERE domain_name="blood_type")
 AND language_alias LIKE 'gel CSA';
+
+-- pbmc details form
+
+INSERT INTO `structures` (`id`, `alias`, `description`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, 'sd_der_pbmcs', NULL, '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
+(null, 'qc_blood_cell_storage_solution', 'open', '', NULL);
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+("DMSO + serum", "DMSO + serum");
+
+INSERT INTO structure_value_domains_permissible_values 
+(`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_blood_cell_storage_solution"),  
+(SELECT id FROM structure_permissible_values WHERE value="DMSO + serum" AND language_alias="DMSO + serum"), "3", "1");
+
+DELETE FROM structure_value_domains_permissible_values WHERE structure_value_domain_id IN (SELECT id FROM structure_value_domains WHERE domain_name="custom_laboratory_site");
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+("Labo Christopoulos", "Labo Christopoulos"),
+("Labo Dr Maugard", "Labo Dr Maugard"),
+("Labo Dr Mes-Masson", "Labo Dr Mes-Masson"),
+("Labo Dr Santos", "Labo Dr Santos"),
+("Labo Sein", "Labo Sein"),
+("Labo Dr Tonin", "Labo Dr Tonin"),
+("other", "other"),
+("unknown", "unknown");
+
+UPDATE derivative_details SET creation_site = 'Labo Christopoulos' WHERE creation_site = 'labo christopoulos';
+
+INSERT INTO structure_value_domains_permissible_values 
+(`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="custom_laboratory_site"),  
+(SELECT id FROM structure_permissible_values WHERE value="Labo Christopoulos" AND language_alias="Labo Christopoulos"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="custom_laboratory_site"),  
+(SELECT id FROM structure_permissible_values WHERE value="Labo Dr Maugard" AND language_alias="Labo Dr Maugard"), "3", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="custom_laboratory_site"),  
+(SELECT id FROM structure_permissible_values WHERE value="Labo Dr Mes-Masson" AND language_alias="Labo Dr Mes-Masson"), "5", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="custom_laboratory_site"),  
+(SELECT id FROM structure_permissible_values WHERE value="Labo Dr Santos" AND language_alias="Labo Dr Santos"), "7", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="custom_laboratory_site"),  
+(SELECT id FROM structure_permissible_values WHERE value="Labo Sein" AND language_alias="Labo Sein"), "9", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="custom_laboratory_site"),  
+(SELECT id FROM structure_permissible_values WHERE value="Labo Dr Tonin" AND language_alias="Labo Dr Tonin"), "10", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="custom_laboratory_site"),  
+(SELECT id FROM structure_permissible_values WHERE value="other" AND language_alias="other"), "15", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="custom_laboratory_site"),  
+(SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "18", "1");
+
+INSERT INTO structure_fields (id, public_identifier, plugin, model, tablename, field, language_label, language_tag, `type`, setting, `default`, structure_value_domain, language_help, validation_control, value_domain_control, field_control, created, created_by, modified, modified_by) 
+VALUES
+(null, '', 'Inventorymanagement', 'SampleDetail', 'sd_der_pbmcs', 'tmp_solution', 'tmp blood cell solution', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name LIKE 'qc_blood_cell_storage_solution'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+DELETE FROM structure_formats WHERE structure_id IN (SELECT id FROM structures WHERE alias='sd_der_pbmcs');
+INSERT INTO `structure_formats` (`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+((SELECT id FROM structures WHERE alias='sd_der_pbmcs'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='initial_specimen_sample_type'), 
+0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_pbmcs'),  
+(SELECT id FROM structure_fields WHERE `model`='GeneratedParentSample' AND `tablename`='' AND `field`='sample_type'), 
+0, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_pbmcs'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_type'), 
+0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '1', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_pbmcs'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_label'), 
+0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_pbmcs'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_code'), 
+0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_pbmcs'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_category'), 
+0, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '1', '1', '1', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_pbmcs'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='parent_id'), 
+0, 9, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '1', '1', '1', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_pbmcs'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sop_master_id'), 
+0, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_pbmcs'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='is_problematic'), 
+0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_pbmcs'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='notes'), 
+0, 25, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_pbmcs'),  
+(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='' AND `field`='creation_datetime'), 
+1, 30, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_pbmcs'),  
+(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='' AND `field`='creation_datetime_accuracy'), 1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_pbmcs'),  
+(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='' AND `field`='creation_by'), 
+1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_pbmcs'),  
+(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='' AND `field`='creation_site'), 
+1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_pbmcs'),  
+(SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='coll_to_creation_spent_time_msg'), 
+1, 34, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+
+((SELECT id FROM structures WHERE alias='sd_der_pbmcs'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_pbmcs' AND `field`='tmp_solution'), 
+1, 40, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
+
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('tmp blood cell solution','','Solution (tmp)','Solution (tmp)'),
+('DMSO + serum','','DMSO + Serum','DMSO + Sérum');
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('Labo Christopoulos', 'global', 'Labo Christopoulos', 'Labo Christopoulos'),
+('Labo Dr Maugard', 'global', 'Labo Dr Maugard', 'Labo Dr Maugard'),
+('Labo Dr Mes-Masson', 'global', 'Labo Dr Mes-Masson', 'Labo Dr Mes-Masson'),
+('Labo Dr Santos', 'global', 'Labo Dr Santos', 'Labo Dr Santos'),
+('Labo Dr Tonin', 'global', 'Labo Dr Tonin', 'Labo Dr Tonin'),
+('Labo Sein', 'global', 'Labo Sein', 'Labo Sein');
+
+-- pbmc details form
+
+INSERT INTO `structures` (`id`, `alias`, `description`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, 'sd_der_blood_cells', NULL, '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+INSERT INTO structure_fields (id, public_identifier, plugin, model, tablename, field, language_label, language_tag, `type`, setting, `default`, structure_value_domain, language_help, validation_control, value_domain_control, field_control, created, created_by, modified, modified_by) 
+VALUES
+(null, '', 'Inventorymanagement', 'SampleDetail', 'sd_der_blood_cells', 'tmp_solution', 'tmp blood cell solution', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name LIKE 'qc_blood_cell_storage_solution'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+DELETE FROM structure_formats WHERE structure_id IN (SELECT id FROM structures WHERE alias='sd_der_blood_cells');
+INSERT INTO `structure_formats` (`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+((SELECT id FROM structures WHERE alias='sd_der_blood_cells'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='initial_specimen_sample_type'), 
+0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_blood_cells'),  
+(SELECT id FROM structure_fields WHERE `model`='GeneratedParentSample' AND `tablename`='' AND `field`='sample_type'), 
+0, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_blood_cells'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_type'), 
+0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '1', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_blood_cells'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_label'), 
+0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_blood_cells'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_code'), 
+0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_blood_cells'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_category'), 
+0, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '1', '1', '1', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_blood_cells'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='parent_id'), 
+0, 9, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '1', '1', '1', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_blood_cells'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sop_master_id'), 
+0, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_blood_cells'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='is_problematic'), 
+0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_blood_cells'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='notes'), 
+0, 25, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_blood_cells'),  
+(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='' AND `field`='creation_datetime'), 
+1, 30, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_blood_cells'),  
+(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='' AND `field`='creation_datetime_accuracy'), 
+1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_blood_cells'),  
+(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='' AND `field`='creation_by'), 
+1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_blood_cells'),  
+(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='' AND `field`='creation_site'), 
+1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_blood_cells'),  
+(SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='coll_to_creation_spent_time_msg'), 
+1, 34, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+
+((SELECT id FROM structures WHERE alias='sd_der_blood_cells'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_blood_cells' AND `field`='tmp_solution'), 
+1, 40, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
+
 
 # ALIQUOT ----------------------------------------------------------------
 
