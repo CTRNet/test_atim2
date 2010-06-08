@@ -44,3 +44,8 @@ ALTER TABLE aliquot_masters DROP KEY `unique_barcode`, ADD KEY (`barcode`);
 -- Fix translation
 UPDATE `i18n` SET `en` = 'Surgical/Clinical', `fr` = 'Chirurgical/Clinique'
 WHERE `i18n`.`id` = 'surgical/clinical';
+
+-- Fix language_tag error on cell culture field
+UPDATE `structure_fields`
+SET `language_tag` = 'detail'
+WHERE `language_tag` LIKE 'Detail';
