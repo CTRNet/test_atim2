@@ -26,7 +26,9 @@ UPDATE structure_formats SET `flag_override_help`='1', `language_help`='' WHERE 
 UPDATE structure_formats SET `flag_override_help`='1', `language_help`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='age_at_dx');
 
 INSERT INTO i18n (`id`, `en`, `fr`) VALUES
-("no identifier available", "No identifier available", "Aucun identifiant disponible");
+("no identifier available", "No identifier available", "Aucun identifiant disponible"),
+("this bank is being used and cannot be deleted", "This bank is being used and cannot be deleted", "Cette banque est utilisée et ne peut pas être supprimée"),
+("this group is being used and cannot be deleted", "This group is being used and cannot be deleted", "Ce groupe est utilisé et ne peut pas être supprimé.");
 
 -- Clean help bullets in participant contacts
 UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='contact_type') ,  `language_help`='' WHERE model='ParticipantContact' AND tablename='participant_contacts' AND field='contact_type';
@@ -49,3 +51,6 @@ WHERE `i18n`.`id` = 'surgical/clinical';
 UPDATE `structure_fields`
 SET `language_tag` = 'detail'
 WHERE `language_tag` LIKE 'Detail';
+
+-- eventum 939
+ALTER TABLE `storage_controls` ADD `horizontal_increment`  BOOLEAN NOT NULL DEFAULT true AFTER `reverse_y_numbering`; 
