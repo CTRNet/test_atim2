@@ -5,8 +5,7 @@ class ProtocolMastersController extends ProtocolAppController {
 	var $uses = array(
 		'Protocol.ProtocolControl', 
 		'Protocol.ProtocolMaster', 
-		'Protocol.ProtocolExtend',
-		'Clinicalannotation.TreatmentMaster');
+		'Protocol.ProtocolExtend');
 		
 	var $paginate = array('ProtocolMaster'=>array('limit' => pagination_amount,'order'=>'ProtocolMaster.code DESC'));
 	
@@ -96,6 +95,11 @@ class ProtocolMastersController extends ProtocolAppController {
 		
 		if ( empty($this->data) ) {
 			$this->data = $protocol_data;
+			$is_used = $this->ProtocolMaster->isUsedByTreatment($protocol_master_id, $protocol_data['ProtocolControl']['extend_tablename']);
+			if($is_used['is_used']){
+				$this->ProtocolMaster->validationErrors[] = __('warning', true).": ".__($is_used['msg'], true).".";
+			}
+			$submitted_data_validates = false;
 		} else {
 			$submitted_data_validates = true;
 			
@@ -104,7 +108,8 @@ class ProtocolMastersController extends ProtocolAppController {
 			
 			$this->ProtocolMaster->id = $protocol_master_id;
 			if ($submitted_data_validates && $this->ProtocolMaster->save($this->data) ) {
-				$this->flash( 'your data has been updated','/protocol/protocol_masters/detail/'.$protocol_master_id.'/');
+//				$this->flash( 'your data has been updated','/protocol/protocol_masters/detail/'.$protocol_master_id.'/');
+				$this->redirect('/protocol/protocol_masters/detail/'.$protocol_master_id.'/');
 			}
 		}		
 	}
@@ -115,52 +120,22 @@ class ProtocolMastersController extends ProtocolAppController {
 		$protocol_data = $this->ProtocolMaster->find('first',array('conditions'=>array('ProtocolMaster.id'=>$protocol_master_id)));
 		if(empty($protocol_data)) { $this->redirect( '/pages/err_pro_no_data', null, true ); }	
 			
-		$arr_allow_deletion = $this->allowProtocolDeletion($protocol_master_id, $protocol_data['ProtocolControl']['extend_tablename']);
+		$is_used = $this->ProtocolMaster->isUsedByTreatment($protocol_master_id, $protocol_data['ProtocolControl']['extend_tablename']);
 				
 		// CUSTOM CODE		
 		$hook_link = $this->hook('delete');
 		if ($hook_link) { require($hook_link); }
 		
-		if ($arr_allow_deletion['allow_deletion']) {
+		if ($is_used['is_used']) {
+			$this->flash($is_used['msg'], '/protocol/protocol_masters/detail/'.$protocol_master_id.'/');
+		} else {
 			if( $this->ProtocolMaster->atim_delete( $protocol_master_id ) ) {
 				$this->flash( 'your data has been deleted', '/protocol/protocol_masters/index/');
 			} else {
 				$this->flash( 'error deleting data - contact administrator', '/protocol/protocol_masters/index/');
 			}
-		} else {
-			$this->flash($arr_allow_deletion['msg'], '/protocol/protocol_masters/detail/'.$protocol_master_id.'/');
 		}
 	}
-
-	/* --------------------------------------------------------------------------
-	 * ADDITIONAL FUNCTIONS
-	 * -------------------------------------------------------------------------- */
-
-	/**
-	 * Check if a record can be deleted.
-	 * 
-	 * @param $protocol_master_id Id of the studied record.
-	 * @param $protocol_extend_tablename
-	 * 
-	 * @return Return results as array:
-	 * 	['allow_deletion'] = true/false
-	 * 	['msg'] = message to display when previous field equals false
-	 * 
-	 * @author N. Luc
-	 * @since 2010-04-18
-	 */
-	 
-	function allowProtocolDeletion($protocol_master_id, $protocol_extend_tablename){
-		$nbr_trt_masters = $this->TreatmentMaster->find('count', array('conditions'=>array('TreatmentMaster.protocol_master_id'=>$protocol_master_id), 'recursive' => '-1'));
-		if ($nbr_trt_masters > 0) { return array('allow_deletion' => false, 'msg' => 'protocol is defined as protocol of at least one participant treatment'); }
-		
-		$this->ProtocolExtend = new ProtocolExtend(false, $protocol_extend_tablename);
-		$nbr_extends = $this->ProtocolExtend->find('count', array('conditions'=>array('ProtocolExtend.protocol_master_id'=>$protocol_master_id), 'recursive' => '-1'));
-		if ($nbr_extends > 0) { return array('allow_deletion' => false, 'msg' => 'at least one drug is defined as protocol component'); }
-		
-		return array('allow_deletion' => true, 'msg' => '');
-	}
-
 }
 
 ?>
