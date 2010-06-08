@@ -371,7 +371,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 				$this->data[$key]['AliquotMaster']['aliquot_control_id'] = $aliquot_control_id;
 				$this->AliquotMaster->set($this->data[$key]);
 				$submitted_data_validates = ($this->AliquotMaster->validates())? $submitted_data_validates: false;
-				pr($this->AliquotMaster->validationErrors);
 				
 				$this->AliquotDetail->validationErrors = $this->AliquotMaster->validationErrors;
 				foreach($this->AliquotMaster->validationErrors as $field => $error) {

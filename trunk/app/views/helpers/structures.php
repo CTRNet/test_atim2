@@ -1490,6 +1490,7 @@ class StructuresHelper extends Helper {
 					$html_element_array['type'] = $field['StructureField']['type'];
 					
 					// set error class, based on validators helper info 
+					//FMLHHHHH
 					if ( isset($this->validationErrors[ $field['StructureField']['model'] ][ $field['StructureField']['field'] ]) ) $html_element_array['class'] .= 'error ';
 					
 					if ( isset($field['flag_'.$options['type'].'_readonly']) && $field['flag_'.$options['type'].'_readonly'] && $options['type']!='search' ) {
@@ -2473,6 +2474,7 @@ class StructuresHelper extends Helper {
 								'size' => 4, 
 								'tabindex' => $html_element_array['tabindex'], 
 								'maxlength' => 4,
+								'class' => $html_element_array['class'],
 								'value' => $datetime_array['year']))
 						."<div>".__('year', true)."</div></span> ";
 				}
@@ -2492,6 +2494,7 @@ class StructuresHelper extends Helper {
 								'size' => 2, 
 								'tabindex' => $html_element_array['tabindex'], 
 								'maxlength' => 2,
+								'class' => $html_element_array['class'],
 								'value' => $datetime_array['month']))
 						."<div>".__('month', true)."</div></span> ";
 				}
@@ -2511,6 +2514,7 @@ class StructuresHelper extends Helper {
 								'size' => 2, 
 								'tabindex' => $html_element_array['tabindex'], 
 								'maxlength' => 2,
+								'class' => $html_element_array['class'],
 								'value' => $datetime_array['day']))
 						."<div>".__('day', true)."</div></span> ";
 				}
@@ -2544,6 +2548,7 @@ class StructuresHelper extends Helper {
 							'size' => 2, 
 							'tabindex' => $html_element_array['tabindex'], 
 							'maxlength' => 2,
+							'class' => $html_element_array['class'],
 							'value' => $datetime_array['hour']))
 					."<div>".__('hour', true)."</div></span> ";
 				$date .= 
@@ -2555,6 +2560,7 @@ class StructuresHelper extends Helper {
 							'size' => 2, 
 							'tabindex' => $html_element_array['tabindex'], 
 							'maxlength' => 2,
+							'class' => $html_element_array['class'],
 							'value' => $datetime_array['min']))
 					."<div>".__('minutes', true)."</div></span> ";
 			}
