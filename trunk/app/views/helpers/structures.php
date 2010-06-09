@@ -470,7 +470,7 @@ class StructuresHelper extends Helper {
 								if ( $options['type']=='datagrid' && $options['settings']['del_fields'] ) {
 									$return_string .= '
 											<td class="right">
-												<a style="color:red;" href="#" onclick="getElementById(\'table'.$table_key.'row'.$key.'\').parentNode.removeChild(getElementById(\'table'.$table_key.'row'.$key.'\')); return false;" title="'.__( 'click to remove these elements', true ).'">x</a>
+												<a style="color:red;" href="#" onclick="getElementById(\'table'.$table_key.'row'.$key.'\').parentNode.removeChild(getElementById(\'table'.$table_key.'row'.$key.'\')); return false;" title="'.__( 'click to remove these elements', true ).'">(x)</a>
 											</td>
 									';
 									
@@ -557,7 +557,7 @@ class StructuresHelper extends Helper {
 								if ( $options['type']=='datagrid' && $options['settings']['del_fields'] ) {
 									$add_another_row_template .= '
 											<td class="right">
-												<a style="color:red;" href="#" onclick="getElementById(\'table'.$table_key.'row#{id}\').parentNode.removeChild(getElementById(\'table'.$table_key.'row#{id}\')); return false;" title="'.__( 'click to remove these elements', true ).'">x</a>
+												<a style="color:red;" href="#" onclick="getElementById(\'table'.$table_key.'row#{id}\').parentNode.removeChild(getElementById(\'table'.$table_key.'row#{id}\')); return false;" title="'.__( 'click to remove these elements', true ).'">(x)</a>
 											</td>
 									';
 									
@@ -599,7 +599,7 @@ class StructuresHelper extends Helper {
 							</tbody><tfoot>
 								<tr id="'.$add_another_unique_link_id.'">
 									<td class="right" colspan="'.$column_count.'">
-										<a id="addLineLink" style="color:#090; font-weight:bold;" href="#" onclick="'.$add_another_unique_function_name.'(); return false;" title="'.__( 'click to add a line', true ).'">+</a>
+										<a id="addLineLink" style="color:#090; font-weight:bold;" href="#" onclick="'.$add_another_unique_function_name.'(); return false;" title="'.__( 'click to add a line', true ).'">(+)</a>
 									</td>
 								</tr>
 								</tfoot>
