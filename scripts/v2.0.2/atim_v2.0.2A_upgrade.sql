@@ -1126,3 +1126,5 @@ UPDATE structure_fields SET `type`='select', structure_value_domain=(SELECT id F
 WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='morphology';
 
 TRUNCATE `acos`;
+
+UPDATE structure_formats SET `flag_edit_readonly`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='groups') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Group' AND tablename='groups' AND field='bank_id');
