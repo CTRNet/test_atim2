@@ -588,11 +588,11 @@ class StorageMastersController extends StoragelayoutAppController {
 	 * @updated A. Suggitt
 	 */
 	 
-	function contentTreeView($storage_master_id) {
+	function contentTreeView($storage_master_id = NULL) {
 		// MANAGE STORAGE DATA
 		
 		// Get the storage data
-		if($storage_data){
+		if($storage_master_id){
 			$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
 			if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }
 			$storage_content = $this->StorageMaster->find('threaded', array('conditions' => array('StorageMaster.lft >=' => $storage_data['StorageMaster']['lft'], 'StorageMaster.rght <=' => $storage_data['StorageMaster']['rght']), 'order' => 'StorageMaster.coord_x_order ASC, StorageMaster.coord_y_order ASC', 'recursive' => '-1'));
