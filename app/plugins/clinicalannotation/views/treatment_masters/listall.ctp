@@ -7,7 +7,11 @@
 		$add_links[$trt_header] = '/clinicalannotation/treatment_masters/add/'.$atim_menu_variables['Participant.id'].'/'.$treatment_control['TreatmentControl']['id'];
 		$filter_links[$trt_header] = '/clinicalannotation/treatment_masters/listall/'.$atim_menu_variables['EventMaster.event_group'].'/'.$atim_menu_variables['Participant.id'].'/'.$treatment_control['TreatmentControl']['id'];
 	}
-	ksort($add_links);
+	if(empty($add_links)){
+		$add_links = '/underdev/';
+	}else{
+		ksort($add_links);
+	}
 	ksort($filter_links);
 	$filter_links['no filter'] = '/clinicalannotation/treatment_masters/listall/'.$atim_menu_variables['Participant.id'].'/';
 	
