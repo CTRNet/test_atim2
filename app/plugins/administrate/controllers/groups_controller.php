@@ -2,7 +2,7 @@
 
 class GroupsController extends AdministrateAppController {
 	
-	var $uses = array('Administrate.Group',	'Aco', 'Aro');
+	var $uses = array('Group',	'Aco', 'Aro');
 	
 	var $paginate = array('Group'=>array('limit' => pagination_amount,'order'=>'Group.name ASC')); 
 	
