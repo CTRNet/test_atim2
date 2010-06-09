@@ -53,5 +53,13 @@ class DiagnosisMaster extends ClinicalannotationAppModel {
 			$participantArray['DiagnosisMaster']['primary_icd10_code'] = null;
 		}
 	}
+	
+	function getMorphologyValues(){
+		$result = array();
+		foreach($this->query("SELECT code AS val, CONCAT(code, ' - ', en_desc) AS `default` FROM coding_icdo_3") as $icdo3){
+			$result[] = array("value" => $icdo3['coding_icdo_3']['val'], "default" => $icdo3[0]['default']);
+		}
+		return $result;
+	}
 }
 ?>
