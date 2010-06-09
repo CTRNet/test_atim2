@@ -1352,16 +1352,16 @@ INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('other', 'global', 'Other', 'Autre'),
 ('chantale auger', 'global', 'Chantale Auger', 'Chantale Auger'),
 ('christine abaji', 'global', 'Christine Abaji', 'Christine Abaji'),
-('emilio, johanne et phil', 'global', '&Eacute;milio, Johanne et Phil', '&Eacute;milio, Johanne et Phil'),
+('emilio, johanne et phil', 'global', 'émilio, Johanne et Phil', 'émilio, Johanne et Phil'),
 ('guillaume cardin', 'global', 'Guillaume Cardin', 'Guillaume Cardin'),
 ('hafida lounis', 'global', 'Hafida Lounis', 'Hafida Lounis'),
 ('unknown', 'global', 'Unknown', 'Inconnu'),
-('isabelle letourneau', 'global', 'Isabelle L&eacute;tourneau', 'Isabelle L&eacute;tourneau'),
+('isabelle letourneau', 'global', 'Isabelle Létourneau', 'Isabelle Létourneau'),
 ('jason madore', 'global', 'Jason Madore', 'Jason Madore'),
 ('jennifer kendall dupont', 'global', 'Jennifer Kendall Dupont', 'Jennifer Kendall Dupont'),
 ('jessica godin ethier', 'global', 'Jessica Godin Ethier', 'Jessica Godin Ethier'),
 ('josh levin', 'global', 'Josh Levin', 'Josh Levin'),
-('julie desgagnes', 'global', 'Julie Desgagn&eacute;s', 'Julie Desgagn&eacute;s'),
+('julie desgagnes', 'global', 'Julie Desgagnés', 'Julie Desgagnés'),
 ('karine normandin', 'global', 'Karine Normandin', 'Karine Normandin'),
 ('katia caceres', 'global', 'Katia Caceres', 'Katia Caceres'),
 ('kevin gu', 'global', 'Kevin Gu', 'Kevin Gu'),
@@ -1371,8 +1371,8 @@ INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('louise champoux', 'global', 'Louise Champoux', 'Louise Champoux'),
 ('magdalena zietarska', 'global', 'Magdalena Zietarska', 'Magdalena Zietarska'),
 ('manon de ladurantaye', 'global', 'Manon de Ladurantaye', 'Manon de Ladurantaye'),
-('marie-andree forget', 'global', 'Marie-Andr&eacute;e Forget', 'Marie-Andr&eacute;e Forget'),
-('marie-josee milot', 'global', 'Marie-Jos&eacute;e Milot', 'Marie-Jos&eacute;e Milot'),
+('marie-andree forget', 'global', 'Marie-Andrée Forget', 'Marie-Andrée Forget'),
+('marie-josee milot', 'global', 'Marie-Josée Milot', 'Marie-Josée Milot'),
 ('marie-line puiffe', 'global', 'Marie-Line Puiffe', 'Marie-Line Puiffe'),
 ('marise roy', 'global', 'Marise Roy', 'Marise Roy'),
 ('matthew starek', 'global', 'Matthew Starek', 'Matthew Starek'),
@@ -1380,12 +1380,12 @@ INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('nathalie delvoye', 'global', 'Nathalie Delvoye', 'Nathalie Delvoye'),
 ('pathologie', 'global', 'Pathologie', 'Pathologie'),
 ('patrick kibangou bondza', 'global', 'Patrick Kibangou Bondza', 'Patrick Kibangou Bondza'),
-('stephanie lepage', 'global', 'St&eacute;phanie Lepage', 'St&eacute;phanie Lepage'),
+('stephanie lepage', 'global', 'Stéphanie Lepage', 'Stéphanie Lepage'),
 ('teodora yaneva', 'global', 'Teodora Yaneva', 'Teodora Yaneva'),
 ('urszula krzemien', 'global', 'Urszula Krzemien', 'Urszula Krzemien'),
-('valerie forest', 'global', 'Val&eacute;rie Forest', 'Val&eacute;rie Forest'),
-('veronique barres', 'global', 'V&eacute;ronique Barr&eagrave;s', 'V&eacute;ronique Barr&eagrave;s'),
-('veronique ouellet', 'global', 'V&eacute;ronique Ouellet', 'V&eacute;ronique Ouellet'),
+('valerie forest', 'global', 'Valérie Forest', 'Valérie Forest'),
+('veronique barres', 'global', 'Véronique Barrès', 'Véronique Barrès'),
+('veronique ouellet', 'global', 'Véronique Ouellet', 'Véronique Ouellet'),
 ('yuan chang', 'global', 'Yuan Chang', 'Yuan Chang');
 
 UPDATE aliquot_masters SET stored_by = 'other' WHERE stored_by = 'autre';
@@ -1815,7 +1815,7 @@ INSERT INTO `structure_formats` (`structure_id`, `structure_field_id`, `display_
 '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
 
 INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
-('tmp blood cell solution','','Solution (tmp)','Solution (tmp)'),
+('tmp blood cell solution','','Solution','Solution'),
 ('DMSO + serum','','DMSO + Serum','DMSO + Sérum');
 
 INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
@@ -1958,14 +1958,14 @@ VALUES
 (null, '', 'Inventorymanagement', 'SampleDetail', 'sd_spe_tissues', 'tmp_buffer_use', 'tmp buffer use', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name LIKE 'yesno'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
 
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
-('tmp buffer use', 'global', 'Bufferer Use (tmp)', 'Utilisation de Tampon (tmp)');
+('tmp buffer use', 'global', 'Bufferer Use', 'Utilisation de Tampon');
 
 INSERT INTO structure_fields (id, public_identifier, plugin, model, tablename, field, language_label, language_tag, `type`, setting, `default`, structure_value_domain, language_help, validation_control, value_domain_control, field_control, created, created_by, modified, modified_by) 
 VALUES
 (null, '', 'Inventorymanagement', 'SampleDetail', 'sd_spe_tissues', 'tmp_on_ice', 'tmp on ice', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name LIKE 'yesno'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
 
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
-('tmp on ice', 'global', 'On Ice (tmp)', 'Sur Glace (tmp)');
+('tmp on ice', 'global', 'On Ice', 'Sur Glace');
 
 INSERT INTO `structure_formats` (`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 ((SELECT id FROM structures WHERE alias='sd_spe_tissues'),  
@@ -2060,19 +2060,19 @@ VALUES
 
 INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('b-estradiol', 'global', 'B-estradiol', 'B-estradiol'),
-('b-estradiol+progesterone', 'global', 'B-estradiol+Progesterone', 'B-estradiol+Progest&eacute;rone'),
+('b-estradiol+progesterone', 'global', 'B-estradiol+Progesterone', 'B-estradiol+Progestérone'),
 ('centrifugation', 'global', 'Centrifugation', 'Centrifugation'),
 ('clone', 'global', 'Clone', 'Clone'),
-('collagenase', 'global', 'Collagenase', 'Collag&eacute;nase'),
+('collagenase', 'global', 'Collagenase', 'Collagénase'),
 ('egf+bpe+insulin+hydrocortisone', 'global', 'EGF+BPE+Insulin+Hydrocortisone', 'EGF+BPE+Insuline+Hydrocortisone'),
-('mechanic', 'global', 'Mechanic', 'M&eacute;canique'),
-('progesterone', 'global', 'Progesterone', 'Progest&eacute;rone'),
+('mechanic', 'global', 'Mechanic', 'Mécanique'),
+('progesterone', 'global', 'Progesterone', 'Progestérone'),
 ('scissors', 'global', 'Scissors', 'Ciseaux'),
 ('scratching', 'global', 'Scratching', 'Grattage'),
-('spheroides', 'global', 'Spheroides', 'Sph&eacute;ro&iuml;des'),
+('spheroides', 'global', 'Spheroides', 'Sphéro&iuml;des'),
 ('tissue section', 'global', 'Tissue Section', 'Bouts de tissu'),
-('tmp collection method', 'global', 'Collection Method (tmp)', 'M&eacute;thode de pr&eacute;l&egrave;vement (tmp)'),
-('tmp hormon', 'global', 'Hormon (tmp)', 'Hormone (tmp)'),
+('tmp collection method', 'global', 'Collection Method', 'Méthode de prélèvement'),
+('tmp hormon', 'global', 'Hormon', 'Hormone'),
 ('trypsin', 'global', 'Trypsin', 'Trypsine'),
 ('unknown', 'global', 'Unknown', 'Inconnu');
 
@@ -2103,16 +2103,514 @@ INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('CSF-C100(CHO)', 'global', 'CSF-C100(CHO)', 'CSF-C100(CHO)'),
 ('DMEM', 'global', 'DMEM', 'DMEM'),
 ('OSE', 'global', 'OSE', 'OSE'),
-('tmp culture solution', 'global', 'Culture Solution (tmp)', 'Milieu de Culture (tmp)');
+('tmp culture solution', 'global', 'Culture Solution', 'Milieu de Culture');
 
+INSERT INTO structure_fields (id, public_identifier, plugin, model, tablename, field, language_label, language_tag, `type`, setting, `default`, structure_value_domain, language_help, validation_control, value_domain_control, field_control, created, created_by, modified, modified_by) 
+VALUES
+(null, '', 'Inventorymanagement', 'SampleDetail', 'sd_der_cell_cultures', 'tmp_percentage_of_oxygen', 'tmp percentage of oxygen', '', 'float_positive', 'size=10', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(null, '', 'Inventorymanagement', 'SampleDetail', 'sd_der_cell_cultures', 'tmp_percentage_of_serum', 'tmp percentage of serum', '', 'float_positive', 'size=10', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
 
--- CAN-024-001-000-999-tmp003 	SampleDetail 	  	tmp collection method  	  	select  	   	   	  	0 	0 	0 	0000-00-00 00:00:00  	  	0000-00-00 00:00:00  	 
--- CAN-024-001-000-999-tmp004 	SampleDetail 	tmp_hormon 	tmp hormon 	  	select 	  	  	  	0 	0 	0 	0000-00-00 00:00:00 	  	0000-00-00 00:00:00 	 
--- CAN-024-001-000-999-tmp005 	SampleDetail 	tmp_solution 	tmp culture solution 	  	select 	  	  	  	0 	0 	0 	0000-00-00 00:00:00 	  	0000-00-00 00:00:00 	 
-	Modifier 	Effacer 	CAN-024-001-000-999-tmp006 	SampleDetail 	tmp_percentage_of_oxygen 	tmp percentage of oxygen 	  	input 	size=10 	  	  	0 	0 	0 	0000-00-00 00:00:00 	  	0000-00-00 00:00:00 	 
-	Modifier 	Effacer 	CAN-024-001-000-999-tmp007 	SampleDetail 	tmp_percentage_of_serum 	tmp percentage of serum 	  	input 	size=10 	  	  	0 	0 	0 	0000-00-00 00:00:00 	  	0000-00-00 00:00:00 	 
+INSERT INTO `structure_formats` (`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+((SELECT id FROM structures WHERE alias='sd_der_cell_cultures'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_cell_cultures' AND `field`='tmp_collection_method'), 
+1, 60, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_cell_cultures'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_cell_cultures' AND `field`='tmp_hormon'), 
+1, 61, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_cell_cultures'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_cell_cultures' AND `field`='tmp_solution'), 
+1, 62, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_cell_cultures'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_cell_cultures' AND `field`='tmp_percentage_of_oxygen'), 
+1, 63, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_cell_cultures'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_cell_cultures' AND `field`='tmp_percentage_of_serum'), 
+1, 64, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
 
-todo complete cell culture
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('tmp percentage of oxygen', 'global', 'Oxygen Percentage', 'Pourcentage d''oxygène'),
+('tmp percentage of serum', 'global', 'Serum Percentage', 'Pourcentage de Sérum');
+
+-- dna
+
+INSERT INTO `structures` (`id`, `alias`, `description`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, 'sd_der_dnas', NULL, '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
+(null, 'qc_source_storage_solution', 'open', '', NULL);
+
+SET @qc_source_storage_solution_domain_id = LAST_INSERT_ID();
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+('OCT','oct solution'), -- 5", "1"),
+('isopentane','isopentane'), -- 6", "1"),
+('isopentane + OCT','isopentane + oct'), -- 7", "1"),
+('none','none'), -- 0", "1"),
+('RNA later','RNA later'), -- 8", "1"),
+('paraffin','paraffin'), -- 9", "1"),
+('culture medium','culture medium'), -- 10", "1"),
+('DMSO','DMSO'), -- 1", "1"),
+('serum','serum'), -- 2", "1"),
+('DMSO + serum','DMSO + serum'), -- 3", "1"),
+('trizol','trizol'), -- 4", "1"),
+('unknown','unknown'), -- 0", "1"),
+('cell culture medium','cell culture medium'); -- 5", "1"),
+
+INSERT INTO structure_value_domains_permissible_values 
+(`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+(@qc_source_storage_solution_domain_id, (SELECT id FROM structure_permissible_values WHERE value="OCT" AND language_alias="oct solution"), "5", "1"),
+(@qc_source_storage_solution_domain_id, (SELECT id FROM structure_permissible_values WHERE value="isopentane" AND language_alias="isopentane"), "6", "1"),
+(@qc_source_storage_solution_domain_id, (SELECT id FROM structure_permissible_values WHERE value="isopentane + OCT" AND language_alias="isopentane + oct"), "7", "1"),
+(@qc_source_storage_solution_domain_id, (SELECT id FROM structure_permissible_values WHERE value="none" AND language_alias="none"), "0", "1"),
+(@qc_source_storage_solution_domain_id, (SELECT id FROM structure_permissible_values WHERE value="RNA later" AND language_alias="RNA later"), "8", "1"),
+(@qc_source_storage_solution_domain_id, (SELECT id FROM structure_permissible_values WHERE value="paraffin" AND language_alias="paraffin"), "9", "1"),
+(@qc_source_storage_solution_domain_id, (SELECT id FROM structure_permissible_values WHERE value="culture medium" AND language_alias="culture medium"), "10", "1"),
+(@qc_source_storage_solution_domain_id, (SELECT id FROM structure_permissible_values WHERE value="DMSO" AND language_alias="DMSO"), "1", "1"),
+(@qc_source_storage_solution_domain_id, (SELECT id FROM structure_permissible_values WHERE value="serum" AND language_alias="serum"), "2", "1"),
+(@qc_source_storage_solution_domain_id, (SELECT id FROM structure_permissible_values WHERE value="DMSO + serum" AND language_alias="DMSO + serum"), "3", "1"),
+(@qc_source_storage_solution_domain_id, (SELECT id FROM structure_permissible_values WHERE value="trizol" AND language_alias="trizol"), "4", "1"),
+(@qc_source_storage_solution_domain_id, (SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "0", "1"),
+(@qc_source_storage_solution_domain_id, (SELECT id FROM structure_permissible_values WHERE value="cell culture medium" AND language_alias="cell culture medium"), "5", "1");
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
+(null, 'qc_source_storage_method', 'open', '', NULL);
+
+SET @qc_source_storage_method_domain_id = LAST_INSERT_ID();
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+('flash freeze','flash freeze'),
+('none','none');
+
+INSERT INTO structure_value_domains_permissible_values 
+(`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+(@qc_source_storage_method_domain_id, (SELECT id FROM structure_permissible_values WHERE value="flash freeze" AND language_alias="flash freeze"), "1", "1"),
+(@qc_source_storage_method_domain_id, (SELECT id FROM structure_permissible_values WHERE value="none" AND language_alias="none"), "2", "1");
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
+(null, 'qc_dna_extraction_method', 'open', '', NULL);
+
+SET @qc_dna_extraction_method_domain_id = LAST_INSERT_ID();
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+('phenol Chloroform','phenol Chloroform'), -- 1", "1"),
+('flexigene DNA kit','flexigene DNA kit'), -- 2", "1"),
+('trizol and scissors','trizol and scissors'), -- 5", "1"),
+('trizol and homogenizer','trizol and homogenizer'), -- 6", "1"),
+('trizol','trizol'); -- ), "3", "1");
+
+INSERT INTO structure_value_domains_permissible_values 
+(`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+(@qc_dna_extraction_method_domain_id, (SELECT id FROM structure_permissible_values WHERE value="phenol Chloroform" AND language_alias="phenol Chloroform"), "1", "1"),
+(@qc_dna_extraction_method_domain_id, (SELECT id FROM structure_permissible_values WHERE value="flexigene DNA kit" AND language_alias="flexigene DNA kit"), "2", "1"),
+(@qc_dna_extraction_method_domain_id, (SELECT id FROM structure_permissible_values WHERE value="trizol and scissors" AND language_alias="trizol and scissors"), "5", "1"),
+(@qc_dna_extraction_method_domain_id, (SELECT id FROM structure_permissible_values WHERE value="trizol and homogenizer" AND language_alias="trizol and homogenizer"), "6", "1"),
+(@qc_dna_extraction_method_domain_id, (SELECT id FROM structure_permissible_values WHERE value="trizol" AND language_alias="trizol"), "3", "1");
+
+INSERT INTO structure_fields (id, public_identifier, plugin, model, tablename, field, language_label, language_tag, `type`, setting, `default`, structure_value_domain, language_help, validation_control, value_domain_control, field_control, created, created_by, modified, modified_by) 
+VALUES
+(null, '', 'Inventorymanagement', 'SampleDetail', 'sd_der_dnas', 'source_cell_passage_number', 'source cell passage number', '', 'integer', 'size=10', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(null, '', 'Inventorymanagement', 'SampleDetail', 'sd_der_dnas', 'source_temperature', 'source storage temperature', '', 'float', 'size=10', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(null, '', 'Inventorymanagement', 'SampleDetail', 'sd_der_dnas', 'source_temp_unit', '', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name = 'temperature_unit_code'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+
+(null, '', 'Inventorymanagement', 'SampleDetail', 'sd_der_dnas', 'tmp_source_milieu', 'tmp source storage solution', '', 'select', '', '', @qc_source_storage_solution_domain_id, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(null, '', 'Inventorymanagement', 'SampleDetail', 'sd_der_dnas', 'tmp_source_storage_method', 'tmp source storage method', '', 'select', '', '', @qc_source_storage_method_domain_id, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(null, '', 'Inventorymanagement', 'SampleDetail', 'sd_der_dnas', 'tmp_extraction_method', 'tmp dna extraction method', '', 'select', '', '', @qc_dna_extraction_method_domain_id, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+DELETE FROM structure_formats WHERE structure_id IN (SELECT id FROM structures WHERE alias='sd_der_dnas');
+INSERT INTO `structure_formats` (`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+((SELECT id FROM structures WHERE alias='sd_der_dnas'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='initial_specimen_sample_type'), 
+0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_dnas'),  
+(SELECT id FROM structure_fields WHERE `model`='GeneratedParentSample' AND `tablename`='' AND `field`='sample_type'), 
+0, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_dnas'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_type'), 
+0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '1', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_dnas'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_label'), 
+0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_dnas'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_code'), 
+0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '1', '1', 
+'0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_dnas'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_category'), 
+0, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '1', '1', '1', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_dnas'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='parent_id'), 
+0, 9, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '1', '1', '1', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_dnas'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sop_master_id'), 
+0, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_dnas'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='is_problematic'), 
+0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_dnas'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='notes'), 
+0, 25, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_dnas'),  
+(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='' AND `field`='creation_datetime'), 
+1, 30, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_dnas'),  
+(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='' AND `field`='creation_datetime_accuracy'), 
+1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_dnas'),  
+(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='' AND `field`='creation_by'), 
+1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_dnas'),  
+(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='' AND `field`='creation_site'), 
+1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_dnas'),  
+(SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='coll_to_creation_spent_time_msg'), 
+1, 34, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+
+((SELECT id FROM structures WHERE alias='sd_der_dnas'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_dnas' AND `field`='source_cell_passage_number'), 
+1, 40, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_dnas'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_dnas' AND `field`='source_temperature'), 
+1, 41, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_dnas'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_dnas' AND `field`='source_temp_unit'), 
+1, 42, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_dnas'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_dnas' AND `field`='tmp_source_milieu'), 
+1, 43, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_dnas'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_dnas' AND `field`='tmp_source_storage_method'), 
+1, 44, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_dnas'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_dnas' AND `field`='tmp_extraction_method'), 
+1, 45, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
+
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('culture medium', 'global', 'Culture medium', 'Milieu de culture'),
+('DMSO + FBS', 'global', 'DMSO + FBS', 'DMSO + FBS'),
+('flash freeze', 'global', 'Flash Freeze', 'Flash Freeze'),
+('flexigene DNA kit', 'global', 'Flexigene DNA Kit', 'Kit ''Flexigene DNA'''),
+('isopentane', 'global', 'Isopentane', 'Isopentane'),
+('isopentane + oct', 'global', 'Isopentane + OCT', 'Isopentane + OCT'),
+('none', 'global', 'None', ''),
+('oct', 'global', 'Oct', 'Oct'),
+('paraffin', 'global', 'Paraffin', 'Paraffine'),
+('phenol Chloroform', 'global', 'Phenol Chloroform', 'Phénol/Chloroforme'),
+('RNA later', 'global', 'RNA later', 'RNA later'),
+('source cell passage number', 'global', 'Source Cell Passage Number', 'Nomber de passages cellulaires de la source'),
+('source storage temperature', 'global', 'Source Storage Temperature', 'Température d''entreposage de la Source'),
+('tmp dna extraction method', 'global', 'DNA Extraction Method', 'Méthode d''Extraction de l''ADN'),
+('tmp source storage method', 'global', 'Source Storage Method', 'Méthode d''Entreposage de la Source'),
+('tmp source storage solution', 'global', 'Source Storage Medium', 'Milieu d''Entreposage de la Source'),
+('trizol', 'global', 'Trizol', 'Trizol'),
+('trizol and homogenizer', 'global', 'Trizol and homogenizer', ''),
+('trizol and scissors', 'global', 'Trizol and scissors', '');
+
+INSERT IGNORE  INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('cell culture medium', 'global', 'Cell Culture Medium', 'Milieu de culture'),
+('DMSO', 'global', 'DMSO', 'DMSO'),
+('DMSO + serum', 'global', 'DMSO + Serum', 'DMSO + Sérum'),
+('serum', 'global', 'Serum', 'Sérum'),
+('trizol', 'global', 'Trizol', 'Trizol');
+
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('cell culture medium', 'global', 'Cell Culture Medium', 'Milieu de culture'),
+('culture medium', 'global', 'Culture medium', 'Milieu de culture');
+
+-- rna
+
+INSERT INTO `structures` (`id`, `alias`, `description`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, 'sd_der_rnas', NULL, '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
+(null, 'qc_rna_extraction_method', 'open', '', NULL);
+
+SET @qc_rna_extraction_method_domain_id = LAST_INSERT_ID();
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+('paxgene blood RNA kit','paxgene blood RNA kit'), -- 1", "1"),
+('trizol','trizol'), -- 3", "1"),
+('trizol and quiagen cleanup','trizol and quiagen cleanup'), -- 4", "1"),
+('trizol and scissors','trizol and scissors'), -- 5", "1"),
+('trizol and homogenizer','trizol and homogenizer'), -- 6", "1"),
+('quiagen rneasy kit','quiagen rneasy kit'); -- 2", "1"),
+
+INSERT INTO structure_value_domains_permissible_values 
+(`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+(@qc_rna_extraction_method_domain_id, (SELECT id FROM structure_permissible_values WHERE value="paxgene blood RNA kit" AND language_alias="paxgene blood RNA kit"), "1", "1"),
+(@qc_rna_extraction_method_domain_id, (SELECT id FROM structure_permissible_values WHERE value="trizol" AND language_alias="trizol"), "3", "1"),
+(@qc_rna_extraction_method_domain_id, (SELECT id FROM structure_permissible_values WHERE value="trizol and quiagen cleanup" AND language_alias="trizol and quiagen cleanup"), "4", "1"),
+(@qc_rna_extraction_method_domain_id, (SELECT id FROM structure_permissible_values WHERE value="trizol and scissors" AND language_alias="trizol and scissors"), "5", "1"),
+(@qc_rna_extraction_method_domain_id, (SELECT id FROM structure_permissible_values WHERE value="trizol and homogenizer" AND language_alias="trizol and homogenizer"), "6", "1"),
+(@qc_rna_extraction_method_domain_id, (SELECT id FROM structure_permissible_values WHERE value="quiagen rneasy kit" AND language_alias="quiagen rneasy kit"), "2", "1");
+
+INSERT INTO structure_fields (id, public_identifier, plugin, model, tablename, field, language_label, language_tag, `type`, setting, `default`, structure_value_domain, language_help, validation_control, value_domain_control, field_control, created, created_by, modified, modified_by) 
+VALUES
+(null, '', 'Inventorymanagement', 'SampleDetail', 'sd_der_rnas', 'source_cell_passage_number', 'source cell passage number', '', 'integer', 'size=10', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(null, '', 'Inventorymanagement', 'SampleDetail', 'sd_der_rnas', 'source_temperature', 'source storage temperature', '', 'float', 'size=10', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(null, '', 'Inventorymanagement', 'SampleDetail', 'sd_der_rnas', 'source_temp_unit', '', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name = 'temperature_unit_code'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+
+(null, '', 'Inventorymanagement', 'SampleDetail', 'sd_der_rnas', 'tmp_source_milieu', 'tmp source storage solution', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name = 'qc_source_storage_solution'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(null, '', 'Inventorymanagement', 'SampleDetail', 'sd_der_rnas', 'tmp_source_storage_method', 'tmp source storage method', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name = 'qc_source_storage_method'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(null, '', 'Inventorymanagement', 'SampleDetail', 'sd_der_rnas', 'tmp_extraction_method', 'tmp rna extraction method', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name = 'qc_rna_extraction_method'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+DELETE FROM structure_formats WHERE structure_id IN (SELECT id FROM structures WHERE alias='sd_der_rnas');
+INSERT INTO `structure_formats` (`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+((SELECT id FROM structures WHERE alias='sd_der_rnas'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='initial_specimen_sample_type'), 
+0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_rnas'),  
+(SELECT id FROM structure_fields WHERE `model`='GeneratedParentSample' AND `tablename`='' AND `field`='sample_type'), 
+0, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_rnas'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_type'), 
+0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '1', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_rnas'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_label'), 
+0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_rnas'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_code'), 
+0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '1', '1', 
+'0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_rnas'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_category'), 
+0, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '1', '1', '1', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_rnas'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='parent_id'), 
+0, 9, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '1', '1', '1', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_rnas'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sop_master_id'), 
+0, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_rnas'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='is_problematic'), 
+0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_rnas'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='notes'), 
+0, 25, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_rnas'),  
+(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='' AND `field`='creation_datetime'), 
+1, 30, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_rnas'),  
+(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='' AND `field`='creation_datetime_accuracy'), 
+1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_rnas'),  
+(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='' AND `field`='creation_by'), 
+1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_rnas'),  
+(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='' AND `field`='creation_site'), 
+1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_rnas'),  
+(SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='coll_to_creation_spent_time_msg'), 
+1, 34, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+
+((SELECT id FROM structures WHERE alias='sd_der_rnas'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_rnas' AND `field`='source_cell_passage_number'), 
+1, 40, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_rnas'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_rnas' AND `field`='source_temperature'), 
+1, 41, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_rnas'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_rnas' AND `field`='source_temp_unit'), 
+1, 42, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_rnas'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_rnas' AND `field`='tmp_source_milieu'), 
+1, 43, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_rnas'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_rnas' AND `field`='tmp_source_storage_method'), 
+1, 44, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_rnas'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_rnas' AND `field`='tmp_extraction_method'), 
+1, 45, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
+
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('paxgene blood RNA kit', 'global', 'Paxgene Blood RNA Kit', 'Kit ''Paxgene Blood RNA'''),
+('quiagen rneasy kit', 'global', 'Quiagen RNeasy Kit', 'Kit ''Quiagen RNeasy Kit'''),
+('trizol', 'global', 'Trizol', 'Trizol'),
+('trizol and homogenizer', 'global', 'Trizol and homogenizer', ''),
+('trizol and quiagen cleanup', 'global', 'Trizol and quiagen cleanup', ''),
+('tmp rna extraction method', 'global', 'RNA Extraction Method', 'Méthode d''Extraction de l''ARN'),
+('trizol and scissors', 'global', 'Trizol and scissors', '');
+
+-- amplified rna
+
+INSERT INTO `structures` (`id`, `alias`, `description`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, 'sd_der_amplified_rnas', NULL, '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
+(null, 'qc_rna_amplification_method', 'open', '', NULL);
+
+SET @qc_rna_amplification_method_domain_id = LAST_INSERT_ID();
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+('alethia-arcturus','alethia-arcturus'), 
+('alethia-ramp','alethia-ramp'); 
+
+INSERT INTO structure_value_domains_permissible_values 
+(`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+(@qc_rna_amplification_method_domain_id, (SELECT id FROM structure_permissible_values WHERE value="alethia-arcturus " AND language_alias="alethia-arcturus "), "1", "1"),
+(@qc_rna_amplification_method_domain_id, (SELECT id FROM structure_permissible_values WHERE value="alethia-ramp" AND language_alias="alethia-ramp"), "2", "1"),
+(@qc_rna_amplification_method_domain_id, (SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "3", "1");
+
+INSERT INTO structure_fields (id, public_identifier, plugin, model, tablename, field, language_label, language_tag, `type`, setting, `default`, structure_value_domain, language_help, validation_control, value_domain_control, field_control, created, created_by, modified, modified_by) 
+VALUES
+(null, '', 'Inventorymanagement', 'SampleDetail', 'sd_der_amplified_rnas', 'tmp_amplification_number', 'tmp rna amplification number', '', 'input', 'size=20', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(null, '', 'Inventorymanagement', 'SampleDetail', 'sd_der_amplified_rnas', 'tmp_amplification_method', 'tmp rna amplification method', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name = 'qc_rna_amplification_method'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+DELETE FROM structure_formats WHERE structure_id IN (SELECT id FROM structures WHERE alias='sd_der_amplified_rnas');
+INSERT INTO `structure_formats` (`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+((SELECT id FROM structures WHERE alias='sd_der_amplified_rnas'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='initial_specimen_sample_type'), 
+0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_amplified_rnas'),  
+(SELECT id FROM structure_fields WHERE `model`='GeneratedParentSample' AND `tablename`='' AND `field`='sample_type'), 
+0, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_amplified_rnas'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_type'), 
+0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '1', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_amplified_rnas'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_label'), 
+0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_amplified_rnas'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_code'), 
+0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '1', '1', 
+'0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_amplified_rnas'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_category'), 
+0, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '1', '1', '1', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_amplified_rnas'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='parent_id'), 
+0, 9, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '1', '1', '1', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_amplified_rnas'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sop_master_id'), 
+0, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_amplified_rnas'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='is_problematic'), 
+0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_amplified_rnas'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='notes'), 
+0, 25, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_amplified_rnas'),  
+(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='' AND `field`='creation_datetime'), 
+1, 30, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_amplified_rnas'),  
+(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='' AND `field`='creation_datetime_accuracy'), 
+1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_amplified_rnas'),  
+(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='' AND `field`='creation_by'), 
+1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_amplified_rnas'),  
+(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='' AND `field`='creation_site'), 
+1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_amplified_rnas'),  
+(SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='coll_to_creation_spent_time_msg'), 
+1, 34, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+
+((SELECT id FROM structures WHERE alias='sd_der_amplified_rnas'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_amplified_rnas' AND `field`='tmp_amplification_method'), 
+1, 40, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_der_amplified_rnas'),  
+(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_amplified_rnas' AND `field`='tmp_amplification_number'), 
+1, 41, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
+
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('alethia-arcturus', 'global', 'Alethia-Arcturus', 'Aléthia-Arcturus'),
+('alethia-ramp', 'global', 'Alethia-Ramp', 'Aléthia-Ramp'),
+('tmp rna amplification method', 'global', 'RNA Amplification Method', 'Méthode d''Amplification de l''ARN'),
+('tmp rna amplification number', 'global', 'RNA Amplification Number', 'Numéro de l''Amplification');
+
+-- other fluid
+
+INSERT INTO `structures` (`id`, `alias`, `description`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, 'sd_spe_other_fluids', NULL, '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+DELETE FROM structure_formats WHERE structure_id= (SELECT id FROM structures WHERE alias='sd_spe_other_fluids');
+INSERT INTO `structure_formats` (`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+((SELECT id FROM structures WHERE alias='sd_spe_other_fluids'), (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_type'), 0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_spe_other_fluids'), (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_code'), 0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_spe_other_fluids'), (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_label'), 0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_spe_other_fluids'), (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_category'), 0, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_spe_other_fluids'), (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sop_master_id'), 0, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_spe_other_fluids'), (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='is_problematic'), 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_spe_other_fluids'), (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='notes'), 0, 25, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_spe_other_fluids'), (SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='' AND `field`='supplier_dept'), 1, 30, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_spe_other_fluids'), (SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='' AND `field`='reception_by'), 1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_spe_other_fluids'), (SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='' AND `field`='reception_datetime'), 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_spe_other_fluids'), (SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='' AND `field`='reception_datetime_accuracy'), 1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_spe_other_fluids'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='coll_to_rec_spent_time_msg'), 1, 34, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_spe_other_fluids'), (SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='' AND `field`='type_code'), 1, 36, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_spe_other_fluids'), (SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='' AND `field`='sequence_number'), 1, 37, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_spe_other_fluids'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='collected_volume'), 1, 42, '', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+((SELECT id FROM structures WHERE alias='sd_spe_other_fluids'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='collected_volume_unit'), 1, 43, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('other fluid', '', 'Other Fluid', 'Autre liquide'),
+('other fluid cell', '', 'Other Fluid Cell', 'Cellules de liquide ''autre'''),
+('other fluid supernatant', '', 'Other Fluid Supernatant', 'Surnageant de liquide ''autre''');
 
 # ALIQUOT ----------------------------------------------------------------
 
