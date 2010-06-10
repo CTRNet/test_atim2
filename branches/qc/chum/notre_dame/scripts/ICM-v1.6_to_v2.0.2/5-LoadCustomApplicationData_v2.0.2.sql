@@ -2496,7 +2496,7 @@ INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALU
 INSERT INTO structure_value_domains_permissible_values 
 (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
 VALUES
-(@qc_rna_amplification_method_domain_id, (SELECT id FROM structure_permissible_values WHERE value="alethia-arcturus " AND language_alias="alethia-arcturus "), "1", "1"),
+(@qc_rna_amplification_method_domain_id, (SELECT id FROM structure_permissible_values WHERE value="alethia-arcturus" AND language_alias="alethia-arcturus"), "1", "1"),
 (@qc_rna_amplification_method_domain_id, (SELECT id FROM structure_permissible_values WHERE value="alethia-ramp" AND language_alias="alethia-ramp"), "2", "1"),
 (@qc_rna_amplification_method_domain_id, (SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "3", "1");
 
@@ -2614,6 +2614,9 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 
 # ALIQUOT ----------------------------------------------------------------
 
+DELETE FROM sample_to_aliquot_controls WHERE aliquot_control_id IN (SELECT id FROM `aliquot_controls` WHERE `aliquot_type` LIKE 'bag');
+DELETE FROM `aliquot_controls` WHERE `aliquot_type` LIKE 'bag';
+
 -- Visit Label & No Labo
 
 DROP VIEW IF EXISTS view_aliquots;
@@ -2702,8 +2705,7 @@ VALUES
 '0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
 '0', '0', '0', '0', '1', '0', '0', '0', '1', '0');
 
-
--- view_aliquot_joined_to_collection hidden
+-- view_aliquot_joined_to_collection.aliquot_use_counter hidden
 
 UPDATE structure_fields field, structure_formats format, structures
 SET flag_add ='0', flag_add_readonly ='0', 
@@ -2717,12 +2719,205 @@ AND structures.id = format.structure_id
 AND structures.alias LIKE 'view_aliquot_joined_to_collection'
 AND field.field LIKE 'aliquot_use_counter'; 
 
+-- aliquot label
+
+INSERT INTO structure_fields (id, public_identifier, plugin, model, tablename, field, language_label, language_tag, `type`, setting, `default`, structure_value_domain, language_help, validation_control, value_domain_control, field_control, created, created_by, modified, modified_by) 
+VALUES
+(null, '', 'Inventorymanagement', 'AliquotMaster', 'aliquot_masters', 'aliquot_label', 'aliquot label', '', 'input', 'size=30', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+SET @structure_field_id = (SELECT id FROM structure_fields WHERE field LIKE 'aliquot_label');
+
+INSERT INTO structure_formats
+(structure_id, structure_field_id,display_column,display_order,language_heading,flag_override_label,language_label,flag_override_tag,language_tag,flag_override_help,language_help,flag_override_type,`type`,flag_override_setting,setting,flag_override_default,`default`,flag_add,flag_add_readonly,flag_edit,flag_edit_readonly,flag_search,flag_search_readonly,flag_datagrid,flag_datagrid_readonly,flag_index,flag_detail,created,created_by,modified,modified_by)
+VALUES
+((SELECT id FROM structures WHERE structures.alias LIKE 'ad_spec_tubes'), @structure_field_id, '0','9',' ','0',' ','0',' ','0',' ','0',' ','0',' ','0',' ','1','0','1','1','0','0','1','0','1','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structures WHERE structures.alias LIKE 'ad_spec_tubes_incl_ml_vol'), @structure_field_id, '0','9',' ','0',' ','0',' ','0',' ','0',' ','0',' ','0',' ','1','0','1','1','0','0','1','0','1','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structures WHERE structures.alias LIKE 'ad_spec_tiss_blocks'), @structure_field_id, '0','9',' ','0',' ','0',' ','0',' ','0',' ','0',' ','0',' ','1','0','1','1','0','0','1','0','1','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structures WHERE structures.alias LIKE 'ad_spec_tiss_slides'), @structure_field_id, '0','9',' ','0',' ','0',' ','0',' ','0',' ','0',' ','0',' ','1','0','1','1','0','0','1','0','1','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structures WHERE structures.alias LIKE 'ad_spec_whatman_papers'), @structure_field_id, '0','9',' ','0',' ','0',' ','0',' ','0',' ','0',' ','0',' ','1','0','1','1','0','0','1','0','1','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structures WHERE structures.alias LIKE 'ad_der_tubes_incl_ml_vol'), @structure_field_id, '0','9',' ','0',' ','0',' ','0',' ','0',' ','0',' ','0',' ','1','0','1','1','0','0','1','0','1','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structures WHERE structures.alias LIKE 'ad_der_cell_slides'), @structure_field_id, '0','9',' ','0',' ','0',' ','0',' ','0',' ','0',' ','0',' ','1','0','1','1','0','0','1','0','1','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structures WHERE structures.alias LIKE 'ad_der_tubes_incl_ul_vol_and_conc'), @structure_field_id, '0','9',' ','0',' ','0',' ','0',' ','0',' ','0',' ','0',' ','1','0','1','1','0','0','1','0','1','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structures WHERE structures.alias LIKE 'ad_spec_tiss_cores'), @structure_field_id, '0','9',' ','0',' ','0',' ','0',' ','0',' ','0',' ','0',' ','1','0','1','1','0','0','1','0','1','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structures WHERE structures.alias LIKE 'ad_der_cel_gel_matrices'), @structure_field_id, '0','9',' ','0',' ','0',' ','0',' ','0',' ','0',' ','0',' ','1','0','1','1','0','0','1','0','1','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structures WHERE structures.alias LIKE 'ad_der_cell_cores'), @structure_field_id, '0','9',' ','0',' ','0',' ','0',' ','0',' ','0',' ','0',' ','1','0','1','1','0','0','1','0','1','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structures WHERE structures.alias LIKE 'ad_der_cell_tubes_incl_ml_vol'), @structure_field_id, '0','9',' ','0',' ','0',' ','0',' ','0',' ','0',' ','0',' ','1','0','1','1','0','0','1','0','1','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+
+((SELECT id FROM structures WHERE structures.alias LIKE 'basic_aliquot_search_result'), @structure_field_id, '1','0',' ','0',' ','0',' ','0',' ','0',' ','0',' ','0',' ','0','0','0','0','1','0','0','0','1','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structures WHERE structures.alias LIKE 'tma_slide_content_search'), @structure_field_id, '0','3',' ','1','tissue core','0',' ','0',' ','0',' ','0',' ','0',' ','0','0','0','0','0','0','0','0','1','0','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structures WHERE structures.alias LIKE 'qctestedaliquots'), @structure_field_id, '0','0',' ','0',' ','0',' ','0',' ','0',' ','0',' ','0',' ','0','0','0','0','0','0','1','1','1','0','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structures WHERE structures.alias LIKE 'aliquot_masters_for_collection_tree_view'), @structure_field_id, '0','2',' ','0',' ','0',' ','0',' ','0',' ','0',' ','0',' ','0','0','0','0','0','0','0','0','1','0','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structures WHERE structures.alias LIKE 'aliquot_masters_for_storage_tree_view'), @structure_field_id, '0','2',' ','0',' ','0',' ','0',' ','0',' ','0',' ','0',' ','0','0','0','0','0','0','0','0','1','0','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structures WHERE structures.alias LIKE 'sourcealiquots'), @structure_field_id, '0','0',' ','0',' ','0',' ','0',' ','0',' ','0',' ','0',' ','0','0','0','0','0','0','1','1','1','0','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structures WHERE structures.alias LIKE 'orderitems'), @structure_field_id, '0','0',' ','0',' ','0',' ','0',' ','0',' ','0',' ','0',' ','1','0','1','1','0','0','1','1','1','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structures WHERE structures.alias LIKE 'aliquotmasters'), @structure_field_id, '0','9',' ','0',' ','0',' ','0',' ','0',' ','0',' ','0',' ','0','0','0','0','0','0','0','0','1','0','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structures WHERE structures.alias LIKE 'children_aliquots_selection'), @structure_field_id, '1','0',' ','0',' ','0',' ','0',' ','0',' ','0',' ','0',' ','0','0','0','0','0','0','1','1','0','0','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structures WHERE structures.alias LIKE 'realiquotedparent'), @structure_field_id, '0','0',' ','0',' ','0',' ','0',' ','0',' ','0',' ','0',' ','0','0','0','0','0','0','0','0','1','0','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structures WHERE structures.alias LIKE 'shippeditems'), @structure_field_id, '1','10',' ','0',' ','0',' ','0',' ','0',' ','0',' ','0',' ','0','0','0','0','0','0','1','1','1','0','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0');
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('aliquot label', 'global', 'Aliquot Label', 'Étiquette de l''aliquot');
+
+-- Add missing instock detail values
+
+UPDATE aliquot_masters SET in_stock_detail = 'contaminated' WHERE in_stock_detail = 'contamined';
+
+SET @_domain_id = (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'aliquot_in_stock_detail');
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+('accident','accident'),
+('destroyed','destroyed'),
+('quality problem','quality problem'),
+('see consent','see consent'),
+('injected to mice','injected to mice');
+
+INSERT INTO structure_value_domains_permissible_values 
+(`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+(@_domain_id, (SELECT id FROM structure_permissible_values WHERE value="accident" AND language_alias="accident"), "1", "1"),
+(@_domain_id, (SELECT id FROM structure_permissible_values WHERE value="destroyed" AND language_alias="destroyed"), "1", "1"),
+(@_domain_id, (SELECT id FROM structure_permissible_values WHERE value="quality problem" AND language_alias="quality problem"), "1", "1"),
+(@_domain_id, (SELECT id FROM structure_permissible_values WHERE value="see consent" AND language_alias="see consent"), "1", "1"),
+(@_domain_id, (SELECT id FROM structure_permissible_values WHERE value="injected to mice" AND language_alias="injected to mice"), "1", "1");
+
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('accident', 'global', 'Accident', 'Accident'),
+('destroyed', 'global', 'Destroyed', 'Détruit'),
+('injected to mice', 'global', 'Injected to Mice', 'Injété à une souris'),
+('quality problem', 'global', 'Quality Problem', 'Mauvaise qualité'),
+('see consent', 'global', 'See Consent', 'Voir consentement');
+
+-- aliquot sop hidden
+
+UPDATE structure_fields field, structure_formats format
+SET flag_add ='0', flag_add_readonly ='0', 
+flag_edit ='0', flag_edit_readonly ='0', 
+flag_search ='0', flag_search_readonly ='0', 
+flag_datagrid ='0', flag_datagrid_readonly ='0',
+flag_index ='0', 
+flag_detail ='0' 
+WHERE field.id = format.structure_field_id
+AND field.model LIKE 'AliquotMaster'
+AND field.field LIKE 'sop_master_id'; 
+
+-- Add stored by
+
+SET @domain_id = (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'custom_laboratory_staff');
+
+INSERT INTO structure_fields (id, public_identifier, plugin, model, tablename, field, language_label, language_tag, `type`, setting, `default`, structure_value_domain, language_help, validation_control, value_domain_control, field_control, created, created_by, modified, modified_by) 
+VALUES
+(null, '', 'Inventorymanagement', 'AliquotMaster', 'aliquot_masters', 'stored_by', 'stored by', '', 'select', '', '', @domain_id, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+SET @structure_field_id = (SELECT id FROM structure_fields WHERE field LIKE 'stored_by' AND tablename LIKE 'aliquot_masters');
+
+INSERT INTO structure_formats
+(structure_id, structure_field_id,display_column,display_order,language_heading,flag_override_label,language_label,flag_override_tag,language_tag,flag_override_help,language_help,flag_override_type,`type`,flag_override_setting,setting,flag_override_default,`default`,flag_add,flag_add_readonly,flag_edit,flag_edit_readonly,flag_search,flag_search_readonly,flag_datagrid,flag_datagrid_readonly,flag_index,flag_detail,created,created_by,modified,modified_by)
+VALUES
+((SELECT id FROM structures WHERE structures.alias LIKE 'ad_spec_tubes'), @structure_field_id,'0','26 ',' ','0 ',' ','0 ',' ','0 ',' ','0 ',' ','0 ',' ','0 ',' ','1','0','1','0','0','0','1','0','0','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structures WHERE structures.alias LIKE 'ad_spec_tubes_incl_ml_vol'), @structure_field_id,'0','26',' ','0',' ','0',' ','0',' ','0',' ','0',' ','0',' ','1','0','1','0','0','0','1','0','0','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structures WHERE structures.alias LIKE 'ad_spec_tiss_blocks'), @structure_field_id,'0','26',' ','0',' ','0',' ','0',' ','0',' ','0',' ','0',' ','1','0','1','0','0','0','1','0','0','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structures WHERE structures.alias LIKE 'ad_spec_tiss_slides'), @structure_field_id,'0','26',' ','0',' ','0',' ','0',' ','0',' ','0',' ','0',' ','1','0','1','0','0','0','1','0','0','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structures WHERE structures.alias LIKE 'ad_spec_whatman_papers'), @structure_field_id,'0','26',' ','0',' ','0',' ','0',' ','0',' ','0',' ','0',' ','1','0','1','0','0','0','1','0','0','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structures WHERE structures.alias LIKE 'ad_der_tubes_incl_ml_vol'), @structure_field_id,'0','26',' ','0',' ','0',' ','0',' ','0',' ','0',' ','0',' ','1','0','1','0','0','0','1','0','0','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structures WHERE structures.alias LIKE 'ad_der_cell_slides'), @structure_field_id,'0','26',' ','0',' ','0',' ','0',' ','0',' ','0',' ','0',' ','1','0','1','0','0','0','1','0','0','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structures WHERE structures.alias LIKE 'ad_der_tubes_incl_ul_vol_and_conc'), @structure_field_id,'0','26',' ','0',' ','0',' ','0',' ','0',' ','0',' ','0',' ','1','0','1','0','0','0','1','0','0','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structures WHERE structures.alias LIKE 'ad_spec_tiss_cores'), @structure_field_id,'0','26',' ','0',' ','0',' ','0',' ','0',' ','0',' ','0',' ','1','0','1','0','0','0','1','0','0','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structures WHERE structures.alias LIKE 'ad_der_cel_gel_matrices'), @structure_field_id,'0','26',' ','0',' ','0',' ','0',' ','0',' ','0',' ','0',' ','1','0','1','0','0','0','1','0','0','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structures WHERE structures.alias LIKE 'ad_der_cell_cores'), @structure_field_id,'0','26',' ','0',' ','0',' ','0',' ','0',' ','0',' ','0',' ','1','0','1','0','0','0','1','0','0','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structures WHERE structures.alias LIKE 'ad_der_cell_tubes_incl_ml_vol'), @structure_field_id,'0','26',' ','0',' ','0',' ','0',' ','0',' ','0',' ','0',' ','1','0','1','0','0','0','1','0','0','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0');
+
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('stored by', 'global', 'Stored By', 'Entreposé par');
+
+-- add dna rna storage solution
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
+(null, 'qc_dna_rna_storage_solution', 'open', '', NULL);
+
+SET @qc_dna_rna_storage_solution = (SELECT id FROM structure_value_domains WHERE domain_name LIKE 'qc_dna_rna_storage_solution');
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+('TE buffer','TE buffer'), 
+('H2O','H2O'), 
+('br5 (paxgene kit)','br5 (paxgene kit)');
+
+INSERT INTO structure_value_domains_permissible_values 
+(`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+(@qc_dna_rna_storage_solution, (SELECT id FROM structure_permissible_values WHERE value="TE buffer" AND language_alias="TE buffer"), "1", "1"),
+(@qc_dna_rna_storage_solution, (SELECT id FROM structure_permissible_values WHERE value="H2O" AND language_alias="H2O"), "1", "1"),
+(@qc_dna_rna_storage_solution, (SELECT id FROM structure_permissible_values WHERE value="br5 (paxgene kit)" AND language_alias="br5 (paxgene kit)"), "1", "1");
+
+INSERT INTO structure_fields (id, public_identifier, plugin, model, tablename, field, language_label, language_tag, `type`, setting, `default`, structure_value_domain, language_help, validation_control, value_domain_control, field_control, created, created_by, modified, modified_by) 
+VALUES
+(null, '', 'Inventorymanagement', 'AliquotDetail', '', 'tmp_storage_solution', 'tmp storage solution', '', 'select', '', '', @qc_dna_rna_storage_solution, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+SET @structure_field_id = LAST_INSERT_ID();
+
+INSERT INTO structure_formats
+(structure_id, structure_field_id,display_column,display_order,language_heading,flag_override_label,language_label,flag_override_tag,language_tag,flag_override_help,language_help,flag_override_type,`type`,flag_override_setting,setting,flag_override_default,`default`,flag_add,flag_add_readonly,flag_edit,flag_edit_readonly,flag_search,flag_search_readonly,flag_datagrid,flag_datagrid_readonly,flag_index,flag_detail,created,created_by,modified,modified_by)
+VALUES
+((SELECT id FROM structures WHERE structures.alias LIKE 'ad_der_tubes_incl_ul_vol_and_conc'), @structure_field_id,'1','80 ',' ','0 ',' ','0 ',' ','0 ',' ','0 ',' ','0 ',' ','0 ',' ','1','0','1','0','0','0','0','0','0','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0');
+
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('br5 (paxgene kit)', 'global', 'BR5 (Paxgene kit)', 'BR5 (kit ''Paxgene'')'),
+('H2O', 'global', 'H2O', 'H2O'),
+('TE buffer', 'global', 'TE Buffer', 'Tampon TE'),
+('tmp storage solution', 'global', 'Storage Solution (tmp)', 'Solution d''Entreposage (tmp)');
+
+-- add psec tiss tubes
+
+INSERT INTO `structures` (`id`, `alias`, `description`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, 'sd_spe_tissue_tubes', NULL, '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+SET @structure_id = (SELECT id FROM structures WHERE alias LIKE 'sd_spe_tissue_tubes');
 
 
 
 
+AliquotDetail][tmp_storage_solution
+tissue_storage_solution
+<option selected="selected" value="none">None</option>
+<option value="DMSO + FBS">DMSO + FBS</option>
+<option value="OCT">OCT</option>
+<option value="isopentane">Isopentane</option>
+<option value="isopentane + OCT">Isopentane + OCT</option>
+<option value="RNA later">RNA later</option>
+<option value="paraffin">Paraffin</option>
+<option value="culture medium">Culture medium</option>
 
+AliquotDetail][tmp_storage_method
+tissue_storage_method
+<option value="flash freeze">Flash Freeze</option>
+<option selected="selected" value="none">None</option>
 
+INSERT INTO `structure_formats` (`structure_field_id`, `structure_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) 
+VALUES
+((SELECT id FROM structure_fields WHERE `plugin`='Inventorymanagement' AND `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_type'),@structure_id,'0','5','0','0','0','0','0','0','0','0','0','0','0','0','0','0','1','0','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structure_fields WHERE `plugin`='Inventorymanagement' AND `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label'),@structure_id,'0','9','0','0','0','0','0','0','1','0','1','1','0','0','1','0','1','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structure_fields WHERE `plugin`='Inventorymanagement' AND `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_type'),@structure_id,'0','9','0','0','0','0','0','0','1','1','1','1','0','0','1','1','1','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structure_fields WHERE `plugin`='Inventorymanagement' AND `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode'),@structure_id,'0','10','0','0','0','0','0','0','1','0','1','1','0','0','1','0','1','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structure_fields WHERE `plugin`='Inventorymanagement' AND `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='in_stock'),@structure_id,'0','13','0','0','0','0','0','0','1','0','1','0','0','0','1','0','1','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structure_fields WHERE `plugin`='Inventorymanagement' AND `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='in_stock_detail'),@structure_id,'0','14','0','0','0','0','0','0','1','0','1','0','0','0','1','0','0','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structure_fields WHERE `plugin`='Inventorymanagement' AND `model`='Generated' AND `tablename`='' AND `field`='aliquot_use_counter'),@structure_id,'0','15','0','0','0','0','0','0','0','0','0','0','0','0','0','0','1','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structure_fields WHERE `plugin`='Storagelayout' AND `model`='FunctionManagement' AND `tablename`='' AND `field`='recorded_storage_selection_label'),@structure_id,'0','20','0','0','0','0','0','0','1','0','1','0','0','0','1','0','0','0','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structure_fields WHERE `plugin`='Storagelayout' AND `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='selection_label'),@structure_id,'0','20','0','0','0','0','0','0','0','0','0','0','0','0','0','0','1','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structure_fields WHERE `plugin`='Inventorymanagement' AND `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='storage_master_id'),@structure_id,'0','21','0','0','0','0','0','0','1','0','1','0','0','0','1','0','0','0','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structure_fields WHERE `plugin`='Storagelayout' AND `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='code'),@structure_id,'0','21','1','1','code','0','0','0','0','0','0','0','0','0','0','0','0','0','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structure_fields WHERE `plugin`='Inventorymanagement' AND `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='storage_coord_x'),@structure_id,'0','23','0','0','0','0','0','0','1','0','1','0','0','0','1','0','1','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structure_fields WHERE `plugin`='Inventorymanagement' AND `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='storage_coord_y'),@structure_id,'0','24','0','0','0','0','0','0','1','0','1','0','0','0','1','0','1','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structure_fields WHERE `plugin`='Inventorymanagement' AND `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='storage_datetime'),@structure_id,'0','26','0','0','0','0','0','0','1','0','1','0','0','0','1','0','0','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structure_fields WHERE `plugin`='Inventorymanagement' AND `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='stored_by'),@structure_id,'0','26','0','0','0','0','0','0','1','0','1','0','0','0','1','0','0','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structure_fields WHERE `plugin`='Storagelayout' AND `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='temperature'),@structure_id,'0','30','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structure_fields WHERE `plugin`='Storagelayout' AND `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='temp_unit'),@structure_id,'0','31','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structure_fields WHERE `plugin`='Inventorymanagement' AND `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='sop_master_id'),@structure_id,'0','35','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structure_fields WHERE `plugin`='Inventorymanagement' AND `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='study_summary_id'),@structure_id,'0','36','0','0','0','0','0','0','1','0','1','0','0','0','1','0','0','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structure_fields WHERE `plugin`='Inventorymanagement' AND `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='notes'),@structure_id,'0','40','0','0','0','0','0','0','1','0','1','0','0','0','0','0','0','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structure_fields WHERE `plugin`='Inventorymanagement' AND `model`='Generated' AND `tablename`='' AND `field`='coll_to_stor_spent_time_msg'),@structure_id,'1','60','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structure_fields WHERE `plugin`='Inventorymanagement' AND `model`='Generated' AND `tablename`='' AND `field`='rec_to_stor_spent_time_msg'),@structure_id,'1','61','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structure_fields WHERE `plugin`='Inventorymanagement' AND `model`='AliquotDetail' AND `tablename`='' AND `field`='block_type'),@structure_id,'1','70','0','0','0','0','0','0','1','0','1','0','0','0','1','0','1','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structure_fields WHERE `plugin`='Inventorymanagement' AND `model`='AliquotDetail' AND `tablename`='' AND `field`='patho_dpt_block_code'),@structure_id,'1','71','0','0','0','0','0','0','1','0','1','0','0','0','1','0','0','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structure_fields WHERE `plugin`='Core' AND `model`='FunctionManagement' AND `tablename`='' AND `field`='CopyCtrl'),@structure_id,'1','100','0','0','0','0','0','0','0','0','0','0','0','0','1','1','0','0','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0');
 
 
 
