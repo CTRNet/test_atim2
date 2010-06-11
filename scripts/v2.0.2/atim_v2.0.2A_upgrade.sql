@@ -1119,7 +1119,7 @@ INSERT INTO `coding_icdo_3` (`code`, `en_desc`) VALUES
 ('9987/3', 'therapy-related myelodysplastic syndrome, nos'),
 ('9989/3', 'myelodysplastic syndrome, nos');
 
-INSERT INTO `atim_new`.`structure_value_domains` (`id` ,`domain_name` ,`override` ,`category` ,`source`)VALUES 
+INSERT INTO `structure_value_domains` (`id` ,`domain_name` ,`override` ,`category` ,`source`)VALUES 
 (NULL , 'morphology', 'open', '', 'Clinicalannotation.DiagnosisMaster::getMorphologyValues');
 
 UPDATE structure_fields SET `type`='select', structure_value_domain=(SELECT id FROM structure_value_domains WHERE domain_name='morphology'), `setting`='' 
