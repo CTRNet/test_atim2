@@ -2,7 +2,7 @@
 
 class BanksController extends AdministrateAppController {
 	
-	var $uses = array('Bank');
+	var $uses = array('Administrate.Bank');
 	var $paginate = array('Bank'=>array('limit' => pagination_amount,'order'=>'Bank.name ASC')); 
 	
 	function add(){
@@ -42,8 +42,12 @@ class BanksController extends AdministrateAppController {
 	
 	function delete( $bank_id ) {
 		$this->hook();
-		$this->Bank->del( $bank_id );
-		$this->flash( 'your data has been deleted', '/administrate/banks/index' );
+		if($this->Bank->isBeingUsed($bank_id)){
+			$this->flash( 'this bank is being used and cannot be deleted', '/administrate/banks/detail/'.$bank_id."/" );
+		}else{
+			$this->Bank->del( $bank_id );
+			$this->flash( 'your data has been deleted', '/administrate/banks/index' );
+		}
 	}
 }
 
