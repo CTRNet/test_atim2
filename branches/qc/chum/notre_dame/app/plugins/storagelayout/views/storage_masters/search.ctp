@@ -8,7 +8,10 @@
 	
 	$structure_links = array(
 		'index' => array('detail' => '/storagelayout/storage_masters/detail/%%StorageMaster.id%%'),
-		'bottom' => array('search' => '/storagelayout/storage_masters/index', 'add' => $add_links)
+		'bottom' => array(
+			'tree view' => '/storagelayout/storage_masters/contentTreeView', 
+			'search' => '/storagelayout/storage_masters/index', 
+			'add' => $add_links)
 	);
 	
 	$final_atim_structure = $atim_structure; 
