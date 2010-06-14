@@ -253,3 +253,24 @@ function uncheckAll( $div ) {
 			$(this).find("div").addClass("ui-corner-all").css({"border" : "1px solid", "padding" : "3px"})
 		});	
 	}
+	
+	/**
+	 * Remove the row that contains the element
+	 * @param element The element contained within the row to remove
+	 */
+	function removeParentRow(element){
+		element = getParentRow(element); 
+		
+		if($(element)[0].nodeName == "TR"){
+			$(element).remove();
+		}
+	}
+	
+	function getParentRow(element){
+		do{
+			element = $(element).parent();
+			nodeName = element[0].nodeName;
+		}while(nodeName != "TR" && nodeName != "undefined");
+		
+		return element;
+	}
