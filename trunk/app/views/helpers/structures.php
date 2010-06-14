@@ -470,7 +470,7 @@ class StructuresHelper extends Helper {
 								if ( $options['type']=='datagrid' && $options['settings']['del_fields'] ) {
 									$return_string .= '
 											<td class="right">
-												<a style="color:red;" href="#" onclick="getElementById(\'table'.$table_key.'row'.$key.'\').parentNode.removeChild(getElementById(\'table'.$table_key.'row'.$key.'\')); return false;" title="'.__( 'click to remove these elements', true ).'">(x)</a>
+												<a style="color:red;" href="#" onclick="removeParentRow(this); return false;" title="'.__( 'click to remove these elements', true ).'">(x)</a>
 											</td>
 									';
 									
@@ -557,7 +557,7 @@ class StructuresHelper extends Helper {
 								if ( $options['type']=='datagrid' && $options['settings']['del_fields'] ) {
 									$add_another_row_template .= '
 											<td class="right">
-												<a style="color:red;" href="#" onclick="getElementById(\'table'.$table_key.'row#{id}\').parentNode.removeChild(getElementById(\'table'.$table_key.'row#{id}\')); return false;" title="'.__( 'click to remove these elements', true ).'">(x)</a>
+												<a style="color:red;" href="#" onclick="removeParentRow(this); return false;" title="'.__( 'click to remove these elements', true ).'">(x)</a>
 											</td>
 									';
 									
@@ -624,7 +624,7 @@ class StructuresHelper extends Helper {
 										$("form").highlight("td");
 										if(window.enableCopyCtrl){
 											//if copy control exists, call it
-											enableCopyCtrl("table1row" + ('.$add_another_unique_next_variable.'  - 1));
+											enableCopyCtrl();
 										}
 										return false;
 									}
@@ -1147,7 +1147,6 @@ class StructuresHelper extends Helper {
 			}
 			
 		foreach ( $atim_structure['StructureFormat'] as $field ) {
-			
 			// if STRUCTURE does not allows multi-columns, display STRUCTURE in one column only
 			if ( !isset($atim_structure['Structure']['flag_'.$options['type'].'_columns']) ) $atim_structure['Structure']['flag_'.$options['type'].'_columns'] = 0;
 			if ( !$atim_structure['Structure']['flag_'.$options['type'].'_columns'] ) $field['display_column'] = 0;
