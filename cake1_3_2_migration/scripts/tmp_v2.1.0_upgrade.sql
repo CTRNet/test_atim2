@@ -6,3 +6,5 @@
 UPDATE `versions` 
 SET `version_number` = 'v2.1.0 (Alpha)', `date_installed` = CURDATE(), `build_number` = ''
 WHERE `versions`.`id` =1;
+
+-- test NL 20100615
