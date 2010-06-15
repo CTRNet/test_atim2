@@ -4,7 +4,7 @@
 
 -- Update version information
 UPDATE `versions` 
-SET `version_number` = 'v2.0.2A', `date_installed` = CURDATE(), `build_number` = ''
+SET `version_number` = 'v2.0.2A', `date_installed` = CURDATE(), `build_number` = '1485'
 WHERE `versions`.`id` =1;
 
 -- Clean help bullets in participants
