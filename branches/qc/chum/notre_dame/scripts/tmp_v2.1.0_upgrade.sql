@@ -4,5 +4,5 @@
 
 -- Update version information
 UPDATE `versions` 
-SET `version_number` = 'v2.1.0pre', `date_installed` = CURDATE(), `build_number` = ''
+SET `version_number` = 'v2.1.0 (Alpha)', `date_installed` = CURDATE(), `build_number` = ''
 WHERE `versions`.`id` =1;
