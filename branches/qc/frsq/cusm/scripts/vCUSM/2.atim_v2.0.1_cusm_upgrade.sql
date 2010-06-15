@@ -405,10 +405,21 @@ VALUES
 
 -- ptnm version
 
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
+(null, 'cusm_ptnm_version', 'open', '', NULL);
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("2005", "2005");
+
+INSERT INTO structure_value_domains_permissible_values 
+(`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `active`) 
+VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="cusm_ptnm_version"),
+(SELECT id FROM structure_permissible_values WHERE value="2005" AND language_alias="2005"), "10", "yes");
+
 INSERT INTO `structure_fields` 
 (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) 
 VALUES
-(null, '', 'QC-CUSM-000025', 'Clinicalannotation', 'DiagnosisDetail', 'qc_cusm_dxd_procure', 'ptnm_version', 'version', '', 'input', 'size=30', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(null, '', 'QC-CUSM-000025', 'Clinicalannotation', 'DiagnosisDetail', 'qc_cusm_dxd_procure', 'ptnm_version', 'version', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name="cusm_ptnm_version"), '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 INSERT IGNORE INTO `i18n` ( `id` , `page_id` , `en` , `fr` )
 VALUES ('version', '', 'Version', 'Version');
 
@@ -801,15 +812,15 @@ CREATE TABLE IF NOT EXISTS `qc_cusm_ed_procure_prostate_path_report` (
   `margin_position_lft_posterior` varchar(10) NULL,
   `margin_position_rgt_posterior` varchar(10) NULL,
    
-  `extracapsular_invasion_status` varchar(10) NULL,
-  `focal_extracapsular_invasion` varchar(10) NULL,
-  `established_extracapsular_invasion` varchar(10) NULL,
+  `extra_prostatic_extension_status` varchar(10) NULL,
+  `focal_extra_prostatic_extension` varchar(10) NULL,
+  `established_extra_prostatic_extension` varchar(10) NULL,
   
-  `rgt_ant_quadrant_extracapsular_invasion` varchar(10) NULL,
-  `rgt_post_quadrant_extracapsular_invasion` varchar(10) NULL,
-  `lft_ant_quadrant_extracapsular_invasion` varchar(10) NULL,
-  `lft_post_quadrant_extracapsular_invasion` varchar(10) NULL,
-  `seminal_vesicles_extracapsular_invasion` varchar(10) NULL,
+  `rgt_ant_quadrant_extra_prostatic_extension` varchar(10) NULL,
+  `rgt_post_quadrant_extra_prostatic_extension` varchar(10) NULL,
+  `lft_ant_quadrant_extra_prostatic_extension` varchar(10) NULL,
+  `lft_post_quadrant_extra_prostatic_extension` varchar(10) NULL,
+  `seminal_vesicles_extra_prostatic_extension` varchar(10) NULL,
 
   `lymph_nodes_collected` varchar(10) NULL,
   `examined_lymph_nodes_nbr` int(5) NULL,
@@ -870,15 +881,15 @@ CREATE TABLE IF NOT EXISTS `qc_cusm_ed_procure_prostate_path_report_revs` (
   `margin_position_lft_posterior` varchar(10) NULL,
   `margin_position_rgt_posterior` varchar(10) NULL,
    
-  `extracapsular_invasion_status` varchar(10) NULL,
-  `focal_extracapsular_invasion` varchar(10) NULL,
-  `established_extracapsular_invasion` varchar(10) NULL,
+  `extra_prostatic_extension_status` varchar(10) NULL,
+  `focal_extra_prostatic_extension` varchar(10) NULL,
+  `established_extra_prostatic_extension` varchar(10) NULL,
   
-  `rgt_ant_quadrant_extracapsular_invasion` varchar(10) NULL,
-  `rgt_post_quadrant_extracapsular_invasion` varchar(10) NULL,
-  `lft_ant_quadrant_extracapsular_invasion` varchar(10) NULL,
-  `lft_post_quadrant_extracapsular_invasion` varchar(10) NULL,
-  `seminal_vesicles_extracapsular_invasion` varchar(10) NULL,
+  `rgt_ant_quadrant_extra_prostatic_extension` varchar(10) NULL,
+  `rgt_post_quadrant_extra_prostatic_extension` varchar(10) NULL,
+  `lft_ant_quadrant_extra_prostatic_extension` varchar(10) NULL,
+  `lft_post_quadrant_extra_prostatic_extension` varchar(10) NULL,
+  `seminal_vesicles_extra_prostatic_extension` varchar(10) NULL,
 
   `lymph_nodes_collected` varchar(10) NULL,
   `examined_lymph_nodes_nbr` int(5) NULL,
@@ -1021,14 +1032,14 @@ INSERT INTO structure_fields(`public_identifier`, `old_id`, `plugin`, `model`, `
 ('', 'QC-CUSM-000047', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'margin_position_rgt_anterior', 'right anterior', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
 ('', 'QC-CUSM-000048', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'margin_position_lft_posterior', 'left posterior', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
 ('', 'QC-CUSM-000049', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'margin_position_rgt_posterior', 'right posterior', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
-('', 'QC-CUSM-000050', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'extracapsular_invasion_status', 'extracapsular invasion status', '', 'select', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'qc_cusm_absent_present'), '', 'open', 'open', 'open'), 
-('', 'QC-CUSM-000051', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'established_extracapsular_invasion', 'established extracapsular invasion', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
-('', 'QC-CUSM-000052', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'focal_extracapsular_invasion', 'focal extracapsular invasion', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
-('', 'QC-CUSM-000053', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'rgt_ant_quadrant_extracapsular_invasion', 'right anterior', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
-('', 'QC-CUSM-000054', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'rgt_post_quadrant_extracapsular_invasion', 'right posterior', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
-('', 'QC-CUSM-000055', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'lft_ant_quadrant_extracapsular_invasion', 'left anterior', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
-('', 'QC-CUSM-000056', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'lft_post_quadrant_extracapsular_invasion', 'left posterior', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
-('', 'QC-CUSM-000057', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'seminal_vesicles_extracapsular_invasion', 'seminal vesicles extracapsular invasion', '', 'select', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'qc_cusm_absent_present'), '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000050', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'extra_prostatic_extension_status', 'extra prostatic extension status', '', 'select', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'qc_cusm_absent_present'), '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000051', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'established_extra_prostatic_extension', 'established extra prostatic extension', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000052', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'focal_extra_prostatic_extension', 'focal extra prostatic extension', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000053', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'rgt_ant_quadrant_extra_prostatic_extension', 'right anterior', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000054', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'rgt_post_quadrant_extra_prostatic_extension', 'right posterior', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000055', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'lft_ant_quadrant_extra_prostatic_extension', 'left anterior', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000056', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'lft_post_quadrant_extra_prostatic_extension', 'left posterior', '', 'checkbox', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'yes_no_checkbox'), '', 'open', 'open', 'open'), 
+('', 'QC-CUSM-000057', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'seminal_vesicles_extra_prostatic_extension', 'seminal vesicles extra prostatic extension', '', 'select', '', '', (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'qc_cusm_absent_present'), '', 'open', 'open', 'open'), 
 ('', 'QC-CUSM-000058', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'examined_lymph_nodes_nbr', 'examined lymph nodes nbr', '', 'number', 'size=7', '', null, '', 'open', 'open', 'open'), 
 ('', 'QC-CUSM-000059', 'Clinicalannotation', 'EventDetail', 'qc_cusm_ed_procure_prostate_path_report', 'involved_lymph_nodes_nbr', 'involved lymph nodes nbr', '', 'number', 'size=7', '', null, '', 'open', 'open', 'open'),
 
@@ -1208,36 +1219,36 @@ VALUES
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000049'), 'QC-CUSM-000049', 
 '1', '57', '', '1', '', '1', 'right posterior', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
 
--- extracapsular_invasion_status
+-- extra_prostatic_extension_status
 ('QC-CUSM-000006_QC-CUSM-000050', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000050'), 'QC-CUSM-000050', 
-'1', '70', 'extracapsular invasion', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1')  ,
--- established_extracapsular_invasion
+'1', '70', 'extra prostatic extension', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1')  ,
+-- established_extra_prostatic_extension
 ('QC-CUSM-000006_QC-CUSM-000051', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000051'), 'QC-CUSM-000051', 
 '1', '72', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
--- focal_extracapsular_invasion
+-- focal_extra_prostatic_extension
 ('QC-CUSM-000006_QC-CUSM-000052', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000052'), 'QC-CUSM-000052', 
 '1', '71', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
 
--- rgt_ant_quadrant_extracapsular_invasion
+-- rgt_ant_quadrant_extra_prostatic_extension
 ('QC-CUSM-000006_QC-CUSM-000053', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000053'), 'QC-CUSM-000053', 
-'1', '80', 'extracapsular invasion location', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
--- rgt_post_quadrant_extracapsular_invasion
+'1', '80', 'extra prostatic extension location', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
+-- rgt_post_quadrant_extra_prostatic_extension
 ('QC-CUSM-000006_QC-CUSM-000054', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000054'), 'QC-CUSM-000054', 
 '1', '81', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
--- lft_ant_quadrant_extracapsular_invasion
+-- lft_ant_quadrant_extra_prostatic_extension
 ('QC-CUSM-000006_QC-CUSM-000055', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000055'), 'QC-CUSM-000055', 
 '1', '82', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
--- lft_post_quadrant_extracapsular_invasion
+-- lft_post_quadrant_extra_prostatic_extension
 ('QC-CUSM-000006_QC-CUSM-000056', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000056'), 'QC-CUSM-000056', 
 '1', '83', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
--- seminal_vesicles_extracapsular_invasion
+-- seminal_vesicles_extra_prostatic_extension
 ('QC-CUSM-000006_QC-CUSM-000057', (SELECT id FROM structures WHERE old_id='QC-CUSM-000006'), 'QC-CUSM-000006', 
 (SELECT id FROM structure_fields WHERE old_id='QC-CUSM-000057'), 'QC-CUSM-000057', 
 '1', '84', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1') ,
@@ -1269,10 +1280,10 @@ INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('lymph nodes collected', 'global', 'Collected', 'Récoltés'),
 ('absent', 'global', 'Absent', 'Absent(e)'),
 ('present', 'global', 'Present', 'Présent(e)'),
-('established extracapsular invasion', 'global', 'Established', 'établie'),
-('focal extracapsular invasion', 'global', 'Focal', 'Focale'),
-('seminal vesicles extracapsular invasion', 'global', 'Seminal Vesicles', 'Vésicules séminales'),
-('extracapsular invasion status', 'global', 'Status', 'Statut'),
+('established extra prostatic extension', 'global', 'Established', 'établie'),
+('focal extra prostatic extension', 'global', 'Focal', 'Focale'),
+('seminal vesicles extra prostatic extension', 'global', 'Seminal Vesicles', 'Vésicules séminales'),
+('extra prostatic extension status', 'global', 'Status', 'Statut'),
 ('margin focal', 'global', 'Focal', 'Focale'),
 ('tertiary grade', 'global', 'Tertiary Grade', '');
 
@@ -1281,8 +1292,8 @@ INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('tumour location', 'global', 'Tumour Location', 'Localisation de la tumeur'),
 ('histologic grade', 'global', 'Histologic Grade', 'Grade Histologique'),
 ('margins', 'global', 'Margins', 'Marges'),
-('extracapsular invasion', 'global', 'Extracapsular Invasion', 'Invasion extracapsulaire'),
-('extracapsular invasion location', 'global', 'Extracapsular Invasion Location', 'Localisation de l''invasion extracapsulaire'),
+('extra prostatic extension', 'global', 'Extra Prostatic Extension', 'Invasion extra-prostatique'),
+('extra prostatic extension location', 'global', 'Extra Prostatic Extension Location', 'Localisation de l''extension extra-prostatique'),
 ('regional lymph nodes', 'global', 'Regional Lymph Nodes', 'Adénopathies régionales / ganglions');
 
 INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
