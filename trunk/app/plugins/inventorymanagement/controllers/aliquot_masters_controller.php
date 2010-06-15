@@ -1503,12 +1503,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$is_duplicated_barcode = true;
 			
 			// Set error message
-			$messages[]	= 'barcode must be unique';
-			$str_barcodes_in_error = ' => ';
+			$str_barcodes_in_error = ' ';
 			foreach($duplicated_barcodes as $barcode) {
 				$str_barcodes_in_error .= '[' . $barcode . '] ';
 			}
-			$messages[]	= $str_barcodes_in_error; 
+			$messages[]	= __('barcode must be unique', true) . ' ' . __('please check following barcodes', true) . $str_barcodes_in_error; 
 		}
 		
 		return array('is_duplicated_barcode' => $is_duplicated_barcode, 'messages' => $messages);

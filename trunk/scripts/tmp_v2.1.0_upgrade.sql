@@ -58,13 +58,9 @@ VALUES
 
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES ('cdna', '', 'cDNA', 'DNAc');
 
+-- Add new message for duplicated aliquot barcodes
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES ('please check following barcodes', '', 'Please check following barcodes: ', 'Veuillez contrôler les barcodes suivants: ');
 
 
 
-
-
-
-
-
-
-mold
