@@ -35,7 +35,24 @@ class StorageMastersController extends StoragelayoutAppController {
 	function search() {
 		$this->set('atim_menu', $this->Menus->get('/storagelayout/storage_masters/index/'));
 		
-		if($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions();
+		if($this->data){
+			$_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions();
+			if(isset($_SESSION['ctrapp_core']['search']['criteria']['StorageMaster.parent_id'])){
+				unset($_SESSION['ctrapp_core']['search']['criteria']['StorageMaster.parent_id']);
+			}
+			$parent_id_cond_str = "";
+			foreach($this->data['StorageMaster']['parent_id'] as $parent_id){
+				//reformat the search conditions for parent_id
+				if($parent_id === "0"){
+					$parent_id_cond_str .= "StorageMaster.parent_id IS NULL OR ";
+				}else{
+					$parent_id_cond_str .= "StorageMaster.parent_id = ".$parent_id." OR ";
+				}
+			}
+			if(strlen($parent_id_cond_str) > 0){
+				$_SESSION['ctrapp_core']['search']['criteria'][] = substr($parent_id_cond_str, 0, -3);
+			}
+		}
 		
 		$this->data = $this->paginate($this->StorageMaster, $_SESSION['ctrapp_core']['search']['criteria']);
 		
@@ -571,23 +588,28 @@ class StorageMastersController extends StoragelayoutAppController {
 	 * @updated A. Suggitt
 	 */
 	 
-	function contentTreeView($storage_master_id) {
-		if(!$storage_master_id) { $this->redirect('/pages/err_sto_funct_param_missing', null, true); }
-			
+	function contentTreeView($storage_master_id = NULL) {
 		// MANAGE STORAGE DATA
 		
 		// Get the storage data
-		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
-		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }
-		$storage_content = $this->StorageMaster->find('threaded', array('conditions' => array('StorageMaster.lft >=' => $storage_data['StorageMaster']['lft'], 'StorageMaster.rght <=' => $storage_data['StorageMaster']['rght']), 'order' => 'StorageMaster.coord_x_order ASC, StorageMaster.coord_y_order ASC', 'recursive' => '-1'));
-		$storage_content = $this->completeStorageContent($storage_content);
+		if($storage_master_id){
+			$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
+			if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }
+			$storage_content = $this->StorageMaster->find('threaded', array('conditions' => array('StorageMaster.lft >=' => $storage_data['StorageMaster']['lft'], 'StorageMaster.rght <=' => $storage_data['StorageMaster']['rght']), 'order' => 'StorageMaster.coord_x_order ASC, StorageMaster.coord_y_order ASC', 'recursive' => '-1'));
+			$storage_content = $this->completeStorageContent($storage_content);
+			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/contentTreeView/%%StorageMaster.id%%');
+		}else{
+			$storage_content = $this->StorageMaster->find('threaded', array('order' => 'StorageMaster.coord_x_order ASC, StorageMaster.coord_y_order ASC', 'recursive' => '-1'));
+			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/index');
+			$this->set("search", true);
+			$this->set('storage_controls_list', $this->StorageControl->find('all', array('conditions' => array('StorageControl.flag_active' => '1'))));
+		}
 		
 		$this->data = $storage_content;
 						
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Get the current menu object. Needed to disable menu options based on storage type
-		$atim_menu = $this->Menus->get('/storagelayout/storage_masters/contentTreeView/%%StorageMaster.id%%');
 	
 		if(!$this->Storages->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
 			// Check storage supports custom coordinates and disable access to coordinates menu option if required

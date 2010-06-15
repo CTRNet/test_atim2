@@ -54,6 +54,7 @@
 		}
 		$x_alpha = $data['parent']['StorageControl']['coord_x_type'] == "alphabetical";
 		$y_alpha = $data['parent']['StorageControl']['coord_y_type'] == "alphabetical";
+		$horizontal_increment = $data['parent']['StorageControl']['horizontal_increment'];
 		//table display loop and inner loop
 		$j = null;
 		while(axisLoopCondition($j, $data['parent']['StorageControl']['reverse_y_numbering'], $use_height)){
@@ -64,7 +65,11 @@
 			$i = null;
 			while(axisLoopCondition($i, $data['parent']['StorageControl']['reverse_x_numbering'], $use_width)){
 				if($twoAxis){
-					$display_value = ($j - 1) * $y_size + $i;
+					if($horizontal_increment){
+						$display_value = ($j - 1) * $y_size + $i;
+					}else{
+						$display_value = ($i - 1) * $y_size + $j;
+					}
 					$use_value = $display_value."_1"; //static y = 1
 				}else{
 					$x_val = $x_alpha ? chr($i + 64) : $i;
