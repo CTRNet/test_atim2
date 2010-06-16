@@ -61,7 +61,7 @@ class MenusComponent extends Object {
 			}
 			if ( $alias ) {
 				App::import('model', 'Menu');
-				$this->Component_Menu =& new Menu;
+				$this->Component_Menu = new Menu;
 				
 				$result = $this->Component_Menu->find(
 								'all', 

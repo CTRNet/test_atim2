@@ -32,10 +32,10 @@
 	// import APP code required...
 	
 		App::import('model', 'Config');
-		$config_data_model =& new Config;
+		$config_data_model = new Config;
 		
 		App::import('component', 'Session');
-		$config_session_component =& new SessionComponent;
+		$config_session_component = new SessionComponent;
 	
 	// get CONFIG data from table and SET
 		
@@ -143,7 +143,7 @@ class AppController extends Controller {
 				$log_activity_model =& $this->UserLog;
 			} else {
 				App::import('model', 'UserLog');
-				$log_activity_model =& new UserLog;
+				$log_activity_model = new UserLog;
 			}
 			
 			$log_activity_model->save($log_activity_data);
