@@ -410,7 +410,7 @@ REPLACE INTO i18n (`id`, `en`, `fr`) VALUES
 ("pathology operating room", "Pathology operating room", "Salle d'opération de pathologie"),
 ("ganglion", "Ganglion", "Ganglion"),
 ("biopsy", "Biopsy", "Biopsie"),
-("tumor", "Tumor", "Tumeur"),
+("tumor", "Tumor", "Tumeur");
 
 UPDATE sample_masters SET is_problematic='no' WHERE is_problematic IS NULL;
 
