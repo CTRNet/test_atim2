@@ -369,12 +369,14 @@ ALTER TABLE sd_der_plasmas
   ADD qc_lady_centri_1_rpm MEDIUMINT UNSIGNED DEFAULT NULL,
   ADD qc_lady_centri_1_duration_min FLOAT UNSIGNED DEFAULT NULL,
   ADD qc_lady_centri_2_rpm MEDIUMINT UNSIGNED DEFAULT NULL,
-  ADD qc_lady_centri_2_duration_min FLOAT UNSIGNED DEFAULT NULL;
+  ADD qc_lady_centri_2_duration_min FLOAT UNSIGNED DEFAULT NULL,
+  ADD qc_lady_filtered BOOLEAN NOT NULL;
 ALTER TABLE sd_der_plasmas_revs
   ADD qc_lady_centri_1_rpm MEDIUMINT UNSIGNED DEFAULT NULL,
   ADD qc_lady_centri_1_duration_min FLOAT UNSIGNED DEFAULT NULL,
   ADD qc_lady_centri_2_rpm MEDIUMINT UNSIGNED DEFAULT NULL,
-  ADD qc_lady_centri_2_duration_min FLOAT UNSIGNED DEFAULT NULL;
+  ADD qc_lady_centri_2_duration_min FLOAT UNSIGNED DEFAULT NULL,
+  ADD qc_lady_filtered BOOLEAN NOT NULL;
 UPDATE sd_der_plasmas SET qc_lady_centri_1_rpm='2000', qc_lady_centri_1_duration_min='10', qc_lady_centri_2_rpm='13000', qc_lady_centri_2_duration_min='15' WHERE qc_lady_double_centrifugation='1';
 UPDATE sd_der_plasmas_revs SET qc_lady_centri_1_rpm='2000', qc_lady_centri_1_duration_min='10', qc_lady_centri_2_rpm='13000', qc_lady_centri_2_duration_min='15' WHERE qc_lady_double_centrifugation='1';
 UPDATE sd_der_plasmas SET qc_lady_centri_1_rpm='2000', qc_lady_centri_1_duration_min='10' WHERE qc_lady_double_centrifugation='0';
@@ -399,7 +401,16 @@ REPLACE INTO i18n (`id`, `en`, `fr`) VALUES
 ('centri 1 rpm', "Centrifugation 1 RPM", "Centrifugation 1 RPM"),
 ('centri 2 rpm', "Centrifugation 2 RPM", "Centrifugation 2 RPM"),
 ('centri 1 duration min', "Centrifugation 1 duration (min.)", "Centrifugation 1 durée (min.)"),
-('centri 2 duration min', "Centrifugation 2 duration (min.)", "Centrifugation 2 durée (min.)");
+('centri 2 duration min', "Centrifugation 2 duration (min.)", "Centrifugation 2 durée (min.)"),
+('filtered', "Filtered", "Filtré"),
+("operating room", "Operating room", "Salle d'opération"),
+("jgh collection center", "JGH Collection center", "Centre de collection de l'HGJ"),
+("clinical research unit", "Clinical research unit", "Unité de recherche clinique"),
+("oncology department", "Oncology department", "Département d'oncologie"),
+("pathology operating room", "Pathology operating room", "Salle d'opération de pathologie"),
+("ganglion", "Ganglion", "Ganglion"),
+("biopsy", "Biopsy", "Biopsie"),
+("tumor", "Tumor", "Tumeur"),
 
 UPDATE sample_masters SET is_problematic='no' WHERE is_problematic IS NULL;
 
@@ -417,12 +428,18 @@ INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`
 ('', 'Inventorymanagement', 'SampleDetail', 'sd_der_serums', 'qc_lady_centri_1_rpm', 'centri 1 rpm', '', 'integer_positive', '', '',  NULL , '', 'open', 'open', 'open'), 
 ('', 'Inventorymanagement', 'SampleDetail', 'sd_der_serums', 'qc_lady_centri_1_duration_min', 'centri 1 duration min', '', 'float_positive', '', '',  NULL , '', 'open', 'open', 'open'), 
 ('', 'Inventorymanagement', 'SampleDetail', 'sd_der_serums', 'qc_lady_centri_2_rpm', 'centri 2 rpm', '', 'integer_positive', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Inventorymanagement', 'SampleDetail', 'sd_der_serums', 'qc_lady_centri_2_duration_min', 'centri 2 duration min', '', 'float_positive', '', '',  NULL , '', 'open', 'open', 'open');
+('', 'Inventorymanagement', 'SampleDetail', 'sd_der_serums', 'qc_lady_centri_2_duration_min', 'centri 2 duration min', '', 'float_positive', '', '',  NULL , '', 'open', 'open', 'open'),
+('', 'Inventorymanagement', 'SampleDetail', 'sd_der_plasmas', 'qc_lady_filtered', 'filtered', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
 ((SELECT id FROM structures WHERE alias='sd_der_serums'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_serums' AND `field`='qc_lady_centri_1_rpm' AND `language_label`='centri 1 rpm' AND `language_tag`='' AND `type`='integer_positive' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '101', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='sd_der_serums'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_serums' AND `field`='qc_lady_centri_1_duration_min' AND `language_label`='centri 1 duration min' AND `language_tag`='' AND `type`='float_positive' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '102', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='sd_der_serums'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_serums' AND `field`='qc_lady_centri_2_rpm' AND `language_label`='centri 2 rpm' AND `language_tag`='' AND `type`='integer_positive' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '103', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='sd_der_serums'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_serums' AND `field`='qc_lady_centri_2_duration_min' AND `language_label`='qc lady centri 2 duration min' AND `language_tag`='' AND `type`='float_positive' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '104', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1');
+((SELECT id FROM structures WHERE alias='sd_der_serums'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_serums' AND `field`='qc_lady_centri_2_duration_min' AND `language_label`='centri 2 duration min' AND `language_tag`='' AND `type`='float_positive' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '104', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='sd_der_plasmas'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_plasmas' AND `field`='qc_lady_filtered' AND `language_label`='filtered' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `language_help`=''), '1', '104', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '1');
 
 ALTER TABLE `sd_der_serums` MODIFY `qc_lady_coagulation_time_sec` SMALLINT UNSIGNED DEFAULT NULL AFTER `deleted_date`;
 ALTER TABLE `sd_der_serums_revs` MODIFY `qc_lady_coagulation_time_sec` SMALLINT UNSIGNED DEFAULT NULL AFTER `deleted_date`;
+
+UPDATE structure_value_domains SET source=NULL WHERE domain_name='tissue_source_list';
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("ganglion", "ganglion");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="tissue_source_list"),  (SELECT id FROM structure_permissible_values WHERE value="ganglion" AND language_alias="ganglion"), "0", "1");

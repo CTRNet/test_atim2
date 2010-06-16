@@ -95,7 +95,6 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 		// Get formatted collection samples data to display
 		$this->data = $this->Samples->buildCollectionContentForTreeView($collection_id, $studied_specimen_sample_control_id);
-		
 		// MANAGE FORM, MENU AND ACTION BUTTONS	
 			 	
 		$atim_structure = array();

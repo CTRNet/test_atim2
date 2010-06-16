@@ -367,9 +367,9 @@ DELETE FROM structure_formats WHERE `structure_id`='4' AND `structure_field_id`=
 ALTER TABLE `users` DROP `pagination`;
 
 -- bank restructuring
-ALTER TABLE `groups` DROP `bank_id`;
+#ALTER TABLE `groups` DROP `bank_id`;
 ALTER TABLE `groups` 
-  ADD `bank_id` INT DEFAULT NULL AFTER  `name`,
+# ADD `bank_id` INT DEFAULT NULL AFTER  `name`,
   ADD FOREIGN KEY (`bank_id`) REFERENCES `banks`(`id`);
 DELETE FROM menus WHERE use_link LIKE '%bank%';
 

@@ -34,7 +34,7 @@ class SamplesComponent extends Object {
 		}
 		$criteria['SampleMaster.collection_id'] = $collection_id;
 		$this->controller->SampleMaster->contain(array('SampleControl', 'SpecimenDetail', 'DerivativeDetail', 'AliquotMaster' => array('AliquotControl', 'StorageMaster')));
-		$collection_content_to_display = $this->controller->SampleMaster->find('threaded', array('conditions' => $criteria, 'order' => 'SampleMaster.sample_type DESC, SampleMaster.sample_code DESC', 'recursive' => '2'));
+		$collection_content_to_display = $this->controller->SampleMaster->find('threaded', array('conditions' => $criteria, 'order' => 'SampleMaster.sample_type DESC, SampleMaster.sample_code DESC', 'recursive' => '3'));
 		if(empty($collection_content_to_display)) { return array(); }
 		
 		// Build formatted collection data for tree view
@@ -60,17 +60,23 @@ class SamplesComponent extends Object {
 		foreach($children_list as $key => $new_sample) {
 			$formatted_sample_data = array();
 			$formatted_sample_data['SampleMaster'] = $new_sample['SampleMaster'];
+			if($new_sample['SampleMaster']['sample_type'] == "blood"){
+				$formatted_sample_data['SampleMaster']['sample_type'] = __("blood", true)." (".__($new_sample['SampleDetail']['blood_type'], true).")"; 
+			}
 			$formatted_sample_data['children'] = $this->completeCollectionContentForTreeView($new_sample['children']);
 			
 			// Add Aliquot
 			$new_sample_aliquots = $new_sample['AliquotMaster'];
 			$new_sample_aliquots= array_reverse($new_sample_aliquots);
 			foreach($new_sample_aliquots as $new_aliquot) {
+				if($new_aliquot['aliquot_type'] == "block"){
+					$aliquot = $this->controller->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.id' => $new_aliquot['id'])));
+					$new_aliquot['aliquot_type'] = __("block", true)." (".__($aliquot['AliquotDetail']['block_type'], true).")";
+				}
 				$aliquot_control_data = $new_aliquot['AliquotControl'];
 				unset($new_aliquot['AliquotControl']);
 				$storage_master_data = $new_aliquot['StorageMaster'];
 				unset($new_aliquot['StorageMaster']);
-				//	$formatted_sample_data['children'][]['AliquotMaster'] = $new_aliquot;
 				$formatted_aliquot_data = array(
 					'AliquotMaster' => $new_aliquot, 
 					'StorageMaster' => $storage_master_data);

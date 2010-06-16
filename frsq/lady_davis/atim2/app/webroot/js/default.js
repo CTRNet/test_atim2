@@ -175,7 +175,8 @@ function uncheckAll( $div ) {
 	
 	function autoComplete(element, json){
 		$(element).autocomplete({
-			source: root_url + "/" + $(element).attr("url")
+			//if the generated link is ///link it doesn't work. That's why we have a "if" statement on root_url
+			source: (root_url == "/" ? "" : root_url + "/") + $(element).attr("url")
 			//alternate source for debugging
 //			source: function(request, response) {
 //				$.post(root_url + "/" + $(element).attr("url"), request, function(data){
