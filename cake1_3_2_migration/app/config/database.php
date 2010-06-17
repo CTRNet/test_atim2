@@ -82,9 +82,9 @@ class DATABASE_CONFIG {
 		'driver' => 'mysql',
 		'persistent' => false,
 		'host' => 'localhost',
-		'login' => 'root',
-		'password' => 'root',
-		'database' => 'atim_new',
+		'login' => 'visuallizard',
+		'password' => 'VL1z@rd',
+		'database' => 'visuallizard_atim2',
 		'prefix' => '',
 		'encoding' => 'utf8'
 	);
