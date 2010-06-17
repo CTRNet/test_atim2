@@ -124,7 +124,7 @@
  * Session time out time (in seconds).
  * Actual value depends on 'Security.level' setting.
  */
-	Configure::write('Session.timeout', '60');
+	Configure::write('Session.timeout', '120');
 /**
  * If set to false, sessions are not automatically started.
  */
@@ -146,7 +146,7 @@
  * CakePHP session IDs are also regenerated between requests if
  * 'Security.level' is set to 'high'.
  */
-	Configure::write('Security.level', Configure::read('debug') == 0 ? 'high' : 'low');
+	Configure::write('Security.level', 'low');
 /**
  * A random string used in security hashing methods.
  */
@@ -170,9 +170,9 @@
  * The classname and database used in CakePHP's
  * access control lists.
  */
- 	App::import('model','AtimAcl');
-	Configure::write('Acl.classname', 'AtimAcl');
-	Configure::write('Acl.database', 'default');
+ 	// App::import('model','AtimAcl');
+	// Configure::write('Acl.classname', 'AtimAcl');
+	// Configure::write('Acl.database', 'default');
 /**
  *
  * Cache Engine Configuration
@@ -227,4 +227,9 @@
  *
  */
 	Cache::config('default', array('engine' => 'File'));
+	
+	//* Custom ATiM cache for menus and structures. Can be set manually, but by default, switches handled by debug mode */
+	// $ATiMCache = Configure::read('debug') ? true : false; 
+	// Configure::write('ATiMMenuCache.disable', $ATiMCache);
+	// Configure::write('ATiMStructureCache.disable', $ATiMCache);
 ?>
