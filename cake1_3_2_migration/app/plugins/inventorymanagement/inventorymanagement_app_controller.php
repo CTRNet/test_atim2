@@ -4,7 +4,7 @@ class InventorymanagementAppController extends AppController {
 		
 	function beforeFilter() {
 		parent::beforeFilter();
-		$this->Auth->actionPath = 'controllers/Inventorymanagement/';
+		$this->Auth->actionPath = 'controllers/';
 	}
 	
 	/**
