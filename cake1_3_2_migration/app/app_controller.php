@@ -1,5 +1,16 @@
 <?php
 
+	Configure::write('Config.language', 'eng');
+
+	App::import('model','AtimAcl');
+	Configure::write('Acl.classname', 'AtimAcl');
+	Configure::write('Acl.database', 'default');
+	
+	$ATiMCache = Configure::read('debug') ? true : false; 
+	Configure::write('ATiMMenuCache.disable', $ATiMCache);
+	Configure::write('ATiMStructureCache.disable', $ATiMCache);
+
+
 // ATiM2 configuration variables from Datatable
 
 		set_error_handler("myErrorHandler");
@@ -129,7 +140,7 @@ class AppController extends Controller {
 			$this->Auth->logoutRedirect = array('controller' => 'users', 'action' => 'login', 'plugin' => '');
 			
 			$this->Auth->actionPath = 'controllers/App/';
-			// $this->Auth->allowedActions = array('display');
+			$this->Auth->allowedActions = array();
 			
 		// record URL in logs
 			
