@@ -108,9 +108,7 @@ class StructuresComponent extends Object {
 				}
 				
 				// for SELECT pulldowns, where an EXACT match is required, OR passed in DATA is an array to use the IN SQL keyword
-				else if ( $value['StructureField']['type'] == 'select'
-//				 || ( isset($this->controller->data[ $value['StructureField']['model'] ][ $value['StructureField']['field'] ]) && is_array($this->controller->data[ $value['StructureField']['model'] ][ $value['StructureField']['field'] ]) ) 
-				 ){
+				else if ( $value['StructureField']['type']=='select' || ( isset($this->controller->data[ $value['StructureField']['model'] ][ $value['StructureField']['field'] ]) && is_array($this->controller->data[ $value['StructureField']['model'] ][ $value['StructureField']['field'] ]) ) ) {
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'] ]['plugin']	= $value['StructureField']['plugin'];
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'] ]['model']	= $value['StructureField']['model'];
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'] ]['field']	= $value['StructureField']['field'];
@@ -126,6 +124,7 @@ class StructuresComponent extends Object {
 					
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'] ]['key']		= $value['StructureField']['model'].'.'.$value['StructureField']['field'].' LIKE';
 				}
+				
 			}
 		}
 		
@@ -158,6 +157,7 @@ class StructuresComponent extends Object {
 						
 						// use Model->deconstruct method to properly build data array's date/time information from arrays
 						if ( is_array($data) ) {
+							
 							App::import('Model', $form_fields[$model.'.'.$key]['plugin'].'.'.$model);
 							// App::import('Model', 'Clinicalannotation.'.$model);
 							
@@ -175,22 +175,19 @@ class StructuresComponent extends Object {
 						
 						// if supplied form DATA is not blank/null, add to search conditions, otherwise skip
 						if ( $data ) {
-							if ( strpos($form_fields[$model.'.'.$key]['key'], ' LIKE')!==false ) {
-								if(is_array($data)){
-									$conditions[] = $form_fields[$model.'.'.$key]['key']." '%".implode("%' OR ".$form_fields[$model.'.'.$key]['key']." '%", $data)."%'";
-									unset($data);
-								}else{
-									$data = '%'.$data.'%';
-								}
+							if ( !is_array($data) && strpos($form_fields[$model.'.'.$key]['key'], ' LIKE')!==false ) {
+								$data = '%'.$data.'%';
 							}
 							
-							if($data){
-								$conditions[ $form_fields[$model.'.'.$key]['key'] ] = $data;
-							}
+							$conditions[ $form_fields[$model.'.'.$key]['key'] ] = $data;
 						}
+						
 					}
+					
 				}
+				
 			}
+		
 		}
 		
 		// return CONDITIONS for search form
