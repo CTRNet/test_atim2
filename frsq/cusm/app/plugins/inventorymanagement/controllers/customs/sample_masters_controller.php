@@ -70,7 +70,7 @@ class SampleMastersControllerCustom extends SampleMastersController {
 				$sample_label .=	' -URN';
 				break;
 			case 'tissue':
-				$sample_label .=	' -FRZ';
+//				$sample_label .=	' -FRZ';
 				break;
 			case 'rna':
 				$sample_label .=	' -RNA';
