@@ -108,9 +108,7 @@ class StructuresComponent extends Object {
 				}
 				
 				// for SELECT pulldowns, where an EXACT match is required, OR passed in DATA is an array to use the IN SQL keyword
-				else if ( $value['StructureField']['type'] == 'select'
-//				 || ( isset($this->controller->data[ $value['StructureField']['model'] ][ $value['StructureField']['field'] ]) && is_array($this->controller->data[ $value['StructureField']['model'] ][ $value['StructureField']['field'] ]) ) 
-				 ){
+				else if ( $value['StructureField']['type'] == 'select' || isset($this->controller->data['exact_search'])){
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'] ]['plugin']	= $value['StructureField']['plugin'];
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'] ]['model']	= $value['StructureField']['model'];
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'] ]['field']	= $value['StructureField']['field'];
