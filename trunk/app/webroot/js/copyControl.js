@@ -71,7 +71,7 @@ function pasteLine(line){
 function enableCopyCtrl(){
 	$(":checkbox").each(function(){
 		if($(this).attr("name").indexOf("][FunctionManagement][CopyCtrl]") > 5){
-			$(this).parent().append("<span class='button copy'>" + copyStr + "</span><span class='button paste'>" + pasteStr + "</span>");
+			$(this).parent().append("<span class='button copy'><a class='form copy' title='" + copyStr + "'></a></span><span class='button paste'><a class='form paste' title='" + pasteStr + "'></a></span>");
 			$(this).parent().find(".copy").click(function(){
 				copyLine(getParentRow(this));
 			});
@@ -84,5 +84,5 @@ function enableCopyCtrl(){
 }
 
 function debug(str){
-//	$("#debug").append(str + "<br/>");
+	//$("#debug").append(str + "<br/>");
 }

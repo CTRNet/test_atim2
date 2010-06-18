@@ -105,14 +105,7 @@ function uncheckAll( $div ) {
 			return false;
 		});
 		
-		//autocomplete controls
-		$(".jqueryAutocomplete").each(function(){
-			var json = getJsonFromClass($(this).attr("class"));
-			var fct = eval("(" + json.callback + ")");
-			fct.apply(this, [this, json]);
-			return false;
-		});
-
+		initAutocomplete();
 		initAdvancedControls();
 		initTooltips();
 		
@@ -121,11 +114,11 @@ function uncheckAll( $div ) {
 		$(".datepicker").each(function(){
 			initDatepicker(this);
 		});
+		
 		//datepicker style
 		$("#ui-datepicker-div").addClass("jquery_cupertino");
 		//autocomplete style
 		$(".ui-autocomplete").addClass("jquery_cupertino");
-		
 	});
 
 	function initDatepicker(element){
@@ -273,4 +266,12 @@ function uncheckAll( $div ) {
 		}while(nodeName != "TR" && nodeName != "undefined");
 		
 		return element;
+	}
+	
+	function initAutocomplete(){
+		$(".jqueryAutocomplete").each(function(){
+			var json = getJsonFromClass($(this).attr("class"));
+			var fct = eval("(" + json.callback + ")");
+			fct.apply(this, [this, json]);
+		});
 	}
