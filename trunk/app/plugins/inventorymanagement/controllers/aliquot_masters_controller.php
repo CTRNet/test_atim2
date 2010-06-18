@@ -1806,7 +1806,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		if(!$submitted_data_validates){
 			$realiquot_data = $this->RealiquotingControl->getPossiblities();
-			pr($realiquot_data);
 			$aliquot_controls = array();
 			foreach($aliquots as &$aliquot){
 				$aliquot['RealiquotingControl'] = array();
