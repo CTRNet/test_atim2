@@ -54,6 +54,19 @@ class BatchSet extends DatamartAppModel {
 		return $return;
 	}
 	
+	function getBatchSet($batch_set_id){
+		$conditions = array(
+			'BatchSet.id' => $batch_set_id,
+			
+			'or'	=> array(
+				'BatchSet.group_id'	=> $_SESSION['Auth']['User']['group_id'],
+				'BatchSet.user_id'	=> $_SESSION['Auth']['User']['id']
+			)
+		);
+		$batch_set = $this->find( 'first', array( 'conditions'=>$conditions ) );
+		return ($batch_set);
+	}
+	
 }
 
 ?>

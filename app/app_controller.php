@@ -93,7 +93,11 @@
 			}catch(Exception $e){
 				$traceArr = $e->getTrace();
 				foreach($traceArr as $traceLine){
-					$traceMsg .= "<tr><td>".$traceLine['file']."</td><td>".$traceLine['line']."</td><td>".$traceLine['function']."</td></tr>";
+					$traceMsg .= "<tr><td>"
+						.isset($traceLine['file']) ? $traceLine['file'] : ""
+						."</td><td>"
+						.isset($traceLine['line']) ? $traceLine['line'] : ""
+						."</td><td>".$traceLine['function']."</td></tr>";
 				}
 			}
 			$traceMsg .= "</table>";

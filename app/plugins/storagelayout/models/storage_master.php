@@ -115,7 +115,7 @@ class StorageMaster extends StoragelayoutAppModel {
 	
 		return $formatted_data;
 	}
-
+	
 }
 
 ?>
