@@ -1486,7 +1486,9 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 INSERT INTO `structure_fields` 
 (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) 
 VALUES
-(null, '', 'QC-CUSM-000005-ColView', 'Inventorymanagement', 'ViewCollection', '', 'qc_cusm_visit_label', 'visit', '', 'select', '', '', @visit_domain_id, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(null, '', 'QC-CUSM-000005-ColView', 'Inventorymanagement', 'ViewCollection', '', 'qc_cusm_visit_label', 'visit', '', 'select', '', '', @visit_domain_id, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, '', 'QC-CUSM-000005-SamView', 'Inventorymanagement', 'ViewSample', '', 'qc_cusm_visit_label', 'visit', '', 'select', '', '', @visit_domain_id, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, '', 'QC-CUSM-000005-AliView', 'Inventorymanagement', 'ViewAliquot', '', 'qc_cusm_visit_label', 'visit', '', 'select', '', '', @visit_domain_id, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_id`, `structure_field_id`, `structure_field_old_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 (null, 'CANM-00025_QC-CUSM-000005-ColView', (SELECT id FROM structures WHERE old_id = 'CANM-00025'), 'CANM-00025', 
@@ -1638,7 +1640,7 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 INSERT INTO `structure_fields` 
 (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) 
 VALUES
-(null, '', 'QC-CUSM-000007-SampView', 'Inventorymanagement', 'SampleMaster', 'sample_views', 'qc_cusm_sample_label', 'sample label', '', 'input', 'size=30', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(null, '', 'QC-CUSM-000007-SampView', 'Inventorymanagement', 'ViewSample', 'sample_views', 'qc_cusm_sample_label', 'sample label', '', 'input', 'size=30', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 SET @field_id = LAST_INSERT_ID();
 
@@ -1646,12 +1648,12 @@ INSERT INTO `structure_formats` (`id`, `old_id`, `structure_id`, `structure_old_
 -- view_sample_joined_to_collection CAN-999-999-000-999-1094 -SampView 0|0 0|0 1|0 0|0 1 0
 (null, 'CAN-999-999-000-999-1094_QC-CUSM-000007-SampView', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1094'), 'CAN-999-999-000-999-1094', 
 @field_id, 'QC-CUSM-000007-SampView', 
-0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
 '0', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 -- view_sample_joined_to_parent CAN-999-999-000-999-1093 -SampView 0|0 0|0 0|0 0|0 1 0
 (null, 'CAN-999-999-000-999-1093_QC-CUSM-000007-SampView', (SELECT id FROM structures WHERE old_id = 'CAN-999-999-000-999-1093'), 'CAN-999-999-000-999-1093', 
 @field_id, 'QC-CUSM-000007-SampView', 
-0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
 '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 -- Update Sample View
@@ -1664,6 +1666,7 @@ samp.parent_id AS parent_sample_id,
 samp.initial_specimen_sample_id,
 col.id AS collection_id, 
 col.bank_id, 
+col.qc_cusm_visit_label,
 col.sop_master_id, 
 link.participant_id, 
 link.diagnosis_master_id, 
@@ -2041,6 +2044,7 @@ al.id AS aliquot_master_id,
 samp.id AS sample_master_id,
 col.id AS collection_id, 
 col.bank_id, 
+col.qc_cusm_visit_label,
 stor.id AS storage_master_id,
 link.participant_id, 
 link.diagnosis_master_id, 
