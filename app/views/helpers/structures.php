@@ -159,9 +159,11 @@ class StructuresHelper extends Helper {
 			if($options['type'] == 'search'){	//search mode
 				$link_class = "search";
 				$link_label = __("search", null);
+				$exact_search = '<input type="checkbox" name="data[exact_search]"/>'.__("exact search", true);
 			}else{								//other mode
 				$link_class = "submit";
 				$link_label = __("submit", null);
+				$exact_search = "";
 			}
 			$return_string .= '
 				</fieldset>
@@ -172,7 +174,7 @@ class StructuresHelper extends Helper {
 							<input id="submit_button" class="submit" type="submit" value="Submit" style="display: none;"/>
 							<a href="#" onclick="$(\'#submit_button\').click();" class="form '.$link_class.'" tabindex="'.(StructuresHelper::$last_tabindex + 1).'">'.$link_label.'</a>
 						</span>
-						<input type="checkbox" name="data[exact_search]"/>'.__("exact search", true).'
+						'.$exact_search.'
 					</div>
 			';
 		}
