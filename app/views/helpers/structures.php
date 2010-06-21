@@ -1009,7 +1009,16 @@ class StructuresHelper extends Helper {
 		
 		// each column/row in table 
 		if ( count($table_index) ) {
-			
+			$link_parts = explode('/', $_SERVER['REQUEST_URI']);
+			$sort_on = "";
+			$sort_asc = true;
+			foreach($link_parts as $link_part){
+				if(strpos($link_part, "sort:") === 0){
+					$sort_on = substr($link_part, 5);
+				}else if($link_part == "direction:desc"){
+					$sort_asc = false;
+				}
+			}
 			$column_count = 1;
 			foreach ( $table_index[0] as $table_column ) {
 				foreach ( $table_column as $table_row ) {
@@ -1027,14 +1036,16 @@ class StructuresHelper extends Helper {
 							$sorting_link = explode('?', $sorting_link);
 							$sorting_link = $sorting_link[0];
 							
-								$default_sorting_direction = isset($_REQUEST['direction']) ? $_REQUEST['direction'] : 'asc';
-								$default_sorting_direction = strtolower($default_sorting_direction);
+							$default_sorting_direction = isset($_REQUEST['direction']) ? $_REQUEST['direction'] : 'asc';
+							$default_sorting_direction = strtolower($default_sorting_direction);
 							
 							$sorting_link .= '?sortBy='.$table_row['field'];
 							$sorting_link .= '&amp;direction='.( $default_sorting_direction=='asc' ? 'desc' : 'asc' );
 							$sorting_link .= isset($_REQUEST['page']) ? '&amp;page='.$_REQUEST['page'] : '';
-							
 							if ( $options['settings']['pagination'] ) {
+								if($table_row['model'].'.'.$table_row['field'] == $sort_on){
+									$return_string .= '<div style="display: inline-block;" class="ui-icon ui-icon-triangle-1-'.($sort_asc ? "s" : "n").'"></div>';
+								}
 								$return_string .= $this->Paginator->sort(html_entity_decode($table_row['label'], ENT_QUOTES, "UTF-8"), $table_row['model'].'.'.$table_row['field']);
 							} else {
 								$return_string .= $table_row['label'];
