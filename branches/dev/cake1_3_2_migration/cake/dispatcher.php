@@ -383,6 +383,10 @@ class Dispatcher extends Object {
 		$ctrlClass .= 'Controller';
 		if (class_exists($ctrlClass)) {
 			$controller =& new $ctrlClass();
+			
+			// ATiM2: load custom controller
+			$ctrlCustom = $ctrlClass.'Custom';
+			if (class_exists($ctrlCustom)) $controller =& new $ctrlCustom();
 		}
 		return $controller;
 	}

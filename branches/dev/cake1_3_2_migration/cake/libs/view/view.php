@@ -861,9 +861,20 @@ class View extends Object {
 		}
 		foreach ($exts as $ext) {
 			foreach ($paths as $path) {
-				if (file_exists($path . $name . $ext)) {
+				
+				// ATiM2: load custom view
+				$custom_name = explode(DS,$name);
+				$custom_name[ count($custom_name)-1 ] = 'customs'.DS.$custom_name[ count($custom_name)-1 ];
+				$custom_name = implode(DS,$custom_name);
+						
+				if (file_exists($path . $custom_name . $ext)) {
+					return $path . $custom_name . $ext;
+				}
+				
+				else if (file_exists($path . $name . $ext)) {
 					return $path . $name . $ext;
 				}
+				
 			}
 		}
 		$defaultPath = $paths[0];
