@@ -139,6 +139,11 @@ class ClassRegistry {
 
 				if (class_exists($class) || App::import($type, $pluginPath . $class)) {
 					${$class} =& new $class($settings);
+					
+					// ATiM2: load custom controller
+					$modelCustom = $class.'Custom';
+					if (class_exists($modelCustom)) ${$class} =& new $modelCustom($settings);
+					
 				} elseif ($type === 'Model') {
 					if ($plugin && class_exists($plugin . 'AppModel')) {
 						$appModel = $plugin . 'AppModel';
