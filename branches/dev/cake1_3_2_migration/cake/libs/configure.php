@@ -902,9 +902,6 @@ class App extends Object {
 			if ($load = $_this->__mapped($name . $ext['class'], $type, $plugin)) {
 				if ($_this->__load($load)) {
 					$_this->__overload($type, $name . $ext['class'], $parent);
-				
-				// ATiM2: include custom files, if they exist
-				if ( file_exists($directory . 'customs' . DS . $file) ) include $directory . 'customs' . DS . $file;
 
 					if ($_this->return) {
 						return include($load);
@@ -946,6 +943,9 @@ class App extends Object {
 				$_this->__cache = true;
 				$_this->__map($directory . $file, $name . $ext['class'], $type, $plugin);
 				$_this->__overload($type, $name . $ext['class'], $parent);
+				
+				// ATiM2: include custom files, if they exist
+				if ( file_exists($directory . 'customs' . DS . $file) ) include $directory . 'customs' . DS . $file;
 
 				if ($_this->return) {
 					return include($directory . $file);
