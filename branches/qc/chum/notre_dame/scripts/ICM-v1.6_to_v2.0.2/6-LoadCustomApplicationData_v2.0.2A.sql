@@ -3046,14 +3046,6 @@ INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('tmp gleason score', 'global', 'Gleason Score', 'Grade de Gleason'),
 ('tmp tissue description', 'global', 'Tissue Description', 'Description du tissu');
 
-
-
-
-
-
-
-
-
 -- add cell culture tubes
 
 INSERT INTO `structures` (`id`, `alias`, `description`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`) VALUES
@@ -3145,3 +3137,166 @@ INSERT INTO `structure_formats` (`structure_field_id`, `structure_id`, `display_
 VALUES
 ((SELECT id FROM structure_fields WHERE `plugin`='Inventorymanagement' AND `model`='AliquotDetail' AND `tablename`='' AND `field`='cell_passage_number'),@structure_id,'1','81', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', '0', '2010-02-12 00:00', '0'),
 ((SELECT id FROM structure_fields WHERE `plugin`='Inventorymanagement' AND `model`='AliquotDetail' AND `tablename`='' AND `field`='tmp_storage_solution'  AND structure_value_domain = (SELECT id FROM structure_value_domains WHERE domain_name LIKE 'qc_cell_storage_solution')),@structure_id,'1','82', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', '0', '2010-02-12 00:00', '0');
+
+-- Update use code for realiquoted aliquot
+
+UPDATE aliquot_uses, realiquotings, aliquot_masters AS child
+SET aliquot_uses.use_code = child.barcode
+WHERE aliquot_uses.id = realiquotings.aliquot_use_id
+AND child.id = realiquotings.child_aliquot_master_id
+AND aliquot_uses.use_definition = 'realiquoted to'
+
+-- Update Quality control data
+
+SET @quality_control_unit = (SELECT id FROM structure_value_domains WHERE domain_name LIKE 'quality_control_unit');
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+('230/280','230/280');
+
+INSERT INTO structure_value_domains_permissible_values 
+(`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+(@quality_control_unit, (SELECT id FROM structure_permissible_values WHERE value="230/280" AND language_alias="230/280"), "1", "1");
+
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('230/280', 'global', '230/280', '230/280');
+
+UPDATE structure_value_domains_permissible_values SET display_order = '2' WHERE language_alias LIKE '260/230';
+UPDATE structure_value_domains_permissible_values SET display_order = '3' WHERE language_alias LIKE '260/268';
+UPDATE structure_value_domains_permissible_values SET display_order = '4' WHERE language_alias LIKE '260/280';
+UPDATE structure_value_domains_permissible_values SET display_order = '5' WHERE language_alias LIKE '28/18';
+UPDATE structure_value_domains_permissible_values SET display_order = '10' WHERE language_alias LIKE 'RIN';
+UPDATE structure_value_domains_permissible_values SET display_order = '11' WHERE language_alias LIKE 'n/a';
+
+SET @custom_laboratory_qc_tool = (SELECT id FROM structure_value_domains WHERE domain_name LIKE 'custom_laboratory_qc_tool');
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+('beckman','beckman'),
+('bioanalyzer 1','bioanalyzer 1'),
+('nanodrop','nanodrop'),
+('pharmacia','pharmacia');
+
+DELETE FROM structure_value_domains_permissible_values WHERE structure_value_domain_id = @custom_laboratory_qc_tool;
+INSERT INTO structure_value_domains_permissible_values 
+(`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+(@custom_laboratory_qc_tool, (SELECT id FROM structure_permissible_values WHERE value="beckman" AND language_alias="beckman"), "1", "1"),
+(@custom_laboratory_qc_tool, (SELECT id FROM structure_permissible_values WHERE value="bioanalyzer 1" AND language_alias="bioanalyzer 1"), "2", "1"),
+(@custom_laboratory_qc_tool, (SELECT id FROM structure_permissible_values WHERE value="nanodrop" AND language_alias="nanodrop"), "3", "1"),
+(@custom_laboratory_qc_tool, (SELECT id FROM structure_permissible_values WHERE value="pharmacia" AND language_alias="pharmacia"), "4", "1");
+
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('beckman', 'global', 'Beckman', 'Beckman'),
+('bioanalyzer 1', 'global', 'BioAnalyzer 1', 'BioAnalyzer 1'),
+('nanodrop', 'global', 'Nanodrop', 'Nanodrop'),
+('pharmacia', 'global', 'Pharmacia', 'Pharmacia');
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
+(null, 'qc_chip_model', 'open', '', NULL);
+
+SET @qc_chip_model = (SELECT id FROM structure_value_domains WHERE domain_name LIKE 'qc_chip_model');
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+('nano','nano'), -- 0", "1"),
+('pico','pico'); -- 5", "1"),
+
+INSERT INTO structure_value_domains_permissible_values 
+(`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+(@qc_chip_model, (SELECT id FROM structure_permissible_values WHERE value="nano" AND language_alias="nano"), "1", "1"),
+(@qc_chip_model, (SELECT id FROM structure_permissible_values WHERE value="pico" AND language_alias="pico"), "2", "1");
+
+INSERT INTO structure_fields (id, public_identifier, plugin, model, tablename, field, language_label, language_tag, `type`, setting, `default`, structure_value_domain, language_help, validation_control, value_domain_control, field_control, created, created_by, modified, modified_by) 
+VALUES
+(null, '', 'Inventorymanagement', 'QualityCtrl', '', 'position_into_run', 'position into run', '', 'input', 'size=6', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(null, '', 'Inventorymanagement', 'QualityCtrl', '', 'chip_model', 'chip model', '', 'select', '', '', @qc_chip_model, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+SET @structure_id = (SELECT id FROM structures WHERE alias IN ('QualityCtrls'));
+INSERT INTO `structure_formats` (`structure_field_id`, `structure_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`)
+VALUES
+((SELECT id FROM structure_fields WHERE `plugin`='Inventorymanagement' AND `model`='QualityCtrl' AND `field`='position_into_run'),@structure_id,'0','12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '0', '2010-02-12 00:00', '0'),
+((SELECT id FROM structure_fields WHERE `plugin`='Inventorymanagement' AND `model`='QualityCtrl' AND `field`='chip_model'),@structure_id,'0','13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '0', '2010-02-12 00:00', '0');
+
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('chip model', 'global', 'Chip Model', 'Model de puce'),
+('nano', 'global', 'Nano', 'Nano'),
+('position into run', 'global', 'Position', 'Position'),
+('pico', 'global', 'Pico', 'Pico');
+
+SET @use_id = (SELECT id FROM `aliquot_uses` WHERE `aliquot_master_id` = '32556' AND `use_definition` LIKE 'quality control' AND `used_volume` IS NULL);
+DELETE FROM `quality_ctrl_tested_aliquots` WHERE `aliquot_use_id` = @use_id;
+DELETE FROM `aliquot_uses` WHERE `id` = @use_id;
+
+-- add order missing field
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
+(null, 'qc_order_type', 'open', '', NULL);
+
+SET @qc_order_type = (SELECT id FROM structure_value_domains WHERE domain_name LIKE 'qc_order_type');
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+('other','other'), -- 5", "1"),
+('microarray','microarray'); -- 5", "1"),
+
+INSERT INTO structure_value_domains_permissible_values 
+(`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+(@qc_order_type, (SELECT id FROM structure_permissible_values WHERE value="microarray" AND language_alias="microarray"), "1", "1"),
+(@qc_order_type, (SELECT id FROM structure_permissible_values WHERE value="other" AND language_alias="other"), "1", "1");
+
+INSERT INTO structure_fields (id, public_identifier, plugin, model, tablename, field, language_label, language_tag, `type`, setting, `default`, structure_value_domain, language_help, validation_control, value_domain_control, field_control, created, created_by, modified, modified_by) 
+VALUES
+(null, '', 'Order', 'Order', '', 'microarray_chip', 'microarray chip', '', 'input', 'size=6', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(null, '', 'Order', 'Order', '', 'type', 'type', '', 'select', '', '', @qc_order_type, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+SET @structure_id = (SELECT id FROM structures WHERE alias IN ('Orders'));
+INSERT INTO `structure_formats` (`structure_field_id`, `structure_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`)
+VALUES
+((SELECT id FROM structure_fields WHERE `plugin`='Order' AND `model`='Order' AND `field`='type'),@structure_id,'1','4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '0', '2010-02-12 00:00', '0'),
+((SELECT id FROM structure_fields WHERE `plugin`='Order' AND `model`='Order' AND `field`='microarray_chip'),@structure_id,'1','4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '0', '2010-02-12 00:00', '0');
+
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('microarray chip', 'global', 'Chip', 'Puce'),
+('microarray', 'global', 'Microarray', 'Bio-puce');
+
+INSERT INTO structure_fields (id, public_identifier, plugin, model, tablename, field, language_label, language_tag, `type`, setting, `default`, structure_value_domain, language_help, validation_control, value_domain_control, field_control, created, created_by, modified, modified_by) 
+VALUES
+(null, '', 'Order', 'OrderItem', 'order_items', 'shipping_name', 'shipping name', '', 'input', 'size=30', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+SET @field_id = LAST_INSERT_ID();
+SET @structure_id = (SELECT id FROM structures WHERE alias IN ('orderitems'));
+INSERT INTO `structure_formats` (`structure_field_id`, `structure_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`)
+VALUES
+((@field_id),@structure_id,'0','1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', '0', '2010-02-12 00:00', '0');
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('shipping name', 'global', 'Shipping Name', 'Nom d''envoi');
+
+UPDATE order_items SET aliquot_use_id = NULL WHERE aliquot_use_id = '0'; 
+
+SELECT distinct in_stock,in_stock_detail,status FROM aliquot_masters as alq INNER JOIN order_items as items on items.aliquot_master_id = alq.id
+
+-- Study tool update
+
+UPDATE structure_formats format, structures strct
+SET format.flag_add ='0', format.flag_add_readonly ='0', 
+flag_edit ='0', flag_edit_readonly ='0', 
+flag_search ='0', flag_search_readonly ='0', 
+flag_datagrid ='0', flag_datagrid_readonly ='0',
+flag_index ='0',  flag_detail ='0'
+WHERE format.structure_id = strct.id
+AND strct.alias = 'studysummaries'
+AND format.structure_field_id NOT IN (SELECT id FROM structure_fields WHERE `plugin`='Study' AND `model`='StudySummary' AND `field` IN ('title', 'start_date', 'end_date', 'summary')); 
+
+-- update tool menu
+
+UPDATE menus set flag_active = '0' WHERE parent_id = 'tool_CAN_100';
+UPDATE menus set flag_active = '1' WHERE id = 'tool_CAN_104';
+
+UPDATE menus set flag_active = '0' WHERE use_link LIKE '/sop/%';
+UPDATE menus set flag_active = '0' WHERE use_link LIKE '/rtbform/%';
+UPDATE menus set flag_active = '0' WHERE use_link LIKE '/protocol/%';
+UPDATE menus set flag_active = '0' WHERE use_link LIKE '/material/%';
+UPDATE menus set flag_active = '0' WHERE use_link LIKE '/drug/%';
+
+
