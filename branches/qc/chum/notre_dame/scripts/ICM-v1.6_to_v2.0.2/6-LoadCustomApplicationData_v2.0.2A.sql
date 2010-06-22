@@ -3299,4 +3299,19 @@ UPDATE menus set flag_active = '0' WHERE use_link LIKE '/protocol/%';
 UPDATE menus set flag_active = '0' WHERE use_link LIKE '/material/%';
 UPDATE menus set flag_active = '0' WHERE use_link LIKE '/drug/%';
 
+-- Clean up storage
 
+UPDATE storage_controls
+SET form_alias = 'std_tma_blocks'
+WHERE form_alias = 'std_tmas';
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('box100', '', 'Box100 10x10', 'Boîte100 10x10'),
+('box27', '', 'Box27 3x9', 'Boîte27 3x9'),
+('box49', '', 'Box49 7x7', 'Boîte49 7x7'),
+('rack20', '', 'Rack20 4x5', 'Râtelier20 4x5'),
+('rack', '', 'Rack', 'Râtelier');
+
+UPDATE `frsq_icm_v2`.`storage_controls` SET `display_x_size` = '3',
+`display_y_size` = '9',
+`horizontal_increment` = '0' WHERE `storage_controls`.`storage_type` = 'box27' ;
