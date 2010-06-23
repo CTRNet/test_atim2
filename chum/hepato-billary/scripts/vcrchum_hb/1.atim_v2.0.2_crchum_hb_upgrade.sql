@@ -3567,3 +3567,131 @@ VALUES
 
 -- TODO should all field be smallint????? In case we keep smallinf, add validation.
 TRUNCATE acos;
+
+UPDATE structure_permissible_values SET value='Hopital Saint-Luc', language_alias='Hopital Saint-Luc' WHERE language_alias='collection_site_1';
+UPDATE structure_value_domains_permissible_values AS svdpv 
+INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id
+SET svdpv.flag_active=false
+WHERE spv.language_alias IN('collection_site_2', 'collection_site_etc');
+
+UPDATE structure_value_domains_permissible_values AS svdpv 
+INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id
+SET spv.language_alias='Préadmission = Preoperative checkup', spv.value='Préadmission = Preoperative checkup'
+WHERE spv.language_alias ='custom_supplier_dept_1';
+
+UPDATE structure_value_domains_permissible_values AS svdpv 
+INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id
+SET spv.language_alias='Service MBP', spv.value='Service MBP'
+WHERE spv.language_alias ='custom_supplier_dept_2';
+
+UPDATE structure_value_domains_permissible_values AS svdpv 
+INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id
+SET spv.language_alias='Bloc opératoire', spv.value='Bloc opératoire'
+WHERE spv.language_alias ='custom_supplier_dept_etc';
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pathology", "pathology");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="custom_specimen_supplier_dept"),  (SELECT id FROM structure_permissible_values WHERE value="pathology" AND language_alias="pathology"), "4", "1");
+
+ALTER TABLE `sd_spe_bloods` ADD `qc_hb_sample_code` VARCHAR( 50 ) NOT NULL DEFAULT '';
+ALTER TABLE `sd_spe_bloods_revs` ADD `qc_hb_sample_code` VARCHAR( 50 ) NOT NULL DEFAULT '';
+
+
+-- new sample code for blood
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_hb_sample_blood_type', '', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("S", "S");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_sample_blood_type"),  (SELECT id FROM structure_permissible_values WHERE value="S" AND language_alias="S"), "1", "1");
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Inventorymanagement', 'SampleDetail', 'sd_spe_bloods', 'qc_hb_sample_code', 'sample code', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_sample_blood_type') , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_spe_bloods'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_bloods' AND `field`='qc_hb_sample_code' AND `language_label`='qc hb sample code' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_sample_blood_type')  AND `language_help`=''), '1', '34', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1');
+UPDATE structure_formats SET `display_order`='35' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Generated' AND tablename='' AND field='coll_to_rec_spent_time_msg');
+
+-- rearranging create site/by/date display order for serums
+UPDATE structure_formats SET `display_order`='30' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_der_serums') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DerivativeDetail' AND tablename='' AND field='creation_site');
+UPDATE structure_formats SET `display_order`='32' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_der_serums') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DerivativeDetail' AND tablename='' AND field='creation_by');
+UPDATE structure_formats SET `display_order`='33' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_der_serums') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DerivativeDetail' AND tablename='' AND field='creation_datetime');
+UPDATE structure_formats SET `display_order`='33' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_der_serums') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DerivativeDetail' AND tablename='' AND field='creation_datetime_accuracy');
+
+-- rearranging create site/by/date display order for plasmas
+UPDATE structure_formats SET `display_order`='30' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_der_plasmas') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DerivativeDetail' AND tablename='' AND field='creation_site');
+UPDATE structure_formats SET `display_order`='31' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_der_plasmas') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DerivativeDetail' AND tablename='' AND field='creation_by');
+UPDATE structure_formats SET `display_order`='32' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_der_plasmas') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Generated' AND tablename='' AND field='coll_to_creation_spent_time_msg');
+UPDATE structure_formats SET `display_order`='33' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_der_plasmas') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DerivativeDetail' AND tablename='' AND field='creation_datetime_accuracy');
+UPDATE structure_formats SET `display_order`='33' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_der_plasmas') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DerivativeDetail' AND tablename='' AND field='creation_datetime');
+
+-- pbmc nb of cells
+ALTER TABLE `sd_der_pbmcs` ADD `qc_hb_nb_cells` FLOAT UNSIGNED NOT NULL ,
+ADD `qc_hb_nb_cell_unit` VARCHAR( 50 ) NOT NULL DEFAULT '';
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_hb_nb_cell_unit', '', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("10^6 c", "10^6 c");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_nb_cell_unit"),  (SELECT id FROM structure_permissible_values WHERE value="10^6 c" AND language_alias="10^6 c"), "1", "1");
+INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('qc_hb_sd_der_pbmc', '', '', '1', '1', '1', '1');
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Inventorymanagement', 'DerivativeDetail', 'sd_der_pbmcs', 'qc_hb_nb_cells', 'nb of cells', '', 'float_positive', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Inventorymanagement', 'DerivativeDetail', 'sd_der_pbmcs', 'qc_hb_nb_cell_unit', '', 'unit', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_nb_cell_unit') , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_sd_der_pbmc'), (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_code' AND `language_label`='code' AND `language_tag`='' AND `type`='input' AND `setting`='size=10' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_sd_der_pbmc'), (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_type' AND `language_label`='sample type' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_type')  AND `language_help`=''), '0', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_sd_der_pbmc'), (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='notes' AND `language_label`='notes' AND `language_tag`='' AND `type`='textarea' AND `setting`='rows=3,cols=30' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '25', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_sd_der_pbmc'), (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='parent_id' AND `language_label`='parent sample code' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`='inv_sample_parent_id_defintion'), '0', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_sd_der_pbmc'), (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_category' AND `language_label`='category' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_category')  AND `language_help`='inv_sample_category_defintion'), '0', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_sd_der_pbmc'), (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='is_problematic' AND `language_label`='is problematic' AND `language_tag`='' AND `type`='radio' AND `setting`='' AND `default`='no' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yesno')  AND `language_help`='inv_is_problematic_sample_defintion'), '0', '20', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_sd_der_pbmc'), (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sop_master_id' AND `language_label`='sample sop' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_sop_list')  AND `language_help`=''), '0', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_sd_der_pbmc'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='coll_to_creation_spent_time_msg' AND `language_label`='collection to creation spent time' AND `language_tag`='' AND `type`='input' AND `setting`='size=30' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '34', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_sd_der_pbmc'), (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='initial_specimen_sample_type' AND `language_label`='initial specimen type' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='specimen_sample_type')  AND `language_help`=''), '0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_sd_der_pbmc'), (SELECT id FROM structure_fields WHERE `model`='GeneratedParentSample' AND `tablename`='' AND `field`='sample_type' AND `language_label`='parent sample type' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_type')  AND `language_help`='generated_parent_sample_sample_type_help'), '0', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_sd_der_pbmc'), (SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='' AND `field`='creation_site' AND `language_label`='creation site' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_site')  AND `language_help`=''), '1', '30', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_sd_der_pbmc'), (SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='' AND `field`='creation_by' AND `language_label`='created by' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff')  AND `language_help`=''), '1', '31', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_sd_der_pbmc'), (SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='' AND `field`='creation_datetime' AND `language_label`='creation date' AND `language_tag`='' AND `type`='datetime' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '32', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_sd_der_pbmc'), (SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='' AND `field`='creation_datetime_accuracy' AND `language_label`='' AND `language_tag`='accuracy' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='datetime_accuracy_indicator')  AND `language_help`='datetime_accuracy_indicator_help'), '1', '33', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_sd_der_pbmc'), (SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='sd_der_pbmcs' AND `field`='qc_hb_nb_cells' AND `language_label`='nb of cells' AND `language_tag`='' AND `type`='float_positive' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '51', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_sd_der_pbmc'), (SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='sd_der_pbmcs' AND `field`='qc_hb_nb_cell_unit' AND `language_label`='' AND `language_tag`='unit' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_nb_cell_unit')  AND `language_help`=''), '1', '51', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1');
+UPDATE `sample_controls` SET `form_alias` = 'qc_hb_sd_der_pbmc' WHERE `sample_controls`.`id` =8;
+
+UPDATE structure_permissible_values SET language_alias='Urszula Krzemien', value='Urszula Krzemien' WHERE language_alias='custom_laboratory_staff_1';
+UPDATE structure_value_domains_permissible_values AS svdpv 
+INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id
+SET svdpv.flag_active=false
+WHERE spv.language_alias IN('custom_laboratory_staff_2', 'custom_laboratory_staff_etc');
+
+UPDATE `structure_value_domains` SET `source` = NULL WHERE `structure_value_domains`.`id` =204;
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("CHC", "CHC");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="tissue_source_list"),  (SELECT id FROM structure_permissible_values WHERE value="CHC" AND language_alias="CHC"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Métastase hépatique", "Métastase hépatique");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="tissue_source_list"),  (SELECT id FROM structure_permissible_values WHERE value="Métastase hépatique" AND language_alias="Métastase hépatique"), "2", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("CholangioCa", "CholangioCa");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="tissue_source_list"),  (SELECT id FROM structure_permissible_values WHERE value="CholangioCa" AND language_alias="CholangioCa"), "3", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Vésicule biliaire", "Vésicule biliaire");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="tissue_source_list"),  (SELECT id FROM structure_permissible_values WHERE value="Vésicule biliaire" AND language_alias="Vésicule biliaire"), "4", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Pancréas", "Pancréas");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="tissue_source_list"),  (SELECT id FROM structure_permissible_values WHERE value="Pancréas" AND language_alias="Pancréas"), "5", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Autre/préciser", "Autre/préciser");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="tissue_source_list"),  (SELECT id FROM structure_permissible_values WHERE value="Autre/préciser" AND language_alias="Autre/préciser"), "6", "1");
+
+-- tube conique
+INSERT INTO `aliquot_controls` (`id` ,`aliquot_type` ,`flag_active` ,`form_alias` ,`detail_tablename` ,`volume_unit` ,`comment` ,`display_order`) VALUES 
+(NULL , 'tube conique', '1', 'ad_spec_tubes', 'ad_tubes', '', NULL , '0');
+INSERT INTO `sample_to_aliquot_controls` (`id` ,`sample_control_id` ,`aliquot_control_id` ,`flag_active`) VALUES 
+(NULL , '3', '16', '1');
+
+-- storage glace
+INSERT INTO `atim_hepato`.`storage_controls` (
+`id` ,`storage_type` ,`storage_type_code` ,`coord_x_title` ,`coord_x_type` ,`coord_x_size` ,`coord_y_title` ,`coord_y_type` ,`coord_y_size` ,`display_x_size` ,`display_y_size` ,`reverse_x_numbering` ,`reverse_y_numbering` ,`set_temperature` ,`is_tma_block` ,`flag_active` ,`form_alias` ,`form_alias_for_children_pos` ,`detail_tablename`)VALUES 
+(NULL , 'glace', 'I', NULL , NULL , NULL , NULL , NULL , NULL , '0', '0', '0', '0', 'TRUE', 'FALSE', '1', 'std_undetail_stg_with_tmp', NULL , 'std_fridges');
+
+-- tissue sample code
+ALTER TABLE `sd_spe_tissues` ADD `qc_hb_sample_code` VARCHAR( 50 ) NOT NULL DEFAULT '';
+ALTER TABLE `sd_spe_tissues_revs` ADD `qc_hb_sample_code` VARCHAR( 50 ) NOT NULL DEFAULT '';
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_hb_sample_tissue_type', '', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("T", "T");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_sample_tissue_type"),  (SELECT id FROM structure_permissible_values WHERE value="T" AND language_alias="T"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("N", "N");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_sample_tissue_type"),  (SELECT id FROM structure_permissible_values WHERE value="N" AND language_alias="N"), "0", "1");
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Inventorymanagement', 'SpecimenDetail', 'sd_spe_tissues', 'qc_hb_sample_code', 'sample code', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_sample_tissue_type') , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='sd_spe_tissues' AND `field`='qc_hb_sample_code' AND `language_label`='sample code' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_sample_tissue_type')  AND `language_help`=''), '0', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1');
+
+
