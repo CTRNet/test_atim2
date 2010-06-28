@@ -4,7 +4,7 @@ class SopAppController extends AppController
 {	
 	function beforeFilter() {
 		parent::beforeFilter();
-		$this->Auth->actionPath = 'controllers/;
+		$this->Auth->actionPath = 'controllers/';
 	}
 	
 }
