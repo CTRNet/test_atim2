@@ -3568,7 +3568,7 @@ VALUES
 -- TODO should all field be smallint????? In case we keep smallinf, add validation.
 TRUNCATE acos;
 
-UPDATE structure_permissible_values SET value='Hopital Saint-Luc', language_alias='Hopital Saint-Luc' WHERE language_alias='collection_site_1';
+UPDATE structure_permissible_values SET value='Saint-Luc hospital', language_alias='Saint-Luc hospital' WHERE language_alias='collection_site_1';
 UPDATE structure_value_domains_permissible_values AS svdpv 
 INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id
 SET svdpv.flag_active=false
@@ -3576,17 +3576,17 @@ WHERE spv.language_alias IN('collection_site_2', 'collection_site_etc');
 
 UPDATE structure_value_domains_permissible_values AS svdpv 
 INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id
-SET spv.language_alias='Préadmission = Preoperative checkup', spv.value='Préadmission = Preoperative checkup'
+SET spv.language_alias='preadmission = preoperative checkup', spv.value='preadmission = preoperative checkup'
 WHERE spv.language_alias ='custom_supplier_dept_1';
 
 UPDATE structure_value_domains_permissible_values AS svdpv 
 INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id
-SET spv.language_alias='Service MBP', spv.value='Service MBP'
+SET spv.language_alias='service MBP', spv.value='service MBP'
 WHERE spv.language_alias ='custom_supplier_dept_2';
 
 UPDATE structure_value_domains_permissible_values AS svdpv 
 INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id
-SET spv.language_alias='Bloc opératoire', spv.value='Bloc opératoire'
+SET spv.language_alias='operating room', spv.value='operating room'
 WHERE spv.language_alias ='custom_supplier_dept_etc';
 
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pathology", "pathology");
@@ -3659,25 +3659,25 @@ WHERE spv.language_alias IN('custom_laboratory_staff_2', 'custom_laboratory_staf
 UPDATE `structure_value_domains` SET `source` = NULL WHERE `structure_value_domains`.`id` =204;
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("CHC", "CHC");
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="tissue_source_list"),  (SELECT id FROM structure_permissible_values WHERE value="CHC" AND language_alias="CHC"), "1", "1");
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Métastase hépatique", "Métastase hépatique");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("liver metastasis", "liver metastasis");
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="tissue_source_list"),  (SELECT id FROM structure_permissible_values WHERE value="Métastase hépatique" AND language_alias="Métastase hépatique"), "2", "1");
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("CholangioCa", "CholangioCa");
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="tissue_source_list"),  (SELECT id FROM structure_permissible_values WHERE value="CholangioCa" AND language_alias="CholangioCa"), "3", "1");
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Vésicule biliaire", "Vésicule biliaire");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("gallbladder", "gallbladder");
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="tissue_source_list"),  (SELECT id FROM structure_permissible_values WHERE value="Vésicule biliaire" AND language_alias="Vésicule biliaire"), "4", "1");
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Pancréas", "Pancréas");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pancreas", "pancreas");
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="tissue_source_list"),  (SELECT id FROM structure_permissible_values WHERE value="Pancréas" AND language_alias="Pancréas"), "5", "1");
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Autre/préciser", "Autre/préciser");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("other", "other");
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="tissue_source_list"),  (SELECT id FROM structure_permissible_values WHERE value="Autre/préciser" AND language_alias="Autre/préciser"), "6", "1");
 
--- tube conique
+-- conical tube
 INSERT INTO `aliquot_controls` (`id` ,`aliquot_type` ,`flag_active` ,`form_alias` ,`detail_tablename` ,`volume_unit` ,`comment` ,`display_order`) VALUES 
-(NULL , 'tube conique', '1', 'ad_spec_tubes', 'ad_tubes', '', NULL , '0');
+(NULL , 'conical tube', '1', 'ad_spec_conical_tubes', 'ad_tubes', '', NULL , '0');
 INSERT INTO `sample_to_aliquot_controls` (`id` ,`sample_control_id` ,`aliquot_control_id` ,`flag_active`) VALUES 
 (NULL , '3', '16', '1');
 
 -- storage glace
-INSERT INTO `atim_hepato`.`storage_controls` (
+INSERT INTO `storage_controls` (
 `id` ,`storage_type` ,`storage_type_code` ,`coord_x_title` ,`coord_x_type` ,`coord_x_size` ,`coord_y_title` ,`coord_y_type` ,`coord_y_size` ,`display_x_size` ,`display_y_size` ,`reverse_x_numbering` ,`reverse_y_numbering` ,`set_temperature` ,`is_tma_block` ,`flag_active` ,`form_alias` ,`form_alias_for_children_pos` ,`detail_tablename`)VALUES 
 (NULL , 'glace', 'I', NULL , NULL , NULL , NULL , NULL , NULL , '0', '0', '0', '0', 'TRUE', 'FALSE', '1', 'std_undetail_stg_with_tmp', NULL , 'std_fridges');
 
@@ -3693,5 +3693,153 @@ INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`
 ('', 'Inventorymanagement', 'SpecimenDetail', 'sd_spe_tissues', 'qc_hb_sample_code', 'sample code', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_sample_tissue_type') , '', 'open', 'open', 'open');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
 ((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='sd_spe_tissues' AND `field`='qc_hb_sample_code' AND `language_label`='sample code' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_sample_tissue_type')  AND `language_help`=''), '0', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1');
+
+
+DROP VIEW `view_collections`;
+CREATE VIEW `view_collections` AS select `col`.`id` AS `collection_id`,`col`.`bank_id` AS `bank_id`,`col`.`sop_master_id` AS `sop_master_id`,
+`link`.`participant_id` AS `participant_id`,`link`.`diagnosis_master_id` AS `diagnosis_master_id`,`link`.`consent_master_id` AS `consent_master_id`,
+`part`.`participant_identifier` AS `participant_identifier`,`col`.`acquisition_label` AS `acquisition_label`,`col`.`collection_site` AS `collection_site`,
+`col`.`collection_datetime` AS `collection_datetime`,`col`.`collection_datetime_accuracy` AS `collection_datetime_accuracy`,
+`col`.`collection_property` AS `collection_property`,`col`.`collection_notes` AS `collection_notes`,`col`.`deleted` AS `deleted`,
+`banks`.`name` AS `bank_name`, `misc_identifiers`.`identifier_value` AS no_labo 
+FROM (((`collections` `col` LEFT JOIN `clinical_collection_links` `link` ON(((`col`.`id` = `link`.`collection_id`) AND (`link`.`deleted` <> 1)))) 
+LEFT JOIN `participants` `part` ON(((`link`.`participant_id` = `part`.`id`) AND (`part`.`deleted` <> 1)))) 
+LEFT JOIN `banks` ON(((`col`.`bank_id` = `banks`.`id`) AND (`banks`.`deleted` <> 1)))) 
+LEFT JOIN `misc_identifiers` ON part.id=misc_identifiers.participant_id AND (misc_identifiers.misc_identifier_control_id=3 AND col.bank_id=1)
+WHERE (`col`.`deleted` <> 1);
+
+UPDATE banks SET name='hepato bilary', description='' WHERE id=1;
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Inventorymanagement', 'ViewCollection', 'view_collections', 'no_labo', 'no labo', '', 'input', '', '',  NULL , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='view_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='view_collections' AND `field`='no_labo' AND `language_label`='no labo' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '1');
+
+-- disable blood aliquots
+UPDATE sample_to_aliquot_controls SET flag_active=0 WHERE sample_control_id=2;
+
+-- disable/add some blood types
+UPDATE structure_value_domains_permissible_values
+SET flag_active=0
+WHERE structure_value_domain_id=140 AND structure_permissible_value_id IN(594, 596, 30, 598);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("gel SST", "gel SST");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="blood_type"),  (SELECT id FROM structure_permissible_values WHERE value="gel SST" AND language_alias="gel SST"), "1", "1");
+
+-- aliquot label/stored by
+ALTER TABLE `aliquot_masters` 
+ADD `qc_hb_label` VARCHAR( 50 ) NOT NULL DEFAULT '',
+ADD `qc_hb_stored_by` VARCHAR( 50 ) NOT NULL DEFAULT '';
+ALTER TABLE `aliquot_masters_revs` 
+ADD `qc_hb_label` VARCHAR( 50 ) NOT NULL DEFAULT '',
+ADD `qc_hb_stored_by` VARCHAR( 50 ) NOT NULL DEFAULT '';
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Inventorymanagement', 'AliquotMaster', 'aliquot_masters', 'qc_hb_label', 'label', '', 'input', '', '',  NULL , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_der_tubes_incl_ml_vol'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='qc_hb_label' AND `language_label`='label' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '1', '0', '1', '0', '1', '1');
+INSERT INTO structure_validations(`structure_field_id`, `rule`, `flag_empty`, `flag_required`, `language_message`) VALUES
+((SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='qc_hb_label' AND `language_label`='label' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), 'notEmpty', false, false, 'label is required'); 
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Inventorymanagement', 'AliquotMaster', 'aliquot_masters', 'qc_hb_stored_by', 'stored by', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff') , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_der_tubes_incl_ml_vol'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='qc_hb_stored_by' AND `language_label`='stored by' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff')  AND `language_help`=''), '0', '27', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1');
+
+-- pbmc milieu
+ALTER TABLE `ad_tubes` ADD `qc_hb_milieu` VARCHAR( 50 ) NOT NULL DEFAULT '';
+ALTER TABLE `ad_tubes_revs` ADD `qc_hb_milieu` VARCHAR( 50 ) NOT NULL DEFAULT '';
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_hb_milieu', '', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("serum + DMSO", "serum + DMSO");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_milieu"),  (SELECT id FROM structure_permissible_values WHERE value="serum + DMSO" AND language_alias="serum + DMSO"), "1", "1");
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Inventorymanagement', 'AliquotDetail', 'ad_tubes', 'qc_hb_milieu', 'milieu', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_milieu') , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_der_cell_tubes_incl_ml_vol'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='qc_hb_stored_by' AND `language_label`='stored by' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff')  AND `language_help`=''), '0', '27', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='ad_der_cell_tubes_incl_ml_vol'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='qc_hb_milieu' AND `language_label`='milieu' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_milieu')  AND `language_help`=''), '0', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '1', '0', '1', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='ad_der_cell_tubes_incl_ml_vol'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='qc_hb_label' AND `structure_value_domain`  IS NULL  ), '0', '11', '', '1', 'qc hb label', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '1', '0', '1', '0', '1', '1');
+
+-- tissue spe reorder and patho report nb
+ALTER TABLE `sd_spe_tissues` ADD `qc_hb_patho_report_no`  VARCHAR( 50 ) NOT NULL DEFAULT '';
+ALTER TABLE `sd_spe_tissues_revs` ADD `qc_hb_patho_report_no`  VARCHAR( 50 ) NOT NULL DEFAULT '';
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Inventorymanagement', 'SampleDetail', 'sd_spe_tissues', 'qc_hb_patho_report_no', 'patho report nb', '', 'input', '', '',  NULL , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='qc_hb_patho_report_no' AND `language_label`='patho report nb' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '33', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1');
+UPDATE structure_formats SET `display_order`='31' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='SampleDetail' AND tablename='' AND field='pathology_reception_datetime');
+UPDATE structure_formats SET `display_order`='30' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='SpecimenDetail' AND tablename='' AND field='reception_by');
+UPDATE structure_formats SET `display_order`='32' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='SpecimenDetail' AND tablename='' AND field='reception_datetime_accuracy');
+
+-- tissue tube
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_spec_tubes'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='qc_hb_label' AND `language_label`='label' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '1', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='ad_spec_tubes'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='qc_hb_stored_by' AND `language_label`='stored by' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff')  AND `language_help`=''), '0', '32', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1');
+
+-- tissue block
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='qc_hb_stored_by' AND `language_label`='stored by' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff')  AND `language_help`=''), '0', '32', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='qc_hb_label' AND `language_label`='label' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '1', '0', '1', '1');
+UPDATE structure_value_domains_permissible_values SET flag_active=0 WHERE structure_value_domain_id=3 AND structure_permissible_value_id IN(9, 10);
+
+-- conical tube
+INSERT INTO `structures` (`id` ,`alias` ,`description` ,`language_title` ,`language_help` ,`flag_add_columns` ,`flag_edit_columns` ,`flag_search_columns` ,`flag_detail_columns` ,`created` ,`created_by` ,`modified` ,`modified_by`)VALUES 
+(NULL , 'ad_spec_conical_tubes', NULL , '', '', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`)
+(SELECT (SELECT id FROM structures WHERE alias='ad_spec_conical_tubes'), `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail` FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tubes'));
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_hb_conical_tube_milieu', '', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("transport/conservation", "transport/conservation");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_conical_tube_milieu"),  (SELECT id FROM structure_permissible_values WHERE value="transport/conservation" AND language_alias="transport/conservation"), "1", "1");
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Inventorymanagement', 'AliquotDetail', 'ad_tubes', 'qc_hb_milieu', 'milieu', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_conical_tube_milieu') , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_spec_conical_tubes'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='qc_hb_milieu' AND `language_label`='milieu' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_conical_tube_milieu')  AND `language_help`=''), '0', '16', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1');
+
+UPDATE parent_to_derivative_sample_controls SET flag_active=0 WHERE parent_sample_control_id=3 AND derivative_sample_control_id!=102;
+
+-- tisue suspension
+ALTER TABLE `sd_der_tiss_susps` 
+ADD `qc_hb_overnight` TINYINT NOT NULL,
+ADD `qc_hb_macs_nb_cycles` TINYINT UNSIGNED NOT NULL ,
+ADD `qc_hb_macs_nb_incubations` TINYINT UNSIGNED NOT NULL ,
+ADD `qc_hb_macs_enzymatic_milieu` VARCHAR( 50 ) NOT NULL DEFAULT '',
+ADD `qc_hb_nb_viable_cells` FLOAT UNSIGNED NOT NULL ,
+ADD `qc_hb_nb_viable_cells_unit` VARCHAR( 50 ) NOT NULL DEFAULT '';
+ALTER TABLE `sd_der_tiss_susps_revs` 
+ADD `qc_hb_overnight` TINYINT NOT NULL,
+ADD `qc_hb_macs_nb_cycles` TINYINT UNSIGNED NOT NULL ,
+ADD `qc_hb_macs_nb_incubations` TINYINT UNSIGNED NOT NULL ,
+ADD `qc_hb_macs_enzymatic_milieu` VARCHAR( 50 ) NOT NULL DEFAULT '',
+ADD `qc_hb_nb_viable_cells` FLOAT UNSIGNED NOT NULL ,
+ADD `qc_hb_nb_viable_cells_unit` VARCHAR( 50 ) NOT NULL DEFAULT ''; 
+
+INSERT INTO `structures` (`id` ,`alias` ,`description` ,`language_title` ,`language_help` ,`flag_add_columns` ,`flag_edit_columns` ,`flag_search_columns` ,`flag_detail_columns` ,`created` ,`created_by` ,`modified` ,`modified_by`)VALUES 
+(NULL , 'sd_tissue_susp', NULL , '', '', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`)
+(SELECT (SELECT id FROM structures WHERE alias='sd_tissue_susp'), `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail` FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_undetailed_derivatives'));
+UPDATE `sample_controls` SET `form_alias` = 'sd_tissue_susp' WHERE `sample_controls`.`id` =102;
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_hb_2_to_3', '', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("2", "2");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_2_to_3"),  (SELECT id FROM structure_permissible_values WHERE value="2" AND language_alias="2"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("3", "3");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_2_to_3"),  (SELECT id FROM structure_permissible_values WHERE value="3" AND language_alias="3"), "2", "1");
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_hb_3_to_4', '', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("3", "3");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_3_to_4"),  (SELECT id FROM structure_permissible_values WHERE value="3" AND language_alias="3"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("4", "4");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_3_to_4"),  (SELECT id FROM structure_permissible_values WHERE value="4" AND language_alias="4"), "2", "1");
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Inventorymanagement', 'AliquotDetail', 'sd_der_tiss_susps', 'qc_hb_overnight', 'overnight', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), 
+('', 'Inventorymanagement', 'AliquotDetail', 'sd_der_tiss_susps', 'qc_hb_macs_nb_cycles', 'genHeMACS program', 'nb of cylcles', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_3_to_4') , '', 'open', 'open', 'open'), 
+('', 'Inventorymanagement', 'AliquotDetail', 'sd_der_tiss_susps', 'qc_hb_macs_nb_incubations', '', 'nb of incubations', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_2_to_3') , '', 'open', 'open', 'open'), 
+('', 'Inventorymanagement', 'AliquotDetail', 'sd_der_tiss_susps', 'qc_hb_macs_enzymatic_milieu', '', 'enzymatic milieu', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Inventorymanagement', 'AliquotDetail', 'sd_der_tiss_susps', 'qc_hb_nb_viable_cells', 'nb viable cells', '', 'float_positive', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Inventorymanagement', 'AliquotDetail', 'sd_der_tiss_susps', 'qc_hb_nb_viable_cells_unit', '', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_nb_cell_unit') , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_tissue_susp'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='sd_der_tiss_susps' AND `field`='qc_hb_overnight' AND `language_label`='overnight' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `language_help`=''), '1', '40', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='sd_tissue_susp'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='sd_der_tiss_susps' AND `field`='qc_hb_macs_nb_cycles' AND `language_label`='genHeMACS program' AND `language_tag`='nb of cylcles' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_3_to_4')  AND `language_help`=''), '1', '41', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='sd_tissue_susp'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='sd_der_tiss_susps' AND `field`='qc_hb_macs_nb_incubations' AND `language_label`='' AND `language_tag`='nb of incubations' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_2_to_3')  AND `language_help`=''), '1', '42', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='sd_tissue_susp'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='sd_der_tiss_susps' AND `field`='qc_hb_macs_enzymatic_milieu' AND `language_label`='' AND `language_tag`='enzymatic milieu' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '43', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='sd_tissue_susp'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='sd_der_tiss_susps' AND `field`='qc_hb_nb_viable_cells' AND `language_label`='nb viable cells' AND `language_tag`='' AND `type`='float_positive' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '44', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='sd_tissue_susp'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='sd_der_tiss_susps' AND `field`='qc_hb_nb_viable_cells_unit' AND `language_label`='' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_nb_cell_unit')  AND `language_help`=''), '1', '45', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1');
 
 
