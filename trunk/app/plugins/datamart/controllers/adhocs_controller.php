@@ -78,7 +78,6 @@ class AdhocsController extends DatamartAppController {
 	}
 	
 	function results( $type_of_list='all', $adhoc_id=0 ) {
-
 		$this->set( 'atim_menu_variables', array( 'Param.Type_Of_List'=>$type_of_list, 'Adhoc.id'=>$adhoc_id ) );
 		$this->set( 'atim_structure_for_detail', $this->Structures->get( 'form', 'querytool_adhoc' ) );
 		
@@ -101,10 +100,17 @@ class AdhocsController extends DatamartAppController {
 			  )
 		 );
 			
-		$adhoc = $this->Adhoc->find( 'first', array( 'conditions'=>array('Adhoc.id'=>$adhoc_id) ) );
-	   	$this->set( 'data_for_detail', $adhoc );
-			// $this->set( 'adhoc', $adhoc ); // set for display purposes...
-		$this->set( 'atim_structure_for_results', $this->Structures->get( 'form', $adhoc['Adhoc']['form_alias_for_results'] ) );
+		if(is_numeric($adhoc_id)){
+			$adhoc = $this->Adhoc->find( 'first', array( 'conditions'=>array('Adhoc.id'=>$adhoc_id)));
+		   	$this->set( 'data_for_detail', $adhoc );
+			$this->set( 'atim_structure_for_results', $this->Structures->get( 'form', $adhoc['Adhoc']['form_alias_for_results']));
+		}else{
+			list($type_from, $type_to) = explode("_", $adhoc_id);
+			list($plugin, $model) = explode(".", $type_to);
+			$adhoc = array("Adhoc" => array("description" => "Browsing", "model" => $model, $plugin => $plugin));
+			$this->set( 'data_for_detail', $adhoc);
+			$this->set( 'atim_structure_for_results', $this->Structures->get( 'form', $type_to ));
+		}
 		$this->set( 'atim_structure_for_add', $this->Structures->get( 'form', 'querytool_adhoc_to_batchset' ) );
 		
 		// do search for RESULTS, using THIS->DATA if any
