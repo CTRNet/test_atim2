@@ -7,8 +7,10 @@ UPDATE `versions`
 SET `version_number` = 'v2.1.0 (Alpha)', `date_installed` = CURDATE(), `build_number` = ''
 WHERE `versions`.`id` =1;
 
-REPLACE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
-("realiquot", "", "Realiquot", "Réaliquotter"),
+TRUNCATE `acos`;
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+("realiquot", "Realiquot", "Réaliquotter"),
 ("select an option for the field process batch set", "Select an option for the field process batch set", "Sélectionnez une option pour le champ manipuler groupe de données"),
 ("check at least one element from the batch set", "Check at least one element from the batch set", "Cochez au moins un élément du groupe de données"),
 ("an x coordinate needs to be defined", "An x coordinate needs to be defined", "Une coordonnée x doit être définie"),
@@ -82,4 +84,59 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES ('cdna', '', 'cDNA', 'DN
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES ('please check following barcodes', '', 'Please check following barcodes: ', 'Veuillez contrôler les barcodes suivants: ');
 
 
+-- datamart browser
+INSERT INTO `menus` (`id` ,`parent_id` ,`is_root` ,`display_order` ,`language_title` ,`language_description` ,`use_link` ,`use_params` ,`use_summary` ,`flag_active` ,`created` ,`created_by` ,`modified` ,`modified_by`) VALUES 
+('qry-CAN-1-1', 'qry-CAN-1', '0', '3', 'data browser', 'tool to browse data', '/datamart/browser/index', '', '', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
+
+CREATE TABLE datamart_browsing_structures(
+id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+plugin VARCHAR(50) NOT NULL,
+model VARCHAR(50) NOT NULL,
+structure_alias VARCHAR(255) NOT NULL,
+results_structure_alias VARCHAR(255) NOT NULL,
+display_name VARCHAR(50) NOT NULL,
+use_key VARCHAR(50) NOT NULL,
+FOREIGN KEY (`structure_alias`) REFERENCES `structures`(`alias`)
+)Engine=InnoDb;
+
+CREATE TABLE datamart_browsing_controls(
+id1 INT UNSIGNED NOT NULL,
+id2 INT UNSIGNED NOT NULL,
+flag_active_1_to_2 BOOLEAN NOT NULL DEFAULT true,
+flag_active_2_to_1 BOOLEAN NOT NULL DEFAULT true,
+use_field VARCHAR(50) NOT NULL,
+UNIQUE(id1, id2),
+FOREIGN KEY (`id1`) REFERENCES `datamart_browsing_structures`(`id`),
+FOREIGN KEY (`id2`) REFERENCES `datamart_browsing_structures`(`id`)
+)Engine=InnoDb;
+
+INSERT INTO datamart_browsing_structures (`id`, `plugin`, `model`, `structure_alias`, `display_name`, `use_key`) VALUES
+(1, 'Inventorymanagement', 'ViewAliquot', 'view_aliquot_joined_to_collection', 'aliquots', 'ViewAliquot.aliquot_master_id'),
+(2, 'Inventorymanagement', 'ViewCollection', 'view_collection', 'collections', 'collection_id'),
+(3, 'Storagelayout', 'StorageMaster', 'storagemasters', 'storages', 'id'),
+(4, 'Clinicalannotation', 'Participant', 'participants', 'participants', 'id'),
+(5, 'Inventorymanagement', 'ViewSample', 'view_sample_joined_to_collection', 'samples', 'sample_master_id');
+
+INSERT INTO datamart_browsing_controls(`id1`, `id2`, `use_field`) VALUES
+(1, 2, 'ViewAliquot.collection_id'),
+(1, 3, 'ViewAliquot.storage_master_id'),
+(2, 4, 'ViewCollection.participant_id'),
+(1, 5, 'ViewAliquot.sample_master_id'),
+(5, 2, 'ViewSample.collection_id');
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('datamart_browser_options', '', '', 'Datamart.Browser::getDropdownOptions');
+INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('datamart_browser_start', '', '', '1', '1', '1', '1');
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Datamart', 'Browser', '', 'search_for', 'start by searching for', '', 'select', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name='datamart_browser_options') , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='datamart_browser_start'), (SELECT id FROM structure_fields WHERE `model`='Browser' AND `tablename`='' AND `field`='search_for' AND `language_label`='start by searching for' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='datamart_browser_options')  AND `language_help`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+
+CREATE TABLE datamart_browsing_results(
+`user_id` int UNSIGNED NOT NULL,
+`node_id` int UNSIGNED AUTO_INCREMENT primary key,
+`parent_node_id` tinyint UNSIGNED,
+`browsing_structures_id` int UNSIGNED,
+`id_csv` text NOT NULL,
+UNIQUE KEY (`user_id`, `parent_node_id`, `browsing_structures_id`, `id_csv`(200))
+)Engine=InnoDb

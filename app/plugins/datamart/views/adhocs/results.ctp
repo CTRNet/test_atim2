@@ -1,4 +1,5 @@
-<?php 
+<?php
+pr($this->data); 
 	// display adhoc DETAIL
 		$structures->build( $atim_structure_for_detail, array('type'=>'detail', 'settings'=>array('actions'=>false), 'data'=>$data_for_detail) );
 	
@@ -48,3 +49,12 @@
 		
 		$structures->build( $atim_structure_for_add, array('type'=>'add', 'settings'=>array('form_top'=>false), 'links'=>$structure_links, 'override'=>$structure_override, 'data'=>array()) );
 ?>
+<button id="warp">WARP!</button>
+<script type="text/javascript">
+$(function(){
+	$("#warp").click(function(){
+		$("form").attr("action", root_url + "/datamart/adhocs/results/all/Inventorymanagement.aliquot_Inventorymanagement.collections");
+		$('#submit_button').click();
+	});
+});
+</script>

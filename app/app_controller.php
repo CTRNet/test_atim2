@@ -208,6 +208,21 @@ class AppController extends Controller {
 	static function getInstance(){
 		return AppController::$me;
 	}
+	
+	/**
+	 * Takes an array of the form array("A => array("B" => "1", "C" => "2")) 
+	 * to the form array("A.B" => "1", "A.C" => "2")
+	 * @param flattened array
+	 */
+	static function flattenArray($arr){
+		$result = array();
+		foreach($arr as $k1 => $sub_arr){
+			foreach($sub_arr as $k2 => $val){
+				$result[$k1.".".$k2] = $val;
+			}
+		}
+		return $result;
+	}
 }
 
 
