@@ -100,3 +100,15 @@ FROM reproductive_histories;
 -- check #16 : Check no source block has been difined
 SELECT DISTINCT `block_aliquot_master_id` FROM `ad_tissue_slides`;
 -- -> 0 records
+
+-- check #17 : Check no error into the derivative sample label creation
+SELECT spec.id AS spec_sample_master_id, spec.collection_id AS spec_collection_id, CONCAT('%',spec.sample_label,'%') AS spec_sample_label, 
+deriv.id  AS derivsample_master_id, deriv.collection_id AS deriv_collection_id, deriv.sample_label  AS deriv_sample_label
+FROM sample_masters AS spec 
+INNER JOIN sample_masters AS deriv ON deriv.initial_specimen_sample_id = spec.id AND deriv.sample_category = 'derivative' AND spec.sample_category = 'specimen'
+WHERE deriv.sample_label NOT LIKE CONCAT('%',spec.sample_label,'%');
+-- -> 0 records
+
+
+
+
