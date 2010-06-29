@@ -1580,7 +1580,7 @@ VALUES
 (null, '', 'Inventorymanagement', 'SpecimenDetail', '', 'sequence_number', 'sequence number', '', 'input', 'size=30', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
 
 INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) VALUES
-(null, (SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='' AND `field`='sequence_number'), 'custom,/(^[0-9]*$)|(^[ABCabc]$)/', '0', '0', '', 'sequence should be an integer or equal to character A,B or C', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
+(null, (SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='' AND `field`='sequence_number'), 'custom,/(^[0-9]*$)|(^[ABCabc]$)/', '1', '0', '', 'sequence should be an integer or equal to character A,B or C', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
 
 INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('labo type code', 'global', 'Type Code (Labo Defintion)', 'Code du type (Définition du labo)'),	
@@ -2729,7 +2729,7 @@ INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_e
 (null, (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label'), 'notEmpty', '0', '0', '', 'aliquot label is required', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
 
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
-('aliquot label is required', 'global', 'Aliquot label is required!', '&Eacute;tiquette de l''aliquot est requis!');
+('aliquot label is required', 'global', 'Aliquot label is required!', 'étiquette de l''aliquot est requis!');
 
 SET @structure_field_id = (SELECT id FROM structure_fields WHERE field LIKE 'aliquot_label');
 
@@ -3315,3 +3315,57 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 UPDATE `frsq_icm_v2`.`storage_controls` SET `display_x_size` = '3',
 `display_y_size` = '9',
 `horizontal_increment` = '0' WHERE `storage_controls`.`storage_type` = 'box27' ;
+
+-- Add tissue nature
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
+(null, 'qc_tissue_nature', 'open', '', NULL);
+
+SET @qc_tissue_nature = (SELECT id FROM structure_value_domains WHERE domain_name LIKE 'qc_tissue_nature');
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+('benign','benign'),
+('malignant','malignant'),
+('metastatic','metastatic'),
+('normal','normal'),
+('unknown','unknown');
+
+INSERT INTO structure_value_domains_permissible_values 
+(`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+(@qc_tissue_nature, (SELECT id FROM structure_permissible_values WHERE value="benign" AND language_alias="benign"), "1", "1"),
+(@qc_tissue_nature, (SELECT id FROM structure_permissible_values WHERE value="malignant" AND language_alias="malignant"), "2", "1"),
+(@qc_tissue_nature, (SELECT id FROM structure_permissible_values WHERE value="metastatic" AND language_alias="metastatic"), "3", "1"),
+(@qc_tissue_nature, (SELECT id FROM structure_permissible_values WHERE value="normal" AND language_alias="normal"), "4", "1"),
+(@qc_tissue_nature, (SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "5", "1");
+
+INSERT INTO structure_fields (id, public_identifier, plugin, model, tablename, field, language_label, language_tag, `type`, setting, `default`, structure_value_domain, language_help, validation_control, value_domain_control, field_control, created, created_by, modified, modified_by) 
+VALUES
+(null, '', 'Inventorymanagement', 'SampleDetail', 'sd_spe_tissues', 'tissue_nature', 'tissue nature', '', 'select', '', '', @qc_tissue_nature, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+SET @structure_id = (SELECT id FROM structures WHERE alias IN ('sd_spe_tissues'));
+INSERT INTO `structure_formats` (`structure_field_id`, `structure_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`)
+VALUES
+((SELECT id FROM structure_fields WHERE `plugin`='Inventorymanagement' AND `model`='SampleDetail' AND `field`='tissue_nature'),@structure_id,'1','42', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '0', '2010-02-12 00:00', '0');
+
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('benign', 'global', 'Benign', 'Bénin'),
+('malignant', 'global', 'Malignant', 'Malin'),
+('metastatic', 'global', 'Metastatic', 'Métastases'),
+('normal', 'global', 'Normal', 'Normal'),
+('tissue nature', 'global', 'Nature', 'Nature'),
+('unknown', 'global', 'Unknown', 'Inconnu');
+
+-- Change tissue fields to read only
+
+UPDATE structure_formats format, structures strct
+SET format.flag_add ='0', format.flag_add_readonly ='0', 
+flag_edit ='0', flag_edit_readonly ='0'
+WHERE format.structure_id = strct.id
+AND strct.alias = 'sd_spe_tissues'
+AND format.structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='Inventorymanagement' AND `model`='SampleDetail' AND `field` IN ('tissue_laterality', 'tissue_source')); 
+
+
+
+
+

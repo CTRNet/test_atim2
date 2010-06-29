@@ -3,12 +3,22 @@
  	// --------------------------------------------------------------------------------
 	// Generate Sample Label
 	// -------------------------------------------------------------------------------- 
-	$working_data = $this->data;
-	$working_data['SampleControl'] = $sample_data['SampleControl'];
-	$working_data['SampleMaster']['initial_specimen_sample_id'] = $sample_data['SampleMaster']['initial_specimen_sample_id'];
-	
-	$this->data['SampleMaster']['sample_label'] = $this->createSampleLabel($collection_id, $working_data);
+	if($submitted_data_validates) {
+		$working_data = $this->data;
+		$working_data['SampleControl'] = $sample_data['SampleControl'];
+		$working_data['SampleMaster']['initial_specimen_sample_id'] = $sample_data['SampleMaster']['initial_specimen_sample_id'];
+		
+		$this->data['SampleMaster']['sample_label'] = $this->createSampleLabel($collection_id, $working_data);
+	}
 
+
+
+	// For specimen: Check selected type code 
+	// Plus for tissue: set read only fields (tissue source, nature, laterality)		
+	$management_done 
+		= $this->manageLabTypeCodeAndLaterality($submitted_data_validates);
+
+exit;
 	// --------------------------------------------------------------------------------
 	// Update Derivatives Sample Labels of the managed Specimen
 	// -------------------------------------------------------------------------------- 	
