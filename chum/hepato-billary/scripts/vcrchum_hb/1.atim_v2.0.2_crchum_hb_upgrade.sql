@@ -3855,10 +3855,6 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='sd_tissue_susp'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_tiss_susps' AND `field`='qc_hb_nb_viable_cells_unit' AND `language_label`='' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_nb_cell_unit')  AND `language_help`=''), '1', '45', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
 ((SELECT id FROM structures WHERE alias='sd_tissue_susp'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_tiss_susps' AND `field`='qc_hb_viability_perc'), '1', '50', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1');
 
-DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id
-FROM `structure_fields`
-WHERE `tablename` LIKE 'sd_der_tiss_susps')
-
 INSERT IGNORE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('label', 'Label', 'Étiquette'),
 ('milieu', 'Milieu', 'Milieu'),
@@ -3869,20 +3865,6 @@ INSERT IGNORE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ("nb of incubations", "Nb. of incubations", "Nb. d'incubations"),
 ("enzymatic milieu", "Enzymatic milieu", "Milieu enzymatique"),
 ("nb viable cells", "Nb. viable cells", "Nb. de cellules viables");
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 -- Correction on inventory
 
