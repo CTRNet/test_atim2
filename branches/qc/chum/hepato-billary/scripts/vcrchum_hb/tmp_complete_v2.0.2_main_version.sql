@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Serveur: localhost
--- Généré le : Lun 07 Juin 2010 à 09:49
+-- Généré le : Mer 30 Juin 2010 à 09:41
 -- Version du serveur: 5.1.32
 -- Version de PHP: 5.2.9
 
@@ -419,6 +419,7 @@ CREATE TABLE IF NOT EXISTS `ad_tubes` (
   `modified_by` int(10) unsigned NOT NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
+  `qc_hb_milieu` varchar(50) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   KEY `FK_ad_tubes_aliquot_masters` (`aliquot_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -450,6 +451,7 @@ CREATE TABLE IF NOT EXISTS `ad_tubes_revs` (
   `version_created` datetime NOT NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
+  `qc_hb_milieu` varchar(50) NOT NULL DEFAULT '',
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
@@ -527,7 +529,7 @@ CREATE TABLE IF NOT EXISTS `aliquot_controls` (
   `comment` varchar(255) DEFAULT NULL,
   `display_order` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=16 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=17 ;
 
 --
 -- Contenu de la table `aliquot_controls`
@@ -545,7 +547,8 @@ INSERT INTO `aliquot_controls` (`id`, `aliquot_type`, `flag_active`, `form_alias
 (12, 'core', 1, 'ad_spec_tiss_cores', 'ad_tissue_cores', NULL, 'Tissue core', 0),
 (13, 'cell gel matrix', 1, 'ad_der_cel_gel_matrices', 'ad_gel_matrices', NULL, 'Cells gel matrix', 0),
 (14, 'core', 1, 'ad_der_cell_cores', 'ad_cell_cores', NULL, 'Cells core', 0),
-(15, 'tube', 1, 'ad_der_cell_tubes_incl_ml_vol', 'ad_tubes', 'ml', 'Derivative tube requiring volume in ml specific for cells', 0);
+(15, 'tube', 1, 'ad_der_cell_tubes_incl_ml_vol', 'ad_tubes', 'ml', 'Derivative tube requiring volume in ml specific for cells', 0),
+(16, 'conical tube', 1, 'ad_spec_conical_tubes', 'ad_tubes', '', NULL, 0);
 
 -- --------------------------------------------------------
 
@@ -581,6 +584,8 @@ CREATE TABLE IF NOT EXISTS `aliquot_masters` (
   `modified_by` int(10) unsigned NOT NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
+  `qc_hb_label` varchar(50) NOT NULL DEFAULT '',
+  `qc_hb_stored_by` varchar(50) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_barcode` (`barcode`),
   KEY `barcode` (`barcode`),
@@ -634,6 +639,8 @@ CREATE TABLE IF NOT EXISTS `aliquot_masters_revs` (
   `version_created` datetime NOT NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
+  `qc_hb_label` varchar(50) NOT NULL DEFAULT '',
+  `qc_hb_stored_by` varchar(50) NOT NULL DEFAULT '',
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
@@ -847,7 +854,7 @@ CREATE TABLE IF NOT EXISTS `banks` (
 --
 
 INSERT INTO `banks` (`id`, `name`, `description`, `created_by`, `created`, `modified_by`, `modified`, `deleted`, `deleted_date`) VALUES
-(1, 'Default Bank', 'This is an example bank, that gets automatically created when the application is installed. You should rename this, changing the title and description to match your own bank.', 0, '0000-00-00 00:00:00', 1, '2009-04-08 16:13:19', 0, '0000-00-00 00:00:00');
+(1, 'hepato bilary', '', 0, '0000-00-00 00:00:00', 1, '2009-04-08 16:13:19', 0, '0000-00-00 00:00:00');
 
 -- --------------------------------------------------------
 
@@ -2692,6 +2699,425 @@ CREATE TABLE IF NOT EXISTS `ed_breast_screening_mammogram_revs` (
 -- --------------------------------------------------------
 
 --
+-- Structure de la table `ed_score_barcelona`
+--
+
+CREATE TABLE IF NOT EXISTS `ed_score_barcelona` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `event_master_id` int(11) NOT NULL,
+  `who` varchar(255) DEFAULT NULL,
+  `tumor_morphology` varchar(255) DEFAULT NULL,
+  `okuda_score` varchar(255) DEFAULT NULL,
+  `liver_function` varchar(255) DEFAULT NULL,
+  `result` varchar(10) DEFAULT NULL,
+  `created` datetime NOT NULL,
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime NOT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL,
+  `deleted_by` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Contenu de la table `ed_score_barcelona`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `ed_score_barcelona_revs`
+--
+
+CREATE TABLE IF NOT EXISTS `ed_score_barcelona_revs` (
+  `id` int(10) unsigned NOT NULL,
+  `event_master_id` int(11) NOT NULL,
+  `who` varchar(255) DEFAULT NULL,
+  `tumor_morphology` varchar(255) DEFAULT NULL,
+  `okuda_score` varchar(255) DEFAULT NULL,
+  `liver_function` varchar(255) DEFAULT NULL,
+  `result` varchar(10) DEFAULT NULL,
+  `created` datetime NOT NULL,
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime NOT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL,
+  `deleted_by` int(10) unsigned NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Contenu de la table `ed_score_barcelona_revs`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `ed_score_child_pugh`
+--
+
+CREATE TABLE IF NOT EXISTS `ed_score_child_pugh` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `event_master_id` int(11) NOT NULL,
+  `bilirubin` varchar(255) DEFAULT NULL,
+  `albumin` varchar(255) DEFAULT NULL,
+  `inr` varchar(255) DEFAULT NULL,
+  `encephalopathy` varchar(255) DEFAULT NULL,
+  `ascite` varchar(255) DEFAULT NULL,
+  `result` varchar(10) DEFAULT NULL,
+  `created` datetime NOT NULL,
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime NOT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL,
+  `deleted_by` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Contenu de la table `ed_score_child_pugh`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `ed_score_child_pugh_revs`
+--
+
+CREATE TABLE IF NOT EXISTS `ed_score_child_pugh_revs` (
+  `id` int(10) unsigned NOT NULL,
+  `event_master_id` int(10) unsigned NOT NULL,
+  `bilirubin` varchar(255) DEFAULT NULL,
+  `albumin` varchar(255) DEFAULT NULL,
+  `inr` varchar(255) DEFAULT NULL,
+  `encephalopathy` varchar(255) DEFAULT NULL,
+  `ascite` varchar(255) DEFAULT NULL,
+  `result` varchar(10) DEFAULT NULL,
+  `created` datetime NOT NULL,
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime NOT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL,
+  `deleted_by` int(10) unsigned NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Contenu de la table `ed_score_child_pugh_revs`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `ed_score_clip`
+--
+
+CREATE TABLE IF NOT EXISTS `ed_score_clip` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `event_master_id` int(11) NOT NULL,
+  `child_pugh_score` varchar(255) DEFAULT NULL,
+  `morphology_of_tumor` varchar(255) DEFAULT NULL,
+  `alpha_foetoprotein` varchar(255) DEFAULT NULL,
+  `portal_thrombosis` varchar(255) DEFAULT NULL,
+  `result` tinyint(3) unsigned DEFAULT NULL,
+  `created` datetime NOT NULL,
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime NOT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL,
+  `deleted_by` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Contenu de la table `ed_score_clip`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `ed_score_clip_revs`
+--
+
+CREATE TABLE IF NOT EXISTS `ed_score_clip_revs` (
+  `id` int(10) unsigned NOT NULL,
+  `event_master_id` int(11) NOT NULL,
+  `child_pugh_score` varchar(255) DEFAULT NULL,
+  `morphology_of_tumor` varchar(255) DEFAULT NULL,
+  `alpha_foetoprotein` varchar(255) DEFAULT NULL,
+  `portal_thrombosis` varchar(255) DEFAULT NULL,
+  `result` tinyint(3) unsigned DEFAULT NULL,
+  `created` datetime NOT NULL,
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime NOT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL,
+  `deleted_by` int(10) unsigned NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Contenu de la table `ed_score_clip_revs`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `ed_score_fong`
+--
+
+CREATE TABLE IF NOT EXISTS `ed_score_fong` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `event_master_id` int(11) NOT NULL,
+  `metastatic_lymph_nodes` varchar(3) DEFAULT NULL,
+  `interval_under_year` varchar(3) DEFAULT NULL,
+  `more_than_one_metastasis` varchar(3) DEFAULT NULL,
+  `metastasis_greater_five_cm` varchar(3) DEFAULT NULL,
+  `cea_greater_two_hundred` varchar(3) DEFAULT NULL,
+  `result` varchar(10) DEFAULT NULL,
+  `created` datetime NOT NULL,
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime NOT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL,
+  `deleted_by` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Contenu de la table `ed_score_fong`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `ed_score_fong_revs`
+--
+
+CREATE TABLE IF NOT EXISTS `ed_score_fong_revs` (
+  `id` int(10) unsigned NOT NULL,
+  `event_master_id` int(11) NOT NULL,
+  `metastatic_lymph_nodes` varchar(3) DEFAULT NULL,
+  `interval_under_year` varchar(3) DEFAULT NULL,
+  `more_than_one_metastasis` varchar(3) DEFAULT NULL,
+  `metastasis_greater_five_cm` varchar(3) DEFAULT NULL,
+  `cea_greater_two_hundred` varchar(3) DEFAULT NULL,
+  `result` varchar(10) DEFAULT NULL,
+  `created` datetime NOT NULL,
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime NOT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL,
+  `deleted_by` int(10) unsigned NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Contenu de la table `ed_score_fong_revs`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `ed_score_gretch`
+--
+
+CREATE TABLE IF NOT EXISTS `ed_score_gretch` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `event_master_id` int(11) NOT NULL,
+  `karnofsky_index` varchar(255) DEFAULT NULL,
+  `bilirubin` varchar(255) DEFAULT NULL,
+  `alkaline_phosphatase` varchar(255) DEFAULT NULL,
+  `alpha_foetoprotein` varchar(255) DEFAULT NULL,
+  `portal_thrombosis` varchar(255) DEFAULT NULL,
+  `result` varchar(10) DEFAULT NULL,
+  `created` datetime NOT NULL,
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime NOT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL,
+  `deleted_by` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Contenu de la table `ed_score_gretch`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `ed_score_gretch_revs`
+--
+
+CREATE TABLE IF NOT EXISTS `ed_score_gretch_revs` (
+  `id` int(10) unsigned NOT NULL,
+  `event_master_id` int(11) NOT NULL,
+  `karnofsky_index` varchar(255) DEFAULT NULL,
+  `bilirubin` varchar(255) DEFAULT NULL,
+  `alkaline_phosphatase` varchar(255) DEFAULT NULL,
+  `alpha_foetoprotein` varchar(255) DEFAULT NULL,
+  `portal_thrombosis` varchar(255) DEFAULT NULL,
+  `result` varchar(10) DEFAULT NULL,
+  `created` datetime NOT NULL,
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime NOT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL,
+  `deleted_by` int(10) unsigned NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Contenu de la table `ed_score_gretch_revs`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `ed_score_meld`
+--
+
+CREATE TABLE IF NOT EXISTS `ed_score_meld` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `event_master_id` int(11) NOT NULL,
+  `bilirubin` float unsigned DEFAULT NULL,
+  `inr` float unsigned DEFAULT NULL,
+  `creatinine` float unsigned DEFAULT NULL,
+  `dialysis` tinyint(3) unsigned DEFAULT NULL,
+  `result` float unsigned DEFAULT NULL,
+  `created` datetime NOT NULL,
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime NOT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL,
+  `deleted_by` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Contenu de la table `ed_score_meld`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `ed_score_meld_revs`
+--
+
+CREATE TABLE IF NOT EXISTS `ed_score_meld_revs` (
+  `id` int(10) unsigned NOT NULL,
+  `event_master_id` int(11) NOT NULL,
+  `bilirubin` float unsigned DEFAULT NULL,
+  `inr` float unsigned DEFAULT NULL,
+  `creatinine` float unsigned DEFAULT NULL,
+  `dialysis` tinyint(3) unsigned DEFAULT NULL,
+  `result` float unsigned DEFAULT NULL,
+  `created` datetime NOT NULL,
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime NOT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL,
+  `deleted_by` int(10) unsigned NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Contenu de la table `ed_score_meld_revs`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `ed_score_okuda`
+--
+
+CREATE TABLE IF NOT EXISTS `ed_score_okuda` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `event_master_id` int(11) NOT NULL,
+  `bilirubin` varchar(255) DEFAULT NULL,
+  `albumin` varchar(255) DEFAULT NULL,
+  `ascite` varchar(255) DEFAULT NULL,
+  `tumor_size_ratio` varchar(255) DEFAULT NULL COMMENT '% of liver volume',
+  `result` varchar(10) DEFAULT NULL,
+  `created` datetime NOT NULL,
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime NOT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL,
+  `deleted_by` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Contenu de la table `ed_score_okuda`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `ed_score_okuda_revs`
+--
+
+CREATE TABLE IF NOT EXISTS `ed_score_okuda_revs` (
+  `id` int(10) unsigned NOT NULL,
+  `event_master_id` int(11) NOT NULL,
+  `bilirubin` varchar(255) DEFAULT NULL,
+  `albumin` varchar(255) DEFAULT NULL,
+  `ascite` varchar(255) DEFAULT NULL,
+  `tumor_size_ratio` varchar(255) DEFAULT NULL COMMENT '% of liver volume',
+  `result` varchar(10) DEFAULT NULL,
+  `created` datetime NOT NULL,
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime NOT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL,
+  `deleted_by` int(10) unsigned NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Contenu de la table `ed_score_okuda_revs`
+--
+
+
+-- --------------------------------------------------------
+
+--
 -- Structure de la table `event_controls`
 --
 
@@ -2705,22 +3131,57 @@ CREATE TABLE IF NOT EXISTS `event_controls` (
   `detail_tablename` varchar(255) NOT NULL,
   `display_order` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=35 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=79 ;
 
 --
 -- Contenu de la table `event_controls`
 --
 
 INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`, `flag_active`, `form_alias`, `detail_tablename`, `display_order`) VALUES
-(18, 'breast', 'lab', 'pathology', 1, 'ed_breast_lab_pathology', 'ed_breast_lab_pathology', 0),
-(19, 'all solid tumours', 'lab', 'pathology', 1, 'ed_allsolid_lab_pathology', 'ed_allsolid_lab_pathology', 0),
-(20, 'all', 'clinical', 'follow up', 1, 'ed_all_clinical_followup', 'ed_all_clinical_followup', 0),
-(22, 'all', 'clinical', 'presentation', 1, 'ed_all_clinical_presentation', 'ed_all_clinical_presentation', 0),
-(30, 'all', 'lifestyle', 'smoking', 1, 'ed_all_lifestyle_smoking', 'ed_all_lifestyle_smoking', 0),
-(31, 'all', 'adverse_events', 'adverse_event', 1, 'ed_all_adverse_events_adverse_event', 'ed_all_adverse_events_adverse_event', 0),
-(32, 'breast', 'screening', 'mammogram', 1, 'ed_breast_screening_mammogram', 'ed_breast_screening_mammogram', 0),
-(33, 'all', 'protocol', 'followup', 1, 'ed_all_protocol_followup', 'ed_all_protocol_followup', 0),
-(34, 'all', 'study', 'research', 1, 'ed_all_study_research', 'ed_all_study_research', 0);
+(35, 'hepatobiliary', 'clinical', 'presentation', 1, 'qc_hb_ed_hepatobiliary_clinical_presentation', 'qc_hb_ed_hepatobiliary_clinical_presentation', 0),
+(36, 'hepatobiliary', 'clinical', 'asa medical past history', 1, 'qc_hb_ed_hepatobiliary_medical_past_history', 'qc_hb_ed_hepatobiliary_medical_past_history', 0),
+(37, 'hepatobiliary', 'clinical', 'heart disease medical past history', 1, 'qc_hb_ed_hepatobiliary_medical_past_history', 'qc_hb_ed_hepatobiliary_medical_past_history', 0),
+(38, 'hepatobiliary', 'clinical', 'vascular disease medical past history', 1, 'qc_hb_ed_hepatobiliary_medical_past_history', 'qc_hb_ed_hepatobiliary_medical_past_history', 0),
+(39, 'hepatobiliary', 'clinical', 'respiratory disease medical past history', 1, 'qc_hb_ed_hepatobiliary_medical_past_history', 'qc_hb_ed_hepatobiliary_medical_past_history', 0),
+(40, 'hepatobiliary', 'clinical', 'neural vascular disease medical past history', 1, 'qc_hb_ed_hepatobiliary_medical_past_history', 'qc_hb_ed_hepatobiliary_medical_past_history', 0),
+(41, 'hepatobiliary', 'clinical', 'endocrine disease medical past history', 1, 'qc_hb_ed_hepatobiliary_medical_past_history', 'qc_hb_ed_hepatobiliary_medical_past_history', 0),
+(42, 'hepatobiliary', 'clinical', 'urinary disease medical past history', 1, 'qc_hb_ed_hepatobiliary_medical_past_history', 'qc_hb_ed_hepatobiliary_medical_past_history', 0),
+(43, 'hepatobiliary', 'clinical', 'gastro-intestinal disease medical past history', 1, 'qc_hb_ed_hepatobiliary_medical_past_history', 'qc_hb_ed_hepatobiliary_medical_past_history', 0),
+(44, 'hepatobiliary', 'clinical', 'gynecologic disease medical past history', 1, 'qc_hb_ed_hepatobiliary_medical_past_history', 'qc_hb_ed_hepatobiliary_medical_past_history', 0),
+(45, 'hepatobiliary', 'clinical', 'other disease medical past history', 1, 'qc_hb_ed_hepatobiliary_medical_past_history', 'qc_hb_ed_hepatobiliary_medical_past_history', 0),
+(46, 'hepatobiliary', 'clinical', 'diabetes medical past history', 1, 'qc_hb_ed_hepatobiliary_medical_past_history', 'qc_hb_ed_hepatobiliary_medical_past_history', 0),
+(47, 'hepatobiliary', 'clinical', 'dyslipidemia medical past history', 1, 'qc_hb_ed_hepatobiliary_medical_past_history', 'qc_hb_ed_hepatobiliary_medical_past_history', 0),
+(48, 'hepatobiliary', 'clinical', 'hepatitis medical past history', 1, 'qc_hb_ed_hepatobiliary_medical_past_history_hepatitis', 'qc_hb_ed_hepatobiliary_medical_past_history_hepatitis', 0),
+(49, 'hepatobiliary', 'clinical', 'cirrhosis medical past history', 1, 'qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis', 'qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis', 0),
+(50, 'hepatobiliary', 'lifestyle', 'summary', 1, 'qc_hb_ed_hepatobiliary_lifestyle', 'qc_hb_ed_hepatobiliary_lifestyle', 0),
+(51, 'hepatobiliary', 'clinical', 'medical past history record summary', 1, 'qc_hb_ed_hepatobiliary_med_hist_record_summary', 'qc_hb_ed_hepatobiliary_med_hist_record_summary', 0),
+(52, 'hepatobiliary', 'lab', 'biology', 1, 'ed_hepatobiliary_lab_report_biology', 'qc_hb_ed_hepatobilary_lab_report_biology', 0),
+(53, 'hepatobiliary', 'clinical', 'medical imaging record summary', 1, 'qc_hb_ed_medical_imaging_record_summary', 'qc_hb_ed_medical_imaging_record_summary', 0),
+(54, 'hepatobiliary', 'clinical', 'medical imaging abdominal ultrasound', 1, 'qc_hb_imaging_segment_other', 'qc_hb_ed_hepatobilary_medical_imagings', 0),
+(55, 'hepatobiliary', 'clinical', 'medical imaging abdominal CT-scan', 1, 'qc_hb_imaging_segment_other_pancreas_volumetry', 'qc_hb_ed_hepatobilary_medical_imagings', 0),
+(56, 'hepatobiliary', 'clinical', 'medical imaging pelvic CT-scan', 1, 'qc_hb_imaging_other', 'qc_hb_ed_hepatobilary_medical_imagings', 0),
+(57, 'hepatobiliary', 'clinical', 'medical imaging abdominal MRI', 1, 'qc_hb_imaging_segment_other_pancreas_volumetry', 'qc_hb_ed_hepatobilary_medical_imagings', 0),
+(58, 'hepatobiliary', 'clinical', 'medical imaging pelvic MRI', 1, 'qc_hb_imaging_other', 'qc_hb_ed_hepatobilary_medical_imagings', 0),
+(59, 'hepatobiliary', 'clinical', 'medical imaging chest X-ray', 1, 'qc_hb_imaging_other', 'qc_hb_ed_hepatobilary_medical_imagings', 0),
+(60, 'hepatobiliary', 'clinical', 'medical imaging chest CT-scan', 1, 'qc_hb_imaging_other', 'qc_hb_ed_hepatobilary_medical_imagings', 0),
+(61, 'hepatobiliary', 'clinical', 'medical imaging TEP-scan', 1, 'qc_hb_imaging_segment_other', 'qc_hb_ed_hepatobilary_medical_imagings', 0),
+(62, 'hepatobiliary', 'clinical', 'medical imaging octreoscan', 1, 'qc_hb_imaging_segment_other_pancreas', 'qc_hb_ed_hepatobilary_medical_imagings', 0),
+(63, 'hepatobiliary', 'clinical', 'medical imaging contrast-enhanced ultrasound (CEUS', 1, 'qc_hb_imaging_segment', 'qc_hb_ed_hepatobilary_medical_imagings', 0),
+(64, 'hepatobiliary', 'clinical', 'medical imaging doppler ultrasound', 1, 'qc_hb_imaging', 'qc_hb_ed_hepatobilary_medical_imagings', 0),
+(65, 'hepatobiliary', 'clinical', 'medical imaging endoscopic ultrasound (EUS)', 1, 'qc_hb_imaging_other_pancreas', 'qc_hb_ed_hepatobilary_medical_imagings', 0),
+(66, 'hepatobiliary', 'clinical', 'medical imaging colonoscopy', 1, 'qc_hb_imaging_other', 'qc_hb_ed_hepatobilary_medical_imagings', 0),
+(67, 'hepatobiliary', 'clinical', 'medical imaging contrast enema', 1, 'qc_hb_imaging_other', 'qc_hb_ed_hepatobilary_medical_imagings', 0),
+(68, 'hepatobiliary', 'clinical', 'medical imaging ERCP', 1, 'qc_hb_imaging', 'qc_hb_ed_hepatobilary_medical_imagings', 0),
+(69, 'hepatobiliary', 'clinical', 'medical imaging transhepatic cholangiography', 1, 'qc_hb_imaging', 'qc_hb_ed_hepatobilary_medical_imagings', 0),
+(70, 'hepatobiliary', 'clinical', 'medical imaging HIDA scan', 1, 'qc_hb_imaging', 'qc_hb_ed_hepatobilary_exams', 0),
+(71, 'hepatobiliary', 'scores', 'child pugh score (classic)', 1, 'ed_score_child_pugh', 'ed_score_child_pugh', 0),
+(72, 'hepatobiliary', 'scores', 'child pugh score (mod)', 1, 'ed_score_child_pugh_mod', 'ed_score_child_pugh', 0),
+(73, 'hepatobiliary', 'scores', 'okuda score', 1, 'ed_score_okuda', 'ed_score_okuda', 0),
+(74, 'hepatobiliary', 'scores', 'barcelona score', 1, 'ed_score_barcelona', 'ed_score_barcelona', 0),
+(75, 'hepatobiliary', 'scores', 'clip score', 1, 'ed_score_clip', 'ed_score_clip', 0),
+(76, 'hepatobiliary', 'scores', 'gretch score', 1, 'ed_score_gretch', 'ed_score_gretch', 0),
+(77, 'hepatobiliary', 'scores', 'fong score', 1, 'ed_score_fong', 'ed_score_fong', 0),
+(78, 'hepatobiliary', 'scores', 'meld score', 1, 'ed_score_meld', 'ed_score_meld', 0);
 
 -- --------------------------------------------------------
 
@@ -2931,11 +3392,14 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('260/268', '', '260/268', '260/268'),
 ('260/280', '', '260/280', '260/280'),
 ('28/18', '', '28/18', '28/18'),
+('3 tumors, < 3 cm', '', '3 Tumors, < 3 cm', '3 Tumeurs, < 3 cm'),
 ('4-5', '', '4-5', '4-5'),
+('5 HIAA', '', '5 HIAA', '5 HIAA'),
 ('5th', '', '5th', '5ème'),
 ('6-9', '', '6-9', '6-9'),
 ('6th', '', '6th', '6ème'),
 (':', '', ':', ':'),
+('a fp', '', '&#945;-FP', '&#945;-FP'),
 ('a LinkedModel exists for the deleted family history', '', 'Your data cannot be deleted! <br>Linked data exists for the deleted family history.', 'Vos données ne peuvent être supprimées! Des données sont liées à votre historique familial.'),
 ('a LinkedModel exists for the deleted study contact', '', 'Your data cannot be deleted! <br>Linked data exists for the deleted study contact.', 'Vos données ne peuvent être supprimées! Des données sont liées à votre contact.'),
 ('a LinkedModel exists for the deleted study summary', '', 'Your data cannot be deleted! <br>Linked data exists for the deleted study summary.', 'Vos données ne peuvent être supprimées! Des données sont liées à votre résumé.'),
@@ -2955,6 +3419,8 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('acquisition label is required', '', 'The acquisition label is required!', 'Le numéro d''acquisition est requis!'),
 ('acquisition_label', '', 'Acquisition Label', 'Étiquette d''acquisition'),
 ('active', '', 'Active', 'Actif'),
+('active_alcohol', 'global', 'Active Alcohol', 'Alcolisme chronique'),
+('active_tobacco', 'global', 'Active Tobacco', 'Tabagisme actif'),
 ('add', '', 'Add', 'Créer'),
 ('add aliquot', '', 'Add Aliquot', 'Créer aliquot'),
 ('add aliquots to order line', '', 'Add Aliquots to Order Line', 'Ajoutez les aliquots à la ligne de commande'),
@@ -2965,8 +3431,11 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('add internal use', '', 'Add Internal Use', 'Créer utilisation interne'),
 ('add item', '', 'Add Item', 'Ajouter un article'),
 ('add items to shipment', '', 'Add Items to Shipment', 'Ajouter article à la commande'),
+('add medical history', '', 'Add Medical History', 'Ajouter évenement clinique'),
+('add medical imaging', '', 'Add Medical Imaging', 'Ajouter image médicale'),
 ('add order line', '', 'Add Order Line', 'Ajouter ligne de commande'),
 ('add order line item', '', 'Add Item', 'Ajouter Article'),
+('add other clinical event', '', 'Add Other Data', 'Ajouter autres données'),
 ('add shipment', '', 'Add Shipment', 'Ajouter une expédition'),
 ('add specimen', '', 'Add Specimen', 'Créer spécimen'),
 ('add tested aliquots', '', 'Add Tested Aliquots', 'Ajouter aliquots testés'),
@@ -2988,6 +3457,8 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('age removed', '', 'Age Removed', 'Age à l''ovariectomie'),
 ('age_at_dx', '', 'Age at Diagnosis', 'Âge au diagnostic'),
 ('ajcc edition', '', 'AJCC Edition', 'Édition du AJCC'),
+('albumin', '', 'Albumin', 'Albumine'),
+('alcohol', '', 'Alcohol', 'Alcool'),
 ('aliquot', '', 'Aliquot', 'Aliquot'),
 ('aliquot concentration', '', 'Concentration', 'Concentration'),
 ('aliquot details', '', 'Details', 'Détail'),
@@ -3007,6 +3478,8 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('alive and well after re-current disease', '', 'Alive and Well after re-current disease', 'Vivant et bien portant après maladie récurrente'),
 ('alive and well with disease', '', 'Alive and well with disease', 'Vivant et bien portant après maladie'),
 ('alive with other cancer', '', 'Alive with other cancer', 'Vivant avec un autre cancer'),
+('alkalin _phosphatase', '', 'Alkalin Phosphatase', 'Phosphatase alcaline'),
+('alkaline phosphatase', '', 'Alkaline Phosphatase', 'Phosphatases Alkaline'),
 ('all', '', 'All', 'Tout'),
 ('all - chemotherapy', '', 'All - Chemotherapy', 'Indifférencié - Chimiothérapie'),
 ('All - Follow Up', '', 'All - Follow Up', 'Indifférencié - Suivi'),
@@ -3017,13 +3490,18 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('all solid tumours', '', 'All Solid Tumours', 'Toutes les tumeurs solides'),
 ('All Solid Tumours - Pathology', '', 'All Solid Tumours - Pathology', 'Toutes les tumeurs solides - Pathologie'),
 ('allowed', '', 'Allowed', 'Permis'),
+('alpha foetoprotein', '', 'AFP', 'AFP'),
 ('alphabetical', '', 'Alphabetical', 'Alphabétique'),
+('alt', '', 'ALT', 'ALT'),
 ('amplified rna', '', 'Amplified RNA', 'ARN amplifié'),
+('amylase', '', 'Amylase', 'Amylase'),
 ('an aliquot can only be added once to an order', '', 'An aliquot can only be added once to an order!', 'Un aliquot ne peut être mis que dans une seule commande!'),
 ('an aliquot of the parent sample is defined as source aliquot', '', 'Your data cannot be deleted! <br>An aliquot of the parent sample is defined as source aliquot!', 'Vos données ne peuvent être supprimées! Un aliquot de l''échantillon parent est défini comme source.'),
 ('An error occured on a database query. Send the following lines to support.', '', 'An error occured on a database query. Send the following lines to support.', 'Une erreur s''est produite avec une requête à la base de données. Envoyez les lignes suivantes au support.'),
 ('an error occurred during the creation or the update of the data', '', 'An error occurred during the data creation/update!<br>Please try again or contact your system administrator.', 'Une erreur a été détectée durant la création/mise à jour des données!<br>Essayez de nouveau ou contactez votre administrateur du système.'),
 ('annotation', '', 'Annotation', 'Annotation'),
+('annotation clinical details', '', 'Details', 'Détails'),
+('annotation clinical reports', '', 'Reports', 'Rapports'),
 ('Annotation Group', '', 'Annotation Group', 'Groupe d''annotations'),
 ('announcement', '', 'Announcement', 'Annonces'),
 ('anti-emetic', '', 'Anti-Emetic', 'Anti-émétique'),
@@ -3031,11 +3509,16 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('April', '', 'April', 'Avril'),
 ('arab/west asian', '', 'Arab/West Asian', 'Arabe/Asiatique de l''ouest'),
 ('arm', '', 'Arm', 'Bras'),
+('asa medical past history', '', 'ASA', 'ASA'),
 ('ascite', '', 'Ascite', 'Ascite'),
 ('ascite cell', '', 'Ascite Cells', 'Cellules d''ascite'),
 ('ascite supernatant', '', 'Ascite Supernatant', 'Surnageant d''ascite'),
 ('Ascite Tube', '', 'Ascite Tube', 'Tube d''ascite'),
 ('aspect', '', 'Aspect', 'Aspect'),
+('associated surgery 1', '', '1st Associated Surgery', '1er Chirurgie associée'),
+('associated surgery 2', '', '2nd Associated Surgery', '2eme Chirurgie associée'),
+('associated surgery 3', '', '3th Associated Surgery', '3eme Chirurgie associée'),
+('ast', '', 'AST', 'AST'),
 ('at least one drug is defined as protocol component', '', 'At least one drug is defined as protocol component!', 'Au moins un médicament est défini comme étant un composant du protocole!'),
 ('at least one drug is defined as treatment component', '', 'At least one drug is defined as treatment component!', 'Au moins un médicament est défini comme étant un composant du traitement!'),
 ('at least one position value does not match format', '', 'At least one position value does not match the position value format expected for the selected storage!', 'Au moins une valeur de position ne correspond pas au format des positions de l''entreposage sélectionné!'),
@@ -3048,10 +3531,12 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('aunt', '', 'Aunt', 'Tante'),
 ('autopsy', '', 'Autopsy', 'Autopsie'),
 ('b cell', '', 'B Cells', 'Cellules B'),
+('b hcg', '', '&#223; HCG', '&#223; HCG'),
 ('b-cell', '', 'B-Cell', 'Lymphocyte B'),
 ('back to main menu', '', 'Back to main menu', 'Retour au menu principal'),
 ('bank', '', 'Bank', 'Banque'),
 ('banks', '', 'Banks', 'Banques'),
+('barcelona score', '', 'Barcelona Score', 'Score de Barcelona'),
 ('barcode', '', 'Barcode', 'Barcode'),
 ('barcode is required', '', 'The barcode is required!', 'Le barcode est requis!'),
 ('barcode is required and should exist', '', 'Barcode is required and should be the barcode of an existing aliquot!', 'Le barcode est requis et doit être le barcode d''un aliquot existant!'),
@@ -3062,16 +3547,25 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('batch sets', '', 'Batch Sets', 'Ensembles de données'),
 ('benign', '', 'Benign', 'Bénin'),
 ('benign lesion', '', 'Benign Lesion', 'Lésion bénigne'),
+('bilan hepatique', '', 'Hepatic Check-Up', 'Bilan hépatique'),
+('bilan marqueur', '', 'Marker Check-Up', 'Bilan marqueur'),
+('bilan pancreatique', '', 'Pancreatic Check-Up', 'Bilan pancréatique'),
+('bilirubin', '', 'Bilirubin', 'Bilirubine'),
 ('bioanalyzer', '', 'BioAnalyzer', 'BioAnalyzer'),
+('biological glue', '', 'biological glue', ''),
+('biology', '', 'Biology', 'Biologie'),
 ('black', '', 'Black', 'Noir'),
 ('block', '', 'Block', 'Bloc'),
 ('block type', '', 'Block Type', 'Type du bloc'),
 ('blood', '', 'Blood', 'Sang'),
 ('blood cell', '', 'Blood Cells', 'Cellules de sang'),
+('blood formulae', '', 'Blood Formulae', 'Formule sanguine'),
 ('Blood Tube', '', 'Blood Tube', 'Tube de sang'),
 ('blood tube type', '', 'Type', 'Type'),
 ('Blood Whatman Paper', '', 'Whatman Paper', 'Papier Whatman'),
+('bmi', '', 'BMI', 'IMC'),
 ('bone', '', 'Bone', 'Os'),
+('bones', '', 'Bones', 'Os'),
 ('both-partial', '', 'Both - Partial Removal', 'Élimination partielle'),
 ('both-total', '', 'Both - Total Removal', 'Élimination totale'),
 ('box', '', 'Box', 'Boîte'),
@@ -3089,11 +3583,17 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('building a', '', 'Building A', 'Bâtiment A'),
 ('building b', '', 'Building B', 'Bâtiment B'),
 ('business', '', 'Business', 'Affaire'),
+('ca', '', 'Ca', 'Ca'),
+('ca 125', '', 'Ca 125', 'Ca 125'),
+('ca 15 3', '', 'Ca 15-3', 'Ca 15-3'),
+('ca 19 9', '', 'Ca 19-9', 'Ca 19-9'),
 ('cancel', '', 'Cancel', 'Annuler'),
 ('carbonic gaz percentage', '', 'CO2 Percentage', 'Pourcentage de CO2'),
 ('category', '', 'Category', 'Catégorie'),
 ('caucasian', '', 'Caucasian', 'Caucasien'),
 ('cause of death', '', 'Cause of Death', 'Cause du décès'),
+('cea', '', 'CEA', 'CEA'),
+('cea > 200', '', 'CEA > 200', 'CEA > 200'),
 ('cell count', '', 'Cells Count', 'Nombre de cellules'),
 ('cell count should be a positif decimal', '', 'Cell count should be a positive decimal!', 'Le nombre de cellules doit être un décimal positif!'),
 ('cell culture', '', 'Cell Culture', 'Culture cellulaire'),
@@ -3111,14 +3611,26 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('chemotherapy specific', '', 'Chemotherapy Specific', 'Chimiothérapie spécifique'),
 ('chewing', '', 'Chewing', 'Mastication'),
 ('child', '', 'Child', 'Enfant'),
+('child pugh score', '', 'Child Pugh Score', 'Score de Child Pugh'),
+('child pugh score (classic)', '', 'Child Pugh Score (classic)', 'Score de Child Pugh (classique)'),
+('child pugh score (mod)', '', 'Child Pugh Score (modified)', 'Score de Child Pugh (modifié)'),
+('child-pugh A', '', 'Child-Pugh A', 'Child-Pugh A'),
+('child-pugh B', '', 'Child-Pugh B', 'Child-Pugh B'),
+('child-pugh C', '', 'Child-Pugh C', 'Child-Pugh C'),
 ('children storage exists within the deleted storage', '', 'Your data cannot be deleted! <br>Children storage exists within the deleted storage.', 'Vos données ne peuvent être supprimées! Des sous-entreposages existent dans votre entreposage.'),
 ('children storage is stored within the storage at this position', '', 'Your data cannot be deleted! <br>Children storage is stored within the storage at this position.', 'Vos données ne peuvent être supprimées! Des sous-entreposages sont placés à cette position dans votre entreposage.'),
 ('chinese', '', 'Chinese', 'Chinois'),
+('cholesterol', '', 'Cholesterol', 'Cholestérol'),
+('chromogranine', '', 'Chromogranine', 'Chromogranine'),
 ('chronology', '', 'Chronology', 'Chronologie'),
 ('cigar', '', 'Cigar', 'Cigare'),
 ('cigarettes', '', 'Cigarettes', 'Cigarettes'),
+('cirrhosis', '', 'Cirrhosis', 'Cirrhose'),
+('cirrhosis data', '', 'Cirrhosis Data', 'Données de cirrhose'),
+('cirrhosis medical past history', '', 'Cirrhosis', 'Cirrhose'),
 ('cish', '', 'CISH', 'CISH'),
 ('city', '', 'City', 'Ville'),
+('cl', '', 'Cl', 'Cl'),
 ('clear', '', 'Clear', 'Clair'),
 ('click to add a line', '', 'Click to add a line', 'Cliquez pour ajouter une ligne'),
 ('click to remove these elements', '', 'Click to remove these elements', 'Cliquez pour supprimer ces éléments'),
@@ -3132,10 +3644,13 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('clin_french', '', 'French', 'Français'),
 ('clin_other contact type', '', 'Other Contact Type', 'Autre type de contact'),
 ('clin_study', '', 'Study', 'Étude'),
+('clip score', '', 'Clip Score', 'Score de Clip'),
 ('cm', '', 'cm', 'cm'),
 ('cm3', '', 'cm3', 'cm3'),
+('coagulation', '', 'Coagulation', 'Coagulation'),
 ('code', '', 'Code', 'Code'),
 ('coding', '', 'Coding', 'Encodage'),
+('coeliac trunk', '', 'Coeliac Trunk', 'Tronc coeliaque'),
 ('collaborative staged', '', 'Collaborative Staged', 'Stade Collaboratif'),
 ('collected tubes nbr', '', 'Number of collected tubes', 'Nombre de tubes collectés'),
 ('collected volume', '', 'Collected Volume', 'Volume collecté'),
@@ -3152,6 +3667,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('collection to reception spent time', '', 'Collection to Reception Spent Time', 'Temps écoulé entre le prélèvement et la réception'),
 ('collection to storage spent time', '', 'Collection to Storage Spent Time', 'Temps écoulé entre le prélèvement et l''entreposage'),
 ('collections', '', 'Collections', 'Collections'),
+('colon', '', 'Colon', 'Colon'),
 ('column', '', 'Column', 'Colonne'),
 ('commercial', '', 'Commercial', 'Commercial'),
 ('common law', '', 'Common Law', 'Droit traditionnel'),
@@ -3174,6 +3690,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('contact', '', 'Contact', 'Contact'),
 ('contaminated', '', 'Contaminated', 'Contaminé'),
 ('contract', '', 'Contract', 'Contrat'),
+('conversion', '', 'Conversion', 'Conversion'),
 ('coordinate must be unique for the storage', '', 'Coordinate value must be unique for the storage!', 'La valeur de la coordonnée doit être unique pour l''entreposage!'),
 ('coordinate order must be unique for the storage', '', 'Coordinate order must be unique for the storage!', 'L''ordre de la coordonnée doit être unique pour l''entreposage!'),
 ('coordinate size', '', 'Size', 'Taille'),
@@ -3189,6 +3706,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('core_administrate', '', 'Administration', 'Administration'),
 ('core_announcements', '', 'Announcements', 'Annonces'),
 ('core_appname', '', 'ATiM - Advanced Tissue Management', 'ATiM - Application de gestion avancée des tissus'),
+('core_appname', 'global', 'ATiM.v2 - CHUM Hep-bil', 'ATiM.v2 - CHUM Hep-bil'),
 ('core_are you sure you want to delete this data?', '', 'Are you sure you want to delete this data?', 'Êtes-vous certain de vouloir supprimer cette donnée?'),
 ('core_copyright', '', 'Copyright', 'Droit d''auteur'),
 ('core_ctrnet', '', 'Canadian Tumour Repository Network', 'Réseau Canadien de Banque de Tumeurs'),
@@ -3220,11 +3738,13 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('Create the class %s below in file: %s', '', 'Create the class %s below in file: %s', 'Créer la classe %s plus bas dans le fichier: %s'),
 ('created', '', 'Created', 'Créé'),
 ('created by', '', 'Created By', 'Créé par'),
+('creatinine', '', 'Creatinine', 'Créatinine'),
 ('creation date', '', 'Creation Date', 'Date de création'),
 ('creation site', '', 'Creation Site', 'Site de création'),
 ('creation to storage spent time', '', 'Creation to Storage Spent Time', 'Temps écoulé entre la création et l''entreposage'),
 ('credits_body', '', 'ATiM is an open-source project development by leading tumour banks across Canada. For more information on our development team, questions, comments or suggestions please visit our website at http://www.ctrnet.ca', 'ATiM est un logiciel développé par les plus importantes banques de tumeurs à travers le Canada. Pour de plus amples informations sur notre équipe de développement, des questions, commentaires ou suggestions, veuillez consulter notre site web à http://www.'),
 ('credits_title', '', 'Credits', ''),
+('CTRApp', 'global', 'ATiM.v2 - CHUM Hep-bil', 'ATiM.v2 - CHUM Hep-bil'),
 ('culture status', '', 'Status', 'Statut'),
 ('cupboard', '', 'Cupboard', 'Étagère'),
 ('curative', '', 'Curative', 'Curatif'),
@@ -3236,6 +3756,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('cystic fluid cell', '', 'Cystic Fluid Cell', 'Cellules de liquide kystique'),
 ('cystic fluid supernatant', '', 'Cystic Fluid Supernatant', 'Surnageant de liquide kystique'),
 ('cytology', '', 'Cytology', 'Cytologie'),
+('dagenais', '', 'Dr. Dagenais', 'Dr. Dagenais'),
 ('data', '', 'Data', 'Données'),
 ('data creation - update error', '', 'Data Creation/Update Error', 'Erreur durant la création/mise à jour des données'),
 ('data not found', '', 'Data Not Found', 'Données inexistantes'),
@@ -3284,14 +3805,19 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('derivative exists for the deleted sample', '', 'Your data cannot be deleted! <br>Derivatives exist for the deleted sample.', 'Vos données ne peuvent être supprimées! Des dérivés existent pour votre échantillon.'),
 ('description', '', 'Description', 'Description'),
 ('detail', '', 'Detail', 'Détail'),
+('detail exists for the deleted medical past history', '', 'Your data cannot be deleted! <br>Detail exist for the deleted medical past history.', 'Vos données ne peuvent être supprimées! Des détails existent pour votre historique clinique.'),
 ('details', '', 'Details', 'Détails'),
 ('Details', 'global', 'Details', 'Détails'),
+('diabetes medical past history', '', 'Diabete', 'Diabète'),
 ('diagnosis', '', 'Diagnosis', 'Diagnostique'),
+('diagnostic date', '', 'Diagnostic Date', 'Date de diagnostic'),
+('dialysis', '', 'Dialysis', 'Dialyse'),
 ('died of disease', '', 'Died of Disease', 'Décédé de maladie'),
 ('died of other cause', '', 'Died of other cause', 'Décédé d''autre cause '),
 ('died of unknown cause', '', 'Died of unknown cause', 'Décédé de cause inconnue'),
 ('digestive', '', 'Digestive/gastrointestinal', 'Digestif/gastro-intestinal'),
 ('digestive/gastrointestinal', '', 'Digestive/Gastrointestinal', 'Digestif/gastro-intestinal'),
+('direct bilirubin', '', 'Direct Bilirubin', 'Bilirubine directe'),
 ('disease site', '', 'Disease Site', 'Site de la maladie'),
 ('disease status', '', 'Disease Status', 'Statut de la maladie'),
 ('display order', '', 'Display Order', 'Ordre d''affichage'),
@@ -3304,6 +3830,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('domain', '', 'Domain', 'Domaine'),
 ('dose', '', 'Dose', 'Dose'),
 ('dr.', '', 'Dr.', 'Dr.'),
+('drainage', '', 'Drainage', 'Drainage'),
 ('dropdown', '', 'Dropdown', 'Menu déroulant'),
 ('drug', '', 'Drug', 'Médicament'),
 ('drug administration', '', 'Drug Administration', 'Administration de médicament'),
@@ -3321,17 +3848,22 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('dx_date', '', 'Diagnosis Date', 'Date du diagnostic'),
 ('dx_laterality', '', 'Side of the tumour in paired organs or skin sites.', 'Côté de la tumeur dans des organes pairs ou sur la peau'),
 ('dx_method', '', 'Diagnosis Method', 'Méthode de diagnostic'),
+('dyslipidemia medical past history', '', 'Dyslipidemia', 'Dyslipidémie'),
 ('edit', '', 'Edit', 'Modifier'),
 ('edit all', '', 'Edit All', 'Modifier tout'),
 ('edit position', '', 'Edit Position', 'Modifier position'),
 ('EDTA', '', 'EDTA', 'EDTA'),
 ('effective_date', '', 'Effective Date', 'Date d''entrée en vigueur'),
+('electrolyte', '', 'Electrolyte', 'Électrolyte'),
 ('email', '', 'Email', 'Courriel'),
 ('empty', '', 'Empty', 'Vide'),
+('encephalopathy', '', 'Eencephalopathy', 'Encéphalopathie'),
 ('end', '', 'End', 'Fin'),
 ('endocrine', '', 'Endocrine', 'Endocrine'),
+('endocrine disease medical past history', '', 'Endocrine Disease', 'Maladie endocrine'),
 ('endoscopy', '', 'Endoscopy', 'Endoscopie'),
 ('English', '', 'English', 'Anglais'),
+('enzymatic milieu', '', 'Enzymatic milieu', 'Milieu enzymatique'),
 ('epidemiological', '', 'Epidemiological', 'Épidémiologique'),
 ('er', '', 'ER', 'ER'),
 ('er assay ligand', '', 'Assay by Ligand Binding', 'Test récepteur'),
@@ -3355,6 +3887,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('err_clin_no_data_body', '', 'A query was made to the database and no data was return. Please contact your system administrator.', 'Une requête a été acheminée à la base de données et aucune donnée n''a été retournée. Veuillez contacter votre administrateur de système.'),
 ('err_clin_no_data_title', '', 'Clinical Annotation  - Data Error', 'Annotation clinique - Erreur de donnée'),
 ('err_protocol code is required', '', 'Protocol code is required!', 'Code du protocole requis'),
+('esophageal varices', '', 'Esophageal Varices', 'Varices oesophagiennes'),
 ('estrogens amount is required.', '', 'Estrogens amount is required.', 'La quantité d''estrogènes est requise.'),
 ('Ethics', '', 'Ethics', 'Éthiques'),
 ('event', 'global', 'Event', 'Événement'),
@@ -3386,12 +3919,15 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('filter', '', 'Filter', 'Filtre'),
 ('fine needle aspirate', '', 'Fine Needle Aspirate', 'Aiguille fine pour aspiration'),
 ('finish date', '', 'Finish Date', 'Date de fin'),
+('first consultation date', 'global', 'First Consultation Date', 'Date première consultation'),
 ('first contact', '', 'Date of First Contact', 'Date du premier contact'),
 ('first name', '', 'First Name', 'Prénom'),
+('first name and last name are required', 'global', 'First name and last name are required!', 'Le nom et prénom sont requis!'),
 ('fish', '', 'FISH', 'FISH'),
 ('floor', '', 'Floor', 'Étage'),
 ('fna', '', 'FNA', ''),
 ('follow up', '', 'Follow Up', 'Suivi'),
+('fong score', '', 'Fong Score', 'Score de Fong'),
 ('Form Category', '', 'Category', 'Catégorie'),
 ('form group', '', 'Group', 'Groupe'),
 ('form manager description', '', 'Ability to track standard forms used by the bank. For example, consent forms and request forms.', 'Utilisé pour la gestion des formulaires standards utilisés par la banque. Par exemple, les formulaires de consentement et de requête'),
@@ -3402,6 +3938,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('forms', '', 'Forms', 'Formulaire'),
 ('forms_menu', '', 'Forms', 'Formulaire'),
 ('form_version', '', 'Form Version', 'Version du Consentement'),
+('fourth regimen', '', 'Fourth Regimen', 'Quatrième régime'),
 ('freezer', '', 'Freezer', 'Congélateur'),
 ('French', '', 'French', 'Français'),
 ('frequency', '', 'Frequency', 'Fréquence'),
@@ -3410,28 +3947,45 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('frozen', '', 'Frozen', 'Congelée'),
 ('frozen section', '', 'Frozen Section', 'Section congélation'),
 ('Funding', '', 'Funding', 'Financement'),
+('gastric varices', '', 'Gastric Varices', ''),
+('gastro-intestinal disease medical past history', '', 'Gastro-Intestinal Disease', 'Maladie gastro-intestinal'),
+('gastroenterologist', '', 'Gastro-Enterologist', 'Gastro-entérologue'),
 ('gel CSA', '', 'Gel CSA', 'Gel de CSA'),
 ('general', '', 'General', 'Général'),
 ('General - All', '', 'General - All', 'Général - Indifférencié'),
+('general physician', '', 'General Physician', 'Médecin généraliste'),
 ('generated identifier', '', 'Generated Identifier', 'Identifiant généré'),
 ('generated_parent_sample_sample_type_help', '', 'Type of the sample used to create the studied derivative sample.', 'Type de l''échantillon utilisé pour créer l''échantillon dérivé.'),
 ('generic name', '', 'Generic Name', 'Nom générique '),
+('genHeMACS program', '', 'genHeMACS program', 'Programme genHeMACS'),
 ('genitourinary', '', 'Genitourinary', 'Génito-urinaire'),
 ('germ', '', 'Germ Cell', 'Cellule germinale'),
 ('germ cell', '', 'Germ Cell', 'Cellule germinale'),
+('glycemia', '', 'Glycemia', 'Glycémie'),
 ('good', '', 'Good', 'Bon'),
 ('gr', '', 'gr', 'gr'),
 ('grade', '', 'Grade', 'Grade'),
+('grade I-II', '', 'Grade I-II', 'Grade I-II'),
+('grade III-IV', '', 'Grade III-IV', 'Grade III-IV'),
 ('grandfather', '', 'Grandfather', 'Grand-père'),
 ('grandmother', '', 'Grandmother', 'Grand-mère'),
 ('gravida', '', 'Gravida', 'Gravida'),
+('gretch score', '', 'Gretch Score', 'Score de Gretch'),
+('group', '', 'Group', 'Groupe'),
 ('group batch sets', '', 'Group Batch Sets', 'Groupe d''ensembles de données'),
 ('groups', '', 'Groups', 'Groupes'),
 ('gynaecologic', '', 'Gynaecologic', 'Gynécologique'),
+('gynecologic disease medical past history', '', 'Gynecologic Disease', 'Maladie gynecologique'),
+('hb', '', 'Hb', 'Hb'),
+('hbp surgeron', '', 'HBP Surgeron', 'Chirurgien HBP'),
 ('head and neck', '', 'Head and Neck', 'Tête et cou'),
 ('headneck', '', 'Head And Neck', 'Tête et cou'),
 ('health card nbr', '', 'Health card number', 'Numéro de carte santé'),
+('health_insurance_card', 'global', 'Health Insurance Card', 'Carte d''assurance maladie'),
+('heart disease medical past history', '', 'Heart Disease', 'Maladie du coeur'),
 ('height', '', 'Height', 'Taille'),
+('height (cm)', 'global', 'Height (cm)', 'Taille (cm)'),
+('height should be a positif decimal', 'global', 'Height should be a positive decimal!', 'Le taille doit être un décimal positif!'),
 ('help visible', '', 'Help Visible', 'Aide visible'),
 ('help_city', '', 'Enter the City, State/Province, Country and Mail code on this line', 'Entrez la ville, province/état, pays et code postal sur cette ligne'),
 ('help_confirmation source', '', 'The source of the notification of the participant''s death.', 'Source de la notification du décès du participant'),
@@ -3452,6 +4006,11 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('hematologic/blood', '', 'Hematologic/Blood', 'Hématologique/Sang'),
 ('hemolysis signs', '', 'Hemolysis Signs', 'Signes d''hémolyse'),
 ('heparin', '', 'Heparin', 'Héparine'),
+('hepatic artery', '', 'Hepatic Artery', 'Artère hépatique'),
+('hepatitis medical past history', '', 'Hepatitis', 'Hépatite'),
+('hepatobiliary', '', 'hepatobiliary', 'Hépato-Biliaire'),
+('hepatobiliary', 'global', 'Hepatobiliary', 'Hépato-biliaire'),
+('hepato_bil_bank_participant_id', 'global', 'H.B. Bank Participant Id', 'Numéro participant banque H.B.'),
 ('her2', '', 'HER2', 'HER2'),
 ('histology', '', 'Histology', 'Histologie'),
 ('home', '', 'Home', 'Résidence'),
@@ -3461,6 +4020,9 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('hour', '', 'Hour', 'Heure'),
 ('hours', '', 'Hours', 'Heures'),
 ('hrt use', '', 'HRT Use', 'Utilisation d''HRT(hormone de remplacement)'),
+('ht', '', 'Ht', 'Ht'),
+('HTP, bilirubin N', '', 'HTP, Bilirubin N', 'HTP, Bilirubine N'),
+('HTP, hyperbilirubinemia', '', 'HTP, hyperbilirubinemia', 'HTP, hyperbilirubinémie'),
 ('hysterectomy', '', 'Hysterectomy', 'Hystérectomie'),
 ('ICD-10 selection tool', '', 'ICD-10 Selection Tool', 'Outil de sélection d''ICD-10'),
 ('identification', '', 'Identification', 'Identification'),
@@ -3471,28 +4033,35 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('IM: intramuscular injection', '', 'IM: intramuscular injection', 'Injection intramusculaire'),
 ('immediate', '', 'Immediate', 'Immédiat'),
 ('immunochemistry code', '', 'Immunochemistry Code', 'Code de l''anticorps'),
+('impact of ous', '', 'Impact of OUS', ''),
 ('import from associated protocol', '', 'Import from associated protocol', 'Importer à partir du protocole associé'),
 ('in person', '', 'In Person', 'En personne'),
 ('in process', '', 'In process', 'En cours'),
-('in situ', '', 'In Situ', 'In situ'),
+('in situ', '', 'In Situ', 'In situ');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('in situ component', '', 'In Situ Component', 'Composé in situ'),
 ('in situ type', '', 'In Situ Type', 'Type in situ'),
 ('In Stock', '', 'In Stock', 'En stock'),
 ('Inactive', '', 'Inactive', 'Inactif'),
 ('incubator', '', 'Incubator', 'Incubateur'),
 ('independent collection', '', 'Independent Collection', 'Collection indépendante'),
+('indifferent', '', 'Indifferent', 'Indifférent'),
+('indirec _bilirubin', '', 'Indirect Bilirubin', 'Bilirubine indirecte'),
 ('information package', '', 'Information Package', 'Pack d''information'),
 ('information source', '', 'Information Source', 'Source de l''information'),
 ('information_source', '', 'Information Source', 'Source de l''information'),
 ('initial specimen type', '', 'Initial Specimen', 'Spécimen Source'),
 ('initial storage date', '', 'Initial Storage Date', 'Date initiale d''entreposage'),
+('initial treatment', '', 'Initial Treatment', 'Traitement initial'),
 ('initial volume', '', 'Initial Volume', 'Volume initial'),
+('inr', '', 'INR', 'INR'),
 ('installation_body', '', 'To view your installed version number open the Administration Tool and select ATiM Version from the first menu. ATiM is built on the CakePHP framework (www.cakephp.org).', 'Pour visualiser votre numéro de version installée, ouvrez l''outil administration et sélectionnez la version ATiM à partir du premier menu. ATiM est bâti sur une cadre CakePHP (www.cakephp.org).'),
 ('installation_title', '', 'Installation', 'Installation'),
 ('institution', '', 'Institution', 'Institution'),
 ('integer', '', 'Integer', 'Entier'),
 ('intent', '', 'Intent', 'Intention'),
 ('internal use', '', 'Internal Use', 'Utilisation interne'),
+('interval under a year', '', 'Interval < 12 Months', 'Interval < 12 mois'),
 ('invalid order line', '', 'Invalid order line', 'Ligne de commande invalide'),
 ('Inventory - All', '', 'Inventory - All', 'Inventaire - Indifférencié'),
 ('inventory management', '', 'Inventory Management', 'Gestion des échantillons'),
@@ -3517,41 +4086,54 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('job title', '', 'Job Title', 'Poste/Emploi'),
 ('jul', '', 'Jul', 'Jul'),
 ('July', '', 'July', 'Juillet'),
-('jun', '', 'Jun', 'Jun');
-INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('jun', '', 'Jun', 'Jun'),
 ('June', '', 'June', 'Juin'),
+('k', '', 'K', 'K'),
+('karnofsky index', '', 'Karnofsky Index', 'Indes de Karnofsky'),
 ('known', '', 'Known', 'Inconnu'),
 ('korean', '', 'Korean', 'Coréen'),
 ('lab', '', 'Lab', 'Lab'),
+('label', '', 'Label', 'Étiquette'),
 ('label is required', '', 'The label is required!', 'L''identifiant est requis!'),
 ('laboratory', '', 'Laboratory', 'Laboratoire'),
 ('language', '', 'Language', 'Lanque'),
 ('language preferred', '', 'Language Preferred', 'Connu'),
+('laparoscopy', '', 'Laparoscopy', 'Laparoscopie'),
+('lapointe', '', 'Dr. Lapointe', 'Dr. Lapointe'),
 ('last chart checked date', '', 'Last Chart Checked Date', 'Date de la dernière révision de données'),
 ('last name', '', 'Last Name', 'Nom de famille'),
+('last update date', 'global', 'Last Update date', 'Date de mise à jour'),
 ('laterality', '', 'Laterality', 'Latéralité'),
 ('latin american', '', 'Latin American', 'Latino-Américain'),
 ('lcis', '', 'LCIS', 'LCIS'),
 ('left', '', 'Left', 'Gauche'),
 ('legend', '', 'Legend', 'Légende'),
 ('length cycles', '', 'Length of Cycle', 'Longueur du cycle'),
+('less', '', 'Less', 'Moins'),
 ('less than 1', '', 'Less than 1', 'Moins que 1'),
+('letourneau', '', 'Dr. Létourneau', 'Dr. Létourneau'),
 ('leukemia', '', 'Leukemia', 'Leucémie'),
 ('level', '', 'Level', 'Niveau'),
 ('level nodal involvement', '', 'Level Nodal Involvement', 'Niveau de l''envahissement ganglionnaire'),
 ('lifestyle', '', 'Lifestyle', 'Habitude de vie'),
 ('line', '', 'Line', 'Ligne'),
 ('link to collection', '', 'Participant Collection', 'Collection du participant'),
+('lipase', '', 'Lipase', 'Lipase'),
 ('list', '', 'List', 'Liste'),
 ('listall aliquots', '', 'Aliquots', 'Aliquots'),
 ('listall collection aliquots', '', 'Aliquots List', 'Liste des aliquots'),
 ('listall collection samples', '', 'Samples List', 'Liste des échantillons'),
 ('listall derivatives', '', 'Derivatives', 'Dérivés'),
 ('listall source aliquots', '', 'Source Aliquots', 'Aliquots sources'),
+('liver appearance', '', 'Liver Appearance', 'Apparence du foie'),
+('liver function', '', 'Liver Function', 'Fonction hépatique'),
+('liver segments', '', 'Segments', 'Segments'),
+('liver surgery', '', 'Liver Surgery', 'Chirurgie du foie'),
 ('lnmp date', '', 'Last Known Menstrual Period', 'Dernière période menstruelle connue'),
 ('loading', '', 'Loading', 'Chargement'),
 ('lobular', '', 'Lobular', 'Lobulaire'),
 ('lobular special mixed', '', 'Lobular Special Mixed', 'Lobulaire special mixte '),
+('local treatment', '', 'Local Treatment', 'Traitement local'),
 ('locked', '', 'Locked', 'Bloqué'),
 ('Login', '', 'Login', 'Connection'),
 ('Login failed. Invalid username or password.', '', 'Login failed. Invalid username or password.', 'L''ouverture de session a échoué. Nom d''utilisateur ou mot de passe invalide.'),
@@ -3562,6 +4144,8 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('lost contact', '', 'Lost contact', 'Perte de contact'),
 ('lot number', '', 'Lot Number', 'Numéro du lot'),
 ('lung', '', 'Lung', 'Poumon'),
+('lungs', '', 'Lungs', 'Poumons'),
+('lymph node', '', 'Lymph Nodes', 'Ganglions lymphatique'),
 ('lymphatic vascular invasion', '', 'Lymphatic and/or Vascular Invasion', 'Invasion lymphatique et/ou vasculaire'),
 ('lymphatic/vascular invasion', '', 'Lymphatic/Vascular Invasion', 'Invasion lymphatique/vasculaire'),
 ('lymphoma', '', 'Lymphoma', 'Lymphome'),
@@ -3575,6 +4159,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('March', '', 'March', 'Mars'),
 ('marital status', '', 'Marital Status', 'Statut Marital'),
 ('married', '', 'Married', 'Marié'),
+('massive or >= 50%', '', 'Massive or >= 50%', 'Massif or >= 50%'),
 ('material transfer agreement', '', 'Material Transfer Agreement', 'Entente de transfert de matériel'),
 ('materials description', '', 'Define materials and equipment used in bank Standard Operating Procedures. These items can be assigned to existing SOPs.', 'Définir le matériel et l''équipement utilisés dans les procédures normalisées de fonctionnement de la banque. Ces éléments peuvent être assignés aux PNFs existantes.'),
 ('maternal', '', 'Maternal', 'Maternel'),
@@ -3584,7 +4169,29 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('may', '', 'May', 'Mai'),
 ('May', 'global', 'May', 'Mai'),
 ('MDY', '', 'MDY', 'MJA'),
+('medical history precision', '', 'Precision', 'Précision'),
+('medical imaging', '', 'Medical Imaging', 'Imagerie Médicale'),
+('medical imaging abdominal CT-scan', '', 'Abdominal CT-Scan', 'CT-scan abdominal'),
+('medical imaging abdominal MRI', '', 'Abdominal MRI', 'IRM abdominal'),
+('medical imaging abdominal ultrasound', '', 'Abdominal Ultrasound', 'Ultrason abdominal'),
+('medical imaging chest CT-scan', '', 'Chest CT-Scan', 'CT-scan du thorax'),
+('medical imaging chest X-ray', '', 'Chest X-Ray', 'Radiographie du thorax'),
+('medical imaging colonoscopy', '', 'Colonoscopy', 'Colonoscopie'),
+('medical imaging contrast enema', '', 'Contrast Enema', 'Lavement baryté'),
+('medical imaging contrast-enhanced ultrasound (CEUS)', '', 'Contrast-Enhanced Ultrasound (CEUS)', 'Échographie de contraste (CEUS)'),
+('medical imaging doppler ultrasound', '', 'Doppler Ultrasound', 'Doppler'),
+('medical imaging endoscopic ultrasound (EUS)', '', 'Endoscopic Ultrasound (EUS)', 'Echographie'),
+('medical imaging ERCP', '', 'ERCP', 'CPRE'),
+('medical imaging HIDA scan', '', 'HIDA-Scan', 'HIDA-scan'),
+('medical imaging octreoscan', '', 'Octreoscan', 'Scintigraphie à l''Octreoscan'),
+('medical imaging pelvic CT-scan', '', 'Pelvic CT-Scan', 'CT-scan pelvien'),
+('medical imaging pelvic MRI', '', 'Pelvic MRI', 'IRM pelvien'),
+('medical imaging record summary', '', 'Imaging Review Checklist', 'Révision imagerie médicale - Liste de contrôle'),
+('medical imaging TEP-scan', '', 'TEP-Scan', 'TEP-Scan'),
+('medical imaging transhepatic cholangiography', '', 'Transhepatic Cholangiography', 'Cholangiographie transhépatique'),
+('medical past history record summary', '', 'Medcial History Review Checklist', 'Révision historique médicale - Liste de contrôle'),
 ('medullary', '', 'Medullary', 'Médullaire'),
+('meld score', '', 'Meld Score', 'Score de Meld'),
 ('memo', '', 'Memo', 'Note'),
 ('menopause reason', '', 'Reason for Menopause Onset', 'Raison du début de la ménopause '),
 ('menopause status', '', 'Menopause Status', 'Statut Ménopausique'),
@@ -3595,8 +4202,15 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('message title', '', 'Title', 'Titre'),
 ('message type', '', 'Type', 'Type'),
 ('messages', '', 'Messages', 'Messages'),
+('metastasis', '', 'Metastasis', 'Métastases'),
+('metastasis > 5cm', '', 'Mmetastasis > 5cm', 'Métastase > 5cm'),
+('metastatic lymph nodes', '', 'Metastatic Lymph Modes', 'Ganglions Lymphatiques Métastatiques'),
 ('method', '', 'Method', 'Méthode'),
+('mg', '', 'Mg', 'Mg'),
+('microwaves', '', 'Microwaves', 'Micro-ondes'),
 ('middle name', '', 'Middle Name', 'Deuxième prénom'),
+('mild', '', 'Mild', 'Faible'),
+('milieu', '', 'Milieu', 'Milieu'),
 ('million(s)/ml', '', 'million(s)/ml', 'million(s)/ml'),
 ('minimum quantity', '', 'Minimum Quantity', 'Quantité minimale'),
 ('minutes', '', 'Minutes', 'Minutes'),
@@ -3612,9 +4226,12 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('month', '', 'Month', 'Mois'),
 ('month and day of date uncertain', '', 'Month and day of date uncertain', 'Mois et jour exacts de la date incertains'),
 ('month uncertain', '', 'Month Uncertain', 'Mois incertain'),
+('more', '', 'More', 'Plus'),
 ('more than 10', '', 'More than 10', 'Plus de 10'),
+('more than one metastasis', '', 'More than one metastasis', 'Plus d''une métastase'),
 ('more than one storages matches (at least one of) the selection label(s)', '', 'More than one storages matches (at least one of) the selection label(s)!', 'Plus d''un entreposage correspond à (au moins) un identifiant de sélection d''entreposage!'),
 ('morphology', '', 'Morphology', 'Morphologie'),
+('morphology of tumor', '', 'Tumor Morphology', 'Morphologie de la tumeur'),
 ('mother', '', 'Mother', 'Mère'),
 ('moved within storage', '', 'Moved within storage', 'Déplacé à l''intérieur de l''entreposage'),
 ('mr.', '', 'Mr.', 'Mr.'),
@@ -3625,17 +4242,25 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('msg', '', 'Msg', 'Msg'),
 ('mucinous', '', 'Mucinous', 'Mucineux'),
 ('multifocal', '', 'Multifocal', 'Multifocal'),
+('multinodular', '', 'Multinodular', 'Multinodulaire'),
+('multiple nodules & < 50%', '', 'Multiple Nodules & < 50%', 'Nodules multiples & < 50%'),
 ('musculoskeletal', '', 'Musculoskeletal', 'Musculo-squelettique'),
 ('my batch sets', '', 'My Batch Sets', 'Mes groupes de données'),
 ('my favourites', '', 'My Favourites', 'Mes favoris'),
 ('n stage', '', 'N', 'N'),
 ('n/a', '', 'N/A', 'N/A'),
+('n/s', '', 'N/S', 'N/S'),
+('na', '', 'Na', 'Na'),
 ('name', '', 'Name', 'Nom'),
 ('natural', '', 'Natural', 'Naturel'),
 ('nature', '', 'Nature', 'Nature'),
+('nb of cycles', '', 'Nb. of cycles', 'Nb. de cycles'),
+('nb of incubations', '', 'Nb. of incubations', 'Nb. d''incubations'),
+('nb viable cells', '', 'Nb. viable cells', 'Nb. de cellules viables'),
 ('negative', '', 'Negative', 'Négatif'),
 ('neoadjuvant', '', 'Neoadjuvant', 'Néoadjuvant'),
 ('nephew', '', 'Nephew', 'Neveu'),
+('neural vascular disease medical past history', '', 'Neural Vascular Disease', 'Maladie vasculaire cerebrale'),
 ('neurologic', '', 'Neurologic', 'Neurologique'),
 ('new collection', '', 'New Collection', 'Nouvelle collection'),
 ('new group', '', 'New Group', 'Nouveau groupe'),
@@ -3658,10 +4283,12 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('no aliquot has been defined as realiquoted child', '', 'No aliquot has been defined as realiquoted child!', 'Aucun aliquot n''a été aliquot ré-aliquoté (enfant)!'),
 ('no data exists for the specified id', '', 'No data matches the specified ID!<br>Please try again or contact your system administrator.', 'Aucune donnée ne correspond à l''ID spécifié!<br>Essayez de nouveau ou contactez votre administrateur du système.'),
 ('no filter', '', 'No Filter', 'Supprimer Filtre'),
+('no HTP & bilirubin N', '', 'No HTP & Bilirubin N', 'Pas d''HTP & Bilirubine N'),
 ('no new item could be actually added to the shipment', '', 'No new item could be actually added to the shipment.', 'Aucun nouvel article ne peut actuellement être ajoutê à la commande.'),
 ('no new sample aliquot could be actually defined as realiquoted child', '', 'No new sample aliquot could be actually defined as realiquoted child!', 'Aucun nouvel aliquot de l''échantillon ne peut actuellement être défini comme aliquot ré-aliquoté (enfant)!'),
 ('no new sample aliquot could be actually defined as source aliquot', '', 'No new sample aliquot could be defined as the source aliquot!', 'Aucun nouvel aliquot de l''échantillon ne peut actuellement être défini comme aliquot source!'),
 ('no new sample aliquot could be actually defined as tested aliquot', '', 'No new sample aliquot could be actually defined as tested aliquot!', 'Aucun nouvel aliquot ne peut actuellement être défini comme aliquot ''testé''!'),
+('no pre operative data has to be defined for this type of treatment', '', 'No pre-operative data has to be defined for this type of treatment!', 'Aucune donnée pré-opératoire ne doit être définie pour ce type de traitement!'),
 ('no storage matches (at least one of) the selection label(s)', '', 'No storage matches (at least one of) the selection label(s)!', 'Aucun entreposage ne correspond à au moins un identifiant de sélection d''entreposage!'),
 ('no tumour', '', 'No Tumour', 'Pas de tumeur'),
 ('no unshipped item exists into this order line', '', 'No unshipped item exists into this order line.', 'Aucun article a envoyer existe dans votre ligne de commande.'),
@@ -3688,11 +4315,17 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('oct', '', 'Oct', 'Oct'),
 ('oct solution', '', 'OCT', 'OCT'),
 ('October', '', 'October', 'Octobre'),
+('okuda score', '', 'Okuda Score', 'Score d''Okuda'),
 ('on loan', '', 'On Loan', 'Prêté'),
+('oncologist', '', 'Oncologist', 'Oncologue'),
 ('one-partial', '', 'One - Partial', 'Un - partiel'),
 ('one-total', '', 'One - Total', 'Un - total'),
 ('open biopsy', '', 'Open Biopsy', 'Biopsie ouverte'),
 ('operation date', '', 'Operation Date', 'Date de l''opération'),
+('operative bleeding', '', 'operative bleeding', ''),
+('operative pathological report', '', 'operative pathological report', ''),
+('operative time', '', 'Operative Time', ''),
+('operative ultrasound ous', '', 'Operative Ultrasound OUS', ''),
 ('or', '', 'or', 'où'),
 ('order', '', 'Order', 'Commande'),
 ('order exists for the deleted aliquot', '', 'Your data cannot be deleted! <br>Orders exist for the deleted aliquot.', 'Vos données ne peuvent être supprimées! Des commandes existent pour votre aliquot.'),
@@ -3738,16 +4371,31 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('order_study', '', 'Study', 'Étude'),
 ('origin', '', 'Origin', 'Origine'),
 ('other', '', 'Other', 'Autre'),
+('other disease medical past history', '', 'Other Disease', 'Autre maladie'),
 ('other invasive', '', 'Other Invasive', 'Autre envahissement'),
+('other localisation 1', '', 'Other (1)', 'Autre (1)'),
+('other localisation 2', '', 'Other (2)', 'Autre (2)'),
+('other localisation 3', '', 'Other (3)', 'Autre (3)'),
+('other localisation precision', '', 'Precision', 'Précision'),
+('other localisations', '', 'Other Localisations', 'Autre Localisations'),
+('other marker 1', '', 'Other marker 1', 'Autre marqueur 1'),
+('other marker 2', '', 'Other marker 2', 'Autre marqueur 2'),
+('other organ resection 1', '', 'Other Organ Resection 1', ''),
+('other organ resection 2', '', 'Other Organ Resection 2', ''),
+('other organ resection 3', '', 'Other Organ Resection 3', ''),
 ('out of range', '', 'Out of range', 'En dehors de l''échelle'),
 ('ovary removed', '', 'Ovary Removed Status', 'Statut de l''ovariectomie'),
+('overnight', '', 'Overnight', 'Du jour au lendemain'),
 ('oxygen percentage', '', 'Oxygen Percentage', 'Pourcentage d''oxygène'),
+('p', '', 'P', 'P'),
 ('p.o.: by mouth', '', 'P.O.: By Mouth', 'PO: Par voie orale'),
 ('pack years', '', 'Pack Years', 'Paquet année'),
 ('pager', '', 'Pager', 'Paget'),
 ('pagets nipple', '', 'Pagets Nipple', 'Maladie de Paget du mammelon'),
 ('pagination', '', 'Pagination', 'Pagination'),
 ('palliative', '', 'Palliative', 'Palliatif'),
+('pancreas', '', 'Pancreas', 'Pancréas'),
+('pancreas surgery', '', 'Pancreas Surgery', 'Chirurgie du pancreas'),
 ('papillary', '', 'Papillary', 'Papillaire'),
 ('para', '', 'Para', 'Para'),
 ('paraffin', '', 'Paraffin', 'Paraffine'),
@@ -3761,6 +4409,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('partial', '', 'Partial', 'Partiel'),
 ('partially degraded', '', 'Partially Degraded', 'Partiellement dégradé'),
 ('participant', '', 'Participant', 'Participant'),
+('participant code', 'global', 'Code', 'Code'),
 ('participant collection', '', 'Participant Collection', 'Collection de participant'),
 ('participant identifier', '', 'Participant Identifier', 'Identification du participant'),
 ('participants', '', 'Participants', 'Participants'),
@@ -3769,6 +4418,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('paste', '', 'Paste', 'Coller'),
 ('paternal', '', 'Paternal', 'Paternel'),
 ('path report', '', 'Path Report', 'Rapport de pathologie'),
+('pathological report', '', 'Pathological Report', ''),
 ('pathological stage', '', 'Pathological Stage', 'Stade pathologique'),
 ('pathology', '', 'Pathology', 'Pathologie'),
 ('pathology department block code', '', 'Patho Code', 'Code de patho'),
@@ -3800,23 +4450,33 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('pipe', '', 'Pipe', 'Pipe'),
 ('planned', '', 'Planned', 'Prévu'),
 ('plasma', '', 'Plasma', 'Plasma'),
+('plasma units', '', 'Plasma Units', ''),
+('plasse', '', 'Dr. Plasse', 'Dr. Plasse'),
+('platelets', '', 'Platelets', 'Plaquettes'),
+('platelets units', '', 'Platelets Units', ''),
 ('pleural fluid', '', 'Pleural Fluid', 'Liquide pleural'),
 ('pleural fluid cell', '', 'Pleural Fluid cell', 'Cellules de liquide pleural'),
 ('pleural fluid supernatant', '', 'Pleural Fluid Supernatant', 'Surnageant de liquide pleural'),
 ('plugin storagelayout access to storage', '', 'Access To Storage', 'Accéder à l''entreposage'),
 ('poor', '', 'Poor', 'Pauvre'),
 ('poorly differentiated', '', 'Poorly differentiated', 'Faiblement différencié'),
+('portacaval gradient', '', '', ''),
+('portal thrombosis', '', 'Portal Thrombosis', 'Thrombose portale'),
+('portal vein', '', 'Portal Vein', 'Veine porte'),
 ('position', '', 'Position', 'Position'),
 ('position into storage', '', 'Position into storage', 'Position dans l''entreposage'),
 ('positive', '', 'Positive', 'Positif'),
 ('post', '', 'Post', 'Poste'),
+('post pve', '', 'Post PVE (Portal Vein Embolization)', 'Post PVE (Embolisation portale)'),
 ('pr', '', 'PR', 'PR'),
 ('PR: per rectum', '', 'PR: per rectum', 'PR: Par le rectum'),
 ('pre', '', 'Pre', 'Pré'),
+('pre operative data', '', 'Pre Operative Data', 'Données pre-opératoire'),
 ('precision', 'global', 'Precision', 'Précision'),
 ('preferences', '', 'Preferences', 'Prférences'),
 ('preneoplastic changes', '', 'Associated Pre-neoplastic Changes', 'Changements pré-néoplasiques associés'),
 ('presentation', '', 'Presentation', 'Présentation'),
+('presentation', 'global', 'Presentation', 'Présentation'),
 ('prev', '', 'Previous', 'Précédent'),
 ('Prev', 'global', 'Prev', 'Préc'),
 ('previous disease code', '', 'Previous Disease Code', 'Code de la maladie anterieur'),
@@ -3824,6 +4484,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('primary', '', 'Primary', 'Primaire'),
 ('primary disease code', '', 'Primary Disease Code', 'Code de maladie primaire'),
 ('primary_number', '', 'Diagnoses Group Nbr', 'No du groupe de diagnostics'),
+('principal surgery', '', 'Principal Surgery', ''),
 ('principle_investigator', '', 'Principle Investigator', 'Principal investigateur'),
 ('process batch set', '', 'Process Batch Set', 'Manipuler goupe de données'),
 ('process status', '', 'Process Status', 'Statut du processus'),
@@ -3843,7 +4504,9 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('protocol extend', '', 'Drug List', 'Liste des principes actifs'),
 ('protocol is defined as protocol of at least one participant treatment', '', 'The protocol is defined as protocol of at least one participant treatment!', 'Le protocole est définie comme étant le protocole d''au moins un traitement de participant!'),
 ('protocols', '', 'Protocols', 'Protocoles'),
+('ptt', '', 'PTT', 'PTT'),
 ('qc conclusion', '', 'Conclusion', 'Conclusion'),
+('qc hb toxicity', '', 'Toxicity', 'Toxicité'),
 ('qc run id is required', '', 'Quality Control Run ID is required!', 'L''identifiant du contrôle de qualité est requis!'),
 ('qc run number', '', 'Quality Control Run Id', 'ID du test de Qualité'),
 ('qc score', '', 'Score', 'Score'),
@@ -3870,6 +4533,8 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('radiation specific', '', 'Radiation Specific', 'Radiation spécifique'),
 ('radio/lab', '', 'Radiology/Lab', 'Radiologie/laboratoire'),
 ('radiology', '', 'Radiology', 'Radiologie'),
+('rbc', '', 'RBC', 'NGR'),
+('rbc units', '', 'RBC Units', ''),
 ('realiquoted by', '', 'Realiquoted By', 'Ré-aliquoté par'),
 ('realiquoted children selection', '', 'Realiquoted Children Selection', 'Sélection des aliquots ré-aliquotés (enfant)'),
 ('realiquoted parent', '', 'Realiquoted Parent', 'Parent ré-aliquoté'),
@@ -3878,20 +4543,30 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('realiquoting data exists for the deleted aliquot', '', 'Your data cannot be deleted! <br>Realiquoting data exist for the deleted aliquot.', 'Vos données ne peuvent être supprimées! Des données de réaliquotage existent pour votre aliquot.'),
 ('realiquoting date', '', 'Realiquoting Date', 'Date'),
 ('reason denied or withdrawn', '', 'Reason Denied/Withdrawn', 'Motif du refus/retrait'),
+('reason of change', '', 'Reason of Change', 'Raison du changement'),
 ('received tissue size', '', 'Received Tissue Size', 'Taille du tissu reçu'),
 ('received tissue weight', '', 'Received Tissue Weight', 'Poids du tissu reçu'),
 ('reception by', '', 'Taken Delivery By', 'Réceptionné par'),
 ('reception date', '', 'Reception Date', 'Date de réception'),
 ('reception to storage spent time', '', 'Reception to Storage Spent Time', 'Temps écoulé entre la réception et l''entreposage'),
 ('recipient', '', 'Recipient', 'Destinataire'),
+('rectum', '', 'Rectum', 'Rectum'),
 ('recurrence status', '', 'Recurrence Status', 'Statut de récurrence'),
 ('redirect', '', 'Redirect', 'Rediriger'),
+('referral data', 'global', 'Referral', 'Référent'),
 ('referral date', '', 'Date of Referral', 'Date de référence'),
+('referral hospital', 'global', 'Referral Hospital', 'Hôpital référent'),
+('referral physisian', 'global', 'Referral Physisian', 'Medecin référent'),
+('referral physisian 2', 'global', '2nd Referral Physisian', '2nd Medecin référent'),
+('referral physisian 3', 'global', '3rd Referral Physisian', '3eme Medecin référent'),
+('referral physisian speciality', 'global', 'Speciality', 'Spécialité'),
 ('region', '', 'Province', 'Province'),
 ('related diagnoses group', '', 'Related Diagnoses Group', 'Groupe de diagnostics connexes'),
 ('related diagnosis', '', 'Related Diagnosis', 'Diagnostic connexe'),
 ('Related Studies', '', 'Related Studies', 'Étude connexe'),
 ('relation', '', 'Relation', 'Relation'),
+('remnant liver percentage', '', 'Remnant Liver Percentage', 'Pourcentage du foie restant'),
+('remnant liver volume', '', 'Remnant Liver Volume', 'Volume du foie restant'),
 ('remove', '', 'Remove', 'Enlever'),
 ('remove all storage''s items', '', 'Remove all storage''s items', 'Retirer tous les items du contenant'),
 ('remove all unclassified', '', 'Remove all unclassified', 'Retirer tous les non classés'),
@@ -3901,12 +4576,15 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('reproductive history', '', 'Reproductive History', 'Gynécologie'),
 ('research', '', 'Research', 'Recherche'),
 ('research study description', '', 'Track research studies submitted to the bank.', 'Suivi des études soumises à la banque '),
+('resected liver volume', '', 'Resected Liver Volume', 'Volume du foie réséqué'),
+('resected liver weight', '', 'Resected Liver Weight', ''),
 ('resection_margin', '', 'Resection Margin', 'Résection marginale'),
 ('reserved for order', '', 'Reserved For Order', 'Réservé pour une commande'),
 ('reserved for study', '', 'Reserved For Study', 'Réservé pour une étude'),
 ('reset', '', 'Reset', 'Réinitialiser'),
 ('residential', '', 'Residential', 'Résidentiel'),
 ('respiratory', '', 'Respiratory/thoracic', 'Respiratoire/thoracique'),
+('respiratory disease medical past history', '', 'Respiratory Disease', 'Maladie respiratoire'),
 ('respiratory/thoracic', '', 'Respiratory/Thoracic', 'Respiratoire/thoracique'),
 ('response', '', 'Response', 'Réponse'),
 ('result', '', 'Result', 'Résultat'),
@@ -3914,14 +4592,19 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('review exists for the deleted aliquot', '', 'Your data cannot be deleted! <br>Reviews exist for the deleted aliquot.', 'Vos données ne peuvent être supprimées! Des rapports existent pour votre aliquot.'),
 ('review exists for the deleted collection', '', 'Your data cannot be deleted! <br>Reviews exist for the deleted collection.', 'Vos données ne peuvent être supprimées! Des rapports existent pour votre collection.'),
 ('review exists for the deleted sample', '', 'Your data cannot be deleted! <br>Reviews exist for the deleted sample.', 'Vos données ne peuvent être supprimées! Des rapports existent pour votre échantillon.'),
+('reviewed events', '', 'Reviewed Events', 'Évenements révisionnés'),
+('RFA', '', 'RFA', ''),
 ('right', '', 'Right', 'Droit'),
 ('RIN', '', 'RIN', 'RIN'),
 ('rna', '', 'RNA', 'ARN'),
 ('room', '', 'Room', 'Pièce'),
 ('route of referral', '', 'Route of Referral', 'Personne référente'),
 ('row', '', 'Row', 'Ligne'),
+('roy', '', 'Dr. Roy', 'Dr. Roy'),
 ('rtbform_detail', '', 'Details', 'Détail'),
 ('run by', '', 'Run By', 'Exécuté par'),
+('saint_luc_hospital_nbr', 'global', 'St Luc Hospital Number', 'No Hôpital St Luc'),
+('same', '', 'Same', 'Identique'),
 ('sample aliquot type precision', '', 'Precision', 'Précision'),
 ('sample code', '', 'Sample Code', 'Code de l''échantillon'),
 ('sample derivative creation', '', 'Sample Derivative Creation', 'Création de dérivé'),
@@ -3932,19 +4615,41 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('sample_aliquot_type_precision_help', '', 'Allow user to add additional product type precision like ''frozen'', ''OCT'', etc.', 'Permet à l''utilisateur de préciser le type du produit comme ''OCT'', ''congelé'', etc.'),
 ('saved searches', '', 'Saved Searches', 'Recherches sauvegardées'),
 ('SC: subcutaneous injection', '', 'SC: subcutaneous injection', 'SC: Injection sous-cutanée'),
+('score', '', 'Score', 'Score'),
 ('screening', '', 'Screening', 'Dépistage'),
 ('search', '', 'Search', 'Chercher'),
 ('search type', '', 'Search Type', 'Type de recherche'),
+('second regimen', '', 'Second Regimen', 'Second régime'),
 ('secondary', '', 'Secondary', 'Secondaire'),
 ('secondary cause of death', '', 'Secondary Cause of Death', 'Cause secondaire du décès'),
 ('see parent sample', '', 'Parent Sample', 'Échantillon parent'),
 ('see parent storage', '', 'Parent Storage', 'Contenant'),
+('segment', '', 'Segment', 'Segment'),
+('segment 1 resection', '', 'Segment 1 Resection', ''),
+('segment 2 resection', '', 'Segment 2 Resection', ''),
+('segment 3 resection', '', 'Segment 3 Resection', ''),
+('segment 4a resection', '', 'Segment 4a Resection', ''),
+('segment 4b resection', '', 'Segment 4b Resection', ''),
+('segment 5 resection', '', 'Segment 5 Resection', ''),
+('segment 6 resection', '', 'Segment 6 Resection', ''),
+('segment 7 resection', '', 'Segment 7 Resection', ''),
+('segment 8 resection', '', 'Segment 8 Resection', ''),
+('segment I', '', 'Segment I', 'Segment I'),
+('segment II', '', 'Segment II', 'Segment II'),
+('segment III', '', 'Segment III', 'Segment III'),
+('segment IVa', '', 'Segment IVa', 'Segment IVa'),
+('segment IVb', '', 'Segment IVb', 'Segment IVb'),
+('segment V', '', 'Segment V', 'Segment V'),
+('segment VI', '', 'Segment VI', 'Segment VI'),
+('segment VII', '', 'Segment VII', 'Segment VII'),
+('segment VIII', '', 'Segment VIII', 'Segment VIII'),
 ('Selection Label', '', 'Selection Label', 'Label de sélection'),
 ('sentinel only', '', 'Sentinel Only', 'Sentinelle seulement'),
 ('sep', '', 'Sep', 'Sep'),
 ('separated', '', 'Separated', 'Séparé'),
 ('September', '', 'September', 'Septembre'),
 ('serum', '', 'Serum', 'Sérum'),
+('severe', '', 'Severe', 'Sévère'),
 ('sex', '', 'Sex', 'Sexe'),
 ('shelf', '', 'Shelf', 'Tablette'),
 ('shipment', '', 'Shipment', 'Envoi'),
@@ -3958,6 +4663,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('show advanced controls', '', 'Show advanced controls', 'Afficher les contrôles avancés'),
 ('single', '', 'Single', 'Célibataire'),
 ('sister', '', 'Sister', 'Soeur'),
+('size', '', 'Size', 'Taille'),
 ('skin', '', 'Skin', 'Peau'),
 ('skin involved', '', 'Skin Involved', 'Peau impliquée'),
 ('slide', '', 'Slide', 'Lame'),
@@ -3994,6 +4700,10 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('south east asian', '', 'South East Asian', 'Sud-est Asiatique'),
 ('specimen', '', 'Specimen', 'Spécimen'),
 ('spectrophotometer', '', 'Spectrophotometer', 'Spectrophotomètre'),
+('splen size', '', 'Splen Size', ''),
+('splenic artery', '', 'Splenic artery', 'Artère splénique'),
+('splenic vein', '', 'Splenic vein', 'Veine splénique'),
+('splenomegaly', '', 'Splenomegaly', ''),
 ('spread skin nipple', '', 'Spread to Skin or Nipple', 'Propagation à la peau ou au mammelon'),
 ('stable disease', '', 'Stable Disease', 'Maladie stable'),
 ('staging', '', 'Staging', 'Stade'),
@@ -4020,9 +4730,11 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('storage path', '', 'Path', 'Accès'),
 ('storage selection label', '', 'Selection Label', 'Identifiant de sélection'),
 ('storage short label', '', 'Short Label', 'Identifiant court'),
-('storage temperature', '', 'Storage Temperature', 'Température de l''entreposage'),
+('storage temperature', '', 'Storage Temperature', 'Température de l''entreposage');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('storage temperature changed', '', 'Storage temperature changed', 'La température de l''entreposage a changée'),
 ('storage type', '', 'Type', 'Type'),
+('stored by', '', 'Stored by', 'Entreposé par'),
 ('stor_parent_id_defintion', '', 'Parent storage in which the studied storage is stored.', 'Entreposage parent dans lequel l''entreposage étudié est entreposé.'),
 ('stor_selection_label_defintion', '', 'Label built by the system joining all short labels of the storage parents and the studied parent starting from the root (ex: freezer, fridge, room) to the studied storage and separating all short labels by ''-''.', 'Libellé construit par le système en concaténant tous les identifiants courts des entreposages ''parents'' ainsi que celui de l''entreposage étudié à partir du parent initial (ex: frigidaire, etc) jusqu''à l''entre'),
 ('stor_short_label_defintion', '', 'Short label written on the storage to identify this one.', 'Libellé court écrit sur l''entreposage pour identifier ce dernier.'),
@@ -4092,14 +4804,18 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('study_year', '', 'Year', 'Année'),
 ('submit', '', 'Submit', 'Envoyer'),
 ('summary', '', 'Summary', 'Résumé'),
+('superior mesenteric artery', '', 'superior esenteric artery', 'Artère mésentérique superieur'),
+('superior mesenteric vein', '', 'superior mesenteric vein', 'Veine mésentérique superieur'),
 ('supplier dept', '', 'Supplier Department', 'Département fournisseur'),
 ('surgeon', '', 'Surgeon', 'Chirurgien'),
 ('surgery', '', 'Surgery', 'Chirurgie'),
+('surgery date', '', 'Surgery Date', 'Date de chirurgie'),
 ('surgery specific', '', 'Surgery Specific', 'Chirurgie spécifique'),
 ('surgical', '', 'Surgical', 'Chirurgical'),
 ('surgical/clinical', '', 'surgical/clinical', 'chirurgical/clinique'),
 ('surrounding temperature', '', 'Surrounding Temperature', 'Température environnante'),
 ('survival time months', '', 'Survival Time in Months', 'Temps de survie en mois'),
+('suspicion', '', 'Suspicion', 'Soupçon'),
 ('suspicious', '', 'Suspicious', 'Suspect'),
 ('suspicious nd', '', 'Suspicious ND', ''),
 ('system error', '', 'System Error', 'Erreur système'),
@@ -4120,11 +4836,15 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('The requested address %s was not found on this server.', '', 'The requested address %s was not found on this server.', 'L''url %s n''a pas été trouvé sur le serveur.'),
 ('there is no drug defined in the associated protocol', '', 'There is no drug defined in the associated protocol', 'Il n''y a pas de drogue définie avec le traitement associé'),
 ('there is no protocol associated with this treatment', '', 'There is no protocol associated with this treatment', 'Il n''y a pas de protocole associé à ce traitement'),
+('third regimen', '', 'Third Regimen', 'Troisième régime'),
 ('This field cannot be left blank', '', 'This field cannot be left blank!', 'Ce champ ne peut pas être vide!'),
 ('this identifier has already been created for this participant', '', 'This identifier has already been created for this participant and can not be created more than once!', 'Cet identifiant a déjà été créé pour le participant et ne peut être créé plus d''une fois'),
+('this identifier has already been created for your participant', '', 'This identifier has already been created for your participant!', 'Cet identification a déjà été créée pour ce participant!'),
 ('this item cannot be deleted because it was already shipped', '', 'This item cannot be deleted because it was already shipped!', 'Cet item ne peut pas être supprimé car il a déjà été expédié!'),
 ('this name is already in use', '', 'This name is already in use', 'Ce nom est déjà utilisé'),
+('this type of event has already been created for your participant', '', 'This type of annotation has already been created for your participant!', 'Ce type d''annotation a déjà eacyte;té créée pour votre participant!'),
 ('time format', '', 'Time format', 'Format de l''heure'),
+('tips', '', 'TIPS', ''),
 ('tissue', '', 'Tissue', 'Tissu'),
 ('tissue lysate', '', 'Tissue Lysate', 'Lysat de tissu'),
 ('tissue source', '', 'Tissue Source', 'Source du tissu'),
@@ -4149,6 +4869,10 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('tool_study', '', 'Study', 'Étude'),
 ('tool_summary', '', 'Summary', 'Résumé'),
 ('topography', '', 'Topography', 'Topographie'),
+('total', '', 'Total', 'Total'),
+('total bilirubin', '', 'Total Bilirubin', 'Bilirubine totale'),
+('total liver volume', '', 'Total Liver Volume', 'Volume du foie total'),
+('transfusions', '', 'Transfusions', 'Transfusions'),
 ('translational', '', 'Translational', 'Translationnel'),
 ('translator signature captured', '', 'Translator Signature Captured', 'Signature du traducteur'),
 ('translator used', '', 'Translator Used', 'Aide d''un traducteur'),
@@ -4157,16 +4881,27 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('treatment detail', '', 'Detail', 'Détail'),
 ('treatment facility', '', 'Treatment Facility', 'Installations pour traitements'),
 ('tree view', '', 'Tree View', 'Vue hiérarchique'),
+('triglycerides', '', 'Triglycerides', 'Triglycéride'),
 ('tru-cut/core biopsy', '', 'Tru-Cut/Core Biopsy', 'Biopsie au trocart type Tru cut'),
 ('trucut core biopsy', '', 'Trucut Core Biopsy', 'Biopsie au trocart type Tru cut'),
 ('tube', '', 'Tube', 'Tube'),
 ('tubular', '', 'Tubular', 'Tubulaire'),
+('tumor morphology', '', 'Tumor Morphology', 'Morphologie de la tumeur'),
+('tumor size ratio', '', 'Tumor Size Ratio', 'Ratio de la taille de la tumeur'),
+('tumoral volume', '', 'Tumoral Volume', 'Volume tumoral'),
 ('tumour grade', '', 'Tumour Grade', 'Grade tumoral'),
 ('tumour group', '', 'Tumour Group', 'Groupe tumoral'),
 ('tumour size', '', 'Tumour Size', 'Dimension de la tumeur'),
 ('tumour type', '', 'Tumour Type', 'Type de tumeur'),
 ('turbidity', '', 'Turbidity', 'Trouble'),
 ('type', '', 'Type', 'Type'),
+('type of cirrhosis', '', 'Type', 'Type'),
+('type of drain 1', '', 'Type of Drain 1', ''),
+('type of drain 2', '', 'Type of Drain 2', ''),
+('type of drain 3', '', 'Type of Drain 3', ''),
+('type of glue', '', 'Type of Glue', ''),
+('type of local treatment', '', 'Type of Local Treatment', ''),
+('type of vascular occlusion', '', 'Type of Vascular Occlusion', ''),
 ('ug/ul', '', 'ug/ul', 'ug/ul'),
 ('ul', '', 'ul', 'ul'),
 ('uncertain', '', 'Uncertain', 'Incertain'),
@@ -4179,8 +4914,13 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('unclassify all storage''s items', '', 'Unclassify all storage''s items', 'Déclasser tous les items du contenant'),
 ('uncle', '', 'Uncle', 'Oncle'),
 ('undifferentiated/anaplastic', '', 'Undifferentiated/Anaplastic', 'Indifférencié/anaplasique'),
+('unique nodule & < 50%', '', 'Unique Nodule & < 50%', 'Nodule unique & < 50%'),
+('unique, < 5cm', '', 'Unique, < 5cm', 'Unique, < 5cm'),
 ('unit', '', 'Unit', 'Unité'),
 ('unknown', '', 'Unknown', 'Inconnu'),
+('urea', '', 'Urea', 'Urée'),
+('uric acid', '', 'Uric Acid', 'Acide urique'),
+('urinary disease medical past history', '', 'Urinary Disease', 'Maladie urinaire'),
 ('urine', '', 'Urine', 'Urine'),
 ('url', '', 'URL', 'URL'),
 ('use', '', 'Use', 'Utilisation'),
@@ -4200,16 +4940,25 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('use_help', '', 'Only selected rows will be taken in consideration!', 'Seules les lignes sélectionnées seront prises en considération!'),
 ('value', '', 'Value', 'Valeur'),
 ('value is required', '', 'The value is required!', 'La valeur est requise!'),
+('vanderbroucke-menu', '', 'Dr. Vanderbroucke-Menu', 'Dr. Vanderbroucke-Menu'),
+('vascular disease medical past history', '', 'Vascular Disease', 'Maladie vasculaire'),
+('vascular invasion', '', 'Vascular Invasion', 'Invasion vasculaire'),
+('vascular occlusion', '', 'Vascular Occlusion', ''),
 ('version number', '', 'Version Number', 'Numéro de version'),
 ('very good', '', 'Very good', 'Très bon'),
 ('vital status', '', 'Vital Status', 'Statut vital'),
 ('volume', '', 'Volume', 'Volume'),
 ('volume should be a positif decimal', '', 'Volume should be a positive decimal!', 'Le volume doit être un décimal positif!'),
 ('volume unit', '', 'Volume Unit', 'Unité de volume'),
+('volumetry', '', 'Volumetry', 'Volumétrie'),
 ('warning', '', 'Warning', 'Avertissement'),
+('wbc', '', 'WBC', 'GB'),
 ('weight', '', 'Weight', 'Poids'),
+('weight (kg)', 'global', 'Weight (kg)', 'Poids (kg)'),
+('weight should be a positif decimal', 'global', 'Weight should be a positive decimal!', 'Le poids doit être un décimal positif!'),
 ('well differentiated', '', 'Well differentiated', 'Bien différencié'),
 ('whatman paper', '', 'Whatman Paper', 'Papier whatman'),
+('who', '', 'WHO', 'WHO'),
 ('withdrawn', '', 'Withdrawn', 'Désistement'),
 ('xBank', '', 'Bank', 'Banque'),
 ('xBanks', '', 'Banks', 'Banques'),
@@ -4228,7 +4977,8 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('your data has been removed - update the aliquot in stock data', '', 'Your data has been removed. <br>Please update the ''In Stock'' value for your aliquot if required.', 'Votre donnée à été enlevée. <br>Veuillez mettre à jour la valeur de la donnée ''En stock'' de votre aliquot au besoin.'),
 ('your data has been saved', '', 'Your data has been saved.', 'Vos données ont été sauvegardées.'),
 ('your data has been updated', '', 'Your data has been updated.', 'Vos données ont été mises à jour.'),
-('ZCSA', '', 'ZCSA', 'ZCSA');
+('ZCSA', '', 'ZCSA', 'ZCSA'),
+('_0_', '', '0', '0');
 
 -- --------------------------------------------------------
 
@@ -4247,8 +4997,7 @@ CREATE TABLE IF NOT EXISTS `key_increments` (
 --
 
 INSERT INTO `key_increments` (`key_name`, `key_value`) VALUES
-('part_ident_hospital_num', 1),
-('part_ident_insurance_num', 1);
+('hepato_bil_bank_participant_id', 1);
 
 -- --------------------------------------------------------
 
@@ -4365,15 +5114,16 @@ INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_ti
 ('clin_CAN_1', 'MAIN_MENU_1', 1, 2, 'clinical annotation', 'clinical annotation description', '/clinicalannotation/participants/index/', '', '', 1, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 ('clin_CAN_10', 'clin_CAN_1', 0, 7, 'family history', 'family history', '/clinicalannotation/family_histories/listall/%%Participant.id%%', '', 'Clinicalannotation.Participant::summary', 1, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 ('clin_CAN_1_13', 'clin_CAN_1', 0, 13, 'chronology', '', '/clinicalannotation/participants/chronology/%%Participant.id%%', '', 'Clinicalannotation.Participant::summary', 1, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+('clin_CAN_1_qc_hb_14', 'clin_CAN_4', 0, 14, 'score', NULL, '/clinicalannotation/event_masters/listall/scores/%%Participant.id%%', '', 'Clinicalannotation.EventControl::summary', 1, '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
 ('clin_CAN_24', 'clin_CAN_1', 0, 6, 'identification', 'identification', '/clinicalannotation/misc_identifiers/listall/%%Participant.id%%', '', 'Clinicalannotation.Participant::summary', 1, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 ('clin_CAN_25', 'clin_CAN_1', 0, 10, 'message', 'message', '/clinicalannotation/participant_messages/listall/%%Participant.id%%', '', 'Clinicalannotation.Participant::summary', 1, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 ('clin_CAN_26', 'clin_CAN_1', 0, 9, 'contact', 'contact', '/clinicalannotation/participant_contacts/listall/%%Participant.id%%', '', 'Clinicalannotation.Participant::summary', 1, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
-('clin_CAN_27', 'clin_CAN_4', 0, 5, 'screening', 'screening', '/clinicalannotation/event_masters/listall/screening/%%Participant.id%%', '', 'Clinicalannotation.EventControl::summary', 1, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+('clin_CAN_27', 'clin_CAN_4', 0, 5, 'screening', 'screening', '/clinicalannotation/event_masters/listall/screening/%%Participant.id%%', '', 'Clinicalannotation.EventControl::summary', 0, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 ('clin_CAN_28', 'clin_CAN_4', 0, 2, 'lab', 'lab', '/clinicalannotation/event_masters/listall/lab/%%Participant.id%%', '', 'Clinicalannotation.EventControl::summary', 1, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 ('clin_CAN_30', 'clin_CAN_4', 0, 3, 'lifestyle', 'lifestyle', '/clinicalannotation/event_masters/listall/lifestyle/%%Participant.id%%', '', 'Clinicalannotation.EventControl::summary', 1, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 ('clin_CAN_31', 'clin_CAN_4', 0, 1, 'clinical', 'clinical', '/clinicalannotation/event_masters/listall/clinical/%%Participant.id%%', '', 'Clinicalannotation.EventControl::summary', 1, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 ('clin_CAN_32', 'clin_CAN_4', 0, 7, 'adverse events', 'adverse events', '/clinicalannotation/event_masters/listall/adverse_events/%%Participant.id%%', '', 'Clinicalannotation.EventControl::summary', 0, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
-('clin_CAN_33', 'clin_CAN_4', 0, 4, 'clin_study', 'clin_study', '/clinicalannotation/event_masters/listall/study/%%Participant.id%%', '', 'Clinicalannotation.EventControl::summary', 1, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+('clin_CAN_33', 'clin_CAN_4', 0, 4, 'clin_study', 'clin_study', '/clinicalannotation/event_masters/listall/study/%%Participant.id%%', '', 'Clinicalannotation.EventControl::summary', 0, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 ('clin_CAN_34', 'MAIN_MENU_1', 1, 7, 'batch entry', 'batch entry', '/underdevelopment/', '', '', 0, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 ('clin_CAN_4', 'clin_CAN_1', 0, 4, 'annotation', 'annotation', '/clinicalannotation/event_masters/listall/clinical/%%Participant.id%%', '', 'Clinicalannotation.Participant::summary', 1, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 ('clin_CAN_5', 'clin_CAN_1', 0, 3, 'diagnosis', 'diagnosis', '/clinicalannotation/diagnosis_masters/listall/%%Participant.id%%', '', 'Clinicalannotation.Participant::summary', 1, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
@@ -4388,9 +5138,11 @@ INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_ti
 ('clin_CAN_68', 'clin_CAN_1', 0, 8, 'reproductive history', 'reproductive history', '/clinicalannotation/reproductive_histories/listall/%%Participant.id%%', '', 'Clinicalannotation.Participant::summary', 1, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 ('clin_CAN_69', 'clin_CAN_4', 0, 6, 'protocol', 'protocol', '/clinicalannotation/event_masters/listall/protocol/%%Participant.id%%', '', 'Clinicalannotation.EventControl::summary', 0, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 ('clin_CAN_75', 'clin_CAN_1', 0, 5, 'treatment', 'treatment', '/clinicalannotation/treatment_masters/listall/%%Participant.id%%', '', 'Clinicalannotation.Participant::summary', 1, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+('clin_CAN_75_2', 'clin_CAN_75', 0, 2, 'pre operative data', NULL, '/clinicalannotation/treatment_masters/preOperativeDetail/%%Participant.id%%/%%TreatmentMaster.id%%', '', 'Clinicalannotation.TreatmentMaster::summary', 1, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 ('clin_CAN_79', 'clin_CAN_75', 0, 1, 'treatment detail', 'treatment detail', '/clinicalannotation/treatment_masters/detail/%%Participant.id%%/%%TreatmentMaster.id%%', '', 'Clinicalannotation.TreatmentMaster::summary', 1, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 ('clin_CAN_80', 'clin_CAN_75', 0, 2, 'precision', 'administration', '/clinicalannotation/treatment_extends/listall/%%Participant.id%%/%%TreatmentMaster.id%%', '', 'Clinicalannotation.TreatmentMaster::summary', 1, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 ('clin_CAN_9', 'clin_CAN_1', 0, 2, 'consent', 'consent', '/clinicalannotation/consent_masters/listall/%%Participant.id%%', '', 'Clinicalannotation.Participant::summary', 1, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+('clin_qc_hb_33', 'clin_CAN_4', 0, 20, 'annotation clinical reports', 'annotation clinical reports', '/clinicalannotation/event_masters/imageryReport/%%Participant.id%%/', '', '', 1, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 ('core_CAN_33', 'MAIN_MENU_1', 1, 6, 'core_tools', 'core_tools description', '/menus/tools/', '', '', 1, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 ('core_CAN_41', 'core_CAN_33', 1, 1, 'core_administrate', 'administration description', '/administrate/groups', '', '', 1, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 ('core_CAN_41_1', 'core_CAN_41', 0, 1, 'groups', '', '/administrate/groups/index', '', '', 1, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
@@ -4563,12 +5315,16 @@ CREATE TABLE IF NOT EXISTS `misc_identifier_controls` (
   `flag_once_per_participant` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_misc_identifier_name` (`misc_identifier_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=4 ;
 
 --
 -- Contenu de la table `misc_identifier_controls`
 --
 
+INSERT INTO `misc_identifier_controls` (`id`, `misc_identifier_name`, `misc_identifier_name_abbrev`, `flag_active`, `display_order`, `autoincrement_name`, `misc_identifier_format`, `flag_once_per_participant`) VALUES
+(1, 'health_insurance_card', 'RAMQ', 1, 0, '', '', 0),
+(2, 'saint_luc_hospital_nbr', 'ID HSL', 1, 1, '', '', 0),
+(3, 'hepato_bil_bank_participant_id', 'HB-PartID', 1, 3, 'hepato_bil_bank_participant_id', 'HB-P%%key_increment%%', 0);
 
 -- --------------------------------------------------------
 
@@ -4867,9 +5623,9 @@ INSERT INTO `parent_to_derivative_sample_controls` (`id`, `parent_sample_control
 (4, 2, 8, 1),
 (5, 2, 9, 1),
 (6, 2, 10, 1),
-(7, 3, 11, 1),
-(8, 3, 12, 1),
-(9, 3, 13, 1),
+(7, 3, 11, 0),
+(8, 3, 12, 0),
+(9, 3, 13, 0),
 (10, 4, 14, 1),
 (11, 4, 15, 1),
 (12, 5, 11, 1),
@@ -4885,7 +5641,7 @@ INSERT INTO `parent_to_derivative_sample_controls` (`id`, `parent_sample_control
 (23, 13, 17, 1),
 (24, 2, 12, 1),
 (25, 2, 18, 1),
-(101, 3, 101, 1),
+(101, 3, 101, 0),
 (102, 3, 102, 1),
 (103, 103, 106, 1),
 (104, 103, 107, 1),
@@ -4909,7 +5665,7 @@ INSERT INTO `parent_to_derivative_sample_controls` (`id`, `parent_sample_control
 (127, 116, 11, 1),
 (128, 116, 12, 1),
 (129, 116, 13, 1),
-(130, 3, 118, 1),
+(130, 3, 118, 0),
 (131, 11, 118, 1),
 (132, 8, 118, 1),
 (133, 118, 12, 1),
@@ -5487,6 +6243,1106 @@ CREATE TABLE IF NOT EXISTS `providers_revs` (
 
 --
 -- Contenu de la table `providers_revs`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `qc_hb_ed_hepatobilary_lab_report_biology`
+--
+
+CREATE TABLE IF NOT EXISTS `qc_hb_ed_hepatobilary_lab_report_biology` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `wbc` smallint(6) DEFAULT NULL,
+  `rbc` smallint(6) DEFAULT NULL,
+  `hb` smallint(6) DEFAULT NULL,
+  `ht` smallint(6) DEFAULT NULL,
+  `platelets` smallint(6) DEFAULT NULL,
+  `ptt` smallint(6) DEFAULT NULL,
+  `inr` smallint(6) DEFAULT NULL,
+  `na` smallint(6) DEFAULT NULL,
+  `k` smallint(6) DEFAULT NULL,
+  `cl` smallint(6) DEFAULT NULL,
+  `creatinine` smallint(6) DEFAULT NULL,
+  `urea` smallint(6) DEFAULT NULL,
+  `ca` smallint(6) DEFAULT NULL,
+  `p` smallint(6) DEFAULT NULL,
+  `mg` smallint(6) DEFAULT NULL,
+  `protein` smallint(6) DEFAULT NULL,
+  `uric_acid` smallint(6) DEFAULT NULL,
+  `glycemia` smallint(6) DEFAULT NULL,
+  `triglycerides` smallint(6) DEFAULT NULL,
+  `cholesterol` smallint(6) DEFAULT NULL,
+  `albumin` smallint(6) DEFAULT NULL,
+  `total_bilirubin` smallint(6) DEFAULT NULL,
+  `direct_bilirubin` smallint(6) DEFAULT NULL,
+  `indirect_bilirubin` smallint(6) DEFAULT NULL,
+  `ast` smallint(6) DEFAULT NULL,
+  `alt` smallint(6) DEFAULT NULL,
+  `alkaline_phosphatase` smallint(6) DEFAULT NULL,
+  `amylase` smallint(6) DEFAULT NULL,
+  `lipase` smallint(6) DEFAULT NULL,
+  `a_fp` smallint(6) DEFAULT NULL,
+  `cea` smallint(6) DEFAULT NULL,
+  `ca_19_9` smallint(6) DEFAULT NULL,
+  `chromogranine` smallint(6) DEFAULT NULL,
+  `_5_HIAA` smallint(6) DEFAULT NULL,
+  `ca_125` smallint(6) DEFAULT NULL,
+  `ca_15_3` smallint(6) DEFAULT NULL,
+  `b_hcg` smallint(6) DEFAULT NULL,
+  `other_marker_1` smallint(6) DEFAULT NULL,
+  `other_marker_2` smallint(6) DEFAULT NULL,
+  `summary` text,
+  `event_master_id` int(11) DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Contenu de la table `qc_hb_ed_hepatobilary_lab_report_biology`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `qc_hb_ed_hepatobilary_lab_report_biology_revs`
+--
+
+CREATE TABLE IF NOT EXISTS `qc_hb_ed_hepatobilary_lab_report_biology_revs` (
+  `id` int(11) NOT NULL,
+  `wbc` smallint(6) DEFAULT NULL,
+  `rbc` smallint(6) DEFAULT NULL,
+  `hb` smallint(6) DEFAULT NULL,
+  `ht` smallint(6) DEFAULT NULL,
+  `platelets` smallint(6) DEFAULT NULL,
+  `ptt` smallint(6) DEFAULT NULL,
+  `inr` smallint(6) DEFAULT NULL,
+  `na` smallint(6) DEFAULT NULL,
+  `k` smallint(6) DEFAULT NULL,
+  `cl` smallint(6) DEFAULT NULL,
+  `creatinine` smallint(6) DEFAULT NULL,
+  `urea` smallint(6) DEFAULT NULL,
+  `ca` smallint(6) DEFAULT NULL,
+  `p` smallint(6) DEFAULT NULL,
+  `mg` smallint(6) DEFAULT NULL,
+  `protein` smallint(6) DEFAULT NULL,
+  `uric_acid` smallint(6) DEFAULT NULL,
+  `glycemia` smallint(6) DEFAULT NULL,
+  `triglycerides` smallint(6) DEFAULT NULL,
+  `cholesterol` smallint(6) DEFAULT NULL,
+  `albumin` smallint(6) DEFAULT NULL,
+  `total_bilirubin` smallint(6) DEFAULT NULL,
+  `direct_bilirubin` smallint(6) DEFAULT NULL,
+  `indirect_bilirubin` smallint(6) DEFAULT NULL,
+  `ast` smallint(6) DEFAULT NULL,
+  `alt` smallint(6) DEFAULT NULL,
+  `alkaline_phosphatase` smallint(6) DEFAULT NULL,
+  `amylase` smallint(6) DEFAULT NULL,
+  `lipase` smallint(6) DEFAULT NULL,
+  `a_fp` smallint(6) DEFAULT NULL,
+  `cea` smallint(6) DEFAULT NULL,
+  `ca_19_9` smallint(6) DEFAULT NULL,
+  `chromogranine` smallint(6) DEFAULT NULL,
+  `_5_HIAA` smallint(6) DEFAULT NULL,
+  `ca_125` smallint(6) DEFAULT NULL,
+  `ca_15_3` smallint(6) DEFAULT NULL,
+  `b_hcg` smallint(6) DEFAULT NULL,
+  `other_marker_1` smallint(6) DEFAULT NULL,
+  `other_marker_2` smallint(6) DEFAULT NULL,
+  `summary` text,
+  `event_master_id` int(11) DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Contenu de la table `qc_hb_ed_hepatobilary_lab_report_biology_revs`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `qc_hb_ed_hepatobilary_medical_imagings`
+--
+
+CREATE TABLE IF NOT EXISTS `qc_hb_ed_hepatobilary_medical_imagings` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `event_master_id` int(11) NOT NULL,
+  `segment_1_number` smallint(5) unsigned DEFAULT NULL,
+  `segment_1_size` smallint(5) unsigned DEFAULT NULL,
+  `segment_2_number` smallint(5) unsigned DEFAULT NULL,
+  `segment_2_size` smallint(5) unsigned DEFAULT NULL,
+  `segment_3_number` smallint(5) unsigned DEFAULT NULL,
+  `segment_3_size` smallint(5) unsigned DEFAULT NULL,
+  `segment_4a_number` smallint(5) unsigned DEFAULT NULL,
+  `segment_4a_size` smallint(5) unsigned DEFAULT NULL,
+  `segment_4b_number` smallint(5) unsigned DEFAULT NULL,
+  `segment_4b_size` smallint(5) unsigned DEFAULT NULL,
+  `segment_5_number` smallint(5) unsigned DEFAULT NULL,
+  `segment_5_size` smallint(5) unsigned DEFAULT NULL,
+  `segment_6_number` smallint(5) unsigned DEFAULT NULL,
+  `segment_6_size` smallint(5) unsigned DEFAULT NULL,
+  `segment_7_number` smallint(5) unsigned DEFAULT NULL,
+  `segment_7_size` smallint(5) unsigned DEFAULT NULL,
+  `segment_8_number` smallint(5) unsigned DEFAULT NULL,
+  `segment_8_size` smallint(5) unsigned DEFAULT NULL,
+  `lungs_number` smallint(5) unsigned DEFAULT NULL,
+  `lungs_size` smallint(5) unsigned DEFAULT NULL,
+  `lungs_laterality` varchar(20) DEFAULT NULL,
+  `lymph_node_number` smallint(5) unsigned DEFAULT NULL,
+  `lymph_node_size` smallint(5) unsigned DEFAULT NULL,
+  `colon_number` smallint(5) unsigned DEFAULT NULL,
+  `colon_size` smallint(5) unsigned DEFAULT NULL,
+  `rectum_number` smallint(5) unsigned DEFAULT NULL,
+  `rectum_size` smallint(5) unsigned DEFAULT NULL,
+  `bones_number` smallint(5) unsigned DEFAULT NULL,
+  `bones_size` smallint(5) unsigned DEFAULT NULL,
+  `other_localisation_1` varchar(50) DEFAULT NULL,
+  `other_localisation_1_number` smallint(5) unsigned DEFAULT NULL,
+  `other_localisation_1_size` smallint(5) unsigned DEFAULT NULL,
+  `other_localisation_2` varchar(50) DEFAULT NULL,
+  `other_localisation_2_number` smallint(5) unsigned DEFAULT NULL,
+  `other_localisation_2_size` smallint(5) unsigned DEFAULT NULL,
+  `other_localisation_3` varchar(50) DEFAULT NULL,
+  `other_localisation_3_number` smallint(5) unsigned DEFAULT NULL,
+  `other_localisation_3_size` smallint(5) unsigned DEFAULT NULL,
+  `hepatic_artery` varchar(10) DEFAULT NULL,
+  `coeliac_trunk` varchar(10) DEFAULT NULL,
+  `splenic_artery` varchar(10) DEFAULT NULL,
+  `superior_mesenteric_artery` varchar(10) DEFAULT NULL,
+  `portal_vein` varchar(10) DEFAULT NULL,
+  `superior_mesenteric_vein` varchar(10) DEFAULT NULL,
+  `splenic_vein` varchar(10) DEFAULT NULL,
+  `metastatic_lymph_nodes` varchar(10) DEFAULT NULL,
+  `is_volumetry_post_pve` varchar(10) DEFAULT NULL,
+  `total_liver_volume` smallint(5) unsigned DEFAULT NULL,
+  `resected_liver_volume` smallint(5) unsigned DEFAULT NULL,
+  `remnant_liver_volume` smallint(5) unsigned DEFAULT NULL,
+  `tumoral_volume` smallint(5) unsigned DEFAULT NULL,
+  `remnant_liver_percentage` float DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Contenu de la table `qc_hb_ed_hepatobilary_medical_imagings`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `qc_hb_ed_hepatobilary_medical_imagings_revs`
+--
+
+CREATE TABLE IF NOT EXISTS `qc_hb_ed_hepatobilary_medical_imagings_revs` (
+  `id` int(11) unsigned NOT NULL,
+  `event_master_id` int(11) NOT NULL,
+  `segment_1_number` smallint(5) unsigned DEFAULT NULL,
+  `segment_1_size` smallint(5) unsigned DEFAULT NULL,
+  `segment_2_number` smallint(5) unsigned DEFAULT NULL,
+  `segment_2_size` smallint(5) unsigned DEFAULT NULL,
+  `segment_3_number` smallint(5) unsigned DEFAULT NULL,
+  `segment_3_size` smallint(5) unsigned DEFAULT NULL,
+  `segment_4a_number` smallint(5) unsigned DEFAULT NULL,
+  `segment_4a_size` smallint(5) unsigned DEFAULT NULL,
+  `segment_4b_number` smallint(5) unsigned DEFAULT NULL,
+  `segment_4b_size` smallint(5) unsigned DEFAULT NULL,
+  `segment_5_number` smallint(5) unsigned DEFAULT NULL,
+  `segment_5_size` smallint(5) unsigned DEFAULT NULL,
+  `segment_6_number` smallint(5) unsigned DEFAULT NULL,
+  `segment_6_size` smallint(5) unsigned DEFAULT NULL,
+  `segment_7_number` smallint(5) unsigned DEFAULT NULL,
+  `segment_7_size` smallint(5) unsigned DEFAULT NULL,
+  `segment_8_number` smallint(5) unsigned DEFAULT NULL,
+  `segment_8_size` smallint(5) unsigned DEFAULT NULL,
+  `lungs_number` smallint(5) unsigned DEFAULT NULL,
+  `lungs_size` smallint(5) unsigned DEFAULT NULL,
+  `lungs_laterality` varchar(20) DEFAULT NULL,
+  `lymph_node_number` smallint(5) unsigned DEFAULT NULL,
+  `lymph_node_size` smallint(5) unsigned DEFAULT NULL,
+  `colon_number` smallint(5) unsigned DEFAULT NULL,
+  `colon_size` smallint(5) unsigned DEFAULT NULL,
+  `rectum_number` smallint(5) unsigned DEFAULT NULL,
+  `rectum_size` smallint(5) unsigned DEFAULT NULL,
+  `bones_number` smallint(5) unsigned DEFAULT NULL,
+  `bones_size` smallint(5) unsigned DEFAULT NULL,
+  `other_localisation_1` varchar(50) DEFAULT NULL,
+  `other_localisation_1_number` smallint(5) unsigned DEFAULT NULL,
+  `other_localisation_1_size` smallint(5) unsigned DEFAULT NULL,
+  `other_localisation_2` varchar(50) DEFAULT NULL,
+  `other_localisation_2_number` smallint(5) unsigned DEFAULT NULL,
+  `other_localisation_2_size` smallint(5) unsigned DEFAULT NULL,
+  `other_localisation_3` varchar(50) DEFAULT NULL,
+  `other_localisation_3_number` smallint(5) unsigned DEFAULT NULL,
+  `other_localisation_3_size` smallint(5) unsigned DEFAULT NULL,
+  `hepatic_artery` varchar(10) DEFAULT NULL,
+  `coeliac_trunk` varchar(10) DEFAULT NULL,
+  `splenic_artery` varchar(10) DEFAULT NULL,
+  `superior_mesenteric_artery` varchar(10) DEFAULT NULL,
+  `portal_vein` varchar(10) DEFAULT NULL,
+  `superior_mesenteric_vein` varchar(10) DEFAULT NULL,
+  `splenic_vein` varchar(10) DEFAULT NULL,
+  `metastatic_lymph_nodes` varchar(10) DEFAULT NULL,
+  `is_volumetry_post_pve` varchar(10) DEFAULT NULL,
+  `total_liver_volume` smallint(5) unsigned DEFAULT NULL,
+  `resected_liver_volume` smallint(5) unsigned DEFAULT NULL,
+  `remnant_liver_volume` smallint(5) unsigned DEFAULT NULL,
+  `tumoral_volume` smallint(5) unsigned DEFAULT NULL,
+  `remnant_liver_percentage` float DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Contenu de la table `qc_hb_ed_hepatobilary_medical_imagings_revs`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `qc_hb_ed_hepatobiliary_clinical_presentation`
+--
+
+CREATE TABLE IF NOT EXISTS `qc_hb_ed_hepatobiliary_clinical_presentation` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `weight` decimal(7,3) DEFAULT NULL,
+  `height` decimal(7,3) DEFAULT NULL,
+  `bmi` decimal(10,3) DEFAULT NULL,
+  `referral_hospital` varchar(50) DEFAULT NULL,
+  `referral_physisian` varchar(50) DEFAULT NULL,
+  `referral_physisian_speciality` varchar(50) DEFAULT NULL,
+  `referral_physisian_2` varchar(50) DEFAULT NULL,
+  `referral_physisian_speciality_2` varchar(50) DEFAULT NULL,
+  `referral_physisian_3` varchar(50) DEFAULT NULL,
+  `referral_physisian_speciality_3` varchar(50) DEFAULT NULL,
+  `hbp_surgeon` varchar(50) DEFAULT NULL,
+  `event_master_id` int(11) NOT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Contenu de la table `qc_hb_ed_hepatobiliary_clinical_presentation`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `qc_hb_ed_hepatobiliary_clinical_presentation_revs`
+--
+
+CREATE TABLE IF NOT EXISTS `qc_hb_ed_hepatobiliary_clinical_presentation_revs` (
+  `id` int(11) NOT NULL,
+  `weight` decimal(7,3) DEFAULT NULL,
+  `height` decimal(7,3) DEFAULT NULL,
+  `bmi` decimal(10,3) DEFAULT NULL,
+  `referral_hospital` varchar(50) DEFAULT NULL,
+  `referral_physisian` varchar(50) DEFAULT NULL,
+  `referral_physisian_speciality` varchar(50) DEFAULT NULL,
+  `referral_physisian_2` varchar(50) DEFAULT NULL,
+  `referral_physisian_speciality_2` varchar(50) DEFAULT NULL,
+  `referral_physisian_3` varchar(50) DEFAULT NULL,
+  `referral_physisian_speciality_3` varchar(50) DEFAULT NULL,
+  `hbp_surgeon` varchar(50) DEFAULT NULL,
+  `event_master_id` int(11) NOT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Contenu de la table `qc_hb_ed_hepatobiliary_clinical_presentation_revs`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `qc_hb_ed_hepatobiliary_lifestyle`
+--
+
+CREATE TABLE IF NOT EXISTS `qc_hb_ed_hepatobiliary_lifestyle` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `active_tobacco` varchar(10) DEFAULT NULL,
+  `active_alcohol` varchar(10) DEFAULT NULL,
+  `event_master_id` int(11) NOT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Contenu de la table `qc_hb_ed_hepatobiliary_lifestyle`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `qc_hb_ed_hepatobiliary_lifestyle_revs`
+--
+
+CREATE TABLE IF NOT EXISTS `qc_hb_ed_hepatobiliary_lifestyle_revs` (
+  `id` int(11) NOT NULL,
+  `active_tobacco` varchar(10) DEFAULT NULL,
+  `active_alcohol` varchar(10) DEFAULT NULL,
+  `event_master_id` int(11) NOT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Contenu de la table `qc_hb_ed_hepatobiliary_lifestyle_revs`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `qc_hb_ed_hepatobiliary_medical_past_history`
+--
+
+CREATE TABLE IF NOT EXISTS `qc_hb_ed_hepatobiliary_medical_past_history` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `disease_precision` varchar(250) DEFAULT NULL,
+  `event_master_id` int(11) NOT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Contenu de la table `qc_hb_ed_hepatobiliary_medical_past_history`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis`
+--
+
+CREATE TABLE IF NOT EXISTS `qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `event_master_id` int(11) NOT NULL,
+  `type_of_cirrhosis` varchar(255) DEFAULT NULL,
+  `esophageal_varices` varchar(3) DEFAULT NULL,
+  `gastric_varices` varchar(3) DEFAULT NULL,
+  `tips` varchar(3) DEFAULT NULL,
+  `portacaval_gradient` float DEFAULT NULL,
+  `portal_thrombosis` varchar(3) DEFAULT NULL,
+  `splenomegaly` varchar(3) DEFAULT NULL,
+  `splen_size` float DEFAULT NULL,
+  `created` datetime NOT NULL,
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime NOT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL,
+  `deleted_by` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Contenu de la table `qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis_revs`
+--
+
+CREATE TABLE IF NOT EXISTS `qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis_revs` (
+  `id` int(10) unsigned NOT NULL,
+  `event_master_id` int(10) unsigned NOT NULL,
+  `type_of_cirrhosis` varchar(255) DEFAULT NULL,
+  `esophageal_varices` varchar(3) DEFAULT NULL,
+  `gastric_varices` varchar(3) DEFAULT NULL,
+  `tips` varchar(3) DEFAULT NULL,
+  `portacaval_gradient` float DEFAULT NULL,
+  `portal_thrombosis` varchar(3) DEFAULT NULL,
+  `splenomegaly` varchar(3) DEFAULT NULL,
+  `splen_size` float DEFAULT NULL,
+  `created` datetime NOT NULL,
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime NOT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL,
+  `deleted_by` int(10) unsigned NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Contenu de la table `qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis_revs`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `qc_hb_ed_hepatobiliary_medical_past_history_hepatitis`
+--
+
+CREATE TABLE IF NOT EXISTS `qc_hb_ed_hepatobiliary_medical_past_history_hepatitis` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `event_master_id` int(11) NOT NULL,
+  `type` varchar(255) NOT NULL DEFAULT '',
+  `treatment` varchar(255) NOT NULL DEFAULT '',
+  `created` datetime NOT NULL,
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime NOT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL,
+  `deleted_by` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Contenu de la table `qc_hb_ed_hepatobiliary_medical_past_history_hepatitis`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `qc_hb_ed_hepatobiliary_medical_past_history_hepatitis_revs`
+--
+
+CREATE TABLE IF NOT EXISTS `qc_hb_ed_hepatobiliary_medical_past_history_hepatitis_revs` (
+  `id` int(10) unsigned NOT NULL,
+  `event_master_id` int(11) NOT NULL,
+  `type` varchar(255) NOT NULL,
+  `treatment` varchar(255) NOT NULL,
+  `created` datetime NOT NULL,
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime NOT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL,
+  `deleted_by` int(10) unsigned NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Contenu de la table `qc_hb_ed_hepatobiliary_medical_past_history_hepatitis_revs`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `qc_hb_ed_hepatobiliary_medical_past_history_revs`
+--
+
+CREATE TABLE IF NOT EXISTS `qc_hb_ed_hepatobiliary_medical_past_history_revs` (
+  `id` int(11) NOT NULL,
+  `disease_precision` varchar(250) DEFAULT NULL,
+  `event_master_id` int(11) NOT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Contenu de la table `qc_hb_ed_hepatobiliary_medical_past_history_revs`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `qc_hb_ed_hepatobiliary_med_hist_record_summary`
+--
+
+CREATE TABLE IF NOT EXISTS `qc_hb_ed_hepatobiliary_med_hist_record_summary` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `asa_value` tinyint(3) unsigned NOT NULL,
+  `heart_disease` tinyint(3) unsigned NOT NULL,
+  `respiratory_disease` tinyint(3) unsigned NOT NULL,
+  `vascular_disease` tinyint(3) unsigned NOT NULL,
+  `neural_vascular_disease` tinyint(3) unsigned NOT NULL,
+  `endocrine_disease` tinyint(3) unsigned NOT NULL,
+  `urinary_disease` tinyint(3) unsigned NOT NULL,
+  `gastro_intestinal_disease` tinyint(3) unsigned NOT NULL,
+  `gynecologic_disease` tinyint(3) unsigned NOT NULL,
+  `other_disease` tinyint(3) unsigned NOT NULL,
+  `hepatitis` tinyint(3) unsigned NOT NULL,
+  `cirrhosis` tinyint(3) unsigned NOT NULL,
+  `diabetes` tinyint(3) unsigned NOT NULL,
+  `dyslipidemia` tinyint(3) unsigned NOT NULL,
+  `event_master_id` int(11) DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Contenu de la table `qc_hb_ed_hepatobiliary_med_hist_record_summary`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `qc_hb_ed_hepatobiliary_med_hist_record_summary_revs`
+--
+
+CREATE TABLE IF NOT EXISTS `qc_hb_ed_hepatobiliary_med_hist_record_summary_revs` (
+  `id` int(11) NOT NULL,
+  `asa_value` tinyint(3) unsigned NOT NULL,
+  `heart_disease` tinyint(3) unsigned NOT NULL,
+  `respiratory_disease` tinyint(3) unsigned NOT NULL,
+  `vascular_disease` tinyint(3) unsigned NOT NULL,
+  `neural_vascular_disease` tinyint(3) unsigned NOT NULL,
+  `endocrine_disease` tinyint(3) unsigned NOT NULL,
+  `urinary_disease` tinyint(3) unsigned NOT NULL,
+  `gastro_intestinal_disease` tinyint(3) unsigned NOT NULL,
+  `gynecologic_disease` tinyint(3) unsigned NOT NULL,
+  `other_disease` tinyint(3) unsigned NOT NULL,
+  `hepatitis` tinyint(3) unsigned NOT NULL,
+  `cirrhosis` tinyint(3) unsigned NOT NULL,
+  `diabetes` tinyint(3) unsigned NOT NULL,
+  `dyslipidemia` tinyint(3) unsigned NOT NULL,
+  `event_master_id` int(11) DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Contenu de la table `qc_hb_ed_hepatobiliary_med_hist_record_summary_revs`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `qc_hb_ed_medical_imaging_record_summary`
+--
+
+CREATE TABLE IF NOT EXISTS `qc_hb_ed_medical_imaging_record_summary` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `abdominal_ultrasound` varchar(5) DEFAULT NULL,
+  `abdominal_ct_scan` varchar(5) DEFAULT NULL,
+  `pelvic_ct_scan` varchar(5) DEFAULT NULL,
+  `abdominal_mri` varchar(5) DEFAULT NULL,
+  `pelvic_mri` varchar(5) DEFAULT NULL,
+  `chest_x_ray` varchar(5) DEFAULT NULL,
+  `chest_ct_scan` varchar(5) DEFAULT NULL,
+  `tep_scan` varchar(5) DEFAULT NULL,
+  `octreoscan` varchar(5) DEFAULT NULL,
+  `contrast_enhanced_ultrasound` varchar(5) DEFAULT NULL,
+  `doppler_ultrasound` varchar(5) DEFAULT NULL,
+  `endoscopic_ultrasound` varchar(5) DEFAULT NULL,
+  `colonoscopy` varchar(5) DEFAULT NULL,
+  `contrast_enema` varchar(5) DEFAULT NULL,
+  `ercp` varchar(5) DEFAULT NULL,
+  `transhepatic_cholangiography` varchar(5) DEFAULT NULL,
+  `hida_scan` varchar(5) DEFAULT NULL,
+  `event_master_id` int(11) DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Contenu de la table `qc_hb_ed_medical_imaging_record_summary`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `qc_hb_ed_medical_imaging_record_summary_revs`
+--
+
+CREATE TABLE IF NOT EXISTS `qc_hb_ed_medical_imaging_record_summary_revs` (
+  `id` int(11) unsigned NOT NULL,
+  `abdominal_ultrasound` varchar(5) DEFAULT NULL,
+  `abdominal_ct_scan` varchar(5) DEFAULT NULL,
+  `pelvic_ct_scan` varchar(5) DEFAULT NULL,
+  `abdominal_mri` varchar(5) DEFAULT NULL,
+  `pelvic_mri` varchar(5) DEFAULT NULL,
+  `chest_x_ray` varchar(5) DEFAULT NULL,
+  `chest_ct_scan` varchar(5) DEFAULT NULL,
+  `tep_scan` varchar(5) DEFAULT NULL,
+  `octreoscan` varchar(5) DEFAULT NULL,
+  `contrast_enhanced_ultrasound` varchar(5) DEFAULT NULL,
+  `doppler_ultrasound` varchar(5) DEFAULT NULL,
+  `endoscopic_ultrasound` varchar(5) DEFAULT NULL,
+  `colonoscopy` varchar(5) DEFAULT NULL,
+  `contrast_enema` varchar(5) DEFAULT NULL,
+  `ercp` varchar(5) DEFAULT NULL,
+  `transhepatic_cholangiography` varchar(5) DEFAULT NULL,
+  `hida_scan` varchar(5) DEFAULT NULL,
+  `event_master_id` int(11) DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Contenu de la table `qc_hb_ed_medical_imaging_record_summary_revs`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `qc_hb_hepatobiliary_medical_past_history_ctrls`
+--
+
+CREATE TABLE IF NOT EXISTS `qc_hb_hepatobiliary_medical_past_history_ctrls` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `event_control_id` int(11) NOT NULL,
+  `disease_precision` varchar(250) NOT NULL,
+  `display_order` int(2) DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `event_control_id` (`event_control_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=17 ;
+
+--
+-- Contenu de la table `qc_hb_hepatobiliary_medical_past_history_ctrls`
+--
+
+INSERT INTO `qc_hb_hepatobiliary_medical_past_history_ctrls` (`id`, `event_control_id`, `disease_precision`, `display_order`) VALUES
+(1, 36, '1', 1),
+(2, 36, '2', 2),
+(3, 36, '3', 3),
+(4, 36, '4', 4),
+(5, 36, '5', 5),
+(6, 37, 'to define (heart)', 1),
+(7, 38, 'to define (vascular)', 1),
+(8, 39, 'to define (respiratory)', 1),
+(9, 40, 'to define (neural)', 1),
+(10, 41, 'to define (endocrine)', 1),
+(11, 42, 'to define (urinary)', 1),
+(12, 43, 'to define (gastro-intestinal)', 1),
+(13, 44, 'to define (gynecologic)', 1),
+(14, 45, 'to define (other)', 1),
+(15, 46, 'n/a', 1),
+(16, 47, 'n/a', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `qc_hb_txd_surgery_livers`
+--
+
+CREATE TABLE IF NOT EXISTS `qc_hb_txd_surgery_livers` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `tx_master_id` int(11) NOT NULL,
+  `principal_surgery` varchar(50) NOT NULL DEFAULT '',
+  `associated_surgery_1` varchar(50) NOT NULL DEFAULT '',
+  `associated_surgery_2` varchar(50) NOT NULL DEFAULT '',
+  `associated_surgery_3` varchar(50) NOT NULL DEFAULT '',
+  `local_treatment` varchar(3) NOT NULL DEFAULT '',
+  `type_of_local_treatment` varchar(50) NOT NULL DEFAULT '',
+  `other_organ_resection_1` varchar(50) NOT NULL DEFAULT '',
+  `other_organ_resection_2` varchar(50) NOT NULL DEFAULT '',
+  `other_organ_resection_3` varchar(50) NOT NULL DEFAULT '',
+  `surgeon` varchar(50) NOT NULL DEFAULT '',
+  `operative_time` smallint(5) unsigned DEFAULT NULL,
+  `laparoscopy` varchar(10) NOT NULL DEFAULT '',
+  `operative_bleeding` smallint(5) unsigned DEFAULT NULL,
+  `transfusions` varchar(3) NOT NULL DEFAULT '',
+  `rbc_units` smallint(5) unsigned DEFAULT NULL,
+  `plasma_units` smallint(5) unsigned DEFAULT NULL,
+  `platelets_units` smallint(5) unsigned DEFAULT NULL,
+  `operative_pathological_report` varchar(3) NOT NULL DEFAULT '',
+  `pathological_report` varchar(50) NOT NULL DEFAULT '',
+  `drainage` varchar(3) NOT NULL DEFAULT '',
+  `type_of_drain_1` varchar(50) NOT NULL DEFAULT '',
+  `type_of_drain_2` varchar(50) NOT NULL DEFAULT '',
+  `type_of_drain_3` varchar(50) NOT NULL DEFAULT '',
+  `biological_glue` varchar(3) NOT NULL DEFAULT '',
+  `type_of_glue` varchar(50) NOT NULL DEFAULT '',
+  `operative_ultrasound_ous` varchar(3) NOT NULL DEFAULT '',
+  `impact_of_ous` varchar(5) NOT NULL DEFAULT '',
+  `liver_appearance` varchar(50) NOT NULL DEFAULT '',
+  `vascular_occlusion` varchar(3) NOT NULL DEFAULT '',
+  `type_of_vascular_occlusion` varchar(50) NOT NULL DEFAULT '',
+  `resected_liver_weight` smallint(5) unsigned DEFAULT NULL,
+  `segment_1_resection` varchar(10) NOT NULL DEFAULT '',
+  `segment_2_resection` varchar(10) NOT NULL DEFAULT '',
+  `segment_3_resection` varchar(10) NOT NULL DEFAULT '',
+  `segment_4a_resection` varchar(10) NOT NULL DEFAULT '',
+  `segment_4b_resection` varchar(10) NOT NULL DEFAULT '',
+  `segment_5_resection` varchar(10) NOT NULL DEFAULT '',
+  `segment_6_resection` varchar(10) NOT NULL DEFAULT '',
+  `segment_7_resection` varchar(10) NOT NULL DEFAULT '',
+  `segment_8_resection` varchar(10) NOT NULL DEFAULT '',
+  `lab_report_id` int(11) DEFAULT NULL,
+  `imagery_id` int(11) DEFAULT NULL,
+  `fong_score_id` int(11) DEFAULT NULL,
+  `meld_score_id` int(11) DEFAULT NULL,
+  `gretch_score_id` int(11) DEFAULT NULL,
+  `clip_score_id` int(11) DEFAULT NULL,
+  `barcelona_score_id` int(11) DEFAULT NULL,
+  `okuda_score_id` int(11) DEFAULT NULL,
+  `type_of_cirrhosis` varchar(50) DEFAULT NULL,
+  `esophageal_varices` varchar(3) DEFAULT NULL,
+  `gastric_varices` varchar(3) DEFAULT NULL,
+  `tips` varchar(3) DEFAULT NULL,
+  `portacaval_gradient` float DEFAULT NULL,
+  `portal_thrombosis` varchar(3) DEFAULT NULL,
+  `splenomegaly` varchar(3) DEFAULT NULL,
+  `splen_size` float DEFAULT NULL,
+  `created` datetime NOT NULL,
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime NOT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL,
+  `deleted_by` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `tx_master_id` (`tx_master_id`),
+  KEY `lab_report_id` (`lab_report_id`),
+  KEY `imagery_id` (`imagery_id`),
+  KEY `fong_score_id` (`fong_score_id`),
+  KEY `meld_score_id` (`meld_score_id`),
+  KEY `gretch_score_id` (`gretch_score_id`),
+  KEY `clip_score_id` (`clip_score_id`),
+  KEY `barcelona_score_id` (`barcelona_score_id`),
+  KEY `okuda_score_id` (`okuda_score_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Contenu de la table `qc_hb_txd_surgery_livers`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `qc_hb_txd_surgery_livers_revs`
+--
+
+CREATE TABLE IF NOT EXISTS `qc_hb_txd_surgery_livers_revs` (
+  `id` int(10) unsigned NOT NULL,
+  `tx_master_id` int(11) NOT NULL,
+  `principal_surgery` varchar(50) NOT NULL DEFAULT '',
+  `associated_surgery_1` varchar(50) NOT NULL DEFAULT '',
+  `associated_surgery_2` varchar(50) NOT NULL DEFAULT '',
+  `associated_surgery_3` varchar(50) NOT NULL DEFAULT '',
+  `local_treatment` varchar(3) NOT NULL DEFAULT '',
+  `type_of_local_treatment` varchar(50) NOT NULL DEFAULT '',
+  `other_organ_resection_1` varchar(50) NOT NULL DEFAULT '',
+  `other_organ_resection_2` varchar(50) NOT NULL DEFAULT '',
+  `other_organ_resection_3` varchar(50) NOT NULL DEFAULT '',
+  `surgeon` varchar(50) NOT NULL DEFAULT '',
+  `operative_time` smallint(5) unsigned DEFAULT NULL,
+  `laparoscopy` varchar(10) NOT NULL DEFAULT '',
+  `operative_bleeding` smallint(5) unsigned DEFAULT NULL,
+  `transfusions` varchar(3) NOT NULL DEFAULT '',
+  `rbc_units` smallint(5) unsigned DEFAULT NULL,
+  `plasma_units` smallint(5) unsigned DEFAULT NULL,
+  `platelets_units` smallint(5) unsigned DEFAULT NULL,
+  `operative_pathological_report` varchar(3) NOT NULL DEFAULT '',
+  `pathological_report` varchar(50) NOT NULL DEFAULT '',
+  `drainage` varchar(3) NOT NULL DEFAULT '',
+  `type_of_drain_1` varchar(50) NOT NULL DEFAULT '',
+  `type_of_drain_2` varchar(50) NOT NULL DEFAULT '',
+  `type_of_drain_3` varchar(50) NOT NULL DEFAULT '',
+  `biological_glue` varchar(3) NOT NULL DEFAULT '',
+  `type_of_glue` varchar(50) NOT NULL DEFAULT '',
+  `operative_ultrasound_ous` varchar(3) NOT NULL DEFAULT '',
+  `impact_of_ous` varchar(5) NOT NULL DEFAULT '',
+  `liver_appearance` varchar(50) NOT NULL DEFAULT '',
+  `vascular_occlusion` varchar(3) NOT NULL DEFAULT '',
+  `type_of_vascular_occlusion` varchar(50) NOT NULL DEFAULT '',
+  `resected_liver_weight` smallint(5) unsigned DEFAULT NULL,
+  `segment_1_resection` varchar(10) NOT NULL DEFAULT '',
+  `segment_2_resection` varchar(10) NOT NULL DEFAULT '',
+  `segment_3_resection` varchar(10) NOT NULL DEFAULT '',
+  `segment_4a_resection` varchar(10) NOT NULL DEFAULT '',
+  `segment_4b_resection` varchar(10) NOT NULL DEFAULT '',
+  `segment_5_resection` varchar(10) NOT NULL DEFAULT '',
+  `segment_6_resection` varchar(10) NOT NULL DEFAULT '',
+  `segment_7_resection` varchar(10) NOT NULL DEFAULT '',
+  `segment_8_resection` varchar(10) NOT NULL DEFAULT '',
+  `lab_report_id` int(11) DEFAULT NULL,
+  `imagery_id` int(11) DEFAULT NULL,
+  `fong_score_id` int(11) DEFAULT NULL,
+  `meld_score_id` int(11) DEFAULT NULL,
+  `gretch_score_id` int(11) DEFAULT NULL,
+  `clip_score_id` int(11) DEFAULT NULL,
+  `barcelona_score_id` int(11) DEFAULT NULL,
+  `okuda_score_id` int(11) DEFAULT NULL,
+  `type_of_cirrhosis` varchar(50) DEFAULT NULL,
+  `esophageal_varices` varchar(3) DEFAULT NULL,
+  `gastric_varices` varchar(3) DEFAULT NULL,
+  `tips` varchar(3) DEFAULT NULL,
+  `portacaval_gradient` float DEFAULT NULL,
+  `portal_thrombosis` varchar(3) DEFAULT NULL,
+  `splenomegaly` varchar(3) DEFAULT NULL,
+  `splen_size` float DEFAULT NULL,
+  `created` datetime NOT NULL,
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime NOT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL,
+  `deleted_by` int(10) unsigned NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Contenu de la table `qc_hb_txd_surgery_livers_revs`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `qc_hb_txd_surgery_pancreas`
+--
+
+CREATE TABLE IF NOT EXISTS `qc_hb_txd_surgery_pancreas` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `tx_master_id` int(11) NOT NULL,
+  `principal_surgery` varchar(50) NOT NULL DEFAULT '',
+  `associated_surgery_1` varchar(50) NOT NULL DEFAULT '',
+  `associated_surgery_2` varchar(50) NOT NULL DEFAULT '',
+  `associated_surgery_3` varchar(50) NOT NULL DEFAULT '',
+  `local_treatment` varchar(3) NOT NULL DEFAULT '',
+  `type_of_local_treatment` varchar(50) NOT NULL DEFAULT '',
+  `other_organ_resection_1` varchar(50) NOT NULL DEFAULT '',
+  `other_organ_resection_2` varchar(50) NOT NULL DEFAULT '',
+  `other_organ_resection_3` varchar(50) NOT NULL DEFAULT '',
+  `surgeon` varchar(50) NOT NULL DEFAULT '',
+  `operative_time` smallint(5) unsigned DEFAULT NULL,
+  `laparoscopy` varchar(10) NOT NULL DEFAULT '',
+  `operative_bleeding` smallint(5) unsigned DEFAULT NULL,
+  `transfusions` varchar(3) NOT NULL DEFAULT '',
+  `rbc_units` smallint(5) unsigned DEFAULT NULL,
+  `plasma_units` smallint(5) unsigned DEFAULT NULL,
+  `platelets_units` smallint(5) unsigned DEFAULT NULL,
+  `operative_pathological_report` varchar(3) NOT NULL DEFAULT '',
+  `pathological_report` varchar(50) NOT NULL DEFAULT '',
+  `drainage` varchar(3) NOT NULL DEFAULT '',
+  `type_of_drain_1` varchar(50) NOT NULL DEFAULT '',
+  `type_of_drain_2` varchar(50) NOT NULL DEFAULT '',
+  `type_of_drain_3` varchar(50) NOT NULL DEFAULT '',
+  `biological_glue` varchar(3) NOT NULL DEFAULT '',
+  `type_of_glue` varchar(50) NOT NULL DEFAULT '',
+  `operative_ultrasound_ous` varchar(3) NOT NULL DEFAULT '',
+  `impact_of_ous` varchar(5) NOT NULL DEFAULT '',
+  `pancreas_appearance` varchar(50) NOT NULL DEFAULT '',
+  `wisung_diameter` smallint(5) unsigned DEFAULT NULL,
+  `recoupe_pancreas` varchar(3) NOT NULL DEFAULT '',
+  `portal_vein_resection` varchar(3) NOT NULL DEFAULT '',
+  `pancreas_anastomosis` varchar(3) NOT NULL DEFAULT '',
+  `type_of_pancreas_anastomosis` varchar(50) NOT NULL DEFAULT '',
+  `pylori_preservation` varchar(3) NOT NULL DEFAULT '',
+  `preoperative_sandostatin` varchar(3) NOT NULL DEFAULT '',
+  `lab_report_id` int(11) DEFAULT NULL,
+  `imagery_id` int(11) DEFAULT NULL,
+  `fong_score_id` int(11) DEFAULT NULL,
+  `meld_score_id` int(11) DEFAULT NULL,
+  `gretch_score_id` int(11) DEFAULT NULL,
+  `clip_score_id` int(11) DEFAULT NULL,
+  `barcelona_score_id` int(11) DEFAULT NULL,
+  `okuda_score_id` int(11) DEFAULT NULL,
+  `type_of_cirrhosis` varchar(50) DEFAULT NULL,
+  `esophageal_varices` varchar(3) DEFAULT NULL,
+  `gastric_varices` varchar(3) DEFAULT NULL,
+  `tips` varchar(3) DEFAULT NULL,
+  `portacaval_gradient` float DEFAULT NULL,
+  `portal_thrombosis` varchar(3) DEFAULT NULL,
+  `splenomegaly` varchar(3) DEFAULT NULL,
+  `splen_size` float DEFAULT NULL,
+  `created` datetime NOT NULL,
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime NOT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL,
+  `deleted_by` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `tx_master_id` (`tx_master_id`),
+  KEY `lab_report_id` (`lab_report_id`),
+  KEY `imagery_id` (`imagery_id`),
+  KEY `fong_score_id` (`fong_score_id`),
+  KEY `meld_score_id` (`meld_score_id`),
+  KEY `gretch_score_id` (`gretch_score_id`),
+  KEY `clip_score_id` (`clip_score_id`),
+  KEY `barcelona_score_id` (`barcelona_score_id`),
+  KEY `okuda_score_id` (`okuda_score_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Contenu de la table `qc_hb_txd_surgery_pancreas`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `qc_hb_txd_surgery_pancreas_revs`
+--
+
+CREATE TABLE IF NOT EXISTS `qc_hb_txd_surgery_pancreas_revs` (
+  `id` int(10) unsigned NOT NULL,
+  `tx_master_id` int(11) NOT NULL,
+  `principal_surgery` varchar(50) NOT NULL DEFAULT '',
+  `associated_surgery_1` varchar(50) NOT NULL DEFAULT '',
+  `associated_surgery_2` varchar(50) NOT NULL DEFAULT '',
+  `associated_surgery_3` varchar(50) NOT NULL DEFAULT '',
+  `local_treatment` varchar(3) NOT NULL DEFAULT '',
+  `type_of_local_treatment` varchar(50) NOT NULL DEFAULT '',
+  `other_organ_resection_1` varchar(50) NOT NULL DEFAULT '',
+  `other_organ_resection_2` varchar(50) NOT NULL DEFAULT '',
+  `other_organ_resection_3` varchar(50) NOT NULL DEFAULT '',
+  `surgeon` varchar(50) NOT NULL DEFAULT '',
+  `operative_time` smallint(5) unsigned DEFAULT NULL,
+  `laparoscopy` varchar(10) NOT NULL DEFAULT '',
+  `operative_bleeding` smallint(5) unsigned DEFAULT NULL,
+  `transfusions` varchar(3) NOT NULL DEFAULT '',
+  `rbc_units` smallint(5) unsigned DEFAULT NULL,
+  `plasma_units` smallint(5) unsigned DEFAULT NULL,
+  `platelets_units` smallint(5) unsigned DEFAULT NULL,
+  `operative_pathological_report` varchar(3) NOT NULL DEFAULT '',
+  `pathological_report` varchar(50) NOT NULL DEFAULT '',
+  `drainage` varchar(3) NOT NULL DEFAULT '',
+  `type_of_drain_1` varchar(50) NOT NULL DEFAULT '',
+  `type_of_drain_2` varchar(50) NOT NULL DEFAULT '',
+  `type_of_drain_3` varchar(50) NOT NULL DEFAULT '',
+  `biological_glue` varchar(3) NOT NULL DEFAULT '',
+  `type_of_glue` varchar(50) NOT NULL DEFAULT '',
+  `operative_ultrasound_ous` varchar(3) NOT NULL DEFAULT '',
+  `impact_of_ous` varchar(5) NOT NULL DEFAULT '',
+  `pancreas_appearance` varchar(50) NOT NULL DEFAULT '',
+  `wisung_diameter` smallint(5) unsigned DEFAULT NULL,
+  `recoupe_pancreas` varchar(3) NOT NULL DEFAULT '',
+  `portal_vein_resection` varchar(3) NOT NULL DEFAULT '',
+  `pancreas_anastomosis` varchar(3) NOT NULL DEFAULT '',
+  `type_of_pancreas_anastomosis` varchar(50) NOT NULL DEFAULT '',
+  `pylori_preservation` varchar(3) NOT NULL DEFAULT '',
+  `preoperative_sandostatin` varchar(3) NOT NULL DEFAULT '',
+  `lab_report_id` int(11) DEFAULT NULL,
+  `imagery_id` int(11) DEFAULT NULL,
+  `fong_score_id` int(11) DEFAULT NULL,
+  `meld_score_id` int(11) DEFAULT NULL,
+  `gretch_score_id` int(11) DEFAULT NULL,
+  `clip_score_id` int(11) DEFAULT NULL,
+  `barcelona_score_id` int(11) DEFAULT NULL,
+  `okuda_score_id` int(11) DEFAULT NULL,
+  `type_of_cirrhosis` varchar(50) DEFAULT NULL,
+  `esophageal_varices` varchar(3) DEFAULT NULL,
+  `gastric_varices` varchar(3) DEFAULT NULL,
+  `tips` varchar(3) DEFAULT NULL,
+  `portacaval_gradient` float DEFAULT NULL,
+  `portal_thrombosis` varchar(3) DEFAULT NULL,
+  `splenomegaly` varchar(3) DEFAULT NULL,
+  `splen_size` float DEFAULT NULL,
+  `created` datetime NOT NULL,
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime NOT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL,
+  `deleted_by` int(10) unsigned NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Contenu de la table `qc_hb_txd_surgery_pancreas_revs`
 --
 
 
@@ -6465,7 +8321,7 @@ INSERT INTO `sample_controls` (`id`, `sample_type`, `sample_type_code`, `sample_
 (5, 'ascite cell', 'ASC-C', 'derivative', 1, 'sd_undetailed_derivatives', 'sd_der_ascite_cells', 0),
 (6, 'ascite supernatant', 'ASC-S', 'derivative', 1, 'sd_undetailed_derivatives', 'sd_der_ascite_sups', 0),
 (7, 'blood cell', 'BLD-C', 'derivative', 1, 'sd_undetailed_derivatives', 'sd_der_blood_cells', 0),
-(8, 'pbmc', 'PBMC', 'derivative', 1, 'sd_undetailed_derivatives', 'sd_der_pbmcs', 0),
+(8, 'pbmc', 'PBMC', 'derivative', 1, 'qc_hb_sd_der_pbmc', 'sd_der_pbmcs', 0),
 (9, 'plasma', 'PLS', 'derivative', 1, 'sd_der_plasmas', 'sd_der_plasmas', 0),
 (10, 'serum', 'SER', 'derivative', 1, 'sd_der_serums', 'sd_der_serums', 0),
 (11, 'cell culture', 'C-CULT', 'derivative', 1, 'sd_der_cell_cultures', 'sd_der_cell_cultures', 0),
@@ -6476,7 +8332,7 @@ INSERT INTO `sample_controls` (`id`, `sample_type`, `sample_type_code`, `sample_
 (17, 'amplified rna', 'AMP-RNA', 'derivative', 1, 'sd_undetailed_derivatives', 'sd_der_amp_rnas', 0),
 (18, 'b cell', 'BC', 'derivative', 1, 'sd_undetailed_derivatives', 'sd_der_b_cells', 0),
 (101, 'tissue lysate', 'T-LYS', 'derivative', 1, 'sd_undetailed_derivatives', 'sd_der_tiss_lysates', 0),
-(102, 'tissue suspension', 'T-SUSP', 'derivative', 1, 'sd_undetailed_derivatives', 'sd_der_tiss_susps', 0),
+(102, 'tissue suspension', 'T-SUSP', 'derivative', 1, 'sd_tissue_susp', 'sd_der_tiss_susps', 0),
 (103, 'peritoneal wash', 'PW', 'specimen', 1, 'sd_spe_peritoneal_washes', 'sd_spe_peritoneal_washes', 0),
 (104, 'cystic fluid', 'CF', 'specimen', 1, 'sd_spe_cystic_fluids', 'sd_spe_cystic_fluids', 0),
 (106, 'peritoneal wash cell', 'PW-C', 'derivative', 1, 'sd_undetailed_derivatives', 'sd_der_pw_cells', 0),
@@ -6583,7 +8439,7 @@ CREATE TABLE IF NOT EXISTS `sample_to_aliquot_controls` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `sample_to_aliquot` (`sample_control_id`,`aliquot_control_id`),
   KEY `FK_sample_to_aliquot_controls_aliquot_controls` (`aliquot_control_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=55 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=56 ;
 
 --
 -- Contenu de la table `sample_to_aliquot_controls`
@@ -6591,8 +8447,8 @@ CREATE TABLE IF NOT EXISTS `sample_to_aliquot_controls` (
 
 INSERT INTO `sample_to_aliquot_controls` (`id`, `sample_control_id`, `aliquot_control_id`, `flag_active`) VALUES
 (1, 1, 2, 1),
-(2, 2, 2, 1),
-(3, 2, 6, 1),
+(2, 2, 2, 0),
+(3, 2, 6, 0),
 (7, 3, 4, 1),
 (8, 3, 5, 1),
 (9, 4, 2, 1),
@@ -6629,7 +8485,8 @@ INSERT INTO `sample_to_aliquot_controls` (`id`, `sample_control_id`, `aliquot_co
 (51, 3, 1, 1),
 (52, 11, 15, 1),
 (53, 118, 8, 1),
-(54, 119, 8, 1);
+(54, 119, 8, 1),
+(55, 3, 16, 1);
 
 -- --------------------------------------------------------
 
@@ -7141,6 +8998,8 @@ CREATE TABLE IF NOT EXISTS `sd_der_pbmcs` (
   `modified_by` int(10) unsigned NOT NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
+  `qc_hb_nb_cells` float unsigned NOT NULL,
+  `qc_hb_nb_cell_unit` varchar(50) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   KEY `FK_sd_der_pbmcs_sample_masters` (`sample_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -7733,6 +9592,12 @@ CREATE TABLE IF NOT EXISTS `sd_der_tiss_susps` (
   `modified_by` int(10) unsigned NOT NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
+  `qc_hb_overnight` tinyint(4) NOT NULL,
+  `qc_hb_macs_nb_cycles` tinyint(3) unsigned NOT NULL,
+  `qc_hb_macs_nb_incubations` tinyint(3) unsigned NOT NULL,
+  `qc_hb_macs_enzymatic_milieu` varchar(50) NOT NULL DEFAULT '',
+  `qc_hb_nb_viable_cells` float unsigned NOT NULL,
+  `qc_hb_nb_viable_cells_unit` varchar(50) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   KEY `FK_sd_der_tiss_susps_sample_masters` (`sample_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -7759,6 +9624,12 @@ CREATE TABLE IF NOT EXISTS `sd_der_tiss_susps_revs` (
   `version_created` datetime NOT NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
+  `qc_hb_overnight` tinyint(4) NOT NULL,
+  `qc_hb_macs_nb_cycles` tinyint(3) unsigned NOT NULL,
+  `qc_hb_macs_nb_incubations` tinyint(3) unsigned NOT NULL,
+  `qc_hb_macs_enzymatic_milieu` varchar(50) NOT NULL DEFAULT '',
+  `qc_hb_nb_viable_cells` float unsigned NOT NULL,
+  `qc_hb_nb_viable_cells_unit` varchar(50) NOT NULL DEFAULT '',
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
@@ -7937,6 +9808,7 @@ CREATE TABLE IF NOT EXISTS `sd_spe_bloods` (
   `modified_by` int(10) unsigned NOT NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
+  `qc_hb_sample_code` varchar(50) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   KEY `FK_sd_spe_bloods_sample_masters` (`sample_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -7967,6 +9839,7 @@ CREATE TABLE IF NOT EXISTS `sd_spe_bloods_revs` (
   `version_created` datetime NOT NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
+  `qc_hb_sample_code` varchar(50) NOT NULL DEFAULT '',
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
@@ -8210,6 +10083,8 @@ CREATE TABLE IF NOT EXISTS `sd_spe_tissues` (
   `modified_by` int(10) unsigned NOT NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
+  `qc_hb_sample_code` varchar(50) NOT NULL DEFAULT '',
+  `qc_hb_patho_report_no` varchar(50) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   KEY `FK_sd_spe_tissues_sample_masters` (`sample_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -8244,6 +10119,8 @@ CREATE TABLE IF NOT EXISTS `sd_spe_tissues_revs` (
   `version_created` datetime NOT NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
+  `qc_hb_sample_code` varchar(50) NOT NULL DEFAULT '',
+  `qc_hb_patho_report_no` varchar(50) NOT NULL DEFAULT '',
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
@@ -9410,7 +11287,7 @@ CREATE TABLE IF NOT EXISTS `storage_controls` (
   `form_alias_for_children_pos` varchar(50) DEFAULT NULL,
   `detail_tablename` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=21 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=22 ;
 
 --
 -- Contenu de la table `storage_controls`
@@ -9435,7 +11312,8 @@ INSERT INTO `storage_controls` (`id`, `storage_type`, `storage_type_code`, `coor
 (17, 'box25', 'B25', 'position', 'integer', 25, NULL, NULL, NULL, 5, 5, 0, 0, 'FALSE', 'FALSE', 1, 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_boxs'),
 (18, 'box100 1A-20E', 'B2D100', 'column', 'integer', 20, 'row', 'alphabetical', 5, 0, 0, 0, 0, 'FALSE', 'FALSE', 1, 'std_undetail_stg_with_surr_tmp', 'std_2_dim_position_selection', 'std_boxs'),
 (19, 'TMA-blc 23X15', 'TMA345', 'column', 'integer', 23, 'row', 'integer', 15, 0, 0, 0, 0, 'FALSE', 'TRUE', 1, 'std_tma_blocks', 'std_2_dim_position_selection', 'std_tma_blocks'),
-(20, 'TMA-blc 29X21', 'TMA609', 'column', 'integer', 29, 'row', 'integer', 21, 0, 0, 0, 0, 'FALSE', 'TRUE', 1, 'std_tma_blocks', 'std_2_dim_position_selection', 'std_tma_blocks');
+(20, 'TMA-blc 29X21', 'TMA609', 'column', 'integer', 29, 'row', 'integer', 21, 0, 0, 0, 0, 'FALSE', 'TRUE', 1, 'std_tma_blocks', 'std_2_dim_position_selection', 'std_tma_blocks'),
+(21, 'glace', 'I', NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 'TRUE', 'FALSE', 1, 'std_undetail_stg_with_tmp', NULL, 'std_fridges');
 
 -- --------------------------------------------------------
 
@@ -9603,7 +11481,7 @@ CREATE TABLE IF NOT EXISTS `structures` (
   `modified_by` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_alias` (`alias`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=212 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=241 ;
 
 --
 -- Contenu de la table `structures`
@@ -9763,7 +11641,36 @@ INSERT INTO `structures` (`id`, `alias`, `description`, `language_title`, `langu
 (208, 'view_aliquot_joined_to_collection', 'Used to include participant identifier and collection data into following views: aliquot search and aliquot index.', '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (209, 'chronology', NULL, '', '', '1', '1', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (210, 'empty', NULL, '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
-(211, 'custom_aliquot_storage_history', NULL, '', '', '1', '1', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+(211, 'custom_aliquot_storage_history', NULL, '', '', '1', '1', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(212, 'qc_hb_ed_hepatobiliary_clinical_presentation', NULL, '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(213, 'qc_hb_ed_hepatobiliary_medical_past_history', NULL, '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(214, 'qc_hb_ed_hepatobiliary_medical_past_history_hepatitis', NULL, '', '', '1', '1', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(215, 'qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis', NULL, '', '', '1', '1', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(216, 'qc_hb_ed_hepatobiliary_lifestyle', NULL, '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(217, 'qc_hb_ed_hepatobiliary_med_hist_record_summary', NULL, '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(218, 'ed_hepatobiliary_lab_report_biology', NULL, '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(219, 'qc_hb_ed_medical_imaging_record_summary', NULL, '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(220, 'qc_hb_dateNSummary', NULL, '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(221, 'qc_hb_segment', NULL, '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(222, 'qc_hb_other_localisations', NULL, '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(223, 'qc_hb_pancreas', NULL, '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(224, 'qc_hb_volumetry', NULL, '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(225, 'ed_score_child_pugh', NULL, '', '', '1', '1', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(226, 'ed_score_okuda', NULL, '', '', '1', '1', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(227, 'ed_score_barcelona', NULL, '', '', '1', '1', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(228, 'ed_score_clip', NULL, '', '', '1', '1', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(229, 'ed_score_gretch', NULL, '', '', '1', '1', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(230, 'ed_score_fong', NULL, '', '', '1', '1', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(231, 'ed_score_meld', NULL, '', '', '1', '1', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(232, 'ed_score_child_pugh_mod', NULL, '', '', '1', '1', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(233, 'qc_hb_tx_chemos', NULL, '', '', '1', '1', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(234, 'qc_hb_txd_surgery_livers', NULL, '', '', '1', '1', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(235, 'qc_hb_txd_surgery_pancreas', NULL, '', '', '1', '1', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(236, 'qc_hb_pre_surgery_livers', NULL, '', '', '1', '1', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(237, 'qc_hb_pre_surgery_pancreas', NULL, '', '', '1', '1', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(238, 'qc_hb_sd_der_pbmc', NULL, '', '', '1', '1', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(239, 'ad_spec_conical_tubes', NULL, '', '', '0', '0', '0', '0', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(240, 'sd_tissue_susp', NULL, '', '', '0', '0', '0', '0', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
 
 -- --------------------------------------------------------
 
@@ -9793,9 +11700,9 @@ CREATE TABLE IF NOT EXISTS `structure_fields` (
   `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `modified_by` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_fields` (`field`,`model`,`tablename`),
+  UNIQUE KEY `unique_fields` (`plugin`,`model`,`tablename`,`field`,`structure_value_domain`),
   KEY `FK_structure_fields_structure_value_domains` (`structure_value_domain`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=969 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1264 ;
 
 --
 -- Contenu de la table `structure_fields`
@@ -10191,7 +12098,7 @@ INSERT INTO `structure_fields` (`id`, `public_identifier`, `plugin`, `model`, `t
 (622, '', 'Study', 'StudyContact', 'study_contacts', 'accreditation', 'study_accreditation', '', 'input', 'size=15', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (623, '', 'Study', 'StudyContact', 'study_contacts', 'occupation', 'study_occupation', '', 'input', 'size=30', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (624, '', 'Study', 'StudyContact', 'study_contacts', 'department', 'study_department', '', 'input', 'size=30', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
-(625, '', 'Clinicalannotation', 'ParticipantContact', 'participant_contacts', 'contact_type', 'type', '', 'select', '', '', 92, 'help_contact type', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(625, '', 'Clinicalannotation', 'ParticipantContact', 'participant_contacts', 'contact_type', 'type', '', 'input', 'size=30', '', 92, 'help_contact type', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (626, '', 'Study', 'StudyContact', 'study_contacts', 'organization', 'study_organization', '', 'input', 'size=30', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (627, '', 'Study', 'StudyContact', 'study_contacts', 'address_street', 'study_address', 'street', 'input', 'size=30', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (628, '', 'Study', 'StudyContact', 'study_contacts', 'address_city', '', 'study_city', 'input', 'size=15', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
@@ -10473,7 +12380,304 @@ INSERT INTO `structure_fields` (`id`, `public_identifier`, `plugin`, `model`, `t
 (965, '', '', 'Group', 'groups', 'bank_id', 'bank', '', 'select', '', '', 191, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (966, '', 'Protocol', 'ProtocolExtend', 'pe_chemos', 'drug_id', 'drug', '', 'select', '', '', 192, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (967, '', 'Clinicalannotation', 'ConsentMaster', 'consent_masters', 'consent_control_id', 'type', '', 'select', '', '', 208, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
-(968, '', 'Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters', 'diagnosis_control_id', 'type', '', 'select', '', '', 209, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+(968, '', 'Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters', 'diagnosis_control_id', 'type', '', 'select', '', '', 209, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(969, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_clinical_presentation', 'weight', 'weight', '', 'input', 'size=10', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(970, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_clinical_presentation', 'height', 'height', '', 'input', 'size=10', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(971, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_clinical_presentation', 'bmi', 'bmi', '', 'input', 'size=10', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(972, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_clinical_presentation', 'referral_hospital', 'referral hospital', '', 'input', 'size=30', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(973, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_clinical_presentation', 'referral_physisian', 'referral physisian', '', 'input', 'size=10', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(974, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_clinical_presentation', 'referral_physisian_speciality', '', 'referral physisian speciality', 'select', '', '', 214, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(975, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_clinical_presentation', 'referral_physisian_2', 'referral physisian 2', '', 'input', 'size=10', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(976, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_clinical_presentation', 'referral_physisian_speciality_2', '', 'referral physisian speciality', 'select', '', '', 214, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(977, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_clinical_presentation', 'referral_physisian_3', 'referral physisian 3', '', 'input', 'size=10', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(978, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_clinical_presentation', 'referral_physisian_speciality_3', '', 'referral physisian speciality', 'select', '', '', 214, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(979, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_clinical_presentation', 'hbp_surgeon', 'hbp surgeron', '', 'select', '', '', 215, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(980, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_medical_past_history', 'disease_precision', 'medical history precision', '', 'select', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(981, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_medical_past_history_hepatitis', 'type', 'type', '', 'select', '', '', 216, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(982, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_medical_past_history_hepatitis', 'treatment', 'treatment', '', 'select', '', '', 217, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(983, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis', 'portacaval_gradient', 'portacaval gradient', '', 'float_positive', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(984, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis', 'portal_thrombosis', 'portal thrombosis', '', 'select', '', '', 219, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(985, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis', 'tips', 'tips', '', 'select', '', '', 219, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(986, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis', 'gastric_varices', 'gastric varices', '', 'select', '', '', 219, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(987, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis', 'esophageal_varices', 'esophageal varices', '', 'select', '', '', 219, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(988, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis', 'type_of_cirrhosis', 'type of cirrhosis', '', 'select', '', '', 218, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(989, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis', 'splenomegaly', 'splenomegaly', '', 'select', '', '', 219, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(990, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis', 'splen_size', 'splen size', '', 'float_positive', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(991, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_lifestyle', 'active_tobacco', 'active_tobacco', '', 'select', '', '', 14, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(992, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_lifestyle', 'active_alcohol', 'active_alcohol', '', 'select', '', '', 14, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(993, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_med_hist_record_summary', 'asa_value', 'asa medical past history', '', 'checkbox', '', '', 185, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(994, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_med_hist_record_summary', 'heart_disease', 'heart disease medical past history', '', 'checkbox', '', '', 185, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(995, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_med_hist_record_summary', 'respiratory_disease', 'respiratory disease medical past history', '', 'checkbox', '', '', 185, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(996, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_med_hist_record_summary', 'vascular_disease', 'vascular disease medical past history', '', 'checkbox', '', '', 185, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(997, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_med_hist_record_summary', 'neural_vascular_disease', 'neural vascular disease medical past history', '', 'checkbox', '', '', 185, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(998, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_med_hist_record_summary', 'endocrine_disease', 'endocrine disease medical past history', '', 'checkbox', '', '', 185, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(999, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_med_hist_record_summary', 'urinary_disease', 'urinary disease medical past history', '', 'checkbox', '', '', 185, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1000, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_med_hist_record_summary', 'gastro_intestinal_disease', 'gastro-intestinal disease medical past history', '', 'checkbox', '', '', 185, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1001, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_med_hist_record_summary', 'gynecologic_disease', 'gynecologic disease medical past history', '', 'checkbox', '', '', 185, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1002, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_med_hist_record_summary', 'other_disease', 'other disease medical past history', '', 'checkbox', '', '', 185, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1003, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_med_hist_record_summary', 'diabetes', 'diabetes medical past history', '', 'checkbox', '', '', 185, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1004, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_med_hist_record_summary', 'dyslipidemia', 'dyslipidemia medical past history', '', 'checkbox', '', '', 185, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1005, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_med_hist_record_summary', 'hepatitis', 'hepatitis medical past history', '', 'checkbox', '', '', 185, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1006, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_med_hist_record_summary', 'cirrhosis', 'cirrhosis medical past history', '', 'checkbox', '', '', 185, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1007, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'wbc', 'wbc', '', 'integer_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1008, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'rbc', 'rbc', '', 'integer_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1009, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'hb', 'hb', '', 'float_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1010, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'ht', 'ht', '', 'float_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+INSERT INTO `structure_fields` (`id`, `public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(1011, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'platelets', 'platelets', '', 'integer_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1012, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'ptt', 'ptt', '', 'integer_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1013, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'inr', 'inr', '', 'float_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1014, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'na', 'na', '', 'integer_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1015, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'k', 'k', '', 'float_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1016, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'cl', 'cl', '', 'integer_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1017, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'creatinine', 'creatinine', '', 'integer_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1018, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'urea', 'urea', '', 'float_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1019, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'ca', 'ca', '', 'float_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1020, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'p', 'p', '', 'float_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1021, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'mg', 'mg', '', 'float_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1022, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'uric_acid', 'uric acid', '', 'float_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1023, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'glycemia', 'glycemia', '', 'float_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1024, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'triglycerides', 'triglycerides', '', 'float_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1025, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'cholesterol', 'cholesterol', '', 'float_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1026, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'protein', 'protein', '', 'integer_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1027, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'albumin', 'albumin', '', 'float_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1028, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'total_bilirubin', 'total bilirubin', '', 'float_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1029, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'direct_bilirubin', 'direct bilirubin', '', 'float_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1030, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'indirect_bilirubin', 'indirec _bilirubin', '', 'float_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1031, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'ast', 'ast', '', 'integer_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1032, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'alt', 'alt', '', 'integer_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1033, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'alkaline_phosphatase', 'alkalin _phosphatase', '', 'integer_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1034, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'amylase', 'amylase', '', 'integer_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1035, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'lipase', 'lipase', '', 'integer_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1036, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'a_fp', 'a fp', '', 'float_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1037, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'cea', 'cea', '', 'float_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1038, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'ca_19_9', 'ca 19 9', '', 'float_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1039, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'chromogranine', 'chromogranine', '', 'float_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1040, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', '_5_HIAA', '5 HIAA', '', 'float_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1041, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'ca_125', 'ca 125', '', 'float_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1042, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'ca_15_3', 'ca 15 3', '', 'float_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1043, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'b_hcg', 'b hcg', '', 'float_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1044, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'other_marker_1', 'other marker 1', '', 'float_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1045, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biology', 'other_marker_2', 'other marker 2', '', 'float_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1046, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'abdominal_ultrasound', 'medical imaging abdominal ultrasound', '', 'checkbox', '', '', 185, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1047, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'abdominal_ct_scan', 'medical imaging abdominal CT-scan', '', 'checkbox', '', '', 185, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1048, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'pelvic_ct_scan', 'medical imaging pelvic CT-scan', '', 'checkbox', '', '', 185, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1049, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'abdominal_mri', 'medical imaging abdominal MRI', '', 'checkbox', '', '', 185, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1050, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'pelvic_mri', 'medical imaging pelvic MRI', '', 'checkbox', '', '', 185, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1051, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'chest_x_ray', 'medical imaging chest X-ray', '', 'checkbox', '', '', 185, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1052, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'chest_ct_scan', 'medical imaging chest CT-scan', '', 'checkbox', '', '', 185, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1053, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'tep_scan', 'medical imaging TEP-scan', '', 'checkbox', '', '', 185, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1054, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'octreoscan', 'medical imaging octreoscan', '', 'checkbox', '', '', 185, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1055, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'contrast_enhanced_ultrasound', 'medical imaging contrast-enhanced ultrasound (CEUS)', '', 'checkbox', '', '', 185, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1056, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'doppler_ultrasound', 'medical imaging doppler ultrasound', '', 'checkbox', '', '', 185, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1057, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'endoscopic_ultrasound', 'medical imaging endoscopic ultrasound (EUS)', '', 'checkbox', '', '', 185, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1058, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'colonoscopy', 'medical imaging colonoscopy', '', 'checkbox', '', '', 185, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1059, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'contrast_enema', 'medical imaging contrast enema', '', 'checkbox', '', '', 185, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1060, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'ercp', 'medical imaging ERCP', '', 'checkbox', '', '', 185, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1061, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'transhepatic_cholangiography', 'medical imaging transhepatic cholangiography', '', 'checkbox', '', '', 185, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1062, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_medical_imaging_record_summary', 'hida_scan', 'medical imaging HIDA scan', '', 'checkbox', '', '', 185, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1063, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'segment_1_number', 'number', '', 'integer_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1064, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'segment_1_size', 'size', '', 'float_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1065, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'segment_2_number', 'number', '', 'integer_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1066, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'segment_2_size', 'size', '', 'float_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1067, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'segment_3_number', 'number', '', 'integer_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1068, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'segment_3_size', 'size', '', 'float_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1069, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'segment_4a_number', 'number', '', 'integer_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1070, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'segment_4a_size', 'size', '', 'float_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1071, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'segment_4b_number', 'number', '', 'integer_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1072, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'segment_4b_size', 'size', '', 'float_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1073, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'segment_5_number', 'number', '', 'integer_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1074, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'segment_5_size', 'size', '', 'float_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1075, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'segment_6_number', 'number', '', 'integer_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1076, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'segment_6_size', 'size', '', 'float_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1077, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'segment_7_number', 'number', '', 'integer_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1078, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'segment_7_size', 'size', '', 'float_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1079, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'segment_8_number', 'number', '', 'integer_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1080, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'segment_8_size', 'size', '', 'float_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1081, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'lungs_number', 'number', '', 'integer_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1082, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'lungs_size', 'size', '', 'float_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1083, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'lungs_laterality', 'laterality', '', 'select', '', '', 37, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1084, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'lymph_node_number', 'number', '', 'integer_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1085, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'lymph_node_size', 'size', '', 'float_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1086, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'colon_number', 'number', '', 'integer_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1087, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'colon_size', 'size', '', 'float_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1088, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'rectum_number', 'number', '', 'integer_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1089, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'rectum_size', 'size', '', 'float_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1090, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'bones_number', 'number', '', 'integer_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1091, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'bones_size', 'size', '', 'float_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1092, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'other_localisation_1', 'other localisation precision', '', 'input', 'size=30', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1093, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'other_localisation_1_number', 'number', '', 'integer_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1094, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'other_localisation_1_size', 'size', '', 'float_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1095, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'other_localisation_2', 'other localisation precision', '', 'input', 'size=30', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1096, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'other_localisation_2_number', 'number', '', 'integer_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1097, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'other_localisation_2_size', 'size', '', 'float_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1098, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'other_localisation_3', 'other localisation precision', '', 'input', 'size=30', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1099, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'other_localisation_3_number', 'number', '', 'integer_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1100, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'other_localisation_3_size', 'size', '', 'float_positive', '', '', NULL, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1101, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'hepatic_artery', 'hepatic artery', '', 'select', '', '', 220, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1102, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'coeliac_trunk', 'coeliac trunk', '', 'select', '', '', 220, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1103, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'splenic_artery', 'splenic artery', '', 'select', '', '', 220, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1104, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'superior_mesenteric_artery', 'superior mesenteric artery', '', 'select', '', '', 220, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1105, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'portal_vein', 'portal vein', '', 'select', '', '', 220, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1106, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'superior_mesenteric_vein', 'superior mesenteric vein', '', 'select', '', '', 220, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1107, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'splenic_vein', 'splenic vein', '', 'select', '', '', 220, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1108, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'metastatic_lymph_nodes', 'metastatic lymph nodes', '', 'select', '', '', 220, '', '', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1109, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'is_volumetry_post_pve', 'post pve', '', 'select', '', '', 221, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1110, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'total_liver_volume', 'total liver volume', '', 'float_positive', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1111, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'resected_liver_volume', 'resected liver volume', '', 'float_positive', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1112, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'remnant_liver_volume', 'remnant liver volume', '', 'number', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1113, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'tumoral_volume', 'tumoral volume', '', 'float_positive', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1114, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'remnant_liver_percentage', 'remnant liver percentage', '', 'number', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1115, '', 'Clinicalannotation', 'EventDetail', 'ed_score_child_pugh', 'bilirubin', 'bilirubin', '', 'select', '', '', 222, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1116, '', 'Clinicalannotation', 'EventDetail', 'ed_score_child_pugh', 'albumin', 'albumin', '', 'select', '', '', 224, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1117, '', 'Clinicalannotation', 'EventDetail', 'ed_score_child_pugh', 'inr', 'inr', '', 'select', '', '', 225, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1118, '', 'Clinicalannotation', 'EventDetail', 'ed_score_child_pugh', 'encephalopathy', 'encephalopathy', '', 'select', '', '', 226, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1119, '', 'Clinicalannotation', 'EventDetail', 'ed_score_child_pugh', 'ascite', 'ascite', '', 'select', '', '', 227, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1120, '', 'Clinicalannotation', 'EventDetail', 'ed_score_child_pugh', 'result', 'result', '', 'input', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1121, '', 'Clinicalannotation', 'EventDetail', 'ed_score_okuda', 'bilirubin', 'bilirubin', '', 'select', '', '', 228, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1122, '', 'Clinicalannotation', 'EventDetail', 'ed_score_okuda', 'albumin', 'albumin', '', 'select', '', '', 229, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1123, '', 'Clinicalannotation', 'EventDetail', 'ed_score_okuda', 'ascite', 'ascite', '', 'checkbox', '', '', 185, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1124, '', 'Clinicalannotation', 'EventDetail', 'ed_score_okuda', 'tumor_size_ratio', 'tumor size ratio', '', 'select', '', '', 230, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1125, '', 'Clinicalannotation', 'EventDetail', 'ed_score_okuda', 'result', 'stade', '', 'input', '', '', 230, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1126, '', 'Clinicalannotation', 'EventDetail', 'ed_score_barcelona', 'who', 'who', '', 'select', '', '', 231, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1127, '', 'Clinicalannotation', 'EventDetail', 'ed_score_barcelona', 'tumor_morphology', 'tumor morphology', '', 'select', '', '', 232, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1128, '', 'Clinicalannotation', 'EventDetail', 'ed_score_barcelona', 'okuda_score', 'okuda score', '', 'select', '', '', 233, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1129, '', 'Clinicalannotation', 'EventDetail', 'ed_score_barcelona', 'liver_function', 'liver function', '', 'select', '', '', 234, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1130, '', 'Clinicalannotation', 'EventDetail', 'ed_score_barcelona', 'result', 'result', '', 'input', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1131, '', 'Clinicalannotation', 'EventDetail', 'ed_score_clip', 'child_pugh_score', 'child pugh score', '', 'select', '', '', 235, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1132, '', 'Clinicalannotation', 'EventDetail', 'ed_score_clip', 'morphology_of_tumor', 'morphology of tumor', '', 'select', '', '', 236, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1133, '', 'Clinicalannotation', 'EventDetail', 'ed_score_clip', 'alpha_foetoprotein', 'alpha foetoprotein', '', 'select', '', '', 237, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1134, '', 'Clinicalannotation', 'EventDetail', 'ed_score_clip', 'portal_thrombosis', 'portal thrombosis', '', 'checkbox', '', '', 185, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1135, '', 'Clinicalannotation', 'EventDetail', 'ed_score_clip', 'result', 'result', '', 'number', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1136, '', 'Clinicalannotation', 'EventDetail', 'ed_score_gretch', 'karnofsky_index', 'karnofsky index', '', 'select', '', '', 238, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1137, '', 'Clinicalannotation', 'EventDetail', 'ed_score_gretch', 'bilirubin', 'bilirubin', '', 'select', '', '', 228, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1138, '', 'Clinicalannotation', 'EventDetail', 'ed_score_gretch', 'alkaline_phosphatase', 'alkaline phosphatase', '', 'select', '', '', 239, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1139, '', 'Clinicalannotation', 'EventDetail', 'ed_score_gretch', 'alpha_foetoprotein', 'alpha foetoprotein', '', 'select', '', '', 240, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1140, '', 'Clinicalannotation', 'EventDetail', 'ed_score_gretch', 'portal_thrombosis', 'portal thrombosis', '', 'checkbox', '', '', 185, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1141, '', 'Clinicalannotation', 'EventDetail', 'ed_score_gretch', 'result', 'group', '', 'input', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1142, '', 'Clinicalannotation', 'EventDetail', 'ed_score_fong', 'metastatic_lymph_nodes', 'metastatic lymph nodes', '', 'checkbox', '', '', 185, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1143, '', 'Clinicalannotation', 'EventDetail', 'ed_score_fong', 'interval_under_year', 'interval under a year', '', 'checkbox', '', '', 185, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1144, '', 'Clinicalannotation', 'EventDetail', 'ed_score_fong', 'more_than_one_metastasis', 'more than one metastasis', '', 'checkbox', '', '', 185, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1145, '', 'Clinicalannotation', 'EventDetail', 'ed_score_fong', 'metastasis_greater_five_cm', 'metastasis > 5cm', '', 'checkbox', '', '', 185, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1146, '', 'Clinicalannotation', 'EventDetail', 'ed_score_fong', 'cea_greater_two_hundred', 'cea > 200', '', 'checkbox', '', '', 185, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1147, '', 'Clinicalannotation', 'EventDetail', 'ed_score_fong', 'result', 'result', '', 'input', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1148, '', 'Clinicalannotation', 'EventDetail', 'ed_score_meld', 'bilirubin', 'bilirubin', '', 'float', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1149, '', 'Clinicalannotation', 'EventDetail', 'ed_score_meld', 'inr', 'inr', '', 'float', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1150, '', 'Clinicalannotation', 'EventDetail', 'ed_score_meld', 'creatinine', 'creatinine', '', 'float', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1151, '', 'Clinicalannotation', 'EventDetail', 'ed_score_meld', 'dialysis', 'dialysis', '', 'checkbox', '', '', 185, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1152, '', 'Clinicalannotation', 'EventDetail', 'ed_score_meld', 'result', 'result', '', 'number', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1153, '', 'Clinicalannotation', 'EventDetail', 'ed_score_child_pugh', 'bilirubin', 'bilirubin', '', 'select', '', '', 223, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1154, '', 'Clinicalannotation', 'TreatmentDetail', 'txd_chemos', 'qc_hb_treatment', 'treatment', '', 'select', '', '', 241, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1155, '', 'Clinicalannotation', 'TreatmentDetail', 'txd_chemos', 'qc_hb_reason_of_change', 'reason of change', '', 'select', '', '', 242, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1156, '', 'Clinicalannotation', 'TreatmentDetail', 'txd_chemos', 'qc_hb_toxicity', 'qc hb toxicity', '', 'select', '', '', 243, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1157, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'principal_surgery', 'principal surgery', '', 'select', '', '', 244, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1158, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'associated_surgery_1', 'associated surgery 1', '', 'select', '', '', 245, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1159, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'associated_surgery_2', 'associated surgery 2', '', 'select', '', '', 245, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1160, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'associated_surgery_3', 'associated surgery 3', '', 'select', '', '', 245, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1161, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'local_treatment', 'local treatment', '', 'select', '', '', 256, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1162, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'type_of_local_treatment', 'type of local treatment', '', 'select', '', '', 246, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1163, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'other_organ_resection_1', 'other organ resection 1', '', 'select', '', '', 247, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1164, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'other_organ_resection_2', 'other organ resection 2', '', 'select', '', '', 247, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1165, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'other_organ_resection_3', 'other organ resection 3', '', 'select', '', '', 247, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1166, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'surgeon', 'surgeon', '', 'select', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1167, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'operative_time', 'operative time', '', 'number', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1168, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'laparoscopy', 'laparoscopy', '', 'select', '', '', 257, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1169, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'operative_bleeding', 'operative bleeding', '', 'number', '', '', 257, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1170, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'transfusions', 'transfusions', '', 'select', '', '', 256, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1171, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'rbc_units', 'rbc units', '', 'number', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1172, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'plasma_units', 'plasma units', '', 'number', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1173, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'platelets_units', 'platelets units', '', 'number', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1174, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'operative_pathological_report', 'operative pathological report', '', 'select', '', '', 256, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1175, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'pathological_report', 'pathological report', '', 'select', '', '', 248, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1176, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'drainage', 'drainage', '', 'select', '', '', 256, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1177, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'type_of_drain_1', 'type of drain 1', '', 'select', '', '', 249, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1178, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'type_of_drain_2', 'type of drain 2', '', 'select', '', '', 249, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1179, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'type_of_drain_3', 'type of drain 3', '', 'select', '', '', 249, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1180, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'biological_glue', 'biological glue', '', 'select', '', '', 256, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1181, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'type_of_glue', 'type of glue', '', 'select', '', '', 250, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1182, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'operative_ultrasound_ous', 'operative ultrasound ous', '', 'select', '', '', 256, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1183, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'impact_of_ous', 'impact of ous', '', 'select', '', '', 258, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1184, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'liver_appearance', 'liver appearance', '', 'select', '', '', 251, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1185, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'vascular_occlusion', 'vascular occlusion', '', 'select', '', '', 256, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1186, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'type_of_vascular_occlusion', 'type of vascular occlusion', '', 'select', '', '', 252, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1187, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'resected_liver_weight', 'resected liver weight', '', 'number', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1188, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'segment_1_resection', 'segment 1 resection', '', 'select', '', '', 255, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1189, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'segment_2_resection', 'segment 2 resection', '', 'select', '', '', 255, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1190, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'segment_3_resection', 'segment 3 resection', '', 'select', '', '', 255, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1191, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'segment_4a_resection', 'segment 4a resection', '', 'select', '', '', 255, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1192, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'segment_4b_resection', 'segment 4b resection', '', 'select', '', '', 255, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1193, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'segment_5_resection', 'segment 5 resection', '', 'select', '', '', 255, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1194, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'segment_6_resection', 'segment 6 resection', '', 'select', '', '', 255, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1195, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'segment_7_resection', 'segment 7 resection', '', 'select', '', '', 255, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1196, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'segment_8_resection', 'segment 8 resection', '', 'select', '', '', 255, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1197, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'principal_surgery', 'principal surgery', '', 'select', '', '', 244, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1198, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'associated_surgery_1', 'associated surgery 1', '', 'select', '', '', 245, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1199, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'associated_surgery_2', 'associated surgery 2', '', 'select', '', '', 245, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1200, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'associated_surgery_3', 'associated surgery 3', '', 'select', '', '', 245, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1201, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'local_treatment', 'local treatment', '', 'select', '', '', 256, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1202, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'type_of_local_treatment', 'type of local treatment', '', 'select', '', '', 246, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1203, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'other_organ_resection_1', 'other organ resection 1', '', 'select', '', '', 247, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1204, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'other_organ_resection_2', 'other organ resection 2', '', 'select', '', '', 247, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1205, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'other_organ_resection_3', 'other organ resection 3', '', 'select', '', '', 247, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1206, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'surgeon', 'surgeon', '', 'select', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1207, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'operative_time', 'operative time', '', 'number', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1208, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'laparoscopy', 'laparoscopy', '', 'select', '', '', 257, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1209, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'operative_bleeding', 'operative bleeding', '', 'number', '', '', 257, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1210, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'transfusions', 'transfusions', '', 'select', '', '', 256, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1211, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'rbc_units', 'rbc units', '', 'number', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1212, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'plasma_units', 'plasma units', '', 'number', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1213, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'platelets_units', 'platelets units', '', 'number', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1214, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'operative_pathological_report', 'operative pathological report', '', 'select', '', '', 256, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1215, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'pathological_report', 'pathological report', '', 'select', '', '', 248, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1216, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'drainage', 'drainage', '', 'select', '', '', 256, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1217, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'type_of_drain_1', 'type of drain 1', '', 'select', '', '', 249, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1218, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'type_of_drain_2', 'type of drain 2', '', 'select', '', '', 249, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1219, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'type_of_drain_3', 'type of drain 3', '', 'select', '', '', 249, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1220, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'biological_glue', 'biological glue', '', 'select', '', '', 256, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1221, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'type_of_glue', 'type of glue', '', 'select', '', '', 250, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1222, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'operative_ultrasound_ous', 'operative ultrasound ous', '', 'select', '', '', 256, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1223, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'impact_of_ous', 'impact of ous', '', 'select', '', '', 258, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1224, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'pancreas_appearance', 'pancreas appearance', '', 'select', '', '', 253, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1225, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'wisung_diameter', 'wisung diameter', '', 'number', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1226, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'recoupe_pancreas', 'recoupe pancreas', '', 'select', '', '', 256, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1227, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'portal_vein_resection', 'portal vein resection', '', 'select', '', '', 256, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1228, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'pancreas_anastomosis', 'pancreas anastomosis', '', 'select', '', '', 256, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1229, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'type_of_pancreas_anastomosis', 'type of pancreas anastomosis', '', 'select', '', '', 254, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1230, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'pylori_preservation', 'pylori preservation', '', 'select', '', '', 256, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1231, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'preoperative_sandostatin', 'preoperative sandostatin', '', 'select', '', '', 256, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+INSERT INTO `structure_fields` (`id`, `public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(1232, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'type_of_cirrhosis', 'type of cirrhosis', '', 'select', '', '', 218, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1233, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'esophageal_varices', 'esophageal varices', '', 'select', '', '', 219, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1234, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'gastric_varices', 'gastric varices', '', 'select', '', '', 219, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1235, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'tips', 'tips', '', 'select', '', '', 219, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1236, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'portacaval_gradient', 'portacaval gradient', '', 'number', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1237, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'portal_thrombosis', 'portal thrombosis', '', 'select', '', '', 219, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1238, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'splenomegaly', 'splenomegaly', '', 'select', '', '', 219, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1239, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'splen_size', 'splen size', '', 'number', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1240, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'type_of_cirrhosis', 'type of cirrhosis', '', 'select', '', '', 218, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1241, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'esophageal_varices', 'esophageal varices', '', 'select', '', '', 219, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1242, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'gastric_varices', 'gastric varices', '', 'select', '', '', 219, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1243, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'tips', 'tips', '', 'select', '', '', 219, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1244, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'portacaval_gradient', 'portacaval gradient', '', 'number', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1245, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'portal_thrombosis', 'portal thrombosis', '', 'select', '', '', 219, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1246, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'splenomegaly', 'splenomegaly', '', 'select', '', '', 219, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1247, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'splen_size', 'splen size', '', 'number', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1248, '', 'Inventorymanagement', 'SampleDetail', 'sd_spe_bloods', 'qc_hb_sample_code', 'sample code', '', 'select', '', '', 259, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1249, '', 'Inventorymanagement', 'DerivativeDetail', 'sd_der_pbmcs', 'qc_hb_nb_cells', 'nb of cells', '', 'float_positive', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1250, '', 'Inventorymanagement', 'DerivativeDetail', 'sd_der_pbmcs', 'qc_hb_nb_cell_unit', '', 'unit', 'select', '', '', 260, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1251, '', 'Inventorymanagement', 'SpecimenDetail', 'sd_spe_tissues', 'qc_hb_sample_code', 'sample code', '', 'select', '', '', 261, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1252, '', 'Inventorymanagement', 'ViewCollection', 'view_collections', 'no_labo', 'no labo', '', 'input', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1253, '', 'Inventorymanagement', 'AliquotMaster', 'aliquot_masters', 'qc_hb_label', 'label', '', 'input', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1254, '', 'Inventorymanagement', 'AliquotMaster', 'aliquot_masters', 'qc_hb_stored_by', 'stored by', '', 'select', '', '', 174, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1255, '', 'Inventorymanagement', 'AliquotDetail', 'ad_tubes', 'qc_hb_milieu', 'milieu', '', 'select', '', '', 262, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1256, '', 'Inventorymanagement', 'SampleDetail', 'sd_spe_tissues', 'qc_hb_patho_report_no', 'patho report nb', '', 'input', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1257, '', 'Inventorymanagement', 'AliquotDetail', 'ad_tubes', 'qc_hb_milieu', 'milieu', '', 'select', '', '', 263, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1258, '', 'Inventorymanagement', 'AliquotDetail', 'sd_der_tiss_susps', 'qc_hb_overnight', 'overnight', '', 'checkbox', '', '', 185, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1259, '', 'Inventorymanagement', 'AliquotDetail', 'sd_der_tiss_susps', 'qc_hb_macs_nb_cycles', 'genHeMACS program', 'nb of cycles', 'select', '', '', 265, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1260, '', 'Inventorymanagement', 'AliquotDetail', 'sd_der_tiss_susps', 'qc_hb_macs_nb_incubations', '', 'nb of incubations', 'select', '', '', 264, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1261, '', 'Inventorymanagement', 'AliquotDetail', 'sd_der_tiss_susps', 'qc_hb_macs_enzymatic_milieu', '', 'enzymatic milieu', 'input', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1262, '', 'Inventorymanagement', 'AliquotDetail', 'sd_der_tiss_susps', 'qc_hb_nb_viable_cells', 'nb viable cells', '', 'float_positive', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1263, '', 'Inventorymanagement', 'AliquotDetail', 'sd_der_tiss_susps', 'qc_hb_nb_viable_cells_unit', '', '', 'select', '', '', 260, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
 
 -- --------------------------------------------------------
 
@@ -10517,7 +12721,7 @@ CREATE TABLE IF NOT EXISTS `structure_formats` (
   PRIMARY KEY (`id`),
   KEY `FK_structure_formats_structures` (`structure_id`),
   KEY `FK_structure_formats_structure_fields` (`structure_field_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2547 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=3010 ;
 
 --
 -- Contenu de la table `structure_formats`
@@ -10691,7 +12895,7 @@ INSERT INTO `structure_formats` (`id`, `structure_id`, `structure_field_id`, `di
 (241, 39, 181, 1, 30, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (242, 39, 187, 1, 41, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (244, 39, 189, 1, 44, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
-(245, 39, 190, 1, 45, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+(245, 39, 190, 1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (246, 39, 191, 1, 46, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (247, 40, 169, 0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (248, 40, 170, 0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
@@ -10736,10 +12940,10 @@ INSERT INTO `structure_formats` (`id`, `structure_id`, `structure_field_id`, `di
 (327, 45, 176, 0, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (328, 45, 177, 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (329, 45, 179, 0, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
-(331, 45, 200, 1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
-(332, 45, 201, 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
-(333, 45, 202, 1, 30, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
-(334, 45, 207, 1, 34, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+(331, 45, 200, 1, 30, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+(332, 45, 201, 1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+(333, 45, 202, 1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+(334, 45, 207, 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (338, 45, 211, 1, 40, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (339, 46, 169, 0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (340, 46, 170, 0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
@@ -10748,9 +12952,9 @@ INSERT INTO `structure_formats` (`id`, `structure_id`, `structure_field_id`, `di
 (344, 46, 176, 0, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (345, 46, 177, 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (346, 46, 179, 0, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
-(348, 46, 200, 1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+(348, 46, 200, 1, 30, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (349, 46, 201, 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
-(350, 46, 202, 1, 30, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+(350, 46, 202, 1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (351, 46, 207, 1, 34, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (355, 46, 211, 1, 40, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (356, 47, 169, 0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
@@ -11211,7 +13415,7 @@ INSERT INTO `structure_formats` (`id`, `structure_id`, `structure_field_id`, `di
 (1164, 30, 756, 2, 23, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (1165, 30, 774, 1, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (1166, 30, 779, 1, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
-(1167, 30, 798, 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+(1167, 30, 798, 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (1168, 97, 490, 2, -4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (1169, 97, 491, 2, -3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (1170, 97, 492, 1, -2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
@@ -11233,22 +13437,22 @@ INSERT INTO `structure_formats` (`id`, `structure_id`, `structure_field_id`, `di
 (1188, 98, 808, 1, 12, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (1189, 98, 809, 2, 50, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (1190, 98, 810, 1, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
-(1263, 29, 149, 1, 1, '', '1', 'first name', '1', '', '1', '', '1', 'input', '1', 'size=20', '1', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+(1263, 29, 149, 1, 1, '', '1', 'first name', '0', '', '1', '', '1', 'input', '1', 'size=20', '1', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (1264, 29, 150, 1, 99, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (1265, 29, 214, 1, 7, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
-(1266, 29, 460, 1, 3, '', '1', 'last name', '1', '', '1', '', '1', 'input', '1', 'size=30', '1', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+(1266, 29, 460, 1, 3, '', '1', 'last name', '0', '', '1', '', '1', 'input', '1', 'size=30', '1', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (1267, 29, 471, 3, 1, 'current status', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (1268, 29, 482, 3, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (1270, 29, 501, 3, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
-(1271, 29, 510, 3, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
-(1272, 29, 521, 1, -1, 'clin_demographics', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
-(1273, 29, 554, 1, 2, '', '1', 'middle name', '1', '', '1', '', '1', 'input', '1', 'size=15', '1', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+(1271, 29, 510, 3, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+(1272, 29, 521, 1, -1, 'clin_demographics', '1', 'participant code', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '1', '0', '1', '1', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+(1273, 29, 554, 1, 2, '', '1', 'middle name', '1', '', '1', '', '1', 'input', '1', 'size=15', '1', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (1274, 29, 555, 1, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (1275, 29, 556, 1, 9, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
-(1278, 29, 636, 1, 0, '', '1', 'title', '1', '', '1', 'help_name', '1', 'select', '1', '', '1', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+(1278, 29, 636, 1, 0, '', '1', 'title', '1', '', '1', 'help_name', '1', 'select', '1', '', '1', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (1279, 29, 744, 1, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (1280, 29, 773, 1, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
-(1281, 29, 814, 1, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+(1281, 29, 814, 1, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (1282, 29, 826, 3, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (1338, 110, 115, 2, 9, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (1339, 110, 118, 2, 10, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
@@ -11604,7 +13808,7 @@ INSERT INTO `structure_formats` (`id`, `structure_id`, `structure_field_id`, `di
 (1829, 163, 119, 1, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (1830, 163, 120, 1, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (1831, 164, 521, 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
-(1832, 164, 636, 1, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+(1832, 164, 636, 1, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (1833, 164, 149, 1, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (1834, 164, 460, 1, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (1835, 165, 521, 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
@@ -11616,7 +13820,7 @@ INSERT INTO `structure_formats` (`id`, `structure_id`, `structure_field_id`, `di
 (1840, 165, 492, 1, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (1841, 166, 521, 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (1842, 166, 812, 1, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
-(1843, 166, 636, 1, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+(1843, 166, 636, 1, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (1844, 166, 149, 1, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (1845, 166, 460, 1, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (1846, 166, 813, 1, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
@@ -11642,7 +13846,7 @@ INSERT INTO `structure_formats` (`id`, `structure_id`, `structure_field_id`, `di
 (1866, 168, 814, 1, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (1867, 168, 471, 1, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (1869, 170, 521, 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
-(1870, 170, 636, 1, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+(1870, 170, 636, 1, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (1871, 170, 149, 1, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (1872, 170, 460, 1, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (1873, 170, 490, 1, 7, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
@@ -11865,7 +14069,7 @@ INSERT INTO `structure_formats` (`id`, `structure_id`, `structure_field_id`, `di
 (2280, 36, 157, 1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (2281, 37, 157, 1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (2282, 38, 157, 1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
-(2283, 39, 157, 1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+(2283, 39, 157, 1, 30, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (2284, 40, 157, 1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (2285, 47, 157, 1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (2286, 48, 157, 1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
@@ -11882,13 +14086,13 @@ INSERT INTO `structure_formats` (`id`, `structure_id`, `structure_field_id`, `di
 (2297, 37, 892, 1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (2298, 38, 892, 1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
 INSERT INTO `structure_formats` (`id`, `structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
-(2299, 39, 892, 1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+(2299, 39, 892, 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (2300, 40, 892, 1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (2301, 47, 892, 1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (2302, 48, 892, 1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (2303, 49, 892, 1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (2304, 36, 161, 1, 34, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
-(2305, 37, 161, 1, 34, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+(2305, 37, 161, 1, 35, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (2306, 38, 161, 1, 34, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (2307, 39, 161, 1, 34, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (2308, 40, 161, 1, 34, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
@@ -11905,10 +14109,10 @@ INSERT INTO `structure_formats` (`id`, `structure_id`, `structure_field_id`, `di
 (2319, 32, 891, 0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (2320, 41, 893, 1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (2321, 42, 893, 1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
-(2324, 45, 893, 1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
-(2325, 46, 893, 1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+(2324, 45, 893, 1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+(2325, 46, 893, 1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (2327, 39, 894, 1, 47, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
-(2328, 29, 895, 3, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+(2328, 29, 895, 3, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (2329, 29, 803, 1, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (2333, 110, 134, 2, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (2334, 110, 404, 2, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
@@ -12011,9 +14215,9 @@ INSERT INTO `structure_formats` (`id`, `structure_id`, `structure_field_id`, `di
 (2454, 203, 102, 1, 10, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (2455, 203, 609, 1, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (2456, 203, 599, 0, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
-(2457, 204, 636, 0, 1, '', '1', 'participant', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+(2457, 204, 636, 0, 1, '', '1', 'participant', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (2458, 204, 149, 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
-(2459, 204, 554, 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+(2459, 204, 554, 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (2460, 204, 460, 0, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (2461, 204, 587, 0, 10, '', '1', 'participant identifier', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (2462, 204, 618, 0, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
@@ -12083,7 +14287,426 @@ INSERT INTO `structure_formats` (`id`, `structure_id`, `structure_field_id`, `di
 (2543, 125, 966, 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (2544, 188, 967, 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (2545, 191, 968, 1, -2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
-(2546, 116, 334, 1, 0, '', '1', 'type', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+(2546, 116, 334, 1, 0, '', '1', 'type', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2547, 212, 492, 0, 1, '', '1', 'first consultation date', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2548, 212, 490, 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2549, 212, 491, 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2550, 212, 979, 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2551, 212, 969, 0, 10, '', '1', 'weight (kg)', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2552, 212, 970, 0, 11, '', '1', 'height (cm)', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2553, 212, 971, 0, 12, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2554, 212, 494, 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2555, 212, 972, 1, 30, 'referral data', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2556, 212, 973, 1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2557, 212, 974, 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2558, 212, 975, 1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2559, 212, 976, 1, 34, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2560, 212, 977, 1, 35, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2561, 212, 978, 1, 36, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2562, 213, 492, 0, 1, '', '1', 'diagnostic date', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2563, 213, 490, 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2564, 213, 491, 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2565, 213, 980, 0, 10, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2566, 213, 494, 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2567, 214, 492, 1, 1, '', '0', 'event date', '0', '', '0', '', '0', 'date', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2568, 214, 494, 1, 2, '', '0', 'event summary', '0', '', '0', '', '0', 'input', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2569, 214, 981, 1, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2570, 214, 982, 1, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2571, 215, 492, 1, 1, '', '0', 'event date', '0', '', '0', '', '0', 'date', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2572, 215, 494, 1, 2, '', '', '', '', '', '', '', '', '', '', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2573, 215, 988, 1, 3, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2574, 215, 987, 1, 4, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2575, 215, 986, 1, 5, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2576, 215, 985, 1, 6, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2577, 215, 983, 1, 7, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2578, 215, 989, 1, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2579, 215, 990, 1, 9, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2580, 215, 984, 1, 10, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2581, 216, 492, 0, 1, '', '1', 'last update date', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2582, 216, 490, 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2583, 216, 491, 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2584, 216, 991, 0, 10, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2585, 216, 992, 0, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2586, 216, 494, 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2587, 217, 492, 0, 1, '', '1', 'last update date', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2588, 217, 490, 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2589, 217, 491, 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2590, 217, 993, 1, 40, 'reviewed events', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2591, 217, 994, 1, 41, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2592, 217, 995, 1, 42, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2593, 217, 996, 1, 43, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2594, 217, 997, 1, 44, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2595, 217, 998, 1, 45, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2596, 217, 999, 1, 46, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2597, 217, 1000, 1, 47, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2598, 217, 1001, 1, 48, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2599, 217, 1002, 1, 60, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2600, 217, 494, 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2601, 217, 1003, 1, 52, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2602, 217, 1004, 1, 53, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2603, 217, 1005, 1, 50, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2604, 217, 1006, 1, 51, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2605, 218, 1007, 0, 3, 'blood formulae', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2606, 218, 1008, 0, 4, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2607, 218, 1009, 0, 5, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2608, 218, 1010, 0, 6, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2609, 218, 1011, 0, 7, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2610, 218, 1012, 0, 8, 'coagulation', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2611, 218, 1013, 0, 9, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2612, 218, 1014, 0, 10, 'electrolyte', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2613, 218, 1015, 0, 11, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1);
+INSERT INTO `structure_formats` (`id`, `structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(2614, 218, 1016, 0, 12, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2615, 218, 1017, 0, 13, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2616, 218, 1018, 0, 14, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2617, 218, 1019, 0, 15, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2618, 218, 1020, 0, 16, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2619, 218, 1021, 0, 17, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2620, 218, 1022, 0, 18, 'other', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2621, 218, 1023, 0, 19, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2622, 218, 1024, 0, 20, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2623, 218, 1025, 0, 21, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2624, 218, 1026, 0, 22, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2625, 218, 1027, 1, 23, 'bilan hepatique', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2626, 218, 1028, 1, 24, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2627, 218, 1029, 1, 25, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2628, 218, 1030, 1, 26, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2629, 218, 1031, 1, 27, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2630, 218, 1032, 1, 28, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2631, 218, 1033, 1, 29, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2632, 218, 1034, 1, 30, 'bilan pancreatique', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2633, 218, 1035, 1, 31, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2634, 218, 1036, 1, 32, 'bilan marqueur', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2635, 218, 1037, 1, 33, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2636, 218, 1038, 1, 34, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2637, 218, 1039, 1, 35, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2638, 218, 1040, 1, 36, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2639, 218, 1041, 1, 37, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2640, 218, 1042, 1, 38, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2641, 218, 1043, 1, 39, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2642, 218, 1044, 1, 40, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2643, 218, 1045, 1, 41, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2668, 218, 492, 0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2669, 218, 494, 1, 100, 'summary', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2670, 218, 490, 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2671, 218, 491, 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2672, 219, 1046, 1, 3, 'reviewed events', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2673, 219, 1047, 1, 4, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2674, 219, 1048, 1, 5, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2675, 219, 1049, 1, 6, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2676, 219, 1050, 1, 7, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2677, 219, 1051, 1, 8, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2678, 219, 1052, 1, 9, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2679, 219, 1053, 1, 10, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2680, 219, 1054, 1, 11, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2681, 219, 1055, 1, 12, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2682, 219, 1056, 1, 13, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2683, 219, 1057, 1, 14, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2684, 219, 1058, 1, 15, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2685, 219, 1059, 1, 16, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2686, 219, 1060, 1, 17, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2687, 219, 1061, 1, 18, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2688, 219, 1062, 1, 19, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 1, '0000-00-00 00:00:00', 1),
+(2703, 219, 492, 0, 1, '', '1', 'last update date', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2704, 219, 490, 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2705, 219, 491, 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2706, 219, 494, 0, 100, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2707, 220, 492, 0, 0, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2708, 220, 494, 0, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2709, 221, 1063, 0, 0, 'segment I', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2710, 221, 1064, 0, 1, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2711, 221, 1065, 0, 2, 'segment II', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2712, 221, 1066, 0, 3, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2713, 221, 1067, 0, 4, 'segment III', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2714, 221, 1068, 0, 5, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2715, 221, 1069, 0, 6, 'segment IVa', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2716, 221, 1070, 0, 7, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2717, 221, 1071, 0, 8, 'segment IVb', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2718, 221, 1072, 0, 9, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2719, 221, 1073, 1, 10, 'segment V', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2720, 221, 1074, 1, 11, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2721, 221, 1075, 1, 12, 'segment VI', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2722, 221, 1076, 1, 13, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2723, 221, 1077, 1, 14, 'segment VII', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2724, 221, 1078, 1, 15, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2725, 221, 1079, 1, 16, 'segment VIII', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2726, 221, 1080, 1, 17, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2727, 222, 1081, 0, 1, 'lungs', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2728, 222, 1082, 0, 2, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2729, 222, 1083, 0, 3, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2730, 222, 1084, 0, 4, 'lymph node', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2731, 222, 1085, 0, 5, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2732, 222, 1086, 0, 6, 'colon', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2733, 222, 1087, 0, 7, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2734, 222, 1088, 0, 8, 'rectum', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2735, 222, 1089, 0, 9, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2736, 222, 1090, 1, 10, 'bones', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2737, 222, 1091, 1, 11, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2738, 222, 1092, 1, 12, 'other localisation 1', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2739, 222, 1093, 1, 13, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2740, 222, 1094, 1, 14, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2741, 222, 1095, 1, 15, 'other localisation 2', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2742, 222, 1096, 1, 16, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2743, 222, 1097, 1, 17, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2744, 222, 1098, 1, 18, 'other localisation 3', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2745, 222, 1099, 1, 19, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2746, 222, 1100, 1, 20, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2747, 223, 1101, 0, 0, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2748, 223, 1102, 0, 1, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2749, 223, 1103, 0, 2, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2750, 223, 1104, 0, 3, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2751, 223, 1105, 1, 4, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2752, 223, 1106, 1, 5, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2753, 223, 1107, 1, 6, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2754, 223, 1108, 1, 7, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2755, 224, 1109, 0, 1, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2756, 224, 1110, 0, 2, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2757, 224, 1111, 0, 3, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2758, 224, 1112, 0, 4, '', '', '', '', '', '', '', '', '', '', '', '', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2759, 224, 1113, 1, 5, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2760, 224, 1114, 1, 6, '', '', '', '', '', '', '', '', '', '', '', '', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2761, 225, 492, 1, 1, '', '0', 'event date', '0', '', '0', '', '0', 'date', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2762, 225, 494, 1, 2, '', '0', 'event summary', '0', '', '0', '', '0', 'textarea', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2763, 225, 1115, 1, 3, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2764, 225, 1116, 1, 4, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2765, 225, 1117, 1, 5, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2766, 225, 1118, 1, 6, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2767, 225, 1119, 1, 7, '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2768, 225, 1120, 1, 8, '', '', '', '', '', '', '', '', '', '', '', '', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2769, 226, 492, 1, 1, '', '0', 'event date', '0', '', '0', '', '0', 'date', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2770, 226, 494, 1, 2, '', '0', 'event summary', '0', '', '0', '', '0', 'textarea', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2771, 226, 1121, 1, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2772, 226, 1122, 1, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2773, 226, 1123, 1, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2774, 226, 1124, 1, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2775, 226, 1125, 1, 7, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2776, 227, 492, 1, 1, '', '0', 'event date', '0', '', '0', '', '0', 'date', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2777, 227, 494, 1, 2, '', '0', 'event summary', '0', '', '0', '', '0', 'textarea', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2778, 227, 1126, 1, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2779, 227, 1127, 1, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2780, 227, 1128, 1, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2781, 227, 1129, 1, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2782, 227, 1130, 1, 7, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2783, 228, 492, 1, 1, '', '0', 'event date', '0', '', '0', '', '0', 'date', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2784, 228, 494, 1, 2, '', '0', 'event summary', '0', '', '0', '', '0', 'textarea', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2785, 228, 1131, 1, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2786, 228, 1132, 1, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2787, 228, 1133, 1, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2788, 228, 1134, 1, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2789, 228, 1135, 1, 7, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2790, 229, 492, 1, 1, '', '0', 'event date', '0', '', '0', '', '0', 'date', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2791, 229, 494, 1, 2, '', '0', 'event summary', '0', '', '0', '', '0', 'textarea', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2792, 229, 1136, 1, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2793, 229, 1137, 1, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2794, 229, 1138, 1, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2795, 229, 1139, 1, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2796, 229, 1140, 1, 7, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2797, 229, 1141, 1, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2798, 230, 492, 1, 1, '', '0', 'event date', '0', '', '0', '', '0', 'date', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2799, 230, 494, 1, 2, '', '0', 'event summary', '0', '', '0', '', '0', 'textarea', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2800, 230, 1142, 1, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2801, 230, 1143, 1, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2802, 230, 1144, 1, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2803, 230, 1145, 1, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2804, 230, 1146, 1, 7, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2805, 230, 1147, 1, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2806, 231, 492, 1, 1, '', '0', 'event date', '0', '', '0', '', '0', 'date', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2807, 231, 494, 1, 2, '', '0', 'event summary', '0', '', '0', '', '0', 'textarea', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2808, 231, 1148, 1, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2809, 231, 1149, 1, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2810, 231, 1150, 1, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2811, 231, 1151, 1, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2812, 231, 1152, 1, 7, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2813, 232, 492, 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2814, 232, 494, 1, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2815, 232, 1116, 1, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2816, 232, 1117, 1, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2817, 232, 1118, 1, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2818, 232, 1119, 1, 7, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2819, 232, 1120, 1, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2820, 232, 1153, 1, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2821, 233, 334, 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2822, 233, 534, 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2823, 233, 536, 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2824, 233, 904, 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2825, 233, 537, 1, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2826, 233, 905, 1, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2827, 233, 1154, 1, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2828, 233, 1155, 1, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2829, 233, 542, 1, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2830, 233, 545, 1, 6, '', '0', 'num cycles', '0', '', '0', '', '0', 'number', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2831, 233, 1156, 1, 7, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2832, 234, 536, 1, 1, '', '1', 'surgery date', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2833, 234, 904, 1, 1, '', '0', '', '0', '', '0', '', '0', 'input', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2834, 234, 1157, 1, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2835, 234, 1158, 1, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2836, 234, 1159, 1, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2837, 234, 1160, 1, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2838, 234, 1161, 1, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2839, 234, 1162, 1, 7, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2840, 234, 1163, 1, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2841, 234, 1164, 1, 9, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2842, 234, 1165, 1, 10, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2843, 234, 1166, 1, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2844, 234, 1167, 1, 12, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2845, 234, 1168, 1, 13, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2846, 234, 1169, 1, 14, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2847, 234, 1170, 1, 15, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2848, 234, 1171, 1, 16, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2849, 234, 1172, 1, 17, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2850, 234, 1173, 1, 18, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2851, 234, 1174, 1, 19, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2852, 234, 1175, 1, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2853, 234, 1176, 1, 21, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2854, 234, 1177, 1, 22, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2855, 234, 1178, 1, 23, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2856, 234, 1179, 1, 24, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2857, 234, 1180, 1, 25, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2858, 234, 1181, 1, 26, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2859, 234, 1182, 1, 27, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2860, 234, 1183, 1, 28, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2861, 234, 1184, 2, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2862, 234, 1185, 2, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2863, 234, 1186, 2, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2864, 234, 1187, 2, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2865, 234, 1188, 2, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2866, 234, 1189, 2, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2867, 234, 1190, 2, 7, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2868, 234, 1191, 2, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2869, 234, 1192, 2, 9, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2870, 234, 1193, 2, 10, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2871, 234, 1194, 2, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2872, 234, 1195, 2, 12, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2873, 234, 1196, 2, 13, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2874, 235, 536, 1, 1, '', '1', 'surgery date', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2875, 235, 904, 1, 1, '', '0', '', '0', '', '0', '', '0', 'input', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2876, 235, 1197, 1, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2877, 235, 1198, 1, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2878, 235, 1199, 1, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2879, 235, 1200, 1, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2880, 235, 1201, 1, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2881, 235, 1202, 1, 7, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2882, 235, 1203, 1, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2883, 235, 1204, 1, 9, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2884, 235, 1205, 1, 10, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2885, 235, 1206, 1, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2886, 235, 1207, 1, 12, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2887, 235, 1208, 1, 13, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2888, 235, 1209, 1, 14, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2889, 235, 1210, 1, 15, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2890, 235, 1211, 1, 16, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2891, 235, 1212, 1, 17, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2892, 235, 1213, 1, 18, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2893, 235, 1214, 1, 19, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2894, 235, 1215, 1, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2895, 235, 1216, 1, 21, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2896, 235, 1217, 1, 22, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2897, 235, 1218, 1, 23, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2898, 235, 1219, 1, 24, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2899, 235, 1220, 1, 25, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2900, 235, 1221, 1, 26, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2901, 235, 1222, 1, 27, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2902, 235, 1223, 1, 28, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2903, 235, 1224, 2, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2904, 235, 1225, 2, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2905, 235, 1226, 2, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2906, 235, 1227, 2, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2907, 235, 1228, 2, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2908, 235, 1229, 2, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2909, 235, 1230, 2, 7, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2910, 235, 1231, 2, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2911, 236, 1232, 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2912, 236, 1233, 1, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2913, 236, 1234, 1, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2914, 236, 1235, 1, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2915, 236, 1236, 1, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2916, 236, 1237, 1, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2917, 236, 1238, 1, 7, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2918, 236, 1239, 1, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2919, 237, 1240, 1, 1, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2920, 237, 1241, 1, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+INSERT INTO `structure_formats` (`id`, `structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(2921, 237, 1242, 1, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2922, 237, 1243, 1, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2923, 237, 1244, 1, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2924, 237, 1245, 1, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2925, 237, 1246, 1, 7, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2926, 237, 1247, 1, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2927, 220, 491, 0, 2, '', '0', 'event type', '0', '', '0', '', '0', 'input', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2928, 37, 1248, 1, 34, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2929, 238, 169, 0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2930, 238, 170, 0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2931, 238, 172, 0, 25, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2932, 238, 173, 0, 9, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2933, 238, 176, 0, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2934, 238, 177, 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2935, 238, 179, 0, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2936, 238, 207, 1, 34, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2937, 238, 332, 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2938, 238, 880, 0, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2939, 238, 200, 1, 30, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2940, 238, 201, 1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2941, 238, 202, 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2942, 238, 893, 1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2943, 238, 1249, 1, 51, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2944, 238, 1250, 1, 51, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2945, 39, 1251, 0, 21, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2946, 205, 1252, 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2947, 59, 1253, 0, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2948, 59, 1254, 0, 27, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2949, 90, 1254, 0, 27, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2950, 90, 1255, 0, 12, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2951, 90, 1253, 0, 11, '', '1', 'qc hb label', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2952, 39, 1256, 1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2953, 52, 1253, 0, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2954, 52, 1254, 0, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2955, 55, 1254, 0, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2956, 55, 1253, 0, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2957, 239, 216, 0, 10, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '1', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2958, 239, 218, 0, 9, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '1', '1', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2959, 239, 219, 0, 13, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2960, 239, 220, 0, 14, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2961, 239, 221, 0, 15, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2962, 239, 222, 0, 21, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2963, 239, 223, 0, 23, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2964, 239, 224, 0, 24, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2965, 239, 225, 0, 26, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2966, 239, 227, 0, 30, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2967, 239, 228, 0, 40, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2968, 239, 291, 0, 21, '', '1', '', '1', 'code', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2969, 239, 237, 1, 70, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2970, 239, 240, 1, 61, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2971, 239, 245, 1, 60, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2972, 239, 279, 0, 35, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2973, 239, 306, 0, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2974, 239, 327, 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2975, 239, 328, 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2976, 239, 372, 0, 36, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2977, 239, 170, 0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2978, 239, 235, 1, 100, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2979, 239, 1253, 0, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2980, 239, 1254, 0, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2988, 239, 1257, 0, 16, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2989, 240, 169, 0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2990, 240, 170, 0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2991, 240, 172, 0, 25, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2992, 240, 173, 0, 9, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2993, 240, 176, 0, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2994, 240, 177, 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2995, 240, 179, 0, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2996, 240, 200, 1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2997, 240, 201, 1, 32, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2998, 240, 202, 1, 30, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2999, 240, 207, 1, 34, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(3000, 240, 332, 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(3001, 240, 880, 0, 4, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(3002, 240, 893, 1, 31, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(3004, 240, 1258, 1, 40, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(3005, 240, 1259, 1, 41, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(3006, 240, 1260, 1, 42, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(3007, 240, 1261, 1, 43, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(3008, 240, 1262, 1, 44, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(3009, 240, 1263, 1, 45, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
 
 -- --------------------------------------------------------
 
@@ -12097,7 +14720,7 @@ CREATE TABLE IF NOT EXISTS `structure_permissible_values` (
   `language_alias` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `value` (`value`,`language_alias`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=852 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=958 ;
 
 --
 -- Contenu de la table `structure_permissible_values`
@@ -12116,13 +14739,17 @@ INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VAL
 (150, '0', '0'),
 (300, '0', 'locked'),
 (842, '0', 'no'),
+(894, '0', '_0_'),
 (137, '1', '1'),
 (301, '1', 'active'),
 (843, '1', 'yes'),
+(895, '1 - 2', '1 - 2'),
+(880, '1.7 - 2.2', '1.7 - 2.2'),
 (435, '10', '10'),
 (3, '10e6', '10e6'),
 (1, '10e7', '10e7'),
 (2, '10e8', '10e8'),
+(942, '10^6 c', '10^6 c'),
 (847, '12', '12'),
 (138, '2', '2'),
 (786, '2-3', '2-3'),
@@ -12131,8 +14758,12 @@ INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VAL
 (480, '260/230', '260/230'),
 (482, '260/268', '260/268'),
 (477, '260/280', '260/280'),
+(877, '28 - 35g/l', '28 - 35g/l'),
 (478, '28/18', '28/18'),
 (139, '3', '3'),
+(896, '3 - 4', '3 - 4'),
+(898, '3 tumors, < 3 cm', '3 tumors, < 3 cm'),
+(871, '34 - 50µmol/l', '34 - 50µmol/l'),
 (141, '4', '4'),
 (787, '4-5', '4-5'),
 (144, '5', '5'),
@@ -12140,10 +14771,34 @@ INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VAL
 (815, '5th', '5th'),
 (437, '6', '6'),
 (788, '6-9', '6-9'),
+(874, '68 - 170µmol/l', '68 - 170µmol/l'),
 (816, '6th', '6th'),
 (429, '7', '7'),
 (431, '8', '8'),
 (140, '9', '9'),
+(922, '< 2N', '< 2N'),
+(924, '< 35 µg/L', '< 35 µg/L'),
+(918, '< 400 g/L', '< 400 g/L'),
+(892, '< 50%', '< 50%'),
+(879, '<1.7', '<1.7'),
+(876, '<28g/l', '<28g/l'),
+(891, '<30g/l', '<30g/l'),
+(870, '<34µmol/l', '<34µmol/l'),
+(888, '<50µmol/l', '<50µmol/l'),
+(873, '<68µmol/l', '<68µmol/l'),
+(921, '<= 80%', '<= 80%'),
+(920, '> 80%', '> 80%'),
+(875, '>170µmol/l', '>170µmol/l'),
+(881, '>2.2', '>2.2'),
+(878, '>35g/l', '>35g/l'),
+(872, '>50µmol/l', '>50µmol/l'),
+(923, '>= 2N', '>= 2N'),
+(925, '>= 35 µg/L', '>= 35 µg/L'),
+(919, '>= 400 g/L', '>= 400 g/L'),
+(890, '>=30g/l', '>=30g/l'),
+(893, '>=50%', '>=50%'),
+(889, '>=50µmol/l', '>=50µmol/l'),
+(912, 'A', 'A'),
 (174, 'abnormal', 'abnormal'),
 (346, 'Aboriginal', 'aboriginal'),
 (700, 'academic', 'academic'),
@@ -12156,6 +14811,7 @@ INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VAL
 (750, 'adjuvant', 'adjuvant'),
 (230, 'adverse_event', 'adverse_event'),
 (476, 'agarose gel', 'agarose gel'),
+(932, 'alcohol', 'alcohol'),
 (53, 'aliquot shipment', 'aliquot shipment'),
 (217, 'alive', 'alive'),
 (222, 'alive and well after re-current disease', 'alive and well after re-current disease'),
@@ -12178,6 +14834,7 @@ INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VAL
 (249, 'aunt', 'aunt'),
 (803, 'autopsy', 'autopsy'),
 (31, 'available', 'available'),
+(913, 'B', 'B'),
 (636, 'b cell', 'b cell'),
 (812, 'b-cell', 'b-cell'),
 (15, 'bag', 'bag'),
@@ -12209,6 +14866,7 @@ INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VAL
 (740, 'Building A', 'building a'),
 (741, 'Building B', 'building b'),
 (389, 'business', 'business'),
+(914, 'C', 'C'),
 (511, 'c', 'complete'),
 (246, 'c', 'Complete date known and verified'),
 (763, 'c', 'datetime_accuracy_indicator_c'),
@@ -12222,11 +14880,16 @@ INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VAL
 (662, 'celsius', 'celsius'),
 (622, 'centrifuged urine', 'centrifuged urine'),
 (117, 'chart', 'chart'),
+(943, 'CHC', 'CHC'),
 (778, 'chemical', 'chemical'),
 (126, 'chemotherapy', 'chemotherapy'),
 (161, 'chewing', 'chewing'),
 (297, 'child', 'child'),
+(909, 'child-pugh A', 'child-pugh A'),
+(910, 'child-pugh B', 'child-pugh B'),
+(911, 'child-pugh C', 'child-pugh C'),
 (370, 'chinese', 'chinese'),
+(945, 'CholangioCa', 'CholangioCa'),
 (163, 'cigar', 'cigar'),
 (165, 'cigarettes', 'cigarettes'),
 (153, 'cish', 'cish'),
@@ -12235,7 +14898,6 @@ INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VAL
 (107, 'clinical', 'clinical'),
 (837, 'cm', 'cm'),
 (838, 'cm3', 'cm3'),
-(767, 'collection_site_1', 'collection_site_1'),
 (768, 'collection_site_2', 'collection_site_2'),
 (769, 'collection_site_etc', 'collection_site_etc'),
 (540, 'colon_cancer_type', 'colon_cancer_type'),
@@ -12250,6 +14912,7 @@ INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VAL
 (549, 'consent', 'Consent Form'),
 (568, 'contaminated', 'contaminated'),
 (702, 'contract', 'contract'),
+(936, 'conversion', 'conversion'),
 (17, 'core', 'core'),
 (250, 'cousin', 'cousin'),
 (670, 'co_investigator', 'co_investigator'),
@@ -12259,11 +14922,8 @@ INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VAL
 (820, 'custom_laboratory_site_1', 'custom_laboratory_site_1'),
 (821, 'custom_laboratory_site_2', 'custom_laboratory_site_2'),
 (822, 'custom_laboratory_site_etc', 'custom_laboratory_site_etc'),
-(770, 'custom_laboratory_staff_1', 'custom_laboratory_staff_1'),
 (771, 'custom_laboratory_staff_2', 'custom_laboratory_staff_2'),
 (772, 'custom_laboratory_staff_etc', 'custom_laboratory_staff_etc'),
-(773, 'custom_supplier_dept_1', 'custom_supplier_dept_1'),
-(774, 'custom_supplier_dept_2', 'custom_supplier_dept_2'),
 (775, 'custom_supplier_dept_etc', 'custom_supplier_dept_etc'),
 (470, 'custom_tool_1', 'custom_tool_1'),
 (469, 'custom_tool_3', 'custom_tool_2'),
@@ -12276,6 +14936,7 @@ INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VAL
 (245, 'D', 'day of date is uncertain'),
 (510, 'd', 'day uncertain'),
 (419, 'd-l mix', 'd l mix'),
+(857, 'dagenais', 'dagenais'),
 (261, 'daughter', 'daughter'),
 (199, 'dcis', 'dcis'),
 (804, 'death certificate', 'death certificate'),
@@ -12329,19 +14990,26 @@ INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VAL
 (169, 'fna', 'fna'),
 (231, 'follow up', 'follow up'),
 (233, 'followup', 'follow up'),
+(929, 'fourth regimen', 'fourth regimen'),
 (757, 'fre', 'French'),
 (645, 'freezer', 'freezer'),
 (354, 'french', 'clin_french'),
 (659, 'fridge', 'fridge'),
 (10, 'frozen', 'frozen'),
 (333, 'frozen tissue', 'frozen tissue'),
+(946, 'gallbladder', 'gallbladder'),
+(853, 'gastroenterologist', 'gastroenterologist'),
 (594, 'gel CSA', 'gel CSA'),
+(951, 'gel SST', 'gel SST'),
+(852, 'general physician', 'general physician'),
 (542, 'generic_cancer_type', 'generic_cancer_type'),
 (313, 'genitourinary', 'genitourinary'),
 (681, 'germ', 'germ'),
 (317, 'germ cell', 'germ cell'),
 (465, 'good', 'good'),
 (836, 'gr', 'gr'),
+(883, 'grade I-II', 'grade I-II'),
+(884, 'grade III-IV', 'grade III-IV'),
 (252, 'grandfather', 'grandfather'),
 (255, 'grandmother', 'grandmother'),
 (321, 'gynaecologic', 'gynaecologic'),
@@ -12354,7 +15022,12 @@ INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VAL
 (103, 'histology', 'histology'),
 (388, 'home', 'home'),
 (127, 'hormonal', 'hormonal'),
+(907, 'HTP, bilirubin N', 'HTP, bilirubin N'),
+(908, 'HTP, hyperbilirubinemia', 'HTP, hyperbilirubinemia'),
+(903, 'I', 'I'),
 (151, 'ihc', 'ihc'),
+(904, 'II', 'II'),
+(905, 'III', 'III'),
 (817, 'IM: intramuscular injection', 'IM: intramuscular injection'),
 (244, 'immediate', 'immediate'),
 (562, 'in culture', 'in culture'),
@@ -12365,7 +15038,9 @@ INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VAL
 (553, 'inactive', 'Inactive'),
 (655, 'incubator', 'incubator'),
 (63, 'independent collection', 'independent collection'),
+(902, 'indifferent', 'indifferent'),
 (546, 'information package', 'information package'),
+(926, 'initial treatment', 'initial treatment'),
 (330, 'institutional', 'institutional'),
 (275, 'integer', 'integer'),
 (55, 'internal use', 'internal use'),
@@ -12375,12 +15050,16 @@ INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VAL
 (364, 'japanese', 'japanese'),
 (101, 'known', 'known'),
 (367, 'korean', 'korean'),
+(858, 'lapointe', 'lapointe'),
 (369, 'latin american', 'latin american'),
 (202, 'lcis', 'lcis'),
 (121, 'left', 'left'),
+(939, 'less', 'less'),
 (785, 'less than 1', 'less than 1'),
+(859, 'letourneau', 'letourneau'),
 (314, 'leukemia', 'leukemia'),
 (273, 'list', 'list'),
+(944, 'liver metastasis', 'liver metastasis'),
 (212, 'lobular', 'lobular'),
 (207, 'lobular special mixed', 'lobular special mixed'),
 (43, 'lost', 'lost'),
@@ -12395,26 +15074,35 @@ INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VAL
 (112, 'malignant', 'malignant'),
 (232, 'mammogram', 'mammogram'),
 (358, 'married', 'married'),
+(917, 'massive or >= 50%', 'massive or >= 50%'),
 (547, 'material transfer agreement', 'material transfer agreement'),
 (242, 'maternal', 'maternal'),
 (824, 'MDY', 'MDY'),
 (210, 'medullary', 'medullary'),
 (405, 'memo', 'memo'),
+(901, 'metastasis', 'metastasis'),
 (575, 'metastatic', 'metastatic'),
+(931, 'microwaves', 'microwaves'),
+(886, 'mild', 'mild'),
 (7, 'million(s)/ml', 'million(s)/ml'),
 (383, 'Miss', 'miss'),
 (12, 'ml', 'ml'),
 (409, 'mod diff', 'mod diff'),
 (808, 'moderately differentiated', 'moderately differentiated'),
+(938, 'more', 'more'),
 (789, 'more than 10', 'more than 10'),
 (251, 'mother', 'mother'),
 (380, 'Mr.', 'mr.'),
 (382, 'Mrs.', 'mrs.'),
 (375, 'Ms.', 'ms.'),
 (206, 'mucinous', 'mucinous'),
+(899, 'multinodular', 'multinodular'),
 (350, 'Multiple', 'multiple'),
+(916, 'multiple nodules & < 50%', 'multiple nodules & < 50%'),
 (327, 'musculoskeletal', 'musculoskeletal'),
+(950, 'N', 'N'),
 (271, 'n/a', 'n/a'),
+(935, 'n/s', 'n/s'),
 (332, 'national academic', 'national academic'),
 (776, 'natural', 'natural'),
 (128, 'negative', 'negative'),
@@ -12427,6 +15115,7 @@ INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VAL
 (193, 'nipple involved', 'nipple involved'),
 (651, 'nitrogen locator', 'nitrogen locator'),
 (59, 'no', 'no'),
+(906, 'no HTP & bilirubin N', 'no HTP & bilirubin N'),
 (205, 'no tumour', 'no tumour'),
 (188, 'non-smoker', 'non-smoker'),
 (834, 'none', 'none'),
@@ -12439,6 +15128,7 @@ INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VAL
 (78, 'obtained', 'obtained'),
 (8, 'OCT', 'oct solution'),
 (36, 'on loan', 'on loan'),
+(855, 'oncologist', 'oncologist'),
 (783, 'one-partial', 'one-partial'),
 (784, 'one-total', 'one-total'),
 (167, 'open biopsy', 'open biopsy'),
@@ -12452,6 +15142,7 @@ INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VAL
 (395, 'pager', 'pager'),
 (194, 'pagets nipple', 'pagets nipple'),
 (749, 'palliative', 'palliative'),
+(947, 'pancreas', 'pancreas'),
 (201, 'papillary', 'papillary'),
 (9, 'paraffin', 'paraffin'),
 (334, 'paraffin block', 'paraffin block'),
@@ -12480,6 +15171,7 @@ INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VAL
 (160, 'pipe', 'pipe'),
 (304, 'planned', 'planned'),
 (613, 'plasma', 'plasma'),
+(860, 'plasse', 'plasse'),
 (794, 'pleural fluid', 'pleural fluid'),
 (801, 'pleural fluid cell', 'pleural fluid cell'),
 (802, 'pleural fluid supernatant', 'pleural fluid supernatant'),
@@ -12492,6 +15184,7 @@ INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VAL
 (518, 'post', 'post'),
 (819, 'PR: per rectum', 'PR: per rectum'),
 (520, 'pre', 'pre'),
+(773, 'preadmission = preoperative checkup', 'preadmission = preoperative checkup'),
 (235, 'presentation', 'presentation'),
 (115, 'primary', 'primary'),
 (671, 'principle_investigator', 'principle_investigator'),
@@ -12520,17 +15213,26 @@ INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VAL
 (676, 'respiratory', 'respiratory'),
 (320, 'respiratory/thoracic', 'respiratory/thoracic'),
 (698, 'retrospective', 'retrospective'),
+(930, 'RFA', 'RFA'),
 (120, 'right', 'right'),
 (479, 'RIN', 'RIN'),
 (610, 'rna', 'rna'),
 (643, 'room', 'room'),
 (268, 'row', 'row'),
+(861, 'roy', 'roy'),
+(941, 'S', 'S'),
+(767, 'Saint-Luc hospital', 'Saint-Luc hospital'),
+(937, 'same', 'same'),
 (56, 'sample derivative creation', 'sample derivative creation'),
 (818, 'SC: subcutaneous injection', 'SC: subcutaneous injection'),
+(927, 'second regimen', 'second regimen'),
 (116, 'secondary', 'secondary'),
 (355, 'separated', 'separated'),
 (417, 'serous', 'serous'),
 (619, 'serum', 'serum'),
+(952, 'serum + DMSO', 'serum + DMSO'),
+(774, 'service MBP', 'service MBP'),
+(887, 'severe', 'severe'),
 (272, 'shelf', 'shelf'),
 (42, 'shipped', 'shipped'),
 (61, 'Sindy Babinski', 'Sindy Babinski'),
@@ -12552,22 +15254,28 @@ INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VAL
 (548, 'standard operating procedure', 'standard operating procedure'),
 (123, 'steroid', 'steroid'),
 (537, 'stopped', 'stopped'),
+(854, 'surgeon', 'surgeon'),
 (742, 'surgery', 'surgery'),
 (106, 'surgical', 'surgical'),
 (108, 'surgical exploration', 'surgical exploration'),
 (806, 'surgical/clinical', 'surgical/clinical'),
+(866, 'suspicion', 'suspicion'),
 (177, 'suspicious', 'suspicious'),
 (134, 'suspicious nd', 'suspicious nd'),
+(949, 'T', 'T'),
 (811, 't-cell', 't-cell'),
 (406, 'task', 'task'),
 (850, 'textual', 'textual'),
+(928, 'third regimen', 'third regimen'),
 (69, 'tissue', 'tissue'),
 (612, 'tissue lysate', 'tissue lysate'),
 (618, 'tissue suspension', 'tissue suspension'),
 (657, 'TMA-blc 23X15', 'TMA-blc 23X15'),
 (661, 'TMA-blc 29X21', 'TMA-blc 29X21'),
+(933, 'total', 'total'),
 (422, 'transitional carcinoma', 'squamous carcinoma'),
 (697, 'translational', 'translational'),
+(953, 'transport/conservation', 'transport/conservation'),
 (391, 'treatment centre', 'treatment centre'),
 (166, 'tru-cut/core biopsy', 'tru-cut/core biopsy'),
 (13, 'tube', 'tube'),
@@ -12582,10 +15290,16 @@ INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VAL
 (102, 'uncertain within 5 years', 'uncertain within 5 years'),
 (262, 'uncle', 'uncle'),
 (810, 'undifferentiated/anaplastic', 'undifferentiated/anaplastic'),
+(915, 'unique nodule & < 50%', 'unique nodule & < 50%'),
+(897, 'unique, < 5cm', 'unique, < 5cm'),
 (30, 'unknown', 'unknown'),
+(869, 'unknwon', 'unknwon'),
 (70, 'urine', 'urine'),
+(770, 'Urszula Krzemien', 'Urszula Krzemien'),
 (35, 'used', 'used'),
 (565, 'used and/or stored', 'used and/or stored'),
+(862, 'vanderbroucke-menu', 'vanderbroucke-menu'),
+(900, 'vascular invasion', 'vascular invasion'),
 (464, 'very good', 'very good'),
 (410, 'well diff', 'well diff'),
 (807, 'well differentiated', 'well differentiated'),
@@ -12620,7 +15334,7 @@ CREATE TABLE IF NOT EXISTS `structure_validations` (
   `modified_by` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   KEY `FK_structure_validations_structure_fields` (`structure_field_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=84 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=138 ;
 
 --
 -- Contenu de la table `structure_validations`
@@ -12686,9 +15400,15 @@ INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_e
 (78, 521, 'notEmpty', '0', '0', '', 'error_participant identifier required', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (79, 521, 'isUnique', '0', '0', '', 'error_participant identifier must be unique', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (80, 588, 'notEmpty', '0', '0', '', 'value is required', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
-(81, 56, 'notEmpty', '0', '0', '', 'value is required', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
-(82, 966, 'notEmpty', '0', '0', '', 'value is required', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
-(83, 578, 'notEmpty', '0', '0', '', 'value is required', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
+(81, 149, 'notEmpty', '0', '0', '', 'first name and last name are required', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(130, 56, 'notEmpty', '0', '0', '', 'value is required', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+(131, 966, 'notEmpty', '0', '0', '', 'value is required', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+(132, 578, 'notEmpty', '0', '0', '', 'value is required', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+(133, 149, 'notEmpty', '0', '0', '', 'first name and last name are required', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(134, 460, 'notEmpty', '0', '0', '', 'first name and last name are required', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(135, 969, 'custom,/^([0-9]+(\\.[0-9]+)?)?$/', '1', '0', '', 'weight should be a positif decimal', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(136, 970, 'custom,/^([0-9]+(\\.[0-9]+)?)?$/', '1', '0', '', 'height should be a positif decimal', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(137, 1253, 'notEmpty', '', '', '', 'label is required', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
 
 -- --------------------------------------------------------
 
@@ -12704,7 +15424,7 @@ CREATE TABLE IF NOT EXISTS `structure_value_domains` (
   `source` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `domain_name` (`domain_name`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=214 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=266 ;
 
 --
 -- Contenu de la table `structure_value_domains`
@@ -12863,7 +15583,7 @@ INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `categor
 (201, 'shipment_list', 'open', '', 'Order.Shipment::getShipmentPermissibleValues'),
 (202, 'collection_sop_list', 'open', '', 'Sop.SopMaster::getCollectionSopPermissibleValues'),
 (203, 'sample_sop_list', 'open', '', 'Sop.SopMaster::getSampleSopPermissibleValues'),
-(204, 'tissue_source_list', 'open', '', 'Inventorymanagement.SampleDetail::getTissueSourcePermissibleValues'),
+(204, 'tissue_source_list', 'open', '', NULL),
 (205, 'aliquot_sop_list', 'open', '', 'Sop.SopMaster::getAliquotSopPermissibleValues'),
 (206, 'identifier_name_list', 'open', '', 'Clinicalannotation.MiscIdentifierControl::getMiscIdentifierNamePermissibleValues'),
 (207, 'identifier_abrv_list', 'open', '', 'Clinicalannotation.MiscIdentifierControl::getMiscIdentifierNameAbrevPermissibleValues'),
@@ -12872,7 +15592,59 @@ INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `categor
 (210, 'event_disease_site_list', 'open', '', 'Clinicalannotation.EventControl::getEventDiseaseSitePermissibleValues'),
 (211, 'event_type_list', 'open', '', 'Clinicalannotation.EventControl::getEventTypePermissibleValues'),
 (212, 'tx_method_site_list', 'open', '', 'Clinicalannotation.TreatmentControl::getMethodPermissibleValues'),
-(213, 'protocol_site_list', 'open', '', 'Protocol.ProtocolMaster::getProtocolPermissibleValuesFromId');
+(213, 'protocol_site_list', 'open', '', 'Protocol.ProtocolMaster::getProtocolPermissibleValuesFromId'),
+(214, 'qc_hb_specialty', '', '', NULL),
+(215, 'qc_hb_hbp_surgeon_list', '', '', NULL),
+(216, 'type_of_hepatitis', '', '', NULL),
+(217, 'hepatitis_treatment', '', '', NULL),
+(218, 'cirrhosis_type', '', '', NULL),
+(219, 'yes_no_na', '', '', NULL),
+(220, 'yes_no_suspicion', '', '', NULL),
+(221, 'qc_hb_yes_no_unknwon', '', '', NULL),
+(222, 'qc_hb_bilirubin_child_pugh', '', '', NULL),
+(223, 'qc_hb_bilirubin_child_pugh_mod', '', '', NULL),
+(224, 'qc_hb_albumin_child_pugh', '', '', NULL),
+(225, 'qc_hb_inr', '', '', NULL),
+(226, 'qc_hb_encephalopathy', '', '', NULL),
+(227, 'qc_hb_ascite_child_pugh', '', '', NULL),
+(228, 'qc_hb_bilirubin_okuda', '', '', NULL),
+(229, 'qc_hb_albumin_okuda', '', '', NULL),
+(230, 'qc_hb_tumor_size_okuda', '', '', NULL),
+(231, 'qc_hb_who_barcelona', '', '', NULL),
+(232, 'qc_hb_tumor_morphology_barcelona', '', '', NULL),
+(233, 'qc_hb_okuda_barcelona', '', '', NULL),
+(234, 'qc_hb_liver_function_barcelona', '', '', NULL),
+(235, 'qc_hb_chil_pugh_score_clip', '', '', NULL),
+(236, 'qc_hb_tumor_morphology_clip', '', '', NULL),
+(237, 'qc_hb_alpha_foetoprotein_clip', '', '', NULL),
+(238, 'qc_hb_karnofsky_index_gretch', '', '', NULL),
+(239, 'qc_hb_alkaline_phosphatase_gretch', '', '', NULL),
+(240, 'qc_hb_alpha_foetoprotein_gretch', '', '', NULL),
+(241, 'qc_hb_chemos_treatment', '', '', NULL),
+(242, 'qc_hb_chemos_reason_of_change', '', '', NULL),
+(243, 'qc_hb_chemos_toxicity', '', '', NULL),
+(244, 'qc_hb_tx_surgery_principal_surgery', '', '', NULL),
+(245, 'qc_hb_tx_surgery_associated_surgery', '', '', NULL),
+(246, 'qc_hb_tx_surgery_type_of_local_treatment', '', '', NULL),
+(247, 'qc_hb_tx_surgery_other_organ_resection', '', '', NULL),
+(248, 'qc_hb_tx_surgery_pathological_report', '', '', NULL),
+(249, 'qc_hb_tx_surgery_type_of_drain', '', '', NULL),
+(250, 'qc_hb_tx_surgery_type_of_glue', '', '', NULL),
+(251, 'qc_hb_tx_surgery_liver_appearance', '', '', NULL),
+(252, 'qc_hb_tx_surgery_liver_type_of_vascular_occlusion', '', '', NULL),
+(253, 'qc_hb_tx_surgery_pancreas_appearance', '', '', NULL),
+(254, 'qc_hb_tx_surgery_pancreas_type_of_anastomosis', '', '', NULL),
+(255, 'qc_hb_segment_resection', '', '', NULL),
+(256, 'yes_no_ns', '', '', NULL),
+(257, 'yes_no_conversion', '', '', NULL),
+(258, 'qc_hb_impact_of_ous', '', '', NULL),
+(259, 'qc_hb_sample_blood_type', '', '', NULL),
+(260, 'qc_hb_nb_cell_unit', '', '', NULL),
+(261, 'qc_hb_sample_tissue_type', '', '', NULL),
+(262, 'qc_hb_milieu', '', '', NULL),
+(263, 'qc_hb_conical_tube_milieu', '', '', NULL),
+(264, 'qc_hb_2_to_3', '', '', NULL),
+(265, 'qc_hb_3_to_4', '', '', NULL);
 
 -- --------------------------------------------------------
 
@@ -12888,7 +15660,7 @@ CREATE TABLE IF NOT EXISTS `structure_value_domains_permissible_values` (
   `flag_active` tinyint(1) NOT NULL DEFAULT '1',
   `language_alias` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1045 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1157 ;
 
 --
 -- Contenu de la table `structure_value_domains_permissible_values`
@@ -12903,8 +15675,8 @@ INSERT INTO `structure_value_domains_permissible_values` (`id`, `structure_value
 (6, '1', '6', 3, 1, 'pg/ul'),
 (7, '2', '7', 4, 1, 'million(s)/ml'),
 (8, '3', '8', 2, 1, 'oct solution'),
-(9, '3', '9', 3, 1, 'paraffin'),
-(10, '3', '10', 1, 1, 'frozen'),
+(9, '3', '9', 3, 0, 'paraffin'),
+(10, '3', '10', 1, 0, 'frozen'),
 (11, '4', '11', 3, 1, 'ul'),
 (12, '4', '12', 1, 1, 'ml'),
 (20, '6', '20', 2, 1, ''),
@@ -13426,11 +16198,11 @@ INSERT INTO `structure_value_domains_permissible_values` (`id`, `structure_value
 (583, '138', '12', 1, 1, 'ml'),
 (584, '138', '11', 2, 1, 'ul'),
 (593, '140', '593', 2, 1, 'EDTA'),
-(594, '140', '594', 3, 1, 'gel CSA'),
+(594, '140', '594', 3, 0, 'gel CSA'),
 (595, '140', '595', 2, 1, 'heparin'),
-(596, '140', '596', 2, 1, 'paxgene'),
-(597, '140', '30', 1, 1, 'unknown'),
-(598, '140', '598', 4, 1, 'ZCSA'),
+(596, '140', '596', 2, 0, 'paxgene'),
+(597, '140', '30', 1, 0, 'unknown'),
+(598, '140', '598', 4, 0, 'ZCSA'),
 (606, '142', '59', 0, 1, 'no'),
 (607, '142', '58', 1, 1, 'yes'),
 (608, '143', '608', 1, 1, 'specimen'),
@@ -13543,14 +16315,14 @@ INSERT INTO `structure_value_domains_permissible_values` (`id`, `structure_value
 (929, '172', '765', 0, 1, 'datetime_accuracy_indicator_m'),
 (930, '172', '766', 0, 1, 'datetime_accuracy_indicator_y'),
 (931, '173', '767', 0, 1, 'collection_site_1'),
-(932, '173', '768', 0, 1, 'collection_site_2'),
-(933, '173', '769', 0, 1, 'collection_site_etc'),
+(932, '173', '768', 0, 0, 'collection_site_2'),
+(933, '173', '769', 0, 0, 'collection_site_etc'),
 (934, '174', '770', 0, 1, 'custom_laboratory_staff_1'),
-(935, '174', '771', 0, 1, 'custom_laboratory_staff_2'),
-(936, '174', '772', 0, 1, 'custom_laboratory_staff_etc'),
-(937, '175', '773', 0, 1, 'custom_supplier_dept_1'),
-(938, '175', '774', 0, 1, 'custom_supplier_dept_2'),
-(939, '175', '775', 0, 1, 'custom_supplier_dept_etc'),
+(935, '174', '771', 0, 0, 'custom_laboratory_staff_2'),
+(936, '174', '772', 0, 0, 'custom_laboratory_staff_etc'),
+(937, '175', '773', 0, 1, 'preadmission = preoperative checkup'),
+(938, '175', '774', 0, 1, 'service MBP'),
+(939, '175', '641', 0, 1, 'operating room'),
 (940, '134', '129', 4, 1, 'not applicable'),
 (941, '89', '37', 4, 1, 'other'),
 (987, '33', '803', 1, 1, 'autopsy'),
@@ -13603,7 +16375,119 @@ INSERT INTO `structure_value_domains_permissible_values` (`id`, `structure_value
 (1041, '189', '848', 2, 1, ''),
 (1042, '190', '849', 1, 1, ''),
 (1043, '190', '850', 2, 1, ''),
-(1044, '91', '851', 2, 1, 'deceased');
+(1044, '91', '851', 2, 1, 'deceased'),
+(1045, '214', '852', 0, 1, ''),
+(1046, '214', '853', 0, 1, ''),
+(1047, '214', '854', 0, 1, ''),
+(1048, '214', '855', 0, 1, ''),
+(1049, '214', '37', 0, 1, ''),
+(1050, '215', '857', 0, 1, ''),
+(1051, '215', '858', 0, 1, ''),
+(1052, '215', '859', 0, 1, ''),
+(1053, '215', '860', 0, 1, ''),
+(1054, '215', '861', 0, 1, ''),
+(1055, '215', '862', 0, 1, ''),
+(1056, '219', '58', 1, 1, ''),
+(1057, '219', '59', 2, 1, ''),
+(1058, '219', '271', 3, 1, ''),
+(1059, '220', '58', 1, 1, ''),
+(1060, '220', '59', 2, 1, ''),
+(1061, '220', '866', 3, 1, ''),
+(1062, '221', '58', 1, 1, ''),
+(1063, '221', '59', 2, 1, ''),
+(1064, '221', '30', 3, 1, ''),
+(1065, '222', '870', 1, 1, ''),
+(1066, '222', '871', 2, 1, ''),
+(1067, '222', '872', 3, 1, ''),
+(1068, '223', '873', 1, 1, ''),
+(1069, '223', '874', 2, 1, ''),
+(1070, '223', '875', 3, 1, ''),
+(1071, '224', '876', 1, 1, ''),
+(1072, '224', '877', 2, 1, ''),
+(1073, '224', '878', 3, 1, ''),
+(1074, '225', '879', 1, 1, ''),
+(1075, '225', '880', 2, 1, ''),
+(1076, '225', '881', 3, 1, ''),
+(1077, '226', '834', 1, 1, ''),
+(1078, '226', '883', 2, 1, ''),
+(1079, '226', '884', 3, 1, ''),
+(1080, '227', '834', 1, 1, ''),
+(1081, '227', '886', 2, 1, ''),
+(1082, '227', '887', 3, 1, ''),
+(1083, '228', '888', 1, 1, ''),
+(1084, '228', '889', 2, 1, ''),
+(1085, '229', '890', 1, 1, ''),
+(1086, '229', '891', 2, 1, ''),
+(1087, '230', '892', 1, 1, ''),
+(1088, '230', '893', 2, 1, ''),
+(1089, '231', '894', 1, 1, ''),
+(1090, '231', '895', 2, 1, ''),
+(1091, '231', '896', 3, 1, ''),
+(1092, '232', '897', 1, 1, ''),
+(1093, '232', '898', 2, 1, ''),
+(1094, '232', '899', 3, 1, ''),
+(1095, '232', '900', 4, 1, ''),
+(1096, '232', '901', 5, 1, ''),
+(1097, '232', '902', 6, 1, ''),
+(1098, '233', '903', 1, 1, ''),
+(1099, '233', '904', 2, 1, ''),
+(1100, '233', '905', 3, 1, ''),
+(1101, '234', '906', 1, 1, ''),
+(1102, '234', '907', 2, 1, ''),
+(1103, '234', '908', 3, 1, ''),
+(1104, '234', '909', 4, 1, ''),
+(1105, '234', '910', 5, 1, ''),
+(1106, '234', '911', 6, 1, ''),
+(1107, '235', '912', 1, 1, ''),
+(1108, '235', '913', 2, 1, ''),
+(1109, '235', '914', 3, 1, ''),
+(1110, '236', '915', 1, 1, ''),
+(1111, '236', '916', 2, 1, ''),
+(1112, '236', '917', 3, 1, ''),
+(1113, '237', '918', 1, 1, ''),
+(1114, '237', '919', 2, 1, ''),
+(1115, '238', '920', 1, 1, ''),
+(1116, '238', '921', 2, 1, ''),
+(1117, '239', '922', 1, 1, ''),
+(1118, '239', '923', 2, 1, ''),
+(1119, '240', '924', 1, 1, ''),
+(1120, '240', '925', 1, 1, ''),
+(1121, '241', '926', 1, 1, ''),
+(1122, '241', '927', 2, 1, ''),
+(1123, '241', '928', 3, 1, ''),
+(1124, '241', '929', 4, 1, ''),
+(1125, '246', '930', 1, 1, ''),
+(1126, '246', '931', 2, 1, ''),
+(1127, '246', '932', 3, 1, ''),
+(1128, '255', '933', 0, 1, ''),
+(1129, '255', '714', 0, 1, ''),
+(1130, '256', '58', 1, 1, ''),
+(1131, '256', '59', 2, 1, ''),
+(1132, '256', '935', 3, 1, ''),
+(1133, '257', '58', 1, 1, ''),
+(1134, '257', '59', 2, 1, ''),
+(1135, '257', '936', 3, 1, ''),
+(1136, '258', '937', 1, 1, ''),
+(1137, '258', '938', 2, 1, ''),
+(1138, '258', '939', 3, 1, ''),
+(1139, '175', '229', 4, 1, ''),
+(1140, '259', '941', 1, 1, ''),
+(1141, '260', '942', 1, 1, ''),
+(1142, '204', '943', 1, 1, ''),
+(1143, '204', '944', 2, 1, ''),
+(1144, '204', '945', 3, 1, ''),
+(1145, '204', '944', 4, 1, ''),
+(1146, '204', '947', 5, 1, ''),
+(1147, '204', '37', 6, 1, ''),
+(1148, '261', '949', 1, 1, ''),
+(1149, '261', '950', 0, 1, ''),
+(1150, '140', '951', 1, 1, ''),
+(1151, '262', '952', 1, 1, ''),
+(1152, '263', '953', 1, 1, ''),
+(1153, '264', '138', 1, 1, ''),
+(1154, '264', '139', 2, 1, ''),
+(1155, '265', '139', 1, 1, ''),
+(1156, '265', '141', 2, 1, '');
 
 -- --------------------------------------------------------
 
@@ -14328,6 +17212,9 @@ CREATE TABLE IF NOT EXISTS `txd_chemos` (
   `tx_master_id` int(11) DEFAULT NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
+  `qc_hb_treatment` varchar(25) NOT NULL DEFAULT '',
+  `qc_hb_reason_of_change` varchar(50) NOT NULL DEFAULT '',
+  `qc_hb_toxicity` varchar(50) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   KEY `tx_master_id` (`tx_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -14359,6 +17246,9 @@ CREATE TABLE IF NOT EXISTS `txd_chemos_revs` (
   `version_created` datetime NOT NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
+  `qc_hb_treatment` varchar(25) NOT NULL DEFAULT '',
+  `qc_hb_reason_of_change` varchar(50) NOT NULL DEFAULT '',
+  `qc_hb_toxicity` varchar(50) NOT NULL DEFAULT '',
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
@@ -14665,16 +17555,16 @@ CREATE TABLE IF NOT EXISTS `tx_controls` (
   `display_order` int(11) NOT NULL DEFAULT '0',
   `allow_administration` tinyint(1) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=4 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=7 ;
 
 --
 -- Contenu de la table `tx_controls`
 --
 
 INSERT INTO `tx_controls` (`id`, `tx_method`, `disease_site`, `flag_active`, `detail_tablename`, `form_alias`, `extend_tablename`, `extend_form_alias`, `display_order`, `allow_administration`) VALUES
-(1, 'chemotherapy', 'all', 1, 'txd_chemos', 'txd_chemos', 'txe_chemos', 'txe_chemos', 0, 1),
-(2, 'radiation', 'all', 1, 'txd_radiations', 'txd_radiations', 'txe_radiations', 'txe_radiations', 0, 0),
-(3, 'surgery', 'all', 1, 'txd_surgeries', 'txd_surgeries', 'txe_surgeries', 'txe_surgeries', 0, 0);
+(4, 'chemotherapy', 'hepatobiliary', 1, 'txd_chemos', 'qc_hb_tx_chemos', 'txe_chemos', 'txe_chemos', 0, 0),
+(5, 'liver surgery', 'all', 1, 'qc_hb_txd_surgery_livers', 'qc_hb_txd_surgery_livers', '', '', 0, 0),
+(6, 'pancreas surgery', 'all', 1, 'qc_hb_txd_surgery_pancreas', 'qc_hb_txd_surgery_pancreas', '', '', 0, 0);
 
 -- --------------------------------------------------------
 
@@ -14843,7 +17733,7 @@ CREATE TABLE IF NOT EXISTS `versions` (
 --
 
 INSERT INTO `versions` (`id`, `version_number`, `date_installed`, `build_number`, `created`, `created_by`, `modified`, `modified_by`) VALUES
-(1, 'v2.0.2', '2010-06-07 00:00:00', '1423', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+(1, 'v2.0.2', '2010-06-30 00:00:00', '1423', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
 
 -- --------------------------------------------------------
 
@@ -14897,6 +17787,7 @@ CREATE TABLE IF NOT EXISTS `view_collections` (
 ,`collection_notes` text
 ,`deleted` tinyint(3) unsigned
 ,`bank_name` varchar(255)
+,`no_labo` varchar(40)
 );
 -- --------------------------------------------------------
 
@@ -14925,43 +17816,11 @@ CREATE TABLE IF NOT EXISTS `view_samples` (
 -- --------------------------------------------------------
 
 --
--- Doublure de structure pour la vue `view_structures`
---
-CREATE TABLE IF NOT EXISTS `view_structures` (
-`alias` varchar(255)
-,`model` varchar(301)
-,`field` varchar(301)
-,`domain_name` varchar(255)
-,`display_column` int(11)
-,`display_order` int(11)
-,`add` varchar(7)
-,`edit` varchar(7)
-,`search` varchar(7)
-,`datagrid` varchar(7)
-,`index` set('0','1')
-,`detail` set('0','1')
-,`language_heading` varchar(255)
-,`language_label` text
-,`flag_override_label` longtext
-,`language_tag` text
-,`flag_override_tag` longtext
-,`type` varchar(255)
-,`flag_override_stype` varchar(260)
-,`setting` text
-,`flag_override_setting` varchar(260)
-,`default` varchar(255)
-,`flag_override_default` varchar(260)
-,`language_help` text
-,`flag_override_help` longtext
-);
--- --------------------------------------------------------
-
---
 -- Structure de la vue `view_aliquots`
 --
 DROP TABLE IF EXISTS `view_aliquots`;
 
-CREATE  VIEW `view_aliquots` AS select `al`.`id` AS `aliquot_master_id`,`samp`.`id` AS `sample_master_id`,`col`.`id` AS `collection_id`,`col`.`bank_id` AS `bank_id`,`stor`.`id` AS `storage_master_id`,`link`.`participant_id` AS `participant_id`,`link`.`diagnosis_master_id` AS `diagnosis_master_id`,`link`.`consent_master_id` AS `consent_master_id`,`part`.`participant_identifier` AS `participant_identifier`,`col`.`acquisition_label` AS `acquisition_label`,`samp`.`initial_specimen_sample_type` AS `initial_specimen_sample_type`,`parent_samp`.`sample_type` AS `parent_sample_type`,`samp`.`sample_type` AS `sample_type`,`al`.`barcode` AS `barcode`,`al`.`aliquot_type` AS `aliquot_type`,`al`.`in_stock` AS `in_stock`,`stor`.`code` AS `code`,`stor`.`selection_label` AS `selection_label`,`al`.`storage_coord_x` AS `storage_coord_x`,`al`.`storage_coord_y` AS `storage_coord_y`,`stor`.`temperature` AS `temperature`,`stor`.`temp_unit` AS `temp_unit`,count(`al_use`.`id`) AS `aliquot_use_counter`,`al`.`deleted` AS `deleted` from (((((((`aliquot_masters` `al` join `sample_masters` `samp` on(((`samp`.`id` = `al`.`sample_master_id`) and (`samp`.`deleted` <> 1)))) join `collections` `col` on(((`col`.`id` = `samp`.`collection_id`) and (`col`.`deleted` <> 1)))) left join `aliquot_uses` `al_use` on(((`al_use`.`aliquot_master_id` = `al`.`id`) and (`al_use`.`deleted` <> 1)))) left join `sample_masters` `parent_samp` on(((`samp`.`parent_id` = `parent_samp`.`id`) and (`parent_samp`.`deleted` <> 1)))) left join `clinical_collection_links` `link` on(((`col`.`id` = `link`.`collection_id`) and (`link`.`deleted` <> 1)))) left join `participants` `part` on(((`link`.`participant_id` = `part`.`id`) and (`part`.`deleted` <> 1)))) left join `storage_masters` `stor` on(((`stor`.`id` = `al`.`storage_master_id`) and (`stor`.`deleted` <> 1)))) where (`al`.`deleted` <> 1) group by `al`.`id`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `view_aliquots` AS select `al`.`id` AS `aliquot_master_id`,`samp`.`id` AS `sample_master_id`,`col`.`id` AS `collection_id`,`col`.`bank_id` AS `bank_id`,`stor`.`id` AS `storage_master_id`,`link`.`participant_id` AS `participant_id`,`link`.`diagnosis_master_id` AS `diagnosis_master_id`,`link`.`consent_master_id` AS `consent_master_id`,`part`.`participant_identifier` AS `participant_identifier`,`col`.`acquisition_label` AS `acquisition_label`,`samp`.`initial_specimen_sample_type` AS `initial_specimen_sample_type`,`parent_samp`.`sample_type` AS `parent_sample_type`,`samp`.`sample_type` AS `sample_type`,`al`.`barcode` AS `barcode`,`al`.`aliquot_type` AS `aliquot_type`,`al`.`in_stock` AS `in_stock`,`stor`.`code` AS `code`,`stor`.`selection_label` AS `selection_label`,`al`.`storage_coord_x` AS `storage_coord_x`,`al`.`storage_coord_y` AS `storage_coord_y`,`stor`.`temperature` AS `temperature`,`stor`.`temp_unit` AS `temp_unit`,count(`al_use`.`id`) AS `aliquot_use_counter`,`al`.`deleted` AS `deleted` from (((((((`aliquot_masters` `al` join `sample_masters` `samp` on(((`samp`.`id` = `al`.`sample_master_id`) and (`samp`.`deleted` <> 1)))) join `collections` `col` on(((`col`.`id` = `samp`.`collection_id`) and (`col`.`deleted` <> 1)))) left join `aliquot_uses` `al_use` on(((`al_use`.`aliquot_master_id` = `al`.`id`) and (`al_use`.`deleted` <> 1)))) left join `sample_masters` `parent_samp` on(((`samp`.`parent_id` = `parent_samp`.`id`) and (`parent_samp`.`deleted` <> 1)))) left join `clinical_collection_links` `link` on(((`col`.`id` = `link`.`collection_id`) and (`link`.`deleted` <> 1)))) left join `participants` `part` on(((`link`.`participant_id` = `part`.`id`) and (`part`.`deleted` <> 1)))) left join `storage_masters` `stor` on(((`stor`.`id` = `al`.`storage_master_id`) and (`stor`.`deleted` <> 1)))) where (`al`.`deleted` <> 1) group by `al`.`id`;
 
 -- --------------------------------------------------------
 
@@ -14970,7 +17829,7 @@ CREATE  VIEW `view_aliquots` AS select `al`.`id` AS `aliquot_master_id`,`samp`.`
 --
 DROP TABLE IF EXISTS `view_collections`;
 
-CREATE  VIEW `view_collections` AS select `col`.`id` AS `collection_id`,`col`.`bank_id` AS `bank_id`,`col`.`sop_master_id` AS `sop_master_id`,`link`.`participant_id` AS `participant_id`,`link`.`diagnosis_master_id` AS `diagnosis_master_id`,`link`.`consent_master_id` AS `consent_master_id`,`part`.`participant_identifier` AS `participant_identifier`,`col`.`acquisition_label` AS `acquisition_label`,`col`.`collection_site` AS `collection_site`,`col`.`collection_datetime` AS `collection_datetime`,`col`.`collection_datetime_accuracy` AS `collection_datetime_accuracy`,`col`.`collection_property` AS `collection_property`,`col`.`collection_notes` AS `collection_notes`,`col`.`deleted` AS `deleted`,`banks`.`name` AS `bank_name` from (((`collections` `col` left join `clinical_collection_links` `link` on(((`col`.`id` = `link`.`collection_id`) and (`link`.`deleted` <> 1)))) left join `participants` `part` on(((`link`.`participant_id` = `part`.`id`) and (`part`.`deleted` <> 1)))) left join `banks` on(((`col`.`bank_id` = `banks`.`id`) and (`banks`.`deleted` <> 1)))) where (`col`.`deleted` <> 1);
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `view_collections` AS select `col`.`id` AS `collection_id`,`col`.`bank_id` AS `bank_id`,`col`.`sop_master_id` AS `sop_master_id`,`link`.`participant_id` AS `participant_id`,`link`.`diagnosis_master_id` AS `diagnosis_master_id`,`link`.`consent_master_id` AS `consent_master_id`,`part`.`participant_identifier` AS `participant_identifier`,`col`.`acquisition_label` AS `acquisition_label`,`col`.`collection_site` AS `collection_site`,`col`.`collection_datetime` AS `collection_datetime`,`col`.`collection_datetime_accuracy` AS `collection_datetime_accuracy`,`col`.`collection_property` AS `collection_property`,`col`.`collection_notes` AS `collection_notes`,`col`.`deleted` AS `deleted`,`banks`.`name` AS `bank_name`,`misc_identifiers`.`identifier_value` AS `no_labo` from ((((`collections` `col` left join `clinical_collection_links` `link` on(((`col`.`id` = `link`.`collection_id`) and (`link`.`deleted` <> 1)))) left join `participants` `part` on(((`link`.`participant_id` = `part`.`id`) and (`part`.`deleted` <> 1)))) left join `banks` on(((`col`.`bank_id` = `banks`.`id`) and (`banks`.`deleted` <> 1)))) left join `misc_identifiers` on(((`part`.`id` = `misc_identifiers`.`participant_id`) and (`misc_identifiers`.`misc_identifier_control_id` = 3) and (`col`.`bank_id` = 1)))) where (`col`.`deleted` <> 1);
 
 -- --------------------------------------------------------
 
@@ -14979,16 +17838,7 @@ CREATE  VIEW `view_collections` AS select `col`.`id` AS `collection_id`,`col`.`b
 --
 DROP TABLE IF EXISTS `view_samples`;
 
-CREATE  VIEW `view_samples` AS select `samp`.`id` AS `sample_master_id`,`samp`.`parent_id` AS `parent_sample_id`,`samp`.`initial_specimen_sample_id` AS `initial_specimen_sample_id`,`col`.`id` AS `collection_id`,`col`.`bank_id` AS `bank_id`,`col`.`sop_master_id` AS `sop_master_id`,`link`.`participant_id` AS `participant_id`,`link`.`diagnosis_master_id` AS `diagnosis_master_id`,`link`.`consent_master_id` AS `consent_master_id`,`part`.`participant_identifier` AS `participant_identifier`,`col`.`acquisition_label` AS `acquisition_label`,`samp`.`initial_specimen_sample_type` AS `initial_specimen_sample_type`,`parent_samp`.`sample_type` AS `parent_sample_type`,`samp`.`sample_type` AS `sample_type`,`samp`.`sample_code` AS `sample_code`,`samp`.`sample_category` AS `sample_category`,`samp`.`deleted` AS `deleted` from ((((`sample_masters` `samp` join `collections` `col` on(((`col`.`id` = `samp`.`collection_id`) and (`col`.`deleted` <> 1)))) left join `sample_masters` `parent_samp` on(((`samp`.`parent_id` = `parent_samp`.`id`) and (`parent_samp`.`deleted` <> 1)))) left join `clinical_collection_links` `link` on(((`col`.`id` = `link`.`collection_id`) and (`link`.`deleted` <> 1)))) left join `participants` `part` on(((`link`.`participant_id` = `part`.`id`) and (`part`.`deleted` <> 1)))) where (`samp`.`deleted` <> 1);
-
--- --------------------------------------------------------
-
---
--- Structure de la vue `view_structures`
---
-DROP TABLE IF EXISTS `view_structures`;
-
-CREATE  VIEW `view_structures` AS select `strct`.`alias` AS `alias`,concat(`field`.`plugin`,'/',`field`.`model`) AS `model`,concat(`field`.`tablename`,'/',`field`.`field`) AS `field`,`domain`.`domain_name` AS `domain_name`,`format`.`display_column` AS `display_column`,`format`.`display_order` AS `display_order`,concat(`format`.`flag_add`,concat('|',`format`.`flag_add_readonly`)) AS `add`,concat(`format`.`flag_edit`,concat('|',`format`.`flag_edit_readonly`)) AS `edit`,concat(`format`.`flag_search`,concat('|',`format`.`flag_search_readonly`)) AS `search`,concat(`format`.`flag_datagrid`,concat('|',`format`.`flag_datagrid_readonly`)) AS `datagrid`,`format`.`flag_index` AS `index`,`format`.`flag_detail` AS `detail`,`format`.`language_heading` AS `language_heading`,`field`.`language_label` AS `language_label`,concat(`format`.`flag_override_label`,concat('->',`format`.`language_label`)) AS `flag_override_label`,`field`.`language_tag` AS `language_tag`,concat(`format`.`flag_override_tag`,concat('->',`format`.`language_tag`)) AS `flag_override_tag`,`field`.`type` AS `type`,concat(`format`.`flag_override_type`,concat('->',`format`.`type`)) AS `flag_override_stype`,`field`.`setting` AS `setting`,concat(`format`.`flag_override_setting`,concat('->',`format`.`setting`)) AS `flag_override_setting`,`field`.`default` AS `default`,concat(`format`.`flag_override_default`,concat('->',`format`.`default`)) AS `flag_override_default`,`field`.`language_help` AS `language_help`,concat(`format`.`flag_override_help`,concat('->',`format`.`language_help`)) AS `flag_override_help` from (((`structures` `strct` join `structure_formats` `format` on((`format`.`structure_id` = `strct`.`id`))) left join `structure_fields` `field` on((`field`.`id` = `format`.`structure_field_id`))) left join `structure_value_domains` `domain` on((`domain`.`id` = `field`.`structure_value_domain`))) order by `strct`.`alias`,`format`.`display_column`,`format`.`display_order`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `view_samples` AS select `samp`.`id` AS `sample_master_id`,`samp`.`parent_id` AS `parent_sample_id`,`samp`.`initial_specimen_sample_id` AS `initial_specimen_sample_id`,`col`.`id` AS `collection_id`,`col`.`bank_id` AS `bank_id`,`col`.`sop_master_id` AS `sop_master_id`,`link`.`participant_id` AS `participant_id`,`link`.`diagnosis_master_id` AS `diagnosis_master_id`,`link`.`consent_master_id` AS `consent_master_id`,`part`.`participant_identifier` AS `participant_identifier`,`col`.`acquisition_label` AS `acquisition_label`,`samp`.`initial_specimen_sample_type` AS `initial_specimen_sample_type`,`parent_samp`.`sample_type` AS `parent_sample_type`,`samp`.`sample_type` AS `sample_type`,`samp`.`sample_code` AS `sample_code`,`samp`.`sample_category` AS `sample_category`,`samp`.`deleted` AS `deleted` from ((((`sample_masters` `samp` join `collections` `col` on(((`col`.`id` = `samp`.`collection_id`) and (`col`.`deleted` <> 1)))) left join `sample_masters` `parent_samp` on(((`samp`.`parent_id` = `parent_samp`.`id`) and (`parent_samp`.`deleted` <> 1)))) left join `clinical_collection_links` `link` on(((`col`.`id` = `link`.`collection_id`) and (`link`.`deleted` <> 1)))) left join `participants` `part` on(((`link`.`participant_id` = `part`.`id`) and (`part`.`deleted` <> 1)))) where (`samp`.`deleted` <> 1);
 
 --
 -- Contraintes pour les tables exportées
@@ -15158,6 +18008,48 @@ ALTER TABLE `ed_breast_screening_mammogram`
   ADD CONSTRAINT `ed_breast_screening_mammogram_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
 
 --
+-- Contraintes pour la table `ed_score_barcelona`
+--
+ALTER TABLE `ed_score_barcelona`
+  ADD CONSTRAINT `ed_score_barcelona_event_masters` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+--
+-- Contraintes pour la table `ed_score_child_pugh`
+--
+ALTER TABLE `ed_score_child_pugh`
+  ADD CONSTRAINT `ed_score_child_pughs_event_masters` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+--
+-- Contraintes pour la table `ed_score_clip`
+--
+ALTER TABLE `ed_score_clip`
+  ADD CONSTRAINT `ed_score_clip_event_masters` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+--
+-- Contraintes pour la table `ed_score_fong`
+--
+ALTER TABLE `ed_score_fong`
+  ADD CONSTRAINT `ed_score_fong_event_masters` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+--
+-- Contraintes pour la table `ed_score_gretch`
+--
+ALTER TABLE `ed_score_gretch`
+  ADD CONSTRAINT `ed_score_gretch_event_masters` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+--
+-- Contraintes pour la table `ed_score_meld`
+--
+ALTER TABLE `ed_score_meld`
+  ADD CONSTRAINT `ed_score_meld_event_masters` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+--
+-- Contraintes pour la table `ed_score_okuda`
+--
+ALTER TABLE `ed_score_okuda`
+  ADD CONSTRAINT `ed_score_okuda_event_masters` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+--
 -- Contraintes pour la table `event_masters`
 --
 ALTER TABLE `event_masters`
@@ -15245,6 +18137,94 @@ ALTER TABLE `pd_chemos`
 ALTER TABLE `pe_chemos`
   ADD CONSTRAINT `FK_pe_chemos_drugs` FOREIGN KEY (`drug_id`) REFERENCES `drugs` (`id`),
   ADD CONSTRAINT `FK_pe_chemos_protocol_masters` FOREIGN KEY (`protocol_master_id`) REFERENCES `protocol_masters` (`id`);
+
+--
+-- Contraintes pour la table `qc_hb_ed_hepatobilary_lab_report_biology`
+--
+ALTER TABLE `qc_hb_ed_hepatobilary_lab_report_biology`
+  ADD CONSTRAINT `qc_hb_ed_hepatobilary_lab_report_biology_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+--
+-- Contraintes pour la table `qc_hb_ed_hepatobilary_medical_imagings`
+--
+ALTER TABLE `qc_hb_ed_hepatobilary_medical_imagings`
+  ADD CONSTRAINT `qc_hb_ed_hepatobilary_medical_imagings_event_masters` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+--
+-- Contraintes pour la table `qc_hb_ed_hepatobiliary_clinical_presentation`
+--
+ALTER TABLE `qc_hb_ed_hepatobiliary_clinical_presentation`
+  ADD CONSTRAINT `qc_hb_ed_hepatobiliary_clinical_presentation_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+--
+-- Contraintes pour la table `qc_hb_ed_hepatobiliary_lifestyle`
+--
+ALTER TABLE `qc_hb_ed_hepatobiliary_lifestyle`
+  ADD CONSTRAINT `qc_hb_ed_hepatobiliary_lifestyle_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+--
+-- Contraintes pour la table `qc_hb_ed_hepatobiliary_medical_past_history`
+--
+ALTER TABLE `qc_hb_ed_hepatobiliary_medical_past_history`
+  ADD CONSTRAINT `qc_hb_ed_hepatobiliary_medical_past_history_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+--
+-- Contraintes pour la table `qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis`
+--
+ALTER TABLE `qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis`
+  ADD CONSTRAINT `qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+--
+-- Contraintes pour la table `qc_hb_ed_hepatobiliary_medical_past_history_hepatitis`
+--
+ALTER TABLE `qc_hb_ed_hepatobiliary_medical_past_history_hepatitis`
+  ADD CONSTRAINT `qc_hb_ed_hepatobiliary_medical_past_history_hepatitis_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+--
+-- Contraintes pour la table `qc_hb_ed_hepatobiliary_med_hist_record_summary`
+--
+ALTER TABLE `qc_hb_ed_hepatobiliary_med_hist_record_summary`
+  ADD CONSTRAINT `qc_hb_ed_hepatobiliary_med_hist_record_summary_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+--
+-- Contraintes pour la table `qc_hb_ed_medical_imaging_record_summary`
+--
+ALTER TABLE `qc_hb_ed_medical_imaging_record_summary`
+  ADD CONSTRAINT `qc_hb_ed_medical_imaging_record_summary_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+--
+-- Contraintes pour la table `qc_hb_hepatobiliary_medical_past_history_ctrls`
+--
+ALTER TABLE `qc_hb_hepatobiliary_medical_past_history_ctrls`
+  ADD CONSTRAINT `qc_hb_hepatobiliary_medical_past_history_ctrls_ibfk_1` FOREIGN KEY (`event_control_id`) REFERENCES `event_controls` (`id`);
+
+--
+-- Contraintes pour la table `qc_hb_txd_surgery_livers`
+--
+ALTER TABLE `qc_hb_txd_surgery_livers`
+  ADD CONSTRAINT `qc_hb_txd_surgery_livers_ibfk_1` FOREIGN KEY (`tx_master_id`) REFERENCES `tx_masters` (`id`),
+  ADD CONSTRAINT `qc_hb_txd_surgery_livers_ibfk_2` FOREIGN KEY (`lab_report_id`) REFERENCES `event_masters` (`id`),
+  ADD CONSTRAINT `qc_hb_txd_surgery_livers_ibfk_3` FOREIGN KEY (`imagery_id`) REFERENCES `event_masters` (`id`),
+  ADD CONSTRAINT `qc_hb_txd_surgery_livers_ibfk_4` FOREIGN KEY (`fong_score_id`) REFERENCES `event_masters` (`id`),
+  ADD CONSTRAINT `qc_hb_txd_surgery_livers_ibfk_5` FOREIGN KEY (`meld_score_id`) REFERENCES `event_masters` (`id`),
+  ADD CONSTRAINT `qc_hb_txd_surgery_livers_ibfk_6` FOREIGN KEY (`gretch_score_id`) REFERENCES `event_masters` (`id`),
+  ADD CONSTRAINT `qc_hb_txd_surgery_livers_ibfk_7` FOREIGN KEY (`clip_score_id`) REFERENCES `event_masters` (`id`),
+  ADD CONSTRAINT `qc_hb_txd_surgery_livers_ibfk_8` FOREIGN KEY (`barcelona_score_id`) REFERENCES `event_masters` (`id`),
+  ADD CONSTRAINT `qc_hb_txd_surgery_livers_ibfk_9` FOREIGN KEY (`okuda_score_id`) REFERENCES `event_masters` (`id`);
+
+--
+-- Contraintes pour la table `qc_hb_txd_surgery_pancreas`
+--
+ALTER TABLE `qc_hb_txd_surgery_pancreas`
+  ADD CONSTRAINT `qc_hb_txd_surgery_pancreas_ibfk_1` FOREIGN KEY (`tx_master_id`) REFERENCES `tx_masters` (`id`),
+  ADD CONSTRAINT `qc_hb_txd_surgery_pancreas_ibfk_2` FOREIGN KEY (`lab_report_id`) REFERENCES `event_masters` (`id`),
+  ADD CONSTRAINT `qc_hb_txd_surgery_pancreas_ibfk_3` FOREIGN KEY (`imagery_id`) REFERENCES `event_masters` (`id`),
+  ADD CONSTRAINT `qc_hb_txd_surgery_pancreas_ibfk_4` FOREIGN KEY (`fong_score_id`) REFERENCES `event_masters` (`id`),
+  ADD CONSTRAINT `qc_hb_txd_surgery_pancreas_ibfk_5` FOREIGN KEY (`meld_score_id`) REFERENCES `event_masters` (`id`),
+  ADD CONSTRAINT `qc_hb_txd_surgery_pancreas_ibfk_6` FOREIGN KEY (`gretch_score_id`) REFERENCES `event_masters` (`id`),
+  ADD CONSTRAINT `qc_hb_txd_surgery_pancreas_ibfk_7` FOREIGN KEY (`clip_score_id`) REFERENCES `event_masters` (`id`),
+  ADD CONSTRAINT `qc_hb_txd_surgery_pancreas_ibfk_8` FOREIGN KEY (`barcelona_score_id`) REFERENCES `event_masters` (`id`),
+  ADD CONSTRAINT `qc_hb_txd_surgery_pancreas_ibfk_9` FOREIGN KEY (`okuda_score_id`) REFERENCES `event_masters` (`id`);
 
 --
 -- Contraintes pour la table `quality_ctrls`
