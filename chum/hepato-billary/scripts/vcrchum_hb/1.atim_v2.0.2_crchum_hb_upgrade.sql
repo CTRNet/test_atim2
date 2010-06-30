@@ -172,7 +172,7 @@ INSERT INTO `key_increments` (`key_name`, `key_value`) VALUES
 INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('health_insurance_card', 'global', 'Health Insurance Card', 'Carte d''assurance maladie'),
 ('saint_luc_hospital_nbr', 'global', 'St Luc Hospital Number', 'No Hôpital St Luc'),
-('hepato_bil_bank_participant_id', 'global', 'H.B. Bank Participant Id', 'Numéro participant banque H.B.'),
+('hepato_bil_bank_participant_id', 'global', 'H.B. No Labo', 'H.B. No Labo'),
 ('this identifier has already been created for your participant', '', 'This identifier has already been created for your participant!', 'Cet identification a déjà été créée pour ce participant!');
 
 -- *** CONTACT *********************************************************
@@ -3568,7 +3568,7 @@ VALUES
 -- TODO should all field be smallint????? In case we keep smallinf, add validation.
 TRUNCATE acos;
 
-UPDATE structure_permissible_values SET value='Saint-Luc hospital', language_alias='Saint-Luc hospital' WHERE language_alias='collection_site_1';
+UPDATE structure_permissible_values SET value='saint-luc hospital', language_alias='saint-luc hospital' WHERE language_alias='collection_site_1';
 UPDATE structure_value_domains_permissible_values AS svdpv 
 INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id
 SET svdpv.flag_active=false
@@ -3581,7 +3581,7 @@ WHERE spv.language_alias ='custom_supplier_dept_1';
 
 UPDATE structure_value_domains_permissible_values AS svdpv 
 INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id
-SET spv.language_alias='service MBP', spv.value='service MBP'
+SET spv.language_alias='service hbp', spv.value='service hbp'
 WHERE spv.language_alias ='custom_supplier_dept_2';
 
 UPDATE structure_value_domains_permissible_values AS svdpv
@@ -3631,8 +3631,8 @@ UPDATE structure_formats SET `display_order`='33' WHERE structure_id=(SELECT id 
 ALTER TABLE `sd_der_pbmcs` ADD `qc_hb_nb_cells` FLOAT UNSIGNED NOT NULL ,
 ADD `qc_hb_nb_cell_unit` VARCHAR( 50 ) NOT NULL DEFAULT '';
 INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_hb_nb_cell_unit', '', '', NULL);
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("10^6 c", "10^6 c");
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_nb_cell_unit"),  (SELECT id FROM structure_permissible_values WHERE value="10^6 c" AND language_alias="10^6 c"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("10e6", "10e6");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_nb_cell_unit"),  (SELECT id FROM structure_permissible_values WHERE value="10e6" AND language_alias="10e6"), "1", "1");
 INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('qc_hb_sd_der_pbmc', '', '', '1', '1', '1', '1');
 
 INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
@@ -3657,7 +3657,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='qc_hb_sd_der_pbmc'), (SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='sd_der_pbmcs' AND `field`='qc_hb_nb_cell_unit' AND `language_label`='' AND `language_tag`='unit' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_nb_cell_unit')  AND `language_help`=''), '1', '51', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1');
 UPDATE `sample_controls` SET `form_alias` = 'qc_hb_sd_der_pbmc' WHERE `sample_controls`.`id` =8;
 
-UPDATE structure_permissible_values SET language_alias='Urszula Krzemien', value='Urszula Krzemien' WHERE language_alias='custom_laboratory_staff_1';
+UPDATE structure_permissible_values SET language_alias='urszula krzemien', value='urszula krzemien' WHERE language_alias='custom_laboratory_staff_1';
 UPDATE structure_value_domains_permissible_values AS svdpv 
 INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id
 SET svdpv.flag_active=false
@@ -3670,8 +3670,8 @@ INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALU
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="tissue_source_list"),  (SELECT id FROM structure_permissible_values WHERE value="liver metastasis" AND language_alias="liver metastasis"), "2", "1");
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("CholangioCa", "CholangioCa");
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="tissue_source_list"),  (SELECT id FROM structure_permissible_values WHERE value="CholangioCa" AND language_alias="CholangioCa"), "3", "1");
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("gallbladder", "gallbladder");
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="tissue_source_list"),  (SELECT id FROM structure_permissible_values WHERE value="liver metastasis" AND language_alias="liver metastasis"), "4", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("gall-bladder", "gall-bladder");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="tissue_source_list"),  (SELECT id FROM structure_permissible_values WHERE value="gall-bladder" AND language_alias="gall-bladder"), "4", "1");
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pancreas", "pancreas");
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="tissue_source_list"),  (SELECT id FROM structure_permissible_values WHERE value="pancreas" AND language_alias="pancreas"), "5", "1");
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("other", "other");
@@ -3686,7 +3686,7 @@ INSERT INTO `sample_to_aliquot_controls` (`id` ,`sample_control_id` ,`aliquot_co
 -- storage glace
 INSERT INTO `storage_controls` (
 `id` ,`storage_type` ,`storage_type_code` ,`coord_x_title` ,`coord_x_type` ,`coord_x_size` ,`coord_y_title` ,`coord_y_type` ,`coord_y_size` ,`display_x_size` ,`display_y_size` ,`reverse_x_numbering` ,`reverse_y_numbering` ,`set_temperature` ,`is_tma_block` ,`flag_active` ,`form_alias` ,`form_alias_for_children_pos` ,`detail_tablename`)VALUES 
-(NULL , 'glace', 'I', NULL , NULL , NULL , NULL , NULL , NULL , '0', '0', '0', '0', 'TRUE', 'FALSE', '1', 'std_undetail_stg_with_tmp', NULL , 'std_fridges');
+(NULL , 'ice', 'I', NULL , NULL , NULL , NULL , NULL , NULL , '0', '0', '0', '0', 'TRUE', 'FALSE', '1', 'std_undetail_stg_with_tmp', NULL , 'std_fridges');
 
 -- tissue sample code
 ALTER TABLE `sd_spe_tissues` ADD `qc_hb_sample_code` VARCHAR( 50 ) NOT NULL DEFAULT '';
@@ -3715,7 +3715,7 @@ LEFT JOIN `banks` ON(((`col`.`bank_id` = `banks`.`id`) AND (`banks`.`deleted` <>
 LEFT JOIN `misc_identifiers` ON part.id=misc_identifiers.participant_id AND (misc_identifiers.misc_identifier_control_id=3 AND col.bank_id=1)
 WHERE (`col`.`deleted` <> 1);
 
-UPDATE banks SET name='hepato bilary', description='' WHERE id=1;
+UPDATE banks SET name='Hepato Bilary / Hépatobiliaire', description='' WHERE id=1;
 
 INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
 ('', 'Inventorymanagement', 'ViewCollection', 'view_collections', 'no_labo', 'no labo', '', 'input', '', '',  NULL , '', 'open', 'open', 'open');
@@ -3793,8 +3793,8 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 (SELECT (SELECT id FROM structures WHERE alias='ad_spec_conical_tubes'), `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail` FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tubes'));
 
 INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_hb_conical_tube_milieu', '', '', NULL);
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("transport/conservation", "transport/conservation");
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_conical_tube_milieu"),  (SELECT id FROM structure_permissible_values WHERE value="transport/conservation" AND language_alias="transport/conservation"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("transport/conservation medium", "transport/conservation medium");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_conical_tube_milieu"),  (SELECT id FROM structure_permissible_values WHERE value="transport/conservation medium" AND language_alias="transport/conservation medium"), "1", "1");
 
 INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
 ('', 'Inventorymanagement', 'AliquotDetail', 'ad_tubes', 'qc_hb_milieu', 'milieu', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_conical_tube_milieu') , '', 'open', 'open', 'open');
@@ -3806,18 +3806,20 @@ UPDATE parent_to_derivative_sample_controls SET flag_active=0 WHERE parent_sampl
 -- tisue suspension
 ALTER TABLE `sd_der_tiss_susps` 
 ADD `qc_hb_overnight` TINYINT NOT NULL,
-ADD `qc_hb_macs_nb_cycles` TINYINT UNSIGNED NOT NULL ,
-ADD `qc_hb_macs_nb_incubations` TINYINT UNSIGNED NOT NULL ,
+ADD `qc_hb_macs_nb_cycles` TINYINT UNSIGNED DEFAULT NULL ,
+ADD `qc_hb_macs_nb_incubations` TINYINT UNSIGNED DEFAULT NULL ,
 ADD `qc_hb_macs_enzymatic_milieu` VARCHAR( 50 ) NOT NULL DEFAULT '',
-ADD `qc_hb_nb_viable_cells` FLOAT UNSIGNED NOT NULL ,
-ADD `qc_hb_nb_viable_cells_unit` VARCHAR( 50 ) NOT NULL DEFAULT '';
+ADD `qc_hb_nb_viable_cells` FLOAT UNSIGNED DEFAULT NULL ,
+ADD `qc_hb_nb_viable_cells_unit` VARCHAR( 50 ) NOT NULL DEFAULT '',
+ADD `qc_hb_viability_perc` FLOAT UNSIGNED DEFAULT NULL;
 ALTER TABLE `sd_der_tiss_susps_revs` 
 ADD `qc_hb_overnight` TINYINT NOT NULL,
-ADD `qc_hb_macs_nb_cycles` TINYINT UNSIGNED NOT NULL ,
-ADD `qc_hb_macs_nb_incubations` TINYINT UNSIGNED NOT NULL ,
+ADD `qc_hb_macs_nb_cycles` TINYINT UNSIGNED DEFAULT NULL ,
+ADD `qc_hb_macs_nb_incubations` TINYINT UNSIGNED DEFAULT NULL ,
 ADD `qc_hb_macs_enzymatic_milieu` VARCHAR( 50 ) NOT NULL DEFAULT '',
-ADD `qc_hb_nb_viable_cells` FLOAT UNSIGNED NOT NULL ,
-ADD `qc_hb_nb_viable_cells_unit` VARCHAR( 50 ) NOT NULL DEFAULT ''; 
+ADD `qc_hb_nb_viable_cells` FLOAT UNSIGNED DEFAULT NULL ,
+ADD `qc_hb_nb_viable_cells_unit` VARCHAR( 50 ) NOT NULL DEFAULT '',
+ADD `qc_hb_viability_perc` FLOAT UNSIGNED DEFAULT NULL;
 
 INSERT INTO `structures` (`id` ,`alias` ,`description` ,`language_title` ,`language_help` ,`flag_add_columns` ,`flag_edit_columns` ,`flag_search_columns` ,`flag_detail_columns` ,`created` ,`created_by` ,`modified` ,`modified_by`)VALUES 
 (NULL , 'sd_tissue_susp', NULL , '', '', '0', '0', '0', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
@@ -3834,20 +3836,28 @@ INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALU
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_3_to_4"),  (SELECT id FROM structure_permissible_values WHERE value="3" AND language_alias="3"), "1", "1");
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("4", "4");
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_3_to_4"),  (SELECT id FROM structure_permissible_values WHERE value="4" AND language_alias="4"), "2", "1");
+
 INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
-('', 'Inventorymanagement', 'AliquotDetail', 'sd_der_tiss_susps', 'qc_hb_overnight', 'overnight', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), 
-('', 'Inventorymanagement', 'AliquotDetail', 'sd_der_tiss_susps', 'qc_hb_macs_nb_cycles', 'genHeMACS program', 'nb of cycles', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_3_to_4') , '', 'open', 'open', 'open'), 
-('', 'Inventorymanagement', 'AliquotDetail', 'sd_der_tiss_susps', 'qc_hb_macs_nb_incubations', '', 'nb of incubations', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_2_to_3') , '', 'open', 'open', 'open'), 
-('', 'Inventorymanagement', 'AliquotDetail', 'sd_der_tiss_susps', 'qc_hb_macs_enzymatic_milieu', '', 'enzymatic milieu', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Inventorymanagement', 'AliquotDetail', 'sd_der_tiss_susps', 'qc_hb_nb_viable_cells', 'nb viable cells', '', 'float_positive', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Inventorymanagement', 'AliquotDetail', 'sd_der_tiss_susps', 'qc_hb_nb_viable_cells_unit', '', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_nb_cell_unit') , '', 'open', 'open', 'open');
+('', 'Inventorymanagement', 'SampleDetail', 'sd_der_tiss_susps', 'qc_hb_overnight', 'overnight', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), 
+('', 'Inventorymanagement', 'SampleDetail', 'sd_der_tiss_susps', 'qc_hb_macs_nb_cycles', 'genHeMACS program', 'nb of cycles', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_3_to_4') , '', 'open', 'open', 'open'), 
+('', 'Inventorymanagement', 'SampleDetail', 'sd_der_tiss_susps', 'qc_hb_macs_nb_incubations', '', 'nb of incubations', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_2_to_3') , '', 'open', 'open', 'open'), 
+('', 'Inventorymanagement', 'SampleDetail', 'sd_der_tiss_susps', 'qc_hb_macs_enzymatic_milieu', '', 'enzymatic milieu', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Inventorymanagement', 'SampleDetail', 'sd_der_tiss_susps', 'qc_hb_nb_viable_cells', 'nb viable cells', '', 'float_positive', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Inventorymanagement', 'SampleDetail', 'sd_der_tiss_susps', 'qc_hb_viability_perc', 'viability percentage', '', 'float_positive', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Inventorymanagement', 'SampleDetail', 'sd_der_tiss_susps', 'qc_hb_nb_viable_cells_unit', '', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_nb_cell_unit') , '', 'open', 'open', 'open');
+
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
-((SELECT id FROM structures WHERE alias='sd_tissue_susp'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='sd_der_tiss_susps' AND `field`='qc_hb_overnight' AND `language_label`='overnight' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `language_help`=''), '1', '40', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='sd_tissue_susp'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='sd_der_tiss_susps' AND `field`='qc_hb_macs_nb_cycles' AND `language_label`='genHeMACS program' AND `language_tag`='nb of cycles' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_3_to_4')  AND `language_help`=''), '1', '41', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='sd_tissue_susp'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='sd_der_tiss_susps' AND `field`='qc_hb_macs_nb_incubations' AND `language_label`='' AND `language_tag`='nb of incubations' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_2_to_3')  AND `language_help`=''), '1', '42', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='sd_tissue_susp'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='sd_der_tiss_susps' AND `field`='qc_hb_macs_enzymatic_milieu' AND `language_label`='' AND `language_tag`='enzymatic milieu' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '43', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='sd_tissue_susp'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='sd_der_tiss_susps' AND `field`='qc_hb_nb_viable_cells' AND `language_label`='nb viable cells' AND `language_tag`='' AND `type`='float_positive' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '44', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='sd_tissue_susp'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='sd_der_tiss_susps' AND `field`='qc_hb_nb_viable_cells_unit' AND `language_label`='' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_nb_cell_unit')  AND `language_help`=''), '1', '45', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1');
+((SELECT id FROM structures WHERE alias='sd_tissue_susp'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_tiss_susps' AND `field`='qc_hb_overnight' AND `language_label`='overnight' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `language_help`=''), '1', '40', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='sd_tissue_susp'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_tiss_susps' AND `field`='qc_hb_macs_nb_cycles' AND `language_label`='genHeMACS program' AND `language_tag`='nb of cycles' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_3_to_4')  AND `language_help`=''), '1', '41', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='sd_tissue_susp'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_tiss_susps' AND `field`='qc_hb_macs_nb_incubations' AND `language_label`='' AND `language_tag`='nb of incubations' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_2_to_3')  AND `language_help`=''), '1', '42', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='sd_tissue_susp'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_tiss_susps' AND `field`='qc_hb_macs_enzymatic_milieu' AND `language_label`='' AND `language_tag`='enzymatic milieu' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '43', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='sd_tissue_susp'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_tiss_susps' AND `field`='qc_hb_nb_viable_cells' AND `language_label`='nb viable cells' AND `language_tag`='' AND `type`='float_positive' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '44', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='sd_tissue_susp'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_tiss_susps' AND `field`='qc_hb_nb_viable_cells_unit' AND `language_label`='' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_nb_cell_unit')  AND `language_help`=''), '1', '45', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='sd_tissue_susp'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_tiss_susps' AND `field`='qc_hb_viability_perc'), '1', '50', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1');
+
+DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id
+FROM `structure_fields`
+WHERE `tablename` LIKE 'sd_der_tiss_susps')
 
 INSERT IGNORE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('label', 'Label', 'Étiquette'),
@@ -3859,4 +3869,119 @@ INSERT IGNORE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ("nb of incubations", "Nb. of incubations", "Nb. d'incubations"),
 ("enzymatic milieu", "Enzymatic milieu", "Milieu enzymatique"),
 ("nb viable cells", "Nb. viable cells", "Nb. de cellules viables");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- Correction on inventory
+
+UPDATE sample_controls SET flag_active = '0' WHERE sample_type NOT IN ('blood', 'tissue', 'pbmc', 'plasma', 'serum', 'tissue suspension');
+
+UPDATE sample_controls AS samp
+INNER JOIN parent_to_derivative_sample_controls AS link ON link.parent_sample_control_id = samp.id
+SET link.flag_active = '0'
+WHERE samp.flag_active = '0';
+
+UPDATE sample_controls AS samp
+INNER JOIN parent_to_derivative_sample_controls AS link ON link.derivative_sample_control_id = samp.id
+SET link.flag_active = '0'
+WHERE samp.flag_active = '0';
+
+UPDATE sample_controls AS samp
+INNER JOIN sample_to_aliquot_controls AS link ON link.sample_control_id = samp.id
+SET link.flag_active = '0'
+WHERE samp.flag_active = '0';
+
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, (SELECT id FROM structure_fields WHERE model LIKE 'Collection' AND field LIKE 'bank_id'), 'notEmpty', '0', '0', '', '', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
+
+UPDATE structure_fields SET model = 'SpecimenDetail' WHERE field LIKE 'qc_hb_sample_code';
+
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, (SELECT id FROM structure_fields WHERE field LIKE 'qc_hb_sample_code' LIMIT 0,1), 'notEmpty', '0', '0', '', '', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, (SELECT id FROM structure_fields WHERE field LIKE 'qc_hb_sample_code' LIMIT 1,1), 'notEmpty', '0', '0', '', '', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
+
+ALTER TABLE `specimen_details` ADD `qc_hb_sample_code` VARCHAR( 50 ) NOT NULL DEFAULT '' AFTER `reception_by`;
+ALTER TABLE `specimen_details_revs` ADD `qc_hb_sample_code` VARCHAR( 50 ) NOT NULL DEFAULT '' AFTER `reception_by`;
+
+ALTER TABLE `sd_spe_bloods` DROP `qc_hb_sample_code`;
+ALTER TABLE `sd_spe_bloods_revs` DROP `qc_hb_sample_code`;
+ALTER TABLE `sd_spe_tissues` DROP `qc_hb_sample_code`;
+ALTER TABLE `sd_spe_tissues_revs` DROP `qc_hb_sample_code`;
+
+UPDATE structure_formats SET display_column = '0', display_order = '9' WHERE structure_field_id = (SELECT id FROM structure_fields WHERE field LIKE 'qc_hb_sample_code' LIMIT 0,1);
+UPDATE structure_formats SET display_column = '0', display_order = '9' WHERE structure_field_id = (SELECT id FROM structure_fields WHERE field LIKE 'qc_hb_sample_code' LIMIT 1,1);
+
+INSERT IGNORE INTO `i18n` (`id`, `en`, `fr`) VALUES
+('no labo', 'No Labo', 'No Labo'),
+('saint-luc hospital', 'Saint-Luc Hospital', 'Hôpital Saint-Luc'),
+('urszula krzemien', 'Urszula Krzemien', 'Urszula Krzemien'),
+('liver metastasis', 'Liver Metastasis', 'Métastase hépatique'),
+('CholangioCa', 'CholangioCa', 'CholangioCa'),
+('service hbp', 'Service HBP', 'Service HBP'),
+('preadmission = preoperative checkup', 'Preadmission = Preoperative Checkup', 'Préadmission (Control pré-opératoire )'),
+('operating room', 'Operating Room', 'Chambre Opératoire'),
+('gel SST','gel SST','gel SST'),
+('patho report nb','Patho Report Nb','No Rapport Patho'),
+('conical tube','Conical Tube','Tube conique'),
+('transport/conservation medium', 'transport/conservation medium', 'Milieu transport/conservation'),
+('ice','Ice','Glace'),
+('nb of cells', 'Nb of Cells', 'Nbr of cells'),
+('gall-bladder', 'Gall-Bladder','Vésicule Biliaire '),
+('viability percentage','Viability %','% de viabilité');
+
+UPDATE aliquot_controls AS alq SET alq.flag_active = '0';
+
+UPDATE aliquot_controls AS alq
+INNER JOIN sample_to_aliquot_controls AS link ON link.aliquot_control_id = alq.id
+SET alq.flag_active = '1'
+WHERE link.flag_active = '1';
+
+UPDATE aliquot_controls AS alq
+INNER JOIN sample_to_aliquot_controls AS link ON link.aliquot_control_id = alq.id
+SET alq.flag_active = '0', link.flag_active = '0'
+WHERE alq.aliquot_type IN ('slide', 'core');
+
+SET @tissue_block_link_id = (SELECT link.id FROM sample_controls AS samp
+INNER JOIN sample_to_aliquot_controls AS link ON link.sample_control_id = samp.id
+INNER JOIN aliquot_controls AS alq ON link.aliquot_control_id = alq.id
+WHERE samp.sample_type = 'tissue' AND alq.aliquot_type = 'block');
+
+SET @tissue_conical_tube_link_id = (SELECT link.id FROM sample_controls AS samp
+INNER JOIN sample_to_aliquot_controls AS link ON link.sample_control_id = samp.id
+INNER JOIN aliquot_controls AS alq ON link.aliquot_control_id = alq.id
+WHERE samp.sample_type = 'tissue' AND alq.aliquot_type = 'conical tube');
+
+SET @tissue_tube_link_id  = (SELECT link.id FROM sample_controls AS samp
+INNER JOIN sample_to_aliquot_controls AS link ON link.sample_control_id = samp.id
+INNER JOIN aliquot_controls AS alq ON link.aliquot_control_id = alq.id
+WHERE samp.sample_type = 'tissue' AND alq.aliquot_type = 'tube');
+
+INSERT INTO `realiquoting_controls` (`id`, `parent_sample_to_aliquot_control_id`, `child_sample_to_aliquot_control_id`, `flag_active`) 
+VALUES
+(null, @tissue_conical_tube_link_id, @tissue_conical_tube_link_id, 1),
+(null, @tissue_conical_tube_link_id, @tissue_tube_link_id, 1),
+(null, @tissue_tube_link_id, @tissue_conical_tube_link_id, 1),
+(null, @tissue_conical_tube_link_id, @tissue_block_link_id, 1);
+
+UPDATE structure_value_domains_permissible_values SET flag_active = '0' WHERE structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name LIKE 'custom_laboratory_site');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('ICM', 'ICM');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES((SELECT id FROM structure_value_domains WHERE domain_name LIKE 'custom_laboratory_site'),  
+(SELECT id FROM structure_permissible_values WHERE value='ICM' AND language_alias='ICM'), '1', '1');
+
+
+
 

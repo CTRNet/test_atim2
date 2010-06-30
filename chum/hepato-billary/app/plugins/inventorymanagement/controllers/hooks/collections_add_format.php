@@ -14,3 +14,4 @@ if(empty($this->data)){
 		}
 	}
 } 
+?>
