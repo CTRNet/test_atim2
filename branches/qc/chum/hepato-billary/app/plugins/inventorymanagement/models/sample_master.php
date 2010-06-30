@@ -42,7 +42,7 @@ class SampleMaster extends InventorymanagementAppModel {
 					'title' => array(null, __($specimen_data['SampleMaster']['sample_type'], true) . ' : ' . $specimen_data['SampleMaster']['sample_code']),
 
 					'description' => array(
-						__('type', true) => __($specimen_data['SampleMaster']['sample_type'], true),
+						__('type', true) => __($specimen_data['SampleMaster']['sample_type'], true).($specimen_data['SampleMaster']['sample_type'] == "blood" ? " (".__($specimen_data['SampleDetail']['blood_type'], true).")" : ""),
 						__('sample code', true) => $specimen_data['SampleMaster']['sample_code'],
 						__('category', true) => __($specimen_data['SampleMaster']['sample_category'], true)
 					)

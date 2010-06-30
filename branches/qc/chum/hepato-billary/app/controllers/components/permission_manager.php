@@ -278,7 +278,7 @@ class PermissionManagerComponent extends Object {
 	function getPluginControllerNames(){
 		App::import('Core', 'File', 'Folder');
 		$paths = Configure::getInstance();
-		$folder =& new Folder();
+		$folder = new Folder();
 		// Change directory to the plugins
 		$folder->cd(APP.'plugins');
 		// Get a list of the files that have a file name that ends
