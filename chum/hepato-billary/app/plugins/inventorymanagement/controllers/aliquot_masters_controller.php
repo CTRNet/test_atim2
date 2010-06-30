@@ -368,15 +368,16 @@ class AliquotMastersController extends InventoryManagementAppController {
 					
 			// -> Fields validation
 			foreach($this->data as $key => $new_aliquot) {
-				// AliquotMaster
+				$this->data[$key]['AliquotMaster']['aliquot_control_id'] = $aliquot_control_id;
 				$this->AliquotMaster->set($this->data[$key]);
 				$submitted_data_validates = ($this->AliquotMaster->validates())? $submitted_data_validates: false;
-				foreach($this->AliquotMaster->invalidFields() as $field => $error) { $errors['AliquotMaster'][$field][$error] = '-'; }
-
-				// AliquotDetail
-				$this->AliquotDetail->set($this->data[$key]);
-				$submitted_data_validates = ($this->AliquotDetail->validates())? $submitted_data_validates: false;			
-				foreach($this->AliquotDetail->invalidFields() as $field => $error) { $errors['AliquotDetail'][$field][$error] = '-'; }
+				
+				$this->AliquotDetail->validationErrors = $this->AliquotMaster->validationErrors;
+				foreach($this->AliquotMaster->validationErrors as $field => $error) {
+					$errors['AliquotMaster'][$field][$error] = '-';
+					$errors['AliquotDetail'][$field][$error] = '-'; 
+				}
+				
 			}
 			
 			// -> Barcode validation
@@ -639,13 +640,14 @@ class AliquotMastersController extends InventoryManagementAppController {
 					
 			// -> Fields validation
 			//  --> AliquotMaster
+			$this->data['AliquotMaster']['aliquot_control_id'] = $aliquot_data['AliquotMaster']['aliquot_control_id'];
 			$this->AliquotMaster->set($this->data);
 			$submitted_data_validates = ($this->AliquotMaster->validates())? $submitted_data_validates: false;
-			foreach($this->AliquotMaster->invalidFields() as $field => $error) { $errors['AliquotMaster'][$field][$error] = '-'; }
-			//  --> AliquotDetail
-			$this->AliquotDetail->set($this->data);
-			$submitted_data_validates = ($this->AliquotDetail->validates())? $submitted_data_validates: false;
-			foreach($this->AliquotDetail->invalidFields() as $field => $error) { $errors['AliquotDetail'][$field][$error] = '-'; }
+			foreach($this->AliquotMaster->invalidFields() as $field => $error){
+				$errors['AliquotMaster'][$field][$error] = '-';
+				$errors['AliquotDetail'][$field][$error] = '-'; 
+			}
+			$this->AliquotDetail->validationErrors = $this->AliquotMaster->validationErrors;
 			
 			// -> Storage definition validation
 			$storage_data_validation = $this->validateAliquotStorageData($this->data);

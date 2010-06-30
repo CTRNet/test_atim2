@@ -470,7 +470,7 @@ class StructuresHelper extends Helper {
 								if ( $options['type']=='datagrid' && $options['settings']['del_fields'] ) {
 									$return_string .= '
 											<td class="right">
-												<a style="color:red;" href="#" onclick="getElementById(\'table'.$table_key.'row'.$key.'\').parentNode.removeChild(getElementById(\'table'.$table_key.'row'.$key.'\')); return false;" title="'.__( 'click to remove these elements', true ).'">x</a>
+												<a style="color:red;" href="#" onclick="getElementById(\'table'.$table_key.'row'.$key.'\').parentNode.removeChild(getElementById(\'table'.$table_key.'row'.$key.'\')); return false;" title="'.__( 'click to remove these elements', true ).'">(x)</a>
 											</td>
 									';
 									
@@ -557,7 +557,7 @@ class StructuresHelper extends Helper {
 								if ( $options['type']=='datagrid' && $options['settings']['del_fields'] ) {
 									$add_another_row_template .= '
 											<td class="right">
-												<a style="color:red;" href="#" onclick="getElementById(\'table'.$table_key.'row#{id}\').parentNode.removeChild(getElementById(\'table'.$table_key.'row#{id}\')); return false;" title="'.__( 'click to remove these elements', true ).'">x</a>
+												<a style="color:red;" href="#" onclick="getElementById(\'table'.$table_key.'row#{id}\').parentNode.removeChild(getElementById(\'table'.$table_key.'row#{id}\')); return false;" title="'.__( 'click to remove these elements', true ).'">(x)</a>
 											</td>
 									';
 									
@@ -599,7 +599,7 @@ class StructuresHelper extends Helper {
 							</tbody><tfoot>
 								<tr id="'.$add_another_unique_link_id.'">
 									<td class="right" colspan="'.$column_count.'">
-										<a id="addLineLink" style="color:#090; font-weight:bold;" href="#" onclick="'.$add_another_unique_function_name.'(); return false;" title="'.__( 'click to add a line', true ).'">+</a>
+										<a id="addLineLink" style="color:#090; font-weight:bold;" href="#" onclick="'.$add_another_unique_function_name.'(); return false;" title="'.__( 'click to add a line', true ).'">(+)</a>
 									</td>
 								</tr>
 								</tfoot>
@@ -1221,8 +1221,10 @@ class StructuresHelper extends Helper {
 						*/
 						
 						// include jTip link or no-help type indicator
-							if ( $field['flag_override_help'] && $field['language_help'] ) $field['StructureField']['language_help'] = $field['language_help'];
-							if (  $field['StructureField']['language_help'] ) {
+							if ($field['flag_override_help']){
+								$field['StructureField']['language_help'] = $field['language_help'];
+							}
+							if ($field['StructureField']['language_help']) {
 								$table_index[ $field['display_column'] ][ $row_count ]['help'] = '<span class="help">&nbsp;<div>'.__($field['StructureField']['language_help'],true).'</div></span> ';
 							} else {
 								$table_index[ $field['display_column'] ][ $row_count ]['help'] = '<span class="help error">&nbsp;</span>';
@@ -1275,7 +1277,12 @@ class StructuresHelper extends Helper {
 									list($pulldown_model,$pulldown_function) = split('::',$field['StructureField']['StructureValueDomain']['source']);
 									
 									if ( $pulldown_model && App::import('Model',$pulldown_model) ) {
-				
+										
+										// setup VARS for custom model (if any)
+										$custom_pulldown_object = $pulldown_model.'Custom';
+										$custom_pulldown_plugin = NULL;
+										$custom_pulldown_model = NULL;
+										
 										// if model name is PLUGIN.MODEL string, need to split and drop PLUGIN name after import but before NEW
 										$pulldown_plugin = NULL;
 										if ( strpos($pulldown_model,'.')!==false ) {
@@ -1286,10 +1293,13 @@ class StructuresHelper extends Helper {
 										// load MODEL, and override with CUSTOM model if it exists...
 											$pulldown_model_object = new $pulldown_model;
 											
-											$custom_pulldown_model = $pulldown_model.'Custom';
-											if ( App::import('Model',$custom_pulldown_model) ) {
-												$pulldown_model_object = $$custom_pulldown_model;
-											}
+										// check for CUSTOM models, and use that if exists
+										$custom_pulldown_plugin = $pulldown_plugin;
+										$custom_pulldown_model = $pulldown_model.'Custom';
+									
+										if ( App::import('Model',$custom_pulldown_object) ) {
+											$pulldown_model_object = new $custom_pulldown_model;
+										}
 										
 										// run model::function
 										$pulldown_result = $pulldown_model_object->{$pulldown_function}();
@@ -1480,6 +1490,7 @@ class StructuresHelper extends Helper {
 					$html_element_array['type'] = $field['StructureField']['type'];
 					
 					// set error class, based on validators helper info 
+					//FMLHHHHH
 					if ( isset($this->validationErrors[ $field['StructureField']['model'] ][ $field['StructureField']['field'] ]) ) $html_element_array['class'] .= 'error ';
 					
 					if ( isset($field['flag_'.$options['type'].'_readonly']) && $field['flag_'.$options['type'].'_readonly'] && $options['type']!='search' ) {
@@ -1609,6 +1620,11 @@ class StructuresHelper extends Helper {
 									
 									if ( $pulldown_model && App::import('Model',$pulldown_model) ) {
 				
+										// setup VARS for custom model (if any)
+										$custom_pulldown_object = $pulldown_model.'Custom';
+										$custom_pulldown_plugin = NULL;
+										$custom_pulldown_model = NULL;
+										
 										// if model name is PLUGIN.MODEL string, need to split and drop PLUGIN name after import but before NEW
 										$pulldown_plugin = NULL;
 										if ( strpos($pulldown_model,'.')!==false ) {
@@ -1619,10 +1635,13 @@ class StructuresHelper extends Helper {
 										// load MODEL, and override with CUSTOM model if it exists...
 											$pulldown_model_object = new $pulldown_model;
 											
-											$custom_pulldown_model = $pulldown_model.'Custom';
-											if ( App::import('Model',$custom_pulldown_model) ) {
-												$pulldown_model_object = new $$custom_pulldown_model;
-											}
+										// check for CUSTOM models, and use that if exists
+										$custom_pulldown_plugin = $pulldown_plugin;
+										$custom_pulldown_model = $pulldown_model.'Custom';
+									
+										if ( App::import('Model',$custom_pulldown_object) ) {
+											$pulldown_model_object = new $custom_pulldown_model;
+										}
 										
 										// run model::function
 										$pulldown_result = $pulldown_model_object->{$pulldown_function}();
@@ -2455,6 +2474,7 @@ class StructuresHelper extends Helper {
 								'size' => 4, 
 								'tabindex' => $html_element_array['tabindex'], 
 								'maxlength' => 4,
+								'class' => $html_element_array['class'],
 								'value' => $datetime_array['year']))
 						."<div>".__('year', true)."</div></span> ";
 				}
@@ -2474,6 +2494,7 @@ class StructuresHelper extends Helper {
 								'size' => 2, 
 								'tabindex' => $html_element_array['tabindex'], 
 								'maxlength' => 2,
+								'class' => $html_element_array['class'],
 								'value' => $datetime_array['month']))
 						."<div>".__('month', true)."</div></span> ";
 				}
@@ -2493,6 +2514,7 @@ class StructuresHelper extends Helper {
 								'size' => 2, 
 								'tabindex' => $html_element_array['tabindex'], 
 								'maxlength' => 2,
+								'class' => $html_element_array['class'],
 								'value' => $datetime_array['day']))
 						."<div>".__('day', true)."</div></span> ";
 				}
@@ -2526,6 +2548,7 @@ class StructuresHelper extends Helper {
 							'size' => 2, 
 							'tabindex' => $html_element_array['tabindex'], 
 							'maxlength' => 2,
+							'class' => $html_element_array['class'],
 							'value' => $datetime_array['hour']))
 					."<div>".__('hour', true)."</div></span> ";
 				$date .= 
@@ -2537,6 +2560,7 @@ class StructuresHelper extends Helper {
 							'size' => 2, 
 							'tabindex' => $html_element_array['tabindex'], 
 							'maxlength' => 2,
+							'class' => $html_element_array['class'],
 							'value' => $datetime_array['min']))
 					."<div>".__('minutes', true)."</div></span> ";
 			}
