@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Serveur: localhost
--- Généré le : Mer 30 Juin 2010 à 09:41
+-- Généré le : Mer 30 Juin 2010 à 16:35
 -- Version du serveur: 5.1.32
 -- Version de PHP: 5.2.9
 
@@ -537,16 +537,16 @@ CREATE TABLE IF NOT EXISTS `aliquot_controls` (
 
 INSERT INTO `aliquot_controls` (`id`, `aliquot_type`, `flag_active`, `form_alias`, `detail_tablename`, `volume_unit`, `comment`, `display_order`) VALUES
 (1, 'tube', 1, 'ad_spec_tubes', 'ad_tubes', NULL, 'Specimen tube', 0),
-(2, 'tube', 1, 'ad_spec_tubes_incl_ml_vol', 'ad_tubes', 'ml', 'Specimen tube requiring volume in ml', 0),
+(2, 'tube', 0, 'ad_spec_tubes_incl_ml_vol', 'ad_tubes', 'ml', 'Specimen tube requiring volume in ml', 0),
 (4, 'block', 1, 'ad_spec_tiss_blocks', 'ad_blocks', NULL, 'Tissue block', 0),
-(5, 'slide', 1, 'ad_spec_tiss_slides', 'ad_tissue_slides', NULL, 'Tissue slide', 0),
-(6, 'whatman paper', 1, 'ad_spec_whatman_papers', 'ad_whatman_papers', NULL, 'Blood whatman paper', 0),
+(5, 'slide', 0, 'ad_spec_tiss_slides', 'ad_tissue_slides', NULL, 'Tissue slide', 0),
+(6, 'whatman paper', 0, 'ad_spec_whatman_papers', 'ad_whatman_papers', NULL, 'Blood whatman paper', 0),
 (8, 'tube', 1, 'ad_der_tubes_incl_ml_vol', 'ad_tubes', 'ml', 'Derivative tube requiring volume in ml', 0),
-(10, 'slide', 1, 'ad_der_cell_slides', 'ad_cell_slides', NULL, 'Cells slide', 0),
-(11, 'tube', 1, 'ad_der_tubes_incl_ul_vol_and_conc', 'ad_tubes', 'ul', 'Derivative tube requiring volume in ul and concentration', 0),
-(12, 'core', 1, 'ad_spec_tiss_cores', 'ad_tissue_cores', NULL, 'Tissue core', 0),
-(13, 'cell gel matrix', 1, 'ad_der_cel_gel_matrices', 'ad_gel_matrices', NULL, 'Cells gel matrix', 0),
-(14, 'core', 1, 'ad_der_cell_cores', 'ad_cell_cores', NULL, 'Cells core', 0),
+(10, 'slide', 0, 'ad_der_cell_slides', 'ad_cell_slides', NULL, 'Cells slide', 0),
+(11, 'tube', 0, 'ad_der_tubes_incl_ul_vol_and_conc', 'ad_tubes', 'ul', 'Derivative tube requiring volume in ul and concentration', 0),
+(12, 'core', 0, 'ad_spec_tiss_cores', 'ad_tissue_cores', NULL, 'Tissue core', 0),
+(13, 'cell gel matrix', 0, 'ad_der_cel_gel_matrices', 'ad_gel_matrices', NULL, 'Cells gel matrix', 0),
+(14, 'core', 0, 'ad_der_cell_cores', 'ad_cell_cores', NULL, 'Cells core', 0),
 (15, 'tube', 1, 'ad_der_cell_tubes_incl_ml_vol', 'ad_tubes', 'ml', 'Derivative tube requiring volume in ml specific for cells', 0),
 (16, 'conical tube', 1, 'ad_spec_conical_tubes', 'ad_tubes', '', NULL, 0);
 
@@ -854,7 +854,7 @@ CREATE TABLE IF NOT EXISTS `banks` (
 --
 
 INSERT INTO `banks` (`id`, `name`, `description`, `created_by`, `created`, `modified_by`, `modified`, `deleted`, `deleted_date`) VALUES
-(1, 'hepato bilary', '', 0, '0000-00-00 00:00:00', 1, '2009-04-08 16:13:19', 0, '0000-00-00 00:00:00');
+(1, 'Hepato Bilary / Hépatobiliaire', '', 0, '0000-00-00 00:00:00', 1, '2009-04-08 16:13:19', 0, '0000-00-00 00:00:00');
 
 -- --------------------------------------------------------
 
@@ -3620,6 +3620,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('children storage exists within the deleted storage', '', 'Your data cannot be deleted! <br>Children storage exists within the deleted storage.', 'Vos données ne peuvent être supprimées! Des sous-entreposages existent dans votre entreposage.'),
 ('children storage is stored within the storage at this position', '', 'Your data cannot be deleted! <br>Children storage is stored within the storage at this position.', 'Vos données ne peuvent être supprimées! Des sous-entreposages sont placés à cette position dans votre entreposage.'),
 ('chinese', '', 'Chinese', 'Chinois'),
+('CholangioCa', '', 'CholangioCa', 'CholangioCa'),
 ('cholesterol', '', 'Cholesterol', 'Cholestérol'),
 ('chromogranine', '', 'Chromogranine', 'Chromogranine'),
 ('chronology', '', 'Chronology', 'Chronologie'),
@@ -3681,6 +3682,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('concentration should be a positif decimal', '', 'Concentration should be a positive decimal!', 'Concentration doit être un décimal positif!'),
 ('confirmation source', '', 'Confirmation Source', 'Source de la confirmation'),
 ('confirmpassword', '', 'Confirm Password', 'Confirmez le mot de passe'),
+('conical tube', '', 'Conical Tube', 'Tube conique'),
 ('consent', '', 'Consent', 'Consentement'),
 ('Consent Form', '', 'Consent Form', 'Formulaire de consentement'),
 ('consent method', '', 'Consent Method', 'Méthode de consentement'),
@@ -3947,10 +3949,12 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('frozen', '', 'Frozen', 'Congelée'),
 ('frozen section', '', 'Frozen Section', 'Section congélation'),
 ('Funding', '', 'Funding', 'Financement'),
+('gall-bladder', '', 'Gall-Bladder', 'Vésicule Biliaire '),
 ('gastric varices', '', 'Gastric Varices', ''),
 ('gastro-intestinal disease medical past history', '', 'Gastro-Intestinal Disease', 'Maladie gastro-intestinal'),
 ('gastroenterologist', '', 'Gastro-Enterologist', 'Gastro-entérologue'),
 ('gel CSA', '', 'Gel CSA', 'Gel de CSA'),
+('gel SST', '', 'gel SST', 'gel SST'),
 ('general', '', 'General', 'Général'),
 ('General - All', '', 'General - All', 'Général - Indifférencié'),
 ('general physician', '', 'General Physician', 'Médecin généraliste'),
@@ -4010,7 +4014,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('hepatitis medical past history', '', 'Hepatitis', 'Hépatite'),
 ('hepatobiliary', '', 'hepatobiliary', 'Hépato-Biliaire'),
 ('hepatobiliary', 'global', 'Hepatobiliary', 'Hépato-biliaire'),
-('hepato_bil_bank_participant_id', 'global', 'H.B. Bank Participant Id', 'Numéro participant banque H.B.'),
+('hepato_bil_bank_participant_id', 'global', 'H.B. No Labo', 'H.B. No Labo'),
 ('her2', '', 'HER2', 'HER2'),
 ('histology', '', 'Histology', 'Histologie'),
 ('home', '', 'Home', 'Résidence'),
@@ -4025,6 +4029,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('HTP, hyperbilirubinemia', '', 'HTP, hyperbilirubinemia', 'HTP, hyperbilirubinémie'),
 ('hysterectomy', '', 'Hysterectomy', 'Hystérectomie'),
 ('ICD-10 selection tool', '', 'ICD-10 Selection Tool', 'Outil de sélection d''ICD-10'),
+('ice', '', 'Ice', 'Glace'),
 ('identification', '', 'Identification', 'Identification'),
 ('identifier abrv', '', 'Identifier Abbreviation', 'Abréviation de l''identifiant'),
 ('If you want to customize this error message, create %s', '', 'If you want to customize this error message, create %s', 'Si vous souhaitez personnaliser le message d''erreur, créez %s'),
@@ -4033,12 +4038,12 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('IM: intramuscular injection', '', 'IM: intramuscular injection', 'Injection intramusculaire'),
 ('immediate', '', 'Immediate', 'Immédiat'),
 ('immunochemistry code', '', 'Immunochemistry Code', 'Code de l''anticorps'),
-('impact of ous', '', 'Impact of OUS', ''),
+('impact of ous', '', 'Impact of OUS', '');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('import from associated protocol', '', 'Import from associated protocol', 'Importer à partir du protocole associé'),
 ('in person', '', 'In Person', 'En personne'),
 ('in process', '', 'In process', 'En cours'),
-('in situ', '', 'In Situ', 'In situ');
-INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('in situ', '', 'In Situ', 'In situ'),
 ('in situ component', '', 'In Situ Component', 'Composé in situ'),
 ('in situ type', '', 'In Situ Type', 'Type in situ'),
 ('In Stock', '', 'In Stock', 'En stock'),
@@ -4127,6 +4132,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('listall source aliquots', '', 'Source Aliquots', 'Aliquots sources'),
 ('liver appearance', '', 'Liver Appearance', 'Apparence du foie'),
 ('liver function', '', 'Liver Function', 'Fonction hépatique'),
+('liver metastasis', '', 'Liver Metastasis', 'Métastase hépatique'),
 ('liver segments', '', 'Segments', 'Segments'),
 ('liver surgery', '', 'Liver Surgery', 'Chirurgie du foie'),
 ('lnmp date', '', 'Last Known Menstrual Period', 'Dernière période menstruelle connue'),
@@ -4254,6 +4260,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('name', '', 'Name', 'Nom'),
 ('natural', '', 'Natural', 'Naturel'),
 ('nature', '', 'Nature', 'Nature'),
+('nb of cells', '', 'Nb of Cells', 'Nbr of cells'),
 ('nb of cycles', '', 'Nb. of cycles', 'Nb. de cycles'),
 ('nb of incubations', '', 'Nb. of incubations', 'Nb. d''incubations'),
 ('nb viable cells', '', 'Nb. viable cells', 'Nb. de cellules viables'),
@@ -4284,6 +4291,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('no data exists for the specified id', '', 'No data matches the specified ID!<br>Please try again or contact your system administrator.', 'Aucune donnée ne correspond à l''ID spécifié!<br>Essayez de nouveau ou contactez votre administrateur du système.'),
 ('no filter', '', 'No Filter', 'Supprimer Filtre'),
 ('no HTP & bilirubin N', '', 'No HTP & Bilirubin N', 'Pas d''HTP & Bilirubine N'),
+('no labo', '', 'No Labo', 'No Labo'),
 ('no new item could be actually added to the shipment', '', 'No new item could be actually added to the shipment.', 'Aucun nouvel article ne peut actuellement être ajoutê à la commande.'),
 ('no new sample aliquot could be actually defined as realiquoted child', '', 'No new sample aliquot could be actually defined as realiquoted child!', 'Aucun nouvel aliquot de l''échantillon ne peut actuellement être défini comme aliquot ré-aliquoté (enfant)!'),
 ('no new sample aliquot could be actually defined as source aliquot', '', 'No new sample aliquot could be defined as the source aliquot!', 'Aucun nouvel aliquot de l''échantillon ne peut actuellement être défini comme aliquot source!'),
@@ -4321,6 +4329,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('one-partial', '', 'One - Partial', 'Un - partiel'),
 ('one-total', '', 'One - Total', 'Un - total'),
 ('open biopsy', '', 'Open Biopsy', 'Biopsie ouverte'),
+('operating room', '', 'Operating Room', 'Chambre Opératoire'),
 ('operation date', '', 'Operation Date', 'Date de l''opération'),
 ('operative bleeding', '', 'operative bleeding', ''),
 ('operative pathological report', '', 'operative pathological report', ''),
@@ -4418,6 +4427,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('paste', '', 'Paste', 'Coller'),
 ('paternal', '', 'Paternal', 'Paternel'),
 ('path report', '', 'Path Report', 'Rapport de pathologie'),
+('patho report nb', '', 'Patho Report Nb', 'No Rapport Patho'),
 ('pathological report', '', 'Pathological Report', ''),
 ('pathological stage', '', 'Pathological Stage', 'Stade pathologique'),
 ('pathology', '', 'Pathology', 'Pathologie'),
@@ -4472,6 +4482,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('PR: per rectum', '', 'PR: per rectum', 'PR: Par le rectum'),
 ('pre', '', 'Pre', 'Pré'),
 ('pre operative data', '', 'Pre Operative Data', 'Données pre-opératoire'),
+('preadmission = preoperative checkup', '', 'Preadmission = Preoperative Checkup', 'Préadmission (Control pré-opératoire )'),
 ('precision', 'global', 'Precision', 'Précision'),
 ('preferences', '', 'Preferences', 'Prférences'),
 ('preneoplastic changes', '', 'Associated Pre-neoplastic Changes', 'Changements pré-néoplasiques associés'),
@@ -4603,6 +4614,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('roy', '', 'Dr. Roy', 'Dr. Roy'),
 ('rtbform_detail', '', 'Details', 'Détail'),
 ('run by', '', 'Run By', 'Exécuté par'),
+('saint-luc hospital', '', 'Saint-Luc Hospital', 'Hôpital Saint-Luc'),
 ('saint_luc_hospital_nbr', 'global', 'St Luc Hospital Number', 'No Hôpital St Luc'),
 ('same', '', 'Same', 'Identique'),
 ('sample aliquot type precision', '', 'Precision', 'Précision'),
@@ -4649,6 +4661,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('separated', '', 'Separated', 'Séparé'),
 ('September', '', 'September', 'Septembre'),
 ('serum', '', 'Serum', 'Sérum'),
+('service hbp', '', 'Service HBP', 'Service HBP'),
 ('severe', '', 'Severe', 'Sévère'),
 ('sex', '', 'Sex', 'Sexe'),
 ('shelf', '', 'Shelf', 'Tablette'),
@@ -4721,7 +4734,8 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('storage content', '', 'Storage Content', 'Contenu de l''entreposage'),
 ('storage content tree view', '', 'Detail', 'Détail'),
 ('storage coordinates', '', 'Coordinates', 'Coordonnées'),
-('storage detail', '', 'Details', 'Détails'),
+('storage detail', '', 'Details', 'Détails');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('storage history', '', 'Storage history', 'Historique de l''entreposage'),
 ('storage initial temperature', '', 'Storage initial temperature', 'Température initiale de l''entreposage'),
 ('storage layout', '', 'Layout', 'Plan'),
@@ -4730,8 +4744,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('storage path', '', 'Path', 'Accès'),
 ('storage selection label', '', 'Selection Label', 'Identifiant de sélection'),
 ('storage short label', '', 'Short Label', 'Identifiant court'),
-('storage temperature', '', 'Storage Temperature', 'Température de l''entreposage');
-INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('storage temperature', '', 'Storage Temperature', 'Température de l''entreposage'),
 ('storage temperature changed', '', 'Storage temperature changed', 'La température de l''entreposage a changée'),
 ('storage type', '', 'Type', 'Type'),
 ('stored by', '', 'Stored by', 'Entreposé par'),
@@ -4876,6 +4889,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('translational', '', 'Translational', 'Translationnel'),
 ('translator signature captured', '', 'Translator Signature Captured', 'Signature du traducteur'),
 ('translator used', '', 'Translator Used', 'Aide d''un traducteur'),
+('transport/conservation medium', '', 'transport/conservation medium', 'Milieu transport/conservation'),
 ('treatment', '', 'Treatment', 'Traitement'),
 ('treatment centre', '', 'Treatment Centre', 'Centre de traitement'),
 ('treatment detail', '', 'Detail', 'Détail'),
@@ -4923,6 +4937,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('urinary disease medical past history', '', 'Urinary Disease', 'Maladie urinaire'),
 ('urine', '', 'Urine', 'Urine'),
 ('url', '', 'URL', 'URL'),
+('urszula krzemien', '', 'Urszula Krzemien', 'Urszula Krzemien'),
 ('use', '', 'Use', 'Utilisation'),
 ('use by', '', 'Use by', 'Utilisation par'),
 ('use date', '', 'Use date', 'Date d''utilisation'),
@@ -4946,6 +4961,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('vascular occlusion', '', 'Vascular Occlusion', ''),
 ('version number', '', 'Version Number', 'Numéro de version'),
 ('very good', '', 'Very good', 'Très bon'),
+('viability percentage', '', 'Viability %', '% de viabilité'),
 ('vital status', '', 'Vital Status', 'Statut vital'),
 ('volume', '', 'Volume', 'Volume'),
 ('volume should be a positif decimal', '', 'Volume should be a positive decimal!', 'Le volume doit être un décimal positif!'),
@@ -5617,60 +5633,60 @@ CREATE TABLE IF NOT EXISTS `parent_to_derivative_sample_controls` (
 --
 
 INSERT INTO `parent_to_derivative_sample_controls` (`id`, `parent_sample_control_id`, `derivative_sample_control_id`, `flag_active`) VALUES
-(1, 1, 5, 1),
-(2, 1, 6, 1),
-(3, 2, 7, 1),
+(1, 1, 5, 0),
+(2, 1, 6, 0),
+(3, 2, 7, 0),
 (4, 2, 8, 1),
 (5, 2, 9, 1),
 (6, 2, 10, 1),
 (7, 3, 11, 0),
 (8, 3, 12, 0),
 (9, 3, 13, 0),
-(10, 4, 14, 1),
-(11, 4, 15, 1),
-(12, 5, 11, 1),
-(13, 5, 12, 1),
-(14, 5, 13, 1),
-(15, 7, 12, 1),
-(16, 7, 13, 1),
-(17, 8, 12, 1),
-(18, 8, 13, 1),
-(19, 11, 11, 1),
-(20, 11, 12, 1),
-(21, 11, 13, 1),
-(23, 13, 17, 1),
-(24, 2, 12, 1),
-(25, 2, 18, 1),
+(10, 4, 14, 0),
+(11, 4, 15, 0),
+(12, 5, 11, 0),
+(13, 5, 12, 0),
+(14, 5, 13, 0),
+(15, 7, 12, 0),
+(16, 7, 13, 0),
+(17, 8, 12, 0),
+(18, 8, 13, 0),
+(19, 11, 11, 0),
+(20, 11, 12, 0),
+(21, 11, 13, 0),
+(23, 13, 17, 0),
+(24, 2, 12, 0),
+(25, 2, 18, 0),
 (101, 3, 101, 0),
 (102, 3, 102, 1),
-(103, 103, 106, 1),
-(104, 103, 107, 1),
-(105, 104, 108, 1),
-(106, 104, 109, 1),
-(109, 106, 11, 1),
-(110, 106, 12, 1),
-(111, 106, 13, 1),
-(112, 108, 11, 1),
-(113, 108, 12, 1),
-(114, 108, 13, 1),
-(118, 2, 13, 1),
-(119, 7, 11, 1),
-(120, 112, 114, 1),
-(121, 112, 115, 1),
-(122, 113, 116, 1),
-(123, 113, 117, 1),
-(124, 114, 11, 1),
-(125, 114, 12, 1),
-(126, 114, 13, 1),
-(127, 116, 11, 1),
-(128, 116, 12, 1),
-(129, 116, 13, 1),
+(103, 103, 106, 0),
+(104, 103, 107, 0),
+(105, 104, 108, 0),
+(106, 104, 109, 0),
+(109, 106, 11, 0),
+(110, 106, 12, 0),
+(111, 106, 13, 0),
+(112, 108, 11, 0),
+(113, 108, 12, 0),
+(114, 108, 13, 0),
+(118, 2, 13, 0),
+(119, 7, 11, 0),
+(120, 112, 114, 0),
+(121, 112, 115, 0),
+(122, 113, 116, 0),
+(123, 113, 117, 0),
+(124, 114, 11, 0),
+(125, 114, 12, 0),
+(126, 114, 13, 0),
+(127, 116, 11, 0),
+(128, 116, 12, 0),
+(129, 116, 13, 0),
 (130, 3, 118, 0),
-(131, 11, 118, 1),
-(132, 8, 118, 1),
-(133, 118, 12, 1),
-(134, 118, 13, 1),
-(135, 118, 119, 1);
+(131, 11, 118, 0),
+(132, 8, 118, 0),
+(133, 118, 12, 0),
+(134, 118, 13, 0),
+(135, 118, 119, 0);
 
 -- --------------------------------------------------------
 
@@ -7993,7 +8009,7 @@ CREATE TABLE IF NOT EXISTS `realiquoting_controls` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `aliquot_to_aliquot` (`parent_sample_to_aliquot_control_id`,`child_sample_to_aliquot_control_id`),
   KEY `FK_child_realiquoting_control` (`child_sample_to_aliquot_control_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=42 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=46 ;
 
 --
 -- Contenu de la table `realiquoting_controls`
@@ -8040,7 +8056,11 @@ INSERT INTO `realiquoting_controls` (`id`, `parent_sample_to_aliquot_control_id`
 (38, 47, 47, 1),
 (39, 48, 48, 1),
 (40, 53, 53, 1),
-(41, 54, 54, 1);
+(41, 54, 54, 1),
+(42, 55, 55, 1),
+(43, 55, 51, 1),
+(44, 51, 55, 1),
+(45, 55, 7, 1);
 
 -- --------------------------------------------------------
 
@@ -8314,39 +8334,39 @@ CREATE TABLE IF NOT EXISTS `sample_controls` (
 --
 
 INSERT INTO `sample_controls` (`id`, `sample_type`, `sample_type_code`, `sample_category`, `flag_active`, `form_alias`, `detail_tablename`, `display_order`) VALUES
-(1, 'ascite', 'A', 'specimen', 1, 'sd_spe_ascites', 'sd_spe_ascites', 0),
+(1, 'ascite', 'A', 'specimen', 0, 'sd_spe_ascites', 'sd_spe_ascites', 0),
 (2, 'blood', 'B', 'specimen', 1, 'sd_spe_bloods', 'sd_spe_bloods', 0),
 (3, 'tissue', 'T', 'specimen', 1, 'sd_spe_tissues', 'sd_spe_tissues', 0),
-(4, 'urine', 'U', 'specimen', 1, 'sd_spe_urines', 'sd_spe_urines', 0),
-(5, 'ascite cell', 'ASC-C', 'derivative', 1, 'sd_undetailed_derivatives', 'sd_der_ascite_cells', 0),
-(6, 'ascite supernatant', 'ASC-S', 'derivative', 1, 'sd_undetailed_derivatives', 'sd_der_ascite_sups', 0),
-(7, 'blood cell', 'BLD-C', 'derivative', 1, 'sd_undetailed_derivatives', 'sd_der_blood_cells', 0),
+(4, 'urine', 'U', 'specimen', 0, 'sd_spe_urines', 'sd_spe_urines', 0),
+(5, 'ascite cell', 'ASC-C', 'derivative', 0, 'sd_undetailed_derivatives', 'sd_der_ascite_cells', 0),
+(6, 'ascite supernatant', 'ASC-S', 'derivative', 0, 'sd_undetailed_derivatives', 'sd_der_ascite_sups', 0),
+(7, 'blood cell', 'BLD-C', 'derivative', 0, 'sd_undetailed_derivatives', 'sd_der_blood_cells', 0),
 (8, 'pbmc', 'PBMC', 'derivative', 1, 'qc_hb_sd_der_pbmc', 'sd_der_pbmcs', 0),
 (9, 'plasma', 'PLS', 'derivative', 1, 'sd_der_plasmas', 'sd_der_plasmas', 0),
 (10, 'serum', 'SER', 'derivative', 1, 'sd_der_serums', 'sd_der_serums', 0),
-(11, 'cell culture', 'C-CULT', 'derivative', 1, 'sd_der_cell_cultures', 'sd_der_cell_cultures', 0),
-(12, 'dna', 'DNA', 'derivative', 1, 'sd_undetailed_derivatives', 'sd_der_dnas', 0),
-(13, 'rna', 'RNA', 'derivative', 1, 'sd_undetailed_derivatives', 'sd_der_rnas', 0),
-(14, 'concentrated urine', 'CONC-U', 'derivative', 1, 'sd_undetailed_derivatives', 'sd_der_urine_cons', 0),
-(15, 'centrifuged urine', 'CENT-U', 'derivative', 1, 'sd_undetailed_derivatives', 'sd_der_urine_cents', 0),
-(17, 'amplified rna', 'AMP-RNA', 'derivative', 1, 'sd_undetailed_derivatives', 'sd_der_amp_rnas', 0),
-(18, 'b cell', 'BC', 'derivative', 1, 'sd_undetailed_derivatives', 'sd_der_b_cells', 0),
-(101, 'tissue lysate', 'T-LYS', 'derivative', 1, 'sd_undetailed_derivatives', 'sd_der_tiss_lysates', 0),
+(11, 'cell culture', 'C-CULT', 'derivative', 0, 'sd_der_cell_cultures', 'sd_der_cell_cultures', 0),
+(12, 'dna', 'DNA', 'derivative', 0, 'sd_undetailed_derivatives', 'sd_der_dnas', 0),
+(13, 'rna', 'RNA', 'derivative', 0, 'sd_undetailed_derivatives', 'sd_der_rnas', 0),
+(14, 'concentrated urine', 'CONC-U', 'derivative', 0, 'sd_undetailed_derivatives', 'sd_der_urine_cons', 0),
+(15, 'centrifuged urine', 'CENT-U', 'derivative', 0, 'sd_undetailed_derivatives', 'sd_der_urine_cents', 0),
+(17, 'amplified rna', 'AMP-RNA', 'derivative', 0, 'sd_undetailed_derivatives', 'sd_der_amp_rnas', 0),
+(18, 'b cell', 'BC', 'derivative', 0, 'sd_undetailed_derivatives', 'sd_der_b_cells', 0),
+(101, 'tissue lysate', 'T-LYS', 'derivative', 0, 'sd_undetailed_derivatives', 'sd_der_tiss_lysates', 0),
 (102, 'tissue suspension', 'T-SUSP', 'derivative', 1, 'sd_tissue_susp', 'sd_der_tiss_susps', 0),
-(103, 'peritoneal wash', 'PW', 'specimen', 1, 'sd_spe_peritoneal_washes', 'sd_spe_peritoneal_washes', 0),
-(104, 'cystic fluid', 'CF', 'specimen', 1, 'sd_spe_cystic_fluids', 'sd_spe_cystic_fluids', 0),
-(106, 'peritoneal wash cell', 'PW-C', 'derivative', 1, 'sd_undetailed_derivatives', 'sd_der_pw_cells', 0),
-(107, 'peritoneal wash supernatant', 'PW-S', 'derivative', 1, 'sd_undetailed_derivatives', 'sd_der_pw_sups', 0),
-(108, 'cystic fluid cell', 'CF-C', 'derivative', 1, 'sd_undetailed_derivatives', 'sd_der_cystic_fl_cells', 0),
-(109, 'cystic fluid supernatant', 'CF-S', 'derivative', 1, 'sd_undetailed_derivatives', 'sd_der_cystic_fl_sups', 0),
-(112, 'pericardial fluid', 'PC-F', 'specimen', 1, 'sd_spe_pericardial_fluids', 'sd_spe_pericardial_fluids', 0),
-(113, 'pleural fluid', 'PL-F', 'specimen', 1, 'sd_spe_pleural_fluids', 'sd_spe_pleural_fluids', 0),
-(114, 'pericardial fluid cell', 'PC-C', 'derivative', 1, 'sd_undetailed_derivatives', 'sd_der_pericardial_fl_cells', 0),
-(115, 'pericardial fluid supernatant', 'PC-S', 'derivative', 1, 'sd_undetailed_derivatives', 'sd_der_pericardial_fl_sups', 0),
-(116, 'pleural fluid cell', 'PL-C', 'derivative', 1, 'sd_undetailed_derivatives', 'sd_der_pleural_fl_cells', 0),
-(117, 'pleural fluid supernatant', 'PL-S', 'derivative', 1, 'sd_undetailed_derivatives', 'sd_der_pleural_fl_sups', 0),
-(118, 'cell lysate', 'C-LYSATE', 'derivative', 1, 'sd_undetailed_derivatives', 'sd_der_cell_lysates', 0),
-(119, 'protein', 'PROT', 'derivative', 1, 'sd_undetailed_derivatives', 'sd_der_proteins', 0);
+(103, 'peritoneal wash', 'PW', 'specimen', 0, 'sd_spe_peritoneal_washes', 'sd_spe_peritoneal_washes', 0),
+(104, 'cystic fluid', 'CF', 'specimen', 0, 'sd_spe_cystic_fluids', 'sd_spe_cystic_fluids', 0),
+(106, 'peritoneal wash cell', 'PW-C', 'derivative', 0, 'sd_undetailed_derivatives', 'sd_der_pw_cells', 0),
+(107, 'peritoneal wash supernatant', 'PW-S', 'derivative', 0, 'sd_undetailed_derivatives', 'sd_der_pw_sups', 0),
+(108, 'cystic fluid cell', 'CF-C', 'derivative', 0, 'sd_undetailed_derivatives', 'sd_der_cystic_fl_cells', 0),
+(109, 'cystic fluid supernatant', 'CF-S', 'derivative', 0, 'sd_undetailed_derivatives', 'sd_der_cystic_fl_sups', 0),
+(112, 'pericardial fluid', 'PC-F', 'specimen', 0, 'sd_spe_pericardial_fluids', 'sd_spe_pericardial_fluids', 0),
+(113, 'pleural fluid', 'PL-F', 'specimen', 0, 'sd_spe_pleural_fluids', 'sd_spe_pleural_fluids', 0),
+(114, 'pericardial fluid cell', 'PC-C', 'derivative', 0, 'sd_undetailed_derivatives', 'sd_der_pericardial_fl_cells', 0),
+(115, 'pericardial fluid supernatant', 'PC-S', 'derivative', 0, 'sd_undetailed_derivatives', 'sd_der_pericardial_fl_sups', 0),
+(116, 'pleural fluid cell', 'PL-C', 'derivative', 0, 'sd_undetailed_derivatives', 'sd_der_pleural_fl_cells', 0),
+(117, 'pleural fluid supernatant', 'PL-S', 'derivative', 0, 'sd_undetailed_derivatives', 'sd_der_pleural_fl_sups', 0),
+(118, 'cell lysate', 'C-LYSATE', 'derivative', 0, 'sd_undetailed_derivatives', 'sd_der_cell_lysates', 0),
+(119, 'protein', 'PROT', 'derivative', 0, 'sd_undetailed_derivatives', 'sd_der_proteins', 0);
 
 -- --------------------------------------------------------
 
@@ -8446,46 +8466,46 @@ CREATE TABLE IF NOT EXISTS `sample_to_aliquot_controls` (
 --
 
 INSERT INTO `sample_to_aliquot_controls` (`id`, `sample_control_id`, `aliquot_control_id`, `flag_active`) VALUES
-(1, 1, 2, 1),
+(1, 1, 2, 0),
 (2, 2, 2, 0),
 (3, 2, 6, 0),
 (7, 3, 4, 1),
-(8, 3, 5, 1),
-(9, 4, 2, 1),
-(10, 5, 8, 1),
-(11, 6, 8, 1),
-(12, 15, 8, 1),
-(13, 14, 8, 1),
-(14, 7, 15, 1),
+(8, 3, 5, 0),
+(9, 4, 2, 0),
+(10, 5, 8, 0),
+(11, 6, 8, 0),
+(12, 15, 8, 0),
+(13, 14, 8, 0),
+(14, 7, 15, 0),
 (15, 8, 15, 1),
 (16, 9, 8, 1),
 (17, 10, 8, 1),
-(18, 12, 11, 1),
-(19, 13, 11, 1),
-(21, 17, 11, 1),
-(23, 11, 10, 1),
-(30, 103, 2, 1),
-(31, 104, 2, 1),
-(33, 106, 8, 1),
-(34, 107, 8, 1),
-(35, 108, 8, 1),
-(36, 109, 8, 1),
-(39, 101, 15, 1),
+(18, 12, 11, 0),
+(19, 13, 11, 0),
+(21, 17, 11, 0),
+(23, 11, 10, 0),
+(30, 103, 2, 0),
+(31, 104, 2, 0),
+(33, 106, 8, 0),
+(34, 107, 8, 0),
+(35, 108, 8, 0),
+(36, 109, 8, 0),
+(39, 101, 15, 0),
 (40, 102, 15, 1),
-(41, 3, 12, 1),
-(42, 18, 14, 1),
-(43, 18, 13, 1),
-(44, 18, 15, 1),
-(45, 114, 8, 1),
-(46, 115, 8, 1),
-(47, 116, 8, 1),
-(48, 117, 8, 1),
-(49, 113, 2, 1),
-(50, 112, 2, 1),
+(41, 3, 12, 0),
+(42, 18, 14, 0),
+(43, 18, 13, 0),
+(44, 18, 15, 0),
+(45, 114, 8, 0),
+(46, 115, 8, 0),
+(47, 116, 8, 0),
+(48, 117, 8, 0),
+(49, 113, 2, 0),
+(50, 112, 2, 0),
 (51, 3, 1, 1),
-(52, 11, 15, 1),
-(53, 118, 8, 1),
-(54, 119, 8, 1),
+(52, 11, 15, 0),
+(53, 118, 8, 0),
+(54, 119, 8, 0),
 (55, 3, 16, 1);
 
 -- --------------------------------------------------------
@@ -9593,11 +9613,12 @@ CREATE TABLE IF NOT EXISTS `sd_der_tiss_susps` (
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   `qc_hb_overnight` tinyint(4) NOT NULL,
-  `qc_hb_macs_nb_cycles` tinyint(3) unsigned NOT NULL,
-  `qc_hb_macs_nb_incubations` tinyint(3) unsigned NOT NULL,
+  `qc_hb_macs_nb_cycles` tinyint(3) unsigned DEFAULT NULL,
+  `qc_hb_macs_nb_incubations` tinyint(3) unsigned DEFAULT NULL,
   `qc_hb_macs_enzymatic_milieu` varchar(50) NOT NULL DEFAULT '',
-  `qc_hb_nb_viable_cells` float unsigned NOT NULL,
+  `qc_hb_nb_viable_cells` float unsigned DEFAULT NULL,
   `qc_hb_nb_viable_cells_unit` varchar(50) NOT NULL DEFAULT '',
+  `qc_hb_viability_perc` float unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FK_sd_der_tiss_susps_sample_masters` (`sample_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -9625,11 +9646,12 @@ CREATE TABLE IF NOT EXISTS `sd_der_tiss_susps_revs` (
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   `qc_hb_overnight` tinyint(4) NOT NULL,
-  `qc_hb_macs_nb_cycles` tinyint(3) unsigned NOT NULL,
-  `qc_hb_macs_nb_incubations` tinyint(3) unsigned NOT NULL,
+  `qc_hb_macs_nb_cycles` tinyint(3) unsigned DEFAULT NULL,
+  `qc_hb_macs_nb_incubations` tinyint(3) unsigned DEFAULT NULL,
   `qc_hb_macs_enzymatic_milieu` varchar(50) NOT NULL DEFAULT '',
-  `qc_hb_nb_viable_cells` float unsigned NOT NULL,
+  `qc_hb_nb_viable_cells` float unsigned DEFAULT NULL,
   `qc_hb_nb_viable_cells_unit` varchar(50) NOT NULL DEFAULT '',
+  `qc_hb_viability_perc` float unsigned DEFAULT NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
@@ -9808,7 +9830,6 @@ CREATE TABLE IF NOT EXISTS `sd_spe_bloods` (
   `modified_by` int(10) unsigned NOT NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
-  `qc_hb_sample_code` varchar(50) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   KEY `FK_sd_spe_bloods_sample_masters` (`sample_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -9839,7 +9860,6 @@ CREATE TABLE IF NOT EXISTS `sd_spe_bloods_revs` (
   `version_created` datetime NOT NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
-  `qc_hb_sample_code` varchar(50) NOT NULL DEFAULT '',
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
@@ -10083,7 +10103,6 @@ CREATE TABLE IF NOT EXISTS `sd_spe_tissues` (
   `modified_by` int(10) unsigned NOT NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
-  `qc_hb_sample_code` varchar(50) NOT NULL DEFAULT '',
   `qc_hb_patho_report_no` varchar(50) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   KEY `FK_sd_spe_tissues_sample_masters` (`sample_master_id`)
@@ -10119,7 +10138,6 @@ CREATE TABLE IF NOT EXISTS `sd_spe_tissues_revs` (
   `version_created` datetime NOT NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
-  `qc_hb_sample_code` varchar(50) NOT NULL DEFAULT '',
   `qc_hb_patho_report_no` varchar(50) NOT NULL DEFAULT '',
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -10709,6 +10727,7 @@ CREATE TABLE IF NOT EXISTS `specimen_details` (
   `sample_master_id` int(11) DEFAULT NULL,
   `supplier_dept` varchar(40) DEFAULT NULL,
   `reception_by` varchar(50) DEFAULT NULL,
+  `qc_hb_sample_code` varchar(50) NOT NULL DEFAULT '',
   `reception_datetime` datetime DEFAULT NULL,
   `reception_datetime_accuracy` varchar(4) DEFAULT NULL,
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
@@ -10737,6 +10756,7 @@ CREATE TABLE IF NOT EXISTS `specimen_details_revs` (
   `sample_master_id` int(11) DEFAULT NULL,
   `supplier_dept` varchar(40) DEFAULT NULL,
   `reception_by` varchar(50) DEFAULT NULL,
+  `qc_hb_sample_code` varchar(50) NOT NULL DEFAULT '',
   `reception_datetime` datetime DEFAULT NULL,
   `reception_datetime_accuracy` varchar(4) DEFAULT NULL,
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
@@ -11313,7 +11333,7 @@ INSERT INTO `storage_controls` (`id`, `storage_type`, `storage_type_code`, `coor
 (18, 'box100 1A-20E', 'B2D100', 'column', 'integer', 20, 'row', 'alphabetical', 5, 0, 0, 0, 0, 'FALSE', 'FALSE', 1, 'std_undetail_stg_with_surr_tmp', 'std_2_dim_position_selection', 'std_boxs'),
 (19, 'TMA-blc 23X15', 'TMA345', 'column', 'integer', 23, 'row', 'integer', 15, 0, 0, 0, 0, 'FALSE', 'TRUE', 1, 'std_tma_blocks', 'std_2_dim_position_selection', 'std_tma_blocks'),
 (20, 'TMA-blc 29X21', 'TMA609', 'column', 'integer', 29, 'row', 'integer', 21, 0, 0, 0, 0, 'FALSE', 'TRUE', 1, 'std_tma_blocks', 'std_2_dim_position_selection', 'std_tma_blocks'),
-(21, 'glace', 'I', NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 'TRUE', 'FALSE', 1, 'std_undetail_stg_with_tmp', NULL, 'std_fridges');
+(21, 'ice', 'I', NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 'TRUE', 'FALSE', 1, 'std_undetail_stg_with_tmp', NULL, 'std_fridges');
 
 -- --------------------------------------------------------
 
@@ -11702,7 +11722,7 @@ CREATE TABLE IF NOT EXISTS `structure_fields` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_fields` (`plugin`,`model`,`tablename`,`field`,`structure_value_domain`),
   KEY `FK_structure_fields_structure_value_domains` (`structure_value_domain`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1264 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1265 ;
 
 --
 -- Contenu de la table `structure_fields`
@@ -12662,7 +12682,7 @@ INSERT INTO `structure_fields` (`id`, `public_identifier`, `plugin`, `model`, `t
 (1245, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'portal_thrombosis', 'portal thrombosis', '', 'select', '', '', 219, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (1246, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'splenomegaly', 'splenomegaly', '', 'select', '', '', 219, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (1247, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'splen_size', 'splen size', '', 'number', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
-(1248, '', 'Inventorymanagement', 'SampleDetail', 'sd_spe_bloods', 'qc_hb_sample_code', 'sample code', '', 'select', '', '', 259, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1248, '', 'Inventorymanagement', 'SpecimenDetail', 'sd_spe_bloods', 'qc_hb_sample_code', 'sample code', '', 'select', '', '', 259, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (1249, '', 'Inventorymanagement', 'DerivativeDetail', 'sd_der_pbmcs', 'qc_hb_nb_cells', 'nb of cells', '', 'float_positive', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (1250, '', 'Inventorymanagement', 'DerivativeDetail', 'sd_der_pbmcs', 'qc_hb_nb_cell_unit', '', 'unit', 'select', '', '', 260, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (1251, '', 'Inventorymanagement', 'SpecimenDetail', 'sd_spe_tissues', 'qc_hb_sample_code', 'sample code', '', 'select', '', '', 261, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
@@ -12672,12 +12692,13 @@ INSERT INTO `structure_fields` (`id`, `public_identifier`, `plugin`, `model`, `t
 (1255, '', 'Inventorymanagement', 'AliquotDetail', 'ad_tubes', 'qc_hb_milieu', 'milieu', '', 'select', '', '', 262, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (1256, '', 'Inventorymanagement', 'SampleDetail', 'sd_spe_tissues', 'qc_hb_patho_report_no', 'patho report nb', '', 'input', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (1257, '', 'Inventorymanagement', 'AliquotDetail', 'ad_tubes', 'qc_hb_milieu', 'milieu', '', 'select', '', '', 263, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
-(1258, '', 'Inventorymanagement', 'AliquotDetail', 'sd_der_tiss_susps', 'qc_hb_overnight', 'overnight', '', 'checkbox', '', '', 185, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
-(1259, '', 'Inventorymanagement', 'AliquotDetail', 'sd_der_tiss_susps', 'qc_hb_macs_nb_cycles', 'genHeMACS program', 'nb of cycles', 'select', '', '', 265, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
-(1260, '', 'Inventorymanagement', 'AliquotDetail', 'sd_der_tiss_susps', 'qc_hb_macs_nb_incubations', '', 'nb of incubations', 'select', '', '', 264, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
-(1261, '', 'Inventorymanagement', 'AliquotDetail', 'sd_der_tiss_susps', 'qc_hb_macs_enzymatic_milieu', '', 'enzymatic milieu', 'input', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
-(1262, '', 'Inventorymanagement', 'AliquotDetail', 'sd_der_tiss_susps', 'qc_hb_nb_viable_cells', 'nb viable cells', '', 'float_positive', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
-(1263, '', 'Inventorymanagement', 'AliquotDetail', 'sd_der_tiss_susps', 'qc_hb_nb_viable_cells_unit', '', '', 'select', '', '', 260, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+(1258, '', 'Inventorymanagement', 'SampleDetail', 'sd_der_tiss_susps', 'qc_hb_overnight', 'overnight', '', 'checkbox', '', '', 185, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1259, '', 'Inventorymanagement', 'SampleDetail', 'sd_der_tiss_susps', 'qc_hb_macs_nb_cycles', 'genHeMACS program', 'nb of cycles', 'select', '', '', 265, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1260, '', 'Inventorymanagement', 'SampleDetail', 'sd_der_tiss_susps', 'qc_hb_macs_nb_incubations', '', 'nb of incubations', 'select', '', '', 264, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1261, '', 'Inventorymanagement', 'SampleDetail', 'sd_der_tiss_susps', 'qc_hb_macs_enzymatic_milieu', '', 'enzymatic milieu', 'input', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1262, '', 'Inventorymanagement', 'SampleDetail', 'sd_der_tiss_susps', 'qc_hb_nb_viable_cells', 'nb viable cells', '', 'float_positive', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1263, '', 'Inventorymanagement', 'SampleDetail', 'sd_der_tiss_susps', 'qc_hb_viability_perc', 'viability percentage', '', 'float_positive', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1264, '', 'Inventorymanagement', 'SampleDetail', 'sd_der_tiss_susps', 'qc_hb_nb_viable_cells_unit', '', '', 'select', '', '', 260, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
 
 -- --------------------------------------------------------
 
@@ -12721,7 +12742,7 @@ CREATE TABLE IF NOT EXISTS `structure_formats` (
   PRIMARY KEY (`id`),
   KEY `FK_structure_formats_structures` (`structure_id`),
   KEY `FK_structure_formats_structure_fields` (`structure_field_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=3010 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=3011 ;
 
 --
 -- Contenu de la table `structure_formats`
@@ -14633,7 +14654,7 @@ INSERT INTO `structure_formats` (`id`, `structure_id`, `structure_field_id`, `di
 (2925, 237, 1246, 1, 7, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (2926, 237, 1247, 1, 8, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (2927, 220, 491, 0, 2, '', '0', 'event type', '0', '', '0', '', '0', 'input', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
-(2928, 37, 1248, 1, 34, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2928, 37, 1248, 0, 9, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (2929, 238, 169, 0, 6, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (2930, 238, 170, 0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (2931, 238, 172, 0, 25, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
@@ -14650,7 +14671,7 @@ INSERT INTO `structure_formats` (`id`, `structure_id`, `structure_field_id`, `di
 (2942, 238, 893, 1, 33, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (2943, 238, 1249, 1, 51, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (2944, 238, 1250, 1, 51, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
-(2945, 39, 1251, 0, 21, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(2945, 39, 1251, 0, 9, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (2946, 205, 1252, 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (2947, 59, 1253, 0, 11, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (2948, 59, 1254, 0, 27, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
@@ -14706,7 +14727,8 @@ INSERT INTO `structure_formats` (`id`, `structure_id`, `structure_field_id`, `di
 (3006, 240, 1260, 1, 42, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (3007, 240, 1261, 1, 43, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (3008, 240, 1262, 1, 44, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
-(3009, 240, 1263, 1, 45, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+(3009, 240, 1264, 1, 45, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(3010, 240, 1263, 1, 50, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
 
 -- --------------------------------------------------------
 
@@ -14720,7 +14742,7 @@ CREATE TABLE IF NOT EXISTS `structure_permissible_values` (
   `language_alias` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `value` (`value`,`language_alias`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=958 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=959 ;
 
 --
 -- Contenu de la table `structure_permissible_values`
@@ -14749,7 +14771,6 @@ INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VAL
 (3, '10e6', '10e6'),
 (1, '10e7', '10e7'),
 (2, '10e8', '10e8'),
-(942, '10^6 c', '10^6 c'),
 (847, '12', '12'),
 (138, '2', '2'),
 (786, '2-3', '2-3'),
@@ -14997,7 +15018,7 @@ INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VAL
 (659, 'fridge', 'fridge'),
 (10, 'frozen', 'frozen'),
 (333, 'frozen tissue', 'frozen tissue'),
-(946, 'gallbladder', 'gallbladder'),
+(946, 'gall-bladder', 'gall-bladder'),
 (853, 'gastroenterologist', 'gastroenterologist'),
 (594, 'gel CSA', 'gel CSA'),
 (951, 'gel SST', 'gel SST'),
@@ -15025,6 +15046,7 @@ INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VAL
 (907, 'HTP, bilirubin N', 'HTP, bilirubin N'),
 (908, 'HTP, hyperbilirubinemia', 'HTP, hyperbilirubinemia'),
 (903, 'I', 'I'),
+(958, 'ICM', 'ICM'),
 (151, 'ihc', 'ihc'),
 (904, 'II', 'II'),
 (905, 'III', 'III'),
@@ -15221,7 +15243,7 @@ INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VAL
 (268, 'row', 'row'),
 (861, 'roy', 'roy'),
 (941, 'S', 'S'),
-(767, 'Saint-Luc hospital', 'Saint-Luc hospital'),
+(767, 'saint-luc hospital', 'saint-luc hospital'),
 (937, 'same', 'same'),
 (56, 'sample derivative creation', 'sample derivative creation'),
 (818, 'SC: subcutaneous injection', 'SC: subcutaneous injection'),
@@ -15231,7 +15253,7 @@ INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VAL
 (417, 'serous', 'serous'),
 (619, 'serum', 'serum'),
 (952, 'serum + DMSO', 'serum + DMSO'),
-(774, 'service MBP', 'service MBP'),
+(774, 'service hbp', 'service hbp'),
 (887, 'severe', 'severe'),
 (272, 'shelf', 'shelf'),
 (42, 'shipped', 'shipped'),
@@ -15275,7 +15297,7 @@ INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VAL
 (933, 'total', 'total'),
 (422, 'transitional carcinoma', 'squamous carcinoma'),
 (697, 'translational', 'translational'),
-(953, 'transport/conservation', 'transport/conservation'),
+(953, 'transport/conservation medium', 'transport/conservation medium'),
 (391, 'treatment centre', 'treatment centre'),
 (166, 'tru-cut/core biopsy', 'tru-cut/core biopsy'),
 (13, 'tube', 'tube'),
@@ -15295,7 +15317,7 @@ INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VAL
 (30, 'unknown', 'unknown'),
 (869, 'unknwon', 'unknwon'),
 (70, 'urine', 'urine'),
-(770, 'Urszula Krzemien', 'Urszula Krzemien'),
+(770, 'urszula krzemien', 'urszula krzemien'),
 (35, 'used', 'used'),
 (565, 'used and/or stored', 'used and/or stored'),
 (862, 'vanderbroucke-menu', 'vanderbroucke-menu'),
@@ -15334,7 +15356,7 @@ CREATE TABLE IF NOT EXISTS `structure_validations` (
   `modified_by` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   KEY `FK_structure_validations_structure_fields` (`structure_field_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=138 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=92 ;
 
 --
 -- Contenu de la table `structure_validations`
@@ -15400,15 +15422,17 @@ INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_e
 (78, 521, 'notEmpty', '0', '0', '', 'error_participant identifier required', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (79, 521, 'isUnique', '0', '0', '', 'error_participant identifier must be unique', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
 (80, 588, 'notEmpty', '0', '0', '', 'value is required', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
-(81, 149, 'notEmpty', '0', '0', '', 'first name and last name are required', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
-(130, 56, 'notEmpty', '0', '0', '', 'value is required', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
-(131, 966, 'notEmpty', '0', '0', '', 'value is required', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
-(132, 578, 'notEmpty', '0', '0', '', 'value is required', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
-(133, 149, 'notEmpty', '0', '0', '', 'first name and last name are required', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
-(134, 460, 'notEmpty', '0', '0', '', 'first name and last name are required', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
-(135, 969, 'custom,/^([0-9]+(\\.[0-9]+)?)?$/', '1', '0', '', 'weight should be a positif decimal', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
-(136, 970, 'custom,/^([0-9]+(\\.[0-9]+)?)?$/', '1', '0', '', 'height should be a positif decimal', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
-(137, 1253, 'notEmpty', '', '', '', 'label is required', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+(81, 56, 'notEmpty', '0', '0', '', 'value is required', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+(82, 966, 'notEmpty', '0', '0', '', 'value is required', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+(83, 578, 'notEmpty', '0', '0', '', 'value is required', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+(84, 149, 'notEmpty', '0', '0', '', 'first name and last name are required', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(85, 460, 'notEmpty', '0', '0', '', 'first name and last name are required', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(86, 969, 'custom,/^([0-9]+(\\.[0-9]+)?)?$/', '1', '0', '', 'weight should be a positif decimal', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(87, 970, 'custom,/^([0-9]+(\\.[0-9]+)?)?$/', '1', '0', '', 'height should be a positif decimal', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(88, 1253, 'notEmpty', '', '', '', 'label is required', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(89, 333, 'notEmpty', '0', '0', '', '', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+(90, 1248, 'notEmpty', '0', '0', '', '', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
+(91, 1251, 'notEmpty', '0', '0', '', '', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
 
 -- --------------------------------------------------------
 
@@ -15660,7 +15684,7 @@ CREATE TABLE IF NOT EXISTS `structure_value_domains_permissible_values` (
   `flag_active` tinyint(1) NOT NULL DEFAULT '1',
   `language_alias` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1157 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1158 ;
 
 --
 -- Contenu de la table `structure_value_domains_permissible_values`
@@ -16321,7 +16345,7 @@ INSERT INTO `structure_value_domains_permissible_values` (`id`, `structure_value
 (935, '174', '771', 0, 0, 'custom_laboratory_staff_2'),
 (936, '174', '772', 0, 0, 'custom_laboratory_staff_etc'),
 (937, '175', '773', 0, 1, 'preadmission = preoperative checkup'),
-(938, '175', '774', 0, 1, 'service MBP'),
+(938, '175', '774', 0, 1, 'service hbp'),
 (939, '175', '641', 0, 1, 'operating room'),
 (940, '134', '129', 4, 1, 'not applicable'),
 (941, '89', '37', 4, 1, 'other'),
@@ -16342,9 +16366,9 @@ INSERT INTO `structure_value_domains_permissible_values` (`id`, `structure_value
 (1005, '100', '817', 2, 1, 'IM: intramuscular injection'),
 (1006, '100', '818', 3, 1, 'SC: subcutaneous injection'),
 (1007, '100', '819', 5, 1, 'PR: per rectum'),
-(1008, '179', '820', 0, 1, 'custom_laboratory_site_1'),
-(1009, '179', '821', 0, 1, 'custom_laboratory_site_2'),
-(1010, '179', '822', 0, 1, 'custom_laboratory_site_etc'),
+(1008, '179', '820', 0, 0, 'custom_laboratory_site_1'),
+(1009, '179', '821', 0, 0, 'custom_laboratory_site_2'),
+(1010, '179', '822', 0, 0, 'custom_laboratory_site_etc'),
 (1011, '180', '823', 0, 1, 'DMY'),
 (1012, '180', '824', 0, 1, 'MDY'),
 (1013, '180', '825', 0, 1, 'YMD'),
@@ -16472,11 +16496,11 @@ INSERT INTO `structure_value_domains_permissible_values` (`id`, `structure_value
 (1138, '258', '939', 3, 1, ''),
 (1139, '175', '229', 4, 1, ''),
 (1140, '259', '941', 1, 1, ''),
-(1141, '260', '942', 1, 1, ''),
+(1141, '260', '3', 1, 1, ''),
 (1142, '204', '943', 1, 1, ''),
 (1143, '204', '944', 2, 1, ''),
 (1144, '204', '945', 3, 1, ''),
-(1145, '204', '944', 4, 1, ''),
+(1145, '204', '946', 4, 1, ''),
 (1146, '204', '947', 5, 1, ''),
 (1147, '204', '37', 6, 1, ''),
 (1148, '261', '949', 1, 1, ''),
@@ -16487,7 +16511,8 @@ INSERT INTO `structure_value_domains_permissible_values` (`id`, `structure_value
 (1153, '264', '138', 1, 1, ''),
 (1154, '264', '139', 2, 1, ''),
 (1155, '265', '139', 1, 1, ''),
-(1156, '265', '141', 2, 1, '');
+(1156, '265', '141', 2, 1, ''),
+(1157, '179', '958', 1, 1, '');
 
 -- --------------------------------------------------------
 
@@ -17820,7 +17845,7 @@ CREATE TABLE IF NOT EXISTS `view_samples` (
 --
 DROP TABLE IF EXISTS `view_aliquots`;
 
-CREATE  VIEW `view_aliquots` AS select `al`.`id` AS `aliquot_master_id`,`samp`.`id` AS `sample_master_id`,`col`.`id` AS `collection_id`,`col`.`bank_id` AS `bank_id`,`stor`.`id` AS `storage_master_id`,`link`.`participant_id` AS `participant_id`,`link`.`diagnosis_master_id` AS `diagnosis_master_id`,`link`.`consent_master_id` AS `consent_master_id`,`part`.`participant_identifier` AS `participant_identifier`,`col`.`acquisition_label` AS `acquisition_label`,`samp`.`initial_specimen_sample_type` AS `initial_specimen_sample_type`,`parent_samp`.`sample_type` AS `parent_sample_type`,`samp`.`sample_type` AS `sample_type`,`al`.`barcode` AS `barcode`,`al`.`aliquot_type` AS `aliquot_type`,`al`.`in_stock` AS `in_stock`,`stor`.`code` AS `code`,`stor`.`selection_label` AS `selection_label`,`al`.`storage_coord_x` AS `storage_coord_x`,`al`.`storage_coord_y` AS `storage_coord_y`,`stor`.`temperature` AS `temperature`,`stor`.`temp_unit` AS `temp_unit`,count(`al_use`.`id`) AS `aliquot_use_counter`,`al`.`deleted` AS `deleted` from (((((((`aliquot_masters` `al` join `sample_masters` `samp` on(((`samp`.`id` = `al`.`sample_master_id`) and (`samp`.`deleted` <> 1)))) join `collections` `col` on(((`col`.`id` = `samp`.`collection_id`) and (`col`.`deleted` <> 1)))) left join `aliquot_uses` `al_use` on(((`al_use`.`aliquot_master_id` = `al`.`id`) and (`al_use`.`deleted` <> 1)))) left join `sample_masters` `parent_samp` on(((`samp`.`parent_id` = `parent_samp`.`id`) and (`parent_samp`.`deleted` <> 1)))) left join `clinical_collection_links` `link` on(((`col`.`id` = `link`.`collection_id`) and (`link`.`deleted` <> 1)))) left join `participants` `part` on(((`link`.`participant_id` = `part`.`id`) and (`part`.`deleted` <> 1)))) left join `storage_masters` `stor` on(((`stor`.`id` = `al`.`storage_master_id`) and (`stor`.`deleted` <> 1)))) where (`al`.`deleted` <> 1) group by `al`.`id`;
+CREATE VIEW `view_aliquots` AS select `al`.`id` AS `aliquot_master_id`,`samp`.`id` AS `sample_master_id`,`col`.`id` AS `collection_id`,`col`.`bank_id` AS `bank_id`,`stor`.`id` AS `storage_master_id`,`link`.`participant_id` AS `participant_id`,`link`.`diagnosis_master_id` AS `diagnosis_master_id`,`link`.`consent_master_id` AS `consent_master_id`,`part`.`participant_identifier` AS `participant_identifier`,`col`.`acquisition_label` AS `acquisition_label`,`samp`.`initial_specimen_sample_type` AS `initial_specimen_sample_type`,`parent_samp`.`sample_type` AS `parent_sample_type`,`samp`.`sample_type` AS `sample_type`,`al`.`barcode` AS `barcode`,`al`.`aliquot_type` AS `aliquot_type`,`al`.`in_stock` AS `in_stock`,`stor`.`code` AS `code`,`stor`.`selection_label` AS `selection_label`,`al`.`storage_coord_x` AS `storage_coord_x`,`al`.`storage_coord_y` AS `storage_coord_y`,`stor`.`temperature` AS `temperature`,`stor`.`temp_unit` AS `temp_unit`,count(`al_use`.`id`) AS `aliquot_use_counter`,`al`.`deleted` AS `deleted` from (((((((`aliquot_masters` `al` join `sample_masters` `samp` on(((`samp`.`id` = `al`.`sample_master_id`) and (`samp`.`deleted` <> 1)))) join `collections` `col` on(((`col`.`id` = `samp`.`collection_id`) and (`col`.`deleted` <> 1)))) left join `aliquot_uses` `al_use` on(((`al_use`.`aliquot_master_id` = `al`.`id`) and (`al_use`.`deleted` <> 1)))) left join `sample_masters` `parent_samp` on(((`samp`.`parent_id` = `parent_samp`.`id`) and (`parent_samp`.`deleted` <> 1)))) left join `clinical_collection_links` `link` on(((`col`.`id` = `link`.`collection_id`) and (`link`.`deleted` <> 1)))) left join `participants` `part` on(((`link`.`participant_id` = `part`.`id`) and (`part`.`deleted` <> 1)))) left join `storage_masters` `stor` on(((`stor`.`id` = `al`.`storage_master_id`) and (`stor`.`deleted` <> 1)))) where (`al`.`deleted` <> 1) group by `al`.`id`;
 
 -- --------------------------------------------------------
 
@@ -17829,7 +17854,7 @@ CREATE  VIEW `view_aliquots` AS select `al`.`id` AS `aliquot_master_id`,`samp`.`
 --
 DROP TABLE IF EXISTS `view_collections`;
 
-CREATE  VIEW `view_collections` AS select `col`.`id` AS `collection_id`,`col`.`bank_id` AS `bank_id`,`col`.`sop_master_id` AS `sop_master_id`,`link`.`participant_id` AS `participant_id`,`link`.`diagnosis_master_id` AS `diagnosis_master_id`,`link`.`consent_master_id` AS `consent_master_id`,`part`.`participant_identifier` AS `participant_identifier`,`col`.`acquisition_label` AS `acquisition_label`,`col`.`collection_site` AS `collection_site`,`col`.`collection_datetime` AS `collection_datetime`,`col`.`collection_datetime_accuracy` AS `collection_datetime_accuracy`,`col`.`collection_property` AS `collection_property`,`col`.`collection_notes` AS `collection_notes`,`col`.`deleted` AS `deleted`,`banks`.`name` AS `bank_name`,`misc_identifiers`.`identifier_value` AS `no_labo` from ((((`collections` `col` left join `clinical_collection_links` `link` on(((`col`.`id` = `link`.`collection_id`) and (`link`.`deleted` <> 1)))) left join `participants` `part` on(((`link`.`participant_id` = `part`.`id`) and (`part`.`deleted` <> 1)))) left join `banks` on(((`col`.`bank_id` = `banks`.`id`) and (`banks`.`deleted` <> 1)))) left join `misc_identifiers` on(((`part`.`id` = `misc_identifiers`.`participant_id`) and (`misc_identifiers`.`misc_identifier_control_id` = 3) and (`col`.`bank_id` = 1)))) where (`col`.`deleted` <> 1);
+CREATE VIEW `view_collections` AS select `col`.`id` AS `collection_id`,`col`.`bank_id` AS `bank_id`,`col`.`sop_master_id` AS `sop_master_id`,`link`.`participant_id` AS `participant_id`,`link`.`diagnosis_master_id` AS `diagnosis_master_id`,`link`.`consent_master_id` AS `consent_master_id`,`part`.`participant_identifier` AS `participant_identifier`,`col`.`acquisition_label` AS `acquisition_label`,`col`.`collection_site` AS `collection_site`,`col`.`collection_datetime` AS `collection_datetime`,`col`.`collection_datetime_accuracy` AS `collection_datetime_accuracy`,`col`.`collection_property` AS `collection_property`,`col`.`collection_notes` AS `collection_notes`,`col`.`deleted` AS `deleted`,`banks`.`name` AS `bank_name`,`misc_identifiers`.`identifier_value` AS `no_labo` from ((((`collections` `col` left join `clinical_collection_links` `link` on(((`col`.`id` = `link`.`collection_id`) and (`link`.`deleted` <> 1)))) left join `participants` `part` on(((`link`.`participant_id` = `part`.`id`) and (`part`.`deleted` <> 1)))) left join `banks` on(((`col`.`bank_id` = `banks`.`id`) and (`banks`.`deleted` <> 1)))) left join `misc_identifiers` on(((`part`.`id` = `misc_identifiers`.`participant_id`) and (`misc_identifiers`.`misc_identifier_control_id` = 3) and (`col`.`bank_id` = 1)))) where (`col`.`deleted` <> 1);
 
 -- --------------------------------------------------------
 
@@ -17838,7 +17863,7 @@ CREATE  VIEW `view_collections` AS select `col`.`id` AS `collection_id`,`col`.`b
 --
 DROP TABLE IF EXISTS `view_samples`;
 
-CREATE  VIEW `view_samples` AS select `samp`.`id` AS `sample_master_id`,`samp`.`parent_id` AS `parent_sample_id`,`samp`.`initial_specimen_sample_id` AS `initial_specimen_sample_id`,`col`.`id` AS `collection_id`,`col`.`bank_id` AS `bank_id`,`col`.`sop_master_id` AS `sop_master_id`,`link`.`participant_id` AS `participant_id`,`link`.`diagnosis_master_id` AS `diagnosis_master_id`,`link`.`consent_master_id` AS `consent_master_id`,`part`.`participant_identifier` AS `participant_identifier`,`col`.`acquisition_label` AS `acquisition_label`,`samp`.`initial_specimen_sample_type` AS `initial_specimen_sample_type`,`parent_samp`.`sample_type` AS `parent_sample_type`,`samp`.`sample_type` AS `sample_type`,`samp`.`sample_code` AS `sample_code`,`samp`.`sample_category` AS `sample_category`,`samp`.`deleted` AS `deleted` from ((((`sample_masters` `samp` join `collections` `col` on(((`col`.`id` = `samp`.`collection_id`) and (`col`.`deleted` <> 1)))) left join `sample_masters` `parent_samp` on(((`samp`.`parent_id` = `parent_samp`.`id`) and (`parent_samp`.`deleted` <> 1)))) left join `clinical_collection_links` `link` on(((`col`.`id` = `link`.`collection_id`) and (`link`.`deleted` <> 1)))) left join `participants` `part` on(((`link`.`participant_id` = `part`.`id`) and (`part`.`deleted` <> 1)))) where (`samp`.`deleted` <> 1);
+CREATE VIEW `view_samples` AS select `samp`.`id` AS `sample_master_id`,`samp`.`parent_id` AS `parent_sample_id`,`samp`.`initial_specimen_sample_id` AS `initial_specimen_sample_id`,`col`.`id` AS `collection_id`,`col`.`bank_id` AS `bank_id`,`col`.`sop_master_id` AS `sop_master_id`,`link`.`participant_id` AS `participant_id`,`link`.`diagnosis_master_id` AS `diagnosis_master_id`,`link`.`consent_master_id` AS `consent_master_id`,`part`.`participant_identifier` AS `participant_identifier`,`col`.`acquisition_label` AS `acquisition_label`,`samp`.`initial_specimen_sample_type` AS `initial_specimen_sample_type`,`parent_samp`.`sample_type` AS `parent_sample_type`,`samp`.`sample_type` AS `sample_type`,`samp`.`sample_code` AS `sample_code`,`samp`.`sample_category` AS `sample_category`,`samp`.`deleted` AS `deleted` from ((((`sample_masters` `samp` join `collections` `col` on(((`col`.`id` = `samp`.`collection_id`) and (`col`.`deleted` <> 1)))) left join `sample_masters` `parent_samp` on(((`samp`.`parent_id` = `parent_samp`.`id`) and (`parent_samp`.`deleted` <> 1)))) left join `clinical_collection_links` `link` on(((`col`.`id` = `link`.`collection_id`) and (`link`.`deleted` <> 1)))) left join `participants` `part` on(((`link`.`participant_id` = `part`.`id`) and (`part`.`deleted` <> 1)))) where (`samp`.`deleted` <> 1);
 
 --
 -- Contraintes pour les tables exportées
