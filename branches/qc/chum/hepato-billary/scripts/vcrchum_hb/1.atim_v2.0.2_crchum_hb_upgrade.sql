@@ -3584,10 +3584,17 @@ INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permiss
 SET spv.language_alias='service MBP', spv.value='service MBP'
 WHERE spv.language_alias ='custom_supplier_dept_2';
 
-UPDATE structure_value_domains_permissible_values AS svdpv 
+UPDATE structure_value_domains_permissible_values AS svdpv
 INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id
-SET spv.language_alias='operating room', spv.value='operating room'
+SET structure_permissible_value_id = (SELECT id FROM structure_permissible_values WHERE value='operating room' AND language_alias='operating room')
 WHERE spv.language_alias ='custom_supplier_dept_etc';
+
+UPDATE structure_value_domains_permissible_values AS svdpv
+INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id
+SET svdpv.language_alias = spv.language_alias
+WHERE svdpv.structure_value_domain_id = (SELECT id
+FROM `structure_value_domains`
+WHERE `domain_name` LIKE 'custom_specimen_supplier_dept');
 
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pathology", "pathology");
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="custom_specimen_supplier_dept"),  (SELECT id FROM structure_permissible_values WHERE value="pathology" AND language_alias="pathology"), "4", "1");
@@ -3604,7 +3611,7 @@ INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_
 INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
 ('', 'Inventorymanagement', 'SampleDetail', 'sd_spe_bloods', 'qc_hb_sample_code', 'sample code', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_sample_blood_type') , '', 'open', 'open', 'open');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
-((SELECT id FROM structures WHERE alias='sd_spe_bloods'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_bloods' AND `field`='qc_hb_sample_code' AND `language_label`='qc hb sample code' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_sample_blood_type')  AND `language_help`=''), '1', '34', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1');
+((SELECT id FROM structures WHERE alias='sd_spe_bloods'), (SELECT id FROM structure_fields WHERE `model` = 'SampleDetail' AND `tablename` = 'sd_spe_bloods' AND `field` = 'qc_hb_sample_code'), '1', '34', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1');
 UPDATE structure_formats SET `display_order`='35' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Generated' AND tablename='' AND field='coll_to_rec_spent_time_msg');
 
 -- rearranging create site/by/date display order for serums
@@ -3660,15 +3667,15 @@ UPDATE `structure_value_domains` SET `source` = NULL WHERE `structure_value_doma
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("CHC", "CHC");
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="tissue_source_list"),  (SELECT id FROM structure_permissible_values WHERE value="CHC" AND language_alias="CHC"), "1", "1");
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("liver metastasis", "liver metastasis");
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="tissue_source_list"),  (SELECT id FROM structure_permissible_values WHERE value="Métastase hépatique" AND language_alias="Métastase hépatique"), "2", "1");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="tissue_source_list"),  (SELECT id FROM structure_permissible_values WHERE value="liver metastasis" AND language_alias="liver metastasis"), "2", "1");
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("CholangioCa", "CholangioCa");
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="tissue_source_list"),  (SELECT id FROM structure_permissible_values WHERE value="CholangioCa" AND language_alias="CholangioCa"), "3", "1");
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("gallbladder", "gallbladder");
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="tissue_source_list"),  (SELECT id FROM structure_permissible_values WHERE value="Vésicule biliaire" AND language_alias="Vésicule biliaire"), "4", "1");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="tissue_source_list"),  (SELECT id FROM structure_permissible_values WHERE value="liver metastasis" AND language_alias="liver metastasis"), "4", "1");
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pancreas", "pancreas");
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="tissue_source_list"),  (SELECT id FROM structure_permissible_values WHERE value="Pancréas" AND language_alias="Pancréas"), "5", "1");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="tissue_source_list"),  (SELECT id FROM structure_permissible_values WHERE value="pancreas" AND language_alias="pancreas"), "5", "1");
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("other", "other");
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="tissue_source_list"),  (SELECT id FROM structure_permissible_values WHERE value="Autre/préciser" AND language_alias="Autre/préciser"), "6", "1");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="tissue_source_list"),  (SELECT id FROM structure_permissible_values WHERE value="other" AND language_alias="other"), "6", "1");
 
 -- conical tube
 INSERT INTO `aliquot_controls` (`id` ,`aliquot_type` ,`flag_active` ,`form_alias` ,`detail_tablename` ,`volume_unit` ,`comment` ,`display_order`) VALUES 
