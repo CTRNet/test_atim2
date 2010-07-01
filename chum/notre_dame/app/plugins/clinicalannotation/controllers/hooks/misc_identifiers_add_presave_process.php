@@ -27,6 +27,7 @@
 			$bank_id = $banks['Bank']['id'];
 			
 			// Create new identifier
+			if(!$is_incremented_identifier) { $this->redirect( '/pages/err_clin_system_error', null, true ); }
 			$new_identifier_value = $this->MiscIdentifierControl->getKeyIncrement($controls['MiscIdentifierControl']['autoincrement_name'], $controls['MiscIdentifierControl']['misc_identifier_format']);
 			if($new_identifier_value === false) { $this->redirect( '/pages/err_clin_system_error', null, true ); }
 			$this->data['MiscIdentifier']['identifier_value'] = $new_identifier_value; 

@@ -3420,8 +3420,24 @@ INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('the selected type code and labo laterality combination is not supported', 'global', 'The selected ''type code'' and ''labo laterality'' combination is not supported for the sample type ''Tissue''!', 'La combinaison ''code du type'' et ''latéralité'' sélectionnée n''est pas supportée pour le type de l''échantillon ''Tissu''!'),
 ('the selected type code does not match sample type', 'global', 'The selected type code can not be attached to the sample type!', 'Le code du type ne peut être utilisé pour le type de l''échantillon!');
 
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, (SELECT id FROM `structure_fields` WHERE field = 'aliquot_label' AND model = 'AliquotMaster'), 'maxLength,60', '0', '0', '', 'label size is limited', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
 
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('label size is limited', '', 'The label size is limited!', 'La taille du label est limitée!');
 
+UPDATE structures, structure_formats, structure_fields
+SET flag_add = '0', flag_datagrid = '0'
+WHERE structures.id = structure_formats.structure_id
+AND structure_formats.structure_field_id = structure_fields.id
+AND alias LIKE 'ad_%'
+AND field = 'barcode' 
+AND model = 'AliquotMaster';
 
+INSERT INTO `pages` (`id`, `error_flag`, `language_title`, `language_body`, `use_link`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+('qc_err_inv_barcode_generation_error', 1, 'system error', 'qc_err_inv_barcode_generation_error', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('qc_err_inv_barcode_generation_error', '', 'The system is unable to generate aliquot barcodes! Please contact your system administrator!', 'La système ne peut créer les barcodes des aliquots! Veuillez contacter l''administrateur de votre système!');
 
 
