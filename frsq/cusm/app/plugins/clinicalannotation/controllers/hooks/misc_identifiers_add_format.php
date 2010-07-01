@@ -1,9 +1,9 @@
 <?php
  
  	// --------------------------------------------------------------------------------
-	// Create one prostate_bank_participant_id per participant
+	// Set data to create directly auto-incremented identifier
 	// -------------------------------------------------------------------------------- 	
- 	if(!empty($controls['MiscIdentifierControl']['autoincrement_name'])) {
+ 	if($is_incremented_identifier) {
  		// Set data for direct creation
 		$this->data = array();			
 		$this->data['MiscIdentifier']['identifier_name'] = $controls['MiscIdentifierControl']['misc_identifier_name'];

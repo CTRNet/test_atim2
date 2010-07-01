@@ -5,6 +5,10 @@
 	// -------------------------------------------------------------------------------- 
 	if($submitted_data_validates && (!isset($this->data['ClinicalCollectionLink']['deleted']))) {
 		// Participant will be linked to an existing collection: Manage link creation + update participant sample labels
+		
+		// Keep warning for developper
+		pr('WARNING: Save process done into the hook! Check clinical_collections_links_controller.php upgrade has no impact on the hook line code!');				
+		
 		$submitted_data_validates = false;
 		
 		//Get selected collection data
@@ -14,6 +18,7 @@
 				$selected_collection_data = $available_collection;
 			}
 		}
+		
 		if(empty($selected_collection_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
 		
 		// Launch save process

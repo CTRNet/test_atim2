@@ -10,6 +10,7 @@
 		'EventMaster.participant_id' => $participant_id,
 		'EventMaster.diagnosis_master_id' => $diagnosis_master_id);
 	$res = $this->EventMaster->find('first', array('conditions' => $criteria));
+
 	if(empty($res)) {
 		// Allow user to create lab report for the diagnosis
 		

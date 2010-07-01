@@ -21,11 +21,13 @@ class CollectionsControllerCustom extends CollectionsController {
 			if(empty($collection_view_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }
 			$qc_cusm_prostate_bank_identifier = $collection_view_data['ViewCollection']['qc_cusm_prostate_bank_identifier'];			
 		}
+		$qc_cusm_prostate_bank_identifier = empty($qc_cusm_prostate_bank_identifier)? '' : $qc_cusm_prostate_bank_identifier;
 
 		// Set collection visit
 		$qc_cusm_visit_label = $collection_data['Collection']['qc_cusm_visit_label'];
 		
 		// Get collection samples list
+// Following line does not work
 //		$this->SampleMaster->contain(array('SampleControl', 'SpecimenDetail', 'DerivativeDetail', 'SampleDetail'));
 		$this->SampleMaster->unbindModel(array('hasMany' => array('AliquotMaster'), 'belongsTo' => array('Collection')));
 		$collection_samples = $this->SampleMaster->find('all', array('conditions' => array('SampleMaster.collection_id' => $collection_id), 'recursive' => '1'));
