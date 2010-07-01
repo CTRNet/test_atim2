@@ -3365,6 +3365,62 @@ WHERE format.structure_id = strct.id
 AND strct.alias = 'sd_spe_tissues'
 AND format.structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='Inventorymanagement' AND `model`='SampleDetail' AND `field` IN ('tissue_laterality', 'tissue_source')); 
 
+-- Clean up lab_type_laterality_match
+
+DELETE FROM structure_value_domains_permissible_values WHERE structure_value_domain_id IN (SELECT id FROM `structure_value_domains` WHERE domain_name = 'qc_labo_tissue_laterality');
+UPDATE structure_value_domains SET source = 'Inventorymanagement.LabTypeLateralityMatch::getLaboLaterality' WHERE domain_name = 'qc_labo_tissue_laterality';
+
+ALTER TABLE `lab_type_laterality_match`
+	ADD UNIQUE KEY `unique_records` (`selected_type_code`,`selected_labo_laterality`,`sample_type_matching`);
+
+UPDATE sd_spe_tissues SET tissue_nature = 'unknown' WHERE tissue_nature = 'unknwon';
+UPDATE sd_spe_tissues SET tissue_source = 'unknown' WHERE tissue_source = 'unknwon';
+UPDATE sd_spe_tissues SET tissue_laterality = 'unknown' WHERE tissue_laterality = 'unknwon';
+UPDATE sd_spe_tissues SET labo_laterality = 'unknown' WHERE labo_laterality = 'unknwon';
+
+UPDATE specimen_details SET type_code = 'unknown' WHERE type_code = 'unknwon';
+UPDATE specimen_details SET sequence_number = 'unknown' WHERE sequence_number = 'unknwon';
+
+UPDATE lab_type_laterality_match SET selected_type_code = 'unknown' WHERE selected_type_code = 'unknwon';
+UPDATE lab_type_laterality_match SET selected_labo_laterality = 'unknown' WHERE selected_labo_laterality = 'unknwon';
+UPDATE lab_type_laterality_match SET sample_type_matching = 'unknown' WHERE sample_type_matching = 'unknwon';
+UPDATE lab_type_laterality_match SET tissue_source_matching = 'unknown' WHERE tissue_source_matching = 'unknwon';
+UPDATE lab_type_laterality_match SET nature_matching = 'unknown' WHERE nature_matching = 'unknwon';
+UPDATE lab_type_laterality_match SET laterality_matching = 'unknown' WHERE laterality_matching = 'unknwon';
+
+UPDATE aliquot_masters SET aliquot_label = REPLACE(aliquot_label,'unknwon','unknown');
+UPDATE sample_masters SET sample_label = REPLACE(sample_label,'unknwon','unknown');
+
+UPDATE lab_type_laterality_match SET nature_matching = 'benign' WHERE nature_matching = 'begnin';
+UPDATE sd_spe_tissues SET tissue_nature = 'benign' WHERE tissue_nature = 'begnin';
+
+UPDATE structure_value_domains SET source = 'Inventorymanagement.LabTypeLateralityMatch::getTissueSourcePermissibleValues' WHERE domain_name = 'tissue_source_list';
+
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('breast', 'global', 'Breast', 'Sein'),
+('hypopharynx', 'global', 'Hypopharynx', 'Hypopharynx'),
+('larynx', 'global', 'Larynx', 'Larynx'),
+('nasopharynx', 'global', 'Nasopharynx', 'Nasopharynx'),
+('oral cavity', 'global', 'Oral Cavity', 'Cavité orale'),
+('oropharynx', 'global', 'Oropharynx', 'Oropharynx'),
+('other', 'global', 'Other', 'Autre'),
+('ovary', 'global', 'Ovary', 'Ovaire'),
+('prostate', 'global', 'Prostate', 'Prostate'),
+('peritoneum', '', 'Peritoneum', 'Peritoneum'),
+
+
+('fallopian tube', 'global', 'Fallopian Tube', 'Trompe de Fallope'),
+('uterus', 'global', 'Uterus', 'Utérus'),
+('other (metastasis)', 'global', 'Other (metastasis)', 'Other (métastase)'),
+('omentum', 'global', 'Omentum', 'Épiploon'),
+
+('unknown', 'global', 'Unknown', 'Inconnu');
+
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('the selected type code and labo laterality combination is not supported', 'global', 'The selected ''type code'' and ''labo laterality'' combination is not supported for the sample type ''Tissue''!', 'La combinaison ''code du type'' et ''latéralité'' sélectionnée n''est pas supportée pour le type de l''échantillon ''Tissu''!'),
+('the selected type code does not match sample type', 'global', 'The selected type code can not be attached to the sample type!', 'Le code du type ne peut être utilisé pour le type de l''échantillon!');
+
+
 
 
 

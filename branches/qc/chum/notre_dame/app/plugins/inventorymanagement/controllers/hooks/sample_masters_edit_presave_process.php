@@ -9,16 +9,14 @@
 		$working_data['SampleMaster']['initial_specimen_sample_id'] = $sample_data['SampleMaster']['initial_specimen_sample_id'];
 		
 		$this->data['SampleMaster']['sample_label'] = $this->createSampleLabel($collection_id, $working_data);
+
+	 	// --------------------------------------------------------------------------------
+		// Check selected type code for all specimen plus set read only fields for tissue
+		// (tissue source, nature, laterality)
+		// -------------------------------------------------------------------------------- 	
+		if(!$this->validateLabTypeCodeAndLaterality()) { $submitted_data_validates = false; }
 	}
-
-
-
-	// For specimen: Check selected type code 
-	// Plus for tissue: set read only fields (tissue source, nature, laterality)		
-	$management_done 
-		= $this->manageLabTypeCodeAndLaterality($submitted_data_validates);
-
-exit;
+	
 	// --------------------------------------------------------------------------------
 	// Update Derivatives Sample Labels of the managed Specimen
 	// -------------------------------------------------------------------------------- 	

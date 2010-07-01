@@ -138,156 +138,114 @@ class SampleMastersControllerCustom extends SampleMastersController {
 		
 		return $formatted_data;
 	}
-	 
-	 
-	 
-	 
-	 
-	 
 	
 	/**
-	 * For each specimen, check the selected type code.
+	 * For each specimen, check following fields combination matches defintion
+	 * done into table LabTypeLateralityMatch:
+	 * 
+	 * 		[sample_type_matching . selected_type_code . selected_labo_laterality]
 	 * 
 	 * When specimen type is tissue, this function will also set
 	 * automatically fields tissue source, nature and laterality.
 	 * 
-	 * @param $submitted_data_validates Variable passed by reference to validate data entry.
-	 * Will be set to FALSE, when an error has been detected.
-	 * 
-	 * @return FALSE if an error has been detected else TRUE.
+	 * @return false if data has not been validated.
 	 * 
 	 * @author N. Luc
 	 * @since 2008-01-29
 	 */
-	function manageLabTypeCodeAndLaterality() {
-return true;				
-		$data_validates = true;
+	 
+	function validateLabTypeCodeAndLaterality() {				
+		$process_validates= true;
 		
 		if($this->data['SampleMaster']['sample_category'] === 'specimen') {
-						
+			// Load model to control data
+			App::import('Model', 'Inventorymanagement.LabTypeLateralityMatch');		
+			$LabTypeLateralityMatch = new LabTypeLateralityMatch();			
+			
 			// Get Data
-			if(!array_key_exists('sample_type', $this->data['SampleMaster'])) { $this->redirect('/pages/err_inv_system_error', null, true); }
+			if(!array_key_exists('sample_type', $this->data['SampleMaster'])) {pr('ascasc1');exit; $this->redirect('/pages/err_inv_system_error', null, true); }
 			$tmp_specimen_type = $this->data['SampleMaster']['sample_type'];
 				
-			if(!array_key_exists('SpecimenDetail', $this->data)) { $this->redirect('/pages/err_inv_system_error', null, true); }
-			if(!array_key_exists('type_code', $this->data['SpecimenDetail'])) { $this->redirect('/pages/err_inv_system_error', null, true); }
+			if(!array_key_exists('SpecimenDetail', $this->data)) {pr('ascasc2');exit; $this->redirect('/pages/err_inv_system_error', null, true); }
+			if(!array_key_exists('type_code', $this->data['SpecimenDetail'])) {pr('ascasc3');exit; $this->redirect('/pages/err_inv_system_error', null, true); }
 			$tmp_selected_type_code = $this->data['SpecimenDetail']['type_code'];
-				
-			//Load model to control data
-			App::import('Model', 'Inventorymanagement.LabTypeLateralityMatch');		
-			$LabTypeLateralityMatch = new LabTypeLateralityMatch();
-
-pr($tmp_selected_type_code);
-pr($tmp_specimen_type);
-exit;							
-			if($tmp_specimen_type == 'tissue') { 
-				
-				// ** Validate Tissue Specimen **
-				
-				if(array_key_exists('labo_laterality', $this->data['SampleDetail'])) { $this->redirect('/pages/err_inv_system_error', null, true); }
+									
+			if($tmp_specimen_type == 'tissue') { 				
+				// ** Validate Tissue Specimen + Set tissue additional data **
+								
+				if(!array_key_exists('labo_laterality', $this->data['SampleDetail'])) {pr('ascasc4');exit; $this->redirect('/pages/err_inv_system_error', null, true); }
 				$tmp_labo_laterality = $this->data['SampleDetail']['labo_laterality'];
 					
-				if(!(empty($tmp_selected_type_code) && empty($tmp_labo_laterality))){
-					// At least one value has been selected
+				$tissue_source = '';	
+				$nature = '';	
+				$laterality = '';	
 					
-					// Search LabTypeLaterMatchControl record
+				if(!(empty($tmp_selected_type_code) && empty($tmp_labo_laterality))){	
+					// Search LabTypeLateralityMatch record
 					$criteria = array();
-					$criteria['LabTypeLaterMatchControl.sample_type_matching'] = 'tissue'; 
-					$criteria['LabTypeLaterMatchControl.selected_type_code'] = $tmp_selected_type_code;
-					$criteria['LabTypeLaterMatchControl.selected_labo_laterality'] = $tmp_labo_laterality; 
+					$criteria['LabTypeLateralityMatch.sample_type_matching'] = $tmp_specimen_type; 
+					$criteria['LabTypeLateralityMatch.selected_type_code'] = $tmp_selected_type_code;
+					$criteria['LabTypeLateralityMatch.selected_labo_laterality'] = $tmp_labo_laterality; 
 								
-					$Lab_type_later_match_data = $LabTypeLaterMatchControl->findAll($criteria);
+					$matching_records = $LabTypeLateralityMatch->findAll($criteria);
 									
-					if(sizeof($Lab_type_later_match_data) == 0) {
+					if(sizeof($matching_records) == 0) {
 						// The selected type code and labo laterality combination not currently supported by the laboratory				
-						$data_validates = FALSE;
+						$process_validates= false;
 						$this->SampleMaster->validationErrors[] 
 							= 'the selected type code and labo laterality combination is not supported';
 						
-					} else if(sizeof($Lab_type_later_match_data) == 1) {
-						// Set automatically tissue source, nature and laterality
-						$this->data['SampleDetail']['tissue_source'] 
-	            			= $Lab_type_later_match_data[0]['LabTypeLaterMatchControl']['tissue_source_matching'];
-	             		$this->data['SampleDetail']['nature']
-	            			= $Lab_type_later_match_data[0]['LabTypeLaterMatchControl']['nature_matching'];
-	             		$this->data['SampleDetail']['laterality']
-	            			= $Lab_type_later_match_data[0]['LabTypeLaterMatchControl']['laterality_matching'];
-		
+					} else if(sizeof($matching_records) > 1) {
+						// Only one row should be defined in model 'LabTypeLateralityMatch' 
+						// for this specific combination sample_type_matching.selected_type_code.selected_labo_laterality
+						pr('ascasc5');exit;$this->redirect('/pages/err_inv_system_error', null, true);	
+						
 					} else {
-						// Only one row should be defined in model 'LabTypeLaterMatchControl' 
-						// for this specific combination 'tissue'.type_code.labo_laterality
-						$this->redirect('/pages/err_inv_system_error', null, true);	
-					}				
-				
-				} else {
-					// Set automatically tissue source, nature and laterality to empty
-					$this->data['SampleDetail']['tissue_source'] = '';
-             		$this->data['SampleDetail']['nature'] = '';
-             		$this->data['SampleDetail']['laterality'] = '';					
+						// Set automatically tissue source, nature and laterality
+						$tissue_source = $matching_records[0]['LabTypeLateralityMatch']['tissue_source_matching'];
+	             		$nature= $matching_records[0]['LabTypeLateralityMatch']['nature_matching'];
+	             		$laterality= $matching_records[0]['LabTypeLateralityMatch']['laterality_matching'];
+		
+					}
 				}
+				
+				// Set tissue additional data
+				$this->data['SampleDetail']['tissue_source'] = $tissue_source;
+         		$this->data['SampleDetail']['tissue_nature'] = $nature;
+         		$this->data['SampleDetail']['tissue_laterality'] = $laterality;	
 								
 			} else {
-				// OTHER SPECIMEN THAN TISSUE
-				
-				if(!empty($this->data['SpecimenDetail']['type_code'])) {
-					// Type code has been recorded: Check this one matches sample type 
+				// ** Validate All Specimen Except Tissue **
+								
+				if(!empty($tmp_selected_type_code)) {
+					// Type code has been selected: Check this one matches sample type 
 					
 					$criteria = array();
-					$criteria['LabTypeLaterMatchControl.sample_type_matching'] = $tmp_specimen_type; 
+					$criteria['LabTypeLateralityMatch.sample_type_matching'] = $tmp_specimen_type; 
+					$criteria['LabTypeLateralityMatch.selected_type_code'] = $tmp_selected_type_code;
+					$criteria['LabTypeLateralityMatch.selected_labo_laterality'] = ''; 
 					
-					$Lab_type_later_match_data = $LabTypeLaterMatchControl->findAll($criteria);
+					$matching_records = $LabTypeLateralityMatch->findAll($criteria);
 					
-					if(sizeof($Lab_type_later_match_data) == 0) {
-						// The selected type code and labo laterality combination 
-						// is not currently supported by the laboratory				
-						$data_validates = FALSE;
+					if(sizeof($matching_records) == 0) {
+						// The selected type code and labo laterality combination is not currently supported by the laboratory				
+						$process_validates= false;
 						$this->SampleMaster->validationErrors[] 
-							= 'no type code can currently be selected for the studied specimen type';
+							= 'the selected type code does not match sample type';
 						
-					} else {
+					} else if(sizeof($matching_records) > 1) {
+						// Only one row should be defined in model 'LabTypeLateralityMatch' 
+						// for this specific combination sample_type_matching.selected_type_code.selected_labo_laterality
+						pr('ascasc6');exit;$this->redirect('/pages/err_inv_system_error', null, true);	
 						
-						// Set flag
-						$bool_find_match = FALSE;
-						
-						// Search match
-						foreach($Lab_type_later_match_data as $id => $new_lab_type_later_match) {
-							if(strcmp($new_lab_type_later_match['LabTypeLaterMatchControl']['selected_type_code'], 
-							$tmp_selected_type_code) == 0) {
-								$bool_find_match = TRUE;								
-							}	
-						}
-						
-						if(!$bool_find_match) {
-							// The selected type code doesn't match the sample type	
-							$data_validates = FALSE;
-							$this->SampleMaster->validationErrors[] 
-								= 'the selected type code does not match sample type';						
-						}
-	
 					}
 				}
 			}
 		} 
 		
-		return $data_validates;
-		
+		return $process_validates;	
 	}	 
-	 
-	 
-	 
-	 
-	 
-	 
-	 
-	 
-	 
-	 
-	 
-	 
-	 
-	 
-	 	
-	 
+ 
 }
 	
 ?>
