@@ -25,8 +25,7 @@ class SampleMastersControllerCustom extends SampleMastersController {
 			if(empty($visit_label)) { $visit_label = 'V0'; }
 			
 			// Get cusm_prostate_bank_identifier		
-			$cusm_prostate_bank_identifier = $view_collection['ViewCollection']['qc_cusm_prostate_bank_identifier'];
-						
+			$cusm_prostate_bank_identifier = $view_collection['ViewCollection']['qc_cusm_prostate_bank_identifier'];				
 		}
 		if(empty($cusm_prostate_bank_identifier)) { $cusm_prostate_bank_identifier = '--'; }
 
