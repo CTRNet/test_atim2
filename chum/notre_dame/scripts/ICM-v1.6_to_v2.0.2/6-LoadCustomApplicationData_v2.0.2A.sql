@@ -3144,7 +3144,7 @@ UPDATE aliquot_uses, realiquotings, aliquot_masters AS child
 SET aliquot_uses.use_code = child.barcode
 WHERE aliquot_uses.id = realiquotings.aliquot_use_id
 AND child.id = realiquotings.child_aliquot_master_id
-AND aliquot_uses.use_definition = 'realiquoted to'
+AND aliquot_uses.use_definition = 'realiquoted to';
 
 -- Update Quality control data
 
@@ -3273,8 +3273,6 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('shipping name', 'global', 'Shipping Name', 'Nom d''envoi');
 
 UPDATE order_items SET aliquot_use_id = NULL WHERE aliquot_use_id = '0'; 
-
-SELECT distinct in_stock,in_stock_detail,status FROM aliquot_masters as alq INNER JOIN order_items as items on items.aliquot_master_id = alq.id
 
 -- Study tool update
 
@@ -3440,4 +3438,79 @@ INSERT INTO `pages` (`id`, `error_flag`, `language_title`, `language_body`, `use
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('qc_err_inv_barcode_generation_error', '', 'The system is unable to generate aliquot barcodes! Please contact your system administrator!', 'La système ne peut créer les barcodes des aliquots! Veuillez contacter l''administrateur de votre système!');
 
+-- Move DB fields to match 2.0.2A
 
+ALTER TABLE `ad_tubes` MODIFY COLUMN `lot_number` varchar(30) DEFAULT NULL AFTER `aliquot_master_id`;
+ALTER TABLE `aliquot_controls` MODIFY COLUMN `form_alias` varchar(255) NOT NULL AFTER `flag_active`;
+ALTER TABLE `aliquot_controls` MODIFY COLUMN `detail_tablename` varchar(255) NOT NULL AFTER `form_alias`;
+DROP TABLE `ed_allsolid_lab_pathology`;
+DROP TABLE `ed_allsolid_lab_pathology_revs`;
+ALTER TABLE `event_controls` MODIFY COLUMN `form_alias` varchar(255) NOT NULL AFTER `flag_active`;
+ALTER TABLE `event_controls` MODIFY COLUMN `detail_tablename` varchar(255) NOT NULL AFTER `form_alias`;
+ALTER TABLE `aliquot_controls` MODIFY COLUMN `detail_tablename` varchar(255) NOT NULL AFTER `form_alias`;
+ALTER TABLE `family_histories` MODIFY COLUMN `participant_id` int(11) DEFAULT NULL AFTER `age_at_dx_accuracy`;
+ALTER TABLE `misc_identifiers` MODIFY COLUMN `participant_id` int(11) DEFAULT NULL AFTER `notes`;
+ALTER TABLE `misc_identifier_controls` MODIFY COLUMN `display_order` int(11) NOT NULL DEFAULT '0' AFTER `flag_active`;
+ALTER TABLE `participants` MODIFY COLUMN `middle_name` varchar(50) DEFAULT NULL AFTER `first_name`;
+ALTER TABLE `participant_contacts` MODIFY COLUMN `phone` varchar(30) NOT NULL DEFAULT '' AFTER `mail_code`;
+ALTER TABLE `participant_contacts_revs` MODIFY COLUMN `phone` varchar(30) NOT NULL DEFAULT '' AFTER `mail_code`;
+ALTER TABLE `participant_messages` MODIFY COLUMN `participant_id` int(11) DEFAULT NULL AFTER `expiry_date`;
+ALTER TABLE `quality_ctrls` MODIFY COLUMN `sample_master_id` int(11) DEFAULT NULL AFTER `qc_code`;
+ALTER TABLE `quality_ctrls` MODIFY COLUMN `date` date DEFAULT NULL AFTER `run_by`;
+ALTER TABLE `quality_ctrl_tested_aliquots` MODIFY COLUMN `aliquot_master_id` int(11) DEFAULT NULL AFTER `quality_ctrl_id`;
+ALTER TABLE `quality_ctrl_tested_aliquots` MODIFY COLUMN `aliquot_use_id` int(11) DEFAULT NULL AFTER `aliquot_master_id`;
+ALTER TABLE `sample_controls` MODIFY COLUMN `form_alias` varchar(255) NOT NULL AFTER `flag_active`;
+ALTER TABLE `sample_controls` MODIFY COLUMN `detail_tablename` varchar(255) NOT NULL AFTER `form_alias`;
+ALTER TABLE `sd_der_amp_rnas` MODIFY COLUMN  `sample_master_id` int(11) DEFAULT NULL AFTER `id`;
+ALTER TABLE `storage_controls` MODIFY COLUMN `form_alias` varchar(255) NOT NULL AFTER `flag_active`;
+ALTER TABLE `storage_controls` MODIFY COLUMN `detail_tablename` varchar(255) NOT NULL AFTER `form_alias_for_children_pos`;
+ALTER TABLE `storage_masters` MODIFY COLUMN `short_label` varchar(15) DEFAULT NULL AFTER `barcode`;
+ALTER TABLE `storage_masters_revs` MODIFY COLUMN `short_label` varchar(15) DEFAULT NULL AFTER `barcode`;
+
+-- Add Missing FK
+
+ALTER TABLE `ed_all_lifestyle_smoking`
+  ADD CONSTRAINT `ed_all_lifestyle_smoking_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+ALTER TABLE `ed_all_protocol_followup`
+  ADD CONSTRAINT `ed_all_protocol_followup_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+ALTER TABLE `ed_all_study_research`
+  ADD CONSTRAINT `ed_all_study_research_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+ALTER TABLE `ed_breast_lab_pathology`
+  ADD CONSTRAINT `ed_breast_lab_pathology_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+ALTER TABLE `ed_breast_screening_mammogram`
+  ADD CONSTRAINT `ed_breast_screening_mammogram_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+ALTER TABLE `order_items`
+  ADD CONSTRAINT `FK_order_items_aliquot_uses` FOREIGN KEY (`aliquot_use_id`) REFERENCES `aliquot_uses` (`id`);
+  
+ALTER TABLE `cd_icm_generics`
+  ADD CONSTRAINT `cd_icm_generics_ibfk_1` FOREIGN KEY (`consent_master_id`) REFERENCES `consent_masters` (`id`);
+  
+ALTER TABLE `dxd_sardos`
+  ADD CONSTRAINT `dxd_sardos_ibfk_1` FOREIGN KEY (`diagnosis_master_id`) REFERENCES `diagnosis_masters` (`id`);
+  
+ALTER TABLE `ed_all_procure_lifestyle`
+  ADD CONSTRAINT `ed_all_procure_lifestyle_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+  
+ALTER TABLE `sd_der_of_cells`
+  ADD CONSTRAINT `FK_sd_der_of_cells_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+ALTER TABLE `sd_der_of_sups`
+  ADD CONSTRAINT `FK_sd_der_of_sups_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+ALTER TABLE `sd_spe_other_fluids`
+  ADD CONSTRAINT `FK_sd_spe_other_fluids_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+
+ALTER TABLE `participant_contacts` DROP FOREIGN KEY `participant_contacts_ibfk_1`;
+  
+ALTER TABLE `structure_fields` DROP KEY `unique_fields`;  
+
+UPDATE structure_fields SET tablename = CONCAT('tmp_',id) WHERE  `field` LIKE 'tmp_storage_solution';
+
+ALTER TABLE `structure_fields`
+ADD UNIQUE KEY `unique_fields` (`field`,`model`,`tablename`);
+
+  
+  
