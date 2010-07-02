@@ -3512,5 +3512,7 @@ UPDATE structure_fields SET tablename = CONCAT('tmp_',id) WHERE  `field` LIKE 't
 ALTER TABLE `structure_fields`
 ADD UNIQUE KEY `unique_fields` (`field`,`model`,`tablename`);
 
-  
+UPDATE users SET password = 'ddeaa159a89375256a02d1cfbd9a1946ad01a979';  
+
+
   
