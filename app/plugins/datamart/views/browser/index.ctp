@@ -1,21 +1,8 @@
-<!-- 
-<table class="structure">
-	<tr>
-		<td>
-			Start by browsing: 
-			<select>
-				<option></option>
-				<option>a</option>
-			</select>
-		
-		</td>
-	</tr>
-</table>
-<div class="actions">
-</div>
- -->
- 
-<?php 
+<?php
+	if(isset($parent_node) && $parent_node != 0){
+		echo(Browser::getPrintableTree($parent_node, $this->webroot));
+	}
+
 	//use add as type to avoid advanced search usage
 	$settings = array();
 	if($type == "checklist"){

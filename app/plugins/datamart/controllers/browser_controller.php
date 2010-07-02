@@ -10,9 +10,32 @@ class BrowserController extends DatamartAppController {
 	
 	function index($parent_node = 0, $control_id = 0){
 		if(empty($this->data)){
-			$this->Structures->set("datamart_browser_start");
-			$this->set('type', "add");
-			$this->set('top', "/datamart/browser/index/");
+			if($parent_node == 0){
+				//new access
+				$this->Structures->set("datamart_browser_start");
+				$this->set('type', "add");
+				$this->set('top', "/datamart/browser/index/");
+			}else{
+				//direct node access
+				$this->set('parent_node', $parent_node);
+				$browsing = $this->BrowsingResult->find('first', array('conditions' => array("BrowsingResult.node_id" => $parent_node)));
+				$model_to_import = $browsing['BrowsingStructure']['plugin'].".".$browsing['BrowsingStructure']['model'];
+				if(!App::import('Model', $model_to_import)){
+	//				$this->flash("An error occured", "/datamart/browser/index/");
+					die("import of [".$model_to_import."] failed");
+				}
+				global $getDropdownOptions;
+				$getDropdownOptions[] = $browsing['BrowsingStructure']['id'];
+				$this->ModelToSearch = new $browsing['BrowsingStructure']['model'];
+				$this->data = $this->ModelToSearch->find('all', array('conditions' => $browsing['BrowsingStructure']['model'].".".$browsing['BrowsingStructure']['use_key']." IN (".$browsing['BrowsingResult']['id_csv'].")"));
+				$this->Structures->set($browsing['BrowsingStructure']['structure_alias']);
+				$this->set('top', "/datamart/browser/index/".$parent_node."/"); 
+				$this->set('type', "checklist");
+				$this->set('checklist_key', $browsing['BrowsingStructure']['model'].".".$browsing['BrowsingStructure']['use_key']);
+				$result_structure = $this->Structures->get('form', $browsing['BrowsingStructure']['structure_alias']);
+				$this->Structures->set("datamart_browser_start");
+				$this->set("result_structure", $result_structure);
+			}
 		}else if(isset($this->data['Browser']['search_for'])){
 			//display search form
 			$node_for_url = $parent_node;
@@ -30,12 +53,19 @@ class BrowserController extends DatamartAppController {
 					}
 				}
 				$id_csv = implode(",", $ids);
-				$parent = $this->BrowsingResult->find('first', array('conditions' => array("BrowsingResult.node_id" => $parent_node))); 
+				$parent = $this->BrowsingResult->find('first', array('conditions' => array("BrowsingResult.node_id" => $parent_node)));
+				if(!$parent['BrowsingResult']['raw']){
+					//the parent is a drilldown, seek the next parent
+					$parent = $this->BrowsingResult->find('first', array('conditions' => array("BrowsingResult.node_id" => $parent['BrowsingResult']['parent_node_id'])));
+					$parent_node = $parent['BrowsingResult']['node_id'];
+				}
+
 				$save['BrowsingResult'] = array(
 					"user_id" => $_SESSION['Auth']['User']['id'],
 					"parent_node_id" => $parent_node,
 					"browsing_structures_id" => $parent['BrowsingResult']['browsing_structures_id'],
-					"id_csv" => $id_csv
+					"id_csv" => $id_csv,
+					"raw" => false
 				);
 				
 				$tmp = $this->BrowsingResult->find('first', array('conditions' => $this->flattenArray($save)));
@@ -52,6 +82,7 @@ class BrowserController extends DatamartAppController {
 				}
 			}
 			$this->set('top', "/datamart/browser/index/".$node_for_url."/".$this->data['Browser']['search_for']."/");
+			$this->set('parent_node', $node_for_url);
 		}else if($control_id != 0){
 			//display checklist
 			global $getDropdownOptions;
@@ -72,6 +103,7 @@ class BrowserController extends DatamartAppController {
 			}
 			$this->ModelToSearch = new $browsing['BrowsingStructure']['model'];
 			$search_conditions = $this->Structures->parse_search_conditions($result_structure);
+			$org_search_conditions = $search_conditions;
 			if($parent_node != 0){
 				$parent = $this->BrowsingResult->find('first', array('conditions' => array("BrowsingResult.node_id" => $parent_node)));
 				$control_data = $this->BrowsingControl->find('first', array('conditions' => array('BrowsingControl.id1' => $parent['BrowsingStructure']['id'], 'BrowsingControl.id2' => $browsing['BrowsingStructure']['id'])));
@@ -103,7 +135,9 @@ class BrowserController extends DatamartAppController {
 				"user_id" => $_SESSION['Auth']['User']['id'],
 				"parent_node_id" => $parent_node,
 				"browsing_structures_id" => $control_id,
-				"id_csv" => implode(",", $save_ids)
+				"id_csv" => implode(",", $save_ids),
+				"raw" => true,
+				"serialized_search_params" => serialize($org_search_conditions)
 			);
 			$tmp = $this->BrowsingResult->find('first', array('conditions' => $this->flattenArray($save)));
 			if(empty($tmp)){
@@ -114,6 +148,7 @@ class BrowserController extends DatamartAppController {
 				$save = $tmp;
 			}
 			$this->set('top', "/datamart/browser/index/".$save['BrowsingResult']['node_id']."/");
+			$this->set('parent_node', $save['BrowsingResult']['node_id']);
 		}else{
 			$this->flash("An error occured", "/datamart/browser/index/");
 		}

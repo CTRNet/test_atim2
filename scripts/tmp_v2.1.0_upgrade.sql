@@ -112,7 +112,7 @@ FOREIGN KEY (`id2`) REFERENCES `datamart_browsing_structures`(`id`)
 )Engine=InnoDb;
 
 INSERT INTO datamart_browsing_structures (`id`, `plugin`, `model`, `structure_alias`, `display_name`, `use_key`) VALUES
-(1, 'Inventorymanagement', 'ViewAliquot', 'view_aliquot_joined_to_collection', 'aliquots', 'ViewAliquot.aliquot_master_id'),
+(1, 'Inventorymanagement', 'ViewAliquot', 'view_aliquot_joined_to_collection', 'aliquots', 'aliquot_master_id'),
 (2, 'Inventorymanagement', 'ViewCollection', 'view_collection', 'collections', 'collection_id'),
 (3, 'Storagelayout', 'StorageMaster', 'storagemasters', 'storages', 'id'),
 (4, 'Clinicalannotation', 'Participant', 'participants', 'participants', 'id'),
@@ -137,6 +137,8 @@ CREATE TABLE datamart_browsing_results(
 `node_id` int UNSIGNED AUTO_INCREMENT primary key,
 `parent_node_id` tinyint UNSIGNED,
 `browsing_structures_id` int UNSIGNED,
+`raw` boolean NOT NULL,
+`serialized_search_params` text NOT NULL,
 `id_csv` text NOT NULL,
 UNIQUE KEY (`user_id`, `parent_node_id`, `browsing_structures_id`, `id_csv`(200))
 )Engine=InnoDb
