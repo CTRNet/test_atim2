@@ -11,7 +11,7 @@ ALTER TABLE ad_tubes
     ADD cell_count decimal(10,2) NULL DEFAULT NULL COMMENT '' AFTER concentration_unit,
     ADD cell_count_unit varchar(20) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER cell_count,
     ADD cell_passage_number varchar(10) NULL DEFAULT NULL AFTER cell_count_unit,
-    ADD tmp_storage_method varchar(30) NULL DEFAULT NULL AFTER cell_passage_number,
+--    ADD tmp_storage_method varchar(30) NULL DEFAULT NULL AFTER cell_passage_number,sourc
     ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
     ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
     MODIFY aliquot_master_id int(11) NULL DEFAULT NULL COMMENT '';

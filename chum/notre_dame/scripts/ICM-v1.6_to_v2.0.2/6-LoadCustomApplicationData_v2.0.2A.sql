@@ -3310,7 +3310,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('rack20', '', 'Rack20 4x5', 'Râtelier20 4x5'),
 ('rack', '', 'Rack', 'Râtelier');
 
-UPDATE `frsq_icm_v2`.`storage_controls` SET `display_x_size` = '3',
+UPDATE `storage_controls` SET `display_x_size` = '3',
 `display_y_size` = '9',
 `horizontal_increment` = '0' WHERE `storage_controls`.`storage_type` = 'box27' ;
 
