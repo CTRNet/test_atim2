@@ -29,7 +29,6 @@ class Browser extends DatamartAppModel {
 	}
 	
 	static function getTree($node_id, $active_node){
-		App::import("Model", "Datamart.BrowsingResult");
 		$BrowsingResult = new BrowsingResult();
 		$result = $BrowsingResult->find('all', array('conditions' => 'node_id='.$node_id.' OR parent_node_id='.$node_id, 'order' => array('node_id')));
 		$tree_node = NULL;
@@ -100,7 +99,6 @@ class Browser extends DatamartAppModel {
 	
 	static function getPrintableTree($current_node, $webroot_url){
 		$result = "";
-		App::import("Model", "Datamart.BrowsingResult");
 		$BrowsingResult = new BrowsingResult();
 		$tmp_node = $current_node;
 		$prev_node = NULL;
@@ -116,30 +114,26 @@ class Browser extends DatamartAppModel {
 		$result .= "<table class='structure'><tr><td align='center'>".__("browsing", true)
 			."<table class='databrowser'>\n";
 		ksort($tree);
-		foreach($tree as $x => $line){
+		
+		//find longest line
+		$max = 0;
+		foreach($tree as $y => $line){
+			$max = max($max, count($line));
+		}
+		$half_width = $max / 2;
+		foreach($tree as $y => $line){
 			$result .= '<tr>';
-			$last_y = -1;
+			$last_x = -1;
 			ksort($line);
-			foreach($line as $y => $cell){
-				$pad = $y - $last_y - 1;
+			foreach($line as $x => $cell){
+				$pad = $x - $last_x - 1;
 				$pad_pos = 0;
 				while($pad > 0){
 					$result .= '<td></td>';
 					$pad --;
 				}
 				if(is_array($cell)){
-					$class = "";
-					if($cell['BrowsingStructure']['id'] == 1){
-						$class = "aliquot";
-					}else if($cell['BrowsingStructure']['id'] == 2){
-						$class = "collection";
-					}else if($cell['BrowsingStructure']['id'] == 3){
-						$class = "storage";
-					}else if($cell['BrowsingStructure']['id'] == 4){
-						$class = "participant";
-					}else if($cell['BrowsingStructure']['id'] == 5){
-						$class = " sample";
-					}
+					$class = $cell['BrowsingStructure']['display_name'];
 					if($cell['active']){
 						$class .= " active ";
 					}
@@ -147,22 +141,56 @@ class Browser extends DatamartAppModel {
 					if($cell['BrowsingResult']['raw']){
 						$search = unserialize($cell['BrowsingResult']['serialized_search_params']);
 						if(count($search)){
-							$info .= "Search<br/>".print_r($search, true);
+							$info .= __("search", true)."<br/><br/>".Browser::formatSearchToPrint($search);
 						}else{
-							$info .= "Direct access";
+							$info .= __("direct access", true);
 						}
 					}else{
-						$info .= "Drilldown";
+						$info .= __("drilldown", true);
 					}
-					$result .= "<td class='node ".$class."'><a href='".$webroot_url."/datamart/browser/index/".$cell['BrowsingResult']['node_id']."/'><div class='container'><div class='info'>".$info."</div></div></a></td>";
+					$result .= "<td class='node ".$class."'><a href='".$webroot_url."/datamart/browser/index/".$cell['BrowsingResult']['node_id']."/'><div class='container'><div class='info ".($x < $half_width ? "right" : "left")."'>".$info."</div></div></a></td>";
 				}else{
 					$result .= "<td class='".$cell."'></td>";
 				}
-				$last_y = $y;
+				$last_x = $x;
 			}
 			$result .= "</tr>\n";
 		}
 		$result .= '</table></td></tr></table>';
+		return $result;
+	}
+	
+	
+	/**
+	 * Formats the search params array and returns it into a table
+	 * @param The search params array
+	 */
+	static function formatSearchToPrint(array $params){
+		$keys = array_keys($params);
+		
+		$StructureField = new StructureField();
+		$conditions = array();
+		foreach($keys as $key){
+			list($model, $field) = explode(".", $key);
+			$conditions[] = "StructureField.model='".$model."' AND StructureField.field='".$field."'";
+		}
+		$sf = $StructureField->find('all', array('conditions' => array(implode(" OR ", $conditions))));
+		
+		$result = "<table align='center' width='100%'>";
+		foreach($params as $name => $values){
+			list($model, $field) = explode(".", $name);
+			foreach($sf as $sf_unit){
+				if($sf_unit['StructureField']['model'] == $model && $sf_unit['StructureField']['field'] == $field){
+					$name = __($sf_unit['StructureField']['language_label'], true);
+					break;
+				}
+			}
+			foreach($values as &$value){
+				$value = __($value, true);
+			}
+			$result .= "<tr><th>".$name."</th><td>".implode(", ", $values)."</td>\n";
+		}
+		$result .= "</table>";
 		return $result;
 	}
 }
