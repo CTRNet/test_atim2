@@ -208,13 +208,18 @@ class StoragesComponent extends Object {
 			// Check position values
 			$position_x_validation = $this->validatePositionValue($storage_data, $position_x, 'x');
 			$position_y_validation = $this->validatePositionValue($storage_data, $position_y, 'y');
+			
 				
 			// Manage position x
 			if(!$position_x_validation['validated']) {
 				$validated_position_x .= $error_sign;
 				$error_on_x = true;
 				$position_definition_error = 'at least one position value does not match format';
-			} else {
+			}else if($position_y_validation['validated'] && $storage_data['StorageControl']['coord_x_size'] > 0 && strlen($position_x) == 0 && strlen($position_y) > 0){
+				$validated_position_x .= $error_sign;
+				$error_on_x = true;
+				$position_definition_error = 'an x coordinate needs to be defined';
+			}else{
 				$validated_position_x = $position_x_validation['validated_position'];
 				$position_x_order = $position_x_validation['position_order'];
 			}
@@ -224,7 +229,11 @@ class StoragesComponent extends Object {
 				$validated_position_y .= $error_sign;
 				$error_on_y = true;
 				$position_definition_error = 'at least one position value does not match format';
-			} else {
+			}else if($position_x_validation['validated'] && $storage_data['StorageControl']['coord_y_size'] > 0 && strlen($position_y) == 0 && strlen($position_x) > 0){
+				$validated_position_y .= $error_sign;
+				$error_on_y = true;
+				$position_definition_error = 'a y coordinate needs to be defined';
+			}else{
 				$validated_position_y = $position_y_validation['validated_position'];
 				$position_y_order = $position_y_validation['position_order'];
 			}

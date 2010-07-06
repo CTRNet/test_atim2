@@ -1,7 +1,7 @@
 <?php
 
 class AliquotControl extends InventorymanagementAppModel {
-	
+
  	/**
 	 * Get permissible values array gathering all existing aliquot types.
 	 *

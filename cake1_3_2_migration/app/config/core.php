@@ -38,7 +38,7 @@
  * In production mode, flash messages redirect after a time interval.
  * In development mode, you need to click the flash message to continue.
  */
-	Configure::write('debug', 2);
+	Configure::write('debug', 0);
 /**
  * Application wide charset encoding minus database connection
  */
@@ -146,7 +146,7 @@
  * CakePHP session IDs are also regenerated between requests if
  * 'Security.level' is set to 'high'.
  */
-	Configure::write('Security.level', 'low');
+	Configure::write('Security.level', Configure::read('debug') == 0 ? 'high' : 'low');
 /**
  * A random string used in security hashing methods.
  */
@@ -228,8 +228,8 @@
  */
 	Cache::config('default', array('engine' => 'File'));
 	
-	//* Custom ATiM cache for menus and structures. Can be set manually, but by default, switches handled by debug mode */
-	// $ATiMCache = Configure::read('debug') ? true : false; 
-	// Configure::write('ATiMMenuCache.disable', $ATiMCache);
-	// Configure::write('ATiMStructureCache.disable', $ATiMCache);
+	/* Custom ATiM cache for menus and structures. Can be set manually, but by default, switches handled by debug mode */
+	$ATiMCache = Configure::read('debug') ? true : false; 
+	Configure::write('ATiMMenuCache.disable', $ATiMCache);
+	Configure::write('ATiMStructureCache.disable', $ATiMCache);
 ?>
