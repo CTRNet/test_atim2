@@ -5,31 +5,61 @@ class BrowserController extends DatamartAppController {
 		'Datamart.Browser',
 		'Datamart.BrowsingStructure',
 		'Datamart.BrowsingResult',
-		'Datamart.BrowsingControl'
+		'Datamart.BrowsingControl',
+		'Datamart.BrowsingIndex'
 		);
 	
-	function index($parent_node = 0, $control_id = 0){
+	function index(){
+		$this->Structures->set("datamart_browsing_indexes");
+		$this->data = $this->paginate($this->BrowsingIndex, array("BrowsingResult.user_id" => $_SESSION['Auth']['User']['id']));
+	}
+	
+	function edit($index_id){
+		$this->set("index_id", $index_id);
+		$this->Structures->set("datamart_browsing_indexes");
+		if(empty($this->data)){
+			$this->data = $this->BrowsingIndex->find('first', array('conditions' => array('BrowsingIndex.id' => $index_id, "BrowsingResult.user_id" => $_SESSION['Auth']['User']['id'])));
+		}else{
+			$this->BrowsingIndex->id = $index_id;
+			unset($this->data['BrowsingIndex']['created']);
+			$this->BrowsingIndex->save($this->data);
+			$this->flash('your data has been updated', "/datamart/browser/index");
+		}
+	}
+	
+	function delete($index_id){
+		$this->data = $this->BrowsingIndex->find('first', array('conditions' => array('BrowsingIndex.id' => $index_id, "BrowsingResult.user_id" => $_SESSION['Auth']['User']['id'])));
+		if(!empty($this->data)){
+			$this->BrowsingIndex->atim_delete($index_id);
+			$this->flash( 'your data has been deleted', '/datamart/browser/index/');
+		} else {
+			$this->flash( 'error deleting data - contact administrator', '/datamart/browser/index/');
+		}
+	}
+	
+		
+	function browse($parent_node = 0, $control_id = 0){
 		if(empty($this->data)){
 			if($parent_node == 0){
 				//new access
 				$this->Structures->set("datamart_browser_start");
 				$this->set('type', "add");
-				$this->set('top', "/datamart/browser/index/");
+				$this->set('top', "/datamart/browser/browse/");
 			}else{
 				//direct node access
 				$this->set('parent_node', $parent_node);
-				$browsing = $this->BrowsingResult->find('first', array('conditions' => array("BrowsingResult.node_id" => $parent_node)));
+				$browsing = $this->BrowsingResult->find('first', array('conditions' => array("BrowsingResult.id" => $parent_node)));
 				$model_to_import = $browsing['BrowsingStructure']['plugin'].".".$browsing['BrowsingStructure']['model'];
 				if(!App::import('Model', $model_to_import)){
-	//				$this->flash("An error occured", "/datamart/browser/index/");
+	//				$this->flash("An error occured", "/datamart/browser/browse/");
 					die("import of [".$model_to_import."] failed");
 				}
 				global $getDropdownOptions;
 				$getDropdownOptions[] = $browsing['BrowsingStructure']['id'];
 				$this->ModelToSearch = new $browsing['BrowsingStructure']['model'];
-				$this->data = $this->ModelToSearch->find('all', array('conditions' => $browsing['BrowsingStructure']['model'].".".$browsing['BrowsingStructure']['use_key']." IN (".$browsing['BrowsingResult']['id_csv'].")"));
+				$this->data = strlen($browsing['BrowsingResult']['id_csv']) > 0 ? $this->ModelToSearch->find('all', array('conditions' => $browsing['BrowsingStructure']['model'].".".$browsing['BrowsingStructure']['use_key']." IN (".$browsing['BrowsingResult']['id_csv'].")")) : array();
 				$this->Structures->set($browsing['BrowsingStructure']['structure_alias']);
-				$this->set('top', "/datamart/browser/index/".$parent_node."/"); 
+				$this->set('top', "/datamart/browser/browse/".$parent_node."/"); 
 				$this->set('type', "checklist");
 				$this->set('checklist_key', $browsing['BrowsingStructure']['model'].".".$browsing['BrowsingStructure']['use_key']);
 				$result_structure = $this->Structures->get('form', $browsing['BrowsingStructure']['structure_alias']);
@@ -53,11 +83,11 @@ class BrowserController extends DatamartAppController {
 					}
 				}
 				$id_csv = implode(",", $ids);
-				$parent = $this->BrowsingResult->find('first', array('conditions' => array("BrowsingResult.node_id" => $parent_node)));
+				$parent = $this->BrowsingResult->find('first', array('conditions' => array("BrowsingResult.id" => $parent_node)));
 				if(!$parent['BrowsingResult']['raw']){
 					//the parent is a drilldown, seek the next parent
-					$parent = $this->BrowsingResult->find('first', array('conditions' => array("BrowsingResult.node_id" => $parent['BrowsingResult']['parent_node_id'])));
-					$parent_node = $parent['BrowsingResult']['node_id'];
+					$parent = $this->BrowsingResult->find('first', array('conditions' => array("BrowsingResult.id" => $parent['BrowsingResult']['parent_node_id'])));
+					$parent_node = $parent['BrowsingResult']['id'];
 				}
 
 				$save['BrowsingResult'] = array(
@@ -78,10 +108,10 @@ class BrowserController extends DatamartAppController {
 						$node_for_url = $this->BrowsingResult->id;
 					}
 				}else{
-					$node_for_url = $tmp['BrowsingResult']['node_id'];
+					$node_for_url = $tmp['BrowsingResult']['id'];
 				}
 			}
-			$this->set('top', "/datamart/browser/index/".$node_for_url."/".$this->data['Browser']['search_for']."/");
+			$this->set('top', "/datamart/browser/browse/".$node_for_url."/".$this->data['Browser']['search_for']."/");
 			$this->set('parent_node', $node_for_url);
 		}else if($control_id != 0){
 			//display checklist
@@ -98,20 +128,20 @@ class BrowserController extends DatamartAppController {
 			
 			$model_to_import = $browsing['BrowsingStructure']['plugin'].".".$browsing['BrowsingStructure']['model'];
 			if(!App::import('Model', $model_to_import)){
-//				$this->flash("An error occured", "/datamart/browser/index/");
+//				$this->flash("An error occured", "/datamart/browser/browse/");
 				die("import of [".$model_to_import."] failed");
 			}
 			$this->ModelToSearch = new $browsing['BrowsingStructure']['model'];
 			$search_conditions = $this->Structures->parse_search_conditions($result_structure);
 			$org_search_conditions = $search_conditions;
 			if($parent_node != 0){
-				$parent = $this->BrowsingResult->find('first', array('conditions' => array("BrowsingResult.node_id" => $parent_node)));
+				$parent = $this->BrowsingResult->find('first', array('conditions' => array("BrowsingResult.id" => $parent_node)));
 				$control_data = $this->BrowsingControl->find('first', array('conditions' => array('BrowsingControl.id1' => $parent['BrowsingStructure']['id'], 'BrowsingControl.id2' => $browsing['BrowsingStructure']['id'])));
 				if(!empty($control_data)){
 					//retreive the ids in the parent first
 					$model_to_import = $parent['BrowsingStructure']['plugin'].".".$parent['BrowsingStructure']['model'];
 					if(!App::import('Model', $model_to_import)){
-		//				$this->flash("An error occured", "/datamart/browser/index/");
+		//				$this->flash("An error occured", "/datamart/browser/browse/");
 						die("import of [".$model_to_import."] failed");
 					}
 					$this->ParentModel = new $parent['BrowsingStructure']['model'];
@@ -143,14 +173,18 @@ class BrowserController extends DatamartAppController {
 			if(empty($tmp)){
 				//save fullset
 				$save = $this->BrowsingResult->save($save);
-				$save['BrowsingResult']['node_id'] = $this->BrowsingResult->id; 
+				$save['BrowsingResult']['id'] = $this->BrowsingResult->id;
+				if($parent_node == 0){
+					//save into index as well
+					$this->BrowsingIndex->save(array("BrowsingIndex" => array("root_node_id" => $save['BrowsingResult']['id'])));	
+				}
 			}else{
 				$save = $tmp;
 			}
-			$this->set('top', "/datamart/browser/index/".$save['BrowsingResult']['node_id']."/");
-			$this->set('parent_node', $save['BrowsingResult']['node_id']);
+			$this->set('top', "/datamart/browser/browse/".$save['BrowsingResult']['id']."/");
+			$this->set('parent_node', $save['BrowsingResult']['id']);
 		}else{
-			$this->flash("An error occured", "/datamart/browser/index/");
+			$this->flash("An error occured", "/datamart/browser/browse/");
 		}
 	}
 }

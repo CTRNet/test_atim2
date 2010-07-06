@@ -130,20 +130,45 @@ INSERT INTO datamart_browsing_controls(`id1`, `id2`, `use_field`) VALUES
 INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('datamart_browser_options', '', '', 'Datamart.Browser::getDropdownOptions');
 INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('datamart_browser_start', '', '', '1', '1', '1', '1');
 INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
-('', 'Datamart', 'Browser', '', 'search_for', 'start by searching for', '', 'select', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name='datamart_browser_options') , '', 'open', 'open', 'open');
+('', 'Datamart', 'Browser', '', 'search_for', 'search for', '', 'select', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name='datamart_browser_options') , '', 'open', 'open', 'open');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
-((SELECT id FROM structures WHERE alias='datamart_browser_start'), (SELECT id FROM structure_fields WHERE `model`='Browser' AND `tablename`='' AND `field`='search_for' AND `language_label`='start by searching for' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='datamart_browser_options')  AND `language_help`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+((SELECT id FROM structures WHERE alias='datamart_browser_start'), (SELECT id FROM structure_fields WHERE `model`='Browser' AND `tablename`='' AND `field`='search_for' AND `language_label`='search for' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='datamart_browser_options')  AND `language_help`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 
 CREATE TABLE datamart_browsing_results(
-`user_id` int UNSIGNED NOT NULL,
-`node_id` int UNSIGNED AUTO_INCREMENT primary key,
-`parent_node_id` tinyint UNSIGNED,
-`browsing_structures_id` int UNSIGNED,
-`raw` boolean NOT NULL,
-`serialized_search_params` text NOT NULL,
-`id_csv` text NOT NULL,
+  `id` int UNSIGNED AUTO_INCREMENT primary key,
+  `user_id` int UNSIGNED NOT NULL,
+  `parent_node_id` tinyint UNSIGNED,
+  `browsing_structures_id` int UNSIGNED,
+  `raw` boolean NOT NULL,
+  `serialized_search_params` text NOT NULL,
+  `id_csv` text NOT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
 UNIQUE KEY (`user_id`, `parent_node_id`, `browsing_structures_id`, `id_csv`(200))
 )Engine=InnoDb;
+
+CREATE TABLE datamart_browsing_results_revs(
+  `id` int UNSIGNED,
+  `user_id` int UNSIGNED NOT NULL,
+  `parent_node_id` tinyint UNSIGNED,
+  `browsing_structures_id` int UNSIGNED,
+  `raw` boolean NOT NULL,
+  `serialized_search_params` text NOT NULL,
+  `id_csv` text NOT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`version_id`)
+)Engine=InnoDb;
+
 
 -- eventum 953
 INSERT INTO `atim_new`.`menus` (`id` ,`parent_id` ,`is_root` ,`display_order` ,`language_title` ,`language_description` ,`use_link` ,`use_params` ,`use_summary` ,`flag_active` ,`created` ,`created_by` ,`modified` ,`modified_by`) VALUES 
@@ -189,6 +214,43 @@ CREATE TABLE structure_permissible_values_customs_revs(
   PRIMARY KEY (`version_id`) 
 )Engine=InnoDb;
 
+CREATE TABLE datamart_browsing_indexes(
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `root_node_id` int UNSIGNED NOT NULL,
+  `notes` text NOT NULL DEFAULT '',
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  FOREIGN KEY (`root_node_id`) REFERENCES `datamart_browsing_results`(`id`)
+)Engine=InnoDb;
+
+CREATE TABLE datamart_browsing_indexes_revs(
+  `id` int UNSIGNED NOT NULL,
+  `root_node_id` int UNSIGNED NOT NULL,
+  `notes` text NOT NULL DEFAULT '',
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`version_id`)
+)Engine=InnoDb;
+
+INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('datamart_browsing_indexes', '', '', '1', '1', '1', '1');
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Datamart', 'BrowsingIndex', 'datamart_browsing_indexes', 'notes', 'notes', '', 'textarea', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Datamart', 'BrowsingIndex', 'datamart_browsing_indexes', 'created', 'created', '', 'datetime', '', '',  NULL , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='datamart_browsing_indexes'), (SELECT id FROM structure_fields WHERE `model`='BrowsingIndex' AND `tablename`='datamart_browsing_indexes' AND `field`='notes' AND `language_label`='notes' AND `language_tag`='' AND `type`='textarea' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='datamart_browsing_indexes'), (SELECT id FROM structure_fields WHERE `model`='BrowsingIndex' AND `tablename`='datamart_browsing_indexes' AND `field`='created' AND `language_label`='created' AND `language_tag`='' AND `type`='datetime' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '1', '0');
+
+
+
 -- 953, transfering existing values into the new table
 INSERT INTO structure_permissible_values_customs(control_id, value)
 (SELECT '1', value FROM structure_permissible_values WHERE id IN (SELECT structure_permissible_value_id FROM structure_value_domains_permissible_values WHERE structure_value_domain_id=(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff')));
@@ -227,4 +289,4 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 DELETE FROM structure_value_domains_permissible_values WHERE structure_value_domain_id IN(SELECT id FROM structure_value_domains WHERE domain_name IN('custom_laboratory_staff', 'custom_laboratory_site', 'custom_collection_site', 'custom_specimen_supplier_dept', 'custom_tool'));
 DELETE spv FROM structure_permissible_values AS spv
 LEFT JOIN structure_value_domains_permissible_values AS assoc ON spv.id=assoc.structure_permissible_value_id
-WHERE assoc.id IS NULL
+WHERE assoc.id IS NULL;
