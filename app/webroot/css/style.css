@@ -114,11 +114,12 @@ div#wrapper {
 	padding: 0;
 	min-height: 300px;
 }
-	div#wrapper div {
-		margin: 0;
-		padding: 0;
-		border: 0;
-	}
+
+div#wrapper div:not(.browsable .info) {
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
 
 p {
 	margin: 1em 0;
@@ -815,7 +816,7 @@ span.help:hover {
 			background-color: #f00;
 			color: #fff;
 		}
-		div#wrapper table.structure table td { 
+		div#wrapper table.structure table:not(.databrowser) td { 
 			padding: 0.5em 1em; 
 			border-top: 1px solid #eaedf2; 
 		}
@@ -1442,4 +1443,142 @@ span.tooltip div{
 	z-index : 1;
 	background-color: #FFFFFF;
 	/* note that some styling is made through js to counter some css hierarchy issues*/
+}
+
+.databrowser{
+	border-style: solid; 
+	border-collapse: collapse;
+	line-height: 20px;
+}
+
+div#wrapper table.structure td .databrowser td, div.table div {
+	border-style: solid;
+	border-width: 0px;
+	width: 20px;
+	height: 20px;
+	text-align: center;
+	padding: 0px;
+	background-position: center;
+	background-repeat: no-repeat;
+}
+
+div#wrapper table.structure td .databrowser td .info td{
+	width: auto;
+}
+
+.databrowser td div{
+	position: relative;
+	width: 26px;
+	height: 20px;
+	background-position: center;
+	background-repeat: no-repeat;
+}
+
+.databrowser img {
+	margin: 0px;
+}
+
+.databrowser td.node{
+	/*background-image: url(../img/dataBrowser/node.png);*/
+}
+
+.databrowser td.h-line {
+	background-image: url(../img/dataBrowser/h-line.png);
+}
+
+.databrowser td.v-line {
+	background-image: url(../img/dataBrowser/v-line.png);
+}
+
+.databrowser td.arrow {
+	background-image: url(../img/dataBrowser/arrow.png);
+}
+
+.databrowser td.corner {
+	background-image: url(../img/dataBrowser/corner.png);
+}
+
+.databrowser td.node.active{
+	/*background-image: url(../img/dataBrowser/node_active.png);*/
+}
+
+.databrowser td.h-line.active {
+	background-image: url(../img/dataBrowser/h-line_active.png);
+}
+
+.databrowser td.v-line.active {
+	background-image: url(../img/dataBrowser/v-line_active.png);
+}
+
+.databrowser td.arrow.active {
+	background-image: url(../img/dataBrowser/arrow_active_corner.png);
+}
+.databrowser td.arrow.active_straight {
+	background-image: url(../img/dataBrowser/arrow_active_straight.png);
+}
+
+.databrowser td.corner.active {
+	background-image: url(../img/dataBrowser/corner_active.png);
+}
+
+.databrowser td div.container{
+	/* default icon */
+	background-image: url(../img/icons/fam_fam_silk_help.png);
+}
+
+.databrowser td.aliquots div.container{
+	background-image: url(../img/icons/aliquot_16x16.png);
+}
+
+.databrowser td.collections div.container{
+	background-image: url(../img/icons/collection_16x16.png);
+}
+
+.databrowser td.samples div.container{
+	background-image: url(../img/icons/flask_16x16.png);
+}
+
+.databrowser td.participants div.container{
+	background-image: url(../img/icons/Contact_16x16.png);
+}
+
+.databrowser td.storages div.container{
+	background-image: url(../img/icons/storage_16x16.png);
+}
+
+.databrowser td.identifiers div.container{
+	background-image: url(../img/icons/identifiers_16x16.png);
+}
+
+.databrowser div.info{
+	position: absolute;
+	background-color: #374D61;
+	color: #CCCCDD;
+	width: 300px;
+	height: auto;
+	top: 15px;
+	display: none;
+	padding: 5px;
+	z-index: 1;
+	text-align: center;
+}
+
+.databrowser div.info.left{
+	right: 15px;
+	-moz-border-radius: 10px 0px 10px 10px;
+	-webkit-border-radius: 10px 0px 10px 10px;
+}
+	
+.databrowser div.info.right{
+	left: 15px;
+	-moz-border-radius: 0px 10px 10px 10px;
+	-webkit-border-radius: 0px 10px 10px 10px;
+}
+
+.databrowser td:hover div.info{
+	display: block;
+}
+
+.databrowser span.title{
+	font-size: 130%;
 }
