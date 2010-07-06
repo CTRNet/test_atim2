@@ -116,14 +116,16 @@ INSERT INTO datamart_browsing_structures (`id`, `plugin`, `model`, `structure_al
 (2, 'Inventorymanagement', 'ViewCollection', 'view_collection', 'collections', 'collection_id'),
 (3, 'Storagelayout', 'StorageMaster', 'storagemasters', 'storages', 'id'),
 (4, 'Clinicalannotation', 'Participant', 'participants', 'participants', 'id'),
-(5, 'Inventorymanagement', 'ViewSample', 'view_sample_joined_to_collection', 'samples', 'sample_master_id');
+(5, 'Inventorymanagement', 'ViewSample', 'view_sample_joined_to_collection', 'samples', 'sample_master_id'),
+(6, 'Clinicalannotation', 'MiscIdentifier', 'miscidentifierssummary', 'identifiers', 'id');
 
 INSERT INTO datamart_browsing_controls(`id1`, `id2`, `use_field`) VALUES
 (1, 2, 'ViewAliquot.collection_id'),
 (1, 3, 'ViewAliquot.storage_master_id'),
 (2, 4, 'ViewCollection.participant_id'),
 (1, 5, 'ViewAliquot.sample_master_id'),
-(5, 2, 'ViewSample.collection_id');
+(5, 2, 'ViewSample.collection_id'),
+(6, 4, 'MiscIdentifier.participant_id');
 
 INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('datamart_browser_options', '', '', 'Datamart.Browser::getDropdownOptions');
 INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('datamart_browser_start', '', '', '1', '1', '1', '1');
@@ -141,4 +143,88 @@ CREATE TABLE datamart_browsing_results(
 `serialized_search_params` text NOT NULL,
 `id_csv` text NOT NULL,
 UNIQUE KEY (`user_id`, `parent_node_id`, `browsing_structures_id`, `id_csv`(200))
-)Engine=InnoDb
+)Engine=InnoDb;
+
+-- eventum 953
+INSERT INTO `atim_new`.`menus` (`id` ,`parent_id` ,`is_root` ,`display_order` ,`language_title` ,`language_description` ,`use_link` ,`use_params` ,`use_summary` ,`flag_active` ,`created` ,`created_by` ,`modified` ,`modified_by`) VALUES 
+('core_CAN_41_3', 'core_CAN_41', '0', '3', 'dropdowns', 'dropdowns', '/administrate/dropdowns/index', '', '', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+CREATE TABLE structure_permissible_values_custom_controls(
+id int UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+name varchar(50) NOT NULL
+)Engine=InnoDb;
+
+INSERT INTO structure_permissible_values_custom_controls VALUES
+(1, 'staff'),
+(2, 'laboratory sites'),
+(3, 'collection sites'),
+(4, 'specimen supplier departments'),
+(5, 'tools');
+
+CREATE TABLE structure_permissible_values_customs(
+  id int UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  control_id int UNSIGNED NOT NULL,
+  value varchar(50) NOT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  FOREIGN KEY (`control_id`) REFERENCES `structure_permissible_values_custom_controls`(`id`),
+  UNIQUE(control_id, value)
+)Engine=InnoDb;
+
+CREATE TABLE structure_permissible_values_customs_revs(
+  id int UNSIGNED NOT NULL,
+  control_id int UNSIGNED NOT NULL,
+  value varchar(50) NOT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`version_id`) 
+)Engine=InnoDb;
+
+-- 953, transfering existing values into the new table
+INSERT INTO structure_permissible_values_customs(control_id, value)
+(SELECT '1', value FROM structure_permissible_values WHERE id IN (SELECT structure_permissible_value_id FROM structure_value_domains_permissible_values WHERE structure_value_domain_id=(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff')));
+INSERT INTO structure_permissible_values_customs(control_id, value)
+(SELECT '2', value FROM structure_permissible_values WHERE id IN (SELECT structure_permissible_value_id FROM structure_value_domains_permissible_values WHERE structure_value_domain_id=(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_site')));
+INSERT INTO structure_permissible_values_customs(control_id, value)
+(SELECT '3', value FROM structure_permissible_values WHERE id IN (SELECT structure_permissible_value_id FROM structure_value_domains_permissible_values WHERE structure_value_domain_id=(SELECT id FROM structure_value_domains WHERE domain_name='custom_collection_site')));
+INSERT INTO structure_permissible_values_customs(control_id, value)
+(SELECT '4', value FROM structure_permissible_values WHERE id IN (SELECT structure_permissible_value_id FROM structure_value_domains_permissible_values WHERE structure_value_domain_id=(SELECT id FROM structure_value_domains WHERE domain_name='custom_specimen_supplier_dept')));
+INSERT INTO structure_permissible_values_customs(control_id, value)
+(SELECT '5', value FROM structure_permissible_values WHERE id IN (SELECT structure_permissible_value_id FROM structure_value_domains_permissible_values WHERE structure_value_domain_id=(SELECT id FROM structure_value_domains WHERE domain_name='custom_tool')));
+INSERT INTO structure_permissible_values_customs_revs(id, control_id, value)
+(SELECT id, control_id, value FROM structure_permissible_values_customs);
+
+-- 953, updating source
+UPDATE structure_value_domains SET source='StructurePermissibleValuesCustom::getDropdownStaff' WHERE domain_name='custom_laboratory_staff';
+UPDATE structure_value_domains SET source='StructurePermissibleValuesCustom::getDropdownLaboratorySites' WHERE domain_name='custom_laboratory_site';
+UPDATE structure_value_domains SET source='StructurePermissibleValuesCustom::getDropdownCollectionSites' WHERE domain_name='custom_collection_site';
+UPDATE structure_value_domains SET source='StructurePermissibleValuesCustom::getDropdownSpecimenSupplierDepartments' WHERE domain_name='custom_specimen_supplier_dept';
+UPDATE structure_value_domains SET source='StructurePermissibleValuesCustom::getDropdownToors' WHERE domain_name='custom_tool';
+
+-- 953, new structures for display and input
+INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('administrate_dropdowns', '', '', '1', '1', '1', '1');
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Administrate', 'StructurePermissibleValuesCustomControl', 'structure_permissible_values_custom_controls', 'name', 'name', '', 'input', '', '',  NULL , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='administrate_dropdowns'), (SELECT id FROM structure_fields WHERE `model`='StructurePermissibleValuesCustomControl' AND `tablename`='structure_permissible_values_custom_controls' AND `field`='name' AND `language_label`='name' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1');
+
+INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('administrate_dropdown_values', '', '', '1', '1', '1', '1');
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Administrate', 'StructurePermissibleValuesCustom', 'structure_permissible_values_customs', 'value', 'value', '', 'input', '', '',  NULL , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='administrate_dropdown_values'), (SELECT id FROM structure_fields WHERE `model`='StructurePermissibleValuesCustom' AND `tablename`='structure_permissible_values_customs' AND `field`='value' AND `language_label`='value' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0');
+
+-- 953, removing associations from value_domains_permissible_values and clearing unused values from permissible_values
+DELETE FROM structure_value_domains_permissible_values WHERE structure_value_domain_id IN(SELECT id FROM structure_value_domains WHERE domain_name IN('custom_laboratory_staff', 'custom_laboratory_site', 'custom_collection_site', 'custom_specimen_supplier_dept', 'custom_tool'));
+DELETE spv FROM structure_permissible_values AS spv
+LEFT JOIN structure_value_domains_permissible_values AS assoc ON spv.id=assoc.structure_permissible_value_id
+WHERE assoc.id IS NULL
