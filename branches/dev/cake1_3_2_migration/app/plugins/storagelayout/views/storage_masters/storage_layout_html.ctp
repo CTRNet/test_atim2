@@ -68,7 +68,7 @@
 					if($horizontal_increment){
 						$display_value = ($j - 1) * $y_size + $i;
 					}else{
-						$display_value = ($i - 1) * $y_size + $j;
+						$display_value = ($i - 1) * $x_size + $j;
 					}
 					$use_value = $display_value."_1"; //static y = 1
 				}else{
