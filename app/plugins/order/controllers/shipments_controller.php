@@ -297,7 +297,10 @@ class ShipmentsController extends OrderAppController {
 					$aliquot_master['AliquotMaster']['in_stock_detail'] = 'shipped';
 					$aliquot_master['AliquotMaster']['storage_master_id'] = null;
 					$aliquot_master['AliquotMaster']['storage_coord_x'] = null;
-					$aliquot_master['AliquotMaster']['storage_coord_y'] = null;	
+					$aliquot_master['AliquotMaster']['coord_x_order'] = null;
+					$aliquot_master['AliquotMaster']['storage_coord_y'] = null;
+					$aliquot_master['AliquotMaster']['coord_y_order'] = null;	
+					
 					
 					$this->AliquotMaster->id = $aliquot_master_id;
 					if(!$this->AliquotMaster->save($aliquot_master, false)) { $this->redirect('/pages/err_order_record_err', null, true); }										
