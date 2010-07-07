@@ -1352,8 +1352,6 @@ div.loading{
 	text-align: center;
 	line-height: 60px;
 	background: url("../img/wait30.gif") no-repeat center;
-	border-style: solid;
-	border-color: #000;
 	border-width: 1px;
 }
 
