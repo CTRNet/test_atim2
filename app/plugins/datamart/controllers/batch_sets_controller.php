@@ -33,7 +33,6 @@ class BatchSetsController extends DatamartAppController {
 	function listall( $type_of_list='all', $batch_set_id=0 ) {
 		$this->set( 'atim_menu_variables', array( 'Param.Type_Of_List'=>$type_of_list, 'BatchSet.id'=>$batch_set_id ) );
 		$this->set( 'atim_structure_for_detail', $this->Structures->get( 'form', 'querytool_batch_set' ) );
-		
 		$batch_set = $this->BatchSet->getBatchSet($batch_set_id);
 
 		// add COUNT of IDS to array results, for form list 
@@ -57,8 +56,10 @@ class BatchSetsController extends DatamartAppController {
 			
 		// parse resulting IDs from the SET to build FINDALL criteria for SET's true MODEL 
 		$criteria = array();
+		$lookup_key_name = $batch_set['BatchSet']['lookup_key_name'];
+		$this->set("lookup_key_name", $lookup_key_name);
 		foreach ( $batch_set['BatchId'] as $fields ) {
-			$criteria[] = $batch_set['BatchSet']['model'].'.id="'.$fields['lookup_id'].'"';
+			$criteria[] = $batch_set['BatchSet']['model'].'.'.$lookup_key_name.'="'.$fields['lookup_id'].'"';
 		}
 		$criteria = implode( ' OR ', $criteria );
 		
@@ -270,12 +271,12 @@ class BatchSetsController extends DatamartAppController {
 	
 	function csv($batch_set_id) {
 		$batch_set = $this->BatchSet->getBatchSet($batch_set_id);
+		$lookup_key_name = $batch_set['BatchSet']['lookup_key_name'];
 		
 		// set function variables, makes script readable :)
 		$batch_set_id = $batch_set['BatchSet']['id'];
 		$batch_set_model = $batch_set['BatchSet']['model'];
-		
-		$batch_id_array = $this->data[$batch_set_model]['id'];
+		$batch_id_array = $this->data[$batch_set_model][$lookup_key_name];
 		
 		// add COUNT of IDS to array results, for form list
 		$batch_set['BatchSet']['count_of_BatchId'] = count($batch_set['BatchId']);
@@ -292,7 +293,7 @@ class BatchSetsController extends DatamartAppController {
 			// parse resulting IDs from the SET to build FINDALL criteria for SET's true MODEL 
 			$criteria = array();
 			foreach ( $batch_id_array as $field_id ) {
-				$criteria[] = $batch_set_model.'.id="'.$field_id.'"';
+				$criteria[] = $batch_set_model.'.'.$lookup_key_name.'="'.$field_id.'"';
 			}
 			$criteria = implode( ' OR ', $criteria );
 			
@@ -323,7 +324,6 @@ class BatchSetsController extends DatamartAppController {
 		    	} else {
 					$results = $this->ModelToSearch->find( 'all', array( 'conditions'=>$criteria, 'recursive'=>3 ) );
 				}
-			
 			$this->data = $results; // set for display purposes...
 			
 			$this->layout = false;

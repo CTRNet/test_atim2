@@ -6,7 +6,9 @@ class BrowserController extends DatamartAppController {
 		'Datamart.BrowsingStructure',
 		'Datamart.BrowsingResult',
 		'Datamart.BrowsingControl',
-		'Datamart.BrowsingIndex'
+		'Datamart.BrowsingIndex',
+		'Datamart.BatchSet',
+		'Datamart.BatchId'
 		);
 	
 	function index(){
@@ -186,5 +188,29 @@ class BrowserController extends DatamartAppController {
 		}else{
 			$this->flash("An error occured", "/datamart/browser/browse/");
 		}
+	}
+	
+	function createBatchSet($node_id){
+		$browsing_result = $this->BrowsingResult->find('first', array('conditions' => array('BrowsingResult.id' => $node_id)));
+		$batch_set = array("BatchSet" => array(
+			"user_id" => $_SESSION['Auth']['User']['id'],
+			"plugin" => $browsing_result['BrowsingStructure']['plugin'],
+			"model" => $browsing_result['BrowsingStructure']['model'],
+			"lookup_key_name" => $browsing_result['BrowsingStructure']['use_key'],
+			"form_alias_for_results" => $browsing_result['BrowsingStructure']['structure_alias'],
+			"flag_use_query_results" => false
+		));
+		$this->BatchSet->save($batch_set);
+		foreach($this->data['model']['id'] as $id){
+			if($id != 0){
+				$batch_id = array("BatchId" => array(
+					"set_id" => $this->BatchSet->id,
+					"lookup_id" => $id 
+				));
+				unset($this->BatchId->id);
+				$this->BatchId->save($batch_id);
+			}
+		}
+		$this->redirect("/datamart/batch_sets/listall/all/".$this->BatchSet->id, NULL, true);
 	}
 }
