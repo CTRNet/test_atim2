@@ -173,7 +173,7 @@ CREATE TABLE datamart_browsing_results_revs(
 
 
 -- eventum 953
-INSERT INTO `atim_new`.`menus` (`id` ,`parent_id` ,`is_root` ,`display_order` ,`language_title` ,`language_description` ,`use_link` ,`use_params` ,`use_summary` ,`flag_active` ,`created` ,`created_by` ,`modified` ,`modified_by`) VALUES 
+INSERT INTO `menus` (`id` ,`parent_id` ,`is_root` ,`display_order` ,`language_title` ,`language_description` ,`use_link` ,`use_params` ,`use_summary` ,`flag_active` ,`created` ,`created_by` ,`modified` ,`modified_by`) VALUES 
 ('core_CAN_41_3', 'core_CAN_41', '0', '3', 'dropdowns', 'dropdowns', '/administrate/dropdowns/index', '', '', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 CREATE TABLE structure_permissible_values_custom_controls(
