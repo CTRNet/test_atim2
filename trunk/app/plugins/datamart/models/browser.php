@@ -149,7 +149,7 @@ class Browser extends DatamartAppModel {
 					}else{
 						$info .= __("drilldown", true);
 					}
-					$result .= "<td class='node ".$class."'><a href='".$webroot_url."/datamart/browser/index/".$cell['BrowsingResult']['id']."/'><div class='container'><div class='info ".($x < $half_width ? "right" : "left")."'>".$info."</div></div></a></td>";
+					$result .= "<td class='node ".$class."'><a href='".$webroot_url."/datamart/browser/browse/".$cell['BrowsingResult']['id']."/'><div class='container'><div class='info ".($x < $half_width ? "right" : "left")."'>".$info."</div></div></a></td>";
 				}else{
 					$result .= "<td class='".$cell."'></td>";
 				}
@@ -168,7 +168,7 @@ class Browser extends DatamartAppModel {
 	 */
 	static function formatSearchToPrint(array $params, String $structure_alias){
 		$keys = array_keys($params);
-		
+		App::import('model', 'StructureFormat');
 		$StructureFormat = new StructureFormat();
 		$conditions = array();
 		foreach($keys as $key){

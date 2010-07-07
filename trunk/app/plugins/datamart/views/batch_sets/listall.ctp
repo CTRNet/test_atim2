@@ -5,11 +5,10 @@
 		$structures->build( $atim_structure_for_detail, array('type'=>'detail', 'settings'=>array('actions'=>false), 'data'=>$data_for_detail) );
 	
 	// display adhoc RESULTS form
-		
 		$structure_links = array(
 			'top'=>'/datamart/batch_sets/process/'.$atim_menu_variables['Param.Type_Of_List'].'/'.$atim_menu_variables['BatchSet.id'],
 			'checklist'=>array(
-				$data_for_detail['BatchSet']['model'].'.id]['=>'%%'.$data_for_detail['BatchSet']['model'].'.id'.'%%'
+				$data_for_detail['BatchSet']['model'].'.'.$lookup_key_name.'][' => '%%'.$data_for_detail['BatchSet']['model'].'.'.$lookup_key_name.'%%'
 			)
 		);
 		
