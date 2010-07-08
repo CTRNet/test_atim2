@@ -104,11 +104,17 @@
 			}catch(Exception $e){
 				$traceArr = $e->getTrace();
 				foreach($traceArr as $traceLine){
-					$traceMsg .= "<tr><td>"
-						.isset($traceLine['file']) ? $traceLine['file'] : ""
-						."</td><td>"
-						.isset($traceLine['line']) ? $traceLine['line'] : ""
-						."</td><td>".$traceLine['function']."</td></tr>";
+					if(is_array($traceLine)){
+						$traceMsg .= "<tr><td>"
+							.(isset($traceLine['file']) ? 
+							$traceLine['file'] : "")
+							."</td><td>"
+							.(isset($traceLine['line']) ? 
+							$traceLine['line'] : "")
+							."</td><td>".$traceLine['function']."</td></tr>";
+					}else{
+						$traceMsg .= "<tr><td></td><td></td><td></td></tr>";
+					}
 				}
 			}
 			$traceMsg .= "</table>";
