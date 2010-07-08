@@ -2078,7 +2078,7 @@ class StructuresHelper extends Helper {
 						}
 				
 						$link_results[$link_label]	= $this->Html->link( 
-							( $state=='index' ? '&nbsp;' : __($link_label, true) ), 
+							( $state=='index' ? ' ' : __($link_label, true) ), 
 							$link_location, 
 							$htmlAttributes, 
 							$confirmation_msg, 
