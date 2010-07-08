@@ -61,7 +61,7 @@
 	
 	echo $shell->footer();
 
-	echo $cakeDebug; 
+	echo $this->element('sql_dump');
 ?>
 	
 </body>
