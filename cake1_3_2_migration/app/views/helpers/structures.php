@@ -2076,13 +2076,14 @@ class StructuresHelper extends Helper {
 							$htmlAttributes['class'] = substr($htmlAttributes['class'], 0, strlen($htmlAttributes['class']) - 2)."}";
 							unset($htmlAttributes['json']);
 						}
+						
+						$htmlAttributes['escape'] = false; // inline option removed from LINK function and moved to Options array
 				
 						$link_results[$link_label]	= $this->Html->link( 
-							( $state=='index' ? ' ' : __($link_label, true) ), 
-							$link_location, 
-							$htmlAttributes, 
-							$confirmation_msg, 
-							false 
+							( $state=='index' ? '&nbsp;' : __($link_label, true) ), // title
+							$link_location, // url
+							$htmlAttributes, // options
+							$confirmation_msg // confirmation message
 						);
 					
 				}
