@@ -295,4 +295,3 @@ WHERE assoc.id IS NULL;
 
 -- expanding batch set to support the databrowser
 ALTER TABLE `datamart_batch_sets` ADD `lookup_key_name` VARCHAR( 50 ) NOT NULL DEFAULT 'id' AFTER `model`;
-ALTER TABLE `datamart_batch_sets` ADD `lookup_key_name` VARCHAR( 50 ) NOT NULL AFTER `model` 
