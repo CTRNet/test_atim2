@@ -18,9 +18,10 @@ iconv -f utf8 -t iso8859-1 4-atim_v2.0.2_upgrade.sql -o 4-conv.sql
 iconv -f utf8 -t iso8859-1 5-atim_v2.0.2A_upgrade.sql -o 5-conv.sql
 iconv -f utf8 -t iso8859-1 6-LoadCustomApplicationData_v2.0.2A.sql -o 6-conv.sql
 
-mysqldump -u root -p ATiM > ATiM_utf8_tmp.sql
+mysqldump -u root -p ATiM > ATiM_utf8.sql
 php iso_fix.php
-iconv -c -f utf8 -t iso8859-1 ATiM_utf8.sql -o ATiM_iso8859-1.sql
+-- iconv -c -f utf8 -t iso8859-1 ATiM_utf8.sql -o ATiM_iso8859-1.sql
+-- iconv -f utf8 -t iso8859-1 ATiM_utf8.sql -o ATiM_iso8859-1.sql
 
 -- Execute following line on mysql
 
