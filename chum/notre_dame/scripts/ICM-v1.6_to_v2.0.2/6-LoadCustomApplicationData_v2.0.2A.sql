@@ -3552,6 +3552,58 @@ INSERT INTO `users` VALUES
 (18,'cfduchat','Carl Frédéric','','ddeaa159a89375256a02d1cfbd9a1946ad01a979','','','','','',NULL,'','','','','','','','en','0000-00-00 00:00:00',8,0,'2010-07-08 15:03:15','2010-07-08 15:03:15'),
 (19,'Jean-Baptiste','Jean-Baptiste','Lattouf','ddeaa159a89375256a02d1cfbd9a1946ad01a979','','','','','',NULL,'','','','','','','','en','0000-00-00 00:00:00',8,0,'2010-07-08 15:03:54','2010-07-08 15:03:54');
 
+-- create ad_ascite_cell_tubes
 
+INSERT INTO `structures` (`id`, `alias`, `description`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, 'ad_ascite_cell_tubes', NULL, '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+SET @ad_ascite_cell_tubes_structure_id = (SELECT id FROM structures WHERE alias = 'ad_ascite_cell_tubes');
+SET @ad_der_tubes_incl_ml_vol_structure_id = (SELECT id FROM structures WHERE alias = 'ad_der_tubes_incl_ml_vol');
+
+INSERT INTO structure_formats
+(`structure_id`, 
+`structure_field_id`, 
+`display_column`, `display_order`, 
+`language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, 
+`flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) 
+SELECT @ad_ascite_cell_tubes_structure_id, `structure_field_id`, 
+`display_column`, `display_order`, 
+`language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, 
+`flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`
+FROM structure_formats WHERE structure_id = @ad_der_tubes_incl_ml_vol_structure_id;
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
+(null, 'qc_ascit_cell_storage_method', 'open', '', NULL);
+
+INSERT INTO structure_value_domains_permissible_values 
+(`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_ascit_cell_storage_method"),
+(SELECT id FROM structure_permissible_values WHERE value="flash freeze" AND language_alias="flash freeze"), "10", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_ascit_cell_storage_method"),
+(SELECT id FROM structure_permissible_values WHERE value="none" AND language_alias="none"), "30", "1");
+ 
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
+(null, 'qc_ascit_cell_storage_solution', 'open', '', NULL);
+
+INSERT INTO structure_value_domains_permissible_values 
+(`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_ascit_cell_storage_solution"),
+(SELECT id FROM structure_permissible_values WHERE value="DMSO + FBS" AND language_alias="DMSO + FBS"), "10", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_ascit_cell_storage_solution"),
+(SELECT id FROM structure_permissible_values WHERE value="trizol" AND language_alias="trizol"), "20", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_ascit_cell_storage_solution"),
+(SELECT id FROM structure_permissible_values WHERE value="none" AND language_alias="none"), "30", "1");
+
+INSERT INTO `structure_fields` (`id`, `public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, '', 'Inventorymanagement', 'AliquotDetail', 'AsciteTubeDetail', 'tmp_storage_method', 'tmp storage method', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name = 'qc_ascit_cell_storage_method'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(null, '', 'Inventorymanagement', 'AliquotDetail', 'AsciteTubeDetail', 'tmp_storage_solution', 'tmp storage solution', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name = 'qc_ascit_cell_storage_solution'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+INSERT INTO structure_formats
+(structure_id, structure_field_id,display_column,display_order,language_heading,flag_override_label,language_label,flag_override_tag,language_tag,flag_override_help,language_help,flag_override_type,`type`,flag_override_setting,setting,flag_override_default,`default`,flag_add,flag_add_readonly,flag_edit,flag_edit_readonly,flag_search,flag_search_readonly,flag_datagrid,flag_datagrid_readonly,flag_index,flag_detail,created,created_by,modified,modified_by)
+VALUES
+((SELECT id FROM structures WHERE structures.alias LIKE 'ad_ascite_cell_tubes'), (SELECT id FROM structure_fields WHERE tablename = 'AsciteTubeDetail' AND field = 'tmp_storage_method'),'1','80 ',' ','0 ',' ','0 ',' ','0 ',' ','0 ',' ','0 ',' ','0 ',' ','1','0','1','0','0','0','0','0','1','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
+((SELECT id FROM structures WHERE structures.alias LIKE 'ad_ascite_cell_tubes'), (SELECT id FROM structure_fields WHERE tablename = 'AsciteTubeDetail' AND field = 'tmp_storage_solution'),'1','81 ',' ','0 ',' ','0 ',' ','0 ',' ','0 ',' ','0 ',' ','0 ',' ','1','0','1','0','0','0','0','0','1','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0');
 
 
