@@ -1,7 +1,10 @@
 #######################################################################
 #                                                                     #
-#                    ATiM ICM Data Instruction                        #
+#                    ATiM ICM Data Migration                          #
+#                          Instructions                               #
 #                                                                     #
+#######################################################################
+# Note: Migration from ICM v1.6 to v2.0.2A                            #
 #######################################################################
 
 -- Check data executing queries of 0-CheckScriptsBeforeUpgrade.sql
