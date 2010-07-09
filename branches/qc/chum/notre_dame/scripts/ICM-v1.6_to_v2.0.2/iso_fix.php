@@ -1,8 +1,8 @@
 <?php
 
-$f = fopen('ATiM_utf8_tmp.sql', 'r');
+$f = fopen('ATiM_utf8.sql', 'r');
 if(empty($f)) die('Unable to open file1');
-$w = fopen('ATiM_utf8.sql', 'w');
+$w = fopen('ATiM_iso8859-1.sql', 'w');
 if(empty($w)) die('Unable to open file2');
 
 //echo($r."\n");
