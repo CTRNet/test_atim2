@@ -30,7 +30,7 @@ $(function(){
 		$(".button.large").parent().append("<span id='exportCSV' class='button large'><a class='form submit'>Create BatchSet</a></span>");
 		$("#exportCSV").click(function(){
 			if(validateSubmit(true)){
-				$("form").attr("action", root_url + "datamart/browser/createBatchSet/<?= $parent_node ?>");
+				$("form").attr("action", root_url + "datamart/browser/createBatchSet/<?php echo($parent_node); ?>" );
 				$("#submit_button").unbind("click");
 				$("#submit_button").click();
 			}
