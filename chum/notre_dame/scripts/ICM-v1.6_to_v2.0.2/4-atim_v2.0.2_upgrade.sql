@@ -1,4 +1,4 @@
-﻿-- Version: v2.0.2
+-- Version: v2.0.2
 -- Description: This SQL script is an upgrade for ATiM v2.0.1. to 2.0.2. and must be run against
 -- an existing ATiM installation. Be sure to backup your database before running this script!
 
@@ -85,7 +85,7 @@ CREATE TABLE missing_translations(
 	id varchar(255) NOT NULL UNIQUE PRIMARY KEY 
 )Engine=InnoDb;
 
- -- Eventum 785
+-- Eventum 785
 ALTER TABLE `pages` ADD COLUMN `use_link` VARCHAR(255) NOT NULL  AFTER `language_body`;
 
 -- Remove old ID fields from the validations table. Missed from v2.0.1 update.
