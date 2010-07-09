@@ -192,6 +192,7 @@ class BrowserController extends DatamartAppController {
 	
 	function createBatchSet($node_id){
 		$browsing_result = $this->BrowsingResult->find('first', array('conditions' => array('BrowsingResult.id' => $node_id)));
+pr($node_id);exit;
 		$batch_set = array("BatchSet" => array(
 			"user_id" => $_SESSION['Auth']['User']['id'],
 			"plugin" => $browsing_result['BrowsingStructure']['plugin'],
