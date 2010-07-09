@@ -2471,7 +2471,7 @@ class StructuresHelper extends Helper {
 		$datetime_array = array_merge($tmp_datetime_array, $datetime_array);
 		$date = "";
 		$my_model_prefix = strlen($model_prefix) > 0 ? "[".str_replace(".", "][", $model_prefix) : "";
-		$date_name_prefix = "data".$my_model_prefix.$structure_field['model']."][".$structure_field['field'].$search_suffix."]";
+		$date_name_prefix = "data[".$my_model_prefix.$structure_field['model']."][".$structure_field['field'].$search_suffix."]";
 		unset($html_element_array['id']);
 		unset($html_element_array['name']);
 		for($i = 0; $i < 3; ++ $i){
