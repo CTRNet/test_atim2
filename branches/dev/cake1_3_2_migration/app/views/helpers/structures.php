@@ -112,23 +112,44 @@ class StructuresHelper extends Helper {
 			}
 		}
 		
-		if( $options['settings']['separator'] ){
-			$return_string .= '<table class="structure" cellspacing="0">
-				<tbody>
-				<tr><td>
-					<hr/>
-				</td></tr>
-				</tbody></table>';
-		}
+		// SEPARATOR option is deprecated, should use HEADING instead to better describe separated elements
 		
-		if( $options['settings']['header'] ){
-			$return_string .= '<table class="structure" cellspacing="0">
-				<tbody>
-				<tr><td>
-					<table class="columns details"><tr><td class="heading"><h4>'.$options['settings']['header'].'</h4></td></tr></table>
-				</td></tr>
-				</tbody></table>';
-		}
+			/*
+			if( $options['settings']['separator'] ){
+				$return_string .= '<table class="structure" cellspacing="0">
+					<tbody>
+					<tr><td>
+						<hr/>
+					</td></tr>
+					</tbody></table>';
+			}
+			*/
+		
+		// display grey-box HEADING with descriptive form info
+		
+			if( $options['settings']['header'] ){
+				
+				if ( !is_array($options['settings']['header']) ) {
+					$options['settings']['header'] = array(
+						'title'			=> $options['settings']['header'],
+						'description'	=> '('.__('no description provided',true).')'
+					);
+				}
+				
+				$return_string .= '<table class="structure" cellspacing="0">
+					<tbody class="descriptive_heading">
+						<tr>
+							<td>
+								<h4>'.$options['settings']['header']['title'].'</h4>
+								<p>'.$options['settings']['header']['description'].'</p>
+							</td>
+						</tr>
+					</tbody>
+					</table>
+					
+				';
+				
+			}
 		
 		// run specific TYPE function to build structure
 		switch ( $options['type'] ) {
