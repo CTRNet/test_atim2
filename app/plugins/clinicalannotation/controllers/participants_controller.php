@@ -101,7 +101,8 @@ class ParticipantsController extends ClinicalannotationAppController {
 			
 			if($submitted_data_validates) {
 				if ( $this->Participant->save($this->data) ) {
-					$this->flash( 'your data has been saved','/clinicalannotation/participants/profile/'.$this->Participant->getLastInsertID());
+					$_SESSION['tmp_data_saved'] = 'your data has been updated';
+					$this->redirect( '/clinicalannotation/participants/profile/'.$this->Participant->getLastInsertID());
 				}
 			}
 		}
@@ -132,7 +133,10 @@ class ParticipantsController extends ClinicalannotationAppController {
 
 			if($submitted_data_validates) {
 				$this->Participant->id = $participant_id;
-				if ( $this->Participant->save($this->data) ) $this->flash( 'your data has been updated','/clinicalannotation/participants/profile/'.$participant_id );		
+				if ( $this->Participant->save($this->data) ){
+					$_SESSION['tmp_data_saved'] = 'your data has been updated';
+					$this->redirect( '/clinicalannotation/participants/profile/'.$participant_id );		
+				}
 			}
 		}
 	}
@@ -153,7 +157,8 @@ class ParticipantsController extends ClinicalannotationAppController {
 		
 		if ($arr_allow_deletion['allow_deletion']) {
 			if ( $this->Participant->atim_delete( $participant_id ) ) {
-				$this->flash( 'your data has been deleted', '/clinicalannotation/participants/index/');
+				$_SESSION['tmp_data_saved'] = 'your data has been deleted'; 
+				$this->redirect( '/clinicalannotation/participants/index/');
 			} else {
 				$this->flash( 'error deleting data - contact administrator', '/clinicalannotation/participants/index/');
 			}
