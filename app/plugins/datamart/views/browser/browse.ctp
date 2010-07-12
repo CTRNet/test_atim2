@@ -45,7 +45,7 @@ function validateSubmit(ignoreSelect){
 		errors.push("You need to pick a search for");
 	}
 	<?php if($is_datagrid){ ?>
-	if($(":checked").length < 2){
+	if($(":checkbox[checked=true]").length == 0){
 		//TODO: traduce
 		errors.push("You need to select at least one item");
 	}
