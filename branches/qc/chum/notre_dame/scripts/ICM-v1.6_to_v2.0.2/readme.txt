@@ -29,6 +29,9 @@ source ATiM_iso8859-1.sql
 source 1-conv.sql
 source ...
 
+-- Change DB config into rebuildLeftRight.php
+php rebuildLeftRight.php
+
 #######################################################################
 #                                                                     #
 #                       ATiM ICM Data Issues                           #
