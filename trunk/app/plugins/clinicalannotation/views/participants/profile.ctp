@@ -9,7 +9,6 @@
 		<?php
 		unset($_SESSION['tmp_data_saved']);
 	} 
-
 	// 1- PARTICIPANT PROFILE
 	
 	$search_type_links = array();
@@ -24,7 +23,6 @@
 			'new search type' => $search_type_links
 		)
 	);
-	$data = array("Participant" => array("participant_identifier" => "popo le clounne"));
 	
 	// Set form structure and option 
 	$final_atim_structure = $atim_structure; 
