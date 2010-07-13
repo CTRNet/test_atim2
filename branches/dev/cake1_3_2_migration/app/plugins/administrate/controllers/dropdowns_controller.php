@@ -43,7 +43,7 @@ class DropdownsController extends AdministrateAppController {
 				$current_values[$data_unit['StructurePermissibleValuesCustom']['value']] = "";
 			}
 			if(empty($this->StructurePermissibleValuesCustom->validationErrors)){
-				foreach($this->data as $data_unit){
+				while($data_unit = array_pop($this->data)){
 					if(strlen($data_unit['StructurePermissibleValuesCustom']['value']) > 0){
 						unset($this->StructurePermissibleValuesCustom->id);
 						$data_unit['StructurePermissibleValuesCustom']['control_id'] = $control_id;
