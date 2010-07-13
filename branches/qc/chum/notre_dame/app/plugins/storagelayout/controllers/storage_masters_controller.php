@@ -6,6 +6,7 @@ class StorageMastersController extends StoragelayoutAppController {
 	
 	var $uses = array(
 		'Storagelayout.StorageMaster',
+		'Storagelayout.StorageTreeView',
 		'Storagelayout.StorageControl',
 		'Storagelayout.StorageCoordinate',
 		'Storagelayout.TmaSlide',
@@ -592,11 +593,13 @@ class StorageMastersController extends StoragelayoutAppController {
 		// MANAGE STORAGE DATA
 		
 		// Get the storage data
+		$storage_data = null;
+		$atim_menu = array();
 		if($storage_master_id){
 			$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
 			if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }
-			$storage_content = $this->StorageMaster->find('threaded', array('conditions' => array('StorageMaster.lft >=' => $storage_data['StorageMaster']['lft'], 'StorageMaster.rght <=' => $storage_data['StorageMaster']['rght']), 'order' => 'StorageMaster.coord_x_order ASC, StorageMaster.coord_y_order ASC', 'recursive' => '-1'));
-			$storage_content = $this->completeStorageContent($storage_content);
+			$storage_content = $this->StorageTreeView->find('threaded', array('conditions' => array('StorageTreeView.lft >=' => $storage_data['StorageMaster']['lft'], 'StorageTreeView.rght <=' => $storage_data['StorageMaster']['rght'])));
+			$storage_content = $this->formatStorageTreeView($storage_content);
 			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/contentTreeView/%%StorageMaster.id%%');
 		}else{
 			$storage_content = $this->StorageMaster->find('threaded', array('order' => 'StorageMaster.coord_x_order ASC, StorageMaster.coord_y_order ASC', 'recursive' => '-1'));
@@ -610,15 +613,16 @@ class StorageMastersController extends StoragelayoutAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Get the current menu object. Needed to disable menu options based on storage type
-	
-		if(!$this->Storages->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
-			// Check storage supports custom coordinates and disable access to coordinates menu option if required
-			$atim_menu = $this->inactivateStorageCoordinateMenu($atim_menu);
-		}
-						
-		if(empty($storage_data['StorageControl']['coord_x_type'])) {
-			// Check storage supports coordinates and disable access to storage layout menu option if required
-			$atim_menu = $this->inactivateStorageLayoutMenu($atim_menu);
+		if(!empty($storage_data)) {
+			if(!$this->Storages->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
+				// Check storage supports custom coordinates and disable access to coordinates menu option if required
+				$atim_menu = $this->inactivateStorageCoordinateMenu($atim_menu);
+			}
+							
+			if(empty($storage_data['StorageControl']['coord_x_type'])) {
+				// Check storage supports coordinates and disable access to storage layout menu option if required
+				$atim_menu = $this->inactivateStorageLayoutMenu($atim_menu);
+			}			
 		}
 
 		$this->set('atim_menu', $atim_menu);
@@ -638,10 +642,12 @@ class StorageMastersController extends StoragelayoutAppController {
 	}		
 	
 	/**
-	 * Parsing a nested array gathering storages and all their children storages, the funtion will add
-	 * both aliquots and TMA slides stored into each storage.
+	 * Build/format a nested array for tree view gathering the data linked to 
+	 *  - a root storage 
+	 *  - plus all direct/indirect children storages 
+	 *  - plus all TMAs and aliquots contained into the root and children storages.
 	 * 
-	 * @param $storage_content Nested array gathering storages and all their children storages
+	 * @param $unformatted_storage_tree_view Unformatted storage nested array.
 	 * 
 	 * @return The completed nested array
 	 * 
@@ -649,31 +655,31 @@ class StorageMastersController extends StoragelayoutAppController {
 	 * @since 2009-09-13
 	 */
 	
-	function completeStorageContent($storage_content) {
-		foreach ($storage_content as $key => $new_storage) {
-			
+	function formatStorageTreeView($unformatted_storage_tree_view) {
+		$formatted_data = array();
+		
+		foreach ($unformatted_storage_tree_view as $key => $new_storage) {
+			$formatted_data[$key]['StorageMaster'] = $new_storage['StorageTreeView'];
 			// recursive first on existing MODEL CHILDREN
 			if (isset($new_storage['children']) && count($new_storage['children'])) {
-				$storage_content[$key]['children'] = $this->completeStorageContent($new_storage['children']);
+				$formatted_data[$key]['children'] = $this->formatStorageTreeView($new_storage['children']);
 			}
 			
-			// get OUTSIDE MODEL data and append as CHILDREN
+			// Add OUTSIDE MODEL data and append as CHILDREN
 					
 			// 1-Add storage aliquots
-			$this->AliquotMaster->unbindModel(array('belongsTo' => array('Collection', 'StorageMaster', 'AliquotControl')));			
-			$storage_aliquots = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.storage_master_id' => $new_storage['StorageMaster']['id']), 'order' => 'AliquotMaster.coord_x_order ASC, AliquotMaster.coord_y_order ASC', 'recursive' => '0'));
-			foreach ($storage_aliquots as $aliquot) { $storage_content[$key]['children'][] = $aliquot; }				
+			foreach ($new_storage['AliquotMaster'] as $aliquot) { 
+				$formatted_data[$key]['children'][]['AliquotMaster'] = $aliquot; 
+			}				
 			
 			// 2-Add storage TMA slides
-			$this->TmaSlide->unbindModel(array('belongsTo' => array('StorageMaster')));		
-			$storage_tma_slides = $this->TmaSlide->find('all', array('conditions' => array('TmaSlide.storage_master_id' => $new_storage['StorageMaster']['id']), 'order' => 'TmaSlide.coord_x_order ASC, TmaSlide.coord_y_order ASC'));
-			foreach ($storage_tma_slides as $slide) {
+			foreach ($new_storage['TmaSlide'] as $slide) {
 				$slide['Generated']['tma_block_identification'] = $slide['Block']['barcode'];
-				$storage_content[$key]['children'][] = $slide; 
+				$formatted_data[$key]['children'][]['TmaSlide'] = $slide; 
 			}
 		}
 		
-		return $storage_content;
+		return $formatted_data;
 	}
 	
 	/**
