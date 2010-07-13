@@ -1,5 +1,14 @@
-<?php 
-
+<?php
+	if($_SESSION['tmp_data_saved']){
+		?>
+		<div id="validation" style="width: 100%; position: relative; left: -10px;">
+			<ul>
+				<li style="background-color: #339933;"><?php __($_SESSION['tmp_data_saved']); ?></li>
+			</ul>
+		</div>
+		<?php
+		unset($_SESSION['tmp_data_saved']);
+	} 
 	// 1- PARTICIPANT PROFILE
 	
 	$search_type_links = array();
@@ -17,7 +26,7 @@
 	
 	// Set form structure and option 
 	$final_atim_structure = $atim_structure; 
-	$final_options = array('settings' => array('actions' => false));
+	$final_options = array('data' => $data, 'settings' => array('actions' => false));
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook();

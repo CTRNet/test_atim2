@@ -30,14 +30,14 @@ class Browser extends DatamartAppModel {
 	
 	static function getTree($node_id, $active_node){
 		$BrowsingResult = new BrowsingResult();
-		$result = $BrowsingResult->find('all', array('conditions' => 'node_id='.$node_id.' OR parent_node_id='.$node_id, 'order' => array('node_id')));
+		$result = $BrowsingResult->find('all', array('conditions' => 'BrowsingResult.id='.$node_id.' OR BrowsingResult.parent_node_id='.$node_id, 'order' => array('BrowsingResult.id')));
 		$tree_node = NULL;
 		if($tree_node = array_shift($result)){
 			$tree_node['active'] = $node_id == $active_node;
 			$tree_node['children'] = array();
 			$children = array();
 			while($node = array_shift($result)){
-				$children[] = $node['BrowsingResult']['node_id'];
+				$children[] = $node['BrowsingResult']['id'];
 			}
 			foreach($children as $child){
 				$child_node = Browser::getTree($child, $active_node);
@@ -104,7 +104,7 @@ class Browser extends DatamartAppModel {
 		$prev_node = NULL;
 		do{
 			$prev_node = $tmp_node;
-			$br = $BrowsingResult->find('first', array('conditions' => array('node_id' => $tmp_node)));
+			$br = $BrowsingResult->find('first', array('conditions' => array('BrowsingResult.id' => $tmp_node)));
 			if(!empty($br)){
 				$tmp_node = $br['BrowsingResult']['parent_node_id'];
 			}
@@ -137,18 +137,19 @@ class Browser extends DatamartAppModel {
 					if($cell['active']){
 						$class .= " active ";
 					}
-					$info = "<span class='title'>".__($cell['BrowsingStructure']['display_name'], true)."</span><br/>\n";
+					$count = strlen($cell['BrowsingResult']['id_csv']) ? count(explode(",", $cell['BrowsingResult']['id_csv'])) : 0;
+					$info = "<span class='title'>".__($cell['BrowsingStructure']['display_name'], true)."</span> (".$count.")<br/>\n";
 					if($cell['BrowsingResult']['raw']){
 						$search = unserialize($cell['BrowsingResult']['serialized_search_params']);
 						if(count($search)){
-							$info .= __("search", true)."<br/><br/>".Browser::formatSearchToPrint($search);
+							$info .= __("search", true)."<br/><br/>".Browser::formatSearchToPrint($search, $cell['BrowsingStructure']['structure_alias']);
 						}else{
 							$info .= __("direct access", true);
 						}
 					}else{
 						$info .= __("drilldown", true);
 					}
-					$result .= "<td class='node ".$class."'><a href='".$webroot_url."/datamart/browser/index/".$cell['BrowsingResult']['node_id']."/'><div class='container'><div class='info ".($x < $half_width ? "right" : "left")."'>".$info."</div></div></a></td>";
+					$result .= "<td class='node ".$class."'><a href='".$webroot_url."/datamart/browser/browse/".$cell['BrowsingResult']['id']."/'><div class='container'><div class='info ".($x < $half_width ? "right" : "left")."'>".$info."</div></div></a></td>";
 				}else{
 					$result .= "<td class='".$cell."'></td>";
 				}
@@ -165,23 +166,35 @@ class Browser extends DatamartAppModel {
 	 * Formats the search params array and returns it into a table
 	 * @param The search params array
 	 */
-	static function formatSearchToPrint(array $params){
+	static function formatSearchToPrint(array $params, String $structure_alias){
 		$keys = array_keys($params);
-		
-		$StructureField = new StructureField();
+		App::import('model', 'StructureFormat');
+		$StructureFormat = new StructureFormat();
 		$conditions = array();
 		foreach($keys as $key){
-			list($model, $field) = explode(".", $key);
+			if(is_numeric($key)){
+				//it's a textual field model.field LIKE %foo%
+				list($model_field) = explode(" ", $params[$key]);
+				list($model, $field) = explode(".", $model_field);
+			}else{
+				list($model, $field) = explode(".", $key);
+			}
 			$conditions[] = "StructureField.model='".$model."' AND StructureField.field='".$field."'";
 		}
-		$sf = $StructureField->find('all', array('conditions' => array(implode(" OR ", $conditions))));
-		
+		$sf = $StructureFormat->customSearch("Structure.alias='".$structure_alias."' AND ".implode(" OR ", $conditions));
 		$result = "<table align='center' width='100%'>";
 		foreach($params as $name => $values){
-			list($model, $field) = explode(".", $name);
+			if(is_numeric($name)){
+				//it's a textual field model.field LIKE %foo%
+				list($model_field, , $value) = explode(" ", $params[$key]);
+				list($model, $field) = explode(".", $model_field);
+				$values = array(substr($value, 2, -2));
+			}else{
+				list($model, $field) = explode(".", $name);
+			}
 			foreach($sf as $sf_unit){
 				if($sf_unit['StructureField']['model'] == $model && $sf_unit['StructureField']['field'] == $field){
-					$name = __($sf_unit['StructureField']['language_label'], true);
+					$name = __($sf_unit['StructureFormat']['flag_override_label'] ? $sf_unit['StructureFormat']['language_label'] : $sf_unit['StructureField']['language_label'], true);
 					break;
 				}
 			}

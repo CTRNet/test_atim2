@@ -8,7 +8,7 @@ class ConsentMaster extends ClinicalannotationAppModel {
 		)    
 	);
 	
-	var $hasOne = array(
+	var $hasMany = array(
 		'ClinicalCollectionLink' => array(
 			'className' => 'Clinicalannotation.ClinicalCollectionLink',
 			'foreignKey' => 'consent_master_id'));
