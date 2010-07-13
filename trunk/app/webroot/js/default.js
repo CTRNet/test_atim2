@@ -85,14 +85,17 @@ function uncheckAll( $div ) {
 		
 		//tree view controls
 		$(".reveal:not(.not_allowed)").each(function(){
-			var json = getJsonFromClass($(this).attr("class"));
-			$(this).toggle(function(){
-				$("#tree_" + json.tree).stop(true, true);
-				$("#tree_" + json.tree).show("blind", {}, 350);
-			}, function(){
-				$("#tree_" + json.tree).stop(true, true);
-				$("#tree_" + json.tree).hide("blind", {}, 350);
-			});
+			var cssClass = $(this).attr("class");
+			if(cssClass.indexOf("{") > -1){
+				var json = getJsonFromClass(cssClass);
+				$(this).toggle(function(){
+					$("#tree_" + json.tree).stop(true, true);
+					$("#tree_" + json.tree).show("blind", {}, 350);
+				}, function(){
+					$("#tree_" + json.tree).stop(true, true);
+					$("#tree_" + json.tree).hide("blind", {}, 350);
+				});
+			}
 		});
 		
 		//ajax controls
