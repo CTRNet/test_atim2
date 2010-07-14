@@ -20,6 +20,7 @@
 var copyStr = "<?php echo(__('copy', true)); ?>";
 var pasteStr = "<?php echo(__('paste', true)); ?>";
 var copyingStr = "<?php echo(__('copying', true)); ?>";
+var pasteOnAllLinesStr = "<?php echo(__("paste on all lines")); ?>";
 </script>
 <?php 
 echo $javascript->link('copyControl')."\n";

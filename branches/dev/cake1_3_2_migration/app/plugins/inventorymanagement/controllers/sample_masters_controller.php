@@ -31,9 +31,9 @@ class SampleMastersController extends InventorymanagementAppController {
 		'Inventorymanagement.SampleToAliquotControl');
 	
 	var $paginate = array(
-		'SampleMaster' => array('limit' => 10, 'order' => 'SampleMaster.sample_code DESC'),
-		'ViewSample' => array('limit' =>10 , 'order' => 'ViewSample.sample_code DESC'), 
-		'AliquotMaster' => array('limit' =>10 , 'order' => 'AliquotMaster.barcode DESC'));
+		'SampleMaster' => array('limit' => pagination_amount, 'order' => 'SampleMaster.sample_code DESC'),
+		'ViewSample' => array('limit' =>pagination_amount , 'order' => 'ViewSample.sample_code DESC'), 
+		'AliquotMaster' => array('limit' =>pagination_amount , 'order' => 'AliquotMaster.barcode DESC'));
 
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS

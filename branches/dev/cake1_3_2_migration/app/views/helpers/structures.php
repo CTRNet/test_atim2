@@ -623,7 +623,8 @@ class StructuresHelper extends Helper {
 							</tbody><tfoot>
 								<tr id="'.$add_another_unique_link_id.'">
 									<td class="right" colspan="'.$column_count.'">
-										<a id="addLineLink" style="color:#090; font-weight:bold;" href="#" onclick="'.$add_another_unique_function_name.'(); return false;" title="'.__( 'click to add a line', true ).'">+</a>
+										<a class="addLineLink" style="color:#090; font-weight:bold;" href="#" onclick="'.$add_another_unique_function_name.'(this); return false;" title="'.__( 'click to add a line', true ).'">(+)</a>
+										<input class="addLineCount" type="text" size="1" value="1" maxlength="2"/> line(s)
 									</td>
 								</tr>
 								</tfoot>
@@ -634,17 +635,24 @@ class StructuresHelper extends Helper {
 										'.$add_another_unique_next_variable.' = "'.count($data).'";
 									}
 									
-									function '.$add_another_unique_function_name.'(){
+									function '.$add_another_unique_function_name.'(me){
 										var templateLine = "'.$add_another_row_template.'";
-										var tbody = $("#'.$add_another_unique_link_id.'").parent().parent().children("tbody:first"); 
-										$(tbody).append(templateLine.replace(/#{id}/g, '.$add_another_unique_next_variable.')); 
-										initTooltips();
-										'.$add_another_unique_next_variable.'++;
-										debug("incr: " + '.$add_another_unique_next_variable.');
-										$(tbody).children("tr:last").find(".datepicker").each(function(){
-											debug(this.id);
-											initDatepicker(this);
-										});
+										var tbody = $("#'.$add_another_unique_link_id.'").parent().parent().children("tbody:first");
+										var addLineCount = parseInt($(me).parent().find(".addLineCount").val(), 10);
+										if(isNaN(addLineCount)){
+											addLineCount = 1;
+										}
+										do{ 
+											$(tbody).append(templateLine.replace(/#{id}/g, '.$add_another_unique_next_variable.')); 
+											initTooltips();
+											'.$add_another_unique_next_variable.'++;
+											debug("incr: " + '.$add_another_unique_next_variable.');
+											$(tbody).children("tr:last").find(".datepicker").each(function(){
+												debug(this.id);
+												initDatepicker(this);
+											});
+											addLineCount --;
+										}while(addLineCount > 0);
 										$("form").highlight("td");
 										if(window.enableCopyCtrl){
 											//if copy control exists, call it
