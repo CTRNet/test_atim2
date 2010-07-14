@@ -10,7 +10,7 @@ class TmaSlidesController extends StoragelayoutAppController {
 		'Storagelayout.StorageCoordinate',
 		'Storagelayout.StorageControl');
 	
-	var $paginate = array('TmaSlide' => array('limit' => 10,'order' => 'TmaSlide.barcode DESC'));
+	var $paginate = array('TmaSlide' => array('limit' => pagination_amount,'order' => 'TmaSlide.barcode DESC'));
 
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS

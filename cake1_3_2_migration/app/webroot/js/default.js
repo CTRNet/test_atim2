@@ -85,14 +85,17 @@ function uncheckAll( $div ) {
 		
 		//tree view controls
 		$(".reveal:not(.not_allowed)").each(function(){
-			var json = getJsonFromClass($(this).attr("class"));
-			$(this).toggle(function(){
-				$("#tree_" + json.tree).stop(true, true);
-				$("#tree_" + json.tree).show("blind", {}, 350);
-			}, function(){
-				$("#tree_" + json.tree).stop(true, true);
-				$("#tree_" + json.tree).hide("blind", {}, 350);
-			});
+			var cssClass = $(this).attr("class");
+			if(cssClass.indexOf("{") > -1){
+				var json = getJsonFromClass(cssClass);
+				$(this).toggle(function(){
+					$("#tree_" + json.tree).stop(true, true);
+					$("#tree_" + json.tree).show("blind", {}, 350);
+				}, function(){
+					$("#tree_" + json.tree).stop(true, true);
+					$("#tree_" + json.tree).hide("blind", {}, 350);
+				});
+			}
 		});
 		
 		//ajax controls
@@ -252,7 +255,7 @@ function uncheckAll( $div ) {
 	 * @param element The element contained within the row to remove
 	 */
 	function removeParentRow(element){
-		element = getParentRow(element); 
+		element = getParentElement(element, "TR");
 		
 		if($(element)[0].nodeName == "TR"){
 			$(element).remove();
@@ -260,12 +263,7 @@ function uncheckAll( $div ) {
 	}
 	
 	function getParentRow(element){
-		do{
-			element = $(element).parent();
-			nodeName = element[0].nodeName;
-		}while(nodeName != "TR" && nodeName != "undefined");
-		
-		return element;
+		return getParentElement(element, "TR");
 	}
 	
 	function initAutocomplete(){
@@ -274,4 +272,12 @@ function uncheckAll( $div ) {
 			var fct = eval("(" + json.callback + ")");
 			fct.apply(this, [this, json]);
 		});
+	}
+	
+	function getParentElement(currElement, parentName){
+		do{
+			currElement = $(currElement).parent();
+			nodeName = currElement[0].nodeName;
+		}while(nodeName != parentName && nodeName != "undefined");
+		return currElement;
 	}

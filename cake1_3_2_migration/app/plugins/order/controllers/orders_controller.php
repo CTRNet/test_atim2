@@ -11,7 +11,7 @@ class OrdersController extends OrderAppController {
 	
 	var $paginate = array(
 		'Order'=>array('limit' => pagination_amount,'order'=>'Order.date_order_placed DESC'), 
-		'OrderLine'=>array('limit'=>'10','order'=>'OrderLine.date_required DESC'));
+		'OrderLine'=>array('limit'=>pagination_amount,'order'=>'OrderLine.date_required DESC'));
 	
 	function index() {
 		$_SESSION['ctrapp_core']['search'] = null;
