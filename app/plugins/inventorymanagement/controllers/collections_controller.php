@@ -16,8 +16,8 @@ class CollectionsController extends InventorymanagementAppController {
 		'Clinicalannotation.ClinicalCollectionLink');
 	
 	var $paginate = array(
-		'Collection' => array('limit' => 10, 'order' => 'Collection.acquisition_label ASC'),
-		'ViewCollection' => array('limit' => 10, 'order' => 'ViewCollection.acquisition_label ASC')); 
+		'Collection' => array('limit' => pagination_amount, 'order' => 'Collection.acquisition_label ASC'),
+		'ViewCollection' => array('limit' => pagination_amount, 'order' => 'ViewCollection.acquisition_label ASC')); 
 	
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS

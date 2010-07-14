@@ -8,7 +8,7 @@ class OrderLinesController extends OrderAppController {
 		'Order.OrderItem', 
 	);
 	
-	var $paginate = array('OrderLine'=>array('limit'=>'10','order'=>'OrderLine.date_required DESC'));
+	var $paginate = array('OrderLine'=>array('limit'=>pagination_amount,'order'=>'OrderLine.date_required DESC'));
 
 	function listall( $order_id ) {
 		if ( !$order_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }

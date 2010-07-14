@@ -15,9 +15,9 @@ class OrderItemsController extends OrderAppController {
 		'Order.Shipment');
 		
 	var $paginate = array(
-		'OrderItem'=>array('limit'=>'10','order'=>'AliquotMaster.barcode'),
-		'ViewAliquot' => array('limit' =>10 , 'order' => 'ViewAliquot.barcode DESC'), 
-		'AliquotMaster' => array('limit' =>10 , 'order' => 'AliquotMaster.barcode DESC'));
+		'OrderItem'=>array('limit'=>pagination_amount,'order'=>'AliquotMaster.barcode'),
+		'ViewAliquot' => array('limit' =>pagination_amount , 'order' => 'ViewAliquot.barcode DESC'), 
+		'AliquotMaster' => array('limit' =>pagination_amount , 'order' => 'AliquotMaster.barcode DESC'));
 	
 	function listall( $order_id, $order_line_id ) {
   		if (( !$order_id ) || ( !$order_line_id )) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
