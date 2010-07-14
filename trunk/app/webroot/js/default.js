@@ -255,7 +255,7 @@ function uncheckAll( $div ) {
 	 * @param element The element contained within the row to remove
 	 */
 	function removeParentRow(element){
-		element = getParentRow(element); 
+		element = getParentElement(element, "TR");
 		
 		if($(element)[0].nodeName == "TR"){
 			$(element).remove();
@@ -263,12 +263,7 @@ function uncheckAll( $div ) {
 	}
 	
 	function getParentRow(element){
-		do{
-			element = $(element).parent();
-			nodeName = element[0].nodeName;
-		}while(nodeName != "TR" && nodeName != "undefined");
-		
-		return element;
+		return getParentElement(element, "TR");
 	}
 	
 	function initAutocomplete(){
@@ -277,4 +272,12 @@ function uncheckAll( $div ) {
 			var fct = eval("(" + json.callback + ")");
 			fct.apply(this, [this, json]);
 		});
+	}
+	
+	function getParentElement(currElement, parentName){
+		do{
+			currElement = $(currElement).parent();
+			nodeName = currElement[0].nodeName;
+		}while(nodeName != parentName && nodeName != "undefined");
+		return currElement;
 	}

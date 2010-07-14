@@ -1695,7 +1695,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 	}
 	
 	function realiquot($batch_set_id, $save = false){
-		$this->Aliquots->updateAliquotCurrentVolume(33);
 		if(empty($this->data)){
 			$this->redirect("/pages/err_inv_no_data");
 			exit;

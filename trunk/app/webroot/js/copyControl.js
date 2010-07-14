@@ -14,12 +14,31 @@ $(function(){
 	if(!window.copyingStr){
 		window.copyingStr = "js untranslated copying";	
 	}
-	if(window.debug){
-		debug("yay");
+	if(!window.pasteOnAllLinesStr){
+		window.pasteOnAllLinesStr = "js unstranslated pasteOnAllLines";
 	}
 	
 	//create buttons and bind onclick command
 	enableCopyCtrl();
+	
+	var pasteAllButton = '<span class="button paste pasteAll"><a class="form paste" title="' + window.pasteOnAllLinesStr + '" href="#">' + window.pasteOnAllLinesStr + '</a></span>';
+	if($(".addLineLink").length){
+		//add copy all button before the add line button
+		$(".addLineLink").parent().prepend(pasteAllButton);	
+	}else{
+		//add copy all button into a new tfoot
+		var table = getParentElement($(".copy").first(), "TABLE");
+		var tableWidth = $(table).first("tr").find("th").length;
+		$(table).append("<tfoot><tr><td colspan='" + tableWidth + "' align='right'>" + pasteAllButton + "</td></tr></tfoot>");
+	}
+	$(".pasteAll").click(function(){
+		var table = getParentElement(this, "TABLE");
+		$(table).find("tbody tr").each(function(){
+			pasteLine(this);
+		});
+		return false;
+	});
+	
 });
 
 /**
