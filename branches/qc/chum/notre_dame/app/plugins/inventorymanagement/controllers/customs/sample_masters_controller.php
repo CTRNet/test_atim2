@@ -6,7 +6,7 @@ class SampleMastersControllerCustom extends SampleMastersController {
 					
 		// Check parameters
 	 	if(empty($collection_id) || empty($sample_data) 
-	 	|| (!isset($sample_data['SampleMaster'])) || (!isset($sample_data['SampleDetail'])) || (!isset($sample_data['SampleControl']))) { 
+	 	|| (!isset($sample_data['SampleMaster'])) || (!isset($sample_data['SampleControl']))) { 
 	 		$this->redirect('/pages/err_inv_system_error', null, true); 
 	 	}
 
