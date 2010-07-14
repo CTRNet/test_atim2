@@ -629,9 +629,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 			//Update data
 			if(array_key_exists('initial_volume', $this->data['AliquotMaster']) && empty($aliquot_data['AliquotControl']['volume_unit'])) { $this->redirect('/pages/err_inv_system_error', null, true); }
 
-			// Format decimal data
-			$this->data = $this->formatAliquotFieldDecimalData($this->data);
-									
 			// Launch validations
 			
 			$submitted_data_validates = true;
