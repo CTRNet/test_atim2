@@ -36,7 +36,7 @@ class StorageMastersController extends StoragelayoutAppController {
 	function search() {
 		$this->set('atim_menu', $this->Menus->get('/storagelayout/storage_masters/index/'));
 		
-		if($this->data){
+		if(!empty($this->data)){
 			$_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions();
 			if(isset($_SESSION['ctrapp_core']['search']['criteria']['StorageMaster.parent_id'])){
 				unset($_SESSION['ctrapp_core']['search']['criteria']['StorageMaster.parent_id']);
@@ -46,7 +46,7 @@ class StorageMastersController extends StoragelayoutAppController {
 				//reformat the search conditions for parent_id
 				if($parent_id === "0"){
 					$parent_id_cond_str .= "StorageMaster.parent_id IS NULL OR ";
-				}else{
+				}else if(strlen($parent_id) > 0){
 					$parent_id_cond_str .= "StorageMaster.parent_id = ".$parent_id." OR ";
 				}
 			}
