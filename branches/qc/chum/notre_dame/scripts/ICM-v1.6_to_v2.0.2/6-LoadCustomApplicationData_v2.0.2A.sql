@@ -3625,3 +3625,10 @@ UPDATE structure_fields SET language_label = 'participant system code' WHERE fie
 INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('participant system code', 'global', 'Participant System Code', 'Participant - Code-système');
 
+-- Add missing field to aliquot datagrid form
+
+UPDATE structure_fields sf,structure_formats sfo
+SET sfo.flag_datagrid = '1'
+WHERE sfo.structure_field_id = sf.id
+AND sf.model = 'AliquotDetail'
+AND sf.field IN ('tmp_storage_method', 'tmp_storage_solution');
