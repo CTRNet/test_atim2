@@ -3618,3 +3618,10 @@ INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_e
 INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 (null, (SELECT id FROM structure_fields WHERE `field` LIKE 'source_cell_passage_number' AND tablename  LIKE 'sd_der_rnas'), 'custom,/(^[0-9]+[-][0-9]+$)|(^[0-9]*$)/', '1', '0', '', 'cell passage number should be a positive integer', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
 
+-- Change participant code to participant system code
+
+UPDATE structure_fields SET language_label = 'participant system code' WHERE field LIKE 'participant_identifier';
+
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('participant system code', 'global', 'Participant System Code', 'Participant - Code-système');
+
