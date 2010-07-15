@@ -593,14 +593,15 @@ ALTER TABLE sd_der_cell_cultures
     ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
     ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
     MODIFY sample_master_id int(11) NULL DEFAULT NULL COMMENT '',
-    MODIFY cell_passage_number int(6) NULL DEFAULT NULL COMMENT '';
+    MODIFY cell_passage_number varchar(10) DEFAULT NULL;
     
 ALTER TABLE sd_der_cell_cultures_revs
 	ADD `tmp_collection_method` varchar(30) DEFAULT NULL AFTER `cell_passage_number`,
 	ADD `tmp_hormon` varchar(40) DEFAULT NULL AFTER `tmp_collection_method`,
 	ADD `tmp_solution` varchar(30) DEFAULT NULL AFTER `tmp_hormon`,
 	ADD `tmp_percentage_of_oxygen` varchar(30) DEFAULT NULL AFTER `tmp_solution`,
-	ADD `tmp_percentage_of_serum` varchar(30) DEFAULT NULL AFTER `tmp_percentage_of_oxygen`; 
+	ADD `tmp_percentage_of_serum` varchar(30) DEFAULT NULL AFTER `tmp_percentage_of_oxygen`,
+    MODIFY cell_passage_number varchar(10) DEFAULT NULL; 
 
 ALTER TABLE sd_der_plasmas
     ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
