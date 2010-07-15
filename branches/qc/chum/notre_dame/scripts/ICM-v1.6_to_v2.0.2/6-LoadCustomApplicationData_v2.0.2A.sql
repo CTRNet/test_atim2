@@ -3606,4 +3606,15 @@ VALUES
 ((SELECT id FROM structures WHERE structures.alias LIKE 'ad_ascite_cell_tubes'), (SELECT id FROM structure_fields WHERE tablename = 'AsciteTubeDetail' AND field = 'tmp_storage_method'),'1','80 ',' ','0 ',' ','0 ',' ','0 ',' ','0 ',' ','0 ',' ','0 ',' ','1','0','1','0','0','0','0','0','1','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
 ((SELECT id FROM structures WHERE structures.alias LIKE 'ad_ascite_cell_tubes'), (SELECT id FROM structure_fields WHERE tablename = 'AsciteTubeDetail' AND field = 'tmp_storage_solution'),'1','81 ',' ','0 ',' ','0 ',' ','0 ',' ','0 ',' ','0 ',' ','0 ',' ','1','0','1','0','0','0','0','0','1','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0');
 
+-- Allow '-' for celle passage number like '2-4'
+
+UPDATE structure_fields, structure_validations
+SET structure_validations.rule = 'custom,/(^[0-9]+[-][0-9]+$)|(^[0-9]*$)/'
+WHERE structure_fields.id = structure_validations.structure_field_id
+AND structure_fields.field LIKE 'cell_passage_number';
+
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, (SELECT id FROM structure_fields WHERE `field` LIKE 'source_cell_passage_number' AND tablename  LIKE 'sd_der_dnas'), 'custom,/(^[0-9]+[-][0-9]+$)|(^[0-9]*$)/', '1', '0', '', 'cell passage number should be a positive integer', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, (SELECT id FROM structure_fields WHERE `field` LIKE 'source_cell_passage_number' AND tablename  LIKE 'sd_der_rnas'), 'custom,/(^[0-9]+[-][0-9]+$)|(^[0-9]*$)/', '1', '0', '', 'cell passage number should be a positive integer', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
 
