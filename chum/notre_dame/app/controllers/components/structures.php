@@ -177,7 +177,7 @@ class StructuresComponent extends Object {
 						if ( $data ) {
 							if ( strpos($form_fields[$model.'.'.$key]['key'], ' LIKE')!==false ) {
 								if(is_array($data)){
-									$conditions[] = $form_fields[$model.'.'.$key]['key']." '%".implode("%' OR ".$form_fields[$model.'.'.$key]['key']." '%", $data)."%'";
+									$conditions[] = "(".$form_fields[$model.'.'.$key]['key']." '%".implode("%' OR ".$form_fields[$model.'.'.$key]['key']." '%", $data)."%'".")";
 									unset($data);
 								}else{
 									$data = '%'.$data.'%';
