@@ -535,24 +535,31 @@ class DboMysql extends DboMysqlBase {
 	function connect() {
 		$config = $this->config;
 		$this->connected = false;
-
+	
 		if (!$config['persistent']) {
-			$this->connection = mysql_connect($config['host'] . ':' . $config['port'], $config['login'], $config['password'], true);
+			$this->connection = mysql_connect($config['host'] . ':' . $config['port'], $config['login'], $config['password'], true) 
+				//ATIM 2
+				or die("Failed to connect to database");
 			$config['connect'] = 'mysql_connect';
 		} else {
-			$this->connection = mysql_pconnect($config['host'] . ':' . $config['port'], $config['login'], $config['password']);
+			$this->connection = mysql_pconnect($config['host'] . ':' . $config['port'], $config['login'], $config['password']) 
+				//ATIM 2
+				or die("Failed to connect to database");
 		}
-
+	
 		if (mysql_select_db($config['database'], $this->connection)) {
 			$this->connected = true;
+		}else{
+			//ATIM 2
+			die("Failed to select database schema");
 		}
-
+	
 		if (!empty($config['encoding'])) {
 			$this->setEncoding($config['encoding']);
 		}
-
+	
 		$this->_useAlias = (bool)version_compare(mysql_get_server_info($this->connection), "4.1", ">=");
-
+	
 		return $this->connected;
 	}
 
