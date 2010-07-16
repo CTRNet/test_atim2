@@ -95,7 +95,7 @@ class StructuresComponent extends Object {
 				|| $value['StructureField']['type']=='float_positive' 
 				|| $value['StructureField']['type']=='date' 
 				|| $value['StructureField']['type']=='datetime'
-				|| (($value['flag_override_setting'] == 1 && strpos($value['setting'], "range") !== false) ||  ($value['StructureFormat']['flag_override_settings'] == 0 && strpos($value['StructureField']['setting'], "range") !== false))
+				|| (($value['flag_override_setting'] == 1 && strpos($value['setting'], "range") !== false) ||  (isset($value['StructureFormat']) && $value['StructureFormat']['flag_override_settings'] == 0 && strpos($value['StructureField']['setting'], "range") !== false))
 						&& isset($this->controller->data[$value['StructureField']['model']][$value['StructureField']['field'].'_start'])) {
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'].'_start' ]['plugin']		= $value['StructureField']['plugin'];
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'].'_start' ]['model']		= $value['StructureField']['model'];
@@ -183,7 +183,7 @@ class StructuresComponent extends Object {
 								}
 							}
 							
-							if($data){
+							if(isset($data)){
 								$conditions[ $form_fields[$model.'.'.$key]['key'] ] = $data;
 							}
 						}
