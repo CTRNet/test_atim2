@@ -76,6 +76,9 @@ class UsersController extends AdministrateAppController {
 		
 		if(!empty($this->data)){
 			$this->data['User']['id'] = $user_id;
+			$this->data['User']['group_id'] = $group_id;
+			$this->data['Group']['id'] = $group_id;
+			
 			$submitted_data_validates = true;
 			$hook_link = $this->hook('presave_process');
 			if( $hook_link ) { 

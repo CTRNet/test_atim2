@@ -179,7 +179,8 @@ class MasterDetailBehavior extends ModelBehavior {
 		
 		$valid = true;
 		
-		if ( $is_master_model && !isset($model->data['atim_data']['skip_detail_validation'])) {
+		if ( $is_master_model ) {
+			
 			$use_form_alias = NULL;
 			$use_table_name = NULL;
 			
@@ -211,25 +212,16 @@ class MasterDetailBehavior extends ModelBehavior {
 					$detail_class_instance->validate = $rules;
 					$detail_class_instance->set($model->data);
 					
-					//we need to validate the master alone because once the detail results are attached the master 
-					//does not validate if errors exist in detail. The drawback is that we may validate the master twice.
-					$model->data['atim_data']['skip_detail_validation'] = true;
-					$model->validates();
-					unset($model->data['atim_data']['skip_detail_validation']);
-					
 					$valid_detail_class = $detail_class_instance->validates();
 					$valid = $valid_detail_class && $valid;
+					
 					if ( !$valid_detail_class ){
-						$model->validationErrors = array_merge($model->validationErrors, $detail_class_instance->validationErrors);
+						$model->validationErrors = array_merge($model->validationErrors,$detail_class_instance->validationErrors);
 					}
 				}
 			}
 		}
 		return $valid;
-	}
-	
-	function afterValidate(){
-		echo("AFTERRRRRRRR");
 	}
 	
 }

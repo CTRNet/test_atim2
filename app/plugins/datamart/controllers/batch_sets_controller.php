@@ -240,7 +240,7 @@ class BatchSetsController extends DatamartAppController {
 	}
 	
 	function delete( $type_of_list='all', $batch_set_id=0 ) {
-		$this->BatchSet->del( $batch_set_id );
+		$this->BatchSet->delete( $batch_set_id );
 		$this->flash( 'your data has been deleted', '/datamart/batch_sets/index' );
 	}
 	
@@ -259,7 +259,7 @@ class BatchSetsController extends DatamartAppController {
 			// get BatchId ROWS and remove from SAVED batch set
 			$results = $this->BatchId->find( 'all', array( 'conditions'=>$criteria ) );
 			foreach ( $results as $id ) {
-				$this->BatchId->del( $id['BatchId']['id'] );
+				$this->BatchId->delete( $id['BatchId']['id'] );
 			}
 		}
 		

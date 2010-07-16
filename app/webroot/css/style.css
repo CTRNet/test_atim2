@@ -820,6 +820,30 @@ span.help:hover {
 			padding: 0.5em 1em; 
 			border-top: 1px solid #eaedf2; 
 		}
+		
+		
+			div#wrapper table.structure tbody.descriptive_heading td { 
+				padding: 0 0 0.5em 0;
+			}
+			
+				div#wrapper table.structure tbody.descriptive_heading h4 { 
+					background-color: #f2f2f2;
+					margin: 0 0 0 0;
+					padding: 1em 1em 0.25em 1em;
+				
+					font-size: 14px;
+					font-weight: bold;
+					color: #2d5069;
+				}
+			
+				div#wrapper table.structure tbody.descriptive_heading p { 
+					background-color: #f2f2f2;
+					margin: 0 0 0 0;
+					padding: 0 1em 1em 1em;
+				
+					color: #a9a9a9;
+				}
+		
 		div#wrapper table.structure table td.heading { 
 			padding-bottom: 0.5em; 
 			border-top: 0;
