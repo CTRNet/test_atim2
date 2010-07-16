@@ -255,8 +255,6 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='datamart_browsing_indexes'), (SELECT id FROM structure_fields WHERE `model`='BrowsingIndex' AND `tablename`='datamart_browsing_indexes' AND `field`='notes' AND `language_label`='notes' AND `language_tag`='' AND `type`='textarea' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='datamart_browsing_indexes'), (SELECT id FROM structure_fields WHERE `model`='BrowsingIndex' AND `tablename`='datamart_browsing_indexes' AND `field`='created' AND `language_label`='created' AND `language_tag`='' AND `type`='datetime' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '1', '0');
 
-
-
 -- 953, transfering existing values into the new table
 INSERT INTO structure_permissible_values_customs(control_id, value)
 (SELECT '1', value FROM structure_permissible_values WHERE id IN (SELECT structure_permissible_value_id FROM structure_value_domains_permissible_values WHERE structure_value_domain_id=(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff')));
@@ -306,3 +304,22 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 -- adding range param for identifiers value search
 UPDATE structure_formats SET `flag_override_setting`='1', `setting`='size=30,class=range' WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifierssummary') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='MiscIdentifier' AND tablename='misc_identifiers' AND field='identifier_value');
+
+-- Update participant menus linked to inventory
+
+SET @link_to_collection_url = (SELECT use_link FROM menus WHERE id = 'clin_CAN_67');
+UPDATE menus SET language_title = 'participant inventory', use_link = @link_to_collection_url, language_description = NULL
+WHERE id = 'clin_CAN_57'; -- products
+
+UPDATE menus SET language_title = 'participant samples and aliquots list', language_description = NULL, display_order = 2
+WHERE id = 'clin_CAN_571'; --  tree view
+
+UPDATE menus SET language_title = 'participant collections list', language_description = NULL, display_order = 1, parent_id = 'clin_CAN_57', use_summary = null
+WHERE id = 'clin_CAN_67'; --  link to collection
+
+DELETE FROM `i18n` WHERE `id` IN ('participant inventory', 'participant samples and aliquots list', 'participant collections list');
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) 
+VALUES 
+('participant inventory', '', 'Inventory', 'Inventaire'),
+('participant samples and aliquots list', '', 'Summary', 'Résumé'),
+('participant collections list', '', 'Participant Collections', 'Collections du participant');
