@@ -18,7 +18,10 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ("exact search", "Exact search", "Recherche exacte"),
 ("you cannot create a user for that group because it has no permission", "You cannot create a user for that group because it has no permission", "Vous ne pouvez pas créer d'utilisateur pour ce groupe car il n'a aucune permission"),
 ("data browser", "Data browser", "Navigateur de données"),
-("paste on all lines", "Paste on all lines", "Coller sur toutes les lignes");
+("paste on all lines", "Paste on all lines", "Coller sur toutes les lignes"),
+("or", "or", "ou"),
+("range", "range", "intervalle"),
+("specific", "specific", "spécifique");
 
 INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('realiquot_with_volume', '', '', '1', '1', '1', '1');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
@@ -300,4 +303,6 @@ ALTER TABLE `datamart_batch_sets` ADD `lookup_key_name` VARCHAR( 50 ) NOT NULL D
 -- search participants by created date
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
 ((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='created' AND `structure_value_domain`  IS NULL  ), '4', '15', '', '1', 'created', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '1', '0', '0', '0', '1', '1');
- 
+
+-- adding range param for identifiers value search
+UPDATE structure_formats SET `flag_override_setting`='1', `setting`='size=30,class=range' WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifierssummary') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='MiscIdentifier' AND tablename='misc_identifiers' AND field='identifier_value');

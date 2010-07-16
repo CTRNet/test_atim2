@@ -86,16 +86,17 @@ class StructuresComponent extends Object {
 		// format structure data into SEARCH CONDITONS format
 		if ( isset($atim_structure['StructureFormat']) ) {
 			foreach ( $atim_structure['StructureFormat'] as $value ) {
-				
 				// for RANGE values, which should be searched over with a RANGE...
+				//it includes numbers, dates, and fields fith the "range" setting. For the later, value  _start
 				if ( $value['StructureField']['type']=='number'
 				|| $value['StructureField']['type']=='integer'
 				|| $value['StructureField']['type']=='integer_positive'
 				|| $value['StructureField']['type']=='float'
 				|| $value['StructureField']['type']=='float_positive' 
 				|| $value['StructureField']['type']=='date' 
-				|| $value['StructureField']['type']=='datetime' ) {
-					
+				|| $value['StructureField']['type']=='datetime'
+				|| (($value['flag_override_setting'] == 1 && strpos($value['setting'], "range") !== false) ||  ($value['StructureFormat']['flag_override_settings'] == 0 && strpos($value['StructureField']['setting'], "range") !== false))
+						&& isset($this->controller->data[$value['StructureField']['model']][$value['StructureField']['field'].'_start'])) {
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'].'_start' ]['plugin']		= $value['StructureField']['plugin'];
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'].'_start' ]['model']		= $value['StructureField']['model'];
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'].'_start' ]['field']		= $value['StructureField']['field'];
