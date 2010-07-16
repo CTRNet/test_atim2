@@ -55,7 +55,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$_SESSION['ctrapp_core']['search'] = null; // clear SEARCH criteria
 		$this->unsetInventorySessionData();
 		
-		$this->Structures->set('view_aliquot_joined_to_collection');
+		$this->Structures->set('view_aliquot_joined_to_sample_and_collection');
 		
 		$hook_link = $this->hook('format');
 		if($hook_link){
@@ -66,7 +66,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 	function search() {
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/collections/index'));
 
-		$view_aliquot = $this->Structures->get('form', 'view_aliquot_joined_to_collection');
+		$view_aliquot = $this->Structures->get('form', 'view_aliquot_joined_to_sample_and_collection');
 		$this->set('atim_structure', $view_aliquot);
 		if ($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions($view_aliquot);
 		

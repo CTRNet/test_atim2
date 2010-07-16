@@ -260,7 +260,7 @@ class OrderItemsController extends OrderAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Structures
-		$this->Structures->set('view_aliquot_joined_to_collection', 'atim_structure_for_aliquots_list');
+		$this->Structures->set('view_aliquot_joined_to_sample_and_collection', 'atim_structure_for_aliquots_list');
 		$this->Structures->set('orderitems_to_addAliquotsInBatch', 'atim_structure_orderitems_data');
 		
 		$atim_structure = array();
