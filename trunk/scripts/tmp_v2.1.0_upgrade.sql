@@ -323,3 +323,96 @@ VALUES
 ('participant inventory', '', 'Inventory', 'Inventaire'),
 ('participant samples and aliquots list', '', 'Summary', 'Résumé'),
 ('participant collections list', '', 'Participant Collections', 'Collections du participant');
+
+-- Update views to avoid bug generated during QC customisation
+-- Drop group by in aliquot_views being time consuming
+
+DROP VIEW view_samples;
+CREATE VIEW view_samples AS 
+SELECT 
+samp.id AS sample_master_id,
+samp.parent_id AS parent_sample_id,
+samp.initial_specimen_sample_id,
+samp.collection_id AS collection_id,
+
+col.bank_id, 
+col.sop_master_id, 
+link.participant_id, 
+link.diagnosis_master_id, 
+link.consent_master_id,
+
+part.participant_identifier, 
+
+col.acquisition_label, 
+
+samp.initial_specimen_sample_type, 	
+parent_samp.sample_type AS parent_sample_type,
+samp.sample_type,
+samp.sample_code,
+samp.sample_category,
+samp.deleted
+
+FROM sample_masters as samp
+INNER JOIN collections AS col ON col.id = samp.collection_id AND col.deleted != 1
+LEFT JOIN sample_masters as parent_samp ON samp.parent_id = parent_samp.id AND parent_samp.deleted != 1
+LEFT JOIN clinical_collection_links AS link ON col.id = link.collection_id AND link.deleted != 1
+LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted != 1
+WHERE samp.deleted != 1;
+
+DROP VIEW view_aliquots;
+CREATE VIEW view_aliquots AS 
+SELECT 
+al.id AS aliquot_master_id,
+al.sample_master_id AS sample_master_id,
+al.collection_id AS collection_id, 
+col.bank_id, 
+al.storage_master_id AS storage_master_id,
+link.participant_id, 
+link.diagnosis_master_id, 
+link.consent_master_id,
+
+part.participant_identifier, 
+
+col.acquisition_label, 
+
+samp.initial_specimen_sample_type, 	
+parent_samp.sample_type AS parent_sample_type,
+samp.sample_type,
+
+al.barcode,
+al.aliquot_type,
+al.in_stock,
+
+stor.code,
+stor.selection_label,
+al.storage_coord_x,
+al.storage_coord_y,
+
+stor.temperature,
+stor.temp_unit,
+
+al.deleted
+
+FROM aliquot_masters as al
+INNER JOIN sample_masters as samp ON samp.id = al.sample_master_id AND samp.deleted != 1
+INNER JOIN collections AS col ON col.id = samp.collection_id AND col.deleted != 1
+LEFT JOIN sample_masters as parent_samp ON samp.parent_id = parent_samp.id AND parent_samp.deleted != 1
+LEFT JOIN clinical_collection_links AS link ON col.id = link.collection_id AND link.deleted != 1
+LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted != 1
+LEFT JOIN storage_masters AS stor ON stor.id = al.storage_master_id AND stor.deleted != 1
+WHERE al.deleted != 1;
+
+SET FOREIGN_KEY_CHECKS=0;
+UPDATE structures SET alias = 'collections_for_collection_tree_view' WHERE alias = 'collection_tree_view';
+UPDATE structures SET alias = 'view_aliquot_joined_to_sample_and_collection' WHERE alias = 'view_aliquot_joined_to_collection';
+UPDATE datamart_browsing_structures SET structure_alias = 'view_aliquot_joined_to_sample_and_collection' WHERE structure_alias = 'view_aliquot_joined_to_collection';
+SET FOREIGN_KEY_CHECKS=1;
+
+SET @stuctrue_field_id = (SELECT id FROM structure_fields WHERE model LIKE 'ViewAliquot' AND field LIKE 'aliquot_use_counter');
+DELETE FROM structure_formats WHERE structure_field_id = @stuctrue_field_id;
+
+
+
+
+
+
