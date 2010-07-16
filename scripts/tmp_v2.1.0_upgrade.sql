@@ -410,7 +410,7 @@ SET FOREIGN_KEY_CHECKS=1;
 
 SET @stuctrue_field_id = (SELECT id FROM structure_fields WHERE model LIKE 'ViewAliquot' AND field LIKE 'aliquot_use_counter');
 DELETE FROM structure_formats WHERE structure_field_id = @stuctrue_field_id;
-
+DELETE FROM structure_fields WHERE id = @stuctrue_field_id;
 
 
 
