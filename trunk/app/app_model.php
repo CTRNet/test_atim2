@@ -51,7 +51,7 @@ class AppModel extends Model {
 		$this->id = $model_id;
 		
 		// delete DATA as normal
-		$this->del( $model_id, $cascade );
+		$this->delete( $model_id, $cascade );
 		
 		// do a FIND of the same DATA, return FALSE if found or TRUE if not found
 		if ( $this->read() ) { 

@@ -1,119 +1,13 @@
 <?php
-
-// ATiM2 configuration variables from Datatable
-
-		set_error_handler("myErrorHandler");
-		
-		define('VALID_INTEGER', '/^[-+]?\\b[0-9]+\\b$/');
-		define('VALID_INTEGER_POSITIVE', '/^[+]?\\b[0-9]+\\b$/');
-		define('VALID_FLOAT', '/^[-+]?\\b[0-9]*\\.?[0-9]+\\b$/');
-		define('VALID_FLOAT_POSITIVE', '/^[+]?\\b[0-9]*\\.?[0-9]+\\b$/');
-		
-		//ripped from validation.php date + time
-		define('VALID_DATETIME_YMD', '%^(?:(?:(?:(?:(?:1[6-9]|[2-9]\\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00)))(-)(?:0?2\\1(?:29)))|(?:(?:(?:1[6-9]|[2-9]\\d)?\\d{2})(-)(?:(?:(?:0?[13578]|1[02])\\2(?:31))|(?:(?:0?(1|[3-9])|1[0-2])\\2(29|30))|(?:(?:0?[1-9])|(?:1[0-2]))\\2(?:0?[1-9]|1\\d|2[0-8]))))\s([0-1][0-9]|2[0-3])\:[0-5][0-9]\:[0-5][0-9]$%');
-	
-	// parse URI manually to get passed PARAMS
-		global $start_time;
-		$start_time = AppController::microtime_float();	
-
-		$request_uri_params = array();
-		
-		$request_uri = $_SERVER['REQUEST_URI'];
-		$request_uri = explode('/',$request_uri);
-		$request_uri = array_filter($request_uri);
-		
-		foreach ( $request_uri as $uri ) {
-			$exploded_uri = explode(':',$uri);
-			if ( count($exploded_uri)>1 ) {
-				$request_uri_params[ $exploded_uri[0] ] = $exploded_uri[1];
-			}
-		}
-	
-	// import APP code required...
-	
-		App::import('model', 'Config');
-		$config_data_model = new Config;
-		
-		App::import('component', 'Session');
-		$config_session_component = new SessionComponent;
-	
-	// get CONFIG data from table and SET
-		
-		$config_results	= false;
-		
-		$logged_in_user	= $config_session_component->read('Auth.User.id');
-		$logged_in_group	= $config_session_component->read('Auth.User.group_id');
-		
-		// get CONFIG for logged in user
-		if ( $logged_in_user ) {
-			$config_results = $config_data_model->find('first', array('conditions'=>'(bank_id="0" OR bank_id IS NULL) AND (group_id="0" OR group_id IS NULL) AND user_id="'.$logged_in_user.'"'));
-		}
-		// if not logged in user, or user has no CONFIG, get CONFIG for GROUP level
-		if ( $logged_in_group && (!count($config_results) || !$config_results) ) {
-			$config_results = $config_data_model->find('first', array('conditions'=>'(bank_id="0" OR bank_id IS NULL) AND Config.group_id="'.$logged_in_group.'" AND (user_id="0" OR user_id IS NULL)'));
-		}
-		// if not logged in user, or user has no CONFIG, get CONFIG for APP level
-		if ( !count($config_results) || !$config_results ) {
-			$config_results = $config_data_model->find('first', array('conditions'=>'(bank_id="0" OR bank_id IS NULL) AND (group_id="0" OR group_id IS NULL) AND (user_id="0" OR user_id IS NULL)'));
-		}
-		
-		// parse result, set configs/defines
-		if ( $config_results ) {
-			Configure::write('Config.language', $config_results['Config']['config_language']);
-			foreach ( $config_results['Config'] as $config_key=>$config_data ) {
-				if ( strpos($config_key,'_')!==false ) {
-					
-					// break apart CONFIG key
-					$config_key = explode('_',$config_key);
-					$config_format = array_shift($config_key);
-					$config_key = implode('_',$config_key);
-					
-					// if a DEFINE or CONFIG, set new setting for APP
-					if ( $config_format=='define' ) {
-						
-						// override DATATABLE value with URI PARAM value
-						if ( $config_key=='pagination_amount' && isset($request_uri_params['per']) ) {
-							$config_data = $request_uri_params['per'];
-						}
-						
-						define($config_key, $config_data);
-					} else if ( $config_format=='config' ) {
-						Configure::write($config_key, $config_data);
-					}
-				}
-			}
-		}
-		
-	function myErrorHandler($errno, $errstr, $errfile, $errline){
-		$controller = AppController::getInstance();
-		if($errno == E_USER_WARNING && strpos($errstr, "SQL Error:") !== false && $controller->name != 'Pages'){
-			$traceMsg = "<table><tr><th>File</th><th>Line</th><th>Function</th></tr>";
-			try{
-				throw new Exception("");
-			}catch(Exception $e){
-				$traceArr = $e->getTrace();
-				foreach($traceArr as $traceLine){
-					$traceMsg .= "<tr><td>"
-						.isset($traceLine['file']) ? $traceLine['file'] : ""
-						."</td><td>"
-						.isset($traceLine['line']) ? $traceLine['line'] : ""
-						."</td><td>".$traceLine['function']."</td></tr>";
-				}
-			}
-			$traceMsg .= "</table>";
-			$_SESSION['err_msg'] = $errstr.$traceMsg;
-			$controller->redirect('/pages/err_query');
-		}
-	}
-
 class AppController extends Controller {
 	
 	// var $uses			= array('Config', 'Aco', 'Aro', 'Permission');
 	private static $missing_translations = array();
-	private static $me;
+	private static $me = NULL;
 	var $uses = array('Config');
 	var $components	= array( 'Session', 'SessionAcl', 'Auth', 'Menus', 'RequestHandler', 'Structures', 'PermissionManager' );
 	var $helpers		= array('Ajax', 'Csv', 'Html', 'Javascript', 'Shell', 'Structures', 'Time');
+	
 	
 	function beforeFilter() {
 		AppController::$me = $this;
@@ -133,7 +27,7 @@ class AppController extends Controller {
 			$this->Auth->logoutRedirect = array('controller' => 'users', 'action' => 'login', 'plugin' => '');
 			
 			$this->Auth->actionPath = 'controllers/App/';
-			// $this->Auth->allowedActions = array('display');
+			$this->Auth->allowedActions = array();
 			
 		// record URL in logs
 			
@@ -223,7 +117,137 @@ class AppController extends Controller {
 		}
 		return $result;
 	}
+	
+	static function init(){
+		Configure::write('Config.language', 'eng');
+	
+		App::import('model','AtimAcl');
+		Configure::write('Acl.classname', 'AtimAcl');
+		Configure::write('Acl.database', 'default');
+	
+		
+		$ATiMCache = Configure::read('debug') ? true : false; 
+		Configure::write('ATiMMenuCache.disable', $ATiMCache);
+		Configure::write('ATiMStructureCache.disable', $ATiMCache);
+	
+	
+		// ATiM2 configuration variables from Datatable
+		
+		define('VALID_INTEGER', '/^[-+]?\\b[0-9]+\\b$/');
+		define('VALID_INTEGER_POSITIVE', '/^[+]?\\b[0-9]+\\b$/');
+		define('VALID_FLOAT', '/^[-+]?\\b[0-9]*\\.?[0-9]+\\b$/');
+		define('VALID_FLOAT_POSITIVE', '/^[+]?\\b[0-9]*\\.?[0-9]+\\b$/');
+		
+		//ripped from validation.php date + time
+		define('VALID_DATETIME_YMD', '%^(?:(?:(?:(?:(?:1[6-9]|[2-9]\\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00)))(-)(?:0?2\\1(?:29)))|(?:(?:(?:1[6-9]|[2-9]\\d)?\\d{2})(-)(?:(?:(?:0?[13578]|1[02])\\2(?:31))|(?:(?:0?(1|[3-9])|1[0-2])\\2(29|30))|(?:(?:0?[1-9])|(?:1[0-2]))\\2(?:0?[1-9]|1\\d|2[0-8]))))\s([0-1][0-9]|2[0-3])\:[0-5][0-9]\:[0-5][0-9]$%');
+	
+		// parse URI manually to get passed PARAMS
+		global $start_time;
+		$start_time = AppController::microtime_float();	
+
+		$request_uri_params = array();
+		
+		$request_uri = $_SERVER['REQUEST_URI'];
+		$request_uri = explode('/',$request_uri);
+		$request_uri = array_filter($request_uri);
+		
+		foreach ( $request_uri as $uri ) {
+			$exploded_uri = explode(':',$uri);
+			if ( count($exploded_uri)>1 ) {
+				$request_uri_params[ $exploded_uri[0] ] = $exploded_uri[1];
+			}
+		}
+		
+		// import APP code required...
+		App::import('model', 'Config');
+		$config_data_model = new Config;
+		App::import('component', 'Session');
+		$config_session_component = new SessionComponent;
+		
+		// get CONFIG data from table and SET
+		$config_results	= false;
+		
+		$logged_in_user	= $config_session_component->read('Auth.User.id');
+		$logged_in_group	= $config_session_component->read('Auth.User.group_id');
+		
+		// get CONFIG for logged in user
+		if ( $logged_in_user ) {
+			$config_results = $config_data_model->find('first', array('conditions'=>'(bank_id="0" OR bank_id IS NULL) AND (group_id="0" OR group_id IS NULL) AND user_id="'.$logged_in_user.'"'));
+		}
+		// if not logged in user, or user has no CONFIG, get CONFIG for GROUP level
+		if ( $logged_in_group && (!count($config_results) || !$config_results) ) {
+			$config_results = $config_data_model->find('first', array('conditions'=>'(bank_id="0" OR bank_id IS NULL) AND Config.group_id="'.$logged_in_group.'" AND (user_id="0" OR user_id IS NULL)'));
+		}
+		// if not logged in user, or user has no CONFIG, get CONFIG for APP level
+		if ( !count($config_results) || !$config_results ) {
+			$config_results = $config_data_model->find('first', array('conditions'=>'(bank_id="0" OR bank_id IS NULL) AND (group_id="0" OR group_id IS NULL) AND (user_id="0" OR user_id IS NULL)'));
+		}
+		
+		// parse result, set configs/defines
+		if ( $config_results ) {
+			Configure::write('Config.language', $config_results['Config']['config_language']);
+			foreach ( $config_results['Config'] as $config_key=>$config_data ) {
+				if ( strpos($config_key,'_')!==false ) {
+					
+					// break apart CONFIG key
+					$config_key = explode('_',$config_key);
+					$config_format = array_shift($config_key);
+					$config_key = implode('_',$config_key);
+					
+					// if a DEFINE or CONFIG, set new setting for APP
+					if ( $config_format=='define' ) {
+						
+						// override DATATABLE value with URI PARAM value
+						if ( $config_key=='pagination_amount' && isset($request_uri_params['per']) ) {
+							$config_data = $request_uri_params['per'];
+						}
+						
+						define($config_key, $config_data);
+					} else if ( $config_format=='config' ) {
+						Configure::write($config_key, $config_data);
+					}
+				}
+			}
+		}
+		if(Configure::read('debug') == 0){
+			set_error_handler("myErrorHandler");
+		}
+	}
 }
-
-
+	
+	AppController::init();
+		
+	function myErrorHandler($errno, $errstr, $errfile, $errline, $context = null){
+		if(class_exists("CakeLog")){
+			$CakeLog = CakeLog::getInstance();
+			$CakeLog->handleError($errno, $errstr, $errfile, $errline, $context);
+		}
+		if(class_exists("AppController")){
+			$controller = AppController::getInstance();
+			if($errno == E_USER_WARNING && strpos($errstr, "SQL Error:") !== false && $controller->name != 'Pages'){
+				$traceMsg = "<table><tr><th>File</th><th>Line</th><th>Function</th></tr>";
+				try{
+					throw new Exception("");
+				}catch(Exception $e){
+					$traceArr = $e->getTrace();
+					foreach($traceArr as $traceLine){
+						if(is_array($traceLine)){
+							$traceMsg .= "<tr><td>"
+								.(isset($traceLine['file']) ? 
+								$traceLine['file'] : "")
+								."</td><td>"
+								.(isset($traceLine['line']) ? 
+								$traceLine['line'] : "")
+								."</td><td>".$traceLine['function']."</td></tr>";
+						}else{
+							$traceMsg .= "<tr><td></td><td></td><td></td></tr>";
+						}
+					}
+				}
+				$traceMsg .= "</table>";
+				$_SESSION['err_msg'] = $errstr.$traceMsg;
+				$controller->redirect('/pages/err_query');
+			}
+		}
+	}
 ?>

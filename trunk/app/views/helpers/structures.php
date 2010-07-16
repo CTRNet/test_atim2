@@ -112,23 +112,44 @@ class StructuresHelper extends Helper {
 			}
 		}
 		
-		if( $options['settings']['separator'] ){
-			$return_string .= '<table class="structure" cellspacing="0">
-				<tbody>
-				<tr><td>
-					<hr/>
-				</td></tr>
-				</tbody></table>';
-		}
+		// SEPARATOR option is deprecated, should use HEADING instead to better describe separated elements
 		
-		if( $options['settings']['header'] ){
-			$return_string .= '<table class="structure" cellspacing="0">
-				<tbody>
-				<tr><td>
-					<table class="columns details"><tr><td class="heading"><h4>'.$options['settings']['header'].'</h4></td></tr></table>
-				</td></tr>
-				</tbody></table>';
-		}
+			/*
+			if( $options['settings']['separator'] ){
+				$return_string .= '<table class="structure" cellspacing="0">
+					<tbody>
+					<tr><td>
+						<hr/>
+					</td></tr>
+					</tbody></table>';
+			}
+			*/
+		
+		// display grey-box HEADING with descriptive form info
+		
+			if( $options['settings']['header'] ){
+				
+				if ( !is_array($options['settings']['header']) ) {
+					$options['settings']['header'] = array(
+						'title'			=> $options['settings']['header'],
+						'description'	=> '('.__('no description provided',true).')'
+					);
+				}
+				
+				$return_string .= '<table class="structure" cellspacing="0">
+					<tbody class="descriptive_heading">
+						<tr>
+							<td>
+								<h4>'.$options['settings']['header']['title'].'</h4>
+								<p>'.$options['settings']['header']['description'].'</p>
+							</td>
+						</tr>
+					</tbody>
+					</table>
+					
+				';
+				
+			}
 		
 		// run specific TYPE function to build structure
 		switch ( $options['type'] ) {
@@ -473,7 +494,7 @@ class StructuresHelper extends Helper {
 								if ( $options['type']=='datagrid' && $options['settings']['del_fields'] ) {
 									$return_string .= '
 											<td class="right">
-												<a style="color:red;" href="#" onclick="removeParentRow(this); return false;" title="'.__( 'click to remove these elements', true ).'">(x)</a>
+												<a style="color:red;" href="#" onclick="getElementById(\'table'.$table_key.'row'.$key.'\').parentNode.removeChild(getElementById(\'table'.$table_key.'row'.$key.'\')); return false;" title="'.__( 'click to remove these elements', true ).'">x</a>
 											</td>
 									';
 									
@@ -560,7 +581,7 @@ class StructuresHelper extends Helper {
 								if ( $options['type']=='datagrid' && $options['settings']['del_fields'] ) {
 									$add_another_row_template .= '
 											<td class="right">
-												<a style="color:red;" href="#" onclick="removeParentRow(this); return false;" title="'.__( 'click to remove these elements', true ).'">(x)</a>
+												<a style="color:red;" href="#" onclick="getElementById(\'table'.$table_key.'row#{id}\').parentNode.removeChild(getElementById(\'table'.$table_key.'row#{id}\')); return false;" title="'.__( 'click to remove these elements', true ).'">x</a>
 											</td>
 									';
 									
@@ -635,7 +656,7 @@ class StructuresHelper extends Helper {
 										$("form").highlight("td");
 										if(window.enableCopyCtrl){
 											//if copy control exists, call it
-											enableCopyCtrl();
+											enableCopyCtrl("table1row" + ('.$add_another_unique_next_variable.'  - 1));
 										}
 										return false;
 									}
@@ -1169,6 +1190,7 @@ class StructuresHelper extends Helper {
 			}
 			
 		foreach ( $atim_structure['StructureFormat'] as $field ) {
+			
 			// if STRUCTURE does not allows multi-columns, display STRUCTURE in one column only
 			if ( !isset($atim_structure['Structure']['flag_'.$options['type'].'_columns']) ) $atim_structure['Structure']['flag_'.$options['type'].'_columns'] = 0;
 			if ( !$atim_structure['Structure']['flag_'.$options['type'].'_columns'] ) $field['display_column'] = 0;
@@ -1242,10 +1264,8 @@ class StructuresHelper extends Helper {
 						*/
 						
 						// include jTip link or no-help type indicator
-							if ($field['flag_override_help']){
-								$field['StructureField']['language_help'] = $field['language_help'];
-							}
-							if ($field['StructureField']['language_help']) {
+							if ( $field['flag_override_help'] && $field['language_help'] ) $field['StructureField']['language_help'] = $field['language_help'];
+							if (  $field['StructureField']['language_help'] ) {
 								$table_index[ $field['display_column'] ][ $row_count ]['help'] = '<span class="help">&nbsp;<div>'.__($field['StructureField']['language_help'],true).'</div></span> ';
 							} else {
 								$table_index[ $field['display_column'] ][ $row_count ]['help'] = '<span class="help error">&nbsp;</span>';
@@ -2085,13 +2105,14 @@ class StructuresHelper extends Helper {
 							$htmlAttributes['class'] = substr($htmlAttributes['class'], 0, strlen($htmlAttributes['class']) - 2)."}";
 							unset($htmlAttributes['json']);
 						}
+						
+						$htmlAttributes['escape'] = false; // inline option removed from LINK function and moved to Options array
 				
 						$link_results[$link_label]	= $this->Html->link( 
-							( $state=='index' ? '&nbsp;' : __($link_label, true) ), 
-							$link_location, 
-							$htmlAttributes, 
-							$confirmation_msg, 
-							false 
+							( $state=='index' ? '&nbsp;' : __($link_label, true) ), // title
+							$link_location, // url
+							$htmlAttributes, // options
+							$confirmation_msg // confirmation message
 						);
 					
 				}
@@ -2503,7 +2524,6 @@ class StructuresHelper extends Helper {
 								'size' => 4, 
 								'tabindex' => $html_element_array['tabindex'], 
 								'maxlength' => 4,
-								'class' => $html_element_array['class'],
 								'value' => $datetime_array['year']))
 						."<div>".__('year', true)."</div></span> ";
 				}
@@ -2523,7 +2543,6 @@ class StructuresHelper extends Helper {
 								'size' => 2, 
 								'tabindex' => $html_element_array['tabindex'], 
 								'maxlength' => 2,
-								'class' => $html_element_array['class'],
 								'value' => $datetime_array['month']))
 						."<div>".__('month', true)."</div></span> ";
 				}
@@ -2543,7 +2562,6 @@ class StructuresHelper extends Helper {
 								'size' => 2, 
 								'tabindex' => $html_element_array['tabindex'], 
 								'maxlength' => 2,
-								'class' => $html_element_array['class'],
 								'value' => $datetime_array['day']))
 						."<div>".__('day', true)."</div></span> ";
 				}
@@ -2577,7 +2595,6 @@ class StructuresHelper extends Helper {
 							'size' => 2, 
 							'tabindex' => $html_element_array['tabindex'], 
 							'maxlength' => 2,
-							'class' => $html_element_array['class'],
 							'value' => $datetime_array['hour']))
 					."<div>".__('hour', true)."</div></span> ";
 				$date .= 
@@ -2589,7 +2606,6 @@ class StructuresHelper extends Helper {
 							'size' => 2, 
 							'tabindex' => $html_element_array['tabindex'], 
 							'maxlength' => 2,
-							'class' => $html_element_array['class'],
 							'value' => $datetime_array['min']))
 					."<div>".__('minutes', true)."</div></span> ";
 			}
