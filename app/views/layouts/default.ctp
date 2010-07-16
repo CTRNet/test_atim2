@@ -30,6 +30,9 @@
 		var webroot_dir = root_url + "/app/webroot/";
 		var locale = "<?php echo($locale); ?>";
 		var STR_OR = "<?php __('or'); ?>";
+		var STR_SPECIFIC = "<?php __('specific'); ?>";
+		var STR_RANGE = "<?php __('range'); ?>";
+		var STR_TO = "<?php __('to'); ?>";
 		</script>
 		<?php
 		echo $javascript->link('jquery-1.4.2.min')."\n";
@@ -64,5 +67,10 @@
 	echo $this->element('sql_dump');
 ?>
 	
+	<script type="text/javascript">
+	$(function(){
+		initJsControls();
+	});
+	</script>
 </body>
 </html>
