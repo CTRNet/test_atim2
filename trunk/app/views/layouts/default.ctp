@@ -14,7 +14,8 @@
 	<?php 
 		echo $html->css('style')."\n"; 
 		echo $html->css('jQuery/themes/ui-lightness/jquery-ui-1.8.custom')."\n"; 
-		echo $html->css('jQuery/themes/jquery_cupertino/jquery-ui-1.8.custom')."\n"; 
+		echo $html->css('jQuery/themes/jquery_cupertino/jquery-ui-1.8.custom')."\n";
+		echo $html->css('jQuery/popup/popup.css'); 
 //		echo $html->css('datepicker')."\n";
 //		echo $html->css('lightwindow')."\n";
 
@@ -43,7 +44,9 @@
 //		echo $javascript->link('prototype')."\n";
 //		echo $javascript->link('scriptaculous.js?load=effects,dragdrop')."\n";
 //		echo $javascript->link('lightwindow')."\n";
+		echo $javascript->link('jquery.popup.js')."\n";
 		echo $javascript->link('default')."\n";
+		
 //		echo $javascript->link('controls')."\n";
 	?>
 	<!--[if IE 7]>

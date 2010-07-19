@@ -149,7 +149,7 @@
 <div class="actions">
 	
 </div>
-
+<div id="popup"></div>
 <?php echo $html->css('jQuery/themes/ui-lightness/jquery-ui-1.8.custom')."\n"; ?>
 <style type="text/css">
 .dragme{
@@ -218,6 +218,7 @@ var orgItems = '([<?php
 			.'"y" : "'.$display_data['y'].'", '
 			.'"label" : "'.$display_data['label'].'", '
 			.'"link" : "'.$display_data['link'].'", '
+			.'"icon_name" : "'.$display_data['icon_name'].'", '
 			.'"type" : "'.$display_data['type'].'"}');
 	}
 ?>])';

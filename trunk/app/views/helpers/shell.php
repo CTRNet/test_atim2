@@ -171,7 +171,7 @@ class ShellHelper extends Helper {
 		
 		$return .= '	
 			<!-- start #wrapper -->
-			<div id="wrapper" class="plugin_'.( isset($this->params['plugin']) ? $this->params['plugin'] : 'none' ).' controller_'.$this->params['controller'].' action_'.$this->params['action'].'">
+			<div id="wrapper" class="wrapper plugin_'.( isset($this->params['plugin']) ? $this->params['plugin'] : 'none' ).' controller_'.$this->params['controller'].' action_'.$this->params['action'].'">
 		';
 		
 		return $return;

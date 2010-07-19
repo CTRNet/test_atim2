@@ -77,7 +77,7 @@ body {
 	background-color: #f2f2ff;
 	font: 11px/1.2em "Lucida Grande", Futura, Helvetica, Arial, Verdana, sans-serif;
 }
-div#wrapper {
+div.wrapper {
 	clear: both;
 	margin: 0 10px 10px 10px;
 	padding: 0.25em 1em;
@@ -108,14 +108,14 @@ div#header h1 {
 	
 
 
-div#wrapper {
+div.wrapper {
 	background: none;
 	border: 0;
 	padding: 0;
 	min-height: 300px;
 }
 
-div#wrapper div:not(.browsable .info) {
+div.wrapper div:not(.browsable .info) {
 	margin: 0;
 	padding: 0;
 	border: 0;
@@ -131,7 +131,7 @@ fieldset {
 	padding: 0;
 	border: 0;
 }
-div#wrapper fieldset {
+div.wrapper fieldset {
 	display: block;
 }
 a { 
@@ -164,7 +164,7 @@ a {
 
 
 /* actions, links */
-div#wrapper div.actions {
+div.wrapper div.actions {
 	position: relative;
 	list-style: none;
 	background: #dde8f2;
@@ -181,18 +181,18 @@ div#wrapper div.actions {
 	line-height: 1.3em;
 	color: #bbf;
 }
-	div#wrapper div.actions ul {
+	div.wrapper div.actions ul {
 		float: right;
 		margin: 0;
 		padding: 0;
 		list-style-type: none;
 	}	
-	div#wrapper div.actions li {
+	div.wrapper div.actions li {
 		position: relative;
 		float: left;
 		padding: 0 10px 0 0;
 	}
-	div#wrapper div.actions div {
+	div.wrapper div.actions div {
 		background: url(../img/btnBack.png);
 		-moz-border-radius: 5px; -webkit-border-radius: 5px;
 		border-color: #999999;
@@ -205,7 +205,7 @@ div#wrapper div.actions {
 	}
 	
 	
-	div#wrapper div.actions div a {
+	div.wrapper div.actions div a {
 		/* font-weight: bold; */
 		font-size: 12px;
 		/* text-transform: uppercase; */
@@ -217,34 +217,34 @@ div#wrapper div.actions {
 		-moz-border-radius: 3px; -webkit-border-radius: 3px;
 		
 	}
-	div#wrapper div.actions div:hover, 
-	div#wrapper div.actions div:focus {
+	div.wrapper div.actions div:hover, 
+	div.wrapper div.actions div:focus {
 		border-color: #000;
 		background-image: url("../img/btnBackSel.png");
 	}
 	
-	div#wrapper div.actions ul li.at a,
-	div#wrapper div.actions div a:hover{
+	div.wrapper div.actions ul li.at a,
+	div.wrapper div.actions div a:hover{
 		color: #000;
 	}
 	
-	div#wrapper div.actions a.not_allowed {
+	div.wrapper div.actions a.not_allowed {
 		color: #aad;
 	}
 	
-	div#wrapper div.actions div.search-result-div {
+	div.wrapper div.actions div.search-result-div {
 		padding: 0;
 		width: 50px;
 		float: left;
 	}
 	
-	div#wrapper div.actions a.search_results {
+	div.wrapper div.actions a.search_results {
 		background-position: 7px center;
 		padding: 5px 10px 5px 25px;
 		float: left;
 	}
 	
-	div#wrapper div.actions ul ul.filter {
+	div.wrapper div.actions ul ul.filter {
 		margin: 0;
 		float: right;
 		line-height: 25px;
@@ -253,13 +253,13 @@ div#wrapper div.actions {
 		right: 0;
 		text-align: right;
 	}
-	div#wrapper div.actions ul ul.filter li {
+	div.wrapper div.actions ul ul.filter li {
 		background: none;
 		padding: 0;
 		margin: 0;
 		position: relative;
 	}
-	div#wrapper div.actions ul ul.filter li a.form.popup {
+	div.wrapper div.actions ul ul.filter li a.form.popup {
 		
 	}
 	
@@ -267,17 +267,17 @@ div#wrapper div.actions {
 /*===========================================================*
 	-= popup filter menu 
 *===========================================================*/
-	div#wrapper div.actions ul ul.filter li div.filter_menu {
+	div.wrapper div.actions ul ul.filter li div.filter_menu {
 		display: none;
 	}
 	
-	div#wrapper div.actions ul ul.filter:hover a {
+	div.wrapper div.actions ul ul.filter:hover a {
 		/*background-color: #486680;
 		color: #fff;*/
 	}
 
 /*
-	div#wrapper div.actions ul ul.filter li:hover div.filter_menu {
+	div.wrapper div.actions ul ul.filter li:hover div.filter_menu {
 		display: block;
 		width: 200px;
 		top: -270px;
@@ -293,7 +293,7 @@ div#wrapper div.actions {
 		-moz-border-radius: 5px; -webkit-border-radius: 5px;
 	}
 */
-	div#wrapper div.actions ul ul.filter li:hover div.filter_menu {
+	div.wrapper div.actions ul ul.filter li:hover div.filter_menu {
 		display: block;
 		position: absolute;
 		width: 200px;
@@ -309,15 +309,15 @@ div#wrapper div.actions {
 		border-color: #000000;
 		-moz-border-radius: 5px; -webkit-border-radius: 5px;
 	}
-	div#wrapper div.actions ul ul.filter li:hover span,
-	div#wrapper div.actions ul ul.filter li:hover span a {
+	div.wrapper div.actions ul ul.filter li:hover span,
+	div.wrapper div.actions ul ul.filter li:hover span a {
 		color: #fff;
 	}
-	div#wrapper div.actions ul ul.filter div.filter_menu ul {
+	div.wrapper div.actions ul ul.filter div.filter_menu ul {
 		/* padding: 30px 0; */
 		padding: 0;
 	}
-	div#wrapper div.actions ul ul.filter div.filter_menu ul li {
+	div.wrapper div.actions ul ul.filter div.filter_menu ul li {
 		width: 200px;
 		margin: 0;
 /*
@@ -331,27 +331,27 @@ div#wrapper div.actions {
 		color: #999;
 		/* background-image: url("../img/btnBack.png"); */
 	}
-	div#wrapper div.actions ul ul.filter div.filter_menu ul li:hover {
+	div.wrapper div.actions ul ul.filter div.filter_menu ul li:hover {
 		/* background-image: url("../img/btnBackSel.png"); */
 	}
 	
-	div#wrapper div.actions ul ul.filter div.filter_menu ul li a {
+	div.wrapper div.actions ul ul.filter div.filter_menu ul li a {
 		color: #fff;
 		display: none;
 		-moz-border-radius: 0; -webkit-border-radius: 0;
 	}
 
-	div#wrapper div.actions ul ul.filter div.filter_menu ul li.count_0 {
+	div.wrapper div.actions ul ul.filter div.filter_menu ul li.count_0 {
 		border: 0;
 		margin: 0;
 		-moz-border-radius-topleft: 5px; -webkit-border-top-left-radius: 5px;
 	}
-	div#wrapper div.actions ul ul.filter div.filter_menu ul li.count_last_line {
+	div.wrapper div.actions ul ul.filter div.filter_menu ul li.count_last_line {
 		margin: 0;
 		-moz-border-radius-bottomleft: 5px; -webkit-border-bottom-left-radius: 5px;
 		-moz-border-radius-bottomright: 5px; -webkit-border-bottom-right-radius: 5px;
 	}
-	div#wrapper div.actions ul ul.filter div.filter_menu ul li a {
+	div.wrapper div.actions ul ul.filter div.filter_menu ul li a {
 		background-color: #486680;
 		line-height: 18px;
 		float: none;
@@ -361,12 +361,12 @@ div#wrapper div.actions {
 		font-size: 11px;
 		cursor: pointer;
 	}
-	div#wrapper div.actions ul ul.filter div.filter_menu ul li a:hover {
+	div.wrapper div.actions ul ul.filter div.filter_menu ul li a:hover {
 		background-color: #293B49;
 		color: #fff;
 	}
 	
-	div#wrapper div.actions ul ul.filter ul li a.not_allowed {
+	div.wrapper div.actions ul ul.filter ul li a.not_allowed {
 		color: #999;
 		cursor: not-allowed;
 	}
@@ -736,10 +736,10 @@ span.help:hover {
 	div.error-message {
 		display: none;
 	}
-	div#wrapper span.help div {
+	div.wrapper span.help div {
 		display: none;
 	}
-		div#wrapper td.help span.help:hover div, div#wrapper th span.help:hover div {
+		div.wrapper td.help span.help:hover div, div.wrapper th span.help:hover div {
 			display: block;
 			text-indent: 0;
 			top: 10px; right: 10px;
@@ -759,20 +759,20 @@ span.help:hover {
 		
 			z-index: 6;
 		}
-		div#wrapper span.help div p {
+		div.wrapper span.help div p {
 			margin: 0 0 1em 0;
 		}
-		div#wrapper th.column_1 span.help div {
+		div.wrapper th.column_1 span.help div {
 			top: 10px; left: 10px;
 			-moz-border-radius: 15px; -webkit-border-radius: 15px;
 			-moz-border-radius-topleft: 0; -webkit-border-top-left-radius: 0;
 		}
 
 	/* -= table.structure =- */
-	div#wrapper form {
+	div.wrapper form {
 		overflow: auto;
 	}
-	div#wrapper table.structure {
+	div.wrapper table.structure {
 		width: 100%;
 		margin: 0;
 		background-color: #fff;
@@ -782,51 +782,51 @@ span.help:hover {
 		
 		padding: 10px 0;
 	}
-		div#wrapper table.structure tr.pagination th {
+		div.wrapper table.structure tr.pagination th {
 			text-align: center;
 		}
-		div#wrapper table.structure td {
+		div.wrapper table.structure td {
 			vertical-align: top;
 			padding: 10px 0;
 		}
-		div#wrapper table.structure td.label {
+		div.wrapper table.structure td.label {
 			width: 30%;
 			font-weight: bold;
 			color: #000;
 		}
-		div#wrapper table.structure td.content {
+		div.wrapper table.structure td.content {
 			color: #666;
 		}
-		div#wrapper table.structure td.help {
+		div.wrapper table.structure td.help {
 			text-align: right;
 			padding: 3px 10px 0 0;
 			width: 20px;
 		}
 		
-		div#wrapper table.structure td.total_columns_1 { width: 100%; }
-		div#wrapper table.structure td.total_columns_2 { width: 50%; }
-		div#wrapper table.structure td.total_columns_3 { width: 33%; }
-		div#wrapper table.structure td.total_columns_4 { width: 25%; }
-		div#wrapper table.structure td.total_columns_5 { width: 20%; }
+		div.wrapper table.structure td.total_columns_1 { width: 100%; }
+		div.wrapper table.structure td.total_columns_2 { width: 50%; }
+		div.wrapper table.structure td.total_columns_3 { width: 33%; }
+		div.wrapper table.structure td.total_columns_4 { width: 25%; }
+		div.wrapper table.structure td.total_columns_5 { width: 20%; }
 		
-		div#wrapper div.message {
+		div.wrapper div.message {
 			padding: 1em;
 			border-right: 1px solid #374D61;
 			border-left: 1px solid #374D61;	
 			background-color: #f00;
 			color: #fff;
 		}
-		div#wrapper table.structure table:not(.databrowser) td { 
+		div.wrapper table.structure table:not(.databrowser) td { 
 			padding: 0.5em 1em; 
 			border-top: 1px solid #eaedf2; 
 		}
 		
 		
-			div#wrapper table.structure tbody.descriptive_heading td { 
+			div.wrapper table.structure tbody.descriptive_heading td { 
 				padding: 0 0 0.5em 0;
 			}
 			
-				div#wrapper table.structure tbody.descriptive_heading h4 { 
+				div.wrapper table.structure tbody.descriptive_heading h4 { 
 					background-color: #f2f2f2;
 					margin: 0 0 0 0;
 					padding: 1em 1em 0.25em 1em;
@@ -836,7 +836,7 @@ span.help:hover {
 					color: #2d5069;
 				}
 			
-				div#wrapper table.structure tbody.descriptive_heading p { 
+				div.wrapper table.structure tbody.descriptive_heading p { 
 					background-color: #f2f2f2;
 					margin: 0 0 0 0;
 					padding: 0 1em 1em 1em;
@@ -844,42 +844,42 @@ span.help:hover {
 					color: #a9a9a9;
 				}
 		
-		div#wrapper table.structure table td.heading { 
+		div.wrapper table.structure table td.heading { 
 			padding-bottom: 0.5em; 
 			border-top: 0;
 			border-bottom: 2px solid #eaedf2; 
 		}
-			div#wrapper table.structure table td.heading h4 { 
+			div.wrapper table.structure table td.heading h4 { 
 				font-weight: normal; 
 				font-size: 13px;
 				line-height: 16px;
 				color: #5081a5; 
 				margin: 0; 
 			}
-		div#wrapper table.structure td.this_column_2,
-		div#wrapper table.structure td.this_column_3,
-		div#wrapper table.structure td.this_column_4,
-		div#wrapper table.structure td.this_column_5 { 
+		div.wrapper table.structure td.this_column_2,
+		div.wrapper table.structure td.this_column_3,
+		div.wrapper table.structure td.this_column_4,
+		div.wrapper table.structure td.this_column_5 { 
 			border-left: 10px solid #fff; 
 		}
-		div#wrapper table.structure td.submit { 
+		div.wrapper table.structure td.submit { 
 			padding: 0.25em 1em; 
 			border-top: 1px solid #eaedf2; 
 		}
 		
 		/* -= table.structure table.columns */
-		div#wrapper table.structure table.columns { 
+		div.wrapper table.structure table.columns { 
 			width: 100%;
 			padding: 0;
 			margin: 0 1em 0 0; 
 			text-align: left;
 		}
 			/*
-			div#wrapper table.structure table.columns.index {}
-			div#wrapper table.structure table.columns.detail {}
-			div#wrapper table.structure table.columns.extra {}
+			div.wrapper table.structure table.columns.index {}
+			div.wrapper table.structure table.columns.detail {}
+			div.wrapper table.structure table.columns.extra {}
 			*/
-			div#wrapper table.structure table.columns th {
+			div.wrapper table.structure table.columns th {
 				text-align: left;
 				vertical-align: bottom;
 				padding: 0.25em 1em;
@@ -887,13 +887,13 @@ span.help:hover {
 				border-bottom: 2px solid #eaedf2;
 				font-size: 13px;
 			}
-			div#wrapper table.structure table.columns th a { 
+			div.wrapper table.structure table.columns th a { 
 				text-decoration: none; 
 			}
-			div#wrapper table.structure table.columns th a:hover { 
+			div.wrapper table.structure table.columns th a:hover { 
 				text-decoration: underline; 
 			}
-			div#wrapper table.structure table.columns th span.help {
+			div.wrapper table.structure table.columns th span.help {
 				position: relative;
 				display: inline;
 				text-indent: -9999px;
@@ -903,7 +903,7 @@ span.help:hover {
 				margin-left: 0.5em;
 				padding: 2px 7px;
 			}
-			div#wrapper table.structure table.columns td {
+			div.wrapper table.structure table.columns td {
 				vertical-align: top;
 				line-height: 14px;
 				color: #666;
@@ -973,60 +973,60 @@ span.help:hover {
 			ul.big_menu li a:hover {
 				text-decoration: underline;
 			}
-			div#wrapper table.structure table.columns td div {
+			div.wrapper table.structure table.columns td div {
 				padding: 0;
 			}
-			div#wrapper table.structure table.columns td div p {
+			div.wrapper table.structure table.columns td div p {
 				margin: 0;
 			}
-			div#wrapper table.structure table.columns.index td {}
-			div#wrapper table.structure table.columns.content td {}
-				div#wrapper table.structure table.content { 
+			div.wrapper table.structure table.columns.index td {}
+			div.wrapper table.structure table.columns.content td {}
+				div.wrapper table.structure table.content { 
 					padding: 0 0 1em 0; 
 				}
-				div#wrapper table.structure table.content td { 
+				div.wrapper table.structure table.content td { 
 					border-top: none; 
 					padding: 1em; 
 				}
-			div#wrapper table.structure table.columns.detail td {}
-			div#wrapper table.structure table.columns.tree td {
+			div.wrapper table.structure table.columns.detail td {}
+			div.wrapper table.structure table.columns.tree td {
 				padding: 0.25em 0 0 0;
 				border-top: 3px solid #eaedf2;
 				border-bottom: 2px solid #eaedf2;
 			}
-				div#wrapper table.structure table.columns.tree ul {
+				div.wrapper table.structure table.columns.tree ul {
 					list-style: none;
 					margin: 0;
 					padding: 0;
 				}
-				div#wrapper table.structure table.columns.tree ul li {
+				div.wrapper table.structure table.columns.tree ul li {
 					text-align: left;
 					vertical-align: top;
 					padding-left: 1em;
 					line-height: 2em;
 					border-bottom: 1px solid #eaedf2;
 				}
-				div#wrapper table.structure table.columns.tree span.divider {
+				div.wrapper table.structure table.columns.tree span.divider {
 					padding: 0 0.5em;
 					font-size: 12px;
 					color: #eaedf2;
 				}
-				div#wrapper table.structure table.columns.tree ul#tree_root {
+				div.wrapper table.structure table.columns.tree ul#tree_root {
 					
 				}
 				ul#tree_root li { background-color: #fff; }
 				ul#tree_root li.at { background-color: #ffc; }
 				
-				div#wrapper table.structure table.columns.tree ul#tree_root li a {
+				div.wrapper table.structure table.columns.tree ul#tree_root li a {
 					
 				}
-				div#wrapper table.structure table.columns.tree ul#tree_root li a.reveal {
+				div.wrapper table.structure table.columns.tree ul#tree_root li a.reveal {
 					display: block;
 					float: left;
 					width: 20px;
 					text-indent: -9999px;
 				}
-				div#wrapper table.structure table.columns.tree ul#tree_root li a.reveal.not_allowed {
+				div.wrapper table.structure table.columns.tree ul#tree_root li a.reveal.not_allowed {
 					display: block;
 					float: left;
 					text-indent: -9999px;
@@ -1128,7 +1128,7 @@ td.id a.not_allowed {
 	text-indent: -1000px;
 	color: red;
 }
-div#wrapper table.structure table.columns.tree ul ul {
+div.wrapper table.structure table.columns.tree ul ul {
 	margin-top: 1em;
 	margin-left: 1em;
 	margin-bottom: 2em;
@@ -1136,25 +1136,25 @@ div#wrapper table.structure table.columns.tree ul ul {
 	border-left: 1px dotted #ddf;
 	border-right: none;
 }
-div#wrapper table.structure table.extra td {
+div.wrapper table.structure table.extra td {
 	border: none;
 	padding: 0;
 }
-	div#wrapper table.structure table.extra td table td { 
+	div.wrapper table.structure table.extra td table td { 
 		padding: 0.5em 1em; 
 		border-top: 1px solid #eaedf2; 
 	}
 	
-	div#wrapper div#frame {
+	div.wrapper div#frame {
 		padding: 0 0 5px 10px;
 		margin-bottom: 10px;
 		
 	}
-		div#wrapper div#frame table.structure {
+		div.wrapper div#frame table.structure {
 			border: 0;
 			padding: 0;
 		}
-		div#wrapper div#frame div.actions {
+		div.wrapper div#frame div.actions {
 			/*tabs*/
 			position: relative;
 			background: none;
@@ -1164,20 +1164,20 @@ div#wrapper table.structure table.extra td {
 			border-top: 3px solid #486680;
 			z-index: 1000;
 		}
-		div#wrapper div#frame div.actions ul {
+		div.wrapper div#frame div.actions ul {
 			
 		}
-		div#wrapper div#frame div.actions a {
+		div.wrapper div#frame div.actions a {
 			padding: 5px 10px 4px 27px;
 			
 			-moz-border-radius: 7px; -webkit-border-radius: 7px;
 			-moz-border-radius-topleft: 0; -webkit-border-top-left-radius: 0;
 			-moz-border-radius-topright: 0; -webkit-border-top-right-radius: 0;
 		}
-		div#wrapper div#frame div.actions a:hover {
+		div.wrapper div#frame div.actions a:hover {
 			
 		}
-div#wrapper table.structure table.columns tr.pagination th {
+div.wrapper table.structure table.columns tr.pagination th {
 	font-weight: normal;
 	font-size: 11px;
 	color: #5081a5;
@@ -1185,21 +1185,21 @@ div#wrapper table.structure table.columns tr.pagination th {
 	border-top: 3px solid #eaedf2;
 	border-bottom: none;
 }		
-div#wrapper table.structure table.columns tr.pagination div {
+div.wrapper table.structure table.columns tr.pagination div {
 	background: none;
 	display: inline;
 }
-	div#wrapper table.structure table.columns tr.pagination span.results { float: left; padding-left: 1em; }		
-	div#wrapper table.structure table.columns tr.pagination span.links { float: right; padding-right: 1em; }		
+	div.wrapper table.structure table.columns tr.pagination span.results { float: left; padding-left: 1em; }		
+	div.wrapper table.structure table.columns tr.pagination span.links { float: right; padding-right: 1em; }		
 
-div#wrapper table.structure table.columns td.no_data_available {
+div.wrapper table.structure table.columns td.no_data_available {
 	text-align: center;
 	padding-top: 1em;
 	padding-bottom: 1em;
 	font-style: italic;
 	color: #888888;
 }
-div#wrapper table.structure table.columns td a.not_allowed {
+div.wrapper table.structure table.columns td a.not_allowed {
 	color: #dde8f2;
 }
 	fieldset.submit {
@@ -1405,12 +1405,12 @@ body.flash {
 	background: rgb(72,102,128);
 }
 
-body.flash div#wrapper {
+body.flash div.wrapper {
 	width: 600px;
 	margin: 3em auto;
 }
 
-body.flash div#wrapper a {
+body.flash div.wrapper a {
 	display: block;
 	text-align: center;
 	color: #fff;
@@ -1418,7 +1418,7 @@ body.flash div#wrapper a {
 	text-decoration: none;
 }
 
-body.flash div#wrapper a:hover {
+body.flash div.wrapper a:hover {
 	text-decoration: underline;
 }
 
@@ -1473,7 +1473,7 @@ span.tooltip div{
 	line-height: 20px;
 }
 
-div#wrapper table.structure td .databrowser td, div.table div {
+div.wrapper table.structure td .databrowser td, div.table div {
 	border-style: solid;
 	border-width: 0px;
 	width: 20px;
@@ -1484,7 +1484,7 @@ div#wrapper table.structure td .databrowser td, div.table div {
 	background-repeat: no-repeat;
 }
 
-div#wrapper table.structure td .databrowser td .info td{
+div.wrapper table.structure td .databrowser td .info td{
 	width: auto;
 }
 
@@ -1603,4 +1603,9 @@ div#wrapper table.structure td .databrowser td .info td{
 
 .databrowser span.title{
 	font-size: 130%;
+}
+
+.popup_container .wrapper, div.popup_container div.wrapper div.actions{
+	margin: 0px;
+	min-height: 0px;	
 }
