@@ -1492,7 +1492,9 @@ class StructuresHelper extends Helper {
 					StructuresHelper::$last_tabindex = $html_element_array['tabindex'];
 					//--fix a cake bug by setting values manually
 					//--when displaying many grids, the reloaded data of the grid 2+ is not ok
-					list($row, $name_prefix) = explode(".", $model_prefix);
+					if(strpos($model_prefix, ".") !== false){
+						list($row, $name_prefix) = explode(".", $model_prefix);
+					}
 					if(isset($name_prefix) && isset($this->data[$row][$name_prefix][$field['StructureField']['model']][$field['StructureField']['field']])){
 						$html_element_array['name'] = "data[".str_replace(".", "][", $model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'])."]";
 						$html_element_array['id'] = str_replace(".", "", $model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']);
