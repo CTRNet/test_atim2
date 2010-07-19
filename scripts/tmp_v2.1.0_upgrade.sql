@@ -412,7 +412,14 @@ SET @stuctrue_field_id = (SELECT id FROM structure_fields WHERE model LIKE 'View
 DELETE FROM structure_formats WHERE structure_field_id = @stuctrue_field_id;
 DELETE FROM structure_fields WHERE id = @stuctrue_field_id;
 
+-- Update collection menus
 
+UPDATE menus SET language_title = 'collection samples and aliquots management'
+WHERE id = 'inv_CAN_21'; -- collection products
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) 
+VALUES 
+('collection samples and aliquots management', '', 'Samples & Aliquots', 'Échantillons & Aliquots');
 
 
 
