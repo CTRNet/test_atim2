@@ -1,3 +1,6 @@
+<?php 
+//This is an entire custom page. ATiM forms are immitated
+?>
 <table class="structure" cellspacing="0">
 	<tbody>
 		<tr>
@@ -132,7 +135,7 @@
 					</span>
 
 		<div style="display: inline-block;">
-		<div style="display: none; background-color: transparent;"
+		<div style="display: none; background-color: transparent; font-size: 120%;"
 			id="saveWarning">
 			<span class="ui-icon ui-icon-alert" style="float: left;"></span> 
 			<span style="color: #ff0000;"><?php echo(__("warning", true).": ".__("the data has been modified", true).". "); echo(" ".__("do not forget to save")."."); //yes, 2 echo, but there is a bug with only one"?></span>
@@ -214,12 +217,15 @@ var orgItems = '([<?php
 			.'"x" : "'.$display_data['x'].'", '
 			.'"y" : "'.$display_data['y'].'", '
 			.'"label" : "'.$display_data['label'].'", '
+			.'"link" : "'.$display_data['link'].'", '
 			.'"type" : "'.$display_data['type'].'"}');
 	}
 ?>])';
 
 var removeString = "<?php echo(__("remove")); ?>";
 var unclassifyString = "<?php echo(__("unclassify")); ?>";
+var detailString = "<?php echo(__("detail")); ?>";
+var loadingStr = "<?php __("loading"); ?>";
 </script>
 <?php
 echo $javascript->link('storage_layout')."\n";
