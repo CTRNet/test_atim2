@@ -439,7 +439,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 	
 	function detail($collection_id, $sample_master_id, $aliquot_master_id, $is_tree_view_detail_form = false, $is_inventory_plugin_form = true) {
 		if((!$collection_id) || (!$sample_master_id) || (!$aliquot_master_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }		
-		
+		if($is_tree_view_detail_form){
+			Configure::write('debug', 0);
+		}
 		// MANAGE DATA
 	
 		// Get the aliquot data
@@ -537,7 +539,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				$current_storage = $storage_data_unit['AliquotMastersRev']['storage_master_id']; 
 				$previous['AliquotMastersRev'] = $storage_data_unit['AliquotMastersRev'];
 				$previous['StorageMastersRev'] = $storage_data_unit['StorageMastersModRev'];
-				if($storage_data_unit['StorageMastersInitRev']['temperature'] != $storage_data_unit['StorageMastersRev']['temperature']){
+				if(isset($storage_data_unit['StorageMastersRev']) && $storage_data_unit['StorageMastersInitRev']['temperature'] != $storage_data_unit['StorageMastersRev']['temperature']){
 					$storage_data[]['custom'] = array(
 						'date' => $storage_data_unit['StorageMastersModRev']['modified'], 
 						'event' => __('storage temperature changed', true).". "
