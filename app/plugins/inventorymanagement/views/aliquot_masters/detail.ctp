@@ -47,7 +47,7 @@
 		// 1- ALIQUOT DETAIL	
 		
 		$final_atim_structure = $atim_structure;
-		$final_options = array('links'=>$structure_links, 'override' => $structure_override, 'data' => $aliquot_master_data);
+		$final_options = array('links'=>$structure_links, 'override' => $structure_override, 'data' => $aliquot_master_data, 'settings' => array('header' => __('Aliquot', null)));
 
 		// CUSTOM CODE
 		$hook_link = $structures->hook('aliquot_detail_1');
