@@ -53,10 +53,9 @@ class BrowserController extends DatamartAppController {
 				$browsing = $this->BrowsingResult->find('first', array('conditions' => array("BrowsingResult.id" => $parent_node)));
 				$model_to_import = $browsing['BrowsingStructure']['plugin'].".".$browsing['BrowsingStructure']['model'];
 				if(!App::import('Model', $model_to_import)){
-	//				$this->flash("An error occured", "/datamart/browser/browse/");
-					die("import of [".$model_to_import."] failed");
+					$this->flash("A model import error occured", "/datamart/browser/index/");
 				}
-				global $getDropdownOptions;
+				global $getDropdownOptions;//this global var is read by Browser::getTree to build the dropdown options on $this->Structures->set("datamart_browser_start"); 
 				$getDropdownOptions[] = $browsing['BrowsingStructure']['id'];
 				$this->ModelToSearch = new $browsing['BrowsingStructure']['model'];
 				$this->data = strlen($browsing['BrowsingResult']['id_csv']) > 0 ? $this->ModelToSearch->find('all', array('conditions' => $browsing['BrowsingStructure']['model'].".".$browsing['BrowsingStructure']['use_key']." IN (".$browsing['BrowsingResult']['id_csv'].")")) : array();
@@ -130,8 +129,7 @@ class BrowserController extends DatamartAppController {
 			
 			$model_to_import = $browsing['BrowsingStructure']['plugin'].".".$browsing['BrowsingStructure']['model'];
 			if(!App::import('Model', $model_to_import)){
-//				$this->flash("An error occured", "/datamart/browser/browse/");
-				die("import of [".$model_to_import."] failed");
+				$this->flash("A model import error occured", "/datamart/browser/index/");
 			}
 			$this->ModelToSearch = new $browsing['BrowsingStructure']['model'];
 			$search_conditions = $this->Structures->parse_search_conditions($result_structure);
