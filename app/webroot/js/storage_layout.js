@@ -14,7 +14,7 @@ $(function(){
 			//unclassify button
 //			+ '<span class="button small recycleItem" title="' + unclassifyString + '"><span class="ui-icon ui-icon-refresh" style="float: left;"></span></span>'
 			//ajax view button
-			+ '<a href="#popup" title="' + detailString + '" class="form aliquot ajax {\'callback\' : \'showInLowerFrame\', \'load\' : \'' + jsonOrgItems[i].link + '\'}" style="text-decoration: none;">&nbsp;</a>'
+			+ '<a href="#popup" title="' + detailString + '" class="form ' + jsonOrgItems[i].icon_name + ' ajax {\'callback\' : \'showInLowerFrame\', \'load\' : \'' + jsonOrgItems[i].link + '\'}" style="text-decoration: none;">&nbsp;</a>'
 			//DO NOT ADD A DETAIL BUTTON! It's too dangerous to edit and click it by mistake
 			+ '<span class="handle">' + jsonOrgItems[i].label + '</span></li>';
 
@@ -53,10 +53,10 @@ $(function(){
 	});
 	
 	//hide the refresh icon for the unclassified elements
-	elements = $("#unclassified").children();
-	for(var i = 0; i < elements.length; i ++){
-		$($(elements[i]).children()[1]).css("display", 'none');
-	}
+//	elements = $("#unclassified").children();
+//	for(var i = 0; i < elements.length; i ++){
+//		$($(elements[i]).children()[1]).css("display", 'none');
+//	}
 	
 	//bind preparePost to the submit button
 	$("#submit_button_link").click(function(){
@@ -218,18 +218,24 @@ function showInLowerFrame(element, json){
 	if(!window.loadingStr){
 		window.loadingStr = "js untranslated loading";	
 	}
-	alert("REQUIRING POPUP IMPLEMENTATION");
-//	$("#popup").html("<div class='loading'>---" + loadingStr + "---</div>");
-//	$("#popup").popup({
-//		"min-width" : "300px",
-//		"max-width" : "800px",
-//		"max-height" : "600px",
-//		"background-color" : "#FFFFFF",
-//		"overflow" : "auto"
-//	});
-//	$.get(json.load, {}, function(data){
-//		 $("#popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>");
-//	});
+	$("#popup").html("<div class='loading'>---" + loadingStr + "---</div>");
+	$("#popup").popup({
+		"min-width" : "300px",
+		"max-width" : "800px",
+		"max-height" : "600px",
+		"background" : "#FFFFFF none",
+		"overflow" : "auto",
+		"-moz-border-radius" : "5px",
+		"-webkit-border-radius" : "5px",
+	});
+	$.get(json.load, {}, function(data){
+		 $("#popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>").css({
+			 "background" : "transparent url(" + webroot_dir + "css/jQuery/popup/img/dark.png" + ")",
+			 "-moz-border-radius" : "0 0 5px 5px",
+			 "-webkit-border-radius" : "0 0 5px 5px",
+			 "padding" : "5px"
+		 });
+	});
 }
 
 function debug(str){

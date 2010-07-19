@@ -782,13 +782,17 @@ class StorageMastersController extends StoragelayoutAppController {
 		$data['children'] = array_merge($data['children'], $aliquot_master_c);
 		$data['children'] = array_merge($data['children'], $tma_slide_c);
 
+		
 		foreach($data['children'] as &$children_array){
 			if(isset($children_array['StorageMaster'])){
-				$this->buildChildrenArray($children_array, "StorageMaster", "parent_storage_coord_x", "parent_storage_coord_y", "selection_label", $rkey_coordinate_list);
+				$link = $this->webroot."/storagelayout/storage_masters/detail/".$children_array["StorageMaster"]['id']."/2";
+				$this->buildChildrenArray($children_array, "StorageMaster", "parent_storage_coord_x", "parent_storage_coord_y", "selection_label", $rkey_coordinate_list, $link, "storage");
 			}else if(isset($children_array['AliquotMaster'])){
-				$this->buildChildrenArray($children_array, "AliquotMaster", "storage_coord_x", "storage_coord_y", "barcode", $rkey_coordinate_list);
+				$link = $this->webroot."/inventorymanagement/aliquot_masters/detail/".$children_array["AliquotMaster"]["collection_id"]."/".$children_array["AliquotMaster"]["sample_master_id"]."/".$children_array["AliquotMaster"]["id"]."/1/0/";
+				$this->buildChildrenArray($children_array, "AliquotMaster", "storage_coord_x", "storage_coord_y", "barcode", $rkey_coordinate_list, $link, "aliquot");
 			}else if(isset($children_array['TmaSlide'])){
-				$this->buildChildrenArray($children_array, "TmaSlide", "storage_coord_x", "storage_coord_y", "barcode", $rkey_coordinate_list);
+				$link = $this->webroot."/storagelayout/tma_slides/detail/".$children_array["TmaSlide"]['tma_block_storage_master_id']."/".$children_array["TmaSlide"]['id']."/2";
+				$this->buildChildrenArray($children_array, "TmaSlide", "storage_coord_x", "storage_coord_y", "barcode", $rkey_coordinate_list, $link, "slide");
 			}
 		}
 		
@@ -1115,7 +1119,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		
 	}
 
-	function buildChildrenArray(&$children_array, $type_key, $x_key, $y_key, $label_key, $coordinate_list){
+	function buildChildrenArray(&$children_array, $type_key, $x_key, $y_key, $label_key, $coordinate_list, $link, $icon_name = "detail"){
 		$children_array['DisplayData']['id'] = $children_array[$type_key]['id'];
 		$children_array['DisplayData']['y'] = strlen($children_array[$type_key][$y_key]) > 0 ? $children_array[$type_key][$y_key] : 1; 
 		if($coordinate_list == null){
@@ -1129,10 +1133,8 @@ class StorageMastersController extends StoragelayoutAppController {
 		
 		$children_array['DisplayData']['label'] = $this->getLabel($children_array, $type_key, $label_key);
 		$children_array['DisplayData']['type'] = $type_key;
-		$children_array['DisplayData']['link'] = $this->webroot;
-		if($type_key == "AliquotMaster"){
-			$children_array['DisplayData']['link'] .= "/inventorymanagement/aliquot_masters/detail/".$children_array["AliquotMaster"]["collection_id"]."/".$children_array["AliquotMaster"]["sample_master_id"]."/".$children_array["AliquotMaster"]["id"]."/1/0/";
-		}
+		$children_array['DisplayData']['link'] = $link;
+		$children_array['DisplayData']['icon_name'] = $icon_name;
 	}
 	
 	function autocompleteLabel(){
