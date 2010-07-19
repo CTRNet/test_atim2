@@ -48,7 +48,7 @@ class Browser extends DatamartAppModel {
 		return $tree_node;
 	}
 	
-	static function buildTree(TreeNode $tree_node, &$tree = array(), $x = 0, &$y = 0){
+	static function buildTree(array $tree_node, &$tree = array(), $x = 0, &$y = 0){
 		$tree[$y][$x] = $tree_node;
 		if(count($tree_node['children'])){
 			$looped = false;
