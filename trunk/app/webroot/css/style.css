@@ -1375,8 +1375,9 @@ table.cake-sql-log th {
 div.loading{
 	text-align: center;
 	line-height: 60px;
-	background: url("../img/wait30.gif") no-repeat center;
+	background: #FFF url("../img/wait30.gif") no-repeat center;
 	border-width: 1px;
+	min-width: 300px;
 }
 
 table.columns.index tbody tr td{
@@ -1608,4 +1609,11 @@ div.wrapper table.structure td .databrowser td .info td{
 .popup_container .wrapper, div.popup_container div.wrapper div.actions{
 	margin: 0px;
 	min-height: 0px;	
+}
+
+.std_popup{
+	background : transparent url(jQuery/popup/img/dark.png);
+	-moz-border-radius : 0 0 5px 5px;
+	-webkit-border-radius : 0 0 5px 5px;
+	padding : 5px;
 }

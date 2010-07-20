@@ -219,22 +219,9 @@ function showInLowerFrame(element, json){
 		window.loadingStr = "js untranslated loading";	
 	}
 	$("#popup").html("<div class='loading'>---" + loadingStr + "---</div>");
-	$("#popup").popup({
-		"min-width" : "300px",
-		"max-width" : "800px",
-		"max-height" : "600px",
-		"background" : "#FFFFFF none",
-		"overflow" : "auto",
-		"-moz-border-radius" : "5px",
-		"-webkit-border-radius" : "5px",
-	});
+	$("#popup").popup();
 	$.get(json.load, {}, function(data){
-		 $("#popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>").css({
-			 "background" : "transparent url(" + webroot_dir + "css/jQuery/popup/img/dark.png" + ")",
-			 "-moz-border-radius" : "0 0 5px 5px",
-			 "-webkit-border-radius" : "0 0 5px 5px",
-			 "padding" : "5px"
-		 });
+		 $("#popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>");
 	});
 }
 
