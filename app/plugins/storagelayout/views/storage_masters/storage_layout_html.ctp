@@ -150,7 +150,6 @@
 	
 </div>
 <div id="popup" class="std_popup"></div>
-<?php echo $html->css('jQuery/themes/ui-lightness/jquery-ui-1.8.custom')."\n"; ?>
 <style type="text/css">
 .dragme{
 	list-style-type:none;

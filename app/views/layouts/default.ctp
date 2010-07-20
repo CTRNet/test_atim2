@@ -13,11 +13,9 @@
 	<link rel="shortcut icon" href="<?php echo($this->webroot); ?>/img/favicon.ico"/>
 	<?php 
 		echo $html->css('style')."\n"; 
-		echo $html->css('jQuery/themes/ui-lightness/jquery-ui-1.8.custom')."\n"; 
 		echo $html->css('jQuery/themes/jquery_cupertino/jquery-ui-1.8.custom')."\n";
-		echo $html->css('jQuery/popup/popup.css'); 
-//		echo $html->css('datepicker')."\n";
-//		echo $html->css('lightwindow')."\n";
+		echo $html->css('jQuery/popup/popup.css');
+		echo $html->css('jQuery/fg.menu.css'); 
 
 		//set the locale
 		if(__('clin_english', true) == "Anglais"){
@@ -40,14 +38,9 @@
 		echo $javascript->link('jquery-ui-1.8.custom.min')."\n";
 		echo $javascript->link('jquery.ui-datepicker-fr.js')."\n";
 		echo $javascript->link('jquery.highlight.js')."\n";
-//		echo $javascript->link('datepicker')."\n";
-//		echo $javascript->link('prototype')."\n";
-//		echo $javascript->link('scriptaculous.js?load=effects,dragdrop')."\n";
-//		echo $javascript->link('lightwindow')."\n";
 		echo $javascript->link('jquery.popup.js')."\n";
+		echo $javascript->link('fg.menu.js')."\n";
 		echo $javascript->link('default')."\n";
-		
-//		echo $javascript->link('controls')."\n";
 	?>
 	<!--[if IE 7]>
 	<?php
