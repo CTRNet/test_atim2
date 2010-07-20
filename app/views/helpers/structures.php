@@ -1,6 +1,6 @@
 <?php
 	
-App::import('component','Acl');
+App::import('Component','SessionAcl');
 
 class StructuresHelper extends Helper {
 		
@@ -2054,7 +2054,11 @@ class StructuresHelper extends Helper {
 					$aco_alias = 'controllers/'.($parts['plugin'] ? Inflector::camelize($parts['plugin']).'/' : '');
 					$aco_alias .= ($parts['controller'] ? Inflector::camelize($parts['controller']).'/' : '');
 					$aco_alias .= ($parts['action'] ? $parts['action'] : '');
-					$Acl = new AclComponent();
+					
+					if ( !isset($Acl) ) {
+						$Acl = new SessionAclComponent();
+						$Acl->initialize($this);
+					}
 				// }	
 				
 				// if ACO/ARO permissions check succeeds, create link
