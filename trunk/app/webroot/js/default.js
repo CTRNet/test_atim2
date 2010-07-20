@@ -317,9 +317,4 @@ function uncheckAll( $div ) {
 		$(".datepicker").each(function(){
 			initDatepicker(this);
 		});
-		
-		//datepicker style
-		$("#ui-datepicker-div").addClass("jquery_cupertino");
-		//autocomplete style
-		$(".ui-autocomplete").addClass("jquery_cupertino");
 	}
