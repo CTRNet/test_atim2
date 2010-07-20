@@ -4,7 +4,7 @@ class MenusComponent extends Object {
 	
 	var $controller;
 	
-	var $components = array('Acl', 'Session');
+	var $components = array('Session', 'SessionAcl');
 	var $uses = array('Aco');
 	
 	function initialize( &$controller, $settings=array() ) {
@@ -129,7 +129,7 @@ class MenusComponent extends Object {
 								$aco_alias .= ($parts['controller'] ? Inflector::camelize($parts['controller']).'/' : '');
 								$aco_alias .= ($parts['action'] ? $parts['action'] : '');
 								
-								$current_item['Menu']['allowed'] = $this->Acl->check($aro_alias, $aco_alias);
+								$current_item['Menu']['allowed'] = $this->SessionAcl->check($aro_alias, $aco_alias);
 							// }
 							
 						}

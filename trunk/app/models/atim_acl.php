@@ -1,7 +1,7 @@
 <?php
 if (!class_exists('AclNode')) {
 	uses('model' . DS . 'db_acl');
-	uses('controller'.DS.'components' . DS . 'acl');
+	uses('controller' . DS . 'components' . DS . 'acl');
 }
 
 class AtimAcl extends DbAcl {
