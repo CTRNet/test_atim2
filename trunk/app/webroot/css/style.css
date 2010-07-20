@@ -1616,4 +1616,5 @@ div.wrapper table.structure td .databrowser td .info td{
 	-moz-border-radius : 0 0 5px 5px;
 	-webkit-border-radius : 0 0 5px 5px;
 	padding : 5px;
+	display: none;
 }
