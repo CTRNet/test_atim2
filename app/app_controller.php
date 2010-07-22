@@ -245,8 +245,7 @@ class AppController extends Controller {
 					}
 				}
 				$traceMsg .= "</table>";
-				$_SESSION['err_msg'] = $errstr.$traceMsg;
-				$controller->redirect('/pages/err_query');
+				$controller->redirect('/pages/err_query?err_msg='.urlencode($errstr.$traceMsg));
 			}
 		}
 	}
