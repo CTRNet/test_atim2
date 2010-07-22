@@ -13,6 +13,7 @@ Date:		September 2008
 .fg-button-icon-solo { display:block; width:8px; text-indent: -9999px; }	 /* solo icon buttons must have block properties for the text-indent to work */	
 .fg-button.ui-state-loading .ui-icon { background: url(spinner_bar.gif) no-repeat 0 0; }
 .fg-menu-container{	min-height: 200px; }
+.fg-menu-current-crumb a{ cursor: default; }
 /* REQUIRED STYLES - the menus will only render correctly with these rules */	
 
 .fg-menu-container { position: absolute; top:0; left:-999px; padding: .4em;  overflow: hidden; }
@@ -98,7 +99,7 @@ Date:		September 2008
  .fg-menu a.ui-state-active:hover,
 .fg-menu a.ui-state-active:active { border-style: solid; font-weight: normal; }
 
-.fg-menu a span { display:block; cursor:pointer; }
+.fg-menu a span:not(.hidden) { display:block; cursor:pointer; }
 
 
  /* SUGGESTED STYLES - for use with jQuery UI Themeroller CSS */	
