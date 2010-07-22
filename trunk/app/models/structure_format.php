@@ -7,7 +7,7 @@ class StructureFormat extends AppModel {
 	var $belongsTo = array('StructureField');
 	
 	
-	function customSearch(String $conditions, String $order = NULL){
+	function customSearch($conditions, $order = NULL){
 		$query = "SELECT * FROM structure_formats AS StructureFormat "
 			."INNER JOIN structure_fields AS StructureField ON StructureFormat.structure_field_id=StructureField.id "
 			."INNER JOIN structures AS Structure ON StructureFormat.structure_id=Structure.id ";

@@ -133,7 +133,7 @@ INSERT INTO datamart_browsing_controls(`id1`, `id2`, `use_field`) VALUES
 (5, 2, 'ViewSample.collection_id'),
 (6, 4, 'MiscIdentifier.participant_id');
 
-INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('datamart_browser_options', '', '', 'Datamart.Browser::getDropdownOptions');
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('datamart_browser_options', '', '', NULL);
 INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('datamart_browser_start', '', '', '1', '1', '1', '1');
 INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
 ('', 'Datamart', 'Browser', '', 'search_for', 'search for', '', 'select', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name='datamart_browser_options') , '', 'open', 'open', 'open');
@@ -154,7 +154,7 @@ CREATE TABLE datamart_browsing_results(
   `modified_by` int(10) unsigned NOT NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
-UNIQUE KEY (`user_id`, `parent_node_id`, `browsing_structures_id`, `id_csv`(200))
+#UNIQUE KEY (`user_id`, `parent_node_id`, `browsing_structures_id`, `id_csv`(200))
 )Engine=InnoDb;
 
 CREATE TABLE datamart_browsing_results_revs(
@@ -421,5 +421,6 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`)
 VALUES 
 ('collection samples and aliquots management', '', 'Samples & Aliquots', 'Échantillons & Aliquots');
 
-
-
+INSERT INTO `atim_new`.`pages` (`id` ,`error_flag` ,`language_title` ,`language_body` ,`use_link` ,`created` ,`created_by` ,`modified` ,`modified_by`) VALUES 
+('err_model_import_failed', '1', 'model import failed', 'the import for model [%1$s] failed', '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+('err_internal', '1', 'internal error', 'an internal error was found on [%1$s]', '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
