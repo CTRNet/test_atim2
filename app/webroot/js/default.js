@@ -71,7 +71,10 @@ function uncheckAll( $div ) {
 	
 	function getJsonFromClass(cssClass){
 		var startIndex = cssClass.indexOf("{");
-		return eval ('(' + cssClass.substr(startIndex, cssClass.lastIndexOf("}") - startIndex + 1) + ')');
+		if(startIndex > -1){
+			return eval ('(' + cssClass.substr(startIndex, cssClass.lastIndexOf("}") - startIndex + 1) + ')');
+		}
+		return null;
 	}
 
 	function initDatepicker(element){
