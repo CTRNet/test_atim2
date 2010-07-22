@@ -13,7 +13,8 @@
 	<link rel="shortcut icon" href="<?php echo($this->webroot); ?>/img/favicon.ico"/>
 	<?php 
 		echo $html->css('style')."\n"; 
-		echo $html->css('jQuery/themes/jquery_cupertino/jquery-ui-1.8.custom')."\n";
+//		echo $html->css('jQuery/themes/jquery_cupertino/jquery-ui-1.8.custom')."\n";
+		echo $html->css('jQuery/themes/custom-theme/jquery-ui-1.8.2.custom')."\n";
 		echo $html->css('jQuery/popup/popup.css');
 		echo $html->css('jQuery/fg.menu.css'); 
 
