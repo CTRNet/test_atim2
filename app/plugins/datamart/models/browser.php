@@ -2,29 +2,78 @@
 class Browser extends DatamartAppModel {
 	var $useTable = false;
 	
-	function getDropdownOptions(){
-		global $getDropdownOptions;
-		$result = array();
-		if(is_array($getDropdownOptions)){
-			$data = $this->query("SELECT * FROM datamart_browsing_controls AS c "
-				."LEFT JOIN datamart_browsing_structures AS s1 ON c.id1=s1.id " 
-				."LEFT JOIN datamart_browsing_structures AS s2 ON c.id2=s2.id "
-				."WHERE id1=".$getDropdownOptions[0]." OR id2=".$getDropdownOptions[0]);
-			foreach($data as $data_unit){
-				if($data_unit['c']['id1'] == $getDropdownOptions[0]){
-					//use 2
-					$result[] = array('value' => $data_unit['s2']['id'], 'default' => __($data_unit['s2']['display_name'], true));
-				}else{
-					//use 1
-					$result[] = array('value' => $data_unit['s1']['id'], 'default' => __($data_unit['s1']['display_name'], true));
-				}
+	function getDropdownOptions($getDropdownOptions){
+		if($getDropdownOptions != 0){
+			if(!App::import('Model', 'Datamart.BrowsingStructure')){
+				$this->redirect( '/pages/err_model_import_failed?p[]=Datamart.BrowsingStructure', NULL, TRUE );
 			}
+			$BrowsingStructure = new BrowsingStructure();
+			$browsing_structures = $BrowsingStructure->find('list', array('fields' => array('BrowsingStructure.display_name')));
+			//the query contains a useless CONCAT to counter a cakephp behavior
+			$data = $this->query(
+				"SELECT CONCAT(main_id, '') AS main_id, GROUP_CONCAT(to_id SEPARATOR ',') AS to_id FROM( "
+				."SELECT id1 AS main_id, id2 AS to_id FROM `datamart_browsing_controls` "
+				."UNION "
+				."SELECT id2 AS main_id, id1 AS to_id FROM `datamart_browsing_controls` ) AS data GROUP BY main_id ");
+			$options = array();
+			foreach($data as $data_unit){
+				$options[$data_unit[0]['main_id']] = explode(",", $data_unit[0]['to_id']);
+			}
+			$rez = Browser::buildBrowsableOptions($options, array(), $getDropdownOptions, $browsing_structures);
+			$result[] = array(
+				'value' => '',
+				'default' => __('browse', true),
+				'children' => $rez['children']
+			);
+			$result[] = array(
+				'value' => '',
+				'default' => __('create batchset', true)
+			);
+			$result[] = array(
+				'value' => '',
+				'default' => __('export to csv', true)
+			);
 		}else{
 			$data = $this->query("SELECT * FROM datamart_browsing_structures");
 			foreach($data as $data_unit){
-				$result[] = array('value' => $data_unit['datamart_browsing_structures']['id'], 'default' => __($data_unit['datamart_browsing_structures']['display_name'], true));
+				$result[] = array(
+					'value' => $data_unit['datamart_browsing_structures']['id'], 
+					'default' => __($data_unit['datamart_browsing_structures']['display_name'], true),
+					'children' => array(
+							array(
+								'value' => $data_unit['datamart_browsing_structures']['id'],
+								'default' => __('search', true)),
+							array(
+								'value' => $data_unit['datamart_browsing_structures']['id']."/true/",
+								'default' => __('direct', true)),
+								));
 			}
 		}
+		return $result;
+	}
+	
+	static function buildBrowsableOptions(array $from_to, array $stack, $current_id, array $browsing_structures){
+		$result = array();
+		array_push($stack, $current_id);
+		$to_arr = array_diff($from_to[$current_id], $stack);
+		$result['default'] = __($browsing_structures[$current_id], true);
+		$tmp = array_shift($stack);
+		$result['value'] = implode("_", $stack);
+		array_unshift($stack, $tmp);
+		if(count($stack) > 1){
+		$result['children'] = array(
+							array(
+								'value' => $result['value'],
+								'default' => __('search', true)),
+							array(
+								'value' => $result['value']."/true/",
+								'default' => __('direct', true)),
+								);
+		}
+		foreach($to_arr as $to){
+			$result['children'][] = Browser::buildBrowsableOptions($from_to, $stack, $to, $browsing_structures);
+		}
+		array_pop($stack); 
 		return $result;
 	}
 	
@@ -166,7 +215,7 @@ class Browser extends DatamartAppModel {
 	 * Formats the search params array and returns it into a table
 	 * @param The search params array
 	 */
-	static function formatSearchToPrint(array $params, String $structure_alias){
+	static function formatSearchToPrint(array $params, $structure_alias){
 		$keys = array_keys($params);
 		App::import('model', 'StructureFormat');
 		$StructureFormat = new StructureFormat();
@@ -175,6 +224,7 @@ class Browser extends DatamartAppModel {
 			if(is_numeric($key)){
 				//it's a textual field model.field LIKE %foo%
 				list($model_field) = explode(" ", $params[$key]);
+				$model_field = substr($model_field, 1);
 				list($model, $field) = explode(".", $model_field);
 			}else{
 				list($model, $field) = explode(".", $key);
@@ -187,6 +237,7 @@ class Browser extends DatamartAppModel {
 			if(is_numeric($name)){
 				//it's a textual field model.field LIKE %foo%
 				list($model_field, , $value) = explode(" ", $params[$key]);
+				$model_field = substr($model_field, 1);
 				list($model, $field) = explode(".", $model_field);
 				$values = array(substr($value, 2, -2));
 			}else{
