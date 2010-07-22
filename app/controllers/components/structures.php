@@ -131,60 +131,62 @@ class StructuresComponent extends Object {
 		// parse DATA to generate SQL conditions
 		// use ONLY the form_fields array values IF data for that MODEL.KEY combo was provided
 		foreach ( $this->controller->data as $model=>$fields ) {
-			foreach ( $fields as $key=>$data ) {
-				// if MODEL data was passed to this function, use it to generate SQL criteria...
-				if ( count($form_fields) ) {
-					
-					// add search element to CONDITIONS array if not blank & MODEL data included Model/Field info...
-					if ( $data && isset( $form_fields[$model.'.'.$key] ) ) {
+			if(is_array($fields)){
+				foreach ( $fields as $key=>$data ) {
+					// if MODEL data was passed to this function, use it to generate SQL criteria...
+					if ( count($form_fields) ) {
 						
-						// if CSV file uploaded...
-						if ( is_array($data) && isset($this->controller->data[$model][$key.'_with_file_upload']) && $this->controller->data[$model][$key.'_with_file_upload']['tmp_name'] ) {
+						// add search element to CONDITIONS array if not blank & MODEL data included Model/Field info...
+						if ( $data && isset( $form_fields[$model.'.'.$key] ) ) {
 							
-							// set $DATA array based on contents of uploaded FILE
-							$handle = fopen($this->controller->data[$model][$key.'_with_file_upload']['tmp_name'], "r");
-							
-							// in each LINE, get FIRST csv value, and attach to DATA array
-							while (($csv_data = fgetcsv($handle, 1000, csv_separator, '"')) !== FALSE) {
-							    $data[] = $csv_data[0];
-							}
-							
-							fclose($handle);
-							
-							unset($this->controller->data[$model][$key.'_with_file_upload']);
-							
-						}
-						
-						// use Model->deconstruct method to properly build data array's date/time information from arrays
-						if ( is_array($data) ) {
-							App::import('Model', $form_fields[$model.'.'.$key]['plugin'].'.'.$model);
-							// App::import('Model', 'Clinicalannotation.'.$model);
-							
-							$format_data_model = new $model;
-							
-							$data = $format_data_model->deconstruct($form_fields[$model.'.'.$key]['field'],$data);
-							
-							if ( is_array($data) ) {
-								$data = array_unique($data);
-								$data = array_filter($data);
-							}
-							
-							if ( !count($data) ) $data = '';
-						}
-						
-						// if supplied form DATA is not blank/null, add to search conditions, otherwise skip
-						if ( $data ) {
-							if ( strpos($form_fields[$model.'.'.$key]['key'], ' LIKE')!==false ) {
-								if(is_array($data)){
-									$conditions[] = "(".$form_fields[$model.'.'.$key]['key']." '%".implode("%' OR ".$form_fields[$model.'.'.$key]['key']." '%", $data)."%')";
-									unset($data);
-								}else{
-									$data = '%'.$data.'%';
+							// if CSV file uploaded...
+							if ( is_array($data) && isset($this->controller->data[$model][$key.'_with_file_upload']) && $this->controller->data[$model][$key.'_with_file_upload']['tmp_name'] ) {
+								
+								// set $DATA array based on contents of uploaded FILE
+								$handle = fopen($this->controller->data[$model][$key.'_with_file_upload']['tmp_name'], "r");
+								
+								// in each LINE, get FIRST csv value, and attach to DATA array
+								while (($csv_data = fgetcsv($handle, 1000, csv_separator, '"')) !== FALSE) {
+								    $data[] = $csv_data[0];
 								}
+								
+								fclose($handle);
+								
+								unset($this->controller->data[$model][$key.'_with_file_upload']);
+								
 							}
 							
-							if(isset($data)){
-								$conditions[ $form_fields[$model.'.'.$key]['key'] ] = $data;
+							// use Model->deconstruct method to properly build data array's date/time information from arrays
+							if ( is_array($data) ) {
+								App::import('Model', $form_fields[$model.'.'.$key]['plugin'].'.'.$model);
+								// App::import('Model', 'Clinicalannotation.'.$model);
+								
+								$format_data_model = new $model;
+								
+								$data = $format_data_model->deconstruct($form_fields[$model.'.'.$key]['field'],$data);
+								
+								if ( is_array($data) ) {
+									$data = array_unique($data);
+									$data = array_filter($data);
+								}
+								
+								if ( !count($data) ) $data = '';
+							}
+							
+							// if supplied form DATA is not blank/null, add to search conditions, otherwise skip
+							if ( $data ) {
+								if ( strpos($form_fields[$model.'.'.$key]['key'], ' LIKE')!==false ) {
+									if(is_array($data)){
+										$conditions[] = "(".$form_fields[$model.'.'.$key]['key']." '%".implode("%' OR ".$form_fields[$model.'.'.$key]['key']." '%", $data)."%')";
+										unset($data);
+									}else{
+										$data = '%'.$data.'%';
+									}
+								}
+								
+								if(isset($data)){
+									$conditions[ $form_fields[$model.'.'.$key]['key'] ] = $data;
+								}
 							}
 						}
 					}
