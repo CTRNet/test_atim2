@@ -1,7 +1,17 @@
 <?php
 class Browser extends DatamartAppModel {
 	var $useTable = false;
+
+	/**
+	 * The action dropdown under browse will be hierarchical or not
+	 * @var boolean
+	 */
+	static $hierarchical_dropdown = false;
 	
+	/**
+	 * Returns an array representing the options to display in the action drop down
+	 * @param The initial control_id
+	 */
 	function getDropdownOptions($getDropdownOptions){
 		if($getDropdownOptions != 0){
 			if(!App::import('Model', 'Datamart.BrowsingStructure')){
@@ -31,7 +41,7 @@ class Browser extends DatamartAppModel {
 			);
 			$result[] = array(
 				'value' => '',
-				'default' => __('export to csv', true)
+				'default' => __('export as CSV file (comma-separated values)', true)
 			);
 		}else{
 			$data = $this->query("SELECT * FROM datamart_browsing_structures");
@@ -45,13 +55,21 @@ class Browser extends DatamartAppModel {
 								'default' => __('search', true)),
 							array(
 								'value' => $data_unit['datamart_browsing_structures']['id']."/true/",
-								'default' => __('direct', true)),
+								'default' => __('no filter', true)),
 								));
 			}
 		}
 		return $result;
 	}
 	
+	/**
+	 * Builds the browsable part of the array for action menu
+	 * @param array $from_to An array containing the possible destinations for each keys
+	 * @param array $stack An array of the elements already fetched by the current recursion
+	 * @param Int $current_id The current not control id
+	 * @param array $browsing_structures An array containing data about all available browsing structures. Used to get the displayed value
+	 * @return An array representing the browsable portion of the action menu
+	 */
 	static function buildBrowsableOptions(array $from_to, array $stack, $current_id, array $browsing_structures){
 		$result = array();
 		array_push($stack, $current_id);
@@ -67,16 +85,34 @@ class Browser extends DatamartAppModel {
 								'default' => __('search', true)),
 							array(
 								'value' => $result['value']."/true/",
-								'default' => __('direct', true)),
+								'default' => __('no filter', true)),
 								);
 		}
 		foreach($to_arr as $to){
-			$result['children'][] = Browser::buildBrowsableOptions($from_to, $stack, $to, $browsing_structures);
+			if(Browser::$hierarchical_dropdown){
+				$result['children'][] = Browser::buildBrowsableOptions($from_to, $stack, $to, $browsing_structures);
+			}else{
+				$tmp_result = Browser::buildBrowsableOptions($from_to, $stack, $to, $browsing_structures);
+				if(isset($tmp_result['children'])){
+					foreach($tmp_result['children'] as $key => $child){
+						if(isset($child['children'])){
+							$result['children'][] = $child;
+							unset($tmp_result['children'][$key]);
+						}
+					}
+				}
+				$result['children'][] = $tmp_result;
+			}
 		}
 		array_pop($stack); 
 		return $result;
 	}
 	
+	/**
+	 * Recursively builds a tree node by node.
+	 * @param Int $node_id The node id to fetch
+	 * @param Int $active_node The node to hihglight in the graph
+	 */
 	static function getTree($node_id, $active_node){
 		$BrowsingResult = new BrowsingResult();
 		$result = $BrowsingResult->find('all', array('conditions' => 'BrowsingResult.id='.$node_id.' OR BrowsingResult.parent_node_id='.$node_id, 'order' => array('BrowsingResult.id')));
@@ -97,6 +133,13 @@ class Browser extends DatamartAppModel {
 		return $tree_node;
 	}
 	
+	/**
+	 * Builds a representation of the tree within an array
+	 * @param array $tree_node A node and its informations
+	 * @param array $tree An array with the current tree representation
+	 * @param Int $x The current x location
+	 * @param Int $y The current y location
+	 */
 	static function buildTree(array $tree_node, &$tree = array(), $x = 0, &$y = 0){
 		$tree[$y][$x] = $tree_node;
 		if(count($tree_node['children'])){
@@ -146,6 +189,11 @@ class Browser extends DatamartAppModel {
 		}
 	}
 	
+	/**
+	 * Builds an html tree based in a table
+	 * @param Int $current_node The id of the current node. Its path will be highlighted
+	 * @param String $webroot_url The webroot of ATiM
+	 */
 	static function getPrintableTree($current_node, $webroot_url){
 		$result = "";
 		$BrowsingResult = new BrowsingResult();
