@@ -433,5 +433,5 @@ INSERT INTO `pages` (`id` ,`error_flag` ,`language_title` ,`language_body` ,`use
 
 -- Header text for permissions form
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
-('permission control panel', 'Permission Control Panel', ''),
-('note: permission changes will not take effect until the user logs out of the system.', 'NOTE: Permission changes will not take effect until the user logs out of the system.', '');
+('permission control panel', 'Permission Control Panel', 'Panneau de contrôle des permissions'),
+('note: permission changes will not take effect until the user logs out of the system.', 'NOTE: Permission changes will not take effect until the user logs out of the system.', "NOTE: L'utilisateur doit se déconnecter avant que le changement de permission entre en vigueur.");
