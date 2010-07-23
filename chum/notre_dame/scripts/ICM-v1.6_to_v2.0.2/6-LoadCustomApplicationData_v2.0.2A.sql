@@ -598,8 +598,8 @@ VALUES
 ('agreements', '', 'Agreements', 'Autorisations'),
 ('biological material use', '', 'Biological Material Use', 'Utilisation du materiel biologique'),
 ('use of urine', '', 'Use of Urine', 'Utilisation de l''urine'),
-('use of blood', '', 'se of Blood', 'Utilisation du sange'),
-('research other disease', '', 'Research On Other Disease', 'Recherche sur autre maladie'),
+('use of blood', '', 'Use of Blood', 'Utilisation du sang'),
+('research other disease', '', 'Research On Other Diseases', 'Recherche sur autres maladies'),
 
 ('followup', '', 'Followup', 'Suivi'),
 ('urine blood use for followup', '', 'Urine/Blood Use For Followup', 'Utilisation urine/sang pour suivi'),
@@ -3544,7 +3544,7 @@ INSERT INTO `users` VALUES
 (10,'JennK','Jennifer','','4067d37b7a9c896e83ea0c087758a6d958217e10','','','','','',NULL,'','','','','','','','en','0000-00-00 00:00:00',4,0,'2010-07-08 14:55:35','2010-07-08 15:18:21'),
 (11,'Liliane','Liliane','','db2f9c6ad7e7487584bee200bb0c21a4657d01d3','','','','','',NULL,'','','','','','','','en','0000-00-00 00:00:00',4,0,'2010-07-08 14:55:54','2010-07-08 15:23:34'),
 (12,'SardoMigration','SardoMigration','','ddeaa159a89375256a02d1cfbd9a1946ad01a979','','','','','',NULL,'','','','','','','','en','0000-00-00 00:00:00',6,0,'2010-07-08 14:56:25','2010-07-08 14:56:25'),
-(13,'GuilC-Ov','Guillaume','','1dda8b78791639efd7a799956fee1af606f50fbb','','','','','',NULL,'','','','','','','','en','0000-00-00 00:00:00',4,0,'2010-07-08 14:57:03','2010-07-08 15:26:24'),
+(13,'guilc','Guillaume','','1dda8b78791639efd7a799956fee1af606f50fbb','','','','','',NULL,'','','','','','','','en','0000-00-00 00:00:00',4,0,'2010-07-08 14:57:03','2010-07-08 15:26:24'),
 (14,'TeodoraY','Teodora','','f7d34417d5d918004975b9b9a254d327a1d63585','','','','','',NULL,'','','','','','','','en','0000-00-00 00:00:00',5,0,'2010-07-08 14:57:43','2010-07-08 15:11:01'),
 (15,'Karine','Karine','','ddeaa159a89375256a02d1cfbd9a1946ad01a979','','','','','',NULL,'','','','','','','','en','0000-00-00 00:00:00',4,0,'2010-07-08 14:58:19','2010-07-08 14:58:19'),
 (16,'MichEn','F.M.','','ddeaa159a89375256a02d1cfbd9a1946ad01a979','','','','','',NULL,'','','','','','','','en','0000-00-00 00:00:00',1,0,'2010-07-08 14:59:16','2010-07-08 14:59:16'),
@@ -3606,6 +3606,18 @@ VALUES
 ((SELECT id FROM structures WHERE structures.alias LIKE 'ad_ascite_cell_tubes'), (SELECT id FROM structure_fields WHERE tablename = 'AsciteTubeDetail' AND field = 'tmp_storage_method'),'1','80 ',' ','0 ',' ','0 ',' ','0 ',' ','0 ',' ','0 ',' ','0 ',' ','1','0','1','0','0','0','0','0','1','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0'),
 ((SELECT id FROM structures WHERE structures.alias LIKE 'ad_ascite_cell_tubes'), (SELECT id FROM structure_fields WHERE tablename = 'AsciteTubeDetail' AND field = 'tmp_storage_solution'),'1','81 ',' ','0 ',' ','0 ',' ','0 ',' ','0 ',' ','0 ',' ','0 ',' ','1','0','1','0','0','0','0','0','1','1','0000-00-00 00:00:00','0','2010-02-12 00:00:00','0');
 
+-- mode participant code at the end of the form and retag the header to "other"
+UPDATE structure_formats SET `display_column`='4', `display_order`='14', `language_heading`='other' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Participant' AND tablename='participants' AND field='participant_identifier');
+-- tag the new first element to "clin_demographics"
+UPDATE structure_formats SET `language_heading`='clin_demographics' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Participant' AND tablename='participants' AND field='first_name');
+-- allow to search by creation date
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='created' AND `structure_value_domain`  IS NULL  ), '4', '15', '', '1', 'created', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '1', '0', '0', '0', '1', '1');
+
+-- deleting erronous blood volume in tissue tube
+DELETE FROM structure_formats WHERE `structure_id`='221' AND `structure_field_id`='254' AND `display_column`='1' AND `display_order`='70' AND `language_heading`='' AND `flag_override_label`='0' AND `language_label`='' AND `flag_override_tag`='0' AND `language_tag`='' AND `flag_override_help`='0' AND `language_help`='' AND `flag_override_type`='0' AND `type`='' AND `flag_override_setting`='0' AND `setting`='' AND `flag_override_default`='0' AND `default`='' AND `flag_add`='1' AND `flag_add_readonly`='0' AND `flag_edit`='1' AND `flag_edit_readonly`='0' AND `flag_search`='0' AND `flag_search_readonly`='0' AND `flag_datagrid`='1' AND `flag_datagrid_readonly`='0' AND `flag_index`='0' AND `flag_detail`='1' AND `created`='0000-00-00 00:00:00' AND `created_by`='0' AND `modified`='2010-02-12 00:00:00' AND `modified_by`='0' ;
+DELETE FROM structure_formats WHERE `structure_id`='221' AND `structure_field_id`='278' AND `display_column`='1' AND `display_order`='71' AND `language_heading`='' AND `flag_override_label`='0' AND `language_label`='' AND `flag_override_tag`='0' AND `language_tag`='' AND `flag_override_help`='0' AND `language_help`='' AND `flag_override_type`='0' AND `type`='' AND `flag_override_setting`='0' AND `setting`='' AND `flag_override_default`='0' AND `default`='' AND `flag_add`='1' AND `flag_add_readonly`='0' AND `flag_edit`='1' AND `flag_edit_readonly`='0' AND `flag_search`='0' AND `flag_search_readonly`='0' AND `flag_datagrid`='1' AND `flag_datagrid_readonly`='0' AND `flag_index`='0' AND `flag_detail`='1' AND `created`='0000-00-00 00:00:00' AND `created_by`='0' AND `modified`='2010-02-12 00:00:00' AND `modified_by`='0' ;
+
 -- Allow '-' for celle passage number like '2-4'
 
 UPDATE structure_fields, structure_validations
@@ -3623,7 +3635,10 @@ INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_e
 UPDATE structure_fields SET language_label = 'participant system code' WHERE field LIKE 'participant_identifier';
 
 INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
-('participant system code', 'global', 'Participant System Code', 'Participant - Code-système');
+('participant system code', 'global', 'Participant System Code', 'Participant - Code-système'),
+("invitation date", "Invitation date", "Date d'invitation"),
+("storage solution", "Storage solution", "Solution d'entreposage"),
+("storage method", "Storage method", "Méthode d'entreposage");
 
 -- Add missing field to aliquot datagrid form
 
@@ -3671,6 +3686,9 @@ al.storage_coord_y,
 stor.temperature,
 stor.temp_unit,
 
+tubes.tmp_storage_solution AS storage_solution,
+tubes.tmp_storage_method AS storage_method,
+
 al.deleted
 
 FROM aliquot_masters as al
@@ -3682,9 +3700,14 @@ LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted
 LEFT JOIN storage_masters AS stor ON stor.id = al.storage_master_id AND stor.deleted != 1
 LEFT JOIN banks ON col.bank_id = banks.id AND banks.deleted != 1
 LEFT JOIN misc_identifiers AS ident ON ident.misc_identifier_control_id = banks.misc_identifier_control_id AND ident.participant_id = part.id AND ident.deleted != 1
+LEFT JOIN ad_tubes AS tubes ON tubes.aliquot_master_id=al.id
 WHERE al.deleted != 1;
 
-
-
-
+-- Show storage info in aliquots list all
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Inventorymanagement', 'ViewAliquot', 'view_aliquots', 'storage_solution', 'storage solution', '', 'input', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_tissue_storage_solution') , '', 'open', 'open', 'open'), 
+('', 'Inventorymanagement', 'ViewAliquot', 'view_aliquots', 'storage_method', 'storage method', '', 'input', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_tissue_storage_method') , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='storage_solution' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tissue_storage_solution') ), '0', '16', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='storage_method' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tissue_storage_method') ), '0', '17', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
 
