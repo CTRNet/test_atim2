@@ -61,12 +61,12 @@ function validateSubmit(ignoreSelect){
 	var errors = new Array();
 	if($("#search_for").length == 1 && $("#search_for").val() == "" && !ignoreSelect){
 		//TODO: traduce
-		errors.push("<?php __("You need to pick an action"); ?>");
+		errors.push("<?php __("you must select an action"); ?>");
 	}
 	<?php if($is_datagrid){ ?>
 	if($(":checkbox[checked=true]").length == 0){
 		//TODO: traduce
-		errors.push("<?php __("You need to select at least one item"); ?>");
+		errors.push("<?php __("you need to select at least one item"); ?>");
 	}
 	<?php } ?>
 	
@@ -85,7 +85,7 @@ function validateSubmit(ignoreSelect){
 if(isset($dropdown_options)){
 	
 ?>
-<a tabindex="0" href="#news-items" class="fg-button fg-button-icon-right ui-widget ui-state-default ui-corner-all" id="hierarchy"><span class="ui-icon ui-icon-triangle-1-s"></span><span class="label">Action</span></a>
+<a tabindex="0" href="#news-items" class="fg-button fg-button-icon-right ui-widget ui-state-default ui-corner-all" id="hierarchy"><span class="ui-icon ui-icon-triangle-1-s"></span><span class="label"><?php __("action"); ?></span></a>
 <div class="hidden ui-widget">
 <input id="search_for" type="hidden" name="data[Browser][search_for]"/>
 <ul>
@@ -105,5 +105,6 @@ if(isset($dropdown_options)){
 	}
 	printList($dropdown_options, "", $this->webroot);
 	?>
+</ul>
 </div>
 <?php } ?>

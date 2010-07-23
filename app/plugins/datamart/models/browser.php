@@ -58,7 +58,7 @@ class Browser extends DatamartAppModel {
 					'children' => array(
 							array(
 								'value' => $data_unit['datamart_browsing_structures']['id'],
-								'default' => __('search', true)),
+								'default' => __('filter', true)),
 							array(
 								'value' => $data_unit['datamart_browsing_structures']['id']."/true/",
 								'default' => __('no filter', true))
@@ -88,7 +88,7 @@ class Browser extends DatamartAppModel {
 		$result['children'] = array(
 							array(
 								'value' => $result['value'],
-								'default' => __('search', true)),
+								'default' => __('filter', true)),
 							array(
 								'value' => $result['value']."/true/",
 								'default' => __('no filter', true)),
