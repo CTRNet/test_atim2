@@ -50,5 +50,15 @@
 		$control_data = $this->EventControl->find('first',array('conditions'=>array('EventControl.id'=>$event_control_id)));
 		$this->setMedicalPastHistoryPrecisions($control_data);
 	}
+	
+	// --------------------------------------------------------------------------------
+	// hepatobiliary-lab-biology : 
+	//   Set participant surgeries list for hepatobiliary-lab-biology.
+	// --------------------------------------------------------------------------------
+	if(!is_null($event_control_id)) {
+		// User filtered listed data
+		$control_data = $this->EventControl->find('first',array('conditions'=>array('EventControl.id'=>$event_control_id)));
+		$this->setParticipantSurgeriesList($control_data, $participant_id);
+	}
 		
 ?>
