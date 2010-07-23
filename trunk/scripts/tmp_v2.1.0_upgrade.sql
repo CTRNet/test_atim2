@@ -153,7 +153,7 @@ CREATE TABLE datamart_browsing_results(
   `modified` datetime DEFAULT NULL,
   `modified_by` int(10) unsigned NOT NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `deleted_date` datetime DEFAULT NULL,
+  `deleted_date` datetime DEFAULT NULL
 #UNIQUE KEY (`user_id`, `parent_node_id`, `browsing_structures_id`, `id_csv`(200))
 )Engine=InnoDb;
 
@@ -421,6 +421,6 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`)
 VALUES 
 ('collection samples and aliquots management', '', 'Samples & Aliquots', 'Échantillons & Aliquots');
 
-INSERT INTO `atim_new`.`pages` (`id` ,`error_flag` ,`language_title` ,`language_body` ,`use_link` ,`created` ,`created_by` ,`modified` ,`modified_by`) VALUES 
+INSERT INTO `pages` (`id` ,`error_flag` ,`language_title` ,`language_body` ,`use_link` ,`created` ,`created_by` ,`modified` ,`modified_by`) VALUES 
 ('err_model_import_failed', '1', 'model import failed', 'the import for model [%1$s] failed', '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('err_internal', '1', 'internal error', 'an internal error was found on [%1$s]', '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
