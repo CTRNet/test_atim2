@@ -430,3 +430,8 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 INSERT INTO `pages` (`id` ,`error_flag` ,`language_title` ,`language_body` ,`use_link` ,`created` ,`created_by` ,`modified` ,`modified_by`) VALUES 
 ('err_model_import_failed', '1', 'model import failed', 'the import for model [%1$s] failed', '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('err_internal', '1', 'internal error', 'an internal error was found on [%1$s]', '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+-- Header text for permissions form
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+('permission control panel', 'Permission Control Panel', ''),
+('note: permission changes will not take effect until the user logs out of the system.', 'NOTE: Permission changes will not take effect until the user logs out of the system.', '');
