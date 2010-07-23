@@ -196,6 +196,13 @@ class BrowserController extends DatamartAppController {
 				}
 				$this->BrowsingIndex->id = null;
 				$parent_node = $save['BrowsingResult']['id'];
+				
+				if(count($save_ids) == 0){
+					//we have an empty set, bail out!
+					$last_control_id = $control_id;
+					$this->BrowsingIndex->validationErrors[] = __("you cannot browse to the requested entities because some intermediary elements do not exist", true);
+					break;	
+				}
 			}
 			
 			//all nodes saved, now load the proper form
@@ -231,7 +238,8 @@ class BrowserController extends DatamartAppController {
 			"flag_use_query_results" => false
 		));
 		$this->BatchSet->save($batch_set);
-		foreach($this->data['model']['id'] as $id){
+		
+		foreach($this->data[$browsing_result['BrowsingStructure']['model']][$browsing_result['BrowsingStructure']['use_key']] as $id){
 			if($id != 0){
 				$batch_id = array("BatchId" => array(
 					"set_id" => $this->BatchSet->id,

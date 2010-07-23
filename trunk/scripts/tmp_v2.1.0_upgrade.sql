@@ -135,9 +135,9 @@ INSERT INTO datamart_browsing_controls(`id1`, `id2`, `use_field`) VALUES
 INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('datamart_browser_options', '', '', NULL);
 INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('datamart_browser_start', '', '', '1', '1', '1', '1');
 INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
-('', 'Datamart', 'Browser', '', 'search_for', 'search for', '', 'select', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name='datamart_browser_options') , '', 'open', 'open', 'open');
+('', 'Datamart', 'Browser', '', 'search_for', 'action', '', 'select', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name='datamart_browser_options') , '', 'open', 'open', 'open');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
-((SELECT id FROM structures WHERE alias='datamart_browser_start'), (SELECT id FROM structure_fields WHERE `model`='Browser' AND `tablename`='' AND `field`='search_for' AND `language_label`='search for' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='datamart_browser_options')  AND `language_help`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+((SELECT id FROM structures WHERE alias='datamart_browser_start'), (SELECT id FROM structure_fields WHERE `model`='Browser' AND `tablename`='' AND `field`='search_for' AND `language_label`='action' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='datamart_browser_options')  AND `language_help`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 
 CREATE TABLE datamart_browsing_results(
   `id` int UNSIGNED AUTO_INCREMENT primary key,
@@ -424,7 +424,13 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ("an internal error was found on [%1$s]", "An internal error was found on [%1$s]", "Une erreur interne a été trouvée sur [%1$s]"),
 ("browse", "Browse", "Naviguer"),
 ("create batchset", "Create batchset", "Créer un ensemble de données"),
-("storages", "Storages", "Entreposages");
+("storages", "Storages", "Entreposages"),
+("new", "New", "Nouveau"),
+("action", "Action", "Action"),
+("you must select an action", "You must select an action", "Vous devez sélectionner une action"),
+("you need to select at least one item", "You need to select at least one item", "Vous devez sélectionner au moins un item"),
+("you cannot browse to the requested entities because some intermediary elements do not exist", "You cannot browse to the requested entities because some intermediary elements do not exist", "Vous ne pouvez pas naviguer aux entités demandées car certains éléments intermédiares n'existent pas");
+
 
 
 INSERT INTO `pages` (`id` ,`error_flag` ,`language_title` ,`language_body` ,`use_link` ,`created` ,`created_by` ,`modified` ,`modified_by`) VALUES 
