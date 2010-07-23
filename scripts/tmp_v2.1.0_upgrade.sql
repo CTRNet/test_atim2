@@ -123,10 +123,9 @@ INSERT INTO datamart_browsing_structures (`id`, `plugin`, `model`, `structure_al
 (3, 'Storagelayout', 'StorageMaster', 'storagemasters', 'storages', 'id'),
 (4, 'Clinicalannotation', 'Participant', 'participants', 'participants', 'id'),
 (5, 'Inventorymanagement', 'ViewSample', 'view_sample_joined_to_collection', 'samples', 'sample_master_id'),
-(6, 'Clinicalannotation', 'MiscIdentifier', 'miscidentifierssummary', 'identifiers', 'id');
+(6, 'Clinicalannotation', 'MiscIdentifier', 'miscidentifierssummary', 'identification', 'id'),
 
 INSERT INTO datamart_browsing_controls(`id1`, `id2`, `use_field`) VALUES
-(1, 2, 'ViewAliquot.collection_id'),
 (1, 3, 'ViewAliquot.storage_master_id'),
 (2, 4, 'ViewCollection.participant_id'),
 (1, 5, 'ViewAliquot.sample_master_id'),
@@ -153,7 +152,7 @@ CREATE TABLE datamart_browsing_results(
   `modified` datetime DEFAULT NULL,
   `modified_by` int(10) unsigned NOT NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `deleted_date` datetime DEFAULT NULL
+  `deleted_date` datetime DEFAULT NULL,
 #UNIQUE KEY (`user_id`, `parent_node_id`, `browsing_structures_id`, `id_csv`(200))
 )Engine=InnoDb;
 
@@ -417,9 +416,16 @@ DELETE FROM structure_fields WHERE id = @stuctrue_field_id;
 UPDATE menus SET language_title = 'collection samples and aliquots management'
 WHERE id = 'inv_CAN_21'; -- collection products
 
-INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) 
-VALUES 
-('collection samples and aliquots management', '', 'Samples & Aliquots', 'Échantillons & Aliquots');
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES 
+('collection samples and aliquots management', 'Samples & Aliquots', 'Échantillons & Aliquots'),
+('model import failed', 'Model import failed', "Échec d'import du modèle"),
+('the import for model [%1$s] failed', 'The import for model [%1$s] failed', "L'import du modèle [%1$s] a échoué"),
+('internal error', 'Internal error', 'Erreur interne'),
+("an internal error was found on [%1$s]", "An internal error was found on [%1$s]", "Une erreur interne a été trouvée sur [%1$s]"),
+("browse", "Browse", "Naviguer"),
+("create batchset", "Create batchset", "Créer un ensemble de données"),
+("storages", "Storages", "Entreposages");
+
 
 INSERT INTO `pages` (`id` ,`error_flag` ,`language_title` ,`language_body` ,`use_link` ,`created` ,`created_by` ,`modified` ,`modified_by`) VALUES 
 ('err_model_import_failed', '1', 'model import failed', 'the import for model [%1$s] failed', '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),

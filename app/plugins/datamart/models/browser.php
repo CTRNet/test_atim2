@@ -12,8 +12,11 @@ class Browser extends DatamartAppModel {
 	 * Returns an array representing the options to display in the action drop down
 	 * @param The initial control_id
 	 */
-	function getDropdownOptions($getDropdownOptions){
+	function getDropdownOptions($getDropdownOptions, $node_id, $plugin_name = null, $model_name = null, $model_pkey = null, $structure_name = null){
 		if($getDropdownOptions != 0){
+			if($plugin_name == null || $model_name == null || $model_pkey == null || $structure_name == null){
+				$this->redirect( '/pages/err_internal?p[]=missing parameter for getDropdownOptions', null, true);
+			}
 			if(!App::import('Model', 'Datamart.BrowsingStructure')){
 				$this->redirect( '/pages/err_model_import_failed?p[]=Datamart.BrowsingStructure', NULL, TRUE );
 			}
@@ -36,12 +39,14 @@ class Browser extends DatamartAppModel {
 				'children' => $rez['children']
 			);
 			$result[] = array(
-				'value' => '',
-				'default' => __('create batchset', true)
+				'value' => '0',
+				'default' => __('create batchset', true),
+				'action' => 'datamart/browser/createBatchSet/'.$node_id.'/'
 			);
 			$result[] = array(
-				'value' => '',
-				'default' => __('export as CSV file (comma-separated values)', true)
+				'value' => '0',
+				'default' => __('export as CSV file (comma-separated values)', true),
+				'action' => 'csv/csv/'.$plugin_name.'/'.$model_name.'/'.$model_pkey.'/'.$structure_name.'/'
 			);
 		}else{
 			$data = $this->query("SELECT * FROM datamart_browsing_structures");
@@ -49,13 +54,14 @@ class Browser extends DatamartAppModel {
 				$result[] = array(
 					'value' => $data_unit['datamart_browsing_structures']['id'], 
 					'default' => __($data_unit['datamart_browsing_structures']['display_name'], true),
+					'action' => 'datamart/browser/browse/'.$node_id.'/',
 					'children' => array(
 							array(
 								'value' => $data_unit['datamart_browsing_structures']['id'],
 								'default' => __('search', true)),
 							array(
 								'value' => $data_unit['datamart_browsing_structures']['id']."/true/",
-								'default' => __('no filter', true)),
+								'default' => __('no filter', true))
 								));
 			}
 		}
