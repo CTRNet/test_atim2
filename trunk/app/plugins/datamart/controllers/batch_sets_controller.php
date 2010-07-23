@@ -119,7 +119,7 @@ class BatchSetsController extends DatamartAppController {
 		// add COUNT of IDS to array results, for form list 
 		$batch_set_processes = array();
 		$batch_set_processes['/datamart/batch_sets/remove/'.$batch_set_id."/"]	= __('remove from batch set', true);
-		$batch_set_processes['/datamart/batch_sets/csv/'.$batch_set_id."/"]		= __('export as CSV file (comma-separated values)', true);
+		$batch_set_processes['/csv/csv/'.$batch_set['BatchSet']['plugin']."/".$batch_set['BatchSet']['model']."/".$batch_set['BatchSet']['lookup_key_name']."/".$batch_set['BatchSet']['form_alias_for_results']]		= __('export as CSV file (comma-separated values)', true);
 		if($batch_set['BatchSet']['model'] == "AliquotMaster"){
 			$realiquot_link = '/inventorymanagement/aliquot_masters/realiquot/'.$batch_set_id."/";
 			$this->set("realiquot_link", $realiquot_link);
@@ -268,70 +268,6 @@ class BatchSetsController extends DatamartAppController {
 		exit();
 		
 	}
-	
-	function csv($batch_set_id) {
-		$batch_set = $this->BatchSet->getBatchSet($batch_set_id);
-		$lookup_key_name = $batch_set['BatchSet']['lookup_key_name'];
-		
-		// set function variables, makes script readable :)
-		$batch_set_id = $batch_set['BatchSet']['id'];
-		$batch_set_model = $batch_set['BatchSet']['model'];
-		$batch_id_array = $this->data[$batch_set_model][$lookup_key_name];
-		
-		// add COUNT of IDS to array results, for form list
-		$batch_set['BatchSet']['count_of_BatchId'] = count($batch_set['BatchId']);
-			
-		$this->Structures->set($batch_set['BatchSet']['form_alias_for_results'] );
-		
-		// do search for RESULTS, using THIS->DATA if any
-			
-			$model_to_import = ( $batch_set['BatchSet']['plugin'] ? $batch_set['BatchSet']['plugin'].'.' : '' ).$batch_set['BatchSet']['model'];
-			App::import('Model',$model_to_import);
-			
-			$this->ModelToSearch = new $batch_set['BatchSet']['model'];
-				
-			// parse resulting IDs from the SET to build FINDALL criteria for SET's true MODEL 
-			$criteria = array();
-			foreach ( $batch_id_array as $field_id ) {
-				$criteria[] = $batch_set_model.'.'.$lookup_key_name.'="'.$field_id.'"';
-			}
-			$criteria = implode( ' OR ', $criteria );
-			
-				// make list of SEARCH RESULTS
-		    	
-		    	// add FAKE false to criteria if NO criteria/ids
-				if ( !$criteria ) {
-					$criteria = '1=2';
-				} 
-					
-				if ( $batch_set['BatchSet']['flag_use_query_results'] ) {
-		    	
-		    		// update DATATABLE names to MODEL names for CTRAPP FORM framework
-					$query_to_use = str_replace( '|', '"', $batch_set['BatchSet']['sql_query_for_results'] ); // due to QUOTES and HTML not playing well, PIPES saved to datatable rows instead
-					
-					// add restrictions to query, inserting BATCH SET IDs to WHERE statement
-					if ( substr_count( $query_to_use, 'WHERE' )>=2 || substr_count( $query_to_use, 'WHERE TRUE AND' )>=1 ) {
-						$query_to_use = str_replace( 'WHERE TRUE AND ', 'WHERE TRUE  AND ('.$criteria.') AND ', $query_to_use );
-					} else {
-						$query_to_use = str_replace( 'WHERE', 'WHERE ('.$criteria.') AND ', $query_to_use );
-					}
-					
-					// add restrictions to QUERY, inserting BATCH SET IDs to WHERE statement (using PREG REPLACE to find a WHERE statement NOT inside a sub query)
-					// $query_to_use = preg_replace( '^(?!\\(.*)WHERE(?!.*\\))^', 'WHERE ('.$criteria.') AND', $query_to_use );
-					
-					$results = $this->ModelToSearch->query( $query_to_use ); 
-		    	
-		    	} else {
-					$results = $this->ModelToSearch->find( 'all', array( 'conditions'=>$criteria, 'recursive'=>3 ) );
-				}
-			$this->data = $results; // set for display purposes...
-			
-			$this->layout = false;
-			
-	}
-	
-	
-
 }
 
 ?>

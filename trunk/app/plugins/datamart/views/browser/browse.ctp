@@ -7,7 +7,7 @@
 	if($type == "checklist"){
 		$is_datagrid = true;
 		$links['checklist'] = array(
-				'model.id]['=>'%%'.$checklist_key.'%%'
+				$checklist_key.']['=>'%%'.$checklist_key.'%%'
 		);
 		$links['top'] = $top;
 		$structures->build($result_structure, array('type' => $type, 'links' => $links, 'settings' => array('form_bottom' => false, 'actions' => false, 'pagination' => false, 'form_inputs'=>false)));
@@ -19,21 +19,14 @@
 	$structures->build($atim_structure, array('type' => $type, 'links' => $links, 'data' => array()));
 ?>
 <script type="text/javascript">
+var orgAction = null;
 $(function(){
-
 	<?php if($is_datagrid){ ?>
+	orgAction = $("form").attr("action");
+	
 	$("#submit_button").click(function(){
 		return validateSubmit(false);
 	});
-
-	$(".button.large").parent().append("<span id='exportCSV' class='button large'><a class='form submit'>Create BatchSet</a></span>");
-	$("#exportCSV").click(function(){
-		if(validateSubmit(true)){
-			$("form").attr("action", root_url + "datamart/browser/createBatchSet/<?php echo($parent_node); ?>" );
-			$("#submit_button").unbind("click");
-			$("#submit_button").click();
-		}
-	}); 
 	<?php } //end if is_datagrid ?>
 
 	$('#hierarchy').addClass("jquery_cupertino").menu({
@@ -42,9 +35,16 @@ $(function(){
 		flyOut: true,
 		callback: function(item){
 			var json = getJsonFromClass($(item).attr("class"));
-			if(json != null && json.value.length > 0){
-				$('#hierarchy').find(".label").html(json.label);
-				$('#search_for').val(json.value);
+			if(json != null){
+				if(json.value.length > 0){
+					$('#hierarchy').find(".label").html(json.label);
+					$('#search_for').val(json.value);
+					if(json.action){
+						$("form").attr("action", json.action);
+					}else{
+						$("form").attr("action", orgAction);
+					}
+				}
 			}
 		}
 	});
@@ -61,12 +61,12 @@ function validateSubmit(ignoreSelect){
 	var errors = new Array();
 	if($("#search_for").length == 1 && $("#search_for").val() == "" && !ignoreSelect){
 		//TODO: traduce
-		errors.push("You need to pick a search for");
+		errors.push("<?php __("You need to pick an action"); ?>");
 	}
 	<?php if($is_datagrid){ ?>
 	if($(":checkbox[checked=true]").length == 0){
 		//TODO: traduce
-		errors.push("You need to select at least one item");
+		errors.push("<?php __("You need to select at least one item"); ?>");
 	}
 	<?php } ?>
 	
@@ -90,19 +90,20 @@ if(isset($dropdown_options)){
 <input id="search_for" type="hidden" name="data[Browser][search_for]"/>
 <ul>
 	<?php 
-	function printList($options, $label){
+	function printList($options, $label, $webroot){
 		foreach($options as $option){
 			$curr_label = $label." &gt; ".$option['default'];
-			echo("<li><a href='#' class='{ \"value\" : \"".$option['value']."\", \"label\" : \"".$curr_label."\"}'>".$option['default']."</a>");
+			$action = isset($option['action']) ? ', "action" : "'.$webroot."/".$option['action'].'" ' : "";
+			echo("<li><a href='#' class='{ \"value\" : \"".$option['value']."\", \"label\" : \"".$curr_label."\" ".$action." }'>".$option['default']."</a>");
 			if(isset($option['children'])){
 				echo("<ul>");
-				printList($option['children'], $curr_label);
+				printList($option['children'], $curr_label, $webroot);
 				echo("</ul>");
 			}
 			echo("</li>\n");
 		}		
 	}
-	printList($dropdown_options, "");
+	printList($dropdown_options, "", $this->webroot);
 	?>
 </div>
 <?php } ?>
