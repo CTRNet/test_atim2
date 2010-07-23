@@ -9,6 +9,14 @@
 	}
 	
 	// --------------------------------------------------------------------------------
+	// hepatobiliary-lab-biology : 
+	//   Set participant surgeries list for hepatobiliary-lab-biology.
+	// --------------------------------------------------------------------------------
+	if(isset($surgeries_for_lab_report)) {
+		$final_options['override' ]['EventDetail.surgery_tx_master_id'] = $surgeries_for_lab_report;
+	}
+	
+	// --------------------------------------------------------------------------------
 	// clinical.hepatobiliary.medical imaging *** : 
 	//   Set Imaging Structure (other +/- pancreas +/- Semgments +/- etc)
 	// --------------------------------------------------------------------------------

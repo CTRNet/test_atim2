@@ -90,6 +90,39 @@ class EventMastersControllerCustom extends EventMastersController {
 		}
 	}
 	
+  	/** 
+ 	 * Set participant surgeries list for hepatobiliary-lab-biology.
+ 	 * 
+ 	 * @param $event_control Event control of the created/studied event.
+ 	 * @param $particpant_id
+ 	 **/
+ 	 
+	function setParticipantSurgeriesList( $event_control, $participant_id = null ) { 	
+		$event_type_title = 
+			$event_control['EventControl']['disease_site'].'-'.
+			$event_control['EventControl']['event_group'].'-'.
+			$event_control['EventControl']['event_type'];
+				
+		$pattern = '/^hepatobiliary-lab-biology?/';
+		if(preg_match($pattern, $event_type_title)) { 	
+			if(!isset($this->TreatmentMaster)) {
+				App::import("Model", "Clinicalannotation.TreatmentMaster");
+				$this->TreatmentMaster = new TreatmentMaster();	
+			}
+			
+			$result = array();
+			
+			$criteria = array();
+			if(!is_null($participant_id)) $criteria['TreatmentMaster.participant_id'] = $participant_id;
+			$criteria[] = "TreatmentMaster.tx_method LIKE '%surgery%'";		
+			foreach($this->TreatmentMaster->find('all', array('conditions'=>$criteria, 'order' => 'TreatmentMaster.start_date DESC')) as $new_surgery) {
+				$result[$new_surgery['TreatmentMaster']['id']] = __($new_surgery['TreatmentMaster']['disease_site'], true) . ' - ' . __($new_surgery['TreatmentMaster']['tx_method'], true) . ' ' . $new_surgery['TreatmentMaster']['start_date'];	
+			}
+			
+			$this->set('surgeries_for_lab_report', $result);
+		}
+	}
+	
 	/** 
  	 * Set all required structures according to the imaging report type:
  	 * 	- date & summary

@@ -12,5 +12,11 @@
 	// --------------------------------------------------------------------------------
 	$event_control_data = array('EventControl' => $this->data['EventControl']);
 	$this->setMedicalImaginStructures($event_control_data);
+	
+	// --------------------------------------------------------------------------------
+	// hepatobiliary-lab-biology : 
+	//   Set participant surgeries list for hepatobiliary-lab-biology.
+	// --------------------------------------------------------------------------------
+	$this->setParticipantSurgeriesList($event_control_data, $participant_id);
 
 ?>

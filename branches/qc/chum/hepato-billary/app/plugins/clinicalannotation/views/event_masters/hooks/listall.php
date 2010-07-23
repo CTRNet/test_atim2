@@ -39,5 +39,13 @@
 	if(isset($medical_past_history_precisions)) {
 		$final_options['override' ]['EventDetail.disease_precision'] = $medical_past_history_precisions;
 	}
+	
+	// --------------------------------------------------------------------------------
+	// hepatobiliary-lab-biology : 
+	//   Set participant surgeries list for hepatobiliary-lab-biology.
+	// --------------------------------------------------------------------------------
+	if(isset($surgeries_for_lab_report)) {
+		$final_options['override' ]['EventDetail.surgery_tx_master_id'] = $surgeries_for_lab_report;
+	}
 		
 ?>
