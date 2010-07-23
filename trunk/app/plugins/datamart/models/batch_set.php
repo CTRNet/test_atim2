@@ -37,14 +37,14 @@ class BatchSet extends DatamartAppModel {
 		
 		// information about USER's batch sets
 		else {
-			
+			$name = $_SESSION['Auth']['User']['first_name']." ".$_SESSION['Auth']['User']['last_name'];
 			$return = array(
 				'Summary' => array(
-					'menu'			=>	array( NULL, $_SESSION['Auth']['User']['name'] ),
+					'menu'			=>	array( NULL, $name ),
 					'title'			=>	array( NULL, 'Batch Sets' ),
 					
 					'description'	=>	array(
-						'filter'			=>	$_SESSION['Auth']['User']['name']
+						'filter'			=>	$name
 					)
 				)
 			);
