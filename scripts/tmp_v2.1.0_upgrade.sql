@@ -123,7 +123,7 @@ INSERT INTO datamart_browsing_structures (`id`, `plugin`, `model`, `structure_al
 (3, 'Storagelayout', 'StorageMaster', 'storagemasters', 'storages', 'id'),
 (4, 'Clinicalannotation', 'Participant', 'participants', 'participants', 'id'),
 (5, 'Inventorymanagement', 'ViewSample', 'view_sample_joined_to_collection', 'samples', 'sample_master_id'),
-(6, 'Clinicalannotation', 'MiscIdentifier', 'miscidentifierssummary', 'identification', 'id'),
+(6, 'Clinicalannotation', 'MiscIdentifier', 'miscidentifierssummary', 'identification', 'id');
 
 INSERT INTO datamart_browsing_controls(`id1`, `id2`, `use_field`) VALUES
 (1, 3, 'ViewAliquot.storage_master_id'),
@@ -152,7 +152,7 @@ CREATE TABLE datamart_browsing_results(
   `modified` datetime DEFAULT NULL,
   `modified_by` int(10) unsigned NOT NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `deleted_date` datetime DEFAULT NULL,
+  `deleted_date` datetime DEFAULT NULL
 #UNIQUE KEY (`user_id`, `parent_node_id`, `browsing_structures_id`, `id_csv`(200))
 )Engine=InnoDb;
 
