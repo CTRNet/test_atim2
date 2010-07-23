@@ -4,8 +4,7 @@ class ProtocolMastersController extends ProtocolAppController {
 
 	var $uses = array(
 		'Protocol.ProtocolControl', 
-		'Protocol.ProtocolMaster', 
-		'Protocol.ProtocolExtend');
+		'Protocol.ProtocolMaster');
 		
 	var $paginate = array('ProtocolMaster'=>array('limit' => pagination_amount,'order'=>'ProtocolMaster.code DESC'));
 	
@@ -95,7 +94,7 @@ class ProtocolMastersController extends ProtocolAppController {
 		
 		if ( empty($this->data) ) {
 			$this->data = $protocol_data;
-			$is_used = $this->ProtocolMaster->isUsedByTreatment($protocol_master_id, $protocol_data['ProtocolControl']['extend_tablename']);
+			$is_used = $this->ProtocolMaster->isLinkedToTreatment($protocol_master_id);
 			if($is_used['is_used']){
 				$this->ProtocolMaster->validationErrors[] = __('warning', true).": ".__($is_used['msg'], true).".";
 			}
@@ -120,7 +119,7 @@ class ProtocolMastersController extends ProtocolAppController {
 		$protocol_data = $this->ProtocolMaster->find('first',array('conditions'=>array('ProtocolMaster.id'=>$protocol_master_id)));
 		if(empty($protocol_data)) { $this->redirect( '/pages/err_pro_no_data', null, true ); }	
 			
-		$is_used = $this->ProtocolMaster->isUsedByTreatment($protocol_master_id, $protocol_data['ProtocolControl']['extend_tablename']);
+		$is_used = $this->ProtocolMaster->isLinkedToTreatment($protocol_master_id);
 				
 		// CUSTOM CODE		
 		$hook_link = $this->hook('delete');

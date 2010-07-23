@@ -431,8 +431,6 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ("you need to select at least one item", "You need to select at least one item", "Vous devez sélectionner au moins un item"),
 ("you cannot browse to the requested entities because some intermediary elements do not exist", "You cannot browse to the requested entities because some intermediary elements do not exist", "Vous ne pouvez pas naviguer aux entités demandées car certains éléments intermédiares n'existent pas");
 
-
-
 INSERT INTO `pages` (`id` ,`error_flag` ,`language_title` ,`language_body` ,`use_link` ,`created` ,`created_by` ,`modified` ,`modified_by`) VALUES 
 ('err_model_import_failed', '1', 'model import failed', 'the import for model [%1$s] failed', '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 ('err_internal', '1', 'internal error', 'an internal error was found on [%1$s]', '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
@@ -441,3 +439,86 @@ INSERT INTO `pages` (`id` ,`error_flag` ,`language_title` ,`language_body` ,`use
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('permission control panel', 'Permission Control Panel', 'Panneau de contrôle des permissions'),
 ('note: permission changes will not take effect until the user logs out of the system.', 'NOTE: Permission changes will not take effect until the user logs out of the system.', "NOTE: L'utilisateur doit se déconnecter avant que le changement de permission entre en vigueur.");
+
+-- Modiy Protocol tools and treatment according to new business rules
+
+CREATE TABLE IF NOT EXISTS `pd_surgeries` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `protocol_master_id` int(11) DEFAULT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK_pd_chemos_protocol_masters` (`protocol_master_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE `pd_surgeries`
+  ADD CONSTRAINT `FK_pd_surgeries_protocol_masters` FOREIGN KEY (`protocol_master_id`) REFERENCES `protocol_masters` (`id`);
+
+CREATE TABLE IF NOT EXISTS `pd_surgeries_revs` (
+  `id` int(11) NOT NULL,
+  `created` datetime DEFAULT NULL,
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `protocol_master_id` int(11) DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE `protocol_controls` 
+	CHANGE `extend_tablename` `extend_tablename` VARCHAR( 255 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL ,
+	CHANGE `extend_form_alias` `extend_form_alias` VARCHAR( 255 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL;
+
+INSERT INTO `protocol_controls` (`id`, `tumour_group`, `type`, `detail_tablename`, `form_alias`, `extend_tablename`, `extend_form_alias`, `created`, `created_by`, `modified`, `modified_by`, `flag_active`) 
+VALUES
+(null, 'all', 'surgery', 'pd_surgeries', 'pd_surgeries', null, null, NULL, 0, NULL, 0, 1);
+
+INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('pd_surgeries', '', '', '1', '1', '1', '1');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='pd_surgeries'),
+(SELECT id FROM structure_fields WHERE `model`='ProtocolMaster' AND `tablename`='protocol_masters' AND `field`='name' AND `language_label`='name' AND `language_tag`='' AND `type`='input' AND `setting`='size=30' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='pd_surgeries'),
+(SELECT id FROM structure_fields WHERE `model`='ProtocolMaster' AND `tablename`='protocol_masters' AND `field`='notes' AND `language_label`='notes' AND `language_tag`='' AND `type`='textarea' AND `setting`='cols=40,rows=6' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '99', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='pd_surgeries'),
+(SELECT id FROM structure_fields WHERE `model`='ProtocolMaster' AND `tablename`='protocol_masters' AND `field`='code' AND `language_label`='code' AND `language_tag`='' AND `type`='input' AND `setting`='size=20' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '1', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='pd_surgeries'),
+(SELECT id FROM structure_fields WHERE `model`='ProtocolMaster' AND `tablename`='protocol_masters' AND `field`='tumour_group' AND `language_label`='tumour group' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='protocol tumour group')  AND `language_help`=''), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='pd_surgeries'),
+(SELECT id FROM structure_fields WHERE `model`='ProtocolMaster' AND `tablename`='protocol_masters' AND `field`='type' AND `language_label`='type' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='protocol type')  AND `language_help`=''), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '1', '1');
+
+UPDATE menus SET language_title = 'precision', language_description = 'precision' WHERE id = 'proto_CAN_83';
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('no additional data has to be defined for this type of protocol', '', 'No additional data has to be defined for this type of protocol!', 'Pas de données additionnelles pour ce type de protocole!');
+
+ALTER TABLE `tx_controls` 
+	CHANGE `extend_tablename` `extend_tablename` VARCHAR( 255 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL ,
+	CHANGE `extend_form_alias` `extend_form_alias` VARCHAR( 255 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL;
+
+INSERT INTO `tx_controls` (`id`, `tx_method`, `disease_site`, `flag_active`, `detail_tablename`, `form_alias`, `extend_tablename`, `extend_form_alias`, `display_order`, `allow_administration`) VALUES
+(null, 'surgery without extend', 'all', 1, 'txd_surgeries', 'txd_surgeries', null, null, 0, 0);
+
+ALTER TABLE `tx_controls` 
+	ADD `applied_protocol_control_id` int(11) DEFAULT NULL AFTER `display_order`,
+  	ADD CONSTRAINT `FK_tx_controls_protocol_controls` FOREIGN KEY (`applied_protocol_control_id`) REFERENCES `protocol_controls` (`id`);
+  	
+UPDATE `tx_controls`
+	SET applied_protocol_control_id = (SELECT id FROM protocol_controls WHERE tumour_group = 'all' AND type = 'chemotherapy') WHERE tx_method = 'chemotherapy' AND disease_site = 'all';
+	
+UPDATE `tx_controls`
+	SET applied_protocol_control_id = (SELECT id FROM protocol_controls WHERE tumour_group = 'all' AND type = 'surgery') WHERE tx_method IN ('surgery', 'surgery without extend') AND disease_site = 'all';
+
+ALTER TABLE `tx_controls` 
+	DROP `allow_administration`,
+	ADD `extended_data_import_process` varchar(50) DEFAULT NULL AFTER `applied_protocol_control_id`;
+	
+UPDATE `tx_controls`
+	SET extended_data_import_process = 'importDrugFromChemoProtocol' WHERE tx_method = 'chemotherapy' AND disease_site = 'all';

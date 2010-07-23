@@ -7,7 +7,8 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		'Clinicalannotation.TreatmentMaster', 
 		'Clinicalannotation.TreatmentExtend',
 		'Clinicalannotation.TreatmentControl', 
-		'Clinicalannotation.DiagnosisMaster'
+		'Clinicalannotation.DiagnosisMaster',
+		'Protocol.ProtocolMaster'
 	);
 	
 	var $paginate = array('TreatmentMaster'=>array('limit' => pagination_amount,'order'=>'TreatmentMaster.start_date DESC'));
@@ -75,6 +76,14 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		$treatment_master_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id, 'TreatmentMaster.participant_id'=>$participant_id)));
 		if(empty($treatment_master_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }		
 
+		if(!empty($treatment_master_data['TreatmentControl']['applied_protocol_control_id'])) {
+			$available_protocols = array();
+			foreach($this->ProtocolMaster->getProtocolPermissibleValuesFromId($treatment_master_data['TreatmentControl']['applied_protocol_control_id']) as $new_available_protocol) {
+				$available_protocols[$new_available_protocol['value']] = $new_available_protocol['default'];
+			}
+			$this->set('available_protocols', $available_protocols);
+		}
+		
 		// Set diagnosis data for diagnosis selection (radio button)
 		$dx_data = $this->DiagnosisMaster->find('all', array('conditions'=>array('DiagnosisMaster.participant_id'=>$participant_id)));
 		foreach($dx_data as &$dx_tmp_data){
@@ -126,14 +135,22 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 	
 	function add($participant_id=null, $treatment_control_id=null) {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
-
+		
 		// MANAGE DATA
 		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
 		if(empty($participant_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
 		
 		$tx_control_data = $this->TreatmentControl->find('first',array('conditions'=>array('TreatmentControl.id'=>$treatment_control_id)));
 		if(empty($tx_control_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
-		
+
+		if(!empty($tx_control_data['TreatmentControl']['applied_protocol_control_id'])) {
+			$available_protocols = array();
+			foreach($this->ProtocolMaster->getProtocolPermissibleValuesFromId($tx_control_data['TreatmentControl']['applied_protocol_control_id']) as $new_available_protocol) {
+				$available_protocols[$new_available_protocol['value']] = $new_available_protocol['default'];
+			}
+			$this->set('available_protocols', $available_protocols);
+		}
+
 		$this->set('initial_display', (empty($this->data)? true : false));
 			
 		// Set diagnosis data for diagnosis selection (radio button)
@@ -232,9 +249,11 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 	 */
 	 
 	function allowTrtDeletion($tx_master_id, $tx_extend_tablename){
-		$this->TreatmentExtend = new TreatmentExtend( false, $tx_extend_tablename);
-		$nbr_extends = $this->TreatmentExtend->find('count', array('conditions'=>array('TreatmentExtend.tx_master_id'=>$tx_master_id), 'recursive' => '-1'));
-		if ($nbr_extends > 0) { return array('allow_deletion' => false, 'msg' => 'at least one drug is defined as treatment component'); }
+		if(!empty($tx_extend_tablename)) {
+			$this->TreatmentExtend = new TreatmentExtend( false, $tx_extend_tablename);
+			$nbr_extends = $this->TreatmentExtend->find('count', array('conditions'=>array('TreatmentExtend.tx_master_id'=>$tx_master_id), 'recursive' => '-1'));
+			if ($nbr_extends > 0) { return array('allow_deletion' => false, 'msg' => 'at least one drug is defined as treatment component'); }
+		}
 		
 		return array('allow_deletion' => true, 'msg' => '');
 	}

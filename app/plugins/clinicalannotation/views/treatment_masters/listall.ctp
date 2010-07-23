@@ -5,7 +5,7 @@
 	foreach ( $treatment_controls as $treatment_control ) {
 		$trt_header = __($treatment_control['TreatmentControl']['disease_site'], true) . ' - ' . __($treatment_control['TreatmentControl']['tx_method'], true);
 		$add_links[$trt_header] = '/clinicalannotation/treatment_masters/add/'.$atim_menu_variables['Participant.id'].'/'.$treatment_control['TreatmentControl']['id'];
-		$filter_links[$trt_header] = '/clinicalannotation/treatment_masters/listall/'.$atim_menu_variables['EventMaster.event_group'].'/'.$atim_menu_variables['Participant.id'].'/'.$treatment_control['TreatmentControl']['id'];
+		$filter_links[$trt_header] = '/clinicalannotation/treatment_masters/listall/'.$atim_menu_variables['Participant.id'].'/'.$treatment_control['TreatmentControl']['id'];
 	}
 	if(empty($add_links)){
 		$add_links = '/underdev/';
