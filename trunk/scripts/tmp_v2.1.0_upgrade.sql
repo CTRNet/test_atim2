@@ -21,7 +21,8 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ("paste on all lines", "Paste on all lines", "Coller sur toutes les lignes"),
 ("or", "or", "ou"),
 ("range", "range", "intervalle"),
-("specific", "specific", "spécifique");
+("specific", "specific", "spécifique"),
+("no storage", "No storage", "Pas d'entreposage");
 
 INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('realiquot_with_volume', '', '', '1', '1', '1', '1');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
@@ -429,7 +430,17 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ("action", "Action", "Action"),
 ("you must select an action", "You must select an action", "Vous devez sélectionner une action"),
 ("you need to select at least one item", "You need to select at least one item", "Vous devez sélectionner au moins un item"),
-("you cannot browse to the requested entities because some intermediary elements do not exist", "You cannot browse to the requested entities because some intermediary elements do not exist", "Vous ne pouvez pas naviguer aux entités demandées car certains éléments intermédiares n'existent pas");
+("you cannot browse to the requested entities because some intermediary elements do not exist", "You cannot browse to the requested entities because some intermediary elements do not exist", "Vous ne pouvez pas naviguer aux entités demandées car certains éléments intermédiares n'existent pas"),
+("language", "Language", "Langue"),
+("language preferred", "Language preferred", "Langue préférée"),
+("address", "Address", "Adresse"),
+("contacts", "Contacts", "Contacts"),
+("tmp on ice", "Transported on ice", "Transporté sur glace");
+("see parent storage", "Parent storage", "Entreposage parent"),
+("storage", "Storage", "Entreposage"),
+("save", "Save", "Enregistrer");
+
+
 
 INSERT INTO `pages` (`id` ,`error_flag` ,`language_title` ,`language_body` ,`use_link` ,`created` ,`created_by` ,`modified` ,`modified_by`) VALUES 
 ('err_model_import_failed', '1', 'model import failed', 'the import for model [%1$s] failed', '', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
@@ -439,6 +450,13 @@ INSERT INTO `pages` (`id` ,`error_flag` ,`language_title` ,`language_body` ,`use
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('permission control panel', 'Permission Control Panel', 'Panneau de contrôle des permissions'),
 ('note: permission changes will not take effect until the user logs out of the system.', 'NOTE: Permission changes will not take effect until the user logs out of the system.', "NOTE: L'utilisateur doit se déconnecter avant que le changement de permission entre en vigueur.");
+
+
+-- Replace "street" to "address"
+UPDATE structure_fields SET  `language_label`='address' WHERE model='ParticipantContact' AND tablename='participant_contacts' AND field='street';
+UPDATE structure_fields SET  `language_label`='address' WHERE model='User' AND tablename='users' AND field='street';
+
+UPDATE `menus` SET `language_title` = 'contacts', `language_description` = 'contacts' WHERE `menus`.`id` = 'clin_CAN_26';
 
 -- Modiy Protocol tools and treatment according to new business rules
 
