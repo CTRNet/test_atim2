@@ -106,7 +106,7 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 			if( $hook_link ) { require($hook_link); }
 			
 			if ($submitted_data_validates && $this->TreatmentExtend->save( $this->data ) ) {
-				$this->flash( 'your data has been saved', '/clinicalannotation/treatment_extends/listall/'.$participant_id.'/'.$tx_master_id );
+				$this->atimFlash( 'your data has been saved', '/clinicalannotation/treatment_extends/listall/'.$participant_id.'/'.$tx_master_id );
 			}
 		} 
 	}
@@ -147,7 +147,7 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 			
 			$this->TreatmentExtend->id = $tx_extend_id;
 			if ($submitted_data_validates && $this->TreatmentExtend->save($this->data)) {
-				$this->flash( 'your data has been updated','/clinicalannotation/treatment_extends/detail/'.$participant_id.'/'.$tx_master_id.'/'.$tx_extend_id);
+				$this->atimFlash( 'your data has been updated','/clinicalannotation/treatment_extends/detail/'.$participant_id.'/'.$tx_master_id.'/'.$tx_extend_id);
 			}
 		}
 	}
@@ -180,7 +180,7 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 				
 		if($arr_allow_deletion['allow_deletion']) {		
 			if( $this->TreatmentExtend->atim_delete( $tx_extend_id ) ) {
-				$this->flash( 'your data has been deleted', '/clinicalannotation/treatment_extends/listall/'.$participant_id.'/'.$tx_master_id);
+				$this->atimFlash( 'your data has been deleted', '/clinicalannotation/treatment_extends/listall/'.$participant_id.'/'.$tx_master_id);
 			} else {
 				$this->flash( 'error deleting data - contact administrator', '/clinicalannotation/treatment_extends/listall/'.$participant_id.'/'.$tx_master_id);
 			}	
@@ -234,7 +234,7 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 						'dose' => $prot_extend['ProtocolExtend']['dose']);
 				}
 				if($this->TreatmentExtend->saveAll($data)){
-					$this->flash( 'drugs from the associated protocol were imported', '/clinicalannotation/treatment_extends/listall/'.$participant_id.'/'.$tx_master_id);
+					$this->atimFlash( 'drugs from the associated protocol were imported', '/clinicalannotation/treatment_extends/listall/'.$participant_id.'/'.$tx_master_id);
 				}else{
 					$this->flash( 'unknown error', '/clinicalannotation/treatment_extends/listall/'.$participant_id.'/'.$tx_master_id);
 				}

@@ -140,7 +140,7 @@ class TmaSlidesController extends StoragelayoutAppController {
 			if($submitted_data_validates) {
 				// Save data	
 				if ($this->TmaSlide->save($this->data)) {
-					$this->flash('your data has been saved', '/storagelayout/tma_slides/listAll/' . $tma_block_storage_master_id);				
+					$this->atimFlash('your data has been saved', '/storagelayout/tma_slides/listAll/' . $tma_block_storage_master_id);				
 				}
 			}
 		}
@@ -290,7 +290,7 @@ class TmaSlidesController extends StoragelayoutAppController {
 				// Save tma slide data
 				$this->TmaSlide->id = $tma_slide_id;		
 				if($this->TmaSlide->save($this->data)) { 				
-					$this->flash('your data has been updated', '/storagelayout/tma_slides/detail/' . $tma_block_storage_master_id . '/' . $tma_slide_id); 
+					$this->atimFlash('your data has been updated', '/storagelayout/tma_slides/detail/' . $tma_block_storage_master_id . '/' . $tma_slide_id); 
 				}
 			}	
 		}
@@ -323,7 +323,7 @@ class TmaSlidesController extends StoragelayoutAppController {
 		if($arr_allow_deletion['allow_deletion']) {
 			// Delete tma slide
 			if($this->TmaSlide->atim_delete($tma_slide_id)) {
-				$this->flash('your data has been deleted', '/storagelayout/tma_slides/listAll/' . $tma_block_storage_master_id);
+				$this->atimFlash('your data has been deleted', '/storagelayout/tma_slides/listAll/' . $tma_block_storage_master_id);
 			} else {
 				$this->flash('error deleting data - contact administrator', '/storagelayout/tma_slides/detail/' . $tma_block_storage_master_id . '/' . $tma_slide_id);
 			}		

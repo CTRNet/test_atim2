@@ -25,7 +25,7 @@ class BrowserController extends DatamartAppController {
 			$this->BrowsingIndex->id = $index_id;
 			unset($this->data['BrowsingIndex']['created']);
 			$this->BrowsingIndex->save($this->data);
-			$this->flash('your data has been updated', "/datamart/browser/index");
+			$this->atimFlash('your data has been updated', "/datamart/browser/index");
 		}
 	}
 	
@@ -33,7 +33,7 @@ class BrowserController extends DatamartAppController {
 		$this->data = $this->BrowsingIndex->find('first', array('conditions' => array('BrowsingIndex.id' => $index_id, "BrowsingResult.user_id" => $_SESSION['Auth']['User']['id'])));
 		if(!empty($this->data)){
 			$this->BrowsingIndex->atim_delete($index_id);
-			$this->flash( 'your data has been deleted', '/datamart/browser/index/');
+			$this->atimFlash( 'your data has been deleted', '/datamart/browser/index/');
 		} else {
 			$this->flash( 'error deleting data - contact administrator', '/datamart/browser/index/');
 		}
@@ -141,7 +141,7 @@ class BrowserController extends DatamartAppController {
 				
 				$model_to_import = $browsing['BrowsingStructure']['plugin'].".".$browsing['BrowsingStructure']['model'];
 				if(!App::import('Model', $model_to_import)){
-					$this->flash("A model import error occured", "/datamart/browser/index/");
+					$this->redirect( '/pages/err_model_import_failed?p[]='.$model_to_import, NULL, TRUE );
 				}
 				$this->ModelToSearch = new $browsing['BrowsingStructure']['model'];
 				$search_conditions = $this->Structures->parse_search_conditions($result_structure);

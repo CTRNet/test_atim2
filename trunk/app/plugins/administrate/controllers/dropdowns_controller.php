@@ -50,7 +50,7 @@ class DropdownsController extends AdministrateAppController {
 						$this->StructurePermissibleValuesCustom->save($data_unit);
 					}
 				}
-				$this->flash(__('your data has been updated', true), '/administrate/dropdowns/view/'.$control_id);
+				$this->atimFlash('your data has been updated', '/administrate/dropdowns/view/'.$control_id);
 			}
 		}
 	}

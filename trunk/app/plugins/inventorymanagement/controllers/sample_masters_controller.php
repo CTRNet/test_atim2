@@ -609,7 +609,7 @@ class SampleMastersController extends InventorymanagementAppController {
 						if(!$this->DerivativeDetail->save($this->data['DerivativeDetail'], false)) { $this->redirect('/pages/err_inv_system_error', null, true); }
 					}						
 					
-					$this->flash('your data has been saved', '/inventorymanagement/sample_masters/detail/' . $collection_id . '/' . $sample_master_id);	
+					$this->atimFlash('your data has been saved', '/inventorymanagement/sample_masters/detail/' . $collection_id . '/' . $sample_master_id);	
 				}					
 			}			
 		}
@@ -728,7 +728,7 @@ class SampleMastersController extends InventorymanagementAppController {
 						}
 					}
 
-					$this->flash('your data has been updated', '/inventorymanagement/sample_masters/detail/' . $collection_id . '/' . $sample_master_id);		
+					$this->atimFlash('your data has been updated', '/inventorymanagement/sample_masters/detail/' . $collection_id . '/' . $sample_master_id);		
 				}				
 			}
 		}
@@ -777,7 +777,7 @@ class SampleMastersController extends InventorymanagementAppController {
 			}
 			
 			if($deletion_done) {
-				$this->flash('your data has been deleted', '/inventorymanagement/sample_masters/contentTreeView/' . $collection_id);
+				$this->atimFlash('your data has been deleted', '/inventorymanagement/sample_masters/contentTreeView/' . $collection_id);
 			} else {
 				$this->flash('error deleting data - contact administrator', '/inventorymanagement/sample_masters/contentTreeView/' . $collection_id);
 			}

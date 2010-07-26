@@ -127,7 +127,7 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 			if($submitted_data_validates) {
 				$this->TreatmentMaster->id = $tx_master_id;
 				if ($this->TreatmentMaster->save($this->data)) {
-					$this->flash( 'your data has been updated','/clinicalannotation/treatment_masters/detail/'.$participant_id.'/'.$tx_master_id);
+					$this->atimFlash( 'your data has been updated','/clinicalannotation/treatment_masters/detail/'.$participant_id.'/'.$tx_master_id);
 				}
 			}
 		}
@@ -200,7 +200,7 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 
 			if($submitted_data_validates) {
 				if ( $this->TreatmentMaster->save($this->data) ) {
-					$this->flash( 'your data has been saved','/clinicalannotation/treatment_masters/detail/'.$participant_id.'/'.$this->TreatmentMaster->getLastInsertId());
+					$this->atimFlash( 'your data has been saved','/clinicalannotation/treatment_masters/detail/'.$participant_id.'/'.$this->TreatmentMaster->getLastInsertId());
 				}
 			}
 		 }
@@ -221,7 +221,7 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		
 		if ($arr_allow_deletion['allow_deletion']) {
 			if( $this->TreatmentMaster->atim_delete( $tx_master_id ) ) {
-				$this->flash( 'your data has been deleted', '/clinicalannotation/treatment_masters/listall/'.$participant_id );
+				$this->atimFlash( 'your data has been deleted', '/clinicalannotation/treatment_masters/listall/'.$participant_id );
 			} else {
 				$this->flash( 'error deleting data - contact administrator', '/clinicalannotation/treatment_masters/listall/'.$participant_id );
 			}

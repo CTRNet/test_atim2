@@ -152,7 +152,7 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 			
 				// Save data
 				if ( $this->MiscIdentifier->save($this->data) ) {
-					$this->flash( 'your data has been saved','/clinicalannotation/misc_identifiers/detail/'.$participant_id.'/'.$this->MiscIdentifier->id );
+					$this->atimFlash( 'your data has been saved','/clinicalannotation/misc_identifiers/detail/'.$participant_id.'/'.$this->MiscIdentifier->id );
 				}
 			}
 		}
@@ -202,7 +202,7 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 			if($submitted_data_validates) {
 				$this->MiscIdentifier->id = $misc_identifier_id;
 				if ( $this->MiscIdentifier->save($this->data) ) {
-					$this->flash( 'your data has been updated','/clinicalannotation/misc_identifiers/detail/'.$participant_id.'/'.$misc_identifier_id );
+					$this->atimFlash( 'your data has been updated','/clinicalannotation/misc_identifiers/detail/'.$participant_id.'/'.$misc_identifier_id );
 				}
 			}
 		}
@@ -223,7 +223,7 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 		
 		if($arr_allow_deletion['allow_deletion']) {
 			if( $this->MiscIdentifier->atim_delete( $misc_identifier_id ) ) {
-				$this->flash( 'your data has been deleted', '/clinicalannotation/misc_identifiers/listall/'.$participant_id );
+				$this->atimFlash( 'your data has been deleted', '/clinicalannotation/misc_identifiers/listall/'.$participant_id );
 			} else {
 				$this->flash( 'error deleting data - contact administrator', '/clinicalannotation/misc_identifiers/listall/'.$participant_id );
 			}	

@@ -75,7 +75,7 @@ class PreferencesController extends CustomizeAppController {
 				$this->User->save($this->data);
 				$this->Config->save($this->data);
 				
-				$this->flash( 'your data has been updated','/customize/preferences/index' );
+				$this->atimFlash( 'your data has been updated','/customize/preferences/index' );
 			}
 			
 		} else {

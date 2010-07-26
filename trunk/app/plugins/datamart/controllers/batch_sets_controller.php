@@ -233,7 +233,7 @@ class BatchSetsController extends DatamartAppController {
 		
 		if ( !empty($this->data) ) {
 			$this->BatchSet->id = $batch_set_id;
-			if ( $this->BatchSet->save($this->data) ) $this->flash( 'your data has been updated','/datamart/batch_sets/listall/'.$type_of_list.'/'.$batch_set_id );
+			if ( $this->BatchSet->save($this->data) ) $this->atimFlash( 'your data has been updated','/datamart/batch_sets/listall/'.$type_of_list.'/'.$batch_set_id );
 		} else {
 			$this->data = $this->BatchSet->find('first',array('conditions'=>array('BatchSet.id'=>$batch_set_id)));
 		}
@@ -241,7 +241,7 @@ class BatchSetsController extends DatamartAppController {
 	
 	function delete( $type_of_list='all', $batch_set_id=0 ) {
 		$this->BatchSet->delete( $batch_set_id );
-		$this->flash( 'your data has been deleted', '/datamart/batch_sets/index' );
+		$this->atimFlash( 'your data has been deleted', '/datamart/batch_sets/index' );
 	}
 	
 	function remove($batch_set_id) {

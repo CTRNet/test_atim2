@@ -134,7 +134,7 @@ class CollectionsController extends InventorymanagementAppController {
 					}else if(!$this->ClinicalCollectionLink->save(array('ClinicalCollectionLink' => array('collection_id' => $collection_id)))) {
 						$this->redirect('/pages/err_inv_record_err', null, true); 
 					}
-					$this->flash('your data has been saved', '/inventorymanagement/collections/detail/' . $collection_id);
+					$this->atimFlash('your data has been saved', '/inventorymanagement/collections/detail/' . $collection_id);
 				}				
 			}
 		}
@@ -199,7 +199,7 @@ class CollectionsController extends InventorymanagementAppController {
 			
 				$this->Collection->id = $collection_id;
 				if ($this->Collection->save($this->data)) {
-					$this->flash('your data has been updated', '/inventorymanagement/collections/detail/' . $collection_id);
+					$this->atimFlash('your data has been updated', '/inventorymanagement/collections/detail/' . $collection_id);
 				}
 			}
 		}
@@ -225,7 +225,7 @@ class CollectionsController extends InventorymanagementAppController {
 		if($arr_allow_deletion['allow_deletion']) {
 			// Delete collection			
 			if($this->Collection->atim_delete($collection_id, true)) {
-				$this->flash('your data has been deleted', '/inventorymanagement/collections/index/');
+				$this->atimFlash('your data has been deleted', '/inventorymanagement/collections/index/');
 			} else {
 				$this->flash('error deleting data - contact administrator', '/inventorymanagement/collections/index/');
 			}		
