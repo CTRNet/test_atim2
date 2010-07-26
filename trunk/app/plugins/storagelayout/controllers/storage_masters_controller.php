@@ -1139,6 +1139,11 @@ class StorageMastersController extends StoragelayoutAppController {
 	}
 	
 	function autocompleteLabel(){
+		//layout = ajax to avoid printing layout
+		$this->layout = 'ajax';
+		//debug = 0 to avoid printing debug queries that would break the javascript array
+		Configure::write('debug', 0);
+		
 		//query the database
 		$storage_masters = $this->StorageMaster->find('all', array(
 			'conditions' => array(
@@ -1157,11 +1162,6 @@ class StorageMastersController extends StoragelayoutAppController {
 			$result = substr($result, 0, -2);
 		}
 		$this->set('result', "[".$result."]");
-		
-		//layout = ajax to avoid printing layout
-		$this->layout = 'ajax';
-		//debug = 0 to avoid printing debug queries that would break the javascript array
-		Configure::write('debug', 0);
 	}
 	
 	function getLabel($children_array, $type_key, $label_key){
