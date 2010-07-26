@@ -435,7 +435,7 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ("language preferred", "Language preferred", "Langue préférée"),
 ("address", "Address", "Adresse"),
 ("contacts", "Contacts", "Contacts"),
-("tmp on ice", "Transported on ice", "Transporté sur glace");
+("tmp on ice", "Transported on ice", "Transporté sur glace"),
 ("see parent storage", "Parent storage", "Entreposage parent"),
 ("storage", "Storage", "Entreposage"),
 ("save", "Save", "Enregistrer");
