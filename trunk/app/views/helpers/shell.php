@@ -146,8 +146,8 @@ class ShellHelper extends Helper {
 		}
 		
 		// display any VALIDATION ERRORS
+		$display_errors_html = null;
 		if ( isset($this->validationErrors) && count($this->validationErrors) ) {
-			
 			$display_errors = array();
 			foreach ( $this->validationErrors as $model ) {
 				foreach ( $model as $field ) {
@@ -156,19 +156,25 @@ class ShellHelper extends Helper {
 					';
 				}
 			}
-			
-			$return .= '
-				<!-- start #validation -->
-				<div id="validation">
-					<ul>
+			$display_errors_html = 
+					'<ul class="error">
 						'.implode('',array_unique($display_errors)).'
-					</ul>
-				</div>
-				<!-- end #validation -->
-			';
-			
+					</ul>';
 		}
-		
+		$confirm_msg_html = null;
+		if(isset($_SESSION['ctrapp_core']['confirm_msg'])){
+			$confirm_msg_html = '<ul class="confirm"><li>'.$_SESSION['ctrapp_core']['confirm_msg'].'</li></ul>';
+			unset($_SESSION['ctrapp_core']['confirm_msg']);
+		}
+		if($display_errors_html != null || $confirm_msg_html != null){
+		$return .= '
+			<!-- start #validation -->
+			<div id="validation">
+				'.$display_errors_html.$confirm_msg_html.'
+			</div>
+			<!-- end #validation -->
+			';
+		}
 		$return .= '	
 			<!-- start #wrapper -->
 			<div id="wrapper" class="wrapper plugin_'.( isset($this->params['plugin']) ? $this->params['plugin'] : 'none' ).' controller_'.$this->params['controller'].' action_'.$this->params['action'].'">
