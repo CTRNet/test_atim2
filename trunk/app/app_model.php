@@ -136,7 +136,7 @@ class AppModel extends Model {
 		//we replace the comma "," for a dot "." when the field validation is a number - usefull for international radix
 		foreach($this->validate as $field => $rules_arr){
 			foreach($rules_arr as $rule){
-				if(strlen($this->data[$this->name][$field]) > 0 && ($rule['rule'] == VALID_FLOAT || $rule['rule'] == VALID_FLOAT_POSITIVE)){
+					if(isset($this->data[$this->name][$field]) && strlen($this->data[$this->name][$field]) > 0 && ($rule['rule'] == VALID_FLOAT || $rule['rule'] == VALID_FLOAT_POSITIVE)){
 					$this->data[$this->name][$field] = str_replace(",", ".", $this->data[$this->name][$field]);
 					if(is_numeric($this->data[$this->name][$field]) && strpos($this->data[$this->name][$field], ".") === 0){
 						$this->data[$this->name][$field] = "0".$this->data[$this->name][$field];
