@@ -34,9 +34,9 @@
 
 	// Manage search button	
 	$search_type_links = array();
-	$search_type_links['collections'] = '/inventorymanagement/collections/index/';
-	$search_type_links['samples'] = '/inventorymanagement/sample_masters/index/';
-	$search_type_links['aliquots'] = '/inventorymanagement/aliquot_masters/index/';
+	$search_type_links['collections'] = array('link'=> '/inventorymanagement/collections/index/', 'icon' => 'search');
+	$search_type_links['samples'] = array('link'=> '/inventorymanagement/sample_masters/index/', 'icon' => 'search');
+	$search_type_links['aliquots'] = array('link'=> '/inventorymanagement/aliquot_masters/index/', 'icon' => 'search');
 	
 	$detail_link = ($model_to_use == 'ViewSample')? 
 		'/inventorymanagement/sample_masters/detail/%%ViewSample.collection_id%%/%%ViewSample.sample_master_id%%': 
@@ -49,7 +49,7 @@
 		'bottom' => array(
 			'add' => $add_links,
 			'filter' => $filter_links,
-			'new search type' => $search_type_links
+			'new search' => $search_type_links
 		)
 	);
 	

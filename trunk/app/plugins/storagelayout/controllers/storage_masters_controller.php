@@ -598,7 +598,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		if($storage_master_id){
 			$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
 			if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }
-			$storage_content = $this->StorageTreeView->find('threaded', array('conditions' => array('StorageTreeView.lft >=' => $storage_data['StorageMaster']['lft'], 'StorageTreeView.rght <=' => $storage_data['StorageMaster']['rght'])));
+			$storage_content = $this->StorageTreeView->find('threaded', array('conditions' => array('StorageTreeView.lft >=' => $storage_data['StorageMaster']['lft'], 'StorageTreeView.rght <=' => $storage_data['StorageMaster']['rght']), 'contain' => array('AliquotMaster', 'TmaSlide' => array('Block')), 'recursive' => '2'));
 			$storage_content = $this->formatStorageTreeView($storage_content);
 			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/contentTreeView/%%StorageMaster.id%%');
 		}else{
@@ -674,8 +674,9 @@ class StorageMastersController extends StoragelayoutAppController {
 			
 			// 2-Add storage TMA slides
 			foreach ($new_storage['TmaSlide'] as $slide) {
-				$slide['Generated']['tma_block_identification'] = $slide['Block']['barcode'];
-				$formatted_data[$key]['children'][]['TmaSlide'] = $slide; 
+				$formattted_slide = array('TmaSlide'=> $slide, 'Generated' => array());
+				$formattted_slide['Generated']['tma_block_identification'] = $slide['Block']['barcode'];
+				$formatted_data[$key]['children'][] = $formattted_slide; 
 			}
 		}
 		
