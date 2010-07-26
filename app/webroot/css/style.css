@@ -1037,7 +1037,7 @@ span.help:hover {
 					opacity: 0.3;
 				}
 				a.form { 
-					padding-left: 20px;
+					padding: 1px 0px 1px 20px;
 				}
 				
 /*===========================================================*
@@ -1617,4 +1617,9 @@ div.wrapper table.structure td .databrowser td .info td{
 	-webkit-border-radius : 0 0 5px 5px;
 	padding : 5px;
 	display: none;
+}
+
+table.index tr td:first-child{
+	/* gives minimal width to rows first cell in index tables */
+	width: 1px;
 }
