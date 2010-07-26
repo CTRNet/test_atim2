@@ -77,7 +77,7 @@ class StorageMaster extends StoragelayoutAppModel {
 
 		if(empty($arr_storages_list)) {
 			// No Storage exists in the system
-			return array();	
+			return array(array('value' => '0', 'default' => __('n/a', true)));	
 		}					
 		
 		$formatted_data = array(array('value' => '0', 'default' => __('n/a', true)));
