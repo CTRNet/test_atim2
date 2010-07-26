@@ -29,7 +29,7 @@ $(function(){
 	});
 	<?php } //end if is_datagrid ?>
 
-	$('#hierarchy').addClass("jquery_cupertino").menu({
+	$('#hierarchy').addClass("jquery_cupertino").advMenu({
 		content: $('#hierarchy').next().html(),
 		backLink: false,
 		flyOut: true,

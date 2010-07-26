@@ -13,7 +13,6 @@
 	<link rel="shortcut icon" href="<?php echo($this->webroot); ?>/img/favicon.ico"/>
 	<?php 
 		echo $html->css('style')."\n"; 
-//		echo $html->css('jQuery/themes/jquery_cupertino/jquery-ui-1.8.custom')."\n";
 		echo $html->css('jQuery/themes/custom-theme/jquery-ui-1.8.2.custom')."\n";
 		echo $html->css('jQuery/popup/popup.css');
 		echo $html->css('jQuery/fg.menu.css'); 
@@ -36,7 +35,7 @@
 		</script>
 		<?php
 		echo $javascript->link('jquery-1.4.2.min')."\n";
-		echo $javascript->link('jquery-ui-1.8.custom.min')."\n";
+		echo $javascript->link('jquery-ui-1.8.2.custom.min')."\n";
 		echo $javascript->link('jquery.ui-datepicker-fr.js')."\n";
 		echo $javascript->link('jquery.highlight.js')."\n";
 		echo $javascript->link('jquery.popup.js')."\n";

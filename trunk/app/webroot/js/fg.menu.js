@@ -16,7 +16,7 @@ Altered by FM L'Heureux for ATiM on 2010-07-16
 
 var allUIMenus = [];
 
-$.fn.menu = function(options){
+$.fn.advMenu = function(options){
 	var caller = this;
 	var options = options;
 	var m = new Menu(caller, options);	
