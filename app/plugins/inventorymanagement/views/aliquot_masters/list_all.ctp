@@ -60,7 +60,7 @@
 	// CUSTOM CODE
 	$hook_link = $structures->hook();
 	if( $hook_link ) { require($hook_link); }
-		
+	echo($final_atim_structure['Structure']['alias']);	
 	// BUILD FORM
 	$structures->build( $final_atim_structure, $final_options );	
 

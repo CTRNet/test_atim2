@@ -417,7 +417,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					$new_aliquot['AliquotMaster']['aliquot_type'] = $aliquot_control_data['AliquotControl']['aliquot_type'];
 					if(!$this->AliquotMaster->save($new_aliquot, false)) { $this->redirect('/pages/err_inv_record_err', null, true); } 
 				}
-				$this->flash('your data has been saved', '/inventorymanagement/aliquot_masters/listAll/' . $collection_id . '/' . $sample_master_id);									
+				$this->atimFlash('your data has been saved', '/inventorymanagement/aliquot_masters/listAll/' . $collection_id . '/' . $sample_master_id);									
 				return;
 			} else {
 				// Set error message
@@ -638,7 +638,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				$this->AliquotMaster->id = $aliquot_master_id;
 				if(!$this->AliquotMaster->save($this->data, false)) { $this->redirect('/pages/err_inv_record_err', null, true); }
 				if(!$this->Aliquots->updateAliquotCurrentVolume($aliquot_master_id)) { $this->redirect('/pages/err_inv_record_err', null, true); }			
-				$this->flash('your data has been updated', '/inventorymanagement/aliquot_masters/detail/' . $collection_id . '/' . $sample_master_id. '/' . $aliquot_master_id);				
+				$this->atimFlash('your data has been updated', '/inventorymanagement/aliquot_masters/detail/' . $collection_id . '/' . $sample_master_id. '/' . $aliquot_master_id);				
 				return;
 			} else {
 				// Set error message
@@ -673,7 +673,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$this->redirect('/pages/err_inv_record_err', null, true);
 		}
 		
-		$this->flash('your data has been updated', '/inventorymanagement/aliquot_masters/detail/' . $collection_id . '/' . $sample_master_id. '/' . $aliquot_master_id);				
+		$this->atimFlash('your data has been updated', '/inventorymanagement/aliquot_masters/detail/' . $collection_id . '/' . $sample_master_id. '/' . $aliquot_master_id);				
 	}
 	
 	function delete($collection_id, $sample_master_id, $aliquot_master_id) {
@@ -691,7 +691,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		if($arr_allow_deletion['allow_deletion']) {
 			if($this->AliquotMaster->atim_delete($aliquot_master_id)) {
-				$this->flash('your data has been deleted', '/inventorymanagement/aliquot_masters/listAll/' . $collection_id . '/' . $sample_master_id);
+				$this->atimFlash('your data has been deleted', '/inventorymanagement/aliquot_masters/listAll/' . $collection_id . '/' . $sample_master_id);
 			} else {
 				$this->flash('error deleting data - contact administrator', '/inventorymanagement/aliquot_masters/listAll/' . $collection_id . '/' . $sample_master_id);
 			}
@@ -774,7 +774,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				$this->data['AliquotUse']['aliquot_master_id'] = $aliquot_master_id;			
 				if ($this->AliquotUse->save($this->data)) { 
 					if(!$this->Aliquots->updateAliquotCurrentVolume($aliquot_master_id)) { $this->redirect('/pages/err_inv_record_err', null, true); }	
-					$this->flash('your data has been saved', '/inventorymanagement/aliquot_masters/detail/'.$collection_id.'/'.$sample_master_id.'/'.$aliquot_master_id.'/');
+					$this->atimFlash('your data has been saved', '/inventorymanagement/aliquot_masters/detail/'.$collection_id.'/'.$sample_master_id.'/'.$aliquot_master_id.'/');
 				} 
 			}
 		}
@@ -848,7 +848,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				$this->AliquotUse->id = $aliquot_use_id;			
 				if ($this->AliquotUse->save($this->data)) { 
 					if(!$this->Aliquots->updateAliquotCurrentVolume($aliquot_master_id)) { $this->redirect('/pages/err_inv_record_err', null, true); }
-					$this->flash('your data has been saved', '/inventorymanagement/aliquot_masters/detail/' . $collection_id . '/' . $sample_master_id . '/' . $aliquot_master_id);
+					$this->atimFlash('your data has been saved', '/inventorymanagement/aliquot_masters/detail/' . $collection_id . '/' . $sample_master_id . '/' . $aliquot_master_id);
 				} 
 			}
 		}
@@ -914,7 +914,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 		
 		if($deletion_done) {
-			$this->flash('your data has been deleted - update the aliquot in stock data', $flash_url); 
+			$this->atimFlash('your data has been deleted - update the aliquot in stock data', $flash_url); 
 		} else {
 			$this->flash('error deleting data - contact administrator', $flash_url); 
 		}	
@@ -1095,7 +1095,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					if(!$this->Aliquots->updateAliquotCurrentVolume($aliquot_master_id)) { $this->redirect('/pages/err_inv_record_err', null, true); }
 				}
 				
-				$this->flash('your data has been saved', '/inventorymanagement/aliquot_masters/listAllSourceAliquots/' . $collection_id . '/' . $sample_master_id); 
+				$this->atimFlash('your data has been saved', '/inventorymanagement/aliquot_masters/listAllSourceAliquots/' . $collection_id . '/' . $sample_master_id); 
 			}
 		}
 	}
@@ -1316,7 +1316,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				// Update aliquot current volume
 				if(!$this->Aliquots->updateAliquotCurrentVolume($aliquot_master_id)) { $this->redirect('/pages/err_inv_record_err', null, true); }
 				
-				$this->Flash('your data has been saved', '/inventorymanagement/aliquot_masters/detail/'.$collection_id.'/'.$sample_master_id.'/'.$aliquot_master_id.'/');
+				$this->atimFlash('your data has been saved', '/inventorymanagement/aliquot_masters/detail/'.$collection_id.'/'.$sample_master_id.'/'.$aliquot_master_id.'/');
 			}
 		}
 	}
@@ -1735,7 +1735,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					}
 				}
 				if($batch_set_id > 0){
-					$this->flash('your data has been saved', "/datamart/batch_sets/listall/all/".$batch_set_id);
+					$this->atimFlash('your data has been saved', "/datamart/batch_sets/listall/all/".$batch_set_id);
 				}else{
 					//TODO need redirection!;
 				}

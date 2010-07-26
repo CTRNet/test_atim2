@@ -76,7 +76,7 @@ class OrderLinesController extends OrderAppController {
 				
 			if ($submitted_data_validates) {
 				if( $this->OrderLine->save($this->data) ) {
-					$this->flash( 'your data has been saved','/order/order_lines/detail/'.$order_id.'/'.$this->OrderLine->id );
+					$this->atimFlash( 'your data has been saved','/order/order_lines/detail/'.$order_id.'/'.$this->OrderLine->id );
 				}
 			} 
 		}
@@ -124,7 +124,7 @@ class OrderLinesController extends OrderAppController {
 			if ($submitted_data_validates) {
 				$this->OrderLine->id = $order_line_id;
 				if($this->OrderLine->save($this->data)) {
-					$this->flash( 'your data has been updated','/order/order_lines/detail/'.$order_id.'/'.$order_line_id );
+					$this->atimFlash( 'your data has been updated','/order/order_lines/detail/'.$order_id.'/'.$order_line_id );
 				}
 			}
 		}
@@ -183,7 +183,7 @@ class OrderLinesController extends OrderAppController {
 			
 		if($arr_allow_deletion['allow_deletion']) {
 			if($this->OrderLine->atim_delete($order_line_id)) {
-				$this->flash('your data has been deleted', '/order/order_lines/listall/'.$order_id);
+				$this->atimFlash('your data has been deleted', '/order/order_lines/listall/'.$order_id);
 			} else {
 				$this->flash('error deleting data - contact administrator', '/order/order_lines/listall/'.$order_id);
 			}

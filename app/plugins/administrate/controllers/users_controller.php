@@ -53,7 +53,7 @@ class UsersController extends AdministrateAppController {
 				
 				if($submitted_data_validates) {
 					if($this->User->save($this->data)){
-						$this->flash( 'your data has been saved', '/administrate/users/detail/'.$group_id.'/'.$this->User->getLastInsertId().'/' );
+						$this->atimFlash( 'your data has been saved', '/administrate/users/detail/'.$group_id.'/'.$this->User->getLastInsertId().'/' );
 					}
 				}
 				//reset password display
@@ -87,7 +87,7 @@ class UsersController extends AdministrateAppController {
 			
 			if($submitted_data_validates) {
 				if($this->User->save($this->data)){
-					$this->flash( 'your data has been saved', '/administrate/users/detail/'.$group_id.'/'.$user_id.'/' );
+					$this->atimFlash( 'your data has been saved', '/administrate/users/detail/'.$group_id.'/'.$user_id.'/' );
 				}
 			}
 		}

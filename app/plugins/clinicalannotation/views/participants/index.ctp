@@ -1,16 +1,4 @@
 <?php
-	if($_SESSION['tmp_data_saved']){
-		?>
-		<div id="validation" style="width: 100%; position: relative; left: -10px;">
-			<ul>
-				<li style="background-color: #339933;"><?php __($_SESSION['tmp_data_saved']); ?></li>
-			</ul>
-		</div>
-		<?php
-		unset($_SESSION['tmp_data_saved']);
-	} 
- 
-
 	$search_type_links = array();
 	$search_type_links['participants'] = array('link'=> '/clinicalannotation/participants/index/', 'icon' => 'search');
 	$search_type_links['misc identifiers'] = array('link'=> '/clinicalannotation/misc_identifiers/index/', 'icon' => 'search');

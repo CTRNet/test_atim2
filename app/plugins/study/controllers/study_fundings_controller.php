@@ -87,7 +87,7 @@ class StudyFundingsController extends StudyAppController {
 				// 4- SAVE
 
 				if ( $this->StudyFunding->save($this->data) ) {
-					$this->flash( 'your data has been saved','/study/study_fundings/detail/'.$study_summary_id.'/'.$this->StudyFunding->id );
+					$this->atimFlash( 'your data has been saved','/study/study_fundings/detail/'.$study_summary_id.'/'.$this->StudyFunding->id );
 					}
 				}
 			}
@@ -136,7 +136,7 @@ class StudyFundingsController extends StudyAppController {
 
 					$this->StudyFunding->id = $study_funding_id;
 					if ( $this->StudyFunding->save($this->data) ) {
-						$this->flash( 'your data has been updated','/study/study_fundings/detail/'.$study_summary_id.'/'.$study_funding_id );
+						$this->atimFlash( 'your data has been updated','/study/study_fundings/detail/'.$study_summary_id.'/'.$study_funding_id );
 						}
 					}
 				}
@@ -164,7 +164,7 @@ class StudyFundingsController extends StudyAppController {
 				// DELETE DATA
 
 				if( $this->StudyFunding->atim_delete( $study_funding_id ) ) {
-					$this->flash( 'your data has been deleted', '/study/study_fundings/listall/'.$study_summary_id );
+					$this->atimFlash( 'your data has been deleted', '/study/study_fundings/listall/'.$study_summary_id );
 				} else {
 					$this->flash( 'error deleting data - contact administrator.', '/study/study_fundings/listall/'.$study_summary_id );
 				}

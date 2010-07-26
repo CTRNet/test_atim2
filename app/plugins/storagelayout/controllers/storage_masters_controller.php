@@ -273,7 +273,7 @@ class StorageMastersController extends StoragelayoutAppController {
 						} else {
 							$link = '/storagelayout/storage_masters/editStoragePosition/' . $storage_master_id;
 						}
-						$this->flash('your data has been saved', $link);				
+						$this->atimFlash('your data has been saved', $link);				
 					}					
 				}
 			} 
@@ -416,7 +416,7 @@ class StorageMastersController extends StoragelayoutAppController {
 								$link = '/storagelayout/storage_masters/editStoragePosition/' . $storage_master_id;
 							}					
 						}			
-						$this->flash('your data has been updated', $link); 
+						$this->atimFlash('your data has been updated', $link); 
 					}
 				}	
 			}
@@ -532,7 +532,7 @@ class StorageMastersController extends StoragelayoutAppController {
 			if($submitted_data_validates) {	
 				$this->StorageMaster->id = $storage_master_id;		
 				if($this->StorageMaster->save($storage_data_to_update)) { 
-					$this->flash('your data has been updated', '/storagelayout/storage_masters/detail/' . $storage_master_id); 
+					$this->atimFlash('your data has been updated', '/storagelayout/storage_masters/detail/' . $storage_master_id); 
 				}	
 			}
 		}
@@ -564,17 +564,21 @@ class StorageMastersController extends StoragelayoutAppController {
 
 			// Delete storage
 			$message = '';
+			$atim_flash = null;
 			if($this->StorageMaster->atim_delete($storage_master_id, true)) {
-				$message = 'your data has been deleted';
+				$atim_flash = true;
 			} else {
-				$message = 'error deleting data - contact administrator';
+				$atim_flash = false;
 			}
 			
 			$this->StorageMaster->bindModel(array('hasMany' => array('StorageCoordinate')), false);
-			$this->flash($message, '/storagelayout/storage_masters/index/');		
-			
+			if($atim_flash){
+				$this->atimFlash('your data has been deleted', '/storagelayout/storage_masters/index/');
+			}else{
+				$this->flash('error deleting data - contact administrator', '/storagelayout/storage_masters/index/');
+			}
 		} else {
-			$this->flash($arr_allow_deletion['msg'], '/storagelayout/storage_masters/detail/' . $storage_master_id);
+			$this->atimFlash($arr_allow_deletion['msg'], '/storagelayout/storage_masters/detail/' . $storage_master_id);
 		}		
 	}
 	

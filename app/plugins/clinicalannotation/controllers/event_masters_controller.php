@@ -129,7 +129,7 @@ class EventMastersController extends ClinicalannotationAppController {
 			if( $hook_link ) { require($hook_link); }
 
 			if ($submitted_data_validates && $this->EventMaster->save($this->data) ) {
-				$this->flash( 'your data has been updated','/clinicalannotation/event_masters/detail/'.$event_group.'/'.$participant_id.'/'.$this->EventMaster->getLastInsertId());
+				$this->atimFlash( 'your data has been updated','/clinicalannotation/event_masters/detail/'.$event_group.'/'.$participant_id.'/'.$this->EventMaster->getLastInsertId());
 			}
 		} 
 	}
@@ -173,7 +173,7 @@ class EventMastersController extends ClinicalannotationAppController {
 			if( $hook_link ) { require($hook_link); }
 			
 			if ($submitted_data_validates && $this->EventMaster->save($this->data) ) {
-				$this->flash( 'your data has been updated','/clinicalannotation/event_masters/detail/'.$event_group.'/'.$participant_id.'/'.$event_master_id);
+				$this->atimFlash( 'your data has been updated','/clinicalannotation/event_masters/detail/'.$event_group.'/'.$participant_id.'/'.$event_master_id);
 			}
 		} else {
 			$this->data = $event_master_data;
@@ -194,7 +194,7 @@ class EventMastersController extends ClinicalannotationAppController {
 		
 		if ($arr_allow_deletion['allow_deletion']) {
 			if ($this->EventMaster->atim_delete( $event_master_id )) {
-				$this->flash( 'your data has been deleted', '/clinicalannotation/event_masters/listall/'.$event_group.'/'.$participant_id );
+				$this->atimFlash( 'your data has been deleted', '/clinicalannotation/event_masters/listall/'.$event_group.'/'.$participant_id );
 			} else {
 				$this->flash( 'error deleting data - contact administrator', '/clinicalannotation/event_masters/listall/'.$event_group.'/'.$participant_id );
 			}

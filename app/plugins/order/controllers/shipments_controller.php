@@ -73,7 +73,7 @@ class ShipmentsController extends OrderAppController {
 			}
 			
 			if ($submitted_data_validates && $this->Shipment->save($this->data) ) {
-				$this->flash( 'your data has been saved','/order/shipments/listall/'.$order_id.'/' );
+				$this->atimFlash( 'your data has been saved','/order/shipments/listall/'.$order_id.'/' );
 			}
 		}	
 	}
@@ -123,7 +123,7 @@ class ShipmentsController extends OrderAppController {
 				}
 				
 				// Redirect
-				$this->flash( 'your data has been updated', '/order/shipments/detail/'.$order_id.'/'.$shipment_id );
+				$this->atimFlash( 'your data has been updated', '/order/shipments/detail/'.$order_id.'/'.$shipment_id );
 			}
 		} 
 	}
@@ -171,7 +171,7 @@ class ShipmentsController extends OrderAppController {
 		
 		if($arr_allow_deletion['allow_deletion']) {
 			if($this->Shipment->atim_delete( $shipment_id )) {
-				$this->flash('your data has been deleted', '/order/shipments/listall/'.$order_id);
+				$this->atimFlash('your data has been deleted', '/order/shipments/listall/'.$order_id);
 			} else {
 				$this->flash('error deleting data - contact administrator', '/order/shipments/listall/'.$order_id);
 			}
@@ -343,7 +343,7 @@ class ShipmentsController extends OrderAppController {
 					}
 				}
 				
-				$this->flash('your data has been saved', '/order/shipments/detail/'.$order_id.'/'.$shipment_id.'/');
+				$this->atimFlash('your data has been saved', '/order/shipments/detail/'.$order_id.'/'.$shipment_id.'/');
 			}		
 		}	
 	}
@@ -407,7 +407,7 @@ class ShipmentsController extends OrderAppController {
 
 			// Redirect
 			if($remove_done) {
-				$this->flash('your data has been removed - update the aliquot in stock data', $url);
+				$this->atimFlash('your data has been removed - update the aliquot in stock data', $url);
 			} else {
 				$this->flash('error deleting data - contact administrator', $url);
 			}
