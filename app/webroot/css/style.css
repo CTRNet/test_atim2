@@ -1254,13 +1254,18 @@ div.wrapper table.structure table.columns td a.not_allowed {
 	}
 	
 		div#validation li {
-			margin-bottom: 2px;
-			background-color: #933;
-			color: #fff;
 			padding: 0.5em 1em;
 			-moz-border-radius: 5px; -webkit-border-radius: 5px;
+			color: #fff;
+		}
+		
+		div#validation ul.error li {
+			background-color: #933;
 		}
 	
+		div#validation ul.confirm li {
+			background-color: #393;
+		}
 	
 		
 div#footer {

@@ -99,6 +99,15 @@ class AppController extends Controller {
 		}
 	}
 	
+	function atimFlash($message, $url){
+		if(Configure::read('debug') > 0){
+			$this->flash($message, $url);
+		}else{
+			$_SESSION['ctrapp_core']['confirm_msg'] = __($message, true);
+			$this->redirect($url);
+		}
+	}
+	
 	static function getInstance(){
 		return AppController::$me;
 	}
