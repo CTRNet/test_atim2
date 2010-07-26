@@ -236,6 +236,392 @@ VALUES
 ('day 7', '', 'Day 7', 'Jour 7'),
 ('day 9', '', 'Day 9', 'Jour 9');
 
+UPDATE structure_formats AS sfo, structure_fields AS sfi
+SET sfo.flag_index = '1'
+WHERE sfi.field = 'qc_hb_sample_code' AND sfi.model = 'SpecimenDetail'
+AND sfi.id = sfo.structure_field_id;
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_add = '0', sfo.flag_datagrid = '0'
+WHERE sfi.field = 'barcode' AND sfi.model = 'AliquotMaster' AND str.alias LIKE 'ad_%'
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET `flag_add` = '0', `flag_add_readonly` = '0', 
+`flag_edit` = '0', `flag_edit_readonly` = '0', 
+`flag_search` = '0', `flag_search_readonly` = '0', 
+`flag_datagrid` = '0', `flag_datagrid_readonly` = '0', 
+`flag_index` = '0', `flag_detail` = '0'
+WHERE sfi.field = 'barcode' AND sfi.model = 'StorageMaster' AND str.alias IN ('std_incubators', 'std_rooms', 'std_tma_blocks', 
+'std_undetail_stg_with_surr_tmp', 'std_undetail_stg_with_tmp', 'storagemasters')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+
+-- update ad_spec_tubes posiitons
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '0', display_order = '1'
+WHERE sfi.field = 'qc_hb_label' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_spec_tubes')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '1', display_order = '80', language_heading = 'other'
+WHERE sfi.field = 'barcode' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_spec_tubes')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '0', display_order = '33'
+WHERE sfi.field = 'in_stock' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_spec_tubes')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '0', display_order = '34'
+WHERE sfi.field = 'in_stock_detail' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_spec_tubes')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '1', display_order = '63'
+WHERE sfi.field = 'aliquot_use_counter' AND sfi.model = 'Generated' AND str.alias IN ('ad_spec_tubes')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '1', display_order = '64'
+WHERE sfi.field = 'study_summary_id' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_spec_tubes')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '1', display_order = '65'
+WHERE sfi.field = 'sop_master_id' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_spec_tubes')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '1', display_order = '75'
+WHERE sfi.field = 'notes' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_spec_tubes')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '0', display_order = '25'
+WHERE sfi.field = 'qc_hb_stored_by' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_spec_tubes')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+-- update ad_spec_conical_tubes posiitons
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '0', display_order = '1'
+WHERE sfi.field = 'qc_hb_label' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_spec_conical_tubes')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '1', display_order = '80', language_heading = 'other'
+WHERE sfi.field = 'barcode' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_spec_conical_tubes')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '0', display_order = '33'
+WHERE sfi.field = 'in_stock' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_spec_conical_tubes')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '0', display_order = '34'
+WHERE sfi.field = 'in_stock_detail' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_spec_conical_tubes')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '1', display_order = '63'
+WHERE sfi.field = 'aliquot_use_counter' AND sfi.model = 'Generated' AND str.alias IN ('ad_spec_conical_tubes')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '1', display_order = '64'
+WHERE sfi.field = 'study_summary_id' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_spec_conical_tubes')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '1', display_order = '65'
+WHERE sfi.field = 'sop_master_id' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_spec_conical_tubes')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '1', display_order = '75'
+WHERE sfi.field = 'notes' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_spec_conical_tubes')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '0', display_order = '25'
+WHERE sfi.field = 'qc_hb_stored_by' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_spec_conical_tubes')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+UPDATE structures
+SET `flag_add_columns` = '1', `flag_edit_columns` = '1', `flag_detail_columns` = '1'
+WHERE alias = 'ad_spec_conical_tubes';
+
+-- update ad_spec_tiss_blocks posiitons
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '0', display_order = '1'
+WHERE sfi.field = 'qc_hb_label' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_spec_tiss_blocks')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '1', display_order = '80', language_heading = 'other'
+WHERE sfi.field = 'barcode' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_spec_tiss_blocks')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '0', display_order = '33'
+WHERE sfi.field = 'in_stock' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_spec_tiss_blocks')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '0', display_order = '34'
+WHERE sfi.field = 'in_stock_detail' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_spec_tiss_blocks')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '1', display_order = '63'
+WHERE sfi.field = 'aliquot_use_counter' AND sfi.model = 'Generated' AND str.alias IN ('ad_spec_tiss_blocks')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '1', display_order = '64'
+WHERE sfi.field = 'study_summary_id' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_spec_tiss_blocks')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '1', display_order = '65'
+WHERE sfi.field = 'sop_master_id' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_spec_tiss_blocks')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '1', display_order = '75'
+WHERE sfi.field = 'notes' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_spec_tiss_blocks')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '0', display_order = '25'
+WHERE sfi.field = 'qc_hb_stored_by' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_spec_tiss_blocks')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '0', display_order = '16'
+WHERE sfi.field = 'block_type' AND sfi.model = 'AliquotDetail' AND str.alias IN ('ad_spec_tiss_blocks')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+-- update ad_der_tubes_incl_ml_vol posiitons
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '0', display_order = '1'
+WHERE sfi.field = 'qc_hb_label' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_der_tubes_incl_ml_vol')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '1', display_order = '80', language_heading = 'other'
+WHERE sfi.field = 'barcode' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_der_tubes_incl_ml_vol')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '0', display_order = '33'
+WHERE sfi.field = 'in_stock' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_der_tubes_incl_ml_vol')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '0', display_order = '34'
+WHERE sfi.field = 'in_stock_detail' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_der_tubes_incl_ml_vol')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '1', display_order = '63'
+WHERE sfi.field = 'aliquot_use_counter' AND sfi.model = 'Generated' AND str.alias IN ('ad_der_tubes_incl_ml_vol')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '1', display_order = '64'
+WHERE sfi.field = 'study_summary_id' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_der_tubes_incl_ml_vol')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '1', display_order = '65'
+WHERE sfi.field = 'sop_master_id' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_der_tubes_incl_ml_vol')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '1', display_order = '75'
+WHERE sfi.field = 'notes' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_der_tubes_incl_ml_vol')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '0', display_order = '25'
+WHERE sfi.field = 'qc_hb_stored_by' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_der_tubes_incl_ml_vol')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '0', display_order = '16'
+WHERE sfi.field = 'current_volume' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_der_tubes_incl_ml_vol')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '0', display_order = '17'
+WHERE sfi.field = 'aliquot_volume_unit' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_der_tubes_incl_ml_vol')
+AND display_order = '72'
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '0', display_order = '18'
+WHERE sfi.field = 'initial_volume' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_der_tubes_incl_ml_vol')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '0', display_order = '19'
+WHERE sfi.field = 'aliquot_volume_unit' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_der_tubes_incl_ml_vol')
+AND display_order = '74'
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+-- update ad_der_cell_tubes_incl_ml_vol posiitons
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '0', display_order = '1'
+WHERE sfi.field = 'qc_hb_label' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_der_cell_tubes_incl_ml_vol')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '1', display_order = '80', language_heading = 'other'
+WHERE sfi.field = 'barcode' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_der_cell_tubes_incl_ml_vol')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '0', display_order = '33'
+WHERE sfi.field = 'in_stock' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_der_cell_tubes_incl_ml_vol')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '0', display_order = '34'
+WHERE sfi.field = 'in_stock_detail' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_der_cell_tubes_incl_ml_vol')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '1', display_order = '63'
+WHERE sfi.field = 'aliquot_use_counter' AND sfi.model = 'Generated' AND str.alias IN ('ad_der_cell_tubes_incl_ml_vol')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '1', display_order = '64'
+WHERE sfi.field = 'study_summary_id' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_der_cell_tubes_incl_ml_vol')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '1', display_order = '65'
+WHERE sfi.field = 'sop_master_id' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_der_cell_tubes_incl_ml_vol')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '1', display_order = '75'
+WHERE sfi.field = 'notes' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_der_cell_tubes_incl_ml_vol')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '0', display_order = '25'
+WHERE sfi.field = 'qc_hb_stored_by' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_der_cell_tubes_incl_ml_vol')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '0', display_order = '16'
+WHERE sfi.field = 'current_volume' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_der_cell_tubes_incl_ml_vol')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '0', display_order = '17'
+WHERE sfi.field = 'aliquot_volume_unit' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_der_cell_tubes_incl_ml_vol')
+AND display_order = '72'
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '0', display_order = '18'
+WHERE sfi.field = 'initial_volume' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_der_cell_tubes_incl_ml_vol')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '0', display_order = '19'
+WHERE sfi.field = 'aliquot_volume_unit' AND sfi.model = 'AliquotMaster' AND str.alias IN ('ad_der_cell_tubes_incl_ml_vol')
+AND display_order = '74'
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '0', display_order = '10'
+WHERE sfi.field = 'qc_hb_milieu' AND sfi.model = 'AliquotDetail' AND str.alias IN ('ad_der_cell_tubes_incl_ml_vol')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '0', display_order = '11'
+WHERE sfi.field = 'cell_count' AND sfi.model = 'AliquotDetail' AND str.alias IN ('ad_der_cell_tubes_incl_ml_vol')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '0', display_order = '12'
+WHERE sfi.field = 'cell_count_unit' AND sfi.model = 'AliquotDetail' AND str.alias IN ('ad_der_cell_tubes_incl_ml_vol')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '0', display_order = '13'
+WHERE sfi.field = 'concentration' AND sfi.model = 'AliquotDetail' AND str.alias IN ('ad_der_cell_tubes_incl_ml_vol')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET display_column = '0', display_order = '14'
+WHERE sfi.field = 'concentration_unit' AND sfi.model = 'AliquotDetail' AND str.alias IN ('ad_der_cell_tubes_incl_ml_vol')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+-- Change label flag
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET flag_edit = '1', flag_search = '1'
+WHERE sfi.field = 'qc_hb_label' AND sfi.model = 'AliquotMaster' AND str.alias LIKE 'ad_%'
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+
+-- Add label to other structures
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='aliquot_masters_for_collection_tree_view'), 
+(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='qc_hb_label'), '0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+UPDATE structure_formats SET `flag_index`='0' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters_for_collection_tree_view') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE model='AliquotMaster' AND tablename='aliquot_masters' AND field='barcode');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='aliquot_masters_for_storage_tree_view'), 
+(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='qc_hb_label'), '0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+UPDATE structure_formats SET `flag_index`='0' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters_for_storage_tree_view') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE model='AliquotMaster' AND tablename='aliquot_masters' AND field='barcode');
+
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='orderitems'), 
+(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='qc_hb_label'), 
+'0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '1', '1', '0', '0', '1', '1', '1', '1');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='qctestedaliquots'), 
+(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='qc_hb_label'), 
+'0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='realiquotedparent'), 
+(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='qc_hb_label'), 
+'0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='shippeditems'), 
+(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='qc_hb_label'), 
+'1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='sourcealiquots'), 
+(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='qc_hb_label'), 
+'0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='aliquotmasters'), 
+(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='qc_hb_label'), 
+'0', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+INSERT INTO `structure_fields` (`id`, `public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, '', 'Inventorymanagement', 'ViewAliquot', '', 'qc_hb_label', 'label', '', 'input', 'size=30', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample'), 
+(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `field`='qc_hb_label'), 
+'0', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='view_aliquot_joined_to_collection'), 
+(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `field`='qc_hb_label'), 
+'0', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+DROP VIEW `view_aliquots`;
+CREATE VIEW `view_aliquots` AS select 
+`al`.`id` AS `aliquot_master_id`,
+`samp`.`id` AS `sample_master_id`,
+`col`.`id` AS `collection_id`,
+`col`.`bank_id` AS `bank_id`,
+`stor`.`id` AS `storage_master_id`,
+`link`.`participant_id` AS `participant_id`,
+`link`.`diagnosis_master_id` AS `diagnosis_master_id`,
+`link`.`consent_master_id` AS `consent_master_id`,
+`part`.`participant_identifier` AS `participant_identifier`,
+`col`.`acquisition_label` AS `acquisition_label`,
+`samp`.`initial_specimen_sample_type` AS `initial_specimen_sample_type`,
+`parent_samp`.`sample_type` AS `parent_sample_type`,
+`samp`.`sample_type` AS `sample_type`,
+`al`.`barcode` AS `barcode`,
+`al`.`qc_hb_label` AS `qc_hb_label`,
+`al`.`aliquot_type` AS `aliquot_type`,
+`al`.`in_stock` AS `in_stock`,
+`stor`.`code` AS `code`,
+`stor`.`selection_label` AS `selection_label`,
+`al`.`storage_coord_x` AS `storage_coord_x`,
+`al`.`storage_coord_y` AS `storage_coord_y`,
+`stor`.`temperature` AS `temperature`,
+`stor`.`temp_unit` AS `temp_unit`,
+count(`al_use`.`id`) AS `aliquot_use_counter`,
+`al`.`deleted` AS `deleted` from (((((((`aliquot_masters` `al` join `sample_masters` `samp` on(((`samp`.`id` = `al`.`sample_master_id`) and (`samp`.`deleted` <> 1)))) join `collections` `col` on(((`col`.`id` = `samp`.`collection_id`) and (`col`.`deleted` <> 1)))) left join `aliquot_uses` `al_use` on(((`al_use`.`aliquot_master_id` = `al`.`id`) and (`al_use`.`deleted` <> 1)))) left join `sample_masters` `parent_samp` on(((`samp`.`parent_id` = `parent_samp`.`id`) and (`parent_samp`.`deleted` <> 1)))) left join `clinical_collection_links` `link` on(((`col`.`id` = `link`.`collection_id`) and (`link`.`deleted` <> 1)))) left join `participants` `part` on(((`link`.`participant_id` = `part`.`id`) and (`part`.`deleted` <> 1)))) left join `storage_masters` `stor` on(((`stor`.`id` = `al`.`storage_master_id`) and (`stor`.`deleted` <> 1)))) where (`al`.`deleted` <> 1) group by `al`.`id`;
+
 
 
 
