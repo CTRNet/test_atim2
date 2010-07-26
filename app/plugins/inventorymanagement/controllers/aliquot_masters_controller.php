@@ -484,71 +484,40 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->Structures->set('custom_aliquot_storage_history', 'custom_aliquot_storage_history');
 		$storage_data = array();
 
-		$qry="SELECT AliquotMastersRev.*, StorageMastersModRev.*, StorageMastersInitRev.* FROM `aliquot_masters_revs` AS AliquotMastersRev "
-			."LEFT JOIN aliquot_masters_revs AS aliquot_after ON aliquot_after.version_id=("
-				."SELECT version_id FROM aliquot_masters_revs AS aliquot_after2 WHERE aliquot_after2.id=".$aliquot_master_id." AND aliquot_after2.modified > AliquotMastersRev.modified ORDER BY modified LIMIT 1) "
-			."LEFT JOIN aliquot_masters_revs AS aliquot_before ON aliquot_before.version_id=("
-				."SELECT version_id FROM aliquot_masters_revs AS aliquot_before2 WHERE aliquot_before2.id=".$aliquot_master_id." AND aliquot_before2.modified < AliquotMastersRev.modified ORDER BY modified DESC LIMIT 1) "
-			."LEFT JOIN storage_masters_revs AS StorageMastersModRev ON AliquotMastersRev.storage_master_id=StorageMastersModRev.id AND StorageMastersModRev.modified > AliquotMastersRev.modified AND (StorageMastersModRev.modified < aliquot_after.modified OR aliquot_after.modified IS NULL) " 
-			."LEFT JOIN storage_masters_revs AS StorageMastersInitRev ON (AliquotMastersRev.storage_master_id!=aliquot_before.storage_master_id OR aliquot_before.storage_master_id IS NULL) AND StorageMastersInitRev.version_id=(SELECT version_id FROM storage_masters_revs WHERE id=AliquotMastersRev.storage_master_id AND storage_masters_revs.modified <= AliquotMastersRev.modified ORDER BY modified DESC LIMIT 1) "
-			."WHERE AliquotMastersRev.id=".$aliquot_master_id." ORDER BY AliquotMastersRev.modified";
+		$qry = "SELECT sm.*, am.* FROM aliquot_masters_revs AS am
+				LEFT JOIN  aliquot_masters_revs AS amn ON amn.version_id=(SELECT version_id FROM aliquot_masters_revs WHERE id=am.id AND version_id > am.version_id ORDER BY version_id ASC LIMIT 1)
+				LEFT JOIN storage_masters_revs AS sm ON am.storage_master_id=sm.id
+				LEFT JOIN storage_masters_revs AS smn ON smn.version_id=(SELECT version_id FROM storage_masters_revs WHERE id=sm.id AND version_id > sm.version_id ORDER BY version_id ASC LIMIT 1)
+				WHERE am.id='".$aliquot_master_id."' AND ((am.modified > sm.modified AND (am.modified < smn.modified OR smn.modified IS NULL)) OR (sm.modified > am.modified AND (sm.modified < amn.modified OR amn.modified IS NULL)) OR am.storage_master_id IS NULL)";
 		$storage_data_tmp = $this->AliquotMaster->query($qry);
-		$previous = NULL;
-		$current_storage = NULL;
-		foreach($storage_data_tmp as $storage_data_unit){
-			//it's assumed that the order is already chronological
-			if($previous != NULL){
-				if($previous['AliquotMastersRev']['storage_master_id'] != $storage_data_unit['AliquotMastersRev']['storage_master_id']){
-					//case 1: changed storage
-					$storage_data[]['custom'] = array(
-						'date' => $storage_data_unit['AliquotMastersRev']['modified'], 
-						'event' => __('new storage', true)." "
-							.__('from', true).": [".$previous['StorageMastersRev']['selection_label']." ".__('temperature', true).": ".$previous['StorageMastersRev']['temperature'].__($storage_data_unit['StorageMastersRev']['temp_unit'], true)."] "
-							.__('to', true).": [".$storage_data_unit['StorageMastersInitRev']['selection_label']." ".__('temperature', true).": ".$storage_data_unit['StorageMastersInitRev']['temperature'].__($storage_data_unit['StorageMastersRev']['temp_unit'], true)."]");
-					$current_storage = $storage_data_unit['AliquotMastersRev']['storage_master_id'];
-					$previous['AliquotMastersRev'] = $storage_data_unit['AliquotMastersRev'];
-					$previous['StorageMastersRev'] = $storage_data_unit['StorageMastersInitRev'];
-				}else if(!empty($storage_data_unit['StorageMastersModRev']['temperature'])
-				&& $previous['StorageMastersRev']['temperature'] != $storage_data_unit['StorageMastersModRev']['temperature']
-				&& $current_storage == $storage_data_unit['AliquotMastersRev']['storage_master_id']){
-					//case 2: storage changed temperature
-					$storage_data[]['custom'] = array(
-						'date' => $storage_data_unit['StorageMastersModRev']['modified'], 
-						'event' => __('storage temperature changed', true).". "
-							.__('from', true).": ".$previous['StorageMastersRev']['temperature'].__($previous['StorageMastersRev']['temp_unit'], true)." "
-							.__('to', true).": ".$storage_data_unit['StorageMastersModRev']['temperature'].__($storage_data_unit['StorageMastersModRev']['temp_unit'], true));
-					$previous['AliquotMastersRev'] = $storage_data_unit['AliquotMastersRev'];
-					$previous['StorageMastersRev'] = $storage_data_unit['StorageMastersModRev'];
-				}else if($previous['AliquotMastersRev']['storage_coord_x'] != $storage_data_unit['AliquotMastersRev']['storage_coord_x']
-				|| $previous['AliquotMastersRev']['storage_coord_y'] != $storage_data_unit['AliquotMastersRev']['storage_coord_y']){
-					//case 3: position changed
-					$coordFrom = $previous['AliquotMastersRev']['storage_coord_x'];
-					$coordTo = $storage_data_unit['AliquotMastersRev']['storage_coord_x'];
-					if(strlen($storage_data_unit['AliquotMastersRev']['storage_coord_y']) > 0){
-						$coordFrom .= ", ".$previous['AliquotMastersRev']['storage_coord_y'];
-					}
-					if(strlen($storage_data_unit['AliquotMastersRev']['storage_coord_y']) > 0){
-						$coordTo .= ", ".$storage_data_unit['AliquotMastersRev']['storage_coord_y'];
-					}
-					$storage_data[]['custom'] = array(
-						'date' => $storage_data_unit['AliquotMastersRev']['modified'], 
-						'event' => __('moved within storage', true)." ".__('from', true).": [".$coordFrom."] ".__('to', true).": [".$coordTo."]. ".__('temperature unchanged', true));
-					$previous['AliquotMastersRev'] = $storage_data_unit['AliquotMastersRev'];
-				}
-			}else{
-				$current_storage = $storage_data_unit['AliquotMastersRev']['storage_master_id']; 
-				$previous['AliquotMastersRev'] = $storage_data_unit['AliquotMastersRev'];
-				$previous['StorageMastersRev'] = $storage_data_unit['StorageMastersModRev'];
-				if(isset($storage_data_unit['StorageMastersRev']) && $storage_data_unit['StorageMastersInitRev']['temperature'] != $storage_data_unit['StorageMastersRev']['temperature']){
-					$storage_data[]['custom'] = array(
-						'date' => $storage_data_unit['StorageMastersModRev']['modified'], 
-						'event' => __('storage temperature changed', true).". "
-							.__('from', true).": ".$storage_data_unit['StorageMastersInitRev']['temperature'].__($storage_data_unit['StorageMastersInitRev']['temp_unit'], true)." "
-							.__('to', true).": ".$storage_data_unit['StorageMastersModRev']['temperature'].__($storage_data_unit['StorageMastersModRev']['temp_unit'], true));
-				}
+		echo $qry;
+		$previous = array_shift($storage_data_tmp);
+		while($current = array_shift($storage_data_tmp)){
+			if($previous['sm']['id'] != $current['sm']['id']){
+				$storage_data[]['custom'] = array(
+					'date' => $current['am']['modified'], 
+					'event' => __('new storage', true)." "
+						.__('from', true).": [".(strlen($previous['sm']['selection_label']) > 0 ? $previous['sm']['selection_label']." ".__('temperature', true).": ".$previous['sm']['temperature'].__($previous['sm']['temp_unit'], true) : __('no storage', true))."] "
+						.__('to', true).": [".(strlen($current['sm']['selection_label']) > 0 ? $current['sm']['selection_label']." ".__('temperature', true).": ".$current['sm']['temperature'].__($current['sm']['temp_unit'], true) : __('no storage', true))."]");
+			}else if($previous['sm']['temperature'] != $current['sm']['temperature']){
+				$storage_data[]['custom'] = array(
+					'date' => $current['sm']['modified'],
+					'event' => __('storage temperature changed', true).". "
+						.__('from', true).": ".$previous['sm']['temperature'].__($previous['sm']['temp_unit'], true)." "
+						.__('to', true).": ".$current['sm']['temperature'].__($current['sm']['temp_unit'], true));
+			}else if($previous['am']['storage_coord_x'] != $current['am']['storage_coord_x'] || $previous['am']['storage_coord_y'] != $current['am']['storage_coord_y']){
+				$coord_from = $previous['am']['storage_coord_x'].", ".$previous['am']['storage_coord_y'];
+				$coord_to = $current['am']['storage_coord_x'].", ".$current['am']['storage_coord_y'];
+				$storage_data[]['custom'] = array(
+					'date' => $current['am']['modified'], 
+					'event' => __('moved within storage', true)." ".__('from', true).": [".$coord_from."] ".__('to', true).": [".$coord_to."]. ".__('temperature unchanged', true));
 			}
-			$this->set('storage_data', $storage_data);
+			
+			$previous = $current;
 		}
+		
+		
+		$this->set('storage_data', $storage_data);
 				
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 
