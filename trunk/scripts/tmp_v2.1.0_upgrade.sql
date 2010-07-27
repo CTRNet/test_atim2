@@ -438,7 +438,9 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ("tmp on ice", "Transported on ice", "Transporté sur glace"),
 ("see parent storage", "Parent storage", "Entreposage parent"),
 ("storage", "Storage", "Entreposage"),
-("save", "Save", "Enregistrer");
+("save", "Save", "Enregistrer"),
+("new batchset", "New batchset", "Nouvel ensemble de données"),
+("add to compatible batchset", "Add to compatible batchset", "Ajouter à un ensble de données compatible");
 
 
 
@@ -547,6 +549,10 @@ INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`
 INSERT INTO structure_validations (`structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`) 
 (SELECT (SELECT id FROM structure_fields WHERE model='AliquotMaster' AND tablename='aliquot_masters' AND field='barcode' AND `type`='autocomplete' AND structure_value_domain IS NULL ), `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message` FROM structure_validations WHERE structure_field_id=(SELECT id FROM structure_fields WHERE model='AliquotMaster' AND tablename='aliquot_masters' AND field='barcode' AND `type`='input' AND structure_value_domain  IS NULL ));
 UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `type`='autocomplete' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='orderitems') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='AliquotMaster' AND tablename='aliquot_masters' AND field='barcode' AND type='input' AND structure_value_domain  IS NULL );
+	
+-- Change query tool dropdown label
+UPDATE structure_fields SET  `language_label`='action' WHERE model='BatchSet' AND tablename='datamart_adhoc' AND field='id' AND `type`='select' AND structure_value_domain  IS NULL ;
+
 
 -- Fix estrogen field that had the wrong tablename specified
 UPDATE `structure_fields` SET `tablename` = 'ed_breast_lab_pathology' WHERE `field` = 'estrogen';
