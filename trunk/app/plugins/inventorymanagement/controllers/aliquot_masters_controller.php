@@ -1808,6 +1808,32 @@ class AliquotMastersController extends InventoryManagementAppController {
 			}
 		}
 	}
+	
+	function autocompleteBarcode(){
+		//layout = ajax to avoid printing layout
+		$this->layout = 'ajax';
+		//debug = 0 to avoid printing debug queries that would break the javascript array
+		Configure::write('debug', 0);
+		
+		//query the database
+		$term = str_replace('_', '\_', str_replace('%', '\%', $_GET['term']));
+		$data = $this->AliquotMaster->find('all', array(
+			'conditions' => array(
+				'AliquotMaster.barcode LIKE' => $term.'%'),
+			'fields' => array('AliquotMaster.barcode'), 
+			'limit' => 10,
+			'recursive' => -1));
+		
+		//build javascript textual array
+		$result = "";
+		foreach($data as $data_unit){
+			$result .= '"'.$data_unit['AliquotMaster']['barcode'].'", ';
+		}
+		if(sizeof($result) > 0){
+			$result = substr($result, 0, -2);
+		}
+		$this->set('result', "[".$result."]");
+	}
 }
 
 ?>
