@@ -56,11 +56,11 @@
 	
 	$final_atim_structure = $aliquots_listall_structure; 
 	$final_options = array('type' => 'index', 'links' => $structure_links, 'override' => $structure_override, 'data' => $aliquots_data, 'settings'=>$structure_settings);
-	
+		
 	// CUSTOM CODE
 	$hook_link = $structures->hook();
 	if( $hook_link ) { require($hook_link); }
-	echo($final_atim_structure['Structure']['alias']);	
+		
 	// BUILD FORM
 	$structures->build( $final_atim_structure, $final_options );	
 
