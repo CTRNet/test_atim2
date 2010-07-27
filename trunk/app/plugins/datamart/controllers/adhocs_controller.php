@@ -270,7 +270,7 @@ class AdhocsController extends DatamartAppController {
 		if ( !isset($this->data['Adhoc']['process']) || !$this->data['Adhoc']['process'] ) {
 			$this->data['Adhoc']['process'] = '/datamart/batch_sets/add/'.$this->data['BatchSet']['id'];
 		}
-		
+
 		$_SESSION['ctrapp_core']['datamart']['process'] = $this->data;
 		if($this->data['BatchSet']['id'] == "csv"){
 			$this->redirect("/datamart/adhocs/csv/");
