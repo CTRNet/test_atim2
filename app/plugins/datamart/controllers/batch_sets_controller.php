@@ -191,7 +191,7 @@ class BatchSetsController extends DatamartAppController {
 	    		$batch_set_ids[] = $array['lookup_id'];
 	    	
 	    		// remove from SAVED batch set
-	    		$this->BatchId->del( $array['id'] );
+	    		$this->BatchId->delete( $array['id'] );
 	    	}
 	    
 	   	 	// add existing set IDS to array

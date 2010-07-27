@@ -229,6 +229,7 @@ class AdhocsController extends DatamartAppController {
 			foreach ( $batch_set_results as &$value) {
 				$batch_sets['Add to a compatible Datamart batch...'][ '/datamart/batch_sets/add/'.$value['BatchSet']['id'] ] = strlen( $value['BatchSet']['description'] )>60 ? substr( $value['BatchSet']['description'], 0, 60 ).'...' : $value['BatchSet']['description'];
 			}
+
 		$batch_sets['Pass to another process...'] = array();
 			$batch_sets['Pass to another process...']['/datamart/adhocs/csv'] = 'export as comma-separated file';
 			
@@ -255,20 +256,27 @@ class AdhocsController extends DatamartAppController {
 		
 		$tmp_data = $this->BatchSet->find('all', array('conditions' => array('BatchSet.plugin' => $adhoc['Adhoc']['plugin'], 'BatchSet.model' => $adhoc['Adhoc']['model'])));
 		$compatible_batchset = array();
+		$compatibla_batchset_str = __('add to compatible batchset', true);
 		foreach($tmp_data as $batchset){
-			$compatible_batchset[$batchset['BatchSet']['id']] = $batchset['BatchSet']['description'];
+			$compatible_batchset[$batchset['BatchSet']['id']] = $compatibla_batchset_str." (".$batchset['BatchSet']['description'].")";
 		}
+		$compatible_batchset[0] = __('new batchset', true);
+		$compatible_batchset['csv'] = __('export as CSV file (comma-separated values)', true);
+		$this->data['BatchSet']['id'] = 0;
 		$this->set( 'compatible_batchset', $compatible_batchset );
 	}
 	
 	function process() {
-		
 		if ( !isset($this->data['Adhoc']['process']) || !$this->data['Adhoc']['process'] ) {
 			$this->data['Adhoc']['process'] = '/datamart/batch_sets/add/'.$this->data['BatchSet']['id'];
 		}
 		
 		$_SESSION['ctrapp_core']['datamart']['process'] = $this->data;
-		$this->redirect( $this->data['Adhoc']['process'] );
+		if($this->data['BatchSet']['id'] == "csv"){
+			$this->redirect("/datamart/adhocs/csv/");
+		}else{
+			$this->redirect( $this->data['Adhoc']['process'] );
+		}
 		exit();
 		
 	}
