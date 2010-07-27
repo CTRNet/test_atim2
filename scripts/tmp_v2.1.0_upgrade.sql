@@ -543,6 +543,10 @@ ALTER TABLE `tx_controls`
 UPDATE `tx_controls`
 	SET extended_data_import_process = 'importDrugFromChemoProtocol' WHERE tx_method = 'chemotherapy' AND disease_site = 'all';
 
+ALTER TABLE structure_fields
+DROP KEY `unique_fields`,
+ADD UNIQUE KEY `unique_fields` (`field`, `type`, `model`,`tablename`, `structure_value_domain`);
+
 -- order aliquot barcode autocomplete;
 INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
 ('', 'Inventorymanagement', 'AliquotMaster', 'aliquot_masters', 'barcode', 'barcode', '', 'autocomplete', 'url=/inventorymanagement/aliquot_masters/autocompleteBarcode', '',  NULL , '', 'open', 'open', 'open');
