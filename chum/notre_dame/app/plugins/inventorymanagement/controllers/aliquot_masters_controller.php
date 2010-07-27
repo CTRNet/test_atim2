@@ -178,10 +178,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 			// B.3- Set Model, Alias, Menu Criteria and Search Criteria to use
 			if(is_null($filter_option)) {
 				// No filter
-				$model_to_use = 'ViewAliquot';
-				$form_alias = 'view_aliquot_joined_to_sample';
+				$model_to_use = 'AliquotMaster';
+				$form_alias = 'aliquotmasters';
 				
-				$aliquot_search_criteria['ViewAliquot.sample_master_id'] = $sample_master_id;
+				$aliquot_search_criteria['AliquotMaster.sample_master_id'] = $sample_master_id;
 				
 			} else  {
 				// Get filter options: list all aliquots according to sample-aliquot types
