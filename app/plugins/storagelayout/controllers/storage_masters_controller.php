@@ -1149,9 +1149,10 @@ class StorageMastersController extends StoragelayoutAppController {
 		Configure::write('debug', 0);
 		
 		//query the database
+		$term = str_replace('_', '\_', str_replace('%', '\%', $_GET['term']));
 		$storage_masters = $this->StorageMaster->find('all', array(
 			'conditions' => array(
-			'StorageMaster.Selection_label LIKE' => $_GET['term'].'%'
+			'StorageMaster.Selection_label LIKE' => $term.'%'
 			),
 			'fields' => array('StorageMaster.selection_label'),
 			'limit' => 10
