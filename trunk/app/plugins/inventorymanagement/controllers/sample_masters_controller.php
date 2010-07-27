@@ -528,14 +528,19 @@ class SampleMastersController extends InventorymanagementAppController {
 	
 			//Set default reception date
 			if($bool_is_specimen){
+				$default_reception_datetime = null;
+				$default_reception_datetime_accuracy = null;
 				if($this->SampleMaster->find('count', array('conditions' => array('SampleMaster.collection_id' => $collection_id))) == 0){
 					$collection = $this->Collection->find('first', array('conditions' => array('Collection.id' => $collection_id)));
 					$default_reception_datetime = $collection['Collection']['collection_datetime'];
+					$default_reception_datetime_accuracy = $collection['Collection']['collection_datetime_accuracy'];
 				}else{
-					$sample = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id), 'fields' => array('MIN(SpecimenDetail.reception_datetime) AS reception_datetime')));
-					$default_reception_datetime = $sample[0]['reception_datetime'];
+					$sample = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id), 'order by' => array('SpecimenDetail.reception_datetime')));
+					$default_reception_datetime = $sample['SpecimenDetail']['reception_datetime'];
+					$default_reception_datetime_accuracy = $sample['SpecimenDetail']['reception_datetime_accuracy'];
 				}
 				$this->data['SpecimenDetail']['reception_datetime'] = $default_reception_datetime;
+				$this->data['SpecimenDetail']['reception_datetime_accuracy'] = $default_reception_datetime_accuracy;
 			}
 		
 		} else {
