@@ -1628,3 +1628,8 @@ table.index tr td:first-child{
 	/* gives minimal width to rows first cell in index tables */
 	width: 1px;
 }
+
+input.datepicker[type=button]{
+	width: 1px;
+	height: 1px;	
+}
