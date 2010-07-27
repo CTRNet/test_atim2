@@ -3634,8 +3634,8 @@ INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_e
 
 UPDATE structure_fields SET language_label = 'participant system code' WHERE field LIKE 'participant_identifier';
 
-INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
-('participant system code', 'global', 'Participant System Code', 'Participant - Code-système'),
+INSERT IGNORE INTO `i18n` (`id`, `en`, `fr`) VALUES
+('participant system code', 'Participant System Code', 'Participant - Code-système'),
 ("invitation date", "Invitation date", "Date d'invitation"),
 ("storage solution", "Storage solution", "Solution d'entreposage"),
 ("storage method", "Storage method", "Méthode d'entreposage");
@@ -3675,6 +3675,7 @@ samp.sample_type,
 samp.sample_label,
 
 al.barcode,
+al.aliquot_label,
 al.aliquot_type,
 al.in_stock,
 
@@ -3704,10 +3705,217 @@ LEFT JOIN ad_tubes AS tubes ON tubes.aliquot_master_id=al.id
 WHERE al.deleted != 1;
 
 -- Show storage info in aliquots list all
+
 INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
 ('', 'Inventorymanagement', 'ViewAliquot', 'view_aliquots', 'storage_solution', 'storage solution', '', 'input', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_tissue_storage_solution') , '', 'open', 'open', 'open'), 
 ('', 'Inventorymanagement', 'ViewAliquot', 'view_aliquots', 'storage_method', 'storage method', '', 'input', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_tissue_storage_method') , '', 'open', 'open', 'open');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
 ((SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='storage_solution' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tissue_storage_solution') ), '0', '16', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='storage_method' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tissue_storage_method') ), '0', '17', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+-- update user password
+
+UPDATE users SET password = 'ddeaa159a89375256a02d1cfbd9a1946ad01a979' WHERE username LIKE 'AdminManon';
+UPDATE users SET password = 'ddeaa159a89375256a02d1cfbd9a1946ad01a979' WHERE username LIKE 'ApostolosC';
+UPDATE users SET password = 'ddeaa159a89375256a02d1cfbd9a1946ad01a979' WHERE username LIKE 'AuroreP';
+UPDATE users SET password = 'ddeaa159a89375256a02d1cfbd9a1946ad01a979' WHERE username LIKE 'cfduchat';
+UPDATE users SET password = 'a4e3f973d60b334f92e990bcff2d0695c8df8120' WHERE username LIKE 'ChantaleA';
+UPDATE users SET password = '1dda8b78791639efd7a799956fee1af606f50fbb' WHERE username LIKE 'guilc';
+UPDATE users SET password = 'ddeaa159a89375256a02d1cfbd9a1946ad01a979' WHERE username LIKE 'Jean-Baptiste';
+UPDATE users SET password = '4067d37b7a9c896e83ea0c087758a6d958217e10' WHERE username LIKE 'JennK';
+UPDATE users SET password = 'ddeaa159a89375256a02d1cfbd9a1946ad01a979' WHERE username LIKE 'Karine';
+UPDATE users SET password = 'db2f9c6ad7e7487584bee200bb0c21a4657d01d3' WHERE username LIKE 'Liliane';
+UPDATE users SET password = '925ed6ea3ce580968b42aa5373c06fe1ceb02acd' WHERE username LIKE 'LiseP';
+UPDATE users SET password = '2539176fc4a3364d0d2756a47d34da9c1305b1ee' WHERE username LIKE 'Manon';
+UPDATE users SET password = '8b0a8ff9a634ef05c268cf9e8cedd266985786cf' WHERE username LIKE 'MichEn';
+UPDATE users SET password = 'ddeaa159a89375256a02d1cfbd9a1946ad01a979' WHERE username LIKE 'Migration';
+UPDATE users SET password = 'ddeaa159a89375256a02d1cfbd9a1946ad01a979' WHERE username LIKE 'NicoEn';
+UPDATE users SET password = 'ddeaa159a89375256a02d1cfbd9a1946ad01a979' WHERE username LIKE 'NicoFr';
+UPDATE users SET password = 'ddeaa159a89375256a02d1cfbd9a1946ad01a979' WHERE username LIKE 'SardoMigration';
+UPDATE users SET password = 'f7d34417d5d918004975b9b9a254d327a1d63585' WHERE username LIKE 'TeodoraY';
+UPDATE users SET password = '38477e9b0bddd7d3f8b9754be620959f804335dc' WHERE username LIKE 'UrszulaK';
+
+-- Hidde storage masters barcode
+
+UPDATE structure_fields field, structure_formats format
+SET format.flag_add ='0', format.flag_add_readonly ='0', 
+flag_edit ='0', flag_edit_readonly ='0', 
+flag_search ='0', flag_search_readonly ='0', 
+flag_datagrid ='0', flag_datagrid_readonly ='0', 
+flag_index ='0', 
+flag_detail ='0' 
+WHERE field.id = format.structure_field_id
+AND field.model = 'StorageMaster'
+AND field.field = 'barcode'; 
+
+UPDATE storage_masters SET notes = concat(notes, ' ', barcode, '.')
+WHERE `barcode` != 'n/a';
+
+UPDATE i18n SET en = 'Storage System Code', fr = 'Entreposage - Code-système' WHERE id = 'storage code';
+
+UPDATE structure_fields SET language_label = 'aliquot barcode' WHERE model IN ('AliquotMaster', 'ViewAliquot') AND field = 'barcode';
+
+INSERT INTO i18n (`id`, `page_id`, `en`, `fr`) 
+VALUES
+('aliquot barcode', '', 'Aliquot System Code', 'Aliquot - Code-système');
+
+-- update aliquot barcode position
+
+UPDATE structure_fields field, structure_formats format, structures strct
+SET display_column = '0', display_order = '10', language_heading = ''
+WHERE format.structure_id = strct.id
+AND field.id = format.structure_field_id
+AND strct.alias LIKE 'ad_%'
+AND field.model = 'AliquotMaster'
+AND field.field = 'barcode'; 
+
+UPDATE structure_fields field, structure_formats format, structures strct
+SET display_column = '0', display_order = '10'
+WHERE format.structure_id = strct.id
+AND field.id = format.structure_field_id
+AND strct.alias LIKE 'aliquotmasters'
+AND field.model = 'AliquotMaster'
+AND field.field = 'barcode'; 
+
+UPDATE structure_fields field, structure_formats format, structures strct
+SET flag_index ='0'
+WHERE format.structure_id = strct.id
+AND field.id = format.structure_field_id
+AND strct.alias LIKE '%_tree_view'
+AND field.model = 'AliquotMaster'
+AND field.field = 'barcode'; 
+
+UPDATE structure_fields field, structure_formats format, structures strct
+SET display_column = '0', display_order = '2'
+WHERE format.structure_id = strct.id
+AND field.id = format.structure_field_id
+AND strct.alias LIKE 'view_aliquot_joined_to_collection'
+AND field.model = 'ViewAliquot'
+AND field.field = 'visit_label'; 
+
+UPDATE structure_fields field, structure_formats format, structures strct
+SET display_column = '0', display_order = '3'
+WHERE format.structure_id = strct.id
+AND field.id = format.structure_field_id
+AND strct.alias LIKE 'view_aliquot_joined_to_collection'
+AND field.model = 'ViewAliquot'
+AND field.field = 'parent_sample_type'; 
+
+UPDATE structure_fields field, structure_formats format, structures strct
+SET display_column = '0', display_order = '4'
+WHERE format.structure_id = strct.id
+AND field.id = format.structure_field_id
+AND strct.alias LIKE 'view_aliquot_joined_to_collection'
+AND field.model = 'ViewAliquot'
+AND field.field = 'sample_type'; 
+
+UPDATE structure_fields field, structure_formats format, structures strct
+SET display_column = '0', display_order = '5'
+WHERE format.structure_id = strct.id
+AND field.id = format.structure_field_id
+AND strct.alias LIKE 'view_aliquot_joined_to_collection'
+AND field.model = 'ViewAliquot'
+AND field.field = 'sample_label'; 
+
+-- Add aliquot label to view
+
+INSERT INTO `structure_fields` (`id`, `public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, '', 'Inventorymanagement', 'ViewAliquot', '', 'aliquot_label', 'aliquot label', '', 'input', 'size=30', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+INSERT INTO `structure_formats` (`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+((SELECT id FROM structures WHERE alias='view_aliquot_joined_to_collection'),  
+(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='aliquot_label'), 
+0, 10, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
+
+UPDATE structure_fields field, structure_formats format, structures strct
+SET display_column = '0', display_order = '11'
+WHERE format.structure_id = strct.id
+AND field.id = format.structure_field_id
+AND strct.alias LIKE 'view_aliquot_joined_to_collection'
+AND field.model = 'ViewAliquot'
+AND field.field = 'barcode'; 
+
+UPDATE structure_fields field, structure_formats format, structures strct
+SET format.flag_add ='0', format.flag_add_readonly ='0', 
+flag_edit ='0', flag_edit_readonly ='0', 
+flag_search ='0', flag_search_readonly ='0', 
+flag_datagrid ='0', flag_datagrid_readonly ='0', 
+flag_index ='0', 
+flag_detail ='0' 
+WHERE format.structure_id = strct.id
+AND field.id = format.structure_field_id
+AND strct.alias LIKE 'view_aliquot_joined_to_collection'
+AND field.model = 'ViewAliquot'
+AND field.field = 'participant_identifier'; 
+
+INSERT INTO `structure_formats` (`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+((SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample'),  
+(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='aliquot_label'), 
+0, 10, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
+
+UPDATE structure_fields field, structure_formats format, structures strct
+SET display_column = '0', display_order = '11'
+WHERE format.structure_id = strct.id
+AND field.id = format.structure_field_id
+AND strct.alias LIKE 'view_aliquot_joined_to_sample'
+AND field.model = 'ViewAliquot'
+AND field.field = 'barcode'; 
+
+UPDATE structure_fields field, structure_formats format, structures strct
+SET format.flag_add ='0', format.flag_add_readonly ='0', 
+flag_edit ='0', flag_edit_readonly ='0', 
+flag_search ='0', flag_search_readonly ='0', 
+flag_datagrid ='0', flag_datagrid_readonly ='0', 
+flag_index ='0', 
+flag_detail ='0' 
+WHERE format.structure_id = strct.id
+AND field.id = format.structure_field_id
+AND strct.alias LIKE 'view_aliquot_joined_to_sample'
+AND field.model = 'ViewAliquot'
+AND field.field = 'aliquot_use_counter'; 
+
+UPDATE structure_fields field, structure_formats format, structures strct
+SET display_column = '0', display_order = '2'
+WHERE format.structure_id = strct.id
+AND field.id = format.structure_field_id
+AND strct.alias LIKE 'view_sample_joined_to_collection'
+AND field.model = 'ViewSample'
+AND field.field = 'visit_label'; 
+
+UPDATE structure_fields field, structure_formats format, structures strct
+SET display_column = '0', display_order = '7'
+WHERE format.structure_id = strct.id
+AND field.id = format.structure_field_id
+AND strct.alias LIKE 'view_sample_joined_to_collection'
+AND field.model = 'ViewSample'
+AND field.field = 'sample_code'; 
+
+UPDATE structure_fields SET language_label = 'sample code' WHERE model IN ('SampleMaster', 'ViewSample') AND field = 'sample_code';
+
+UPDATE i18n
+SET `en` = 'Sample System Code', `fr` = 'Échantillon - Code-système'
+WHERE  `id` = 'sample code';
+
+UPDATE structure_fields field, structure_formats format, structures strct
+SET display_column = '0', display_order = '7'
+WHERE format.structure_id = strct.id
+AND field.id = format.structure_field_id
+AND strct.alias LIKE 'view_sample_joined_to_parent'
+AND field.model = 'ViewSample'
+AND field.field = 'sample_code'; 
+
+UPDATE structure_fields field, structure_formats format, structures strct
+SET format.flag_add ='0', format.flag_add_readonly ='0', 
+flag_edit ='0', flag_edit_readonly ='0', 
+flag_search ='0', flag_search_readonly ='0', 
+flag_datagrid ='0', flag_datagrid_readonly ='0', 
+flag_index ='0', 
+flag_detail ='0' 
+WHERE format.structure_id = strct.id
+AND field.id = format.structure_field_id
+AND strct.alias IN ('aliquot_masters_for_storage_tree_view', 'aliquot_masters_for_collection_tree_view')
+AND field.model = 'AliquotMaster'
+AND field.field = 'barcode'; 
 
