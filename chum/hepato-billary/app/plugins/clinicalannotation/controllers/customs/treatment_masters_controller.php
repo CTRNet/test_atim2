@@ -143,5 +143,34 @@ class TreatmentMastersControllerCustom extends TreatmentMastersController {
 		$this->set('score_okuda_data', $this->EventMaster->find('all', array('conditions' => array('EventMaster.participant_id' => $participant_id, 'EventMaster.event_group' => 'scores', 'EventMaster.event_type' => 'okuda score'))));
 		$this->Structures->set('ed_score_okuda', 'score_okuda_structure');	
 	}
+	
+	// --------------------------------------------------------------------------------
+	// all.* surgery : Add Durations (Intensive care, hospitatlisation, etc)
+	// --------------------------------------------------------------------------------
+	/** 
+ 	 * Set medical past history precisions list for clinical.hepatobiliary.***medical_past_history.
+ 	 * 
+ 	 * @param $tx_data Data of the created/studied trt.
+ 	 * @param $tx_control Tx control of the created/studied trt.
+ 	 * 
+ 	 * @return Update trt data
+ 	 **/
+ 	 
+	function addSurgeryDurations( $tx_data, $tx_control ) { 
+		$tx_type_title = 
+			$tx_control['TreatmentControl']['disease_site'].'-'.
+			$tx_control['TreatmentControl']['tx_method'];
+			
+		$pattern = '/^all-(.*)surgery?/';
+		if(preg_match($pattern, $tx_type_title)) { 
+			
+			pr($tx_data);
+			exit;
+			
+		}
+		
+		return $tx_data;
+		
+	}
 }
 
