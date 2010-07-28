@@ -15,9 +15,9 @@ class OrderItemsController extends OrderAppController {
 		'Order.Shipment');
 		
 	var $paginate = array(
-		'OrderItem'=>array('limit'=>'10','order'=>'AliquotMaster.barcode'),
-		'ViewAliquot' => array('limit' =>10 , 'order' => 'ViewAliquot.barcode DESC'), 
-		'AliquotMaster' => array('limit' =>10 , 'order' => 'AliquotMaster.barcode DESC'));
+		'OrderItem'=>array('limit'=>pagination_amount,'order'=>'AliquotMaster.barcode'),
+		'ViewAliquot' => array('limit' =>pagination_amount , 'order' => 'ViewAliquot.barcode DESC'), 
+		'AliquotMaster' => array('limit' =>pagination_amount , 'order' => 'AliquotMaster.barcode DESC'));
 	
 	function listall( $order_id, $order_line_id ) {
   		if (( !$order_id ) || ( !$order_line_id )) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
@@ -122,7 +122,7 @@ class OrderItemsController extends OrderAppController {
 					if(!$this->AliquotMaster->save($new_aliquot_master_data)) { $this->redirect( '/pages/err_order_record_err', null, true ); }
 					
 					// Redirect
-					$this->flash('your data has been saved', '/order/order_items/listall/'.$order_id.'/'.$order_line_id.'/');
+					$this->atimFlash('your data has been saved', '/order/order_items/listall/'.$order_id.'/'.$order_line_id.'/');
 				}
 			}
 		}
@@ -260,7 +260,7 @@ class OrderItemsController extends OrderAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Structures
-		$this->Structures->set('view_aliquot_joined_to_collection', 'atim_structure_for_aliquots_list');
+		$this->Structures->set('view_aliquot_joined_to_sample_and_collection', 'atim_structure_for_aliquots_list');
 		$this->Structures->set('orderitems_to_addAliquotsInBatch', 'atim_structure_orderitems_data');
 		
 		$atim_structure = array();
@@ -336,7 +336,7 @@ class OrderItemsController extends OrderAppController {
 				unset($_SESSION['Order']['AliquotIdsToAddToOrder']);
 				
 				// Redirect
-				$this->flash('your data has been saved', '/order/order_items/listall/'.$order_id.'/'.$order_line_id.'/');
+				$this->atimFlash('your data has been saved', '/order/order_items/listall/'.$order_id.'/'.$order_line_id.'/');
 			}
 		}
 	}
@@ -424,7 +424,7 @@ class OrderItemsController extends OrderAppController {
 				}
 				
 				// Redirect
-				$this->flash('your data has been saved', '/order/order_items/listall/'.$order_id.'/'.$order_line_id.'/');
+				$this->atimFlash('your data has been saved', '/order/order_items/listall/'.$order_id.'/'.$order_line_id.'/');
 			}
 		}
 	}
@@ -472,7 +472,7 @@ class OrderItemsController extends OrderAppController {
 				if(!$this->OrderLine->save($order_line_data)) { $this->redirect( '/pages/err_order_record_err', null, true ); }
 				
 				// Redirect
-				$this->flash('your data has been deleted - update the aliquot in stock data', $url);
+				$this->atimFlash('your data has been deleted - update the aliquot in stock data', $url);
 			} else {
 				$this->flash('error deleting data - contact administrator', $url);
 			}

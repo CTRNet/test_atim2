@@ -15,8 +15,10 @@
  * 
  * @author macduy 
  */ 
+
 App::import('Component', 'Acl'); 
-App::import('component', 'Session'); 
+App::import('Component', 'Session'); 
+
 class SessionAclComponent extends AclComponent 
 { 
 
@@ -29,6 +31,7 @@ class SessionAclComponent extends AclComponent
      
     function check($aro, $aco, $action = "*") 
     { 
+        
         $path = $this->__cachePath($aro, $aco, $action); 
         if ($this->Session->check($path)) 
         { 

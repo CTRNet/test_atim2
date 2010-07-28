@@ -5,7 +5,9 @@
 		
 	if($is_inventory_plugin_form){
 		$structure_links['bottom']['edit'] = '/inventorymanagement/aliquot_masters/edit/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'];
-		$structure_links['bottom']['plugin storagelayout access to storage'] = empty($aliquot_storage_data)? '/underdevelopment/': '/storagelayout/storage_masters/detail/' . $aliquot_storage_data['StorageMaster']['id'];
+		$structure_links['bottom']['plugin storagelayout access to storage'] = array(
+			"link" => empty($aliquot_storage_data)? '/underdevelopment/': '/storagelayout/storage_masters/detail/' . $aliquot_storage_data['StorageMaster']['id'],
+			"icon" => "storage");
 		$structure_links['bottom']['remove from storage'] = empty($aliquot_storage_data)? '/underdevelopment/': '/inventorymanagement/aliquot_masters/removeAliquotFromStorage/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'];
 		
 		if(isset($order_line_id) && isset($order_id)){
@@ -29,11 +31,11 @@
 	} else {
 		// General detail form display
 		$search_type_links = array();
-		$search_type_links['collections'] = '/inventorymanagement/collections/index/';
-		$search_type_links['samples'] = '/inventorymanagement/sample_masters/index/';
-		$search_type_links['aliquots'] = '/inventorymanagement/aliquot_masters/index/';
+		$search_type_links['collections'] = array('link'=> '/inventorymanagement/collections/index/', 'icon' => 'search');
+		$search_type_links['samples'] = array('link'=> '/inventorymanagement/sample_masters/index/', 'icon' => 'search');
+		$search_type_links['aliquots'] = array('link'=> '/inventorymanagement/aliquot_masters/index/', 'icon' => 'search');
 		
-		$structure_links['bottom']['new search type'] = $search_type_links;
+		$structure_links['bottom']['new search'] = $search_type_links;
 	}
 	
 	// Set override
@@ -47,7 +49,7 @@
 		// 1- ALIQUOT DETAIL	
 		
 		$final_atim_structure = $atim_structure;
-		$final_options = array('links'=>$structure_links, 'override' => $structure_override, 'data' => $aliquot_master_data);
+		$final_options = array('links'=>$structure_links, 'override' => $structure_override, 'data' => $aliquot_master_data, 'settings' => array('header' => __('Aliquot', null)));
 
 		// CUSTOM CODE
 		$hook_link = $structures->hook('aliquot_detail_1');

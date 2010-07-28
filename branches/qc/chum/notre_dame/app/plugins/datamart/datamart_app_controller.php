@@ -4,7 +4,7 @@ class DatamartAppController extends AppController {
 
 	function beforeFilter() {
 		parent::beforeFilter();
-		$this->Auth->actionPath = 'controllers/Datamart/';
+		$this->Auth->actionPath = 'controllers/';
 	}
 
 }

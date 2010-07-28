@@ -45,7 +45,7 @@ class DrugsController extends DrugAppController {
 			if( $hook_link ) { require($hook_link); }	
 						
 			if ( $submitted_data_validates && $this->Drug->save($this->data) ) {
-				$this->flash( 'your data has been updated','/drug/drugs/detail/'.$this->Drug->id );
+				$this->atimFlash( 'your data has been updated','/drug/drugs/detail/'.$this->Drug->id );
 			}
 		}
   	}
@@ -72,7 +72,7 @@ class DrugsController extends DrugAppController {
 			if($submitted_data_validates) {
 				$this->Drug->id = $drug_id;
 				if ( $this->Drug->save($this->data) ) {
-					$this->flash( 'your data has been updated','/drug/drugs/detail/'.$drug_id );
+					$this->atimFlash( 'your data has been updated','/drug/drugs/detail/'.$drug_id );
 				}
 			}
 		}
@@ -106,7 +106,7 @@ class DrugsController extends DrugAppController {
 				
 		if($arr_allow_deletion['allow_deletion']) {	
 			if( $this->Drug->atim_delete( $drug_id ) ) {
-				$this->flash( 'your data has been deleted', '/drug/drugs/index/');
+				$this->atimFlash( 'your data has been deleted', '/drug/drugs/index/');
 			} else {
 				$this->flash( 'error deleting data - contact administrator', '/drug/drugs/index/');
 			}	
