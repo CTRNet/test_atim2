@@ -15874,9 +15874,9 @@ CREATE TABLE IF NOT EXISTS `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `first_name`, `last_name`, `password`, `email`, `department`, `job_title`, `institution`, `laboratory`, `help_visible`, `street`, `city`, `region`, `country`, `mail_code`, `phone_work`, `phone_home`, `lang`, `last_visit`, `group_id`, `active`, `created`, `modified`) VALUES
-(1, 'administrator', 'John Doe', NULL, '81a717c1def10e2d2406a198661abf8fdb8fd6f5', 'administrator@atim2core.dev', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'en', '0000-00-00 00:00:00', 1, 0, '2009-02-18 13:06:38', '2009-02-18 13:06:38'),
-(2, 'manager', 'John Smith', NULL, 'a8c5fcfed98912385f69e84bba13ff19ae42f765', 'manager@atim2core.dev', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'en', '0000-00-00 00:00:00', 2, 0, '2009-02-18 13:07:00', '2009-02-18 13:07:00'),
-(3, 'user', 'Joe Example', NULL, '9f5271385d730e9c44a54123f7aaa10f3298c4ee', 'user@atim2core.dev', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'en', '0000-00-00 00:00:00', 3, 0, '2009-02-18 13:07:07', '2009-02-18 13:07:07');
+(1, 'administrator', 'John Doe', NULL, '81a717c1def10e2d2406a198661abf8fdb8fd6f5', 'administrator@atim2core.dev', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'en', '0000-00-00 00:00:00', 1, 1, '2009-02-18 13:06:38', '2009-02-18 13:06:38'),
+(2, 'manager', 'John Smith', NULL, 'a8c5fcfed98912385f69e84bba13ff19ae42f765', 'manager@atim2core.dev', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'en', '0000-00-00 00:00:00', 2, 1, '2009-02-18 13:07:00', '2009-02-18 13:07:00'),
+(3, 'user', 'Joe Example', NULL, '9f5271385d730e9c44a54123f7aaa10f3298c4ee', 'user@atim2core.dev', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'en', '0000-00-00 00:00:00', 3, 1, '2009-02-18 13:07:07', '2009-02-18 13:07:07');
 
 -- --------------------------------------------------------
 
