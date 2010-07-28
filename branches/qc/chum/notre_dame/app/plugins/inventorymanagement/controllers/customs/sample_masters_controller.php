@@ -3,7 +3,7 @@
 class SampleMastersControllerCustom extends SampleMastersController {
 	
 	function createSampleLabel($collection_id, $sample_data, $bank_participant_identifier = null, $initial_specimen_label = null) {
-					
+		
 		// Check parameters
 	 	if(empty($collection_id) || empty($sample_data) 
 	 	|| (!isset($sample_data['SampleMaster'])) || (!isset($sample_data['SampleControl']))) { 
@@ -163,17 +163,17 @@ class SampleMastersControllerCustom extends SampleMastersController {
 			$LabTypeLateralityMatch = new LabTypeLateralityMatch();			
 			
 			// Get Data
-			if(!array_key_exists('sample_type', $this->data['SampleMaster'])) {pr('ascasc1');exit; $this->redirect('/pages/err_inv_system_error', null, true); }
+			if(!array_key_exists('sample_type', $this->data['SampleMaster'])) { $this->redirect('/pages/err_inv_system_error', null, true); }
 			$tmp_specimen_type = $this->data['SampleMaster']['sample_type'];
 				
-			if(!array_key_exists('SpecimenDetail', $this->data)) {pr('ascasc2');exit; $this->redirect('/pages/err_inv_system_error', null, true); }
-			if(!array_key_exists('type_code', $this->data['SpecimenDetail'])) {pr('ascasc3');exit; $this->redirect('/pages/err_inv_system_error', null, true); }
+			if(!array_key_exists('SpecimenDetail', $this->data)) { $this->redirect('/pages/err_inv_system_error', null, true); }
+			if(!array_key_exists('type_code', $this->data['SpecimenDetail'])) { $this->redirect('/pages/err_inv_system_error', null, true); }
 			$tmp_selected_type_code = $this->data['SpecimenDetail']['type_code'];
 									
 			if($tmp_specimen_type == 'tissue') { 				
 				// ** Validate Tissue Specimen + Set tissue additional data **
 								
-				if(!array_key_exists('labo_laterality', $this->data['SampleDetail'])) {pr('ascasc4');exit; $this->redirect('/pages/err_inv_system_error', null, true); }
+				if(!array_key_exists('labo_laterality', $this->data['SampleDetail'])) { $this->redirect('/pages/err_inv_system_error', null, true); }
 				$tmp_labo_laterality = $this->data['SampleDetail']['labo_laterality'];
 					
 				$tissue_source = '';	
@@ -187,8 +187,8 @@ class SampleMastersControllerCustom extends SampleMastersController {
 					$criteria['LabTypeLateralityMatch.selected_type_code'] = $tmp_selected_type_code;
 					$criteria['LabTypeLateralityMatch.selected_labo_laterality'] = $tmp_labo_laterality; 
 								
-					$matching_records = $LabTypeLateralityMatch->findAll($criteria);
-									
+					$matching_records = $LabTypeLateralityMatch->find('all', array('conditions' => $criteria));
+													
 					if(sizeof($matching_records) == 0) {
 						// The selected type code and labo laterality combination not currently supported by the laboratory				
 						$process_validates= false;
@@ -198,7 +198,7 @@ class SampleMastersControllerCustom extends SampleMastersController {
 					} else if(sizeof($matching_records) > 1) {
 						// Only one row should be defined in model 'LabTypeLateralityMatch' 
 						// for this specific combination sample_type_matching.selected_type_code.selected_labo_laterality
-						pr('ascasc5');exit;$this->redirect('/pages/err_inv_system_error', null, true);	
+						$this->redirect('/pages/err_inv_system_error', null, true);	
 						
 					} else {
 						// Set automatically tissue source, nature and laterality
@@ -225,7 +225,7 @@ class SampleMastersControllerCustom extends SampleMastersController {
 					$criteria['LabTypeLateralityMatch.selected_type_code'] = $tmp_selected_type_code;
 					$criteria['LabTypeLateralityMatch.selected_labo_laterality'] = ''; 
 					
-					$matching_records = $LabTypeLateralityMatch->findAll($criteria);
+					$matching_records = $LabTypeLateralityMatch->find('all', array('conditions' => $criteria));
 					
 					if(sizeof($matching_records) == 0) {
 						// The selected type code and labo laterality combination is not currently supported by the laboratory				
@@ -236,7 +236,7 @@ class SampleMastersControllerCustom extends SampleMastersController {
 					} else if(sizeof($matching_records) > 1) {
 						// Only one row should be defined in model 'LabTypeLateralityMatch' 
 						// for this specific combination sample_type_matching.selected_type_code.selected_labo_laterality
-						pr('ascasc6');exit;$this->redirect('/pages/err_inv_system_error', null, true);	
+						$this->redirect('/pages/err_inv_system_error', null, true);	
 						
 					}
 				}
