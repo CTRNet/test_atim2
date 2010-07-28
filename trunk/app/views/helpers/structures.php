@@ -1202,8 +1202,10 @@ class StructuresHelper extends Helper {
 			if ( $options['settings']['all_fields']==true || $field[ 'flag_'.$options['type'] ] ) {
 			
 				// label and help/info marker, if available...
-				if ( ( ($field['flag_override_label'] && $field['language_label']) || ($field['StructureField']['language_label']) ) || ( $field['flag_override_type']=='hidden' || $field['StructureField']['type']=='hidden' ) ) {
-					
+				if (($field['flag_override_label'] && $field['language_label']) 
+					|| (!$field['flag_override_label'] && $field['StructureField']['language_label']) 
+					|| $field['flag_override_type']=='hidden' 
+					|| $field['StructureField']['type']=='hidden' ){
 					// increment row_count, next row of information
 					$row_count++;
 					$table_index[ $field['display_column'] ][ $row_count ] = array();
