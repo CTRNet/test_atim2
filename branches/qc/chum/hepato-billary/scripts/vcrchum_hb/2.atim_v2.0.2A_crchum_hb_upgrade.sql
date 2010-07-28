@@ -622,6 +622,244 @@ CREATE VIEW `view_aliquots` AS select
 count(`al_use`.`id`) AS `aliquot_use_counter`,
 `al`.`deleted` AS `deleted` from (((((((`aliquot_masters` `al` join `sample_masters` `samp` on(((`samp`.`id` = `al`.`sample_master_id`) and (`samp`.`deleted` <> 1)))) join `collections` `col` on(((`col`.`id` = `samp`.`collection_id`) and (`col`.`deleted` <> 1)))) left join `aliquot_uses` `al_use` on(((`al_use`.`aliquot_master_id` = `al`.`id`) and (`al_use`.`deleted` <> 1)))) left join `sample_masters` `parent_samp` on(((`samp`.`parent_id` = `parent_samp`.`id`) and (`parent_samp`.`deleted` <> 1)))) left join `clinical_collection_links` `link` on(((`col`.`id` = `link`.`collection_id`) and (`link`.`deleted` <> 1)))) left join `participants` `part` on(((`link`.`participant_id` = `part`.`id`) and (`part`.`deleted` <> 1)))) left join `storage_masters` `stor` on(((`stor`.`id` = `al`.`storage_master_id`) and (`stor`.`deleted` <> 1)))) where (`al`.`deleted` <> 1) group by `al`.`id`;
 
+-- Add post operative data
+
+UPDATE structure_formats SET `language_heading`='specific liver surgery data' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_livers') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='TreatmentDetail' AND tablename='qc_hb_txd_surgery_livers' AND field='liver_appearance');
+UPDATE structure_formats SET `language_heading`='specific pancreas surgery data' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_pancreas') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='TreatmentDetail' AND tablename='qc_hb_txd_surgery_pancreas' AND field='pancreas_appearance');
+
+ALTER TABLE `qc_hb_txd_surgery_pancreas`
+	ADD hospitalization_start_date DATE DEFAULT NULL AFTER `splen_size`,
+	ADD hospitalization_end_date DATE DEFAULT NULL AFTER `hospitalization_start_date`,
+	ADD hospitalization_duration_in_days INT(10) DEFAULT NULL AFTER `hospitalization_end_date`,
+	ADD gastric_tube_duration_in_days INT(4) DEFAULT NULL AFTER `hospitalization_duration_in_days`,
+	
+	ADD is_intensive_care_1 tinyint(3) DEFAULT NULL AFTER `gastric_tube_duration_in_days`,
+	ADD ic_1_start_date DATE DEFAULT NULL AFTER `is_intensive_care_1`,
+	ADD ic_1_end_date DATE DEFAULT NULL AFTER `ic_1_start_date`,
+	ADD ic_1_duration_in_days INT(10) DEFAULT NULL AFTER `ic_1_end_date`,
+	
+	ADD is_intensive_care_2 tinyint(3) DEFAULT NULL AFTER `ic_1_duration_in_days`,
+	ADD ic_2_start_date DATE DEFAULT NULL AFTER `is_intensive_care_2`,
+	ADD ic_2_end_date DATE DEFAULT NULL AFTER `ic_2_start_date`,
+	ADD ic_2_duration_in_days INT(10) DEFAULT NULL AFTER `ic_2_end_date`,
+	
+	ADD is_intensive_care_3 tinyint(3) DEFAULT NULL AFTER `ic_2_duration_in_days`,
+	ADD ic_3_start_date DATE DEFAULT NULL AFTER `is_intensive_care_3`,
+	ADD ic_3_end_date DATE DEFAULT NULL AFTER `ic_3_start_date`,
+	ADD ic_3_duration_in_days INT(10) DEFAULT NULL AFTER `ic_3_end_date`,
+	
+	ADD total_ic_duration_in_days INT(10) DEFAULT NULL AFTER `ic_3_duration_in_days`,
+	
+	ADD survival_time_in_months INT(10) DEFAULT NULL AFTER `total_ic_duration_in_days`;
+	
+ALTER TABLE `qc_hb_txd_surgery_pancreas_revs`
+	ADD hospitalization_start_date DATE DEFAULT NULL AFTER `splen_size`,
+	ADD hospitalization_end_date DATE DEFAULT NULL AFTER `hospitalization_start_date`,
+	ADD hospitalization_duration_in_days INT(10) DEFAULT NULL AFTER `hospitalization_end_date`,
+	ADD gastric_tube_duration_in_days INT(4) DEFAULT NULL AFTER `hospitalization_duration_in_days`,
+	
+	ADD is_intensive_care_1 tinyint(3) DEFAULT NULL AFTER `gastric_tube_duration_in_days`,
+	ADD ic_1_start_date DATE DEFAULT NULL AFTER `is_intensive_care_1`,
+	ADD ic_1_end_date DATE DEFAULT NULL AFTER `ic_1_start_date`,
+	ADD ic_1_duration_in_days INT(10) DEFAULT NULL AFTER `ic_1_end_date`,
+	
+	ADD is_intensive_care_2 tinyint(3) DEFAULT NULL AFTER `ic_1_duration_in_days`,
+	ADD ic_2_start_date DATE DEFAULT NULL AFTER `is_intensive_care_2`,
+	ADD ic_2_end_date DATE DEFAULT NULL AFTER `ic_2_start_date`,
+	ADD ic_2_duration_in_days INT(10) DEFAULT NULL AFTER `ic_2_end_date`,
+	
+	ADD is_intensive_care_3 tinyint(3) DEFAULT NULL AFTER `ic_2_duration_in_days`,
+	ADD ic_3_start_date DATE DEFAULT NULL AFTER `is_intensive_care_3`,
+	ADD ic_3_end_date DATE DEFAULT NULL AFTER `ic_3_start_date`,
+	ADD ic_3_duration_in_days INT(10) DEFAULT NULL AFTER `ic_3_end_date`,
+	
+	ADD total_ic_duration_in_days INT(10) DEFAULT NULL AFTER `ic_3_duration_in_days`,
+	
+	ADD survival_time_in_months INT(10) DEFAULT NULL AFTER `total_ic_duration_in_days`;
+	
+ALTER TABLE `qc_hb_txd_surgery_livers`
+	ADD hospitalization_start_date DATE DEFAULT NULL AFTER `splen_size`,
+	ADD hospitalization_end_date DATE DEFAULT NULL AFTER `hospitalization_start_date`,
+	ADD hospitalization_duration_in_days INT(10) DEFAULT NULL AFTER `hospitalization_end_date`,
+	ADD gastric_tube_duration_in_days INT(4) DEFAULT NULL AFTER `hospitalization_duration_in_days`,
+	
+	ADD is_intensive_care_1 tinyint(3) DEFAULT NULL AFTER `gastric_tube_duration_in_days`,
+	ADD ic_1_start_date DATE DEFAULT NULL AFTER `is_intensive_care_1`,
+	ADD ic_1_end_date DATE DEFAULT NULL AFTER `ic_1_start_date`,
+	ADD ic_1_duration_in_days INT(10) DEFAULT NULL AFTER `ic_1_end_date`,
+	
+	ADD is_intensive_care_2 tinyint(3) DEFAULT NULL AFTER `ic_1_duration_in_days`,
+	ADD ic_2_start_date DATE DEFAULT NULL AFTER `is_intensive_care_2`,
+	ADD ic_2_end_date DATE DEFAULT NULL AFTER `ic_2_start_date`,
+	ADD ic_2_duration_in_days INT(10) DEFAULT NULL AFTER `ic_2_end_date`,
+	
+	ADD is_intensive_care_3 tinyint(3) DEFAULT NULL AFTER `ic_2_duration_in_days`,
+	ADD ic_3_start_date DATE DEFAULT NULL AFTER `is_intensive_care_3`,
+	ADD ic_3_end_date DATE DEFAULT NULL AFTER `ic_3_start_date`,
+	ADD ic_3_duration_in_days INT(10) DEFAULT NULL AFTER `ic_3_end_date`,
+	
+	ADD total_ic_duration_in_days INT(10) DEFAULT NULL AFTER `ic_3_duration_in_days`,
+	
+	ADD survival_time_in_months INT(10) DEFAULT NULL AFTER `total_ic_duration_in_days`;
+	
+ALTER TABLE `qc_hb_txd_surgery_livers_revs`
+	ADD hospitalization_start_date DATE DEFAULT NULL AFTER `splen_size`,
+	ADD hospitalization_end_date DATE DEFAULT NULL AFTER `hospitalization_start_date`,
+	ADD hospitalization_duration_in_days INT(10) DEFAULT NULL AFTER `hospitalization_end_date`,
+	ADD gastric_tube_duration_in_days INT(4) DEFAULT NULL AFTER `hospitalization_duration_in_days`,
+	
+	ADD is_intensive_care_1 tinyint(3) DEFAULT NULL AFTER `gastric_tube_duration_in_days`,
+	ADD ic_1_start_date DATE DEFAULT NULL AFTER `is_intensive_care_1`,
+	ADD ic_1_end_date DATE DEFAULT NULL AFTER `ic_1_start_date`,
+	ADD ic_1_duration_in_days INT(10) DEFAULT NULL AFTER `ic_1_end_date`,
+	
+	ADD is_intensive_care_2 tinyint(3) DEFAULT NULL AFTER `ic_1_duration_in_days`,
+	ADD ic_2_start_date DATE DEFAULT NULL AFTER `is_intensive_care_2`,
+	ADD ic_2_end_date DATE DEFAULT NULL AFTER `ic_2_start_date`,
+	ADD ic_2_duration_in_days INT(10) DEFAULT NULL AFTER `ic_2_end_date`,
+	
+	ADD is_intensive_care_3 tinyint(3) DEFAULT NULL AFTER `ic_2_duration_in_days`,
+	ADD ic_3_start_date DATE DEFAULT NULL AFTER `is_intensive_care_3`,
+	ADD ic_3_end_date DATE DEFAULT NULL AFTER `ic_3_start_date`,
+	ADD ic_3_duration_in_days INT(10) DEFAULT NULL AFTER `ic_3_end_date`,
+	
+	ADD total_ic_duration_in_days INT(10) DEFAULT NULL AFTER `ic_3_duration_in_days`,
+	
+	ADD survival_time_in_months INT(10) DEFAULT NULL AFTER `total_ic_duration_in_days`;
+		
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Clinicalannotation', 'TreatmentDetail', '', 'hospitalization_start_date', 'hospitalization start date', '', 'date', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'TreatmentDetail', '', 'hospitalization_end_date', 'hospitalization end date', '', 'date', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'TreatmentDetail', '', 'hospitalization_duration_in_days', 'hospitalization duration in days', '', 'integer', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'TreatmentDetail', '', 'gastric_tube_duration_in_days', 'gastric tube duration in days', '', 'integer', '', '',  NULL , '', 'open', 'open', 'open'),
+
+('', 'Clinicalannotation', 'TreatmentDetail', '', 'is_intensive_care_1', 'is intensive care 1', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'TreatmentDetail', '', 'ic_1_start_date', 'ic 1 start date', '', 'date', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'TreatmentDetail', '', 'ic_1_end_date', 'ic 1 end date', '', 'date', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'TreatmentDetail', '', 'ic_1_duration_in_days', 'ic 1 duration in days', '', 'integer', '', '',  NULL , '', 'open', 'open', 'open'), 
+
+('', 'Clinicalannotation', 'TreatmentDetail', '', 'is_intensive_care_2', 'is intensive care 2', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'TreatmentDetail', '', 'ic_2_start_date', 'ic 2 start date', '', 'date', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'TreatmentDetail', '', 'ic_2_end_date', 'ic 2 end date', '', 'date', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'TreatmentDetail', '', 'ic_2_duration_in_days', 'ic 2 duration in days', '', 'integer', '', '',  NULL , '', 'open', 'open', 'open'), 
+
+('', 'Clinicalannotation', 'TreatmentDetail', '', 'is_intensive_care_3', 'is intensive care 3', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'TreatmentDetail', '', 'ic_3_start_date', 'ic 3 start date', '', 'date', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'TreatmentDetail', '', 'ic_3_end_date', 'ic 3 end date', '', 'date', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'TreatmentDetail', '', 'ic_3_duration_in_days', 'ic 3 duration in days', '', 'integer', '', '',  NULL , '', 'open', 'open', 'open'), 
+
+('', 'Clinicalannotation', 'TreatmentDetail', '', 'total_ic_duration_in_days', 'total ic duration in days', '', 'integer', '', '',  NULL , '', 'open', 'open', 'open');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_pancreas'), 
+(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='' AND `field`='hospitalization_start_date' AND `language_label`='hospitalization start date' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '20', 'hospitalization unit', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_pancreas'), 
+(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='' AND `field`='hospitalization_end_date' AND `language_label`='hospitalization end date' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_pancreas'), 
+(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='' AND `field`='hospitalization_duration_in_days' AND `language_label`='hospitalization duration in days' AND `language_tag`='' AND `type`='integer' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '22', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_pancreas'), 
+(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='' AND `field`='gastric_tube_duration_in_days' AND `language_label`='gastric tube duration in days' AND `language_tag`='' AND `type`='integer' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '23', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
+
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_pancreas'), 
+(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='' AND `field`='is_intensive_care_1' AND `language_label`='is intensive care 1' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `language_help`=''), '2', '24', 'intensive care', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_pancreas'), 
+(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='' AND `field`='ic_1_start_date' AND `language_label`='ic 1 start date' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '25', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_pancreas'), 
+(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='' AND `field`='ic_1_end_date' AND `language_label`='ic 1 end date' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '26', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_pancreas'), 
+(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='' AND `field`='ic_1_duration_in_days' AND `language_label`='ic 1 duration in days' AND `language_tag`='' AND `type`='integer' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '27', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1'), 
+
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_pancreas'), 
+(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='' AND `field`='is_intensive_care_2' AND `language_label`='is intensive care 2' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `language_help`=''), '2', '28', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_pancreas'), 
+(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='' AND `field`='ic_2_start_date' AND `language_label`='ic 2 start date' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '29', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_pancreas'), 
+(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='' AND `field`='ic_2_end_date' AND `language_label`='ic 2 end date' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '30', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_pancreas'), 
+(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='' AND `field`='ic_2_duration_in_days' AND `language_label`='ic 2 duration in days' AND `language_tag`='' AND `type`='integer' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '31', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_pancreas'), 
+
+(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='' AND `field`='is_intensive_care_3' AND `language_label`='is intensive care 3' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `language_help`=''), '2', '32', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_pancreas'), 
+(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='' AND `field`='ic_3_start_date' AND `language_label`='ic 3 start date' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '33', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_pancreas'), 
+(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='' AND `field`='ic_3_end_date' AND `language_label`='ic 3 end date' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '34', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_pancreas'), 
+(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='' AND `field`='ic_3_duration_in_days' AND `language_label`='ic 3 duration in days' AND `language_tag`='' AND `type`='integer' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '35', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1'), 
+
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_pancreas'), 
+(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='' AND `field`='total_ic_duration_in_days' AND `language_label`='total ic duration in days' AND `language_tag`='' AND `type`='integer' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '36', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_livers'), 
+(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='' AND `field`='hospitalization_start_date' AND `language_label`='hospitalization start date' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '20', 'hospitalization unit', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_livers'), 
+(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='' AND `field`='hospitalization_end_date' AND `language_label`='hospitalization end date' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_livers'), 
+(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='' AND `field`='hospitalization_duration_in_days' AND `language_label`='hospitalization duration in days' AND `language_tag`='' AND `type`='integer' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '22', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_livers'), 
+(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='' AND `field`='gastric_tube_duration_in_days' AND `language_label`='gastric tube duration in days' AND `language_tag`='' AND `type`='integer' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '23', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
+
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_livers'), 
+(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='' AND `field`='is_intensive_care_1' AND `language_label`='is intensive care 1' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `language_help`=''), '2', '24', 'intensive care', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_livers'), 
+(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='' AND `field`='ic_1_start_date' AND `language_label`='ic 1 start date' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '25', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_livers'), 
+(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='' AND `field`='ic_1_end_date' AND `language_label`='ic 1 end date' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '26', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_livers'), 
+(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='' AND `field`='ic_1_duration_in_days' AND `language_label`='ic 1 duration in days' AND `language_tag`='' AND `type`='integer' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '27', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1'), 
+
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_livers'), 
+(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='' AND `field`='is_intensive_care_2' AND `language_label`='is intensive care 2' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `language_help`=''), '2', '28', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_livers'), 
+(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='' AND `field`='ic_2_start_date' AND `language_label`='ic 2 start date' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '29', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_livers'), 
+(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='' AND `field`='ic_2_end_date' AND `language_label`='ic 2 end date' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '30', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_livers'), 
+(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='' AND `field`='ic_2_duration_in_days' AND `language_label`='ic 2 duration in days' AND `language_tag`='' AND `type`='integer' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '31', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_livers'), 
+
+(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='' AND `field`='is_intensive_care_3' AND `language_label`='is intensive care 3' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `language_help`=''), '2', '32', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_livers'), 
+(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='' AND `field`='ic_3_start_date' AND `language_label`='ic 3 start date' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '33', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_livers'), 
+(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='' AND `field`='ic_3_end_date' AND `language_label`='ic 3 end date' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '34', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_livers'), 
+(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='' AND `field`='ic_3_duration_in_days' AND `language_label`='ic 3 duration in days' AND `language_tag`='' AND `type`='integer' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '35', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1'), 
+
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_livers'), 
+(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='' AND `field`='total_ic_duration_in_days' AND `language_label`='total ic duration in days' AND `language_tag`='' AND `type`='integer' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '36', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1');
+
+INSERT IGNORE INTO i18n (id, en, fr) VALUES
+('specific liver surgery data' ,'Specific Data', 'Données Spécifiques'), 
+('specific pancreas surgery data' ,'Specific Data', 'Données Spécifiques'),
+
+('hospitalization unit', 'Hospitalization Unit', 'Données d''hospitalisation'),
+('hospitalization start date', 'Hospitalization Start', 'Début hospitalisation'),
+('hospitalization end date', 'Hospitalization End', 'Fin hospitalisation'),
+('hospitalization duration in days', 'Hospitalization Duration (Days)', 'Durée hopsitalisation (jours)'),
+('intensive care', 'Intensive Care', 'Soins intensifs'),
+('is intensive care 1', '1st Intensive Care', '1er Soins intensifs'),
+('ic 1 start date', 'IC-1 Start', 'Début SI-1'),
+('ic 1 end date', 'IC-1 End', 'Fin SI-1'),
+('ic 1 duration in days', 'IC-1 Duration (Days)', 'Durée SI-1 (Jours)'),
+
+('is intensive care 2', '2nd Intensive Care', '2nd Soins intensifs'),
+('ic 2 start date', 'IC-2 Start', 'Début SI-2'),
+('ic 2 end date', 'IC-2 End', 'Fin SI-2'),
+('ic 2 duration in days', 'IC-2 Duration (Days)', 'Durée SI-2 (Jours)'),
+
+('is intensive care 3', '3rd Intensive Care', '3eme Soins intensifs'),
+('ic 3 start date', 'IC-3 Start', 'Début SI-3'),
+('ic 3 end date', 'IC-3 End', 'Fin SI-3'),
+('ic 3 duration in days', 'IC-3 Duration (Days)', 'Durée SI-3 (Jours)'),
+
+
+('gastric tube duration in days', 'Gastric Tube Use (Days)', 'Utilisation Sonde Gastrique (Jours)');
+('total ic duration in days', 'Total IC Duration (Days)', 'Durée SI totale (Jours)');
+
+
+
 
 
 
