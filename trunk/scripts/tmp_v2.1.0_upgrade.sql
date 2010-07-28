@@ -440,7 +440,9 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ("storage", "Storage", "Entreposage"),
 ("save", "Save", "Enregistrer"),
 ("new batchset", "New batchset", "Nouvel ensemble de données"),
-("add to compatible batchset", "Add to compatible batchset", "Ajouter à un ensble de données compatible");
+("add to compatible batchset", "Add to compatible batchset", "Ajouter à un ensble de données compatible"),
+("the used volume is higher than the remaining volume", "The used volume is higher than the remaining volume", "Le volume utilisé est supérieur au volume restant"),
+("do you wish to proceed?", "Do you wish to proceed?", "Souhaitez-vous continuer?");
 
 
 
@@ -577,4 +579,10 @@ INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
 ((SELECT id FROM structures WHERE alias='miscidentifierssummary'), (SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='misc_identifier_control_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='identifier_name_list') ), '0', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0');
 UPDATE structure_formats SET `flag_search`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifierssummary') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='MiscIdentifier' AND tablename='misc_identifiers' AND field='identifier_name' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='identifier_name_list'));
+
+-- eventum 852 (used volume check)
+UPDATE structure_fields SET `type`='float' WHERE plugin='Inventorymanagement' AND model='AliquotMaster' AND field='current_volume' AND tablename='aliquot_masters';
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='aliquotuses'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='current_volume' AND `type`='float' AND `structure_value_domain`  IS NULL  ), '0', '3', '', '1', '', '1', 'out of', '0', '', '0', '', '1', '', '0', '', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0');
+
 

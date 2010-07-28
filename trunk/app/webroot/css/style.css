@@ -826,7 +826,8 @@ span.help:hover {
 				padding: 0 0 0.5em 0;
 			}
 			
-				div.wrapper table.structure tbody.descriptive_heading h4 { 
+				div.wrapper table.structure tbody.descriptive_heading h4,
+				.std_popup.question h4 { 
 					background-color: #f2f2f2;
 					margin: 0 0 0 0;
 					padding: 1em 1em 0.25em 1em;
@@ -836,7 +837,9 @@ span.help:hover {
 					color: #2d5069;
 				}
 			
-				div.wrapper table.structure tbody.descriptive_heading p { 
+				
+				div.wrapper table.structure tbody.descriptive_heading p,
+				.std_popup.question p { 
 					background-color: #f2f2f2;
 					margin: 0 0 0 0;
 					padding: 0 1em 1em 1em;

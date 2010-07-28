@@ -778,6 +778,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 				} 
 			}
 		}
+		
+		$data = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.id' => $aliquot_master_id), 'recursive' => -1));
+		$this->data['AliquotMaster']['current_volume'] = $data['AliquotMaster']['current_volume'];
 	}
 	
 	function editAliquotUse($collection_id, $sample_master_id, $aliquot_master_id, $aliquot_use_id) {
