@@ -330,7 +330,15 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		// set structure alias based on VALUE from CONTROL table
 		$this->Structures->set($aliquot_control_data['AliquotControl']['form_alias']);
-			
+
+		// set data for initial data to allow bank to override data
+		
+		$inital_data = array(array(
+				'AliquotMaster' => array(
+					'aliquot_type' => $aliquot_control_data['AliquotControl']['aliquot_type'],
+					'aliquot_volume_unit' => $aliquot_control_data['AliquotControl']['volume_unit'],
+					'storage_datetime' => $this->getDefaultAliquotStorageDate($sample_data))));
+		
 		$hook_link = $this->hook('format');
 		if($hook_link){
 			require($hook_link); 
@@ -341,16 +349,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if (empty($this->data)) {
 			// Initial Display
 			$this->set('arr_preselected_storages_for_display', array());
-						
-			$this->data = array(array(
-				'AliquotMaster' => array(
-					'aliquot_type' => $aliquot_control_data['AliquotControl']['aliquot_type'],
-					'aliquot_volume_unit' => $aliquot_control_data['AliquotControl']['volume_unit'],
-					'storage_datetime' => $this->getDefaultAliquotStorageDate($sample_data))));
+			$this->data = $inital_data;
 			
 		} else {
 			// Record process
-			
+						
 			// Manage volume
 			foreach($this->data as $key => $data) {				
 				// Set AliquotMaster.initial_volume
