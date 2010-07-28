@@ -31,9 +31,9 @@ class SampleMastersController extends InventorymanagementAppController {
 		'Inventorymanagement.SampleToAliquotControl');
 	
 	var $paginate = array(
-		'SampleMaster' => array('limit' => 10, 'order' => 'SampleMaster.sample_code DESC'),
-		'ViewSample' => array('limit' =>10 , 'order' => 'ViewSample.sample_code DESC'), 
-		'AliquotMaster' => array('limit' =>10 , 'order' => 'AliquotMaster.barcode DESC'));
+		'SampleMaster' => array('limit' => pagination_amount, 'order' => 'SampleMaster.sample_code DESC'),
+		'ViewSample' => array('limit' =>pagination_amount , 'order' => 'ViewSample.sample_code DESC'), 
+		'AliquotMaster' => array('limit' =>pagination_amount , 'order' => 'AliquotMaster.barcode DESC'));
 
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS
@@ -528,14 +528,19 @@ class SampleMastersController extends InventorymanagementAppController {
 	
 			//Set default reception date
 			if($bool_is_specimen){
+				$default_reception_datetime = null;
+				$default_reception_datetime_accuracy = null;
 				if($this->SampleMaster->find('count', array('conditions' => array('SampleMaster.collection_id' => $collection_id))) == 0){
 					$collection = $this->Collection->find('first', array('conditions' => array('Collection.id' => $collection_id)));
 					$default_reception_datetime = $collection['Collection']['collection_datetime'];
+					$default_reception_datetime_accuracy = $collection['Collection']['collection_datetime_accuracy'];
 				}else{
-					$sample = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id), 'fields' => array('MIN(SpecimenDetail.reception_datetime) AS reception_datetime')));
-					$default_reception_datetime = $sample[0]['reception_datetime'];
+					$sample = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id), 'order by' => array('SpecimenDetail.reception_datetime')));
+					$default_reception_datetime = $sample['SpecimenDetail']['reception_datetime'];
+					$default_reception_datetime_accuracy = $sample['SpecimenDetail']['reception_datetime_accuracy'];
 				}
 				$this->data['SpecimenDetail']['reception_datetime'] = $default_reception_datetime;
+				$this->data['SpecimenDetail']['reception_datetime_accuracy'] = $default_reception_datetime_accuracy;
 			}
 		
 		} else {
@@ -609,7 +614,7 @@ class SampleMastersController extends InventorymanagementAppController {
 						if(!$this->DerivativeDetail->save($this->data['DerivativeDetail'], false)) { $this->redirect('/pages/err_inv_system_error', null, true); }
 					}						
 					
-					$this->flash('your data has been saved', '/inventorymanagement/sample_masters/detail/' . $collection_id . '/' . $sample_master_id);	
+					$this->atimFlash('your data has been saved', '/inventorymanagement/sample_masters/detail/' . $collection_id . '/' . $sample_master_id);	
 				}					
 			}			
 		}
@@ -728,7 +733,7 @@ class SampleMastersController extends InventorymanagementAppController {
 						}
 					}
 
-					$this->flash('your data has been updated', '/inventorymanagement/sample_masters/detail/' . $collection_id . '/' . $sample_master_id);		
+					$this->atimFlash('your data has been updated', '/inventorymanagement/sample_masters/detail/' . $collection_id . '/' . $sample_master_id);		
 				}				
 			}
 		}
@@ -777,7 +782,7 @@ class SampleMastersController extends InventorymanagementAppController {
 			}
 			
 			if($deletion_done) {
-				$this->flash('your data has been deleted', '/inventorymanagement/sample_masters/contentTreeView/' . $collection_id);
+				$this->atimFlash('your data has been deleted', '/inventorymanagement/sample_masters/contentTreeView/' . $collection_id);
 			} else {
 				$this->flash('error deleting data - contact administrator', '/inventorymanagement/sample_masters/contentTreeView/' . $collection_id);
 			}

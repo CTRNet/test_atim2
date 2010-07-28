@@ -1,17 +1,16 @@
-<?php 
-
+<?php
 	// 1- PARTICIPANT PROFILE
 	
 	$search_type_links = array();
-	$search_type_links['participants'] = '/clinicalannotation/participants/index/';
-	$search_type_links['misc identifiers'] = '/clinicalannotation/misc_identifiers/index/';
+	$search_type_links['participants'] = array('link'=> '/clinicalannotation/participants/index/', 'icon' => 'search');
+	$search_type_links['misc identifiers'] = array('link'=> '/clinicalannotation/misc_identifiers/index/', 'icon' => 'search');
 	
 	$structure_links = array(
 		'index'=>array(),
 		'bottom'=>array(
 			'edit'=>'/clinicalannotation/participants/edit/'.$atim_menu_variables['Participant.id'],
 			'delete'=>'/clinicalannotation/participants/delete/'.$atim_menu_variables['Participant.id'],			
-			'new search type' => $search_type_links
+			'new search' => $search_type_links
 		)
 	);
 	

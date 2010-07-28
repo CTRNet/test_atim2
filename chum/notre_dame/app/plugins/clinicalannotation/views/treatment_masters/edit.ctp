@@ -20,6 +20,8 @@
 	
 	$structure_override = array();
 	
+	if(isset($available_protocols)) { $structure_override['TreatmentMaster.protocol_master_id'] = $available_protocols; }
+	
 	$final_options = array('links'=>$structure_links,'settings'=>$structure_settings,'override'=>$structure_override);
 	$final_atim_structure = $atim_structure; 
 	

@@ -9,10 +9,13 @@ $(function(){
 	var jsonOrgItems = eval('(' + orgItems + ')');
 	for(var i = jsonOrgItems.length - 1; i >= 0; -- i){
 		var appendString = "<li class='dragme " + jsonOrgItems[i].type + " { \"id\" : \"" + jsonOrgItems[i].id + "\", \"type\" : \"" + jsonOrgItems[i].type + "\"}'>"
-			//+ '<a href="#" title="' + removeString + '" class="ui-icon ui-icon-close" style="float: left;">' + removeString + '</a>'
-			+ '<span class="button small removeItem" title="' + removeString + '"><span class="ui-icon ui-icon-close" style="float: left;"></span></span>'
-			//+ '<a href="#" title="' + unclassifyString + '" title="Recycle" class="ui-icon ui-icon-refresh" style="float: left;">' + removeString + '</a>'
-			+ '<span class="button small recycleItem" title="' + unclassifyString + '"><span class="ui-icon ui-icon-refresh" style="float: left;"></span></span>'
+			//removal button
+//			+ '<span class="button small removeItem" title="' + removeString + '"><span class="ui-icon ui-icon-close" style="float: left;"></span></span>'
+			//unclassify button
+//			+ '<span class="button small recycleItem" title="' + unclassifyString + '"><span class="ui-icon ui-icon-refresh" style="float: left;"></span></span>'
+			//ajax view button
+			+ '<a href="#popup" title="' + detailString + '" class="form ' + jsonOrgItems[i].icon_name + ' ajax {\'callback\' : \'showInLowerFrame\', \'load\' : \'' + jsonOrgItems[i].link + '\'}" style="text-decoration: none;">&nbsp;</a>'
+			//DO NOT ADD A DETAIL BUTTON! It's too dangerous to edit and click it by mistake
 			+ '<span class="handle">' + jsonOrgItems[i].label + '</span></li>';
 
 		if(jsonOrgItems[i].x.length > 0){
@@ -50,10 +53,10 @@ $(function(){
 	});
 	
 	//hide the refresh icon for the unclassified elements
-	elements = $("#unclassified").children();
-	for(var i = 0; i < elements.length; i ++){
-		$($(elements[i]).children()[1]).css("display", 'none');
-	}
+//	elements = $("#unclassified").children();
+//	for(var i = 0; i < elements.length; i ++){
+//		$($(elements[i]).children()[1]).css("display", 'none');
+//	}
 	
 	//bind preparePost to the submit button
 	$("#submit_button_link").click(function(){
@@ -209,6 +212,17 @@ function moveUlTo(ulId, destinationId){
 			recycleItem(liArray[j]);
 		}
 	}	
+}
+
+function showInLowerFrame(element, json){
+	if(!window.loadingStr){
+		window.loadingStr = "js untranslated loading";	
+	}
+	$("#popup").html("<div class='loading'>---" + loadingStr + "---</div>");
+	$("#popup").popup();
+	$.get(json.load, {}, function(data){
+		 $("#popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>");
+	});
 }
 
 function debug(str){

@@ -13,10 +13,9 @@
 	<link rel="shortcut icon" href="<?php echo($this->webroot); ?>/img/favicon.ico"/>
 	<?php 
 		echo $html->css('style')."\n"; 
-		echo $html->css('jQuery/themes/ui-lightness/jquery-ui-1.8.custom')."\n"; 
-		echo $html->css('jQuery/themes/jquery_cupertino/jquery-ui-1.8.custom')."\n"; 
-//		echo $html->css('datepicker')."\n";
-//		echo $html->css('lightwindow')."\n";
+		echo $html->css('jQuery/themes/custom-theme/jquery-ui-1.8.2.custom')."\n";
+		echo $html->css('jQuery/popup/popup.css');
+		echo $html->css('jQuery/fg.menu.css'); 
 
 		//set the locale
 		if(__('clin_english', true) == "Anglais"){
@@ -30,18 +29,18 @@
 		var webroot_dir = root_url + "/app/webroot/";
 		var locale = "<?php echo($locale); ?>";
 		var STR_OR = "<?php __('or'); ?>";
+		var STR_SPECIFIC = "<?php __('specific'); ?>";
+		var STR_RANGE = "<?php __('range'); ?>";
+		var STR_TO = "<?php __('to'); ?>";
 		</script>
 		<?php
 		echo $javascript->link('jquery-1.4.2.min')."\n";
-		echo $javascript->link('jquery-ui-1.8.custom.min')."\n";
+		echo $javascript->link('jquery-ui-1.8.2.custom.min')."\n";
 		echo $javascript->link('jquery.ui-datepicker-fr.js')."\n";
 		echo $javascript->link('jquery.highlight.js')."\n";
-//		echo $javascript->link('datepicker')."\n";
-//		echo $javascript->link('prototype')."\n";
-//		echo $javascript->link('scriptaculous.js?load=effects,dragdrop')."\n";
-//		echo $javascript->link('lightwindow')."\n";
+		echo $javascript->link('jquery.popup.js')."\n";
+		echo $javascript->link('fg.menu.js')."\n";
 		echo $javascript->link('default')."\n";
-//		echo $javascript->link('controls')."\n";
 	?>
 	<!--[if IE 7]>
 	<?php
@@ -61,8 +60,13 @@
 	
 	echo $shell->footer();
 
-	echo $cakeDebug; 
+	echo $this->element('sql_dump');
 ?>
 	
+	<script type="text/javascript">
+	$(function(){
+		initJsControls();
+	});
+	</script>
 </body>
 </html>

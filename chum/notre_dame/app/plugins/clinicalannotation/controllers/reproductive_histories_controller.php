@@ -68,7 +68,7 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController {
 			
 			if($submitted_data_validates) {
 				if ( $this->ReproductiveHistory->save($this->data) ) {
-					$this->flash( 'your data has been saved','/clinicalannotation/reproductive_histories/detail/'.$participant_id.'/'.$this->ReproductiveHistory->id );
+					$this->atimFlash( 'your data has been saved','/clinicalannotation/reproductive_histories/detail/'.$participant_id.'/'.$this->ReproductiveHistory->id );
 				}			
 			}
 		}
@@ -101,7 +101,7 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController {
 			if($submitted_data_validates) {
 				$this->ReproductiveHistory->id = $reproductive_history_id;
 				if ( $this->ReproductiveHistory->save($this->data) ) {
-					$this->flash( 'your data has been updated','/clinicalannotation/reproductive_histories/detail/'.$participant_id.'/'.$reproductive_history_id );
+					$this->atimFlash( 'your data has been updated','/clinicalannotation/reproductive_histories/detail/'.$participant_id.'/'.$reproductive_history_id );
 				}
 			}
 		}
@@ -124,7 +124,7 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController {
 			// DELETE DATA
 			$flash_link = '/clinicalannotation/reproductive_histories/listall/'.$participant_id;
 			if ($this->ReproductiveHistory->atim_delete($reproductive_history_id)) {
-				$this->flash( 'your data has been deleted', $flash_link );
+				$this->atimFlash( 'your data has been deleted', $flash_link );
 			} else {
 				$this->flash( 'error deleting data - contact administrator', $flash_link );
 			}	

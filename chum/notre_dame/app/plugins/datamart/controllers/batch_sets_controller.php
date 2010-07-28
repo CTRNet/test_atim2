@@ -7,7 +7,9 @@ class BatchSetsController extends DatamartAppController {
 		
 		'Datamart.BatchSet', 
 		'Datamart.BatchId', 
-		'Datamart.BatchSetProcess'
+		'Datamart.BatchSetProcess',
+	
+		'Inventorymanagement.RealiquotingControl'
 	);
 	
 	var $paginate = array(
@@ -15,50 +17,31 @@ class BatchSetsController extends DatamartAppController {
 	); 
 	
 	function index( $type_of_list='all' ) {
-		
-		if ( !isset($_SESSION['BatchSet_filter']) || !$type_of_list || $type_of_list=='all' ) {
-			$_SESSION['BatchSet_filter'] = array();
-			$_SESSION['BatchSet_filter']['BatchSet.user_id'] = $_SESSION['Auth']['User']['id'];
-		} else {
-			$_SESSION['BatchSet_filter'] = array();
-			$_SESSION['BatchSet_filter']['BatchSet.group_id'] = $_SESSION['Auth']['User']['group_id'];
+		$batch_set_filter = array();
+		if ($type_of_list=='all') {
+			$batch_set_filter['BatchSet.user_id'] = $_SESSION['Auth']['User']['id'];
+		}else{
+			$batch_set_filter['BatchSet.group_id'] = $_SESSION['Auth']['User']['group_id'];
 		}
 		
 		$this->set( 'atim_menu_variables', array( 'Param.Type_Of_List'=>$type_of_list ) );
 		$this->Structures->set('querytool_batch_set' );
 		
-		$this->data = $this->paginate($this->BatchSet, $_SESSION['BatchSet_filter']);
-		
+		$this->data = $this->paginate($this->BatchSet, $batch_set_filter);
 	}
 	
 	function listall( $type_of_list='all', $batch_set_id=0 ) {
-		
 		$this->set( 'atim_menu_variables', array( 'Param.Type_Of_List'=>$type_of_list, 'BatchSet.id'=>$batch_set_id ) );
 		$this->set( 'atim_structure_for_detail', $this->Structures->get( 'form', 'querytool_batch_set' ) );
-		
-		// clear SESSION info
-		$_SESSION['ctrapp_core']['datamart']['process'] = NULL;
-		
-		// get BATCHSET for source info 
-		
-		$conditions = array(
-			'BatchSet.id' => $batch_set_id,
-			
-			'or'	=> array(
-				'BatchSet.group_id'	=> $_SESSION['Auth']['User']['group_id'],
-				'BatchSet.user_id'	=> $_SESSION['Auth']['User']['id']
-			)
-		);
-		 
-		$batch_set = $this->BatchSet->find( 'first', array( 'conditions'=>$conditions ) );
-	   
-	   	// add COUNT of IDS to array results, for form list 
-			$batch_set['BatchSet']['count_of_BatchId'] = count($batch_set['BatchId']); 
+		$batch_set = $this->BatchSet->getBatchSet($batch_set_id);
+
+		// add COUNT of IDS to array results, for form list 
+		$batch_set['BatchSet']['count_of_BatchId'] = count($batch_set['BatchId']); 
 		
 		$this->set( 'data_for_detail', $batch_set );
 		
 		// set VAR to determine if this BATCHSET belongs to USER or to other user in GROUP
-		$belong_to_this_user = $batch_set['BatchSet']['user_id']==$_SESSION['Auth']['User']['id'] ? TRUE : FALSE;
+		$belong_to_this_user = $batch_set['BatchSet']['user_id'] == $_SESSION['Auth']['User']['id'] ? TRUE : FALSE;
 		$this->set( 'belong_to_this_user', $belong_to_this_user );
 			
 		$this->set( 'atim_structure_for_results', $this->Structures->get( 'form', $batch_set['BatchSet']['form_alias_for_results'] ) );
@@ -73,8 +56,10 @@ class BatchSetsController extends DatamartAppController {
 			
 		// parse resulting IDs from the SET to build FINDALL criteria for SET's true MODEL 
 		$criteria = array();
+		$lookup_key_name = $batch_set['BatchSet']['lookup_key_name'];
+		$this->set("lookup_key_name", $lookup_key_name);
 		foreach ( $batch_set['BatchId'] as $fields ) {
-			$criteria[] = $batch_set['BatchSet']['model'].'.id="'.$fields['lookup_id'].'"';
+			$criteria[] = $batch_set['BatchSet']['model'].'.'.$lookup_key_name.'="'.$fields['lookup_id'].'"';
 		}
 		$criteria = implode( ' OR ', $criteria );
 		
@@ -108,9 +93,8 @@ class BatchSetsController extends DatamartAppController {
 	    	} else {
 				$results = $this->ModelToSearch->find( 'all', array( 'conditions'=>$criteria, 'recursive'=>3 ) );
 			}
-		
 		$this->set( 'results', $results ); // set for display purposes...
-			
+
 		// parse LINKS field in ADHOCS list for links in CHECKLIST
 		$ctrapp_form_links = array();
 		
@@ -134,14 +118,28 @@ class BatchSetsController extends DatamartAppController {
 		
 		// add COUNT of IDS to array results, for form list 
 		$batch_set_processes = array();
-		$batch_set_processes['/datamart/batch_sets/remove']	= __('remove from batch set', true);
-		$batch_set_processes['/datamart/batch_sets/csv']		= __('export as CSV file (comma-separated values)', true);
+		$batch_set_processes['/datamart/batch_sets/remove/'.$batch_set_id."/"]	= __('remove from batch set', true);
+		$batch_set_processes['/csv/csv/'.$batch_set['BatchSet']['plugin']."/".$batch_set['BatchSet']['model']."/".$batch_set['BatchSet']['lookup_key_name']."/".$batch_set['BatchSet']['form_alias_for_results']]		= __('export as CSV file (comma-separated values)', true);
+		if($batch_set['BatchSet']['model'] == "AliquotMaster"){
+			$realiquot_link = '/inventorymanagement/aliquot_masters/realiquot/'.$batch_set_id."/";
+			$this->set("realiquot_link", $realiquot_link);
+			$batch_set_processes[$realiquot_link]		= __('realiquot', true);
+
+			//realiquot into possibilities
+			$realiquot_data_raw = $this->RealiquotingControl->find('all', array('recursive' => 2)); 
+			$realiquot_data = array();
+			foreach($realiquot_data_raw as $data){
+				$realiquot_data[$data['ParentSampleToAliquotControl']['SampleControl']['sample_type']][$data['ParentSampleToAliquotControl']['AliquotControl']['aliquot_type']][$data['ChildSampleToAliquotControl']['AliquotControl']['id']] = $data['ChildSampleToAliquotControl']['AliquotControl']['aliquot_type'];
+
+			}
+			$this->set('realiquot_data', $realiquot_data);
+		}
+				
 		
 		foreach ( $batch_set_process_results as &$value) {
 			$batch_set_processes[ $value['BatchSetProcess']['url'] ] = strlen( $value['BatchSetProcess']['name'] ) > 60 ? substr( $value['BatchSetProcess']['name'], 0, 60 ).'...' : __($value['BatchSetProcess']['name'], true);
 		}
 		$this->set( 'batch_set_processes', $batch_set_processes );
-	
 	}
 	
 	function add( $target_batch_set_id=0 ) {
@@ -193,7 +191,7 @@ class BatchSetsController extends DatamartAppController {
 	    		$batch_set_ids[] = $array['lookup_id'];
 	    	
 	    		// remove from SAVED batch set
-	    		$this->BatchId->del( $array['id'] );
+	    		$this->BatchId->delete( $array['id'] );
 	    	}
 	    
 	   	 	// add existing set IDS to array
@@ -235,67 +233,34 @@ class BatchSetsController extends DatamartAppController {
 		
 		if ( !empty($this->data) ) {
 			$this->BatchSet->id = $batch_set_id;
-			if ( $this->BatchSet->save($this->data) ) $this->flash( 'your data has been updated','/datamart/batch_sets/listall/'.$type_of_list.'/'.$batch_set_id );
+			if ( $this->BatchSet->save($this->data) ) $this->atimFlash( 'your data has been updated','/datamart/batch_sets/listall/'.$type_of_list.'/'.$batch_set_id );
 		} else {
 			$this->data = $this->BatchSet->find('first',array('conditions'=>array('BatchSet.id'=>$batch_set_id)));
 		}
 	}
 	
 	function delete( $type_of_list='all', $batch_set_id=0 ) {
-		$this->BatchSet->del( $batch_set_id );
-		$this->flash( 'your data has been deleted', '/datamart/batch_sets/index' );
+		$this->BatchSet->delete( $batch_set_id );
+		$this->atimFlash( 'your data has been deleted', '/datamart/batch_sets/index' );
 	}
 	
-	function process( $type_of_list='all', $batch_set_id=0 ) {
-		
-			$conditions = array(
-				'BatchSet.id' => $batch_set_id,
-				
-				'or'	=> array(
-					'BatchSet.group_id'	=> $_SESSION['Auth']['User']['group_id'],
-					'BatchSet.user_id'	=> $_SESSION['Auth']['User']['id']
-				)
-			);
-			 
-			$batch_set = $this->BatchSet->find( 'first', array( 'conditions'=>$conditions ) );
-		
-		$batch_set['BatchSet']['process'] = $this->data['BatchSet']['process'];
-		$this->data['BatchSet'] = $batch_set['BatchSet'];
-		
-		// clear SESSION info
-		$_SESSION['ctrapp_core']['datamart']['process'] = $this->data;
-		
-		$this->redirect( $this->data['BatchSet']['process'] );
-		exit();
-		
-	}
-	
-	function remove() {
+	function remove($batch_set_id) {
+		$batch_set = $this->BatchSet->getBatchSet($batch_set_id);
 		
 		// set function variables, makes script readable :)
-		$batch_set_id = $_SESSION['ctrapp_core']['datamart']['process']['BatchSet']['id'];
-		$batch_set_model = $_SESSION['ctrapp_core']['datamart']['process']['BatchSet']['model'];
+		$batch_set_id = $batch_set['BatchSet']['id'];
+		$batch_set_model = $batch_set['BatchSet']['model'];
 		
-		if ( isset( $_SESSION['ctrapp_core']['datamart']['process'][ $batch_set_model ] ) ) {
-			$batch_id_array = $_SESSION['ctrapp_core']['datamart']['process'][ $batch_set_model ]['id'];
-		} else {
-			$batch_id_array = array();
-		}
-		
-		if ( count( $batch_id_array ) ) {
-			
+		if (count($this->data[$batch_set_model]['id'])) {
 			// START findall criteria
-			$criteria = 'set_id="'.$batch_set_id.'"';
-			
-			// add SESSION id array to criteria
-			$criteria .= 'AND ( lookup_id="'.implode( '" OR lookup_id="', $batch_id_array ).'" )';
+			$criteria = 'set_id="'.$batch_set_id.'" '		
+				.'AND ( lookup_id="'.implode( '" OR lookup_id="', $this->data[$batch_set_model]['id'] ).'" )';
 			
 			// get BatchId ROWS and remove from SAVED batch set
 			$results = $this->BatchId->find( 'all', array( 'conditions'=>$criteria ) );
 			foreach ( $results as $id ) {
-				$this->BatchId->del( $id['BatchId']['id'] );
+				$this->BatchId->delete( $id['BatchId']['id'] );
 			}
-			
 		}
 		
 		// redirect back to list Batch SET
@@ -303,92 +268,6 @@ class BatchSetsController extends DatamartAppController {
 		exit();
 		
 	}
-	
-	function csv() {
-		
-		// set function variables, makes script readable :)
-		$batch_set_id = $_SESSION['ctrapp_core']['datamart']['process']['BatchSet']['id'];
-		$batch_set_model = $_SESSION['ctrapp_core']['datamart']['process']['BatchSet']['model'];
-		
-		if ( isset( $_SESSION['ctrapp_core']['datamart']['process'][ $batch_set_model ] ) ) {
-			$batch_id_array = $_SESSION['ctrapp_core']['datamart']['process'][ $batch_set_model ]['id'];
-		} else {
-			$batch_id_array = array();
-		}
-		
-		// get BATCHSET for source info 
-			
-			$conditions = array(
-				'BatchSet.id' => $batch_set_id,
-				
-				'or'	=> array(
-					'BatchSet.group_id'	=> $_SESSION['Auth']['User']['group_id'],
-					'BatchSet.user_id'	=> $_SESSION['Auth']['User']['id']
-				)
-			);
-			 
-			$batch_set = $this->BatchSet->find( 'first', array( 'conditions'=>$conditions ) );
-		   
-		   	// add COUNT of IDS to array results, for form list 
-				$batch_set['BatchSet']['count_of_BatchId'] = count($batch_set['BatchId']); 
-			
-		$this->Structures->set($batch_set['BatchSet']['form_alias_for_results'] );
-		
-		
-		
-		
-		
-		
-		// do search for RESULTS, using THIS->DATA if any
-			
-			$model_to_import = ( $batch_set['BatchSet']['plugin'] ? $batch_set['BatchSet']['plugin'].'.' : '' ).$batch_set['BatchSet']['model'];
-			App::import('Model',$model_to_import);
-			
-			$this->ModelToSearch = new $batch_set['BatchSet']['model'];
-				
-			// parse resulting IDs from the SET to build FINDALL criteria for SET's true MODEL 
-			$criteria = array();
-			foreach ( $batch_id_array as $field_id ) {
-				$criteria[] = $batch_set_model.'.id="'.$field_id.'"';
-			}
-			$criteria = implode( ' OR ', $criteria );
-			
-				// make list of SEARCH RESULTS
-		    	
-		    	// add FAKE false to criteria if NO criteria/ids
-				if ( !$criteria ) {
-					$criteria = '1=2';
-				} 
-					
-				if ( $batch_set['BatchSet']['flag_use_query_results'] ) {
-		    	
-		    		// update DATATABLE names to MODEL names for CTRAPP FORM framework
-					$query_to_use = str_replace( '|', '"', $batch_set['BatchSet']['sql_query_for_results'] ); // due to QUOTES and HTML not playing well, PIPES saved to datatable rows instead
-					
-					// add restrictions to query, inserting BATCH SET IDs to WHERE statement
-					if ( substr_count( $query_to_use, 'WHERE' )>=2 || substr_count( $query_to_use, 'WHERE TRUE AND' )>=1 ) {
-						$query_to_use = str_replace( 'WHERE TRUE AND ', 'WHERE TRUE  AND ('.$criteria.') AND ', $query_to_use );
-					} else {
-						$query_to_use = str_replace( 'WHERE', 'WHERE ('.$criteria.') AND ', $query_to_use );
-					}
-					
-					// add restrictions to QUERY, inserting BATCH SET IDs to WHERE statement (using PREG REPLACE to find a WHERE statement NOT inside a sub query)
-					// $query_to_use = preg_replace( '^(?!\\(.*)WHERE(?!.*\\))^', 'WHERE ('.$criteria.') AND', $query_to_use );
-					
-					$results = $this->ModelToSearch->query( $query_to_use ); 
-		    	
-		    	} else {
-					$results = $this->ModelToSearch->find( 'all', array( 'conditions'=>$criteria, 'recursive'=>3 ) );
-				}
-			
-			$this->data = $results; // set for display purposes...
-			
-			$this->layout = false;
-			
-	}
-	
-	
-
 }
 
 ?>

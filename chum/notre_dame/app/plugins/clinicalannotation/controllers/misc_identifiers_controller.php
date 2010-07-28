@@ -121,7 +121,7 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 				
 		if ( empty($this->data) ) {	
 			$this->data = array();			
-			$this->data['MiscIdentifier']['identifier_name'] = $controls['MiscIdentifierControl']['misc_identifier_name'];
+			$this->data['MiscIdentifier']['identifier_name'] = $controls['MiscIdentifierControl']['id'];
 			$this->data['MiscIdentifier']['identifier_abrv'] = $controls['MiscIdentifierControl']['misc_identifier_name_abbrev'];
 			
 		} else {
@@ -130,6 +130,7 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 			// Set additional data
 			$this->data['MiscIdentifier']['participant_id'] = $participant_id;
 			$this->data['MiscIdentifier']['misc_identifier_control_id'] = $misc_identifier_control_id;
+			$this->data['MiscIdentifier']['identifier_name'] = $controls['MiscIdentifierControl']['misc_identifier_name']; 
 			
 			// Launch validation
 			$submitted_data_validates = true;
@@ -152,7 +153,7 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 			
 				// Save data
 				if ( $this->MiscIdentifier->save($this->data) ) {
-					$this->flash( 'your data has been saved','/clinicalannotation/misc_identifiers/detail/'.$participant_id.'/'.$this->MiscIdentifier->id );
+					$this->atimFlash( 'your data has been saved','/clinicalannotation/misc_identifiers/detail/'.$participant_id.'/'.$this->MiscIdentifier->id );
 				}
 			}
 		}
@@ -202,7 +203,7 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 			if($submitted_data_validates) {
 				$this->MiscIdentifier->id = $misc_identifier_id;
 				if ( $this->MiscIdentifier->save($this->data) ) {
-					$this->flash( 'your data has been updated','/clinicalannotation/misc_identifiers/detail/'.$participant_id.'/'.$misc_identifier_id );
+					$this->atimFlash( 'your data has been updated','/clinicalannotation/misc_identifiers/detail/'.$participant_id.'/'.$misc_identifier_id );
 				}
 			}
 		}
@@ -223,7 +224,7 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 		
 		if($arr_allow_deletion['allow_deletion']) {
 			if( $this->MiscIdentifier->atim_delete( $misc_identifier_id ) ) {
-				$this->flash( 'your data has been deleted', '/clinicalannotation/misc_identifiers/listall/'.$participant_id );
+				$this->atimFlash( 'your data has been deleted', '/clinicalannotation/misc_identifiers/listall/'.$participant_id );
 			} else {
 				$this->flash( 'error deleting data - contact administrator', '/clinicalannotation/misc_identifiers/listall/'.$participant_id );
 			}	

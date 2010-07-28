@@ -70,7 +70,7 @@ class PreferencesController extends AdministrateAppController {
 				$this->User->save($this->data);
 				$this->Config->save($this->data);
 				
-				$this->flash( 'your data has been updated','/administrate/preferences/index/'.$bank_id.'/'.$group_id.'/'.$user_id );
+				$this->atimFlash( 'your data has been updated','/administrate/preferences/index/'.$bank_id.'/'.$group_id.'/'.$user_id );
 			}
 			
 		} else {
