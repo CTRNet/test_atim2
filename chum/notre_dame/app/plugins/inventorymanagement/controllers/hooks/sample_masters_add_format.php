@@ -9,7 +9,7 @@
 			
 		$visit_label = $tmp_collection_data['Collection']['visit_label'];
 						
-		if(preg_match('/^V[0]([0-9]*)$/', $visit_label, $res)){pr($res);
+		if(preg_match('/^V[0]([0-9]*)$/', $visit_label, $res)){
 			$this->set('default_sequence_number', $res[1]);				
 		}
 	}
