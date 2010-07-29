@@ -134,12 +134,6 @@ class AppController extends Controller {
 		Configure::write('Acl.classname', 'AtimAcl');
 		Configure::write('Acl.database', 'default');
 	
-		
-		$ATiMCache = Configure::read('debug') ? true : false; 
-		Configure::write('ATiMMenuCache.disable', $ATiMCache);
-		Configure::write('ATiMStructureCache.disable', $ATiMCache);
-	
-	
 		// ATiM2 configuration variables from Datatable
 		
 		define('VALID_INTEGER', '/^[-+]?\\b[0-9]+\\b$/');

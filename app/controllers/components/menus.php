@@ -37,14 +37,20 @@ class MenusComponent extends Object {
 			$alias_calculated[]	= 'Menu.use_link LIKE "/'.( $this->controller->params['plugin'] ? $this->controller->params['plugin'].'/' : '' ).$this->controller->params['controller'].'%"';
 			
 		}
+		
 		$menu_cache_directory = "../tmp/cache/menus/";
 		$fname = $menu_cache_directory.str_replace("/", "_", $alias).".cache";
-		if(file_exists($fname) && Configure::read('ATiMMenuCache.disable') != 1){
+		
+		if(file_exists($fname) && !(Configure::read('ATiMMenuCache.disable')) ){
+			
 			$fhandle = fopen($fname, 'r');
 			$return = unserialize(fread($fhandle, filesize($fname)));
 			fclose($fhandle);
-		}else{
-			if(Configure::read('ATiMMenuCache.disable')){
+		}
+		
+		else{
+			
+			if( Configure::read('ATiMMenuCache.disable') ){
 				//clear menu cache
 				try{
 					if ($dh = opendir($menu_cache_directory)) {
@@ -59,6 +65,7 @@ class MenusComponent extends Object {
 					//do nothing, it's a race condition with someone else
 				}
 			}
+			
 			if ( $alias ) {
 				App::import('model', 'Menu');
 				$this->Component_Menu = new Menu;
@@ -119,18 +126,12 @@ class MenusComponent extends Object {
 						foreach ( $current_level as &$current_item ) {
 							$current_item['Menu']['at'] = $current_item['Menu']['id']==$source_id ? true : false;
 							
-							/*
-							if ( Configure::read("debug") ) {
-								$current_item['Menu']['allowed'] = true;
-							} else {
-							*/
-								$parts = Router::parse($current_item['Menu']['use_link']);
-								$aco_alias = 'controllers/'.($parts['plugin'] ? Inflector::camelize($parts['plugin']) : 'App').'/';
-								$aco_alias .= ($parts['controller'] ? Inflector::camelize($parts['controller']).'/' : '');
-								$aco_alias .= ($parts['action'] ? $parts['action'] : '');
-								
-								$current_item['Menu']['allowed'] = $this->SessionAcl->check($aro_alias, $aco_alias);
-							// }
+							$parts = Router::parse($current_item['Menu']['use_link']);
+							$aco_alias = 'controllers/'.($parts['plugin'] ? Inflector::camelize($parts['plugin']) : 'App').'/';
+							$aco_alias .= ($parts['controller'] ? Inflector::camelize($parts['controller']).'/' : '');
+							$aco_alias .= ($parts['action'] ? $parts['action'] : '');
+							
+							$current_item['Menu']['allowed'] = $this->SessionAcl->check($aro_alias, $aco_alias);
 							
 						}
 						
@@ -152,13 +153,16 @@ class MenusComponent extends Object {
 				if ( $result ) $return = $menu;
 				
 			}
-			if(Configure::read('ATiMMenuCache.disable') != 1){
+			
+			if( !(Configure::read('ATiMMenuCache.disable')) ){
 				$fhandle = fopen($fname, 'w');
 				fwrite($fhandle, serialize($return));
 				flush();
 				fclose($fhandle);
 			}
+			
 		}
+		
 		return $return;
 		
 	}
