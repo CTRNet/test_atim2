@@ -831,32 +831,68 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='' AND `field`='total_ic_duration_in_days' AND `language_label`='total ic duration in days' AND `language_tag`='' AND `type`='integer' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '36', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1');
 
 INSERT IGNORE INTO i18n (id, en, fr) VALUES
-('specific liver surgery data' ,'Specific Data', 'DonnÈes SpÈcifiques'), 
-('specific pancreas surgery data' ,'Specific Data', 'DonnÈes SpÈcifiques'),
+('specific liver surgery data' ,'Liver Surgery Data', 'Donn√©es - chirurgie du foie'), 
+('specific pancreas surgery data' ,'Pancreas Surgery Data', 'Donn√©es - chirurgie du pancr√©as'),
 
-('hospitalization unit', 'Hospitalization Unit', 'DonnÈes d''hospitalisation'),
-('hospitalization start date', 'Hospitalization Start', 'DÈbut hospitalisation'),
+('hospitalization unit', 'Hospitalization Unit', 'Donn√©es d''hospitalisation'),
+('hospitalization start date', 'Hospitalization Start', 'D√©but hospitalisation'),
 ('hospitalization end date', 'Hospitalization End', 'Fin hospitalisation'),
-('hospitalization duration in days', 'Hospitalization Duration (Days)', 'DurÈe hopsitalisation (jours)'),
+('hospitalization duration in days', 'Hospitalization Duration (Days)', 'Dur√©e hopsitalisation (jours)'),
 ('intensive care', 'Intensive Care', 'Soins intensifs'),
 ('is intensive care 1', '1st Intensive Care', '1er Soins intensifs'),
-('ic 1 start date', 'IC-1 Start', 'DÈbut SI-1'),
+('ic 1 start date', 'IC-1 Start', 'D√©but SI-1'),
 ('ic 1 end date', 'IC-1 End', 'Fin SI-1'),
-('ic 1 duration in days', 'IC-1 Duration (Days)', 'DurÈe SI-1 (Jours)'),
+('ic 1 duration in days', 'IC-1 Duration (Days)', 'Dur√©e SI-1 (Jours)'),
+
+('survival time in months', 'Survival Time (Months)', 'Survie (Mois)'),
+('generic surgery data', 'Generic Data', 'Donn√©s g√©n√©riques'),
 
 ('is intensive care 2', '2nd Intensive Care', '2nd Soins intensifs'),
-('ic 2 start date', 'IC-2 Start', 'DÈbut SI-2'),
+('ic 2 start date', 'IC-2 Start', 'D√©but SI-2'),
 ('ic 2 end date', 'IC-2 End', 'Fin SI-2'),
-('ic 2 duration in days', 'IC-2 Duration (Days)', 'DurÈe SI-2 (Jours)'),
+('ic 2 duration in days', 'IC-2 Duration (Days)', 'Dur√©e SI-2 (Jours)'),
 
 ('is intensive care 3', '3rd Intensive Care', '3eme Soins intensifs'),
-('ic 3 start date', 'IC-3 Start', 'DÈbut SI-3'),
+('ic 3 start date', 'IC-3 Start', 'D√©but SI-3'),
 ('ic 3 end date', 'IC-3 End', 'Fin SI-3'),
-('ic 3 duration in days', 'IC-3 Duration (Days)', 'DurÈe SI-3 (Jours)'),
+('ic 3 duration in days', 'IC-3 Duration (Days)', 'Dur√©e SI-3 (Jours)'),
+('liver', 'Liver', 'Foie'),
+('gastric tube duration in days', 'Gastric Tube Use (Days)', 'Utilisation Sonde Gastrique (Jours)'),
+('total ic duration in days', 'Total IC Duration (Days)', 'Dur√©e SI totale (Jours)');
+
+UPDATE tx_controls SET tx_method = 'surgery', disease_site = 'liver' WHERE tx_method = 'liver surgery';
+UPDATE tx_controls SET tx_method = 'surgery', disease_site = 'pancreas' WHERE tx_method = 'pancreas surgery';
+
+UPDATE structure_formats SET `language_heading`='generic surgery data' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_pancreas') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='TreatmentMaster' AND tablename='tx_masters' AND field='start_date');
+UPDATE structure_formats SET `language_heading`='generic surgery data' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_livers') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='TreatmentMaster' AND tablename='tx_masters' AND field='start_date');
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Clinicalannotation', 'TreatmentDetail', '', 'survival_time_in_months', 'survival time in months', '', 'integer', '', '',  NULL , '', 'open', 'open', 'open');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_pancreas'), 
+(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='' AND `field`='survival_time_in_months' AND `language_label`='survival time in months' AND `language_tag`='' AND `type`='integer' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_livers'), 
+(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='' AND `field`='survival_time_in_months' AND `language_label`='survival time in months' AND `language_tag`='' AND `type`='integer' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1');
 
 
-('gastric tube duration in days', 'Gastric Tube Use (Days)', 'Utilisation Sonde Gastrique (Jours)');
-('total ic duration in days', 'Total IC Duration (Days)', 'DurÈe SI totale (Jours)');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -145,8 +145,9 @@ class TreatmentMastersControllerCustom extends TreatmentMastersController {
 	}
 	
 	// --------------------------------------------------------------------------------
-	// all.* surgery : Add Durations (Intensive care, hospitatlisation, etc)
+	// *.surgery : Add Durations (Intensive care, hospitatlisation, etc)
 	// --------------------------------------------------------------------------------
+	
 	/** 
  	 * Set medical past history precisions list for clinical.hepatobiliary.***medical_past_history.
  	 * 
@@ -161,16 +162,154 @@ class TreatmentMastersControllerCustom extends TreatmentMastersController {
 			$tx_control['TreatmentControl']['disease_site'].'-'.
 			$tx_control['TreatmentControl']['tx_method'];
 			
-		$pattern = '/^all-(.*)surgery?/';
+		$pattern = '/^(.*)-surgery?/';
 		if(preg_match($pattern, $tx_type_title)) { 
+			//hospitalization duration
+			$tx_data['TreatmentDetail']['hospitalization_duration_in_days'] = $this->getSpentTime($tx_data['TreatmentDetail']['hospitalization_start_date'], $tx_data['TreatmentDetail']['hospitalization_end_date']);
 			
-			pr($tx_data);
-			exit;
+			//ic_1_duration_in_days duration
+			$tx_data['TreatmentDetail']['ic_1_duration_in_days'] = $this->getSpentTime($tx_data['TreatmentDetail']['ic_1_start_date'], $tx_data['TreatmentDetail']['ic_1_end_date']);
 			
+			//ic_22_duration_in_days duration
+			$tx_data['TreatmentDetail']['ic_2_duration_in_days'] = $this->getSpentTime($tx_data['TreatmentDetail']['ic_2_start_date'], $tx_data['TreatmentDetail']['ic_2_end_date']);
+			
+			//ic_1_duration_in_days duration
+			$tx_data['TreatmentDetail']['ic_3_duration_in_days'] = $this->getSpentTime($tx_data['TreatmentDetail']['ic_3_start_date'], $tx_data['TreatmentDetail']['ic_3_end_date']);
+			
+			$tx_data['TreatmentDetail']['total_ic_duration_in_days'] =
+				(empty($tx_data['TreatmentDetail']['ic_1_duration_in_days'])? 0: $tx_data['TreatmentDetail']['ic_1_duration_in_days']) +
+				(empty($tx_data['TreatmentDetail']['ic_2_duration_in_days'])? 0: $tx_data['TreatmentDetail']['ic_2_duration_in_days']) +
+				(empty($tx_data['TreatmentDetail']['ic_3_duration_in_days'])? 0: $tx_data['TreatmentDetail']['ic_3_duration_in_days']);
 		}
 		
 		return $tx_data;
 		
+	}
+	
+	// --------------------------------------------------------------------------------
+	// *.surgery : Add survival time
+	// --------------------------------------------------------------------------------
+	
+	/** 
+ 	 * Set medical past history precisions list for clinical.hepatobiliary.***medical_past_history.
+ 	 * 
+ 	 * @param $tx_data Data of the created/studied trt.
+ 	 * @param $tx_control Tx control of the created/studied trt.
+ 	 * 
+ 	 * @return Update trt data
+ 	 **/
+ 	 
+	function addSurvivalTime($participant_data, $tx_data, $tx_control ) { 
+		$tx_type_title = 
+			$tx_control['TreatmentControl']['disease_site'].'-'.
+			$tx_control['TreatmentControl']['tx_method'];
+					
+		$pattern = '/^(.*)-surgery?/';
+		if(preg_match($pattern, $tx_type_title)) { 
+			//hospitalization duration
+			$last_news_date = array();
+			list($last_news_date['year'], $last_news_date['month'], $last_news_date['day']) = explode('-', $participant_data['Participant']['last_news_date']);
+			$tx_data['TreatmentDetail']['survival_time_in_months'] = $this->getSpentTime($tx_data['TreatmentMaster']['start_date'], $last_news_date, 'months');			
+		}
+		
+		return $tx_data;
+	}
+	
+	function updateParticipantSurvivalTime($participant_id, $new_last_news_date ) { 
+		if(!isset($this->TreatmentMaster)) {
+			App::import('Model', "Clinicalannotation.TreatmentMaster");
+			$this->TreatmentMaster = new TreatmentMaster();	
+		}
+			
+		$surgeries = $this->TreatmentMaster->find('all', array('conditions' => array('TreatmentMaster.participant_id' => $participant_id, 'TreatmentMaster.tx_method' => 'surgery')));
+
+		foreach($surgeries as $new_participant_surgery) {
+			$surgery_date = array();
+			list($surgery_date['year'], $surgery_date['month'], $surgery_date['day']) = explode('-', $new_participant_surgery['TreatmentMaster']['start_date']);
+			$survival_time_in_months = $this->getSpentTime($surgery_date, $new_last_news_date, 'months');
+			
+			$tx_data = array();
+			$tx_data['TreatmentMaster']['id'] = $new_participant_surgery['TreatmentMaster']['id'];
+			$tx_data['TreatmentDetail']['survival_time_in_months'] = $survival_time_in_months;			
+			$this->TreatmentMaster->id = $new_participant_surgery['TreatmentMaster']['id'];pr($new_participant_surgery['TreatmentMaster']['id']);
+			if(!$this->TreatmentMaster->save($tx_data)) { $this->redirect( '/pages/err_clin_system_error', null, true ); }
+		}
+	}
+	
+	// --------------------------------------------------------------------------------
+	// Functions...
+	// --------------------------------------------------------------------------------
+	
+	/**
+	 * Return the spent time between 2 dates in days nbr. 
+	 * Notes: The supported date format is YYYY-MM-DD
+	 * 
+	 * @param $start_date Start date
+	 * @param $end_date End date
+	 * 
+	 * @return Spent time
+	 * 
+	 * @author N. Luc
+	 * @since 2007-06-20
+	 */
+	 
+	function getSpentTime($start_date, $end_date, $format = 'days'){
+		$result = '';
+		// Verfiy date is not empty
+		if(empty($start_date['month']) || empty($start_date['day']) || empty($start_date['year']) 
+		|| empty($end_date['month']) || empty($end_date['day']) || empty($end_date['year'])){
+			// At least one date is missing to continue
+			$result = '';	
+		} else {
+			switch($format) {
+				case 'days':
+					// ** GET TIME IN DAYS **
+					$start = mktime(0, 0, 0, $start_date['month'], $start_date['day'], $start_date['year']);
+					$end = mktime(0, 0, 0, $end_date['month'], $end_date['day'], $end_date['year']);
+					$spent_time = $end - $start;
+					
+					if(($start === false)||($end === false)){
+						// Error in the date
+						$result = '';	
+					} else if($spent_time < 0){
+						// Error in the date
+						$result = '';
+					} else if($spent_time == 0){
+						// Nothing to change to $arr_spent_time
+						$result = '0';
+					} else {
+						// Return spend time in days
+						$result = floor($spent_time / 86400);
+					}
+					break;
+				
+				case 'months':
+					// ** GET TIME IN MONTHS **
+					$pattern = '/^[0-9]+$/';
+					if(preg_match($pattern, $start_date['month']) && preg_match($pattern, $start_date['day']) && preg_match($pattern, $start_date['year']) 
+					&& preg_match($pattern, $end_date['month']) && preg_match($pattern, $end_date['day']) && preg_match($pattern, $end_date['year'])) {
+						$diff_months = ($end_date['year'] - $start_date['year']) * 12;
+						if($diff_months < 0) {
+							$result = '';	
+						} else {
+							$diff_months = $diff_months + ($end_date['month'] - $start_date['month']);
+							if($diff_months < 0) {
+								$result = '';	
+							} else {	
+								if($start_date['day'] > $end_date['day']) { $diff_months = $diff_months - 1; }
+								($diff_months < 0)? $result = '' : $result = $diff_months;
+							}						
+						}
+					} else {					
+						$result = '';
+					}
+					break;
+					
+				default:
+					$this->redirect( '/pages/err_clin_system_error', null, true );
+			}
+		}
+		return $result;
 	}
 }
 
