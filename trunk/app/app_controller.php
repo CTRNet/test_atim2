@@ -90,7 +90,7 @@ class AppController extends Controller {
 	}
 
 	function missingTranslation(&$word){
-		if(!is_numeric($word)){
+		if(!is_numeric($word) && strpos($word, "<span class='untranslated'>") === false){
 			AppController::$missing_translations[] = $word;
 			if(Configure::read('debug') == 2){
 				$word = "<span class='untranslated'>".$word."</span>";
