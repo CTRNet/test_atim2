@@ -442,7 +442,8 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ("new batchset", "New batchset", "Nouvel ensemble de données"),
 ("add to compatible batchset", "Add to compatible batchset", "Ajouter à un ensble de données compatible"),
 ("the used volume is higher than the remaining volume", "The used volume is higher than the remaining volume", "Le volume utilisé est supérieur au volume restant"),
-("do you wish to proceed?", "Do you wish to proceed?", "Souhaitez-vous continuer?");
+("do you wish to proceed?", "Do you wish to proceed?", "Souhaitez-vous continuer?"),
+("out of", "out of", "de");
 
 
 
