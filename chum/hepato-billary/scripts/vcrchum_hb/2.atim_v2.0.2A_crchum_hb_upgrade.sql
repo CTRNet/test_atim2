@@ -878,25 +878,218 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_livers'), 
 (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='' AND `field`='survival_time_in_months' AND `language_label`='survival time in months' AND `language_tag`='' AND `type`='integer' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1');
 
+UPDATE `tx_controls`
+SET extend_tablename = 'qc_hb_txe_surgery_complications',
+extend_form_alias = 'qc_hb_txe_surgery_complications',
+allow_administration = '1'
+WHERE tx_method = 'surgery';
 
+CREATE TABLE IF NOT EXISTS `qc_hb_txe_surgery_complications` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  
+  `type` varchar(250) DEFAULT NULL,
+  `organ_precision` varchar(250) DEFAULT NULL, 
+  `date` date DEFAULT NULL, 
+  `clavien_score` varchar(250) DEFAULT NULL, 
+  
+  `tx_master_id` int(11) NOT NULL DEFAULT '0',
+  
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK_txe_chemos_tx_masters` (`tx_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
+ALTER TABLE `qc_hb_txe_surgery_complications`
+  ADD CONSTRAINT `FK_qc_hb_txe_surgery_complications_tx_masters` FOREIGN KEY (`tx_master_id`) REFERENCES `tx_masters` (`id`);
 
+CREATE TABLE IF NOT EXISTS `qc_hb_txe_surgery_complications_revs` (
+  `id` int(11) NOT NULL,
+  
+  `type` varchar(250) DEFAULT NULL,
+  `organ_precision` varchar(250) DEFAULT NULL, 
+  `date` date DEFAULT NULL, 
+  `clavien_score` varchar(250) DEFAULT NULL, 
+  
+  `tx_master_id` int(11) NOT NULL DEFAULT '0',
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
+INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) 
+VALUES 
+('qc_hb_txe_surgery_complications', '', '', '1', '1', '0', '1');
 
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) 
+VALUES 
+('qc_hb_suregry_complication_list', '', '', NULL),
+('qc_hb_suregry_complication_organ_list', '', '', NULL), 
+('qc_hb_clavien_score_list', '', '', NULL);
 
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES ("I", "I"),("II", "II"),("III", "III"),("IV", "IV");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_clavien_score_list"),  
+(SELECT id FROM structure_permissible_values WHERE value="I" AND language_alias="I"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_clavien_score_list"),  
+(SELECT id FROM structure_permissible_values WHERE value="II" AND language_alias="II"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_clavien_score_list"),  
+(SELECT id FROM structure_permissible_values WHERE value="III" AND language_alias="III"), "3", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_clavien_score_list"),  
+(SELECT id FROM structure_permissible_values WHERE value="IV" AND language_alias="IV"), "4", "1");
 
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) 
+VALUES 
+("arterial thrombosis", "arterial thrombosis"),
+("ascite", "ascite"),
+("biliary fistula", "biliary fistula"),
+("biliary stenosis", "biliary stenosis"),
+("biological insuffisancy", "biological insuffisancy"),
+("encephalopathy", "encephalopathy"),
+("endocrine pancreatic insuffisancy", "endocrine pancreatic insuffisancy"),
+("exocrine pancreatic insuffisancy", "exocrine pancreatic insuffisancy"),
+("hemorrhage", "hemorrhage"),
+("hemorrhage", "hemorrhage"),
+("hepatic", "hepatic"),
+("hepatic abcess", "hepatic abcess"),
+("hepatic insuffisancy", "hepatic insuffisancy"),
+("jaundice", "jaundice"),
+("pancreatic", "pancreatic"),
+("pancreatic abcess", "pancreatic abcess"),
+("pancreatic fistula", "pancreatic fistula"),
+("portal thrombosis", "portal thrombosis"),
+("other", "other");
 
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_suregry_complication_list"), (SELECT id FROM structure_permissible_values WHERE value="arterial thrombosis" AND language_alias="arterial thrombosis"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_suregry_complication_list"), (SELECT id FROM structure_permissible_values WHERE value="ascite" AND language_alias="ascite"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_suregry_complication_list"), (SELECT id FROM structure_permissible_values WHERE value="biliary fistula" AND language_alias="biliary fistula"), "3", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_suregry_complication_list"), (SELECT id FROM structure_permissible_values WHERE value="biliary stenosis" AND language_alias="biliary stenosis"), "4", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_suregry_complication_list"), (SELECT id FROM structure_permissible_values WHERE value="biological insuffisancy" AND language_alias="biological insuffisancy"), "5", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_suregry_complication_list"), (SELECT id FROM structure_permissible_values WHERE value="encephalopathy" AND language_alias="encephalopathy"), "6", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_suregry_complication_list"), (SELECT id FROM structure_permissible_values WHERE value="endocrine pancreatic insuffisancy" AND language_alias="endocrine pancreatic insuffisancy"), "7", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_suregry_complication_list"), (SELECT id FROM structure_permissible_values WHERE value="exocrine pancreatic insuffisancy" AND language_alias="exocrine pancreatic insuffisancy"), "8", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_suregry_complication_list"), (SELECT id FROM structure_permissible_values WHERE value="hemorrhage" AND language_alias="hemorrhage"), "9", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_suregry_complication_list"), (SELECT id FROM structure_permissible_values WHERE value="hepatic" AND language_alias="hepatic"), "11", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_suregry_complication_list"), (SELECT id FROM structure_permissible_values WHERE value="hepatic abcess" AND language_alias="hepatic abcess"), "12", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_suregry_complication_list"), (SELECT id FROM structure_permissible_values WHERE value="hepatic insuffisancy" AND language_alias="hepatic insuffisancy"), "13", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_suregry_complication_list"), (SELECT id FROM structure_permissible_values WHERE value="jaundice" AND language_alias="jaundice"), "14", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_suregry_complication_list"), (SELECT id FROM structure_permissible_values WHERE value="pancreatic" AND language_alias="pancreatic"), "15", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_suregry_complication_list"), (SELECT id FROM structure_permissible_values WHERE value="pancreatic abcess" AND language_alias="pancreatic abcess"), "16", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_suregry_complication_list"), (SELECT id FROM structure_permissible_values WHERE value="pancreatic fistula" AND language_alias="pancreatic fistula"), "17", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_suregry_complication_list"), (SELECT id FROM structure_permissible_values WHERE value="portal thrombosis" AND language_alias="portal thrombosis"), "18", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_suregry_complication_list"), (SELECT id FROM structure_permissible_values WHERE value="other" AND language_alias="other"), "19", "1");
 
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Clinicalannotation', 'TreatmentExtend', 'qc_hb_txe_surgery_complications', 'type', 'type', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_suregry_complication_list') , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'TreatmentExtend', 'qc_hb_txe_surgery_complications', 'organ_precision', 'organ precision', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_suregry_complication_organ_list') , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'TreatmentExtend', 'qc_hb_txe_surgery_complications', 'date', 'date', '', 'date', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'TreatmentExtend', 'qc_hb_txe_surgery_complications', 'clavien_score', 'clavien score', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_clavien_score_list') , '', 'open', 'open', 'open');
 
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_txe_surgery_complications'), 
+(SELECT id FROM structure_fields WHERE `model`='TreatmentExtend' AND `tablename`='qc_hb_txe_surgery_complications' AND `field`='type' AND `language_label`='type' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_suregry_complication_list')  AND `language_help`=''), '0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_txe_surgery_complications'), 
+(SELECT id FROM structure_fields WHERE `model`='TreatmentExtend' AND `tablename`='qc_hb_txe_surgery_complications' AND `field`='organ_precision' AND `language_label`='organ precision' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_suregry_complication_organ_list')  AND `language_help`=''), '0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'),  
+((SELECT id FROM structures WHERE alias='qc_hb_txe_surgery_complications'), 
+(SELECT id FROM structure_fields WHERE `model`='TreatmentExtend' AND `tablename`='qc_hb_txe_surgery_complications' AND `field`='date' AND `language_label`='date' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'),  
+((SELECT id FROM structures WHERE alias='qc_hb_txe_surgery_complications'), 
+(SELECT id FROM structure_fields WHERE `model`='TreatmentExtend' AND `tablename`='qc_hb_txe_surgery_complications' AND `field`='clavien_score' AND `language_label`='clavien score' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_clavien_score_list')  AND `language_help`=''), '0', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1');
 
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, (SELECT id FROM structure_fields WHERE `model`='TreatmentExtend' AND `tablename`='qc_hb_txe_surgery_complications' AND `field`='type'), 'notEmpty', '0', '0', '', 'value is required', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
 
+UPDATE structure_fields
+SET language_label = 'surgery complication type'
+WHERE `model`='TreatmentExtend' AND `tablename`='qc_hb_txe_surgery_complications' AND `field`='type';
 
+INSERT IGNORE INTO i18n (id, en, fr) VALUES
+('surgery complication type', 'Complication', 'Complication');
 
+CREATE TABLE IF NOT EXISTS `qc_hb_surgery_complication_treatments` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  
+  `type` varchar(250) DEFAULT NULL,
+  `date` date DEFAULT NULL, 
+  
+  `qc_hb_txe_surgery_complication_id` int(11) NOT NULL DEFAULT '0',
+  
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK_txe_chemos_tx_masters` (`qc_hb_txe_surgery_complication_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
+ALTER TABLE `qc_hb_surgery_complication_treatments`
+  ADD CONSTRAINT `FK_qc_hb_surgery_complication_treatments_tx_extends` FOREIGN KEY (`qc_hb_txe_surgery_complication_id`) REFERENCES `qc_hb_txe_surgery_complications` (`id`);
 
+CREATE TABLE IF NOT EXISTS `qc_hb_surgery_complication_treatments_revs` (
+  `id` int(11) NOT NULL,
+  
+  `type` varchar(250) DEFAULT NULL,
+  `date` date DEFAULT NULL, 
+  
+  `qc_hb_txe_surgery_complication_id` int(11) NOT NULL DEFAULT '0',
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
+INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) 
+VALUES 
+('qc_hb_surgery_complication_treatments', '', '', '1', '1', '0', '1');
 
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) 
+VALUES 
+('qc_hb_surgery_complication_treatment_list', '', '', NULL);
 
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Clinicalannotation', 'SurgeryComplicationTreatment', '', 'type', 'type', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_surgery_complication_treatment_list') , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'SurgeryComplicationTreatment', '', 'date', 'date', '', 'date', '', '',  NULL , '', 'open', 'open', 'open');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_surgery_complication_treatments'), 
+(SELECT id FROM structure_fields WHERE `model`='SurgeryComplicationTreatment' AND `tablename`='' AND `field`='type'), '0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='qc_hb_surgery_complication_treatments'), 
+(SELECT id FROM structure_fields WHERE `model`='SurgeryComplicationTreatment' AND `tablename`='' AND `field`='date'), '0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1');
+
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, (SELECT id FROM structure_fields WHERE `model`='SurgeryComplicationTreatment' AND `tablename`='' AND `field`='type'), 'notEmpty', '0', '0', '', 'value is required', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) 
+VALUES 
+("to define", "to define");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_surgery_complication_treatment_list"), (SELECT id FROM structure_permissible_values WHERE value="to define" AND language_alias="to define"), "1", "1");
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('at least one treatment is defined as surgery complication treatment', '', 
+'At least one treatment is defined as surgery complication treatment!', 
+'Au moins un traitement est défini comme étant un traitement de la complication!');
 
 
 
