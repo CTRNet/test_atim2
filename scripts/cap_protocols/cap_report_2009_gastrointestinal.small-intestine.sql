@@ -112,7 +112,7 @@ CREATE TABLE IF NOT EXISTS `dxd_cap_report_smintestines` (
   `additional_path_other_polyps` tinyint(1) NOT NULL DEFAULT 0, 
   `additional_path_other_polyps_types` varchar(250) DEFAULT NULL,
   `additional_path_other` tinyint(1) NOT NULL DEFAULT 0, 
-  `additional_path_other_specfy` varchar(250) DEFAULT NULL,
+  `additional_path_other_specify` varchar(250) DEFAULT NULL,
   
   -- Ancillary Studies
   `microsatellite_instability` tinyint(1) NOT NULL DEFAULT 0, 
@@ -232,7 +232,7 @@ CREATE TABLE `dxd_cap_report_smintestines_revs` (
   `additional_path_other_polyps` tinyint(1) NOT NULL DEFAULT 0, 
   `additional_path_other_polyps_types` varchar(250) DEFAULT NULL,
   `additional_path_other` tinyint(1) NOT NULL DEFAULT 0, 
-  `additional_path_other_specfy` varchar(250) DEFAULT NULL,
+  `additional_path_other_specify` varchar(250) DEFAULT NULL,
   
   -- Ancillary Studies
   `microsatellite_instability` tinyint(1) NOT NULL DEFAULT 0, 
@@ -295,7 +295,7 @@ insert into i18n (id, en, fr) VALUES
 -- The table structures hold all forms in the application, Add the dxd_cap_report_smintestines in table structures. It doesn't hold the form itself but the form alias.
 
 INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) 
-VALUES ('dx_cap_report_smintestines', '', '', '1', '1', '1', '1');
+VALUES ('dx_cap_report_smintestines', '', '', '0', '0', '1', '1');
 
 
 -- add structure fields - tumor_site, histologic type, histologic grade, metastasis site, path_tstage, path_nstage, path_mstage for each site
@@ -353,7 +353,7 @@ INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_smintestines', 'additional_path_other_polyps', 'additional path other polyps', '', 'checkbox', '', '0',  NULL , '', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_smintestines', 'additional_path_other_polyps_types', '', 'additional path other polyps types', 'input', '', '0',  NULL , '', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_smintestines', 'additional_path_other', 'additional path other', '', 'checkbox', '', '0',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_smintestines', 'additional_path_other_specfy', '', 'additional path other specfy', 'input', '', '0',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_smintestines', 'additional_path_other_specify', '', 'additional path other specify', 'input', '', '0',  NULL , '', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_smintestines', 'microsatellite_instability', 'microsatellite instability', '', 'checkbox', '', '0',  NULL , '', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_smintestines', 'microsatellite_instability_testing_method', 'microsatellite instability testing method', '', 'input', '', '0',  NULL , '', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_smintestines', 'microsatellite_instability_grade', 'microsatellite instability grade', '', 'select', '', '0',  NULL , '', 'open', 'open', 'open'), 
@@ -442,7 +442,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='additional_path_other_polyps' AND `language_label`='additional path other polyps' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '15', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='additional_path_other_polyps_types' AND `language_label`='' AND `language_tag`='additional path other polyps types' AND `type`='input' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '16', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='additional_path_other' AND `language_label`='additional path other' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '17', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='additional_path_other_specfy' AND `language_label`='' AND `language_tag`='additional path other specfy' AND `type`='input' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '18', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='additional_path_other_specify' AND `language_label`='' AND `language_tag`='additional path other specify' AND `type`='input' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '18', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='microsatellite_instability' AND `language_label`='microsatellite instability' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '19', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='microsatellite_instability_testing_method' AND `language_label`='microsatellite instability testing method' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '20', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='microsatellite_instability_grade' AND `language_label`='microsatellite instability grade' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
@@ -608,7 +608,7 @@ VALUES
 ('PMS2', 'PMS2', ''),
 ('ancillary Studies', 'Ancillary Studies', ''),
 ('additional path other polyps', 'Other Polyps', ''),
-('additional path other specfy', 'Specify', ''),
+('additional path other specify', 'Specify', ''),
 ('additional path other', 'Other', ''),
 ('PMS2 result', 'PMS2 - Result', ''),
 ('PMS2 specify', 'PMS2 - Specify', ''),
@@ -1154,9 +1154,9 @@ INSERT IGNORE INTO i18n (id, en, fr) VALUES
 -- SET display_column = '1'
 -- WHERE structure_id = (SELECT id FROM structures WHERE alias='dx_cap_report_smintestines');
 
-update structures
-set flag_add_columns = 0, flag_edit_columns =0
-where alias = 'dx_cap_report_smintestines';
+-- update structures
+-- set flag_add_columns = 0, flag_edit_columns =0
+-- where alias = 'dx_cap_report_smintestines';
 
 UPDATE structures AS str, structure_formats AS stfo, structure_fields AS sf 
 SET stfo.flag_index = '0'
