@@ -90,7 +90,7 @@ class AppController extends Controller {
 	}
 
 	function missingTranslation(&$word){
-		if(!is_numeric($word)){
+		if(!is_numeric($word) && strpos($word, "<span class='untranslated'>") === false){
 			AppController::$missing_translations[] = $word;
 			if(Configure::read('debug') == 2){
 				$word = "<span class='untranslated'>".$word."</span>";
@@ -133,12 +133,6 @@ class AppController extends Controller {
 		App::import('model','AtimAcl');
 		Configure::write('Acl.classname', 'AtimAcl');
 		Configure::write('Acl.database', 'default');
-	
-		
-		$ATiMCache = Configure::read('debug') ? true : false; 
-		Configure::write('ATiMMenuCache.disable', $ATiMCache);
-		Configure::write('ATiMStructureCache.disable', $ATiMCache);
-	
 	
 		// ATiM2 configuration variables from Datatable
 		

@@ -1480,6 +1480,7 @@ class StructuresHelper extends Helper {
 						}
 					
 				// get INPUT for FORM
+					$current_table_index = $table_index[$field['display_column']][$row_count];
 					
 					// var TOOLS/APPENDS, if any 
 					$append_field_tool = '';
@@ -1490,6 +1491,15 @@ class StructuresHelper extends Helper {
 					// var for html helper array
 					$html_element_array = array();
 					$html_element_array['class'] = '';
+					if(isset($data[$current_table_index['model']]) && isset($data[$current_table_index['model']][$current_table_index['field']])){
+						if($table_index[ $field['display_column'] ][$row_count]['type'] == 'select'){
+							$html_element_array['selected'] = $data[$current_table_index['model']][$current_table_index['field']];
+						}else if($table_index[ $field['display_column'] ][$row_count]['type'] == "datetime"){
+							$html_element_array['value'] = StructuresHelper::datetime_to_array($data[$current_table_index['model']][$current_table_index['field']]);
+						}else{
+							$html_element_array['value'] = $data[$current_table_index['model']][$current_table_index['field']];
+						}
+					}
 					$html_element_array['tabindex'] = $options['settings']['tabindex'] * 10 + $field_count;
 					StructuresHelper::$last_tabindex = $html_element_array['tabindex'];
 					//--fix a cake bug by setting values manually
@@ -1709,7 +1719,6 @@ class StructuresHelper extends Helper {
 										}
 										
 									}
-									
 								}
 								
 								// use permissible values associated with this value domain instead
@@ -1830,8 +1839,9 @@ class StructuresHelper extends Helper {
 							$html_element_array['class'] .= " jqueryAutocomplete {'callback' : 'autoComplete'}";
 						}
 						
+						$my_model_prefix = strlen($model_prefix) > 0 ? str_replace(".", "][", $model_prefix) : "";
 						$display_value .= $this->Form->input(
-							$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'],
+							$my_model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'],
 							$html_element_array
 						);
 
@@ -1841,8 +1851,11 @@ class StructuresHelper extends Helper {
 							$html_element_array['class'] = 'hidden';
 							unset($html_element_array['disabled']);
 							
+							if(isset($html_element_array['selected'])){
+								$html_element_array['value'] = $html_element_array['selected'];
+							}
 							$display_value .= $this->Form->input(
-								$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'],
+								$my_model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'],
 								$html_element_array
 							);
 						}
