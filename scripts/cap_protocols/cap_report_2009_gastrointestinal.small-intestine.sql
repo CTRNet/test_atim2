@@ -8,7 +8,7 @@ alter table diagnosis_masters
  
  -- Histologic Grade
  -- add column `histologic_grade` varchar(50) DEFAULT NULL, -- already into ATiM : tumour_grade
- add column `tumour_grade_specify` varchar(50) DEFAULT NULL AFTER `tumour_grade`,
+ add column `tumour_grade_specify` varchar(250) DEFAULT NULL AFTER `tumour_grade`,
  
  -- pTNM
  add column `path_tnm_descriptor_m` tinyint(1) NULL DEFAULT 0 AFTER `clinical_stage_summary`,
@@ -16,7 +16,7 @@ alter table diagnosis_masters
  add column `path_tnm_descriptor_y` tinyint(1) NULL DEFAULT 0 AFTER `path_tnm_descriptor_r`,
  add column `path_nstage_nbr_node_examined` smallint(1) NULL DEFAULT 0 AFTER `path_nstage`,
  add column `path_nstage_nbr_node_involved` smallint(1) NULL DEFAULT 0 AFTER `path_nstage_nbr_node_examined`,
- add column `path_mstage_metastasis_site_specify` varchar(50) DEFAULT NULL AFTER `path_mstage`;
+ add column `path_mstage_metastasis_site_specify` varchar(250) DEFAULT NULL AFTER `path_mstage`;
  
 alter table diagnosis_masters_revs
  -- Tumor Size
@@ -27,7 +27,7 @@ alter table diagnosis_masters_revs
  
  -- Histologic Grade
  -- add column `histologic_grade` varchar(50) DEFAULT NULL, -- already into ATiM : tumour_grade
- add column `tumour_grade_specify` varchar(50) DEFAULT NULL AFTER `tumour_grade`,
+ add column `tumour_grade_specify` varchar(250) DEFAULT NULL AFTER `tumour_grade`,
  
  -- pTNM
  add column `path_tnm_descriptor_m` tinyint(1) NULL DEFAULT 0 AFTER `clinical_stage_summary`,
@@ -35,7 +35,7 @@ alter table diagnosis_masters_revs
  add column `path_tnm_descriptor_y` tinyint(1) NULL DEFAULT 0 AFTER `path_tnm_descriptor_r`,
  add column `path_nstage_nbr_node_examined` smallint(1) NULL DEFAULT 0 AFTER `path_nstage`,
  add column `path_nstage_nbr_node_involved` smallint(1) NULL DEFAULT 0 AFTER `path_nstage_nbr_node_examined`,
- add column `path_mstage_metastasis_site_specify` varchar(50) DEFAULT NULL AFTER `path_mstage`;
+ add column `path_mstage_metastasis_site_specify` varchar(250) DEFAULT NULL AFTER `path_mstage`;
 
 /*Table structure for table 'dxd_cap_report_smintestines' */
 
@@ -57,16 +57,16 @@ CREATE TABLE IF NOT EXISTS `dxd_cap_report_smintestines` (
   `gallbladder` tinyint(1) NULL DEFAULT 0,
   `colon` tinyint(1) NULL DEFAULT 0,
   `other` tinyint(1) NULL DEFAULT 0,
-  `other_specify` varchar(50) DEFAULT NULL,
+  `other_specify` varchar(250) DEFAULT NULL,
   `not_specified` tinyint(1) NULL DEFAULT 0,
   
   -- Procedure
   `procedure` varchar(50) DEFAULT NULL,
-  `procedure_specify` varchar(50) DEFAULT NULL,
+  `procedure_specify` varchar(250) DEFAULT NULL,
   
   -- Tumor site
   `tumor_site` varchar(50) DEFAULT NULL,
-  `tumor_site_specify` varchar(50) DEFAULT NULL,
+  `tumor_site_specify` varchar(250) DEFAULT NULL,
   
   -- Tumor size
   -- 	See Master
@@ -76,14 +76,14 @@ CREATE TABLE IF NOT EXISTS `dxd_cap_report_smintestines` (
   
   -- Histologic Type 
   `histologic_type` varchar(100) DEFAULT NULL,
-  `histologic_type_specify` varchar(100) DEFAULT NULL,
+  `histologic_type_specify` varchar(250) DEFAULT NULL,
   
   -- Histologic Grade
   -- 	See Master 
   
   -- Microscopic Tumor Extendion
-  `microscopic_tumor_extension` varchar(200) DEFAULT NULL,
-  `microscopic_tumor_extension_specify` varchar(50) DEFAULT NULL,
+  `microscopic_tumor_extension` varchar(250) DEFAULT NULL,
+  `microscopic_tumor_extension_specify` varchar(250) DEFAULT NULL,
   
   -- Margins
   `proximal_margin` varchar(100) DEFAULT NULL,
@@ -91,12 +91,12 @@ CREATE TABLE IF NOT EXISTS `dxd_cap_report_smintestines` (
   `radial_margin` varchar(100) DEFAULT NULL,
   `distance_of_invasive_carcinoma_from_closest_margin` decimal (3,1)NULL DEFAULT NULL,
   `distance_unit` char(2) DEFAULT NULL, -- cm or mm
-  `specify_margin` varchar(50) DEFAULT NULL,
+  `specify_margin` varchar(250) DEFAULT NULL,
   `bile_duct_margin` varchar(50) DEFAULT NULL,
   `pancreatic_margin` varchar(50) DEFAULT NULL,
   `distance_of_invasive_carcinoma_from_closest_margin_bile_duct` decimal (3,1)NULL DEFAULT NULL,  -- it is for bile duct and pancreatic margin)
   `distance_unit_bile_duct` char(2) DEFAULT NULL, -- cm or mm
-  `specify_margin_bile_duct` varchar(50) DEFAULT NULL,
+  `specify_margin_bile_duct` varchar(250) DEFAULT NULL,
   
   -- Lymph Vascular Invasion
   `lymph_vascular_invasion` varchar(50) DEFAULT NULL,
@@ -110,37 +110,37 @@ CREATE TABLE IF NOT EXISTS `dxd_cap_report_smintestines` (
   `additional_path_crohn` tinyint(1) NOT NULL DEFAULT 0, 
   `additional_path_celiac` tinyint(1) NOT NULL DEFAULT 0, 
   `additional_path_other_polyps` tinyint(1) NOT NULL DEFAULT 0, 
-  `additional_path_other_polyps_types` varchar(200) DEFAULT NULL,
+  `additional_path_other_polyps_types` varchar(250) DEFAULT NULL,
   `additional_path_other` tinyint(1) NOT NULL DEFAULT 0, 
-  `additional_path_other_specfy` varchar(200) DEFAULT NULL,
+  `additional_path_other_specfy` varchar(250) DEFAULT NULL,
   
   -- Ancillary Studies
   `microsatellite_instability` tinyint(1) NOT NULL DEFAULT 0, 
-  `microsatellite_instability_testing_method` varchar(50) DEFAULT NULL,
+  `microsatellite_instability_testing_method` varchar(250) DEFAULT NULL,
   `microsatellite_instability_grade` varchar(10) DEFAULT NULL,
   `MLH1` tinyint(1) NOT NULL DEFAULT 0,  
   `MLH1_result` varchar(60) DEFAULT NULL,
-  `MLH1_specify` varchar(40) DEFAULT NULL,  
+  `MLH1_specify` varchar(250) DEFAULT NULL,  
   `MSH2` tinyint(1) NOT NULL DEFAULT 0,  
   `MSH2_result` varchar(60) DEFAULT NULL,
-  `MSH2_specify` varchar(40) DEFAULT NULL,    
+  `MSH2_specify` varchar(250) DEFAULT NULL,    
   `MSH6` tinyint(1) NOT NULL DEFAULT 0,  
   `MSH6_result` varchar(60) DEFAULT NULL,
-  `MSH6_specify` varchar(40) DEFAULT NULL,  
+  `MSH6_specify` varchar(250) DEFAULT NULL,  
   `PMS2` tinyint(1) NOT NULL DEFAULT 0,  
   `PMS2_result` varchar(60) DEFAULT NULL,
-  `PMS2_specify` varchar(40) DEFAULT NULL,    
-  `ancillary_other_specify` varchar(60) DEFAULT NULL,
+  `PMS2_specify` varchar(250) DEFAULT NULL,    
+  `ancillary_other_specify` varchar(250) DEFAULT NULL,
   
   -- Clinical history
   `familial_adenomatous_polyposis_coli` tinyint(1) NOT NULL DEFAULT 0,
   `hereditary_nonpolyposis_colon_cancer`  tinyint(1) NOT NULL DEFAULT 0,
   `other_polyposis_syndrome`  tinyint(1) NOT NULL DEFAULT 0,
-  `other_polyposis_syndrome_specify` varchar(50) DEFAULT NULL,  
+  `other_polyposis_syndrome_specify` varchar(250) DEFAULT NULL,  
   `crohn_disease` tinyint(1) NOT NULL DEFAULT 0,
   `celiac_disease` tinyint(1) NOT NULL DEFAULT 0,
   `other_clinical_history` tinyint(1) NOT NULL DEFAULT 0,
-  `other_clinical_history_specify` varchar(50) DEFAULT NULL,
+  `other_clinical_history_specify` varchar(250) DEFAULT NULL,
   `not_known` tinyint(1) NOT NULL DEFAULT 0,
   
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
@@ -177,16 +177,16 @@ CREATE TABLE `dxd_cap_report_smintestines_revs` (
   `gallbladder` tinyint(1) NULL DEFAULT 0,
   `colon` tinyint(1) NULL DEFAULT 0,
   `other` tinyint(1) NULL DEFAULT 0,
-  `other_specify` varchar(50) DEFAULT NULL,
+  `other_specify` varchar(250) DEFAULT NULL,
   `not_specified` tinyint(1) NULL DEFAULT 0,
   
   -- Procedure
   `procedure` varchar(50) DEFAULT NULL,
-  `procedure_specify` varchar(50) DEFAULT NULL,
+  `procedure_specify` varchar(250) DEFAULT NULL,
   
   -- Tumor site
   `tumor_site` varchar(50) DEFAULT NULL,
-  `tumor_site_specify` varchar(50) DEFAULT NULL,
+  `tumor_site_specify` varchar(250) DEFAULT NULL,
   
   -- Tumor size
   -- 	See Master
@@ -196,14 +196,14 @@ CREATE TABLE `dxd_cap_report_smintestines_revs` (
   
   -- Histologic Type 
   `histologic_type` varchar(100) DEFAULT NULL,
-  `histologic_type_specify` varchar(100) DEFAULT NULL,
+  `histologic_type_specify` varchar(250) DEFAULT NULL,
   
   -- Histologic Grade
   -- 	See Master 
   
   -- Microscopic Tumor Extendion
-  `microscopic_tumor_extension` varchar(200) DEFAULT NULL,
-  `microscopic_tumor_extension_specify` varchar(50) DEFAULT NULL,
+  `microscopic_tumor_extension` varchar(250) DEFAULT NULL,
+  `microscopic_tumor_extension_specify` varchar(250) DEFAULT NULL,
   
   -- Margins
   `proximal_margin` varchar(100) DEFAULT NULL,
@@ -211,12 +211,12 @@ CREATE TABLE `dxd_cap_report_smintestines_revs` (
   `radial_margin` varchar(100) DEFAULT NULL,
   `distance_of_invasive_carcinoma_from_closest_margin` decimal (3,1)NULL DEFAULT NULL,
   `distance_unit` char(2) DEFAULT NULL, -- cm or mm
-  `specify_margin` varchar(50) DEFAULT NULL,
+  `specify_margin` varchar(250) DEFAULT NULL,
   `bile_duct_margin` varchar(50) DEFAULT NULL,
   `pancreatic_margin` varchar(50) DEFAULT NULL,
   `distance_of_invasive_carcinoma_from_closest_margin_bile_duct` decimal (3,1)NULL DEFAULT NULL,  -- it is for bile duct and pancreatic margin)
   `distance_unit_bile_duct` char(2) DEFAULT NULL, -- cm or mm
-  `specify_margin_bile_duct` varchar(50) DEFAULT NULL,
+  `specify_margin_bile_duct` varchar(250) DEFAULT NULL,
   
   -- Lymph Vascular Invasion
   `lymph_vascular_invasion` varchar(50) DEFAULT NULL,
@@ -230,39 +230,39 @@ CREATE TABLE `dxd_cap_report_smintestines_revs` (
   `additional_path_crohn` tinyint(1) NOT NULL DEFAULT 0, 
   `additional_path_celiac` tinyint(1) NOT NULL DEFAULT 0, 
   `additional_path_other_polyps` tinyint(1) NOT NULL DEFAULT 0, 
-  `additional_path_other_polyps_types` varchar(200) DEFAULT NULL,
+  `additional_path_other_polyps_types` varchar(250) DEFAULT NULL,
   `additional_path_other` tinyint(1) NOT NULL DEFAULT 0, 
-  `additional_path_other_specfy` varchar(200) DEFAULT NULL,
+  `additional_path_other_specfy` varchar(250) DEFAULT NULL,
   
   -- Ancillary Studies
   `microsatellite_instability` tinyint(1) NOT NULL DEFAULT 0, 
-  `microsatellite_instability_testing_method` varchar(50) DEFAULT NULL,
+  `microsatellite_instability_testing_method` varchar(250) DEFAULT NULL,
   `microsatellite_instability_grade` varchar(10) DEFAULT NULL,
   `MLH1` tinyint(1) NOT NULL DEFAULT 0,  
   `MLH1_result` varchar(60) DEFAULT NULL,
-  `MLH1_specify` varchar(40) DEFAULT NULL,  
+  `MLH1_specify` varchar(250) DEFAULT NULL,  
   `MSH2` tinyint(1) NOT NULL DEFAULT 0,  
   `MSH2_result` varchar(60) DEFAULT NULL,
-  `MSH2_specify` varchar(40) DEFAULT NULL,    
+  `MSH2_specify` varchar(250) DEFAULT NULL,    
   `MSH6` tinyint(1) NOT NULL DEFAULT 0,  
   `MSH6_result` varchar(60) DEFAULT NULL,
-  `MSH6_specify` varchar(40) DEFAULT NULL,  
+  `MSH6_specify` varchar(250) DEFAULT NULL,  
   `PMS2` tinyint(1) NOT NULL DEFAULT 0,  
   `PMS2_result` varchar(60) DEFAULT NULL,
-  `PMS2_specify` varchar(40) DEFAULT NULL,    
-  `ancillary_other_specify` varchar(60) DEFAULT NULL,
+  `PMS2_specify` varchar(250) DEFAULT NULL,    
+  `ancillary_other_specify` varchar(250) DEFAULT NULL,
   
   -- Clinical history
   `familial_adenomatous_polyposis_coli` tinyint(1) NOT NULL DEFAULT 0,
   `hereditary_nonpolyposis_colon_cancer`  tinyint(1) NOT NULL DEFAULT 0,
   `other_polyposis_syndrome`  tinyint(1) NOT NULL DEFAULT 0,
-  `other_polyposis_syndrome_specify` varchar(50) DEFAULT NULL,  
+  `other_polyposis_syndrome_specify` varchar(250) DEFAULT NULL,  
   `crohn_disease` tinyint(1) NOT NULL DEFAULT 0,
   `celiac_disease` tinyint(1) NOT NULL DEFAULT 0,
   `other_clinical_history` tinyint(1) NOT NULL DEFAULT 0,
-  `other_clinical_history_specify` varchar(50) DEFAULT NULL,
+  `other_clinical_history_specify` varchar(250) DEFAULT NULL,
   `not_known` tinyint(1) NOT NULL DEFAULT 0,
-  
+    
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `created_by` int(10) unsigned NOT NULL,
   `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
@@ -426,49 +426,49 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='distance_unit_bile_duct' AND `type`='select' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '39', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='specify_margin_bile_duct' AND `type`='input' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '40', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='lymph_vascular_invasion' AND `language_label`='lymph vascular invasion' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '41', 'lymph vascular invasion', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_tnm_descriptor_m' AND `language_label`='tnm descriptors' AND `language_tag`='multiple primary tumors' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '101', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_tnm_descriptor_r' AND `language_label`='' AND `language_tag`='recurrent' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '102', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_tnm_descriptor_y' AND `language_label`='' AND `language_tag`='post treatment' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '103', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters_sm' AND `field`='path_tstage' AND `structure_value_domain`  IS NULL  ), '2', '104', '', '1', 'path tstage', '1', '', '0', '', '1', 'select', '1', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters_sm' AND `field`='path_nstage' AND `structure_value_domain`  IS NULL  ), '2', '105', '', '1', 'path nstage', '1', '', '0', '', '1', 'select', '1', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_nstage_nbr_node_examined' AND `language_label`='number node examined' AND `language_tag`='' AND `type`='integer' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '106', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_nstage_nbr_node_involved' AND `language_label`='number node involved' AND `language_tag`='' AND `type`='integer' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '107', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters_sm' AND `field`='path_mstage' AND `structure_value_domain`  IS NULL  ), '2', '108', '', '1', 'path mstage', '1', '', '0', '', '1', 'select', '1', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_mstage_metastasis_site_specify' AND `language_label`='metastasis site specify' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '110', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='additional_path_none_identified' AND `language_label`='additional path none identified' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '111', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='additional_path_adenoma' AND `language_label`='additional path adenoma' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '112', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='additional_path_crohn' AND `language_label`='additional path crohn' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '113', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='additional_path_celiac' AND `language_label`='additional path celiac' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '114', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='additional_path_other_polyps' AND `language_label`='additional path other polyps' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '115', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='additional_path_other_polyps_types' AND `language_label`='' AND `language_tag`='additional path other polyps types' AND `type`='input' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '116', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='additional_path_other' AND `language_label`='additional path other' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '117', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='additional_path_other_specfy' AND `language_label`='' AND `language_tag`='additional path other specfy' AND `type`='input' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '118', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='microsatellite_instability' AND `language_label`='microsatellite instability' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '119', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='microsatellite_instability_testing_method' AND `language_label`='microsatellite instability testing method' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '120', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='microsatellite_instability_grade' AND `language_label`='microsatellite instability grade' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '121', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='MLH1' AND `language_label`='MLH1' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '122', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='MLH1_result' AND `language_label`='MLH1 result' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '123', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='MLH1_specify' AND `language_label`='MLH1 specify' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '124', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='MSH2' AND `language_label`='MSH2' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '125', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='MSH2_result' AND `language_label`='MSH2 result' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '126', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='MSH2_specify' AND `language_label`='MSH2 specify' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '127', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='MSH6' AND `language_label`='MSH6' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '128', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='MSH6_result' AND `language_label`='MSH6 result' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '129', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='MSH6_specify' AND `language_label`='MSH6 specify' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '130', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='PMS2' AND `language_label`='PMS2' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '131', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='PMS2_result' AND `language_label`='PMS2 result' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '132', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='PMS2_specify' AND `language_label`='PMS2 specify' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '133', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='ancillary_other_specify' AND `language_label`='ancillary other specify' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '134', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='familial_adenomatous_polyposis_coli' AND `language_label`='familial adenomatous polyposis coli' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '135', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='hereditary_nonpolyposis_colon_cancer' AND `language_label`='hereditary nonpolyposis colon cancer' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '136', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='other_polyposis_syndrome' AND `language_label`='other polyposis syndrome' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '137', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='other_polyposis_syndrome_specify' AND `language_label`='' AND `language_tag`='other polyposis syndrome specify' AND `type`='input' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '138', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='crohn_disease' AND `language_label`='crohn disease' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '139', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='celiac_disease' AND `language_label`='celiac disease' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '140', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='other_clinical_history' AND `language_label`='other clinical history' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '141', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='other_clinical_history_specify' AND `language_label`='' AND `language_tag`='other clinical history specify' AND `type`='input' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '142', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='not_known' AND `language_label`='not known' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '143', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='notes'), '2', '144', 'other', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1');
+((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_tnm_descriptor_m' AND `language_label`='tnm descriptors' AND `language_tag`='multiple primary tumors' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_tnm_descriptor_r' AND `language_label`='' AND `language_tag`='recurrent' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_tnm_descriptor_y' AND `language_label`='' AND `language_tag`='post treatment' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters_sm' AND `field`='path_tstage' AND `structure_value_domain`  IS NULL  ), '2', '4', '', '1', 'path tstage', '1', '', '0', '', '1', 'select', '1', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters_sm' AND `field`='path_nstage' AND `structure_value_domain`  IS NULL  ), '2', '5', '', '1', 'path nstage', '1', '', '0', '', '1', 'select', '1', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_nstage_nbr_node_examined' AND `language_label`='number node examined' AND `language_tag`='' AND `type`='integer' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_nstage_nbr_node_involved' AND `language_label`='number node involved' AND `language_tag`='' AND `type`='integer' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters_sm' AND `field`='path_mstage' AND `structure_value_domain`  IS NULL  ), '2', '8', '', '1', 'path mstage', '1', '', '0', '', '1', 'select', '1', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_mstage_metastasis_site_specify' AND `language_label`='metastasis site specify' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='additional_path_none_identified' AND `language_label`='additional path none identified' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='additional_path_adenoma' AND `language_label`='additional path adenoma' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='additional_path_crohn' AND `language_label`='additional path crohn' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='additional_path_celiac' AND `language_label`='additional path celiac' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '14', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='additional_path_other_polyps' AND `language_label`='additional path other polyps' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '15', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='additional_path_other_polyps_types' AND `language_label`='' AND `language_tag`='additional path other polyps types' AND `type`='input' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '16', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='additional_path_other' AND `language_label`='additional path other' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '17', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='additional_path_other_specfy' AND `language_label`='' AND `language_tag`='additional path other specfy' AND `type`='input' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '18', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='microsatellite_instability' AND `language_label`='microsatellite instability' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '19', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='microsatellite_instability_testing_method' AND `language_label`='microsatellite instability testing method' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '20', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='microsatellite_instability_grade' AND `language_label`='microsatellite instability grade' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='MLH1' AND `language_label`='MLH1' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '22', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='MLH1_result' AND `language_label`='MLH1 result' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '23', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='MLH1_specify' AND `language_label`='MLH1 specify' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '24', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='MSH2' AND `language_label`='MSH2' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '25', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='MSH2_result' AND `language_label`='MSH2 result' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '26', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='MSH2_specify' AND `language_label`='MSH2 specify' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '27', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='MSH6' AND `language_label`='MSH6' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '28', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='MSH6_result' AND `language_label`='MSH6 result' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '29', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='MSH6_specify' AND `language_label`='MSH6 specify' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '30', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='PMS2' AND `language_label`='PMS2' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '31', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='PMS2_result' AND `language_label`='PMS2 result' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '32', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='PMS2_specify' AND `language_label`='PMS2 specify' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '33', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='ancillary_other_specify' AND `language_label`='ancillary other specify' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '34', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='familial_adenomatous_polyposis_coli' AND `language_label`='familial adenomatous polyposis coli' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '35', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='hereditary_nonpolyposis_colon_cancer' AND `language_label`='hereditary nonpolyposis colon cancer' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '36', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='other_polyposis_syndrome' AND `language_label`='other polyposis syndrome' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '37', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='other_polyposis_syndrome_specify' AND `language_label`='' AND `language_tag`='other polyposis syndrome specify' AND `type`='input' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '38', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='crohn_disease' AND `language_label`='crohn disease' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '39', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='celiac_disease' AND `language_label`='celiac disease' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '40', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='other_clinical_history' AND `language_label`='other clinical history' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '41', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='other_clinical_history_specify' AND `language_label`='' AND `language_tag`='other clinical history specify' AND `type`='input' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '42', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='not_known' AND `language_label`='not known' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '43', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='notes'), '2', '44', 'other', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1');
 
 INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 (null, (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_smintestines' AND `field`='distance_unit' AND `type`='select' AND `setting`='' AND `default`='0' AND `structure_value_domain`  IS NULL  AND `language_help`=''), 'notEmpty', '0', '0', '', 'value is required', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0),
@@ -555,7 +555,7 @@ VALUES
 ('tumor site specify', 'Specify', ''),
 ('tumor size', 'Tumor Size', ''),
 ('margins', 'Margins', ''),
-('Clinical History', 'clinical history', ''),
+('clinical history', 'Clinical History', ''),
 ('tumor size greatest dimension', 'Greatest Dimension (cm)', ''),
 ('additional dimension a', 'Additional Dimensions (cm)', ''),
 ('additional dimension b', 'x', ''),
@@ -1150,6 +1150,21 @@ INSERT IGNORE INTO i18n (id, en, fr) VALUES
 ('immunoreactive tumor cells present (nuclear positivity)', 'Immunoreactive tumor cells present (nuclear positivity)', ''),
 ('no immunoreactive tumor cells present', 'No immunoreactive tumor cells present', '');
 
-UPDATE structure_formats
-SET display_column = '1'
-WHERE structure_id = (SELECT id FROM structures WHERE alias='dx_cap_report_smintestines');
+-- UPDATE structure_formats
+-- SET display_column = '1'
+-- WHERE structure_id = (SELECT id FROM structures WHERE alias='dx_cap_report_smintestines');
+
+update structures
+set flag_add_columns = 0, flag_edit_columns =0
+where alias = 'dx_cap_report_smintestines';
+
+UPDATE structures AS str, structure_formats AS stfo, structure_fields AS sf 
+SET stfo.flag_index = '0'
+WHERE str.alias = 'dx_cap_report_smintestines'
+AND str.id = stfo.structure_id 
+AND stfo.structure_field_id = sf.id
+AND sf.field NOT IN ('dx_date', 'tumor_site', 'tumour_grade', 'histologic_type');
+
+
+
+
