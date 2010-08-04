@@ -589,3 +589,9 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 -- Fix drug and material detail menu option
 UPDATE `menus` SET `use_link` = '/drug/drugs/detail/%%Drug.id%%' WHERE `menus`.`id` = 'drug_CAN_97';
 UPDATE `menus` SET `use_link` = '/material/materials/detail/%%Material.id%%' WHERE `menus`.`id` = 'mat_CAN_02';
+
+-- Move participant created field to column 2
+UPDATE `structure_formats`
+SET `display_column` = 3, `display_order` = 99
+WHERE `structure_field_id` = (SELECT `id` FROM `structure_fields` WHERE `plugin`='Clinicalannotation' AND `model`='Participant' AND `field`='created' AND `tablename`='participants') AND
+`structure_id` = (SELECT `id` FROM `structures` WHERE `alias` = 'participants');
