@@ -74,7 +74,9 @@ class SampleMastersController extends InventorymanagementAppController {
 	}
 	
 	function contentTreeView($collection_id, $studied_specimen_sample_control_id = null) {
-		if(!$collection_id) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }
+		if(!$collection_id) { 
+			$this->redirect('/pages/err_inv_funct_param_missing', null, true); 
+		}
 
 		// MANAGE DATA
 
@@ -103,7 +105,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->set('atim_structure', $atim_structure);
 
 		// Get all sample control types to build the add to selected button
-		$specimen_sample_controls_list = $this->SampleControl->atim_list(array('conditions' => array('SampleControl.flag_active' => '1', 'SampleControl.sample_category' => 'specimen'), 'order' => 'SampleControl.sample_type ASC'));
+		$specimen_sample_controls_list = $this->SampleControl->getPermissibleSamplesArray(null);
 		$this->set('specimen_sample_controls_list', $specimen_sample_controls_list);
 
 		// Get all collection specimen type list to build the filter button
@@ -327,7 +329,9 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 		// Get all sample control types to build the add to selected button (only for collection samples form)
 		$specimen_sample_controls_list = array();
-		if($is_collection_sample_list) { $specimen_sample_controls_list = $this->SampleControl->atim_list(array('conditions' => array('SampleControl.flag_active' => '1', 'SampleControl.sample_category' => 'specimen'), 'order' => 'SampleControl.sample_type ASC')); }
+		if($is_collection_sample_list) {
+			$specimen_sample_controls_list = $this->SampleControl->getPermissibleSamplesArray(null); 
+		}
 		$this->set('specimen_sample_controls_list', $specimen_sample_controls_list);
 		
 		// Get all collection / derivative sample type list to build the filter button
@@ -442,10 +446,10 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->set('is_inventory_plugin_form', $is_inventory_plugin_form);
 		
 		// Get all sample control types to build the add to selected button
-		$this->set('allowed_derivative_type', $this->getAllowedDerivativeTypes($sample_data['SampleControl']['id']));
+		$this->set('allowed_derivative_type', $this->SampleControl->getPermissibleSamplesArray($sample_data['SampleControl']['id']));
 
 		// Get all aliquot control types to build the add to selected button
-		$this->set('allowed_aliquot_type', $this->getAllowedAliquotTypes($sample_data['SampleControl']['id']));
+		$this->set('allowed_aliquot_type', $this->AliquotControl->getPermissibleAliquotsArray($sample_data['SampleControl']['id']));
 
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { 

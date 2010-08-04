@@ -595,3 +595,18 @@ UPDATE `structure_formats`
 SET `display_column` = 3, `display_order` = 99
 WHERE `structure_field_id` = (SELECT `id` FROM `structure_fields` WHERE `plugin`='Clinicalannotation' AND `model`='Participant' AND `field`='created' AND `tablename`='participants') AND
 `structure_id` = (SELECT `id` FROM `structures` WHERE `alias` = 'participants');
+
+-- refactoring sample flag_active to only be contained within one table. Same for aliquot
+INSERT INTO parent_to_derivative_sample_controls (`parent_sample_control_id`, `derivative_sample_control_id`, `flag_active`)
+(SELECT NULL, id, flag_active FROM sample_controls WHERE sample_category='specimen');
+UPDATE parent_to_derivative_sample_controls as pdsc
+INNER JOIN sample_controls sc ON pdsc.parent_sample_control_id=sc.id OR pdsc.derivative_sample_control_id=sc.id
+SET pdsc.flag_active=0 WHERE sc.flag_active=0;
+ALTER TABLE sample_controls 
+DROP flag_active;
+
+UPDATE sample_to_aliquot_controls as sac
+INNER JOIN aliquot_controls ac ON sac.aliquot_control_id=ac.id
+SET sac.flag_active=0 WHERE ac.flag_active=0;
+ALTER TABLE aliquot_controls 
+DROP flag_active;
