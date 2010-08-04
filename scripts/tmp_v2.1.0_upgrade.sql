@@ -586,4 +586,6 @@ UPDATE structure_fields SET `type`='float' WHERE plugin='Inventorymanagement' AN
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
 ((SELECT id FROM structures WHERE alias='aliquotuses'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='current_volume' AND `type`='float' AND `structure_value_domain`  IS NULL  ), '0', '3', '', '1', '', '1', 'out of', '0', '', '0', '', '1', '', '0', '', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0');
 
-
+-- Fix drug and material detail menu option
+UPDATE `menus` SET `use_link` = '/drug/drugs/detail/%%Drug.id%%' WHERE `menus`.`id` = 'drug_CAN_97';
+UPDATE `menus` SET `use_link` = '/material/materials/detail/%%Material.id%%' WHERE `menus`.`id` = 'mat_CAN_02';
