@@ -255,7 +255,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// Get all aliquot control types to build the add to selected button
 		$allowed_aliquot_type = array();
 		if(!$is_collection_aliquot_list) {
-			$allowed_aliquot_type = $this->getAllowedAliquotTypes($sample_data['SampleMaster']['sample_control_id']);
+			$allowed_aliquot_type = $this->AliquotControl->getPermissibleAliquotsArray($sample_data['SampleMaster']['sample_control_id']);
 		}
 		$this->set('allowed_aliquot_type', $allowed_aliquot_type);
 

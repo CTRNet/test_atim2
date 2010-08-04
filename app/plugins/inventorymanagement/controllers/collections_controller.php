@@ -12,6 +12,7 @@ class CollectionsController extends InventorymanagementAppController {
 		'Inventorymanagement.AliquotMaster',
 		'Inventorymanagement.PathCollectionReview',
 		'Inventorymanagement.ReviewMaster',
+		'Inventorymanagement.ParentToDerivativeSampleControl',
 		
 		'Clinicalannotation.ClinicalCollectionLink');
 	
@@ -67,7 +68,10 @@ class CollectionsController extends InventorymanagementAppController {
 		$this->set('participant_id', $collection_data['ViewCollection']['participant_id']);
 		
 		// Get all sample control types to build the add to selected button
-		$specimen_sample_controls_list = $this->SampleControl->atim_list(array('conditions' => array('SampleControl.flag_active' => '1', 'SampleControl.sample_category' => 'specimen'), 'order' => 'SampleControl.sample_type ASC'));
+		$controls = $this->ParentToDerivativeSampleControl->find('all', array('conditions' => array('ParentToDerivativeSampleControl.parent_sample_control_id IS NULL', 'ParentToDerivativeSampleControl.flag_active' => true), 'fields' => array('DerivativeControl.*')));
+		foreach($controls as $control){
+			$specimen_sample_controls_list[]['SampleControl'] = $control['DerivativeControl'];	
+		}
 		$this->set('specimen_sample_controls_list', $specimen_sample_controls_list);	
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
