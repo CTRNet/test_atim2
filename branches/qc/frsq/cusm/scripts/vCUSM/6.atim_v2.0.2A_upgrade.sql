@@ -1128,3 +1128,109 @@ WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='morph
 TRUNCATE `acos`;
 
 UPDATE structure_formats SET `flag_edit_readonly`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='groups') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Group' AND tablename='groups' AND field='bank_id');
+
+UPDATE `menus` SET `flag_active` = '0' WHERE `parent_id` LIKE 'clin_CAN_4' AND language_title NOT IN ('lifestyle');
+UPDATE `menus` SET `use_link` = '/clinicalannotation/event_masters/listall/lifestyle/%%Participant.id%%'  WHERE `id` LIKE 'clin_CAN_4';
+
+UPDATE structure_formats
+SET display_column = '0', display_order = '4'
+WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_cusm_dxd_procure') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND field='notes');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_cusm_dxd_procure'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `field`='primary_number'), 
+'1', '100', 'other', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '1', '0', '0', '0', '1', '1');
+
+UPDATE structure_formats
+SET flag_index = '0', flag_detail = '0'
+WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND field NOT IN ('dx_date'));
+
+UPDATE structure_formats
+SET `language_heading` = 'diagnosis', `flag_override_label` = '1', `language_label` = 'report date'
+WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND field ='dx_date');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='clinicalcollectionlinks'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `field`='report_number'), 
+'1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='clinicalcollectionlinks'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `field`='morphology'), 
+'1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='clinicalcollectionlinks'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `field`='path_tstage'), 
+'1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='clinicalcollectionlinks'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `field`='path_nstage'), 
+'1', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='clinicalcollectionlinks'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `field`='path_mstage'), 
+'1', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '0', '0', '0', '0', '0', '1');
+
+SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `field`='report_number'
+
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, (SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND field ='dx_date'), 'notEmpty', '0', '0', '', '', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
+
+INSERT IGNORE INTO `i18n` (`id`, `en`, `fr`)
+VALUES
+('report date', 'Report Date', 'Date du Rapport');
+
+UPDATE  `structure_value_domains`
+SET source = NULL
+WHERE `domain_name` LIKE 'morphology';
+
+INSERT IGNORE INTO `structure_permissible_values` 
+(`value`, `language_alias`) 
+VALUES
+('adenocarcinoma / well differentiated', 'adenocarcinoma / well differentiated'),
+('adenocarcinoma / little differentiated', 'adenocarcinoma / little differentiated'),
+('ductal adenocarcinoma', 'ductal adenocarcinoma'),
+('mucinous adenocarcinoma', 'mucinous adenocarcinoma'),
+('signet ring cell carcinoma', 'signet ring cell carcinoma'),
+('adenosquamous carcinoma', 'adenosquamous carcinoma'),
+('small cell carcinoma', 'small cell carcinoma'),
+('sarcomatoid carcinoma', 'sarcomatoid carcinoma');
+
+INSERT INTO `structure_value_domains_permissible_values` 
+(`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`, `language_alias`) 
+VALUES
+((SELECT `id` FROM `structure_value_domains` WHERE `domain_name` = 'morphology'), (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'adenocarcinoma / well differentiated'), 1, 1, ''),
+((SELECT `id` FROM `structure_value_domains` WHERE `domain_name` = 'morphology'), (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'adenocarcinoma / little differentiated'), 2, 1, ''),
+((SELECT `id` FROM `structure_value_domains` WHERE `domain_name` = 'morphology'), (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'ductal adenocarcinoma'), 3, 1, ''),
+((SELECT `id` FROM `structure_value_domains` WHERE `domain_name` = 'morphology'), (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'mucinous adenocarcinoma'), 4, 1, ''),
+((SELECT `id` FROM `structure_value_domains` WHERE `domain_name` = 'morphology'), (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'signet ring cell carcinoma'), 5, 1, ''),
+((SELECT `id` FROM `structure_value_domains` WHERE `domain_name` = 'morphology'), (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'adenosquamous carcinoma'), 6, 1, ''),
+((SELECT `id` FROM `structure_value_domains` WHERE `domain_name` = 'morphology'), (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'small cell carcinoma'), 7, 1, ''),
+((SELECT `id` FROM `structure_value_domains` WHERE `domain_name` = 'morphology'), (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'sarcomatoid carcinoma'), 8, 1, ''),
+((SELECT `id` FROM `structure_value_domains` WHERE `domain_name` = 'morphology'), (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'other'), 9, 1, '');
+
+DELETE FROM i18n 
+WHERE id IN ('adenocarcinoma / well differentiated', 
+'adenocarcinoma / little differentiated', 
+'ductal adenocarcinoma', 
+'mucinous adenocarcinoma',
+'signet ring cell carcinoma', 
+'adenosquamous carcinoma', 
+'small cell carcinoma', 
+'sarcomatoid carcinoma');
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('adenocarcinoma / well differentiated', '', 'Adenocarcinoma / Well Differentiated', 'Adénocarcinome / bien différencié'),
+('adenocarcinoma / little differentiated', '', 'Adenocarcinoma / Little Differentiated', 'Adénocarcinome / peu différencié'),
+('ductal adenocarcinoma', '', 'Ductal Adenocarcinoma', 'Adénocarcinome ductal'),
+('mucinous adenocarcinoma', 'Mucinous Sdenocarcinoma', 'Adénocarcinome mucineux'),
+('signet ring cell carcinoma', 'Signet Ring Cell Carcinoma', 'Carcinome à cellules indépendantes'),
+('adenosquamous carcinoma', '', 'Adenosquamous Carcinoma', 'Carcinome Adénosquameux'),
+('small cell carcinoma', '', 'Small Cell Carcinoma', 'Carcinome à petites cellules'),
+('sarcomatoid carcinoma', '', 'Sarcomatoid Carcinoma', 'Carcinome sarcomatoïde');
+
+
