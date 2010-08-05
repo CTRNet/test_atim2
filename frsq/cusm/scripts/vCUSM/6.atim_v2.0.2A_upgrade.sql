@@ -1227,8 +1227,8 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('adenocarcinoma / well differentiated', '', 'Adenocarcinoma / Well Differentiated', 'Adénocarcinome / bien différencié'),
 ('adenocarcinoma / little differentiated', '', 'Adenocarcinoma / Little Differentiated', 'Adénocarcinome / peu différencié'),
 ('ductal adenocarcinoma', '', 'Ductal Adenocarcinoma', 'Adénocarcinome ductal'),
-('mucinous adenocarcinoma', 'Mucinous Sdenocarcinoma', 'Adénocarcinome mucineux'),
-('signet ring cell carcinoma', 'Signet Ring Cell Carcinoma', 'Carcinome à cellules indépendantes'),
+('mucinous adenocarcinoma', '', 'Mucinous Sdenocarcinoma', 'Adénocarcinome mucineux'),
+('signet ring cell carcinoma', '', 'Signet Ring Cell Carcinoma', 'Carcinome à cellules indépendantes'),
 ('adenosquamous carcinoma', '', 'Adenosquamous Carcinoma', 'Carcinome Adénosquameux'),
 ('small cell carcinoma', '', 'Small Cell Carcinoma', 'Carcinome à petites cellules'),
 ('sarcomatoid carcinoma', '', 'Sarcomatoid Carcinoma', 'Carcinome sarcomatoïde');
