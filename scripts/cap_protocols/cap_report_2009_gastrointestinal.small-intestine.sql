@@ -969,15 +969,15 @@ insert into `structure_value_domains` (`domain_name`, `override`, `category`, `s
 values ('path_tstage_sm', 'open', '', null);
 
 insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
-values ((select id from structure_value_domains where domain_name='path_tstage_sm'), (select id from structure_permissible_values where value='ptx'), 1,1, 'cannot be assessed'),
-((select id from structure_value_domains where domain_name='path_tstage_sm'), (select id from structure_permissible_values where value='pt0'), 2,1, 'no evidence of primary tumor'),
-((select id from structure_value_domains where domain_name='path_tstage_sm'), (select id from structure_permissible_values where value='ptis'), 3,1, 'carcinoma in situ'),
-((select id from structure_value_domains where domain_name='path_tstage_sm'), (select id from structure_permissible_values where value='pt1a'), 4,1, 'tumor invades lamina propria'),
-((select id from structure_value_domains where domain_name='path_tstage_sm'), (select id from structure_permissible_values where value='pt1b'), 5,1, 'tumor invades submucosa'),
-((select id from structure_value_domains where domain_name='path_tstage_sm'), (select id from structure_permissible_values where value='pt2'), 6,1, 'tumor invades muscularis propria'),
-((select id from structure_value_domains where domain_name='path_tstage_sm'), (select id from structure_permissible_values where value='pt3'), 7,1, 'tumor invades through the muscularis propria into the subserosa or into the nonperitonealized perimuscular tissue (mesentery or retroperitoneum) with extension 2 cm or less'),
-((select id from structure_value_domains where domain_name='path_tstage_sm'), (select id from structure_permissible_values where value='pt4a'), 8,1, 'tumor penetrates the visceral peritoneum'),
-((select id from structure_value_domains where domain_name='path_tstage_sm'), (select id from structure_permissible_values where value='pt4b'), 9,1, 'tumor directly invades other organs or structures');
+values ((select id from structure_value_domains where domain_name='path_tstage_sm'), (select id from structure_permissible_values where value='ptx'), 1,1, 'ptx: cannot be assessed'),
+((select id from structure_value_domains where domain_name='path_tstage_sm'), (select id from structure_permissible_values where value='pt0'), 2,1, 'pt0: no evidence of primary tumor'),
+((select id from structure_value_domains where domain_name='path_tstage_sm'), (select id from structure_permissible_values where value='ptis'), 3,1, 'ptis: carcinoma in situ'),
+((select id from structure_value_domains where domain_name='path_tstage_sm'), (select id from structure_permissible_values where value='pt1a'), 4,1, 'pt1a: tumor invades lamina propria'),
+((select id from structure_value_domains where domain_name='path_tstage_sm'), (select id from structure_permissible_values where value='pt1b'), 5,1, 'pt1b: tumor invades submucosa'),
+((select id from structure_value_domains where domain_name='path_tstage_sm'), (select id from structure_permissible_values where value='pt2'), 6,1, 'pt2: tumor invades muscularis propria'),
+((select id from structure_value_domains where domain_name='path_tstage_sm'), (select id from structure_permissible_values where value='pt3'), 7,1, 'pt3: tumor invades through the muscularis propria into the subserosa or into the nonperitonealized perimuscular tissue (mesentery or retroperitoneum) with extension 2 cm or less'),
+((select id from structure_value_domains where domain_name='path_tstage_sm'), (select id from structure_permissible_values where value='pt4a'), 8,1, 'pt4a: tumor penetrates the visceral peritoneum'),
+((select id from structure_value_domains where domain_name='path_tstage_sm'), (select id from structure_permissible_values where value='pt4b'), 9,1, 'pt4b:tumor directly invades other organs or structures');
 
 select id from structure_value_domains where domain_name='path_tstage_sm';
 
