@@ -95,6 +95,8 @@ UPDATE users SET active = '1';
 UPDATE tx_controls SET flag_active = '0';
 UPDATE protocol_controls SET flag_active = '0';
 
+UPDATE users SET password = 'b23665e49d6bbc824143ba6c09490c781cb94370' WHERE username LIKE 'Liliane';
+
 
 
 
