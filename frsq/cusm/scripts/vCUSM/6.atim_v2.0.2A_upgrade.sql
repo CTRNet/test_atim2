@@ -1,4 +1,4 @@
--- Version: v2.0.2A
+﻿-- Version: v2.0.2A
 -- Description: This SQL script is an upgrade for ATiM v2.0.2 to v2.0.2A and must be run against
 -- an existing ATiM installation. Be sure to backup your database before running this script!
 
@@ -1174,8 +1174,6 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `field`='path_mstage'), 
 '1', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
 '0', '0', '0', '0', '0', '0', '0', '0', '0', '1');
-
-SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `field`='report_number'
 
 INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 (null, (SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND field ='dx_date'), 'notEmpty', '0', '0', '', '', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
