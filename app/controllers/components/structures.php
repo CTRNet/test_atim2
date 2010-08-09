@@ -214,24 +214,56 @@ class StructuresComponent extends Object {
 				}
 			}
 		}else{
-			foreach($conditions as $model_field => $field_value_arr){
-				if(sizeof($field_value_arr) > 1){
-					//expand query for OR
-					$matches = array();
-					preg_match_all("/[\w\.\`]+[\s]+(LIKE|=)[\s]+\"@@".$model_field."@@\"/", $sql_with_search_terms, $matches, PREG_OFFSET_CAPTURE);
-					//start with the end
+			foreach($conditions as $model_field => $condition){
+				if(is_numeric($model_field)){
+					$model_field = substr($condition, 1, strpos($condition, " ") - 1);
+				}else{
+					if(is_array($condition)){
+						$tmp_cond = array();
+						foreach($condition as $unit){
+							$tmp_cond[] = $model_field." LIKE '".$unit."'";
+						}
+						$condition = "(".implode(" OR ", $tmp_cond).")";
+					}
+				}
+				//LIKE
+				$matches = array();
+				preg_match_all("/[\w\.\`]+[\s]+LIKE[\s]+\"[%]*@@".$model_field."@@[%]*\"/", $sql_with_search_terms, $matches, PREG_OFFSET_CAPTURE);
+				//start with the end
+				$matches[0] = array_reverse($matches[0]);
+				foreach($matches[0] as $match){
+					$sql_with_search_terms = substr($sql_with_search_terms, 0, $match[1]).$condition.substr($sql_with_search_terms, $match[1] + strlen($match[0]));
+				}
+				//IN
+				$matches = array();
+				preg_match_all("/[\w\.\`]+[\s]+IN[\s]+\([\s]*@@".$model_field."@@[\s]*\)/", $sql_with_search_terms, $matches, PREG_OFFSET_CAPTURE);
+				if(count($matches) > 0){
+					$in_arr = array();
+					$my_conds = explode(" OR ", substr($condition, 0, -1));
+					foreach($my_conds as $my_cond){
+						$parts = explode(" ", $my_cond);
+						$in_arr[] = "'".substr(str_replace("%'", "'", $parts[2]), 2);
+					}
 					$matches[0] = array_reverse($matches[0]);
 					foreach($matches[0] as $match){
-						$str = "";
-						foreach($field_value_arr as $field_value){
-							$str .= str_replace('@@'.$model_field.'@@', $field_value, $match[0])." OR ";
-						}
-						$str = "(".substr($str, 0, -4).")";
-						$sql_with_search_terms = substr($sql_with_search_terms, 0, $match[1]).$str.substr($sql_with_search_terms, $match[1] + strlen($match[0]));
+						$sql_with_search_terms = substr($sql_with_search_terms, 0, $match[1]).$model_field." IN (".implode(", ", $in_arr).")".substr($sql_with_search_terms, $match[1] + strlen($match[0]));
 					}
-				}else{
-					$sql_with_search_terms = str_replace( '@@'.$model_field.'@@', $field_value_arr[0], $sql_with_search_terms );
 				}
+				
+				//=, <, >, <=, >=
+				$tests = array("=", "<", "<=", ">", ">=");
+				foreach($tests as $test){
+					$matches = array();
+					preg_match_all("/[\w\.\`]+[\s]+".$test."[\s]+\"[%]*@@".$model_field."@@[%]*\"/", $sql_with_search_terms, $matches, PREG_OFFSET_CAPTURE);
+					if(count($matches) > 0){
+						$condition = str_replace("%') OR ", "') OR ", str_replace("%')", "')", str_replace(" LIKE '%", " ".$test." '", $condition)));
+						$matches[0] = array_reverse($matches[0]);
+						foreach($matches[0] as $match){
+							$sql_with_search_terms = substr($sql_with_search_terms, 0, $match[1]).$condition.substr($sql_with_search_terms, $match[1] + strlen($match[0]));
+						}
+					}
+				}
+				
 				$sql_without_search_terms = str_replace( '@@'.$model_field.'@@', '', $sql_without_search_terms );
 			}
 		}
@@ -241,18 +273,22 @@ class StructuresComponent extends Object {
 			$sql_without_search_terms = preg_replace('/(\>|\<)\=\s*"@@[\w\.]+@@"/i', "1= \"\"", $sql_without_search_terms);
 			
 			//LIKE
-			$sql_with_search_terms = preg_replace('/LIKE\s*"@@[\w\.]+@@"/i', "LIKE \"%%\"", $sql_with_search_terms);
-			$sql_without_search_terms = preg_replace('/LIKE\s*"@@[\w\.]+@@"/i', "LIKE \"%%\"", $sql_without_search_terms);
+			$sql_with_search_terms = preg_replace('/LIKE\s*"[%]*@@[\w\.]+@@[%]*"/i', "LIKE \"%%\"", $sql_with_search_terms);
+			$sql_without_search_terms = preg_replace('/LIKE\s*"[%]*@@[\w\.]+@@[%]*"/i', "LIKE \"%%\"", $sql_without_search_terms);
+			
+			//IN
+			$sql_with_search_terms = preg_replace('/IN\s*\([\s]*@@[\w\.]+@@[\s]*\)/i', 'IN ("")', $sql_with_search_terms);
+			$sql_without_search_terms = preg_replace('/IN\s*\([\s]*@@[\w\.]+@@[\s]*\)/i', 'IN ("")', $sql_without_search_terms);
 			
 			//others
-			$sql_with_search_terms = preg_replace('/"@@[\w\.]+@@"/i', "\"\"", $sql_with_search_terms);
-			$sql_without_search_terms = preg_replace('/"@@[\w\.]+@@"/i', "\"\"", $sql_without_search_terms);
+			$sql_with_search_terms = preg_replace('/"(%)*@@[\w\.]+@@(%)*"/i', "\"\"", $sql_with_search_terms);
+			$sql_without_search_terms = preg_replace('/"(%)*@@[\w\.]+@@(%)*"/i', "\"\"", $sql_without_search_terms);
 		
 		// WITH
 			// regular expression to change search over field for BLANK values to be searches over fields for BLANK OR NULL values...
 			$sql_with_search_terms = preg_replace( '/([\w\.]+)\s+LIKE\s+([\||\"])\%\%\2/i', '($1 LIKE $2%%$2 OR $1 IS NULL)', $sql_with_search_terms );
 			$sql_with_search_terms = preg_replace( '/([\w\.]+)\s+\=\s+([\||\"])\2/i', '($1 LIKE $2%%$2 OR $1 IS NULL)', $sql_with_search_terms );
-			$sql_with_search_terms = preg_replace( '/([\w\.]+)\s+IN\s+\(\s*\)/i', '($1 LIKE "%%" OR $1 IS NULL)', $sql_with_search_terms );
+			$sql_with_search_terms = preg_replace( '/([\w\.]+)\s+IN\s+\(""\)/i', '($1 LIKE "%%" OR $1 IS NULL)', $sql_with_search_terms );
 			
 			// regular expression to change search over DATE fields for BLANK values to be searches over fields for BLANK OR NULL values...
 			$sql_with_search_terms = preg_replace( '/([\w\.]+)\s*([\>|\<]\=)\s*([\||\"])0000\-00\-00\3\s+AND\s+\1\s*([\>|\<]\=)\s*([\||\"])9999\-00\-00\3/i', '(($1$2${3}0000-00-00${3} AND $1$4${3}9999-00-00${3}) OR $1 IS NULL)', $sql_with_search_terms );
@@ -272,7 +308,7 @@ class StructuresComponent extends Object {
 			// regular expression to change search over field for BLANK values to be searches over fields for BLANK OR NULL values...
 			$sql_without_search_terms = preg_replace( '/([\w\.]+)\s+LIKE\s+([\||\"])\%\%\2/i', '($1 LIKE $2%%$2 OR $1 IS NULL)', $sql_without_search_terms );
 			$sql_without_search_terms = preg_replace( '/([\w\.]+)\s+\=\s+([\||\"])\2/i', '($1 LIKE $2%%$2 OR $1 IS NULL)', $sql_without_search_terms );
-			$sql_without_search_terms = preg_replace( '/([\w\.]+)\s+IN\s+\(\s*\)/i', '($1 LIKE "%%" OR $1 IS NULL)', $sql_without_search_terms );
+			$sql_without_search_terms = preg_replace( '/([\w\.]+)\s+IN\s+\(""\)/i', '($1 LIKE "%%" OR $1 IS NULL)', $sql_without_search_terms );
 			
 			// regular expression to change search over DATE fields for BLANK values to be searches over fields for BLANK OR NULL values...
 			$sql_without_search_terms = preg_replace( '/([\w\.]+)\s*([\>|\<]\=)\s*([\||\"])0000\-00\-00\3\s+AND\s+\1\s*([\>|\<]\=)\s*([\||\"])9999\-00\-00\3/i', '(($1$2${3}0000-00-00${3} AND $1$4${3}9999-00-00${3}) OR $1 IS NULL)', $sql_without_search_terms );
@@ -285,7 +321,7 @@ class StructuresComponent extends Object {
 			
 			// regular expression to change search over RANGE fields for BLANK values to be searches over fields for BLANK OR NULL values...
 			$sql_without_search_terms = preg_replace( '/([\w\.]+)\s*([\>|\<]\=)\s*([\||\"])\3\s+AND\s+\1\s*([\>|\<]\=)\s*([\||\"])\3/i', '(($1$2${3}-999999${3} AND $1$4${3}999999${3}) OR $1 IS NULL)', $sql_without_search_terms );
-		// return BOTH	
+		// return BOTH
 		return array( $sql_with_search_terms, $sql_without_search_terms );
 		
 	}
