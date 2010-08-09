@@ -86,16 +86,17 @@ class StructuresComponent extends Object {
 		// format structure data into SEARCH CONDITONS format
 		if ( isset($atim_structure['StructureFormat']) ) {
 			foreach ( $atim_structure['StructureFormat'] as $value ) {
-				
 				// for RANGE values, which should be searched over with a RANGE...
+				//it includes numbers, dates, and fields fith the "range" setting. For the later, value  _start
 				if ( $value['StructureField']['type']=='number'
 				|| $value['StructureField']['type']=='integer'
 				|| $value['StructureField']['type']=='integer_positive'
 				|| $value['StructureField']['type']=='float'
 				|| $value['StructureField']['type']=='float_positive' 
 				|| $value['StructureField']['type']=='date' 
-				|| $value['StructureField']['type']=='datetime' ) {
-					
+				|| $value['StructureField']['type']=='datetime'
+				|| (($value['flag_override_setting'] == 1 && strpos($value['setting'], "range") !== false) ||  (isset($value['StructureFormat']) && $value['StructureFormat']['flag_override_settings'] == 0 && strpos($value['StructureField']['setting'], "range") !== false))
+						&& isset($this->controller->data[$value['StructureField']['model']][$value['StructureField']['field'].'_start'])) {
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'].'_start' ]['plugin']		= $value['StructureField']['plugin'];
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'].'_start' ]['model']		= $value['StructureField']['model'];
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'].'_start' ]['field']		= $value['StructureField']['field'];
@@ -108,9 +109,7 @@ class StructuresComponent extends Object {
 				}
 				
 				// for SELECT pulldowns, where an EXACT match is required, OR passed in DATA is an array to use the IN SQL keyword
-				else if ( $value['StructureField']['type'] == 'select'
-//				 || ( isset($this->controller->data[ $value['StructureField']['model'] ][ $value['StructureField']['field'] ]) && is_array($this->controller->data[ $value['StructureField']['model'] ][ $value['StructureField']['field'] ]) ) 
-				 ){
+				else if ( $value['StructureField']['type'] == 'select' || isset($this->controller->data['exact_search'])){
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'] ]['plugin']	= $value['StructureField']['plugin'];
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'] ]['model']	= $value['StructureField']['model'];
 					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'] ]['field']	= $value['StructureField']['field'];
@@ -132,60 +131,62 @@ class StructuresComponent extends Object {
 		// parse DATA to generate SQL conditions
 		// use ONLY the form_fields array values IF data for that MODEL.KEY combo was provided
 		foreach ( $this->controller->data as $model=>$fields ) {
-			foreach ( $fields as $key=>$data ) {
-				// if MODEL data was passed to this function, use it to generate SQL criteria...
-				if ( count($form_fields) ) {
-					
-					// add search element to CONDITIONS array if not blank & MODEL data included Model/Field info...
-					if ( $data && isset( $form_fields[$model.'.'.$key] ) ) {
+			if(is_array($fields)){
+				foreach ( $fields as $key=>$data ) {
+					// if MODEL data was passed to this function, use it to generate SQL criteria...
+					if ( count($form_fields) ) {
 						
-						// if CSV file uploaded...
-						if ( is_array($data) && isset($this->controller->data[$model][$key.'_with_file_upload']) && $this->controller->data[$model][$key.'_with_file_upload']['tmp_name'] ) {
+						// add search element to CONDITIONS array if not blank & MODEL data included Model/Field info...
+						if ( $data && isset( $form_fields[$model.'.'.$key] ) ) {
 							
-							// set $DATA array based on contents of uploaded FILE
-							$handle = fopen($this->controller->data[$model][$key.'_with_file_upload']['tmp_name'], "r");
-							
-							// in each LINE, get FIRST csv value, and attach to DATA array
-							while (($csv_data = fgetcsv($handle, 1000, csv_separator, '"')) !== FALSE) {
-							    $data[] = $csv_data[0];
-							}
-							
-							fclose($handle);
-							
-							unset($this->controller->data[$model][$key.'_with_file_upload']);
-							
-						}
-						
-						// use Model->deconstruct method to properly build data array's date/time information from arrays
-						if ( is_array($data) ) {
-							App::import('Model', $form_fields[$model.'.'.$key]['plugin'].'.'.$model);
-							// App::import('Model', 'Clinicalannotation.'.$model);
-							
-							$format_data_model = new $model;
-							
-							$data = $format_data_model->deconstruct($form_fields[$model.'.'.$key]['field'],$data);
-							
-							if ( is_array($data) ) {
-								$data = array_unique($data);
-								$data = array_filter($data);
-							}
-							
-							if ( !count($data) ) $data = '';
-						}
-						
-						// if supplied form DATA is not blank/null, add to search conditions, otherwise skip
-						if ( $data ) {
-							if ( strpos($form_fields[$model.'.'.$key]['key'], ' LIKE')!==false ) {
-								if(is_array($data)){
-									$conditions[] = $form_fields[$model.'.'.$key]['key']." '%".implode("%' OR ".$form_fields[$model.'.'.$key]['key']." '%", $data)."%'";
-									unset($data);
-								}else{
-									$data = '%'.$data.'%';
+							// if CSV file uploaded...
+							if ( is_array($data) && isset($this->controller->data[$model][$key.'_with_file_upload']) && $this->controller->data[$model][$key.'_with_file_upload']['tmp_name'] ) {
+								
+								// set $DATA array based on contents of uploaded FILE
+								$handle = fopen($this->controller->data[$model][$key.'_with_file_upload']['tmp_name'], "r");
+								
+								// in each LINE, get FIRST csv value, and attach to DATA array
+								while (($csv_data = fgetcsv($handle, 1000, csv_separator, '"')) !== FALSE) {
+								    $data[] = $csv_data[0];
 								}
+								
+								fclose($handle);
+								
+								unset($this->controller->data[$model][$key.'_with_file_upload']);
+								
 							}
 							
-							if($data){
-								$conditions[ $form_fields[$model.'.'.$key]['key'] ] = $data;
+							// use Model->deconstruct method to properly build data array's date/time information from arrays
+							if ( is_array($data) ) {
+								App::import('Model', $form_fields[$model.'.'.$key]['plugin'].'.'.$model);
+								// App::import('Model', 'Clinicalannotation.'.$model);
+								
+								$format_data_model = new $model;
+								
+								$data = $format_data_model->deconstruct($form_fields[$model.'.'.$key]['field'],$data);
+								
+								if ( is_array($data) ) {
+									$data = array_unique($data);
+									$data = array_filter($data);
+								}
+								
+								if ( !count($data) ) $data = '';
+							}
+							
+							// if supplied form DATA is not blank/null, add to search conditions, otherwise skip
+							if ( $data ) {
+								if ( strpos($form_fields[$model.'.'.$key]['key'], ' LIKE')!==false ) {
+									if(is_array($data)){
+										$conditions[] = "(".$form_fields[$model.'.'.$key]['key']." '%".implode("%' OR ".$form_fields[$model.'.'.$key]['key']." '%", $data)."%')";
+										unset($data);
+									}else{
+										$data = '%'.$data.'%';
+									}
+								}
+								
+								if(isset($data)){
+									$conditions[ $form_fields[$model.'.'.$key]['key'] ] = $data;
+								}
 							}
 						}
 					}

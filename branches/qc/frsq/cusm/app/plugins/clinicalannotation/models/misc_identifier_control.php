@@ -17,7 +17,7 @@ class MiscIdentifierControl extends ClinicalannotationAppModel {
 		
 		// Build tmp array to sort according translation
 		foreach($this->find('all', array('conditions' => array('flag_active = 1'))) as $ident_ctrl) {
-			$tmp_result[$ident_ctrl['MiscIdentifierControl']['misc_identifier_name']] = __($ident_ctrl['MiscIdentifierControl']['misc_identifier_name'], true);
+			$tmp_result[$ident_ctrl['MiscIdentifierControl']['id']] = __($ident_ctrl['MiscIdentifierControl']['misc_identifier_name'], true);
 		}
 		asort($tmp_result);
 		

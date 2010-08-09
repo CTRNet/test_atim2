@@ -37,14 +37,14 @@ class BatchSet extends DatamartAppModel {
 		
 		// information about USER's batch sets
 		else {
-			
+			$name = $_SESSION['Auth']['User']['first_name']." ".$_SESSION['Auth']['User']['last_name'];
 			$return = array(
 				'Summary' => array(
-					'menu'			=>	array( NULL, $_SESSION['Auth']['User']['name'] ),
+					'menu'			=>	array( NULL, $name ),
 					'title'			=>	array( NULL, 'Batch Sets' ),
 					
 					'description'	=>	array(
-						'filter'			=>	$_SESSION['Auth']['User']['name']
+						'filter'			=>	$name
 					)
 				)
 			);
@@ -52,6 +52,19 @@ class BatchSet extends DatamartAppModel {
 		}
 		
 		return $return;
+	}
+	
+	function getBatchSet($batch_set_id){
+		$conditions = array(
+			'BatchSet.id' => $batch_set_id,
+			
+			'or'	=> array(
+				'BatchSet.group_id'	=> $_SESSION['Auth']['User']['group_id'],
+				'BatchSet.user_id'	=> $_SESSION['Auth']['User']['id']
+			)
+		);
+		$batch_set = $this->find( 'first', array( 'conditions'=>$conditions ) );
+		return ($batch_set);
 	}
 	
 }
