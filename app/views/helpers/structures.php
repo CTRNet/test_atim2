@@ -1437,7 +1437,7 @@ class StructuresHelper extends Helper {
 										
 										$calc_date_divider =  $options['type']!='csv' ? '&nbsp;' : ' ';
 										
-										// format DATE based on DATE CONFIG, with nice translated month name  �, ��, �
+										// format DATE based on DATE CONFIG, with nice translated month name
 										if ( date_format=='MDY' ) {
 											$display_value = $calc_date_string_month.$calc_date_divider.$calc_date_day.$calc_date_divider.$calc_date_year;
 										} else if ( date_format=='YMD' ) {
@@ -1729,6 +1729,18 @@ class StructuresHelper extends Helper {
 								}
 								
 							}
+								
+							// if existing DATA VALUE does not exist in the SELECT OPTIONS, add EXISTING DATA into the options using OPTGROUP to make the addition clear
+								if ( isset($this->data[$field['StructureField']['model']][$field['StructureField']['field']]) && $this->data[$field['StructureField']['model']][$field['StructureField']['field']] && !array_key_exists($this->data[$field['StructureField']['model']][$field['StructureField']['field']],$html_element_array['options']) ) {
+									
+									$html_element_array['options'] = array(
+										html_entity_decode( __( 'Supported Value', true ), ENT_QUOTES, "UTF-8" ) => $html_element_array['options'],
+										html_entity_decode( __( 'Unmatched Value', true ), ENT_QUOTES, "UTF-8" ) => array(
+											$this->data[$field['StructureField']['model']][$field['StructureField']['field']] => $this->data[$field['StructureField']['model']][$field['StructureField']['field']]
+										)
+									);
+									
+								}
 							
 							break;
 							
@@ -2177,6 +2189,7 @@ class StructuresHelper extends Helper {
 				
 				$links_append .= '
 								</ul>
+								<span class="arrow"></span>
 							</div>
 				';
 				

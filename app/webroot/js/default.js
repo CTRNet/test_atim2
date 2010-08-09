@@ -1,3 +1,70 @@
+$('#menu #summary').hover( 
+	function() {
+		
+		var summary_hover = $(this);
+		var summary_popup = summary_hover.find('ul');
+		var summary_label = summary_hover.find('span');
+		
+		if ( summary_popup.length>0 ) {
+			
+			summary_popup.slideToggle(
+				100, 	
+				function () {
+					if ( $('#dimForActionPopup').css('display')=='block' ) {
+						$('#dimForActionPopup').fadeOut(100);
+						
+						summary_hover.css('position','absolute').css('z-index',50);
+						summary_popup.css('z-index',100);
+						summary_label.css('z-index',100);
+					} else {
+						$('#dimForActionPopup').fadeIn(2000);
+						
+						summary_label.css('z-index',200);
+						summary_hover.css('position','absolute').css('z-index',150);
+						summary_popup.css('z-index',150);
+					}
+				}
+			);
+			
+			return false;
+			
+		}
+		
+	}
+);
+
+$('#wrapper div.actions ul ul.filter li').hover( 
+	function() {
+		
+		var action_hover = $(this);
+		var action_popup = action_hover.find('div.filter_menu');
+		
+		if ( action_popup.length>0 ) {
+			
+			action_popup.slideToggle(
+				100, 
+				function () {
+					if ( $('#dimForActionPopup').css('display')=='block' ) {
+						$('#dimForActionPopup').fadeOut(100);
+						
+						action_hover.css('position','relative').css('z-index',50);
+						action_popup.css('z-index',100);
+					} else {
+						$('#dimForActionPopup').fadeIn(2000);
+						
+						action_hover.css('position','relative').css('z-index',150);
+						action_popup.css('z-index',150);
+					}
+				}
+			);
+			
+			return false;
+			
+		}
+		
+	}
+);
+
 var availableTags = ["c++", "java", "php", "coldfusion", "javascript", "asp", "ruby", "python", "c", "scala", "groovy", "haskell", "perl"];
 
 function checkAll( $div ) {
