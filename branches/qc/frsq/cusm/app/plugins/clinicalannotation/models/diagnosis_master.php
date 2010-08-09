@@ -21,7 +21,7 @@ class DiagnosisMaster extends ClinicalannotationAppModel {
 		$return = false;
 		if ( isset($variables['DiagnosisMaster.id']) ) {
 			$result = $this->find('first', array('conditions'=>array('DiagnosisMaster.id'=>$variables['DiagnosisMaster.id'])));
-					
+			
 			$return = array(
 				'Summary'	 => array(
 					'menu' => array(NULL, __($result['DiagnosisControl']['controls_type'], TRUE)),
