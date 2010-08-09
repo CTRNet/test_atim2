@@ -67,6 +67,7 @@ class PermissionsController extends AdministrateAppController {
 		}
 		$this->Aro->query($sql);
 		
+		// echo '<p>'.$state.': '.$sql.'</p>';
 	}
 	
 	function tree($group_id=0, $user_id=0 ) {
@@ -79,9 +80,18 @@ class PermissionsController extends AdministrateAppController {
 		
 		if($this->data){
 			
+			/*
+			echo '<pre>';
+			print_r($this->data);
+			echo '</pre>';
+			*/
+			
 			foreach($this->data as $i => $aco){
-				$this->updatePermission($aro['Aro']['id'],$aco['Aco']['id'],intval($aco['Aco']['state']));
+				$this->updatePermission( $aro['Aro']['id'], $aco[$i]['Aco']['id'], intval($aco[$i]['Aco']['state']) );
 			}
+			
+			// exit;
+			
 			$this->redirect('/administrate/permissions/tree/'.$group_id.'/'.$user_id);
 			break;
 		}

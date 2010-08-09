@@ -5,11 +5,10 @@
 		$structures->build( $atim_structure_for_detail, array('type'=>'detail', 'settings'=>array('actions'=>false), 'data'=>$data_for_detail) );
 	
 	// display adhoc RESULTS form
-		
 		$structure_links = array(
 			'top'=>'/datamart/batch_sets/process/'.$atim_menu_variables['Param.Type_Of_List'].'/'.$atim_menu_variables['BatchSet.id'],
 			'checklist'=>array(
-				$data_for_detail['BatchSet']['model'].'.id]['=>'%%'.$data_for_detail['BatchSet']['model'].'.id'.'%%'
+				$data_for_detail['BatchSet']['model'].'.'.$lookup_key_name.'][' => '%%'.$data_for_detail['BatchSet']['model'].'.'.$lookup_key_name.'%%'
 			)
 		);
 		
@@ -36,4 +35,35 @@
 		);
 		
 		$structures->build( $atim_structure_for_process, array('type'=>'add', 'settings'=>array('form_top'=>false), 'links'=>$structure_links, 'override'=>$structure_override, 'data'=>array()) );
+		
 ?>
+
+<script type="text/javascript">
+$(function(){
+	setFormAction($("#BatchSetProcess").val());
+	$("#BatchSetProcess").change(function(){
+		setFormAction($(this).val());
+	});
+});
+
+function setFormAction(action){
+	if(action.length == 0){
+		$("#submit_button").unbind('click');
+		$("#submit_button").click(function(){
+			alert("<?php __("select an option for the field process batch set") ?>");
+			return false;
+		});
+	}else{
+		action = root_url + action;
+		$("#submit_button").unbind('click');
+		$("#submit_button").click(function(){
+			if($("input:checked").length == 0){
+				alert("<?php __("check at least one element from the batch set") ?>");
+				return false;
+			}
+				return true;
+		});
+	}
+	$("form").attr("action", action);
+}
+</script>

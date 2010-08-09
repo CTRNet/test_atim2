@@ -124,7 +124,7 @@
  * Session time out time (in seconds).
  * Actual value depends on 'Security.level' setting.
  */
-	Configure::write('Session.timeout', '60');
+	Configure::write('Session.timeout', '120');
 /**
  * If set to false, sessions are not automatically started.
  */
@@ -170,9 +170,9 @@
  * The classname and database used in CakePHP's
  * access control lists.
  */
- 	App::import('model','AtimAcl');
-	Configure::write('Acl.classname', 'AtimAcl');
-	Configure::write('Acl.database', 'default');
+ 	// App::import('model','AtimAcl');
+	// Configure::write('Acl.classname', 'AtimAcl');
+	// Configure::write('Acl.database', 'default');
 /**
  *
  * Cache Engine Configuration

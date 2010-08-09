@@ -83,8 +83,8 @@ class DATABASE_CONFIG {
 		'persistent' => false,
 		'host' => 'localhost',
 		'login' => 'root',
-		'password' => '',
-		'database' => 'frsq_cusm',
+		'password' => '1qaz1qaz',
+		'database' => 'cake',
 		'prefix' => '',
 		'encoding' => 'utf8'
 	);

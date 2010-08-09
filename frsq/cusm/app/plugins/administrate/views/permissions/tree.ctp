@@ -66,7 +66,8 @@
 			'settings'	=> array (
 				'tree'	=> array(
 					'Aco'	=> 'Aco'
-				)
+				),
+				'header' => array ('title' => 'permission control panel', 'description' => 'note: permission changes will not take effect until the user logs out of the system.')
 			)
 		) 
 	);

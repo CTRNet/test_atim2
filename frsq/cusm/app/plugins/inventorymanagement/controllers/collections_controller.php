@@ -12,12 +12,13 @@ class CollectionsController extends InventorymanagementAppController {
 		'Inventorymanagement.AliquotMaster',
 		'Inventorymanagement.PathCollectionReview',
 		'Inventorymanagement.ReviewMaster',
+		'Inventorymanagement.ParentToDerivativeSampleControl',
 		
 		'Clinicalannotation.ClinicalCollectionLink');
 	
 	var $paginate = array(
-		'Collection' => array('limit' => 10, 'order' => 'Collection.acquisition_label ASC'),
-		'ViewCollection' => array('limit' => 10, 'order' => 'ViewCollection.acquisition_label ASC')); 
+		'Collection' => array('limit' => pagination_amount, 'order' => 'Collection.acquisition_label ASC'),
+		'ViewCollection' => array('limit' => pagination_amount, 'order' => 'ViewCollection.acquisition_label ASC')); 
 	
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS
@@ -67,7 +68,10 @@ class CollectionsController extends InventorymanagementAppController {
 		$this->set('participant_id', $collection_data['ViewCollection']['participant_id']);
 		
 		// Get all sample control types to build the add to selected button
-		$specimen_sample_controls_list = $this->SampleControl->atim_list(array('conditions' => array('SampleControl.flag_active' => '1', 'SampleControl.sample_category' => 'specimen'), 'order' => 'SampleControl.sample_type ASC'));
+		$controls = $this->ParentToDerivativeSampleControl->find('all', array('conditions' => array('ParentToDerivativeSampleControl.parent_sample_control_id IS NULL', 'ParentToDerivativeSampleControl.flag_active' => true), 'fields' => array('DerivativeControl.*')));
+		foreach($controls as $control){
+			$specimen_sample_controls_list[]['SampleControl'] = $control['DerivativeControl'];	
+		}
 		$this->set('specimen_sample_controls_list', $specimen_sample_controls_list);	
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -134,7 +138,7 @@ class CollectionsController extends InventorymanagementAppController {
 					}else if(!$this->ClinicalCollectionLink->save(array('ClinicalCollectionLink' => array('collection_id' => $collection_id)))) {
 						$this->redirect('/pages/err_inv_record_err', null, true); 
 					}
-					$this->flash('your data has been saved', '/inventorymanagement/collections/detail/' . $collection_id);
+					$this->atimFlash('your data has been saved', '/inventorymanagement/collections/detail/' . $collection_id);
 				}				
 			}
 		}
@@ -199,7 +203,7 @@ class CollectionsController extends InventorymanagementAppController {
 			
 				$this->Collection->id = $collection_id;
 				if ($this->Collection->save($this->data)) {
-					$this->flash('your data has been updated', '/inventorymanagement/collections/detail/' . $collection_id);
+					$this->atimFlash('your data has been updated', '/inventorymanagement/collections/detail/' . $collection_id);
 				}
 			}
 		}
@@ -225,7 +229,7 @@ class CollectionsController extends InventorymanagementAppController {
 		if($arr_allow_deletion['allow_deletion']) {
 			// Delete collection			
 			if($this->Collection->atim_delete($collection_id, true)) {
-				$this->flash('your data has been deleted', '/inventorymanagement/collections/index/');
+				$this->atimFlash('your data has been deleted', '/inventorymanagement/collections/index/');
 			} else {
 				$this->flash('error deleting data - contact administrator', '/inventorymanagement/collections/index/');
 			}		

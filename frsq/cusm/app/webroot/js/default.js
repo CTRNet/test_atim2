@@ -1,3 +1,5 @@
+var availableTags = ["c++", "java", "php", "coldfusion", "javascript", "asp", "ruby", "python", "c", "scala", "groovy", "haskell", "perl"];
+
 function checkAll( $div ) {
 	
 	// check compatibility
@@ -71,62 +73,11 @@ function uncheckAll( $div ) {
 	
 	function getJsonFromClass(cssClass){
 		var startIndex = cssClass.indexOf("{");
-		return eval ('(' + cssClass.substr(startIndex, cssClass.lastIndexOf("}") - startIndex + 1) + ')');
-	}
-	
-	$(function(){
-		//field highlighting
-		if($("#table1row0").length == 1){
-			//gridview
-			$('form').highlight('td');
-		}else{
-			$('form').highlight('tr');
+		if(startIndex > -1){
+			return eval ('(' + cssClass.substr(startIndex, cssClass.lastIndexOf("}") - startIndex + 1) + ')');
 		}
-		
-		//tree view controls
-		$(".reveal:not(.not_allowed)").each(function(){
-			var json = getJsonFromClass($(this).attr("class"));
-			$(this).toggle(function(){
-				$("#tree_" + json.tree).stop(true, true);
-				$("#tree_" + json.tree).show("blind", {}, 350);
-			}, function(){
-				$("#tree_" + json.tree).stop(true, true);
-				$("#tree_" + json.tree).hide("blind", {}, 350);
-			});
-		});
-		
-		//ajax controls
-		//evals the json within the class of the element and calls the method defined in callback
-		//the callback method needs to take this and json as parameters
-		$(".ajax").click(function(){
-			var json = getJsonFromClass($(this).attr("class"));
-			var fct = eval("(" + json.callback + ")");
-			fct.apply(this, [this, json]);
-			return false;
-		});
-		
-		//autocomplete controls
-		$(".jqueryAutocomplete").each(function(){
-			var json = getJsonFromClass($(this).attr("class"));
-			var fct = eval("(" + json.callback + ")");
-			fct.apply(this, [this, json]);
-			return false;
-		});
-
-		initAdvancedControls();
-		initTooltips();
-		
-		//calendar controls
-		$.datepicker.setDefaults($.datepicker.regional[locale]);
-		$(".datepicker").each(function(){
-			initDatepicker(this);
-		});
-		//datepicker style
-		$("#ui-datepicker-div").addClass("jquery_cupertino");
-		//autocomplete style
-		$(".ui-autocomplete").addClass("jquery_cupertino");
-		
-	});
+		return null;
+	}
 
 	function initDatepicker(element){
 		var tmpId = element.id.substr(0, element.id.indexOf("_button"));
@@ -186,6 +137,9 @@ function uncheckAll( $div ) {
 		});
 	}
 	
+	/**
+	 * Advanced controls are search OR options and RANGE buttons
+	 */
 	function initAdvancedControls(){
 		//for each add or button
 		$(".btn_add_or").each(function(){
@@ -235,6 +189,45 @@ function uncheckAll( $div ) {
 				$(this).remove();
 			}
 		});
+		
+		$(".range").each(function(){
+			//uses .btn_add_or to know if this is a search form and if advanced controls are on
+			$(this).parent().parent().find(".btn_add_or").parent().append(" <a href='#' class='range_btn'>(" + STR_RANGE + ")</a>");
+		});
+		$(".range_btn").toggle(function(){
+			var cell = getParentElement(this, "TD");
+			$(cell).find("input").val("");
+			if($(cell).find(".range_span").length == 0){
+				$(cell).find("span:first").addClass("adv_ctrl");
+				$(cell).prepend("<span class='range_span'><input type='text' name='data[MiscIdentifier][identifier_value_start]'/> " + STR_TO + " <input type='text' name='data[MiscIdentifier][identifier_value_end]'/></span>");
+			}else{
+				$(cell).find(".range_span").show();
+				//restore names
+				$(cell).find(".range_span input").each(function(){
+					$(this).attr("name", $(this).attr("name").substr(1));
+				});
+			}
+			$(this).html("(" + STR_SPECIFIC + ")");
+			$(cell).find(".adv_ctrl").hide();
+			//obfuscate names
+			$(cell).find(".adv_ctrl input").each(function(){
+				$(this).attr("name", "x" + $(this).attr("name"));
+			});
+		}, function(){
+			var cell = getParentElement(this, "TD");
+			$(cell).find("input").val("");
+			$(this).html("(" + STR_RANGE + ")");
+			$(cell).find(".range_span").hide();
+			$(cell).find(".adv_ctrl").show();
+			//restore input names
+			$(cell).find(".adv_ctrl input").each(function(){
+				$(this).attr("name", $(this).attr("name").substr(1));
+			});
+			//obfuscate input names
+			$(cell).find(".range_span input").each(function(){
+				$(this).attr("name", "x" + $(this).attr("name"));
+			});
+		});
 	}
 	
 	function initTooltips(){
@@ -252,4 +245,81 @@ function uncheckAll( $div ) {
 			});
 			$(this).find("div").addClass("ui-corner-all").css({"border" : "1px solid", "padding" : "3px"})
 		});	
+	}
+	
+	/**
+	 * Remove the row that contains the element
+	 * @param element The element contained within the row to remove
+	 */
+	function removeParentRow(element){
+		element = getParentElement(element, "TR");
+		
+		if($(element)[0].nodeName == "TR"){
+			$(element).remove();
+		}
+	}
+	
+	function getParentRow(element){
+		return getParentElement(element, "TR");
+	}
+	
+	function initAutocomplete(){
+		$(".jqueryAutocomplete").each(function(){
+			var json = getJsonFromClass($(this).attr("class"));
+			var fct = eval("(" + json.callback + ")");
+			fct.apply(this, [this, json]);
+		});
+	}
+	
+	function getParentElement(currElement, parentName){
+		do{
+			currElement = $(currElement).parent();
+			nodeName = currElement[0].nodeName;
+		}while(nodeName != parentName && nodeName != "undefined");
+		return currElement;
+	}
+	
+	function initJsControls(){
+		//field highlighting
+		if($("#table1row0").length == 1){
+			//gridview
+			$('form').highlight('td');
+		}else{
+			$('form').highlight('tr');
+		}
+		
+		//tree view controls
+		$(".reveal:not(.not_allowed)").each(function(){
+			var cssClass = $(this).attr("class");
+			if(cssClass.indexOf("{") > -1){
+				var json = getJsonFromClass(cssClass);
+				$(this).toggle(function(){
+					$("#tree_" + json.tree).stop(true, true);
+					$("#tree_" + json.tree).show("blind", {}, 350);
+				}, function(){
+					$("#tree_" + json.tree).stop(true, true);
+					$("#tree_" + json.tree).hide("blind", {}, 350);
+				});
+			}
+		});
+		
+		//ajax controls
+		//evals the json within the class of the element and calls the method defined in callback
+		//the callback method needs to take this and json as parameters
+		$(".ajax").click(function(){
+			var json = getJsonFromClass($(this).attr("class"));
+			var fct = eval("(" + json.callback + ")");
+			fct.apply(this, [this, json]);
+			return false;
+		});
+		
+		initAutocomplete();
+		initAdvancedControls();
+		initTooltips();
+		
+		//calendar controls
+		$.datepicker.setDefaults($.datepicker.regional[locale]);
+		$(".datepicker").each(function(){
+			initDatepicker(this);
+		});
 	}

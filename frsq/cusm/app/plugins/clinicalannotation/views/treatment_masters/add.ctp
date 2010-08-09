@@ -19,6 +19,8 @@
 		
 		'header' => '1- ' . __('data', null) . ' : ' . $tx_header,
 		'form_bottom'=>false);
+	
+	if(isset($available_protocols)) { $structure_override['TreatmentMaster.protocol_master_id'] = $available_protocols; }
 			 	
 	$final_options = array('links'=>$structure_links,'settings'=>$structure_settings, 'override'=>$structure_override);
 	$final_atim_structure = $atim_structure; 

@@ -68,10 +68,9 @@ class AliquotsComponent extends Object {
 		
 		// Save Data
 		$this->controller->AliquotMaster->id = $aliquot_master_id;
-		if(!$this->controller->AliquotMaster->save(array('AliquotMaster' => array('current_volume' => $current_volume)))) {
+		if(!$this->controller->AliquotMaster->save(array('AliquotMaster' => array('id' => $aliquot_master_id, 'current_volume' => $current_volume)))) {
 			return false;
 		}
-		
 		return true;
 	}
 	

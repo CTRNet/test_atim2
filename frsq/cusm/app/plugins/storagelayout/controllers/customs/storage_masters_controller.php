@@ -1,12 +1,8 @@
 <?php
-	 
 class StorageMastersControllerCustom extends StorageMastersController {
-
-	function createSelectionLabel($storage_data, $parent_storage_data) {
-		if(!array_key_exists('short_label', $storage_data['StorageMaster'])) { $this->redirect('/pages/err_sto_system_error', null, true); }
-		return ($storage_data['StorageMaster']['short_label']);
+	function getLabel($children_array, $type_key, $label_key){
+		//USE THIS TO OVERRIDE THE DEFAULT LABEL
+		return parent::getLabel($children_array, $type_key, $label_key);
 	}
-	 
 }
-	
 ?>
