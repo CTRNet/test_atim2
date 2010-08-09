@@ -610,3 +610,25 @@ INNER JOIN aliquot_controls ac ON sac.aliquot_control_id=ac.id
 SET sac.flag_active=0 WHERE ac.flag_active=0;
 ALTER TABLE aliquot_controls 
 DROP flag_active;
+
+-- Add search on control id instead control name for identifier
+
+SET FOREIGN_KEY_CHECKS=0;
+
+UPDATE structures
+SET alias = 'miscidentifiers_for_participant_search' 
+WHERE alias = 'miscidentifierssummary';
+
+UPDATE datamart_browsing_structures
+SET structure_alias = 'miscidentifiers_for_participant_search'
+WHERE structure_alias = 'miscidentifierssummary';
+
+SET FOREIGN_KEY_CHECKS=1;
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
+(null, 'identifier_name_list_from_id', 'open', '', 'Clinicalannotation.MiscIdentifierControl::getMiscIdentifierNamePermissibleValuesFromId');
+
+UPDATE structure_fields 
+SET structure_value_domain = (SELECT id FROM structure_value_domains WHERE domain_name = 'identifier_name_list_from_id'),
+language_label = 'identifier name'
+WHERE field = 'misc_identifier_control_id';
