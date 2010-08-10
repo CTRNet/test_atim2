@@ -490,7 +490,6 @@ class SampleMastersController extends InventorymanagementAppController {
 			$criteria = array(
 				'ParentSampleControl.id' => $parent_sample_data['SampleMaster']['sample_control_id'],
 				'ParentToDerivativeSampleControl.flag_active' => '1',
-				'DerivativeControl.flag_active' => '1',
 				'DerivativeControl.id' => $sample_control_id);
 			$parent_to_derivative_sample_control = $this->ParentToDerivativeSampleControl->find('first', array('conditions' => $criteria));	
 			if(empty($parent_to_derivative_sample_control)) { $this->redirect('/pages/err_inv_no_data', null, true); }

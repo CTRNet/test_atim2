@@ -311,9 +311,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$criteria = array(
 			'SampleControl.id' => $sample_data['SampleMaster']['sample_control_id'],
 			'SampleToAliquotControl.flag_active' => '1',
-			'AliquotControl.flag_active' => '1',
 			'AliquotControl.id' => $aliquot_control_id);
-		$sample_to_aliquot_control = $this->SampleToAliquotControl->find('first', array('conditions' => $criteria));	
+		$sample_to_aliquot_control = $this->SampleToAliquotControl->find('first', array('conditions' => $criteria));
 		if(empty($sample_to_aliquot_control)) { $this->redirect('/pages/err_inv_no_data', null, true); }			
 		$aliquot_control_data = array('AliquotControl' => $sample_to_aliquot_control['AliquotControl']);
 		

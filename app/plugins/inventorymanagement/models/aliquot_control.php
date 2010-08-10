@@ -44,7 +44,9 @@ class AliquotControl extends InventorymanagementAppModel {
 		$aliquot_controls = $this->SampleToAliquotControl->find('all', array('conditions' => $conditions, 'group' => array('SampleToAliquotControl.aliquot_control_id'), 'field' => array('AliquotControl.*')));
 		if($use_id){
 			foreach($aliquot_controls as $aliquot_control) {
-				$tmp_result[$aliquot_control['AliquotControl']['id']] = __($aliquot_control['AliquotControl']['aliquot_type'], true);
+				$aliquot_type_precision = $aliquot_control['AliquotControl']['aliquot_type_precision'];
+				$tmp_result[$aliquot_control['AliquotControl']['id']] = __($aliquot_control['AliquotControl']['aliquot_type'], true) 
+					. (empty($aliquot_type_precision)? '' :  ' [' . __($aliquot_type_precision, true) . ']');
 			}
 		}else{
 			foreach($aliquot_controls as $aliquot_control) {
