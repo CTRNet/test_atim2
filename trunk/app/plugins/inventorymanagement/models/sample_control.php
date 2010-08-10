@@ -44,6 +44,20 @@ class SampleControl extends InventorymanagementAppModel {
 		return $this->getSamplesPermissibleValues(false, true);
 	}
 	
+ 	/**
+	 * Get permissible values array gathering all existing specimen sample types.
+	 *
+	 * @return Array having following structure:
+	 * 	array ('value' => 'SampleControl.type', 'default' => (translated string describing sample type))
+	 * 
+	 * @author N. Luc
+	 * @since 2010-05-26
+	 * @updated N. Luc
+	 */  	
+	function getSpecimenSampleTypePermissibleValuesFromId() {		
+		return $this->getSamplesPermissibleValues(true, true);
+	}
+	
 	function getSamplesPermissibleValues($by_id, $only_specimen){
 		$result = array();
 		$tmp_result = array();

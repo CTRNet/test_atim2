@@ -632,3 +632,202 @@ UPDATE structure_fields
 SET structure_value_domain = (SELECT id FROM structure_value_domains WHERE domain_name = 'identifier_name_list_from_id'),
 language_label = 'identifier name'
 WHERE field = 'misc_identifier_control_id';
+
+-- Add search on control id instead control name for sample
+
+DROP VIEW view_samples;
+CREATE VIEW view_samples AS 
+SELECT 
+samp.id AS sample_master_id,
+samp.parent_id AS parent_sample_id,
+samp.initial_specimen_sample_id,
+samp.collection_id AS collection_id,
+
+col.bank_id, 
+col.sop_master_id, 
+link.participant_id, 
+link.diagnosis_master_id, 
+link.consent_master_id,
+
+part.participant_identifier, 
+
+col.acquisition_label, 
+
+specimen.sample_type AS initial_specimen_sample_type,
+specimen.sample_control_id AS initial_specimen_sample_control_id,
+parent_samp.sample_type AS parent_sample_type,
+parent_samp.sample_control_id AS parent_sample_control_id,
+samp.sample_type,
+samp.sample_control_id,
+samp.sample_code,
+samp.sample_category,
+samp.deleted
+
+FROM sample_masters as samp
+INNER JOIN collections AS col ON col.id = samp.collection_id AND col.deleted != 1
+LEFT JOIN sample_masters as specimen ON samp.initial_specimen_sample_id = specimen.id AND specimen.deleted != 1
+LEFT JOIN sample_masters as parent_samp ON samp.parent_id = parent_samp.id AND parent_samp.deleted != 1
+LEFT JOIN clinical_collection_links AS link ON col.id = link.collection_id AND link.deleted != 1
+LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted != 1
+WHERE samp.deleted != 1;
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
+(null, 'specimen_sample_type_from_id', 'open', '', 'Inventorymanagement.SampleControl::getSpecimenSampleTypePermissibleValuesFromId');
+
+INSERT INTO `structure_fields` (`id`, `public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, '', 'Inventorymanagement', 'ViewSample', '', 'sample_control_id', 'sample type', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name = 'sample_type_from_id'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(null, '', 'Inventorymanagement', 'ViewSample', '', 'parent_sample_control_id', 'parent sample type', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name = 'sample_type_from_id'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(null, '', 'Inventorymanagement', 'ViewSample', '', 'initial_specimen_sample_control_id', 'initial specimen type', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name = 'specimen_sample_type_from_id'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='view_sample_joined_to_collection'), 
+(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `field`='sample_control_id' ), 
+'0', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '1', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='view_sample_joined_to_collection'), 
+(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `field`='parent_sample_control_id' ), 
+'0', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '1', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='view_sample_joined_to_collection'), 
+(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `field`='initial_specimen_sample_control_id' ), 
+'0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '1', '0', '0', '0', '0', '0'); 
+
+UPDATE structure_formats
+SET flag_search = '0'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='view_sample_joined_to_collection')
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `field` IN ('initial_specimen_sample_type', 'parent_sample_type', 'sample_type'));
+
+-- Add constraint on sample controls
+
+ALTER TABLE `sample_controls` 
+	CHANGE `sample_category` `sample_category` ENUM( 'specimen', 'derivative' ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL; 
+
+ALTER TABLE `tx_controls` 
+	CHANGE `extend_tablename` `extend_tablename` VARCHAR( 255 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL ,
+	CHANGE `extend_form_alias` `extend_form_alias` VARCHAR( 255 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL;
+
+ALTER TABLE `sample_controls` ADD UNIQUE (`sample_type`);
+
+-- Add constraint on sample controls
+
+ALTER TABLE `aliquot_controls` 
+	CHANGE `aliquot_type` `aliquot_type` ENUM( 'block', 'cell gel matrix', 'core', 'slide', 'tube', 'whatman paper' ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL COMMENT 'Generic name.';
+
+ALTER TABLE `aliquot_controls` 
+  	ADD `aliquot_type_precision` varchar(30) DEFAULT NULL  COMMENT 'Use to differentiate two aliquot controls having the same aliquot_type in case they can be used for the same sample type. (Ex: tissue tube (5ml) and tissue tube (cryogenic)).' AFTER `aliquot_type` ;
+
+UPDATE aliquot_controls SET aliquot_type_precision = 'cells' WHERE aliquot_type = 'core' AND form_alias = 'ad_der_cell_cores';
+UPDATE aliquot_controls SET aliquot_type_precision = 'tissue' WHERE aliquot_type = 'core' AND form_alias = 'ad_spec_tiss_cores';
+
+UPDATE aliquot_controls SET aliquot_type_precision = 'cells' WHERE aliquot_type = 'slide' AND form_alias = 'ad_der_cell_slides';
+UPDATE aliquot_controls SET aliquot_type_precision = 'tissue' WHERE aliquot_type = 'slide' AND form_alias = 'ad_spec_tiss_slides';
+
+UPDATE aliquot_controls SET aliquot_type_precision = 'cells' WHERE aliquot_type = 'tube' AND form_alias = 'ad_der_cell_tubes_incl_ml_vol';
+UPDATE aliquot_controls SET aliquot_type_precision = 'specimen tube' WHERE aliquot_type = 'tube' AND form_alias = 'ad_spec_tubes';
+UPDATE aliquot_controls SET aliquot_type_precision = 'derivative tube (ml)' WHERE aliquot_type = 'tube' AND form_alias = 'ad_der_tubes_incl_ml_vol';
+UPDATE aliquot_controls SET aliquot_type_precision = 'derivative tube (ul + conc)' WHERE aliquot_type = 'tube' AND form_alias = 'ad_der_tubes_incl_ul_vol_and_conc';
+UPDATE aliquot_controls SET aliquot_type_precision = 'specimen tube (ml)' WHERE aliquot_type = 'tube' AND form_alias = 'ad_spec_tubes_incl_ml_vol';
+
+INSERT IGNORE INTO i18n (id, en, fr)
+VALUES
+('cells', 'Cells', 'Cellules'),
+('tissue', 'Tissue', 'Tissu'),
+('specimen tube', 'Specimen', 'Spécimen'),
+('specimen tube (ml)', 'Specimen (ml)', 'Spécimen (ml)'),
+('derivative tube (ml)', 'Derivative (ml)', 'Dérivé (ml)'),
+('derivative tube (ul + conc)', 'Derivative (ul + conc°)', 'Dérivé (ul + conc°)');
+
+-- Add search on control id instead control name for aliquot (except aliquot type)
+
+DROP VIEW view_aliquots;
+CREATE VIEW view_aliquots AS 
+SELECT 
+al.id AS aliquot_master_id,
+al.sample_master_id AS sample_master_id,
+al.collection_id AS collection_id, 
+col.bank_id, 
+al.storage_master_id AS storage_master_id,
+link.participant_id, 
+link.diagnosis_master_id, 
+link.consent_master_id,
+
+part.participant_identifier, 
+
+col.acquisition_label, 
+
+specimen.sample_type AS initial_specimen_sample_type,
+specimen.sample_control_id AS initial_specimen_sample_control_id,
+parent_samp.sample_type AS parent_sample_type,
+parent_samp.sample_control_id AS parent_sample_control_id,
+samp.sample_type,
+samp.sample_control_id,
+
+al.barcode,
+al.aliquot_type,
+al.aliquot_control_id,
+al.in_stock,
+
+stor.code,
+stor.selection_label,
+al.storage_coord_x,
+al.storage_coord_y,
+
+stor.temperature,
+stor.temp_unit,
+
+al.deleted
+
+FROM aliquot_masters as al
+INNER JOIN sample_masters as samp ON samp.id = al.sample_master_id AND samp.deleted != 1
+INNER JOIN collections AS col ON col.id = samp.collection_id AND col.deleted != 1
+LEFT JOIN sample_masters as specimen ON samp.initial_specimen_sample_id = specimen.id AND specimen.deleted != 1
+LEFT JOIN sample_masters as parent_samp ON samp.parent_id = parent_samp.id AND parent_samp.deleted != 1
+LEFT JOIN clinical_collection_links AS link ON col.id = link.collection_id AND link.deleted != 1
+LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted != 1
+LEFT JOIN storage_masters AS stor ON stor.id = al.storage_master_id AND stor.deleted != 1
+WHERE al.deleted != 1;
+
+INSERT INTO `structure_fields` (`id`, `public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, '', 'Inventorymanagement', 'ViewAliquot', '', 'aliquot_control_id', 'aliquot type', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name = 'aliquot_type_from_id'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+INSERT INTO `structure_fields` (`id`, `public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, '', 'Inventorymanagement', 'ViewAliquot', '', 'sample_control_id', 'sample type', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name = 'sample_type_from_id'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(null, '', 'Inventorymanagement', 'ViewAliquot', '', 'parent_sample_control_id', 'parent sample type', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name = 'sample_type_from_id'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(null, '', 'Inventorymanagement', 'ViewAliquot', '', 'initial_specimen_sample_control_id', 'initial specimen type', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name = 'specimen_sample_type_from_id'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection'), 
+(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `field`='sample_control_id' ), 
+'0', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '1', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection'), 
+(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `field`='parent_sample_control_id' ), 
+'0', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '1', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection'), 
+(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `field`='initial_specimen_sample_control_id' ), 
+'0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '1', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection'), 
+(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `field`='aliquot_control_id' ), 
+'0', '9', '', '1', 'specific aliquot type', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '1', '0', '0', '0', '0', '0'); 
+
+INSERT IGNORE INTO i18n (id, en, fr)
+VALUES
+('specific aliquot type', 'Aliquot Type (Specific)', 'Type d''aliquot (précis)');
+
+UPDATE structure_formats
+SET flag_search = '0'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection')
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' 
+AND `field` IN ('initial_specimen_sample_type', 'parent_sample_type', 'sample_type'));
+
+
+
+
+
+
+
+
