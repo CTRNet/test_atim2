@@ -2167,8 +2167,10 @@ class StructuresHelper extends Helper {
 				$links_append = '
 							<a class="form popup" href="javascript:return false;">'.__($link_name, TRUE).'</a>
 							<!-- container DIV for JS functionality -->
-							<div class="filter_menu">
-								<ul>
+							<div class="filter_menu'.( count($link_results)>7 ? ' scroll' : '' ).'">
+								
+								<div>
+									<ul>
 				';
 				
 				$count = 0;
@@ -2179,16 +2181,31 @@ class StructuresHelper extends Helper {
 						$class_last_line = " count_last_line";
 					}
 					$links_append .= '
-									<li class="count_'.$count.$class_last_line.'">
-										'.$link_location.'
-									</li>
+										<li class="count_'.$count.$class_last_line.'">
+											'.$link_location.'
+										</li>
 					';
 					
 					$count++;
 				}
 				
 				$links_append .= '
-								</ul>
+									</ul>
+								</div>
+				';
+				
+				if ( count($link_results)>7 ) {
+					$links_append .= '
+								<span class="up"></span>
+								<span class="down"></span>
+								
+								<a href="#" class="up"></a>
+								<a href="#" class="down"></a>
+					
+					';
+				}
+				
+				$links_append .= '
 								<span class="arrow"></span>
 							</div>
 				';
