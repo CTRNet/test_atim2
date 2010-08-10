@@ -2199,8 +2199,8 @@ class StructuresHelper extends Helper {
 								<span class="up"></span>
 								<span class="down"></span>
 								
-								<a href="#" class="up"></a>
-								<a href="#" class="down"></a>
+								<a href="#" class="up">&uarr;</a>
+								<a href="#" class="down">&darr;</a>
 					
 					';
 				}

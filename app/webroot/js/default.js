@@ -11,13 +11,13 @@ $('#menu #summary').hover(
 				100, 	
 				function () {
 					if ( $('#dimForActionPopup').css('display')=='block' ) {
-						$('#dimForActionPopup').fadeOut(100);
+						/* $('#dimForActionPopup').fadeOut(100); */
 						
 						summary_hover.css('position','absolute').css('z-index',50);
 						summary_popup.css('z-index',100);
 						summary_label.css('z-index',100);
 					} else {
-						$('#dimForActionPopup').fadeIn(2000);
+						/* $('#dimForActionPopup').fadeIn(2000); */
 						
 						summary_label.css('z-index',200);
 						summary_hover.css('position','absolute').css('z-index',150);
@@ -47,12 +47,12 @@ $('#wrapper div.actions ul ul.filter li').hover(
 					$('#dimForActionPopup').stop(true,true);
 					
 					if ( $('#dimForActionPopup').css('display')=='block' ) {
-						$('#dimForActionPopup').fadeOut(100);
+						/* $('#dimForActionPopup').fadeOut(100); */
 						
 						action_hover.css('position','relative').css('z-index',50);
 						action_popup.css('z-index',100);
 					} else {
-						$('#dimForActionPopup').fadeIn(2000);
+						/* $('#dimForActionPopup').fadeIn(2000); */
 						
 						action_hover.css('position','relative').css('z-index',150);
 						action_popup.css('z-index',150);
@@ -75,17 +75,18 @@ $('#wrapper div.actions ul ul.filter div a.up').click(
 		
 		var position = move_ul.position();
 		
+		
 		// only scroll if not already at edge...
-		if ( 1==1 ) {
+		if ( (position.top - 203) > (-1 * move_ul.height()) ) {
 			move_ul.animate(
 				{
-					top: '-=200'
+					top: '-=203'
 				},
 				150,
 				'linear'
 			);
 		}
-				
+		
 		return false;
 	}
 );
@@ -103,7 +104,7 @@ $('#wrapper div.actions ul ul.filter div a.down').click(
 			
 			move_ul.animate(
 				{
-					top: '+=200'
+					top: '+=203'
 				},
 				150,
 				'linear'
