@@ -364,7 +364,7 @@ div.wrapper div.actions {
 		padding: 0;
 		margin: 0;
 		
-		max-height: 200px;
+		max-height: 197px;
 		width: 200px;
 		
 		position: relative;
@@ -376,7 +376,7 @@ div.wrapper div.actions {
 	}
 	
 		div.wrapper div.actions ul ul.filter div.filter_menu.scroll div {
-			height: 200px;
+			height: 197px;
 		}
 		
 		div.wrapper div.actions ul ul.filter div.filter_menu.scroll div ul {
@@ -413,15 +413,16 @@ div.wrapper div.actions {
 			position: absolute;
 			display: block;
 			
-			padding: 0;
+			padding: 3px 0;
 			margin: 0;
 			
 			top: 0px;
 			left: 10px;
-			
-			border: 1px dotted #000;
 			width: 185px;
-			height: 15px;
+			height: 12px;
+			
+			color: #ccc;
+			text-align: center;
 		}
 	
 		div.wrapper div.actions ul ul.filter div.filter_menu a.down {
@@ -433,10 +434,11 @@ div.wrapper div.actions {
 			
 			bottom: 0px;
 			left: 10px;
-			
-			border: 1px dotted #000;
 			width: 185px;
-			height: 15px;
+			height: 18px;
+			
+			color: #ccc;
+			text-align: center;
 		}
 	
 	div.wrapper div.actions ul ul.filter div.filter_menu div ul li {
@@ -452,7 +454,7 @@ div.wrapper div.actions {
 
 		border: 0;
 		border-top: 1px dotted #374d61;
-		border-bottom: 1px solid #486680;
+		/*border-bottom: 1px solid #486680; */
 		background: none;
 		color: #999;
 		/* background-image: url("../img/btnBack.png"); */
@@ -479,13 +481,15 @@ div.wrapper div.actions {
 		div.wrapper div.actions ul ul.filter div.filter_menu div ul li.count_0:hover {
 			/* background-image: url("../img/btnBackSel.png"); */
 			
+			/*
 			border-top: 1px dotted #ccc;
 			border-bottom: 1px dotted #ccc;
+			*/
 		}
 
 	div.wrapper div.actions ul ul.filter div.filter_menu div ul li a {
 		background-color: #486680;
-		line-height: 18px;
+		line-height: 19px;
 		float: none;
 		display: block;
 		text-transform: none;
