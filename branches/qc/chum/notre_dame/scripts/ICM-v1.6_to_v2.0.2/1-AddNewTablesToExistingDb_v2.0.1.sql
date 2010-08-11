@@ -1,3 +1,5 @@
+Ajouter sample type = LB pour Urszula et convertiser tous les PBMC qui devrait être des LB. (Leur aliquot label like 'LB-PBMC%')
+
 #Drop all unused or unmigrated existing tables 
 
 DROP TABLE IF EXISTS
