@@ -216,6 +216,21 @@ class AppController extends Controller {
 			set_error_handler("myErrorHandler");
 		}
 	}
+	
+	/**
+	 * Recursively removes empty parts of an array. It includes empty arrays.
+	 * @param array &$arr The array to clean
+	 */
+	static function cleanArray(&$arr){
+		foreach($arr as $k => $foo){
+			if(is_array($arr[$k])){
+				AppController::cleanArray($arr[$k]);
+			}
+			if(empty($arr[$k]) || (is_array($arr[$k]) && count($arr[$k]) == 0) || (is_string($arr[$k]) && strlen(trim($arr[$k])) == 0)){
+				unset($arr[$k]);
+			}
+		}
+	}
 }
 	
 	AppController::init();
