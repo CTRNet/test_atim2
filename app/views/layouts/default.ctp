@@ -34,9 +34,9 @@
 			var STR_RANGE = "<?php __('range'); ?>";
 			var STR_TO = "<?php __('to'); ?>";
 		</script>
-		
 	<!--[if IE 7]>
 	<?php
+	
 		echo $html->css('iehacks');
 	?>
 	<![endif]-->
@@ -56,6 +56,7 @@
 	echo $this->element('sql_dump');
 	
 	// JS added to end of DOM tree...
+	
 	echo $javascript->link('jquery-1.4.2.min')."\n";
 	echo $javascript->link('jquery-ui-1.8.2.custom.min')."\n";
 	echo $javascript->link('jquery.ui-datepicker-fr.js')."\n";
@@ -63,6 +64,9 @@
 	echo $javascript->link('jquery.popup.js')."\n";
 	echo $javascript->link('fg.menu.js')."\n";
 	echo $javascript->link('default')."\n";
+	echo $javascript->link('storage_layout')."\n";
+	echo $javascript->link('browser')."\n";
+	echo $javascript->link('copyControl')."\n";
 	?>
 	
 	<script type="text/javascript">

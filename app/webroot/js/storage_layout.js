@@ -4,7 +4,7 @@
 
 var submitted = false; //avoids internal double posts
 
-$(function(){
+function initStorageLayout(){
 	//create all items
 	var jsonOrgItems = eval('(' + orgItems + ')');
 	for(var i = jsonOrgItems.length - 1; i >= 0; -- i){
@@ -78,7 +78,7 @@ $(function(){
 	$("#Reset").click(function(){
 		document.location="";
 	});
-});
+}
 
 /**
  * Called when an item is dropped in a droppable zone, moves the DOM element to the new container and updates the action
@@ -223,8 +223,4 @@ function showInLowerFrame(element, json){
 	$.get(json.load, {}, function(data){
 		 $("#popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>");
 	});
-}
-
-function debug(str){
-//	$("#debug").append(str + "<br/>");
 }

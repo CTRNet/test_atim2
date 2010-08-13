@@ -246,7 +246,7 @@ class Browser extends DatamartAppModel {
 					if($cell['BrowsingResult']['raw']){
 						$search = unserialize($cell['BrowsingResult']['serialized_search_params']);
 						if(count($search)){
-							$info .= __("search", true)."<br/><br/>".Browser::formatSearchToPrint($search, $cell['DatamartStructure']['structure_alias']);
+							$info .= __("search", true)."<br/><br/>".Browser::formatSearchToPrint($search, $cell['DatamartStructure']['structure_id']);
 						}else{
 							$info .= __("direct access", true);
 						}
@@ -270,7 +270,7 @@ class Browser extends DatamartAppModel {
 	 * Formats the search params array and returns it into a table
 	 * @param The search params array
 	 */
-	static function formatSearchToPrint(array $params, $structure_alias){
+	static function formatSearchToPrint(array $params, $structure_id){
 		$keys = array_keys($params);
 		App::import('model', 'StructureFormat');
 		$StructureFormat = new StructureFormat();
@@ -286,7 +286,7 @@ class Browser extends DatamartAppModel {
 			}
 			$conditions[] = "StructureField.model='".$model."' AND StructureField.field='".$field."'";
 		}
-		$sf = $StructureFormat->customSearch("Structure.alias='".$structure_alias."' AND ".implode(" OR ", $conditions));
+		$sf = $StructureFormat->customSearch("Structure.id='".$structure_id."' AND ".implode(" OR ", $conditions));
 		$result = "<table align='center' width='100%'>";
 		foreach($params as $name => $values){
 			if(is_numeric($name)){
