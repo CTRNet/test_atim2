@@ -1384,23 +1384,6 @@ class StructuresHelper extends Helper {
 							} else if ( $field['StructureField']['type']=='date' || $field['StructureField']['type']=='datetime' ) {
 								
 								if ( !is_array($display_value) ) {
-								
-									// some older/different versions of PHP do not have cal_info() function, so manually build expected month array
-										$cal_info = array(
-											1 => 'Jan',
-							            2 => 'Feb',
-							            3 => 'Mar',
-							            4 => 'Apr',
-							            5 => 'May',
-							            6 => 'Jun',
-							            7 => 'Jul',
-							            8 => 'Aug',
-							            9 => 'Sep',
-							            10 => 'Oct',
-							            11 => 'Nov',
-							            12 => 'Dec'
-							         );
-										
 									// format date STRING manually, using PHP's month name array, becuase of UnixTimeStamp's 1970 - 2038 limitation
 									
 										$calc_date_string = explode( ' ', $display_value );
@@ -1425,26 +1408,12 @@ class StructuresHelper extends Helper {
 								
 										
 									// format month INTEGER into an abbreviated month name, lowercase, to use for translation alias
-									
-										$calc_date_string_month = intval($calc_date_string[1]);
-										$calc_date_string_month = $cal_info[ $calc_date_string_month ];
-										$calc_date_string_month = strtolower( $calc_date_string_month );
-										$calc_date_string_month = __( $calc_date_string_month, true );
 										
 										$calc_date_day = $calc_date_string[2];
-										
+										$calc_date_month = $calc_date_string[1];
 										$calc_date_year = $calc_date_string[0];
 										
-										$calc_date_divider =  $options['type']!='csv' ? '&nbsp;' : ' ';
-										
-										// format DATE based on DATE CONFIG, with nice translated month name
-										if ( date_format=='MDY' ) {
-											$display_value = $calc_date_string_month.$calc_date_divider.$calc_date_day.$calc_date_divider.$calc_date_year;
-										} else if ( date_format=='YMD' ) {
-											$display_value = $calc_date_year.$calc_date_divider.$calc_date_string_month.$calc_date_divider.$calc_date_day;
-										} else { // default of DATE_FORMAT=='DMY'
-											$display_value = $calc_date_day.$calc_date_divider.$calc_date_string_month.$calc_date_divider.$calc_date_year;
-										}
+										$display_value = AppController::getFormatedDateString($calc_date_year, $calc_date_month, $calc_date_day, $options['type']!='csv');										
 										
 									if ( $field['StructureField']['type']=='datetime' ) {
 										

@@ -885,5 +885,5 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='date_range'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='action' AND `language_label`='action' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0');
 
 INSERT INTO `datamart_reports` (`id` ,`name` ,`description` ,`datamart_structure_id` ,`structure_id` ,`function` ,`serialized_representation` ,`created` ,`created_by` ,`modified` ,`modified_by`) VALUES 
-(NULL , 'number of consents obtained by month', 'shows the number of consents obtained by month for a specified date range', NULL , NULL , 'nb_consent_by_month', NULL , '0000-00-00 00:00:00', '', NULL , '');
-
+(NULL , 'number of consents obtained by month', 'shows the number of consents obtained by month for a specified date range', NULL , NULL , 'nb_consent_by_month', NULL , '0000-00-00 00:00:00', '', NULL , ''),
+(NULL , 'number of samples acquired', 'shows the number of samples acquired for a specified date range', NULL , NULL , 'samples_by_type', NULL , '0000-00-00 00:00:00', '', NULL , '');

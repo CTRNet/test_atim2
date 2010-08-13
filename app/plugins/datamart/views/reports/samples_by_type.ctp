@@ -1,6 +1,6 @@
 <?php
 if(isset($submit) && $submit){
-	$top =  "/datamart/reports/nb_consent_by_month/";
+	$top =  "/datamart/reports/samples_by_type/";
 	$links = array(
 		"top" => $top,
 		"bottom" => array("cancel" => "/datamart/reports/index"));
@@ -20,13 +20,10 @@ if(isset($submit) && $submit){
 	</script>
 	<?php
 }else{
-	$month = AppController::getCalInfo(false);
-	list($year_from, $month_from) = explode("-", $date_from);
-	list($year_to, $month_to) = explode("-", $date_to);
 	$data = array();
-	$data[] = array(__("period", true), __("obtained consents", true));
-	foreach($this->data as $unit){
-		$data[] = array($month[$unit[0]['m']]." ".$unit[0]['y'], $unit[0]['c']);	
+	$data[] = array(__("sample type", true), __('count', true));
+	foreach($my_data as $unit){
+		$data[] = array(__($unit['SampleMaster']['sample_type'], true), $unit[0]['c']);
 	}
 	if($csv){
 		foreach($data as $line){
@@ -36,13 +33,15 @@ if(isset($submit) && $submit){
 	}else{
 		$settings = array(
 			"header" => array(
-				"title" => "number of consents obtained by month", 
-				"description" => sprintf("shows the number of consents obtained by month from %s to %s", $month[(int)$month_from]." ".$year_from, $month[(int)$month_to]." ".$year_to)),
+				"title" => "number of samples acquired ", 
+				"description" => sprintf("show the number of samples acquired from %s to %s", 
+					AppController::getFormatedDateString($date_from['year'], $date_from['month'], $date_from['day']),
+					AppController::getFormatedDateString($date_to['year'], $date_to['month'], $date_to['day']))),
 			"actions" => false);
 		$structures->build($atim_structure, array("settings" => $settings));
 	
 	?>
-		<table class="structure">
+	<table class="structure">
 			<thead>
 				<tr>
 				<?php 
@@ -62,7 +61,7 @@ if(isset($submit) && $submit){
 		</table>
 		<?php
 		$links = array(
-			"bottom" => array("cancel" => "/datamart/reports/nb_consent_by_month")); 
+			"bottom" => array("cancel" => "/datamart/reports/samples_by_type")); 
 		$structures->build($atim_structure, array("links" => $links));
 	}
 }
