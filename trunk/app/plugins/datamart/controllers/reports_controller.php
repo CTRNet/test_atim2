@@ -152,14 +152,55 @@ class ReportsController extends DatamartAppController {
 				$this->set("date_to", $date_to);
 			}
 			$this->set("csv", $csv);
-			Configure::write('debug', 0);
-			$this->layout = false;
+			if($csv){
+				Configure::write('debug', 0);
+				$this->layout = false;
+			}
 		}else{
 			$load_form = true;
 		}
 		
 		if($load_form){
 			//date range form
+			$this->Structures->set("date_range");
+			$this->set("submit", true);
+		}
+	}
+	
+	function samples_by_type($csv = false){
+		App::import('Model', 'Inventorymanagement.SampleMaster');
+		$this->SampleMaster = new SampleMaster();
+		$load_form = false;
+		if(!empty($this->data) && $this->SampleMaster->validates($this->data)){
+			$data = $this->data[0];
+			$date_from = $data['date_from_start']['year']."-".$data['date_from_start']['month']."-".$data['date_from_start']['day']." 00:00:00";
+			$date_to = $data['date_from_end']['year']."-".$data['date_from_end']['month']."-".$data['date_from_end']['day']." 23:59:59";
+			if(!preg_match(VALID_DATETIME_YMD, $date_from) || !preg_match(VALID_DATETIME_YMD, $date_to)){
+				$this->SampleMaster->validationErrors[] = "error in the date definitions";
+				$load_form = true;
+			}else{
+				//show stats
+				$this->data = array(); //clear this data to have a clena CSV if needed
+				$this->set("my_data", $this->SampleMaster->find('all', array(
+					'fields' => array("COUNT(*) AS c", "SampleMaster.sample_type AS sample_type"),
+					'conditions' => array("SampleMaster.created BETWEEN '".$date_from."' AND '".$date_to."'"),
+					'group' => array("sample_type"),
+					'recursive' => -1)));
+				$this->Structures->set("empty");
+				$this->set("date_from", $data['date_from_start']);
+				$this->set("date_to", $data['date_from_end']);
+				
+			}
+			$this->set("csv", $csv);
+			if($csv){
+				Configure::write('debug', 0);
+				$this->layout = false;
+			}
+		}else{
+			$load_form = true;
+		}
+		
+		if($load_form){
 			$this->Structures->set("date_range");
 			$this->set("submit", true);
 		}
