@@ -8,6 +8,11 @@ class AppController extends Controller {
 	var $components	= array( 'Session', 'SessionAcl', 'Auth', 'Menus', 'RequestHandler', 'Structures', 'PermissionManager' );
 	var $helpers		= array('Ajax', 'Csv', 'Html', 'Javascript', 'Shell', 'Structures', 'Time');
 	
+	//use AppController::getCalInfo to get those with translations
+	private static $cal_info_short = array(1 => 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
+	private static $cal_info_long = array(1 => 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December');
+	private static $cal_info_short_translated = false;
+	private static $cal_info_long_translated = false;
 	
 	function beforeFilter() {
 		AppController::$me = $this;
@@ -230,6 +235,49 @@ class AppController extends Controller {
 				unset($arr[$k]);
 			}
 		}
+	}
+	
+	/**
+	 * @param boolean $short Wheter to return short or long month names
+	 * @return an associative array containing the translated months names so that key = month_number and value = month_name 
+	 */
+	static function getCalInfo($short = true){
+		if($short){
+			if(!AppController::$cal_info_short_translated){
+				AppController::$cal_info_short_translated = array_map(create_function('$a', 'return __($a, true);'), AppController::$cal_info_short);
+			}
+			return AppController::$cal_info_short;			
+		}else{
+			if(!AppController::$cal_info_long_translated){
+				AppController::$cal_info_long_translated = array_map(create_function('$a', 'return __($a, true);'), AppController::$cal_info_long);
+			}
+			return AppController::$cal_info_long;
+		}	
+	}
+	
+	/**
+	 * @param int $year
+	 * @param mixed int | string $month
+	 * @param int $day
+	 * @param boolean $nbsp_spaces True if white spaces must be printed as &nbsp;
+	 * @param boolean $short_months True if months names should be short (used if $month is an int)
+	 * @return string The formated datestring with user preferences
+	 */
+	static function getFormatedDateString($year, $month, $day, $nbsp_spaces = true, $short_months = true){
+		$result = null;
+		$divider = $nbsp_spaces ? "&nbsp;" : " ";
+		if(is_numeric($month)){
+			$month_str = AppController::getCalInfo($short_months);
+			$month = $month_str[(int)$month];
+		}
+		if(date_format == 'MDY') {
+			$result = $month.$divider.$day.$divider.$year;
+		}else if (date_format == 'YMD') {
+			$result = $year.$divider.$month.$divider.$day;
+		}else { // default of DATE_FORMAT=='DMY'
+			$result = $day.$divider.$month.$divider.$year;
+		}
+		return $result;
 	}
 }
 	
