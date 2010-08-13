@@ -96,15 +96,15 @@ INSERT INTO `menus` (`id` ,`parent_id` ,`is_root` ,`display_order` ,`language_ti
 ('qry-CAN-1-1', 'qry-CAN-1', '0', '3', 'data browser', 'tool to browse data', '/datamart/browser/index', '', '', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 
-CREATE TABLE datamart_browsing_structures(
+CREATE TABLE datamart_structures(
 id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
 plugin VARCHAR(50) NOT NULL,
 model VARCHAR(50) NOT NULL,
-structure_alias VARCHAR(255) NOT NULL,
+structure_id INT NOT NULL,
 results_structure_alias VARCHAR(255) NOT NULL,
 display_name VARCHAR(50) NOT NULL,
 use_key VARCHAR(50) NOT NULL,
-FOREIGN KEY (`structure_alias`) REFERENCES `structures`(`alias`)
+FOREIGN KEY (`structure_id`) REFERENCES `structures`(`id`)
 )Engine=InnoDb;
 
 CREATE TABLE datamart_browsing_controls(
@@ -118,13 +118,13 @@ FOREIGN KEY (`id1`) REFERENCES `datamart_browsing_structures`(`id`),
 FOREIGN KEY (`id2`) REFERENCES `datamart_browsing_structures`(`id`)
 )Engine=InnoDb;
 
-INSERT INTO datamart_browsing_structures (`id`, `plugin`, `model`, `structure_alias`, `display_name`, `use_key`) VALUES
-(1, 'Inventorymanagement', 'ViewAliquot', 'view_aliquot_joined_to_collection', 'aliquots', 'aliquot_master_id'),
-(2, 'Inventorymanagement', 'ViewCollection', 'view_collection', 'collections', 'collection_id'),
-(3, 'Storagelayout', 'StorageMaster', 'storagemasters', 'storages', 'id'),
-(4, 'Clinicalannotation', 'Participant', 'participants', 'participants', 'id'),
-(5, 'Inventorymanagement', 'ViewSample', 'view_sample_joined_to_collection', 'samples', 'sample_master_id'),
-(6, 'Clinicalannotation', 'MiscIdentifier', 'miscidentifierssummary', 'identification', 'id');
+INSERT INTO datamart_structures (`id`, `plugin`, `model`, `structure_id`, `display_name`, `use_key`) VALUES
+(1, 'Inventorymanagement', 'ViewAliquot', (SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection'), 'aliquots', 'aliquot_master_id'),
+(2, 'Inventorymanagement', 'ViewCollection', (SELECT id FROM structures WHERE alias='view_collection'), 'collections', 'collection_id'),
+(3, 'Storagelayout', 'StorageMaster', (SELECT id FROM structures WHERE alias='storagemasters'), 'storages', 'id'),
+(4, 'Clinicalannotation', 'Participant', (SELECT id FROM structures WHERE alias='participants'), 'participants', 'id'),
+(5, 'Inventorymanagement', 'ViewSample', (SELECT id FROM structures WHERE alias='view_sample_joined_to_collection'), 'samples', 'sample_master_id'),
+(6, 'Clinicalannotation', 'MiscIdentifier', (SELECT id FROM structures WHERE alias='miscidentifierssummary'), 'identification', 'id');
 
 INSERT INTO datamart_browsing_controls(`id1`, `id2`, `use_field`) VALUES
 (1, 3, 'ViewAliquot.storage_master_id'),
@@ -633,6 +633,57 @@ SET structure_value_domain = (SELECT id FROM structure_value_domains WHERE domai
 language_label = 'identifier name'
 WHERE field = 'misc_identifier_control_id';
 
+-- reporting
+INSERT INTO `menus` (`id` ,`parent_id` ,`is_root` ,`display_order` ,`language_title` ,`language_description` ,`use_link` ,`use_params` ,`use_summary` ,`flag_active` ,`created` ,`created_by` ,`modified` ,`modified_by`) VALUES 
+('qry-CAN-1-2', 'qry-CAN-1', '0', '3', 'reports', 'reports', '/datamart/reports/index', '', '', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+CREATE TABLE datamart_reports(
+`id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+`name` VARCHAR(50) NOT NULL DEFAULT '',
+`description` TEXT NOT NULL,
+`datamart_structure_id` INT UNSIGNED NULL,
+`function` VARCHAR(50) NULL,
+`serialized_representation` TEXT,
+`created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+`created_by` int(10) unsigned NOT NULL,
+`modified` datetime DEFAULT NULL,
+`modified_by` int(10) unsigned NOT NULL,
+FOREIGN KEY (`datamart_structure_id`) REFERENCES `datamart_structures`(`id`),
+)Engine=InnoDb;
+
+CREATE TABLE datamart_reports_revs(
+`id` INT UNSIGNED NOT NULL,
+`name` VARCHAR(50) NOT NULL DEFAULT '',
+`description` TEXT NOT NULL,
+`datamart_structure_id` INT UNSIGNED NULL,
+`function` VARCHAR(50) NULL,
+`serialized_representation` TEXT,
+`created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+`created_by` int(10) unsigned NOT NULL,
+`modified` datetime DEFAULT NULL,
+`modified_by` int(10) unsigned NOT NULL,
+`version_id` int(11) NOT NULL AUTO_INCREMENT,
+`version_created` datetime NOT NULL,
+`deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+`deleted_date` datetime DEFAULT NULL,
+PRIMARY KEY (`version_id`)
+)Engine=InnoDb;
+
+INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('reports', '', '', '1', '1', '1', '1');
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Datamart', 'Report', 'datamart_reports', 'name', 'name', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Datamart', 'Report', 'datamart_reports', 'description', 'description', '', 'textarea', '', '',  NULL , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='reports'), (SELECT id FROM structure_fields WHERE `model`='Report' AND `tablename`='datamart_reports' AND `field`='name' AND `language_label`='name' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='reports'), (SELECT id FROM structure_fields WHERE `model`='Report' AND `tablename`='datamart_reports' AND `field`='description' AND `language_label`='description' AND `language_tag`='' AND `type`='textarea' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '0');
+
+INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('report_structures', '', '', '1', '1', '1', '1');
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Datamart', 'DatamartStructure', 'datamart_report_structures', 'display_name', 'display name', '', 'input', '', '',  NULL , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='report_structures'), (SELECT id FROM structure_fields WHERE `model`='DatamartStructure' AND `tablename`='datamart_report_structures' AND `field`='display_name' AND `language_label`='display name' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+
 -- Add search on control id instead control name for sample
 
 DROP VIEW view_samples;
@@ -824,10 +875,15 @@ WHERE structure_id = (SELECT id FROM structures WHERE alias='view_aliquot_joined
 AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' 
 AND `field` IN ('initial_specimen_sample_type', 'parent_sample_type', 'sample_type'));
 
+--
+INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('date_range', '', '', '1', '1', '1', '1');
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', '', '0', '', 'date_from', 'from', '', 'date', '', '',  NULL , '', 'open', 'open', 'open'),
+('', '', '0', '', 'action', 'action', '', 'select', '', '',  NULL , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='date_range'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='date_from' AND `language_label`='from' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0'),
+((SELECT id FROM structures WHERE alias='date_range'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='action' AND `language_label`='action' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0');
 
-
-
-
-
-
+INSERT INTO `datamart_reports` (`id` ,`name` ,`description` ,`datamart_structure_id` ,`structure_id` ,`function` ,`serialized_representation` ,`created` ,`created_by` ,`modified` ,`modified_by`) VALUES 
+(NULL , 'number of consents obtained by month', 'shows the number of consents obtained by month for a specified date range', NULL , NULL , 'nb_consent_by_month', NULL , '0000-00-00 00:00:00', '', NULL , '');
 
