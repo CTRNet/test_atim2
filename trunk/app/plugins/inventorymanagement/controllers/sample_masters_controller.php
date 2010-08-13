@@ -25,8 +25,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		'Inventorymanagement.SourceAliquot',
 		'Inventorymanagement.AliquotUse',
 		'Inventorymanagement.QualityCtrl',
-		'Inventorymanagement.PathCollectionReview',
-		'Inventorymanagement.ReviewMaster',
+		'Inventorymanagement.SpecimenReviewMaster',
 		
 		'Inventorymanagement.SampleToAliquotControl');
 	
@@ -854,12 +853,9 @@ class SampleMastersController extends InventorymanagementAppController {
 		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'quality control exists for the deleted sample'); }
 
 		// Check sample has not been linked to review	
-		$returned_nbr = $this->PathCollectionReview->find('count', array('conditions' => array('PathCollectionReview.sample_master_id' => $sample_master_id), 'recursive' => '-1'));
+		$returned_nbr = $this->SpecimenReviewMaster->find('count', array('conditions' => array('SpecimenReviewMaster.sample_master_id' => $sample_master_id), 'recursive' => '-1'));
 		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'review exists for the deleted sample'); }
 
-		$returned_nbr = $this->ReviewMaster->find('count', array('conditions' => array('ReviewMaster.sample_master_id' => $sample_master_id), 'recursive' => '-1'));
-		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'review exists for the deleted sample'); }
-		
 		return array('allow_deletion' => true, 'msg' => '');
 	}
 	

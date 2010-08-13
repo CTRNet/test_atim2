@@ -120,7 +120,7 @@ FOREIGN KEY (`id2`) REFERENCES `datamart_structures`(`id`)
 )Engine=InnoDb;
 
 INSERT INTO datamart_structures (`id`, `plugin`, `model`, `structure_id`, `display_name`, `use_key`) VALUES
-(1, 'Inventorymanagement', 'ViewAliquot', (SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection'), 'aliquots', 'aliquot_master_id'),
+(1, 'Inventorymanagement', 'ViewAliquot', (SELECT id FROM structures WHERE alias='view_aliquot_joined_to_collection'), 'aliquots', 'aliquot_master_id'),
 (2, 'Inventorymanagement', 'ViewCollection', (SELECT id FROM structures WHERE alias='view_collection'), 'collections', 'collection_id'),
 (3, 'Storagelayout', 'StorageMaster', (SELECT id FROM structures WHERE alias='storagemasters'), 'storages', 'id'),
 (4, 'Clinicalannotation', 'Participant', (SELECT id FROM structures WHERE alias='participants'), 'participants', 'id'),
@@ -406,7 +406,7 @@ WHERE al.deleted != 1;
 SET FOREIGN_KEY_CHECKS=0;
 UPDATE structures SET alias = 'collections_for_collection_tree_view' WHERE alias = 'collection_tree_view';
 UPDATE structures SET alias = 'view_aliquot_joined_to_sample_and_collection' WHERE alias = 'view_aliquot_joined_to_collection';
-UPDATE datamart_browsing_structures SET structure_alias = 'view_aliquot_joined_to_sample_and_collection' WHERE structure_alias = 'view_aliquot_joined_to_collection';
+-- UPDATE datamart_browsing_structures SET structure_alias = 'view_aliquot_joined_to_sample_and_collection' WHERE structure_alias = 'view_aliquot_joined_to_collection';
 SET FOREIGN_KEY_CHECKS=1;
 
 SET @stuctrue_field_id = (SELECT id FROM structure_fields WHERE model LIKE 'ViewAliquot' AND field LIKE 'aliquot_use_counter');
@@ -620,9 +620,9 @@ UPDATE structures
 SET alias = 'miscidentifiers_for_participant_search' 
 WHERE alias = 'miscidentifierssummary';
 
-UPDATE datamart_browsing_structures
-SET structure_alias = 'miscidentifiers_for_participant_search'
-WHERE structure_alias = 'miscidentifierssummary';
+-- UPDATE datamart_browsing_structures
+-- SET structure_alias = 'miscidentifiers_for_participant_search'
+-- WHERE structure_alias = 'miscidentifierssummary';
 
 SET FOREIGN_KEY_CHECKS=1;
 
@@ -649,7 +649,7 @@ CREATE TABLE datamart_reports(
 `created_by` int(10) unsigned NOT NULL,
 `modified` datetime DEFAULT NULL,
 `modified_by` int(10) unsigned NOT NULL,
-FOREIGN KEY (`datamart_structure_id`) REFERENCES `datamart_structures`(`id`),
+FOREIGN KEY (`datamart_structure_id`) REFERENCES `datamart_structures`(`id`)
 )Engine=InnoDb;
 
 CREATE TABLE datamart_reports_revs(
@@ -885,8 +885,566 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='date_range'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='date_from' AND `language_label`='from' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0'),
 ((SELECT id FROM structures WHERE alias='date_range'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='action' AND `language_label`='action' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0');
 
-INSERT INTO `datamart_reports` (`id` ,`name` ,`description` ,`datamart_structure_id` ,`structure_id` ,`function` ,`serialized_representation` ,`created` ,`created_by` ,`modified` ,`modified_by`) VALUES 
-(NULL , 'number of consents obtained by month', 'shows the number of consents obtained by month for a specified date range', NULL , NULL , 'nb_consent_by_month', NULL , '0000-00-00 00:00:00', '', NULL , ''),
-(NULL , 'number of samples acquired', 'shows the number of samples acquired for a specified date range', NULL , NULL , 'samples_by_type', NULL , '0000-00-00 00:00:00', '', NULL , '');
+-- INSERT INTO `datamart_reports` (`id` ,`name` ,`description` ,`datamart_structure_id` ,`structure_id` ,`function` ,`serialized_representation` ,`created` ,`created_by` ,`modified` ,`modified_by`) VALUES 
+-- (NULL , 'number of consents obtained by month', 'shows the number of consents obtained by month for a specified date range', NULL , NULL , 'nb_consent_by_month', NULL , '0000-00-00 00:00:00', '', NULL , ''),
+-- (NULL , 'number of samples acquired', 'shows the number of samples acquired for a specified date range', NULL , NULL , 'samples_by_type', NULL , '0000-00-00 00:00:00', '', NULL , '');
 
-UPDATE structure_field SET type='float_positive' WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='initial_volume' AND `type`='input' AND `structure_value_domain` IS NULL; 
+UPDATE structure_fields SET type='float_positive' WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='initial_volume' AND `type`='input' AND `structure_value_domain` IS NULL; 
+
+-- Pathology review
+
+DROP TABLE IF EXISTS `path_collection_reviews`;
+DROP TABLE IF EXISTS `path_collection_reviews_revs`;
+
+DROP TABLE IF EXISTS `review_masters`;
+DROP TABLE IF EXISTS `review_masters_revs`;
+
+DROP TABLE IF EXISTS `rd_bloodcellcounts`;
+DROP TABLE IF EXISTS `rd_bloodcellcounts_revs`;
+DROP TABLE IF EXISTS `rd_blood_cells`;
+DROP TABLE IF EXISTS `rd_blood_cells_revs`;
+DROP TABLE IF EXISTS `rd_breastcancertypes`;
+DROP TABLE IF EXISTS `rd_breastcancertypes_revs`;
+DROP TABLE IF EXISTS `rd_breast_cancers`;
+DROP TABLE IF EXISTS `rd_breast_cancers_revs`;
+DROP TABLE IF EXISTS `rd_coloncancertypes`;
+DROP TABLE IF EXISTS `rd_coloncancertypes_revs`;
+DROP TABLE IF EXISTS `rd_genericcancertypes`;
+DROP TABLE IF EXISTS `rd_genericcancertypes_revs`;
+DROP TABLE IF EXISTS `rd_ovarianuteruscancertypes`;
+DROP TABLE IF EXISTS `rd_ovarianuteruscancertypes_revs`;
+
+DROP TABLE IF EXISTS `ar_breast_tissue_slides_revs`;
+DROP TABLE IF EXISTS `ar_breast_tissue_slides`;
+DROP TABLE IF EXISTS `aliquot_review_masters_revs`;
+DROP TABLE IF EXISTS `aliquot_review_masters`;
+DROP TABLE IF EXISTS `spr_breast_cancer_types_revs`;
+DROP TABLE IF EXISTS `spr_breast_cancer_types`;
+DROP TABLE IF EXISTS `specimen_review_masters_revs`;
+DROP TABLE IF EXISTS `specimen_review_masters`;
+
+DROP TABLE IF EXISTS `specimen_review_controls`;
+DROP TABLE IF EXISTS `aliquot_review_controls`;
+DROP TABLE IF EXISTS `review_controls`;
+
+CREATE TABLE IF NOT EXISTS `aliquot_review_controls` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `review_type` varchar(100) NOT NULL,
+  `flag_active` tinyint(1) NOT NULL DEFAULT '1',
+  `form_alias` varchar(255) NOT NULL,
+  `detail_tablename` varchar(255) NOT NULL,
+  `aliquot_type_restriction` enum('all', 'block','cell gel matrix','core','slide','tube','whatman paper') NOT NULL DEFAULT 'all' COMMENT 'Allow to link specific aliquot type to the specimen review.',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `review_type` (`review_type`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `specimen_review_controls` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `sample_control_id` int(11) NOT NULL,
+  `aliquot_review_control_id` int(11) DEFAULT NULL,
+  `specimen_sample_type` varchar(30) NOT NULL,
+  `review_type` varchar(100) NOT NULL,
+  `flag_active` tinyint(1) NOT NULL DEFAULT '1',
+  `form_alias` varchar(255) NOT NULL,
+  `detail_tablename` varchar(255) NOT NULL,  PRIMARY KEY (`id`),
+  UNIQUE KEY `review_type` (`sample_control_id`, `specimen_sample_type`, `review_type`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE `specimen_review_controls`
+  ADD CONSTRAINT `FK_specimen_review_controls_sample_controls` FOREIGN KEY (`sample_control_id`) REFERENCES `sample_controls` (`id`);
+ALTER TABLE `specimen_review_controls`
+  ADD CONSTRAINT `FK_specimen_review_controls_specimen_review_controls` FOREIGN KEY (`aliquot_review_control_id`) REFERENCES `specimen_review_controls` (`id`);
+
+INSERT INTO `aliquot_review_controls`
+(`review_type`, `flag_active`,  `form_alias`, `detail_tablename`, `aliquot_type_restriction`)
+VALUES
+('breast tissue slide review', '1', 'ar_breast_tissue_slides', 'ar_breast_tissue_slides', 'slide');
+
+INSERT INTO `specimen_review_controls`
+(`sample_control_id`, `specimen_sample_type`, `review_type`, 
+`aliquot_review_control_id`, `flag_active`, `form_alias`, `detail_tablename`)
+VALUES
+((SELECT id FROM sample_controls WHERE sample_type = 'tissue' AND sample_category = 'specimen'), 'tissue', 'breast review', 
+(SELECT id FROM aliquot_review_controls WHERE review_type = 'breast tissue slide review'), '1', 'spr_breast_cancer_types','spr_breast_cancer_types'),
+((SELECT id FROM sample_controls WHERE sample_type = 'tissue' AND sample_category = 'specimen'), 'tissue', 'breast review (simple)', 
+null, '1', 'spr_breast_cancer_types','spr_breast_cancer_types');
+
+CREATE TABLE IF NOT EXISTS `specimen_review_masters` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  
+  `specimen_review_control_id` int(11) NOT NULL DEFAULT '0',
+  `specimen_sample_type` varchar(30) NOT NULL,
+  `review_type` varchar(100) NOT NULL,
+  `collection_id` int(11) DEFAULT NULL,
+  `sample_master_id` int(11) DEFAULT NULL,
+  `review_code` varchar(100) NOT NULL,  
+  `review_date` date DEFAULT NULL,
+  `review_status` varchar(20) DEFAULT NULL,
+  `pathologist` varchar(50) DEFAULT NULL,
+  `notes` text,
+  
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE `specimen_review_masters`
+  ADD CONSTRAINT `FK_specimen_review_masters_specimen_review_controls` FOREIGN KEY (`specimen_review_control_id`) REFERENCES `specimen_review_controls` (`id`);
+ALTER TABLE `specimen_review_masters`
+  ADD CONSTRAINT `FK_specimen_review_masters_collections` FOREIGN KEY (`collection_id`) REFERENCES `collections` (`id`);
+ALTER TABLE `specimen_review_masters`
+  ADD CONSTRAINT `FK_specimen_review_masters_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+  
+CREATE TABLE IF NOT EXISTS `specimen_review_masters_revs` (
+  `id` int(11) NOT NULL,
+  
+  `specimen_review_control_id` int(11) NOT NULL DEFAULT '0',
+  `specimen_sample_type` varchar(30) NOT NULL,
+  `review_type` varchar(100) NOT NULL,
+  `collection_id` int(11) DEFAULT NULL,
+  `sample_master_id` int(11) DEFAULT NULL,
+  `review_code` varchar(100) NOT NULL,  
+  `review_date` date DEFAULT NULL,
+  `review_status` varchar(20) DEFAULT NULL,
+  `pathologist` varchar(50) DEFAULT NULL,
+  `notes` text,
+  
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `spr_breast_cancer_types` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  
+  `specimen_review_master_id` int(11) DEFAULT NULL,
+  `type` varchar(100) DEFAULT NULL,  
+  `other_type` varchar(250) DEFAULT NULL, 
+  `tumour_grade_score_tubules` decimal(5,1) DEFAULT NULL,  
+  `tumour_grade_score_nuclear` decimal(5,1) DEFAULT NULL,  
+  `tumour_grade_score_mitosis` decimal(5,1) DEFAULT NULL,  
+  `tumour_grade_score_total` decimal(5,1) DEFAULT NULL,  
+  `tumour_grade_category` varchar(100) DEFAULT NULL,  
+  
+  `created` datetime DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE `spr_breast_cancer_types`
+  ADD CONSTRAINT `FK_spr_breast_cancer_types_specimen_review_masters` FOREIGN KEY (`specimen_review_master_id`) REFERENCES `specimen_review_masters` (`id`);
+  
+CREATE TABLE IF NOT EXISTS `spr_breast_cancer_types_revs` (
+  `id` int(11) NOT NULL,
+  
+  `specimen_review_master_id` int(11) DEFAULT NULL,
+  `type` varchar(100) DEFAULT NULL,  
+  `other_type` varchar(250) DEFAULT NULL, 
+  `tumour_grade_score_tubules` decimal(5,1) DEFAULT NULL,  
+  `tumour_grade_score_nuclear` decimal(5,1) DEFAULT NULL,  
+  `tumour_grade_score_mitosis` decimal(5,1) DEFAULT NULL,  
+  `tumour_grade_score_total` decimal(5,1) DEFAULT NULL,  
+  `tumour_grade_category` varchar(100) DEFAULT NULL,   
+  
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `aliquot_review_masters` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  
+  `aliquot_review_control_id` int(11) NOT NULL DEFAULT '0',
+  `specimen_review_master_id` int(11) DEFAULT NULL,
+  `aliquot_masters_id` int(11) DEFAULT NULL,  
+  `review_code` varchar(100) NOT NULL,
+  `basis_of_specimen_review` tinyint(1) NOT NULL DEFAULT '0', 
+  
+  `created` datetime DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE `aliquot_review_masters`
+  ADD CONSTRAINT `FK_aliquot_review_masters_specimen_review_masters` FOREIGN KEY (`specimen_review_master_id`) REFERENCES `specimen_review_masters` (`id`);
+ALTER TABLE `aliquot_review_masters`
+  ADD CONSTRAINT `FK_aliquot_review_masters_aliquot_masters` FOREIGN KEY (`aliquot_masters_id`) REFERENCES `aliquot_masters` (`id`);
+ALTER TABLE `aliquot_review_masters`
+  ADD CONSTRAINT `FK_aliquot_review_masters_aliquot_review_controls` FOREIGN KEY (`aliquot_review_control_id`) REFERENCES `aliquot_review_controls` (`id`);
+  
+CREATE TABLE IF NOT EXISTS `aliquot_review_masters_revs` (
+  `id` int(11) NOT NULL,
+  
+  `aliquot_review_control_id` int(11) NOT NULL DEFAULT '0',
+  `specimen_review_master_id` int(11) DEFAULT NULL,
+  `aliquot_masters_id` int(11) DEFAULT NULL,  
+  `review_code` varchar(100) NOT NULL,
+  `basis_of_specimen_review` tinyint(1) NOT NULL DEFAULT '0', 
+  
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `ar_breast_tissue_slides` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  
+  `aliquot_review_master_id` int(11) DEFAULT NULL,
+  `type` varchar(100) NOT NULL, 
+  `length` decimal(5,1) DEFAULT NULL,
+  `width` decimal(5,1) DEFAULT NULL,  
+  `invasive_percentage` decimal(5,1) DEFAULT NULL,
+  `in_situ_percentage` decimal(5,1) DEFAULT NULL,
+  `normal_percentage` decimal(5,1) DEFAULT NULL,
+  `stroma_percentage` decimal(5,1) DEFAULT NULL,
+  `necrosis_inv_percentage` decimal(5,1) DEFAULT NULL,
+  `necrosis_is_percentage` decimal(5,1) DEFAULT NULL,
+  `inflammation` int(4) DEFAULT NULL,
+  `quality_score` int(4) DEFAULT NULL,
+  
+  `created` datetime DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE `ar_breast_tissue_slides`
+  ADD CONSTRAINT `FK_ar_breast_tissue_slides_aliquot_review_masters` FOREIGN KEY (`aliquot_review_master_id`) REFERENCES `aliquot_review_masters` (`id`);
+  
+CREATE TABLE IF NOT EXISTS `ar_breast_tissue_slides_revs` (
+  `id` int(11) NOT NULL,
+  
+  `aliquot_review_master_id` int(11) DEFAULT NULL,
+  `type` varchar(100) NOT NULL, 
+  `length` decimal(5,1) DEFAULT NULL,
+  `width` decimal(5,1) DEFAULT NULL,  
+  `invasive_percentage` decimal(5,1) DEFAULT NULL,
+  `in_situ_percentage` decimal(5,1) DEFAULT NULL,
+  `normal_percentage` decimal(5,1) DEFAULT NULL,
+  `stroma_percentage` decimal(5,1) DEFAULT NULL,
+  `necrosis_inv_percentage` decimal(5,1) DEFAULT NULL,
+  `necrosis_is_percentage` decimal(5,1) DEFAULT NULL,
+  `inflammation` int(4) DEFAULT NULL,
+  `quality_score` int(4) DEFAULT NULL,
+  
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_title`, `language_description`, `use_link`, `use_params`, `use_summary`, `flag_active`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+('inv_CAN_225', 'inv_CAN_21', 0, 5, 'specimen review', NULL, '/inventorymanagement/specimen_reviews/listAll/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%', '', 'Inventorymanagement.SampleMaster::specimenSummary', 1, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+INSERT INTO i18n (id, en, fr)
+VALUE ('specimen review', 'Path Review', 'Rapport d''histologie');
+
+-- build spr_breast_cancer_types
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('specimen_review_status', '', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("in progress", "in progress");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="specimen_review_status"),  (SELECT id FROM structure_permissible_values WHERE value="in progress" AND language_alias="in progress"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("done", "done");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="specimen_review_status"),  (SELECT id FROM structure_permissible_values WHERE value="done" AND language_alias="done"), "2", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("unknown", "unknown");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="specimen_review_status"),  (SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "3", "1");
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('breast_review_type', '', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("ductal", "ductal");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="breast_review_type"),  (SELECT id FROM structure_permissible_values WHERE value="ductal" AND language_alias="ductal"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("lobular", "lobular");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="breast_review_type"),  (SELECT id FROM structure_permissible_values WHERE value="lobular" AND language_alias="lobular"), "2", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("d-l mix", "d-l mix");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="breast_review_type"),  (SELECT id FROM structure_permissible_values WHERE value="d-l mix" AND language_alias="d-l mix"), "3", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("tubular", "tubular");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="breast_review_type"),  (SELECT id FROM structure_permissible_values WHERE value="tubular" AND language_alias="tubular"), "4", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("mucinous", "mucinous");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="breast_review_type"),  (SELECT id FROM structure_permissible_values WHERE value="mucinous" AND language_alias="mucinous"), "5", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("dcis", "dcis");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="breast_review_type"),  (SELECT id FROM structure_permissible_values WHERE value="dcis" AND language_alias="dcis"), "6", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("other", "other");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="breast_review_type"),  (SELECT id FROM structure_permissible_values WHERE value="other" AND language_alias="other"), "7", "1");
+
+INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('spr_breast_cancer_types', '', '', '1', '1', '0', '1');
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Inventorymanagement', 'SpecimenReviewMaster', 'specimen_review_masters', 'review_code', 'review code', '', 'input', 'size=30', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Inventorymanagement', 'SpecimenReviewMaster', 'specimen_review_masters', 'specimen_sample_type', 'specimen review type', '', 'input', 'size=30', '', (SELECT id FROM structure_value_domains WHERE domain_name='sample_type') , '', 'open', 'open', 'open'), 
+('', 'Inventorymanagement', 'SpecimenReviewMaster', 'specimen_review_masters', 'review_type', '', '-', 'input', 'size=30', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Inventorymanagement', 'SpecimenReviewMaster', 'specimen_review_masters', 'review_date', 'review date', '', 'date', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Inventorymanagement', 'SpecimenReviewMaster', 'specimen_review_masters', 'review_status', 'review status', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='specimen_review_status') , '', 'open', 'open', 'open'), 
+('', 'Inventorymanagement', 'SpecimenReviewMaster', 'specimen_review_masters', 'pathologist', 'pathologist', '', 'input', 'size=30', '', (SELECT id FROM structure_value_domains WHERE domain_name=' NULL') , '', 'open', 'open', 'open'), 
+('', 'Inventorymanagement', 'SpecimenReviewMaster', 'specimen_review_masters', 'notes', 'notes', '', 'textarea', 'cols=40,rows=6', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Inventorymanagement', 'SpecimenReviewDetail', 'spr_breast_cancer_types', 'type', 'type', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='breast_review_type') , '', 'open', 'open', 'open'), 
+('', 'Inventorymanagement', 'SpecimenReviewDetail', 'spr_breast_cancer_types', 'tumour_grade_score_tubules', 'tumour grade score tubules', '', 'float', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Inventorymanagement', 'SpecimenReviewDetail', 'spr_breast_cancer_types', 'tumour_grade_score_nuclear', 'tumour grade score nuclear', '', 'float', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Inventorymanagement', 'SpecimenReviewDetail', 'spr_breast_cancer_types', 'tumour_grade_score_mitosis', 'tumour grade score mitosis', '', 'float', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Inventorymanagement', 'SpecimenReviewDetail', 'spr_breast_cancer_types', 'tumour_grade_score_total', 'tumour grade score total', '', 'float', '', '',  NULL , '', 'open', 'open', 'open');
+
+DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias='spr_breast_cancer_types');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='spr_breast_cancer_types'), (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='review_code' AND `language_label`='review code' AND `language_tag`='' AND `type`='input' AND `setting`='size=30' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='spr_breast_cancer_types'), (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='specimen_sample_type' AND `language_label`='specimen review type' AND `language_tag`='' AND `type`='input' AND `setting`='size=30' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_type')  AND `language_help`=''), '0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '1', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='spr_breast_cancer_types'), (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='review_type' AND `language_label`='' AND `language_tag`='-' AND `type`='input' AND `setting`='size=30' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '1', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='spr_breast_cancer_types'), (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='review_date' AND `language_label`='review date' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='spr_breast_cancer_types'), (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='review_status' AND `language_label`='review status' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='specimen_review_status')  AND `language_help`=''), '0', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='spr_breast_cancer_types'), (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='pathologist' AND `language_label`='pathologist' AND `language_tag`='' AND `type`='input' AND `setting`='size=30' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`=''), '0', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='spr_breast_cancer_types'), (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='notes' AND `language_label`='notes' AND `language_tag`='' AND `type`='textarea' AND `setting`='cols=40,rows=6' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='spr_breast_cancer_types'), (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewDetail' AND `tablename`='spr_breast_cancer_types' AND `field`='type' AND `language_label`='type' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='breast_review_type')  AND `language_help`=''), '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='spr_breast_cancer_types'), (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewDetail' AND `tablename`='spr_breast_cancer_types' AND `field`='tumour_grade_score_tubules' AND `language_label`='tumour grade score tubules' AND `language_tag`='' AND `type`='float' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='spr_breast_cancer_types'), (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewDetail' AND `tablename`='spr_breast_cancer_types' AND `field`='tumour_grade_score_nuclear' AND `language_label`='tumour grade score nuclear' AND `language_tag`='' AND `type`='float' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='spr_breast_cancer_types'), (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewDetail' AND `tablename`='spr_breast_cancer_types' AND `field`='tumour_grade_score_mitosis' AND `language_label`='tumour grade score mitosis' AND `language_tag`='' AND `type`='float' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '14', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='spr_breast_cancer_types'), (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewDetail' AND `tablename`='spr_breast_cancer_types' AND `field`='tumour_grade_score_total' AND `language_label`='tumour grade score total' AND `language_tag`='' AND `type`='float' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '15', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '1');
+
+INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('specimen_review_masters', '', '', '1', '1', '0', '1');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='specimen_review_masters'), (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='review_code' AND `language_label`='review code' AND `language_tag`='' AND `type`='input' AND `setting`='size=30' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='specimen_review_masters'), (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='specimen_sample_type' AND `language_label`='specimen review type' AND `language_tag`='' AND `type`='input' AND `setting`='size=30' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_type')  AND `language_help`=''), '0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='specimen_review_masters'), (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='review_type' AND `language_label`='' AND `language_tag`='-' AND `type`='input' AND `setting`='size=30' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='specimen_review_masters'), (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='review_date' AND `language_label`='review date' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='specimen_review_masters'), (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='review_status' AND `language_label`='review status' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='specimen_review_status')  AND `language_help`=''), '0', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='specimen_review_masters'), (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='pathologist' AND `language_label`='pathologist' AND `language_tag`='' AND `type`='input' AND `setting`='size=30' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`=''), '0', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='specimen_review_masters'), (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='notes' AND `language_label`='notes' AND `language_tag`='' AND `type`='textarea' AND `setting`='cols=40,rows=6' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='review_code' AND `language_label`='review code'), 'notEmpty', '0', '0', '', 'value is required', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
+(null, 'specimen_type_for_review', 'open', '', 'Inventorymanagement.SpecimenReviewControl::getSpecimenTypePermissibleValues'),
+(null, 'specimen_review_type', 'open', '', 'Inventorymanagement.SpecimenReviewControl::getReviewTypePermissibleValues');
+
+UPDATE structure_fields
+SET `type` = 'select', 
+`setting` = '', 
+`structure_value_domain` = (SELECT id FROM structure_value_domains WHERE domain_name = 'specimen_type_for_review')
+WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='specimen_sample_type';
+
+UPDATE structure_fields
+SET `type` = 'select', `setting` = '', `structure_value_domain` = (SELECT id FROM structure_value_domains WHERE domain_name = 'specimen_review_type')
+WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='review_type';
+
+INSERT IGNORE INTO i18n (id, en, fr)
+VALUE
+('no path review exists for this type of sample', 'No path review exists for this type of sample!', 'Aucun rapport d''histologie n''est défini pour ce type d''échantillon!'),
+('review code', 'Review Code', 'Code du Rapport'),
+('specimen review type', 'Review Type', 'Type de rapport'),
+('review date', 'Date', 'Date'),
+('review status', 'Status', 'Statu'),
+('pathologist', 'Pathologist', 'Pathologiste'),
+('tumour grade score tubules', 'Tubules', 'Tubules'),
+('tumour grade score nuclear', 'Nuclear', 'Nucléaire'),
+('tumour grade score mitosis', 'Mitosis', 'Mitose'),
+('d-l mix', 'D-L Mix', 'D-L Mix'),
+('score', 'Score', 'Score'),
+('category', 'Category', 'Catégorie'),
+('tumour grade category', 'Category', 'Catégorie'),
+('well diff', 'Well Diff', 'Bien différencié'),
+('poor diff', 'Poor Diff', 'Peu différencié'),
+('mod diff', 'Mod Diff', 'Modérément différencié'),
+('in progress', 'In Progress', 'En cours'),
+('tumour grade score total', 'Score total', 'Score total'),
+('done', 'Done', 'Finalisé'),
+('breast review', 'Breast Review', 'Rapport histologique du sein'),
+('breast review (simple)', 'Breast Review (Simple)', 'Rapport histologique du sein (simple)');
+
+UPDATE structure_formats
+SET `flag_add` = '0', `flag_edit` = '0'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='spr_breast_cancer_types')
+AND structure_field_id IN (SELECT id FROM structure_fields 
+WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field` IN ('specimen_sample_type', 'review_type'));
+
+UPDATE structure_formats
+SET `language_heading` = 'type'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='spr_breast_cancer_types')
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewDetail' AND `tablename`='spr_breast_cancer_types' AND `field`  = 'type');
+
+UPDATE structure_formats
+SET `language_heading` = 'score'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='spr_breast_cancer_types')
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewDetail' AND `tablename`='spr_breast_cancer_types' AND `field`  = 'tumour_grade_score_tubules');
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'ar_breast_tissue_slides', 'SpecimenReviewDetail', 'spr_breast_cancer_types', 'tumour_grade_category', 'tumour grade category', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='tumour_grade_category') , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='spr_breast_cancer_types'), (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewDetail' AND `tablename`='spr_breast_cancer_types' AND `field`='tumour_grade_category' AND `language_label`='tumour grade category' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tumour_grade_category')  AND `language_help`=''), '1', '16', 'category', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '1');
+
+-- ar_breast_tissue_slides
+
+INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('ar_breast_tissue_slides', '', '', '1', '1', '0', '1');
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('ar_breast_tumor_type', '', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("tumor", "tumor");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="ar_breast_tumor_type"),  (SELECT id FROM structure_permissible_values WHERE value="tumor" AND language_alias="tumor"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("normal", "normal");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="ar_breast_tumor_type"),  (SELECT id FROM structure_permissible_values WHERE value="normal" AND language_alias="normal"), "2", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("unknown", "unknown");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="ar_breast_tumor_type"),  (SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "3", "1");
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('aliquots_list_for_review', '', '', 'Inventorymanagement.AliquotReviewMaster::getAliquotListForReview');
+
+DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias='ar_breast_tissue_slides');
+DELETE FROM structure_fields WHERE tablename IN ( 'aliquot_review_masters' , 'ar_breast_tissue_slides');
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Inventorymanagement', 'AliquotReviewMaster', 'aliquot_review_masters', 'review_code', 'review code', '', 'input', 'size=30', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Inventorymanagement', 'AliquotReviewMaster', 'aliquot_review_masters', 'basis_of_specimen_review', 'basis of specimen review', '', 'checkbox', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), 
+('', 'Inventorymanagement', 'AliquotReviewDetail', 'ar_breast_tissue_slides', 'type', 'type', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='ar_breast_tumor_type') , '', 'open', 'open', 'open'), 
+('', 'Inventorymanagement', 'AliquotReviewDetail', 'ar_breast_tissue_slides', 'length', 'length', '', 'float', 'size=3', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Inventorymanagement', 'AliquotReviewDetail', 'ar_breast_tissue_slides', 'width', 'width', '', 'float', 'size=3', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Inventorymanagement', 'AliquotReviewDetail', 'ar_breast_tissue_slides', 'invasive_percentage', 'invasive percentage', '', 'float', 'size=3', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Inventorymanagement', 'AliquotReviewDetail', 'ar_breast_tissue_slides', 'in_situ_percentage', 'in situ percentage', '', 'float', 'size=3', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Inventorymanagement', 'AliquotReviewDetail', 'ar_breast_tissue_slides', 'normal_percentage', 'normal percentage', '', 'float', 'size=3', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Inventorymanagement', 'AliquotReviewDetail', 'ar_breast_tissue_slides', 'stroma_percentage', 'stroma percentage', '', 'float', 'size=3', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Inventorymanagement', 'AliquotReviewDetail', 'ar_breast_tissue_slides', 'necrosis_inv_percentage', 'necrosis inv percentage', '', 'float', 'size=3', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Inventorymanagement', 'AliquotReviewDetail', 'ar_breast_tissue_slides', 'necrosis_is_percentage', 'necrosis is percentage', '', 'float', 'size=3', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Inventorymanagement', 'AliquotReviewDetail', 'ar_breast_tissue_slides', 'inflammation', 'inflammation review score', '', 'integer', 'size=3', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Inventorymanagement', 'AliquotReviewDetail', 'ar_breast_tissue_slides', 'quality_score', 'quality review score', '', 'integer', 'size=3', '',  NULL , '', 'open', 'open', 'open');
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Inventorymanagement', 'AliquotReviewMaster', 'aliquot_review_masters', 'aliquot_masters_id', 'reviewed aliquot', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='aliquots_list_for_review') , '', 'open', 'open', 'open');
+
+DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias='ar_breast_tissue_slides');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='ar_breast_tissue_slides'), 
+(SELECT id FROM structure_fields WHERE `model`='AliquotReviewMaster' AND `tablename`='aliquot_review_masters' AND `field`='review_code'), '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ar_breast_tissue_slides'), 
+(SELECT id FROM structure_fields WHERE `model`='AliquotReviewMaster' AND `tablename`='aliquot_review_masters' AND `field`='basis_of_specimen_review'), '0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ar_breast_tissue_slides'), 
+(SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='ar_breast_tissue_slides' AND `field`='type'), '0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ar_breast_tissue_slides'), 
+(SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='ar_breast_tissue_slides' AND `field`='length'), '0', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ar_breast_tissue_slides'), 
+(SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='ar_breast_tissue_slides' AND `field`='width' ), '0', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ar_breast_tissue_slides'), 
+(SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='ar_breast_tissue_slides' AND `field`='invasive_percentage' ), '0', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ar_breast_tissue_slides'), 
+(SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='ar_breast_tissue_slides' AND `field`='in_situ_percentage' ), '0', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ar_breast_tissue_slides'), 
+(SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='ar_breast_tissue_slides' AND `field`='normal_percentage' ), '0', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ar_breast_tissue_slides'), 
+(SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='ar_breast_tissue_slides' AND `field`='stroma_percentage' ), '0', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ar_breast_tissue_slides'), 
+(SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='ar_breast_tissue_slides' AND `field`='necrosis_inv_percentage' ), '0', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ar_breast_tissue_slides'), 
+(SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='ar_breast_tissue_slides' AND `field`='necrosis_is_percentage' ), '0', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ar_breast_tissue_slides'), 
+(SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='ar_breast_tissue_slides' AND `field`='inflammation' ), '0', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ar_breast_tissue_slides'), 
+(SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='ar_breast_tissue_slides' AND `field`='quality_score' ), '0', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='ar_breast_tissue_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewMaster' AND `tablename`='aliquot_review_masters' AND `field`='aliquot_masters_id'), '0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0');
+
+INSERT IGNORE INTO i18n (id, en, fr)
+VALUE
+('tumor', 'Tumor', 'Tumeur'),
+('reviewed aliquot', 'Aliquot', 'Aliquot'),
+('basis of specimen review', 'Used for Score', 'Utilisé pour le score'),
+('length', 'Length', 'Long.'),
+('width', 'Width', 'Larg.'),
+('invasive percentage', 'INV%', 'INV%'),
+('in situ percentage', 'IS%', 'IS%'),
+('normal percentage', 'N%', 'N%'),
+('stroma percentage', 'STR%', 'STR%'),
+('necrosis inv percentage', 'Nec % INV', 'Nec % INV'),
+('necrosis is percentage', 'Nec % IS', 'Nec % IS'),
+('inflammation review score', 'Inf (0-3)', 'Inf (0-3)'),
+('quality review score', 'QC (1-3)', 'QC (1-3)');
+
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, (SELECT id FROM structure_fields WHERE `model`='AliquotReviewMaster' AND `tablename`='aliquot_review_masters' AND `field`='review_code'), 'notEmpty', '0', '0', '', 'value is required', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='ar_breast_tissue_slides'), 
+(SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='CopyCtrl'), '0', '100', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Inventorymanagement', 'AliquotReviewMaster', 'aliquot_review_masters', 'id', 'aliquot_review_master_id', '', 'input', 'size=5', '', NULL , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='ar_breast_tissue_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewMaster' AND `tablename`='aliquot_review_masters' AND `field`='id'), '0', '-1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+
+INSERT IGNORE INTO i18n (id, en, fr)
+VALUE
+('aliquot_review_master_id', 'System Code', 'Code Système'),
+('aliquot review', 'Aliquot Review', 'Analyse d''aliquot');
+
+-- View structure
+
+DROP VIEW IF EXISTS view_structures;
+CREATE VIEW view_structures AS  
+SELECT 
+strct.alias,
+field.plugin,
+field.model,
+field.tablename,
+field.field,
+Domain.domain_name as structure_value_domain,
+
+format.display_column, 
+format.display_order, 
+
+CONCAT(format.flag_add, CONCAT('|', format.flag_add_readonly)) AS 'add',
+CONCAT(format.flag_edit, CONCAT('|', format.flag_edit_readonly)) AS 'edit', 
+CONCAT(format.flag_search, CONCAT('|', format.flag_search_readonly)) AS 'search',
+CONCAT(format.flag_datagrid, CONCAT('|', format.flag_datagrid_readonly)) AS 'datagrid',
+
+format.flag_index as 'index', 
+format.flag_detail AS 'detail', 
+
+
+format.language_heading, 
+field.language_label,
+CONCAT(format.flag_override_label, '->', format.language_label) AS 'override_language_label',
+field.language_tag,
+CONCAT(format.flag_override_tag, '->', format.language_tag) AS 'override_tag',
+field.type,
+CONCAT(format.flag_override_type, '->', format.type) AS 'override_stype',
+field.setting,
+CONCAT(format.flag_override_setting, '->', format.setting) AS 'override_setting',
+field.default,
+CONCAT(format.flag_override_default,'->', format.default) AS 'override_default', 
+field.language_help, 
+CONCAT(format.flag_override_help, '->', format.language_help) AS 'override_help'
+
+FROM structures AS strct
+LEFT JOIN structure_formats AS format ON format.structure_id = strct.id
+LEFT JOIN structure_fields AS field ON field.id = format.structure_field_id
+LEFT JOIN structure_value_domains AS domain ON domain.id = field.structure_value_domain
+ORDER BY strct.alias, format.display_column ASC, format.display_order ASC;

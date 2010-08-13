@@ -28,7 +28,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		'Inventorymanagement.Realiquoting',
 		'Inventorymanagement.SourceAliquot',
 		
-		'Inventorymanagement.PathCollectionReview',
+		'Inventorymanagement.AliquotReviewMaster',
 		
 		'Storagelayout.StorageMaster',
 		'Storagelayout.StorageCoordinate',
@@ -1611,9 +1611,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'realiquoting data exists for the deleted aliquot'); }
 		
 		// Check aliquot is not linked to review	
-		$returned_nbr = $this->PathCollectionReview->find('count', array('conditions' => array('PathCollectionReview.aliquot_master_id' => $aliquot_master_id), 'recursive' => '-1'));
+		$returned_nbr = $this->AliquotReviewMaster->find('count', array('conditions' => array('AliquotReviewMaster.aliquot_master_id' => $aliquot_master_id), 'recursive' => '-1'));
 		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'review exists for the deleted aliquot'); }
-		//TODO ReviewMaster?
 	
 		// Check aliquot is not linked to order	
 		$returned_nbr = $this->OrderItem->find('count', array('conditions' => array('OrderItem.aliquot_master_id' => $aliquot_master_id), 'recursive' => '-1'));
