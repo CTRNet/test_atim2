@@ -115,8 +115,8 @@ flag_active_1_to_2 BOOLEAN NOT NULL DEFAULT true,
 flag_active_2_to_1 BOOLEAN NOT NULL DEFAULT true,
 use_field VARCHAR(50) NOT NULL,
 UNIQUE(id1, id2),
-FOREIGN KEY (`id1`) REFERENCES `datamart_browsing_structures`(`id`),
-FOREIGN KEY (`id2`) REFERENCES `datamart_browsing_structures`(`id`)
+FOREIGN KEY (`id1`) REFERENCES `datamart_structures`(`id`),
+FOREIGN KEY (`id2`) REFERENCES `datamart_structures`(`id`)
 )Engine=InnoDb;
 
 INSERT INTO datamart_structures (`id`, `plugin`, `model`, `structure_id`, `display_name`, `use_key`) VALUES
