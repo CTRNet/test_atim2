@@ -1463,7 +1463,7 @@ class StructuresHelper extends Helper {
 					if(isset($data[$current_table_index['model']]) && isset($data[$current_table_index['model']][$current_table_index['field']])){
 						if($table_index[ $field['display_column'] ][$row_count]['type'] == 'select'){
 							$html_element_array['selected'] = $data[$current_table_index['model']][$current_table_index['field']];
-						}else if($table_index[ $field['display_column'] ][$row_count]['type'] == "datetime"){
+						}else if($table_index[ $field['display_column'] ][$row_count]['type'] == "datetime" && !is_array($data[$current_table_index['model']][$current_table_index['field']])){
 							$html_element_array['value'] = StructuresHelper::datetime_to_array($data[$current_table_index['model']][$current_table_index['field']]);
 						}else{
 							$html_element_array['value'] = $data[$current_table_index['model']][$current_table_index['field']];
