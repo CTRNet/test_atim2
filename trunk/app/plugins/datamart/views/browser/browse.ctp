@@ -19,63 +19,10 @@
 	$structures->build($atim_structure, array('type' => $type, 'links' => $links, 'data' => array()));
 ?>
 <script type="text/javascript">
-var orgAction = null;
-$(function(){
-	<?php if($is_datagrid){ ?>
-	orgAction = $("form").attr("action");
-	
-	$("#submit_button").click(function(){
-		return validateSubmit(false);
-	});
-	<?php } //end if is_datagrid ?>
-
-	$('#hierarchy').addClass("jquery_cupertino").advMenu({
-		content: $('#hierarchy').next().html(),
-		backLink: false,
-		flyOut: true,
-		callback: function(item){
-			var json = getJsonFromClass($(item).attr("class"));
-			if(json != null){
-				if(json.value.length > 0){
-					$('#hierarchy').find(".label").html(json.label);
-					$('#search_for').val(json.value);
-					if(json.action){
-						$("form").attr("action", json.action);
-					}else{
-						$("form").attr("action", orgAction);
-					}
-				}
-			}
-		}
-	});
-
-	if($("#BrowserSearchFor").length == 1){
-		var parent = $("#BrowserSearchFor").parent();
-		$("#BrowserSearchFor").remove();
-		parent.append($("#hierarchy")).append($("#search_for"));
-		getParentElement($("#hierarchy"), "TD").css("width", "100%");
-	}
-});
-
-function validateSubmit(ignoreSelect){
-	var errors = new Array();
-	if($("#search_for").length == 1 && $("#search_for").val() == "" && !ignoreSelect){
-		//TODO: traduce
-		errors.push("<?php __("you must select an action"); ?>");
-	}
-	<?php if($is_datagrid){ ?>
-	if($(":checkbox[checked=true]").length == 0){
-		//TODO: traduce
-		errors.push("<?php __("you need to select at least one item"); ?>");
-	}
-	<?php } ?>
-	
-	if(errors.length > 0){
-		alert(errors.join("\n"));
-		return false;
-	}
-	return true;
-}
+var browser = true;
+var isDatagrid = <?php echo($is_datagrid ? "true" : "false"); ?>;
+var errorYouMustSelectAnAction = "<?php __("you must select an action"); ?>";
+var errorYouNeedToSelectAtLeastOneItem = "<?php __("you need to select at least one item"); ?>";
 </script>
 
 

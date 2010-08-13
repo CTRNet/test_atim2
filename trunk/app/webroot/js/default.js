@@ -398,6 +398,16 @@ function uncheckAll( $div ) {
 	}
 	
 	function initJsControls(){
+		if(typeof(storageLayout) != 'undefined'){
+			initStorageLayout();
+		}
+		if(typeof(browser) != 'undefined'){
+			initBrowser();
+		}
+		if(typeof(copyControl) != 'undefined'){
+			initCopyControl();
+		}
+		
 		//field highlighting
 		if($("#table1row0").length == 1){
 			//gridview
@@ -440,4 +450,8 @@ function uncheckAll( $div ) {
 		$(".datepicker").each(function(){
 			initDatepicker(this);
 		});
+	}
+
+	function debug(str){
+//		$("#debug").append(str + "<br/>");
 	}
