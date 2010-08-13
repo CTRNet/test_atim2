@@ -22,7 +22,8 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ("or", "or", "ou"),
 ("range", "range", "intervalle"),
 ("specific", "specific", "spécifique"),
-("no storage", "No storage", "Pas d'entreposage");
+("no storage", "No storage", "Pas d'entreposage"),
+("invalid decimal separator", "Invalid decimal separator", "Séparateur de décimales invalide");
 
 INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('realiquot_with_volume', '', '', '1', '1', '1', '1');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
@@ -887,3 +888,5 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 INSERT INTO `datamart_reports` (`id` ,`name` ,`description` ,`datamart_structure_id` ,`structure_id` ,`function` ,`serialized_representation` ,`created` ,`created_by` ,`modified` ,`modified_by`) VALUES 
 (NULL , 'number of consents obtained by month', 'shows the number of consents obtained by month for a specified date range', NULL , NULL , 'nb_consent_by_month', NULL , '0000-00-00 00:00:00', '', NULL , ''),
 (NULL , 'number of samples acquired', 'shows the number of samples acquired for a specified date range', NULL , NULL , 'samples_by_type', NULL , '0000-00-00 00:00:00', '', NULL , '');
+
+UPDATE structure_field SET type='float_positive' WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='initial_volume' AND `type`='input' AND `structure_value_domain` IS NULL; 
