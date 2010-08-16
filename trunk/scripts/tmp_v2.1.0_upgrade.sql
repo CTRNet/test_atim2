@@ -1448,3 +1448,36 @@ LEFT JOIN structure_formats AS format ON format.structure_id = strct.id
 LEFT JOIN structure_fields AS field ON field.id = format.structure_field_id
 LEFT JOIN structure_value_domains AS domain ON domain.id = field.structure_value_domain
 ORDER BY strct.alias, format.display_column ASC, format.display_order ASC;
+
+-- reset aliquot use fields position
+
+UPDATE structures stc, structure_formats sfo, structure_fields sfi SET display_order = '5' 
+WHERE stc.alias = 'aliquotuses' AND stc.id = sfo.structure_id
+AND sfi.field = 'aliquot_volume_unit' AND sfo.structure_field_id = sfi.id;
+UPDATE structures stc, structure_formats sfo, structure_fields sfi SET display_order = '4' 
+WHERE stc.alias = 'aliquotuses' AND stc.id = sfo.structure_id
+AND sfi.field = 'current_volume' AND sfo.structure_field_id = sfi.id;
+UPDATE structures stc, structure_formats sfo, structure_fields sfi SET display_order = '6' 
+WHERE stc.alias = 'aliquotuses' AND stc.id = sfo.structure_id
+AND sfi.field = 'use_datetime' AND sfo.structure_field_id = sfi.id;
+UPDATE structures stc, structure_formats sfo, structure_fields sfi SET display_order = '7' 
+WHERE stc.alias = 'aliquotuses' AND stc.id = sfo.structure_id
+AND sfi.field = 'used_by' AND sfo.structure_field_id = sfi.id;
+UPDATE structures stc, structure_formats sfo, structure_fields sfi SET display_order = '10' 
+WHERE stc.alias = 'aliquotuses' AND stc.id = sfo.structure_id
+AND sfi.field = 'study_summary_id' AND sfo.structure_field_id = sfi.id;
+
+-- Add reviewed aliquot to aliquot use table
+
+ALTER TABLE `aliquot_review_masters`
+  ADD `aliquot_use_id` int(11) DEFAULT NULL AFTER `aliquot_masters_id`;
+ALTER TABLE `aliquot_review_masters_revs`
+  ADD `aliquot_use_id` int(11) DEFAULT NULL AFTER `aliquot_masters_id`;
+ALTER TABLE `aliquot_review_masters`
+  ADD CONSTRAINT `FK_aliquot_review_masters_aliquot_uses` FOREIGN KEY (`aliquot_use_id`) REFERENCES `aliquot_uses` (`id`)
+  
+  
+  
+  
+  
+  
