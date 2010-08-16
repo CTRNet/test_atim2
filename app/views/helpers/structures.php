@@ -1460,13 +1460,16 @@ class StructuresHelper extends Helper {
 					// var for html helper array
 					$html_element_array = array();
 					$html_element_array['class'] = '';
-					if(isset($data[$current_table_index['model']]) && isset($data[$current_table_index['model']][$current_table_index['field']])){
-						if($table_index[ $field['display_column'] ][$row_count]['type'] == 'select'){
-							$html_element_array['selected'] = $data[$current_table_index['model']][$current_table_index['field']];
-						}else if($table_index[ $field['display_column'] ][$row_count]['type'] == "datetime" && !is_array($data[$current_table_index['model']][$current_table_index['field']])){
-							$html_element_array['value'] = StructuresHelper::datetime_to_array($data[$current_table_index['model']][$current_table_index['field']]);
+					
+					//set default value
+					//we use $field['StructureField'] instead of $table_index as there might be more than a field in the same $table_row
+					if(isset($data[$field['StructureField']['model']]) && isset($data[$field['StructureField']['model']][$field['StructureField']['field']])){
+						if($field['StructureField']['type'] == 'select'){
+							$html_element_array['selected'] = $data[$field['StructureField']['model']][$field['StructureField']['field']];
+						}else if($field['StructureField']['type'] == "datetime" && !is_array($data[$field['StructureField']['model']][$field['StructureField']['field']])){
+							$html_element_array['value'] = StructuresHelper::datetime_to_array($data[$field['StructureField']['model']][$field['StructureField']['field']]);
 						}else{
-							$html_element_array['value'] = $data[$current_table_index['model']][$current_table_index['field']];
+							$html_element_array['value'] = $data[$field['StructureField']['model']][$field['StructureField']['field']];
 						}
 					}
 					$html_element_array['tabindex'] = $options['settings']['tabindex'] * 10 + $field_count;
