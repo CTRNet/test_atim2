@@ -12,7 +12,8 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 		'Inventorymanagement.SpecimenReviewDetail',
 		'Inventorymanagement.AliquotReviewControl',
 		'Inventorymanagement.AliquotReviewMaster',
-		'Inventorymanagement.AliquotReviewDetail'
+		'Inventorymanagement.AliquotReviewDetail',
+		'Inventorymanagement.AliquotUse'
 	);
 	
 	var $paginate = array('SpecimenReviewMaster' => array('limit' => pagination_amount, 'order' => 'SpecimenReviewMaster.review_date ASC'));
@@ -131,6 +132,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 			$this->SpecimenReviewMaster->set($specimen_review_data);
 			$submitted_data_validates = ($this->SpecimenReviewMaster->validates())? $submitted_data_validates: false;
 
+pr('BUG FIX: Remove validates on Detail when bug #955 will be fixed... ');
 			$this->SpecimenReviewDetail->set($specimen_review_data);
 			$submitted_data_validates = ($this->SpecimenReviewDetail->validates())? $submitted_data_validates: false;
 			
@@ -181,15 +183,33 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 				if($is_aliquot_review_defined) {
 					// Set additional aliquot review data and save
 					foreach($aliquot_review_data as $key => $new_aliquot_review) {
+						// 1- Save aliquot use... won't save used volume
+						$aliquot_use_id = null;
+						if(isset($new_aliquot_review['AliquotReviewMaster']['aliquot_masters_id']) && (!empty($new_aliquot_review['AliquotReviewMaster']['aliquot_masters_id']))) {
+							$new_used_aliquot = array();
+							$new_used_aliquot['AliquotUse']['aliquot_master_id'] = $new_aliquot_review['AliquotReviewMaster']['aliquot_masters_id'];	
+							$new_used_aliquot['AliquotUse']['use_definition'] = 'path review';
+							$new_used_aliquot['AliquotUse']['use_code'] = $specimen_review_data['SpecimenReviewMaster']['review_code'];
+							$new_used_aliquot['AliquotUse']['use_datetime'] = $specimen_review_data['SpecimenReviewMaster']['review_date'];
+							$new_used_aliquot['AliquotUse']['use_recorded_into_table'] = 'aliquot_review_masters';					
+							
+							// - AliquotUse
+							$this->AliquotUse->id = null;
+							if(!$this->AliquotUse->save($new_used_aliquot, false)) { $this->redirect('/pages/err_inv_record_err', null, true); }
+							$aliquot_use_id = $this->AliquotUse->getLastInsertId();
+						}
+						
+						// 2- Save aliquot review
 						$this->AliquotReviewMaster->id = null;
 						$new_aliquot_review['AliquotReviewMaster']['id'] = null;
 						$new_aliquot_review['AliquotReviewMaster']['aliquot_review_control_id'] = $review_control_data['AliquotReviewControl']['id'];
 						$new_aliquot_review['AliquotReviewMaster']['specimen_review_master_id'] = $specimen_review_master_id;					
+						$new_aliquot_review['AliquotReviewMaster']['aliquot_use_id'] = $aliquot_use_id;
 						if(!$this->AliquotReviewMaster->save($new_aliquot_review, false)) { $this->redirect('/pages/err_inv_record_err', null, true); }
 					}
 				}
-
-				$this->atimFlash('your data has been saved', '/inventorymanagement/specimen_reviews/listAll/' . $collection_id . '/' . $sample_master_id);	
+				
+				$this->atimFlash(__('your data has been saved', true). ' ' . __('please update volume directly into aliquot use if required', true), '/inventorymanagement/specimen_reviews/listAll/' . $collection_id . '/' . $sample_master_id);	
 			}
 		} 
 	}
@@ -220,10 +240,9 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 		if($is_aliquot_review_defined) {
 			$criteria = array(
 				'AliquotReviewMaster.specimen_review_master_id' => $specimen_review_id, 
-				'AliquotReviewMaster.aliquot_review_control_id' => $collection_id);
-
+				'AliquotReviewMaster.aliquot_review_control_id' => $specimen_review_data['SpecimenReviewControl']['AliquotReviewControl']['id']);
 			$aliquot_review_data = $this->AliquotReviewMaster->find('all', array('conditions' => $criteria));				
-			$this->set('aliquot_review_data', $aliquot_review_data);				
+			$this->set('aliquot_review_data', $aliquot_review_data);
 			
 			// Set available aliquot
 			$this->set('aliquot_list', $this->AliquotReviewMaster->getAliquotListForReview(true, $sample_master_id, (($specimen_review_data['SpecimenReviewControl']['AliquotReviewControl']['aliquot_type_restriction'] == 'all')? null : $specimen_review_data['SpecimenReviewControl']['AliquotReviewControl']['aliquot_type_restriction'])));
