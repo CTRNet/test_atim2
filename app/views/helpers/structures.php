@@ -1523,8 +1523,11 @@ class StructuresHelper extends Helper {
 					$html_element_array['type'] = $field['StructureField']['type'];
 					
 					
-					// set error class, based on validators helper info 
-					if ( isset($this->validationErrors[ $field['StructureField']['model'] ][ $field['StructureField']['field'] ]) ) $html_element_array['class'] .= 'error ';
+					// set error class, based on validators helper info
+					 $master_model_name = str_replace("Detail", "Master", $field['StructureField']['model']);//errors are all in master
+					if ( isset($this->validationErrors[$master_model_name][ $field['StructureField']['field'] ]) ){
+						$html_element_array['class'] .= 'error ';
+					}
 					
 					if ( isset($field['flag_'.$options['type'].'_readonly']) && $field['flag_'.$options['type'].'_readonly'] && $options['type']!='search' ) {
 						$html_element_array['disabled'] = 'disabled';
@@ -1776,14 +1779,13 @@ class StructuresHelper extends Helper {
 									$datetime_array = array();
 									if ( isset($options['override'][$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]) ) {
 										$datetime_array = StructuresHelper::datetime_to_array($options['override'][$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]);
-									}else if(isset($html_element_array['value'])){
-										$datetime_array = $html_element_array['value'];
+									}else if(isset($html_element_array['value']) && $html_element_array['value'] != "NULL"){
+										$datetime_array = (is_array($html_element_array['value']) ? $html_element_array['value'] : StructuresHelper::datetime_to_array($html_element_array['value']));
 									}else if(isset($this->data) && !empty($this->data) && !isset($this->data[0])&& isset($this->data[$field['StructureField']['model']][$field['StructureField']['field']]) && gettype($this->data[$field['StructureField']['model']][$field['StructureField']['field']]) == "Array"){
 										$datetime_array = $this->data[$field['StructureField']['model']][$field['StructureField']['field']];
 									}
 									$display_value .= $this->get_date_fields($model_prefix, $model_suffix, $field['StructureField'],
 									$html_element_array, $model_prefix_css, $model_suffix_css, "", $datetime_array);
-										
 								}
 
 								$use_cakephp_form_helper = FALSE;
