@@ -1,6 +1,5 @@
-$('#menu #summary').hover( 
-	function() {
-		
+function initSummary(){
+	$('#menu #summary').unbind('hover').hover(function() {
 		var summary_hover = $(this);
 		var summary_popup = summary_hover.find('ul');
 		var summary_label = summary_hover.find('span');
@@ -30,42 +29,36 @@ $('#menu #summary').hover(
 			
 		}
 		
-	}
-);
+	});
+}
 
-$('#wrapper div.actions ul ul.filter li').hover( 
-	function() {
-		
+//Slide down animation for action menu. Kills other displayed action menus
+var actionMenuShow = function(){
 		var action_hover = $(this);
 		var action_popup = action_hover.find('div.filter_menu');
-		
-		if ( action_popup.length>0 ) {
-			
-			action_popup.slideToggle(
-				100, 
-				function () {
-					$('#dimForActionPopup').stop(true,true);
-					
-					if ( $('#dimForActionPopup').css('display')=='block' ) {
-						/* $('#dimForActionPopup').fadeOut(100); */
-						
-						action_hover.css('position','relative').css('z-index',50);
-						action_popup.css('z-index',100);
-					} else {
-						/* $('#dimForActionPopup').fadeIn(2000); */
-						
-						action_hover.css('position','relative').css('z-index',150);
-						action_popup.css('z-index',150);
-					}
-				}
-			);
-			
-			return false;
-			
+		if ( action_popup.length > 0 ) {
+			//kill other menus
+			$('div.actions ul ul.filter li div.filter_menu').stop(true, true).hide();
+			//show current menu
+			action_popup.stop(true, true).slideDown(100);
 		}
-		
-	}
-);
+	};
+	
+//Slide up animation for action menu.
+var actionMenuHide = function(){
+		var action_hover = $(this);
+		var action_popup = action_hover.find('div.filter_menu');
+		if ( action_popup.length>0 ) {
+			action_popup.delay(101).slideUp(100);
+		}
+	};
+
+	/**
+ * Inits actions bars (main one and ajax loaded ones. Unbind the actions before rebinding them to avoid duplicate bindings
+ */
+function initActions(){
+	$('div.actions ul ul.filter li').unbind('mouseenter', actionMenuShow).unbind('mouseleave', actionMenuHide).bind('mouseenter', actionMenuShow).bind('mouseleave', actionMenuHide);
+}
 
 $('#wrapper div.actions ul ul.filter div a.up').click( 
 	function() {
@@ -115,8 +108,6 @@ $('#wrapper div.actions ul ul.filter div a.down').click(
 		return false;
 	}
 );
-
-var availableTags = ["c++", "java", "php", "coldfusion", "javascript", "asp", "ruby", "python", "c", "scala", "groovy", "haskell", "perl"];
 
 function checkAll( $div ) {
 	
@@ -444,6 +435,8 @@ function uncheckAll( $div ) {
 		initAutocomplete();
 		initAdvancedControls();
 		initTooltips();
+		initActions();
+		initSummary();
 		
 		//calendar controls
 		$.datepicker.setDefaults($.datepicker.regional[locale]);
