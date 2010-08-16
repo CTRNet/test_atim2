@@ -1246,6 +1246,12 @@ class StructuresHelper extends Helper {
 						';
 					}
 					*/
+				}else if($row_count == 0){
+					//we need to initializse some $table_indexes
+					$table_index[ $field['display_column'] ][ $row_count ]['plain'] = '';
+					$table_index[ $field['display_column'] ][ $row_count ]['tag'] = '';
+					$table_index[ $field['display_column'] ][ $row_count ]['content'] = '';
+					$table_index[ $field['display_column'] ][ $row_count ]['input'] = '';
 				}
 				
 				// display TAG, sub label, use FIELD's TAG, or use FORMAT's TAG if override FLAG is set
