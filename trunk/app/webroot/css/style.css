@@ -335,6 +335,7 @@ div.wrapper div.actions {
 		
 		-moz-border-radius: 10px;
 		-webkit-border-radius: 10px;
+		z-index: 1000;
 	}
 		
 		div.wrapper div.actions ul ul.filter li div.filter_menu.scroll {
@@ -795,7 +796,7 @@ div.menu ul#summary li span:not(.untranslated) {
 	
 div.menu ul#summary li ul {
 	display: none;
-	top: 40px;
+	top: 50px;
 	right: 20px;
 	position: absolute;
 	background: #293B49;
