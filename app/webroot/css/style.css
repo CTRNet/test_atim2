@@ -802,6 +802,7 @@ div.menu ul#summary li ul {
 	background: #293B49;
 	margin: 0;
 	padding: 10px;
+	z-index: 1000;
 	-moz-border-radius: 7px; -webkit-border-radius: 7px;
 	
 	/*
