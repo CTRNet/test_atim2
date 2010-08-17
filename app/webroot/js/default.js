@@ -384,6 +384,18 @@ function uncheckAll( $div ) {
 		});
 	}
 	
+	function refreshTopBaseOnAction(){
+		$("form").attr("action", root_url + actionControl + $("#0Action").val());
+	}
+	
+	function initActionControl(actionControl){
+		$($(".adv_ctrl.btn_add_or")[1]).parent().parent().find("select").change(function(){
+			refreshTopBaseOnAction(actionControl);
+		});
+		$(".adv_ctrl.btn_add_or").remove();
+		refreshTopBaseOnAction(actionControl);
+	}
+	
 	function getParentElement(currElement, parentName){
 		do{
 			currElement = $(currElement).parent();
@@ -404,6 +416,9 @@ function uncheckAll( $div ) {
 		}
 		if(typeof(aliquotVolumeCheck) != 'undefined'){
 			initAliquotVolumeCheck();
+		}
+		if(typeof(actionControl) != 'undefined'){
+			initActionControl(actionControl);
 		}
 		
 		//field highlighting

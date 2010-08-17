@@ -8,15 +8,9 @@ if(isset($submit) && $submit){
 	$structures->build($atim_structure, array("type" => "search", "links" => $links, "override" => $override));
 	?>
 	<script type="text/javascript">
-	function refreshTop(){
-		$("form").attr("action", root_url + "<?php echo($top); ?>" + $("#0Action").val());
-	}
-	$(function(){
-		$($(".adv_ctrl.btn_add_or")[1]).parent().parent().find("select").change(function(){
-			refreshTop();
-		});
-		$(".adv_ctrl.btn_add_or").remove();
-	});
+	<script type="text/javascript">
+	var actionControl = "<?php echo($top); ?>";
+	</script>
 	</script>
 	<?php
 }else{

@@ -150,11 +150,12 @@ class ReportsController extends DatamartAppController {
 				$this->Structures->set("empty");
 				$this->set("date_from", $date_from);
 				$this->set("date_to", $date_to);
-			}
-			$this->set("csv", $csv);
-			if($csv){
-				Configure::write('debug', 0);
-				$this->layout = false;
+				
+				$this->set("csv", $csv);
+				if($csv){
+					Configure::write('debug', 0);
+					$this->layout = false;
+				}
 			}
 		}else{
 			$load_form = true;
@@ -190,12 +191,13 @@ class ReportsController extends DatamartAppController {
 				$this->set("date_from", $data['date_from_start']);
 				$this->set("date_to", $data['date_from_end']);
 				
+				$this->set("csv", $csv);
+				if($csv){
+					Configure::write('debug', 0);
+					$this->layout = false;
+				}
 			}
-			$this->set("csv", $csv);
-			if($csv){
-				Configure::write('debug', 0);
-				$this->layout = false;
-			}
+			
 		}else{
 			$load_form = true;
 		}
