@@ -1,11 +1,4 @@
--- drop matastasis_site
--- delete from structure_fields where tablename='diagnosis_masters_sm' field='metastasis_site'
--- delete structure_formats better delete from insert into structure_formats	
--- DELETE FROM structure_formats WHERE `structure_id`='213' AND `structure_field_id`='1013' AND `display_column`='2' AND `display_order`='9' AND `language_heading`='' AND `flag_override_label`='0' AND `language_label`='' AND `flag_override_tag`='0' AND `language_tag`='' AND `flag_override_help`='0' AND `language_help`='' AND `flag_override_type`='0' AND `type`='' AND `flag_override_setting`='0' AND `setting`='' AND `flag_override_default`='0' AND `default`='' AND `flag_add`='1' AND `flag_add_readonly`='0' AND `flag_edit`='1' AND `flag_edit_readonly`='0' AND `flag_search`='0' AND `flag_search_readonly`='0' AND `flag_datagrid`='0' AND `flag_datagrid_readonly`='0' AND `flag_index`='1' AND `flag_detail`='1' AND `created`='0000-00-00 00:00:00' AND `created_by`='0' AND `modified`='0000-00-00 00:00:00' AND `modified_by`='0' ;
-
-
-
-/*Table structure for table 'dxd_perihilarbileducts' */
+/*Table structure for table 'dxd_cap_report_perihilarbileducts' */
 
 DROP TABLE IF EXISTS `dxd_cap_report_perihilarbileducts`;
 
@@ -363,7 +356,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 update structure_fields
 set structure_value_domain=185
 where type='checkbox'
-and structure_value_domain is null
+and structure_value_domain is null;
 
 -- validation distance_unit
 INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) VALUES
@@ -605,4 +598,4 @@ where value  not in (select id from i18n);
 
 INSERT IGNORE INTO i18n (id, en, fr)
 select language_alias, language_alias, '' from structure_permissible_values 
-where language_alias not in (select id from i18n)
+where language_alias not in (select id from i18n);
