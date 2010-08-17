@@ -1449,6 +1449,7 @@ LEFT JOIN structure_fields AS field ON field.id = format.structure_field_id
 LEFT JOIN structure_value_domains AS domain ON domain.id = field.structure_value_domain
 ORDER BY strct.alias, format.display_column ASC, format.display_order ASC;
 
+
 -- reset aliquot use fields position
 
 UPDATE structures stc, structure_formats sfo, structure_fields sfi SET display_order = '5' 
@@ -1476,8 +1477,7 @@ ALTER TABLE `aliquot_review_masters_revs`
 ALTER TABLE `aliquot_review_masters`
   ADD CONSTRAINT `FK_aliquot_review_masters_aliquot_uses` FOREIGN KEY (`aliquot_use_id`) REFERENCES `aliquot_uses` (`id`)
   
-  
-  
-  
-  
-  
+
+UPDATE `structure_fields` SET `setting`='size=4' WHERE model='AliquotMaster' AND tablename='aliquot_masters' AND field LIKE 'storage\_coord\__';
+
+ALTER TABLE `users` CHANGE `active` `flag_active` boolean not null;
