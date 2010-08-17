@@ -30,7 +30,7 @@ class AppController extends Controller {
 			$this->Auth->loginAction = array('controller' => 'users', 'action' => 'login', 'plugin' => '');
 			$this->Auth->loginRedirect = array('controller' => 'menus', 'action' => 'index', 'plugin' => '');
 			$this->Auth->logoutRedirect = array('controller' => 'users', 'action' => 'login', 'plugin' => '');
-			$this->Auth->userScope = array('User.active' => 1);
+			$this->Auth->userScope = array('User.flag_active' => true);
 			$this->Auth->actionPath = 'controllers/App/';
 			$this->Auth->allowedActions = array();
 			
