@@ -1,4 +1,4 @@
-<<?php 
+<?php 
 	
 	$structure_links = array(
 		'top' => '/inventorymanagement/aliquot_masters/addAliquotUse/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'] . '/' . $atim_menu_variables['AliquotUse.use_definition'],
