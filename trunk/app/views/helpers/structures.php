@@ -132,7 +132,7 @@ class StructuresHelper extends Helper {
 				if ( !is_array($options['settings']['header']) ) {
 					$options['settings']['header'] = array(
 						'title'			=> $options['settings']['header'],
-						'description'	=> '('.__('no description provided',true).')'
+						'description'	=> ''
 					);
 				}
 				
