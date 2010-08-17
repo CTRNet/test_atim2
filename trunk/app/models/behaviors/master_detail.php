@@ -195,11 +195,13 @@ class MasterDetailBehavior extends ModelBehavior {
 			
 			if ( $use_form_alias ) {
 				$detail_class_instance = new AppModel( array('table'=>$use_table_name, 'name'=>$detail_class, 'alias'=>$detail_class) );
-				$detail_class_instance->validate = AppController::getInstance()->{$detail_class}->validate;
-				$detail_class_instance->set($model->data);
-				$valid_detail_class = $detail_class_instance->validates();
-				if ( !$valid_detail_class ){
-					$model->validationErrors = array_merge($model->validationErrors, $detail_class_instance->validationErrors);
+				if(isset(AppController::getInstance()->{$detail_class})){
+					$detail_class_instance->validate = AppController::getInstance()->{$detail_class}->validate;
+					$detail_class_instance->set($model->data);
+					$valid_detail_class = $detail_class_instance->validates();
+					if ( !$valid_detail_class ){
+						$model->validationErrors = array_merge($model->validationErrors, $detail_class_instance->validationErrors);
+					}
 				}
 			}
 		}
