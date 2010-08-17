@@ -45,6 +45,6 @@ function validateSubmit(){
 		alert(errors.join("\n"));
 		return false;
 	}
-	alert("no error");
+	
 	return true;
 }
