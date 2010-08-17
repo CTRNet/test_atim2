@@ -363,6 +363,27 @@ function uncheckAll( $div ) {
 		});
 	}
 	
+	function initAliquotVolumeCheck(){
+		$(".form.submit").unbind('click').attr("onclick", "return false;");
+		$(".form.submit").click(function(){
+			var denom = $("#AliquotMasterCurrentVolume").val().replace(/,/g, ".");
+			var nom = $("#AliquotUseUsedVolume").val().replace(/,/g, ".");
+			if(nom.length > 0 && nom > denom){
+				$("#popup").popup();
+			}else{
+				$("#submit_button").click();
+			}
+			return false;
+		});
+
+		$(".button.confirm").click(function(){
+			$("#submit_button").click();
+		});
+		$(".button.close").click(function(){
+			$("#popup").popup('close');
+		});
+	}
+	
 	function getParentElement(currElement, parentName){
 		do{
 			currElement = $(currElement).parent();
@@ -380,6 +401,9 @@ function uncheckAll( $div ) {
 		}
 		if(typeof(copyControl) != 'undefined'){
 			initCopyControl();
+		}
+		if(typeof(aliquotVolumeCheck) != 'undefined'){
+			initAliquotVolumeCheck();
 		}
 		
 		//field highlighting
