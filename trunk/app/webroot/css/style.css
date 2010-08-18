@@ -1735,6 +1735,24 @@ div.wrapper table.structure td .databrowser td .info td{
 .databrowser td.identification div.container{
 	background-image: url(../img/icons/identifiers_16x16.png);
 }
+.databrowser td.aliquot.uses div.container{
+	background-image: url(../img/icons/aliquotUse_16x16.png);
+}
+.databrowser td.consents div.container{
+	background-image: url(../img/icons/consent_16x16.png);
+}
+.databrowser td.diagnosis div.container{
+	background-image: url(../img/icons/xray_16x16.png);
+}
+.databrowser td.treatments div.container{
+	background-image: url(../img/icons/seringue_16x16.png);
+}
+.databrowser td.family.histories div.container{
+	background-image: url(../img/icons/family_16x16.png);
+}
+.databrowser td.quality.controls div.container{
+	background-image: url(../img/icons/qualityControl_16x16.png);
+}
 
 .databrowser div.info{
 	position: absolute;
