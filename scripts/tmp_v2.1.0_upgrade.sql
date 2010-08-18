@@ -1475,9 +1475,58 @@ ALTER TABLE `aliquot_review_masters`
 ALTER TABLE `aliquot_review_masters_revs`
   ADD `aliquot_use_id` int(11) DEFAULT NULL AFTER `aliquot_masters_id`;
 ALTER TABLE `aliquot_review_masters`
-  ADD CONSTRAINT `FK_aliquot_review_masters_aliquot_uses` FOREIGN KEY (`aliquot_use_id`) REFERENCES `aliquot_uses` (`id`)
+  ADD CONSTRAINT `FK_aliquot_review_masters_aliquot_uses` FOREIGN KEY (`aliquot_use_id`) REFERENCES `aliquot_uses` (`id`);
   
 
 UPDATE `structure_fields` SET `setting`='size=4' WHERE model='AliquotMaster' AND tablename='aliquot_masters' AND field LIKE 'storage\_coord\__';
 
 ALTER TABLE `users` CHANGE `active` `flag_active` boolean not null;
+
+-- display current volume in aliquot use in edit form
+  
+UPDATE structures stc, structure_formats sfo, structure_fields sfi 
+SET flag_edit = '1', flag_edit_readonly = '1'
+WHERE stc.alias = 'aliquotuses' AND stc.id = sfo.structure_id
+AND sfi.field = 'current_volume' AND sfo.structure_field_id = sfi.id;
+
+-- reset aliquot use system dependent fields position
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='aliquotuses_system_dependent'), 
+(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='current_volume' AND `type`='float' AND `structure_value_domain`  IS NULL  ), '0', '3', '', '1', '', '1', 'out of', '0', '', '0', '', '1', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0');
+
+UPDATE structures stc, structure_formats sfo, structure_fields sfi SET display_order = '5' 
+WHERE stc.alias = 'aliquotuses_system_dependent' AND stc.id = sfo.structure_id
+AND sfi.field = 'aliquot_volume_unit' AND sfo.structure_field_id = sfi.id;
+UPDATE structures stc, structure_formats sfo, structure_fields sfi SET display_order = '4' 
+WHERE stc.alias = 'aliquotuses_system_dependent' AND stc.id = sfo.structure_id
+AND sfi.field = 'current_volume' AND sfo.structure_field_id = sfi.id;
+UPDATE structures stc, structure_formats sfo, structure_fields sfi SET display_order = '6' 
+WHERE stc.alias = 'aliquotuses_system_dependent' AND stc.id = sfo.structure_id
+AND sfi.field = 'use_datetime' AND sfo.structure_field_id = sfi.id;
+UPDATE structures stc, structure_formats sfo, structure_fields sfi SET display_order = '7' 
+WHERE stc.alias = 'aliquotuses_system_dependent' AND stc.id = sfo.structure_id
+AND sfi.field = 'used_by' AND sfo.structure_field_id = sfi.id;
+UPDATE structures stc, structure_formats sfo, structure_fields sfi SET display_order = '10' 
+WHERE stc.alias = 'aliquotuses_system_dependent' AND stc.id = sfo.structure_id
+AND sfi.field = 'study_summary_id' AND sfo.structure_field_id = sfi.id;
+
+INSERT IGNORE INTO i18n (id, en, fr)
+VALUE
+('no volume has to be recorded for this aliquot type', 'No volume has to be recorded for this aliquot type!', 'Aucun volume doit être enregistré pour ce type d''aliquot!'),
+('work directly on aliquot to change aliquot information (status, used volume, etc)', 
+'Please work directly on aliquot to change aliquot information like ''status'', ''used volume'', etc (if required)!', 
+'Veuillez travailler directement sur l''aliquot pour modifier des données de l''aliquot telles que le statu, le volume utilisée, etc (si requis)!');
+
+UPDATE structures stc, structure_formats sfo, structure_fields sfi 
+SET flag_index = '0'
+WHERE stc.alias = 'ar_breast_tissue_slides' AND stc.id = sfo.structure_id
+AND sfi.field = 'id' AND sfo.structure_field_id = sfi.id;
+
+
+
+
+
+
+
+
