@@ -1605,3 +1605,7 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ("treatments", "Treatments", "Traitements"),
 ("family histories", "Family histories", "Historiques familiale"),
 ("participant messages", "Participant messages", "Messages des participants");
+
+insert ignore into i18n (id,en,fr)
+values ('undo', 'Undo', 'annuler');
+
