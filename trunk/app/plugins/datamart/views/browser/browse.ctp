@@ -30,27 +30,26 @@ var errorYouNeedToSelectAtLeastOneItem = "<?php __("you need to select at least 
 
 <?php 
 if(isset($dropdown_options)){
-	
 ?>
 <a tabindex="0" href="#news-items" class="fg-button fg-button-icon-right ui-widget ui-state-default ui-corner-all" id="hierarchy"><span class="ui-icon ui-icon-triangle-1-s"></span><span class="label"><?php __("action"); ?></span></a>
 <div class="hidden ui-widget">
 <input id="search_for" type="hidden" name="data[Browser][search_for]"/>
 <ul>
 	<?php 
-	function printList($options, $label, $webroot){
+	function printList($options, $label, $webroot, $loop){
 		foreach($options as $option){
 			$curr_label = $label." &gt; ".$option['default'];
 			$action = isset($option['action']) ? ', "action" : "'.$webroot."/".$option['action'].'" ' : "";
 			echo("<li><a href='#' class='{ \"value\" : \"".$option['value']."\", \"label\" : \"".$curr_label."\" ".$action." }'>".$option['default']."</a>");
-			if(isset($option['children'])){
+			if(isset($option['children']) && $loop){
 				echo("<ul>");
-				printList($option['children'], $curr_label, $webroot);
+				printList($option['children'], $curr_label, $webroot, $loop);
 				echo("</ul>");
 			}
 			echo("</li>\n");
 		}		
 	}
-	printList($dropdown_options, "", $this->webroot);
+	printList($dropdown_options, "", $this->webroot, $is_datagrid);
 	?>
 </ul>
 </div>
