@@ -162,8 +162,7 @@ class StructuresComponent extends Object {
 								// App::import('Model', 'Clinicalannotation.'.$model);
 								
 								$format_data_model = new $model;
-								
-								$data = $format_data_model->deconstruct($form_fields[$model.'.'.$key]['field'],$data);
+								$data = $format_data_model->deconstruct($form_fields[$model.'.'.$key]['field'], $data, strpos($key, "_end") == strlen($key) - 4);
 								
 								if ( is_array($data) ) {
 									$data = array_unique($data);
@@ -239,10 +238,13 @@ class StructuresComponent extends Object {
 				preg_match_all("/[\w\.\`]+[\s]+IN[\s]+\([\s]*@@".$model_field."@@[\s]*\)/", $sql_with_search_terms, $matches, PREG_OFFSET_CAPTURE);
 				if(count($matches) > 0){
 					$in_arr = array();
-					$my_conds = explode(" OR ", substr($condition, 0, -1));
+					$tmp_cond = (strrpos($condition, ")") == strlen($condition) - 1) ? substr($condition, 0, -1) : $condition;
+					$my_conds = explode(" OR ", $tmp_cond);
 					foreach($my_conds as $my_cond){
 						$parts = explode(" ", $my_cond);
-						$in_arr[] = "'".substr(str_replace("%'", "'", $parts[2]), 2);
+						if(count($parts) > 1){
+							$in_arr[] = "'".substr(str_replace("%'", "'", $parts[2]), 2);
+						}
 					}
 					$matches[0] = array_reverse($matches[0]);
 					foreach($matches[0] as $match){
