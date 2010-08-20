@@ -13,15 +13,16 @@ class Browser extends DatamartAppModel {
 	 * @param The initial control_id
 	 */
 	function getDropdownOptions($getDropdownOptions, $node_id, $plugin_name = null, $model_name = null, $model_pkey = null, $structure_name = null){
+		if(!App::import('Model', 'Datamart.DatamartStructure')){
+			$this->redirect( '/pages/err_model_import_failed?p[]=Datamart.DatamartStructure', NULL, TRUE );
+		}
+		$DatamartStructure = new DatamartStructure();
 		if($getDropdownOptions != 0){
 			if($plugin_name == null || $model_name == null || $model_pkey == null || $structure_name == null){
-				$this->redirect( '/pages/err_internal?p[]=missing parameter for getDropdownOptions', null, true);
+				$app_controller = AppController::getInstance();
+				$app_controller->redirect( '/pages/err_internal?p[]=missing parameter for getDropdownOptions', null, true);
 			}
-			if(!App::import('Model', 'Datamart.BrowsingStructure')){
-				$this->redirect( '/pages/err_model_import_failed?p[]=Datamart.BrowsingStructure', NULL, TRUE );
-			}
-			$BrowsingStructure = new BrowsingStructure();
-			$browsing_structures = $BrowsingStructure->find('list', array('fields' => array('BrowsingStructure.display_name')));
+			$browsing_structures = $DatamartStructure->find('list', array('fields' => array('DatamartStructure.display_name')));
 			//the query contains a useless CONCAT to counter a cakephp behavior
 			$data = $this->query(
 				"SELECT CONCAT(main_id, '') AS main_id, GROUP_CONCAT(to_id SEPARATOR ',') AS to_id FROM( "
@@ -49,18 +50,18 @@ class Browser extends DatamartAppModel {
 				'action' => 'csv/csv/'.$plugin_name.'/'.$model_name.'/'.$model_pkey.'/'.$structure_name.'/'
 			);
 		}else{
-			$data = $this->query("SELECT * FROM datamart_browsing_structures");
+			$data = $DatamartStructure->find('all');
 			foreach($data as $data_unit){
 				$result[] = array(
-					'value' => $data_unit['datamart_browsing_structures']['id'], 
-					'default' => __($data_unit['datamart_browsing_structures']['display_name'], true),
+					'value' => $data_unit['DatamartStructure']['id'], 
+					'default' => __($data_unit['DatamartStructure']['display_name'], true),
 					'action' => 'datamart/browser/browse/'.$node_id.'/',
 					'children' => array(
 							array(
-								'value' => $data_unit['datamart_browsing_structures']['id'],
+								'value' => $data_unit['DatamartStructure']['id'],
 								'default' => __('filter', true)),
 							array(
-								'value' => $data_unit['datamart_browsing_structures']['id']."/true/",
+								'value' => $data_unit['DatamartStructure']['id']."/true/",
 								'default' => __('no filter', true))
 								));
 			}
@@ -236,16 +237,16 @@ class Browser extends DatamartAppModel {
 					$pad --;
 				}
 				if(is_array($cell)){
-					$class = $cell['BrowsingStructure']['display_name'];
+					$class = $cell['DatamartStructure']['display_name'];
 					if($cell['active']){
 						$class .= " active ";
 					}
 					$count = strlen($cell['BrowsingResult']['id_csv']) ? count(explode(",", $cell['BrowsingResult']['id_csv'])) : 0;
-					$info = "<span class='title'>".__($cell['BrowsingStructure']['display_name'], true)."</span> (".$count.")<br/>\n";
+					$info = "<span class='title'>".__($cell['DatamartStructure']['display_name'], true)."</span> (".$count.")<br/>\n";
 					if($cell['BrowsingResult']['raw']){
 						$search = unserialize($cell['BrowsingResult']['serialized_search_params']);
 						if(count($search)){
-							$info .= __("search", true)."<br/><br/>".Browser::formatSearchToPrint($search, $cell['BrowsingStructure']['structure_alias']);
+							$info .= __("search", true)."<br/><br/>".Browser::formatSearchToPrint($search, $cell['DatamartStructure']['structure_id']);
 						}else{
 							$info .= __("direct access", true);
 						}
@@ -269,7 +270,7 @@ class Browser extends DatamartAppModel {
 	 * Formats the search params array and returns it into a table
 	 * @param The search params array
 	 */
-	static function formatSearchToPrint(array $params, $structure_alias){
+	static function formatSearchToPrint(array $params, $structure_id){
 		$keys = array_keys($params);
 		App::import('model', 'StructureFormat');
 		$StructureFormat = new StructureFormat();
@@ -285,7 +286,7 @@ class Browser extends DatamartAppModel {
 			}
 			$conditions[] = "StructureField.model='".$model."' AND StructureField.field='".$field."'";
 		}
-		$sf = $StructureFormat->customSearch("Structure.alias='".$structure_alias."' AND ".implode(" OR ", $conditions));
+		$sf = $StructureFormat->customSearch("Structure.id='".$structure_id."' AND ".implode(" OR ", $conditions));
 		$result = "<table align='center' width='100%'>";
 		foreach($params as $name => $values){
 			if(is_numeric($name)){

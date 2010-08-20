@@ -4,7 +4,7 @@
 
 var copyBuffer = new Object();
 
-$(function(){
+function initCopyControl(){
 	if(!window.copyStr){
 		window.copyStr = "js untranslated copy";	
 	}
@@ -39,7 +39,7 @@ $(function(){
 		return false;
 	});
 	
-});
+}
 
 /**
  * Copies a line

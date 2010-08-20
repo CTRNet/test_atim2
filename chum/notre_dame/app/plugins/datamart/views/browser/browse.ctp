@@ -19,63 +19,10 @@
 	$structures->build($atim_structure, array('type' => $type, 'links' => $links, 'data' => array()));
 ?>
 <script type="text/javascript">
-var orgAction = null;
-$(function(){
-	<?php if($is_datagrid){ ?>
-	orgAction = $("form").attr("action");
-	
-	$("#submit_button").click(function(){
-		return validateSubmit(false);
-	});
-	<?php } //end if is_datagrid ?>
-
-	$('#hierarchy').addClass("jquery_cupertino").advMenu({
-		content: $('#hierarchy').next().html(),
-		backLink: false,
-		flyOut: true,
-		callback: function(item){
-			var json = getJsonFromClass($(item).attr("class"));
-			if(json != null){
-				if(json.value.length > 0){
-					$('#hierarchy').find(".label").html(json.label);
-					$('#search_for').val(json.value);
-					if(json.action){
-						$("form").attr("action", json.action);
-					}else{
-						$("form").attr("action", orgAction);
-					}
-				}
-			}
-		}
-	});
-
-	if($("#BrowserSearchFor").length == 1){
-		var parent = $("#BrowserSearchFor").parent();
-		$("#BrowserSearchFor").remove();
-		parent.append($("#hierarchy")).append($("#search_for"));
-		getParentElement($("#hierarchy"), "TD").css("width", "100%");
-	}
-});
-
-function validateSubmit(ignoreSelect){
-	var errors = new Array();
-	if($("#search_for").length == 1 && $("#search_for").val() == "" && !ignoreSelect){
-		//TODO: traduce
-		errors.push("<?php __("you must select an action"); ?>");
-	}
-	<?php if($is_datagrid){ ?>
-	if($(":checkbox[checked=true]").length == 0){
-		//TODO: traduce
-		errors.push("<?php __("you need to select at least one item"); ?>");
-	}
-	<?php } ?>
-	
-	if(errors.length > 0){
-		alert(errors.join("\n"));
-		return false;
-	}
-	return true;
-}
+var browser = true;
+var isDatagrid = <?php echo($is_datagrid ? "true" : "false"); ?>;
+var errorYouMustSelectAnAction = "<?php __("you must select an action"); ?>";
+var errorYouNeedToSelectAtLeastOneItem = "<?php __("you need to select at least one item"); ?>";
 </script>
 
 
@@ -83,27 +30,26 @@ function validateSubmit(ignoreSelect){
 
 <?php 
 if(isset($dropdown_options)){
-	
 ?>
 <a tabindex="0" href="#news-items" class="fg-button fg-button-icon-right ui-widget ui-state-default ui-corner-all" id="hierarchy"><span class="ui-icon ui-icon-triangle-1-s"></span><span class="label"><?php __("action"); ?></span></a>
 <div class="hidden ui-widget">
 <input id="search_for" type="hidden" name="data[Browser][search_for]"/>
 <ul>
 	<?php 
-	function printList($options, $label, $webroot){
+	function printList($options, $label, $webroot, $loop){
 		foreach($options as $option){
 			$curr_label = $label." &gt; ".$option['default'];
 			$action = isset($option['action']) ? ', "action" : "'.$webroot."/".$option['action'].'" ' : "";
 			echo("<li><a href='#' class='{ \"value\" : \"".$option['value']."\", \"label\" : \"".$curr_label."\" ".$action." }'>".$option['default']."</a>");
-			if(isset($option['children'])){
+			if(isset($option['children']) && $loop){
 				echo("<ul>");
-				printList($option['children'], $curr_label, $webroot);
+				printList($option['children'], $curr_label, $webroot, $loop);
 				echo("</ul>");
 			}
 			echo("</li>\n");
 		}		
 	}
-	printList($dropdown_options, "", $this->webroot);
+	printList($dropdown_options, "", $this->webroot, $is_datagrid);
 	?>
 </ul>
 </div>

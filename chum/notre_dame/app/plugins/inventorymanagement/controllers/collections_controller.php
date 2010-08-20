@@ -10,8 +10,8 @@ class CollectionsController extends InventorymanagementAppController {
 		'Inventorymanagement.SampleMaster',
 		'Inventorymanagement.SampleControl',
 		'Inventorymanagement.AliquotMaster',
-		'Inventorymanagement.PathCollectionReview',
-		'Inventorymanagement.ReviewMaster',
+		'Inventorymanagement.SpecimenReviewMaster',
+		'Inventorymanagement.ParentToDerivativeSampleControl',
 		
 		'Clinicalannotation.ClinicalCollectionLink');
 	
@@ -67,7 +67,10 @@ class CollectionsController extends InventorymanagementAppController {
 		$this->set('participant_id', $collection_data['ViewCollection']['participant_id']);
 		
 		// Get all sample control types to build the add to selected button
-		$specimen_sample_controls_list = $this->SampleControl->atim_list(array('conditions' => array('SampleControl.flag_active' => '1', 'SampleControl.sample_category' => 'specimen'), 'order' => 'SampleControl.sample_type ASC'));
+		$controls = $this->ParentToDerivativeSampleControl->find('all', array('conditions' => array('ParentToDerivativeSampleControl.parent_sample_control_id IS NULL', 'ParentToDerivativeSampleControl.flag_active' => true), 'fields' => array('DerivativeControl.*')));
+		foreach($controls as $control){
+			$specimen_sample_controls_list[]['SampleControl'] = $control['DerivativeControl'];	
+		}
 		$this->set('specimen_sample_controls_list', $specimen_sample_controls_list);	
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -262,12 +265,9 @@ class CollectionsController extends InventorymanagementAppController {
 		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'aliquot exists within the deleted collection'); }
 
 		// Check collection has not been linked to review	
-		$returned_nbr = $this->PathCollectionReview->find('count', array('conditions' => array('PathCollectionReview.collection_id' => $collection_id), 'recursive' => '-1'));
+		$returned_nbr = $this->SpecimenReviewMaster->find('count', array('conditions' => array('SpecimenReviewMaster.collection_id' => $collection_id), 'recursive' => '-1'));
 		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'review exists for the deleted collection'); }
 
-		$returned_nbr = $this->ReviewMaster->find('count', array('conditions' => array('ReviewMaster.collection_id' => $collection_id), 'recursive' => '-1'));
-		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'review exists for the deleted collection'); }
-		
 		// Check Collection has not been linked to a participant, consent or diagnosis
 		$criteria = 'ClinicalCollectionLink.collection_id = "' . $collection_id . '" ';
 		$criteria .= 'AND ClinicalCollectionLink.participant_id IS NOT NULL';		

@@ -842,7 +842,7 @@ class Model extends Overloadable {
  * @return mixed The resulting data that should be assigned to a field
  * @access public
  */
-	function deconstruct($field, $data) {
+	function deconstruct($field, $data, $is_end = false) {
 		if (!is_array($data)) {
 			return $data;
 		}
@@ -885,6 +885,11 @@ class Model extends Overloadable {
 			}
 
 			if ($type == 'datetime' || $type == 'timestamp' || $type == 'date') {
+				if($is_end && isset($data['hour']) && isset($data['min']) && strlen($data["hour"]) == 0 && strlen($data["min"]) == 0){
+					$data["hour"] = "23";
+					$data["min"] = "59";
+					$data["sec"] = "59";
+				}
 				foreach ($dateFields as $key => $val) {
 					if ($val == 'hour' || $val == 'min' || $val == 'sec') {
 						if (!isset($data[$val]) || $data[$val] === '0' || $data[$val] === '00') {

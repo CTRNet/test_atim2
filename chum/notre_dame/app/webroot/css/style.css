@@ -77,6 +77,18 @@ body {
 	background-color: #f2f2ff;
 	font: 11px/1.2em "Lucida Grande", Futura, Helvetica, Arial, Verdana, sans-serif;
 }
+
+div#dimForActionPopup {
+	display: none;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	z-index: 100;
+	background: rgba(255,255,255,0.5);
+}
+
 div.wrapper {
 	clear: both;
 	margin: 0 10px 10px 10px;
@@ -253,12 +265,17 @@ div.wrapper div.actions {
 		right: 0;
 		text-align: right;
 	}
+	
 	div.wrapper div.actions ul ul.filter li {
 		background: none;
 		padding: 0;
 		margin: 0;
 		position: relative;
+		
+		padding-top: 4px;
+		margin-top: -4px;
 	}
+	
 	div.wrapper div.actions ul ul.filter li a.form.popup {
 		
 	}
@@ -267,9 +284,11 @@ div.wrapper div.actions {
 /*===========================================================*
 	-= popup filter menu 
 *===========================================================*/
+	/*
 	div.wrapper div.actions ul ul.filter li div.filter_menu {
 		display: none;
 	}
+	*/
 	
 	div.wrapper div.actions ul ul.filter:hover a {
 		/*background-color: #486680;
@@ -293,67 +312,185 @@ div.wrapper div.actions {
 		-moz-border-radius: 5px; -webkit-border-radius: 5px;
 	}
 */
-	div.wrapper div.actions ul ul.filter li:hover div.filter_menu {
-		display: block;
-		position: absolute;
-		width: 200px;
-		top: 5px;
-		right: 55px;
+	
+	/* div.wrapper div.actions ul ul.filter li:hover div.filter_menu { */
+	
+	div.wrapper div.actions ul ul.filter li div.filter_menu {
 		
-		/* height: 275px; no scrollable menu */
-		overflow: hidden;
-		line-height: 14px;
-		background: #486680;
+		display: none;
+		position: absolute;
+		
+		width: 200px;
+		bottom: 36px;
+		left: -130px;
+		
 		margin: 0;
+		padding: 15px 2px;
+		border: 0;
+		
+		/* overflow: hidden; */
+		line-height: 14px;
+		background: #374d61;
 		text-align: left;
-		border-color: #000000;
-		-moz-border-radius: 5px; -webkit-border-radius: 5px;
+		
+		-moz-border-radius: 10px;
+		-webkit-border-radius: 10px;
+		z-index: 1000;
 	}
+		
+		div.wrapper div.actions ul ul.filter li div.filter_menu.scroll {
+			padding: 4px 2px;
+		}
+	
+		div.wrapper div.actions ul ul.filter li div.filter_menu span.arrow {
+			position: absolute;
+			right: 30px;
+			bottom: -13px;
+			width: 16px;
+			height: 13px;
+			background: url("../img/filter-arrow-down.png") center center no-repeat;
+		}
+	
 	div.wrapper div.actions ul ul.filter li:hover span,
 	div.wrapper div.actions ul ul.filter li:hover span a {
 		color: #fff;
 	}
-	div.wrapper div.actions ul ul.filter div.filter_menu ul {
-		/* padding: 30px 0; */
+	
+	div.wrapper div.actions ul ul.filter div.filter_menu div {
+		-moz-border-radius: 0; -webkit-border-radius: 0;
+		background: #486680;
+		
+		overflow: hidden;
+		border: none;
 		padding: 0;
-	}
-	div.wrapper div.actions ul ul.filter div.filter_menu ul li {
-		width: 200px;
 		margin: 0;
+		
+		max-height: 197px;
+		width: 200px;
+		
+		position: relative;
+	}
+	
+	div.wrapper div.actions ul ul.filter div.filter_menu div ul {
+		-moz-border-radius: 0; -webkit-border-radius: 0;
+		background: #486680;
+	}
+	
+		div.wrapper div.actions ul ul.filter div.filter_menu.scroll div {
+			height: 197px;
+		}
+		
+		div.wrapper div.actions ul ul.filter div.filter_menu.scroll div ul {
+			top: 0;
+			padding: 11px 0;
+			position: relative;
+		}
+		
+		div.wrapper div.actions ul ul.filter div.filter_menu span.up {
+			position: absolute;
+			display: block;
+			
+			top: 4px;
+			left: 2px;
+			
+			background: rgba(55,77,97,0.8);
+			width: 201px;
+			height: 15px;
+		}
+	
+		div.wrapper div.actions ul ul.filter div.filter_menu span.down {
+			position: absolute;
+			display: block;
+			
+			bottom: 4px;
+			left: 2px;
+			
+			background: rgba(55,77,97,0.8);
+			width: 201px;
+			height: 15px;
+		}
+		
+		div.wrapper div.actions ul ul.filter div.filter_menu a.up {
+			position: absolute;
+			display: block;
+			
+			padding: 3px 0;
+			margin: 0;
+			
+			top: 0px;
+			left: 10px;
+			width: 185px;
+			height: 12px;
+			
+			color: #ccc;
+			text-align: center;
+		}
+	
+		div.wrapper div.actions ul ul.filter div.filter_menu a.down {
+			position: absolute;
+			display: block;
+			
+			padding: 0;
+			margin: 0;
+			
+			bottom: 0px;
+			left: 10px;
+			width: 185px;
+			height: 18px;
+			
+			color: #ccc;
+			text-align: center;
+		}
+	
+	div.wrapper div.actions ul ul.filter div.filter_menu div ul li {
+		width: 200px;
+		padding: 0;
+		margin: 0;
+		
 /*
 		padding-left: 10px;
 		padding-right: 10px;
 		w\idth: 180px;
 */
+
 		border: 0;
-		border-top: 1px dotted #ccc;
+		border-top: 1px dotted #374d61;
+		/*border-bottom: 1px solid #486680; */
 		background: none;
 		color: #999;
 		/* background-image: url("../img/btnBack.png"); */
 	}
-	div.wrapper div.actions ul ul.filter div.filter_menu ul li:hover {
-		/* background-image: url("../img/btnBackSel.png"); */
-	}
 	
-	div.wrapper div.actions ul ul.filter div.filter_menu ul li a {
+	div.wrapper div.actions ul ul.filter div.filter_menu div ul li a {
 		color: #fff;
 		display: none;
 		-moz-border-radius: 0; -webkit-border-radius: 0;
 	}
 
-	div.wrapper div.actions ul ul.filter div.filter_menu ul li.count_0 {
-		border: 0;
+	div.wrapper div.actions ul ul.filter div.filter_menu div ul li.count_0 {
+		border-top: 1px solid #374d61;
 		margin: 0;
 		-moz-border-radius-topleft: 5px; -webkit-border-top-left-radius: 5px;
 	}
-	div.wrapper div.actions ul ul.filter div.filter_menu ul li.count_last_line {
+	div.wrapper div.actions ul ul.filter div.filter_menu div ul li.count_last_line {
 		margin: 0;
 		-moz-border-radius-bottomleft: 5px; -webkit-border-bottom-left-radius: 5px;
 		-moz-border-radius-bottomright: 5px; -webkit-border-bottom-right-radius: 5px;
 	}
-	div.wrapper div.actions ul ul.filter div.filter_menu ul li a {
+
+		div.wrapper div.actions ul ul.filter div.filter_menu div ul li:hover,
+		div.wrapper div.actions ul ul.filter div.filter_menu div ul li.count_0:hover {
+			/* background-image: url("../img/btnBackSel.png"); */
+			
+			/*
+			border-top: 1px dotted #ccc;
+			border-bottom: 1px dotted #ccc;
+			*/
+		}
+
+	div.wrapper div.actions ul ul.filter div.filter_menu div ul li a {
 		background-color: #486680;
-		line-height: 18px;
+		line-height: 19px;
 		float: none;
 		display: block;
 		text-transform: none;
@@ -361,8 +498,9 @@ div.wrapper div.actions {
 		font-size: 11px;
 		cursor: pointer;
 	}
-	div.wrapper div.actions ul ul.filter div.filter_menu ul li a:hover {
-		background-color: #293B49;
+	
+	div.wrapper div.actions ul ul.filter div.filter_menu div ul li a:hover {
+		background-color: #283b4a;
 		color: #fff;
 	}
 	
@@ -454,7 +592,10 @@ div#menu {
 
 div.menu.level_0 {
 	position: relative;
-	z-index: 20;
+
+	/*
+		z-index: 20;
+	*/
 	
 	list-style-type: none;
 	padding: 0;
@@ -550,6 +691,8 @@ div.menu.level_1 {
 	border: 0;
 	-moz-border-radius-bottomleft: 5px; -webkit-border-bottom-left-radius: 5px;
 	-moz-border-radius-bottomright: 5px; -webkit-border-bottom-right-radius: 5px;
+	
+	z-index: 100;
 }
 	div.menu li.count_0 div.menu.level_1 {
 		background: #486680;
@@ -635,24 +778,36 @@ div.menu ul#summary li span:not(.untranslated) {
 		-moz-border-radius-topleft: 7px; -webkit-border-top-left-radius: 7px;
 		-moz-border-radius-topright: 7px; -webkit-border-top-right-radius: 7px;
 	*/
-	z-index: 30;
+	
+	/*
+		z-index: 30;
+	*/
 }
+
+	/*
 	div.menu ul#summary li:hover ul {
 		display: block;
 	}
+	*/
+	
 	div.menu ul#summary li:hover span {
 		color: #fff;
 	}
+	
 div.menu ul#summary li ul {
 	display: none;
-	top: 40px;
+	top: 50px;
 	right: 20px;
 	position: absolute;
 	background: #293B49;
 	margin: 0;
 	padding: 10px;
+	z-index: 1000;
 	-moz-border-radius: 7px; -webkit-border-radius: 7px;
-	z-index: 20;
+	
+	/*
+		z-index: 20;
+	*/
 }	
 	div.menu ul#summary ul li:not(.list_header) {
 		width: 300px;
@@ -757,7 +912,7 @@ span.help:hover {
 			-moz-border-radius: 15px; -webkit-border-radius: 15px;
 			-moz-border-radius-topright: 0; -webkit-border-top-right-radius: 0;
 		
-			z-index: 6;
+			z-index: 200;
 		}
 		div.wrapper span.help div p {
 			margin: 0 0 1em 0;
@@ -1579,6 +1734,24 @@ div.wrapper table.structure td .databrowser td .info td{
 
 .databrowser td.identification div.container{
 	background-image: url(../img/icons/identifiers_16x16.png);
+}
+.databrowser td.aliquot.uses div.container{
+	background-image: url(../img/icons/aliquotUse_16x16.png);
+}
+.databrowser td.consents div.container{
+	background-image: url(../img/icons/consent_16x16.png);
+}
+.databrowser td.diagnosis div.container{
+	background-image: url(../img/icons/xray_16x16.png);
+}
+.databrowser td.treatments div.container{
+	background-image: url(../img/icons/seringue_16x16.png);
+}
+.databrowser td.family.histories div.container{
+	background-image: url(../img/icons/family_16x16.png);
+}
+.databrowser td.quality.controls div.container{
+	background-image: url(../img/icons/qualityControl_16x16.png);
 }
 
 .databrowser div.info{

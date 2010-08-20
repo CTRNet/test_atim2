@@ -21,7 +21,10 @@ class DrugsController extends DrugAppController {
 		if ( $this->data ) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions();
 		
 		$this->data = $this->paginate($this->Drug, $_SESSION['ctrapp_core']['search']['criteria']);
-		
+
+		// MANAGE FORM, MENU AND ACTION BUTTONS
+		$this->set( 'atim_menu', $this->Menus->get('/drug/drugs/index/') );	
+				
 		// if SEARCH form data, save number of RESULTS and URL
 		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['Drug']['count'];
 		$_SESSION['ctrapp_core']['search']['url'] = '/drug/drugs/search';

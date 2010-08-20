@@ -177,16 +177,10 @@ class MasterDetailBehavior extends ModelBehavior {
 	// make all SETTINGS into individual VARIABLES, with the KEYS as names
 		extract($this->__settings[$model->alias]);
 		
-		$valid = true;
-		
 		if ( $is_master_model ) {
 			
 			$use_form_alias = NULL;
 			$use_table_name = NULL;
-			
-			// import STRUCTURE model, to get validation rules from
-			App::import('model', 'Structure');
-			$this->Component_Structure = new Structure;
 			
 			if ( isset($model->data[$master_class][$control_foreign]) && $model->data[$master_class][$control_foreign] ) {
 				// use CONTROL_ID to get control row
@@ -200,28 +194,19 @@ class MasterDetailBehavior extends ModelBehavior {
 			$use_table_name = $associated[$control_class][$detail_field];
 			
 			if ( $use_form_alias ) {
-				
-				$result = $this->Component_Structure->find('rules',
-						array(
-							'conditions'	=>	array( 'Structure.alias' => $use_form_alias ), 
-							'recursive'		=>	5
-						)
-				);
-				foreach ( $result as $m=>$rules ){
-					$detail_class_instance = new AppModel( array('table'=>$use_table_name, 'name'=>$detail_class, 'alias'=>$detail_class) );
-					$detail_class_instance->validate = $rules;
+				$detail_class_instance = new AppModel( array('table'=>$use_table_name, 'name'=>$detail_class, 'alias'=>$detail_class) );
+				if(isset(AppController::getInstance()->{$detail_class})){
+					$detail_class_instance->validate = AppController::getInstance()->{$detail_class}->validate;
 					$detail_class_instance->set($model->data);
-					
 					$valid_detail_class = $detail_class_instance->validates();
-					$valid = $valid_detail_class && $valid;
-					
 					if ( !$valid_detail_class ){
-						$model->validationErrors = array_merge($model->validationErrors,$detail_class_instance->validationErrors);
+						$model->validationErrors = array_merge($model->validationErrors, $detail_class_instance->validationErrors);
 					}
 				}
 			}
 		}
-		return $valid;
+		//always continue. Even if errors exists in detail, we need to validate master
+		return true;
 	}
 	
 }
