@@ -1604,8 +1604,12 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ("consents", "Consents", "Consentements"),
 ("treatments", "Treatments", "Traitements"),
 ("family histories", "Family histories", "Historiques familiale"),
-("participant messages", "Participant messages", "Messages des participants");
-
-insert ignore into i18n (id,en,fr)
-values ('undo', 'Undo', 'annuler');
-
+("participant messages", "Participant messages", "Messages des participants"),
+("select an element to start browsing with", "Select an element to start browsing with", "Sélectionnez un élément sur lequel démarrer la naviguation"),
+("enter search parameters", "Enter search parameters", "Entrez les critères de recherche"),
+("browsing", "Browsing", "Navigation"),
+("displaying search results", "Displaying search results", "Affichage des résultats de la recherche"),
+("direct access", "Direct access", "Accès direct"),
+("drilldown", "Drilldown", "Filtre"),
+("that user is disabled", "That user is disabled", "Cet utilisateur est désactivé"),
+('undo', 'Undo', 'annuler');
