@@ -1314,7 +1314,7 @@ class StructuresHelper extends Helper {
 						
 					$display_value_raw = $data[ $field['StructureField']['model'] ][ $field['StructureField']['field'] ];
 					if(!is_array($display_value_raw)){
-						$display_value_raw = array("" => $display_value_raw);
+						$display_value_raw = array(NULL => $display_value_raw);
 					}
 					foreach($display_value_raw as $display_value_key => $display_value){
 							// swap out VALUE for OVERRIDE choice for SELECTS, NO TRANSLATION 
@@ -1475,7 +1475,7 @@ class StructuresHelper extends Helper {
 						}
 				}
 				if(isset($table_index[ $field['display_column'] ][ $row_count ]['content'][""])){
-					$table_index[ $field['display_column'] ][ $row_count ]['content'] = $table_index[ $field['display_column'] ][ $row_count ]['content']; 
+					$table_index[ $field['display_column'] ][ $row_count ]['content'] = $table_index[ $field['display_column'] ][ $row_count ]['content'][""]; 
 				}
 				// get INPUT for FORM
 					$current_table_index = $table_index[$field['display_column']][$row_count];
@@ -1735,8 +1735,7 @@ class StructuresHelper extends Helper {
 							}
 								
 							// if existing DATA VALUE does not exist in the SELECT OPTIONS, add EXISTING DATA into the options using OPTGROUP to make the addition clear
-								$test_subject = $this->data[$field['StructureField']['model']][$field['StructureField']['field']]; 
-								if ( isset($test_subject) && !is_array($test_subject) && !array_key_exists($this->data[$field['StructureField']['model']][$field['StructureField']['field']],$html_element_array['options']) ) {
+								if ( isset($this->data[$field['StructureField']['model']][$field['StructureField']['field']]) && !is_array($this->data[$field['StructureField']['model']][$field['StructureField']['field']]) && !array_key_exists($this->data[$field['StructureField']['model']][$field['StructureField']['field']],$html_element_array['options']) ) {
 									
 									$html_element_array['options'] = array(
 										html_entity_decode( __( 'Supported Value', true ), ENT_QUOTES, "UTF-8" ) => $html_element_array['options'],
