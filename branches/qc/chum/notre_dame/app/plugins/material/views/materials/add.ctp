@@ -2,7 +2,7 @@
 	$structure_links = array(
 		'top'=>'/material/materials/add/',
 		'bottom'=>array(
-			'cancel'=>'/material/materials/listall/'
+			'cancel'=>'/material/materials/index/'
 		)
 	);
 	

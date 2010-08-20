@@ -1,6 +1,6 @@
 <?php
 
-class ParticipantMessage extends ClinicalAnnotationAppModel {
+class ParticipantMessage extends ClinicalannotationAppModel {
     
 	function summary($variables=array()) {
 		$return = false;

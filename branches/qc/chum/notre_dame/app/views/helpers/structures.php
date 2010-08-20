@@ -132,7 +132,7 @@ class StructuresHelper extends Helper {
 				if ( !is_array($options['settings']['header']) ) {
 					$options['settings']['header'] = array(
 						'title'			=> $options['settings']['header'],
-						'description'	=> '('.__('no description provided',true).')'
+						'description'	=> ''
 					);
 				}
 				
@@ -1246,6 +1246,12 @@ class StructuresHelper extends Helper {
 						';
 					}
 					*/
+				}else if($row_count == 0){
+					//we need to initializse some $table_indexes
+					$table_index[ $field['display_column'] ][ $row_count ]['plain'] = '';
+					$table_index[ $field['display_column'] ][ $row_count ]['tag'] = '';
+					$table_index[ $field['display_column'] ][ $row_count ]['content'] = '';
+					$table_index[ $field['display_column'] ][ $row_count ]['input'] = '';
 				}
 				
 				// display TAG, sub label, use FIELD's TAG, or use FORMAT's TAG if override FLAG is set
@@ -1384,23 +1390,6 @@ class StructuresHelper extends Helper {
 							} else if ( $field['StructureField']['type']=='date' || $field['StructureField']['type']=='datetime' ) {
 								
 								if ( !is_array($display_value) ) {
-								
-									// some older/different versions of PHP do not have cal_info() function, so manually build expected month array
-										$cal_info = array(
-											1 => 'Jan',
-							            2 => 'Feb',
-							            3 => 'Mar',
-							            4 => 'Apr',
-							            5 => 'May',
-							            6 => 'Jun',
-							            7 => 'Jul',
-							            8 => 'Aug',
-							            9 => 'Sep',
-							            10 => 'Oct',
-							            11 => 'Nov',
-							            12 => 'Dec'
-							         );
-										
 									// format date STRING manually, using PHP's month name array, becuase of UnixTimeStamp's 1970 - 2038 limitation
 									
 										$calc_date_string = explode( ' ', $display_value );
@@ -1425,26 +1414,12 @@ class StructuresHelper extends Helper {
 								
 										
 									// format month INTEGER into an abbreviated month name, lowercase, to use for translation alias
-									
-										$calc_date_string_month = intval($calc_date_string[1]);
-										$calc_date_string_month = $cal_info[ $calc_date_string_month ];
-										$calc_date_string_month = strtolower( $calc_date_string_month );
-										$calc_date_string_month = __( $calc_date_string_month, true );
 										
 										$calc_date_day = $calc_date_string[2];
-										
+										$calc_date_month = $calc_date_string[1];
 										$calc_date_year = $calc_date_string[0];
 										
-										$calc_date_divider =  $options['type']!='csv' ? '&nbsp;' : ' ';
-										
-										// format DATE based on DATE CONFIG, with nice translated month name  �, ��, �
-										if ( date_format=='MDY' ) {
-											$display_value = $calc_date_string_month.$calc_date_divider.$calc_date_day.$calc_date_divider.$calc_date_year;
-										} else if ( date_format=='YMD' ) {
-											$display_value = $calc_date_year.$calc_date_divider.$calc_date_string_month.$calc_date_divider.$calc_date_day;
-										} else { // default of DATE_FORMAT=='DMY'
-											$display_value = $calc_date_day.$calc_date_divider.$calc_date_string_month.$calc_date_divider.$calc_date_year;
-										}
+										$display_value = AppController::getFormatedDateString($calc_date_year, $calc_date_month, $calc_date_day, $options['type']!='csv');										
 										
 									if ( $field['StructureField']['type']=='datetime' ) {
 										
@@ -1491,13 +1466,16 @@ class StructuresHelper extends Helper {
 					// var for html helper array
 					$html_element_array = array();
 					$html_element_array['class'] = '';
-					if(isset($data[$current_table_index['model']]) && isset($data[$current_table_index['model']][$current_table_index['field']])){
-						if($table_index[ $field['display_column'] ][$row_count]['type'] == 'select'){
-							$html_element_array['selected'] = $data[$current_table_index['model']][$current_table_index['field']];
-						}else if($table_index[ $field['display_column'] ][$row_count]['type'] == "datetime"){
-							$html_element_array['value'] = StructuresHelper::datetime_to_array($data[$current_table_index['model']][$current_table_index['field']]);
+					
+					//set default value
+					//we use $field['StructureField'] instead of $table_index as there might be more than a field in the same $table_row
+					if(isset($data[$field['StructureField']['model']]) && isset($data[$field['StructureField']['model']][$field['StructureField']['field']])){
+						if($field['StructureField']['type'] == 'select'){
+							$html_element_array['selected'] = $data[$field['StructureField']['model']][$field['StructureField']['field']];
+						}else if($field['StructureField']['type'] == "datetime" && !is_array($data[$field['StructureField']['model']][$field['StructureField']['field']])){
+							$html_element_array['value'] = StructuresHelper::datetime_to_array($data[$field['StructureField']['model']][$field['StructureField']['field']]);
 						}else{
-							$html_element_array['value'] = $data[$current_table_index['model']][$current_table_index['field']];
+							$html_element_array['value'] = $data[$field['StructureField']['model']][$field['StructureField']['field']];
 						}
 					}
 					$html_element_array['tabindex'] = $options['settings']['tabindex'] * 10 + $field_count;
@@ -1554,8 +1532,11 @@ class StructuresHelper extends Helper {
 					$html_element_array['type'] = $field['StructureField']['type'];
 					
 					
-					// set error class, based on validators helper info 
-					if ( isset($this->validationErrors[ $field['StructureField']['model'] ][ $field['StructureField']['field'] ]) ) $html_element_array['class'] .= 'error ';
+					// set error class, based on validators helper info
+					 $master_model_name = str_replace("Detail", "Master", $field['StructureField']['model']);//errors are all in master
+					if ( isset($this->validationErrors[$master_model_name][ $field['StructureField']['field'] ]) ){
+						$html_element_array['class'] .= 'error ';
+					}
 					
 					if ( isset($field['flag_'.$options['type'].'_readonly']) && $field['flag_'.$options['type'].'_readonly'] && $options['type']!='search' ) {
 						$html_element_array['disabled'] = 'disabled';
@@ -1729,6 +1710,18 @@ class StructuresHelper extends Helper {
 								}
 								
 							}
+								
+							// if existing DATA VALUE does not exist in the SELECT OPTIONS, add EXISTING DATA into the options using OPTGROUP to make the addition clear
+								if ( isset($this->data[$field['StructureField']['model']][$field['StructureField']['field']]) && $this->data[$field['StructureField']['model']][$field['StructureField']['field']] && !array_key_exists($this->data[$field['StructureField']['model']][$field['StructureField']['field']],$html_element_array['options']) ) {
+									
+									$html_element_array['options'] = array(
+										html_entity_decode( __( 'Supported Value', true ), ENT_QUOTES, "UTF-8" ) => $html_element_array['options'],
+										html_entity_decode( __( 'Unmatched Value', true ), ENT_QUOTES, "UTF-8" ) => array(
+											$this->data[$field['StructureField']['model']][$field['StructureField']['field']] => $this->data[$field['StructureField']['model']][$field['StructureField']['field']]
+										)
+									);
+									
+								}
 							
 							break;
 							
@@ -1795,14 +1788,13 @@ class StructuresHelper extends Helper {
 									$datetime_array = array();
 									if ( isset($options['override'][$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]) ) {
 										$datetime_array = StructuresHelper::datetime_to_array($options['override'][$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]);
-									}else if(isset($html_element_array['value'])){
-										$datetime_array = $html_element_array['value'];
+									}else if(isset($html_element_array['value']) && $html_element_array['value'] != "NULL"){
+										$datetime_array = (is_array($html_element_array['value']) ? $html_element_array['value'] : StructuresHelper::datetime_to_array($html_element_array['value']));
 									}else if(isset($this->data) && !empty($this->data) && !isset($this->data[0])&& isset($this->data[$field['StructureField']['model']][$field['StructureField']['field']]) && gettype($this->data[$field['StructureField']['model']][$field['StructureField']['field']]) == "Array"){
 										$datetime_array = $this->data[$field['StructureField']['model']][$field['StructureField']['field']];
 									}
 									$display_value .= $this->get_date_fields($model_prefix, $model_suffix, $field['StructureField'],
 									$html_element_array, $model_prefix_css, $model_suffix_css, "", $datetime_array);
-										
 								}
 
 								$use_cakephp_form_helper = FALSE;
@@ -2155,8 +2147,10 @@ class StructuresHelper extends Helper {
 				$links_append = '
 							<a class="form popup" href="javascript:return false;">'.__($link_name, TRUE).'</a>
 							<!-- container DIV for JS functionality -->
-							<div class="filter_menu">
-								<ul>
+							<div class="filter_menu'.( count($link_results)>7 ? ' scroll' : '' ).'">
+								
+								<div>
+									<ul>
 				';
 				
 				$count = 0;
@@ -2167,16 +2161,32 @@ class StructuresHelper extends Helper {
 						$class_last_line = " count_last_line";
 					}
 					$links_append .= '
-									<li class="count_'.$count.$class_last_line.'">
-										'.$link_location.'
-									</li>
+										<li class="count_'.$count.$class_last_line.'">
+											'.$link_location.'
+										</li>
 					';
 					
 					$count++;
 				}
 				
 				$links_append .= '
-								</ul>
+									</ul>
+								</div>
+				';
+				
+				if ( count($link_results)>7 ) {
+					$links_append .= '
+								<span class="up"></span>
+								<span class="down"></span>
+								
+								<a href="#" class="up">&uarr;</a>
+								<a href="#" class="down">&darr;</a>
+					
+					';
+				}
+				
+				$links_append .= '
+								<span class="arrow"></span>
 							</div>
 				';
 				
@@ -2593,7 +2603,7 @@ class StructuresHelper extends Helper {
 		
 		$date .= '<span style="position: relative;">
 				<input type="button" id="'.$model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix.'_button" class="datepicker" value=""/>
-				<img src="'.$this->webroot.'/img/cal.gif" alt="cal" class="fake_datepicker"/>
+				<img src="'.$this->Html->Url('/img/cal.gif').'" alt="cal" class="fake_datepicker"/>
 			</span>';
 		
 		if ( $structure_field['type']=='datetime' ) {

@@ -1,4 +1,96 @@
-var availableTags = ["c++", "java", "php", "coldfusion", "javascript", "asp", "ruby", "python", "c", "scala", "groovy", "haskell", "perl"];
+function initSummary(){
+	var open = function(){
+		var summary_hover = $(this);
+		var summary_popup = summary_hover.find('ul');
+		var summary_label = summary_hover.find('span');
+		if ( summary_popup.length>0 ) {
+			summary_popup.stop(true, true).slideDown(100);
+		}
+	};
+	var close = function(){
+		var summary_hover = $(this);
+		var summary_popup = summary_hover.find('ul');
+		var summary_label = summary_hover.find('span');
+		if ( summary_popup.length>0 ) {
+			summary_popup.delay(101).slideUp(100);
+		}
+	};
+	$('#menu #summary').hover(open, close);
+}
+
+//Slide down animation for action menu. Kills other displayed action menus
+var actionMenuShow = function(){
+	var action_hover = $(this);
+	var action_popup = action_hover.find('div.filter_menu');
+	if ( action_popup.length > 0 ) {
+		//kill other menus
+		$('div.actions ul ul.filter li div.filter_menu').stop(true, true).hide();
+		//show current menu
+		action_popup.stop(true, true).slideDown(100);
+	}
+};
+	
+//Slide up animation for action menu.
+var actionMenuHide = function(){
+	var action_hover = $(this);
+	var action_popup = action_hover.find('div.filter_menu');
+	if ( action_popup.length>0 ) {
+		action_popup.delay(101).slideUp(100);
+	}
+};
+
+var actionClickUp = function() {
+	var span_up = $(this);
+	var move_ul = span_up.parent('div.filter_menu').find('ul');
+	
+	var position = move_ul.position();
+	
+	// only scroll if not already at edge...
+	if ( position.top < 0 ) {
+		
+		move_ul.animate(
+			{
+				top: '+=203'
+			},
+			150,
+			'linear'
+		);
+		
+	}
+	
+	return false;
+};
+
+var actionClickDown = function() {
+	
+	var span_up = $(this);
+	var move_ul = span_up.parent('div.filter_menu').find('ul');
+	
+	var position = move_ul.position();
+	
+	
+	// only scroll if not already at edge...
+	if ( (position.top - 203) > (-1 * move_ul.height()) ) {
+		move_ul.animate(
+			{
+				top: '-=203'
+			},
+			150,
+			'linear'
+		);
+	}
+	
+	return false;
+};
+
+/**
+ * Inits actions bars (main one and ajax loaded ones). Unbind the actions before rebinding them to avoid duplicate bindings
+ */
+function initActions(){
+	$('div.actions ul ul.filter li').unbind('mouseenter', actionMenuShow).unbind('mouseleave', actionMenuHide).bind('mouseenter', actionMenuShow).bind('mouseleave', actionMenuHide);
+	$('#wrapper div.actions ul ul.filter div a.down').unbind('click', actionClickDown).click(actionClickDown);
+	$('#wrapper div.actions ul ul.filter div a.up').unbind('click', actionClickUp).click(actionClickUp);
+}
 
 function checkAll( $div ) {
 	
@@ -271,6 +363,39 @@ function uncheckAll( $div ) {
 		});
 	}
 	
+	function initAliquotVolumeCheck(){
+		$(".form.submit").unbind('click').attr("onclick", "return false;");
+		$(".form.submit").click(function(){
+			var denom = $("#AliquotMasterCurrentVolume").val().replace(/,/g, ".");
+			var nom = $("#AliquotUseUsedVolume").val().replace(/,/g, ".");
+			if(nom.length > 0 && nom > denom){
+				$("#popup").popup();
+			}else{
+				$("#submit_button").click();
+			}
+			return false;
+		});
+
+		$(".button.confirm").click(function(){
+			$("#submit_button").click();
+		});
+		$(".button.close").click(function(){
+			$("#popup").popup('close');
+		});
+	}
+	
+	function refreshTopBaseOnAction(){
+		$("form").attr("action", root_url + actionControl + $("#0Action").val());
+	}
+	
+	function initActionControl(actionControl){
+		$($(".adv_ctrl.btn_add_or")[1]).parent().parent().find("select").change(function(){
+			refreshTopBaseOnAction(actionControl);
+		});
+		$(".adv_ctrl.btn_add_or").remove();
+		refreshTopBaseOnAction(actionControl);
+	}
+	
 	function getParentElement(currElement, parentName){
 		do{
 			currElement = $(currElement).parent();
@@ -280,6 +405,22 @@ function uncheckAll( $div ) {
 	}
 	
 	function initJsControls(){
+		if(typeof(storageLayout) != 'undefined'){
+			initStorageLayout();
+		}
+		if(typeof(browser) != 'undefined'){
+			initBrowser();
+		}
+		if(typeof(copyControl) != 'undefined'){
+			initCopyControl();
+		}
+		if(typeof(aliquotVolumeCheck) != 'undefined'){
+			initAliquotVolumeCheck();
+		}
+		if(typeof(actionControl) != 'undefined'){
+			initActionControl(actionControl);
+		}
+		
 		//field highlighting
 		if($("#table1row0").length == 1){
 			//gridview
@@ -316,10 +457,16 @@ function uncheckAll( $div ) {
 		initAutocomplete();
 		initAdvancedControls();
 		initTooltips();
+		initActions();
+		initSummary();
 		
 		//calendar controls
 		$.datepicker.setDefaults($.datepicker.regional[locale]);
 		$(".datepicker").each(function(){
 			initDatepicker(this);
 		});
+	}
+
+	function debug(str){
+//		$("#debug").append(str + "<br/>");
 	}
