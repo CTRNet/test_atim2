@@ -8,9 +8,7 @@ if(isset($submit) && $submit){
 	$structures->build($atim_structure, array("type" => "search", "links" => $links, "override" => $override));
 	?>
 	<script type="text/javascript">
-	<script type="text/javascript">
 	var actionControl = "<?php echo($top); ?>";
-	</script>
 	</script>
 	<?php
 }else{
