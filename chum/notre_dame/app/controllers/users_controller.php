@@ -19,7 +19,12 @@ class UsersController extends AppController {
 			$_SESSION['Auth']['Group'] = $data['Group'];
 			$this->redirect($this->Auth->loginRedirect);
 		}else if(!empty($this->data)){
-			$this->User->validationErrors[] = "Login failed. Invalid username or password.";
+			$tmp = $this->User->find('first', array('conditions' => array('User.username' => $this->data['User']['username'])));
+			if(!empty($tmp) && !$tmp['User']['flag_active']){
+				$this->User->validationErrors[] = "that user is disabled";
+			}else{
+				$this->User->validationErrors[] = "Login failed. Invalid username or password.";
+			}
 		}
 	}
 	

@@ -47,6 +47,7 @@ class StructuresHelper extends Helper {
 				'name_prefix'	=> NULL,
 				'separator'		=> false,
 				'pagination'	=> true,
+				'columns_names' => array(), // columns names - usefull for reports. only works in detail views
 				
 				'all_fields'	=> false, // FALSE acts on structures datatable settings, TRUE ignores them and displays ALL FIELDS in a form regardless
 				'add_fields'	=> false, // if TRUE, adds an "add another" link after form to allow another row to be appended
@@ -270,7 +271,12 @@ class StructuresHelper extends Helper {
 							<td class="this_column_'.$count_columns.' total_columns_'.count($table_index).'"> 
 							
 								<table class="columns detail" cellspacing="0">
-								<tbody>
+						';
+
+						if(!empty($options['settings']['columns_names'])){
+							$return_string .= '<thead><tr><td></td><th>'.implode("</th><th>", $options['settings']['columns_names']).'</th></tr></thead>';
+						}
+						$return_string .= '		<tbody>
 						';
 					
 						// each row in column 
@@ -297,11 +303,24 @@ class StructuresHelper extends Helper {
 										<td class="label'.( !$table_row_count && !$table_row['heading'] ? ' no_border' : '' ).'">
 											'.$table_row['label'].'
 										</td>
-										<td class="content'.( $table_row['empty'] ? ' empty' : '' ).( !$table_row_count && !$table_row['heading'] ? ' no_border' : '' ).'">
-											'.( $options['links']['top'] && $options['settings']['form_inputs'] ? $table_row['input'] : $table_row['content'] ).'
-											'.$tmp_advanced.'
-										</td>
 							';
+							
+							$td_open = '<td class="content'.( $table_row['empty'] ? ' empty' : '' ).( !$table_row_count && !$table_row['heading'] ? ' no_border' : '' ).'">';
+							if(!empty($options['settings']['columns_names'])){
+								if(is_array($table_row['content'])){
+									foreach($options['settings']['columns_names'] as $col_name){
+										$return_string .= $td_open.(isset($table_row['content'][$col_name]) ? $table_row['content'][$col_name] : "")."</td>"; 
+									}
+								}else{
+									$return_string .= str_repeat($td_open."</td>", count($options['settings']['columns_names']));
+								}
+							}else{
+								$return_string .= $td_open											
+												.( $options['links']['top'] && $options['settings']['form_inputs'] ? $table_row['input'] : $table_row['content'] ).'
+												'.$tmp_advanced.'
+											</td>
+								';
+							}
 							
 							if ( show_help ) {
 								$return_string .= '
@@ -1291,12 +1310,13 @@ class StructuresHelper extends Helper {
 					
 				// get CONTENT to DISPLAY
 				
-					$display_value = '';
-					
 					// set display VALUE, or NO VALUE indicator 
 						
-						$display_value = $data[ $field['StructureField']['model'] ][ $field['StructureField']['field'] ];
-								
+					$display_value_raw = $data[ $field['StructureField']['model'] ][ $field['StructureField']['field'] ];
+					if(!is_array($display_value_raw)){
+						$display_value_raw = array("" => $display_value_raw);
+					}
+					foreach($display_value_raw as $display_value_key => $display_value){
 							// swap out VALUE for OVERRIDE choice for SELECTS, NO TRANSLATION 
 							if ( isset( $options['override'][ $field['StructureField']['model'].'.'.$field['StructureField']['field'] ] ) ) {
 								
@@ -1448,12 +1468,15 @@ class StructuresHelper extends Helper {
 						$table_index[ $field['display_column'] ][ $row_count ]['plain'] .= str_replace('&nbsp;',' ',$display_value).' ';
 						
 						if ( trim($display_value)!='' ) {
-							$table_index[ $field['display_column'] ][ $row_count ]['content'] .= $table_index[ $field['display_column'] ][ $row_count ]['tag'].$display_value.' ';
+							$table_index[ $field['display_column'] ][ $row_count ]['content'][$display_value_key] = $table_index[ $field['display_column'] ][ $row_count ]['tag'].$display_value.' ';
 						} else {
-							$table_index[ $field['display_column'] ][ $row_count ]['content'] .= $table_index[ $field['display_column'] ][ $row_count ]['tag'].'<span class="empty">&ndash;</span> ';
+							$table_index[ $field['display_column'] ][ $row_count ]['content'][$display_value_key] = $table_index[ $field['display_column'] ][ $row_count ]['tag'].'<span class="empty">&ndash;</span> ';
 							$table_index[ $field['display_column'] ][ $row_count ]['empty']++;
 						}
-					
+				}
+				if(isset($table_index[ $field['display_column'] ][ $row_count ]['content'][""])){
+					$table_index[ $field['display_column'] ][ $row_count ]['content'] = $table_index[ $field['display_column'] ][ $row_count ]['content']; 
+				}
 				// get INPUT for FORM
 					$current_table_index = $table_index[$field['display_column']][$row_count];
 					
@@ -1712,7 +1735,8 @@ class StructuresHelper extends Helper {
 							}
 								
 							// if existing DATA VALUE does not exist in the SELECT OPTIONS, add EXISTING DATA into the options using OPTGROUP to make the addition clear
-								if ( isset($this->data[$field['StructureField']['model']][$field['StructureField']['field']]) && $this->data[$field['StructureField']['model']][$field['StructureField']['field']] && !array_key_exists($this->data[$field['StructureField']['model']][$field['StructureField']['field']],$html_element_array['options']) ) {
+								$test_subject = $this->data[$field['StructureField']['model']][$field['StructureField']['field']]; 
+								if ( isset($test_subject) && !is_array($test_subject) && !array_key_exists($this->data[$field['StructureField']['model']][$field['StructureField']['field']],$html_element_array['options']) ) {
 									
 									$html_element_array['options'] = array(
 										html_entity_decode( __( 'Supported Value', true ), ENT_QUOTES, "UTF-8" ) => $html_element_array['options'],
