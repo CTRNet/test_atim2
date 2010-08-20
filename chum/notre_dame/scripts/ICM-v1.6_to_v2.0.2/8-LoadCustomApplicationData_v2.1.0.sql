@@ -97,6 +97,14 @@ UPDATE protocol_controls SET flag_active = '0';
 
 UPDATE users SET password = 'b23665e49d6bbc824143ba6c09490c781cb94370' WHERE username LIKE 'Liliane';
 
+UPDATE users SET flag_active=true;
 
+-- PROCURE report
+INSERT INTO `atim_nd`.`datamart_reports` (`id`, `name`, `description`, `datamart_structure_id`, `function`, `serialized_representation`, `created`, `created_by`, `modified`, `modified_by`) VALUES 
+(NULL, 'procure consents statistics', '', NULL, 'procure_consent_stat', NULL, '0000-00-00 00:00:00', '', NULL, '');
 
+INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('qc_nd_procure_consent_stats_report', '', '', '1', '1', '1', '1');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_procure_consent_stats_report'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='date_from' AND `language_label`='from' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_procure_consent_stats_report'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='action' AND `language_label`='action' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0');
 
