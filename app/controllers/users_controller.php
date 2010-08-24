@@ -26,11 +26,17 @@ class UsersController extends AppController {
 				$this->User->validationErrors[] = "Login failed. Invalid username or password.";
 			}
 		}
+		if(isset($_SESSION) && isset($_SESSION['Message']) && isset($_SESSION['Message']['auth']['message'])){
+			$this->User->validationErrors[] = __($_SESSION['Message']['auth']['message'], true);
+			unset($_SESSION['Message']['auth']);
+		}else if(isset($_SESSION) && isset($_SESSION['Message']) && isset($_SESSION['Message']['flash']['message'])){
+			$this->User->validationErrors[] = __($_SESSION['Message']['flash']['message'], true);
+			unset($_SESSION['Message']['flash']);
+		}
 	}
 	
 	function logout() {
 		$this->Acl->flushCache();
-		$this->Session->setFlash('Good-Bye');
 		$this->redirect($this->Auth->logout());
 	}
 

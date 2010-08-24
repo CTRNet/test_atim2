@@ -1612,4 +1612,5 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ("direct access", "Direct access", "Accès direct"),
 ("drilldown", "Drilldown", "Filtre"),
 ("that user is disabled", "That user is disabled", "Cet utilisateur est désactivé"),
-('undo', 'Undo', 'annuler');
+('undo', 'Undo', 'annuler'),
+("your session has expired", "Your session has expired", "Votre session est expirée");

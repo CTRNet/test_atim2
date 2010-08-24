@@ -14,6 +14,8 @@ class MenusController extends AppController {
 		
 		// if users NOT logged in, kick out to login screen
 		if ( !(isset($_SESSION) && isset($_SESSION['Auth']) && isset($_SESSION['Auth']['User']) && count($_SESSION['Auth']['User'])) ) {
+			$this->Acl->flushCache();
+			$this->Session->setFlash('your session has expired');
 			$this->redirect($this->Auth->logout());
 		}
 	}
