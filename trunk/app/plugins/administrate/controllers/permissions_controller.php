@@ -79,18 +79,11 @@ class PermissionsController extends AdministrateAppController {
 		$this->set('known_acos',$known_acos);
 		
 		if($this->data){
-			
-			/*
-			echo '<pre>';
-			print_r($this->data);
-			echo '</pre>';
-			*/
-			
 			foreach($this->data as $i => $aco){
 				$this->updatePermission( $aro['Aro']['id'], $aco[$i]['Aco']['id'], intval($aco[$i]['Aco']['state']) );
 			}
-			
-			// exit;
+
+			MenusComponent::clearCache();
 			
 			$this->redirect('/administrate/permissions/tree/'.$group_id.'/'.$user_id);
 			break;
