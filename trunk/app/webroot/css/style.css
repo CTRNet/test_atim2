@@ -246,14 +246,15 @@ div.wrapper div.actions {
 	
 	div.wrapper div.actions div.search-result-div {
 		padding: 0;
-		width: 50px;
 		float: left;
+		min-height: 23px;
 	}
 	
 	div.wrapper div.actions a.search_results {
 		background-position: 7px center;
 		padding: 5px 10px 5px 25px;
 		float: left;
+		min-height: 15px;
 	}
 	
 	div.wrapper div.actions ul ul.filter {
