@@ -1614,3 +1614,12 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ("that user is disabled", "That user is disabled", "Cet utilisateur est désactivé"),
 ('undo', 'Undo', 'annuler'),
 ("your session has expired", "Your session has expired", "Votre session est expirée");
+
+-- user login audit trail
+CREATE TABLE user_login_attempts(
+`id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+`username` VARCHAR(50) NOT NULL DEFAULT '',
+`ip_addr` VARCHAR(15) NOT NULL,
+`succeed` BOOLEAN NOT NULL,
+`attempt_time` TIMESTAMP NOT NULL DEFAULT NOW()
+)Engine=InnoDb;
