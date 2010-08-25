@@ -39,6 +39,7 @@ var actionMenuHide = function(){
 	}
 };
 
+var menuMoveDistance = 174;
 var actionClickUp = function() {
 	var span_up = $(this);
 	var move_ul = span_up.parent('div.filter_menu').find('ul');
@@ -50,7 +51,7 @@ var actionClickUp = function() {
 		
 		move_ul.animate(
 			{
-				top: '+=203'
+				top: '+=' + menuMoveDistance
 			},
 			150,
 			'linear'
@@ -73,7 +74,7 @@ var actionClickDown = function() {
 	if ( (position.top - 203) > (-1 * move_ul.height()) ) {
 		move_ul.animate(
 			{
-				top: '-=203'
+				top: '-=' + menuMoveDistance
 			},
 			150,
 			'linear'
