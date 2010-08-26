@@ -64,10 +64,11 @@ class StructuresComponent extends Object {
 			if(Configure::read('ATiMStructureCache.disable') != 1){
 				$fhandle = fopen($fname, 'w');
 				fwrite($fhandle, serialize($return));
-				flush();
+				fflush($fhandle);
 				fclose($fhandle);
 			}
 		}
+		
 		return $return;
 		
 	}

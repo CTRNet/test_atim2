@@ -47,10 +47,7 @@ class MenusComponent extends Object {
 			$fhandle = fopen($fname, 'r');
 			$return = unserialize(fread($fhandle, filesize($fname)));
 			fclose($fhandle);
-		}
-		
-		else{
-			
+		}else{		
 			if( Configure::read('ATiMMenuCache.disable') ){
 				MenusComponent::clearCache();
 			}
@@ -146,7 +143,7 @@ class MenusComponent extends Object {
 			if( !(Configure::read('ATiMMenuCache.disable')) ){
 				$fhandle = fopen($fname, 'w');
 				fwrite($fhandle, serialize($return));
-				flush();
+				fflush($fhandle);
 				fclose($fhandle);
 			}
 			
