@@ -23,7 +23,8 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ("range", "range", "intervalle"),
 ("specific", "specific", "spécifique"),
 ("no storage", "No storage", "Pas d'entreposage"),
-("invalid decimal separator", "Invalid decimal separator", "Séparateur de décimales invalide");
+("invalid decimal separator", "Invalid decimal separator", "Séparateur de décimales invalide"),
+("if you were logged id, your session has expired.", "If you were logged in, your session has expired", "Si vous étiez connecté, votre session ext expirée");
 
 INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('realiquot_with_volume', '', '', '1', '1', '1', '1');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 

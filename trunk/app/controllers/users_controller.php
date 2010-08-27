@@ -37,11 +37,12 @@ class UsersController extends AppController {
 		
 		//User got returned to the login page, tell him why
 		if(isset($_SESSION) && isset($_SESSION['Message']) && isset($_SESSION['Message']['auth']['message'])){
-			$this->User->validationErrors[] = __($_SESSION['Message']['auth']['message'], true);
+			if($_SESSION['Message']['auth']['message'] == "You are not authorized to access that location."){
+				$this->User->validationErrors[] = __($_SESSION['Message']['auth']['message'], true)." ".__("if you were logged id, your session expired.", true);
+			}else{
+				$this->User->validationErrors[] = __($_SESSION['Message']['auth']['message'], true);
+			}
 			unset($_SESSION['Message']['auth']);
-		}else if(isset($_SESSION) && isset($_SESSION['Message']) && isset($_SESSION['Message']['flash']['message'])){
-			$this->User->validationErrors[] = __($_SESSION['Message']['flash']['message'], true);
-			unset($_SESSION['Message']['flash']);
 		}
 	}
 	
