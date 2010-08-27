@@ -1614,7 +1614,8 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ("drilldown", "Drilldown", "Filtre"),
 ("that user is disabled", "That user is disabled", "Cet utilisateur est désactivé"),
 ('undo', 'Undo', 'annuler'),
-("your session has expired", "Your session has expired", "Votre session est expirée");
+("your session has expired", "Your session has expired", "Votre session est expirée"),
+("that username is disabled", "That username is disabled", "Ce nom d'utilisateur est désactivé");
 
 -- user login audit trail
 CREATE TABLE user_login_attempts(
