@@ -77,10 +77,12 @@ class PermissionsController extends AdministrateAppController {
 		$known_acos = array_combine(Set::extract('Aco.{n}.id',$aro), Set::extract('Aco.{n}.Permission',$aro));
 		$this->set('aro', $aro );
 		$this->set('known_acos',$known_acos);
-		
 		if($this->data){
 			foreach($this->data as $i => $aco){
-				$this->updatePermission( $aro['Aro']['id'], $aco[$i]['Aco']['id'], intval($aco[$i]['Aco']['state']) );
+				$this->updatePermission( 
+				$aro['Aro']['id'], 
+				$aco['Aco']['id'], 
+				intval($aco['Aco']['state']) );
 			}
 
 			MenusComponent::clearCache();
