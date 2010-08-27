@@ -33,6 +33,10 @@ class UsersController extends AppController {
 						"succeed" => false
 			);
 			$this->UserLoginAttempt->save($login_data);
+			$data = $this->User->find('first', array('conditions' => array('User.username' => $this->data['User']['username'])));
+			if(!$data['User']['flag_active']){
+				$this->User->validationErrors[] = __("that username is disabled", true);
+			}
 		}
 		
 		//User got returned to the login page, tell him why
