@@ -1,4 +1,3 @@
-
 /*Table structure for table 'dxd_cap_report_intrahepbileducts' */
 
 DROP TABLE IF EXISTS `dxd_cap_report_intrahepbileducts`;
