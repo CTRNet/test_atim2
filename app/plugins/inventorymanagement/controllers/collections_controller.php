@@ -23,7 +23,14 @@ class CollectionsController extends InventorymanagementAppController {
 	 * DISPLAY FUNCTIONS
 	 * -------------------------------------------------------------------------- */
 	
-	function index() {
+	function index($is_ccl_ajax = false) {
+		if($is_ccl_ajax){
+			//layout = ajax to avoid printing layout
+			$this->layout = 'ajax';
+			//debug = 0 to avoid printing debug queries that would break the javascript array
+			Configure::write('debug', 0);
+			$this->set("is_ccl_ajax", $is_ccl_ajax);
+		}
 		$_SESSION['ctrapp_core']['search'] = null; // clear SEARCH criteria
 		$this->unsetInventorySessionData();
 				
@@ -34,14 +41,33 @@ class CollectionsController extends InventorymanagementAppController {
 		if( $hook_link ) { require($hook_link); }			
 	}
 	
-	function search() {
+	function search($is_ccl_ajax = false) {
+		if($is_ccl_ajax){
+			//layout = ajax to avoid printing layout
+			$this->layout = 'ajax';
+			//debug = 0 to avoid printing debug queries that would break the javascript array
+			Configure::write('debug', 0);
+			$this->set("is_ccl_ajax", $is_ccl_ajax);
+		}
+		
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/collections/index'));
 		
 		$view_collection = $this->Structures->get('form', 'view_collection');
 		$this->set('atim_structure', $view_collection);
 		if ($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions($view_collection);
 		
-		$this->set('collections_data', $this->paginate($this->ViewCollection, $_SESSION['ctrapp_core']['search']['criteria']));
+		if($is_ccl_ajax){
+			$limit = 100;
+			$_SESSION['ctrapp_core']['search']['criteria'][] = "ViewCollection.participant_id IS NULL";
+			$this->data = $this->ViewCollection->find('all', array('conditions' => $_SESSION['ctrapp_core']['search']['criteria'], 'limit' => $limit + 1));
+			if(count($this->data) > $limit){
+				unset($this->data[$limit]);
+				$this->set("overflow", true);
+			}
+			$this->set('collections_data', $this->data);
+		}else{
+			$this->set('collections_data', $this->paginate($this->ViewCollection, $_SESSION['ctrapp_core']['search']['criteria']));
+		}
 		$this->data = array();
 		
 		// if SEARCH form data, save number of RESULTS and URL

@@ -233,9 +233,9 @@ function uncheckAll( $div ) {
 	/**
 	 * Advanced controls are search OR options and RANGE buttons
 	 */
-	function initAdvancedControls(){
+	function initAdvancedControls(scope){
 		//for each add or button
-		$(".btn_add_or").each(function(){
+		$(scope + " .btn_add_or").each(function(){
 			var $field = $(this).parent().parent().find("span:first");
 			if($($field).find("input, select").length == 1){
 				$($field).find("input, select").each(function(){
@@ -283,11 +283,11 @@ function uncheckAll( $div ) {
 			}
 		});
 		
-		$(".range").each(function(){
+		$(scope + " .range").each(function(){
 			//uses .btn_add_or to know if this is a search form and if advanced controls are on
 			$(this).parent().parent().find(".btn_add_or").parent().append(" <a href='#' class='range_btn'>(" + STR_RANGE + ")</a>");
 		});
-		$(".range_btn").toggle(function(){
+		$(scope + " .range_btn").toggle(function(){
 			var cell = getParentElement(this, "TD");
 			$(cell).find("input").val("");
 			if($(cell).find(".range_span").length == 0){
@@ -421,6 +421,9 @@ function uncheckAll( $div ) {
 		if(typeof(actionControl) != 'undefined'){
 			initActionControl(actionControl);
 		}
+		if(typeof(ccl) != 'undefined'){
+			initCcl();
+		}
 		
 		//field highlighting
 		if($("#table1row0").length == 1){
@@ -456,7 +459,7 @@ function uncheckAll( $div ) {
 		});
 		
 		initAutocomplete();
-		initAdvancedControls();
+		initAdvancedControls("");
 		initTooltips();
 		initActions();
 		initSummary();
