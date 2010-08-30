@@ -137,7 +137,7 @@ class ReportsController extends DatamartAppController {
 			$date_from = $data['date_from_start']['year']."-".$data['date_from_start']['month']."-01 00:00:00";
 			$date_to = $data['date_from_end']['year']."-".$data['date_from_end']['month']."-".$data['date_from_end']['day']." 23:59:59";
 			if(!preg_match(VALID_DATETIME_YMD, $date_from) || !preg_match(VALID_DATETIME_YMD, $date_to)){
-				$this->ConsentMaster->validationErrors[] = "error in the date definitions";
+				$this->ConsentMaster->validationErrors[] = __('a date range is required', TRUE);
 				$load_form = true;
 			}else{
 				//show stats
@@ -167,7 +167,7 @@ class ReportsController extends DatamartAppController {
 			$this->set("submit", true);
 		}
 	}
-	
+
 	function samples_by_type($csv = false){
 		App::import('Model', 'Inventorymanagement.SampleMaster');
 		$this->SampleMaster = new SampleMaster();
@@ -177,11 +177,11 @@ class ReportsController extends DatamartAppController {
 			$date_from = $data['date_from_start']['year']."-".$data['date_from_start']['month']."-".$data['date_from_start']['day']." 00:00:00";
 			$date_to = $data['date_from_end']['year']."-".$data['date_from_end']['month']."-".$data['date_from_end']['day']." 23:59:59";
 			if(!preg_match(VALID_DATETIME_YMD, $date_from) || !preg_match(VALID_DATETIME_YMD, $date_to)){
-				$this->SampleMaster->validationErrors[] = "error in the date definitions";
+				$this->SampleMaster->validationErrors[] = __('a date range is required', TRUE);
 				$load_form = true;
 			}else{
 				//show stats
-				$this->data = array(); //clear this data to have a clena CSV if needed
+				$this->data = array(); //clear this data to have a clean CSV if needed
 				$this->set("my_data", $this->SampleMaster->find('all', array(
 					'fields' => array("COUNT(*) AS c", "SampleMaster.sample_type AS sample_type"),
 					'conditions' => array("SampleMaster.created BETWEEN '".$date_from."' AND '".$date_to."'"),
