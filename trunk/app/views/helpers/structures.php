@@ -1408,7 +1408,7 @@ class StructuresHelper extends Helper {
 								// set ZERO date fields to blank
 								$display_value = '';
 								
-							} else if ( $field['StructureField']['type']=='date' || $field['StructureField']['type']=='datetime' ) {
+							} else if ( ($field['StructureField']['type']=='date' || $field['StructureField']['type']=='datetime') && strpos($display_value, " ") !== false) {
 								
 								if ( !is_array($display_value) ) {
 									// format date STRING manually, using PHP's month name array, becuase of UnixTimeStamp's 1970 - 2038 limitation
