@@ -1572,7 +1572,7 @@ class StructuresHelper extends Helper {
 						$html_element_array['class'] .= 'error ';
 					}
 					
-					if ( isset($field['flag_'.$options['type'].'_readonly']) && $field['flag_'.$options['type'].'_readonly'] && $options['type']!='search' ) {
+					if (isset($field['flag_'.$options['type'].'_readonly']) && $field['flag_'.$options['type'].'_readonly']) {
 						$html_element_array['disabled'] = 'disabled';
 						$html_element_array['readonly'] = 'readonly';
 						$html_element_array['class'] .= 'readonly ';
