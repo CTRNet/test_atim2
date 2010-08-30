@@ -1635,3 +1635,20 @@ CREATE TABLE cake_sessions (
   expires int(11) default NULL,
   PRIMARY KEY  (id)
 );
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+('reports', 'Reports', ''),
+('a date range is required', 'A date range is required.', ''),
+('visualize', 'Visualize', ''),
+('activity report index', 'Activity Report Index', ''),
+('activity report index description', 'Below is a list of common reports banks may wish to run for informational and management purposes.', ''),
+('report title', 'Report Title', ''),
+('obtained consents', 'Obtained Consents', ''),
+('consents by month', 'Consents by Month', ''),
+('consents by month description', 'Returns a count of all consents captured over the date range specified grouped by month.', '');
+
+UPDATE `i18n` SET `en` = 'Data Browser', `fr` = 'Navigateur de Données'
+WHERE `id` = 'data browser';
+
+UPDATE `structure_fields` SET `language_label` = 'title'
+WHERE `structure_fields`.`tablename` = 'datamart_reports' AND `structure_fields`.`field` = 'name';
