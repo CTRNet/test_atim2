@@ -67,6 +67,7 @@
 	echo $javascript->link('storage_layout')."\n";
 	echo $javascript->link('browser')."\n";
 	echo $javascript->link('copyControl')."\n";
+	echo $javascript->link('ccl')."\n";
 	?>
 	
 	<script type="text/javascript">

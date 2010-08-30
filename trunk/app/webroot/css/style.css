@@ -277,11 +277,6 @@ div.wrapper div.actions {
 		margin-top: -4px;
 	}
 	
-	div.wrapper div.actions ul ul.filter li a.form.popup {
-		
-	}
-	
-	
 /*===========================================================*
 	-= popup filter menu 
 *===========================================================*/
@@ -1412,13 +1407,13 @@ div.wrapper table.structure table.columns td a.not_allowed {
 		padding-top: 10px;
 	}
 	
-		div#validation li {
+		div#validation li, ul.error li {
 			padding: 0.5em 1em;
 			-moz-border-radius: 5px; -webkit-border-radius: 5px;
 			color: #fff;
 		}
 		
-		div#validation ul.error li {
+		ul.error li {
 			background-color: #933;
 		}
 	
@@ -1810,3 +1805,14 @@ input.datepicker[type=button]{
 	width: 1px;
 	height: 1px;	
 }
+
+fieldset.submit{
+	background-color: #f2f2ff;
+	text-align: left;	
+}
+
+ul.error{
+	border: solid black;
+	border-width: 0 1px 0 1px;
+}
+
