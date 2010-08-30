@@ -1652,3 +1652,116 @@ WHERE `id` = 'data browser';
 
 UPDATE `structure_fields` SET `language_label` = 'title'
 WHERE `structure_fields`.`tablename` = 'datamart_reports' AND `structure_fields`.`field` = 'name';
+
+-- Profile help field updates
+UPDATE `structure_fields` SET `language_help` = 'help_name_title' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'participants' AND `field` = 'title';
+
+UPDATE `structure_fields` SET `language_help` = 'help_first_name' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'participants' AND `field` = 'first_name';
+
+UPDATE `structure_fields` SET `language_help` = 'help_middle_name' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'participants' AND `field` = 'middle_name';
+
+UPDATE `structure_fields` SET `language_help` = 'help_last_name' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'participants' AND `field` = 'last_name';
+
+UPDATE `structure_fields` SET `language_help` = 'help_cod_icd10_code' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'participants' AND `field` = 'cod_icd10_code';
+
+UPDATE `structure_fields` SET `language_help` = 'help_secondary_cod_icd10_code' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'participants' AND `field` = 'secondary_cod_icd10_code';
+
+UPDATE `structure_fields` SET `language_help` = 'help_created' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'participants' AND `field` = 'created';
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+('help_participant identifier', 'Unique alphanumeric identifier used to uniquely identify the participant within ATiM. May be adopted from another system, generated or assigned.', ''),
+('help_name_title', 'An honorific form of address, commencing a name, used when addressing a person by name, whether by mail, by phone, or in person, as represented by text.', ''),
+('help_first_name', 'The participant''s identifying name within the family group or by which the person is socially identified.', ''),
+('help_middle_name', 'The middle name of the participant as listed on the patient record or report.', ''),
+('help_last_name', 'That part of a name a person usually has in common with some other members of his/her family, as distinguished from his/her given names.', ''),
+('help_date of birth', 'The date of birth of the participant.', ''),
+('help_race', 'The participant''s self declared racial origination, independent of ethnic origination.', ''),
+('help_sex', 'Sex is the biological distinction between male and female. Where there is an inconsistency between anatomical and chromosomal characteristics, sex is based on anatomical characteristics.', ''),
+('help_marital status', 'A person''s current relationship status in terms of a couple relationship or, for those not in a couple relationship, the existence of a current or previous registered marriage.', ''),
+('help_language preferred', 'The language (including sign language) most preferred by the person for communication.', ''),
+('help_last chart checked', 'Date the participant''s chart (electronic or paper file) was last checked for new or updated clinical information.', ''),
+('help_date of death', 'The date of death of the participant.', ''),
+('help_cod_icd10_code', 'The disease or injury which initiated the train of morbid events leading directly to a person''s death or the circumstances of the accident or violence which produced the fatal injury, as represented by a code.', ''),
+('help_secondary_cod_icd10_code', 'Any secondary disease, injury, circumstance of accident or violence which may have contributed to the person''s death as represented by a code.', ''),
+('help_confirmation source', 'The person, organization or other reporting agency where the vital status information was obtained.', ''),
+('help_created', 'Datetime stamp of when the record was first created in the system.', '');
+
+
+-- Consent help field updates
+UPDATE `structure_fields` SET `language_help` = 'help_consent_signed_date' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'consent_masters' AND `field` = 'consent_signed_date';
+
+UPDATE `structure_fields` SET `language_help` = 'help_consent_method' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'consent_masters' AND `field` = 'consent_method';
+
+UPDATE `structure_fields` SET `language_help` = 'help_consent_status' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'consent_masters' AND `field` = 'consent_status';
+
+UPDATE `structure_fields` SET `language_help` = 'help_form_version' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'consent_masters' AND `field` = 'form_version';
+
+UPDATE `structure_fields` SET `language_help` = 'help_status_date' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'consent_masters' AND `field` = 'status_date';
+
+UPDATE `structure_fields` SET `language_help` = 'help_process_status' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'consent_masters' AND `field` = 'process_status';
+
+UPDATE `structure_fields` SET `language_help` = 'help_reason_denied' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'consent_masters' AND `field` = 'reason_denied';
+
+UPDATE `structure_fields` SET `language_help` = 'help_surgeon' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'consent_masters' AND `field` = 'surgeon';
+
+UPDATE `structure_fields` SET `language_help` = 'help_notes' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'consent_masters' AND `field` = 'notes';
+
+UPDATE `structure_fields` SET `language_help` = 'help_operation_date' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'consent_masters' AND `field` = 'operation_date';
+
+UPDATE `structure_fields` SET `language_help` = 'help_route_of_referral' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'consent_masters' AND `field` = 'route_of_referral';
+
+UPDATE `structure_fields` SET `language_help` = 'help_consent_person' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'consent_masters' AND `field` = 'consent_person';
+
+UPDATE `structure_fields` SET `language_help` = 'help_translator_indicator' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'consent_masters' AND `field` = 'translator_indicator';
+
+UPDATE `structure_fields` SET `language_help` = 'help_translator_signature' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'consent_masters' AND `field` = 'translator_signature';
+
+UPDATE `structure_fields` SET `language_help` = 'help_date_first_contact' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'consent_masters' AND `field` = 'date_first_contact';
+
+UPDATE `structure_fields` SET `language_help` = 'help_date_of_referral' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'consent_masters' AND `field` = 'date_of_referral';
+
+UPDATE `structure_fields` SET `language_help` = 'help_facility' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'consent_masters' AND `field` = 'facility';
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+('help_consent_signed_date', 'Date on which the participant signed and authorized consent to participate in the banking program.', ''),
+('help_consent_method', 'Method by which informed consent was obtained.', ''),
+('help_consent_status', 'Indication of the participants status in the informed consent process.', ''),
+('help_form_version', 'The version of the consent document in which the participant acknowledged participation by signing the document.', ''),
+('help_status_date', 'Date on which the Consent Status field was last updated in the system.', ''),
+('help_process_status', 'Current step of the consent process.', ''),
+('help_reason_denied', 'Description of the reason(s) for participant denial or withdrawal of participation.', ''),
+('help_surgeon', 'Name of the surgeon performing the surgery where materials for donation may be obtained.', ''),
+('help_notes', 'Text summary information used to add other relevant information for the current record.', ''),
+('help_operation_date', 'Date of the surgery being done of which materials for donation may be obtained.', ''),
+('help_route_of_referral', 'Indicates the entity (agency, person, etc) which introduced the participant to the biobanking program.', ''),
+('help_consent person', 'Name of biobank staff member leading the participant through the informed consent process.', ''),
+('help_translator_indicator', 'Indicates whether a translator, legally acceptable representative or impartial witness was used.', ''),
+('help_translator_signature', 'Indicates whether a signature was obtained from a translator, legally acceptable representative or impartial witness.', ''),
+('help_date_of_referral', 'Date the participant was referred to the bio-banking program by the surgical office or self-referred.', ''),
+('help_date_first_contact', 'Date on which the participant was approached to donate to the biobank.', ''),
+('help_facility', 'Building or place that provides a particular service or is used for a particular industry.', '');
+
