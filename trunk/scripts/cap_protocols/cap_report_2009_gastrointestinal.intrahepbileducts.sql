@@ -611,11 +611,4 @@ update structure_fields
 set structure_value_domain=(select id from structure_value_domains where domain_name='path_mstage_ibd')
 where tablename='diagnosis_masters_ibd' and field='path_mstage';
 
--- insert into i18n
-INSERT IGNORE INTO i18n (id, en, fr)
-select value, value, '' from structure_permissible_values 
-where value  not in (select id from i18n);
 
-INSERT IGNORE INTO i18n (id, en, fr)
-select language_alias, language_alias, '' from structure_permissible_values 
-where language_alias not in (select id from i18n)
