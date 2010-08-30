@@ -433,12 +433,3 @@ values ((select id from structure_value_domains where domain_name='type_of_polyp
 update structure_fields
 set structure_value_domain=(select id from structure_value_domains where domain_name='type_of_polyp_in_which_invasive_carcinoma_arose')
 where tablename='dxd_cap_report_colons' and field='type_of_polyp_in_which_invasive_carcinoma_arose';
-
--- insert into i18n
-INSERT IGNORE INTO i18n (id, en, fr)
-select value, value, '' from structure_permissible_values 
-where value  not in (select id from i18n);
-
-INSERT IGNORE INTO i18n (id, en, fr)
-select language_alias, language_alias, '' from structure_permissible_values 
-where language_alias not in (select id from i18n);
