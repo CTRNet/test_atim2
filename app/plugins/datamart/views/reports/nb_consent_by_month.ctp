@@ -5,7 +5,8 @@ if(isset($submit) && $submit){
 		"top" => $top,
 		"bottom" => array("cancel" => "/datamart/reports/index"));
 	$override = array("0.action" => array(" " => __("visualize", true), "true" => __("export as CSV file (comma-separated values)", true)));
-	$structures->build($atim_structure, array("type" => "search", "links" => $links, 'settings' => array('header' => __('report title', NULL).' : '.__('consents by month', NULL), 'description' => __('consents by month description', NULL)), "override" => $override));
+	$header = array('title' => __('report title', NULL), "description" => __('consents by month description', NULL));
+	$structures->build($atim_structure, array("type" => "search", "links" => $links, 'settings' => array('header' => $header), "override" => $override));
 	?>
 	<script type="text/javascript">
 	var actionControl = "<?php echo($top); ?>";
