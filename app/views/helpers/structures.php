@@ -1208,6 +1208,7 @@ class StructuresHelper extends Helper {
 				}
 			}
 			
+		$empty_help_bullet = '<span class="help error">&nbsp;</span>';
 		foreach ( $atim_structure['StructureFormat'] as $field ) {
 			
 			// if STRUCTURE does not allows multi-columns, display STRUCTURE in one column only
@@ -1250,12 +1251,18 @@ class StructuresHelper extends Helper {
 					$table_index[ $field['display_column'] ][ $row_count ]['field'] = $field['StructureField']['field'];
 					$table_index[ $field['display_column'] ][ $row_count ]['type'] = $field['StructureField']['type'];
 					// place translated HEADING in label column of new row 
-					if ( $field['language_heading'] ) $table_index[ $field['display_column'] ][ $row_count ]['heading'] = __( $field['language_heading'], true );
+					if ( $field['language_heading'] ){
+						$table_index[ $field['display_column'] ][ $row_count ]['heading'] = __( $field['language_heading'], true );
+					}
 					
 					// place translated LABEL in label column of new row 
 					// use FIELD's LABEL, or use FORMAT's LABEL if override FLAG is set
-					if ( $field['flag_override_label'] ) $field['StructureField']['language_label'] = $field['language_label'];
-					if ( $field['StructureField']['language_label'] )  $table_index[ $field['display_column'] ][ $row_count ]['label'] = __( $field['StructureField']['language_label'], true );
+					if ( $field['flag_override_label'] ){
+						$field['StructureField']['language_label'] = $field['language_label'];
+					}
+					if ( $field['StructureField']['language_label'] ){
+						$table_index[ $field['display_column'] ][ $row_count ]['label'] = __( $field['StructureField']['language_label'], true );
+					}
 					
 					/*
 					// add CHECK/UNCHECK links to appropriate FORM/FIELD types
@@ -1273,39 +1280,47 @@ class StructuresHelper extends Helper {
 				}
 				
 				// display TAG, sub label, use FIELD's TAG, or use FORMAT's TAG if override FLAG is set
-					if ( $field['flag_override_tag'] ) $field['StructureField']['language_tag'] = $field['language_tag'];
-					if ( $field['StructureField']['language_tag'] ) $table_index[ $field['display_column'] ][ $row_count ]['tag'] = '<span class="tag">'.__( $field['StructureField']['language_tag'], true).'</span> ';
+					if ( $field['flag_override_tag'] ){
+						$field['StructureField']['language_tag'] = $field['language_tag'];
+					}
+					if ( $field['StructureField']['language_tag'] ){
+						$table_index[ $field['display_column'] ][ $row_count ]['tag'] = '<span class="tag">'.__( $field['StructureField']['language_tag'], true).'</span> ';
+					}
 					
 				// LABEL and HELP marker, if available...
-					if ( $field['flag_override_label'] && $field['language_label'] ) $field['StructureField']['language_label'] = $field['language_label'];
-					if ( $field['StructureField']['language_label'] ) {
-						
-						/*
-						// link classes, for jTip AJAX...
-							$html_link_attributes = array(
-								'class'=>'jTip',
-								'id'=>'jTip_'.$field['StructureField']['field'],
-								'name'=>__( $field['StructureField']['language_label'], true )
-							);
-						*/
+					if ( $field['flag_override_label'] && $field['language_label'] ){
+						$field['StructureField']['language_label'] = $field['language_label'];
+					}
+					if ( $field['StructureField']['language_label'] ||  $table_index[ $field['display_column'] ][ $row_count ]['help'] == $empty_help_bullet ) {
 						
 						// include jTip link or no-help type indicator
-							if ( $field['flag_override_help'] && $field['language_help'] ) $field['StructureField']['language_help'] = $field['language_help'];
+							if ( $field['flag_override_help'] && $field['language_help'] ){
+								$field['StructureField']['language_help'] = $field['language_help'];
+							}
+							
 							if (  $field['StructureField']['language_help'] ) {
 								$table_index[ $field['display_column'] ][ $row_count ]['help'] = '<span class="help">&nbsp;<div>'.__($field['StructureField']['language_help'],true).'</div></span> ';
 							} else {
-								$table_index[ $field['display_column'] ][ $row_count ]['help'] = '<span class="help error">&nbsp;</span>';
+								$table_index[ $field['display_column'] ][ $row_count ]['help'] = $empty_help_bullet;
 							}
 						
 					}
 					
 				// if FORMAT overrides FIELD type/setting/default, then set that now...
-					if ( $field['flag_override_type'] ) $field['StructureField']['type'] = $field['type'];
-					if ( $field['flag_override_setting'] ) $field['StructureField']['setting'] = $field['setting'];
-					if ( $field['flag_override_default'] ) $field['StructureField']['default'] = $field['default'];
+					if ( $field['flag_override_type'] ){
+						$field['StructureField']['type'] = $field['type'];
+					}
+					if ( $field['flag_override_setting'] ){
+						$field['StructureField']['setting'] = $field['setting'];
+					}
+					if ( $field['flag_override_default'] ){
+						$field['StructureField']['default'] = $field['default'];
+					}
 				
 				// to avoid PHP ERRORS, set value to NULL if combo not in array...
-					if ( !isset($data[$field['StructureField']['model']][$field['StructureField']['field']]) ) $data[$field['StructureField']['model']][$field['StructureField']['field']] = NULL;
+					if ( !isset($data[$field['StructureField']['model']][$field['StructureField']['field']]) ){
+						$data[$field['StructureField']['model']][$field['StructureField']['field']] = NULL;
+					}
 					
 				// get CONTENT to DISPLAY
 				
