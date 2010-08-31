@@ -4,7 +4,7 @@
 
 -- Update version information
 UPDATE `versions` 
-SET `version_number` = 'v2.1.0 (Alpha)', `date_installed` = CURDATE(), `build_number` = ''
+SET `version_number` = 'v2.1.0 (Beta)', `date_installed` = CURDATE(), `build_number` = ''
 WHERE `versions`.`id` =1;
 
 TRUNCATE `acos`;
@@ -1637,15 +1637,22 @@ CREATE TABLE cake_sessions (
 );
 
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+('help_information source', 'Defines the source of data for the current record.', ''),
 ('reports', 'Reports', ''),
 ('a date range is required', 'A date range is required.', ''),
 ('visualize', 'Visualize', ''),
 ('activity report index', 'Activity Report Index', ''),
 ('activity report index description', 'Below is a list of common reports banks may wish to run for informational and management purposes.', ''),
 ('report title', 'Report Title', ''),
+('add new diagnosis', 'Add New Diagnosis', ''),
+('identifier name', 'Identifier Name', ''),
+('edit diagnosis record', 'Edit Diagnosis Record', ''),
+('change diagnosis group', 'Change Diagnosis Group', ''),
 ('obtained consents', 'Obtained Consents', ''),
 ('consents by month', 'Consents by Month', ''),
 ('consents by month description', 'Returns a count of all consents captured over the date range specified grouped by month.', '');
+
+
 
 UPDATE `i18n` SET `en` = 'Data Browser', `fr` = 'Navigateur de Données'
 WHERE `id` = 'data browser';
@@ -1765,3 +1772,119 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('help_date_first_contact', 'Date on which the participant was approached to donate to the biobank.', ''),
 ('help_facility', 'Building or place that provides a particular service or is used for a particular industry.', '');
 
+-- Fix case for diagnosis control values
+UPDATE `diagnosis_controls` SET `controls_type` = 'tissue' 
+WHERE `controls_type` = 'Tissue';
+
+UPDATE `diagnosis_controls` SET `controls_type` = 'blood' 
+WHERE `controls_type` = 'Blood';
+
+-- Diagnosis help field updates
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-91', `field_control` = 'locked'
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'diagnosis_masters' AND `field` = 'ajcc_edition';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-89', `value_domain_control` = 'extend', `field_control` = 'locked'
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'diagnosis_masters' AND `field` = 'dx_method';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-84', `value_domain_control` = 'extend', `field_control` = 'locked'
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'diagnosis_masters' AND `field` = 'dx_nature';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-83', `field_control` = 'locked' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'diagnosis_masters' AND `field` = 'dx_date';
+
+UPDATE `structure_fields` SET  `public_identifier` = 'DE-82', `value_domain_control` = 'extend', `field_control` = 'locked'
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'diagnosis_masters' AND `field` = 'dx_origin';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-101', `field_control` = 'locked', `type` = 'integer_positive'
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'diagnosis_masters' AND `field` = 'survival_time_months';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-90', `type` = 'integer_positive', `field_control` = 'locked'
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'diagnosis_masters' AND `field` = 'age_at_dx';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-88', `value_domain_control` = 'extend', `field_control` = 'locked'
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'diagnosis_masters' AND `field` = 'tumour_grade';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-80', `field_control` = 'locked'
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'diagnosis_masters' AND `field` = 'primary_number';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-95', `language_help` = 'help_clinical_stage_summary', `field_control` = 'locked'
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'diagnosis_masters' AND `field` = 'clinical_stage_summary';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-102', `value_domain_control` = 'extend', `field_control` = 'locked'
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'dxd_tissues' AND `field` = 'laterality';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-87'
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'diagnosis_masters' AND `field` = 'previous_primary_code_system';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-86'
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'diagnosis_masters' AND `field` = 'previous_primary_code';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-4'
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'diagnosis_masters' AND `field` = 'dx_date_accuracy';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-81', `field_control` = 'locked'
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'diagnosis_masters' AND `field` = 'dx_identifier';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-25' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'diagnosis_masters' AND `field` = 'age_at_dx_accuracy';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-18' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'diagnosis_masters' AND `field` = 'notes';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-129' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'diagnosis_masters' AND `field` = 'information_source';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-85', `value_domain_control` = 'locked', `field_control` = 'locked'
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'diagnosis_masters' AND `field` = 'primary_icd10_code';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-92', `field_control` = 'locked'
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'diagnosis_masters' AND `field` = 'clinical_tstage';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-93', `field_control` = 'locked'
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'diagnosis_masters' AND `field` = 'clinical_nstage';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-94', `field_control` = 'locked'
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'diagnosis_masters' AND `field` = 'clinical_mstage';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-97', `field_control` = 'locked'
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'diagnosis_masters' AND `field` = 'path_tstage';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-98', `field_control` = 'locked' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'diagnosis_masters' AND `field` = 'path_nstage';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-99', `field_control` = 'locked' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'diagnosis_masters' AND `field` = 'path_mstage';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-100', `language_help` = 'help_path_stage_summary', `field_control` = 'locked' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'diagnosis_masters' AND `field` = 'path_stage_summary';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-96', `value_domain_control` = 'extend', `field_control` = 'locked' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'diagnosis_masters' AND `field` = 'collaborative_staged';
+
+UPDATE `structure_fields` SET `value_domain_control` = 'locked', `field_control` = 'locked'
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'diagnosis_masters' AND `field` = 'morphology';
+
+UPDATE `structure_fields` SET `value_domain_control` = 'locked', `field_control` = 'locked'
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'diagnosis_masters' AND `field` = 'topography';
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+('help_ajcc edition', 'Edition of the AJCC staging manual used to stage the tumour.', ''),
+('help_dx method', 'Most definitive method by which the diagnosis of this tumour was established.', ''),
+('help_dx nature', 'Indicates the nature of the disease coded in the registry abstract.', ''),
+('help_dx date', 'The date on which a patient is diagnosed with a particular condition or disease by most definitive method of diagnosis.', ''),
+('help_dx origin', 'Indicates whether the diagnosis is a primary, secondary (metastatic) or unknown tumour type.', ''),
+('help_survival time', 'Length of time in months the participant has survived since the original date of diagnosis.', ''),
+('help_age at dx', 'The individual''s age, in years, at the time of diagnosis.', ''),
+('help_tumour grade', 'Code to represent the grade or differentiation of the tumour.', ''),
+('help_primary number', 'A counter indicating the number of primary malignant tumours a patient has had that are known by the bank.', ''),
+('dx_laterality', 'The side of the body in which the tumour is located in paired organs or skin sites.', ''),
+('help_previous primary code system', 'Previous, or alternative, coding system used to represent the disease or condition.', ''),
+('help_previous primary code', 'Code representing the disease or condition according to an older, or alternative, disease coding system.', ''),
+('help_dx identifier', 'Unique identifier for each diagnosis in the system. Generated by the system at time of record creation.', ''),
+('help_primary code', 'The disease or condition as represented by an ICD-10 code.', ''),
+('help_path_stage_summary', 'The anatomical extent of disease by pathological classification based on the previously coded T, N and M stage categories, as represented by a code.', ''),
+('help_collaborative staged', 'Indicates whether or not the tumour was staged using the Collaborative Staging System.', ''),
+('help_morphology', 'Records the type of cell that has become neoplastic and its biologic activity using ICD-O-3 codes.', ''),
+('help_topography', 'The topography code indicates the site of origin of a neoplasm.', ''),
+('help_clinical_stage_summary', 'The anatomical extent of disease at diagnosis based on the previously coded T, N and M stage categories, as represented by a code.', '');

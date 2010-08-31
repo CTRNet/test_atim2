@@ -11,7 +11,7 @@
 	$structure_settings = array(
 		'actions'=>false, 
 		
-		'header' => '1- ' . __('data', null),
+		'header' => __('edit diagnosis record', NULL),
 		'form_bottom'=>false);
 
 	$final_atim_structure = $atim_structure;

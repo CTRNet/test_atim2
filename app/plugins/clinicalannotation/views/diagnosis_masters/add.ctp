@@ -11,7 +11,7 @@
 	$structure_settings = array(
 		'actions'=>false, 
 		
-		'header' => '1- ' . __('data', null) . ' : ' . __($dx_type, null),
+		'header' => __('add new diagnosis', NULL) . ': ' . __($dx_type, null),
 		'form_bottom'=>false);
 
 	$final_atim_structure = $atim_structure;
