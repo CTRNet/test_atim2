@@ -78,17 +78,6 @@ body {
 	font: 11px/1.2em "Lucida Grande", Futura, Helvetica, Arial, Verdana, sans-serif;
 }
 
-div#dimForActionPopup {
-	display: none;
-	position: absolute;
-	width: 100%;
-	height: 100%;
-	top: 0;
-	left: 0;
-	z-index: 100;
-	background: rgba(255,255,255,0.5);
-}
-
 div.wrapper {
 	clear: both;
 	margin: 0 10px 10px 10px;
@@ -1803,7 +1792,7 @@ table.index tr td:first-child{
 
 input.datepicker[type=button]{
 	width: 1px;
-	height: 1px;	
+	height: 1px;
 }
 
 fieldset.submit{
@@ -1816,3 +1805,12 @@ ul.error{
 	border-width: 0 1px 0 1px;
 }
 
+.popup_container div.frame{
+	max-height: 500px;
+	overflow: auto;
+}
+
+.tool_popup{
+	background-image: url(../img/icons/Preview_16x16.png);
+	padding-left: 14px;
+}

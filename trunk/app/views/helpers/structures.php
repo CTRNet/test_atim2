@@ -1508,7 +1508,7 @@ class StructuresHelper extends Helper {
 					
 					// var TOOLS/APPENDS, if any 
 					$append_field_tool = '';
-					$append_field_tool_label = 'core tools';
+					$append_field_tool_label = '&nbsp;';
 					$append_field_display = '';
 					$append_field_display_value = '';
 					
@@ -1962,7 +1962,7 @@ class StructuresHelper extends Helper {
 							
 							
 							$display_value .= '
-								<a href="'.$this->Html->Url( $append_field_tool ).'" class="lightwindow" params="lightwindow_width=800,lightwindow_height=400">'.__($append_field_tool_label, true).'</a>
+								<a href="'.$this->Html->Url( $append_field_tool ).'" class="tool_popup">'.__($append_field_tool_label, true).'</a>
 							';
 						}
 						
