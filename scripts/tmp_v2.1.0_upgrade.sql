@@ -4,7 +4,7 @@
 
 -- Update version information
 UPDATE `versions` 
-SET `version_number` = 'v2.1.0 (Alpha)', `date_installed` = CURDATE(), `build_number` = ''
+SET `version_number` = 'v2.1.0 (Beta)', `date_installed` = CURDATE(), `build_number` = ''
 WHERE `versions`.`id` =1;
 
 TRUNCATE `acos`;
@@ -1880,8 +1880,6 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('help_topography', 'The topography code indicates the site of origin of a neoplasm.', ''),
 ('help_clinical_stage_summary', 'The anatomical extent of disease at diagnosis based on the previously coded T, N and M stage categories, as represented by a code.', '');
 
-
-
 UPDATE `structure_fields` SET `language_label` = 'title'
 WHERE `structure_fields`.`tablename` = 'datamart_reports' AND `structure_fields`.`field` = 'name';
 
@@ -1938,3 +1936,207 @@ UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fi
 
 UPDATE structure_fields SET  `type`='input',  `structure_value_domain`= NULL, `setting`='tool=/codingicd10/CodingIcd10s/tool' WHERE model='FamilyHistory' AND tablename='family_histories' AND field='primary_icd10_code' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10');
 
+-- Help information update for Family History
+
+UPDATE `structure_fields` SET `language_help` = 'help_relation', `value_domain_control` = 'extend', `field_control` = 'locked' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'family_histories' AND `field` = 'relation';
+
+UPDATE `structure_fields` SET `language_help` = 'help_family_domain', `value_domain_control` = 'extend', `field_control` = 'locked'
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'family_histories' AND `field` = 'family_domain';
+
+UPDATE `structure_fields` SET `language_help` = 'help_previous_primary_code_system'
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'family_histories' AND `field` = 'previous_primary_code_system';
+
+UPDATE `structure_fields` SET `language_help` = 'help_previous_primary_code'
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'family_histories' AND `field` = 'previous_primary_code';
+
+UPDATE `structure_fields` SET `language_help` = 'help_primary_icd10_code', `value_domain_control` = 'locked', `field_control` = 'locked' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'family_histories' AND `field` = 'primary_icd10_code';
+
+UPDATE `structure_fields` SET `type` = 'integer_positive', `language_help` = 'help_age_at_dx', `field_control` = 'locked' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'family_histories' AND `field` = 'age_at_dx';
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+('help_relation', 'Type of relationship to the participant.', ''),
+('help_family_domain', 'Defines how the participant is related to the family member.', ''),
+('help_previous_primary_code_system', 'The disease coding system used prior to, or instead of, ICD-10.', ''),
+('help_previous_primary_code', 'The disease or condition code used prior to, or instead of, ICD-10.', ''),
+('help_primary_icd10_code', 'The disease or condition as represented by an ICD-10 code.', ''),
+('help_age_at_dx', 'Age at which the related family member''s condition or disease was diagnosised', '');
+
+-- Help information update for Reproductive History
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-26' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'reproductive_histories' AND `field` = 'date_captured';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-40', `type` = 'integer_positive', `field_control` = 'locked'  
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'reproductive_histories' AND `field` = 'gravida';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-39', `type` = 'integer_positive', `field_control` = 'locked' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'reproductive_histories' AND `field` = 'para';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-35', `value_domain_control` = 'extend', `field_control` = 'locked'  
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'reproductive_histories' AND `field` = 'menopause_status';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-34', `field_control` = 'locked' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'reproductive_histories' AND `field` = 'lnmp_date';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-27', `value_domain_control` = 'extend', `field_control` = 'locked' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'reproductive_histories' AND `field` = 'ovary_removed_type';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-32', `value_domain_control` = 'locked', `field_control` = 'locked' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'reproductive_histories' AND `field` = 'hysterectomy';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-37', `value_domain_control` = 'locked', `field_control` = 'locked' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'reproductive_histories' AND `field` = 'hormonal_contraceptive_use';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-30', `value_domain_control` = 'locked', `field_control` = 'locked'  
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'reproductive_histories' AND `field` = 'hrt_use';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-38', `field_control` = 'locked' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'reproductive_histories' AND `field` = 'years_on_hormonal_contraceptives';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-36', `value_domain_control` = 'extend', `field_control` = 'locked'  
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'reproductive_histories' AND `field` = 'menopause_onset_reason';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-31', `value_domain_control` = 'locked', `field_control` = 'locked'  
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'reproductive_histories' AND `field` = 'hrt_years_used';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-4'  
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'reproductive_histories' AND `field` = 'lnmp_accuracy';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-29', `type` = 'integer_positive', `field_control` = 'locked' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'reproductive_histories' AND `field` = 'age_at_menopause';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-28', `type` = 'integer_positive', `field_control` = 'locked'  
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'reproductive_histories' AND `field` = 'age_at_menarche';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-33', `type` = 'integer_positive', `field_control` = 'locked'  
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'reproductive_histories' AND `field` = 'hysterectomy_age';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-41', `type` = 'integer_positive', `field_control` = 'locked'  
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'reproductive_histories' AND `field` = 'age_at_first_parturition';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-42', `type` = 'integer_positive', `field_control` = 'locked'  
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'reproductive_histories' AND `field` = 'age_at_last_parturition';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-25' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'reproductive_histories' AND `field` = 'menopause_age_accuracy';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-25'  
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'reproductive_histories' AND `field` = 'hysterectomy_age_accuracy';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-25'  
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'reproductive_histories' AND `field` = 'age_at_menarche_accuracy';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-25'  
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'reproductive_histories' AND `field` = 'first_parturition_accuracy';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-25'  
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'reproductive_histories' AND `field` = 'last_parturition_accuracy';
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+('help_date captured', 'Date the reproductive history was collected or updated from clinical information.', ''),
+('help_gravida', 'The number of times where a female conceived and became pregnant regardless of outcome.', ''),
+('help_para', 'The total number of previous pregnancies the female participant has had resulting in live birth.', ''),
+('help_menopause status', 'The menopausal status of the participant.', ''),
+('help_lmnp date', 'By a women''s recollection, the date she last had a menstrual period.', ''),
+('help_ovary removed', 'Information related to the type of ovary that was removed.', ''),
+('help_hysterectomy indicator', 'Indicators whether or not the participant had a hysterectomy.', ''),
+('help_hormone replacement', 'Indicator to represent a person''s history of treatment with estrogens or estrogen/progesterone.', ''),
+('help_hormonal contraceptive', 'Indicates whether the participant has used hormonal contraceptives in order to block ovulation and prevent the occurence of pregnancy.', ''),
+('help_years on hormonal', 'Represents the cumulative number of years that hormonal contraceptives were used by the individual.', ''),
+('help_menopause reason', 'Explanation of why menstral periods ceased.', ''),
+('help_age at menopause', 'By a woman''s recollection, the age at the time of menopause expressed in number of years since birth.', ''),
+('help_age at menarche', 'By a woman''s recollection, the age at the time of first menstrual period, expressed in number of years since birth.', ''),
+('help_hysterectomy age', 'By a woman''s recollection, the age the hysterectomy was performed expressed in number of years since birth.', ''),
+('help_age at first parturition', 'Age at completion of first fullterm pregnancy expressed in number of years since mother''s birth.', ''),
+('help_age at last parturition', 'Age at completion of last fullterm pregnancy expressed in number of years since mother''s birth.', ''),
+('help_hrt years used', 'The category in total years that a female has taken hormone replacements.', '');
+
+-- Help information update for Treatment
+UPDATE `structure_fields` SET `public_identifier` = 'DE-45', `language_help` = 'help_tx_intent', `value_domain_control` = 'extend', `field_control` = 'locked'   
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'tx_masters' AND `field` = 'tx_intent';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-43', `language_help` = 'help_tx_method', `value_domain_control` = 'extend', `field_control` = 'locked'    
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'tx_masters' AND `field` = 'tx_method';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-46', `language_help` = 'help_start_date', `field_control` = 'locked'   
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'tx_masters' AND `field` = 'start_date';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-47', `language_help` = 'help_finish_date', `field_control` = 'locked'   
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'tx_masters' AND `field` = 'finish_date';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-44', `language_help` = 'help_target_site_icdo', `value_domain_control` = 'locked', `field_control` = 'locked'   
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'tx_masters' AND `field` = 'target_site_icdo';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-48', `language_help` = 'help_facility'
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'tx_masters' AND `field` = 'facility';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-18', `language_help` = 'help_notes'
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'tx_masters' AND `field` = 'notes';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-129', `language_help` = 'help_information_source'
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'tx_masters' AND `field` = 'information_source';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-4'
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'tx_masters' AND `field` = 'start_date_accuracy';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-4'
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'tx_masters' AND `field` = 'finish_date_accuracy';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-49', `language_help` = 'help_protocol_name', `field_control` = 'locked'
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'tx_masters' AND `field` = 'protocol_master_id';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-51', `language_help` = 'help_chemo_completed', `value_domain_control` = 'locked', `field_control` = 'locked' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'txd_chemos' AND `field` = 'chemo_completed';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-50', `language_help` = 'help_response', `value_domain_control` = 'extend', `field_control` = 'locked'
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'txd_chemos' AND `field` = 'response';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-54', `type` = 'integer_positive', `setting` = 'size=5', `language_help` = 'help_completed_cycles', `field_control` = 'locked' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'txd_chemos' AND `field` = 'completed_cycles';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-53', `type` = 'integer_positive', `setting` = 'size=5', `language_help` = 'help_num_cycles', `field_control` = 'locked'
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'txd_chemos' AND `field` = 'num_cycles';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-52', `type` = 'integer_positive', `setting` = 'size=5', `language_help` = 'help_length_cycles', `field_control` = 'locked'
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'txd_chemos' AND `field` = 'length_cycles';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-59', `language_help` = 'help_dose'
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'txe_chemos' AND `field` = 'dose';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-58', `language_help` = 'help_method', `value_domain_control` = 'extend', `field_control` = 'locked'
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'txe_chemos' AND `field` = 'method';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-57', `language_help` = 'help_drug_id', `field_control` = 'locked'
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'txe_chemos' AND `field` = 'drug_id';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-60', `language_help` = 'help_path_num', `field_control` = 'locked'
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'txd_surgeries' AND `field` = 'path_num';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-61', `language_help` = 'help_surgical_procedure' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'txe_surgeries' AND `field` = 'surgical_procedure';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-55', `language_help` = 'help_rad_completed', `value_domain_control` = 'locked', `field_control` = 'locked' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'txd_radiations' AND `field` = 'rad_completed';
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+('help_tx_intent', 'The intention of the treatment for cancer for the particular participant.', ''),
+('help_tx_method', 'The type of treatment given to the participant.', ''),
+('help_finish_date', 'Date on which the treatment was completed or ceased for the participant.', ''),
+('help_target_site_icdo', 'The site or region of cancer which is the target of a particular treatment, as represented by an ICDO-3 code.', ''),
+('help_information_source', 'Defines the source of data for the current record.', ''),
+('help_protocol_name', 'Name (or code) of treatment protocol that the participant was on.', ''),
+('help_chemo_completed', 'Indicates whether the chemotherapy treatment plan was completed.', ''),
+('help_response', 'The response of the tumour at the completion of the initial treatment modalities.', ''),
+('help_completed_cycles', 'The total numeric count of chemotherapy cycles completed.', ''),
+('help_num_cycles', 'The total numeric count of chemotherapy cycles ordered.', ''),
+('help_length_cycles', 'The number of days in each chemotherapy cycle.', ''),
+('help_dose', 'Prescribed amount of the therapeutic agent administered', ''),
+('help_method', 'Primary method of administration for the prescribed therapeutic agent.', ''),
+('help_drug_id', 'Generic name for the therapeutic agent administered.', ''),
+('help_path_num', 'Alphanumeric indentifier corresponding to the pathology report generated from the participant''s surgery.', ''),
+('help_surgical_procedure', 'Name or code of the surgical operation performed on the day of treatment.', ''),
+('help_rad_completed', 'Indicates whether the radiotherapy treatment was completed.', ''),
+('help_start_date', 'Date on which the treatment began for the participant.', '');
