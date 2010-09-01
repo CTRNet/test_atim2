@@ -21,6 +21,7 @@ $(function(){
 	$("#me .adv_ctrl").hide();
 	$("#me .form.search").unbind('click').attr("onclick", null).click(popupSearch);
 	$("#me form").submit(popupSearch);
+	$("#me div.search-result-div").hide();
 });
 
 </script>

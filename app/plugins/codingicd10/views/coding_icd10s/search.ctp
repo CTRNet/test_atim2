@@ -10,7 +10,7 @@ $header = array('title' => __('icd10 code picker', true), 'description' => __('s
 $index_link_prefix = "/codingicd10/CodingIcd10s/search/";
 $links = array(
 	'index' => array('detail' => $index_link_prefix.'%%CodingIcd10.id%%'),
-	'bottom' => array('search' => '/codingicd10/CodingIcd10s/tool'));
+	'bottom' => array('cancel' => '/codingicd10/CodingIcd10s/tool'));
 $this->Structures->build($atim_structure, array('type' => 'index', 'settings' => array('pagination' => false, 'header' => $header), 'links' => $links));
 ?>
 <script type="text/javascript">
@@ -23,13 +23,13 @@ $(function(){
 		$("#default_popup").popup('close');
 		return false;
 	});
-	$("#default_popup a.form.search").click(function(){
+	$("#default_popup a.form.cancel").click(function(){
 		$.get($(this).attr("href"), null, function(data){
 			$("#default_popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>").popup();
 			$("#default_popup input[type=text]").first().focus();
 		});
 		return false;
 	});
-	
+	$("#default_popup div.search-result-div").hide();
 });
 </script>
