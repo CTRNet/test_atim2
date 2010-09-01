@@ -1637,12 +1637,17 @@ CREATE TABLE cake_sessions (
 );
 
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+('help_information source', 'Defines the source of data for the current record.', ''),
 ('reports', 'Reports', ''),
 ('a date range is required', 'A date range is required.', ''),
 ('visualize', 'Visualize', ''),
 ('activity report index', 'Activity Report Index', ''),
 ('activity report index description', 'Below is a list of common reports banks may wish to run for informational and management purposes.', ''),
 ('report title', 'Report Title', ''),
+('add new diagnosis', 'Add New Diagnosis', ''),
+('identifier name', 'Identifier Name', ''),
+('edit diagnosis record', 'Edit Diagnosis Record', ''),
+('change diagnosis group', 'Change Diagnosis Group', ''),
 ('obtained consents', 'Obtained Consents', ''),
 ('consents by month', 'Consents by Month', ''),
 ('consents by month description', 'Returns a count of all consents captured over the date range specified grouped by month.', '');
@@ -1650,6 +1655,8 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 UPDATE `i18n` SET `en` = 'Data Browser', `fr` = 'Navigateur de Données'
 WHERE `id` = 'data browser';
 
+UPDATE `structure_fields` SET `language_label` = 'title'
+WHERE `structure_fields`.`tablename` = 'datamart_reports' AND `structure_fields`.`field` = 'name';
 
 -- Profile help field updates
 UPDATE `structure_fields` SET `language_help` = 'help_name_title' 
@@ -1879,9 +1886,6 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('help_morphology', 'Records the type of cell that has become neoplastic and its biologic activity using ICD-O-3 codes.', ''),
 ('help_topography', 'The topography code indicates the site of origin of a neoplasm.', ''),
 ('help_clinical_stage_summary', 'The anatomical extent of disease at diagnosis based on the previously coded T, N and M stage categories, as represented by a code.', '');
-
-UPDATE `structure_fields` SET `language_label` = 'title'
-WHERE `structure_fields`.`tablename` = 'datamart_reports' AND `structure_fields`.`field` = 'name';
 
 -- simple search form
 INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('simple_search', '', '', '1', '1', '1', '1');
