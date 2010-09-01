@@ -475,9 +475,17 @@ function uncheckAll( $div ) {
 		//tool_popup
 		$(".tool_popup").click(function(){
 			var parent_elem = $(this).parent().children();
+			toolTarget = null;
 			for(i = 0; i < parent_elem.length; i ++){
+				//find the current element
 				if(parent_elem[i] == this){
-					toolTarget = parent_elem[i - 1];
+					for(j = i - 1; j >= 0; j --){
+						//find the previous input
+						if(parent_elem[j].nodeName == "INPUT"){
+							toolTarget = parent_elem[j];
+							break;
+						}
+					}
 					break;
 				}
 			}
