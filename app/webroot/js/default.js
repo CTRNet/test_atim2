@@ -1,3 +1,5 @@
+var toolTarget = null;
+
 function initSummary(){
 	var open = function(){
 		var summary_hover = $(this);
@@ -468,6 +470,22 @@ function uncheckAll( $div ) {
 		$.datepicker.setDefaults($.datepicker.regional[locale]);
 		$(".datepicker").each(function(){
 			initDatepicker(this);
+		});
+		
+		//tool_popup
+		$(".tool_popup").click(function(){
+			var parent_elem = $(this).parent().children();
+			for(i = 0; i < parent_elem.length; i ++){
+				if(parent_elem[i] == this){
+					toolTarget = parent_elem[i - 1];
+					break;
+				}
+			}
+			$.get($(this).attr("href"), null, function(data){
+				$("#default_popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>").popup();
+				$("#default_popup input[type=text]").first().focus();
+			});
+			return false;
 		});
 	}
 

@@ -76,6 +76,6 @@
 		});
 	</script>
 	
-	<div id="dimForActionPopup"></div>
+	<div id="default_popup" class='hidden'></div>
 </body>
 </html>
