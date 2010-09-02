@@ -2,21 +2,40 @@
 	if(isset($parent_node) && $parent_node != 0){
 		echo(Browser::getPrintableTree($parent_node, $this->webroot));
 	}
+
 	//use add as type to avoid advanced search usage
 	$settings = array();
 	if($type == "checklist"){
-		$is_datagrid = true;
-		$links['checklist'] = array(
-				$checklist_key.']['=>'%%'.$checklist_key.'%%'
-		);
 		$links['top'] = $top;
-		$structures->build($result_structure, array('type' => $type, 'links' => $links, 'settings' => array('form_bottom' => false, 'actions' => false, 'pagination' => false, 'form_inputs'=>false)));
-		$type = "add";
+		if(count($this->data) > 400){
+			//overflow
+			?>
+			<ul class="error">
+				<li><?php echo(__("the query returned too many results", true).". ".__("try refining the search parameters", true).". "
+				.__("if you browse further ahead, all matches of the current set will be used", true)); ?>.</li>
+			</ul>
+			<?php
+			$structures->build($empty, array('type' => 'add', 'links' => $links, 'settings' => array('actions' => false, 'form_bottom' => false))); 
+			$key_parts = explode(".", $checklist_key);
+			$ids = array();
+			foreach($this->data as $data_unit){
+				$ids[] = $data_unit[$key_parts[0]][$key_parts[1]];
+			}
+			echo("<input type='hidden' name='data[".$key_parts[0]."][".$key_parts[1]."]' value='".implode(',', $ids)."'/>\n");
+		}else{
+			//normal display
+			$links['checklist'] = array(
+					$checklist_key.']['=>'%%'.$checklist_key.'%%'
+			);
+			$structures->build($result_structure, array('type' => $type, 'links' => $links, 'settings' => array('form_bottom' => false, 'actions' => false, 'pagination' => false, 'form_inputs'=>false)));
+		}
+			$is_datagrid = true;
+			$type = "add";
 	}else{
 		$is_datagrid = false;
 	}
 	$links['top'] = $top;
-	$structures->build($atim_structure, array('type' => $type, 'links' => $links, 'data' => array()));
+	$structures->build($atim_structure, array('type' => $type, 'links' => $links, 'data' => array(), 'settings' => array('form_top' => !$is_datagrid)));
 ?>
 <script type="text/javascript">
 var browser = true;
