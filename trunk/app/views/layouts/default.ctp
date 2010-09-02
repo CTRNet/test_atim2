@@ -81,6 +81,6 @@
 		});
 	</script>
 	
-	<div id="default_popup" class='hidden'></div>
+	<div id="default_popup" class='hidden std_popup'></div>
 </body>
 </html>
