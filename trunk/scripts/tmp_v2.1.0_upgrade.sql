@@ -24,7 +24,9 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ("specific", "specific", "spécifique"),
 ("no storage", "No storage", "Pas d'entreposage"),
 ("invalid decimal separator", "Invalid decimal separator", "Séparateur de décimales invalide"),
-("if you were logged id, your session has expired.", "If you were logged in, your session has expired", "Si vous étiez connecté, votre session est expirée");
+("if you were logged id, your session has expired.", "If you were logged in, your session has expired", "Si vous étiez connecté, votre session est expirée"),
+("check all", "Check all", "Cocher tout"),
+("uncheck all", "Uncheck all", "Décocher tout");
 
 INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('realiquot_with_volume', '', '', '1', '1', '1', '1');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
@@ -1617,7 +1619,8 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ("your session has expired", "Your session has expired", "Votre session est expirée"),
 ("that username is disabled", "That username is disabled", "Ce nom d'utilisateur est désactivé"),
 ("the query returned too many results", "The query returned too many results", "La requête a retourné trop de résultats"),
-("try refining the search parameters", "Try refining the search parameters", "Essayer de raffiner les paramètres de recherche");
+("try refining the search parameters", "Try refining the search parameters", "Essayer de raffiner les paramètres de recherche"),
+("if you browse further ahead, all matches of the current set will be used", "If you browse further ahead, all matches of the current set will be used", "Si vous continuer de naviguer, toutes les résultats de l'ensemble présent seront utilisées");
 
 -- user login audit trail
 CREATE TABLE user_login_attempts(
@@ -1939,6 +1942,11 @@ INSERT INTO structure_validations (`structure_field_id`, `rule`, `flag_empty`, `
 UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='primary_icd10_code' AND `type`='input' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10'));
 
 UPDATE structure_fields SET  `type`='input',  `structure_value_domain`= NULL, `setting`='tool=/codingicd10/CodingIcd10s/tool' WHERE model='FamilyHistory' AND tablename='family_histories' AND field='primary_icd10_code' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10');
+
+-- ccl icd10
+INSERT INTO structure_validations (`structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`) 
+(SELECT (SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND `type`='input' AND structure_value_domain IS NULL ), `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message` FROM structure_validations WHERE structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10'))) ;
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='primary_icd10_code' AND `type`='input' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10'));
 
 -- Help information update for Family History
 

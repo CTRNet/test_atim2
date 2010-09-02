@@ -399,6 +399,25 @@ function uncheckAll( $div ) {
 		refreshTopBaseOnAction(actionControl);
 	}
 	
+	/**
+	 * Initialises check/uncheck all controls
+	 * @param scope The scope where to look for those controls. In a popup, the scope will be the popup box
+	 */
+	function initCheckAll(scope){
+		var elem = $(scope + " .checkAll");
+		if(elem.length > 0){
+			parent = getParentElement(elem, "TBODY");
+			$(elem).click(function(){
+				$(parent).find('input[type=checkbox]').attr("checked", true);
+				return false;
+			});
+			$(scope + " .uncheckAll").click(function(){
+				$(parent).find('input[type=checkbox]').attr("checked", false);
+				return false;
+			});
+		}
+	}
+	
 	function getParentElement(currElement, parentName){
 		do{
 			currElement = $(currElement).parent();
@@ -495,6 +514,8 @@ function uncheckAll( $div ) {
 			});
 			return false;
 		});
+		
+		initCheckAll("");
 	}
 
 	function debug(str){
