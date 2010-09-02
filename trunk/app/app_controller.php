@@ -34,6 +34,8 @@ class AppController extends Controller {
 			$this->Auth->actionPath = 'controllers/App/';
 			$this->Auth->allowedActions = array();
 			
+			//homemade hack because the core seems bugged, see layouts/default.ctp
+			$this->set("msg_auth", $this->Session->read("Message.auth"));
 		// record URL in logs
 			
 			$log_activity_data['UserLog']['user_id']  = $this->Session->read('Auth.User.id');
