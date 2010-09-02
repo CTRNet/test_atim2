@@ -157,13 +157,13 @@ class StructuresHelper extends Helper {
 			case 'index':		$options['type'] = 'index';	$return_string .= $this->build_table( $atim_structure, $options );	break;
 			case 'table':		$options['type'] = 'index';	$return_string .= $this->build_table( $atim_structure, $options );	break;
 			case 'list':		$options['type'] = 'index';	$return_string .= $this->build_table( $atim_structure, $options );	break;
-			case 'listall':	$options['type'] = 'index';	$return_string .= $this->build_table( $atim_structure, $options );	break;
+			case 'listall':		$options['type'] = 'index';	$return_string .= $this->build_table( $atim_structure, $options );	break;
 			
 			case 'checklist':	$options['type'] = 'index';	$return_string .= $this->build_table( $atim_structure, $options );	break;
 			case 'radiolist':	$options['type'] = 'index';	$return_string .= $this->build_table( $atim_structure, $options );	break;
 			
 			case 'grid':		$options['type'] = 'datagrid';	$return_string .= $this->build_table( $atim_structure, $options );	break;
-			case 'addgrid':	$options['type'] = 'datagrid';	$return_string .= $this->build_table( $atim_structure, $options );	break;
+			case 'addgrid':		$options['type'] = 'datagrid';	$return_string .= $this->build_table( $atim_structure, $options );	break;
 			case 'editgrid':	$options['type'] = 'datagrid';	$return_string .= $this->build_table( $atim_structure, $options );	break;
 			case 'datagrid':	$options['type'] = 'datagrid';	$return_string .= $this->build_table( $atim_structure, $options );	break;
 			
@@ -173,9 +173,9 @@ class StructuresHelper extends Helper {
 			case 'edit':		$options['type'] = 'edit';		$return_string .= $this->build_detail( $atim_structure, $options );	break;
 			case 'search':		$options['type'] = 'search';	$return_string .= $this->build_detail( $atim_structure, $options );	break;
 			
-			case 'tree':		$options['type'] = 'tree';		$return_string .= $this->build_tree( $atim_structure, $options );		break;
+			case 'tree':		$options['type'] = 'tree';		$return_string .= $this->build_tree( $atim_structure, $options );	break;
 			
-			default:				$options['type'] = 'detail';	$return_string .= $this->build_detail( $atim_structure, $options );	break;
+			default:			$options['type'] = 'detail';	$return_string .= $this->build_detail( $atim_structure, $options );	break;
 		}
 		if ( $options['links']['top'] && $options['settings']['form_bottom'] ) {
 			if($options['type'] == 'search'){	//search mode
@@ -709,6 +709,10 @@ class StructuresHelper extends Helper {
 							';
 						}
 						
+						if ( count($options['links']['checklist']) ) {
+							$return_string .= "<tr><td colspan='3'><a href='#' class='checkAll'>".__('check all', true)."</a> | <a href='#' class='uncheckAll'>".__('uncheck all', true)."</a></td></tr>";
+						}
+						
 						$return_string .= '
 								</tfoot>
 								</table>
@@ -741,9 +745,10 @@ class StructuresHelper extends Helper {
 					
 				} // end FOREACH
 				
-		$return_string .= '
-				</tr>
-			</tbody>
+		$return_string .= '</tr>';
+		
+				
+		$return_string .= '	</tbody>
 			</table>
 		';
 				
@@ -1761,8 +1766,10 @@ class StructuresHelper extends Helper {
 							}
 								
 							// if existing DATA VALUE does not exist in the SELECT OPTIONS, add EXISTING DATA into the options using OPTGROUP to make the addition clear
-								if ( isset($this->data[$field['StructureField']['model']][$field['StructureField']['field']]) && !is_array($this->data[$field['StructureField']['model']][$field['StructureField']['field']]) && !array_key_exists($this->data[$field['StructureField']['model']][$field['StructureField']['field']],$html_element_array['options']) ) {
-									
+								if ( isset($this->data[$field['StructureField']['model']][$field['StructureField']['field']])
+								&& $this->data[$field['StructureField']['model']][$field['StructureField']['field']] != "" 
+								&& !is_array($this->data[$field['StructureField']['model']][$field['StructureField']['field']]) 
+								&& !array_key_exists($this->data[$field['StructureField']['model']][$field['StructureField']['field']], $html_element_array['options']) ) {
 									$html_element_array['options'] = array(
 										html_entity_decode( __( 'Supported Value', true ), ENT_QUOTES, "UTF-8" ) => $html_element_array['options'],
 										html_entity_decode( __( 'Unmatched Value', true ), ENT_QUOTES, "UTF-8" ) => array(
