@@ -20,24 +20,24 @@ function initSummary(){
 	$('#menu #summary').hover(open, close);
 }
 
-//Slide down animation for action menu. Kills other displayed action menus
+//Slide down animation (show) for action menu
 var actionMenuShow = function(){
 	var action_hover = $(this);
 	var action_popup = action_hover.find('div.filter_menu');
 	if ( action_popup.length > 0 ) {
-		//kill other menus
-		$('div.actions ul ul.filter li div.filter_menu').stop(true, true).hide();
 		//show current menu
-		action_popup.stop(true, true).slideDown(100);
+		action_popup.slideDown(100);
 	}
 };
 	
-//Slide up animation for action menu.
+//Slide up (hide) animation for action menu.
 var actionMenuHide = function(){
 	var action_hover = $(this);
 	var action_popup = action_hover.find('div.filter_menu');
-	if ( action_popup.length>0 ) {
-		action_popup.delay(101).slideUp(100);
+	if (action_popup.length > 0) {
+		action_popup.slideUp(100).queue(function(){
+			$(this).clearQueue();
+		});
 	}
 };
 
