@@ -10,7 +10,7 @@ class BrowserController extends DatamartAppController {
 		'Datamart.BatchSet',
 		'Datamart.BatchId'
 		);
-	
+		
 	function index(){
 		$this->Structures->set("datamart_browsing_indexes");
 		$this->data = $this->paginate($this->BrowsingIndex, array("BrowsingResult.user_id" => $_SESSION['Auth']['User']['id']));
@@ -41,6 +41,7 @@ class BrowserController extends DatamartAppController {
 	
 		
 	function browse($parent_node = 0, $control_id = 0){
+		$this->Structures->set("empty", "empty");
 		if(empty($this->data)){
 			if($parent_node == 0){
 				//new access
@@ -91,9 +92,16 @@ class BrowserController extends DatamartAppController {
 			$parent = $this->BrowsingResult->find('first', array('conditions' => array("BrowsingResult.id" => $parent_node)));
 			if(isset($this->data[$parent['DatamartStructure']['model']])){
 				$ids = array();
-				foreach($this->data[$parent['DatamartStructure']['model']][$parent['DatamartStructure']['use_key']] as $id){
-					if($id != 0){
-						$ids[] = $id;
+				if(count($this->data[$parent['DatamartStructure']['model']][$parent['DatamartStructure']['use_key']]) == 1 
+				&& strpos($this->data[$parent['DatamartStructure']['model']][$parent['DatamartStructure']['use_key']], ",") !== false){
+					//all ids in one field
+					$ids = explode(",", $this->data[$parent['DatamartStructure']['model']][$parent['DatamartStructure']['use_key']]);
+				}else{
+					//ids in n fields
+					foreach($this->data[$parent['DatamartStructure']['model']][$parent['DatamartStructure']['use_key']] as $id){
+						if($id != 0){
+							$ids[] = $id;
+						}
 					}
 				}
 				$id_csv = implode(",", $ids);
@@ -168,6 +176,7 @@ class BrowserController extends DatamartAppController {
 					}
 				}
 				$this->data = $this->ModelToSearch->find('all', array('conditions' => $search_conditions));
+				
 				$save_ids = array();
 				foreach($this->data as $data_unit){
 					$save_ids[] = $data_unit[$browsing['DatamartStructure']['model']][$browsing['DatamartStructure']['use_key']];
@@ -178,7 +187,7 @@ class BrowserController extends DatamartAppController {
 					"browsing_structures_id" => $control_id,
 					"id_csv" => implode(",", $save_ids),
 					"raw" => true,
-					"serialized_search_params" => serialize($org_search_conditions)
+					"serialized_search_params" => serialize($org_search_conditions),
 				));
 				$tmp = $this->BrowsingResult->find('first', array('conditions' => $this->flattenArray($save)));
 				if(empty($tmp)){
