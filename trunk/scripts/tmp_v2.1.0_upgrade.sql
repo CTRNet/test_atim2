@@ -2144,3 +2144,95 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('help_surgical_procedure', 'Name or code of the surgical operation performed on the day of treatment.', ''),
 ('help_rad_completed', 'Indicates whether the radiotherapy treatment was completed.', ''),
 ('help_start_date', 'Date on which the treatment began for the participant.', '');
+
+-- Contact form help updates
+UPDATE `structure_fields` SET `public_identifier` = 'DE-103', `language_help` = 'help_contact_type', `field_control` = 'locked' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'participant_contacts' AND `field` = 'contact_type';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-104'  
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'participant_contacts' AND `field` = 'other_contact_type';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-109', `language_help` = 'help_region' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'participant_contacts' AND `field` = 'region';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-105'  
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'participant_contacts' AND `field` = 'effective_date';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-107', `language_help` = 'help_street'  
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'participant_contacts' AND `field` = 'street';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-106' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'participant_contacts' AND `field` = 'expiry_date';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-110', `language_help` = 'help_country'
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'participant_contacts' AND `field` = 'country';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-108', `language_help` = 'help_locality'  
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'participant_contacts' AND `field` = 'locality';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-111', `language_help` = 'help_mail_code'  
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'participant_contacts' AND `field` = 'mail_code';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-18', `language_help` = 'help_notes'  
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'participant_contacts' AND `field` = 'notes';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-112', `language_help` = 'help_contact_name'  
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'participant_contacts' AND `field` = 'contact_name';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-113', `language_help` = 'help_phone_type' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'participant_contacts' AND `field` = 'phone_type';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-115', `language_help` = 'help_phone_secondary_type'
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'participant_contacts' AND `field` = 'phone_secondary_type';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-114', `language_help` = 'help_phone' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'participant_contacts' AND `field` = 'phone';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-116', `language_help` = 'help_phone'
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'participant_contacts' AND `field` = 'phone_secondary';
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+('help_contact_type', 'Means through which a patient/participant or family is contacted for follow-up or survival information.', ''),
+('clin_help_other contact type', 'Other means through which a patient/participant or family is contacted for follow-up or survival information.', ''),
+('help_region', 'Any demarcated area of the earth; may be determined by both natural and human boundaries.', ''),
+('help_effective date', 'Date the contact record became effective.', ''),
+('help_street', 'Street address/post office box number/rural route number, group number.', ''),
+('help_expiry date', 'The date of service contact between a health service provider and patient/client has ended', ''),
+('help_country', 'Country in which the contact resides.', ''),
+('help_locality', 'City in which the contact resides.', ''),
+('help_mail_code', 'Postal code corresponding to the client''s address', ''),
+('help_contact_name', 'The identifying label given to the contact.', ''),
+('help_phone_type', 'Indicates the primary type of telephone contact number.', ''),
+('help_phone_secondary_type', 'Indicates the type of additional telephone contact number.', ''),
+('help_phone', 'A sequence of decimal digits (0-9) that is used for identifying a destination telephone line or other device in a telephone network from within the same city as the destination.', '');
+
+-- Help info update for messages
+UPDATE `structure_fields` SET `public_identifier` = 'DE-124', `language_help` = 'help_message_description'
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'participant_messages' AND `field` = 'description';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-125', `language_help` = 'help_message_due_date' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'participant_messages' AND `field` = 'due_date';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-122', `language_help` = 'help_message_author' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'participant_messages' AND `field` = 'author';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-128', `language_help` = 'help_message_type' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'participant_messages' AND `field` = 'message_type';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-127', `language_help` = 'help_message_title'  
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'participant_messages' AND `field` = 'title';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-126', `language_help` = 'help_message_expiry_date'
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'participant_messages' AND `field` = 'expiry_date';
+
+UPDATE `structure_fields` SET `public_identifier` = 'DE-123', `language_help` = 'help_message_date_requested' 
+WHERE `plugin` = 'Clinicalannotation' AND `tablename` = 'participant_messages' AND `field` = 'date_requested';
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+('help_message_description', 'A summary of a short communication transmitted by words, signals, or other means from one person, station or group to another.', ''),
+('help_message_expiry_date', 'The date when a message no longer applies; expires.', ''),
+('help_message_date_requested', 'The date on which a document or digital message was created.', ''),
+('help_message_due_date', 'The date on which a message or digital correspondence requests a response or an action completed.', ''),
+('help_message_author', 'The author of document or digital message of correspondence.', ''),
+('help_message_type', 'Category, if applicable, for the digital message of correspondence.', ''),
+('help_message_title', 'The title of a short written, or electronic piece of communication.', '');
