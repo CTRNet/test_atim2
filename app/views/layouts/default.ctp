@@ -46,8 +46,13 @@
 <?php 
 	echo $header;
 	
-	// $session->flash();
+	//TODO: In future version see if $session->flash and $session->flash('auth') works as expected in http://book.cakephp.org/view/1252/Displaying-Auth-Error-Messages
+	$session->flash();
 	$session->flash('auth');
+	//homemade hack because the core seems bugged
+	if(!empty($msg_auth)){
+		echo('<div id="authMessage" class="message">' . $msg_auth['message'] . '</div>');
+	}
 	
 	echo $content_for_layout;
 	
