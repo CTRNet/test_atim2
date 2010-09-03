@@ -265,29 +265,66 @@ class BrowserController extends DatamartAppController {
 		$this->redirect("/datamart/batch_sets/listall/all/".$this->BatchSet->id, NULL, true);
 	}
 	
+	/**
+	 * Switch for the control structure when all data is of the same type (usually for master/details). 
+	 * Ex.: If they're all blood tubes, there is a better structure than view_aliquots to display the data.
+	 * @param $result_structure The current $result_structure
+	 * @param $ids_csv The ids to fetch 
+	 */
 	function checkForAlternateStructure($result_structure, $ids_csv){
-		if(count($this->data) > 0 && isset($this->data[0]['ViewAliquot'])){
-			//if it's aliquots and if they're all the same, load a specific structure
-			$control_id = $this->data[0]['ViewAliquot']['aliquot_control_id'];
+		if(count($this->data) > 0){ 
+			//init
+			$model_current_name = "";
+			$model_current_control_name = "";
+			$model_current_id_name = "";
+			$model_to_use_name = "";
+			$model_to_use_import_self = "";
+			$model_to_use_import_control = "";
+			$control_model_name = "";
+			$control_model_form_field = "";
+			if(isset($this->data[0]['ViewAliquot'])){
+				$model_current_name = "ViewAliquot";
+				$model_current_control_name = "aliquot_control_id";
+				$model_current_id_name = "aliquot_master_id";
+				$model_to_use_name = "AliquotMaster";
+				$model_to_use_import_self = "Inventorymanagement.AliquotMaster";
+				$model_to_use_import_control = "Inventorymanagement.AliquotControl";
+				$control_model_name = "AliquotControl";
+				$control_model_form_field = "form_alias";
+			}else if(isset($this->data[0]['ViewSample'])){
+				$model_current_name = "ViewSample";
+				$model_current_control_name = "sample_control_id";
+				$model_current_id_name = "sample_master_id";
+				$model_to_use_name = "SampleMaster";
+				$model_to_use_import_self = "Inventorymanagement.SampleMaster";
+				$model_to_use_import_control = "Inventorymanagement.SampleControl";
+				$control_model_name = "SampleControl";
+				$control_model_form_field = "form_alias";
+			}
+			//load the first id
+			$control_id = $this->data[0][$model_current_name][$model_current_control_name];
 			$valid = true;
 			foreach($this->data as $data_unit){
-				if($data_unit['ViewAliquot']['aliquot_control_id'] != $control_id){
+				//validate all control_id are identical
+				if($data_unit[$model_current_name][$model_current_control_name] != $control_id){
+					//they're not! Break
 					$valid = false;
 					break;
 				}
 			}
 			if($valid){
-				//load a structure more appropriate for these aliquots
-				if(App::import('Model', "Inventorymanagement.AliquotControl") && App::import('Model', "Inventorymanagement.AliquotMaster")){
-					$aliquot_control = new AliquotControl();
-					$aliquot_control_data = $aliquot_control->find('first', array('conditions' => array('AliquotControl.id', $control_id)));
-					$result_structure = $this->Structures->get('form', $aliquot_control_data['AliquotControl']['form_alias']);
-					$aliquot_master = new AliquotMaster();
-					$this->data = $aliquot_master->find('all', array('conditions' => "AliquotMaster.id IN (".$ids_csv.")"));
+				//load the control structure (found in the control table
+				if(App::import('Model', $model_to_use_import_self) && App::import('Model', $model_to_use_import_control)){
+					$control = new $control_model_name;
+					$control_data = $control->find('first', array('conditions' => array($control_model_name.'.id', $control_id)));
+					$result_structure = $this->Structures->get('form', $control_data[$control_model_name][$control_model_form_field]);
+					$element = new $model_to_use_name;
+					//the previous data was probably loaded from a view. We need to load it from the real table with the real model
+					$this->data = $element->find('all', array('conditions' => $model_to_use_name.".id IN (".$ids_csv.")"));
 					foreach($this->data as &$unit){
-						//mimic ViewAliquot.aliquot_master_id
-						$unit['ViewAliquot']['aliquot_master_id'] = $unit['AliquotMaster']['id'];
-					}							
+						//mimic the previous model/name so that data print and reception processes don't have to worry about the alternate structure
+						$unit[$model_current_name][$model_current_id_name] = $unit[$control_model_name]['id'];
+					}
 				}
 			}
 		}
