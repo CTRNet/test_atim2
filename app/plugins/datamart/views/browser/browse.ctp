@@ -58,8 +58,9 @@ if(isset($dropdown_options)){
 	function printList($options, $label, $webroot, $loop){
 		foreach($options as $option){
 			$curr_label = $label." &gt; ".$option['default'];
+			$curr_label_for_class = str_replace("'", "&#39;", $curr_label);
 			$action = isset($option['action']) ? ', "action" : "'.$webroot."/".$option['action'].'" ' : "";
-			echo("<li><a href='#' class='{ \"value\" : \"".$option['value']."\", \"label\" : \"".$curr_label."\" ".$action." }'>".$option['default']."</a>");
+			echo("<li><a href='#' class='{ \"value\" : \"".$option['value']."\", \"label\" : \"".$curr_label_for_class."\" ".$action." }'>".$option['default']."</a>");
 			if(isset($option['children']) && $loop){
 				echo("<ul>");
 				printList($option['children'], $curr_label, $webroot, $loop);
