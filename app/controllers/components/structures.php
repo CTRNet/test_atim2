@@ -3,9 +3,11 @@
 class StructuresComponent extends Object {
 	
 	var $controller;
+	static $singleton;
 	
 	function initialize( &$controller, $settings=array() ) {
 		$this->controller =& $controller;
+		StructuresComponent::$singleton = $this;
 	}
 	
 	/* Combined function to simplify plugin usage, 
@@ -336,7 +338,12 @@ class StructuresComponent extends Object {
 	
 	function getSimplifiedFormById($id){
 		$form = $this->getFormById($id);
-		return StructuresComponent::simplifyForm($form); 
+		foreach($form['StructureFormat'] as &$sfo){
+			if(isset($sfo['StructureField']['StructureValueDomain']['source']) && strlen($sfo['StructureField']['StructureValueDomain']['source']) > 0){
+				$sfo['StructureField']['StructureValueDomain']['StructurePermissibleValue'] = StructuresComponent::getPulldownFromSource($sfo['StructureField']['StructureValueDomain']['source']); 
+			}
+		}
+		return StructuresComponent::simplifyForm($form);
 	}
 	
 	/**
@@ -369,6 +376,45 @@ class StructuresComponent extends Object {
 		}
 		
 		return $result;
+	}
+	
+	/**
+	 * Retrieves pulldown values from a specified source. The source needs to have translated already
+	 * @param unknown_type $source
+	 */
+	static function getPulldownFromSource($source){
+		list($pulldown_model, $pulldown_function) = split('::', $source);
+		$pulldown_result = array();
+		if ($pulldown_model && App::import('Model',$pulldown_model)){
+
+			// setup VARS for custom model (if any)
+			$custom_pulldown_object = $pulldown_model.'Custom';
+			$custom_pulldown_plugin = NULL;
+			$custom_pulldown_model = NULL;
+
+			// if model name is PLUGIN.MODEL string, need to split and drop PLUGIN name after import but before NEW
+			$pulldown_plugin = NULL;
+			if ( strpos($pulldown_model,'.')!==false ) {
+				$combined_plugin_model_name = $pulldown_model;
+				list($pulldown_plugin,$pulldown_model) = explode('.',$combined_plugin_model_name);
+			}
+
+			// load MODEL, and override with CUSTOM model if it exists...
+			$pulldown_model_object = new $pulldown_model;
+				
+			// check for CUSTOM models, and use that if exists
+			$custom_pulldown_plugin = $pulldown_plugin;
+			$custom_pulldown_model = $pulldown_model.'Custom';
+				
+			if ( App::import('Model',$custom_pulldown_object) ) {
+				$pulldown_model_object = new $custom_pulldown_model;
+			}
+
+			// run model::function
+			$pulldown_result = $pulldown_model_object->{$pulldown_function}();
+		}
+
+		return $pulldown_result;
 	}
 }
 

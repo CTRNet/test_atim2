@@ -291,7 +291,8 @@ class Browser extends DatamartAppModel {
 			}
 			$conditions[] = "StructureField.model='".$model."' AND StructureField.field='".$field."'";
 		}
-		$sf = $StructureFormat->customSearch("Structure.id='".$structure_id."' AND ".implode(" OR ", $conditions));
+		$structures_component = StructuresComponent::$singleton;
+		$sf = $structures_component->getSimplifiedFormById($structure_id);
 		$result = "<table align='center' width='100%' class='browserBubble'>";
 		//value_element can ben a string or an array
 		foreach($params as $key => $value_element){
@@ -309,9 +310,7 @@ class Browser extends DatamartAppModel {
 				}
 			}else if(is_array($value_element)){
 				//it's coming from a dropdown
-				foreach($value_element as &$value){
-					$values[] = __($value, true);
-				}
+				$values = $value_element;
 				list($model, $field) = explode(".", $key);
 			}else{
 				//it's a range
@@ -321,9 +320,25 @@ class Browser extends DatamartAppModel {
 				list($key, $name_suffix) = explode(" ", $key);
 				list($model, $field) = explode(".", $key);
 			}
-			foreach($sf as $sf_unit){
-				if($sf_unit['StructureField']['model'] == $model && $sf_unit['StructureField']['field'] == $field){
-					$name = __($sf_unit['StructureFormat']['flag_override_label'] ? $sf_unit['StructureFormat']['language_label'] : $sf_unit['StructureField']['language_label'], true);
+			foreach($sf['SimplifiedField'] as $sf_unit){
+				if($sf_unit['model'] == $model && $sf_unit['field'] == $field){
+					$name = __($sf_unit['language_label'], true);
+					if(isset($sf_unit['StructureValueDomain']['StructurePermissibleValue'])){
+						//field with permissible values, take the values from there
+						foreach($values as &$value){//foreach values
+							foreach($sf_unit['StructureValueDomain']['StructurePermissibleValue'] as $p_value){//find the match
+								if($p_value['value'] == $value){//match found
+									if(strlen($sf_unit['StructureValueDomain']['source']) > 0){
+										//value comes from a source, it's already translated
+										$value = $p_value['default'];
+									}else{
+										$value = __($p_value['language_alias'], true);
+									}
+									break; 
+								}
+							}
+						}
+					}
 					break;
 				}
 			}
