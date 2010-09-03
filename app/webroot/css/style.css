@@ -1814,3 +1814,8 @@ ul.error{
 	background-image: url(../img/icons/Preview_16x16.png);
 	padding-left: 14px;
 }
+
+table.browserBubble th{
+	white-space: nowrap;
+	vertical-align: middle;	
+}

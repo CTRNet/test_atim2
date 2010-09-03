@@ -270,33 +270,56 @@ class Browser extends DatamartAppModel {
 	 * Formats the search params array and returns it into a table
 	 * @param The search params array
 	 */
-	static function formatSearchToPrint(array $params, $structure_id){
+	static function formatSearchToPrint(array $search_params, $structure_id){
+		$params = $search_params['search_conditions'];
 		$keys = array_keys($params);
 		App::import('model', 'StructureFormat');
 		$StructureFormat = new StructureFormat();
 		$conditions = array();
+		$conditions[] = "false";
 		foreach($keys as $key){
 			if(is_numeric($key)){
-				//it's a textual field model.field LIKE %foo%
+				//it's a textual field (model.field LIKE %foo1% OR model.field LIKE %foo2% ...)
 				list($model_field) = explode(" ", $params[$key]);
 				$model_field = substr($model_field, 1);
 				list($model, $field) = explode(".", $model_field);
 			}else{
-				list($model, $field) = explode(".", $key);
+				//it's a range or a dropdown
+				//key = field[ >=] 
+				$parts = explode(" ", $key);
+				list($model, $field) = explode(".", $parts[0]);
 			}
 			$conditions[] = "StructureField.model='".$model."' AND StructureField.field='".$field."'";
 		}
 		$sf = $StructureFormat->customSearch("Structure.id='".$structure_id."' AND ".implode(" OR ", $conditions));
-		$result = "<table align='center' width='100%'>";
-		foreach($params as $name => $values){
-			if(is_numeric($name)){
-				//it's a textual field model.field LIKE %foo%
-				list($model_field, , $value) = explode(" ", $params[$key]);
-				$model_field = substr($model_field, 1);
-				list($model, $field) = explode(".", $model_field);
-				$values = array(substr($value, 2, -2));
+		$result = "<table align='center' width='100%' class='browserBubble'>";
+		//value_element can ben a string or an array
+		foreach($params as $key => $value_element){
+			$values = array();
+			$name = "";
+			$name_suffix = "";
+			if(is_numeric($key)){
+				//it's a textual field (model.field LIKE %foo1% OR model.field LIKE %foo2% ...)
+				$values = array();
+				$parts = explode(" OR ", substr($value_element, 1, -1));//strip first and last parenthesis
+				foreach($parts as $part){
+					list($model_field, , $value) = explode(" ", $part);
+					list($model, $field) = explode(".", $model_field);
+					$values[] = substr($value, 2, -2);
+				}
+			}else if(is_array($value_element)){
+				//it's coming from a dropdown
+				foreach($value_element as &$value){
+					$values[] = __($value, true);
+				}
+				list($model, $field) = explode(".", $key);
 			}else{
-				list($model, $field) = explode(".", $name);
+				//it's a range
+				//key = field >= 
+				//value = value_str
+				$values[] = strpos($value_element, "-") ? AppController::getFormatedDatetimeString($value_element) : $value_element;
+				list($key, $name_suffix) = explode(" ", $key);
+				list($model, $field) = explode(".", $key);
 			}
 			foreach($sf as $sf_unit){
 				if($sf_unit['StructureField']['model'] == $model && $sf_unit['StructureField']['field'] == $field){
@@ -304,11 +327,9 @@ class Browser extends DatamartAppModel {
 					break;
 				}
 			}
-			foreach($values as &$value){
-				$value = __($value, true);
-			}
-			$result .= "<tr><th>".$name."</th><td>".implode(", ", $values)."</td>\n";
+			$result .= "<tr><th>".$name." ".$name_suffix."</th><td>".implode(", ", $values)."</td>\n";
 		}
+		$result .= "<tr><th>".__("exact search", true)."</th><td>".($search_params['exact_search'] ? __("yes", true) : __('no', true))."</td>\n";
 		$result .= "</table>";
 		return $result;
 	}

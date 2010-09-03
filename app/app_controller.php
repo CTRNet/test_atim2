@@ -281,7 +281,24 @@ class AppController extends Controller {
 		}
 		return $result;
 	}
+	
+	/**
+	 * 
+	 * Enter description here ...
+	 * @param $datetime_string String with format yyyy-MM-dd hh:mm:ss
+	 * @param boolean $nbsp_spaces True if white spaces must be printed as &nbsp;
+	 * @param boolean $short_months True if months names should be short (used if $month is an int)
+	 * @return string The formated datestring with user preferences
+	 */
+	static function getFormatedDatetimeString($datetime_string, $nbsp_spaces = true, $short_months = true){
+			list($date, $time) = explode(" ", $datetime_string);
+			list($year, $month, $day) = explode("-", $date);
+			$formated_date = AppController::getFormatedDateString($year, $month, $day);
+			return $formated_date.($nbsp_spaces ? "&nbsp;" : "").$time;
+	}
 }
+
+
 	
 	AppController::init();
 		
