@@ -1363,48 +1363,17 @@ class StructuresHelper extends Helper {
 								
 								// if SOURCE is provided, use provided MODEL::FUNCTION call to retrieve pulldown values
 								if ( $field['StructureField']['StructureValueDomain']['source'] ) {
-									
-									list($pulldown_model,$pulldown_function) = split('::',$field['StructureField']['StructureValueDomain']['source']);
-									
-									if ( $pulldown_model && App::import('Model',$pulldown_model) ) {
+									$pulldown_result = StructuresComponent::getPulldownFromSource($field['StructureField']['StructureValueDomain']['source']);
 										
-										// setup VARS for custom model (if any)
-										$custom_pulldown_object = $pulldown_model.'Custom';
-										$custom_pulldown_plugin = NULL;
-										$custom_pulldown_model = NULL;
-										
-										// if model name is PLUGIN.MODEL string, need to split and drop PLUGIN name after import but before NEW
-										$pulldown_plugin = NULL;
-										if ( strpos($pulldown_model,'.')!==false ) {
-											$combined_plugin_model_name = $pulldown_model;
-											list($pulldown_plugin,$pulldown_model) = explode('.',$combined_plugin_model_name);
-										}
-										
-										// load MODEL, and override with CUSTOM model if it exists...
-											$pulldown_model_object = new $pulldown_model;
-											
-										// check for CUSTOM models, and use that if exists
-										$custom_pulldown_plugin = $pulldown_plugin;
-										$custom_pulldown_model = $pulldown_model.'Custom';
-									
-										if ( App::import('Model',$custom_pulldown_object) ) {
-											$pulldown_model_object = new $custom_pulldown_model;
-										}
-										
-										// run model::function
-										$pulldown_result = $pulldown_model_object->{$pulldown_function}();
-										
-										// find MATCH in results (it is assumed any translations have happened in the MODEL already)
-										foreach ( $pulldown_result as $lookup ) {
-											if ( $lookup['value'] == $display_value ) {
-												if ( isset($lookup[$options['type']]) ) {
-													$display_value = $lookup[$options['type']]; 
-												}else { 
-													$display_value = $lookup['default']; 
-												}
+									// find MATCH in results (it is assumed any translations have happened in the MODEL already)
+									foreach ( $pulldown_result as $lookup ) {
+										if ( $lookup['value'] == $display_value ) {
+											if ( isset($lookup[$options['type']]) ) {
+												$display_value = $lookup[$options['type']]; 
+											}else { 
+												$display_value = $lookup['default']; 
 											}
 										}
-										
 									}
 									
 								}
@@ -1713,46 +1682,16 @@ class StructuresHelper extends Helper {
 								
 								// if SOURCE is provided, use provided MODEL::FUNCTION call to retrieve pulldown values
 								if ( $field['StructureField']['StructureValueDomain']['source'] ) {
+									// run model::function
+									$pulldown_result = StructuresComponent::getPulldownFromSource($field['StructureField']['StructureValueDomain']['source']);
 									
-									list($pulldown_model,$pulldown_function) = split('::',$field['StructureField']['StructureValueDomain']['source']);
-									
-									if ( $pulldown_model && App::import('Model',$pulldown_model) ) {
-				
-										// setup VARS for custom model (if any)
-										$custom_pulldown_object = $pulldown_model.'Custom';
-										$custom_pulldown_plugin = NULL;
-										$custom_pulldown_model = NULL;
-										
-										// if model name is PLUGIN.MODEL string, need to split and drop PLUGIN name after import but before NEW
-										$pulldown_plugin = NULL;
-										if ( strpos($pulldown_model,'.')!==false ) {
-											$combined_plugin_model_name = $pulldown_model;
-											list($pulldown_plugin,$pulldown_model) = explode('.',$combined_plugin_model_name);
+									// it is assumed any translations have happened in the MODEL already
+									foreach ( $pulldown_result as $lookup ) {
+										if ( isset($lookup[$options['type']])){
+											$html_element_array['options'][ $lookup['value'] ] = $lookup[$options['type']]; 
+										}else { 
+											$html_element_array['options'][ $lookup['value'] ] = $lookup['default']; 
 										}
-										
-										// load MODEL, and override with CUSTOM model if it exists...
-											$pulldown_model_object = new $pulldown_model;
-											
-										// check for CUSTOM models, and use that if exists
-										$custom_pulldown_plugin = $pulldown_plugin;
-										$custom_pulldown_model = $pulldown_model.'Custom';
-									
-										if ( App::import('Model',$custom_pulldown_object) ) {
-											$pulldown_model_object = new $custom_pulldown_model;
-										}
-										
-										// run model::function
-										$pulldown_result = $pulldown_model_object->{$pulldown_function}();
-										
-										// it is assumed any translations have happened in the MODEL already
-										foreach ( $pulldown_result as $lookup ) {
-											if ( isset($lookup[$options['type']])){
-												$html_element_array['options'][ $lookup['value'] ] = $lookup[$options['type']]; 
-											}else { 
-												$html_element_array['options'][ $lookup['value'] ] = $lookup['default']; 
-											}
-										}
-										
 									}
 								}
 								
