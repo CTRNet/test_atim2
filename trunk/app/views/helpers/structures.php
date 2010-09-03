@@ -2529,6 +2529,9 @@ class StructuresHelper extends Helper {
 		$date_name_prefix = "data[".$my_model_prefix.$structure_field['model']."][".$structure_field['field'].$search_suffix."]";
 		unset($html_element_array['id']);
 		unset($html_element_array['name']);
+		if(!isset($html_element_array['empty'])){
+			$html_element_array['empty'] = null;
+		}
 		for($i = 0; $i < 3; ++ $i){
 			$tmp_current = substr(date_format, $i, 1);
 			if($tmp_current == "Y"){
