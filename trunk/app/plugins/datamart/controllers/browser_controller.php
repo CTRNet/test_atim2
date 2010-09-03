@@ -153,7 +153,8 @@ class BrowserController extends DatamartAppController {
 				}
 				$this->ModelToSearch = new $browsing['DatamartStructure']['model'];
 				$search_conditions = $this->Structures->parse_search_conditions($result_structure);
-				$org_search_conditions = $search_conditions;
+				$org_search_conditions['search_conditions'] = $search_conditions;
+				$org_search_conditions['exact_search'] = isset($this->data['exact_search']);
 				if($parent_node != 0){
 					$parent = $this->BrowsingResult->find('first', array('conditions' => array("BrowsingResult.id" => $parent_node)));
 					$control_data = $this->BrowsingControl->find('first', array('conditions' => array('BrowsingControl.id1' => $parent['DatamartStructure']['id'], 'BrowsingControl.id2' => $browsing['DatamartStructure']['id'])));
