@@ -66,6 +66,7 @@ class BrowserController extends DatamartAppController {
 				$this->set('checklist_key', $browsing['DatamartStructure']['model'].".".$browsing['DatamartStructure']['use_key']);
 				$this->set('checklist_key_name', $browsing['DatamartStructure']['model'].".".$browsing['DatamartStructure']['use_key']);
 				$result_structure = $this->Structures->getFormById($browsing['DatamartStructure']['structure_id']);
+				$result_structure = $this->checkForAlternateStructure($result_structure, $browsing['BrowsingResult']['id_csv']);
 				$this->Structures->set("datamart_browser_start");
 				$this->set("result_structure", $result_structure);
 			}
@@ -141,6 +142,7 @@ class BrowserController extends DatamartAppController {
 			}
 			$result_structure = null;
 			$browsing = null;
+			$save_ids = array();
 			
 			//direct access, save nodes
 			foreach($direct_id_arr as $control_id){
@@ -177,7 +179,6 @@ class BrowserController extends DatamartAppController {
 					}
 				}
 				$this->data = $this->ModelToSearch->find('all', array('conditions' => $search_conditions));
-				
 				$save_ids = array();
 				foreach($this->data as $data_unit){
 					$save_ids[] = $data_unit[$browsing['DatamartStructure']['model']][$browsing['DatamartStructure']['use_key']];
@@ -223,6 +224,7 @@ class BrowserController extends DatamartAppController {
 				$this->set('checklist_key', $browsing['DatamartStructure']['model'].".".$browsing['DatamartStructure']['use_key']);
 				$this->set('type', "checklist");
 				$this->Structures->set("datamart_browser_start");
+				$result_structure = $this->checkForAlternateStructure($result_structure, implode(",", $save_ids));
 				$this->set("result_structure", $result_structure);
 				$this->set('top', "/datamart/browser/browse/".$save['BrowsingResult']['id']."/");
 				$this->set('parent_node', $parent_node);
@@ -261,5 +263,34 @@ class BrowserController extends DatamartAppController {
 			}
 		}
 		$this->redirect("/datamart/batch_sets/listall/all/".$this->BatchSet->id, NULL, true);
+	}
+	
+	function checkForAlternateStructure($result_structure, $ids_csv){
+		if(count($this->data) > 0 && isset($this->data[0]['ViewAliquot'])){
+			//if it's aliquots and if they're all the same, load a specific structure
+			$control_id = $this->data[0]['ViewAliquot']['aliquot_control_id'];
+			$valid = true;
+			foreach($this->data as $data_unit){
+				if($data_unit['ViewAliquot']['aliquot_control_id'] != $control_id){
+					$valid = false;
+					break;
+				}
+			}
+			if($valid){
+				//load a structure more appropriate for these aliquots
+				if(App::import('Model', "Inventorymanagement.AliquotControl") && App::import('Model', "Inventorymanagement.AliquotMaster")){
+					$aliquot_control = new AliquotControl();
+					$aliquot_control_data = $aliquot_control->find('first', array('conditions' => array('AliquotControl.id', $control_id)));
+					$result_structure = $this->Structures->get('form', $aliquot_control_data['AliquotControl']['form_alias']);
+					$aliquot_master = new AliquotMaster();
+					$this->data = $aliquot_master->find('all', array('conditions' => "AliquotMaster.id IN (".$ids_csv.")"));
+					foreach($this->data as &$unit){
+						//mimic ViewAliquot.aliquot_master_id
+						$unit['ViewAliquot']['aliquot_master_id'] = $unit['AliquotMaster']['id'];
+					}							
+				}
+			}
+		}
+		return $result_structure;
 	}
 }
