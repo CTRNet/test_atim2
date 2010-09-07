@@ -578,7 +578,7 @@ class StorageMastersController extends StoragelayoutAppController {
 				$this->flash('error deleting data - contact administrator', '/storagelayout/storage_masters/index/');
 			}
 		} else {
-			$this->atimFlash($arr_allow_deletion['msg'], '/storagelayout/storage_masters/detail/' . $storage_master_id);
+			$this->flash($arr_allow_deletion['msg'], '/storagelayout/storage_masters/detail/' . $storage_master_id);
 		}		
 	}
 	
