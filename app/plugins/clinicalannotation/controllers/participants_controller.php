@@ -160,7 +160,7 @@ class ParticipantsController extends ClinicalannotationAppController {
 				$this->flash( 'error deleting data - contact administrator', '/clinicalannotation/participants/index/');
 			}
 		} else {
-			$this->atimFlash( $arr_allow_deletion['msg'], '/clinicalannotation/participants/profile/'.$participant_id.'/');
+			$this->flash( $arr_allow_deletion['msg'], '/clinicalannotation/participants/profile/'.$participant_id.'/');
 		}
 	}
 
