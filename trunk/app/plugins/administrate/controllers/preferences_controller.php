@@ -60,6 +60,9 @@ class PreferencesController extends AdministrateAppController {
 		if ( !empty($this->data) ) {
 		
 			$this->User->id = $user_id;
+			$this->data['User']['id'] = $_SESSION['Auth']['User']['id'];
+			$this->data['User']['group_id'] = $_SESSION['Auth']['User']['group_id'];
+			$this->data['Group']['id'] = $_SESSION['Auth']['User']['group_id'];
 			
 			$this->Config->id = $config_id;
 			$this->data['Config']['bank_id'] = 0;
