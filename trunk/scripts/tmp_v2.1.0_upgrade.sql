@@ -2377,3 +2377,10 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('validation_req_define_pagination_amount', 'The field Pagination is required!', ''),
 ('validation_req_define_decimal_separator', 'The field Decimal Separator is required!', ''),
 ('validation_req_define_datetime_input_type', 'The field Datetime Input Method is required!', '');
+
+-- Fix value domain for checkbox fields on customize forms
+UPDATE `structure_fields` SET `structure_value_domain` = (SELECT `id` FROM `structure_value_domains` WHERE `domain_name` = 'yes_no_checkbox')
+WHERE `model` = 'Config' AND `tablename` = 'configs' AND `field` = 'define_show_help';
+
+UPDATE `structure_fields` SET `structure_value_domain` = (SELECT `id` FROM `structure_value_domains` WHERE `domain_name` = 'yes_no_checkbox')
+WHERE `model` = 'Config' AND `tablename` = 'configs' AND `field` = 'define_show_summary';
