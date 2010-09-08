@@ -2281,3 +2281,99 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 -- Fix issue 910 : Users table, field "active" problem 
 UPDATE structure_fields 
 SET  `field`='flag_active' WHERE model='User' AND tablename='users' AND field='active';
+
+-- Help information for preferences form
+UPDATE `structure_fields` SET `plugin` = 'Administrate', `language_help` = 'help_define_decimal_separator' 
+WHERE `model` = 'Config' AND `tablename` = 'configs' AND `field` = 'define_decimal_separator';
+
+UPDATE `structure_fields` SET `language_help` = 'help_define_show_help' 
+WHERE `model` = 'Config' AND `tablename` = 'configs' AND `field` = 'define_show_help';
+
+UPDATE `structure_fields` SET `language_help` = 'help_config_language' 
+WHERE `model` = 'Config' AND `tablename` = 'configs' AND `field` = 'config_language';
+
+UPDATE `structure_fields` SET `language_help` = 'help_define_date_format' 
+WHERE `model` = 'Config' AND `tablename` = 'configs' AND `field` = 'define_date_format';
+
+UPDATE `structure_fields` SET `language_help` = 'help_define_csv_separator' 
+WHERE `model` = 'Config' AND `tablename` = 'configs' AND `field` = 'define_csv_separator';
+
+UPDATE `structure_fields` SET `language_help` = 'help_define_show_summary' 
+WHERE `model` = 'Config' AND `tablename` = 'configs' AND `field` = 'define_show_summary';
+
+UPDATE `structure_fields` SET `language_help` = 'help_define_time_format' 
+WHERE `model` = 'Config' AND `tablename` = 'configs' AND `field` = 'define_time_format';
+
+UPDATE `structure_fields` SET `language_help` = 'help_define_datetime_input_type' 
+WHERE `model` = 'Config' AND `tablename` = 'configs' AND `field` = 'define_datetime_input_type';
+
+UPDATE `structure_fields` SET `language_help` = 'help_define_show_advanced_controls' 
+WHERE `model` = 'Config' AND `tablename` = 'configs' AND `field` = 'define_show_advanced_controls';
+
+UPDATE `structure_fields` SET `language_help` = 'help_define_pagination_amount' 
+WHERE `model` = 'Config' AND `tablename` = 'configs' AND `field` = 'define_pagination_amount';
+
+UPDATE `structure_fields` SET `language_help` = 'help_flag_active', `language_label` = 'account status' 
+WHERE `model` = 'User' AND `tablename` = 'users' AND `field` = 'flag_active';
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+('help_define_decimal_separator', 'ATiM supports both period (.) and comma (,) for use as a decimal separator.', ''),
+('help_define_time_format', 'Set to locked to disable the account. Changing this setting will not take effect until logout.', ''),
+('help_flag_active', 'Setting this value will enable or disable the help information bubbles throughout the application.', ''),
+('help_config_language', 'Select your preferred language for use within ATiM.', ''),
+('help_define_date_format', 'Select your preferred date format for display and input. Note that all values will be saved to the database using the YYYY-MM-DD format regardless of your user preference.', ''),
+('help_define_csv_separator', 'When exporting data to file from the Query Tool this value is used as a separator between fields.', ''),
+('help_define_show_summary', 'Enable or disable the Summary tab found on the top right corner of the main window.', ''),
+('help_define_time_format', 'Select a 12 hour or 24 hour clock for time display.', ''),
+('help_define_datetime_input_type', 'Sets how date information is captured throughout the application. Selecting textual will allow direct input of date values where dropdown will force a select drop down list.', ''),
+('help_define_show_advanced_controls', 'Toggles the advanced search options on all search forms. This includes the AND/OR options and toggles for exact matches vs pattern matching on text field searches.', ''),
+('help_define_pagination_amount', 'Sets the number of results to display per page on index forms.', '');
+
+-- Fix some case issues on field labels
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+('time format', 'Time Format', 'Format de L''heure'),
+('account status', 'Account Status', ''),
+('decimal separator', 'Decimal Separator', 'Séparateur de Décimales'),
+('datetime input type', 'Datetime Input Method', 'Foramat des Champs Dates et Heures'),
+('show advanced controls', 'Show Advanced Controls', 'Afficher les Contrôles Avancés');
+
+-- Update validations for preferences form
+SELECT `id` FROM `structure_fields` WHERE `model` = '' AND `tablename` = '' AND `field` = '';
+
+UPDATE `structure_validations` SET `language_message` = 'validation_req_define_show_help' 
+WHERE `structure_field_id` = (SELECT `id` FROM `structure_fields` WHERE `model` = 'Config' AND `tablename` = 'configs' AND `field` = 'define_show_help');
+
+UPDATE `structure_validations` SET `language_message` = 'validation_req_config_language' 
+WHERE `structure_field_id` = (SELECT `id` FROM `structure_fields` WHERE `model` = 'Config' AND `tablename` = 'configs' AND `field` = 'config_language');
+
+UPDATE `structure_validations` SET `language_message` = 'validation_req_flag_active' 
+WHERE `structure_field_id` = (SELECT `id` FROM `structure_fields` WHERE `model` = 'User' AND `tablename` = 'users' AND `field` = 'flag_active');
+
+INSERT INTO `structure_validations` (`rule`, `flag_empty`, `flag_required`, `language_message`, `structure_field_id`)
+VALUES ('notEmpty', 0, 0, 'validation_req_define_csv_separator', (SELECT `id` FROM `structure_fields` WHERE `model` = 'Config' AND `tablename` = 'configs' AND `field` = 'define_csv_separator'));
+
+INSERT INTO `structure_validations` (`rule`, `flag_empty`, `flag_required`, `language_message`, `structure_field_id`)
+VALUES ('notEmpty', 0, 0, 'validation_req_define_date_format', (SELECT `id` FROM `structure_fields` WHERE `model` = 'Config' AND `tablename` = 'configs' AND `field` = 'define_date_format'));
+
+INSERT INTO `structure_validations` (`rule`, `flag_empty`, `flag_required`, `language_message`, `structure_field_id`)
+VALUES ('notEmpty', 0, 0, 'validation_req_define_time_format', (SELECT `id` FROM `structure_fields` WHERE `model` = 'Config' AND `tablename` = 'configs' AND `field` = 'define_time_format'));
+
+INSERT INTO `structure_validations` (`rule`, `flag_empty`, `flag_required`, `language_message`, `structure_field_id`)
+VALUES ('notEmpty', 0, 0, 'validation_req_define_pagination_amount', (SELECT `id` FROM `structure_fields` WHERE `model` = 'Config' AND `tablename` = 'configs' AND `field` = 'define_pagination_amount'));
+
+INSERT INTO `structure_validations` (`rule`, `flag_empty`, `flag_required`, `language_message`, `structure_field_id`)
+VALUES ('notEmpty', 0, 0, 'validation_req_define_decimal_separator', (SELECT `id` FROM `structure_fields` WHERE `model` = 'Config' AND `tablename` = 'configs' AND `field` = 'define_decimal_separator'));
+
+INSERT INTO `structure_validations` (`rule`, `flag_empty`, `flag_required`, `language_message`, `structure_field_id`)
+VALUES ('notEmpty', 0, 0, 'validation_req_define_datetime_input_type', (SELECT `id` FROM `structure_fields` WHERE `model` = 'Config' AND `tablename` = 'configs' AND `field` = 'define_datetime_input_type'));
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+('validation_req_define_show_help', 'The field CSV Separator is required!', ''),
+('validation_req_config_language', 'The field Language is required!', ''),
+('validation_req_flag_active', 'The field Account Status is required!', ''),
+('validation_req_define_csv_separator', 'The field CSV Separator is required!', ''),
+('validation_req_define_date_format', 'The field Date Format is required!', ''),
+('validation_req_define_time_format', 'The field Time Format is required!', ''),
+('validation_req_define_pagination_amount', 'The field Pagination is required!', ''),
+('validation_req_define_decimal_separator', 'The field Decimal Separator is required!', ''),
+('validation_req_define_datetime_input_type', 'The field Datetime Input Method is required!', '');
