@@ -1627,8 +1627,8 @@ class StructuresHelper extends Helper {
 						case 'integer':
 						case 'integer_positive':
 						case 'float':
-						case 'float_positive':
-							
+						case 'float_positive':	
+							if(isset($html_element_array['value'])) $html_element_array['value'] = StructuresHelper::format_number($html_element_array['value']);
 							$html_element_array['type'] = 'text';
 							if(Configure::read('debug') > 0){
 								$html_element_array['class'] .= " validation ";
