@@ -76,7 +76,14 @@ class Structure extends AppModel {
 					}
 //					pr($structure_format['StructureField']['StructureValidation']);
 					foreach ( $structure_format['StructureField']['StructureValidation'] as $validation ) {
-						$rule = split(',',$validation['rule']);
+						$rule = array();
+						if(($validation['rule'] == VALID_FLOAT) || ($validation['rule'] == VALID_FLOAT_POSITIVE)) {
+							// To support coma as decimal separator
+							$rule[0] = $validation['rule'];
+						} else {
+							$rule = split(',',$validation['rule']);
+						}
+						
 						if(count($rule) == 1){
 							$rule = $rule[0];
 						}
