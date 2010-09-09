@@ -95,27 +95,6 @@ class AliquotsComponent extends Object {
 		}
 		return true;
 	}
-	
-	/**
-	 * Replace ',' by '.' for all decimal field values gathered into 
-	 * data submitted for aliquot use creation or modification.
-	 * 
-	 * @param $submtted_data Submitted data
-	 * 
-	 * @return Formatted data.
-	 *
-	 * @author N. Luc
-	 * @since 2009-09-11
-	 */	
-	
-	function formatAliquotUseFieldDecimalData($submtted_data) {
-		// Work on AliquotUse fields
-		if(isset($submtted_data['AliquotUse'])) {
-			if(isset($submtted_data['AliquotUse']['used_volume'])) { $submtted_data['AliquotUse']['used_volume'] = str_replace(',', '.', $submtted_data['AliquotUse']['used_volume']); }					
-		}
-		
-		return $submtted_data;
-	}
 }
 
 ?>

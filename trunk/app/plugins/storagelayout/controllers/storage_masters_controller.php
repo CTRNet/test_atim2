@@ -211,11 +211,6 @@ class StorageMastersController extends StoragelayoutAppController {
 			// Set storage temperature information
 			$this->data['StorageMaster']['set_temperature'] = $storage_control_data['StorageControl']['set_temperature'];
 				
-			// Replace ',' to '.' for temperature
-			if(isset($this->data['StorageMaster']['temperature'])) {
-				$this->data['StorageMaster']['temperature'] = str_replace(',', '.', $this->data['StorageMaster']['temperature']);
-			}
-				
 			if((strcmp($storage_control_data['StorageControl']['set_temperature'], 'FALSE') == 0) && (!empty($parent_storage_data))) {
 				// Define storage surrounding temperature based on selected parent temperature
 				$this->data['StorageMaster']['temperature'] = $parent_storage_data['StorageMaster']['temperature'];
@@ -359,10 +354,6 @@ class StorageMastersController extends StoragelayoutAppController {
 					$this->data['StorageMaster']['temp_unit'] = $parent_storage_data['StorageMaster']['temp_unit'];						
 				}
 			} else {
-				// Replace ',' to '.' for temperature
-				if(isset($this->data['StorageMaster']['temperature'])) {
-					$this->data['StorageMaster']['temperature'] = str_replace(',', '.', $this->data['StorageMaster']['temperature']);
-				}
 			}	
 				
 			// Update parent storage coordinate values				

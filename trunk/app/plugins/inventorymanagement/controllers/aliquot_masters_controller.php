@@ -754,9 +754,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$this->data['AliquotMaster']['current_volume'] = (empty($aliquot_data['AliquotMaster']['current_volume'])? 'N/A' : $aliquot_data['AliquotMaster']['current_volume']);
 			
 		} else {	
-			// Format decimal data
-			$this->data = $this->Aliquots->formatAliquotUseFieldDecimalData($this->data);
-			
 			// Launch save process
 			$submitted_data_validates = true;
 						
@@ -828,9 +825,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$this->data['AliquotMaster']['current_volume'] = (empty($aliquot_data['AliquotMaster']['current_volume'])? 'N/A' : $aliquot_data['AliquotMaster']['current_volume']);
 			
 		} else {
-			// Format decimal data
-			$this->data = $this->Aliquots->formatAliquotUseFieldDecimalData($this->data);
-						
 			// Launch validations		
 			$submitted_data_validates = true;
 			
@@ -994,9 +988,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 			foreach($this->data as $key => $new_studied_aliquot){
 				if($new_studied_aliquot['FunctionManagement']['use']){
 					// New aliquot defined as source
-					
-					// Format decimal data
-					$new_studied_aliquot = $this->Aliquots->formatAliquotUseFieldDecimalData($new_studied_aliquot);
 					
 					// Check volume
 					if((!empty($new_studied_aliquot['AliquotUse']['used_volume'])) && empty($new_studied_aliquot['AliquotMaster']['aliquot_volume_unit'])) {
@@ -1232,9 +1223,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 
 				if($new_studied_aliquot['FunctionManagement']['use']) {
 					// Aliquot has been defined as child
-					
-					// Format decimal data
-					$new_studied_aliquot = $this->Aliquots->formatAliquotUseFieldDecimalData($new_studied_aliquot);
 					
 					// Check volume
 					if((!empty($new_studied_aliquot['AliquotUse']['used_volume'])) && empty($parent_aliquot_data['AliquotMaster']['aliquot_volume_unit'])) {
