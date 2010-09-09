@@ -7,6 +7,8 @@ class AppModel extends Model {
 	/**
 	 * Ensures that the "created_by" and "modified_by" user id columns are set automatically for all models. This requires
 	 * adding in access to the session to the model.
+	 * 
+	 * Replace float decimal separator ',' by '.'.
 	**/
 	 
 	function beforeSave(){
@@ -38,6 +40,22 @@ class AppModel extends Model {
 			$this->data[$this->name]['modified_by'] = 0;
 		}
 		
+		// Manage float record
+		foreach($this->_schema as $field_name => $field_properties) {
+			$tmp_type = $field_properties['type'];
+			if($tmp_type == "float" || $tmp_type == "number" || $tmp_type == "float_positive"){
+				if(isset($this->data[$this->name][$field_name])) {
+					$this->data[$this->name][$field_name] = str_replace(",", ".", $this->data[$this->name][$field_name]);
+					$this->data[$this->name][$field_name] = str_replace(" ", "", $this->data[$this->name][$field_name]);
+					$this->data[$this->name][$field_name] = str_replace("+", "", $this->data[$this->name][$field_name]);
+					if(is_numeric($this->data[$this->name][$field_name])) {
+						if(strpos($this->data[$this->name][$field_name], ".") === 0) $this->data[$this->name][$field_name] = "0".$this->data[$this->name][$field_name];
+						if(strpos($this->data[$this->name][$field_name], "-.") === 0) $this->data[$this->name][$field_name] = "-0".substr($this->data[$this->name][$field_name], 1);
+					} 
+				}
+			}
+		}
+
 		return true;
 	}
 	
@@ -122,34 +140,6 @@ class AppModel extends Model {
 		}
 		$this->query('UNLOCK TABLES');
 		return str_replace("%%key_increment%%", $result[0]['key_increments']['key_value'], $str);
-	}
-
-	/**
-	 * Overrides Model::validates - It corrects the number fields before submitting them
-	 * @param unknown_type $options
-	 * 
-	 * @note the validated is $this->model->data. Thus calling this from a structure where the data is in
-	 * $this->data (so structure->data) will not work. Following the same example, it needs to be
-	 * $this->model->data.
-	 */
-	function validates($options = array()) {
-		//we replace the comma "," for a dot "." when the field validation is a number - usefull for international radix
-		foreach($this->validate as $field => $rules_arr){
-			foreach($rules_arr as $rule){
-				if(isset($this->data[$this->name][$field]) && strlen($this->data[$this->name][$field]) > 0 && ($rule['rule'] == VALID_FLOAT || $rule['rule'] == VALID_FLOAT_POSITIVE)){
-					if((decimal_separator == "." && strpos($this->data[$this->name][$field], ",") !== false)
-					|| (decimal_separator == "," && strpos($this->data[$this->name][$field], ".") !== false)){
-						$this->validationErrors[$this->name] = __("invalid decimal separator", true);
-					}else{
-						$this->data[$this->name][$field] = str_replace(",", ".", $this->data[$this->name][$field]);
-						if(is_numeric($this->data[$this->name][$field]) && strpos($this->data[$this->name][$field], ".") === 0){
-							$this->data[$this->name][$field] = "0".$this->data[$this->name][$field];
-						}
-					}
-				}
-			}
-		}
-		return Model::validates($options);
 	}
 }
 
