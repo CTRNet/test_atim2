@@ -565,9 +565,6 @@ class SampleMastersController extends InventorymanagementAppController {
 				$this->data['SampleMaster']['initial_specimen_sample_id'] = $parent_sample_data['SampleMaster']['initial_specimen_sample_id'];
 			}
   	  			  	
-			// Replace ',' to '.' for volume
-			$this->data = $this->formatSampleFieldDecimalData($this->data);
-						
 			// Validates data
 			
 			$submitted_data_validates = true;
@@ -683,9 +680,6 @@ class SampleMastersController extends InventorymanagementAppController {
 			//Update data	
 			if(isset($this->data['SampleMaster']['parent_id']) && ($sample_data['SampleMaster']['parent_id'] !== $this->data['SampleMaster']['parent_id'])) { $this->redirect('/pages/err_inv_system_error', null, true); }
 
-			// Replace ',' to '.' for volume
-			$this->data = $this->formatSampleFieldDecimalData($this->data);
-									
 			// Validates data
 			
 			$submitted_data_validates = true;
@@ -857,24 +851,6 @@ class SampleMastersController extends InventorymanagementAppController {
 		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'review exists for the deleted sample'); }
 
 		return array('allow_deletion' => true, 'msg' => '');
-	}
-	
-	/**
-	 * Replace ',' by '.' for all decimal field values gathered into 
-	 * data submitted for sample creation or modification.
-	 * 
-	 * @param $submtted_data Submitted data
-	 * 
-	 * @return Formatted data.
-	 *
-	 * @author N. Luc
-	 * @since 2009-09-11
-	 */	
-	
-	function formatSampleFieldDecimalData($submtted_data) {
-		if(isset($submtted_data['SampleDetail']['collected_volume'])) { $submtted_data['SampleDetail']['collected_volume'] = str_replace(',', '.', $submtted_data['SampleDetail']['collected_volume']); }				
-		if(isset($submtted_data['SampleDetail']['pellet_volume'])) { $submtted_data['SampleDetail']['pellet_volume'] = str_replace(',', '.', $submtted_data['SampleDetail']['pellet_volume']); }				
-		return $submtted_data;
 	}
 	
 	/**
