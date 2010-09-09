@@ -2384,3 +2384,27 @@ WHERE `model` = 'Config' AND `tablename` = 'configs' AND `field` = 'define_show_
 
 UPDATE `structure_fields` SET `structure_value_domain` = (SELECT `id` FROM `structure_value_domains` WHERE `domain_name` = 'yes_no_checkbox')
 WHERE `model` = 'Config' AND `tablename` = 'configs' AND `field` = 'define_show_summary';
+
+-- Delete structure_validations for float and integer field
+
+UPDATE structure_fields field, structure_validations val
+SET field.type = 'integer_positive'
+WHERE (val.rule = 'custom,/^([0-9]+)$/' OR val.rule = 'custom,/^([0-9]+)?$/')
+AND field.id = val.structure_field_id;
+
+UPDATE structure_fields field, structure_validations val
+SET field.type = 'float_positive'
+WHERE val.rule LIKE  'custom,/^([0-9]+(\\\\.[0-9]+)?)?$/'
+AND field.id = val.structure_field_id;
+
+UPDATE structure_fields field, structure_validations val
+SET field.type = 'float'
+WHERE val.rule LIKE  'custom,/^([-]?[0-9]+(\\\\.[0-9]+)?)?$/'
+AND field.id = val.structure_field_id;
+
+UPDATE structure_fields SET setting = 'size=5'
+WHERE type LIKE 'float%' OR type LIKE 'integer%';
+
+DELETE FROM structure_validations WHERE rule LIKE 'custom,/^([0-9]+)$/' OR rule LIKE 'custom,/^([0-9]+)?$/' 
+OR rule LIKE 'custom,/^([0-9]+(\\\\.[0-9]+)?)?$/' OR rule LIKE 'custom,/^([-]?[0-9]+(\\\\.[0-9]+)?)?$/';
+ 
