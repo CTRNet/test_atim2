@@ -2407,4 +2407,12 @@ WHERE type LIKE 'float%' OR type LIKE 'integer%';
 
 DELETE FROM structure_validations WHERE rule LIKE 'custom,/^([0-9]+)$/' OR rule LIKE 'custom,/^([0-9]+)?$/' 
 OR rule LIKE 'custom,/^([0-9]+(\\\\.[0-9]+)?)?$/' OR rule LIKE 'custom,/^([-]?[0-9]+(\\\\.[0-9]+)?)?$/';
+
+-- Update field types to float for automatic validation
+
+UPDATE `structure_fields` SET `type` = 'float', setting = 'size=5'
+WHERE `model` = 'EventDetail' AND `tablename` = 'ed_all_clinical_presentation' AND `field` = 'weight';
+
+UPDATE `structure_fields` SET `type` = 'float', setting = 'size=5'
+WHERE `model` = 'EventDetail' AND `tablename` = 'ed_all_clinical_presentation' AND `field` = 'height';
  
