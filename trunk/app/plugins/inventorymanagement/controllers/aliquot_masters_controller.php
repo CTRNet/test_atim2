@@ -24,9 +24,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 		'Inventorymanagement.RealiquotingControl',
 		
 		'Inventorymanagement.AliquotUse',
-		'Inventorymanagement.AliquotUseDetail',
 		'Inventorymanagement.Realiquoting',
 		'Inventorymanagement.SourceAliquot',
+		'Inventorymanagement.QualityCtrlTestedAliquot',
 		
 		'Inventorymanagement.AliquotReviewMaster',
 		
@@ -879,27 +879,33 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 		
 		// Set Use Detail table
-		$this->AliquotUseDetail = null;
+		$AliquotUseDetail = null;
 		if(!empty($use_data['AliquotUse']['use_recorded_into_table'])) {
-			$supported_use_detail_table = array('quality_ctrl_tested_aliquots', 'source_aliquots', 'realiquotings');
-			
-			if(in_array($use_data['AliquotUse']['use_recorded_into_table'], $supported_use_detail_table)) {
-				$this->AliquotUseDetail = new AliquotUseDetail(false, $use_data['AliquotUse']['use_recorded_into_table']);
-			} else {
-				$this->flash('deletion of this type of use is currently not supported from use list', $flash_url);
-				return;
-			}	
+			switch($use_data['AliquotUse']['use_recorded_into_table']) {
+				case $this->QualityCtrlTestedAliquot->useTable:
+					$AliquotUseDetail = $this->QualityCtrlTestedAliquot;
+					break;
+				case $this->Realiquoting->useTable:
+					$AliquotUseDetail = $this->Realiquoting;
+					break;				
+				case $this->SourceAliquot->useTable:
+					$AliquotUseDetail = $this->SourceAliquot;
+					break;	
+				default:
+					$this->flash('deletion of this type of use is currently not supported from use list', $flash_url);
+					return;								
+			}
 		}
 	
 		// LAUNCH DELETION
 		
 		// -> Delete use detail if exists	
 		$deletion_done = true;
-		if(!is_null($this->AliquotUseDetail)) {
-			$aliquot_use_detail = $this->AliquotUseDetail->find('first', array('conditions' => array('aliquot_use_id' => $aliquot_use_id)));
+		if(!is_null($AliquotUseDetail)) {
+			$aliquot_use_detail = $AliquotUseDetail->find('first', array('conditions' => array('aliquot_use_id' => $aliquot_use_id), 'recursive' => '-1'));
 			if(empty($aliquot_use_detail)) { $this->redirect('/pages/err_inv_no_data', null, true); }
-			$aliquot_use_detail_id = $aliquot_use_detail['AliquotUseDetail']['id']; 
-			if(!$this->AliquotUseDetail->atim_delete($aliquot_use_detail_id)) { $deletion_done = false; }
+			$aliquot_use_detail_id = $aliquot_use_detail[$AliquotUseDetail->name]['id']; 
+			if(!$AliquotUseDetail->atim_delete($aliquot_use_detail_id)) { $deletion_done = false; }
 		}
 		
 		// -> Delete use
