@@ -367,7 +367,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$submitted_data_validates = true;
 			$errors = array();
 					
-			// -> Fields validation
+			// -> Fields validation + storage versus status validation
 			foreach($this->data as $key => $new_aliquot) {
 				$this->data[$key]['AliquotMaster']['aliquot_control_id'] = $aliquot_control_id;
 				$this->AliquotMaster->set($this->data[$key]);
@@ -379,6 +379,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 					$errors['AliquotDetail'][$field][$error] = '-'; 
 				}
 				
+				if(($new_aliquot['AliquotMaster']['in_stock'] == 'no') && ((!empty($new_aliquot['AliquotMaster']['storage_master_id'])) || (!empty($new_aliquot['FunctionManagement']['recorded_storage_selection_label'])))) {
+					$errors['AliquotMaster']['in_stock']['an aliquot being not in stock can not be linked to a storage'] = '-';
+					$submitted_data_validates = false;
+				}
 			}
 			
 			// -> Barcode validation
@@ -618,6 +622,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 			}
 			$this->AliquotDetail->validationErrors = $this->AliquotMaster->validationErrors;
 			
+			if(($this->data['AliquotMaster']['in_stock'] == 'no') && ((!empty($this->data['AliquotMaster']['storage_master_id'])) || (!empty($this->data['FunctionManagement']['recorded_storage_selection_label'])))) {
+				$errors['AliquotMaster']['in_stock']['an aliquot being not in stock can not be linked to a storage'] = '-';
+				$submitted_data_validates = false;
+			}
+			
 			// -> Storage definition validation
 			$storage_data_validation = $this->validateAliquotStorageData($this->data);
 			if(!$storage_data_validation['submitted_data_validates']) {
@@ -671,7 +680,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		// Delete storage data
 		$this->AliquotMaster->id = $aliquot_master_id;
-		if(!$this->AliquotMaster->save(array('AliquotMaster' => array('storage_master_id' => null, 'storage_coord_x' => null, 'storage_coord_y' => null)))) {
+		$aliquot_data_to_save = $this->Aliquots->removeAliquotStorageData(array());
+		if(!$this->AliquotMaster->save(array('AliquotMaster' => $aliquot_data_to_save))) {
 			$this->redirect('/pages/err_inv_record_err', null, true);
 		}
 		
@@ -1062,11 +1072,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 					$aliquot_master_id = $new_source_aliquot['AliquotMaster']['id'];
 					
 					// Set aliquot master data					
-					if($new_source_aliquot['FunctionManagement']['remove_from_storage']) {
+					if($new_source_aliquot['FunctionManagement']['remove_from_storage'] || ($new_source_aliquot['AliquotMaster']['in_stock'] = 'no')) {
 						// Delete aliquot storage data
-						$new_source_aliquot['AliquotMaster']['storage_master_id'] = null;
-						$new_source_aliquot['AliquotMaster']['storage_coord_x'] = null;
-						$new_source_aliquot['AliquotMaster']['storage_coord_y'] = null;
+						$new_source_aliquot['AliquotMaster'] = $this->Aliquots->removeAliquotStorageData($new_source_aliquot['AliquotMaster']);
 					}
 					
 					// Set aliquot use data
@@ -1097,7 +1105,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 					if(!$this->Aliquots->updateAliquotCurrentVolume($aliquot_master_id)) { $this->redirect('/pages/err_inv_record_err', null, true); }
 				}
 				
-				$this->atimFlash('your data has been saved', '/inventorymanagement/aliquot_masters/listAllSourceAliquots/' . $collection_id . '/' . $sample_master_id); 
+				$this->atimFlash(__('your data has been saved',true).'<br>'.__('aliquot storage data were deleted (if required)',true), 
+					'/inventorymanagement/aliquot_masters/listAllSourceAliquots/' . $collection_id . '/' . $sample_master_id); 
 			}
 		}
 	}
@@ -1665,6 +1674,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$this->redirect("/pages/err_inv_no_data");
 			exit;
 		}
+		pr('véerifier les regles de gestion si status = no');exit;
 		$this->set('batch_set_id', $batch_set_id);
 		if($save){
 			$aliquots_id = array();
