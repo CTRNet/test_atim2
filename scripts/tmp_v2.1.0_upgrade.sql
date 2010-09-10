@@ -2416,3 +2416,37 @@ WHERE `model` = 'EventDetail' AND `tablename` = 'ed_all_clinical_presentation' A
 UPDATE `structure_fields` SET `type` = 'float', setting = 'size=5'
 WHERE `model` = 'EventDetail' AND `tablename` = 'ed_all_clinical_presentation' AND `field` = 'height';
  
+-- Change orderline selection to add aliquot to order
+
+INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
+('no order line to complete is actually defined', 'No order line to complete is actually defined!', 'Aucune ligne de commande à compléter n''est actuellement définie!'); 
+ 
+INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) 
+VALUES ('order_lines_to_addAliquotsInBatch', '', '', '1', '1', '0', '1');
+
+DELETE FROM structure_formats WHERE structure_id IN (SELECT id FROM structures WHERE alias='order_lines_to_addAliquotsInBatch');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='order_lines_to_addAliquotsInBatch'), 
+(SELECT id FROM structure_fields WHERE `model`='Order' AND `tablename`='orders' AND `field`='order_number'), 
+'0', '1', '', '1', 'order', '1', 'number', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='order_lines_to_addAliquotsInBatch'), 
+(SELECT id FROM structure_fields WHERE `model`='Order' AND `tablename`='orders' AND `field`='short_title'), 
+'0', '2', '', '1', '', '1', 'title', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='order_lines_to_addAliquotsInBatch'), 
+(SELECT id FROM structure_fields WHERE `model`='Order' AND `tablename`='orders' AND `field`='date_order_placed'), 
+'0', '3', '', '1', '', '1', 'order_date order placed', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+
+((SELECT id FROM structures WHERE alias='order_lines_to_addAliquotsInBatch'), 
+(SELECT id FROM structure_fields WHERE `model`='OrderLine' AND `tablename`='order_lines' AND `field`='sample_control_id'), 
+'0', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='order_lines_to_addAliquotsInBatch'), 
+(SELECT id FROM structure_fields WHERE `model`='OrderLine' AND `tablename`='order_lines' AND `field`='aliquot_control_id'), 
+'0', '14', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='order_lines_to_addAliquotsInBatch'), 
+(SELECT id FROM structure_fields WHERE `model`='OrderLine' AND `tablename`='order_lines' AND `field`='sample_aliquot_precision'), 
+'0', '15', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),  
+((SELECT id FROM structures WHERE alias='order_lines_to_addAliquotsInBatch'), 
+(SELECT id FROM structure_fields WHERE `model`='OrderLine' AND `tablename`='order_lines' AND `field`='status'), 
+'0', '16', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+ 
+ 
