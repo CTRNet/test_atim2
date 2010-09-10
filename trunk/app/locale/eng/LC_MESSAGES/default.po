@@ -1194,8 +1194,6 @@ msgid	"help_define_pagination_amount"
 msgstr	"Sets the number of results to display per page on index forms."
 msgid	"help_define_show_advanced_controls"
 msgstr	"Toggles the advanced search options on all search forms. This includes the AND/OR options and toggles for exact matches vs pattern matching on text field searches."
-msgid	"help_define_show_help"
-msgstr	"Setting this value will enable or disable the help information bubbles throughout the application."
 msgid	"help_define_show_summary"
 msgstr	"Enable or disable the Summary tab found on the top right corner of the main window."
 msgid	"help_define_time_format"
@@ -1613,18 +1611,18 @@ msgstr	"Login"
 msgid	"Login failed. Invalid username or password."
 msgstr	"Login failed. Invalid username or password."
 msgid	"login_help"
-msgstr	"For demonstration purposes, there are two logins available.
-
-The first is "endemo" as both username and password. This user has a default setting of english.
-
+msgstr	"For demonstration purposes, there are two logins available.
+
+The first is "endemo" as both username and password. This user has a default setting of english.
+
 The second is "frdemo" as both username and password. This user has a default setting of fre"
 msgid	"login_help"
-msgstr	"For demonstration purposes, there are two logins available.
-
-The first is "endemo" as both username and password. This user has a default setting of english.
-
-The second is "frdemo" as both username and password. This user has a default setting of french.
-
+msgstr	"For demonstration purposes, there are two logins available.
+
+The first is "endemo" as both username and password. This user has a default setting of english.
+
+The second is "frdemo" as both username and password. This user has a default setting of french.
+
 All text, including english, is accessed from language datatables. All text to be displayed in a HELPER, VIEW, or LAYOUT should be entered as aliases in all other datatables. A TRANSLATION helper/function calls that alias, and displays the correct language text or the same alias with a mistranlation indication."
 msgid	"logout"
 msgstr	"Logout"
@@ -1852,6 +1850,8 @@ msgid	"no new sample aliquot could be actually defined as source aliquot"
 msgstr	"No new sample aliquot could be defined as the source aliquot!"
 msgid	"no new sample aliquot could be actually defined as tested aliquot"
 msgstr	"No new sample aliquot could be actually defined as tested aliquot!"
+msgid	"no order line to complete is actually defined"
+msgstr	"No order line to complete is actually defined!"
 msgid	"no path review exists for this type of sample"
 msgstr	"No path review exists for this type of sample!"
 msgid	"no storage"
