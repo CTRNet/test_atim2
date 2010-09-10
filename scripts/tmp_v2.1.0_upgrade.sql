@@ -2449,4 +2449,10 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 (SELECT id FROM structure_fields WHERE `model`='OrderLine' AND `tablename`='order_lines' AND `field`='status'), 
 '0', '16', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
  
- 
+INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
+('aliquot storage data were deleted (if required)', 'Aliquot storage data were deleted (if required)!', 'Les données d''entreposage ont été supprimées (au besoin)!');
+
+INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
+('an aliquot being not in stock can not be linked to a storage', 'An aliquot being not in stock can not be linked to a storage!', 'Un aliquot non en stock ne peut être attaché à un entreposage!');
+
+
