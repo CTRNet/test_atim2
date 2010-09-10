@@ -220,6 +220,7 @@ class OrderItemsController extends OrderAppController {
 				// Set data to session
 				$aliquot_ids_to_add = $studied_aliquot_master_ids;
 				$_SESSION['Order']['AliquotIdsToAddToOrder'] = $studied_aliquot_master_ids;
+				$_SESSION['Order']['url_to_redirect'] = $url_to_redirect;
 			}	
 					
 		} else {
@@ -234,6 +235,7 @@ class OrderItemsController extends OrderAppController {
 			}
 			$aliquot_ids_to_add = $_SESSION['Order']['AliquotIdsToAddToOrder'];
 			$launch_save_process = true;
+			$url_to_redirect = isset($_SESSION['Order']['url_to_redirect'])? $_SESSION['Order']['url_to_redirect']: '/menus';
 		}
 		
 		// MANAGE DATA
@@ -243,17 +245,22 @@ class OrderItemsController extends OrderAppController {
 		$this->set('aliquots_data' , $aliquots_data);	
 				
 		// Build data for order line selection
+		$order_line_found = false;
 		$order_line_data_for_tree_view = $this->Order->find('all', array('conditions' => array('NOT' => array('Order.processing_status' => array('completed')))));
 		foreach($order_line_data_for_tree_view as &$var){
 			$var['children'] = $var['OrderLine'];
 			unset($var['OrderLine']);
 			foreach($var['children'] as $key => &$var2){
 				$var['children'][$key] = array('OrderLine' => $var2);
+				$order_line_found = true;
 			}
 			unset($var['Shipment']);
 		}
 		$this->set('order_line_data_for_tree_view', $order_line_data_for_tree_view);
-
+		if(!$order_line_found) {
+			$this->OrderItem->validationErrors[] = __("no order line to complete is actually defined", true);
+		}
+		
 		// Set url for cancel button
 		$this->set('url_to_cancel', $url_to_redirect);	
 		
