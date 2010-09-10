@@ -594,16 +594,6 @@ class StorageMastersController extends StoragelayoutAppController {
 			$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
 			if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }
 			$storage_content = $this->StorageTreeView->find('threaded', array('conditions' => array('StorageTreeView.lft >=' => $storage_data['StorageMaster']['lft'], 'StorageTreeView.rght <=' => $storage_data['StorageMaster']['rght']), 'contain' => array('AliquotMaster', 'TmaSlide' => array('Block')), 'recursive' => '2'));
-			//do not display aliquots that are not in stock
-			foreach($storage_content as &$storage){
-				if(isset($storage['AliquotMaster'])){
-					foreach($storage['AliquotMaster'] as $index => $foo){
-						if(strpos($storage['AliquotMaster'][$index]['in_stock'], "yes") === false){
-							unset($storage['AliquotMaster'][$index]);
-						}
-					}
-				}
-			}
 			$storage_content = $this->formatStorageTreeView($storage_content);
 			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/contentTreeView/%%StorageMaster.id%%');
 		}else{
@@ -724,7 +714,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		}
 		
 		$storage_master_c = $this->StorageMaster->find('all', array('conditions' => array('StorageMaster.parent_id' => $storage_master_id)));
-		$aliquot_master_c = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id, 'AliquotMaster.in_stock LIKE "yes%"'), 'recursive' => '-1'));
+		$aliquot_master_c = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id), 'recursive' => '-1'));
 		$tma_slide_c = $this->TmaSlide->find('all', array('conditions' => array('TmaSlide.storage_master_id' => $storage_master_id), 'recursive' => '-1'));
 
 		if(!empty($this->data)){	
