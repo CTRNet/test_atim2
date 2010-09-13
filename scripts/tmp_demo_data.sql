@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Serveur: localhost
--- Généré le : Ven 28 Mai 2010 à 16:53
+-- Gï¿½nï¿½rï¿½ le : Ven 28 Mai 2010 ï¿½ 16:53
 -- Version du serveur: 5.1.32
 -- Version de PHP: 5.2.9
 
@@ -11,7 +11,7 @@ SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 SET FOREIGN_KEY_CHECKS=0;
 
 --
--- Base de données: `ctrnet_trunk`
+-- Base de donnï¿½es: `ctrnet_trunk`
 --
 
 --
@@ -1817,3 +1817,115 @@ INSERT INTO `tx_masters_revs` (`id`, `treatment_control_id`, `tx_method`, `disea
 --
 
 SET FOREIGN_KEY_CHECKS=1;
+
+-- -------------------------------------------------------------------------------------------------------------------------
+-- DATA FOR DATAMART ADHOC QUERY
+-- -------------------------------------------------------------------------------------------------------------------------
+
+DELETE FROM `datamart_adhoc` WHERE `id` = 1001;
+INSERT INTO `datamart_adhoc` 
+(`id`, `description`, `plugin`,`model`, 
+`form_alias_for_search`, `form_alias_for_results`, `form_links_for_results`, 
+`sql_query_for_results`, 
+`flag_use_query_results`) 
+VALUES 
+('1001', '<b>QR_1001_Demo</b>: <u>Search Stored Aliquots / Recherche d''aliquots entrepos&eacute;s</u>', 
+'Inventorymanagement',
+'AliquotMaster', 
+'stored_aliquot_adhoc_query', 'stored_aliquot_adhoc_query', 
+'storage detail=>/storagelayout/storage_masters/detail/%%StorageMaster.id%%/|aliquot detail=>/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%/', 
+'SELECT 
+Collection.id,
+SampleMaster.id,
+AliquotMaster.id, 
+AliquotMaster.barcode, 
+Collection.acquisition_label,
+Collection.bank_id, 
+SampleMaster.sample_type, 
+AliquotMaster.aliquot_type, 
+AliquotMaster.in_stock,
+AliquotMaster.current_volume, 
+AliquotMaster.aliquot_volume_unit,
+AliquotMaster.storage_datetime, 
+StorageMaster.id, 
+StorageMaster.selection_label, 
+StorageMaster.storage_type, 
+AliquotMaster.storage_coord_x, 
+AliquotMaster.storage_coord_y, 
+StorageMaster.temperature, 
+StorageMaster.temp_unit 
+FROM collections AS Collection 
+INNER JOIN sample_masters AS SampleMaster ON SampleMaster.collection_id = Collection.id 
+INNER JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.sample_master_id = SampleMaster.id 
+INNER JOIN storage_masters AS StorageMaster ON AliquotMaster.storage_master_id = StorageMaster.id 
+WHERE TRUE
+AND AliquotMaster.barcode IN (@@AliquotMaster.barcode@@) 
+AND Collection.acquisition_label = "@@Collection.acquisition_label@@"
+AND Collection.bank_id = "@@Collection.bank_id@@"
+AND SampleMaster.sample_type = "@@SampleMaster.sample_type@@" 
+AND AliquotMaster.aliquot_type = "@@AliquotMaster.aliquot_type@@" 
+AND AliquotMaster.in_stock = "@@AliquotMaster.in_stock@@" 
+AND StorageMaster.selection_label LIKE "%@@StorageMaster.selection_label@@%" 
+AND StorageMaster.temperature >= "@@StorageMaster.temperature_start@@" 
+AND StorageMaster.temperature <= "@@StorageMaster.temperature_end@@" 
+AND StorageMaster.temp_unit = "@@StorageMaster.temp_unit@@" 
+AND AliquotMaster.storage_datetime >= "@@AliquotMaster.storage_datetime_start@@" 
+AND AliquotMaster.storage_datetime <= "@@AliquotMaster.storage_datetime_end@@" 
+ORDER BY AliquotMaster.barcode;', 
+1);
+
+DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias='stored_aliquot_adhoc_query');
+DELETE FROM `structures` WHERE `alias` LIKE 'stored_aliquot_adhoc_query';
+
+INSERT INTO `structures` (`id`, `alias`, `description`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) 
+VALUES 
+(NULL, 'stored_aliquot_adhoc_query', NULL, '', '', '1', '1', '0', '1');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='stored_aliquot_adhoc_query'), 
+(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `type`='input'),
+'0', '1', '', '0', '', '0', '', '0', '', '0', '', '1', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='stored_aliquot_adhoc_query'), 
+(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_type'),
+'0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='stored_aliquot_adhoc_query'), 
+(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='in_stock' ),
+'0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='stored_aliquot_adhoc_query'), 
+(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='current_volume'),
+'0', '4', '', '0', '', '0', '', '0', '', '0', '', '1', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='stored_aliquot_adhoc_query'), 
+(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_volume_unit'),
+'0', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='stored_aliquot_adhoc_query'), 
+(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='storage_datetime'),
+'0', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='stored_aliquot_adhoc_query'), 
+(SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='selection_label'),
+'0', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='stored_aliquot_adhoc_query'), 
+(SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='storage_type'),
+'0', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='stored_aliquot_adhoc_query'), 
+(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='storage_coord_x'),
+'0', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='stored_aliquot_adhoc_query'), 
+(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='storage_coord_y'),
+'0', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='stored_aliquot_adhoc_query'), 
+(SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='temperature'),
+'0', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='stored_aliquot_adhoc_query'), 
+(SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='temp_unit'),
+'0', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='stored_aliquot_adhoc_query'), 
+(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='bank_id'),
+'0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='stored_aliquot_adhoc_query'), 
+(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='acquisition_label'),
+'0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0');
+
+UPDATE structure_formats
+SET `flag_override_setting` = '1', `setting` = 'tool=csv'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='stored_aliquot_adhoc_query')
+AND structure_field_id = (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `type`='input');
+
