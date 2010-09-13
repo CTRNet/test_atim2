@@ -28,6 +28,9 @@ class BatchSetsController extends DatamartAppController {
 		$this->Structures->set('querytool_batch_set' );
 		
 		$this->data = $this->paginate($this->BatchSet, $batch_set_filter);
+		foreach($this->data as $key => $data) {
+			$this->data[$key]['BatchSet']['count_of_BatchId'] = sizeof($data['BatchId']);
+		}		
 	}
 	
 	function listall( $type_of_list='all', $batch_set_id=0 ) {
