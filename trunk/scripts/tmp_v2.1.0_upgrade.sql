@@ -2458,6 +2458,17 @@ INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
 INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('reload form', 'Reload Form', 'Ré-afficher le formulaire');
 
+UPDATE structure_fields
+SET language_label = 'number of elements'
+WHERE field LIKE 'count_of_BatchId';
+
+INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
+('number of elements', 'number of elements', 'Nombre d''éléments');
+
+DELETE FROM `i18n` WHERE id IN ('account status','reports');
+INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
+('reports', 'Reports', 'Rapports'),
+('account status', 'Account Status', 'Statu du compte');
 
 
 
