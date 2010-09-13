@@ -1860,7 +1860,7 @@ INNER JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.sample_master_id = 
 INNER JOIN storage_masters AS StorageMaster ON AliquotMaster.storage_master_id = StorageMaster.id 
 WHERE TRUE
 AND AliquotMaster.barcode IN (@@AliquotMaster.barcode@@) 
-AND Collection.acquisition_label = "@@Collection.acquisition_label@@"
+AND Collection.acquisition_label LIKE "@@Collection.acquisition_label@@"
 AND Collection.bank_id = "@@Collection.bank_id@@"
 AND SampleMaster.sample_type = "@@SampleMaster.sample_type@@" 
 AND AliquotMaster.aliquot_type = "@@AliquotMaster.aliquot_type@@" 
