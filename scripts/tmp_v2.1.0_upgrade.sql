@@ -2455,4 +2455,9 @@ INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
 INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('an aliquot being not in stock can not be linked to a storage', 'An aliquot being not in stock can not be linked to a storage!', 'Un aliquot non en stock ne peut être attaché à un entreposage!');
 
+INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
+('reload form', 'Reload Form', 'Ré-afficher le formulaire');
+
+
+
 
