@@ -270,7 +270,7 @@ INSERT INTO structure_permissible_values_customs(control_id, value)
 INSERT INTO structure_permissible_values_customs(control_id, value)
 (SELECT '4', value FROM structure_permissible_values WHERE id IN (SELECT structure_permissible_value_id FROM structure_value_domains_permissible_values WHERE structure_value_domain_id=(SELECT id FROM structure_value_domains WHERE domain_name='custom_specimen_supplier_dept')));
 INSERT INTO structure_permissible_values_customs(control_id, value)
-(SELECT '5', value FROM structure_permissible_values WHERE id IN (SELECT structure_permissible_value_id FROM structure_value_domains_permissible_values WHERE structure_value_domain_id=(SELECT id FROM structure_value_domains WHERE domain_name='custom_tool')));
+(SELECT '5', value FROM structure_permissible_values WHERE id IN (SELECT structure_permissible_value_id FROM structure_value_domains_permissible_values WHERE structure_value_domain_id=(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_qc_tool')));
 INSERT INTO structure_permissible_values_customs_revs(id, control_id, value)
 (SELECT id, control_id, value FROM structure_permissible_values_customs);
 
@@ -279,7 +279,7 @@ UPDATE structure_value_domains SET source='StructurePermissibleValuesCustom::get
 UPDATE structure_value_domains SET source='StructurePermissibleValuesCustom::getDropdownLaboratorySites' WHERE domain_name='custom_laboratory_site';
 UPDATE structure_value_domains SET source='StructurePermissibleValuesCustom::getDropdownCollectionSites' WHERE domain_name='custom_collection_site';
 UPDATE structure_value_domains SET source='StructurePermissibleValuesCustom::getDropdownSpecimenSupplierDepartments' WHERE domain_name='custom_specimen_supplier_dept';
-UPDATE structure_value_domains SET source='StructurePermissibleValuesCustom::getDropdownToors' WHERE domain_name='custom_tool';
+UPDATE structure_value_domains SET source='StructurePermissibleValuesCustom::getDropdownQcTools' WHERE domain_name='custom_laboratory_qc_tool';
 
 -- 953, new structures for display and input
 INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('administrate_dropdowns', '', '', '1', '1', '1', '1');
@@ -2470,5 +2470,72 @@ INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('reports', 'Reports', 'Rapports'),
 ('account status', 'Account Status', 'Statu du compte');
 
+-- Add tranlsation to custom drop down list plus upgrade custom drop down list
 
+UPDATE menus
+SET language_title = 'custom dropdown list management', language_description = 'custom dropdown list management'
+WHERE language_title = 'dropdowns' AND language_description = 'dropdowns';
 
+INSERT INTO i18n (id,en,fr)
+VALUES ('custom dropdown list management', 'Managing lists of values', 'Gestion des listes de valeurs');
+
+ALTER TABLE structure_permissible_values_customs
+	ADD `en` varchar(255) DEFAULT '' AFTER `value`,
+	ADD `fr` varchar(255) DEFAULT '' AFTER `en`;
+
+ALTER TABLE structure_permissible_values_customs_revs
+	ADD `en` varchar(255) DEFAULT '' AFTER `value`,
+	ADD `fr` varchar(255) DEFAULT '' AFTER `en`;
+
+ALTER TABLE structure_permissible_values_custom_controls
+	ADD `flag_active` tinyint(1) NOT NULL DEFAULT '1' AFTER `name`;
+	
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) 
+VALUES
+('', 'Administrate', 'StructurePermissibleValuesCustom', 'structure_permissible_values_customs', 'en', 'english translation', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'),
+('', 'Administrate', 'StructurePermissibleValuesCustom', 'structure_permissible_values_customs', 'fr', 'french translation', '', 'input', '', '',  NULL , '', 'open', 'open', 'open');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) 
+VALUES 
+((SELECT id FROM structures WHERE alias='administrate_dropdown_values'), 
+(SELECT id FROM structure_fields WHERE `model`='StructurePermissibleValuesCustom' AND `tablename`='structure_permissible_values_customs' AND `field`='en'),
+'1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '1', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='administrate_dropdown_values'), 
+(SELECT id FROM structure_fields WHERE `model`='StructurePermissibleValuesCustom' AND `tablename`='structure_permissible_values_customs' AND `field`='fr'),
+'1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '1', '0', '1', '0');
+
+UPDATE structure_fields
+SET language_label = 'value in database'
+WHERE field LIKE 'value' AND model LIKE 'StructurePermissibleValuesCustom';
+
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, (SELECT id FROM structure_fields WHERE field LIKE 'value' AND model LIKE 'StructurePermissibleValuesCustom'), 'notEmpty', '0', '0', '', 'value is required', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
+
+INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
+('value in database', 'Value in Database', 'Valeur en base de données'),    	     	  
+('english translation', 'English Translation', 'Traduction anglaise'), 
+('french translation', 'French Translation', 'Traduction française');
+
+INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
+('a specified value already exists for that dropdown', 'A specified value already exists for that dropdown!', 'Une valeur existe déjà pour cette liste!');
+
+UPDATE structure_formats
+SET `flag_edit` = '1', `flag_edit_readonly` = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='administrate_dropdown_values')
+AND structure_field_id = (SELECT id FROM structure_fields WHERE `model`='StructurePermissibleValuesCustom' AND `tablename`='structure_permissible_values_customs' AND `field`='value');
+
+INSERT INTO `pages` (`id`, `error_flag`, `language_title`, `language_body`, `use_link`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+('err_admin_record_err', 1, 'data creation - update error', 'an error occurred during the creation or the update of the data', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+ALTER TABLE `structure_permissible_values_custom_controls` ADD UNIQUE (`name`);
+
+DELETE FROM `structure_value_domains_permissible_values` WHERE 	structure_value_domain_id IN (
+	SELECT id FROM  `structure_value_domains` 
+	WHERE domain_name IN ('custom_laboratory_qc_tool', 'custom_collection_site', 'custom_laboratory_staff', 'custom_specimen_supplier_dept', 'custom_laboratory_site')
+);
+
+UPDATE structure_permissible_values_custom_controls SET name = 'laboratory staff' WHERE name = 'staff';
+UPDATE structure_permissible_values_custom_controls SET name = 'laboratory sites' WHERE name = 'laboratory sites';
+UPDATE structure_permissible_values_custom_controls SET name = 'specimen collection sites' WHERE name = 'collection sites';
+UPDATE structure_permissible_values_custom_controls SET name = 'specimen supplier departments' WHERE name = 'specimen supplier departments';
+UPDATE structure_permissible_values_custom_controls SET name = 'quality control tools' WHERE name = 'tools';
