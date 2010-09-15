@@ -1,3 +1,100 @@
+var toolTarget = null;
+
+function initSummary(){
+	var open = function(){
+		var summary_hover = $(this);
+		var summary_popup = summary_hover.find('ul');
+		var summary_label = summary_hover.find('span');
+		if ( summary_popup.length>0 ) {
+			summary_popup.stop(true, true).slideDown(100);
+		}
+	};
+	var close = function(){
+		var summary_hover = $(this);
+		var summary_popup = summary_hover.find('ul');
+		var summary_label = summary_hover.find('span');
+		if ( summary_popup.length>0 ) {
+			summary_popup.delay(101).slideUp(100);
+		}
+	};
+	$('#menu #summary').hover(open, close);
+}
+
+//Slide down animation (show) for action menu
+var actionMenuShow = function(){
+	var action_hover = $(this);
+	var action_popup = action_hover.find('div.filter_menu');
+	if ( action_popup.length > 0 ) {
+		//show current menu
+		action_popup.slideDown(100);
+	}
+};
+	
+//Slide up (hide) animation for action menu.
+var actionMenuHide = function(){
+	var action_hover = $(this);
+	var action_popup = action_hover.find('div.filter_menu');
+	if (action_popup.length > 0) {
+		action_popup.slideUp(100).queue(function(){
+			$(this).clearQueue();
+		});
+	}
+};
+
+var menuMoveDistance = 174;
+var actionClickUp = function() {
+	var span_up = $(this);
+	var move_ul = span_up.parent('div.filter_menu').find('ul');
+	
+	var position = move_ul.position();
+	
+	// only scroll if not already at edge...
+	if ( position.top < 0 ) {
+		
+		move_ul.animate(
+			{
+				top: '+=' + menuMoveDistance
+			},
+			150,
+			'linear'
+		);
+		
+	}
+	
+	return false;
+};
+
+var actionClickDown = function() {
+	
+	var span_up = $(this);
+	var move_ul = span_up.parent('div.filter_menu').find('ul');
+	
+	var position = move_ul.position();
+	
+	
+	// only scroll if not already at edge...
+	if ( (position.top - 203) > (-1 * move_ul.height()) ) {
+		move_ul.animate(
+			{
+				top: '-=' + menuMoveDistance
+			},
+			150,
+			'linear'
+		);
+	}
+	
+	return false;
+};
+
+/**
+ * Inits actions bars (main one and ajax loaded ones). Unbind the actions before rebinding them to avoid duplicate bindings
+ */
+function initActions(){
+	$('div.actions ul ul.filter li').unbind('mouseenter', actionMenuShow).unbind('mouseleave', actionMenuHide).bind('mouseenter', actionMenuShow).bind('mouseleave', actionMenuHide);
+	$('#wrapper div.actions ul ul.filter div a.down').unbind('click', actionClickDown).click(actionClickDown);
+	$('#wrapper div.actions ul ul.filter div a.up').unbind('click', actionClickUp).click(actionClickUp);
+}
+
 function checkAll( $div ) {
 	
 	// check compatibility
@@ -71,62 +168,11 @@ function uncheckAll( $div ) {
 	
 	function getJsonFromClass(cssClass){
 		var startIndex = cssClass.indexOf("{");
-		return eval ('(' + cssClass.substr(startIndex, cssClass.lastIndexOf("}") - startIndex + 1) + ')');
-	}
-	
-	$(function(){
-		//field highlighting
-		if($("#table1row0").length == 1){
-			//gridview
-			$('form').highlight('td');
-		}else{
-			$('form').highlight('tr');
+		if(startIndex > -1){
+			return eval ('(' + cssClass.substr(startIndex, cssClass.lastIndexOf("}") - startIndex + 1) + ')');
 		}
-		
-		//tree view controls
-		$(".reveal:not(.not_allowed)").each(function(){
-			var json = getJsonFromClass($(this).attr("class"));
-			$(this).toggle(function(){
-				$("#tree_" + json.tree).stop(true, true);
-				$("#tree_" + json.tree).show("blind", {}, 350);
-			}, function(){
-				$("#tree_" + json.tree).stop(true, true);
-				$("#tree_" + json.tree).hide("blind", {}, 350);
-			});
-		});
-		
-		//ajax controls
-		//evals the json within the class of the element and calls the method defined in callback
-		//the callback method needs to take this and json as parameters
-		$(".ajax").click(function(){
-			var json = getJsonFromClass($(this).attr("class"));
-			var fct = eval("(" + json.callback + ")");
-			fct.apply(this, [this, json]);
-			return false;
-		});
-		
-		//autocomplete controls
-		$(".jqueryAutocomplete").each(function(){
-			var json = getJsonFromClass($(this).attr("class"));
-			var fct = eval("(" + json.callback + ")");
-			fct.apply(this, [this, json]);
-			return false;
-		});
-
-		initAdvancedControls();
-		initTooltips();
-		
-		//calendar controls
-		$.datepicker.setDefaults($.datepicker.regional[locale]);
-		$(".datepicker").each(function(){
-			initDatepicker(this);
-		});
-		//datepicker style
-		$("#ui-datepicker-div").addClass("jquery_cupertino");
-		//autocomplete style
-		$(".ui-autocomplete").addClass("jquery_cupertino");
-		
-	});
+		return null;
+	}
 
 	function initDatepicker(element){
 		var tmpId = element.id.substr(0, element.id.indexOf("_button"));
@@ -186,9 +232,12 @@ function uncheckAll( $div ) {
 		});
 	}
 	
-	function initAdvancedControls(){
+	/**
+	 * Advanced controls are search OR options and RANGE buttons
+	 */
+	function initAdvancedControls(scope){
 		//for each add or button
-		$(".btn_add_or").each(function(){
+		$(scope + " .btn_add_or").each(function(){
 			var $field = $(this).parent().parent().find("span:first");
 			if($($field).find("input, select").length == 1){
 				$($field).find("input, select").each(function(){
@@ -235,6 +284,45 @@ function uncheckAll( $div ) {
 				$(this).remove();
 			}
 		});
+		
+		$(scope + " .range").each(function(){
+			//uses .btn_add_or to know if this is a search form and if advanced controls are on
+			$(this).parent().parent().find(".btn_add_or").parent().append(" <a href='#' class='range_btn'>(" + STR_RANGE + ")</a>");
+		});
+		$(scope + " .range_btn").toggle(function(){
+			var cell = getParentElement(this, "TD");
+			$(cell).find("input").val("");
+			if($(cell).find(".range_span").length == 0){
+				$(cell).find("span:first").addClass("adv_ctrl");
+				$(cell).prepend("<span class='range_span'><input type='text' name='data[MiscIdentifier][identifier_value_start]'/> " + STR_TO + " <input type='text' name='data[MiscIdentifier][identifier_value_end]'/></span>");
+			}else{
+				$(cell).find(".range_span").show();
+				//restore names
+				$(cell).find(".range_span input").each(function(){
+					$(this).attr("name", $(this).attr("name").substr(1));
+				});
+			}
+			$(this).html("(" + STR_SPECIFIC + ")");
+			$(cell).find(".adv_ctrl").hide();
+			//obfuscate names
+			$(cell).find(".adv_ctrl input").each(function(){
+				$(this).attr("name", "x" + $(this).attr("name"));
+			});
+		}, function(){
+			var cell = getParentElement(this, "TD");
+			$(cell).find("input").val("");
+			$(this).html("(" + STR_RANGE + ")");
+			$(cell).find(".range_span").hide();
+			$(cell).find(".adv_ctrl").show();
+			//restore input names
+			$(cell).find(".adv_ctrl input").each(function(){
+				$(this).attr("name", $(this).attr("name").substr(1));
+			});
+			//obfuscate input names
+			$(cell).find(".range_span input").each(function(){
+				$(this).attr("name", "x" + $(this).attr("name"));
+			});
+		});
 	}
 	
 	function initTooltips(){
@@ -252,4 +340,184 @@ function uncheckAll( $div ) {
 			});
 			$(this).find("div").addClass("ui-corner-all").css({"border" : "1px solid", "padding" : "3px"})
 		});	
+	}
+	
+	/**
+	 * Remove the row that contains the element
+	 * @param element The element contained within the row to remove
+	 */
+	function removeParentRow(element){
+		element = getParentElement(element, "TR");
+		
+		if($(element)[0].nodeName == "TR"){
+			$(element).remove();
+		}
+	}
+	
+	function getParentRow(element){
+		return getParentElement(element, "TR");
+	}
+	
+	function initAutocomplete(){
+		$(".jqueryAutocomplete").each(function(){
+			var json = getJsonFromClass($(this).attr("class"));
+			var fct = eval("(" + json.callback + ")");
+			fct.apply(this, [this, json]);
+		});
+	}
+	
+	function initAliquotVolumeCheck(){
+		$(".form.submit").unbind('click').attr("onclick", "return false;");
+		$(".form.submit").click(function(){
+			var denom = $("#AliquotMasterCurrentVolume").val().replace(/,/g, ".");
+			var nom = $("#AliquotUseUsedVolume").val().replace(/,/g, ".");
+			if(nom.length > 0 && nom > denom){
+				$("#popup").popup();
+			}else{
+				$("#submit_button").click();
+			}
+			return false;
+		});
+
+		$(".button.confirm").click(function(){
+			$("#submit_button").click();
+		});
+		$(".button.close").click(function(){
+			$("#popup").popup('close');
+		});
+	}
+	
+	function refreshTopBaseOnAction(){
+		$("form").attr("action", root_url + actionControl + $("#0Action").val());
+	}
+	
+	function initActionControl(actionControl){
+		$($(".adv_ctrl.btn_add_or")[1]).parent().parent().find("select").change(function(){
+			refreshTopBaseOnAction(actionControl);
+		});
+		$(".adv_ctrl.btn_add_or").remove();
+		refreshTopBaseOnAction(actionControl);
+	}
+	
+	/**
+	 * Initialises check/uncheck all controls
+	 * @param scope The scope where to look for those controls. In a popup, the scope will be the popup box
+	 */
+	function initCheckAll(scope){
+		var elem = $(scope + " .checkAll");
+		if(elem.length > 0){
+			parent = getParentElement(elem, "TBODY");
+			$(elem).click(function(){
+				$(parent).find('input[type=checkbox]').attr("checked", true);
+				return false;
+			});
+			$(scope + " .uncheckAll").click(function(){
+				$(parent).find('input[type=checkbox]').attr("checked", false);
+				return false;
+			});
+		}
+	}
+	
+	function getParentElement(currElement, parentName){
+		do{
+			currElement = $(currElement).parent();
+			nodeName = currElement[0].nodeName;
+		}while(nodeName != parentName && nodeName != "undefined");
+		return currElement;
+	}
+	
+	function initJsControls(){
+		if(typeof(storageLayout) != 'undefined'){
+			initStorageLayout();
+		}
+		if(typeof(browser) != 'undefined'){
+			initBrowser();
+		}
+		if(typeof(copyControl) != 'undefined'){
+			initCopyControl();
+		}
+		if(typeof(aliquotVolumeCheck) != 'undefined'){
+			initAliquotVolumeCheck();
+		}
+		if(typeof(actionControl) != 'undefined'){
+			initActionControl(actionControl);
+		}
+		if(typeof(ccl) != 'undefined'){
+			initCcl();
+		}
+		
+		//field highlighting
+		if($("#table1row0").length == 1){
+			//gridview
+			$('form').highlight('td');
+		}else{
+			$('form').highlight('tr');
+		}
+		
+		//tree view controls
+		$(".reveal:not(.not_allowed)").each(function(){
+			var cssClass = $(this).attr("class");
+			if(cssClass.indexOf("{") > -1){
+				var json = getJsonFromClass(cssClass);
+				$(this).toggle(function(){
+					$("#tree_" + json.tree).stop(true, true);
+					$("#tree_" + json.tree).show("blind", {}, 350);
+				}, function(){
+					$("#tree_" + json.tree).stop(true, true);
+					$("#tree_" + json.tree).hide("blind", {}, 350);
+				});
+			}
+		});
+		
+		//ajax controls
+		//evals the json within the class of the element and calls the method defined in callback
+		//the callback method needs to take this and json as parameters
+		$(".ajax").click(function(){
+			var json = getJsonFromClass($(this).attr("class"));
+			var fct = eval("(" + json.callback + ")");
+			fct.apply(this, [this, json]);
+			return false;
+		});
+		
+		initAutocomplete();
+		initAdvancedControls("");
+		initTooltips();
+		initActions();
+		initSummary();
+		
+		//calendar controls
+		$.datepicker.setDefaults($.datepicker.regional[locale]);
+		$(".datepicker").each(function(){
+			initDatepicker(this);
+		});
+		
+		//tool_popup
+		$(".tool_popup").click(function(){
+			var parent_elem = $(this).parent().children();
+			toolTarget = null;
+			for(i = 0; i < parent_elem.length; i ++){
+				//find the current element
+				if(parent_elem[i] == this){
+					for(j = i - 1; j >= 0; j --){
+						//find the previous input
+						if(parent_elem[j].nodeName == "INPUT"){
+							toolTarget = parent_elem[j];
+							break;
+						}
+					}
+					break;
+				}
+			}
+			$.get($(this).attr("href"), null, function(data){
+				$("#default_popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>").popup();
+				$("#default_popup input[type=text]").first().focus();
+			});
+			return false;
+		});
+		
+		initCheckAll("");
+	}
+
+	function debug(str){
+//		$("#debug").append(str + "<br/>");
 	}

@@ -1,5 +1,4 @@
 <?php
-	
 	$structure_links = array(
 		'top'=> '/clinicalannotation/clinical_collection_links/add/'.$atim_menu_variables['Participant.id'].'/',
 		'radiolist' => array(
@@ -16,19 +15,23 @@
 	);
 	$structure_override = array();
 
-	$final_atim_structure = $atim_structure_collection_detail; 
-	$final_options = array('type'=>'radiolist', 'data'=>$collection_data, 'settings'=>$structure_settings, 'links'=>$structure_links, 'override' => $structure_override);
+	$final_options = array('settings'=>$structure_settings, 'links'=>$structure_links, 'override' => $structure_override);
 
 	// CUSTOM CODE
 	$hook_link = $structures->hook('collection_detail');
 	if( $hook_link ) { require($hook_link); }
 		
 	// BUILD FORM
-	$structures->build( $final_atim_structure, $final_options );
+	$structures->build( $empty_structure, $final_options );
+	$string_loading = "---".__("loading", true)."---";
 	?>
 	<table class="structure" cellspacing="0">
-			<tbody><tr><td style='text-align: left; padding-left: 10px;'><input type='radio' name='data[ClinicalCollectionLink][collection_id]' checked='checked' value=''/><?php echo(__('new collection', true)); ?></td></tr>
+			<tbody>
+			<tr><td style='text-align: left; padding-left: 10px;'><input type='radio' id="collection_search" name='data[ClinicalCollectionLink][collection_id]' value='search'/><?php echo(__('search', true)); ?></td></tr>
+			<tr><td style='text-align: left; padding-left: 10px;'><input type='radio' id="collection_new" name='data[ClinicalCollectionLink][collection_id]' checked='checked' value=''/><?php echo(__('new collection', true)); ?></td></tr>
+			<tr><td id="collection_loading" style="text-align: center; display: none;"><div class="loading"><?php echo($string_loading) ?></div></td></tr>
 	</tbody></table>
+	<div id="collection_frame"></div>
 	<?php
 	 
 	$structure_links = array(
@@ -93,3 +96,11 @@
 	);
 	$structures->build($empty_structure, array('settings' => array('form_top' => false, 'form_bottom' => true, 'actions' => true), 'links' => $structure_links));
 ?>
+
+<div id="popup" class="std_popup question">
+	
+</div>
+
+<script type="text/javascript">
+var ccl = true;
+</script>

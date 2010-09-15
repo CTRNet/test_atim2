@@ -4,7 +4,7 @@ class StoragelayoutAppController extends AppController {
 
 	function beforeFilter() {
 		parent::beforeFilter();
-		$this->Auth->actionPath = 'controllers/Storagelayout/';
+		$this->Auth->actionPath = 'controllers/';
 	} 
 	 
 	/**

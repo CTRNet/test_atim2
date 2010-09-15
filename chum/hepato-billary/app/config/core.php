@@ -38,7 +38,7 @@
  * In production mode, flash messages redirect after a time interval.
  * In development mode, you need to click the flash message to continue.
  */
-	Configure::write('debug', 2);
+	Configure::write('debug',2);
 /**
  * Application wide charset encoding minus database connection
  */
@@ -101,7 +101,7 @@
  * To use database sessions, execute the SQL file found at /app/config/sql/sessions.sql.
  *
  */
-	Configure::write('Session.save', 'php');
+	Configure::write('Session.save', 'cake');
 /**
  * The name of the table used to store CakePHP database sessions.
  *
@@ -170,9 +170,9 @@
  * The classname and database used in CakePHP's
  * access control lists.
  */
- 	App::import('model','AtimAcl');
-	Configure::write('Acl.classname', 'AtimAcl');
-	Configure::write('Acl.database', 'default');
+ 	// App::import('model','AtimAcl');
+	// Configure::write('Acl.classname', 'AtimAcl');
+	// Configure::write('Acl.database', 'default');
 /**
  *
  * Cache Engine Configuration

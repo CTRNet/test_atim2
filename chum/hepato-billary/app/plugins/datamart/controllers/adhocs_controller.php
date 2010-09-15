@@ -35,13 +35,13 @@ class AdhocsController extends DatamartAppController {
 	function favourite( $type_of_list='all', $adhoc_id=0 ) {
 		$favourite_result = $this->Adhoc->query('DELETE FROM datamart_adhoc_favourites WHERE adhoc_id="'.$adhoc_id.'" AND user_id="'.$_SESSION['Auth']['User']['id'].'"');
 		$favourite_result = $this->Adhoc->query('INSERT INTO datamart_adhoc_favourites SET adhoc_id="'.$adhoc_id.'", user_id="'.$_SESSION['Auth']['User']['id'].'"');
-		$this->flash( 'Query has been marked as one of your favourites.', '/datamart/adhocs/search/favourites/'.$adhoc_id );
+		$this->atimFlash( 'Query has been marked as one of your favourites.', '/datamart/adhocs/search/favourites/'.$adhoc_id );
 	}
 	
 	// remove IDs from Lookup
 	function unfavourite( $type_of_list='all', $adhoc_id=0 ) {
 		$favourite_result = $this->Adhoc->query('DELETE FROM datamart_adhoc_favourites WHERE adhoc_id="'.$adhoc_id.'" AND user_id="'.$_SESSION['Auth']['User']['id'].'"');
-		$this->flash( 'Query is no longer one of your favourites.', '/datamart/adhocs/search/all/'.$adhoc_id );
+		$this->atimFlash( 'Query is no longer one of your favourites.', '/datamart/adhocs/search/all/'.$adhoc_id );
 	}
 	
 	function search( $type_of_list='all', $adhoc_id=0  ) {
@@ -78,7 +78,6 @@ class AdhocsController extends DatamartAppController {
 	}
 	
 	function results( $type_of_list='all', $adhoc_id=0 ) {
-
 		$this->set( 'atim_menu_variables', array( 'Param.Type_Of_List'=>$type_of_list, 'Adhoc.id'=>$adhoc_id ) );
 		$this->set( 'atim_structure_for_detail', $this->Structures->get( 'form', 'querytool_adhoc' ) );
 		
@@ -101,10 +100,17 @@ class AdhocsController extends DatamartAppController {
 			  )
 		 );
 			
-		$adhoc = $this->Adhoc->find( 'first', array( 'conditions'=>array('Adhoc.id'=>$adhoc_id) ) );
-	   	$this->set( 'data_for_detail', $adhoc );
-			// $this->set( 'adhoc', $adhoc ); // set for display purposes...
-		$this->set( 'atim_structure_for_results', $this->Structures->get( 'form', $adhoc['Adhoc']['form_alias_for_results'] ) );
+		if(is_numeric($adhoc_id)){
+			$adhoc = $this->Adhoc->find( 'first', array( 'conditions'=>array('Adhoc.id'=>$adhoc_id)));
+		   	$this->set( 'data_for_detail', $adhoc );
+			$this->set( 'atim_structure_for_results', $this->Structures->get( 'form', $adhoc['Adhoc']['form_alias_for_results']));
+		}else{
+			list($type_from, $type_to) = explode("_", $adhoc_id);
+			list($plugin, $model) = explode(".", $type_to);
+			$adhoc = array("Adhoc" => array("description" => "Browsing", "model" => $model, $plugin => $plugin));
+			$this->set( 'data_for_detail', $adhoc);
+			$this->set( 'atim_structure_for_results', $this->Structures->get( 'form', $type_to ));
+		}
 		$this->set( 'atim_structure_for_add', $this->Structures->get( 'form', 'querytool_adhoc_to_batchset' ) );
 		
 		// do search for RESULTS, using THIS->DATA if any
@@ -223,6 +229,7 @@ class AdhocsController extends DatamartAppController {
 			foreach ( $batch_set_results as &$value) {
 				$batch_sets['Add to a compatible Datamart batch...'][ '/datamart/batch_sets/add/'.$value['BatchSet']['id'] ] = strlen( $value['BatchSet']['description'] )>60 ? substr( $value['BatchSet']['description'], 0, 60 ).'...' : $value['BatchSet']['description'];
 			}
+
 		$batch_sets['Pass to another process...'] = array();
 			$batch_sets['Pass to another process...']['/datamart/adhocs/csv'] = 'export as comma-separated file';
 			
@@ -249,20 +256,27 @@ class AdhocsController extends DatamartAppController {
 		
 		$tmp_data = $this->BatchSet->find('all', array('conditions' => array('BatchSet.plugin' => $adhoc['Adhoc']['plugin'], 'BatchSet.model' => $adhoc['Adhoc']['model'])));
 		$compatible_batchset = array();
+		$compatibla_batchset_str = __('add to compatible batchset', true);
 		foreach($tmp_data as $batchset){
-			$compatible_batchset[$batchset['BatchSet']['id']] = $batchset['BatchSet']['description'];
+			$compatible_batchset[$batchset['BatchSet']['id']] = $compatibla_batchset_str." (".$batchset['BatchSet']['description'].")";
 		}
+		$compatible_batchset[0] = __('new batchset', true);
+		$compatible_batchset['csv'] = __('export as CSV file (comma-separated values)', true);
+		$this->data['BatchSet']['id'] = 0;
 		$this->set( 'compatible_batchset', $compatible_batchset );
 	}
 	
 	function process() {
-		
 		if ( !isset($this->data['Adhoc']['process']) || !$this->data['Adhoc']['process'] ) {
 			$this->data['Adhoc']['process'] = '/datamart/batch_sets/add/'.$this->data['BatchSet']['id'];
 		}
-		
+
 		$_SESSION['ctrapp_core']['datamart']['process'] = $this->data;
-		$this->redirect( $this->data['Adhoc']['process'] );
+		if($this->data['BatchSet']['id'] == "csv"){
+			$this->redirect("/datamart/adhocs/csv/");
+		}else{
+			$this->redirect( $this->data['Adhoc']['process'] );
+		}
 		exit();
 		
 	}

@@ -12,5 +12,6 @@ function set_at_state_in_tree_root(new_at_li, json) {
 	$("#frame").html("<div class='loading'>---" + loadingStr + "---</div>");
 	$.get($(this).attr("href"), {}, function(data){
 		$("#frame").html(data);
+		initActions();
 	});
 }
