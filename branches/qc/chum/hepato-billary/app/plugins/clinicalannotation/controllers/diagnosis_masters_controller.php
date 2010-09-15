@@ -95,7 +95,7 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 			
 			if($submitted_data_validates) {
 				if ( $this->DiagnosisMaster->save( $this->data )) {
-					$this->flash( 'your data has been saved', '/clinicalannotation/diagnosis_masters/detail/'.$participant_id.'/'.$this->DiagnosisMaster->id.'/' );
+					$this->atimFlash( 'your data has been saved', '/clinicalannotation/diagnosis_masters/detail/'.$participant_id.'/'.$this->DiagnosisMaster->id.'/' );
 				}
 			}
 		}
@@ -135,7 +135,7 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 			if($submitted_data_validates) {
 				$this->DiagnosisMaster->id = $diagnosis_master_id;
 				if ( $this->DiagnosisMaster->save($this->data) ) {
-					$this->flash( 'your data has been updated','/clinicalannotation/diagnosis_masters/detail/'.$participant_id.'/'.$diagnosis_master_id );
+					$this->atimFlash( 'your data has been updated','/clinicalannotation/diagnosis_masters/detail/'.$participant_id.'/'.$diagnosis_master_id );
 				}
 			}
 		}
@@ -157,7 +157,7 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		
 		if ($arr_allow_deletion['allow_deletion']) {
 			if( $this->DiagnosisMaster->atim_delete( $diagnosis_master_id ) ) {
-				$this->flash( 'your data has been deleted', '/clinicalannotation/diagnosis_masters/listall/'.$participant_id );
+				$this->atimFlash( 'your data has been deleted', '/clinicalannotation/diagnosis_masters/listall/'.$participant_id );
 			} else {
 				$this->flash( 'error deleting data - contact administrator', '/clinicalannotation/diagnosis_masters/listall/'.$participant_id );
 			}

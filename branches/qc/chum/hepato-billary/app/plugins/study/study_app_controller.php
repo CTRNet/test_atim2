@@ -4,7 +4,7 @@ class StudyAppController extends AppController
 {	
 	function beforeFilter() {
 		parent::beforeFilter();
-		$this->Auth->actionPath = 'controllers/Study/';
+		$this->Auth->actionPath = 'controllers/';
 	}
 }
 

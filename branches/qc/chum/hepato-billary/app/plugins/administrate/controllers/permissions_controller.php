@@ -67,6 +67,7 @@ class PermissionsController extends AdministrateAppController {
 		}
 		$this->Aro->query($sql);
 		
+		// echo '<p>'.$state.': '.$sql.'</p>';
 	}
 	
 	function tree($group_id=0, $user_id=0 ) {
@@ -76,12 +77,16 @@ class PermissionsController extends AdministrateAppController {
 		$known_acos = array_combine(Set::extract('Aco.{n}.id',$aro), Set::extract('Aco.{n}.Permission',$aro));
 		$this->set('aro', $aro );
 		$this->set('known_acos',$known_acos);
-		
 		if($this->data){
-			
 			foreach($this->data as $i => $aco){
-				$this->updatePermission($aro['Aro']['id'],$aco['Aco']['id'],intval($aco['Aco']['state']));
+				$this->updatePermission( 
+				$aro['Aro']['id'], 
+				$aco['Aco']['id'], 
+				intval($aco['Aco']['state']) );
 			}
+
+			MenusComponent::clearCache();
+			
 			$this->redirect('/administrate/permissions/tree/'.$group_id.'/'.$user_id);
 			break;
 		}

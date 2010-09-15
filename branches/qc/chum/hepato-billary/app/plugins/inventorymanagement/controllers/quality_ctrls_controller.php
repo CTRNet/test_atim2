@@ -96,7 +96,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 				$this->QualityCtrl->id = $qc_id;					
 				if(!$this->QualityCtrl->save($qc_data_to_update, false)) { $this->redirect('/pages/err_inv_system_error', null, true); }
 				
-				$this->flash('your data has been saved', '/inventorymanagement/quality_ctrls/detail/'.$collection_id.'/'.$sample_master_id.'/'.$this->QualityCtrl->id.'/' );
+				$this->atimFlash('your data has been saved', '/inventorymanagement/quality_ctrls/detail/'.$collection_id.'/'.$sample_master_id.'/'.$this->QualityCtrl->id.'/' );
 			}
 		}
 	}
@@ -185,7 +185,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			if ($submitted_data_validates && $this->QualityCtrl->save( $this->data )) {
 				//TODO Add test to verifiy date and created_by have been modified before to launch update function
 				if(!$this->Aliquots->updateAliquotUses($aliquot_use_ids, $this->data['QualityCtrl']['date'], $this->data['QualityCtrl']['run_by'])) { $this->redirect('/pages/err_inv_system_error', null, true); }
-				$this->flash( 'your data has been saved', '/inventorymanagement/quality_ctrls/detail/'.$collection_id.'/'.$sample_master_id.'/'.$quality_ctrl_id.'/' );
+				$this->atimFlash( 'your data has been saved', '/inventorymanagement/quality_ctrls/detail/'.$collection_id.'/'.$sample_master_id.'/'.$quality_ctrl_id.'/' );
 			}
 		}
 	}
@@ -204,7 +204,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 		
 		if($arr_allow_deletion['allow_deletion']) {
 			if($this->QualityCtrl->atim_delete($quality_ctrl_id)) {
-				$this->flash( 'your data has been deleted', 
+				$this->atimFlash( 'your data has been deleted', 
 						'/inventorymanagement/quality_ctrls/listAll/'
 						.$qc_data['SampleMaster']['collection_id'].'/'
 						.$qc_data['QualityCtrl']['sample_master_id'].'/');
@@ -282,9 +282,6 @@ class QualityCtrlsController extends InventoryManagementAppController {
 				if($new_studied_aliquot['FunctionManagement']['use']){
 					// New aliquot defined as used
 
-					// Format decimal data
-					$new_studied_aliquot = $this->Aliquots->formatAliquotUseFieldDecimalData($new_studied_aliquot);
-
 					// Check volume
 					if((!empty($new_studied_aliquot['AliquotUse']['used_volume'])) && empty($new_studied_aliquot['AliquotMaster']['aliquot_volume_unit'])) {
 						// No volume has to be recored for this aliquot type				
@@ -352,13 +349,11 @@ class QualityCtrlsController extends InventoryManagementAppController {
 					$aliquot_master_id = $new_used_aliquot['AliquotMaster']['id'];
 
 					// set aliquot master data					
-					if($new_used_aliquot['FunctionManagement']['remove_from_storage']) {
+					if($new_used_aliquot['FunctionManagement']['remove_from_storage'] || ($new_used_aliquot['AliquotMaster']['in_stock'] = 'no')) {
 						// Delete aliquot storage data
-						$new_used_aliquot['AliquotMaster']['storage_master_id'] = null;
-						$new_used_aliquot['AliquotMaster']['storage_coord_x'] = null;
-						$new_used_aliquot['AliquotMaster']['storage_coord_y'] = null;
+						$new_used_aliquot['AliquotMaster'] = $this->Aliquots->removeAliquotStorageData($new_used_aliquot['AliquotMaster']);
 					}
-					
+									
 					// Set aliquot use data
 					$new_used_aliquot['AliquotUse']['aliquot_master_id'] = $aliquot_master_id;	
 					$new_used_aliquot['AliquotUse']['use_definition'] = 'quality control';
@@ -386,7 +381,8 @@ class QualityCtrlsController extends InventoryManagementAppController {
 					// - Update aliquot current volume
 					if(!$this->Aliquots->updateAliquotCurrentVolume($aliquot_master_id)) { $this->redirect('/pages/err_inv_record_err', null, true); }
 				}
-				$this->flash('your data has been saved', '/inventorymanagement/quality_ctrls/detail/' . $collection_id . '/' . $sample_master_id . '/' . $quality_ctrl_id . '/'); 
+				$this->atimFlash(__('your data has been saved',true).'<br>'.__('aliquot storage data were deleted (if required)',true), 
+					'/inventorymanagement/quality_ctrls/detail/' . $collection_id . '/' . $sample_master_id . '/' . $quality_ctrl_id . '/'); 
 			}
 		}
 	}

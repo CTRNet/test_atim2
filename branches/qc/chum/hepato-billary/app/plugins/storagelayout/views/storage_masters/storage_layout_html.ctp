@@ -1,3 +1,6 @@
+<?php 
+//This is an entire custom page. ATiM forms are immitated
+?>
 <table class="structure" cellspacing="0">
 	<tbody>
 		<tr>
@@ -68,7 +71,7 @@
 					if($horizontal_increment){
 						$display_value = ($j - 1) * $y_size + $i;
 					}else{
-						$display_value = ($i - 1) * $y_size + $j;
+						$display_value = ($i - 1) * $x_size + $j;
 					}
 					$use_value = $display_value."_1"; //static y = 1
 				}else{
@@ -132,7 +135,7 @@
 					</span>
 
 		<div style="display: inline-block;">
-		<div style="display: none; background-color: transparent;"
+		<div style="display: none; background-color: transparent; font-size: 120%;"
 			id="saveWarning">
 			<span class="ui-icon ui-icon-alert" style="float: left;"></span> 
 			<span style="color: #ff0000;"><?php echo(__("warning", true).": ".__("the data has been modified", true).". "); echo(" ".__("do not forget to save")."."); //yes, 2 echo, but there is a bug with only one"?></span>
@@ -146,8 +149,7 @@
 <div class="actions">
 	
 </div>
-
-<?php echo $html->css('jQuery/themes/ui-lightness/jquery-ui-1.8.custom')."\n"; ?>
+<div id="popup" class="std_popup"></div>
 <style type="text/css">
 .dragme{
 	list-style-type:none;
@@ -214,13 +216,15 @@ var orgItems = '([<?php
 			.'"x" : "'.$display_data['x'].'", '
 			.'"y" : "'.$display_data['y'].'", '
 			.'"label" : "'.$display_data['label'].'", '
+			.'"link" : "'.$display_data['link'].'", '
+			.'"icon_name" : "'.$display_data['icon_name'].'", '
 			.'"type" : "'.$display_data['type'].'"}');
 	}
 ?>])';
 
 var removeString = "<?php echo(__("remove")); ?>";
 var unclassifyString = "<?php echo(__("unclassify")); ?>";
+var detailString = "<?php echo(__("detail")); ?>";
+var loadingStr = "<?php __("loading"); ?>";
+var storageLayout = true;
 </script>
-<?php
-echo $javascript->link('storage_layout')."\n";
-?>

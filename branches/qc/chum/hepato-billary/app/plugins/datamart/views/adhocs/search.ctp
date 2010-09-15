@@ -12,6 +12,7 @@
 				$structure_links = array(
 					'top' => '/datamart/adhocs/results/'.$atim_menu_variables['Param.Type_Of_List'].'/'.$atim_menu_variables['Adhoc.id'],
 					'bottom'=>array(
+						'reload form'=>'/datamart/adhocs/search/'.$atim_menu_variables['Param.Type_Of_List'].'/'.$atim_menu_variables['Adhoc.id'],
 						'remove as favourite'=>'/datamart/adhocs/unfavourite/'.$atim_menu_variables['Param.Type_Of_List'].'/'.$atim_menu_variables['Adhoc.id'], 
 						'cancel'=>'/datamart/adhocs/index/'.$atim_menu_variables['Param.Type_Of_List']
 					)
@@ -20,6 +21,7 @@
 				$structure_links = array(
 					'top' => '/datamart/adhocs/results/'.$atim_menu_variables['Param.Type_Of_List'].'/'.$atim_menu_variables['Adhoc.id'],
 					'bottom'=>array(
+						'reload form'=>'/datamart/adhocs/search/'.$atim_menu_variables['Param.Type_Of_List'].'/'.$atim_menu_variables['Adhoc.id'],
 						'add as favourite'=>'/datamart/adhocs/favourite/'.$atim_menu_variables['Param.Type_Of_List'].'/'.$atim_menu_variables['Adhoc.id'], 
 						'cancel'=>'/datamart/adhocs/index/'.$atim_menu_variables['Param.Type_Of_List']
 					)

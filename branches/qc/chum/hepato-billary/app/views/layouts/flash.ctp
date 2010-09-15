@@ -24,6 +24,10 @@
         <a href="<?php echo $url; ?>"> <?php echo __( $message, true ); ?> </a>
     </div>
     
+    <?php
+    	echo $this->element('sql_dump');
+    ?>
+    
 </body>
 
 </html>

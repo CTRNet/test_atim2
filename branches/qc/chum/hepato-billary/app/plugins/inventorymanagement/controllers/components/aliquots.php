@@ -68,10 +68,9 @@ class AliquotsComponent extends Object {
 		
 		// Save Data
 		$this->controller->AliquotMaster->id = $aliquot_master_id;
-		if(!$this->controller->AliquotMaster->save(array('AliquotMaster' => array('current_volume' => $current_volume)))) {
+		if(!$this->controller->AliquotMaster->save(array('AliquotMaster' => array('id' => $aliquot_master_id, 'current_volume' => $current_volume)))) {
 			return false;
 		}
-		
 		return true;
 	}
 	
@@ -97,25 +96,14 @@ class AliquotsComponent extends Object {
 		return true;
 	}
 	
-	/**
-	 * Replace ',' by '.' for all decimal field values gathered into 
-	 * data submitted for aliquot use creation or modification.
-	 * 
-	 * @param $submtted_data Submitted data
-	 * 
-	 * @return Formatted data.
-	 *
-	 * @author N. Luc
-	 * @since 2009-09-11
-	 */	
-	
-	function formatAliquotUseFieldDecimalData($submtted_data) {
-		// Work on AliquotUse fields
-		if(isset($submtted_data['AliquotUse'])) {
-			if(isset($submtted_data['AliquotUse']['used_volume'])) { $submtted_data['AliquotUse']['used_volume'] = str_replace(',', '.', $submtted_data['AliquotUse']['used_volume']); }					
-		}
+	function removeAliquotStorageData($aliquot_master_data) {
+		$aliquot_master_data['storage_master_id'] = null;
+		$aliquot_master_data['storage_coord_x'] = null;
+		$aliquot_master_data['coord_x_order'] = null;
+		$aliquot_master_data['storage_coord_y'] = null;
+		$aliquot_master_data['coord_y_order'] = null;	
 		
-		return $submtted_data;
+		return $aliquot_master_data;
 	}
 }
 

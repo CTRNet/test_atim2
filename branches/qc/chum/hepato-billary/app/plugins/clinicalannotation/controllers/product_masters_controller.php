@@ -45,7 +45,7 @@ class ProductMastersController extends ClinicalannotationAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS	
 			 	
 		$atim_structure = array();
-		$atim_structure['Collection']	= $this->Structures->get('form','collection_tree_view');
+		$atim_structure['Collection']	= $this->Structures->get('form','collections_for_collection_tree_view');
 		$atim_structure['SampleMaster']	= $this->Structures->get('form','sample_masters_for_collection_tree_view');
 		$atim_structure['AliquotMaster']	= $this->Structures->get('form','aliquot_masters_for_collection_tree_view');
 		$this->set('atim_structure', $atim_structure);
