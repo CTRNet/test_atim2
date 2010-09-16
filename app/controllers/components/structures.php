@@ -383,6 +383,15 @@ class StructuresComponent extends Object {
 	 * @param unknown_type $source
 	 */
 	static function getPulldownFromSource($source){
+		// Get arguments
+		$args = null;
+		preg_match('(\(\'.*\'\))', $source, $matches);
+		if((sizeof($matches) == 1)) {
+			// Args are included into the source
+			$args = split("','", substr($matches[0], 2, (strlen($matches[0]) - 4)));
+			$source = str_replace($matches[0], '', $source);
+		}
+
 		list($pulldown_model, $pulldown_function) = split('::', $source);
 		$pulldown_result = array();
 		if ($pulldown_model && App::import('Model',$pulldown_model)){
@@ -411,7 +420,7 @@ class StructuresComponent extends Object {
 			}
 
 			// run model::function
-			$pulldown_result = $pulldown_model_object->{$pulldown_function}();
+			$pulldown_result = $pulldown_model_object->{$pulldown_function}($args);
 		}
 
 		return $pulldown_result;
