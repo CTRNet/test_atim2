@@ -2453,7 +2453,7 @@ INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('aliquot storage data were deleted (if required)', 'Aliquot storage data were deleted (if required)!', 'Les données d''entreposage ont été supprimées (au besoin)!');
 
 INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
-('an aliquot being not in stock can not be linked to a storage', 'An aliquot being not in stock can not be linked to a storage!', 'Un aliquot non en stock ne peut être attaché à un entreposage!');
+('an aliquot being not in stock can not be linked to a storage', 'An aliquot flagged ''Not in stock'' cannot also have storage location and label completed.', 'Un aliquot non en stock ne peut être attaché à un entreposage!');
 
 INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('reload form', 'Reload Form', 'Ré-afficher le formulaire');
@@ -2477,7 +2477,7 @@ SET language_title = 'custom dropdown list management', language_description = '
 WHERE language_title = 'dropdowns' AND language_description = 'dropdowns';
 
 INSERT INTO i18n (id,en,fr)
-VALUES ('custom dropdown list management', 'Managing lists of values', 'Gestion des listes de valeurs');
+VALUES ('custom dropdown list management', 'Dropdown List Configuration', 'Gestion des listes de valeurs');
 
 ALTER TABLE structure_permissible_values_customs
 	ADD `en` varchar(255) DEFAULT '' AFTER `value`,
