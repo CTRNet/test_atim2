@@ -8,7 +8,12 @@ class StructurePermissibleValuesCustom extends AppModel {
 			'className'    => 'StructurePermissibleValuesCustomControl',            
 			'foreignKey'    => 'control_id'));
 		
-	static function getCustomDropdown($control_name){
+	function getCustomDropdown($args){
+		$control_name = null;
+		if(sizeof($args) == 1) { 
+			$control_name = $args['0'];
+		} 		
+		
 		$spvc = new StructurePermissibleValuesCustom();
 		$data = $spvc->find('all', array('conditions' => array('StructurePermissibleValuesCustomControl.name' => $control_name)));
 		
@@ -31,25 +36,5 @@ class StructurePermissibleValuesCustom extends AppModel {
 			$result[] = array("value" => $value, "default" => $default);
 		}
 		return $result;
-	}
-	
-	function getDropdownStaff(){
-		return StructurePermissibleValuesCustom::getCustomDropdown('laboratory staff');
-	}
-	
-	function getDropdownLaboratorySites(){
-		return StructurePermissibleValuesCustom::getCustomDropdown('laboratory sites');
-	}
-	
-	function getDropdownCollectionSites(){
-		return StructurePermissibleValuesCustom::getCustomDropdown('specimen collection sites');
-	}
-	
-	function getDropdownSpecimenSupplierDepartments(){
-		return StructurePermissibleValuesCustom::getCustomDropdown('specimen supplier departments');
-	}
-	
-	function getDropdownQcTools(){
-		return StructurePermissibleValuesCustom::getCustomDropdown('quality control tools');
 	}
 }
