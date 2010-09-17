@@ -2539,3 +2539,9 @@ UPDATE structure_permissible_values_custom_controls SET name = 'laboratory sites
 UPDATE structure_permissible_values_custom_controls SET name = 'specimen collection sites' WHERE name = 'collection sites';
 UPDATE structure_permissible_values_custom_controls SET name = 'specimen supplier departments' WHERE name = 'specimen supplier departments';
 UPDATE structure_permissible_values_custom_controls SET name = 'quality control tools' WHERE name = 'tools';
+
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('quality control tools')" WHERE source = 'StructurePermissibleValuesCustom::getDropdownQcTools';
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('specimen collection sites')" WHERE source = 'StructurePermissibleValuesCustom::getDropdownCollectionSites';
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('laboratory staff')" WHERE source = 'StructurePermissibleValuesCustom::getDropdownStaff';
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('specimen supplier departments')" WHERE source = 'StructurePermissibleValuesCustom::getDropdownSpecimenSupplierDepartments';
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('laboratory sites')" WHERE source = 'StructurePermissibleValuesCustom::getDropdownLaboratorySites';
