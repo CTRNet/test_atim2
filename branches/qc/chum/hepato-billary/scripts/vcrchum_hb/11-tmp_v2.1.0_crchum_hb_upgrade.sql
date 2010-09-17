@@ -261,31 +261,50 @@ DELETE FROM `structure_value_domains_permissible_values` WHERE 	structure_value_
 
 UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getDropdownChemoRegimenList' WHERE domain_name = 'qc_hb_chemos_treatment';
 
-UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown('doctor : speciality list')' WHERE source LIKE '%getDropdownDoctorSpecialtyList%';
-UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown('surgey : surgeon list')' WHERE source LIKE '%getDropdownSurgeonList%';
-UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown('chemotherapy : regimen list')' WHERE source LIKE '%getDropdownChemoRegimenList%';
-UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown('chemotherapy : reason of change')' WHERE source LIKE '%getDropdownChemosChangeReason%';
-UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown('chemotherapy : toxicity')' WHERE source LIKE '%getDropdownChemosToxicity%';
-UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown('surgery: principal surgery')' WHERE source LIKE '%getDropdownPrincipalSurgery%';
-UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown('surgery: associated surgery')' WHERE source LIKE '%getDropdownAssociatedSurgery%';
-UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown('surgery: local treatment type')' WHERE source LIKE '%getDropdownSurgeryLocalTreatment%';
-UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown('surgery: other organ resection')' WHERE source LIKE '%getDropdownOtherOrganResection%';
-UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown('surgery: pathological report')' WHERE source LIKE '%getDropdownSurgeryPathologicalReport%';
-UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown('surgery: type of drain')' WHERE source LIKE '%getDropdownTypeOfDrain%';
-UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown('surgery: type of glue')' WHERE source LIKE '%getDropdownTypeOfGlue%';
-UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown('surgey - liver detail : liver appearance')' WHERE source LIKE '%getDropdownLiverAppearance%';
-UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown('surgey - liver detail : type of vascular occlusion')' WHERE source LIKE '%getDropdownTypeOfVascularOcclusion%';
-UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown('surgey - liver pancreas : pancreas appearance')' WHERE source LIKE '%getDropdownPancreasAppearance%';
-UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown('surgey - liver pancreas : type of pancreas anastomosis')' WHERE source LIKE '%getDropdownTypeOfAnastomosis%';
-UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown('surgey - complication : type')' WHERE source LIKE '%getDropdownSurgeryComplicationList%';
-UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown('surgey - complication : organ list')' WHERE source LIKE '%getDropdownComplicationOrganList%';
-UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown('surgery - complication: treatment')' WHERE source LIKE '%getDropdownSurgeryComplicationTreatment%';
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('doctor : speciality list')" WHERE source LIKE '%getDropdownDoctorSpecialtyList%';
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('surgey : surgeon list')" WHERE source LIKE '%getDropdownSurgeonList%';
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('chemotherapy : regimen list')" WHERE source LIKE '%getDropdownChemoRegimenList%';
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('chemotherapy : reason of change')" WHERE source LIKE '%getDropdownChemosChangeReason%';
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('chemotherapy : toxicity')" WHERE source LIKE '%getDropdownChemosToxicity%';
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('surgery: principal surgery')" WHERE source LIKE '%getDropdownPrincipalSurgery%';
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('surgery: associated surgery')" WHERE source LIKE '%getDropdownAssociatedSurgery%';
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('surgery: local treatment type')" WHERE source LIKE '%getDropdownSurgeryLocalTreatment%';
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('surgery: other organ resection')" WHERE source LIKE '%getDropdownOtherOrganResection%';
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('surgery: pathological report')" WHERE source LIKE '%getDropdownSurgeryPathologicalReport%';
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('surgery: type of drain')" WHERE source LIKE '%getDropdownTypeOfDrain%';
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('surgery: type of glue')" WHERE source LIKE '%getDropdownTypeOfGlue%';
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('surgey - liver detail : liver appearance')" WHERE source LIKE '%getDropdownLiverAppearance%';
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('surgey - liver detail : type of vascular occlusion')" WHERE source LIKE '%getDropdownTypeOfVascularOcclusion%';
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('surgey - liver pancreas : pancreas appearance')" WHERE source LIKE '%getDropdownPancreasAppearance%';
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('surgey - liver pancreas : type of pancreas anastomosis')" WHERE source LIKE '%getDropdownTypeOfAnastomosis%';
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('surgey - complication : type')" WHERE source LIKE '%getDropdownSurgeryComplicationList%';
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('surgey - complication : organ list')" WHERE source LIKE '%getDropdownComplicationOrganList%';
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('surgery - complication: treatment')" WHERE source LIKE '%getDropdownSurgeryComplicationTreatment%';
+
+UPDATE structure_formats
+SET flag_override_label = '1', language_label = 'participant code'
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'participant_identifier');
+
+UPDATE structure_formats
+SET language_heading = 'system data', display_column = '3', display_order = '98'
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'participant_identifier') AND 
+structure_id IN (SELECT id FROM structures WHERE alias = 'participants');
+ 	
+UPDATE structure_formats
+SET flag_search = '0', flag_index = '0', flag_detail = '0'
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'participant_identifier') AND 
+structure_id IN (SELECT id FROM structures WHERE alias IN ('view_aliquot_joined_to_sample_and_collection', 'view_collection', 'view_sample_joined_to_collection'));
+ 	
+INSERT IGNORE INTO i18n (id, en, fr)
+VALUES ('system data', 'System Data', 'Données système');
+
+UPDATE i18n SET en = 'Bank Nbr', fr = 'No Banque' WHERE id = 'hepato_bil_bank_participant_id';
+
+UPDATE misc_identifier_controls
+SET misc_identifier_name_abbrev = '#', misc_identifier_format = '%%key_increment%%', flag_once_per_participant = '1' 
+WHERE misc_identifier_name = 'hepato_bil_bank_participant_id';
 
 
-
-
-
-
-
-
-
+ 	
+ 	
+ 	
