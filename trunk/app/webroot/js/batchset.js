@@ -9,7 +9,7 @@ function setBatchSetFormAction(action){
 	if(action.length == 0){
 		$("#submit_button").unbind('click');
 		$("#submit_button").click(function(){
-			alert(batchSetFormActionMsg);
+			alert(batchSetFormActionMsgSelectAnOption);
 			return false;
 		});
 	}else{
@@ -17,7 +17,7 @@ function setBatchSetFormAction(action){
 		$("#submit_button").unbind('click');
 		$("#submit_button").click(function(){
 			if($("input:checked").length == 0){
-				alert(batchSetFormActionMsg);
+				alert(batchSetFormActionMsgSelectAtLeast);
 				return false;
 			}
 		});

@@ -40,7 +40,8 @@
 
 <script type="text/javascript">
 var batchSetFormAction = true;
-var batchSetFormActionMsg = "<?php __("select an option for the field process batch set") ?>";
+var batchSetFormActionMsgSelectAnOption = "<?php __("select an option for the field process batch set") ?>";
+var batchSetFormActionMsgSelectAtLeast = "<?php __("check at least one element from the batch set") ?>";
 </script>
 <?php 
 echo $javascript->link('batchset')."\n";
