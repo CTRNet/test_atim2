@@ -245,7 +245,7 @@ class StructuresComponent extends Object {
 					$my_conds = explode(" OR ", $tmp_cond);
 					foreach($my_conds as $my_cond){
 						$parts = explode(" ", $my_cond);
-						if(count($parts) > 1){
+						if(count($parts) > 2){
 							$in_arr[] = "'".substr(str_replace("%'", "'", $parts[2]), 2);
 						}
 					}
@@ -257,14 +257,21 @@ class StructuresComponent extends Object {
 				
 				//=, <, >, <=, >=
 				$tests = array("=", "<", "<=", ">", ">=");
+				$model_field_tmp = $model_field;
 				foreach($tests as $test){
+					$condition_tmp = $condition;
 					$matches = array();
 					preg_match_all("/[\w\.\`]+[\s]+".$test."[\s]+\"[%]*@@".$model_field."@@[%]*\"/", $sql_with_search_terms, $matches, PREG_OFFSET_CAPTURE);
+					if(strrpos($model_field, "_start") == strlen($model_field) - 6){
+						$model_field_tmp = substr($model_field, 0, -6);
+					}else if(strrpos($model_field, "_end") == strlen($model_field) - 4){
+						$model_field_tmp = substr($model_field, 0, -4);
+					}
 					if(count($matches) > 0){
-						$condition = str_replace("%') OR ", "') OR ", str_replace("%')", "')", str_replace(" LIKE '%", " ".$test." '", $condition)));
+						$condition_tmp = "'".str_replace("%') OR ", "') OR ", str_replace("%')", "')", str_replace(" LIKE '%", " ".$test." '", $condition)))."'";
 						$matches[0] = array_reverse($matches[0]);
 						foreach($matches[0] as $match){
-							$sql_with_search_terms = substr($sql_with_search_terms, 0, $match[1]).$condition.substr($sql_with_search_terms, $match[1] + strlen($match[0]));
+							$sql_with_search_terms = substr($sql_with_search_terms, 0, $match[1]).$model_field_tmp." ".$test." ".$condition_tmp.substr($sql_with_search_terms, $match[1] + strlen($match[0]));
 						}
 					}
 				}
