@@ -275,7 +275,7 @@ class StructuresComponent extends Object {
 			//whipe what wasn't replaced
 			//range
 			$sql_with_search_terms = preg_replace('/(\>|\<)\=\s*"@@[\w\.]+@@"/i', "$1= \"\"", $sql_with_search_terms);
-			$sql_without_search_terms = preg_replace('/(\>|\<)\=\s*"@@[\w\.]+@@"/i', "1= \"\"", $sql_without_search_terms);
+			$sql_without_search_terms = preg_replace('/(\>|\<)\=\s*"@@[\w\.]+@@"/i', "$1= \"\"", $sql_without_search_terms);
 			
 			//LIKE
 			$sql_with_search_terms = preg_replace('/LIKE\s*"[%]*@@[\w\.]+@@[%]*"/i', "LIKE \"%%\"", $sql_with_search_terms);
