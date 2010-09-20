@@ -445,6 +445,9 @@ function uncheckAll( $div ) {
 		if(typeof(ccl) != 'undefined'){
 			initCcl();
 		}
+		if(typeof(batchSetFormAction) != 'undefined'){
+			initBatchSetFormAction();
+		}
 		
 		//field highlighting
 		if($("#table1row0").length == 1){
