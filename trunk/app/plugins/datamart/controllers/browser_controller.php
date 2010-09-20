@@ -300,6 +300,9 @@ class BrowserController extends DatamartAppController {
 				$model_to_use_import_control = "Inventorymanagement.SampleControl";
 				$control_model_name = "SampleControl";
 				$control_model_form_field = "form_alias";
+			}else{
+				//no alternate structure
+				return $result_structure;
 			}
 			//load the first id
 			$control_id = $this->data[0][$model_current_name][$model_current_control_name];
