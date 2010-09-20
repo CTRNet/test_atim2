@@ -73,7 +73,7 @@ var actionClickDown = function() {
 	
 	
 	// only scroll if not already at edge...
-	if ( (position.top - 203) > (-1 * move_ul.height()) ) {
+	if ( (position.top - menuMoveDistance) > (-1 * move_ul.height()) ) {
 		move_ul.animate(
 			{
 				top: '-=' + menuMoveDistance
