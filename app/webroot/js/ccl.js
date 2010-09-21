@@ -37,5 +37,8 @@ function initCcl(){
 			});
 		}
 	});
+	
+	//Init the collections with an empty search
+	popupSearch();
 }
 
