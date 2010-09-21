@@ -18,7 +18,7 @@ function initBrowser(){
 				if(json.value.length > 0){
 					$('#hierarchy').find(".label").html(json.label);
 					$('#search_for').val(json.value);
-					$("form").attr("action", orgAction + json.value);
+					$("form").attr("action", typeof(json.action) != 'undefined' ? json.action : orgAction + json.value);
 				}
 			}
 		}
