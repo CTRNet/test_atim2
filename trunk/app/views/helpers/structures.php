@@ -761,55 +761,48 @@ class StructuresHelper extends Helper {
 
 
 	function build_csv( $atim_structure, $options ) {
-		
-				if ( is_array($options['data']) ) { $data=$options['data']; }
-				else { $data=$this->data; }
-				
-				$table_structure = array();
-				foreach ( $data as $key=>$val ) {
-					$options['stack']['key'] = $key;
-					$table_structure[$key] = $this->build_stack( $atim_structure, $options );
-					unset($options['stack']);
-				}
-				
-				$structure_count = 0;
-				$structure_index = array( 1 => $table_structure ); 
-				
-				foreach ( $structure_index as $table_index ) {				
-					
-					$structure_count++;
-					
-					// for each FORM/DETAIL element...
-					if ( is_array($table_index) ) {
-					
-						if ( count($data) ) {
-							
-							// each column in table 
-							foreach ( $data as $key=>$val ) {
-								
-								$line = array();
-								
-								// each column/row in table 
-								foreach ( $table_index[$key] as $table_column ) {
-									foreach ( $table_column as $table_row ) {
-										
-										$line[] = $table_row['plain'];
-										
-									}
-								}
-								
-								$this->Csv->addRow($line);
-								
-							} // end FOREACH
-							
-						}
-						
+
+		if ( is_array($options['data']) ){
+			$data=$options['data']; 
+		}else{
+			$data=$this->data; 
+		}
+
+		$table_structure = array();
+		foreach ( $data as $key=>$val ) {
+			$options['stack']['key'] = $key;
+			$table_structure[$key] = $this->build_stack( $atim_structure, $options );
+			unset($options['stack']);
+		}
+
+		if ( is_array($table_structure) ) {
+			if ( count($data) ) {
+				//header line
+				$line = array();
+				foreach ( $table_structure[0] as $table_column ) {
+					foreach ( $table_column as $fm => $table_row ) {
+						$line[] = $table_row['label'];
 					}
-					
-				} // end FOREACH
+				}
+				$this->Csv->addRow($line);
 				
+				// each column in table
+				foreach ( $data as $key=>$val ) {
+					$line = array();
+						
+					// each column/row in table
+					foreach ( $table_structure[$key] as $table_column ) {
+						foreach ( $table_column as $fm => $table_row ) {
+							$line[] = $table_row['plain'];
+								
+						}
+					}
+						
+					$this->Csv->addRow($line);
+				} // end FOREACH
+			}
+		}
 		return $this->Csv->render();
-		
 	}
 
 
