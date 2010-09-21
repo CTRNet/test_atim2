@@ -247,7 +247,7 @@ class BrowserController extends DatamartAppController {
 			"plugin" => $browsing_result['DatamartStructure']['plugin'],
 			"model" => $browsing_result['DatamartStructure']['model'],
 			"lookup_key_name" => $browsing_result['DatamartStructure']['use_key'],
-			"form_alias_for_results" => $structure['Structure']['id'],
+			"form_alias_for_results" => $structure['Structure']['alias'],
 			"flag_use_query_results" => false
 		));
 		$this->BatchSet->save($batch_set);
