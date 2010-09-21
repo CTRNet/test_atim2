@@ -57,7 +57,6 @@ class BrowserController extends DatamartAppController {
 				if(!App::import('Model', $model_to_import)){
 					$this->redirect( '/pages/err_model_import_failed?p[]='.$model_to_import, NULL, TRUE );
 				}
-				$this->set("dropdown_options", $this->Browser->getDropdownOptions($browsing['DatamartStructure']['id'], $parent_node, $browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['model'], $browsing['DatamartStructure']['use_key'], $browsing['DatamartStructure']['structure_id']));
 				$this->ModelToSearch = new $browsing['DatamartStructure']['model'];
 				$this->data = strlen($browsing['BrowsingResult']['id_csv']) > 0 ? $this->ModelToSearch->find('all', array('conditions' => $browsing['DatamartStructure']['model'].".".$browsing['DatamartStructure']['use_key']." IN (".$browsing['BrowsingResult']['id_csv'].")")) : array();
 				$this->set("atim_structure", $this->Structures->getFormById($browsing['DatamartStructure']['structure_id']));
@@ -67,6 +66,7 @@ class BrowserController extends DatamartAppController {
 				$this->set('checklist_key_name', $browsing['DatamartStructure']['model'].".".$browsing['DatamartStructure']['use_key']);
 				$result_structure = $this->Structures->getFormById($browsing['DatamartStructure']['structure_id']);
 				$result_structure = $this->checkForAlternateStructure($result_structure, $browsing['BrowsingResult']['id_csv']);
+				$this->set("dropdown_options", $this->Browser->getDropdownOptions($browsing['DatamartStructure']['id'], $parent_node, $browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['model'], $browsing['DatamartStructure']['use_key'], $result_structure['Structure']['alias']));
 				$this->Structures->set("datamart_browser_start");
 				$this->set("result_structure", $result_structure);
 			}
