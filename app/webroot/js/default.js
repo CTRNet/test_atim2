@@ -367,19 +367,25 @@ function uncheckAll( $div ) {
 	}
 	
 	function initAliquotVolumeCheck(){
-		$(".form.submit").unbind('click').attr("onclick", "return false;");
-		$(".form.submit").click(function(){
-			var denom = $("#AliquotMasterCurrentVolume").val().replace(/,/g, ".");
-			var nom = $("#AliquotUseUsedVolume").val().replace(/,/g, ".");
-			if(nom.length > 0 && nom > denom){
+		var checkFct = function(){
+			var fctMod = function(param){ return parseFloat(param.replace(/,/g, ".")) };
+			var denom = fctMod($("#AliquotMasterCurrentVolume").val());
+			var nom = fctMod($("#AliquotUseUsedVolume").val());
+			if($("#AliquotUseUsedVolume").val().length > 0 && nom > denom){
+				$("input, textarea, a").blur();
 				$("#popup").popup();
 			}else{
 				$("#submit_button").click();
 			}
 			return false;
-		});
+		};
+		
+		$("form").submit(checkFct);
+		$(".form.submit").unbind('click').attr("onclick", "return false;");
+		$(".form.submit").click(checkFct);
 
 		$(".button.confirm").click(function(){
+			$("#popup").popup('close');
 			$("#submit_button").click();
 		});
 		$(".button.close").click(function(){
