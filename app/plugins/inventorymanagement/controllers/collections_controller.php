@@ -57,7 +57,7 @@ class CollectionsController extends InventorymanagementAppController {
 		if ($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions($view_collection);
 		
 		if($is_ccl_ajax){
-			$limit = 100;
+			$limit = 20;
 			$_SESSION['ctrapp_core']['search']['criteria'][] = "ViewCollection.participant_id IS NULL";
 			$this->data = $this->ViewCollection->find('all', array('conditions' => $_SESSION['ctrapp_core']['search']['criteria'], 'limit' => $limit + 1));
 			if(count($this->data) > $limit){
