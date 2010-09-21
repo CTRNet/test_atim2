@@ -293,8 +293,10 @@ function uncheckAll( $div ) {
 			var cell = getParentElement(this, "TD");
 			$(cell).find("input").val("");
 			if($(cell).find(".range_span").length == 0){
+				var baseName = $(cell).find("input").attr("name");
+				baseName = baseName.substr(0, baseName.length - 3);
 				$(cell).find("span:first").addClass("adv_ctrl");
-				$(cell).prepend("<span class='range_span'><input type='text' name='data[MiscIdentifier][identifier_value_start]'/> " + STR_TO + " <input type='text' name='data[MiscIdentifier][identifier_value_end]'/></span>");
+				$(cell).prepend("<span class='range_span'><input type='text' name='" + baseName + "_start]'/> " + STR_TO + " <input type='text' name='" + baseName + "_end]'/></span>");
 			}else{
 				$(cell).find(".range_span").show();
 				//restore names
