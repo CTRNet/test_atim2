@@ -1697,46 +1697,57 @@ div.wrapper table.structure td .databrowser td .info td{
 	background-image: url(../img/icons/fam_fam_silk_help.png);
 }
 
-.databrowser td.aliquots div.container{
+.databrowser td.aliquots div.container, ul.actionDropdown a.aliquots{
 	background-image: url(../img/icons/aliquot_16x16.png);
 }
 
-.databrowser td.collections div.container{
+.databrowser td.collections div.container, ul.actionDropdown a.collections{
 	background-image: url(../img/icons/collection_16x16.png);
 }
 
-.databrowser td.samples div.container{
+.databrowser td.samples div.container, ul.actionDropdown a.samples{
 	background-image: url(../img/icons/flask_16x16.png);
 }
 
-.databrowser td.participants div.container{
+.databrowser td.participants div.container, ul.actionDropdown a.participants{
 	background-image: url(../img/icons/Contact_16x16.png);
 }
 
-.databrowser td.storages div.container{
+.databrowser td.storages div.container, ul.actionDropdown a.storages{
 	background-image: url(../img/icons/storage_16x16.png);
 }
 
-.databrowser td.identification div.container{
+.databrowser td.identification div.container, ul.actionDropdown a.identification{
 	background-image: url(../img/icons/identifiers_16x16.png);
 }
-.databrowser td.aliquot.uses div.container{
+.databrowser td.aliquot.uses div.container, ul.actionDropdown a.aliquot.uses{
 	background-image: url(../img/icons/aliquotUse_16x16.png);
 }
-.databrowser td.consents div.container{
+.databrowser td.consents div.container, ul.actionDropdown a.consents{
 	background-image: url(../img/icons/consent_16x16.png);
 }
-.databrowser td.diagnosis div.container{
+.databrowser td.diagnosis div.container, ul.actionDropdown a.diagnosis{
 	background-image: url(../img/icons/xray_16x16.png);
 }
-.databrowser td.treatments div.container{
+.databrowser td.treatments div.container, ul.actionDropdown a.treatments{
 	background-image: url(../img/icons/seringue_16x16.png);
 }
-.databrowser td.family.histories div.container{
+.databrowser td.family.histories div.container, ul.actionDropdown a.family.histories{
 	background-image: url(../img/icons/family_16x16.png);
 }
-.databrowser td.quality.controls div.container{
+.databrowser td.quality.controls div.container, ul.actionDropdown a.quality.controls{
 	background-image: url(../img/icons/qualityControl_16x16.png);
+}
+.databrowser td.participant.messages div.container, ul.actionDropdown a.participant.messages{
+	background-image: url(../img/icons/post_it_16x16.png);
+}
+ul.actionDropdown ul a, ul.actionDropdown ul li:hover a{
+	background-repeat: no-repeat;
+	background-position: center left;
+	text-indent: 14px;
+}
+ul.actionDropdown li a{
+	padding-left: 20px;
 }
 
 .databrowser div.info{
