@@ -167,10 +167,8 @@ class StructuresComponent extends Object {
 								$data = $format_data_model->deconstruct($form_fields[$model.'.'.$key]['field'], $data, strpos($key, "_end") == strlen($key) - 4);
 								if ( is_array($data) ) {
 									$data = array_unique($data);
-									$myFilter = function($val){
-										return strlen($val) > 0;
-									};
-									$data = array_filter($data, $myFilter);
+									
+									$data = array_filter($data, "StructuresComponent::myFilter");
 								}
 								
 								if ( !count($data) ) $data = '';
@@ -199,7 +197,10 @@ class StructuresComponent extends Object {
 		
 		// return CONDITIONS for search form
 		return $conditions;
-		
+	}
+	
+	static function myFilter($val){
+		return strlen($val) > 0;
 	}
 	
 	function parse_sql_conditions( $sql=NULL, $conditions=NULL ) {
