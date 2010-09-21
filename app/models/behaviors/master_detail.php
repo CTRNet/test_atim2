@@ -91,8 +91,8 @@ class MasterDetailBehavior extends ModelBehavior {
 		return $results;
 	}
 	
-	function beforeSave (&$model) {
-		return $this->beforeValidateAndSave($model);
+	function beforeSave (&$model, $params){
+		return $this->beforeValidateAndSave($model, $params);
 	}
 	
 	function afterSave (&$model, $created) {
@@ -173,7 +173,7 @@ class MasterDetailBehavior extends ModelBehavior {
 		return $this->beforeValidateAndSave($model);
 	}
 	
-	private function beforeValidateAndSave(&$model){
+	private function beforeValidateAndSave(&$model, $params = array()){
 	// make all SETTINGS into individual VARIABLES, with the KEYS as names
 		extract($this->__settings[$model->alias]);
 		
@@ -195,7 +195,7 @@ class MasterDetailBehavior extends ModelBehavior {
 			
 			if ( $use_form_alias ) {
 				$detail_class_instance = new AppModel( array('table'=>$use_table_name, 'name'=>$detail_class, 'alias'=>$detail_class) );
-				if(isset(AppController::getInstance()->{$detail_class})){
+				if(isset(AppController::getInstance()->{$detail_class}) && (!isset($params['validate']) || $params['validate'])){
 					$detail_class_instance->validate = AppController::getInstance()->{$detail_class}->validate;
 					$detail_class_instance->set($model->data);
 					$valid_detail_class = $detail_class_instance->validates();
