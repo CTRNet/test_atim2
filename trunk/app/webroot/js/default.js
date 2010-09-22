@@ -453,8 +453,8 @@ function uncheckAll( $div ) {
 		if(typeof(ccl) != 'undefined'){
 			initCcl();
 		}
-		if(typeof(batchSetFormAction) != 'undefined'){
-			initBatchSetFormAction();
+		if(typeof(batchSetControls) != 'undefined'){
+			initBatchSetControls();
 		}
 		
 		//field highlighting

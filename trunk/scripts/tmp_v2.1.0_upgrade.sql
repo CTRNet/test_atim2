@@ -2514,7 +2514,8 @@ INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_e
 INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('value in database', 'Value in Database', 'Valeur en base de données'),    	     	  
 ('english translation', 'English Translation', 'Traduction anglaise'), 
-('french translation', 'French Translation', 'Traduction française');
+('french translation', 'French Translation', 'Traduction française'),
+("you are about to remove element(s) from the batch set", "You are about to remove element(s) from the batch set", "Vous êtes sur le point de retirer des éléments du groupe de données");
 
 INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('a specified value already exists for that dropdown', 'A specified value already exists for that dropdown!', 'Une valeur existe déjà pour cette liste!');
