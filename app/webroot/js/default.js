@@ -434,6 +434,36 @@ function uncheckAll( $div ) {
 		return currElement;
 	}
 	
+	//Delete confirmation dialog
+	function initDeleteConfirm(){
+		if($(".form.delete").length > 0){
+			$("body").append('<div id="deleteConfirmPopup" class="std_popup question">' +
+				'<div style="background: #FFF;">' +
+					'<h4>' + STR_DELETE_CONFIRM + '</h4>' +
+					'<span class="button deleteConfirm">' +
+						'<a class="form detail">' + STR_YES + '</a>' +
+					'</span>' +
+					'<span class="button deleteClose">' +
+						'<a class="form delete">' + STR_NO + '</a>' +
+					'</span>' +
+				'</div>' +
+				'<input type="hidden" id="deleteLink" value=""/>' +
+			'</div>');
+			
+			$(".form.delete").click(function(){
+				$("#deleteConfirmPopup").popup();
+				$("#deleteLink").val($(this).attr("href"));
+				return false;
+			});
+			$("#deleteConfirmPopup .deleteConfirm").click(function(){
+				document.location = $("#deleteLink").val(); 
+			});
+			$("#deleteConfirmPopup .deleteClose, #deleteConfirmPopup .delete").click(function(){
+				$("#deleteConfirmPopup").popup('close');
+			});
+		}
+	}
+	
 	function initJsControls(){
 		if(typeof(storageLayout) != 'undefined'){
 			initStorageLayout();
@@ -456,6 +486,8 @@ function uncheckAll( $div ) {
 		if(typeof(batchSetControls) != 'undefined'){
 			initBatchSetControls();
 		}
+		
+		initDeleteConfirm();
 		
 		//field highlighting
 		if($("#table1row0").length == 1){

@@ -761,7 +761,6 @@ class StructuresHelper extends Helper {
 
 
 	function build_csv( $atim_structure, $options ) {
-
 		if ( is_array($options['data']) ){
 			$data=$options['data']; 
 		}else{
@@ -2073,11 +2072,7 @@ class StructuresHelper extends Helper {
 					}
 					
 					// set Javascript confirmation msg...
-					if ( $display_class_name=='delete' ) {
-						$confirmation_msg = __( 'core_are you sure you want to delete this data?', true );
-					} else {
-						$confirmation_msg = NULL;
-					}
+					$confirmation_msg = NULL;
 					
 					// replace %%MODEL.FIELDNAME%% 
 					$link_location = $this->str_replace_link( $link_location, $data );
