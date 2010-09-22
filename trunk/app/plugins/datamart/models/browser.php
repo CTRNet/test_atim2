@@ -55,6 +55,7 @@ class Browser extends DatamartAppModel {
 				$result[] = array(
 					'value' => $data_unit['DatamartStructure']['id'], 
 					'default' => __($data_unit['DatamartStructure']['display_name'], true),
+					'class' => $data_unit['DatamartStructure']['display_name'],
 					'action' => 'datamart/browser/browse/'.$node_id.'/',
 					'children' => array(
 							array(

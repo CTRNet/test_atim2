@@ -44,10 +44,10 @@
 		<?php __("do you wish to proceed?"); ?>
 		</p>
 		<span class="button confirm">
-			<a class="form detail">Yes</a>
+			<a class="form detail"><?php __("yes"); ?></a>
 		</span>
 		<span class="button close">
-			<a class="form delete">No</a>
+			<a class="form delete"><?php __("no"); ?></a>
 		</span>
 	</div>
 </div>

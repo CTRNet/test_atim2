@@ -1741,7 +1741,7 @@ div.wrapper table.structure td .databrowser td .info td{
 .databrowser td.participant.messages div.container, ul.actionDropdown a.participant.messages{
 	background-image: url(../img/icons/post_it_16x16.png);
 }
-ul.actionDropdown ul a, ul.actionDropdown ul li:hover a{
+ul.actionDropdown a, ul.actionDropdown li:hover a{
 	background-repeat: no-repeat;
 	background-position: center left;
 	text-indent: 14px;
