@@ -49,6 +49,7 @@ var errorYouNeedToSelectAtLeastOneItem = "<?php __("you need to select at least 
 
 <?php 
 if(isset($dropdown_options)){
+	pr($dropdown_options);
 ?>
 <a tabindex="0" href="#news-items" class="fg-button fg-button-icon-right ui-widget ui-state-default ui-corner-all" id="hierarchy"><span class="ui-icon ui-icon-triangle-1-s"></span><span class="label"><?php __("action"); ?></span></a>
 <div class="hidden ui-widget">
