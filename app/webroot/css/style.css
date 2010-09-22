@@ -1820,6 +1820,9 @@ ul.error{
 	max-height: 500px;
 	overflow: auto;
 }
+.popup_container{
+	text-align: center;
+}
 
 .tool_popup{
 	background-image: url(../img/icons/Preview_16x16.png);
