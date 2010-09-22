@@ -22,7 +22,7 @@
 	
 	$structure_settings = array(
 		'actions'=> ($is_aliquot_review_defined? false : true), 
-		
+		'tabindex' => '1000',
 		'header' => __($review_control_data['SpecimenReviewControl']['specimen_sample_type'], null) . ' - ' . __($review_control_data['SpecimenReviewControl']['review_type'], null),
 		'form_bottom'=> ($is_aliquot_review_defined? false : true));
 	
@@ -40,7 +40,7 @@
 		
 		$structure_settings = array(
 			'actions'=>false, 
-	
+			'tabindex' => '2000',
 			'header' => __('aliquot review', null),
 			'separator' => true, 
 			'form_top' => false,
@@ -52,6 +52,7 @@
 		// 3- ALIQUOT REVIEW
 				
 		$structure_settings = array(
+			'tabindex' => '3000',
 			'pagination' => false, 
 			'add_fields' => true, 
 			'del_fields' => true,

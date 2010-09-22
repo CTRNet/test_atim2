@@ -326,7 +326,6 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 		if ( empty($this->data) || $undo ) {
 			$this->data = NULL;
 			$this->set('specimen_review_data', $initial_specimen_review_data);
-			$initial_aliquot_review_data_list[] = array('AliquotReviewMaster' => array('id' => __('new', true)));
 			$this->set('aliquot_review_data', $initial_aliquot_review_data_list);
 				
 		} else {
