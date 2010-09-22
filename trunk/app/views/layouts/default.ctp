@@ -33,6 +33,9 @@
 			var STR_SPECIFIC = "<?php __('specific'); ?>";
 			var STR_RANGE = "<?php __('range'); ?>";
 			var STR_TO = "<?php __('to'); ?>";
+			var STR_DELETE_CONFIRM = "<?php __( 'core_are you sure you want to delete this data?') ?>";
+			var STR_YES = "<?php __('yes'); ?>";
+			var STR_NO = "<?php __('no'); ?>";
 		</script>
 	<!--[if IE 7]>
 	<?php
