@@ -486,6 +486,9 @@ function uncheckAll( $div ) {
 		if(typeof(batchSetControls) != 'undefined'){
 			initBatchSetControls();
 		}
+		if(typeof(pathReviewEditRemoveLastLine) != 'undefined'){
+			var elem = $(getParentElement($(".addLineCount"), "TABLE")).find("tbody tr:last").remove();
+		}
 		
 		initDeleteConfirm();
 		

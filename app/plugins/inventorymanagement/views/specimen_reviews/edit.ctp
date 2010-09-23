@@ -80,4 +80,5 @@ var pasteStr = "<?php echo(__("paste")); ?>";
 var copyingStr = "<?php echo(__("copying")); ?>";
 var pasteOnAllLinesStr = "<?php echo(__("paste on all lines")); ?>";
 var copyControl = true;
+var pathReviewEditRemoveLastLine = true;
 </script>
