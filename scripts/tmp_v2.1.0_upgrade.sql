@@ -2516,7 +2516,8 @@ INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('english translation', 'English Translation', 'Traduction anglaise'), 
 ('french translation', 'French Translation', 'Traduction française'),
 ("you are about to remove element(s) from the batch set", "You are about to remove element(s) from the batch set", "Vous êtes sur le point de retirer des éléments du groupe de données"),
-("selection label updated", "Selection label updated", "Label de sélection mis à jour");
+("selection label updated", "Selection label updated", "Label de sélection mis à jour"),
+("the aliquot with barcode [%s] has a reached a volume bellow 0", "The aliquot with barcode [%s] has a reached a volume bellow 0.", "L'aliquot avec le code barre [%s] a atteint un volume inférieur à 0.");
 
 INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('a specified value already exists for that dropdown', 'A specified value already exists for that dropdown!', 'Une valeur existe déjà pour cette liste!');

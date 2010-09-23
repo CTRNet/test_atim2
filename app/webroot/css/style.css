@@ -1409,6 +1409,10 @@ div.wrapper table.structure table.columns td a.not_allowed {
 		div#validation ul.confirm li {
 			background-color: #393;
 		}
+		
+		div#validation ul.warning li {
+			background-color: #EB0;
+		}
 	
 		
 div#footer {
