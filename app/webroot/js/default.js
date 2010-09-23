@@ -376,10 +376,10 @@ function uncheckAll( $div ) {
 			if($("#AliquotUseUsedVolume").val().length > 0 && nom > denom){
 				$("input, textarea, a").blur();
 				$("#popup").popup();
+				return false;
 			}else{
 				$("#submit_button").click();
 			}
-			return false;
 		};
 		
 		$("form").submit(checkFct);
