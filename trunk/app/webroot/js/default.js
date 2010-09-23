@@ -436,7 +436,7 @@ function uncheckAll( $div ) {
 	
 	//Delete confirmation dialog
 	function initDeleteConfirm(){
-		if($(".form.delete").length > 0){
+		if($(".action .form.delete").length > 0){
 			$("body").append('<div id="deleteConfirmPopup" class="std_popup question">' +
 				'<div style="background: #FFF;">' +
 					'<h4>' + STR_DELETE_CONFIRM + '</h4>' +
