@@ -246,7 +246,7 @@ class StructuresComponent extends Object {
 					$tmp_cond = (strrpos($condition, ")") == strlen($condition) - 1) ? substr($condition, 0, -1) : $condition;
 					$my_conds = explode(" OR ", $tmp_cond);
 					foreach($my_conds as $my_cond){
-						$parts = explode(" ", $my_cond);
+						$parts = explode(" ", $my_cond, 3);
 						if(count($parts) > 2){
 							$in_arr[] = "'".substr(str_replace("%'", "'", $parts[2]), 2);
 						}
