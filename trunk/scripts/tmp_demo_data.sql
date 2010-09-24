@@ -1839,15 +1839,16 @@ VALUES
 'SELECT 
 Collection.id,
 SampleMaster.id,
-AliquotMaster.id, 
-AliquotMaster.barcode, 
+AliquotMaster.id,
+StorageMaster.id, 
+ 
 Collection.acquisition_label,
+AliquotMaster.barcode, 
 Collection.bank_id, 
 SampleMaster.sample_type, 
 AliquotMaster.aliquot_type, 
 AliquotMaster.in_stock,
 AliquotMaster.storage_datetime, 
-StorageMaster.id, 
 StorageMaster.short_label, 
 StorageMaster.selection_label, 
 AliquotMaster.storage_coord_x, 
@@ -1859,18 +1860,18 @@ INNER JOIN sample_masters AS SampleMaster ON SampleMaster.collection_id = Collec
 INNER JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.sample_master_id = SampleMaster.id 
 INNER JOIN storage_masters AS StorageMaster ON AliquotMaster.storage_master_id = StorageMaster.id 
 WHERE TRUE
-AND AliquotMaster.barcode IN (@@AliquotMaster.barcode@@) 
 AND Collection.acquisition_label LIKE "@@Collection.acquisition_label@@"
+AND AliquotMaster.barcode IN (@@AliquotMaster.barcode@@) 
 AND Collection.bank_id = "@@Collection.bank_id@@"
 AND SampleMaster.sample_type = "@@SampleMaster.sample_type@@" 
 AND AliquotMaster.aliquot_control_id IN (SELECT id FROM aliquot_controls WHERE aliquot_type = "tube")
 AND AliquotMaster.in_stock = "@@AliquotMaster.in_stock@@" 
+AND AliquotMaster.storage_datetime >= "@@AliquotMaster.storage_datetime_start@@" 
+AND AliquotMaster.storage_datetime <= "@@AliquotMaster.storage_datetime_end@@" 
 AND StorageMaster.short_label LIKE "@@StorageMaster.short_label@@"
 AND StorageMaster.temperature >= "@@StorageMaster.temperature_start@@" 
 AND StorageMaster.temperature <= "@@StorageMaster.temperature_end@@" 
 AND StorageMaster.temp_unit = "@@StorageMaster.temp_unit@@" 
-AND AliquotMaster.storage_datetime >= "@@AliquotMaster.storage_datetime_start@@" 
-AND AliquotMaster.storage_datetime <= "@@AliquotMaster.storage_datetime_end@@" 
 ORDER BY AliquotMaster.barcode;', 
 1);
 
