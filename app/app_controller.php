@@ -303,6 +303,10 @@ class AppController extends Controller {
 			$formated_date = AppController::getFormatedDateString($year, $month, $day);
 			return $formated_date.($nbsp_spaces ? "&nbsp;" : "").$time;
 	}
+	
+	static function addWarningMsg($msg){
+		$_SESSION['ctrapp_core']['warning_msg'][] = $msg;
+	}
 }
 
 
