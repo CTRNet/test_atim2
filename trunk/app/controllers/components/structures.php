@@ -321,7 +321,6 @@ class StructuresComponent extends Object {
 		$sql_with_search_terms = preg_replace('/(AND|OR) TRUE/i', "", $sql_with_search_terms);
 		$sql_without_search_terms = preg_replace('/(AND|OR) TRUE/i', "", $sql_without_search_terms);
 		
-		echo($sql_with_search_terms);
 		// return BOTH
 		return array( $sql_with_search_terms, $sql_without_search_terms );
 	}
