@@ -57,7 +57,11 @@ class AliquotsComponent extends Object {
 
 			}
 			$new_current_volume = round(($initial_volume - $total_used_volume), 5);
-			$new_current_volume = ($new_current_volume <= 0)? 0: $new_current_volume;
+			if($new_current_volume < 0){
+				$new_current_volume = 0;
+				$tmp_msg = __("the aliquot with barcode [%s] has a reached a volume bellow 0", true);
+				AppController::addWarningMsg(sprintf($tmp_msg, $aliquot_data['AliquotMaster']['barcode']));
+			}
 
 			if($new_current_volume === $current_volume) {
 				//Nothing to do

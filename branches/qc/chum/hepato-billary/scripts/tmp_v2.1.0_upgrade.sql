@@ -2453,7 +2453,7 @@ INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('aliquot storage data were deleted (if required)', 'Aliquot storage data were deleted (if required)!', 'Les données d''entreposage ont été supprimées (au besoin)!');
 
 INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
-('an aliquot being not in stock can not be linked to a storage', 'An aliquot being not in stock can not be linked to a storage!', 'Un aliquot non en stock ne peut être attaché à un entreposage!');
+('an aliquot being not in stock can not be linked to a storage', 'An aliquot flagged ''Not in stock'' cannot also have storage location and label completed.', 'Un aliquot non en stock ne peut être attaché à un entreposage!');
 
 INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('reload form', 'Reload Form', 'Ré-afficher le formulaire');
@@ -2477,7 +2477,7 @@ SET language_title = 'custom dropdown list management', language_description = '
 WHERE language_title = 'dropdowns' AND language_description = 'dropdowns';
 
 INSERT INTO i18n (id,en,fr)
-VALUES ('custom dropdown list management', 'Managing lists of values', 'Gestion des listes de valeurs');
+VALUES ('custom dropdown list management', 'Dropdown List Configuration', 'Gestion des listes de valeurs');
 
 ALTER TABLE structure_permissible_values_customs
 	ADD `en` varchar(255) DEFAULT '' AFTER `value`,
@@ -2514,7 +2514,10 @@ INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_e
 INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('value in database', 'Value in Database', 'Valeur en base de données'),    	     	  
 ('english translation', 'English Translation', 'Traduction anglaise'), 
-('french translation', 'French Translation', 'Traduction française');
+('french translation', 'French Translation', 'Traduction française'),
+("you are about to remove element(s) from the batch set", "You are about to remove element(s) from the batch set", "Vous êtes sur le point de retirer des éléments du groupe de données"),
+("selection label updated", "Selection label updated", "Label de sélection mis à jour"),
+("the aliquot with barcode [%s] has a reached a volume bellow 0", "The aliquot with barcode [%s] has a reached a volume bellow 0.", "L'aliquot avec le code barre [%s] a atteint un volume inférieur à 0.");
 
 INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('a specified value already exists for that dropdown', 'A specified value already exists for that dropdown!', 'Une valeur existe déjà pour cette liste!');
@@ -2545,3 +2548,40 @@ UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::g
 UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('laboratory staff')" WHERE source = 'StructurePermissibleValuesCustom::getDropdownStaff';
 UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('specimen supplier departments')" WHERE source = 'StructurePermissibleValuesCustom::getDropdownSpecimenSupplierDepartments';
 UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('laboratory sites')" WHERE source = 'StructurePermissibleValuesCustom::getDropdownLaboratorySites';
+
+-- moving topography before morphology in dx
+UPDATE structure_formats SET `display_order`='6' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='topography' AND type='input' AND structure_value_domain  IS NULL );
+UPDATE structure_formats SET `display_order`='6' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='topography' AND type='input' AND structure_value_domain  IS NULL );
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters', 'topography', 'topography', '', 'autocomplete', 'size=10,url=/codingicdo3topo/CodingIcdo3Topos/autocomplete,tool=/codingicdo3topo/CodingIcdo3Topos/tool', '',  NULL , 'help_topography', 'open', 'open', 'open');
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='topography' AND `type`='autocomplete' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='topography' AND type='input' AND structure_value_domain  IS NULL );
+UPDATE structure_formats SET `flag_override_setting`='1', `setting`='size=10,url=/codingicdo3topo/CodingIcdo3Topos/autocomplete,tool=/codingicdo3topo/CodingIcdo3Topos/tool' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='topography' AND type='input' AND structure_value_domain  IS NULL );
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='topography' AND `type`='autocomplete' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='topography' AND type='input' AND structure_value_domain  IS NULL );
+
+
+INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES 
+('codingicdo3topo_en', '', '', '1', '1', '1', '1'),
+('codingicdo3topo_fr', '', '', '1', '1', '1', '1');
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Codingicdo3topo', 'CodingIcdo3Topo', 'coding_icd_o_3_topography', 'id', 'code', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Codingicdo3topo', 'CodingIcdo3Topo', 'coding_icd_o_3_topography', 'en_title', 'title', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Codingicdo3topo', 'CodingIcdo3Topo', 'coding_icd_o_3_topography', 'en_sub_title', 'sub-title', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Codingicdo3topo', 'CodingIcdo3Topo', 'coding_icd_o_3_topography', 'en_description', 'description', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'),
+('', 'Codingicdo3topo', 'CodingIcdo3Topo', 'coding_icd_o_3_topography', 'fr_title', 'title', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Codingicdo3topo', 'CodingIcdo3Topo', 'coding_icd_o_3_topography', 'fr_description', 'description', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Codingicdo3topo', 'CodingIcdo3Topo', 'coding_icd_o_3_topography', 'fr_sub_title', 'sub-title', '', 'input', '', '',  NULL , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='codingicdo3topo_en'), (SELECT id FROM structure_fields WHERE `model`='CodingIcdo3Topo' AND `tablename`='coding_icd_o_3_topography' AND `field`='id' AND `language_label`='code' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='codingicdo3topo_en'), (SELECT id FROM structure_fields WHERE `model`='CodingIcdo3Topo' AND `tablename`='coding_icd_o_3_topography' AND `field`='en_title' AND `language_label`='title' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='codingicdo3topo_en'), (SELECT id FROM structure_fields WHERE `model`='CodingIcdo3Topo' AND `tablename`='coding_icd_o_3_topography' AND `field`='en_sub_title' AND `language_label`='sub-title' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='codingicdo3topo_en'), (SELECT id FROM structure_fields WHERE `model`='CodingIcdo3Topo' AND `tablename`='coding_icd_o_3_topography' AND `field`='en_description' AND `language_label`='description' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='codingicdo3topo_fr'), (SELECT id FROM structure_fields WHERE `model`='CodingIcdo3Topo' AND `tablename`='coding_icd_o_3_topography' AND `field`='id' AND `language_label`='code' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='codingicdo3topo_fr'), (SELECT id FROM structure_fields WHERE `model`='CodingIcdo3Topo' AND `tablename`='coding_icd_o_3_topography' AND `field`='fr_title' AND `language_label`='title' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='codingicdo3topo_fr'), (SELECT id FROM structure_fields WHERE `model`='CodingIcdo3Topo' AND `tablename`='coding_icd_o_3_topography' AND `field`='fr_description' AND `language_label`='description' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='codingicdo3topo_fr'), (SELECT id FROM structure_fields WHERE `model`='CodingIcdo3Topo' AND `tablename`='coding_icd_o_3_topography' AND `field`='fr_sub_title' AND `language_label`='sub-title' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0');
+
+
+
+
+

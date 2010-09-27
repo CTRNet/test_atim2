@@ -904,7 +904,7 @@ class App extends Object {
 					$_this->__overload($type, $name . $ext['class'], $parent);
 
 					//ATIM2: include custom files, if they exist
-					$atim_custom_file = str_replace("/controllers/", "/controllers/customs/", $load);
+					$atim_custom_file = str_replace(DS."controllers".DS, DS."controllers".DS."customs".DS, $load);
 					if($atim_custom_file != $load && file_exists($atim_custom_file)){
 						include_once ($atim_custom_file);
 					}

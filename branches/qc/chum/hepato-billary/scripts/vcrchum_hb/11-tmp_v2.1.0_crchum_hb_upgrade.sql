@@ -305,6 +305,19 @@ SET misc_identifier_name_abbrev = '#', misc_identifier_format = '%%key_increment
 WHERE misc_identifier_name = 'hepato_bil_bank_participant_id';
 
 
- 	
+
+
+
+
+
+
+
+
+-----------------------------------------------------------------------
+Script to test list
+
+SELECT id, name FROM structure_permissible_values_custom_controls WHERE id NOT IN (SELECT control_id FROM structure_permissible_values_customs)
+
+INSERT INTO structure_permissible_values_customs (control_id, value) (SELECT id, concat(name, '.... TO DEFINE') FROM structure_permissible_values_custom_controls WHERE id NOT IN (SELECT control_id FROM structure_permissible_values_customs))
  	
  	

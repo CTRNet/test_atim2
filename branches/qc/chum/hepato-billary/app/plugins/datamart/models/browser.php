@@ -55,6 +55,7 @@ class Browser extends DatamartAppModel {
 				$result[] = array(
 					'value' => $data_unit['DatamartStructure']['id'], 
 					'default' => __($data_unit['DatamartStructure']['display_name'], true),
+					'class' => $data_unit['DatamartStructure']['display_name'],
 					'action' => 'datamart/browser/browse/'.$node_id.'/',
 					'children' => array(
 							array(
@@ -82,6 +83,7 @@ class Browser extends DatamartAppModel {
 		array_push($stack, $current_id);
 		$to_arr = array_diff($from_to[$current_id], $stack);
 		$result['default'] = __($browsing_structures[$current_id], true);
+		$result['class'] = $browsing_structures[$current_id];
 		$tmp = array_shift($stack);
 		$result['value'] = implode("_", $stack);
 		array_unshift($stack, $tmp);

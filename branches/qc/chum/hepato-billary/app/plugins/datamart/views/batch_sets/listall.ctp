@@ -37,33 +37,25 @@
 		$structures->build( $atim_structure_for_process, array('type'=>'add', 'settings'=>array('form_top'=>false), 'links'=>$structure_links, 'override'=>$structure_override, 'data'=>array()) );
 		
 ?>
+<div id="popup" class="std_popup question">
+	<div style="background: #FFF;">
+		<h4><?php __("you are about to remove element(s) from the batch set"); ?></h4>
+		<p>
+		<?php __("do you wish to proceed?"); ?>
+		</p>
+		<span class="button confirm">
+			<a class="form detail"><?php __("yes"); ?></a>
+		</span>
+		<span class="button close">
+			<a class="form delete"><?php __("no"); ?></a>
+		</span>
+	</div>
+</div>
 
 <script type="text/javascript">
-$(function(){
-	setFormAction($("#BatchSetProcess").val());
-	$("#BatchSetProcess").change(function(){
-		setFormAction($(this).val());
-	});
-});
-
-function setFormAction(action){
-	if(action.length == 0){
-		$("#submit_button").unbind('click');
-		$("#submit_button").click(function(){
-			alert("<?php __("select an option for the field process batch set") ?>");
-			return false;
-		});
-	}else{
-		action = root_url + action;
-		$("#submit_button").unbind('click');
-		$("#submit_button").click(function(){
-			if($("input:checked").length == 0){
-				alert("<?php __("check at least one element from the batch set") ?>");
-				return false;
-			}
-				return true;
-		});
-	}
-	$("form").attr("action", action);
-}
+var batchSetControls = true;
+var batchSetFormActionMsgSelectAnOption = "<?php __("select an option for the field process batch set") ?>";
+var batchSetFormActionMsgSelectAtLeast = "<?php __("check at least one element from the batch set") ?>";
 </script>
+<?php 
+echo $javascript->link('batchset')."\n";

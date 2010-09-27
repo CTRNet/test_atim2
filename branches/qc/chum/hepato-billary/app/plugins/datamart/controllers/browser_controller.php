@@ -57,7 +57,6 @@ class BrowserController extends DatamartAppController {
 				if(!App::import('Model', $model_to_import)){
 					$this->redirect( '/pages/err_model_import_failed?p[]='.$model_to_import, NULL, TRUE );
 				}
-				$this->set("dropdown_options", $this->Browser->getDropdownOptions($browsing['DatamartStructure']['id'], $parent_node, $browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['model'], $browsing['DatamartStructure']['use_key'], $browsing['DatamartStructure']['structure_id']));
 				$this->ModelToSearch = new $browsing['DatamartStructure']['model'];
 				$this->data = strlen($browsing['BrowsingResult']['id_csv']) > 0 ? $this->ModelToSearch->find('all', array('conditions' => $browsing['DatamartStructure']['model'].".".$browsing['DatamartStructure']['use_key']." IN (".$browsing['BrowsingResult']['id_csv'].")")) : array();
 				$this->set("atim_structure", $this->Structures->getFormById($browsing['DatamartStructure']['structure_id']));
@@ -67,6 +66,7 @@ class BrowserController extends DatamartAppController {
 				$this->set('checklist_key_name', $browsing['DatamartStructure']['model'].".".$browsing['DatamartStructure']['use_key']);
 				$result_structure = $this->Structures->getFormById($browsing['DatamartStructure']['structure_id']);
 				$result_structure = $this->checkForAlternateStructure($result_structure, $browsing['BrowsingResult']['id_csv']);
+				$this->set("dropdown_options", $this->Browser->getDropdownOptions($browsing['DatamartStructure']['id'], $parent_node, $browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['model'], $browsing['DatamartStructure']['use_key'], $result_structure['Structure']['alias']));
 				$this->Structures->set("datamart_browser_start");
 				$this->set("result_structure", $result_structure);
 			}
@@ -247,7 +247,7 @@ class BrowserController extends DatamartAppController {
 			"plugin" => $browsing_result['DatamartStructure']['plugin'],
 			"model" => $browsing_result['DatamartStructure']['model'],
 			"lookup_key_name" => $browsing_result['DatamartStructure']['use_key'],
-			"form_alias_for_results" => $structure['Structure']['id'],
+			"form_alias_for_results" => $structure['Structure']['alias'],
 			"flag_use_query_results" => false
 		));
 		$this->BatchSet->save($batch_set);
@@ -300,6 +300,9 @@ class BrowserController extends DatamartAppController {
 				$model_to_use_import_control = "Inventorymanagement.SampleControl";
 				$control_model_name = "SampleControl";
 				$control_model_form_field = "form_alias";
+			}else{
+				//no alternate structure
+				return $result_structure;
 			}
 			//load the first id
 			$control_id = $this->data[0][$model_current_name][$model_current_control_name];

@@ -487,43 +487,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 
 	//storage history
+		
 		$this->Structures->set('custom_aliquot_storage_history', 'custom_aliquot_storage_history');
-		$storage_data = array();
-
-		$qry = "SELECT sm.*, am.* FROM aliquot_masters_revs AS am
-				LEFT JOIN  aliquot_masters_revs AS amn ON amn.version_id=(SELECT version_id FROM aliquot_masters_revs WHERE id=am.id AND version_id > am.version_id ORDER BY version_id ASC LIMIT 1)
-				LEFT JOIN storage_masters_revs AS sm ON am.storage_master_id=sm.id
-				LEFT JOIN storage_masters_revs AS smn ON smn.version_id=(SELECT version_id FROM storage_masters_revs WHERE id=sm.id AND version_id > sm.version_id ORDER BY version_id ASC LIMIT 1)
-				WHERE am.id='".$aliquot_master_id."' AND ((am.modified > sm.modified AND (am.modified < smn.modified OR smn.modified IS NULL)) OR (sm.modified > am.modified AND (sm.modified < amn.modified OR amn.modified IS NULL)) OR am.storage_master_id IS NULL)";
-		$storage_data_tmp = $this->AliquotMaster->query($qry);
-		
-		$previous = array_shift($storage_data_tmp);
-		while($current = array_shift($storage_data_tmp)){
-			if($previous['sm']['id'] != $current['sm']['id']){
-				$storage_data[]['custom'] = array(
-					'date' => $current['am']['modified'], 
-					'event' => __('new storage', true)." "
-						.__('from', true).": [".(strlen($previous['sm']['selection_label']) > 0 ? $previous['sm']['selection_label']." ".__('temperature', true).": ".$previous['sm']['temperature'].__($previous['sm']['temp_unit'], true) : __('no storage', true))."] "
-						.__('to', true).": [".(strlen($current['sm']['selection_label']) > 0 ? $current['sm']['selection_label']." ".__('temperature', true).": ".$current['sm']['temperature'].__($current['sm']['temp_unit'], true) : __('no storage', true))."]");
-			}else if($previous['sm']['temperature'] != $current['sm']['temperature']){
-				$storage_data[]['custom'] = array(
-					'date' => $current['sm']['modified'],
-					'event' => __('storage temperature changed', true).". "
-						.__('from', true).": ".$previous['sm']['temperature'].__($previous['sm']['temp_unit'], true)." "
-						.__('to', true).": ".$current['sm']['temperature'].__($current['sm']['temp_unit'], true));
-			}else if($previous['am']['storage_coord_x'] != $current['am']['storage_coord_x'] || $previous['am']['storage_coord_y'] != $current['am']['storage_coord_y']){
-				$coord_from = $previous['am']['storage_coord_x'].", ".$previous['am']['storage_coord_y'];
-				$coord_to = $current['am']['storage_coord_x'].", ".$current['am']['storage_coord_y'];
-				$storage_data[]['custom'] = array(
-					'date' => $current['am']['modified'], 
-					'event' => __('moved within storage', true)." ".__('from', true).": [".$coord_from."] ".__('to', true).": [".$coord_to."]. ".__('temperature unchanged', true));
-			}
-			
-			$previous = $current;
-		}
-		
-		
-		$this->set('storage_data', $storage_data);
+		$storage_data = $this->AliquotMaster->getStorageHistory($aliquot_master_id);
 				
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 
