@@ -161,12 +161,20 @@ class ShellHelper extends Helper {
 						'.implode('',array_unique($display_errors)).'
 					</ul>';
 		}
-		$confirm_msg_html = null;
+		$confirm_msg_html = "";
 		if(isset($_SESSION['ctrapp_core']['confirm_msg'])){
 			$confirm_msg_html = '<ul class="confirm"><li>'.$_SESSION['ctrapp_core']['confirm_msg'].'</li></ul>';
 			unset($_SESSION['ctrapp_core']['confirm_msg']);
 		}
-		if($display_errors_html != null || $confirm_msg_html != null){
+		if(isset($_SESSION['ctrapp_core']['warning_msg'])){
+			$confirm_msg_html .= '<ul class="warning">';
+			foreach($_SESSION['ctrapp_core']['warning_msg'] as $warning_msg){
+				$confirm_msg_html .= "<li>".$warning_msg."</li>";
+			}
+			$confirm_msg_html .= '</ul>';
+			unset($_SESSION['ctrapp_core']['warning_msg']);
+		}
+		if($display_errors_html != null || strlen($confirm_msg_html) > 0){
 		$return .= '
 			<!-- start #validation -->
 			<div id="validation">

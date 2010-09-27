@@ -140,8 +140,7 @@ class StructuresComponent extends Object {
 					if ( count($form_fields) ) {
 						
 						// add search element to CONDITIONS array if not blank & MODEL data included Model/Field info...
-						if ( $data && isset( $form_fields[$model.'.'.$key] ) ) {
-							
+						if ( (!empty($data) || $data == "0")  && isset( $form_fields[$model.'.'.$key] ) ) {
 							// if CSV file uploaded...
 							if ( is_array($data) && isset($this->controller->data[$model][$key.'_with_file_upload']) && $this->controller->data[$model][$key.'_with_file_upload']['tmp_name'] ) {
 								
@@ -166,17 +165,17 @@ class StructuresComponent extends Object {
 								
 								$format_data_model = new $model;
 								$data = $format_data_model->deconstruct($form_fields[$model.'.'.$key]['field'], $data, strpos($key, "_end") == strlen($key) - 4);
-								
 								if ( is_array($data) ) {
 									$data = array_unique($data);
-									$data = array_filter($data);
+									
+									$data = array_filter($data, "StructuresComponent::myFilter");
 								}
 								
 								if ( !count($data) ) $data = '';
 							}
 							
 							// if supplied form DATA is not blank/null, add to search conditions, otherwise skip
-							if ( $data ) {
+							if ( $data || $data == "0" ) {
 								if ( strpos($form_fields[$model.'.'.$key]['key'], ' LIKE')!==false ) {
 									if(is_array($data)){
 										$conditions[] = "(".$form_fields[$model.'.'.$key]['key']." '%".implode("%' OR ".$form_fields[$model.'.'.$key]['key']." '%", $data)."%')";
@@ -198,7 +197,10 @@ class StructuresComponent extends Object {
 		
 		// return CONDITIONS for search form
 		return $conditions;
-		
+	}
+	
+	static function myFilter($val){
+		return strlen($val) > 0;
 	}
 	
 	function parse_sql_conditions( $sql=NULL, $conditions=NULL ) {
@@ -244,8 +246,8 @@ class StructuresComponent extends Object {
 					$tmp_cond = (strrpos($condition, ")") == strlen($condition) - 1) ? substr($condition, 0, -1) : $condition;
 					$my_conds = explode(" OR ", $tmp_cond);
 					foreach($my_conds as $my_cond){
-						$parts = explode(" ", $my_cond);
-						if(count($parts) > 1){
+						$parts = explode(" ", $my_cond, 3);
+						if(count($parts) > 2){
 							$in_arr[] = "'".substr(str_replace("%'", "'", $parts[2]), 2);
 						}
 					}
@@ -258,13 +260,14 @@ class StructuresComponent extends Object {
 				//=, <, >, <=, >=
 				$tests = array("=", "<", "<=", ">", ">=");
 				foreach($tests as $test){
+					$condition_tmp = $condition;
 					$matches = array();
 					preg_match_all("/[\w\.\`]+[\s]+".$test."[\s]+\"[%]*@@".$model_field."@@[%]*\"/", $sql_with_search_terms, $matches, PREG_OFFSET_CAPTURE);
 					if(count($matches) > 0){
-						$condition = str_replace("%') OR ", "') OR ", str_replace("%')", "')", str_replace(" LIKE '%", " ".$test." '", $condition)));
+						$condition_tmp = '"'.str_replace("%') OR ", "') OR ", str_replace("%')", "')", str_replace(" LIKE '%", " ".$test." '", $condition))).'"';
 						$matches[0] = array_reverse($matches[0]);
 						foreach($matches[0] as $match){
-							$sql_with_search_terms = substr($sql_with_search_terms, 0, $match[1]).$condition.substr($sql_with_search_terms, $match[1] + strlen($match[0]));
+							$sql_with_search_terms = substr($sql_with_search_terms, 0, $match[1] + strpos($match[0], $test) + strlen($test) + 1).$condition_tmp.substr($sql_with_search_terms, $match[1] + strlen($match[0]));
 						}
 					}
 				}
@@ -275,7 +278,7 @@ class StructuresComponent extends Object {
 			//whipe what wasn't replaced
 			//range
 			$sql_with_search_terms = preg_replace('/(\>|\<)\=\s*"@@[\w\.]+@@"/i', "$1= \"\"", $sql_with_search_terms);
-			$sql_without_search_terms = preg_replace('/(\>|\<)\=\s*"@@[\w\.]+@@"/i', "1= \"\"", $sql_without_search_terms);
+			$sql_without_search_terms = preg_replace('/(\>|\<)\=\s*"@@[\w\.]+@@"/i', "$1= \"\"", $sql_without_search_terms);
 			
 			//LIKE
 			$sql_with_search_terms = preg_replace('/LIKE\s*"[%]*@@[\w\.]+@@[%]*"/i', "LIKE \"%%\"", $sql_with_search_terms);

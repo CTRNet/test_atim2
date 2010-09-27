@@ -27,12 +27,20 @@
 	?>
 	<table class="structure" cellspacing="0">
 			<tbody>
-			<tr><td style='text-align: left; padding-left: 10px;'><input type='radio' id="collection_search" name='data[ClinicalCollectionLink][collection_id]' value='search'/><?php echo(__('search', true)); ?></td></tr>
 			<tr><td style='text-align: left; padding-left: 10px;'><input type='radio' id="collection_new" name='data[ClinicalCollectionLink][collection_id]' checked='checked' value=''/><?php echo(__('new collection', true)); ?></td></tr>
 			<tr><td id="collection_loading" style="text-align: center; display: none;"><div class="loading"><?php echo($string_loading) ?></div></td></tr>
 	</tbody></table>
 	<div id="collection_frame"></div>
-	<?php
+	<table class="structure" cellspacing="0">
+		<tbody>
+			<tr>
+				<td style='text-align: left; padding-left: 10px;'><span
+					class="button"> <a id="collection_search" href="#"><?php echo(__('search', true)); ?></a>
+				</span></td>
+			</tr>
+		</tbody>
+	</table>
+<?php
 	 
 	$structure_links = array(
 		'radiolist' => array(

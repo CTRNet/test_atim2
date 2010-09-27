@@ -73,7 +73,7 @@ var actionClickDown = function() {
 	
 	
 	// only scroll if not already at edge...
-	if ( (position.top - 203) > (-1 * move_ul.height()) ) {
+	if ( (position.top - menuMoveDistance) > (-1 * move_ul.height()) ) {
 		move_ul.animate(
 			{
 				top: '-=' + menuMoveDistance
@@ -293,8 +293,10 @@ function uncheckAll( $div ) {
 			var cell = getParentElement(this, "TD");
 			$(cell).find("input").val("");
 			if($(cell).find(".range_span").length == 0){
+				var baseName = $(cell).find("input").attr("name");
+				baseName = baseName.substr(0, baseName.length - 3);
 				$(cell).find("span:first").addClass("adv_ctrl");
-				$(cell).prepend("<span class='range_span'><input type='text' name='data[MiscIdentifier][identifier_value_start]'/> " + STR_TO + " <input type='text' name='data[MiscIdentifier][identifier_value_end]'/></span>");
+				$(cell).prepend("<span class='range_span'><input type='text' name='" + baseName + "_start]'/> " + STR_TO + " <input type='text' name='" + baseName + "_end]'/></span>");
 			}else{
 				$(cell).find(".range_span").show();
 				//restore names
@@ -367,19 +369,25 @@ function uncheckAll( $div ) {
 	}
 	
 	function initAliquotVolumeCheck(){
-		$(".form.submit").unbind('click').attr("onclick", "return false;");
-		$(".form.submit").click(function(){
-			var denom = $("#AliquotMasterCurrentVolume").val().replace(/,/g, ".");
-			var nom = $("#AliquotUseUsedVolume").val().replace(/,/g, ".");
-			if(nom.length > 0 && nom > denom){
+		var checkFct = function(){
+			var fctMod = function(param){ return parseFloat(param.replace(/,/g, ".")) };
+			var denom = fctMod($("#AliquotMasterCurrentVolume").val());
+			var nom = fctMod($("#AliquotUseUsedVolume").val());
+			if($("#AliquotUseUsedVolume").val().length > 0 && nom > denom){
+				$("input, textarea, a").blur();
 				$("#popup").popup();
+				return false;
 			}else{
 				$("#submit_button").click();
 			}
-			return false;
-		});
+		};
+		
+		$("form").submit(checkFct);
+		$(".form.submit").unbind('click').attr("onclick", "return false;");
+		$(".form.submit").click(checkFct);
 
 		$(".button.confirm").click(function(){
+			$("#popup").popup('close');
 			$("#submit_button").click();
 		});
 		$(".button.close").click(function(){
@@ -426,6 +434,36 @@ function uncheckAll( $div ) {
 		return currElement;
 	}
 	
+	//Delete confirmation dialog
+	function initDeleteConfirm(){
+		if($(".action .form.delete").length > 0){
+			$("body").append('<div id="deleteConfirmPopup" class="std_popup question">' +
+				'<div style="background: #FFF;">' +
+					'<h4>' + STR_DELETE_CONFIRM + '</h4>' +
+					'<span class="button deleteConfirm">' +
+						'<a class="form detail">' + STR_YES + '</a>' +
+					'</span>' +
+					'<span class="button deleteClose">' +
+						'<a class="form delete">' + STR_NO + '</a>' +
+					'</span>' +
+				'</div>' +
+				'<input type="hidden" id="deleteLink" value=""/>' +
+			'</div>');
+			
+			$(".form.delete").click(function(){
+				$("#deleteConfirmPopup").popup();
+				$("#deleteLink").val($(this).attr("href"));
+				return false;
+			});
+			$("#deleteConfirmPopup .deleteConfirm").click(function(){
+				document.location = $("#deleteLink").val(); 
+			});
+			$("#deleteConfirmPopup .deleteClose, #deleteConfirmPopup .delete").click(function(){
+				$("#deleteConfirmPopup").popup('close');
+			});
+		}
+	}
+	
 	function initJsControls(){
 		if(typeof(storageLayout) != 'undefined'){
 			initStorageLayout();
@@ -445,6 +483,14 @@ function uncheckAll( $div ) {
 		if(typeof(ccl) != 'undefined'){
 			initCcl();
 		}
+		if(typeof(batchSetControls) != 'undefined'){
+			initBatchSetControls();
+		}
+		if(typeof(pathReviewEditRemoveLastLine) != 'undefined'){
+			var elem = $(getParentElement($(".addLineCount"), "TABLE")).find("tbody tr:last").remove();
+		}
+		
+		initDeleteConfirm();
 		
 		//field highlighting
 		if($("#table1row0").length == 1){

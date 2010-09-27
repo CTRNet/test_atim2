@@ -157,6 +157,13 @@ class AppController extends Controller {
 
 		$request_uri_params = array();
 		
+		//Fix REQUEST_URI on IIS
+		if (!isset($_SERVER['REQUEST_URI'])){
+			$_SERVER['REQUEST_URI'] = substr($_SERVER['PHP_SELF'], 1);
+			if (isset($_SERVER['QUERY_STRING'])){
+				$_SERVER['REQUEST_URI'] .= '?'.$_SERVER['QUERY_STRING']; 
+			}
+		}
 		$request_uri = $_SERVER['REQUEST_URI'];
 		$request_uri = explode('/',$request_uri);
 		$request_uri = array_filter($request_uri);
@@ -295,6 +302,10 @@ class AppController extends Controller {
 			list($year, $month, $day) = explode("-", $date);
 			$formated_date = AppController::getFormatedDateString($year, $month, $day);
 			return $formated_date.($nbsp_spaces ? "&nbsp;" : "").$time;
+	}
+	
+	static function addWarningMsg($msg){
+		$_SESSION['ctrapp_core']['warning_msg'][] = $msg;
 	}
 }
 

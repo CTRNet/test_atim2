@@ -238,9 +238,11 @@ class AdhocsController extends DatamartAppController {
 		$save_this_search_data = array();
 		
 		foreach ( $this->data as $model=>$subarray ) {
-			foreach ( $subarray as $field_name=>$field_value ) {
-				if ( !is_array($field_value) && trim($field_value) ) {
-					$save_this_search_data[] = $model.'.'.$field_name.'='.$field_value;
+			if(is_array($subarray)){
+				foreach ( $subarray as $field_name=>$field_value ) {
+					if ( !is_array($field_value) && trim($field_value) ) {
+						$save_this_search_data[] = $model.'.'.$field_name.'='.$field_value;
+					}
 				}
 			}
 		}
