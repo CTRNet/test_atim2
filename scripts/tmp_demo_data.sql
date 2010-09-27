@@ -2070,6 +2070,16 @@ INSERT INTO `tx_masters_revs` (`id`, `treatment_control_id`, `tx_method`, `disea
 
 SET FOREIGN_KEY_CHECKS=1;
 
+INSERT INTO `misc_identifier_controls` 
+(`misc_identifier_name`, `misc_identifier_name_abbrev`, `flag_active`, `display_order`, `autoincrement_name`, `misc_identifier_format`, `flag_once_per_participant`) 
+VALUES
+('Health Insurance Card', '#HIC', 1, 0, '', '', 1),
+('Hospital Nbr', '#HN', 1, 1, '', '', 0),
+('NoLabo', '#Labo', 1, 3, 'NoLaboCounter', 'No-Labo-%%key_increment%%', 1);
+
+INSERT INTO `key_increments` (`key_name`, `key_value`) VALUES
+('NoLaboCounter', 1345);
+
 -- -------------------------------------------------------------------------------------------------------------------------
 -- DATA FOR DATAMART ADHOC QUERY
 -- -------------------------------------------------------------------------------------------------------------------------
