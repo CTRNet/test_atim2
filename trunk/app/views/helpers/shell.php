@@ -166,13 +166,14 @@ class ShellHelper extends Helper {
 			$confirm_msg_html = '<ul class="confirm"><li>'.$_SESSION['ctrapp_core']['confirm_msg'].'</li></ul>';
 			unset($_SESSION['ctrapp_core']['confirm_msg']);
 		}
-		if(isset($_SESSION['ctrapp_core']['warning_msg'])){
+		
+		if(count($_SESSION['ctrapp_core']['warning_msg']) > 0){
 			$confirm_msg_html .= '<ul class="warning">';
 			foreach($_SESSION['ctrapp_core']['warning_msg'] as $warning_msg){
 				$confirm_msg_html .= "<li>".$warning_msg."</li>";
 			}
 			$confirm_msg_html .= '</ul>';
-			unset($_SESSION['ctrapp_core']['warning_msg']);
+			$_SESSION['ctrapp_core']['warning_msg'] = array();
 		}
 		if($display_errors_html != null || strlen($confirm_msg_html) > 0){
 		$return .= '

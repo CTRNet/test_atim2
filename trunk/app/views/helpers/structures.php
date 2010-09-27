@@ -2196,7 +2196,7 @@ class StructuresHelper extends Helper {
 					';
 				}
 			} else {
-				unset($_SESSION['ctrapp_core']);
+				unset($_SESSION['ctrapp_core']['search']);
 			}
 			
 			if ( count($return_links) ) {
