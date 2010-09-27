@@ -305,60 +305,23 @@ class StructuresComponent extends Object {
 		}
 		
 		//whipe what wasn't replaced
-		//range
-		$sql_with_search_terms = preg_replace('/(\>|\<)\=\s*"@@[\w\.]+@@"/i', "$1= \"\"", $sql_with_search_terms);
-		$sql_without_search_terms = preg_replace('/(\>|\<)\=\s*"@@[\w\.]+@@"/i', "$1= \"\"", $sql_without_search_terms);
+		//>, <, <=, >=, =
+		$sql_with_search_terms = preg_replace('/[\w\.\`]+[\s]+(\>|\<|\>\=|\<\=|\=)\s*"@@[\w\.]+@@"/i', "TRUE", $sql_with_search_terms);
+		$sql_without_search_terms = preg_replace('/[\w\.\`]+[\s]+(\>|\<|\>\=|\<\=|\=)\s*"@@[\w\.]+@@"/i', "TRUE", $sql_without_search_terms);
 		
 		//LIKE
-		$sql_with_search_terms = preg_replace('/LIKE\s*"[%]*@@[\w\.]+@@[%]*"/i', "LIKE \"%%\"", $sql_with_search_terms);
-		$sql_without_search_terms = preg_replace('/LIKE\s*"[%]*@@[\w\.]+@@[%]*"/i', "LIKE \"%%\"", $sql_without_search_terms);
+		$sql_with_search_terms = preg_replace('/[\w\.\`]+[\s]+LIKE\s*"[%]*@@[\w\.]+@@[%]*"/i', "TRUE", $sql_with_search_terms);
+		$sql_without_search_terms = preg_replace('/[\w\.\`]+[\s]+LIKE\s*"[%]*@@[\w\.]+@@[%]*"/i', "TRUE", $sql_without_search_terms);
 		
 		//IN
-		$sql_with_search_terms = preg_replace('/IN\s*\([\s]*@@[\w\.]+@@[\s]*\)/i', 'IN ("")', $sql_with_search_terms);
-		$sql_without_search_terms = preg_replace('/IN\s*\([\s]*@@[\w\.]+@@[\s]*\)/i', 'IN ("")', $sql_without_search_terms);
+		$sql_with_search_terms = preg_replace('/[\w\.\`]+[\s]+IN\s*\([\s]*@@[\w\.]+@@[\s]*\)/i', 'TRUE', $sql_with_search_terms);
+		$sql_without_search_terms = preg_replace('/[\w\.\`]+[\s]+IN\s*\([\s]*@@[\w\.]+@@[\s]*\)/i', 'TRUE', $sql_without_search_terms);
 		
-		//others
-		$sql_with_search_terms = preg_replace('/"(%)*@@[\w\.]+@@(%)*"/i', "\"\"", $sql_with_search_terms);
-		$sql_without_search_terms = preg_replace('/"(%)*@@[\w\.]+@@(%)*"/i', "\"\"", $sql_without_search_terms);
+		//remove TRUE
+		$sql_with_search_terms = preg_replace('/(AND|OR) TRUE/i', "", $sql_with_search_terms);
+		$sql_without_search_terms = preg_replace('/(AND|OR) TRUE/i', "", $sql_without_search_terms);
 		
-		// WITH
-		// regular expression to change search over field for BLANK values to be searches over fields for BLANK OR NULL values...
-		$sql_with_search_terms = preg_replace( '/([\w\.]+)\s+LIKE\s+([\||\"])\%\%\2/i', '($1 LIKE $2%%$2 OR $1 IS NULL)', $sql_with_search_terms );
-		$sql_with_search_terms = preg_replace( '/([\w\.]+)\s+\=\s+([\||\"])\2/i', '($1 LIKE $2%%$2 OR $1 IS NULL)', $sql_with_search_terms );
-		$sql_with_search_terms = preg_replace( '/([\w\.]+)\s+IN\s+\(""\)/i', '($1 LIKE "%%" OR $1 IS NULL)', $sql_with_search_terms );
-		
-		// regular expression to change search over DATE fields for BLANK values to be searches over fields for BLANK OR NULL values...
-		$sql_with_search_terms = preg_replace( '/([\w\.]+)\s*([\>|\<]\=)\s*([\||\"])0000\-00\-00\3\s+AND\s+\1\s*([\>|\<]\=)\s*([\||\"])9999\-00\-00\3/i', '(($1$2${3}0000-00-00${3} AND $1$4${3}9999-00-00${3}) OR $1 IS NULL)', $sql_with_search_terms );
-		
-		// regular expression to change search over TIME fields for BLANK values to be searches over fields for BLANK OR NULL values...
-		$sql_with_search_terms = preg_replace( '/([\w\.]+)\s*([\>|\<]\=)\s*([\||\"])00\:00\:00\3\s+AND\s+\1\s*([\>|\<]\=)\s*([\||\"])00\:00\:00\3/i', '(($1$2${3}00:00:00${3} AND $1$4${3}00:00:00${3}) OR $1 IS NULL)', $sql_with_search_terms );
-		
-		// regular expression to change search over DATE/TIME fields for BLANK values to be searches over fields for BLANK OR NULL values...
-		$sql_with_search_terms = preg_replace( '/([\w\.]+)\s*([\>|\<]\=)\s*([\||\"])0000\-00\-00 00\:00\:00\3\s+AND\s+\1\s*([\>|\<]\=)\s*([\||\"])9999\-00\-00 00\:00\:00\3/i', '(($1$2${3}0000-00-00 00:00:00${3} AND $1$4${3}9999-00-00 00:00:00${3}) OR $1 IS NULL)', $sql_with_search_terms );
-		
-		// regular expression to change search over RANGE fields for BLANK values to be searches over fields for BLANK OR NULL values...
-		$sql_with_search_terms = preg_replace( '/([\w\.]+)\s*\>\=\s*([\||\"])\2/i', '(($1 >= ${2}-999999${2}) OR $1 IS NULL)', $sql_with_search_terms);
-		$sql_with_search_terms = preg_replace( '/([\w\.]+)\s*\<\=\s*([\||\"])\2/i', '(($1 <= ${2}999999${2}) OR $1 IS NULL)', $sql_with_search_terms);
-			
-		// WITHOUT
-			
-			// regular expression to change search over field for BLANK values to be searches over fields for BLANK OR NULL values...
-		$sql_without_search_terms = preg_replace( '/([\w\.]+)\s+LIKE\s+([\||\"])\%\%\2/i', '($1 LIKE $2%%$2 OR $1 IS NULL)', $sql_without_search_terms );
-		$sql_without_search_terms = preg_replace( '/([\w\.]+)\s+\=\s+([\||\"])\2/i', '($1 LIKE $2%%$2 OR $1 IS NULL)', $sql_without_search_terms );
-		$sql_without_search_terms = preg_replace( '/([\w\.]+)\s+IN\s+\(""\)/i', '($1 LIKE "%%" OR $1 IS NULL)', $sql_without_search_terms );
-		
-		// regular expression to change search over DATE fields for BLANK values to be searches over fields for BLANK OR NULL values...
-		$sql_without_search_terms = preg_replace( '/([\w\.]+)\s*([\>|\<]\=)\s*([\||\"])0000\-00\-00\3\s+AND\s+\1\s*([\>|\<]\=)\s*([\||\"])9999\-00\-00\3/i', '(($1$2${3}0000-00-00${3} AND $1$4${3}9999-00-00${3}) OR $1 IS NULL)', $sql_without_search_terms );
-		
-		// regular expression to change search over TIME fields for BLANK values to be searches over fields for BLANK OR NULL values...
-		$sql_without_search_terms = preg_replace( '/([\w\.]+)\s*([\>|\<]\=)\s*([\||\"])00\:00\:00\3\s+AND\s+\1\s*([\>|\<]\=)\s*([\||\"])00\:00\:00\3/i', '(($1$2${3}00:00:00${3} AND $1$4${3}00:00:00${3}) OR $1 IS NULL)', $sql_without_search_terms );
-		
-		// regular expression to change search over DATE/TIME fields for BLANK values to be searches over fields for BLANK OR NULL values...
-		$sql_without_search_terms = preg_replace( '/([\w\.]+)\s*([\>|\<]\=)\s*([\||\"])0000\-00\-00 00\:00\:00\3\s+AND\s+\1\s*([\>|\<]\=)\s*([\||\"])9999\-00\-00 00\:00\:00\3/i', '(($1$2${3}0000-00-00 00:00:00${3} AND $1$4${3}9999-00-00 00:00:00${3}) OR $1 IS NULL)', $sql_without_search_terms );
-		
-		// regular expression to change search over RANGE fields for BLANK values to be searches over fields for BLANK OR NULL values...
-		$sql_without_search_terms = preg_replace( '/([\w\.]+)\s*([\>|\<]\=)\s*([\||\"])\3\s+AND\s+\1\s*([\>|\<]\=)\s*([\||\"])\3/i', '(($1$2${3}-999999${3} AND $1$4${3}999999${3}) OR $1 IS NULL)', $sql_without_search_terms );
-		
+		echo($sql_with_search_terms);
 		// return BOTH
 		return array( $sql_with_search_terms, $sql_without_search_terms );
 	}
