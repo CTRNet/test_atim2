@@ -146,7 +146,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='datamart_browser_start'), (SELECT id FROM structure_fields WHERE `model`='Browser' AND `tablename`='' AND `field`='search_for' AND `language_label`='action' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='datamart_browser_options')  AND `language_help`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 
 CREATE TABLE datamart_browsing_results(
-  `id` int UNSIGNED AUTO_INCREMENT primary key,
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT primary key,
   `user_id` int UNSIGNED NOT NULL,
   `parent_node_id` tinyint UNSIGNED,
   `browsing_structures_id` int UNSIGNED,
@@ -163,7 +163,7 @@ CREATE TABLE datamart_browsing_results(
 )Engine=InnoDb;
 
 CREATE TABLE datamart_browsing_results_revs(
-  `id` int UNSIGNED,
+  `id` int UNSIGNED NOT NULL, 
   `user_id` int UNSIGNED NOT NULL,
   `parent_node_id` tinyint UNSIGNED,
   `browsing_structures_id` int UNSIGNED,
@@ -177,6 +177,7 @@ CREATE TABLE datamart_browsing_results_revs(
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
   PRIMARY KEY (`version_id`)
 )Engine=InnoDb;
 
@@ -222,6 +223,7 @@ CREATE TABLE structure_permissible_values_customs_revs(
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
   PRIMARY KEY (`version_id`) 
 )Engine=InnoDb;
 
@@ -249,6 +251,7 @@ CREATE TABLE datamart_browsing_indexes_revs(
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
   PRIMARY KEY (`version_id`)
 )Engine=InnoDb;
 
@@ -653,6 +656,8 @@ CREATE TABLE datamart_reports(
 `created_by` int(10) unsigned NOT NULL,
 `modified` datetime DEFAULT NULL,
 `modified_by` int(10) unsigned NOT NULL,
+`deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+`deleted_date` datetime DEFAULT NULL,
 FOREIGN KEY (`datamart_structure_id`) REFERENCES `datamart_structures`(`id`)
 )Engine=InnoDb;
 
@@ -1041,7 +1046,7 @@ CREATE TABLE IF NOT EXISTS `spr_breast_cancer_types` (
   `tumour_grade_score_total` decimal(5,1) DEFAULT NULL,  
   `tumour_grade_category` varchar(100) DEFAULT NULL,  
   
-  `created` datetime DEFAULT '0000-00-00 00:00:00',
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `created_by` int(10) unsigned NOT NULL,
   `modified` datetime DEFAULT NULL,
   `modified_by` int(10) unsigned NOT NULL,
@@ -1110,7 +1115,7 @@ CREATE TABLE IF NOT EXISTS `aliquot_review_masters_revs` (
   `review_code` varchar(100) NOT NULL,
   `basis_of_specimen_review` tinyint(1) NOT NULL DEFAULT '0', 
   
-  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created` datetime DEFAULT '0000-00-00 00:00:00',
   `created_by` int(10) unsigned NOT NULL,
   `modified` datetime DEFAULT NULL,
   `modified_by` int(10) unsigned NOT NULL,
@@ -1165,7 +1170,7 @@ CREATE TABLE IF NOT EXISTS `ar_breast_tissue_slides_revs` (
   `inflammation` int(4) DEFAULT NULL,
   `quality_score` int(4) DEFAULT NULL,
   
-  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created` datetime DEFAULT '0000-00-00 00:00:00',
   `created_by` int(10) unsigned NOT NULL,
   `modified` datetime DEFAULT NULL,
   `modified_by` int(10) unsigned NOT NULL,
@@ -1633,13 +1638,6 @@ CREATE TABLE user_login_attempts(
 `attempt_time` TIMESTAMP NOT NULL DEFAULT NOW()
 )Engine=InnoDb;
 
--- database sessions instead of php
-CREATE TABLE cake_sessions (
-  id varchar(255) NOT NULL default '',
-  data text,
-  expires int(11) default NULL,
-  PRIMARY KEY  (id)
-);
 
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('help_information source', 'Defines the source of data for the current record.', ''),
