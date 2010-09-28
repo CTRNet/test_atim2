@@ -258,11 +258,11 @@ class AdhocsController extends DatamartAppController {
 		
 		$tmp_data = $this->BatchSet->find('all', array('conditions' => array('BatchSet.plugin' => $adhoc['Adhoc']['plugin'], 'BatchSet.model' => $adhoc['Adhoc']['model'])));
 		$compatible_batchset = array();
+		$compatible_batchset[0] = __('new batchset', true);
 		$compatibla_batchset_str = __('add to compatible batchset', true);
 		foreach($tmp_data as $batchset){
-			$compatible_batchset[$batchset['BatchSet']['id']] = $compatibla_batchset_str." (".$batchset['BatchSet']['description'].")";
+			$compatible_batchset[$batchset['BatchSet']['id']] = $compatibla_batchset_str." : [".$batchset['BatchSet']['title']."]";
 		}
-		$compatible_batchset[0] = __('new batchset', true);
 		$compatible_batchset['csv'] = __('export as CSV file (comma-separated values)', true);
 		$this->data['BatchSet']['id'] = 0;
 		$this->set( 'compatible_batchset', $compatible_batchset );

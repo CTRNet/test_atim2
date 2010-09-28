@@ -5,38 +5,31 @@ class Adhoc extends DatamartAppModel {
 	var $useTable = 'datamart_adhoc';
 	
 	function summary( $variables=array() ) {
-		$return = false;
+			
+		$return = array(
+			'Summary' => array(
+				'menu' => array('all')));
 		
-		// information about GROUP batch sets
-		if ( $variables['Param.Type_Of_List']=='favourites' ) {
+		if(isset($variables['Param.Type_Of_List'])) {
+			switch($variables['Param.Type_Of_List']) {
+				case 'favourites':
+					$return['Summary']['menu'] = array('my favourites');
+					break;
+				case 'saved':
+					$return['Summary']['menu'] = array('my saved searches');
+					break;
+				default:	
+			}	
+		}
 			
-			$return = array(
-				'Summary' => array(
-					'menu'			=>	array( NULL, 'Your Favourites' ),
-					'title'			=>	array( NULL, 'Adhoc Queries' ),
-					
-					'description'	=>	array(
-						'filter'			=>	'Your Favourites'
-					)
-				)
-			);
-			
-		} 
-		
-		// information about USER's batch sets
-		else if ( $variables['Param.Type_Of_List']=='saved' ) {
-			
-			$return = array(
-				'Summary' => array(
-					'menu'			=>	array( NULL, 'Your Saved Searches' ),
-					'title'			=>	array( NULL, 'Adhoc Queries' ),
-					
-					'description'	=>	array(
-						'filter'			=>	'Your Saved Searches'
-					)
-				)
-			);
-			
+		if ( isset($variables['Adhoc.id']) && (!empty($variables['Adhoc.id'])) ) {
+			$adhoc_data = $this->find('first', array('conditions'=>array('Adhoc.id' => $variables['Adhoc.id']), 'recursive' => '-1'));
+			if(!empty($adhoc_data)) {
+				$return['Summary']['title'] = array(null, __('query information', null));
+				$return['Summary']['description'] = array(
+					__('model', true) => $adhoc_data['Adhoc']['model'],
+					__('description', true) => $adhoc_data['Adhoc']['description']);	
+			}
 		}
 		
 		return $return;
