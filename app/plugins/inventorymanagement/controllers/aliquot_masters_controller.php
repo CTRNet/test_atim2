@@ -1640,7 +1640,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$this->redirect("/pages/err_inv_no_data");
 			exit;
 		}
-		pr('véerifier les regles de gestion si status = no');exit;
+		
 		$this->set('batch_set_id', $batch_set_id);
 		if($save){
 			$aliquots_id = array();
