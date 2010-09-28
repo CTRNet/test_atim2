@@ -393,6 +393,21 @@ INSERT INTO `aliquot_uses_revs` (`id`, `aliquot_master_id`, `use_definition`, `u
 -- Dumping data for table `atim_information`
 --
 
+--
+-- Contenu de la table `banks`
+--
+
+INSERT INTO `banks` (`id`, `name`, `description`, `created_by`, `created`, `modified_by`, `modified`, `deleted`, `deleted_date`) VALUES
+(2, 'Ovary Bk', '', 1, '2010-05-28 10:47:46', 1, '2010-05-28 10:47:46', 0, NULL),
+(3, 'Prostate Bk', '', 1, '2010-05-28 10:49:46', 1, '2010-05-28 10:49:46', 0, NULL);
+
+--
+-- Contenu de la table `banks_revs`
+--
+
+INSERT INTO `banks_revs` (`id`, `name`, `description`, `created_by`, `created`, `modified_by`, `modified`, `deleted`, `deleted_date`, `version_id`, `version_created`) VALUES
+(2, 'Ovary Bk', '', 1, '2010-05-28 10:47:46', 1, '2010-05-28 10:47:46', 0, NULL, 1, '2010-05-28 10:47:47'),
+(3, 'Prostate Bk', '', 1, '2010-05-28 10:49:46', 1, '2010-05-28 10:49:46', 0, NULL, 2, '2010-05-28 10:49:46');
 
 --
 -- Dumping data for table `cake_sessions`
@@ -2131,7 +2146,7 @@ AND AliquotMaster.in_stock = "@@AliquotMaster.in_stock@@"
 AND AliquotMaster.storage_datetime >= "@@AliquotMaster.storage_datetime_start@@" 
 AND AliquotMaster.storage_datetime <= "@@AliquotMaster.storage_datetime_end@@" 
 AND (StorageMaster.short_label = "@@StorageMaster.short_label@@"
-OR (StorageMaster.short_label >= "@@StorageMaster.short_label_start@@" 
+AND (StorageMaster.short_label >= "@@StorageMaster.short_label_start@@" 
 AND StorageMaster.short_label <= "@@StorageMaster.short_label_end@@"))
 AND StorageMaster.temperature >= "@@StorageMaster.temperature_start@@" 
 AND StorageMaster.temperature <= "@@StorageMaster.temperature_end@@" 
