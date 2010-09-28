@@ -166,7 +166,11 @@ class BatchSetsController extends DatamartAppController {
 			$this->data['BatchSet']['sql_query_for_results']	= $this->data['Adhoc']['sql_query_for_results'];
 				
 			// generate TEMP description for this SET
-			$this->data['BatchSet']['description'] = '(unlabelled set generated on '.date('M d Y').')';
+			if(isset($this->data['BatchSet']['title']) && (!empty($this->data['BatchSet']['title']))) {
+				$this->data['BatchSet']['title'] = $this->data['BatchSet']['title'];
+			} else {
+				$this->data['BatchSet']['title'] = date('Y-m-d G:i');
+			}
 			
 			// save hidden MODEL value as new BATCH SET
 			$this->data['BatchSet']['user_id'] = $_SESSION['Auth']['User']['id'];

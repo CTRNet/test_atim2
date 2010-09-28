@@ -2580,7 +2580,55 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='codingicdo3topo_fr'), (SELECT id FROM structure_fields WHERE `model`='CodingIcdo3Topo' AND `tablename`='coding_icd_o_3_topography' AND `field`='fr_description' AND `language_label`='description' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='codingicdo3topo_fr'), (SELECT id FROM structure_fields WHERE `model`='CodingIcdo3Topo' AND `tablename`='coding_icd_o_3_topography' AND `field`='fr_sub_title' AND `language_label`='sub-title' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0');
 
+-- Add batch set title
 
+ALTER TABLE datamart_batch_sets
+	ADD `title` varchar(50) NOT NULL DEFAULT 'unknown' AFTER `group_id`,
+	CHANGE `description` `description` TEXT CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL;
 
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Datamart', 'BatchSet', 'datamart_batch_sets', 'title', 'title', '', 'input', '', '',  NULL , '', 'open', 'open', 'open');
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, (SELECT id FROM structure_fields WHERE field LIKE 'title' AND model LIKE 'BatchSet'), 'notEmpty', '0', '0', '', 'value is required', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='querytool_batch_set'), 
+(SELECT id FROM structure_fields WHERE field LIKE 'title' AND model LIKE 'BatchSet'), 
+'1', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1'); 
+UPDATE structure_formats SET display_order = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='querytool_batch_set')
+AND structure_field_id = (SELECT id FROM structure_fields WHERE field LIKE 'model' AND model LIKE 'BatchSet');
 
+delete from i18n where id = 'share set with group';
+insert into i18n (`id`, `en`, `fr`) VALUES ('share set with group', 'Share Set With Group', 'Ensembles de données accessible au groupe');
+update i18n set en = 'Number of Elements' where id = 'number of elements';
 
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Datamart', 'BatchSet', 'datamart_batch_sets', 'created', 'created', '', 'adtetime', '', '',  NULL , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='querytool_batch_set'), 
+(SELECT id FROM structure_fields WHERE field LIKE 'created' AND model LIKE 'BatchSet'), 
+'1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1'); 
+
+UPDATE structure_formats SET flag_index = '0'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='querytool_batch_set')
+AND structure_field_id = (SELECT id FROM structure_fields WHERE field LIKE 'description' AND model LIKE 'BatchSet');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='querytool_adhoc_to_batchset'), 
+(SELECT id FROM structure_fields WHERE field LIKE 'title' AND model LIKE 'BatchSet'), 
+'1', '2', '', '1', 'new batchset title', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1'); 
+
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, (SELECT id FROM structure_fields WHERE field LIKE 'id' AND model LIKE 'BatchSet'), 'notEmpty', '0', '0', '', 'value is required', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
+
+insert ignore into i18n (`id`, `en`, `fr`) 
+VALUES 
+('new batchset title', 'New Batchset Title', 'Titre du nouvel ensembles de données'),
+('remove as favourite', 'Remove As Favourite', 'Supprimer des favoris'),
+('back to search', 'Back to Search', 'Réafficher Recherche'),
+('query information', 'Query Data', 'Données de la requête'),
+('batchset information', 'Batchset Data', 'Ensemble de données - Information'),
+('queries list', 'Queries List', 'List des requêtes');
+
+INSERT INTO `pages` (`id`, `error_flag`, `language_title`, `language_body`, `use_link`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+('err_datamart_system_error', 1, 'system error', 'a system error has been detected', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);

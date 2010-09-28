@@ -18,11 +18,16 @@ class AdhocSavedController extends DatamartAppController {
 	); 
 	
 	function index( $type_of_list = 'all' ) {
+//TODO: to validate
+$this->redirect('/pages/err_datamart_system_error', null, true);
+
 		$this->redirect( '/datamart/adhocs/index/saved' );
 		exit();
 	}
 	
 	function add( $type_of_list='all', $adhoc_id=0  ) {
+//TODO: to validate
+$this->redirect('/pages/err_datamart_system_error', null, true);
 		
 		$new_AdhocSaved_data = array(
 			'AdhocSaved'	=> array(
@@ -39,6 +44,9 @@ class AdhocSavedController extends DatamartAppController {
 	}
 	
 	function search( $adhoc_id=0, $saved_id=0 ) {
+//TODO: to validate
+$this->redirect('/pages/err_datamart_system_error', null, true);
+
 		$this->set( 'atim_menu', $this->Menus->get('/datamart/adhocs/index') );
 		$this->set( 'atim_menu_variables', array( 'Param.Type_Of_List'=>'saved', 'Adhoc.id'=>$adhoc_id, 'AdhocSaved.id'=>$saved_id ) );
 		$this->set( 'atim_structure_for_detail', $this->Structures->get( 'form', 'querytool_adhoc_saved' ) );
@@ -68,6 +76,9 @@ class AdhocSavedController extends DatamartAppController {
 	}
 	
 	function results( $adhoc_id=0, $saved_id=0 ) {
+//TODO: to validate
+$this->redirect('/pages/err_datamart_system_error', null, true);
+
 		$this->set( 'atim_menu', $this->Menus->get('/datamart/adhocs/index') );
 		$this->set( 'atim_menu_variables', array( 'Param.Type_Of_List'=>'saved', 'Adhoc.id'=>$adhoc_id, 'AdhocSaved.id'=>$saved_id ) );
 		$this->set( 'atim_structure_for_detail', $this->Structures->get( 'form', 'querytool_adhoc' ) );
@@ -234,6 +245,9 @@ class AdhocSavedController extends DatamartAppController {
 	}
 	
 	function edit( $adhoc_id=0, $saved_id=0 ) {
+//TODO: to validate
+$this->redirect('/pages/err_datamart_system_error', null, true);
+
 		$this->set( 'atim_menu', $this->Menus->get('/datamart/adhocs/index') );
 		$this->set( 'atim_menu_variables', array( 'Param.Type_Of_List'=>'saved', 'Adhoc.id'=>$adhoc_id, 'AdhocSaved.id'=>$saved_id ) );
 		$this->Structures->set('querytool_adhoc_saved' );
@@ -259,6 +273,9 @@ class AdhocSavedController extends DatamartAppController {
 	
 	// remove IDs from Lookup
 	function delete( $adhoc_id=0, $saved_id=0 ) {
+//TODO: to validate
+$this->redirect('/pages/err_datamart_system_error', null, true);
+
 		$result = $this->AdhocSaved->query('DELETE FROM datamart_adhoc_saved WHERE id="'.$saved_id.'" AND adhoc_id="'.$adhoc_id.'" AND user_id="'.$_SESSION['Auth']['User']['id'].'"');
 		$this->atimFlash( 'Query is no longer one of your saved searches.', '/adhoc_saved/index/saved' );
 		
