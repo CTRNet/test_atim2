@@ -1,13 +1,6 @@
 <?php
 
-class FamilyHistory extends ClinicalAnnotationAppModel
-{
-	var $belongsTo = array(
-		'CodingIcd10' => array(
-			'className'   => 'codingicd10.CodingIcd10',
-			 	'foreignKey'  => 'primary_icd10_code',
-			 	'dependent' => true)
-	);
+class FamilyHistory extends ClinicalAnnotationAppModel{
 	
     function summary( $variables=array() ) {
 		$return = false;
@@ -35,9 +28,20 @@ class FamilyHistory extends ClinicalAnnotationAppModel
 		return $return;
 	}
 	
-	function validateIcd10Code(&$check){
-		$values = array_values($check);
-		return CodingIcd10::id_blank_or_exists($values[0]);
+	function validateIcd10WhoCode($id){
+		return CodingIcd10Who::validateId($id);
+	}
+	
+	function validateIcd10CaCode($id){
+		return CodingIcd10Ca::validateId($id);
+	}
+	
+	function validateIcdo3TopoCode($id){
+		return CodingIcdo3Topo::validateId($id);
+	}
+	
+	function validateIcdo3MorphoCode($id){
+		return CodingIcdo3Morpho::validateId($id);
 	}
 	
 	/**

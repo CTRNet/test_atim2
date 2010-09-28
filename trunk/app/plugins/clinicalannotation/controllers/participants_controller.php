@@ -17,9 +17,9 @@ class ParticipantsController extends ClinicalannotationAppController {
 		'Clinicalannotation.ReproductiveHistory',
 		'Clinicalannotation.TreatmentMaster',
 		'Clinicalannotation.MiscIdentifier', 
-		'Clinicalannotation.MiscIdentifierControl', 
-		
-		'codingicd10.CodingIcd10'
+		'Clinicalannotation.MiscIdentifierControl',
+		'Codingicd.CodingIcd10Who',
+		'Codingicd.CodingIcd10Ca'
 	);
 	var $paginate = array(
 		'Participant'=>array('limit'=>pagination_amount,'order'=>'Participant.last_name ASC, Participant.first_name ASC'),
@@ -70,8 +70,8 @@ class ParticipantsController extends ClinicalannotationAppController {
 		
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id) );
 		
-		$this->data['Participant']['cod_icd10_code'] .= " - ".$this->CodingIcd10->getDescription($this->data['Participant']['cod_icd10_code']);
-		$this->data['Participant']['secondary_cod_icd10_code'] .= " - ".$this->CodingIcd10->getDescription($this->data['Participant']['secondary_cod_icd10_code']);
+		$this->data['Participant']['cod_icd10_code'] .= " - ".$this->CodingIcd10Who->getDescription($this->data['Participant']['cod_icd10_code']);
+		$this->data['Participant']['secondary_cod_icd10_code'] .= " - ".$this->CodingIcd10Who->getDescription($this->data['Participant']['secondary_cod_icd10_code']);
 
 		// Set form for identifier list
 		

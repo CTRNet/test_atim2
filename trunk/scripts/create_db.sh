@@ -13,11 +13,8 @@ mysql -u $2 -p$3 $1 --default-character-set=utf8 < tmp_full_2.0.2A_script.sql
 echo running tmp_v2.1.0_upgrade.sql
 mysql -u $2 -p$3 $1 --default-character-set=utf8 < tmp_v2.1.0_upgrade.sql
 
-echo running tmp_v2.1.0_icd10_upgrade.sql
-mysql -u $2 -p$3 $1 --default-character-set=utf8 < tmp_v2.1.0_icd10_upgrade.sql
-
-echo running tmp_v2.1.0_icd_o_3_topo_upgrade.sql
-mysql -u $2 -p$3 $1 --default-character-set=utf8 < tmp_v2.1.0_icd_o_3_topo_upgrade.sql
+echo running tmp_v2.1.0_icd_upgrade.sql
+mysql -u $2 -p$3 $1 --default-character-set=utf8 < tmp_v2.1.0_icd_upgrade.sql
 
 echo running tmp_demo_data.sql
 mysql -u $2 -p$3 $1 --default-character-set=utf8 < tmp_demo_data.sql
