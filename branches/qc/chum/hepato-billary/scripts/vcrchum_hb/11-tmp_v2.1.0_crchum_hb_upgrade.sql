@@ -82,10 +82,10 @@ TRUNCATE structure_permissible_values_customs_revs;
 INSERT INTO `structure_permissible_values_customs` (`id`, `control_id`, `value`, `en`, `fr`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
 (null, (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'laboratory staff'), 'urszula krzemien', 'Urszula Krzemien', 'Urszula Krzemien', '0000-00-00 00:00:00', 0, NULL, 0, 0, NULL),
 (null, (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'laboratory sites'), 'ICM', 'ICM', 'ICM', '0000-00-00 00:00:00', 0, NULL, 0, 0, NULL),
-(null, (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'specimen collection sites'), 'saint-luc hospital', 'Saint-Luc Hospital', 'H�pital Saint-Luc', '0000-00-00 00:00:00', 0, NULL, 0, 0, NULL),
-(null, (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'specimen supplier departments'), 'operating room', 'Operating Room', 'Salle d''op�ration', '0000-00-00 00:00:00', 0, NULL, 0, 0, NULL),
+(null, (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'specimen collection sites'), 'saint-luc hospital', 'Saint-Luc Hospital', 'Hï¿½pital Saint-Luc', '0000-00-00 00:00:00', 0, NULL, 0, 0, NULL),
+(null, (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'specimen supplier departments'), 'operating room', 'Operating Room', 'Salle d''opï¿½ration', '0000-00-00 00:00:00', 0, NULL, 0, 0, NULL),
 (null, (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'specimen supplier departments'), 'pathology', 'Pathology', 'Pathologie', '0000-00-00 00:00:00', 0, NULL, 0, 0, NULL),
-(null, (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'specimen supplier departments'), 'preadmission = preoperative checkup', 'Preadmission (Preoperative Checkup)', 'Pr�admission (bilan pr�op�ratoire)', '0000-00-00 00:00:00', 0, NULL, 0, 0, NULL),
+(null, (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'specimen supplier departments'), 'preadmission = preoperative checkup', 'Preadmission (Preoperative Checkup)', 'Prï¿½admission (bilan prï¿½opï¿½ratoire)', '0000-00-00 00:00:00', 0, NULL, 0, 0, NULL),
 (null, (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'specimen supplier departments'), 'service hbp', 'Service HBP', 'Service HPB', '0000-00-00 00:00:00', 0, NULL, 0, 0, NULL);
 
 -- just to be sure
@@ -296,7 +296,7 @@ WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'part
 structure_id IN (SELECT id FROM structures WHERE alias IN ('view_aliquot_joined_to_sample_and_collection', 'view_collection', 'view_sample_joined_to_collection'));
  	
 INSERT IGNORE INTO i18n (id, en, fr)
-VALUES ('system data', 'System Data', 'Données système');
+VALUES ('system data', 'System Data', 'DonnÃ©es systÃ¨me');
 
 UPDATE i18n SET en = 'Bank Nbr', fr = 'No Banque' WHERE id = 'hepato_bil_bank_participant_id';
 
@@ -304,20 +304,124 @@ UPDATE misc_identifier_controls
 SET misc_identifier_name_abbrev = '#', misc_identifier_format = '%%key_increment%%', flag_once_per_participant = '1' 
 WHERE misc_identifier_name = 'hepato_bil_bank_participant_id';
 
+-- Consent
+
+INSERT INTO `consent_controls` (`id`, `controls_type`, `flag_active`, `form_alias`, `detail_tablename`, `display_order`) VALUES
+(null, 'consent v2010-01-22', 1, 'qc_hb_consents', 'qc_hb_consents', 1);
+
+CREATE TABLE IF NOT EXISTS `qc_hb_consents` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `consent_master_id` int(11) NOT NULL,
+  
+  `medical_data_access` varchar(5) DEFAULT NULL,  
+  `biological_material_collection` varchar(5) DEFAULT NULL,  
+  `blood_collection` varchar(5) DEFAULT NULL,  
+  `contact_for_additional_info` varchar(5) DEFAULT NULL,  
+  `contact_for_additional_questionnaire` varchar(5) DEFAULT NULL,  
+   
+  `contact_if_news_on_hb` varchar(5) DEFAULT NULL,  
+  `allow_research_on_other_disease` varchar(5) DEFAULT NULL,  
+  `contact_if_news_on_other_disease` varchar(5) DEFAULT NULL,  
+  
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `consent_master_id` (`consent_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 
+ALTER TABLE `qc_hb_consents`
+  ADD CONSTRAINT `qc_hb_consents_ibfk_1` FOREIGN KEY (`consent_master_id`) REFERENCES `consent_masters` (`id`);
 
+CREATE TABLE IF NOT EXISTS `qc_hb_consents_revs` (
+  `id` int(11) NOT NULL,
+  `consent_master_id` int(11) NOT NULL,
+  
+  `medical_data_access` varchar(5) DEFAULT NULL,  
+  `biological_material_collection` varchar(5) DEFAULT NULL,  
+  `blood_collection` varchar(5) DEFAULT NULL,  
+  `contact_for_additional_info` varchar(5) DEFAULT NULL,  
+  `contact_for_additional_questionnaire` varchar(5) DEFAULT NULL,  
+   
+  `contact_if_news_on_hb` varchar(5) DEFAULT NULL,  
+  `allow_research_on_other_disease` varchar(5) DEFAULT NULL,  
+  `contact_if_news_on_other_disease` varchar(5) DEFAULT NULL,  
 
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
+INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) 
+VALUES 
+('qc_hb_consents', '', '', '1', '1', '0', '1');
 
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Clinicalannotation', 'ConsentDetail', 'qc_hb_consents', 'medical_data_access', 'allow medical data access', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yesno') , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'ConsentDetail', 'qc_hb_consents', 'biological_material_collection', 'allow biological material collection', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yesno') , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'ConsentDetail', 'qc_hb_consents', 'blood_collection', 'allow blood collection', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yesno') , '', 'open', 'open', 'open'), 
 
+('', 'Clinicalannotation', 'ConsentDetail', 'qc_hb_consents', 'contact_for_additional_info', 'allow to be contacted for additional information', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yesno') , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'ConsentDetail', 'qc_hb_consents', 'contact_for_additional_questionnaire', 'allow to be contacted for additional questionnaire', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yesno') , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'ConsentDetail', 'qc_hb_consents', 'contact_if_news_on_hb', 'to inform when new discovery on hepato-bilary or pancreatic research', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yesno') , '', 'open', 'open', 'open'), 
 
+('', 'Clinicalannotation', 'ConsentDetail', 'qc_hb_consents', 'allow_research_on_other_disease', 'allow research on other disease', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yesno') , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'ConsentDetail', 'qc_hb_consents', 'contact_if_news_on_other_disease', 'to inform when new discovery on other disease', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yesno') , '', 'open', 'open', 'open');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_consents'), 
+(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `field`='consent_status'), 
+'0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='qc_hb_consents'), 
+(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `field`='status_date'), 
+'0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='qc_hb_consents'), 
+(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `field`='consent_signed_date'), 
+'0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'),
+
+((SELECT id FROM structures WHERE alias='qc_hb_consents'), 
+(SELECT id FROM structure_fields WHERE `tablename`='qc_hb_consents' AND `field`='medical_data_access'), 
+'0', '10', 'hepato-bilary and pancreatic tumor', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='qc_hb_consents'), 
+(SELECT id FROM structure_fields WHERE `tablename`='qc_hb_consents' AND `field`='blood_collection'), 
+'0', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='qc_hb_consents'), 
+(SELECT id FROM structure_fields WHERE `tablename`='qc_hb_consents' AND `field`='biological_material_collection'), 
+'0', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'),
+
+((SELECT id FROM structures WHERE alias='qc_hb_consents'), 
+(SELECT id FROM structure_fields WHERE `tablename`='qc_hb_consents' AND `field`='contact_for_additional_info'), 
+'0', '20', 'contact data', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='qc_hb_consents'), 
+(SELECT id FROM structure_fields WHERE `tablename`='qc_hb_consents' AND `field`='contact_for_additional_questionnaire'), 
+'0', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='qc_hb_consents'), 
+(SELECT id FROM structure_fields WHERE `tablename`='qc_hb_consents' AND `field`='contact_if_news_on_hb'), 
+'0', '22', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'),
+
+((SELECT id FROM structures WHERE alias='qc_hb_consents'), 
+(SELECT id FROM structure_fields WHERE `tablename`='qc_hb_consents' AND `field`='allow_research_on_other_disease'), 
+'0', '30', 'other disease', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='qc_hb_consents'), 
+(SELECT id FROM structure_fields WHERE `tablename`='qc_hb_consents' AND `field`='contact_if_news_on_other_disease'), 
+'0', '31', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'),
+ 
+((SELECT id FROM structures WHERE alias='qc_hb_consents'), 
+(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `field`='notes'), 
+'0', '40', 'other', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1');
 
 -----------------------------------------------------------------------
-Script to test list
-
-SELECT id, name FROM structure_permissible_values_custom_controls WHERE id NOT IN (SELECT control_id FROM structure_permissible_values_customs)
-
+- - Script to test custom list - -
 INSERT INTO structure_permissible_values_customs (control_id, value) (SELECT id, concat(name, '.... TO DEFINE') FROM structure_permissible_values_custom_controls WHERE id NOT IN (SELECT control_id FROM structure_permissible_values_customs))
  	
  	

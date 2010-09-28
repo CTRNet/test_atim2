@@ -175,7 +175,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='additional_dimension_b'), 
 '1', '8', '', '0', '', '1', 'main lesion additional dimension b', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_liver_metastases'), 
-(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='cannot_be_determined'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='tumor_size_cannot_be_determined'), 
 '1', '9', '', '1', 'main lesion cannot be determined', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
   -- other lesion size
 ((SELECT id FROM structures WHERE alias='dx_liver_metastases'), 
