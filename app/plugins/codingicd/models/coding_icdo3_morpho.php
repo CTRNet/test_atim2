@@ -15,7 +15,15 @@ class CodingIcdo3Morpho extends CodingicdAppModel{
 	}
 	
 	static function validateId($id){
-		return self::$singleton->globalValidateId($id);
+		$tmp_id = null;
+		if(is_array($id)){
+			$tmp_id = array_values($id);
+			$tmp_id = $tmp_id[0];
+		}else{
+			$tmp_id = $id;
+		}
+		//we need to check if this is an id here because sql will return true on '80000'='80000a'
+		return (is_numeric($tmp_id) || strlen($tmp_id) == 0) ? self::$singleton->globalValidateId($id) : false;
 	}
 }
 

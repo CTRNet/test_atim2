@@ -2587,7 +2587,7 @@ insert into i18n (`id`, `en`, `fr`) VALUES ('share set with group', 'Share Set W
 update i18n set en = 'Number of Elements' where id = 'number of elements';
 
 INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
-('', 'Datamart', 'BatchSet', 'datamart_batch_sets', 'created', 'created', '', 'datetime', '', '',  NULL , '', 'open', 'open', 'open');
+('', 'Datamart', 'BatchSet', 'datamart_batch_sets', 'created', 'created', '', 'adtetime', '', '',  NULL , '', 'open', 'open', 'open');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
 ((SELECT id FROM structures WHERE alias='querytool_batch_set'), 
 (SELECT id FROM structure_fields WHERE field LIKE 'created' AND model LIKE 'BatchSet'), 
@@ -2605,6 +2605,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 (null, (SELECT id FROM structure_fields WHERE field LIKE 'id' AND model LIKE 'BatchSet'), 'notEmpty', '0', '0', '', 'value is required', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
 
+
 insert ignore into i18n (`id`, `en`, `fr`) 
 VALUES 
 ('new batchset title', 'New Batchset Title', 'Titre du nouvel ensembles de données'),
@@ -2616,6 +2617,21 @@ VALUES
 
 INSERT INTO `pages` (`id`, `error_flag`, `language_title`, `language_body`, `use_link`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 ('err_datamart_system_error', 1, 'system error', 'a system error has been detected', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters', 'morphology', 'morphology', '', 'autocomplete', 'size=10,url=/codingicd/CodingIcdo3s/autocomplete/morpho,tool=/codingicd/CodingIcdo3s/tool/morpho', '',  NULL , 'help_morphology', 'open', 'open', 'open');
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='morphology' AND `type`='autocomplete' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='morphology' AND type='autocomplete' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='morphology'));
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='morphology' AND `type`='autocomplete' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='diagnosismasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='morphology' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='morphology'));
+
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='morphology' AND `type`='autocomplete' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='morphology' AND type='autocomplete' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='morphology'));
+-- Delete obsolete structure fields
+DELETE FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='morphology' AND `type`='autocomplete' AND structure_value_domain=(SELECT id FROM structure_value_domains WHERE domain_name='morphology');
+DELETE FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='topography' AND `type`='autocomplete' AND structure_value_domain=(SELECT id FROM structure_value_domains WHERE domain_name='morphology');
+
+-- validations for icdo3
+INSERT INTO `structure_validations` (`structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`) VALUES
+((SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='topography' AND `structure_value_domain`  IS NULL LIMIT 1), 'validateIcdo3TopoCode', '1', '0', '', 'invalid topography code'),
+((SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='morphology' AND `structure_value_domain`  IS NULL LIMIT 1), 'validateIcdo3MorphoCode', '1', '0', '', 'invalid morphology code');
 
 insert ignore into i18n (`id`, `en`, `fr`) VALUES ('elements', 'Elements', 'Éléments'), ('actions', 'Actions', 'Actions'), ('result', 'Result', 'Résultat');
 
