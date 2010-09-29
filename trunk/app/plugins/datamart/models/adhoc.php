@@ -8,10 +8,14 @@ class Adhoc extends DatamartAppModel {
 			
 		$return = array(
 			'Summary' => array(
-				'menu' => array('all')));
-		
-		if(isset($variables['Param.Type_Of_List'])) {
+				'menu' => array(null)));
+			
+		if(isset($variables['Param.Type_Of_List']) && empty($variables['Adhoc.id'])) {
+
 			switch($variables['Param.Type_Of_List']) {
+				case 'all':
+					$return['Summary']['menu'] = array('all');
+					break;
 				case 'favourites':
 					$return['Summary']['menu'] = array('my favourites');
 					break;

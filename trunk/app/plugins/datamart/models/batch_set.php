@@ -19,20 +19,23 @@ class BatchSet extends DatamartAppModel {
 	function summary( $variables=array() ) {
 		$return = array(
 			'Summary' => array(
-				'menu' => array('all')));
+				'menu' => array(null)));
 			
-		if(isset($variables['Param.Type_Of_List'])) {
+		if(isset($variables['Param.Type_Of_List']) && empty($variables['BatchSet.id'])) {
 			switch($variables['Param.Type_Of_List']) {
 				case 'group':
-					$return['Summary']['menu'] = array('group');
+					$return['Summary']['menu'] = array('group batch sets');
+					break;
+				case 'user':
+					$return['Summary']['menu'] = array('my batch sets');
 					break;
 				case 'all':
-					$return['Summary']['menu'] = array('all');
+					$return['Summary']['menu'] = array('all batch sets');
 					break;
 				default:	
 			}	
 		}
-				
+					
 		if ( isset($variables['BatchSet.id']) && (!empty($variables['BatchSet.id'])) ) {
 			$batchset_data = $this->find('first', array('conditions'=>array('BatchSet.id' => $variables['BatchSet.id'])));
 			if(!empty($batchset_data)) {
