@@ -218,120 +218,111 @@ class StructuresComponent extends Object {
 				}
 			}
 		}else{
-			foreach($conditions as $model_field => $condition){
-				if(is_numeric($model_field)){
-					$model_field = substr($condition, 1, strpos($condition, " ") - 1);
-				}else{
-					if(is_array($condition)){
-						$tmp_cond = array();
-						foreach($condition as $unit){
-							$tmp_cond[] = $model_field." LIKE '".$unit."'";
+			//the conditions array is splitted in 3 types
+			//1-[model.field] = value -> replace in the query @@value@@ by value (usually a _start, _end). Convert as 2B
+			//2-[model.field] = array(values) -> it's from a dropdown or it an exact search
+			// A-replace ='@@value@@' by IN(values)
+			// B-copy model model.field {>|<|<=|>=} @@value@@ for every values
+			//3-[integer] = string of the form "model.field LIKE '%value1%' OR model.field LIKE '%value2%' ..."
+			//	A-if the query is model.field = ... then use the like form.
+			//  B-else (the query is model.field {>|<|<=|>=}) do as 2B
+			$warning_like = false;
+			$warning_in = false;
+			$tests = array();
+			foreach($conditions as $str_to_replace => $condition){
+				if(is_numeric($str_to_replace)){
+					unset($conditions[$str_to_replace]);
+					$condition = substr($condition, 1, -1); //remove the opening ( and closing )
+					//case 3, remove the parenthesis
+					$matches = array();
+					list($str_to_replace, ) = explode(" ", $condition, 2);
+					//3A
+					preg_match_all("/[\w\.\`]+[\s]+=[\s]+\"[%]*@@".$str_to_replace."@@[%]*\"/", $sql_with_search_terms, $matches, PREG_OFFSET_CAPTURE);
+					foreach($matches as $sub_matches){
+						foreach($sub_matches as $match){
+							$sql_with_search_terms = substr($sql_with_search_terms, 0, $match[1]).$condition.substr($sql_with_search_terms, $match[1] + strlen($match[0]));
 						}
-						$condition = "(".implode(" OR ", $tmp_cond).")";
+					}
+					
+					//reformat the condition as case 2B
+					$parts = explode(" OR ", $condition);
+					$condition = array();
+					foreach($parts as $part){
+						list( , , $value) = explode(" ", $part);
+						$value = substr($value, 2, -2);//chop opening '% and closing %'
+						$condition[] = $value;
+					}
+					$conditions[$str_to_replace] = $condition;
+				}
+				
+				if(is_array($condition)){
+					//case 2A replace the model.field = "@@value@@" by model.field IN (values)
+					preg_match_all("/[\w\.\`]+[\s]+=[\s]+\"[%]*@@".$str_to_replace."@@[%]*\"/", $sql_with_search_terms, $matches, PREG_OFFSET_CAPTURE);
+					foreach($matches as $sub_matches){
+						foreach($sub_matches as $match){
+							list($model_field, ) = explode(" ", $match[0], 2);
+							$sql_with_search_terms = substr($sql_with_search_terms, 0, $match[1]).$model_field." IN ('".implode("', '", $condition)."') ".substr($sql_with_search_terms, $match[1] + strlen($match[0]));
+						}
+					}
+					//remaining replaces to perform
+					$tests = array("<", "<=", ">", ">=");
+				}else{
+					//case 1, convert to case 2B
+					$condition = array($condition);
+					//remaining replaces to perform
+					$tests = array("=", "<", "<=", ">", ">=");
+				}
+				
+				//CASE 2B
+				foreach($tests as $test){
+					preg_match_all("/[\w\.\`]+[\s]+".$test."[\s]+\"[%]*@@".$str_to_replace."@@[%]*\"/", $sql_with_search_terms, $matches, PREG_OFFSET_CAPTURE);
+					foreach($matches as $sub_matches){
+						foreach($sub_matches as $match){
+							list($model_field, ) = explode(" ", $match[0], 2);
+							$formated_condition = "(".$model_field." ".$test." '".implode(" OR ".$model_field." ".$test." '", $condition)."')";
+							$sql_with_search_terms = substr($sql_with_search_terms, 0, $match[1]).$formated_condition.substr($sql_with_search_terms, $match[1] + strlen($match[0]));
+						}
 					}
 				}
+				
 				//LIKE
 				$matches = array();
-				preg_match_all("/[\w\.\`]+[\s]+LIKE[\s]+\"[%]*@@".$model_field."@@[%]*\"/", $sql_with_search_terms, $matches, PREG_OFFSET_CAPTURE);
-				//start with the end
-				$matches[0] = array_reverse($matches[0]);
-				foreach($matches[0] as $match){
-					$sql_with_search_terms = substr($sql_with_search_terms, 0, $match[1]).$condition.substr($sql_with_search_terms, $match[1] + strlen($match[0]));
+				preg_match_all("/[\w\.\`]+[\s]+LIKE[\s]+\"[%]*@@".$str_to_replace."@@[%]*\"/", $sql_with_search_terms, $matches, PREG_OFFSET_CAPTURE);
+				if(!empty($matches[0]) && !$warning_like){
+					$warning_like = true;
+					AppController::addWarningMsg(__("this query is using the LIKE keyword which goes against the ad hoc queries rules", true));
 				}
 				//IN
 				$matches = array();
-				preg_match_all("/[\w\.\`]+[\s]+IN[\s]+\([\s]*@@".$model_field."@@[\s]*\)/", $sql_with_search_terms, $matches, PREG_OFFSET_CAPTURE);
-				if(count($matches) > 0){
-					$in_arr = array();
-					$tmp_cond = (strrpos($condition, ")") == strlen($condition) - 1) ? substr($condition, 0, -1) : $condition;
-					$my_conds = explode(" OR ", $tmp_cond);
-					foreach($my_conds as $my_cond){
-						$parts = explode(" ", $my_cond, 3);
-						if(count($parts) > 2){
-							$in_arr[] = "'".substr(str_replace("%'", "'", $parts[2]), 2);
-						}
-					}
-					$matches[0] = array_reverse($matches[0]);
-					foreach($matches[0] as $match){
-						$sql_with_search_terms = substr($sql_with_search_terms, 0, $match[1]).$model_field." IN (".implode(", ", $in_arr).")".substr($sql_with_search_terms, $match[1] + strlen($match[0]));
-					}
+				preg_match_all("/[\w\.\`]+[\s]+IN[\s]+\([\s]*@@".$str_to_replace."@@[\s]*\)/", $sql_with_search_terms, $matches, PREG_OFFSET_CAPTURE);
+				if(!empty($matches[0]) && !$warning_in){
+					$warning_in = true;
+					AppController::addWarningMsg(__("this query is using the IN keyword which goes against the ad hoc queries rules", true));
 				}
 				
-				//=, <, >, <=, >=
-				$tests = array("=", "<", "<=", ">", ">=");
-				foreach($tests as $test){
-					$condition_tmp = $condition;
-					$matches = array();
-					preg_match_all("/[\w\.\`]+[\s]+".$test."[\s]+\"[%]*@@".$model_field."@@[%]*\"/", $sql_with_search_terms, $matches, PREG_OFFSET_CAPTURE);
-					if(count($matches) > 0){
-						$condition_tmp = '"'.str_replace("%') OR ", "') OR ", str_replace("%')", "')", str_replace(" LIKE '%", " ".$test." '", $condition))).'"';
-						$matches[0] = array_reverse($matches[0]);
-						foreach($matches[0] as $match){
-							$sql_with_search_terms = substr($sql_with_search_terms, 0, $match[1] + strpos($match[0], $test) + strlen($test) + 1).$condition_tmp.substr($sql_with_search_terms, $match[1] + strlen($match[0]));
-						}
-					}
-				}
-				
-				$sql_without_search_terms = str_replace( '@@'.$model_field.'@@', '', $sql_without_search_terms );
+				$sql_without_search_terms = str_replace( '@@'.$str_to_replace.'@@', '', $sql_without_search_terms );
 			}
 		}
-			//whipe what wasn't replaced
-			//range
-			$sql_with_search_terms = preg_replace('/(\>|\<)\=\s*"@@[\w\.]+@@"/i', "$1= \"\"", $sql_with_search_terms);
-			$sql_without_search_terms = preg_replace('/(\>|\<)\=\s*"@@[\w\.]+@@"/i', "$1= \"\"", $sql_without_search_terms);
-			
-			//LIKE
-			$sql_with_search_terms = preg_replace('/LIKE\s*"[%]*@@[\w\.]+@@[%]*"/i', "LIKE \"%%\"", $sql_with_search_terms);
-			$sql_without_search_terms = preg_replace('/LIKE\s*"[%]*@@[\w\.]+@@[%]*"/i', "LIKE \"%%\"", $sql_without_search_terms);
-			
-			//IN
-			$sql_with_search_terms = preg_replace('/IN\s*\([\s]*@@[\w\.]+@@[\s]*\)/i', 'IN ("")', $sql_with_search_terms);
-			$sql_without_search_terms = preg_replace('/IN\s*\([\s]*@@[\w\.]+@@[\s]*\)/i', 'IN ("")', $sql_without_search_terms);
-			
-			//others
-			$sql_with_search_terms = preg_replace('/"(%)*@@[\w\.]+@@(%)*"/i', "\"\"", $sql_with_search_terms);
-			$sql_without_search_terms = preg_replace('/"(%)*@@[\w\.]+@@(%)*"/i', "\"\"", $sql_without_search_terms);
 		
-		// WITH
-			// regular expression to change search over field for BLANK values to be searches over fields for BLANK OR NULL values...
-			$sql_with_search_terms = preg_replace( '/([\w\.]+)\s+LIKE\s+([\||\"])\%\%\2/i', '($1 LIKE $2%%$2 OR $1 IS NULL)', $sql_with_search_terms );
-			$sql_with_search_terms = preg_replace( '/([\w\.]+)\s+\=\s+([\||\"])\2/i', '($1 LIKE $2%%$2 OR $1 IS NULL)', $sql_with_search_terms );
-			$sql_with_search_terms = preg_replace( '/([\w\.]+)\s+IN\s+\(""\)/i', '($1 LIKE "%%" OR $1 IS NULL)', $sql_with_search_terms );
-			
-			// regular expression to change search over DATE fields for BLANK values to be searches over fields for BLANK OR NULL values...
-			$sql_with_search_terms = preg_replace( '/([\w\.]+)\s*([\>|\<]\=)\s*([\||\"])0000\-00\-00\3\s+AND\s+\1\s*([\>|\<]\=)\s*([\||\"])9999\-00\-00\3/i', '(($1$2${3}0000-00-00${3} AND $1$4${3}9999-00-00${3}) OR $1 IS NULL)', $sql_with_search_terms );
-			
-			// regular expression to change search over TIME fields for BLANK values to be searches over fields for BLANK OR NULL values...
-			$sql_with_search_terms = preg_replace( '/([\w\.]+)\s*([\>|\<]\=)\s*([\||\"])00\:00\:00\3\s+AND\s+\1\s*([\>|\<]\=)\s*([\||\"])00\:00\:00\3/i', '(($1$2${3}00:00:00${3} AND $1$4${3}00:00:00${3}) OR $1 IS NULL)', $sql_with_search_terms );
-			
-			// regular expression to change search over DATE/TIME fields for BLANK values to be searches over fields for BLANK OR NULL values...
-			$sql_with_search_terms = preg_replace( '/([\w\.]+)\s*([\>|\<]\=)\s*([\||\"])0000\-00\-00 00\:00\:00\3\s+AND\s+\1\s*([\>|\<]\=)\s*([\||\"])9999\-00\-00 00\:00\:00\3/i', '(($1$2${3}0000-00-00 00:00:00${3} AND $1$4${3}9999-00-00 00:00:00${3}) OR $1 IS NULL)', $sql_with_search_terms );
-			
-			// regular expression to change search over RANGE fields for BLANK values to be searches over fields for BLANK OR NULL values...
-			$sql_with_search_terms = preg_replace( '/([\w\.]+)\s*\>\=\s*([\||\"])\2/i', '(($1 >= ${2}-999999${2}) OR $1 IS NULL)', $sql_with_search_terms);
-			$sql_with_search_terms = preg_replace( '/([\w\.]+)\s*\<\=\s*([\||\"])\2/i', '(($1 <= ${2}999999${2}) OR $1 IS NULL)', $sql_with_search_terms);
-			
-		// WITHOUT
-			
-			// regular expression to change search over field for BLANK values to be searches over fields for BLANK OR NULL values...
-			$sql_without_search_terms = preg_replace( '/([\w\.]+)\s+LIKE\s+([\||\"])\%\%\2/i', '($1 LIKE $2%%$2 OR $1 IS NULL)', $sql_without_search_terms );
-			$sql_without_search_terms = preg_replace( '/([\w\.]+)\s+\=\s+([\||\"])\2/i', '($1 LIKE $2%%$2 OR $1 IS NULL)', $sql_without_search_terms );
-			$sql_without_search_terms = preg_replace( '/([\w\.]+)\s+IN\s+\(""\)/i', '($1 LIKE "%%" OR $1 IS NULL)', $sql_without_search_terms );
-			
-			// regular expression to change search over DATE fields for BLANK values to be searches over fields for BLANK OR NULL values...
-			$sql_without_search_terms = preg_replace( '/([\w\.]+)\s*([\>|\<]\=)\s*([\||\"])0000\-00\-00\3\s+AND\s+\1\s*([\>|\<]\=)\s*([\||\"])9999\-00\-00\3/i', '(($1$2${3}0000-00-00${3} AND $1$4${3}9999-00-00${3}) OR $1 IS NULL)', $sql_without_search_terms );
-			
-			// regular expression to change search over TIME fields for BLANK values to be searches over fields for BLANK OR NULL values...
-			$sql_without_search_terms = preg_replace( '/([\w\.]+)\s*([\>|\<]\=)\s*([\||\"])00\:00\:00\3\s+AND\s+\1\s*([\>|\<]\=)\s*([\||\"])00\:00\:00\3/i', '(($1$2${3}00:00:00${3} AND $1$4${3}00:00:00${3}) OR $1 IS NULL)', $sql_without_search_terms );
-			
-			// regular expression to change search over DATE/TIME fields for BLANK values to be searches over fields for BLANK OR NULL values...
-			$sql_without_search_terms = preg_replace( '/([\w\.]+)\s*([\>|\<]\=)\s*([\||\"])0000\-00\-00 00\:00\:00\3\s+AND\s+\1\s*([\>|\<]\=)\s*([\||\"])9999\-00\-00 00\:00\:00\3/i', '(($1$2${3}0000-00-00 00:00:00${3} AND $1$4${3}9999-00-00 00:00:00${3}) OR $1 IS NULL)', $sql_without_search_terms );
-			
-			// regular expression to change search over RANGE fields for BLANK values to be searches over fields for BLANK OR NULL values...
-			$sql_without_search_terms = preg_replace( '/([\w\.]+)\s*([\>|\<]\=)\s*([\||\"])\3\s+AND\s+\1\s*([\>|\<]\=)\s*([\||\"])\3/i', '(($1$2${3}-999999${3} AND $1$4${3}999999${3}) OR $1 IS NULL)', $sql_without_search_terms );
+		//whipe what wasn't replaced
+		//>, <, <=, >=, =
+		$sql_with_search_terms = preg_replace('/[\w\.\`]+[\s]+(\>|\<|\>\=|\<\=|\=)\s*"@@[\w\.]+@@"/i', "TRUE", $sql_with_search_terms);
+		$sql_without_search_terms = preg_replace('/[\w\.\`]+[\s]+(\>|\<|\>\=|\<\=|\=)\s*"@@[\w\.]+@@"/i', "TRUE", $sql_without_search_terms);
+		
+		//LIKE
+		$sql_with_search_terms = preg_replace('/[\w\.\`]+[\s]+LIKE\s*"[%]*@@[\w\.]+@@[%]*"/i', "TRUE", $sql_with_search_terms);
+		$sql_without_search_terms = preg_replace('/[\w\.\`]+[\s]+LIKE\s*"[%]*@@[\w\.]+@@[%]*"/i', "TRUE", $sql_without_search_terms);
+		
+		//IN
+		$sql_with_search_terms = preg_replace('/[\w\.\`]+[\s]+IN\s*\([\s]*@@[\w\.]+@@[\s]*\)/i', 'TRUE', $sql_with_search_terms);
+		$sql_without_search_terms = preg_replace('/[\w\.\`]+[\s]+IN\s*\([\s]*@@[\w\.]+@@[\s]*\)/i', 'TRUE', $sql_without_search_terms);
+		
+		//remove TRUE
+		$sql_with_search_terms = preg_replace('/(AND|OR) TRUE/i', "", $sql_with_search_terms);
+		$sql_without_search_terms = preg_replace('/(AND|OR) TRUE/i', "", $sql_without_search_terms);
+		
 		// return BOTH
 		return array( $sql_with_search_terms, $sql_without_search_terms );
-		
 	}
 
 	function getFormById($id){

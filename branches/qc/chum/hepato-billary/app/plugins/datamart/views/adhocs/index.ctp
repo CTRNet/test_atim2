@@ -4,7 +4,7 @@
 			'filter'=>array(
 				'all queries'=>'/datamart/adhocs/index',
 				'my favourites'=>'/datamart/adhocs/index/favourites',
-				'saved searches'=>'/datamart/adhocs/index/saved'
+//				'saved searches'=>'/datamart/adhocs/index/saved'
 			)
 		)
 	);

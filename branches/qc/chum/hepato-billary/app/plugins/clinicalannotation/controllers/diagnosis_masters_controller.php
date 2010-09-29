@@ -10,10 +10,13 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		'Clinicalannotation.TreatmentMaster',
 		'Clinicalannotation.EventMaster',
 		'Clinicalannotation.ClinicalCollectionLink',
-		'codingicd10.CodingIcd10'
+		'codingicd.CodingIcd10Who',
+		'codingicd.CodingIcd10Ca',
+		'codingicd.CodingIcdo3Topo',//required by model
+		'codingicd.CodingIcdo3Morpho'//required by model
 	);
-	var $paginate = array('DiagnosisMaster'=>array('limit' => pagination_amount,'order'=>'DiagnosisMaster.dx_date')); 
-	
+	var $paginate = array('DiagnosisMaster'=>array('limit' => pagination_amount,'order'=>'DiagnosisMaster.dx_date'));
+
 	function listall( $participant_id ) {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
 		
@@ -28,7 +31,8 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		$this->set('diagnosis_controls_list', $this->DiagnosisControl->find('all', array('conditions' => array('DiagnosisControl.flag_active' => 'active'))));
 		
 		foreach($this->data as &$dx) {
-			$dx['DiagnosisMaster']['primary_icd10_code'] .= " - ".$this->CodingIcd10->getDescription($dx['DiagnosisMaster']['primary_icd10_code']);
+			$dx['DiagnosisMaster']['primary_icd10_code'] .= " - ".$this->CodingIcd10Who->getDescription($dx['DiagnosisMaster']['primary_icd10_code']);
+			$dx['DiagnosisMaster']['morphology'] .= " - ".$this->CodingIcdo3Morpho->getDescription($dx['DiagnosisMaster']['morphology']);
 		}
 
 		// CUSTOM CODE: FORMAT DISPLAY DATA
@@ -49,7 +53,9 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		$dx_control_data = $this->DiagnosisControl->find('first', array('conditions' => array('DiagnosisControl.id' => $dx_master_data['DiagnosisMaster']['diagnosis_control_id'])));
 		$this->Structures->set($dx_control_data['DiagnosisControl']['form_alias']);
 	
-		$this->data['DiagnosisMaster']['primary_icd10_code'] .= " - ".$this->CodingIcd10->getDescription($this->data['DiagnosisMaster']['primary_icd10_code']);
+		$this->data['DiagnosisMaster']['primary_icd10_code'] .= " - ".$this->CodingIcd10Who->getDescription($this->data['DiagnosisMaster']['primary_icd10_code']);
+		$this->data['DiagnosisMaster']['morphology'] .= " - ".$this->CodingIcdo3Morpho->getDescription($this->data['DiagnosisMaster']['morphology']);
+		$this->data['DiagnosisMaster']['topography'] .= " - ".$this->CodingIcdo3Topo->getDescription($this->data['DiagnosisMaster']['topography']);
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
