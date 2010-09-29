@@ -23,7 +23,8 @@ class UsersController extends AppController {
 						"succeed" => true
 				);
 				$this->UserLoginAttempt->save($login_data);
-			}						
+				$_SESSION['ctrapp_core']['warning_msg'] = array();//init
+			}
 			$this->redirect($this->Auth->redirect());
 		}else if(!empty($this->data)){
 			//failed login

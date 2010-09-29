@@ -393,6 +393,21 @@ INSERT INTO `aliquot_uses_revs` (`id`, `aliquot_master_id`, `use_definition`, `u
 -- Dumping data for table `atim_information`
 --
 
+--
+-- Contenu de la table `banks`
+--
+
+INSERT INTO `banks` (`id`, `name`, `description`, `created_by`, `created`, `modified_by`, `modified`, `deleted`, `deleted_date`) VALUES
+(2, 'Ovary Bk', '', 1, '2010-05-28 10:47:46', 1, '2010-05-28 10:47:46', 0, NULL),
+(3, 'Prostate Bk', '', 1, '2010-05-28 10:49:46', 1, '2010-05-28 10:49:46', 0, NULL);
+
+--
+-- Contenu de la table `banks_revs`
+--
+
+INSERT INTO `banks_revs` (`id`, `name`, `description`, `created_by`, `created`, `modified_by`, `modified`, `deleted`, `deleted_date`, `version_id`, `version_created`) VALUES
+(2, 'Ovary Bk', '', 1, '2010-05-28 10:47:46', 1, '2010-05-28 10:47:46', 0, NULL, 1, '2010-05-28 10:47:47'),
+(3, 'Prostate Bk', '', 1, '2010-05-28 10:49:46', 1, '2010-05-28 10:49:46', 0, NULL, 2, '2010-05-28 10:49:46');
 
 --
 -- Dumping data for table `cake_sessions`
@@ -568,9 +583,9 @@ INSERT INTO `derivative_details_revs` (`id`, `sample_master_id`, `creation_site`
 --
 
 INSERT INTO `diagnosis_masters` (`id`, `dx_identifier`, `primary_number`, `dx_method`, `dx_nature`, `dx_origin`, `dx_date`, `dx_date_accuracy`, `primary_icd10_code`, `previous_primary_code`, `previous_primary_code_system`, `morphology`, `topography`, `tumour_grade`, `age_at_dx`, `age_at_dx_accuracy`, `ajcc_edition`, `collaborative_staged`, `clinical_tstage`, `clinical_nstage`, `clinical_mstage`, `clinical_stage_summary`, `path_tstage`, `path_nstage`, `path_mstage`, `path_stage_summary`, `survival_time_months`, `information_source`, `notes`, `diagnosis_control_id`, `participant_id`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
-(1, NULL, 1, 'radiology', 'malignant', 'primary', '2001-03-05', 'm', 'C50.1', '', '', '', '', 'well differentiated', NULL, '', '5th', 'yes', 'IV', '', '', 'IV', 'IA', '', '', '', NULL, '', '', 2, 1, '2010-05-28 14:09:11', 1, '2010-05-28 14:12:54', 1, 0, NULL),
-(2, NULL, 1, 'cytology', 'malignant', 'secondary', '2003-02-01', '', 'C50.9', '', '', '', '', 'well differentiated', NULL, '', '', '', '', '', '', '', '', '', '', '', NULL, '', '', 2, 1, '2010-05-28 14:11:42', 1, '2010-05-28 14:11:42', 1, 0, NULL),
-(3, NULL, 2, '', 'malignant', 'primary', '2002-06-13', '', 'C53.0', '', '', '', '', '', NULL, '', '', '', '', '', '', '', '', '', '', '', NULL, '', '', 2, 1, '2010-05-28 14:14:39', 1, '2010-05-28 14:14:39', 1, 0, NULL),
+(1, NULL, 1, 'radiology', 'malignant', 'primary', '2001-03-05', 'm', 'C501', '', '', '', '', 'well differentiated', NULL, '', '5th', 'yes', 'IV', '', '', 'IV', 'IA', '', '', '', NULL, '', '', 2, 1, '2010-05-28 14:09:11', 1, '2010-05-28 14:12:54', 1, 0, NULL),
+(2, NULL, 1, 'cytology', 'malignant', 'secondary', '2003-02-01', '', 'C509', '', '', '', '', 'well differentiated', NULL, '', '', '', '', '', '', '', '', '', '', '', NULL, '', '', 2, 1, '2010-05-28 14:11:42', 1, '2010-05-28 14:11:42', 1, 0, NULL),
+(3, NULL, 2, '', 'malignant', 'primary', '2002-06-13', '', 'C530', '', '', '', '', '', NULL, '', '', '', '', '', '', '', '', '', '', '', NULL, '', '', 2, 1, '2010-05-28 14:14:39', 1, '2010-05-28 14:14:39', 1, 0, NULL),
 (4, NULL, NULL, 'radiology', 'malignant', 'primary', '1997-01-14', '', 'D461', '', '', '8002/3', '', 'poorly differentiated', NULL, '', '', '', 'pT4', 'pN2', 'pMx', '', '', '', '', '', NULL, '', '', 2, 2, '2010-09-24 19:32:26', 1, '2010-09-24 19:32:26', 1, 0, NULL),
 (5, NULL, NULL, 'autopsy', 'malignant', 'primary', '1992-09-09', '', NULL, '', '', '8001/0', '', 'well differentiated', NULL, '', '', '', 'pT1', '', '', '', '', '', '', '', NULL, '', '', 2, 3, '2010-09-24 19:40:52', 1, '2010-09-24 19:40:52', 1, 0, NULL);
 
@@ -579,11 +594,11 @@ INSERT INTO `diagnosis_masters` (`id`, `dx_identifier`, `primary_number`, `dx_me
 --
 
 INSERT INTO `diagnosis_masters_revs` (`id`, `dx_identifier`, `primary_number`, `dx_method`, `dx_nature`, `dx_origin`, `dx_date`, `dx_date_accuracy`, `primary_icd10_code`, `previous_primary_code`, `previous_primary_code_system`, `morphology`, `topography`, `tumour_grade`, `age_at_dx`, `age_at_dx_accuracy`, `ajcc_edition`, `collaborative_staged`, `clinical_tstage`, `clinical_nstage`, `clinical_mstage`, `clinical_stage_summary`, `path_tstage`, `path_nstage`, `path_mstage`, `path_stage_summary`, `survival_time_months`, `information_source`, `notes`, `diagnosis_control_id`, `participant_id`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`, `version_id`, `version_created`) VALUES
-(1, NULL, NULL, 'radiology', 'malignant', 'primary', '2001-03-05', 'm', 'C16.6', '', '', '', '', 'well differentiated', NULL, '', '5th', 'yes', 'IV', '', '', 'IV', 'IA', '', '', '', NULL, '', '', 2, 1, '2010-05-28 14:09:11', 1, '2010-05-28 14:09:11', 1, 0, NULL, 1, '2010-05-28 14:09:12'),
-(1, NULL, NULL, 'radiology', 'malignant', 'primary', '2001-03-05', 'm', 'C50.1', '', '', '', '', 'well differentiated', NULL, '', '5th', 'yes', 'IV', '', '', 'IV', 'IA', '', '', '', NULL, '', '', 2, 1, '2010-05-28 14:09:11', 1, '2010-05-28 14:10:26', 1, 0, NULL, 2, '2010-05-28 14:10:27'),
-(2, NULL, 1, 'cytology', 'malignant', 'secondary', '2003-02-01', '', 'C50.9', '', '', '', '', 'well differentiated', NULL, '', '', '', '', '', '', '', '', '', '', '', NULL, '', '', 2, 1, '2010-05-28 14:11:42', 1, '2010-05-28 14:11:42', 1, 0, NULL, 3, '2010-05-28 14:11:43'),
-(1, NULL, 1, 'radiology', 'malignant', 'primary', '2001-03-05', 'm', 'C50.1', '', '', '', '', 'well differentiated', NULL, '', '5th', 'yes', 'IV', '', '', 'IV', 'IA', '', '', '', NULL, '', '', 2, 1, '2010-05-28 14:09:11', 1, '2010-05-28 14:12:54', 1, 0, NULL, 4, '2010-05-28 14:12:55'),
-(3, NULL, 2, '', 'malignant', 'primary', '2002-06-13', '', 'C53.0', '', '', '', '', '', NULL, '', '', '', '', '', '', '', '', '', '', '', NULL, '', '', 2, 1, '2010-05-28 14:14:39', 1, '2010-05-28 14:14:39', 1, 0, NULL, 5, '2010-05-28 14:14:40'),
+(1, NULL, NULL, 'radiology', 'malignant', 'primary', '2001-03-05', 'm', 'C166', '', '', '', '', 'well differentiated', NULL, '', '5th', 'yes', 'IV', '', '', 'IV', 'IA', '', '', '', NULL, '', '', 2, 1, '2010-05-28 14:09:11', 1, '2010-05-28 14:09:11', 1, 0, NULL, 1, '2010-05-28 14:09:12'),
+(1, NULL, NULL, 'radiology', 'malignant', 'primary', '2001-03-05', 'm', 'C501', '', '', '', '', 'well differentiated', NULL, '', '5th', 'yes', 'IV', '', '', 'IV', 'IA', '', '', '', NULL, '', '', 2, 1, '2010-05-28 14:09:11', 1, '2010-05-28 14:10:26', 1, 0, NULL, 2, '2010-05-28 14:10:27'),
+(2, NULL, 1, 'cytology', 'malignant', 'secondary', '2003-02-01', '', 'C509', '', '', '', '', 'well differentiated', NULL, '', '', '', '', '', '', '', '', '', '', '', NULL, '', '', 2, 1, '2010-05-28 14:11:42', 1, '2010-05-28 14:11:42', 1, 0, NULL, 3, '2010-05-28 14:11:43'),
+(1, NULL, 1, 'radiology', 'malignant', 'primary', '2001-03-05', 'm', 'C501', '', '', '', '', 'well differentiated', NULL, '', '5th', 'yes', 'IV', '', '', 'IV', 'IA', '', '', '', NULL, '', '', 2, 1, '2010-05-28 14:09:11', 1, '2010-05-28 14:12:54', 1, 0, NULL, 4, '2010-05-28 14:12:55'),
+(3, NULL, 2, '', 'malignant', 'primary', '2002-06-13', '', 'C530', '', '', '', '', '', NULL, '', '', '', '', '', '', '', '', '', '', '', NULL, '', '', 2, 1, '2010-05-28 14:14:39', 1, '2010-05-28 14:14:39', 1, 0, NULL, 5, '2010-05-28 14:14:40'),
 (4, NULL, NULL, 'radiology', 'malignant', 'primary', '1997-01-14', '', 'D461', '', '', '8002/3', '', 'poorly differentiated', NULL, '', '', '', 'pT4', 'pN2', 'pMx', '', '', '', '', '', NULL, '', '', 2, 2, '2010-09-24 19:32:26', 1, '2010-09-24 19:32:26', 1, 0, NULL, 6, '2010-09-24 19:32:27'),
 (5, NULL, NULL, 'autopsy', 'malignant', 'primary', '1992-09-09', '', NULL, '', '', '8001/0', '', 'well differentiated', NULL, '', '', '', 'pT1', '', '', '', '', '', '', '', NULL, '', '', 2, 3, '2010-09-24 19:40:52', 1, '2010-09-24 19:40:52', 1, 0, NULL, 7, '2010-09-24 19:40:52');
 
@@ -748,14 +763,14 @@ INSERT INTO `event_masters_revs` (`id`, `event_control_id`, `disease_site`, `eve
 --
 
 INSERT INTO `family_histories` (`id`, `relation`, `family_domain`, `primary_icd10_code`, `previous_primary_code`, `previous_primary_code_system`, `age_at_dx`, `age_at_dx_accuracy`, `participant_id`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
-(1, 'mother', 'maternal', 'C50.4', '', '', NULL, '', 1, '2010-05-28 14:28:12', 1, '2010-05-28 14:28:12', 1, 0, NULL);
+(1, 'mother', 'maternal', 'C504', '', '', NULL, '', 1, '2010-05-28 14:28:12', 1, '2010-05-28 14:28:12', 1, 0, NULL);
 
 --
 -- Dumping data for table `family_histories_revs`
 --
 
 INSERT INTO `family_histories_revs` (`id`, `relation`, `family_domain`, `primary_icd10_code`, `previous_primary_code`, `previous_primary_code_system`, `age_at_dx`, `age_at_dx_accuracy`, `participant_id`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`, `version_id`, `version_created`) VALUES
-(1, 'mother', 'maternal', 'C50.4', '', '', NULL, '', 1, '2010-05-28 14:28:12', 1, '2010-05-28 14:28:12', 1, 0, NULL, 1, '2010-05-28 14:28:13');
+(1, 'mother', 'maternal', 'C504', '', '', NULL, '', 1, '2010-05-28 14:28:12', 1, '2010-05-28 14:28:12', 1, 0, NULL, 1, '2010-05-28 14:28:13');
 
 --
 -- Dumping data for table `materials`
@@ -848,7 +863,7 @@ INSERT INTO `order_lines_revs` (`id`, `quantity_ordered`, `min_quantity_ordered`
 --
 
 INSERT INTO `participants` (`id`, `title`, `first_name`, `middle_name`, `last_name`, `date_of_birth`, `dob_date_accuracy`, `marital_status`, `language_preferred`, `sex`, `race`, `vital_status`, `notes`, `date_of_death`, `dod_date_accuracy`, `cod_icd10_code`, `secondary_cod_icd10_code`, `cod_confirmation_source`, `participant_identifier`, `last_chart_checked_date`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
-(1, 'Ms.', 'Wonder', '', 'Woman', '1947-11-03', 'm', '', '', 'f', '', 'dead', '', '2008-03-06', 'd', 'C00.2', NULL, '', 'wwi80', '2010-05-05', '2010-05-28 13:59:42', 1, '2010-05-28 14:31:50', 1, 0, NULL),
+(1, 'Ms.', 'Wonder', '', 'Woman', '1947-11-03', 'm', '', '', 'f', '', 'dead', '', '2008-03-06', 'd', 'C002', NULL, '', 'wwi80', '2010-05-05', '2010-05-28 13:59:42', 1, '2010-05-28 14:31:50', 1, 0, NULL),
 (2, 'Ms.', 'Ryana', 'Blue', '', '1926-06-10', '', '', '', 'f', '', 'alive', '', NULL, '', NULL, NULL, '', 'RRd784', NULL, '2010-09-24 19:30:37', 1, '2010-09-24 19:30:37', 1, 0, NULL),
 (3, 'Ms.', 'Lady', '', 'Green', '1920-12-15', '', '', '', 'f', '', 'deceased', '', NULL, '', NULL, NULL, '', 'qq4213', NULL, '2010-09-24 19:40:11', 1, '2010-09-24 19:40:11', 1, 0, NULL);
 
@@ -857,8 +872,8 @@ INSERT INTO `participants` (`id`, `title`, `first_name`, `middle_name`, `last_na
 --
 
 INSERT INTO `participants_revs` (`id`, `title`, `first_name`, `middle_name`, `last_name`, `date_of_birth`, `dob_date_accuracy`, `marital_status`, `language_preferred`, `sex`, `race`, `vital_status`, `notes`, `date_of_death`, `dod_date_accuracy`, `cod_icd10_code`, `secondary_cod_icd10_code`, `cod_confirmation_source`, `participant_identifier`, `last_chart_checked_date`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`, `version_id`, `version_created`) VALUES
-(1, 'Ms.', 'Wonder', 'Woman', '', '1947-11-03', 'm', '', '', 'f', '', 'dead', '', '2008-03-06', 'd', 'C00.2', NULL, '', 'wwi80', '2010-05-05', '2010-05-28 13:59:42', 1, '2010-05-28 13:59:42', 1, 0, NULL, 1, '2010-05-28 13:59:42'),
-(1, 'Ms.', 'Wonder', '', 'Woman', '1947-11-03', 'm', '', '', 'f', '', 'dead', '', '2008-03-06', 'd', 'C00.2', NULL, '', 'wwi80', '2010-05-05', '2010-05-28 13:59:42', 1, '2010-05-28 14:31:50', 1, 0, NULL, 2, '2010-05-28 14:31:51'),
+(1, 'Ms.', 'Wonder', 'Woman', '', '1947-11-03', 'm', '', '', 'f', '', 'dead', '', '2008-03-06', 'd', 'C002', NULL, '', 'wwi80', '2010-05-05', '2010-05-28 13:59:42', 1, '2010-05-28 13:59:42', 1, 0, NULL, 1, '2010-05-28 13:59:42'),
+(1, 'Ms.', 'Wonder', '', 'Woman', '1947-11-03', 'm', '', '', 'f', '', 'dead', '', '2008-03-06', 'd', 'C002', NULL, '', 'wwi80', '2010-05-05', '2010-05-28 13:59:42', 1, '2010-05-28 14:31:50', 1, 0, NULL, 2, '2010-05-28 14:31:51'),
 (2, 'Ms.', 'Ryana', 'Blue', '', '1926-06-10', '', '', '', 'f', '', 'alive', '', NULL, '', NULL, NULL, '', 'RRd784', NULL, '2010-09-24 19:30:37', 1, '2010-09-24 19:30:37', 1, 0, NULL, 3, '2010-09-24 19:30:37'),
 (3, 'Ms.', 'Lady', '', 'Green', '1920-12-15', '', '', '', 'f', '', 'deceased', '', NULL, '', NULL, NULL, '', 'qq4213', NULL, '2010-09-24 19:40:11', 1, '2010-09-24 19:40:11', 1, 0, NULL, 4, '2010-09-24 19:40:11');
 
@@ -2070,6 +2085,16 @@ INSERT INTO `tx_masters_revs` (`id`, `treatment_control_id`, `tx_method`, `disea
 
 SET FOREIGN_KEY_CHECKS=1;
 
+INSERT INTO `misc_identifier_controls` 
+(`misc_identifier_name`, `misc_identifier_name_abbrev`, `flag_active`, `display_order`, `autoincrement_name`, `misc_identifier_format`, `flag_once_per_participant`) 
+VALUES
+('Health Insurance Card', '#HIC', 1, 0, '', '', 1),
+('Hospital Nbr', '#HN', 1, 1, '', '', 0),
+('NoLabo', '#Labo', 1, 3, 'NoLaboCounter', 'No-Labo-%%key_increment%%', 1);
+
+INSERT INTO `key_increments` (`key_name`, `key_value`) VALUES
+('NoLaboCounter', 1345);
+
 -- -------------------------------------------------------------------------------------------------------------------------
 -- DATA FOR DATAMART ADHOC QUERY
 -- -------------------------------------------------------------------------------------------------------------------------
@@ -2112,15 +2137,17 @@ INNER JOIN sample_masters AS SampleMaster ON SampleMaster.collection_id = Collec
 INNER JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.sample_master_id = SampleMaster.id 
 INNER JOIN storage_masters AS StorageMaster ON AliquotMaster.storage_master_id = StorageMaster.id 
 WHERE TRUE
-AND Collection.acquisition_label LIKE "@@Collection.acquisition_label@@"
-AND AliquotMaster.barcode IN (@@AliquotMaster.barcode@@) 
+AND Collection.acquisition_label = "@@Collection.acquisition_label@@"
+AND AliquotMaster.barcode = "@@AliquotMaster.barcode@@" 
 AND Collection.bank_id = "@@Collection.bank_id@@"
 AND SampleMaster.sample_type = "@@SampleMaster.sample_type@@" 
 AND AliquotMaster.aliquot_control_id IN (SELECT id FROM aliquot_controls WHERE aliquot_type = "tube")
 AND AliquotMaster.in_stock = "@@AliquotMaster.in_stock@@" 
 AND AliquotMaster.storage_datetime >= "@@AliquotMaster.storage_datetime_start@@" 
 AND AliquotMaster.storage_datetime <= "@@AliquotMaster.storage_datetime_end@@" 
-AND StorageMaster.short_label LIKE "@@StorageMaster.short_label@@"
+AND (StorageMaster.short_label = "@@StorageMaster.short_label@@"
+AND (StorageMaster.short_label >= "@@StorageMaster.short_label_start@@" 
+AND StorageMaster.short_label <= "@@StorageMaster.short_label_end@@"))
 AND StorageMaster.temperature >= "@@StorageMaster.temperature_start@@" 
 AND StorageMaster.temperature <= "@@StorageMaster.temperature_end@@" 
 AND StorageMaster.temp_unit = "@@StorageMaster.temp_unit@@" 
@@ -2212,7 +2239,7 @@ INNER JOIN sample_masters AS SampleMaster ON SampleMaster.collection_id = Collec
 INNER JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.sample_master_id = SampleMaster.id 
 LEFT JOIN storage_masters AS StorageMaster ON AliquotMaster.storage_master_id = StorageMaster.id 
 WHERE TRUE
-AND Participant.participant_identifier LIKE "@@Participant.participant_identifier@@" 
+AND Participant.participant_identifier = "@@Participant.participant_identifier@@" 
 AND Participant.sex = "@@Participant.sex@@" 
 AND SampleMaster.sample_type = "@@SampleMaster.sample_type@@" 
 AND AliquotMaster.aliquot_type = "@@AliquotMaster.aliquot_type@@"  

@@ -6,10 +6,6 @@ class DiagnosisMaster extends ClinicalannotationAppModel {
 		'className'    => 'Clinicalannotation.DiagnosisControl',            
 		'foreignKey'    => 'diagnosis_control_id'
 		),
-		'CodingIcd10' => array(
-			'className'   => 'codingicd10.CodingIcd10',
-			 	'foreignKey'  => 'primary_icd10_code',
-			 	'dependent' => true)    
 	);
 	
 	var $hasOne = array(
@@ -37,11 +33,6 @@ class DiagnosisMaster extends ClinicalannotationAppModel {
 			
 		}
 		return $return;
-	}
-	
-	function validateIcd10Code(&$check){
-		$values = array_values($check);
-		return CodingIcd10::id_blank_or_exists($values[0]);
 	}
 	
 	/**

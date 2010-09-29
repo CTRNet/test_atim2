@@ -17,38 +17,34 @@ class BatchSet extends DatamartAppModel {
 	);
 	
 	function summary( $variables=array() ) {
-		$return = false;
-		
-		// information about GROUP batch sets
-		if ( isset($variables['Param.Group']) ) {
+		$return = array(
+			'Summary' => array(
+				'menu' => array(null)));
 			
-			$return = array(
-				'Summary' => array(
-					'menu'			=>	array( NULL, 'Group' ),
-					'title'			=>	array( NULL, 'Batch Sets' ),
+		if(isset($variables['Param.Type_Of_List']) && empty($variables['BatchSet.id'])) {
+			switch($variables['Param.Type_Of_List']) {
+				case 'group':
+					$return['Summary']['menu'] = array('group batch sets');
+					break;
+				case 'user':
+					$return['Summary']['menu'] = array('my batch sets');
+					break;
+				case 'all':
+					$return['Summary']['menu'] = array('all batch sets');
+					break;
+				default:	
+			}	
+		}
 					
-					'description'	=>	array(
-						'filter'			=>	'Group'
-					)
-				)
-			);
-			
-		} 
-		
-		// information about USER's batch sets
-		else {
-			$name = $_SESSION['Auth']['User']['first_name']." ".$_SESSION['Auth']['User']['last_name'];
-			$return = array(
-				'Summary' => array(
-					'menu'			=>	array( NULL, $name ),
-					'title'			=>	array( NULL, 'Batch Sets' ),
-					
-					'description'	=>	array(
-						'filter'			=>	$name
-					)
-				)
-			);
-			
+		if ( isset($variables['BatchSet.id']) && (!empty($variables['BatchSet.id'])) ) {
+			$batchset_data = $this->find('first', array('conditions'=>array('BatchSet.id' => $variables['BatchSet.id'])));
+			if(!empty($batchset_data)) {
+				$return['Summary']['title'] = array(null, __('batchset information', null));
+				$return['Summary']['description'] = array(
+					__('title', true) => $batchset_data['BatchSet']['title'],
+					__('model', true) => $batchset_data['BatchSet']['model'],
+					__('created', true) => $batchset_data['BatchSet']['created']);	
+			}
 		}
 		
 		return $return;

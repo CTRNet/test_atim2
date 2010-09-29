@@ -107,8 +107,7 @@ class ProtocolMastersController extends ProtocolAppController {
 			
 			$this->ProtocolMaster->id = $protocol_master_id;
 			if ($submitted_data_validates && $this->ProtocolMaster->save($this->data) ) {
-//				$this->atimFlash( 'your data has been updated','/protocol/protocol_masters/detail/'.$protocol_master_id.'/');
-				$this->redirect('/protocol/protocol_masters/detail/'.$protocol_master_id.'/');
+				$this->atimFlash( 'your data has been updated','/protocol/protocol_masters/detail/'.$protocol_master_id.'/');
 			}
 		}		
 	}

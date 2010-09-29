@@ -13,15 +13,29 @@ class BatchSetsController extends DatamartAppController {
 	);
 	
 	var $paginate = array(
-		'BatchSet'=>array('limit'=>pagination_amount,'order'=>'BatchSet.description ASC')
+		'BatchSet'=>array('limit'=>pagination_amount,'order'=>'BatchSet.created DESC')
 	); 
 	
-	function index( $type_of_list='all' ) {
+	function index( $type_of_list='user' ) {
 		$batch_set_filter = array();
-		if ($type_of_list=='all') {
-			$batch_set_filter['BatchSet.user_id'] = $_SESSION['Auth']['User']['id'];
-		}else{
-			$batch_set_filter['BatchSet.group_id'] = $_SESSION['Auth']['User']['group_id'];
+		
+		switch($type_of_list) {
+			case 'user':
+				$batch_set_filter['BatchSet.user_id'] = $_SESSION['Auth']['User']['id'];
+				break;
+			case 'group':
+				$batch_set_filter[] = 'BatchSet.user_id != ' . $_SESSION['Auth']['User']['id'];
+				$batch_set_filter['BatchSet.group_id'] = $_SESSION['Auth']['User']['group_id'];
+				$batch_set_filter['BatchSet.share_set_with_group'] = 'yes';
+				break;
+			case 'all':
+				$batch_set_filter[] = array('OR' => array(
+					array('BatchSet.user_id' => $_SESSION['Auth']['User']['id']),
+					array('BatchSet.group_id' => $_SESSION['Auth']['User']['group_id'],
+						'BatchSet.share_set_with_group' => 'yes')));
+				break;
+			default:
+				$this->redirect('/pages/err_datamart_system_error', null, true);
 		}
 		
 		$this->set( 'atim_menu_variables', array( 'Param.Type_Of_List'=>$type_of_list ) );
@@ -58,13 +72,16 @@ class BatchSetsController extends DatamartAppController {
 		$this->ModelToSearch = new $batch_set['BatchSet']['model'];
 			
 		// parse resulting IDs from the SET to build FINDALL criteria for SET's true MODEL 
-		$criteria = array();
+		$criteria = "";
 		$lookup_key_name = $batch_set['BatchSet']['lookup_key_name'];
 		$this->set("lookup_key_name", $lookup_key_name);
+		$lookup_ids = array();
 		foreach ( $batch_set['BatchId'] as $fields ) {
-			$criteria[] = $batch_set['BatchSet']['model'].'.'.$lookup_key_name.'="'.$fields['lookup_id'].'"';
+			$lookup_ids[] = $fields['lookup_id'];
 		}
-		$criteria = implode( ' OR ', $criteria );
+		if(count($lookup_ids) > 0){
+			$criteria = $batch_set['BatchSet']['model'].'.'.$lookup_key_name." IN ('".implode("', '", $lookup_ids)."')";
+		}
 		
 		// set FORM variable, for HELPER call on VIEW 
 		$this->set( 'batch_set_id', $batch_set_id );
@@ -82,17 +99,13 @@ class BatchSetsController extends DatamartAppController {
 				$query_to_use = str_replace( '|', '"', $batch_set['BatchSet']['sql_query_for_results'] ); // due to QUOTES and HTML not playing well, PIPES saved to datatable rows instead
 				
 				// add restrictions to query, inserting BATCH SET IDs to WHERE statement
-				if ( substr_count( $query_to_use, 'WHERE' )>=2 || substr_count( $query_to_use, 'WHERE TRUE AND' )>=1 ) {
-					$query_to_use = str_replace( 'WHERE TRUE AND ', 'WHERE TRUE  AND ('.$criteria.') AND ', $query_to_use );
-				} else {
-					$query_to_use = str_replace( 'WHERE', 'WHERE ('.$criteria.') AND ', $query_to_use );
-				}
-				
-				// add restrictions to QUERY, inserting BATCH SET IDs to WHERE statement (using PREG REPLACE to find a WHERE statement NOT inside a sub query)
-				// $query_to_use = preg_replace( '^(?!\\(.*)WHERE(?!.*\\))^', 'WHERE ('.$criteria.') AND', $query_to_use );
+				$query_to_use = str_replace( 'WHERE TRUE', 'WHERE ('.$criteria.')', $query_to_use );
 				
 				$results = $this->ModelToSearch->query( $query_to_use ); 
-	    	
+	    		if(count($results) != count($batch_set['BatchId'])){
+	    			$msg = __("the batch set contains %d entries but only %d are returned by the query", true);
+	    			AppController::addWarningMsg(sprintf($msg, count($batch_set['BatchId']), count($results)));
+	    		}
 	    	} else {
 				$results = $this->ModelToSearch->find( 'all', array( 'conditions'=>$criteria, 'recursive'=>3 ) );
 			}
@@ -167,10 +180,15 @@ class BatchSetsController extends DatamartAppController {
 			$this->data['BatchSet']['sql_query_for_results']	= $this->data['Adhoc']['sql_query_for_results'];
 				
 			// generate TEMP description for this SET
-			$this->data['BatchSet']['description'] = '(unlabelled set generated on '.date('M d Y').')';
+			if(isset($this->data['BatchSet']['title']) && (!empty($this->data['BatchSet']['title']))) {
+				$this->data['BatchSet']['title'] = $this->data['BatchSet']['title'];
+			} else {
+				$this->data['BatchSet']['title'] = date('Y-m-d G:i');
+			}
 			
 			// save hidden MODEL value as new BATCH SET
 			$this->data['BatchSet']['user_id'] = $_SESSION['Auth']['User']['id'];
+			$this->data['BatchSet']['group_id'] = $_SESSION['Auth']['User']['group_id'];
 			$this->BatchSet->save( $this->data['BatchSet'] );
 			
 			// get new SET id, and save
@@ -245,6 +263,35 @@ class BatchSetsController extends DatamartAppController {
 	function delete( $type_of_list='all', $batch_set_id=0 ) {
 		$this->BatchSet->delete( $batch_set_id );
 		$this->atimFlash( 'your data has been deleted', '/datamart/batch_sets/index' );
+	}
+	
+	function deleteInBatch() {
+		// Get all user batchset
+		$user_batchsets = $this->BatchSet->find('all', array('conditions' => array('BatchSet.user_id' => $_SESSION['Auth']['User']['id']), 'order'=>'BatchSet.created DESC'));
+		foreach($user_batchsets as $key => $tmp_data) {
+			$user_batchsets[$key]['BatchSet']['count_of_BatchId'] = count($tmp_data['BatchId']); 
+		}
+		$this->set('user_batchsets', $user_batchsets);
+		
+		$this->set( 'atim_menu_variables', array( 'Param.Type_Of_List'=>'user' ) );
+		$this->Structures->set('querytool_batch_set');
+		
+		if(!empty($this->data)) {
+			$deletion_done = false;
+			foreach($this->data['BatchSet']['ids'] as $batch_set_id) {
+				if(!empty($batch_set_id)) {
+					if(!$this->BatchSet->delete( $batch_set_id )) {
+						$this->redirect('/pages/err_datamart_system_error', null, true);
+					}
+					$deletion_done = true;
+				}
+			}
+			if($deletion_done) {
+				$this->atimFlash( 'your data has been deleted', '/datamart/batch_sets/index/user' );
+			} else {
+				 $this->BatchSet->validationErrors[] = 'check at least one element from the batch set';
+			}
+		}
 	}
 	
 	function remove($batch_set_id) {

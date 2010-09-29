@@ -220,11 +220,11 @@ class BrowserController extends DatamartAppController {
 			if($check_list){
 				//checkboxes
 				$parent_node = $save['BrowsingResult']['id'];
-				$this->set("dropdown_options", $this->Browser->getDropdownOptions($last_control_id, $parent_node, $browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['model'], $browsing['DatamartStructure']['use_key'], $browsing['DatamartStructure']['structure_id']));
+				$result_structure = $this->checkForAlternateStructure($result_structure, implode(",", $save_ids));
+				$this->set("dropdown_options", $this->Browser->getDropdownOptions($last_control_id, $parent_node, $browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['model'], $browsing['DatamartStructure']['use_key'], $result_structure['Structure']['alias']));
 				$this->set('checklist_key', $browsing['DatamartStructure']['model'].".".$browsing['DatamartStructure']['use_key']);
 				$this->set('type', "checklist");
 				$this->Structures->set("datamart_browser_start");
-				$result_structure = $this->checkForAlternateStructure($result_structure, implode(",", $save_ids));
 				$this->set("result_structure", $result_structure);
 				$this->set('top', "/datamart/browser/browse/".$save['BrowsingResult']['id']."/");
 				$this->set('parent_node', $parent_node);
@@ -326,7 +326,7 @@ class BrowserController extends DatamartAppController {
 					$this->data = $element->find('all', array('conditions' => $model_to_use_name.".id IN (".$ids_csv.")"));
 					foreach($this->data as &$unit){
 						//mimic the previous model/name so that data print and reception processes don't have to worry about the alternate structure
-						$unit[$model_current_name][$model_current_id_name] = $unit[$control_model_name]['id'];
+						$unit[$model_current_name][$model_current_id_name] = $unit[$model_to_use_name]['id'];
 					}
 				}
 			}
