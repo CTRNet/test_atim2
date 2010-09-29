@@ -26,18 +26,18 @@ class CodingicdAppController extends AppController {
 			$limit = 25;
 			$term = mysql_real_escape_string($this->data[0]['term']);
 			if(isset($this->data['exact_search'])){
-				$term = '"'.$term.'"';
+				$term = "+".preg_replace("/(\s)([^ \t\r\n\v\f])/", "$1+$2", trim($term));
 			}else{
-				$term = str_replace(" ", "* ", trim($term))."*";
+				$term = preg_replace("/([^ \t\r\n\v\f])(\s)/", "$1*$2", trim($term))."*";
 			}
 			
-			$conditions = array();
-			foreach($search_fields_prefix as $search_field){
-				$conditions[] = "MATCH(".$model_name_to_use.".".$lang.$search_field.") AGAINST ('".$term."' IN BOOLEAN MODE)";
+			foreach($search_fields_prefix as &$search_field){
+				$search_field = $model_name_to_use.".".$lang.$search_field;
 			}
 			
+			echo($term);
 			$this->data = $model_to_use->find('all', array(
-				'conditions' => array(implode(" OR ", $conditions)
+				'conditions' => array("MATCH(".implode(", ", $search_fields_prefix).") AGAINST ('".$term."' IN BOOLEAN MODE)"
 				),
 				'limit' => $limit + 1));
 			if(count($this->data) > $limit){
