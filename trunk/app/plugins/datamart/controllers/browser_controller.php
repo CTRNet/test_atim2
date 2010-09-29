@@ -326,7 +326,7 @@ class BrowserController extends DatamartAppController {
 					$this->data = $element->find('all', array('conditions' => $model_to_use_name.".id IN (".$ids_csv.")"));
 					foreach($this->data as &$unit){
 						//mimic the previous model/name so that data print and reception processes don't have to worry about the alternate structure
-						$unit[$model_current_name][$model_current_id_name] = $unit[$control_model_name]['id'];
+						$unit[$model_current_name][$model_current_id_name] = $unit[$model_to_use_name]['id'];
 					}
 				}
 			}
