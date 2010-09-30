@@ -10,7 +10,7 @@
 	
 	$structure_settings = array(
 		'actions'=>false, 
-		
+		'tabindex' => 100,
 		'header' => __('add new diagnosis', NULL) . ': ' . __($dx_type, null),
 		'form_bottom'=>false);
 
@@ -26,7 +26,7 @@
 	
 	$structure_settings = array(
 		'actions'=>false, 
-
+		
 		'header' => '2- ' . __('related diagnoses group', null),
 		'separator' => true, 
 		'form_top' => false,
@@ -39,6 +39,7 @@
 	
 	$structure_settings = array(
 		'actions'=>false,
+		'tabindex' => 200,
 		'pagination'=>false,
 		'form_bottom' => false,
 		'form_top' => false
