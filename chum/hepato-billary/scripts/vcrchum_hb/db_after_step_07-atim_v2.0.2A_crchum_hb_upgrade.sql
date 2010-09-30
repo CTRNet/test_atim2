@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Sep 16, 2010 at 03:16 PM
+-- Generation Time: Sep 30, 2010 at 07:30 PM
 -- Server version: 5.1.36
 -- PHP Version: 5.3.0
 
@@ -18,54 +18,6 @@ SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 --
 -- Database: `qc_chum_hb`
 --
-
-SET FOREIGN_KEY_CHECKS=0;
-
--- DROP tables
-
-DROP TABLE IF EXISTS `acos`, `ad_bags`, `ad_bags_revs`, `ad_blocks`, `ad_blocks_revs`, `ad_cell_cores`, `ad_cell_cores_revs`, `ad_cell_slides`,
- `ad_cell_slides_revs`, `ad_gel_matrices`, `ad_gel_matrices_revs`, `ad_tissue_cores`, `ad_tissue_cores_revs`, `ad_tissue_slides`,
- `ad_tissue_slides_revs`, `ad_tubes`, `ad_tubes_revs`, `ad_whatman_papers`, `ad_whatman_papers_revs`, `aliquot_controls`, `aliquot_masters`,
- `aliquot_masters_revs`, `aliquot_uses`, `aliquot_uses_revs`, `announcements`, `aros`, `aros_acos`, `atim_information`, `banks`, `banks_revs`,
- `cd_nationals`, `cd_nationals_revs`, `clinical_collection_links`, `clinical_collection_links_revs`, `coding_adverse_events`, `coding_adverse_events_revs`,
- `coding_icd10`, `collections`, `collections_revs`, `configs`, `consent_controls`, `consent_masters`, `consent_masters_revs`, `datamart_adhoc`,
- `datamart_adhoc_favourites`, `datamart_adhoc_saved`, `datamart_batch_ids`, `datamart_batch_processes`, `datamart_batch_sets`, `derivative_details`,
- `derivative_details_revs`, `diagnosis_controls`, `diagnosis_masters`, `diagnosis_masters_revs`, `drugs`, `drugs_revs`, `dxd_bloods`,
- `dxd_bloods_revs`, `dxd_tissues`, `dxd_tissues_revs`, `ed_allsolid_lab_pathology`, `ed_allsolid_lab_pathology_revs`, `ed_all_adverse_events_adverse_event`,
- `ed_all_adverse_events_adverse_event_revs`, `ed_all_clinical_followup`, `ed_all_clinical_followup_revs`, `ed_all_clinical_presentation`, 
- `ed_all_clinical_presentation_revs`, `ed_all_lifestyle_base`, `ed_all_lifestyle_base_revs`, `ed_all_protocol_followup`, `ed_all_protocol_followup_revs`,
- `ed_all_study_research`, `ed_all_study_research_revs`, `ed_breast_lab_pathology`, `ed_breast_lab_pathology_revs`, `ed_breast_screening_mammogram`, `ed_breast_screening_mammogram_revs`,
- `event_controls`, `event_masters`, `event_masters_revs`, `family_histories`, `family_histories_revs`, `groups`, `i18n`, `key_increments`, `langs`, `materials`, `materials_revs`,
- `menus`, `misc_identifiers`, `misc_identifiers_revs`, `misc_identifier_controls`, `orders`, `orders_revs`, `order_items`, `order_items_revs`, `order_lines`, `order_lines_revs`, `pages`,
- `parent_to_derivative_sample_controls`, `participants`, `participants_revs`, `participant_contacts`, `participant_contacts_revs`, `participant_messages`, `participant_messages_revs`,
- `path_collection_reviews`, `path_collection_reviews_revs`, `pd_chemos`, `pd_chemos_revs`, `pe_chemos`, `pe_chemos_revs`, `protocol_controls`, `protocol_masters`, `protocol_masters_revs`,
- `providers`, `providers_revs`, `quality_ctrls`, `quality_ctrls_revs`, `quality_ctrl_tested_aliquots`, `quality_ctrl_tested_aliquots_revs`, `rd_bloodcellcounts`, `rd_bloodcellcounts_revs`,
- `rd_blood_cells`, `rd_blood_cells_revs`, `rd_breastcancertypes`, `rd_breastcancertypes_revs`, `rd_breast_cancers`, `rd_breast_cancers_revs`, `rd_coloncancertypes`, `rd_coloncancertypes_revs`,
- `rd_genericcancertypes`, `rd_genericcancertypes_revs`, `rd_ovarianuteruscancertypes`, `rd_ovarianuteruscancertypes_revs`, `realiquotings`, `realiquotings_revs`, `reproductive_histories`, 
- `reproductive_histories_revs`, `review_controls`, `review_masters`, `review_masters_revs`, `rtbforms`, `rtbforms_revs`, `sample_controls`, `sample_masters`, `sample_masters_revs`,
- `sample_to_aliquot_controls`, `sd_der_amp_rnas`, `sd_der_amp_rnas_revs`, `sd_der_ascite_cells`, `sd_der_ascite_cells_revs`, `sd_der_ascite_sups`, `sd_der_ascite_sups_revs`, `sd_der_blood_cells`,
- `sd_der_blood_cells_revs`, `sd_der_b_cells`, `sd_der_b_cells_revs`, `sd_der_cell_cultures`, `sd_der_cell_cultures_revs`, `sd_der_cystic_fl_cells`, `sd_der_cystic_fl_cells_revs`, 
- `sd_der_cystic_fl_sups`, `sd_der_cystic_fl_sups_revs`, `sd_der_dnas`, `sd_der_dnas_revs`, `sd_der_pbmcs`, `sd_der_pbmcs_revs`, `sd_der_pericardial_fl_cells`, `sd_der_pericardial_fl_cells_revs`,
- `sd_der_pericardial_fl_sups`, `sd_der_pericardial_fl_sups_revs`, `sd_der_plasmas`, `sd_der_plasmas_revs`, `sd_der_pleural_fl_cells`, `sd_der_pleural_fl_cells_revs`, `sd_der_pleural_fl_sups`,
- `sd_der_pleural_fl_sups_revs`, `sd_der_pw_cells`, `sd_der_pw_cells_revs`, `sd_der_pw_sups`, `sd_der_pw_sups_revs`, `sd_der_rnas`, `sd_der_rnas_revs`, `sd_der_serums`, `sd_der_serums_revs`,
- `sd_der_tiss_lysates`, `sd_der_tiss_lysates_revs`, `sd_der_tiss_susps`, `sd_der_tiss_susps_revs`, `sd_der_urine_cents`, `sd_der_urine_cents_revs`, `sd_der_urine_cons`, `sd_der_urine_cons_revs`,
- `sd_spe_ascites`, `sd_spe_ascites_revs`, `sd_spe_bloods`, `sd_spe_bloods_revs`, `sd_spe_cystic_fluids`, `sd_spe_cystic_fluids_revs`, `sd_spe_pericardial_fluids`, `sd_spe_pericardial_fluids_revs`,
- `sd_spe_peritoneal_washes`, `sd_spe_peritoneal_washes_revs`, `sd_spe_pleural_fluids`, `sd_spe_pleural_fluids_revs`, `sd_spe_tissues`, `sd_spe_tissues_revs`, `sd_spe_urines`, `sd_spe_urines_revs`,
- `shelves`, `shelves_revs`, `shipments`, `shipments_revs`, `sidebars`, `sopd_general_all`, `sopd_general_all_revs`, `sopd_inventory_all`, `sopd_inventory_all_revs`, `sope_general_all`, `sope_general_all_revs`,
- `sope_inventory_all`, `sope_inventory_all_revs`, `sop_controls`, `sop_masters`, `sop_masters_revs`, `source_aliquots`, `source_aliquots_revs`, `specimen_details`, `specimen_details_revs`, `std_boxs`, `std_boxs_revs`,
- `std_cupboards`, `std_cupboards_revs`, `std_freezers`, `std_freezers_revs`, `std_fridges`, `std_fridges_revs`, `std_incubators`, `std_incubators_revs`, `std_nitro_locates`, `std_nitro_locates_revs`, `std_racks`,
- `std_racks_revs`, `std_rooms`, `std_rooms_revs`, `std_shelfs`, `std_shelfs_revs`, `std_tma_blocks`, `std_tma_blocks_revs`, `storage_controls`, `storage_coordinates`, `storage_coordinates_revs`,
- `storage_masters`, `storage_masters_revs`, `structures`, `structure_fields`, `structure_formats`, `structure_options`, `structure_permissible_values`, `structure_validations`, `structure_value_domains`,
- `structure_value_domains_permissible_values`, `study_contacts`, `study_contacts_revs`, `study_ethics_boards`, `study_ethics_boards_revs`, `study_fundings`, `study_fundings_revs`, `study_investigators`,
- `study_investigators_revs`, `study_related`, `study_related_revs`, `study_results`, `study_results_revs`, `study_reviews`, `study_reviews_revs`, `study_summaries`, `study_summaries_revs`, `tma_slides`,
- `tma_slides_revs`, `txd_chemos`, `txd_chemos_revs`, `txd_radiations`, `txd_radiations_revs`, `txd_surgeries`, `txd_surgeries_revs`, `txe_chemos`, `txe_chemos_revs`, `txe_radiations`, `txe_radiations_revs`,
- `txe_surgeries`, `txe_surgeries_revs`, `tx_controls`, `tx_masters`, `tx_masters_revs`, `users`, `user_logs`, `versions`;
-DROP TABLE IF EXISTS dxd_cap_report_hepatocellular_carcinomas,`aliquot_review_controls`, `aliquot_review_masters`, `aliquot_review_masters_revs`, `ar_breast_tissue_slides`, `ar_breast_tissue_slides_revs`, `cake_sessions`, `coding_icdo_3`, `datamart_browsing_controls`, `datamart_browsing_indexes`, `datamart_browsing_indexes_revs`, `datamart_browsing_results`, `datamart_browsing_results_revs`, `datamart_reports`, `datamart_reports_revs`, `datamart_structures`, `dxd_cap_report_ampullas`, `dxd_cap_report_ampullas_revs`, `dxd_cap_report_colon_biopsies`, `dxd_cap_report_colon_biopsies_revs`, `dxd_cap_report_distalexbileducts`, `dxd_cap_report_distalexbileducts_revs`, `dxd_cap_report_gallbladders`, `dxd_cap_report_gallbladders_revs`, `dxd_cap_report_hepatocellulars`, `dxd_cap_report_hepatocellulars_revs`, `dxd_cap_report_intrahepbileducts`, `dxd_cap_report_intrahepbileducts_revs`, `dxd_cap_report_pancreasendos`, `dxd_cap_report_pancreasendos_revs`, `dxd_cap_report_pancreasexos`, `dxd_cap_report_pancreasexos_revs`, `dxd_cap_report_perihilarbileducts`, `dxd_cap_report_perihilarbileducts_revs`, `dxd_cap_report_smintestines`, `dxd_cap_report_smintestines_revs`, `ed_all_lifestyle_smoking`, `ed_all_lifestyle_smoking_revs`, `missing_translations`, `pd_surgeries`, `pd_surgeries_revs`, `realiquoting_controls`, `sd_der_cdnas`, `sd_der_cdnas_revs`, `sd_der_cell_lysates`, `sd_der_cell_lysates_revs`, `sd_der_proteins`, `sd_der_proteins_revs`, `specimen_review_controls`, `specimen_review_masters`, `specimen_review_masters_revs`, `spr_breast_cancer_types`, `spr_breast_cancer_types_revs`, `structure_permissible_values_customs`, `structure_permissible_values_customs_revs`, `structure_permissible_values_custom_controls`, `user_login_attempts`;
-DROP VIEW IF EXISTS  `view_aliquots`, `view_collections`, `view_samples`, `view_structures`;
-DROP TABLE IF EXISTS qc_hb_consents, qc_hb_consents_revs, dxd_cap_report_hepatocellular_carcinomas_revs;
-DROP TABLE IF EXISTS `dxd_liver_metastases`, `dxd_liver_metastases_revs`, `ed_score_barcelona`, `ed_score_barcelona_revs`, `ed_score_child_pugh`, `ed_score_child_pugh_revs`, `ed_score_clip`, `ed_score_clip_revs`, `ed_score_fong`, `ed_score_fong_revs`, `ed_score_gretch`, `ed_score_gretch_revs`, `ed_score_meld`, `ed_score_meld_revs`, `ed_score_okuda`, `ed_score_okuda_revs`, `qc_hb_ed_hepatobilary_lab_report_biology`, `qc_hb_ed_hepatobilary_lab_report_biology_revs`, `qc_hb_ed_hepatobilary_medical_imagings`, `qc_hb_ed_hepatobilary_medical_imagings_revs`, `qc_hb_ed_hepatobiliary_clinical_presentation`, `qc_hb_ed_hepatobiliary_clinical_presentation_revs`, `qc_hb_ed_hepatobiliary_lifestyle`, `qc_hb_ed_hepatobiliary_lifestyle_revs`, `qc_hb_ed_hepatobiliary_medical_past_history`, `qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis`, `qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis_revs`, `qc_hb_ed_hepatobiliary_medical_past_history_hepatitis`, `qc_hb_ed_hepatobiliary_medical_past_history_hepatitis_revs`, `qc_hb_ed_hepatobiliary_medical_past_history_revs`, `qc_hb_ed_hepatobiliary_med_hist_record_summary`, `qc_hb_ed_hepatobiliary_med_hist_record_summary_revs`, `qc_hb_ed_medical_imaging_record_summary`, `qc_hb_ed_medical_imaging_record_summary_revs`, `qc_hb_hepatobiliary_medical_past_history_ctrls`, `qc_hb_surgery_complication_treatments`, `qc_hb_surgery_complication_treatments_revs`, `qc_hb_txd_portal_vein_embolizations`, `qc_hb_txd_portal_vein_embolizations_revs`, `qc_hb_txd_surgery_livers`, `qc_hb_txd_surgery_livers_revs`, `qc_hb_txd_surgery_pancreas`, `qc_hb_txd_surgery_pancreas_revs`, `qc_hb_txe_surgery_complications`, `qc_hb_txe_surgery_complications_revs`;
-SET FOREIGN_KEY_CHECKS=1;
-
 
 -- --------------------------------------------------------
 
@@ -5483,7 +5435,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('operation date', '', 'Operation Date', 'Date de l''opération'),
 ('operative bleeding', '', 'operative bleeding', ''),
 ('operative pathological report', '', 'operative pathological report', ''),
-('operative time', '', 'Operative Time', ''),
+('operative time (mn)', '', 'Operative Time (mn)', ''),
 ('operative ultrasound ous', '', 'Operative Ultrasound OUS', ''),
 ('or', '', 'or', 'où'),
 ('order', '', 'Order', 'Commande'),
@@ -5741,7 +5693,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('research', '', 'Research', 'Recherche'),
 ('research study description', '', 'Track research studies submitted to the bank.', 'Suivi des études soumises à la banque '),
 ('resected liver volume', '', 'Resected Liver Volume', 'Volume du foie réséqué'),
-('resected liver weight', '', 'Resected Liver Weight', ''),
+('resected liver weight (gr)', '', 'Resected Liver Weight (gr)', ''),
 ('resection_margin', '', 'Resection Margin', 'Résection marginale'),
 ('reserved for order', '', 'Reserved For Order', 'Réservé pour une commande'),
 ('reserved for study', '', 'Reserved For Study', 'Réservé pour une étude'),
@@ -5849,9 +5801,9 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('sop_extend', '', 'Details', 'Détails'),
 ('sop_material', '', 'Material', 'Matériel'),
 ('sop_materials and equipment', '', 'Materials and Equipment', 'Matériel et équipement'),
-('sop_notes', '', 'Notes', 'Note'),
-('sop_purpose', '', 'Purpose', 'But');
+('sop_notes', '', 'Notes', 'Note');
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('sop_purpose', '', 'Purpose', 'But'),
 ('sop_scope', '', 'Scope', 'Portée'),
 ('sop_site specific', '', 'Site Specific', 'Site spécifique'),
 ('sop_sop group', '', 'SOP Group', 'Groupe de PNFs'),
@@ -14003,7 +13955,7 @@ INSERT INTO `structure_fields` (`id`, `public_identifier`, `plugin`, `model`, `t
 (1164, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'other_organ_resection_2', 'other organ resection 2', '', 'select', '', '', 247, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (1165, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'other_organ_resection_3', 'other organ resection 3', '', 'select', '', '', 247, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (1166, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'surgeon', 'surgeon', '', 'select', '', '', 215, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
-(1167, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'operative_time', 'operative time', '', 'number', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1167, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'operative_time', 'operative time (mn)', '', 'number', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (1168, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'laparoscopy', 'laparoscopy', '', 'select', '', '', 257, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (1169, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'operative_bleeding', 'operative bleeding', '', 'number', '', '', 257, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (1170, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'transfusions', 'transfusions', '', 'select', '', '', 256, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
@@ -14023,7 +13975,7 @@ INSERT INTO `structure_fields` (`id`, `public_identifier`, `plugin`, `model`, `t
 (1184, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'liver_appearance', 'liver appearance', '', 'select', '', '', 251, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (1185, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'vascular_occlusion', 'vascular occlusion', '', 'select', '', '', 256, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (1186, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'type_of_vascular_occlusion', 'type of vascular occlusion', '', 'select', '', '', 252, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
-(1187, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'resected_liver_weight', 'resected liver weight', '', 'number', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1187, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'resected_liver_weight', 'resected liver weight (gr)', '', 'number', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (1188, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'segment_1_resection', 'segment 1 resection', '', 'select', '', '', 255, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (1189, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'segment_2_resection', 'segment 2 resection', '', 'select', '', '', 255, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (1190, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'segment_3_resection', 'segment 3 resection', '', 'select', '', '', 255, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
@@ -14043,7 +13995,7 @@ INSERT INTO `structure_fields` (`id`, `public_identifier`, `plugin`, `model`, `t
 (1204, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'other_organ_resection_2', 'other organ resection 2', '', 'select', '', '', 247, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (1205, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'other_organ_resection_3', 'other organ resection 3', '', 'select', '', '', 247, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (1206, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'surgeon', 'surgeon', '', 'select', '', '', 215, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
-(1207, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'operative_time', 'operative time', '', 'number', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(1207, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'operative_time', 'operative time (mn)', '', 'number', '', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (1208, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'laparoscopy', 'laparoscopy', '', 'select', '', '', 257, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (1209, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'operative_bleeding', 'operative bleeding', '', 'number', '', '', 257, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
 (1210, '', 'Clinicalannotation', 'TreatmentDetail', 'qc_hb_txd_surgery_pancreas', 'transfusions', 'transfusions', '', 'select', '', '', 256, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
@@ -19316,7 +19268,7 @@ CREATE TABLE IF NOT EXISTS `versions` (
 --
 
 INSERT INTO `versions` (`id`, `version_number`, `date_installed`, `build_number`, `created`, `created_by`, `modified`, `modified_by`) VALUES
-(1, 'v2.0.2A', '2010-09-16 00:00:00', '1485', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+(1, 'v2.0.2A', '2010-09-30 00:00:00', '1485', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
 
 -- --------------------------------------------------------
 

@@ -1,10 +1,9 @@
 <?php
 	
 	// --------------------------------------------------------------------------------
-	// clinical.hepatobiliary.*** medical past history: 
-	//   Set Medical Past History precisions list
+	//   Set IcdCode Description
 	// --------------------------------------------------------------------------------
-	$this->setMedicalPastHistoryPrecisions(array('EventControl' => $this->data['EventControl']));
+	$this->data = $this->addIcdCodeDescription($this->data);
 	
 	// --------------------------------------------------------------------------------
 	// clinical.hepatobiliary.medical imaging *** : 

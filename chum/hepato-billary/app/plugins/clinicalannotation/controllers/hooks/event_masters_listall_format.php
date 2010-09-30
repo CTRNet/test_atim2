@@ -1,6 +1,11 @@
 <?php
 
 	// --------------------------------------------------------------------------------
+	//   Set IcdCode Description
+	// --------------------------------------------------------------------------------
+	$this->data = $this->addIcdCodeDescription($this->data);
+	
+// --------------------------------------------------------------------------------
 	// Override Menu For 'clinical' event_group 	 
 	// --------------------------------------------------------------------------------
 	$is_clinical_group = false;
@@ -40,16 +45,6 @@
 		// Reset event controls for add other button		
 		$this->set('event_controls', $event_controls);	
 	}	
-	
-	// --------------------------------------------------------------------------------
-	// clinical.hepatobiliary.*** medical past history: 
-	//   Set Medical Past History precisions list
-	// --------------------------------------------------------------------------------
-	if(!is_null($event_control_id)) {
-		// User filtered listed data
-		$control_data = $this->EventControl->find('first',array('conditions'=>array('EventControl.id'=>$event_control_id)));
-		$this->setMedicalPastHistoryPrecisions($control_data);
-	}
 	
 	// --------------------------------------------------------------------------------
 	// hepatobiliary-lab-biology : 
