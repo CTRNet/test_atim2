@@ -146,7 +146,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='datamart_browser_start'), (SELECT id FROM structure_fields WHERE `model`='Browser' AND `tablename`='' AND `field`='search_for' AND `language_label`='action' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='datamart_browser_options')  AND `language_help`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 
 CREATE TABLE datamart_browsing_results(
-  `id` int UNSIGNED AUTO_INCREMENT primary key,
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT primary key,
   `user_id` int UNSIGNED NOT NULL,
   `parent_node_id` tinyint UNSIGNED,
   `browsing_structures_id` int UNSIGNED,
@@ -163,7 +163,7 @@ CREATE TABLE datamart_browsing_results(
 )Engine=InnoDb;
 
 CREATE TABLE datamart_browsing_results_revs(
-  `id` int UNSIGNED,
+  `id` int UNSIGNED NOT NULL, 
   `user_id` int UNSIGNED NOT NULL,
   `parent_node_id` tinyint UNSIGNED,
   `browsing_structures_id` int UNSIGNED,
@@ -177,6 +177,7 @@ CREATE TABLE datamart_browsing_results_revs(
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
   PRIMARY KEY (`version_id`)
 )Engine=InnoDb;
 
@@ -222,6 +223,7 @@ CREATE TABLE structure_permissible_values_customs_revs(
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
   PRIMARY KEY (`version_id`) 
 )Engine=InnoDb;
 
@@ -249,6 +251,7 @@ CREATE TABLE datamart_browsing_indexes_revs(
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
   PRIMARY KEY (`version_id`)
 )Engine=InnoDb;
 
@@ -653,6 +656,8 @@ CREATE TABLE datamart_reports(
 `created_by` int(10) unsigned NOT NULL,
 `modified` datetime DEFAULT NULL,
 `modified_by` int(10) unsigned NOT NULL,
+`deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+`deleted_date` datetime DEFAULT NULL,
 FOREIGN KEY (`datamart_structure_id`) REFERENCES `datamart_structures`(`id`)
 )Engine=InnoDb;
 
@@ -1041,7 +1046,7 @@ CREATE TABLE IF NOT EXISTS `spr_breast_cancer_types` (
   `tumour_grade_score_total` decimal(5,1) DEFAULT NULL,  
   `tumour_grade_category` varchar(100) DEFAULT NULL,  
   
-  `created` datetime DEFAULT '0000-00-00 00:00:00',
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `created_by` int(10) unsigned NOT NULL,
   `modified` datetime DEFAULT NULL,
   `modified_by` int(10) unsigned NOT NULL,
@@ -1110,7 +1115,7 @@ CREATE TABLE IF NOT EXISTS `aliquot_review_masters_revs` (
   `review_code` varchar(100) NOT NULL,
   `basis_of_specimen_review` tinyint(1) NOT NULL DEFAULT '0', 
   
-  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created` datetime DEFAULT '0000-00-00 00:00:00',
   `created_by` int(10) unsigned NOT NULL,
   `modified` datetime DEFAULT NULL,
   `modified_by` int(10) unsigned NOT NULL,
@@ -1165,7 +1170,7 @@ CREATE TABLE IF NOT EXISTS `ar_breast_tissue_slides_revs` (
   `inflammation` int(4) DEFAULT NULL,
   `quality_score` int(4) DEFAULT NULL,
   
-  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created` datetime DEFAULT '0000-00-00 00:00:00',
   `created_by` int(10) unsigned NOT NULL,
   `modified` datetime DEFAULT NULL,
   `modified_by` int(10) unsigned NOT NULL,
@@ -1633,13 +1638,6 @@ CREATE TABLE user_login_attempts(
 `attempt_time` TIMESTAMP NOT NULL DEFAULT NOW()
 )Engine=InnoDb;
 
--- database sessions instead of php
-CREATE TABLE cake_sessions (
-  id varchar(255) NOT NULL default '',
-  data text,
-  expires int(11) default NULL,
-  PRIMARY KEY  (id)
-);
 
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('help_information source', 'Defines the source of data for the current record.', ''),
@@ -1899,56 +1897,26 @@ INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
 ((SELECT id FROM structures WHERE alias='simple_search'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='term' AND `language_label`='search for' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0');
 
--- icd10 fr result
-INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('codingicd10_fr', '', '', '1', '1', '1', '1');
-INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
-('', 'Codingicd10', 'CodingIcd10', 'coding_icd10', 'fr_title', 'title', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Codingicd10', 'CodingIcd10', 'coding_icd10', 'fr_sub_title', 'sub-title', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Codingicd10', 'CodingIcd10', 'coding_icd10', 'fr_description', 'description', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'),
-('', 'Codingicd10', 'CodingIcd10', 'coding_icd10', 'id', 'icd10 code', '', 'input', '', '',  NULL , '', 'open', 'open', 'open');
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
-((SELECT id FROM structures WHERE alias='codingicd10_fr'), (SELECT id FROM structure_fields WHERE `model`='CodingIcd10' AND `tablename`='coding_icd10' AND `field`='fr_title' AND `language_label`='title' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
-((SELECT id FROM structures WHERE alias='codingicd10_fr'), (SELECT id FROM structure_fields WHERE `model`='CodingIcd10' AND `tablename`='coding_icd10' AND `field`='fr_sub_title' AND `language_label`='sub-title' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
-((SELECT id FROM structures WHERE alias='codingicd10_fr'), (SELECT id FROM structure_fields WHERE `model`='CodingIcd10' AND `tablename`='coding_icd10' AND `field`='fr_description' AND `language_label`='description' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
-((SELECT id FROM structures WHERE alias='codingicd10_fr'), (SELECT id FROM structure_fields WHERE `model`='CodingIcd10' AND `tablename`='coding_icd10' AND `field`='id' AND `language_label`='icd10 code' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
-
--- icd10 en result
-INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('codingicd10_en', '', '', '1', '1', '1', '1');
-INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
-('', 'Codingicd10', 'CodingIcd10', 'coding_icd10', 'en_title', 'title', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Codingicd10', 'CodingIcd10', 'coding_icd10', 'en_description', 'description', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Codingicd10', 'CodingIcd10', 'coding_icd10', 'en_sub_title', 'sub-title', '', 'input', '', '',  NULL , '', 'open', 'open', 'open');
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
-((SELECT id FROM structures WHERE alias='codingicd10_en'), (SELECT id FROM structure_fields WHERE `model`='CodingIcd10' AND `tablename`='coding_icd10' AND `field`='en_title' AND `language_label`='title' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
-((SELECT id FROM structures WHERE alias='codingicd10_en'), (SELECT id FROM structure_fields WHERE `model`='CodingIcd10' AND `tablename`='coding_icd10' AND `field`='en_description' AND `language_label`='description' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
-((SELECT id FROM structures WHERE alias='codingicd10_en'), (SELECT id FROM structure_fields WHERE `model`='CodingIcd10' AND `tablename`='coding_icd10' AND `field`='en_sub_title' AND `language_label`='sub-title' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
-((SELECT id FROM structures WHERE alias='codingicd10_en'), (SELECT id FROM structure_fields WHERE `model`='CodingIcd10' AND `tablename`='coding_icd10' AND `field`='id' AND `language_label`='icd10 code' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
-
 -- participant icd10
-UPDATE structure_fields SET  `type`='input',  `setting`='tool=/codingicd10/CodingIcd10s/tool',  `structure_value_domain`= NULL  WHERE model='Participant' AND tablename='participants' AND field='secondary_cod_icd10_code' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10');
-UPDATE structure_fields SET  `type`='input',  `setting`='tool=/codingicd10/CodingIcd10s/tool',  `structure_value_domain`= NULL  WHERE model='Participant' AND tablename='participants' AND field='cod_icd10_code' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10');
+UPDATE structure_fields SET  `type`='autocomplete',  `setting`='size=10,url=/codingicd/CodingIcd10s/autocomplete/who,tool=/codingicd/CodingIcd10s/tool/who',  `structure_value_domain`= NULL  WHERE model='Participant' AND tablename='participants' AND field='secondary_cod_icd10_code' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10');
+UPDATE structure_fields SET  `type`='autocomplete',  `setting`='size=10,url=/codingicd/CodingIcd10s/autocomplete/who,tool=/codingicd/CodingIcd10s/tool/who',  `structure_value_domain`= NULL  WHERE model='Participant' AND tablename='participants' AND field='cod_icd10_code' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10');
 
 -- dx icd10
 INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
-('', 'Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters', 'primary_icd10_code', 'primary disease code', '', 'input', 'tool=/codingicd10/CodingIcd10s/tool', '',  NULL , 'help_primary code', 'open', 'open', 'open');
+('', 'Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters', 'primary_icd10_code', 'primary disease code', '', 'autocomplete', 'size=10,url=/codingicd/CodingIcd10s/autocomplete,tool=/codingicd/CodingIcd10s/tool/who', '',  NULL , 'help_primary code', 'open', 'open', 'open');
 INSERT INTO structure_validations (`structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`) 
-(SELECT (SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND `type`='input' AND structure_value_domain IS NULL ), `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message` FROM structure_validations WHERE structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10'))) ;
-UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='primary_icd10_code' AND `type`='input' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='diagnosismasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10'));
+(SELECT (SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND `type`='autocomplete' AND structure_value_domain IS NULL ), `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message` FROM structure_validations WHERE structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10'))) ;
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='primary_icd10_code' AND `type`='autocomplete' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='diagnosismasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10'));
 
 INSERT INTO structure_validations (`structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`) 
-(SELECT (SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND `type`='input' AND structure_value_domain IS NULL ), `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message` FROM structure_validations WHERE structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10'))) ;
-UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='primary_icd10_code' AND `type`='input' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10'));
+(SELECT (SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND `type`='autocomplete' AND structure_value_domain IS NULL ), `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message` FROM structure_validations WHERE structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10'))) ;
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='primary_icd10_code' AND `type`='autocomplete' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10'));
 
 INSERT INTO structure_validations (`structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`) 
-(SELECT (SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND `type`='input' AND structure_value_domain IS NULL ), `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message` FROM structure_validations WHERE structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10'))) ;
-UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='primary_icd10_code' AND `type`='input' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10'));
+(SELECT (SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND `type`='autocomplete' AND structure_value_domain IS NULL ), `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message` FROM structure_validations WHERE structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10'))) ;
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='primary_icd10_code' AND `type`='autocomplete' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10'));
 
-UPDATE structure_fields SET  `type`='input',  `structure_value_domain`= NULL, `setting`='tool=/codingicd10/CodingIcd10s/tool' WHERE model='FamilyHistory' AND tablename='family_histories' AND field='primary_icd10_code' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10');
-
--- ccl icd10
-INSERT INTO structure_validations (`structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`) 
-(SELECT (SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND `type`='input' AND structure_value_domain IS NULL ), `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message` FROM structure_validations WHERE structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10'))) ;
-UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='primary_icd10_code' AND `type`='input' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10'));
+UPDATE structure_fields SET  `type`='autocomplete',  `structure_value_domain`= NULL, `setting`='size=10,url=/codingicd/CodingIcd10s/autocomplete/who,tool=/codingicd/CodingIcd10s/tool/who' WHERE model='FamilyHistory' AND tablename='family_histories' AND field='primary_icd10_code' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10');
 
 -- Help information update for Family History
 
@@ -2517,7 +2485,8 @@ INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('french translation', 'French Translation', 'Traduction française'),
 ("you are about to remove element(s) from the batch set", "You are about to remove element(s) from the batch set", "Vous êtes sur le point de retirer des éléments du groupe de données"),
 ("selection label updated", "Selection label updated", "Label de sélection mis à jour"),
-("the aliquot with barcode [%s] has a reached a volume bellow 0", "The aliquot with barcode [%s] has a reached a volume bellow 0.", "L'aliquot avec le code barre [%s] a atteint un volume inférieur à 0.");
+("the aliquot with barcode [%s] has reached a volume bellow 0", "The aliquot with barcode [%s] has reached a volume bellow 0.", "L'aliquot avec le code barre [%s] a atteint un volume inférieur à 0."),
+("the batch set contains %d entries but only %d are returned by the query", "The batch set contains %d entries but only %d are returned by the query", "L'ensemble de données contient %d entrées mais seulement %d sont retournées par la requête");
 
 INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('a specified value already exists for that dropdown', 'A specified value already exists for that dropdown!', 'Une valeur existe déjà pour cette liste!');
@@ -2553,35 +2522,136 @@ UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::g
 UPDATE structure_formats SET `display_order`='6' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='topography' AND type='input' AND structure_value_domain  IS NULL );
 UPDATE structure_formats SET `display_order`='6' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='topography' AND type='input' AND structure_value_domain  IS NULL );
 INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
-('', 'Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters', 'topography', 'topography', '', 'autocomplete', 'size=10,url=/codingicdo3topo/CodingIcdo3Topos/autocomplete,tool=/codingicdo3topo/CodingIcdo3Topos/tool', '',  NULL , 'help_topography', 'open', 'open', 'open');
+('', 'Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters', 'topography', 'topography', '', 'autocomplete', 'size=10,url=/codingicd/CodingIcdo3s/autocomplete/topo,tool=/codingicd/CodingIcdo3s/tool/topo', '',  NULL , 'help_topography', 'open', 'open', 'open');
 UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='topography' AND `type`='autocomplete' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='topography' AND type='input' AND structure_value_domain  IS NULL );
-UPDATE structure_formats SET `flag_override_setting`='1', `setting`='size=10,url=/codingicdo3topo/CodingIcdo3Topos/autocomplete,tool=/codingicdo3topo/CodingIcdo3Topos/tool' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='topography' AND type='input' AND structure_value_domain  IS NULL );
+UPDATE structure_formats SET `flag_override_setting`='1', `setting`='size=10,url=/codingicd/CodingIcdo3s/autocomplete/topo,tool=/codingicd/CodingIcdo3s/tool/topo' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='topography' AND type='input' AND structure_value_domain  IS NULL );
 UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='topography' AND `type`='autocomplete' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='topography' AND type='input' AND structure_value_domain  IS NULL );
 
 
-INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES 
-('codingicdo3topo_en', '', '', '1', '1', '1', '1'),
-('codingicdo3topo_fr', '', '', '1', '1', '1', '1');
+INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('codingicd_en', '', '', '1', '1', '1', '1');
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Codingicd', 'CodingIcd', '', 'id', 'id', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Codingicd', 'CodingIcd', '', 'en_title', 'title', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Codingicd', 'CodingIcd', '', 'en_sub_title', 'sub-title', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Codingicd', 'CodingIcd', '', 'en_description', 'description', '', 'input', '', '',  NULL , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='codingicd_en'), (SELECT id FROM structure_fields WHERE `model`='CodingIcd' AND `tablename`='' AND `field`='id' AND `language_label`='id' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='codingicd_en'), (SELECT id FROM structure_fields WHERE `model`='CodingIcd' AND `tablename`='' AND `field`='en_title' AND `language_label`='title' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='codingicd_en'), (SELECT id FROM structure_fields WHERE `model`='CodingIcd' AND `tablename`='' AND `field`='en_sub_title' AND `language_label`='sub-title' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='codingicd_en'), (SELECT id FROM structure_fields WHERE `model`='CodingIcd' AND `tablename`='' AND `field`='en_description' AND `language_label`='description' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('codingicd_fr', '', '', '1', '1', '1', '1');
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Codingicd', 'CodingIcd', '', 'fr_title', 'title', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Codingicd', 'CodingIcd', '', 'fr_sub_title', 'sub-title', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Codingicd', 'CodingIcd', '', 'fr_description', 'description', '', 'input', '', '',  NULL , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='codingicd_fr'), (SELECT id FROM structure_fields WHERE `model`='CodingIcd' AND `tablename`='' AND `field`='id' AND `language_label`='id' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='codingicd_fr'), (SELECT id FROM structure_fields WHERE `model`='CodingIcd' AND `tablename`='' AND `field`='fr_title' AND `language_label`='title' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='codingicd_fr'), (SELECT id FROM structure_fields WHERE `model`='CodingIcd' AND `tablename`='' AND `field`='fr_sub_title' AND `language_label`='sub-title' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='codingicd_fr'), (SELECT id FROM structure_fields WHERE `model`='CodingIcd' AND `tablename`='' AND `field`='fr_description' AND `language_label`='description' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+UPDATE structure_formats SET `flag_override_setting`='0', `setting`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='topography' AND type='autocomplete' AND structure_value_domain  IS NULL );
+UPDATE structure_formats SET `flag_override_setting`='1', `setting`='size=10,tool=/codingicd/CodingIcd10s/tool/who' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND type='input' AND structure_value_domain  IS NULL );
+
+UPDATE structure_fields SET  `type`='autocomplete',  `setting`='size=10,tool=/codingicd/CodingIcd10s/tool/who,url=/codingicd/CodingIcd10s/autocomplete/who' WHERE model='FamilyHistory' AND tablename='family_histories' AND field='primary_icd10_code' AND `type`='input' AND structure_value_domain  IS NULL ;
+
+-- validateIcd10CodeWho as default rule for icd10 fields
+UPDATE structure_validations SET rule='validateIcd10WhoCode' WHERE rule='validateIcd10Code';
 
 INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
-('', 'Codingicdo3topo', 'CodingIcdo3Topo', 'coding_icd_o_3_topography', 'id', 'code', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Codingicdo3topo', 'CodingIcdo3Topo', 'coding_icd_o_3_topography', 'en_title', 'title', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Codingicdo3topo', 'CodingIcdo3Topo', 'coding_icd_o_3_topography', 'en_sub_title', 'sub-title', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Codingicdo3topo', 'CodingIcdo3Topo', 'coding_icd_o_3_topography', 'en_description', 'description', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'),
-('', 'Codingicdo3topo', 'CodingIcdo3Topo', 'coding_icd_o_3_topography', 'fr_title', 'title', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Codingicdo3topo', 'CodingIcdo3Topo', 'coding_icd_o_3_topography', 'fr_description', 'description', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Codingicdo3topo', 'CodingIcdo3Topo', 'coding_icd_o_3_topography', 'fr_sub_title', 'sub-title', '', 'input', '', '',  NULL , '', 'open', 'open', 'open');
+('', 'Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters', 'morphology', 'morphology', '', 'autocomplete', 'size=10,url=/codingicd/CodingIcdo3s/autocomplete/morpho,tool=/codingicd/CodingIcdo3s/tool/morpho', '', (SELECT id FROM structure_value_domains WHERE domain_name='morphology') , 'help_morphology', 'open', 'open', 'open');
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='morphology' AND `type`='autocomplete' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='morphology') ) WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='morphology' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='morphology'));
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='morphology' AND `type`='autocomplete' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='morphology') ) WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='morphology' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='morphology'));
+
+-- Add batch set title
+
+ALTER TABLE datamart_batch_sets
+	ADD `title` varchar(50) NOT NULL DEFAULT 'unknown' AFTER `group_id`,
+	CHANGE `description` `description` TEXT CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL;
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Datamart', 'BatchSet', 'datamart_batch_sets', 'title', 'title', '', 'input', '', '',  NULL , '', 'open', 'open', 'open');
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, (SELECT id FROM structure_fields WHERE field LIKE 'title' AND model LIKE 'BatchSet'), 'notEmpty', '0', '0', '', 'value is required', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
-((SELECT id FROM structures WHERE alias='codingicdo3topo_en'), (SELECT id FROM structure_fields WHERE `model`='CodingIcdo3Topo' AND `tablename`='coding_icd_o_3_topography' AND `field`='id' AND `language_label`='code' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
-((SELECT id FROM structures WHERE alias='codingicdo3topo_en'), (SELECT id FROM structure_fields WHERE `model`='CodingIcdo3Topo' AND `tablename`='coding_icd_o_3_topography' AND `field`='en_title' AND `language_label`='title' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
-((SELECT id FROM structures WHERE alias='codingicdo3topo_en'), (SELECT id FROM structure_fields WHERE `model`='CodingIcdo3Topo' AND `tablename`='coding_icd_o_3_topography' AND `field`='en_sub_title' AND `language_label`='sub-title' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
-((SELECT id FROM structures WHERE alias='codingicdo3topo_en'), (SELECT id FROM structure_fields WHERE `model`='CodingIcdo3Topo' AND `tablename`='coding_icd_o_3_topography' AND `field`='en_description' AND `language_label`='description' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
-((SELECT id FROM structures WHERE alias='codingicdo3topo_fr'), (SELECT id FROM structure_fields WHERE `model`='CodingIcdo3Topo' AND `tablename`='coding_icd_o_3_topography' AND `field`='id' AND `language_label`='code' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
-((SELECT id FROM structures WHERE alias='codingicdo3topo_fr'), (SELECT id FROM structure_fields WHERE `model`='CodingIcdo3Topo' AND `tablename`='coding_icd_o_3_topography' AND `field`='fr_title' AND `language_label`='title' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
-((SELECT id FROM structures WHERE alias='codingicdo3topo_fr'), (SELECT id FROM structure_fields WHERE `model`='CodingIcdo3Topo' AND `tablename`='coding_icd_o_3_topography' AND `field`='fr_description' AND `language_label`='description' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
-((SELECT id FROM structures WHERE alias='codingicdo3topo_fr'), (SELECT id FROM structure_fields WHERE `model`='CodingIcdo3Topo' AND `tablename`='coding_icd_o_3_topography' AND `field`='fr_sub_title' AND `language_label`='sub-title' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0');
+((SELECT id FROM structures WHERE alias='querytool_batch_set'), 
+(SELECT id FROM structure_fields WHERE field LIKE 'title' AND model LIKE 'BatchSet'), 
+'1', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1'); 
+UPDATE structure_formats SET display_order = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='querytool_batch_set')
+AND structure_field_id = (SELECT id FROM structure_fields WHERE field LIKE 'model' AND model LIKE 'BatchSet');
+
+delete from i18n where id = 'share set with group';
+insert into i18n (`id`, `en`, `fr`) VALUES ('share set with group', 'Share Set With Group', 'Ensembles de données accessible au groupe');
+update i18n set en = 'Number of Elements' where id = 'number of elements';
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Datamart', 'BatchSet', 'datamart_batch_sets', 'created', 'created', '', 'adtetime', '', '',  NULL , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='querytool_batch_set'), 
+(SELECT id FROM structure_fields WHERE field LIKE 'created' AND model LIKE 'BatchSet'), 
+'1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1'); 
+
+UPDATE structure_formats SET flag_index = '0'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='querytool_batch_set')
+AND structure_field_id = (SELECT id FROM structure_fields WHERE field LIKE 'description' AND model LIKE 'BatchSet');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='querytool_adhoc_to_batchset'), 
+(SELECT id FROM structure_fields WHERE field LIKE 'title' AND model LIKE 'BatchSet'), 
+'1', '2', '', '1', 'new batchset title', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1'); 
+
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, (SELECT id FROM structure_fields WHERE field LIKE 'id' AND model LIKE 'BatchSet'), 'notEmpty', '0', '0', '', 'value is required', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
 
 
+insert ignore into i18n (`id`, `en`, `fr`) 
+VALUES 
+('new batchset title', 'New Batchset Title', 'Titre du nouvel ensembles de données'),
+('remove as favourite', 'Remove As Favourite', 'Supprimer des favoris'),
+('back to search', 'Back to Search', 'Réafficher Recherche'),
+('query information', 'Query Data', 'Données de la requête'),
+('batchset information', 'Batchset Data', 'Ensemble de données - Information'),
+('queries list', 'Queries List', 'List des requêtes');
 
+INSERT INTO `pages` (`id`, `error_flag`, `language_title`, `language_body`, `use_link`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+('err_datamart_system_error', 1, 'system error', 'a system error has been detected', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
 
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters', 'morphology', 'morphology', '', 'autocomplete', 'size=10,url=/codingicd/CodingIcdo3s/autocomplete/morpho,tool=/codingicd/CodingIcdo3s/tool/morpho', '',  NULL , 'help_morphology', 'open', 'open', 'open');
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='morphology' AND `type`='autocomplete' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='morphology' AND type='autocomplete' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='morphology'));
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='morphology' AND `type`='autocomplete' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='diagnosismasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='morphology' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='morphology'));
 
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='morphology' AND `type`='autocomplete' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='morphology' AND type='autocomplete' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='morphology'));
+-- Delete obsolete structure fields
+DELETE FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='morphology' AND `type`='autocomplete' AND structure_value_domain=(SELECT id FROM structure_value_domains WHERE domain_name='morphology');
+DELETE FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='topography' AND `type`='autocomplete' AND structure_value_domain=(SELECT id FROM structure_value_domains WHERE domain_name='morphology');
+
+-- validations for icdo3
+INSERT INTO `structure_validations` (`structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`) VALUES
+((SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='topography' AND `structure_value_domain`  IS NULL LIMIT 1), 'validateIcdo3TopoCode', '1', '0', '', 'invalid topography code'),
+((SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='morphology' AND `structure_value_domain`  IS NULL LIMIT 1), 'validateIcdo3MorphoCode', '1', '0', '', 'invalid morphology code');
+
+insert ignore into i18n (`id`, `en`, `fr`) VALUES ('elements', 'Elements', 'Éléments'), ('actions', 'Actions', 'Actions'), ('result', 'Result', 'Résultat');
+
+UPDATE structure_formats SET flag_detail = '1', flag_index = '1', display_order = '9'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='querytool_batch_set')
+AND structure_field_id = (SELECT id FROM structure_fields WHERE field LIKE 'share_set_with_group' AND model LIKE 'BatchSet');
+
+ALTER TABLE datamart_batch_sets
+	ADD `share_set_with_group` varchar(5) NOT NULL DEFAULT 'no' AFTER `group_id`;
+	
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
+(null, 'users_list', 'open', '', 'User::getUsersList');	
+INSERT INTO `structure_fields` (`id`, `public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, '', 'Datamart', 'BatchSet', 'datamart_batch_sets', 'created_by', 'created by', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name = 'users_list'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='querytool_batch_set'), 
+(SELECT id FROM structure_fields WHERE field LIKE 'created_by' AND model LIKE 'BatchSet'), 
+'1', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '1', '1'); 
+
+insert ignore into i18n (`id`, `en`, `fr`) 
+VALUES 
+('all batch sets', 'All Batchsets', 'Tous les ensembles de données'),
+('delete in batch', 'Delete In Batch', 'Suppression en groupe');
