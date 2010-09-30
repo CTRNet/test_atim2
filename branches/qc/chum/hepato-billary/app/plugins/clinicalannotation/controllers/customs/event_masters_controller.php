@@ -58,39 +58,6 @@ class EventMastersControllerCustom extends EventMastersController {
  	}
  	
   	/** 
- 	 * Set medical past history precisions list for clinical.hepatobiliary.***medical_past_history.
- 	 * 
- 	 * @param $event_control Event control of the created/studied event.
- 	 **/
- 	 
-	function setMedicalPastHistoryPrecisions( $event_control ) { 
-		$event_type_title = 
-			$event_control['EventControl']['disease_site'].'-'.
-			$event_control['EventControl']['event_group'].'-'.
-			$event_control['EventControl']['event_type'];
-				
-		$pattern = '/^hepatobiliary-clinical-(.*)medical past history?/';
-		if(preg_match($pattern, $event_type_title)) { 
-			
-			// load model
-			App::import('Model', 'clinicalannotation.MedicalPastHistoryCtrl');		
-			$this->MedicalPastHistoryCtrl = new MedicalPastHistoryCtrl();	
-			
-			// Get list of disease precisions
-			$fields = 'DISTINCT MedicalPastHistoryCtrl.disease_precision';
-			$criteria = array('MedicalPastHistoryCtrl.event_control_id' => $event_control['EventControl']['id']);
-			$order = 'MedicalPastHistoryCtrl.display_order ASC';
-			
-			$tmp_medical_past_history_precisions = $this->MedicalPastHistoryCtrl->find('all', array('fields' => $fields, 'conditions' => $criteria, 'order' => $order));
-			$medical_past_history_precisions = array();
-			foreach($tmp_medical_past_history_precisions as $new_type) {
-				$medical_past_history_precisions[$new_type['MedicalPastHistoryCtrl']['disease_precision']] = __($new_type['MedicalPastHistoryCtrl']['disease_precision'], true);
-			}
-			$this->set('medical_past_history_precisions', $medical_past_history_precisions);
-		}
-	}
-	
-  	/** 
  	 * Set participant surgeries list for hepatobiliary-lab-biology.
  	 * 
  	 * @param $event_control Event control of the created/studied event.
@@ -511,6 +478,31 @@ class EventMastersControllerCustom extends EventMastersController {
 			$this->data['EventDetail']['result'] = ( (0.957*log($serum_cr)) + (0.378*log($serum_bilirubin)) + (1.12*log($inr)) + 0.643 ) *10;
 		}		
 	}
+	
+	function addIcdCodeDescription($data) {
+		if(isset($data['EventDetail']['who_icd10_code'])) {
+			if(!isset($this->CodingIcd10Who)) {
+				App::import('Model', 'Codingicd.CodingIcd10Who');
+				$this->CodingIcd10Who = new CodingIcd10Who();
+			}
+			$data['EventDetail']['who_icd10_code'] .= " - ".$this->CodingIcd10Who->getDescription($data['EventDetail']['who_icd10_code']);
+		}
+		
+		if(isset($data[0]['EventDetail']['who_icd10_code'])) {
+			if(!isset($this->CodingIcd10Who)) {
+				App::import('Model', 'Codingicd.CodingIcd10Who');
+				$this->CodingIcd10Who = new CodingIcd10Who();
+			}
+			foreach($data as $key => $record) {
+				$data[$key]['EventDetail']['who_icd10_code'] .= " - ".$this->CodingIcd10Who->getDescription($data[$key]['EventDetail']['who_icd10_code']);
+			}
+		}
+		
+		return $data;
+	}
+	
+	
+	
 }
 	
 ?>

@@ -296,7 +296,7 @@ WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'part
 structure_id IN (SELECT id FROM structures WHERE alias IN ('view_aliquot_joined_to_sample_and_collection', 'view_collection', 'view_sample_joined_to_collection'));
  	
 INSERT IGNORE INTO i18n (id, en, fr)
-VALUES ('system data', 'System Data', 'DonnÃ©es systÃ¨me');
+VALUES ('system data', 'System Data', 'Données système');
 
 UPDATE i18n SET en = 'Bank Nbr', fr = 'No Banque' WHERE id = 'hepato_bil_bank_participant_id';
 
@@ -420,8 +420,105 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `field`='notes'), 
 '0', '40', 'other', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1');
 
+INSERT IGNORE INTO i18n (id, en, fr)
+VALUES 
+('allow biological material collection','Allow Biological Material Collection','Autorise la collecte du matériel biologique'),
+('allow blood collection','Allow Blood Collection','Autorise la collecte de sang'),
+('allow medical data access','Allow Medical Data Access','Autorise l''accès au dossier médical'),
+('allow research on other disease','Allow Research On Other Disease','Autorise la recherche sur d''autres maladies'),
+('allow to be contacted for additional information','Allow To Be Contacted For Additional Information','Peut être contacté pour des renseignements supplémentaires'),
+('allow to be contacted for additional questionnaire','Allow To Be Contacted For Additional Questionnaire','Peut être contacté pour d''autres questionnaires'),
+('consent v2010-01-22','Consent v2010-01-22','Consentement v2010-01-22'),
+('contact data','Contacts',''),
+('hepato-bilary and pancreatic tumor','Hepato-Bilary And Pancreatic Tumor','Tumeur hépato-biliaire et pancréatique'),
+('other disease','Other Disease','Autre malade'),
+('to inform when new discovery on hepato-bilary or pancreatic research','To Inform When New Discovery On H.B or Panc. Reasearch','Informer lors de nouvelles découvertes en recherche sur H.B ou Panc.'),
+('to inform when new discovery on other disease','To Inform When New Discovery On Other Disease','Informer lors de nouvelles découvertes en recherche sur autres maladies');
+
+DROP TABLE IF EXISTS qc_hb_hepatobiliary_medical_past_history_ctrls;
+DELETE FROM structure_formats WHERE `structure_field_id` = (SELECT id FROM structure_fields WHERE tablename = 'qc_hb_ed_hepatobiliary_medical_past_history' AND field LIKE 'disease_precision');
+DELETE FROM structure_validations WHERE `structure_field_id` = (SELECT id FROM structure_fields WHERE tablename = 'qc_hb_ed_hepatobiliary_medical_past_history' AND field LIKE 'disease_precision');
+DELETE  FROM structure_fields WHERE tablename = 'qc_hb_ed_hepatobiliary_medical_past_history' AND field LIKE 'disease_precision';
+
+ALTER TABLE qc_hb_ed_hepatobiliary_medical_past_history
+  ADD `who_icd10_code` varchar(50) DEFAULT NULL AFTER `event_master_id`,
+  DROP `disease_precision`;
+ALTER TABLE qc_hb_ed_hepatobiliary_medical_past_history_revs
+  ADD `who_icd10_code` varchar(50) DEFAULT NULL AFTER `event_master_id`,
+  DROP `disease_precision`;
+
+INSERT INTO `structure_fields` (`id`, `public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_medical_past_history', 'who_icd10_code', 'precision', '', 'autocomplete', 'size=10,url=/codingicd/CodingIcd10s/autocomplete/who,tool=/codingicd/CodingIcd10s/tool/who', '', NULL, 'help_cod_icd10_code', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_ed_hepatobiliary_medical_past_history'), 
+(SELECT id FROM structure_fields WHERE tablename = 'qc_hb_ed_hepatobiliary_medical_past_history' AND field LIKE 'who_icd10_code'), 
+'0', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'); 
+
+INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`, `flag_active`, `form_alias`, `detail_tablename`, `display_order`) VALUES
+(null, 'hepatobiliary', 'clinical', 'other cancer medical past history', 1, 'qc_hb_ed_hepatobiliary_medical_past_history', 'qc_hb_ed_hepatobiliary_medical_past_history', 0);
+
+INSERT IGNORE INTO i18n (id, en, fr)
+VALUES 
+('other cancer medical past history', 'Other Cancer', 'Autre Cancer');
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_add = '0', sfo.flag_add_readonly = '0', 
+sfo.flag_edit = '0', sfo.flag_edit_readonly = '0',
+sfo.flag_datagrid = '0',sfo.flag_datagrid_readonly = '0',
+sfo.flag_search = '0', sfo.flag_search_readonly = '0',
+sfo.flag_index = '0', sfo.flag_detail = '0'
+WHERE sfi.field IN ('previous_primary_code_system', 'previous_primary_code') AND sfi.model = 'FamilyHistory' 
+AND str.alias LIKE 'familyhistories'
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+INSERT INTO `structure_permissible_values_custom_controls` (`id`, `name`, `flag_active`) VALUES
+(null, 'hepatitis treatment', '1'),
+(null, 'type of hepatitis', '1');
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(''hepatitis treatment'')' WHERE domain_name = 'hepatitis_treatment';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(''type of hepatitis'')' WHERE domain_name = 'type_of_hepatitis';
+
+INSERT INTO `structure_permissible_values_custom_controls` (`id`, `name`, `flag_active`) VALUES
+(null, 'cirrhosis type', '1');
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(''cirrhosis type'')' WHERE domain_name = 'cirrhosis_type';
+ 
+UPDATE `tx_controls`
+	SET extended_data_import_process = 'importDrugFromChemoProtocol' WHERE tx_method = 'chemotherapy' AND disease_site = 'hepatobiliary';
+UPDATE `tx_controls`
+	SET flag_active = '0' WHERE tx_method = 'surgery without extend' AND disease_site = 'all';
+
+UPDATE structure_fields SET type = 'integer_positive' WHERE tablename = 'qc_hb_txd_surgery_livers' AND field IN 
+('operative_time', 'operative_bleeding', 'rbc_units', 'plasma_units', 'platelets_units', 'resected_liver_weight');
+UPDATE structure_fields SET type = 'integer_positive' WHERE tablename = 'qc_hb_txd_surgery_pancreas' AND field IN 
+('operative_time', 'operative_bleeding', 'rbc_units', 'plasma_units', 'platelets_units', 'resected_liver_weight', 'wisung_diameter', 'gastric_tube_duration_in_days');
+
+INSERT IGNORE INTO i18n (id, en)
+VALUES 
+('pancreas appearance', 'Pancreas Appearance'),
+('wisung diameter', 'Wisung Diameter'),
+('recoupe pancreas', 'Recoupe Pancreas'),
+('portal vein resection', 'Portal Vein resection'),
+('pancreas anastomosis', 'Pancreas Anastomosis'),
+('type of pancreas anastomosis', 'Type of Pancreas Anastomosis'),
+('pylori preservation', 'Pylori Preservation'),
+('portacaval gradient', 'Portacaval Gradient'),
+('preoperative sandostatin', 'Preoperative Sandostatin');
+
+UPDATE structure_permissible_values_custom_controls SET name = 'surgey - liver pancreas : anastomosis type' 
+WHERE name like 'surgey - liver pancreas : type of pancreas anastom%';
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(''surgey - liver pancreas : anastomosis type'')' WHERE domain_name = 'qc_hb_tx_surgery_pancreas_type_of_anastomosis';
+
+
+
+
+supprimer le ... /treatment_extends/addComplicationTreatment/1/1/1
+
 -----------------------------------------------------------------------
 - - Script to test custom list - -
-INSERT INTO structure_permissible_values_customs (control_id, value) (SELECT id, concat(name, '.... TO DEFINE') FROM structure_permissible_values_custom_controls WHERE id NOT IN (SELECT control_id FROM structure_permissible_values_customs))
+INSERT INTO structure_permissible_values_customs (control_id, value) (SELECT id, concat(name, '.... ADMINISTRATOR LIST') FROM structure_permissible_values_custom_controls 
+WHERE id NOT IN (SELECT control_id FROM structure_permissible_values_customs))
  	
+ 	
+ 	
+ 	
+ 
  	

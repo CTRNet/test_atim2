@@ -31,12 +31,6 @@
 	}
 	
 	// --------------------------------------------------------------------------------
-	// clinical.hepatobiliary.*** medical past history: 
-	//   Set Medical Past History precisions list
-	// --------------------------------------------------------------------------------
-	$this->setMedicalPastHistoryPrecisions($event_control_data);
-	
-	// --------------------------------------------------------------------------------
 	// clinical.hepatobiliary.medical imaging *** : 
 	//   Set Imaging Structure (other +/- pancreas +/- Semgments +/- etc)
 	// --------------------------------------------------------------------------------
