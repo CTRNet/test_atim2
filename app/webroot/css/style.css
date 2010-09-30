@@ -1575,6 +1575,10 @@ body.flash div.wrapper a:hover {
 	text-decoration: underline;
 }
 
+body.flash table caption{
+	color: #FFF;	
+}
+
 a.form:focus{
 	text-decoration:underline;
 }
