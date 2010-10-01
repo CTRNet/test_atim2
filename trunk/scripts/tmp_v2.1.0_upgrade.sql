@@ -2659,7 +2659,7 @@ INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_e
 (null, (SELECT id FROM structure_fields WHERE field LIKE 'id' AND model LIKE 'BatchSet'), 'notEmpty', '0', '0', '', 'value is required', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
 
 
-insert ignore into i18n (`id`, `en`, `fr`) 
+INSERT IGNORE INTO i18n (`id`, `en`, `fr`) 
 VALUES 
 ('new batchset title', 'New Batchset Title', 'Titre du nouvel ensembles de données'),
 ('remove as favourite', 'Remove As Favourite', 'Supprimer des favoris'),
@@ -2686,7 +2686,7 @@ INSERT INTO `structure_validations` (`structure_field_id`, `rule`, `flag_empty`,
 ((SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='topography' AND `structure_value_domain`  IS NULL LIMIT 1), 'validateIcdo3TopoCode', '1', '0', '', 'invalid topography code'),
 ((SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='morphology' AND `structure_value_domain`  IS NULL LIMIT 1), 'validateIcdo3MorphoCode', '1', '0', '', 'invalid morphology code');
 
-insert ignore into i18n (`id`, `en`, `fr`) VALUES ('elements', 'Elements', 'Éléments'), ('actions', 'Actions', 'Actions'), ('result', 'Result', 'Résultat');
+INSERT IGNORE INTO i18n (`id`, `en`, `fr`) VALUES ('elements', 'Elements', 'Éléments'), ('actions', 'Actions', 'Actions'), ('result', 'Result', 'Résultat');
 
 UPDATE structure_formats SET flag_detail = '1', flag_index = '1', display_order = '9'
 WHERE structure_id = (SELECT id FROM structures WHERE alias='querytool_batch_set')
@@ -2704,7 +2704,23 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 (SELECT id FROM structure_fields WHERE field LIKE 'created_by' AND model LIKE 'BatchSet'), 
 '1', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '1', '1'); 
 
-insert ignore into i18n (`id`, `en`, `fr`) 
-VALUES 
+INSERT IGNORE INTO i18n (`id`, `en`, `fr`) VALUES 
 ('all batch sets', 'All Batchsets', 'Tous les ensembles de données'),
-('delete in batch', 'Delete In Batch', 'Suppression en groupe');
+('delete in batch', 'Delete Batchsets', 'Suppression en groupe');
+
+-- Allow form version field to use any characters instead of floats only.
+ALTER TABLE `rtbforms` CHANGE `frmVersion` `frmVersion` VARCHAR( 255 ) DEFAULT NULL;
+ALTER TABLE `rtbforms_revs` CHANGE `frmVersion` `frmVersion` VARCHAR( 255 ) DEFAULT NULL; 
+
+INSERT IGNORE INTO i18n (`id`, `en`, `fr`) VALUES
+('protocol is defined as protocol of at least one participant treatment', 'Unable to delete - This protocol is linked to existing treatment records.', 'Le protocole est définie comme étant le protocole d''au moins un traitement de participant!'),
+('error_fk_participant_linked_collection', 'Unable to delete - Linked collection record exists for this participant', ''),
+('error_fk_participant_linked_consent', 'Unable to delete - Linked consent record exists for this participant', ''),
+('error_fk_participant_linked_diagnosis', 'Unable to delete - Linked diagnosis record exists for this participant', ''),
+('error_fk_participant_linked_treatment', 'Unable to delete - Linked treatment record exists for this participant', ''),
+('error_fk_participant_linked_familyhistory', 'Unable to delete - Linked family history exists for this participant', ''),
+('error_fk_participant_linked_reproductive', 'Unable to delete - Linked reproductive history record exists for this participant', ''),
+('error_fk_participant_linked_contacts', 'Unable to delete - Linked contact record exists for this participant', ''),
+('error_fk_participant_linked_identifiers', 'Unable to delete - Linked identifier record exists for this participant', ''),
+('error_fk_participant_linked_messages', 'Unable to delete - Linked message record exists for this participant', ''),
+('error_fk_participant_linked_events', 'Unable to delete - Linked annotation event record exists for this participant', '');
