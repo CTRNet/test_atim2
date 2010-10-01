@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Sep 30, 2010 at 07:30 PM
+-- Generation Time: Oct 01, 2010 at 05:38 PM
 -- Server version: 5.1.36
 -- PHP Version: 5.3.0
 
@@ -19318,7 +19318,7 @@ CREATE TABLE IF NOT EXISTS `versions` (
 --
 
 INSERT INTO `versions` (`id`, `version_number`, `date_installed`, `build_number`, `created`, `created_by`, `modified`, `modified_by`) VALUES
-(1, 'v2.0.2A', '2010-09-30 00:00:00', '1485', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+(1, 'v2.0.2A', '2010-10-01 00:00:00', '1485', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
 
 -- --------------------------------------------------------
 

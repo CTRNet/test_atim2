@@ -208,7 +208,9 @@ class TreatmentMastersControllerCustom extends TreatmentMastersController {
 		if(preg_match($pattern, $tx_type_title)) { 
 			//hospitalization duration
 			$last_news_date = array();
-			list($last_news_date['year'], $last_news_date['month'], $last_news_date['day']) = explode('-', $participant_data['Participant']['last_news_date']);
+			if(!empty($participant_data['Participant']['last_news_date'])) {
+				list($last_news_date['year'], $last_news_date['month'], $last_news_date['day']) = explode('-', $participant_data['Participant']['last_news_date']);
+			}
 			$tx_data['TreatmentDetail']['survival_time_in_months'] = $this->getSpentTime($tx_data['TreatmentMaster']['start_date'], $last_news_date, 'months');			
 		}
 		
@@ -225,7 +227,9 @@ class TreatmentMastersControllerCustom extends TreatmentMastersController {
 
 		foreach($surgeries as $new_participant_surgery) {
 			$surgery_date = array();
-			list($surgery_date['year'], $surgery_date['month'], $surgery_date['day']) = explode('-', $new_participant_surgery['TreatmentMaster']['start_date']);
+			if(!empty($new_participant_surgery['TreatmentMaster']['start_date'])) {
+				list($surgery_date['year'], $surgery_date['month'], $surgery_date['day']) = explode('-', $new_participant_surgery['TreatmentMaster']['start_date']);
+			}
 			$survival_time_in_months = $this->getSpentTime($surgery_date, $new_last_news_date, 'months');
 			
 			$tx_data = array();
