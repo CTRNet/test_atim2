@@ -2059,7 +2059,7 @@ INSERT INTO `txe_chemos` (`id`, `dose`, `method`, `drug_id`, `tx_master_id`, `cr
 -- Dumping data for table `tx_masters`
 --
 
-INSERT INTO `tx_masters` (`id`, `treatment_control_id`, `tx_method`, `disease_site`, `tx_intent`, `target_site_icdo`, `start_date`, `start_date_accuracy`, `finish_date`, `finish_date_accuracy`, `information_source`, `facility`, `notes`, `protocol_master_id`, `participant_id`, `diagnosis_master_id`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
+INSERT INTO `tx_masters` (`id`, `tx_control_id`, `tx_method`, `disease_site`, `tx_intent`, `target_site_icdo`, `start_date`, `start_date_accuracy`, `finish_date`, `finish_date_accuracy`, `information_source`, `facility`, `notes`, `protocol_master_id`, `participant_id`, `diagnosis_master_id`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
 (1, 1, 'chemotherapy', 'all', 'curative', '', '2003-03-14', '', '2003-03-15', '', '', 'Building A', '', 1, 1, 2, '2010-05-28 14:23:14', 1, '2010-05-28 14:23:14', 1, 0, NULL),
 (2, 1, 'chemotherapy', 'all', 'curative', '', '2003-05-01', '', NULL, '', '', 'Building A', '', NULL, 1, 2, '2010-05-28 14:26:16', 1, '2010-05-28 14:26:16', 1, 0, NULL),
 (3, 3, 'surgery', 'all', '', '', '2003-04-23', '', NULL, '', '', '', '', NULL, 1, 2, '2010-05-28 14:27:24', 1, '2010-05-28 14:27:24', 1, 0, NULL);
@@ -2068,7 +2068,7 @@ INSERT INTO `tx_masters` (`id`, `treatment_control_id`, `tx_method`, `disease_si
 -- Dumping data for table `tx_masters_revs`
 --
 
-INSERT INTO `tx_masters_revs` (`id`, `treatment_control_id`, `tx_method`, `disease_site`, `tx_intent`, `target_site_icdo`, `start_date`, `start_date_accuracy`, `finish_date`, `finish_date_accuracy`, `information_source`, `facility`, `notes`, `created`, `created_by`, `modified`, `modified_by`, `protocol_master_id`, `participant_id`, `diagnosis_master_id`, `deleted`, `deleted_date`, `version_id`, `version_created`) VALUES
+INSERT INTO `tx_masters_revs` (`id`, `tx_control_id`, `tx_method`, `disease_site`, `tx_intent`, `target_site_icdo`, `start_date`, `start_date_accuracy`, `finish_date`, `finish_date_accuracy`, `information_source`, `facility`, `notes`, `created`, `created_by`, `modified`, `modified_by`, `protocol_master_id`, `participant_id`, `diagnosis_master_id`, `deleted`, `deleted_date`, `version_id`, `version_created`) VALUES
 (1, 1, 'chemotherapy', 'all', 'curative', '', '2003-03-14', '', '2003-03-15', '', '', 'Building A', '', '2010-05-28 14:23:14', 1, '2010-05-28 14:23:14', 1, 1, 1, 2, 0, NULL, 1, '2010-05-28 14:23:15'),
 (2, 1, 'chemotherapy', 'all', 'curative', '', '2003-05-01', '', NULL, '', '', 'Building A', '', '2010-05-28 14:26:16', 1, '2010-05-28 14:26:16', 1, NULL, 1, 2, 0, NULL, 2, '2010-05-28 14:26:17'),
 (3, 3, 'surgery', 'all', '', '', '2003-04-23', '', NULL, '', '', '', '', '2010-05-28 14:27:24', 1, '2010-05-28 14:27:24', 1, NULL, 1, 2, 0, NULL, 3, '2010-05-28 14:27:25');

@@ -124,6 +124,16 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 		
 		// Set consents list
 		$consent_data = $this->ConsentMaster->find('all', array('conditions' => array('ConsentMaster.deleted' => '0', 'ConsentMaster.participant_id' => $participant_id)));
+		//because consent has a one to many relation with participant, we need to format it
+		foreach($consent_data as &$consent){
+			foreach($consent['ClinicalCollectionLink'] as $unit){
+				if($unit['id'] == $clinical_collection_link_id){
+					//we found the one that interests us
+					$consent['ClinicalCollectionLink'] = $unit;
+					break;
+				}
+			}
+		}
 		$this->set( 'consent_data', $consent_data );
 		
 		// Set diagnoses list

@@ -4,6 +4,7 @@ class AppController extends Controller {
 	// var $uses			= array('Config', 'Aco', 'Aro', 'Permission');
 	private static $missing_translations = array();
 	private static $me = NULL;
+	public static $beignFlash = false;
 	var $uses = array('Config');
 	var $components	= array( 'Session', 'SessionAcl', 'Auth', 'Menus', 'RequestHandler', 'Structures', 'PermissionManager' );
 	var $helpers		= array('Ajax', 'Csv', 'Html', 'Javascript', 'Shell', 'Structures', 'Time');
@@ -306,6 +307,15 @@ class AppController extends Controller {
 	
 	static function addWarningMsg($msg){
 		$_SESSION['ctrapp_core']['warning_msg'][] = $msg;
+	}
+	
+	static function getStackTrace(){
+		$bt = debug_backtrace();
+		$result = array();
+		foreach($bt as $unit){
+			$result[] = $unit['file'].", ".$unit['function']." at line ".$unit['line'];
+		}
+		return $result;
 	}
 }
 

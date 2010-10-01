@@ -10,7 +10,7 @@
 	
 	$structure_settings = array(
 		'actions'=>false, 
-		
+		'tabindex' => 100,
 		'header' => __('edit diagnosis record', NULL),
 		'form_bottom'=>false);
 
@@ -39,6 +39,7 @@
 	
 	$structure_settings = array(
 		'actions'=>false,
+		'tabindex' => 200,
 		'pagination'=>false,
 		'form_bottom' => false,
 		'form_top' => false
