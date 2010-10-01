@@ -2724,3 +2724,12 @@ INSERT IGNORE INTO i18n (`id`, `en`, `fr`) VALUES
 ('error_fk_participant_linked_identifiers', 'Unable to delete - Linked identifier record exists for this participant', ''),
 ('error_fk_participant_linked_messages', 'Unable to delete - Linked message record exists for this participant', ''),
 ('error_fk_participant_linked_events', 'Unable to delete - Linked annotation event record exists for this participant', '');
+
+ALTER TABLE `tx_masters`
+  DROP FOREIGN KEY `FK_tx_masters_tx_controls` ;
+ALTER TABLE tx_masters
+  	CHANGE `treatment_control_id` `tx_control_id` int(11) NOT NULL DEFAULT '0';
+ALTER TABLE tx_masters  	
+	ADD CONSTRAINT `FK_tx_masters_tx_controls` FOREIGN KEY (`tx_control_id`) REFERENCES `tx_controls` (`id`);
+ALTER TABLE tx_masters_revs
+  	CHANGE `treatment_control_id` `tx_control_id` int(11) NOT NULL DEFAULT '0';  
