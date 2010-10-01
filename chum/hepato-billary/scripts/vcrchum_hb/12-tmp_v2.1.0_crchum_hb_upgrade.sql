@@ -501,16 +501,22 @@ VALUES
 ('type of pancreas anastomosis', 'Type of Pancreas Anastomosis'),
 ('pylori preservation', 'Pylori Preservation'),
 ('portacaval gradient', 'Portacaval Gradient'),
+('clavien score', 'Clavien Score'),
 ('preoperative sandostatin', 'Preoperative Sandostatin');
 
 UPDATE structure_permissible_values_custom_controls SET name = 'surgey - liver pancreas : anastomosis type' 
 WHERE name like 'surgey - liver pancreas : type of pancreas anastom%';
 UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(''surgey - liver pancreas : anastomosis type'')' WHERE domain_name = 'qc_hb_tx_surgery_pancreas_type_of_anastomosis';
 
+DROP TABLE IF EXISTS qc_hb_surgery_complication_treatments;
+DROP TABLE IF EXISTS  qc_hb_surgery_complication_treatments_revs;
+
+DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias = 'qc_hb_surgery_complication_treatments');
+DELETE FROM structures WHERE alias = 'qc_hb_surgery_complication_treatments';
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE model = 'SurgeryComplicationTreatment');
+DELETE FROM structure_fields WHERE model = 'SurgeryComplicationTreatment'; 
 
 
-
-supprimer le ... /treatment_extends/addComplicationTreatment/1/1/1
 
 -----------------------------------------------------------------------
 - - Script to test custom list - -
