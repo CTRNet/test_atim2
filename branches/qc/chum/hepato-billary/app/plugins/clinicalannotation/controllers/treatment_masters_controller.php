@@ -23,7 +23,7 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 			
 			$this->Structures->set('treatmentmasters');
 		} else {
-			$_SESSION['TrtMaster_filter']['TreatmentMaster.treatment_control_id'] = $trt_control_id;
+			$_SESSION['TrtMaster_filter']['TreatmentMaster.tx_control_id'] = $trt_control_id;
 			
 			$filter_data = $this->TreatmentControl->find('first',array('conditions'=>array('TreatmentControl.id'=>$trt_control_id)));
 			if(empty($filter_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
@@ -133,14 +133,14 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		}
 	}
 	
-	function add($participant_id=null, $treatment_control_id=null) {
+	function add($participant_id=null, $tx_control_id=null) {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
 		
 		// MANAGE DATA
 		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
 		if(empty($participant_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
 		
-		$tx_control_data = $this->TreatmentControl->find('first',array('conditions'=>array('TreatmentControl.id'=>$treatment_control_id)));
+		$tx_control_data = $this->TreatmentControl->find('first',array('conditions'=>array('TreatmentControl.id'=>$tx_control_id)));
 		if(empty($tx_control_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
 
 		if(!empty($tx_control_data['TreatmentControl']['applied_protocol_control_id'])) {
@@ -167,7 +167,7 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		$this->set('data_for_checklist', $dx_data);					
 				
 		// MANAGE FORM, MENU AND ACTION BUTTONS
-		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'TreatmentControl.id'=>$treatment_control_id));
+		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'TreatmentControl.id'=>$tx_control_id));
 		
 		// Override generated menu to prevent selection of Administration menu item on ADD action
 		$this->set('atim_menu', $this->Menus->get('/clinicalannotation/treatment_masters/listall/%%Participant.id%%'));
@@ -186,7 +186,7 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		
 		if ( !empty($this->data) ) {
 			$this->data['TreatmentMaster']['participant_id'] = $participant_id;
-			$this->data['TreatmentMaster']['treatment_control_id'] = $treatment_control_id;
+			$this->data['TreatmentMaster']['tx_control_id'] = $tx_control_id;
 			$this->data['TreatmentMaster']['tx_method'] = $tx_control_data['TreatmentControl']['tx_method'];
 			$this->data['TreatmentMaster']['disease_site'] = $tx_control_data['TreatmentControl']['disease_site'];
 			
