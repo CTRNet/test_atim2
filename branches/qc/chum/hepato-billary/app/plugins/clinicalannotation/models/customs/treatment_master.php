@@ -12,9 +12,11 @@ class TreatmentMasterCustom extends TreatmentMaster {
 			
 			$result = $this->find('first', array('conditions'=>array('TreatmentMaster.id'=>$variables['TreatmentMaster.id'])));
 			
+			$precision = isset($variables['TreatmentExtend.menu_precision'])? ' - ' . __($variables['TreatmentExtend.menu_precision'], null): '';
+			
 			$return = array(
 				'Summary'	 => array(
-					'menu'    		=> array( NULL, __($result['TreatmentMaster']['disease_site'], TRUE) . ' - ' . __($result['TreatmentMaster']['tx_method'], TRUE) ),
+					'menu'    		=> array( NULL, __($result['TreatmentMaster']['disease_site'], TRUE) . ' - ' . __($result['TreatmentMaster']['tx_method'], TRUE) . $precision),
 					'title'	 		=> array( NULL, __($result['TreatmentMaster']['disease_site'], TRUE)  . ' - ' . __($result['TreatmentMaster']['tx_method'], TRUE)),
 
 					'description'	=> array(

@@ -516,12 +516,122 @@ DELETE FROM structures WHERE alias = 'qc_hb_surgery_complication_treatments';
 DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE model = 'SurgeryComplicationTreatment');
 DELETE FROM structure_fields WHERE model = 'SurgeryComplicationTreatment'; 
 
+ALTER TABLE qc_hb_txe_surgery_complications
+  ADD `other_type_from_icd10_who` varchar(50) DEFAULT NULL AFTER `type`,
+  
+  ADD `treatment_1_date` date DEFAULT NULL AFTER `organ_precision`,
+  ADD `treatment_1` varchar(50) DEFAULT NULL AFTER `treatment_1_date`,
+  ADD `treatment_1_other_specify` varchar(250) DEFAULT NULL AFTER `treatment_1`,
+ 
+  ADD `treatment_2_date` date DEFAULT NULL AFTER `treatment_1_other_specify`,
+  ADD `treatment_2` varchar(50) DEFAULT NULL AFTER `treatment_2_date`,
+  ADD `treatment_2_other_specify` varchar(250) DEFAULT NULL AFTER `treatment_2`,
+ 
+  ADD `treatment_3_date` date DEFAULT NULL AFTER `treatment_2_other_specify`,
+  ADD `treatment_3` varchar(50) DEFAULT NULL AFTER `treatment_3_date`,
+  ADD `treatment_3_other_specify` varchar(250) DEFAULT NULL AFTER `treatment_3`;
+ALTER TABLE qc_hb_txe_surgery_complications_revs
+  ADD `other_type_from_icd10_who` varchar(50) DEFAULT NULL AFTER `type`,
+  
+  ADD `treatment_1_date` date DEFAULT NULL AFTER `organ_precision`,
+  ADD `treatment_1` varchar(50) DEFAULT NULL AFTER `treatment_1_date`,
+  ADD `treatment_1_other_specify` varchar(250) DEFAULT NULL AFTER `treatment_1`,
+ 
+  ADD `treatment_2_date` date DEFAULT NULL AFTER `treatment_1_other_specify`,
+  ADD `treatment_2` varchar(50) DEFAULT NULL AFTER `treatment_2_date`,
+  ADD `treatment_2_other_specify` varchar(250) DEFAULT NULL AFTER `treatment_2`,
+ 
+  ADD `treatment_3_date` date DEFAULT NULL AFTER `treatment_2_other_specify`,
+  ADD `treatment_3` varchar(50) DEFAULT NULL AFTER `treatment_3_date`,
+  ADD `treatment_3_other_specify` varchar(250) DEFAULT NULL AFTER `treatment_3`;  
+
+INSERT INTO structure_value_domains (domain_name, source) VALUES 
+('qc_hb_surgery_complication_treatment', 'StructurePermissibleValuesCustom::getCustomDropdown(''surgery: complication treatment'')');
+INSERT INTO `structure_permissible_values_custom_controls` (`id`, `name`, `flag_active`) VALUES
+(null, 'surgery: complication treatment', '1');
+
+INSERT INTO `structure_fields` (`id`, `public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+(null, '', 'Clinicalannotation', 'TreatmentExtend', 'qc_hb_txe_surgery_complications', 'other_type_from_icd10_who', 'other type precision', '', 'autocomplete', 'size=10,url=/codingicd/CodingIcd10s/autocomplete/who,tool=/codingicd/CodingIcd10s/tool/who', '', NULL, 'help_cod_icd10_code', 'open', 'open', 'open'),
+
+(null, '', 'Clinicalannotation', 'TreatmentExtend', 'qc_hb_txe_surgery_complications', 'treatment_1_date', 'surgery complication treatment 1 date', '', 'date', '', '', NULL, '', 'open', 'open', 'open'),
+(null, '', 'Clinicalannotation', 'TreatmentExtend', 'qc_hb_txe_surgery_complications', 'treatment_1', 'surgery complication treatment 1', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name = 'qc_hb_surgery_complication_treatment'), '', 'open', 'open', 'open'),
+(null, '', 'Clinicalannotation', 'TreatmentExtend', 'qc_hb_txe_surgery_complications', 'treatment_1_other_specify', 'other surgery complication treatment 1', '', 'input', 'size=10', '', NULL, '', 'open', 'open', 'open'),
+
+(null, '', 'Clinicalannotation', 'TreatmentExtend', 'qc_hb_txe_surgery_complications', 'treatment_2_date', 'surgery complication treatment 2 date', '', 'date', '', '', NULL, '', 'open', 'open', 'open'),
+(null, '', 'Clinicalannotation', 'TreatmentExtend', 'qc_hb_txe_surgery_complications', 'treatment_2', 'surgery complication treatment 2', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name = 'qc_hb_surgery_complication_treatment'), '', 'open', 'open', 'open'),
+(null, '', 'Clinicalannotation', 'TreatmentExtend', 'qc_hb_txe_surgery_complications', 'treatment_2_other_specify', 'other surgery complication treatment 2', '', 'input', 'size=10', '', NULL, '', 'open', 'open', 'open'),
+
+(null, '', 'Clinicalannotation', 'TreatmentExtend', 'qc_hb_txe_surgery_complications', 'treatment_3_date', 'surgery complication treatment 3 date', '', 'date', '', '', NULL, '', 'open', 'open', 'open'),
+(null, '', 'Clinicalannotation', 'TreatmentExtend', 'qc_hb_txe_surgery_complications', 'treatment_3', 'surgery complication treatment 3', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name = 'qc_hb_surgery_complication_treatment'), '', 'open', 'open', 'open'),
+(null, '', 'Clinicalannotation', 'TreatmentExtend', 'qc_hb_txe_surgery_complications', 'treatment_3_other_specify', 'other surgery complication treatment 3', '', 'input', 'size=10', '', NULL, '', 'open', 'open', 'open');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_txe_surgery_complications'), 
+(SELECT id FROM structure_fields WHERE tablename = 'qc_hb_txe_surgery_complications' AND field LIKE 'other_type_from_icd10_who'), 
+'0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'),
+
+((SELECT id FROM structures WHERE alias='qc_hb_txe_surgery_complications'), 
+(SELECT id FROM structure_fields WHERE tablename = 'qc_hb_txe_surgery_complications' AND field LIKE 'treatment_1_date'), 
+'1', '10', 'treatment 1', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_txe_surgery_complications'), 
+(SELECT id FROM structure_fields WHERE tablename = 'qc_hb_txe_surgery_complications' AND field LIKE 'treatment_1'), 
+'1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_txe_surgery_complications'), 
+(SELECT id FROM structure_fields WHERE tablename = 'qc_hb_txe_surgery_complications' AND field LIKE 'treatment_1_other_specify'), 
+'1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+
+((SELECT id FROM structures WHERE alias='qc_hb_txe_surgery_complications'), 
+(SELECT id FROM structure_fields WHERE tablename = 'qc_hb_txe_surgery_complications' AND field LIKE 'treatment_2_date'), 
+'1', '13', 'treatment 2', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_txe_surgery_complications'), 
+(SELECT id FROM structure_fields WHERE tablename = 'qc_hb_txe_surgery_complications' AND field LIKE 'treatment_2'), 
+'1', '14', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_txe_surgery_complications'), 
+(SELECT id FROM structure_fields WHERE tablename = 'qc_hb_txe_surgery_complications' AND field LIKE 'treatment_2_other_specify'), 
+'1', '15', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+
+((SELECT id FROM structures WHERE alias='qc_hb_txe_surgery_complications'), 
+(SELECT id FROM structure_fields WHERE tablename = 'qc_hb_txe_surgery_complications' AND field LIKE 'treatment_3_date'), 
+'1', '16', 'treatment 3', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_txe_surgery_complications'), 
+(SELECT id FROM structure_fields WHERE tablename = 'qc_hb_txe_surgery_complications' AND field LIKE 'treatment_3'), 
+'1', '17', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_txe_surgery_complications'), 
+(SELECT id FROM structure_fields WHERE tablename = 'qc_hb_txe_surgery_complications' AND field LIKE 'treatment_3_other_specify'), 
+'1', '18', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1');
+
+INSERT IGNORE INTO i18n (id, en)
+VALUES 
+('organ precision','Organ Precision'),
+('other type precision','Other Precision'),
+
+('treatment 1','Treatment 1'),
+('surgery complication treatment 1','Treatment'),
+('surgery complication treatment 1 date','Date'),
+('other surgery complication treatment 1','Other Treatment'),
+
+('treatment 2','Treatment 2'),
+('surgery complication treatment 2','Treatment'),
+('surgery complication treatment 2 date','Date'),
+('other surgery complication treatment 2','Other Treatment'),
+
+('treatment 3','Treatment 3'),
+('surgery complication treatment 3','Treatment'),
+('surgery complication treatment 3 date','Date'),
+('other surgery complication treatment 3','Other Treatment'),
+
+('drugs', 'Drugs'),
+('complications', 'Complications');
+
+
+
 
 
 -----------------------------------------------------------------------
 - - Script to test custom list - -
+
 INSERT INTO structure_permissible_values_customs (control_id, value) (SELECT id, concat(name, '.... ADMINISTRATOR LIST') FROM structure_permissible_values_custom_controls 
-WHERE id NOT IN (SELECT control_id FROM structure_permissible_values_customs))
+WHERE id NOT IN (SELECT control_id FROM structure_permissible_values_customs));
  	
  	
  	
