@@ -2751,3 +2751,8 @@ ALTER TABLE storage_controls
 UPDATE storage_controls SET databrowser_label=storage_type;
 
 DROP TABLE coding_icdo_3;
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters', 'morphology', 'morphology', '', 'input', '', '',  NULL , 'help_morphology', 'open', 'open', 'open');
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='morphology' AND `type`='input' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='morphology' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='morphology'));
+
