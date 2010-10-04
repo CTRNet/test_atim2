@@ -623,18 +623,41 @@ VALUES
 ('drugs', 'Drugs'),
 ('complications', 'Complications');
 
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(''liver metastasis : hitologic type'')'
+WHERE domain_name = 'qc_hb_liver_metastasis_hitologic_type';
+INSERT INTO `structure_permissible_values_custom_controls` (`id`, `name`, `flag_active`) VALUES
+(null, 'liver metastasis : hitologic type', '1');
 
-
-
+INSERT INTO structure_value_domains (domain_name, source) VALUES 
+('qc_hb_liver_metastasis_tumor_site', 'StructurePermissibleValuesCustom::getCustomDropdown(''liver metastasis : tumor site'')');
+INSERT INTO `structure_permissible_values_custom_controls` (`id`, `name`, `flag_active`) VALUES
+(null, 'liver metastasis : tumor site', '1');
+UPDATE structure_fields SET structure_value_domain = (SELECT id FROM structure_value_domains WHERE domain_name = 'qc_hb_liver_metastasis_tumor_site')
+WHERE tablename = 'dxd_liver_metastases' AND field = 'tumor_site';
 
 -----------------------------------------------------------------------
 - - Script to test custom list - -
 
+UPDATE diagnosis_controls SET flag_active = '0' WHERE controls_type 
+IN ('blood', 'tissue', 'cap report - intrahep bile duct', 'cap report - pancreas endo', 'cap report - pancreas exo', 'cap peport - perihilar bile duct');
+
 INSERT INTO structure_permissible_values_customs (control_id, value) (SELECT id, concat(name, '.... ADMINISTRATOR LIST') FROM structure_permissible_values_custom_controls 
 WHERE id NOT IN (SELECT control_id FROM structure_permissible_values_customs));
- 	
- 	
+
+DELETE FROM i18n WHERE id LIKE 'cap report%';	
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('cap report - ampulla', '', 'CAP Report - Ampulla', ''),
+('cap report - ampulla of vater', '', 'CAP Report - Ampulla of Vater', ''),
+('cap report - colon/rectum', '', 'CAP Report - Colon/Rectum', ''),
+('cap report - colon/rectum - excisional biopsy', '', 'CAP Report - Col/Rec Biopsy', ''),
+('cap report - distal ex bile duct', '', 'CAP Report - Distal Ex Bile Duct', ''),
+('cap report - gallbladders', '', 'CAP Report - Gallbladders', ''),
+('cap report - hepato cellular', '', 'CAP Report - Hepato Cellular', ''),
+('cap report - hepato cellular carcinoma', '', 'CAP Report - Hep-Cel Carcinoma', ''),
+('cap report - intrahep bile duct', '', 'CAP Report - Intrahep Bile Duct', ''),
+('cap report - pancreas endo', '', 'CAP Report - Pancreas Endo', ''),
+('cap report - pancreas exo', '', 'CAP Report - Pancreas Exo', ''),
+('cap report - small intestine', '', 'Cap Report - Small Intestine', '') ;	
  	
  	
  
- 	
