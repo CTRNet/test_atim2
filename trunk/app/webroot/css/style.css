@@ -269,45 +269,14 @@ div.wrapper div.actions {
 /*===========================================================*
 	-= popup filter menu 
 *===========================================================*/
-	/*
-	div.wrapper div.actions ul ul.filter li div.filter_menu {
-		display: none;
-	}
-	*/
-	
-	div.wrapper div.actions ul ul.filter:hover a {
-		/*background-color: #486680;
-		color: #fff;*/
-	}
-
-/*
-	div.wrapper div.actions ul ul.filter li:hover div.filter_menu {
-		display: block;
-		width: 200px;
-		top: -270px;
-		right: 45px;
-		height: 275px;
-		overflow: hidden;
-		line-height: 14px;
-		position: absolute;
-		background: #486680;
-		margin: 0;
-		text-align: left;
-		border-color: #000000;
-		-moz-border-radius: 5px; -webkit-border-radius: 5px;
-	}
-*/
-	
-	/* div.wrapper div.actions ul ul.filter li:hover div.filter_menu { */
 	
 	div.wrapper div.actions ul ul.filter li div.filter_menu {
 		
 		display: none;
 		position: absolute;
-		
-		width: 200px;
+		/*min-width: 400px*/;
 		bottom: 36px;
-		left: -130px;
+		right: 0px;
 		
 		margin: 0;
 		padding: 15px 2px;
@@ -351,7 +320,7 @@ div.wrapper div.actions {
 		margin: 0;
 		
 		max-height: 197px;
-		width: 200px;
+		/*width: 200px*/;
 		
 		position: relative;
 	}
@@ -426,24 +395,21 @@ div.wrapper div.actions {
 			color: #ccc;
 			text-align: center;
 		}
-	
+
+	div.wrapper div.actions ul ul.filter div.filter_menu div ul{
+		max-width: 100%; /* IE gymnastic */
+	}
 	div.wrapper div.actions ul ul.filter div.filter_menu div ul li {
-		width: 200px;
+		white-space: nowrap;
+		width: 100%;
+		min-width: 200px;
 		padding: 0;
 		margin: 0;
 		
-/*
-		padding-left: 10px;
-		padding-right: 10px;
-		w\idth: 180px;
-*/
-
 		border: 0;
 		border-top: 1px dotted #374d61;
-		/*border-bottom: 1px solid #486680; */
 		background: none;
 		color: #999;
-		/* background-image: url("../img/btnBack.png"); */
 	}
 	
 	div.wrapper div.actions ul ul.filter div.filter_menu div ul li a {
@@ -1705,53 +1671,120 @@ div.wrapper table.structure td .databrowser td .info td{
 	background-image: url(../img/icons/fam_fam_silk_help.png);
 }
 
-.databrowser td.aliquots div.container, ul.actionDropdown a.aliquots{
+/* databrowser search table icons */
+.databrowser td.aliquots div.container{
+	background: url(../img/icons/aliquot_16x16.png) center no-repeat;
+}
+.databrowser td.collections div.container{
+	background: url(../img/icons/collection_16x16.png) center no-repeat;
+}
+.databrowser td.samples div.container{
+	background: url(../img/icons/flask_16x16.png) center no-repeat;
+}
+.databrowser td.participants div.container{
+	background: url(../img/icons/Contact_16x16.png) center no-repeat;
+}
+
+.databrowser td.storages div.container{
+	background: url(../img/icons/storage_16x16.png) center no-repeat;
+}
+
+.databrowser td.identification div.container{
+	background: url(../img/icons/identifiers_16x16.png) center no-repeat;
+}
+.databrowser td.aliquot.uses div.container{
+	background: url(../img/icons/aliquotUse_16x16.png) center no-repeat;
+}
+.databrowser td.consents div.container{
+	background: url(../img/icons/consent_16x16.png) center no-repeat;
+}
+.databrowser td.diagnosis div.container{
+	background: url(../img/icons/xray_16x16.png) center no-repeat;
+}
+.databrowser td.treatments div.container{
+	background: url(../img/icons/seringue_16x16.png) center no-repeat;
+}
+.databrowser td.family.histories div.container{
+	background: url(../img/icons/family_16x16.png) center no-repeat;
+}
+.databrowser td.quality.controls div.container{
+	background: url(../img/icons/qualityControl_16x16.png) center no-repeat;
+}
+.databrowser td.participant.messages div.container{
+	background: url(../img/icons/post_it_16x16.png) center no-repeat;
+}
+
+
+/* databrowser action dropdown icons */
+ul.actionDropdown a.aliquots{
 	background-image: url(../img/icons/aliquot_16x16.png);
-}
-
-.databrowser td.collections div.container, ul.actionDropdown a.collections{
-	background-image: url(../img/icons/collection_16x16.png);
-}
-
-.databrowser td.samples div.container, ul.actionDropdown a.samples{
-	background-image: url(../img/icons/flask_16x16.png);
-}
-
-.databrowser td.participants div.container, ul.actionDropdown a.participants{
-	background-image: url(../img/icons/Contact_16x16.png);
-}
-
-.databrowser td.storages div.container, ul.actionDropdown a.storages{
-	background-image: url(../img/icons/storage_16x16.png);
-}
-
-.databrowser td.identification div.container, ul.actionDropdown a.identification{
-	background-image: url(../img/icons/identifiers_16x16.png);
-}
-.databrowser td.aliquot.uses div.container, ul.actionDropdown a.aliquot.uses{
-	background-image: url(../img/icons/aliquotUse_16x16.png);
-}
-.databrowser td.consents div.container, ul.actionDropdown a.consents{
-	background-image: url(../img/icons/consent_16x16.png);
-}
-.databrowser td.diagnosis div.container, ul.actionDropdown a.diagnosis{
-	background-image: url(../img/icons/xray_16x16.png);
-}
-.databrowser td.treatments div.container, ul.actionDropdown a.treatments{
-	background-image: url(../img/icons/seringue_16x16.png);
-}
-.databrowser td.family.histories div.container, ul.actionDropdown a.family.histories{
-	background-image: url(../img/icons/family_16x16.png);
-}
-.databrowser td.quality.controls div.container, ul.actionDropdown a.quality.controls{
-	background-image: url(../img/icons/qualityControl_16x16.png);
-}
-.databrowser td.participant.messages div.container, ul.actionDropdown a.participant.messages{
-	background-image: url(../img/icons/post_it_16x16.png);
-}
-ul.actionDropdown a, ul.actionDropdown li:hover a{
+	background-position: left center;
 	background-repeat: no-repeat;
-	background-position: center left;
+}
+ul.actionDropdown a.collections{
+	background-image: url(../img/icons/collection_16x16.png);
+	background-position: left center;
+	background-repeat: no-repeat;
+}
+ul.actionDropdown a.samples{
+	background-image: url(../img/icons/flask_16x16.png);
+	background-position: left center;
+	background-repeat: no-repeat;
+}
+ul.actionDropdown a.participants{
+	background-image: url(../img/icons/Contact_16x16.png);
+	background-position: left center;
+	background-repeat: no-repeat;
+}
+ul.actionDropdown a.storages{
+	background-image: url(../img/icons/storage_16x16.png);
+	background-position: left center;
+	background-repeat: no-repeat;
+}
+ul.actionDropdown a.identification{
+	background-image: url(../img/icons/identifiers_16x16.png);
+	background-position: left center;
+	background-repeat: no-repeat;
+}
+ul.actionDropdown a.aliquot.uses{
+	background-image: url(../img/icons/aliquotUse_16x16.png);
+	background-position: left center;
+	background-repeat: no-repeat;
+}
+ul.actionDropdown a.consents{
+	background-image: url(../img/icons/consent_16x16.png);
+	background-position: left center;
+	background-repeat: no-repeat;
+}
+ul.actionDropdown a.diagnosis{
+	background-image: url(../img/icons/xray_16x16.png);
+	background-position: left center;
+	background-repeat: no-repeat;
+}
+ul.actionDropdown a.treatments{
+	background-image: url(../img/icons/seringue_16x16.png);
+	background-position: left center;
+	background-repeat: no-repeat;
+}
+ul.actionDropdown a.family.histories{
+	background-image: url(../img/icons/family_16x16.png);
+	background-position: left center;
+	background-repeat: no-repeat;
+}
+ul.actionDropdown a.quality.controls{
+	background-image: url(../img/icons/qualityControl_16x16.png);
+	background-position: left center;
+	background-repeat: no-repeat;
+}
+ul.actionDropdown a.participant.messages{
+	background-image: url(../img/icons/post_it_16x16.png);
+	background-position: left center;
+	background-repeat: no-repeat;
+}
+
+
+
+ul.actionDropdown a, ul.actionDropdown li:hover a{
 	text-indent: 14px;
 }
 ul.actionDropdown li a{
