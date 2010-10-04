@@ -106,9 +106,11 @@ id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
 plugin VARCHAR(50) NOT NULL,
 model VARCHAR(50) NOT NULL,
 structure_id INT NOT NULL,
-results_structure_alias VARCHAR(255) NOT NULL,
 display_name VARCHAR(50) NOT NULL,
 use_key VARCHAR(50) NOT NULL,
+control_model VARCHAR(50) DEFAULT '',
+control_master_model VARCHAR(50) DEFAULT '',
+control_field VARCHAR(50) DEFAULT '',
 FOREIGN KEY (`structure_id`) REFERENCES `structures`(`id`)
 )Engine=InnoDb;
 
@@ -123,13 +125,13 @@ FOREIGN KEY (`id1`) REFERENCES `datamart_structures`(`id`),
 FOREIGN KEY (`id2`) REFERENCES `datamart_structures`(`id`)
 )Engine=InnoDb;
 
-INSERT INTO datamart_structures (`id`, `plugin`, `model`, `structure_id`, `display_name`, `use_key`) VALUES
-(1, 'Inventorymanagement', 'ViewAliquot', (SELECT id FROM structures WHERE alias='view_aliquot_joined_to_collection'), 'aliquots', 'aliquot_master_id'),
-(2, 'Inventorymanagement', 'ViewCollection', (SELECT id FROM structures WHERE alias='view_collection'), 'collections', 'collection_id'),
-(3, 'Storagelayout', 'StorageMaster', (SELECT id FROM structures WHERE alias='storagemasters'), 'storages', 'id'),
-(4, 'Clinicalannotation', 'Participant', (SELECT id FROM structures WHERE alias='participants'), 'participants', 'id'),
-(5, 'Inventorymanagement', 'ViewSample', (SELECT id FROM structures WHERE alias='view_sample_joined_to_collection'), 'samples', 'sample_master_id'),
-(6, 'Clinicalannotation', 'MiscIdentifier', (SELECT id FROM structures WHERE alias='miscidentifierssummary'), 'identification', 'id');
+INSERT INTO datamart_structures (`id`, `plugin`, `model`, `structure_id`, `display_name`, `use_key`, `control_model`, `control_master_model`, `control_field`) VALUES
+(1, 'Inventorymanagement', 'ViewAliquot', (SELECT id FROM structures WHERE alias='view_aliquot_joined_to_collection'), 'aliquots', 'aliquot_master_id', 'AliquotControl', 'AliquotMaster', 'aliquot_control_id'),
+(2, 'Inventorymanagement', 'ViewCollection', (SELECT id FROM structures WHERE alias='view_collection'), 'collections', 'collection_id', '', '', ''),
+(3, 'Storagelayout', 'StorageMaster', (SELECT id FROM structures WHERE alias='storagemasters'), 'storages', 'id', 'StorageControl', 'StorageMaster', 'storage_control_id'),
+(4, 'Clinicalannotation', 'Participant', (SELECT id FROM structures WHERE alias='participants'), 'participants', 'id', '', '', ''),
+(5, 'Inventorymanagement', 'ViewSample', (SELECT id FROM structures WHERE alias='view_sample_joined_to_collection'), 'samples', 'sample_master_id', 'SampleControl', 'SampleMaster', 'sample_control_id'),
+(6, 'Clinicalannotation', 'MiscIdentifier', (SELECT id FROM structures WHERE alias='miscidentifierssummary'), 'identification', 'id', '', '', '');
 
 INSERT INTO datamart_browsing_controls(`id1`, `id2`, `use_field`) VALUES
 (1, 3, 'ViewAliquot.storage_master_id'),
@@ -150,6 +152,7 @@ CREATE TABLE datamart_browsing_results(
   `user_id` int UNSIGNED NOT NULL,
   `parent_node_id` tinyint UNSIGNED,
   `browsing_structures_id` int UNSIGNED,
+  `browsing_structures_sub_id` int UNSIGNED DEFAULT 0,
   `raw` boolean NOT NULL,
   `serialized_search_params` text NOT NULL,
   `id_csv` text NOT NULL,
@@ -167,6 +170,7 @@ CREATE TABLE datamart_browsing_results_revs(
   `user_id` int UNSIGNED NOT NULL,
   `parent_node_id` tinyint UNSIGNED,
   `browsing_structures_id` int UNSIGNED,
+  `browsing_structures_sub_id` int UNSIGNED DEFAULT 0,
   `raw` boolean NOT NULL,
   `serialized_search_params` text NOT NULL,
   `id_csv` text NOT NULL,
@@ -1586,14 +1590,14 @@ UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FRO
 UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='QualityCtrl' AND tablename='quality_ctrls' AND field='conclusion' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='quality_control_conclusion'));
 UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='QualityCtrl' AND tablename='quality_ctrls' AND field='qc_code' AND type='input' AND structure_value_domain  IS NULL );
 
-INSERT INTO datamart_structures (`id`, `plugin`, `model`, `structure_id`, `display_name`, `use_key`) VALUES
-(7, 'Inventorymanagement', 'AliquotUse', (SELECT id FROM structures WHERE alias='aliquotuses'), 'aliquot uses', 'id'),
-(8, 'Clinicalannotation', 'ConsentMaster', (SELECT id FROM structures WHERE alias='consent_masters'), 'consents', 'id'),
-(9, 'Clinicalannotation', 'DiagnosisMaster', (SELECT id FROM structures WHERE alias='diagnosismasters'), 'diagnosis', 'id'),
-(10, 'Clinicalannotation', 'TreatmentMaster', (SELECT id FROM structures WHERE alias='treatmentmasters'), 'treatments', 'id'),
-(11, "Clinicalannotation", "FamilyHistory", (SELECT id FROM structures WHERE alias='familyhistories'), 'family histories' , 'id'),
-(12, "Clinicalannotation", "ParticipantMessage", (SELECT id FROM structures WHERE alias='participantmessages'), 'participant messages', 'id'),
-(13, 'Inventorymanagement', "QualityCtrl", (SELECT id FROM structures WHERE alias='qualityctrls'), 'quality controls', 'id');
+INSERT INTO datamart_structures (`id`, `plugin`, `model`, `structure_id`, `display_name`, `use_key`, `control_model`, `control_master_model`, `control_field`) VALUES
+(7, 'Inventorymanagement', 'AliquotUse', (SELECT id FROM structures WHERE alias='aliquotuses'), 'aliquot uses', 'id', '', '', ''),
+(8, 'Clinicalannotation', 'ConsentMaster', (SELECT id FROM structures WHERE alias='consent_masters'), 'consents', 'id', '', '', ''),
+(9, 'Clinicalannotation', 'DiagnosisMaster', (SELECT id FROM structures WHERE alias='diagnosismasters'), 'diagnosis', 'id', '', '', ''),
+(10, 'Clinicalannotation', 'TreatmentMaster', (SELECT id FROM structures WHERE alias='treatmentmasters'), 'treatments', 'id', '', '', ''),
+(11, "Clinicalannotation", "FamilyHistory", (SELECT id FROM structures WHERE alias='familyhistories'), 'family histories' , 'id', '', '', ''),
+(12, "Clinicalannotation", "ParticipantMessage", (SELECT id FROM structures WHERE alias='participantmessages'), 'participant messages', 'id', '', '', ''),
+(13, 'Inventorymanagement', "QualityCtrl", (SELECT id FROM structures WHERE alias='qualityctrls'), 'quality controls', 'id', '', '', '');
 
 INSERT INTO datamart_browsing_controls(`id1`, `id2`, `use_field`) VALUES
 (7, 1, 'AliquotUse.aliquot_master_id'),
@@ -2733,3 +2737,17 @@ ALTER TABLE tx_masters
 	ADD CONSTRAINT `FK_tx_masters_tx_controls` FOREIGN KEY (`tx_control_id`) REFERENCES `tx_controls` (`id`);
 ALTER TABLE tx_masters_revs
   	CHANGE `treatment_control_id` `tx_control_id` int(11) NOT NULL DEFAULT '0';  
+
+ALTER TABLE aliquot_controls
+ ADD COLUMN databrowser_label VARCHAR(50) NOT NULL DEFAULT '';
+UPDATE aliquot_controls SET databrowser_label=comment;
+
+ALTER TABLE sample_controls
+ ADD COLUMN databrowser_label VARCHAR(50) NOT NULL DEFAULT '';
+UPDATE sample_controls SET databrowser_label=sample_type;
+
+ALTER TABLE storage_controls
+ ADD COLUMN databrowser_label VARCHAR(50) NOT NULL DEFAULT '';
+UPDATE storage_controls SET databrowser_label=storage_type;
+
+DROP TABLE coding_icdo_3;

@@ -9,20 +9,35 @@ class Browser extends DatamartAppModel {
 	static $hierarchical_dropdown = false;
 	
 	/**
-	 * Returns an array representing the options to display in the action drop down
-	 * @param The initial control_id
+	 * The character used to separate model ids in the url 
+	 * @var string
 	 */
-	function getDropdownOptions($getDropdownOptions, $node_id, $plugin_name = null, $model_name = null, $model_pkey = null, $structure_name = null){
+	static $model_separator_str = "_";
+	
+	/**
+	 * The character used to separate sub model id in the url
+	 * @var string
+	 */
+	static $sub_model_separator_str = "-";
+	
+	/**
+	 * @param int $starting_ctrl_id The control id to base the dropdown on. If zero, all will be displayed without export options
+	 * @param int $node_id The current node id. 
+	 * @param string $plugin_name The name of the plugin to use in export to csv link
+	 * @param string $model_name The name of the model to use in export to csv link
+	 * @param string $structure_name The name of the structure to use in export to csv link
+	 * @return Returns an array representing the options to display in the action drop down 
+	 */
+	function getDropdownOptions($starting_ctrl_id, $node_id, $plugin_name = null, $model_name = null, $model_pkey = null, $structure_name = null){
+		$app_controller = AppController::getInstance();
 		if(!App::import('Model', 'Datamart.DatamartStructure')){
-			$this->redirect( '/pages/err_model_import_failed?p[]=Datamart.DatamartStructure', NULL, TRUE );
+			$app_controller->redirect( '/pages/err_model_import_failed?p[]=Datamart.DatamartStructure', NULL, TRUE );
 		}
 		$DatamartStructure = new DatamartStructure();
-		if($getDropdownOptions != 0){
+		if($starting_ctrl_id != 0){
 			if($plugin_name == null || $model_name == null || $model_pkey == null || $structure_name == null){
-				$app_controller = AppController::getInstance();
 				$app_controller->redirect( '/pages/err_internal?p[]=missing parameter for getDropdownOptions', null, true);
 			}
-			$browsing_structures = $DatamartStructure->find('list', array('fields' => array('DatamartStructure.display_name')));
 			//the query contains a useless CONCAT to counter a cakephp behavior
 			$data = $this->query(
 				"SELECT CONCAT(main_id, '') AS main_id, GROUP_CONCAT(to_id SEPARATOR ',') AS to_id FROM( "
@@ -33,7 +48,14 @@ class Browser extends DatamartAppModel {
 			foreach($data as $data_unit){
 				$options[$data_unit[0]['main_id']] = explode(",", $data_unit[0]['to_id']);
 			}
-			$rez = Browser::buildBrowsableOptions($options, array(), $getDropdownOptions, $browsing_structures);
+			
+			$browsing_structures = $DatamartStructure->find('all');
+			$tmp_arr = array();
+			foreach($browsing_structures as $unit){
+				$tmp_arr[$unit['DatamartStructure']['id']] = $unit['DatamartStructure'];
+			}
+			$browsing_structures = $tmp_arr;
+			$rez = Browser::buildBrowsableOptions($options, array(), $starting_ctrl_id, $browsing_structures);
 			$result[] = array(
 				'value' => '',
 				'default' => __('browse', true),
@@ -52,19 +74,17 @@ class Browser extends DatamartAppModel {
 		}else{
 			$data = $DatamartStructure->find('all');
 			foreach($data as $data_unit){
-				$result[] = array(
+				$tmp_result = array(
 					'value' => $data_unit['DatamartStructure']['id'], 
 					'default' => __($data_unit['DatamartStructure']['display_name'], true),
 					'class' => $data_unit['DatamartStructure']['display_name'],
 					'action' => 'datamart/browser/browse/'.$node_id.'/',
-					'children' => array(
-							array(
-								'value' => $data_unit['DatamartStructure']['id'],
-								'default' => __('filter', true)),
-							array(
-								'value' => $data_unit['DatamartStructure']['id']."/true/",
-								'default' => __('no filter', true))
-								));
+					);
+					if(strlen($data_unit['DatamartStructure']['control_model']) > 0){
+						$tmp_result['children'] = self::getSubModels($data_unit, $data_unit['DatamartStructure']['id']);
+					}
+					
+				$result[] = $tmp_result;
 			}
 		}
 		return $result;
@@ -78,30 +98,33 @@ class Browser extends DatamartAppModel {
 	 * @param array $browsing_structures An array containing data about all available browsing structures. Used to get the displayed value
 	 * @return An array representing the browsable portion of the action menu
 	 */
-	static function buildBrowsableOptions(array $from_to, array $stack, $current_id, array $browsing_structures){
+	function buildBrowsableOptions(array $from_to, array $stack, $current_id, array $browsing_structures){
 		$result = array();
 		array_push($stack, $current_id);
 		$to_arr = array_diff($from_to[$current_id], $stack);
-		$result['default'] = __($browsing_structures[$current_id], true);
-		$result['class'] = $browsing_structures[$current_id];
+		$result['default'] = __($browsing_structures[$current_id]['display_name'], true);
+		$result['class'] = $browsing_structures[$current_id]['display_name'];
 		$tmp = array_shift($stack);
-		$result['value'] = implode("_", $stack);
+		$result['value'] = implode(self::$model_separator_str, $stack);
 		array_unshift($stack, $tmp);
 		if(count($stack) > 1){
-		$result['children'] = array(
+			$result['children'] = array(
 							array(
 								'value' => $result['value'],
 								'default' => __('filter', true)),
 							array(
 								'value' => $result['value']."/true/",
-								'default' => __('no filter', true)),
-								);
+								'default' => __('no filter', true))
+							);
+			if(strlen($browsing_structures[$current_id]['control_model']) > 0){
+				$result['children'] = array_merge($result['children'], self::getSubModels(array("DatamartStructure" => $browsing_structures[$current_id]), $result['value']));
+			}
 		}
 		foreach($to_arr as $to){
 			if(Browser::$hierarchical_dropdown){
-				$result['children'][] = Browser::buildBrowsableOptions($from_to, $stack, $to, $browsing_structures);
+				$result['children'][] = $this->buildBrowsableOptions($from_to, $stack, $to, $browsing_structures);
 			}else{
-				$tmp_result = Browser::buildBrowsableOptions($from_to, $stack, $to, $browsing_structures);
+				$tmp_result = $this->buildBrowsableOptions($from_to, $stack, $to, $browsing_structures);
 				if(isset($tmp_result['children'])){
 					foreach($tmp_result['children'] as $key => $child){
 						if(isset($child['children'])){
@@ -118,9 +141,31 @@ class Browser extends DatamartAppModel {
 	}
 	
 	/**
+	 * @param array $main_model_info A DatamartStructure model data array of the node to fetch the submodels of
+	 * @return array The data about the submodels of the given model
+	 */
+	static function getSubModels(array $main_model_info, $prepend_value){
+		//we need to fetch the controls
+		if(!App::import('Model', $main_model_info['DatamartStructure']['plugin'].".".$main_model_info['DatamartStructure']['control_model'])){
+			$app_controller->redirect( '/pages/err_model_import_failed?p[]='.$main_model_info['DatamartStructure']['plugin'].".".$main_model_info['DatamartStructure']['control_model'], NULL, TRUE );
+		}
+		$control_model = new $main_model_info['DatamartStructure']['control_model']();
+		$children_data = $control_model->find('all', array('order' => $main_model_info['DatamartStructure']['control_model'].'.databrowser_label'));
+		$children_arr = array();
+		foreach($children_data as $child_data){
+			$children_arr[] = array(
+								'value' => $prepend_value.self::$sub_model_separator_str.$child_data[$main_model_info['DatamartStructure']['control_model']]['id'],
+								'default' => __($child_data[$main_model_info['DatamartStructure']['control_model']]['databrowser_label'], true)
+			);
+		}
+		return $children_arr;
+	}
+	
+	/**
 	 * Recursively builds a tree node by node.
 	 * @param Int $node_id The node id to fetch
 	 * @param Int $active_node The node to hihglight in the graph
+	 * @return An array representing the search tree
 	 */
 	static function getTree($node_id, $active_node){
 		$BrowsingResult = new BrowsingResult();
@@ -145,7 +190,7 @@ class Browser extends DatamartAppModel {
 	/**
 	 * Builds a representation of the tree within an array
 	 * @param array $tree_node A node and its informations
-	 * @param array $tree An array with the current tree representation
+	 * @param array &$tree An array with the current tree representation
 	 * @param Int $x The current x location
 	 * @param Int $y The current y location
 	 */
@@ -199,9 +244,9 @@ class Browser extends DatamartAppModel {
 	}
 	
 	/**
-	 * Builds an html tree based in a table
 	 * @param Int $current_node The id of the current node. Its path will be highlighted
 	 * @param String $webroot_url The webroot of ATiM
+	 * @return the html of the table search tree
 	 */
 	static function getPrintableTree($current_node, $webroot_url){
 		$result = "";
@@ -248,7 +293,16 @@ class Browser extends DatamartAppModel {
 					if($cell['BrowsingResult']['raw']){
 						$search = unserialize($cell['BrowsingResult']['serialized_search_params']);
 						if(count($search)){
-							$info .= __("search", true)."<br/><br/>".Browser::formatSearchToPrint($search, $cell['DatamartStructure']['structure_id']);
+							$structure_id_to_load = null;
+							if(strlen($cell['DatamartStructure']['control_model']) > 0 && $cell['BrowsingResult']['browsing_structures_sub_id'] > 0){
+								//alternate structure required
+								$alternate_alias = self::getAlternateStructureAlias($cell['DatamartStructure']['plugin'], $cell['DatamartStructure']['control_model'], $cell['BrowsingResult']['browsing_structures_sub_id']);
+								$alternate_structure = StructuresComponent::$singleton->get('form', $alternate_alias);
+							 	$structure_id_to_load = $alternate_structure['Structure']['id'];
+							}else{
+								$structure_id_to_load = $cell['DatamartStructure']['structure_id'];
+							}
+							$info .= __("search", true)."<br/><br/>".Browser::formatSearchToPrint($search, $structure_id_to_load);
 						}else{
 							$info .= __("direct access", true);
 						}
@@ -270,7 +324,9 @@ class Browser extends DatamartAppModel {
 	
 	/**
 	 * Formats the search params array and returns it into a table
-	 * @param The search params array
+	 * @param array $search_params The search params array
+	 * @param Int $structure_id The structure id to base the search params on
+	 * @return An html string of a table containing the search formated params
 	 */
 	static function formatSearchToPrint(array $search_params, $structure_id){
 		$params = $search_params['search_conditions'];
@@ -316,10 +372,12 @@ class Browser extends DatamartAppModel {
 				list($model, $field) = explode(".", $key);
 			}else{
 				//it's a range
-				//key = field >= 
+				//key = field with possibly a comparison (field >=, field <=), if no comparison, it's = 
 				//value = value_str
 				$values[] = strpos($value_element, "-") ? AppController::getFormatedDatetimeString($value_element) : $value_element;
-				list($key, $name_suffix) = explode(" ", $key);
+				if(strpos($key, " ") !== false){
+					list($key, $name_suffix) = explode(" ", $key);
+				}
 				list($model, $field) = explode(".", $key);
 			}
 			foreach($sf['SimplifiedField'] as $sf_unit){
@@ -349,5 +407,20 @@ class Browser extends DatamartAppModel {
 		$result .= "<tr><th>".__("exact search", true)."</th><td>".($search_params['exact_search'] ? __("yes", true) : __('no', true))."</td>\n";
 		$result .= "</table>";
 		return $result;
+	}
+	
+	/**
+	 * @param string $plugin The name of the plugin to search on
+	 * @param string $model The name of the model to search on
+	 * @param int $id The id of the alternate structure to retrieve
+	 * @return string The alias of the alternate structure
+	 */
+	static function getAlternateStructureAlias($plugin, $model, $id){
+		if(!App::import('Model', $plugin.".".$model)){
+			AppController::getInstance()->redirect( '/pages/err_model_import_failed?p[]='.$plugin.".".$model, NULL, TRUE );
+		}
+		$model_to_use = new $model();
+		$data = $model_to_use->find('first', array('conditions' => array($model.".id" => $id)));
+		return $data[$model]['form_alias'];
 	}
 }
