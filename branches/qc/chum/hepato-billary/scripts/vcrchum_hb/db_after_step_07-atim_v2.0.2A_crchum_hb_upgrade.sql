@@ -1,24 +1,3 @@
--- phpMyAdmin SQL Dump
--- version 3.2.0.1
--- http://www.phpmyadmin.net
---
--- Host: localhost
--- Generation Time: Oct 01, 2010 at 05:38 PM
--- Server version: 5.1.36
--- PHP Version: 5.3.0
-
-SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
-
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8 */;
-
---
--- Database: `qc_chum_hb`
---
-
 SET FOREIGN_KEY_CHECKS=0;
 
 -- DROP tables
@@ -19318,7 +19297,7 @@ CREATE TABLE IF NOT EXISTS `versions` (
 --
 
 INSERT INTO `versions` (`id`, `version_number`, `date_installed`, `build_number`, `created`, `created_by`, `modified`, `modified_by`) VALUES
-(1, 'v2.0.2A', '2010-10-01 00:00:00', '1485', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+(1, 'v2.0.2A', '2010-10-04 00:00:00', '1485', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
 
 -- --------------------------------------------------------
 
