@@ -45,6 +45,7 @@ class UsersController extends AdministrateAppController {
 					$this->User->validationErrors[] = __('password and password validation do not match', true);
 				}
 				$this->data['User']['group_id'] = $group_id;
+				$this->data['User']['flag_active'] = true;
 				
 				$hook_link = $this->hook('presave_process');
 				if( $hook_link ) { 
