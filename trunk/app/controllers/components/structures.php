@@ -76,7 +76,6 @@ class StructuresComponent extends Object {
 	}
 	
 	function parse_search_conditions( $atim_structure=NULL ) {
-		
 		// conditions to ultimately return
 		$conditions = array();
 		
@@ -299,8 +298,6 @@ class StructuresComponent extends Object {
 					$warning_in = true;
 					AppController::addWarningMsg(__("this query is using the IN keyword which goes against the ad hoc queries rules", true));
 				}
-				
-				$sql_without_search_terms = str_replace( '@@'.$str_to_replace.'@@', '', $sql_without_search_terms );
 			}
 		}
 		
