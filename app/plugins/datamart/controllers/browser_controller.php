@@ -304,6 +304,7 @@ class BrowserController extends DatamartAppController {
 				$this->Structures->set("datamart_browser_start");
 				$this->set('top', "/datamart/browser/browse/".$save['BrowsingResult']['id']."/");
 				$this->set('parent_node', $parent_node);
+			
 			}else{
 				//search screen
 				$this->set('type', "search");
@@ -318,6 +319,9 @@ class BrowserController extends DatamartAppController {
 				$this->set('top', "/datamart/browser/browse/".$parent_node."/".$last_control_id."/");
 				$this->set('parent_node', $parent_node);
 			}
+		}
+		if(isset($browsing)){
+			$this->set("header", array("title" => __("search", true), "description" => __($browsing['DatamartStructure']['display_name'], true)));
 		}
 	}
 	
