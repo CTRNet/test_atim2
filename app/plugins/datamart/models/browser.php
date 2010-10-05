@@ -296,7 +296,8 @@ class Browser extends DatamartAppModel {
 							$structure_id_to_load = null;
 							if(strlen($cell['DatamartStructure']['control_model']) > 0 && $cell['BrowsingResult']['browsing_structures_sub_id'] > 0){
 								//alternate structure required
-								$alternate_alias = self::getAlternateStructureAlias($cell['DatamartStructure']['plugin'], $cell['DatamartStructure']['control_model'], $cell['BrowsingResult']['browsing_structures_sub_id']);
+								$alternate_alias = self::getAlternateStructureInfo($cell['DatamartStructure']['plugin'], $cell['DatamartStructure']['control_model'], $cell['BrowsingResult']['browsing_structures_sub_id']);
+								$alternate_alias = $alternate_alias['form_alias'];
 								$alternate_structure = StructuresComponent::$singleton->get('form', $alternate_alias);
 							 	$structure_id_to_load = $alternate_structure['Structure']['id'];
 							}else{
@@ -413,14 +414,14 @@ class Browser extends DatamartAppModel {
 	 * @param string $plugin The name of the plugin to search on
 	 * @param string $model The name of the model to search on
 	 * @param int $id The id of the alternate structure to retrieve
-	 * @return string The alias of the alternate structure
+	 * @return string The info of the alternate structure
 	 */
-	static function getAlternateStructureAlias($plugin, $model, $id){
+	static function getAlternateStructureInfo($plugin, $model, $id){
 		if(!App::import('Model', $plugin.".".$model)){
 			AppController::getInstance()->redirect( '/pages/err_model_import_failed?p[]='.$plugin.".".$model, NULL, TRUE );
 		}
 		$model_to_use = new $model();
 		$data = $model_to_use->find('first', array('conditions' => array($model.".id" => $id)));
-		return $data[$model]['form_alias'];
+		return $data[$model];
 	}
 }
