@@ -3114,3 +3114,54 @@ AND structure_field_id IN (
 
 UPDATE structure_value_domains SET source = 'Storagelayout.StorageControl::getStorageTypePermissibleValues' WHERE source = 'StorageLayout.StorageControl::getStorageTypePermissibleValues';
 UPDATE structure_value_domains SET source = 'Storagelayout.StorageMaster::getParentStoragePermissibleValues' WHERE source = 'StorageLayout.StorageMaster::getParentStoragePermissibleValues';
+
+-- Add  event into databrowser
+
+INSERT INTO `datamart_structures` 
+(`id`, `plugin`, `model`, `structure_id`, `display_name`, `use_key`, `control_model`, `control_master_model`, `control_field`) 
+VALUES
+(null, 'Clinicalannotation', 'EventMaster', (SELECT id FROM structures WHERE alias = 'eventmasters'), 'annotation', 'id', 'EventControl', 'EventMaster', 'event_control_id');
+ALTER TABLE `event_controls`
+  ADD `databrowser_label` varchar(50) NOT NULL DEFAULT '' AFTER `display_order`;
+UPDATE event_controls SET databrowser_label = concat(event_group,'|',disease_site,'|',event_type);
+
+INSERT INTO datamart_browsing_controls (id1, id2, flag_active_1_to_2 ,flag_active_2_to_1, use_field)
+VALUES
+((SELECT id FROM datamart_structures WHERE model = 'EventMaster'), (SELECT id FROM datamart_structures WHERE model = 'Participant'), '1', '1', 'EventMaster.participant_id');
+
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='eventmasters')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('event_date', 'disease_site', 'event_type') AND model LIKE 'EventMaster')
+);
+
+-- 	ed_breast_lab_pathology
+
+UPDATE structure_formats SET flag_search = '1',flag_index = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ed_breast_lab_pathology')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('event_date') AND model LIKE 'EventMaster') 
+  OR (field IN ('tumour_type', 'grade', 'multifocal', 'vascular_lymph_invasion', 'extra_nodal_invasion', 'level_nodal_involvement') AND model LIKE 'EventDetail')
+); 
+
+-- 	ed_all_clinical_followup
+-- 	ed_all_clinical_presentation
+-- 	ed_all_lifestyle_smoking
+-- 	ed_all_adverse_events_adverse_event
+-- 	ed_breast_screening_mammogram
+-- 	ed_all_protocol_followup
+-- 	ed_all_study_research
+
+
+
+
+
+
+
+
+
+
+
+
