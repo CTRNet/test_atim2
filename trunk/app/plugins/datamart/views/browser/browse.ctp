@@ -26,15 +26,17 @@
 			$links['checklist'] = array(
 					$checklist_key_name.']['=>'%%'.$checklist_key.'%%'
 			);
-			$structures->build($result_structure, array('type' => $type, 'links' => $links, 'settings' => array('form_bottom' => false, 'actions' => false, 'pagination' => false, 'form_inputs'=>false)));
+			$tmp_header = isset($header) ? $header : "";
+			$header = "";
+			$structures->build($result_structure, array('type' => $type, 'links' => $links, 'settings' => array('form_bottom' => false, 'actions' => false, 'pagination' => false, 'form_inputs'=>false, 'header' => $tmp_header)));
 		}
-			$is_datagrid = true;
-			$type = "add";
+		$is_datagrid = true;
+		$type = "add";
 	}else{
 		$is_datagrid = false;
 	}
 	$links['top'] = $top;
-	$structures->build($atim_structure, array('type' => $type, 'links' => $links, 'data' => array(), 'settings' => array('form_top' => !$is_datagrid)));
+	$structures->build($atim_structure, array('type' => $type, 'links' => $links, 'data' => array(), 'settings' => array('form_top' => !$is_datagrid, "header" => (isset($header) ? $header : ""))));
 ?>
 <script type="text/javascript">
 var browser = true;
