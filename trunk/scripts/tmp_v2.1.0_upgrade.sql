@@ -2769,3 +2769,345 @@ UNIQUE(`name`)
 
 INSERT INTO external_links (name, link) VALUES
 ('permissions_help', 'http://www.ctrnet.ca/mediawiki/index.php/Permissions_configuration');
+
+-- Set structure_formats.flag_search = '1' for all forms used into the databrowser
+
+UPDATE aliquot_controls SET databrowser_label = aliquot_type;
+
+-- ad_spec_whatman_papers
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ad_spec_whatman_papers')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('barcode', 'in_stock', 'in_stock_detail', 'storage_datetime', 'study_summary_id', 'created') AND model LIKE 'AliquotMaster') 
+  OR (field IN ('temp_unit', 'temperature', 'code', 'selection_label') AND model LIKE 'StorageMaster')
+);
+
+-- ad_der_cel_gel_matrices
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ad_der_cel_gel_matrices')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('barcode', 'in_stock', 'in_stock_detail', 'storage_datetime', 'study_summary_id', 'created') AND model LIKE 'AliquotMaster') 
+  OR (field IN ('temp_unit', 'temperature', 'code', 'selection_label') AND model LIKE 'StorageMaster')
+  OR (field IN ('cell_count_unit', 'cell_count') AND model LIKE 'AliquotDetail')
+);
+
+-- ad_der_cell_slides
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ad_der_cell_slides')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('barcode', 'in_stock', 'in_stock_detail', 'storage_datetime', 'study_summary_id', 'created') AND model LIKE 'AliquotMaster') 
+  OR (field IN ('temp_unit', 'temperature', 'code', 'selection_label') AND model LIKE 'StorageMaster')
+  OR (field IN ('immunochemistry') AND model LIKE 'AliquotDetail')
+);
+
+-- ad_der_tubes_incl_ml_vol
+SET @first_id = (SELECT id FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias='ad_der_tubes_incl_ml_vol')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('created') AND model LIKE 'AliquotMaster')
+) LIMIT 0,1);
+DELETE FROM structure_formats WHERE  id = @first_id;
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ad_der_tubes_incl_ml_vol')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('barcode', 'in_stock', 'in_stock_detail', 'storage_datetime', 'study_summary_id', 'created') AND model LIKE 'AliquotMaster') 
+  OR (field IN ('temp_unit', 'temperature', 'code', 'selection_label') AND model LIKE 'StorageMaster')
+  OR (field IN ('current_volume') AND model LIKE 'AliquotMaster')
+);
+
+-- ad_spec_tubes
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ad_spec_tubes')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('barcode', 'in_stock', 'in_stock_detail', 'storage_datetime', 'study_summary_id', 'created') AND model LIKE 'AliquotMaster') 
+  OR (field IN ('temp_unit', 'temperature', 'code', 'selection_label') AND model LIKE 'StorageMaster')
+);
+
+-- ad_spec_tubes_incl_ml_vol
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ad_spec_tubes_incl_ml_vol')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('barcode', 'in_stock', 'in_stock_detail', 'storage_datetime', 'study_summary_id', 'created') AND model LIKE 'AliquotMaster') 
+  OR (field IN ('temp_unit', 'temperature', 'code', 'selection_label') AND model LIKE 'StorageMaster')
+  OR (field IN ('current_volume') AND model LIKE 'AliquotMaster')
+);
+
+-- ad_spec_tiss_blocks
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('barcode', 'in_stock', 'in_stock_detail', 'storage_datetime', 'study_summary_id', 'created') AND model LIKE 'AliquotMaster') 
+  OR (field IN ('temp_unit', 'temperature', 'code', 'selection_label') AND model LIKE 'StorageMaster')
+  OR (field IN ('block_type') AND model LIKE 'AliquotDetail')
+);
+
+-- ad_spec_tiss_slides
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ad_spec_tiss_slides')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('barcode', 'in_stock', 'in_stock_detail', 'storage_datetime', 'study_summary_id', 'created') AND model LIKE 'AliquotMaster') 
+  OR (field IN ('temp_unit', 'temperature', 'code', 'selection_label') AND model LIKE 'StorageMaster')
+  OR (field IN ('immunochemistry') AND model LIKE 'AliquotDetail')
+);
+
+-- ad_der_tubes_incl_ul_vol_and_conc
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ad_der_tubes_incl_ul_vol_and_conc')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('barcode', 'in_stock', 'in_stock_detail', 'storage_datetime', 'study_summary_id', 'created') AND model LIKE 'AliquotMaster') 
+  OR (field IN ('temp_unit', 'temperature', 'code', 'selection_label') AND model LIKE 'StorageMaster')
+  OR (field IN ('current_volume') AND model LIKE 'AliquotMaster')
+  OR (field IN ('concentration', 'concentration_unit') AND model LIKE 'AliquotDetail')
+);
+
+-- ad_spec_tiss_cores
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ad_spec_tiss_cores')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('barcode', 'in_stock', 'in_stock_detail', 'storage_datetime', 'study_summary_id', 'created') AND model LIKE 'AliquotMaster') 
+  OR (field IN ('temp_unit', 'temperature', 'code', 'selection_label') AND model LIKE 'StorageMaster')
+);
+
+-- ad_der_cell_cores
+DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias='ad_der_cell_cores')
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'created' AND model LIKE 'AliquotMaster');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_der_cell_cores'), 
+(SELECT id FROM structure_fields WHERE field LIKE 'created' AND model LIKE 'AliquotMaster'), 
+'1', '77', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '1'); 
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_der_cell_cores'), 
+(SELECT id FROM structure_fields WHERE field LIKE 'barcode' AND model LIKE 'AliquotMaster' AND type = 'input'), 
+'0', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '1', '1', '0', '1', '0', '1', '1'); 
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ad_der_cell_cores')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('barcode', 'in_stock', 'in_stock_detail', 'storage_datetime', 'study_summary_id', 'created') AND model LIKE 'AliquotMaster') 
+  OR (field IN ('temp_unit', 'temperature', 'code', 'selection_label') AND model LIKE 'StorageMaster')
+);
+
+-- ad_der_cell_tubes_incl_ml_vol
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ad_der_cell_tubes_incl_ml_vol')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('barcode', 'in_stock', 'in_stock_detail', 'storage_datetime', 'study_summary_id', 'created') AND model LIKE 'AliquotMaster') 
+  OR (field IN ('temp_unit', 'temperature', 'code', 'selection_label') AND model LIKE 'StorageMaster')
+  OR (field IN ('current_volume') AND model LIKE 'AliquotMaster')
+  OR (field IN ('concentration', 'concentration_unit', 'cell_count', 'cell_count_unit') AND model LIKE 'AliquotDetail')
+);
+
+UPDATE datamart_structures SET control_model = '', control_master_model = '', control_field = '' WHERE plugin = 'Storagelayout' AND model = 'StorageMaster';
+
+-- 	sd_spe_ascites
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='sd_spe_ascites')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('sample_code') AND model LIKE 'SampleMaster') 
+  OR (field IN ('supplier_dept', 'reception_by', 'reception_datetime') AND model LIKE 'SpecimenDetail')
+);
+
+-- 	sd_spe_bloods
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='sd_spe_bloods')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('sample_code') AND model LIKE 'SampleMaster') 
+  OR (field IN ('supplier_dept', 'reception_by', 'reception_datetime') AND model LIKE 'SpecimenDetail')
+  OR (field IN ('blood_type') AND model LIKE 'SampleDetail')
+);
+
+-- 	sd_spe_cystic_fluids
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='sd_spe_cystic_fluids')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('sample_code') AND model LIKE 'SampleMaster') 
+  OR (field IN ('supplier_dept', 'reception_by', 'reception_datetime') AND model LIKE 'SpecimenDetail')
+);
+
+-- 	sd_spe_peritoneal_washes
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='sd_spe_peritoneal_washes')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('sample_code') AND model LIKE 'SampleMaster') 
+  OR (field IN ('supplier_dept', 'reception_by', 'reception_datetime') AND model LIKE 'SpecimenDetail')
+);
+
+-- 	sd_spe_pericardial_fluids
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='sd_spe_pericardial_fluids')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('sample_code') AND model LIKE 'SampleMaster') 
+  OR (field IN ('supplier_dept', 'reception_by', 'reception_datetime') AND model LIKE 'SpecimenDetail')
+);
+
+-- 	sd_spe_pleural_fluids
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='sd_spe_pleural_fluids')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('sample_code') AND model LIKE 'SampleMaster') 
+  OR (field IN ('supplier_dept', 'reception_by', 'reception_datetime') AND model LIKE 'SpecimenDetail')
+);
+
+-- 	sd_spe_tissues
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='sd_spe_tissues')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('sample_code') AND model LIKE 'SampleMaster') 
+  OR (field IN ('supplier_dept', 'reception_by', 'reception_datetime') AND model LIKE 'SpecimenDetail')
+  OR (field IN ('tissue_source', 'tissue_laterality', 'pathology_reception_datetime') AND model LIKE 'SampleDetail')
+);
+
+-- 	sd_spe_urines
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='sd_spe_urines')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('sample_code') AND model LIKE 'SampleMaster') 
+  OR (field IN ('supplier_dept', 'reception_by', 'reception_datetime') AND model LIKE 'SpecimenDetail')
+  OR (field IN ('urine_aspect', 'pellet_signs') AND model LIKE 'SampleDetail')
+);
+
+-- 	sd_der_cell_cultures
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='sd_der_cell_cultures')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('sample_code', 'initial_specimen_sample_type') AND model LIKE 'SampleMaster') 
+  OR (field IN ('creation_datetime', 'creation_by', 'creation_site') AND model LIKE 'DerivativeDetail')
+  OR (field IN ('culture_status', 'cell_passage_number') AND model LIKE 'SampleDetail')
+);
+
+-- 	sd_der_plasmas
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='sd_der_plasmas')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('sample_code', 'initial_specimen_sample_type') AND model LIKE 'SampleMaster') 
+  OR (field IN ('creation_datetime', 'creation_by', 'creation_site') AND model LIKE 'DerivativeDetail')
+  OR (field IN ('hemolysis_signs') AND model LIKE 'SampleDetail')
+);
+
+-- 	sd_der_serums
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='sd_der_serums')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('sample_code', 'initial_specimen_sample_type') AND model LIKE 'SampleMaster') 
+  OR (field IN ('creation_datetime', 'creation_by', 'creation_site') AND model LIKE 'DerivativeDetail')
+  OR (field IN ('hemolysis_signs') AND model LIKE 'SampleDetail')
+);
+
+-- 	sd_undetailed_derivatives
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='sd_undetailed_derivatives')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('sample_code', 'initial_specimen_sample_type') AND model LIKE 'SampleMaster') 
+  OR (field IN ('creation_datetime', 'creation_by', 'creation_site') AND model LIKE 'DerivativeDetail')
+);
+
+UPDATE datamart_structures SET control_model = 'TreatmentControl', control_master_model = 'TreatmentMaster', control_field = 'tx_control_id' WHERE plugin = 'Clinicalannotation' AND model = 'TreatmentMaster';
+ALTER TABLE `tx_controls`
+  ADD `databrowser_label` varchar(50) NOT NULL DEFAULT '' AFTER `extended_data_import_process`;
+UPDATE tx_controls SET databrowser_label = CONCAT(disease_site,'|',tx_method);
+
+-- txd_chemos
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='txd_chemos')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('tx_intent', 'target_site_icdo', 'protocol_master_id', 'start_date') AND model LIKE 'TreatmentMaster') 
+  OR (field IN ('chemo_completed', 'response', 'num_cycles', 'length_cycles', 'completed_cycles') AND model LIKE 'TreatmentDetail')
+);
+UPDATE structure_formats SET flag_index = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='txd_chemos')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('tx_method', 'tx_intent', 'target_site_icdo', 'protocol_master_id', 'start_date') AND model LIKE 'TreatmentMaster') 
+  OR (field IN ('chemo_completed', 'response', 'num_cycles', 'length_cycles', 'completed_cycles') AND model LIKE 'TreatmentDetail')
+);
+
+-- txd_radiations
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='txd_radiations')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('tx_intent', 'target_site_icdo', 'protocol_master_id', 'start_date') AND model LIKE 'TreatmentMaster') 
+  OR (field IN ('rad_completed') AND model LIKE 'TreatmentDetail')
+);
+UPDATE structure_formats SET flag_index = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='txd_radiations')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('tx_method', 'tx_intent', 'target_site_icdo', 'protocol_master_id', 'start_date') AND model LIKE 'TreatmentMaster') 
+  OR (field IN ('rad_completed') AND model LIKE 'TreatmentDetail')
+);
+
+-- txd_surgeries
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='txd_surgeries')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('tx_intent', 'target_site_icdo', 'protocol_master_id', 'start_date') AND model LIKE 'TreatmentMaster') 
+  OR (field IN ('path_num') AND model LIKE 'TreatmentDetail')
+);
+UPDATE structure_formats SET flag_index = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='txd_surgeries')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('tx_method', 'tx_intent', 'target_site_icdo', 'protocol_master_id', 'start_date') AND model LIKE 'TreatmentMaster') 
+  OR (field IN ('path_num') AND model LIKE 'TreatmentDetail')
+); 
+
+UPDATE datamart_structures SET control_model = 'ConsentControl', control_master_model = 'ConsentMaster', control_field = 'consent_control_id' WHERE plugin = 'Clinicalannotation' AND model = 'ConsentMaster';
+ALTER TABLE `consent_controls`
+  ADD `databrowser_label` varchar(50) NOT NULL DEFAULT '' AFTER `display_order`;
+UPDATE consent_controls SET databrowser_label = controls_type;
+
+-- cd_nationals
+UPDATE structure_formats SET flag_search = '1',  flag_index = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='cd_nationals')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('date_first_contact', 'form_version', 'consent_status', 'status_date', 'consent_signed_date') AND model LIKE 'ConsentMaster')
+);
+
+UPDATE datamart_structures SET control_model = 'DiagnosisControl', control_master_model = 'DiagnosisMaster', control_field = 'diagnosis_control_id' WHERE plugin = 'Clinicalannotation' AND model = 'DiagnosisMaster';
+ALTER TABLE `diagnosis_controls`
+  ADD `databrowser_label` varchar(50) NOT NULL DEFAULT '' AFTER `display_order`;
+UPDATE diagnosis_controls SET databrowser_label = controls_type;
+
+-- dx_bloods
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='dx_bloods')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('dx_origin', 'dx_date', 'dx_nature', 'tumour_grade', 'primary_icd10_code', 'topography', 'morphology') AND model LIKE 'DiagnosisMaster')
+);
+-- dx_tissues
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='dx_tissues')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('dx_origin', 'dx_date', 'dx_nature', 'tumour_grade', 'primary_icd10_code', 'topography', 'morphology') AND model LIKE 'DiagnosisMaster')
+);
+
+
