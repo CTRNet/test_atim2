@@ -3110,4 +3110,7 @@ AND structure_field_id IN (
   WHERE (field IN ('dx_origin', 'dx_date', 'dx_nature', 'tumour_grade', 'primary_icd10_code', 'topography', 'morphology') AND model LIKE 'DiagnosisMaster')
 );
 
+-- fixe issue 1108
 
+UPDATE structure_value_domains SET source = 'Storagelayout.StorageControl::getStorageTypePermissibleValues' WHERE source = 'StorageLayout.StorageControl::getStorageTypePermissibleValues';
+UPDATE structure_value_domains SET source = 'Storagelayout.StorageMaster::getParentStoragePermissibleValues' WHERE source = 'StorageLayout.StorageMaster::getParentStoragePermissibleValues';
