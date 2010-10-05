@@ -2757,8 +2757,15 @@ INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`
 UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='morphology' AND `type`='input' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='morphology' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='morphology'));
 
 INSERT IGNORE INTO i18n (`id`, `en`, `fr`) VALUES
-('only sample core can be stored into tma block','Only sample core can be stored into tma block!', 'Seules les cores d''échantillons peuvent être entreposés dans des blocs de TMA!');
+('only sample core can be stored into tma block','Only sample core can be stored into tma block!', 'Seules les cores d''échantillons peuvent être entreposés dans des blocs de TMA!'),
+('you can find help about permissions %s', "You can find help about permissions <a href='%s' target='blank'>here</a>", "Vous pouvez trouver de l'aider sur les permissions <a href='%s' target='blank'>ici</a>");
 
+CREATE TABLE external_links(
+id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+name VARCHAR(50) NOT NULL,
+link text,
+UNIQUE(`name`)
+)Engine=InnoDb;
 
-
-
+INSERT INTO external_links (name, link) VALUES
+('permissions_help', 'http://www.ctrnet.ca/mediawiki/index.php/Permissions_configuration');
