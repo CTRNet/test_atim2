@@ -74,7 +74,14 @@ class PermissionsController extends AdministrateAppController {
 		
 		$this->set( 'atim_menu_variables', array('Group.id'=>$group_id,'User.id'=>$user_id) );
 		$aro = $this->Aro->find('first', array('conditions' => 'Aro.alias = "Group::'.$group_id.'"', 'order'=>'alias ASC', 'recursive' => 1));
-		$known_acos = array_combine(Set::extract('Aco.{n}.id',$aro), Set::extract('Aco.{n}.Permission',$aro));
+		$aco_id_extract = Set::extract('Aco.{n}.id',$aro);
+		$aco_perm_extract = Set::extract('Aco.{n}.Permission',$aro);
+		$known_acos = null;
+		if(count($aco_id_extract) > 0 && count($aco_perm_extract) > 1){
+			$known_acos = array_combine($aco_id_extract, $aco_perm_extract);
+		}else{
+			$known_acos = array();
+		}
 		$this->set('aro', $aro );
 		$this->set('known_acos',$known_acos);
 		if($this->data){
