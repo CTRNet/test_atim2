@@ -30,11 +30,6 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id));
 		$this->set('diagnosis_controls_list', $this->DiagnosisControl->find('all', array('conditions' => array('DiagnosisControl.flag_active' => 'active'))));
 		
-		foreach($this->data as &$dx) {
-			$dx['DiagnosisMaster']['primary_icd10_code'] .= " - ".$this->CodingIcd10Who->getDescription($dx['DiagnosisMaster']['primary_icd10_code']);
-			$dx['DiagnosisMaster']['morphology'] .= " - ".$this->CodingIcdo3Morpho->getDescription($dx['DiagnosisMaster']['morphology']);
-		}
-
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }			
@@ -53,10 +48,6 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		$dx_control_data = $this->DiagnosisControl->find('first', array('conditions' => array('DiagnosisControl.id' => $dx_master_data['DiagnosisMaster']['diagnosis_control_id'])));
 		$this->Structures->set($dx_control_data['DiagnosisControl']['form_alias']);
 	
-		$this->data['DiagnosisMaster']['primary_icd10_code'] .= " - ".$this->CodingIcd10Who->getDescription($this->data['DiagnosisMaster']['primary_icd10_code']);
-		$this->data['DiagnosisMaster']['morphology'] .= " - ".$this->CodingIcdo3Morpho->getDescription($this->data['DiagnosisMaster']['morphology']);
-		$this->data['DiagnosisMaster']['topography'] .= " - ".$this->CodingIcdo3Topo->getDescription($this->data['DiagnosisMaster']['topography']);
-		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }

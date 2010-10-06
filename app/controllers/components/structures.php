@@ -71,6 +71,20 @@ class StructuresComponent extends Object {
 			}
 		}
 		
+		//CodingIcd magic, import every model required for that structure
+		if(isset($return['StructureFormat'])){
+			foreach(AppModel::getMagicCodingIcdTriggerArray() as $key => $trigger){
+				foreach($return['StructureFormat'] as $sfo){
+					if(($sfo['flag_override_setting'] && strpos($sfo['settings'], $trigger) !== false)
+					|| strpos($sfo['StructureField']['setting'], $trigger) !== false){
+						App::import("Model", "codingicd.".$key);
+						new $key;//instantiate it
+						$return['Structure']['CodingIcdCheck'] = true;
+						break;
+					}
+				}
+			}
+		}
 		return $return;
 		
 	}
@@ -137,21 +151,18 @@ class StructuresComponent extends Object {
 				}
 				
 				//CocingIcd magic
-				$coding_arr = array(
-					"CodingIcd10Who" => "/codingicd/CodingIcd10s/tool/who", 
-					"CodingIcd10Ca" => "/codingicd/CodingIcd10s/tool/ca", 
-					"CodingIcdo3Morpho" => "/codingicd/CodingIcdo3s/tool/morpho", 
-					"CodingIcdo3Topo" => "/codingicd/CodingIcd03s/tool/topo");
-				foreach($coding_arr as $key => $setting_lookup){
-					if(strpos($value['setting'], $setting_lookup) !== false){
-						$form_fields[$form_fields_key]['cast_icd'] = $key;
-						if(strpos($form_fields[$form_fields_key]['key'], " LIKE") !== false){
-							$form_fields[$form_fields_key]['key'] = str_replace(" LIKE", "", $form_fields[$form_fields_key]['key']);
-							$form_fields[$form_fields_key]['exact'] = false;
-						}else{
-							$form_fields[$form_fields_key]['exact'] = true;
+				if(isset($simplified_structure['Structure']['codingIcdCheck']) && $simplified_structure['Structure']['codingIcdCheck']){
+					foreach(AppModel::getMagicCodingIcdTriggerArray() as $key => $setting_lookup){
+						if(strpos($value['setting'], $setting_lookup) !== false){
+							$form_fields[$form_fields_key]['cast_icd'] = $key;
+							if(strpos($form_fields[$form_fields_key]['key'], " LIKE") !== false){
+								$form_fields[$form_fields_key]['key'] = str_replace(" LIKE", "", $form_fields[$form_fields_key]['key']);
+								$form_fields[$form_fields_key]['exact'] = false;
+							}else{
+								$form_fields[$form_fields_key]['exact'] = true;
+							}
+							break;
 						}
-						break;
 					}
 				}
 			}
