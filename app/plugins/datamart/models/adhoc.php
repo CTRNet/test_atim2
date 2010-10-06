@@ -10,7 +10,17 @@ class Adhoc extends DatamartAppModel {
 			'Summary' => array(
 				'menu' => array(null)));
 			
-		if(isset($variables['Param.Type_Of_List']) && empty($variables['Adhoc.id'])) {
+		if ( isset($variables['Adhoc.id']) && (!empty($variables['Adhoc.id'])) ) {
+			$adhoc_data = $this->find('first', array('conditions'=>array('Adhoc.id' => $variables['Adhoc.id']), 'recursive' => '-1'));
+			if(!empty($adhoc_data)) {
+				$return['Summary']['menu'] = array($adhoc_data['Adhoc']['title']);
+				$return['Summary']['title'] = array(null, $adhoc_data['Adhoc']['title']);
+				$return['Summary']['description'] = array(
+					__('model', true) => $adhoc_data['Adhoc']['model'],
+					__('description', true) => $adhoc_data['Adhoc']['description']);	
+			}
+		
+		} else if(isset($variables['Param.Type_Of_List'])) {
 
 			switch($variables['Param.Type_Of_List']) {
 				case 'all':
@@ -24,16 +34,6 @@ class Adhoc extends DatamartAppModel {
 					break;
 				default:	
 			}	
-		}
-			
-		if ( isset($variables['Adhoc.id']) && (!empty($variables['Adhoc.id'])) ) {
-			$adhoc_data = $this->find('first', array('conditions'=>array('Adhoc.id' => $variables['Adhoc.id']), 'recursive' => '-1'));
-			if(!empty($adhoc_data)) {
-				$return['Summary']['title'] = array(null, __('query information', null));
-				$return['Summary']['description'] = array(
-					__('model', true) => $adhoc_data['Adhoc']['model'],
-					__('description', true) => $adhoc_data['Adhoc']['description']);	
-			}
 		}
 		
 		return $return;

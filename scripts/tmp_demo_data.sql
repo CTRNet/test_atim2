@@ -2103,12 +2103,12 @@ INSERT INTO `key_increments` (`key_name`, `key_value`) VALUES
 
 DELETE FROM `datamart_adhoc` WHERE `id` = 1001;
 INSERT INTO `datamart_adhoc` 
-(`id`, `description`, `plugin`,`model`, 
+(`id`, `title`, `description`, `plugin`,`model`, 
 `form_alias_for_search`, `form_alias_for_results`, `form_links_for_results`, 
 `sql_query_for_results`, 
 `flag_use_query_results`) 
 VALUES 
-('1001', '<b>QR_1001_Demo</b>: <u>Search Stored Sample Tube / Recherche tubes d''échantillons entrepos&eacute;s</u> (flag_use_query_results = 1)', 
+('1001', 'QR_1001_Demo', 'Search Stored Sample Tube / Recherche tubes d''échantillons entrepos&eacute;s (flag_use_query_results = 1)', 
 'Inventorymanagement',
 'AliquotMaster', 
 'datamart_adhoc_qr_1001_demo', 'datamart_adhoc_qr_1001_demo', 
@@ -2215,12 +2215,12 @@ AND structure_field_id = (SELECT id FROM structure_fields WHERE `model`='Storage
 
 DELETE FROM `datamart_adhoc` WHERE `id` = 1002;
 INSERT INTO `datamart_adhoc` 
-(`id`, `description`, `plugin`,`model`, 
+(`id`, `title`, `description`, `plugin`,`model`, 
 `form_alias_for_search`, `form_alias_for_results`, `form_links_for_results`, 
 `sql_query_for_results`, 
 `flag_use_query_results`) 
 VALUES 
-('1002', '<b>QR_1002_Demo</b>: <u>Search Participant Aliquots / Recherche d''aliquots de participants</u> (flag_use_query_results = 0)',
+('1002', 'QR_1002_Demo','Search Participant Aliquots / Recherche d''aliquots de participants (flag_use_query_results = 0)',
 'Clinicalannotation',
 'Participant', 
 'datamart_adhoc_qr_1002_demo', 'participants', 
