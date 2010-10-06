@@ -1324,10 +1324,21 @@ class StructuresHelper extends Helper {
 					// set display VALUE, or NO VALUE indicator 
 						
 					$display_value_raw = $data[ $field['StructureField']['model'] ][ $field['StructureField']['field'] ];
-					if(!is_array($display_value_raw)){
-						$display_value_raw = array("" => $display_value_raw);
+					if(is_array($display_value_raw)){
+						$display_value_raw_was_arr = true;
 					}else{
-						$display_value_raw_was_arr = false;
+						$display_value_raw = array("" => $display_value_raw);
+					}
+					
+					//CodingIcd magic, adding description to a displayed field
+					if(isset($atim_structure['Structure']['CodingIcdCheck']) && $atim_structure['Structure']['CodingIcdCheck']){
+						foreach(AppModel::getMagicCodingIcdTriggerArray() as $key => $trigger){
+							if(strpos($field['StructureField']['setting'], $trigger) !== false){
+								foreach($display_value_raw as &$value){
+									$value .= " - ".$key::getInstance()->getDescription($value);
+								}
+							}
+						}
 					}
 					foreach($display_value_raw as $display_value_key => $display_value){
 							// swap out VALUE for OVERRIDE choice for SELECTS, NO TRANSLATION 
