@@ -3141,13 +3141,80 @@ AND structure_field_id IN (
   OR (field IN ('tumour_type', 'grade', 'multifocal', 'vascular_lymph_invasion', 'extra_nodal_invasion', 'level_nodal_involvement') AND model LIKE 'EventDetail')
 ); 
 
--- 	ed_all_clinical_followup
--- 	ed_all_clinical_presentation
 -- 	ed_all_lifestyle_smoking
--- 	ed_all_adverse_events_adverse_event
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ed_all_lifestyle_smoking')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('smoking_status', 'pack_years') AND model LIKE 'EventDetail')
+); 
+UPDATE structure_formats SET flag_index = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ed_all_lifestyle_smoking')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('event_date') AND model LIKE 'EventMaster') 
+  OR (field IN ('smoking_status', 'pack_years') AND model LIKE 'EventDetail')
+); 
+
+-- 	ed_all_clinical_followup
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ed_all_clinical_followup')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('vital_status') AND model LIKE 'EventDetail')
+); 
+UPDATE structure_formats SET flag_index = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ed_all_clinical_followup')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('event_date') AND model LIKE 'EventMaster') 
+  OR (field IN ('vital_status') AND model LIKE 'EventDetail')
+); 
+
+-- 	ed_all_clinical_presentation
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ed_all_clinical_presentation')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('weight', 'height') AND model LIKE 'EventDetail')
+); 
+UPDATE structure_formats SET flag_index = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ed_all_clinical_presentation')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('event_date') AND model LIKE 'EventMaster') 
+  OR (field IN ('weight','height') AND model LIKE 'EventDetail')
+); 
+
 -- 	ed_breast_screening_mammogram
--- 	ed_all_protocol_followup
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ed_breast_screening_mammogram')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('result') AND model LIKE 'EventDetail')
+); 
+UPDATE structure_formats SET flag_index = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ed_breast_screening_mammogram')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('event_date') AND model LIKE 'EventMaster') 
+  OR (field IN ('result') AND model LIKE 'EventDetail')
+); 
+
 -- 	ed_all_study_research
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ed_all_study_research')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('field_one') AND model LIKE 'EventDetail')
+); 
+UPDATE structure_formats SET flag_index = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ed_all_study_research')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('event_date') AND model LIKE 'EventMaster') 
+  OR (field IN ('field_one') AND model LIKE 'EventDetail')
+); 
 
 
 
