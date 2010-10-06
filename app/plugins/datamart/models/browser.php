@@ -56,10 +56,18 @@ class Browser extends DatamartAppModel {
 			}
 			$browsing_structures = $tmp_arr;
 			$rez = Browser::buildBrowsableOptions($options, array(), $starting_ctrl_id, $browsing_structures);
+			$sorted_rez = array();
+			foreach($rez['children'] as $k => $v){
+				$sorted_rez[$k] = $v['default'];
+			}
+			asort($sorted_rez, SORT_STRING);
+			foreach($sorted_rez as $k => $foo){
+				$sorted_rez[$k] = $rez['children'][$k];
+			}
 			$result[] = array(
 				'value' => '',
 				'default' => __('browse', true),
-				'children' => $rez['children']
+				'children' => $sorted_rez
 			);
 			$result[] = array(
 				'value' => '0',
@@ -73,7 +81,13 @@ class Browser extends DatamartAppModel {
 			);
 		}else{
 			$data = $DatamartStructure->find('all');
-			foreach($data as $data_unit){
+			$to_sort = array();
+			foreach($data as $k => $v){
+				$to_sort[$k] = __($v['DatamartStructure']['display_name'], true);
+			}
+			asort($to_sort, SORT_STRING);
+			foreach($to_sort as $k => $foo){
+				$data_unit = $data[$k];
 				$tmp_result = array(
 					'value' => $data_unit['DatamartStructure']['id'], 
 					'default' => __($data_unit['DatamartStructure']['display_name'], true),
