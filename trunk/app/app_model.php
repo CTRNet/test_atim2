@@ -2,7 +2,14 @@
 
 class AppModel extends Model {
 	
-	var $actsAs = array('MasterDetail','Revision','SoftDeletable'); 
+	var $actsAs = array('MasterDetail','Revision','SoftDeletable');
+
+	//The values in this array can trigger magic actions when applied to a field settings
+	private static $magic_coding_icd_trigger_array = array(
+			"CodingIcd10Who" => "/codingicd/CodingIcd10s/tool/who", 
+			"CodingIcd10Ca" => "/codingicd/CodingIcd10s/tool/ca", 
+			"CodingIcdo3Morpho" => "/codingicd/CodingIcdo3s/tool/morpho", 
+			"CodingIcdo3Topo" => "/codingicd/CodingIcd03s/tool/topo");
 	
 	/**
 	 * Ensures that the "created_by" and "modified_by" user id columns are set automatically for all models. This requires
@@ -140,6 +147,10 @@ class AppModel extends Model {
 		}
 		$this->query('UNLOCK TABLES');
 		return str_replace("%%key_increment%%", $result[0]['key_increments']['key_value'], $str);
+	}
+	
+	static function getMagicCodingIcdTriggerArray(){
+		return self::$magic_coding_icd_trigger_array;
 	}
 }
 
