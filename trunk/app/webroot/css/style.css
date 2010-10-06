@@ -915,7 +915,8 @@ span.help:hover {
 			background-color: #f00;
 			color: #fff;
 		}
-		div.wrapper table.structure table:not(.databrowser) td { 
+		
+		div.wrapper table.columns.index td, div.wrapper table.columns.detail td{ 
 			padding: 0.5em 1em; 
 			border-top: 1px solid #eaedf2; 
 		}
@@ -1090,7 +1091,7 @@ span.help:hover {
 					border-top: none; 
 					padding: 1em; 
 				}
-			div.wrapper table.structure table.columns.detail td {}
+			
 			div.wrapper table.structure table.columns.tree td {
 				padding: 0.25em 0 0 0;
 				border-top: 3px solid #eaedf2;
