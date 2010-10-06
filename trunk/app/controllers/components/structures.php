@@ -142,7 +142,6 @@ class StructuresComponent extends Object {
 					"CodingIcd10Ca" => "/codingicd/CodingIcd10s/tool/ca", 
 					"CodingIcdo3Morpho" => "/codingicd/CodingIcdo3s/tool/morpho", 
 					"CodingIcdo3Topo" => "/codingicd/CodingIcd03s/tool/topo");
-				echo($value['setting']."<br/>");
 				foreach($coding_arr as $key => $setting_lookup){
 					if(strpos($value['setting'], $setting_lookup) !== false){
 						$form_fields[$form_fields_key]['cast_icd'] = $key;
@@ -226,7 +225,6 @@ class StructuresComponent extends Object {
 				}
 			}
 		}
-		pr($conditions);
 		// return CONDITIONS for search form
 		return $conditions;
 	}
