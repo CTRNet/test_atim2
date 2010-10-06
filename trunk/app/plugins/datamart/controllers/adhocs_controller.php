@@ -71,7 +71,6 @@ class AdhocsController extends DatamartAppController {
 		$_SESSION['ctrapp_core']['datamart']['search_criteria'] = NULL;
 		
 		$this->set( 'atim_menu_variables', array( 'Param.Type_Of_List'=>$type_of_list, 'Adhoc.id'=>$adhoc_id ) );
-		$this->set( 'atim_structure_for_detail', $this->Structures->get( 'form', 'querytool_adhoc' ) );
 		
 		// BIND models on the fly...
 		$this->Adhoc->bindModel(
@@ -101,7 +100,6 @@ class AdhocsController extends DatamartAppController {
 	
 	function results( $type_of_list='all', $adhoc_id=0 ) {
 		$this->set( 'atim_menu_variables', array( 'Param.Type_Of_List'=>$type_of_list, 'Adhoc.id'=>$adhoc_id ) );
-		$this->set( 'atim_structure_for_detail', $this->Structures->get( 'form', 'querytool_adhoc' ) );
 		
 		// BIND models on the fly...
 		$this->Adhoc->bindModel(

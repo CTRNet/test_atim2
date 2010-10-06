@@ -3243,3 +3243,22 @@ AND structure_field_id IN (
   SELECT id FROM structure_fields 
   WHERE (field IN ('notes','review_type','specimen_sample_type') AND model LIKE 'SpecimenReviewMaster')
 ); 
+
+-- ALTER TABLE 
+
+ALTER TABLE `datamart_adhoc`
+  ADD `title` varchar(50) NOT NULL DEFAULT '' AFTER `id`;
+UPDATE datamart_adhoc set title = concat('adhoc_',id);
+ALTER TABLE `datamart_adhoc`
+  ADD UNIQUE(`title`);
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Datamart', 'Adhoc', 'datamart_adhoc', 'title', 'title', '', 'input', '', '',  NULL , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='querytool_adhoc'), 
+(SELECT id FROM structure_fields WHERE `model`='Adhoc' AND `tablename`='datamart_adhoc' AND `field`='title'), 
+'1', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '1', '1');
+
+
+  
+  
