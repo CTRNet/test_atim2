@@ -75,7 +75,7 @@ class StructuresComponent extends Object {
 		if(isset($return['StructureFormat'])){
 			foreach(AppModel::getMagicCodingIcdTriggerArray() as $key => $trigger){
 				foreach($return['StructureFormat'] as $sfo){
-					if(($sfo['flag_override_setting'] && strpos($sfo['settings'], $trigger) !== false)
+					if(($sfo['flag_override_setting'] && strpos($sfo['setting'], $trigger) !== false)
 					|| strpos($sfo['StructureField']['setting'], $trigger) !== false){
 						App::import("Model", "codingicd.".$key);
 						new $key;//instantiate it
