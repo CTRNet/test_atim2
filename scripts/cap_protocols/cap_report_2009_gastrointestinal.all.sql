@@ -8064,10 +8064,7 @@ AND field IN ('notes'));
 
 -- #### 
 
-
-
-
-
+UPDATE diagnosis_controls SET databrowser_label = controls_type WHERE controls_type LIKE 'cap report%';
 
 
 
