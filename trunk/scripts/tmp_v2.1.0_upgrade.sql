@@ -3216,14 +3216,30 @@ AND structure_field_id IN (
   OR (field IN ('field_one') AND model LIKE 'EventDetail')
 ); 
 
+-- Add  specimen review into databrowser
 
+INSERT INTO `datamart_structures` 
+(`id`, `plugin`, `model`, `structure_id`, `display_name`, `use_key`, `control_model`, `control_master_model`, `control_field`) 
+VALUES
+(null, 'Inventorymanagement', 'SpecimenReviewMaster', (SELECT id FROM structures WHERE alias = 'specimen_review_masters'), 'specimen review', 'id', 'SpecimenReviewControl', 'SpecimenReviewMaster', 'specimen_review_control_id ');
+ALTER TABLE `specimen_review_controls`
+  ADD `databrowser_label` varchar(50) NOT NULL DEFAULT '' AFTER `detail_tablename`;
+UPDATE specimen_review_controls SET databrowser_label = concat(specimen_sample_type,'|',review_type);
+INSERT INTO datamart_browsing_controls (id1, id2, flag_active_1_to_2 ,flag_active_2_to_1, use_field)
+VALUES
+((SELECT id FROM datamart_structures WHERE model = 'SpecimenReviewMaster'), (SELECT id FROM datamart_structures WHERE model = 'ViewSample'), '1', '1', 'SpecimenReviewMaster.sample_master_id');
 
-
-
-
-
-
-
-
-
-
+UPDATE structure_formats SET flag_search = '0'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='spr_breast_cancer_types')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('notes','review_type','specimen_sample_type') AND model LIKE 'SpecimenReviewMaster')
+); 
+UPDATE structure_formats SET flag_index = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='spr_breast_cancer_types'); 
+UPDATE structure_formats SET flag_index = '0'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='spr_breast_cancer_types')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('notes','review_type','specimen_sample_type') AND model LIKE 'SpecimenReviewMaster')
+); 
