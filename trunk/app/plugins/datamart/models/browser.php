@@ -167,9 +167,14 @@ class Browser extends DatamartAppModel {
 		$children_data = $control_model->find('all', array('order' => $main_model_info['DatamartStructure']['control_model'].'.databrowser_label'));
 		$children_arr = array();
 		foreach($children_data as $child_data){
+			$parts = explode("|", $child_data[$main_model_info['DatamartStructure']['control_model']]['databrowser_label']);
+			$translated_parts = array();
+			foreach($parts as $part){
+				$translated_parts[] = __($part, true);
+			}
 			$children_arr[] = array(
-								'value' => $prepend_value.self::$sub_model_separator_str.$child_data[$main_model_info['DatamartStructure']['control_model']]['id'],
-								'default' => __($child_data[$main_model_info['DatamartStructure']['control_model']]['databrowser_label'], true)
+				'value' => $prepend_value.self::$sub_model_separator_str.$child_data[$main_model_info['DatamartStructure']['control_model']]['id'],
+				'default' => implode($translated_parts, " - ")
 			);
 		}
 		return $children_arr;
