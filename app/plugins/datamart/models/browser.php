@@ -180,14 +180,10 @@ class Browser extends DatamartAppModel {
 		$children_data = $control_model->find('all', array('order' => $main_model_info['DatamartStructure']['control_model'].'.databrowser_label', 'conditions' => $conditions));
 		$children_arr = array();
 		foreach($children_data as $child_data){
-			$parts = explode("|", $child_data[$main_model_info['DatamartStructure']['control_model']]['databrowser_label']);
-			$translated_parts = array();
-			foreach($parts as $part){
-				$translated_parts[] = __($part, true);
-			}
+			$label = self::getTranslatedDatabrowserLabel($child_data[$main_model_info['DatamartStructure']['control_model']]['databrowser_label']);
 			$children_arr[] = array(
 				'value' => $prepend_value.self::$sub_model_separator_str.$child_data[$main_model_info['DatamartStructure']['control_model']]['id'],
-				'default' => implode($translated_parts, " - ")
+				'default' => $label
 			);
 		}
 		return $children_arr;
@@ -321,10 +317,11 @@ class Browser extends DatamartAppModel {
 						$class .= " active ";
 					}
 					$count = strlen($cell['BrowsingResult']['id_csv']) ? count(explode(",", $cell['BrowsingResult']['id_csv'])) : 0;
-					$info = "<span class='title'>".__($cell['DatamartStructure']['display_name'], true)."</span> (".$count.")<br/>\n";
+					$title = __($cell['DatamartStructure']['display_name'], true);
+					$info = "";
 					if($cell['BrowsingResult']['raw']){
 						$search = unserialize($cell['BrowsingResult']['serialized_search_params']);
-						if(count($search)){
+						if(count($search['search_conditions'])){
 							$structure_id_to_load = null;
 							if(strlen($cell['DatamartStructure']['control_model']) > 0 && $cell['BrowsingResult']['browsing_structures_sub_id'] > 0){
 								//alternate structure required
@@ -332,17 +329,29 @@ class Browser extends DatamartAppModel {
 								$alternate_alias = $alternate_alias['form_alias'];
 								$alternate_structure = StructuresComponent::$singleton->get('form', $alternate_alias);
 							 	$structure_id_to_load = $alternate_structure['Structure']['id'];
+							 	//unset the serialization on the sub model since it's already in the title
+							 	unset($search['search_conditions'][$cell['DatamartStructure']['control_master_model'].".".$cell['DatamartStructure']['control_field']]);
+							 	if(!App::import("model", $cell['DatamartStructure']['plugin'].".".$cell['DatamartStructure']['control_master_model'])){
+							 		AppController::getInstance()->redirect( '/pages/err_model_import_failed?p[]='.$cell['DatamartStructure']['plugin'].".".$cell['DatamartStructure']['control_master_model'], NULL, TRUE );
+							 	}
+							 	$tmp_model = new $cell['DatamartStructure']['control_model']();
+							 	$tmp_data = $tmp_model->find('first', array('conditions' => array($cell['DatamartStructure']['control_model'].".id" => $cell['BrowsingResult']['browsing_structures_sub_id'])));
+							 	$title .= " > ".self::getTranslatedDatabrowserLabel($tmp_data[$cell['DatamartStructure']['control_model']]['databrowser_label']);
 							}else{
 								$structure_id_to_load = $cell['DatamartStructure']['structure_id'];
 							}
-							$info .= __("search", true)."<br/><br/>".Browser::formatSearchToPrint($search, $structure_id_to_load);
+							if(count($search['search_conditions'])){//count might be zero if the only condition was the sub type
+								$info .= __("search", true)."<br/><br/>".Browser::formatSearchToPrint($search, $structure_id_to_load);
+							}else{
+								$info .= __("direct access", true);
+							}
 						}else{
 							$info .= __("direct access", true);
 						}
 					}else{
 						$info .= __("drilldown", true);
 					}
-					$result .= "<td class='node ".$class."'><a href='".$webroot_url."/datamart/browser/browse/".$cell['BrowsingResult']['id']."/'><div class='container'><div class='info ".($x < $half_width ? "right" : "left")."'>".$info."</div></div></a></td>";
+					$result .= "<td class='node ".$class."'><a href='".$webroot_url."/datamart/browser/browse/".$cell['BrowsingResult']['id']."/'><div class='container'><div class='info ".($x < $half_width ? "right" : "left")."'><span class='title'>".$title."</span> (".$count.")<br/>\n".$info."</div></div></a></td>";
 				}else{
 					$result .= "<td class='".$cell."'></td>";
 				}
@@ -493,5 +502,19 @@ class Browser extends DatamartAppModel {
 			$sub_models_id_filter['SampleControl'] = $ids;
 		}
 		return $sub_models_id_filter;
+	}
+	
+	
+	/**
+	 * @desc Databrowser lables are string that can be separated by |. Translation will occur on each subsection and replace the pipes by " - "
+	 * @param string $label The label to translate
+	 * @return string The translated label
+	 */
+	static function getTranslatedDatabrowserLabel($label){
+		$parts = explode("|", $label);
+		foreach($parts as &$part){
+			$part = __($part, true);
+		}
+		return implode(" - ", $parts);
 	}
 }
