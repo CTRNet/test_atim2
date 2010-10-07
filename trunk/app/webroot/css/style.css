@@ -6,7 +6,7 @@ style.css for ATiM2
 	* ross at visuallizard dot com
 	* wil at visuallizard dot com 
 	
-	(c) 2009  - visuallizard.com and CTRNET
+	(c) 2010  - visuallizard.com and CTRNET
 */
 
 
@@ -1707,7 +1707,12 @@ div.wrapper table.structure td .databrowser td .info td{
 .databrowser td.participant.messages div.container{
 	background: url(../img/icons/post_it_16x16.png) center no-repeat;
 }
-
+.databrowser td.annotation div.container{
+	background: url(../img/icons/annotation_16x16.png) center no-repeat;
+}
+.databrowser td.specimen.review div.container{
+	background: url(../img/icons/path_review_16x16.png) center no-repeat;
+}
 
 /* databrowser action dropdown icons */
 ul.actionDropdown a.aliquots{
@@ -1775,7 +1780,16 @@ ul.actionDropdown a.participant.messages{
 	background-position: left center;
 	background-repeat: no-repeat;
 }
-
+ul.actionDropdown a.annotation{
+	background-image: url(../img/icons/annotation_16x16.png);
+	background-position: left center;
+	background-repeat: no-repeat;
+}
+ul.actionDropdown a.specimen.review{
+	background-image: url(../img/icons/path_review_16x16.png);
+	background-position: left center;
+	background-repeat: no-repeat;
+}
 
 
 ul.actionDropdown a, ul.actionDropdown li:hover a{
