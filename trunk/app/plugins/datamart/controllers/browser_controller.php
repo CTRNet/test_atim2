@@ -71,7 +71,7 @@ class BrowserController extends DatamartAppController {
 					$model_to_import = $browsing['DatamartStructure']['plugin'].".".$browsing['DatamartStructure']['control_master_model'];
 					$model_name_to_search = $browsing['DatamartStructure']['control_master_model'];
 					$use_key = "id";
-					$this->set("header", array("title" => __("result", true), "description" => __($browsing['DatamartStructure']['display_name'], true)." - ".__($alternate_info['databrowser_label'], true)));
+					$this->set("header", array("title" => __("result", true), "description" => __($browsing['DatamartStructure']['display_name'], true)." > ".Browser::getTranslatedDatabrowserLabel($alternate_info['databrowser_label'])));
 					$sub_models_id_filter = Browser::getDropdownSubFiltering($browsing);
 				}else{
 					$result_structure = $this->Structures->getFormById($browsing['DatamartStructure']['structure_id']);
@@ -261,7 +261,7 @@ class BrowserController extends DatamartAppController {
 					"user_id" => $_SESSION['Auth']['User']['id'],
 					"parent_node_id" => $parent_node,
 					"browsing_structures_id" => $control_id,
-					"browsing_structures_sub_id" => isset($sub_sustrcute_id) ? $sub_sustrcute_id : 0,
+					"browsing_structures_sub_id" => $use_sub_model ? $sub_sustrcute_id : 0,
 					"id_csv" => implode(",", $save_ids),
 					"raw" => true,
 					"serialized_search_params" => serialize($org_search_conditions),
@@ -301,7 +301,7 @@ class BrowserController extends DatamartAppController {
 					$alternate_alias = $alternate_info['form_alias'];
 					$this->Structures->set($alternate_alias, "result_structure");
 					$this->set('checklist_key', $browsing['DatamartStructure']['control_master_model'].".id");
-					$this->set("header", array("title" => __("result", true), "description" => __($browsing['DatamartStructure']['display_name'], true)." - ".__($alternate_info['databrowser_label'], true)));
+					$this->set("header", array("title" => __("result", true), "description" => __($browsing['DatamartStructure']['display_name'], true)." > ".Browser::getTranslatedDatabrowserLabel($alternate_info['databrowser_label'])));
 					$browsing['BrowsingResult']['browsing_structures_sub_id'] = $sub_sustrcute_id;
 					$sub_models_id_filter = Browser::getDropdownSubFiltering($browsing);
 				}else{
@@ -326,7 +326,7 @@ class BrowserController extends DatamartAppController {
 					$alternate_alias = $alternate_info['form_alias'];
 					$this->Structures->set($alternate_alias);
 					$last_control_id .= "-".$sub_sustrcute_id;
-					$this->set("header", array("title" => __("search", true), "description" => __($browsing['DatamartStructure']['display_name'], true)." - ".__($alternate_info['databrowser_label'], true)));
+					$this->set("header", array("title" => __("search", true), "description" => __($browsing['DatamartStructure']['display_name'], true)." > ".Browser::getTranslatedDatabrowserLabel($alternate_info['databrowser_label'])));
 				}else{
 					$this->set("atim_structure", $this->Structures->getFormById($browsing['DatamartStructure']['structure_id'])); 
 					$this->set("header", array("title" => __("search", true), "description" => __($browsing['DatamartStructure']['display_name'], true)));
