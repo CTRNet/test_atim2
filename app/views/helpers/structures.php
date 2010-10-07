@@ -243,7 +243,6 @@ class StructuresHelper extends Helper {
 
 	// FUNCTION 
 	function build_detail( $atim_structure, $options ) {
-		
 		$return_string = '';
 			
 		$table_index = $this->build_stack( $atim_structure, $options );
@@ -390,7 +389,6 @@ class StructuresHelper extends Helper {
 
 	function build_table( $atim_structure, $options ) {
 		$return_string = '';
-		
 		// display table...
 		$return_string .= '
 			<table class="structure" cellspacing="0">
@@ -1401,13 +1399,11 @@ class StructuresHelper extends Helper {
 								// set ZERO date fields to blank
 								$display_value = '';
 								
-							} else if ( ($field['StructureField']['type']=='date' || $field['StructureField']['type']=='datetime') && strpos($display_value, " ") !== false) {
-								
+							} else if ($field['StructureField']['type']=='date' || $field['StructureField']['type']=='datetime') {
 								if ( !is_array($display_value) ) {
 									// format date STRING manually, using PHP's month name array, becuase of UnixTimeStamp's 1970 - 2038 limitation
 									
 										$calc_date_string = explode( ' ', $display_value );
-										
 										if ( $field['StructureField']['type']=='datetime' ) {
 											$calc_time_string = $calc_date_string[1];
 											if(time_format == 12){
