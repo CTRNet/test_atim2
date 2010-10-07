@@ -96,7 +96,11 @@ class Browser extends DatamartAppModel {
 					'action' => 'datamart/browser/browse/'.$node_id.'/',
 					);
 					if(strlen($data_unit['DatamartStructure']['control_model']) > 0){
-						$tmp_result['children'] = self::getSubModels($data_unit, $data_unit['DatamartStructure']['id']);
+						$ids = isset($sub_models_id_filter[$data_unit['DatamartStructure']['control_model']]) ? $sub_models_id_filter[$data_unit['DatamartStructure']['control_model']] : array(); 
+						$children = self::getSubModels($data_unit, $data_unit['DatamartStructure']['id'], $ids);
+						if(!empty($children)){
+							$tmp_result['children'] = $children;
+						} 
 					}
 					
 				$result[] = $tmp_result;
@@ -460,7 +464,6 @@ class Browser extends DatamartAppModel {
 	 * @return An array with the ControlModel => array(ids to filter with)
 	 */
 	static function getDropdownSubFiltering(array $browsing){
-		self::getDropdownSubFiltering();
 		$sub_models_id_filter = array();
 		if($browsing['DatamartStructure']['id'] == 5){
 			//sample->aliquot hardcoded part
