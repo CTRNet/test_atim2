@@ -46,7 +46,7 @@ class BrowserController extends DatamartAppController {
 		if(empty($this->data)){
 			if($parent_node == 0){
 				//new access
-				$this->set("dropdown_options", $this->Browser->getDropdownOptions($control_id, $parent_node));
+				$this->set("dropdown_options", $this->Browser->getDropdownOptions($control_id, $parent_node, null, null, null, null, array("AliquotControl" => array(0))));
 				$this->Structures->set("datamart_browser_start");
 				$this->set('type', "add");
 				$this->set('top', "/datamart/browser/browse/0/");
@@ -79,6 +79,7 @@ class BrowserController extends DatamartAppController {
 					$model_name_to_search = $browsing['DatamartStructure']['model'];
 					$use_key = $browsing['DatamartStructure']['use_key'];
 					$this->set("header", array("title" => __("result", true), "description" => __($browsing['DatamartStructure']['display_name'], true)));
+					$sub_models_id_filter = array("AliquotControl" => array(0));//by default, no aliquot sub type
 				}
 				
 				
@@ -307,6 +308,7 @@ class BrowserController extends DatamartAppController {
 					$this->set('checklist_key', $browsing['DatamartStructure']['model'].".".$browsing['DatamartStructure']['use_key']);
 					$this->set("result_structure", $result_structure); 
 					$this->set("header", array("title" => __("result", true), "description" => __($browsing['DatamartStructure']['display_name'], true)));
+					$sub_models_id_filter = array("AliquotControl" => array(0));//by default, no aliquot sub type
 				}
 				$this->set("dropdown_options", $this->Browser->getDropdownOptions($last_control_id, $parent_node, $browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['model'], $browsing['DatamartStructure']['use_key'], $result_structure['Structure']['alias'], $sub_models_id_filter));
 				$this->set('checklist_key_name', $browsing['DatamartStructure']['model'].".".$browsing['DatamartStructure']['use_key']);
