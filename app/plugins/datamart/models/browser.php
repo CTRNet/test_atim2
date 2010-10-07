@@ -26,9 +26,10 @@ class Browser extends DatamartAppModel {
 	 * @param string $plugin_name The name of the plugin to use in export to csv link
 	 * @param string $model_name The name of the model to use in export to csv link
 	 * @param string $structure_name The name of the structure to use in export to csv link
+	 * @param array $sub_models_id_filter An array with ControlModel => array(ids) to filter the sub models id
 	 * @return Returns an array representing the options to display in the action drop down 
 	 */
-	function getDropdownOptions($starting_ctrl_id, $node_id, $plugin_name = null, $model_name = null, $model_pkey = null, $structure_name = null){
+	function getDropdownOptions($starting_ctrl_id, $node_id, $plugin_name = null, $model_name = null, $model_pkey = null, $structure_name = null, array $sub_models_id_filter = null){
 		$app_controller = AppController::getInstance();
 		if(!App::import('Model', 'Datamart.DatamartStructure')){
 			$app_controller->redirect( '/pages/err_model_import_failed?p[]=Datamart.DatamartStructure', NULL, TRUE );
@@ -55,7 +56,7 @@ class Browser extends DatamartAppModel {
 				$tmp_arr[$unit['DatamartStructure']['id']] = $unit['DatamartStructure'];
 			}
 			$browsing_structures = $tmp_arr;
-			$rez = Browser::buildBrowsableOptions($options, array(), $starting_ctrl_id, $browsing_structures);
+			$rez = Browser::buildBrowsableOptions($options, array(), $starting_ctrl_id, $browsing_structures, $sub_models_id_filter);
 			$sorted_rez = array();
 			foreach($rez['children'] as $k => $v){
 				$sorted_rez[$k] = $v['default'];
@@ -110,9 +111,10 @@ class Browser extends DatamartAppModel {
 	 * @param array $stack An array of the elements already fetched by the current recursion
 	 * @param Int $current_id The current not control id
 	 * @param array $browsing_structures An array containing data about all available browsing structures. Used to get the displayed value
+	 * @param array $sub_models_id_filter An array with ControlModel => array(ids) to filter the sub models id 
 	 * @return An array representing the browsable portion of the action menu
 	 */
-	function buildBrowsableOptions(array $from_to, array $stack, $current_id, array $browsing_structures){
+	function buildBrowsableOptions(array $from_to, array $stack, $current_id, array $browsing_structures, array $sub_models_id_filter = null){
 		$result = array();
 		array_push($stack, $current_id);
 		$to_arr = array_diff($from_to[$current_id], $stack);
@@ -131,14 +133,15 @@ class Browser extends DatamartAppModel {
 								'default' => __('no filter', true))
 							);
 			if(strlen($browsing_structures[$current_id]['control_model']) > 0){
-				$result['children'] = array_merge($result['children'], self::getSubModels(array("DatamartStructure" => $browsing_structures[$current_id]), $result['value']));
+				$id_filter = isset($sub_models_id_filter[$browsing_structures[$current_id]['control_model']]) ? $sub_models_id_filter[$browsing_structures[$current_id]['control_model']] : null; 
+				$result['children'] = array_merge($result['children'], self::getSubModels(array("DatamartStructure" => $browsing_structures[$current_id]), $result['value'], $id_filter));
 			}
 		}
 		foreach($to_arr as $to){
 			if(Browser::$hierarchical_dropdown){
-				$result['children'][] = $this->buildBrowsableOptions($from_to, $stack, $to, $browsing_structures);
+				$result['children'][] = $this->buildBrowsableOptions($from_to, $stack, $to, $browsing_structures, $sub_models_id_filter);
 			}else{
-				$tmp_result = $this->buildBrowsableOptions($from_to, $stack, $to, $browsing_structures);
+				$tmp_result = $this->buildBrowsableOptions($from_to, $stack, $to, $browsing_structures, $sub_models_id_filter);
 				if(isset($tmp_result['children'])){
 					foreach($tmp_result['children'] as $key => $child){
 						if(isset($child['children'])){
@@ -156,15 +159,21 @@ class Browser extends DatamartAppModel {
 	
 	/**
 	 * @param array $main_model_info A DatamartStructure model data array of the node to fetch the submodels of
+	 * @param string $prepend_value A string to prepend to the value
+	 * @param array ids_filter An array to filter the controls ids of the current sub model
 	 * @return array The data about the submodels of the given model
 	 */
-	static function getSubModels(array $main_model_info, $prepend_value){
+	static function getSubModels(array $main_model_info, $prepend_value, array $ids_filter = null){
 		//we need to fetch the controls
 		if(!App::import('Model', $main_model_info['DatamartStructure']['plugin'].".".$main_model_info['DatamartStructure']['control_model'])){
 			$app_controller->redirect( '/pages/err_model_import_failed?p[]='.$main_model_info['DatamartStructure']['plugin'].".".$main_model_info['DatamartStructure']['control_model'], NULL, TRUE );
 		}
 		$control_model = new $main_model_info['DatamartStructure']['control_model']();
-		$children_data = $control_model->find('all', array('order' => $main_model_info['DatamartStructure']['control_model'].'.databrowser_label'));
+		$conditions = array();
+		if($ids_filter != null){
+			$conditions = $main_model_info['DatamartStructure']['control_model'].'.id IN('.implode(", ", $ids_filter).')';
+		}
+		$children_data = $control_model->find('all', array('order' => $main_model_info['DatamartStructure']['control_model'].'.databrowser_label', 'conditions' => $conditions));
 		$children_arr = array();
 		foreach($children_data as $child_data){
 			$parts = explode("|", $child_data[$main_model_info['DatamartStructure']['control_model']]['databrowser_label']);
@@ -442,5 +451,44 @@ class Browser extends DatamartAppModel {
 		$model_to_use = new $model();
 		$data = $model_to_use->find('first', array('conditions' => array($model.".id" => $id)));
 		return $data[$model];
+	}
+	
+	/**
+	 * @desc Filters the required sub models controls ids based on the current sub control id. NOTE: This
+	 * function is hardcoded for Storage and Aliquots using some specific db id.</p>
+	 * @param array $browsing The DatamartStructure and BrowsingResult data to base the filtering on.
+	 * @return An array with the ControlModel => array(ids to filter with)
+	 */
+	static function getDropdownSubFiltering(array $browsing){
+		self::getDropdownSubFiltering();
+		$sub_models_id_filter = array();
+		if($browsing['DatamartStructure']['id'] == 5){
+			//sample->aliquot hardcoded part
+			assert($browsing['DatamartStructure']['control_master_model'] == "SampleMaster");//will print a warning if the id and field doesnt match anymore
+			if(!App::import("model", "Inventorymanagement.SampleToAliquotControl")){
+				AppController::getInstance()->redirect( '/pages/err_model_import_failed?p[]=Inventorymanagement.SampleToAliquotControl', NULL, TRUE );
+			}
+			$stac = new SampleToAliquotControl();
+			$data = $stac->find('all', array('conditions' => array("SampleToAliquotControl.sample_control_id" => $browsing['BrowsingResult']['browsing_structures_sub_id']), 'recursive' => -1));
+			$ids = array();
+			foreach($data as $unit){
+				$ids[] = $unit['SampleToAliquotControl']['aliquot_control_id'];
+			}
+			$sub_models_id_filter['AliquotControl'] = $ids;
+		}else if($browsing['DatamartStructure']['id'] == 1){
+			//aliquot->sample hardcoded part
+			assert($browsing['DatamartStructure']['control_master_model'] == "AliquotMaster");//will print a warning if the id and field doesnt match anymore
+			if(!App::import("model", "Inventorymanagement.SampleToAliquotControl")){
+				AppController::getInstance()->redirect( '/pages/err_model_import_failed?p[]=Inventorymanagement.SampleToAliquotControl', NULL, TRUE );
+			}
+			$stac = new SampleToAliquotControl();
+			$data = $stac->find('all', array('conditions' => array("SampleToAliquotControl.aliquot_control_id" => $browsing['BrowsingResult']['browsing_structures_sub_id']), 'recursive' => -1));
+			$ids = array();
+			foreach($data as $unit){
+				$ids[] = $unit['SampleToAliquotControl']['sample_control_id'];
+			}
+			$sub_models_id_filter['SampleControl'] = $ids;
+		}
+		return $sub_models_id_filter;
 	}
 }

@@ -60,6 +60,7 @@ class BrowserController extends DatamartAppController {
 				$result_structure = null;
 				//check for detailed structure
 				$search_conditions = unserialize($browsing['BrowsingResult']['serialized_search_params']);
+				$sub_models_id_filter = array();
 				if(strlen($browsing['DatamartStructure']['control_model']) > 0 && $browsing['BrowsingResult']['browsing_structures_sub_id'] > 0){
 					$alternate_info = Browser::getAlternateStructureInfo(
 						$browsing['DatamartStructure']['plugin'], 
@@ -71,6 +72,7 @@ class BrowserController extends DatamartAppController {
 					$model_name_to_search = $browsing['DatamartStructure']['control_master_model'];
 					$use_key = "id";
 					$this->set("header", array("title" => __("result", true), "description" => __($browsing['DatamartStructure']['display_name'], true)." - ".__($alternate_info['databrowser_label'], true)));
+					$sub_models_id_filter = Browser::getDropdownSubFiltering($browsing);
 				}else{
 					$result_structure = $this->Structures->getFormById($browsing['DatamartStructure']['structure_id']);
 					$model_to_import = $browsing['DatamartStructure']['plugin'].".".$browsing['DatamartStructure']['model'];
@@ -91,7 +93,7 @@ class BrowserController extends DatamartAppController {
 				$this->set('type', "checklist");
 				$this->set('checklist_key', $model_name_to_search.".".$use_key);
 				$this->set('checklist_key_name', $browsing['DatamartStructure']['model'].".".$browsing['DatamartStructure']['use_key']);
-				$this->set("dropdown_options", $this->Browser->getDropdownOptions($browsing['DatamartStructure']['id'], $parent_node, $browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['model'], $browsing['DatamartStructure']['use_key'], $result_structure['Structure']['alias']));
+				$this->set("dropdown_options", $this->Browser->getDropdownOptions($browsing['DatamartStructure']['id'], $parent_node, $browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['model'], $browsing['DatamartStructure']['use_key'], $result_structure['Structure']['alias'], $sub_models_id_filter));
 				$this->Structures->set("datamart_browser_start");
 				$this->set("result_structure", $result_structure);
 			}
@@ -292,20 +294,21 @@ class BrowserController extends DatamartAppController {
 			if($check_list){
 				//checkboxes
 				$parent_node = $save['BrowsingResult']['id'];
-				$this->set("dropdown_options", $this->Browser->getDropdownOptions($last_control_id, $parent_node, $browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['model'], $browsing['DatamartStructure']['use_key'], $result_structure['Structure']['alias']));
-				
+				$sub_models_id_filter = array();
 				if(isset($sub_sustrcute_id) && strlen($browsing['DatamartStructure']['control_model']) > 0){
 					$alternate_info = Browser::getAlternateStructureInfo($browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['control_model'], $sub_sustrcute_id);
 					$alternate_alias = $alternate_info['form_alias'];
 					$this->Structures->set($alternate_alias, "result_structure");
-					$last_control_id .= "-".$sub_sustrcute_id;
 					$this->set('checklist_key', $browsing['DatamartStructure']['control_master_model'].".id");
 					$this->set("header", array("title" => __("result", true), "description" => __($browsing['DatamartStructure']['display_name'], true)." - ".__($alternate_info['databrowser_label'], true)));
+					$browsing['BrowsingResult']['browsing_structures_sub_id'] = $sub_sustrcute_id;
+					$sub_models_id_filter = Browser::getDropdownSubFiltering($browsing);
 				}else{
 					$this->set('checklist_key', $browsing['DatamartStructure']['model'].".".$browsing['DatamartStructure']['use_key']);
 					$this->set("result_structure", $result_structure); 
 					$this->set("header", array("title" => __("result", true), "description" => __($browsing['DatamartStructure']['display_name'], true)));
 				}
+				$this->set("dropdown_options", $this->Browser->getDropdownOptions($last_control_id, $parent_node, $browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['model'], $browsing['DatamartStructure']['use_key'], $result_structure['Structure']['alias'], $sub_models_id_filter));
 				$this->set('checklist_key_name', $browsing['DatamartStructure']['model'].".".$browsing['DatamartStructure']['use_key']);
 				$this->set('type', "checklist");
 				$this->Structures->set("datamart_browser_start");
