@@ -216,8 +216,8 @@ class StructuresComponent extends Object {
 								
 								if(isset($form_fields[$form_fields_key]['cast_icd'])){
 									//special magical icd case
-									$coding_icd = $form_fields[$form_fields_key]['cast_icd']::getInstance();
-									$data = $coding_icd->getCastedSearchParams($data, $form_fields[$form_fields_key]['exact']);
+									eval('$instance = '.$form_fields[$form_fields_key]['cast_icd'].'::getInstance();');
+									$data = $instance->getCastedSearchParams($data, $form_fields[$form_fields_key]['exact']);
 								}else if ( strpos($form_fields[$form_fields_key]['key'], ' LIKE')!==false ) {
 									if(is_array($data)){
 										$conditions[] = "(".$form_fields[$form_fields_key]['key']." '%".implode("%' OR ".$form_fields[$form_fields_key]['key']." '%", $data)."%')";
