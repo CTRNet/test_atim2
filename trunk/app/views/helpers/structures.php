@@ -1335,7 +1335,8 @@ class StructuresHelper extends Helper {
 						foreach(AppModel::getMagicCodingIcdTriggerArray() as $key => $trigger){
 							if(strpos($field['StructureField']['setting'], $trigger) !== false){
 								foreach($display_value_raw as &$value){
-									$value .= " - ".$key::getInstance()->getDescription($value);
+									eval('$instance = '.$key.'::getInstance();');
+									$value .= " - ".$instance->getDescription($value);
 								}
 							}
 						}
