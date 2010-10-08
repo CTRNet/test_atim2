@@ -292,11 +292,6 @@ class StructuresHelper extends Helper {
 									</tr>
 								';
 							}
-							$tmp_advanced = "";
-							//FMLHHHHHHHHHHHHHHH
-							if($options['type'] == "search" && show_advanced_controls){
-								//$tmp_advanced = "<span><a class='adv_ctrl btn_add_or' onclick='return false;' href='#'>(+)</a></span>";
-							}
 							
 							$return_string .= '
 									<tr class="'.$table_row['type'].'">
@@ -317,7 +312,6 @@ class StructuresHelper extends Helper {
 							}else{
 								$return_string .= $td_open											
 												.( $options['links']['top'] && $options['settings']['form_inputs'] ? $table_row['input'] : $table_row['content'] ).'
-												'.$tmp_advanced.'
 											</td>
 								';
 							}
@@ -370,10 +364,6 @@ class StructuresHelper extends Helper {
 						
 				} // end COLUMN 
 				
-				// tack on EXTRAS end, if any
-				// $return_string .= $this->display_extras( 'edit', $extras, 'end', count($table_index) );
-			
-			
 			$return_string .= '
 					</tr>
 				</tbody>
