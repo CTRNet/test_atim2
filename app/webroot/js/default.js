@@ -237,7 +237,7 @@ function uncheckAll( $div ) {
 	 */
 	function initAdvancedControls(scope){
 		//for each add or button
-		$(scope + " .btn_add_or").each(function(){
+		$(scope).find(".btn_add_or").each(function(){
 			var $field = $(this).parent().parent().find("span:first");
 			if($($field).find("input, select").length == 1){
 				$($field).find("input, select").each(function(){
@@ -268,6 +268,8 @@ function uncheckAll( $div ) {
 						initDatepicker(this);
 					});
 					
+					initAutocomplete($newField);
+					initToolPopup($newField);
 					
 					//bind the remove command to the remove button
 					$(this).parent().parent().find(".btn_rmv_or:last").click(function(){
@@ -285,11 +287,11 @@ function uncheckAll( $div ) {
 			}
 		});
 		
-		$(scope + " .range").each(function(){
+		$(scope).find(".range").each(function(){
 			//uses .btn_add_or to know if this is a search form and if advanced controls are on
 			$(this).parent().parent().find(".btn_add_or").parent().append(" <a href='#' class='range_btn'>(" + STR_RANGE + ")</a>");
 		});
-		$(scope + " .range_btn").toggle(function(){
+		$(scope).find(".range_btn").toggle(function(){
 			var cell = getParentElement(this, "TD");
 			$(cell).find("input").val("");
 			if($(cell).find(".range_span").length == 0){
@@ -360,8 +362,8 @@ function uncheckAll( $div ) {
 		return getParentElement(element, "TR");
 	}
 	
-	function initAutocomplete(){
-		$(".jqueryAutocomplete").each(function(){
+	function initAutocomplete(scope){
+		$(scope).find(".jqueryAutocomplete").each(function(){
 			var json = getJsonFromClass($(this).attr("class"));
 			var fct = eval("(" + json.callback + ")");
 			fct.apply(this, [this, json]);
@@ -412,14 +414,14 @@ function uncheckAll( $div ) {
 	 * @param scope The scope where to look for those controls. In a popup, the scope will be the popup box
 	 */
 	function initCheckAll(scope){
-		var elem = $(scope + " .checkAll");
+		var elem = $(scope).find(".checkAll");
 		if(elem.length > 0){
 			parent = getParentElement(elem, "TBODY");
 			$(elem).click(function(){
 				$(parent).find('input[type=checkbox]').attr("checked", true);
 				return false;
 			});
-			$(scope + " .uncheckAll").click(function(){
+			$(scope).find(".uncheckAll").click(function(){
 				$(parent).find('input[type=checkbox]').attr("checked", false);
 				return false;
 			});
@@ -462,6 +464,32 @@ function uncheckAll( $div ) {
 				$("#deleteConfirmPopup").popup('close');
 			});
 		}
+	}
+	
+	//tool_popup
+	function initToolPopup(scope){
+		$(scope).find(".tool_popup").click(function(){
+			var parent_elem = $(this).parent().children();
+			toolTarget = null;
+			for(i = 0; i < parent_elem.length; i ++){
+				//find the current element
+				if(parent_elem[i] == this){
+					for(j = i - 1; j >= 0; j --){
+						//find the previous input
+						if(parent_elem[j].nodeName == "INPUT"){
+							toolTarget = parent_elem[j];
+							break;
+						}
+					}
+					break;
+				}
+			}
+			$.get($(this).attr("href"), null, function(data){
+				$("#default_popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>").popup();
+				$("#default_popup input[type=text]").first().focus();
+			});
+			return false;
+		});
 	}
 	
 	function initJsControls(){
@@ -525,8 +553,9 @@ function uncheckAll( $div ) {
 			return false;
 		});
 		
-		initAutocomplete();
-		initAdvancedControls("");
+		initAutocomplete(document);
+		initAdvancedControls(document);
+		initToolPopup(document);
 		initTooltips();
 		initActions();
 		initSummary();
@@ -537,31 +566,9 @@ function uncheckAll( $div ) {
 			initDatepicker(this);
 		});
 		
-		//tool_popup
-		$(".tool_popup").click(function(){
-			var parent_elem = $(this).parent().children();
-			toolTarget = null;
-			for(i = 0; i < parent_elem.length; i ++){
-				//find the current element
-				if(parent_elem[i] == this){
-					for(j = i - 1; j >= 0; j --){
-						//find the previous input
-						if(parent_elem[j].nodeName == "INPUT"){
-							toolTarget = parent_elem[j];
-							break;
-						}
-					}
-					break;
-				}
-			}
-			$.get($(this).attr("href"), null, function(data){
-				$("#default_popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>").popup();
-				$("#default_popup input[type=text]").first().focus();
-			});
-			return false;
-		});
 		
-		initCheckAll("");
+		
+		initCheckAll(document);
 	}
 
 	function debug(str){
