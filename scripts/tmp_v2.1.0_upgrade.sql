@@ -3259,6 +3259,107 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 (SELECT id FROM structure_fields WHERE `model`='Adhoc' AND `tablename`='datamart_adhoc' AND `field`='title'), 
 '1', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '1', '1');
 
+-- Report upgrade
 
-  
-  
+DROP TABLE IF EXISTS datamart_reports_revs;
+ALTER TABLE datamart_reports
+  ADD `form_alias_for_search` varchar(255) DEFAULT NULL AFTER `description`,
+  ADD `form_alias_for_results` varchar(255) DEFAULT NULL AFTER `form_alias_for_search`,
+  ADD `form_type_for_results` enum('detail','index') NOT NULL AFTER `form_alias_for_results`,
+  ADD `flag_active` tinyint(1) NOT NULL DEFAULT '1' AFTER `function`,
+  DROP FOREIGN KEY `datamart_reports_ibfk_1`,
+  DROP COLUMN `datamart_structure_id`,
+  DROP COLUMN `serialized_representation`;
+
+DELETE FROM `datamart_reports`;
+INSERT INTO `datamart_reports` (`id`, `name`, `description`, `form_alias_for_search`, `form_alias_for_results`, `form_type_for_results`, `function`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, 'bank activity report', 'number of new participants created, consents obtained and participants having samples collected', 'report_date_range_definition', 'bank_activty_report', 'detail', 'bankActiviySummary', '0000-00-00 00:00:00', 0, NULL, 0),
+(null, 'specimens collection/derivatives creation', 'n/a', 'report_datetime_range_definition', 'specimen_and_derivative_creation_summary', 'index', 'sampleAndDerivativeCreationSummary', '0000-00-00 00:00:00', 0, NULL, 0),
+(null, 'bank activity report (per period)', 'number of new participants created, consents obtained and participants having samples collected', 'report_date_range_and_period_definition', 'bank_activty_report', 'detail', 'bankActiviySummaryPerPeriod', '0000-00-00 00:00:00', 0, NULL, 0);
+
+INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) 
+VALUES 
+('report_date_range_definition', '', '', '1', '1', '1', '1'),
+('report_datetime_range_definition', '', '', '1', '1', '1', '1'),
+('bank_activty_report', '', '', '1', '1', '1', '1'),
+('specimen_and_derivative_creation_summary', '', '', '1', '1', '1', '1'),
+('report_date_range_and_period_definition', '', '', '1', '1', '1', '1');
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("year", "year"),("month", "month");
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('date_range_period', '', '', NULL);
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="date_range_period"),  
+(SELECT id FROM structure_permissible_values WHERE value="year" AND language_alias="year"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="date_range_period"),  
+(SELECT id FROM structure_permissible_values WHERE value="month" AND language_alias="month"), "1", "1");
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) 
+VALUES 
+('', 'Datamart', '0', '', 'report_date_range', 'date range', '', 'date', '', '',  NULL , '', 'open', 'open', 'open'),
+('', 'Datamart', '0', '', 'report_datetime_range', 'date range', '', 'datetime', '', '',  NULL , '', 'open', 'open', 'open'),
+('', 'Datamart', '0', '', 'new_participants_nbr', 'created participants', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'),
+('', 'Datamart', '0', '', 'obtained_consents_nbr', 'obtained consents', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'),
+('', 'Datamart', '0', '', 'new_collections_nbr', 'participants having collected samples', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'),
+('', 'Datamart', '0', '', 'created_samples_nbr', 'number of new samples', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'),
+('', 'Datamart', '0', '', 'matching_participant_number', 'matching participant number', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'),
+('', 'Datamart', '0', '', 'report_date_range_period', 'date range period', '', 'select', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name = 'date_range_period') , '', 'open', 'open', 'open');
+ 
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='report_date_range_definition'), 
+(SELECT id FROM structure_fields WHERE field LIKE 'report_date_range' AND model LIKE '0'), 
+'0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0'),
+((SELECT id FROM structures WHERE alias='report_datetime_range_definition'), 
+(SELECT id FROM structure_fields WHERE field LIKE 'report_datetime_range' AND model LIKE '0'), 
+'0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0'), 
+ ((SELECT id FROM structures WHERE alias='bank_activty_report'), 
+(SELECT id FROM structure_fields WHERE field LIKE 'new_participants_nbr' AND model LIKE '0'), 
+'0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='bank_activty_report'), 
+(SELECT id FROM structure_fields WHERE field LIKE 'obtained_consents_nbr' AND model LIKE '0'), 
+'0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='bank_activty_report'), 
+(SELECT id FROM structure_fields WHERE field LIKE 'new_collections_nbr' AND model LIKE '0'), 
+'0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='specimen_and_derivative_creation_summary'), 
+(SELECT id FROM structure_fields WHERE field LIKE 'sample_category' AND model LIKE 'SampleMaster'), 
+'0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='specimen_and_derivative_creation_summary'), 
+(SELECT id FROM structure_fields WHERE field LIKE 'sample_type' AND model LIKE 'SampleMaster'), 
+'0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='specimen_and_derivative_creation_summary'), 
+(SELECT id FROM structure_fields WHERE field LIKE 'created_samples_nbr' AND plugin LIKE 'Datamart'), 
+'0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='specimen_and_derivative_creation_summary'), 
+(SELECT id FROM structure_fields WHERE field LIKE 'matching_participant_number' AND plugin LIKE 'Datamart'), 
+'0', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='report_date_range_and_period_definition'), 
+(SELECT id FROM structure_fields WHERE field LIKE 'report_date_range' AND model LIKE '0'), 
+'0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0'),
+((SELECT id FROM structures WHERE alias='report_date_range_and_period_definition'), 
+(SELECT id FROM structure_fields WHERE field LIKE 'report_date_range_period' AND model LIKE '0'), 
+'0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0'); 
+ 
+INSERT IGNORE into i18n (id, en, fr) VALUES
+('bank activity report', 'Bank Activity Report', 'Rapport d''activité'),
+('bank activity report (per period)', 'Bank Activity Report (Per Period)', 'Rapport d''activité (Par période)'),
+('date range period', 'Period', 'Période'),
+('no perido has been defined','No perido has been defined!','Aucune période n''a été définie!'),
+('number of new participants created, consents obtained and participants having samples collected', 
+'Number of created participants, obtained consents and participants having samples collected.', 
+'Nombre de participants créés, de consentements obtenus et d participants dont les échantillons ont été collectés.'),
+('created participants', 'Created Participants', 'Participants créés'),
+('number of report columns will be too big, please redefine parameters', 'The number of report columns will be too big, please redefine parameters!', 'Le nombre de colonnes de votre rapport est trop important, redéfinissez les valeurs de recherche!'),
+('obtained consents', 'Obtained Consents', 'Consentements Obtenus'),
+('date range', 'Date Range', 'Intervalle de dates'),
+('participants having collected samples', 'Participants Having Collected Samples', 'Participants ayant échantillons collectés'),
+('specimens collection/derivatives creation', 'Specimens Collection/Derivatives Creation', 'Collections des spécimens/Creations de dérivés'),
+('number of new samples', 'Number of New Samples', 'Nombre de nouveaux échantillons'),
+('matching participant number', 'Matching Participant Number', 'Nombre de participants correspondants');
+
+UPDATE menus SET use_summary = 'Datamart.Report::summary' WHERE id = 'qry-CAN-1-2';
+
+
+
+
+
