@@ -305,6 +305,91 @@ class AppController extends Controller {
 			return $formated_date.($nbsp_spaces ? "&nbsp;" : "").$time;
 	}
 	
+	/**
+	 * Return formatted date in SQL format from a date array returned by an application form.
+	 * 
+	 * @param $datetime_array Array gathering date data into following structure:
+	 * 	array('month' => string, '
+	 * 		'day' => string, 
+	 * 		'year' => string, 
+	 * 		'hour' => string, 
+	 * 		'min' => string)
+	 * @param $date_type  Specify the type of date ('normal', 'start', 'end')
+	 * 		- normal => Will force function to build a date witout specific rules.
+	 *      - start => Will force function to build date as a 'start date' of date range defintion 
+	 *    		(ex1: when just year is specified, will return a value like year-01-01 00:00)
+	 *    		(ex2: when array is empty, will return a value like -9999-99-99 00:00)
+	 *      - end => Will force function to build date as an 'end date' of date range defintion 
+	 *    		(ex1: when just year is specified, will return a value like year-12-31 23:59)
+	 *    		(ex2: when array is empty, will return a value like 9999-99-99 23:59)      
+	 * 
+	 * @return string The formated SQL date having following format yyyy-MM-dd hh:mn
+	 */
+	static function getFormatedDatetimeSQL($datetime_array, $date_type = 'normal') {
+		
+		$formatted_date = '';
+		switch($date_type) {
+			case 'normal':
+				if((!empty($datetime_array['year'])) && (!empty($datetime_array['month'])) && (!empty($datetime_array['day']))) {
+					$formatted_date =  $datetime_array['year'].'-'.$datetime_array['month'].'-'.$datetime_array['day'];
+				}
+				if((!empty($formatted_date)) && (!empty($datetime_array['hour']))) {
+					$formatted_date .= ' '.$datetime_array['hour'].':'.(empty($datetime_array['min'])? '00':$datetime_array['min']);
+				}
+				break;
+				
+			case 'start':
+				if(empty($datetime_array['year'])) {
+					$formatted_date = '-9999-99-99 00:00';
+				} else {
+					$formatted_date = $datetime_array['year'];
+					if(empty($datetime_array['month'])) {
+						$formatted_date .= '-01-01 00:00';
+					} else {
+						$formatted_date .= '-'.$datetime_array['month'];
+						if(empty($datetime_array['day'])) {
+							$formatted_date .= '-01 00:00';
+						} else {
+							$formatted_date .= '-'.$datetime_array['day'];
+							if(empty($datetime_array['hour'])) {
+								$formatted_date .= ' 00:00';
+							} else {							
+								$formatted_date .= ' '.$datetime_array['hour'].':'.(empty($datetime_array['min'])?'00':$datetime_array['min']);
+							}
+						}
+					}
+				}
+				break;
+				
+			case 'end':
+				if(empty($datetime_array['year'])) {
+					$formatted_date = '9999-12-31 23:59';
+				} else {
+					$formatted_date = $datetime_array['year'];
+					if(empty($datetime_array['month'])) {
+						$formatted_date .= '-12-31 23:59';
+					} else {
+						$formatted_date .= '-'.$datetime_array['month'];
+						if(empty($datetime_array['day'])) {
+							$formatted_date .= '-31 23:59';
+						} else {
+							$formatted_date .= '-'.$datetime_array['day'];
+							if(empty($datetime_array['hour'])) {
+								$formatted_date .= ' 23:59';
+							} else {							
+								$formatted_date .= ' '.$datetime_array['hour'].':'.(empty($datetime_array['min'])?'59':$datetime_array['min']);
+							}
+						}
+					}
+				}
+				break;
+				
+			default:		
+		}
+		
+		return $formatted_date;
+	}
+	
 	static function addWarningMsg($msg){
 		$_SESSION['ctrapp_core']['warning_msg'][] = $msg;
 	}
