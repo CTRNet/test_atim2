@@ -12,12 +12,43 @@ class AppModel extends Model {
 			"CodingIcdo3Topo" => "/codingicd/CodingIcd03s/tool/topo");
 	
 	/**
+	 * @desc Used to store the previous model when a model is recreated for detail search
+	 * @var SampleMaster
+	 */
+	var $previous_model = null;
+
+	/**
+	 * @desc If $base_model_name and $detail_table are not null, a new hasOne relationship is created before calling the parent constructor.
+	 * This is convenient for search based on master/detail detail table.
+	 * @param unknown_type $id (see parent::__construct)
+	 * @param unknown_type $table (see parent::__construct)
+	 * @param unknown_type $ds (see parent::__construct) 
+	 * @param string $base_model_name The base model name of a master/detail model
+	 * @param string $detail_table The name of the table to use for detail
+	 * @param AppModel $previous_model The previous model prior to that new creation (purely for convenience)
+	 * @see parent::__construct
+	 */
+	function __construct($id = false, $table = null, $ds = null, $base_model_name = null, $detail_table = null, $previous_model = null) {
+		if($detail_table != null && $base_model_name != null){
+			$this->hasOne[$base_model_name.'Detail'] = array(
+						'className'   => $detail_table,
+					 	'foreignKey'  => strtolower($base_model_name).'_master_id',
+					 	'dependent' => true);
+			if($previous_model != null){
+				$this->previous_model = $previous_model;
+			}
+		}
+		parent::__construct($id, $table, $ds);
+	}
+	
+	
+	
+	/**
 	 * Ensures that the "created_by" and "modified_by" user id columns are set automatically for all models. This requires
 	 * adding in access to the session to the model.
 	 * 
 	 * Replace float decimal separator ',' by '.'.
 	**/
-	 
 	function beforeSave(){
 		if ( !isset($this->Session) || !$this->Session ){
 			if( App::import('Model', 'CakeSession')) $this->Session = new CakeSession(); 
