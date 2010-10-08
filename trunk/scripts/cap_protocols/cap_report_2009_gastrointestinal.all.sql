@@ -46,8 +46,7 @@ DROP TABLE IF EXISTS `dxd_cap_report_smintestines`;
 
 CREATE TABLE IF NOT EXISTS `dxd_cap_report_smintestines` (
   `id` int(10) NOT NULL auto_increment,
-  `diagnosis_master_id` int(11) NOT NULL DEFAULT 0,
-  
+  `diagnosis_master_id` int(11) NOT NULL DEFAULT 0, 
   -- Specimen
   `duodenum` tinyint(1) NULL DEFAULT 0,
   `small_intestine_other_than_duodenum` tinyint(1) NULL DEFAULT 0,
