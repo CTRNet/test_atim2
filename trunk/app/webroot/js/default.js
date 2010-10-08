@@ -238,7 +238,7 @@ function uncheckAll( $div ) {
 	function initAdvancedControls(scope){
 		//for each add or button
 		$(scope).find(".btn_add_or").each(function(){
-			var $field = $(this).parent().parent().find("span:first");
+			var $field = $(this).prev();
 			if($($field).find("input, select").length == 1){
 				$($field).find("input, select").each(function(){
 					$(this).attr("name", $(this).attr("name") + "[]");
@@ -255,9 +255,9 @@ function uncheckAll( $div ) {
 				//when we click
 				$(this).click(function(){
 					//append it into the text field with "or" string + btn_remove
-					$(this).parent().parent().append("<span class='adv_ctrl'>" + STR_OR + fieldHTML + "<a href='#' onclick='return false;' class='adv_ctrl btn_rmv_or'>(-)</a></span> ");
+					$(this).parent().append("<span class='adv_ctrl " + $($field).attr("class") + "' style='" + $($field).attr("style") + "'>" + STR_OR + " " + fieldHTML + "<a href='#' onclick='return false;' class='adv_ctrl btn_rmv_or'>(-)</a></span> ");
 					//find the newly generated input
-					var $newField = $(this).parent().parent().find("span.adv_ctrl:last");
+					var $newField = $(this).parent().find("span.adv_ctrl:last");
 					//update its id
 					$($newField).find("input, select").each(function(){
 						$(this).attr("id", $(this).attr("id") + "_" + idIncrement);
@@ -272,11 +272,11 @@ function uncheckAll( $div ) {
 					initToolPopup($newField);
 					
 					//bind the remove command to the remove button
-					$(this).parent().parent().find(".btn_rmv_or:last").click(function(){
+					$(this).parent().find(".btn_rmv_or:last").click(function(){
 						$(this).parent().remove();
 					});
 					//move the add button to the end
-					$(this).parent().parent().append($(this).parent());
+					$(this).parent().append($(this));
 					
 					//reset the highlighting
 					$('form').highlight('tr');

@@ -293,8 +293,9 @@ class StructuresHelper extends Helper {
 								';
 							}
 							$tmp_advanced = "";
+							//FMLHHHHHHHHHHHHHHH
 							if($options['type'] == "search" && show_advanced_controls){
-								$tmp_advanced = "<span><a class='adv_ctrl btn_add_or' onclick='return false;' href='#'>(+)</a></span>";
+								//$tmp_advanced = "<span><a class='adv_ctrl btn_add_or' onclick='return false;' href='#'>(+)</a></span>";
 							}
 							
 							$return_string .= '
@@ -1914,23 +1915,19 @@ class StructuresHelper extends Helper {
 						
 					}
 					
-					/*
-					// add EXTRA, if key exists for this form MODEL/FIELD
-					if ( isset( $extras[$model_suffix.$field['StructureField']['model'].'.'.$field['StructureField']['field']] ) ) {
-						$display_value .= '
-							<br /><br />
-							'.$extras[$model_suffix.$field['StructureField']['model'].'.'.$field['StructureField']['field']].'
-						';
-					}
-					*/
+					//$tmp_advanced = "<span><a class='adv_ctrl btn_add_or' onclick='return false;' href='#'>(+)</a></span>";
+					//$display_value .= "<span><a class='adv_ctrl btn_add_or' onclick='return false;' href='#'>(+)</a></span><br/>";
 					
 					// put display_value into CONTENT array index, ELSE put span tag if value BLANK and INCREMENT empty index 
-						if ( trim($display_value)!='' ) {
-							$tmpInput = $table_index[ $field['display_column'] ][ $row_count ]['tag'].$display_value.' ';
+						if (trim($display_value) != '') {
+							$tmp_input = $table_index[ $field['display_column'] ][ $row_count ]['tag'].$display_value.' ';
 							if($options['type'] != 'datagrid'){
-								$tmpInput = "<span style='white-space: nowrap;'>".$tmpInput."</span>";
+								$tmp_input = "<span style='white-space: nowrap;'>".$tmp_input."</span>";
+								if($options['type'] == 'search'){
+									$tmp_input = "<div>".$tmp_input."<a class='adv_ctrl btn_add_or' onclick='return false;' href='#'>(+)</a></div>";
+								}
 							}
-							$table_index[ $field['display_column'] ][ $row_count ]['input'] .= $tmpInput;
+							$table_index[ $field['display_column'] ][ $row_count ]['input'] .= $tmp_input;
 						} else {
 							$table_index[ $field['display_column'] ][ $row_count ]['input'] .= $table_index[ $field['display_column'] ][ $row_count ]['tag'].'<span class="empty">-</span> ';
 							$table_index[ $field['display_column'] ][ $row_count ]['empty']++;
