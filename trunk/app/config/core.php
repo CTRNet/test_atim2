@@ -119,12 +119,12 @@
 /**
  * The name of CakePHP's session cookie.
  */
-	Configure::write('Session.cookie', 'CAKEPHP');
+	Configure::write('Session.cookie', 'CAKEPHP_ATIM');
 /**
  * Session time out time (in seconds).
  * Actual value depends on 'Security.level' setting.
  */
-	Configure::write('Session.timeout', '60');
+	Configure::write('Session.timeout', '6');
 /**
  * If set to false, sessions are not automatically started.
  */
@@ -146,7 +146,7 @@
  * CakePHP session IDs are also regenerated between requests if
  * 'Security.level' is set to 'high'.
  */
-	Configure::write('Security.level', Configure::read('debug') == 0 ? 'high' : 'low');
+	Configure::write('Security.level', Configure::read('debug') == 0 ? 'medium' : 'low');
 /**
  * A random string used in security hashing methods.
  */
