@@ -32,7 +32,7 @@ class CodingicdAppController extends AppController {
 				unset($this->data[$limit]);
 				$this->set("overflow", true);
 			}
-			$this->data = $model_to_use::convertDataToNeutralIcd($this->data);
+			$this->data = $model_to_use->convertDataToNeutralIcd($this->data);
 		}else{
 			die("Not implemented");
 		}
