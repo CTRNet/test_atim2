@@ -3364,5 +3364,10 @@ INSERT IGNORE into i18n (id, en, fr) VALUES
 ('followup', 'Follow-Up','Suivi'),
 ('adverse_event','Adverse Event','Effet indésirable');
  
-UPDATE fields SET plugin = 'Inventorymanagement' WHERE model = 'SpecimenReviewDetail' AND field = 'tumour_grade_category' AND plugin = 'ar_breast_tissue_slides';
+UPDATE structure_fields SET plugin = 'Inventorymanagement' WHERE model = 'SpecimenReviewDetail' AND field = 'tumour_grade_category' AND plugin = 'ar_breast_tissue_slides';
+
+DELETE FROM structure_formats WHERE structure_id IN (SELECT id FROM structures WHERE alias IN ('qry_diagnosis_results', 'qry_diagnosis_search', 'tma_slide_content_search'));
+DELETE FROM structures WHERE alias IN ('qry_diagnosis_results', 'qry_diagnosis_search', 'tma_slide_content_search');
+
+
 
