@@ -79,9 +79,6 @@ class ReportsController extends DatamartAppController {
 			$this->set('display_new_search', (empty($report['Report']['form_alias_for_search'])? false:true));
 			
 			if($csv_creation) {
-				pr($this->data);
-				pr('export as csv todo');
-				exit;
 				Configure::write('debug', 0);
 				$this->layout = false;
 			}

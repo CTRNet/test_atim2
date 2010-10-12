@@ -28,7 +28,13 @@
 			
 	} else {
 
-		if(!$csv_creation){
+		if($csv_creation){
+			if(!is_array($this->data[$k1[0]][$k2[0]])){
+				//cast find first data into find all
+				$this->data[0] = $this->data;
+			}
+			$structures->build($result_form_structure, array('type' => 'csv', 'data' => $this->data, 'settings' => array('all_fields' => true)));
+		}else{
 			
 			// ------------------------------------------
 			// DISPLAY RESULT FORM
@@ -39,38 +45,30 @@
 					'export as CSV file (comma-separated values)'=>'/datamart/reports/manageReport/' . $atim_menu_variables['Report.id'].'/'.true,
 					'list'=>'/datamart/reports/index/')
 			);
-			if($display_new_search) $structure_links['bottom']['new search'] = '/datamart/reports/manageReport/' . $atim_menu_variables['Report.id'];
+			if($display_new_search){
+				$structure_links['bottom']['new search'] = '/datamart/reports/manageReport/' . $atim_menu_variables['Report.id'];
+			}
 			
 			$structure_override = array();	
 			$settings = array('pagination' => false);
-			if (!empty($result_header)) $settings['header'] = $result_header;
-			if (!empty($result_columns_names)) $settings['columns_names'] = $result_columns_names;
+			if (!empty($result_header)){
+				$settings['header'] = $result_header;
+			}
+			if (!empty($result_columns_names)){
+				$settings['columns_names'] = $result_columns_names;
+			}
 			
 			$final_atim_structure = $result_form_structure; 	
 			$final_options = array('type'=>$result_form_type, 'links'=>$structure_links, 'override'=>$structure_override, 'settings' => $settings);
 			
 			// CUSTOM CODE
 			$hook_link = $structures->hook();
-			if( $hook_link ) { require($hook_link); }
+			if($hook_link){
+				require($hook_link);
+			}
 				
 			// BUILD FORM
 			$structures->build( $final_atim_structure, $final_options );
-					
-		} else {
-					
-			// ------------------------------------------
-			// Export result into CSV
-			// ------------------------------------------
-			echo 'export data into csv';
-			exit;
-			
-			//	foreach($this->data as $line){
-			//		echo(implode(csv_separator, $line)."\n");
-			//	}
-			//	$structures->build( $result_form_structure, array('type'=>'csv'));
-	
-	
-	
 		}
 	}
 
