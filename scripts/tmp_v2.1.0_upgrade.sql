@@ -3369,5 +3369,44 @@ UPDATE structure_fields SET plugin = 'Inventorymanagement' WHERE model = 'Specim
 DELETE FROM structure_formats WHERE structure_id IN (SELECT id FROM structures WHERE alias IN ('qry_diagnosis_results', 'qry_diagnosis_search', 'tma_slide_content_search'));
 DELETE FROM structures WHERE alias IN ('qry_diagnosis_results', 'qry_diagnosis_search', 'tma_slide_content_search');
 
+UPDATE structure_formats SET structure_field_id = (SELECT id FROM structure_fields WHERE tablename = 'diagnosis_masters' AND field = 'primary_icd10_code' AND type = 'autocomplete')
+WHERE structure_id IN (SELECT id FROM structures WHERE alias = 'clinicalcollectionlinks')
+AND structure_field_id = (SELECT id FROM structure_fields WHERE tablename = 'diagnosis_masters' AND field = 'primary_icd10_code' AND type = 'select');
+
+DELETE FROM structure_validations WHERE structure_field_id = (SELECT id FROM structure_fields WHERE tablename = 'diagnosis_masters' AND field = 'primary_icd10_code' AND type = 'select');
+DELETE FROM structure_fields WHERE tablename = 'diagnosis_masters' AND field = 'primary_icd10_code' AND type = 'select';
+
+UPDATE structure_formats 
+SET structure_field_id = (SELECT id FROM structure_fields WHERE tablename = 'diagnosis_masters' AND field = 'morphology' AND type = 'autocomplete')
+WHERE structure_id IN (SELECT id FROM structures WHERE alias = 'clinicalcollectionlinks')
+AND structure_field_id = (SELECT id FROM structure_fields WHERE tablename = 'diagnosis_masters' AND field = 'morphology' AND type = 'input');
+
+UPDATE structure_formats 
+SET structure_field_id = (SELECT id FROM structure_fields WHERE tablename = 'diagnosis_masters' AND field = 'topography' AND type = 'autocomplete')
+WHERE structure_id IN (SELECT id FROM structures WHERE alias = 'diagnosismasters')
+AND structure_field_id = (SELECT id FROM structure_fields WHERE tablename = 'diagnosis_masters' AND field = 'topography' AND type = 'input');
+
+DELETE FROM structure_fields WHERE tablename = 'diagnosis_masters' AND field IN ('topography', 'morphology') AND type IN ('select', 'input');
+
+INSERT IGNORE into i18n (id, en, fr) VALUES 
+('add new diagnosis', 'Add New Diagnosis', 'Ajouter un nouveau diagnostic'),
+('search for','Search For', 'Rechercher'),
+('back', 'Back', 'Recommencer'),
+
+('icdo3 morphology code picker', 'ICD-O-3 Morphology Code Picker', 'Sélection code morphologique ICD-O-3'),
+('search for an icdo3 morphology code', 'Search For An ICD-O-3 Morphology Code', 'Rechercher code morphologique ICD-O-3'),
+('select an icdo3 morphology code', 'Select An ICD-O-3 Morphology Code', 'Sélectionner code morphologique ICD-O-3'),
+
+('icdo3 topography code picker', 'ICD-O-3 Topography Code Picker', 'Sélection code topographique ICD-O-3'),
+('search for an icdo3 topography code', 'Search For An ICD-O-3 Topography Code', 'Rechercher code topographique ICD-O-3'),
+('select an icdo3 topography code', 'Select An ICD-O-3 Topography Code', 'Sélectionner code topographique ICD-O-3'),
+
+('icd10 code picker', 'ICD-10 Code Picker', 'Sélection code ICD-10'),
+('search for an icd10 code', 'Search For An ICD-10 Code', 'Rechercher code ICD-10'),
+('select an icd10 code', 'Select An ICD-10 Code', 'Sélectionner code  ICD-10'),
+
+('sub-title', 'Sub-Title', 'Sous-titre');
+
+UPDATE structure_fields SET language_label = 'code' WHERE model LIKE 'CodingIcd%' AND field LIKE 'id';
 
 
