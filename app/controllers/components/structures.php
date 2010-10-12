@@ -365,6 +365,11 @@ class StructuresComponent extends Object {
 	}
 
 	function getFormById($id){
+		if(!isset($this->Component_Structure)){
+			//when debug is off, Component_Structure is not initialized
+			App::import('model', 'Structure');
+			$this->Component_Structure = new Structure();
+		}
 		$data = $this->Component_Structure->find('first', array('conditions' => array('Structure.id' => $id), 'recursive' => -1));
 		return $this->get('form', $data['Structure']['alias']);
 	}
