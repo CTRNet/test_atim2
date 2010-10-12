@@ -1693,7 +1693,7 @@ div.wrapper table.structure td .databrowser td .info td{
 	background: url(../img/icons/consent_16x16.png) center no-repeat;
 }
 .databrowser td.diagnosis div.container{
-	background: url(../img/icons/xray_16x16.png) center no-repeat;
+	background: url(../img/icons/dx_16x16.png) center no-repeat;
 }
 .databrowser td.treatments div.container{
 	background: url(../img/icons/seringue_16x16.png) center no-repeat;
@@ -1756,7 +1756,7 @@ ul.actionDropdown a.consents{
 	background-repeat: no-repeat;
 }
 ul.actionDropdown a.diagnosis{
-	background-image: url(../img/icons/xray_16x16.png);
+	background-image: url(../img/icons/dx_16x16.png);
 	background-position: left center;
 	background-repeat: no-repeat;
 }
