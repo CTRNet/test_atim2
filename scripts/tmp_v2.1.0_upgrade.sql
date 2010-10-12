@@ -3363,4 +3363,6 @@ INSERT IGNORE into i18n (id, en, fr) VALUES
 ('adverse_events','Adverse Events','Effets indésirables'),
 ('followup', 'Follow-Up','Suivi'),
 ('adverse_event','Adverse Event','Effet indésirable');
- 	
+ 
+UPDATE fields SET plugin = 'Inventorymanagement' WHERE model = 'SpecimenReviewDetail' AND field = 'tumour_grade_category' AND plugin = 'ar_breast_tissue_slides';
+
