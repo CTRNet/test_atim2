@@ -29,11 +29,17 @@
 	} else {
 
 		if($csv_creation){
-			if(!is_array($this->data[$k1[0]][$k2[0]])){
+			$k1 = array_keys($this->data);
+			$k2 = array_keys($this->data[$k1[0]]);
+			if(!is_array($this->data[$k1[0]][$k2[0]]) || !empty($result_columns_names)){
 				//cast find first data into find all
 				$this->data[0] = $this->data;
 			}
-			$structures->build($result_form_structure, array('type' => 'csv', 'data' => $this->data, 'settings' => array('all_fields' => true)));
+			if (!empty($result_columns_names)){
+				$settings['columns_names'] = $result_columns_names;
+			}
+			$settings['all_fields'] = true;
+			$structures->build($result_form_structure, array('type' => 'csv', 'data' => $this->data, 'settings' => $settings));
 		}else{
 			
 			// ------------------------------------------
