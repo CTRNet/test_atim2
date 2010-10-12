@@ -3410,3 +3410,7 @@ INSERT IGNORE into i18n (id, en, fr) VALUES
 UPDATE structure_fields SET language_label = 'code' WHERE model LIKE 'CodingIcd%' AND field LIKE 'id';
 
 
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='topography' AND `type`='autocomplete' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='diagnosismasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='topography' AND type='input' AND structure_value_domain  IS NULL );
+-- Delete obsolete structure fields
+DELETE FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='topography' AND `type`='input' AND structure_value_domain IS NULL 
+

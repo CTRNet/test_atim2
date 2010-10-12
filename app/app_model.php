@@ -9,7 +9,7 @@ class AppModel extends Model {
 			"CodingIcd10Who" => "/codingicd/CodingIcd10s/tool/who", 
 			"CodingIcd10Ca" => "/codingicd/CodingIcd10s/tool/ca", 
 			"CodingIcdo3Morpho" => "/codingicd/CodingIcdo3s/tool/morpho", 
-			"CodingIcdo3Topo" => "/codingicd/CodingIcd03s/tool/topo");
+			"CodingIcdo3Topo" => "/codingicd/CodingIcdo3s/tool/topo");
 	
 	/**
 	 * @desc Used to store the previous model when a model is recreated for detail search
