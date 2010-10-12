@@ -4,7 +4,9 @@
 
 	<?php
 		//cookie manipulation to counter cake problems. see eventum #1032
-		setcookie(Configure::read("Session.cookie"), $_COOKIE[Configure::read("Session.cookie")], mktime() + Configure::read("Session.timeout") * (Configure::read("Security.level") == "low" ? 1800 : 100), "/");
+		if(isset($_COOKIE[Configure::read("Session.cookie")])){
+			setcookie(Configure::read("Session.cookie"), $_COOKIE[Configure::read("Session.cookie")], mktime() + Configure::read("Session.timeout") * (Configure::read("Security.level") == "low" ? 1800 : 100), "/");
+		}
 		
 		$header = $shell->header( array('atim_menu_for_header'=>$atim_menu_for_header,'atim_menu'=>$atim_menu,'atim_menu_variables'=>$atim_menu_variables) );
 		$title = $this->loaded['shell']->pageTitle;
