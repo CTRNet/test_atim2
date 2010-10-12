@@ -3359,7 +3359,8 @@ INSERT IGNORE into i18n (id, en, fr) VALUES
 
 UPDATE menus SET use_summary = 'Datamart.Report::summary' WHERE id = 'qry-CAN-1-2';
 
-
-
-
-
+INSERT IGNORE into i18n (id, en, fr) VALUES
+('adverse_events','Adverse Events','Effets indésirables'),
+('followup', 'Follow-Up','Suivi'),
+('adverse_event','Adverse Event','Effet indésirable');
+ 	
