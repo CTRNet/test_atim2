@@ -763,31 +763,35 @@ class StructuresHelper extends Helper {
 			unset($options['stack']);
 		}
 
-		if ( is_array($table_structure) ) {
-			if ( count($data) ) {
-				//header line
-				$line = array();
-				foreach ( $table_structure[0] as $table_column ) {
-					foreach ( $table_column as $fm => $table_row ) {
-						$line[] = $table_row['label'];
+		if(is_array($table_structure) && count($data)){
+			if(isset($options['settings']['columns_names']) && count($options['settings']['columns_names']) > 0){
+				//reformat the data array for structures with columns_names
+				$tmp = $table_structure;
+				$table_structure = array();
+				foreach($options['settings']['columns_names'] as $column_index => $column_name){
+					$table_structure[$column_index][0][0] = array('label' => '', 'plain' => str_replace("&nbsp;", " ", $column_name));//column name is used a a row name here
+					foreach($tmp[0][0] as $unit_index => $unit){
+						$table_structure[$column_index][0][$unit_index] = array('label' => $unit['label'], 'plain' => $unit['content'][$column_name]);
 					}
 				}
+			}
+
+			//header line
+			$line = array();
+			foreach ( $table_structure[0] as $table_column ) {
+				foreach ( $table_column as $fm => $table_row ) {
+					$line[] = $table_row['label'];
+				}
+			}
+			$this->Csv->addRow($line);
+
+			//content
+			foreach ( $table_structure as $table_column ) {
+				$line = array();
+				foreach ( $table_column[0] as $fm => $table_row ) {
+					$line[] = $table_row['plain'];
+				}
 				$this->Csv->addRow($line);
-				
-				// each column in table
-				foreach ( $data as $key=>$val ) {
-					$line = array();
-						
-					// each column/row in table
-					foreach ( $table_structure[$key] as $table_column ) {
-						foreach ( $table_column as $fm => $table_row ) {
-							$line[] = $table_row['plain'];
-								
-						}
-					}
-						
-					$this->Csv->addRow($line);
-				} // end FOREACH
 			}
 		}
 		return $this->Csv->render();
@@ -1166,7 +1170,7 @@ class StructuresHelper extends Helper {
 		// data provided through OPTIONS only really useful for display (not for FORMS)
 		
 			$data = &$this->data;
-		
+
 			$model_prefix = '';
 			$model_suffix = '.';
 			
@@ -1445,8 +1449,8 @@ class StructuresHelper extends Helper {
 							}
 							
 					// put display_value into CONTENT array index, ELSE put span tag if value BLANK and INCREMENT empty index 
-						
-						$table_index[ $field['display_column'] ][ $row_count ]['plain'] .= str_replace('&nbsp;',' ',$display_value).' ';
+
+							$table_index[ $field['display_column'] ][ $row_count ]['plain'] .= str_replace('&nbsp;',' ',$display_value).' ';
 						
 						if(isset($display_value_raw_was_arr) && !isset($table_index[ $field['display_column'] ][ $row_count ]['content'][$display_value_key])){
 							$table_index[ $field['display_column'] ][ $row_count ]['content'][$display_value_key] = "";
