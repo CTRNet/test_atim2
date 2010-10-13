@@ -7,7 +7,7 @@ class ReportsController extends DatamartAppController {
 
 	var $paginate = array('Report' => array('limit' => pagination_amount , 'order' => 'Report.name ASC'));
 		
-	function index($error_message = null){
+	function index(){
 		$_SESSION['report']['search_criteria'] = array(); // clear SEARCH criteria
 		
 		$this->data = $this->paginate($this->Report, array('Report.flag_active' => '1'));
@@ -19,9 +19,6 @@ class ReportsController extends DatamartAppController {
 		}
 		
 		$this->Structures->set("reports");
-		if(!empty($error_message)) {
-			$this->Report->validationErrors[] = $error_message;
-		}
 	}
 	
 	function manageReport($report_id, $csv_creation = false) {
@@ -66,21 +63,25 @@ class ReportsController extends DatamartAppController {
 			}
 			
 			if(!empty($data_returned_by_fct['error_msg'])) {
-				// Error has been returned by the function, display the error message
-				$this->redirect("/datamart/reports/index/".$data_returned_by_fct['error_msg']."/");
-			}
-			
-			// Set data for display
-			$this->data = $data_returned_by_fct['data'];
-			$this->Structures->set($report['Report']['form_alias_for_results'], 'result_form_structure');
-			$this->set('result_form_type', $report['Report']['form_type_for_results']);
-			$this->set('result_header', $data_returned_by_fct['header']);
-			$this->set('result_columns_names', $data_returned_by_fct['columns_names']);
-			$this->set('display_new_search', (empty($report['Report']['form_alias_for_search'])? false:true));
-			
-			if($csv_creation) {
-				Configure::write('debug', 0);
-				$this->layout = false;
+				$this->data = array();
+				$this->Structures->set('empty', 'result_form_structure');
+				$this->set('result_form_type', 'index');
+				$this->set('display_new_search', (empty($report['Report']['form_alias_for_search'])? false:true));
+				$this->Report->validationErrors[] = $data_returned_by_fct['error_msg'];
+				$csv_creation = false;
+			} else {
+				// Set data for display
+				$this->data = $data_returned_by_fct['data'];
+				$this->Structures->set($report['Report']['form_alias_for_results'], 'result_form_structure');
+				$this->set('result_form_type', $report['Report']['form_type_for_results']);
+				$this->set('result_header', $data_returned_by_fct['header']);
+				$this->set('result_columns_names', $data_returned_by_fct['columns_names']);
+				$this->set('display_new_search', (empty($report['Report']['form_alias_for_search'])? false:true));
+				
+				if($csv_creation) {
+					Configure::write('debug', 0);
+					$this->layout = false;
+				}
 			}
 		}
 		
@@ -261,6 +262,8 @@ class ReportsController extends DatamartAppController {
 		$search_on_date_range = true;
 		if((strpos($start_date_for_sql, '-9999') === 0) && (strpos($end_date_for_sql, '9999') === 0)) $search_on_date_range = false;
 		
+		$arr_format_month_to_string = AppController::getCalInfo(false);
+		
 		$tmp_res = array();
 		$date_key_list = array();
 		
@@ -272,10 +275,19 @@ class ReportsController extends DatamartAppController {
 			WHERE ($conditions) AND Participant.deleted != 1 
 			GROUP BY created_year".($month_period? ", created_month": "").";");
 		foreach($participant_res as $new_data) {
-			$date_key = $new_data['0']['created_year'].($month_period? "-".((strlen($new_data['0']['created_month']) == 1)?"0":"").$new_data['0']['created_month']: "");
-			$date_value = AppController::getFormatedDateString($new_data['0']['created_year'], ($month_period? $new_data['0']['created_month']: ""), "");
+			$date_key = '';
+			$date_value = __('unknown',true);
+			if(!empty($new_data['0']['created_year'])) {
+				if($month_period) {
+					$date_key = $new_data['0']['created_year']."-".((strlen($new_data['0']['created_month']) == 1)?"0":"").$new_data['0']['created_month'];
+					$date_value = $arr_format_month_to_string[$new_data['0']['created_month']].' '.$new_data['0']['created_year'];
+				} else {
+					$date_key = $new_data['0']['created_year'];
+					$date_value = $new_data['0']['created_year'];
+				}
+			}
+			
 			$date_key_list[$date_key] = $date_value;
-
 			$tmp_res['0']['new_participants_nbr'][$date_value] = $new_data['0']['COUNT(*)'];
 		}
 
@@ -286,12 +298,20 @@ class ReportsController extends DatamartAppController {
 			" FROM consent_masters AS ConsentMaster
 			WHERE ($conditions) AND ConsentMaster.deleted != 1 
 			GROUP BY signed_year".($month_period? ", signed_month": "").";");
-
 		foreach($consent_res as $new_data) {
-			$date_key = $new_data['0']['signed_year'].($month_period? "-".((strlen($new_data['0']['signed_month']) == 1)?"0":"").$new_data['0']['signed_month']: "");
-			$date_value = AppController::getFormatedDateString($new_data['0']['signed_year'], ($month_period? $new_data['0']['signed_month']: ""), "");
-			$date_key_list[$date_key] = $date_value;
+			$date_key = '';
+			$date_value = __('unknown',true);
+			if(!empty($new_data['0']['signed_year'])) {
+				if($month_period) {
+					$date_key = $new_data['0']['signed_year']."-".((strlen($new_data['0']['signed_month']) == 1)?"0":"").$new_data['0']['signed_month'];
+					$date_value = $arr_format_month_to_string[$new_data['0']['signed_month']].' '.$new_data['0']['signed_year'];
+				} else {
+					$date_key = $new_data['0']['signed_year'];
+					$date_value = $new_data['0']['signed_year'];
+				}
+			}
 			
+			$date_key_list[$date_key] = $date_value;
 			$tmp_res['0']['obtained_consents_nbr'][$date_value] = $new_data['0']['COUNT(*)'];
 		}
 		
@@ -310,10 +330,19 @@ class ReportsController extends DatamartAppController {
 			) AS res
 			GROUP BY res.collection_year".($month_period? ", res.collection_month": "").";");
 		foreach($collection_res as $new_data) {
-			$date_key = $new_data['res']['collection_year'].($month_period? "-".((strlen($new_data['res']['collection_month']) == 1)?"0":"").$new_data['res']['collection_month']: "");
-			$date_value = AppController::getFormatedDateString($new_data['res']['collection_year'], ($month_period? $new_data['res']['collection_month']: ""), "");
-			$date_key_list[$date_key] = $date_value;
+			$date_key = '';
+			$date_value = __('unknown',true);
+			if(!empty($new_data['res']['collection_year'])) {
+				if($month_period) {
+					$date_key = $new_data['res']['collection_year']."-".((strlen($new_data['res']['collection_month']) == 1)?"0":"").$new_data['res']['collection_month'];
+					$date_value = $arr_format_month_to_string[$new_data['res']['collection_month']].' '.$new_data['res']['collection_year'];
+				} else {
+					$date_key = $new_data['res']['collection_year'];
+					$date_value = $new_data['res']['collection_year'];
+				}
+			}
 			
+			$date_key_list[$date_key] = $date_value;
 			$tmp_res['0']['new_collections_nbr'][$date_value] = $new_data['0']['COUNT(*)'];
 		}
 			
@@ -322,7 +351,7 @@ class ReportsController extends DatamartAppController {
 		if(sizeof($date_key_list) > 20) {
 			$error_msg = 'number of report columns will be too big, please redefine parameters';
 		}
-		
+			
 		$array_to_return = array(
 			'header' => $header, 
 			'data' => $tmp_res,
