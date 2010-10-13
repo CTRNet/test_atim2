@@ -3389,6 +3389,8 @@ AND structure_field_id = (SELECT id FROM structure_fields WHERE tablename = 'dia
 DELETE FROM structure_fields WHERE tablename = 'diagnosis_masters' AND field IN ('topography', 'morphology') AND type IN ('select', 'input');
 
 INSERT IGNORE into i18n (id, en, fr) VALUES 
+('obtained consents', 'Obtained Consents', 'Consentement obtenu'),
+
 ('add new diagnosis', 'Add New Diagnosis', 'Ajouter un nouveau diagnostic'),
 ('search for','Search For', 'Rechercher'),
 ('back', 'Back', 'Recommencer'),
@@ -3409,8 +3411,9 @@ INSERT IGNORE into i18n (id, en, fr) VALUES
 
 UPDATE structure_fields SET language_label = 'code' WHERE model LIKE 'CodingIcd%' AND field LIKE 'id';
 
-
 UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='topography' AND `type`='autocomplete' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='diagnosismasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='topography' AND type='input' AND structure_value_domain  IS NULL );
 -- Delete obsolete structure fields
-DELETE FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='topography' AND `type`='input' AND structure_value_domain IS NULL 
+DELETE FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='topography' AND `type`='input' AND structure_value_domain IS NULL ;
 
+UPDATE structure_formats SET `flag_add` = '0', `flag_add_readonly` = '0', `flag_edit` = '0', `flag_edit_readonly` = '0', `flag_search` = '0', `flag_search_readonly` = '0', `flag_datagrid` = '0', `flag_datagrid_readonly` = '0', `flag_index` = '0', `flag_detail` = '0'
+WHERE structure_field_id = (SELECT id FROM structure_fields WHERE `field` LIKE 'target_site_icdo');
