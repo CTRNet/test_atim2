@@ -24,15 +24,16 @@ class BatchSetsController extends DatamartAppController {
 				$batch_set_filter['BatchSet.user_id'] = $_SESSION['Auth']['User']['id'];
 				break;
 			case 'group':
-				$batch_set_filter[] = 'BatchSet.user_id != ' . $_SESSION['Auth']['User']['id'];
+				$batch_set_filter[] = 'BatchSet.user_id !=' . $_SESSION['Auth']['User']['id'];
 				$batch_set_filter['BatchSet.group_id'] = $_SESSION['Auth']['User']['group_id'];
-				$batch_set_filter['BatchSet.share_set_with_group'] = 'yes';
+				$batch_set_filter['BatchSet.sharing_status'] = array('group', 'all');
 				break;
 			case 'all':
 				$batch_set_filter[] = array('OR' => array(
 					array('BatchSet.user_id' => $_SESSION['Auth']['User']['id']),
 					array('BatchSet.group_id' => $_SESSION['Auth']['User']['group_id'],
-						'BatchSet.share_set_with_group' => 'yes')));
+						'BatchSet.sharing_status' => 'group'),
+					array('BatchSet.sharing_status' => 'all')));
 				break;
 			default:
 				$this->redirect('/pages/err_datamart_system_error', null, true);
@@ -171,13 +172,13 @@ class BatchSetsController extends DatamartAppController {
 			// use ADHOC id to get BATCHSET field values
 			$adhoc_source = $this->Adhoc->find('first', array('conditions'=>'Adhoc.id="'.$this->data['Adhoc']['id'].'"'));
 			
-			$this->data['BatchSet']['plugin']						= $adhoc_source['Adhoc']['plugin'];
-			$this->data['BatchSet']['model']							= $adhoc_source['Adhoc']['model'];
-			$this->data['BatchSet']['form_alias_for_results']	= $adhoc_source['Adhoc']['form_alias_for_results'];
-			$this->data['BatchSet']['form_links_for_results']	= $adhoc_source['Adhoc']['form_links_for_results'] == null ? '' : $adhoc_source['Adhoc']['form_links_for_results']; 
-			$this->data['BatchSet']['flag_use_query_results']	= $adhoc_source['Adhoc']['flag_use_query_results'];
+			$this->data['BatchSet']['plugin'] = $adhoc_source['Adhoc']['plugin'];
+			$this->data['BatchSet']['model'] = $adhoc_source['Adhoc']['model'];
+			$this->data['BatchSet']['form_alias_for_results'] = $adhoc_source['Adhoc']['form_alias_for_results'];
+			$this->data['BatchSet']['form_links_for_results'] = $adhoc_source['Adhoc']['form_links_for_results'] == null ? '' : $adhoc_source['Adhoc']['form_links_for_results']; 
+			$this->data['BatchSet']['flag_use_query_results'] = $adhoc_source['Adhoc']['flag_use_query_results'];
 			
-			$this->data['BatchSet']['sql_query_for_results']	= $this->data['Adhoc']['sql_query_for_results'];
+			$this->data['BatchSet']['sql_query_for_results'] = $this->data['Adhoc']['sql_query_for_results'];
 				
 			// generate TEMP description for this SET
 			if(isset($this->data['BatchSet']['title']) && (!empty($this->data['BatchSet']['title']))) {

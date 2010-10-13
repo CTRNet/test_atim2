@@ -3417,3 +3417,34 @@ DELETE FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagno
 
 UPDATE structure_formats SET `flag_add` = '0', `flag_add_readonly` = '0', `flag_edit` = '0', `flag_edit_readonly` = '0', `flag_search` = '0', `flag_search_readonly` = '0', `flag_datagrid` = '0', `flag_datagrid_readonly` = '0', `flag_index` = '0', `flag_detail` = '0'
 WHERE structure_field_id = (SELECT id FROM structure_fields WHERE `field` LIKE 'target_site_icdo');
+
+ALTER TABLE datamart_batch_sets
+  ADD `sharing_status` varchar(50) DEFAULT 'user' AFTER `share_set_with_group`;
+UPDATE datamart_batch_sets SET sharing_status = 'group' WHERE share_set_with_group = 'yes';
+ALTER TABLE datamart_batch_sets  
+  DROP COLUMN share_set_with_group;
+  
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) 
+VALUES
+("user", "private"),
+("group", "share with the group"),
+("all", "public");
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) 
+VALUES ('batch_sets_sharing_status', '', '', NULL);
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="batch_sets_sharing_status"),  
+(SELECT id FROM structure_permissible_values WHERE value="user" AND language_alias="private"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="batch_sets_sharing_status"),  
+(SELECT id FROM structure_permissible_values WHERE value="group" AND language_alias="share with the group"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="batch_sets_sharing_status"),  
+(SELECT id FROM structure_permissible_values WHERE value="all" AND language_alias="public"), "3", "1");
+
+UPDATE structure_fields SET field = 'sharing_status', language_label = 'batchset sharing status', structure_value_domain = (SELECT id FROM structure_value_domains WHERE domain_name="batch_sets_sharing_status") 
+WHERE field = 'share_set_with_group' AND tablename = 'datamart_batch_sets';
+
+INSERT IGNORE into i18n (id, en, fr) VALUES 
+('private', 'Private', 'Privé'),
+('public', 'Public', 'Publique'),
+('batchset sharing status', 'Batchset Status', 'Statu de l''ensemble de données'),
+('share with the group', 'Share With The Group', 'Partager avec le groupe');
