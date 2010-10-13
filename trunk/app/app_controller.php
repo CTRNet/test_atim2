@@ -10,7 +10,7 @@ class AppController extends Controller {
 	var $helpers		= array('Ajax', 'Csv', 'Html', 'Javascript', 'Shell', 'Structures', 'Time');
 	
 	//use AppController::getCalInfo to get those with translations
-	private static $cal_info_short = array(1 => 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
+	private static $cal_info_short = array(1 => 'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec');
 	private static $cal_info_long = array(1 => 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December');
 	private static $cal_info_short_translated = false;
 	private static $cal_info_long_translated = false;
@@ -254,12 +254,14 @@ class AppController extends Controller {
 	static function getCalInfo($short = true){
 		if($short){
 			if(!AppController::$cal_info_short_translated){
-				AppController::$cal_info_short_translated = array_map(create_function('$a', 'return __($a, true);'), AppController::$cal_info_short);
+				AppController::$cal_info_short_translated = true;
+				AppController::$cal_info_short = array_map(create_function('$a', 'return __($a, true);'), AppController::$cal_info_short);
 			}
 			return AppController::$cal_info_short;			
 		}else{
 			if(!AppController::$cal_info_long_translated){
-				AppController::$cal_info_long_translated = array_map(create_function('$a', 'return __($a, true);'), AppController::$cal_info_long);
+				AppController::$cal_info_long_translated = true;
+				AppController::$cal_info_long = array_map(create_function('$a', 'return __($a, true);'), AppController::$cal_info_long);
 			}
 			return AppController::$cal_info_long;
 		}	
