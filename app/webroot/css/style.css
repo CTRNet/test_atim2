@@ -1892,3 +1892,15 @@ span.button a{
 .nowrap{
 	white-space: nowrap;	
 }
+
+.storageLayout{
+	margin: 10px; 
+	width: 98%;
+}
+div.wrapper table.structure td .storageLayout td{
+	border-style:solid; 
+	border-width:1px; 
+	min-width: 30px; 
+	border-color: #000;
+	padding: 0 0 5px 0;
+}
