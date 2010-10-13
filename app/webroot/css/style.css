@@ -1133,6 +1133,9 @@ span.help:hover {
 					-khtml-opacity: 0.3;
 					opacity: 0.3;
 				}
+				#tree_root div{
+					padding-left: 20px;
+				}
 				a.form { 
 					padding: 1px 0px 1px 16px;
 				}

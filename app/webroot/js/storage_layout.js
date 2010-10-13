@@ -222,5 +222,6 @@ function showInLowerFrame(element, json){
 	$("#popup").popup();
 	$.get(json.load, {}, function(data){
 		 $("#popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>");
+		 $("#popup").popup();
 	});
 }

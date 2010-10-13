@@ -930,7 +930,7 @@ class StructuresHelper extends Helper {
 			}
 			
 			$return_string .= '
-				<li><div style="white-space: nowrap;">
+				<li>
 			';
 				
 				// collect LINKS and STACK to be added to LI, must do out of order, as need ID field to use as unique CSS ID in UL/A toggle
@@ -974,7 +974,8 @@ class StructuresHelper extends Helper {
 					
 					foreach ( $table_index as $table_column_key=>$table_column ) {
 						foreach ( $table_column as $table_row_key=>$table_row ) {
-							$return_string_collect .= ' <span class="nowrap"><span class="divider">|</span> '.( $options['links']['top'] && $options['settings']['form_inputs'] ? $table_row['input'] : $table_row['content'] )."</span>";
+							//carefull with the white spaces as removing them the can break the display in IE
+							$return_string_collect .= ' <span class="nowrap"><span class="divider">|</span> '.( $options['links']['top'] && $options['settings']['form_inputs'] ? $table_row['input'] : $table_row['content'] )."</span>&nbsp;";
 						}
 					}
 				
@@ -987,9 +988,7 @@ class StructuresHelper extends Helper {
 						$return_string .= '<a class="reveal not_allowed" onclick="return false;">+</a> ';
 					}
 					
-					$return_string .= ' <div style="display: inline-block; white-space: normal;"><span class="divider">|</span> ';
-				
-				$return_string .= $return_string_collect."</div></div>";
+				$return_string .= '<div><span class="divider">|</span> '.$return_string_collect.'</div>';
 				
 				// create sub-UL, calling this NODE function again, if model has any CHILDREN
 				if ( count($children) ) { 
