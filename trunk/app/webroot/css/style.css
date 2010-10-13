@@ -1107,31 +1107,23 @@ span.help:hover {
 				div.wrapper table.structure table.columns.tree ul li {
 					text-align: left;
 					vertical-align: top;
-					padding-left: 1em;
-					line-height: 2em;
-					border-bottom: 1px solid #eaedf2;
+					padding: 3px 0 2px 3px;
+					line-height: 16px;
+					border-bottom: 1px solid #cacdf2;
 				}
 				div.wrapper table.structure table.columns.tree span.divider {
-					padding: 0 0.5em;
-					font-size: 12px;
-					color: #eaedf2;
-				}
-				div.wrapper table.structure table.columns.tree ul#tree_root {
-					
+					font-size: 120%;
+					font-weight: bolder;
 				}
 				ul#tree_root li { background-color: #fff; }
 				ul#tree_root li.at { background-color: #ffc; }
-				
-				div.wrapper table.structure table.columns.tree ul#tree_root li a {
-					
-				}
-				div.wrapper table.structure table.columns.tree ul#tree_root li a.reveal {
+				ul#tree_root li a.reveal {
 					display: block;
 					float: left;
 					width: 20px;
 					text-indent: -9999px;
 				}
-				div.wrapper table.structure table.columns.tree ul#tree_root li a.reveal.not_allowed {
+				ul#tree_root li a.reveal.not_allowed {
 					display: block;
 					float: left;
 					text-indent: -9999px;
@@ -1142,7 +1134,7 @@ span.help:hover {
 					opacity: 0.3;
 				}
 				a.form { 
-					padding: 1px 0px 1px 20px;
+					padding: 1px 0px 1px 16px;
 				}
 				
 /*===========================================================*
@@ -1237,7 +1229,7 @@ div.wrapper table.structure table.columns.tree ul ul {
 	margin-top: 1em;
 	margin-left: 1em;
 	margin-bottom: 2em;
-	border: 3px solid #eaedf2;
+	border: 3px solid #cacdf2;
 	border-left: 1px dotted #ddf;
 	border-right: none;
 }
@@ -1888,4 +1880,12 @@ table.browserBubble th{
 span.button a{
 	text-decoration: none;
 	color: #000;
+}
+
+.content.empty div{
+	margin: 2px 0;
+}
+
+.nowrap{
+	white-space: nowrap;	
 }
