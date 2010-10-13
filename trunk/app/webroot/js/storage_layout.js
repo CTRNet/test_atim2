@@ -9,12 +9,8 @@ function initStorageLayout(){
 	var jsonOrgItems = eval('(' + orgItems + ')');
 	for(var i = jsonOrgItems.length - 1; i >= 0; -- i){
 		var appendString = "<li class='dragme " + jsonOrgItems[i].type + " { \"id\" : \"" + jsonOrgItems[i].id + "\", \"type\" : \"" + jsonOrgItems[i].type + "\"}'>"
-			//removal button
-//			+ '<span class="button small removeItem" title="' + removeString + '"><span class="ui-icon ui-icon-close" style="float: left;"></span></span>'
-			//unclassify button
-//			+ '<span class="button small recycleItem" title="' + unclassifyString + '"><span class="ui-icon ui-icon-refresh" style="float: left;"></span></span>'
 			//ajax view button
-			+ '<a href="#popup" title="' + detailString + '" class="form ' + jsonOrgItems[i].icon_name + ' ajax {\'callback\' : \'showInLowerFrame\', \'load\' : \'' + jsonOrgItems[i].link + '\'}" style="text-decoration: none;">&nbsp;</a>'
+			+ '<a href="#popup" title="' + detailString + '" class="form ' + jsonOrgItems[i].icon_name + ' ajax {\'callback\' : \'showInPopup\', \'load\' : \'' + jsonOrgItems[i].link + '\'}" style="text-decoration: none;">&nbsp;</a>'
 			//DO NOT ADD A DETAIL BUTTON! It's too dangerous to edit and click it by mistake
 			+ '<span class="handle">' + jsonOrgItems[i].label + '</span></li>';
 
@@ -32,7 +28,16 @@ function initStorageLayout(){
 	}
 	
 	//make them draggable
-	$(".dragme").draggable({revert : 'invalid'});
+	$(".dragme").draggable({
+		revert : 'invalid',
+		start: function(event, ui){
+			//for easier dragging, convert the item display to inline-block
+			$(this).css("display", "inline-block");
+		},stop: function(event, ui){
+			//put back original display property
+			$(this).css("display", "list-item");
+		}
+	});
 	
 	//create the drop zones
 	$(".droppable").droppable({
@@ -41,22 +46,6 @@ function initStorageLayout(){
 			moveItem(ui.draggable, this);
 		}
 	});
-	
-	//bind delete to the close icon
-	$(".removeItem").click(function() {
-		deleteItem(this.parentNode);
-	});
-	
-	//bind recycle to the refresh icon
-	$(".recycleItem").click(function(){
-		recycleItem(this.parentNode);
-	});
-	
-	//hide the refresh icon for the unclassified elements
-//	elements = $("#unclassified").children();
-//	for(var i = 0; i < elements.length; i ++){
-//		$($(elements[i]).children()[1]).css("display", 'none');
-//	}
 	
 	//bind preparePost to the submit button
 	$("#submit_button_link").click(function(){
@@ -113,8 +102,6 @@ function moveItem(draggable, droparea){
 function deleteItem(item) {
 	$(item).fadeOut(200, function(){
 		$(this).appendTo($("#trash"));
-		$($(item).children()[0]).css("display", 'none');//hide trash can
-		$($(item).children()[1]).css("display", 'inline-block');//show recycle
 		$(this).fadeIn();
 	});
 	$('#saveWarning').show();
@@ -130,8 +117,6 @@ function deleteItem(item) {
 function recycleItem(item) {
 	$(item).fadeOut(200, function(){
 		$(this).appendTo($("#unclassified"));
-		$($(item).children()[0]).css("display", 'inline-block');//show trash can
-		$($(item).children()[1]).css("display", 'none');//hide recycle
 		$(this).fadeIn();
 	});
 	$('#saveWarning').show();
@@ -214,7 +199,7 @@ function moveUlTo(ulId, destinationId){
 	}	
 }
 
-function showInLowerFrame(element, json){
+function showInPopup(element, json){
 	if(!window.loadingStr){
 		window.loadingStr = "js untranslated loading";	
 	}
