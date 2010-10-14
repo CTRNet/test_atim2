@@ -276,7 +276,14 @@ class AdhocsController extends DatamartAppController {
 		$this->set( 'save_this_search_data', $save_this_search_data );
 		$this->set( 'batch_sets', $batch_sets );
 		
-		$tmp_data = $this->BatchSet->find('all', array('conditions' => array('BatchSet.plugin' => $adhoc['Adhoc']['plugin'], 'BatchSet.model' => $adhoc['Adhoc']['model'])));
+		$available_batchsets_conditions = array(
+			'BatchSet.plugin' => $adhoc['Adhoc']['plugin'], 
+			'BatchSet.model' => $adhoc['Adhoc']['model'],
+			'OR' =>array(
+				'BatchSet.user_id' => $_SESSION['Auth']['User']['id'],
+				array('BatchSet.group_id' => $_SESSION['Auth']['User']['group_id'], 'BatchSet.sharing_status' => 'group'),
+				'BatchSet.sharing_status' => 'all'));
+		$tmp_data = $this->BatchSet->find('all', array('conditions' => $available_batchsets_conditions));
 		$compatible_batchset = array();
 		$compatible_batchset[0] = __('new batchset', true);
 		$compatibla_batchset_str = __('add to compatible batchset', true);
