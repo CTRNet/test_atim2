@@ -3447,4 +3447,5 @@ INSERT IGNORE into i18n (id, en, fr) VALUES
 ('private', 'Private', 'Privé'),
 ('public', 'Public', 'Publique'),
 ('batchset sharing status', 'Batchset Status', 'Statu de l''ensemble de données'),
+('your are not allowed to work on this batchset', 'Your are not allowed to work on this batchset!', 'Vous n''êtes pas authorisé à travailler sur cet ensemble de données!'),
 ('share with the group', 'Share With The Group', 'Partager avec le groupe');

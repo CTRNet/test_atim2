@@ -53,6 +53,10 @@ class BatchSetsController extends DatamartAppController {
 		$this->set( 'atim_structure_for_detail', $this->Structures->get( 'form', 'querytool_batch_set' ) );
 		$batch_set = $this->BatchSet->getBatchSet($batch_set_id);
 
+		if(!$this->isUserAuthorizedToProcess($batch_set)) {
+			$this->atimFlash('your are not allowed to work on this batchset', '/datamart/batch_sets/index/');
+		}
+
 		// add COUNT of IDS to array results, for form list 
 		$batch_set['BatchSet']['count_of_BatchId'] = count($batch_set['BatchId']); 
 		
@@ -202,6 +206,9 @@ class BatchSetsController extends DatamartAppController {
 		$this->BatchSet->id				= $target_batch_set_id;
 	   
 	   $batch_set = $this->BatchSet->read();
+		if(!$this->isUserAuthorizedToProcess($batch_set)) {
+			$this->atimFlash('your are not allowed to work on this batchset', '/datamart/batch_sets/index/');
+		}	   
 	    
 		$batch_set_ids = array();
 		
@@ -257,18 +264,30 @@ class BatchSetsController extends DatamartAppController {
 			$this->BatchSet->id = $batch_set_id;
 			if ( $this->BatchSet->save($this->data) ) $this->atimFlash( 'your data has been updated','/datamart/batch_sets/listall/'.$type_of_list.'/'.$batch_set_id );
 		} else {
-			$this->data = $this->BatchSet->find('first',array('conditions'=>array('BatchSet.id'=>$batch_set_id)));
+			$batch_set = $this->BatchSet->find('first',array('conditions'=>array('BatchSet.id'=>$batch_set_id)));
+			if(!$this->isUserAuthorizedToProcess($batch_set)) {
+				$this->atimFlash('your are not allowed to work on this batchset', '/datamart/batch_sets/index/');
+			}
+			$this->data = $batch_set;
 		}
 	}
 	
 	function delete( $type_of_list='all', $batch_set_id=0 ) {
+		$batch_set = $this->BatchSet->find('first',array('conditions'=>array('BatchSet.id'=>$batch_set_id)));
+		if(!$this->isUserAuthorizedToProcess($batch_set)) {
+			$this->atimFlash('your are not allowed to work on this batchset', '/datamart/batch_sets/index/');
+		}
 		$this->BatchSet->delete( $batch_set_id );
 		$this->atimFlash( 'your data has been deleted', '/datamart/batch_sets/index' );
 	}
 	
 	function deleteInBatch() {
 		// Get all user batchset
-		$user_batchsets = $this->BatchSet->find('all', array('conditions' => array('BatchSet.user_id' => $_SESSION['Auth']['User']['id']), 'order'=>'BatchSet.created DESC'));
+		$available_batchsets_conditions = array('OR' =>array(
+				'BatchSet.user_id' => $_SESSION['Auth']['User']['id'],
+				array('BatchSet.group_id' => $_SESSION['Auth']['User']['group_id'], 'BatchSet.sharing_status' => 'group'),
+				'BatchSet.sharing_status' => 'all'));					
+		$user_batchsets = $this->BatchSet->find('all', array('conditions' => $available_batchsets_conditions, 'order'=>'BatchSet.created DESC'));
 		foreach($user_batchsets as $key => $tmp_data) {
 			$user_batchsets[$key]['BatchSet']['count_of_BatchId'] = count($tmp_data['BatchId']); 
 		}
@@ -297,7 +316,10 @@ class BatchSetsController extends DatamartAppController {
 	
 	function remove($batch_set_id) {
 		$batch_set = $this->BatchSet->getBatchSet($batch_set_id);
-		
+		if(!$this->isUserAuthorizedToProcess($batch_set)) {
+			$this->atimFlash('your are not allowed to work on this batchset', '/datamart/batch_sets/index/');
+		}
+				
 		// set function variables, makes script readable :)
 		$batch_set_id = $batch_set['BatchSet']['id'];
 		$batch_set_model = $batch_set['BatchSet']['model'];
@@ -319,6 +341,36 @@ class BatchSetsController extends DatamartAppController {
 		exit();
 		
 	}
+	
+	function isUserAuthorizedToProcess($batch_set_data) {
+		if(empty($batch_set_data) 
+		|| (!(array_key_exists('user_id', $batch_set_data['BatchSet'])
+		&& array_key_exists('group_id', $batch_set_data['BatchSet'])
+		&& array_key_exists('sharing_status', $batch_set_data['BatchSet'])))) {
+			$this->redirect('/pages/err_datamart_system_error', null, true);
+		}
+		
+		switch($batch_set_data['BatchSet']['sharing_status']) {
+			case 'user' :
+				if($batch_set_data['BatchSet']['user_id'] == $_SESSION['Auth']['User']['id']) {
+					return true;
+				}
+				break;
+			case 'group' :
+				if($batch_set_data['BatchSet']['group_id'] == $_SESSION['Auth']['User']['group_id']) {
+					return true;
+				}
+				break;
+			case 'all' :
+				return true;
+				break;
+			default:
+				$this->redirect('/pages/err_datamart_system_error', null, true);
+		}
+		
+		return false;
+	}	
+	
 }
 
 ?>
