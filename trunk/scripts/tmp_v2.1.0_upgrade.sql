@@ -3449,3 +3449,40 @@ INSERT IGNORE into i18n (id, en, fr) VALUES
 ('batchset sharing status', 'Batchset Status', 'Statu de l''ensemble de données'),
 ('your are not allowed to work on this batchset', 'Your are not allowed to work on this batchset!', 'Vous n''êtes pas authorisé à travailler sur cet ensemble de données!'),
 ('share with the group', 'Share With The Group', 'Partager avec le groupe');
+
+
+ALTER TABLE aliquot_review_masters MODIFY `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00';
+ALTER TABLE ar_breast_tissue_slides MODIFY `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00';
+ALTER TABLE datamart_browsing_indexes_revs ADD `version_created` datetime NOT NULL;
+ALTER TABLE datamart_browsing_results_revs MODIFY id INT UNSIGNED NOT NULL;
+ALTER TABLE datamart_browsing_results_revs ADD `version_created` datetime NOT NULL;
+ALTER TABLE spr_breast_cancer_types MODIFY `created` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00';
+ALTER TABLE structure_permissible_values_customs_revs ADD `version_created` datetime NOT NULL;
+
+INSERT INTO i18n (id, en, fr) VALUES
+("available", "Available", "Disponible"),
+("base", "Base", "Base"),
+("breast_cancer_type", "Breast cancer type", "Type de cancer du sein"),
+("colon_cancer_type", "Colon cancer type", "Type de cancer du colon"),
+("date created", "Date created", "Date de création"),
+("date_expiry", "Expiration date", "Date d'expiration"),
+("diagnosis identifier", "Diagnosis identifier", "Identifiant de diagnostic"),
+("First name is required.", "First name is required.", "Le prénom est requis."),
+("frozen tissue", "Frozen tissue", "Tissu congelé"),
+("if you were logged id, your session expired.", "If you were logged in, your session expired.", "Si vous étiez connecté, votre session est expirée."),
+("institutional", "Institutional", "Institutionel"),
+("invalid cause of death code", "Invalid cause of death code", "Code de cause de décès invalide"),
+("invalid morphology code", "Invalid morphology code", "Code de morphologie invalide"),
+("invalid primary disease code", "Invalid primary disease code", "Code de décès primaire invalide"),
+("invalid secondary cause of death code", "Invalid secondary cause of death code", "Code de seconde cause de décès invalide"),
+("invalid topography code", "Invalid topography code", "Code de topographie invalide"),
+("modified", "Modified", "Modifié"),
+("multiple", "Multiple", "Multiple"),
+("not available", "Not available", "Non disponible"),
+("operating room", "Operating room", "Salle d'opération"),
+("page %d", "page %d", "page %d"),
+("paraffin block", "Paraffin block", "Bloc de paraffine"),
+("position into", "Position into", "Position dans"),
+("product type is required.", "Product type is required", "Le type de produit est requis"),
+("requested", "Requested", "Demandé"),
+("saved", "Saved", "Enregistré");
