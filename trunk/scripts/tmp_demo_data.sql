@@ -678,28 +678,28 @@ INSERT INTO `dxd_tissues_revs` (`id`, `diagnosis_master_id`, `laterality`, `crea
 -- Dumping data for table `ed_all_clinical_presentation`
 --
 
-INSERT INTO `ed_all_clinical_presentation` (`id`, `weight`, `height`, `created`, `created_by`, `modified`, `modified_by`, `event_master_id`, `deleted`, `deleted_date`) VALUES
+INSERT INTO `ed_all_clinical_presentations` (`id`, `weight`, `height`, `created`, `created_by`, `modified`, `modified_by`, `event_master_id`, `deleted`, `deleted_date`) VALUES
 (1, '63.00', '1.00', '2010-05-28 14:16:50', 1, '2010-05-28 14:16:50', 1, 1, 0, NULL);
 
 --
 -- Dumping data for table `ed_all_clinical_presentation_revs`
 --
 
-INSERT INTO `ed_all_clinical_presentation_revs` (`id`, `weight`, `height`, `created`, `created_by`, `modified`, `modified_by`, `event_master_id`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
+INSERT INTO `ed_all_clinical_presentations_revs` (`id`, `weight`, `height`, `created`, `created_by`, `modified`, `modified_by`, `event_master_id`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
 (1, '63.00', '1.00', '2010-05-28 14:16:50', 1, '2010-05-28 14:16:50', 1, 1, 1, '2010-05-28 14:16:50', 0, NULL);
 
 --
 -- Dumping data for table `ed_all_lifestyle_smoking`
 --
 
-INSERT INTO `ed_all_lifestyle_smoking` (`id`, `smoking_history`, `smoking_status`, `pack_years`, `product_used`, `years_quit_smoking`, `created`, `created_by`, `modified`, `modified_by`, `event_master_id`, `deleted`, `deleted_date`) VALUES
+INSERT INTO `ed_all_lifestyle_smokings` (`id`, `smoking_history`, `smoking_status`, `pack_years`, `product_used`, `years_quit_smoking`, `created`, `created_by`, `modified`, `modified_by`, `event_master_id`, `deleted`, `deleted_date`) VALUES
 (1, 'yes', 'ex-smoker', 36, 'cigarettes', 4, '2010-05-28 14:20:24', 1, '2010-05-28 14:20:24', 1, 2, 0, NULL);
 
 --
 -- Dumping data for table `ed_all_lifestyle_smoking_revs`
 --
 
-INSERT INTO `ed_all_lifestyle_smoking_revs` (`id`, `smoking_history`, `smoking_status`, `pack_years`, `product_used`, `years_quit_smoking`, `created`, `created_by`, `modified`, `modified_by`, `event_master_id`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
+INSERT INTO `ed_all_lifestyle_smokings_revs` (`id`, `smoking_history`, `smoking_status`, `pack_years`, `product_used`, `years_quit_smoking`, `created`, `created_by`, `modified`, `modified_by`, `event_master_id`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
 (1, 'yes', 'ex-smoker', 36, 'cigarettes', 4, '2010-05-28 14:20:24', 1, '2010-05-28 14:20:24', 1, 2, 1, '2010-05-28 14:20:25', 0, NULL);
 
 --
@@ -1491,14 +1491,14 @@ INSERT INTO `shipments_revs` (`id`, `shipment_code`, `recipient`, `facility`, `d
 -- Dumping data for table `sopd_general_all`
 --
 
-INSERT INTO `sopd_general_all` (`id`, `value`, `created`, `created_by`, `modified`, `modified_by`, `sop_master_id`, `deleted`, `deleted_date`) VALUES
+INSERT INTO `sopd_general_alls` (`id`, `value`, `created`, `created_by`, `modified`, `modified_by`, `sop_master_id`, `deleted`, `deleted_date`) VALUES
 (1, NULL, '2010-05-28 13:50:54', 1, '2010-05-28 13:50:54', 1, 1, 0, NULL);
 
 --
 -- Dumping data for table `sopd_general_all_revs`
 --
 
-INSERT INTO `sopd_general_all_revs` (`id`, `value`, `created`, `created_by`, `modified`, `modified_by`, `sop_master_id`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
+INSERT INTO `sopd_general_alls_revs` (`id`, `value`, `created`, `created_by`, `modified`, `modified_by`, `sop_master_id`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
 (1, NULL, '2010-05-28 13:50:54', 1, '2010-05-28 13:50:54', 1, 1, 1, '2010-05-28 13:50:54', 0, NULL);
 
 --

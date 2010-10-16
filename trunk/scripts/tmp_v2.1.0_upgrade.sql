@@ -3487,6 +3487,40 @@ INSERT INTO i18n (id, en, fr) VALUES
 ("requested", "Requested", "Demandé"),
 ("saved", "Saved", "Enregistré");
 
+-- event_control
+UPDATE event_controls SET detail_tablename='ed_breast_lab_pathologies' WHERE detail_tablename='ed_breast_lab_pathology';
+RENAME TABLE  ed_breast_lab_pathology TO ed_breast_lab_pathologies;
+RENAME TABLE  ed_breast_lab_pathology_revs TO ed_breast_lab_pathologies_revs;
+UPDATE event_controls SET detail_tablename='ed_all_clinical_followups' WHERE detail_tablename='ed_all_clinical_followup';
+RENAME TABLE ed_all_clinical_followup TO ed_all_clinical_followups;
+RENAME TABLE ed_all_clinical_followup_revs TO ed_all_clinical_followups_revs;
+UPDATE event_controls SET detail_tablename='ed_all_clinical_presentations' WHERE detail_tablename='ed_all_clinical_presentation';
+RENAME TABLE ed_all_clinical_presentation TO ed_all_clinical_presentations;
+RENAME TABLE ed_all_clinical_presentation_revs TO ed_all_clinical_presentations_revs;
+UPDATE event_controls SET detail_tablename='ed_all_lifestyle_smokings' WHERE detail_tablename='ed_all_lifestyle_smoking';
+RENAME TABLE ed_all_lifestyle_smoking TO ed_all_lifestyle_smokings;
+RENAME TABLE ed_all_lifestyle_smoking_revs TO ed_all_lifestyle_smokings_revs;
+UPDATE event_controls SET detail_tablename='ed_all_adverse_events_adverse_events' WHERE detail_tablename='ed_all_adverse_events_adverse_event';
+RENAME TABLE ed_all_adverse_events_adverse_event TO ed_all_adverse_events_adverse_events;
+RENAME TABLE ed_all_adverse_events_adverse_event_revs TO ed_all_adverse_events_adverse_events_revs;
+UPDATE event_controls SET detail_tablename='ed_breast_screening_mammograms' WHERE detail_tablename='ed_breast_screening_mammogram';
+RENAME TABLE ed_breast_screening_mammogram TO ed_breast_screening_mammograms;
+RENAME TABLE ed_breast_screening_mammogram_revs TO ed_breast_screening_mammograms_revs;
+UPDATE event_controls SET detail_tablename='ed_all_protocol_followups' WHERE detail_tablename='ed_all_protocol_followup';
+RENAME TABLE ed_all_protocol_followup TO ed_all_protocol_followups;
+RENAME TABLE ed_all_protocol_followup_revs TO ed_all_protocol_followups_revs;
+UPDATE event_controls SET detail_tablename='ed_all_study_research' WHERE detail_tablename='ed_all_study_researches';
+RENAME TABLE ed_all_study_research TO ed_all_study_researches; 
+RENAME TABLE ed_all_study_research_revs TO ed_all_study_researches_revs;
+
+-- sop_control
+UPDATE sop_controls SET detail_tablename='sopd_general_alls' WHERE detail_tablename='sopd_general_all';
+RENAME TABLE sopd_general_all TO sopd_general_alls;
+RENAME TABLE sopd_general_all_revs TO sopd_general_alls_revs;
+UPDATE sop_controls SET detail_tablename='sopd_inventory_alls' WHERE detail_tablename='sopd_inventory_all';
+RENAME TABLE sopd_inventory_all TO sopd_inventory_alls;
+RENAME TABLE sopd_inventory_all_revs TO sopd_inventory_alls_revs;
+
 ALTER TABLE datamart_batch_processes
   ADD `flag_active` tinyint(1) NOT NULL DEFAULT '1' AFTER `url`;
   
