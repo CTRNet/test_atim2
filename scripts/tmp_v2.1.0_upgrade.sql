@@ -3486,3 +3486,7 @@ INSERT INTO i18n (id, en, fr) VALUES
 ("product type is required.", "Product type is required", "Le type de produit est requis"),
 ("requested", "Requested", "Demandé"),
 ("saved", "Saved", "Enregistré");
+
+ALTER TABLE datamart_batch_processes
+  ADD `flag_active` tinyint(1) NOT NULL DEFAULT '1' AFTER `url`;
+  
