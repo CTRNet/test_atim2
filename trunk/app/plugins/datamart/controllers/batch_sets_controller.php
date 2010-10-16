@@ -141,20 +141,22 @@ class BatchSetsController extends DatamartAppController {
 		$batch_set_processes = array();
 		$batch_set_processes['/datamart/batch_sets/remove/'.$batch_set_id."/"]	= __('remove from batch set', true);
 		$batch_set_processes['/csv/csv/'.$batch_set['BatchSet']['plugin']."/".$batch_set['BatchSet']['model']."/".$batch_set['BatchSet']['lookup_key_name']."/".$batch_set['BatchSet']['form_alias_for_results']]		= __('export as CSV file (comma-separated values)', true);
-		if($batch_set['BatchSet']['model'] == "AliquotMaster"){
-			$realiquot_link = '/inventorymanagement/aliquot_masters/realiquot/'.$batch_set_id."/";
-			$this->set("realiquot_link", $realiquot_link);
-			$batch_set_processes[$realiquot_link]		= __('realiquot', true);
 
-			//realiquot into possibilities
-			$realiquot_data_raw = $this->RealiquotingControl->find('all', array('recursive' => 2)); 
-			$realiquot_data = array();
-			foreach($realiquot_data_raw as $data){
-				$realiquot_data[$data['ParentSampleToAliquotControl']['SampleControl']['sample_type']][$data['ParentSampleToAliquotControl']['AliquotControl']['aliquot_type']][$data['ChildSampleToAliquotControl']['AliquotControl']['id']] = $data['ChildSampleToAliquotControl']['AliquotControl']['aliquot_type'];
-
-			}
-			$this->set('realiquot_data', $realiquot_data);
-		}
+//TODO realiquot in batch process should be defined into datamart_batch_processes
+//		if($batch_set['BatchSet']['model'] == "AliquotMaster"){
+//			$realiquot_link = '/inventorymanagement/aliquot_masters/realiquot/'.$batch_set_id."/";
+//			$this->set("realiquot_link", $realiquot_link);
+//			$batch_set_processes[$realiquot_link]		= __('realiquot', true);
+//
+//			//realiquot into possibilities
+//			$realiquot_data_raw = $this->RealiquotingControl->find('all', array('recursive' => 2)); 
+//			$realiquot_data = array();
+//			foreach($realiquot_data_raw as $data){
+//				$realiquot_data[$data['ParentSampleToAliquotControl']['SampleControl']['sample_type']][$data['ParentSampleToAliquotControl']['AliquotControl']['aliquot_type']][$data['ChildSampleToAliquotControl']['AliquotControl']['id']] = $data['ChildSampleToAliquotControl']['AliquotControl']['aliquot_type'];
+//
+//			}
+//			$this->set('realiquot_data', $realiquot_data);
+//		}
 				
 		
 		foreach ( $batch_set_process_results as &$value) {

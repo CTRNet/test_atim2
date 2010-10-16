@@ -1639,6 +1639,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 	}
 	
 	function realiquot($batch_set_id, $save = false){
+		//TODO realiquot in batch process should be defined into datamart_batch_processes
+		// Review and validate process before to use
+		$this->redirect('/pages/err_inv_system_error', null, true);
+		
 		if(empty($this->data)){
 			$this->redirect("/pages/err_inv_no_data");
 			exit;
