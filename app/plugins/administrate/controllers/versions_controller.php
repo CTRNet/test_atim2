@@ -50,7 +50,7 @@ class VersionsController extends AdministrateAppController {
 			echo("<li>".$master_name."<ul>");
 			foreach($control_data as $data){
 				echo("<li>".$data[$control_name]["detail_tablename"]);
-				$master->find("all", array('conditions' => array($master_name.".".strtolower(preg_replace("/([a-z])([A-Z])/", "$1_$2", $model))."_control_id" => $data[$control_name]['id'])));
+				$master->find("all", array('conditions' => array($master_name.".".$master->belongsTo[$control_name]["foreignKey"] => $data[$control_name]['id'])));
 				echo("</li>");
 			}
 			echo("</ul></li>");
