@@ -336,30 +336,4 @@ class BrowserController extends DatamartAppController {
 			}
 		}
 	}
-	
-	function createBatchSet($node_id){
-		$browsing_result = $this->BrowsingResult->find('first', array('conditions' => array('BrowsingResult.id' => $node_id)));
-		$structure = $this->Structures->getFormById($browsing_result['DatamartStructure']['structure_id']);
-		$batch_set = array("BatchSet" => array(
-			"user_id" => $_SESSION['Auth']['User']['id'],
-			"plugin" => $browsing_result['DatamartStructure']['plugin'],
-			"model" => $browsing_result['DatamartStructure']['model'],
-			"lookup_key_name" => $browsing_result['DatamartStructure']['use_key'],
-			"form_alias_for_results" => $structure['Structure']['alias'],
-			"flag_use_query_results" => false
-		));
-		$this->BatchSet->save($batch_set);
-		
-		foreach($this->data[$browsing_result['DatamartStructure']['model']][$browsing_result['DatamartStructure']['use_key']] as $id){
-			if($id != 0){
-				$batch_id = array("BatchId" => array(
-					"set_id" => $this->BatchSet->id,
-					"lookup_id" => $id 
-				));
-				$this->BatchId->id = null;
-				$this->BatchId->save($batch_id);
-			}
-		}
-		$this->redirect("/datamart/batch_sets/listall/all/".$this->BatchSet->id, NULL, true);
-	}
 }
