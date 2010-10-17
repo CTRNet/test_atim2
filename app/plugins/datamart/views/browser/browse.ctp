@@ -32,6 +32,9 @@
 		}
 		$is_datagrid = true;
 		$type = "add";
+		?>
+		<input type="hidden" name="data[node][id]" value="<?php echo($parent_node); ?>"/>
+		<?php 
 	}else{
 		$is_datagrid = false;
 	}

@@ -73,7 +73,7 @@ class Browser extends DatamartAppModel {
 			$result[] = array(
 				'value' => '0',
 				'default' => __('create batchset', true),
-				'action' => 'datamart/browser/createBatchSet/'.$node_id.'/'
+				'action' => '/datamart/batch_sets/add/'
 			);
 			$result[] = array(
 				'value' => '0',
