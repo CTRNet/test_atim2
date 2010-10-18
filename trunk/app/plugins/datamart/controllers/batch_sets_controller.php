@@ -25,7 +25,6 @@ class BatchSetsController extends DatamartAppController {
 				$batch_set_filter['BatchSet.user_id'] = $_SESSION['Auth']['User']['id'];
 				break;
 			case 'group':
-				$batch_set_filter[] = 'BatchSet.user_id !=' . $_SESSION['Auth']['User']['id'];
 				$batch_set_filter['BatchSet.group_id'] = $_SESSION['Auth']['User']['group_id'];
 				$batch_set_filter['BatchSet.sharing_status'] = array('group', 'all');
 				break;
