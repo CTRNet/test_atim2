@@ -1,7 +1,7 @@
 <div id="me">
 <?php 
 $this->Structures->build($atim_structure, array('type' => 'search', 'links' => array('top' => 'foo'), 
-	'settings' => array('header' => 'Search for an icd10 code', 'actions' => false)));
+	'settings' => array('header' => __('search for an icd10 code', true), 'actions' => false)));
 ?>
 <div id="results">
 

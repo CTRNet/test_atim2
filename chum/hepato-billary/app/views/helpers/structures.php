@@ -243,7 +243,6 @@ class StructuresHelper extends Helper {
 
 	// FUNCTION 
 	function build_detail( $atim_structure, $options ) {
-		
 		$return_string = '';
 			
 		$table_index = $this->build_stack( $atim_structure, $options );
@@ -293,10 +292,6 @@ class StructuresHelper extends Helper {
 									</tr>
 								';
 							}
-							$tmp_advanced = "";
-							if($options['type'] == "search" && show_advanced_controls){
-								$tmp_advanced = "<span><a class='adv_ctrl btn_add_or' onclick='return false;' href='#'>(+)</a></span>";
-							}
 							
 							$return_string .= '
 									<tr class="'.$table_row['type'].'">
@@ -317,7 +312,6 @@ class StructuresHelper extends Helper {
 							}else{
 								$return_string .= $td_open											
 												.( $options['links']['top'] && $options['settings']['form_inputs'] ? $table_row['input'] : $table_row['content'] ).'
-												'.$tmp_advanced.'
 											</td>
 								';
 							}
@@ -370,10 +364,6 @@ class StructuresHelper extends Helper {
 						
 				} // end COLUMN 
 				
-				// tack on EXTRAS end, if any
-				// $return_string .= $this->display_extras( 'edit', $extras, 'end', count($table_index) );
-			
-			
 			$return_string .= '
 					</tr>
 				</tbody>
@@ -390,7 +380,6 @@ class StructuresHelper extends Helper {
 
 	function build_table( $atim_structure, $options ) {
 		$return_string = '';
-		
 		// display table...
 		$return_string .= '
 			<table class="structure" cellspacing="0">
@@ -774,31 +763,35 @@ class StructuresHelper extends Helper {
 			unset($options['stack']);
 		}
 
-		if ( is_array($table_structure) ) {
-			if ( count($data) ) {
-				//header line
-				$line = array();
-				foreach ( $table_structure[0] as $table_column ) {
-					foreach ( $table_column as $fm => $table_row ) {
-						$line[] = $table_row['label'];
+		if(is_array($table_structure) && count($data)){
+			if(isset($options['settings']['columns_names']) && count($options['settings']['columns_names']) > 0){
+				//reformat the data array for structures with columns_names
+				$tmp = $table_structure;
+				$table_structure = array();
+				foreach($options['settings']['columns_names'] as $column_index => $column_name){
+					$table_structure[$column_index][0][0] = array('label' => '', 'plain' => str_replace("&nbsp;", " ", $column_name));//column name is used a a row name here
+					foreach($tmp[0][0] as $unit_index => $unit){
+						$table_structure[$column_index][0][$unit_index] = array('label' => $unit['label'], 'plain' => $unit['content'][$column_name]);
 					}
 				}
+			}
+
+			//header line
+			$line = array();
+			foreach ( $table_structure[0] as $table_column ) {
+				foreach ( $table_column as $fm => $table_row ) {
+					$line[] = $table_row['label'];
+				}
+			}
+			$this->Csv->addRow($line);
+
+			//content
+			foreach ( $table_structure as $table_column ) {
+				$line = array();
+				foreach ( $table_column[0] as $fm => $table_row ) {
+					$line[] = $table_row['plain'];
+				}
 				$this->Csv->addRow($line);
-				
-				// each column in table
-				foreach ( $data as $key=>$val ) {
-					$line = array();
-						
-					// each column/row in table
-					foreach ( $table_structure[$key] as $table_column ) {
-						foreach ( $table_column as $fm => $table_row ) {
-							$line[] = $table_row['plain'];
-								
-						}
-					}
-						
-					$this->Csv->addRow($line);
-				} // end FOREACH
 			}
 		}
 		return $this->Csv->render();
@@ -981,7 +974,8 @@ class StructuresHelper extends Helper {
 					
 					foreach ( $table_index as $table_column_key=>$table_column ) {
 						foreach ( $table_column as $table_row_key=>$table_row ) {
-							$return_string_collect .= ' <span class="divider">|</span> '.( $options['links']['top'] && $options['settings']['form_inputs'] ? $table_row['input'] : $table_row['content'] );
+							//carefull with the white spaces as removing them the can break the display in IE
+							$return_string_collect .= ' <span class="nowrap"><span class="divider">|</span> '.( $options['links']['top'] && $options['settings']['form_inputs'] ? $table_row['input'] : $table_row['content'] )."</span>&nbsp;";
 						}
 					}
 				
@@ -994,9 +988,7 @@ class StructuresHelper extends Helper {
 						$return_string .= '<a class="reveal not_allowed" onclick="return false;">+</a> ';
 					}
 					
-					$return_string .= ' <span class="divider">|</span> ';
-				
-				$return_string .= $return_string_collect;
+				$return_string .= '<div><span class="divider">|</span> '.$return_string_collect.'</div>';
 				
 				// create sub-UL, calling this NODE function again, if model has any CHILDREN
 				if ( count($children) ) { 
@@ -1177,7 +1169,7 @@ class StructuresHelper extends Helper {
 		// data provided through OPTIONS only really useful for display (not for FORMS)
 		
 			$data = &$this->data;
-		
+
 			$model_prefix = '';
 			$model_suffix = '.';
 			
@@ -1324,10 +1316,22 @@ class StructuresHelper extends Helper {
 					// set display VALUE, or NO VALUE indicator 
 						
 					$display_value_raw = $data[ $field['StructureField']['model'] ][ $field['StructureField']['field'] ];
-					if(!is_array($display_value_raw)){
-						$display_value_raw = array("" => $display_value_raw);
+					if(is_array($display_value_raw)){
+						$display_value_raw_was_arr = true;
 					}else{
-						$display_value_raw_was_arr = false;
+						$display_value_raw = array("" => $display_value_raw);
+					}
+					
+					//CodingIcd magic, adding description to a displayed field
+					if(isset($atim_structure['Structure']['CodingIcdCheck']) && $atim_structure['Structure']['CodingIcdCheck']){
+						foreach(AppModel::getMagicCodingIcdTriggerArray() as $key => $trigger){
+							if(strpos($field['StructureField']['setting'], $trigger) !== false){
+								foreach($display_value_raw as &$value){
+									eval('$instance = '.$key.'::getInstance();');
+									$value .= " - ".$instance->getDescription($value);
+								}
+							}
+						}
 					}
 					foreach($display_value_raw as $display_value_key => $display_value){
 							// swap out VALUE for OVERRIDE choice for SELECTS, NO TRANSLATION 
@@ -1389,13 +1393,11 @@ class StructuresHelper extends Helper {
 								// set ZERO date fields to blank
 								$display_value = '';
 								
-							} else if ( ($field['StructureField']['type']=='date' || $field['StructureField']['type']=='datetime') && strpos($display_value, " ") !== false) {
-								
+							} else if ($field['StructureField']['type']=='date' || $field['StructureField']['type']=='datetime') {
 								if ( !is_array($display_value) ) {
 									// format date STRING manually, using PHP's month name array, becuase of UnixTimeStamp's 1970 - 2038 limitation
 									
 										$calc_date_string = explode( ' ', $display_value );
-										
 										if ( $field['StructureField']['type']=='datetime' ) {
 											$calc_time_string = $calc_date_string[1];
 											if(time_format == 12){
@@ -1446,8 +1448,8 @@ class StructuresHelper extends Helper {
 							}
 							
 					// put display_value into CONTENT array index, ELSE put span tag if value BLANK and INCREMENT empty index 
-						
-						$table_index[ $field['display_column'] ][ $row_count ]['plain'] .= str_replace('&nbsp;',' ',$display_value).' ';
+
+							$table_index[ $field['display_column'] ][ $row_count ]['plain'] .= str_replace('&nbsp;',' ',$display_value).' ';
 						
 						if(isset($display_value_raw_was_arr) && !isset($table_index[ $field['display_column'] ][ $row_count ]['content'][$display_value_key])){
 							$table_index[ $field['display_column'] ][ $row_count ]['content'][$display_value_key] = "";
@@ -1906,23 +1908,19 @@ class StructuresHelper extends Helper {
 						
 					}
 					
-					/*
-					// add EXTRA, if key exists for this form MODEL/FIELD
-					if ( isset( $extras[$model_suffix.$field['StructureField']['model'].'.'.$field['StructureField']['field']] ) ) {
-						$display_value .= '
-							<br /><br />
-							'.$extras[$model_suffix.$field['StructureField']['model'].'.'.$field['StructureField']['field']].'
-						';
-					}
-					*/
+					//$tmp_advanced = "<span><a class='adv_ctrl btn_add_or' onclick='return false;' href='#'>(+)</a></span>";
+					//$display_value .= "<span><a class='adv_ctrl btn_add_or' onclick='return false;' href='#'>(+)</a></span><br/>";
 					
 					// put display_value into CONTENT array index, ELSE put span tag if value BLANK and INCREMENT empty index 
-						if ( trim($display_value)!='' ) {
-							$tmpInput = $table_index[ $field['display_column'] ][ $row_count ]['tag'].$display_value.' ';
+						if (trim($display_value) != '') {
+							$tmp_input = $table_index[ $field['display_column'] ][ $row_count ]['tag'].$display_value.' ';
 							if($options['type'] != 'datagrid'){
-								$tmpInput = "<span style='white-space: nowrap;'>".$tmpInput."</span>";
+								$tmp_input = "<span style='white-space: nowrap;'>".$tmp_input."</span>";
+								if($options['type'] == 'search'){
+									$tmp_input = "<div>".$tmp_input."<a class='adv_ctrl btn_add_or' onclick='return false;' href='#'>(+)</a></div>";
+								}
 							}
-							$table_index[ $field['display_column'] ][ $row_count ]['input'] .= $tmpInput;
+							$table_index[ $field['display_column'] ][ $row_count ]['input'] .= $tmp_input;
 						} else {
 							$table_index[ $field['display_column'] ][ $row_count ]['input'] .= $table_index[ $field['display_column'] ][ $row_count ]['tag'].'<span class="empty">-</span> ';
 							$table_index[ $field['display_column'] ][ $row_count ]['empty']++;

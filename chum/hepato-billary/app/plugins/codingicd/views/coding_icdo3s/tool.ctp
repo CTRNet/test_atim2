@@ -2,7 +2,7 @@
 <?php 
 $type = $use_icd_type == "topo" ? "topography" : "morphology";
 $this->Structures->build($atim_structure, array('type' => 'search', 'links' => array('top' => 'foo'), 
-	'settings' => array('header' => 'search for an icdo3 '.$type.' code', 'actions' => false)));
+	'settings' => array('header' => __('search for an icdo3 '.$type.' code', true), 'actions' => false)));
 ?>
 <div id="results">
 

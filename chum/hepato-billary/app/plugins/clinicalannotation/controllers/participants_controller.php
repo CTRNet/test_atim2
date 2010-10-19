@@ -70,9 +70,6 @@ class ParticipantsController extends ClinicalannotationAppController {
 		
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id) );
 		
-		$this->data['Participant']['cod_icd10_code'] .= " - ".$this->CodingIcd10Who->getDescription($this->data['Participant']['cod_icd10_code']);
-		$this->data['Participant']['secondary_cod_icd10_code'] .= " - ".$this->CodingIcd10Who->getDescription($this->data['Participant']['secondary_cod_icd10_code']);
-
 		// Set form for identifier list
 		
 		$this->Structures->set('miscidentifiers', 'atim_structure_for_misc_identifiers');		

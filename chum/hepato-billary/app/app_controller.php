@@ -10,7 +10,7 @@ class AppController extends Controller {
 	var $helpers		= array('Ajax', 'Csv', 'Html', 'Javascript', 'Shell', 'Structures', 'Time');
 	
 	//use AppController::getCalInfo to get those with translations
-	private static $cal_info_short = array(1 => 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
+	private static $cal_info_short = array(1 => 'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec');
 	private static $cal_info_long = array(1 => 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December');
 	private static $cal_info_short_translated = false;
 	private static $cal_info_long_translated = false;
@@ -254,12 +254,14 @@ class AppController extends Controller {
 	static function getCalInfo($short = true){
 		if($short){
 			if(!AppController::$cal_info_short_translated){
-				AppController::$cal_info_short_translated = array_map(create_function('$a', 'return __($a, true);'), AppController::$cal_info_short);
+				AppController::$cal_info_short_translated = true;
+				AppController::$cal_info_short = array_map(create_function('$a', 'return __($a, true);'), AppController::$cal_info_short);
 			}
 			return AppController::$cal_info_short;			
 		}else{
 			if(!AppController::$cal_info_long_translated){
-				AppController::$cal_info_long_translated = array_map(create_function('$a', 'return __($a, true);'), AppController::$cal_info_long);
+				AppController::$cal_info_long_translated = true;
+				AppController::$cal_info_long = array_map(create_function('$a', 'return __($a, true);'), AppController::$cal_info_long);
 			}
 			return AppController::$cal_info_long;
 		}	
@@ -303,6 +305,91 @@ class AppController extends Controller {
 			list($year, $month, $day) = explode("-", $date);
 			$formated_date = AppController::getFormatedDateString($year, $month, $day);
 			return $formated_date.($nbsp_spaces ? "&nbsp;" : "").$time;
+	}
+	
+	/**
+	 * Return formatted date in SQL format from a date array returned by an application form.
+	 * 
+	 * @param $datetime_array Array gathering date data into following structure:
+	 * 	array('month' => string, '
+	 * 		'day' => string, 
+	 * 		'year' => string, 
+	 * 		'hour' => string, 
+	 * 		'min' => string)
+	 * @param $date_type  Specify the type of date ('normal', 'start', 'end')
+	 * 		- normal => Will force function to build a date witout specific rules.
+	 *      - start => Will force function to build date as a 'start date' of date range defintion 
+	 *    		(ex1: when just year is specified, will return a value like year-01-01 00:00)
+	 *    		(ex2: when array is empty, will return a value like -9999-99-99 00:00)
+	 *      - end => Will force function to build date as an 'end date' of date range defintion 
+	 *    		(ex1: when just year is specified, will return a value like year-12-31 23:59)
+	 *    		(ex2: when array is empty, will return a value like 9999-99-99 23:59)      
+	 * 
+	 * @return string The formated SQL date having following format yyyy-MM-dd hh:mn
+	 */
+	static function getFormatedDatetimeSQL($datetime_array, $date_type = 'normal') {
+		
+		$formatted_date = '';
+		switch($date_type) {
+			case 'normal':
+				if((!empty($datetime_array['year'])) && (!empty($datetime_array['month'])) && (!empty($datetime_array['day']))) {
+					$formatted_date =  $datetime_array['year'].'-'.$datetime_array['month'].'-'.$datetime_array['day'];
+				}
+				if((!empty($formatted_date)) && (!empty($datetime_array['hour']))) {
+					$formatted_date .= ' '.$datetime_array['hour'].':'.(empty($datetime_array['min'])? '00':$datetime_array['min']);
+				}
+				break;
+				
+			case 'start':
+				if(empty($datetime_array['year'])) {
+					$formatted_date = '-9999-99-99 00:00';
+				} else {
+					$formatted_date = $datetime_array['year'];
+					if(empty($datetime_array['month'])) {
+						$formatted_date .= '-01-01 00:00';
+					} else {
+						$formatted_date .= '-'.$datetime_array['month'];
+						if(empty($datetime_array['day'])) {
+							$formatted_date .= '-01 00:00';
+						} else {
+							$formatted_date .= '-'.$datetime_array['day'];
+							if(empty($datetime_array['hour'])) {
+								$formatted_date .= ' 00:00';
+							} else {							
+								$formatted_date .= ' '.$datetime_array['hour'].':'.(empty($datetime_array['min'])?'00':$datetime_array['min']);
+							}
+						}
+					}
+				}
+				break;
+				
+			case 'end':
+				if(empty($datetime_array['year'])) {
+					$formatted_date = '9999-12-31 23:59';
+				} else {
+					$formatted_date = $datetime_array['year'];
+					if(empty($datetime_array['month'])) {
+						$formatted_date .= '-12-31 23:59';
+					} else {
+						$formatted_date .= '-'.$datetime_array['month'];
+						if(empty($datetime_array['day'])) {
+							$formatted_date .= '-31 23:59';
+						} else {
+							$formatted_date .= '-'.$datetime_array['day'];
+							if(empty($datetime_array['hour'])) {
+								$formatted_date .= ' 23:59';
+							} else {							
+								$formatted_date .= ' '.$datetime_array['hour'].':'.(empty($datetime_array['min'])?'59':$datetime_array['min']);
+							}
+						}
+					}
+				}
+				break;
+				
+			default:		
+		}
+		
+		return $formatted_date;
 	}
 	
 	static function addWarningMsg($msg){

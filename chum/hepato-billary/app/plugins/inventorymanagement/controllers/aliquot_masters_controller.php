@@ -1502,9 +1502,12 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 		
 		// Launch validation		
-		foreach ($aliquots_data as $key => $new_aliquot) {		
+		foreach ($aliquots_data as $key => $new_aliquot) {
+			$is_sample_core = false;
+			if(isset($new_aliquot['AliquotMaster']['aliquot_type']) && ($new_aliquot['AliquotMaster']['aliquot_type'] == 'core')) $is_sample_core = true;
+			
 			// Check the aliquot storage definition (selection label versus selected storage_master_id)
-			$arr_storage_selection_results = $this->Storages->validateStorageIdVersusSelectionLabel($new_aliquot['FunctionManagement']['recorded_storage_selection_label'], $new_aliquot['AliquotMaster']['storage_master_id']);
+			$arr_storage_selection_results = $this->Storages->validateStorageIdVersusSelectionLabel($new_aliquot['FunctionManagement']['recorded_storage_selection_label'], $new_aliquot['AliquotMaster']['storage_master_id'], $is_sample_core);
 					
 			$new_aliquot['AliquotMaster']['storage_master_id'] = $arr_storage_selection_results['selected_storage_master_id'];
 			$arr_preselected_storages += $arr_storage_selection_results['matching_storage_list'];
@@ -1636,6 +1639,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 	}
 	
 	function realiquot($batch_set_id, $save = false){
+		//TODO realiquot in batch process should be defined into datamart_batch_processes
+		// Review and validate process before to use
+		$this->redirect('/pages/err_inv_system_error', null, true);
+		
 		if(empty($this->data)){
 			$this->redirect("/pages/err_inv_no_data");
 			exit;

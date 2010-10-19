@@ -106,9 +106,11 @@ id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
 plugin VARCHAR(50) NOT NULL,
 model VARCHAR(50) NOT NULL,
 structure_id INT NOT NULL,
-results_structure_alias VARCHAR(255) NOT NULL,
 display_name VARCHAR(50) NOT NULL,
 use_key VARCHAR(50) NOT NULL,
+control_model VARCHAR(50) DEFAULT '',
+control_master_model VARCHAR(50) DEFAULT '',
+control_field VARCHAR(50) DEFAULT '',
 FOREIGN KEY (`structure_id`) REFERENCES `structures`(`id`)
 )Engine=InnoDb;
 
@@ -123,13 +125,13 @@ FOREIGN KEY (`id1`) REFERENCES `datamart_structures`(`id`),
 FOREIGN KEY (`id2`) REFERENCES `datamart_structures`(`id`)
 )Engine=InnoDb;
 
-INSERT INTO datamart_structures (`id`, `plugin`, `model`, `structure_id`, `display_name`, `use_key`) VALUES
-(1, 'Inventorymanagement', 'ViewAliquot', (SELECT id FROM structures WHERE alias='view_aliquot_joined_to_collection'), 'aliquots', 'aliquot_master_id'),
-(2, 'Inventorymanagement', 'ViewCollection', (SELECT id FROM structures WHERE alias='view_collection'), 'collections', 'collection_id'),
-(3, 'Storagelayout', 'StorageMaster', (SELECT id FROM structures WHERE alias='storagemasters'), 'storages', 'id'),
-(4, 'Clinicalannotation', 'Participant', (SELECT id FROM structures WHERE alias='participants'), 'participants', 'id'),
-(5, 'Inventorymanagement', 'ViewSample', (SELECT id FROM structures WHERE alias='view_sample_joined_to_collection'), 'samples', 'sample_master_id'),
-(6, 'Clinicalannotation', 'MiscIdentifier', (SELECT id FROM structures WHERE alias='miscidentifierssummary'), 'identification', 'id');
+INSERT INTO datamart_structures (`id`, `plugin`, `model`, `structure_id`, `display_name`, `use_key`, `control_model`, `control_master_model`, `control_field`) VALUES
+(1, 'Inventorymanagement', 'ViewAliquot', (SELECT id FROM structures WHERE alias='view_aliquot_joined_to_collection'), 'aliquots', 'aliquot_master_id', 'AliquotControl', 'AliquotMaster', 'aliquot_control_id'),
+(2, 'Inventorymanagement', 'ViewCollection', (SELECT id FROM structures WHERE alias='view_collection'), 'collections', 'collection_id', '', '', ''),
+(3, 'Storagelayout', 'StorageMaster', (SELECT id FROM structures WHERE alias='storagemasters'), 'storages', 'id', 'StorageControl', 'StorageMaster', 'storage_control_id'),
+(4, 'Clinicalannotation', 'Participant', (SELECT id FROM structures WHERE alias='participants'), 'participants', 'id', '', '', ''),
+(5, 'Inventorymanagement', 'ViewSample', (SELECT id FROM structures WHERE alias='view_sample_joined_to_collection'), 'samples', 'sample_master_id', 'SampleControl', 'SampleMaster', 'sample_control_id'),
+(6, 'Clinicalannotation', 'MiscIdentifier', (SELECT id FROM structures WHERE alias='miscidentifierssummary'), 'identification', 'id', '', '', '');
 
 INSERT INTO datamart_browsing_controls(`id1`, `id2`, `use_field`) VALUES
 (1, 3, 'ViewAliquot.storage_master_id'),
@@ -150,6 +152,7 @@ CREATE TABLE datamart_browsing_results(
   `user_id` int UNSIGNED NOT NULL,
   `parent_node_id` tinyint UNSIGNED,
   `browsing_structures_id` int UNSIGNED,
+  `browsing_structures_sub_id` int UNSIGNED DEFAULT 0,
   `raw` boolean NOT NULL,
   `serialized_search_params` text NOT NULL,
   `id_csv` text NOT NULL,
@@ -167,6 +170,7 @@ CREATE TABLE datamart_browsing_results_revs(
   `user_id` int UNSIGNED NOT NULL,
   `parent_node_id` tinyint UNSIGNED,
   `browsing_structures_id` int UNSIGNED,
+  `browsing_structures_sub_id` int UNSIGNED DEFAULT 0,
   `raw` boolean NOT NULL,
   `serialized_search_params` text NOT NULL,
   `id_csv` text NOT NULL,
@@ -1586,14 +1590,14 @@ UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FRO
 UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='QualityCtrl' AND tablename='quality_ctrls' AND field='conclusion' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='quality_control_conclusion'));
 UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='QualityCtrl' AND tablename='quality_ctrls' AND field='qc_code' AND type='input' AND structure_value_domain  IS NULL );
 
-INSERT INTO datamart_structures (`id`, `plugin`, `model`, `structure_id`, `display_name`, `use_key`) VALUES
-(7, 'Inventorymanagement', 'AliquotUse', (SELECT id FROM structures WHERE alias='aliquotuses'), 'aliquot uses', 'id'),
-(8, 'Clinicalannotation', 'ConsentMaster', (SELECT id FROM structures WHERE alias='consent_masters'), 'consents', 'id'),
-(9, 'Clinicalannotation', 'DiagnosisMaster', (SELECT id FROM structures WHERE alias='diagnosismasters'), 'diagnosis', 'id'),
-(10, 'Clinicalannotation', 'TreatmentMaster', (SELECT id FROM structures WHERE alias='treatmentmasters'), 'treatments', 'id'),
-(11, "Clinicalannotation", "FamilyHistory", (SELECT id FROM structures WHERE alias='familyhistories'), 'family histories' , 'id'),
-(12, "Clinicalannotation", "ParticipantMessage", (SELECT id FROM structures WHERE alias='participantmessages'), 'participant messages', 'id'),
-(13, 'Inventorymanagement', "QualityCtrl", (SELECT id FROM structures WHERE alias='qualityctrls'), 'quality controls', 'id');
+INSERT INTO datamart_structures (`id`, `plugin`, `model`, `structure_id`, `display_name`, `use_key`, `control_model`, `control_master_model`, `control_field`) VALUES
+(7, 'Inventorymanagement', 'AliquotUse', (SELECT id FROM structures WHERE alias='aliquotuses'), 'aliquot uses', 'id', '', '', ''),
+(8, 'Clinicalannotation', 'ConsentMaster', (SELECT id FROM structures WHERE alias='consent_masters'), 'consents', 'id', '', '', ''),
+(9, 'Clinicalannotation', 'DiagnosisMaster', (SELECT id FROM structures WHERE alias='diagnosismasters'), 'diagnosis', 'id', '', '', ''),
+(10, 'Clinicalannotation', 'TreatmentMaster', (SELECT id FROM structures WHERE alias='treatmentmasters'), 'treatments', 'id', '', '', ''),
+(11, "Clinicalannotation", "FamilyHistory", (SELECT id FROM structures WHERE alias='familyhistories'), 'family histories' , 'id', '', '', ''),
+(12, "Clinicalannotation", "ParticipantMessage", (SELECT id FROM structures WHERE alias='participantmessages'), 'participant messages', 'id', '', '', ''),
+(13, 'Inventorymanagement', "QualityCtrl", (SELECT id FROM structures WHERE alias='qualityctrls'), 'quality controls', 'id', '', '', '');
 
 INSERT INTO datamart_browsing_controls(`id1`, `id2`, `use_field`) VALUES
 (7, 1, 'AliquotUse.aliquot_master_id'),
@@ -1925,30 +1929,25 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='codingicd10_en'), (SELECT id FROM structure_fields WHERE `model`='CodingIcd10' AND `tablename`='coding_icd10' AND `field`='id' AND `language_label`='icd10 code' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
 
 -- participant icd10
-UPDATE structure_fields SET  `type`='input',  `setting`='tool=/codingicd10/CodingIcd10s/tool',  `structure_value_domain`= NULL  WHERE model='Participant' AND tablename='participants' AND field='secondary_cod_icd10_code' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10');
-UPDATE structure_fields SET  `type`='input',  `setting`='tool=/codingicd10/CodingIcd10s/tool',  `structure_value_domain`= NULL  WHERE model='Participant' AND tablename='participants' AND field='cod_icd10_code' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10');
+UPDATE structure_fields SET  `type`='autocomplete',  `setting`='size=10,url=/codingicd/CodingIcd10s/autocomplete/who,tool=/codingicd/CodingIcd10s/tool/who',  `structure_value_domain`= NULL  WHERE model='Participant' AND tablename='participants' AND field='secondary_cod_icd10_code' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10');
+UPDATE structure_fields SET  `type`='autocomplete',  `setting`='size=10,url=/codingicd/CodingIcd10s/autocomplete/who,tool=/codingicd/CodingIcd10s/tool/who',  `structure_value_domain`= NULL  WHERE model='Participant' AND tablename='participants' AND field='cod_icd10_code' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10');
 
 -- dx icd10
 INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
-('', 'Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters', 'primary_icd10_code', 'primary disease code', '', 'input', 'tool=/codingicd10/CodingIcd10s/tool', '',  NULL , 'help_primary code', 'open', 'open', 'open');
+('', 'Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters', 'primary_icd10_code', 'primary disease code', '', 'autocomplete', 'size=10,url=/codingicd/CodingIcd10s/autocomplete,tool=/codingicd/CodingIcd10s/tool/who', '',  NULL , 'help_primary code', 'open', 'open', 'open');
 INSERT INTO structure_validations (`structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`) 
-(SELECT (SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND `type`='input' AND structure_value_domain IS NULL ), `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message` FROM structure_validations WHERE structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10'))) ;
-UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='primary_icd10_code' AND `type`='input' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='diagnosismasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10'));
+(SELECT (SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND `type`='autocomplete' AND structure_value_domain IS NULL ), `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message` FROM structure_validations WHERE structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10'))) ;
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='primary_icd10_code' AND `type`='autocomplete' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='diagnosismasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10'));
 
 INSERT INTO structure_validations (`structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`) 
-(SELECT (SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND `type`='input' AND structure_value_domain IS NULL ), `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message` FROM structure_validations WHERE structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10'))) ;
-UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='primary_icd10_code' AND `type`='input' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10'));
+(SELECT (SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND `type`='autocomplete' AND structure_value_domain IS NULL ), `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message` FROM structure_validations WHERE structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10'))) ;
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='primary_icd10_code' AND `type`='autocomplete' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10'));
 
 INSERT INTO structure_validations (`structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`) 
-(SELECT (SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND `type`='input' AND structure_value_domain IS NULL ), `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message` FROM structure_validations WHERE structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10'))) ;
-UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='primary_icd10_code' AND `type`='input' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10'));
+(SELECT (SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND `type`='autocomplete' AND structure_value_domain IS NULL ), `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message` FROM structure_validations WHERE structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10'))) ;
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='primary_icd10_code' AND `type`='autocomplete' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10'));
 
-UPDATE structure_fields SET  `type`='input',  `structure_value_domain`= NULL, `setting`='tool=/codingicd10/CodingIcd10s/tool' WHERE model='FamilyHistory' AND tablename='family_histories' AND field='primary_icd10_code' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10');
-
--- ccl icd10
-INSERT INTO structure_validations (`structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`) 
-(SELECT (SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND `type`='input' AND structure_value_domain IS NULL ), `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message` FROM structure_validations WHERE structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10'))) ;
-UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='primary_icd10_code' AND `type`='input' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_icd10_code' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10'));
+UPDATE structure_fields SET  `type`='autocomplete',  `structure_value_domain`= NULL, `setting`='size=10,url=/codingicd/CodingIcd10s/autocomplete/who,tool=/codingicd/CodingIcd10s/tool/who' WHERE model='FamilyHistory' AND tablename='family_histories' AND field='primary_icd10_code' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='icd10');
 
 -- Help information update for Family History
 
@@ -2733,3 +2732,795 @@ ALTER TABLE tx_masters
 	ADD CONSTRAINT `FK_tx_masters_tx_controls` FOREIGN KEY (`tx_control_id`) REFERENCES `tx_controls` (`id`);
 ALTER TABLE tx_masters_revs
   	CHANGE `treatment_control_id` `tx_control_id` int(11) NOT NULL DEFAULT '0';  
+
+ALTER TABLE aliquot_controls
+ ADD COLUMN databrowser_label VARCHAR(50) NOT NULL DEFAULT '';
+UPDATE aliquot_controls SET databrowser_label=comment;
+
+ALTER TABLE sample_controls
+ ADD COLUMN databrowser_label VARCHAR(50) NOT NULL DEFAULT '';
+UPDATE sample_controls SET databrowser_label=sample_type;
+
+ALTER TABLE storage_controls
+ ADD COLUMN databrowser_label VARCHAR(50) NOT NULL DEFAULT '';
+UPDATE storage_controls SET databrowser_label=storage_type;
+
+DROP TABLE coding_icdo_3;
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters', 'morphology', 'morphology', '', 'input', '', '',  NULL , 'help_morphology', 'open', 'open', 'open');
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='morphology' AND `type`='input' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='morphology' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='morphology'));
+
+INSERT IGNORE INTO i18n (`id`, `en`, `fr`) VALUES
+('only sample core can be stored into tma block','Only sample core can be stored into tma block!', 'Seules les cores d''échantillons peuvent être entreposés dans des blocs de TMA!'),
+('you can find help about permissions %s', "You can find help about permissions <a href='%s' target='blank'>here</a>", "Vous pouvez trouver de l'aider sur les permissions <a href='%s' target='blank'>ici</a>");
+
+CREATE TABLE external_links(
+id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+name VARCHAR(50) NOT NULL,
+link text,
+UNIQUE(`name`)
+)Engine=InnoDb;
+
+INSERT INTO external_links (name, link) VALUES
+('permissions_help', 'http://www.ctrnet.ca/mediawiki/index.php/Permissions_configuration');
+
+-- Set structure_formats.flag_search = '1' for all forms used into the databrowser
+
+UPDATE aliquot_controls SET databrowser_label = aliquot_type;
+
+-- ad_spec_whatman_papers
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ad_spec_whatman_papers')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('barcode', 'in_stock', 'in_stock_detail', 'storage_datetime', 'study_summary_id', 'created') AND model LIKE 'AliquotMaster') 
+  OR (field IN ('temp_unit', 'temperature', 'code', 'selection_label') AND model LIKE 'StorageMaster')
+);
+
+-- ad_der_cel_gel_matrices
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ad_der_cel_gel_matrices')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('barcode', 'in_stock', 'in_stock_detail', 'storage_datetime', 'study_summary_id', 'created') AND model LIKE 'AliquotMaster') 
+  OR (field IN ('temp_unit', 'temperature', 'code', 'selection_label') AND model LIKE 'StorageMaster')
+  OR (field IN ('cell_count_unit', 'cell_count') AND model LIKE 'AliquotDetail')
+);
+
+-- ad_der_cell_slides
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ad_der_cell_slides')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('barcode', 'in_stock', 'in_stock_detail', 'storage_datetime', 'study_summary_id', 'created') AND model LIKE 'AliquotMaster') 
+  OR (field IN ('temp_unit', 'temperature', 'code', 'selection_label') AND model LIKE 'StorageMaster')
+  OR (field IN ('immunochemistry') AND model LIKE 'AliquotDetail')
+);
+
+-- ad_der_tubes_incl_ml_vol
+SET @first_id = (SELECT id FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias='ad_der_tubes_incl_ml_vol')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('created') AND model LIKE 'AliquotMaster')
+) LIMIT 0,1);
+DELETE FROM structure_formats WHERE  id = @first_id;
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ad_der_tubes_incl_ml_vol')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('barcode', 'in_stock', 'in_stock_detail', 'storage_datetime', 'study_summary_id', 'created') AND model LIKE 'AliquotMaster') 
+  OR (field IN ('temp_unit', 'temperature', 'code', 'selection_label') AND model LIKE 'StorageMaster')
+  OR (field IN ('current_volume') AND model LIKE 'AliquotMaster')
+);
+
+-- ad_spec_tubes
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ad_spec_tubes')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('barcode', 'in_stock', 'in_stock_detail', 'storage_datetime', 'study_summary_id', 'created') AND model LIKE 'AliquotMaster') 
+  OR (field IN ('temp_unit', 'temperature', 'code', 'selection_label') AND model LIKE 'StorageMaster')
+);
+
+-- ad_spec_tubes_incl_ml_vol
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ad_spec_tubes_incl_ml_vol')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('barcode', 'in_stock', 'in_stock_detail', 'storage_datetime', 'study_summary_id', 'created') AND model LIKE 'AliquotMaster') 
+  OR (field IN ('temp_unit', 'temperature', 'code', 'selection_label') AND model LIKE 'StorageMaster')
+  OR (field IN ('current_volume') AND model LIKE 'AliquotMaster')
+);
+
+-- ad_spec_tiss_blocks
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('barcode', 'in_stock', 'in_stock_detail', 'storage_datetime', 'study_summary_id', 'created') AND model LIKE 'AliquotMaster') 
+  OR (field IN ('temp_unit', 'temperature', 'code', 'selection_label') AND model LIKE 'StorageMaster')
+  OR (field IN ('block_type') AND model LIKE 'AliquotDetail')
+);
+
+-- ad_spec_tiss_slides
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ad_spec_tiss_slides')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('barcode', 'in_stock', 'in_stock_detail', 'storage_datetime', 'study_summary_id', 'created') AND model LIKE 'AliquotMaster') 
+  OR (field IN ('temp_unit', 'temperature', 'code', 'selection_label') AND model LIKE 'StorageMaster')
+  OR (field IN ('immunochemistry') AND model LIKE 'AliquotDetail')
+);
+
+-- ad_der_tubes_incl_ul_vol_and_conc
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ad_der_tubes_incl_ul_vol_and_conc')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('barcode', 'in_stock', 'in_stock_detail', 'storage_datetime', 'study_summary_id', 'created') AND model LIKE 'AliquotMaster') 
+  OR (field IN ('temp_unit', 'temperature', 'code', 'selection_label') AND model LIKE 'StorageMaster')
+  OR (field IN ('current_volume') AND model LIKE 'AliquotMaster')
+  OR (field IN ('concentration', 'concentration_unit') AND model LIKE 'AliquotDetail')
+);
+
+-- ad_spec_tiss_cores
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ad_spec_tiss_cores')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('barcode', 'in_stock', 'in_stock_detail', 'storage_datetime', 'study_summary_id', 'created') AND model LIKE 'AliquotMaster') 
+  OR (field IN ('temp_unit', 'temperature', 'code', 'selection_label') AND model LIKE 'StorageMaster')
+);
+
+-- ad_der_cell_cores
+DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias='ad_der_cell_cores')
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'created' AND model LIKE 'AliquotMaster');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_der_cell_cores'), 
+(SELECT id FROM structure_fields WHERE field LIKE 'created' AND model LIKE 'AliquotMaster'), 
+'1', '77', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '1'); 
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_der_cell_cores'), 
+(SELECT id FROM structure_fields WHERE field LIKE 'barcode' AND model LIKE 'AliquotMaster' AND type = 'input'), 
+'0', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '1', '1', '0', '1', '0', '1', '1'); 
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ad_der_cell_cores')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('barcode', 'in_stock', 'in_stock_detail', 'storage_datetime', 'study_summary_id', 'created') AND model LIKE 'AliquotMaster') 
+  OR (field IN ('temp_unit', 'temperature', 'code', 'selection_label') AND model LIKE 'StorageMaster')
+);
+
+-- ad_der_cell_tubes_incl_ml_vol
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ad_der_cell_tubes_incl_ml_vol')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('barcode', 'in_stock', 'in_stock_detail', 'storage_datetime', 'study_summary_id', 'created') AND model LIKE 'AliquotMaster') 
+  OR (field IN ('temp_unit', 'temperature', 'code', 'selection_label') AND model LIKE 'StorageMaster')
+  OR (field IN ('current_volume') AND model LIKE 'AliquotMaster')
+  OR (field IN ('concentration', 'concentration_unit', 'cell_count', 'cell_count_unit') AND model LIKE 'AliquotDetail')
+);
+
+UPDATE datamart_structures SET control_model = '', control_master_model = '', control_field = '' WHERE plugin = 'Storagelayout' AND model = 'StorageMaster';
+
+-- 	sd_spe_ascites
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='sd_spe_ascites')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('sample_code') AND model LIKE 'SampleMaster') 
+  OR (field IN ('supplier_dept', 'reception_by', 'reception_datetime') AND model LIKE 'SpecimenDetail')
+);
+
+-- 	sd_spe_bloods
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='sd_spe_bloods')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('sample_code') AND model LIKE 'SampleMaster') 
+  OR (field IN ('supplier_dept', 'reception_by', 'reception_datetime') AND model LIKE 'SpecimenDetail')
+  OR (field IN ('blood_type') AND model LIKE 'SampleDetail')
+);
+
+-- 	sd_spe_cystic_fluids
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='sd_spe_cystic_fluids')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('sample_code') AND model LIKE 'SampleMaster') 
+  OR (field IN ('supplier_dept', 'reception_by', 'reception_datetime') AND model LIKE 'SpecimenDetail')
+);
+
+-- 	sd_spe_peritoneal_washes
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='sd_spe_peritoneal_washes')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('sample_code') AND model LIKE 'SampleMaster') 
+  OR (field IN ('supplier_dept', 'reception_by', 'reception_datetime') AND model LIKE 'SpecimenDetail')
+);
+
+-- 	sd_spe_pericardial_fluids
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='sd_spe_pericardial_fluids')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('sample_code') AND model LIKE 'SampleMaster') 
+  OR (field IN ('supplier_dept', 'reception_by', 'reception_datetime') AND model LIKE 'SpecimenDetail')
+);
+
+-- 	sd_spe_pleural_fluids
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='sd_spe_pleural_fluids')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('sample_code') AND model LIKE 'SampleMaster') 
+  OR (field IN ('supplier_dept', 'reception_by', 'reception_datetime') AND model LIKE 'SpecimenDetail')
+);
+
+-- 	sd_spe_tissues
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='sd_spe_tissues')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('sample_code') AND model LIKE 'SampleMaster') 
+  OR (field IN ('supplier_dept', 'reception_by', 'reception_datetime') AND model LIKE 'SpecimenDetail')
+  OR (field IN ('tissue_source', 'tissue_laterality', 'pathology_reception_datetime') AND model LIKE 'SampleDetail')
+);
+
+-- 	sd_spe_urines
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='sd_spe_urines')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('sample_code') AND model LIKE 'SampleMaster') 
+  OR (field IN ('supplier_dept', 'reception_by', 'reception_datetime') AND model LIKE 'SpecimenDetail')
+  OR (field IN ('urine_aspect', 'pellet_signs') AND model LIKE 'SampleDetail')
+);
+
+-- 	sd_der_cell_cultures
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='sd_der_cell_cultures')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('sample_code', 'initial_specimen_sample_type') AND model LIKE 'SampleMaster') 
+  OR (field IN ('creation_datetime', 'creation_by', 'creation_site') AND model LIKE 'DerivativeDetail')
+  OR (field IN ('culture_status', 'cell_passage_number') AND model LIKE 'SampleDetail')
+);
+
+-- 	sd_der_plasmas
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='sd_der_plasmas')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('sample_code', 'initial_specimen_sample_type') AND model LIKE 'SampleMaster') 
+  OR (field IN ('creation_datetime', 'creation_by', 'creation_site') AND model LIKE 'DerivativeDetail')
+  OR (field IN ('hemolysis_signs') AND model LIKE 'SampleDetail')
+);
+
+-- 	sd_der_serums
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='sd_der_serums')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('sample_code', 'initial_specimen_sample_type') AND model LIKE 'SampleMaster') 
+  OR (field IN ('creation_datetime', 'creation_by', 'creation_site') AND model LIKE 'DerivativeDetail')
+  OR (field IN ('hemolysis_signs') AND model LIKE 'SampleDetail')
+);
+
+-- 	sd_undetailed_derivatives
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='sd_undetailed_derivatives')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('sample_code', 'initial_specimen_sample_type') AND model LIKE 'SampleMaster') 
+  OR (field IN ('creation_datetime', 'creation_by', 'creation_site') AND model LIKE 'DerivativeDetail')
+);
+
+UPDATE datamart_structures SET control_model = 'TreatmentControl', control_master_model = 'TreatmentMaster', control_field = 'tx_control_id' WHERE plugin = 'Clinicalannotation' AND model = 'TreatmentMaster';
+ALTER TABLE `tx_controls`
+  ADD `databrowser_label` varchar(50) NOT NULL DEFAULT '' AFTER `extended_data_import_process`;
+UPDATE tx_controls SET databrowser_label = CONCAT(disease_site,'|',tx_method);
+
+-- txd_chemos
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='txd_chemos')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('tx_intent', 'target_site_icdo', 'protocol_master_id', 'start_date') AND model LIKE 'TreatmentMaster') 
+  OR (field IN ('chemo_completed', 'response', 'num_cycles', 'length_cycles', 'completed_cycles') AND model LIKE 'TreatmentDetail')
+);
+UPDATE structure_formats SET flag_index = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='txd_chemos')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('tx_method', 'tx_intent', 'target_site_icdo', 'protocol_master_id', 'start_date') AND model LIKE 'TreatmentMaster') 
+  OR (field IN ('chemo_completed', 'response', 'num_cycles', 'length_cycles', 'completed_cycles') AND model LIKE 'TreatmentDetail')
+);
+
+-- txd_radiations
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='txd_radiations')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('tx_intent', 'target_site_icdo', 'protocol_master_id', 'start_date') AND model LIKE 'TreatmentMaster') 
+  OR (field IN ('rad_completed') AND model LIKE 'TreatmentDetail')
+);
+UPDATE structure_formats SET flag_index = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='txd_radiations')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('tx_method', 'tx_intent', 'target_site_icdo', 'protocol_master_id', 'start_date') AND model LIKE 'TreatmentMaster') 
+  OR (field IN ('rad_completed') AND model LIKE 'TreatmentDetail')
+);
+
+-- txd_surgeries
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='txd_surgeries')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('tx_intent', 'target_site_icdo', 'protocol_master_id', 'start_date') AND model LIKE 'TreatmentMaster') 
+  OR (field IN ('path_num') AND model LIKE 'TreatmentDetail')
+);
+UPDATE structure_formats SET flag_index = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='txd_surgeries')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('tx_method', 'tx_intent', 'target_site_icdo', 'protocol_master_id', 'start_date') AND model LIKE 'TreatmentMaster') 
+  OR (field IN ('path_num') AND model LIKE 'TreatmentDetail')
+); 
+
+UPDATE datamart_structures SET control_model = 'ConsentControl', control_master_model = 'ConsentMaster', control_field = 'consent_control_id' WHERE plugin = 'Clinicalannotation' AND model = 'ConsentMaster';
+ALTER TABLE `consent_controls`
+  ADD `databrowser_label` varchar(50) NOT NULL DEFAULT '' AFTER `display_order`;
+UPDATE consent_controls SET databrowser_label = controls_type;
+
+-- cd_nationals
+UPDATE structure_formats SET flag_search = '1',  flag_index = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='cd_nationals')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('date_first_contact', 'form_version', 'consent_status', 'status_date', 'consent_signed_date') AND model LIKE 'ConsentMaster')
+);
+
+UPDATE datamart_structures SET control_model = 'DiagnosisControl', control_master_model = 'DiagnosisMaster', control_field = 'diagnosis_control_id' WHERE plugin = 'Clinicalannotation' AND model = 'DiagnosisMaster';
+ALTER TABLE `diagnosis_controls`
+  ADD `databrowser_label` varchar(50) NOT NULL DEFAULT '' AFTER `display_order`;
+UPDATE diagnosis_controls SET databrowser_label = controls_type;
+
+-- dx_bloods
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='dx_bloods')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('dx_origin', 'dx_date', 'dx_nature', 'tumour_grade', 'primary_icd10_code', 'topography', 'morphology') AND model LIKE 'DiagnosisMaster')
+);
+-- dx_tissues
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='dx_tissues')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('dx_origin', 'dx_date', 'dx_nature', 'tumour_grade', 'primary_icd10_code', 'topography', 'morphology') AND model LIKE 'DiagnosisMaster')
+);
+
+-- fixe issue 1108
+
+UPDATE structure_value_domains SET source = 'Storagelayout.StorageControl::getStorageTypePermissibleValues' WHERE source = 'StorageLayout.StorageControl::getStorageTypePermissibleValues';
+UPDATE structure_value_domains SET source = 'Storagelayout.StorageMaster::getParentStoragePermissibleValues' WHERE source = 'StorageLayout.StorageMaster::getParentStoragePermissibleValues';
+
+-- Add  event into databrowser
+
+INSERT INTO `datamart_structures` 
+(`id`, `plugin`, `model`, `structure_id`, `display_name`, `use_key`, `control_model`, `control_master_model`, `control_field`) 
+VALUES
+(null, 'Clinicalannotation', 'EventMaster', (SELECT id FROM structures WHERE alias = 'eventmasters'), 'annotation', 'id', 'EventControl', 'EventMaster', 'event_control_id');
+ALTER TABLE `event_controls`
+  ADD `databrowser_label` varchar(50) NOT NULL DEFAULT '' AFTER `display_order`;
+UPDATE event_controls SET databrowser_label = concat(event_group,'|',disease_site,'|',event_type);
+
+INSERT INTO datamart_browsing_controls (id1, id2, flag_active_1_to_2 ,flag_active_2_to_1, use_field)
+VALUES
+((SELECT id FROM datamart_structures WHERE model = 'EventMaster'), (SELECT id FROM datamart_structures WHERE model = 'Participant'), '1', '1', 'EventMaster.participant_id');
+
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='eventmasters')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('event_date', 'disease_site', 'event_type') AND model LIKE 'EventMaster')
+);
+
+-- 	ed_breast_lab_pathology
+
+UPDATE structure_formats SET flag_search = '1',flag_index = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ed_breast_lab_pathology')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('event_date') AND model LIKE 'EventMaster') 
+  OR (field IN ('tumour_type', 'grade', 'multifocal', 'vascular_lymph_invasion', 'extra_nodal_invasion', 'level_nodal_involvement') AND model LIKE 'EventDetail')
+); 
+
+-- 	ed_all_lifestyle_smoking
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ed_all_lifestyle_smoking')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('smoking_status', 'pack_years') AND model LIKE 'EventDetail')
+); 
+UPDATE structure_formats SET flag_index = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ed_all_lifestyle_smoking')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('event_date') AND model LIKE 'EventMaster') 
+  OR (field IN ('smoking_status', 'pack_years') AND model LIKE 'EventDetail')
+); 
+
+-- 	ed_all_clinical_followup
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ed_all_clinical_followup')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('vital_status') AND model LIKE 'EventDetail')
+); 
+UPDATE structure_formats SET flag_index = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ed_all_clinical_followup')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('event_date') AND model LIKE 'EventMaster') 
+  OR (field IN ('vital_status') AND model LIKE 'EventDetail')
+); 
+
+-- 	ed_all_clinical_presentation
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ed_all_clinical_presentation')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('weight', 'height') AND model LIKE 'EventDetail')
+); 
+UPDATE structure_formats SET flag_index = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ed_all_clinical_presentation')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('event_date') AND model LIKE 'EventMaster') 
+  OR (field IN ('weight','height') AND model LIKE 'EventDetail')
+); 
+
+-- 	ed_breast_screening_mammogram
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ed_breast_screening_mammogram')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('result') AND model LIKE 'EventDetail')
+); 
+UPDATE structure_formats SET flag_index = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ed_breast_screening_mammogram')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('event_date') AND model LIKE 'EventMaster') 
+  OR (field IN ('result') AND model LIKE 'EventDetail')
+); 
+
+-- 	ed_all_study_research
+UPDATE structure_formats SET flag_search = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ed_all_study_research')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('field_one') AND model LIKE 'EventDetail')
+); 
+UPDATE structure_formats SET flag_index = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ed_all_study_research')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('event_date') AND model LIKE 'EventMaster') 
+  OR (field IN ('field_one') AND model LIKE 'EventDetail')
+); 
+
+-- Add  specimen review into databrowser
+
+INSERT INTO `datamart_structures` 
+(`id`, `plugin`, `model`, `structure_id`, `display_name`, `use_key`, `control_model`, `control_master_model`, `control_field`) 
+VALUES
+(null, 'Inventorymanagement', 'SpecimenReviewMaster', (SELECT id FROM structures WHERE alias = 'specimen_review_masters'), 'specimen review', 'id', 'SpecimenReviewControl', 'SpecimenReviewMaster', 'specimen_review_control_id ');
+ALTER TABLE `specimen_review_controls`
+  ADD `databrowser_label` varchar(50) NOT NULL DEFAULT '' AFTER `detail_tablename`;
+UPDATE specimen_review_controls SET databrowser_label = concat(specimen_sample_type,'|',review_type);
+INSERT INTO datamart_browsing_controls (id1, id2, flag_active_1_to_2 ,flag_active_2_to_1, use_field)
+VALUES
+((SELECT id FROM datamart_structures WHERE model = 'SpecimenReviewMaster'), (SELECT id FROM datamart_structures WHERE model = 'ViewSample'), '1', '1', 'SpecimenReviewMaster.sample_master_id');
+
+UPDATE structure_formats SET flag_search = '0'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='spr_breast_cancer_types')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('notes','review_type','specimen_sample_type') AND model LIKE 'SpecimenReviewMaster')
+); 
+UPDATE structure_formats SET flag_index = '1'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='spr_breast_cancer_types'); 
+UPDATE structure_formats SET flag_index = '0'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='spr_breast_cancer_types')
+AND structure_field_id IN (
+  SELECT id FROM structure_fields 
+  WHERE (field IN ('notes','review_type','specimen_sample_type') AND model LIKE 'SpecimenReviewMaster')
+); 
+
+-- ALTER TABLE 
+
+ALTER TABLE `datamart_adhoc`
+  ADD `title` varchar(50) NOT NULL DEFAULT '' AFTER `id`;
+UPDATE datamart_adhoc set title = concat('adhoc_',id);
+ALTER TABLE `datamart_adhoc`
+  ADD UNIQUE(`title`);
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Datamart', 'Adhoc', 'datamart_adhoc', 'title', 'title', '', 'input', '', '',  NULL , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='querytool_adhoc'), 
+(SELECT id FROM structure_fields WHERE `model`='Adhoc' AND `tablename`='datamart_adhoc' AND `field`='title'), 
+'1', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '1', '1');
+
+-- Report upgrade
+
+DROP TABLE IF EXISTS datamart_reports_revs;
+ALTER TABLE datamart_reports
+  ADD `form_alias_for_search` varchar(255) DEFAULT NULL AFTER `description`,
+  ADD `form_alias_for_results` varchar(255) DEFAULT NULL AFTER `form_alias_for_search`,
+  ADD `form_type_for_results` enum('detail','index') NOT NULL AFTER `form_alias_for_results`,
+  ADD `flag_active` tinyint(1) NOT NULL DEFAULT '1' AFTER `function`,
+  DROP FOREIGN KEY `datamart_reports_ibfk_1`,
+  DROP COLUMN `datamart_structure_id`,
+  DROP COLUMN `serialized_representation`;
+
+DELETE FROM `datamart_reports`;
+INSERT INTO `datamart_reports` (`id`, `name`, `description`, `form_alias_for_search`, `form_alias_for_results`, `form_type_for_results`, `function`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, 'bank activity report', 'number of new participants created, consents obtained and participants having samples collected', 'report_date_range_definition', 'bank_activty_report', 'detail', 'bankActiviySummary', '0000-00-00 00:00:00', 0, NULL, 0),
+(null, 'specimens collection/derivatives creation', 'n/a', 'report_datetime_range_definition', 'specimen_and_derivative_creation_summary', 'index', 'sampleAndDerivativeCreationSummary', '0000-00-00 00:00:00', 0, NULL, 0),
+(null, 'bank activity report (per period)', 'number of new participants created, consents obtained and participants having samples collected', 'report_date_range_and_period_definition', 'bank_activty_report', 'detail', 'bankActiviySummaryPerPeriod', '0000-00-00 00:00:00', 0, NULL, 0);
+
+INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) 
+VALUES 
+('report_date_range_definition', '', '', '1', '1', '1', '1'),
+('report_datetime_range_definition', '', '', '1', '1', '1', '1'),
+('bank_activty_report', '', '', '1', '1', '1', '1'),
+('specimen_and_derivative_creation_summary', '', '', '1', '1', '1', '1'),
+('report_date_range_and_period_definition', '', '', '1', '1', '1', '1');
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("year", "year"),("month", "month");
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('date_range_period', '', '', NULL);
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="date_range_period"),  
+(SELECT id FROM structure_permissible_values WHERE value="year" AND language_alias="year"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="date_range_period"),  
+(SELECT id FROM structure_permissible_values WHERE value="month" AND language_alias="month"), "1", "1");
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) 
+VALUES 
+('', 'Datamart', '0', '', 'report_date_range', 'date range', '', 'date', '', '',  NULL , '', 'open', 'open', 'open'),
+('', 'Datamart', '0', '', 'report_datetime_range', 'date range', '', 'datetime', '', '',  NULL , '', 'open', 'open', 'open'),
+('', 'Datamart', '0', '', 'new_participants_nbr', 'created participants', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'),
+('', 'Datamart', '0', '', 'obtained_consents_nbr', 'obtained consents', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'),
+('', 'Datamart', '0', '', 'new_collections_nbr', 'participants having collected samples', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'),
+('', 'Datamart', '0', '', 'created_samples_nbr', 'number of new samples', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'),
+('', 'Datamart', '0', '', 'matching_participant_number', 'matching participant number', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'),
+('', 'Datamart', '0', '', 'report_date_range_period', 'date range period', '', 'select', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name = 'date_range_period') , '', 'open', 'open', 'open');
+ 
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='report_date_range_definition'), 
+(SELECT id FROM structure_fields WHERE field LIKE 'report_date_range' AND model LIKE '0'), 
+'0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0'),
+((SELECT id FROM structures WHERE alias='report_datetime_range_definition'), 
+(SELECT id FROM structure_fields WHERE field LIKE 'report_datetime_range' AND model LIKE '0'), 
+'0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0'), 
+ ((SELECT id FROM structures WHERE alias='bank_activty_report'), 
+(SELECT id FROM structure_fields WHERE field LIKE 'new_participants_nbr' AND model LIKE '0'), 
+'0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='bank_activty_report'), 
+(SELECT id FROM structure_fields WHERE field LIKE 'obtained_consents_nbr' AND model LIKE '0'), 
+'0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='bank_activty_report'), 
+(SELECT id FROM structure_fields WHERE field LIKE 'new_collections_nbr' AND model LIKE '0'), 
+'0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='specimen_and_derivative_creation_summary'), 
+(SELECT id FROM structure_fields WHERE field LIKE 'sample_category' AND model LIKE 'SampleMaster'), 
+'0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='specimen_and_derivative_creation_summary'), 
+(SELECT id FROM structure_fields WHERE field LIKE 'sample_type' AND model LIKE 'SampleMaster'), 
+'0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='specimen_and_derivative_creation_summary'), 
+(SELECT id FROM structure_fields WHERE field LIKE 'created_samples_nbr' AND plugin LIKE 'Datamart'), 
+'0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='specimen_and_derivative_creation_summary'), 
+(SELECT id FROM structure_fields WHERE field LIKE 'matching_participant_number' AND plugin LIKE 'Datamart'), 
+'0', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='report_date_range_and_period_definition'), 
+(SELECT id FROM structure_fields WHERE field LIKE 'report_date_range' AND model LIKE '0'), 
+'0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0'),
+((SELECT id FROM structures WHERE alias='report_date_range_and_period_definition'), 
+(SELECT id FROM structure_fields WHERE field LIKE 'report_date_range_period' AND model LIKE '0'), 
+'0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0'); 
+ 
+INSERT IGNORE into i18n (id, en, fr) VALUES
+('bank activity report', 'Bank Activity Report', 'Rapport d''activité'),
+('bank activity report (per period)', 'Bank Activity Report (Per Period)', 'Rapport d''activité (Par période)'),
+('date range period', 'Period', 'Période'),
+('no perido has been defined','No perido has been defined!','Aucune période n''a été définie!'),
+('number of new participants created, consents obtained and participants having samples collected', 
+'Number of created participants, obtained consents and participants having samples collected.', 
+'Nombre de participants créés, de consentements obtenus et d participants dont les échantillons ont été collectés.'),
+('created participants', 'Created Participants', 'Participants créés'),
+('number of report columns will be too big, please redefine parameters', 'The number of report columns will be too big, please redefine parameters!', 'Le nombre de colonnes de votre rapport est trop important, redéfinissez les valeurs de recherche!'),
+('obtained consents', 'Obtained Consents', 'Consentements Obtenus'),
+('date range', 'Date Range', 'Intervalle de dates'),
+('participants having collected samples', 'Participants Having Collected Samples', 'Participants ayant échantillons collectés'),
+('specimens collection/derivatives creation', 'Specimens Collection/Derivatives Creation', 'Collections des spécimens/Creations de dérivés'),
+('number of new samples', 'Number of New Samples', 'Nombre de nouveaux échantillons'),
+('matching participant number', 'Matching Participant Number', 'Nombre de participants correspondants');
+
+UPDATE menus SET use_summary = 'Datamart.Report::summary' WHERE id = 'qry-CAN-1-2';
+
+INSERT IGNORE into i18n (id, en, fr) VALUES
+('adverse_events','Adverse Events','Effets indésirables'),
+('followup', 'Follow-Up','Suivi'),
+('adverse_event','Adverse Event','Effet indésirable');
+ 
+UPDATE structure_fields SET plugin = 'Inventorymanagement' WHERE model = 'SpecimenReviewDetail' AND field = 'tumour_grade_category' AND plugin = 'ar_breast_tissue_slides';
+
+DELETE FROM structure_formats WHERE structure_id IN (SELECT id FROM structures WHERE alias IN ('qry_diagnosis_results', 'qry_diagnosis_search', 'tma_slide_content_search'));
+DELETE FROM structures WHERE alias IN ('qry_diagnosis_results', 'qry_diagnosis_search', 'tma_slide_content_search');
+
+UPDATE structure_formats SET structure_field_id = (SELECT id FROM structure_fields WHERE tablename = 'diagnosis_masters' AND field = 'primary_icd10_code' AND type = 'autocomplete')
+WHERE structure_id IN (SELECT id FROM structures WHERE alias = 'clinicalcollectionlinks')
+AND structure_field_id = (SELECT id FROM structure_fields WHERE tablename = 'diagnosis_masters' AND field = 'primary_icd10_code' AND type = 'select');
+
+DELETE FROM structure_validations WHERE structure_field_id = (SELECT id FROM structure_fields WHERE tablename = 'diagnosis_masters' AND field = 'primary_icd10_code' AND type = 'select');
+DELETE FROM structure_fields WHERE tablename = 'diagnosis_masters' AND field = 'primary_icd10_code' AND type = 'select';
+
+UPDATE structure_formats 
+SET structure_field_id = (SELECT id FROM structure_fields WHERE tablename = 'diagnosis_masters' AND field = 'morphology' AND type = 'autocomplete')
+WHERE structure_id IN (SELECT id FROM structures WHERE alias = 'clinicalcollectionlinks')
+AND structure_field_id = (SELECT id FROM structure_fields WHERE tablename = 'diagnosis_masters' AND field = 'morphology' AND type = 'input');
+
+UPDATE structure_formats 
+SET structure_field_id = (SELECT id FROM structure_fields WHERE tablename = 'diagnosis_masters' AND field = 'topography' AND type = 'autocomplete')
+WHERE structure_id IN (SELECT id FROM structures WHERE alias = 'diagnosismasters')
+AND structure_field_id = (SELECT id FROM structure_fields WHERE tablename = 'diagnosis_masters' AND field = 'topography' AND type = 'input');
+
+DELETE FROM structure_fields WHERE tablename = 'diagnosis_masters' AND field IN ('topography', 'morphology') AND type IN ('select', 'input');
+
+INSERT IGNORE into i18n (id, en, fr) VALUES 
+('obtained consents', 'Obtained Consents', 'Consentement obtenu'),
+
+('add new diagnosis', 'Add New Diagnosis', 'Ajouter un nouveau diagnostic'),
+('search for','Search For', 'Rechercher'),
+('back', 'Back', 'Recommencer'),
+
+('icdo3 morphology code picker', 'ICD-O-3 Morphology Code Picker', 'Sélection code morphologique ICD-O-3'),
+('search for an icdo3 morphology code', 'Search For An ICD-O-3 Morphology Code', 'Rechercher code morphologique ICD-O-3'),
+('select an icdo3 morphology code', 'Select An ICD-O-3 Morphology Code', 'Sélectionner code morphologique ICD-O-3'),
+
+('icdo3 topography code picker', 'ICD-O-3 Topography Code Picker', 'Sélection code topographique ICD-O-3'),
+('search for an icdo3 topography code', 'Search For An ICD-O-3 Topography Code', 'Rechercher code topographique ICD-O-3'),
+('select an icdo3 topography code', 'Select An ICD-O-3 Topography Code', 'Sélectionner code topographique ICD-O-3'),
+
+('icd10 code picker', 'ICD-10 Code Picker', 'Sélection code ICD-10'),
+('search for an icd10 code', 'Search For An ICD-10 Code', 'Rechercher code ICD-10'),
+('select an icd10 code', 'Select An ICD-10 Code', 'Sélectionner code  ICD-10'),
+
+('sub-title', 'Sub-Title', 'Sous-titre');
+
+UPDATE structure_fields SET language_label = 'code' WHERE model LIKE 'CodingIcd%' AND field LIKE 'id';
+
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='topography' AND `type`='autocomplete' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='diagnosismasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='topography' AND type='input' AND structure_value_domain  IS NULL );
+-- Delete obsolete structure fields
+DELETE FROM structure_fields WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='topography' AND `type`='input' AND structure_value_domain IS NULL ;
+
+UPDATE structure_formats SET `flag_add` = '0', `flag_add_readonly` = '0', `flag_edit` = '0', `flag_edit_readonly` = '0', `flag_search` = '0', `flag_search_readonly` = '0', `flag_datagrid` = '0', `flag_datagrid_readonly` = '0', `flag_index` = '0', `flag_detail` = '0'
+WHERE structure_field_id = (SELECT id FROM structure_fields WHERE `field` LIKE 'target_site_icdo');
+
+ALTER TABLE datamart_batch_sets
+  ADD `sharing_status` varchar(50) DEFAULT 'user' AFTER `share_set_with_group`;
+UPDATE datamart_batch_sets SET sharing_status = 'group' WHERE share_set_with_group = 'yes';
+ALTER TABLE datamart_batch_sets  
+  DROP COLUMN share_set_with_group;
+  
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) 
+VALUES
+("user", "private"),
+("group", "share with the group"),
+("all", "public");
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) 
+VALUES ('batch_sets_sharing_status', '', '', NULL);
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="batch_sets_sharing_status"),  
+(SELECT id FROM structure_permissible_values WHERE value="user" AND language_alias="private"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="batch_sets_sharing_status"),  
+(SELECT id FROM structure_permissible_values WHERE value="group" AND language_alias="share with the group"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="batch_sets_sharing_status"),  
+(SELECT id FROM structure_permissible_values WHERE value="all" AND language_alias="public"), "3", "1");
+
+UPDATE structure_fields SET field = 'sharing_status', language_label = 'batchset sharing status', structure_value_domain = (SELECT id FROM structure_value_domains WHERE domain_name="batch_sets_sharing_status") 
+WHERE field = 'share_set_with_group' AND tablename = 'datamart_batch_sets';
+
+INSERT IGNORE into i18n (id, en, fr) VALUES 
+('private', 'Private', 'Privé'),
+('public', 'Public', 'Publique'),
+('batchset sharing status', 'Batchset Status', 'Statu de l''ensemble de données'),
+('your are not allowed to work on this batchset', 'Your are not allowed to work on this batchset!', 'Vous n''êtes pas authorisé à travailler sur cet ensemble de données!'),
+('share with the group', 'Share With The Group', 'Partager avec le groupe');
+
+
+ALTER TABLE aliquot_review_masters MODIFY `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00';
+ALTER TABLE ar_breast_tissue_slides MODIFY `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00';
+ALTER TABLE datamart_browsing_indexes_revs ADD `version_created` datetime NOT NULL;
+ALTER TABLE datamart_browsing_results_revs MODIFY id INT UNSIGNED NOT NULL;
+ALTER TABLE datamart_browsing_results_revs ADD `version_created` datetime NOT NULL;
+ALTER TABLE spr_breast_cancer_types MODIFY `created` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00';
+ALTER TABLE structure_permissible_values_customs_revs ADD `version_created` datetime NOT NULL;
+
+INSERT INTO i18n (id, en, fr) VALUES
+("available", "Available", "Disponible"),
+("base", "Base", "Base"),
+("breast_cancer_type", "Breast cancer type", "Type de cancer du sein"),
+("colon_cancer_type", "Colon cancer type", "Type de cancer du colon"),
+("date created", "Date created", "Date de création"),
+("date_expiry", "Expiration date", "Date d'expiration"),
+("diagnosis identifier", "Diagnosis identifier", "Identifiant de diagnostic"),
+("First name is required.", "First name is required.", "Le prénom est requis."),
+("frozen tissue", "Frozen tissue", "Tissu congelé"),
+("if you were logged id, your session expired.", "If you were logged in, your session expired.", "Si vous étiez connecté, votre session est expirée."),
+("institutional", "Institutional", "Institutionel"),
+("invalid cause of death code", "Invalid cause of death code", "Code de cause de décès invalide"),
+("invalid morphology code", "Invalid morphology code", "Code de morphologie invalide"),
+("invalid primary disease code", "Invalid primary disease code", "Code de décès primaire invalide"),
+("invalid secondary cause of death code", "Invalid secondary cause of death code", "Code de seconde cause de décès invalide"),
+("invalid topography code", "Invalid topography code", "Code de topographie invalide"),
+("modified", "Modified", "Modifié"),
+("multiple", "Multiple", "Multiple"),
+("not available", "Not available", "Non disponible"),
+("operating room", "Operating room", "Salle d'opération"),
+("page %d", "page %d", "page %d"),
+("paraffin block", "Paraffin block", "Bloc de paraffine"),
+("position into", "Position into", "Position dans"),
+("product type is required.", "Product type is required", "Le type de produit est requis"),
+("requested", "Requested", "Demandé"),
+("saved", "Saved", "Enregistré");
+
+-- event_control
+UPDATE event_controls SET detail_tablename='ed_breast_lab_pathologies' WHERE detail_tablename='ed_breast_lab_pathology';
+RENAME TABLE  ed_breast_lab_pathology TO ed_breast_lab_pathologies;
+RENAME TABLE  ed_breast_lab_pathology_revs TO ed_breast_lab_pathologies_revs;
+UPDATE event_controls SET detail_tablename='ed_all_clinical_followups' WHERE detail_tablename='ed_all_clinical_followup';
+RENAME TABLE ed_all_clinical_followup TO ed_all_clinical_followups;
+RENAME TABLE ed_all_clinical_followup_revs TO ed_all_clinical_followups_revs;
+UPDATE event_controls SET detail_tablename='ed_all_clinical_presentations' WHERE detail_tablename='ed_all_clinical_presentation';
+RENAME TABLE ed_all_clinical_presentation TO ed_all_clinical_presentations;
+RENAME TABLE ed_all_clinical_presentation_revs TO ed_all_clinical_presentations_revs;
+UPDATE event_controls SET detail_tablename='ed_all_lifestyle_smokings' WHERE detail_tablename='ed_all_lifestyle_smoking';
+RENAME TABLE ed_all_lifestyle_smoking TO ed_all_lifestyle_smokings;
+RENAME TABLE ed_all_lifestyle_smoking_revs TO ed_all_lifestyle_smokings_revs;
+UPDATE event_controls SET detail_tablename='ed_all_adverse_events_adverse_events' WHERE detail_tablename='ed_all_adverse_events_adverse_event';
+RENAME TABLE ed_all_adverse_events_adverse_event TO ed_all_adverse_events_adverse_events;
+RENAME TABLE ed_all_adverse_events_adverse_event_revs TO ed_all_adverse_events_adverse_events_revs;
+UPDATE event_controls SET detail_tablename='ed_breast_screening_mammograms' WHERE detail_tablename='ed_breast_screening_mammogram';
+RENAME TABLE ed_breast_screening_mammogram TO ed_breast_screening_mammograms;
+RENAME TABLE ed_breast_screening_mammogram_revs TO ed_breast_screening_mammograms_revs;
+UPDATE event_controls SET detail_tablename='ed_all_protocol_followups' WHERE detail_tablename='ed_all_protocol_followup';
+RENAME TABLE ed_all_protocol_followup TO ed_all_protocol_followups;
+RENAME TABLE ed_all_protocol_followup_revs TO ed_all_protocol_followups_revs;
+UPDATE event_controls SET detail_tablename='ed_all_study_research' WHERE detail_tablename='ed_all_study_researches';
+RENAME TABLE ed_all_study_research TO ed_all_study_researches; 
+RENAME TABLE ed_all_study_research_revs TO ed_all_study_researches_revs;
+
+-- sop_control
+UPDATE sop_controls SET detail_tablename='sopd_general_alls' WHERE detail_tablename='sopd_general_all';
+RENAME TABLE sopd_general_all TO sopd_general_alls;
+RENAME TABLE sopd_general_all_revs TO sopd_general_alls_revs;
+UPDATE sop_controls SET detail_tablename='sopd_inventory_alls' WHERE detail_tablename='sopd_inventory_all';
+RENAME TABLE sopd_inventory_all TO sopd_inventory_alls;
+RENAME TABLE sopd_inventory_all_revs TO sopd_inventory_alls_revs;
+
+ALTER TABLE datamart_batch_processes
+  ADD `flag_active` tinyint(1) NOT NULL DEFAULT '1' AFTER `url`;
+  

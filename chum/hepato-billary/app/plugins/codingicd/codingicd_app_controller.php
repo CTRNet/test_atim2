@@ -17,7 +17,7 @@ class CodingicdAppController extends AppController {
 	 * @param AppModel $model_to_use The model to base the search on
 	 * @param $search_fields_prefix array The fields prefix to base the search on
 	 */
-	function globalSearch($is_tool, $model_to_use, array $search_fields_prefix = array("_title", "_sub_title", "_description")){
+	function globalSearch($is_tool, $model_to_use, array $search_fields_suffix = array("_title", "_sub_title", "_description")){
 		if($is_tool){
 			$model_name_to_use = $model_to_use->name;
 			$this->layout = 'ajax';
@@ -25,26 +25,14 @@ class CodingicdAppController extends AppController {
 			$this->Structures->set("codingicd_".$lang);
 			$limit = 25;
 			$term = mysql_real_escape_string($this->data[0]['term']);
-			if(isset($this->data['exact_search'])){
-				$term = "+".preg_replace("/(\s)([^ \t\r\n\v\f])/", "$1+$2", trim($term));
-			}else{
-				$term = preg_replace("/([^ \t\r\n\v\f])(\s)/", "$1*$2", trim($term))."*";
-			}
 			
-			foreach($search_fields_prefix as &$search_field){
-				$search_field = $model_name_to_use.".".$lang.$search_field;
-			}
+			$this->data = $model_to_use->globalSearch(array($term), isset($this->data['exact_search']) && $this->data['exact_search'], $search_fields_suffix, false, $limit + 1);
 			
-			echo($term);
-			$this->data = $model_to_use->find('all', array(
-				'conditions' => array("MATCH(".implode(", ", $search_fields_prefix).") AGAINST ('".$term."' IN BOOLEAN MODE)"
-				),
-				'limit' => $limit + 1));
 			if(count($this->data) > $limit){
 				unset($this->data[$limit]);
 				$this->set("overflow", true);
 			}
-			$this->data = CodingicdAppController::convertDataToNeutralIcd($this->data);
+			$this->data = $model_to_use->convertDataToNeutralIcd($this->data);
 		}else{
 			die("Not implemented");
 		}
@@ -74,22 +62,5 @@ class CodingicdAppController extends AppController {
 			$result = substr($result, 0, -2);
 		}
 		$this->set('result', "[".$result."]");
-	}
-	
-	/**
-	 * Convert CodingIcd* data arrays to have them use the generic CodingIcd model so that we only have 2 codingicd structures
-	 * @param array $data_array The CodingIcd* data array to convert
-	 * @return The converted array
-	 */
-	static function convertDataToNeutralIcd(array $data_array){
-		$result = array();
-		if(count($data_array) > 0){
-			$key = array_keys($data_array[0]);
-			$key = $key[0];
-			foreach($data_array as $data_unit){
-				$result[] = array("CodingIcd" => $data_unit[$key]);
-			}
-		}
-		return $result;
 	}
 }

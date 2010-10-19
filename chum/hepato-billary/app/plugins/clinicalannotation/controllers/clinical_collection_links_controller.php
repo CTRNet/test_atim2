@@ -10,7 +10,12 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 		'Clinicalannotation.ConsentMaster',
 		'Clinicalannotation.DiagnosisMaster',
 		
-		'Inventorymanagement.Collection'
+		'Inventorymanagement.Collection',
+		
+		'Codingicd.CodingIcd10Who',
+		'Codingicd.CodingIcd10Ca',
+		'Codingicd.CodingIcdo3Morpho',
+		'Codingicd.CodingIcdo3Topo'
 	);
 	
 	var $paginate = array('ClinicalCollectionLinks'=>array('limit' => pagination_amount,'order'=>'Collection.acquisition_label ASC'));	
@@ -40,7 +45,11 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 		
 		$clinical_collection_data = $this->ClinicalCollectionLink->find('first',array('conditions'=>array('ClinicalCollectionLink.id'=>$clinical_collection_link_id,'ClinicalCollectionLink.participant_id'=>$participant_id)));
 		if(empty($clinical_collection_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }	
-		$this->data = $clinical_collection_data;	
+		$this->data = $clinical_collection_data;
+		//get CodingIcd descriptions
+		$this->data['DiagnosisMaster']['morphology'] = $this->data['DiagnosisMaster']['morphology']." - ".$this->CodingIcdo3Morpho->getDescription($this->data['DiagnosisMaster']['morphology']);
+		$this->data['DiagnosisMaster']['topography'] = $this->data['DiagnosisMaster']['topography']." - ".$this->CodingIcdo3Topo->getDescription($this->data['DiagnosisMaster']['topography']);
+		$this->data['DiagnosisMaster']['primary_icd10_code'] = $this->data['DiagnosisMaster']['primary_icd10_code']." - ".$this->CodingIcd10Who->getDescription($this->data['DiagnosisMaster']['primary_icd10_code']);
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		

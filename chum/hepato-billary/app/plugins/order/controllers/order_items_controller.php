@@ -135,8 +135,8 @@ class OrderItemsController extends OrderAppController {
   		$aliquot_ids_to_add = null;
 		$url_to_redirect = null;
 		$launch_save_process = false;
-		
-		if(empty($this->data)) {
+
+		if(empty($this->data) || isset($this->data['BatchSet'])) {
 			// A- User just launched the process: set ids in session
 			
 			// A.1- Get ids
@@ -154,24 +154,30 @@ class OrderItemsController extends OrderAppController {
 				$url_to_redirect = '/inventorymanagement/aliquot_masters/detail/' . $aliquot_data['AliquotMaster']['collection_id'] . '/' . $aliquot_data['AliquotMaster']['sample_master_id'] . '/' . $aliquot_data['AliquotMaster']['id'] . '/';				
 				
 					
-			} else if(isset($_SESSION['ctrapp_core']['datamart']['process']['AliquotMaster']['id'])){
+			} else if(isset($this->data['BatchSet'])){
 				// Add aliquots from batchset
-				
+						
 				// Get batchset id
-				$batch_set_id = $_SESSION['ctrapp_core']['datamart']['process']['BatchSet']['id'];
+				$batch_set_id = $this->data['BatchSet']['id'];
 				
 				// Build redirect url
 				$url_to_redirect = '/datamart/batch_sets/listall/all/' . $batch_set_id;
 			
-				//TODO Add following lines to patch bug on the array of ids sent by the batchset process
-				// $studied_aliquot_master_ids = $_SESSION['ctrapp_core']['datamart']['process']['AliquotMaster']['id'];
-				$aliquot_master_ids = $_SESSION['ctrapp_core']['datamart']['process']['AliquotMaster']['id'];
+				$aliquot_master_ids = array();
+				if(isset($this->data['AliquotMaster'])) {
+					$aliquot_master_ids = $this->data['AliquotMaster']['id'];
+				} else if(isset($this->data['ViewAliquot'])) {
+					$aliquot_master_ids = $this->data['ViewAliquot']['aliquot_master_id'];
+				} else {
+					$this->redirect('/pages/err_order_system_errorsss', null, true); 
+				}
 				foreach($aliquot_master_ids as $new_id){ 
 					if(!empty($new_id)){ 
 						$studied_aliquot_master_ids[] = $new_id; 
 					}
 				}
 				$aliquot_master_ids = null;
+				$this->data = null;
 				
 				//Check all aliquots have been defined once
 				if(sizeof(array_flip($studied_aliquot_master_ids)) != sizeof($studied_aliquot_master_ids)) {
