@@ -33,6 +33,10 @@
 		'BatchSet.process' => $batch_set_processes
 	);
 	
+	?>
+		<input type="hidden" name="data[BatchSet][id]" value="<?php echo($atim_menu_variables['BatchSet.id']) ?>"/>
+	<?php 
+	
 	$structures->build( $atim_structure_for_process, array('type'=>'add', 'settings'=>array('form_top'=>false, 'header' => __('actions', null)), 'links'=>$structure_links, 'override'=>$structure_override, 'data'=>array()) );
 		
 ?>
