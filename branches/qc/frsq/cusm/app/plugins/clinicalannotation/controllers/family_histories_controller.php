@@ -5,7 +5,8 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 	var $uses = array(
 		'Clinicalannotation.FamilyHistory',
 		'Clinicalannotation.Participant',
-		'codingicd10.CodingIcd10');
+		'codingicd.CodingIcd10Who',
+		'codingicd.CodingIcd10Ca');
 	
 	var $paginate = array('FamilyHistory'=>array('limit' => pagination_amount,'order'=>'FamilyHistory.relation'));
 	
@@ -47,10 +48,6 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 		// $this->set('atim_menu', $this->Menus->get('/clinicalannotation/family_histories/listall/%%Participant.id%%'));
 		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id));
 		
-		foreach($this->data as &$fh){
-			$fh['FamilyHistory']['primary_icd10_code'] .= " - ".$this->CodingIcd10->getDescription($fh['FamilyHistory']['primary_icd10_code']);
-		}
-		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }
@@ -71,8 +68,6 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 		// $this->set('atim_structure', $this->Structures->get('form', 'familyhistories'));		
 		// $this->set('atim_menu', $this->Menus->get('/clinicalannotation/family_histories/listall/%%Participant.id%%'));		
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'FamilyHistory.id'=>$family_history_id) );
-		
-		$this->data['FamilyHistory']['primary_icd10_code'] .= " - ".$this->CodingIcd10->getDescription($this->data['FamilyHistory']['primary_icd10_code']);
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');

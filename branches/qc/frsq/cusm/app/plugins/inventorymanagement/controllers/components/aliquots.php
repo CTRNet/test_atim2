@@ -57,7 +57,11 @@ class AliquotsComponent extends Object {
 
 			}
 			$new_current_volume = round(($initial_volume - $total_used_volume), 5);
-			$new_current_volume = ($new_current_volume <= 0)? 0: $new_current_volume;
+			if($new_current_volume < 0){
+				$new_current_volume = 0;
+				$tmp_msg = __("the aliquot with barcode [%s] has a reached a volume bellow 0", true);
+				AppController::addWarningMsg(sprintf($tmp_msg, $aliquot_data['AliquotMaster']['barcode']));
+			}
 
 			if($new_current_volume === $current_volume) {
 				//Nothing to do
@@ -96,25 +100,14 @@ class AliquotsComponent extends Object {
 		return true;
 	}
 	
-	/**
-	 * Replace ',' by '.' for all decimal field values gathered into 
-	 * data submitted for aliquot use creation or modification.
-	 * 
-	 * @param $submtted_data Submitted data
-	 * 
-	 * @return Formatted data.
-	 *
-	 * @author N. Luc
-	 * @since 2009-09-11
-	 */	
-	
-	function formatAliquotUseFieldDecimalData($submtted_data) {
-		// Work on AliquotUse fields
-		if(isset($submtted_data['AliquotUse'])) {
-			if(isset($submtted_data['AliquotUse']['used_volume'])) { $submtted_data['AliquotUse']['used_volume'] = str_replace(',', '.', $submtted_data['AliquotUse']['used_volume']); }					
-		}
+	function removeAliquotStorageData($aliquot_master_data) {
+		$aliquot_master_data['storage_master_id'] = null;
+		$aliquot_master_data['storage_coord_x'] = null;
+		$aliquot_master_data['coord_x_order'] = null;
+		$aliquot_master_data['storage_coord_y'] = null;
+		$aliquot_master_data['coord_y_order'] = null;	
 		
-		return $submtted_data;
+		return $aliquot_master_data;
 	}
 }
 

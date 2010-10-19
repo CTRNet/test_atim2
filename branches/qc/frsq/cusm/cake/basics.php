@@ -644,6 +644,13 @@ if (!function_exists('file_put_contents')) {
  * @link http://book.cakephp.org/view/1121/__
  */
 	function __($singular, $return = false) {
+		if(is_numeric($singular)){
+			if($return){
+				return $singular;
+			}
+			echo($singular);
+			return;
+		}
 		if (!$singular) {
 			return;
 		}

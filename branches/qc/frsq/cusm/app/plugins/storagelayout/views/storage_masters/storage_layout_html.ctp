@@ -8,13 +8,13 @@
 	<div style="border-style:solid; border-width:1px; min-height: 50px; margin: 10px;">
 		<h4 class="ui-widget-header" style="height: 15px;  padding-right: 5px;">
 			<span class="ui-icon ui-icon-calculator" style="float: left;"></span><?php echo(__("storage", true)); ?></h4>
-	<table id="table" style="margin: 10px; width: 98%;">
+	<table id="table" class='storageLayout'>
 <?php
 	if($data['parent']['StorageControl']['coord_x_type'] == 'list'){
 		if($data['parent']['StorageControl']['horizontal_display']){
 			echo("<tr>");
 			foreach($data['parent']['list'] as $list_item){
-				echo("<td style='border-style:solid; border-width:1px; min-width: 30px;' class='droppable mycell'>"
+				echo("<td class='droppable mycell'>"
 				.'<b>'.$list_item['StorageCoordinate']['coordinate_value'].'</b>'
 				.'<ul id="cell_'.$list_item['StorageCoordinate']['id'].'_1"/>'
 				.'</td>');
@@ -22,7 +22,7 @@
 			echo("</tr>\n");
 		}else{
 			foreach($data['parent']['list'] as $list_item){
-				echo("<tr><td style='border-style:solid; border-width:1px; min-width: 30px;' class='droppable mycell'>"
+				echo("<tr><td class='droppable mycell'>"
 				.'<b>'.$list_item['StorageCoordinate']['coordinate_value'].'</b>'
 				.'<ul id="cell_'.$list_item['StorageCoordinate']['id'].'_1"/>'
 				."</td></tr>\n");
@@ -85,7 +85,7 @@
 						$display_value = $x_val."-".$y_val;
 					}
 				}
-				echo("<td style='border-style:solid; border-width:1px; min-width: 30px; border-color: #000;' class='droppable'>"
+				echo("<td class='droppable'>"
 				.'<b>'.$display_value."</b><ul id='cell_".$use_value."' /></td>");
 			}
 			echo("</tr>\n");
@@ -226,7 +226,5 @@ var removeString = "<?php echo(__("remove")); ?>";
 var unclassifyString = "<?php echo(__("unclassify")); ?>";
 var detailString = "<?php echo(__("detail")); ?>";
 var loadingStr = "<?php __("loading"); ?>";
+var storageLayout = true;
 </script>
-<?php
-echo $javascript->link('storage_layout')."\n";
-?>

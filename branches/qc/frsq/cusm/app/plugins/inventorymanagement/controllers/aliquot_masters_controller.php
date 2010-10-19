@@ -24,11 +24,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 		'Inventorymanagement.RealiquotingControl',
 		
 		'Inventorymanagement.AliquotUse',
-		'Inventorymanagement.AliquotUseDetail',
 		'Inventorymanagement.Realiquoting',
 		'Inventorymanagement.SourceAliquot',
+		'Inventorymanagement.QualityCtrlTestedAliquot',
 		
-		'Inventorymanagement.PathCollectionReview',
+		'Inventorymanagement.AliquotReviewMaster',
 		
 		'Storagelayout.StorageMaster',
 		'Storagelayout.StorageCoordinate',
@@ -311,9 +311,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$criteria = array(
 			'SampleControl.id' => $sample_data['SampleMaster']['sample_control_id'],
 			'SampleToAliquotControl.flag_active' => '1',
-			'AliquotControl.flag_active' => '1',
 			'AliquotControl.id' => $aliquot_control_id);
-		$sample_to_aliquot_control = $this->SampleToAliquotControl->find('first', array('conditions' => $criteria));	
+		$sample_to_aliquot_control = $this->SampleToAliquotControl->find('first', array('conditions' => $criteria));
 		if(empty($sample_to_aliquot_control)) { $this->redirect('/pages/err_inv_no_data', null, true); }			
 		$aliquot_control_data = array('AliquotControl' => $sample_to_aliquot_control['AliquotControl']);
 		
@@ -368,7 +367,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$submitted_data_validates = true;
 			$errors = array();
 					
-			// -> Fields validation
+			// -> Fields validation + storage versus status validation
 			foreach($this->data as $key => $new_aliquot) {
 				$this->data[$key]['AliquotMaster']['aliquot_control_id'] = $aliquot_control_id;
 				$this->AliquotMaster->set($this->data[$key]);
@@ -380,6 +379,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 					$errors['AliquotDetail'][$field][$error] = '-'; 
 				}
 				
+				if(($new_aliquot['AliquotMaster']['in_stock'] == 'no') && ((!empty($new_aliquot['AliquotMaster']['storage_master_id'])) || (!empty($new_aliquot['FunctionManagement']['recorded_storage_selection_label'])))) {
+					$errors['AliquotMaster']['in_stock']['an aliquot being not in stock can not be linked to a storage'] = '-';
+					$submitted_data_validates = false;
+				}
 			}
 			
 			// -> Barcode validation
@@ -484,43 +487,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 
 	//storage history
+		
 		$this->Structures->set('custom_aliquot_storage_history', 'custom_aliquot_storage_history');
-		$storage_data = array();
-
-		$qry = "SELECT sm.*, am.* FROM aliquot_masters_revs AS am
-				LEFT JOIN  aliquot_masters_revs AS amn ON amn.version_id=(SELECT version_id FROM aliquot_masters_revs WHERE id=am.id AND version_id > am.version_id ORDER BY version_id ASC LIMIT 1)
-				LEFT JOIN storage_masters_revs AS sm ON am.storage_master_id=sm.id
-				LEFT JOIN storage_masters_revs AS smn ON smn.version_id=(SELECT version_id FROM storage_masters_revs WHERE id=sm.id AND version_id > sm.version_id ORDER BY version_id ASC LIMIT 1)
-				WHERE am.id='".$aliquot_master_id."' AND ((am.modified > sm.modified AND (am.modified < smn.modified OR smn.modified IS NULL)) OR (sm.modified > am.modified AND (sm.modified < amn.modified OR amn.modified IS NULL)) OR am.storage_master_id IS NULL)";
-		$storage_data_tmp = $this->AliquotMaster->query($qry);
-		
-		$previous = array_shift($storage_data_tmp);
-		while($current = array_shift($storage_data_tmp)){
-			if($previous['sm']['id'] != $current['sm']['id']){
-				$storage_data[]['custom'] = array(
-					'date' => $current['am']['modified'], 
-					'event' => __('new storage', true)." "
-						.__('from', true).": [".(strlen($previous['sm']['selection_label']) > 0 ? $previous['sm']['selection_label']." ".__('temperature', true).": ".$previous['sm']['temperature'].__($previous['sm']['temp_unit'], true) : __('no storage', true))."] "
-						.__('to', true).": [".(strlen($current['sm']['selection_label']) > 0 ? $current['sm']['selection_label']." ".__('temperature', true).": ".$current['sm']['temperature'].__($current['sm']['temp_unit'], true) : __('no storage', true))."]");
-			}else if($previous['sm']['temperature'] != $current['sm']['temperature']){
-				$storage_data[]['custom'] = array(
-					'date' => $current['sm']['modified'],
-					'event' => __('storage temperature changed', true).". "
-						.__('from', true).": ".$previous['sm']['temperature'].__($previous['sm']['temp_unit'], true)." "
-						.__('to', true).": ".$current['sm']['temperature'].__($current['sm']['temp_unit'], true));
-			}else if($previous['am']['storage_coord_x'] != $current['am']['storage_coord_x'] || $previous['am']['storage_coord_y'] != $current['am']['storage_coord_y']){
-				$coord_from = $previous['am']['storage_coord_x'].", ".$previous['am']['storage_coord_y'];
-				$coord_to = $current['am']['storage_coord_x'].", ".$current['am']['storage_coord_y'];
-				$storage_data[]['custom'] = array(
-					'date' => $current['am']['modified'], 
-					'event' => __('moved within storage', true)." ".__('from', true).": [".$coord_from."] ".__('to', true).": [".$coord_to."]. ".__('temperature unchanged', true));
-			}
-			
-			$previous = $current;
-		}
-		
-		
-		$this->set('storage_data', $storage_data);
+		$storage_data = $this->AliquotMaster->getStorageHistory($aliquot_master_id);
 				
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 
@@ -619,6 +588,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 			}
 			$this->AliquotDetail->validationErrors = $this->AliquotMaster->validationErrors;
 			
+			if(($this->data['AliquotMaster']['in_stock'] == 'no') && ((!empty($this->data['AliquotMaster']['storage_master_id'])) || (!empty($this->data['FunctionManagement']['recorded_storage_selection_label'])))) {
+				$errors['AliquotMaster']['in_stock']['an aliquot being not in stock can not be linked to a storage'] = '-';
+				$submitted_data_validates = false;
+			}
+			
 			// -> Storage definition validation
 			$storage_data_validation = $this->validateAliquotStorageData($this->data);
 			if(!$storage_data_validation['submitted_data_validates']) {
@@ -672,7 +646,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		// Delete storage data
 		$this->AliquotMaster->id = $aliquot_master_id;
-		if(!$this->AliquotMaster->save(array('AliquotMaster' => array('storage_master_id' => null, 'storage_coord_x' => null, 'storage_coord_y' => null)))) {
+		$aliquot_data_to_save = $this->Aliquots->removeAliquotStorageData(array());
+		if(!$this->AliquotMaster->save(array('AliquotMaster' => $aliquot_data_to_save))) {
 			$this->redirect('/pages/err_inv_record_err', null, true);
 		}
 		
@@ -705,6 +680,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 	
 	/* ------------------------------ ALIQUOT USES ------------------------------ */
 
+	// Set uses that could not be created by addAliauotUse function because they are created by other system function
+	var $use_defintions_system_dependent = array('quality control', 'sample derivative creation', 'realiquoted to', 'aliquot shipment', 'path review');
+	
 	function addAliquotUse($collection_id, $sample_master_id, $aliquot_master_id, $aliquot_use_defintion = null) {
 		if((!$collection_id) || (!$sample_master_id) || (!$aliquot_master_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }
 		
@@ -718,8 +696,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$aliquot_volume_unit = empty($aliquot_data['AliquotMaster']['aliquot_volume_unit'])? 'n/a': $aliquot_data['AliquotMaster']['aliquot_volume_unit'];
 		
 		// Set use defintion
-		$use_defintions_system_dependent = array('quality control', 'sample derivative creation', 'realiquoted to', 'aliquot shipment');
-		if(empty($aliquot_use_defintion)  || (in_array($aliquot_use_defintion, $use_defintions_system_dependent))) { $this->redirect('/pages/err_inv_system_error', null, true); }				
+		if(empty($aliquot_use_defintion)  || (in_array($aliquot_use_defintion, $this->use_defintions_system_dependent))) { $this->redirect('/pages/err_inv_system_error', null, true); }				
 				
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 
@@ -750,14 +727,12 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$this->data = array();
 			$this->data['AliquotMaster']['aliquot_volume_unit'] = $aliquot_volume_unit;
 			$this->data['AliquotUse']['use_definition'] = $aliquot_use_defintion;
-				
-		} else {
-			// Format decimal data
-			$this->data = $this->Aliquots->formatAliquotUseFieldDecimalData($this->data);
+			$this->data['AliquotMaster']['current_volume'] = (empty($aliquot_data['AliquotMaster']['current_volume'])? 'N/A' : $aliquot_data['AliquotMaster']['current_volume']);
 			
+		} else {	
 			// Launch save process
 			$submitted_data_validates = true;
-			
+						
 			if(((!empty($this->data['AliquotUse']['used_volume'])) || ($this->data['AliquotUse']['used_volume'] == '0'))&& empty($aliquot_data['AliquotMaster']['aliquot_volume_unit'])) {
 				// No volume has to be recored for this aliquot type				
 				$this->AliquotUse->validationErrors['used_volume'] = 'no volume has to be recorded for this aliquot type';	
@@ -771,7 +746,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			if($hook_link){
 				require($hook_link);
 			}
-			
+					
 			// if data VALIDATE, then save data
 			if ($submitted_data_validates) {
 				$this->data['AliquotUse']['aliquot_master_id'] = $aliquot_master_id;			
@@ -781,9 +756,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 				} 
 			}
 		}
-		
-		$data = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.id' => $aliquot_master_id), 'recursive' => -1));
-		$this->data['AliquotMaster']['current_volume'] = $data['AliquotMaster']['current_volume'];
 	}
 	
 	function editAliquotUse($collection_id, $sample_master_id, $aliquot_master_id, $aliquot_use_id) {
@@ -813,8 +785,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->set('atim_menu_variables', array('Collection.id' => $collection_id, 'SampleMaster.id' => $sample_master_id, 'SampleMaster.initial_specimen_sample_id' => $sample_data['SampleMaster']['initial_specimen_sample_id'], 'AliquotMaster.id' => $aliquot_master_id, 'AliquotUse.id' => $aliquot_use_id));
 		
 		// Set structure
-		$use_defintions_system_dependent = array('quality control', 'sample derivative creation', 'realiquoted to', 'aliquot shipment');
-		$form_alias = in_array($use_data['AliquotUse']['use_definition'], $use_defintions_system_dependent)?  'aliquotuses_system_dependent':'aliquotuses';
+		$form_alias = in_array($use_data['AliquotUse']['use_definition'], $this->use_defintions_system_dependent)?  'aliquotuses_system_dependent':'aliquotuses';
 		$this->Structures->set($form_alias);
 
 		$hook_link = $this->hook('format');
@@ -827,11 +798,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if(empty($this->data)) {
 			$this->data = $use_data;
 			$this->data['AliquotMaster']['aliquot_volume_unit'] = $aliquot_volume_unit;
-
+			$this->data['AliquotMaster']['current_volume'] = (empty($aliquot_data['AliquotMaster']['current_volume'])? 'N/A' : $aliquot_data['AliquotMaster']['current_volume']);
+			
 		} else {
-			// Format decimal data
-			$this->data = $this->Aliquots->formatAliquotUseFieldDecimalData($this->data);
-						
 			// Launch validations		
 			$submitted_data_validates = true;
 			
@@ -886,27 +855,33 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 		
 		// Set Use Detail table
-		$this->AliquotUseDetail = null;
+		$AliquotUseDetail = null;
 		if(!empty($use_data['AliquotUse']['use_recorded_into_table'])) {
-			$supported_use_detail_table = array('quality_ctrl_tested_aliquots', 'source_aliquots', 'realiquotings');
-			
-			if(in_array($use_data['AliquotUse']['use_recorded_into_table'], $supported_use_detail_table)) {
-				$this->AliquotUseDetail = new AliquotUseDetail(false, $use_data['AliquotUse']['use_recorded_into_table']);
-			} else {
-				$this->flash('deletion of this type of use is currently not supported from use list', $flash_url);
-				return;
-			}	
+			switch($use_data['AliquotUse']['use_recorded_into_table']) {
+				case $this->QualityCtrlTestedAliquot->useTable:
+					$AliquotUseDetail = $this->QualityCtrlTestedAliquot;
+					break;
+				case $this->Realiquoting->useTable:
+					$AliquotUseDetail = $this->Realiquoting;
+					break;				
+				case $this->SourceAliquot->useTable:
+					$AliquotUseDetail = $this->SourceAliquot;
+					break;	
+				default:
+					$this->flash('deletion of this type of use is currently not supported from use list', $flash_url);
+					return;								
+			}
 		}
 	
 		// LAUNCH DELETION
 		
 		// -> Delete use detail if exists	
 		$deletion_done = true;
-		if(!is_null($this->AliquotUseDetail)) {
-			$aliquot_use_detail = $this->AliquotUseDetail->find('first', array('conditions' => array('aliquot_use_id' => $aliquot_use_id)));
+		if(!is_null($AliquotUseDetail)) {
+			$aliquot_use_detail = $AliquotUseDetail->find('first', array('conditions' => array('aliquot_use_id' => $aliquot_use_id), 'recursive' => '-1'));
 			if(empty($aliquot_use_detail)) { $this->redirect('/pages/err_inv_no_data', null, true); }
-			$aliquot_use_detail_id = $aliquot_use_detail['AliquotUseDetail']['id']; 
-			if(!$this->AliquotUseDetail->atim_delete($aliquot_use_detail_id)) { $deletion_done = false; }
+			$aliquot_use_detail_id = $aliquot_use_detail[$AliquotUseDetail->name]['id']; 
+			if(!$AliquotUseDetail->atim_delete($aliquot_use_detail_id)) { $deletion_done = false; }
 		}
 		
 		// -> Delete use
@@ -996,9 +971,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 				if($new_studied_aliquot['FunctionManagement']['use']){
 					// New aliquot defined as source
 					
-					// Format decimal data
-					$new_studied_aliquot = $this->Aliquots->formatAliquotUseFieldDecimalData($new_studied_aliquot);
-					
 					// Check volume
 					if((!empty($new_studied_aliquot['AliquotUse']['used_volume'])) && empty($new_studied_aliquot['AliquotMaster']['aliquot_volume_unit'])) {
 						// No volume has to be recored for this aliquot type				
@@ -1066,11 +1038,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 					$aliquot_master_id = $new_source_aliquot['AliquotMaster']['id'];
 					
 					// Set aliquot master data					
-					if($new_source_aliquot['FunctionManagement']['remove_from_storage']) {
+					if($new_source_aliquot['FunctionManagement']['remove_from_storage'] || ($new_source_aliquot['AliquotMaster']['in_stock'] = 'no')) {
 						// Delete aliquot storage data
-						$new_source_aliquot['AliquotMaster']['storage_master_id'] = null;
-						$new_source_aliquot['AliquotMaster']['storage_coord_x'] = null;
-						$new_source_aliquot['AliquotMaster']['storage_coord_y'] = null;
+						$new_source_aliquot['AliquotMaster'] = $this->Aliquots->removeAliquotStorageData($new_source_aliquot['AliquotMaster']);
 					}
 					
 					// Set aliquot use data
@@ -1101,7 +1071,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 					if(!$this->Aliquots->updateAliquotCurrentVolume($aliquot_master_id)) { $this->redirect('/pages/err_inv_record_err', null, true); }
 				}
 				
-				$this->atimFlash('your data has been saved', '/inventorymanagement/aliquot_masters/listAllSourceAliquots/' . $collection_id . '/' . $sample_master_id); 
+				$this->atimFlash(__('your data has been saved',true).'<br>'.__('aliquot storage data were deleted (if required)',true), 
+					'/inventorymanagement/aliquot_masters/listAllSourceAliquots/' . $collection_id . '/' . $sample_master_id); 
 			}
 		}
 	}
@@ -1233,9 +1204,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 
 				if($new_studied_aliquot['FunctionManagement']['use']) {
 					// Aliquot has been defined as child
-					
-					// Format decimal data
-					$new_studied_aliquot = $this->Aliquots->formatAliquotUseFieldDecimalData($new_studied_aliquot);
 					
 					// Check volume
 					if((!empty($new_studied_aliquot['AliquotUse']['used_volume'])) && empty($parent_aliquot_data['AliquotMaster']['aliquot_volume_unit'])) {
@@ -1534,9 +1502,12 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 		
 		// Launch validation		
-		foreach ($aliquots_data as $key => $new_aliquot) {		
+		foreach ($aliquots_data as $key => $new_aliquot) {
+			$is_sample_core = false;
+			if(isset($new_aliquot['AliquotMaster']['aliquot_type']) && ($new_aliquot['AliquotMaster']['aliquot_type'] == 'core')) $is_sample_core = true;
+			
 			// Check the aliquot storage definition (selection label versus selected storage_master_id)
-			$arr_storage_selection_results = $this->Storages->validateStorageIdVersusSelectionLabel($new_aliquot['FunctionManagement']['recorded_storage_selection_label'], $new_aliquot['AliquotMaster']['storage_master_id']);
+			$arr_storage_selection_results = $this->Storages->validateStorageIdVersusSelectionLabel($new_aliquot['FunctionManagement']['recorded_storage_selection_label'], $new_aliquot['AliquotMaster']['storage_master_id'], $is_sample_core);
 					
 			$new_aliquot['AliquotMaster']['storage_master_id'] = $arr_storage_selection_results['selected_storage_master_id'];
 			$arr_preselected_storages += $arr_storage_selection_results['matching_storage_list'];
@@ -1612,9 +1583,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'realiquoting data exists for the deleted aliquot'); }
 		
 		// Check aliquot is not linked to review	
-		$returned_nbr = $this->PathCollectionReview->find('count', array('conditions' => array('PathCollectionReview.aliquot_master_id' => $aliquot_master_id), 'recursive' => '-1'));
+		$returned_nbr = $this->AliquotReviewMaster->find('count', array('conditions' => array('AliquotReviewMaster.aliquot_master_id' => $aliquot_master_id), 'recursive' => '-1'));
 		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'review exists for the deleted aliquot'); }
-		//TODO ReviewMaster?
 	
 		// Check aliquot is not linked to order	
 		$returned_nbr = $this->OrderItem->find('count', array('conditions' => array('OrderItem.aliquot_master_id' => $aliquot_master_id), 'recursive' => '-1'));
@@ -1669,10 +1639,15 @@ class AliquotMastersController extends InventoryManagementAppController {
 	}
 	
 	function realiquot($batch_set_id, $save = false){
+		//TODO realiquot in batch process should be defined into datamart_batch_processes
+		// Review and validate process before to use
+		$this->redirect('/pages/err_inv_system_error', null, true);
+		
 		if(empty($this->data)){
 			$this->redirect("/pages/err_inv_no_data");
 			exit;
 		}
+		
 		$this->set('batch_set_id', $batch_set_id);
 		if($save){
 			$aliquots_id = array();

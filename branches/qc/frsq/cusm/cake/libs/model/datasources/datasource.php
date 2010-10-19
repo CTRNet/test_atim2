@@ -130,7 +130,7 @@ class DataSource extends Object {
  * @var int Maximum number of queries in the queries log.
  * @access protected
  */
-	var $_queriesLogMax = 200;
+	var $_queriesLogMax = 2000;
 
 /**
  * Caches serialzed results of executed queries

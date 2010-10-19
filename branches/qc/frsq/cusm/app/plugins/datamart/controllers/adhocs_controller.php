@@ -32,15 +32,37 @@ class AdhocsController extends DatamartAppController {
 	}
 	
 	// save IDs to Lookup, avoid duplicates
-	function favourite( $type_of_list='all', $adhoc_id=0 ) {
-		$favourite_result = $this->Adhoc->query('DELETE FROM datamart_adhoc_favourites WHERE adhoc_id="'.$adhoc_id.'" AND user_id="'.$_SESSION['Auth']['User']['id'].'"');
-		$favourite_result = $this->Adhoc->query('INSERT INTO datamart_adhoc_favourites SET adhoc_id="'.$adhoc_id.'", user_id="'.$_SESSION['Auth']['User']['id'].'"');
+	function favourite( $type_of_list='all', $adhoc_id=null ) {
+		$adhoc_data = $this->Adhoc->find('first', array('conditions'=>array('Adhoc.id'=>$adhoc_id)));
+		if(empty($adhoc_data)) {
+			$this->redirect('/pages/err_datamart_system_error', null, true);
+		}
+		
+		$adhoc_favourite_data = $this->AdhocFavourite->find('first', array('conditions'=>array('AdhocFavourite.adhoc_id'=>$adhoc_id, 'AdhocFavourite.user_id'=>$_SESSION['Auth']['User']['id'])));
+		if(!empty($adhoc_favourite_data)) {
+			$this->redirect('/pages/err_datamart_system_error', null, true);
+		}		
+		
+		$data_to_save = array('AdhocFavourite' =>
+			array('adhoc_id' => $adhoc_id,
+				'user_id' => $_SESSION['Auth']['User']['id']));
+		$this->AdhocFavourite->id = null;
+		if(!$this->AdhocFavourite->save($data_to_save)) {
+			$this->redirect('/pages/err_datamart_system_error', null, true);
+		}
+		
 		$this->atimFlash( 'Query has been marked as one of your favourites.', '/datamart/adhocs/search/favourites/'.$adhoc_id );
 	}
 	
 	// remove IDs from Lookup
-	function unfavourite( $type_of_list='all', $adhoc_id=0 ) {
-		$favourite_result = $this->Adhoc->query('DELETE FROM datamart_adhoc_favourites WHERE adhoc_id="'.$adhoc_id.'" AND user_id="'.$_SESSION['Auth']['User']['id'].'"');
+	function unfavourite( $type_of_list='all', $adhoc_id=null ) {
+		$adhoc_favourite_data = $this->AdhocFavourite->find('first', array('conditions'=>array('AdhocFavourite.adhoc_id'=>$adhoc_id, 'AdhocFavourite.user_id'=>$_SESSION['Auth']['User']['id'])));
+		if(empty($adhoc_favourite_data)) {
+			$this->redirect('/pages/err_datamart_system_error', null, true);
+		}			
+		if(!$this->AdhocFavourite->atim_delete( $adhoc_favourite_data['AdhocFavourite']['id'] )) {
+			$this->redirect('/pages/err_datamart_system_error', null, true);
+		}
 		$this->atimFlash( 'Query is no longer one of your favourites.', '/datamart/adhocs/search/all/'.$adhoc_id );
 	}
 	
@@ -49,7 +71,6 @@ class AdhocsController extends DatamartAppController {
 		$_SESSION['ctrapp_core']['datamart']['search_criteria'] = NULL;
 		
 		$this->set( 'atim_menu_variables', array( 'Param.Type_Of_List'=>$type_of_list, 'Adhoc.id'=>$adhoc_id ) );
-		$this->set( 'atim_structure_for_detail', $this->Structures->get( 'form', 'querytool_adhoc' ) );
 		
 		// BIND models on the fly...
 		$this->Adhoc->bindModel(
@@ -79,7 +100,6 @@ class AdhocsController extends DatamartAppController {
 	
 	function results( $type_of_list='all', $adhoc_id=0 ) {
 		$this->set( 'atim_menu_variables', array( 'Param.Type_Of_List'=>$type_of_list, 'Adhoc.id'=>$adhoc_id ) );
-		$this->set( 'atim_structure_for_detail', $this->Structures->get( 'form', 'querytool_adhoc' ) );
 		
 		// BIND models on the fly...
 		$this->Adhoc->bindModel(
@@ -238,9 +258,11 @@ class AdhocsController extends DatamartAppController {
 		$save_this_search_data = array();
 		
 		foreach ( $this->data as $model=>$subarray ) {
-			foreach ( $subarray as $field_name=>$field_value ) {
-				if ( !is_array($field_value) && trim($field_value) ) {
-					$save_this_search_data[] = $model.'.'.$field_name.'='.$field_value;
+			if(is_array($subarray)){
+				foreach ( $subarray as $field_name=>$field_value ) {
+					if ( !is_array($field_value) && trim($field_value) ) {
+						$save_this_search_data[] = $model.'.'.$field_name.'='.$field_value;
+					}
 				}
 			}
 		}
@@ -254,13 +276,20 @@ class AdhocsController extends DatamartAppController {
 		$this->set( 'save_this_search_data', $save_this_search_data );
 		$this->set( 'batch_sets', $batch_sets );
 		
-		$tmp_data = $this->BatchSet->find('all', array('conditions' => array('BatchSet.plugin' => $adhoc['Adhoc']['plugin'], 'BatchSet.model' => $adhoc['Adhoc']['model'])));
+		$available_batchsets_conditions = array(
+			'BatchSet.plugin' => $adhoc['Adhoc']['plugin'], 
+			'BatchSet.model' => $adhoc['Adhoc']['model'],
+			'OR' =>array(
+				'BatchSet.user_id' => $_SESSION['Auth']['User']['id'],
+				array('BatchSet.group_id' => $_SESSION['Auth']['User']['group_id'], 'BatchSet.sharing_status' => 'group'),
+				'BatchSet.sharing_status' => 'all'));
+		$tmp_data = $this->BatchSet->find('all', array('conditions' => $available_batchsets_conditions));
 		$compatible_batchset = array();
+		$compatible_batchset[0] = __('new batchset', true);
 		$compatibla_batchset_str = __('add to compatible batchset', true);
 		foreach($tmp_data as $batchset){
-			$compatible_batchset[$batchset['BatchSet']['id']] = $compatibla_batchset_str." (".$batchset['BatchSet']['description'].")";
+			$compatible_batchset[$batchset['BatchSet']['id']] = $compatibla_batchset_str." : [".$batchset['BatchSet']['title']."]";
 		}
-		$compatible_batchset[0] = __('new batchset', true);
 		$compatible_batchset['csv'] = __('export as CSV file (comma-separated values)', true);
 		$this->data['BatchSet']['id'] = 0;
 		$this->set( 'compatible_batchset', $compatible_batchset );

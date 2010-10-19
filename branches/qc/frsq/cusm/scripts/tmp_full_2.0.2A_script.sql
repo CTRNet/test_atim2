@@ -1,3 +1,51 @@
+SET FOREIGN_KEY_CHECKS=0;
+
+-- DROP tables
+
+DROP TABLE IF EXISTS `acos`, `ad_bags`, `ad_bags_revs`, `ad_blocks`, `ad_blocks_revs`, `ad_cell_cores`, `ad_cell_cores_revs`, `ad_cell_slides`,
+ `ad_cell_slides_revs`, `ad_gel_matrices`, `ad_gel_matrices_revs`, `ad_tissue_cores`, `ad_tissue_cores_revs`, `ad_tissue_slides`,
+ `ad_tissue_slides_revs`, `ad_tubes`, `ad_tubes_revs`, `ad_whatman_papers`, `ad_whatman_papers_revs`, `aliquot_controls`, `aliquot_masters`,
+ `aliquot_masters_revs`, `aliquot_uses`, `aliquot_uses_revs`, `announcements`, `aros`, `aros_acos`, `atim_information`, `banks`, `banks_revs`,
+ `cd_nationals`, `cd_nationals_revs`, `clinical_collection_links`, `clinical_collection_links_revs`, `coding_adverse_events`, `coding_adverse_events_revs`,
+ `coding_icd10`, `collections`, `collections_revs`, `configs`, `consent_controls`, `consent_masters`, `consent_masters_revs`, `datamart_adhoc`,
+ `datamart_adhoc_favourites`, `datamart_adhoc_saved`, `datamart_batch_ids`, `datamart_batch_processes`, `datamart_batch_sets`, `derivative_details`,
+ `derivative_details_revs`, `diagnosis_controls`, `diagnosis_masters`, `diagnosis_masters_revs`, `drugs`, `drugs_revs`, `dxd_bloods`,
+ `dxd_bloods_revs`, `dxd_tissues`, `dxd_tissues_revs`, `ed_allsolid_lab_pathology`, `ed_allsolid_lab_pathology_revs`, `ed_all_adverse_events_adverse_event`,
+ `ed_all_adverse_events_adverse_event_revs`, `ed_all_clinical_followup`, `ed_all_clinical_followup_revs`, `ed_all_clinical_presentation`, 
+ `ed_all_clinical_presentation_revs`, `ed_all_lifestyle_base`, `ed_all_lifestyle_base_revs`, `ed_all_protocol_followup`, `ed_all_protocol_followup_revs`,
+ `ed_all_study_research`, `ed_all_study_research_revs`, `ed_breast_lab_pathology`, `ed_breast_lab_pathology_revs`, `ed_breast_screening_mammogram`, `ed_breast_screening_mammogram_revs`,
+ `event_controls`, `event_masters`, `event_masters_revs`, `family_histories`, `family_histories_revs`, `groups`, `i18n`, `key_increments`, `langs`, `materials`, `materials_revs`,
+ `menus`, `misc_identifiers`, `misc_identifiers_revs`, `misc_identifier_controls`, `orders`, `orders_revs`, `order_items`, `order_items_revs`, `order_lines`, `order_lines_revs`, `pages`,
+ `parent_to_derivative_sample_controls`, `participants`, `participants_revs`, `participant_contacts`, `participant_contacts_revs`, `participant_messages`, `participant_messages_revs`,
+ `path_collection_reviews`, `path_collection_reviews_revs`, `pd_chemos`, `pd_chemos_revs`, `pe_chemos`, `pe_chemos_revs`, `protocol_controls`, `protocol_masters`, `protocol_masters_revs`,
+ `providers`, `providers_revs`, `quality_ctrls`, `quality_ctrls_revs`, `quality_ctrl_tested_aliquots`, `quality_ctrl_tested_aliquots_revs`, `rd_bloodcellcounts`, `rd_bloodcellcounts_revs`,
+ `rd_blood_cells`, `rd_blood_cells_revs`, `rd_breastcancertypes`, `rd_breastcancertypes_revs`, `rd_breast_cancers`, `rd_breast_cancers_revs`, `rd_coloncancertypes`, `rd_coloncancertypes_revs`,
+ `rd_genericcancertypes`, `rd_genericcancertypes_revs`, `rd_ovarianuteruscancertypes`, `rd_ovarianuteruscancertypes_revs`, `realiquotings`, `realiquotings_revs`, `reproductive_histories`, 
+ `reproductive_histories_revs`, `review_controls`, `review_masters`, `review_masters_revs`, `rtbforms`, `rtbforms_revs`, `sample_controls`, `sample_masters`, `sample_masters_revs`,
+ `sample_to_aliquot_controls`, `sd_der_amp_rnas`, `sd_der_amp_rnas_revs`, `sd_der_ascite_cells`, `sd_der_ascite_cells_revs`, `sd_der_ascite_sups`, `sd_der_ascite_sups_revs`, `sd_der_blood_cells`,
+ `sd_der_blood_cells_revs`, `sd_der_b_cells`, `sd_der_b_cells_revs`, `sd_der_cell_cultures`, `sd_der_cell_cultures_revs`, `sd_der_cystic_fl_cells`, `sd_der_cystic_fl_cells_revs`, 
+ `sd_der_cystic_fl_sups`, `sd_der_cystic_fl_sups_revs`, `sd_der_dnas`, `sd_der_dnas_revs`, `sd_der_pbmcs`, `sd_der_pbmcs_revs`, `sd_der_pericardial_fl_cells`, `sd_der_pericardial_fl_cells_revs`,
+ `sd_der_pericardial_fl_sups`, `sd_der_pericardial_fl_sups_revs`, `sd_der_plasmas`, `sd_der_plasmas_revs`, `sd_der_pleural_fl_cells`, `sd_der_pleural_fl_cells_revs`, `sd_der_pleural_fl_sups`,
+ `sd_der_pleural_fl_sups_revs`, `sd_der_pw_cells`, `sd_der_pw_cells_revs`, `sd_der_pw_sups`, `sd_der_pw_sups_revs`, `sd_der_rnas`, `sd_der_rnas_revs`, `sd_der_serums`, `sd_der_serums_revs`,
+ `sd_der_tiss_lysates`, `sd_der_tiss_lysates_revs`, `sd_der_tiss_susps`, `sd_der_tiss_susps_revs`, `sd_der_urine_cents`, `sd_der_urine_cents_revs`, `sd_der_urine_cons`, `sd_der_urine_cons_revs`,
+ `sd_spe_ascites`, `sd_spe_ascites_revs`, `sd_spe_bloods`, `sd_spe_bloods_revs`, `sd_spe_cystic_fluids`, `sd_spe_cystic_fluids_revs`, `sd_spe_pericardial_fluids`, `sd_spe_pericardial_fluids_revs`,
+ `sd_spe_peritoneal_washes`, `sd_spe_peritoneal_washes_revs`, `sd_spe_pleural_fluids`, `sd_spe_pleural_fluids_revs`, `sd_spe_tissues`, `sd_spe_tissues_revs`, `sd_spe_urines`, `sd_spe_urines_revs`,
+ `shelves`, `shelves_revs`, `shipments`, `shipments_revs`, `sidebars`, `sopd_general_all`, `sopd_general_all_revs`, `sopd_inventory_all`, `sopd_inventory_all_revs`, `sope_general_all`, `sope_general_all_revs`,
+ `sope_inventory_all`, `sope_inventory_all_revs`, `sop_controls`, `sop_masters`, `sop_masters_revs`, `source_aliquots`, `source_aliquots_revs`, `specimen_details`, `specimen_details_revs`, `std_boxs`, `std_boxs_revs`,
+ `std_cupboards`, `std_cupboards_revs`, `std_freezers`, `std_freezers_revs`, `std_fridges`, `std_fridges_revs`, `std_incubators`, `std_incubators_revs`, `std_nitro_locates`, `std_nitro_locates_revs`, `std_racks`,
+ `std_racks_revs`, `std_rooms`, `std_rooms_revs`, `std_shelfs`, `std_shelfs_revs`, `std_tma_blocks`, `std_tma_blocks_revs`, `storage_controls`, `storage_coordinates`, `storage_coordinates_revs`,
+ `storage_masters`, `storage_masters_revs`, `structures`, `structure_fields`, `structure_formats`, `structure_options`, `structure_permissible_values`, `structure_validations`, `structure_value_domains`,
+ `structure_value_domains_permissible_values`, `study_contacts`, `study_contacts_revs`, `study_ethics_boards`, `study_ethics_boards_revs`, `study_fundings`, `study_fundings_revs`, `study_investigators`,
+ `study_investigators_revs`, `study_related`, `study_related_revs`, `study_results`, `study_results_revs`, `study_reviews`, `study_reviews_revs`, `study_summaries`, `study_summaries_revs`, `tma_slides`,
+ `tma_slides_revs`, `txd_chemos`, `txd_chemos_revs`, `txd_radiations`, `txd_radiations_revs`, `txd_surgeries`, `txd_surgeries_revs`, `txe_chemos`, `txe_chemos_revs`, `txe_radiations`, `txe_radiations_revs`,
+ `txe_surgeries`, `txe_surgeries_revs`, `tx_controls`, `tx_masters`, `tx_masters_revs`, `users`, `user_logs`, `versions`;
+DROP TABLE IF EXISTS dxd_cap_report_hepatocellular_carcinomas,`aliquot_review_controls`, `aliquot_review_masters`, `aliquot_review_masters_revs`, `ar_breast_tissue_slides`, `ar_breast_tissue_slides_revs`, `cake_sessions`, `coding_icdo_3`, `datamart_browsing_controls`, `datamart_browsing_indexes`, `datamart_browsing_indexes_revs`, `datamart_browsing_results`, `datamart_browsing_results_revs`, `datamart_reports`, `datamart_reports_revs`, `datamart_structures`, `dxd_cap_report_ampullas`, `dxd_cap_report_ampullas_revs`, `dxd_cap_report_colon_biopsies`, `dxd_cap_report_colon_biopsies_revs`, `dxd_cap_report_distalexbileducts`, `dxd_cap_report_distalexbileducts_revs`, `dxd_cap_report_gallbladders`, `dxd_cap_report_gallbladders_revs`, `dxd_cap_report_hepatocellulars`, `dxd_cap_report_hepatocellulars_revs`, `dxd_cap_report_intrahepbileducts`, `dxd_cap_report_intrahepbileducts_revs`, `dxd_cap_report_pancreasendos`, `dxd_cap_report_pancreasendos_revs`, `dxd_cap_report_pancreasexos`, `dxd_cap_report_pancreasexos_revs`, `dxd_cap_report_perihilarbileducts`, `dxd_cap_report_perihilarbileducts_revs`, `dxd_cap_report_smintestines`, `dxd_cap_report_smintestines_revs`, `ed_all_lifestyle_smoking`, `ed_all_lifestyle_smoking_revs`, `missing_translations`, `pd_surgeries`, `pd_surgeries_revs`, `realiquoting_controls`, `sd_der_cdnas`, `sd_der_cdnas_revs`, `sd_der_cell_lysates`, `sd_der_cell_lysates_revs`, `sd_der_proteins`, `sd_der_proteins_revs`, `specimen_review_controls`, `specimen_review_masters`, `specimen_review_masters_revs`, `spr_breast_cancer_types`, `spr_breast_cancer_types_revs`, `structure_permissible_values_customs`, `structure_permissible_values_customs_revs`, `structure_permissible_values_custom_controls`, `user_login_attempts`;
+DROP VIEW IF EXISTS  `view_aliquots`, `view_collections`, `view_samples`, `view_structures`;
+DROP TABLE IF EXISTS dxd_cap_report_hepatocellular_carcinomas_revs;
+SET FOREIGN_KEY_CHECKS=1;
+
+
+
 -- phpMyAdmin SQL Dump
 -- version 3.1.3
 -- http://www.phpmyadmin.net
