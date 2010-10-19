@@ -16,7 +16,7 @@ class PasswordsController extends AdministrateAppController {
 		} 
 		
 		else {
-		
+			
 			foreach ( $this->Structures->get('rules', 'users') as $model=>$rules ){
 				$this->{ $model }->validate = $rules;
 			}
@@ -28,8 +28,9 @@ class PasswordsController extends AdministrateAppController {
 						
 						unset($this->data['User']['new_password']);
 						unset($this->data['User']['confirm_password']);
-						
+						$this->data['User']['group_id'] = $group_id;
 						if ( $this->User->save( $this->data ) ) {
+							
 							$this->atimFlash( 'your data has been updated','/administrate/passwords/index/'.$group_id.'/'.$user_id );
 						}
 						

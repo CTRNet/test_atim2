@@ -2,7 +2,6 @@
 	if(isset($parent_node) && $parent_node != 0){
 		echo(Browser::getPrintableTree($parent_node, $this->webroot));
 	}
-
 	//use add as type to avoid advanced search usage
 	$settings = array();
 	if($type == "checklist"){
@@ -25,17 +24,22 @@
 		}else{
 			//normal display
 			$links['checklist'] = array(
-					$checklist_key.']['=>'%%'.$checklist_key.'%%'
+					$checklist_key_name.']['=>'%%'.$checklist_key.'%%'
 			);
-			$structures->build($result_structure, array('type' => $type, 'links' => $links, 'settings' => array('form_bottom' => false, 'actions' => false, 'pagination' => false, 'form_inputs'=>false)));
+			$tmp_header = isset($header) ? $header : "";
+			$header = "";
+			$structures->build($result_structure, array('type' => $type, 'links' => $links, 'settings' => array('form_bottom' => false, 'actions' => false, 'pagination' => false, 'form_inputs'=>false, 'header' => $tmp_header)));
 		}
-			$is_datagrid = true;
-			$type = "add";
+		$is_datagrid = true;
+		$type = "add";
+		?>
+		<input type="hidden" name="data[node][id]" value="<?php echo($parent_node); ?>"/>
+		<?php 
 	}else{
 		$is_datagrid = false;
 	}
 	$links['top'] = $top;
-	$structures->build($atim_structure, array('type' => $type, 'links' => $links, 'data' => array(), 'settings' => array('form_top' => !$is_datagrid)));
+	$structures->build($atim_structure, array('type' => $type, 'links' => $links, 'data' => array(), 'settings' => array('form_top' => !$is_datagrid, "header" => (isset($header) ? $header : ""))));
 ?>
 <script type="text/javascript">
 var browser = true;
@@ -55,22 +59,39 @@ if(isset($dropdown_options)){
 <input id="search_for" type="hidden" name="data[Browser][search_for]"/>
 <ul class='actionDropdown'>
 	<?php 
-	function printList($options, $label, $webroot, $loop){
+	function printList($options, $label, $webroot){
 		foreach($options as $option){
 			$curr_label = $label." &gt; ".$option['default'];
 			$curr_label_for_class = str_replace("'", "&#39;", $curr_label);
 			$action = isset($option['action']) ? ', "action" : "'.$webroot."/".$option['action'].'" ' : "";
 			$class = isset($option['class']) ? $option['class'] : "";
 			echo("<li class='"."'><a href='#' class='{ \"value\" : \"".$option['value']."\", \"label\" : \"".$curr_label_for_class."\" ".$action." } ".$class."'>".$option['default']."</a>");
-			if(isset($option['children']) && $loop){
+			if(isset($option['children'])){
+				if(count($option['children']) > 15){
+					$tmp_children = array();
+					if($option['children'][0]['default'] == __("filter", true)){
+						//remove filter and no filter from the pages
+						$tmp_children = array_splice($option['children'], 2);
+					}else{
+						$tmp_children = $option['children'];
+						$option['children'] = array();
+					}
+					$children_arr = array_chunk($tmp_children, 15);
+					$page_str = __("page %d", true);
+					$page_num = 1;
+					foreach($children_arr as $child){
+						$option['children'][] = array("default" => sprintf($page_str, $page_num), "value" => "", "children" => $child);
+						$page_num ++;
+					}
+				}
 				echo("<ul>");
-				printList($option['children'], $curr_label, $webroot, $loop);
+				printList($option['children'], $curr_label, $webroot);
 				echo("</ul>");
 			}
 			echo("</li>\n");
 		}		
 	}
-	printList($dropdown_options, "", $this->webroot, $is_datagrid);
+	printList($dropdown_options, "", $this->webroot);
 	?>
 </ul>
 </div>

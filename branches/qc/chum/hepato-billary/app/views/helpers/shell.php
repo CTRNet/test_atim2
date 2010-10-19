@@ -377,7 +377,7 @@ class ShellHelper extends Helper {
 					$return_summary .= '
 						<ul id="summary">
 							<li>
-								<span>'.__('summary', null).'</span>
+								<span class="summaryBtn">'.__('summary', null).'</span>
 								
 								<ul>
 					';
@@ -466,16 +466,17 @@ class ShellHelper extends Helper {
 					
 					else {
 						if ( (isset($summary_result['Summary']['title']) && is_array($summary_result['Summary']['title'])) || (isset($summary_result['Summary']['description']) && is_array($summary_result['Summary']['description'])) ) {
-							$formatted_summary = '
-								<dl>
-							';
+							$formatted_summary = "";
 							
 							if ( isset($summary_result['Summary']['title']) && is_array($summary_result['Summary']['title']) ) {
 								$formatted_summary .= '
 									'.__($summary_result['Summary']['title'][0], true).'
-									<li class="list_header">'.$summary_result['Summary']['title'][1].'</li>
+									<span class="list_header">'.$summary_result['Summary']['title'][1].'</span>
 								';
 							}
+							$formatted_summary .= '
+								<dl>
+							';
 							
 							if ( isset($summary_result['Summary']['description']) && is_array($summary_result['Summary']['description']) ) {
 								foreach ( $summary_result['Summary']['description'] as $k=>$v ) {

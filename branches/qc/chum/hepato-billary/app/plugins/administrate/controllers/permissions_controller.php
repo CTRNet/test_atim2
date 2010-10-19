@@ -2,7 +2,7 @@
 
 class PermissionsController extends AdministrateAppController {
 	
-	var $uses = array('Aco','Aro'); 
+	var $uses = array('Aco','Aro', 'ExternalLink'); 
 	
 	function index(){
 		
@@ -74,7 +74,14 @@ class PermissionsController extends AdministrateAppController {
 		
 		$this->set( 'atim_menu_variables', array('Group.id'=>$group_id,'User.id'=>$user_id) );
 		$aro = $this->Aro->find('first', array('conditions' => 'Aro.alias = "Group::'.$group_id.'"', 'order'=>'alias ASC', 'recursive' => 1));
-		$known_acos = array_combine(Set::extract('Aco.{n}.id',$aro), Set::extract('Aco.{n}.Permission',$aro));
+		$aco_id_extract = Set::extract('Aco.{n}.id',$aro);
+		$aco_perm_extract = Set::extract('Aco.{n}.Permission',$aro);
+		$known_acos = null;
+		if(count($aco_id_extract) > 0 && count($aco_perm_extract) > 1){
+			$known_acos = array_combine($aco_id_extract, $aco_perm_extract);
+		}else{
+			$known_acos = array();
+		}
 		$this->set('aro', $aro );
 		$this->set('known_acos',$known_acos);
 		if($this->data){
@@ -130,6 +137,13 @@ class PermissionsController extends AdministrateAppController {
 		$threaded_data = $this->addPermissionStateToThreadedData($threaded_data);
 		
 		$this->data = $threaded_data;
+		AppController::addWarningMsg(__("note: permission changes will not take effect until the user logs out of the system.", true));
+		if(!isset($this->data[0]['Aco']['state'])){
+			//the root not is blank, display "denied" to make it easier to understand
+			$this->data[0]['Aco']['state'] = -1;
+		}
+		$help_url = $this->ExternalLink->find('first', array('conditions' => array('name' => 'permissions_help')));
+		$this->set("help_url", $help_url['ExternalLink']['link']);
 	}
 	
 	function addPermissionStateToThreadedData( $threaded_data=array() ) {
