@@ -3523,4 +3523,13 @@ RENAME TABLE sopd_inventory_all_revs TO sopd_inventory_alls_revs;
 
 ALTER TABLE datamart_batch_processes
   ADD `flag_active` tinyint(1) NOT NULL DEFAULT '1' AFTER `url`;
+INSERT INTO datamart_batch_processes (id,name,plugin,model,url) VALUES
+(null, 'add to order', 'Inventorymanagement', 'AliquotMaster', '/order/order_items/addAliquotsInBatch/'),
+(null, 'add to order', 'Inventorymanagement', 'ViewAliquot', '/order/order_items/addAliquotsInBatch/');
+  
+INSERT INTO i18n (id, en, fr) VALUES
+('please check aliquots', 'Please check aliquots', 'veuillez vérifier l''aliquot'); 
+  
+  
+  
   

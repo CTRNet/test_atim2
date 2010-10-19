@@ -135,6 +135,7 @@ class BatchSetsController extends DatamartAppController {
 		$conditions = array();
 		$conditions['BatchSetProcess.plugin'] = $batch_set['BatchSet']['plugin'];
 		$conditions['BatchSetProcess.model'] = $batch_set['BatchSet']['model'];
+		$conditions['BatchSetProcess.flag_active'] = '1';
 		$batch_set_process_results = $this->BatchSetProcess->find( 'all', array( 'conditions'=>$conditions, 'recursive'=>3 ) );
 		
 		// add COUNT of IDS to array results, for form list 
@@ -157,10 +158,10 @@ class BatchSetsController extends DatamartAppController {
 //			}
 //			$this->set('realiquot_data', $realiquot_data);
 //		}
-				
-		
+			
 		foreach ( $batch_set_process_results as &$value) {
-			$batch_set_processes[ $value['BatchSetProcess']['url'] ] = strlen( $value['BatchSetProcess']['name'] ) > 60 ? substr( $value['BatchSetProcess']['name'], 0, 60 ).'...' : __($value['BatchSetProcess']['name'], true);
+			$translated_process_name = __($value['BatchSetProcess']['name'], true);
+			$batch_set_processes[ $value['BatchSetProcess']['url'] ] = strlen( $translated_process_name ) > 60 ? substr( $translated_process_name, 0, 60 ).'...' : $translated_process_name;
 		}
 		$this->set( 'batch_set_processes', $batch_set_processes );
 	}
