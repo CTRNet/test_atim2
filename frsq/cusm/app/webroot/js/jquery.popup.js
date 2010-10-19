@@ -12,9 +12,7 @@ jQuery.fn.popup = function(options){
 		$(".popup_outer").hide();
 	}else if($(".popup_outer").length == 0){
 		$("body").append("<div class='popup_outer'>"
-				+ "<div class='popup_cell'>"
 				+ "<div class='popup_container'></div>"
-				+ "</div>"
 				+ "<div class='popup_close'><a href='#'>X</a></div>"
 				+ "</div>");
 		$(".popup_outer").click(function(){
@@ -50,5 +48,7 @@ jQuery.fn.popup = function(options){
 		}
 		$(".popup_close").appendTo($(".popup_container")).show();
 		$(this).show();
+		$(".popup_container").css("left", $(window).width() / 2 - $(".popup_container").width() / 2 + "px");
+		$(".popup_container").css("top", $(window).height() / 2 - $(".popup_container").height() / 2 + "px");
 	});
 }

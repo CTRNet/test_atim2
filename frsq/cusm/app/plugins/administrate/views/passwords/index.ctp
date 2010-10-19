@@ -2,7 +2,7 @@
 	$atim_structure['StructureFormat'] = array(); 
 	
 	$structure_links = array(
-		'top'=>'/administrate/passwords/index/'.$atim_menu_variables['Bank.id'].'/'.$atim_menu_variables['Group.id'].'/'.$atim_menu_variables['User.id']
+		'top'=>'/administrate/passwords/index/'.$atim_menu_variables['Group.id'].'/'.$atim_menu_variables['User.id']
 	);
 	
 	$extras = '

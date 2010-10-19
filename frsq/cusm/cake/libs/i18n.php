@@ -196,7 +196,7 @@ class I18n extends Object {
 
 		if (!empty($plurals)) {
 			return $plural;
-		}else if(empty($_this->__domains[$_this->category][$_this->__lang][$domain][$singular])) {
+		}else if(empty($_this->__domains[$_this->category][$_this->__lang][$domain][$singular]) && class_exists("AppController")){
 			AppController::missingTranslation($singular);
 		}
 		return $singular;

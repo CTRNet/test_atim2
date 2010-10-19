@@ -17,7 +17,7 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 						
 		$_SESSION['ctrapp_core']['search'] = null; // clear SEARCH criteria
 		
-		$this->Structures->set('miscidentifierssummary');
+		$this->Structures->set('miscidentifiers_for_participant_search');
 				
 		$hook_link = $this->hook('format');
 		if($hook_link){
@@ -27,7 +27,7 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 	
 	function search() {
 		$this->set('atim_menu', $this->Menus->get('/clinicalannotation/participants/index'));
-		$this->Structures->set('miscidentifierssummary');
+		$this->Structures->set('miscidentifiers_for_participant_search');
 			
 		if($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions($this->viewVars['atim_structure']);
 
@@ -115,13 +115,17 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 		$form_alias = $is_incremented_identifier? 'incrementedmiscidentifiers' : 'miscidentifiers';
 		$this->Structures->set($form_alias);
 		
+		// Following boolean created to allow hook to force the add form display when identifier is incremented 
+		$display_add_form = true;
+		if($is_incremented_identifier && empty($this->data)) $display_add_form = false;
+		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }	
 				
-		if ( empty($this->data) ) {	
+		if ( empty($this->data) && $display_add_form) {	
 			$this->data = array();			
-			$this->data['MiscIdentifier']['identifier_name'] = $controls['MiscIdentifierControl']['id'];
+			$this->data['MiscIdentifier']['identifier_name'] = $controls['MiscIdentifierControl']['misc_identifier_name'];
 			$this->data['MiscIdentifier']['identifier_abrv'] = $controls['MiscIdentifierControl']['misc_identifier_name_abbrev'];
 			
 		} else {
@@ -131,6 +135,7 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 			$this->data['MiscIdentifier']['participant_id'] = $participant_id;
 			$this->data['MiscIdentifier']['misc_identifier_control_id'] = $misc_identifier_control_id;
 			$this->data['MiscIdentifier']['identifier_name'] = $controls['MiscIdentifierControl']['misc_identifier_name']; 
+			$this->data['MiscIdentifier']['identifier_abrv'] = $controls['MiscIdentifierControl']['misc_identifier_name_abbrev'];
 			
 			// Launch validation
 			$submitted_data_validates = true;
@@ -153,7 +158,7 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 			
 				// Save data
 				if ( $this->MiscIdentifier->save($this->data) ) {
-					$this->atimFlash( 'your data has been saved','/clinicalannotation/misc_identifiers/detail/'.$participant_id.'/'.$this->MiscIdentifier->id );
+					$this->atimFlash( 'your data has been saved','/clinicalannotation/misc_identifiers/listall/'.$participant_id.'/'.$this->MiscIdentifier->id );
 				}
 			}
 		}

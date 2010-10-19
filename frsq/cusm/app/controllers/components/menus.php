@@ -3,6 +3,7 @@
 class MenusComponent extends Object {
 	
 	var $controller;
+	static $menu_cache_directory = "../tmp/cache/menus/";
 	
 	var $components = array('Session', 'SessionAcl');
 	var $uses = array('Aco');
@@ -38,32 +39,17 @@ class MenusComponent extends Object {
 			
 		}
 		
-		$menu_cache_directory = "../tmp/cache/menus/";
-		$fname = $menu_cache_directory.str_replace("/", "_", $alias).".cache";
+		
+		$fname = MenusComponent::$menu_cache_directory.str_replace("/", "_", $alias)."_".str_replace(":", "", $aro_alias).".cache";
 		
 		if(file_exists($fname) && !(Configure::read('ATiMMenuCache.disable')) ){
 			
 			$fhandle = fopen($fname, 'r');
 			$return = unserialize(fread($fhandle, filesize($fname)));
 			fclose($fhandle);
-		}
-		
-		else{
-			
+		}else{		
 			if( Configure::read('ATiMMenuCache.disable') ){
-				//clear menu cache
-				try{
-					if ($dh = opendir($menu_cache_directory)) {
-				        while (($file = readdir($dh)) !== false) {
-				            if(filetype($menu_cache_directory . $file) == "file"){
-				            	unlink($menu_cache_directory . $file);
-				            }
-				        }
-				        closedir($dh);
-				    }
-				}catch(Exception $e){
-					//do nothing, it's a race condition with someone else
-				}
+				MenusComponent::clearCache();
 			}
 			
 			if ( $alias ) {
@@ -157,7 +143,7 @@ class MenusComponent extends Object {
 			if( !(Configure::read('ATiMMenuCache.disable')) ){
 				$fhandle = fopen($fname, 'w');
 				fwrite($fhandle, serialize($return));
-				flush();
+				fflush($fhandle);
 				fclose($fhandle);
 			}
 			
@@ -167,6 +153,21 @@ class MenusComponent extends Object {
 		
 	}
 
+	static function clearCache(){
+		//clear menu cache
+		try{
+			if ($dh = opendir(MenusComponent::$menu_cache_directory)) {
+				while (($file = readdir($dh)) !== false) {
+					if(filetype(MenusComponent::$menu_cache_directory . $file) == "file"){
+						unlink(MenusComponent::$menu_cache_directory . $file);
+					}
+				}
+				closedir($dh);
+			}
+		}catch(Exception $e){
+			//do nothing, it's a race condition with someone else
+		}
+	}
 }
 
 ?>

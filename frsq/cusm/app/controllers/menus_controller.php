@@ -10,11 +10,8 @@ class MenusController extends AppController {
 		
 		// Don't restrict the index action so that users with NO permissions
 		// who have VALID login credentials will not trigger an infinite loop.
-		$this->Auth->allowedActions = array('index');
-		
-		// if users NOT logged in, kick out to login screen
-		if ( !(isset($_SESSION) && isset($_SESSION['Auth']) && isset($_SESSION['Auth']['User']) && count($_SESSION['Auth']['User'])) ) {
-			$this->redirect($this->Auth->logout());
+		if(isset($_SESSION) && isset($_SESSION['Auth']) && isset($_SESSION['Auth']['User']) && count($_SESSION['Auth']['User'])) {
+			$this->Auth->allowedActions = array('index');
 		}
 	}
 	

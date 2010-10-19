@@ -4,7 +4,7 @@
 
 var copyBuffer = new Object();
 
-$(function(){
+function initCopyControl(){
 	if(!window.copyStr){
 		window.copyStr = "js untranslated copy";	
 	}
@@ -25,7 +25,7 @@ $(function(){
 	if($(".addLineLink").length){
 		//add copy all button before the add line button
 		$(".addLineLink").parent().prepend(pasteAllButton);	
-	}else{
+	}else if($(".copy").first().length > 0){
 		//add copy all button into a new tfoot
 		var table = getParentElement($(".copy").first(), "TABLE");
 		var tableWidth = $(table).first("tr").find("th").length;
@@ -39,7 +39,7 @@ $(function(){
 		return false;
 	});
 	
-});
+}
 
 /**
  * Copies a line

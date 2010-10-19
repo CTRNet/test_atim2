@@ -11,7 +11,7 @@
 	if(isset($extended_data_import_process)) {
 		$structure_links['bottom']['import from associated protocol'] = '/clinicalannotation/treatment_extends/'.$extended_data_import_process.'/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id'];
 	}
-pr($structure_links['bottom']);	
+		
 	$structure_override = array();
 	
 	$final_atim_structure = $atim_structure; 

@@ -1,8 +1,8 @@
 <?php 
 $structure_links = array(
-		'top' => '/administrate/groups/edit/'.$atim_menu_variables['Bank.id'].'/%%Group.id%%',
+		'top' => '/administrate/groups/edit/%%Group.id%%',
 		'bottom'=>array(
-			'cancel'=>'/administrate/groups/detail/'.$atim_menu_variables['Bank.id'].'/%%Group.id%%', 
+			'cancel'=>'/administrate/groups/detail/%%Group.id%%', 
 		)
 	);
 	

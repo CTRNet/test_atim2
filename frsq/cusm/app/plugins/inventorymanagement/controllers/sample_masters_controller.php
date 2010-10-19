@@ -25,8 +25,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		'Inventorymanagement.SourceAliquot',
 		'Inventorymanagement.AliquotUse',
 		'Inventorymanagement.QualityCtrl',
-		'Inventorymanagement.PathCollectionReview',
-		'Inventorymanagement.ReviewMaster',
+		'Inventorymanagement.SpecimenReviewMaster',
 		
 		'Inventorymanagement.SampleToAliquotControl');
 	
@@ -490,7 +489,6 @@ class SampleMastersController extends InventorymanagementAppController {
 			$criteria = array(
 				'ParentSampleControl.id' => $parent_sample_data['SampleMaster']['sample_control_id'],
 				'ParentToDerivativeSampleControl.flag_active' => '1',
-				'DerivativeControl.flag_active' => '1',
 				'DerivativeControl.id' => $sample_control_id);
 			$parent_to_derivative_sample_control = $this->ParentToDerivativeSampleControl->find('first', array('conditions' => $criteria));	
 			if(empty($parent_to_derivative_sample_control)) { $this->redirect('/pages/err_inv_no_data', null, true); }
@@ -567,9 +565,6 @@ class SampleMastersController extends InventorymanagementAppController {
 				$this->data['SampleMaster']['initial_specimen_sample_id'] = $parent_sample_data['SampleMaster']['initial_specimen_sample_id'];
 			}
   	  			  	
-			// Replace ',' to '.' for volume
-			$this->data = $this->formatSampleFieldDecimalData($this->data);
-						
 			// Validates data
 			
 			$submitted_data_validates = true;
@@ -685,9 +680,6 @@ class SampleMastersController extends InventorymanagementAppController {
 			//Update data	
 			if(isset($this->data['SampleMaster']['parent_id']) && ($sample_data['SampleMaster']['parent_id'] !== $this->data['SampleMaster']['parent_id'])) { $this->redirect('/pages/err_inv_system_error', null, true); }
 
-			// Replace ',' to '.' for volume
-			$this->data = $this->formatSampleFieldDecimalData($this->data);
-									
 			// Validates data
 			
 			$submitted_data_validates = true;
@@ -855,31 +847,10 @@ class SampleMastersController extends InventorymanagementAppController {
 		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'quality control exists for the deleted sample'); }
 
 		// Check sample has not been linked to review	
-		$returned_nbr = $this->PathCollectionReview->find('count', array('conditions' => array('PathCollectionReview.sample_master_id' => $sample_master_id), 'recursive' => '-1'));
+		$returned_nbr = $this->SpecimenReviewMaster->find('count', array('conditions' => array('SpecimenReviewMaster.sample_master_id' => $sample_master_id), 'recursive' => '-1'));
 		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'review exists for the deleted sample'); }
 
-		$returned_nbr = $this->ReviewMaster->find('count', array('conditions' => array('ReviewMaster.sample_master_id' => $sample_master_id), 'recursive' => '-1'));
-		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'review exists for the deleted sample'); }
-		
 		return array('allow_deletion' => true, 'msg' => '');
-	}
-	
-	/**
-	 * Replace ',' by '.' for all decimal field values gathered into 
-	 * data submitted for sample creation or modification.
-	 * 
-	 * @param $submtted_data Submitted data
-	 * 
-	 * @return Formatted data.
-	 *
-	 * @author N. Luc
-	 * @since 2009-09-11
-	 */	
-	
-	function formatSampleFieldDecimalData($submtted_data) {
-		if(isset($submtted_data['SampleDetail']['collected_volume'])) { $submtted_data['SampleDetail']['collected_volume'] = str_replace(',', '.', $submtted_data['SampleDetail']['collected_volume']); }				
-		if(isset($submtted_data['SampleDetail']['pellet_volume'])) { $submtted_data['SampleDetail']['pellet_volume'] = str_replace(',', '.', $submtted_data['SampleDetail']['pellet_volume']); }				
-		return $submtted_data;
 	}
 	
 	/**

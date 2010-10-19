@@ -31,7 +31,10 @@ class SessionAclComponent extends AclComponent
      
     function check($aro, $aco, $action = "*") 
     { 
-        
+        if($aco == "controllers/App/Users/logout"){
+        	//always allow logout
+        	return true;
+        }
         $path = $this->__cachePath($aro, $aco, $action); 
         if ($this->Session->check($path)) 
         { 

@@ -44,6 +44,20 @@ class SampleControl extends InventorymanagementAppModel {
 		return $this->getSamplesPermissibleValues(false, true);
 	}
 	
+ 	/**
+	 * Get permissible values array gathering all existing specimen sample types.
+	 *
+	 * @return Array having following structure:
+	 * 	array ('value' => 'SampleControl.type', 'default' => (translated string describing sample type))
+	 * 
+	 * @author N. Luc
+	 * @since 2010-05-26
+	 * @updated N. Luc
+	 */  	
+	function getSpecimenSampleTypePermissibleValuesFromId() {		
+		return $this->getSamplesPermissibleValues(true, true);
+	}
+	
 	function getSamplesPermissibleValues($by_id, $only_specimen){
 		$result = array();
 		$tmp_result = array();
@@ -57,7 +71,7 @@ class SampleControl extends InventorymanagementAppModel {
 		}
 		$controls = $this->ParentToDerivativeSampleControl->find('all', array('conditions' => $conditions, 'fields' => array('DerivativeControl.*')));
 		if($by_id){
-		foreach($controls as $control){
+			foreach($controls as $control){
 				$tmp_result[$control['DerivativeControl']['id']] = __($control['DerivativeControl']['sample_type'], true);
 			}
 		}else{
@@ -76,7 +90,7 @@ class SampleControl extends InventorymanagementAppModel {
 	}
 	
 	/**
-	 * Gets a list of aliquot types that could be created from a sample type.
+	 * Gets a list of sample types that could be created from a sample type.
 	 *
 	 * @param $sample_control_id ID of the sample control linked to the studied sample.
 	 * 
