@@ -11,7 +11,7 @@ class OrdersController extends OrderAppController {
 	
 	var $paginate = array(
 		'Order'=>array('limit' => pagination_amount,'order'=>'Order.date_order_placed DESC'), 
-		'OrderLine'=>array('limit'=>'10','order'=>'OrderLine.date_required DESC'));
+		'OrderLine'=>array('limit'=>pagination_amount,'order'=>'OrderLine.date_required DESC'));
 	
 	function index() {
 		$_SESSION['ctrapp_core']['search'] = null;
@@ -65,7 +65,7 @@ class OrdersController extends OrderAppController {
 			}
 
 			if ($submitted_data_validates && $this->Order->save($this->data) ) {
-				$this->flash( 'your data has been saved','/order/orders/detail/'.$this->Order->id );
+				$this->atimFlash( 'your data has been saved','/order/orders/detail/'.$this->Order->id );
 			}
 		} 
 	}
@@ -131,7 +131,7 @@ class OrdersController extends OrderAppController {
 			if($submitted_data_validates) {
 				$this->Order->id = $order_id;
 				if ($this->Order->save($this->data) ) {
-					$this->flash( 'your data has been updated','/order/orders/detail/'.$order_id );
+					$this->atimFlash( 'your data has been updated','/order/orders/detail/'.$order_id );
 				}							
 			}
 		}
@@ -155,7 +155,7 @@ class OrdersController extends OrderAppController {
 		
 		if($arr_allow_deletion['allow_deletion']) {
 			if($this->Order->atim_delete($order_id)) {
-				$this->flash('your data has been deleted', '/order/orders/index/');
+				$this->atimFlash('your data has been deleted', '/order/orders/index/');
 			} else {
 				$this->flash('error deleting data - contact administrator', '/order/orders/index/');
 			}

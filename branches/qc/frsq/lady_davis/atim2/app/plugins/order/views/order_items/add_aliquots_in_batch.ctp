@@ -41,23 +41,17 @@
 	
 	
 	// 3- ORDER LINES SELECTION
-	
-	
+
 	$structure_settings = array(
-		'tree'=>array(
-			'Order'		=> 'Order',
-			'OrderLine'	=> 'OrderLine'
-		),
 		'header' => __('2- select order line', null), 
-		'separator' => true
+		'separator' => true, 
+		'pagination'=>false, 
+		'form_top'=>false, 
+		'form_inputs'=>false, 
 	);
 	
 	$structure_links = array(
-		'tree'=>array(
-			'OrderLine' => array(
-				'add aliquots to order line' => '/order/order_items/addAliquotsInBatch/-1/%%OrderLine.order_id%%_%%OrderLine.id%%'
-			),
-		),
+		'radiolist'=>array('OrderLine.id'=>'%%OrderLine.id%%'),
 		'bottom' => array('cancel' => $url_to_cancel),
 		'top' => '/order/order_items/addAliquotsInBatch/'
 	);
@@ -66,29 +60,17 @@
 	
 	$final_atim_structure = $atim_structure; 
 	$final_options = array(
-		'type' => 'tree', 
-		'data' => $order_line_data_for_tree_view,
-		'links'=>$structure_links, 
+		'type' => 'radiolist', 
+		'data' => $order_line_data,
+		'links'=> $structure_links, 
 		'settings'=> $structure_settings, 
-		'override'=>$structure_override,
-		);
-	$final_options['settings']['form_inputs'] = false;
-	$final_options['settings']['form_top'] = false;
+		'override'=>$structure_override);
 	
 	// CUSTOM CODE
-	$hook_link = $structures->hook();
+		$hook_link = $structures->hook();
 	if( $hook_link ) { require($hook_link); }
 		
 	// BUILD FORM
 	$structures->build( $final_atim_structure, $final_options );
+	
 ?>
-
-<script type="text/javascript">
-//TODO: validate link
-$(function (){
-	$("a.form.add").each(function(){
-		var link = $(this).attr("href");
-		$(this).replaceWith("<input type='radio' name='data[order_line_ids]' value='" + link.substr(link.lastIndexOf("/") + 1) + "'/>");
-	});
-});
-</script>

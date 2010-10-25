@@ -3,9 +3,11 @@
 class StructuresComponent extends Object {
 	
 	var $controller;
+	static $singleton;
 	
 	function initialize( &$controller, $settings=array() ) {
 		$this->controller =& $controller;
+		StructuresComponent::$singleton = $this;
 	}
 	
 	/* Combined function to simplify plugin usage, 
@@ -64,8 +66,23 @@ class StructuresComponent extends Object {
 			if(Configure::read('ATiMStructureCache.disable') != 1){
 				$fhandle = fopen($fname, 'w');
 				fwrite($fhandle, serialize($return));
-				flush();
+				fflush($fhandle);
 				fclose($fhandle);
+			}
+		}
+		
+		//CodingIcd magic, import every model required for that structure
+		if(isset($return['StructureFormat'])){
+			foreach(AppModel::getMagicCodingIcdTriggerArray() as $key => $trigger){
+				foreach($return['StructureFormat'] as $sfo){
+					if(($sfo['flag_override_setting'] && strpos($sfo['setting'], $trigger) !== false)
+					|| strpos($sfo['StructureField']['setting'], $trigger) !== false){
+						App::import("Model", "codingicd.".$key);
+						new $key;//instantiate it
+						$return['Structure']['CodingIcdCheck'] = true;
+						break;
+					}
+				}
 			}
 		}
 		return $return;
@@ -73,7 +90,6 @@ class StructuresComponent extends Object {
 	}
 	
 	function parse_search_conditions( $atim_structure=NULL ) {
-		
 		// conditions to ultimately return
 		$conditions = array();
 		
@@ -81,50 +97,73 @@ class StructuresComponent extends Object {
 		$form_fields = array();
 		
 		// if no STRUCTURE provided, try and get one
-		if ( $atim_structure===NULL ) $atim_structure = $this->get();
-		
+		if ( $atim_structure===NULL ){
+			$atim_structure = $this->get();
+		}
+		$simplified_structure = self::simplifyForm($atim_structure);
 		// format structure data into SEARCH CONDITONS format
-		if ( isset($atim_structure['StructureFormat']) ) {
-			foreach ( $atim_structure['StructureFormat'] as $value ) {
+		if ( isset($simplified_structure['SimplifiedField']) ) {
+			foreach ($simplified_structure['SimplifiedField'] as $value) {
+				if(!$value['flag_search']){
+					//don't waste cpu cycles on non search parameters
+					continue;
+				}
 				
 				// for RANGE values, which should be searched over with a RANGE...
-				if ( $value['StructureField']['type']=='number'
-				|| $value['StructureField']['type']=='integer'
-				|| $value['StructureField']['type']=='integer_positive'
-				|| $value['StructureField']['type']=='float'
-				|| $value['StructureField']['type']=='float_positive' 
-				|| $value['StructureField']['type']=='date' 
-				|| $value['StructureField']['type']=='datetime' ) {
+				//it includes numbers, dates, and fields fith the "range" setting. For the later, value  _start
+				$form_fields_key = $value['model'].'.'.$value['field'];
+				if ( $value['type']=='number'
+				|| $value['type']=='integer'
+				|| $value['type']=='integer_positive'
+				|| $value['type']=='float'
+				|| $value['type']=='float_positive' 
+				|| $value['type']=='date' 
+				|| $value['type']=='datetime'
+				|| (strpos($value['setting'], "range") !== false)
+						&& isset($this->controller->data[$value['model']][$value['field'].'_start'])) {
+					$form_fields[$form_fields_key.'_start']['plugin']		= $value['plugin'];
+					$form_fields[$form_fields_key.'_start']['model']		= $value['model'];
+					$form_fields[$form_fields_key.'_start']['field']		= $value['field'];
+					$form_fields[$form_fields_key.'_start']['key']			= $form_fields_key.' >=';
 					
-					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'].'_start' ]['plugin']		= $value['StructureField']['plugin'];
-					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'].'_start' ]['model']		= $value['StructureField']['model'];
-					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'].'_start' ]['field']		= $value['StructureField']['field'];
-					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'].'_start' ]['key']			= $value['StructureField']['model'].'.'.$value['StructureField']['field'].' >=';
-					
-					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'].'_end' ]['plugin']			= $value['StructureField']['plugin'];
-					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'].'_end' ]['model']			= $value['StructureField']['model'];
-					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'].'_end' ]['field']			= $value['StructureField']['field'];
-					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'].'_end' ]['key']				= $value['StructureField']['model'].'.'.$value['StructureField']['field'].' <=';
+					$form_fields[$form_fields_key.'_end']['plugin']			= $value['plugin'];
+					$form_fields[$form_fields_key.'_end']['model']			= $value['model'];
+					$form_fields[$form_fields_key.'_end']['field']			= $value['field'];
+					$form_fields[$form_fields_key.'_end']['key']				= $form_fields_key.' <=';
 				}
 				
 				// for SELECT pulldowns, where an EXACT match is required, OR passed in DATA is an array to use the IN SQL keyword
-				else if ( $value['StructureField']['type'] == 'select'
-//				 || ( isset($this->controller->data[ $value['StructureField']['model'] ][ $value['StructureField']['field'] ]) && is_array($this->controller->data[ $value['StructureField']['model'] ][ $value['StructureField']['field'] ]) ) 
-				 ){
-					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'] ]['plugin']	= $value['StructureField']['plugin'];
-					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'] ]['model']	= $value['StructureField']['model'];
-					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'] ]['field']	= $value['StructureField']['field'];
+				else if ( $value['type'] == 'select' || isset($this->controller->data['exact_search'])){
+					$form_fields[$form_fields_key]['plugin']	= $value['plugin'];
+					$form_fields[$form_fields_key]['model']	= $value['model'];
+					$form_fields[$form_fields_key]['field']	= $value['field'];
 					
-					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'] ]['key']		= $value['StructureField']['model'].'.'.$value['StructureField']['field'];
+					$form_fields[$form_fields_key]['key']		= $value['model'].'.'.$value['field'];
 				}
 				
 				// all other types, a generic SQL fragment...
 				else {
-					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'] ]['plugin']	= $value['StructureField']['plugin'];
-					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'] ]['model']	= $value['StructureField']['model'];
-					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'] ]['field']	= $value['StructureField']['field'];
+					$form_fields[$form_fields_key]['plugin']	= $value['plugin'];
+					$form_fields[$form_fields_key]['model']	= $value['model'];
+					$form_fields[$form_fields_key]['field']	= $value['field'];
 					
-					$form_fields[ $value['StructureField']['model'].'.'.$value['StructureField']['field'] ]['key']		= $value['StructureField']['model'].'.'.$value['StructureField']['field'].' LIKE';
+					$form_fields[$form_fields_key]['key']		= $form_fields_key.' LIKE';
+				}
+				
+				//CocingIcd magic
+				if(isset($simplified_structure['Structure']['codingIcdCheck']) && $simplified_structure['Structure']['codingIcdCheck']){
+					foreach(AppModel::getMagicCodingIcdTriggerArray() as $key => $setting_lookup){
+						if(strpos($value['setting'], $setting_lookup) !== false){
+							$form_fields[$form_fields_key]['cast_icd'] = $key;
+							if(strpos($form_fields[$form_fields_key]['key'], " LIKE") !== false){
+								$form_fields[$form_fields_key]['key'] = str_replace(" LIKE", "", $form_fields[$form_fields_key]['key']);
+								$form_fields[$form_fields_key]['exact'] = false;
+							}else{
+								$form_fields[$form_fields_key]['exact'] = true;
+							}
+							break;
+						}
+					}
 				}
 			}
 		}
@@ -132,70 +171,77 @@ class StructuresComponent extends Object {
 		// parse DATA to generate SQL conditions
 		// use ONLY the form_fields array values IF data for that MODEL.KEY combo was provided
 		foreach ( $this->controller->data as $model=>$fields ) {
-			foreach ( $fields as $key=>$data ) {
-				// if MODEL data was passed to this function, use it to generate SQL criteria...
-				if ( count($form_fields) ) {
-					
-					// add search element to CONDITIONS array if not blank & MODEL data included Model/Field info...
-					if ( $data && isset( $form_fields[$model.'.'.$key] ) ) {
+			if(is_array($fields)){
+				foreach ( $fields as $key=>$data ) {
+					$form_fields_key = $model.'.'.$key;
+					// if MODEL data was passed to this function, use it to generate SQL criteria...
+					if ( count($form_fields) ) {
 						
-						// if CSV file uploaded...
-						if ( is_array($data) && isset($this->controller->data[$model][$key.'_with_file_upload']) && $this->controller->data[$model][$key.'_with_file_upload']['tmp_name'] ) {
-							
-							// set $DATA array based on contents of uploaded FILE
-							$handle = fopen($this->controller->data[$model][$key.'_with_file_upload']['tmp_name'], "r");
-							
-							// in each LINE, get FIRST csv value, and attach to DATA array
-							while (($csv_data = fgetcsv($handle, 1000, csv_separator, '"')) !== FALSE) {
-							    $data[] = $csv_data[0];
-							}
-							
-							fclose($handle);
-							
-							unset($this->controller->data[$model][$key.'_with_file_upload']);
-							
-						}
-						
-						// use Model->deconstruct method to properly build data array's date/time information from arrays
-						if ( is_array($data) ) {
-							App::import('Model', $form_fields[$model.'.'.$key]['plugin'].'.'.$model);
-							// App::import('Model', 'Clinicalannotation.'.$model);
-							
-							$format_data_model = new $model;
-							
-							$data = $format_data_model->deconstruct($form_fields[$model.'.'.$key]['field'],$data);
-							
-							if ( is_array($data) ) {
-								$data = array_unique($data);
-								$data = array_filter($data);
-							}
-							
-							if ( !count($data) ) $data = '';
-						}
-						
-						// if supplied form DATA is not blank/null, add to search conditions, otherwise skip
-						if ( $data ) {
-							if ( strpos($form_fields[$model.'.'.$key]['key'], ' LIKE')!==false ) {
-								if(is_array($data)){
-									$conditions[] = $form_fields[$model.'.'.$key]['key']." '%".implode("%' OR ".$form_fields[$model.'.'.$key]['key']." '%", $data)."%'";
-									unset($data);
-								}else{
-									$data = '%'.$data.'%';
+						// add search element to CONDITIONS array if not blank & MODEL data included Model/Field info...
+						if ( (!empty($data) || $data == "0")  && isset( $form_fields[$form_fields_key] ) ) {
+							// if CSV file uploaded...
+							if ( is_array($data) && isset($this->controller->data[$model][$key.'_with_file_upload']) && $this->controller->data[$model][$key.'_with_file_upload']['tmp_name'] ) {
+								
+								// set $DATA array based on contents of uploaded FILE
+								$handle = fopen($this->controller->data[$model][$key.'_with_file_upload']['tmp_name'], "r");
+								
+								// in each LINE, get FIRST csv value, and attach to DATA array
+								while (($csv_data = fgetcsv($handle, 1000, csv_separator, '"')) !== FALSE) {
+								    $data[] = $csv_data[0];
 								}
+								
+								fclose($handle);
+								
+								unset($this->controller->data[$model][$key.'_with_file_upload']);
 							}
 							
-							if($data){
-								$conditions[ $form_fields[$model.'.'.$key]['key'] ] = $data;
+							// use Model->deconstruct method to properly build data array's date/time information from arrays
+							if ( is_array($data) ) {
+								App::import('Model', $form_fields[$form_fields_key]['plugin'].'.'.$model);
+								// App::import('Model', 'Clinicalannotation.'.$model);
+								
+								$format_data_model = new $model;
+								$data = $format_data_model->deconstruct($form_fields[$form_fields_key]['field'], $data, strpos($key, "_end") == strlen($key) - 4);
+								if ( is_array($data) ) {
+									$data = array_unique($data);
+									
+									$data = array_filter($data, "StructuresComponent::myFilter");
+								}
+								
+								if ( !count($data) ) $data = '';
+							}
+							
+							// if supplied form DATA is not blank/null, add to search conditions, otherwise skip
+							if ( $data || $data == "0" ) {
+								
+								if(isset($form_fields[$form_fields_key]['cast_icd'])){
+									//special magical icd case
+									eval('$instance = '.$form_fields[$form_fields_key]['cast_icd'].'::getInstance();');
+									$data = $instance->getCastedSearchParams($data, $form_fields[$form_fields_key]['exact']);
+								}else if ( strpos($form_fields[$form_fields_key]['key'], ' LIKE')!==false ) {
+									if(is_array($data)){
+										$conditions[] = "(".$form_fields[$form_fields_key]['key']." '%".implode("%' OR ".$form_fields[$form_fields_key]['key']." '%", $data)."%')";
+										unset($data);
+									}else{
+										$data = '%'.$data.'%';
+									}
+								}
+								
+								if(isset($data)){
+									$conditions[ $form_fields[$form_fields_key]['key'] ] = $data;
+								}
 							}
 						}
 					}
 				}
 			}
 		}
-		
 		// return CONDITIONS for search form
 		return $conditions;
-		
+	}
+	
+	static function myFilter($val){
+		return strlen($val) > 0;
 	}
 	
 	function parse_sql_conditions( $sql=NULL, $conditions=NULL ) {
@@ -213,82 +259,210 @@ class StructuresComponent extends Object {
 				}
 			}
 		}else{
-			foreach($conditions as $model_field => $field_value_arr){
-				if(sizeof($field_value_arr) > 1){
-					//expand query for OR
+			//the conditions array is splitted in 3 types
+			//1-[model.field] = value -> replace in the query @@value@@ by value (usually a _start, _end). Convert as 2B
+			//2-[model.field] = array(values) -> it's from a dropdown or it an exact search
+			// A-replace ='@@value@@' by IN(values)
+			// B-copy model model.field {>|<|<=|>=} @@value@@ for every values
+			//3-[integer] = string of the form "model.field LIKE '%value1%' OR model.field LIKE '%value2%' ..."
+			//	A-if the query is model.field = ... then use the like form.
+			//  B-else (the query is model.field {>|<|<=|>=}) do as 2B
+			$warning_like = false;
+			$warning_in = false;
+			$tests = array();
+			foreach($conditions as $str_to_replace => $condition){
+				if(is_numeric($str_to_replace)){
+					unset($conditions[$str_to_replace]);
+					$condition = substr($condition, 1, -1); //remove the opening ( and closing )
+					//case 3, remove the parenthesis
 					$matches = array();
-					preg_match_all("/[\w\.\`]+[\s]+(LIKE|=)[\s]+\"@@".$model_field."@@\"/", $sql_with_search_terms, $matches, PREG_OFFSET_CAPTURE);
-					//start with the end
-					$matches[0] = array_reverse($matches[0]);
-					foreach($matches[0] as $match){
-						$str = "";
-						foreach($field_value_arr as $field_value){
-							$str .= str_replace('@@'.$model_field.'@@', $field_value, $match[0])." OR ";
+					list($str_to_replace, ) = explode(" ", $condition, 2);
+					//3A
+					preg_match_all("/[\w\.\`]+[\s]+=[\s]+\"[%]*@@".$str_to_replace."@@[%]*\"/", $sql_with_search_terms, $matches, PREG_OFFSET_CAPTURE);
+					foreach($matches as $sub_matches){
+						foreach($sub_matches as $match){
+							$sql_with_search_terms = substr($sql_with_search_terms, 0, $match[1]).$condition.substr($sql_with_search_terms, $match[1] + strlen($match[0]));
 						}
-						$str = "(".substr($str, 0, -4).")";
-						$sql_with_search_terms = substr($sql_with_search_terms, 0, $match[1]).$str.substr($sql_with_search_terms, $match[1] + strlen($match[0]));
 					}
-				}else{
-					$sql_with_search_terms = str_replace( '@@'.$model_field.'@@', $field_value_arr[0], $sql_with_search_terms );
+					
+					//reformat the condition as case 2B
+					$parts = explode(" OR ", $condition);
+					$condition = array();
+					foreach($parts as $part){
+						list( , , $value) = explode(" ", $part);
+						$value = substr($value, 2, -2);//chop opening '% and closing %'
+						$condition[] = $value;
+					}
+					$conditions[$str_to_replace] = $condition;
 				}
-				$sql_without_search_terms = str_replace( '@@'.$model_field.'@@', '', $sql_without_search_terms );
+				
+				if(is_array($condition)){
+					//case 2A replace the model.field = "@@value@@" by model.field IN (values)
+					preg_match_all("/[\w\.\`]+[\s]+=[\s]+\"[%]*@@".$str_to_replace."@@[%]*\"/", $sql_with_search_terms, $matches, PREG_OFFSET_CAPTURE);
+					foreach($matches as $sub_matches){
+						foreach($sub_matches as $match){
+							list($model_field, ) = explode(" ", $match[0], 2);
+							$sql_with_search_terms = substr($sql_with_search_terms, 0, $match[1]).$model_field." IN ('".implode("', '", $condition)."') ".substr($sql_with_search_terms, $match[1] + strlen($match[0]));
+						}
+					}
+					//remaining replaces to perform
+					$tests = array("<", "<=", ">", ">=");
+				}else{
+					//case 1, convert to case 2B
+					$condition = array($condition);
+					//remaining replaces to perform
+					$tests = array("=", "<", "<=", ">", ">=");
+				}
+				
+				//CASE 2B
+				foreach($tests as $test){
+					preg_match_all("/[\w\.\`]+[\s]+".$test."[\s]+\"[%]*@@".$str_to_replace."@@[%]*\"/", $sql_with_search_terms, $matches, PREG_OFFSET_CAPTURE);
+					foreach($matches as $sub_matches){
+						foreach($sub_matches as $match){
+							list($model_field, ) = explode(" ", $match[0], 2);
+							$formated_condition = "(".$model_field." ".$test." '".implode(" OR ".$model_field." ".$test." '", $condition)."')";
+							$sql_with_search_terms = substr($sql_with_search_terms, 0, $match[1]).$formated_condition.substr($sql_with_search_terms, $match[1] + strlen($match[0]));
+						}
+					}
+				}
+				
+				//LIKE
+				$matches = array();
+				preg_match_all("/[\w\.\`]+[\s]+LIKE[\s]+\"[%]*@@".$str_to_replace."@@[%]*\"/", $sql_with_search_terms, $matches, PREG_OFFSET_CAPTURE);
+				if(!empty($matches[0]) && !$warning_like){
+					$warning_like = true;
+					AppController::addWarningMsg(__("this query is using the LIKE keyword which goes against the ad hoc queries rules", true));
+				}
+				//IN
+				$matches = array();
+				preg_match_all("/[\w\.\`]+[\s]+IN[\s]+\([\s]*@@".$str_to_replace."@@[\s]*\)/", $sql_with_search_terms, $matches, PREG_OFFSET_CAPTURE);
+				if(!empty($matches[0]) && !$warning_in){
+					$warning_in = true;
+					AppController::addWarningMsg(__("this query is using the IN keyword which goes against the ad hoc queries rules", true));
+				}
 			}
 		}
-			//whipe what wasn't replaced
-			//range
-			$sql_with_search_terms = preg_replace('/(\>|\<)\=\s*"@@[\w\.]+@@"/i', "$1= \"\"", $sql_with_search_terms);
-			$sql_without_search_terms = preg_replace('/(\>|\<)\=\s*"@@[\w\.]+@@"/i', "1= \"\"", $sql_without_search_terms);
-			
-			//LIKE
-			$sql_with_search_terms = preg_replace('/LIKE\s*"@@[\w\.]+@@"/i', "LIKE \"%%\"", $sql_with_search_terms);
-			$sql_without_search_terms = preg_replace('/LIKE\s*"@@[\w\.]+@@"/i', "LIKE \"%%\"", $sql_without_search_terms);
-			
-			//others
-			$sql_with_search_terms = preg_replace('/"@@[\w\.]+@@"/i', "\"\"", $sql_with_search_terms);
-			$sql_without_search_terms = preg_replace('/"@@[\w\.]+@@"/i', "\"\"", $sql_without_search_terms);
 		
-		// WITH
-			// regular expression to change search over field for BLANK values to be searches over fields for BLANK OR NULL values...
-			$sql_with_search_terms = preg_replace( '/([\w\.]+)\s+LIKE\s+([\||\"])\%\%\2/i', '($1 LIKE $2%%$2 OR $1 IS NULL)', $sql_with_search_terms );
-			$sql_with_search_terms = preg_replace( '/([\w\.]+)\s+\=\s+([\||\"])\2/i', '($1 LIKE $2%%$2 OR $1 IS NULL)', $sql_with_search_terms );
-			$sql_with_search_terms = preg_replace( '/([\w\.]+)\s+IN\s+\(\s*\)/i', '($1 LIKE "%%" OR $1 IS NULL)', $sql_with_search_terms );
-			
-			// regular expression to change search over DATE fields for BLANK values to be searches over fields for BLANK OR NULL values...
-			$sql_with_search_terms = preg_replace( '/([\w\.]+)\s*([\>|\<]\=)\s*([\||\"])0000\-00\-00\3\s+AND\s+\1\s*([\>|\<]\=)\s*([\||\"])9999\-00\-00\3/i', '(($1$2${3}0000-00-00${3} AND $1$4${3}9999-00-00${3}) OR $1 IS NULL)', $sql_with_search_terms );
-			
-			// regular expression to change search over TIME fields for BLANK values to be searches over fields for BLANK OR NULL values...
-			$sql_with_search_terms = preg_replace( '/([\w\.]+)\s*([\>|\<]\=)\s*([\||\"])00\:00\:00\3\s+AND\s+\1\s*([\>|\<]\=)\s*([\||\"])00\:00\:00\3/i', '(($1$2${3}00:00:00${3} AND $1$4${3}00:00:00${3}) OR $1 IS NULL)', $sql_with_search_terms );
-			
-			// regular expression to change search over DATE/TIME fields for BLANK values to be searches over fields for BLANK OR NULL values...
-			$sql_with_search_terms = preg_replace( '/([\w\.]+)\s*([\>|\<]\=)\s*([\||\"])0000\-00\-00 00\:00\:00\3\s+AND\s+\1\s*([\>|\<]\=)\s*([\||\"])9999\-00\-00 00\:00\:00\3/i', '(($1$2${3}0000-00-00 00:00:00${3} AND $1$4${3}9999-00-00 00:00:00${3}) OR $1 IS NULL)', $sql_with_search_terms );
-			
-			// regular expression to change search over RANGE fields for BLANK values to be searches over fields for BLANK OR NULL values...
-			$sql_with_search_terms = preg_replace( '/([\w\.]+)\s*\>\=\s*([\||\"])\2/i', '(($1 >= ${2}-999999${2}) OR $1 IS NULL)', $sql_with_search_terms);
-			$sql_with_search_terms = preg_replace( '/([\w\.]+)\s*\<\=\s*([\||\"])\2/i', '(($1 <= ${2}999999${2}) OR $1 IS NULL)', $sql_with_search_terms);
-			
-		// WITHOUT
-			
-			// regular expression to change search over field for BLANK values to be searches over fields for BLANK OR NULL values...
-			$sql_without_search_terms = preg_replace( '/([\w\.]+)\s+LIKE\s+([\||\"])\%\%\2/i', '($1 LIKE $2%%$2 OR $1 IS NULL)', $sql_without_search_terms );
-			$sql_without_search_terms = preg_replace( '/([\w\.]+)\s+\=\s+([\||\"])\2/i', '($1 LIKE $2%%$2 OR $1 IS NULL)', $sql_without_search_terms );
-			$sql_without_search_terms = preg_replace( '/([\w\.]+)\s+IN\s+\(\s*\)/i', '($1 LIKE "%%" OR $1 IS NULL)', $sql_without_search_terms );
-			
-			// regular expression to change search over DATE fields for BLANK values to be searches over fields for BLANK OR NULL values...
-			$sql_without_search_terms = preg_replace( '/([\w\.]+)\s*([\>|\<]\=)\s*([\||\"])0000\-00\-00\3\s+AND\s+\1\s*([\>|\<]\=)\s*([\||\"])9999\-00\-00\3/i', '(($1$2${3}0000-00-00${3} AND $1$4${3}9999-00-00${3}) OR $1 IS NULL)', $sql_without_search_terms );
-			
-			// regular expression to change search over TIME fields for BLANK values to be searches over fields for BLANK OR NULL values...
-			$sql_without_search_terms = preg_replace( '/([\w\.]+)\s*([\>|\<]\=)\s*([\||\"])00\:00\:00\3\s+AND\s+\1\s*([\>|\<]\=)\s*([\||\"])00\:00\:00\3/i', '(($1$2${3}00:00:00${3} AND $1$4${3}00:00:00${3}) OR $1 IS NULL)', $sql_without_search_terms );
-			
-			// regular expression to change search over DATE/TIME fields for BLANK values to be searches over fields for BLANK OR NULL values...
-			$sql_without_search_terms = preg_replace( '/([\w\.]+)\s*([\>|\<]\=)\s*([\||\"])0000\-00\-00 00\:00\:00\3\s+AND\s+\1\s*([\>|\<]\=)\s*([\||\"])9999\-00\-00 00\:00\:00\3/i', '(($1$2${3}0000-00-00 00:00:00${3} AND $1$4${3}9999-00-00 00:00:00${3}) OR $1 IS NULL)', $sql_without_search_terms );
-			
-			// regular expression to change search over RANGE fields for BLANK values to be searches over fields for BLANK OR NULL values...
-			$sql_without_search_terms = preg_replace( '/([\w\.]+)\s*([\>|\<]\=)\s*([\||\"])\3\s+AND\s+\1\s*([\>|\<]\=)\s*([\||\"])\3/i', '(($1$2${3}-999999${3} AND $1$4${3}999999${3}) OR $1 IS NULL)', $sql_without_search_terms );
-		// return BOTH	
+		//whipe what wasn't replaced
+		//>, <, <=, >=, =
+		$sql_with_search_terms = preg_replace('/[\w\.\`]+[\s]+(\>|\<|\>\=|\<\=|\=)\s*"@@[\w\.]+@@"/i', "TRUE", $sql_with_search_terms);
+		$sql_without_search_terms = preg_replace('/[\w\.\`]+[\s]+(\>|\<|\>\=|\<\=|\=)\s*"@@[\w\.]+@@"/i', "TRUE", $sql_without_search_terms);
+		
+		//LIKE
+		$sql_with_search_terms = preg_replace('/[\w\.\`]+[\s]+LIKE\s*"[%]*@@[\w\.]+@@[%]*"/i', "TRUE", $sql_with_search_terms);
+		$sql_without_search_terms = preg_replace('/[\w\.\`]+[\s]+LIKE\s*"[%]*@@[\w\.]+@@[%]*"/i', "TRUE", $sql_without_search_terms);
+		
+		//IN
+		$sql_with_search_terms = preg_replace('/[\w\.\`]+[\s]+IN\s*\([\s]*@@[\w\.]+@@[\s]*\)/i', 'TRUE', $sql_with_search_terms);
+		$sql_without_search_terms = preg_replace('/[\w\.\`]+[\s]+IN\s*\([\s]*@@[\w\.]+@@[\s]*\)/i', 'TRUE', $sql_without_search_terms);
+		
+		//remove TRUE
+		$sql_with_search_terms = preg_replace('/(AND|OR) TRUE/i', "", $sql_with_search_terms);
+		$sql_without_search_terms = preg_replace('/(AND|OR) TRUE/i', "", $sql_without_search_terms);
+		
+		// return BOTH
 		return array( $sql_with_search_terms, $sql_without_search_terms );
-		
 	}
 
+	function getFormById($id){
+		if(!isset($this->Component_Structure)){
+			//when debug is off, Component_Structure is not initialized
+			App::import('model', 'Structure');
+			$this->Component_Structure = new Structure();
+		}
+		$data = $this->Component_Structure->find('first', array('conditions' => array('Structure.id' => $id), 'recursive' => -1));
+		return $this->get('form', $data['Structure']['alias']);
+	}
+	
+	function getSimplifiedFormById($id){
+		$form = $this->getFormById($id);
+		foreach($form['StructureFormat'] as &$sfo){
+			if(isset($sfo['StructureField']['StructureValueDomain']['source']) && strlen($sfo['StructureField']['StructureValueDomain']['source']) > 0){
+				$sfo['StructureField']['StructureValueDomain']['StructurePermissibleValue'] = StructuresComponent::getPulldownFromSource($sfo['StructureField']['StructureValueDomain']['source']); 
+			}
+		}
+		return StructuresComponent::simplifyForm($form);
+	}
+	
+	/**
+	 * Flattens a form so that all information is on the same level and that there is no need to evaluate override flags all the time
+	 * @param array $form The form to simplify
+	 */
+	static function simplifyForm(array $form){
+		$result['Structure'] = $form['Structure'];
+		$sfo_to_copy = array("structure_id", "structure_field_id", "display_column", "display_order", "language_heading", "flag_add", "flag_add_readonly",
+			"flag_edit", "flag_edit_readonly", "flag_search", "flag_search_readonly", "flag_datagrid", "flag_datagrid_readonly", "flag_index",
+			"flag_detail");
+		$sfi_to_copy = array("public_identifier", "plugin", "model", "tablename", "field", "structure_value_domain", "StructureValueDomain",
+			"StructureValidation");
+		foreach($form['StructureFormat'] as $sfo){
+			$ssfield = array();
+			$ssfield["structure_format_id"] = $sfo['id'];
+			foreach($sfo_to_copy as $unit){
+				$ssfield[$unit] = $sfo[$unit];
+			}
+			foreach($sfi_to_copy as $unit){
+				$ssfield[$unit] = $sfo['StructureField'][$unit];
+			}
+			$ssfield['language_label'] = $sfo['flag_override_label'] ? $sfo['language_label'] : $sfo['StructureField']['language_label'];
+			$ssfield['language_tag'] = $sfo['flag_override_tag'] ? $sfo['language_tag'] : $sfo['StructureField']['language_tag'];
+			$ssfield['language_help'] = $sfo['flag_override_help'] ? $sfo['language_help'] : $sfo['StructureField']['language_help'];
+			$ssfield['type'] = $sfo['flag_override_type'] ? $sfo['type'] : $sfo['StructureField']['type'];
+			$ssfield['setting'] = $sfo['flag_override_setting'] ? $sfo['setting'] : $sfo['StructureField']['setting'];
+			$ssfield['default'] = $sfo['flag_override_default'] ? $sfo['default'] : $sfo['StructureField']['default'];
+			$result['SimplifiedField'][] = $ssfield;
+		}
+		
+		return $result;
+	}
+	
+	/**
+	 * Retrieves pulldown values from a specified source. The source needs to have translated already
+	 * @param unknown_type $source
+	 */
+	static function getPulldownFromSource($source){
+		// Get arguments
+		$args = null;
+		preg_match('(\(\'.*\'\))', $source, $matches);
+		if((sizeof($matches) == 1)) {
+			// Args are included into the source
+			$args = split("','", substr($matches[0], 2, (strlen($matches[0]) - 4)));
+			$source = str_replace($matches[0], '', $source);
+		}
+
+		list($pulldown_model, $pulldown_function) = split('::', $source);
+		$pulldown_result = array();
+		if ($pulldown_model && App::import('Model',$pulldown_model)){
+
+			// setup VARS for custom model (if any)
+			$custom_pulldown_object = $pulldown_model.'Custom';
+			$custom_pulldown_plugin = NULL;
+			$custom_pulldown_model = NULL;
+
+			// if model name is PLUGIN.MODEL string, need to split and drop PLUGIN name after import but before NEW
+			$pulldown_plugin = NULL;
+			if ( strpos($pulldown_model,'.')!==false ) {
+				$combined_plugin_model_name = $pulldown_model;
+				list($pulldown_plugin,$pulldown_model) = explode('.',$combined_plugin_model_name);
+			}
+
+			// load MODEL, and override with CUSTOM model if it exists...
+			$pulldown_model_object = new $pulldown_model;
+				
+			// check for CUSTOM models, and use that if exists
+			$custom_pulldown_plugin = $pulldown_plugin;
+			$custom_pulldown_model = $pulldown_model.'Custom';
+				
+			if ( App::import('Model',$custom_pulldown_object) ) {
+				$pulldown_model_object = new $custom_pulldown_model;
+			}
+
+			// run model::function
+			$pulldown_result = $pulldown_model_object->{$pulldown_function}($args);
+		}
+
+		return $pulldown_result;
+	}
 }
 
 ?>

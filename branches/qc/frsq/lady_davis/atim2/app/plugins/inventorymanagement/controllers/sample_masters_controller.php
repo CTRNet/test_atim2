@@ -25,15 +25,14 @@ class SampleMastersController extends InventorymanagementAppController {
 		'Inventorymanagement.SourceAliquot',
 		'Inventorymanagement.AliquotUse',
 		'Inventorymanagement.QualityCtrl',
-		'Inventorymanagement.PathCollectionReview',
-		'Inventorymanagement.ReviewMaster',
+		'Inventorymanagement.SpecimenReviewMaster',
 		
 		'Inventorymanagement.SampleToAliquotControl');
 	
 	var $paginate = array(
-		'SampleMaster' => array('limit' => 10, 'order' => 'SampleMaster.sample_code DESC'),
-		'ViewSample' => array('limit' =>10 , 'order' => 'ViewSample.sample_code DESC'), 
-		'AliquotMaster' => array('limit' =>10 , 'order' => 'AliquotMaster.barcode DESC'));
+		'SampleMaster' => array('limit' => pagination_amount, 'order' => 'SampleMaster.sample_code DESC'),
+		'ViewSample' => array('limit' =>pagination_amount , 'order' => 'ViewSample.sample_code DESC'), 
+		'AliquotMaster' => array('limit' =>pagination_amount , 'order' => 'AliquotMaster.barcode DESC'));
 
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS
@@ -74,7 +73,9 @@ class SampleMastersController extends InventorymanagementAppController {
 	}
 	
 	function contentTreeView($collection_id, $studied_specimen_sample_control_id = null) {
-		if(!$collection_id) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }
+		if(!$collection_id) { 
+			$this->redirect('/pages/err_inv_funct_param_missing', null, true); 
+		}
 
 		// MANAGE DATA
 
@@ -103,7 +104,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->set('atim_structure', $atim_structure);
 
 		// Get all sample control types to build the add to selected button
-		$specimen_sample_controls_list = $this->SampleControl->atim_list(array('conditions' => array('SampleControl.flag_active' => '1', 'SampleControl.sample_category' => 'specimen'), 'order' => 'SampleControl.sample_type ASC'));
+		$specimen_sample_controls_list = $this->SampleControl->getPermissibleSamplesArray(null);
 		$this->set('specimen_sample_controls_list', $specimen_sample_controls_list);
 
 		// Get all collection specimen type list to build the filter button
@@ -327,7 +328,9 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 		// Get all sample control types to build the add to selected button (only for collection samples form)
 		$specimen_sample_controls_list = array();
-		if($is_collection_sample_list) { $specimen_sample_controls_list = $this->SampleControl->atim_list(array('conditions' => array('SampleControl.flag_active' => '1', 'SampleControl.sample_category' => 'specimen'), 'order' => 'SampleControl.sample_type ASC')); }
+		if($is_collection_sample_list) {
+			$specimen_sample_controls_list = $this->SampleControl->getPermissibleSamplesArray(null); 
+		}
 		$this->set('specimen_sample_controls_list', $specimen_sample_controls_list);
 		
 		// Get all collection / derivative sample type list to build the filter button
@@ -442,10 +445,10 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->set('is_inventory_plugin_form', $is_inventory_plugin_form);
 		
 		// Get all sample control types to build the add to selected button
-		$this->set('allowed_derivative_type', $this->getAllowedDerivativeTypes($sample_data['SampleControl']['id']));
+		$this->set('allowed_derivative_type', $this->SampleControl->getPermissibleSamplesArray($sample_data['SampleControl']['id']));
 
 		// Get all aliquot control types to build the add to selected button
-		$this->set('allowed_aliquot_type', $this->getAllowedAliquotTypes($sample_data['SampleControl']['id']));
+		$this->set('allowed_aliquot_type', $this->AliquotControl->getPermissibleAliquotsArray($sample_data['SampleControl']['id']));
 
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { 
@@ -486,7 +489,6 @@ class SampleMastersController extends InventorymanagementAppController {
 			$criteria = array(
 				'ParentSampleControl.id' => $parent_sample_data['SampleMaster']['sample_control_id'],
 				'ParentToDerivativeSampleControl.flag_active' => '1',
-				'DerivativeControl.flag_active' => '1',
 				'DerivativeControl.id' => $sample_control_id);
 			$parent_to_derivative_sample_control = $this->ParentToDerivativeSampleControl->find('first', array('conditions' => $criteria));	
 			if(empty($parent_to_derivative_sample_control)) { $this->redirect('/pages/err_inv_no_data', null, true); }
@@ -528,14 +530,19 @@ class SampleMastersController extends InventorymanagementAppController {
 	
 			//Set default reception date
 			if($bool_is_specimen){
+				$default_reception_datetime = null;
+				$default_reception_datetime_accuracy = null;
 				if($this->SampleMaster->find('count', array('conditions' => array('SampleMaster.collection_id' => $collection_id))) == 0){
 					$collection = $this->Collection->find('first', array('conditions' => array('Collection.id' => $collection_id)));
 					$default_reception_datetime = $collection['Collection']['collection_datetime'];
+					$default_reception_datetime_accuracy = $collection['Collection']['collection_datetime_accuracy'];
 				}else{
-					$sample = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id), 'fields' => array('MIN(SpecimenDetail.reception_datetime) AS reception_datetime')));
-					$default_reception_datetime = $sample[0]['reception_datetime'];
+					$sample = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id), 'order by' => array('SpecimenDetail.reception_datetime')));
+					$default_reception_datetime = $sample['SpecimenDetail']['reception_datetime'];
+					$default_reception_datetime_accuracy = $sample['SpecimenDetail']['reception_datetime_accuracy'];
 				}
 				$this->data['SpecimenDetail']['reception_datetime'] = $default_reception_datetime;
+				$this->data['SpecimenDetail']['reception_datetime_accuracy'] = $default_reception_datetime_accuracy;
 			}
 		
 		} else {
@@ -558,9 +565,6 @@ class SampleMastersController extends InventorymanagementAppController {
 				$this->data['SampleMaster']['initial_specimen_sample_id'] = $parent_sample_data['SampleMaster']['initial_specimen_sample_id'];
 			}
   	  			  	
-			// Replace ',' to '.' for volume
-			$this->data = $this->formatSampleFieldDecimalData($this->data);
-						
 			// Validates data
 			
 			$submitted_data_validates = true;
@@ -609,7 +613,7 @@ class SampleMastersController extends InventorymanagementAppController {
 						if(!$this->DerivativeDetail->save($this->data['DerivativeDetail'], false)) { $this->redirect('/pages/err_inv_system_error', null, true); }
 					}						
 					
-					$this->flash('your data has been saved', '/inventorymanagement/sample_masters/detail/' . $collection_id . '/' . $sample_master_id);	
+					$this->atimFlash('your data has been saved', '/inventorymanagement/sample_masters/detail/' . $collection_id . '/' . $sample_master_id);	
 				}					
 			}			
 		}
@@ -676,9 +680,6 @@ class SampleMastersController extends InventorymanagementAppController {
 			//Update data	
 			if(isset($this->data['SampleMaster']['parent_id']) && ($sample_data['SampleMaster']['parent_id'] !== $this->data['SampleMaster']['parent_id'])) { $this->redirect('/pages/err_inv_system_error', null, true); }
 
-			// Replace ',' to '.' for volume
-			$this->data = $this->formatSampleFieldDecimalData($this->data);
-									
 			// Validates data
 			
 			$submitted_data_validates = true;
@@ -728,7 +729,7 @@ class SampleMastersController extends InventorymanagementAppController {
 						}
 					}
 
-					$this->flash('your data has been updated', '/inventorymanagement/sample_masters/detail/' . $collection_id . '/' . $sample_master_id);		
+					$this->atimFlash('your data has been updated', '/inventorymanagement/sample_masters/detail/' . $collection_id . '/' . $sample_master_id);		
 				}				
 			}
 		}
@@ -777,7 +778,7 @@ class SampleMastersController extends InventorymanagementAppController {
 			}
 			
 			if($deletion_done) {
-				$this->flash('your data has been deleted', '/inventorymanagement/sample_masters/contentTreeView/' . $collection_id);
+				$this->atimFlash('your data has been deleted', '/inventorymanagement/sample_masters/contentTreeView/' . $collection_id);
 			} else {
 				$this->flash('error deleting data - contact administrator', '/inventorymanagement/sample_masters/contentTreeView/' . $collection_id);
 			}
@@ -846,31 +847,10 @@ class SampleMastersController extends InventorymanagementAppController {
 		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'quality control exists for the deleted sample'); }
 
 		// Check sample has not been linked to review	
-		$returned_nbr = $this->PathCollectionReview->find('count', array('conditions' => array('PathCollectionReview.sample_master_id' => $sample_master_id), 'recursive' => '-1'));
+		$returned_nbr = $this->SpecimenReviewMaster->find('count', array('conditions' => array('SpecimenReviewMaster.sample_master_id' => $sample_master_id), 'recursive' => '-1'));
 		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'review exists for the deleted sample'); }
 
-		$returned_nbr = $this->ReviewMaster->find('count', array('conditions' => array('ReviewMaster.sample_master_id' => $sample_master_id), 'recursive' => '-1'));
-		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'review exists for the deleted sample'); }
-		
 		return array('allow_deletion' => true, 'msg' => '');
-	}
-	
-	/**
-	 * Replace ',' by '.' for all decimal field values gathered into 
-	 * data submitted for sample creation or modification.
-	 * 
-	 * @param $submtted_data Submitted data
-	 * 
-	 * @return Formatted data.
-	 *
-	 * @author N. Luc
-	 * @since 2009-09-11
-	 */	
-	
-	function formatSampleFieldDecimalData($submtted_data) {
-		if(isset($submtted_data['SampleDetail']['collected_volume'])) { $submtted_data['SampleDetail']['collected_volume'] = str_replace(',', '.', $submtted_data['SampleDetail']['collected_volume']); }				
-		if(isset($submtted_data['SampleDetail']['pellet_volume'])) { $submtted_data['SampleDetail']['pellet_volume'] = str_replace(',', '.', $submtted_data['SampleDetail']['pellet_volume']); }				
-		return $submtted_data;
 	}
 	
 	/**

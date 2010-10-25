@@ -22,10 +22,13 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		
 		if(empty($tx_master_data)) {
 			$this->redirect( '/pages/err_clin_no_data', null, true ); 
-		}else if($tx_master_data['TreatmentControl']['allow_administration'] == 0){
+		}else if(empty($tx_master_data['TreatmentControl']['extend_tablename']) || empty($tx_master_data['TreatmentControl']['extend_form_alias'])){
 			$this->flash( 'no additional data has to be defined for this type of treatment', '/clinicalannotation/treatment_masters/detail/'.$participant_id.'/'.$tx_master_id);
+			return;
 		}	
-
+				
+		if(!empty($tx_master_data['TreatmentControl']['extended_data_import_process'])) { $this->set('extended_data_import_process', $tx_master_data['TreatmentControl']['extended_data_import_process']); }
+		 
 		// Set Extend tablename to use
 		$this->TreatmentExtend = new TreatmentExtend( false, $tx_master_data['TreatmentControl']['extend_tablename'] );
 		
@@ -48,7 +51,12 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 				
 		// Get treatment data
 		$tx_master_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id, 'TreatmentMaster.participant_id'=>$participant_id)));
-		if(empty($tx_master_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }		
+		if(empty($tx_master_data)) {
+			$this->redirect( '/pages/err_clin_no_data', null, true ); 
+		}else if(empty($tx_master_data['TreatmentControl']['extend_tablename']) || empty($tx_master_data['TreatmentControl']['extend_form_alias'])){
+			$this->flash( 'no additional data has to be defined for this type of treatment', '/clinicalannotation/treatment_masters/detail/'.$participant_id.'/'.$tx_master_id);
+			return;
+		}		
 
 		// Set Extend tablename to use
 		$this->TreatmentExtend = new TreatmentExtend( false, $tx_master_data['TreatmentControl']['extend_tablename'] );
@@ -72,8 +80,13 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 				
 		// Get treatment data
 		$tx_master_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id, 'TreatmentMaster.participant_id'=>$participant_id)));
-		if(empty($tx_master_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }		
-
+		if(empty($tx_master_data)) {
+			$this->redirect( '/pages/err_clin_no_data', null, true ); 
+		}else if(empty($tx_master_data['TreatmentControl']['extend_tablename']) || empty($tx_master_data['TreatmentControl']['extend_form_alias'])){
+			$this->flash( 'no additional data has to be defined for this type of treatment', '/clinicalannotation/treatment_masters/detail/'.$participant_id.'/'.$tx_master_id);
+			return;
+		}	
+		
 		// Set Extend tablename to use
 		$this->TreatmentExtend = new TreatmentExtend( false, $tx_master_data['TreatmentControl']['extend_tablename'] );
 		
@@ -93,7 +106,7 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 			if( $hook_link ) { require($hook_link); }
 			
 			if ($submitted_data_validates && $this->TreatmentExtend->save( $this->data ) ) {
-				$this->flash( 'your data has been saved', '/clinicalannotation/treatment_extends/listall/'.$participant_id.'/'.$tx_master_id );
+				$this->atimFlash( 'your data has been saved', '/clinicalannotation/treatment_extends/listall/'.$participant_id.'/'.$tx_master_id );
 			}
 		} 
 	}
@@ -103,8 +116,13 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 				
 		// Get treatment data
 		$tx_master_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id, 'TreatmentMaster.participant_id'=>$participant_id)));
-		if(empty($tx_master_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }		
-
+		if(empty($tx_master_data)) {
+			$this->redirect( '/pages/err_clin_no_data', null, true ); 
+		}else if(empty($tx_master_data['TreatmentControl']['extend_tablename']) || empty($tx_master_data['TreatmentControl']['extend_form_alias'])){
+			$this->flash( 'no additional data has to be defined for this type of treatment', '/clinicalannotation/treatment_masters/detail/'.$participant_id.'/'.$tx_master_id);
+			return;
+		}	
+		
 		// Set Extend tablename to use
 		$this->TreatmentExtend = new TreatmentExtend( false, $tx_master_data['TreatmentControl']['extend_tablename'] );
 		
@@ -129,7 +147,7 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 			
 			$this->TreatmentExtend->id = $tx_extend_id;
 			if ($submitted_data_validates && $this->TreatmentExtend->save($this->data)) {
-				$this->flash( 'your data has been updated','/clinicalannotation/treatment_extends/detail/'.$participant_id.'/'.$tx_master_id.'/'.$tx_extend_id);
+				$this->atimFlash( 'your data has been updated','/clinicalannotation/treatment_extends/detail/'.$participant_id.'/'.$tx_master_id.'/'.$tx_extend_id);
 			}
 		}
 	}
@@ -139,8 +157,13 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 				
 		// Get treatment data
 		$tx_master_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id, 'TreatmentMaster.participant_id'=>$participant_id)));
-		if(empty($tx_master_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }		
-
+		if(empty($tx_master_data)) {
+			$this->redirect( '/pages/err_clin_no_data', null, true ); 
+		}else if(empty($tx_master_data['TreatmentControl']['extend_tablename']) || empty($tx_master_data['TreatmentControl']['extend_form_alias'])){
+			$this->flash( 'no additional data has to be defined for this type of treatment', '/clinicalannotation/treatment_masters/detail/'.$participant_id.'/'.$tx_master_id);
+			return;
+		}	
+		
 		// Set Extend tablename to use
 		$this->TreatmentExtend = new TreatmentExtend( false, $tx_master_data['TreatmentControl']['extend_tablename'] );
 		
@@ -157,7 +180,7 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 				
 		if($arr_allow_deletion['allow_deletion']) {		
 			if( $this->TreatmentExtend->atim_delete( $tx_extend_id ) ) {
-				$this->flash( 'your data has been deleted', '/clinicalannotation/treatment_extends/listall/'.$participant_id.'/'.$tx_master_id);
+				$this->atimFlash( 'your data has been deleted', '/clinicalannotation/treatment_extends/listall/'.$participant_id.'/'.$tx_master_id);
 			} else {
 				$this->flash( 'error deleting data - contact administrator', '/clinicalannotation/treatment_extends/listall/'.$participant_id.'/'.$tx_master_id);
 			}	
@@ -167,6 +190,10 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 	}
 	
 	
+	/* --------------------------------------------------------------------------
+	 * ADDITIONAL FUNCTIONS
+	 * -------------------------------------------------------------------------- */
+
 	/**
 	 * Check if a record can be deleted.
 	 * 
@@ -184,7 +211,7 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		return array('allow_deletion' => true, 'msg' => '');
 	}	
 	
-	function importFromProtocol($participant_id, $tx_master_id){
+	function importDrugFromChemoProtocol($participant_id, $tx_master_id){
 		$tx_master_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id, 'TreatmentMaster.participant_id'=>$participant_id)));
 		if(is_numeric($tx_master_data['TreatmentMaster']['protocol_master_id'])){
 			$prot_master_data = $this->ProtocolMaster->find('first', array('conditions' => array('ProtocolMaster.id' => $tx_master_data['TreatmentMaster']['protocol_master_id'])));
@@ -207,7 +234,7 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 						'dose' => $prot_extend['ProtocolExtend']['dose']);
 				}
 				if($this->TreatmentExtend->saveAll($data)){
-					$this->flash( 'drugs from the associated protocol were imported', '/clinicalannotation/treatment_extends/listall/'.$participant_id.'/'.$tx_master_id);
+					$this->atimFlash( 'drugs from the associated protocol were imported', '/clinicalannotation/treatment_extends/listall/'.$participant_id.'/'.$tx_master_id);
 				}else{
 					$this->flash( 'unknown error', '/clinicalannotation/treatment_extends/listall/'.$participant_id.'/'.$tx_master_id);
 				}

@@ -3,8 +3,9 @@
 class MenusComponent extends Object {
 	
 	var $controller;
+	static $menu_cache_directory = "../tmp/cache/menus/";
 	
-	var $components = array('Acl', 'Session');
+	var $components = array('Session', 'SessionAcl');
 	var $uses = array('Aco');
 	
 	function initialize( &$controller, $settings=array() ) {
@@ -37,28 +38,20 @@ class MenusComponent extends Object {
 			$alias_calculated[]	= 'Menu.use_link LIKE "/'.( $this->controller->params['plugin'] ? $this->controller->params['plugin'].'/' : '' ).$this->controller->params['controller'].'%"';
 			
 		}
-		$menu_cache_directory = "../tmp/cache/menus/";
-		$fname = $menu_cache_directory.str_replace("/", "_", $alias).".cache";
-		if(file_exists($fname) && Configure::read('ATiMMenuCache.disable') != 1){
+		
+		
+		$fname = MenusComponent::$menu_cache_directory.str_replace("/", "_", $alias)."_".str_replace(":", "", $aro_alias).".cache";
+		
+		if(file_exists($fname) && !(Configure::read('ATiMMenuCache.disable')) ){
+			
 			$fhandle = fopen($fname, 'r');
 			$return = unserialize(fread($fhandle, filesize($fname)));
 			fclose($fhandle);
-		}else{
-			if(Configure::read('ATiMMenuCache.disable')){
-				//clear menu cache
-				try{
-					if ($dh = opendir($menu_cache_directory)) {
-				        while (($file = readdir($dh)) !== false) {
-				            if(filetype($menu_cache_directory . $file) == "file"){
-				            	unlink($menu_cache_directory . $file);
-				            }
-				        }
-				        closedir($dh);
-				    }
-				}catch(Exception $e){
-					//do nothing, it's a race condition with someone else
-				}
+		}else{		
+			if( Configure::read('ATiMMenuCache.disable') ){
+				MenusComponent::clearCache();
 			}
+			
 			if ( $alias ) {
 				App::import('model', 'Menu');
 				$this->Component_Menu = new Menu;
@@ -119,18 +112,12 @@ class MenusComponent extends Object {
 						foreach ( $current_level as &$current_item ) {
 							$current_item['Menu']['at'] = $current_item['Menu']['id']==$source_id ? true : false;
 							
-							/*
-							if ( Configure::read("debug") ) {
-								$current_item['Menu']['allowed'] = true;
-							} else {
-							*/
-								$parts = Router::parse($current_item['Menu']['use_link']);
-								$aco_alias = 'controllers/'.($parts['plugin'] ? Inflector::camelize($parts['plugin']) : 'App').'/';
-								$aco_alias .= ($parts['controller'] ? Inflector::camelize($parts['controller']).'/' : '');
-								$aco_alias .= ($parts['action'] ? $parts['action'] : '');
-								
-								$current_item['Menu']['allowed'] = $this->Acl->check($aro_alias, $aco_alias);
-							// }
+							$parts = Router::parse($current_item['Menu']['use_link']);
+							$aco_alias = 'controllers/'.($parts['plugin'] ? Inflector::camelize($parts['plugin']) : 'App').'/';
+							$aco_alias .= ($parts['controller'] ? Inflector::camelize($parts['controller']).'/' : '');
+							$aco_alias .= ($parts['action'] ? $parts['action'] : '');
+							
+							$current_item['Menu']['allowed'] = $this->SessionAcl->check($aro_alias, $aco_alias);
 							
 						}
 						
@@ -152,17 +139,35 @@ class MenusComponent extends Object {
 				if ( $result ) $return = $menu;
 				
 			}
-			if(Configure::read('ATiMMenuCache.disable') != 1){
+			
+			if( !(Configure::read('ATiMMenuCache.disable')) ){
 				$fhandle = fopen($fname, 'w');
 				fwrite($fhandle, serialize($return));
-				flush();
+				fflush($fhandle);
 				fclose($fhandle);
 			}
+			
 		}
+		
 		return $return;
 		
 	}
 
+	static function clearCache(){
+		//clear menu cache
+		try{
+			if ($dh = opendir(MenusComponent::$menu_cache_directory)) {
+				while (($file = readdir($dh)) !== false) {
+					if(filetype(MenusComponent::$menu_cache_directory . $file) == "file"){
+						unlink(MenusComponent::$menu_cache_directory . $file);
+					}
+				}
+				closedir($dh);
+			}
+		}catch(Exception $e){
+			//do nothing, it's a race condition with someone else
+		}
+	}
 }
 
 ?>

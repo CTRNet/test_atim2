@@ -34,7 +34,7 @@ class GroupsController extends AdministrateAppController {
 					$this->Aro->id = $aro_data['Aro']['id'];
 					$this->Aro->save($aro_data);
 					
-					$this->flash('your data has been saved', '/administrate/permissions/tree/'.$group_id);
+					$this->atimFlash('your data has been saved', '/administrate/permissions/tree/'.$group_id);
 				} else {
 					$this->flash('The Group could not be saved. Please, try again.', '/administrate/groups/add/');
 				}
@@ -57,7 +57,7 @@ class GroupsController extends AdministrateAppController {
 		if (!empty($this->data)) {
 			$this->Group->id = $group_id;
 			if ($this->Group->save($this->data)) {
-				$this->flash('your data has been updated', '/administrate/groups/detail/'.$group_id);
+				$this->atimFlash('your data has been updated', '/administrate/groups/detail/'.$group_id);
 			} else {
 				$this->flash('The Group could not be saved. Please, try again.', '/administrate/groups/edit/'.$group_id);
 			}
@@ -99,7 +99,7 @@ class GroupsController extends AdministrateAppController {
 
 		if(empty($this->data['User'])){
 			if ($this->Group->del($group_id)) {
-				$this->flash('Group deleted', '/administrate/groups/index/');
+				$this->atimFlash('Group deleted', '/administrate/groups/index/');
 			}
 		}else{
 			$this->flash('this group is being used and cannot be deleted', '/administrate/groups/detail/'.$group_id."/");

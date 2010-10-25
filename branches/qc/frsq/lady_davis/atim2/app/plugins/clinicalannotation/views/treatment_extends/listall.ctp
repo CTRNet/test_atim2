@@ -4,14 +4,14 @@
 			'detail' => '/clinicalannotation/treatment_extends/detail/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id'].'/%%TreatmentExtend.id%%/'
 		),
 		'bottom' => array(
-			'import from associated protocol' => array(
-				'link' => '/clinicalannotation/treatment_extends/importFromProtocol/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id'],
-				'icon' => 'drug'
-			),
 			'add' => '/clinicalannotation/treatment_extends/add/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id']
 		)
 	);
 	
+	if(isset($extended_data_import_process)) {
+		$structure_links['bottom']['import from associated protocol'] = '/clinicalannotation/treatment_extends/'.$extended_data_import_process.'/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id'];
+	}
+		
 	$structure_override = array();
 	
 	$final_atim_structure = $atim_structure; 

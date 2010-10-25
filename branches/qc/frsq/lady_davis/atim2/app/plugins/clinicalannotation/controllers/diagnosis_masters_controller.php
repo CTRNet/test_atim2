@@ -10,10 +10,13 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		'Clinicalannotation.TreatmentMaster',
 		'Clinicalannotation.EventMaster',
 		'Clinicalannotation.ClinicalCollectionLink',
-		'codingicd10.CodingIcd10'
+		'codingicd.CodingIcd10Who',
+		'codingicd.CodingIcd10Ca',
+		'codingicd.CodingIcdo3Topo',//required by model
+		'codingicd.CodingIcdo3Morpho'//required by model
 	);
-	var $paginate = array('DiagnosisMaster'=>array('limit' => pagination_amount,'order'=>'DiagnosisMaster.dx_date')); 
-	
+	var $paginate = array('DiagnosisMaster'=>array('limit' => pagination_amount,'order'=>'DiagnosisMaster.dx_date'));
+
 	function listall( $participant_id ) {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
 		
@@ -27,10 +30,6 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id));
 		$this->set('diagnosis_controls_list', $this->DiagnosisControl->find('all', array('conditions' => array('DiagnosisControl.flag_active' => 'active'))));
 		
-		foreach($this->data as &$dx) {
-			$dx['DiagnosisMaster']['primary_icd10_code'] .= " - ".$this->CodingIcd10->getDescription($dx['DiagnosisMaster']['primary_icd10_code']);
-		}
-
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }			
@@ -49,8 +48,6 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		$dx_control_data = $this->DiagnosisControl->find('first', array('conditions' => array('DiagnosisControl.id' => $dx_master_data['DiagnosisMaster']['diagnosis_control_id'])));
 		$this->Structures->set($dx_control_data['DiagnosisControl']['form_alias']);
 	
-		$this->data['DiagnosisMaster']['primary_icd10_code'] .= " - ".$this->CodingIcd10->getDescription($this->data['DiagnosisMaster']['primary_icd10_code']);
-		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }
@@ -95,7 +92,7 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 			
 			if($submitted_data_validates) {
 				if ( $this->DiagnosisMaster->save( $this->data )) {
-					$this->flash( 'your data has been saved', '/clinicalannotation/diagnosis_masters/detail/'.$participant_id.'/'.$this->DiagnosisMaster->id.'/' );
+					$this->atimFlash( 'your data has been saved', '/clinicalannotation/diagnosis_masters/detail/'.$participant_id.'/'.$this->DiagnosisMaster->id.'/' );
 				}
 			}
 		}
@@ -135,7 +132,7 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 			if($submitted_data_validates) {
 				$this->DiagnosisMaster->id = $diagnosis_master_id;
 				if ( $this->DiagnosisMaster->save($this->data) ) {
-					$this->flash( 'your data has been updated','/clinicalannotation/diagnosis_masters/detail/'.$participant_id.'/'.$diagnosis_master_id );
+					$this->atimFlash( 'your data has been updated','/clinicalannotation/diagnosis_masters/detail/'.$participant_id.'/'.$diagnosis_master_id );
 				}
 			}
 		}
@@ -157,7 +154,7 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		
 		if ($arr_allow_deletion['allow_deletion']) {
 			if( $this->DiagnosisMaster->atim_delete( $diagnosis_master_id ) ) {
-				$this->flash( 'your data has been deleted', '/clinicalannotation/diagnosis_masters/listall/'.$participant_id );
+				$this->atimFlash( 'your data has been deleted', '/clinicalannotation/diagnosis_masters/listall/'.$participant_id );
 			} else {
 				$this->flash( 'error deleting data - contact administrator', '/clinicalannotation/diagnosis_masters/listall/'.$participant_id );
 			}

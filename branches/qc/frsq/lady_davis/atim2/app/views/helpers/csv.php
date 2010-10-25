@@ -2,7 +2,6 @@
   
 class CsvHelper extends AppHelper { 
      
-    var $delimiter = ','; 
     var $enclosure = '"'; 
     var $filename = 'export'; 
     var $line = array(); 
@@ -27,7 +26,7 @@ class CsvHelper extends AppHelper {
     } 
      
     function addRow($row) { 
-        fputcsv($this->buffer, $row, $this->delimiter, $this->enclosure); 
+        fputcsv($this->buffer, $row, csv_separator, $this->enclosure); 
     } 
      
     function renderHeaders() { 
