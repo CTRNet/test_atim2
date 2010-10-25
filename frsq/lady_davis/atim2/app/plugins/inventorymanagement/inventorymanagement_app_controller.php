@@ -4,7 +4,7 @@ class InventorymanagementAppController extends AppController {
 		
 	function beforeFilter() {
 		parent::beforeFilter();
-		$this->Auth->actionPath = 'controllers/Inventorymanagement/';
+		$this->Auth->actionPath = 'controllers/';
 	}
 	
 	/**
@@ -35,21 +35,14 @@ class InventorymanagementAppController extends AppController {
 	 * 
 	 * @author N. Luc
 	 * @since 2009-11-01
+	 * @deprecated as of 2010-08-04. use SampleControl->getPermissibleSamplesArray($parent_sample_control_id)
 	 */	
 	
 	function getAllowedDerivativeTypes($parent_sample_control_id) {
-		$criteria = array(
-			'ParentSampleControl.id' => $parent_sample_control_id,
-			'ParentToDerivativeSampleControl.flag_active' => '1',
-			'DerivativeControl.flag_active' => '1');
-		$allowed_derivative_type_temp = $this->ParentToDerivativeSampleControl->find('all', array('conditions' => $criteria, 'order' => 'DerivativeControl.sample_type ASC'));
-
-		$allowed_derivative_type = array();
-		foreach($allowed_derivative_type_temp as $new_link) {
-			$allowed_derivative_type[$new_link['DerivativeControl']['id']]['SampleControl'] = $new_link['DerivativeControl'];
+		if(Configure::read('debug') == 2){
+			echo("WARNING: USAGE OF A DEPRECATED FUNCTION (getAllowedDerivativeTypes) [file:".__FILE__." - line".__LINE__."]");
 		}
-		
-		return $allowed_derivative_type;
+		return $this->SampleControl->getPermissibleSamplesArray($parent_sample_control_id);
 	}
 	
 	/**
@@ -63,21 +56,14 @@ class InventorymanagementAppController extends AppController {
 	 * 
 	 * @author N. Luc
 	 * @since 2009-11-01
+	 * @deprecated as of 2010-08-04. use AliquotControl->getPermissibleAliquotsArray($parent_sample_control_id)
 	 */	
 	
 	function getAllowedAliquotTypes($sample_control_id) {
-		$criteria = array(
-			'SampleControl.id' => $sample_control_id,
-			'SampleToAliquotControl.flag_active' => '1',
-			'AliquotControl.flag_active' => '1');
-		$allowed_aliquot_type_temp = $this->SampleToAliquotControl->find('all', array('conditions' => $criteria, 'order' => 'AliquotControl.aliquot_type ASC'));
-		
-		$allowed_aliquot_type = array();
-		foreach($allowed_aliquot_type_temp as $new_link) {
-			$allowed_aliquot_type[$new_link['AliquotControl']['id']]['AliquotControl'] = $new_link['AliquotControl'];
+		if(Configure::read('debug') == 2){
+			echo("WARNING: USAGE OF A DEPRECATED FUNCTION (getAllowedAliquotTypes) [file:".__FILE__." - line".__LINE__."]");
 		}
-		
-		return $allowed_aliquot_type;		
+		return $this->AliquotControl->getPermissibleAliquotsArray($sample_control_id);
 	}
 
 	/**

@@ -85,7 +85,7 @@ class ConsentMastersController extends ClinicalannotationAppController {
 			
 			if($submitted_data_validates) {
 				if ( $this->ConsentMaster->save($this->data) ) {
-					$this->flash( 'your data has been saved','/clinicalannotation/consent_masters/detail/'.$participant_id.'/'.$this->ConsentMaster->id );
+					$this->atimFlash( 'your data has been saved','/clinicalannotation/consent_masters/detail/'.$participant_id.'/'.$this->ConsentMaster->id );
 				}
 			}
 		} 
@@ -122,7 +122,7 @@ class ConsentMastersController extends ClinicalannotationAppController {
 			if($submitted_data_validates) {
 				$this->ConsentMaster->id = $consent_master_id;
 				if ( $this->ConsentMaster->save($this->data) ) {
-					$this->flash( 'your data has been updated','/clinicalannotation/consent_masters/detail/'.$participant_id.'/'.$consent_master_id );
+					$this->atimFlash( 'your data has been updated','/clinicalannotation/consent_masters/detail/'.$participant_id.'/'.$consent_master_id );
 				}
 			}
 		}
@@ -143,7 +143,7 @@ class ConsentMastersController extends ClinicalannotationAppController {
 		
 		if ($arr_allow_deletion['allow_deletion']) {
 			if ($this->ConsentMaster->atim_delete( $consent_master_id )) {
-				$this->flash( 'your data has been deleted', '/clinicalannotation/consent_masters/listall/'.$participant_id );
+				$this->atimFlash( 'your data has been deleted', '/clinicalannotation/consent_masters/listall/'.$participant_id );
 			} else {
 				$this->flash( 'error deleting data - contact administrator', '/clinicalannotation/consent_masters/listall/'.$participant_id );
 			}

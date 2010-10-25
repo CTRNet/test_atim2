@@ -10,7 +10,12 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 		'Clinicalannotation.ConsentMaster',
 		'Clinicalannotation.DiagnosisMaster',
 		
-		'Inventorymanagement.Collection'
+		'Inventorymanagement.Collection',
+		
+		'Codingicd.CodingIcd10Who',
+		'Codingicd.CodingIcd10Ca',
+		'Codingicd.CodingIcdo3Morpho',
+		'Codingicd.CodingIcdo3Topo'
 	);
 	
 	var $paginate = array('ClinicalCollectionLinks'=>array('limit' => pagination_amount,'order'=>'Collection.acquisition_label ASC'));	
@@ -40,7 +45,11 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 		
 		$clinical_collection_data = $this->ClinicalCollectionLink->find('first',array('conditions'=>array('ClinicalCollectionLink.id'=>$clinical_collection_link_id,'ClinicalCollectionLink.participant_id'=>$participant_id)));
 		if(empty($clinical_collection_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }	
-		$this->data = $clinical_collection_data;	
+		$this->data = $clinical_collection_data;
+		//get CodingIcd descriptions
+		$this->data['DiagnosisMaster']['morphology'] = $this->data['DiagnosisMaster']['morphology']." - ".$this->CodingIcdo3Morpho->getDescription($this->data['DiagnosisMaster']['morphology']);
+		$this->data['DiagnosisMaster']['topography'] = $this->data['DiagnosisMaster']['topography']." - ".$this->CodingIcdo3Topo->getDescription($this->data['DiagnosisMaster']['topography']);
+		$this->data['DiagnosisMaster']['primary_icd10_code'] = $this->data['DiagnosisMaster']['primary_icd10_code']." - ".$this->CodingIcd10Who->getDescription($this->data['DiagnosisMaster']['primary_icd10_code']);
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -103,7 +112,7 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 				if(isset($this->data['ClinicalCollectionLink']['deleted'])){
 					$this->redirect('/inventorymanagement/collections/add/'.$this->ClinicalCollectionLink->getLastInsertId());
 				}else{
-					$this->flash( 'your data has been updated','/clinicalannotation/clinical_collection_links/detail/'.$participant_id.'/'.$this->ClinicalCollectionLink->id );
+					$this->atimFlash( 'your data has been updated','/clinicalannotation/clinical_collection_links/detail/'.$participant_id.'/'.$this->ClinicalCollectionLink->id );
 				}
 				return;
 			}
@@ -124,6 +133,16 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 		
 		// Set consents list
 		$consent_data = $this->ConsentMaster->find('all', array('conditions' => array('ConsentMaster.deleted' => '0', 'ConsentMaster.participant_id' => $participant_id)));
+		//because consent has a one to many relation with participant, we need to format it
+		foreach($consent_data as &$consent){
+			foreach($consent['ClinicalCollectionLink'] as $unit){
+				if($unit['id'] == $clinical_collection_link_id){
+					//we found the one that interests us
+					$consent['ClinicalCollectionLink'] = $unit;
+					break;
+				}
+			}
+		}
 		$this->set( 'consent_data', $consent_data );
 		
 		// Set diagnoses list
@@ -155,7 +174,7 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 			
 			$this->ClinicalCollectionLink->id = $clinical_collection_link_id;
 			if ($submitted_data_validates && $this->ClinicalCollectionLink->save($this->data) ) {
-				$this->flash( 'your data has been updated','/clinicalannotation/clinical_collection_links/detail/'.$participant_id.'/'.$clinical_collection_link_id );
+				$this->atimFlash( 'your data has been updated','/clinicalannotation/clinical_collection_links/detail/'.$participant_id.'/'.$clinical_collection_link_id );
 				return;
 			}
 		} else {
@@ -187,7 +206,7 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 				
 			$this->ClinicalCollectionLink->id = $clinical_collection_link_id;
 			if ($this->ClinicalCollectionLink->save($this->data)){
-				$this->flash( 'your data has been deleted' , '/clinicalannotation/clinical_collection_links/listall/'.$participant_id.'/');
+				$this->atimFlash( 'your data has been deleted' , '/clinicalannotation/clinical_collection_links/listall/'.$participant_id.'/');
 			}else{
 				$this->flash( 'error deleting data - contact administrator','/clinicalannotation/clinical_collection_links/detail/'.$participant_id.'/'.$clinical_collection_link_id.'/');
 			}

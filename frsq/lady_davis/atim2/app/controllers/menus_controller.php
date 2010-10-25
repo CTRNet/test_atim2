@@ -2,7 +2,7 @@
 
 class MenusController extends AppController {
 	
-	var $components = array('Acl', 'Session');
+	var $components = array('Session', 'SessionAcl');
 	var $uses = array('Menu','Announcement');
 	
 	function beforeFilter() {
@@ -10,7 +10,9 @@ class MenusController extends AppController {
 		
 		// Don't restrict the index action so that users with NO permissions
 		// who have VALID login credentials will not trigger an infinite loop.
-		$this->Auth->allowedActions = array('index');
+		if(isset($_SESSION) && isset($_SESSION['Auth']) && isset($_SESSION['Auth']['User']) && count($_SESSION['Auth']['User'])) {
+			$this->Auth->allowedActions = array('index');
+		}
 	}
 	
 	function index( $set_of_menus=NULL ) {
@@ -52,7 +54,7 @@ class MenusController extends AppController {
 				$aco_alias .= ($parts['controller'] ? Inflector::camelize($parts['controller']).'/' : '');
 				$aco_alias .= ($parts['action'] ? $parts['action'] : '');
 				
-				$current_item['Menu']['allowed'] = $this->Acl->check($aro_alias, $aco_alias);
+				$current_item['Menu']['allowed'] = $this->SessionAcl->check($aro_alias, $aco_alias);
 			// }
 			
 		}

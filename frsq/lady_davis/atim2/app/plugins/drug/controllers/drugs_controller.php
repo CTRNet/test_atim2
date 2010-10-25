@@ -21,7 +21,10 @@ class DrugsController extends DrugAppController {
 		if ( $this->data ) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions();
 		
 		$this->data = $this->paginate($this->Drug, $_SESSION['ctrapp_core']['search']['criteria']);
-		
+
+		// MANAGE FORM, MENU AND ACTION BUTTONS
+		$this->set( 'atim_menu', $this->Menus->get('/drug/drugs/index/') );	
+				
 		// if SEARCH form data, save number of RESULTS and URL
 		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['Drug']['count'];
 		$_SESSION['ctrapp_core']['search']['url'] = '/drug/drugs/search';
@@ -45,7 +48,7 @@ class DrugsController extends DrugAppController {
 			if( $hook_link ) { require($hook_link); }	
 						
 			if ( $submitted_data_validates && $this->Drug->save($this->data) ) {
-				$this->flash( 'your data has been updated','/drug/drugs/detail/'.$this->Drug->id );
+				$this->atimFlash( 'your data has been updated','/drug/drugs/detail/'.$this->Drug->id );
 			}
 		}
   	}
@@ -72,7 +75,7 @@ class DrugsController extends DrugAppController {
 			if($submitted_data_validates) {
 				$this->Drug->id = $drug_id;
 				if ( $this->Drug->save($this->data) ) {
-					$this->flash( 'your data has been updated','/drug/drugs/detail/'.$drug_id );
+					$this->atimFlash( 'your data has been updated','/drug/drugs/detail/'.$drug_id );
 				}
 			}
 		}
@@ -106,7 +109,7 @@ class DrugsController extends DrugAppController {
 				
 		if($arr_allow_deletion['allow_deletion']) {	
 			if( $this->Drug->atim_delete( $drug_id ) ) {
-				$this->flash( 'your data has been deleted', '/drug/drugs/index/');
+				$this->atimFlash( 'your data has been deleted', '/drug/drugs/index/');
 			} else {
 				$this->flash( 'error deleting data - contact administrator', '/drug/drugs/index/');
 			}	

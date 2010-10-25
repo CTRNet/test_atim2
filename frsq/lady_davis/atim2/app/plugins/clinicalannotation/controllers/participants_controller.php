@@ -17,9 +17,9 @@ class ParticipantsController extends ClinicalannotationAppController {
 		'Clinicalannotation.ReproductiveHistory',
 		'Clinicalannotation.TreatmentMaster',
 		'Clinicalannotation.MiscIdentifier', 
-		'Clinicalannotation.MiscIdentifierControl', 
-		
-		'codingicd10.CodingIcd10'
+		'Clinicalannotation.MiscIdentifierControl',
+		'Codingicd.CodingIcd10Who',
+		'Codingicd.CodingIcd10Ca'
 	);
 	var $paginate = array(
 		'Participant'=>array('limit'=>pagination_amount,'order'=>'Participant.last_name ASC, Participant.first_name ASC'),
@@ -70,9 +70,6 @@ class ParticipantsController extends ClinicalannotationAppController {
 		
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id) );
 		
-		$this->data['Participant']['cod_icd10_code'] .= " - ".$this->CodingIcd10->getDescription($this->data['Participant']['cod_icd10_code']);
-		$this->data['Participant']['secondary_cod_icd10_code'] .= " - ".$this->CodingIcd10->getDescription($this->data['Participant']['secondary_cod_icd10_code']);
-
 		// Set form for identifier list
 		
 		$this->Structures->set('miscidentifiers', 'atim_structure_for_misc_identifiers');		
@@ -101,7 +98,7 @@ class ParticipantsController extends ClinicalannotationAppController {
 			
 			if($submitted_data_validates) {
 				if ( $this->Participant->save($this->data) ) {
-					$this->flash( 'your data has been saved','/clinicalannotation/participants/profile/'.$this->Participant->getLastInsertID());
+					$this->atimFlash('your data has been saved', '/clinicalannotation/participants/profile/'.$this->Participant->getLastInsertID());
 				}
 			}
 		}
@@ -132,7 +129,9 @@ class ParticipantsController extends ClinicalannotationAppController {
 
 			if($submitted_data_validates) {
 				$this->Participant->id = $participant_id;
-				if ( $this->Participant->save($this->data) ) $this->flash( 'your data has been updated','/clinicalannotation/participants/profile/'.$participant_id );		
+				if ( $this->Participant->save($this->data) ){
+					$this->atimFlash('your data has been updated', '/clinicalannotation/participants/profile/'.$participant_id );		
+				}
 			}
 		}
 	}
@@ -153,7 +152,7 @@ class ParticipantsController extends ClinicalannotationAppController {
 		
 		if ($arr_allow_deletion['allow_deletion']) {
 			if ( $this->Participant->atim_delete( $participant_id ) ) {
-				$this->flash( 'your data has been deleted', '/clinicalannotation/participants/index/');
+				$this->atimFlash('your data has been deleted', '/clinicalannotation/participants/index/');
 			} else {
 				$this->flash( 'error deleting data - contact administrator', '/clinicalannotation/participants/index/');
 			}

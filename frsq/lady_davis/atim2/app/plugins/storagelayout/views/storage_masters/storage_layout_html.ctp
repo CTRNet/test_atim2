@@ -1,3 +1,6 @@
+<?php 
+//This is an entire custom page. ATiM forms are immitated
+?>
 <table class="structure" cellspacing="0">
 	<tbody>
 		<tr>
@@ -5,13 +8,13 @@
 	<div style="border-style:solid; border-width:1px; min-height: 50px; margin: 10px;">
 		<h4 class="ui-widget-header" style="height: 15px;  padding-right: 5px;">
 			<span class="ui-icon ui-icon-calculator" style="float: left;"></span><?php echo(__("storage", true)); ?></h4>
-	<table id="table" style="margin: 10px; width: 98%;">
+	<table id="table" class='storageLayout'>
 <?php
 	if($data['parent']['StorageControl']['coord_x_type'] == 'list'){
 		if($data['parent']['StorageControl']['horizontal_display']){
 			echo("<tr>");
 			foreach($data['parent']['list'] as $list_item){
-				echo("<td style='border-style:solid; border-width:1px; min-width: 30px;' class='droppable mycell'>"
+				echo("<td class='droppable mycell'>"
 				.'<b>'.$list_item['StorageCoordinate']['coordinate_value'].'</b>'
 				.'<ul id="cell_'.$list_item['StorageCoordinate']['id'].'_1"/>'
 				.'</td>');
@@ -19,7 +22,7 @@
 			echo("</tr>\n");
 		}else{
 			foreach($data['parent']['list'] as $list_item){
-				echo("<tr><td style='border-style:solid; border-width:1px; min-width: 30px;' class='droppable mycell'>"
+				echo("<tr><td class='droppable mycell'>"
 				.'<b>'.$list_item['StorageCoordinate']['coordinate_value'].'</b>'
 				.'<ul id="cell_'.$list_item['StorageCoordinate']['id'].'_1"/>'
 				."</td></tr>\n");
@@ -68,7 +71,7 @@
 					if($horizontal_increment){
 						$display_value = ($j - 1) * $y_size + $i;
 					}else{
-						$display_value = ($i - 1) * $y_size + $j;
+						$display_value = ($i - 1) * $x_size + $j;
 					}
 					$use_value = $display_value."_1"; //static y = 1
 				}else{
@@ -82,7 +85,7 @@
 						$display_value = $x_val."-".$y_val;
 					}
 				}
-				echo("<td style='border-style:solid; border-width:1px; min-width: 30px; border-color: #000;' class='droppable'>"
+				echo("<td class='droppable'>"
 				.'<b>'.$display_value."</b><ul id='cell_".$use_value."' /></td>");
 			}
 			echo("</tr>\n");
@@ -132,7 +135,7 @@
 					</span>
 
 		<div style="display: inline-block;">
-		<div style="display: none; background-color: transparent;"
+		<div style="display: none; background-color: transparent; font-size: 120%;"
 			id="saveWarning">
 			<span class="ui-icon ui-icon-alert" style="float: left;"></span> 
 			<span style="color: #ff0000;"><?php echo(__("warning", true).": ".__("the data has been modified", true).". "); echo(" ".__("do not forget to save")."."); //yes, 2 echo, but there is a bug with only one"?></span>
@@ -146,8 +149,7 @@
 <div class="actions">
 	
 </div>
-
-<?php echo $html->css('jQuery/themes/ui-lightness/jquery-ui-1.8.custom')."\n"; ?>
+<div id="popup" class="std_popup"></div>
 <style type="text/css">
 .dragme{
 	list-style-type:none;
@@ -214,13 +216,15 @@ var orgItems = '([<?php
 			.'"x" : "'.$display_data['x'].'", '
 			.'"y" : "'.$display_data['y'].'", '
 			.'"label" : "'.$display_data['label'].'", '
+			.'"link" : "'.$display_data['link'].'", '
+			.'"icon_name" : "'.$display_data['icon_name'].'", '
 			.'"type" : "'.$display_data['type'].'"}');
 	}
 ?>])';
 
 var removeString = "<?php echo(__("remove")); ?>";
 var unclassifyString = "<?php echo(__("unclassify")); ?>";
+var detailString = "<?php echo(__("detail")); ?>";
+var loadingStr = "<?php __("loading"); ?>";
+var storageLayout = true;
 </script>
-<?php
-echo $javascript->link('storage_layout')."\n";
-?>

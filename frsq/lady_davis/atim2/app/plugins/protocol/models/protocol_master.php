@@ -22,14 +22,13 @@ class ProtocolMaster extends ProtocolAppModel {
 			
 			$return = array(
 				'Summary'	 => array(
-					'menu'			=>	array( NULL, $result['ProtocolMaster']['code']),
+					'menu'			=>	array( NULL, __($result['ProtocolMaster']['type'], TRUE) . ' - ' . $result['ProtocolMaster']['code']),
 					'title'			=>	array( NULL, $result['ProtocolMaster']['code']),
 					
 					'description'	=>	array(
 						__('tumour group', TRUE)		=>	__($result['ProtocolMaster']['tumour_group'], TRUE),
 						__('type', TRUE)		=>	__($result['ProtocolMaster']['type'], TRUE),
-						__('name', TRUE)		=>	$result['ProtocolMaster']['name'],
-						__('arm', TRUE)	    =>  $result['ProtocolMaster']['arm']
+						__('code', TRUE)		=>	$result['ProtocolMaster']['code']
 					)
 				)
 			);
@@ -48,12 +47,14 @@ class ProtocolMaster extends ProtocolAppModel {
 	 * @since 2010-05-26
 	 * @updated N. Luc
 	 */  	
-	function getProtocolPermissibleValuesFromId() {
+	function getProtocolPermissibleValuesFromId($protocol_control_id = null) {
 		$result = array();
 
 		// Build tmp array to sort according translation
-		foreach($this->find('all', array('order' => 'ProtocolMaster.code')) as $new_protocol) {
-			$result[] = array('value' => $new_protocol['ProtocolMaster']['id'], 'default' => $new_protocol['ProtocolMaster']['code'] . ' : ' . (empty($new_protocol['ProtocolMaster']['name'])? '-' : $new_protocol['ProtocolMaster']['name']));
+		$criteria = array();
+		if(!is_null($protocol_control_id)) { $criteria['ProtocolMaster.protocol_control_id'] = $protocol_control_id; } 
+		foreach($this->find('all', array('conditions' => $criteria, 'order' => 'ProtocolMaster.code')) as $new_protocol) {
+			$result[] = array('value' => $new_protocol['ProtocolMaster']['id'], 'default' => __($new_protocol['ProtocolMaster']['type'], true) . ' : ' . $new_protocol['ProtocolMaster']['code'] . ' (' . (empty($new_protocol['ProtocolMaster']['name'])? '-' : $new_protocol['ProtocolMaster']['name']) . ')');
 		}
 				
 		return $result;
@@ -63,7 +64,6 @@ class ProtocolMaster extends ProtocolAppModel {
 	 * Check if a record can be deleted.
 	 * 
 	 * @param $protocol_master_id Id of the studied record.
-	 * @param $protocol_extend_tablename
 	 * 
 	 * @return Return results as array:
 	 * 	['allow_deletion'] = true/false
@@ -74,18 +74,12 @@ class ProtocolMaster extends ProtocolAppModel {
 	 * @moved from controller to model on 2010-06-08 by Mich
 	 */
 	 
-	function isUsedByTreatment($protocol_master_id, $protocol_extend_tablename){
+	function isLinkedToTreatment($protocol_master_id){
 		App::import('Model', "Clinicalannotation.TreatmentMaster");
 		$this->TreatmentMaster = new TreatmentMaster();	
 		$nbr_trt_masters = $this->TreatmentMaster->find('count', array('conditions'=>array('TreatmentMaster.protocol_master_id'=>$protocol_master_id), 'recursive' => '-1'));
 		if ($nbr_trt_masters > 0){
 			return array('is_used' => true, 'msg' => 'protocol is defined as protocol of at least one participant treatment'); 
-		}
-		
-		$this->ProtocolExtend = new ProtocolExtend(false, $protocol_extend_tablename);
-		$nbr_extends = $this->ProtocolExtend->find('count', array('conditions'=>array('ProtocolExtend.protocol_master_id'=>$protocol_master_id), 'recursive' => '-1'));
-		if ($nbr_extends > 0){
-			return array('is_used' => true, 'msg' => 'at least one drug is defined as protocol component'); 
 		}
 		
 		return array('is_used' => false, 'msg' => '');

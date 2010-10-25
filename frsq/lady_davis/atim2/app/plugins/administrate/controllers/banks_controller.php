@@ -12,7 +12,7 @@ class BanksController extends AdministrateAppController {
 		
 		if ( !empty($this->data) ) {
 			
-			if ( $this->Bank->save($this->data) ) $this->flash( 'your data has been updated','/administrate/banks/detail/'.$this->Bank->id );
+			if ( $this->Bank->save($this->data) ) $this->atimFlash( 'your data has been updated','/administrate/banks/detail/'.$this->Bank->id );
 		}
 	}
 	
@@ -34,7 +34,7 @@ class BanksController extends AdministrateAppController {
 		
 		if ( !empty($this->data) ) {
 			$this->Bank->id = $bank_id;
-			if ( $this->Bank->save($this->data) ) $this->flash( 'your data has been updated','/administrate/banks/detail/'.$bank_id );
+			if ( $this->Bank->save($this->data) ) $this->atimFlash( 'your data has been updated','/administrate/banks/detail/'.$bank_id );
 		} else {
 			$this->data = $this->Bank->find('first',array('conditions'=>array('Bank.id'=>$bank_id)));
 		}
@@ -46,7 +46,7 @@ class BanksController extends AdministrateAppController {
 			$this->flash( 'this bank is being used and cannot be deleted', '/administrate/banks/detail/'.$bank_id."/" );
 		}else{
 			$this->Bank->del( $bank_id );
-			$this->flash( 'your data has been deleted', '/administrate/banks/index' );
+			$this->atimFlash( 'your data has been deleted', '/administrate/banks/index' );
 		}
 	}
 }

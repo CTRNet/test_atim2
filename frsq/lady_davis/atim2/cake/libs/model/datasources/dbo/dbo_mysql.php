@@ -1,29 +1,23 @@
 <?php
-/* SVN FILE: $Id$ */
 /**
  * MySQL layer for DBO
  *
- * Long description for file
- *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) :  Rapid Development Framework (http://www.cakephp.org)
- * Copyright 2005-2010, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
+ * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
+ * Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @filesource
- * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
- * @link          http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
+ * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link          http://cakephp.org CakePHP(tm) Project
  * @package       cake
  * @subpackage    cake.cake.libs.model.datasources.dbo
  * @since         CakePHP(tm) v 0.10.5.1790
- * @version       $Revision$
- * @modifiedby    $LastChangedBy$
- * @lastmodified  $Date$
- * @license       http://www.opensource.org/licenses/mit-license.php The MIT License
+ * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
+
 /**
  * Provides common base for MySQL & MySQLi connections
  *
@@ -31,24 +25,28 @@
  * @subpackage    cake.cake.libs.model.datasources.dbo
  */
 class DboMysqlBase extends DboSource {
+
 /**
  * Description property.
- * 
+ *
  * @var string
  */
 	var $description = "MySQL DBO Base Driver";
+
 /**
  * Start quote
  *
  * @var string
  */
 	var $startQuote = "`";
+
 /**
  * End quote
  *
  * @var string
  */
 	var $endQuote = "`";
+
 /**
  * use alias for update and delete. Set to true if version >= 4.1
  *
@@ -56,6 +54,7 @@ class DboMysqlBase extends DboSource {
  * @access protected
  */
 	var $_useAlias = true;
+
 /**
  * Index of basic SQL commands
  *
@@ -67,6 +66,31 @@ class DboMysqlBase extends DboSource {
 		'commit'   => 'COMMIT',
 		'rollback' => 'ROLLBACK'
 	);
+
+/**
+ * List of engine specific additional field parameters used on table creating
+ *
+ * @var array
+ * @access public
+ */
+	var $fieldParameters = array(
+		'charset' => array('value' => 'CHARACTER SET', 'quote' => false, 'join' => ' ', 'column' => false, 'position' => 'beforeDefault'),
+		'collate' => array('value' => 'COLLATE', 'quote' => false, 'join' => ' ', 'column' => 'Collation', 'position' => 'beforeDefault'),
+		'comment' => array('value' => 'COMMENT', 'quote' => true, 'join' => ' ', 'column' => 'Comment', 'position' => 'afterDefault')
+	);
+
+/**
+ * List of table engine specific parameters used on table creating
+ *
+ * @var array
+ * @access public
+ */
+	var $tableParameters = array(
+		'charset' => array('value' => 'DEFAULT CHARSET', 'quote' => false, 'join' => '=', 'column' => 'charset'),
+		'collate' => array('value' => 'COLLATE', 'quote' => false, 'join' => '=', 'column' => 'Collation'),
+		'engine' => array('value' => 'ENGINE', 'quote' => false, 'join' => '=', 'column' => 'Engine')
+	);
+
 /**
  * MySQL column definition
  *
@@ -85,6 +109,7 @@ class DboMysqlBase extends DboSource {
 		'binary' => array('name' => 'blob'),
 		'boolean' => array('name' => 'tinyint', 'limit' => '1')
 	);
+
 /**
  * Returns an array of the fields in given table name.
  *
@@ -162,6 +187,7 @@ class DboMysqlBase extends DboSource {
 		}
 		return true;
 	}
+
 /**
  * Generates and executes an SQL DELETE statement for given id/conditions on given model.
  *
@@ -192,6 +218,7 @@ class DboMysqlBase extends DboSource {
 		}
 		return true;
 	}
+
 /**
  * Sets the database encoding
  *
@@ -200,6 +227,7 @@ class DboMysqlBase extends DboSource {
 	function setEncoding($enc) {
 		return $this->_execute('SET NAMES ' . $enc) != false;
 	}
+
 /**
  * Returns an array of the indexes in given datasource name.
  *
@@ -232,6 +260,7 @@ class DboMysqlBase extends DboSource {
 		}
 		return $index;
 	}
+
 /**
  * Generate a MySQL Alter Table syntax for the given Schema comparison
  *
@@ -245,7 +274,7 @@ class DboMysqlBase extends DboSource {
 		$out = '';
 		$colList = array();
 		foreach ($compare as $curTable => $types) {
-			$indexes = array();
+			$indexes = $tableParameters = array();
 			if (!$table || $table == $curTable) {
 				$out .= 'ALTER TABLE ' . $this->fullTableName($curTable) . " \n";
 				foreach ($types as $type => $column) {
@@ -253,13 +282,17 @@ class DboMysqlBase extends DboSource {
 						$indexes[$type] = $column['indexes'];
 						unset($column['indexes']);
 					}
+					if (isset($column['tableParameters'])) {
+						$tableParameters[$type] = $column['tableParameters'];
+						unset($column['tableParameters']);
+					}
 					switch ($type) {
 						case 'add':
 							foreach ($column as $field => $col) {
 								$col['name'] = $field;
-								$alter = 'ADD '.$this->buildColumn($col);
+								$alter = 'ADD ' . $this->buildColumn($col);
 								if (isset($col['after'])) {
-									$alter .= ' AFTER '. $this->name($col['after']);
+									$alter .= ' AFTER ' . $this->name($col['after']);
 								}
 								$colList[] = $alter;
 							}
@@ -267,7 +300,7 @@ class DboMysqlBase extends DboSource {
 						case 'drop':
 							foreach ($column as $field => $col) {
 								$col['name'] = $field;
-								$colList[] = 'DROP '.$this->name($field);
+								$colList[] = 'DROP ' . $this->name($field);
 							}
 						break;
 						case 'change':
@@ -275,17 +308,19 @@ class DboMysqlBase extends DboSource {
 								if (!isset($col['name'])) {
 									$col['name'] = $field;
 								}
-								$colList[] = 'CHANGE '. $this->name($field).' '.$this->buildColumn($col);
+								$colList[] = 'CHANGE ' . $this->name($field) . ' ' . $this->buildColumn($col);
 							}
 						break;
 					}
 				}
 				$colList = array_merge($colList, $this->_alterIndexes($curTable, $indexes));
-				$out .= "\t" . implode(",\n\t", $colList) . ";\n\n";
+				$colList = array_merge($colList, $this->_alterTableParameters($curTable, $tableParameters));
+				$out .= "\t" . join(",\n\t", $colList) . ";\n\n";
 			}
 		}
 		return $out;
 	}
+
 /**
  * Generate a MySQL "drop table" statement for the given Schema object
  *
@@ -307,13 +342,29 @@ class DboMysqlBase extends DboSource {
 		}
 		return $out;
 	}
+
+/**
+ * Generate MySQL table parameter alteration statementes for a table.
+ *
+ * @param string $table Table to alter parameters for.
+ * @param array $parameters Parameters to add & drop.
+ * @return array Array of table property alteration statementes.
+ * @todo Implement this method.
+ */
+	function _alterTableParameters($table, $parameters) {
+		if (isset($parameters['change'])) {
+			return $this->buildTableParameters($parameters['change']);
+		}
+		return array();
+	}
+
 /**
  * Generate MySQL index alteration statements for a table.
  *
  * @param string $table Table to alter indexes for
  * @param array $new Indexes to add and drop
  * @return array Index alteration statements
- */	
+ */
 	function _alterIndexes($table, $indexes) {
 		$alter = array();
 		if (isset($indexes['drop'])) {
@@ -348,6 +399,7 @@ class DboMysqlBase extends DboSource {
 		}
 		return $alter;
 	}
+
 /**
  * Inserts multiple values into a table
  *
@@ -363,6 +415,38 @@ class DboMysqlBase extends DboSource {
 		$values = implode(', ', $values);
 		$this->query("INSERT INTO {$table} ({$fields}) VALUES {$values}");
 	}
+/**
+ * Returns an detailed array of sources (tables) in the database.
+ *
+ * @param string $name Table name to get parameters 
+ * @return array Array of tablenames in the database
+ */
+	function listDetailedSources($name = null) {
+		$condition = '';
+		if (is_string($name)) {
+			$condition = ' LIKE ' . $this->value($name);
+		}
+		$result = $this->query('SHOW TABLE STATUS FROM ' . $this->name($this->config['database']) . $condition . ';');
+		if (!$result) {
+			return array();
+		} else {
+			$tables = array();
+			foreach ($result as $row) {
+				$tables[$row['TABLES']['Name']] = $row['TABLES'];
+				if (!empty($row['TABLES']['Collation'])) {
+					$charset = $this->getCharsetName($row['TABLES']['Collation']);
+					if ($charset) {
+						$tables[$row['TABLES']['Name']]['charset'] = $charset;
+					}
+				}
+			}
+			if (is_string($name)) {
+				return $tables[$name];
+			}
+			return $tables;
+		}
+	}
+
 /**
  * Converts database-layer column types to basic types
  *
@@ -421,12 +505,14 @@ class DboMysqlBase extends DboSource {
  * @subpackage    cake.cake.libs.model.datasources.dbo
  */
 class DboMysql extends DboMysqlBase {
+
 /**
- * Enter description here...
+ * Datasource description
  *
- * @var unknown_type
+ * @var string
  */
 	var $description = "MySQL DBO Driver";
+
 /**
  * Base configuration settings for MySQL driver
  *
@@ -438,9 +524,9 @@ class DboMysql extends DboMysqlBase {
 		'login' => 'root',
 		'password' => '',
 		'database' => 'cake',
-		'port' => '3306',
-		'connect' => 'mysql_pconnect'
+		'port' => '3306'
 	);
+
 /**
  * Connects to the database using options in the given configuration array.
  *
@@ -449,33 +535,39 @@ class DboMysql extends DboMysqlBase {
 	function connect() {
 		$config = $this->config;
 		$this->connected = false;
-
+	
 		if (!$config['persistent']) {
-			$this->connection = mysql_connect($config['host'] . ':' . $config['port'], $config['login'], $config['password'], true) or die("Failed to connect to database");
+			$this->connection = mysql_connect($config['host'] . ':' . $config['port'], $config['login'], $config['password'], true) 
+				//ATIM 2
+				or die("Failed to connect to database");
 			$config['connect'] = 'mysql_connect';
 		} else {
-			$this->connection = mysql_pconnect($config['host'] . ':' . $config['port'], $config['login'], $config['password']) or die("Failed to connect to database");
+			$this->connection = mysql_pconnect($config['host'] . ':' . $config['port'], $config['login'], $config['password']) 
+				//ATIM 2
+				or die("Failed to connect to database");
 		}
-
+	
 		if (mysql_select_db($config['database'], $this->connection)) {
 			$this->connected = true;
 		}else{
+			//ATIM 2
 			die("Failed to select database schema");
 		}
-
+	
 		if (!empty($config['encoding'])) {
 			$this->setEncoding($config['encoding']);
 		}
-
+	
 		$this->_useAlias = (bool)version_compare(mysql_get_server_info($this->connection), "4.1", ">=");
-
+	
 		return $this->connected;
 	}
+
 /**
  * Check whether the MySQL extension is installed/loaded
  *
  * @return boolean
- **/
+ */
 	function enabled() {
 		return extension_loaded('mysql');
 	}
@@ -491,6 +583,7 @@ class DboMysql extends DboMysqlBase {
 		$this->connected = !@mysql_close($this->connection);
 		return !$this->connected;
 	}
+
 /**
  * Executes given SQL statement.
  *
@@ -501,6 +594,7 @@ class DboMysql extends DboMysqlBase {
 	function _execute($sql) {
 		return mysql_query($sql, $this->connection);
 	}
+
 /**
  * Returns an array of sources (tables) in the database.
  *
@@ -518,13 +612,14 @@ class DboMysql extends DboMysqlBase {
 		} else {
 			$tables = array();
 
-			while ($line = mysql_fetch_array($result)) {
+			while ($line = mysql_fetch_row($result)) {
 				$tables[] = $line[0];
 			}
 			parent::listSources($tables);
 			return $tables;
 		}
 	}
+
 /**
  * Returns a quoted and escaped string of $data for use in an SQL statement.
  *
@@ -569,6 +664,7 @@ class DboMysql extends DboMysqlBase {
 		}
 		return $data;
 	}
+
 /**
  * Returns a formatted error message from previous database operation.
  *
@@ -580,6 +676,7 @@ class DboMysql extends DboMysqlBase {
 		}
 		return null;
 	}
+
 /**
  * Returns number of affected rows in previous database operation. If no previous operation exists,
  * this returns false.
@@ -592,6 +689,7 @@ class DboMysql extends DboMysqlBase {
 		}
 		return null;
 	}
+
 /**
  * Returns number of rows in previous resultset. If no previous resultset exists,
  * this returns false.
@@ -604,6 +702,7 @@ class DboMysql extends DboMysqlBase {
 		}
 		return null;
 	}
+
 /**
  * Returns the ID generated from the previous INSERT operation.
  *
@@ -618,6 +717,7 @@ class DboMysql extends DboMysqlBase {
 
 		return null;
 	}
+
 /**
  * Enter description here...
  *
@@ -634,9 +734,8 @@ class DboMysql extends DboMysqlBase {
 		$j = 0;
 
 		while ($j < $numFields) {
-
-			$column = mysql_fetch_field($results,$j);
-			if (!empty($column->table)) {
+			$column = mysql_fetch_field($results, $j);
+			if (!empty($column->table) && strpos($column->name, $this->virtualFieldSeparator) === false) {
 				$this->map[$index++] = array($column->table, $column->name);
 			} else {
 				$this->map[$index++] = array(0, $column->name);
@@ -644,6 +743,7 @@ class DboMysql extends DboMysqlBase {
 			$j++;
 		}
 	}
+
 /**
  * Fetches the next row from the current result set
  *
@@ -663,6 +763,7 @@ class DboMysql extends DboMysqlBase {
 			return false;
 		}
 	}
+
 /**
  * Gets the database encoding
  *
@@ -671,5 +772,20 @@ class DboMysql extends DboMysqlBase {
 	function getEncoding() {
 		return mysql_client_encoding($this->connection);
 	}
+
+/**
+ * Query charset by collation
+ *
+ * @param string $name Collation name
+ * @return string Character set name
+ */
+	function getCharsetName($name) {
+		if ((bool)version_compare(mysql_get_server_info($this->connection), "5", ">=")) {
+			$cols = $this->query('SELECT CHARACTER_SET_NAME FROM INFORMATION_SCHEMA.COLLATIONS WHERE COLLATION_NAME= ' . $this->value($name) . ';');
+			if (isset($cols[0]['COLLATIONS']['CHARACTER_SET_NAME'])) {
+				return $cols[0]['COLLATIONS']['CHARACTER_SET_NAME'];
+			}
+		}
+		return false;
+	}
 }
-?>

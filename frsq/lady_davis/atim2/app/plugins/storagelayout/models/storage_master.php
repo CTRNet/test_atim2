@@ -55,37 +55,33 @@ class StorageMaster extends StoragelayoutAppModel {
 	*/
 	
 	function getParentStoragePermissibleValues($excluded_storage_master_id = null) {	
-		// Find control ID for all storages of type TMA. These will be excluded from the returned array
+		
+		// Get all storage records according to following exclusion criteria
+		$criteria = array();
+		
+		//1-Find control ID for all storages of type TMA: TMA will be removed from the returned array
 		App::import('Model','Storagelayout.StorageControl');
 		$storage_ctrl = new StorageControl();
 		$arr_tma_control_ids = $storage_ctrl->find('list', array('conditions' => array('StorageControl.is_tma_block' => 'TRUE')));
 			
-		// Get all storage records excluding those of type TMA
-		$arr_storages_list = $this->atim_list(array('conditions' => array('NOT' => array('StorageMaster.storage_control_id' => $arr_tma_control_ids)), 'order' => array('StorageMaster.selection_label')));
+		$criteria['NOT'] = 	array('StorageMaster.storage_control_id' => $arr_tma_control_ids);
 		
+		//2-The storage defined as 'exclued' plus all its childrens will be removed from the array 
+		if(!is_null($excluded_storage_master_id)){
+			$excluded_storage = $this->find('first', array('conditions' => array('StorageMaster.id' => $excluded_storage_master_id), 'recursive' => '-1'));
+			$criteria[] =  "StorageMaster.lft NOT BETWEEN ".$excluded_storage['StorageMaster']['lft']." AND ".$excluded_storage['StorageMaster']['rght'];
+			$criteria[] =  "StorageMaster.rght NOT BETWEEN ".$excluded_storage['StorageMaster']['lft']." AND ".$excluded_storage['StorageMaster']['rght'];
+		}
+		
+		$arr_storages_list = $this->atim_list(array('conditions' => $criteria, 'order' => array('StorageMaster.selection_label'), 'recursive' => '-1'));			
 		if(empty($arr_storages_list)) {
 			// No Storage exists in the system
-			return array();	
+			return array(array('value' => '0', 'default' => __('n/a', true)));	
 		}					
 		
-		// The defined storage plus all its childrens that should be removed from the array
-		$ids_to_remove = array();
-		if(!is_null($excluded_storage_master_id)){
-			$ids_to_remove = array($excluded_storage_master_id => $excluded_storage_master_id);
-		}
-		$studied_parent_ids = $ids_to_remove;
-		
-		while(!empty($studied_parent_ids)){
-			$children_ids = $this->find('list', array('conditions' => array('StorageMaster.parent_id' => $studied_parent_ids)));
-			$ids_to_remove += $children_ids;
-			$studied_parent_ids = $children_ids;
-		}
-		
-		$res = array_diff_key($arr_storages_list, $ids_to_remove);
-
 		$formatted_data = array(array('value' => '0', 'default' => __('n/a', true)));
-		if(!empty($res)) {
-			foreach ($res as $storage_id => $storage_data) {
+		if(!empty($arr_storages_list)) {
+			foreach ($arr_storages_list as $storage_id => $storage_data) {
 				$formatted_data[] = array(
 					'value' => $storage_id, 
 					'default' => $this->createStorageTitleForDisplay($storage_data));

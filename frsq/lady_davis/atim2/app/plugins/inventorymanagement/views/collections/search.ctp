@@ -1,24 +1,33 @@
 <?php 
 
 	$search_type_links = array();
-	$search_type_links['collections'] = '/inventorymanagement/collections/index/';
-	$search_type_links['samples'] = '/inventorymanagement/sample_masters/index/';
-	$search_type_links['aliquots'] = '/inventorymanagement/aliquot_masters/index/';
+	$search_type_links['collections'] = array('link'=> '/inventorymanagement/collections/index/', 'icon' => 'search');
+	$search_type_links['samples'] = array('link'=> '/inventorymanagement/sample_masters/index/', 'icon' => 'search');
+	$search_type_links['aliquots'] = array('link'=> '/inventorymanagement/aliquot_masters/index/', 'icon' => 'search');
 	
-	$structure_links = array(
+	$structure_override = array();
+	if(isset($is_ccl_ajax)){
+		$structure_links = array('radiolist' => array("ClinicalCollectionLink.collection_id" => "%%ViewCollection.collection_id%%"));
+		$final_options = array('type' => 'radiolist', 'data' => $collections_data, 'links' => $structure_links, 'override' => $structure_override, 'settings' => array('pagination' => false, 'actions' => false));
+		if(isset($overflow)){
+			?>
+			<ul class="error">
+				<li><?php echo(__("the query returned too many results", true).". ".__("try refining the search parameters", true)); ?>.</li>
+			</ul>
+			<?php 
+		}
+	}else{
+		$structure_links = array(
 		'index' => array('detail' => '/inventorymanagement/collections/detail/%%ViewCollection.collection_id%%'),
 		'bottom' => array(
 			'add collection' => '/inventorymanagement/collections/add', 
-			'new search' => array(
-				'link' => $search_type_links['collections'], 
-				'icon' => 'search'),			
-			'new search type' => $search_type_links)
-	);
-	
-	$structure_override = array();
+			'new search' => $search_type_links)
+		);
+		$final_options = array('type' => 'index', 'data' => $collections_data, 'links' => $structure_links, 'override' => $structure_override, 'settings' => array('header' => __('search type', null).': '.__('collections', null)));
+	}
 	
 	$final_atim_structure = $atim_structure;
-	$final_options = array('type' => 'index', 'data' => $collections_data, 'links' => $structure_links, 'override' => $structure_override, 'settings' => array('header' => __('search type', null).': '.__('collections', null)));
+	
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook();

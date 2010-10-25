@@ -101,7 +101,7 @@
  * To use database sessions, execute the SQL file found at /app/config/sql/sessions.sql.
  *
  */
-	Configure::write('Session.save', 'php');
+	Configure::write('Session.save', 'cake');
 /**
  * The name of the table used to store CakePHP database sessions.
  *
@@ -119,12 +119,12 @@
 /**
  * The name of CakePHP's session cookie.
  */
-	Configure::write('Session.cookie', 'CAKEPHP');
+	Configure::write('Session.cookie', 'CAKEPHP_ATIM');
 /**
  * Session time out time (in seconds).
  * Actual value depends on 'Security.level' setting.
  */
-	Configure::write('Session.timeout', '60');
+	Configure::write('Session.timeout', '6');
 /**
  * If set to false, sessions are not automatically started.
  */
@@ -141,12 +141,12 @@
  *
  * 'high'	Session timeout in 'Session.timeout' x 10
  * 'medium'	Session timeout in 'Session.timeout' x 100
- * 'low'		Session timeout in 'Session.timeout' x 300
+ * 'low'		Session timeout in 'Session.timeout' x 1800 (ATiM mod)
  *
  * CakePHP session IDs are also regenerated between requests if
- * 'Security.level' is set to 'high'.
+ * 'Security.level' is set to 'high'. -> which causes session to be disfunctional
  */
-	Configure::write('Security.level', Configure::read('debug') == 0 ? 'high' : 'low');
+	Configure::write('Security.level', Configure::read('debug') == 0 ? 'medium' : 'low');//Setting security to high causes sessions problems
 /**
  * A random string used in security hashing methods.
  */
@@ -170,9 +170,9 @@
  * The classname and database used in CakePHP's
  * access control lists.
  */
- 	App::import('model','AtimAcl');
-	Configure::write('Acl.classname', 'AtimAcl');
-	Configure::write('Acl.database', 'default');
+ 	// App::import('model','AtimAcl');
+	// Configure::write('Acl.classname', 'AtimAcl');
+	// Configure::write('Acl.database', 'default');
 /**
  *
  * Cache Engine Configuration

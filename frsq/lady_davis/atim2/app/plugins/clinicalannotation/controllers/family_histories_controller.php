@@ -5,7 +5,8 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 	var $uses = array(
 		'Clinicalannotation.FamilyHistory',
 		'Clinicalannotation.Participant',
-		'codingicd10.CodingIcd10');
+		'codingicd.CodingIcd10Who',
+		'codingicd.CodingIcd10Ca');
 	
 	var $paginate = array('FamilyHistory'=>array('limit' => pagination_amount,'order'=>'FamilyHistory.relation'));
 	
@@ -47,10 +48,6 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 		// $this->set('atim_menu', $this->Menus->get('/clinicalannotation/family_histories/listall/%%Participant.id%%'));
 		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id));
 		
-		foreach($this->data as &$fh){
-			$fh['FamilyHistory']['primary_icd10_code'] .= " - ".$this->CodingIcd10->getDescription($fh['FamilyHistory']['primary_icd10_code']);
-		}
-		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }
@@ -71,8 +68,6 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 		// $this->set('atim_structure', $this->Structures->get('form', 'familyhistories'));		
 		// $this->set('atim_menu', $this->Menus->get('/clinicalannotation/family_histories/listall/%%Participant.id%%'));		
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'FamilyHistory.id'=>$family_history_id) );
-		
-		$this->data['FamilyHistory']['primary_icd10_code'] .= " - ".$this->CodingIcd10->getDescription($this->data['FamilyHistory']['primary_icd10_code']);
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
@@ -126,7 +121,7 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 				// 4- SAVE
 				
 				if ( $this->FamilyHistory->save($this->data) ) {
-					$this->flash( 'your data has been saved','/clinicalannotation/family_histories/detail/'.$participant_id.'/'.$this->FamilyHistory->id );
+					$this->atimFlash( 'your data has been saved','/clinicalannotation/family_histories/detail/'.$participant_id.'/'.$this->FamilyHistory->id );
 				}				
 			}
 		}
@@ -176,7 +171,7 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 				
 				$this->FamilyHistory->id = $family_history_id;
 				if ( $this->FamilyHistory->save($this->data) ) {
-					$this->flash( 'your data has been updated','/clinicalannotation/family_histories/detail/'.$participant_id.'/'.$family_history_id );
+					$this->atimFlash( 'your data has been updated','/clinicalannotation/family_histories/detail/'.$participant_id.'/'.$family_history_id );
 				}				
 			}
 		}
@@ -203,7 +198,7 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 			
 			$flash_link = '/clinicalannotation/family_histories/listall/'.$participant_id;
 			if ($this->FamilyHistory->atim_delete($family_history_id)) {
-				$this->flash( 'your data has been deleted', $flash_link );
+				$this->atimFlash( 'your data has been deleted', $flash_link );
 			} else {
 				$this->flash( 'error deleting data - contact administrator', $flash_link );
 			}	

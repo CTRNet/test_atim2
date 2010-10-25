@@ -11,7 +11,7 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 		
 		'Inventorymanagement.AliquotMaster');
 	
-	var $paginate = array('StorageCoordinate' => array('limit' => 10,'order' => 'StorageCoordinate.order ASC'));
+	var $paginate = array('StorageCoordinate' => array('limit' => pagination_amount,'order' => 'StorageCoordinate.order ASC'));
 
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS
@@ -95,7 +95,7 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 			if($submitted_data_validates) {
 				// Save data		
 				if ($this->StorageCoordinate->save($this->data['StorageCoordinate'])) {
-					$this->flash('your data has been saved', '/storagelayout/storage_coordinates/listAll/' . $storage_master_id);				
+					$this->atimFlash('your data has been saved', '/storagelayout/storage_coordinates/listAll/' . $storage_master_id);				
 				}
 			}
 		}
@@ -132,7 +132,7 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 		if($arr_allow_deletion['allow_deletion']) {
 			// Delete coordinate
 			if($this->StorageCoordinate->atim_delete($storage_coordinate_id)) {
-				$this->flash('your data has been deleted', $flash_url);
+				$this->atimFlash('your data has been deleted', $flash_url);
 			} else {
 				$this->flash('error deleting data - contact administrator', $flash_url);
 			}		

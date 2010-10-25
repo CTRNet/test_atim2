@@ -17,41 +17,50 @@ class BatchSet extends DatamartAppModel {
 	);
 	
 	function summary( $variables=array() ) {
-		$return = false;
-		
-		// information about GROUP batch sets
-		if ( isset($variables['Param.Group']) ) {
+		$return = array(
+			'Summary' => array(
+				'menu' => array(null)));
 			
-			$return = array(
-				'Summary' => array(
-					'menu'			=>	array( NULL, 'Group' ),
-					'title'			=>	array( NULL, 'Batch Sets' ),
+		if(isset($variables['Param.Type_Of_List']) && empty($variables['BatchSet.id'])) {
+			switch($variables['Param.Type_Of_List']) {
+				case 'group':
+					$return['Summary']['menu'] = array('group batch sets');
+					break;
+				case 'user':
+					$return['Summary']['menu'] = array('my batch sets');
+					break;
+				case 'all':
+					$return['Summary']['menu'] = array('all batch sets');
+					break;
+				default:	
+			}	
+		}
 					
-					'description'	=>	array(
-						'filter'			=>	'Group'
-					)
-				)
-			);
-			
-		} 
-		
-		// information about USER's batch sets
-		else {
-			
-			$return = array(
-				'Summary' => array(
-					'menu'			=>	array( NULL, $_SESSION['Auth']['User']['name'] ),
-					'title'			=>	array( NULL, 'Batch Sets' ),
-					
-					'description'	=>	array(
-						'filter'			=>	$_SESSION['Auth']['User']['name']
-					)
-				)
-			);
-			
+		if ( isset($variables['BatchSet.id']) && (!empty($variables['BatchSet.id'])) ) {
+			$batchset_data = $this->find('first', array('conditions'=>array('BatchSet.id' => $variables['BatchSet.id'])));
+			if(!empty($batchset_data)) {
+				$return['Summary']['title'] = array(null, __('batchset information', null));
+				$return['Summary']['description'] = array(
+					__('title', true) => $batchset_data['BatchSet']['title'],
+					__('model', true) => $batchset_data['BatchSet']['model'],
+					__('created', true) => $batchset_data['BatchSet']['created']);	
+			}
 		}
 		
 		return $return;
+	}
+	
+	function getBatchSet($batch_set_id){
+		$conditions = array(
+			'BatchSet.id' => $batch_set_id,
+			
+			'or'	=> array(
+				'BatchSet.group_id'	=> $_SESSION['Auth']['User']['group_id'],
+				'BatchSet.user_id'	=> $_SESSION['Auth']['User']['id']
+			)
+		);
+		$batch_set = $this->find( 'first', array( 'conditions'=>$conditions ) );
+		return ($batch_set);
 	}
 	
 }
