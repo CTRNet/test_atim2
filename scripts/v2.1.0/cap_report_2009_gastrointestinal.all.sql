@@ -3857,8 +3857,7 @@ insert ignore into structure_permissible_values (value, language_alias) values
 ('mass-forming','mass-forming'),
 ('periductal infiltrating','periductal infiltrating'),
 ('mixed mass-forming and periductal infiltrating','mixed mass-forming and periductal infiltrating'),
-('cannot be determined','cannot be determined'),
-('insert ignore into structure_permissible_values (value, language_alias) values','insert ignore into structure_permissible_values (value, language_alias) values');
+('cannot be determined','cannot be determined');
 
 insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
 values ('tumor_growth_pattern', 'open', '', null);
@@ -3867,8 +3866,7 @@ insert into structure_value_domains_permissible_values (structure_value_domain_i
 values ((select id from structure_value_domains where domain_name='tumor_growth_pattern'), (select id from structure_permissible_values where value='mass-forming'), 1,1, 'mass-forming'),
 ((select id from structure_value_domains where domain_name='tumor_growth_pattern'), (select id from structure_permissible_values where value='periductal infiltrating'), 2,1, 'periductal infiltrating'),
 ((select id from structure_value_domains where domain_name='tumor_growth_pattern'), (select id from structure_permissible_values where value='mixed mass-forming and periductal infiltrating'), 3,1, 'mixed mass-forming and periductal infiltrating'),
-((select id from structure_value_domains where domain_name='tumor_growth_pattern'), (select id from structure_permissible_values where value='cannot be determined'), 4,1, 'cannot be determined'),
-((select id from structure_value_domains where domain_name='tumor_growth_pattern'), (select id from structure_permissible_values where value='insert ignore into structure_permissible_values (value, language_alias) values' ), 5,1, 'insert ignore into structure_permissible_values (value, language_alias) values');
+((select id from structure_value_domains where domain_name='tumor_growth_pattern'), (select id from structure_permissible_values where value='cannot be determined'), 4,1, 'cannot be determined');
 
 update structure_fields
 set structure_value_domain=(select id from structure_value_domains where domain_name='tumor_growth_pattern')
@@ -6880,7 +6878,6 @@ VALUES
 ('mass-forming', 'Mass-forming', ''),
 ('periductal infiltrating', 'Periductal infiltrating', ''),
 ('mixed mass-forming and periductal infiltrating', 'Mixed mass-forming and periductal infiltrating', ''),
-('insert ignore into structure_permissible_values (value, language_alias) values', 'Insert ignore into structure_permissible_values (value, language_alias) values', ''),
 ('hepatocellular carcinoma', 'Hepatocellular carcinoma', ''),
 ('fibrolamellar hepatocellular carcinoma', 'Fibrolamellar hepatocellular carcinoma', ''),
 ('simple cholecystectomy (laparoscopic or open)', 'Simple cholecystectomy (laparoscopic or open)', ''),
@@ -8413,7 +8410,338 @@ insert ignore into i18n (id,en,fr) values
 ('large cell endocrine carcinoma','Large Cell Endocrine Carcinoma',''),
 ('tumor involves posterior retroperitoneal surface of pancreas','Tumor involves posterior retroperitoneal surface of pancreas','');
 
--- #####
+-- #### revision of perihilar bile duct ####
 
-UPDATE diagnosis_controls SET flag_active = '0' WHERE controls_type IN ('cap peport - perihilar bile duct', 'cap report - intrahep bile duct');
+ALTER TABLE dxd_cap_report_perihilarbileducts
+  CHANGE `other` `other_specimen` tinyint(1) DEFAULT '0',
+  CHANGE `other_specify` `other_specimen_specify` varchar(250) DEFAULT NULL,
+  
+  CHANGE `unilateral` `sec_ord_biliary_radical_unilateral` tinyint(1) DEFAULT '0',
+  CHANGE `bilateral` `sec_ord_biliary_radical_bilateral` tinyint(1) DEFAULT '0',
+  CHANGE `cannot_be_assessed` `margin_cannot_be_assessed` tinyint(1) DEFAULT '0'; 
+
+ALTER TABLE dxd_cap_report_perihilarbileducts_revs
+  CHANGE `other` `other_specimen` tinyint(1) DEFAULT '0',
+  CHANGE `other_specify` `other_specimen_specify` varchar(250) DEFAULT NULL,
+  
+  CHANGE `unilateral` `sec_ord_biliary_radical_unilateral` tinyint(1) DEFAULT '0',
+  CHANGE `bilateral` `sec_ord_biliary_radical_bilateral` tinyint(1) DEFAULT '0',
+  CHANGE `cannot_be_assessed` `margin_cannot_be_assessed` tinyint(1) DEFAULT '0';
+
+UPDATE structure_formats SET language_heading = '' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_perihilarbileducts') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_perihilarbileducts' 
+AND field IN ('right_hepatic_duct')); 
+
+UPDATE structure_fields SET field = 'other_specimen' 
+WHERE field = 'other' and tablename = 'dxd_cap_report_perihilarbileducts';
+UPDATE structure_fields SET field = 'other_specimen_specify' 
+WHERE field = 'other_specify' and tablename = 'dxd_cap_report_perihilarbileducts';
+
+UPDATE structure_formats SET language_heading = 'procedure' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_perihilarbileducts') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_perihilarbileducts' 
+AND field = 'procedure'); 
+
+UPDATE structure_formats SET language_heading = 'tumor site' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_perihilarbileducts') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_perihilarbileducts' 
+AND field = 'tumor_site_right_hepatic_duct'); 
+
+UPDATE structure_formats SET flag_override_label = '0', language_label = ''
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_perihilarbileducts') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE tablename = 'diagnosis_masters' 
+AND field IN ('additional_dimension_a', 'tumor_size_greatest_dimension'));  
+
+UPDATE structure_formats SET language_heading = 'histologic type' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_perihilarbileducts') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_perihilarbileducts' 
+AND field = 'histologic_type'); 
+
+UPDATE structure_formats SET language_heading = 'histologic grade' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_perihilarbileducts') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'diagnosis_masters_pbd' 
+AND field = 'tumour_grade'); 
+
+UPDATE structure_fields SET language_tag = language_label, language_label = '' , field ='sec_ord_biliary_radical_unilateral'
+WHERE tablename = 'dxd_cap_report_perihilarbileducts' AND 
+field ='unilateral'; 	
+
+UPDATE structure_fields SET language_tag = language_label, language_label = '' , field ='sec_ord_biliary_radical_bilateral'
+WHERE tablename = 'dxd_cap_report_perihilarbileducts' AND 
+field ='bilateral'; 		
+
+UPDATE structure_fields SET field ='margin_cannot_be_assessed'
+WHERE tablename = 'dxd_cap_report_perihilarbileducts' AND 
+field ='cannot_be_assessed'; 
+
+UPDATE structure_fields SET language_tag = language_label, language_label = '' 
+WHERE tablename = 'dxd_cap_report_perihilarbileducts' AND 
+field IN ('distance_of_invasive_carcinoma_from_closest_margin','specify_margin'); 	
+
+UPDATE structure_formats SET language_heading = 'invasions'
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_perihilarbileducts') 
+AND structure_field_id = (SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_perihilarbileducts' 
+AND field = 'lymph_vascular_invasion');  
+
+UPDATE structure_formats SET language_heading = 'ancillary studies'
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_perihilarbileducts') 
+AND structure_field_id = (SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_perihilarbileducts' 
+AND field = 'ancillary_studies_specify'); 
+
+UPDATE structure_formats SET language_heading = 'other' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_perihilarbileducts') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE model = 'DiagnosisMaster' 
+AND field IN ('notes')); 
+
+insert ignore into i18n (id,en,fr) values
+('bilateral','Bilateral',''),
+('unilateral', 'Unilateral', ''),
+('hepatic parenchymal margin','Hepatic Parenchymal Margin',''),
+('primary sclerosing cholangitis (PSC)','Primary Sclerosing Cholangitis (PSC)',''),
+('PSC','PSC',''),
+('tumor invades common hepatic artery','Tumor invades common hepatic artery',''),
+('tumor invades into surrounding connective tissue','Tumor invades into surrounding connective tissue',''),
+('tumor invades second order biliary radicals','Tumor invades second order biliary radicals',''),
+('tumor invades the adjacent liver parenchyma','Tumor invades the adjacent liver parenchyma',''),
+('tumor invades main portal vein or its branches bilaterally', 'Tumor invades main portal vein or its branches bilaterally',''),
+('tumor invades the unilateral branches of the hepatic artery', 'Tumor invades the unilateral branches of the hepatic artery',''),
+('tumor invades the unilateral branches of the portal vein', 'Tumor invades the unilateral branches of the portal vein','');
+
+-- #### revision of intrahep bile duct ####
+
+ALTER TABLE dxd_cap_report_intrahepbileducts
+  CHANGE `other` `other_specimen` tinyint(1) DEFAULT '0',
+  CHANGE `other_specify` `other_specimen_specify` varchar(250) DEFAULT NULL,
+  CHANGE `not_specified` `specimen_not_specified` tinyint(1) DEFAULT '0',
+
+  ADD `tumor_focality` varchar(50) DEFAULT NULL AFTER `procedure_not_specified`,
+  ADD `specify_tumor_focality` varchar(250) DEFAULT NULL AFTER `tumor_focality`,
+  DROP COLUMN `solitary`,  
+  DROP COLUMN `specify_location`,     
+  DROP COLUMN `multiple`,   
+  DROP COLUMN `specify_locations`,    
+
+  CHANGE `cannot_be_assessed` `tumor_extension_cannot_be_assessed` tinyint(1) DEFAULT '0',
+  
+  ADD `hepatic_parenchymal_margin` varchar(50) DEFAULT NULL AFTER `tumor_extension_specify`,
+  DROP COLUMN `hp_margin_cannot_be_assessed`,  
+  DROP COLUMN `uninvolved_by_invasive_carcinoma`,  
+  DROP COLUMN `involved_by_invasive_carcinoma`,  
+
+  ADD `bile_duct_margin` varchar(50) DEFAULT NULL AFTER `hp_specify_margin`,
+  ADD `dysplasia_carcinoma_in_situ_data` varchar(50) DEFAULT NULL AFTER `bile_duct_margin`,
+
+  DROP COLUMN `bd_margin_cannot_be_assessed`,  
+  DROP COLUMN `db_margin_uninvolved_by_invasive_carcinoma`,  
+  DROP COLUMN `bd_involved_by_invasive_carcinoma`,  
+
+  DROP COLUMN `dysplasia_carcinoma_in_situ_not_identified`,  
+  DROP COLUMN `dysplasia_carcinoma_in_situ_present`,  
+
+  ADD `other_margin` varchar(50) DEFAULT NULL AFTER `dysplasia_carcinoma_in_situ_data`,
+  CHANGE `specify_margin` `specify_other_margin` varchar(250) DEFAULT NULL,
+
+  DROP COLUMN `special_margin_cannot_be_assessed`,  
+  DROP COLUMN `special_margin_uninvolved_by_invasive_carcinoma`,  
+  DROP COLUMN `special_margin_involved_by_invasive_carcinoma`; 
+  
+ALTER TABLE dxd_cap_report_intrahepbileducts_revs
+  CHANGE `other` `other_specimen` tinyint(1) DEFAULT '0',
+  CHANGE `other_specify` `other_specimen_specify` varchar(250) DEFAULT NULL,
+  CHANGE `not_specified` `specimen_not_specified` tinyint(1) DEFAULT '0',
+
+  ADD `tumor_focality` varchar(50) DEFAULT NULL AFTER `procedure_not_specified`,
+  ADD `specify_tumor_focality` varchar(250) DEFAULT NULL AFTER `tumor_focality`,
+  DROP COLUMN `solitary`,  
+  DROP COLUMN `specify_location`,     
+  DROP COLUMN `multiple`,   
+  DROP COLUMN `specify_locations`,    
+
+  CHANGE `cannot_be_assessed` `tumor_extension_cannot_be_assessed` tinyint(1) DEFAULT '0',
+  
+  ADD `hepatic_parenchymal_margin` varchar(50) DEFAULT NULL AFTER `tumor_extension_specify`,
+  DROP COLUMN `hp_margin_cannot_be_assessed`,  
+  DROP COLUMN `uninvolved_by_invasive_carcinoma`,  
+  DROP COLUMN `involved_by_invasive_carcinoma`,  
+
+  ADD `bile_duct_margin` varchar(50) DEFAULT NULL AFTER `hp_specify_margin`,
+  ADD `dysplasia_carcinoma_in_situ_data` varchar(50) DEFAULT NULL AFTER `bile_duct_margin`,
+
+  DROP COLUMN `bd_margin_cannot_be_assessed`,  
+  DROP COLUMN `db_margin_uninvolved_by_invasive_carcinoma`,  
+  DROP COLUMN `bd_involved_by_invasive_carcinoma`,  
+
+  DROP COLUMN `dysplasia_carcinoma_in_situ_not_identified`,  
+  DROP COLUMN `dysplasia_carcinoma_in_situ_present`,  
+
+  ADD `other_margin` varchar(50) DEFAULT NULL AFTER `dysplasia_carcinoma_in_situ_data`,
+  CHANGE `specify_margin` `specify_other_margin` varchar(250) DEFAULT NULL,
+
+  DROP COLUMN `special_margin_cannot_be_assessed`,  
+  DROP COLUMN `special_margin_uninvolved_by_invasive_carcinoma`,  
+  DROP COLUMN `special_margin_involved_by_invasive_carcinoma`; 
+
+UPDATE structure_fields SET field = 'other_specimen' 
+WHERE field = 'other' and tablename = 'dxd_cap_report_intrahepbileducts';
+UPDATE structure_fields SET field = 'other_specimen_specify' 
+WHERE field = 'other_specify' and tablename = 'dxd_cap_report_intrahepbileducts';
+UPDATE structure_fields SET field = 'specimen_not_specified' 
+WHERE field = 'not_specified' and tablename = 'dxd_cap_report_intrahepbileducts';
+
+UPDATE structure_formats SET flag_override_label = '0', language_label = ''
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_intrahepbileducts') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE tablename = 'diagnosis_masters' 
+AND field IN ('additional_dimension_a', 'tumor_size_greatest_dimension'));  
+
+UPDATE structure_formats SET language_heading = 'histologic type' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_intrahepbileducts') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_intrahepbileducts' 
+AND field = 'histologic_type'); 
+
+UPDATE structure_formats SET language_heading = 'histologic grade' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_intrahepbileducts') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'diagnosis_masters_ibd' 
+AND field = 'tumour_grade'); 
+ 	
+UPDATE structure_formats SET language_heading = 'tumor growth pattern' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_intrahepbileducts') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_intrahepbileducts' 
+AND field = 'tumor_growth_pattern'); 
+
+DELETE FROM structure_formats 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_intrahepbileducts') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_intrahepbileducts' 
+AND field IN ('solitary', 'specify_location', 'multiple', 'specify_locations')); 
+DELETE FROM structure_fields WHERE tablename = 'dxd_cap_report_intrahepbileducts' 
+AND field IN ('solitary', 'specify_location', 'multiple', 'specify_locations');
+
+insert ignore into structure_permissible_values (value, language_alias) values
+('solitary', 'solitary'),
+('multiple', 'multiple');
+insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
+values ('intra_hepat_bile_ducts_tumor_focality', 'open', '', null);
+SET @id = LAST_INSERT_ID();
+insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
+values 
+(@id, (select id from structure_permissible_values where value='solitary' and language_alias = 'solitary'), 1,1, ''),
+(@id, (select id from structure_permissible_values where value='multiple' and language_alias = 'multiple'), 2,1, '');
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) 
+VALUES
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_intrahepbileducts', 'tumor_focality', 'tumor focality', '', 'select', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name LIKE 'intra_hepat_bile_ducts_tumor_focality') , '', 'open', 'open', 'open'); 
+SET @id = LAST_INSERT_ID();
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='dx_cap_report_intrahepbileducts'), @id, 
+'1', '20', 'tumor focality', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'); 
+ 
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) 
+VALUES
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_intrahepbileducts', 'specify_tumor_focality', 'specify', '', 'input', '', '', NULL, '', 'open', 'open', 'open'); 
+SET @id = LAST_INSERT_ID();
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='dx_cap_report_intrahepbileducts'), @id, 
+'1', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'); 
+  
+UPDATE structure_fields SET field = 'tumor_extension_cannot_be_assessed' 
+WHERE field = 'cannot_be_assessed' and tablename = 'dxd_cap_report_intrahepbileducts';
+ 	
+insert ignore into structure_permissible_values (value, language_alias) values
+('cannot be assessed', 'cannot be assessed'),
+('uninvolved by invasive carcinoma', 'uninvolved by invasive carcinoma'),
+('involved by invasive carcinoma', 'involved by invasive carcinoma');
+insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
+values ('intra_hep_bile_duct_margin_value', 'open', '', null);
+SET @id = LAST_INSERT_ID();
+insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
+values 
+(@id, (select id from structure_permissible_values where value='cannot be assessed' and language_alias = 'cannot be assessed'), 1,1, ''),
+(@id, (select id from structure_permissible_values where value='uninvolved by invasive carcinoma' and language_alias = 'uninvolved by invasive carcinoma'), 2,1, ''),
+(@id, (select id from structure_permissible_values where value='involved by invasive carcinoma' and language_alias = 'involved by invasive carcinoma'), 3,1, '');
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) 
+VALUES
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_intrahepbileducts', 'hepatic_parenchymal_margin', 'margin', '', 'select', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name LIKE 'intra_hep_bile_duct_margin_value') , '', 'open', 'open', 'open'); 
+SET @id = LAST_INSERT_ID();
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='dx_cap_report_intrahepbileducts'), @id, 
+'1', '36', 'hepatic parenchymal margin', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'); 
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) 
+VALUES
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_intrahepbileducts', 'bile_duct_margin', 'margin', '', 'select', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name LIKE 'intra_hep_bile_duct_margin_value') , '', 'open', 'open', 'open'); 
+SET @id = LAST_INSERT_ID();
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='dx_cap_report_intrahepbileducts'), @id, 
+'1', '41', 'bile duct margin', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'); 
+ 
+insert ignore into structure_permissible_values (value, language_alias) values
+('not identified', 'not identified'),
+('present', 'present');
+insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
+values ('dysplasia_carcinoma_in_situ_data', 'open', '', null);
+SET @id = LAST_INSERT_ID();
+insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
+values 
+(@id, (select id from structure_permissible_values where value='not identified' and language_alias = 'not identified'), 1,1, ''),
+(@id, (select id from structure_permissible_values where value='present' and language_alias = 'present'), 2,1, '');
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) 
+VALUES
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_intrahepbileducts', 'dysplasia_carcinoma_in_situ_data', 'dysplasia carcinoma in situ', '', 'select', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name LIKE 'dysplasia_carcinoma_in_situ_data') , '', 'open', 'open', 'open'); 
+SET @id = LAST_INSERT_ID();
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='dx_cap_report_intrahepbileducts'), @id, 
+'1', '42', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'); 
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) 
+VALUES
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_intrahepbileducts', 'other_margin', 'margin', '', 'select', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name LIKE 'intra_hep_bile_duct_margin_value') , '', 'open', 'open', 'open'); 
+SET @id = LAST_INSERT_ID();
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='dx_cap_report_intrahepbileducts'), @id, 
+'1', '47', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'); 
+ 
+UPDATE structure_fields SET field = 'specify_other_margin' 
+WHERE field = 'specify_margin' and tablename = 'dxd_cap_report_intrahepbileducts';
+
+DELETE FROM structure_formats 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_intrahepbileducts') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_intrahepbileducts' 
+AND field IN ('hp_margin_cannot_be_assessed', 'uninvolved_by_invasive_carcinoma', 'involved_by_invasive_carcinoma', 
+'bd_margin_cannot_be_assessed', 'db_margin_uninvolved_by_invasive_carcinoma', 'bd_involved_by_invasive_carcinoma', 
+'special_margin_cannot_be_assessed', 'special_margin_uninvolved_by_invasive_carcinoma', 'special_margin_involved_by_invasive_carcinoma',
+'dysplasia_carcinoma_in_situ_not_identified', 'dysplasia_carcinoma_in_situ_present')); 
+DELETE FROM structure_fields WHERE tablename = 'dxd_cap_report_intrahepbileducts' 
+AND field IN ('hp_margin_cannot_be_assessed', 'uninvolved_by_invasive_carcinoma', 'involved_by_invasive_carcinoma', 
+'bd_margin_cannot_be_assessed', 'db_margin_uninvolved_by_invasive_carcinoma', 'bd_involved_by_invasive_carcinoma', 
+'special_margin_cannot_be_assessed', 'special_margin_uninvolved_by_invasive_carcinoma', 'special_margin_involved_by_invasive_carcinoma',
+'dysplasia_carcinoma_in_situ_not_identified', 'dysplasia_carcinoma_in_situ_present');
+
+UPDATE structure_formats SET language_heading = 'invasions'
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_intrahepbileducts') 
+AND structure_field_id = (SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_intrahepbileducts' 
+AND field = 'lymph_vascular_major_vessel_invasion'); 
+
+UPDATE structure_formats SET language_heading = 'ancillary studies'
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_intrahepbileducts') 
+AND structure_field_id = (SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_intrahepbileducts' 
+AND field = 'ancillary_studies_specify'); 
+
+UPDATE structure_formats SET language_heading = 'other' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_intrahepbileducts') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE model = 'DiagnosisMaster' 
+AND field IN ('notes')); 
+
+insert ignore into i18n (id,en) values
+('dysplasia carcinoma in situ', 'Dysplasia Carcinoma In Situ'),
+('lymph vascular major vessel invasion', 'Lymph Vascular Major Vessel Invasion'),
+('procedure other', 'Other'),
+('procedure other specify', 'Specify'),
+('specify type', 'Specify'),
+('tumor confined to hepatic parenchyma', 'Tumor confined to hepatic parenchyma'),
+('tumor confined to the intrahepatic bile ducts histologically', 'Tumor confined to the intrahepatic bile ducts histologically'),
+('tumor directly invades adjacent organs other than gallbladder', 'Tumor directly invades adjacent organs other than gallbladder'),
+('tumor extension specify', 'Specify'),
+('tumor growth pattern', 'Tumor Growth Pattern'),
+('tumor involves visceral peritoneal surface', 'Tumor involves visceral peritoneal surface');
 
