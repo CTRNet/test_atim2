@@ -9967,7 +9967,7 @@ INSERT IGNORE INTO i18n (id,en) VALUES
 ('BRAF', 'BRAF'),
 ('BRAF result', 'BRAF - Result'),
 ('BRAF specify', 'BRAF - Specify'),
-('cap report - colon/rectum resection', 'Cap Report - Colon/Rectum Resection'),
+('cap report - colon/rectum resection', 'CAP Report - Colon/Rectum (Resection)'),
 ('chronic ulcerative proctocolitis', 'Chronic Ulcerative Proctocolitis'),
 ('circumferential margin', 'Circumferential Margin'),
 ('colon, not otherwise specified', 'Colon, not otherwise specified'),
