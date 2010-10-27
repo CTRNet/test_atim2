@@ -10028,3 +10028,47 @@ INSERT IGNORE INTO i18n (id,en) VALUES
 ('tumor subtype and differentiation', 'Tumor subtype and differentiation'),
 ('type of polyp', 'Type of Polyp'),
 ('uninvolved by adenoma', 'Uninvolved by adenoma');
+
+-- Manage index and search form for databrowser
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '0', sfo.flag_search_readonly = '0', sfo.flag_index = '0'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND s.alias LIKE 'dx_cap_report_%'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '1', sfo.flag_search_readonly = '0', sfo.flag_index = '1'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.plugin = 'Clinicalannotation'
+AND sfi.model IN ('DiagnosisMaster', 'DiagnosisDetail')
+AND sfi.field IN ('histologic_type', 'tumour_grade', 'dx_date', 'path_tstage', 'path_nstage', 'path_mstage')
+AND s.alias LIKE 'dx_cap_report_%'; 
+
+UPDATE diagnosis_controls SET databrowser_label = controls_type WHERE form_alias LIKE 'dx_cap_report_%';
+
+-- Fix issue 1172
+
+ALTER TABLE diagnosis_masters
+	MODIFY COLUMN `tumour_grade` varchar(150) DEFAULT NULL;
+ALTER TABLE dxd_cap_report_ampullas
+	MODIFY COLUMN `proximal_mucosal_margin` varchar(150) DEFAULT NULL,
+	MODIFY COLUMN `distal_margin` varchar(150) DEFAULT NULL,
+	MODIFY COLUMN `pancreatic_retroperitoneal_margin` varchar(150) DEFAULT NULL;
+ALTER TABLE dxd_cap_report_distalexbileducts
+	MODIFY COLUMN `pancreatic_retroperitoneal_margin` varchar(150) DEFAULT NULL;
+ALTER TABLE dxd_cap_report_gallbladders
+	MODIFY COLUMN `microscopic_tumor_extension` varchar(150) DEFAULT NULL;
+	
+ALTER TABLE diagnosis_masters_revs
+	MODIFY COLUMN `tumour_grade` varchar(150) DEFAULT NULL;
+ALTER TABLE dxd_cap_report_ampullas_revs
+	MODIFY COLUMN `proximal_mucosal_margin` varchar(150) DEFAULT NULL,
+	MODIFY COLUMN `distal_margin` varchar(150) DEFAULT NULL,
+	MODIFY COLUMN `pancreatic_retroperitoneal_margin` varchar(150) DEFAULT NULL;
+ALTER TABLE dxd_cap_report_distalexbileducts_revs
+	MODIFY COLUMN `pancreatic_retroperitoneal_margin` varchar(150) DEFAULT NULL;
+ALTER TABLE dxd_cap_report_gallbladders_revs
+	MODIFY COLUMN `microscopic_tumor_extension` varchar(150) DEFAULT NULL;
+
