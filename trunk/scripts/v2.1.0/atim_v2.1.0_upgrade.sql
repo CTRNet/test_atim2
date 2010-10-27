@@ -4,7 +4,7 @@
 
 -- Update version information
 UPDATE `versions` 
-SET `version_number` = 'v2.1.0 (Beta)', `date_installed` = CURDATE(), `build_number` = ''
+SET `version_number` = 'v2.1.0', `date_installed` = CURDATE(), `build_number` = '2068'
 WHERE `versions`.`id` =1;
 
 TRUNCATE `acos`;
