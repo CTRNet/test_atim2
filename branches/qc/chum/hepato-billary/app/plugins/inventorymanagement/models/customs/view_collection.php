@@ -19,7 +19,7 @@ class ViewCollectionCustom extends ViewCollection {
 					'description'=> array(
 						__('participant identifier', true) => $collection_data['ViewCollection']['participant_identifier'],
 						__('collection bank', true) => $collection_data['ViewCollection']['bank_name'],
-						__('no labo', true) => $collection_data['ViewCollection']['no_labo'],
+						__('hepato_bil_bank_participant_id', true) => $collection_data['ViewCollection']['hepato_bil_bank_participant_id'],
 						__('collection datetime', true) => $collection_data['ViewCollection']['collection_datetime'],
 						__('collection site', true) => $collection_data['ViewCollection']['collection_site'].'too'
 					)
