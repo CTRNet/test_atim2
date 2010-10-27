@@ -89,11 +89,11 @@ INSERT INTO `realiquoting_controls` (`id`, `parent_sample_to_aliquot_control_id`
 VALUES 
 (null, @sample_to_aliquot_control_id, @sample_to_aliquot_control_id, '1');
 
-INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES ('cdna', '', 'cDNA', 'DNAc');
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES ('cdna', '', 'cDNA', 'DNAc');
 
 -- Add new message for duplicated aliquot barcodes
 
-INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES ('please check following barcodes', '', 'Please check following barcodes: ', 'Veuillez contrôler les barcodes suivants: ');
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES ('please check following barcodes', '', 'Please check following barcodes: ', 'Veuillez contrôler les barcodes suivants: ');
 
 
 -- datamart browser
@@ -327,7 +327,7 @@ UPDATE menus SET language_title = 'participant collections list', language_descr
 WHERE id = 'clin_CAN_67'; --  link to collection
 
 DELETE FROM `i18n` WHERE `id` IN ('participant inventory', 'participant samples and aliquots list', 'participant collections list');
-INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) 
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) 
 VALUES 
 ('participant inventory', '', 'Inventory', 'Inventaire'),
 ('participant samples and aliquots list', '', 'Summary', 'Résumé'),
@@ -528,7 +528,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 UPDATE menus SET language_title = 'precision', language_description = 'precision' WHERE id = 'proto_CAN_83';
 
-INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('no additional data has to be defined for this type of protocol', '', 'No additional data has to be defined for this type of protocol!', 'Pas de données additionnelles pour ce type de protocole!');
 
 ALTER TABLE `tx_controls` 
@@ -1183,7 +1183,7 @@ CREATE TABLE IF NOT EXISTS `ar_breast_tissue_slides_revs` (
 INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_title`, `language_description`, `use_link`, `use_params`, `use_summary`, `flag_active`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 ('inv_CAN_225', 'inv_CAN_21', 0, 5, 'specimen review', NULL, '/inventorymanagement/specimen_reviews/listAll/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%', '', 'Inventorymanagement.SampleMaster::specimenSummary', 1, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
 
-INSERT INTO i18n (id, en, fr)
+INSERT IGNORE INTO i18n (id, en, fr)
 VALUE ('specimen review', 'Path Review', 'Rapport d''histologie');
 
 -- build spr_breast_cancer_types
@@ -2438,7 +2438,7 @@ WHERE `model` = 'EventDetail' AND `tablename` = 'ed_all_clinical_presentation' A
  
 -- Change orderline selection to add aliquot to order
 
-INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
+INSERT IGNORE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('no order line to complete is actually defined', 'No order line to complete is actually defined!', 'Aucune ligne de commande à compléter n''est actuellement définie!'); 
  
 INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) 
@@ -2469,24 +2469,24 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 (SELECT id FROM structure_fields WHERE `model`='OrderLine' AND `tablename`='order_lines' AND `field`='status'), 
 '0', '16', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
  
-INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
+INSERT IGNORE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('aliquot storage data were deleted (if required)', 'Aliquot storage data were deleted (if required)!', 'Les données d''entreposage ont été supprimées (au besoin)!');
 
-INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
+INSERT IGNORE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('an aliquot being not in stock can not be linked to a storage', 'An aliquot flagged ''Not in stock'' cannot also have storage location and label completed.', 'Un aliquot non en stock ne peut être attaché à un entreposage!');
 
-INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
+INSERT IGNORE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('reload form', 'Reload Form', 'Ré-afficher le formulaire');
 
 UPDATE structure_fields
 SET language_label = 'number of elements'
 WHERE field LIKE 'count_of_BatchId';
 
-INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
+INSERT IGNORE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('number of elements', 'number of elements', 'Nombre d''éléments');
 
 DELETE FROM `i18n` WHERE id IN ('account status','reports');
-INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
+INSERT IGNORE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('reports', 'Reports', 'Rapports'),
 ('account status', 'Account Status', 'Statu du compte');
 
@@ -2496,7 +2496,7 @@ UPDATE menus
 SET language_title = 'custom dropdown list management', language_description = 'custom dropdown list management'
 WHERE language_title = 'dropdowns' AND language_description = 'dropdowns';
 
-INSERT INTO i18n (id,en,fr)
+INSERT IGNORE INTO i18n (id,en,fr)
 VALUES ('custom dropdown list management', 'Dropdown List Configuration', 'Gestion des listes de valeurs');
 
 ALTER TABLE structure_permissible_values_customs
@@ -2531,7 +2531,7 @@ WHERE field LIKE 'value' AND model LIKE 'StructurePermissibleValuesCustom';
 INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 (null, (SELECT id FROM structure_fields WHERE field LIKE 'value' AND model LIKE 'StructurePermissibleValuesCustom'), 'notEmpty', '0', '0', '', 'value is required', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
 
-INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
+INSERT IGNORE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('value in database', 'Value in Database', 'Valeur en base de données'),    	     	  
 ('english translation', 'English Translation', 'Traduction anglaise'), 
 ('french translation', 'French Translation', 'Traduction française'),
@@ -2540,7 +2540,7 @@ INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
 ("the aliquot with barcode [%s] has reached a volume bellow 0", "The aliquot with barcode [%s] has reached a volume bellow 0.", "L'aliquot avec le code barre [%s] a atteint un volume inférieur à 0."),
 ("the batch set contains %d entries but only %d are returned by the query", "The batch set contains %d entries but only %d are returned by the query", "L'ensemble de données contient %d entrées mais seulement %d sont retournées par la requête");
 
-INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
+INSERT IGNORE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('a specified value already exists for that dropdown', 'A specified value already exists for that dropdown!', 'Une valeur existe déjà pour cette liste!');
 
 UPDATE structure_formats
@@ -2635,7 +2635,7 @@ WHERE structure_id = (SELECT id FROM structures WHERE alias='querytool_batch_set
 AND structure_field_id = (SELECT id FROM structure_fields WHERE field LIKE 'model' AND model LIKE 'BatchSet');
 
 delete from i18n where id = 'share set with group';
-insert into i18n (`id`, `en`, `fr`) VALUES ('share set with group', 'Share Set With Group', 'Ensembles de données accessible au groupe');
+INSERT IGNORE INTO i18n (`id`, `en`, `fr`) VALUES ('share set with group', 'Share Set With Group', 'Ensembles de données accessible au groupe');
 update i18n set en = 'Number of Elements' where id = 'number of elements';
 
 INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
@@ -3459,7 +3459,7 @@ ALTER TABLE datamart_browsing_results_revs ADD `version_created` datetime NOT NU
 ALTER TABLE spr_breast_cancer_types MODIFY `created` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00';
 ALTER TABLE structure_permissible_values_customs_revs ADD `version_created` datetime NOT NULL;
 
-INSERT INTO i18n (id, en, fr) VALUES
+INSERT IGNORE INTO i18n (id, en, fr) VALUES
 ("available", "Available", "Disponible"),
 ("base", "Base", "Base"),
 ("breast_cancer_type", "Breast cancer type", "Type de cancer du sein"),
@@ -3527,7 +3527,7 @@ INSERT INTO datamart_batch_processes (id,name,plugin,model,url) VALUES
 (null, 'add to order', 'Inventorymanagement', 'AliquotMaster', '/order/order_items/addAliquotsInBatch/'),
 (null, 'add to order', 'Inventorymanagement', 'ViewAliquot', '/order/order_items/addAliquotsInBatch/');
   
-INSERT INTO i18n (id, en, fr) VALUES
+INSERT IGNORE INTO i18n (id, en, fr) VALUES
 ('please check aliquots', 'Please check aliquots', 'veuillez vérifier l''aliquot'); 
   
   
